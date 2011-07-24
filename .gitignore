@@ -1,0 +1,10 @@
+# -*- mode: conf; -*-
+
+# Backup files:
+*~
+*.bak
+
+QSoas
+Makefile
+build/
+dox/

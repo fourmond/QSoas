@@ -20,10 +20,15 @@
 
 #include <headers.hh>
 
+#include <mainwin.hh>
+
 int main(int argc, char ** argv)
 {
   QApplication main(argc, argv);
   main.setApplicationName("QSoas");
+  
+  MainWin win;
+  win.show();
   return main.exec();
 }
 

@@ -27,7 +27,9 @@ QMAKE_CXXFLAGS += -Werror=return-type
 # LIBS += -lruby1.8
 
 # Input files
-SOURCES += src/qmain.cc
+SOURCES += src/qmain.cc \
+        src/mainwin.cc
 
-HEADERS += src/headers.hh
+HEADERS += src/headers.hh \
+        src/mainwin.hh
 

@@ -27,29 +27,9 @@ class CommandEffector;
 /// instances of children of this class, either instances of generic
 /// classes or derived classes written explicitly.
 ///
-/// @todo Type-safe arguments:
-///
-/// @li create an Argument class, with information (name, public name,
-/// description, and most importantly type).
-/// 
-/// @li Argument should have virtual functions to prompt
-/// (widgets/dialog boxes), possibly returning both a QString and a
-/// typed argument ?
-///
-/// @li Create a typed argument class that can marshall types
-///
-/// @li Provide a virtual function in Argument that converts a QString
-/// to the typed argument
-///
-/// @li Possibly the reverse (Argument to QString ?) for logging ?
-///
-/// @li Create an ArgumentList possibly taking a Command pointer to
-/// initialize the correct thing there (to avoid huge constuctor
-/// arguments).
-///
-/// @li Add an ArgumentList pointer here, initialized to NULL.
-///
-/// @li Provide alternative setup functions ?
+/// @todo Maybe there should be a way to enable/disable the actions,
+/// using proper virtual functions ? The question is: when should
+/// their status be requested again ?
 class Command {
 protected:
 
@@ -73,6 +53,9 @@ protected:
 
   /// Registers the given command to the static registry
   static void registerCommand(Command * cmd);
+
+  /// The underlying action.
+  mutable QAction * action;
 
 public:
 
@@ -100,7 +83,7 @@ public:
           bool autoRegister = true) : 
     cmdName(cn), shortCmdName(sc), pubName(pn), 
     shortDesc(sd), longDesc(ld), groupName(gn), 
-    effector(eff), 
+    action(NULL), effector(eff), 
     group(NULL) {
     if(autoRegister)
       registerCommand(this);
@@ -164,6 +147,14 @@ public:
                           const QStringList & arguments,
                           QWidget * base = NULL);
 
+  /// Returns  the action for this command, creating it on demand.
+  ///
+  /// @todo Maybe we'd like to create a static QAction * -> Command *
+  /// correspondance hash ? Probably not.
+  ///
+  /// @todo Maybe we'd even like an action list ? Or, rather, an
+  /// action incorporating a submenu ?
+  virtual QAction * actionForCommand() const;
 };
 
 #endif

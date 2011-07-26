@@ -1,6 +1,6 @@
 /**
-   \file command.hh
-   Command handling for QSoas.
+   \file group.hh
+   Group handling for QSoas.
    Copyright 2011 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
@@ -17,20 +17,17 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __COMMAND_HH
-#define __COMMAND_HH
+#ifndef __GROUP_HH
+#define __GROUP_HH
 
-class Group;
+class Command;
 
-/// An abstract class representing a command. All commands will be
-/// instances of children of this class, either instances of generic
-/// classes or derived classes written explicitly.
-class Command {
+/// A group. In principle, there shouldn't be need for derived
+/// classes, but, well.
+class Group {
 protected:
 
-  QString cmdName;
-
-  QString shortCmdName;
+  QString grpName;
 
   const char * pubName;
 
@@ -38,61 +35,41 @@ protected:
   
   const char * longDesc;
 
-  const char * groupName;
-
- 
-  /// A global hash holding a correspondance name->command
+  /// A global hash holding a correspondance name->group
   ///
   /// @todo This could be turned into (or coupled with) a trie to have
   /// automatic completion ?
-  static QHash<QString, Command*> * availableCommands;
+  static QHash<QString, Group*> * availableGroups;
 
-  /// Registers the given command to the static registry
-  static void registerCommand(Command * cmd);
+  /// Registers the given group to the static registry
+  static void registerGroup(Group * grp);
 
 public:
 
-  /// The group to which this command belongs.
-  Group * group;
-
-
-  /// Specifies the various elements linked to the Command.
+  /// Specifies the various elements linked to the Group.
   ///
-  /// \warning Command doesn't take ownership of the three last
+  /// \warning Group doesn't take ownership of the three last
   /// strings, which should therefore point to locations that will not
   /// move, ideally constant strings.
-  Command(const char * cn, const char * pn,
-          const char * sd = "", const char * ld = "", 
-          const char * sc = "", 
-          bool autoRegister = true) : 
-    cmdName(cn), shortCmdName(sc), pubName(pn), 
-    shortDesc(sd), longDesc(ld), group(NULL) {
+  Group(const char * cn, const char * pn,
+        const char * sd = "", const char * ld = "", 
+        bool autoRegister = true) : 
+    grpName(cn), pubName(pn), 
+    shortDesc(sd), longDesc(ld) {
     if(autoRegister)
-      registerCommand(this);
+      registerGroup(this);
   }; 
   
 
-  /// The command name, the one that will be used from the command
-  /// prompt.
+  /// The group name, for internal use only.
   ///
   /// This name will not be translated.
   ///
   /// \warning If you reimplement this function, you should set the
   /// the autoRegister parameter to false and do the registration
   /// yourself.
-  virtual QString commandName() const {
-    return cmdName;
-  };
-
-  /// A short command name to be used quickly from the prompt. Most
-  /// commands may leave this field empty. This name will not be
-  /// translated.
-  ///
-  /// \warning If you reimplement this function, you should set the
-  /// the autoRegister parameter to false and do the registration
-  /// yourself.
-  virtual QString shortCommandName() const {
-    return shortCmdName;
+  virtual QString groupName() const {
+    return grpName;
   };
 
 
@@ -114,12 +91,11 @@ public:
     return QObject::tr(longDesc);
   };
 
-  /// Categorize the commands within groups. This function \b must be
-  /// called at the beginning of main.
-  static void crosslinkCommands();
+  /// The commands that belong to this group.
+  QList<Command*> commands;
 
-  /// Returns the named command.
-  static Command * namedCommand(const QString & cmd);
+  /// Returns the named group.
+  static Group * namedGroup(const QString & grp);
 };
 
 #endif

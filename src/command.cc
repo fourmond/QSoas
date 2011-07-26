@@ -19,6 +19,7 @@
 
 #include <headers.hh>
 #include <command.hh>
+#include <group.hh>
 
 
 QHash<QString, Command*> * Command::availableCommands = NULL;
@@ -27,8 +28,30 @@ void Command::registerCommand(Command * cmd)
 {
   if(! availableCommands)
     availableCommands = new QHash<QString, Command*>;
-  // if(availableCommands->contains(cmd->commandName()))
-  //  throw std::logic_error("
-  // availableCommands
+
+  if(availableCommands->contains(cmd->commandName())) {
+    QString str = "Duplicate command name : " + cmd->commandName();
+    throw std::logic_error(str.toStdString());
+  }
+  (*availableCommands)[cmd->commandName()] = cmd;
+
+  if(cmd->shortCommandName().isEmpty())
+    return;
+  if(availableCommands->contains(cmd->shortCommandName())) {
+    QString str = "Duplicate short command name : " + cmd->shortCommandName();
+    throw std::logic_error(str.toStdString());
+  }
+  (*availableCommands)[cmd->shortCommandName()] = cmd;
 }
 
+void Command::crosslinkCommands()
+{
+  for(QHash<QString, Command *>::iterator i = availableCommands->begin();
+      i != availableCommands->end(); i++) {
+    if(! i.value()->group) {
+      Group * grp = Group::namedGroup(i.value()->groupName);
+      i.value()->group = grp;
+      grp->commands.append(i.value());
+    }
+  }
+}

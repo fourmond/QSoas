@@ -21,17 +21,18 @@ OBJECTS_DIR = build
 # best case
 QMAKE_CXXFLAGS += -Werror=return-type 
 
-# Handling of Ruby sources, but rather bad for now
-# Bad for now
+# Todo, later: add Ruby classes.
 # INCLUDEPATH += /usr/lib/ruby/1.8/x86_64-linux
 # LIBS += -lruby1.8
 
 # Input files
 SOURCES += src/qmain.cc \
         src/mainwin.cc \
-        src/command.cc
+        src/command.cc \
+        src/group.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
-        src/command.hh
+        src/command.hh \
+        src/group.hh
 

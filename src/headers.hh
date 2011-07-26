@@ -80,4 +80,7 @@
 #include <QMultiHash>
 #include <QList>
 
+// We do C++ sometimes
+#include <stdexcept>
+
 #endif

@@ -25,6 +25,7 @@ class ArgumentMarshaller {
 public:
 
   template<typename T> T value() const;
+  virtual ~ArgumentMarshaller() {;};
 };
 
 template <typename T> class ArgumentMarshallerChild : 

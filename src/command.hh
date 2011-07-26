@@ -64,6 +64,16 @@ protected:
   /// options.
   ArgumentList * options;
 
+  /// Parse the arguments, possibly prompting for them if the given
+  /// widget isn't NULL
+  CommandArguments parseArguments(const QStringList & arguments,
+                                  QWidget * base = NULL) const;
+
+  /// Parse the options. Doesn't prompt.
+  CommandOptions parseOptions(const QHash<QString, QString> & opts) const;
+  
+
+
 public:
 
   /// The effector, ie the code that will actually run the command.

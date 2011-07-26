@@ -23,6 +23,8 @@
 #include <argument.hh>
 #include <commandeffector.hh>
 
+#include <possessive-containers.hh>
+
 
 QHash<QString, Command*> * Command::availableCommands = NULL;
 
@@ -60,27 +62,56 @@ void Command::crosslinkCommands()
   }
 }
 
+CommandArguments Command::parseArguments(const QStringList & args,
+                                         QWidget * base) const
+{
+  CommandArguments ret;  
+  if(! arguments)
+    return ret;
+  int size = arguments->size();
+  for(int i = 0; i < size; i++) {
+    if(args.size() > i)
+      ret.append(arguments->value(i)->fromString(args[i]));
+    else {
+      /// @todo Prompt :
+      throw std::runtime_error("Not enough arguments !");
+    }
+  }
+  return ret;
+}
+
+CommandOptions Command::parseOptions(const QHash<QString, QString> & opts) const
+{
+  CommandOptions ret;  
+  if(! options)
+    return ret;
+  /// @todo Finish that a little later.
+  // for(QHash<QString, QString>::const_iterator i = opts.begin();
+  //     i != opts.end(); i++) {
+  //   if(! options.contains(i.key())) {
+  //     QString str = QObject::tr("Unknown option '%1' for command %2").
+  //       arg(i.key()).arg(commandName());
+  //     throw std::runtime_error(str.toStdString());
+  //   }
+  //   ret[i.key()] = options[i.key()].fromString(i.value());
+  // }
+  return ret;
+}
+
 void Command::runCommand(const QString & commandName, 
                          const QStringList & arguments,
                          QWidget * base)
 {
   // First, arguments conversion
-  CommandArguments args;
-  CommandOptions options;
-  // if(effector->arguments) {
-  // }
-  
-  effector->runCommand(commandName, args, options);
+  QPair<QStringList, QHash<QString, QString> > split = 
+    splitArgumentsAndOptions(arguments);
 
-  // Cleanup after conversion.
-  //
-  /// @todo This is not exception-safe. To do that, I should simply
-  /// provide a thin wrapper around a QList<ArgumentMarshaller *> that
-  /// takes object ownership, and can be converted to
-  /// QList<ArgumentMarshaller *>. A template class would even be
-  /// great !
-  for(int i = 0; i < args.size(); i++)
-    delete args[i];
+  PossessiveList<ArgumentMarshaller> args = 
+    parseArguments(split.first, base);
+  /// @todo option parsing.
+  CommandOptions options;
+
+  effector->runCommand(commandName, args, options);
 }
 
 Command * Command::namedCommand(const QString & cmd)

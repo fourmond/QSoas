@@ -43,5 +43,6 @@ HEADERS += src/headers.hh \
         src/utils.hh \
         src/argumentlist.hh \
         src/commandeffector.hh \
-        src/commandeffector-templates.hh 
+        src/commandeffector-templates.hh \
+        src/possessive-containers.hh
 

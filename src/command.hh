@@ -25,6 +25,30 @@ class Group;
 /// An abstract class representing a command. All commands will be
 /// instances of children of this class, either instances of generic
 /// classes or derived classes written explicitly.
+///
+/// @todo Type-safe arguments:
+///
+/// @li create an Argument class, with information (name, public name,
+/// description, and most importantly type).
+/// 
+/// @li Argument should have virtual functions to prompt
+/// (widgets/dialog boxes), possibly returning both a QString and a
+/// typed argument ?
+///
+/// @li Create a typed argument class that can marshall types
+///
+/// @li Provide a virtual function in Argument that converts a QString
+/// to the typed argument
+///
+/// @li Possibly the reverse (Argument to QString ?) for logging ?
+///
+/// @li Create an ArgumentList possibly taking a Command pointer to
+/// initialize the correct thing there (to avoid huge constuctor
+/// arguments).
+///
+/// @li Add an ArgumentList pointer here, initialized to NULL.
+///
+/// @li Provide alternative setup functions ?
 class Command {
 protected:
 
@@ -120,6 +144,10 @@ public:
 
   /// Returns the named command.
   static Command * namedCommand(const QString & cmd);
+
+  /// Runs the command with the given arguments.
+  virtual void runCommand(const QString & commandName, 
+                          const QStringList & arguments);
 };
 
 #endif

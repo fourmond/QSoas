@@ -27,3 +27,25 @@ ArgumentList::ArgumentList(const QList<Argument *> & lst)
   : QList<Argument *>(lst)
 {
 }
+
+void ArgumentList::regenerateCache() const
+{
+  cache.clear();
+  for(int i = 0; i < size(); i++)
+    cache[value(i)->argumentName()] = value(i);
+}
+
+bool ArgumentList::contains(const QString & name) const
+{
+  if(cache.size() != size())
+    regenerateCache();
+  return cache.contains(name);
+}
+
+Argument * ArgumentList::namedArgument(const QString & name) const
+{
+  if(cache.size() != size())
+    regenerateCache();
+  return cache.value(name, NULL);
+}
+

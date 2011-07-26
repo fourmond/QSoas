@@ -58,7 +58,7 @@ public:
   /// The argument name, for displaying purposes (not the same as
   /// public name)
   virtual QString argumentName() const {
-    return QObject::tr(name);
+    return name;
   };
 
 

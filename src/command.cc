@@ -85,16 +85,16 @@ CommandOptions Command::parseOptions(const QHash<QString, QString> & opts) const
   CommandOptions ret;  
   if(! options)
     return ret;
-  /// @todo Finish that a little later.
-  // for(QHash<QString, QString>::const_iterator i = opts.begin();
-  //     i != opts.end(); i++) {
-  //   if(! options.contains(i.key())) {
-  //     QString str = QObject::tr("Unknown option '%1' for command %2").
-  //       arg(i.key()).arg(commandName());
-  //     throw std::runtime_error(str.toStdString());
-  //   }
-  //   ret[i.key()] = options[i.key()].fromString(i.value());
-  // }
+  for(QHash<QString, QString>::const_iterator i = opts.begin();
+      i != opts.end(); i++) {
+    Argument * opt = options->namedArgument(i.key());
+    if(! opt) {
+      QString str = QObject::tr("Unknown option '%1' for command %2").
+        arg(i.key()).arg(commandName());
+      throw std::runtime_error(str.toStdString());
+    }
+    ret[i.key()] = opt->fromString(i.value());
+  }
   return ret;
 }
 
@@ -108,9 +108,9 @@ void Command::runCommand(const QString & commandName,
 
   PossessiveList<ArgumentMarshaller> args = 
     parseArguments(split.first, base);
-  /// @todo option parsing.
-  CommandOptions options;
-
+  PossessiveHash<QString, ArgumentMarshaller> options = 
+    parseOptions(split.second);
+  // Then the call !
   effector->runCommand(commandName, args, options);
 }
 

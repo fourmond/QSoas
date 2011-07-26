@@ -26,8 +26,20 @@ class Command;
 /// An argument list, ie a very thin wrapper around a QList of
 /// Arguments.
 class ArgumentList : public QList<Argument *> {
+  
+  mutable QHash<QString, Argument *> cache;
+
+  /// Regenerate the cache
+  void regenerateCache() const;
+  
 public:
   ArgumentList(const QList<Argument *> & lst);
+
+  /// Whether the list contains an argument of the given name.
+  bool contains(const QString & name) const;
+
+  /// Returns the named argument, or NULL if there isn't any
+  Argument * namedArgument(const QString & name) const;
 };
 
 #endif

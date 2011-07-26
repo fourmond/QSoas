@@ -36,4 +36,22 @@ public:
   };
 };
 
+template <class K, class V> class PossessiveHash {
+public:
+  typedef QHash<K, V*> Hash;
+  Hash values;
+
+  PossessiveHash(const QHash<K, V*> & v) : values(v) {;};
+
+  ~PossessiveHash() {
+    for(typename Hash::iterator i = values.begin();
+        i != values.end(); i++)
+      delete i.value();
+  };
+
+  operator QHash<K, V*>() const {
+    return values;
+  };
+};
+
 #endif

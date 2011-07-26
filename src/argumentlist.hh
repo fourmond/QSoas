@@ -27,8 +27,7 @@ class Command;
 /// Arguments.
 class ArgumentList : public QList<Argument *> {
 public:
-  ArgumentList(Command * target, 
-               const QList<Argument *> & lst);
+  ArgumentList(const QList<Argument *> & lst);
 };
 
 #endif

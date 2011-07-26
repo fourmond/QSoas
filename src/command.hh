@@ -20,8 +20,11 @@
 #ifndef __COMMAND_HH
 #define __COMMAND_HH
 
+#include <argumentmarshaller.hh>
+
 class Group;
 class CommandEffector;
+class ArgumentList;
 
 /// An abstract class representing a command. All commands will be
 /// instances of children of this class, either instances of generic
@@ -54,6 +57,13 @@ protected:
   /// Registers the given command to the static registry
   static void registerCommand(Command * cmd);
 
+  /// The arguments list. Can be NULL if no arguments are expected.
+  ArgumentList * arguments;
+
+  /// The options, also in the form of an ArgumentList. NULL if no
+  /// options.
+  ArgumentList * options;
+
 public:
 
   /// The effector, ie the code that will actually run the command.
@@ -73,6 +83,8 @@ public:
   Command(const char * cn, 
           CommandEffector * eff,
           const char * gn, 
+          ArgumentList * ar,
+          ArgumentList * op,
           const char * pn,
           const char * sd = "", 
           const char * ld = "", 
@@ -80,6 +92,7 @@ public:
           bool autoRegister = true) : 
     cmdName(cn), shortCmdName(sc), pubName(pn), 
     shortDesc(sd), longDesc(ld), groupName(gn), 
+    arguments(ar), options(op), 
     effector(eff), 
     group(NULL) {
     if(autoRegister)
@@ -151,6 +164,24 @@ public:
 
   /// Returns an action for this Command parented by the given parent.
   virtual QAction * actionForCommand(QObject * parent) const;
+
+  /// This function takes a list of word-splitted command-line
+  /// arguments, and splits them into arguments and options,
+  /// regardless of the command used.
+  ///
+  /// The syntax is the following:
+  /// 
+  /// \li options are in the format /option = thing, where the spaces
+  /// and the = sign are optional, and option matches [a-zA-Z-]+
+  /// 
+  /// \li a /! at the beginning of anything but the argument to an
+  /// option is stripped, and the resulting string is added to the
+  /// arguments, for the cases when one would wish to have an argument
+  /// in the form of /something
+  ///
+  /// \li everything else is as argument.
+  static QPair<QStringList, QHash<QString, QString> > 
+  splitArgumentsAndOptions(const QStringList & rawArgs);
 };
 
 #endif

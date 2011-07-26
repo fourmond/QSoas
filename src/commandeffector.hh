@@ -21,26 +21,19 @@
 #define __COMMANDEFFECTOR_HH
 
 #include <argumentlist.hh>
-class ArgumentMarshaller;
+#include <argumentmarshaller.hh>
 
 /// This abstract base class serves as the base for all the code for
 /// the commands.
 class CommandEffector {
-protected:
-  friend class ArgumentList;
-
-  /// The list of arguments. ArgumentList must be friend to access
-  /// that.
-  ArgumentList * arguments;
-
 public:
-
   /// Runs the command with the given \b typed arguments.
   ///
   /// This function must be reimplemented by children, and is run
   /// internally.
   virtual void runCommand(const QString & commandName, 
-                          const QList<ArgumentMarshaller *> & arguments) = 0;
+                          const CommandArguments & arguments,
+                          const CommandOptions & options) = 0;
 
   
 
@@ -58,7 +51,7 @@ public:
   /// CommandEffector children wrappers.
   /// 
   /// @{
-  static CommandEffector * functionEffector(void (*f)(const QString &)); 
+  static CommandEffector * functionEffectorOptionLess(void (*f)(const QString &)); 
 
   /// @}
 };

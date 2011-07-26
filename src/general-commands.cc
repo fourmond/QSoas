@@ -35,8 +35,10 @@ static void quitCommand(const QString & name)
 
 static Command 
 quit("quit", // command name
-     CommandEffector::functionEffector(quitCommand), // action
+     CommandEffector::functionEffectorOptionLess(quitCommand), // action
      "file",  // group name
+     NULL, // arguments
+     NULL, // options
      QT_TRANSLATE_NOOP("Commands", "Quit"),
      QT_TRANSLATE_NOOP("Commands", "Quit QSoas"),
      QT_TRANSLATE_NOOP("Commands", 

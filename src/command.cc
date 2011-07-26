@@ -21,7 +21,6 @@
 #include <command.hh>
 #include <group.hh>
 #include <argument.hh>
-#include <argumentmarshaller.hh>
 #include <commandeffector.hh>
 
 
@@ -66,11 +65,12 @@ void Command::runCommand(const QString & commandName,
                          QWidget * base)
 {
   // First, arguments conversion
-  QList<ArgumentMarshaller *> args;
+  CommandArguments args;
+  CommandOptions options;
   // if(effector->arguments) {
   // }
   
-  effector->runCommand(commandName, args);
+  effector->runCommand(commandName, args, options);
 
   // Cleanup after conversion.
   //
@@ -112,4 +112,52 @@ QAction * Command::actionForCommand(QObject * parent) const
   action->setToolTip(shortDescription()); // probably useless.
   action->setData(QStringList() << commandName());
   return action;
+}
+
+
+QPair<QStringList, QHash<QString, QString> > 
+Command::splitArgumentsAndOptions(const QStringList & rawArgs)
+{
+  QPair<QStringList, QHash<QString, QString> > ret;
+  QStringList & args = ret.first;
+  QHash<QString, QString> & opts = ret.second;
+  int size = rawArgs.size();
+  
+  QRegExp optionRE("^\\s*/([a-zA-Z-]+)\\s*(?:=?\\s*|=\\s*(.*))$");
+  QRegExp equalRE("^\\s*=\\s*(.*)$");
+
+  for(int i = 0; i < size; i++) {
+    if(rawArgs[i].startsWith("/!")) {
+      args.append(rawArgs[i].mid(2));
+      continue;
+    }
+
+    if(optionRE.indexIn(rawArgs[i]) == 0) {
+      // we found an option
+      QString optionName = optionRE.cap(1);
+      if(! optionRE.cap(2).isEmpty()) {
+        // The most simple case: an option in a single word
+        opts[optionName] = optionRE.cap(2);
+      }
+      else {                    // Looking at next words
+        i++;
+        QString next = rawArgs.value(i, "");
+        if(equalRE.indexIn(next) == 0) {
+          if(! equalRE.cap(1).isEmpty())
+            opts[optionName] = equalRE.cap(1);
+          else {
+            i++;
+            next = rawArgs.value(i, "");
+            opts[optionName] = next;
+          }
+        }
+        else
+          opts[optionName] = next;
+      }
+    }
+    else
+      args.append(rawArgs[i]);
+  }
+
+  return ret;
 }

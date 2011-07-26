@@ -23,10 +23,7 @@
 #include <argumentlist.hh>
 
 
-ArgumentList::ArgumentList(Command * target, 
-                           const QList<Argument *> & lst)
+ArgumentList::ArgumentList(const QList<Argument *> & lst)
   : QList<Argument *>(lst)
 {
-  if(target)
-    target->effector->arguments = this;
 }

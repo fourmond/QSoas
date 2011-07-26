@@ -41,25 +41,26 @@ CommandEffector::runFunction(void (C::*f)(const QString &, A1),
 ///
 /// Rather than using this class directly, use
 /// CommandEffector::functionEffector().
-class CommandEffectorCallback0 : public CommandEffector {
+class CommandEffectorCallback0OptionLess : public CommandEffector {
 
   typedef void (*Callback)(const QString &);
   Callback callback;
 
 public:
 
-  CommandEffectorCallback0(Callback c) : callback(c) {;};
+  CommandEffectorCallback0OptionLess(Callback c) : callback(c) {;};
 
   inline virtual void runCommand(const QString & commandName, 
-                                 const QList<ArgumentMarshaller *> & ) {
+                                 const CommandArguments &,
+                                 const CommandOptions &) {
     callback(commandName);
   };
 
 };
 
 inline CommandEffector * 
-CommandEffector::functionEffector(void (*f)(const QString &)) {
-  return new CommandEffectorCallback0(f);
+CommandEffector::functionEffectorOptionLess(void (*f)(const QString &)) {
+  return new CommandEffectorCallback0OptionLess(f);
 };
 
 #endif

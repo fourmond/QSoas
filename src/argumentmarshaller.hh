@@ -44,4 +44,8 @@ template<typename T> T ArgumentMarshaller::value() const {
   return child->value();
 };
 
+// A few useful typedefs:
+typedef QList<ArgumentMarshaller *> CommandArguments;
+typedef QHash<QString, ArgumentMarshaller *> CommandOptions;
+
 #endif

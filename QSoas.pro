@@ -34,5 +34,8 @@ SOURCES += src/qmain.cc \
 HEADERS += src/headers.hh \
         src/mainwin.hh \
         src/command.hh \
-        src/group.hh
+        src/group.hh \
+        src/argument.hh \
+        src/argumentmarshaller.hh \
+        src/utils.hh
 

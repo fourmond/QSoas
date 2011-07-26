@@ -20,6 +20,8 @@
 #include <headers.hh>
 #include <command.hh>
 #include <group.hh>
+#include <argument.hh>
+#include <argumentmarshaller.hh>
 
 
 QHash<QString, Command*> * Command::availableCommands = NULL;

@@ -21,6 +21,8 @@
 #define __COMMAND_HH
 
 class Group;
+#include <argumentmarshaller.hh>
+#include <utils.hh>
 
 /// An abstract class representing a command. All commands will be
 /// instances of children of this class, either instances of generic
@@ -146,8 +148,38 @@ public:
   static Command * namedCommand(const QString & cmd);
 
   /// Runs the command with the given arguments.
+  ///
+  /// This function possibly can prompt for missing arguments, if base
+  /// isn't NULL.
   virtual void runCommand(const QString & commandName, 
-                          const QStringList & arguments);
+                          const QStringList & arguments,
+                          QWidget * base = NULL);
+
+protected:
+  /// Runs the command with the given \b typed arguments.
+  ///
+  /// This function must be reimplemented by children, and is run
+  /// internally.
+  virtual void runCommand(const QString & commandName, 
+                          const QList<ArgumentMarshaller *> & arguments) = 0;
+
+
+  /// A series of type-safe function calls to member functions
+  /// automatically converting arguments and checking the number of
+  /// arguments.
+  template<class C, typename A1> void 
+  runFunction(void (C::*f)(const QString &, A1), 
+              const QString & name, 
+              const QList<ArgumentMarshaller *> & arguments) {
+    if(arguments.size() != 1) {
+      QString str;
+      str = QObject::tr("Expected 1 argument, but got %1").
+        arg(arguments.size());
+    }
+    A1 a1 = arguments[0]->value<A1>();
+    CALL_MEMBER_FN(*dynamic_cast<C>(this), f)(a1);
+  };
+
 };
 
 #endif

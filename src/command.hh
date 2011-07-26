@@ -21,8 +21,7 @@
 #define __COMMAND_HH
 
 class Group;
-#include <argumentmarshaller.hh>
-#include <utils.hh>
+class CommandEffector;
 
 /// An abstract class representing a command. All commands will be
 /// instances of children of this class, either instances of generic
@@ -66,7 +65,6 @@ protected:
 
   const char * groupName;
 
- 
   /// A global hash holding a correspondance name->command
   ///
   /// @todo This could be turned into (or coupled with) a trie to have
@@ -78,6 +76,9 @@ protected:
 
 public:
 
+  /// The effector, ie the code that will actually run the command.
+  CommandEffector * effector;
+
   /// The group to which this command belongs.
   Group * group;
 
@@ -87,12 +88,20 @@ public:
   /// \warning Command doesn't take ownership of the three last
   /// strings, which should therefore point to locations that will not
   /// move, ideally constant strings.
-  Command(const char * cn, const char * pn,
-          const char * sd = "", const char * ld = "", 
+  ///
+  /// @todo this is cumbersome to mix description and code.
+  Command(const char * cn, 
+          CommandEffector * eff,
+          const char * gn, 
+          const char * pn,
+          const char * sd = "", 
+          const char * ld = "", 
           const char * sc = "", 
           bool autoRegister = true) : 
     cmdName(cn), shortCmdName(sc), pubName(pn), 
-    shortDesc(sd), longDesc(ld), group(NULL) {
+    shortDesc(sd), longDesc(ld), groupName(gn), 
+    effector(eff), 
+    group(NULL) {
     if(autoRegister)
       registerCommand(this);
   }; 
@@ -154,31 +163,6 @@ public:
   virtual void runCommand(const QString & commandName, 
                           const QStringList & arguments,
                           QWidget * base = NULL);
-
-protected:
-  /// Runs the command with the given \b typed arguments.
-  ///
-  /// This function must be reimplemented by children, and is run
-  /// internally.
-  virtual void runCommand(const QString & commandName, 
-                          const QList<ArgumentMarshaller *> & arguments) = 0;
-
-
-  /// A series of type-safe function calls to member functions
-  /// automatically converting arguments and checking the number of
-  /// arguments.
-  template<class C, typename A1> void 
-  runFunction(void (C::*f)(const QString &, A1), 
-              const QString & name, 
-              const QList<ArgumentMarshaller *> & arguments) {
-    if(arguments.size() != 1) {
-      QString str;
-      str = QObject::tr("Expected 1 argument, but got %1").
-        arg(arguments.size());
-    }
-    A1 a1 = arguments[0]->value<A1>();
-    CALL_MEMBER_FN(*dynamic_cast<C>(this), f)(a1);
-  };
 
 };
 

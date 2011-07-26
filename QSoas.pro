@@ -29,7 +29,10 @@ QMAKE_CXXFLAGS += -Werror=return-type
 SOURCES += src/qmain.cc \
         src/mainwin.cc \
         src/command.cc \
-        src/group.cc
+        src/group.cc \
+        src/argumentlist.cc \
+        src/general-commands.cc \
+        src/commandeffector.cc 
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -37,5 +40,8 @@ HEADERS += src/headers.hh \
         src/group.hh \
         src/argument.hh \
         src/argumentmarshaller.hh \
-        src/utils.hh
+        src/utils.hh \
+        src/argumentlist.hh \
+        src/commandeffector.hh \
+        src/commandeffector-templates.hh 
 

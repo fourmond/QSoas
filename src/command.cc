@@ -48,6 +48,8 @@ void Command::registerCommand(Command * cmd)
 
 void Command::crosslinkCommands()
 {
+  if(! availableCommands)
+    return;
   for(QHash<QString, Command *>::iterator i = availableCommands->begin();
       i != availableCommands->end(); i++) {
     if(! i.value()->group) {
@@ -56,4 +58,10 @@ void Command::crosslinkCommands()
       grp->commands.append(i.value());
     }
   }
+}
+
+void Command::runCommand(const QString & commandName, 
+                         const QStringList & arguments,
+                         QWidget * base)
+{
 }

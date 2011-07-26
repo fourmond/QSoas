@@ -54,9 +54,6 @@ protected:
   /// Registers the given command to the static registry
   static void registerCommand(Command * cmd);
 
-  /// The underlying action.
-  mutable QAction * action;
-
 public:
 
   /// The effector, ie the code that will actually run the command.
@@ -83,7 +80,7 @@ public:
           bool autoRegister = true) : 
     cmdName(cn), shortCmdName(sc), pubName(pn), 
     shortDesc(sd), longDesc(ld), groupName(gn), 
-    action(NULL), effector(eff), 
+    effector(eff), 
     group(NULL) {
     if(autoRegister)
       registerCommand(this);
@@ -147,14 +144,13 @@ public:
                           const QStringList & arguments,
                           QWidget * base = NULL);
 
-  /// Returns  the action for this command, creating it on demand.
-  ///
-  /// @todo Maybe we'd like to create a static QAction * -> Command *
-  /// correspondance hash ? Probably not.
-  ///
-  /// @todo Maybe we'd even like an action list ? Or, rather, an
-  /// action incorporating a submenu ?
-  virtual QAction * actionForCommand() const;
+  /// Runs a command from the command prompt, already split into
+  /// words. The first word is therefore the command name.
+  static void runCommand(const QStringList & args, 
+                         QWidget * base = NULL);
+
+  /// Returns an action for this Command parented by the given parent.
+  virtual QAction * actionForCommand(QObject * parent) const;
 };
 
 #endif

@@ -19,6 +19,7 @@
 
 #include <headers.hh>
 #include <group.hh>
+#include <command.hh>
 
 
 QHash<QString, Group*> * Group::availableGroups = NULL;
@@ -42,3 +43,40 @@ Group * Group::namedGroup(const QString & grp)
   return availableGroups->value(grp, NULL);
 }
 
+static bool compareCommands(const Command * a, const Command * b)
+{
+  return a->commandName() < b->commandName();
+}
+
+QAction * Group::actionForGroup(QObject * parent) const
+{
+  QList<Command *> cmds = commands;
+  qSort(cmds.begin(), cmds.end(), compareCommands);
+  QAction * action = new QAction(parent);
+  action->setText(publicName());
+  action->setStatusTip(shortDescription());
+  action->setToolTip(shortDescription()); // probably useless.
+  QMenu * menu = new QMenu();
+  for(int i = 0; i < cmds.size(); i++)
+    menu->addAction(cmds[i]->actionForCommand(parent));
+
+  action->setMenu(menu);
+  return action;
+}
+
+static bool compareGroups(const Group * a, const Group * b)
+{
+  if(a->priority != b->priority)
+    return a->priority < b->priority;
+  return a->groupName() < b->groupName();
+}
+
+void Group::fillMenuBar(QMenuBar * menu)
+{
+  if(! availableGroups)
+    return;
+  QList<Group *> groups = availableGroups->values();
+  qSort(groups.begin(), groups.end(), compareGroups);
+  for(int i = 0; i < groups.size(); i++)
+    menu->addAction(groups[i]->actionForGroup(menu->parent()));
+}

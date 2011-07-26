@@ -46,16 +46,19 @@ protected:
 
 public:
 
+  /// Group are sorted by priority in the status bar.
+  int priority;
+
   /// Specifies the various elements linked to the Group.
   ///
   /// \warning Group doesn't take ownership of the three last
   /// strings, which should therefore point to locations that will not
   /// move, ideally constant strings.
-  Group(const char * cn, const char * pn,
+  Group(const char * cn, int p, const char * pn,
         const char * sd = "", const char * ld = "", 
         bool autoRegister = true) : 
     grpName(cn), pubName(pn), 
-    shortDesc(sd), longDesc(ld) {
+    shortDesc(sd), longDesc(ld), priority(p) {
     if(autoRegister)
       registerGroup(this);
   }; 
@@ -96,6 +99,12 @@ public:
 
   /// Returns the named group.
   static Group * namedGroup(const QString & grp);
+
+  /// Makes up an action for the group, ie, popping up a submenu
+  QAction * actionForGroup(QObject * parent) const;
+
+  /// Fills a menu with all the groups informations.
+  static void fillMenuBar(QMenuBar * menu);
 };
 
 #endif

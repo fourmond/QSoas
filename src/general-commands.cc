@@ -22,9 +22,9 @@
 #include <group.hh>
 #include <commandeffector-templates.hh>
 
-static Group file("file", 
-                  QT_TRANSLATE_NOOP("File", "groups"),
-                  QT_TRANSLATE_NOOP("General purpose commands", "groups"));
+static Group file("file", 0,
+                  QT_TRANSLATE_NOOP("Groups", "File"),
+                  QT_TRANSLATE_NOOP("Groups", "General purpose commands"));
 
 
 static void quitCommand(const QString & name)
@@ -37,10 +37,10 @@ static Command
 quit("quit", // command name
      CommandEffector::functionEffector(quitCommand), // action
      "file",  // group name
-     QT_TRANSLATE_NOOP("Quit", "commands"),
-     QT_TRANSLATE_NOOP("Quit QSoas", "commands"),
-     QT_TRANSLATE_NOOP("Exits QSoas, losing all the current session", 
-                       "commands"),
+     QT_TRANSLATE_NOOP("Commands", "Quit"),
+     QT_TRANSLATE_NOOP("Commands", "Quit QSoas"),
+     QT_TRANSLATE_NOOP("Commands", 
+                       "Exits QSoas, losing all the current session"),
      "q");
 
 

@@ -31,7 +31,9 @@ public:
   MainWin();
   ~MainWin();
 
-public slots:
+protected slots:
+  void menuActionTriggered(QAction * action);
+
 };
 
 #endif

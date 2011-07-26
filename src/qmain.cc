@@ -21,11 +21,13 @@
 #include <headers.hh>
 
 #include <mainwin.hh>
+#include <command.hh>
 
 int main(int argc, char ** argv)
 {
   QApplication main(argc, argv);
   main.setApplicationName("QSoas");
+  Command::crosslinkCommands();
   
   MainWin win;
   win.show();

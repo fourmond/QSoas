@@ -2,7 +2,7 @@
 # QMake configuration file for QCam
 
 TEMPLATE = app
-CONFIG += precompile_header debug warn_on thread
+CONFIG += precompile_header debug warn_on thread exception
 INCLUDEPATH += . src
 
 DEPENDPATH += src
@@ -28,8 +28,10 @@ QMAKE_CXXFLAGS += -Werror=return-type
 
 # Input files
 SOURCES += src/qmain.cc \
-        src/mainwin.cc
+        src/mainwin.cc \
+        src/command.cc
 
 HEADERS += src/headers.hh \
-        src/mainwin.hh
+        src/mainwin.hh \
+        src/command.hh
 

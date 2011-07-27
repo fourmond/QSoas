@@ -30,6 +30,8 @@
 #include <group.hh>
 #include <command.hh>
 
+#include <commandwidget.hh>
+
 MainWin::MainWin()
 {
   setupFrame();
@@ -41,6 +43,8 @@ void MainWin::setupFrame()
   Group::fillMenuBar(menuBar());
   connect(menuBar(), SIGNAL(triggered(QAction *)),
           SLOT(menuActionTriggered(QAction *)));
+  commandWidget = new CommandWidget;
+  setCentralWidget(commandWidget);
 }
 
 void MainWin::menuActionTriggered(QAction * action)

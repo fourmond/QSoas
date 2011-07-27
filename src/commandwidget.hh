@@ -1,5 +1,5 @@
 /**
-   \file mainwin.hh
+   \file commandwidget.hh
    Main window for QSoas
    Copyright 2011 by Vincent Fourmond
 
@@ -17,26 +17,32 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __MAINWIN_HH
-#define __MAINWIN_HH
+#ifndef __COMMANDWIDGET_HH
+#define __COMMANDWIDGET_HH
 
-class CommandWidget;
-
-/// The main window
-class MainWin : public QMainWindow {
+/// A widget that accepts commands, and display their result, a
+/// successor for the terminal in the old Soas.
+class CommandWidget : public QWidget {
 
   Q_OBJECT;
 
-  void setupFrame();
+  /// The line edition, to be later blessed with expansion
+  /// capabilities.
+  QLineEdit * commandLine;
 
-  CommandWidget * commandWidget;
+  /// The log display
+  ///
+  /// @todo I need to design decent log facilities...
+  QTextEdit * logDisplay;
+
+  // /// The unique CommandWidget !
+  // ///
+  // /// There can be several, but only one will be the target
+  // static CommandWidget * theCommandWidget;
 
 public:
-  MainWin();
-  ~MainWin();
-
-protected slots:
-  void menuActionTriggered(QAction * action);
+  CommandWidget();
+  virtual ~CommandWidget();
 
 };
 

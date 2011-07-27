@@ -21,7 +21,9 @@
 
    \section project-overview How the new Soas is/will be organized
 
-   
+   \section various-todo Various things to do
+   \li automatic completion and history from the QLineEdit (or a child
+   thereof)
 
 */
 

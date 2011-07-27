@@ -37,7 +37,7 @@ CommandEffector::runFunction(void (C::*f)(const QString &, A1),
   CALL_MEMBER_FN(*dynamic_cast<C>(this), f)(a1);
 };
 
-/// Argumentless callback to static function
+/// Argumentless and optionless callback to static function
 ///
 /// Rather than using this class directly, use
 /// CommandEffector::functionEffector().
@@ -61,6 +61,39 @@ public:
 inline CommandEffector * 
 CommandEffector::functionEffectorOptionLess(void (*f)(const QString &)) {
   return new CommandEffectorCallback0OptionLess(f);
+};
+
+/// Pptionless callback to a static function with one argument
+///
+/// Rather than using this class directly, use
+/// CommandEffector::functionEffector().
+template <class A1>
+class CommandEffectorCallback1OptionLess : public CommandEffector {
+
+  typedef void (*Callback)(const QString &, A1);
+  Callback callback;
+
+public:
+
+  CommandEffectorCallback1OptionLess(Callback c) : callback(c) {;};
+
+  inline virtual void runCommand(const QString & commandName, 
+                                 const CommandArguments & args,
+                                 const CommandOptions &) {
+    if(args.size() != 1) {
+      QString str = QString("1 argument expected, but got %2").
+        arg(args.size());
+      throw std::logic_error(str.toStdString());
+    }
+    A1 a1 = args[0]->value<A1>();
+    callback(commandName, a1);
+  };
+
+};
+
+template<class A1> CommandEffector * 
+CommandEffector::functionEffectorOptionLess(void (*f)(const QString &, A1)) {
+  return new CommandEffectorCallback1OptionLess<A1>(f);
 };
 
 #endif

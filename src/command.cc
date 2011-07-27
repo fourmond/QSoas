@@ -70,6 +70,12 @@ CommandArguments Command::parseArguments(const QStringList & args,
     return ret;
   int size = arguments->size();
   for(int i = 0; i < size; i++) {
+    /// @todo I should make provisions one day for slurping arguments,
+    /// ie arguments that take more than one word (and that simply add
+    /// the results to their first argument). Of course, there may
+    /// only be one slurping argument, but its position should not
+    /// have to be the last one. This will come in useful for loading
+    /// files...
     if(args.size() > i)
       ret.append(arguments->value(i)->fromString(args[i]));
     else {

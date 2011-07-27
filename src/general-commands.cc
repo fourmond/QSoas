@@ -21,6 +21,8 @@
 #include <command.hh>
 #include <group.hh>
 #include <commandeffector-templates.hh>
+#include <general-arguments.hh>
+#include <terminal.hh>
 
 static Group file("file", 0,
                   QT_TRANSLATE_NOOP("Groups", "File"),
@@ -29,8 +31,8 @@ static Group file("file", 0,
 
 static void quitCommand(const QString & name)
 {
-    /// @todo prompt if the short name was used.
-    qApp->quit();
+  /// @todo prompt if the short name was used.
+  qApp->quit();
 }
 
 static Command 
@@ -44,6 +46,30 @@ quit("quit", // command name
      QT_TRANSLATE_NOOP("Commands", 
                        "Exits QSoas, losing all the current session"),
      "q");
+
+static ArgumentList 
+loadArgs(QList<Argument *>() 
+         << new FileArgument("file", 
+                             QT_TRANSLATE_NOOP("Arguments", "File")));
+                             
+
+static void loadCommand(const QString & name, QString file)
+{
+  Terminal::out << "Should load file '" << file << "'" << endl;
+}
+
+
+static Command 
+load("load", // command name
+     CommandEffector::functionEffectorOptionLess(loadCommand), // action
+     "file",  // group name
+     &loadArgs, // arguments
+     NULL, // options
+     QT_TRANSLATE_NOOP("Commands", "Quit"),
+     QT_TRANSLATE_NOOP("Commands", "Quit QSoas"),
+     QT_TRANSLATE_NOOP("Commands", 
+                       "Exits QSoas, losing all the current session"),
+     "l");
 
 
 

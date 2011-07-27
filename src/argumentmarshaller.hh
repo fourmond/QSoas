@@ -37,12 +37,12 @@ public:
 };
 
 template<typename T> T ArgumentMarshaller::value() const {
-  ArgumentMarshallerChild<T> * child = 
-    dynamic_cast< ArgumentMarshallerChild<T> >(this);
+  const ArgumentMarshallerChild<T> * child = 
+    dynamic_cast< const ArgumentMarshallerChild<T> *>(this);
   if(! child) {
     throw std::logic_error("Bad argument type conversion attempted");
   }
-  return child->value();
+  return child->value;
 };
 
 // A few useful typedefs:

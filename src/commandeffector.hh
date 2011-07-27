@@ -49,9 +49,14 @@ public:
   /// 
   /// A series of overloaded functions returning appropriate
   /// CommandEffector children wrappers.
+  ///
+  /// \warning C++ templating mechanism is such that you have to pass
+  /// arguments BY VALUE and not by reference to the callbacks
+  /// provided to these functions.
   /// 
   /// @{
   static CommandEffector * functionEffectorOptionLess(void (*f)(const QString &)); 
+  template<class A1> static CommandEffector * functionEffectorOptionLess(void (*f)(const QString &, A1));
 
   /// @}
 };

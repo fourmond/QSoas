@@ -128,7 +128,9 @@ void Command::runCommand(const QStringList & cmd,
   QString name = b.takeFirst();
   Command * command = namedCommand(name);
   if(! command) {
-    /// @todo throw exception !
+    QString str = QObject::tr("Unknown command: '%1'").
+      arg(name);
+    throw std::runtime_error(str.toStdString());
   }
   command->runCommand(name, b, base);
 }
@@ -191,4 +193,10 @@ Command::splitArgumentsAndOptions(const QStringList & rawArgs)
   }
 
   return ret;
+}
+
+QStringList Command::wordSplit(const QString & str)
+{
+  /// @todo quoting when necessary
+  return str.split(QRegExp("\\s+"));
 }

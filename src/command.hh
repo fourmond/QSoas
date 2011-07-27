@@ -192,6 +192,9 @@ public:
   /// \li everything else is as argument.
   static QPair<QStringList, QHash<QString, QString> > 
   splitArgumentsAndOptions(const QStringList & rawArgs);
+
+  /// Splits the given command-line into words.
+  static QStringList wordSplit(const QString & args);
 };
 
 #endif

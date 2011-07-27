@@ -24,15 +24,45 @@ CommandWidget::CommandWidget()
 {
   QVBoxLayout * layout = new QVBoxLayout(this);
   logDisplay = new QTextEdit();
+  logDisplay->setReadOnly(true);
   layout->addWidget(logDisplay);
 
   QHBoxLayout * h1 = new QHBoxLayout();
   h1->addWidget(new QLabel("Soas> "));
   commandLine = new QLineEdit;
+
+  connect(commandLine, SIGNAL(returnPressed()), 
+          SLOT(commandEntered()));
   h1->addWidget(commandLine);
   layout->addLayout(h1);
+
+  this->setFocusProxy(commandLine);
+  logDisplay->setFocusProxy(commandLine);
+  // logDisplay
 }
 
 CommandWidget::~CommandWidget()
 {
+}
+
+void CommandWidget::runCommand(const QString & str)
+{
+  QStringList split = Command::wordSplit(str);
+  try {
+    Command::runCommand(split, this);
+  }
+  catch(const std::runtime_error & error) {
+    QTextStream o(stderr);
+    o << "Error: " << error.what() << endl;
+  }
+  catch(const std::logic_error & error) {
+    QTextStream o(stderr);
+    o << "Internal error: " << error.what() << endl;
+  }
+}
+
+void CommandWidget::commandEntered()
+{
+  runCommand(commandLine->text());
+  commandLine->clear();
 }

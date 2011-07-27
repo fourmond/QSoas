@@ -41,8 +41,16 @@ class CommandWidget : public QWidget {
   // static CommandWidget * theCommandWidget;
 
 public:
+
   CommandWidget();
   virtual ~CommandWidget();
+
+public slots:
+
+  void runCommand(const QString & str);
+
+protected slots:
+  void commandEntered();
 
 };
 

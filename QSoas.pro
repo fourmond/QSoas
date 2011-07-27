@@ -33,7 +33,8 @@ SOURCES += src/qmain.cc \
         src/argumentlist.cc \
         src/general-commands.cc \
         src/commandeffector.cc \
-        src/commandwidget.cc
+        src/commandwidget.cc \
+        src/terminal.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -46,5 +47,6 @@ HEADERS += src/headers.hh \
         src/commandeffector.hh \
         src/commandeffector-templates.hh \
         src/possessive-containers.hh \
-        src/commandwidget.hh
+        src/commandwidget.hh \
+        src/terminal.hh
 

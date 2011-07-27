@@ -19,16 +19,22 @@
 #include <headers.hh>
 #include <commandwidget.hh>
 #include <command.hh>
+#include <terminal.hh>
+
+using namespace Terminal;
+
+CommandWidget * CommandWidget::theCommandWidget = NULL;
 
 CommandWidget::CommandWidget() 
 {
+  if(! theCommandWidget)
+    theCommandWidget = this;    // Or always ?
   QVBoxLayout * layout = new QVBoxLayout(this);
-  logDisplay = new QTextEdit();
-  logDisplay->setReadOnly(true);
+  terminalDisplay = new QTextEdit();
+  terminalDisplay->setReadOnly(true);
   // We use a monospace font !
-  logDisplay->setFont(QFont("monospace")); /// @todo customize settings
-  logDisplay->setText("biniou");
-  layout->addWidget(logDisplay);
+  terminalDisplay->setFont(QFont("monospace")); /// @todo customize settings
+  layout->addWidget(terminalDisplay);
 
   QHBoxLayout * h1 = new QHBoxLayout();
   h1->addWidget(new QLabel("Soas> "));
@@ -40,8 +46,7 @@ CommandWidget::CommandWidget()
   layout->addLayout(h1);
 
   this->setFocusProxy(commandLine);
-  logDisplay->setFocusProxy(commandLine);
-  // logDisplay
+  terminalDisplay->setFocusProxy(commandLine);
 }
 
 CommandWidget::~CommandWidget()
@@ -54,18 +59,18 @@ void CommandWidget::runCommand(const QStringList & raw)
     Command::runCommand(raw, this);
   }
   catch(const std::runtime_error & error) {
-    QTextStream o(stderr);
-    o << "Error: " << error.what() << endl;
+    out << bold("Error: ") << error.what() << endl;
   }
   catch(const std::logic_error & error) {
-    QTextStream o(stderr);
-    o << "Internal error: " << error.what() << endl;
+    out << bold("Internal error: ") 
+        << error.what() << endl;
   }
 }
 
 void CommandWidget::runCommand(const QString & str)
 {
   QStringList split = Command::wordSplit(str);
+  out << bold("Soas> ") << str << endl;
   runCommand(split);
 }
 
@@ -73,4 +78,19 @@ void CommandWidget::commandEntered()
 {
   runCommand(commandLine->text());
   commandLine->clear();
+}
+
+void CommandWidget::appendToTerminal(const QString & str)
+{
+  terminalDisplay->insertHtml(str);
+}
+
+void CommandWidget::logString(const QString & str)
+{
+  if(theCommandWidget)
+    theCommandWidget->appendToTerminal(str);
+  else {
+    QTextStream o(stdout);
+    o << str;
+  }
 }

@@ -30,25 +30,30 @@ class CommandWidget : public QWidget {
   /// capabilities.
   QLineEdit * commandLine;
 
-  /// The log display
-  ///
-  /// @todo I need to design decent log facilities...
-  QTextEdit * logDisplay;
+  /// The terminal display
+  QTextEdit * terminalDisplay;
 
-  // /// The unique CommandWidget !
-  // ///
-  // /// There can be several, but only one will be the target
-  // static CommandWidget * theCommandWidget;
+  /// The CommandWidget that will receive log (Terminal) messages, ie
+  /// the first one to be created.
+  static CommandWidget * theCommandWidget;
 
 public:
 
   CommandWidget();
   virtual ~CommandWidget();
 
+  /// Logs the given string to the application-wide CommandWidget
+  /// terminal, or to standard output in the case we don't have one of
+  /// those ready.
+  static void logString(const QString & str);
+
 public slots:
 
   void runCommand(const QString & str);
   void runCommand(const QStringList & raw);
+
+  /// Appends the given (HTML) text to the log output.
+  void appendToTerminal(const QString & str);
 
 protected slots:
   void commandEntered();

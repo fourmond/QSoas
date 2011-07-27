@@ -48,6 +48,7 @@ public:
 public slots:
 
   void runCommand(const QString & str);
+  void runCommand(const QStringList & raw);
 
 protected slots:
   void commandEntered();

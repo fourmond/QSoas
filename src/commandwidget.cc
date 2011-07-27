@@ -25,6 +25,9 @@ CommandWidget::CommandWidget()
   QVBoxLayout * layout = new QVBoxLayout(this);
   logDisplay = new QTextEdit();
   logDisplay->setReadOnly(true);
+  // We use a monospace font !
+  logDisplay->setFont(QFont("monospace")); /// @todo customize settings
+  logDisplay->setText("biniou");
   layout->addWidget(logDisplay);
 
   QHBoxLayout * h1 = new QHBoxLayout();
@@ -45,11 +48,10 @@ CommandWidget::~CommandWidget()
 {
 }
 
-void CommandWidget::runCommand(const QString & str)
+void CommandWidget::runCommand(const QStringList & raw)
 {
-  QStringList split = Command::wordSplit(str);
   try {
-    Command::runCommand(split, this);
+    Command::runCommand(raw, this);
   }
   catch(const std::runtime_error & error) {
     QTextStream o(stderr);
@@ -59,6 +61,12 @@ void CommandWidget::runCommand(const QString & str)
     QTextStream o(stderr);
     o << "Internal error: " << error.what() << endl;
   }
+}
+
+void CommandWidget::runCommand(const QString & str)
+{
+  QStringList split = Command::wordSplit(str);
+  runCommand(split);
 }
 
 void CommandWidget::commandEntered()

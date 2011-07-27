@@ -79,6 +79,12 @@ public:
 
   /// @todo Add prompting functions.
 
+
+  /// Prompts for a value for the argument, using something of a
+  /// dialog box or the like. Default implementation raises an
+  /// exception.
+  virtual ArgumentMarshaller * promptForValue(QWidget * base);
+
 };
 
 #endif

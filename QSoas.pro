@@ -35,7 +35,8 @@ SOURCES += src/qmain.cc \
         src/commandeffector.cc \
         src/commandwidget.cc \
         src/terminal.cc \
-        src/general-arguments.cc
+        src/general-arguments.cc \
+        src/argument.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \

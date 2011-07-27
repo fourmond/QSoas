@@ -62,6 +62,9 @@ void Command::crosslinkCommands()
   }
 }
 
+/// @todo I think this whole function should move to ArgumentList,
+/// probably with much better checking of argument size and slurping
+/// arguments.
 CommandArguments Command::parseArguments(const QStringList & args,
                                          QWidget * base) const
 {
@@ -76,12 +79,12 @@ CommandArguments Command::parseArguments(const QStringList & args,
     /// only be one slurping argument, but its position should not
     /// have to be the last one. This will come in useful for loading
     /// files...
+    ///
+    /// @todo This functionality should move to ArgumentList
     if(args.size() > i)
       ret.append(arguments->value(i)->fromString(args[i]));
-    else {
-      /// @todo Prompt :
-      throw std::runtime_error("Not enough arguments !");
-    }
+    else
+      ret.append(arguments->value(i)->promptForValue(base));
   }
   return ret;
 }

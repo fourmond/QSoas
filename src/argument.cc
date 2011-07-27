@@ -1,5 +1,5 @@
 /*
-  general-arguments.cc:
+  argument.cc: implementation of default functions for Argument
   Copyright 2011 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
@@ -16,20 +16,13 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include <headers.hh>
-#include <general-arguments.hh>
-#include <argumentmarshaller.hh>
+#include <argument.hh>
 
-ArgumentMarshaller * FileArgument::fromString(const QString & str)
+ArgumentMarshaller * Argument::promptForValue(QWidget * )
 {
-  return new ArgumentMarshallerChild<QString>(str);
-}
-
-ArgumentMarshaller * FileArgument::promptForValue(QWidget * base)
-{
-  QString file = QFileDialog::getOpenFileName(base, publicName());
-  if(file.isEmpty())
-    throw std::runtime_error("Aborted"); /// @todo Maybe use a specific exception to signal abortion ?
-  return fromString(file);
+  QString str = QString("Argument %1 does not support prompting").
+    arg(name);
+  throw std::runtime_error(str.toStdString());
+  return NULL;                // Useless
 }

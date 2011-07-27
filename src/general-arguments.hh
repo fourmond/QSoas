@@ -43,6 +43,10 @@ public:
   /// Returns a wrapped QString for now.
   virtual ArgumentMarshaller * fromString(const QString & str);
 
+  /// Prompting uses a QFileDialog.
+  virtual ArgumentMarshaller * promptForValue(QWidget * base);
+
+
 };
 
 #endif

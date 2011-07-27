@@ -36,7 +36,8 @@ SOURCES += src/qmain.cc \
         src/commandwidget.cc \
         src/terminal.cc \
         src/general-arguments.cc \
-        src/argument.cc
+        src/argument.cc \
+        src/vector.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -51,5 +52,6 @@ HEADERS += src/headers.hh \
         src/possessive-containers.hh \
         src/commandwidget.hh \
         src/terminal.hh \
-        src/general-arguments.hh
+        src/general-arguments.hh \
+        src/vector.hh
 

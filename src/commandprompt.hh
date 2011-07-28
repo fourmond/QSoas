@@ -28,12 +28,22 @@ class CommandPrompt : public QLineEdit {
   /// The number of successive hits on the TAB key
   int nbSuccessiveTabs;
 
-  /// Saved history
+  /// Saved history, by reverse order of age (0 = most recent)
+  QStringList savedHistory;
+
+  /// The last history item used.
+  int historyItem;
+
+  /// Saving the currently edited line when recalling history
+  QString savedLine;
 
 public:
 
   CommandPrompt();
   virtual ~CommandPrompt();
+
+public slots:
+  void addHistoryItem(const QString & str);
 
 protected:
   virtual void keyPressEvent(QKeyEvent * event);

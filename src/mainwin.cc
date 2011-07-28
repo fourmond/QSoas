@@ -61,9 +61,7 @@ void MainWin::setupFrame()
 void MainWin::menuActionTriggered(QAction * action)
 {
   QStringList cmd = action->data().toStringList();
-  Command::runCommand(cmd);
-  /// @todo exception handling here. Or maybe somewhere else ?
-  /// Maybe the command-line widget should handle that ?
+  commandWidget->runCommand(cmd);
 }
 
 

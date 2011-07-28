@@ -55,6 +55,7 @@
 #include <QColorDialog>
 #include <QMessageBox>
 
+#include <QScrollBar>
 #include <QSpinBox>
 
 

@@ -58,8 +58,12 @@ void CommandWidget::runCommand(const QStringList & raw)
 {
   /// @todo use a different prompt whether the call is internal or
   /// external ?
+  if(raw.isEmpty())
+    return;                     // Nothing to do here.
   
-  out << bold("Soas> ") << Command::unsplitWords(raw) << endl;
+  QString cmd = Command::unsplitWords(raw);
+  out << bold("Soas> ") << cmd << endl;
+  commandLine->addHistoryItem(cmd);
   try {
     Command::runCommand(raw, this);
   }
@@ -87,12 +91,16 @@ void CommandWidget::commandEntered()
 void CommandWidget::appendToTerminal(const QString & str)
 {
   terminalDisplay->insertHtml(str);
+  // and scroll to the bottom
+  QScrollBar * sb = terminalDisplay->verticalScrollBar();
+  sb->setSliderPosition(sb->maximum());
 }
 
 void CommandWidget::logString(const QString & str)
 {
   if(theCommandWidget)
     theCommandWidget->appendToTerminal(str);
+
   else {
     QTextStream o(stdout);
     o << str;

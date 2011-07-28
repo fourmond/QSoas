@@ -20,8 +20,8 @@
 #ifndef __ARGUMENT_HH
 #define __ARGUMENT_HH
 
+#include <argumentmarshaller.hh>
 class Command;
-class ArgumentMarshaller;
 
 /// An argument. This is an abstract base class that must be reimplemented.
 ///
@@ -41,7 +41,13 @@ protected:
   const char * pubName;
 
   const char * desc;
+
 public:
+
+  /// The argument is greedy if it can accumulate more than one
+  /// argument. There can't be more than one greedy argument in an
+  /// ArgumentList. 
+  bool greedy;
 
   /// Specifies the various elements linked to the Argument.
   ///
@@ -49,9 +55,9 @@ public:
   /// should therefore point to locations that will not move, ideally
   /// constant strings.
   Argument(const char * cn, const char * pn,
-           const char * d = "") : 
+           const char * d = "", bool g = false) : 
     name(cn), pubName(pn), 
-    desc(d) {
+    desc(d), greedy(g) {
   }; 
   
 
@@ -75,16 +81,23 @@ public:
   };
 
   /// Converts from string to the argument with the correct type.
-  virtual ArgumentMarshaller * fromString(const QString & str) = 0;
-
-  /// @todo Add prompting functions.
-
+  virtual ArgumentMarshaller * fromString(const QString & str) const = 0;
 
   /// Prompts for a value for the argument, using something of a
   /// dialog box or the like. Default implementation raises an
   /// exception.
-  virtual ArgumentMarshaller * promptForValue(QWidget * base);
+  virtual ArgumentMarshaller * promptForValue(QWidget * base) const ;
 
+
+  /// Handling of automatic completion. Provided with a beginning of
+  /// the string, propose a QStringList with potential candidates.
+  virtual QStringList proposeCompletion(const QString & starter) const;
+
+  /// Appends the value of \p b to \p a. Must be reimplemented by
+  /// arguments that can be greedy.
+  virtual void concatenateArguments(ArgumentMarshaller * a, 
+                                    const ArgumentMarshaller * b) const;
+  
 };
 
 #endif

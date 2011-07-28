@@ -200,6 +200,14 @@ public:
   /// in QStringList.
   static QStringList wordSplit(const QString & args, 
                                QList<int> * wordBegin = NULL);
+
+  /// Quotes the given string so that it won't be split by wordSplit().
+  static QString quoteString(const QString & str);
+
+  /// Does the reverse of wordSplit, (or almost), while trying to be
+  /// clever on the quoting side.
+  static QString unsplitWords(const QStringList & cmdline);
+
 };
 
 #endif

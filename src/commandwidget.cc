@@ -56,6 +56,10 @@ CommandWidget::~CommandWidget()
 
 void CommandWidget::runCommand(const QStringList & raw)
 {
+  /// @todo use a different prompt whether the call is internal or
+  /// external ?
+  
+  out << bold("Soas> ") << Command::unsplitWords(raw) << endl;
   try {
     Command::runCommand(raw, this);
   }
@@ -71,9 +75,6 @@ void CommandWidget::runCommand(const QStringList & raw)
 void CommandWidget::runCommand(const QString & str)
 {
   QStringList split = Command::wordSplit(str);
-  /// @todo move prompting to the QStringList version, possibly with a
-  /// different prompt whether the call is internal or external.
-  out << bold("Soas> ") << str << endl;
   runCommand(split);
 }
 

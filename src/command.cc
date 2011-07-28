@@ -62,31 +62,17 @@ void Command::crosslinkCommands()
   }
 }
 
+/// Dummy ArgumentList. @todo move somewhere else ?
+static ArgumentList emptyList;
+
 /// @todo I think this whole function should move to ArgumentList,
 /// probably with much better checking of argument size and slurping
 /// arguments.
 CommandArguments Command::parseArguments(const QStringList & args,
                                          QWidget * base) const
 {
-  CommandArguments ret;  
-  if(! arguments)
-    return ret;
-  int size = arguments->size();
-  for(int i = 0; i < size; i++) {
-    /// @todo I should make provisions one day for slurping arguments,
-    /// ie arguments that take more than one word (and that simply add
-    /// the results to their first argument). Of course, there may
-    /// only be one slurping argument, but its position should not
-    /// have to be the last one. This will come in useful for loading
-    /// files...
-    ///
-    /// @todo This functionality should move to ArgumentList
-    if(args.size() > i)
-      ret.append(arguments->value(i)->fromString(args[i]));
-    else
-      ret.append(arguments->value(i)->promptForValue(base));
-  }
-  return ret;
+  ArgumentList * a = arguments ? arguments : &emptyList;
+  return a->parseArguments(args, base);
 }
 
 CommandOptions Command::parseOptions(const QHash<QString, QString> & opts) const
@@ -252,4 +238,31 @@ QStringList Command::wordSplit(const QString & str, QList<int> * wordBegin)
       *wordBegin << sw;
   }
   return retVal;
+}
+
+QString Command::quoteString(const QString & str)
+{
+  bool sp = str.contains(' ');
+  bool sq = str.contains('\'');
+  bool dq = str.contains('"');
+  if(! (sp || sq || dq)) {
+    return str;
+  }
+  if(sq && dq) {
+    QString s = str;            // We arbitrarily use single quotes.
+    s.replace("'", "'\"'\"'");
+    return "'" + s + "'";
+  }
+  if(sq) {
+    return "\"" + str + "\"";
+  }
+  return "'" + str + "'";
+}
+
+QString Command::unsplitWords(const QStringList & cmdline)
+{
+  QStringList s;
+  for(int i = 0; i < cmdline.size(); i++)
+    s << quoteString(cmdline[i]);
+  return s.join(" ");
 }

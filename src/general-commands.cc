@@ -52,18 +52,16 @@ quit("quit", // command name
 
 static ArgumentList 
 loadArgs(QList<Argument *>() 
-         << new FileArgument("file", 
-                             QT_TRANSLATE_NOOP("Arguments", "File")));
+         << new SeveralFilesArgument("file", 
+                                     QT_TRANSLATE_NOOP("Arguments", "File"),
+                                     QT_TRANSLATE_NOOP("Arguments", "Files to load !"), true
+                                     ));
                              
 
-static void loadCommand(const QString & name, QString file)
+static void loadCommand(const QString & name, QStringList files)
 {
-  QFile f(file);
-  Terminal::out << "Loading '" << file << "'" << endl;
-  f.open(QIODevice::ReadOnly | QIODevice::Text);
-  QList<Vector> columns = Vector::readFromStream(&f);
-  DataSet d(columns);
-  d.dump();
+  for(int i = 0; i < files.size(); i++)
+    Terminal::out << "Should load '" << files[i] << "'" << endl;
 }
 
 
@@ -73,8 +71,8 @@ load("load", // command name
      "file",  // group name
      &loadArgs, // arguments
      NULL, // options
-     QT_TRANSLATE_NOOP("Commands", "Quit"),
-     QT_TRANSLATE_NOOP("Commands", "Quit QSoas"),
+     QT_TRANSLATE_NOOP("Commands", "Load"),
+     QT_TRANSLATE_NOOP("Commands", "Loads one or several files"),
      QT_TRANSLATE_NOOP("Commands", 
                        "Exits QSoas, losing all the current session"),
      "l");

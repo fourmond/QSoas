@@ -25,6 +25,7 @@ class ArgumentMarshaller {
 public:
 
   template<typename T> T value() const;
+  template<typename T> T & value();
   virtual ~ArgumentMarshaller() {;};
 };
 
@@ -39,6 +40,15 @@ public:
 template<typename T> T ArgumentMarshaller::value() const {
   const ArgumentMarshallerChild<T> * child = 
     dynamic_cast< const ArgumentMarshallerChild<T> *>(this);
+  if(! child) {
+    throw std::logic_error("Bad argument type conversion attempted");
+  }
+  return child->value;
+};
+
+template<typename T> T & ArgumentMarshaller::value() {
+  ArgumentMarshallerChild<T> * child = 
+    dynamic_cast<ArgumentMarshallerChild<T> *>(this);
   if(! child) {
     throw std::logic_error("Bad argument type conversion attempted");
   }

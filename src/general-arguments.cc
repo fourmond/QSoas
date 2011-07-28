@@ -20,16 +20,40 @@
 #include <headers.hh>
 #include <general-arguments.hh>
 #include <argumentmarshaller.hh>
+#include <utils.hh>
 
-ArgumentMarshaller * FileArgument::fromString(const QString & str)
+ArgumentMarshaller * FileArgument::fromString(const QString & str) const
 {
   return new ArgumentMarshallerChild<QString>(str);
 }
 
-ArgumentMarshaller * FileArgument::promptForValue(QWidget * base)
+ArgumentMarshaller * FileArgument::promptForValue(QWidget * base) const
 {
   QString file = QFileDialog::getOpenFileName(base, publicName());
   if(file.isEmpty())
-    throw std::runtime_error("Aborted"); /// @todo Maybe use a specific exception to signal abortion ?
+    throw std::runtime_error("Aborted"); 
+  /// @todo Maybe use a specific exception to signal abortion ?
   return fromString(file);
 }
+
+ArgumentMarshaller * SeveralFilesArgument::fromString(const QString & str) const
+{
+  return new ArgumentMarshallerChild<QStringList>(Utils::glob(str, false));
+}
+
+ArgumentMarshaller * SeveralFilesArgument::promptForValue(QWidget * base) const
+{
+  QStringList files = QFileDialog::getOpenFileNames(base, publicName());
+  if(! files.size())
+    throw std::runtime_error("Aborted"); 
+  return new ArgumentMarshallerChild<QStringList>(files);
+}
+
+void SeveralFilesArgument::concatenateArguments(ArgumentMarshaller * a, 
+                                                const ArgumentMarshaller * b) const
+{
+  a->value<QStringList>() += b->value<QStringList>();
+}
+
+
+

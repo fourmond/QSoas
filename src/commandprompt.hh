@@ -28,6 +28,8 @@ class CommandPrompt : public QLineEdit {
   /// The number of successive hits on the TAB key
   int nbSuccessiveTabs;
 
+  /// Saved history
+
 public:
 
   CommandPrompt();

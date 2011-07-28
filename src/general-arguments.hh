@@ -24,10 +24,6 @@
 
 
 /// An argument representing a unique file name.
-///
-/// @todo Handle globbing later on, returning a QStringList rather
-/// than a QString ?
-///
 /// @todo Restrict the returned files to existing/readable files ?
 ///
 /// @todo Provide filters for the dialog
@@ -41,12 +37,32 @@ public:
   }; 
   
   /// Returns a wrapped QString for now.
-  virtual ArgumentMarshaller * fromString(const QString & str);
+  virtual ArgumentMarshaller * fromString(const QString & str) const;
 
   /// Prompting uses a QFileDialog.
-  virtual ArgumentMarshaller * promptForValue(QWidget * base);
-
-
+  virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
 };
+
+/// An argument representing a unique file name.
+/// @todo Provide filters for the dialog
+///
+/// @todo Make the distinction between save and load ?
+///
+/// @todo is there any code to share with FileArgument ?
+class SeveralFilesArgument : public Argument {
+public:
+
+  SeveralFilesArgument(const char * cn, const char * pn,
+                       const char * d = "", bool g = false) : 
+    Argument(cn, pn, d, g) {
+  }; 
+  
+  /// Returns a wrapped QStringList
+  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
+  virtual void concatenateArguments(ArgumentMarshaller * a, 
+                                    const ArgumentMarshaller * b) const;
+};
+
 
 #endif

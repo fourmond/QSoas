@@ -19,10 +19,22 @@
 #include <headers.hh>
 #include <argument.hh>
 
-ArgumentMarshaller * Argument::promptForValue(QWidget * )
+ArgumentMarshaller * Argument::promptForValue(QWidget * ) const
 {
   QString str = QString("Argument %1 does not support prompting").
     arg(name);
   throw std::runtime_error(str.toStdString());
   return NULL;                // Useless
+}
+
+QStringList Argument::proposeCompletion(const QString & ) const
+{
+  return QStringList();
+}
+
+void Argument::concatenateArguments(ArgumentMarshaller *,
+                                    const ArgumentMarshaller *) const
+{
+  throw std::logic_error("Trying to use a greedy argument with "
+                         "a type that does not support it");
 }

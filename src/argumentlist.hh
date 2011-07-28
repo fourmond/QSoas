@@ -34,17 +34,42 @@ class ArgumentList : public QList<Argument *> {
   
   mutable QHash<QString, Argument *> cache;
 
-  /// Regenerate the cache
+  /// The number of the greedy arg, or -1 if there isn't.
+  mutable int greedyArg;
+
+  /// Regenerate the cache, along with
   void regenerateCache() const;
+
+
+  int assignArg(int i, int total) const; 
+  
   
 public:
   ArgumentList(const QList<Argument *> & lst);
+  ArgumentList();
 
   /// Whether the list contains an argument of the given name.
   bool contains(const QString & name) const;
 
   /// Returns the named argument, or NULL if there isn't any
   Argument * namedArgument(const QString & name) const;
+
+  /// Returns the number of the Argument object used for taking care
+  /// of the numbered argument string, taking into account greedy
+  /// arguments.
+  int assignArgument(int arg, int total) const;
+
+  /// Returns the Argument that should take care of the given numbered
+  /// arg, considering that there are altogether \p total arguments.
+  Argument * whichArgument(int arg, int total) const {
+    return value(assignArgument(arg, total), NULL);
+  }; 
+
+  /// Parse the given arguments, prompting using the given widget as
+  /// base when necessary.
+  CommandArguments parseArguments(const QStringList & args,
+                                  QWidget * base) const;
+  
 };
 
 #endif

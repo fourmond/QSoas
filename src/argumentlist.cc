@@ -22,17 +22,26 @@
 #include <commandeffector.hh>
 #include <argumentlist.hh>
 
+#include <terminal.hh>
+
 
 ArgumentList::ArgumentList(const QList<Argument *> & lst)
-  : QList<Argument *>(lst)
+  : QList<Argument *>(lst), greedyArg(-1)
+{
+}
+
+ArgumentList::ArgumentList() : greedyArg(-1)
 {
 }
 
 void ArgumentList::regenerateCache() const
 {
   cache.clear();
-  for(int i = 0; i < size(); i++)
+  for(int i = 0; i < size(); i++) {
     cache[value(i)->argumentName()] = value(i);
+    if(value(i)->greedy)
+      greedyArg = i;
+  }
 }
 
 bool ArgumentList::contains(const QString & name) const
@@ -49,3 +58,62 @@ Argument * ArgumentList::namedArgument(const QString & name) const
   return cache.value(name, NULL);
 }
 
+inline int ArgumentList::assignArg(int i, int total) const
+{
+  if(total <= size() || greedyArg < 0 || i < greedyArg )
+    return i;
+  int excess = total - size();
+  if(i < greedyArg + excess)
+    return greedyArg;
+  return i - excess;
+}
+
+int ArgumentList::assignArgument(int arg, int total) const
+{
+  // Regenerate the cache if necessary.
+  if(cache.size() != size())
+    regenerateCache();
+  return assignArg(arg, total);
+}
+
+
+CommandArguments ArgumentList::parseArguments(const QStringList & args,
+                                              QWidget * base) const
+{
+
+  CommandArguments ret;  
+  if(cache.size() != size())
+    regenerateCache();
+
+  int nb = args.size();
+  int sz = std::max(size(), nb);
+  for(int i = 0; i < sz; i++) {
+    int idx = assignArg(i, nb);
+    if(idx > size()) {
+      /// @todo add a warning function to Terminal ?
+      Terminal::out << Terminal::bold(QObject::tr("Warning: ")) 
+                    << QObject::tr("too many arguments: %1 for %2").
+        arg(nb).arg(size());
+      break;
+    }
+    const Argument * arg = value(idx, NULL);
+    if(! arg)
+      throw std::logic_error("Missing argument description");
+    ArgumentMarshaller * value;
+    if(i < nb)
+      value = arg->fromString(args[i]);
+    else {
+      if(! base)
+        throw std::runtime_error("Not enough arguments and no "
+                                 "prompting possible");
+      value = arg->promptForValue(base);
+    }
+    if(idx == greedyArg && idx != i) {
+      arg->concatenateArguments(ret.last(), value);
+      delete value;
+    }
+    else
+      ret << value;
+  }
+  return ret;
+}

@@ -18,3 +18,11 @@
 
 #include <headers.hh>
 #include <dataset.hh>
+
+void DataSet::dump() const
+{
+  QTextStream o(stdout);
+  for(int i = 0; i < x().size(); i++)
+    for(int j = 0; j < columns.size(); j++)
+      o << columns[j][i] << (j == columns.size() - 1 ? "\n" : "\t");      
+}

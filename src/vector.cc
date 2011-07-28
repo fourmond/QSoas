@@ -36,7 +36,7 @@ QList<Vector> Vector::readFromStream(QIODevice * source,
   while(! source->atEnd()) {
     lineNumber++;
     QString line = source->readLine();
-    if(separatorRE.indexIn(line) >= 0) {
+    if(commentRE.indexIn(line) >= 0) {
       if(comments)
         *comments << line;
       continue;
@@ -47,7 +47,8 @@ QList<Vector> Vector::readFromStream(QIODevice * source,
     /// @todo A manual split would be much much faster (no memory
     /// allocation). I think DVector::fast_fancy_read greatly
     /// outperforms this, but well...
-    QStringList elements = line.split(separatorRE);
+    QStringList elements = line.trimmed().split(separatorRE);
+    /// @todo customize trimming.
     while(retVal.size() < elements.size()) {
       retVal << Vector(numberRead, 0.0/0.0);
     }
@@ -61,8 +62,12 @@ QList<Vector> Vector::readFromStream(QIODevice * source,
     }
   }
   // Trim the values in order to save memory a bit (at the cost of
-  // quite a bit of reallocation time)
+  // quite a bit of reallocation/copying time)
   for(int i = 0; i < retVal.size(); i++)
     retVal[i].squeeze();
+
+  QTextStream o(stdout);
+  o << "Read " << retVal.size() << " columns and "
+    << numberRead << " rows and " << lineNumber << " lines" << endl;
   return retVal;
 }

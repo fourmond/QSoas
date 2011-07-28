@@ -24,6 +24,9 @@
 #include <general-arguments.hh>
 #include <terminal.hh>
 
+#include <vector.hh>
+#include <dataset.hh>
+
 static Group file("file", 0,
                   QT_TRANSLATE_NOOP("Groups", "File"),
                   QT_TRANSLATE_NOOP("Groups", "General purpose commands"));
@@ -55,7 +58,12 @@ loadArgs(QList<Argument *>()
 
 static void loadCommand(const QString & name, QString file)
 {
-  Terminal::out << "Should load file '" << file << "'" << endl;
+  QFile f(file);
+  Terminal::out << "Loading '" << file << "'" << endl;
+  f.open(QIODevice::ReadOnly | QIODevice::Text);
+  QList<Vector> columns = Vector::readFromStream(&f);
+  DataSet d(columns);
+  d.dump();
 }
 
 

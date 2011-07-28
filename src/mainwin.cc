@@ -24,6 +24,15 @@
    \section various-todo Various things to do
    \li automatic completion and history from the QLineEdit (or a child
    thereof)
+   \li slurping (or greedy) arguments
+   \li their use for files (using a new argument)
+   \li backends infrastructure for data loading (with automatic
+   detection)
+   \li String argument with fixed list (for completion, useful for
+   options, such as an option to force to use a given backend)
+   \li data display (based on QGraphicsScene)
+   \li a way to enter a "private event loop" for the graphics display
+   (point selection and the like)
 
 */
 

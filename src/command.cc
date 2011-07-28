@@ -207,5 +207,5 @@ Command::splitArgumentsAndOptions(const QStringList & rawArgs)
 QStringList Command::wordSplit(const QString & str)
 {
   /// @todo quoting when necessary
-  return str.split(QRegExp("\\s+"));
+  return str.trimmed().split(QRegExp("\\s+"));
 }

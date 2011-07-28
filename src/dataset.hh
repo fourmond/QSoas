@@ -58,6 +58,12 @@ public:
     return columns[1];
   };
 
+  /// Dump the data to standard output.
+  ///
+  /// @todo This may grow into something interesting later on, but not
+  /// now.
+  void dump() const;
+
 };
 
 #endif

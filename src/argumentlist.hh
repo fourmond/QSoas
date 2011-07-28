@@ -23,8 +23,13 @@
 
 class Command;
 
-/// An argument list, ie a very thin wrapper around a QList of
-/// Arguments.
+/// An argument list, a wrapper around a QList of Arguments. It is
+/// used both for the argument list, for which the
+/// Argument::argumentName only has an indicative value and for the
+/// options, for which the Argument::argumentName is the option key.
+///
+/// @todo Add the possibility for options to slurp all unkown options
+/// as strings.
 class ArgumentList : public QList<Argument *> {
   
   mutable QHash<QString, Argument *> cache;

@@ -18,7 +18,7 @@ MOC_DIR = build
 OBJECTS_DIR = build
 
 # Really, this should be the default, since it means segfault in the
-# best case
+# best case (excepted when a function only exits via an exception)
 QMAKE_CXXFLAGS += -Werror=return-type 
 
 # Todo, later: add Ruby classes.
@@ -37,7 +37,8 @@ SOURCES += src/qmain.cc \
         src/terminal.cc \
         src/general-arguments.cc \
         src/argument.cc \
-        src/vector.cc
+        src/vector.cc \
+        src/dataset.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -53,5 +54,6 @@ HEADERS += src/headers.hh \
         src/commandwidget.hh \
         src/terminal.hh \
         src/general-arguments.hh \
-        src/vector.hh
+        src/vector.hh \
+        src/dataset.hh
 

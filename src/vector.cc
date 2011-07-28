@@ -18,3 +18,51 @@
 
 #include <headers.hh>
 #include <vector.hh>
+
+QList<Vector> Vector::readFromStream(QIODevice * source,
+                                     const QString & separatorREt,
+                                     const QString & commentREt,
+                                     QStringList * comments)
+{
+  QList<Vector> retVal;
+  int lineNumber = 0;
+  QRegExp separatorRE(separatorREt);
+  QRegExp commentRE(commentREt);
+  QRegExp blankLineRE("^\\s*$"); /// @todo halt on blank lines
+
+  QLocale locale = QLocale::c(); /// @todo offer the possibility to customize.
+
+  int numberRead = 0;
+  while(! source->atEnd()) {
+    lineNumber++;
+    QString line = source->readLine();
+    if(separatorRE.indexIn(line) >= 0) {
+      if(comments)
+        *comments << line;
+      continue;
+    }
+    if(blankLineRE.indexIn(line) == 0) {
+      continue;
+    }
+    /// @todo A manual split would be much much faster (no memory
+    /// allocation). I think DVector::fast_fancy_read greatly
+    /// outperforms this, but well...
+    QStringList elements = line.split(separatorRE);
+    while(retVal.size() < elements.size()) {
+      retVal << Vector(numberRead, 0.0/0.0);
+    }
+    for(int i = 0; i < retVal.size(); i++) {
+      bool ok = false;
+      double value = locale.toDouble(elements.value(i, ""), &ok);
+      if(! ok)
+        value = 0.0/0.0; /// @todo customize
+      retVal[i] << value;
+      numberRead++;
+    }
+  }
+  // Trim the values in order to save memory a bit (at the cost of
+  // quite a bit of reallocation time)
+  for(int i = 0; i < retVal.size(); i++)
+    retVal[i].squeeze();
+  return retVal;
+}

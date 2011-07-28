@@ -26,6 +26,10 @@
 class Vector : public QVector<double> {
 public:
 
+  Vector() {;};
+  Vector(const QVector<double> & d) : QVector<double>(d) {;};
+  Vector(int nb, double value) : QVector<double>(nb, value) {;};
+
   /// @name Arithmetic operations
   /// 
   /// The arithmetic operations are redefined to better suit the needs
@@ -62,6 +66,17 @@ public:
   Vector operator/(double a);
 
   /// @}
+
+  /// Reads textual data from a file.
+  /// \li separator is specified by 
+  /// \li comment lines are those that match \p commentRE. They are stored
+  /// in \p comments when not NULL.
+  ///
+  /// @todo Quite a lot of things to improve here.
+  static QList<Vector> readFromStream(QIODevice * source,
+                                      const QString & separatorRE = "\\s+",
+                                      const QString & commentRE = "^\\s*#",
+                                      QStringList * comments = NULL);
 };
 
 #endif

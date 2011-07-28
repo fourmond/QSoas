@@ -20,6 +20,7 @@
 #include <commandwidget.hh>
 #include <command.hh>
 #include <terminal.hh>
+#include <commandprompt.hh>
 
 using namespace Terminal;
 
@@ -38,7 +39,7 @@ CommandWidget::CommandWidget()
 
   QHBoxLayout * h1 = new QHBoxLayout();
   h1->addWidget(new QLabel("Soas> "));
-  commandLine = new QLineEdit;
+  commandLine = new CommandPrompt;
 
   connect(commandLine, SIGNAL(returnPressed()), 
           SLOT(commandEntered()));
@@ -70,6 +71,8 @@ void CommandWidget::runCommand(const QStringList & raw)
 void CommandWidget::runCommand(const QString & str)
 {
   QStringList split = Command::wordSplit(str);
+  /// @todo move prompting to the QStringList version, possibly with a
+  /// different prompt whether the call is internal or external.
   out << bold("Soas> ") << str << endl;
   runCommand(split);
 }

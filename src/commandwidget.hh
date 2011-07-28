@@ -1,6 +1,6 @@
 /**
    \file commandwidget.hh
-   Main window for QSoas
+   The widget handling all "terminal" interaction
    Copyright 2011 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,8 @@
 #ifndef __COMMANDWIDGET_HH
 #define __COMMANDWIDGET_HH
 
+class CommandPrompt;
+
 /// A widget that accepts commands, and display their result, a
 /// successor for the terminal in the old Soas.
 class CommandWidget : public QWidget {
@@ -28,7 +30,7 @@ class CommandWidget : public QWidget {
 
   /// The line edition, to be later blessed with expansion
   /// capabilities.
-  QLineEdit * commandLine;
+  CommandPrompt * commandLine;
 
   /// The terminal display
   QTextEdit * terminalDisplay;

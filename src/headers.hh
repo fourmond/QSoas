@@ -83,6 +83,7 @@
 // We want to be able to select the locale for parsing floating-point
 // values.
 #include <QLocale>
+#include <QKeyEvent>
 
 // We do C++ sometimes
 #include <stdexcept>

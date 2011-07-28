@@ -204,8 +204,52 @@ Command::splitArgumentsAndOptions(const QStringList & rawArgs)
   return ret;
 }
 
-QStringList Command::wordSplit(const QString & str)
+QStringList Command::wordSplit(const QString & str, QList<int> * wordBegin)
 {
-  /// @todo quoting when necessary
-  return str.trimmed().split(QRegExp("\\s+"));
+  int sw = -1;
+  QChar quote = 0;
+  int size = str.size();
+  QString curString;
+  QStringList retVal;
+
+  if(wordBegin)
+    wordBegin->clear();
+
+  for(int cur = 0; cur < size; cur++) {
+    QChar c = str[cur];
+    if(quote != 0) {
+      if(c != quote)
+        curString.append(c);
+      else
+        quote = 0;
+      continue;
+    }
+    if(c == ' ' || c == '\t') {
+      // We flush the last word, if there is one
+      if(sw >= 0) {
+        retVal << curString;
+        if(wordBegin)
+          *wordBegin << sw;
+        sw = -1;
+        curString.clear();
+      }
+      continue;
+    }
+    if(c == '"' || c == '\'') {
+      quote = c;
+      // We start a word
+      if(sw < 0)
+        sw = cur;
+      continue;
+    }
+    if(sw < 0)
+      sw = cur;
+    curString.append(c);
+  }
+  if(sw >= 0) {
+    retVal << curString;
+    if(wordBegin)
+      *wordBegin << sw;
+  }
+  return retVal;
 }

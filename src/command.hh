@@ -194,7 +194,12 @@ public:
   splitArgumentsAndOptions(const QStringList & rawArgs);
 
   /// Splits the given command-line into words.
-  static QStringList wordSplit(const QString & args);
+  ///
+  /// If \p wordBegin isn't NULL, the target is cleared and filled
+  /// with the position of the first character of each word returned
+  /// in QStringList.
+  static QStringList wordSplit(const QString & args, 
+                               QList<int> * wordBegin = NULL);
 };
 
 #endif

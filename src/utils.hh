@@ -25,4 +25,23 @@
 /// Comes in useful for call to member functions
 #define CALL_MEMBER_FN(object,ptrToMember) ((object).*(ptrToMember))
 
+/// Various generally useful functions.
+namespace Utils {
+
+  /// Returns a list of file names matching the given glob.
+  ///
+  /// If \p trim is true, returns an empty list if no file matches,
+  /// else returns the pattern.
+  ///
+  /// For now, it does not support recursive globs ("*/*", or even
+  /// "**/*"). It may, one day...
+  ///
+  /// @todo Support selecting only files, hiding hidden files, and so
+  /// on...
+  ///
+  /// @todo Support */ as a glob (not currently supported). That one
+  /// may come in nicely as a side effect of the above transformation.
+  QStringList glob(const QString & pattern, bool trim = true);
+};
+
 #endif

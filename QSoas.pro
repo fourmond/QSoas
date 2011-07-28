@@ -39,7 +39,8 @@ SOURCES += src/qmain.cc \
         src/argument.cc \
         src/vector.cc \
         src/dataset.cc \
-        src/commandprompt.cc
+        src/commandprompt.cc \
+        src/utils.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \

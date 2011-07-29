@@ -36,9 +36,82 @@ protected:
   /// A short code-like name
   QString name;
 
+  /// A public name
+  const char * pubName;
+
+  /// A description
+  const char * desc;
+
+  DataBackend(const char * n, const char * pn, const char * d = "", 
+              bool autoRegister = true) :
+    name(n), pubName(pn), desc(d) {
+    if(autoRegister)
+      registerBackend(this);
+  };
 public:
 
+  /// The public name of the backend
+  QString publicName() const {
+    return QObject::tr(pubName);
+  };
 
+  /// A description of what the backend loads
+  QString description() const {
+    return QObject::tr(desc);
+  };
+
+protected:
+  /// Returns a value signalling whether the given file could be read
+  /// by the DataBackend.
+  ///
+  /// Return value:
+  /// \li 0: no go
+  /// \li 1 to 999: could be, but if some other DataBackend wants to take it
+  /// fine
+  /// \li 1000 and more: definitely yes.
+  ///
+  /// The search for a DataBackend will stop at the first value over
+  /// 1000
+  ///
+  /// \warning \p fileName does not necessarily correspond to a real
+  /// file, do not rely on it.
+  virtual int couldBeMine(const QByteArray & peek, 
+                          const QString & fileName) const = 0;
+
+public:
+  /// Reads a DataSet from the given stream. The \p fileName parameter
+  /// does not necessarily point to a real file.
+  ///
+  /// The \p args can be used to provide additional information, such
+  /// as which columns to load, or the like. We'll see if we really
+  /// need that later on.
+  ///
+  /// \b Note The backend is responsible for setting as much meta-data
+  /// as reasonably possible based on the given file, but also
+  /// potentially on connected files.
+  ///
+  /// <b>In particular</b> all backends should set a meta-data telling
+  /// which backend read the dataset !
+  ///
+  /// @todo I should find a way to also gather information from the
+  /// so-called conditions.dat files I used so often now. I'll have to
+  /// decide how the interface will go.
+  virtual DataSet * readFromStream(QIODevice * stream,
+                                   const QString & fileName,
+                                   const QString & args = "") const  = 0;
+
+  
+  /// Find which DataBackend is best suited to load the given stream.
+  ///
+  /// It relies on QIODevice::peek().
+  static DataBackend * backendForStream(QIODevice * stream,
+                                        const QString & fileName);
+
+  /// Loads the given file. Returns a valid DataSet pointer or raise
+  /// an appropriate exception.
+  static DataSet * loadFile(const QString & fileName,
+                            const QString & options = "",
+                            const QString & backend = "");
 };
 
 #endif

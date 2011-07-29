@@ -24,4 +24,51 @@ QList<DataBackend*> * DataBackend::availableBackends = NULL;
 
 void DataBackend::registerBackend(DataBackend * backend)
 {
+  if(! availableBackends)
+    availableBackends = new QList<DataBackend *>;
+  availableBackends->append(backend);
+}
+
+
+
+DataBackend * DataBackend::backendForStream(QIODevice * stream,
+                                            const QString & fileName)
+{
+  /// @todo Error handling for peek ?
+  QByteArray head = stream->peek(512);
+  DataBackend * backend = NULL;
+  int priority = 0;
+  if(! availableBackends)
+    return NULL;
+  for(int i = 0; i < availableBackends->size(); i++) {
+    DataBackend * b = availableBackends->value(i);
+    int p = b->couldBeMine(head, fileName);
+    if(p >= 1000)
+      return b;
+    if(p > priority) {
+      priority = p;
+      backend = b;
+    }
+  }
+  return backend;
+}
+
+DataSet * DataBackend::loadFile(const QString & fileName, 
+                                const QString & options, 
+                                const QString & backend)
+{
+  /// @todo implement backend manual selection.
+  QFile file(fileName);
+  if(! file.open(QIODevice::ReadOnly)) {
+    QString str = QObject::tr("Failed to load file %1: %2").
+      arg(fileName).arg(file.errorString());
+    throw std::runtime_error(str.toStdString());
+  }
+  DataBackend * b = backendForStream(&file, fileName);
+  if(! b) {
+    QString str = QObject::tr("No backend found to load %1").
+      arg(fileName);
+    throw std::runtime_error(str.toStdString());
+  }
+  return b->readFromStream(&file, fileName, options);
 }

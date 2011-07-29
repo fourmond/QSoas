@@ -22,7 +22,7 @@
 
 #include <vector.hh>
 
-/// A class representing a data file.
+/// A class representing a data set (formerly Soas buffers).
 ///
 /// A DataSet represents a single data set, ie most of the time the
 /// data contained in a single file. It contains a X column, a Y
@@ -36,8 +36,12 @@ class DataSet {
   QList<Vector> columns;
 public:
 
+  /// The name of the dataset, usually the name of the file.
+  QString name;
+
   DataSet() {;};
   DataSet(const QList<Vector> & cols) : columns(cols) {;};
+
 
   /// Adds a new column to the data set.
   DataSet & operator<<(const Vector & column);
@@ -64,6 +68,22 @@ public:
   /// now.
   void dump() const;
 
+  /// Return the number of rows.
+  int nbRows() const {
+    return x().size();
+  };
+
+  /// Returns the number of columns
+  int nbColumns() const {
+    return columns.size();
+  };
+
+  /// Returns a small text representing the data set.
+  QString stringDescription() const;
+
+  /// Returns the overall size used by the DataSet (not counting the
+  /// QList overhead, probably much smaller than the rest anyway).
+  int size() const;
 };
 
 #endif

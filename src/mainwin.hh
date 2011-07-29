@@ -34,6 +34,7 @@ class MainWin : public QMainWindow {
   /// The MainWin that will receive messages
   static MainWin * theMainWindow;
 
+
 public:
   MainWin();
   ~MainWin();

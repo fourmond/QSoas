@@ -26,3 +26,18 @@ void DataSet::dump() const
     for(int j = 0; j < columns.size(); j++)
       o << columns[j][i] << (j == columns.size() - 1 ? "\n" : "\t");      
 }
+
+int DataSet::size() const
+{
+  int s = 0;
+  for(int i = 0; i < columns.size(); i++)
+    s += columns[i].size();
+  s *= sizeof(double);
+  return s;
+}
+
+QString DataSet::stringDescription() const
+{
+  return QObject::tr("'%1': %2 columns, %3 rows, %4 bytes").
+    arg(name).arg(nbColumns()).arg(nbRows()).arg(size());
+}

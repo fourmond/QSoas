@@ -45,7 +45,9 @@ DataBackend * DataBackend::backendForStream(QIODevice * stream,
   for(int i = 0; i < availableBackends->size(); i++) {
     DataBackend * b = availableBackends->value(i);
     int p = b->couldBeMine(head, fileName);
-    o << "Backend: " << b->name << " -> " << p << endl;
+    /// @todo Maybe find a way to document which backend wins
+    /// add a command for just checking which backend does ?
+    // o << "Backend: " << b->name << " -> " << p << endl;
     if(p >= 1000)
       return b;
     if(p > priority) {

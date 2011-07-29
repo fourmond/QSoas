@@ -54,42 +54,12 @@ quit("quit", // command name
 //////////////////////////////////////////////////////////////////////
 
 static ArgumentList 
-loadArgs(QList<Argument *>() 
-         << new SeveralFilesArgument("file", 
-                                     QT_TRANSLATE_NOOP("Arguments", "File"),
-                                     QT_TRANSLATE_NOOP("Arguments", "Files to load !"), true
-                                     ));
-                             
+dummyArgs(QList<Argument *>() 
+          << new SeveralFilesArgument("file", 
+                                      QT_TRANSLATE_NOOP("Arguments", "File"),
+                                      QT_TRANSLATE_NOOP("Arguments", "Files to load !"), true
+                                      ));
 
-static void loadCommand(const QString & name, QStringList files)
-{
-  for(int i = 0; i < files.size(); i++) {
-    Terminal::out << "Loading file '" << files[i] << "'" << endl;
-    try {
-      DataSet * s = DataBackend::loadFile(files[i]);
-      Terminal::out << s->x().size() << " rows " << endl;
-      delete s;
-    }
-    catch (const std::runtime_error & e) {
-      Terminal::out << e.what() << endl;
-    }
-  }
-}
-
-
-static Command 
-load("load", // command name
-     CommandEffector::functionEffectorOptionLess(loadCommand), // action
-     "file",  // group name
-     &loadArgs, // arguments
-     NULL, // options
-     QT_TRANSLATE_NOOP("Commands", "Load"),
-     QT_TRANSLATE_NOOP("Commands", "Loads one or several files"),
-     QT_TRANSLATE_NOOP("Commands", 
-                       "Exits QSoas, losing all the current session"),
-     "l");
-
-//////////////////////////////////////////////////////////////////////
 
 static ArgumentList 
 dummyOptions(QList<Argument *>() 
@@ -122,7 +92,7 @@ static Command
 dummy("dummy", // command name
       CommandEffector::functionEffector(dummyCommand), // action
       "file",  // group name
-      &loadArgs, // arguments
+      &dummyArgs, // arguments
       &dummyOptions, // options
       QT_TRANSLATE_NOOP("Commands", "Load"),
       QT_TRANSLATE_NOOP("Commands", "Loads one or several files"),

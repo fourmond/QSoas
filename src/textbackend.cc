@@ -27,7 +27,7 @@ TextBackend::TextBackend(const QRegExp & sep,
 }
 
 int TextBackend::couldBeMine(const QByteArray & peek, 
-                             const QString & fileName) const
+                             const QString & /*fileName*/) const
 {
   int nbSpaces = 0, nbSpecials = 0, nbRet = 0;
   for(int i = 0; i < peek.size(); i++) {
@@ -40,21 +40,18 @@ int TextBackend::couldBeMine(const QByteArray & peek,
     case '\t':
       nbSpaces++;
       break;
-    case '\r': // ignoring that guy
+    case '\r': // ignoring that guy, especially useful for things
+               // coming from windows.
       break;
     default:
       if(c < 32)
         nbSpecials++;
     }
   }
-  QTextStream o(stdout);
-  o << "On " << peek.size() << ", found: " 
-    << nbSpecials << " specials and " << nbRet << " returns " << endl;
   if(nbSpecials > peek.size()/100)
     return 0;                   // Most probably not
   QString str(peek);
   int nbSeparatorMatches = str.split(separator).size();
-  o << " -> and there are " << nbSeparatorMatches << " matches" << endl;
   /// Heuristic: we must one or more separators per line.
   if(nbSeparatorMatches > nbRet) {
     if(separator.indexIn(" \t") >= 0)
@@ -66,7 +63,7 @@ int TextBackend::couldBeMine(const QByteArray & peek,
 }
 
 DataSet * TextBackend::readFromStream(QIODevice * stream,
-                                      const QString & /*fileName*/,
+                                      const QString & fileName,
                                       const QString & /*args*/) const
 {
   /// @todo implement comments / header parsing... BTW, maybe
@@ -77,6 +74,7 @@ DataSet * TextBackend::readFromStream(QIODevice * stream,
   /// @todo separator.pattern() is simply ugly. Fix that somehow (on
   /// the Vector side)
   DataSet * ds = new DataSet(columns);
+  ds->name = QDir::cleanPath(fileName);
   /// @todo 
   return ds;
 }

@@ -42,7 +42,9 @@ SOURCES += src/qmain.cc \
         src/commandprompt.cc \
         src/utils.cc \
         src/databackend.cc \
-        src/textbackend.cc
+        src/textbackend.cc \
+        src/datastack.cc \
+        src/datastack-commands.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -62,5 +64,6 @@ HEADERS += src/headers.hh \
         src/dataset.hh \
         src/commandprompt.hh \
         src/databackend.hh \
-        src/textbackend.hh
+        src/textbackend.hh \
+        src/datastack.hh
 

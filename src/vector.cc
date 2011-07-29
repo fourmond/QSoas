@@ -58,16 +58,16 @@ QList<Vector> Vector::readFromStream(QIODevice * source,
       if(! ok)
         value = 0.0/0.0; /// @todo customize
       retVal[i] << value;
-      numberRead++;
     }
+    numberRead++;
   }
   // Trim the values in order to save memory a bit (at the cost of
   // quite a bit of reallocation/copying time)
   for(int i = 0; i < retVal.size(); i++)
     retVal[i].squeeze();
 
-  QTextStream o(stdout);
-  o << "Read " << retVal.size() << " columns and "
-    << numberRead << " rows and " << lineNumber << " lines" << endl;
+  // QTextStream o(stdout);
+  // o << "Read " << retVal.size() << " columns and "
+  //   << numberRead << " rows and " << lineNumber << " lines" << endl;
   return retVal;
 }

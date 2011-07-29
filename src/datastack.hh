@@ -24,7 +24,10 @@
 
 /// The data stack, ie all DataSet objects known to Soas.
 ///
-/// @todo Add the redo stack
+/// Commands missing here:
+/// @li undo/redo + redo stack
+/// @li save/load stack (in a binary format containing
+/// exactly everyting, see QDataStream)
 class DataStack {
 
   /// The DataSet objects

@@ -24,7 +24,9 @@ QStringList Utils::glob(const QString & pattern, bool trim)
 {
   QFileInfo info(pattern);
   QDir dir = info.dir();
-  QStringList lst = dir.entryList(QStringList() << info.fileName());
+  QStringList lst = dir.entryList(QStringList() << info.fileName(), 
+                                  QDir::NoDotAndDotDot |
+                                  QDir::Files | QDir::Dirs);
   if(lst.isEmpty() && ! trim)
     lst << info.fileName();
   for(int i = 0; i < lst.size(); i++)

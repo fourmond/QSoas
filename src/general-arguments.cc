@@ -22,6 +22,24 @@
 #include <argumentmarshaller.hh>
 #include <utils.hh>
 
+/// A utility function for
+static QStringList proposeFileCompletion(const QString & str)
+{
+  QTextStream o(stdout);
+  o << "Looking for completion for " << str << endl;
+  QStringList candidates = Utils::glob(str + "*");
+  o << " ->" << candidates.size() << "candidates" << endl;
+  for(int i = 0; i < candidates.size(); i++)
+    candidates[i] = QDir::cleanPath(candidates[i]);
+  if(candidates.size() == 1) {
+    QFileInfo info(candidates.first());
+    if(info.isDir())
+      candidates.first().append("/");
+    candidates << candidates.first();
+  }
+  return candidates;
+}
+
 ArgumentMarshaller * FileArgument::fromString(const QString & str) const
 {
   return new ArgumentMarshallerChild<QString>(str);
@@ -39,7 +57,7 @@ ArgumentMarshaller * FileArgument::promptForValue(QWidget * base) const
 
 QStringList FileArgument::proposeCompletion(const QString & starter) const
 {
-  return Utils::glob(starter + "*");
+  return proposeFileCompletion(starter);
 }
 
 ////////////////////////////////////////////////////////////
@@ -65,7 +83,7 @@ void SeveralFilesArgument::concatenateArguments(ArgumentMarshaller * a,
 
 QStringList SeveralFilesArgument::proposeCompletion(const QString & starter) const
 {
-  return Utils::glob(starter + "*");
+  return proposeFileCompletion(starter);
 }
 
 ////////////////////////////////////////////////////////////

@@ -195,8 +195,13 @@ public:
   /// in the form of /something
   ///
   /// \li everything else is as argument.
+  ///
+  /// If the optional argument \p annotate isn't NULL, then it is
+  /// filled with a correspondance argument -> argument number or -1
+  /// if it is an option.
   static QPair<QStringList, QHash<QString, QString> > 
-  splitArgumentsAndOptions(const QStringList & rawArgs);
+  splitArgumentsAndOptions(const QStringList & rawArgs,
+                           QList<int> * annotate = NULL);
 
   /// Splits the given command-line into words.
   ///

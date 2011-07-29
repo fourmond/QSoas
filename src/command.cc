@@ -144,18 +144,27 @@ QAction * Command::actionForCommand(QObject * parent) const
 
 
 QPair<QStringList, QHash<QString, QString> > 
-Command::splitArgumentsAndOptions(const QStringList & rawArgs)
+Command::splitArgumentsAndOptions(const QStringList & rawArgs,
+                                  QList<int> * annotate)
 {
   QPair<QStringList, QHash<QString, QString> > ret;
   QStringList & args = ret.first;
   QHash<QString, QString> & opts = ret.second;
   int size = rawArgs.size();
+
+  if(annotate) {
+    annotate->clear();
+    for(int i = 0; i < rawArgs.size(); i++)
+      *annotate << -1;
+  }
   
   QRegExp optionRE("^\\s*/([a-zA-Z-]+)\\s*(?:=?\\s*|=\\s*(.*))$");
   QRegExp equalRE("^\\s*=\\s*(.*)$");
 
   for(int i = 0; i < size; i++) {
     if(rawArgs[i].startsWith("/!")) {
+      if(annotate)
+        (*annotate)[i] = args.size();
       args.append(rawArgs[i].mid(2));
       continue;
     }
@@ -183,8 +192,11 @@ Command::splitArgumentsAndOptions(const QStringList & rawArgs)
           opts[optionName] = next;
       }
     }
-    else
+    else {
+      if(annotate)
+        (*annotate)[i] = args.size();
       args.append(rawArgs[i]);
+    }
   }
 
   return ret;

@@ -52,14 +52,23 @@ QList<Vector> Vector::readFromStream(QIODevice * source,
     while(retVal.size() < elements.size()) {
       retVal << Vector(numberRead, 0.0/0.0);
     }
+    int nbNans = 0;
     for(int i = 0; i < retVal.size(); i++) {
       bool ok = false;
       double value = locale.toDouble(elements.value(i, ""), &ok);
       if(! ok)
         value = 0.0/0.0; /// @todo customize
+      if(value != value)
+        nbNans++;
       retVal[i] << value;
     }
-    numberRead++;
+    // We remove lines fully made of NaNs
+    if(nbNans == retVal.size()) {
+      for(int i = 0; i < retVal.size(); i++)
+        retVal[i].resize(retVal[i].size() - 1);
+    }
+    else
+      numberRead++;
   }
   // Trim the values in order to save memory a bit (at the cost of
   // quite a bit of reallocation/copying time)

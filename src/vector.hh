@@ -67,6 +67,18 @@ public:
 
   /// @}
 
+  /// @name Data inspection facilities
+  ///
+  /// @{
+
+  /// The minimum value
+  double min() const;
+
+  /// The maximum value
+  double max() const;
+
+  /// @}
+
   /// Reads textual data from a file.
   /// \li separator is specified by 
   /// \li comment lines are those that match \p commentRE. They are stored

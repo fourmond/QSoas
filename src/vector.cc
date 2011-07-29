@@ -51,6 +51,7 @@ QList<Vector> Vector::readFromStream(QIODevice * source,
     /// @todo customize trimming.
     while(retVal.size() < elements.size()) {
       retVal << Vector(numberRead, 0.0/0.0);
+      retVal.last().reserve(10000); // Most files won't be as large
     }
     int nbNans = 0;
     for(int i = 0; i < retVal.size(); i++) {
@@ -79,4 +80,30 @@ QList<Vector> Vector::readFromStream(QIODevice * source,
   // o << "Read " << retVal.size() << " columns and "
   //   << numberRead << " rows and " << lineNumber << " lines" << endl;
   return retVal;
+}
+
+double Vector::min() const
+{
+  int sz = size();
+  if(! sz)
+    return 0.0/0.0;
+  const double * d = data();
+  double m = d[0];
+  for(int i = 1; i < sz; i++)
+    if(d[i] < m)
+      m = d[i];
+  return m;
+}
+
+double Vector::max() const
+{
+  int sz = size();
+  if(! sz)
+    return 0.0/0.0;
+  const double * d = data();
+  double m = d[0];
+  for(int i = 1; i < sz; i++)
+    if(d[i] > m)
+      m = d[i];
+  return m;
 }

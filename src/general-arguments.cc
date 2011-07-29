@@ -22,13 +22,10 @@
 #include <argumentmarshaller.hh>
 #include <utils.hh>
 
-/// A utility function for
+/// A utility function for a clean file completion.
 static QStringList proposeFileCompletion(const QString & str)
 {
-  QTextStream o(stdout);
-  o << "Looking for completion for " << str << endl;
   QStringList candidates = Utils::glob(str + "*");
-  o << " ->" << candidates.size() << "candidates" << endl;
   for(int i = 0; i < candidates.size(); i++)
     candidates[i] = QDir::cleanPath(candidates[i]);
   if(candidates.size() == 1) {

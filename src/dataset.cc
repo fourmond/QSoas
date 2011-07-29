@@ -29,6 +29,7 @@ void DataSet::dump() const
 
 int DataSet::size() const
 {
+  /// @todo use the cache ?
   int s = 0;
   for(int i = 0; i < columns.size(); i++)
     s += columns[i].size();
@@ -40,4 +41,30 @@ QString DataSet::stringDescription() const
 {
   return QObject::tr("'%1': %2 columns, %3 rows, %4 bytes").
     arg(name).arg(nbColumns()).arg(nbRows()).arg(size());
+}
+
+void DataSet::regenerateCache() const
+{
+  if(isCacheValid())
+    return;
+
+  int size = columns.size();
+  cache.minima.resize(size);
+  cache.maxima.resize(size);
+
+  for(int i = 0; i < size; i++) {
+    cache.minima[i] = columns[i].min();
+    cache.maxima[i] = columns[i].max();
+  }
+  
+  cache.valid = true;
+}
+
+QRectF DataSet::boundingBox() const
+{
+  updateCache();
+  QRectF r;
+  r.setCoords(cache.minima[0], cache.minima[1], 
+              cache.maxima[0], cache.maxima[1]);
+  return r;
 }

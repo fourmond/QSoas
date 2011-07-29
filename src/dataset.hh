@@ -34,6 +34,36 @@ class DataSet {
 
   /// The columns
   QList<Vector> columns;
+
+  /// A private cache
+  class Cache {
+  public:
+    bool valid;
+    Cache() : valid(false) {;};
+
+    QVector<double> minima;
+    QVector<double> maxima;
+  };
+
+  /// An internal cache to speed up various computations.
+  mutable Cache cache;
+
+  void invalidateCache() {
+    cache.valid = false;
+  };
+
+  bool isCacheValid() const {
+    return cache.valid;
+  };
+
+  /// Regenerate the cache
+  void regenerateCache() const;
+
+  /// Ensures that the cache is up-to-date
+  void updateCache() const {
+    if(! isCacheValid())
+      regenerateCache();
+  };
 public:
 
   /// The name of the dataset, usually the name of the file.
@@ -47,6 +77,7 @@ public:
   DataSet & operator<<(const Vector & column);
 
   Vector & x() {
+    invalidateCache();
     return columns[0];
   };
 
@@ -55,6 +86,7 @@ public:
   };
 
   Vector & y() {
+    invalidateCache();
     return columns[1];
   };
 
@@ -84,6 +116,20 @@ public:
   /// Returns the overall size used by the DataSet (not counting the
   /// QList overhead, probably much smaller than the rest anyway).
   int size() const;
+
+  /// @name Data inspection facilites
+  ///
+  /// Functions that return various information about the data
+  /// contained in the Vector.
+  ///
+  /// @{
+
+  /// Returns the XY bounding box of the DataSet.
+  QRectF boundingBox() const;
+
+
+  /// @}
+  
 };
 
 #endif

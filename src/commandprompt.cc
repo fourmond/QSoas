@@ -18,6 +18,11 @@
 
 #include <headers.hh>
 #include <commandprompt.hh>
+#include <command.hh>
+#include <utils.hh>
+#include <argument.hh>
+#include <argumentlist.hh>
+#include <mainwin.hh>
 
 CommandPrompt::CommandPrompt() : nbSuccessiveTabs(0), historyItem(-1)
 {
@@ -27,13 +32,46 @@ CommandPrompt::~CommandPrompt()
 {
 }
 
+void CommandPrompt::replaceWord(const Word & w, const QString & str, 
+                                bool full)
+{
+  QString t = text();
+  QString r = str;
+  if(full)
+    r += " ";
+  int end = (full ? w.next : w.end);
+  t.replace(w.begin, end - w.begin, r);
+  setText(t);
+  setCursorPosition(w.begin + r.size());
+}
+
 void CommandPrompt::keyPressEvent(QKeyEvent * event)
 {
   if(event->key() == Qt::Key_Tab) {
     event->accept();
     nbSuccessiveTabs++;
+    Word w = getCurrentWord();
     QTextStream o(stdout);
-    o << "Completion requested..." << endl;
+    // o << "Completion for word #" << w.index 
+    //   << ": '" << w.word << "' = '"
+    //   << text().mid(w.begin, w.end - w.begin) << "'" << endl;
+    completions = getCompletions(w);
+    // o << "Completions :" << completions.join(", ") << endl;
+    if(completions.size() == 1) {
+      nbSuccessiveTabs = 0;
+      replaceWord(w, Command::quoteString(completions.first()));
+    }
+    else {
+      QString common = Utils::commonBeginning(completions);
+      if(common == w.word) {
+        QString str = QObject::tr("%1 completions: %2").
+          arg(completions.size()).arg(completions.join(", "));
+        MainWin::showMessage(str);
+      }
+      else {
+        replaceWord(w, Command::quoteString(common), false);
+      }
+    }
   }
   else if(event->key() == Qt::Key_Up) {
     event->accept();
@@ -67,4 +105,37 @@ void CommandPrompt::keyPressEvent(QKeyEvent * event)
 void CommandPrompt::addHistoryItem(const QString & str)
 {
   savedHistory.prepend(str);
+}
+
+CommandPrompt::Word CommandPrompt::getCurrentWord() const
+{
+  QList<int> beg, end;
+  QString str = text();
+  QStringList splitted = Command::wordSplit(str, &beg, &end);
+  int i = 0;
+  for(; i < end.size(); i++)
+    if(end[i] >= cursorPosition())
+      break;
+  return Word(splitted.value(i), 
+              beg.value(i, str.size()),
+              end.value(i, str.size()), 
+              beg.value(i+1, str.size()),
+              i, splitted);
+}
+
+
+QStringList CommandPrompt::getCompletions(const Word & w) const
+{
+  if(w.index == 0)
+    return Utils::stringsStartingWith(Command::allCommands(), w.word);
+  Command * cmd = Command::namedCommand(w.allWords[0]);
+  if(! cmd || ! cmd->commandArguments())
+    return QStringList();       // Possibly even send a warning ?
+  Argument * arg = cmd->commandArguments()->
+    whichArgument(w.index-1, w.allWords.size());
+  if(! arg)
+    return QStringList();
+  /// @todo This really doesn't handle options gracefully. But that
+  /// one is going to be tough...
+  return arg->proposeCompletion(w.word);
 }

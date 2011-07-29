@@ -190,7 +190,9 @@ Command::splitArgumentsAndOptions(const QStringList & rawArgs)
   return ret;
 }
 
-QStringList Command::wordSplit(const QString & str, QList<int> * wordBegin)
+QStringList Command::wordSplit(const QString & str, 
+                               QList<int> * wordBegin,
+                               QList<int> * wordEnd)
 {
   int sw = -1;
   QChar quote = 0;
@@ -200,8 +202,11 @@ QStringList Command::wordSplit(const QString & str, QList<int> * wordBegin)
 
   if(wordBegin)
     wordBegin->clear();
+  if(wordEnd)
+    wordEnd->clear();
 
-  for(int cur = 0; cur < size; cur++) {
+  int cur;
+  for(cur = 0; cur < size; cur++) {
     QChar c = str[cur];
     if(quote != 0) {
       if(c != quote)
@@ -216,6 +221,8 @@ QStringList Command::wordSplit(const QString & str, QList<int> * wordBegin)
         retVal << curString;
         if(wordBegin)
           *wordBegin << sw;
+        if(wordEnd)
+          *wordEnd << cur;
         sw = -1;
         curString.clear();
       }
@@ -236,6 +243,8 @@ QStringList Command::wordSplit(const QString & str, QList<int> * wordBegin)
     retVal << curString;
     if(wordBegin)
       *wordBegin << sw;
+    if(wordEnd)
+      *wordEnd << cur;
   }
   return retVal;
 }
@@ -265,4 +274,11 @@ QString Command::unsplitWords(const QStringList & cmdline)
   for(int i = 0; i < cmdline.size(); i++)
     s << quoteString(cmdline[i]);
   return s.join(" ");
+}
+
+QStringList Command::allCommands()
+{
+  if(! availableCommands)
+    return QStringList();
+  return availableCommands->keys();
 }

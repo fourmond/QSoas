@@ -36,6 +36,14 @@ ArgumentMarshaller * FileArgument::promptForValue(QWidget * base) const
   return fromString(file);
 }
 
+
+QStringList FileArgument::proposeCompletion(const QString & starter) const
+{
+  return Utils::glob(starter + "*");
+}
+
+////////////////////////////////////////////////////////////
+
 ArgumentMarshaller * SeveralFilesArgument::fromString(const QString & str) const
 {
   return new ArgumentMarshallerChild<QStringList>(Utils::glob(str, false));
@@ -55,5 +63,7 @@ void SeveralFilesArgument::concatenateArguments(ArgumentMarshaller * a,
   a->value<QStringList>() += b->value<QStringList>();
 }
 
-
-
+QStringList SeveralFilesArgument::proposeCompletion(const QString & starter) const
+{
+  return Utils::glob(starter + "*");
+}

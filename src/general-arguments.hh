@@ -41,6 +41,7 @@ public:
 
   /// Prompting uses a QFileDialog.
   virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
+  virtual QStringList proposeCompletion(const QString & starter) const;
 };
 
 /// An argument representing a unique file name.
@@ -62,6 +63,7 @@ public:
   virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
   virtual void concatenateArguments(ArgumentMarshaller * a, 
                                     const ArgumentMarshaller * b) const;
+  virtual QStringList proposeCompletion(const QString & starter) const;
 };
 
 

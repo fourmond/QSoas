@@ -31,3 +31,43 @@ QStringList Utils::glob(const QString & pattern, bool trim)
     lst[i] = dir.filePath(lst[i]);
   return lst;
 }
+
+QStringList Utils::stringsStartingWith(const QStringList & strings, 
+                                       const QString & start)
+{
+  QStringList ret;
+  for(int i = 0; i < strings.size(); i++) {
+    if(strings[i].startsWith(start))
+      ret << strings[i];
+  }
+  return ret;
+}
+
+QString Utils::commonBeginning(const QStringList & strings)
+{
+  if(! strings.size())
+    return "";
+
+  // First, determine the minimum size of the strings
+  int min = strings.first().size();
+  for(int i = 1; i < strings.size(); i++)
+    if(strings[i].size() < min)
+      min = strings[i].size();
+
+  QString ret;
+  int i = 0;
+  while(i < min) {
+    QChar cur = strings.first()[i];
+    bool diff = false;
+    for(int j = 1; j < strings.size(); j++)
+      if( strings[j][i] != cur) {
+        diff = true;
+        break;
+      }
+    if(diff)
+      break;
+    ret.append(cur);
+    i++;
+  }
+  return ret;
+}

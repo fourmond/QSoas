@@ -28,6 +28,9 @@ class CommandPrompt : public QLineEdit {
   /// The number of successive hits on the TAB key
   int nbSuccessiveTabs;
 
+  /// The current completions
+  QStringList completions;
+
   /// Saved history, by reverse order of age (0 = most recent)
   QStringList savedHistory;
 
@@ -36,6 +39,34 @@ class CommandPrompt : public QLineEdit {
 
   /// Saving the currently edited line when recalling history
   QString savedLine;
+
+  /// Internal class to represent the current word
+  class Word {
+  public:
+    QString word;
+    int begin;
+    int end;
+    int next;
+    int index;
+    QStringList allWords;
+    
+    Word(const QString & s, int b, int e, int n, int i,
+         const QStringList & aw) : 
+      word(s), begin(b), end(e), next(n), index(i),
+      allWords(aw) {;};
+  };
+
+  /// Returns the current word
+  Word getCurrentWord() const;
+
+  /// Get all the possible completions for the current argument.
+  QStringList getCompletions(const Word & w) const;
+
+  /// Replace the given Word by the new string, and go at the end of
+  /// it. Optionnally adds a space.
+  void replaceWord(const Word & w, const QString & str, 
+                   bool full = true);
+
 
 public:
 
@@ -47,6 +78,7 @@ public slots:
 
 protected:
   virtual void keyPressEvent(QKeyEvent * event);
+
 };
 
 #endif

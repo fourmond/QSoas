@@ -43,9 +43,12 @@
 
 #include <commandwidget.hh>
 
+MainWin * MainWin::theMainWindow = NULL;
+
 MainWin::MainWin()
 {
   setupFrame();
+  theMainWindow = this;
 }
 
 void MainWin::setupFrame()
@@ -69,3 +72,7 @@ MainWin::~MainWin()
 {
 }
 
+void MainWin::showMessage(const QString & str)
+{
+  theMainWindow->statusBar()->showMessage(str,  3000);
+}

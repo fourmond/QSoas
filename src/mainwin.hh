@@ -31,9 +31,15 @@ class MainWin : public QMainWindow {
 
   CommandWidget * commandWidget;
 
+  /// The MainWin that will receive messages
+  static MainWin * theMainWindow;
+
 public:
   MainWin();
   ~MainWin();
+
+  /// Displays a message on the status bar of theMainWindow;
+  static void showMessage(const QString & str);
 
 protected slots:
   void menuActionTriggered(QAction * action);

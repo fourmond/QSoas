@@ -152,6 +152,11 @@ public:
     return QObject::tr(longDesc);
   };
 
+  /// Returns the arguments to this command. This can be NULL !
+  const ArgumentList * commandArguments() const {
+    return arguments;
+  };
+
   /// Categorize the commands within groups. This function \b must be
   /// called at the beginning of main.
   static void crosslinkCommands();
@@ -197,9 +202,11 @@ public:
   ///
   /// If \p wordBegin isn't NULL, the target is cleared and filled
   /// with the position of the first character of each word returned
-  /// in QStringList.
+  /// in QStringList. Same goes for \p wordEnd, that points to the
+  /// char \b after the end of the word.
   static QStringList wordSplit(const QString & args, 
-                               QList<int> * wordBegin = NULL);
+                               QList<int> * wordBegin = NULL,
+                               QList<int> * wordEnd = NULL);
 
   /// Quotes the given string so that it won't be split by wordSplit().
   static QString quoteString(const QString & str);
@@ -207,6 +214,9 @@ public:
   /// Does the reverse of wordSplit, (or almost), while trying to be
   /// clever on the quoting side.
   static QString unsplitWords(const QStringList & cmdline);
+
+  /// All available commands
+  static QStringList allCommands();
 
 };
 

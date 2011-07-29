@@ -157,6 +157,11 @@ public:
     return arguments;
   };
 
+  /// Returns the options to this command. This can be NULL !
+  const ArgumentList * commandOptions() const {
+    return options;
+  };
+
   /// Categorize the commands within groups. This function \b must be
   /// called at the beginning of main.
   static void crosslinkCommands();
@@ -199,9 +204,13 @@ public:
   /// If the optional argument \p annotate isn't NULL, then it is
   /// filled with a correspondance argument -> argument number or -1
   /// if it is an option.
+  ///
+  /// \p pendingOption is set to true if an option is still pending to
+  /// be parsed.
   static QPair<QStringList, QHash<QString, QString> > 
   splitArgumentsAndOptions(const QStringList & rawArgs,
-                           QList<int> * annotate = NULL);
+                           QList<int> * annotate = NULL,
+                           bool * pendingOption = NULL);
 
   /// Splits the given command-line into words.
   ///

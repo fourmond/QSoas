@@ -67,3 +67,22 @@ QStringList SeveralFilesArgument::proposeCompletion(const QString & starter) con
 {
   return Utils::glob(starter + "*");
 }
+
+////////////////////////////////////////////////////////////
+
+
+ArgumentMarshaller * StringArgument::fromString(const QString & str) const
+{
+  return new ArgumentMarshallerChild<QString>(str);
+}
+
+ArgumentMarshaller * StringArgument::promptForValue(QWidget * base) const
+{
+  bool ok = false;
+  QString str = 
+    QInputDialog::getText(base, argumentName(), description(),
+                          QLineEdit::Normal, QString(), &ok);
+  if(! ok)
+    throw std::runtime_error("Aborted"); 
+  return fromString(str);
+}

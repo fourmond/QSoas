@@ -56,7 +56,10 @@ public:
   /// 
   /// @{
   static CommandEffector * functionEffectorOptionLess(void (*f)(const QString &)); 
+
   template<class A1> static CommandEffector * functionEffectorOptionLess(void (*f)(const QString &, A1));
+
+  template<class A1> static CommandEffector * functionEffector(void (*f)(const QString &, A1, const CommandOptions &));
 
   /// @}
 };

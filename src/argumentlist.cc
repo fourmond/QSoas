@@ -58,6 +58,14 @@ Argument * ArgumentList::namedArgument(const QString & name) const
   return cache.value(name, NULL);
 }
 
+
+QStringList ArgumentList::argumentNames() const
+{
+  if(cache.size() != size())
+    regenerateCache();
+  return cache.keys();
+}
+
 inline int ArgumentList::assignArg(int i, int total) const
 {
   if(total <= size() || greedyArg < 0 || i < greedyArg )

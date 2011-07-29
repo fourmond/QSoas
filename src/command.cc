@@ -77,6 +77,8 @@ CommandArguments Command::parseArguments(const QStringList & args,
 
 CommandOptions Command::parseOptions(const QHash<QString, QString> & opts) const
 {
+  /// @todo handle greedy arguments ? That requires a QMultiHash rather
+  /// than a QHash, but that should be doable ?
   CommandOptions ret;  
   if(! options)
     return ret;
@@ -145,12 +147,15 @@ QAction * Command::actionForCommand(QObject * parent) const
 
 QPair<QStringList, QHash<QString, QString> > 
 Command::splitArgumentsAndOptions(const QStringList & rawArgs,
-                                  QList<int> * annotate)
+                                  QList<int> * annotate,
+                                  bool * pendingOption)
 {
   QPair<QStringList, QHash<QString, QString> > ret;
   QStringList & args = ret.first;
   QHash<QString, QString> & opts = ret.second;
   int size = rawArgs.size();
+  if(pendingOption)
+    *pendingOption = false;
 
   if(annotate) {
     annotate->clear();
@@ -190,6 +195,9 @@ Command::splitArgumentsAndOptions(const QStringList & rawArgs,
         }
         else
           opts[optionName] = next;
+        // We're left with an unfinished option.
+        if(pendingOption && i >= rawArgs.size())
+          *pendingOption = true;
       }
     }
     else {

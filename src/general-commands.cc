@@ -50,6 +50,8 @@ quit("quit", // command name
                        "Exits QSoas, losing all the current session"),
      "q");
 
+//////////////////////////////////////////////////////////////////////
+
 static ArgumentList 
 loadArgs(QList<Argument *>() 
          << new SeveralFilesArgument("file", 
@@ -76,6 +78,47 @@ load("load", // command name
      QT_TRANSLATE_NOOP("Commands", 
                        "Exits QSoas, losing all the current session"),
      "l");
+
+//////////////////////////////////////////////////////////////////////
+
+static ArgumentList 
+dummyOptions(QList<Argument *>() 
+             << new FileArgument("file", 
+                                 QT_TRANSLATE_NOOP("Arguments", "File"),
+                                 QT_TRANSLATE_NOOP("Arguments", "Files to load !"))
+             << new StringArgument("fiddle",
+                                   QT_TRANSLATE_NOOP("Arguments", "File"),
+                                   QT_TRANSLATE_NOOP("Arguments", "Files to load !"))
+             << new StringArgument("stuff",
+                                   QT_TRANSLATE_NOOP("Arguments", "File"),
+                                   QT_TRANSLATE_NOOP("Arguments", "Files to load !"))
+             );
+                             
+
+static void dummyCommand(const QString & name, QStringList args, 
+                         const CommandOptions & opts)
+{
+  for(int i = 0; i < args.size(); i++)
+    Terminal::out << "Arg #" << i << ": '" << args[i] << "'" << endl;
+  for(CommandOptions::const_iterator i = opts.begin();
+      i != opts.end(); i++)
+    Terminal::out << "Option: " << i.key() << ": '" 
+                  << i.value()->value<QString>() << "'" << endl;
+  
+}
+
+
+static Command 
+dummy("dummy", // command name
+      CommandEffector::functionEffector(dummyCommand), // action
+      "file",  // group name
+      &loadArgs, // arguments
+      &dummyOptions, // options
+      QT_TRANSLATE_NOOP("Commands", "Load"),
+      QT_TRANSLATE_NOOP("Commands", "Loads one or several files"),
+      QT_TRANSLATE_NOOP("Commands", 
+                        "Exits QSoas, losing all the current session"),
+      "d");
 
 
 

@@ -1,5 +1,5 @@
 /*
-  databackend.cc: implementation of the DataBackend class
+  databackend.cc: implementation of the DataBackend factory class
   Copyright 2011 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify

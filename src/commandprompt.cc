@@ -32,7 +32,7 @@ CommandPrompt::~CommandPrompt()
 {
 }
 
-void CommandPrompt::replaceWord(const Word & w, const QString & str, 
+void CommandPrompt::replaceWord(const CompletionContext & w, const QString & str, 
                                 bool full)
 {
   QString t = text();
@@ -45,33 +45,46 @@ void CommandPrompt::replaceWord(const Word & w, const QString & str,
   setCursorPosition(w.begin + r.size());
 }
 
+void CommandPrompt::doCompletion()
+{
+  nbSuccessiveTabs++;
+  CompletionContext c = getCompletionContext();
+  QTextStream o(stdout);
+  // o << "Completion for word #" << w.index 
+  //   << ": '" << w.word << "' = '"
+  //   << text().mid(w.begin, w.end - w.begin) << "'" << endl;
+  QString reason = tr("No completion");
+  bool complete = true;
+  completions = getCompletions(c, &reason, &complete);
+  // o << "Completions :" << completions.join(", ") << endl;
+  if(completions.size() == 0) {
+    MainWin::showMessage(reason);
+    return;
+  }
+  if(completions.size() == 1) {
+    nbSuccessiveTabs = 0;
+    replaceWord(c, Command::quoteString(completions.first()), 
+                complete);
+  }
+  else {
+    QString common = Utils::commonBeginning(completions);
+    if(common == c.word) {
+      QString str = tr("%1 completions: %2").
+        arg(completions.size()).arg(completions.join(", "));
+      MainWin::showMessage(str);
+    }
+    else {
+      replaceWord(c, Command::quoteString(common), false);
+    }
+  }
+
+}
+
 void CommandPrompt::keyPressEvent(QKeyEvent * event)
 {
   if(event->key() == Qt::Key_Tab) {
     event->accept();
-    nbSuccessiveTabs++;
-    Word w = getCurrentWord();
-    QTextStream o(stdout);
-    // o << "Completion for word #" << w.index 
-    //   << ": '" << w.word << "' = '"
-    //   << text().mid(w.begin, w.end - w.begin) << "'" << endl;
-    completions = getCompletions(w);
-    // o << "Completions :" << completions.join(", ") << endl;
-    if(completions.size() == 1) {
-      nbSuccessiveTabs = 0;
-      replaceWord(w, Command::quoteString(completions.first()));
-    }
-    else {
-      QString common = Utils::commonBeginning(completions);
-      if(common == w.word) {
-        QString str = QObject::tr("%1 completions: %2").
-          arg(completions.size()).arg(completions.join(", "));
-        MainWin::showMessage(str);
-      }
-      else {
-        replaceWord(w, Command::quoteString(common), false);
-      }
-    }
+    doCompletion();
   }
   else if(event->key() == Qt::Key_Up) {
     event->accept();
@@ -107,35 +120,101 @@ void CommandPrompt::addHistoryItem(const QString & str)
   savedHistory.prepend(str);
 }
 
-CommandPrompt::Word CommandPrompt::getCurrentWord() const
+CommandPrompt::CompletionContext CommandPrompt::getCompletionContext() const
 {
-  QList<int> beg, end;
+  QList<int> beg, end, ann;
   QString str = text();
   QStringList splitted = Command::wordSplit(str, &beg, &end);
+  bool pendingOption = false;
+  QPair<QStringList, QHash<QString, QString> > p = 
+    Command::splitArgumentsAndOptions(splitted.mid(1), &ann, &pendingOption);
   int i = 0;
   for(; i < end.size(); i++)
     if(end[i] >= cursorPosition())
       break;
-  return Word(splitted.value(i), 
-              beg.value(i, str.size()),
-              end.value(i, str.size()), 
-              beg.value(i+1, str.size()),
-              i, splitted);
+  return CompletionContext(splitted.value(i), 
+                           beg.value(i, str.size()),
+                           end.value(i, str.size()), 
+                           beg.value(i+1, str.size()),
+                           i, p.first.size(), pendingOption,
+                           splitted, ann);
 }
 
 
-QStringList CommandPrompt::getCompletions(const Word & w) const
+QStringList CommandPrompt::getCompletions(const CompletionContext & c, 
+                                          QString * reason, 
+                                          bool * complete) const
 {
-  if(w.index == 0)
-    return Utils::stringsStartingWith(Command::allCommands(), w.word);
-  Command * cmd = Command::namedCommand(w.allWords[0]);
-  if(! cmd || ! cmd->commandArguments())
-    return QStringList();       // Possibly even send a warning ?
-  Argument * arg = cmd->commandArguments()->
-    whichArgument(w.index-1, w.allWords.size());
+  *complete = true;
+  if(c.index == 0)
+    return Utils::stringsStartingWith(Command::allCommands(), c.word);
+  Command * cmd = Command::namedCommand(c.allWords[0]);
+  if(! cmd) {
+    *reason = tr("Unkown command: %1").arg(c.allWords[0]);
+    return QStringList();
+  }
+  // Here, be more clever.
+  
+  int argid = c.annotations.value(c.index - 1, c.argumentNumber);
+  Argument * arg = NULL;
+  if(argid < 0 || c.word == "/" || c.unfinishedOption) {
+    if(! cmd->commandOptions()) {
+      *reason = tr("Command %1 takes no options").
+        arg(c.allWords[0]);
+      return QStringList();
+    }
+
+    // Big question: do we complete on the option name or the option
+    // value ?
+    QRegExp optionRE("^/([a-zA-Z-]*)\\s*(=\\s*(.*))?");
+    if(optionRE.indexIn(c.word) >= 0) {
+      if(optionRE.cap(2).isEmpty()) {
+        *complete = false;
+        // We are completing on option name
+        QStringList values = 
+          Utils::stringsStartingWith(cmd->commandOptions()->argumentNames(),
+                                     optionRE.cap(1));
+        for(int i = 0; i < values.size(); i++)
+          values[i] = QString("/%1=").arg(values[i]);
+        return values;
+      }
+      else {
+        // We complete on option value.
+        QString optionName = optionRE.cap(1); // 
+        arg = cmd->commandOptions()->namedArgument(optionName);
+        QStringList values;
+        if(!arg) {
+          *reason = tr("No such option: %1").arg(optionName);
+          return values;
+        }
+        values = arg->proposeCompletion(optionRE.cap(3));
+        for(int i = 0; i < values.size(); i++) {
+          values[i] = QString("/%1=%2").
+            arg(optionName).arg(values[i]);
+        }
+        return values;
+      }
+    }
+    else {
+      // We need to look at the arguments before
+      if(optionRE.indexIn(c.allWords[c.index-1]) < 0)
+        optionRE.indexIn(c.allWords[c.index-2]);
+      QString optionName = optionRE.cap(1); // 
+      arg = cmd->commandOptions()->namedArgument(optionName);
+      if(!arg)
+        *reason = tr("No such option: %1").arg(optionName);
+    }
+  }
+  else {
+    if(! cmd->commandArguments())
+      *reason = tr("Command %1 takes no arguments").
+        arg(c.allWords[0]);
+    else 
+      arg = cmd->commandArguments()->
+        whichArgument(argid, c.argumentNumber);
+  }
+  
   if(! arg)
     return QStringList();
-  /// @todo This really doesn't handle options gracefully. But that
-  /// one is going to be tough...
-  return arg->proposeCompletion(w.word);
+  return arg->proposeCompletion(c.word);
 }

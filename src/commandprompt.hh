@@ -40,32 +40,45 @@ class CommandPrompt : public QLineEdit {
   /// Saving the currently edited line when recalling history
   QString savedLine;
 
-  /// Internal class to represent the current word
-  class Word {
+  /// Internal class to represent the current completion context
+  class CompletionContext {
   public:
     QString word;
     int begin;
     int end;
     int next;
     int index;
+    /// The number of arguments which are truly arguments and not
+    /// options.
+    int argumentNumber;
+    bool unfinishedOption;
     QStringList allWords;
+    QList<int> annotations;
     
-    Word(const QString & s, int b, int e, int n, int i,
-         const QStringList & aw) : 
+    CompletionContext(const QString & s, int b, int e, int n, int i,
+                      int an, bool uo,
+                      const QStringList & aw, const QList<int> & l) : 
       word(s), begin(b), end(e), next(n), index(i),
-      allWords(aw) {;};
+      argumentNumber(an), unfinishedOption(uo),
+      allWords(aw), annotations(l) {;};
+
+    /// Here, some helpful functions ?
   };
 
   /// Returns the current word
-  Word getCurrentWord() const;
+  CompletionContext getCompletionContext() const;
 
   /// Get all the possible completions for the current argument.
-  QStringList getCompletions(const Word & w) const;
+  QStringList getCompletions(const CompletionContext & c, 
+                             QString * reason, bool * complete) const;
 
   /// Replace the given Word by the new string, and go at the end of
   /// it. Optionnally adds a space.
-  void replaceWord(const Word & w, const QString & str, 
+  void replaceWord(const CompletionContext & c, const QString & str, 
                    bool full = true);
+
+  /// Performs automatic completion.
+  void doCompletion();
 
 
 public:

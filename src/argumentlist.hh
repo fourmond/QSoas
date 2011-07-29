@@ -54,6 +54,9 @@ public:
   /// Returns the named argument, or NULL if there isn't any
   Argument * namedArgument(const QString & name) const;
 
+  /// Returns the names of all the arguments.
+  QStringList argumentNames() const;
+
   /// Returns the number of the Argument object used for taking care
   /// of the numbered argument string, taking into account greedy
   /// arguments.

@@ -36,7 +36,7 @@ public:
                const char * d = "") : Argument(cn, pn, d) {
   }; 
   
-  /// Returns a wrapped QString for now.
+  /// Returns a wrapped QString
   virtual ArgumentMarshaller * fromString(const QString & str) const;
 
   /// Prompting uses a QFileDialog.
@@ -64,6 +64,21 @@ public:
   virtual void concatenateArguments(ArgumentMarshaller * a, 
                                     const ArgumentMarshaller * b) const;
   virtual QStringList proposeCompletion(const QString & starter) const;
+};
+
+/// A simple string argument
+class StringArgument : public Argument {
+public:
+
+  StringArgument(const char * cn, const char * pn,
+                 const char * d = "") : Argument(cn, pn, d) {
+  }; 
+  
+  /// Returns a wrapped QString
+  virtual ArgumentMarshaller * fromString(const QString & str) const;
+
+  /// Prompting uses QInputDialog.
+  virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
 };
 
 

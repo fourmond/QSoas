@@ -26,6 +26,7 @@
 
 #include <vector.hh>
 #include <dataset.hh>
+#include <databackend.hh>
 
 static Group file("file", 0,
                   QT_TRANSLATE_NOOP("Groups", "File"),
@@ -62,8 +63,17 @@ loadArgs(QList<Argument *>()
 
 static void loadCommand(const QString & name, QStringList files)
 {
-  for(int i = 0; i < files.size(); i++)
-    Terminal::out << "Should load '" << files[i] << "'" << endl;
+  for(int i = 0; i < files.size(); i++) {
+    Terminal::out << "Loading file '" << files[i] << "'" << endl;
+    try {
+      DataSet * s = DataBackend::loadFile(files[i]);
+      Terminal::out << s->x().size() << " rows " << endl;
+      delete s;
+    }
+    catch (const std::runtime_error & e) {
+      Terminal::out << e.what() << endl;
+    }
+  }
 }
 
 

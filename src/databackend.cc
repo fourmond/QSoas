@@ -35,14 +35,17 @@ DataBackend * DataBackend::backendForStream(QIODevice * stream,
                                             const QString & fileName)
 {
   /// @todo Error handling for peek ?
-  QByteArray head = stream->peek(512);
+  QByteArray head = stream->peek(4096); // Should be enough to get
+                                        // past most headers ?
   DataBackend * backend = NULL;
   int priority = 0;
+  QTextStream o(stdout);
   if(! availableBackends)
     return NULL;
   for(int i = 0; i < availableBackends->size(); i++) {
     DataBackend * b = availableBackends->value(i);
     int p = b->couldBeMine(head, fileName);
+    o << "Backend: " << b->name << " -> " << p << endl;
     if(p >= 1000)
       return b;
     if(p > priority) {

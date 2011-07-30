@@ -20,14 +20,19 @@
 #ifndef __CURVEVIEW_HH
 #define __CURVEVIEW_HH
 
-#include <vector.hh>
 
-/// This is a small wrapper around QGraphicsView providing:
-/// \li axes (in the form of a border)
-/// \li background lines
-class CurveView : public QGraphicsView {
+#include <vector.hh>
+class DataSet;
+
+/// This widget displays CurveItem (or children thereof)
+/// 
+class CurveView : public QAbstractScrollArea {
 
   Q_OBJECT;
+
+  /// The application-wide CurveView
+  static CurveView * theCurveView;
+
 
   /// Returns the rectangle in which the graph is displayed, in widget
   /// coordinates.
@@ -64,27 +69,30 @@ class CurveView : public QGraphicsView {
   /// The pen used to draw backgroundLines
   QPen bgLinesPen;
 
+  /// The underlying widget
+  QWidget * w;
+
 public:
 
-  CurveView(QGraphicsScene * scene);
+  CurveView();
   virtual ~CurveView();
 
   /// Zooms to the given rectangle, or the full scene if the rectangle
   /// is empty
   void zoomTo(const QRectF &r = QRectF());
 
-protected slots:
-  void updateSceneRect(const QRectF & rect);
+  /// Returns the application-wide CurveDisplayWidget
+  static CurveView * displayWidget() {
+    return theCurveView;
+  };
+
+  /// Adds a DataSet to the display.
+  void addDataSet(const DataSet * ds);
+
 
 protected:
   virtual void resizeEvent(QResizeEvent * event);
-  virtual void drawBackground(QPainter * painter, const QRectF & rect);
-  virtual void drawForeground(QPainter * painter, const QRectF & rect);
-
   virtual void paintEvent(QPaintEvent * event);
-
-  /// Decorate the target frame rectangle with the tick label.
-  void decorateGraphFrame(QPainter * painter, const QRectF & rect);
 };
 
 #endif

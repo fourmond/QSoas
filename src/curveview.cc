@@ -25,28 +25,24 @@
 
 #include <math.h>
 
-CurveView::CurveView(QGraphicsScene * sc) : 
-  QGraphicsView(sc),
+
+CurveView * CurveView::theCurveView = NULL;
+
+CurveView::CurveView() : 
   bgLinesPen(QColor("#DDD"), 1.5, Qt::DashLine)
                                             
 {
+  theCurveView = this;
+  QVBoxLayout * layout = new QVBoxLayout(this);
+  w = new QWidget;
+  layout->addWidget(w);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setFrameShape(QFrame::NoFrame);
-  connect(sc, SIGNAL(sceneRectChanged(const QRectF &)),
-          SLOT(updateSceneRect(const QRectF &)));
 
-  /// @todo customize this
-  // setRenderHints(QPainter::Antialiasing|QPainter::TextAntialiasing);
-  // Only turn that on with openGL 
-
-  setTransformationAnchor(QGraphicsView::NoAnchor);
-  setResizeAnchor(QGraphicsView::NoAnchor);
-  setAlignment(Qt::AlignLeft | Qt::AlignTop);
-
-  /// @todo The approach by setViewportMargins may have advantages
-  /// over the one currently used, but, well...
-  // setViewportMargins(20,30,0,0);
+  // /// @todo customize this
+  // // setRenderHints(QPainter::Antialiasing|QPainter::TextAntialiasing);
+  // // Only turn that on with openGL 
 
   bgLinesPen.setCosmetic(true);
 }
@@ -57,62 +53,63 @@ CurveView::~CurveView()
 
 QRect CurveView::internalRectangle() const
 {
-  return rect().normalized().adjusted(30, 10, -10, -30);
+  return rect().normalized().adjusted(30, 4, -4, -30);
 }
 
-QRectF CurveView::currentZoom() const
-{
-  /// @todo zoom stack
-  return scene()->sceneRect();
-}
+// QRectF CurveView::currentZoom() const
+// {
+//   /// @todo zoom stack
+//   return scene()->sceneRect();
+// }
 
 void CurveView::invalidateTicks()
 {
   xTicks.clear();
 }
 
-void CurveView::setTransform(const QRect & wR,
-                             const QRectF & sR)
-{
-  QTransform t;
-  t.scale(wR.width()/sR.width(), -wR.height()/sR.height());
-  QGraphicsView::setTransform(t);
+// void CurveView::setTransform(const QRect & wR,
+//                              const QRectF & sR)
+// {
+//   QTransform t;
+//   t.scale(wR.width()/sR.width(), -wR.height()/sR.height());
+//   QGraphicsView::setTransform(t);
 
-  QRect r = rect();
-  r.translate(-wR.x(), -wR.y());
+//   QRect r = rect();
+//   r.translate(-wR.x(), -wR.y());
 
-  // Reset internal translations to QGraphicsView
-  setSceneRect(sR);
-  QRectF r2 = mapToScene(r).boundingRect();
-  setSceneRect(r2);
+//   // Reset internal translations to QGraphicsView
+//   setSceneRect(sR);
+//   QRectF r2 = mapToScene(r).boundingRect();
+//   setSceneRect(r2);
 
-  invalidateTicks();
-}
+//   invalidateTicks();
+// }
 
-void CurveView::setTransform()
-{
-  QRect r = internalRectangle();
-  QRectF z = currentZoom();
-  setTransform(r, z);
-}
+// void CurveView::setTransform()
+// {
+//   QRect r = internalRectangle();
+//   QRectF z = currentZoom();
+//   setTransform(r, z);
+// }
 
-void CurveView::zoomTo(const QRectF &z)
-{
-  /// @todo zoom stack
-  setTransform();
-}
+// void CurveView::zoomTo(const QRectF &z)
+// {
+//   /// @todo zoom stack
+//   setTransform();
+// }
 
-void CurveView::updateSceneRect(const QRectF &z)
-{
-  if(zoomStack.size() > 0)
-    return;                     // Don't update view
-  setTransform();
-}
+// void CurveView::updateSceneRect(const QRectF &z)
+// {
+//   if(zoomStack.size() > 0)
+//     return;                     // Don't update view
+//   setTransform();
+// }
 
 void CurveView::resizeEvent(QResizeEvent * event)
 {
-  QGraphicsView::resizeEvent(event);
-  setTransform();
+  // QGraphicsView::resizeEvent(event);
+  // setTransform();
+  viewport()->setGeometry(rect());
 }
 
 
@@ -169,40 +166,40 @@ static Vector pickMajorTicksLocation(double min, double max,
 
 void CurveView::pickTicks()
 {
-  QTransform t = transform();
-  QRectF rect = currentZoom().normalized();
-  {
-    double minTick = std::max(fabs(50/t.m11()), rect.width()/8);
-    double tick;
-    xTicks = pickMajorTicksLocation(rect.left(), rect.right(), 
-                                    &tick, minTick);
-  }  
-  {
-    double minTick = std::max(fabs(40/t.m22()), rect.height()/8);
-    double tick;
-    yTicks = pickMajorTicksLocation(rect.top(), rect.bottom(), 
-                                    &tick, minTick);
-  }
+  // QTransform t = transform();
+  // QRectF rect = currentZoom().normalized();
+  // {
+  //   double minTick = std::max(fabs(50/t.m11()), rect.width()/8);
+  //   double tick;
+  //   xTicks = pickMajorTicksLocation(rect.left(), rect.right(), 
+  //                                   &tick, minTick);
+  // }  
+  // {
+  //   double minTick = std::max(fabs(40/t.m22()), rect.height()/8);
+  //   double tick;
+  //   yTicks = pickMajorTicksLocation(rect.top(), rect.bottom(), 
+  //                                   &tick, minTick);
+  // }
 }
 
-void CurveView::drawBackground(QPainter * painter, const QRectF & /*rect*/)
-{
-  QRectF r = currentZoom();
-  if(xTicks.size() == 0)
-    pickTicks();
+// void CurveView::drawBackground(QPainter * painter, const QRectF & /*rect*/)
+// {
+//   QRectF r = currentZoom();
+//   if(xTicks.size() == 0)
+//     pickTicks();
 
-  painter->save();
-  painter->setPen(bgLinesPen); 
-  for(int i = 0; i < xTicks.size(); i++) {
-    double x = xTicks[i];
-    painter->drawLine(QLineF(x, r.bottom(), x, r.top()));
-  }
-  for(int i = 0; i < yTicks.size(); i++) {
-    double y = yTicks[i];
-    painter->drawLine(QLineF(r.left(), y, r.right(), y));
-  }
-  painter->restore();
-}
+//   painter->save();
+//   painter->setPen(bgLinesPen); 
+//   for(int i = 0; i < xTicks.size(); i++) {
+//     double x = xTicks[i];
+//     painter->drawLine(QLineF(x, r.bottom(), x, r.top()));
+//   }
+//   for(int i = 0; i < yTicks.size(); i++) {
+//     double y = yTicks[i];
+//     painter->drawLine(QLineF(r.left(), y, r.right(), y));
+//   }
+//   painter->restore();
+// }
 
 /// Draws a filled frame inside \p rect but outside \p inner.
 ///
@@ -233,25 +230,46 @@ static void drawFrame(QPainter * p,
   p->restore();
 }
 
-void CurveView::decorateGraphFrame(QPainter * painter, const QRectF & rect)
-{
-  
-}
+// void CurveView::decorateGraphFrame(QPainter * painter, const QRectF & rect)
+// {
+//   painter->save();
+//   painter->setWorldTransform(QTransform());
+//   painter->setTransform(QTransform());
+//   for(int i = 0; i < xTicks.size(); i++) {
+//     double x = xTicks[i];
+//     QPointF p(x, rect.bottom());
+//     QPointF t = mapFromScene(p);
+//     painter->drawText(t, "d");
+//   }
+//   painter->restore();
+// }
 
-void CurveView::drawForeground(QPainter * painter, const QRectF & /*rect*/)
-{
-  QRect r = rect();
-  QRectF outer = mapToScene(r).boundingRect();
-  QRectF inner = currentZoom();
-  const QPalette & p = palette();
-  ::drawFrame(painter, outer, inner, QPen("black"), 
-              p.brush(QPalette::Window));
-
+// void CurveView::drawForeground(QPainter * painter, const QRectF & /*rect*/)
+// {
+//   QRect r = rect();
+//   QRectF outer = mapToScene(r).boundingRect();
+//   QRectF inner = currentZoom();
+//   const QPalette & p = palette();
+//   ::drawFrame(painter, outer, inner, QPen("black"), 
+//               p.brush(QPalette::Window));
+//   decorateGraphFrame(painter, inner);
   
-}
+// }
 
 void CurveView::paintEvent(QPaintEvent * event)
 {
-  QGraphicsView::paintEvent(event);
-  
+  QPainter p(viewport());
+
+  QRect r = rect();
+  const QPalette & pal= palette();
+  p.fillRect(r, pal.brush(QPalette::Window));
+
+  p.drawLine(r.bottomLeft(), r.topRight());
+
+  r.adjust(20,20,-20,-20);
+  p.drawLine(r.topLeft(), r.bottomRight());
+}
+
+void CurveView::addDataSet(const DataSet * ds)
+{
 }

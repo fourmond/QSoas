@@ -21,10 +21,10 @@
 #define __CURVEITEM_HH
 
 class DataSet;
-/// A 2D curve on a ...
+/// A 2D curve to be attached to a CurveView class.
 ///
 /// 
-class CurveItem : public QGraphicsItem {
+class CurveItem {
 
   const DataSet * dataSet;
 
@@ -39,9 +39,10 @@ public:
   virtual ~CurveItem();
 
   virtual QRectF boundingRect() const;
-  virtual void paint(QPainter * painter, 
-                     const QStyleOptionGraphicsItem * option, 
-                     QWidget * widget);
+
+  /// Paint the curve. The painter is setup so that the coordinate are
+  /// the curves coordinates.
+  virtual void paint(QPainter * painter);
 };
 
 

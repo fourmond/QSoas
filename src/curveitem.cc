@@ -46,9 +46,7 @@ void CurveItem::createPath()
 }
 
 
-void CurveItem::paint(QPainter * painter, 
-                      const QStyleOptionGraphicsItem * option, 
-                      QWidget * /*widget*/)
+void CurveItem::paint(QPainter * painter)
 {
   createPath();
   QPen def("black");

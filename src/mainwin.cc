@@ -41,7 +41,7 @@
 #include <command.hh>
 
 #include <commandwidget.hh>
-#include <curvedisplaywidget.hh>
+#include <curveview.hh>
 
 MainWin * MainWin::theMainWindow = NULL;
 
@@ -60,11 +60,11 @@ void MainWin::setupFrame()
 
   QSplitter * s = new QSplitter(Qt::Vertical);
   // QVBoxLayout * layout = new QVBoxLayout(w);
-  curveDisplayWidget = new CurveDisplayWidget;
-  s->addWidget(curveDisplayWidget);
+  curveView = new CurveView;
+  s->addWidget(curveView);
   commandWidget = new CommandWidget;
   s->addWidget(commandWidget);
-  curveDisplayWidget->setFocusProxy(commandWidget);
+  curveView->setFocusProxy(commandWidget);
   s->setFocusProxy(commandWidget);
   
   setCentralWidget(s);

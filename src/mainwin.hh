@@ -21,7 +21,7 @@
 #define __MAINWIN_HH
 
 class CommandWidget;
-class CurveDisplayWidget;
+class CurveView;
 
 /// The main window
 class MainWin : public QMainWindow {
@@ -32,7 +32,7 @@ class MainWin : public QMainWindow {
 
   CommandWidget * commandWidget;
 
-  CurveDisplayWidget * curveDisplayWidget;
+  CurveView * curveView;
 
   /// The MainWin that will receive messages
   static MainWin * theMainWindow;

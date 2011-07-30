@@ -38,6 +38,7 @@
 #include <command.hh>
 
 #include <commandwidget.hh>
+#include <curvedisplaywidget.hh>
 
 MainWin * MainWin::theMainWindow = NULL;
 
@@ -53,8 +54,19 @@ void MainWin::setupFrame()
   Group::fillMenuBar(menuBar());
   connect(menuBar(), SIGNAL(triggered(QAction *)),
           SLOT(menuActionTriggered(QAction *)));
+
+  QSplitter * s = new QSplitter(Qt::Vertical);
+  // QVBoxLayout * layout = new QVBoxLayout(w);
+  curveDisplayWidget = new CurveDisplayWidget;
+  s->addWidget(curveDisplayWidget);
   commandWidget = new CommandWidget;
-  setCentralWidget(commandWidget);
+  s->addWidget(commandWidget);
+  curveDisplayWidget->setFocusProxy(commandWidget);
+  s->setFocusProxy(commandWidget);
+  
+  setCentralWidget(s);
+
+  commandWidget->setFocus();
 }
 
 void MainWin::menuActionTriggered(QAction * action)

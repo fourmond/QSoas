@@ -40,6 +40,8 @@
 #include <QTabWidget>
 #include <QScrollArea>
 
+#include <QSplitter>
+
 #include <QListWidget>
 #include <QComboBox>
 
@@ -58,6 +60,13 @@
 #include <QScrollBar>
 #include <QSpinBox>
 
+// The graphics view !
+#include <QGraphicsView>
+#include <QGraphicsScene>
+#include <QGraphicsPathItem>
+#include <QGraphicsRectItem>
+#include <QGraphicsItem>
+#include <QPainterPath>
 
 // A rich text viewer (and editor?).
 // (not used)

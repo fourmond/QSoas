@@ -44,7 +44,9 @@ SOURCES += src/qmain.cc \
         src/databackend.cc \
         src/textbackend.cc \
         src/datastack.cc \
-        src/datastack-commands.cc
+        src/datastack-commands.cc \
+        src/curveitem.cc \
+        src/curvedisplaywidget.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -65,5 +67,7 @@ HEADERS += src/headers.hh \
         src/commandprompt.hh \
         src/databackend.hh \
         src/textbackend.hh \
-        src/datastack.hh
+        src/datastack.hh \
+        src/curveitem.hh \
+        src/curvedisplaywidget.hh
 

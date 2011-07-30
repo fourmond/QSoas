@@ -1,6 +1,6 @@
 /**
-   \file mainwin.hh
-   Main window for QSoas
+   \file curveitem.hh
+   The CurveItem class, ie an object representing a 2D curve on a graphics scene
    Copyright 2011 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
@@ -17,37 +17,32 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __MAINWIN_HH
-#define __MAINWIN_HH
+#ifndef __CURVEITEM_HH
+#define __CURVEITEM_HH
 
-class CommandWidget;
-class CurveDisplayWidget;
+class DataSet;
+/// A 2D curve on a ...
+///
+/// 
+class CurveItem : public QGraphicsItem {
 
-/// The main window
-class MainWin : public QMainWindow {
+  const DataSet * dataSet;
 
-  Q_OBJECT;
+  QPainterPath * cachedPath;
 
-  void setupFrame();
-
-  CommandWidget * commandWidget;
-
-  CurveDisplayWidget * curveDisplayWidget;
-
-  /// The MainWin that will receive messages
-  static MainWin * theMainWindow;
-
-
+  /// @todo With this scheme, things won't happen too well
+  void createPath();
 public:
-  MainWin();
-  ~MainWin();
+  CurveItem(const DataSet * ds): dataSet(ds), 
+                                 cachedPath(NULL) {;};
 
-  /// Displays a message on the status bar of theMainWindow;
-  static void showMessage(const QString & str);
+  virtual ~CurveItem();
 
-protected slots:
-  void menuActionTriggered(QAction * action);
-
+  virtual QRectF boundingRect() const;
+  virtual void paint(QPainter * painter, 
+                     const QStyleOptionGraphicsItem * option, 
+                     QWidget * widget);
 };
+
 
 #endif

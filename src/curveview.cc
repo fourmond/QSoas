@@ -27,9 +27,11 @@
 #include <math.h>
 
 #include <mainwin.hh>
+#include <curveeventloop.hh>
 
 CurveView::CurveView() : 
-  bgLinesPen(QColor("#DDD"), 1.5, Qt::DashLine), nbStyled(0)
+  bgLinesPen(QColor("#DDD"), 1.5, Qt::DashLine), nbStyled(0),
+  eventLoop(NULL)
                                             
 {
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -281,6 +283,10 @@ void CurveView::showDataSet(const DataSet * ds)
   addDataSet(ds);
 }
 
+
+//////////////////////////////////////////////////////////////////////
+/// Event-related functions.
+
 // These are not necessary, but kept just for the record.
 
 bool CurveView::event(QEvent * event)
@@ -307,22 +313,60 @@ void CurveView::helpEvent(QHelpEvent * event)
 
 void CurveView::mouseMoveEvent(QMouseEvent * event)
 {
-  if(internalRectangle().contains(event->pos())) {
-    QPointF f = fromWidget(event->pos());
-    MainWin::showMessage(tr("X: %1, Y: %2").
-                         arg(f.x()).arg(f.y()));
+  if(eventLoop)
+    eventLoop->receiveMouseEvent(event);
+  else {
+    if(internalRectangle().contains(event->pos())) {
+      QPointF f = fromWidget(event->pos());
+      MainWin::showMessage(tr("X: %1, Y: %2").
+                           arg(f.x()).arg(f.y()));
+    }
+    QAbstractScrollArea::mouseMoveEvent(event);
   }
-  QAbstractScrollArea::mouseMoveEvent(event);
 }
 
 void CurveView::mousePressEvent(QMouseEvent * event)
 {
-
-  QAbstractScrollArea::mousePressEvent(event);
+  if(eventLoop)
+    eventLoop->receiveMouseEvent(event);
+  else
+    QAbstractScrollArea::mousePressEvent(event);
 }
 
 void CurveView::mouseReleaseEvent(QMouseEvent * event)
 {
-  QAbstractScrollArea::mouseReleaseEvent(event);
+  if(eventLoop)
+    eventLoop->receiveMouseEvent(event);
+  else
+    QAbstractScrollArea::mouseReleaseEvent(event);
+}
+
+void CurveView::keyPressEvent(QKeyEvent * event)
+{
+  if(eventLoop)
+    eventLoop->receiveKeyEvent(event);
+  else
+    QAbstractScrollArea::keyPressEvent(event);
+}
+
+void CurveView::enterLoop(CurveEventLoop * loop)
+{
+  if(eventLoop)
+    throw std::logic_error("Attempting to attach a second loop to the same view");
+  if(! loop)
+    return;
+
+  eventLoop = loop;
+  viewport()->grabMouse();
+  grabKeyboard();
+}
+
+void CurveView::leaveLoop()
+{
+  if(! eventLoop)
+    return;
+  viewport()->releaseMouse();
+  releaseKeyboard();
+  eventLoop = NULL;
 }
 

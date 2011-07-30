@@ -28,6 +28,8 @@
 #include <dataset.hh>
 #include <databackend.hh>
 
+#include <curveeventloop.hh>
+
 static Group file("file", 0,
                   QT_TRANSLATE_NOOP("Groups", "File"),
                   QT_TRANSLATE_NOOP("Groups", "General purpose commands"));
@@ -50,6 +52,30 @@ quit("quit", // command name
      QT_TRANSLATE_NOOP("Commands", 
                        "Exits QSoas, losing all the current session"),
      "q");
+
+//////////////////////////////////////////////////////////////////////
+
+static void testELoopCommand(const QString & name)
+{
+  CurveEventLoop loop;
+  QTextStream o(stdout);
+  while(! loop.finished()) {
+    o << "Event: " << loop.type() << endl
+      << " -> key " << QString("0x%1").arg(loop.key(), 8, 16, 
+                                           QChar('0')) << endl;
+  }
+}
+
+static Command 
+tel("test-event-loop", // command name
+     CommandEffector::functionEffectorOptionLess(testELoopCommand), // action
+     "file",  // group name
+     NULL, // arguments
+     NULL, // options
+     QT_TRANSLATE_NOOP("Commands", "Test event loop"),
+     QT_TRANSLATE_NOOP("Commands", "Test event loop"),
+     QT_TRANSLATE_NOOP("Commands", 
+                       "Exits QSoas, losing all the current session"));
 
 //////////////////////////////////////////////////////////////////////
 

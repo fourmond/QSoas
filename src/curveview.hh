@@ -25,6 +25,8 @@
 class DataSet;
 class CurveItem;
 
+class CurveEventLoop;
+
 /// This widget displays CurveItem (or children thereof)
 /// 
 class CurveView : public QAbstractScrollArea {
@@ -95,6 +97,20 @@ class CurveView : public QAbstractScrollArea {
   };
   
 
+  /// @name Event loop related functions/attributes
+  ///
+  /// 
+  /// Handling of event loops.
+  /// @{
+
+  friend class CurveEventLoop;
+  CurveEventLoop * eventLoop;
+
+  void enterLoop(CurveEventLoop * loop);
+  void leaveLoop();
+
+  /// @}
+
 public:
 
   CurveView();
@@ -125,6 +141,8 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent * event);
 
   virtual void helpEvent(QHelpEvent * event);
+
+  virtual void keyPressEvent(QKeyEvent * event);
 };
 
 #endif

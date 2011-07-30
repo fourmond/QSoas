@@ -61,8 +61,11 @@ class CurveView : public QAbstractScrollArea {
   /// currentZoom().
   void computeTransform();
 
-  /// The transform to be used to scale from the 
+  /// Transforms curve coordinate into widget coordinates
   QTransform transform;
+
+  /// Does the reverse.
+  QTransform reverseTransform;
 
   Vector xTicks;
   Vector yTicks;
@@ -86,6 +89,12 @@ class CurveView : public QAbstractScrollArea {
   /// Returns a pen for the next curve to be added.
   QPen penForNextCurve();
 
+  /// Maps from widget coordinates to curve coordinates.
+  QPointF fromWidget(const QPoint & p) {
+    return reverseTransform.map(QPointF(p));
+  };
+  
+
 public:
 
   CurveView();
@@ -107,6 +116,15 @@ public:
 protected:
   virtual void resizeEvent(QResizeEvent * event);
   virtual void paintEvent(QPaintEvent * event);
+
+
+  virtual bool event(QEvent * event);
+
+  virtual void mouseMoveEvent(QMouseEvent * event);
+  virtual void mousePressEvent(QMouseEvent * event);
+  virtual void mouseReleaseEvent(QMouseEvent * event);
+
+  virtual void helpEvent(QHelpEvent * event);
 };
 
 #endif

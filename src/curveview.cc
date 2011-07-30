@@ -26,6 +26,8 @@
 
 #include <math.h>
 
+#include <mainwin.hh>
+
 CurveView::CurveView() : 
   bgLinesPen(QColor("#DDD"), 1.5, Qt::DashLine), nbStyled(0)
                                             
@@ -33,6 +35,9 @@ CurveView::CurveView() :
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setFrameShape(QFrame::NoFrame);
+  // setAttribute(Qt::WA_Hover);   // We handle hover events
+
+  setMouseTracking(true);
 
   // /// @todo customize this
   // // setRenderHints(QPainter::Antialiasing|QPainter::TextAntialiasing);
@@ -74,6 +79,8 @@ void CurveView::computeTransform(const QRect & wR2,
   double dy = -sR.bottom() * m22 + wR.top();
 
   transform = QTransform(m11, 0, 0, m22, dx, dy);
+  reverseTransform = transform.inverted(); // That's inversible,
+                                           // thanks.
   invalidateTicks();
 }
 
@@ -273,3 +280,49 @@ void CurveView::showDataSet(const DataSet * ds)
   clear();
   addDataSet(ds);
 }
+
+// These are not necessary, but kept just for the record.
+
+bool CurveView::event(QEvent * event)
+{
+  switch(event->type()) {
+  // case QEvent::HoverEnter:
+  // case QEvent::HoverLeave: 
+  // case QEvent::HoverMove:
+  //   hoverEvent(dynamic_cast<QHoverEvent*>(event));
+  //   return true;
+  //   break;
+  case QEvent::ToolTip: 
+    helpEvent(dynamic_cast<QHelpEvent *>(event));
+    return true;
+  default:
+    return QAbstractScrollArea::event(event);
+  }
+}
+
+void CurveView::helpEvent(QHelpEvent * event)
+{
+  /// @todo tooltips ?
+}
+
+void CurveView::mouseMoveEvent(QMouseEvent * event)
+{
+  if(internalRectangle().contains(event->pos())) {
+    QPointF f = fromWidget(event->pos());
+    MainWin::showMessage(tr("X: %1, Y: %2").
+                         arg(f.x()).arg(f.y()));
+  }
+  QAbstractScrollArea::mouseMoveEvent(event);
+}
+
+void CurveView::mousePressEvent(QMouseEvent * event)
+{
+
+  QAbstractScrollArea::mousePressEvent(event);
+}
+
+void CurveView::mouseReleaseEvent(QMouseEvent * event)
+{
+  QAbstractScrollArea::mouseReleaseEvent(event);
+}
+

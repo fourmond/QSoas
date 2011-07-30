@@ -28,6 +28,7 @@
 
 #include <mainwin.hh>
 #include <curveeventloop.hh>
+#include <dataset.hh>
 
 CurveView::CurveView() : 
   bgLinesPen(QColor("#DDD"), 1.5, Qt::DashLine), nbStyled(0),
@@ -291,6 +292,24 @@ void CurveView::showDataSet(const DataSet * ds)
   addDataSet(ds);
 }
 
+const DataSet * CurveView::closestDataSet(const QPointF &point,
+                                          double * dist, int * idx) const
+{
+  *idx = -1;
+  const DataSet * ds = NULL;
+  for(int i = 0; i < displayedItems.size(); i++) {
+    const DataSet * d = displayedItems[i]->dataSet;
+    QPair<double, int> rv = d->distanceTo(point, transform.m11(),
+                                          transform.m22());
+    if((! ds && rv.second >= 0) ||
+       (ds && rv.first < *dist)) {
+      ds = d;
+      *idx = rv.second;
+      *dist = rv.first;
+    }
+  }
+  return ds;
+}
 
 //////////////////////////////////////////////////////////////////////
 /// Event-related functions.
@@ -316,7 +335,24 @@ bool CurveView::event(QEvent * event)
 
 void CurveView::helpEvent(QHelpEvent * event)
 {
-  /// @todo tooltips ?
+  if(internalRectangle().contains(event->pos())) {
+    QPointF p = fromWidget(event->pos());
+    double dist;
+    int idx;
+    const DataSet * ds = 
+      closestDataSet(p, &dist, &idx);
+    if(ds && dist < 20) {
+      QString str;
+      str += tr("Dataset: %1<br>").
+        arg(ds->name);
+      p = ds->pointAt(idx);
+      str += tr("Point #%1: <br>%2,%3").
+        arg(idx).arg(p.x()).arg(p.y());
+      QToolTip::showText(event->globalPos(),
+                         str, this);
+      /// @todo even worse: higlight the actual data point.
+    }
+  }
 }
 
 void CurveView::mouseMoveEvent(QMouseEvent * event)

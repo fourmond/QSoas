@@ -111,6 +111,10 @@ class CurveView : public QAbstractScrollArea {
 
   /// @}
 
+  /// Returns the closest DataSet to the given point.
+  const DataSet * closestDataSet(const QPointF &point, 
+                                 double * dist, int * idx) const;
+
 public:
 
   CurveView();

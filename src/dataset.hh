@@ -128,6 +128,34 @@ public:
   QRectF boundingBox() const;
 
 
+  /// Returns the distance of the \a x, \a y point to the curve, along
+  /// with the index of the closest point
+  QPair<double, int> distanceTo(double x, double y) const;
+  
+
+  /// Returns the distance of the \a point to the curve.
+  QPair<double, int> distanceTo(const QPointF & p) const {
+    return distanceTo(p.x(), p.y());
+  };
+
+  /// Returns the distance of the \a x, \a y point to the curve, along
+  /// with the index of the closest point
+  QPair<double, int> distanceTo(double x, double y, 
+                                double xscale, double yscale) const;
+  
+
+  /// Returns the distance of the \a point to the curve.
+  QPair<double, int> distanceTo(const QPointF & p, 
+                                double xscale, double yscale) const {
+    return distanceTo(p.x(), p.y(), xscale, yscale);
+  };
+
+  /// Returns the numbered point
+  QPointF pointAt(int i) const {
+    return QPointF(columns[0][i], columns[1][i]);
+  };
+
+
   /// @}
   
 };

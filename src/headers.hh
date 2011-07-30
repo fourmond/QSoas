@@ -56,17 +56,13 @@
 #include <QInputDialog>
 #include <QColorDialog>
 #include <QMessageBox>
+#include <QToolTip>
 
 #include <QScrollBar>
 #include <QSpinBox>
 
-// The graphics view !
-#include <QGraphicsView>
-#include <QGraphicsScene>
-#include <QGraphicsPathItem>
-#include <QGraphicsRectItem>
-#include <QGraphicsItem>
 #include <QPainterPath>
+#include <QPainter>
 
 // A rich text viewer (and editor?).
 // (not used)

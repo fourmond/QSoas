@@ -25,9 +25,10 @@ class DataSet;
 ///
 /// 
 class CurveItem {
-
+public:
+  /// The dataset attached to this item.
   const DataSet * dataSet;
-
+private:
   QPainterPath * cachedPath;
 
   /// @todo With this scheme, things won't happen too well
@@ -44,7 +45,6 @@ public:
   /// the curves coordinates.
   virtual void paint(QPainter * painter);
 
-  
   /// The pen for painting the path
   QPen pen;
 

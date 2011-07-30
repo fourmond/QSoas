@@ -19,6 +19,8 @@
 #include <headers.hh>
 #include <dataset.hh>
 
+#include <math.h>
+
 void DataSet::dump() const
 {
   QTextStream o(stdout);
@@ -68,3 +70,56 @@ QRectF DataSet::boundingBox() const
               cache.maxima[0], cache.maxima[1]);
   return r;
 }
+
+
+QPair<double, int> DataSet::distanceTo(double x, double y) const
+{
+  const double * xvals = columns[0].data();
+  const double * yvals = columns[1].data();
+  int nb = columns[0].size();
+  if(nb == 0)
+    return QPair<double, int>(0.0/0.0, -1);
+
+  double dx = x - xvals[0];
+  double dy = y - yvals[0];
+  double dist = dx*dx + dy*dy;
+  int best = 0;
+  for(int i = 1; i < nb; i++) {
+    dx = x - xvals[i];
+    dy = y - yvals[i];
+    double d = dx * dx + dy * dy;
+    if(d < dist || dist != dist) {
+      dist = d;
+      best = i;
+    }
+  }
+
+  return QPair<double, int>(sqrt(dist), best);
+}
+
+QPair<double, int> DataSet::distanceTo(double x, double y, 
+                                       double xs, double ys) const
+{
+  const double * xvals = columns[0].data();
+  const double * yvals = columns[1].data();
+  int nb = columns[0].size();
+  if(nb == 0)
+    return QPair<double, int>(0.0/0.0, -1);
+
+  double dx = (x - xvals[0])*xs;
+  double dy = (y - yvals[0])*ys;
+  double dist = dx*dx + dy*dy;
+  int best = 0;
+  for(int i = 1; i < nb; i++) {
+    dx = (x - xvals[i])*xs;
+    dy = (y - yvals[i])*ys;
+    double d = dx * dx + dy * dy;
+    if(d < dist || dist != dist) {
+      dist = d;
+      best = i;
+    }
+  }
+
+  return QPair<double, int>(sqrt(dist), best);
+}
+

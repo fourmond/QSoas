@@ -30,7 +30,7 @@
 CurveView * CurveView::theCurveView = NULL;
 
 CurveView::CurveView() : 
-  bgLinesPen(QColor("#DDD"), 1.5, Qt::DashLine)
+  bgLinesPen(QColor("#DDD"), 1.5, Qt::DashLine), nbStyled(0)
                                             
 {
   theCurveView = this;
@@ -239,18 +239,24 @@ void CurveView::paintEvent(QPaintEvent * /*event*/)
   }
 }
 
+static const char * colors[] = 
+  { "red", "blue", "#080", "orange", "black" };
+static int nbColors = sizeof(colors)/sizeof(colors[0]);
+
+QPen CurveView::penForNextCurve()
+{
+  /// @todo and what about
+  QPen p(QColor(colors[nbStyled++ % nbColors]), 1.2);
+  p.setCosmetic(true);
+  return p;
+}
+
 void CurveView::addDataSet(const DataSet * ds)
 {
   CurveItem * item = new CurveItem(ds);
   displayedItems << item;
+  item->pen = penForNextCurve();
   QRectF r = item->boundingRect();
-  QTextStream o(stdout);
-  o << "DataSet Bounding box: ";
-  Utils::dumpRectangle(o, r);
-  o << endl;
-  // if(boundingBox.isNull())
-  //   boundingBox;
-  // else
   boundingBox = r.unite(boundingBox);
   computeTransform();
   viewport()->repaint();

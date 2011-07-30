@@ -82,6 +82,13 @@ class CurveView : public QAbstractScrollArea {
 
   /// Paint all the curves.
   void paintCurves(QPainter * p);
+  
+  /// Number of curves that got a style so far, also counting the ones
+  /// that were potentially removed. 
+  int nbStyled;
+
+  /// Returns a pen for the next curve to be added.
+  QPen penForNextCurve();
 
 public:
 

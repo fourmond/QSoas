@@ -49,7 +49,6 @@ void CurveItem::createPath()
 void CurveItem::paint(QPainter * painter)
 {
   createPath();
-  QPen def("black");
-  painter->setPen(def);
+  painter->setPen(pen);
   painter->drawPath(*cachedPath);
 }

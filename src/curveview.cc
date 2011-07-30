@@ -54,7 +54,7 @@ CurveView::~CurveView()
 
 QRect CurveView::internalRectangle() const
 {
-  return rect().normalized().adjusted(50, 10, -10, -30);
+  return rect().normalized().adjusted(50, 20, -10, -30);
 }
 
 QRectF CurveView::currentZoom() const
@@ -242,6 +242,13 @@ void CurveView::paintEvent(QPaintEvent * /*event*/)
                Qt::AlignVCenter | Qt::AlignRight | Qt::TextDontClip,
                QString::number(y));
   }
+
+  // Here the legend:
+  int start = 3;
+  for(int i = 0; i < displayedItems.size(); i++) {
+    QRect r(start, 3, 40, 12);
+    start += displayedItems[i]->drawLegend(&p, r);
+  }
 }
 
 static const char * colors[] = 
@@ -269,6 +276,7 @@ void CurveView::addDataSet(const DataSet * ds)
 
 void CurveView::clear()
 {
+  nbStyled = 0;
   for(int i = 0; i < displayedItems.size(); i++)
     delete displayedItems[i];
   displayedItems.clear();

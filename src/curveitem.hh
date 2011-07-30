@@ -47,6 +47,11 @@ public:
   
   /// The pen for painting the path
   QPen pen;
+
+  /// Draw a legend in the given rectangle. Returns the actual width
+  /// used for the draw.
+  int drawLegend(QPainter * p, const QRect & rect) const;
+
 };
 
 

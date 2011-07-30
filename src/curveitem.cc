@@ -52,3 +52,25 @@ void CurveItem::paint(QPainter * painter)
   painter->setPen(pen);
   painter->drawPath(*cachedPath);
 }
+
+int CurveItem::drawLegend(QPainter * p, const QRect & rect) const
+{
+  /// @todo many things to customize here...
+  
+  QPoint p1 = QPoint(rect.left(), (rect.bottom() + rect.top())/2);
+  QPoint p2 = p1 + QPoint(10, 0); // Mwouaf...
+  p->save();
+  QPen pen2 = pen;
+  pen2.setWidthF(1.5);
+  p->setPen(pen);
+  p->drawLine(p1, p2);
+  p->restore();
+  
+  QRect r = rect.adjusted(13, 0, 0, 0);
+  QRect t;
+  p->drawText(r, 
+              Qt::AlignLeft | Qt::AlignVCenter | Qt::TextDontClip,
+              dataSet->name,
+              &t);
+  return 3 + t.right() - rect.left();
+}

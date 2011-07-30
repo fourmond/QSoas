@@ -28,9 +28,10 @@ class DataSet;
 
 /// The class holding all information/actor related to Soas.
 ///
-/// This class is passed as argument to all CommandEffector
-/// children. It wraps all the information and the effectors that make
-/// up a Soas session (but it does not own them).
+/// This class wraps all the information and the effectors that make
+/// up a Soas session (but it does not own them). Most of the time,
+/// you'll access the application-wide instance using the soas()
+/// convenience function.
 class Soas {
 
   MainWin * mw;

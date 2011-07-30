@@ -27,7 +27,16 @@ class CurveItem;
 
 class CurveEventLoop;
 
-/// This widget displays CurveItem (or children thereof)
+/// This widget displays CurveItem (or children thereof).
+///
+/// It is the main graphical window of Soas (if not the only one !)
+///
+/// @todo Neat things to do:
+/// 
+/// @li setup a way to add transient indications (markers, XY
+/// data,...) that would get displayed and possibly dropped altogether
+/// with an appropriate function that probably would be called upon
+/// leaving the loop ?
 /// 
 class CurveView : public QAbstractScrollArea {
 

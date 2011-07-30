@@ -61,6 +61,7 @@ class CurveEventLoop {
   QEvent::Type lastEventType;
   int k;
   Qt::KeyboardModifiers mods;
+  QPoint pos;
 
   bool done;
 public:
@@ -87,6 +88,10 @@ public:
   int key() {
     return k;
   }
+
+  /// Returns the position of the last mouse event, in curve
+  /// coordinates
+  QPointF position() const;
 
 };
 

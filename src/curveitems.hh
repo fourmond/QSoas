@@ -1,6 +1,6 @@
 /**
-   \file curveitem.hh
-   The CurveItem class, ie something displayed by CurveView
+   \file curveitems.hh
+   Various generally useful CurveItem children
    Copyright 2011 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
@@ -17,26 +17,22 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __CURVEITEM_HH
-#define __CURVEITEM_HH
+#ifndef __CURVEITEMS_HH
+#define __CURVEITEMS_HH
 
-/// An object displayed by a CurveView class.
-///
-/// @todo Choose between widget and curve coordinates through a
-/// virtual function.
-///
-/// @todo Implement various displays: XY display, 0Y display (index
-/// instead of X), X and/or Y log... This should come as an argument
-/// to paint().
-class CurveItem : public QObject {
+#include <curveitem.hh>
+
+
+/// A simple line
+class CurveLine : public CurveItem {
 public:
-  virtual ~CurveItem();
+
+  QPointF p1;
+  QPointF p2;
+  QPen pen;
 
   virtual QRectF boundingRect() const;
-
-  /// Paint the curve. The painter is setup so that the coordinate are
-  /// the curves coordinates.
-  virtual void paint(QPainter * painter) = 0;
+  virtual void paint(QPainter * painter);
 };
 
 

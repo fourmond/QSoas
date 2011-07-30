@@ -24,6 +24,7 @@
 #include <vector.hh>
 class DataSet;
 class CurveItem;
+class CurveDataSet;
 
 class CurveEventLoop;
 
@@ -50,7 +51,11 @@ class CurveView : public QAbstractScrollArea {
   QList<QRectF> zoomStack;
 
   /// The CurveItem in display
-  QList<CurveItem *> displayedItems;
+  QList<CurveDataSet *> displayedDataSets;
+
+  /// Temporary objects. They can be deleted at any time, we don't
+  /// care.
+  QList<QPointer<CurveItem> > transientItems;
 
   /// The internal bounding box.
   QRectF boundingBox;
@@ -138,6 +143,9 @@ public:
 
   /// Shows the given DataSet (and forget about the other things)
   void showDataSet(const DataSet * ds);
+
+  /// Adds a transient item
+  void addTransientItem(CurveItem * item);
 
   /// Remove everything from the display
   void clear();

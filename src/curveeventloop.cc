@@ -36,6 +36,9 @@ CurveEventLoop::~CurveEventLoop()
   view->leaveLoop();
 
   // Send back all pending events ?
+
+  // and a repaint event ?
+  view->viewport()->repaint();
 }
 
 void CurveEventLoop::receiveMouseEvent(QMouseEvent * event)
@@ -69,6 +72,7 @@ void CurveEventLoop::processInputEvent(QInputEvent * ie)
 
 void CurveEventLoop::processMouseEvent(QMouseEvent * event)
 {
+  pos = event->pos();
 }
 
 void CurveEventLoop::processKeyEvent(QKeyEvent * event)
@@ -86,12 +90,18 @@ bool CurveEventLoop::finished()
   if(done)
     return true;
 
+  view->viewport()->repaint();
   while(pendingEvents.size() == 0) {
-    QCoreApplication::processEvents(QEventLoop::AllEvents, 0);
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
   }
 
   QInputEvent * ie = pendingEvents.takeFirst();
   processInputEvent(ie);
   delete ie;
   return done;
+}
+
+QPointF CurveEventLoop::position() const
+{
+  return view->fromWidget(pos);
 }

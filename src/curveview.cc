@@ -23,6 +23,7 @@
 #include <terminal.hh>
 #include <utils.hh>
 #include <curveitem.hh>
+#include <curvedataset.hh>
 
 #include <math.h>
 
@@ -200,8 +201,17 @@ void CurveView::paintCurves(QPainter * p)
     p->drawLine(QLineF(r.left(), y, r.right(), y));
   }
 
-  for(int i = 0; i < displayedItems.size(); i++)
-    displayedItems[i]->paint(p);
+  for(int i = 0; i < displayedDataSets.size(); i++)
+    displayedDataSets[i]->paint(p);
+  
+  for(int i = 0; i < transientItems.size(); i++) {
+    CurveItem * it = transientItems[i];
+    if(it)
+      it->paint(p);
+    else
+      ;
+    /// @todo Dispose of the pointer if NULL
+  }
   
   p->restore();
 }
@@ -246,9 +256,9 @@ void CurveView::paintEvent(QPaintEvent * /*event*/)
 
   // Here the legend:
   int start = 3;
-  for(int i = 0; i < displayedItems.size(); i++) {
+  for(int i = 0; i < displayedDataSets.size(); i++) {
     QRect r(start, 3, 40, 12);
-    start += displayedItems[i]->drawLegend(&p, r);
+    start += displayedDataSets[i]->drawLegend(&p, r);
   }
 }
 
@@ -266,8 +276,8 @@ QPen CurveView::penForNextCurve()
 
 void CurveView::addDataSet(const DataSet * ds)
 {
-  CurveItem * item = new CurveItem(ds);
-  displayedItems << item;
+  CurveDataSet * item = new CurveDataSet(ds);
+  displayedDataSets << item;
   item->pen = penForNextCurve();
   QRectF r = item->boundingRect();
   boundingBox = r.unite(boundingBox);
@@ -278,9 +288,9 @@ void CurveView::addDataSet(const DataSet * ds)
 void CurveView::clear()
 {
   nbStyled = 0;
-  for(int i = 0; i < displayedItems.size(); i++)
-    delete displayedItems[i];
-  displayedItems.clear();
+  for(int i = 0; i < displayedDataSets.size(); i++)
+    delete displayedDataSets[i];
+  displayedDataSets.clear();
   boundingBox = QRectF();
   invalidateTicks();
   repaint();
@@ -297,8 +307,8 @@ const DataSet * CurveView::closestDataSet(const QPointF &point,
 {
   *idx = -1;
   const DataSet * ds = NULL;
-  for(int i = 0; i < displayedItems.size(); i++) {
-    const DataSet * d = displayedItems[i]->dataSet;
+  for(int i = 0; i < displayedDataSets.size(); i++) {
+    const DataSet * d = displayedDataSets[i]->dataSet;
     QPair<double, int> rv = d->distanceTo(point, transform.m11(),
                                           transform.m22());
     if((! ds && rv.second >= 0) ||
@@ -309,6 +319,12 @@ const DataSet * CurveView::closestDataSet(const QPointF &point,
     }
   }
   return ds;
+}
+
+void CurveView::addTransientItem(CurveItem * item)
+{
+  transientItems.append(QPointer<CurveItem>(item));
+  repaint();
 }
 
 //////////////////////////////////////////////////////////////////////

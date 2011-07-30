@@ -1,5 +1,5 @@
 /*
-  curveitem.cc: implementation of the CurveItem class
+  curveitems.cc: implementation of the useful CurveItem children
   Copyright 2011 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
@@ -17,14 +17,18 @@
 */
 
 #include <headers.hh>
-#include <curveitem.hh>
-#include <dataset.hh>
+#include <curveitems.hh>
 
-CurveItem::~CurveItem()
+QRectF CurveLine::boundingRect() const
 {
+  return QRectF(p1, p2).normalized();
 }
 
-QRectF CurveItem::boundingRect() const
+void CurveLine::paint(QPainter * painter)
 {
-  return QRectF();
+  QTextStream o(stdout);
+  painter->save();
+  painter->setPen(pen);
+  painter->drawLine(p1, p2);
+  painter->restore();
 }

@@ -48,7 +48,9 @@ SOURCES += src/qmain.cc \
         src/curveitem.cc \
         src/curveview.cc \
         src/soas.cc \
-        src/curveeventloop.cc
+        src/curveeventloop.cc \
+        src/curvedataset.cc \
+        src/curveitems.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -73,5 +75,7 @@ HEADERS += src/headers.hh \
         src/curveitem.hh \
         src/curveview.hh \
         src/soas.hh \
-        src/curveeventloop.hh
+        src/curveeventloop.hh  \
+        src/curvedataset.hh \
+        src/curveitems.hh
 

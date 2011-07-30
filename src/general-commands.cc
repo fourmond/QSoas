@@ -29,6 +29,9 @@
 #include <databackend.hh>
 
 #include <curveeventloop.hh>
+#include <curveitems.hh>
+#include <curveview.hh>
+#include <soas.hh>
 
 static Group file("file", 0,
                   QT_TRANSLATE_NOOP("Groups", "File"),
@@ -58,11 +61,25 @@ quit("quit", // command name
 static void testELoopCommand(const QString & name)
 {
   CurveEventLoop loop;
+  CurveLine l;
+  l.pen = QPen("black");
+  soas().view().addTransientItem(&l);
   QTextStream o(stdout);
+  int i = 0;
   while(! loop.finished()) {
     o << "Event: " << loop.type() << endl
       << " -> key " << QString("0x%1").arg(loop.key(), 8, 16, 
                                            QChar('0')) << endl;
+    if(loop.type() == QEvent::MouseButtonPress) {
+      QPointF p = loop.position();
+      o << "Press event at " << p.x() << "," << p.y() << endl;
+      
+      if(i % 2)
+        l.p2 = p;
+      else
+        l.p1 = p;
+      i++;
+    }
   }
 }
 

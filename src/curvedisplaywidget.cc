@@ -20,6 +20,7 @@
 #include <curvedisplaywidget.hh>
 
 #include <curveitem.hh>
+#include <curveview.hh>
 #include <terminal.hh>
 
 CurveDisplayWidget * CurveDisplayWidget::theCurveDisplayWidget = NULL;
@@ -29,7 +30,7 @@ CurveDisplayWidget::CurveDisplayWidget()
   theCurveDisplayWidget = this;
   scene = new QGraphicsScene;
   QHBoxLayout * layout = new QHBoxLayout(this);
-  view = new QGraphicsView(scene);
+  view = new CurveView(scene);
   layout->addWidget(view);
   view->setFocusPolicy(Qt::NoFocus);
   view->show();
@@ -45,42 +46,6 @@ void CurveDisplayWidget::addDataSet(const DataSet * ds)
 {
   CurveItem * it = new CurveItem(ds);
   scene->addItem(it);
-
-  QSize s = view->size();
-  QRectF r = scene->sceneRect();
-  QPointF tl = r.topLeft();
-  QPointF br = r.bottomRight();
-
-  // Terminal::out << "View rect is: " << r.x() << "," << r.y()
-  //               << " with width = " << r.width() << " and "
-  //               << " height = " << r.height() << endl;
-  
-  QTransform t;
-  t.translate(-r.x(), -r.y());
-  t.scale(s.width()/r.width(), -s.height()/r.height());
-  view->setTransform(t);
-  
-  // view->fitInView(r);
-  // view->centerOn(it);
-  // view->invalidateScene();
-
-  QPointF p = r.topLeft();
-  Terminal::out << "Old coordinates: " << p.x() 
-                << "," <<  p.y() << endl;
-  p = view->mapFromScene(p);
-  Terminal::out << "New coordinates: " << p.x() 
-                << "," <<  p.y() << endl;
-  
-
-  // QRectF r = view->sceneRect();
-
-  // r = scene->sceneRect();
-  // Terminal::out << "Scene rect is: " << r.x() << "," << r.y()
-  //               << " with width = " << r.width() << " and "
-  //               << " height = " << r.height() << endl;
-
-  // r = it->boundingRect();
-  // Terminal::out << "BB rect is: " << r.x() << "," << r.y()
-  //               << " with width = " << r.width() << " and "
-  //               << " height = " << r.height() << endl;
+  /// @todo update the bounding box. CurveDisplayWidget should hold
+  /// the bounding box, as QGraphicsScene's BB will only grow.
 }

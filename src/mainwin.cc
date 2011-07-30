@@ -22,13 +22,16 @@
    \section project-overview How the new Soas is/will be organized
 
    \section various-todo Various things to do
-   \li backends infrastructure for data loading (with automatic
-   detection)
    \li String argument with fixed list (for completion, useful for
    options, such as an option to force to use a given backend)
    \li data display (based on QGraphicsScene, it handles everything I need)
    \li a way to enter a "private event loop" for the graphics display
    (point selection and the like)
+
+   \li an application wide template-based (?) way to save/restore
+   settings, based on a class registering all settings. That would be
+   a worty addition to eThunes too, come to think of it. That even
+   could result in data wrappers.
 
 */
 

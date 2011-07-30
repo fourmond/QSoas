@@ -51,6 +51,13 @@ namespace Utils {
 
   /// Returns the common part at the beginning of the given string
   QString commonBeginning(const QStringList & strings);
+
+  /// Dumps the contents of a rectangle to the target stream
+  template<typename T, typename Rect> void dumpRectangle(T & stream, 
+                                                         Rect & r) {
+    stream << r.x() << "," << r.y() << " to " 
+           << r.x() + r.width() << "," << r.y() + r.height();
+  };
 };
 
 #endif

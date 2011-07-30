@@ -21,6 +21,7 @@
 #define __CURVEDISPLAYWIDGET_HH
 
 class DataSet;
+class CurveView;
 
 /// The display of 2D curves.
 ///
@@ -36,7 +37,7 @@ class CurveDisplayWidget : public QWidget {
   QGraphicsScene * scene;
 
   /// and the widget to view it...
-  QGraphicsView * view;
+  CurveView * view;
 
 public:
 

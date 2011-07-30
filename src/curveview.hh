@@ -31,10 +31,6 @@ class CurveView : public QAbstractScrollArea {
 
   Q_OBJECT;
 
-  /// The application-wide CurveView
-  static CurveView * theCurveView;
-
-
   /// Returns the rectangle in which the graph is displayed, in widget
   /// coordinates.
   QRect internalRectangle() const;
@@ -98,11 +94,6 @@ public:
   /// Zooms to the given rectangle, or the full scene if the rectangle
   /// is empty
   void zoomTo(const QRectF &r = QRectF());
-
-  /// Returns the application-wide CurveDisplayWidget
-  static CurveView * displayWidget() {
-    return theCurveView;
-  };
 
   /// Adds a DataSet to the display.
   void addDataSet(const DataSet * ds);

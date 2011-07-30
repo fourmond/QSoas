@@ -33,16 +33,6 @@ class DataStack {
   /// The DataSet objects
   QList<DataSet *> dataSets;
 
-  /// The only DataStack present in the program.
-  ///
-  /// @todo My code relies heavily on static variables, which may be
-  /// just as well after all. I doubt I will ever need to run two
-  /// instances of QSoas at the same time, but if I do, I'll need to
-  /// factor all static variables into a well-known class, possibly
-  /// MainWin ? and have it as additional parameter of \b all
-  /// Command...
-  static DataStack * theDataStack;
-
   /// A chache DataSet name -> DataSet.
   QHash<QString, DataSet *> dataSetByName;
 public:
@@ -52,10 +42,6 @@ public:
 
   ~DataStack();
 
-  /// Returns the application-wide data stack.
-  static DataStack * dataStack() {
-    return theDataStack;
-  };
 
   /// Push the given DataSet object to the stack.
   ///

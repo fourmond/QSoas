@@ -27,6 +27,7 @@
 #include <datastack.hh>
 #include <databackend.hh>
 #include <curveview.hh>
+#include <soas.hh>
 
 static Group file("stack", 1,
                   QT_TRANSLATE_NOOP("Groups", "Data Stack"),
@@ -50,9 +51,8 @@ static void loadCommand(const QString & name, QStringList files)
     Terminal::out << "Loading file '" << files[i] << "'" << endl;
     try {
       DataSet * s = DataBackend::loadFile(files[i]);
-      DataStack::dataStack()->pushDataSet(s);
-      CurveView::displayWidget()->showDataSet(s);
-      /// @todo Display loaded files !
+      soas().stack().pushDataSet(s);
+      soas().view().showDataSet(s);
     }
     catch (const std::runtime_error & e) {
       Terminal::out << e.what() << endl;
@@ -77,7 +77,7 @@ load("load", // command name
 
 static void showStackCommand(const QString & name)
 {
-  DataStack::dataStack()->showStackContents();
+  soas().stack().showStackContents();
 }
 
 

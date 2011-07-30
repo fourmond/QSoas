@@ -22,6 +22,7 @@
 
 class CommandWidget;
 class CurveView;
+class Soas;
 
 /// The main window
 class MainWin : public QMainWindow {
@@ -30,9 +31,14 @@ class MainWin : public QMainWindow {
 
   void setupFrame();
 
+  friend class Soas;
+
   CommandWidget * commandWidget;
 
   CurveView * curveView;
+
+  /// The instance of Soas run
+  Soas * soasInstance;
 
   /// The MainWin that will receive messages
   static MainWin * theMainWindow;

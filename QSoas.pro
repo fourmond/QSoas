@@ -46,7 +46,8 @@ SOURCES += src/qmain.cc \
         src/datastack.cc \
         src/datastack-commands.cc \
         src/curveitem.cc \
-        src/curveview.cc
+        src/curveview.cc \
+        src/soas.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -69,5 +70,6 @@ HEADERS += src/headers.hh \
         src/textbackend.hh \
         src/datastack.hh \
         src/curveitem.hh \
-        src/curveview.hh
+        src/curveview.hh \
+        src/soas.hh
 

@@ -40,6 +40,8 @@
 #include <group.hh>
 #include <command.hh>
 
+#include <soas.hh>
+
 #include <commandwidget.hh>
 #include <curveview.hh>
 
@@ -49,6 +51,7 @@ MainWin::MainWin()
 {
   setupFrame();
   theMainWindow = this;
+  soasInstance = new Soas(this);
 }
 
 void MainWin::setupFrame()

@@ -26,14 +26,10 @@
 
 #include <math.h>
 
-
-CurveView * CurveView::theCurveView = NULL;
-
 CurveView::CurveView() : 
   bgLinesPen(QColor("#DDD"), 1.5, Qt::DashLine), nbStyled(0)
                                             
 {
-  theCurveView = this;
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setFrameShape(QFrame::NoFrame);

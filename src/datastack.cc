@@ -21,13 +21,8 @@
 #include <terminal.hh>
 
 
-DataStack * DataStack::theDataStack = NULL;
-
-static DataStack ds;            // Hmmm....
-
 DataStack::DataStack()
 {
-  theDataStack = this;
 }
 
 DataStack::~DataStack()

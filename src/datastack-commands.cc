@@ -35,6 +35,25 @@ static Group file("stack", 1,
 
 //////////////////////////////////////////////////////////////////////
 
+static void loadFilesAndDisplay(int nb, QStringList files)
+{
+  for(int i = 0; i < files.size(); i++) {
+    Terminal::out << "Loading file '" << files[i] << "'" << endl;
+    try {
+      DataSet * s = DataBackend::loadFile(files[i]);
+      soas().stack().pushDataSet(s);
+      if(nb > 0)
+        soas().view().addDataSet(s);
+      else
+        soas().view().showDataSet(s);
+      nb++;
+    }
+    catch (const std::runtime_error & e) {
+      Terminal::out << e.what() << endl;
+    }
+  }
+}
+
 static ArgumentList 
 loadArgs(QList<Argument *>() 
          << new SeveralFilesArgument("file", 
@@ -47,17 +66,7 @@ loadArgs(QList<Argument *>()
 static void loadCommand(const QString & name, QStringList files)
 {
   /// @todo add the possibility to select the backend
-  for(int i = 0; i < files.size(); i++) {
-    Terminal::out << "Loading file '" << files[i] << "'" << endl;
-    try {
-      DataSet * s = DataBackend::loadFile(files[i]);
-      soas().stack().pushDataSet(s);
-      soas().view().showDataSet(s);
-    }
-    catch (const std::runtime_error & e) {
-      Terminal::out << e.what() << endl;
-    }
-  }
+  loadFilesAndDisplay(0, files);
 }
 
 
@@ -72,6 +81,25 @@ load("load", // command name
      QT_TRANSLATE_NOOP("Commands", 
                        "Loads the given files and push them onto the data stack"),
      "l");
+//////////////////////////////////////////////////////////////////////
+
+static void overlayFilesCommand(const QString & name, QStringList files)
+{
+  loadFilesAndDisplay(1, files);
+}
+
+
+static Command 
+ovl("overlay", // command name
+     CommandEffector::functionEffectorOptionLess(overlayFilesCommand), // action
+     "stack",  // group name
+     &loadArgs, // arguments
+     NULL, // options
+     QT_TRANSLATE_NOOP("Commands", "Overlay"),
+     QT_TRANSLATE_NOOP("Commands", "Loads files and overlay them"),
+     QT_TRANSLATE_NOOP("Commands", 
+                       "Loads the given files and push them onto the data stack, adding them to the display at the same time"),
+     "v");
 
 //////////////////////////////////////////////////////////////////////
 

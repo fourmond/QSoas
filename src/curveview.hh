@@ -23,6 +23,7 @@
 
 #include <vector.hh>
 class DataSet;
+class CurveItem;
 
 /// This widget displays CurveItem (or children thereof)
 /// 
@@ -38,7 +39,14 @@ class CurveView : public QAbstractScrollArea {
   /// coordinates.
   QRect internalRectangle() const;
 
+  /// The last used zooms
   QList<QRectF> zoomStack;
+
+  /// The CurveItem in display
+  QList<CurveItem *> displayedItems;
+
+  /// The internal bounding box.
+  QRectF boundingBox;
 
   /// Returns the currently displayed rectangle.
   QRectF currentZoom() const;
@@ -50,12 +58,15 @@ class CurveView : public QAbstractScrollArea {
   /// \p windowRectangle is understood in terms of widget coordinate
   /// (Y top to bottom) and \p sceneRectangle in terms of usual
   /// scientific coordinates (Y bottom to top);
-  void setTransform(const QRect & windowRectangle,
+  void computeTransform(const QRect & windowRectangle,
                     const QRectF & sceneRectangle);
 
   /// Sets the transformation to that internalRectangle() shows
   /// currentZoom().
-  void setTransform();
+  void computeTransform();
+
+  /// The transform to be used to scale from the 
+  QTransform transform;
 
   Vector xTicks;
   Vector yTicks;
@@ -69,8 +80,8 @@ class CurveView : public QAbstractScrollArea {
   /// The pen used to draw backgroundLines
   QPen bgLinesPen;
 
-  /// The underlying widget
-  QWidget * w;
+  /// Paint all the curves.
+  void paintCurves(QPainter * p);
 
 public:
 

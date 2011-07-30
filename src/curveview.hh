@@ -61,6 +61,9 @@ class CurveView : public QGraphicsView {
   /// Invalidate ticks
   void invalidateTicks();
 
+  /// The pen used to draw backgroundLines
+  QPen bgLinesPen;
+
 public:
 
   CurveView(QGraphicsScene * scene);
@@ -78,6 +81,10 @@ protected:
   virtual void drawBackground(QPainter * painter, const QRectF & rect);
   virtual void drawForeground(QPainter * painter, const QRectF & rect);
 
+  virtual void paintEvent(QPaintEvent * event);
+
+  /// Decorate the target frame rectangle with the tick label.
+  void decorateGraphFrame(QPainter * painter, const QRectF & rect);
 };
 
 #endif

@@ -25,7 +25,10 @@
 
 #include <math.h>
 
-CurveView::CurveView(QGraphicsScene * sc) : QGraphicsView(sc)
+CurveView::CurveView(QGraphicsScene * sc) : 
+  QGraphicsView(sc),
+  bgLinesPen(QColor("#DDD"), 1.5, Qt::DashLine)
+                                            
 {
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -41,9 +44,11 @@ CurveView::CurveView(QGraphicsScene * sc) : QGraphicsView(sc)
   setResizeAnchor(QGraphicsView::NoAnchor);
   setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
-  /// The approach by setViewportMargins is interesting, excepted for
-  /// the fact that it will greatly complicate printing, while
+  /// @todo The approach by setViewportMargins may have advantages
+  /// over the one currently used, but, well...
   // setViewportMargins(20,30,0,0);
+
+  bgLinesPen.setCosmetic(true);
 }
 
 CurveView::~CurveView()
@@ -185,8 +190,9 @@ void CurveView::drawBackground(QPainter * painter, const QRectF & /*rect*/)
   QRectF r = currentZoom();
   if(xTicks.size() == 0)
     pickTicks();
-  
-  painter->setPen(QPen("red"));
+
+  painter->save();
+  painter->setPen(bgLinesPen); 
   for(int i = 0; i < xTicks.size(); i++) {
     double x = xTicks[i];
     painter->drawLine(QLineF(x, r.bottom(), x, r.top()));
@@ -195,6 +201,7 @@ void CurveView::drawBackground(QPainter * painter, const QRectF & /*rect*/)
     double y = yTicks[i];
     painter->drawLine(QLineF(r.left(), y, r.right(), y));
   }
+  painter->restore();
 }
 
 /// Draws a filled frame inside \p rect but outside \p inner.
@@ -226,14 +233,25 @@ static void drawFrame(QPainter * p,
   p->restore();
 }
 
+void CurveView::decorateGraphFrame(QPainter * painter, const QRectF & rect)
+{
+  
+}
+
 void CurveView::drawForeground(QPainter * painter, const QRectF & /*rect*/)
 {
   QRect r = rect();
   QRectF outer = mapToScene(r).boundingRect();
   QRectF inner = currentZoom();
   const QPalette & p = palette();
-  ::drawFrame(painter, outer, inner, QPen(), 
-              QColor("red")
-              //p.brush(QPalette::Window)
-              );
+  ::drawFrame(painter, outer, inner, QPen("black"), 
+              p.brush(QPalette::Window));
+
+  
+}
+
+void CurveView::paintEvent(QPaintEvent * event)
+{
+  QGraphicsView::paintEvent(event);
+  
 }

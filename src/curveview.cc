@@ -44,9 +44,7 @@ CurveView::CurveView(QGraphicsScene * sc) :
   setResizeAnchor(QGraphicsView::NoAnchor);
   setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
-  /// @todo The approach by setViewportMargins may have advantages
-  /// over the one currently used, but, well...
-  // setViewportMargins(20,30,0,0);
+  setViewportMargins(20,30,5,5);
 
   bgLinesPen.setCosmetic(true);
 }
@@ -57,13 +55,13 @@ CurveView::~CurveView()
 
 QRect CurveView::internalRectangle() const
 {
-  return rect().normalized().adjusted(30, 10, -10, -30);
+  return viewport()->rect();
 }
 
 QRectF CurveView::currentZoom() const
 {
   /// @todo zoom stack
-  return scene()->sceneRect();
+  return sceneRect();
 }
 
 void CurveView::invalidateTicks()
@@ -78,13 +76,13 @@ void CurveView::setTransform(const QRect & wR,
   t.scale(wR.width()/sR.width(), -wR.height()/sR.height());
   QGraphicsView::setTransform(t);
 
-  QRect r = rect();
-  r.translate(-wR.x(), -wR.y());
+  // QRect r = rect();
+  // r.translate(-wR.x(), -wR.y());
 
-  // Reset internal translations to QGraphicsView
-  setSceneRect(sR);
-  QRectF r2 = mapToScene(r).boundingRect();
-  setSceneRect(r2);
+  // // Reset internal translations to QGraphicsView
+  // setSceneRect(sR);
+  // QRectF r2 = mapToScene(r).boundingRect();
+  // setSceneRect(r2);
 
   invalidateTicks();
 }
@@ -240,18 +238,23 @@ void CurveView::decorateGraphFrame(QPainter * painter, const QRectF & rect)
 
 void CurveView::drawForeground(QPainter * painter, const QRectF & /*rect*/)
 {
-  QRect r = rect();
-  QRectF outer = mapToScene(r).boundingRect();
-  QRectF inner = currentZoom();
-  const QPalette & p = palette();
-  ::drawFrame(painter, outer, inner, QPen("black"), 
-              p.brush(QPalette::Window));
+  // QRect r = rect();
+  // QRectF outer = mapToScene(r).boundingRect();
+  // QRectF inner = currentZoom();
+  // const QPalette & p = palette();
+  // ::drawFrame(painter, outer, inner, QPen("black"), 
+  //             p.brush(QPalette::Window));
 
   
 }
 
 void CurveView::paintEvent(QPaintEvent * event)
 {
-  QGraphicsView::paintEvent(event);
-  
+  // QGraphicsView::paintEvent(event);
+
+  QRect r = internalRectangle();
+  QPainter p(this);
+  p.begin(this);
+  p.setPen(QColor("black"));
+  p.drawRect(r);
 }

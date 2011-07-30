@@ -51,7 +51,7 @@ static void loadCommand(const QString & name, QStringList files)
     try {
       DataSet * s = DataBackend::loadFile(files[i]);
       DataStack::dataStack()->pushDataSet(s);
-      CurveView::displayWidget()->addDataSet(s);
+      CurveView::displayWidget()->showDataSet(s);
       /// @todo Display loaded files !
     }
     catch (const std::runtime_error & e) {

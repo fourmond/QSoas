@@ -261,3 +261,19 @@ void CurveView::addDataSet(const DataSet * ds)
   computeTransform();
   viewport()->repaint();
 }
+
+void CurveView::clear()
+{
+  for(int i = 0; i < displayedItems.size(); i++)
+    delete displayedItems[i];
+  displayedItems.clear();
+  boundingBox = QRectF();
+  invalidateTicks();
+  repaint();
+}
+
+void CurveView::showDataSet(const DataSet * ds)
+{
+  clear();
+  addDataSet(ds);
+}

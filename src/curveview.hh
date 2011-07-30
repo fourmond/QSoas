@@ -107,6 +107,11 @@ public:
   /// Adds a DataSet to the display.
   void addDataSet(const DataSet * ds);
 
+  /// Shows the given DataSet (and forget about the other things)
+  void showDataSet(const DataSet * ds);
+
+  /// Remove everything from the display
+  void clear();
 
 protected:
   virtual void resizeEvent(QResizeEvent * event);

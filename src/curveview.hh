@@ -20,6 +20,8 @@
 #ifndef __CURVEVIEW_HH
 #define __CURVEVIEW_HH
 
+#include <vector.hh>
+
 /// This is a small wrapper around QGraphicsView providing:
 /// \li axes (in the form of a border)
 /// \li background lines
@@ -49,6 +51,16 @@ class CurveView : public QGraphicsView {
   /// Sets the transformation to that internalRectangle() shows
   /// currentZoom().
   void setTransform();
+
+  Vector xTicks;
+  Vector yTicks;
+
+  /// Chooses the location for the X and Y ticks
+  void pickTicks();
+
+  /// Invalidate ticks
+  void invalidateTicks();
+
 public:
 
   CurveView(QGraphicsScene * scene);
@@ -63,6 +75,9 @@ protected slots:
 
 protected:
   virtual void resizeEvent(QResizeEvent * event);
+  virtual void drawBackground(QPainter * painter, const QRectF & rect);
+  virtual void drawForeground(QPainter * painter, const QRectF & rect);
+
 };
 
 #endif

@@ -30,6 +30,9 @@ class CurveItem;
 /// Its position is chosen using the setGeometry function. \b Note:
 /// this is only the position of the inner frame. Legends and tick
 /// labels will be drawn outside.
+///
+/// @todo A way to ensure that several CurvePanel will share some of
+/// their BB (X axis, Y axis, and the like...)
 class CurvePanel : public QObject {
 
   Q_OBJECT;
@@ -79,20 +82,17 @@ class CurvePanel : public QObject {
   /// Paint all the curves.
   void paintCurves(QPainter * p);
   
-  /// Maps from widget coordinates to curve coordinates.
-  QPointF fromWidget(const QPoint & p) {
-    return reverseTransform.map(QPointF(p));
-  };
-  
-
   // /// Returns the closest DataSet to the given point.
   // ///
   // /// @todo closest item.
   // const DataSet * closestDataSet(const QPointF &point, 
   //                                double * dist, int * idx) const;
 
-  /// The current bounding box
+  /// The bounding box of all items displayed. 
   QRectF boundingBox;
+
+  /// Updates the bounding box.
+  void updateBB();
   
 public:
 
@@ -113,6 +113,29 @@ public:
 
   /// Paints to the given painter
   void paint(QPainter * painter);
+
+  bool drawingXTicks;
+  bool drawingYTicks;
+
+  /// Whether or not to draw the legend
+  bool drawingLegend;
+
+  /// Returns a QMargins item showing how much space the CurveView
+  /// should reserve around the geometry rectangle.
+  ///
+  /// Space is counted positive.
+  QMargins panelMargins() const;
+
+  /// Whether the given point is contained in the plot region.
+  bool contains(const QPoint &p) const {
+    return internalRectangle.contains(p);
+  };
+
+  /// Maps from widget coordinates to curve coordinates.
+  QPointF fromWidget(const QPoint & p) {
+    return reverseTransform.map(QPointF(p));
+  };
+
 };
 
 #endif

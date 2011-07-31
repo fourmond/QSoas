@@ -103,5 +103,5 @@ bool CurveEventLoop::finished()
 
 QPointF CurveEventLoop::position() const
 {
-  return view->fromWidget(pos);
+  return view->panel.fromWidget(pos);
 }

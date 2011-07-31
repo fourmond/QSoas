@@ -23,10 +23,11 @@
 #include <curveitem.hh>
 
 class DataSet;
+
 /// A representation of a DataSet attached to a CurveView class.
-class CurveDataSet {
+class CurveDataSet : public CurveItem {
 public:
-  /// The dataset attached to this dataset.
+  /// The dataset attached to this object
   const DataSet * dataSet;
 private:
   QPainterPath * cachedPath;
@@ -34,7 +35,8 @@ private:
   /// @todo With this scheme, things won't happen too well
   void createPath();
 public:
-  CurveDataSet(const DataSet * ds): dataSet(ds), 
+  CurveDataSet(const DataSet * ds): CurveItem(true), 
+                                    dataSet(ds), 
                                     cachedPath(NULL) {;};
 
   virtual ~CurveDataSet();
@@ -48,9 +50,8 @@ public:
   /// The pen for painting the path
   QPen pen;
 
-  /// Draw a legend in the given rectangle. Returns the actual width
-  /// used for the draw.
-  int drawLegend(QPainter * p, const QRect & rect) const;
+  virtual QRect paintLegend(QPainter * painter, 
+                            const QRect & placement);
 
 };
 

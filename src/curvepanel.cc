@@ -27,7 +27,8 @@
 
 
 CurvePanel::CurvePanel() : 
-  bgLinesPen(QColor("#DDD"), 1.5, Qt::DashLine)
+  bgLinesPen(QColor("#DDD"), 1.5, Qt::DashLine),
+  drawingXTicks(true), drawingYTicks(true), drawingLegend(true)
 {
   bgLinesPen.setCosmetic(true);
 }
@@ -48,8 +49,13 @@ void CurvePanel::invalidateTicks()
   xTicks.clear();
 }
 
+void CurvePanel::setGeometry(const QRect & rect)
+{
+  internalRectangle = rect;
+}
+
 void CurvePanel::computeTransform(const QRect & wR2,
-                             const QRectF & sR2)
+                                  const QRectF & sR2)
 {
   QRectF sR = sR2.normalized();
   QRect wR = wR2.normalized();
@@ -71,6 +77,16 @@ void CurvePanel::computeTransform()
   QRect r = internalRectangle;
   QRectF z = currentZoom();
   computeTransform(r, z);
+}
+
+void CurvePanel::updateBB()
+{
+  boundingBox = QRectF();
+  for(int i = 0; i < displayedItems.size(); i++) {
+    CurveItem * item = displayedItems[i];
+    if(item && item->countBB)
+      boundingBox = boundingBox.united(item->boundingRect());
+  }
 }
 
 static double naturalDistances[] = { 1.0, 2.0, /*2.5,*/ 5.0, 10.0 };
@@ -146,7 +162,6 @@ void CurvePanel::paintCurves(QPainter * p)
 {
   // First, setup the transformation
   QRectF r = currentZoom();
-  computeTransform();
   if(xTicks.size() == 0)
     pickTicks();
     
@@ -170,17 +185,19 @@ void CurvePanel::paintCurves(QPainter * p)
     CurveItem * it = displayedItems[i];
     if(it)
       it->paint(p);
-    else {
-      ;
-    }
-    /// @todo Dispose of the pointer if NULL
+    else
+      displayedItems.removeAt(i--); // autocleanup elements gone
+                                    // astray.
   }
-  
   p->restore();
 }
 
 void CurvePanel::paint(QPainter * painter)
 {
+  // First, update the BB
+  updateBB();
+  
+
   // Draws the area
   computeTransform();
   QRect r2 = internalRectangle.adjusted(-2,-2,2,2);
@@ -190,34 +207,42 @@ void CurvePanel::paint(QPainter * painter)
   painter->drawRect(r2);
 
   // Now drawing tick labels
-  for(int i = 0; i < xTicks.size(); i++) {
-    double x = xTicks[i];
-    QPointF pt(x, 0);
-    pt = transform.map(pt);
-    pt.setY(r2.bottom() + 2); 
-    QRectF textPos(pt, QSizeF(0,0));
-    painter->drawText(textPos.adjusted(-5,2,5,5),
-                      Qt::AlignHCenter | Qt::AlignTop | Qt::TextDontClip,
-                      QString::number(x));
+  if(drawingXTicks) {
+    for(int i = 0; i < xTicks.size(); i++) {
+      double x = xTicks[i];
+      QPointF pt(x, 0);
+      pt = transform.map(pt);
+      pt.setY(r2.bottom() + 2); 
+      QRectF textPos(pt, QSizeF(0,0));
+      painter->drawText(textPos.adjusted(-5,2,5,5),
+                        Qt::AlignHCenter | Qt::AlignTop | Qt::TextDontClip,
+                        QString::number(x));
+    }
   }
 
-  for(int i = 0; i < yTicks.size(); i++) {
-    double y = yTicks[i];
-    QPointF pt(0, y);
-    pt = transform.map(pt);
-    pt.setX(r2.left() -2); 
-    QRectF textPos(pt, QSizeF(0,0));
-    painter->drawText(textPos.adjusted(-15,-5,-2, 5),
-                      Qt::AlignVCenter | Qt::AlignRight | Qt::TextDontClip,
-                      QString::number(y));
+  if(drawingYTicks) {
+    for(int i = 0; i < yTicks.size(); i++) {
+      double y = yTicks[i];
+      QPointF pt(0, y);
+      pt = transform.map(pt);
+      pt.setX(r2.left() -2); 
+      QRectF textPos(pt, QSizeF(0,0));
+      painter->drawText(textPos.adjusted(-15,-5,-2, 5),
+                        Qt::AlignVCenter | Qt::AlignRight | Qt::TextDontClip,
+                        QString::number(y));
+    }
   }
 
-  // Here the legend:
-  int start = 3;
-  // for(int i = 0; i < displayedDataSets.size(); i++) {
-  //   QRect r(start, 3, 40, 12);
-  //   start += displayedDataSets[i]->drawLegend(&p, r);
-  // }
+  if(drawingLegend) {
+    // Here the legend:
+    int start = 3;
+    for(int i = 0; i < displayedItems.size(); i++) {
+      QRect r(start, 3, 40, 12);
+      r = displayedItems[i]->paintLegend(painter, r);
+      if(! r.isNull())
+        start += r.width() + 3;
+    }
+  }
 }
 
 
@@ -254,4 +279,12 @@ void CurvePanel::addItem(CurveItem * item)
 {
   displayedItems.append(QPointer<CurveItem>(item));
   /// @todo: update bounding box
+}
+
+QMargins CurvePanel::panelMargins() const
+{
+  return QMargins(drawingYTicks ? 50 : 10,
+                  drawingLegend ? 20 : 10,
+                  10, 
+                  drawingXTicks ? 30 : 10);
 }

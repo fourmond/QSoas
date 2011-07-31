@@ -20,6 +20,10 @@
 #include <curveitem.hh>
 #include <dataset.hh>
 
+CurveItem::CurveItem(bool c) : countBB(c)
+{
+}
+
 CurveItem::~CurveItem()
 {
 }
@@ -27,4 +31,9 @@ CurveItem::~CurveItem()
 QRectF CurveItem::boundingRect() const
 {
   return QRectF();
+}
+
+QRect CurveItem::paintLegend(QPainter *, const QRect &)
+{
+  return QRect();
 }

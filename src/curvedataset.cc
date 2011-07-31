@@ -53,18 +53,22 @@ void CurveDataSet::paint(QPainter * painter)
   painter->drawPath(*cachedPath);
 }
 
-int CurveDataSet::drawLegend(QPainter * p, const QRect & rect) const
+QRect CurveDataSet::paintLegend(QPainter * p, const QRect & rect)
 {
   /// @todo many things to customize here...
   
   QPoint p1 = QPoint(rect.left(), (rect.bottom() + rect.top())/2);
   QPoint p2 = p1 + QPoint(10, 0); // Mwouaf...
+
   p->save();
   QPen pen2 = pen;
   pen2.setWidthF(1.5);
   p->setPen(pen);
   p->drawLine(p1, p2);
   p->restore();
+
+  QRect tmp(p1, p2);
+  tmp.adjust(0,-1,0,1);
   
   QRect r = rect.adjusted(13, 0, 0, 0);
   QRect t;
@@ -72,5 +76,5 @@ int CurveDataSet::drawLegend(QPainter * p, const QRect & rect) const
               Qt::AlignLeft | Qt::AlignVCenter | Qt::TextDontClip,
               dataSet->name,
               &t);
-  return 3 + t.right() - rect.left();
+  return t.united(tmp);
 }

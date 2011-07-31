@@ -85,7 +85,7 @@ static void testELoopCommand(const QString & name)
   CurveEventLoop loop;
   CurveLine l;
   l.pen = QPen("black");
-  soas().view().addTransientItem(&l);
+  soas().view().addItem(&l);
   QTextStream o(stdout);
   int i = 0;
   while(! loop.finished()) {

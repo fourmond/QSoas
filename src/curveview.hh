@@ -20,83 +20,22 @@
 #ifndef __CURVEVIEW_HH
 #define __CURVEVIEW_HH
 
-
-#include <vector.hh>
-class DataSet;
-class CurveItem;
-class CurveDataSet;
-
+#include <curvepanel.hh>
 class CurveEventLoop;
+class DataSet;
 
-/// This widget displays CurveItem (or children thereof).
+/// This widget displays CurveItem (or children thereof). -- hmm, not
+/// that anymore.
 ///
 /// It is the main graphical window of Soas (if not the only one !)
-///
-/// @todo Neat things to do:
-/// 
-/// @li setup a way to add transient indications (markers, XY
-/// data,...) that would get displayed and possibly dropped altogether
-/// with an appropriate function that probably would be called upon
-/// leaving the loop ?
-/// 
 class CurveView : public QAbstractScrollArea {
 
   Q_OBJECT;
 
-  /// Returns the rectangle in which the graph is displayed, in widget
-  /// coordinates.
-  QRect internalRectangle() const;
-
-  /// The last used zooms
-  QList<QRectF> zoomStack;
-
-  /// The CurveItem in display
-  QList<CurveDataSet *> displayedDataSets;
-
-  /// Temporary objects. They can be deleted at any time, we don't
-  /// care.
-  QList<QPointer<CurveItem> > transientItems;
-
-  /// The internal bounding box.
-  QRectF boundingBox;
-
-  /// Returns the currently displayed rectangle.
-  QRectF currentZoom() const;
-
-  /// Sets the view transformation for sceneRectangle to match
-  /// windowRectangle (the latter most probably being
-  /// internalRectangle()).
+  /// The panel displaying stuff.
   ///
-  /// \p windowRectangle is understood in terms of widget coordinate
-  /// (Y top to bottom) and \p sceneRectangle in terms of usual
-  /// scientific coordinates (Y bottom to top);
-  void computeTransform(const QRect & windowRectangle,
-                    const QRectF & sceneRectangle);
-
-  /// Sets the transformation to that internalRectangle() shows
-  /// currentZoom().
-  void computeTransform();
-
-  /// Transforms curve coordinate into widget coordinates
-  QTransform transform;
-
-  /// Does the reverse.
-  QTransform reverseTransform;
-
-  Vector xTicks;
-  Vector yTicks;
-
-  /// Chooses the location for the X and Y ticks
-  void pickTicks();
-
-  /// Invalidate ticks
-  void invalidateTicks();
-
-  /// The pen used to draw backgroundLines
-  QPen bgLinesPen;
-
-  /// Paint all the curves.
-  void paintCurves(QPainter * p);
+  /// @todo turn that into a 
+  CurvePanel panel;
   
   /// Number of curves that got a style so far, also counting the ones
   /// that were potentially removed. 
@@ -105,11 +44,9 @@ class CurveView : public QAbstractScrollArea {
   /// Returns a pen for the next curve to be added.
   QPen penForNextCurve();
 
-  /// Maps from widget coordinates to curve coordinates.
-  QPointF fromWidget(const QPoint & p) {
-    return reverseTransform.map(QPointF(p));
-  };
-  
+  /// Layouts out the CurvePanel objects
+  void layOutPanels();
+
 
   /// @name Event loop related functions/attributes
   ///
@@ -134,10 +71,6 @@ public:
   CurveView();
   virtual ~CurveView();
 
-  /// Zooms to the given rectangle, or the full scene if the rectangle
-  /// is empty
-  void zoomTo(const QRectF &r = QRectF());
-
   /// Adds a DataSet to the display.
   void addDataSet(const DataSet * ds);
 
@@ -145,7 +78,7 @@ public:
   void showDataSet(const DataSet * ds);
 
   /// Adds a transient item
-  void addTransientItem(CurveItem * item);
+  void addItem(CurveItem * item);
 
   /// Remove everything from the display
   void clear();

@@ -58,6 +58,7 @@ namespace Utils {
     stream << r.x() << "," << r.y() << " to " 
            << r.x() + r.width() << "," << r.y() + r.height();
   };
+
 };
 
 #endif

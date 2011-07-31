@@ -28,15 +28,30 @@
 /// @todo Implement various displays: XY display, 0Y display (index
 /// instead of X), X and/or Y log... This should come as an argument
 /// to paint().
+///
+/// @todo Distance computation.
 class CurveItem : public QObject {
 public:
+
+  CurveItem(bool count = false);
   virtual ~CurveItem();
 
   virtual QRectF boundingRect() const;
 
-  /// Paint the curve. The painter is setup so that the coordinate are
-  /// the curves coordinates.
+  /// Paint the curve. The \a painter is in \b curve coordinates.
   virtual void paint(QPainter * painter) = 0;
+  
+  /// Whether the bounding box of this item counts or not.
+  bool countBB;
+
+  /// Paint a legend for the object, while trying to fit reasonably in
+  /// \a placement (but it is not required). This function is called
+  /// with a \a painter in \b screen coordinates
+  ///
+  /// The actual space taken by the legend is returned. Null rectangle
+  /// for no legend drawn
+  virtual QRect paintLegend(QPainter * painter, 
+                            const QRect & placement);
 };
 
 

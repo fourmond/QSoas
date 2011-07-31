@@ -24,11 +24,27 @@ QRectF CurveLine::boundingRect() const
   return QRectF(p1, p2).normalized();
 }
 
-void CurveLine::paint(QPainter * painter)
+void CurveLine::paint(QPainter * painter, const QRectF &)
 {
   QTextStream o(stdout);
   painter->save();
   painter->setPen(pen);
   painter->drawLine(p1, p2);
+  painter->restore();
+}
+
+void CurveMarker::paint(QPainter * painter, const QRectF &)
+{
+  // Here, we cheat
+  QTransform t = painter->transform();
+  QPointF realP = t.map(p);
+
+  painter->save();
+  painter->setPen(pen);
+  painter->setBrush(brush);
+
+  // Now, we cancel the transformation, then we draw !
+  painter->setTransform(QTransform());
+  painter->drawEllipse(realP, size, size);
   painter->restore();
 }

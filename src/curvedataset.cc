@@ -46,7 +46,7 @@ void CurveDataSet::createPath()
 }
 
 
-void CurveDataSet::paint(QPainter * painter)
+void CurveDataSet::paint(QPainter * painter, const QRectF &)
 {
   createPath();
   painter->setPen(pen);

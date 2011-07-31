@@ -51,7 +51,7 @@ public:
 
   /// Paint the curve. The painter is setup so that the coordinate are
   /// the curves coordinates.
-  virtual void paint(QPainter * painter);
+  virtual void paint(QPainter * painter, const QRectF & bbox);
 
   /// The pen for painting the path
   QPen pen;

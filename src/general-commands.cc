@@ -110,13 +110,18 @@ namespace GeneralCommands {
   {
     CurveEventLoop loop;
     CurveLine l;
+    CurveMarker m;
     CurvePanel p;
     CurveView & view = soas().view();
     l.pen = QPen("black");
     view.addItem(&l);
+    view.addItem(&m);
     view.addPanel(&p);
     QTextStream o(stdout);
     int i = 0;
+    m.size = 5;
+    m.pen = QPen(QColor("red"), 2);
+    m.brush = QBrush("blue");
     while(! loop.finished()) {
       o << "Event: " << loop.type() << endl
         << " -> key " << QString("0x%1").arg(loop.key(), 8, 16, 
@@ -129,6 +134,7 @@ namespace GeneralCommands {
           l.p2 = p;
         else
           l.p1 = p;
+        m.p = p;
         i++;
       }
     }

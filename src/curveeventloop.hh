@@ -41,6 +41,12 @@ class CurveView;
 ///     default:
 ///     }
 ///   }
+///
+/// @todo Add prompting functions, ie functions that will temporarily
+/// release the grab on the mouse/keyboard to interact with the user
+/// (yes/no, string...) ? That may start to be technical, but still
+/// doable, I guess. To avoid running into trouble, these must be
+/// application-modal.
 class CurveEventLoop : public QObject {
   Q_OBJECT;
 

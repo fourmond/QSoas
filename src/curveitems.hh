@@ -32,7 +32,21 @@ public:
   QPen pen;
 
   virtual QRectF boundingRect() const;
-  virtual void paint(QPainter * painter);
+  virtual void paint(QPainter * painter, const QRectF & bbox);
+};
+
+/// A marker, centered on a point.
+class CurveMarker : public CurveItem {
+public:
+
+  QPointF p;
+  QPen pen;
+  QBrush brush;
+  double size;
+
+  virtual void paint(QPainter * painter, const QRectF & bbox);
+
+  CurveMarker() : size(1.0) {;};
 };
 
 

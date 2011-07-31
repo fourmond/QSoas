@@ -39,7 +39,7 @@ public:
   virtual QRectF boundingRect() const;
 
   /// Paint the curve. The \a painter is in \b curve coordinates.
-  virtual void paint(QPainter * painter) = 0;
+  virtual void paint(QPainter * painter, const QRectF & bbox) = 0;
   
   /// Whether the bounding box of this item counts or not.
   bool countBB;

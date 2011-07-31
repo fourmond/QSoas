@@ -82,12 +82,6 @@ class CurvePanel : public QObject {
   /// Paint all the curves.
   void paintCurves(QPainter * p);
   
-  // /// Returns the closest DataSet to the given point.
-  // ///
-  // /// @todo closest item.
-  // const DataSet * closestDataSet(const QPointF &point, 
-  //                                double * dist, int * idx) const;
-
   /// The bounding box of all items displayed. 
   QRectF boundingBox;
 
@@ -135,6 +129,11 @@ public:
   QPointF fromWidget(const QPoint & p) {
     return reverseTransform.map(QPointF(p));
   };
+
+  /// Returns the CurveItem closest to the given point. If not NULL,
+  /// the value pointed to by \p distance will be set to the distance.
+  CurveItem * closestItem(const QPointF &point, 
+                          double * distance = NULL) const;
 
 };
 

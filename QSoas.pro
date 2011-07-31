@@ -7,9 +7,10 @@ INCLUDEPATH += . src
 
 DEPENDPATH += src
 
-VERSION = 0.0
+# For faster rendering of the antialiased curves
+QT += opengl
 
-# QT += xml network
+VERSION = 0.0
 
 PRECOMPILED_HEADER = src/headers.hh
 

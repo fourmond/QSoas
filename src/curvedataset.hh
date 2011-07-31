@@ -26,18 +26,24 @@ class DataSet;
 
 /// A representation of a DataSet attached to a CurveView class.
 class CurveDataSet : public CurveItem {
-public:
   /// The dataset attached to this object
   const DataSet * dataSet;
-private:
+
   QPainterPath * cachedPath;
 
   /// @todo With this scheme, things won't happen too well
   void createPath();
+
+  /// Cache for the tooltip
+  QPointF lastPoint;
+  int lastPointIdx;
+  
 public:
   CurveDataSet(const DataSet * ds): CurveItem(true), 
                                     dataSet(ds), 
-                                    cachedPath(NULL) {;};
+                                    cachedPath(NULL),
+                                    lastPointIdx(-1)
+  {;};
 
   virtual ~CurveDataSet();
 
@@ -52,6 +58,11 @@ public:
 
   virtual QRect paintLegend(QPainter * painter, 
                             const QRect & placement);
+
+  virtual double distanceTo(const QPointF & p, 
+                            double xscale,
+                            double yscale);
+  virtual QString toolTipText(const QPointF & p);
 
 };
 

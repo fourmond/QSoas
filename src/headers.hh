@@ -64,8 +64,10 @@
 #include <QPainterPath>
 #include <QPainter>
 
+// To have openGL renderinf
+#include <QGLWidget>
+
 // A rich text viewer (and editor?).
-// (not used)
 #include <QTextEdit>
 
 // Desktop stuff
@@ -80,6 +82,7 @@
 #include <QProcess>
 #include <QPointer>
 #include <QTemporaryFile>
+#include <QTimer>
 
 // Templates
 #include <QHash>

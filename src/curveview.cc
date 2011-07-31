@@ -143,23 +143,16 @@ bool CurveView::event(QEvent * event)
 void CurveView::helpEvent(QHelpEvent * event)
 {
   if(panel.contains(event->pos())) {
-    QPointF p = panel.fromWidget(event->pos());
+    QPointF point = panel.fromWidget(event->pos());
     double dist;
-    int idx;
-    // const DataSet * ds = 
-    //   closestDataSet(p, &dist, &idx);
-    // if(ds && dist < 20) {
-    //   QString str;
-    //   str += tr("Dataset: %1<br>").
-    //     arg(ds->name);
-    //   p = ds->pointAt(idx);
-    //   str += tr("Point #%1: <br>%2,%3").
-    //     arg(idx).arg(p.x()).arg(p.y());
-    //   QToolTip::showText(event->globalPos(),
-    //                      str, this);
-    //   /// @todo even worse: higlight the actual data point.
-    // }
+    CurveItem * item = panel.closestItem(point, &dist);
+    QString str;
+    if(item && dist < 20)
+      str = item->toolTipText(point);
+    /// @todo more fancy: higlight the actual data point.
+    QToolTip::showText(event->globalPos(), str, this);
   }
+  
 }
 
 void CurveView::mouseMoveEvent(QMouseEvent * event)

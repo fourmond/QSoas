@@ -52,6 +52,25 @@ public:
   /// for no legend drawn
   virtual QRect paintLegend(QPainter * painter, 
                             const QRect & placement);
+
+  /// Returns the distance from the object to the \p point, or a
+  /// negative value if the object doesn't support distance
+  /// computation.
+  virtual double distanceTo(const QPointF & point, 
+                            double xscale,
+                            double yscale);
+
+  /// Returns a tooltip text to be shown at the given point. Functions
+  /// may rely on data cached during the last call to distanceTo();
+  ///
+  /// @todo This isn't so great for now, it may have to be eventually
+  /// enhanced with a
+  virtual QString toolTipText(const QPointF & point);
+
+  /// Destroy the object in \p milliseconds
+  ///
+  /// @todo Add fine grain to fade out ?
+  void timeOut(int milliseconds);
 };
 
 

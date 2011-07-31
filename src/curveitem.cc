@@ -37,3 +37,19 @@ QRect CurveItem::paintLegend(QPainter *, const QRect &)
 {
   return QRect();
 }
+
+double CurveItem::distanceTo(const QPointF &, double, double)
+{
+  return -1;
+}
+
+QString CurveItem::toolTipText(const QPointF &)
+{
+  return QString();
+}
+
+void CurveItem::timeOut(int milliseconds)
+{
+  QTimer::singleShot(milliseconds, this, 
+                     SLOT(deleteLater()));
+}

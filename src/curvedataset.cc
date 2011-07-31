@@ -78,3 +78,28 @@ QRect CurveDataSet::paintLegend(QPainter * p, const QRect & rect)
               &t);
   return t.united(tmp);
 }
+
+double CurveDataSet::distanceTo(const QPointF & point, 
+                                double xscale,
+                                double yscale)
+{
+  if(! dataSet)
+    return -1;
+  QPair<double, int> pair = dataSet->distanceTo(point, xscale, yscale);
+  lastPoint = point;
+  lastPointIdx = pair.second;
+  return pair.first;
+}
+
+QString CurveDataSet::toolTipText(const QPointF & pt)
+{
+  if(lastPointIdx < 0 || pt != lastPoint)
+    return QString();
+  QString str;
+  str += tr("Dataset: %1<br>").
+    arg(dataSet->name);
+  QPointF p = dataSet->pointAt(lastPointIdx);
+  str += tr("Point #%1: <br>%2,%3").
+    arg(lastPointIdx).arg(p.x()).arg(p.y());
+  return str;
+}

@@ -165,10 +165,8 @@ void CurvePanel::paintCurves(QPainter * p)
   if(xTicks.size() == 0)
     pickTicks();
     
-  p->save();
   p->setTransform(transform);
   p->setWorldMatrixEnabled(true);
-  p->setClipRect(r);
 
   /// 
   p->setPen(bgLinesPen); 
@@ -189,7 +187,6 @@ void CurvePanel::paintCurves(QPainter * p)
       displayedItems.removeAt(i--); // autocleanup elements gone
                                     // astray.
   }
-  p->restore();
 }
 
 void CurvePanel::paint(QPainter * painter)
@@ -203,7 +200,10 @@ void CurvePanel::paint(QPainter * painter)
   QRect r2 = internalRectangle.adjusted(-2,-2,2,2);
 
   painter->eraseRect(r2);
+  painter->save();
+  painter->setClipRect(r2);
   paintCurves(painter);
+  painter->restore();
   painter->drawRect(r2);
 
   // Now drawing tick labels
@@ -256,24 +256,29 @@ void CurvePanel::clear()
   invalidateTicks();
 }
 
-// const DataSet * CurvePanel::closestDataSet(const QPointF &point,
-//                                           double * dist, int * idx) const
-// {
-//   *idx = -1;
-//   const DataSet * ds = NULL;
-//   for(int i = 0; i < displayedDataSets.size(); i++) {
-//     const DataSet * d = displayedDataSets[i]->dataSet;
-//     QPair<double, int> rv = d->distanceTo(point, transform.m11(),
-//                                           transform.m22());
-//     if((! ds && rv.second >= 0) ||
-//        (ds && rv.first < *dist)) {
-//       ds = d;
-//       *idx = rv.second;
-//       *dist = rv.first;
-//     }
-//   }
-//   return ds;
-// }
+CurveItem * CurvePanel::closestItem(const QPointF &point, 
+                                    double * distance) const
+{
+  double d = 0;
+  CurveItem * item = NULL;
+  for(int i = 0; i < displayedItems.size(); i++) {
+    CurveItem * it = displayedItems[i];
+    if(! it)
+      continue;
+    double d2 = it->distanceTo(point, transform.m11(),
+                               transform.m22());
+    if(d2 < 0)
+      continue;
+
+    if(! item || d2 < d) {
+      item = it;
+      d = d2;
+    }
+  }
+  if(distance)
+    *distance = d;
+  return item;
+}
 
 void CurvePanel::addItem(CurveItem * item)
 {

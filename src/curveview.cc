@@ -31,6 +31,8 @@
 #include <curveeventloop.hh>
 #include <dataset.hh>
 
+#include <soas.hh>
+
 CurveView::CurveView() : 
   bgLinesPen(QColor("#DDD"), 1.5, Qt::DashLine), nbStyled(0),
   eventLoop(NULL)
@@ -39,13 +41,8 @@ CurveView::CurveView() :
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setFrameShape(QFrame::NoFrame);
-  // setAttribute(Qt::WA_Hover);   // We handle hover events
 
   setMouseTracking(true);
-
-  // /// @todo customize this
-  // // setRenderHints(QPainter::Antialiasing|QPainter::TextAntialiasing);
-  // // Only turn that on with openGL 
 
   bgLinesPen.setCosmetic(true);
 }
@@ -219,6 +216,9 @@ void CurveView::paintCurves(QPainter * p)
 void CurveView::paintEvent(QPaintEvent * /*event*/)
 {
   QPainter p(viewport());
+
+  if(soas().antiAlias())
+    p.setRenderHints(QPainter::Antialiasing, true);
 
   QRect r = rect();
   const QPalette & pal= palette();

@@ -39,6 +39,8 @@ class Soas {
 
   static Soas * theSoasInstance;
   
+  bool antialias;
+  
 public:
 
   Soas(MainWin * mw);
@@ -50,6 +52,11 @@ public:
 
   static Soas * soasInstance() {
     return theSoasInstance;
+  };
+
+  void setAntiAlias(bool b);
+  bool antiAlias() const {
+    return antialias;
   };
 
 };

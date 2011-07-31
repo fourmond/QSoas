@@ -29,7 +29,13 @@ CurveView & Soas::view()
 Soas * Soas::theSoasInstance = NULL;
 
 Soas::Soas(MainWin * w) : 
-  mw(w) 
+  mw(w), antialias(false)
 {
   theSoasInstance = this;
 }
+
+void Soas::setAntiAlias(bool b)
+{
+  antialias = b;
+}
+

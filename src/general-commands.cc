@@ -58,6 +58,28 @@ quit("quit", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void antialiasCommand(const QString & name)
+{
+  soas().setAntiAlias(! soas().antiAlias());
+  Terminal::out << "Antialiasing now " 
+                << (soas().antiAlias() ? "on" : "off") 
+                << endl;
+}
+
+static Command 
+aa("antialias", // command name
+     CommandEffector::functionEffectorOptionLess(antialiasCommand), // action
+     "file",  // group name
+     NULL, // arguments
+     NULL, // options
+     QT_TRANSLATE_NOOP("Commands", "Antialias"),
+     QT_TRANSLATE_NOOP("Commands", "Toggle anti-aliasing"),
+     QT_TRANSLATE_NOOP("Commands", 
+                       "Toggles anti-aliasing for graphics rendering."),
+     "AA");
+
+//////////////////////////////////////////////////////////////////////
+
 static void testELoopCommand(const QString & name)
 {
   CurveEventLoop loop;

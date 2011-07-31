@@ -59,6 +59,13 @@ namespace Utils {
            << r.x() + r.width() << "," << r.y() + r.height();
   };
 
+  /// Applies the margins \m to a rectangle \r (ie remove them),
+  /// and return the adjusted value.
+  inline QRect applyMargins(const QRect & r, 
+                            const QMargins & m) {
+    return r.adjusted(m.left(), m.top(), -m.right(), -m.bottom());
+  };
+
 };
 
 #endif

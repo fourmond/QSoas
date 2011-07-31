@@ -108,6 +108,7 @@ public:
   /// Paints to the given painter
   void paint(QPainter * painter);
 
+
   bool drawingXTicks;
   bool drawingYTicks;
 
@@ -135,6 +136,10 @@ public:
   CurveItem * closestItem(const QPointF &point, 
                           double * distance = NULL) const;
 
+
+  /// The stretching factor of this panel with respect to the others.
+  /// Defaults to 100.
+  int stretch;
 };
 
 #endif

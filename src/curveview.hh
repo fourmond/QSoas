@@ -33,9 +33,14 @@ class CurveView : public QAbstractScrollArea {
   Q_OBJECT;
 
   /// The panel displaying stuff.
-  ///
-  /// @todo turn that into a 
   CurvePanel panel;
+
+  /// Additional panels, most of the time transient. For now, they'll
+  /// just be stacked vertically. (I can't think of any old soas
+  /// command that resulted in another way).
+  QList<QPointer<CurvePanel> > additionalPanels;
+
+  QList<CurvePanel*> allPanels();
   
   /// Number of curves that got a style so far, also counting the ones
   /// that were potentially removed. 
@@ -77,8 +82,11 @@ public:
   /// Shows the given DataSet (and forget about the other things)
   void showDataSet(const DataSet * ds);
 
-  /// Adds a transient item
+  /// Adds an item to the CurveView. It goes to the panel()
   void addItem(CurveItem * item);
+
+  /// Adds a panel. 
+  void addPanel(CurvePanel * panel);
 
   /// Remove everything from the display
   void clear();

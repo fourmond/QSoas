@@ -110,8 +110,11 @@ namespace GeneralCommands {
   {
     CurveEventLoop loop;
     CurveLine l;
+    CurvePanel p;
+    CurveView & view = soas().view();
     l.pen = QPen("black");
-    soas().view().addItem(&l);
+    view.addItem(&l);
+    view.addPanel(&p);
     QTextStream o(stdout);
     int i = 0;
     while(! loop.finished()) {

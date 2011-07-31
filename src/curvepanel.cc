@@ -28,7 +28,8 @@
 
 CurvePanel::CurvePanel() : 
   bgLinesPen(QColor("#DDD"), 1.5, Qt::DashLine),
-  drawingXTicks(true), drawingYTicks(true), drawingLegend(true)
+  drawingXTicks(true), drawingYTicks(true), drawingLegend(true),
+  stretch(100)
 {
   bgLinesPen.setCosmetic(true);
 }
@@ -199,7 +200,7 @@ void CurvePanel::paint(QPainter * painter)
   computeTransform();
   QRect r2 = internalRectangle.adjusted(-2,-2,2,2);
 
-  painter->eraseRect(r2);
+  painter->fillRect(r2, QColor("white"));
   painter->save();
   painter->setClipRect(r2);
   paintCurves(painter);

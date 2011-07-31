@@ -81,6 +81,9 @@ void CurveView::paintEvent(QPaintEvent * /*event*/)
   p.fillRect(r, pal.brush(QPalette::Window));
 
   panel.paint(&p);
+  for(int i = 0; i < additionalPanels.size(); i++) {
+    additionalPanels[i]->paint(&p);
+  }
 }
 
 static const char * colors[] = 
@@ -121,12 +124,66 @@ void CurveView::showDataSet(const DataSet * ds)
   addDataSet(ds);
 }
 
+void CurveView::addPanel(CurvePanel * panel)
+{
+  additionalPanels << panel;
+}
+
+QList<CurvePanel*> CurveView::allPanels()
+{
+  QList<CurvePanel *> panels;
+  panels << &panel;
+  
+  for(int i = 0; i < additionalPanels.size(); i++) {
+    CurvePanel * p = additionalPanels[i];
+    if(p)
+      panels << p;
+    else
+      additionalPanels.removeAt(i--);
+  }
+  return panels;
+}
+
+
 void CurveView::layOutPanels()
 {
+  /// @todo take out some margins in panel.panelMargins()
+  /// and remove them directly here (the frame margins)
   QRect r = rect();
-  QMargins m = panel.panelMargins();
-  r.adjust(m.left(), m.top(), -m.right(), -m.bottom());
-  panel.setGeometry(r);
+  int height = rect().height();
+  int leftm = 0; 
+  int rightm = 0;
+  QList<CurvePanel *> panels = allPanels();
+  QList<QMargins> margins;
+
+  int totalStretch = 0;
+  // We lay the panels out vertically
+
+  for(int i = 0; i < panels.size(); i++) {
+    QMargins m = panels[i]->panelMargins();
+    height -= m.top() + m.bottom();
+    margins << m;
+    if(leftm < m.left())
+      leftm = m.left();
+    if(rightm < m.right())
+      rightm = m.right();
+
+    totalStretch += panels[i]->stretch;
+  }
+
+  height = std::max(height, 3*panels.size());
+  int top = 0;
+
+  for(int i = 0; i < panels.size(); i++) {
+    CurvePanel * p = panels[i];
+    const QMargins & m = margins[i];
+    int h = (height * p->stretch)/totalStretch;
+    QRect pr = r.adjusted(leftm, top + m.top(), 
+                          -rightm, 0);
+    pr.setBottom(pr.top() + h);
+    p->setGeometry(pr);
+    top += h + m.bottom();;
+  }
 }
 
 

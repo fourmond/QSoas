@@ -41,7 +41,6 @@ CurveView::CurveView() :
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setFrameShape(QFrame::NoFrame);
 
-  setMouseTracking(true);
   setOpenGL(soas().openGL());
 }
 
@@ -56,6 +55,9 @@ void CurveView::setOpenGL(bool b)
     w = new QGLWidget;
   else
     w = new QWidget;
+
+  // We want mouse tracking !
+  w->setMouseTracking(true);
   setViewport(w);
 }
 
@@ -193,12 +195,6 @@ void CurveView::layOutPanels()
 bool CurveView::event(QEvent * event)
 {
   switch(event->type()) {
-  // case QEvent::HoverEnter:
-  // case QEvent::HoverLeave: 
-  // case QEvent::HoverMove:
-  //   hoverEvent(dynamic_cast<QHoverEvent*>(event));
-  //   return true;
-  //   break;
   case QEvent::ToolTip: 
     helpEvent(dynamic_cast<QHelpEvent *>(event));
     return true;
@@ -224,8 +220,11 @@ void CurveView::helpEvent(QHelpEvent * event)
 
 void CurveView::mouseMoveEvent(QMouseEvent * event)
 {
-  if(eventLoop)
+  if(eventLoop) {
+    QTextStream o(stdout);
+    o << "Duplicat events ?" << endl;
     eventLoop->receiveMouseEvent(event);
+  }
   else {
     if(panel.contains(event->pos())) {
       QPointF f = panel.fromWidget(event->pos());
@@ -238,26 +237,17 @@ void CurveView::mouseMoveEvent(QMouseEvent * event)
 
 void CurveView::mousePressEvent(QMouseEvent * event)
 {
-  if(eventLoop)
-    eventLoop->receiveMouseEvent(event);
-  else
-    QAbstractScrollArea::mousePressEvent(event);
+  QAbstractScrollArea::mousePressEvent(event);
 }
 
 void CurveView::mouseReleaseEvent(QMouseEvent * event)
 {
-  if(eventLoop)
-    eventLoop->receiveMouseEvent(event);
-  else
-    QAbstractScrollArea::mouseReleaseEvent(event);
+  QAbstractScrollArea::mouseReleaseEvent(event);
 }
 
 void CurveView::keyPressEvent(QKeyEvent * event)
 {
-  if(eventLoop)
-    eventLoop->receiveKeyEvent(event);
-  else
-    QAbstractScrollArea::keyPressEvent(event);
+  QAbstractScrollArea::keyPressEvent(event);
 }
 
 void CurveView::enterLoop(CurveEventLoop * loop)
@@ -268,7 +258,7 @@ void CurveView::enterLoop(CurveEventLoop * loop)
     return;
 
   eventLoop = loop;
-  qApp->installEventFilter(loop);
+  qApp->installEventFilter(eventLoop);
 }
 
 void CurveView::leaveLoop()

@@ -105,3 +105,22 @@ QPointF CurveEventLoop::position() const
 {
   return view->panel.fromWidget(pos);
 }
+
+bool CurveEventLoop::eventFilter(QObject *, QEvent * event)
+{
+  /// This function is only called during the event loop
+
+  switch(event->type()) {
+  case QEvent::MouseButtonPress:
+  case QEvent::MouseButtonRelease:
+  case QEvent::MouseMove:
+    receiveMouseEvent(static_cast<QMouseEvent*>(event));
+    return true;
+  case QEvent::KeyPress:
+    receiveKeyEvent(static_cast<QKeyEvent*>(event));
+    return true;
+  default:
+    return false;               // Propagate other events
+  }
+  return false;
+}

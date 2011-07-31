@@ -41,7 +41,8 @@ class CurveView;
 ///     default:
 ///     }
 ///   }
-class CurveEventLoop {
+class CurveEventLoop : public QObject {
+  Q_OBJECT;
 
   friend class CurveView;
   CurveView * view;
@@ -93,7 +94,9 @@ public:
   /// coordinates
   QPointF position() const;
 
+  /// This function gets installed as application-wide event filter
+  /// upon entering the loop.
+  virtual bool eventFilter(QObject * watched, QEvent * event);
 };
-
 
 #endif

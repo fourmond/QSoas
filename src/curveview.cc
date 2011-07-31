@@ -190,8 +190,6 @@ void CurveView::layOutPanels()
 //////////////////////////////////////////////////////////////////////
 /// Event-related functions.
 
-// These are not necessary, but kept just for the record.
-
 bool CurveView::event(QEvent * event)
 {
   switch(event->type()) {
@@ -270,20 +268,15 @@ void CurveView::enterLoop(CurveEventLoop * loop)
     return;
 
   eventLoop = loop;
-  /// @todo It would be better to use QCoreApplication::setEventFilter
-  /// to not prevent switching to other windows, as that is pretty
-  /// painful. Even better, the filtering could be done at the level
-  /// of CurveLoop, which would lift the need to forward events.
-  viewport()->grabMouse();
-  grabKeyboard();
+  qApp->installEventFilter(loop);
 }
 
 void CurveView::leaveLoop()
 {
   if(! eventLoop)
     return;
-  viewport()->releaseMouse();
-  releaseKeyboard();
+
+  qApp->removeEventFilter(eventLoop);
   eventLoop = NULL;
 }
 

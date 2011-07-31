@@ -64,6 +64,10 @@ static void antialiasCommand(const QString & name)
   Terminal::out << "Antialiasing now " 
                 << (soas().antiAlias() ? "on" : "off") 
                 << endl;
+  if(! soas().openGL())
+    Terminal::out << "You may want to use the command opengl "
+                  << "to speed up rendering"
+                  << endl;
 }
 
 static Command 
@@ -77,6 +81,28 @@ aa("antialias", // command name
      QT_TRANSLATE_NOOP("Commands", 
                        "Toggles anti-aliasing for graphics rendering."),
      "AA");
+
+//////////////////////////////////////////////////////////////////////
+
+static void openglCommand(const QString & name)
+{
+  soas().setOpenGL(! soas().openGL());
+  Terminal::out << "The use of OpenGL is now " 
+                << (soas().openGL() ? "on" : "off") 
+                << endl;
+}
+
+static Command 
+ogl("opengl", // command name
+    CommandEffector::functionEffectorOptionLess(openglCommand), // action
+     "file",  // group name
+     NULL, // arguments
+     NULL, // options
+     QT_TRANSLATE_NOOP("Commands", "OpenGL"),
+     QT_TRANSLATE_NOOP("Commands", "Toggle OpenGL"),
+     QT_TRANSLATE_NOOP("Commands", 
+                       "Toggles the use of OpenGL for graphics rendering.")
+   );
 
 //////////////////////////////////////////////////////////////////////
 

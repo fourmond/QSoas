@@ -21,6 +21,8 @@
 #include <soas.hh>
 #include <mainwin.hh>
 
+#include <curveview.hh>
+
 CurveView & Soas::view()
 {
   return *mw->curveView;
@@ -29,7 +31,7 @@ CurveView & Soas::view()
 Soas * Soas::theSoasInstance = NULL;
 
 Soas::Soas(MainWin * w) : 
-  mw(w), antialias(false)
+  mw(w), antialias(false), opengl(false)
 {
   theSoasInstance = this;
 }
@@ -37,5 +39,11 @@ Soas::Soas(MainWin * w) :
 void Soas::setAntiAlias(bool b)
 {
   antialias = b;
+}
+
+void Soas::setOpenGL(bool b)
+{
+  opengl = b;
+  view().setOpenGL(opengl);
 }
 

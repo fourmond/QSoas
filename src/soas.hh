@@ -40,6 +40,7 @@ class Soas {
   static Soas * theSoasInstance;
   
   bool antialias;
+  bool opengl;
   
 public:
 
@@ -59,6 +60,10 @@ public:
     return antialias;
   };
 
+  void setOpenGL(bool b);
+  bool openGL() const {
+    return opengl;
+  };
 };
 
 /// Returns the application-wide Soas instance

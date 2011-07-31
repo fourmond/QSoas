@@ -83,6 +83,9 @@ public:
   /// Remove everything from the display
   void clear();
 
+  /// Whether or not to use opengl for rendering.
+  void setOpenGL(bool opengl);
+
 protected:
   virtual void resizeEvent(QResizeEvent * event);
   virtual void paintEvent(QPaintEvent * event);

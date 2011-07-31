@@ -42,12 +42,22 @@ CurveView::CurveView() :
   setFrameShape(QFrame::NoFrame);
 
   setMouseTracking(true);
+  setOpenGL(soas().openGL());
 }
 
 CurveView::~CurveView()
 {
 }
 
+void CurveView::setOpenGL(bool b)
+{
+  QWidget * w;
+  if(b)
+    w = new QGLWidget;
+  else
+    w = new QWidget;
+  setViewport(w);
+}
 
 void CurveView::resizeEvent(QResizeEvent * /*event*/)
 {
@@ -58,8 +68,10 @@ void CurveView::paintEvent(QPaintEvent * /*event*/)
 {
   QPainter p(viewport());
 
-  if(soas().antiAlias())
+  if(soas().antiAlias()) {
     p.setRenderHints(QPainter::Antialiasing, true);
+    p.setRenderHints(QPainter::HighQualityAntialiasing, true);
+  }
 
   layOutPanels();
   

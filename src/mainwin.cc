@@ -49,9 +49,9 @@ MainWin * MainWin::theMainWindow = NULL;
 
 MainWin::MainWin()
 {
-  setupFrame();
   theMainWindow = this;
   soasInstance = new Soas(this);
+  setupFrame();
 }
 
 void MainWin::setupFrame()

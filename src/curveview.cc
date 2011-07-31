@@ -417,6 +417,10 @@ void CurveView::enterLoop(CurveEventLoop * loop)
     return;
 
   eventLoop = loop;
+  /// @todo It would be better to use QCoreApplication::setEventFilter
+  /// to not prevent switching to other windows, as that is pretty
+  /// painful. Even better, the filtering could be done at the level
+  /// of CurveLoop, which would lift the need to forward events.
   viewport()->grabMouse();
   grabKeyboard();
 }

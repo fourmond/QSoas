@@ -167,10 +167,10 @@ namespace GeneralCommands {
   
   static ArgumentList 
   dummyArgs(QList<Argument *>() 
-            << new SeveralFilesArgument("file", 
-                                        QT_TR_NOOP("File"),
-                                        QT_TR_NOOP("Files to load !"),
-                                        true));
+            << new FileSaveArgument("file", 
+                                    QT_TR_NOOP("File"),
+                                    QT_TR_NOOP("Files to load !"),
+                                    "bidule.dat"));
 
 
   static ArgumentList 
@@ -187,11 +187,12 @@ namespace GeneralCommands {
                );
                              
 
-  static void dummyCommand(const QString & name, QStringList args, 
+  static void dummyCommand(const QString & name, QString arg, 
                            const CommandOptions & opts)
   {
-    for(int i = 0; i < args.size(); i++)
-      Terminal::out << "Arg #" << i << ": '" << args[i] << "'" << endl;
+    // for(int i = 0; i < args.size(); i++)
+    //   Terminal::out << "Arg #" << i << ": '" << args[i] << "'" << endl;
+    Terminal::out << "Arg is: " << arg << endl;
     for(CommandOptions::const_iterator i = opts.begin();
         i != opts.end(); i++)
       Terminal::out << "Option: " << i.key() << ": '" 

@@ -59,6 +59,26 @@ QStringList FileArgument::proposeCompletion(const QString & starter) const
 
 ////////////////////////////////////////////////////////////
 
+ArgumentMarshaller * FileSaveArgument::promptForValue(QWidget * base) const
+{
+  QString def = defaultName;
+  if(provider)
+    def = provider();
+
+  QFileDialog fd(base, publicName());
+  fd.setAcceptMode(QFileDialog::AcceptSave);
+  if(! def.isEmpty())
+    fd.selectFile(def);
+
+  if(fd.exec() != QDialog::Accepted)
+    throw std::runtime_error("Aborted"); 
+
+  return fromString(fd.selectedFiles().value(0, QString("")));
+}
+
+
+////////////////////////////////////////////////////////////
+
 ArgumentMarshaller * SeveralFilesArgument::fromString(const QString & str) const
 {
   return new ArgumentMarshallerChild<QStringList>(Utils::glob(str, false));

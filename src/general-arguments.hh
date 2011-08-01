@@ -27,8 +27,6 @@
 /// @todo Restrict the returned files to existing/readable files ?
 ///
 /// @todo Provide filters for the dialog
-///
-/// @todo Make the distinction between save and load ?
 class FileArgument : public Argument {
 public:
 
@@ -44,12 +42,37 @@ public:
   virtual QStringList proposeCompletion(const QString & starter) const;
 };
 
+/// An argument representing a unique file name, for saving.
+/// @todo Provide filters for the dialog
+class FileSaveArgument : public FileArgument {
+
+  /// A default name for the save dialog box.
+  QString defaultName;
+
+  /// A way to acquire the default name
+  QString (*provider)();
+public:
+
+  FileSaveArgument(const char * cn, const char * pn,
+                   const char * d = "", 
+                   const QString & def = QString()) : 
+    FileArgument(cn, pn, d), defaultName(def),
+    provider(NULL) {
+  }; 
+
+  FileSaveArgument(const char * cn, const char * pn,
+                   const char * d, QString (*pr)()) : FileArgument(cn, pn, d),
+                                                      provider(pr) {
+  }; 
+  
+  /// Prompting uses a QFileDialog.
+  virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
+};
+
+
+
 /// An argument representing a unique file name.
 /// @todo Provide filters for the dialog
-///
-/// @todo Make the distinction between save and load ?
-///
-/// @todo is there any code to share with FileArgument ?
 class SeveralFilesArgument : public Argument {
 public:
 
@@ -65,6 +88,7 @@ public:
                                     const ArgumentMarshaller * b) const;
   virtual QStringList proposeCompletion(const QString & starter) const;
 };
+
 
 /// A simple string argument
 class StringArgument : public Argument {

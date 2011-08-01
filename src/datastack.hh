@@ -71,9 +71,10 @@ public:
 
   /// Returns the current dataset, ie the one that should be displayed
   /// currently.
-  DataSet * currentDataSet() const {
-    return numberedDataSet(0);
-  };
+  ///
+  /// If silent is false, an exception will be raised if the buffer is
+  /// NULL.
+  DataSet * currentDataSet(bool silent = true) const;
 
   /// Undo (ie, buffer 0 becomes buffer -1)
   void undo(int nbtimes = 1);

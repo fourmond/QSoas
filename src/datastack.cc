@@ -62,6 +62,14 @@ DataSet * DataStack::numberedDataSet(int nb) const
   return redoStack.value(redoStack.size() + nb, NULL);
 }
 
+DataSet * DataStack::currentDataSet(bool silent) const
+{
+  DataSet * ds = numberedDataSet(0);
+  if(!silent && !ds)
+    throw std::runtime_error("Need a buffer !");
+  return ds;
+}
+
 void DataStack::undo(int nbTimes)
 {
   while(nbTimes--) {

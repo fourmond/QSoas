@@ -66,6 +66,9 @@ public:
   /// Returns the current data set.
   DataSet * currentDataSet();
 
+  /// Pushes a new dataset onto the stack
+  void pushDataSet(DataSet * ds);
+
 
   MainWin & mainWin() { return *mw; };
   DataStack & stack() { return *ds; };

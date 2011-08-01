@@ -123,3 +123,55 @@ QPair<double, int> DataSet::distanceTo(double x, double y,
   return QPair<double, int>(sqrt(dist), best);
 }
 
+
+QString DataSet::cleanedName() const
+{
+  int idx = name.lastIndexOf('.');
+  if(idx > 0)
+    return name.left(idx);
+  return name;
+}
+
+void DataSet::splitAt(int idx, DataSet ** first, DataSet ** second) const
+{
+  if(first) {
+    QList<Vector> newcols;
+    for(int i = 0; i < columns.size(); i++)
+      newcols << Vector(columns[i].mid(0, idx+1));
+    /// @todo Shall we handle the name change here ? Why not, after
+    /// all ? Things still can change later on.
+    *first = new DataSet(newcols);
+    (*first)->name = cleanedName() + "_a.dat";
+  }
+  if(second) {
+    if(idx >= nbRows())         // Ensure we don't go over.
+      idx = nbRows() - 1;
+    QList<Vector> newcols;
+    for(int i = 0; i < columns.size(); i++)
+      newcols << Vector(columns[i].mid(idx));
+    *second = new DataSet(newcols);
+    (*second)->name = cleanedName() + "_b.dat";
+  }
+}
+
+const double * DataSet::getValues(int col, int * size) const
+{
+  if(size)
+    *size = columns[col].size();
+  return columns[col].data();
+}
+
+int DataSet::deltaSignChange(int col) const
+{
+  int size;
+  const double *val = getValues(col, &size);
+  if(size < 3)
+    return  -1;
+  double dv0 = val[1] - val[0];
+  for(int i = 1; i < size - 1; i++) {
+    double dv = val[i+1] - val[i];
+    if(dv * dv0 < 0)
+      return i;
+  }
+  return -1;
+}

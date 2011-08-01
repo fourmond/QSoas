@@ -64,6 +64,10 @@ class DataSet {
     if(! isCacheValid())
       regenerateCache();
   };
+ 
+  /// Return the raw values of the given column, setting \a size to
+  /// the correct value when not NULL.
+  const double * getValues(int col, int * size) const;
 public:
 
   /// The name of the dataset, usually the name of the file.
@@ -72,6 +76,9 @@ public:
   DataSet() {;};
   DataSet(const QList<Vector> & cols) : columns(cols) {;};
 
+  /// Returns a version of name without the extension, that can be
+  /// used for making up new buffer names from the old ones.
+  QString cleanedName() const;
 
   /// Adds a new column to the data set.
   DataSet & operator<<(const Vector & column);
@@ -120,7 +127,8 @@ public:
   /// @name Data inspection facilites
   ///
   /// Functions that return various information about the data
-  /// contained in the Vector.
+  /// contained in the Vector. Some of them are cached, others are
+  /// not.
   ///
   /// @{
 
@@ -155,6 +163,25 @@ public:
     return QPointF(columns[0][i], columns[1][i]);
   };
 
+  /// Returns the first index at which the delta between two
+  /// consecutive elements of column \a i change. -1 if there is no
+  /// such change.
+  int deltaSignChange(int i) const;
+
+  /// @}
+
+  /// @name Operations
+  ///
+  /// Operations that either modify the given DataSet or return a new
+  /// one.
+  ///
+  /// @{
+
+  /// Split the DataSet at the given index, and stores the resulting
+  /// datasets at the locations pointed too by \a first and \a second.
+  ///
+  /// The point at idx is included in \b both datasets.
+  void splitAt(int idx, DataSet ** first, DataSet ** second = NULL) const;
 
   /// @}
   

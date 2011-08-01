@@ -1,5 +1,5 @@
 /**
-   \file general-commands.cc various general purpose commands and groups
+   \file datastack-commands.cc commands for handling the data stack
    Copyright 2011 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify

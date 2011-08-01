@@ -24,6 +24,18 @@ class CommandPrompt;
 
 /// A widget that accepts commands, and display their result, a
 /// successor for the terminal in the old Soas.
+///
+/// @todo This CommandWidget should hanlde gracefully the interaction
+/// during the curve event loop mode:
+/// @li a label could go on the right-hand-side of the terminal
+/// display, to serve as a reminder of the key bindings and the
+/// purpose of the loop mode
+/// @li the prompt would be disabled, and potentially replaced by
+/// another line edit when prompting for strings.
+/// @li entering and going out of that mode should be simple
+/// @li during the prompt, all events excepted escape would be
+/// forwarded to the prompt line edit
+/// 
 class CommandWidget : public QWidget {
 
   Q_OBJECT;

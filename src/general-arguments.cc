@@ -61,6 +61,18 @@ QStringList FileArgument::proposeCompletion(const QString & starter) const
 
 ////////////////////////////////////////////////////////////
 
+ArgumentMarshaller * FileSaveArgument::fromString(const QString & str) const
+{
+  if(askOverwrite && QFile::exists(str)) {
+    QString s = QObject::tr("Overwrite file '%1' ?").
+      arg(str);
+    if(! Utils::askConfirmation(s))
+      throw std::runtime_error("Aborted");
+  }
+  return new ArgumentMarshallerChild<QString>(str);
+}
+
+
 ArgumentMarshaller * FileSaveArgument::promptForValue(QWidget * base) const
 {
   QString def = defaultName;

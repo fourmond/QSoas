@@ -51,19 +51,28 @@ class FileSaveArgument : public FileArgument {
 
   /// A way to acquire the default name
   QString (*provider)();
+
+  /// Whether or not we ask confirmation before overwriting
+  bool askOverwrite;
 public:
 
   FileSaveArgument(const char * cn, const char * pn,
                    const char * d = "", 
-                   const QString & def = QString()) : 
+                   const QString & def = QString(),
+                   bool asko = true) : 
     FileArgument(cn, pn, d), defaultName(def),
-    provider(NULL) {
+    provider(NULL),  askOverwrite(asko) {
   }; 
 
   FileSaveArgument(const char * cn, const char * pn,
-                   const char * d, QString (*pr)()) : FileArgument(cn, pn, d),
-                                                      provider(pr) {
+                   const char * d, QString (*pr)(),
+                   bool asko = true) : FileArgument(cn, pn, d),
+                                       provider(pr), askOverwrite(asko) {
   }; 
+
+  /// Returns a wrapped QString. Check that the target file does not
+  /// exist if askOverwrite is on.
+  virtual ArgumentMarshaller * fromString(const QString & str) const;
   
   /// Prompting uses a QFileDialog.
   virtual ArgumentMarshaller * promptForValue(QWidget * base) const;

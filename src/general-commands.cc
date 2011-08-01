@@ -47,12 +47,8 @@ namespace GeneralCommands {
   static void quitCommand(const QString & name)
   {
     if( name != "quit") {
-      if(QMessageBox::question(NULL,
-                               QObject::tr("Really quit ?"),
-                               QObject::tr("Are you really sure you "
-                                           "want to quit ?"),
-                               QMessageBox::Ok | QMessageBox::Cancel) != 
-         QMessageBox::Ok) {
+      if(! Utils::askConfirmation(QObject::tr("Are you really sure you "
+                                              "want to quit ?"))) {
         Terminal::out << "Great !" << endl;
         return;
       }

@@ -66,6 +66,11 @@ namespace Utils {
     return r.adjusted(m.left(), m.top(), -m.right(), -m.bottom());
   };
 
+  /// Prompts the user for confirmation for something. For now,
+  /// through the use of a dialog box, but that may change some time
+  /// later.
+  bool askConfirmation(const QString & what, 
+                       const QString & title = QString());
 };
 
 #endif

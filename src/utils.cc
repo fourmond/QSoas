@@ -26,7 +26,8 @@ QStringList Utils::glob(const QString & pattern, bool trim)
   QDir dir = info.dir();
   QStringList lst = dir.entryList(QStringList() << info.fileName(), 
                                   QDir::NoDotAndDotDot |
-                                  QDir::Files | QDir::Dirs);
+                                  QDir::Files | QDir::Dirs | 
+                                  QDir::CaseSensitive);
   if(lst.isEmpty() && ! trim)
     lst << info.fileName();
   for(int i = 0; i < lst.size(); i++)
@@ -72,4 +73,13 @@ QString Utils::commonBeginning(const QStringList & strings)
     i++;
   }
   return ret;
+}
+
+bool Utils::askConfirmation(const QString & what, 
+                            const QString & title)
+{
+  QString t = (title.isEmpty() ? QObject::tr("Please confirm") : title);
+  return QMessageBox::question(NULL, t, what,
+                               QMessageBox::Ok | QMessageBox::Cancel) == 
+    QMessageBox::Ok;
 }

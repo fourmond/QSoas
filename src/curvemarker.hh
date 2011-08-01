@@ -1,6 +1,6 @@
 /**
-   \file curveitems.hh
-   Various generally useful CurveItem children
+   \file curvemarker.hh
+   The CurveMarker class to draw markers.
    Copyright 2011 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
@@ -17,22 +17,32 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __CURVEITEMS_HH
-#define __CURVEITEMS_HH
+#ifndef __CURVEMARKER_HH
+#define __CURVEMARKER_HH
 
 #include <curveitem.hh>
 
 
-/// A simple line
-class CurveLine : public CurveItem {
+/// A marker, centered on a point.
+class CurveMarker : public CurveItem {
+  void paintMarker(QPainter * painter, const QPointF & realPos);
 public:
 
-  QPointF p1;
-  QPointF p2;
+  QPointF p;
   QPen pen;
+  QBrush brush;
+  double size;
 
-  virtual QRectF boundingRect() const;
+  typedef enum {
+    Circle,
+  } MarkerType;
+
+  MarkerType type;
+
   virtual void paint(QPainter * painter, const QRectF & bbox);
+
+  CurveMarker() : size(1.0), type(Circle) {;};
 };
+
 
 #endif

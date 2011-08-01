@@ -1,5 +1,5 @@
 /*
-  curveitems.cc: implementation of the useful CurveItem children
+  curvemarker.cc: implementation of the useful CurveItem children
   Copyright 2011 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
@@ -17,18 +17,32 @@
 */
 
 #include <headers.hh>
-#include <curveitems.hh>
+#include <curvemarker.hh>
 
-QRectF CurveLine::boundingRect() const
+
+void CurveMarker::paintMarker(QPainter * painter, const QPointF & realPos)
 {
-  return QRectF(p1, p2).normalized();
+  switch(type) {
+  case Circle:
+    painter->drawEllipse(realPos, size, size);
+    break;
+  default:
+  }
 }
 
-void CurveLine::paint(QPainter * painter, const QRectF &)
+
+void CurveMarker::paint(QPainter * painter, const QRectF &)
 {
-  QTextStream o(stdout);
+  // Here, we cheat
+  QTransform t = painter->transform();
+  QPointF realP = t.map(p);
+
   painter->save();
   painter->setPen(pen);
-  painter->drawLine(p1, p2);
+  painter->setBrush(brush);
+
+  // Now, we cancel the transformation, then we draw !
+  painter->setTransform(QTransform());
+  paintMarker(painter, realP);
   painter->restore();
 }

@@ -62,7 +62,7 @@ namespace DataSetCommands {
      NULL, // arguments
      NULL, // options
      QT_TR_NOOP("Split first"),
-     QT_TR_NOOP("Splits buffer until dx sign change"),
+     QT_TR_NOOP("Gets buffer until dx sign change"),
      QT_TR_NOOP("Returns the first part of the buffer, until "
                 "the first change of sign of dx"));
     
@@ -80,7 +80,7 @@ namespace DataSetCommands {
      NULL, // arguments
      NULL, // options
      QT_TR_NOOP("Split second"),
-     QT_TR_NOOP("Splits buffer after first dx sign change"),
+     QT_TR_NOOP("Gets buffer after first dx sign change"),
      QT_TR_NOOP("Returns the part of the buffer after "
                 "the first change of sign of dx"));
 

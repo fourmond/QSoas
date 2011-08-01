@@ -30,6 +30,7 @@
 
 #include <curveeventloop.hh>
 #include <curveitems.hh>
+#include <curvemarker.hh>
 #include <curveview.hh>
 #include <soas.hh>
 

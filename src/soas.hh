@@ -20,11 +20,10 @@
 #ifndef __SOAS_HH
 #define __SOAS_HH
 
-#include <datastack.hh>
-
 class MainWin;
 class CurveView;
 class DataSet;
+class DataStack;
 class CommandWidget;
 
 /// The class holding all information/actor related to Soas.
@@ -36,7 +35,7 @@ class CommandWidget;
 class Soas {
 
   MainWin * mw;
-  DataStack ds;
+  DataStack * ds;
 
   static Soas * theSoasInstance;
   
@@ -46,12 +45,6 @@ class Soas {
 public:
 
   Soas(MainWin * mw);
-
-  MainWin & mainWin() { return *mw; };
-  DataStack & stack() { return ds; };
-  CurveView & view();
-  CommandWidget & prompt(); 
-
 
   static Soas * soasInstance() {
     return theSoasInstance;
@@ -69,6 +62,16 @@ public:
 
   /// Shows a message in the main window status bar.
   void showMessage(const QString &str, int ms = 3000);
+
+  /// Returns the current data set.
+  DataSet * currentDataSet();
+
+
+  MainWin & mainWin() { return *mw; };
+  DataStack & stack() { return *ds; };
+  CurveView & view();
+  CommandWidget & prompt(); 
+
 };
 
 /// Returns the application-wide Soas instance

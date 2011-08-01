@@ -21,6 +21,7 @@
 #include <soas.hh>
 #include <mainwin.hh>
 
+#include <datastack.hh>
 #include <curveview.hh>
 
 CurveView & Soas::view()
@@ -34,6 +35,7 @@ Soas::Soas(MainWin * w) :
   mw(w), antialias(false), opengl(false)
 {
   theSoasInstance = this;
+  ds = new DataStack;
 }
 
 void Soas::setAntiAlias(bool b)
@@ -55,4 +57,9 @@ CommandWidget & Soas::prompt()
 void Soas::showMessage(const QString & str, int ms)
 {
   mw->showMessage(str, ms);
+}
+
+DataSet * Soas::currentDataSet()
+{
+  return ds->currentDataSet();
 }

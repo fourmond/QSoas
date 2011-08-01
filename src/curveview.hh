@@ -76,12 +76,6 @@ public:
   CurveView();
   virtual ~CurveView();
 
-  /// Adds a DataSet to the display.
-  void addDataSet(const DataSet * ds);
-
-  /// Shows the given DataSet (and forget about the other things)
-  void showDataSet(const DataSet * ds);
-
   /// Adds an item to the CurveView. It goes to the panel()
   void addItem(CurveItem * item);
 
@@ -93,6 +87,17 @@ public:
 
   /// Whether or not to use opengl for rendering.
   void setOpenGL(bool opengl);
+
+public slots:
+
+  /// Shows the current data set (see DataStack::currentDataSet)
+  void showCurrentDataSet();
+
+  /// Adds a DataSet to the display.
+  void addDataSet(const DataSet * ds);
+
+  /// Shows the given DataSet (and forget about the other things)
+  void showDataSet(const DataSet * ds);
 
 protected:
   virtual void resizeEvent(QResizeEvent * event);

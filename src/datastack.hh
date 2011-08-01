@@ -25,13 +25,17 @@
 /// The data stack, ie all DataSet objects known to Soas.
 ///
 /// Commands missing here:
-/// @li undo/redo + redo stack
 /// @li save/load stack (in a binary format containing
 /// exactly everyting, see QDataStream)
-class DataStack {
+class DataStack : public QObject {
+
+  Q_OBJECT;
 
   /// The DataSet objects
   QList<DataSet *> dataSets;
+
+  /// The redo stack.
+  QList<DataSet *> redoStack;
 
   /// A chache DataSet name -> DataSet.
   QHash<QString, DataSet *> dataSetByName;
@@ -43,15 +47,47 @@ public:
   ~DataStack();
 
 
-  /// Push the given DataSet object to the stack.
+  /// Push the given DataSet object to the stack. It becoms the
+  /// currentDataSet().
   ///
   /// @warning DataStack takes ownership of the DataSet.
-  void pushDataSet(DataSet * dataset);
+  ///
+  /// if \a silent is true, the stack won't emit the
+  /// currentBufferChanged() signal (useful for the functions that
+  /// already take care of the display)
+  void pushDataSet(DataSet * dataset, bool silent = false);
 
   /// Displays to terminal a small text description of the contents of
   /// the stack.
   void showStackContents(bool mostRecentFirst = true) const;
-  
+
+
+  /// Returns the numbered data set.
+  /// \li 0 is the most recent
+  /// \li -1 is the most recently pushed onto the redo stack.
+  ///
+  /// Returns NULL if no dataset could be found.
+  DataSet * numberedDataSet(int nb) const;
+
+  /// Returns the current dataset, ie the one that should be displayed
+  /// currently.
+  DataSet * currentDataSet() const {
+    return numberedDataSet(0);
+  };
+
+  /// Undo (ie, buffer 0 becomes buffer -1)
+  void undo(int nbtimes = 1);
+
+  /// Clears the whole stack, freeing the memory held
+  void clear();
+
+  /// Does the reverse of undo();
+  void redo(int nbtimes = 1);
+
+signals:
+  /// Emitted whenever the current dataset changed.
+  void currentDataSetChanged();
+
 };
 
 #endif

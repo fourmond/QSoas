@@ -45,7 +45,8 @@ namespace DataStackCommands {
       Terminal::out << "Loading file '" << files[i] << "'" << endl;
       try {
         DataSet * s = DataBackend::loadFile(files[i]);
-        soas().stack().pushDataSet(s);
+        soas().stack().pushDataSet(s, true); // use the silent version
+                                             // as we display ourselves
         if(nb > 0)
           soas().view().addDataSet(s);
         else

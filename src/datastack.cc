@@ -30,22 +30,54 @@ DataStack::~DataStack()
   /// @todo free buffers. Create a dedicated function.
 }
 
-void DataStack::pushDataSet(DataSet * dataset)
+void DataStack::pushDataSet(DataSet * dataset, bool silent)
 {
   dataSets << dataset;
   dataSetByName[dataset->name] = dataset;
+  if(! silent)
+    emit(currentDataSetChanged());
 }
 
-void DataStack::showStackContents(bool mostRecentFirst) const
+void DataStack::showStackContents(bool /*unused*/) const
 {
-  int size = dataSets.size();
   int totalSize = 0;
-  for(int i = 0; i < size; i++) {
-    int j = (mostRecentFirst ? size-i-1 : i);
-    int nb = (size - j - 1);
-    Terminal::out << "#" << nb << ": "
-                  << dataSets[j]->stringDescription() << endl;
-    totalSize += dataSets[j]->size();
+  if(redoStack.size())
+    Terminal::out << "Redo stack:" << endl;
+  for(int i = -redoStack.size(); i < dataSets.size(); i++) {
+    if(! i)
+      Terminal::out << "Normal stack:" << endl;
+    DataSet * ds = numberedDataSet(i);
+    Terminal::out << "#" << i << ": "
+                  << ds->stringDescription() << endl;
+    totalSize += ds->size();
   }
   Terminal::out << "Total size: " << totalSize/1024 << " kB" << endl;
+}
+
+
+DataSet * DataStack::numberedDataSet(int nb) const
+{
+  if(nb >= 0)
+    return dataSets.value(dataSets.size() - (nb+1), NULL);
+  return redoStack.value(redoStack.size() + nb, NULL);
+}
+
+void DataStack::undo(int nbTimes)
+{
+  while(nbTimes--) {
+    if(! dataSets.size())
+      throw std::runtime_error("Undo: nothing to undo");
+    redoStack.append(dataSets.takeLast());
+    emit(currentDataSetChanged());
+  }
+}
+
+void DataStack::redo(int nbTimes)
+{
+  while(nbTimes--) {
+    if(! redoStack.size())
+      throw std::runtime_error("Redo: nothing to redo");
+    redoStack.append(dataSets.takeLast());
+    emit(currentDataSetChanged());
+  }
 }

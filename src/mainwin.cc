@@ -60,6 +60,7 @@
 
 #include <commandwidget.hh>
 #include <curveview.hh>
+#include <datastack.hh>
 
 MainWin::MainWin()
 {
@@ -82,6 +83,15 @@ void MainWin::setupFrame()
   s->addWidget(commandWidget);
   curveView->setFocusProxy(commandWidget);
   s->setFocusProxy(commandWidget);
+
+  connect(&(soasInstance->stack()),
+          SIGNAL(currentDataSetChanged()),
+          curveView,SLOT(showCurrentDataSet()));
+
+  commandWidget->connect(&soasInstance->stack(), 
+                         SIGNAL(currentDataSetChanged()),
+                         SLOT(printCurrentDataSetInfo()));
+
   
   setCentralWidget(s);
 

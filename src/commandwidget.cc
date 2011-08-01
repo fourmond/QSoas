@@ -22,6 +22,7 @@
 #include <terminal.hh>
 #include <commandprompt.hh>
 #include <soas.hh>
+#include <dataset.hh>
 
 using namespace Terminal;
 
@@ -174,4 +175,14 @@ void CommandWidget::scrollTerminal(int nb)
   int curValue = sb->value();
   int pageValue = sb->pageStep();
   sb->setValue(curValue + (nb * pageValue)/2);
+}
+
+void CommandWidget::printCurrentDataSetInfo()
+{
+  const DataSet * ds = soas().currentDataSet();
+  if(ds)
+    Terminal::out << tr("Current buffer now is: '") 
+                  << ds->name << "'" << endl;
+  else
+    Terminal::out << tr("No current buffer") << endl;
 }

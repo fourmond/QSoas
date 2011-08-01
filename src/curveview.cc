@@ -120,6 +120,13 @@ void CurveView::clear()
   viewport()->repaint();
 }
 
+void CurveView::showCurrentDataSet()
+{
+  const DataSet * ds = soas().currentDataSet();
+  if(ds)
+    showDataSet(ds);
+}
+
 void CurveView::showDataSet(const DataSet * ds)
 {
   clear();

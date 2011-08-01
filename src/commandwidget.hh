@@ -97,6 +97,10 @@ public slots:
   /// Scrolls the terminal by that many half screens.
   void scrollTerminal(int nb);
 
+  /// Adds a small description of the current dataset onto the
+  /// terminal.
+  void printCurrentDataSetInfo(); 
+
 
 protected slots:
   void commandEntered();

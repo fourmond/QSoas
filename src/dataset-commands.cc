@@ -26,13 +26,16 @@
 
 #include <dataset.hh>
 #include <soas.hh>
+#include <curveview.hh>
+#include <curveeventloop.hh>
+#include <curvemarker.hh>
 
 namespace DataSetCommands {
   static Group grp("buffer", 2,
                    QT_TR_NOOP("Buffer"),
                    QT_TR_NOOP("Buffer manipulations"));
 
-//////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////
 
   /// Splits the given data at dx sign change
   static void splitDataSet(const DataSet * ds, bool first)
@@ -76,7 +79,7 @@ namespace DataSetCommands {
   static Command 
   sb("splitb", // command name
      CommandEffector::functionEffectorOptionLess(splitbCommand), // action
-     "stack",  // group name
+     "buffer",  // group name
      NULL, // arguments
      NULL, // options
      QT_TR_NOOP("Split second"),
@@ -84,4 +87,56 @@ namespace DataSetCommands {
      QT_TR_NOOP("Returns the part of the buffer after "
                 "the first change of sign of dx"));
 
+  //////////////////////////////////////////////////////////////////////
+
+
+  static void cursorCommand(const QString &)
+  {
+    const DataSet * ds = soas().currentDataSet();
+    CurveEventLoop loop;
+    CurveMarker m;
+    CurveView & view = soas().view();
+    view.addItem(&m);
+    m.size = 4;
+    m.pen = QPen(Qt::NoPen);
+    m.brush = QBrush(QColor(0,0,255,150)); // A kind of transparent blue
+    loop.setHelpString(QObject::tr("Cursor:\n"
+                                   "click to see\n"
+                                   "q or ESC to quit"));
+    /// @todo selection mode ? (do we need that ?)
+    while(! loop.finished()) {
+      switch(loop.type()) {
+      case QEvent::MouseButtonPress: 
+        {
+          QPair<double, int> dst = loop.distanceToDataSet(ds);
+          if(30 > dst.first &&  0 <= dst.second) { // operations in
+                                                   // reverse to avoid
+                                                   // confusing emacs
+            m.p = ds->pointAt(dst.second);
+            Terminal::out << dst.second << "\t"
+                          << m.p.x() << "\t"
+                          << m.p.y() << endl;
+          }
+          break;
+        }
+      case QEvent::KeyPress: 
+        if(loop.key() == 'q' || loop.key() == 'Q')
+          loop.terminate();
+        break;
+      default:
+        ;
+      }
+    }
+  }
+
+  static Command 
+  cu("cursor", // command name
+     CommandEffector::functionEffectorOptionLess(cursorCommand), // action
+     "buffer",  // group name
+     NULL, // arguments
+     NULL, // options
+     QT_TR_NOOP("Cursor"),
+     QT_TR_NOOP("Display cursors on the curve"),
+     QT_TR_NOOP("Displays cursors on the curve"),
+     "cu");
 }

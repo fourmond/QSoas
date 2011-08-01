@@ -21,6 +21,7 @@
 #define __CURVEEVENTLOOP_HH
 
 class CurveView;
+class DataSet;
 
 /// Inner event loop for use with CurveView
 ///
@@ -100,13 +101,22 @@ public:
   int key() {
     return k;
   }
-  
-  /// Prompts for a string input
-  QString promptForString(const QString & prompt, bool * ok = NULL);
+
 
   /// Returns the position of the last mouse event, in curve
   /// coordinates
   QPointF position() const;
+
+  /// Returns the distance of the current position to the dataset, in
+  /// screen units.
+  QPair<double, int> distanceToDataSet(const DataSet * ds) const;
+
+  /// Sets the help string for the loop (ie the text displayed at the
+  /// right of the terminal)
+  void setHelpString(const QString & str);
+  
+  /// Prompts for a string input
+  QString promptForString(const QString & prompt, bool * ok = NULL);
 
   /// This function gets installed as application-wide event filter
   /// upon entering the loop.

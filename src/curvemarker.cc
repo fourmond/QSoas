@@ -27,6 +27,7 @@ void CurveMarker::paintMarker(QPainter * painter, const QPointF & realPos)
     painter->drawEllipse(realPos, size, size);
     break;
   default:
+    ;
   }
 }
 

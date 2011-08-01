@@ -21,6 +21,7 @@
 #include <curveview.hh>
 #include <soas.hh>
 #include <commandwidget.hh>
+#include <dataset.hh>
 
 
 CurveEventLoop::CurveEventLoop(CurveView * v) : 
@@ -34,7 +35,12 @@ CurveEventLoop::CurveEventLoop(CurveView * v) :
 
   // Then, we switch the command widget to loop mode
   soas().prompt().setLoopMode(true);
-  soas().prompt().setSideBarLabel(tr("To escape, \n hit ESC"));
+  setHelpString(tr("To escape, \n hit ESC"));
+}
+
+void CurveEventLoop::setHelpString(const QString & str)
+{
+  soas().prompt().setSideBarLabel(str);
 }
 
 CurveEventLoop::~CurveEventLoop()
@@ -161,5 +167,12 @@ QString CurveEventLoop::promptForString(const QString & pr, bool * ok)
   if(ok)
     *ok = promptOK;
   return (promptOK ? inputText : QString());
+}
+
+QPair<double, int> CurveEventLoop::distanceToDataSet(const DataSet * ds) const
+{
+  /// @todo Be carefull when using several datasets ?
+  QPointF scales = view->panel.scaleFactors();
+  return ds->distanceTo(position(), scales.x(), scales.y());
 }
 

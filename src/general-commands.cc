@@ -154,6 +154,7 @@ namespace GeneralCommands {
         o << "Prompting: " << endl;
         QString str = loop.promptForString("what ?");
         o << "-> got: " << str << endl;
+        Terminal::out << "Got string: " << str << endl;
       }
     }
     Debug::dumpCurrentFocus("Focus after loop: ");

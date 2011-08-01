@@ -140,6 +140,10 @@ public:
   /// The stretching factor of this panel with respect to the others.
   /// Defaults to 100.
   int stretch;
+
+  /// Returns the current XY scale factors from curve coordinates to
+  /// screen coordinates. 
+  QPointF scaleFactors() const;
 };
 
 #endif

@@ -294,3 +294,8 @@ QMargins CurvePanel::panelMargins() const
                   10, 
                   drawingXTicks ? 30 : 10);
 }
+
+QPointF CurvePanel::scaleFactors() const
+{
+  return QPointF(transform.m11(), transform.m22());
+}

@@ -228,8 +228,8 @@ void CurveView::mouseMoveEvent(QMouseEvent * event)
   else {
     if(panel.contains(event->pos())) {
       QPointF f = panel.fromWidget(event->pos());
-      MainWin::showMessage(tr("X: %1, Y: %2").
-                           arg(f.x()).arg(f.y()));
+      soas().showMessage(tr("X: %1, Y: %2").
+                         arg(f.x()).arg(f.y()));
     }
     QAbstractScrollArea::mouseMoveEvent(event);
   }

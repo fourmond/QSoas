@@ -23,6 +23,7 @@
 #include <argument.hh>
 #include <argumentlist.hh>
 #include <mainwin.hh>
+#include <soas.hh>
 
 CommandPrompt::CommandPrompt() : nbSuccessiveTabs(0), historyItem(-1)
 {
@@ -49,16 +50,11 @@ void CommandPrompt::doCompletion()
 {
   nbSuccessiveTabs++;
   CompletionContext c = getCompletionContext();
-  QTextStream o(stdout);
-  // o << "Completion for word #" << w.index 
-  //   << ": '" << w.word << "' = '"
-  //   << text().mid(w.begin, w.end - w.begin) << "'" << endl;
   QString reason = tr("No completion");
   bool complete = true;
   completions = getCompletions(c, &reason, &complete);
-  // o << "Completions :" << completions.join(", ") << endl;
   if(completions.size() == 0) {
-    MainWin::showMessage(reason);
+    soas().showMessage(reason);
     return;
   }
   if(completions.size() == 1) {
@@ -71,7 +67,7 @@ void CommandPrompt::doCompletion()
     if(common == c.word) {
       QString str = tr("%1 completions: %2").
         arg(completions.size()).arg(completions.join(", "));
-      MainWin::showMessage(str);
+      soas().showMessage(str);
     }
     else {
       replaceWord(c, Command::quoteString(common), false);

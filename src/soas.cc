@@ -51,3 +51,8 @@ CommandWidget & Soas::prompt()
 {
   return *mw->commandWidget;
 }
+
+void Soas::showMessage(const QString & str, int ms)
+{
+  mw->showMessage(str, ms);
+}

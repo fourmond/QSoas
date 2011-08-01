@@ -66,6 +66,9 @@ public:
   bool openGL() const {
     return opengl;
   };
+
+  /// Shows a message in the main window status bar.
+  void showMessage(const QString &str, int ms = 3000);
 };
 
 /// Returns the application-wide Soas instance

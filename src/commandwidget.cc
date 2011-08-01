@@ -21,6 +21,7 @@
 #include <command.hh>
 #include <terminal.hh>
 #include <commandprompt.hh>
+#include <soas.hh>
 
 using namespace Terminal;
 
@@ -81,6 +82,8 @@ void CommandWidget::runCommand(const QStringList & raw)
   QString cmd = Command::unsplitWords(raw);
   out << bold("Soas> ") << cmd << endl;
   commandLine->addHistoryItem(cmd);
+  commandLine->setEnabled(false);
+  soas().showMessage(tr("Running: %1").arg(cmd));
   try {
     Command::runCommand(raw, this);
   }
@@ -91,6 +94,8 @@ void CommandWidget::runCommand(const QStringList & raw)
     out << bold("Internal error: ") 
         << error.what() << endl;
   }
+  commandLine->setEnabled(true);
+  commandLine->setFocus();
 }
 
 void CommandWidget::runCommand(const QString & str)
@@ -101,8 +106,9 @@ void CommandWidget::runCommand(const QString & str)
 
 void CommandWidget::commandEntered()
 {
-  runCommand(commandLine->text());
+  QString cmd = commandLine->text();
   commandLine->clear();
+  runCommand(cmd);
 }
 
 void CommandWidget::appendToTerminal(const QString & str)
@@ -117,7 +123,6 @@ void CommandWidget::logString(const QString & str)
 {
   if(theCommandWidget)
     theCommandWidget->appendToTerminal(str);
-
   else {
     QTextStream o(stdout);
     o << str;
@@ -127,7 +132,7 @@ void CommandWidget::logString(const QString & str)
 void CommandWidget::setLoopMode(bool loop)
 {
   sideBarLabel->setVisible(loop);
-  commandLine->setEnabled(! loop);
+  // commandLine->setEnabled(! loop);
   if(loop)
     commandLine->clearFocus();
   else

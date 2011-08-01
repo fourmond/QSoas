@@ -60,11 +60,8 @@
 #include <commandwidget.hh>
 #include <curveview.hh>
 
-MainWin * MainWin::theMainWindow = NULL;
-
 MainWin::MainWin()
 {
-  theMainWindow = this;
   soasInstance = new Soas(this);
   setupFrame();
 }
@@ -101,7 +98,7 @@ MainWin::~MainWin()
 {
 }
 
-void MainWin::showMessage(const QString & str)
+void MainWin::showMessage(const QString & str, int ms)
 {
-  theMainWindow->statusBar()->showMessage(str,  3000);
+  statusBar()->showMessage(str, ms);
 }

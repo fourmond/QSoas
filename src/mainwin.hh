@@ -40,16 +40,12 @@ class MainWin : public QMainWindow {
   /// The instance of Soas run
   Soas * soasInstance;
 
-  /// The MainWin that will receive messages
-  static MainWin * theMainWindow;
-
-
 public:
   MainWin();
   ~MainWin();
 
-  /// Displays a message on the status bar of theMainWindow;
-  static void showMessage(const QString & str);
+  /// Displays a message on the status bar
+  void showMessage(const QString & str, int milliseconds = 3000);
 
 protected slots:
   void menuActionTriggered(QAction * action);

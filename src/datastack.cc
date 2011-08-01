@@ -77,7 +77,7 @@ void DataStack::redo(int nbTimes)
   while(nbTimes--) {
     if(! redoStack.size())
       throw std::runtime_error("Redo: nothing to redo");
-    redoStack.append(dataSets.takeLast());
+    dataSets.append(redoStack.takeLast());
     emit(currentDataSetChanged());
   }
 }

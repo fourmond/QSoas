@@ -29,15 +29,13 @@
 #include <curveview.hh>
 #include <soas.hh>
 
-namespace Groups {
+namespace DataStackCommands {
   static Group stack("stack", 1,
                      QT_TR_NOOP("Data Stack"),
                      QT_TR_NOOP("Data stack manipulation"));
-}
 
 //////////////////////////////////////////////////////////////////////
 
-namespace DataStackCommands {
 
   static void loadFilesAndDisplay(int nb, QStringList files)
   {
@@ -68,7 +66,7 @@ namespace DataStackCommands {
                              
 
 
-  static void loadCommand(const QString & name, QStringList files)
+  static void loadCommand(const QString &, QStringList files)
   {
     /// @todo add the possibility to select the backend
     loadFilesAndDisplay(0, files);
@@ -87,7 +85,7 @@ namespace DataStackCommands {
        "l");
   //////////////////////////////////////////////////////////////////////
 
-  static void overlayFilesCommand(const QString & name, QStringList files)
+  static void overlayFilesCommand(const QString &, QStringList files)
   {
     loadFilesAndDisplay(1, files);
   }
@@ -107,7 +105,7 @@ namespace DataStackCommands {
 
   //////////////////////////////////////////////////////////////////////
 
-  static void showStackCommand(const QString & name)
+  static void showStackCommand(const QString &)
   {
     soas().stack().showStackContents();
   }
@@ -123,4 +121,44 @@ namespace DataStackCommands {
             QT_TR_NOOP("Shows the stack contents"),
             QT_TR_NOOP("Shows a small summary of what the stack is made of"));
 
+  //////////////////////////////////////////////////////////////////////
+
+  static void undoCommand(const QString &)
+  {
+    soas().stack().undo();
+  }
+
+
+  static Command 
+  undo("undo", // command name
+       CommandEffector::functionEffectorOptionLess(undoCommand), // action
+       "stack",  // group name
+       NULL, // arguments
+       NULL, // options
+       QT_TR_NOOP("Undo"),
+       QT_TR_NOOP("Return to the previous buffer"),
+       QT_TR_NOOP("Returns to the previous buffer, and push the "
+                  "current to the redo stack"),
+       "u");
+
+  //////////////////////////////////////////////////////////////////////
+
+  static void redoCommand(const QString &)
+  {
+    soas().stack().redo();
+  }
+
+
+  static Command 
+  redo("redo", // command name
+       CommandEffector::functionEffectorOptionLess(redoCommand), // action
+       "stack",  // group name
+       NULL, // arguments
+       NULL, // options
+       QT_TR_NOOP("Redo"),
+       QT_TR_NOOP("Retrieves the last undone buffer"),
+       QT_TR_NOOP("Pops the last buffer from the redo stack and set it "
+                  "as the current buffer"),
+       "r");
+  
 }

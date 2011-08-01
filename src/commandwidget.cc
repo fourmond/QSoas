@@ -144,3 +144,24 @@ void CommandWidget::setSideBarLabel(const QString & str)
 {
   sideBarLabel->setText(str);
 }
+
+QLineEdit * CommandWidget::enterPromptMode(const QString & prompt)
+{
+  commandLine->setVisible(false);
+  restrictedPrompt->setText("");
+  restrictedPrompt->setVisible(true);
+  
+  promptLabel->setText(prompt);
+
+  
+  restrictedPrompt->setFocus(); // ? 
+  return restrictedPrompt;
+}
+
+void CommandWidget::leavePromptMode()
+{
+  commandLine->setVisible(true);
+  restrictedPrompt->setVisible(false);
+  restrictedPrompt->clearFocus();
+  promptLabel->setText("Soas> ");
+}

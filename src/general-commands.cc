@@ -144,6 +144,11 @@ namespace GeneralCommands {
         m.p = p;
         i++;
       }
+      else if(loop.type() == QEvent::KeyPress && loop.key() == 's') {
+        o << "Prompting: " << endl;
+        QString str = loop.promptForString("what ?");
+        o << "-> got: " << str << endl;
+      }
     }
     Debug::dumpCurrentFocus("Focus after loop: ");
   }

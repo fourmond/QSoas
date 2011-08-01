@@ -80,6 +80,12 @@ public:
   /// is hidden)
   void setSideBarLabel(const QString & str);
 
+  /// Enter the inner prompting mode
+  QLineEdit * enterPromptMode(const QString & prompt);
+
+  /// Leave the inner prompting mode
+  void leavePromptMode();
+
 public slots:
 
   void runCommand(const QString & str);

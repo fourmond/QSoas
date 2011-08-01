@@ -25,7 +25,7 @@
 
 CurveEventLoop::CurveEventLoop(CurveView * v) : 
   lastEventType(QEvent::None),
-  k(0), done(false)
+  k(0), done(false), prompt(NULL)
 {
   if(! v)
     v = &(soas().view());
@@ -123,10 +123,41 @@ bool CurveEventLoop::eventFilter(QObject *, QEvent * event)
     receiveMouseEvent(static_cast<QMouseEvent*>(event));
     return true;
   case QEvent::KeyPress:
-    receiveKeyEvent(static_cast<QKeyEvent*>(event));
-    return true;
+    {
+      QKeyEvent * ev = static_cast<QKeyEvent*>(event);
+      if(prompt) {
+        switch(ev->key()) {
+        case Qt::Key_Return:
+        case Qt::Key_Enter:
+          promptOK = true;
+        case Qt::Key_Escape:
+          inputText = prompt->text();
+          prompt = NULL;
+          return true;
+        default: 
+          return false;
+        }
+      }
+      else {
+        receiveKeyEvent(ev);
+        return true;
+      }
+    }
   default:
     return false;               // Propagate other events
   }
   return false;
 }
+
+QString CurveEventLoop::promptForString(const QString & pr)
+{
+  prompt = soas().prompt().enterPromptMode(pr);
+  promptOK = false;
+
+  while(prompt)
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
+
+  soas().prompt().leavePromptMode();
+  return (promptOK ? inputText : QString());
+}
+

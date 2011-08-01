@@ -71,6 +71,11 @@ class CurveEventLoop : public QObject {
   QPoint pos;
 
   bool done;
+
+  QLineEdit * prompt;
+
+  bool promptOK;
+  QString inputText;
 public:
 
   CurveEventLoop(CurveView * v = NULL);
@@ -95,6 +100,9 @@ public:
   int key() {
     return k;
   }
+  
+  /// Prompts for a string input
+  QString promptForString(const QString & prompt);
 
   /// Returns the position of the last mouse event, in curve
   /// coordinates

@@ -1,5 +1,5 @@
 /*
-  soas.cc: implementation of the Soas class
+  debug.cc: various utility functions for debugging
   Copyright 2011 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
@@ -18,36 +18,12 @@
 
 
 #include <headers.hh>
-#include <soas.hh>
-#include <mainwin.hh>
+#include <debug.hh>
 
-#include <curveview.hh>
-
-CurveView & Soas::view()
+void Debug::dumpCurrentFocus(const QString & str)
 {
-  return *mw->curveView;
-}
-
-Soas * Soas::theSoasInstance = NULL;
-
-Soas::Soas(MainWin * w) : 
-  mw(w), antialias(false), opengl(false)
-{
-  theSoasInstance = this;
-}
-
-void Soas::setAntiAlias(bool b)
-{
-  antialias = b;
-}
-
-void Soas::setOpenGL(bool b)
-{
-  opengl = b;
-  view().setOpenGL(opengl);
-}
-
-CommandWidget & Soas::prompt() 
-{
-  return *mw->commandWidget;
+  QTextStream o(stdout);
+  QWidget * w = QApplication::focusWidget();
+  o << str << w << "(" 
+    << (w ? w->metaObject()->className() : "-none-") << ")" << endl;
 }

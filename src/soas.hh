@@ -25,6 +25,7 @@
 class MainWin;
 class CurveView;
 class DataSet;
+class CommandWidget;
 
 /// The class holding all information/actor related to Soas.
 ///
@@ -49,6 +50,7 @@ public:
   MainWin & mainWin() { return *mw; };
   DataStack & stack() { return ds; };
   CurveView & view();
+  CommandWidget & prompt(); 
 
 
   static Soas * soasInstance() {

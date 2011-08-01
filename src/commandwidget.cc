@@ -31,23 +31,40 @@ CommandWidget::CommandWidget()
   if(! theCommandWidget)
     theCommandWidget = this;    // Or always ?
   QVBoxLayout * layout = new QVBoxLayout(this);
+
+  QHBoxLayout * h1 = new QHBoxLayout();
   terminalDisplay = new QTextEdit();
   terminalDisplay->setReadOnly(true);
   // We use a monospace font !
   terminalDisplay->setFont(QFont("monospace")); /// @todo customize settings
-  layout->addWidget(terminalDisplay);
+  h1->addWidget(terminalDisplay);
 
-  QHBoxLayout * h1 = new QHBoxLayout();
-  h1->addWidget(new QLabel("Soas> "));
+  sideBarLabel = new QLabel();
+  h1->addWidget(sideBarLabel);
+
+  layout->addLayout(h1);
+
+  h1 = new QHBoxLayout();
+  promptLabel = new QLabel("Soas> ");
+  h1->addWidget(promptLabel);
+
   commandLine = new CommandPrompt;
-
   connect(commandLine, SIGNAL(returnPressed()), 
           SLOT(commandEntered()));
   h1->addWidget(commandLine);
+
+  restrictedPrompt = new QLineEdit;
+  h1->addWidget(restrictedPrompt);
+  
+
   layout->addLayout(h1);
 
   this->setFocusProxy(commandLine);
   terminalDisplay->setFocusProxy(commandLine);
+  terminalDisplay->setFocusPolicy(Qt::NoFocus);
+
+  setLoopMode(false);
+  restrictedPrompt->setVisible(false);
 }
 
 CommandWidget::~CommandWidget()
@@ -105,4 +122,20 @@ void CommandWidget::logString(const QString & str)
     QTextStream o(stdout);
     o << str;
   }
+}
+
+void CommandWidget::setLoopMode(bool loop)
+{
+  sideBarLabel->setVisible(loop);
+  commandLine->setEnabled(! loop);
+  if(loop)
+    commandLine->clearFocus();
+  else
+    commandLine->setFocus();
+  
+}
+
+void CommandWidget::setSideBarLabel(const QString & str)
+{
+  sideBarLabel->setText(str);
 }

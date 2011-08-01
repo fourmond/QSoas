@@ -40,12 +40,20 @@ class CommandWidget : public QWidget {
 
   Q_OBJECT;
 
-  /// The line edition, to be later blessed with expansion
-  /// capabilities.
-  CommandPrompt * commandLine;
-
   /// The terminal display
   QTextEdit * terminalDisplay;
+
+  /// The label on the right of the terminal
+  QLabel * sideBarLabel;
+
+  /// The line prompt
+  CommandPrompt * commandLine;
+
+  /// The prompt
+  QLabel * promptLabel;
+
+  /// The restricted prompt:
+  QLineEdit * restrictedPrompt;
 
   /// The CommandWidget that will receive log (Terminal) messages, ie
   /// the first one to be created.
@@ -61,6 +69,17 @@ public:
   /// those ready.
   static void logString(const QString & str);
 
+
+  /// Switch to loop mode (and back)
+  void setLoopMode(bool b);
+
+  /// Sets the text of the prompt
+  void setPrompt(const QString & str);
+
+  /// Sets the text of the side bar label (but doesn't show it if it
+  /// is hidden)
+  void setSideBarLabel(const QString & str);
+
 public slots:
 
   void runCommand(const QString & str);
@@ -68,6 +87,7 @@ public slots:
 
   /// Appends the given (HTML) text to the log output.
   void appendToTerminal(const QString & str);
+
 
 protected slots:
   void commandEntered();

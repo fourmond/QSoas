@@ -20,6 +20,8 @@
 #include <curveeventloop.hh>
 #include <curveview.hh>
 #include <soas.hh>
+#include <commandwidget.hh>
+
 
 CurveEventLoop::CurveEventLoop(CurveView * v) : 
   lastEventType(QEvent::None),
@@ -29,15 +31,19 @@ CurveEventLoop::CurveEventLoop(CurveView * v) :
     v = &(soas().view());
   view = v;
   view->enterLoop(this);
+
+  // Then, we switch the command widget to loop mode
+  soas().prompt().setLoopMode(true);
+  soas().prompt().setSideBarLabel(tr("To escape, \n hit ESC"));
 }
 
 CurveEventLoop::~CurveEventLoop()
 {
+  soas().prompt().setLoopMode(false);
   view->leaveLoop();
 
-  // Send back all pending events ?
+  /// @todo Send back all pending events ?
 
-  // and a repaint event ?
   view->viewport()->repaint();
 }
 

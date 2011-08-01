@@ -33,6 +33,9 @@
 #include <curveview.hh>
 #include <soas.hh>
 
+#include <debug.hh>
+
+
 /// The namespace holding all the groups.
 namespace Groups {
   static Group file("file", 0,
@@ -108,7 +111,9 @@ namespace GeneralCommands {
 
   static void testELoopCommand(const QString & name)
   {
+    Debug::dumpCurrentFocus("Focus before creation: ");
     CurveEventLoop loop;
+    Debug::dumpCurrentFocus("Focus after creation: ");
     CurveLine l;
     CurveMarker m;
     CurvePanel p;
@@ -122,10 +127,12 @@ namespace GeneralCommands {
     m.size = 5;
     m.pen = QPen(QColor("red"), 2);
     m.brush = QBrush("blue");
+    Debug::dumpCurrentFocus("Focus before loop: ");
     while(! loop.finished()) {
-      o << "Event: " << loop.type() << endl
-        << " -> key " << QString("0x%1").arg(loop.key(), 8, 16, 
-                                             QChar('0')) << endl;
+      Debug::dumpCurrentFocus("Current focus: ");
+      o << "Event: " << loop.type()
+        << ", key " << QString("0x%1").arg(loop.key(), 8, 16, 
+                                           QChar('0')) << endl;
       if(loop.type() == QEvent::MouseButtonPress) {
         QPointF p = loop.position();
         o << "Press event at " << p.x() << "," << p.y() << endl;
@@ -138,6 +145,7 @@ namespace GeneralCommands {
         i++;
       }
     }
+    Debug::dumpCurrentFocus("Focus after loop: ");
   }
 
   static Command 

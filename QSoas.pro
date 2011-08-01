@@ -52,7 +52,8 @@ SOURCES += src/qmain.cc \
         src/curveeventloop.cc \
         src/curvedataset.cc \
         src/curveitems.cc \
-        src/curvepanel.cc
+        src/curvepanel.cc \
+        src/debug.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -80,4 +81,5 @@ HEADERS += src/headers.hh \
         src/curveeventloop.hh  \
         src/curvedataset.hh \
         src/curveitems.hh \
-        src/curvepanel.hh
+        src/curvepanel.hh \
+        src/debug.hh

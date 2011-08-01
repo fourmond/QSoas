@@ -34,20 +34,29 @@
 #include <soas.hh>
 
 #include <debug.hh>
+#include <commandwidget.hh>
 
-
-/// The namespace holding all the groups.
-namespace Groups {
-  static Group file("file", 0,
-                    QT_TR_NOOP("File"),
-                    QT_TR_NOOP("General purpose commands"));
-}
 
 /// A private namespace holding general-purpose commands
 namespace GeneralCommands {
+  static Group file("file", 0,
+                    QT_TR_NOOP("File"),
+                    QT_TR_NOOP("General purpose commands"));
+
+
   static void quitCommand(const QString & name)
   {
-    /// @todo prompt if the short name was used.
+    if( name != "quit") {
+      if(QMessageBox::question(NULL,
+                               QObject::tr("Really quit ?"),
+                               QObject::tr("Are you really sure you "
+                                           "want to quit ?"),
+                               QMessageBox::Ok | QMessageBox::Cancel) != 
+         QMessageBox::Ok) {
+        Terminal::out << "Great !" << endl;
+        return;
+      }
+    }
     qApp->quit();
   }
   static Command 
@@ -162,6 +171,40 @@ namespace GeneralCommands {
       QT_TR_NOOP("Test event loop"),
       QT_TR_NOOP("Test event loop"),
       QT_TR_NOOP("Exits QSoas, losing all the current session"));
+
+  //////////////////////////////////////////////////////////////////////
+  
+  static ArgumentList 
+  sta(QList<Argument *>() 
+      << new FileSaveArgument("file", 
+                              QT_TR_NOOP("File"),
+                              QT_TR_NOOP("Files to load !"),
+                              "soas-output.txt"));
+
+
+  static void saveTerminalCommand(const QString &, QString out)
+  {
+    QFile o(out);
+    if(! o.open(QIODevice::WriteOnly)) {
+      QString str = QObject::tr("Could not open '%1' for writing: %2").
+        arg(out).arg(o.errorString());
+      throw std::runtime_error(str.toStdString());
+    }
+    o.write(soas().prompt().terminalContents().toLocal8Bit());
+    o.close();
+  }
+
+  static Command 
+  st("save-output", // command name
+     CommandEffector::functionEffectorOptionLess(saveTerminalCommand), // action
+     "file",  // group name
+     &sta, // arguments
+     NULL, // options
+     QT_TR_NOOP("Save output"),
+     QT_TR_NOOP("Save all output from the terminal"),
+     QT_TR_NOOP("Save all output from the terminal"));
+  
+
 
   //////////////////////////////////////////////////////////////////////
   

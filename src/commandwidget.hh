@@ -86,6 +86,9 @@ public:
   /// Leave the inner prompting mode
   void leavePromptMode();
 
+  /// Returns the whole string contained by the terminal (as plain text)
+  QString terminalContents() const;
+
 public slots:
 
   void runCommand(const QString & str);

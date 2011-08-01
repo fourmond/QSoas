@@ -44,7 +44,9 @@ ArgumentMarshaller * FileArgument::fromString(const QString & str) const
 
 ArgumentMarshaller * FileArgument::promptForValue(QWidget * base) const
 {
-  QString file = QFileDialog::getOpenFileName(base, publicName());
+  QString file = 
+    QFileDialog::getOpenFileName(base, publicName(),
+                                 QDir::currentPath());
   if(file.isEmpty())
     throw std::runtime_error("Aborted"); 
   /// @todo Maybe use a specific exception to signal abortion ?
@@ -65,7 +67,7 @@ ArgumentMarshaller * FileSaveArgument::promptForValue(QWidget * base) const
   if(provider)
     def = provider();
 
-  QFileDialog fd(base, publicName());
+  QFileDialog fd(base, publicName(), QDir::currentPath());
   fd.setAcceptMode(QFileDialog::AcceptSave);
   if(! def.isEmpty())
     fd.selectFile(def);
@@ -86,7 +88,9 @@ ArgumentMarshaller * SeveralFilesArgument::fromString(const QString & str) const
 
 ArgumentMarshaller * SeveralFilesArgument::promptForValue(QWidget * base) const
 {
-  QStringList files = QFileDialog::getOpenFileNames(base, publicName());
+  QStringList files = 
+    QFileDialog::getOpenFileNames(base, publicName(),
+                                  QDir::currentPath());
   if(! files.size())
     throw std::runtime_error("Aborted"); 
   return new ArgumentMarshallerChild<QStringList>(files);

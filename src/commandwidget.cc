@@ -186,3 +186,8 @@ void CommandWidget::printCurrentDataSetInfo()
   else
     Terminal::out << tr("No current buffer") << endl;
 }
+
+QString CommandWidget::terminalContents() const
+{
+  return terminalDisplay->toPlainText();
+}

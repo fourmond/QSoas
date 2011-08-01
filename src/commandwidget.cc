@@ -52,6 +52,8 @@ CommandWidget::CommandWidget()
   commandLine = new CommandPrompt;
   connect(commandLine, SIGNAL(returnPressed()), 
           SLOT(commandEntered()));
+  connect(commandLine, SIGNAL(scrollRequested(int)), 
+          SLOT(scrollTerminal(int)));
   h1->addWidget(commandLine);
 
   restrictedPrompt = new QLineEdit;
@@ -164,4 +166,12 @@ void CommandWidget::leavePromptMode()
   restrictedPrompt->setVisible(false);
   restrictedPrompt->clearFocus();
   promptLabel->setText("Soas> ");
+}
+
+void CommandWidget::scrollTerminal(int nb)
+{
+  QScrollBar * sb = terminalDisplay->verticalScrollBar();
+  int curValue = sb->value();
+  int pageValue = sb->pageStep();
+  sb->setValue(curValue + (nb * pageValue)/2);
 }

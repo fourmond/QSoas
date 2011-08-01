@@ -78,11 +78,13 @@ void CommandPrompt::doCompletion()
 
 void CommandPrompt::keyPressEvent(QKeyEvent * event)
 {
-  if(event->key() == Qt::Key_Tab) {
+
+  switch(event->key()) {
+  case Qt::Key_Tab:
     event->accept();
     doCompletion();
-  }
-  else if(event->key() == Qt::Key_Up) {
+    break;
+  case Qt::Key_Up: 
     event->accept();
     if(historyItem < 0)
       savedLine = text();
@@ -90,8 +92,8 @@ void CommandPrompt::keyPressEvent(QKeyEvent * event)
       historyItem++;
       setText(savedHistory[historyItem]);
     }
-  }
-  else if(event->key() == Qt::Key_Down) {
+    break;
+  case Qt::Key_Down:
     event->accept();
     if(historyItem < 0)
       return;
@@ -100,13 +102,19 @@ void CommandPrompt::keyPressEvent(QKeyEvent * event)
       setText(savedHistory[historyItem]);
     else
       setText(savedLine);
-  }
-  else {
-    nbSuccessiveTabs = 0;
-    if(event->key() == Qt::Key_Enter ||
-       event->key() == Qt::Key_Return) {
-      historyItem = -1;         // Reset history.
-    }
+    break;
+  case Qt::Key_PageUp:
+    event->accept();
+    emit(scrollRequested(event->modifiers() & Qt::ControlModifier ? -8 : -1));
+    break;
+  case Qt::Key_PageDown:
+    event->accept();
+    emit(scrollRequested(event->modifiers() & Qt::ControlModifier ? 8 : 1));
+    break;
+  case Qt::Key_Enter:
+  case Qt::Key_Return:
+    historyItem = -1;         // Reset history.
+  default:
     QLineEdit::keyPressEvent(event);
   }
 }

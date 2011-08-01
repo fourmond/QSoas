@@ -92,6 +92,12 @@ public slots:
 protected:
   virtual void keyPressEvent(QKeyEvent * event);
 
+signals:
+
+  /// Signals the parent that a scroll is requested. The number is the
+  /// number of half screens.
+  void scrollRequested(int nb);
+
 };
 
 #endif

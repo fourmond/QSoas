@@ -94,6 +94,9 @@ public slots:
   /// Appends the given (HTML) text to the log output.
   void appendToTerminal(const QString & str);
 
+  /// Scrolls the terminal by that many half screens.
+  void scrollTerminal(int nb);
+
 
 protected slots:
   void commandEntered();

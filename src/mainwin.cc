@@ -40,6 +40,7 @@
    \li cut
    \li cd/pwd
    \li div
+   \li browse ;-)...
    
 
    I also need to come up with a decent way to handle "output files"

@@ -102,7 +102,7 @@ public:
   }
   
   /// Prompts for a string input
-  QString promptForString(const QString & prompt);
+  QString promptForString(const QString & prompt, bool * ok = NULL);
 
   /// Returns the position of the last mouse event, in curve
   /// coordinates

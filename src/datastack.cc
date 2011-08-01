@@ -27,7 +27,7 @@ DataStack::DataStack()
 
 DataStack::~DataStack()
 {
-  /// @todo free buffers. Create a dedicated function.
+  clear();
 }
 
 void DataStack::pushDataSet(DataSet * dataset, bool silent)
@@ -80,4 +80,15 @@ void DataStack::redo(int nbTimes)
     dataSets.append(redoStack.takeLast());
     emit(currentDataSetChanged());
   }
+}
+
+void DataStack::clear()
+{
+  for(int i = 0; i < dataSets.size(); i++)
+    delete dataSets[i];
+  dataSets.clear();
+  for(int i = 0; i < redoStack.size(); i++)
+    delete redoStack[i];
+  redoStack.clear();
+  emit(currentDataSetChanged());
 }

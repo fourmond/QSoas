@@ -160,5 +160,23 @@ namespace DataStackCommands {
        QT_TR_NOOP("Pops the last buffer from the redo stack and set it "
                   "as the current buffer"),
        "r");
+
+  //////////////////////////////////////////////////////////////////////
+
+  static void clearStackCommand(const QString &)
+  {
+    soas().stack().clear();
+  }
+
+
+  static Command 
+  cls("clear-stack", // command name
+       CommandEffector::functionEffectorOptionLess(clearStackCommand), // action
+       "stack",  // group name
+       NULL, // arguments
+       NULL, // options
+       QT_TR_NOOP("Clear stack"),
+       QT_TR_NOOP("Removes all buffers from the stack"),
+       QT_TR_NOOP("Removes all the buffers from both normal and redo stack"));
   
 }

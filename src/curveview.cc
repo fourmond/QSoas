@@ -108,6 +108,8 @@ void CurveView::addItem(CurveItem * item)
 
 void CurveView::addDataSet(const DataSet * ds)
 {
+  if(! ds)
+    return;
   CurveDataSet * item = new CurveDataSet(ds);
   item->pen = penForNextCurve();
   addItem(item);
@@ -122,9 +124,7 @@ void CurveView::clear()
 
 void CurveView::showCurrentDataSet()
 {
-  const DataSet * ds = soas().currentDataSet();
-  if(ds)
-    showDataSet(ds);
+  showDataSet(soas().currentDataSet());
 }
 
 void CurveView::showDataSet(const DataSet * ds)

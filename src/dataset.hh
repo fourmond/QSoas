@@ -182,6 +182,16 @@ public:
   /// such change.
   int deltaSignChange(int i) const;
 
+
+  /// Performs a linear regression on XY, taking only into account the
+  /// data points within the given indices (-1 for end means the last
+  /// element)
+  QPair<double, double> reglin(int begin = 0, int end = -1) const;
+
+  /// Performs a linear regression on XY, taking into account only the
+  /// data whose X value is within the given range.
+  QPair<double, double> reglin(double xmin, double xmax) const;
+
   /// @}
 
   /// @name Operations

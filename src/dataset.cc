@@ -237,3 +237,55 @@ DataSet * DataSet::divide(const DataSet * ds) const
 {
   return applyBinaryOperation(this, ds, div, "_div_");
 }
+
+QPair<double, double> DataSet::reglin(int begin, int end) const
+{
+  int nb = nbRows();
+  if(end < 0 || end > nb)
+    end = nb;
+  const double * x = columns[0].data();
+  const double * y = columns[1].data();
+
+  double sx = 0;
+  double sy = 0;
+  double sxx = 0;
+  double sxy = 0;
+  for(; begin < nb; begin++, x++, y++) {
+    sx += *x;
+    sy += *y;
+    sxx += *x * *x;
+    sxy += *x * *y;
+  }
+  double det = nb*sxx - sx*sx;
+  if(det == 0)
+    return QPair<double, double>(0, sy/nb);
+  else
+    return QPair<double, double>((nb *sxy - sx*sy)/det,
+                                 (sxx * sy - sx * sxy)/det);
+}
+
+QPair<double, double> DataSet::reglin(double xmin, double xmax) const
+{
+  int nb = nbRows();
+  const double * x = columns[0].data();
+  const double * y = columns[1].data();
+
+  double sx = 0;
+  double sy = 0;
+  double sxx = 0;
+  double sxy = 0;
+  for(int i = 0; i < nb; i++, x++, y++) {
+    if(! (*x >= xmin && *x <= xmax))
+      continue;
+    sx += *x;
+    sy += *y;
+    sxx += *x * *x;
+    sxy += *x * *y;
+  }
+  double det = nb*sxx - sx*sx;
+  if(det == 0)
+    return QPair<double, double>(0, sy/nb);
+  else
+    return QPair<double, double>((nb *sxy - sx*sy)/det,
+                                 (sxx * sy - sx * sxy)/det);
+}

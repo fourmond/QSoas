@@ -119,7 +119,8 @@ namespace DataStackCommands {
             NULL, // options
             QT_TR_NOOP("Show stack"),
             QT_TR_NOOP("Shows the stack contents"),
-            QT_TR_NOOP("Shows a small summary of what the stack is made of"));
+            QT_TR_NOOP("Shows a small summary of what the stack is made of"),
+            "k");
 
   //////////////////////////////////////////////////////////////////////
 
@@ -171,13 +172,15 @@ namespace DataStackCommands {
 
   static Command 
   cls("clear-stack", // command name
-       optionLessEffector(clearStackCommand), // action
-       "stack",  // group name
-       NULL, // arguments
-       NULL, // options
-       QT_TR_NOOP("Clear stack"),
-       QT_TR_NOOP("Removes all buffers from the stack"),
-       QT_TR_NOOP("Removes all the buffers from both normal and redo stack"));
+      optionLessEffector(clearStackCommand), // action
+      "stack",  // group name
+      NULL, // arguments
+      NULL, // options
+      QT_TR_NOOP("Clear stack"),
+      QT_TR_NOOP("Removes all buffers from the stack"),
+      QT_TR_NOOP("Removes all the buffers from both normal and redo stack"),
+      "delstack"
+      );
 
 //////////////////////////////////////////////////////////////////////
 

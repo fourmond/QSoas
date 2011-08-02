@@ -55,7 +55,8 @@ SOURCES += src/qmain.cc \
         src/curvepanel.cc \
         src/debug.cc \
         src/dataset-commands.cc \
-        src/curvemarker.cc
+        src/curvemarker.cc \
+        src/help-commands.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \

@@ -24,18 +24,18 @@
 #include <argumentmarshaller.hh>
 #include <utils.hh>
 
-template<class C, typename A1> void 
-CommandEffector::runFunction(void (C::*f)(const QString &, A1), 
-                             const QString & name, 
-                             const QList<ArgumentMarshaller *> & arguments) {
-  if(arguments.size() != 1) {
-    QString str;
-    str = QObject::tr("Expected 1 argument, but got %1").
-      arg(arguments.size());
-  }
-  A1 a1 = arguments[0]->value<A1>();
-  CALL_MEMBER_FN(*dynamic_cast<C>(this), f)(a1);
-};
+// template<class C, typename A1> void 
+// CommandEffector::runFunction(void (C::*f)(const QString &, A1), 
+//                              const QString & name, 
+//                              const QList<ArgumentMarshaller *> & arguments) {
+//   if(arguments.size() != 1) {
+//     QString str;
+//     str = QObject::tr("Expected 1 argument, but got %1").
+//       arg(arguments.size());
+//   }
+//   A1 a1 = arguments[0]->value<A1>();
+//   CALL_MEMBER_FN(*dynamic_cast<C>(this), f)(a1);
+// };
 
 /// Argumentless and optionless callback to static function
 ///
@@ -58,8 +58,9 @@ public:
 
 };
 
-inline CommandEffector * 
-CommandEffector::functionEffectorOptionLess(void (*f)(const QString &)) {
+
+/// Effector for an argumentless and optionless command
+inline CommandEffector * optionLessEffector(void (*f)(const QString &)) {
   return new CommandEffectorCallback0OptionLess(f);
 };
 
@@ -91,9 +92,45 @@ public:
 
 };
 
-template<class A1> CommandEffector * 
-CommandEffector::functionEffectorOptionLess(void (*f)(const QString &, A1)) {
+
+
+/// Effector for an optionless command that takes one argument.
+template<class A1> CommandEffector * optionLessEffector(void (*f)(const QString &, A1)) {
   return new CommandEffectorCallback1OptionLess<A1>(f);
+};
+
+/// Optionless callback to a static function with two arguments
+///
+/// Rather than using this class directly, use
+/// CommandEffector::functionEffector().
+template <class A1, class A2>
+class CommandEffectorCallback2OptionLess : public CommandEffector {
+
+  typedef void (*Callback)(const QString &, A1, A2);
+  Callback callback;
+
+public:
+
+  CommandEffectorCallback2OptionLess(Callback c) : callback(c) {;};
+
+  inline virtual void runCommand(const QString & commandName, 
+                                 const CommandArguments & args,
+                                 const CommandOptions &) {
+    if(args.size() != 2) {
+      QString str = QString("2 arguments expected, but got %2").
+        arg(args.size());
+      throw std::logic_error(str.toStdString());
+    }
+    A1 a1 = args[0]->value<A1>();
+    A2 a2 = args[1]->value<A2>();
+    callback(commandName, a1, a2);
+  };
+
+};
+
+/// Effector for an optionless command that takes two arguments.
+template<class A1, class A2> CommandEffector * optionLessEffector(void (*f)(const QString &, A1, A2)) {
+  return new CommandEffectorCallback2OptionLess<A1, A2>(f);
 };
 
 
@@ -126,8 +163,8 @@ public:
 };
 
 template<class A1> CommandEffector * 
-CommandEffector::functionEffector(void (*f)(const QString &, A1, 
-                                            const CommandOptions &)) {
+effector(void (*f)(const QString &, A1, 
+                   const CommandOptions &)) {
   return new CommandEffectorCallback1<A1>(f);
 };
 

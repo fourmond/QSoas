@@ -62,7 +62,7 @@ namespace DataSetCommands {
 
   static Command 
   sa("splita", // command name
-     CommandEffector::functionEffectorOptionLess(splitaCommand), // action
+     optionLessEffector(splitaCommand), // action
      "buffer",  // group name
      NULL, // arguments
      NULL, // options
@@ -80,7 +80,7 @@ namespace DataSetCommands {
 
   static Command 
   sb("splitb", // command name
-     CommandEffector::functionEffectorOptionLess(splitbCommand), // action
+     optionLessEffector(splitbCommand), // action
      "buffer",  // group name
      NULL, // arguments
      NULL, // options
@@ -134,7 +134,7 @@ namespace DataSetCommands {
 
   static Command 
   cu("cursor", // command name
-     CommandEffector::functionEffectorOptionLess(cursorCommand), // action
+     optionLessEffector(cursorCommand), // action
      "buffer",  // group name
      NULL, // arguments
      NULL, // options
@@ -245,7 +245,7 @@ namespace DataSetCommands {
 
   static Command 
   zo("zoom", // command name
-     CommandEffector::functionEffectorOptionLess(zoomCommand), // action
+     optionLessEffector(zoomCommand), // action
      "buffer",  // group name
      NULL, // arguments
      NULL, // options

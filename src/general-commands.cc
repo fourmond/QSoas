@@ -58,7 +58,7 @@ namespace GeneralCommands {
   }
   static Command 
   quit("quit", // command name
-       CommandEffector::functionEffectorOptionLess(quitCommand), // action
+       optionLessEffector(quitCommand), // action
        "file",  // group name
        NULL, // arguments
        NULL, // options
@@ -69,7 +69,7 @@ namespace GeneralCommands {
 
   //////////////////////////////////////////////////////////////////////
 
-  static void antialiasCommand(const QString & name)
+  static void antialiasCommand(const QString &)
   {
     soas().setAntiAlias(! soas().antiAlias());
     Terminal::out << "Antialiasing now " 
@@ -83,7 +83,7 @@ namespace GeneralCommands {
 
   static Command 
   aa("antialias", // command name
-     CommandEffector::functionEffectorOptionLess(antialiasCommand), // action
+     optionLessEffector(antialiasCommand), // action
      "file",  // group name
      NULL, // arguments
      NULL, // options
@@ -94,7 +94,7 @@ namespace GeneralCommands {
 
   //////////////////////////////////////////////////////////////////////
 
-  static void openglCommand(const QString & name)
+  static void openglCommand(const QString &)
   {
     soas().setOpenGL(! soas().openGL());
     Terminal::out << "The use of OpenGL is now " 
@@ -104,7 +104,7 @@ namespace GeneralCommands {
 
   static Command 
   ogl("opengl", // command name
-      CommandEffector::functionEffectorOptionLess(openglCommand), // action
+      optionLessEffector(openglCommand), // action
       "file",  // group name
       NULL, // arguments
       NULL, // options
@@ -115,7 +115,7 @@ namespace GeneralCommands {
 
   //////////////////////////////////////////////////////////////////////
 
-  static void testELoopCommand(const QString & name)
+  static void testELoopCommand(const QString &)
   {
     Debug::dumpCurrentFocus("Focus before creation: ");
     CurveEventLoop loop;
@@ -165,7 +165,7 @@ namespace GeneralCommands {
 
   static Command 
   tel("test-event-loop", // command name
-      CommandEffector::functionEffectorOptionLess(testELoopCommand), // action
+      optionLessEffector(testELoopCommand), // action
       "file",  // group name
       NULL, // arguments
       NULL, // options
@@ -197,7 +197,7 @@ namespace GeneralCommands {
 
   static Command 
   st("save-output", // command name
-     CommandEffector::functionEffectorOptionLess(saveTerminalCommand), // action
+     optionLessEffector(saveTerminalCommand), // action
      "file",  // group name
      &sta, // arguments
      NULL, // options
@@ -247,7 +247,7 @@ namespace GeneralCommands {
 
   static Command 
   dummy("dummy", // command name
-        CommandEffector::functionEffector(dummyCommand), // action
+        effector(dummyCommand), // action
         "file",  // group name
         &dummyArgs, // arguments
         &dummyOptions, // options

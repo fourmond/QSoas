@@ -75,7 +75,7 @@ namespace DataStackCommands {
 
   static Command 
   load("load", // command name
-       CommandEffector::functionEffectorOptionLess(loadCommand), // action
+       optionLessEffector(loadCommand), // action
        "stack",  // group name
        &loadArgs, // arguments
        NULL, // options
@@ -93,7 +93,7 @@ namespace DataStackCommands {
 
   static Command 
   ovl("overlay", // command name
-      CommandEffector::functionEffectorOptionLess(overlayFilesCommand), // action
+      optionLessEffector(overlayFilesCommand), // action
       "stack",  // group name
       &loadArgs, // arguments
       NULL, // options
@@ -113,7 +113,7 @@ namespace DataStackCommands {
 
   static Command 
   showStack("show-stack", // command name
-            CommandEffector::functionEffectorOptionLess(showStackCommand), // action
+            optionLessEffector(showStackCommand), // action
             "stack",  // group name
             NULL, // arguments
             NULL, // options
@@ -131,7 +131,7 @@ namespace DataStackCommands {
 
   static Command 
   undo("undo", // command name
-       CommandEffector::functionEffectorOptionLess(undoCommand), // action
+       optionLessEffector(undoCommand), // action
        "stack",  // group name
        NULL, // arguments
        NULL, // options
@@ -151,7 +151,7 @@ namespace DataStackCommands {
 
   static Command 
   redo("redo", // command name
-       CommandEffector::functionEffectorOptionLess(redoCommand), // action
+       optionLessEffector(redoCommand), // action
        "stack",  // group name
        NULL, // arguments
        NULL, // options
@@ -171,7 +171,7 @@ namespace DataStackCommands {
 
   static Command 
   cls("clear-stack", // command name
-       CommandEffector::functionEffectorOptionLess(clearStackCommand), // action
+       optionLessEffector(clearStackCommand), // action
        "stack",  // group name
        NULL, // arguments
        NULL, // options

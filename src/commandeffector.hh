@@ -34,34 +34,6 @@ public:
   virtual void runCommand(const QString & commandName, 
                           const CommandArguments & arguments,
                           const CommandOptions & options) = 0;
-
-  
-
-  /// A series of type-safe function calls to member functions
-  /// automatically converting arguments and checking the number of
-  /// arguments.
-  template<class C, typename A1> void 
-  runFunction(void (C::*f)(const QString &, A1), 
-              const QString & name, 
-              const QList<ArgumentMarshaller *> & arguments);
-
-  /// @name Utility functions
-  /// 
-  /// A series of overloaded functions returning appropriate
-  /// CommandEffector children wrappers.
-  ///
-  /// \warning C++ templating mechanism is such that you have to pass
-  /// arguments BY VALUE and not by reference to the callbacks
-  /// provided to these functions.
-  /// 
-  /// @{
-  static CommandEffector * functionEffectorOptionLess(void (*f)(const QString &)); 
-
-  template<class A1> static CommandEffector * functionEffectorOptionLess(void (*f)(const QString &, A1));
-
-  template<class A1> static CommandEffector * functionEffector(void (*f)(const QString &, A1, const CommandOptions &));
-
-  /// @}
 };
 
 #endif

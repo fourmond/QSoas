@@ -29,7 +29,7 @@ void DataSet::dump() const
       o << columns[j][i] << (j == columns.size() - 1 ? "\n" : "\t");      
 }
 
-int DataSet::size() const
+int DataSet::byteSize() const
 {
   /// @todo use the cache ?
   int s = 0;
@@ -42,7 +42,7 @@ int DataSet::size() const
 QString DataSet::stringDescription() const
 {
   return QObject::tr("'%1': %2 columns, %3 rows, %4 bytes").
-    arg(name).arg(nbColumns()).arg(nbRows()).arg(size());
+    arg(name).arg(nbColumns()).arg(nbRows()).arg(byteSize());
 }
 
 void DataSet::regenerateCache() const
@@ -174,4 +174,56 @@ int DataSet::deltaSignChange(int col) const
       return i;
   }
   return -1;
+}
+
+
+DataSet * DataSet::applyBinaryOperation(const DataSet * a,
+                                        const DataSet * b,
+                                        double (*op)(double, double),
+                                        const QString & cat)
+{
+  // only deal with the common columns
+  int nbcols = std::min(a->nbColumns(), b->nbColumns());
+  if(nbcols < 2)
+    throw std::runtime_error("Need at least a Y column for both datasets");
+
+  int size_a = a->nbRows();
+  const double * xa = a->columns[0].data();
+
+  int size_b = b->nbRows();
+  const double * xb = b->columns[0].data();
+
+  QList<Vector> vects;
+  for(int i = 0; i < nbcols; i++)
+    vects << Vector();
+
+  for(int i = 0; i < size_b; i++) {
+    double dist = fabs(xb[i] - xa[0]);
+    int idx = 0;
+    for(int j = 1; j < size_a; j++) {
+      double dst = fabs(xb[i] - xa[j]);
+      if(dst < dist) {
+        dst = dst;
+        idx = j;
+      }
+    }
+    // Now, we're matching index i of b against index idx of a
+    vects[0] << xa[idx];        // a is the master dataset
+    for(int k = 1; k < nbcols; k++)
+      vects[k] << op(a->columns[k][idx], a->columns[k][i]);
+  }
+
+  DataSet * ds = new DataSet(vects);
+  ds->name = a->cleanedName() + cat + b->cleanedName() + ".dat";
+  return ds;
+}
+
+static inline double sub(double a, double b)
+{
+  return a - b;
+}
+
+DataSet * DataSet::subtract(const DataSet * ds) const
+{
+  return applyBinaryOperation(this, ds, sub, "-");
 }

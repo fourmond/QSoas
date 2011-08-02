@@ -114,5 +114,19 @@ public:
   virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
 };
 
+/// A dataset from the stack
+///
+/// @todo Add prompting, but that will be fun.
+class DataSetArgument : public Argument {
+public:
+
+  DataSetArgument(const char * cn, const char * pn,
+                  const char * d = "") : Argument(cn, pn, d) {
+  }; 
+  
+  /// Returns a wrapped DataSet *
+  virtual ArgumentMarshaller * fromString(const QString & str) const;
+};
+
 
 #endif

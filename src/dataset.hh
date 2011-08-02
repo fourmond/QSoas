@@ -68,6 +68,20 @@ class DataSet {
   /// Return the raw values of the given column, setting \a size to
   /// the correct value when not NULL.
   const double * getValues(int col, int * size) const;
+
+  /// Applies a binary operation to all Y columns while trying to keep
+  /// X matching. Returns a brand new DataSet.
+  ///
+  /// The operation takes quadratic time, as all X of a are matched
+  /// against all X of b for each value (which is bad,
+  /// admittedly). There are probably ways to be much more clever than
+  /// that.
+  ///
+  /// Performance shouldn't
+  static DataSet * applyBinaryOperation(const DataSet * a,
+                                        const DataSet * b,
+                                        double (*op)(double, double),
+                                        const QString & cat = "_op_");
 public:
 
   /// The name of the dataset, usually the name of the file.
@@ -122,7 +136,7 @@ public:
 
   /// Returns the overall size used by the DataSet (not counting the
   /// QList overhead, probably much smaller than the rest anyway).
-  int size() const;
+  int byteSize() const;
 
   /// @name Data inspection facilites
   ///
@@ -182,6 +196,10 @@ public:
   ///
   /// The point at idx is included in \b both datasets.
   void splitAt(int idx, DataSet ** first, DataSet ** second = NULL) const;
+
+  
+  /// Subtracts \a dataset from this DataSet and returns the result.
+  DataSet * subtract(const DataSet * dataset) const;
 
   /// @}
   

@@ -22,6 +22,9 @@
 #include <argumentmarshaller.hh>
 #include <utils.hh>
 
+#include <soas.hh>
+#include <datastack.hh>
+
 /// A utility function for a clean file completion.
 static QStringList proposeFileCompletion(const QString & str)
 {
@@ -136,4 +139,23 @@ ArgumentMarshaller * StringArgument::promptForValue(QWidget * base) const
   if(! ok)
     throw std::runtime_error("Aborted"); 
   return fromString(str);
+}
+
+////////////////////////////////////////////////////////////
+
+
+ArgumentMarshaller * DataSetArgument::fromString(const QString & str) const
+{
+  bool ok = false;
+  int nb = str.toInt(&ok);
+  DataSet * ds = NULL;
+  if(ok) 
+    ds = soas().stack().numberedDataSet(nb);
+
+  if(! ok || ! ds) {
+    QString s = QObject::tr("Not a buffer number: '%1'").
+      arg(str);
+    throw std::runtime_error(s.toStdString());
+  }
+  return new ArgumentMarshallerChild<DataSet *>(ds);
 }

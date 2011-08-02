@@ -49,7 +49,7 @@ void DataStack::showStackContents(bool /*unused*/) const
     DataSet * ds = numberedDataSet(i);
     Terminal::out << "#" << i << ": "
                   << ds->stringDescription() << endl;
-    totalSize += ds->size();
+    totalSize += ds->byteSize();
   }
   Terminal::out << "Total size: " << totalSize/1024 << " kB" << endl;
 }

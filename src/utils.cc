@@ -79,9 +79,10 @@ bool Utils::askConfirmation(const QString & what,
                             const QString & title)
 {
   QString t = (title.isEmpty() ? QObject::tr("Please confirm") : title);
-  return QMessageBox::question(NULL, t, what,
-                               QMessageBox::Ok | QMessageBox::Cancel) == 
-    QMessageBox::Ok;
+  QMessageBox confirmation(QMessageBox::Question, t, what,
+                           QMessageBox::Yes | QMessageBox::No);
+  confirmation.move(QCursor::pos() + QPoint(-10,-10));
+  return confirmation.exec() == QMessageBox::Yes;
 }
 
 QRectF Utils::scaledAround(const QRectF & rect, const QPointF & point,

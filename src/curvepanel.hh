@@ -160,6 +160,10 @@ public:
   void zoomIn(const QPointF & pos, Qt::Orientation orient, 
               double by = 1);
 
+  /// Zooms in on the given rectangle (or cancel current zoom on empty
+  /// \a rect).
+  void zoomIn(const QRectF & rect);
+
   /// Resets zoom to the actual bounding box.
   void resetZoom();
 };

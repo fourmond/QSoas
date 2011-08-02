@@ -336,3 +336,8 @@ void CurvePanel::resetZoom()
 {
   zoom = QRectF();
 }
+
+void CurvePanel::zoomIn(const QRectF & rect)
+{
+  zoom = rect;
+}

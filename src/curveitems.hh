@@ -35,4 +35,19 @@ public:
   virtual void paint(QPainter * painter, const QRectF & bbox);
 };
 
+/// A rectangle
+class CurveRectangle : public CurveItem {
+public:
+  QPointF p1;
+  QPointF p2;
+  QPen pen;
+  QBrush brush;
+
+  void setRect(const QRectF &r);
+  
+  CurveRectangle() : brush(QBrush(Qt::NoBrush)) {;};
+
+  virtual void paint(QPainter * painter, const QRectF & bbox);
+};
+
 #endif

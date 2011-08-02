@@ -22,6 +22,7 @@
 
 class CurveView;
 class DataSet;
+class CurvePanel;
 
 /// Inner event loop for use with CurveView
 ///
@@ -102,14 +103,13 @@ public:
     return k;
   }
 
-
   /// Returns the position of the last mouse event, in curve
   /// coordinates
-  QPointF position() const;
+  QPointF position(CurvePanel * panel = NULL);
 
   /// Returns the distance of the current position to the dataset, in
   /// screen units.
-  QPair<double, int> distanceToDataSet(const DataSet * ds) const;
+  QPair<double, int> distanceToDataSet(const DataSet * ds);
 
   /// Sets the help string for the loop (ie the text displayed at the
   /// right of the terminal)
@@ -121,6 +121,9 @@ public:
   /// This function gets installed as application-wide event filter
   /// upon entering the loop.
   virtual bool eventFilter(QObject * watched, QEvent * event);
+  
+  /// The panel under which the current point is.
+  CurvePanel * currentPanel();
 };
 
 #endif

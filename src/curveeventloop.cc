@@ -113,9 +113,11 @@ bool CurveEventLoop::finished()
   return done;
 }
 
-QPointF CurveEventLoop::position() const
+QPointF CurveEventLoop::position(CurvePanel * panel)
 {
-  return view->panel.fromWidget(pos);
+  if(! panel)
+    panel = &view->panel;        // Else, it can segfault.
+  return panel->fromWidget(pos);
 }
 
 bool CurveEventLoop::eventFilter(QObject *, QEvent * event)
@@ -169,10 +171,14 @@ QString CurveEventLoop::promptForString(const QString & pr, bool * ok)
   return (promptOK ? inputText : QString());
 }
 
-QPair<double, int> CurveEventLoop::distanceToDataSet(const DataSet * ds) const
+QPair<double, int> CurveEventLoop::distanceToDataSet(const DataSet * ds)
 {
   /// @todo Be carefull when using several datasets ?
   QPointF scales = view->panel.scaleFactors();
   return ds->distanceTo(position(), scales.x(), scales.y());
 }
 
+CurvePanel * CurveEventLoop::currentPanel()
+{
+  return view->panelAt(pos);
+}

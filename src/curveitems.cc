@@ -26,9 +26,26 @@ QRectF CurveLine::boundingRect() const
 
 void CurveLine::paint(QPainter * painter, const QRectF &)
 {
-  QTextStream o(stdout);
   painter->save();
   painter->setPen(pen);
   painter->drawLine(p1, p2);
   painter->restore();
+}
+
+void CurveRectangle::paint(QPainter * painter, const QRectF &)
+{
+  QRectF r = QRectF(p1, p2);
+  if(r.isNull())
+    return;
+  painter->save();
+  painter->setPen(pen);
+  painter->setBrush(brush);
+  painter->drawRect(r);
+  painter->restore();
+}
+
+void CurveRectangle::setRect(const QRectF & r)
+{
+  p1 = r.topLeft();
+  p2 = r.bottomRight();
 }

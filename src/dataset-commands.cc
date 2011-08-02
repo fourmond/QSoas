@@ -29,6 +29,8 @@
 #include <curveview.hh>
 #include <curveeventloop.hh>
 #include <curvemarker.hh>
+#include <curveitems.hh>
+#include <curvepanel.hh>
 
 namespace DataSetCommands {
   static Group grp("buffer", 2,
@@ -139,4 +141,103 @@ namespace DataSetCommands {
      QT_TR_NOOP("Display cursors on the curve"),
      QT_TR_NOOP("Displays cursors on the curve"),
      "cu");
+
+  //////////////////////////////////////////////////////////////////////
+
+
+  static void zoomCommand(const QString &)
+  {
+    CurveEventLoop loop;
+    CurveRectangle r;
+    CurveView & view = soas().view();
+    CurvePanel * panel = NULL;
+    view.addItem(&r);
+    r.pen = QPen(Qt::DotLine);
+    r.brush = QBrush(QColor(0,0,255,50)); // A kind of transparent blue
+
+    loop.setHelpString(QObject::tr("Cursor:\n"
+                                   "click to see\n"
+                                   "q or ESC to quit"));
+    while(! loop.finished()) {
+      switch(loop.type()) {
+      case QEvent::MouseMove:
+        if(panel) {
+          r.p2 = loop.position(panel);
+          soas().
+            showMessage(QObject::tr("Zoom from %1,%2 to %3,%4").
+                        arg(r.p1.x()).arg(r.p1.y()).
+                        arg(r.p1.x()).arg(r.p2.y()));
+        }
+        else
+          soas().showMessage(QObject::tr("Point: %1,%2").
+                             arg(loop.position().x()).
+                             arg(loop.position().y()));
+        break;
+      case QEvent::MouseButtonPress: 
+        /// @todo cancel zoom.
+        if(panel) {
+          QRectF z(r.p1, loop.position(panel));
+          panel->zoomIn(z.normalized());
+          panel = NULL;
+          r.setRect(QRectF());
+        }
+        else {
+          panel = loop.currentPanel();
+          if(panel) {
+            r.p1 = loop.position(panel);
+            r.p2 = r.p1;
+          }
+        }
+      case QEvent::KeyPress: {
+        if(loop.key() == 'q' || loop.key() == 'Q') {
+          loop.terminate();
+          break;
+        }
+        CurvePanel * p = loop.currentPanel();
+        if(!p)
+          break;
+        switch(loop.key()) {
+        case 'c':
+        case 'C':
+          p->resetZoom();
+          break;
+        case 'z':
+          p->zoomIn(loop.position(p));
+          break;
+        case 'Z':
+          p->zoomIn(loop.position(p), -1.0);
+        break;
+        case 'x':
+          p->zoomIn(loop.position(p), Qt::Horizontal);
+          break;
+        case 'X':
+          p->zoomIn(loop.position(p), Qt::Horizontal, -1);
+          break;
+        case 'y':
+          p->zoomIn(loop.position(p), Qt::Vertical);
+          break;
+        case 'Y':
+          p->zoomIn(loop.position(p), Qt::Vertical, -1);
+          break;
+        default:
+          ;
+        }
+      }
+        break;
+      default:
+        ;
+      }
+    }
+  }
+
+  static Command 
+  zo("zoom", // command name
+     CommandEffector::functionEffectorOptionLess(zoomCommand), // action
+     "buffer",  // group name
+     NULL, // arguments
+     NULL, // options
+     QT_TR_NOOP("Zoom"),
+     QT_TR_NOOP("Zooms on the curve"),
+     QT_TR_NOOP("Zooms on the current curve"),
+     "z");
 }

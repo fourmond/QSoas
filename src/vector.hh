@@ -44,26 +44,26 @@ public:
   Vector & operator+=(const Vector & a);
   Vector & operator+=(double a);
 
-  Vector operator+(const Vector & a);
-  Vector operator+(double a);
+  Vector operator+(const Vector & a) const;
+  Vector operator+(double a) const;
 
   Vector & operator-=(const Vector & a);
   Vector & operator-=(double a);
 
-  Vector operator-(const Vector & a);
-  Vector operator-(double a);
+  Vector operator-(const Vector & a) const;
+  Vector operator-(double a) const;
 
   Vector & operator*=(const Vector & a);
   Vector & operator*=(double a);
 
-  Vector operator*(const Vector & a);
-  Vector operator*(double a);
+  Vector operator*(const Vector & a) const;
+  Vector operator*(double a) const;
 
   Vector & operator/=(const Vector & a);
   Vector & operator/=(double a);
 
-  Vector operator/(const Vector & a);
-  Vector operator/(double a);
+  Vector operator/(const Vector & a) const;
+  Vector operator/(double a) const;
 
   /// @}
 

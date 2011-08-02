@@ -107,3 +107,161 @@ double Vector::max() const
       m = d[i];
   return m;
 }
+
+
+// Note: these functions may seem very inefficient, but in fact, with
+// optimization turned on, g++ generates the same code as the loops
+// one would directly write.
+static inline Vector & bang_operate(Vector & a, double b, 
+                                    double (*op)(double, double))
+{
+  int sz = a.size();
+  double * aval = a.data();
+  for(int i = 0; i < sz; i++, aval++)
+    *aval = op(*aval, b);
+  return a;
+}
+
+static inline Vector dup_operate(const Vector &a, double b, 
+                                 double (*op)(double, double))
+{
+  int sz = a.size();
+  const double * aval = a.data();
+  Vector c;
+  c.reserve(sz);
+  for(int i = 0; i < sz; i++, aval++)
+    c << op(*aval, b);
+  return c;
+}
+
+static inline Vector & bang_operate(Vector & a, const Vector & b, 
+                                    double (*op)(double, double))
+{
+  int sz = a.size();
+  if(sz != b.size()) {
+    throw std::runtime_error("Size mismatch in vector operation");
+  }
+  double * aval = a.data();
+  const double * bval = b.data();
+  for(int i = 0; i < sz; i++, aval++, bval++)
+    *aval = op(*aval, *bval);
+  return a;
+}
+
+static inline Vector dup_operate(const Vector &a, const Vector & b, 
+                                 double (*op)(double, double))
+{
+  int sz = a.size();
+  if(sz != b.size()) {
+    throw std::runtime_error("Size mismatch in vector operation");
+  }
+  const double * aval = a.data();
+  const double * bval = b.data();
+  Vector c;
+  c.reserve(sz);
+  for(int i = 0; i < sz; i++, aval++, bval++)
+    c << op(*aval, *bval);
+  return c;
+}
+
+static double add(double a, double b)
+{
+  return a + b;
+}
+
+Vector & Vector::operator+=(const Vector & a)
+{
+  return bang_operate(*this, a, add);
+}
+
+Vector & Vector::operator+=(double a)
+{
+  return bang_operate(*this, a, add);
+}
+
+Vector Vector::operator+(const Vector & a) const
+{
+  return dup_operate(*this, a, add);
+}
+
+Vector Vector::operator+(double a) const
+{
+  return dup_operate(*this, a, add);
+}
+
+
+
+static double mul(double a, double b)
+{
+  return a * b;
+}
+
+Vector & Vector::operator*=(const Vector & a)
+{
+  return bang_operate(*this, a, mul);
+}
+
+Vector & Vector::operator*=(double a)
+{
+  return bang_operate(*this, a, mul);
+}
+
+Vector Vector::operator*(const Vector & a) const
+{
+  return dup_operate(*this, a, mul);
+}
+
+Vector Vector::operator*(double a) const
+{
+  return dup_operate(*this, a, mul);
+}
+
+static double sub(double a, double b)
+{
+  return a - b;
+}
+
+Vector & Vector::operator-=(const Vector & a)
+{
+  return bang_operate(*this, a, sub);
+}
+
+Vector & Vector::operator-=(double a)
+{
+  return bang_operate(*this, a, sub);
+}
+
+Vector Vector::operator-(const Vector & a) const
+{
+  return dup_operate(*this, a, sub);
+}
+
+Vector Vector::operator-(double a) const
+{
+  return dup_operate(*this, a, sub);
+}
+
+static double div(double a, double b)
+{
+  return a / b;
+}
+
+Vector & Vector::operator/=(const Vector & a)
+{
+  return bang_operate(*this, a, div);
+}
+
+Vector & Vector::operator/=(double a)
+{
+  return bang_operate(*this, a, div);
+}
+
+Vector Vector::operator/(const Vector & a) const
+{
+  return dup_operate(*this, a, div);
+}
+
+Vector Vector::operator/(double a) const
+{
+  return dup_operate(*this, a, div);
+}

@@ -139,6 +139,9 @@ namespace GeneralCommands {
       o << "Event: " << loop.type()
         << ", key " << QString("0x%1").arg(loop.key(), 8, 16, 
                                            QChar('0')) << endl;
+      if(loop.key() == Qt::Key_Escape)
+        return;
+
       if(loop.type() == QEvent::MouseButtonPress) {
         QPointF p = loop.position();
         o << "Press event at " << p.x() << "," << p.y() << endl;

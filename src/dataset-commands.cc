@@ -122,8 +122,9 @@ namespace DataSetCommands {
           break;
         }
       case QEvent::KeyPress: 
-        if(loop.key() == 'q' || loop.key() == 'Q')
-          loop.terminate();
+        if(loop.key() == 'q' || loop.key() == 'Q' ||
+           loop.key() == Qt::Key_Escape)
+          return;
         break;
       default:
         ;
@@ -147,6 +148,7 @@ namespace DataSetCommands {
 
   static void zoomCommand(const QString &)
   {
+    soas().currentDataSet(); // to ensure datasets are loaded
     CurveEventLoop loop;
     CurveRectangle r;
     CurveView & view = soas().view();
@@ -155,8 +157,12 @@ namespace DataSetCommands {
     r.pen = QPen(Qt::DotLine);
     r.brush = QBrush(QColor(0,0,255,50)); // A kind of transparent blue
 
-    loop.setHelpString(QObject::tr("Cursor:\n"
-                                   "click to see\n"
+    loop.setHelpString(QObject::tr("Zoom:\n"
+                                   "click and drag\n"
+                                   "c: reset\n"
+                                   "z,Z,Ctrl wheel: in/out\n"
+                                   "x,X,wheel: X in/out\n"
+                                   "y,Y,Shift wheel: Y in/out\n"
                                    "q or ESC to quit"));
     while(! loop.finished()) {
       switch(loop.type()) {
@@ -189,8 +195,15 @@ namespace DataSetCommands {
           }
         }
       case QEvent::KeyPress: {
-        if(loop.key() == 'q' || loop.key() == 'Q') {
-          loop.terminate();
+        if(loop.key() == 'q' || loop.key() == 'Q')
+          return;
+        if(loop.key() == Qt::Key_Escape) {
+          if(panel) {
+            panel = NULL;
+            r.setRect(QRectF());
+          }
+          else
+            return;
           break;
         }
         CurvePanel * p = loop.currentPanel();

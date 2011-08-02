@@ -90,11 +90,13 @@ void CurveEventLoop::processMouseEvent(QMouseEvent * event)
 void CurveEventLoop::processKeyEvent(QKeyEvent * event)
 {
   k = event->key();
-  if(k == Qt::Key_Escape)
-    done = true;
 
-  if(event->text().size() == 1)
-    k = event->text().toLocal8Bit()[0];
+  /// Convert most usual keys to their ASCII value
+  if(event->text().size() == 1) {
+    int newk = event->text().toLocal8Bit()[0];
+    if(newk >= 32 && newk != 0x7F)
+      k = newk;
+  }
 }
 
 bool CurveEventLoop::finished()

@@ -256,6 +256,7 @@ void CurvePanel::clear()
     delete displayedItems[i];
   displayedItems.clear();
   boundingBox = QRectF();
+  zoom = QRectF();
   invalidateTicks();
 }
 

@@ -71,6 +71,12 @@ namespace Utils {
   /// later.
   bool askConfirmation(const QString & what, 
                        const QString & title = QString());
+
+  /// Returns a new version of the rectangle scaled around the given
+  /// point by the given quantities. The idea is that \p point should
+  /// stay at the same relative position.
+  QRectF scaledAround(const QRectF & rect, const QPointF & point,
+                      double xscale, double yscale);
 };
 
 #endif

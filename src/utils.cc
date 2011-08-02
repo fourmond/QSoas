@@ -83,3 +83,15 @@ bool Utils::askConfirmation(const QString & what,
                                QMessageBox::Ok | QMessageBox::Cancel) == 
     QMessageBox::Ok;
 }
+
+QRectF Utils::scaledAround(const QRectF & rect, const QPointF & point,
+                           double xscale, double yscale)
+{
+  QRectF nr(point, QSizeF(0,0));
+  
+  nr.adjust((rect.left() - point.x()) * xscale,
+            (rect.top() - point.y()) * yscale,
+            (rect.right() - point.x()) * xscale,
+            (rect.bottom() - point.y()) * yscale);
+  return nr;
+}

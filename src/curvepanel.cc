@@ -24,6 +24,7 @@
 #include <soas.hh>
 
 #include <math.h>
+#include <utils.hh>
 
 
 CurvePanel::CurvePanel() : 
@@ -304,15 +305,12 @@ void CurvePanel::zoomIn(const QPointF & point, double by)
 {
   QTextStream o(stdout);
   double factor = pow(1.3, - by);
-  QRectF cz = currentZoom();
-  QSizeF s = cz.size() * factor;
-  QRectF rect(QPointF(0,0), s);
-  rect.moveCenter(point);
+  QRectF rect = Utils::scaledAround(currentZoom(), point, factor, factor);
+
   if(rect.contains(boundingBox))
     rect = QRectF();            // Disable zoom then.
   else
     rect = boundingBox.intersected(rect);
-
   zoom = rect;
 }
 
@@ -322,24 +320,16 @@ void CurvePanel::zoomIn(const QPointF & point,
 {
   QTextStream o(stdout);
   double factor = pow(1.3, - by);
-  QRectF cz = currentZoom();
-  QSizeF s = cz.size();
-  if(orient == Qt::Horizontal) {
-    double dx = s.width()*factor/2;
-    cz.setLeft(point.x() - dx);
-    cz.setRight(point.x() + dx);
-  }
-  else {
-    double dy = s.height()*factor/2;
-    cz.setTop(point.y() - dy);
-    cz.setBottom(point.y() + dy);
-  }
+  QRectF rect = 
+    Utils::scaledAround(currentZoom(), point, 
+                        (orient == Qt::Horizontal ? factor : 1),
+                        (orient == Qt::Vertical ? factor : 1));
 
-  if(cz.contains(boundingBox))
-    cz = QRectF();            // Disable zoom then.
+  if(rect.contains(boundingBox))
+    rect = QRectF();            // Disable zoom then.
   else
-    cz = boundingBox.intersected(cz);
-  zoom = cz;
+    rect = boundingBox.intersected(rect);
+  zoom = rect;
 }
 
 void CurvePanel::resetZoom()

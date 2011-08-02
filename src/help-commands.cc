@@ -27,7 +27,7 @@
 #include <soas.hh>
 
 /// Help commands
-namespace GeneralCommands {
+namespace HelpCommands {
   static Group help("help", 1000,
                     QT_TR_NOOP("Help"),
                     QT_TR_NOOP("Help"));
@@ -44,14 +44,19 @@ namespace GeneralCommands {
       if(cmds[i].size() > len)
         len = cmds[i].size();
 
+    QHash<Command *, int> t;
     Terminal::out << "<b>All commands:</b>"
                   << "<table>";
     for(int i = 0; i < cmds.size(); i++) {
       Command * cmd = Command::namedCommand(cmds[i]);
       Terminal::out << QString("<tr><td>%1 </td><td> %2</td></tr>").
         arg(cmds[i], len).arg(cmd->shortDescription());
+      t[cmd] = 1;
     }
-    Terminal::out << "</pre>" << endl;
+    Terminal::out << "</table>" 
+                  << "In total " << t.size() << " commands "
+                  << "(and " << cmds.size() - t.size() << " aliases)"
+                  << endl;
   }
 
   static Command 

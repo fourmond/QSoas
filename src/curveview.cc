@@ -227,19 +227,12 @@ void CurveView::helpEvent(QHelpEvent * event)
 
 void CurveView::mouseMoveEvent(QMouseEvent * event)
 {
-  if(eventLoop) {
-    QTextStream o(stdout);
-    o << "Duplicat events ?" << endl;
-    eventLoop->receiveMouseEvent(event);
+  if(panel.contains(event->pos())) {
+    QPointF f = panel.fromWidget(event->pos());
+    soas().showMessage(tr("X: %1, Y: %2").
+                       arg(f.x()).arg(f.y()));
   }
-  else {
-    if(panel.contains(event->pos())) {
-      QPointF f = panel.fromWidget(event->pos());
-      soas().showMessage(tr("X: %1, Y: %2").
-                         arg(f.x()).arg(f.y()));
-    }
-    QAbstractScrollArea::mouseMoveEvent(event);
-  }
+  QAbstractScrollArea::mouseMoveEvent(event);
 }
 
 void CurveView::mousePressEvent(QMouseEvent * event)
@@ -250,6 +243,31 @@ void CurveView::mousePressEvent(QMouseEvent * event)
 void CurveView::mouseReleaseEvent(QMouseEvent * event)
 {
   QAbstractScrollArea::mouseReleaseEvent(event);
+}
+
+void CurveView::wheelEvent(QWheelEvent * event)
+{
+  CurvePanel * panel = panelAt(event->pos());
+  if(panel) {
+    event->accept();
+    QPointF pos = panel->fromWidget(event->pos());
+
+    /// @todo This provides basic zooming facilities. I would like
+    /// also to provide zooming using a context menu, or a drag event?
+    double by = 0.5*event->delta()/120.0;
+    if(! event->modifiers())
+      panel->zoomIn(pos, event->orientation(), by);
+    else if(event->modifiers() == Qt::ShiftModifier)
+      panel->zoomIn(pos, Qt::Horizontal, by);
+    else if(event->modifiers() == Qt::ControlModifier)
+      panel->zoomIn(pos, by);
+    else if(event->modifiers() == (Qt::ControlModifier | Qt::ShiftModifier))
+      panel->resetZoom();
+    
+    repaint();
+    return;
+  }
+  QAbstractScrollArea::wheelEvent(event);
 }
 
 void CurveView::keyPressEvent(QKeyEvent * event)
@@ -277,3 +295,11 @@ void CurveView::leaveLoop()
   eventLoop = NULL;
 }
 
+CurvePanel * CurveView::panelAt(const QPoint & pos)
+{
+  QList<CurvePanel *> panels = allPanels();
+  for(int i = 0; i < panels.size(); i++)
+    if(panels[i]->contains(pos))
+      return panels[i];
+  return NULL;
+}

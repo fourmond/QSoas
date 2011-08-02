@@ -52,6 +52,9 @@ class CurveView : public QAbstractScrollArea {
   /// Layouts out the CurvePanel objects
   void layOutPanels();
 
+  /// Returns the CurvePanel that contains this point, or NULL
+  CurvePanel * panelAt(const QPoint & pos);
+
 
   /// @name Event loop related functions/attributes
   ///
@@ -67,9 +70,6 @@ class CurveView : public QAbstractScrollArea {
 
   /// @}
 
-  /// Returns the closest DataSet to the given point.
-  const DataSet * closestDataSet(const QPointF &point, 
-                                 double * dist, int * idx) const;
 
 public:
 
@@ -113,6 +113,7 @@ protected:
   virtual void helpEvent(QHelpEvent * event);
 
   virtual void keyPressEvent(QKeyEvent * event);
+  virtual void wheelEvent(QWheelEvent * event);
 };
 
 #endif

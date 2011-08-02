@@ -85,6 +85,9 @@ class CurvePanel : public QObject {
   /// The bounding box of all items displayed. 
   QRectF boundingBox;
 
+  /// The zoom
+  QRectF zoom;
+
   /// Updates the bounding box.
   void updateBB();
   
@@ -144,6 +147,21 @@ public:
   /// Returns the current XY scale factors from curve coordinates to
   /// screen coordinates. 
   QPointF scaleFactors() const;
+
+  /// Zooms in on the given point by 1.3 to the power \a by 
+  ///
+  /// @todo Find a way to zoom in on either X or Y but not both ?
+  /// @li this zomm in is fine
+  /// @li another zoom (plain mouse wheel ?) to shift Y only
+  /// @li another zoom (shift mouse wheel or horiz) to shift X only.
+  void zoomIn(const QPointF & pos, double by = 1);
+  
+  /// Zooms only along the given axis/
+  void zoomIn(const QPointF & pos, Qt::Orientation orient, 
+              double by = 1);
+
+  /// Resets zoom to the actual bounding box.
+  void resetZoom();
 };
 
 #endif

@@ -41,7 +41,8 @@ CurvePanel::~CurvePanel()
 
 QRectF CurvePanel::currentZoom() const
 {
-  /// @todo zoom stack
+  if(! zoom.isNull())
+    return zoom;
   return boundingBox;
 }
 
@@ -284,7 +285,6 @@ CurveItem * CurvePanel::closestItem(const QPointF &point,
 void CurvePanel::addItem(CurveItem * item)
 {
   displayedItems.append(QPointer<CurveItem>(item));
-  /// @todo: update bounding box
 }
 
 QMargins CurvePanel::panelMargins() const
@@ -298,4 +298,51 @@ QMargins CurvePanel::panelMargins() const
 QPointF CurvePanel::scaleFactors() const
 {
   return QPointF(transform.m11(), transform.m22());
+}
+
+void CurvePanel::zoomIn(const QPointF & point, double by)
+{
+  QTextStream o(stdout);
+  double factor = pow(1.3, - by);
+  QRectF cz = currentZoom();
+  QSizeF s = cz.size() * factor;
+  QRectF rect(QPointF(0,0), s);
+  rect.moveCenter(point);
+  if(rect.contains(boundingBox))
+    rect = QRectF();            // Disable zoom then.
+  else
+    rect = boundingBox.intersected(rect);
+
+  zoom = rect;
+}
+
+void CurvePanel::zoomIn(const QPointF & point, 
+                        Qt::Orientation orient,
+                        double by)
+{
+  QTextStream o(stdout);
+  double factor = pow(1.3, - by);
+  QRectF cz = currentZoom();
+  QSizeF s = cz.size();
+  if(orient == Qt::Horizontal) {
+    double dx = s.width()*factor/2;
+    cz.setLeft(point.x() - dx);
+    cz.setRight(point.x() + dx);
+  }
+  else {
+    double dy = s.height()*factor/2;
+    cz.setTop(point.y() - dy);
+    cz.setBottom(point.y() + dy);
+  }
+
+  if(cz.contains(boundingBox))
+    cz = QRectF();            // Disable zoom then.
+  else
+    cz = boundingBox.intersected(cz);
+  zoom = cz;
+}
+
+void CurvePanel::resetZoom()
+{
+  zoom = QRectF();
 }

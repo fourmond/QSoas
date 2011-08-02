@@ -178,5 +178,33 @@ namespace DataStackCommands {
        QT_TR_NOOP("Clear stack"),
        QT_TR_NOOP("Removes all buffers from the stack"),
        QT_TR_NOOP("Removes all the buffers from both normal and redo stack"));
+
+//////////////////////////////////////////////////////////////////////
+
+
+  static void ovCommand(const QString &, DataSet * ds)
+  {
+    soas().view().addDataSet(ds);
+  }
+
+  /// @todo Use several arguments when that is possible.
+  static ArgumentList 
+  ovArgs(QList<Argument *>() 
+         << new DataSetArgument("buffer", 
+                                QT_TR_NOOP("Buffer"),
+                                QT_TR_NOOP("Buffer to overlay")));
+
+
+  static Command 
+  ovlb("overlay-buffer", // command name
+       optionLessEffector(ovCommand), // action
+       "stack",  // group name
+       &ovArgs, // arguments
+       NULL, // options
+       QT_TR_NOOP("Overlay buffers"),
+       QT_TR_NOOP("Overlay buffer to the current one"),
+       QT_TR_NOOP("Overlay buffers that are already in memory "
+                  "on top of the current one"),
+       "V");
   
 }

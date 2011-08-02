@@ -204,6 +204,33 @@ namespace GeneralCommands {
      QT_TR_NOOP("Save output"),
      QT_TR_NOOP("Save all output from the terminal"),
      QT_TR_NOOP("Save all output from the terminal"));
+
+  //////////////////////////////////////////////////////////////////////
+  
+  static ArgumentList 
+  cda(QList<Argument *>() 
+      << new FileArgument("directory",  /// @todo use 
+                          QT_TR_NOOP("Directory"),
+                          QT_TR_NOOP("New directory")));
+
+  static void cdCommand(const QString &, QString dir)
+  {
+    if(! QDir::setCurrent(dir)) {
+      QString str = QObject::tr("Could not cd to '%1'").
+        arg(dir);
+      throw std::runtime_error(str.toStdString());
+    }
+  }
+
+  static Command 
+  cd("cd", // command name
+     optionLessEffector(cdCommand), // action
+     "file",  // group name
+     &cda, // arguments
+     NULL, // options
+     QT_TR_NOOP("Change directory"),
+     QT_TR_NOOP("Change current directory"),
+     QT_TR_NOOP("Save all output from the terminal"));
   
 
 
@@ -231,7 +258,7 @@ namespace GeneralCommands {
                );
                              
 
-  static void dummyCommand(const QString & name, QString arg, 
+  static void dummyCommand(const QString & , QString arg, 
                            const CommandOptions & opts)
   {
     // for(int i = 0; i < args.size(); i++)

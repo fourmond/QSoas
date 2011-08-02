@@ -227,3 +227,13 @@ DataSet * DataSet::subtract(const DataSet * ds) const
 {
   return applyBinaryOperation(this, ds, sub, "-");
 }
+
+static inline double div(double a, double b)
+{
+  return a/b;
+}
+
+DataSet * DataSet::divide(const DataSet * ds) const
+{
+  return applyBinaryOperation(this, ds, div, "_div_");
+}

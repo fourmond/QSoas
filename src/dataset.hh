@@ -201,6 +201,9 @@ public:
   /// Subtracts \a dataset from this DataSet and returns the result.
   DataSet * subtract(const DataSet * dataset) const;
 
+  /// Dives by \a dataset and returns the result.
+  DataSet * divide(const DataSet * dataset) const;
+
   /// @}
   
 };

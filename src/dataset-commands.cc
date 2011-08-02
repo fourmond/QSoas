@@ -284,6 +284,27 @@ namespace DataSetCommands {
      QT_TR_NOOP("Subtract two buffers"),
      QT_TR_NOOP("Subtract two buffers"),
      "S");
+
+  //////////////////////////////////////////////////////////////////////
+
+
+  static void divCommand(const QString &, DataSet * a, 
+                         DataSet * b)
+  {
+    Terminal::out << QObject::tr("Dividing buffer '%2' by buffer '%1'").
+      arg(b->name).arg(a->name) << endl;
+    soas().pushDataSet(a->divide(b));
+  }
+
+  static Command 
+  div("div", // command name
+     optionLessEffector(divCommand), // action
+     "buffer",  // group name
+     &suba, // arguments
+     NULL, // options
+     QT_TR_NOOP("Subtract"),
+     QT_TR_NOOP("Subtract two buffers"),
+     QT_TR_NOOP("Subtract two buffers"));
   
 
 }

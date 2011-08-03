@@ -61,7 +61,7 @@ void Soas::showMessage(const QString & str, int ms)
 
 DataSet * Soas::currentDataSet()
 {
-  return ds->currentDataSet();
+  return ds->currentDataSet(false);
 }
 
 void Soas::pushDataSet(DataSet * d)

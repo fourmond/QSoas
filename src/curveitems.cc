@@ -32,6 +32,14 @@ void CurveLine::paint(QPainter * painter, const QRectF &)
   painter->restore();
 }
 
+void CurveVerticalLine::paint(QPainter * painter, const QRectF & bbox)
+{
+  painter->save();
+  painter->setPen(pen);
+  painter->drawLine(QLineF(x, bbox.top(), x, bbox.bottom()));
+  painter->restore();
+}
+
 void CurveRectangle::paint(QPainter * painter, const QRectF &)
 {
   QRectF r = QRectF(p1, p2);

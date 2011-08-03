@@ -35,6 +35,16 @@ public:
   virtual void paint(QPainter * painter, const QRectF & bbox);
 };
 
+/// A vertical line
+class CurveVerticalLine : public CurveItem {
+public:
+
+  double x;
+  QPen pen;
+
+  virtual void paint(QPainter * painter, const QRectF & bbox);
+};
+
 /// A rectangle
 class CurveRectangle : public CurveItem {
 public:

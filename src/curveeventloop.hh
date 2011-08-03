@@ -71,6 +71,7 @@ class CurveEventLoop : public QObject {
   int k;
   Qt::KeyboardModifiers mods;
   QPoint pos;
+  Qt::MouseButton bt;
 
   bool done;
 
@@ -94,14 +95,20 @@ public:
 
   /// Returns the type of the last event (mouse press, key press, and
   /// so on...)
-  QEvent::Type type() {
+  QEvent::Type type() const {
     return lastEventType;
   };
 
   /// Returns the value of the last key typed.
-  int key() {
+  int key() const {
     return k;
   }
+
+  /// Returns the last button pressed/released
+  Qt::MouseButton button() const {
+    return bt;
+  };
+  
 
   /// Returns the position of the last mouse event, in curve
   /// coordinates

@@ -46,6 +46,21 @@ public:
   virtual void paint(QPainter * painter, const QRectF & bbox);
 };
 
+
+/// A horizontal region, delimited by two vertical lines
+class CurveHorizontalRegion : public CurveItem {
+public:
+
+  double xleft, xright;
+  QPen pen;
+
+  /// Sets either the left of right X value, depending on the button
+  /// pressed. (or neither)
+  void setX(double value, Qt::MouseButton which);
+
+  virtual void paint(QPainter * painter, const QRectF & bbox);
+};
+
 /// A rectangle
 class CurveRectangle : public CurveItem {
 public:

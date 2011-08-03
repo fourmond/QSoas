@@ -42,22 +42,20 @@ namespace DataSetCommands {
     const DataSet * ds = soas().currentDataSet();
     CurveEventLoop loop;
     CurveLine line;
-    CurveVerticalLine left, right;
+    CurveHorizontalRegion r;
     CurveView & view = soas().view();
     CurvePanel bottom;
     CurveData d;
     bottom.drawingXTicks = false;
     bottom.stretch = 30;        // 3/10ths of the main panel.
-    view.addItem(&left);
-    view.addItem(&right);
     view.addItem(&line);
+    view.addItem(&r);
     bottom.addItem(&d);
 
     view.addPanel(&bottom);
-    left.pen = QPen(QColor("blue"), 1, Qt::DotLine);
-    left.pen.setCosmetic(true);
-    right.pen = left.pen;
-    line.pen = left.pen;        // Change color ? Use a utils function ?
+    r.pen = QPen(QColor("blue"), 1, Qt::DotLine);
+    r.pen.setCosmetic(true);
+    line.pen = r.pen;        // Change color ? Use a utils function ?
     d.pen = QPen(QColor("red"));
     QPair<double, double> reg;
 
@@ -74,28 +72,15 @@ namespace DataSetCommands {
       switch(loop.type()) {
       case QEvent::MouseButtonPress: 
         {
-          CurveVerticalLine * l = NULL;
-          switch(loop.button()) {
-          case Qt::LeftButton:
-            l = &left;
-            break;
-          case Qt::RightButton:
-            l = &right;
-            break;
-          default:
-            ;
-          }
-          if(l)
-            l->x = loop.position().x();
-          if(left.x > right.x)
-            std::swap(left.x, right.x);
-          // Now performing regression
-          reg = ds->reglin(left.x, right.x);
-          double y = reg.first * left.x + reg.second;
-          line.p1 = QPointF(left.x, y);
-          y = reg.first * right.x + reg.second;
-          line.p2 = QPointF(right.x, y);
+          r.setX(loop.position().x(), loop.button());
+          reg = ds->reglin(r.xleft, r.xright);
+          double y = reg.first * r.xleft + reg.second;
+          line.p1 = QPointF(r.xleft, y);
+          y = reg.first * r.xright + reg.second;
+          line.p2 = QPointF(r.xright, y);
           Terminal::out << reg.first << "\t" << reg.second << endl;
+          soas().showMessage(QObject::tr("Regression between X=%1 and X=%2").
+                             arg(r.xleft).arg(r.xright));
 
           // Now, we fill the d vector with data
           if(d.xvalues.size() == 0) {
@@ -110,7 +95,7 @@ namespace DataSetCommands {
             double x = d.xvalues[i];
             double y = ds->y()[i] -  x * reg.first - reg.second;
             d.yvalues[i] = y;
-            if(x >= left.x && x <= right.x) {
+            if(x >= r.xleft && x <= r.xright) {
               if(y < dy_min)
                 dy_min = y;
               if(y > dy_max)

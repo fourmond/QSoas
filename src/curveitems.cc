@@ -40,6 +40,33 @@ void CurveVerticalLine::paint(QPainter * painter, const QRectF & bbox)
   painter->restore();
 }
 
+
+void CurveHorizontalRegion::setX(double value, Qt::MouseButton button)
+{
+  switch(button) {
+  case Qt::LeftButton:
+    xleft = value;
+    break;
+  case Qt::RightButton:
+    xright = value;
+    break;
+  default:
+    ;
+  }
+  if(xleft > xright)
+    std::swap(xleft, xright);
+}
+
+
+void CurveHorizontalRegion::paint(QPainter * painter, const QRectF & bbox)
+{
+  painter->save();
+  painter->setPen(pen);
+  painter->drawLine(QLineF(xleft, bbox.top(), xleft, bbox.bottom()));
+  painter->drawLine(QLineF(xright, bbox.top(), xright, bbox.bottom()));
+  painter->restore();
+}
+
 void CurveRectangle::paint(QPainter * painter, const QRectF &)
 {
   QRectF r = QRectF(p1, p2);

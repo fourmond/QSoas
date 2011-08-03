@@ -44,6 +44,9 @@ public:
   /// Whether the bounding box of this item counts or not.
   bool countBB;
 
+  /// Whether the item is hidden or not
+  bool hidden;
+
   /// Paint a legend for the object, while trying to fit reasonably in
   /// \a placement (but it is not required). This function is called
   /// with a \a painter in \b screen coordinates

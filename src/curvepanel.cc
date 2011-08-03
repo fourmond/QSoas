@@ -92,7 +92,7 @@ void CurvePanel::updateBB()
   boundingBox = QRectF();
   for(int i = 0; i < displayedItems.size(); i++) {
     CurveItem * item = displayedItems[i];
-    if(item && item->countBB)
+    if(item && item->countBB && ! item->hidden)
       boundingBox = boundingBox.united(item->boundingRect());
   }
 }
@@ -191,8 +191,10 @@ void CurvePanel::paintCurves(QPainter * p)
 
   for(int i = 0; i < displayedItems.size(); i++) {
     CurveItem * it = displayedItems[i];
-    if(it)
-      it->paint(p, r);
+    if(it) {
+      if(! it->hidden)
+        it->paint(p, r);
+    }
     else
       displayedItems.removeAt(i--); // autocleanup elements gone
                                     // astray.

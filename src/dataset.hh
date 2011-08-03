@@ -214,6 +214,10 @@ public:
   /// Dives by \a dataset and returns the result.
   DataSet * divide(const DataSet * dataset) const;
 
+  /// Returns the subset of the dataset contained either within the
+  /// indices or outside of them
+  DataSet * subset(int beg, int end, bool within) const;
+
   /// @}
   
 };

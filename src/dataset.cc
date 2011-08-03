@@ -292,3 +292,23 @@ QPair<double, double> DataSet::reglin(double xmin, double xmax) const
     return QPair<double, double>((total *sxy - sx*sy)/det,
                                  (sxx * sy - sx * sxy)/det);
 }
+
+
+DataSet * DataSet::subset(int beg, int end, bool within) const
+{
+  QList<Vector> cols;
+  if(within) {
+    for(int i = 0; i < columns.size(); i++)
+      cols << columns[i].mid(beg, 1+end-beg);
+  }
+  else {
+    for(int i = 0; i < columns.size(); i++) {
+      Vector v = columns[i].mid(0, beg);
+      v << columns[i].mid(end);
+      cols << v;
+    }
+  }
+  DataSet * newds = new DataSet(cols);
+  newds->name = cleanedName() + "_cut.dat";
+  return newds;
+}

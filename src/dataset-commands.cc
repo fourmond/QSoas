@@ -142,6 +142,82 @@ namespace DataSetCommands {
      QT_TR_NOOP("Display cursors on the curve"),
      QT_TR_NOOP("Displays cursors on the curve"),
      "cu");
+  //////////////////////////////////////////////////////////////////////
+
+
+  static void cutCommand(const QString &)
+  {
+    const DataSet * ds = soas().currentDataSet();
+    CurveHorizontalRegion r;
+    CurveView & view = soas().view();
+
+    /// We remove the current display
+    view.clear();
+    CurveEventLoop loop;
+    CurveData d;
+    view.addItem(&r);
+    view.addItem(&d);
+
+    r.pen = QPen(QColor("blue"), 1, Qt::DotLine);
+    r.pen.setCosmetic(true);
+    d.pen = QPen(QColor("red"));
+
+    loop.setHelpString(QObject::tr("Cut:\n"
+                                   "left/right: bounds\n"
+                                   "q: keep only the inside\n"
+                                   "u: keep only the outside\n"
+                                   "ESC: cancel"));
+
+    d.countBB = true;
+    d.yvalues = ds->y();
+    d.xvalues = d.yvalues;
+    for(int i = 0; i < d.xvalues.size(); i++)
+      d.xvalues[i] = i;
+    r.xleft = 0;
+    r.xright = d.xvalues.size()-1;
+    
+    /// @todo selection mode ? (do we need that ?)
+    while(! loop.finished()) {
+      switch(loop.type()) {
+      case QEvent::MouseButtonPress: 
+        {
+          r.setX(loop.position().x(), loop.button());
+          break;
+        }
+      case QEvent::KeyPress: 
+        switch(loop.key()) {
+        case Qt::Key_Escape:
+          view.addDataSet(ds);  // To turn its display back on
+          return;
+        case 'q':
+        case 'Q':
+          soas().pushDataSet(ds->subset(r.xleft, r.xright, true));
+          return;
+          
+        case 'U':
+        case 'u':
+          soas().pushDataSet(ds->subset(r.xleft, r.xright, false));
+          return;
+        default:
+          ;
+        }
+        break;
+      default:
+        ;
+      }
+    }
+  }
+
+  static Command 
+  cut("cut", // command name
+     optionLessEffector(cutCommand), // action
+     "buffer",  // group name
+     NULL, // arguments
+     NULL, // options
+     QT_TR_NOOP("Cut"),
+     QT_TR_NOOP("Cuts the current curve"),
+     QT_TR_NOOP("Cuts bits from the current curve"),
+     "c");
 
   //////////////////////////////////////////////////////////////////////
 

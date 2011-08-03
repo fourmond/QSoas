@@ -84,9 +84,16 @@ void MainWin::setupFrame()
   curveView->setFocusProxy(commandWidget);
   s->setFocusProxy(commandWidget);
 
+  // We use a queued connection to avoid that a command that displays
+  // something and pushes something to the datastack at the end
+  // doesn't end up performing double frees...
+  //
+  // In principle, using queued connections should guarantee that the
+  // updates are performed *after* the destruction. This means that
+  // the addition should be the last one before leaving the context.
   connect(&(soasInstance->stack()),
           SIGNAL(currentDataSetChanged()),
-          curveView,SLOT(showCurrentDataSet()));
+          curveView,SLOT(showCurrentDataSet()), Qt::QueuedConnection);
 
   commandWidget->connect(&soasInstance->stack(), 
                          SIGNAL(currentDataSetChanged()),

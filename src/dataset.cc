@@ -274,18 +274,21 @@ QPair<double, double> DataSet::reglin(double xmin, double xmax) const
   double sy = 0;
   double sxx = 0;
   double sxy = 0;
+  int total = 0;
   for(int i = 0; i < nb; i++, x++, y++) {
-    if(! (*x >= xmin && *x <= xmax))
+    if(! (*x >= xmin && *x <= xmax)) {
       continue;
+    }
     sx += *x;
     sy += *y;
     sxx += *x * *x;
     sxy += *x * *y;
+    total++;
   }
-  double det = nb*sxx - sx*sx;
+  double det = total*sxx - sx*sx;
   if(det == 0)
-    return QPair<double, double>(0, sy/nb);
+    return QPair<double, double>(0, sy/total);
   else
-    return QPair<double, double>((nb *sxy - sx*sy)/det,
+    return QPair<double, double>((total *sxy - sx*sy)/det,
                                  (sxx * sy - sx * sxy)/det);
 }

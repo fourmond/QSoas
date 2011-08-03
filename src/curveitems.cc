@@ -57,3 +57,29 @@ void CurveRectangle::setRect(const QRectF & r)
   p1 = r.topLeft();
   p2 = r.bottomRight();
 }
+
+QRectF CurveData::boundingRect() const
+{
+  double xmin = xvalues.min();
+  double xmax = xvalues.max();
+  double ymin = yvalues.min();
+  double ymax = yvalues.max();
+
+  return QRectF(QPointF(xmin, ymin), QPointF(xmax, ymax));
+}
+
+void CurveData::paint(QPainter * painter, const QRectF &)
+{
+  int nb = std::min(xvalues.size(), yvalues.size());
+  if(nb < 2)
+    return;                     // Not much to do, admittedly
+  painter->save();
+  painter->setPen(pen);
+  QPointF first = QPointF(xvalues[0], yvalues[0]);
+  for(int i = 1; i < nb; i++) {
+    QPointF second = QPointF(xvalues[i], yvalues[i]);
+    painter->drawLine(first, second);
+    first = second;
+  }
+  painter->restore();
+}

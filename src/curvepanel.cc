@@ -29,6 +29,7 @@
 
 CurvePanel::CurvePanel() : 
   bgLinesPen(QColor("#DDD"), 1.5, Qt::DashLine),
+  xTracking(0),
   drawingXTicks(true), drawingYTicks(true), drawingLegend(true),
   stretch(100)
 {
@@ -42,9 +43,13 @@ CurvePanel::~CurvePanel()
 
 QRectF CurvePanel::currentZoom() const
 {
-  if(! zoom.isNull())
-    return zoom;
-  return boundingBox;
+  QRectF bbox = (zoom.isNull() ? boundingBox : zoom);
+  if(xTracking) {
+    QRectF trackedX = xTracking->currentZoom();
+    bbox.setLeft(trackedX.left());
+    bbox.setRight(trackedX.right());
+  }
+  return bbox;
 }
 
 void CurvePanel::invalidateTicks()
@@ -154,6 +159,8 @@ void CurvePanel::pickTicks()
   }  
   {
     double minTick = std::max(fabs(40/t.m22()), rect.height()/8);
+    if(minTick > rect.height()/3)
+      minTick = rect.height()/4; // Try to have several ticks.
     double tick;
     yTicks = pickMajorTicksLocation(rect.top(), rect.bottom(), 
                                     &tick, minTick);
@@ -341,4 +348,15 @@ void CurvePanel::resetZoom()
 void CurvePanel::zoomIn(const QRectF & rect)
 {
   zoom = rect;
+}
+
+void CurvePanel::setYRange(double ymin, double ymax, 
+                           CurvePanel * panel)
+{
+  QRectF bbox = currentZoom(); /// X values are meaningless, unless
+                               /// panel is NULL
+  bbox.setTop(ymin);
+  bbox.setBottom(ymax);
+  zoomIn(bbox);
+  xTracking = (panel == this ? NULL : panel); // Avoid infinite recursion
 }

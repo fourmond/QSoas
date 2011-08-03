@@ -88,6 +88,11 @@ public:
   /// Whether or not to use opengl for rendering.
   void setOpenGL(bool opengl);
 
+  /// Returns the main panel
+  CurvePanel * mainPanel() {
+    return &panel;
+  };
+
 public slots:
 
   /// Shows the current data set (see DataStack::currentDataSet)

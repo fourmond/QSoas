@@ -44,9 +44,6 @@ class CurvePanel : public QObject {
   /// All displayed items.
   QList<QPointer<CurveItem> > displayedItems;
 
-  /// Returns the currently displayed rectangle.
-  QRectF currentZoom() const;
-
   /// Sets the panel transformation for sceneRectangle to match
   /// windowRectangle (the latter most probably being
   /// internalRectangle()).
@@ -90,11 +87,18 @@ class CurvePanel : public QObject {
 
   /// Updates the bounding box.
   void updateBB();
+
+  /// If that value isn't NULL, this panel will use in permanence the
+  /// X values of the other one
+  QPointer<CurvePanel> xTracking;
   
 public:
 
   CurvePanel();
   virtual ~CurvePanel();
+
+  /// Returns the currently displayed rectangle.
+  QRectF currentZoom() const;
 
   /// Zooms to the given rectangle
   void zoomTo(const QRectF &r = QRectF());
@@ -166,6 +170,14 @@ public:
 
   /// Resets zoom to the actual bounding box.
   void resetZoom();
+
+  /// Sets the Y values of the bounding box, taking the X values from
+  /// the current zoom of the given panel (or this one if NULL).
+  ///
+  /// If the \a panel argument isn't NULL, this panel will track in
+  /// permanence the X values of the given target panel.
+  void setYRange(double ymin, double ymax, 
+                 CurvePanel * panel = NULL);
 };
 
 #endif

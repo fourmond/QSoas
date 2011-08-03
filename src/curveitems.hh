@@ -21,6 +21,7 @@
 #define __CURVEITEMS_HH
 
 #include <curveitem.hh>
+#include <vector.hh>
 
 
 /// A simple line
@@ -57,6 +58,22 @@ public:
   
   CurveRectangle() : brush(QBrush(Qt::NoBrush)) {;};
 
+  virtual void paint(QPainter * painter, const QRectF & bbox);
+};
+
+/// Plain cacheless data.
+class CurveData : public CurveItem {
+public:
+  Vector xvalues;
+  Vector yvalues;
+  QPen pen;
+  // QBrush brush;
+
+  void setRect(const QRectF &r);
+  
+  CurveData() {;};
+
+  virtual QRectF boundingRect() const;
   virtual void paint(QPainter * painter, const QRectF & bbox);
 };
 

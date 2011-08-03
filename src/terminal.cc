@@ -32,8 +32,11 @@ TextStream::TextStream() :
 
 void TextStream::flushToTerminal()
 {
+  /// @todo If I want to use formatting with that, I need to use
+  /// QTextDocumentFragment straight from here.
+
   // Convert line feeds to HTML
-  buffer.replace("\n", "<br/>\n");
+  // buffer.replace("\n", "<br/>\n");
   CommandWidget::logString(buffer);
   buffer.clear();
 }

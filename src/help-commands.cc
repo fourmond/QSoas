@@ -45,16 +45,14 @@ namespace HelpCommands {
         len = cmds[i].size();
 
     QHash<Command *, int> t;
-    Terminal::out << "<b>All commands:</b>"
-                  << "<table>";
+    Terminal::out << "All commands:" << endl;
     for(int i = 0; i < cmds.size(); i++) {
       Command * cmd = Command::namedCommand(cmds[i]);
-      Terminal::out << QString("<tr><td>%1 </td><td> %2</td></tr>").
-        arg(cmds[i], len).arg(cmd->shortDescription());
+      Terminal::out << QString("%1 %2\n").
+        arg(cmds[i], -len).arg(cmd->shortDescription());
       t[cmd] = 1;
     }
-    Terminal::out << "</table>" 
-                  << "In total " << t.size() << " commands "
+    Terminal::out << "\nIn total " << t.size() << " commands "
                   << "(and " << cmds.size() - t.size() << " aliases)"
                   << endl;
   }

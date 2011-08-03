@@ -39,6 +39,9 @@ CommandWidget::CommandWidget()
   terminalDisplay->setReadOnly(true);
   // We use a monospace font !
   terminalDisplay->setFont(QFont("monospace")); /// @todo customize settings
+  // terminalDisplay->document()-> 
+  //   setDefaultStyleSheet("p { white-space: pre; }");
+  // Doesn't seem to have any effect...
   h1->addWidget(terminalDisplay);
 
   sideBarLabel = new QLabel();
@@ -116,7 +119,7 @@ void CommandWidget::commandEntered()
 
 void CommandWidget::appendToTerminal(const QString & str)
 {
-  terminalDisplay->insertHtml(str);
+  terminalDisplay->insertPlainText(str);
   // and scroll to the bottom
   QScrollBar * sb = terminalDisplay->verticalScrollBar();
   sb->setSliderPosition(sb->maximum());

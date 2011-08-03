@@ -64,10 +64,14 @@ namespace Terminal {
   /// A whole bunch of formatting functions used in conjuction with
   /// TextStream
   ///
+  /// @todo Formatting is disabled for now, so long as I haven't found
+  /// out a way to pass it around.
+  ///
   /// @{
 
   inline QString bold(const QString & str) {
-    return QString("<b>%1</b>").arg(str);
+    // return QString("<b>%1</b>").arg(str);
+    return str;
   };
 
   /// @}

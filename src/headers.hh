@@ -64,7 +64,11 @@
 #include <QPainterPath>
 #include <QPainter>
 
-// To have openGL renderinf
+// Printing
+#include <QPrinter>
+#include <QPrintDialog>
+
+// To have openGL rendering
 #include <QGLWidget>
 
 // A rich text viewer (and editor?).

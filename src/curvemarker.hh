@@ -29,7 +29,6 @@ class CurveMarker : public CurveItem {
 public:
 
   QPointF p;
-  QPen pen;
   QBrush brush;
   double size;
 
@@ -40,6 +39,11 @@ public:
   MarkerType type;
 
   virtual void paint(QPainter * painter, const QRectF & bbox);
+
+  /// Paints the marker of the given \p type at the given position,
+  /// using the current pen and brush.
+  static void paintMarker(QPainter * painter, const QPointF & p,
+                          MarkerType type);
 
   CurveMarker() : size(1.0), type(Circle) {;};
 };

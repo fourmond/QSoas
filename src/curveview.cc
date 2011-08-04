@@ -40,6 +40,7 @@ CurveView::CurveView() :
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setFrameShape(QFrame::NoFrame);
+  setCursor(Qt::CrossCursor);
 
   setOpenGL(soas().openGL());
 }

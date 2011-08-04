@@ -53,9 +53,6 @@ public:
   /// the curves coordinates.
   virtual void paint(QPainter * painter, const QRectF & bbox);
 
-  /// The pen for painting the path
-  QPen pen;
-
   virtual QRect paintLegend(QPainter * painter, 
                             const QRect & placement);
 

@@ -174,11 +174,10 @@ void CurvePanel::paintCurves(QPainter * p)
   QRectF r = currentZoom();
   if(xTicks.size() == 0)
     pickTicks();
-    
-  p->setTransform(transform);
-  p->setWorldMatrixEnabled(true);
 
-  /// 
+  
+  p->setTransform(transform, true);
+
   p->setPen(bgLinesPen); 
   for(int i = 0; i < xTicks.size(); i++) {
     double x = xTicks[i];
@@ -361,4 +360,52 @@ void CurvePanel::setYRange(double ymin, double ymax,
   bbox.setBottom(ymax);
   zoomIn(bbox);
   xTracking = (panel == this ? NULL : panel); // Avoid infinite recursion
+}
+
+void CurvePanel::render(QPainter * painter,
+                        int innerPanelHeight, 
+                        const QRect & targetRectangle,
+                        const QString & title)
+{
+  QTextStream o(stdout);
+  QMargins m = panelMargins();
+  if(! title.isEmpty())
+    m.setTop(m.top() * 2);
+  int totalHeight = m.top() + m.bottom() + innerPanelHeight;
+  
+  // Now compute the outer rectangle
+  QPointF tl = targetRectangle.topLeft();
+  QPointF br = targetRectangle.bottomRight();
+  double scale = totalHeight/(targetRectangle.height()*1.0);
+  br *= scale;
+  tl *= scale;
+  QRect finalWidgetRect = QRect(QPoint(tl.x(), tl.y()), 
+                                QPoint(br.x(), br.y()));
+  QRect innerRect = Utils::applyMargins(finalWidgetRect, m);
+
+  QRect savedRect = internalRectangle;
+
+  // Disabling the cosmetic flag on all displayed items ?
+  for(int i = 0; i < displayedItems.size(); i++) {
+    CurveItem * it = displayedItems[i];
+    if(it)
+      it->pen.setCosmetic(false);
+  }
+
+  // painter->setWindow(finalWidgetRect);
+  // painter->setViewport(targetRectangle);
+
+  // o << "Target : ";
+  // Utils::dumpRectangle(o, targetRectangle);
+  // o << endl << "Inner : ";
+  // Utils::dumpRectangle(o, innerRect);
+  // o << endl << "Widget : ";
+  // Utils::dumpRectangle(o, finalWidgetRect);
+  // o << endl << "Scale is: " << scale << endl;
+    
+  painter->scale(1/scale, 1/scale);
+  internalRectangle = innerRect;
+  paint(painter);
+  // dropping title for now.
+  internalRectangle = savedRect;
 }

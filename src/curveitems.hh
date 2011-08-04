@@ -30,7 +30,6 @@ public:
 
   QPointF p1;
   QPointF p2;
-  QPen pen;
 
   virtual QRectF boundingRect() const;
   virtual void paint(QPainter * painter, const QRectF & bbox);
@@ -41,7 +40,6 @@ class CurveVerticalLine : public CurveItem {
 public:
 
   double x;
-  QPen pen;
 
   virtual void paint(QPainter * painter, const QRectF & bbox);
 };
@@ -52,7 +50,6 @@ class CurveHorizontalRegion : public CurveItem {
 public:
 
   double xleft, xright;
-  QPen pen;
 
   /// Sets either the left of right X value, depending on the button
   /// pressed. (or neither)
@@ -66,7 +63,6 @@ class CurveRectangle : public CurveItem {
 public:
   QPointF p1;
   QPointF p2;
-  QPen pen;
   QBrush brush;
 
   void setRect(const QRectF &r);
@@ -81,7 +77,6 @@ class CurveData : public CurveItem {
 public:
   Vector xvalues;
   Vector yvalues;
-  QPen pen;
   // QBrush brush;
 
   void setRect(const QRectF &r);

@@ -47,6 +47,9 @@ public:
   /// Whether the item is hidden or not
   bool hidden;
 
+  /// The pen used to draw the item
+  QPen pen;
+
   /// Paint a legend for the object, while trying to fit reasonably in
   /// \a placement (but it is not required). This function is called
   /// with a \a painter in \b screen coordinates

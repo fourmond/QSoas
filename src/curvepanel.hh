@@ -178,6 +178,19 @@ public:
   /// permanence the X values of the given target panel.
   void setYRange(double ymin, double ymax, 
                  CurvePanel * panel = NULL);
+
+  /// Render the panel into the given painter.
+  /// 
+  /// \a innerPanelHeight is the height of the inner panel, in natural
+  /// units (pixels, or font points)
+  /// \a targetRectangle is the target rectangle of the page
+  /// \a title is a title for the page, if needs be.
+  ///
+  /// \warning For now, it doesn't handle the case when
+  /// targetRectangle is offset from 0,0.
+  void render(QPainter * painter,
+              int innerPanelHeight, const QRect & targetRectangle,
+              const QString & title = "");
 };
 
 #endif

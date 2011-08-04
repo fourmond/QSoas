@@ -115,6 +115,32 @@ namespace GeneralCommands {
 
   //////////////////////////////////////////////////////////////////////
 
+  static void printCommand(const QString &)
+  {
+    QPrinter p;
+    QPrintDialog printDialog(&p);
+    if (printDialog.exec() == QDialog::Accepted) {
+      QPainter painter;
+      painter.begin(&p);
+      soas().view().mainPanel()->render(&painter, 500,
+                                        p.pageRect());
+    }
+  }
+
+  static Command 
+  p("print", // command name
+    optionLessEffector(printCommand), // action
+    "file",  // group name
+    NULL, // arguments
+    NULL, // options
+    QT_TR_NOOP("Print"),
+    QT_TR_NOOP("Print current view (almost)"),
+    QT_TR_NOOP("Prints the current main panel of the current view"),
+    "p"
+    );
+
+  //////////////////////////////////////////////////////////////////////
+
   static void testELoopCommand(const QString &)
   {
     Debug::dumpCurrentFocus("Focus before creation: ");

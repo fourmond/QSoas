@@ -32,15 +32,10 @@
 
    Now, mainly, what I need to do, is to massage the functionalities
    of the old Soas back into this one:
-   \li undo/redo
    \li filter/derivative
-   \li reglin
-   \li subtract
-   \li splita/b
-   \li cut
    \li cd/pwd
-   \li div
    \li browse ;-)...
+   \li dataset selection
    
 
    I also need to come up with a decent way to handle "output files"

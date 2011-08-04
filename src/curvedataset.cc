@@ -34,23 +34,23 @@ void CurveDataSet::createPath()
 {
   if(cachedPath)
     return;
-  cachedPath = new QPainterPath;
+  cachedPath = new QPolygonF;
   int size = dataSet->nbRows();
   if(! size)
     return;
   const Vector & x = dataSet->x();
   const Vector & y = dataSet->y();
-  cachedPath->moveTo(x[0], y[0]);
-  for(int i = 1; i < size; i++)
-    cachedPath->lineTo(x[i], y[i]);
+  for(int i = 0; i < x.size(); i++)
+    cachedPath->append(QPointF(x[i], y[i]));
 }
 
 
-void CurveDataSet::paint(QPainter * painter, const QRectF &)
+void CurveDataSet::paint(QPainter * painter, const QRectF &,
+                         const QTransform & ctw)
 {
   createPath();
   painter->setPen(pen);
-  painter->drawPath(*cachedPath);
+  painter->drawPolyline(ctw.map(*cachedPath));
 }
 
 QRect CurveDataSet::paintLegend(QPainter * p, const QRect & rect)

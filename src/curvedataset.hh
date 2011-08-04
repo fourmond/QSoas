@@ -29,9 +29,8 @@ class CurveDataSet : public CurveItem {
   /// The dataset attached to this object
   const DataSet * dataSet;
 
-  QPainterPath * cachedPath;
+  QPolygonF * cachedPath;
 
-  /// @todo With this scheme, things won't happen too well
   void createPath();
 
   /// Cache for the tooltip
@@ -51,7 +50,8 @@ public:
 
   /// Paint the curve. The painter is setup so that the coordinate are
   /// the curves coordinates.
-  virtual void paint(QPainter * painter, const QRectF & bbox);
+  virtual void paint(QPainter * painter, const QRectF & bbox,
+                     const QTransform & curveToWidget);
 
   virtual QRect paintLegend(QPainter * painter, 
                             const QRect & placement);

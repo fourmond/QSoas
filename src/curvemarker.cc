@@ -32,18 +32,12 @@ void CurveMarker::paintMarker(QPainter * painter, const QPointF & realPos)
 }
 
 
-void CurveMarker::paint(QPainter * painter, const QRectF &)
+void CurveMarker::paint(QPainter * painter, const QRectF &,
+                        const QTransform & ctw)
 {
-  // Here, we cheat
-  QTransform t = painter->transform();
-  QPointF realP = t.map(p);
-
   painter->save();
   painter->setPen(pen);
   painter->setBrush(brush);
-
-  // Now, we cancel the transformation, then we draw !
-  painter->setTransform(QTransform());
-  paintMarker(painter, realP);
+  paintMarker(painter, ctw.map(p));
   painter->restore();
 }

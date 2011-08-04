@@ -176,23 +176,23 @@ void CurvePanel::paintCurves(QPainter * p)
     pickTicks();
 
   
-  p->setTransform(transform, true);
+  /// p->setTransform(transform, true);
 
   p->setPen(bgLinesPen); 
   for(int i = 0; i < xTicks.size(); i++) {
     double x = xTicks[i];
-    p->drawLine(QLineF(x, r.bottom(), x, r.top()));
+    p->drawLine(transform.map(QLineF(x, r.bottom(), x, r.top())));
   }
   for(int i = 0; i < yTicks.size(); i++) {
     double y = yTicks[i];
-    p->drawLine(QLineF(r.left(), y, r.right(), y));
+    p->drawLine(transform.map(QLineF(r.left(), y, r.right(), y)));
   }
 
   for(int i = 0; i < displayedItems.size(); i++) {
     CurveItem * it = displayedItems[i];
     if(it) {
       if(! it->hidden)
-        it->paint(p, r);
+        it->paint(p, r, transform);
     }
     else
       displayedItems.removeAt(i--); // autocleanup elements gone
@@ -385,12 +385,12 @@ void CurvePanel::render(QPainter * painter,
 
   QRect savedRect = internalRectangle;
 
-  // Disabling the cosmetic flag on all displayed items ?
-  for(int i = 0; i < displayedItems.size(); i++) {
-    CurveItem * it = displayedItems[i];
-    if(it)
-      it->pen.setCosmetic(false);
-  }
+  // // Disabling the cosmetic flag on all displayed items ?
+  // for(int i = 0; i < displayedItems.size(); i++) {
+  //   CurveItem * it = displayedItems[i];
+  //   if(it)
+  //     it->pen.setCosmetic(false);
+  // }
 
   // painter->setWindow(finalWidgetRect);
   // painter->setViewport(targetRectangle);

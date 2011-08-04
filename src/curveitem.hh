@@ -38,8 +38,12 @@ public:
 
   virtual QRectF boundingRect() const;
 
-  /// Paint the curve. The \a painter is in \b curve coordinates.
-  virtual void paint(QPainter * painter, const QRectF & bbox) = 0;
+  /// Paint the curve. The \a painter is in \b widget coordinates, and
+  /// the \a curveToWidget transformation can be used to compute the
+  /// widget points from the curve points. \a bbox is also in curve
+  /// coordinates !
+  virtual void paint(QPainter * painter, const QRectF & bbox,
+                     const QTransform & curveToWidget) = 0;
   
   /// Whether the bounding box of this item counts or not.
   bool countBB;

@@ -32,7 +32,8 @@ public:
   QPointF p2;
 
   virtual QRectF boundingRect() const;
-  virtual void paint(QPainter * painter, const QRectF & bbox);
+  virtual void paint(QPainter * painter, const QRectF & bbox,
+                     const QTransform & curveToWidget);
 };
 
 /// A vertical line
@@ -41,7 +42,8 @@ public:
 
   double x;
 
-  virtual void paint(QPainter * painter, const QRectF & bbox);
+  virtual void paint(QPainter * painter, const QRectF & bbox,
+                     const QTransform & curveToWidget);
 };
 
 
@@ -55,7 +57,8 @@ public:
   /// pressed. (or neither)
   void setX(double value, Qt::MouseButton which);
 
-  virtual void paint(QPainter * painter, const QRectF & bbox);
+  virtual void paint(QPainter * painter, const QRectF & bbox,
+                     const QTransform & curveToWidget);
 };
 
 /// A rectangle
@@ -69,7 +72,8 @@ public:
   
   CurveRectangle() : brush(QBrush(Qt::NoBrush)) {;};
 
-  virtual void paint(QPainter * painter, const QRectF & bbox);
+  virtual void paint(QPainter * painter, const QRectF & bbox,
+                     const QTransform & curveToWidget);
 };
 
 /// Plain cacheless data.
@@ -84,7 +88,8 @@ public:
   CurveData() {;};
 
   virtual QRectF boundingRect() const;
-  virtual void paint(QPainter * painter, const QRectF & bbox);
+  virtual void paint(QPainter * painter, const QRectF & bbox,
+                     const QTransform & curveToWidget);
 };
 
 #endif

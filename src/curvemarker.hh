@@ -38,7 +38,8 @@ public:
 
   MarkerType type;
 
-  virtual void paint(QPainter * painter, const QRectF & bbox);
+  virtual void paint(QPainter * painter, const QRectF & bbox,
+                     const QTransform & curveToWidget);
 
   /// Paints the marker of the given \p type at the given position,
   /// using the current pen and brush.

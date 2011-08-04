@@ -24,19 +24,21 @@ QRectF CurveLine::boundingRect() const
   return QRectF(p1, p2).normalized();
 }
 
-void CurveLine::paint(QPainter * painter, const QRectF &)
+void CurveLine::paint(QPainter * painter, const QRectF &,
+                      const QTransform & ctw)
 {
   painter->save();
   painter->setPen(pen);
-  painter->drawLine(p1, p2);
+  painter->drawLine(ctw.map(QLineF(p1, p2)));
   painter->restore();
 }
 
-void CurveVerticalLine::paint(QPainter * painter, const QRectF & bbox)
+void CurveVerticalLine::paint(QPainter * painter, const QRectF & bbox,
+                              const QTransform & ctw)
 {
   painter->save();
   painter->setPen(pen);
-  painter->drawLine(QLineF(x, bbox.top(), x, bbox.bottom()));
+  painter->drawLine(ctw.map(QLineF(x, bbox.top(), x, bbox.bottom())));
   painter->restore();
 }
 
@@ -58,18 +60,22 @@ void CurveHorizontalRegion::setX(double value, Qt::MouseButton button)
 }
 
 
-void CurveHorizontalRegion::paint(QPainter * painter, const QRectF & bbox)
+void CurveHorizontalRegion::paint(QPainter * painter, const QRectF & bbox,
+                                  const QTransform & ctw)
 {
   painter->save();
   painter->setPen(pen);
-  painter->drawLine(QLineF(xleft, bbox.top(), xleft, bbox.bottom()));
-  painter->drawLine(QLineF(xright, bbox.top(), xright, bbox.bottom()));
+  painter->drawLine(ctw.map(QLineF(xleft, bbox.top(), 
+                                   xleft, bbox.bottom())));
+  painter->drawLine(ctw.map(QLineF(xright, bbox.top(), 
+                                   xright, bbox.bottom())));
   painter->restore();
 }
 
-void CurveRectangle::paint(QPainter * painter, const QRectF &)
+void CurveRectangle::paint(QPainter * painter, const QRectF &,
+                           const QTransform & ctw)
 {
-  QRectF r = QRectF(p1, p2);
+  QRectF r = QRectF(ctw.map(p1),ctw.map(p2));
   if(r.isNull())
     return;
   painter->save();
@@ -95,16 +101,17 @@ QRectF CurveData::boundingRect() const
   return QRectF(QPointF(xmin, ymin), QPointF(xmax, ymax));
 }
 
-void CurveData::paint(QPainter * painter, const QRectF &)
+void CurveData::paint(QPainter * painter, const QRectF &,
+                      const QTransform & ctw)
 {
   int nb = std::min(xvalues.size(), yvalues.size());
   if(nb < 2)
     return;                     // Not much to do, admittedly
   painter->save();
   painter->setPen(pen);
-  QPointF first = QPointF(xvalues[0], yvalues[0]);
+  QPointF first = ctw.map(QPointF(xvalues[0], yvalues[0]));
   for(int i = 1; i < nb; i++) {
-    QPointF second = QPointF(xvalues[i], yvalues[i]);
+    QPointF second = ctw.map(QPointF(xvalues[i], yvalues[i]));
     painter->drawLine(first, second);
     first = second;
   }

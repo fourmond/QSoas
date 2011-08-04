@@ -105,7 +105,7 @@ namespace DataSetCommands {
     loop.setHelpString(QObject::tr("Cursor:\n"
                                    "click to see\n"
                                    "q or ESC to quit"));
-    /// @todo selection mode ? (do we need that ?)
+    /// @todo four selection mode: eXact, smooth, closest and off
     while(! loop.finished()) {
       switch(loop.type()) {
       case QEvent::MouseButtonPress: 

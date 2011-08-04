@@ -23,6 +23,7 @@
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
 #include <terminal.hh>
+#include <outfile.hh>
 
 #include <dataset.hh>
 #include <soas.hh>
@@ -98,12 +99,14 @@ namespace DataSetCommands {
     CurveEventLoop loop;
     CurveMarker m;
     CurveView & view = soas().view();
+    int lastIdx = -1;
     view.addItem(&m);
     m.size = 4;
     m.pen = QPen(Qt::NoPen);
     m.brush = QBrush(QColor(0,0,255,150)); // A kind of transparent blue
     loop.setHelpString(QObject::tr("Cursor:\n"
                                    "click to see\n"
+                                   "space: write to output\n"
                                    "q or ESC to quit"));
     /// @todo four selection mode: eXact, smooth, closest and off
     while(! loop.finished()) {
@@ -111,13 +114,14 @@ namespace DataSetCommands {
       case QEvent::MouseButtonPress: 
         {
           QPair<double, int> dst = loop.distanceToDataSet(ds);
-          if(30 > dst.first &&  0 <= dst.second) { // operations in
+          if(30 > dst.first && 0 <= dst.second) { // operations in
                                                    // reverse to avoid
                                                    // confusing emacs
-            m.p = ds->pointAt(dst.second);
-            Terminal::out << dst.second << "\t"
-                          << m.p.x() << "\t"
-                          << m.p.y() << endl;
+            lastIdx = dst.second;
+            m.p = ds->pointAt(lastIdx);
+            Terminal::out << m.p.x() << "\t"
+                          << m.p.y() << "\t" 
+                          << dst.second << endl;
           }
           break;
         }
@@ -125,6 +129,15 @@ namespace DataSetCommands {
         if(loop.key() == 'q' || loop.key() == 'Q' ||
            loop.key() == Qt::Key_Escape)
           return;
+        if(loop.key() == ' ') {
+          // Write to output file
+          OutFile::out.setHeader("Point positions:\n"
+                                 "X\tY\t\tidx\tbuffer");
+          OutFile::out << m.p.x() << "\t"
+                       << m.p.y() << "\t" 
+                       << lastIdx << "\t"
+                       << ds->name << "\n";
+        }
         break;
       default:
         ;

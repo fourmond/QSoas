@@ -31,9 +31,10 @@ void OutFile::ensureOpened()
 {
   if(! output) {
     output = new QFile(name);
-    if(! output->open(QIODevice::WriteOnly | QIODevice::Append))
+    if(! output->open(QIODevice::WriteOnly | QIODevice::Text))
       Terminal::out << "Failed to open output file '" 
                     << name << "'" << endl;
+    output->seek(output->size());
   }
   internalStream = new QTextStream(output);
 }

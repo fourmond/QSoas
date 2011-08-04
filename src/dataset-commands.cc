@@ -103,7 +103,7 @@ namespace DataSetCommands {
     view.addItem(&m);
     m.size = 4;
     m.pen = QPen(Qt::NoPen);
-    m.brush = QBrush(QColor(0,0,255,150)); // A kind of transparent blue
+    m.brush = QBrush(QColor(0,0,255,100)); // A kind of transparent blue
     loop.setHelpString(QObject::tr("Cursor:\n"
                                    "click to see\n"
                                    "space: write to output\n"
@@ -133,10 +133,12 @@ namespace DataSetCommands {
           // Write to output file
           OutFile::out.setHeader("Point positions:\n"
                                  "X\tY\t\tidx\tbuffer");
+          Terminal::out << "Writing to output file: '" <<
+            OutFile::out.fileName() << "'" << endl;
           OutFile::out << m.p.x() << "\t"
                        << m.p.y() << "\t" 
                        << lastIdx << "\t"
-                       << ds->name << "\n";
+                       << ds->name << "\n" << flush;
         }
         break;
       default:
@@ -172,7 +174,6 @@ namespace DataSetCommands {
     view.addItem(&d);
 
     r.pen = QPen(QColor("blue"), 1, Qt::DotLine);
-    r.pen.setCosmetic(true);
     d.pen = QPen(QColor("red"));
 
     loop.setHelpString(QObject::tr("Cut:\n"

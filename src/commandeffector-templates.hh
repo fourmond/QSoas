@@ -134,6 +134,38 @@ template<class A1, class A2> CommandEffector * optionLessEffector(void (*f)(cons
 };
 
 
+/// Callback to a static function with only options.
+///
+/// Rather than using this class directly, use
+/// CommandEffector::functionEffector().
+class CommandEffectorCallback0 : public CommandEffector {
+
+  typedef void (*Callback)(const QString &, const CommandOptions &);
+  Callback callback;
+
+public:
+
+  CommandEffectorCallback0(Callback c) : callback(c) {;};
+
+  inline virtual void runCommand(const QString & commandName, 
+                                 const CommandArguments & args,
+                                 const CommandOptions & options) {
+    if(args.size() > 0) {
+      QString str = QString("0 argument expected, but got %2").
+        arg(args.size());
+      throw std::logic_error(str.toStdString());
+    }
+    callback(commandName, options);
+  };
+
+};
+
+inline CommandEffector * 
+effector(void (*f)(const QString &, 
+                   const CommandOptions &)) {
+  return new CommandEffectorCallback0(f);
+};
+
 /// Callback to a static function with one argument + options.
 ///
 /// Rather than using this class directly, use

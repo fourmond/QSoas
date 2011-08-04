@@ -115,24 +115,36 @@ namespace GeneralCommands {
 
   //////////////////////////////////////////////////////////////////////
 
-  static void printCommand(const QString &)
+  static ArgumentList 
+  pops(QList<Argument *>() 
+      << new FileSaveArgument("file", 
+                              QT_TR_NOOP("Save as file"),
+                              QT_TR_NOOP("Save as file"), "biniou.ps"));
+
+  static void printCommand(const QString &, 
+                           const CommandOptions & opts)
   {
     QPrinter p;
-    QPrintDialog printDialog(&p);
-    if (printDialog.exec() == QDialog::Accepted) {
-      QPainter painter;
-      painter.begin(&p);
-      soas().view().mainPanel()->render(&painter, 500,
-                                        p.pageRect());
+    p.setOrientation(QPrinter::Landscape);
+    if(opts.contains("file"))
+      p.setOutputFileName(opts["file"]->value<QString>());
+    else {
+       QPrintDialog printDialog(&p);
+       if(printDialog.exec() != QDialog::Accepted)
+         return;
     }
+    QPainter painter;
+    painter.begin(&p);
+    soas().view().mainPanel()->render(&painter, 500,
+                                        p.pageRect());
   }
 
   static Command 
   p("print", // command name
-    optionLessEffector(printCommand), // action
+    effector(printCommand), // action
     "file",  // group name
     NULL, // arguments
-    NULL, // options
+    &pops, // options
     QT_TR_NOOP("Print"),
     QT_TR_NOOP("Print current view (almost)"),
     QT_TR_NOOP("Prints the current main panel of the current view"),

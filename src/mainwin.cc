@@ -36,13 +36,14 @@
    \li cd/pwd
    \li browse ;-)...
    \li dataset selection
-   
-
-   I also need to come up with a decent way to handle "output files"
-   (peak data, but also cursor positions, and the like). Then:
-   \li peak detection
-   \li cursor manipulation
-
+   \li peak detection (along with a CurvePeak CurveItem child to display
+   it neatly)
+   \li choice between the different point selection modes
+   \li interpolation
+   \li baseline (catalytic and not catalytic)
+   \li fits, as soon as I get my hands on the gsl documentation again
+   \li FFT, probably based on GSL too (no need to pull in another
+   dependency)
    
 */
 

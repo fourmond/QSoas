@@ -26,6 +26,11 @@ QMAKE_CXXFLAGS += -Werror=return-type
 # INCLUDEPATH += /usr/lib/ruby/1.8/x86_64-linux
 # LIBS += -lruby1.8
 
+# Generate doxygen documentation
+doc.commands = doxygen 
+
+QMAKE_EXTRA_TARGETS += doc
+
 # Input files
 SOURCES += src/qmain.cc \
         src/mainwin.cc \
@@ -90,3 +95,4 @@ HEADERS += src/headers.hh \
         src/debug.hh \
         src/curvemarker.hh \
         src/outfile.hh
+

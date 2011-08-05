@@ -18,12 +18,13 @@
 
 #include <headers.hh>
 #include <ruby.hh>
+#include <ruby-templates.hh>
 
 VALUE Ruby::globalRescueFunction(VALUE /*dummy*/, VALUE exception)
 {
   QString str = QObject::tr("Ruby exception: ");
   VALUE in = rb_inspect(exception);
-  str += StringValueCStr(in);
+  str += StringValueCStr(exception); // Or in ? See call stack too ?
   throw std::runtime_error(str.toStdString());
   return Qnil;
 }
@@ -33,6 +34,5 @@ void Ruby::initRuby()
   ruby_init();
   VALUE main = rb_eval_string("self");
   rb_extend_object(main, rb_mMath);
-  rb_eval_string("p sin(0.1)");
 }
 

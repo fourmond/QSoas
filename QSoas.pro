@@ -107,5 +107,6 @@ HEADERS += src/headers.hh \
         src/debug.hh \
         src/curvemarker.hh \
         src/outfile.hh \
-        src/ruby.hh
+        src/ruby.hh \
+        src/rub-templates.hh
 

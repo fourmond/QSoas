@@ -37,8 +37,8 @@ namespace Ruby {
   /// exceptions are caught.
   ///  
   /// @{
-  VALUE wrap(VALUE (*f)());
-  template<typename A1> VALUE wrap(VALUE (*f)(A1), A1); 
+  VALUE run(VALUE (*f)());
+  template<typename A1> VALUE run(VALUE (*f)(A1), A1); 
 };
 
 

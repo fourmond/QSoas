@@ -22,19 +22,22 @@
 
 VALUE Ruby::globalRescueFunction(VALUE /*dummy*/, VALUE exception)
 {
+  rb_p(exception);
   QString str = QObject::tr("Ruby exception: ");
-  VALUE in = rb_inspect(exception);
+  VALUE in = rb_inspect(exception);  // Probably shouldn't throw an exception ?
   str += StringValueCStr(exception); // Or in ? See call stack too ?
   throw std::runtime_error(str.toStdString());
   return Qnil;
 }
 
+/// @todo Just to remember later: I need a function that converts a
+/// "formula" into a block, while at the same time detecting all
+/// missing arguments by catching the NameError exception. That should
+/// be plain ruby code, as it will turn out to be delicate in C++.
 void Ruby::initRuby()
 {
   ruby_init();
   VALUE main = rb_eval_string("self");
   rb_extend_object(main, rb_mMath);
-  // VALUE val = Ruby::run(rb_eval_string, "sin(0.4)");
-  // rb_p(val);
 }
 

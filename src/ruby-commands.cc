@@ -65,7 +65,7 @@ namespace RubyCommands {
     Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
       arg(formula).arg(ds->name) << endl;
     formula = QString("proc do |x,y|\n  %1\n  [x,y]\nend").arg(formula);
-    VALUE block = Ruby::run(rb_eval_string, 
+    VALUE block = Ruby::run(Ruby::eval, 
                             formula.toLocal8Bit().constData());
     Vector newX, newY;
 

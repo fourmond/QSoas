@@ -31,6 +31,9 @@ namespace Ruby {
   /// exceptions into proper C++ exceptions.
   VALUE globalRescueFunction(VALUE, VALUE exception);
 
+  /// Evaluates the given string, while trying to avoid segfaults.
+  VALUE eval(const char * code);
+
   /// @name Exception-catching routines
   ///
   /// A series of functions to wrap calls to ruby functions and ensure

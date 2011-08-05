@@ -30,14 +30,27 @@ VALUE Ruby::globalRescueFunction(VALUE /*dummy*/, VALUE exception)
   return Qnil;
 }
 
-/// @todo Just to remember later: I need a function that converts a
-/// "formula" into a block, while at the same time detecting all
-/// missing arguments by catching the NameError exception. That should
-/// be plain ruby code, as it will turn out to be delicate in C++.
 void Ruby::initRuby()
 {
   ruby_init();
   VALUE main = rb_eval_string("self");
   rb_extend_object(main, rb_mMath);
+  rb_eval_string("def soas_eval(str)\n"
+                 "  begin\n"
+                 "    eval(str)\n"
+                 "  rescue SyntaxError => e\n"
+                 "    raise \"Syntax error: #{e.to_s}\"\n"
+                 "  end\n"
+                 "end\n");
 }
 
+/// @todo Just to remember later: I need a function that converts a
+/// "formula" into a block, while at the same time detecting all
+/// missing arguments by catching the NameError exception. That should
+/// be plain ruby code, as it will turn out to be delicate in C++.
+VALUE Ruby::eval(const char * str)
+{
+  VALUE s = rb_str_new2(str);
+  VALUE main = rb_eval_string("self");
+  return rb_funcall2(main, rb_intern("soas_eval"), 1, &s);
+}

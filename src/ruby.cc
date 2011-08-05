@@ -34,5 +34,7 @@ void Ruby::initRuby()
   ruby_init();
   VALUE main = rb_eval_string("self");
   rb_extend_object(main, rb_mMath);
+  // VALUE val = Ruby::run(rb_eval_string, "sin(0.4)");
+  // rb_p(val);
 }
 

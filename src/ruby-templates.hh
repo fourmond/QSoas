@@ -78,4 +78,41 @@ template<typename A1> VALUE Ruby::run(VALUE (*f)(A1), A1 a1)
 }
 
 
+/// Callback with four arguments
+template <typename A1, typename A2, typename A3, typename A4> 
+class RubyCallback4  {
+  typedef VALUE (*Callback)(A1, A2, A3, A4);
+  Callback callback;
+  A1 a1;
+  A2 a2;
+  A3 a3;
+  A4 a4;
+
+  static VALUE wrapper(VALUE v) {
+    RubyCallback4 * arg = (RubyCallback4 *) v;
+    return arg->callback(arg->a1, arg->a2, arg->a3, arg->a4);
+  };
+public:
+
+  RubyCallback4(Callback c, A1 arg1, 
+                A2 arg2, A3 arg3, A4 arg4) : 
+    callback(c), a1(arg1), a2(arg2), a3(arg3), a4(arg4) {;};
+
+  /// Runs the code wrapping it into a rb_rescue code
+  VALUE run() {
+    return rb_rescue((VALUE (*)(...)) &wrapper, (VALUE) this,
+                     (VALUE (*)(...)) &Ruby::globalRescueFunction, Qnil);
+  };
+
+};
+
+template <typename A1, typename A2, typename A3, typename A4> 
+VALUE Ruby::run(VALUE (*f)(A1, A2, A3, A4), A1 a1, A2 a2, A3 a3, A4 a4)
+{
+  RubyCallback4<A1, A2, A3, A4> cb(f, a1, a2, a3, a4);
+  return cb.run();
+}
+
+// Now, we'll have to do the same thing with member functions
+
 #endif

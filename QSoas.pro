@@ -75,7 +75,8 @@ SOURCES += src/qmain.cc \
         src/help-commands.cc \
         src/data-processing-commands.cc \
         src/outfile.cc \
-        src/ruby.cc
+        src/ruby.cc \
+        src/ruby-commands.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \

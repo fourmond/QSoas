@@ -76,7 +76,8 @@ SOURCES += src/qmain.cc \
         src/data-processing-commands.cc \
         src/outfile.cc \
         src/ruby.cc \
-        src/ruby-commands.cc
+        src/ruby-commands.cc \
+        src/fit.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -109,5 +110,6 @@ HEADERS += src/headers.hh \
         src/curvemarker.hh \
         src/outfile.hh \
         src/ruby.hh \
-        src/rub-templates.hh
+        src/ruby-templates.hh \
+        src/fit.hh
 

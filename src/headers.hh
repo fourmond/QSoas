@@ -104,4 +104,8 @@
 // ... and Ruby !
 #include <ruby.h>
 
+// The gsl
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_multifit_nlin.h>
+
 #endif

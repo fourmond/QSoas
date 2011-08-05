@@ -31,6 +31,14 @@ doc.commands = doxygen
 
 QMAKE_EXTRA_TARGETS += doc
 
+# Ruby detection/installation
+RUBY_LIB_ARG = $$system(ruby ./get-ruby-config.rb libarg)
+RUBY_INCLUDE_DIR = $$system(ruby ./get-ruby-config.rb includedir)
+message(Found ruby: library is $$RUBY_LIB_ARG and includes at $$RUBY_INCLUDE_DIR)
+
+INCLUDEPATH += $$RUBY_INCLUDE_DIR
+LIBS += $$RUBY_LIB_ARG
+
 # Input files
 SOURCES += src/qmain.cc \
         src/mainwin.cc \

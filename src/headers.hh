@@ -101,4 +101,7 @@
 // We do C++ sometimes
 #include <stdexcept>
 
+// ... and Ruby !
+#include <ruby.h>
+
 #endif

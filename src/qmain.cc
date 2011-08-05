@@ -23,11 +23,14 @@
 #include <mainwin.hh>
 #include <command.hh>
 
+#include <ruby.hh>
+
 int main(int argc, char ** argv)
 {
   QApplication main(argc, argv);
   main.setApplicationName("QSoas");
   Command::crosslinkCommands();
+  Ruby::initRuby();
   
   MainWin win;
   win.show();

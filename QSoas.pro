@@ -36,6 +36,9 @@ RUBY_LIB_ARG = $$system(ruby ./get-ruby-config.rb libarg)
 RUBY_INCLUDE_DIR = $$system(ruby ./get-ruby-config.rb includedir)
 message(Found ruby: library is $$RUBY_LIB_ARG and includes at $$RUBY_INCLUDE_DIR)
 
+# We use both the plain include dir and the ruby include dir, as 1.8
+# and 1.9.1 differ with respect to the location of the intern.h header
+# file.
 INCLUDEPATH += $$RUBY_INCLUDE_DIR
 LIBS += $$RUBY_LIB_ARG
 
@@ -71,7 +74,8 @@ SOURCES += src/qmain.cc \
         src/curvemarker.cc \
         src/help-commands.cc \
         src/data-processing-commands.cc \
-        src/outfile.cc
+        src/outfile.cc \
+        src/ruby.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -102,5 +106,6 @@ HEADERS += src/headers.hh \
         src/curvepanel.hh \
         src/debug.hh \
         src/curvemarker.hh \
-        src/outfile.hh
+        src/outfile.hh \
+        src/ruby.hh
 

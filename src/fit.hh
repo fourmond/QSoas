@@ -27,6 +27,42 @@ class DataSet;
 class Fit {
 protected:
 
+  /// The definition of a parameter.
+  class ParameterDefinition {
+  public:
+    /// Parameter name
+    QString name;
+
+    /// If true, then this parameter can be specific to one dataset
+    /// (one buffer) instead of being global to all datasets fitted at
+    /// the same time.
+    bool canBeBufferSpecific;
+
+    ParameterDefinition(const QString & n, bool cbs = true) :
+      name(n), canBeBufferSpecific(cbs)
+    {
+    };
+  };
+
+  /// A parameter, once it's in use. A list of that can be used to
+  /// convert GSL parameters to dataset-specific parameter values.
+  class ActualParameter {
+  public:
+    /// The index of the parameters from within the Fit::parameters()
+    /// return value.
+    int paramIndex;
+
+    /// The index of the dataset (-1) for global parameters.
+    int dsIndex;
+
+    /// The factor used for derivation (when that applies)
+    double derivationFactor;
+    
+    /// The minimum step used for derivation
+    double minDerivationStep;
+  };
+  
+
   /// Fit data. This data will be carried around using the void *
   /// argument to the function calls.
   class FitData {
@@ -53,11 +89,8 @@ public:
   /// The maximum number of datasets the fit can take (-1 for boundless)
   virtual int maxDataSets() const;
 
-  /// The number of parameters
-  virtual int parameterNumber() const = 0;
-
-  /// The names of the parameters
-  virtual QStringList parameterNames() const = 0;
+  /// The parameters
+  virtual QList<ParameterDefinition> parameters() const;
 
   /// @name Inner computations
   ///
@@ -76,8 +109,8 @@ public:
                   gsl_matrix * target_J);
   /// @}
 
-  /// Returns an initial guess based on the data.
-  virtual void initialGuess(FitData * data, gsl_vector * guess);
+  // /// Returns an initial guess based on the data.
+  // virtual void initialGuess(FitData * data, gsl_vector * guess);
 
   /// @todo We need now a function to pop up an interactive dialog box
   /// to review/tune the initial guess, along with (for subclasses)

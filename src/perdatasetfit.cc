@@ -18,6 +18,8 @@
 
 #include <headers.hh>
 #include <perdatasetfit.hh>
+#include <vector.hh>
+#include <dataset.hh>
 
 void PerDatasetFit::function(const double * parameters,
                              FitData * data, gsl_vector * target)
@@ -41,4 +43,15 @@ void PerDatasetFit::initialGuess(FitData * data, double * guess)
 
 PerDatasetFit::~PerDatasetFit()
 {
+}
+
+void FunctionFit::function(const double * parameters,
+                           FitData * data, 
+                           const DataSet * ds,
+                           gsl_vector * target)
+{
+  const Vector & xvalues = ds->x();
+  for(int i = 0; i < target->size; i++)
+    gsl_vector_set(target, i, function(parameters, data, 
+                                       xvalues[i]));
 }

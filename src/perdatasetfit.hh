@@ -59,5 +59,25 @@ public:
 
 };
 
+/// This abstract class handles the very simple but also very common
+/// case when the function to be fitted can be simply expressed as a
+/// function of X.
+class FunctionFit : public PerDatasetFit {
+public:
+  virtual void function(const double * parameters,
+                        FitData * data, 
+                        const DataSet * ds,
+                        gsl_vector * target);
+
+  /// Computes the Y value for the given \a x.
+  virtual double function(const double * parameters, 
+                          FitData * data, double x) = 0;
+
+  FunctionFit(const char * n, const char * sd, const char * desc,
+      int min = 1, int max = -1, bool mkCmds = true) :
+    PerDatasetFit(n, sd, desc, min, max, mkCmds) { ;};
+
+};
+
 
 #endif

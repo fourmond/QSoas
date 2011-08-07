@@ -21,6 +21,15 @@
 #include <dataset.hh>
 
 #include <soas.hh>
+#include <command.hh>
+#include <group.hh>
+#include <commandeffector-templates.hh>
+
+static Group fits("fits", 0,
+                  QT_TR_NOOP("Fits"),
+                  QT_TR_NOOP("Fitting of data"));
+
+
 
 int FitData::staticF(const gsl_vector * x, void * params, gsl_vector * f)
 {
@@ -175,6 +184,14 @@ int Fit::fdf(const gsl_vector * parameters,  FitData * data,
   return GSL_SUCCESS;
 }
 
+
+void Fit::makeCommands()
+{
+  /// @todo multidataset commands!
+  Command *c = new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
+                           optionLessEffector(this, &Fit::runFit),
+                           "fits", NULL, NULL, "");
+}
 
 
 

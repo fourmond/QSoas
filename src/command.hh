@@ -40,13 +40,13 @@ protected:
 
   QString shortCmdName;
 
-  const char * pubName;
+  QByteArray pubName;
 
-  const char * shortDesc;
+  QByteArray shortDesc;
   
-  const char * longDesc;
+  QByteArray longDesc;
 
-  const char * groupName;
+  QByteArray groupName;
 
   /// A global hash holding a correspondance name->command
   ///
@@ -84,10 +84,6 @@ public:
 
 
   /// Specifies the various elements linked to the Command.
-  ///
-  /// \warning Command doesn't take ownership of the three last
-  /// strings, which should therefore point to locations that will not
-  /// move, ideally constant strings.
   ///
   /// @todo this is cumbersome to mix description and code.
   Command(const char * cn, 

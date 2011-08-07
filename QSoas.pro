@@ -82,7 +82,8 @@ SOURCES += src/qmain.cc \
         src/ruby.cc \
         src/ruby-commands.cc \
         src/fit.cc \
-        src/perdatasetfit.cc
+        src/perdatasetfit.cc \
+        src/common-fits.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \

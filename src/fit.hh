@@ -27,13 +27,20 @@ public:
   /// Parameter name
   QString name;
 
+  /// Whether or not the parameter is fixed by default. Parameters
+  /// that are fixed by default could be external things (say, an
+  /// offset), rather than real parameters, although in some cases it
+  /// may make sense to have them variable.
+  bool defaultsToFixed;
+
   /// If true, then this parameter can be specific to one dataset
   /// (one buffer) instead of being global to all datasets fitted at
   /// the same time.
   bool canBeBufferSpecific;
 
-  ParameterDefinition(const QString & n, bool cbs = true) :
-    name(n), canBeBufferSpecific(cbs)
+  ParameterDefinition(const QString & n, bool fixed = false,
+                      bool cbs = true) :
+    name(n), defaultsToFixed(fixed), canBeBufferSpecific(cbs)
   {
   };
 };

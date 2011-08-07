@@ -24,19 +24,6 @@
 #include <argumentmarshaller.hh>
 #include <utils.hh>
 
-// template<class C, typename A1> void 
-// CommandEffector::runFunction(void (C::*f)(const QString &, A1), 
-//                              const QString & name, 
-//                              const QList<ArgumentMarshaller *> & arguments) {
-//   if(arguments.size() != 1) {
-//     QString str;
-//     str = QObject::tr("Expected 1 argument, but got %1").
-//       arg(arguments.size());
-//   }
-//   A1 a1 = arguments[0]->value<A1>();
-//   CALL_MEMBER_FN(*dynamic_cast<C>(this), f)(a1);
-// };
-
 /// Argumentless and optionless callback to static function
 ///
 /// Rather than using this class directly, use
@@ -199,5 +186,42 @@ effector(void (*f)(const QString &, A1,
                    const CommandOptions &)) {
   return new CommandEffectorCallback1<A1>(f);
 };
+
+
+//////////////////////////////////////////////////////////////////////
+// Now, callback to members
+
+/// Argumentless and optionless callback to member function
+///
+/// Rather than using this class directly, use
+/// CommandEffector::functionEffector().
+template<class C>
+class CommandEffectorMemberCallback0OptionLess : public CommandEffector {
+
+  typedef void (C::*Callback)(const QString &);
+  Callback callback;
+  C * target;
+
+public:
+
+  CommandEffectorMemberCallback0OptionLess(C * t,
+                                           Callback c) : callback(c), 
+                                                         target(t) {;};
+
+  inline virtual void runCommand(const QString & commandName, 
+                                 const CommandArguments &,
+                                 const CommandOptions &) {
+    CALL_MEMBER_FN(*target, callback)(commandName);
+  };
+  
+};
+
+
+/// Effector for an argumentless and optionless command
+template<class C> CommandEffector * optionLessEffector(C * cls, void (C::*f)(const QString &)) {
+  return new CommandEffectorMemberCallback0OptionLess<C>(cls, f);
+};
+
+
 
 #endif

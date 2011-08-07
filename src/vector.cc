@@ -265,3 +265,13 @@ Vector Vector::operator/(double a) const
 {
   return dup_operate(*this, a, div);
 }
+
+gsl_vector_view Vector::vectorView()
+{
+  return gsl_vector_view_array(data(),size());
+}
+
+gsl_vector_const_view Vector::vectorView() const
+{
+  return gsl_vector_const_view_array(data(),size());
+}

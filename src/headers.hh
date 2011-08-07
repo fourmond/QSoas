@@ -92,6 +92,7 @@
 #include <QHash>
 #include <QMultiHash>
 #include <QList>
+#include <QVarLengthArray>
 
 // We want to be able to select the locale for parsing floating-point
 // values.
@@ -105,7 +106,9 @@
 #include <ruby.h>
 
 // The gsl
+#define HAVE_INLINE             // Using gsl inline functions
 #include <gsl/gsl_vector.h>
+#include <gsl/gsl_matrix.h>
 #include <gsl/gsl_multifit_nlin.h>
 
 #endif

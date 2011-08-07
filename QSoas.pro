@@ -42,6 +42,10 @@ message(Found ruby: library is $$RUBY_LIB_ARG and includes at $$RUBY_INCLUDE_DIR
 INCLUDEPATH += $$RUBY_INCLUDE_DIR
 LIBS += $$RUBY_LIB_ARG
 
+
+# GSL
+LIBS += -lgsl -lgslcblas -lm
+
 # Input files
 SOURCES += src/qmain.cc \
         src/mainwin.cc \
@@ -77,7 +81,8 @@ SOURCES += src/qmain.cc \
         src/outfile.cc \
         src/ruby.cc \
         src/ruby-commands.cc \
-        src/fit.cc
+        src/fit.cc \
+        src/perdatasetfit.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -111,5 +116,6 @@ HEADERS += src/headers.hh \
         src/outfile.hh \
         src/ruby.hh \
         src/ruby-templates.hh \
-        src/fit.hh
+        src/fit.hh \
+        src/perdatasetfit.hh
 

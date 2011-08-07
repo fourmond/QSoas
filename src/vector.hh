@@ -79,6 +79,26 @@ public:
 
   /// @}
 
+
+  /// @name GSL-related utility functions
+  ///
+  /// A few functions to ease interoperability with GSL
+  /// @{
+
+  /// Returns a gsl_vector object suitable to represent this dataset.
+  ///
+  /// \warning The return value should not be freed using
+  /// gsl_vector_free !
+  gsl_vector_view vectorView();
+
+  /// Returns a gsl_vector object suitable to represent this dataset.
+  ///
+  /// \warning The return value should not be freed using
+  /// gsl_vector_free !
+  gsl_vector_const_view vectorView() const;
+  
+  /// @}
+
   /// Reads textual data from a file.
   /// \li separator is specified by 
   /// \li comment lines are those that match \p commentRE. They are stored

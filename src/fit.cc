@@ -232,18 +232,34 @@ int Fit::df(const gsl_vector * parameters,
   /// place.
   function(params.data(), data, data->storage);
 
+  /// Hmmm...
   for(int i = 0; i < nbparams; i++) {
+
     int idx = data->packedToUnpackedIndex(i);
     double saved = params[idx];
     double step = data->parameters[i].derivationFactor * saved;
     /// @todo minimum step
-    
-    params[idx] = saved + step;
+
+    if(data->parameters[i].dsIndex < 0) {
+      int nb_ds_params = data->parameterDefinitions.size();
+      int nb_datasets = data->datasets.size();
+      for(int j = 0; j < nb_datasets; j++)
+        params[idx + j * nb_ds_params] = saved + step;
+    }
+    else 
+      params[idx] = saved + step;
     gsl_vector_view v = gsl_matrix_column(target_df, i);
     function(params.data(), data, &v.vector);
     gsl_vector_sub(&v.vector, data->storage);
     gsl_vector_scale(&v.vector, 1/step);
-    params[idx] = saved;        // Don't forget to restore !
+    if(data->parameters[i].dsIndex < 0) {
+      int nb_ds_params = data->parameterDefinitions.size();
+      int nb_datasets = data->datasets.size();
+      for(int j = 0; j < nb_datasets; j++)
+        params[idx + j * nb_ds_params] = saved;
+    }
+    else 
+      params[idx] = saved;        // Don't forget to restore !
   }
   return GSL_SUCCESS;
 }

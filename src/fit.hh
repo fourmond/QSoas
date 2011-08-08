@@ -203,7 +203,10 @@ protected:
   /// boundless)
   int maxDataSets;
 public:
-  
+
+  QString fitName() const {
+    return name;
+  };  
 
   /// The parameters
   virtual QList<ParameterDefinition> parameters() const = 0;

@@ -73,7 +73,7 @@ void FitDialog::setupFrame()
     bottomPanel->stretch = 30;
     bottomPanel->drawingXTicks = false;
     bottomPanel->drawingLegend = false;
-    bottomPanel->addItem(new CurveVector(ds, v, false));
+    bottomPanel->addItem(new CurveVector(ds, v, true));
     /// @todo add X tracking for the bottom panel.
     /// @todo Colors !
     view->addPanel(bottomPanel);
@@ -278,6 +278,9 @@ void FitDialog::startFit()
 {
   setDataParameters();
   data->initializeSolver(unpackedParameters);
+  Terminal::out << "Starting fit '" << data->fit->fitName() << "' with "
+                << data->parameters.size() << " free parameters"
+                << endl;
 
   /// @todo customize the number of iterations
   while(data->iterate() == GSL_CONTINUE && data->nbIterations < 100) {

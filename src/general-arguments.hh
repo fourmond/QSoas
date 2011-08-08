@@ -86,7 +86,7 @@ class SeveralFilesArgument : public Argument {
 public:
 
   SeveralFilesArgument(const char * cn, const char * pn,
-                       const char * d = "", bool g = false) : 
+                       const char * d = "", bool g = true) : 
     Argument(cn, pn, d, g) {
   }; 
   
@@ -128,19 +128,23 @@ public:
   virtual ArgumentMarshaller * fromString(const QString & str) const;
 };
 
-// /// A dataset from the stack
-// ///
-// /// @todo Add prompting, but that will be fun.
-// class DataSetArgument : public Argument {
-// public:
+/// Several datasets from the stack
+///
+/// @todo Add prompting, but that will be fun.
+class SeveralDataSetArgument : public Argument {
+public:
 
-//   DataSetArgument(const char * cn, const char * pn,
-//                   const char * d = "") : Argument(cn, pn, d) {
-//   }; 
+  SeveralDataSetArgument(const char * cn, const char * pn,
+                         const char * d = "", bool g = true) : 
+    Argument(cn, pn, d, g) {
+  }; 
   
-//   /// Returns a wrapped DataSet *
-//   virtual ArgumentMarshaller * fromString(const QString & str) const;
-// };
+  /// Returns a wrapped QList<const DataSet *>
+  virtual ArgumentMarshaller * fromString(const QString & str) const;
+
+  virtual void concatenateArguments(ArgumentMarshaller * a, 
+                                    const ArgumentMarshaller * b) const;
+};
 
 
 #endif

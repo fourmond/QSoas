@@ -222,6 +222,39 @@ template<class C> CommandEffector * optionLessEffector(C * cls, void (C::*f)(con
   return new CommandEffectorMemberCallback0OptionLess<C>(cls, f);
 };
 
+/// Optionless callback to member function with one argument
+///
+/// Rather than using this class directly, use
+/// CommandEffector::functionEffector().
+template<class C, class A1>
+class CommandEffectorMemberCallback1OptionLess : public CommandEffector {
+
+  typedef void (C::*Callback)(const QString &, A1);
+  Callback callback;
+  C * target;
+  A1 a1;
+
+public:
+
+  CommandEffectorMemberCallback1OptionLess(C * t,
+                                           Callback c) : callback(c), 
+                                                         target(t) {;};
+  
+  inline virtual void runCommand(const QString & commandName, 
+                                 const CommandArguments & args,
+                                 const CommandOptions &) {
+    A1 a1 = args[0]->value<A1>();
+    CALL_MEMBER_FN(*target, callback)(commandName, a1);
+  };
+  
+};
+
+
+/// Effector for an argumentless and optionless command
+template<class C, class A1> CommandEffector * optionLessEffector(C * cls, void (C::*f)(const QString &, A1)) {
+  return new CommandEffectorMemberCallback1OptionLess<C, A1>(cls, f);
+};
+
 
 
 #endif

@@ -24,6 +24,7 @@
 #include <command.hh>
 #include <group.hh>
 #include <commandeffector-templates.hh>
+#include <general-arguments.hh>
 
 #include <fitdialog.hh>
 
@@ -259,14 +260,24 @@ int Fit::fdf(const gsl_vector * parameters,  FitData * data,
 void Fit::makeCommands()
 {
   /// @todo multidataset commands!
-  Command *c = new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
-                           optionLessEffector(this, &Fit::runFit),
-                           "fits", NULL, NULL, "");
+  new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
+              optionLessEffector(this, &Fit::runFitCurrentDataSet),
+              "fits", NULL, NULL, "");
+
+  ArgumentList * al = new 
+    ArgumentList(QList<Argument *>()
+                 << new SeveralDataSetArgument("datasets", 
+                                               QT_TR_NOOP("Dataset"),
+                                               QT_TR_NOOP("Datasets to fit"),
+                                               true));
+  new Command((const char*)(QString("mfit-") + name).toLocal8Bit(),
+              optionLessEffector(this, &Fit::runFit),
+              "fits", al, NULL, "");
 }
 
 
 
-void Fit::runFit(const QString & n)
+void Fit::runFitCurrentDataSet(const QString & n)
 {
   QList<const DataSet *> ds;
   ds << soas().currentDataSet();
@@ -280,8 +291,6 @@ void Fit::runFit(const QString &, QList<const DataSet *> datasets)
   FitData data(this, datasets);
   FitDialog dlg(&data);
   dlg.exec();
-
-  
 }
 
 

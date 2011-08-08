@@ -267,7 +267,7 @@ public:
   virtual ~Fit();
 
   /// Runs the fit on the current dataset
-  void runFit(const QString & name);
+  void runFitCurrentDataSet(const QString & name);
 
   /// Runs the fit on the given datasets
   void runFit(const QString & name, QList<const DataSet *> datasets);

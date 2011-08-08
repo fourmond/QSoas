@@ -159,3 +159,27 @@ ArgumentMarshaller * DataSetArgument::fromString(const QString & str) const
   }
   return new ArgumentMarshallerChild<DataSet *>(ds);
 }
+
+ArgumentMarshaller * SeveralDataSetArgument::fromString(const QString & str) const
+{
+  bool ok = false;
+  int nb = str.toInt(&ok);
+  DataSet * ds = NULL;
+  if(ok) 
+    ds = soas().stack().numberedDataSet(nb);
+  if(! ok || ! ds) {
+    QString s = QObject::tr("Not a buffer number: '%1'").
+      arg(str);
+    throw std::runtime_error(s.toStdString());
+  }
+  QList<const DataSet *> dsets;
+  dsets << ds;
+  return new ArgumentMarshallerChild<QList<const DataSet *> >(dsets);
+}
+
+void SeveralDataSetArgument::concatenateArguments(ArgumentMarshaller * a, 
+                                                const ArgumentMarshaller * b) const
+{
+  a->value<QList<const DataSet *> >() += 
+    b->value<QList<const DataSet *> >();
+}

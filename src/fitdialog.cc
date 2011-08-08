@@ -25,6 +25,8 @@
 
 #include <curvevector.hh>
 #include <curvepanel.hh>
+#include <soas.hh>
+#include <terminal.hh>
 
 FitDialog::FitDialog(FitData * d) : data(d),
                                     stackedViews(NULL), currentIndex(0),
@@ -144,9 +146,14 @@ void FitDialog::setupFrame()
   connect(bt, SIGNAL(clicked()), SLOT(compute()));
   hb->addWidget(bt);
 
+  bt = new QPushButton(tr("Fit"));
+  connect(bt, SIGNAL(clicked()), SLOT(startFit()));
+  hb->addWidget(bt);
+
   bt = new QPushButton(tr("Cancel"));
   connect(bt, SIGNAL(clicked()), SLOT(reject()));
   hb->addWidget(bt);
+
   layout->addLayout(hb);
 }
 
@@ -233,4 +240,52 @@ void FitDialog::updateFromEditors()
       unpackedParameters[i + sz * currentIndex] = 
         localEditors[i]->text().toDouble();
   }
+}
+
+void FitDialog::setDataParameters()
+{
+  data->parameters.clear();
+  data->fixedParameters.clear();
+
+  int nb_bufs = data->datasets.size();
+  int sz = globalEditors.size();
+  for(int i = 0; i < nb_bufs; i++) {
+    for(int j = 0; j < sz; j++) {
+      int ds = (isGlobal[j] ? -1 : i);
+      if(isGlobal[j]) {
+        if(i)
+          continue;
+        if(isFixed[j])
+          data->fixedParameters 
+            << FixedParameter(j, ds, unpackedParameters[j]);
+        else 
+          data->parameters
+            << ActualParameter(j, ds);
+      }
+      else {
+        if(isFixed[sz * i + j])
+          data->fixedParameters 
+            << FixedParameter(j, ds, unpackedParameters[sz* i + j]);
+        else 
+          data->parameters
+            << ActualParameter(j, ds);
+      }
+    }
+  }
+}
+
+void FitDialog::startFit()
+{
+  setDataParameters();
+  data->initializeSolver(unpackedParameters);
+
+  /// @todo customize the number of iterations
+  while(data->iterate() == GSL_CONTINUE && data->nbIterations < 100) {
+    soas().showMessage(tr("Fit iteration %1").arg(data->nbIterations));
+    Terminal::out << "Iteration " << data->nbIterations 
+                  << ", residuals :" << data->residuals() << endl;
+  }
+  data->unpackCurrentParameters(unpackedParameters);
+  compute();
+  updateEditors();
 }

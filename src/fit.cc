@@ -40,17 +40,24 @@ FitData::FitData(Fit * f, const QList<const DataSet *> & ds) :
 {
   for(int i = 0; i < datasets.size(); i++) 
     totalSize += datasets[i]->nbRows();
+
   storage = gsl_vector_alloc(totalSize);
+  parametersStorage = gsl_vector_alloc(fullParameterNumber());
+}
+
+void FitData::freeSolver()
+{
+  if(solver)
+    gsl_multifit_fdfsolver_free(solver);
+  solver = NULL;
 }
 
 FitData::~FitData()
 {
   // free up some resources
-  if(storage)
-    gsl_vector_free(storage);
-
-  if(solver)
-    gsl_multifit_fdfsolver_free(solver);
+  gsl_vector_free(storage);
+  gsl_vector_free(parametersStorage);
+  freeSolver();
 }
 
 int FitData::staticF(const gsl_vector * x, void * params, gsl_vector * f)
@@ -143,6 +150,48 @@ void FitData::subtractData(gsl_vector * target)
   }
 }
 
+void FitData::initializeSolver(const double * initialGuess)
+{
+  nbIterations = 0;
+  freeSolver();
+  solver = gsl_multifit_fdfsolver_alloc(gsl_multifit_fdfsolver_lmsder,
+                                        totalSize, parameters.size());
+  function.f = &FitData::staticF;
+  function.df = &FitData::staticDf;
+  function.fdf = &FitData::staticFdf;
+  function.n = totalSize;
+  function.p = parameters.size();
+  function.params = this;
+
+  gsl_vector_view v = gsl_vector_subvector(parametersStorage, 0, 
+                                           function.p);
+  packParameters(initialGuess, &v.vector);
+  gsl_multifit_fdfsolver_set(solver, &function, &v.vector);
+
+  // And this should be fine.
+}
+
+void FitData::unpackCurrentParameters(double * target)
+{
+  unpackParameters(solver->x, target);
+}
+
+int FitData::iterate()
+{
+  nbIterations++;
+  int status = gsl_multifit_fdfsolver_iterate(solver);
+  if(status)
+    return status;
+
+  /// @todo customize this !
+  return gsl_multifit_test_delta(solver->dx, solver->x,
+                                 1e-4, 1e-4);
+}
+
+double FitData::residuals()
+{
+  return gsl_blas_dnrm2(solver->f);
+}
 
 
 

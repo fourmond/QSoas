@@ -61,6 +61,9 @@ public:
     
   /// The minimum step used for derivation
   double minDerivationStep;
+
+  ActualParameter(int p, int ds, double dev = 1e-3) :
+    paramIndex(p), dsIndex(ds), derivationFactor(dev) {;};
 };
 
 /// A fixed parameter, ie a parameter whose value is fixed, and
@@ -76,6 +79,9 @@ public:
 
   /// The actual value
   double value;
+
+  FixedParameter(int id, int ds, double v) : 
+    paramIndex(id), dsIndex(ds), value(v) {;};
 };
 
 class Fit;  
@@ -91,6 +97,8 @@ class FitData {
                        gsl_matrix * df);
 
   int totalSize;
+
+  void freeSolver();
 
 public:
   /// The fit in use
@@ -120,14 +128,15 @@ public:
   /// A storage vector of the same size as the data points vector
   gsl_vector * storage;
 
+  /// Another storage space, this time large enough to hold all parameters.
+  gsl_vector * parametersStorage;
+
   FitData(Fit * f, const QList<const DataSet *> & ds);
 
-  /// Creates the solver, and initializes it with the correct 
+  /// Creates the solver, and initializes it with the correct
   /// parameters, based one the contents of parameterDefinitions and
   /// the like.
-  ///
-  /// It also allocates the temporary storage space.
-  void initializeSolver();
+  void initializeSolver(const double * initialGuess);
 
   /// Iterates the solver, and returns the return code
   int iterate();
@@ -156,6 +165,12 @@ public:
   /// Returns the index of the packed parameter idx in the unpacked
   /// version.
   int packedToUnpackedIndex(int idx) const;
+
+  /// Gets the current parameters (in unpacked form)
+  void unpackCurrentParameters(double * target);
+
+  /// The residuals (ie sum of the square of differences)
+  double residuals();
 
   /// @todo add functions for saving/loading parameters
 

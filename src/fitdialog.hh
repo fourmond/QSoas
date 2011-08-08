@@ -85,6 +85,10 @@ class FitDialog : public QDialog {
   bool settingEditors;
 
 
+  /// Fills the FitData with parameter information
+  void setDataParameters();
+
+
 public:
   FitDialog(FitData * data);
   ~FitDialog();
@@ -111,6 +115,9 @@ protected slots:
 
   /// Update the values from the editors.
   void updateFromEditors();
+
+  /// Starts the fit !
+  void startFit();
 
 };
 

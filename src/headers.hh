@@ -58,6 +58,7 @@
 
 #include <QScrollBar>
 #include <QSpinBox>
+// #include <QDoubleSpinBox>
 
 #include <QPainterPath>
 #include <QPainter>

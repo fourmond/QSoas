@@ -73,8 +73,6 @@ void CurveVector::paint(QPainter * painter, const QRectF &,
 QRect CurveVector::paintLegend(QPainter * p, const QRect & rect)
 {
   /// @todo many things to customize here...
-  if(residuals)                 // No legend for residuals.
-    return CurveItem::paintLegend(p, rect);
   
   QPoint p1 = QPoint(rect.left(), (rect.bottom() + rect.top())/2);
   QPoint p2 = p1 + QPoint(10, 0); // Mwouaf...

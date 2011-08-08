@@ -45,17 +45,44 @@ class FitDialog : public QDialog {
   /// The button group for the "global or not global" checkboxes
   QButtonGroup * globalGroup;
 
+  /// And the corresponding checkboxes
+  QList<QCheckBox *> globalCheckBoxes;
+
   /// The button group for the global "fixed or free" checkboxes
   QButtonGroup * globalFixedGroup;
+
+  /// And the corresponding checkboxes
+  QList<QCheckBox *> globalFixedCheckBoxes;
 
   /// The button group for the buffer-local "fixed or free" checkboxes
   QButtonGroup * localFixedGroup;
 
+  /// And the corresponding checkboxes
+  QList<QCheckBox *> localFixedCheckBoxes;
+
+  /// The editors for the global parameters. Note that we use
+  /// QLineEdit and not QDoubleSpinBox as the latter will round and
+  /// will become very painful some times...
+  QList<QLineEdit *> globalEditors;
+
+  /// Editors for the local values of parameters.
+  QList<QLineEdit *> localEditors;
+
+
   /// The current parameters of the Fit, in unpacked form
   double * unpackedParameters;
 
+  /// The current value of the global flag
+  bool * isGlobal;
+
+  /// The current value of the fixed flag
+  bool * isFixed;
+
   /// The current index
   int currentIndex;
+
+  /// A flag to avoid updating twice...
+  bool settingEditors;
 
 
 public:
@@ -69,6 +96,21 @@ protected slots:
   /// Compute the new curves based on initial guesses (or
   /// hand-modified versions)
   void compute();
+
+  /// Update all the editors
+  void updateEditors();
+
+  /// Set the global flag for the parameter number i
+  void setGlobal(bool global, int index);
+
+  /// Called when one of the global flags are clicked.
+  void onSetGlobal(int index);
+
+  /// Called whenever a fixed checkbox is clicked...
+  void onSetFixed(int index);
+
+  /// Update the values from the editors.
+  void updateFromEditors();
 
 };
 

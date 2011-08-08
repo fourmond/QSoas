@@ -39,12 +39,10 @@
 #include <QTabBar>
 #include <QTabWidget>
 #include <QScrollArea>
-
+#include <QStackedWidget>
 #include <QSplitter>
-
 #include <QListWidget>
 #include <QComboBox>
-
 #include <QCheckBox>
 #include <QDateTimeEdit>
 #include <QDateEdit>

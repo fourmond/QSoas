@@ -25,11 +25,33 @@
 #include <group.hh>
 #include <commandeffector-templates.hh>
 
+#include <fitdialog.hh>
+
 static Group fits("fits", 0,
                   QT_TR_NOOP("Fits"),
                   QT_TR_NOOP("Fitting of data"));
 
 
+FitData::FitData(Fit * f, const QList<const DataSet *> & ds) : 
+  totalSize(0),
+  fit(f), datasets(ds),
+  parameterDefinitions(f->parameters()),
+  solver(0), nbIterations(0), storage(0) 
+{
+  for(int i = 0; i < datasets.size(); i++) 
+    totalSize += datasets[i]->nbRows();
+  storage = gsl_vector_alloc(totalSize);
+}
+
+FitData::~FitData()
+{
+  // free up some resources
+  if(storage)
+    gsl_vector_free(storage);
+
+  if(solver)
+    gsl_multifit_fdfsolver_free(solver);
+}
 
 int FitData::staticF(const gsl_vector * x, void * params, gsl_vector * f)
 {
@@ -206,6 +228,11 @@ void Fit::runFit(const QString &, QList<const DataSet *> datasets)
 {
   // Now, this is the fun part.
   // We open a modal dialog box that also handles 
+  FitData data(this, datasets);
+  FitDialog dlg(&data);
+  dlg.exec();
+
+  
 }
 
 

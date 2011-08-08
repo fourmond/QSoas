@@ -90,6 +90,8 @@ class FitData {
   static int staticFdf(const gsl_vector * x, void * params, gsl_vector * f,
                        gsl_matrix * df);
 
+  int totalSize;
+
 public:
   /// The fit in use
   Fit * fit;
@@ -118,11 +120,13 @@ public:
   /// A storage vector of the same size as the data points vector
   gsl_vector * storage;
 
-  FitData() : fit(0), solver(0), nbIterations(0), storage(0) {;};
+  FitData(Fit * f, const QList<const DataSet *> & ds);
 
   /// Creates the solver, and initializes it with the correct 
   /// parameters, based one the contents of parameterDefinitions and
   /// the like.
+  ///
+  /// It also allocates the temporary storage space.
   void initializeSolver();
 
   /// Iterates the solver, and returns the return code

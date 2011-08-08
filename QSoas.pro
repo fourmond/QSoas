@@ -83,7 +83,9 @@ SOURCES += src/qmain.cc \
         src/ruby-commands.cc \
         src/fit.cc \
         src/perdatasetfit.cc \
-        src/common-fits.cc
+        src/common-fits.cc \
+        src/fitdialog.cc \
+        src/curvevector.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -118,5 +120,7 @@ HEADERS += src/headers.hh \
         src/ruby.hh \
         src/ruby-templates.hh \
         src/fit.hh \
-        src/perdatasetfit.hh
+        src/perdatasetfit.hh \
+        src/fitdialog.hh \
+        src/curvevector.hh
 

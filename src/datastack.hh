@@ -76,6 +76,11 @@ public:
   /// NULL.
   DataSet * currentDataSet(bool silent = true) const;
 
+  /// Returns the DataSet specified by the given string, ie:
+  /// \li a string representing a number
+  /// \li a buffer name (not implemented yet)
+  DataSet * fromText(const QString & str) const;
+
   /// Undo (ie, buffer 0 becomes buffer -1)
   void undo(int nbtimes = 1);
 

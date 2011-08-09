@@ -100,3 +100,12 @@ void DataStack::clear()
   redoStack.clear();
   emit(currentDataSetChanged());
 }
+
+DataSet * DataStack::fromText(const QString & str) const
+{
+  bool ok = false;
+  int nb = str.toInt(&ok);
+  if(! ok)
+    return NULL;
+  return numberedDataSet(nb);
+}

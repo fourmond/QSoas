@@ -24,6 +24,7 @@
 
 #include <soas.hh>
 #include <datastack.hh>
+#include <terminal.hh>
 
 /// A utility function for a clean file completion.
 static QStringList proposeFileCompletion(const QString & str)
@@ -143,37 +144,53 @@ ArgumentMarshaller * StringArgument::promptForValue(QWidget * base) const
 
 ////////////////////////////////////////////////////////////
 
-
 ArgumentMarshaller * DataSetArgument::fromString(const QString & str) const
 {
-  bool ok = false;
-  int nb = str.toInt(&ok);
-  DataSet * ds = NULL;
-  if(ok) 
-    ds = soas().stack().numberedDataSet(nb);
+  DataSet * ds = soas().stack().fromText(str);
 
-  if(! ok || ! ds) {
-    QString s = QObject::tr("Not a buffer number: '%1'").
+  if(! ds) {
+    QString s = QObject::tr("Not a buffer: '%1'").
       arg(str);
     throw std::runtime_error(s.toStdString());
   }
   return new ArgumentMarshallerChild<DataSet *>(ds);
 }
 
+////////////////////////////////////////////////////////////
+
 ArgumentMarshaller * SeveralDataSetArgument::fromString(const QString & str) const
 {
-  bool ok = false;
-  int nb = str.toInt(&ok);
-  DataSet * ds = NULL;
-  if(ok) 
-    ds = soas().stack().numberedDataSet(nb);
-  if(! ok || ! ds) {
-    QString s = QObject::tr("Not a buffer number: '%1'").
-      arg(str);
-    throw std::runtime_error(s.toStdString());
-  }
+  QRegExp multi("^\\s*(-?[0-9]+)\\s*..\\s*(-?[0-9]+)\\s*$");
   QList<const DataSet *> dsets;
-  dsets << ds;
+  if(multi.indexIn(str) == 0) {
+    int first = multi.cap(1).toInt();
+    int last = multi.cap(2).toInt();
+    int delta = (first < last ? 1 : -1);
+    do {
+      DataSet * ds = soas().stack().numberedDataSet(first);
+      if(! ds)
+        Terminal::out << "No such buffer number : " << first << endl;
+      else
+        dsets << ds;
+      first += delta;
+    }
+    while(first != (last + delta));
+
+    if(dsets.size() == 0) {
+      QString s = QObject::tr("Buffer range '%1' corresponds to no buffers").
+        arg(str);
+      throw std::runtime_error(s.toStdString());
+    }
+  }
+  else {
+    DataSet * ds = soas().stack().fromText(str);
+    if(! ds) {
+      QString s = QObject::tr("Not a buffer number: '%1'").
+        arg(str);
+      throw std::runtime_error(s.toStdString());
+    }
+    dsets << ds;
+  }
   return new ArgumentMarshallerChild<QList<const DataSet *> >(dsets);
 }
 

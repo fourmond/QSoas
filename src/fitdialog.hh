@@ -42,6 +42,9 @@ class FitDialog : public QDialog {
   /// The combo box for toogling between the various buffers
   QComboBox * bufferSelection;
 
+  /// Label displaying the current buffer number
+  QLabel * bufferNumber;
+
   /// The button group for the "global or not global" checkboxes
   QButtonGroup * globalGroup;
 
@@ -118,6 +121,24 @@ protected slots:
 
   /// Starts the fit !
   void startFit();
+
+  /// Jumps to previous dataset
+  void previousDataset();
+
+  /// Jumps to next dataset
+  void nextDataset();
+
+  /// Add all simulated datasets to the data stack
+  void pushSimulatedCurves();
+
+  /// Saves all simulated data to files
+  void saveSimulatedCurves();
+
+  /// Loads parameters from files
+  void loadParameters();
+
+  /// Saves parameters to a file
+  void saveParameters();
 
 };
 

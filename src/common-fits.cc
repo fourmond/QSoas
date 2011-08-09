@@ -41,7 +41,7 @@ public:
     a[0] = ds->x()[0];          // x0 = x[0]
     a[3] = ds->y().last();      
     a[1] = ds->y()[0] - a[3];
-    a[2] = ds->x().last() - a[0];
+    a[2] = (ds->x().last() - a[0])/3;
   };
 
   virtual QList<ParameterDefinition> parameters() const {

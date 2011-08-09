@@ -84,10 +84,24 @@ void FitDialog::setupFrame()
   }
   layout->addWidget(stackedViews);
 
-  layout->addWidget(bufferSelection);
+  QHBoxLayout * hb = new QHBoxLayout;
+  QPushButton * bt = new QPushButton(tr("<-"));
+  connect(bt, SIGNAL(clicked()), SLOT(previousDataset()));
+  hb->addWidget(bt);
+
+  hb->addWidget(bufferSelection, 1);
   connect(bufferSelection, SIGNAL(currentIndexChanged(int)),
           SLOT(dataSetChanged(int)));
+  
+  bufferNumber = new QLabel(QString("%1/%2").
+                            arg(1).arg(data->datasets.size()));
+  hb->addWidget(bufferNumber);
 
+  bt = new QPushButton(tr("->"));
+  connect(bt, SIGNAL(clicked()), SLOT(nextDataset()));
+  hb->addWidget(bt);
+
+  layout->addLayout(hb);
 
   QGridLayout * grid = new QGridLayout;
 
@@ -141,8 +155,36 @@ void FitDialog::setupFrame()
 
   layout->addLayout(grid);
 
-  QHBoxLayout * hb = new QHBoxLayout;
-  QPushButton * bt = new QPushButton(tr("Compute"));
+
+  /// @todo This layout probably should be replaced by two combo boxes
+  hb = new QHBoxLayout;
+  hb->addWidget(new QLabel(tr("Simulated data: ")));
+  bt = new QPushButton(tr("Add all to stack"));
+  connect(bt, SIGNAL(clicked()), SLOT(pushSimulatedCurves()));
+  hb->addWidget(bt);
+
+  bt = new QPushButton(tr("Save all to files"));
+  connect(bt, SIGNAL(clicked()), SLOT(saveSimulatedCurves()));
+  hb->addWidget(bt);
+  layout->addLayout(hb);
+
+
+
+  hb = new QHBoxLayout;
+  hb->addWidget(new QLabel(tr("Parameters: ")));
+  bt = new QPushButton(tr("Load from file"));
+  connect(bt, SIGNAL(clicked()), SLOT(loadParameters()));
+  hb->addWidget(bt);
+
+  bt = new QPushButton(tr("Save to file"));
+  connect(bt, SIGNAL(clicked()), SLOT(saveParameters()));
+  hb->addWidget(bt);
+  layout->addLayout(hb);
+
+
+
+  hb = new QHBoxLayout;
+  bt = new QPushButton(tr("Update curves"));
   connect(bt, SIGNAL(clicked()), SLOT(compute()));
   hb->addWidget(bt);
 
@@ -150,7 +192,8 @@ void FitDialog::setupFrame()
   connect(bt, SIGNAL(clicked()), SLOT(startFit()));
   hb->addWidget(bt);
 
-  bt = new QPushButton(tr("Cancel"));
+
+  bt = new QPushButton(tr("Close"));
   connect(bt, SIGNAL(clicked()), SLOT(reject()));
   hb->addWidget(bt);
 
@@ -163,6 +206,8 @@ void FitDialog::dataSetChanged(int newds)
   stackedViews->setCurrentIndex(newds);
   currentIndex = newds;
   updateEditors();
+  bufferNumber->setText(QString("%1/%2").
+                        arg(newds + 1).arg(data->datasets.size()));
 }
 
 
@@ -182,8 +227,8 @@ void FitDialog::updateEditors()
   for(int i = 0; i < sz; i++) {
     setGlobal(isGlobal[i], i);
     onSetGlobal(i);             // Because the latter isn't
-                                // necessarily called if the value
-                                // hasn't changed.f
+    // necessarily called if the value
+    // hasn't changed.f
     if(isGlobal[i]) {
       globalEditors[i]->setText(QString::number(unpackedParameters[i]));
       localEditors[i]->setText("");
@@ -291,4 +336,32 @@ void FitDialog::startFit()
   data->unpackCurrentParameters(unpackedParameters);
   compute();
   updateEditors();
+}
+
+void FitDialog::nextDataset()
+{
+  if(currentIndex + 1 < data->datasets.size())
+    bufferSelection->setCurrentIndex(currentIndex + 1);
+}
+
+void FitDialog::previousDataset()
+{
+  if(currentIndex > 0)
+    bufferSelection->setCurrentIndex(currentIndex - 1);
+}
+                
+void FitDialog::pushSimulatedCurves()
+{
+}
+
+void FitDialog::saveSimulatedCurves()
+{
+}
+
+void FitDialog::saveParameters()
+{
+}
+
+void FitDialog::loadParameters()
+{
 }

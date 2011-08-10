@@ -32,7 +32,13 @@ namespace Ruby {
   VALUE globalRescueFunction(VALUE, VALUE exception);
 
   /// Evaluates the given string, while trying to avoid segfaults.
-  VALUE eval(const char * code);
+  VALUE eval(QByteArray code);
+
+  /// Makes a block from this code using the given variables.
+  VALUE makeBlock(QStringList * variables, const QByteArray & code);
+
+  /// The main object.
+  extern VALUE main;
 
   /// @name Exception-catching routines
   ///
@@ -42,6 +48,7 @@ namespace Ruby {
   /// @{
   VALUE run(VALUE (*f)());
   template<typename A1> VALUE run(VALUE (*f)(A1), A1); 
+  template<typename A1, typename A2> VALUE run(VALUE (*f)(A1, A2), A1, A2); 
 
 
   template<typename A1, typename A2, 

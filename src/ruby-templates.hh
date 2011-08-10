@@ -77,6 +77,37 @@ template<typename A1> VALUE Ruby::run(VALUE (*f)(A1), A1 a1)
   return cb.run();
 }
 
+/// Callback with one argument
+template <typename A1, typename A2> class RubyCallback2  {
+  typedef VALUE (*Callback)(A1, A2);
+  Callback callback;
+  A1 a1;
+  A2 a2;
+
+  static VALUE wrapper(VALUE v) {
+    RubyCallback2 * arg = (RubyCallback2 *) v;
+    return arg->callback(arg->a1, arg->a2);
+  };
+public:
+
+  RubyCallback2(Callback c, A1 arg1, A2 arg2) : 
+    callback(c), a1(arg1), a2(arg2) {;};
+
+  /// Runs the code wrapping it into a rb_rescue code
+  VALUE run() {
+    return rb_rescue((VALUE (*)(...)) &wrapper, (VALUE) this,
+                     (VALUE (*)(...)) &Ruby::globalRescueFunction, Qnil);
+  };
+
+};
+
+template<typename A1, typename A2> VALUE Ruby::run(VALUE (*f)(A1, A2), 
+                                                   A1 a1, A2 a2)
+{
+  RubyCallback2<A1, A2> cb(f, a1, a2);
+  return cb.run();
+}
+
 
 /// Callback with four arguments
 template <typename A1, typename A2, typename A3, typename A4> 

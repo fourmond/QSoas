@@ -275,7 +275,6 @@ int Fit::fdf(const gsl_vector * parameters,  FitData * data,
 
 void Fit::makeCommands()
 {
-  /// @todo multidataset commands!
   new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
               optionLessEffector(this, &Fit::runFitCurrentDataSet),
               "fits", NULL, NULL, "");
@@ -302,8 +301,6 @@ void Fit::runFitCurrentDataSet(const QString & n)
 
 void Fit::runFit(const QString &, QList<const DataSet *> datasets)
 {
-  // Now, this is the fun part.
-  // We open a modal dialog box that also handles 
   FitData data(this, datasets);
   FitDialog dlg(&data);
   dlg.exec();

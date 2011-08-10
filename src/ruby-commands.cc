@@ -29,6 +29,12 @@
 #include <ruby.hh>
 #include <ruby-templates.hh>
 
+#include <perdatasetfit.hh>
+#include <dataset.hh>
+#include <vector.hh>
+#include <fitdialog.hh>
+
+
 
 namespace RubyCommands {
 
@@ -65,8 +71,8 @@ namespace RubyCommands {
     Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
       arg(formula).arg(ds->name) << endl;
     formula = QString("proc do |x,y|\n  %1\n  [x,y]\nend").arg(formula);
-    VALUE block = Ruby::run(Ruby::eval, 
-                            formula.toLocal8Bit().constData());
+    QByteArray form = formula.toLocal8Bit();
+    VALUE block = Ruby::run(Ruby::eval, form);
     Vector newX, newY;
 
     Ruby::run(&applyFormula, block, ds, &newX, &newY);
@@ -90,5 +96,119 @@ namespace RubyCommands {
        "F");
 
   //////////////////////////////////////////////////////////////////////
+
+  /// Arbitrary fits, using Ruby as formula backend.
+  ///
+  /// @warning Two fits cannot be run at the same time, as the main
+  /// instance is used to keep track of the current formula.
+  class ArbitraryFit : public FunctionFit {
+
+    /// The ID for :call
+    ID callID;
+
+    /// Block for the last formula used
+    VALUE block;
+
+    /// The last formula used.
+    QString lastFormula;
+    
+    /// The parameters
+    QStringList params;
+
+    void parseBlock(const QString &formula)
+    {
+      params.clear();
+      params << "x";
+      lastFormula = formula;
+      QByteArray bta = formula.toLocal8Bit();
+      const QByteArray & c = bta;
+      block = Ruby::run<QStringList *, const QByteArray &>(&Ruby::makeBlock, &params, c);
+      params.takeFirst();       // Remove x.
+    }
+    
+    void runFitCurrentDataSet(const QString & n, QString formula)
+    {
+      QList<const DataSet *> ds;
+      ds << soas().currentDataSet();
+      runFit(n, formula, ds);
+    }
+
+    void runFit(const QString &, QString formula, 
+                QList<const DataSet *> datasets)
+    {
+      callID = rb_intern("call"); // Shouldn't be done in the
+                                  // constructor, called to early.
+      Terminal::out << "Fitting using formula '" << formula << "'" << endl;
+      parseBlock(formula);
+      lastFormula = formula;
+      Terminal::out << " -> detected parameters:  " << params.join(", ") 
+                    << endl;
+
+      FitData data(this, datasets);
+      FitDialog dlg(&data);
+      dlg.exec();
+    }
+    
+  public:
+
+    virtual double function(const double * a, 
+                            FitData * params, double x) {
+      int nbargs = params->parameterDefinitions.size() + 1;
+      VALUE args[nbargs];
+      args[0] = rb_float_new(x);
+      for(int i = 0; i < params->parameterDefinitions.size(); i++)
+        args[i + 1] = rb_float_new(a[i]);
+      return NUM2DBL(Ruby::run(&rb_funcall2, block, 
+                               callID, nbargs, (const VALUE *) args));
+    };
+
+    virtual void initialGuess(FitData * params, 
+                              const DataSet *,
+                              double * a)
+    {
+      for(int i = 0; i < params->parameterDefinitions.size(); i++)
+        a[i] = 1;
+    };
+
+    virtual QList<ParameterDefinition> parameters() const {
+      QList<ParameterDefinition> p;
+      for(int i = 0; i < params.size(); i++)
+        p << ParameterDefinition(params[i]);
+      return p;
+    };
+
+
+    ArbitraryFit() : FunctionFit("arb", 
+                                 QT_TR_NOOP("Arbitrary fit"),
+                                 QT_TR_NOOP("Arbitrary fit, with user-supplied formula"), 1, -1, false) 
+    { 
+      ArgumentList * al = new 
+        ArgumentList(QList<Argument *>()
+                     << new StringArgument("formula", 
+                                           QT_TR_NOOP("Formula"),
+                                           QT_TR_NOOP("Formula for the fit")));
+
+      new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
+                  optionLessEffector(this, &ArbitraryFit::runFitCurrentDataSet),
+                  "fits", al, NULL, "");
+      
+      ArgumentList * al2 = new 
+        ArgumentList(QList<Argument *>()
+                     << new StringArgument("formula", 
+                                           QT_TR_NOOP("Formula"),
+                                           QT_TR_NOOP("Formula for the fit"))
+                     << new SeveralDataSetArgument("datasets",
+                                                   QT_TR_NOOP("Dataset"),
+                                                   QT_TR_NOOP("Datasets to fit"),
+                                                   true));
+
+      new Command((const char*)(QString("mfit-") + name).toLocal8Bit(),
+                  optionLessEffector(this, &ArbitraryFit::runFit),
+                  "fits", al2, NULL, "");
+      // We register the commands manually
+    };
+  };
+
+  static ArbitraryFit arbFit;
   
 }

@@ -131,6 +131,7 @@ public:
   /// Another storage space, this time large enough to hold all parameters.
   gsl_vector * parametersStorage;
 
+
   FitData(Fit * f, const QList<const DataSet *> & ds);
 
   /// Creates the solver, and initializes it with the correct

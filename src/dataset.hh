@@ -192,6 +192,10 @@ public:
   /// data whose X value is within the given range.
   QPair<double, double> reglin(double xmin, double xmax) const;
 
+  /// Returns a "smoothed" point at the given index, looking at the
+  /// given range of points.
+  QPointF smoothPick(int idx, int range = -1) const;
+
   /// @}
 
   /// @name Operations

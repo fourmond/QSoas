@@ -238,6 +238,37 @@ DataSet * DataSet::divide(const DataSet * ds) const
   return applyBinaryOperation(this, ds, div, "_div_");
 }
 
+
+/// Performs a linear regression on the given data, storing the result in
+/// \a a and \a b.
+static void reglin(const double *x, const double *y, int nb, 
+		   double *a, double *b)
+{
+  double sx = 0;
+  double sy = 0;
+  double sxx = 0;
+  double sxy = 0;
+  double det;
+
+  for(int i = 0; i < nb; i++, x++, y++) {
+    sx += *x;
+    sy += *y;
+    sxx += *x * *x;
+    sxy += *x * *y;
+  }
+  det = nb*sxx - sx*sx;
+
+  if(det == 0) {
+    *a = 0;			/* Whichever, we only have one point */
+    *b = sy/nb;
+  }
+
+  else {
+    *a = (nb *sxy - sx*sy)/det; 
+    *b = (sxx * sy - sx * sxy)/(det);
+  }
+}
+
 QPair<double, double> DataSet::reglin(int begin, int end) const
 {
   int nb = nbRows();
@@ -245,23 +276,10 @@ QPair<double, double> DataSet::reglin(int begin, int end) const
     end = nb;
   const double * x = columns[0].data();
   const double * y = columns[1].data();
-
-  double sx = 0;
-  double sy = 0;
-  double sxx = 0;
-  double sxy = 0;
-  for(; begin < nb; begin++, x++, y++) {
-    sx += *x;
-    sy += *y;
-    sxx += *x * *x;
-    sxy += *x * *y;
-  }
-  double det = nb*sxx - sx*sx;
-  if(det == 0)
-    return QPair<double, double>(0, sy/nb);
-  else
-    return QPair<double, double>((nb *sxy - sx*sy)/det,
-                                 (sxx * sy - sx * sxy)/det);
+  QPair<double, double> retval;
+  ::reglin(x + begin, y + begin, (end - begin), 
+           &retval.first, &retval.second);
+  return retval;
 }
 
 QPair<double, double> DataSet::reglin(double xmin, double xmax) const
@@ -311,4 +329,67 @@ DataSet * DataSet::subset(int beg, int end, bool within) const
   DataSet * newds = new DataSet(cols);
   newds->name = cleanedName() + "_cut.dat";
   return newds;
+}
+
+
+/* Simply returns the sign */
+static int signof(double x)
+{
+  if(x > 0)
+    return 1;
+  else if(x < 0)
+    return -1;
+  else
+    return 0;
+}
+
+/// The smooth pick algorithm, see 10.1016/j.bioelechem.2009.02.010
+double smooth_pick(const double *x, const double *y, 
+		   int nb, int idx, int range)
+{
+  int left, right,i,nb_same_sign;
+  double a,b;
+  int last_sign;
+  do {
+    left = idx - range/2;
+    if(left < 0) 
+      left = 0;
+    right = idx + range/2;
+    if(right > nb)
+      right = nb;
+    reglin(x+left, y+left, right-left,&a,&b);
+    if(range == 6)
+      break; 			/* We stop here */
+    last_sign = 0;
+    for(i = left; i < right; i++) {
+      double residual = y[i] - a * x[i] - b;
+      if(! last_sign)
+	last_sign = signof(residual);
+      else if(last_sign == signof(residual))
+	nb_same_sign ++;
+      else {
+	nb_same_sign = 1;
+	last_sign = signof(residual);
+      }
+    }
+    if(nb_same_sign * 4 <= right - left)
+      break;
+    range -= (nb_same_sign * 4 -range)/2 + 2;
+    if(range < 6)
+      range = 6;
+  } while(1);
+  /* Now, we have a and b for the last range measured. */
+  return a*x[idx] + b;
+}
+
+QPointF DataSet::smoothPick(int idx, int range) const
+{
+  int nb = nbRows();
+  const double * x = columns[0].data();
+  const double * y = columns[1].data();
+  if(range < 0)
+    range = nb > 500 ? 50 : nb/10;
+  QPointF ret = pointAt(idx);
+  ret.setY(smooth_pick(x, y, nb, idx, range));
+  return ret;
 }

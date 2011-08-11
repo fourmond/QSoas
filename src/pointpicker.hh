@@ -47,7 +47,8 @@ class PointPicker {
 
   typedef enum {
     Off,
-    Exact
+    Exact,
+    Smooth
   } Method;
 
   /// The current method for point picking.

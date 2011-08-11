@@ -48,16 +48,21 @@ bool PointPicker::processEvent()
       lastIndex = -1;
       break;
     case Exact:
+    case Smooth:
       if(trackedDataSet) {
         /// @todo distance checking ?
         ///
         /// @todo handle the case of multiple datasets.
         QPair<double, int> dst = loop->distanceToDataSet(trackedDataSet);
-        if(60 > dst.first && 0 <= dst.second) { // operations in
-                                                // reverse to avoid
-                                                // confusing emacs
-          lastIndex = dst.second;
-          lastPos = trackedDataSet->pointAt(lastIndex);
+        if(60 > dst.first && 0 <= dst.second) { 
+          if(method == Exact) {
+            lastIndex = dst.second;
+            lastPos = trackedDataSet->pointAt(lastIndex);
+          }
+          else {
+            lastIndex = dst.second;
+            lastPos = trackedDataSet->smoothPick(lastIndex);
+          }
         }
         break;
       }
@@ -77,6 +82,11 @@ bool PointPicker::processEvent()
       method = Off;
       soas().showMessage(QObject::tr("Marker set to off"));
       return true;
+    case 's':
+    case 'S':                   // Smooth
+      method = Smooth;
+      soas().showMessage(QObject::tr("Marker set to smooth"));
+      return true;
     default:
       return false;
     }
@@ -86,5 +96,8 @@ bool PointPicker::processEvent()
 
 QString PointPicker::helpText() const 
 {
-  return QObject::tr("Markers:\nx: eXact\no: Off\n");
+  return QObject::tr("Markers:\n"
+                     "x: eXact\n"
+                     "s: smooth\n"
+                     "o: Off data\n");
 }

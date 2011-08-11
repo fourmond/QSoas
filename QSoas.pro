@@ -85,7 +85,8 @@ SOURCES += src/qmain.cc \
         src/perdatasetfit.cc \
         src/common-fits.cc \
         src/fitdialog.cc \
-        src/curvevector.cc
+        src/curvevector.cc \
+        src/settings.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -122,5 +123,6 @@ HEADERS += src/headers.hh \
         src/fit.hh \
         src/perdatasetfit.hh \
         src/fitdialog.hh \
-        src/curvevector.hh
-
+        src/curvevector.hh  \
+        src/settings.hh \
+        src/settings-templates.hh

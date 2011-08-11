@@ -24,11 +24,6 @@
    \section various-todo Various things to do
    \li String argument with fixed list (for completion, useful for
    options, such as an option to force to use a given backend)
-   \li an application wide template-based (?) way to save/restore
-   settings, based on a class registering all settings. That would be
-   a worty addition to eThunes too, come to think of it. That even
-   could result in data wrappers.
-   
 
    Now, mainly, what I need to do, is to massage the functionalities
    of the old Soas back into this one:
@@ -58,10 +53,20 @@
 #include <curveview.hh>
 #include <datastack.hh>
 
+#include <settings-templates.hh>
+
+static SettingsValue<QSize> mainWinSize("mainwin/size", QSize(700,500));
+
+static SettingsValue<QByteArray> splitterState("mainwin/splitter", 
+                                               QByteArray());
+
 MainWin::MainWin()
 {
   soasInstance = new Soas(this);
   setupFrame();
+  resize(mainWinSize);
+  if(! splitterState->isEmpty())
+    mainSplitter->restoreState(splitterState);
 }
 
 void MainWin::setupFrame()
@@ -71,14 +76,14 @@ void MainWin::setupFrame()
   connect(menuBar(), SIGNAL(triggered(QAction *)),
           SLOT(menuActionTriggered(QAction *)));
 
-  QSplitter * s = new QSplitter(Qt::Vertical);
+  mainSplitter = new QSplitter(Qt::Vertical);
   // QVBoxLayout * layout = new QVBoxLayout(w);
   curveView = new CurveView;
-  s->addWidget(curveView);
+  mainSplitter->addWidget(curveView);
   commandWidget = new CommandWidget;
-  s->addWidget(commandWidget);
+  mainSplitter->addWidget(commandWidget);
   curveView->setFocusProxy(commandWidget);
-  s->setFocusProxy(commandWidget);
+  mainSplitter->setFocusProxy(commandWidget);
 
   // We use a queued connection to avoid that a command that displays
   // something and pushes something to the datastack at the end
@@ -96,7 +101,7 @@ void MainWin::setupFrame()
                          SLOT(printCurrentDataSetInfo()));
 
   
-  setCentralWidget(s);
+  setCentralWidget(mainSplitter);
 
   commandWidget->setFocus();
 }
@@ -110,6 +115,9 @@ void MainWin::menuActionTriggered(QAction * action)
 
 MainWin::~MainWin()
 {
+  mainWinSize = size();
+  splitterState = mainSplitter->saveState();
+
 }
 
 void MainWin::showMessage(const QString & str, int ms)

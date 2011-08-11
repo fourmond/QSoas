@@ -1,6 +1,6 @@
 /**
-   \file mainwin.hh
-   Main window for QSoas
+   \file settings.hh
+   Implementation of application-wide settings.
    Copyright 2011 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
@@ -17,42 +17,36 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __MAINWIN_HH
-#define __MAINWIN_HH
 
-class CommandWidget;
-class CurveView;
-class Soas;
+#ifndef __SETTINGS_HH
+#define __SETTINGS_HH
 
-/// The main window
-class MainWin : public QMainWindow {
+/// Settings
+class Settings {
+protected:
 
-  Q_OBJECT;
+  /// Settings name (ie key name)
+  QString name;
 
-  void setupFrame();
+  /// Save the settings
+  virtual void save(QSettings * target) = 0;
 
-  friend class Soas;
+  /// Load the settings
+  virtual void load(QSettings * source) = 0;
 
-  CommandWidget * commandWidget;
-
-  CurveView * curveView;
-
-  /// The instance of Soas run
-  Soas * soasInstance;
-
-  /// The main splitter
-  QSplitter * mainSplitter;
-
+  /// The overall list of settings
+  static QList<Settings *> * settings;
+  
+  /// Register a Settings object globally.
+  static void registerSettings(Settings * settings);
 public:
-  MainWin();
-  ~MainWin();
+  
+  Settings(const QString & k);
 
-  /// Displays a message on the status bar
-  void showMessage(const QString & str, int milliseconds = 3000);
-
-protected slots:
-  void menuActionTriggered(QAction * action);
-
+  static void loadSettings(const QString & org, const QString & app);
+  static void saveSettings(const QString & org, const QString & app);
+  
 };
+
 
 #endif

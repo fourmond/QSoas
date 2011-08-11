@@ -25,15 +25,25 @@
 
 #include <ruby.hh>
 
+#include <settings.hh>
+
 int main(int argc, char ** argv)
 {
   QApplication main(argc, argv);
   main.setApplicationName("QSoas");
   Command::crosslinkCommands();
   Ruby::initRuby();
+  int retval;
+
+  Settings::loadSettings("bip.cnrs-mrs.fr", "Soas");
   
-  MainWin win;
-  win.show();
-  return main.exec();
+  {
+    MainWin win;
+    win.show();
+    retval = main.exec();
+  }
+
+  Settings::saveSettings("bip.cnrs-mrs.fr", "Soas");
+  return retval;
 }
 

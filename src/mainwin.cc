@@ -36,7 +36,6 @@
    \li choice between the different point selection modes
    \li interpolation
    \li baseline (catalytic and not catalytic)
-   \li fits, as soon as I get my hands on the gsl documentation again
    \li FFT, probably based on GSL too (no need to pull in another
    dependency)
    
@@ -117,7 +116,7 @@ MainWin::~MainWin()
 {
   mainWinSize = size();
   splitterState = mainSplitter->saveState();
-
+  delete soasInstance;
 }
 
 void MainWin::showMessage(const QString & str, int ms)

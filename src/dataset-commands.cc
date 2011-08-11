@@ -33,6 +33,8 @@
 #include <curveitems.hh>
 #include <curvepanel.hh>
 
+#include <pointpicker.hh>
+
 namespace DataSetCommands {
   static Group grp("buffer", 2,
                    QT_TR_NOOP("Buffer"),
@@ -99,32 +101,27 @@ namespace DataSetCommands {
     CurveEventLoop loop;
     CurveMarker m;
     CurveView & view = soas().view();
-    int lastIdx = -1;
+    PointPicker pick(&loop, ds);
+
     view.addItem(&m);
     m.size = 4;
     m.pen = QPen(Qt::NoPen);
     m.brush = QBrush(QColor(0,0,255,100)); // A kind of transparent blue
     loop.setHelpString(QObject::tr("Cursor:\n"
-                                   "click to see\n"
-                                   "space: write to output\n"
+                                   "click to see\n") 
+                       + pick.helpText() +
+                       QObject::tr("space: write to output\n"
                                    "q or ESC to quit"));
-    /// @todo four selection mode: eXact, smooth, closest and off
     while(! loop.finished()) {
-      switch(loop.type()) {
-      case QEvent::MouseButtonPress: 
-        {
-          QPair<double, int> dst = loop.distanceToDataSet(ds);
-          if(30 > dst.first && 0 <= dst.second) { // operations in
-                                                   // reverse to avoid
-                                                   // confusing emacs
-            lastIdx = dst.second;
-            m.p = ds->pointAt(lastIdx);
-            Terminal::out << m.p.x() << "\t"
-                          << m.p.y() << "\t" 
-                          << dst.second << endl;
-          }
-          break;
+      if(pick.processEvent()) {
+        if(pick.button() != Qt::NoButton) {
+          m.p = pick.point();
+          Terminal::out << m.p.x() << "\t"
+                        << m.p.y() << "\t" 
+                        << pick.pointIndex() << endl;
         }
+      }
+      switch(loop.type()) {
       case QEvent::KeyPress: 
         if(loop.key() == 'q' || loop.key() == 'Q' ||
            loop.key() == Qt::Key_Escape)
@@ -133,11 +130,12 @@ namespace DataSetCommands {
           // Write to output file
           OutFile::out.setHeader("Point positions:\n"
                                  "X\tY\t\tidx\tbuffer");
-          Terminal::out << "Writing to output file: '" <<
-            OutFile::out.fileName() << "'" << endl;
+          Terminal::out << "Writing position to output file: '" 
+                        << OutFile::out.fileName() << "'" << endl;
+
           OutFile::out << m.p.x() << "\t"
                        << m.p.y() << "\t" 
-                       << lastIdx << "\t"
+                       << pick.pointIndex() << "\t"
                        << ds->name << "\n" << flush;
         }
         break;

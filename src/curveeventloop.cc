@@ -84,6 +84,7 @@ void CurveEventLoop::processInputEvent(QInputEvent * ie)
 
 void CurveEventLoop::processMouseEvent(QMouseEvent * event)
 {
+  /// @todo Main window message
   pos = event->pos();
   bt = event->button();
 }

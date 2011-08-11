@@ -90,14 +90,13 @@ void CurveView::paintEvent(QPaintEvent * /*event*/)
 }
 
 static const char * colors[] = 
-  { "red", "blue", "#080", "orange", "black" };
+  { "red", "blue", "#080", "orange", "purple" };
 static int nbColors = sizeof(colors)/sizeof(colors[0]);
 
 QPen CurveView::penForNextCurve()
 {
   /// @todo and what about
   QPen p(QColor(colors[nbStyled++ % nbColors]), 1.2);
-  p.setCosmetic(true);
   return p;
 }
 

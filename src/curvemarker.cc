@@ -22,6 +22,9 @@
 
 void CurveMarker::paintMarker(QPainter * painter, const QPointF & realPos)
 {
+  if(realPos.x() == 0.0/0.0 ||
+     realPos.y() == 0.0/0.0)
+    return;                     // Do not attempt to draw anything.
   switch(type) {
   case Circle:
     painter->drawEllipse(realPos, size, size);
@@ -38,6 +41,10 @@ void CurveMarker::paint(QPainter * painter, const QRectF &,
   painter->save();
   painter->setPen(pen);
   painter->setBrush(brush);
-  paintMarker(painter, ctw.map(p));
+  if(points.size() == 0)
+    paintMarker(painter, ctw.map(p));
+  else
+    for(int i = 0; i < points.size(); i++)
+      paintMarker(painter, ctw.map(points[i]));
   painter->restore();
 }

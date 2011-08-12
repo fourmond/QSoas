@@ -34,6 +34,9 @@
 #include <curvepanel.hh>
 #include <math.h>
 
+#include <spline.hh>
+#include <pointpicker.hh>
+
 namespace DataSetCommands {
 
   //////////////////////////////////////////////////////////////////////
@@ -161,6 +164,137 @@ namespace DataSetCommands {
       QT_TR_NOOP("Performs linear regression"),
       QT_TR_NOOP("..."),
       "reg");
+
+  //////////////////////////////////////////////////////////////////////
+
+  static void baselineCommand(const QString &)
+  {
+    const DataSet * ds = soas().currentDataSet();
+    CurveEventLoop loop;
+    CurveView & view = soas().view();
+    CurveMarker m;
+    CurvePanel bottom;
+    Spline s;
+    CurveData d;
+    CurveData diff;
+    bottom.drawingXTicks = false;
+    bottom.stretch = 30;        // 3/10ths of the main panel.
+    PointPicker pick(&loop, ds);
+
+    view.addItem(&m);
+    view.addItem(&d);
+
+    m.size = 4;
+    m.pen = QPen(Qt::NoPen);
+    m.brush = QBrush(QColor(0,0,255,100));
+
+    Spline::Type type = Spline::CSpline;
+
+    d.pen = QPen(QColor("black"));
+    d.xvalues = ds->x();
+    diff.xvalues = d.xvalues;
+    diff.yvalues = ds->y();
+
+    bottom.addItem(&diff);
+
+    view.addPanel(&bottom);
+
+    loop.setHelpString(QObject::tr("Baseline interpolation:\n"
+                                   "left click: left boundary\n"
+                                   "right click: right boundary\n"
+                                   "u: subtract trend\n"
+                                   "v: divide by trend\n"
+                                   "e: divide by exp decay\n"
+                                   "q, ESC: quit"));
+    while(! loop.finished()) {
+      bool needCompute = false;
+      if(pick.processEvent()) {
+        if(pick.button() != Qt::NoButton) {
+          s.insert(pick.point());
+          needCompute = true;
+        }
+      }
+      else {
+        switch(loop.type()) {
+        case QEvent::MouseButtonPress: 
+          if(loop.button() == Qt::RightButton) { // Removing
+            s.remove(loop.position().x());
+            needCompute = true;
+          }
+          break;
+        case QEvent::KeyPress: 
+          switch(loop.key()) {
+          case 'q':
+          case 'Q':
+          case Qt::Key_Escape:
+            return;
+          case 'A':
+          case 'a':
+            type = Spline::Akima;
+            needCompute = true;
+            soas().showMessage("Using Akima spline interpolation");
+            break;
+          case 'C':
+          case 'c':
+            type = Spline::CSpline;
+            needCompute = true;
+            soas().showMessage("Using C-spline interpolation");
+            break;
+          case 'P':
+          case 'p':
+            type = Spline::Polynomial;
+            needCompute = true;
+            soas().showMessage("Using polynomial interpolation");
+            break;
+          case 'U':
+          case 'u': {
+            // Subtracting, the data is already computed in d
+            DataSet * newds = new 
+              DataSet(QList<Vector>() << d.xvalues << d.yvalues);
+            newds->name = ds->cleanedName() + "_linsub.dat";
+            soas().pushDataSet(newds);
+            return;
+          }
+          case 'V':
+          case 'v': {
+            // // Dividing
+            // Vector newy = ds->y();
+            // for(int i = 0; i < newy.size(); i++)
+            //   newy[i] /= (d.xvalues[i] * reg.first + reg.second);
+            // DataSet * newds = new 
+            //   DataSet(QList<Vector>() << d.xvalues << newy);
+            // newds->name = ds->cleanedName() + "_lindiv.dat";
+            // soas().pushDataSet(newds);
+            // return;
+          }
+          default:
+            ;
+          }
+          break;
+        default:
+          ;
+        }
+      }
+      if(needCompute) {
+        d.yvalues = s.evaluate(d.xvalues, type);
+        m.points = s.pointList();
+        diff.yvalues = ds->y() - d.yvalues;
+        bottom.setYRange(diff.yvalues.min(), diff.yvalues.max(), 
+                         view.mainPanel());
+      }
+    }
+  }
+
+  static Command 
+  bsl("baseline", // command name
+      optionLessEffector(baselineCommand), // action
+      "buffer",  // group name
+      NULL, // arguments
+      NULL, // options
+      QT_TR_NOOP("Baseline"),
+      QT_TR_NOOP("Interpolation-based baseline"),
+      QT_TR_NOOP("..."),
+      "b");
 
   //////////////////////////////////////////////////////////////////////
 

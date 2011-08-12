@@ -97,6 +97,9 @@ QPair<double, int> DataSet::distanceTo(double x, double y) const
   return QPair<double, int>(sqrt(dist), best);
 }
 
+/// @todo Probably this function should rather join Vector, as it
+/// isn't really dataset-specific ? (on the other hand, it isn't too
+/// expensive to create a dataset on-demand to use it)
 QPair<double, int> DataSet::distanceTo(double x, double y, 
                                        double xs, double ys) const
 {

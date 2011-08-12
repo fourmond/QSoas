@@ -87,7 +87,8 @@ SOURCES += src/qmain.cc \
         src/fitdialog.cc \
         src/curvevector.cc \
         src/settings.cc \
-        src/pointpicker.cc
+        src/pointpicker.cc \
+        src/spline.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -127,4 +128,5 @@ HEADERS += src/headers.hh \
         src/curvevector.hh  \
         src/settings.hh \
         src/settings-templates.hh \
-        src/pointpicker.hh
+        src/pointpicker.hh  \
+        src/spline.hh

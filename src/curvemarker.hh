@@ -29,6 +29,10 @@ class CurveMarker : public CurveItem {
 public:
 
   QPointF p;
+
+  /// Points. If empty, p is used.
+  QList<QPointF> points;
+
   QBrush brush;
   double size;
 
@@ -46,7 +50,7 @@ public:
   static void paintMarker(QPainter * painter, const QPointF & p,
                           MarkerType type);
 
-  CurveMarker() : size(1.0), type(Circle) {;};
+  CurveMarker() : p(0.0/0.0, 0.0/0.0), size(1.0), type(Circle) {;};
 };
 
 

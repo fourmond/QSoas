@@ -21,6 +21,11 @@
 
 #include <math.h>
 
+#include <gsl/gsl_bspline.h>
+#include <gsl/gsl_multifit.h>
+
+#include <gsl/gsl_blas.h>
+
 void DataSet::dump() const
 {
   QTextStream o(stdout);
@@ -418,4 +423,82 @@ double DataSet::yValueAt(double x) const
     lastdx = dx;
   }
   return yvals[nb-1];
+}
+
+Vector DataSet::bSplinesSmooth(int order, const Vector & xvalues, 
+                               double * residuals, Vector * derivative) const
+{
+  Vector xv = xvalues;
+  qSort(xv);
+  if(xv.min() > columns[0].min())
+    xv.prepend(columns[0].min());
+  if(xv.max() < columns[0].max())
+    xv.append(columns[0].max());
+  
+  
+  gsl_bspline_workspace * bw = gsl_bspline_alloc(order, xv.size());
+  int nbCoeffs = xv.size() + order - 2;
+
+  gsl_vector_view v = gsl_vector_view_array(xv.data(), xv.size());
+  gsl_bspline_knots(&v.vector, bw);
+
+  int nb = nbRows();
+  gsl_matrix * X = gsl_matrix_alloc(nb, nbCoeffs);
+  const double * xvals = columns[0].data();
+
+  for(int i = 0; i < nb; i++) {
+    gsl_vector_view v = gsl_matrix_row(X, i);
+    gsl_bspline_eval(xvals[i], &v.vector, bw);
+  }
+
+  gsl_multifit_linear_workspace * mfit = 
+    gsl_multifit_linear_alloc(nb, nbCoeffs);
+  
+  gsl_vector * coeffs = gsl_vector_alloc(nbCoeffs);
+  gsl_matrix * cov = gsl_matrix_alloc(nbCoeffs, nbCoeffs);
+  double chisq;
+  gsl_vector_const_view yv = 
+    gsl_vector_const_view_array(columns[1].data(), nb);
+  
+  gsl_multifit_linear(X, &yv.vector,
+                      coeffs, cov, &chisq, mfit);
+  if(residuals)
+    *residuals = chisq;
+
+
+  // Now computing the target values
+  Vector ret(nb, 0);
+  gsl_vector_view target = gsl_vector_view_array(ret.data(), nb);
+  
+  // Computing the final Y values:
+  gsl_blas_dgemv(CblasNoTrans, 1, X, coeffs, 0, &target.vector);
+
+  if(derivative) {
+    gsl_bspline_deriv_workspace * dw = gsl_bspline_deriv_alloc(order);
+    gsl_matrix * mtx = gsl_matrix_alloc(nbCoeffs, 2);
+    for(int i = 0; i < nb; i++) {
+      gsl_vector_view v = gsl_matrix_row(X, i);
+      gsl_bspline_deriv_eval(xvals[i], 1, mtx, bw, dw);
+      gsl_vector_view s = gsl_matrix_column(mtx, 1);
+      gsl_vector_memcpy(&v.vector, &s.vector);
+    }
+    gsl_bspline_deriv_free(dw);
+    gsl_matrix_free(mtx);
+
+    derivative->resize(nb);
+    gsl_vector_view target = gsl_vector_view_array(derivative->data(), nb);
+    // Computing the final Y values:
+    gsl_blas_dgemv(CblasNoTrans, 1, X, coeffs, 0, &target.vector);
+  }
+
+
+
+  // Freeing what isn't necessary anymore:
+  gsl_bspline_free(bw);
+  gsl_vector_free(coeffs);
+  gsl_matrix_free(X);
+  gsl_matrix_free(cov);
+  gsl_multifit_linear_free(mfit);
+
+  return ret;
 }

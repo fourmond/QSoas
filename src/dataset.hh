@@ -199,6 +199,15 @@ public:
   /// Returns the Y value the closest to the given X value
   double yValueAt(double x) const;
 
+  /// Performs a B-splines smoothing of the dataset, using the given X
+  /// values as knots (xmin and xmax are automatically added if they
+  /// are missing)
+  ///
+  /// Returns the smoothed Y values.
+  Vector bSplinesSmooth(int order, const Vector & xvalues, 
+                        double * residuals = NULL, 
+                        Vector * derivative = NULL) const;
+
   /// @}
 
   /// @name Operations

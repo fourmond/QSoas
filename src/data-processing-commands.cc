@@ -280,7 +280,7 @@ namespace DataSetCommands {
           case 'Q': {
             // Subtracting, the data is already computed in d
             DataSet * newds = new 
-              DataSet(QList<Vector>() << d.xvalues << d.yvalues);
+              DataSet(QList<Vector>() << d.xvalues << diff.yvalues);
             newds->name = ds->cleanedName() + "_bl_sub.dat";
             soas().pushDataSet(newds);
             return;
@@ -343,6 +343,135 @@ namespace DataSetCommands {
       QT_TR_NOOP("Interpolation-based baseline"),
       QT_TR_NOOP("..."),
       "b");
+
+  //////////////////////////////////////////////////////////////////////
+
+  static void bsplinesCommand(const QString &)
+  {
+    const DataSet * ds = soas().currentDataSet();
+    CurveEventLoop loop;
+    CurveView & view = soas().view();
+    // CurveMarker m;
+    CurvePanel bottom;
+    CurveData d;
+    CurveData diff;
+    bool derive = false;
+    bottom.drawingXTicks = false;
+    bottom.stretch = 30;        // 3/10ths of the main panel.
+    // PointPicker pick(&loop, ds);
+    int nbPoints = 10;
+    int order = 4;
+
+    // view.addItem(&m);
+    view.addItem(&d);
+
+    // m.size = 4;
+    // m.pen = QPen(Qt::NoPen);
+    // m.brush = QBrush(QColor(0,0,255,100));
+
+    d.pen = QPen(QColor("black"));
+    d.xvalues = ds->x();
+    d.yvalues = QVector<double>(d.xvalues.size(), 0);
+    d.countBB = true;
+    diff.xvalues = d.xvalues;
+    diff.yvalues = ds->y();
+
+    bool needCompute = true;
+
+    bottom.addItem(&diff);
+
+    view.addPanel(&bottom);
+
+    loop.setHelpString(QObject::tr("Baseline interpolation:\n"
+                                   "left click: left boundary\n"
+                                   "right click: right boundary\n"
+                                   "d: display derivative\n"
+                                   "q: replace with filtered data\n"
+                                   "ESC: abord"));
+    while(! loop.finished()) {
+      switch(loop.type()) {
+      case QEvent::MouseButtonPress: 
+        if(loop.button() == Qt::RightButton) { // Remove
+          nbPoints--;
+          if(nbPoints < 2)
+            nbPoints = 2;
+          needCompute = true;
+          Terminal::out << "Using : " << nbPoints << " points" << endl;
+        }
+        if(loop.button() == Qt::LeftButton) { // Remove
+          nbPoints++;
+          needCompute = true;
+          Terminal::out << "Using : " << nbPoints << " points" << endl;
+        }
+        break;
+      case QEvent::KeyPress: 
+        switch(loop.key()) {
+        case Qt::Key_Escape:
+          return;
+        case 'D':
+        case 'd':
+          derive = ! derive;
+          needCompute = true;
+          if(derive)
+            soas().showMessage("Showing derivative");
+          else
+            soas().showMessage("Showing baseline");
+          break;
+        case 'q':
+        case 'Q': {
+          // Quit replacing with data
+          DataSet * newds = new 
+            DataSet(QList<Vector>() << d.xvalues << d.yvalues);
+          newds->name = ds->cleanedName() + "_filtered.dat";
+          soas().pushDataSet(newds);
+          return;
+        }
+        default:
+          ;
+        }
+        break;
+      default:
+        ;
+      }
+      if(needCompute) {
+        // In any case, the bottom panel shows the delta.
+        // if(derive) {
+        //   d.yvalues = s.derivative(d.xvalues, type);
+        //   diff.yvalues = ds->y() - s.evaluate(d.xvalues, type);
+        // } 
+        // else {
+        QRectF bb = ds->boundingBox();
+        double xmin = bb.left();
+        double xmax = bb.right();
+        Vector x;
+        for(int i = 0; i < nbPoints; i++)
+          x << xmin + (xmax - xmin)/(nbPoints + 1)*(i+1);
+        double value;
+        if(derive) {
+          diff.yvalues = ds->y() - 
+            ds->bSplinesSmooth(order, x, &value, &d.yvalues);
+        }
+        else {
+          d.yvalues = ds->bSplinesSmooth(order, x, &value);
+          diff.yvalues = ds->y() - d.yvalues;
+        }
+        Terminal::out << "Residuals: " << value << endl;
+        bottom.setYRange(diff.yvalues.min(), diff.yvalues.max(), 
+                         view.mainPanel());
+        needCompute = false;
+      }
+  }
+}
+
+static Command 
+bspl("filter-bsplines", // command name
+    optionLessEffector(bsplinesCommand), // action
+    "buffer",  // group name
+    NULL, // arguments
+    NULL, // options
+    QT_TR_NOOP("Filter"),
+    QT_TR_NOOP("Filter using bsplines"),
+    QT_TR_NOOP("..."));
 
   //////////////////////////////////////////////////////////////////////
 

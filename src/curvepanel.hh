@@ -122,6 +122,12 @@ public:
   /// Whether or not to draw the legend
   bool drawingLegend;
 
+  /// The X label of the panel
+  QString xLabel;
+
+  /// The Y label of the panel (always counted in)
+  QString yLabel;
+
   /// Returns a QMargins item showing how much space the CurveView
   /// should reserve around the geometry rectangle.
   ///

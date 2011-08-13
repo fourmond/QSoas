@@ -77,6 +77,9 @@ namespace Utils {
   /// stay at the same relative position.
   QRectF scaledAround(const QRectF & rect, const QPointF & point,
                       double xscale, double yscale);
+
+  /// Returns the string Delta something
+  QString deltaStr(const QString & w);
 };
 
 #endif

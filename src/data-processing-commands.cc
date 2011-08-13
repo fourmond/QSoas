@@ -34,6 +34,8 @@
 #include <curvepanel.hh>
 #include <math.h>
 
+#include <utils.hh>
+
 #include <spline.hh>
 #include <pointpicker.hh>
 
@@ -54,6 +56,8 @@ namespace DataSetCommands {
     view.addItem(&line);
     view.addItem(&r);
     bottom.addItem(&d);
+
+    bottom.yLabel = Utils::deltaStr("Y");
 
     view.addPanel(&bottom);
     r.pen = QPen(QColor("blue"), 1, Qt::DotLine);
@@ -180,6 +184,9 @@ namespace DataSetCommands {
     bool derive = false;
     bottom.drawingXTicks = false;
     bottom.stretch = 30;        // 3/10ths of the main panel.
+
+    bottom.yLabel = Utils::deltaStr("Y");
+
     PointPicker pick(&loop, ds);
 
     view.addItem(&m);
@@ -377,6 +384,7 @@ namespace DataSetCommands {
     bool needCompute = true;
 
     bottom.addItem(&diff);
+    bottom.yLabel = Utils::deltaStr("Y");
 
     view.addPanel(&bottom);
 

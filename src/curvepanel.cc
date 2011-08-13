@@ -31,7 +31,7 @@ CurvePanel::CurvePanel() :
   bgLinesPen(QColor("#DDD"), 1.5, Qt::DashLine),
   xTracking(0),
   drawingXTicks(true), drawingYTicks(true), drawingLegend(true),
-  stretch(100)
+  xLabel("X"), yLabel("Y"), stretch(100)
 {
   bgLinesPen.setCosmetic(true);
 }
@@ -219,16 +219,30 @@ void CurvePanel::paint(QPainter * painter)
 
   // Now drawing tick labels
   if(drawingXTicks) {
+    int bot = r2.bottom();
     for(int i = 0; i < xTicks.size(); i++) {
       double x = xTicks[i];
       QPointF pt(x, 0);
       pt = transform.map(pt);
       pt.setY(r2.bottom() + 2); 
       QRectF textPos(pt, QSizeF(0,0));
+      QRectF br;
       painter->drawText(textPos.adjusted(-5,2,5,5),
                         Qt::AlignHCenter | Qt::AlignTop | Qt::TextDontClip,
-                        QString::number(x));
+                        QString::number(x), &br);
+      if(br.bottom() > bot)
+        bot = br.bottom();
     }
+    if(! xLabel.isEmpty()) {
+      QRect xl = r2;
+      xl.setTop(bot+3);
+      xl.setBottom(bot + 13);
+      painter->drawText(xl,
+                        Qt::AlignHCenter | Qt::AlignTop | Qt::TextDontClip,
+                        xLabel);
+      
+    }
+      
   }
 
   if(drawingYTicks) {
@@ -241,6 +255,18 @@ void CurvePanel::paint(QPainter * painter)
       painter->drawText(textPos.adjusted(-15,-5,-2, 5),
                         Qt::AlignVCenter | Qt::AlignRight | Qt::TextDontClip,
                         QString::number(y));
+    }
+    // Now more fun: Y label
+    if(! yLabel.isEmpty()) {
+      painter->save();
+      painter->translate(r2.left() - 40, 0.5*(r2.bottom() + r2.top()));
+      painter->rotate(-90);
+      QRect textPos(QPoint(0,0), QSize(0,0));
+      painter->drawText(textPos.adjusted(-5,-5,5, 5),
+                        Qt::AlignHCenter | Qt::AlignBottom | Qt::TextDontClip,
+                        yLabel);
+
+      painter->restore();
     }
   }
 
@@ -266,6 +292,9 @@ void CurvePanel::clear()
   boundingBox = QRectF();
   zoom = QRectF();
   invalidateTicks();
+
+  xLabel = "X";
+  yLabel = "Y";
 }
 
 CurveItem * CurvePanel::closestItem(const QPointF &point, 
@@ -299,10 +328,10 @@ void CurvePanel::addItem(CurveItem * item)
 
 QMargins CurvePanel::panelMargins() const
 {
-  return QMargins(drawingYTicks ? 50 : 10,
+  return QMargins(drawingYTicks ? 70 : 10,
                   drawingLegend ? 20 : 10,
-                  10, 
-                  drawingXTicks ? 30 : 10);
+                  15, 
+                  drawingXTicks ? 40 : 10);
 }
 
 QPointF CurvePanel::scaleFactors() const

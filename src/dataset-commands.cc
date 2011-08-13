@@ -174,6 +174,8 @@ namespace DataSetCommands {
     r.pen = QPen(QColor("blue"), 1, Qt::DotLine);
     d.pen = QPen(QColor("red"));
 
+    view.mainPanel()->xLabel = "Index";
+
     loop.setHelpString(QObject::tr("Cut:\n"
                                    "left/right: bounds\n"
                                    "q: keep only the inside\n"

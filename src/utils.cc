@@ -96,3 +96,10 @@ QRectF Utils::scaledAround(const QRectF & rect, const QPointF & point,
             (rect.bottom() - point.y()) * yscale);
   return nr;
 }
+
+QString Utils::deltaStr(const QString & w)
+{
+  QString ret = QChar(0x0394);
+  ret += w;
+  return ret;
+}

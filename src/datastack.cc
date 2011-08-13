@@ -73,7 +73,7 @@ DataSet * DataStack::currentDataSet(bool silent) const
 void DataStack::undo(int nbTimes)
 {
   while(nbTimes--) {
-    if(! dataSets.size())
+    if(dataSets.size() < 2)
       throw std::runtime_error("Undo: nothing to undo");
     redoStack.append(dataSets.takeLast());
     emit(currentDataSetChanged());

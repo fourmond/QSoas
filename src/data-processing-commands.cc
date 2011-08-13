@@ -297,16 +297,14 @@ namespace DataSetCommands {
           }
           case 'V':
           case 'v': {
-            // // Dividing
-
-            // Vector newy = ds->y();
-            // for(int i = 0; i < newy.size(); i++)
-            //   newy[i] /= (d.xvalues[i] * reg.first + reg.second);
-            // DataSet * newds = new 
-            //   DataSet(QList<Vector>() << d.xvalues << newy);
-            // newds->name = ds->cleanedName() + "_lindiv.dat";
-            // soas().pushDataSet(newds);
-            // return;
+            // Dividing
+            Vector newy = ds->y();
+            newy /= d.yvalues;
+            DataSet * newds = new 
+              DataSet(QList<Vector>() << d.xvalues << newy);
+            newds->name = ds->cleanedName() + "_bl_div.dat";
+            soas().pushDataSet(newds);
+            return;
           }
           default:
             ;

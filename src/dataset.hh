@@ -196,6 +196,9 @@ public:
   /// given range of points.
   QPointF smoothPick(int idx, int range = -1) const;
 
+  /// Returns the Y value the closest to the given X value
+  double yValueAt(double x) const;
+
   /// @}
 
   /// @name Operations

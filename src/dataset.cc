@@ -396,3 +396,26 @@ QPointF DataSet::smoothPick(int idx, int range) const
   ret.setY(smooth_pick(x, y, nb, idx, range));
   return ret;
 }
+
+double DataSet::yValueAt(double x) const
+{
+  const double * xvals = columns[0].data();
+  const double * yvals = columns[1].data();
+  int nb = columns[0].size();
+  if(nb < 2)
+    return yvals[0];
+
+  double lastdx = xvals[0] - x;
+  for(int i = 1; i < nb; i++) {
+    double dx = xvals[i] - x;
+    if(dx*lastdx <= 0) {        // sign change, we passed it !
+      /// @todo we may want to use linear interpolation here.
+      if(fabs(dx) < fabs(lastdx))
+        return yvals[i];
+      else
+        return yvals[i-1];
+    }
+    lastdx = dx;
+  }
+  return yvals[nb-1];
+}

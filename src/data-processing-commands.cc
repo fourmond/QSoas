@@ -243,7 +243,16 @@ namespace DataSetCommands {
           case '1': // left
           case '2': // right
             {
-              /// @todo Addition of points.
+              // Closest data point:
+              double xlim = (loop.key() == '1' ? 
+                             ds->x().min() : ds->x().max());
+              double x = loop.position().x();
+              for(int i = 0; i < 10; i++) {
+                double nx = xlim + (x - xlim)*i/9;
+                double ny = ds->yValueAt(nx);
+                s.insert(QPointF(nx, ny));
+              }
+              needCompute = true;
             }
             break;
           case 'D':

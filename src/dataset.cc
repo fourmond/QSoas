@@ -205,20 +205,16 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
   for(int i = 0; i < nbcols; i++)
     vects << Vector();
 
-  for(int i = 0; i < size_b; i++) {
-    double dist = fabs(xb[i] - xa[0]);
-    int idx = 0;
-    for(int j = 1; j < size_a; j++) {
-      double dst = fabs(xb[i] - xa[j]);
-      if(dst < dist) {
-        dst = dst;
-        idx = j;
-      }
-    }
-    // Now, we're matching index i of b against index idx of a
-    vects[0] << xa[idx];        // a is the master dataset
+  int j = 0;
+  for(int i = 0; i < size_a; i++) {
+    /* We first look for the closest point */
+    double diff = fabs(xa[i] - xb[j]);
+    while((j < (size_b - 1)) && (fabs(xa[i] - xb[j+1]) <  diff))
+      diff = fabs(xa[i] - xb[++j]);
+    // ys[i] -= yo[j];
+    vects[0] << xa[i];        // a is the master dataset
     for(int k = 1; k < nbcols; k++)
-      vects[k] << op(a->columns[k][idx], a->columns[k][i]);
+      vects[k] << op(a->columns[k][i], b->columns[k][j]);
   }
 
   DataSet * ds = new DataSet(vects);

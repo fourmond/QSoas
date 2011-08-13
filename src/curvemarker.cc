@@ -22,8 +22,8 @@
 
 void CurveMarker::paintMarker(QPainter * painter, const QPointF & realPos)
 {
-  if(realPos.x() == 0.0/0.0 ||
-     realPos.y() == 0.0/0.0)
+  if(realPos.x() != realPos.x() || // NaN != NaN
+     realPos.y() != realPos.y())
     return;                     // Do not attempt to draw anything.
   switch(type) {
   case Circle:

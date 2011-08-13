@@ -177,6 +177,7 @@ namespace DataSetCommands {
     Spline s;
     CurveData d;
     CurveData diff;
+    bool derive = false;
     bottom.drawingXTicks = false;
     bottom.stretch = 30;        // 3/10ths of the main panel.
     PointPicker pick(&loop, ds);
@@ -192,6 +193,8 @@ namespace DataSetCommands {
 
     d.pen = QPen(QColor("black"));
     d.xvalues = ds->x();
+    d.yvalues = QVector<double>(d.xvalues.size(), 0);
+    d.countBB = true;
     diff.xvalues = d.xvalues;
     diff.yvalues = ds->y();
 
@@ -202,10 +205,11 @@ namespace DataSetCommands {
     loop.setHelpString(QObject::tr("Baseline interpolation:\n"
                                    "left click: left boundary\n"
                                    "right click: right boundary\n"
-                                   "u: subtract trend\n"
-                                   "v: divide by trend\n"
-                                   "e: divide by exp decay\n"
-                                   "q, ESC: quit"));
+                                   "d: display derivative\n"
+                                   "q: subtract baseline\n"
+                                   "v: divide by baseline\n"
+                                   "u: to replace by baseline\n"
+                                   "ESC: abord"));
     while(! loop.finished()) {
       bool needCompute = false;
       if(pick.processEvent()) {
@@ -224,8 +228,6 @@ namespace DataSetCommands {
           break;
         case QEvent::KeyPress: 
           switch(loop.key()) {
-          case 'q':
-          case 'Q':
           case Qt::Key_Escape:
             return;
           case 'A':
@@ -233,6 +235,25 @@ namespace DataSetCommands {
             type = Spline::Akima;
             needCompute = true;
             soas().showMessage("Using Akima spline interpolation");
+            break;
+          case '-':
+            s.clear();
+            needCompute = true;
+            break;
+          case '1': // left
+          case '2': // right
+            {
+              /// @todo Addition of points.
+            }
+            break;
+          case 'D':
+          case 'd':
+            derive = ! derive;
+            needCompute = true;
+            if(derive)
+              soas().showMessage("Showing derivative");
+            else
+              soas().showMessage("Showing baseline");
             break;
           case 'C':
           case 'c':
@@ -246,18 +267,29 @@ namespace DataSetCommands {
             needCompute = true;
             soas().showMessage("Using polynomial interpolation");
             break;
-          case 'U':
-          case 'u': {
+          case 'q':
+          case 'Q': {
             // Subtracting, the data is already computed in d
             DataSet * newds = new 
               DataSet(QList<Vector>() << d.xvalues << d.yvalues);
-            newds->name = ds->cleanedName() + "_linsub.dat";
+            newds->name = ds->cleanedName() + "_bl_sub.dat";
+            soas().pushDataSet(newds);
+            return;
+          }
+          case 'U':
+          case 'u': {
+            // Replacing the data is already computed in d
+            DataSet * newds = new 
+              DataSet(QList<Vector>() << d.xvalues << d.yvalues);
+            newds->name = ds->cleanedName() + (derive ? "_diff.dat" : 
+                                               "_bl.dat");
             soas().pushDataSet(newds);
             return;
           }
           case 'V':
           case 'v': {
             // // Dividing
+
             // Vector newy = ds->y();
             // for(int i = 0; i < newy.size(); i++)
             //   newy[i] /= (d.xvalues[i] * reg.first + reg.second);
@@ -276,9 +308,16 @@ namespace DataSetCommands {
         }
       }
       if(needCompute) {
-        d.yvalues = s.evaluate(d.xvalues, type);
+        // In any case, the bottom panel shows the delta.
+        if(derive) {
+          d.yvalues = s.derivative(d.xvalues, type);
+          diff.yvalues = ds->y() - s.evaluate(d.xvalues, type);
+        } 
+        else {
+          d.yvalues = s.evaluate(d.xvalues, type);
+          diff.yvalues = ds->y() - d.yvalues;
+        }
         m.points = s.pointList();
-        diff.yvalues = ds->y() - d.yvalues;
         bottom.setYRange(diff.yvalues.min(), diff.yvalues.max(), 
                          view.mainPanel());
       }

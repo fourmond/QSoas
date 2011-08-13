@@ -51,6 +51,9 @@ public:
   /// Removes the point the closest to the given abcissa
   void remove(double x);
 
+  /// Remove all points
+  void clear() { values.clear();};
+
   typedef enum {
     Linear,
     Polynomial,
@@ -67,11 +70,29 @@ public:
 
   /// Evaluates the first derivative of the interpolation.
   ///
-  /// @todo integration and second derivative
+  /// @todo integration
   Vector derivative(const Vector & xvalues, Type type = CSpline);
+
+  /// Evaluates the second derivative of the interpolation.
+  Vector secondDerivative(const Vector & xvalues, Type type = CSpline);
 
 private:
   const gsl_interp_type * interpolationType(Type type) const;
+
+  /// Prepare the points
+  void preparePoints(Vector * x, Vector * xvals, Vector * yvals);
+  
+  /// Prepare the interpolation
+  /// 
+  /// Returns NULL if there aren't enough data points.
+  gsl_interp * prepareInterpolant(Type t, const Vector & xvals, 
+                                  const Vector & yvals);
+
+  Vector innerEvaluation(const Vector & xvalues, Type type,
+                         double (*f)(const gsl_interp *, const double x[], 
+                                     const double ya[], double, gsl_interp_accel *));
+
+  
 
 };
 

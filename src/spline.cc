@@ -53,38 +53,45 @@ void Spline::remove(double x)
   values.remove(closest);
 }
 
-Vector Spline::evaluate(const Vector & xvalues, Type type)
+/// Assumes that the xvalues are sorted !
+void Spline::preparePoints(Vector * xt,
+                           Vector * xv, Vector * yv)
 {
-  Vector ret = xvalues;
-  qSort(ret);                   // Work on sorted values.
-  Vector xvals;
-  Vector yvals;
+  qSort(*xt);
+  xv->clear();
+  yv->clear();
 
   for(QMap<double, double>::const_iterator i = values.begin();
       i != values.end(); i++) {
-    xvals << i.key();
-    yvals << i.value();
+    *xv << i.key();
+    *yv << i.value();
   }
-  if(xvals[0] > ret[0]) {
+  if(xv->value(0) > xt->value(0)) {
     // Padding:
-    xvals.prepend(ret[0]);
-    yvals.prepend(yvals[0]);
+    xv->prepend(xt->value(0));
+    yv->prepend(yv->value(0));
   }
-  if(xvals.last() < ret.last()) {
-    xvals.append(ret.last());
-    yvals.append(yvals.last());
+  if(xv->last() < xt->last()) {
+    xv->append(xt->last());
+    yv->append(yv->last());
   }
-  gsl_interp * interp = gsl_interp_alloc(interpolationType(type), 
-                                         xvals.size());
-  gsl_interp_init(interp, xvals.data(), yvals.data(), xvals.size());
-  gsl_interp_accel * accel = gsl_interp_accel_alloc();
-  for(int i = 0; i < ret.size(); i++)
-    ret[i] = gsl_interp_eval(interp, xvals.data(), yvals.data(),
-                             ret[i], accel);
+}
 
-  gsl_interp_accel_free(accel);
-  gsl_interp_free(interp);
-  return ret;
+gsl_interp * Spline::prepareInterpolant(Type type, const Vector & xvals, 
+                                        const Vector & yvals)
+{
+  const gsl_interp_type * t = interpolationType(type);
+  if(gsl_interp_type_min_size(t) > xvals.size())
+    return NULL;                // We can't do anything here.
+
+  gsl_interp * interp = gsl_interp_alloc(t, xvals.size());
+  gsl_interp_init(interp, xvals.data(), yvals.data(), xvals.size());
+  return interp;
+}
+
+Vector Spline::evaluate(const Vector & xvalues, Type type)
+{
+  return innerEvaluation(xvalues, type, gsl_interp_eval);
 }
 
 
@@ -101,5 +108,40 @@ const gsl_interp_type * Spline::interpolationType(Type type) const
   case Akima:
     return gsl_interp_akima;
   }
+}
+
+Vector Spline::derivative(const Vector & xvalues, Type type)
+{
+  return innerEvaluation(xvalues, type, gsl_interp_eval_deriv);
+}
+
+Vector Spline::secondDerivative(const Vector & xvalues, Type type)
+{
+  return innerEvaluation(xvalues, type, gsl_interp_eval_deriv2);
+}
+
+Vector Spline::innerEvaluation(const Vector & xvalues, Type type,
+                               double (*f)(const gsl_interp *, 
+                                           const double x[], const double ya[],
+                                           double, gsl_interp_accel *))
+{
+  Vector ret = xvalues;
+  Vector xvals;
+  Vector yvals;
+  preparePoints(&ret, &xvals, &yvals);
+  gsl_interp * interp = prepareInterpolant(type, xvals, yvals);
+  if(! interp) {
+    ret.clear();                // No data points
+    return ret;
+  }
+
+  gsl_interp_accel * accel = gsl_interp_accel_alloc();
+  for(int i = 0; i < ret.size(); i++)
+    ret[i] = f(interp, xvals.data(), yvals.data(),
+               ret[i], accel);
+
+  gsl_interp_accel_free(accel);
+  gsl_interp_free(interp);
+  return ret;
 }
 

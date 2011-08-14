@@ -49,6 +49,7 @@
 #include <soas.hh>
 
 #include <commandwidget.hh>
+#include <terminal.hh>
 #include <curveview.hh>
 #include <datastack.hh>
 
@@ -66,6 +67,13 @@ MainWin::MainWin()
   resize(mainWinSize);
   if(! splitterState->isEmpty())
     mainSplitter->restoreState(splitterState);
+
+  Terminal::out << "This is Soas version " << SOAS_VERSION << " for Qt\n"
+                << "Copyright 2011 by Vincent Fourmond\n"
+                << "Based on Christophe Leger's original Soas\n\n"
+                << "This program is free software, released under the terms of \n"
+                << "the GNU general public license (see http://www.gnu.org/copyleft/gpl.html)" 
+                << endl;
 }
 
 void MainWin::setupFrame()

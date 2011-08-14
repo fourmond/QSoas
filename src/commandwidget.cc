@@ -119,6 +119,7 @@ void CommandWidget::commandEntered()
 
 void CommandWidget::appendToTerminal(const QString & str)
 {
+  terminalDisplay->moveCursor(QTextCursor::End);
   terminalDisplay->insertPlainText(str);
   // and scroll to the bottom
   QScrollBar * sb = terminalDisplay->verticalScrollBar();

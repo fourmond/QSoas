@@ -12,6 +12,8 @@ QT += opengl
 
 VERSION = 0.0
 
+DEFINES += SOAS_VERSION=\'\"$$VERSION\"\'
+
 PRECOMPILED_HEADER = src/headers.hh
 
 # Use a build/ directory for building

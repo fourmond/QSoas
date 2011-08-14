@@ -285,7 +285,7 @@ void CurvePanel::paint(QPainter * painter)
 
   if(drawingLegend) {
     // Here the legend:
-    int start = 3;
+    int start = r2.left();
     for(int i = 0; i < displayedItems.size(); i++) {
       QRect r(start, 3, 40, 12);
       r = displayedItems[i]->paintLegend(painter, r);
@@ -427,24 +427,6 @@ void CurvePanel::render(QPainter * painter,
 
   QRect savedRect = internalRectangle;
 
-  // // Disabling the cosmetic flag on all displayed items ?
-  // for(int i = 0; i < displayedItems.size(); i++) {
-  //   CurveItem * it = displayedItems[i];
-  //   if(it)
-  //     it->pen.setCosmetic(false);
-  // }
-
-  // painter->setWindow(finalWidgetRect);
-  // painter->setViewport(targetRectangle);
-
-  // o << "Target : ";
-  // Utils::dumpRectangle(o, targetRectangle);
-  // o << endl << "Inner : ";
-  // Utils::dumpRectangle(o, innerRect);
-  // o << endl << "Widget : ";
-  // Utils::dumpRectangle(o, finalWidgetRect);
-  // o << endl << "Scale is: " << scale << endl;
-    
   painter->scale(1/scale, 1/scale);
   internalRectangle = innerRect;
   paint(painter);

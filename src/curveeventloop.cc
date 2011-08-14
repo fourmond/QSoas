@@ -84,9 +84,18 @@ void CurveEventLoop::processInputEvent(QInputEvent * ie)
 
 void CurveEventLoop::processMouseEvent(QMouseEvent * event)
 {
-  /// @todo Main window message
   pos = event->pos();
   bt = event->button();
+  updateMessage();
+}
+
+void CurveEventLoop::updateMessage()
+{
+  QPointF p = position();
+  soas().showMessage(QString("X: %1, Y: %2 %3 %4").
+                     arg(p.x()).arg(p.y()).
+                     arg(ppMessage).
+                     arg(message));
 }
 
 void CurveEventLoop::processKeyEvent(QKeyEvent * event)

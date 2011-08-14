@@ -128,6 +128,18 @@ public:
   
   /// The panel under which the current point is.
   CurvePanel * currentPanel();
+
+  /// Message to display on the status bar. This one is internally
+  /// used by PointPicker, but you can use it if you don't use
+  /// PointPicker.
+  QString ppMessage;
+
+  /// Message to display on the status bar (on the right of the other
+  /// one)
+  QString message;
+
+  /// Updates the message in the status bar
+  void updateMessage();
 };
 
 #endif

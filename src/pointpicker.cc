@@ -33,6 +33,7 @@ PointPicker::PointPicker(CurveEventLoop * l, const DataSet * ds,
   lastButton(Qt::NoButton),
   trackedButtons(Qt::LeftButton) 
 {
+  loop->ppMessage = "(marker: exact)";
 }
 
 bool PointPicker::processEvent()
@@ -54,7 +55,7 @@ bool PointPicker::processEvent()
         ///
         /// @todo handle the case of multiple datasets.
         QPair<double, int> dst = loop->distanceToDataSet(trackedDataSet);
-        if(60 > dst.first && 0 <= dst.second) { 
+        if(0 <= dst.second) { 
           if(method == Exact) {
             lastIndex = dst.second;
             lastPos = trackedDataSet->pointAt(lastIndex);
@@ -75,17 +76,20 @@ bool PointPicker::processEvent()
     case 'x':
     case 'X':                   // eXact
       method = Exact;
-      soas().showMessage(QObject::tr("Marker set to exact"));
+      loop->ppMessage = "(marker: exact)";
+      loop->updateMessage();
       return true;
     case 'o':
     case 'O':                   // Off
       method = Off;
-      soas().showMessage(QObject::tr("Marker set to off"));
+      loop->ppMessage = "(marker: off)";
+      loop->updateMessage();
       return true;
     case 's':
     case 'S':                   // Smooth
       method = Smooth;
-      soas().showMessage(QObject::tr("Marker set to smooth"));
+      loop->ppMessage = "(marker: smooth)";
+      loop->updateMessage();
       return true;
     default:
       return false;

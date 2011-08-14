@@ -104,7 +104,8 @@ const int nbNaturalDistances = sizeof(naturalDistances)/sizeof(double);
 ///
 /// This code comes from Tioga's axes.c file.
 static Vector pickMajorTicksLocation(double min, double max, 
-                                     double * tick, double tickMin)
+                                     double * tick, double tickMin,
+                                     double * fact)
 {
   /* The factor by which you need to divide to get
      the tick_min within [1,10[ */
@@ -143,6 +144,8 @@ static Vector pickMajorTicksLocation(double min, double max,
    int nb = (int)round((last_tick - first_tick)/(*tick));
    for (int i = 0; i <= nb ; i++)
      ret << first_tick + (*tick) * i;
+
+   *fact = factor;
   
   return ret;
 }
@@ -155,7 +158,7 @@ void CurvePanel::pickTicks()
     double minTick = std::max(fabs(50/t.m11()), rect.width()/8);
     double tick;
     xTicks = pickMajorTicksLocation(rect.left(), rect.right(), 
-                                    &tick, minTick);
+                                    &tick, minTick, &xTicksFactor);
   }  
   {
     double minTick = std::max(fabs(40/t.m22()), rect.height()/8);
@@ -163,7 +166,7 @@ void CurvePanel::pickTicks()
       minTick = rect.height()/4; // Try to have several ticks.
     double tick;
     yTicks = pickMajorTicksLocation(rect.top(), rect.bottom(), 
-                                    &tick, minTick);
+                                    &tick, minTick, &yTicksFactor);
   }
 }
 
@@ -246,6 +249,16 @@ void CurvePanel::paint(QPainter * painter)
   }
 
   if(drawingYTicks) {
+    QString realYLabel = yLabel;
+    double fact = 1;
+    if(yTicksFactor < 0.1 || yTicksFactor > 1e3) {
+      fact = 1/yTicksFactor;
+      realYLabel += QString(" (%1 %2)").
+        arg(QChar(0xD7)
+            // "scale:"
+            ).arg(QString::number(1/fact, 'e', 0));
+    }
+
     for(int i = 0; i < yTicks.size(); i++) {
       double y = yTicks[i];
       QPointF pt(0, y);
@@ -254,17 +267,17 @@ void CurvePanel::paint(QPainter * painter)
       QRectF textPos(pt, QSizeF(0,0));
       painter->drawText(textPos.adjusted(-15,-5,-2, 5),
                         Qt::AlignVCenter | Qt::AlignRight | Qt::TextDontClip,
-                        QString::number(y));
+                        QString::number(y*fact));
     }
     // Now more fun: Y label
-    if(! yLabel.isEmpty()) {
+    if(! realYLabel.isEmpty()) {
       painter->save();
       painter->translate(r2.left() - 40, 0.5*(r2.bottom() + r2.top()));
       painter->rotate(-90);
       QRect textPos(QPoint(0,0), QSize(0,0));
       painter->drawText(textPos.adjusted(-5,-5,5, 5),
                         Qt::AlignHCenter | Qt::AlignBottom | Qt::TextDontClip,
-                        yLabel);
+                        realYLabel);
 
       painter->restore();
     }

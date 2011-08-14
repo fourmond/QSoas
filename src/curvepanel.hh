@@ -64,8 +64,13 @@ class CurvePanel : public QObject {
   /// Does the reverse.
   QTransform reverseTransform;
 
+  /// @todo Maybe xTicks and xTicksFactor should be merged into a
+  /// single class ?
   Vector xTicks;
+  double xTicksFactor;
+
   Vector yTicks;
+  double yTicksFactor;
 
   /// Chooses the location for the X and Y ticks
   void pickTicks();

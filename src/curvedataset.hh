@@ -25,6 +25,8 @@
 class DataSet;
 
 /// A representation of a DataSet attached to a CurveView class.
+///
+/// @todo Add markers on demand !
 class CurveDataSet : public CurveItem {
   /// The dataset attached to this object
   const DataSet * dataSet;

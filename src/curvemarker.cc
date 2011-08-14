@@ -20,7 +20,8 @@
 #include <curvemarker.hh>
 
 
-void CurveMarker::paintMarker(QPainter * painter, const QPointF & realPos)
+void CurveMarker::paintMarker(QPainter * painter, const QPointF & realPos,
+                              MarkerType type, double size)
 {
   if(realPos.x() != realPos.x() || // NaN != NaN
      realPos.y() != realPos.y())
@@ -42,9 +43,9 @@ void CurveMarker::paint(QPainter * painter, const QRectF &,
   painter->setPen(pen);
   painter->setBrush(brush);
   if(points.size() == 0)
-    paintMarker(painter, ctw.map(p));
+    paintMarker(painter, ctw.map(p),type, size);
   else
     for(int i = 0; i < points.size(); i++)
-      paintMarker(painter, ctw.map(points[i]));
+      paintMarker(painter, ctw.map(points[i]), type, size);
   painter->restore();
 }

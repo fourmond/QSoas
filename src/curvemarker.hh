@@ -25,7 +25,6 @@
 
 /// A marker, centered on a point.
 class CurveMarker : public CurveItem {
-  void paintMarker(QPainter * painter, const QPointF & realPos);
 public:
 
   QPointF p;
@@ -45,10 +44,10 @@ public:
   virtual void paint(QPainter * painter, const QRectF & bbox,
                      const QTransform & curveToWidget);
 
-  /// Paints the marker of the given \p type at the given position,
-  /// using the current pen and brush.
+  /// Paints the marker of the given \a type and the given size at the
+  /// given position, using the current pen and brush.
   static void paintMarker(QPainter * painter, const QPointF & p,
-                          MarkerType type);
+                          MarkerType type, double size);
 
   CurveMarker() : p(0.0/0.0, 0.0/0.0), size(1.0), type(Circle) {;};
 };

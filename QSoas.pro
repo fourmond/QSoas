@@ -24,24 +24,27 @@ OBJECTS_DIR = build
 # best case (excepted when a function only exits via an exception)
 QMAKE_CXXFLAGS += -Werror=return-type 
 
-# Todo, later: add Ruby classes.
-# INCLUDEPATH += /usr/lib/ruby/1.8/x86_64-linux
-# LIBS += -lruby1.8
-
 # Generate doxygen documentation
 doc.commands = doxygen 
 
 QMAKE_EXTRA_TARGETS += doc
 
-# Ruby detection/installation
-RUBY_LIB_ARG = $$system(ruby ./get-ruby-config.rb libarg)
-RUBY_INCLUDE_DIR = $$system(ruby ./get-ruby-config.rb includedir)
-message(Found ruby: library is $$RUBY_LIB_ARG and includes at $$RUBY_INCLUDE_DIR)
+# You can specify the full path of ruby on the command-line using:
+# qmake RUBY=/usr/local/ruby1.8/bin/ruby
+isEmpty(RUBY):RUBY = ruby
 
-# We use both the plain include dir and the ruby include dir, as 1.8
-# and 1.9.1 differ with respect to the location of the intern.h header
-# file.
-INCLUDEPATH += $$RUBY_INCLUDE_DIR
+
+# Ruby detection/installation
+RUBY_LIB_ARG = $$system($$RUBY ./get-ruby-config.rb libarg)
+RUBY_INCLUDE_DIRS = $$system($$RUBY ./get-ruby-config.rb includedir)
+
+isEmpty(RUBY_LIB_ARG) {
+  error("Could not find ruby, make sure $$RUBY is in the PATH !")
+}
+
+message("Ruby: using $$RUBY, found library: $$RUBY_LIB_ARG and includes at $$RUBY_INCLUDE_DIRS")
+
+INCLUDEPATH += $$RUBY_INCLUDE_DIRS
 LIBS += $$RUBY_LIB_ARG
 
 

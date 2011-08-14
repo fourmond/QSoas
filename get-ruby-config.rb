@@ -6,7 +6,8 @@ when "libarg"
   puts RbConfig::CONFIG['LIBRUBYARG']
 when "includedir"
   if RbConfig::CONFIG.key? 'rubyhdrdir'
-    puts RbConfig::CONFIG['rubyhdrdir']
+    puts "#{RbConfig::CONFIG['rubyhdrdir']} "+
+      "#{RbConfig::CONFIG['rubyhdrdir']}/#{RbConfig::CONFIG['arch']}"
   else
     puts RbConfig::CONFIG['archdir']
   end

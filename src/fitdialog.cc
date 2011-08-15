@@ -28,6 +28,8 @@
 #include <soas.hh>
 #include <terminal.hh>
 
+#include <actioncombo.hh>
+
 FitDialog::FitDialog(FitData * d) : data(d),
                                     stackedViews(NULL), currentIndex(0),
                                     settingEditors(false)
@@ -158,29 +160,18 @@ void FitDialog::setupFrame()
 
   /// @todo This layout probably should be replaced by two combo boxes
   hb = new QHBoxLayout;
-  hb->addWidget(new QLabel(tr("Simulated data: ")));
-  bt = new QPushButton(tr("Add all to stack"));
-  connect(bt, SIGNAL(clicked()), SLOT(pushSimulatedCurves()));
-  hb->addWidget(bt);
+  hb->addWidget(new QLabel(tr("Actions:")));
+  ActionCombo * ac = new ActionCombo(tr("Data..."));
+  ac->addAction("Push all to stack", this, SLOT(pushSimulatedCurves()));
+  ac->addAction("Save all", this, SLOT(saveSimulatedCurves()));
+  hb->addWidget(ac);
+  
+  ac = new ActionCombo(tr("Parameters..."));
+  ac->addAction("Load from file", this, SLOT(loadParameters()));
+  ac->addAction("Save to file", this, SLOT(saveParameters()));
+  hb->addWidget(ac);
 
-  bt = new QPushButton(tr("Save all to files"));
-  connect(bt, SIGNAL(clicked()), SLOT(saveSimulatedCurves()));
-  hb->addWidget(bt);
   layout->addLayout(hb);
-
-
-
-  hb = new QHBoxLayout;
-  hb->addWidget(new QLabel(tr("Parameters: ")));
-  bt = new QPushButton(tr("Load from file"));
-  connect(bt, SIGNAL(clicked()), SLOT(loadParameters()));
-  hb->addWidget(bt);
-
-  bt = new QPushButton(tr("Save to file"));
-  connect(bt, SIGNAL(clicked()), SLOT(saveParameters()));
-  hb->addWidget(bt);
-  layout->addLayout(hb);
-
 
 
   hb = new QHBoxLayout;

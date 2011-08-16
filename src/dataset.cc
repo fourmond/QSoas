@@ -498,3 +498,37 @@ Vector DataSet::bSplinesSmooth(int order, const Vector & xvalues,
 
   return ret;
 }
+
+
+void DataSet::write(QIODevice * target) const
+{
+  QTextStream o(target);
+  
+  /// @todo Write header and meta-information when applicable.
+
+  int nb = nbRows();
+  for(int i = 0; i < nb; i++) {
+    for(int j = 0; j < columns.size(); j++) {
+      if(j)
+        o << "\t";
+      o << columns[j][i];
+    }
+    o << "\n";
+  }
+  o << flush;
+}
+
+void DataSet::write(const QString & n) const
+{
+  QString fileName = n;
+  if(fileName.isEmpty())
+    fileName = cleanedName() + ".dat";
+  
+  QFile file(fileName);
+  if(! file.open(QIODevice::WriteOnly)) {
+    QString str = QObject::tr("Failed to write to file %1: %2").
+      arg(fileName).arg(file.errorString());
+    throw std::runtime_error(str.toStdString());
+  }
+  write(&file);
+}

@@ -49,6 +49,16 @@ double CurveVector::yValue(int i) const
     return gsl_vector_get(&view.vector, i);
 }
 
+// Vector CurveVector::yValues() const
+// {
+//   Vector ret;
+//   int nb = dataSet->nbRows();
+//   ret.reserve(nb);
+//   for(int i = 0; i < nb; i++)
+//     ret << yValue(i);
+//   return ret;
+// }
+
 void CurveVector::paint(QPainter * painter, const QRectF &,
                         const QTransform & ctw)
 {

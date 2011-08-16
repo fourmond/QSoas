@@ -236,6 +236,13 @@ public:
 
   /// @}
   
+  /// Writes the contents of the dataset in tab-separated format to \a
+  /// target.
+  void write(QIODevice * target) const;
+
+  /// Writes to the named file, or use the name of the dataset.
+  void write(const QString & fileName = QString()) const;
+  
 };
 
 #endif

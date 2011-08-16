@@ -275,3 +275,12 @@ gsl_vector_const_view Vector::vectorView() const
 {
   return gsl_vector_const_view_array(data(),size());
 }
+
+Vector Vector::fromGSLVector(const gsl_vector * vect)
+{
+  Vector ret;
+  ret.reserve(vect->size);
+  for(int i = 0; i < vect->size; i++)
+    ret << gsl_vector_get(vect, i);
+  return ret;
+}

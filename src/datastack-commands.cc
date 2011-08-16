@@ -105,6 +105,39 @@ namespace DataStackCommands {
 
   //////////////////////////////////////////////////////////////////////
 
+
+  
+  static void saveCommand(const QString &, QString file)
+  {
+    soas().currentDataSet()->write(file);
+  }
+
+  static QString fileNameProvider() 
+  {
+    return soas().currentDataSet()->cleanedName() + ".dat";
+  }
+
+  static ArgumentList 
+  saveArgs(QList<Argument *>() 
+           << new FileSaveArgument("file", 
+                                   QT_TR_NOOP("File name"),
+                                   QT_TR_NOOP("File name for saving"),
+                                   &fileNameProvider));
+
+
+  static Command 
+  sv("save", // command name
+       optionLessEffector(saveCommand), // action
+       "stack",  // group name
+       &saveArgs, // arguments
+       NULL, // options
+       QT_TR_NOOP("Save"),
+       QT_TR_NOOP("Saves the current buffer"),
+       QT_TR_NOOP("Saves the current buffer to a file"),
+       "s");
+
+  //////////////////////////////////////////////////////////////////////
+
   static void showStackCommand(const QString &)
   {
     soas().stack().showStackContents();

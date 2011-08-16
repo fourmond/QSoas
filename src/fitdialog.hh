@@ -22,6 +22,7 @@
 
 class FitData;
 class CurveView;
+class DataSet;
 
 /// This class handles all the user interaction during fits.
 class FitDialog : public QDialog {
@@ -91,6 +92,8 @@ class FitDialog : public QDialog {
   /// Fills the FitData with parameter information
   void setDataParameters();
 
+  DataSet * simulatedData(int i);
+
 
 public:
   FitDialog(FitData * data);
@@ -130,6 +133,9 @@ protected slots:
 
   /// Add all simulated datasets to the data stack
   void pushSimulatedCurves();
+
+  /// Adds current simulated datset to the data stack
+  void pushCurrentCurve();
 
   /// Saves all simulated data to files
   void saveSimulatedCurves();

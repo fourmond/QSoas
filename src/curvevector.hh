@@ -57,6 +57,8 @@ public:
   virtual QRect paintLegend(QPainter * painter, 
                             const QRect & placement);
 
+  // /// Returns a vector containing the currently displayed Y values.
+  // Vector yValues() const;
 };
 
 

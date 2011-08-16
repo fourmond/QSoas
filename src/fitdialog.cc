@@ -29,6 +29,7 @@
 #include <terminal.hh>
 
 #include <actioncombo.hh>
+#include <vector.hh>
 
 FitDialog::FitDialog(FitData * d) : data(d),
                                     stackedViews(NULL), currentIndex(0),
@@ -163,6 +164,7 @@ void FitDialog::setupFrame()
   hb->addWidget(new QLabel(tr("Actions:")));
   ActionCombo * ac = new ActionCombo(tr("Data..."));
   ac->addAction("Push all to stack", this, SLOT(pushSimulatedCurves()));
+  ac->addAction("Push current to stack", this, SLOT(pushCurrentCurve()));
   ac->addAction("Save all", this, SLOT(saveSimulatedCurves()));
   hb->addWidget(ac);
   
@@ -340,9 +342,29 @@ void FitDialog::previousDataset()
   if(currentIndex > 0)
     bufferSelection->setCurrentIndex(currentIndex - 1);
 }
+
+DataSet *  FitDialog::simulatedData(int i)
+{
+  const DataSet * base = data->datasets[i];
+  gsl_vector_view v =  data->viewForDataset(i, data->storage);    
+  DataSet * ds = 
+    new DataSet(QList<Vector>() << base->x() 
+                << Vector::fromGSLVector(&v.vector));
+  ds->name = base->cleanedName() + "_fit_" + data->fit->fitName() + ".dat";
+  return ds;
+}
+
                 
 void FitDialog::pushSimulatedCurves()
 {
+  for(int i = 0; i < views.size(); i++)
+    soas().pushDataSet(simulatedData(i));
+}
+
+void FitDialog::pushCurrentCurve()
+{
+  if(currentIndex >= 0)
+    soas().pushDataSet(simulatedData(currentIndex));
 }
 
 void FitDialog::saveSimulatedCurves()

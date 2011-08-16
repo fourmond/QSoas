@@ -96,6 +96,9 @@ public:
   /// \warning The return value should not be freed using
   /// gsl_vector_free !
   gsl_vector_const_view vectorView() const;
+
+  /// Constructs from a GSL vector
+  static Vector fromGSLVector(const gsl_vector * vect);
   
   /// @}
 

@@ -81,16 +81,14 @@ DataSet * TextBackend::readFromStream(QIODevice * stream,
 
 
 
-namespace Backends {
-  TextBackend csv(QRegExp("\\s*[;,]\\s*"),
-                  "csv",
-                  QT_TR_NOOP("CSV files"),
-                  QT_TR_NOOP("Backend to read CSV files"));
+TextBackend csv(QRegExp("\\s*[;,]\\s*"),
+                "csv",
+                "CSV files",
+                "Backend to read CSV files");
 
 
-  TextBackend text(QRegExp("\\s+"),
-                   "text",
-                   QT_TR_NOOP("Text files"),
-                   QT_TR_NOOP("Backend to read plain text files"));
-}
+TextBackend text(QRegExp("\\s+"),
+                 "text",
+                 "Text files",
+                 "Backend to read plain text files");
                 

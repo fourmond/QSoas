@@ -29,8 +29,8 @@
 #include <fitdialog.hh>
 
 static Group fits("fits", 0,
-                  QT_TR_NOOP("Fits"),
-                  QT_TR_NOOP("Fitting of data"));
+                  "Fits",
+                  "Fitting of data");
 
 
 FitData::FitData(Fit * f, const QList<const DataSet *> & ds) : 
@@ -282,8 +282,8 @@ void Fit::makeCommands()
   ArgumentList * al = new 
     ArgumentList(QList<Argument *>()
                  << new SeveralDataSetArgument("datasets", 
-                                               QT_TR_NOOP("Dataset"),
-                                               QT_TR_NOOP("Datasets to fit"),
+                                               "Dataset",
+                                               "Datasets to fit",
                                                true));
   new Command((const char*)(QString("mfit-") + name).toLocal8Bit(),
               optionLessEffector(this, &Fit::runFit),

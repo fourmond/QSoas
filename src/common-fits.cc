@@ -54,8 +54,8 @@ public:
 
 
   ExpFit() : FunctionFit("expd", 
-                         QT_TR_NOOP("Exponential decay"),
-                         QT_TR_NOOP("Exponential decay, formula is :...")) 
+                         "Exponential decay",
+                         "Exponential decay, formula is :...") 
   { ;};
 };
 

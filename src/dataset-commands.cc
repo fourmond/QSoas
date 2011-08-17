@@ -35,366 +35,362 @@
 
 #include <pointpicker.hh>
 
-namespace DataSetCommands {
-  static Group grp("buffer", 2,
-                   QT_TR_NOOP("Buffer"),
-                   QT_TR_NOOP("Buffer manipulations"));
+static Group grp("buffer", 2,
+                 "Buffer",
+                 "Buffer manipulations");
 
-  //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
-  /// Splits the given data at dx sign change
-  static void splitDataSet(const DataSet * ds, bool first)
-  {
-    int idx = ds->deltaSignChange(0);
-    if(idx < 0) {
-      Terminal::out << QObject::tr("No dx sign change, nothing to do !") 
-                    << endl;
-      return ;
-    }
-    DataSet * newDS;
-    ds->splitAt(idx, (first ? &newDS : NULL), (first ? NULL : &newDS));
-    soas().pushDataSet(newDS);
+/// Splits the given data at dx sign change
+static void splitDataSet(const DataSet * ds, bool first)
+{
+  int idx = ds->deltaSignChange(0);
+  if(idx < 0) {
+    Terminal::out << QObject::tr("No dx sign change, nothing to do !") 
+                  << endl;
+    return ;
   }
+  DataSet * newDS;
+  ds->splitAt(idx, (first ? &newDS : NULL), (first ? NULL : &newDS));
+  soas().pushDataSet(newDS);
+}
   
-  static void splitaCommand(const QString &)
-  {
-    const DataSet * ds = soas().currentDataSet();
-    splitDataSet(ds, true);
-  }
+static void splitaCommand(const QString &)
+{
+  const DataSet * ds = soas().currentDataSet();
+  splitDataSet(ds, true);
+}
 
 
-  static Command 
-  sa("splita", // command name
-     optionLessEffector(splitaCommand), // action
-     "buffer",  // group name
-     NULL, // arguments
-     NULL, // options
-     QT_TR_NOOP("Split first"),
-     QT_TR_NOOP("Gets buffer until dx sign change"),
-     QT_TR_NOOP("Returns the first part of the buffer, until "
-                "the first change of sign of dx"));
+static Command 
+sa("splita", // command name
+   optionLessEffector(splitaCommand), // action
+   "buffer",  // group name
+   NULL, // arguments
+   NULL, // options
+   "Split first",
+   "Gets buffer until dx sign change",
+   QT_TR_NOOP("Returns the first part of the buffer, until "
+              "the first change of sign of dx"));
     
-  static void splitbCommand(const QString &)
-  {
-    const DataSet * ds = soas().currentDataSet();
-    splitDataSet(ds, false);
-  }
+static void splitbCommand(const QString &)
+{
+  const DataSet * ds = soas().currentDataSet();
+  splitDataSet(ds, false);
+}
         
 
-  static Command 
-  sb("splitb", // command name
-     optionLessEffector(splitbCommand), // action
-     "buffer",  // group name
-     NULL, // arguments
-     NULL, // options
-     QT_TR_NOOP("Split second"),
-     QT_TR_NOOP("Gets buffer after first dx sign change"),
-     QT_TR_NOOP("Returns the part of the buffer after "
-                "the first change of sign of dx"));
+static Command 
+sb("splitb", // command name
+   optionLessEffector(splitbCommand), // action
+   "buffer",  // group name
+   NULL, // arguments
+   NULL, // options
+   "Split second",
+   "Gets buffer after first dx sign change",
+   QT_TR_NOOP("Returns the part of the buffer after "
+              "the first change of sign of dx"));
 
-  //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 
-  static void cursorCommand(const QString &)
-  {
-    const DataSet * ds = soas().currentDataSet();
-    CurveEventLoop loop;
-    CurveMarker m;
-    CurveView & view = soas().view();
-    PointPicker pick(&loop, ds);
+static void cursorCommand(const QString &)
+{
+  const DataSet * ds = soas().currentDataSet();
+  CurveEventLoop loop;
+  CurveMarker m;
+  CurveView & view = soas().view();
+  PointPicker pick(&loop, ds);
 
-    view.addItem(&m);
-    m.size = 4;
-    m.pen = QPen(Qt::NoPen);
-    m.brush = QBrush(QColor(0,0,255,100)); // A kind of transparent blue
-    loop.setHelpString(QObject::tr("Cursor:\n"
-                                   "click to see\n") 
-                       + pick.helpText() +
-                       QObject::tr("space: write to output\n"
-                                   "q or ESC to quit"));
-    while(! loop.finished()) {
-      if(pick.processEvent()) {
-        if(pick.button() != Qt::NoButton) {
-          m.p = pick.point();
-          Terminal::out << m.p.x() << "\t"
-                        << m.p.y() << "\t" 
-                        << pick.pointIndex() << endl;
-        }
-      }
-      switch(loop.type()) {
-      case QEvent::KeyPress: 
-        if(loop.key() == 'q' || loop.key() == 'Q' ||
-           loop.key() == Qt::Key_Escape)
-          return;
-        if(loop.key() == ' ') {
-          // Write to output file
-          OutFile::out.setHeader("Point positions:\n"
-                                 "X\tY\t\tidx\tbuffer");
-          Terminal::out << "Writing position to output file: '" 
-                        << OutFile::out.fileName() << "'" << endl;
-
-          OutFile::out << m.p.x() << "\t"
-                       << m.p.y() << "\t" 
-                       << pick.pointIndex() << "\t"
-                       << ds->name << "\n" << flush;
-        }
-        break;
-      default:
-        ;
+  view.addItem(&m);
+  m.size = 4;
+  m.pen = QPen(Qt::NoPen);
+  m.brush = QBrush(QColor(0,0,255,100)); // A kind of transparent blue
+  loop.setHelpString(QObject::tr("Cursor:\n"
+                                 "click to see\n") 
+                     + pick.helpText() +
+                     QObject::tr("space: write to output\n"
+                                 "q or ESC to quit"));
+  while(! loop.finished()) {
+    if(pick.processEvent()) {
+      if(pick.button() != Qt::NoButton) {
+        m.p = pick.point();
+        Terminal::out << m.p.x() << "\t"
+                      << m.p.y() << "\t" 
+                      << pick.pointIndex() << endl;
       }
     }
+    switch(loop.type()) {
+    case QEvent::KeyPress: 
+      if(loop.key() == 'q' || loop.key() == 'Q' ||
+         loop.key() == Qt::Key_Escape)
+        return;
+      if(loop.key() == ' ') {
+        // Write to output file
+        OutFile::out.setHeader("Point positions:\n"
+                               "X\tY\t\tidx\tbuffer");
+        Terminal::out << "Writing position to output file: '" 
+                      << OutFile::out.fileName() << "'" << endl;
+
+        OutFile::out << m.p.x() << "\t"
+                     << m.p.y() << "\t" 
+                     << pick.pointIndex() << "\t"
+                     << ds->name << "\n" << flush;
+      }
+      break;
+    default:
+      ;
+    }
   }
+}
 
-  static Command 
-  cu("cursor", // command name
-     optionLessEffector(cursorCommand), // action
-     "buffer",  // group name
-     NULL, // arguments
-     NULL, // options
-     QT_TR_NOOP("Cursor"),
-     QT_TR_NOOP("Display cursors on the curve"),
-     QT_TR_NOOP("Displays cursors on the curve"),
-     "cu");
-  //////////////////////////////////////////////////////////////////////
+static Command 
+cu("cursor", // command name
+   optionLessEffector(cursorCommand), // action
+   "buffer",  // group name
+   NULL, // arguments
+   NULL, // options
+   "Cursor",
+   "Display cursors on the curve",
+   "Displays cursors on the curve",
+   "cu");
+//////////////////////////////////////////////////////////////////////
 
 
-  static void cutCommand(const QString &)
-  {
-    const DataSet * ds = soas().currentDataSet();
-    CurveHorizontalRegion r;
-    CurveView & view = soas().view();
+static void cutCommand(const QString &)
+{
+  const DataSet * ds = soas().currentDataSet();
+  CurveHorizontalRegion r;
+  CurveView & view = soas().view();
 
-    /// We remove the current display
-    view.clear();
-    CurveEventLoop loop;
-    CurveData d;
-    view.addItem(&r);
-    view.addItem(&d);
+  /// We remove the current display
+  view.clear();
+  CurveEventLoop loop;
+  CurveData d;
+  view.addItem(&r);
+  view.addItem(&d);
 
-    r.pen = QPen(QColor("blue"), 1, Qt::DotLine);
-    d.pen = QPen(QColor("red"));
+  r.pen = QPen(QColor("blue"), 1, Qt::DotLine);
+  d.pen = QPen(QColor("red"));
 
-    view.mainPanel()->xLabel = "Index";
+  view.mainPanel()->xLabel = "Index";
 
-    loop.setHelpString(QObject::tr("Cut:\n"
-                                   "left/right: bounds\n"
-                                   "q: keep only the inside\n"
-                                   "u: keep only the outside\n"
-                                   "ESC: cancel"));
+  loop.setHelpString(QObject::tr("Cut:\n"
+                                 "left/right: bounds\n"
+                                 "q: keep only the inside\n"
+                                 "u: keep only the outside\n"
+                                 "ESC: cancel"));
 
-    d.countBB = true;
-    d.yvalues = ds->y();
-    d.xvalues = d.yvalues;
-    for(int i = 0; i < d.xvalues.size(); i++)
-      d.xvalues[i] = i;
-    r.xleft = 0;
-    r.xright = d.xvalues.size()-1;
+  d.countBB = true;
+  d.yvalues = ds->y();
+  d.xvalues = d.yvalues;
+  for(int i = 0; i < d.xvalues.size(); i++)
+    d.xvalues[i] = i;
+  r.xleft = 0;
+  r.xright = d.xvalues.size()-1;
     
-    /// @todo selection mode ? (do we need that ?)
-    while(! loop.finished()) {
-      switch(loop.type()) {
-      case QEvent::MouseButtonPress: 
-        {
-          r.setX(loop.position().x(), loop.button());
-          break;
-        }
-      case QEvent::KeyPress: 
-        switch(loop.key()) {
-        case Qt::Key_Escape:
-          view.addDataSet(ds);  // To turn its display back on
-          return;
-        case 'q':
-        case 'Q':
-          soas().pushDataSet(ds->subset(r.xleft, r.xright, true));
-          return;
-          
-        case 'U':
-        case 'u':
-          soas().pushDataSet(ds->subset(r.xleft, r.xright, false));
-          return;
-        default:
-          ;
-        }
+  /// @todo selection mode ? (do we need that ?)
+  while(! loop.finished()) {
+    switch(loop.type()) {
+    case QEvent::MouseButtonPress: 
+      {
+        r.setX(loop.position().x(), loop.button());
         break;
+      }
+    case QEvent::KeyPress: 
+      switch(loop.key()) {
+      case Qt::Key_Escape:
+        view.addDataSet(ds);  // To turn its display back on
+        return;
+      case 'q':
+      case 'Q':
+        soas().pushDataSet(ds->subset(r.xleft, r.xright, true));
+        return;
+          
+      case 'U':
+      case 'u':
+        soas().pushDataSet(ds->subset(r.xleft, r.xright, false));
+        return;
       default:
         ;
       }
+      break;
+    default:
+      ;
     }
   }
+}
 
-  static Command 
-  cut("cut", // command name
-     optionLessEffector(cutCommand), // action
-     "buffer",  // group name
-     NULL, // arguments
-     NULL, // options
-     QT_TR_NOOP("Cut"),
-     QT_TR_NOOP("Cuts the current curve"),
-     QT_TR_NOOP("Cuts bits from the current curve"),
-     "c");
+static Command 
+cut("cut", // command name
+    optionLessEffector(cutCommand), // action
+    "buffer",  // group name
+    NULL, // arguments
+    NULL, // options
+    "Cut",
+    "Cuts the current curve",
+    "Cuts bits from the current curve",
+    "c");
 
-  //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 
-  static void zoomCommand(const QString &)
-  {
-    soas().currentDataSet(); // to ensure datasets are loaded
-    CurveEventLoop loop;
-    CurveRectangle r;
-    CurveView & view = soas().view();
-    CurvePanel * panel = NULL;
-    view.addItem(&r);
-    r.pen = QPen(Qt::DotLine);
-    r.brush = QBrush(QColor(0,0,255,50)); // A kind of transparent blue
+static void zoomCommand(const QString &)
+{
+  soas().currentDataSet(); // to ensure datasets are loaded
+  CurveEventLoop loop;
+  CurveRectangle r;
+  CurveView & view = soas().view();
+  CurvePanel * panel = NULL;
+  view.addItem(&r);
+  r.pen = QPen(Qt::DotLine);
+  r.brush = QBrush(QColor(0,0,255,50)); // A kind of transparent blue
 
-    loop.setHelpString(QObject::tr("Zoom:\n"
-                                   "click and drag\n"
-                                   "c: reset\n"
-                                   "z,Z,Ctrl wheel: in/out\n"
-                                   "x,X,wheel: X in/out\n"
-                                   "y,Y,Shift wheel: Y in/out\n"
-                                   "q or ESC to quit"));
-    while(! loop.finished()) {
-      switch(loop.type()) {
-      case QEvent::MouseMove:
+  loop.setHelpString(QObject::tr("Zoom:\n"
+                                 "click and drag\n"
+                                 "c: reset\n"
+                                 "z,Z,Ctrl wheel: in/out\n"
+                                 "x,X,wheel: X in/out\n"
+                                 "y,Y,Shift wheel: Y in/out\n"
+                                 "q or ESC to quit"));
+  while(! loop.finished()) {
+    switch(loop.type()) {
+    case QEvent::MouseMove:
+      if(panel) {
+        r.p2 = loop.position(panel);
+        soas().
+          showMessage(QObject::tr("Zoom from %1,%2 to %3,%4").
+                      arg(r.p1.x()).arg(r.p1.y()).
+                      arg(r.p1.x()).arg(r.p2.y()));
+      }
+      else
+        soas().showMessage(QObject::tr("Point: %1,%2").
+                           arg(loop.position().x()).
+                           arg(loop.position().y()));
+      break;
+    case QEvent::MouseButtonPress: 
+      /// @todo cancel zoom.
+      if(panel) {
+        QRectF z(r.p1, loop.position(panel));
+        panel->zoomIn(z.normalized());
+        panel = NULL;
+        r.setRect(QRectF());
+      }
+      else {
+        panel = loop.currentPanel();
         if(panel) {
-          r.p2 = loop.position(panel);
-          soas().
-            showMessage(QObject::tr("Zoom from %1,%2 to %3,%4").
-                        arg(r.p1.x()).arg(r.p1.y()).
-                        arg(r.p1.x()).arg(r.p2.y()));
+          r.p1 = loop.position(panel);
+          r.p2 = r.p1;
         }
-        else
-          soas().showMessage(QObject::tr("Point: %1,%2").
-                             arg(loop.position().x()).
-                             arg(loop.position().y()));
-        break;
-      case QEvent::MouseButtonPress: 
-        /// @todo cancel zoom.
+      }
+    case QEvent::KeyPress: {
+      if(loop.key() == 'q' || loop.key() == 'Q')
+        return;
+      if(loop.key() == Qt::Key_Escape) {
         if(panel) {
-          QRectF z(r.p1, loop.position(panel));
-          panel->zoomIn(z.normalized());
           panel = NULL;
           r.setRect(QRectF());
         }
-        else {
-          panel = loop.currentPanel();
-          if(panel) {
-            r.p1 = loop.position(panel);
-            r.p2 = r.p1;
-          }
-        }
-      case QEvent::KeyPress: {
-        if(loop.key() == 'q' || loop.key() == 'Q')
+        else
           return;
-        if(loop.key() == Qt::Key_Escape) {
-          if(panel) {
-            panel = NULL;
-            r.setRect(QRectF());
-          }
-          else
-            return;
-          break;
-        }
-        CurvePanel * p = loop.currentPanel();
-        if(!p)
-          break;
-        switch(loop.key()) {
-        case 'c':
-        case 'C':
-          p->resetZoom();
-          break;
-        case 'z':
-          p->zoomIn(loop.position(p));
-          break;
-        case 'Z':
-          p->zoomIn(loop.position(p), -1.0);
         break;
-        case 'x':
-          p->zoomIn(loop.position(p), Qt::Horizontal);
-          break;
-        case 'X':
-          p->zoomIn(loop.position(p), Qt::Horizontal, -1);
-          break;
-        case 'y':
-          p->zoomIn(loop.position(p), Qt::Vertical);
-          break;
-        case 'Y':
-          p->zoomIn(loop.position(p), Qt::Vertical, -1);
-          break;
-        default:
-          ;
-        }
       }
+      CurvePanel * p = loop.currentPanel();
+      if(!p)
+        break;
+      switch(loop.key()) {
+      case 'c':
+      case 'C':
+        p->resetZoom();
+        break;
+      case 'z':
+        p->zoomIn(loop.position(p));
+        break;
+      case 'Z':
+        p->zoomIn(loop.position(p), -1.0);
+        break;
+      case 'x':
+        p->zoomIn(loop.position(p), Qt::Horizontal);
+        break;
+      case 'X':
+        p->zoomIn(loop.position(p), Qt::Horizontal, -1);
+        break;
+      case 'y':
+        p->zoomIn(loop.position(p), Qt::Vertical);
+        break;
+      case 'Y':
+        p->zoomIn(loop.position(p), Qt::Vertical, -1);
         break;
       default:
         ;
       }
     }
+      break;
+    default:
+      ;
+    }
   }
-
-  static Command 
-  zo("zoom", // command name
-     optionLessEffector(zoomCommand), // action
-     "buffer",  // group name
-     NULL, // arguments
-     NULL, // options
-     QT_TR_NOOP("Zoom"),
-     QT_TR_NOOP("Zooms on the curve"),
-     QT_TR_NOOP("Zooms on the current curve"),
-     "z");
-
-  //////////////////////////////////////////////////////////////////////
-
-
-  static void subCommand(const QString &, DataSet * a, 
-                         DataSet * b)
-  {
-    Terminal::out << QObject::tr("Subtracting buffer '%1' from buffer '%2'").
-      arg(b->name).arg(a->name) << endl;
-    soas().pushDataSet(a->subtract(b));
-  }
-
-  static ArgumentList 
-  suba(QList<Argument *>() 
-       << new DataSetArgument("first", 
-                              QT_TR_NOOP("Buffer"),
-                              QT_TR_NOOP("First buffer"))
-       << new DataSetArgument("second", 
-                              QT_TR_NOOP("Buffer"),
-                              QT_TR_NOOP("Second buffer")));
-
-  static Command 
-  sub("subtract", // command name
-     optionLessEffector(subCommand), // action
-     "buffer",  // group name
-     &suba, // arguments
-     NULL, // options
-     QT_TR_NOOP("Subtract"),
-     QT_TR_NOOP("Subtract two buffers"),
-     QT_TR_NOOP("Subtract two buffers"),
-     "S");
-
-  //////////////////////////////////////////////////////////////////////
-
-
-  static void divCommand(const QString &, DataSet * a, 
-                         DataSet * b)
-  {
-    Terminal::out << QObject::tr("Dividing buffer '%2' by buffer '%1'").
-      arg(b->name).arg(a->name) << endl;
-    soas().pushDataSet(a->divide(b));
-  }
-
-  static Command 
-  div("div", // command name
-     optionLessEffector(divCommand), // action
-     "buffer",  // group name
-     &suba, // arguments
-     NULL, // options
-     QT_TR_NOOP("Subtract"),
-     QT_TR_NOOP("Subtract two buffers"),
-     QT_TR_NOOP("Subtract two buffers"));
-  
-
 }
+
+static Command 
+zo("zoom", // command name
+   optionLessEffector(zoomCommand), // action
+   "buffer",  // group name
+   NULL, // arguments
+   NULL, // options
+   "Zoom",
+   "Zooms on the curve",
+   "Zooms on the current curve",
+   "z");
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void subCommand(const QString &, DataSet * a, 
+                       DataSet * b)
+{
+  Terminal::out << QObject::tr("Subtracting buffer '%1' from buffer '%2'").
+    arg(b->name).arg(a->name) << endl;
+  soas().pushDataSet(a->subtract(b));
+}
+
+static ArgumentList 
+suba(QList<Argument *>() 
+     << new DataSetArgument("first", 
+                            "Buffer",
+                            "First buffer")
+     << new DataSetArgument("second", 
+                            "Buffer",
+                            "Second buffer"));
+
+static Command 
+sub("subtract", // command name
+    optionLessEffector(subCommand), // action
+    "buffer",  // group name
+    &suba, // arguments
+    NULL, // options
+    "Subtract",
+    "Subtract two buffers",
+    "Subtract two buffers",
+    "S");
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void divCommand(const QString &, DataSet * a, 
+                       DataSet * b)
+{
+  Terminal::out << QObject::tr("Dividing buffer '%2' by buffer '%1'").
+    arg(b->name).arg(a->name) << endl;
+  soas().pushDataSet(a->divide(b));
+}
+
+static Command 
+divc("div", // command name
+    optionLessEffector(divCommand), // action
+    "buffer",  // group name
+    &suba, // arguments
+    NULL, // options
+    "Subtract",
+    "Subtract two buffers",
+    "Subtract two buffers");

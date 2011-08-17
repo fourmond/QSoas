@@ -38,287 +38,282 @@
 #include <commandwidget.hh>
 
 
-/// A private namespace holding general-purpose commands
-namespace GeneralCommands {
-  static Group file("file", 0,
-                    QT_TR_NOOP("File"),
-                    QT_TR_NOOP("General purpose commands"));
+static Group file("file", 0,
+                  "File",
+                  "General purpose commands");
 
 
-  static void quitCommand(const QString & name)
-  {
-    if( name != "quit") {
-      if(! Utils::askConfirmation(QObject::tr("Are you really sure you "
-                                              "want to quit ?"))) {
-        Terminal::out << "Great !" << endl;
-        return;
-      }
+static void quitCommand(const QString & name)
+{
+  if( name != "quit") {
+    if(! Utils::askConfirmation(QObject::tr("Are you really sure you "
+                                            "want to quit ?"))) {
+      Terminal::out << "Great !" << endl;
+      return;
     }
-    qApp->quit();
   }
-  static Command 
-  quit("quit", // command name
-       optionLessEffector(quitCommand), // action
-       "file",  // group name
-       NULL, // arguments
-       NULL, // options
-       QT_TR_NOOP("Quit"),
-       QT_TR_NOOP("Quit QSoas"),
-       QT_TR_NOOP("Exits QSoas, losing all the current session"),
-       "q");
-
-  //////////////////////////////////////////////////////////////////////
-
-  static void antialiasCommand(const QString &)
-  {
-    soas().setAntiAlias(! soas().antiAlias());
-    Terminal::out << "Antialiasing now " 
-                  << (soas().antiAlias() ? "on" : "off") 
-                  << endl;
-    if(! soas().openGL())
-      Terminal::out << "You may want to use the command opengl "
-                    << "to speed up rendering"
-                    << endl;
-  }
-
-  static Command 
-  aa("antialias", // command name
-     optionLessEffector(antialiasCommand), // action
+  qApp->quit();
+}
+static Command 
+quit("quit", // command name
+     optionLessEffector(quitCommand), // action
      "file",  // group name
      NULL, // arguments
      NULL, // options
-     QT_TR_NOOP("Antialias"),
-     QT_TR_NOOP("Toggle anti-aliasing"),
-     QT_TR_NOOP("Toggles anti-aliasing for graphics rendering."),
-     "AA");
+     "Quit",
+     "Quit QSoas",
+     "Exits QSoas, losing all the current session",
+     "q");
 
-  //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
-  static void openglCommand(const QString &)
-  {
-    soas().setOpenGL(! soas().openGL());
-    Terminal::out << "The use of OpenGL is now " 
-                  << (soas().openGL() ? "on" : "off") 
+static void antialiasCommand(const QString &)
+{
+  soas().setAntiAlias(! soas().antiAlias());
+  Terminal::out << "Antialiasing now " 
+                << (soas().antiAlias() ? "on" : "off") 
+                << endl;
+  if(! soas().openGL())
+    Terminal::out << "You may want to use the command opengl "
+                  << "to speed up rendering"
                   << endl;
-  }
-
-  static Command 
-  ogl("opengl", // command name
-      optionLessEffector(openglCommand), // action
-      "file",  // group name
-      NULL, // arguments
-      NULL, // options
-      QT_TR_NOOP("OpenGL"),
-      QT_TR_NOOP("Toggle OpenGL"),
-      QT_TR_NOOP("Toggles the use of OpenGL for graphics rendering.")
-      );
-
-  //////////////////////////////////////////////////////////////////////
-
-  static ArgumentList 
-  pops(QList<Argument *>() 
-      << new FileSaveArgument("file", 
-                              QT_TR_NOOP("Save as file"),
-                              QT_TR_NOOP("Save as file"), "biniou.ps"));
-
-  static void printCommand(const QString &, 
-                           const CommandOptions & opts)
-  {
-    QPrinter p;
-    p.setOrientation(QPrinter::Landscape);
-    if(opts.contains("file"))
-      p.setOutputFileName(opts["file"]->value<QString>());
-    else {
-       QPrintDialog printDialog(&p);
-       if(printDialog.exec() != QDialog::Accepted)
-         return;
-    }
-    QPainter painter;
-    painter.begin(&p);
-    soas().view().mainPanel()->render(&painter, 500,
-                                        p.pageRect());
-  }
-
-  static Command 
-  p("print", // command name
-    effector(printCommand), // action
-    "file",  // group name
-    NULL, // arguments
-    &pops, // options
-    QT_TR_NOOP("Print"),
-    QT_TR_NOOP("Print current view (almost)"),
-    QT_TR_NOOP("Prints the current main panel of the current view"),
-    "p"
-    );
-
-  //////////////////////////////////////////////////////////////////////
-
-  static void testELoopCommand(const QString &)
-  {
-    Debug::dumpCurrentFocus("Focus before creation: ");
-    CurveEventLoop loop;
-    Debug::dumpCurrentFocus("Focus after creation: ");
-    CurveLine l;
-    CurveMarker m;
-    CurvePanel p;
-    CurveView & view = soas().view();
-    l.pen = QPen("black");
-    view.addItem(&l);
-    view.addItem(&m);
-    view.addPanel(&p);
-    QTextStream o(stdout);
-    int i = 0;
-    m.size = 5;
-    m.pen = QPen(QColor("red"), 2);
-    m.brush = QBrush("blue");
-    Debug::dumpCurrentFocus("Focus before loop: ");
-    while(! loop.finished()) {
-      Debug::dumpCurrentFocus("Current focus: ");
-      o << "Event: " << loop.type()
-        << ", key " << QString("0x%1").arg(loop.key(), 8, 16, 
-                                           QChar('0')) << endl;
-      if(loop.key() == Qt::Key_Escape)
-        return;
-
-      if(loop.type() == QEvent::MouseButtonPress) {
-        QPointF p = loop.position();
-        o << "Press event at " << p.x() << "," << p.y() << endl;
-      
-        if(i % 2)
-          l.p2 = p;
-        else
-          l.p1 = p;
-        m.p = p;
-        i++;
-      }
-      else if(loop.type() == QEvent::KeyPress && loop.key() == 's') {
-        o << "Prompting: " << endl;
-        QString str = loop.promptForString("what ?");
-        o << "-> got: " << str << endl;
-        Terminal::out << "Got string: " << str << endl;
-      }
-    }
-    Debug::dumpCurrentFocus("Focus after loop: ");
-  }
-
-  static Command 
-  tel("test-event-loop", // command name
-      optionLessEffector(testELoopCommand), // action
-      "file",  // group name
-      NULL, // arguments
-      NULL, // options
-      QT_TR_NOOP("Test event loop"),
-      QT_TR_NOOP("Test event loop"),
-      QT_TR_NOOP("Exits QSoas, losing all the current session"));
-
-  //////////////////////////////////////////////////////////////////////
-  
-  static ArgumentList 
-  sta(QList<Argument *>() 
-      << new FileSaveArgument("file", 
-                              QT_TR_NOOP("File"),
-                              QT_TR_NOOP("Files to load !"),
-                              "soas-output.txt"));
-
-
-  static void saveTerminalCommand(const QString &, QString out)
-  {
-    QFile o(out);
-    if(! o.open(QIODevice::WriteOnly)) {
-      QString str = QObject::tr("Could not open '%1' for writing: %2").
-        arg(out).arg(o.errorString());
-      throw std::runtime_error(str.toStdString());
-    }
-    o.write(soas().prompt().terminalContents().toLocal8Bit());
-    o.close();
-  }
-
-  static Command 
-  st("save-output", // command name
-     optionLessEffector(saveTerminalCommand), // action
-     "file",  // group name
-     &sta, // arguments
-     NULL, // options
-     QT_TR_NOOP("Save output"),
-     QT_TR_NOOP("Save all output from the terminal"),
-     QT_TR_NOOP("Save all output from the terminal"));
-
-  //////////////////////////////////////////////////////////////////////
-  
-  static ArgumentList 
-  cda(QList<Argument *>() 
-      << new FileArgument("directory",  /// @todo use 
-                          QT_TR_NOOP("Directory"),
-                          QT_TR_NOOP("New directory")));
-
-  static void cdCommand(const QString &, QString dir)
-  {
-    if(! QDir::setCurrent(dir)) {
-      QString str = QObject::tr("Could not cd to '%1'").
-        arg(dir);
-      throw std::runtime_error(str.toStdString());
-    }
-  }
-
-  static Command 
-  cd("cd", // command name
-     optionLessEffector(cdCommand), // action
-     "file",  // group name
-     &cda, // arguments
-     NULL, // options
-     QT_TR_NOOP("Change directory"),
-     QT_TR_NOOP("Change current directory"),
-     QT_TR_NOOP("Save all output from the terminal"));
-  
-
-
-  //////////////////////////////////////////////////////////////////////
-  
-  static ArgumentList 
-  dummyArgs(QList<Argument *>() 
-            << new FileSaveArgument("file", 
-                                    QT_TR_NOOP("File"),
-                                    QT_TR_NOOP("Files to load !"),
-                                    "bidule.dat"));
-
-
-  static ArgumentList 
-  dummyOptions(QList<Argument *>() 
-               << new FileArgument("file", 
-                                   QT_TR_NOOP("File"),
-                                   QT_TR_NOOP("Files to load !"))
-               << new StringArgument("fiddle",
-                                     QT_TR_NOOP("File"),
-                                     QT_TR_NOOP("Files to load !"))
-               << new StringArgument("stuff",
-                                     QT_TR_NOOP("File"),
-                                     QT_TR_NOOP("Files to load !"))
-               );
-                             
-
-  static void dummyCommand(const QString & , QString arg, 
-                           const CommandOptions & opts)
-  {
-    // for(int i = 0; i < args.size(); i++)
-    //   Terminal::out << "Arg #" << i << ": '" << args[i] << "'" << endl;
-    Terminal::out << "Arg is: " << arg << endl;
-    for(CommandOptions::const_iterator i = opts.begin();
-        i != opts.end(); i++)
-      Terminal::out << "Option: " << i.key() << ": '" 
-                    << i.value()->value<QString>() << "'" << endl;
-  
-  }
-
-
-  static Command 
-  dummy("dummy", // command name
-        effector(dummyCommand), // action
-        "file",  // group name
-        &dummyArgs, // arguments
-        &dummyOptions, // options
-        QT_TR_NOOP("Dummy"),
-        QT_TR_NOOP("Dummy test command"),
-        QT_TR_NOOP("Dummy command for testing purposes"));
-
 }
 
+static Command 
+aa("antialias", // command name
+   optionLessEffector(antialiasCommand), // action
+   "file",  // group name
+   NULL, // arguments
+   NULL, // options
+   "Antialias",
+   "Toggle anti-aliasing",
+   "Toggles anti-aliasing for graphics rendering.",
+   "AA");
+
+//////////////////////////////////////////////////////////////////////
+
+static void openglCommand(const QString &)
+{
+  soas().setOpenGL(! soas().openGL());
+  Terminal::out << "The use of OpenGL is now " 
+                << (soas().openGL() ? "on" : "off") 
+                << endl;
+}
+
+static Command 
+ogl("opengl", // command name
+    optionLessEffector(openglCommand), // action
+    "file",  // group name
+    NULL, // arguments
+    NULL, // options
+    "OpenGL",
+    "Toggle OpenGL",
+    "Toggles the use of OpenGL for graphics rendering."
+    );
+
+//////////////////////////////////////////////////////////////////////
+
+static ArgumentList 
+pops(QList<Argument *>() 
+     << new FileSaveArgument("file", 
+                             "Save as file",
+                             "Save as file", "biniou.ps"));
+
+static void printCommand(const QString &, 
+                         const CommandOptions & opts)
+{
+  QPrinter p;
+  p.setOrientation(QPrinter::Landscape);
+  if(opts.contains("file"))
+    p.setOutputFileName(opts["file"]->value<QString>());
+  else {
+    QPrintDialog printDialog(&p);
+    if(printDialog.exec() != QDialog::Accepted)
+      return;
+  }
+  QPainter painter;
+  painter.begin(&p);
+  soas().view().mainPanel()->render(&painter, 500,
+                                    p.pageRect());
+}
+
+static Command 
+p("print", // command name
+  effector(printCommand), // action
+  "file",  // group name
+  NULL, // arguments
+  &pops, // options
+  "Print",
+  "Print current view (almost)",
+  "Prints the current main panel of the current view",
+  "p"
+  );
+
+//////////////////////////////////////////////////////////////////////
+
+static void testELoopCommand(const QString &)
+{
+  Debug::dumpCurrentFocus("Focus before creation: ");
+  CurveEventLoop loop;
+  Debug::dumpCurrentFocus("Focus after creation: ");
+  CurveLine l;
+  CurveMarker m;
+  CurvePanel p;
+  CurveView & view = soas().view();
+  l.pen = QPen("black");
+  view.addItem(&l);
+  view.addItem(&m);
+  view.addPanel(&p);
+  QTextStream o(stdout);
+  int i = 0;
+  m.size = 5;
+  m.pen = QPen(QColor("red"), 2);
+  m.brush = QBrush("blue");
+  Debug::dumpCurrentFocus("Focus before loop: ");
+  while(! loop.finished()) {
+    Debug::dumpCurrentFocus("Current focus: ");
+    o << "Event: " << loop.type()
+      << ", key " << QString("0x%1").arg(loop.key(), 8, 16, 
+                                         QChar('0')) << endl;
+    if(loop.key() == Qt::Key_Escape)
+      return;
+
+    if(loop.type() == QEvent::MouseButtonPress) {
+      QPointF p = loop.position();
+      o << "Press event at " << p.x() << "," << p.y() << endl;
+      
+      if(i % 2)
+        l.p2 = p;
+      else
+        l.p1 = p;
+      m.p = p;
+      i++;
+    }
+    else if(loop.type() == QEvent::KeyPress && loop.key() == 's') {
+      o << "Prompting: " << endl;
+      QString str = loop.promptForString("what ?");
+      o << "-> got: " << str << endl;
+      Terminal::out << "Got string: " << str << endl;
+    }
+  }
+  Debug::dumpCurrentFocus("Focus after loop: ");
+}
+
+static Command 
+tel("test-event-loop", // command name
+    optionLessEffector(testELoopCommand), // action
+    "file",  // group name
+    NULL, // arguments
+    NULL, // options
+    "Test event loop",
+    "Test event loop",
+    "Exits QSoas, losing all the current session");
+
+//////////////////////////////////////////////////////////////////////
+  
+static ArgumentList 
+sta(QList<Argument *>() 
+    << new FileSaveArgument("file", 
+                            "File",
+                            "Files to load !",
+                            "soas-output.txt"));
+
+
+static void saveTerminalCommand(const QString &, QString out)
+{
+  QFile o(out);
+  if(! o.open(QIODevice::WriteOnly)) {
+    QString str = QObject::tr("Could not open '%1' for writing: %2").
+      arg(out).arg(o.errorString());
+    throw std::runtime_error(str.toStdString());
+  }
+  o.write(soas().prompt().terminalContents().toLocal8Bit());
+  o.close();
+}
+
+static Command 
+st("save-output", // command name
+   optionLessEffector(saveTerminalCommand), // action
+   "file",  // group name
+   &sta, // arguments
+   NULL, // options
+   "Save output",
+   "Save all output from the terminal",
+   "Save all output from the terminal");
+
+//////////////////////////////////////////////////////////////////////
+  
+static ArgumentList 
+cda(QList<Argument *>() 
+    << new FileArgument("directory",  /// @todo use 
+                        "Directory",
+                        "New directory"));
+
+static void cdCommand(const QString &, QString dir)
+{
+  if(! QDir::setCurrent(dir)) {
+    QString str = QObject::tr("Could not cd to '%1'").
+      arg(dir);
+    throw std::runtime_error(str.toStdString());
+  }
+}
+
+static Command 
+cd("cd", // command name
+   optionLessEffector(cdCommand), // action
+   "file",  // group name
+   &cda, // arguments
+   NULL, // options
+   "Change directory",
+   "Change current directory",
+   "Save all output from the terminal");
+  
+
+
+//////////////////////////////////////////////////////////////////////
+  
+static ArgumentList 
+dummyArgs(QList<Argument *>() 
+          << new FileSaveArgument("file", 
+                                  "File",
+                                  "Files to load !",
+                                  "bidule.dat"));
+
+
+static ArgumentList 
+dummyOptions(QList<Argument *>() 
+             << new FileArgument("file", 
+                                 "File",
+                                 "Files to load !")
+             << new StringArgument("fiddle",
+                                   "File",
+                                   "Files to load !")
+             << new StringArgument("stuff",
+                                   "File",
+                                   "Files to load !")
+             );
+                             
+
+static void dummyCommand(const QString & , QString arg, 
+                         const CommandOptions & opts)
+{
+  // for(int i = 0; i < args.size(); i++)
+  //   Terminal::out << "Arg #" << i << ": '" << args[i] << "'" << endl;
+  Terminal::out << "Arg is: " << arg << endl;
+  for(CommandOptions::const_iterator i = opts.begin();
+      i != opts.end(); i++)
+    Terminal::out << "Option: " << i.key() << ": '" 
+                  << i.value()->value<QString>() << "'" << endl;
+  
+}
+
+
+static Command 
+dummy("dummy", // command name
+      effector(dummyCommand), // action
+      "file",  // group name
+      &dummyArgs, // arguments
+      &dummyOptions, // options
+      "Dummy",
+      "Dummy test command",
+      "Dummy command for testing purposes");

@@ -241,3 +241,28 @@ ovlb("overlay-buffer", // command name
      QT_TR_NOOP("Overlay buffers that are already in memory "
                 "on top of the current one"),
      "V");
+
+//////////////////////////////////////////////////////////////////////
+
+static void toggleMarkersCommand(const QString &)
+{
+  CurveView & v = soas().view();
+  v.setPaintMarkers(! v.paintingMarkers());
+  if(v.paintingMarkers())
+    Terminal::out << "Now showing data points" << endl;
+  else
+    Terminal::out << "Not showing data points anymore" << endl;
+
+}
+
+
+static Command 
+poiCmd("points", // command name
+       optionLessEffector(toggleMarkersCommand), // action
+       "stack",  // group name
+       NULL, // arguments
+       NULL, // options
+       "Show points",
+       "Shows individual points in the datasets",
+       "Shows all the points of datasets displayed.",
+       "poi");

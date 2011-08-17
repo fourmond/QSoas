@@ -70,6 +70,8 @@ class CurveView : public QAbstractScrollArea {
 
   /// @}
 
+  bool paintMarkers;
+
 
 public:
 
@@ -103,6 +105,13 @@ public slots:
 
   /// Shows the given DataSet (and forget about the other things)
   void showDataSet(const DataSet * ds);
+
+  /// Whether or not datasets should display markers when applicable.
+  void setPaintMarkers(bool enabled);
+
+  bool paintingMarkers() const {
+    return paintMarkers;
+  };
 
 protected:
   virtual void resizeEvent(QResizeEvent * event);

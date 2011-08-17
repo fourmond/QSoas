@@ -18,6 +18,7 @@
 
 #include <headers.hh>
 #include <curvedataset.hh>
+#include <curvemarker.hh>
 #include <dataset.hh>
 
 CurveDataSet::~CurveDataSet()
@@ -51,6 +52,12 @@ void CurveDataSet::paint(QPainter * painter, const QRectF &,
   createPath();
   painter->setPen(pen);
   painter->drawPolyline(ctw.map(*cachedPath));
+  if(paintMarkers) {
+    for(int i = 0; i < cachedPath->size(); i++) {
+      CurveMarker::paintMarker(painter, ctw.map(cachedPath->value(i)),
+                               CurveMarker::Circle, 3);
+    }
+  }
 }
 
 QRect CurveDataSet::paintLegend(QPainter * p, const QRect & rect)

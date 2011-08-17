@@ -40,10 +40,15 @@ class CurveDataSet : public CurveItem {
   int lastPointIdx;
   
 public:
+
+  /// Whether or not to paint markers.
+  bool paintMarkers;
+
   CurveDataSet(const DataSet * ds): CurveItem(true), 
                                     dataSet(ds), 
                                     cachedPath(NULL),
-                                    lastPointIdx(-1)
+                                    lastPointIdx(-1),
+                                    paintMarkers(false)
   {;};
 
   virtual ~CurveDataSet();

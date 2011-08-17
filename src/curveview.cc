@@ -34,7 +34,7 @@
 #include <soas.hh>
 
 CurveView::CurveView() : 
-  eventLoop(NULL)
+  eventLoop(NULL), paintMarkers(false)
                                             
 {
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -111,6 +111,7 @@ void CurveView::addDataSet(const DataSet * ds)
   if(! ds)
     return;
   CurveDataSet * item = new CurveDataSet(ds);
+  item->paintMarkers = paintMarkers;
   item->pen = penForNextCurve();
   addItem(item);
 }
@@ -193,6 +194,21 @@ void CurveView::layOutPanels()
     p->setGeometry(pr);
     top += h + m.bottom();;
   }
+}
+
+void CurveView::setPaintMarkers(bool enabled)
+{
+  QList<CurvePanel *> panels = allPanels();
+  paintMarkers = enabled;
+  for(int i = 0; i < panels.size(); i++) {
+    QList<CurveItem *> items = panels[i]->items();
+    for(int j = 0; j < items.size(); j++) {
+      CurveDataSet * d = dynamic_cast<CurveDataSet *>(items[j]);
+      if(d)
+        d->paintMarkers = paintMarkers;
+    }
+  }
+  repaint();
 }
 
 

@@ -433,3 +433,15 @@ void CurvePanel::render(QPainter * painter,
   // dropping title for now.
   internalRectangle = savedRect;
 }
+
+QList<CurveItem *> CurvePanel::items()
+{
+  QList<CurveItem *> ret;
+  for(int i = 0; i < displayedItems.size(); i++) {
+    CurveItem * it = displayedItems[i];
+    if(! it)
+      continue;
+    ret << it;
+  }
+  return ret;
+}

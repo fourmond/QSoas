@@ -202,6 +202,9 @@ public:
   void render(QPainter * painter,
               int innerPanelHeight, const QRect & targetRectangle,
               const QString & title = "");
+
+  /// Returns the list of the currently displayed items.
+  QList<CurveItem *> items();
 };
 
 #endif

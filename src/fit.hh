@@ -178,6 +178,9 @@ public:
   ~FitData();
 };
 
+class ArgumentList;
+class CommandEffector;
+
 
 /// This abstract class defines the interface for handling fits.
 ///
@@ -195,7 +198,9 @@ protected:
   const char * longDesc;
 
   /// Prepares and registers the commands corresponding to the fit.
-  void makeCommands();
+  void makeCommands(ArgumentList * args = NULL, 
+                    CommandEffector * singleFit = NULL,
+                    CommandEffector * multiFit = NULL);
 
   /// The minimum number of datasets the fit should take.
   int minDataSets;

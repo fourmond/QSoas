@@ -8,7 +8,8 @@ INCLUDEPATH += . src
 DEPENDPATH += src
 
 # For faster rendering of the antialiased curves
-QT += opengl
+QT += opengl                    # Doesn't work that well, actually
+QT -= webkit                    # We really don't need webkit, for now ?
 
 VERSION = 0.0
 

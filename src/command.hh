@@ -84,8 +84,6 @@ public:
 
 
   /// Specifies the various elements linked to the Command.
-  ///
-  /// @todo this is cumbersome to mix description and code.
   Command(const char * cn, 
           CommandEffector * eff,
           const char * gn, 
@@ -95,6 +93,25 @@ public:
           const char * sd = "", 
           const char * ld = "", 
           const char * sc = "", 
+          bool autoRegister = true) : 
+    cmdName(cn), shortCmdName(sc), pubName(pn), 
+    shortDesc(sd), longDesc(ld), groupName(gn), 
+    arguments(ar), options(op), 
+    effector(eff), 
+    group(NULL) {
+    if(autoRegister)
+      registerCommand(this);
+  }; 
+
+  Command(const char * cn, 
+          CommandEffector * eff,
+          const char * gn, 
+          ArgumentList * ar,
+          ArgumentList * op,
+          const QByteArray & pn,
+          const QByteArray & sd = "", 
+          const QByteArray & ld = "", 
+          const QByteArray & sc = "", 
           bool autoRegister = true) : 
     cmdName(cn), shortCmdName(sc), pubName(pn), 
     shortDesc(sd), longDesc(ld), groupName(gn), 

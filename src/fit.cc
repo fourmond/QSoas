@@ -273,21 +273,54 @@ int Fit::fdf(const gsl_vector * parameters,  FitData * data,
 }
 
 
-void Fit::makeCommands()
+void Fit::makeCommands(ArgumentList * args, 
+                       CommandEffector * singleFit,
+                       CommandEffector * multiFit)
 {
-  new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
-              optionLessEffector(this, &Fit::runFitCurrentDataSet),
-              "fits", NULL, NULL, "");
 
-  ArgumentList * al = new 
-    ArgumentList(QList<Argument *>()
-                 << new SeveralDataSetArgument("datasets", 
-                                               "Dataset",
-                                               "Datasets to fit",
-                                               true));
+  QByteArray pn = "Fit: ";
+  pn += shortDesc;
+  QByteArray sd = "Single buffer fit: ";
+  sd += shortDesc;
+  QByteArray ld = "Single buffer fit:\n";
+  ld += longDesc;
+
+  ArgumentList * fal = NULL;
+  if(args) 
+    fal = new ArgumentList(*args);
+  
+  
+  new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
+              singleFit ? singleFit : 
+              optionLessEffector(this, &Fit::runFitCurrentDataSet),
+              "fits", fal, NULL, pn, sd, ld);
+  
+  ArgumentList * al = NULL;
+  if(args) {
+    al = args;
+    (*al) << new SeveralDataSetArgument("datasets", 
+                                        "Dataset",
+                                        "Datasets to fit",
+                                        true);
+  }
+  else
+    al = new 
+      ArgumentList(QList<Argument *>()
+                   << new SeveralDataSetArgument("datasets", 
+                                                 "Dataset",
+                                                 "Datasets to fit",
+                                                 true));
+
+  pn = "Multi fit: ";
+  pn += shortDesc;
+  sd = "multi buffer fit: ";
+  sd += shortDesc;
+  ld = "multi buffer fit:\n";
+  ld += longDesc;
   new Command((const char*)(QString("mfit-") + name).toLocal8Bit(),
+              multiFit ? multiFit : 
               optionLessEffector(this, &Fit::runFit),
-              "fits", al, NULL, "");
+              "fits", al, NULL, pn, sd, ld);
 }
 
 

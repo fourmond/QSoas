@@ -185,24 +185,9 @@ public:
                                          "Formula",
                                          "Formula for the fit"));
 
-    new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
-                optionLessEffector(this, &ArbitraryFit::runFitCurrentDataSet),
-                "fits", al, NULL, "");
-      
-    ArgumentList * al2 = new 
-      ArgumentList(QList<Argument *>()
-                   << new StringArgument("formula", 
-                                         "Formula",
-                                         "Formula for the fit")
-                   << new SeveralDataSetArgument("datasets",
-                                                 "Dataset",
-                                                 "Datasets to fit",
-                                                 true));
-
-    new Command((const char*)(QString("mfit-") + name).toLocal8Bit(),
-                optionLessEffector(this, &ArbitraryFit::runFit),
-                "fits", al2, NULL, "");
-    // We register the commands manually
+    makeCommands(al, 
+                 optionLessEffector(this, &ArbitraryFit::runFitCurrentDataSet),
+                 optionLessEffector(this, &ArbitraryFit::runFit));
   };
 };
 

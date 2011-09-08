@@ -386,15 +386,16 @@ static void bsplinesCommand(const QString &)
 
   view.addPanel(&bottom);
 
-  loop.setHelpString(QObject::tr("Baseline interpolation:\n"
-                                 "left click: left boundary\n"
-                                 "right click: right boundary\n"
+  loop.setHelpString(QObject::tr("B-splines filtering:\n"
+                                 "left click: place point\n"
+                                 "right click: remove closest point\n"
                                  "d: display derivative\n"
                                  "q: replace with filtered data\n"
                                  "ESC: abord"));
   while(! loop.finished()) {
     switch(loop.type()) {
     case QEvent::MouseButtonPress: 
+      /// @todo actual point placing
       if(loop.button() == Qt::RightButton) { // Remove
         nbPoints--;
         if(nbPoints < 2)

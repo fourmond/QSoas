@@ -33,8 +33,6 @@
    \li dataset selection
    \li peak detection (along with a CurvePeak CurveItem child to display
    it neatly)
-   \li choice between the different point selection modes
-   \li interpolation
    \li baseline (catalytic and not catalytic)
    \li FFT, probably based on GSL too (no need to pull in another
    dependency)

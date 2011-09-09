@@ -95,7 +95,8 @@ SOURCES += src/qmain.cc \
         src/settings.cc \
         src/pointpicker.cc \
         src/spline.cc \
-        src/actioncombo.cc
+        src/actioncombo.cc \
+        src/flowinggridlayout.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -137,4 +138,5 @@ HEADERS += src/headers.hh \
         src/settings-templates.hh \
         src/pointpicker.hh  \
         src/spline.hh \
-        src/actioncombo.hh
+        src/actioncombo.hh \
+        src/flowinggridlayout.hh

@@ -36,9 +36,11 @@ protected:
 
   /// Load the settings
   virtual void load(QSettings * source) {
-    QVariant v = source->value(name);
-    /// @todo type checking ?
-    value = v.value<T>();
+    if(source->contains(name)) {
+      QVariant v = source->value(name);
+      /// @todo type checking ?
+      value = v.value<T>();
+    }
   };
 
 public:

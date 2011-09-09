@@ -197,6 +197,7 @@ void FitDialog::setupFrame()
   ac = new ActionCombo(tr("Parameters..."));
   ac->addAction("Load from file", this, SLOT(loadParameters()));
   ac->addAction("Save to file", this, SLOT(saveParameters()));
+  ac->addAction("Export", this, SLOT(exportParameters()));
   hb->addWidget(ac);
   hb->addStretch(1);
 
@@ -383,4 +384,38 @@ void FitDialog::saveParameters()
 
 void FitDialog::loadParameters()
 {
+}
+
+void FitDialog::exportParameters()
+{
+  QString save = 
+    QFileDialog::getSaveFileName(this, tr("Export parameters"));
+  if(save.isEmpty())
+    return;
+           
+
+  QFile f(save);
+  if(! f.open(QIODevice::WriteOnly))
+    return;                     /// @todo Signal !
+  
+  QTextStream out(&f);
+  QStringList lst;
+  lst << "Buffer";
+  for(int i = 0; i < editors.size(); i++)
+    lst << data->parameterDefinitions[i].name;
+  out << "## " << lst.join("\t") << endl;
+  
+  for(int i = 0; i < data->datasets.size(); i++) {
+    lst.clear();
+    lst << data->datasets[i]->name;
+    for(int j = 0; j < editors.size(); j++) {
+      double v;
+      if(isGlobal[j])
+        v = unpackedParameters[j];
+      else
+        v = unpackedParameters[j + editors.size() * i];
+      lst << QString::number(v);
+    }
+    out << lst.join("\t") << endl;
+  }
 }

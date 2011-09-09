@@ -165,6 +165,10 @@ protected slots:
   /// Saves parameters to a file
   void saveParameters();
 
+  /// Exports parameters to a file, losing information about their
+  /// state (global and/or fixed)
+  void exportParameters();
+
 };
 
 #endif

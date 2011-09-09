@@ -33,6 +33,64 @@
 
 #include <settings-templates.hh>
 
+#include <flowinggridlayout.hh>
+
+
+
+FitParameterEditor::FitParameterEditor(const ParameterDefinition * d, 
+                                       int idx) : index(idx), def(d)
+{
+  QHBoxLayout * layout = new QHBoxLayout(this);
+  layout->addWidget(new QLabel(def->name), 1);
+  editor = new QLineEdit();
+  connect(editor, SIGNAL(textChanged(const QString &)),
+          SLOT(onValueChanged(const QString &)));
+  layout->addWidget(editor);
+
+  QSize sz = editor->minimumSizeHint();
+  sz.setWidth(10*sz.width());
+  editor->setMinimumSize(sz);
+
+  global = new QCheckBox(tr("Global"));
+  connect(global, SIGNAL(clicked(bool)), SLOT(onGlobalClicked()));
+  layout->addWidget(global);
+
+  fixed = new QCheckBox(tr("Fixed"));
+  connect(fixed, SIGNAL(clicked(bool)), SLOT(onFixedClicked()));
+  layout->addWidget(fixed);
+
+
+}
+  
+void FitParameterEditor::onFixedClicked()
+{
+  emit(fixedChanged(index, fixed->checkState() == Qt::Checked));
+}
+
+
+void FitParameterEditor::onGlobalClicked()
+{
+  emit(globalChanged(index, global->checkState() == Qt::Checked));
+}
+
+void FitParameterEditor::onValueChanged(const QString & str)
+{
+  bool ok;
+  double value = str.toDouble(&ok);
+  if(ok)
+    emit(valueChanged(index, value));
+}
+
+void FitParameterEditor::setValues(double v, bool f, bool g)
+{
+  editor->setText(QString::number(v));
+  fixed->setChecked(f);
+  global->setChecked(g);
+}
+
+
+//////////////////////////////////////////////////////////////////////
+
 static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
 
 
@@ -94,7 +152,7 @@ void FitDialog::setupFrame()
     views << view;
     bufferSelection->addItem(ds->name);
   }
-  layout->addWidget(stackedViews);
+  layout->addWidget(stackedViews, 1);
 
   QHBoxLayout * hb = new QHBoxLayout;
   QPushButton * bt = new QPushButton(tr("<-"));
@@ -115,60 +173,19 @@ void FitDialog::setupFrame()
 
   layout->addLayout(hb);
 
-  QGridLayout * grid = new QGridLayout;
-
-  globalGroup = new QButtonGroup(this);
-  globalGroup->setExclusive(false);
-  connect(globalGroup, SIGNAL(buttonClicked(int)),
-          SLOT(onSetGlobal(int)));
-
-  globalFixedGroup = new QButtonGroup(this);
-  globalFixedGroup->setExclusive(false);
-  connect(globalFixedGroup, SIGNAL(buttonClicked(int)),
-          SLOT(onSetFixed(int)));
-
-
-  localFixedGroup = new QButtonGroup(this);
-  localFixedGroup->setExclusive(false);
-  connect(localFixedGroup, SIGNAL(buttonClicked(int)),
-          SLOT(onSetFixed(int)));
-
+  FlowingGridLayout * inner = new FlowingGridLayout();
   for(int i = 0; i < data->parameterDefinitions.size(); i++) {
-    const ParameterDefinition & p = data->parameterDefinitions[i];
-    grid->addWidget(new QLabel(p.name), i, 0);
-    QLineEdit * le = new QLineEdit;
-    grid->addWidget(le, i, 1);
-    connect(le, SIGNAL(textChanged(const QString &)),
-            SLOT(updateFromEditors()));
-    globalEditors << le;
-    QCheckBox * cb = new QCheckBox(tr("Global"));
-    grid->addWidget(cb, i, 2);
-    globalGroup->addButton(cb, i);
-    globalCheckBoxes << cb;
-
-    cb = new QCheckBox(tr("Fixed"));
-    grid->addWidget(cb, i, 3);
-    globalFixedGroup->addButton(cb, i);
-    globalFixedCheckBoxes << cb;
-
-
-    le = new QLineEdit;
-    grid->addWidget(le, i, 4);
-    localEditors << le;
-    connect(le, SIGNAL(textChanged(const QString &)),
-            SLOT(updateFromEditors()));
-
-    cb = new QCheckBox(tr("Fixed"));
-    grid->addWidget(cb, i, 5);
-    localFixedGroup->addButton(cb, i);
-    localFixedCheckBoxes << cb;
-
+    FitParameterEditor * ed = 
+      new FitParameterEditor(&data->parameterDefinitions[i], i);
+    inner->addWidget(ed);
+    editors.append(ed);
+    connect(ed, SIGNAL(fixedChanged(int, bool)), SLOT(onSetFixed(int)));
+    connect(ed, SIGNAL(globalChanged(int, bool)), SLOT(onSetGlobal(int)));
+    connect(ed, SIGNAL(valueChanged(int, double)), 
+            SLOT(onSetValue(int, double)));
   }
+  layout->addLayout(inner);
 
-  layout->addLayout(grid);
-
-
-  /// @todo This layout probably should be replaced by two combo boxes
   hb = new QHBoxLayout;
   hb->addWidget(new QLabel(tr("Actions:")));
   ActionCombo * ac = new ActionCombo(tr("Data..."));
@@ -225,67 +242,46 @@ void FitDialog::compute()
 void FitDialog::updateEditors()
 {
   settingEditors = true;
-  int sz = globalEditors.size();
+  int sz = editors.size();
   for(int i = 0; i < sz; i++) {
-    setGlobal(isGlobal[i], i);
-    onSetGlobal(i);             // Because the latter isn't
-    // necessarily called if the value
-    // hasn't changed.f
+    double v;
+    bool fixed;
     if(isGlobal[i]) {
-      globalEditors[i]->setText(QString::number(unpackedParameters[i]));
-      localEditors[i]->setText("");
-      globalFixedCheckBoxes[i]->setChecked(isFixed[i]);
+      v = unpackedParameters[i];
+      fixed = isFixed[i];
     }
     else {
-      globalEditors[i]->setText("");
-      localEditors[i]->setText(QString::number(unpackedParameters[i + sz * currentIndex]));
-      localFixedCheckBoxes[i]->setChecked(isFixed[i + sz * currentIndex]);
+      v = unpackedParameters[i + sz * currentIndex];
+      fixed = isFixed[i + sz * currentIndex];
     }
-    
+    editors[i]->setValues(v, fixed, isGlobal[i]);
   }
   settingEditors = false;
 }
 
-void FitDialog::setGlobal(bool global, int index)
-{
-  globalCheckBoxes[index]->setChecked(global);
-}
-
 void FitDialog::onSetGlobal(int index)
 {
-  isGlobal[index] = globalCheckBoxes[index]->isChecked();
-
-  globalEditors[index]->setEnabled(isGlobal[index]);
-  globalFixedCheckBoxes[index]->setEnabled(isGlobal[index]);
-
-  localEditors[index]->setEnabled(! isGlobal[index]);
-  localFixedCheckBoxes[index]->setEnabled(! isGlobal[index]);
+  isGlobal[index] = editors[index]->isGlobal();
 }
 
 void FitDialog::onSetFixed(int index)
 {
-  if(isGlobal[index]) {
-    isFixed[index] = globalFixedCheckBoxes[index]->isChecked();
-  }
+  if(isGlobal[index])
+    isFixed[index] = editors[index]->isFixed();
   else {
-    int sz = globalEditors.size();
+    int sz = editors.size();
     isFixed[index + currentIndex *sz] = 
-      localFixedCheckBoxes[index]->isChecked();
+      editors[index]->isFixed();
   }
-
 }
 
-void FitDialog::updateFromEditors()
+void FitDialog::onSetValue(int index, double v)
 {
-  if(settingEditors)
-    return;
-  int sz = globalEditors.size();
-  for(int i = 0; i < sz; i++) {
-    if(isGlobal[i])
-      unpackedParameters[i] = globalEditors[i]->text().toDouble();
-    else 
-      unpackedParameters[i + sz * currentIndex] = 
-        localEditors[i]->text().toDouble();
+  if(isGlobal[index])
+    unpackedParameters[index] = v;
+  else {
+    int sz = editors.size();
+    unpackedParameters[index + currentIndex *sz] = v;
   }
 }
 
@@ -295,7 +291,7 @@ void FitDialog::setDataParameters()
   data->fixedParameters.clear();
 
   int nb_bufs = data->datasets.size();
-  int sz = globalEditors.size();
+  int sz = editors.size();
   for(int i = 0; i < nb_bufs; i++) {
     for(int j = 0; j < sz; j++) {
       int ds = (isGlobal[j] ? -1 : i);

@@ -23,6 +23,51 @@
 class FitData;
 class CurveView;
 class DataSet;
+class ParameterDefinition;
+
+/// A widget to edit the settings for a given
+class FitParameterEditor : public QWidget {
+  Q_OBJECT;
+  int index;
+  const ParameterDefinition * def;
+
+  /// The editor
+  QLineEdit * editor;
+  
+  /// The global checkbox
+  QCheckBox * global;
+
+  /// The fixed checkbox
+  QCheckBox * fixed;
+  
+  
+public:
+  FitParameterEditor(const ParameterDefinition * d, int idx);
+
+  /// Set the editor values.
+  void setValues(double value, bool fixed, bool global);
+
+  /// Whether the parameter is global
+  bool isGlobal() const {
+    return global->checkState() == Qt::Checked;
+  };
+
+  /// Whether the parameter is fixed
+  bool isFixed() const {
+    return fixed->checkState() == Qt::Checked;
+  };
+
+signals:
+  void fixedChanged(int index, bool fixed);
+  void globalChanged(int index, bool global);
+  void valueChanged(int index, double value);
+
+protected slots:
+  void onFixedClicked();
+  void onGlobalClicked();
+  void onValueChanged(const QString & str);
+};
+
 
 /// This class handles all the user interaction during fits.
 class FitDialog : public QDialog {
@@ -46,31 +91,8 @@ class FitDialog : public QDialog {
   /// Label displaying the current buffer number
   QLabel * bufferNumber;
 
-  /// The button group for the "global or not global" checkboxes
-  QButtonGroup * globalGroup;
-
-  /// And the corresponding checkboxes
-  QList<QCheckBox *> globalCheckBoxes;
-
-  /// The button group for the global "fixed or free" checkboxes
-  QButtonGroup * globalFixedGroup;
-
-  /// And the corresponding checkboxes
-  QList<QCheckBox *> globalFixedCheckBoxes;
-
-  /// The button group for the buffer-local "fixed or free" checkboxes
-  QButtonGroup * localFixedGroup;
-
-  /// And the corresponding checkboxes
-  QList<QCheckBox *> localFixedCheckBoxes;
-
-  /// The editors for the global parameters. Note that we use
-  /// QLineEdit and not QDoubleSpinBox as the latter will round and
-  /// will become very painful some times...
-  QList<QLineEdit *> globalEditors;
-
-  /// Editors for the local values of parameters.
-  QList<QLineEdit *> localEditors;
+  /// List of editors
+  QList<FitParameterEditor *> editors;
 
 
   /// The current parameters of the Fit, in unpacked form
@@ -110,17 +132,14 @@ protected slots:
   /// Update all the editors
   void updateEditors();
 
-  /// Set the global flag for the parameter number i
-  void setGlobal(bool global, int index);
-
   /// Called when one of the global flags are clicked.
   void onSetGlobal(int index);
 
   /// Called whenever a fixed checkbox is clicked...
   void onSetFixed(int index);
 
-  /// Update the values from the editors.
-  void updateFromEditors();
+  /// Called whenever a value gets updated.
+  void onSetValue(int index, double value);
 
   /// Starts the fit !
   void startFit();

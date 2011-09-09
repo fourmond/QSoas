@@ -29,7 +29,7 @@ class FlowingGridLayout : public QLayout {
   QList<QLayoutItem *> managedItems;
 public:
   virtual void addItem(QLayoutItem * item);
-  virtual QLayoutItem * itemAt(int idx);
+  virtual QLayoutItem * itemAt(int idx) const;
   virtual QLayoutItem * takeAt(int idx);
 
   virtual QSize sizeHint() const;
@@ -39,8 +39,9 @@ public:
   virtual bool hasHeightForWidth() const;
   virtual int heightForWidth(int height) const;
 
-  FlowingGridLayout(QWidget * parent = NULL);
   ~FlowingGridLayout();
+
+  virtual int count() const;
 
 protected:
   QSize itemsMinimumSize() const;

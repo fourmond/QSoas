@@ -20,13 +20,17 @@
 #include <headers.hh>
 #include <flowinggridlayout.hh>
 
-
 void FlowingGridLayout::addItem(QLayoutItem * item)
 {
   managedItems << item;
 }
 
-QLayoutItem * FlowingGridLayout::itemAt(int idx)
+int  FlowingGridLayout::count() const
+{
+  return managedItems.size();
+}
+
+QLayoutItem * FlowingGridLayout::itemAt(int idx) const
 {
   return managedItems.value(idx, NULL);
 }
@@ -106,8 +110,8 @@ int FlowingGridLayout::computeLayout(const QRect & geom, bool doPlacement) const
     if(doPlacement)
       it->setGeometry(QRect(QPoint(x, curY), sz));
   }
-  
-  return curY + curColHeight;
+  int h = curY + curColHeight - inner.top();
+  return h + 2 * margin();
 }
 
 int FlowingGridLayout::heightForWidth(int width) const

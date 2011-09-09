@@ -36,6 +36,12 @@
    \li baseline (catalytic and not catalytic)
    \li FFT, probably based on GSL too (no need to pull in another
    dependency)
+
+   \section arch Architectural things
+   
+   \li One day, I will need to reimplement the exceptions to use my
+   own QString-carrying exceptions. This probably isn't of high
+   priority, but that would save quite a bit of code.
    
 */
 

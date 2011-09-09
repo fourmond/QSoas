@@ -70,8 +70,8 @@ sa("splita", // command name
    NULL, // options
    "Split first",
    "Gets buffer until dx sign change",
-   QT_TR_NOOP("Returns the first part of the buffer, until "
-              "the first change of sign of dx"));
+   "Returns the first part of the buffer, until "
+   "the first change of sign of dx");
     
 static void splitbCommand(const QString &)
 {
@@ -88,8 +88,36 @@ sb("splitb", // command name
    NULL, // options
    "Split second",
    "Gets buffer after first dx sign change",
-   QT_TR_NOOP("Returns the part of the buffer after "
-              "the first change of sign of dx"));
+   "Returns the part of the buffer after "
+   "the first change of sign of dx");
+
+
+//////////////////////////////////////////////////////////////////////
+
+static void chopCommand(const QString &, QList<double> values)
+{
+  const DataSet * ds = soas().currentDataSet();
+  QList<DataSet *> splitted = ds->chop(values);
+  for(int i = splitted.size() - 1; i >= 0; i--)
+    soas().pushDataSet(splitted[i]);
+}
+
+static ArgumentList 
+chopA(QList<Argument *>() 
+      << new SeveralNumbersArgument("lengths", 
+                                    "Lengths",
+                                    "Lengths of the subsets"));
+
+static Command 
+chopC("chop", // command name
+      optionLessEffector(chopCommand), // action
+      "buffer",  // group name
+      &chopA, // arguments
+      NULL, // options
+      "Chop Buffer",
+      "Cuts buffer based on X values",
+      "Cuts the buffer into several subsets of the lengths given "
+      "as arguments");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -192,11 +220,14 @@ static void cutCommand(const QString &)
   /// @todo selection mode ? (do we need that ?)
   while(! loop.finished()) {
     switch(loop.type()) {
-    case QEvent::MouseButtonPress: 
-      {
-        r.setX(loop.position().x(), loop.button());
-        break;
+    case QEvent::MouseButtonPress: {
+      if(loop.button() == Qt::MiddleButton) {
+        soas().pushDataSet(ds->subset(r.xleft, r.xright, true));
+        return;
       }
+      r.setX(loop.position().x(), loop.button());
+      break;
+    }
     case QEvent::KeyPress: 
       switch(loop.key()) {
       case Qt::Key_Escape:

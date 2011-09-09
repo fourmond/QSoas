@@ -26,6 +26,10 @@
 
 #include <gsl/gsl_blas.h>
 
+
+/// @todo Include peak detection, with the algorithm used for the
+/// film_decay command in the old Soas.
+
 void DataSet::dump() const
 {
   QTextStream o(stdout);
@@ -161,6 +165,32 @@ void DataSet::splitAt(int idx, DataSet ** first, DataSet ** second) const
     (*second)->name = cleanedName() + "_b.dat";
   }
 }
+
+
+QList<DataSet *> DataSet::chop(const QList<double> & lengths) const
+{
+  QList<DataSet *> retvals;
+  int lastidx = 0;
+  double tdx = 0;
+  int size;
+  int curl = 0;
+  const double *x = getValues(0, &size);
+  for(int i = 1; i < size; i++) {
+    tdx += fabs(x[i] - x[i-1]);
+    if(tdx >= lengths[curl]) {
+      retvals.append(subset(lastidx, i-1));
+      lastidx = i;
+      tdx = 0;
+      curl++;
+      if(curl >= lengths.size())
+        break;
+    }
+  }
+  if(lastidx < size - 1)
+    retvals.append(subset(lastidx, size-1));
+  return retvals;
+}
+
 
 const double * DataSet::getValues(int col, int * size) const
 {
@@ -331,7 +361,9 @@ DataSet * DataSet::subset(int beg, int end, bool within) const
     }
   }
   DataSet * newds = new DataSet(cols);
-  newds->name = cleanedName() + "_cut.dat";
+  newds->name = cleanedName() + QString("_%1%2_to_%3.dat").
+    arg(within ? "" : "excl_").
+    arg(columns[0][beg]).arg(columns[0][end]);
   return newds;
 }
 

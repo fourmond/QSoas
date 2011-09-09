@@ -223,7 +223,12 @@ public:
   /// The point at idx is included in \b both datasets.
   void splitAt(int idx, DataSet ** first, DataSet ** second = NULL) const;
 
-  
+  /// Splits a DataSet in multiple subdatasets of the given X lengths
+  /// (computed in absolute value)
+  QList<DataSet *> chop(const QList<double> & lengths) const;
+
+  /// @todo Sort ! (as const ?)
+
   /// Subtracts \a dataset from this DataSet and returns the result.
   DataSet * subtract(const DataSet * dataset) const;
 
@@ -232,7 +237,9 @@ public:
 
   /// Returns the subset of the dataset contained either within the
   /// indices or outside of them
-  DataSet * subset(int beg, int end, bool within) const;
+  DataSet * subset(int beg, int end, bool within = true) const;
+
+
 
   /// @}
   
@@ -242,6 +249,7 @@ public:
 
   /// Writes to the named file, or use the name of the dataset.
   void write(const QString & fileName = QString()) const;
+
   
 };
 

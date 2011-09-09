@@ -200,3 +200,51 @@ void SeveralDataSetArgument::concatenateArguments(ArgumentMarshaller * a,
   a->value<QList<const DataSet *> >() += 
     b->value<QList<const DataSet *> >();
 }
+
+////////////////////////////////////////////////////////////
+
+ArgumentMarshaller * NumberArgument::fromString(const QString & str) const
+{
+  bool ok;
+  double v = str.toDouble(&ok);
+  if(! ok) {
+    QString s = QObject::tr("Not a number: '%1'").
+      arg(str);
+    throw std::runtime_error(s.toStdString());
+  }
+  return new ArgumentMarshallerChild<double>(v);
+}
+
+ArgumentMarshaller * NumberArgument::promptForValue(QWidget * base) const
+{
+  bool ok = false;
+  QString str = 
+    QInputDialog::getText(base, argumentName(), description(),
+                          QLineEdit::Normal, QString(), &ok);
+  if(! ok)
+    throw std::runtime_error("Aborted"); 
+  return fromString(str);
+}
+
+////////////////////////////////////////////////////////////
+
+ArgumentMarshaller * SeveralNumbersArgument::fromString(const QString & str) const
+{
+  bool ok;
+  double v = str.toDouble(&ok);
+  if(! ok) {
+    QString s = QObject::tr("Not a number: '%1'").
+      arg(str);
+    throw std::runtime_error(s.toStdString());
+  }
+  QList<double> l;
+  l << v;
+  return new ArgumentMarshallerChild< QList<double> >(l);
+}
+
+void SeveralNumbersArgument::concatenateArguments(ArgumentMarshaller * a, 
+                                                  const ArgumentMarshaller * b) const
+{
+  a->value<QList<double> >() += 
+    b->value<QList<double> >();
+}

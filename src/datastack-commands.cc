@@ -72,6 +72,9 @@ static void loadCommand(const QString &, QStringList files)
 }
 
 
+/// @todo We should add options to:
+/// @li only read within a certain X range
+/// @li swap X and Y (/transpose=yes)
 static Command 
 load("load", // command name
      optionLessEffector(loadCommand), // action

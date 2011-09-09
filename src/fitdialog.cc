@@ -41,21 +41,21 @@ FitParameterEditor::FitParameterEditor(const ParameterDefinition * d,
                                        int idx) : index(idx), def(d)
 {
   QHBoxLayout * layout = new QHBoxLayout(this);
-  layout->addWidget(new QLabel(def->name), 1);
+  layout->addWidget(new QLabel(QString("<b>%1: </b>").arg(def->name)), 1);
   editor = new QLineEdit();
   connect(editor, SIGNAL(textChanged(const QString &)),
           SLOT(onValueChanged(const QString &)));
   layout->addWidget(editor);
 
   QSize sz = editor->minimumSizeHint();
-  sz.setWidth(10*sz.width());
+  sz.setWidth(7*sz.width());
   editor->setMinimumSize(sz);
 
-  global = new QCheckBox(tr("Global"));
+  global = new QCheckBox(tr("(global)"));
   connect(global, SIGNAL(clicked(bool)), SLOT(onGlobalClicked()));
   layout->addWidget(global);
 
-  fixed = new QCheckBox(tr("Fixed"));
+  fixed = new QCheckBox(tr("(fixed)"));
   connect(fixed, SIGNAL(clicked(bool)), SLOT(onFixedClicked()));
   layout->addWidget(fixed);
 
@@ -198,6 +198,7 @@ void FitDialog::setupFrame()
   ac->addAction("Load from file", this, SLOT(loadParameters()));
   ac->addAction("Save to file", this, SLOT(saveParameters()));
   hb->addWidget(ac);
+  hb->addStretch(1);
 
   layout->addLayout(hb);
 

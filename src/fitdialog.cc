@@ -31,10 +31,16 @@
 #include <actioncombo.hh>
 #include <vector.hh>
 
+#include <settings-templates.hh>
+
+static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
+
+
 FitDialog::FitDialog(FitData * d) : data(d),
                                     stackedViews(NULL), currentIndex(0),
                                     settingEditors(false)
 {
+  resize(fitDialogSize);
   unpackedParameters = new double[d->fullParameterNumber()];
   d->fit->initialGuess(d, unpackedParameters);
 
@@ -58,6 +64,9 @@ FitDialog::~FitDialog()
   delete[] unpackedParameters;
   delete[] isGlobal;
   delete[] isFixed;
+
+  fitDialogSize = size();
+
 }
 
 void FitDialog::setupFrame()

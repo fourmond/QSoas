@@ -109,3 +109,19 @@ DataSet * DataStack::fromText(const QString & str) const
     return NULL;
   return numberedDataSet(nb);
 }
+
+bool DataStack::indexOf(const DataSet * ds, int * idx) const
+{
+  // I guess I can't get around the const_cast here...
+  int i = dataSets.lastIndexOf(const_cast<DataSet*>(ds)); 
+  if(i >= 0) {
+    *idx = dataSets.size() - (1 + i);
+    return true;
+  }
+  i = redoStack.indexOf(const_cast<DataSet*>(ds));
+  if(i >= 0) {
+    *idx = - (redoStack.size() - i);
+    return true;
+  }
+  return false;
+}

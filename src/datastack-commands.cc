@@ -109,6 +109,8 @@ ovl("overlay", // command name
 
 
   
+/// @todo Add a 'drop' command to selectively drop datasets from the
+/// data stack.
 static void saveCommand(const QString &, QString file)
 {
   soas().currentDataSet()->write(file);

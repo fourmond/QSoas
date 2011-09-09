@@ -21,6 +21,9 @@
 #include <curvemarker.hh>
 #include <dataset.hh>
 
+#include <soas.hh>
+#include <datastack.hh>
+
 CurveDataSet::~CurveDataSet()
 {
   delete cachedPath;
@@ -79,9 +82,15 @@ QRect CurveDataSet::paintLegend(QPainter * p, const QRect & rect)
   
   QRect r = rect.adjusted(13, 0, 0, 0);
   QRect t;
+  QString txt = dataSet->name;
+  {
+    int i;
+    if(soas().stack().indexOf(dataSet, &i))
+      txt += QString(" (#%1)").arg(i);
+  }
   p->drawText(r, 
               Qt::AlignLeft | Qt::AlignVCenter | Qt::TextDontClip,
-              dataSet->name,
+              txt,
               &t);
   return t.united(tmp);
 }

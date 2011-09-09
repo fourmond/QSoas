@@ -90,6 +90,10 @@ public:
   /// Does the reverse of undo();
   void redo(int nbtimes = 1);
 
+  /// Returns true if the given DataSet is in the stack and sets \a
+  /// idx accordingly.
+  bool indexOf(const DataSet * ds, int * idx) const;
+
 signals:
   /// Emitted whenever the current dataset changed.
   void currentDataSetChanged();

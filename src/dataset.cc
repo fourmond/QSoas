@@ -361,7 +361,7 @@ DataSet * DataSet::subset(int beg, int end, bool within) const
     }
   }
   DataSet * newds = new DataSet(cols);
-  newds->name = cleanedName() + QString("_%1%2_to_%3.dat").
+  newds->name = cleanedName() + QString("_%1from_%2_to_%3.dat").
     arg(within ? "" : "excl_").
     arg(columns[0][beg]).arg(columns[0][end]);
   return newds;

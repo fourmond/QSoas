@@ -103,9 +103,17 @@ public:
   /// Performs the fit
   void doFit();
 
-  /// Export to the target stream
+  /// Export to the target stream. This essentially exports raw
+  /// values, thereby losing information about what was fixed and what
+  /// wasn't.
+  ///
+  /// On the other hand, it may be easier to work with than the output
+  /// of saveParameters (which is closer to the original Soas
+  /// version).
   void exportParameters(QIODevice * out);
 
+  /// Save to the given stream
+  void saveParameters(QIODevice * out);
   
 };
 

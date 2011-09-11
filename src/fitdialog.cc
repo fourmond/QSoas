@@ -303,6 +303,17 @@ void FitDialog::saveSimulatedCurves()
 
 void FitDialog::saveParameters()
 {
+  QString save = 
+    QFileDialog::getSaveFileName(this, tr("Save parameters"));
+  if(save.isEmpty())
+    return;
+           
+
+  QFile f(save);
+  if(! f.open(QIODevice::WriteOnly))
+    return;                     /// @todo Signal !
+
+  parameters.saveParameters(&f);
 }
 
 void FitDialog::loadParameters()

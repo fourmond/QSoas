@@ -107,9 +107,11 @@ void FitParameters::exportParameters(QIODevice * stream)
 {
   QTextStream out(stream);
   QStringList lst;
+  out << "# Fit used: " << fitData->fit->fitName() << endl;
   lst << "Buffer";
   for(int i = 0; i < nbParameters; i++)
     lst << fitData->parameterDefinitions[i].name;
+
   out << "## " << lst.join("\t") << endl;
   
   for(int i = 0; i < datasets; i++) {
@@ -118,5 +120,40 @@ void FitParameters::exportParameters(QIODevice * stream)
     for(int j = 0; j < nbParameters; j++)
       lst << QString::number(getValue(j, i));
     out << lst.join("\t") << endl;
+  }
+}
+
+void FitParameters::saveParameters(QIODevice * stream)
+{
+  QTextStream out(stream);
+  
+  out << "# The following information are comments, " 
+    "but Soas may make use of those if they are present" << endl;
+
+  out << "# Fit used: " << fitData->fit->fitName() << endl;
+  for(int i = 0; i < datasets; i++)
+    out << "# Buffer #" << i << " : " 
+        << fitData->datasets[i]->name << endl;
+
+  // A first pass to print out the global parameters
+  for(int i = 0; i < nbParameters; i++) {
+    if(isGlobal(i) || datasets == 1)
+      out << fitData->parameterDefinitions[i].name 
+          << "\t" << getValue(i, 0) << "\t!\t"
+          << (isFixed(i, 0) ? "0" : "1")
+          << endl;
+  }
+  if(datasets > 1) {
+    for(int j = 0; j < datasets; j++) {
+      for(int i = 0; i < nbParameters; i++) {
+        if(isGlobal(i))
+          continue;
+        out << fitData->parameterDefinitions[i].name 
+            << "[#" << j << "]\t"
+            << getValue(i, j) << "\t!\t"
+            << (isFixed(i, j) ? "0" : "1")
+            << endl;
+      }
+    }
   }
 }

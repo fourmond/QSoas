@@ -95,21 +95,12 @@ static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
 
 
 FitDialog::FitDialog(FitData * d) : data(d),
-                                    stackedViews(NULL), currentIndex(0),
+                                    stackedViews(NULL), 
+                                    parameters(d),
+                                    currentIndex(0),
                                     settingEditors(false)
 {
   resize(fitDialogSize);
-  unpackedParameters = new double[d->fullParameterNumber()];
-  d->fit->initialGuess(d, unpackedParameters);
-
-  int nbparams = d->parameterDefinitions.size();
-  isGlobal = new bool[nbparams];
-  for(int i = 0; i < nbparams; i++)
-    isGlobal[i] = ! d->parameterDefinitions[i].canBeBufferSpecific;
-
-  isFixed = new bool[d->fullParameterNumber()];
-  for(int i = 0; i != d->fullParameterNumber(); i++)
-    isFixed[i] = d->parameterDefinitions[i % nbparams].defaultsToFixed;
 
   compute();
   setupFrame();
@@ -119,10 +110,6 @@ FitDialog::FitDialog(FitData * d) : data(d),
 
 FitDialog::~FitDialog()
 {
-  delete[] unpackedParameters;
-  delete[] isGlobal;
-  delete[] isFixed;
-
   fitDialogSize = size();
 
 }
@@ -234,8 +221,7 @@ void FitDialog::dataSetChanged(int newds)
 
 void FitDialog::compute()
 {
-  data->fit->function(unpackedParameters, 
-                      data, data->storage);
+  parameters.recompute();
   if(stackedViews && stackedViews->currentWidget())
     stackedViews->currentWidget()->repaint();
 }
@@ -245,95 +231,32 @@ void FitDialog::updateEditors()
 {
   settingEditors = true;
   int sz = editors.size();
-  for(int i = 0; i < sz; i++) {
-    double v;
-    bool fixed;
-    if(isGlobal[i]) {
-      v = unpackedParameters[i];
-      fixed = isFixed[i];
-    }
-    else {
-      v = unpackedParameters[i + sz * currentIndex];
-      fixed = isFixed[i + sz * currentIndex];
-    }
-    editors[i]->setValues(v, fixed, isGlobal[i]);
-  }
+  for(int i = 0; i < sz; i++)
+    editors[i]->setValues(parameters.getValue(i, currentIndex),
+                          parameters.isFixed(i, currentIndex),
+                          parameters.isGlobal(i));
   settingEditors = false;
 }
 
 void FitDialog::onSetGlobal(int index)
 {
-  isGlobal[index] = editors[index]->isGlobal();
+  parameters.setGlobal(index, editors[index]->isGlobal());
 }
 
 void FitDialog::onSetFixed(int index)
 {
-  if(isGlobal[index])
-    isFixed[index] = editors[index]->isFixed();
-  else {
-    int sz = editors.size();
-    isFixed[index + currentIndex *sz] = 
-      editors[index]->isFixed();
-  }
+  parameters.setFixed(index, currentIndex, editors[index]->isFixed());
 }
 
 void FitDialog::onSetValue(int index, double v)
 {
-  if(isGlobal[index])
-    unpackedParameters[index] = v;
-  else {
-    int sz = editors.size();
-    unpackedParameters[index + currentIndex *sz] = v;
-  }
+  parameters.setValue(index, currentIndex, v);
 }
 
-void FitDialog::setDataParameters()
-{
-  data->parameters.clear();
-  data->fixedParameters.clear();
-
-  int nb_bufs = data->datasets.size();
-  int sz = editors.size();
-  for(int i = 0; i < nb_bufs; i++) {
-    for(int j = 0; j < sz; j++) {
-      int ds = (isGlobal[j] ? -1 : i);
-      if(isGlobal[j]) {
-        if(i)
-          continue;
-        if(isFixed[j])
-          data->fixedParameters 
-            << FixedParameter(j, ds, unpackedParameters[j]);
-        else 
-          data->parameters
-            << ActualParameter(j, ds);
-      }
-      else {
-        if(isFixed[sz * i + j])
-          data->fixedParameters 
-            << FixedParameter(j, ds, unpackedParameters[sz* i + j]);
-        else 
-          data->parameters
-            << ActualParameter(j, ds);
-      }
-    }
-  }
-}
 
 void FitDialog::startFit()
 {
-  setDataParameters();
-  data->initializeSolver(unpackedParameters);
-  Terminal::out << "Starting fit '" << data->fit->fitName() << "' with "
-                << data->parameters.size() << " free parameters"
-                << endl;
-
-  /// @todo customize the number of iterations
-  while(data->iterate() == GSL_CONTINUE && data->nbIterations < 100) {
-    soas().showMessage(tr("Fit iteration %1").arg(data->nbIterations));
-    Terminal::out << "Iteration " << data->nbIterations 
-                  << ", residuals :" << data->residuals() << endl;
-  }
-  data->unpackCurrentParameters(unpackedParameters);
+  parameters.doFit();
   compute();
   updateEditors();
 }
@@ -397,25 +320,6 @@ void FitDialog::exportParameters()
   QFile f(save);
   if(! f.open(QIODevice::WriteOnly))
     return;                     /// @todo Signal !
-  
-  QTextStream out(&f);
-  QStringList lst;
-  lst << "Buffer";
-  for(int i = 0; i < editors.size(); i++)
-    lst << data->parameterDefinitions[i].name;
-  out << "## " << lst.join("\t") << endl;
-  
-  for(int i = 0; i < data->datasets.size(); i++) {
-    lst.clear();
-    lst << data->datasets[i]->name;
-    for(int j = 0; j < editors.size(); j++) {
-      double v;
-      if(isGlobal[j])
-        v = unpackedParameters[j];
-      else
-        v = unpackedParameters[j + editors.size() * i];
-      lst << QString::number(v);
-    }
-    out << lst.join("\t") << endl;
-  }
+
+  parameters.exportParameters(&f);
 }

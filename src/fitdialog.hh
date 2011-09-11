@@ -20,6 +20,8 @@
 #ifndef __FITDIALOG_HH
 #define __FITDIALOG_HH
 
+#include <fitparameters.hh>
+
 class FitData;
 class CurveView;
 class DataSet;
@@ -70,6 +72,8 @@ protected slots:
 
 
 /// This class handles all the user interaction during fits.
+///
+/// @todo Fit parameter handling should go to a dedicated class.
 class FitDialog : public QDialog {
 
   Q_OBJECT;
@@ -94,15 +98,8 @@ class FitDialog : public QDialog {
   /// List of editors
   QList<FitParameterEditor *> editors;
 
-
-  /// The current parameters of the Fit, in unpacked form
-  double * unpackedParameters;
-
-  /// The current value of the global flag
-  bool * isGlobal;
-
-  /// The current value of the fixed flag
-  bool * isFixed;
+  /// The parameters
+  FitParameters parameters;
 
   /// The current index
   int currentIndex;

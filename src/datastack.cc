@@ -54,12 +54,32 @@ void DataStack::showStackContents(bool /*unused*/) const
   Terminal::out << "Total size: " << totalSize/1024 << " kB" << endl;
 }
 
+int DataStack::dsNumber2Index(int nb, const QList<DataSet *> ** target) const
+{
+  if(nb >= 0) {
+    *target = &dataSets;
+    return dataSets.size() - (nb+1);
+  }
+  *target = &redoStack;
+  return redoStack.size() + nb;
+}
+
+int DataStack::dsNumber2Index(int nb, QList<DataSet *> * * target)
+{
+  if(nb >= 0) {
+    *target = &dataSets;
+    return dataSets.size() - (nb+1);
+  }
+  *target = &redoStack;
+  return redoStack.size() + nb;
+}
+
 
 DataSet * DataStack::numberedDataSet(int nb) const
 {
-  if(nb >= 0)
-    return dataSets.value(dataSets.size() - (nb+1), NULL);
-  return redoStack.value(redoStack.size() + nb, NULL);
+  const QList<DataSet *> * lst;
+  int idx = dsNumber2Index(nb, &lst);
+  return lst->value(idx, NULL);
 }
 
 DataSet * DataStack::currentDataSet(bool silent) const
@@ -124,4 +144,21 @@ bool DataStack::indexOf(const DataSet * ds, int * idx) const
     return true;
   }
   return false;
+}
+
+void DataStack::dropDataSet(int nb)
+{
+  QList<DataSet *> * lst;
+  int idx = dsNumber2Index(nb, &lst);
+  if(idx < lst->size())
+    delete lst->takeAt(idx);
+  if(! nb) 
+    emit(currentDataSetChanged());
+}
+
+void DataStack::dropDataSet(const DataSet * ds)
+{
+  int idx;
+  if(indexOf(ds, &idx))
+    dropDataSet(idx);
 }

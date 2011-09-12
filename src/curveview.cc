@@ -32,6 +32,7 @@
 #include <dataset.hh>
 
 #include <soas.hh>
+#include <datastack.hh>
 
 CurveView::CurveView() : 
   eventLoop(NULL), paintMarkers(false)
@@ -125,7 +126,7 @@ void CurveView::clear()
 
 void CurveView::showCurrentDataSet()
 {
-  showDataSet(soas().currentDataSet());
+  showDataSet(soas().stack().currentDataSet());
 }
 
 void CurveView::showDataSet(const DataSet * ds)

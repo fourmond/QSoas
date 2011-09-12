@@ -161,6 +161,25 @@ showStack("show-stack", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+/// @todo Support options to select which dataset to remove.
+static void dropDataSetCommand(const QString &)
+{
+  soas().stack().dropDataSet(0);
+}
+
+
+static Command 
+drop("drop", // command name
+          optionLessEffector(dropDataSetCommand), // action
+          "stack",  // group name
+          NULL, // arguments
+          NULL, // options
+          "Drop dataset",
+          "Drops the current dataset",
+          "Drops the current dataset and frees the associated memory");
+
+//////////////////////////////////////////////////////////////////////
+
 static void undoCommand(const QString &)
 {
   soas().stack().undo();

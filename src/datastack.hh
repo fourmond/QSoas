@@ -39,6 +39,11 @@ class DataStack : public QObject {
 
   /// A chache DataSet name -> DataSet.
   QHash<QString, DataSet *> dataSetByName;
+
+  /// Converts the dataset number given into a real list index, along
+  /// with setting the list pointer to the right one.
+  int dsNumber2Index(int nb, const QList<DataSet *> * * target) const;
+  int dsNumber2Index(int nb, QList<DataSet *> ** target);
 public:
 
   /// Constructs a DataStack object.
@@ -93,6 +98,12 @@ public:
   /// Returns true if the given DataSet is in the stack and sets \a
   /// idx accordingly.
   bool indexOf(const DataSet * ds, int * idx) const;
+
+  /// Drops the given dataset
+  void dropDataSet(int idx);
+
+  /// Drops the given dataset
+  void dropDataSet(const DataSet * ds);
 
 signals:
   /// Emitted whenever the current dataset changed.

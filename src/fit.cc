@@ -240,16 +240,24 @@ int Fit::df(const gsl_vector * parameters,
     double step = data->parameters[i].derivationFactor * saved;
     /// @todo minimum step
 
+    gsl_vector_view v = gsl_matrix_column(target_df, i);
     if(data->parameters[i].dsIndex < 0) {
       int nb_ds_params = data->parameterDefinitions.size();
       int nb_datasets = data->datasets.size();
       for(int j = 0; j < nb_datasets; j++)
         params[idx + j * nb_ds_params] = saved + step;
+      function(params.data(), data, &v.vector);
     }
-    else 
+    else {
       params[idx] = saved + step;
-    gsl_vector_view v = gsl_matrix_column(target_df, i);
-    function(params.data(), data, &v.vector);
+      // First copy around to avoid spurious data in the end.
+
+      /// @todo We could still take down the number of operations by
+      /// working only on the target subvector.
+      gsl_vector_memcpy(&v.vector, data->storage);
+      functionForDataset(params.data(), data, &v.vector, 
+                         data->parameters[i].dsIndex);
+    }
     gsl_vector_sub(&v.vector, data->storage);
     gsl_vector_scale(&v.vector, 1/step);
     if(data->parameters[i].dsIndex < 0) {
@@ -267,11 +275,19 @@ int Fit::df(const gsl_vector * parameters,
 int Fit::fdf(const gsl_vector * parameters,  FitData * data, 
              gsl_vector * target_f, gsl_matrix * target_J) 
 {
+  /// @todo Here, we can save one funcall...
   f(parameters, data, target_f);
   df(parameters, data, target_J);
   return GSL_SUCCESS;
 }
 
+void Fit::functionForDataset(const double * parameters,
+                             FitData * data, gsl_vector * target, 
+                             int /*dataset*/)
+{
+  /// Defaults to all datasets at once
+  function(parameters, data, target);
+}
 
 void Fit::makeCommands(ArgumentList * args, 
                        CommandEffector * singleFit,

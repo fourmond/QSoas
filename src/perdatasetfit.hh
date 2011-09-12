@@ -33,6 +33,11 @@ public:
   virtual void function(const double * parameters,
                         FitData * data, gsl_vector * target);
 
+  /// Reimplemented for performance :
+  virtual void functionForDataset(const double * parameters,
+                                  FitData * data, gsl_vector * target, 
+                                  int dataset);
+
   /// Redefined to wrap to a call to the per-dataset function
   virtual void initialGuess(FitData * data, double * guess);
 
@@ -44,6 +49,7 @@ public:
                         FitData * data, 
                         const DataSet * ds,
                         gsl_vector * target) = 0;
+
 
   /// Provides an initial guess for the given dataset:
   virtual void initialGuess(FitData * data, 

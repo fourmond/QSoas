@@ -244,6 +244,17 @@ public:
   /// all datasets !
   virtual void function(const double * parameters,
                         FitData * data, gsl_vector * target) = 0;
+
+  /// Does the same thing as function, but only updates the part
+  /// corresponding to the given dataset.
+  ///
+  /// \warning It is not guaranteed that the function will not be
+  /// computed elsewhere. What is guaranteed, though, is that the
+  /// values for the given dataset are updated, and that whatever else
+  /// is updated has the correct value.
+  virtual void functionForDataset(const double * parameters,
+                                  FitData * data, gsl_vector * target, 
+                                  int dataset);
   /// @}
 
   /// Prepares an initial guess for all parameters. The \a guess array

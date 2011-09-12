@@ -32,6 +32,16 @@ void PerDatasetFit::function(const double * parameters,
   }
 }
 
+void PerDatasetFit::functionForDataset(const double * parameters,
+                                       FitData * data, gsl_vector * target,
+                                       int i)
+{
+  int nb_ds_params = data->parameterDefinitions.size();
+  gsl_vector_view dsView = data->viewForDataset(i, target);
+  function(parameters + nb_ds_params * i, data,
+           data->datasets[i], &dsView.vector);
+}
+
 void PerDatasetFit::initialGuess(FitData * data, double * guess)
 {
   int nb_ds_params = data->parameterDefinitions.size();

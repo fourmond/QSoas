@@ -129,7 +129,7 @@ public:
   {
     a[0] = ds->x()[0];          // x0 = x[0]
     a[5] = ds->y().last();      
-    a[1] = 0.5*(ds->y()[0] - a[3]);
+    a[1] = 0.5*(ds->y()[0] - a[5]);
     a[2] = (ds->x().last() - a[0])/20;
     a[3] = a[1];
     a[4] = (ds->x().last() - a[0])/3;
@@ -178,7 +178,7 @@ public:
   {
     a[0] = ds->x()[0];          // x0 = x[0]
     a[5] = ds->y().last();      
-    a[1] = 0.5*(ds->y()[0] - a[3]);
+    a[1] = 0.5*(ds->y()[0] - a[5]);
     a[2] = (ds->x().last() - a[0])/20;
     a[3] = a[1];
     a[4] = (ds->x().last() - a[0])/3;
@@ -212,3 +212,97 @@ FilmExp2Fit fit_film_expd2;
 /// @li fits with arbitrary number of exponentials (using a number
 /// parameter) ?
 /// @li polynomial fits ?
+
+
+/// Same as Exp2Fit, but all amplitudes are relative
+class Exp2RelFit : public FunctionFit {
+public:
+
+  virtual double function(const double * a, 
+                          FitData * , double x) {
+    return a[1] * ( a[2] * exp(-(x - a[0]) / a[3]) + a[4] * 
+                    exp(-(x - a[0]) / a[5]) + (1 - a[2] - a[4]));
+  };
+
+  virtual void initialGuess(FitData * , 
+                            const DataSet * ds,
+                            double * a)
+  {
+    a[0] = ds->x()[0];          // x0 = x[0]
+    a[1] = ds->y().first();      
+    a[2] = 0.3;
+    a[3] = (ds->x().last() - a[0])/20;
+    a[4] = a[2];
+    a[5] = (ds->x().last() - a[0])/3;
+  };
+
+  virtual QList<ParameterDefinition> parameters() const {
+    return QList<ParameterDefinition>()
+      << ParameterDefinition("x0", true)
+      << ParameterDefinition("A")
+      << ParameterDefinition("alpha1")
+      << ParameterDefinition("tau1")
+      << ParameterDefinition("alpha2")
+      << ParameterDefinition("tau2");
+  };
+
+
+  Exp2RelFit() : FunctionFit("expd2-rel", 
+                          "Bi-exponential decay with relative amplitude",
+                          "Bi-exponential decay, formula is :...") 
+  { ;};
+};
+
+// DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
+// Its name doesn't matter.
+Exp2RelFit fit_expd2_rel;
+
+
+/// Three exponential fits, with relative amplitudes
+class Exp3RelFit : public FunctionFit {
+public:
+
+  virtual double function(const double * a, 
+                          FitData * , double x) {
+    return a[1] * ( a[2] * exp(-(x - a[0]) / a[3]) + 
+                    a[4] * exp(-(x - a[0]) / a[5]) + 
+                    a[6] * exp(-(x - a[0]) / a[7]) + 
+                    (1 - a[2] - a[4] - a[6]));
+  };
+
+  virtual void initialGuess(FitData * , 
+                            const DataSet * ds,
+                            double * a)
+  {
+    a[0] = ds->x()[0];          // x0 = x[0]
+    a[1] = ds->y().first();      
+    a[2] = 0.1;
+    a[3] = (ds->x().last() - a[0])/50;
+    a[4] = a[2];
+    a[5] = (ds->x().last() - a[0])/6;
+    a[6] = a[2];
+    a[7] = (ds->x().last() - a[0])/2;
+  };
+
+  virtual QList<ParameterDefinition> parameters() const {
+    return QList<ParameterDefinition>()
+      << ParameterDefinition("x0", true)
+      << ParameterDefinition("A")
+      << ParameterDefinition("alpha1")
+      << ParameterDefinition("tau1")
+      << ParameterDefinition("alpha2")
+      << ParameterDefinition("tau2")
+      << ParameterDefinition("alpha3")
+      << ParameterDefinition("tau3");
+  };
+
+
+  Exp3RelFit() : FunctionFit("expd3-rel", 
+                             "Tri-exponential decay with relative amplitude",
+                             "Tri-exponential decay, formula is :...") 
+  { ;};
+};
+
+// DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
+// Its name doesn't matter.
+Exp3RelFit fit_expd3_rel;

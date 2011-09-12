@@ -35,6 +35,7 @@
 #include <math.h>
 
 #include <utils.hh>
+#include <outfile.hh>
 
 #include <spline.hh>
 #include <pointpicker.hh>
@@ -68,6 +69,7 @@ static void reglinCommand(const QString &)
   loop.setHelpString(QObject::tr("Linear regression:\n"
                                  "left click: left boundary\n"
                                  "right click: right boundary\n"
+                                 "space: write to output file\n"
                                  "u: subtract trend\n"
                                  "v: divide by trend\n"
                                  "e: divide by exp decay\n"
@@ -124,6 +126,17 @@ static void reglinCommand(const QString &)
         newds->name = ds->cleanedName() + "_linsub.dat";
         soas().pushDataSet(newds);
         return;
+      }
+      case ' ': {
+        OutFile::out.setHeader(QString("Dataset: %1\n"
+                                       "a\tb\txleft\txright").
+                               arg(ds->name));
+        /// @todo add other fields ? 
+        OutFile::out << reg.first << "\t" << reg.second << "\t"
+                     << r.xleft << "\t" << r.xright << "\n" << flush;
+        Terminal::out << "Writing to output file " << OutFile::out.fileName()
+                      << endl;
+        break;
       }
       case 'V':
       case 'v': {

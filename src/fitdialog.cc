@@ -185,6 +185,7 @@ void FitDialog::setupFrame()
   ac->addAction("Load from file", this, SLOT(loadParameters()));
   ac->addAction("Save to file", this, SLOT(saveParameters()));
   ac->addAction("Export", this, SLOT(exportParameters()));
+  ac->addAction("Export to output file", this, SLOT(exportToOutFile()));
   hb->addWidget(ac);
   hb->addStretch(1);
 
@@ -314,6 +315,7 @@ void FitDialog::saveParameters()
     return;                     /// @todo Signal !
 
   parameters.saveParameters(&f);
+  Terminal::out << "Saved fit parameters to file " << save << endl;
 }
 
 void FitDialog::loadParameters()
@@ -333,4 +335,11 @@ void FitDialog::exportParameters()
     return;                     /// @todo Signal !
 
   parameters.exportParameters(&f);
+  Terminal::out << "Exported fit parameters to file " << save << endl;
+}
+
+void FitDialog::exportToOutFile()
+{
+  parameters.exportToOutFile();
+  Terminal::out << "Exported fit parameters to output file"  << endl;
 }

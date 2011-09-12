@@ -31,12 +31,15 @@ void OutFile::ensureOpened()
 {
   if(! output) {
     output = new QFile(name);
-    if(! output->open(QIODevice::WriteOnly | QIODevice::Text))
+    if(! output->open(QIODevice::ReadWrite | QIODevice::Text)) 
       Terminal::out << "Failed to open output file '" 
                     << name << "'" << endl;
-    output->seek(output->size());
+    else
+      output->seek(output->size());
+    internalStream = new QTextStream(output);
   }
-  internalStream = new QTextStream(output);
+  if(! internalStream)
+    internalStream = new QTextStream(output);
 }
 
 void OutFile::setHeader(const QString & head)
@@ -51,4 +54,3 @@ OutFile::~OutFile()
   delete internalStream;
   delete output;
 }
-

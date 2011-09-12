@@ -62,13 +62,15 @@ public:
   /// The global output file
   static OutFile out;
 
-  /// For a reason that completely fails me, endl doesn't wor
+  /// For some curious reason, endl doesn't work, and "\n" << flush
+  /// should be used instead.
   template<typename T> OutFile & operator<<(const T& t) {
     ensureOpened();
     if(internalStream)
       (*internalStream) << t;
     return *this;
   };
+
 
   ~OutFile();
 

@@ -166,6 +166,9 @@ protected slots:
   /// state (global and/or fixed)
   void exportParameters();
 
+  /// Exports parameters to the current output file
+  void exportToOutFile();
+
 };
 
 #endif

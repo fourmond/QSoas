@@ -21,6 +21,7 @@
 #define __FITPARAMETERS_HH
 
 class FitData;
+class OutFile;
 
 /// Holds parameters of a fit (possibly multi-buffer), the way the
 /// user edits them
@@ -110,10 +111,14 @@ public:
   /// On the other hand, it may be easier to work with than the output
   /// of saveParameters (which is closer to the original Soas
   /// version).
-  void exportParameters(QIODevice * out);
+  void exportParameters(QIODevice * out) const;
+
+
+  /// Export parameters to the given output file (or the default one)
+  void exportToOutFile(OutFile * out = NULL) const;
 
   /// Save to the given stream
-  void saveParameters(QIODevice * out);
+  void saveParameters(QIODevice * out) const;
   
 };
 

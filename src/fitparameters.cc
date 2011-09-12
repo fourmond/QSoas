@@ -23,6 +23,7 @@
 #include <terminal.hh>
 #include <soas.hh>
 #include <dataset.hh>
+#include <outfile.hh>
 
 FitParameters::FitParameters(FitData * d) :
   fitData(d)
@@ -103,7 +104,7 @@ void FitParameters::doFit()
 }
 
 
-void FitParameters::exportParameters(QIODevice * stream)
+void FitParameters::exportParameters(QIODevice * stream) const
 {
   QTextStream out(stream);
   QStringList lst;
@@ -123,7 +124,30 @@ void FitParameters::exportParameters(QIODevice * stream)
   }
 }
 
-void FitParameters::saveParameters(QIODevice * stream)
+void FitParameters::exportToOutFile(OutFile * out) const
+{
+  if( ! out)
+    out = &OutFile::out;
+
+  QStringList lst;
+  lst << "Buffer";
+  for(int i = 0; i < nbParameters; i++)
+    lst << fitData->parameterDefinitions[i].name;
+
+  out->setHeader(QString("Fit: %1\n%2").
+                 arg(fitData->fit->fitName()).
+                 arg(lst.join("\t")));
+  
+  for(int i = 0; i < datasets; i++) {
+    lst.clear();
+    lst << fitData->datasets[i]->name;
+    for(int j = 0; j < nbParameters; j++)
+      lst << QString::number(getValue(j, i));
+    (*out) << lst.join("\t") << "\n" << flush;
+  }
+}
+
+void FitParameters::saveParameters(QIODevice * stream) const
 {
   QTextStream out(stream);
   

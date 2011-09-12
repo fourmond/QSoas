@@ -257,7 +257,11 @@ void FitDialog::onSetValue(int index, double v)
 
 void FitDialog::startFit()
 {
+  QTime timer;
+  timer.start();
   parameters.doFit();
+  Terminal::out << "Fitting took an overall " << timer.elapsed() * 1e-3
+                << " seconds" << endl;
   compute();
   updateEditors();
 }

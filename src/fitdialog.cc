@@ -312,6 +312,8 @@ void FitDialog::startFit()
     Terminal::out << "Fit cancelled" << endl;
     progressReport->setText(progressReport->text() + " (cancelled)");
   }
+  else 
+    progressReport->setText(progressReport->text() + " (done)");
   Terminal::out << "Fitting took an overall " << timer.elapsed() * 1e-3
                 << " seconds" << endl;
   

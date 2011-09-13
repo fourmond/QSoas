@@ -41,6 +41,7 @@
    And other things too:
    \li history save/restore upon exit
    \li resampling
+   \li printing of full CurveView (and not only of CurvePanel)
 
    Allow customization for load:
    \li columns (X be 2, Y be 1 and so on)

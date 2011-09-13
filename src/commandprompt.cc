@@ -82,6 +82,7 @@ void CommandPrompt::keyPressEvent(QKeyEvent * event)
   switch(event->key()) {
   case Qt::Key_Tab:
     event->accept();
+    doHistoryExpansion();       // Dead useful
     doCompletion();
     break;
   case Qt::Key_Up: 
@@ -114,6 +115,7 @@ void CommandPrompt::keyPressEvent(QKeyEvent * event)
   case Qt::Key_Enter:
   case Qt::Key_Return:
     historyItem = -1;         // Reset history.
+    doHistoryExpansion();
   default:
     QLineEdit::keyPressEvent(event);
   }
@@ -123,6 +125,22 @@ void CommandPrompt::addHistoryItem(const QString & str)
 {
   savedHistory.prepend(str);
 }
+
+QStringList CommandPrompt::historyMatching(const QString & str) const
+{
+  return Utils::stringsStartingWith(savedHistory, str);
+}
+
+void CommandPrompt::doHistoryExpansion()
+{
+  QString curText = text();
+  if(curText[0] == QChar('!')) {
+    QStringList matching = historyMatching(curText.mid(1));
+    if(matching.size() >= 1) 
+      setText(matching.first());
+  }
+}
+
 
 CommandPrompt::CompletionContext CommandPrompt::getCompletionContext() const
 {

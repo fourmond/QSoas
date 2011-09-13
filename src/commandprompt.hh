@@ -20,7 +20,9 @@
 #ifndef __COMMANDPROMPT_HH
 #define __COMMANDPROMPT_HH
 
-/// A QLineEdit with automatic completion facilities.
+/// A QLineEdit with automatic completion and history facilities.
+///
+/// Think of it as a Qt version of readline...
 class CommandPrompt : public QLineEdit {
 
   Q_OBJECT;
@@ -77,14 +79,21 @@ class CommandPrompt : public QLineEdit {
   void replaceWord(const CompletionContext & c, const QString & str, 
                    bool full = true);
 
+  /// Perform history substitution
+  void doHistoryExpansion();
+
   /// Performs automatic completion.
   void doCompletion();
 
+  /// Returns the list of history elements starting with the given
+  /// string.
+  QStringList historyMatching(const QString & str) const;
 
 public:
 
   CommandPrompt();
   virtual ~CommandPrompt();
+
 
 public slots:
   void addHistoryItem(const QString & str);

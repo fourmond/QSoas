@@ -33,9 +33,31 @@
    \li dataset selection
    \li peak detection (along with a CurvePeak CurveItem child to display
    it neatly)
-   \li baseline (catalytic and not catalytic)
+   \li catalytic baseline
    \li FFT, probably based on GSL too (no need to pull in another
    dependency)
+   
+
+   And other things too:
+   \li save/load data stack
+   \li history save/restore upon exit
+   \li resampling
+
+   Allow customization for load:
+   \li columns (X be 2, Y be 1 and so on)
+   \li comment chars
+   \li separator for text files ?
+   \li gracefully handling column with text ?
+
+   Actually, each instance of backend should register its own command
+   ('backend'-load) with a whole bunch of additional options (such as
+   the aforementioned), that would only be available when directly
+   using the appropriate command (and would bypass backend detection)
+
+   Find a way to prompt for additional arguments for greedy parameters
+   (using an additional button in the dialog box ?)
+
+
 
    \section arch Architectural things
    

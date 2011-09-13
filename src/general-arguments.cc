@@ -162,7 +162,7 @@ ArgumentMarshaller * SeveralDataSetArgument::fromString(const QString & s) const
 {
   QStringList splitted = s.split(QRegExp("\\s*,\\s*"));
   QList<const DataSet *> dsets;
-  QRegExp multi("^\\s*(-?[0-9]+)\\s*..\\s*(-?[0-9]+)\\s*$");
+  QRegExp multi("^\\s*(-?[0-9]+)\\s*..\\s*(-?[0-9]+)\\s*(?::(\\d+)\\s*)?");
 
   for(int i = 0; i < splitted.size(); i++) {
     const QString & str = splitted[i];
@@ -170,16 +170,19 @@ ArgumentMarshaller * SeveralDataSetArgument::fromString(const QString & s) const
     if(multi.indexIn(str) == 0) {
       int first = multi.cap(1).toInt();
       int last = multi.cap(2).toInt();
-      int delta = (first < last ? 1 : -1);
+      int sign = (first < last ? 1 : -1);
+      int delta = 1;
+      if(! multi.cap(3).isEmpty())
+        delta = multi.cap(3).toInt();
       do {
         DataSet * ds = soas().stack().numberedDataSet(first);
         if(! ds)
           Terminal::out << "No such buffer number : " << first << endl;
         else
           dsets << ds;
-        first += delta;
+        first += delta * sign;
       }
-      while(first != (last + delta));
+      while((first - last) * sign <= 0);
 
       if(dsets.size() == 0) {
         QString s = QObject::tr("Buffer range '%1' corresponds to no buffers").

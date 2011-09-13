@@ -401,8 +401,8 @@ sub("subtract", // command name
     &suba, // arguments
     NULL, // options
     "Subtract",
-    "Subtract two buffers",
-    "Subtract two buffers",
+    "Subtract on buffer from another",
+    "Subtract the second buffer from the first",
     "S");
 
 //////////////////////////////////////////////////////////////////////
@@ -418,10 +418,35 @@ static void divCommand(const QString &, DataSet * a,
 
 static Command 
 divc("div", // command name
-    optionLessEffector(divCommand), // action
-    "buffer",  // group name
-    &suba, // arguments
-    NULL, // options
-    "Subtract",
-    "Subtract two buffers",
-    "Subtract two buffers");
+     optionLessEffector(divCommand), // action
+     "buffer",  // group name
+     &suba, // arguments
+     NULL, // options
+     "Divide",
+     "Divide one buffer by another",
+     "Divide the first buffer by the second");
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void shiftxCommand(const QString &)
+{
+  const DataSet * ds = soas().currentDataSet();
+  DataSet * newDs = new DataSet(*ds);
+  double x = newDs->x()[0];
+  Terminal::out << QObject::tr("Shifting X axis by %1").
+    arg(x) << endl;
+  newDs->x() -= x;
+  newDs->name = newDs->cleanedName() + "_shiftx.dat";
+  soas().pushDataSet(newDs);
+}
+
+static Command 
+shiftx("shiftx", // command name
+       optionLessEffector(shiftxCommand), // action
+       "buffer",  // group name
+       NULL, // arguments
+       NULL, // options
+       "Shift X values",
+       "Shift X values so that x[0] = 0",
+       "Shift X values so that x[0] = 0");

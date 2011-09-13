@@ -27,7 +27,10 @@ class CurveView;
 class DataSet;
 class ParameterDefinition;
 
-/// A widget to edit the settings for a given
+/// A widget to edit the settings for a given parameter.
+///
+/// @todo Disable the global flag when there is only one dataset or
+/// that the parameter can't be buffer-local.
 class FitParameterEditor : public QWidget {
   Q_OBJECT;
   int index;
@@ -41,8 +44,7 @@ class FitParameterEditor : public QWidget {
 
   /// The fixed checkbox
   QCheckBox * fixed;
-  
-  
+
 public:
   FitParameterEditor(const ParameterDefinition * d, int idx);
 
@@ -72,8 +74,6 @@ protected slots:
 
 
 /// This class handles all the user interaction during fits.
-///
-/// @todo Fit parameter handling should go to a dedicated class.
 class FitDialog : public QDialog {
 
   Q_OBJECT;
@@ -107,11 +107,26 @@ class FitDialog : public QDialog {
   /// A flag to avoid updating twice...
   bool settingEditors;
 
+  /// A small text display to report current progress
+  QLabel * progressReport;
+
+  /// the start button
+  QPushButton * startButton;
+
+  /// The cancel button, only visible during fit
+  QPushButton * cancelButton;
 
   /// Fills the FitData with parameter information
   void setDataParameters();
 
   DataSet * simulatedData(int i);
+
+  /// Whether or not we should cancel the current fit.
+  bool shouldCancelFit;
+
+protected:
+
+  virtual void closeEvent(QCloseEvent * event);
 
 
 public:
@@ -140,6 +155,9 @@ protected slots:
 
   /// Starts the fit !
   void startFit();
+
+  /// Cancels the current fit !
+  void cancelFit();
 
   /// Jumps to previous dataset
   void previousDataset();

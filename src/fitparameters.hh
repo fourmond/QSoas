@@ -101,8 +101,16 @@ public:
   /// Translates the current state into FitData parameters.
   void setDataParameters();
 
-  /// Performs the fit
-  void doFit();
+  /// Prepare fit
+  void prepareFit();
+
+  /// Retrieve parameters from the fit
+  void retrieveParameters();
+
+    
+
+  // /// Performs the fit
+  // void doFit();
 
   /// Export to the target stream. This essentially exports raw
   /// values, thereby losing information about what was fixed and what

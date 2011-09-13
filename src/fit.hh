@@ -294,10 +294,12 @@ public:
 
   virtual ~Fit();
 
-  /// Runs the fit on the current dataset
+  /// Runs the fit on the current dataset, that is, pops up the dialog
+  /// box prompting for fit parameters and for user interaction in
+  /// general.
   void runFitCurrentDataSet(const QString & name);
 
-  /// Runs the fit on the given datasets
+  /// Runs the fit on the given datasets. \sa runFitCurrentDataSet
   void runFit(const QString & name, QList<const DataSet *> datasets);
 };
 

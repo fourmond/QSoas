@@ -85,21 +85,14 @@ void FitParameters::setDataParameters()
   }
 }
 
-void FitParameters::doFit()
+void FitParameters::prepareFit()
 {
   setDataParameters();
   fitData->initializeSolver(values);
-  Terminal::out << "Starting fit '" << fitData->fit->fitName() << "' with "
-                << fitData->parameters.size() << " free parameters"
-                << endl;
+}
 
-  /// @todo customize the number of iterations
-  while(fitData->iterate() == GSL_CONTINUE && fitData->nbIterations < 100) {
-    soas().showMessage(QObject::tr("Fit iteration %1").
-                       arg(fitData->nbIterations));
-    Terminal::out << "Iteration " << fitData->nbIterations 
-                  << ", residuals :" << fitData->residuals() << endl;
-  }
+void FitParameters::retrieveParameters()
+{
   fitData->unpackCurrentParameters(values);
 }
 

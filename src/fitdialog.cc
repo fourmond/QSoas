@@ -191,22 +191,37 @@ void FitDialog::setupFrame()
 
   layout->addLayout(hb);
 
+  progressReport = new QLabel(" ");
+  layout->addWidget(progressReport);
+
 
   hb = new QHBoxLayout;
   bt = new QPushButton(tr("Update curves"));
   connect(bt, SIGNAL(clicked()), SLOT(compute()));
   hb->addWidget(bt);
 
-  bt = new QPushButton(tr("Fit"));
-  connect(bt, SIGNAL(clicked()), SLOT(startFit()));
-  hb->addWidget(bt);
+  startButton = new QPushButton(tr("Fit"));
+  connect(startButton, SIGNAL(clicked()), SLOT(startFit()));
+  hb->addWidget(startButton);
+
+  cancelButton = new QPushButton(tr("Cancel fit"));
+  connect(cancelButton, SIGNAL(clicked()), SLOT(cancelFit()));
+  hb->addWidget(cancelButton);
+  cancelButton->setVisible(false);
 
 
   bt = new QPushButton(tr("Close"));
-  connect(bt, SIGNAL(clicked()), SLOT(reject()));
+  connect(bt, SIGNAL(clicked()), SLOT(close()));
   hb->addWidget(bt);
 
   layout->addLayout(hb);
+}
+
+
+void FitDialog::closeEvent(QCloseEvent * event)
+{
+  shouldCancelFit = true;
+  QDialog::closeEvent(event);
 }
 
 
@@ -259,11 +274,57 @@ void FitDialog::startFit()
 {
   QTime timer;
   timer.start();
-  parameters.doFit();
+  parameters.prepareFit();
+  shouldCancelFit = false;
+  
+  Terminal::out << "Starting fit '" << data->fit->fitName() << "' with "
+                << data->parameters.size() << " free parameters"
+                << endl;
+
+
+  cancelButton->setVisible(true);
+  startButton->setVisible(false);
+  progressReport->setText(QString("Starting fit with %1 free parameters").
+                          arg(data->parameters.size()));
+
+  
+
+  QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+  /// @todo customize the number of iterations
+  while(data->iterate() == GSL_CONTINUE && 
+        data->nbIterations < 100 && 
+        ! shouldCancelFit) {
+    int it = data->nbIterations;
+    double residuals = data->residuals();
+    QString str = QString("Iteration #%1, residuals: %2").
+      arg(it).arg(residuals);
+    Terminal::out << str << endl;
+
+    progressReport->setText(str);
+    parameters.retrieveParameters();
+    updateEditors();
+
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+  }
+  cancelButton->setVisible(false);
+  startButton->setVisible(true);
+  if(shouldCancelFit) {
+    Terminal::out << "Fit cancelled" << endl;
+    progressReport->setText(progressReport->text() + " (cancelled)");
+  }
   Terminal::out << "Fitting took an overall " << timer.elapsed() * 1e-3
                 << " seconds" << endl;
+  
+  // parameters.retrieveParameters();
   compute();
-  updateEditors();
+  // updateEditors();
+}
+
+
+
+void FitDialog::cancelFit()
+{
+  shouldCancelFit = true;
 }
 
 void FitDialog::nextDataset()

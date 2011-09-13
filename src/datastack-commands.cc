@@ -255,6 +255,70 @@ cls("clear-stack", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void saveStackCommand(const QString &, QString fileName)
+{
+  QFile file(fileName);
+  if(! file.open(QIODevice::WriteOnly)) {
+    QString str = QObject::tr("Failed to write to file %1: %2").
+      arg(fileName).arg(file.errorString());
+    throw std::runtime_error(str.toStdString());
+  }
+  QDataStream out(&file);
+  out << soas().stack();
+}
+
+static ArgumentList 
+saveStackArgs(QList<Argument *>() 
+              << new FileSaveArgument("file", 
+                                      "File name",
+                                      "File name for saving stack",
+                                      "stack.bin"));
+
+
+static Command 
+saveStack("save-stack", // command name
+          optionLessEffector(saveStackCommand), // action
+          "stack",  // group name
+          &saveStackArgs, // arguments
+          NULL, // options
+          "Save stack",
+          "Saves the stack for later use",
+          "Saves the contents of the stack for later use, in a private "
+          "binary format");
+
+//////////////////////////////////////////////////////////////////////
+
+static void loadStackCommand(const QString &, QString fileName)
+{
+  QFile file(fileName);
+  if(! file.open(QIODevice::ReadOnly)) {
+    QString str = QObject::tr("Failed to read from file %1: %2").
+      arg(fileName).arg(file.errorString());
+    throw std::runtime_error(str.toStdString());
+  }
+  QDataStream in(&file);
+  in >> soas().stack();
+}
+
+static ArgumentList 
+loadStackArgs(QList<Argument *>() 
+              << new FileArgument("file", 
+                                  "File name",
+                                  "File name for saving stack"));
+
+
+static Command 
+loadStack("load-stack", // command name
+          optionLessEffector(loadStackCommand), // action
+          "stack",  // group name
+          &loadStackArgs, // arguments
+          NULL, // options
+          "Load stack",
+          "Loads the stack from file",
+          "Loads the stack as saved using save-stack");
+
+//////////////////////////////////////////////////////////////////////
+
 
 static void ovCommand(const QString &, DataSet * ds)
 {

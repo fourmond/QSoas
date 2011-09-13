@@ -564,3 +564,33 @@ void DataSet::write(const QString & n) const
   }
   write(&file);
 }
+
+
+//////////////////////////////////////////////////////////////////////
+
+QDataStream & operator<<(QDataStream & out, const DataSet & ds)
+{
+  qint32 nbCols = ds.columns.size();
+  out << nbCols;
+  for(qint32 i = 0; i < nbCols; i++)
+    out << ds.columns[i];
+
+  out << ds.name;
+  return out;
+}
+
+
+QDataStream & operator>>(QDataStream & in, DataSet & ds)
+{
+  qint32 nbCols;
+  in >> nbCols;
+  ds.columns.clear();
+  for(qint32 i = 0; i < nbCols; i++) {
+    Vector v;
+    in >> v;
+    ds.columns.append(v);
+  }
+
+  in >> ds.name;
+  return in;
+}

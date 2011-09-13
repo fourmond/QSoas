@@ -44,6 +44,11 @@ class DataStack : public QObject {
   /// with setting the list pointer to the right one.
   int dsNumber2Index(int nb, const QList<DataSet *> * * target) const;
   int dsNumber2Index(int nb, QList<DataSet *> ** target);
+
+
+  friend QDataStream & operator<<(QDataStream & out, const DataStack & stack);
+  friend QDataStream & operator>>(QDataStream & in, DataStack & stack);
+
 public:
 
   /// Constructs a DataStack object.
@@ -110,5 +115,9 @@ signals:
   void currentDataSetChanged();
 
 };
+
+QDataStream & operator<<(QDataStream & out, const DataStack & stack);
+QDataStream & operator>>(QDataStream & in, DataStack & stack);
+
 
 #endif

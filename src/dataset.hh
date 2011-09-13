@@ -82,6 +82,11 @@ class DataSet {
                                         const DataSet * b,
                                         double (*op)(double, double),
                                         const QString & cat = "_op_");
+
+
+  friend QDataStream & operator<<(QDataStream & out, const DataSet & ds);
+  friend QDataStream & operator>>(QDataStream & in, DataSet & ds);
+
 public:
 
   /// The name of the dataset, usually the name of the file.
@@ -252,5 +257,9 @@ public:
 
   
 };
+
+QDataStream & operator<<(QDataStream & out, const DataSet & ds);
+QDataStream & operator>>(QDataStream & in, DataSet & ds);
+
 
 #endif

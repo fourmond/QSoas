@@ -87,6 +87,9 @@
 #include <QTemporaryFile>
 #include <QTimer>
 
+// Binary serialization
+#include <QDataStream>
+
 // Templates
 #include <QHash>
 #include <QMultiHash>

@@ -39,7 +39,6 @@
    
 
    And other things too:
-   \li save/load data stack
    \li history save/restore upon exit
    \li resampling
 

@@ -162,3 +162,42 @@ void DataStack::dropDataSet(const DataSet * ds)
   if(indexOf(ds, &idx))
     dropDataSet(idx);
 }
+
+//////////////////////////////////////////////////////////////////////
+
+QDataStream & operator<<(QDataStream & out, const DataStack & stack)
+{
+  qint32 nbDs = stack.dataSets.size();
+  out << nbDs;
+  for(qint32 i = 0; i < nbDs; i++)
+    out << *stack.dataSets[i];
+
+  nbDs = stack.redoStack.size();
+  out << nbDs;
+  for(qint32 i = 0; i < nbDs; i++)
+    out << *stack.redoStack[i];
+  return out;
+}
+
+QDataStream & operator>>(QDataStream & in, DataStack & stack)
+{
+  qint32 nbDs;
+  in >> nbDs;
+  stack.dataSets.clear();
+  for(qint32 i = 0; i < nbDs; i++) {
+    DataSet * ds = new DataSet;
+    in >> *ds;
+    stack.dataSets.append(ds);
+  }
+
+  in >> nbDs;
+  stack.redoStack.clear();
+  for(qint32 i = 0; i < nbDs; i++) {
+    DataSet * ds = new DataSet;
+    in >> *ds;
+    stack.redoStack.append(ds);
+  }
+  /// Explicity signal call !
+  stack.currentDataSetChanged();
+  return in;
+}

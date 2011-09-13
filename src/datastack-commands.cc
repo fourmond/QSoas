@@ -162,21 +162,36 @@ showStack("show-stack", // command name
 //////////////////////////////////////////////////////////////////////
 
 /// @todo Support options to select which dataset to remove.
-static void dropDataSetCommand(const QString &)
+static void dropDataSetCommand(const QString &, const CommandOptions & opts)
 {
-  soas().stack().dropDataSet(0);
+  if(opts.contains("buffers")) {
+    QList<const DataSet *> buffers = 
+      opts["buffers"]->value<QList<const DataSet *> >();
+    for(int i = 0; i < buffers.size(); i++)
+      soas().stack().dropDataSet(buffers[i]);
+  }
+  else {
+    soas().stack().dropDataSet(0);
+  }
 }
+
+static ArgumentList 
+dropOps(QList<Argument *>() 
+        << new SeveralDataSetArgument("buffers", 
+                                      "Buffers",
+                                      "Buffers to drop"));
 
 
 static Command 
 drop("drop", // command name
-          optionLessEffector(dropDataSetCommand), // action
-          "stack",  // group name
-          NULL, // arguments
-          NULL, // options
-          "Drop dataset",
-          "Drops the current dataset",
-          "Drops the current dataset and frees the associated memory");
+     effector(dropDataSetCommand), // action
+     "stack",  // group name
+     NULL, // arguments
+     &dropOps, // options
+     "Drop dataset",
+     "Drops the current dataset",
+     "Drops the current dataset (or the ones specified in the "
+     "buffers options) and frees the associated memory");
 
 //////////////////////////////////////////////////////////////////////
 

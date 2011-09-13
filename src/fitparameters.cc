@@ -112,6 +112,8 @@ void FitParameters::exportParameters(QIODevice * stream) const
   lst << "Buffer";
   for(int i = 0; i < nbParameters; i++)
     lst << fitData->parameterDefinitions[i].name;
+  // We add xstart and xend:
+  lst << "xstart" << "xend";
 
   out << "## " << lst.join("\t") << endl;
   
@@ -120,6 +122,8 @@ void FitParameters::exportParameters(QIODevice * stream) const
     lst << fitData->datasets[i]->name;
     for(int j = 0; j < nbParameters; j++)
       lst << QString::number(getValue(j, i));
+    lst << QString::number(fitData->datasets[i]->x().min());
+    lst << QString::number(fitData->datasets[i]->x().max());
     out << lst.join("\t") << endl;
   }
 }
@@ -133,6 +137,8 @@ void FitParameters::exportToOutFile(OutFile * out) const
   lst << "Buffer";
   for(int i = 0; i < nbParameters; i++)
     lst << fitData->parameterDefinitions[i].name;
+  // We add xstart and xend:
+  lst << "xstart" << "xend";
 
   out->setHeader(QString("Fit: %1\n%2").
                  arg(fitData->fit->fitName()).
@@ -143,6 +149,8 @@ void FitParameters::exportToOutFile(OutFile * out) const
     lst << fitData->datasets[i]->name;
     for(int j = 0; j < nbParameters; j++)
       lst << QString::number(getValue(j, i));
+    lst << QString::number(fitData->datasets[i]->x().min());
+    lst << QString::number(fitData->datasets[i]->x().max());
     (*out) << lst.join("\t") << "\n" << flush;
   }
 }

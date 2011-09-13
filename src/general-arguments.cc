@@ -158,38 +158,44 @@ ArgumentMarshaller * DataSetArgument::fromString(const QString & str) const
 
 ////////////////////////////////////////////////////////////
 
-ArgumentMarshaller * SeveralDataSetArgument::fromString(const QString & str) const
+ArgumentMarshaller * SeveralDataSetArgument::fromString(const QString & s) const
 {
-  QRegExp multi("^\\s*(-?[0-9]+)\\s*..\\s*(-?[0-9]+)\\s*$");
+  QStringList splitted = s.split(QRegExp("\\s*,\\s*"));
   QList<const DataSet *> dsets;
-  if(multi.indexIn(str) == 0) {
-    int first = multi.cap(1).toInt();
-    int last = multi.cap(2).toInt();
-    int delta = (first < last ? 1 : -1);
-    do {
-      DataSet * ds = soas().stack().numberedDataSet(first);
-      if(! ds)
-        Terminal::out << "No such buffer number : " << first << endl;
-      else
-        dsets << ds;
-      first += delta;
-    }
-    while(first != (last + delta));
+  QRegExp multi("^\\s*(-?[0-9]+)\\s*..\\s*(-?[0-9]+)\\s*$");
 
-    if(dsets.size() == 0) {
-      QString s = QObject::tr("Buffer range '%1' corresponds to no buffers").
-        arg(str);
-      throw std::runtime_error(s.toStdString());
+  for(int i = 0; i < splitted.size(); i++) {
+    const QString & str = splitted[i];
+    
+    if(multi.indexIn(str) == 0) {
+      int first = multi.cap(1).toInt();
+      int last = multi.cap(2).toInt();
+      int delta = (first < last ? 1 : -1);
+      do {
+        DataSet * ds = soas().stack().numberedDataSet(first);
+        if(! ds)
+          Terminal::out << "No such buffer number : " << first << endl;
+        else
+          dsets << ds;
+        first += delta;
+      }
+      while(first != (last + delta));
+
+      if(dsets.size() == 0) {
+        QString s = QObject::tr("Buffer range '%1' corresponds to no buffers").
+          arg(str);
+        throw std::runtime_error(s.toStdString());
+      }
     }
-  }
-  else {
-    DataSet * ds = soas().stack().fromText(str);
-    if(! ds) {
-      QString s = QObject::tr("Not a buffer number: '%1'").
-        arg(str);
-      throw std::runtime_error(s.toStdString());
+    else {
+      DataSet * ds = soas().stack().fromText(str);
+      if(! ds) {
+        QString s = QObject::tr("Not a buffer: '%1'").
+          arg(str);
+        throw std::runtime_error(s.toStdString());
+      }
+      dsets << ds;
     }
-    dsets << ds;
   }
   return new ArgumentMarshallerChild<QList<const DataSet *> >(dsets);
 }

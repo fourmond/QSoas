@@ -320,17 +320,18 @@ loadStack("load-stack", // command name
 //////////////////////////////////////////////////////////////////////
 
 
-static void ovCommand(const QString &, DataSet * ds)
+static void ovCommand(const QString &, QList<const DataSet *> ds)
 {
-  soas().view().addDataSet(ds);
+  for(int i = 0; i < ds.size(); i++)
+    soas().view().addDataSet(ds[i]);
 }
 
 /// @todo Use several arguments when that is possible.
 static ArgumentList 
 ovArgs(QList<Argument *>() 
-       << new DataSetArgument("buffer", 
-                              "Buffer",
-                              "Buffer to overlay"));
+       << new SeveralDataSetArgument("buffers", 
+                                     "Buffers",
+                                     "Buffers to overlay"));
 
 
 static Command 

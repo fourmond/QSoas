@@ -215,7 +215,7 @@ static ArgumentList
 sta(QList<Argument *>() 
     << new FileSaveArgument("file", 
                             "File",
-                            "Files to load !",
+                            "Output file",
                             "soas-output.txt"));
 
 
@@ -240,6 +240,66 @@ st("save-output", // command name
    "Save output",
    "Save all output from the terminal",
    "Save all output from the terminal");
+
+//////////////////////////////////////////////////////////////////////
+  
+static ArgumentList 
+saveHistoryArgs(QList<Argument *>() 
+                << new FileSaveArgument("file", 
+                                        "File",
+                                        "Output file",
+                                        "soas.cmds"));
+
+
+static void saveHistoryCommand(const QString &, QString out)
+{
+  QFile o(out);
+  if(! o.open(QIODevice::WriteOnly)) {
+    QString str = QObject::tr("Could not open '%1' for writing: %2").
+      arg(out).arg(o.errorString());
+    throw std::runtime_error(str.toStdString());
+  }
+  QStringList history = soas().prompt().history();
+  QTextStream s(&o);
+  for(int i = history.size() - 1 ; i >= 0; i--)
+    s << history[i] << "\n";
+}
+
+static Command 
+sh("save-history", // command name
+   optionLessEffector(saveHistoryCommand), // action
+   "file",  // group name
+   &saveHistoryArgs, // arguments
+   NULL, // options
+   "Save history",
+   "Save command history",
+   "Saves all the command history to a plain text file, "
+   "to be used again with run");
+
+//////////////////////////////////////////////////////////////////////
+  
+static ArgumentList 
+runArgs(QList<Argument *>() 
+        << new FileArgument("file", 
+                            "Command file",
+                            "File containing the commands to run"));
+
+
+static void runCommand(const QString &, QString cmdfile)
+{
+  soas().prompt().runCommandFile(cmdfile);
+}
+
+static Command 
+run("run", // command name
+   optionLessEffector(runCommand), // action
+   "file",  // group name
+   &runArgs, // arguments
+   NULL, // options
+   "Run commands",
+   "Run commands from a file",
+   "Run commands saved in a file",
+   "@");
 
 //////////////////////////////////////////////////////////////////////
   

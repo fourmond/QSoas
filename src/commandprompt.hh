@@ -85,14 +85,19 @@ class CommandPrompt : public QLineEdit {
   /// Performs automatic completion.
   void doCompletion();
 
-  /// Returns the list of history elements starting with the given
-  /// string.
-  QStringList historyMatching(const QString & str) const;
-
 public:
 
   CommandPrompt();
   virtual ~CommandPrompt();
+
+  /// Returns the list of history elements starting with the given
+  /// string.
+  QStringList historyMatching(const QString & str) const;
+
+  /// Returns the whole history.
+  QStringList history() const {
+    return savedHistory;
+  };
 
 
 public slots:

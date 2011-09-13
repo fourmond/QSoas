@@ -89,6 +89,14 @@ class DataSet;
 
 /// Fit data. This data will be carried around using the void *
 /// argument to the function calls.
+///
+/// @todo I'm unsure where the code should go, but the fit mechanism
+/// should have a way to detect when all the parameters are
+/// buffer-specific, which means that instead of running a full-scale
+/// fit, one could just run separate fits for each and every buffer.
+///
+/// That wouldn't be that simple, though, as one needs to keep track
+/// seperately of each buffer in the iteration process.
 class FitData {
 
   static int staticF(const gsl_vector * x, void * params, gsl_vector * f);

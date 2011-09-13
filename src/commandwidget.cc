@@ -195,3 +195,30 @@ QString CommandWidget::terminalContents() const
 {
   return terminalDisplay->toPlainText();
 }
+
+void CommandWidget::runCommandFile(QIODevice * source)
+{
+  QTextStream in(source);
+  while(true) {
+    QString line = in.readLine();
+    if(line.isNull())
+      break;
+    runCommand(line);
+  }
+}
+
+void CommandWidget::runCommandFile(const QString & fileName)
+{
+  QFile file(fileName);
+  if(! file.open(QIODevice::ReadOnly)) {
+    QString str = QObject::tr("Failed to load file %1: %2").
+      arg(fileName).arg(file.errorString());
+    throw std::runtime_error(str.toStdString());
+  }
+  runCommandFile(&file);
+}
+
+QStringList CommandWidget::history() const
+{
+  return commandLine->history();
+}

@@ -89,6 +89,15 @@ public:
   /// Returns the whole string contained by the terminal (as plain text)
   QString terminalContents() const;
 
+  /// Runs the command coming from the given device
+  void runCommandFile(QIODevice * source);
+
+  /// Returns the history of all commands run so far.
+  ///
+  /// @todo if I do history loading from settings, I'll have to deal
+  /// with that.
+  QStringList history() const;
+
 public slots:
 
   void runCommand(const QString & str);
@@ -104,6 +113,8 @@ public slots:
   /// terminal.
   void printCurrentDataSetInfo(); 
 
+  /// Runs the commands contained in a file.
+  void runCommandFile(const QString & fileName);
 
 protected slots:
   void commandEntered();

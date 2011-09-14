@@ -85,6 +85,15 @@ class FitData {
 
   void freeSolver();
 
+  /// Detect whether the datasets in the fit are coupled or are
+  /// completely independent.
+  bool independentDataSets() const;
+
+
+  /// This list is full with several FitData, one for each dataset to
+  /// perform independant fitting when indendentDataSets returns true.
+  QList<FitData*> subordinates;
+
 public:
   /// The fit in use
   Fit * fit;

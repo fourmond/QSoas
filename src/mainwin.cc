@@ -64,6 +64,10 @@
    \li One day, I will need to reimplement the exceptions to use my
    own QString-carrying exceptions. This probably isn't of high
    priority, but that would save quite a bit of code.
+
+   \li A side project of that would be to provide a utility function
+   to open files for read or write, throwing the appropriate exception
+   when necessary.
    
 */
 

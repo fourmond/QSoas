@@ -47,6 +47,9 @@ void FitData::freeSolver()
   if(solver)
     gsl_multifit_fdfsolver_free(solver);
   solver = NULL;
+  for(int i = 0; i < subordinates.size(); i++)
+    delete subordinates[i];
+  subordinates.clear();
 }
 
 FitData::~FitData()
@@ -151,41 +154,113 @@ void FitData::initializeSolver(const double * initialGuess)
 {
   nbIterations = 0;
   freeSolver();
-  solver = gsl_multifit_fdfsolver_alloc(gsl_multifit_fdfsolver_lmsder,
-                                        totalSize, parameters.size());
-  function.f = &FitData::staticF;
-  function.df = &FitData::staticDf;
-  function.fdf = &FitData::staticFdf;
-  function.n = totalSize;
-  function.p = parameters.size();
-  function.params = this;
 
-  gsl_vector_view v = gsl_vector_subvector(parametersStorage, 0, 
-                                           function.p);
-  packParameters(initialGuess, &v.vector);
-  gsl_multifit_fdfsolver_set(solver, &function, &v.vector);
+  if(independentDataSets()) {
+    for(int i = 0; i < datasets.size(); i++) {
+      QList<const DataSet * > dss;
+      dss << datasets[i];
+      FitData * d = new FitData(fit, dss);
+      subordinates.append(d);
 
+      for(int j = 0; j < parameters.size(); j++)
+        if(parameters[j].dsIndex == i) {
+          d->parameters << parameters[j];
+          d->parameters.last().dsIndex = 0;
+        }
+
+      for(int j = 0; j < fixedParameters.size(); j++)
+        if(fixedParameters[j].dsIndex == i ||
+           fixedParameters[j].dsIndex == -1) {
+          d->fixedParameters << fixedParameters[j];
+          d->fixedParameters.last().dsIndex = 0;
+        }
+
+      d->initializeSolver(initialGuess + 
+                          (i * parameterDefinitions.size()));
+    }
+  }
+  else {
+  
+    solver = gsl_multifit_fdfsolver_alloc(gsl_multifit_fdfsolver_lmsder,
+                                          totalSize, parameters.size());
+    function.f = &FitData::staticF;
+    function.df = &FitData::staticDf;
+    function.fdf = &FitData::staticFdf;
+    function.n = totalSize;
+    function.p = parameters.size();
+    function.params = this;
+
+    gsl_vector_view v = gsl_vector_subvector(parametersStorage, 0, 
+                                             function.p);
+    packParameters(initialGuess, &v.vector);
+    gsl_multifit_fdfsolver_set(solver, &function, &v.vector);
+  }
   // And this should be fine.
 }
 
 void FitData::unpackCurrentParameters(double * target)
 {
-  unpackParameters(solver->x, target);
+  if(subordinates.size() > 0) {
+    for(int i = 0; i < subordinates.size(); i++)
+      subordinates[i]->
+        unpackCurrentParameters(target + i * parameterDefinitions.size());
+  }
+  else
+    unpackParameters(solver->x, target);
 }
 
 int FitData::iterate()
 {
   nbIterations++;
-  int status = gsl_multifit_fdfsolver_iterate(solver);
-  if(status)
-    return status;
-
-  /// @todo customize this !
-  return gsl_multifit_test_delta(solver->dx, solver->x,
-                                 1e-4, 1e-4);
+  if(subordinates.size() > 0) {
+    int nbGoingOn = 0;
+    for(int i = 0; i < subordinates.size(); i++) {
+      if(subordinates[i]->nbIterations >= 0) {
+        int status = subordinates[i]->iterate();
+        if(status != GSL_CONTINUE) 
+          subordinates[i]->nbIterations = -1; // Special sign to
+                                              // finish iterations
+          else
+            nbGoingOn++;
+      }
+    }
+    if(nbGoingOn)
+      return GSL_CONTINUE;
+    else
+      return GSL_SUCCESS;
+  }
+  else {
+    int status = gsl_multifit_fdfsolver_iterate(solver);
+    if(status)
+      return status;
+    
+    /// @todo customize this !
+    return gsl_multifit_test_delta(solver->dx, solver->x,
+                                   1e-4, 1e-4);
+  }
 }
 
 double FitData::residuals()
 {
-  return gsl_blas_dnrm2(solver->f);
+  if(subordinates.size() > 0) {
+    double res = 0;
+    for(int i = 0; i < subordinates.size(); i++)
+      res += subordinates[i]->residuals();
+    return res;
+  }
+  else 
+    return gsl_blas_dnrm2(solver->f);
+}
+
+bool FitData::independentDataSets() const
+{
+  if(datasets.size() <= 1)
+    return false;               // For sure, we don't want
+                                // subordinates in that case...
+
+  for(int i = 0; i < parameters.size(); i++) {
+    if(parameters[i].dsIndex < 0)
+      return false;
+  }
+  return true;
 }

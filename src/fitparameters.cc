@@ -19,6 +19,7 @@
 #include <headers.hh>
 #include <fitparameters.hh>
 #include <fit.hh>
+#include <fitdata.hh>
 
 #include <terminal.hh>
 #include <soas.hh>

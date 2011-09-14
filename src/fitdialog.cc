@@ -20,6 +20,7 @@
 #include <headers.hh>
 #include <fitdialog.hh>
 #include <fit.hh>
+#include <fitdata.hh>
 #include <curveview.hh>
 #include <dataset.hh>
 

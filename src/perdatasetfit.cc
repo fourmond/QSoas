@@ -20,6 +20,7 @@
 #include <perdatasetfit.hh>
 #include <vector.hh>
 #include <dataset.hh>
+#include <fitdata.hh>
 
 void PerDatasetFit::function(const double * parameters,
                              FitData * data, gsl_vector * target)

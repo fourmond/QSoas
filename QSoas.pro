@@ -89,7 +89,7 @@ SOURCES += src/qmain.cc \
         src/ruby-commands.cc \
         src/fit.cc \
         src/perdatasetfit.cc \
-        src/common-fits.cc \
+        src/exponential-fits.cc \
         src/fitdialog.cc \
         src/curvevector.cc \
         src/settings.cc \

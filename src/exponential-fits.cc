@@ -1,20 +1,20 @@
 /**
-   @file common-fits.cc
-   various fits of general interest
-  Copyright 2011 by Vincent Fourmond
+   @file exponential-fits.cc
+   Exponential-based fits.
+   Copyright 2011 by Vincent Fourmond
 
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <headers.hh>
@@ -22,6 +22,11 @@
 #include <dataset.hh>
 #include <vector.hh>
 
+
+/// @todo Ideas:
+/// @li fits with arbitrary number of exponentials (using a number
+/// parameter) ?
+/// @li polynomial fits ?
 class FilmExpFit : public FunctionFit {
 public:
 
@@ -67,6 +72,9 @@ public:
 // Its name doesn't matter.
 FilmExpFit fit_film_expd;
 
+
+///////////////////////////////////////////////////////////////////////////
+
 class ExpFit : public FunctionFit {
 public:
 
@@ -108,6 +116,9 @@ public:
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
 // Its name doesn't matter.
 ExpFit fit_expd;
+
+
+///////////////////////////////////////////////////////////////////////////
 
 class Exp2Fit : public FunctionFit {
 public:
@@ -156,6 +167,8 @@ public:
 // Its name doesn't matter.
 Exp2Fit fit_expd2;
 
+
+///////////////////////////////////////////////////////////////////////////
 
 class FilmExp2Fit : public FunctionFit {
 public:
@@ -207,12 +220,7 @@ public:
 // Its name doesn't matter.
 FilmExp2Fit fit_film_expd2;
 
-
-/// @todo Ideas:
-/// @li fits with arbitrary number of exponentials (using a number
-/// parameter) ?
-/// @li polynomial fits ?
-
+///////////////////////////////////////////////////////////////////////////
 
 /// Same as Exp2Fit, but all amplitudes are relative
 class Exp2RelFit : public FunctionFit {
@@ -220,8 +228,9 @@ public:
 
   virtual double function(const double * a, 
                           FitData * , double x) {
-    return a[1] * ( a[2] * exp(-(x - a[0]) / a[3]) + a[4] * 
-                    exp(-(x - a[0]) / a[5]) + (1 - a[2] - a[4]));
+    return a[1] * ( a[2] * exp(-(x - a[0]) / a[3]) + 
+                    a[4] * exp(-(x - a[0]) / a[5]) + 
+                    (1 - a[2] - a[4]));
   };
 
   virtual void initialGuess(FitData * , 
@@ -256,6 +265,59 @@ public:
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
 // Its name doesn't matter.
 Exp2RelFit fit_expd2_rel;
+
+///////////////////////////////////////////////////////////////////////////
+
+/// Same as Exp2Fit, but all amplitudes are relative
+class FilmExp2RelFit : public FunctionFit {
+public:
+
+  virtual double function(const double * a, 
+                          FitData * , double x) {
+    return a[1] * (a[2] * exp(-(x - a[0]) / a[3]) + 
+                   a[4] * exp(-(x - a[0]) / a[5]) + 
+                   (1 - a[2] - a[4])) * 
+      exp(-(x - a[0]) * a[6]);
+  };
+
+  virtual void initialGuess(FitData * , 
+                            const DataSet * ds,
+                            double * a)
+  {
+    a[0] = ds->x()[0];          // x0 = x[0]
+    a[1] = ds->y().first();      
+    a[2] = 0.3;
+    a[3] = (ds->x().last() - a[0])/20;
+    a[4] = a[2];
+    a[5] = (ds->x().last() - a[0])/3;
+    a[6] = 1e-3/(ds->x().last() - a[0]);
+  };
+
+  virtual QList<ParameterDefinition> parameters() const {
+    return QList<ParameterDefinition>()
+      << ParameterDefinition("x0", true)
+      << ParameterDefinition("A")
+      << ParameterDefinition("alpha1")
+      << ParameterDefinition("tau1")
+      << ParameterDefinition("alpha2")
+      << ParameterDefinition("tau2")
+      << ParameterDefinition("kloss");
+  };
+
+
+  FilmExp2RelFit() : 
+    FunctionFit("film-expd2-rel", 
+                "Bi-exponential decay with relative amplitude and film loss",
+                "Bi-exponential decay with relative amplitude and film loss, "
+                "formula is :...") 
+  { ;};
+};
+
+// DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
+// Its name doesn't matter.
+FilmExp2RelFit fit_film_expd2_rel;
+
+///////////////////////////////////////////////////////////////////////////
 
 
 /// Three exponential fits, with relative amplitudes

@@ -26,7 +26,7 @@
    options, such as an option to force to use a given backend)
 
    Now, mainly, what I need to do, is to massage the functionalities
-   of the old Soas back into this one:
+   of the old Soas back into this one
    \li filter/derivative
    \li cd/pwd
    \li browse ;-)...
@@ -36,14 +36,19 @@
    \li catalytic baseline
    \li FFT, probably based on GSL too (no need to pull in another
    dependency)
-   \li definition of new fits based on ruby subclasses of Fit,
-   PerDataSetFit and FunctionFit
    
 
    And other things too:
    \li history save/restore upon exit
    \li resampling
    \li printing of full CurveView (and not only of CurvePanel)
+   \li definition of new fits based on ruby subclasses of Fit,
+   PerDataSetFit and FunctionFit
+   \li use of comments in command files, either through the definition
+   of a # command or through direct exclusion at the reading level
+   \li keyboard shortcuts for navigation in FitDialog: quick goto
+   label editor, navigation between buffers, shortcuts for export/save
+   and so on...
 
    Allow customization for load:
    \li columns (X be 2, Y be 1 and so on)

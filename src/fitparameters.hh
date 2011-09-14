@@ -76,10 +76,14 @@ public:
       return fixed[dataset * nbParameters + (index % nbParameters)];
   };
 
-  /// Sets the value of the given parameter
+  /// Sets the value of the given parameter.
+  ///
+  /// Setting a global parameter effectively sets all the parameters !
   void setValue(int index, int dataset, double val) {
-    if(isGlobal(index))
-      values[index % nbParameters] = val;
+    if(isGlobal(index)) {
+      for(int i = 0; i < datasets; i++)
+        values[index % nbParameters + i*nbParameters] = val;
+    }
     else
       values[dataset * nbParameters + (index % nbParameters)] = val;
   };

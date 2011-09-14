@@ -248,8 +248,9 @@ double FitData::residuals()
       res += subordinates[i]->residuals();
     return res;
   }
-  else 
-    return gsl_blas_dnrm2(solver->f);
+  if(! solver)
+    return 0.0/0.0;
+  return gsl_blas_dnrm2(solver->f);
 }
 
 bool FitData::independentDataSets() const

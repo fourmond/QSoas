@@ -101,7 +101,8 @@ void FitParameters::exportParameters(QIODevice * stream) const
 {
   QTextStream out(stream);
   QStringList lst;
-  out << "# Fit used: " << fitData->fit->fitName() << endl;
+  out << "# Fit used: " << fitData->fit->fitName() 
+      << ", residuals: " << fitData->residuals() << endl;
   lst << "Buffer";
   for(int i = 0; i < nbParameters; i++)
     lst << fitData->parameterDefinitions[i].name;

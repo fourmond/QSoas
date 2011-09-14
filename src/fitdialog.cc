@@ -125,13 +125,21 @@ void FitDialog::setupFrame()
     CurveView * view = new CurveView;
     gsl_vector_view v = data->viewForDataset(i, data->storage);
     view->showDataSet(ds);
-    view->addItem(new CurveVector(ds, v));
+
+    CurveVector * vec = new CurveVector(ds, v);
+    vec->pen.setStyle(Qt::DashLine);
+    vec->pen.setColor("#080");
+    view->addItem(vec);
 
     CurvePanel * bottomPanel = new CurvePanel();
     bottomPanel->stretch = 30;
     bottomPanel->drawingXTicks = false;
     bottomPanel->drawingLegend = false;
-    bottomPanel->addItem(new CurveVector(ds, v, true));
+
+    vec = new CurveVector(ds, v, true);
+    vec->pen.setStyle(Qt::DashLine);
+    vec->pen.setColor("#080");
+    bottomPanel->addItem(vec);
     /// @todo add X tracking for the bottom panel.
     /// @todo Colors !
     view->addPanel(bottomPanel);
@@ -174,8 +182,12 @@ void FitDialog::setupFrame()
   }
   layout->addLayout(inner);
 
+  progressReport = new QLabel(" ");
+  layout->addWidget(progressReport);
+
+
   hb = new QHBoxLayout;
-  hb->addWidget(new QLabel(tr("Actions:")));
+  hb->addWidget(new QLabel(tr("<b>Actions:</b>")));
   ActionCombo * ac = new ActionCombo(tr("Data..."));
   ac->addAction("Push all to stack", this, SLOT(pushSimulatedCurves()));
   ac->addAction("Push current to stack", this, SLOT(pushCurrentCurve()));
@@ -187,16 +199,14 @@ void FitDialog::setupFrame()
   ac->addAction("Save to file", this, SLOT(saveParameters()));
   ac->addAction("Export", this, SLOT(exportParameters()));
   ac->addAction("Export to output file", this, SLOT(exportToOutFile()));
+  ac->addAction("Reset this to initial guess", this, 
+                SLOT(resetThisToInitialGuess()));
+  ac->addAction("Reset all to initial guess !", this, 
+                SLOT(resetAllToInitialGuess()));
+
   hb->addWidget(ac);
   hb->addStretch(1);
 
-  layout->addLayout(hb);
-
-  progressReport = new QLabel(" ");
-  layout->addWidget(progressReport);
-
-
-  hb = new QHBoxLayout;
   bt = new QPushButton(tr("Update curves"));
   connect(bt, SIGNAL(clicked()), SLOT(compute()));
   hb->addWidget(bt);
@@ -278,15 +288,23 @@ void FitDialog::startFit()
   parameters.prepareFit();
   shouldCancelFit = false;
   
+  QString params;
+  if(data->independentDataSets())
+    params = QString("%1 %2 %3").
+      arg(data->parameters.size() / data->datasets.size()).
+      arg(QChar(0xD7)).arg(data->datasets.size());
+  else
+    params = QString::number(data->parameters.size());
+  
   Terminal::out << "Starting fit '" << data->fit->fitName() << "' with "
-                << data->parameters.size() << " free parameters"
+                << params << " free parameters"
                 << endl;
 
 
   cancelButton->setVisible(true);
   startButton->setVisible(false);
   progressReport->setText(QString("Starting fit with %1 free parameters").
-                          arg(data->parameters.size()));
+                          arg(params));
 
   
 
@@ -410,4 +428,18 @@ void FitDialog::exportToOutFile()
 {
   parameters.exportToOutFile();
   Terminal::out << "Exported fit parameters to output file"  << endl;
+}
+
+void FitDialog::resetAllToInitialGuess()
+{
+  parameters.resetAllToInitialGuess();
+  compute();
+  updateEditors();
+}
+
+void FitDialog::resetThisToInitialGuess()
+{
+  parameters.resetToInitialGuess(currentIndex);
+  compute();
+  updateEditors();
 }

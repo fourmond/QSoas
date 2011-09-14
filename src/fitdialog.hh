@@ -187,6 +187,13 @@ protected slots:
   /// Exports parameters to the current output file
   void exportToOutFile();
 
+  /// Resets all the parameters data to the initial guess
+  void resetAllToInitialGuess();
+
+  /// Resets the currently displayed dataset parameters to initial
+  /// guess.
+  void resetThisToInitialGuess();
+
 };
 
 #endif

@@ -53,7 +53,6 @@ FitParameters::~FitParameters()
 void FitParameters::recompute()
 {
   fitData->fit->function(values, fitData, fitData->storage);
-
 }
 
 void FitParameters::setDataParameters()
@@ -182,4 +181,17 @@ void FitParameters::saveParameters(QIODevice * stream) const
       }
     }
   }
+}
+
+void FitParameters::resetAllToInitialGuess()
+{
+  fitData->fit->initialGuess(fitData, values);
+}
+
+void FitParameters::resetToInitialGuess(int ds)
+{
+  QVarLengthArray<double, 1024> params(nbParameters * datasets);
+  fitData->fit->initialGuess(fitData, params.data());
+  for(int i = 0; i < nbParameters; i++)
+    values[i + ds * nbParameters] = params[i + ds * nbParameters];
 }

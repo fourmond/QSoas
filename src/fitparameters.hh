@@ -107,6 +107,13 @@ public:
   /// Retrieve parameters from the fit
   void retrieveParameters();
 
+  /// Resets all parameters to the initial guess
+  void resetAllToInitialGuess();
+
+  /// Resets the parameters for the current dataset to the initial
+  /// guess.
+  void resetToInitialGuess(int ds);
+
     
 
   // /// Performs the fit

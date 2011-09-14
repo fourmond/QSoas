@@ -112,8 +112,12 @@ QString CurveDataSet::toolTipText(const QPointF & pt)
   if(lastPointIdx < 0 || pt != lastPoint)
     return QString();
   QString str;
-  str += tr("Dataset: %1<br>").
-    arg(dataSet->name);
+  int idx;
+  QString dsIdx;
+  if(soas().stack().indexOf(dataSet, &idx))
+    dsIdx = QString(" #%1").arg(idx);
+  str += tr("Dataset%2: %1<br>").
+    arg(dataSet->name).arg(dsIdx);
   QPointF p = dataSet->pointAt(lastPointIdx);
   str += tr("Point #%1: <br>%2,%3").
     arg(lastPointIdx).arg(p.x()).arg(p.y());

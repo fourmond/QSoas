@@ -326,7 +326,6 @@ static void ovCommand(const QString &, QList<const DataSet *> ds)
     soas().view().addDataSet(ds[i]);
 }
 
-/// @todo Use several arguments when that is possible.
 static ArgumentList 
 ovArgs(QList<Argument *>() 
        << new SeveralDataSetArgument("buffers", 
@@ -342,9 +341,28 @@ ovlb("overlay-buffer", // command name
      NULL, // options
      "Overlay buffers",
      "Overlay buffer to the current one",
-     QT_TR_NOOP("Overlay buffers that are already in memory "
-                "on top of the current one"),
+     "Overlay buffers that are already in memory "
+     "on top of the current one",
      "V");
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void clearCommand(const QString &)
+{
+  soas().view().showCurrentDataSet();
+}
+
+static Command 
+clear("clear", // command name
+      optionLessEffector(clearCommand), // action
+      "stack",  // group name
+      NULL, // arguments
+      NULL, // options
+      "Clear view",
+      "Clear the current view",
+      "Removes all datasets but the current one from the display"
+     );
 
 //////////////////////////////////////////////////////////////////////
 

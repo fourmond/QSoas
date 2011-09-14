@@ -36,6 +36,8 @@
    \li catalytic baseline
    \li FFT, probably based on GSL too (no need to pull in another
    dependency)
+   \li definition of new fits based on ruby subclasses of Fit,
+   PerDataSetFit and FunctionFit
    
 
    And other things too:
@@ -56,6 +58,8 @@
 
    Find a way to prompt for additional arguments for greedy parameters
    (using an additional button in the dialog box ?)
+
+   
 
 
 

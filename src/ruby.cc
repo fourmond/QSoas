@@ -20,13 +20,15 @@
 #include <ruby.hh>
 #include <ruby-templates.hh>
 
+#include <exceptions.hh>
+
 VALUE Ruby::globalRescueFunction(VALUE /*dummy*/, VALUE exception)
 {
   rb_p(exception);
   QString str = QObject::tr("Ruby exception: ");
   VALUE in = rb_inspect(exception);  // Probably shouldn't throw an exception ?
   str += StringValueCStr(exception); // Or in ? See call stack too ?
-  throw std::runtime_error(str.toStdString());
+  throw RuntimeError(str);
   return Qnil;
 }
 

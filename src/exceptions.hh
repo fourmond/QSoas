@@ -44,4 +44,5 @@ public:
   virtual ~InternalError() throw() {;};
 };
 
+
 #endif

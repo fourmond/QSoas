@@ -26,6 +26,8 @@
 #include <datastack.hh>
 #include <terminal.hh>
 
+#include <exceptions.hh>
+
 /// A utility function for a clean file completion.
 static QStringList proposeFileCompletion(const QString & str)
 {
@@ -52,7 +54,7 @@ ArgumentMarshaller * FileArgument::promptForValue(QWidget * base) const
     QFileDialog::getOpenFileName(base, publicName(),
                                  QDir::currentPath());
   if(file.isEmpty())
-    throw std::runtime_error("Aborted"); 
+    throw RuntimeError("Aborted"); 
   /// @todo Maybe use a specific exception to signal abortion ?
   return fromString(file);
 }
@@ -71,7 +73,7 @@ ArgumentMarshaller * FileSaveArgument::fromString(const QString & str) const
     QString s = QObject::tr("Overwrite file '%1' ?").
       arg(str);
     if(! Utils::askConfirmation(s))
-      throw std::runtime_error("Aborted");
+      throw RuntimeError("Aborted");
   }
   return new ArgumentMarshallerChild<QString>(str);
 }
@@ -89,7 +91,7 @@ ArgumentMarshaller * FileSaveArgument::promptForValue(QWidget * base) const
     fd.selectFile(def);
 
   if(fd.exec() != QDialog::Accepted)
-    throw std::runtime_error("Aborted"); 
+    throw RuntimeError("Aborted"); 
 
   return fromString(fd.selectedFiles().value(0, QString("")));
 }
@@ -108,7 +110,7 @@ ArgumentMarshaller * SeveralFilesArgument::promptForValue(QWidget * base) const
     QFileDialog::getOpenFileNames(base, publicName(),
                                   QDir::currentPath());
   if(! files.size())
-    throw std::runtime_error("Aborted"); 
+    throw RuntimeError("Aborted"); 
   return new ArgumentMarshallerChild<QStringList>(files);
 }
 
@@ -138,7 +140,7 @@ ArgumentMarshaller * StringArgument::promptForValue(QWidget * base) const
     QInputDialog::getText(base, argumentName(), description(),
                           QLineEdit::Normal, QString(), &ok);
   if(! ok)
-    throw std::runtime_error("Aborted"); 
+    throw RuntimeError("Aborted"); 
   return fromString(str);
 }
 
@@ -148,11 +150,9 @@ ArgumentMarshaller * DataSetArgument::fromString(const QString & str) const
 {
   DataSet * ds = soas().stack().fromText(str);
 
-  if(! ds) {
-    QString s = QObject::tr("Not a buffer: '%1'").
-      arg(str);
-    throw std::runtime_error(s.toStdString());
-  }
+  if(! ds)
+    throw RuntimeError(QObject::tr("Not a buffer: '%1'").
+                       arg(str));
   return new ArgumentMarshallerChild<DataSet *>(ds);
 }
 
@@ -184,19 +184,17 @@ ArgumentMarshaller * SeveralDataSetArgument::fromString(const QString & s) const
       }
       while((first - last) * sign <= 0);
 
-      if(dsets.size() == 0) {
-        QString s = QObject::tr("Buffer range '%1' corresponds to no buffers").
-          arg(str);
-        throw std::runtime_error(s.toStdString());
-      }
+      if(dsets.size() == 0)
+        throw 
+          RuntimeError(QObject::tr("Buffer range '%1' corresponds "
+                                   "to no buffers").
+                       arg(str)) ;
     }
     else {
       DataSet * ds = soas().stack().fromText(str);
-      if(! ds) {
-        QString s = QObject::tr("Not a buffer: '%1'").
-          arg(str);
-        throw std::runtime_error(s.toStdString());
-      }
+      if(! ds)
+        throw RuntimeError(QObject::tr("Not a buffer: '%1'").
+                           arg(str));
       dsets << ds;
     }
   }
@@ -216,11 +214,9 @@ ArgumentMarshaller * NumberArgument::fromString(const QString & str) const
 {
   bool ok;
   double v = str.toDouble(&ok);
-  if(! ok) {
-    QString s = QObject::tr("Not a number: '%1'").
-      arg(str);
-    throw std::runtime_error(s.toStdString());
-  }
+  if(! ok)
+    throw RuntimeError(QObject::tr("Not a number: '%1'").
+                       arg(str));
   return new ArgumentMarshallerChild<double>(v);
 }
 
@@ -231,7 +227,7 @@ ArgumentMarshaller * NumberArgument::promptForValue(QWidget * base) const
     QInputDialog::getText(base, argumentName(), description(),
                           QLineEdit::Normal, QString(), &ok);
   if(! ok)
-    throw std::runtime_error("Aborted"); 
+    throw RuntimeError("Aborted"); 
   return fromString(str);
 }
 
@@ -241,11 +237,10 @@ ArgumentMarshaller * SeveralNumbersArgument::fromString(const QString & str) con
 {
   bool ok;
   double v = str.toDouble(&ok);
-  if(! ok) {
-    QString s = QObject::tr("Not a number: '%1'").
-      arg(str);
-    throw std::runtime_error(s.toStdString());
-  }
+  if(! ok)
+    throw RuntimeError(QObject::tr("Not a number: '%1'").
+                       arg(str));
+
   QList<double> l;
   l << v;
   return new ArgumentMarshallerChild< QList<double> >(l);

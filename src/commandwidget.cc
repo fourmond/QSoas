@@ -24,6 +24,8 @@
 #include <soas.hh>
 #include <dataset.hh>
 
+#include <exceptions.hh>
+
 using namespace Terminal;
 
 CommandWidget * CommandWidget::theCommandWidget = NULL;
@@ -93,12 +95,13 @@ void CommandWidget::runCommand(const QStringList & raw)
   try {
     Command::runCommand(raw, this);
   }
-  catch(const std::runtime_error & error) {
-    out << bold("Error: ") << error.what() << endl;
+  catch(const RuntimeError & error) {
+    out << bold("Error: ") << error.message() << endl;
   }
-  catch(const std::logic_error & error) {
+  catch(const InternalError & error) {
     out << bold("Internal error: ") 
-        << error.what() << endl;
+        << error.message() << endl
+        << "This is a bug in Soas and may be worth reporting !" << endl;
   }
   commandLine->setEnabled(true);
   commandLine->setFocus();
@@ -210,11 +213,9 @@ void CommandWidget::runCommandFile(QIODevice * source)
 void CommandWidget::runCommandFile(const QString & fileName)
 {
   QFile file(fileName);
-  if(! file.open(QIODevice::ReadOnly)) {
-    QString str = QObject::tr("Failed to load file %1: %2").
-      arg(fileName).arg(file.errorString());
-    throw std::runtime_error(str.toStdString());
-  }
+  if(! file.open(QIODevice::ReadOnly))
+    throw RuntimeError(QObject::tr("Failed to load file %1: %2").
+                       arg(fileName).arg(file.errorString()));
   runCommandFile(&file);
 }
 

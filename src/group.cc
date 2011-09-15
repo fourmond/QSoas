@@ -29,10 +29,10 @@ void Group::registerGroup(Group * grp)
   if(! availableGroups)
     availableGroups = new QHash<QString, Group*>;
 
-  if(availableGroups->contains(grp->groupName())) {
-    QString str = "Duplicate group name : " + grp->groupName();
-    throw std::logic_error(str.toStdString());
-  }
+  if(availableGroups->contains(grp->groupName()))
+    throw InternalError(QObject::tr("Duplicate group name : %1").
+                        arg(grp->groupName()));
+
   (*availableGroups)[grp->groupName()] = grp;
 }
 

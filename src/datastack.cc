@@ -20,6 +20,7 @@
 #include <datastack.hh>
 #include <terminal.hh>
 
+#include <exceptions.hh>
 
 DataStack::DataStack()
 {
@@ -86,7 +87,7 @@ DataSet * DataStack::currentDataSet(bool silent) const
 {
   DataSet * ds = numberedDataSet(0);
   if(!silent && !ds)
-    throw std::runtime_error("Need a buffer !");
+    throw RuntimeError("Need a buffer !");
   return ds;
 }
 
@@ -94,7 +95,7 @@ void DataStack::undo(int nbTimes)
 {
   while(nbTimes--) {
     if(dataSets.size() < 2)
-      throw std::runtime_error("Undo: nothing to undo");
+      throw RuntimeError("Undo: nothing to undo");
     redoStack.append(dataSets.takeLast());
     emit(currentDataSetChanged());
   }
@@ -104,7 +105,7 @@ void DataStack::redo(int nbTimes)
 {
   while(nbTimes--) {
     if(! redoStack.size())
-      throw std::runtime_error("Redo: nothing to redo");
+      throw RuntimeError("Redo: nothing to redo");
     dataSets.append(redoStack.takeLast());
     emit(currentDataSetChanged());
   }

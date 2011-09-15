@@ -26,6 +26,8 @@
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
 
+#include <exceptions.hh>
+
 #include <fitdata.hh>
 #include <fitdialog.hh>
 
@@ -57,8 +59,8 @@ int Fit::df(const gsl_vector * parameters,
 
   int nbparams = data->parameters.size();
   if(parameters->size != nbparams)
-    throw std::logic_error("Size mismatch between GSL parameters "
-                           "and FitData data");
+    throw InternalError("Size mismatch between GSL parameters "
+                        "and FitData data");
 
 
   /// First, compute the common value, and store it in... the storage

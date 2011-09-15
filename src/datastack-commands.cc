@@ -258,11 +258,9 @@ cls("clear-stack", // command name
 static void saveStackCommand(const QString &, QString fileName)
 {
   QFile file(fileName);
-  if(! file.open(QIODevice::WriteOnly)) {
-    QString str = QObject::tr("Failed to write to file %1: %2").
-      arg(fileName).arg(file.errorString());
-    throw std::runtime_error(str.toStdString());
-  }
+  if(! file.open(QIODevice::WriteOnly))
+    throw RuntimeError(QObject::tr("Failed to write to file %1: %2").
+                       arg(fileName).arg(file.errorString()));
   QDataStream out(&file);
   out << soas().stack();
 }
@@ -291,11 +289,10 @@ saveStack("save-stack", // command name
 static void loadStackCommand(const QString &, QString fileName)
 {
   QFile file(fileName);
-  if(! file.open(QIODevice::ReadOnly)) {
-    QString str = QObject::tr("Failed to read from file %1: %2").
-      arg(fileName).arg(file.errorString());
-    throw std::runtime_error(str.toStdString());
-  }
+  if(! file.open(QIODevice::ReadOnly))
+    throw RuntimeError(QObject::tr("Failed to read from file %1: %2").
+                       arg(fileName).arg(file.errorString()));
+
   QDataStream in(&file);
   in >> soas().stack();
 }

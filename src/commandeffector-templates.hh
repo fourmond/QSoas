@@ -68,11 +68,9 @@ public:
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
                                  const CommandOptions &) {
-    if(args.size() != 1) {
-      QString str = QString("1 argument expected, but got %2").
-        arg(args.size());
-      throw std::logic_error(str.toStdString());
-    }
+    if(args.size() != 1)
+      throw InternalError(QString("1 argument expected, but got %2").
+                          arg(args.size()));
     A1 a1 = args[0]->value<A1>();
     callback(commandName, a1);
   };
@@ -103,11 +101,9 @@ public:
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
                                  const CommandOptions &) {
-    if(args.size() != 2) {
-      QString str = QString("2 arguments expected, but got %2").
-        arg(args.size());
-      throw std::logic_error(str.toStdString());
-    }
+    if(args.size() != 2)
+      throw InternalError(QString("2 arguments expected, but got %2").
+                          arg(args.size()));
     A1 a1 = args[0]->value<A1>();
     A2 a2 = args[1]->value<A2>();
     callback(commandName, a1, a2);
@@ -137,11 +133,9 @@ public:
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
                                  const CommandOptions & options) {
-    if(args.size() > 0) {
-      QString str = QString("0 argument expected, but got %2").
-        arg(args.size());
-      throw std::logic_error(str.toStdString());
-    }
+    if(args.size() > 0)
+      throw InternalError(QString("0 arguments expected, but got %2").
+                          arg(args.size()));
     callback(commandName, options);
   };
 
@@ -170,11 +164,9 @@ public:
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
                                  const CommandOptions & options) {
-    if(args.size() != 1) {
-      QString str = QString("1 argument expected, but got %2").
-        arg(args.size());
-      throw std::logic_error(str.toStdString());
-    }
+    if(args.size() != 1)
+      throw InternalError(QString("1 argument expected, but got %2").
+                          arg(args.size()));
     A1 a1 = args[0]->value<A1>();
     callback(commandName, a1, options);
   };

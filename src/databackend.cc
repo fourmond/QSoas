@@ -20,6 +20,8 @@
 #include <headers.hh>
 #include <databackend.hh>
 
+#include <exceptions.hh>
+
 QList<DataBackend*> * DataBackend::availableBackends = NULL;
 
 void DataBackend::registerBackend(DataBackend * backend)
@@ -64,16 +66,13 @@ DataSet * DataBackend::loadFile(const QString & fileName,
 {
   /// @todo implement backend manual selection.
   QFile file(fileName);
-  if(! file.open(QIODevice::ReadOnly)) {
-    QString str = QObject::tr("Failed to load file %1: %2").
-      arg(fileName).arg(file.errorString());
-    throw std::runtime_error(str.toStdString());
-  }
+  if(! file.open(QIODevice::ReadOnly))
+    throw RuntimeError(QObject::tr("Failed to load file %1: %2").
+                       arg(fileName).arg(file.errorString()));
+
   DataBackend * b = backendForStream(&file, fileName);
-  if(! b) {
-    QString str = QObject::tr("No backend found to load %1").
-      arg(fileName);
-    throw std::runtime_error(str.toStdString());
-  }
+  if(! b)
+    throw RuntimeError(QObject::tr("No backend found to load %1").
+                       arg(fileName));
   return b->readFromStream(&file, fileName, options);
 }

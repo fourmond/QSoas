@@ -26,6 +26,8 @@
 
 #include <gsl/gsl_blas.h>
 
+#include <exceptions.hh>
+
 
 /// @todo Include peak detection, with the algorithm used for the
 /// film_decay command in the old Soas.
@@ -223,7 +225,7 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
   // only deal with the common columns
   int nbcols = std::min(a->nbColumns(), b->nbColumns());
   if(nbcols < 2)
-    throw std::runtime_error("Need at least a Y column for both datasets");
+    throw RuntimeError("Need at least a Y column for both datasets");
 
   int size_a = a->nbRows();
   const double * xa = a->columns[0].data();
@@ -557,11 +559,9 @@ void DataSet::write(const QString & n) const
     fileName = cleanedName() + ".dat";
   
   QFile file(fileName);
-  if(! file.open(QIODevice::WriteOnly)) {
-    QString str = QObject::tr("Failed to write to file %1: %2").
-      arg(fileName).arg(file.errorString());
-    throw std::runtime_error(str.toStdString());
-  }
+  if(! file.open(QIODevice::WriteOnly))
+    throw RuntimeError(QObject::tr("Failed to write to file %1: %2").
+                       arg(fileName).arg(file.errorString()));
   write(&file);
 }
 

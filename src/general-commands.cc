@@ -222,11 +222,9 @@ sta(QList<Argument *>()
 static void saveTerminalCommand(const QString &, QString out)
 {
   QFile o(out);
-  if(! o.open(QIODevice::WriteOnly)) {
-    QString str = QObject::tr("Could not open '%1' for writing: %2").
-      arg(out).arg(o.errorString());
-    throw std::runtime_error(str.toStdString());
-  }
+  if(! o.open(QIODevice::WriteOnly))
+    throw RuntimeError(QObject::tr("Could not open '%1' for writing: %2").
+                       arg(out).arg(o.errorString()));
   o.write(soas().prompt().terminalContents().toLocal8Bit());
   o.close();
 }
@@ -254,11 +252,10 @@ saveHistoryArgs(QList<Argument *>()
 static void saveHistoryCommand(const QString &, QString out)
 {
   QFile o(out);
-  if(! o.open(QIODevice::WriteOnly)) {
-    QString str = QObject::tr("Could not open '%1' for writing: %2").
-      arg(out).arg(o.errorString());
-    throw std::runtime_error(str.toStdString());
-  }
+  if(! o.open(QIODevice::WriteOnly))
+    throw RuntimeError(QObject::tr("Could not open '%1' for writing: %2").
+                       arg(out).arg(o.errorString()));
+
   QStringList history = soas().prompt().history();
   QTextStream s(&o);
   for(int i = history.size() - 1 ; i >= 0; i--)
@@ -311,11 +308,9 @@ cda(QList<Argument *>()
 
 static void cdCommand(const QString &, QString dir)
 {
-  if(! QDir::setCurrent(dir)) {
-    QString str = QObject::tr("Could not cd to '%1'").
-      arg(dir);
-    throw std::runtime_error(str.toStdString());
-  }
+  if(! QDir::setCurrent(dir))
+    throw RuntimeError(QObject::tr("Could not cd to '%1'").
+                       arg(dir));
 }
 
 static Command 

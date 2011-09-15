@@ -24,6 +24,7 @@
 #include <commandeffector.hh>
 
 #include <possessive-containers.hh>
+#include <exceptions.hh>
 
 
 QHash<QString, Command*> * Command::availableCommands = NULL;
@@ -33,18 +34,17 @@ void Command::registerCommand(Command * cmd)
   if(! availableCommands)
     availableCommands = new QHash<QString, Command*>;
 
-  if(availableCommands->contains(cmd->commandName())) {
-    QString str = "Duplicate command name : " + cmd->commandName();
-    throw std::logic_error(str.toStdString());
-  }
+  if(availableCommands->contains(cmd->commandName()))
+    throw InternalError(QObject::tr("Duplicate command name : %1").
+                        arg(cmd->commandName()));
+
   (*availableCommands)[cmd->commandName()] = cmd;
 
   if(cmd->shortCommandName().isEmpty())
     return;
-  if(availableCommands->contains(cmd->shortCommandName())) {
-    QString str = "Duplicate short command name : " + cmd->shortCommandName();
-    throw std::logic_error(str.toStdString());
-  }
+  if(availableCommands->contains(cmd->shortCommandName()))
+    throw InternalError(QObject::tr("Duplicate short command name : %1").
+                        arg(cmd->shortCommandName()));
   (*availableCommands)[cmd->shortCommandName()] = cmd;
 }
 
@@ -85,11 +85,9 @@ CommandOptions Command::parseOptions(const QHash<QString, QString> & opts) const
   for(QHash<QString, QString>::const_iterator i = opts.begin();
       i != opts.end(); i++) {
     Argument * opt = options->namedArgument(i.key());
-    if(! opt) {
-      QString str = QObject::tr("Unknown option '%1' for command %2").
-        arg(i.key()).arg(commandName());
-      throw std::runtime_error(str.toStdString());
-    }
+    if(! opt)
+      throw RuntimeError(QObject::tr("Unknown option '%1' for command %2").
+                         arg(i.key()).arg(commandName()));
     ret[i.key()] = opt->fromString(i.value());
   }
   return ret;
@@ -124,11 +122,9 @@ void Command::runCommand(const QStringList & cmd,
   QStringList b = cmd;
   QString name = b.takeFirst();
   Command * command = namedCommand(name);
-  if(! command) {
-    QString str = QObject::tr("Unknown command: '%1'").
-      arg(name);
-    throw std::runtime_error(str.toStdString());
-  }
+  if(! command)
+    throw RuntimeError(QObject::tr("Unknown command: '%1'").
+                       arg(name));
   command->runCommand(name, b, base);
 }
 

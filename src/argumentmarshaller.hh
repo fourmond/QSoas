@@ -20,6 +20,8 @@
 #ifndef __ARGUMENTMARSHALLER_HH
 #define __ARGUMENTMARSHALLER_HH
 
+#include <exceptions.hh>
+
 /// A base class for handling type-safe argument list passing
 class ArgumentMarshaller {
 public:
@@ -40,18 +42,16 @@ public:
 template<typename T> T ArgumentMarshaller::value() const {
   const ArgumentMarshallerChild<T> * child = 
     dynamic_cast< const ArgumentMarshallerChild<T> *>(this);
-  if(! child) {
-    throw std::logic_error("Bad argument type conversion attempted");
-  }
+  if(! child)
+    throw InternalError("Bad argument type conversion attempted");
   return child->value;
 };
 
 template<typename T> T & ArgumentMarshaller::value() {
   ArgumentMarshallerChild<T> * child = 
     dynamic_cast<ArgumentMarshallerChild<T> *>(this);
-  if(! child) {
-    throw std::logic_error("Bad argument type conversion attempted");
-  }
+  if(! child)
+    throw InternalError("Bad argument type conversion attempted");
   return child->value;
 };
 

@@ -34,6 +34,8 @@
 #include <soas.hh>
 #include <datastack.hh>
 
+#include <exceptions.hh>
+
 CurveView::CurveView() : 
   eventLoop(NULL), paintMarkers(false)
                                             
@@ -295,7 +297,7 @@ void CurveView::keyPressEvent(QKeyEvent * event)
 void CurveView::enterLoop(CurveEventLoop * loop)
 {
   if(eventLoop)
-    throw std::logic_error("Attempting to attach a second loop to the same view");
+    throw InternalError("Attempting to attach a second loop to the same view");
   if(! loop)
     return;
 

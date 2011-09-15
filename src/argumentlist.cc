@@ -106,14 +106,14 @@ CommandArguments ArgumentList::parseArguments(const QStringList & args,
     }
     const Argument * arg = value(idx, NULL);
     if(! arg)
-      throw std::logic_error("Missing argument description");
+      throw InternalError("Missing argument description");
     ArgumentMarshaller * value;
     if(i < nb)
       value = arg->fromString(args[i]);
     else {
       if(! base)
-        throw std::runtime_error("Not enough arguments and no "
-                                 "prompting possible");
+        throw RuntimeError("Not enough arguments and no "
+                           "prompting possible");
       value = arg->promptForValue(base);
     }
     if(idx == greedyArg && idx != i) {

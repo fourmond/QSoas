@@ -56,13 +56,41 @@ PerDatasetFit::~PerDatasetFit()
 {
 }
 
+int PerDatasetFit::parametersCheck(const double * parameters,
+                                   FitData * data)
+{
+  int nb_ds_params = data->parameterDefinitions.size();
+  for(int i = 0; i < data->datasets.size(); i++) {
+    int status = parametersCheck(parameters + nb_ds_params * i,
+                                 data, data->datasets[i]);
+    if(status)
+      return status;
+  }
+  return GSL_SUCCESS;
+}
+
+int PerDatasetFit::parametersCheck(const double * parameters,
+                                   FitData * data,
+                                   const DataSet * ds)
+{
+  return GSL_SUCCESS;
+}
+
+
 void FunctionFit::function(const double * parameters,
                            FitData * data, 
                            const DataSet * ds,
                            gsl_vector * target)
 {
   const Vector & xvalues = ds->x();
+  prepare(parameters, data, ds);
   for(int i = 0; i < target->size; i++)
     gsl_vector_set(target, i, function(parameters, data, 
                                        xvalues[i]));
+}
+
+void FunctionFit::prepare(const double * /*parameters*/, 
+                          FitData * /*data*/, 
+                          const DataSet * /*ds*/)
+{
 }

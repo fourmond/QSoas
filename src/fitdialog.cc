@@ -310,7 +310,8 @@ void FitDialog::startFit()
 
   QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   /// @todo customize the number of iterations
-  while(data->iterate() == GSL_CONTINUE && 
+  int status;
+  while((status = data->iterate(), status == GSL_CONTINUE) && 
         data->nbIterations < 100 && 
         ! shouldCancelFit) {
     int it = data->nbIterations;
@@ -331,8 +332,15 @@ void FitDialog::startFit()
     Terminal::out << "Fit cancelled" << endl;
     progressReport->setText(progressReport->text() + " (cancelled)");
   }
-  else 
-    progressReport->setText(progressReport->text() + " (done)");
+  else {
+    QString st;
+    if(status != GSL_SUCCESS)
+      st = gsl_strerror(status);
+    else
+      st = "done";
+    progressReport->setText(progressReport->text() + 
+                            QString(" (%1)").arg(st));
+  }
   Terminal::out << "Fitting took an overall " << timer.elapsed() * 1e-3
                 << " seconds" << endl;
   

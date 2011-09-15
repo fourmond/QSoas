@@ -125,6 +125,14 @@ public:
   virtual void functionForDataset(const double * parameters,
                                   FitData * data, gsl_vector * target, 
                                   int dataset);
+
+  /// This function is called at the beginning of each function
+  /// evaluation. If it returns a non-zero value, the computation is
+  /// cancelled and the given value is returned.
+  ///
+  /// Default implementation returns 0.
+  virtual int parametersCheck(const double * parameters,
+                              FitData * data);
   /// @}
 
   /// Prepares an initial guess for all parameters. The \a guess array

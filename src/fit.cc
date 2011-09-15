@@ -111,8 +111,16 @@ int Fit::fdf(const gsl_vector * parameters,  FitData * data,
              gsl_vector * target_f, gsl_matrix * target_J) 
 {
   /// @todo Here, we can save one funcall...
+  ///
+  /// That dosen't seem too expensive in the end, anyway...
   f(parameters, data, target_f);
   df(parameters, data, target_J);
+  return GSL_SUCCESS;
+}
+
+int Fit::parametersCheck(const double * /*parameters*/,
+                         FitData * /*data*/)
+{
   return GSL_SUCCESS;
 }
 

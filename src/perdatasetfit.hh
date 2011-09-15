@@ -56,6 +56,15 @@ public:
                             const DataSet * ds,
                             double * guess) = 0;
 
+  /// The global reimplemented version
+  virtual int parametersCheck(const double * parameters,
+                              FitData * data);
+
+  /// The local one to be reimplemented if that matters.
+  virtual int parametersCheck(const double * parameters,
+                              FitData * data,
+                              const DataSet * ds);
+
 
   PerDatasetFit(const char * n, const char * sd, const char * desc,
       int min = 1, int max = -1, bool mkCmds = true) :
@@ -78,6 +87,11 @@ public:
   /// Computes the Y value for the given \a x.
   virtual double function(const double * parameters, 
                           FitData * data, double x) = 0;
+
+  /// Prepare internal parameters for a given dataset. Called at the
+  /// beginning of each evaluation over a given dataset.
+  virtual void prepare(const double * parameters, FitData * data, 
+                       const DataSet * ds);
 
   FunctionFit(const char * n, const char * sd, const char * desc,
       int min = 1, int max = -1, bool mkCmds = true) :

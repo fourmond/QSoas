@@ -34,7 +34,7 @@
    \li peak detection (along with a CurvePeak CurveItem child to display
    it neatly)
    \li catalytic baseline
-   \li FFT, probably based on GSL too (no need to pull in another
+   \li FFT, based on GSL too (no need to pull in another
    dependency)
    
 
@@ -65,6 +65,11 @@
    (using an additional button in the dialog box ?)
 
    
+
+   \section arch Requests
+   \li PP: a mass subtraction command (for baselines) and/or
+   \li PP: a /baseline option to load that subtracts an already loaded
+   buffer on data loading
 
 
 

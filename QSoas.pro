@@ -98,7 +98,8 @@ SOURCES += src/qmain.cc \
         src/actioncombo.cc \
         src/flowinggridlayout.cc \
         src/fitparameters.cc \
-        src/fitdata.cc
+        src/fitdata.cc \
+        src/inactivation-fits.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \

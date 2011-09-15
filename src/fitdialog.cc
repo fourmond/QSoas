@@ -334,8 +334,11 @@ void FitDialog::startFit()
   }
   else {
     QString st;
-    if(status != GSL_SUCCESS)
+    if(status != GSL_SUCCESS) {
+      parameters.retrieveParameters();
+      updateEditors();
       st = gsl_strerror(status);
+    }
     else
       st = "done";
     progressReport->setText(progressReport->text() + 

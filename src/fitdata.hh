@@ -38,7 +38,7 @@ public:
   /// The minimum step used for derivation
   double minDerivationStep;
 
-  ActualParameter(int p, int ds, double dev = 1e-3) :
+  ActualParameter(int p, int ds, double dev = 1e-4) :
     paramIndex(p), dsIndex(ds), derivationFactor(dev) {;};
 };
 

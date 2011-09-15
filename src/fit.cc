@@ -39,8 +39,6 @@ int Fit::f(const gsl_vector * parameters,
   QVarLengthArray<double, 1024> params(data->fullParameterNumber());
   data->unpackParameters(parameters, params.data());
 
-  /// @todo parameters range checking
-
   // First, compute the value in place
   function(params.data(), data, target_f);
   // Then, subtract data.

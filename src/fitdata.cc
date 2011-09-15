@@ -233,6 +233,12 @@ int FitData::iterate()
     int status = gsl_multifit_fdfsolver_iterate(solver);
     if(status)
       return status;
+
+    QVarLengthArray<double, 1024> params(fullParameterNumber());
+    unpackParameters(solver->x, params.data());
+    status = fit->parametersCheck(params.data(), this);
+    if(status)
+      return status;
     
     /// @todo customize this !
     return gsl_multifit_test_delta(solver->dx, solver->x,

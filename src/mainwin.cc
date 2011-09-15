@@ -19,15 +19,13 @@
 /**
    \mainpage Projects for QSoas
 
-   \section project-overview How the new Soas is/will be organized
-
    \section various-todo Various things to do
+
    \li String argument with fixed list (for completion, useful for
-   options, such as an option to force to use a given backend)
+   options, such as an option to force the use a given backend)
 
    Now, mainly, what I need to do, is to massage the functionalities
    of the old Soas back into this one
-   \li filter/derivative
    \li cd/pwd
    \li browse ;-)...
    \li dataset selection
@@ -36,6 +34,9 @@
    \li catalytic baseline
    \li FFT, based on GSL too (no need to pull in another
    dependency)
+   \li filter/derivative
+   \li convolution, that was quite useful
+   \li step detection, dead useful too !
    
 
    And other things too:
@@ -49,6 +50,25 @@
    \li keyboard shortcuts for navigation in FitDialog: quick goto
    label editor, navigation between buffers, shortcuts for export/save
    and so on...
+   
+
+   I need to setup a neat data browser to replace the old browse
+   command, and something that could also be used to display datasets
+   we want to choose from. Ideas:
+   \li use a popup dialog like the fit dialog box
+   \li it would take a list of DataSet as input, (but not necessarily
+   DataSet which belong to the DataStack)
+   \li navigate through pages using arrows (make up a utility function
+   for creating arrows in Utils !)
+   \li use a given number of CurveView on each, possibly customizable
+   \li make provisions for checkboxes  (right
+   under the corresponding CurveView ?)
+   \li offer the possibility to add actions, most probably through
+   callbacks (that take the list of checked things and a pointer to
+   the current list as well, so that deletion of things from the stack
+   is a possibility for instance without closing the dialog box --
+   and the list of currently displayed CurveViews ? (that would allow 
+   printing)
 
    Allow customization for load:
    \li columns (X be 2, Y be 1 and so on)
@@ -64,9 +84,8 @@
    Find a way to prompt for additional arguments for greedy parameters
    (using an additional button in the dialog box ?)
 
-   
 
-   \section arch Requests
+   \section requests Requests
    \li PP: a mass subtraction command (for baselines) and/or
    \li PP: a /baseline option to load that subtracts an already loaded
    buffer on data loading

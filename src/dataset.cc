@@ -178,11 +178,12 @@ QList<DataSet *> DataSet::chop(const QList<double> & lengths) const
   int curl = 0;
   const double *x = getValues(0, &size);
   for(int i = 1; i < size; i++) {
-    tdx += fabs(x[i] - x[i-1]);
+    double dx = fabs(x[i] - x[i-1]);
+    tdx += dx;
     if(tdx >= lengths[curl]) {
       retvals.append(subset(lastidx, i-1));
       lastidx = i;
-      tdx = 0;
+      tdx = dx; // We restart as if the previous split had finished
       curl++;
       if(curl >= lengths.size())
         break;
@@ -190,6 +191,20 @@ QList<DataSet *> DataSet::chop(const QList<double> & lengths) const
   }
   if(lastidx < size - 1)
     retvals.append(subset(lastidx, size-1));
+  return retvals;
+}
+
+QList<DataSet *> DataSet::chop(const QList<int> & indices) const
+{
+  QList<DataSet *> retvals;
+  for(int i = 0; i <= indices.size(); i++) {
+    int s = indices.value(i-1, 0);
+    int e = indices.value(i, x().size()) - 1;
+    DataSet * ds = subset(s, e);
+    ds->name = cleanedName() + QString("_@%1_to_@%2.dat").
+      arg(s).arg(e);
+    retvals << ds;
+  }
   return retvals;
 }
 

@@ -94,10 +94,20 @@ sb("splitb", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void chopCommand(const QString &, QList<double> values)
+static void chopCommand(const QString &, QList<double> values, 
+                        const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();
-  QList<DataSet *> splitted = ds->chop(values);
+  QList<DataSet *> splitted;
+  if(opts.contains("mode") && 
+     opts["mode"]->value<QString>() == "index") {
+    QList<int> split;
+    for(int i = 0; i < values.size(); i++)
+      split << values[i];
+    splitted = ds->chop(split);
+  }
+  else
+   splitted = ds->chop(values);
   for(int i = splitted.size() - 1; i >= 0; i--)
     soas().pushDataSet(splitted[i]);
 }
@@ -108,12 +118,21 @@ chopA(QList<Argument *>()
                                     "Lengths",
                                     "Lengths of the subsets"));
 
+static ArgumentList 
+chopO(QList<Argument *>() 
+      << new ChoiceArgument(QStringList()
+                            << "xvalues"
+                            << "index",
+                            "mode", 
+                            "Mode",
+                            "Whether to cut on index or x values (default)"));
+
 static Command 
 chopC("chop", // command name
-      optionLessEffector(chopCommand), // action
+      effector(chopCommand), // action
       "buffer",  // group name
       &chopA, // arguments
-      NULL, // options
+      &chopO, // options
       "Chop Buffer",
       "Cuts buffer based on X values",
       "Cuts the buffer into several subsets of the lengths given "

@@ -241,6 +241,9 @@ public:
   /// (computed in absolute value)
   QList<DataSet *> chop(const QList<double> & lengths) const;
 
+  /// Splits a DataSet in multiple subdatasets at the indices given
+  QList<DataSet *> chop(const QList<int> & indices) const;
+
   /// @todo Sort ! (as const ?)
 
   /// Subtracts \a dataset from this DataSet and returns the result.

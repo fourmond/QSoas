@@ -40,13 +40,11 @@
    
 
    And other things too:
-   \li history save/restore upon exit
+   \li history save/restore upon exit => probably not...
    \li resampling
    \li printing of full CurveView (and not only of CurvePanel)
    \li definition of new fits based on ruby subclasses of Fit,
    PerDataSetFit and FunctionFit
-   \li use of comments in command files, either through the definition
-   of a # command or through direct exclusion at the reading level
    \li keyboard shortcuts for navigation in FitDialog: quick goto
    label editor, navigation between buffers, shortcuts for export/save
    and so on...

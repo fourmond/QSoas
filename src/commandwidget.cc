@@ -202,10 +202,13 @@ QString CommandWidget::terminalContents() const
 void CommandWidget::runCommandFile(QIODevice * source)
 {
   QTextStream in(source);
+  QRegExp commentRE("^\\s*#.*");
   while(true) {
     QString line = in.readLine();
     if(line.isNull())
       break;
+    if(commentRE.indexIn(line) == 0)
+      continue;
     runCommand(line);
   }
 }

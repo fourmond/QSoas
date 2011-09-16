@@ -397,11 +397,16 @@ zo("zoom", // command name
 
 
 static void subCommand(const QString &, DataSet * a, 
-                       DataSet * b)
+                       DataSet * b, const CommandOptions & opts)
 {
+  bool naive = false;
+  if(opts.contains("mode") && opts["mode"]->value<QString>() == "indices")
+    naive = true;
   Terminal::out << QObject::tr("Subtracting buffer '%1' from buffer '%2'").
-    arg(b->name).arg(a->name) << endl;
-  soas().pushDataSet(a->subtract(b));
+    arg(b->name).arg(a->name) 
+                << (naive ? " (index mode)" : " (xvalues mode)" ) 
+                << endl;
+  soas().pushDataSet(a->subtract(b, naive));
 }
 
 static ArgumentList 
@@ -413,12 +418,23 @@ suba(QList<Argument *>()
                             "Buffer",
                             "Second buffer"));
 
+static ArgumentList 
+operationOpts(QList<Argument *>() 
+              << new ChoiceArgument(QStringList() 
+                                    << "xvalues"
+                                    << "indices",
+                                    "mode", 
+                                    "Operation mode",
+                                    "Whether operations try to match x "
+                                    "values or indices"));
+
+
 static Command 
 sub("subtract", // command name
-    optionLessEffector(subCommand), // action
+    effector(subCommand), // action
     "buffer",  // group name
     &suba, // arguments
-    NULL, // options
+    &operationOpts, // options
     "Subtract",
     "Subtract on buffer from another",
     "Subtract the second buffer from the first",
@@ -428,19 +444,24 @@ sub("subtract", // command name
 
 
 static void divCommand(const QString &, DataSet * a, 
-                       DataSet * b)
+                       DataSet * b, const CommandOptions & opts)
 {
+  bool naive = false;
+  if(opts.contains("mode") && opts["mode"]->value<QString>() == "indices")
+    naive = true;
   Terminal::out << QObject::tr("Dividing buffer '%2' by buffer '%1'").
-    arg(b->name).arg(a->name) << endl;
-  soas().pushDataSet(a->divide(b));
+    arg(b->name).arg(a->name) 
+                << (naive ? " (index mode)" : " (xvalues mode)" ) 
+                << endl;
+  soas().pushDataSet(a->divide(b, naive));
 }
 
 static Command 
 divc("div", // command name
-     optionLessEffector(divCommand), // action
+     effector(divCommand), // action
      "buffer",  // group name
      &suba, // arguments
-     NULL, // options
+     &operationOpts, // options
      "Divide",
      "Divide one buffer by another",
      "Divide the first buffer by the second");

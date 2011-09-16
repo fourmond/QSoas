@@ -179,6 +179,39 @@ effector(void (*f)(const QString &, A1,
   return new CommandEffectorCallback1<A1>(f);
 };
 
+/// Callback to a static function with one argument + options.
+///
+/// Rather than using this class directly, use
+/// effector().
+template <class A1, class A2>
+class CommandEffectorCallback2 : public CommandEffector {
+
+  typedef void (*Callback)(const QString &, A1, A2, const CommandOptions &);
+  Callback callback;
+
+public:
+
+  CommandEffectorCallback2(Callback c) : callback(c) {;};
+
+  inline virtual void runCommand(const QString & commandName, 
+                                 const CommandArguments & args,
+                                 const CommandOptions & options) {
+    if(args.size() != 2)
+      throw InternalError(QString("2 arguments expected, but got %2").
+                          arg(args.size()));
+    A1 a1 = args[0]->value<A1>();
+    A2 a2 = args[1]->value<A2>();
+    callback(commandName, a1, a2, options);
+  };
+
+};
+
+template<class A1, class A2> CommandEffector * 
+effector(void (*f)(const QString &, A1, A2,
+                   const CommandOptions &)) {
+  return new CommandEffectorCallback2<A1, A2>(f);
+};
+
 
 //////////////////////////////////////////////////////////////////////
 // Now, callback to members

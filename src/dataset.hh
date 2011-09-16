@@ -81,7 +81,8 @@ class DataSet {
   static DataSet * applyBinaryOperation(const DataSet * a,
                                         const DataSet * b,
                                         double (*op)(double, double),
-                                        const QString & cat = "_op_");
+                                        const QString & cat = "_op_",
+                                        bool naive = false);
 
 
   friend QDataStream & operator<<(QDataStream & out, const DataSet & ds);
@@ -247,10 +248,13 @@ public:
   /// @todo Sort ! (as const ?)
 
   /// Subtracts \a dataset from this DataSet and returns the result.
-  DataSet * subtract(const DataSet * dataset) const;
+  ///
+  /// If \a naive is true, only indices are matched, while a more
+  /// complex algorithm is used to match X values in the other case.
+  DataSet * subtract(const DataSet * dataset, bool naive = false) const;
 
-  /// Dives by \a dataset and returns the result.
-  DataSet * divide(const DataSet * dataset) const;
+  /// Dives by \a dataset and returns the result. \sa subtract.
+  DataSet * divide(const DataSet * dataset, bool naive = false) const;
 
   /// Returns the subset of the dataset contained either within the
   /// indices or outside of them

@@ -235,7 +235,8 @@ int DataSet::deltaSignChange(int col) const
 DataSet * DataSet::applyBinaryOperation(const DataSet * a,
                                         const DataSet * b,
                                         double (*op)(double, double),
-                                        const QString & cat)
+                                        const QString & cat, 
+                                        bool naive)
 {
   // only deal with the common columns
   int nbcols = std::min(a->nbColumns(), b->nbColumns());
@@ -248,20 +249,34 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
   int size_b = b->nbRows();
   const double * xb = b->columns[0].data();
 
-  QList<Vector> vects;
+  QList<Vector> vects; 
   for(int i = 0; i < nbcols; i++)
     vects << Vector();
+  if(naive) {
+    if(size_a > size_b)
+      throw RuntimeError(QString("Not enough data points in %1 to match those "
+                                 "of %2").arg(b->name).arg(a->name));
+    for(int i = 0; i < size_a; i++) {
+      vects[0] << xa[i];
+      for(int k = 1; k < nbcols; k++)
+        vects[k] << op(a->columns[k][i], b->columns[k][i]);
+    }
+  }
+  else {
+    for(int i = 0; i < nbcols; i++)
+      vects << Vector();
 
-  int j = 0;
-  for(int i = 0; i < size_a; i++) {
-    /* We first look for the closest point */
-    double diff = fabs(xa[i] - xb[j]);
-    while((j < (size_b - 1)) && (fabs(xa[i] - xb[j+1]) <  diff))
-      diff = fabs(xa[i] - xb[++j]);
-    // ys[i] -= yo[j];
-    vects[0] << xa[i];        // a is the master dataset
-    for(int k = 1; k < nbcols; k++)
-      vects[k] << op(a->columns[k][i], b->columns[k][j]);
+    int j = 0;
+    for(int i = 0; i < size_a; i++) {
+      /* We first look for the closest point */
+      double diff = fabs(xa[i] - xb[j]);
+      while((j < (size_b - 1)) && (fabs(xa[i] - xb[j+1]) <  diff))
+        diff = fabs(xa[i] - xb[++j]);
+      // ys[i] -= yo[j];
+      vects[0] << xa[i];        // a is the master dataset
+      for(int k = 1; k < nbcols; k++)
+        vects[k] << op(a->columns[k][i], b->columns[k][j]);
+    }
   }
 
   DataSet * ds = new DataSet(vects);
@@ -274,9 +289,9 @@ static inline double sub(double a, double b)
   return a - b;
 }
 
-DataSet * DataSet::subtract(const DataSet * ds) const
+DataSet * DataSet::subtract(const DataSet * ds, bool naive) const
 {
-  return applyBinaryOperation(this, ds, sub, "-");
+  return applyBinaryOperation(this, ds, sub, "-", naive);
 }
 
 static inline double div(double a, double b)
@@ -284,9 +299,9 @@ static inline double div(double a, double b)
   return a/b;
 }
 
-DataSet * DataSet::divide(const DataSet * ds) const
+DataSet * DataSet::divide(const DataSet * ds, bool naive) const
 {
-  return applyBinaryOperation(this, ds, div, "_div_");
+  return applyBinaryOperation(this, ds, div, "_div_", naive);
 }
 
 

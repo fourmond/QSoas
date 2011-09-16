@@ -213,7 +213,13 @@ public:
                         double * residuals = NULL, 
                         Vector * derivative = NULL) const;
 
-  /// Finds steps in the Y data, based on the following heuristic. 
+  /// Finds steps in the Y data, based on the following heuristic: at
+  /// each point, estimate the projection of the Y value between point
+  /// i - 1 and point i by linear regression from the left and right
+  /// side over \a nb points. If they disagree by more than \a
+  /// threshold relatively to the overall Y range of the dataset,
+  /// split (well, split at the point where they disagree the most
+  /// over a range of \a nb).
   QList<int> findSteps(int nb, double threshold) const;
 
   /// @}

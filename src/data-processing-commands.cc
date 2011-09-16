@@ -501,13 +501,19 @@ static void findStepsCommand(const QString &, const CommandOptions & opts)
     nb = opts["average"]->value<double>();
 
   if(opts.contains("threshold"))
-    nb = opts["threshold"]->value<double>();
+    thresh = opts["threshold"]->value<double>();
 
   const DataSet * ds = soas().currentDataSet();
   QList<int> steps = ds->findSteps(nb, thresh);
-  for(int i = 0; i < steps.size(); i++)
+  CurveView & view = soas().view();
+  for(int i = 0; i < steps.size(); i++) {
     Terminal::out << "Step #" << i << " @" << steps[i] 
                   << "\t X= " << ds->x()[steps[i]] <<endl;
+    CurveVerticalLine * v= new CurveVerticalLine;
+    v->x = 0.5* (ds->x()[steps[i]] + ds->x()[steps[i]-1]);
+    v->pen = QPen(QColor("blue"), 1, Qt::DotLine);
+    view.addItem(v);
+  }
 }
 
 static ArgumentList 

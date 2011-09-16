@@ -565,6 +565,62 @@ void DataSet::write(const QString & n) const
   write(&file);
 }
 
+QList<int> DataSet::findSteps(int nb, double threshold) const
+{
+  QList<int> ret;
+  
+  // Threshold is relative.
+  threshold *= (y().max() - y().min());
+
+  const double *xv = x().data();
+  const double *yv = y().data();
+  int size = x().size();
+  if(size < 2 * nb)
+    return ret;
+
+  /// The number of points left since we detected something, or 0 if
+  /// there was not a step hinted recently.
+  int nbLeft = 0;
+  double maxdelta = 0;
+  int posDelta = 0;// Position of the maximum delta
+
+  for(int i = nb; i <= size - nb; i++) {
+    double aleft, bleft;
+    double aright, bright;
+    // Left prediction
+    ::reglin(xv + (i-nb), yv + (i-nb), nb, 
+           &aleft, &bleft);
+    // Right prediction
+    ::reglin(xv + i, yv + i, nb, &aright, &bright);
+
+    // We compute the point between i and i-1 as both regressions
+    // would predict
+    double yleft = aleft * 0.5*(xv[i] + xv[i-1]) + bleft;
+    double yright = aright * 0.5*(xv[i] + xv[i-1]) + bright;
+
+    double delta = fabs(yleft - yright);
+    if(nbLeft > 0) {
+      nbLeft--;
+      if(delta > maxdelta) {
+        maxdelta = delta;
+        posDelta = i;
+      }
+      if(nbLeft == 0) {
+        ret << posDelta;
+        i = posDelta + nb + 1;
+      }
+    }
+    else if(delta >= threshold) {
+      nbLeft = nb;
+      maxdelta = delta;
+      posDelta = i;
+    }
+  }
+  if(nbLeft > 0)
+    ret << posDelta;
+  return ret;
+}
+
 
 //////////////////////////////////////////////////////////////////////
 

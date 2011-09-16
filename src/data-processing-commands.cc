@@ -492,3 +492,40 @@ bspl("filter-bsplines", // command name
      "...");
 
 //////////////////////////////////////////////////////////////////////
+
+static void findStepsCommand(const QString &, const CommandOptions & opts)
+{
+  double thresh = 0.1;
+  int nb = 10;
+  if(opts.contains("average"))
+    nb = opts["average"]->value<double>();
+
+  if(opts.contains("threshold"))
+    nb = opts["threshold"]->value<double>();
+
+  const DataSet * ds = soas().currentDataSet();
+  QList<int> steps = ds->findSteps(nb, thresh);
+  for(int i = 0; i < steps.size(); i++)
+    Terminal::out << "Step #" << i << " @" << steps[i] 
+                  << "\t X= " << ds->x()[steps[i]] <<endl;
+}
+
+static ArgumentList 
+fsOps(QList<Argument *>() 
+      << new NumberArgument("average", 
+                            "Average over",
+                            "Average over that many points")
+      << new NumberArgument("threshold", 
+                            "Threshold",
+                            "Detection threshold")
+      );
+      
+static Command 
+fsc("find-steps", // command name
+     effector(findStepsCommand), // action
+     "buffer",  // group name
+     NULL, // arguments
+     &fsOps, // options
+     "Find steps",
+     "Find steps in the data",
+     "...");

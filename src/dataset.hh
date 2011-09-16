@@ -213,6 +213,9 @@ public:
                         double * residuals = NULL, 
                         Vector * derivative = NULL) const;
 
+  /// Finds steps in the Y data, based on the following heuristic. 
+  QList<int> findSteps(int nb, double threshold) const;
+
   /// @}
 
   /// @name Operations

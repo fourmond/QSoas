@@ -46,12 +46,20 @@ ArgumentMarshaller * StringArgument::promptForValue(QWidget * base) const
 
 ////////////////////////////////////////////////////////////
 
+QStringList ChoiceArgument::choices() const
+{
+  if(provider)
+    return provider();
+  return fixedChoices;
+}
+
 ArgumentMarshaller * ChoiceArgument::fromString(const QString & str) const
 {
-  if(! choices.contains(str))
+  QStringList c = choices();
+  if(! c.contains(str))
     throw 
       RuntimeError(QObject::tr("Invalid argument: '%1'\nValid choices: %2").
-                   arg(str).arg(choices.join(", ")));
+                   arg(str).arg(c.join(", ")));
   return new ArgumentMarshallerChild<QString>(str);
 }
 
@@ -60,7 +68,7 @@ ArgumentMarshaller * ChoiceArgument::promptForValue(QWidget * base) const
   bool ok = false;
   QString str = 
     QInputDialog::getItem(base, argumentName(), description(),
-                          choices, 0, false, &ok);
+                          choices(), 0, false, &ok);
   if(! ok)
     throw RuntimeError("Aborted");
   return fromString(str);
@@ -68,7 +76,7 @@ ArgumentMarshaller * ChoiceArgument::promptForValue(QWidget * base) const
 
 QStringList ChoiceArgument::proposeCompletion(const QString & starter) const
 {
-  return Utils::stringsStartingWith(choices, starter);
+  return Utils::stringsStartingWith(choices(), starter);
 }
 
 

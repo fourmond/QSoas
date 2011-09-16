@@ -39,12 +39,22 @@ public:
 
 /// A choice between several fixed strings
 class ChoiceArgument : public Argument {
-  QStringList choices;
+  QStringList fixedChoices;
+
+  QStringList (*provider)();
+
+  QStringList choices() const;
 public:
 
   ChoiceArgument(const QStringList & c,
                  const char * cn, const char * pn,
-                 const char * d = "") : Argument(cn, pn, d), choices(c) {
+                 const char * d = "") : Argument(cn, pn, d), 
+                                        fixedChoices(c), provider(NULL) {
+  }; 
+
+  ChoiceArgument(QStringList (*p)(),
+                 const char * cn, const char * pn,
+                 const char * d = "") : Argument(cn, pn, d), provider(p) {
   }; 
   
   /// Returns a wrapped QString

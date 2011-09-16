@@ -22,83 +22,6 @@
 
 #include <argument.hh>
 
-
-/// An argument representing a unique file name.
-/// @todo Restrict the returned files to existing/readable files ?
-///
-/// @todo Provide filters for the dialog
-class FileArgument : public Argument {
-public:
-
-  FileArgument(const char * cn, const char * pn,
-               const char * d = "") : Argument(cn, pn, d) {
-  }; 
-  
-  /// Returns a wrapped QString
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
-
-  /// Prompting uses a QFileDialog.
-  virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
-  virtual QStringList proposeCompletion(const QString & starter) const;
-};
-
-/// An argument representing a unique file name, for saving.
-/// @todo Provide filters for the dialog
-class FileSaveArgument : public FileArgument {
-
-  /// A default name for the save dialog box.
-  QString defaultName;
-
-  /// A way to acquire the default name
-  QString (*provider)();
-
-  /// Whether or not we ask confirmation before overwriting
-  bool askOverwrite;
-public:
-
-  FileSaveArgument(const char * cn, const char * pn,
-                   const char * d = "", 
-                   const QString & def = QString(),
-                   bool asko = true) : 
-    FileArgument(cn, pn, d), defaultName(def),
-    provider(NULL),  askOverwrite(asko) {
-  }; 
-
-  FileSaveArgument(const char * cn, const char * pn,
-                   const char * d, QString (*pr)(),
-                   bool asko = true) : FileArgument(cn, pn, d),
-                                       provider(pr), askOverwrite(asko) {
-  }; 
-
-  /// Returns a wrapped QString. Check that the target file does not
-  /// exist if askOverwrite is on.
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
-  
-  /// Prompting uses a QFileDialog.
-  virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
-};
-
-
-
-/// An argument representing a unique file name.
-/// @todo Provide filters for the dialog
-class SeveralFilesArgument : public Argument {
-public:
-
-  SeveralFilesArgument(const char * cn, const char * pn,
-                       const char * d = "", bool g = true) : 
-    Argument(cn, pn, d, g) {
-  }; 
-  
-  /// Returns a wrapped QStringList
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
-  virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
-  virtual void concatenateArguments(ArgumentMarshaller * a, 
-                                    const ArgumentMarshaller * b) const;
-  virtual QStringList proposeCompletion(const QString & starter) const;
-};
-
-
 /// A simple string argument
 class StringArgument : public Argument {
 public:
@@ -112,6 +35,26 @@ public:
 
   /// Prompting uses QInputDialog.
   virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
+};
+
+/// A choice between several fixed strings
+class ChoiceArgument : public Argument {
+  QStringList choices;
+public:
+
+  ChoiceArgument(const QStringList & c,
+                 const char * cn, const char * pn,
+                 const char * d = "") : Argument(cn, pn, d), choices(c) {
+  }; 
+  
+  /// Returns a wrapped QString
+  virtual ArgumentMarshaller * fromString(const QString & str) const;
+
+  /// Prompting uses QInputDialog.
+  virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
+
+  /// a rather easy one.
+  virtual QStringList proposeCompletion(const QString & starter) const;
 };
 
 /// A dataset from the stack

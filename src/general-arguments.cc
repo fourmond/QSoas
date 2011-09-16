@@ -28,106 +28,6 @@
 
 #include <exceptions.hh>
 
-/// A utility function for a clean file completion.
-static QStringList proposeFileCompletion(const QString & str)
-{
-  QStringList candidates = Utils::glob(str + "*");
-  for(int i = 0; i < candidates.size(); i++)
-    candidates[i] = QDir::cleanPath(candidates[i]);
-  if(candidates.size() == 1) {
-    QFileInfo info(candidates.first());
-    if(info.isDir())
-      candidates.first().append("/");
-    candidates << candidates.first();
-  }
-  return candidates;
-}
-
-ArgumentMarshaller * FileArgument::fromString(const QString & str) const
-{
-  return new ArgumentMarshallerChild<QString>(str);
-}
-
-ArgumentMarshaller * FileArgument::promptForValue(QWidget * base) const
-{
-  QString file = 
-    QFileDialog::getOpenFileName(base, publicName(),
-                                 QDir::currentPath());
-  if(file.isEmpty())
-    throw RuntimeError("Aborted"); 
-  /// @todo Maybe use a specific exception to signal abortion ?
-  return fromString(file);
-}
-
-
-QStringList FileArgument::proposeCompletion(const QString & starter) const
-{
-  return proposeFileCompletion(starter);
-}
-
-////////////////////////////////////////////////////////////
-
-ArgumentMarshaller * FileSaveArgument::fromString(const QString & str) const
-{
-  if(askOverwrite && QFile::exists(str)) {
-    QString s = QObject::tr("Overwrite file '%1' ?").
-      arg(str);
-    if(! Utils::askConfirmation(s))
-      throw RuntimeError("Aborted");
-  }
-  return new ArgumentMarshallerChild<QString>(str);
-}
-
-
-ArgumentMarshaller * FileSaveArgument::promptForValue(QWidget * base) const
-{
-  QString def = defaultName;
-  if(provider)
-    def = provider();
-
-  QFileDialog fd(base, publicName(), QDir::currentPath());
-  fd.setAcceptMode(QFileDialog::AcceptSave);
-  if(! def.isEmpty())
-    fd.selectFile(def);
-
-  if(fd.exec() != QDialog::Accepted)
-    throw RuntimeError("Aborted"); 
-
-  return fromString(fd.selectedFiles().value(0, QString("")));
-}
-
-
-////////////////////////////////////////////////////////////
-
-ArgumentMarshaller * SeveralFilesArgument::fromString(const QString & str) const
-{
-  return new ArgumentMarshallerChild<QStringList>(Utils::glob(str, false));
-}
-
-ArgumentMarshaller * SeveralFilesArgument::promptForValue(QWidget * base) const
-{
-  QStringList files = 
-    QFileDialog::getOpenFileNames(base, publicName(),
-                                  QDir::currentPath());
-  if(! files.size())
-    throw RuntimeError("Aborted"); 
-  return new ArgumentMarshallerChild<QStringList>(files);
-}
-
-void SeveralFilesArgument::concatenateArguments(ArgumentMarshaller * a, 
-                                                const ArgumentMarshaller * b) const
-{
-  a->value<QStringList>() += b->value<QStringList>();
-}
-
-QStringList SeveralFilesArgument::proposeCompletion(const QString & starter) const
-{
-  return proposeFileCompletion(starter);
-}
-
-////////////////////////////////////////////////////////////
-
-
 ArgumentMarshaller * StringArgument::fromString(const QString & str) const
 {
   return new ArgumentMarshallerChild<QString>(str);
@@ -143,6 +43,34 @@ ArgumentMarshaller * StringArgument::promptForValue(QWidget * base) const
     throw RuntimeError("Aborted"); 
   return fromString(str);
 }
+
+////////////////////////////////////////////////////////////
+
+ArgumentMarshaller * ChoiceArgument::fromString(const QString & str) const
+{
+  if(! choices.contains(str))
+    throw 
+      RuntimeError(QObject::tr("Invalid argument: '%1'\nValid choices: %2").
+                   arg(str).arg(choices.join(", ")));
+  return new ArgumentMarshallerChild<QString>(str);
+}
+
+ArgumentMarshaller * ChoiceArgument::promptForValue(QWidget * base) const
+{
+  bool ok = false;
+  QString str = 
+    QInputDialog::getItem(base, argumentName(), description(),
+                          choices, 0, false, &ok);
+  if(! ok)
+    throw RuntimeError("Aborted");
+  return fromString(str);
+}
+
+QStringList ChoiceArgument::proposeCompletion(const QString & starter) const
+{
+  return Utils::stringsStartingWith(choices, starter);
+}
+
 
 ////////////////////////////////////////////////////////////
 

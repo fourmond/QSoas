@@ -100,7 +100,8 @@ SOURCES += src/qmain.cc \
         src/fitparameters.cc \
         src/fitdata.cc \
         src/inactivation-fits.cc \
-        src/exceptions.cc
+        src/exceptions.cc \
+        src/file-arguments.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -146,4 +147,5 @@ HEADERS += src/headers.hh \
         src/flowinggridlayout.hh \
         src/fitparameters.hh \
         src/fitdata.hh \
-        src/exceptions.hh
+        src/exceptions.hh \
+        src/file-arguments.hh

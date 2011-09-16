@@ -22,6 +22,7 @@
 #include <group.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
+#include <file-arguments.hh>
 #include <terminal.hh>
 
 #include <datastack.hh>

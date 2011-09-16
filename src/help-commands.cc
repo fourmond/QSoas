@@ -56,7 +56,7 @@ static void commandsCommand(const QString &)
 }
 
 static Command 
-quit("commands", // command name
+cmds("commands", // command name
      optionLessEffector(commandsCommand), // action
      "help",  // group name
      NULL, // arguments
@@ -64,5 +64,64 @@ quit("commands", // command name
      "Commands",
      "List commands",
      "List all available commands, along with a little help");
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void helpCommand(const QString &, QString command)
+{
+  Command * cmd = Command::namedCommand(command);
+  
+  QStringList synopsis;
+  QString descs;
+  if(cmd->commandArguments()) {
+    const ArgumentList & args = *cmd->commandArguments();
+    for(int i = 0; i < args.size(); i++) {
+      QString a = args[i]->argumentName();
+      if(args[i]->greedy)
+        a += "...";
+      synopsis << a;
+      descs += QString("  * %1: %2\n").
+        arg(args[i]->argumentName()).
+        arg(args[i]->description());
+    }
+  }
+
+  if(cmd->commandOptions()) {
+    const ArgumentList & args = *cmd->commandOptions();
+    for(int i = 0; i < args.size(); i++) {
+      QString a = args[i]->argumentName();
+      synopsis << "/" + a + "=" ;
+      descs += QString("  * /%1: %2\n").
+        arg(args[i]->argumentName()).
+        arg(args[i]->description());
+    }
+  }
+
+  Terminal::out << "Command: " << command << " -- "
+                << cmd->publicName() << "\n\n"
+                << "  " << command << " " 
+                << synopsis.join(" ") << "\n" 
+                << descs << "\n"
+                << cmd->longDescription() << endl;
+}
+
+static ArgumentList 
+helpA(QList<Argument *>() 
+      << new ChoiceArgument(&Command::allCommands,
+                            "command", "Command",
+                            "The command on which to give help"));
+
+
+static Command 
+hlpc("help", // command name
+     optionLessEffector(helpCommand), // action
+     "help",  // group name
+     &helpA, // arguments
+     NULL, // options
+     "Commands",
+     "Give help on command",
+     "Gives all help available on the given command",
+     "?");
 
 //////////////////////////////////////////////////////////////////////

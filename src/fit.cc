@@ -118,6 +118,8 @@ int Fit::fdf(const gsl_vector * parameters,  FitData * data,
   return GSL_SUCCESS;
 }
 
+/// @todo It may be relatively easy to copy/paste the lmder solver and
+/// tweak it in order to provide better handling of domain errors...
 int Fit::parametersCheck(const double * /*parameters*/,
                          FitData * /*data*/)
 {

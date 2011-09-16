@@ -50,8 +50,8 @@ static void loadFilesAndDisplay(int nb, QStringList files)
         soas().view().showDataSet(s);
       nb++;
     }
-    catch (const std::runtime_error & e) {
-      Terminal::out << e.what() << endl;
+    catch (const RuntimeError & e) {
+      Terminal::out << e.message() << endl;
     }
   }
 }

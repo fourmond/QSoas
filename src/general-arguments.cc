@@ -48,9 +48,11 @@ ArgumentMarshaller * StringArgument::promptForValue(QWidget * base) const
 
 QStringList ChoiceArgument::choices() const
 {
+  QStringList c = fixedChoices;
   if(provider)
-    return provider();
-  return fixedChoices;
+    c = provider();
+  qSort(c);
+  return c;
 }
 
 ArgumentMarshaller * ChoiceArgument::fromString(const QString & str) const

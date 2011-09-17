@@ -417,6 +417,19 @@ void FitDialog::saveParameters()
 
 void FitDialog::loadParameters()
 {
+  QString load = 
+    QFileDialog::getOpenFileName(this, tr("Load parameters"));
+  if(load.isEmpty())
+    return;
+
+  QFile f(load);
+  if(! f.open(QIODevice::ReadOnly))
+    return;                     /// @todo Signal !
+
+  parameters.loadParameters(&f);
+  updateEditors();
+  compute();
+  Terminal::out << "Loaded fit parameters from file " << load << endl;
 }
 
 void FitDialog::exportParameters()

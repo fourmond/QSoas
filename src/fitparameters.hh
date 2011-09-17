@@ -30,6 +30,9 @@ class FitParameters {
   /// The underlying FitData object.
   FitData * fitData;
 
+  /// A cache parameter name -> index
+  QHash<QString, int> parameterIndices;
+
   /// The number of datasets
   int datasets;
 
@@ -138,6 +141,9 @@ public:
 
   /// Save to the given stream
   void saveParameters(QIODevice * out) const;
+
+  /// Load from the given stream
+  void loadParameters(QIODevice * in);
   
 };
 

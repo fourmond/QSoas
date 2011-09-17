@@ -35,10 +35,12 @@ FitParameters::FitParameters(FitData * d) :
   fixed = new bool[nbParameters * datasets];
   values = new double[nbParameters * datasets];
 
-  // Now populate default values:
+  // Now populate default values and fill the cache
   d->fit->initialGuess(d, values);
-  for(int i = 0; i < nbParameters; i++)
+  for(int i = 0; i < nbParameters; i++) {
     global[i] = ! d->parameterDefinitions[i].canBeBufferSpecific;
+    parameterIndices[d->parameterDefinitions[i].name] = i;
+  }
   for(int i = 0; i != datasets * nbParameters; i++)
     fixed[i] = d->parameterDefinitions[i % nbParameters].defaultsToFixed;
 }
@@ -180,6 +182,52 @@ void FitParameters::saveParameters(QIODevice * stream) const
             << (isFixed(i, j) ? "0" : "1")
             << endl;
       }
+    }
+  }
+}
+
+void FitParameters::loadParameters(QIODevice * source)
+{
+  QString line;
+  QRegExp paramRE("^([^\t []+)\\s*(?:\\[#(\\d+)\\])?\t(\\S+)\\s*!\\s*([01])");
+  QTextStream in(source);
+  while(true) {
+    line = in.readLine();
+    if(line.isNull())
+      break;                    // EOF
+    if(paramRE.indexIn(line) == 0) {
+      // We found a parameter
+      QString paramName = paramRE.cap(1);
+      int ds = -1;
+      if(! paramRE.cap(2).isEmpty())
+        ds = paramRE.cap(2).toInt();
+      
+      double value = paramRE.cap(3).toDouble();
+      bool fxd = (paramRE.cap(4).toInt() == 0);
+
+      int idx = parameterIndices.value(paramName, -1);
+      if(idx < 0) {
+        Terminal::out << "Found unkown parameter: '" << paramName 
+                      << "', ignoring" << endl;
+        continue;
+      }
+      
+      if(ds > 0) {
+        global[idx] = false;    // Sure enough
+        values[idx + ds * nbParameters] = value;
+        fixed[idx + ds * nbParameters] = fxd;
+      }
+      else {
+        global[idx] = true;
+        for(int i = 0; i < datasets; i++)
+          values[idx + i * nbParameters] = value;
+        fixed[idx] = fxd;
+      }
+    }
+    else {
+      if(! line.startsWith("#"))
+        Terminal::out << "Line not understood: '" 
+                      << line << "'" << endl;
     }
   }
 }

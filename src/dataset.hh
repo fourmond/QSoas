@@ -245,7 +245,8 @@ public:
   /// Splits a DataSet in multiple subdatasets at the indices given
   QList<DataSet *> chop(const QList<int> & indices) const;
 
-  /// @todo Sort ! (as const ?)
+  /// Returns a sorted copy of the dataset.
+  DataSet * sort(bool reverse = false) const;
 
   /// Subtracts \a dataset from this DataSet and returns the result.
   ///

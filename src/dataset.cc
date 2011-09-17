@@ -651,6 +651,47 @@ QList<int> DataSet::findSteps(int nb, double threshold) const
   return ret;
 }
 
+static bool lessThan(const QPair<double, int> &a, 
+              const QPair<double, int> &b) {
+  return a.first < b.first;
+}
+
+static bool greaterThan(const QPair<double, int> &a, 
+                 const QPair<double, int> &b) {
+  return a.first > b.first;
+}
+
+DataSet * DataSet::sort(bool reverse) const
+{
+  /// @todo This algorithm isn't fast nor space-efficient, but it does
+  /// work, and its simple.
+
+  QList< QPair<double, int> > vals;
+
+  const double *xv = x().data();
+  int size = x().size();
+  vals.reserve(size);
+  for(int i = 0; i < size; i++)
+    vals << QPair<double, int>(xv[i], i);
+  
+  if(reverse)
+    qSort(vals.begin(), vals.end(), &greaterThan);
+  else
+    qSort(vals.begin(), vals.end(), &lessThan);
+
+
+  QList<Vector> nv;
+  for(int i = 0; i < columns.size(); i++)
+    nv << Vector(size, 0);
+  for(int i = 0; i < size; i++) {
+    for(int j = 0; j < columns.size(); j++)
+      nv[j][i] = columns[j][(vals[i].second)];
+  }
+
+  DataSet * ds = new DataSet(nv);
+  ds->name = cleanedName() + "_sorted.dat";
+  return ds;
+}
 
 //////////////////////////////////////////////////////////////////////
 

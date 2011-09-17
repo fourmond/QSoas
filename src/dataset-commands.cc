@@ -91,6 +91,25 @@ sb("splitb", // command name
    "Returns the part of the buffer after "
    "the first change of sign of dx");
 
+//////////////////////////////////////////////////////////////////////
+
+static void sortCommand(const QString &)
+{
+  const DataSet * ds = soas().currentDataSet();
+  soas().pushDataSet(ds->sort());
+}
+
+
+static Command 
+sort("sort", // command name
+     optionLessEffector(sortCommand), // action
+     "buffer",  // group name
+     NULL, // arguments
+     NULL, // options
+     "Sort",
+     "Sort with ascending X values",
+     "");
+
 
 //////////////////////////////////////////////////////////////////////
 

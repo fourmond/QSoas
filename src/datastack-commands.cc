@@ -56,6 +56,8 @@ static void loadFilesAndDisplay(int nb, QStringList files)
       Terminal::out << e.message() << endl;
     }
   }
+  if(nb > 1)
+    soas().view().repaint();
 }
 
 static ArgumentList 

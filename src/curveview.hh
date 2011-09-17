@@ -79,7 +79,7 @@ public:
   virtual ~CurveView();
 
   /// Adds an item to the CurveView. It goes to the panel()
-  void addItem(CurveItem * item);
+  void addItem(CurveItem * item, bool doRepaint = true);
 
   /// Adds a panel. 
   void addPanel(CurvePanel * panel);
@@ -101,7 +101,7 @@ public slots:
   void showCurrentDataSet();
 
   /// Adds a DataSet to the display.
-  void addDataSet(const DataSet * ds);
+  void addDataSet(const DataSet * ds, bool doRepaint = true);
 
   /// Shows the given DataSet (and forget about the other things)
   void showDataSet(const DataSet * ds);
@@ -109,9 +109,18 @@ public slots:
   /// Whether or not datasets should display markers when applicable.
   void setPaintMarkers(bool enabled);
 
+  /// Trigger a repaint of the view, when necessary
+  void repaint() {
+    viewport()->repaint();
+  };
+
+public:
+
+  /// Whether or not we are painting markers...
   bool paintingMarkers() const {
     return paintMarkers;
   };
+
 
 protected:
   virtual void resizeEvent(QResizeEvent * event);

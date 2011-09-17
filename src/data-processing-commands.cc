@@ -512,8 +512,9 @@ static void findStepsCommand(const QString &, const CommandOptions & opts)
     CurveVerticalLine * v= new CurveVerticalLine;
     v->x = 0.5* (ds->x()[steps[i]] + ds->x()[steps[i]-1]);
     v->pen = QPen(QColor("blue"), 1, Qt::DotLine);
-    view.addItem(v);
+    view.addItem(v, false);
   }
+  view.repaint();
 }
 
 static ArgumentList 

@@ -103,20 +103,21 @@ QPen CurveView::penForNextCurve()
   return p;
 }
 
-void CurveView::addItem(CurveItem * item)
+void CurveView::addItem(CurveItem * item, bool doRepaint)
 {
   panel.addItem(item);
-  viewport()->repaint();
+  if(doRepaint)
+    repaint();
 }
 
-void CurveView::addDataSet(const DataSet * ds)
+void CurveView::addDataSet(const DataSet * ds, bool doRepaint)
 {
   if(! ds)
     return;
   CurveDataSet * item = new CurveDataSet(ds);
   item->paintMarkers = paintMarkers;
   item->pen = penForNextCurve();
-  addItem(item);
+  addItem(item, doRepaint);
 }
 
 void CurveView::clear()

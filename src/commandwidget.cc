@@ -23,6 +23,7 @@
 #include <commandprompt.hh>
 #include <soas.hh>
 #include <dataset.hh>
+#include <utils.hh>
 
 #include <exceptions.hh>
 
@@ -216,9 +217,7 @@ void CommandWidget::runCommandFile(QIODevice * source)
 void CommandWidget::runCommandFile(const QString & fileName)
 {
   QFile file(fileName);
-  if(! file.open(QIODevice::ReadOnly))
-    throw RuntimeError(QObject::tr("Failed to load file %1: %2").
-                       arg(fileName).arg(file.errorString()));
+  Utils::open(&file, QIODevice::ReadOnly);
   runCommandFile(&file);
 }
 

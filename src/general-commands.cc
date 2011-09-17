@@ -35,6 +35,8 @@
 #include <curveview.hh>
 #include <soas.hh>
 
+#include <utils.hh>
+
 #include <debug.hh>
 #include <commandwidget.hh>
 
@@ -223,9 +225,7 @@ sta(QList<Argument *>()
 static void saveTerminalCommand(const QString &, QString out)
 {
   QFile o(out);
-  if(! o.open(QIODevice::WriteOnly))
-    throw RuntimeError(QObject::tr("Could not open '%1' for writing: %2").
-                       arg(out).arg(o.errorString()));
+  Utils::open(&o, QIODevice::WriteOnly);
   o.write(soas().prompt().terminalContents().toLocal8Bit());
   o.close();
 }
@@ -253,9 +253,7 @@ saveHistoryArgs(QList<Argument *>()
 static void saveHistoryCommand(const QString &, QString out)
 {
   QFile o(out);
-  if(! o.open(QIODevice::WriteOnly))
-    throw RuntimeError(QObject::tr("Could not open '%1' for writing: %2").
-                       arg(out).arg(o.errorString()));
+  Utils::open(&o, QIODevice::WriteOnly);
 
   QStringList history = soas().prompt().history();
   QTextStream s(&o);

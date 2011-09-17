@@ -20,6 +20,7 @@
 #include <dataset.hh>
 
 #include <math.h>
+#include <utils.hh>
 
 #include <gsl/gsl_bspline.h>
 #include <gsl/gsl_multifit.h>
@@ -589,9 +590,8 @@ void DataSet::write(const QString & n) const
     fileName = cleanedName() + ".dat";
   
   QFile file(fileName);
-  if(! file.open(QIODevice::WriteOnly))
-    throw RuntimeError(QObject::tr("Failed to write to file %1: %2").
-                       arg(fileName).arg(file.errorString()));
+  Utils::open(&file, QIODevice::WriteOnly);
+
   write(&file);
 }
 

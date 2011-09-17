@@ -21,9 +21,6 @@
 
    \section various-todo Various things to do
 
-   \li String argument with fixed list (for completion, useful for
-   options, such as an option to force the use a given backend)
-
    Now, mainly, what I need to do, is to massage the functionalities
    of the old Soas back into this one
    \li cd/pwd
@@ -43,8 +40,11 @@
    \li history save/restore upon exit => probably not...
    \li resampling
    \li printing of full CurveView (and not only of CurvePanel)
+   \li I will have to find a way to redirect PrintScreen input in
+   CurveEventLoopMode to printing to an automatically numbered PDF
+   file.
    \li definition of new fits based on ruby subclasses of Fit,
-   PerDataSetFit and FunctionFit
+   PerDatasetFit and FunctionFit
    \li keyboard shortcuts for navigation in FitDialog: quick goto
    label editor, navigation between buffers, shortcuts for export/save
    and so on...
@@ -85,20 +85,15 @@
 
    \section requests Requests
    \li PP: a mass subtraction command (for baselines) and/or
+   (this could just be a mass-subtract operation)
    \li PP: a /baseline option to load that subtracts an already loaded
    buffer on data loading
 
 
 
    \section arch Architectural things
-   
-   \li One day, I will need to reimplement the exceptions to use my
-   own QString-carrying exceptions. This probably isn't of high
-   priority, but that would save quite a bit of code.
 
-   \li A side project of that would be to provide a utility function
-   to open files for read or write, throwing the appropriate exception
-   when necessary.
+   (nothing for now)
    
 */
 

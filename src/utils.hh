@@ -80,6 +80,10 @@ namespace Utils {
 
   /// Returns the string Delta something. Pityful, isn't it ;-) ?
   QString deltaStr(const QString & w);
+
+  /// Opens the given file with the target mode, raising a
+  /// RuntimeError if that couldn't happen for some reason.
+  void open(QFile * file, QIODevice::OpenMode mode);
 };
 
 #endif

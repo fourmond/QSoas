@@ -19,6 +19,7 @@
 
 #include <headers.hh>
 #include <utils.hh>
+#include <exceptions.hh>
 
 QStringList Utils::glob(const QString & pattern, bool trim)
 {
@@ -102,4 +103,28 @@ QString Utils::deltaStr(const QString & w)
   QString ret = QChar(0x0394);
   ret += w;
   return ret;
+}
+
+
+void Utils::open(QFile * file, QIODevice::OpenMode mode)
+{
+  if(! file->open(mode)) {
+    QString mdStr;
+    switch(mode & QIODevice::ReadWrite) {
+    case QIODevice::ReadOnly:
+      mdStr = "for reading";
+      break;
+    case QIODevice::WriteOnly:
+      mdStr = "for writing";
+      break;
+    case QIODevice::ReadWrite:
+      mdStr = "read/write";
+      break;
+    default:
+      mdStr = "??";
+    }
+    throw RuntimeError(QObject::tr("Could not open '%1' %2: %3").
+                       arg(file->fileName()).
+                       arg(mdStr).arg(file->errorString()));
+  }
 }

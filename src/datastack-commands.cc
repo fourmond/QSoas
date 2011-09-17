@@ -29,6 +29,7 @@
 #include <databackend.hh>
 #include <curveview.hh>
 #include <soas.hh>
+#include <utils.hh>
 
 static Group stack("stack", 1,
                    "Data Stack",
@@ -46,7 +47,7 @@ static void loadFilesAndDisplay(int nb, QStringList files)
       soas().stack().pushDataSet(s, true); // use the silent version
       // as we display ourselves
       if(nb > 0)
-        soas().view().addDataSet(s);
+        soas().view().addDataSet(s, false);
       else
         soas().view().showDataSet(s);
       nb++;
@@ -259,9 +260,7 @@ cls("clear-stack", // command name
 static void saveStackCommand(const QString &, QString fileName)
 {
   QFile file(fileName);
-  if(! file.open(QIODevice::WriteOnly))
-    throw RuntimeError(QObject::tr("Failed to write to file %1: %2").
-                       arg(fileName).arg(file.errorString()));
+  Utils::open(&file, QIODevice::WriteOnly);
   QDataStream out(&file);
   out << soas().stack();
 }
@@ -290,9 +289,7 @@ saveStack("save-stack", // command name
 static void loadStackCommand(const QString &, QString fileName)
 {
   QFile file(fileName);
-  if(! file.open(QIODevice::ReadOnly))
-    throw RuntimeError(QObject::tr("Failed to read from file %1: %2").
-                       arg(fileName).arg(file.errorString()));
+  Utils::open(&file, QIODevice::ReadOnly);
 
   QDataStream in(&file);
   in >> soas().stack();

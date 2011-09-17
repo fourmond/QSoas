@@ -19,6 +19,7 @@
 
 #include <headers.hh>
 #include <databackend.hh>
+#include <utils.hh>
 
 #include <exceptions.hh>
 
@@ -66,9 +67,7 @@ DataSet * DataBackend::loadFile(const QString & fileName,
 {
   /// @todo implement backend manual selection.
   QFile file(fileName);
-  if(! file.open(QIODevice::ReadOnly))
-    throw RuntimeError(QObject::tr("Failed to load file %1: %2").
-                       arg(fileName).arg(file.errorString()));
+  Utils::open(&file, QIODevice::ReadOnly);
 
   DataBackend * b = backendForStream(&file, fileName);
   if(! b)

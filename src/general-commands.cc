@@ -281,17 +281,35 @@ runArgs(QList<Argument *>()
                             "File containing the commands to run"));
 
 
-static void runCommand(const QString &, QString cmdfile)
+static void runCommand(const QString &, QString cmdfile, 
+                       const CommandOptions &opts)
 {
+  if(opts.contains("silent") && 
+     opts["silent"]->value<QString>() == "yes") {
+    QTextStream o(stdout);
+    o << "Running in silent mode" << endl;
+    soas().view().disableUpdates();
+  }
+
   soas().prompt().runCommandFile(cmdfile);
+  soas().view().enableUpdates();
 }
+
+static ArgumentList
+runOpts(QList<Argument *>() 
+        << new ChoiceArgument(QStringList() << "yes" << "no",
+                              "silent", 
+                              "Silent processing",
+                              "Whether or not display is updated "
+                              "during the load"));
+
 
 static Command 
 run("run", // command name
-   optionLessEffector(runCommand), // action
+   effector(runCommand), // action
    "file",  // group name
    &runArgs, // arguments
-   NULL, // options
+    NULL, //&runOpts, // options doesn't seem to work anyway...
    "Run commands",
    "Run commands from a file",
    "Run commands saved in a file",

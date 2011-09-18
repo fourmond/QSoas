@@ -40,6 +40,7 @@ static Group stack("stack", 1,
 
 static void loadFilesAndDisplay(int nb, QStringList files)
 {
+  soas().view().disableUpdates();
   for(int i = 0; i < files.size(); i++) {
     Terminal::out << "Loading file '" << files[i] << "'" << endl;
     try {
@@ -47,7 +48,7 @@ static void loadFilesAndDisplay(int nb, QStringList files)
       soas().stack().pushDataSet(s, true); // use the silent version
       // as we display ourselves
       if(nb > 0)
-        soas().view().addDataSet(s, false);
+        soas().view().addDataSet(s);
       else
         soas().view().showDataSet(s);
       nb++;
@@ -56,8 +57,7 @@ static void loadFilesAndDisplay(int nb, QStringList files)
       Terminal::out << e.message() << endl;
     }
   }
-  if(nb > 1)
-    soas().view().repaint();
+  soas().view().enableUpdates();
 }
 
 static ArgumentList 
@@ -319,8 +319,10 @@ loadStack("load-stack", // command name
 
 static void ovCommand(const QString &, QList<const DataSet *> ds)
 {
+  soas().view().disableUpdates();
   for(int i = 0; i < ds.size(); i++)
     soas().view().addDataSet(ds[i]);
+  soas().view().enableUpdates();
 }
 
 static ArgumentList 

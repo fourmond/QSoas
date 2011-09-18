@@ -72,6 +72,19 @@ class CurveView : public QAbstractScrollArea {
 
   bool paintMarkers;
 
+  /// Trigger a repaint of the view, when necessary
+  void doRepaint();
+
+  /// Whether or not updating has been disabled
+  bool repaintDisabled;
+
+  /// Whether or not at least one repaint request has been issued
+  /// since repaint is disabled
+  bool repaintRequested;
+
+  void repaint() {
+    doRepaint();
+  };
 
 public:
 
@@ -79,7 +92,7 @@ public:
   virtual ~CurveView();
 
   /// Adds an item to the CurveView. It goes to the panel()
-  void addItem(CurveItem * item, bool doRepaint = true);
+  void addItem(CurveItem * item);
 
   /// Adds a panel. 
   void addPanel(CurvePanel * panel);
@@ -101,7 +114,7 @@ public slots:
   void showCurrentDataSet();
 
   /// Adds a DataSet to the display.
-  void addDataSet(const DataSet * ds, bool doRepaint = true);
+  void addDataSet(const DataSet * ds);
 
   /// Shows the given DataSet (and forget about the other things)
   void showDataSet(const DataSet * ds);
@@ -109,10 +122,13 @@ public slots:
   /// Whether or not datasets should display markers when applicable.
   void setPaintMarkers(bool enabled);
 
-  /// Trigger a repaint of the view, when necessary
-  void repaint() {
-    viewport()->repaint();
-  };
+  /// Temporarily disable updating the view, to speed up rendering !
+  void disableUpdates();
+
+  /// Reenable on-change updates that were disabled using
+  /// disableUpdates()
+  void enableUpdates();
+
 
 public:
 

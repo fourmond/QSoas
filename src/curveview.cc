@@ -37,7 +37,8 @@
 #include <exceptions.hh>
 
 CurveView::CurveView() : 
-  eventLoop(NULL), paintMarkers(false)
+  eventLoop(NULL), paintMarkers(false),
+  repaintDisabled(false)
                                             
 {
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -50,6 +51,31 @@ CurveView::CurveView() :
 
 CurveView::~CurveView()
 {
+}
+
+void CurveView::doRepaint()
+{
+  if(repaintDisabled) {
+    repaintRequested = true;
+  }
+  else {
+    viewport()->repaint();
+  }
+}
+
+void CurveView::disableUpdates()
+{
+  repaintDisabled = true;
+  repaintRequested = false;
+}
+
+void CurveView::enableUpdates()
+{
+  if(! repaintDisabled)
+    return;                     // Definitely nothing to do
+  repaintDisabled = false;
+  if(repaintRequested)
+    doRepaint();
 }
 
 void CurveView::setOpenGL(bool b)
@@ -103,28 +129,27 @@ QPen CurveView::penForNextCurve()
   return p;
 }
 
-void CurveView::addItem(CurveItem * item, bool doRepaint)
+void CurveView::addItem(CurveItem * item)
 {
   panel.addItem(item);
-  if(doRepaint)
-    repaint();
+  doRepaint();
 }
 
-void CurveView::addDataSet(const DataSet * ds, bool doRepaint)
+void CurveView::addDataSet(const DataSet * ds)
 {
   if(! ds)
     return;
   CurveDataSet * item = new CurveDataSet(ds);
   item->paintMarkers = paintMarkers;
   item->pen = penForNextCurve();
-  addItem(item, doRepaint);
+  addItem(item);
 }
 
 void CurveView::clear()
 {
   nbStyled = 0;
   panel.clear();
-  viewport()->repaint();
+  doRepaint();
 }
 
 void CurveView::showCurrentDataSet()
@@ -212,7 +237,7 @@ void CurveView::setPaintMarkers(bool enabled)
         d->paintMarkers = paintMarkers;
     }
   }
-  repaint();
+  doRepaint();
 }
 
 
@@ -284,7 +309,7 @@ void CurveView::wheelEvent(QWheelEvent * event)
     else if(event->modifiers() == (Qt::ControlModifier | Qt::ShiftModifier))
       panel->resetZoom();
     
-    repaint();
+    doRepaint();
     return;
   }
   QAbstractScrollArea::wheelEvent(event);

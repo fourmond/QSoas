@@ -143,7 +143,7 @@ public:
   void saveParameters(QIODevice * out) const;
 
   /// Load from the given stream
-  void loadParameters(QIODevice * in);
+  void loadParameters(QIODevice * out);
   
 };
 

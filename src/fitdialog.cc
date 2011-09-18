@@ -36,6 +36,8 @@
 
 #include <flowinggridlayout.hh>
 
+#include <utils.hh>
+
 
 
 FitParameterEditor::FitParameterEditor(const ParameterDefinition * d, 
@@ -397,6 +399,23 @@ void FitDialog::pushCurrentCurve()
 
 void FitDialog::saveSimulatedCurves()
 {
+  QList<DataSet *> newDs;
+  QStringList fileNames;
+  for(int i = 0; i < views.size(); i++) {
+    DataSet * ds = simulatedData(i);
+    newDs << ds;
+    fileNames << ds->name;
+  }
+
+  QString msg = tr("Save all simulated curves as %1 ?").
+    arg(fileNames.join(", "));
+  /// @todo check for overwrite !
+  if(Utils::askConfirmation(msg, tr("Save simulated curves")))
+    for(int i = 0; i < newDs.size(); i++)
+      newDs[i]->write();
+
+  for(int i = 0; i < newDs.size(); i++)
+    delete newDs[i];
 }
 
 void FitDialog::saveParameters()

@@ -254,13 +254,13 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
   for(int i = 0; i < nbcols; i++)
     vects << Vector();
   if(naive) {
-    if(size_a > size_b)
-      throw RuntimeError(QString("Not enough data points in %1 to match those "
-                                 "of %2").arg(b->name).arg(a->name));
     for(int i = 0; i < size_a; i++) {
       vects[0] << xa[i];
+      int si = i;
+      if(i >= size_b)
+        si = size_b - 1;        // Pad with last value
       for(int k = 1; k < nbcols; k++)
-        vects[k] << op(a->columns[k][i], b->columns[k][i]);
+        vects[k] << op(a->columns[k][i], b->columns[k][si]);
     }
   }
   else {

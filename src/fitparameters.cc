@@ -213,6 +213,11 @@ void FitParameters::loadParameters(QIODevice * source)
       }
       
       if(ds > 0) {
+        if(ds >= datasets) {
+          Terminal::out << "Ignoring parameter '" << paramName 
+                        << "' for extra dataset #" << ds << endl;
+          continue;
+        }
         global[idx] = false;    // Sure enough
         values[idx + ds * nbParameters] = value;
         fixed[idx + ds * nbParameters] = fxd;

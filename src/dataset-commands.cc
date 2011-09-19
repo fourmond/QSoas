@@ -415,27 +415,31 @@ zo("zoom", // command name
 //////////////////////////////////////////////////////////////////////
 
 
-static void subCommand(const QString &, DataSet * a, 
+static void subCommand(const QString &, QList<const DataSet *> a, 
                        DataSet * b, const CommandOptions & opts)
 {
   bool naive = false;
   if(opts.contains("mode") && opts["mode"]->value<QString>() == "indices")
     naive = true;
-  Terminal::out << QObject::tr("Subtracting buffer '%1' from buffer '%2'").
-    arg(b->name).arg(a->name) 
-                << (naive ? " (index mode)" : " (xvalues mode)" ) 
-                << endl;
-  soas().pushDataSet(a->subtract(b, naive));
+  for(int i = 0; i < a.size(); i++) {
+    const DataSet * ds = a[i];
+    Terminal::out << QObject::tr("Subtracting buffer '%1' from buffer '%2'").
+      arg(b->name).arg(ds->name) 
+                  << (naive ? " (index mode)" : " (xvalues mode)" ) 
+                  << endl;
+
+    soas().pushDataSet(ds->subtract(b, naive));
+  }
 }
 
 static ArgumentList 
-suba(QList<Argument *>() 
-     << new DataSetArgument("first", 
-                            "Buffer",
-                            "First buffer")
-     << new DataSetArgument("second", 
-                            "Buffer",
-                            "Second buffer"));
+operationArgs(QList<Argument *>() 
+              << new SeveralDataSetArgument("first", 
+                                            "Buffer",
+                                            "First buffer(s)")
+              << new DataSetArgument("second", 
+                                     "Buffer",
+                                     "Second buffer"));
 
 static ArgumentList 
 operationOpts(QList<Argument *>() 
@@ -452,34 +456,38 @@ static Command
 sub("subtract", // command name
     effector(subCommand), // action
     "buffer",  // group name
-    &suba, // arguments
+    &operationArgs, // arguments
     &operationOpts, // options
     "Subtract",
     "Subtract on buffer from another",
-    "Subtract the second buffer from the first",
+    "Subtract the second buffer from the first. "
+    "Works with several 'first' buffers.",
     "S");
 
 //////////////////////////////////////////////////////////////////////
 
 
-static void divCommand(const QString &, DataSet * a, 
+static void divCommand(const QString &, QList<const DataSet *> a,
                        DataSet * b, const CommandOptions & opts)
 {
   bool naive = false;
   if(opts.contains("mode") && opts["mode"]->value<QString>() == "indices")
     naive = true;
-  Terminal::out << QObject::tr("Dividing buffer '%2' by buffer '%1'").
-    arg(b->name).arg(a->name) 
-                << (naive ? " (index mode)" : " (xvalues mode)" ) 
-                << endl;
-  soas().pushDataSet(a->divide(b, naive));
+  for(int i = 0; i < a.size(); i++) {
+    const DataSet * ds = a[i];
+    Terminal::out << QObject::tr("Dividing buffer '%2' by buffer '%1'").
+      arg(b->name).arg(ds->name) 
+                  << (naive ? " (index mode)" : " (xvalues mode)" ) 
+                  << endl;
+    soas().pushDataSet(ds->divide(b, naive));
+  }
 }
 
 static Command 
 divc("div", // command name
      effector(divCommand), // action
      "buffer",  // group name
-     &suba, // arguments
+     &operationArgs, // arguments
      &operationOpts, // options
      "Divide",
      "Divide one buffer by another",

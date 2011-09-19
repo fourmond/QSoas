@@ -84,10 +84,6 @@
 
 
    \section requests Requests
-   \li PP: a mass subtraction command (for baselines) and/or
-   (this could just be a mass-subtract operation)
-   \li PP: a /baseline option to load that subtracts an already loaded
-   buffer on data loading
 
 
 

@@ -23,10 +23,13 @@
 #include <commandwidget.hh>
 #include <dataset.hh>
 
+#include <terminal.hh>
+
 
 CurveEventLoop::CurveEventLoop(CurveView * v) : 
   lastEventType(QEvent::None),
-  k(0), done(false), prompt(NULL)
+  k(0), done(false), prompt(NULL),
+  printingAllowed(true)
 {
   if(! v)
     v = &(soas().view());
@@ -101,6 +104,25 @@ void CurveEventLoop::updateMessage()
 void CurveEventLoop::processKeyEvent(QKeyEvent * event)
 {
   k = event->key();
+
+  if(printingAllowed && k == Qt::Key_Print) {
+    QPrinter p;
+    p.setOrientation(QPrinter::Landscape);
+    QString file;
+    int i = 0;
+    while(true) {
+      file = QString("print-%1.pdf").arg(i);
+      if(! QFile::exists(file))
+        break;
+      i++;
+    }
+    p.setOutputFileName(file);
+    QPainter painter;
+    Terminal::out << "Saving view as PDF file: " << file << endl;
+    painter.begin(&p);
+    view->render(&painter, 500,
+                 p.pageRect());
+  }
 
   /// Convert most usual keys to their ASCII value
   if(event->text().size() == 1) {

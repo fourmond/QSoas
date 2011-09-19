@@ -409,7 +409,6 @@ void CurvePanel::render(QPainter * painter,
                         const QRect & targetRectangle,
                         const QString & title)
 {
-  QTextStream o(stdout);
   QMargins m = panelMargins();
   if(! title.isEmpty())
     m.setTop(m.top() * 2);

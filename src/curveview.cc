@@ -186,9 +186,13 @@ QList<CurvePanel*> CurveView::allPanels()
 
 void CurveView::layOutPanels()
 {
+  layOutPanels(rect());
+}
+
+void CurveView::layOutPanels(const QRect & r)
+{
   /// @todo take out some margins in panel.panelMargins()
   /// and remove them directly here (the frame margins)
-  QRect r = rect();
   int height = rect().height();
   int leftm = 0; 
   int rightm = 0;
@@ -238,6 +242,32 @@ void CurveView::setPaintMarkers(bool enabled)
     }
   }
   doRepaint();
+}
+
+void CurveView::render(QPainter * painter,
+                       int innerHeight, 
+                       const QRect & targetRectangle,
+                       const QString & title)
+{
+
+  QPointF tl = targetRectangle.topLeft();
+  QPointF br = targetRectangle.bottomRight();
+  double scale = innerHeight/(targetRectangle.height()*1.0);
+  br *= scale;
+  tl *= scale;
+
+
+  QRect actual = QRect(QPoint(tl.x(), tl.y()), 
+                       QPoint(br.x(), br.y()));
+  layOutPanels(actual);
+
+  // Do the drawing.
+  panel.paint(painter);
+  for(int i = 0; i < additionalPanels.size(); i++) {
+    additionalPanels[i]->paint(painter);
+  }
+  
+  layOutPanels();
 }
 
 

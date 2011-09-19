@@ -39,10 +39,6 @@
    And other things too:
    \li history save/restore upon exit => probably not...
    \li resampling
-   \li printing of full CurveView (and not only of CurvePanel)
-   \li I will have to find a way to redirect PrintScreen input in
-   CurveEventLoopMode to printing to an automatically numbered PDF
-   file.
    \li definition of new fits based on ruby subclasses of Fit,
    PerDatasetFit and FunctionFit
    \li keyboard shortcuts for navigation in FitDialog: quick goto

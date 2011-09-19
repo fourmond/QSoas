@@ -49,6 +49,9 @@ class CurveView : public QAbstractScrollArea {
   /// Returns a pen for the next curve to be added.
   QPen penForNextCurve();
 
+  /// Layouts out the CurvePanel objects onto the given rectangle
+  void layOutPanels(const QRect & r);
+
   /// Layouts out the CurvePanel objects
   void layOutPanels();
 
@@ -107,6 +110,14 @@ public:
   CurvePanel * mainPanel() {
     return &panel;
   };
+
+  /// Render the view into the given painter.
+  ///
+  /// See CurvePanel::render() for parameters
+  void render(QPainter * painter,
+              int innerPanelHeight, const QRect & targetRectangle,
+              const QString & title = "");
+
 
 public slots:
 

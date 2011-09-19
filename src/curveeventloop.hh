@@ -140,6 +140,11 @@ public:
 
   /// Updates the message in the status bar
   void updateMessage();
+
+  /// Whether printing is allowed (default) or not (in the case you
+  /// choose to redefine the behavior of the print screen key)
+  bool printingAllowed;
+  
 };
 
 #endif

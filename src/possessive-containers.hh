@@ -21,18 +21,32 @@
 #define __POSSESSIVE_CONTAINERS_HH
 
 template <class T> class PossessiveList {
+  void deleteValues() {
+    for(int i = 0; i < values.size(); i++)
+      delete values[i];
+  };
 public:
   QList<T*> values;
 
+  PossessiveList() {;};
   PossessiveList(const QList<T*> & v) : values(v) {;};
 
   ~PossessiveList() {
-    for(int i = 0; i < values.size(); i++)
-      delete values[i];
+    deleteValues();
+  };
+
+  void clear() {
+    deleteValues();
+    values.clear();
   };
 
   operator QList<T*>() const {
     return values;
+  };
+
+  PossessiveList & operator <<(T * a) {
+    values << a;
+    return *this;
   };
 };
 

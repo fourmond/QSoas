@@ -64,6 +64,8 @@ static void reglinCommand(const QString &)
   line.pen = r.pen;        // Change color ? Use a utils function ?
   d.pen = QPen(QColor("red"));
   QPair<double, double> reg;
+  double xleft = ds->x().min();
+  double xright = ds->x().max();
 
 
   loop.setHelpString(QObject::tr("Linear regression:\n"
@@ -81,10 +83,10 @@ static void reglinCommand(const QString &)
       {
         r.setX(loop.position().x(), loop.button());
         reg = ds->reglin(r.xleft, r.xright);
-        double y = reg.first * r.xleft + reg.second;
-        line.p1 = QPointF(r.xleft, y);
-        y = reg.first * r.xright + reg.second;
-        line.p2 = QPointF(r.xright, y);
+        double y = reg.first * xleft + reg.second;
+        line.p1 = QPointF(xleft, y);
+        y = reg.first * xright + reg.second;
+        line.p2 = QPointF(xright, y);
         Terminal::out << reg.first << "\t" << reg.second << endl;
         soas().showMessage(QObject::tr("Regression between X=%1 and X=%2").
                            arg(r.xleft).arg(r.xright));

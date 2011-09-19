@@ -159,6 +159,10 @@ static void reglinCommand(const QString &)
         double rate = reg.first/(reg.second - reg.first*d.xvalues[0]);
         for(int i = 1; i < newy.size(); i++)
           newy[i] /= exp(rate * (d.xvalues[i] - d.xvalues[0]));
+        DataSet * newds = new 
+          DataSet(QList<Vector>() << d.xvalues << newy);
+        newds->name = ds->cleanedName() + "_expdiv.dat";
+        soas().pushDataSet(newds);
         return;
       }
       default:

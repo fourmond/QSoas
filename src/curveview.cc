@@ -36,6 +36,8 @@
 
 #include <exceptions.hh>
 
+
+
 CurveView::CurveView() : 
   eventLoop(NULL), paintMarkers(false),
   repaintDisabled(false)
@@ -244,6 +246,9 @@ void CurveView::setPaintMarkers(bool enabled)
   doRepaint();
 }
 
+/// @todo I need to write a neat static function to print a list of
+/// CurveView objects to a QPrinter, arranging them in a nxm fashion
+/// (shouldn't be too hard !)
 void CurveView::render(QPainter * painter,
                        int innerHeight, 
                        const QRect & targetRectangle,

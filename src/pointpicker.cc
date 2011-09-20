@@ -26,14 +26,22 @@
 
 #include <soas.hh>
 
+/// @todo Should this be a customization item ?
+PointPicker::Method PointPicker::lastMethodUsed = PointPicker::Exact;
+
 PointPicker::PointPicker(CurveEventLoop * l, const DataSet * ds, 
                          CurvePanel * p) :
   loop(l), trackedDataSet(ds), panel(p), 
-  method(Exact),
+  method(lastMethodUsed),
   lastButton(Qt::NoButton),
   trackedButtons(Qt::LeftButton) 
 {
-  loop->ppMessage = "(marker: exact)";
+  loop->ppMessage = pointPickerMessage();
+}
+
+PointPicker::~PointPicker()
+{
+  lastMethodUsed = method;
 }
 
 bool PointPicker::processEvent()
@@ -76,26 +84,36 @@ bool PointPicker::processEvent()
     case 'x':
     case 'X':                   // eXact
       method = Exact;
-      loop->ppMessage = "(marker: exact)";
-      loop->updateMessage();
-      return true;
+      break;
     case 'o':
     case 'O':                   // Off
       method = Off;
-      loop->ppMessage = "(marker: off)";
-      loop->updateMessage();
-      return true;
+      break;
     case 's':
     case 'S':                   // Smooth
       method = Smooth;
-      loop->ppMessage = "(marker: smooth)";
-      loop->updateMessage();
-      return true;
+      break;
     default:
       return false;
     }
+    loop->ppMessage = pointPickerMessage();
+    loop->updateMessage();
+    return true;
   }
   return false;
+}
+
+QString PointPicker::pointPickerMessage() const
+{
+  switch(method) {
+  case Exact: 
+    return "(marker: exact)";
+  case Smooth: 
+    return "(marker: smooth)";
+  case Off: 
+    return "(marker: off)";
+  }
+  return QString();
 }
 
 QString PointPicker::helpText() const 

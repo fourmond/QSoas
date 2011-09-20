@@ -58,9 +58,16 @@ class PointPicker {
   Qt::MouseButton lastButton;
   int lastIndex;
 
+  static Method lastMethodUsed;
+
+  /// Returns the message string appropriate to the current method.
+  QString pointPickerMessage() const;
+
 public:
   PointPicker(CurveEventLoop * l, const DataSet * ds = NULL, 
               CurvePanel * p = NULL);
+
+  ~PointPicker();
 
   /// The buttons that are being followed for this event.
   Qt::MouseButtons trackedButtons;

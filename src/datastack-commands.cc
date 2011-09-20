@@ -42,7 +42,7 @@ static void loadFilesAndDisplay(int nb, QStringList files)
 {
   soas().view().disableUpdates();
   for(int i = 0; i < files.size(); i++) {
-    Terminal::out << "Loading file '" << files[i] << "'" << endl;
+    Terminal::out << "Loading file '" << files[i] << "'";
     try {
       DataSet * s = DataBackend::loadFile(files[i]);
       soas().stack().pushDataSet(s, true); // use the silent version
@@ -51,10 +51,11 @@ static void loadFilesAndDisplay(int nb, QStringList files)
         soas().view().addDataSet(s);
       else
         soas().view().showDataSet(s);
+      Terminal::out << " -- " << s->nbColumns() << " columns" << endl;
       nb++;
     }
     catch (const RuntimeError & e) {
-      Terminal::out << e.message() << endl;
+      Terminal::out << "\n" << e.message() << endl;
     }
   }
   soas().view().enableUpdates();

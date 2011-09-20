@@ -121,6 +121,12 @@ public:
     return columns[1];
   };
 
+  
+  /// Returns the numbered column
+  const Vector & column(int i) const {
+    return columns[i];
+  };
+
   /// Dump the data to standard output.
   ///
   /// @todo This may grow into something interesting later on, but not

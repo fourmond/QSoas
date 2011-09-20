@@ -110,6 +110,37 @@ sort("sort", // command name
      "Sort with ascending X values",
      "");
 
+//////////////////////////////////////////////////////////////////////
+
+static void expandCommand(const QString &)
+{
+  const DataSet * ds = soas().currentDataSet();
+  if(ds->nbColumns() <= 2) {
+    Terminal::out << "No more than 2 columns in '" << ds->name 
+                  << "', nothing to do" << endl;
+    return;
+  }
+  for(int i = 1; i < ds->nbColumns(); i++) {
+    QList<Vector> cols;
+    cols << ds->x();
+    cols << ds->column(i);
+    DataSet * newds = new DataSet(cols);
+    newds->name = ds->cleanedName() + QString("_col_%1.dat").arg(i+1);
+    soas().pushDataSet(newds);
+  }
+}
+
+
+static Command 
+expand("expand", // command name
+     optionLessEffector(expandCommand), // action
+     "buffer",  // group name
+     NULL, // arguments
+     NULL, // options
+     "Expand",
+     "??",
+     "??");
+
 
 //////////////////////////////////////////////////////////////////////
 

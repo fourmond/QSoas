@@ -194,6 +194,9 @@ protected slots:
   /// guess.
   void resetThisToInitialGuess();
 
+  /// Saves all the views as PDF
+  void saveAllPDF();
+
 };
 
 #endif

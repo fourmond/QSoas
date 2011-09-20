@@ -287,7 +287,7 @@ void CurvePanel::paint(QPainter * painter)
     // Here the legend:
     int start = r2.left();
     for(int i = 0; i < displayedItems.size(); i++) {
-      QRect r(start, 3, 40, 12);
+      QRect r(start, r2.top() - 15, 40, 12);
       r = displayedItems[i]->paintLegend(painter, r);
       if(! r.isNull())
         start += r.width() + 3;

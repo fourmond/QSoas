@@ -205,6 +205,10 @@ void FitDialog::setupFrame()
                 SLOT(resetThisToInitialGuess()));
   ac->addAction("Reset all to initial guess !", this, 
                 SLOT(resetAllToInitialGuess()));
+  hb->addWidget(ac);
+
+  ac = new ActionCombo(tr("Print..."));
+  ac->addAction("Save all as PDF", this, SLOT(saveAllPDF()));
 
   hb->addWidget(ac);
   hb->addStretch(1);
@@ -485,4 +489,12 @@ void FitDialog::resetThisToInitialGuess()
   parameters.resetToInitialGuess(currentIndex);
   compute();
   updateEditors();
+}
+
+void FitDialog::saveAllPDF()
+{
+  QPrinter p;
+  p.setOrientation(QPrinter::Landscape);
+  p.setOutputFileName("fits.pdf");
+  CurveView::nupPrint(&p, views, 3, 2);
 }

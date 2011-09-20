@@ -136,9 +136,8 @@ static void printCommand(const QString &,
   }
   QPainter painter;
   painter.begin(&p);
-  soas().view()//.mainPanel()
-    .render(&painter, 500,
-            p.pageRect());
+  soas().view().render(&painter, 500,
+                       p.pageRect());
 }
 
 static Command 

@@ -118,6 +118,16 @@ public:
               int innerPanelHeight, const QRect & targetRectangle,
               const QString & title = "");
 
+  /// Prints the list of CurveView
+  ///
+  /// @todo Add the possibility to add plain text (such as fit
+  /// parameters ?)
+  ///
+  /// @todo Add title...
+  static void nupPrint(QPrinter * printer, 
+                       const QList<CurveView *> &views,
+                       int cols, int rows, int individualHeight = -1);
+
 
 public slots:
 

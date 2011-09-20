@@ -195,7 +195,7 @@ void CurveView::layOutPanels(const QRect & r)
 {
   /// @todo take out some margins in panel.panelMargins()
   /// and remove them directly here (the frame margins)
-  int height = rect().height();
+  int height = r.height();
   int leftm = 0; 
   int rightm = 0;
   QList<CurvePanel *> panels = allPanels();
@@ -226,6 +226,7 @@ void CurveView::layOutPanels(const QRect & r)
     QRect pr = r.adjusted(leftm, top + m.top(), 
                           -rightm, 0);
     pr.setBottom(pr.top() + h);
+
     p->setGeometry(pr);
     top += h + m.bottom();;
   }
@@ -246,33 +247,67 @@ void CurveView::setPaintMarkers(bool enabled)
   doRepaint();
 }
 
-/// @todo I need to write a neat static function to print a list of
-/// CurveView objects to a QPrinter, arranging them in a nxm fashion
-/// (shouldn't be too hard !)
+void CurveView::nupPrint(QPrinter * printer, 
+                         const QList<CurveView *> &views,
+                         int cols, int rows, 
+                         int individualHeight)
+{
+  /// @todo be more clever here
+  if(individualHeight < 0)
+    individualHeight = 400;
+
+  // We divide the page rectangle
+  QRect pageRect = printer->pageRect();
+  int dx = pageRect.width()/cols;
+  int dy = pageRect.height()/rows;
+  
+  QPainter painter;
+  int nb = cols * rows;
+  painter.begin(printer);
+  for(int i = 0; i < views.size(); i++) {
+    if(i && i % nb == 0)
+      printer->newPage();
+    
+    int col = (i % nb) / rows;
+    int row = i % rows;
+    int xl = pageRect.left() + dx * col;
+    int yt = pageRect.top() + dy * row;
+    views[i]->render(&painter, individualHeight,
+                     QRect(xl, yt, dx, dy));
+  }
+}
+
 void CurveView::render(QPainter * painter,
                        int innerHeight, 
                        const QRect & targetRectangle,
-                       const QString & title)
+                       const QString & /*title*/)
 {
+  painter->save();
 
   QPointF tl = targetRectangle.topLeft();
   QPointF br = targetRectangle.bottomRight();
+
   double scale = innerHeight/(targetRectangle.height()*1.0);
+
   br *= scale;
   tl *= scale;
 
 
   QRect actual = QRect(QPoint(tl.x(), tl.y()), 
                        QPoint(br.x(), br.y()));
+
   layOutPanels(actual);
 
+
   // Do the drawing.
-  panel.paint(painter);
-  for(int i = 0; i < additionalPanels.size(); i++) {
-    additionalPanels[i]->paint(painter);
-  }
+  painter->scale(1/scale, 1/scale);
+
+  QList<CurvePanel *> panels = allPanels();
+  for(int i = 0; i < panels.size(); i++)
+    panels[i]->paint(painter);
   
   layOutPanels();
+  painter->restore();
 }
 
 

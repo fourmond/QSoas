@@ -101,7 +101,8 @@ SOURCES += src/qmain.cc \
         src/fitdata.cc \
         src/inactivation-fits.cc \
         src/exceptions.cc \
-        src/file-arguments.cc
+        src/file-arguments.cc \
+        src/linearkineticsystem.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -148,4 +149,5 @@ HEADERS += src/headers.hh \
         src/fitparameters.hh \
         src/fitdata.hh \
         src/exceptions.hh \
-        src/file-arguments.hh
+        src/file-arguments.hh \
+        src/linearkineticsystem.hh

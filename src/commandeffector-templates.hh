@@ -281,9 +281,6 @@ template<class C, class A1> CommandEffector * optionLessEffector(C * cls, void (
 };
 
 /// Optionless callback to member function with two arguments
-///
-/// Rather than using this class directly, use
-/// CommandEffector::functionEffector().
 template<class C, class A1, class A2>
 class CommandEffectorMemberCallback2OptionLess : public CommandEffector {
 
@@ -311,6 +308,40 @@ public:
 /// Effector for an argumentless and optionless command
 template<class C, class A1, class A2> CommandEffector * optionLessEffector(C * cls, void (C::*f)(const QString &, A1, A2)) {
   return new CommandEffectorMemberCallback2OptionLess<C, A1, A2>(cls, f);
+};
+
+
+//////////////////////////////////////////////////////////////////////
+
+/// Optionless callback to member function with two arguments
+template<class C, class A1, class A2, class A3>
+class CommandEffectorMemberCallback3OptionLess : public CommandEffector {
+
+  typedef void (C::*Callback)(const QString &, A1, A2, A3);
+  Callback callback;
+  C * target;
+
+public:
+
+  CommandEffectorMemberCallback3OptionLess(C * t,
+                                           Callback c) : callback(c), 
+                                                         target(t) {;};
+  
+  inline virtual void runCommand(const QString & commandName, 
+                                 const CommandArguments & args,
+                                 const CommandOptions &) {
+    A1 a1 = args[0]->value<A1>();
+    A2 a2 = args[1]->value<A2>();
+    A3 a3 = args[1]->value<A3>();
+    CALL_MEMBER_FN(*target, callback)(commandName, a1, a2, a3);
+  };
+  
+};
+
+
+/// Effector for an argumentless and optionless command
+template<class C, class A1, class A2, class A3> CommandEffector * optionLessEffector(C * cls, void (C::*f)(const QString &, A1, A2, A3)) {
+  return new CommandEffectorMemberCallback3OptionLess<C, A1, A2, A3>(cls, f);
 };
 
 

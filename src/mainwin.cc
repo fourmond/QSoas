@@ -44,7 +44,8 @@
    \li keyboard shortcuts for navigation in FitDialog: quick goto
    label editor, navigation between buffers, shortcuts for export/save
    and so on...
-
+   \li an apply-formula command spanning several datasets (using x[0],
+   x[1] and so on...)
    \li go further with the steps system, ie allow one to add the steps
    in a permanent fashion to a DataSet (including setting the steps
    manually -- or with a user-specified index list), and to use this

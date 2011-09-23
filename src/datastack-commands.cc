@@ -113,9 +113,6 @@ ovl("overlay", // command name
 //////////////////////////////////////////////////////////////////////
 
 
-  
-/// @todo Add a 'drop' command to selectively drop datasets from the
-/// data stack.
 static void saveCommand(const QString &, QString file)
 {
   soas().currentDataSet()->write(file);
@@ -144,6 +141,32 @@ sv("save", // command name
    "Saves the current buffer",
    "Saves the current buffer to a file",
    "s");
+
+//////////////////////////////////////////////////////////////////////
+
+static void saveBuffersCommand(const QString &, 
+                               QList<const DataSet *> datasets)
+{
+  for(int i = 0; i < datasets.size(); i++)
+    datasets[i]->write(datasets[i]->name);
+}
+
+static ArgumentList 
+sBArgs(QList<Argument *>() 
+         << new SeveralDataSetArgument("buffers", 
+                                       "Buffers to save",
+                                       "Buffers to save"));
+
+
+static Command 
+saveBuffers("save-buffers", // command name
+            optionLessEffector(saveBuffersCommand), // action
+            "stack",  // group name
+            &sBArgs, // arguments
+            NULL, // options
+            "Save",
+            "Saves specified buffers",
+            "Saves the designated buffers to file");
 
 //////////////////////////////////////////////////////////////////////
 

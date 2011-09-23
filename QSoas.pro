@@ -102,7 +102,8 @@ SOURCES += src/qmain.cc \
         src/inactivation-fits.cc \
         src/exceptions.cc \
         src/file-arguments.cc \
-        src/linearkineticsystem.cc
+        src/linearkineticsystem.cc \
+        src/simulation-commands.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \

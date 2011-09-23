@@ -76,6 +76,10 @@ public:
   /// Returns in \a target the concentrations of the species at time
   /// t.
   void getConcentrations(double t, gsl_vector * target) const;
+
+  /// Returns a string representation of the kinetic matrix
+  QString kineticMatricText() const;
+  
   
 };
 

@@ -21,6 +21,14 @@
 
 #include <terminal.hh>
 
+#include <soas.hh>
+#include <command.hh>
+#include <group.hh>
+#include <commandeffector-templates.hh>
+#include <general-arguments.hh>
+#include <vector.hh>
+#include <dataset.hh>
+
 
 LinearKineticSystem::LinearKineticSystem(int species) : 
   speciesNumber(species), updateNeeded(true)
@@ -149,3 +157,72 @@ void LinearKineticSystem::getConcentrations(double t,
 }
 
 
+//////////////////////////////////////////////////////////////////////
+
+
+// This command may just be temporary. In any case, it's main purpose
+// is to test the kinetic simulations.
+
+static ArgumentList 
+kSArgs(QList<Argument *>() 
+       << new IntegerArgument("species", 
+                              "Number of species")
+       << new SeveralNumbersArgument("constants", 
+                                     "Kinetic constants")
+       );
+
+static void kineticSystemCommand(const QString &, int specs,
+                                 QList<double> consts)
+{
+  LinearKineticSystem system(specs);
+  QVarLengthArray<double, 30> init(specs);
+  QVarLengthArray<double, 900> constants(specs*specs);
+
+  for(int i = 0; i < specs; i++) {
+    if(i)
+      init[i] = 0;
+    else
+      init[i] = 1;
+  }
+
+  for(int i = 0; i < constants.size(); i++)
+    constants[i] = consts.value(i, 0);
+
+  gsl_vector_view v = gsl_vector_view_array(init.data(), specs);
+  system.setConstants(constants.data());
+  system.setInitialConcentrations(&v.vector);
+
+  // Now, we have all we need;
+  
+  Vector xvals;
+  QVarLengthArray<Vector, 30> values(specs);
+  for(int i = 0; i < 100; i++) {
+    double t = i * 0.1;         // ??
+    xvals << t;
+    system.getConcentrations(t, &v.vector);
+    for(int j = 0; j < specs; j++)
+      values[j] << init[j];
+  }
+  
+
+  {
+    for(int i = 0; i < specs; i++) {
+      QList<Vector> v;
+      v << xvals;
+      v << values[i];
+      DataSet * ds = new DataSet(v);
+      ds->name = QString("simulations_species_%1.dat").arg(i);
+      soas().pushDataSet(ds);
+    }
+  }
+}
+
+static Command 
+p("kinetic-system", // command name
+  optionLessEffector(kineticSystemCommand), // action
+  "file",  // group name
+  &kSArgs, // arguments
+  NULL, // options
+  "Kinetic system simulations",
+  "...",
+  "...");

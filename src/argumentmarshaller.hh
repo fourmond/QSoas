@@ -67,5 +67,13 @@ template<typename T> void updateFromOptions(const CommandOptions & opts,
     value = opts[option]->value<T>();
 };
 
+template<typename T> bool testOption(const CommandOptions & opts,
+                                     const QString & option,
+                                     T value) {
+  if(opts.contains(option) && value == opts[option]->value<T>())
+    return true;
+  return false;
+};
+
 
 #endif

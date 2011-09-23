@@ -149,8 +149,7 @@ static void chopCommand(const QString &, QList<double> values,
 {
   const DataSet * ds = soas().currentDataSet();
   QList<DataSet *> splitted;
-  if(opts.contains("mode") && 
-     opts["mode"]->value<QString>() == "index") {
+  if(testOption<QString>(opts, "mode", "index")) {
     QList<int> split;
     for(int i = 0; i < values.size(); i++)
       split << values[i];
@@ -449,9 +448,8 @@ zo("zoom", // command name
 static void subCommand(const QString &, QList<const DataSet *> a, 
                        DataSet * b, const CommandOptions & opts)
 {
-  bool naive = false;
-  if(opts.contains("mode") && opts["mode"]->value<QString>() == "indices")
-    naive = true;
+  bool naive = testOption<QString>(opts, "mode", "indices");
+
   for(int i = 0; i < a.size(); i++) {
     const DataSet * ds = a[i];
     Terminal::out << QObject::tr("Subtracting buffer '%1' from buffer '%2'").
@@ -501,9 +499,8 @@ sub("subtract", // command name
 static void divCommand(const QString &, QList<const DataSet *> a,
                        DataSet * b, const CommandOptions & opts)
 {
-  bool naive = false;
-  if(opts.contains("mode") && opts["mode"]->value<QString>() == "indices")
-    naive = true;
+  bool naive = testOption<QString>(opts, "mode", "indices");
+
   for(int i = 0; i < a.size(); i++) {
     const DataSet * ds = a[i];
     Terminal::out << QObject::tr("Dividing buffer '%2' by buffer '%1'").

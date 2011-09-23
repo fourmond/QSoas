@@ -284,8 +284,7 @@ runArgs(QList<Argument *>()
 static void runCommand(const QString &, QString cmdfile, 
                        const CommandOptions &opts)
 {
-  if(opts.contains("silent") && 
-     opts["silent"]->value<QString>() == "yes") {
+  if(testOption<QString>(opts, "silent", "yes")) {
     QTextStream o(stdout);
     o << "Running in silent mode" << endl;
     soas().view().disableUpdates();

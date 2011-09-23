@@ -503,11 +503,9 @@ static void findStepsCommand(const QString &, const CommandOptions & opts)
 {
   double thresh = 0.1;
   int nb = 10;
-  if(opts.contains("average"))
-    nb = opts["average"]->value<double>();
 
-  if(opts.contains("threshold"))
-    thresh = opts["threshold"]->value<double>();
+  updateFromOptions(opts, "average", nb);
+  updateFromOptions(opts, "threshold", thresh);
 
   const DataSet * ds = soas().currentDataSet();
   QList<int> steps = ds->findSteps(nb, thresh);
@@ -526,7 +524,7 @@ static void findStepsCommand(const QString &, const CommandOptions & opts)
 
 static ArgumentList 
 fsOps(QList<Argument *>() 
-      << new NumberArgument("average", 
+      << new IntegerArgument("average", 
                             "Average over",
                             "Average over that many points")
       << new NumberArgument("threshold", 

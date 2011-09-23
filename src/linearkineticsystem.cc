@@ -139,6 +139,9 @@ void LinearKineticSystem::getConcentrations(double t,
     gsl_vector_complex_set(storage1, i, 
                            gsl_complex_exp(gsl_vector_complex_get(storage1, i)));
 
+  // Dont forget to multiply by the coordinates !
+  gsl_vector_complex_mul(storage1, coordinates);
+
   // Switch back to concentrations
 
   gsl_complex c2;
@@ -159,6 +162,11 @@ void LinearKineticSystem::getConcentrations(double t,
 
 //////////////////////////////////////////////////////////////////////
 
+
+
+static Group simulations("simulations", 10,
+                         "Simulations",
+                         "Commands producing simulated data");
 
 // This command may just be temporary. In any case, it's main purpose
 // is to test the kinetic simulations.
@@ -217,12 +225,13 @@ static void kineticSystemCommand(const QString &, int specs,
   }
 }
 
+/// @todo this should join a proper "simulations" group
 static Command 
 p("kinetic-system", // command name
   optionLessEffector(kineticSystemCommand), // action
-  "file",  // group name
+  "simulations",  // group name
   &kSArgs, // arguments
   NULL, // options
-  "Kinetic system simulations",
-  "...",
+  "Linear kinetic system",
+  "Computes the concentration of species of a linear kinetic system",
   "...");

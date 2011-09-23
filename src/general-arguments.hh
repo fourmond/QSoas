@@ -132,5 +132,37 @@ public:
 
 };
 
+/// A integer
+class IntegerArgument : public Argument {
+public:
+
+  IntegerArgument(const char * cn, const char * pn,
+                 const char * d = "") : Argument(cn, pn, d) {
+  }; 
+  
+  /// Returns a wrapped double
+  virtual ArgumentMarshaller * fromString(const QString & str) const;
+
+  /// Prompting uses QInputDialog.
+  virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
+};
+
+/// Several integers
+class SeveralIntegersArgument : public Argument {
+public:
+
+  SeveralIntegersArgument(const char * cn, const char * pn,
+                         const char * d = "", bool sl = true) : 
+    Argument(cn, pn, d, sl) {
+  }; 
+  
+  /// Returns a wrapped QList<double>
+  virtual ArgumentMarshaller * fromString(const QString & str) const;
+
+  virtual void concatenateArguments(ArgumentMarshaller * a, 
+                                    const ArgumentMarshaller * b) const;
+
+};
+
 
 #endif

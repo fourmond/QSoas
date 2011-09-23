@@ -173,14 +173,16 @@ ArgumentMarshaller * NumberArgument::promptForValue(QWidget * base) const
 
 ArgumentMarshaller * SeveralNumbersArgument::fromString(const QString & str) const
 {
-  bool ok;
-  double v = str.toDouble(&ok);
-  if(! ok)
-    throw RuntimeError(QObject::tr("Not a number: '%1'").
-                       arg(str));
-
+  QStringList strs = str.split(QRegExp("\\s*,\\s*"));
   QList<double> l;
-  l << v;
+  for(int i = 0; i < strs.size(); i++) {
+    bool ok;
+    double v = strs[i].toDouble(&ok);
+    if(! ok)
+      throw RuntimeError(QObject::tr("Not a number: '%1'").
+                         arg(str));
+    l << v;
+  }
   return new ArgumentMarshallerChild< QList<double> >(l);
 }
 
@@ -189,4 +191,52 @@ void SeveralNumbersArgument::concatenateArguments(ArgumentMarshaller * a,
 {
   a->value<QList<double> >() += 
     b->value<QList<double> >();
+}
+
+////////////////////////////////////////////////////////////
+
+
+ArgumentMarshaller * IntegerArgument::fromString(const QString & str) const
+{
+  bool ok;
+  int v = str.toInt(&ok);
+  if(! ok)
+    throw RuntimeError(QObject::tr("Not a integer: '%1'").
+                       arg(str));
+  return new ArgumentMarshallerChild<int>(v);
+}
+
+ArgumentMarshaller * IntegerArgument::promptForValue(QWidget * base) const
+{
+  bool ok = false;
+  QString str = 
+    QInputDialog::getText(base, argumentName(), description(),
+                          QLineEdit::Normal, QString(), &ok);
+  if(! ok)
+    throw RuntimeError("Aborted"); 
+  return fromString(str);
+}
+
+////////////////////////////////////////////////////////////
+
+ArgumentMarshaller * SeveralIntegersArgument::fromString(const QString & str) const
+{
+  QStringList strs = str.split(QRegExp("\\s*,\\s*"));
+  QList<int> l;
+  for(int i = 0; i < strs.size(); i++) {
+    bool ok;
+    int v = strs[i].toInt(&ok);
+    if(! ok)
+      throw RuntimeError(QObject::tr("Not a number: '%1'").
+                         arg(str));
+    l << v;
+  }
+  return new ArgumentMarshallerChild< QList<int> >(l);
+}
+
+void SeveralIntegersArgument::concatenateArguments(ArgumentMarshaller * a, 
+                                                  const ArgumentMarshaller * b) const
+{
+  a->value<QList<int> >() += 
+    b->value<QList<int> >();
 }

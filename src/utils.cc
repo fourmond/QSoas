@@ -128,3 +128,37 @@ void Utils::open(QFile * file, QIODevice::OpenMode mode)
                        arg(mdStr).arg(file->errorString()));
   }
 }
+
+QString Utils::matrixString(const gsl_matrix * matrix)
+{
+  QString ret;
+  for(size_t i = 0; i < matrix->size1; i++) {
+    QStringList lst;
+    for(size_t j = 0; j < matrix->size2; j++)
+      lst << QString::number(gsl_matrix_get(matrix, i, j));
+    ret += lst.join("\t") + "\n";
+  }
+  return ret;
+}
+
+QString Utils::matrixString(const gsl_matrix_complex * matrix)
+{
+  QString ret;
+  for(size_t i = 0; i < matrix->size1; i++) {
+    gsl_vector_complex_const_view v = 
+      gsl_matrix_complex_const_row(matrix, i);
+    ret += Utils::vectorString(&v.vector) + "\n";
+  }
+  return ret;
+}
+
+QString Utils::vectorString(const gsl_vector_complex * vector)
+{
+  QStringList lst;
+  for(size_t i = 0; i < vector->size; i++) {
+    gsl_complex c = gsl_vector_complex_get(vector, i);
+    lst << QString("%1 + %2i").arg(GSL_REAL(c)).
+      arg(GSL_IMAG(c));
+  }
+  return lst.join("\t");
+}

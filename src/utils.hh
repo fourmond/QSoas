@@ -84,6 +84,12 @@ namespace Utils {
   /// Opens the given file with the target mode, raising a
   /// RuntimeError if that couldn't happen for some reason.
   void open(QFile * file, QIODevice::OpenMode mode);
+
+  /// Converts the given matrix to a string
+  QString matrixString(const gsl_matrix * matrix);
+  QString matrixString(const gsl_matrix_complex * matrix);
+
+  QString vectorString(const gsl_vector_complex * vect);
 };
 
 #endif

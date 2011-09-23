@@ -21,6 +21,8 @@
 
 #include <terminal.hh>
 
+#include <utils.hh>
+
 #include <soas.hh>
 #include <command.hh>
 #include <group.hh>
@@ -88,8 +90,14 @@ static void kineticSystemCommand(const QString &, int specs,
   gsl_vector_view v = gsl_vector_view_array(init.data(), specs);
   system.setConstants(constants.data());
   Terminal::out << "Kinetic matrix is: \n"
-                << system.kineticMatricText() << endl;
+                << Utils::matrixString(system.kineticMatrixValue()) << endl;
   system.setInitialConcentrations(&v.vector);
+
+  Terminal::out << "Eigenvectors are: \n"
+                << Utils::matrixString(system.eigenVectorsValue()) << endl;
+
+  Terminal::out << "Eigenvalues are: \n"
+                << Utils::vectorString(system.eigenValuesVector()) << endl;
 
   // Now, we have all we need;
   

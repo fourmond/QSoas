@@ -150,17 +150,3 @@ void LinearKineticSystem::getConcentrations(double t,
   }
   
 }
-
-/// @todo This function should only give access to the matrix, and I
-/// should write a Utils function to display it.
-QString LinearKineticSystem::kineticMatricText() const
-{
-  QString ret;
-  for(int i = 0; i < speciesNumber; i++) {
-    QStringList lst;
-    for(int j = 0; j < speciesNumber; j++)
-      lst << QString::number(gsl_matrix_get(kineticMatrix, i, j));
-    ret += lst.join("\t") + "\n";
-  }
-  return ret;
-}

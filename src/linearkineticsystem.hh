@@ -77,8 +77,25 @@ public:
   /// t.
   void getConcentrations(double t, gsl_vector * target) const;
 
-  /// Returns a string representation of the kinetic matrix
-  QString kineticMatricText() const;
+  /// Returns the kinetic matrix
+  const gsl_matrix * kineticMatrixValue() const {
+    return kineticMatrix;
+  };
+
+  /// Returns the kinetic matrix
+  const gsl_matrix_complex * eigenVectorsValue() const {
+    return eigenVectors;
+  };
+
+  /// Returns the kinetic matrix
+  const gsl_vector_complex * eigenValuesVector() const {
+    return eigenValues;
+  };
+
+  /// Returns the coordinates
+  const gsl_vector_complex * coordinateVector() const {
+    return coordinates;
+  };
   
   
 };

@@ -48,12 +48,32 @@ kSArgs(QList<Argument *>()
                                      "Kinetic constants")
        );
 
+static ArgumentList 
+kSOpts(QList<Argument *>() 
+       << new IntegerArgument("samples", 
+                              "Number of data points")
+       << new StringArgument("base-name", 
+                             "Base name for dataset")
+       << new NumberArgument("duration", 
+                             "Duration of the simulation")
+       );
+
 static void kineticSystemCommand(const QString &, int specs,
-                                 QList<double> consts)
+                                 QList<double> consts,
+                                 const CommandOptions & opts)
 {
   LinearKineticSystem system(specs);
   QVarLengthArray<double, 30> init(specs);
   QVarLengthArray<double, 900> constants(specs*specs);
+
+  int nbSamples = 1000;
+  updateFromOptions(opts, "samples", nbSamples);
+
+  double tend = 10;
+  updateFromOptions(opts, "duration", tend);
+
+  QString base = "simulation";
+  updateFromOptions(opts, "base-name", base);
 
   for(int i = 0; i < specs; i++) {
     if(i)
@@ -74,39 +94,50 @@ static void kineticSystemCommand(const QString &, int specs,
   // Now, we have all we need;
   
   Vector xvals;
+  Vector sum;
   QVarLengthArray<Vector, 30> values(specs);
-  for(int i = 0; i < 100; i++) {
-    double t = i * 0.1;         // ??
+
+  for(int i = 0; i < nbSamples; i++) {
+    double t = i * tend/(nbSamples - 1);
     xvals << t;
     system.getConcentrations(t, &v.vector);
     for(int j = 0; j < specs; j++)
       values[j] << init[j];
   }
-  
+
 
   {
     for(int i = 0; i < specs; i++) {
       QList<Vector> v;
-      v << xvals;
-      v << values[i];
+      if(! i)
+        sum = values[i];
+      else
+        sum += values[i];
+      v << xvals << values[i];
       DataSet * ds = new DataSet(v);
-      ds->name = QString("simulations_species_%1.dat").arg(i);
+      ds->name = QString("%1_species_%2.dat").arg(base).arg(i);
       soas().stack().pushDataSet(ds, true); 
       if(i > 0)
         soas().view().addDataSet(ds);
       else
         soas().view().showDataSet(ds);
     }
+    QList<Vector> v;
+    v << xvals << sum;
+    DataSet * ds = new DataSet(v);
+    ds->name = QString("%1_species_sum.dat").arg(base);
+    soas().stack().pushDataSet(ds, true); 
+    soas().view().addDataSet(ds);
   }
 }
 
 /// @todo this should join a proper "simulations" group
 static Command 
 p("kinetic-system", // command name
-  optionLessEffector(kineticSystemCommand), // action
+  effector(kineticSystemCommand), // action
   "simulations",  // group name
   &kSArgs, // arguments
-  NULL, // options
+  &kSOpts, // options
   "Linear kinetic system",
   "Computes the concentration of species of a linear kinetic system",
   "...");

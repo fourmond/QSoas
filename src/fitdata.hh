@@ -21,9 +21,8 @@
 #ifndef __FITDATA_HH
 #define __FITDATA_HH
 
-/// A parameter, once it's in use. A list of that can be used to
-/// convert GSL parameters to dataset-specific parameter values.
-class ActualParameter {
+/// Base class for effective parameters
+class FitParameter {
 public:
   /// The index of the parameters from within the Fit::parameters()
   /// return value.
@@ -31,6 +30,14 @@ public:
 
   /// The index of the dataset (-1) for global parameters.
   int dsIndex;
+
+  FitParameter(int p, int ds) : paramIndex(p), dsIndex(ds) {;};
+};
+
+/// A parameter, once it's in use. A list of that can be used to
+/// convert GSL parameters to dataset-specific parameter values.
+class ActualParameter : public FitParameter {
+public:
 
   /// The factor used for derivation (when that applies)
   double derivationFactor;
@@ -39,26 +46,27 @@ public:
   double minDerivationStep;
 
   ActualParameter(int p, int ds, double dev = 1e-4) :
-    paramIndex(p), dsIndex(ds), derivationFactor(dev), 
+    FitParameter(p, ds), derivationFactor(dev), 
     minDerivationStep(1e-8) {;};
 };
 
 /// A fixed parameter, ie a parameter whose value is fixed, and
 /// hence isn't part of the gsl_vector of parameters.
-class FixedParameter {
+class FixedParameter : public FitParameter{
 public:
-  /// The index of the parameters from within the Fit::parameters()
-  /// return value.
-  int paramIndex;
-
-  /// The index of the dataset (-1) for global parameters.
-  int dsIndex;
-
   /// The actual value
   double value;
 
-  FixedParameter(int id, int ds, double v) : 
-    paramIndex(id), dsIndex(ds), value(v) {;};
+  FixedParameter(int p, int ds, double v) :  :
+    FitParameter(p, ds), value(v) {;};
+};
+
+/// A parameter that depends on the other ones through a formula (a
+/// piece of Ruby code)
+class FormulaParameter : public FitParameter {
+public:
+  /// The formula
+  QString formula;
 };
 
 class Fit;  

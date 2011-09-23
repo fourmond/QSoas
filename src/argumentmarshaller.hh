@@ -59,4 +59,13 @@ template<typename T> T & ArgumentMarshaller::value() {
 typedef QList<ArgumentMarshaller *> CommandArguments;
 typedef QHash<QString, ArgumentMarshaller *> CommandOptions;
 
+
+template<typename T> void updateFromOptions(const CommandOptions & opts,
+                                            const QString & option,
+                                            T & value) {
+  if(opts.contains(option))
+    value = opts[option]->value<T>();
+};
+
+
 #endif

@@ -22,6 +22,16 @@
 #include <dataset.hh>
 #include <vector.hh>
 
+#include <terminal.hh>
+#include <commandeffector-templates.hh>
+#include <general-arguments.hh>
+#include <soas.hh>
+
+#include <fitdata.hh>
+#include <fitdialog.hh>
+
+#include <linearkineticsystem.hh>
+
 
 /// Three steps:
 /// \li one step at E0, from a fully active enzyme (with film loss)
@@ -190,3 +200,399 @@ public:
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
 // Its name doesn't matter.
 InactRev2SeqFit inact_rev_2seq;
+
+
+
+// //////////////////////////////////////////////////////////////////////
+
+
+/// @todo KineticSystemFit should be rewritten almost from scratch
+/// using LinearKineticSystem.
+
+// /// This fit gives the possibility to fit something proportionnal to a
+// /// concentration of a species (\todo linear combination of the
+// /// species) in a kinetic system where the value of the kinetic
+// /// parameters varies in a stepwise fashion.
+// class KineticSystemFit : public PerDatasetFit {
+
+//   /// The number of steps with distinct kinetic parameters.
+//   int distinctSteps;
+
+//   /// A list describing assigning to each step a set of kinetic
+//   /// values.
+//   QList<int> steps;
+
+//   /// The number of distinct species (excluding those which are only
+//   /// being produced irreversibly)
+//   int speciesNumber;
+
+//   void runFitCurrentDataSet(const QString & n, int species, QList<int> stps)
+//   {
+//     QList<const DataSet *> ds;
+//     ds << soas().currentDataSet();
+//     runFit(n, species, stps, ds);
+//   }
+
+//   void runFit(const QString &, int species, QList<int> stps, QList<const DataSet *> datasets)
+//   {
+//     speciesNumber = species;
+//     steps = stps;
+//     distinctSteps = 0;
+//     for(int i = 0; i < steps.size(); i++)
+//       if(distinctSteps < steps[i])
+//         distinctSteps = steps[i];
+//     distinctSteps++;            // To get the actual number ! 
+
+//     Terminal::out << "Fit with " << speciesNumber << " species over " 
+//                   << steps.size() << " steps, spanning " 
+//                   << distinctSteps << " conditions" << endl;
+
+//     {
+//       FitData data(this, datasets);
+//       FitDialog dlg(&data);
+//       dlg.exec();
+//     }
+//   }
+
+    
+// public:
+
+//   virtual QList<ParameterDefinition> parameters() const {
+//     QList<ParameterDefinition> defs;
+    
+//     // First, step-based information, ie, only times
+//     for(int i = 0; i < steps.size() - 1; i++)
+//       defs << ParameterDefinition(QString("x_%1").arg(QChar('a' + i)), true);
+
+
+//     /// Then the initial concentration of species:
+//     for(int j = 0; j < speciesNumber; j++)
+//       defs << ParameterDefinition(QString("A%1_init").arg(j), true);
+
+//     // Now, the kinetic information.
+//     for(int i = 0; i < distinctSteps; i++) {
+
+//       /// Current of the active form
+//       defs << ParameterDefinition(QString("I_%1").arg(i));
+      
+//       // Global film loss on the step
+//       defs << ParameterDefinition(QString("kloss_%1").arg(i));
+
+//       // Kinetic parameters:
+//       for(int j = 0; j < speciesNumber; j++) {
+//         for(int k = 0;  k < speciesNumber; k++) {
+//           QString param;
+//           if(j == k) // external loss
+//             param = QString("k_%1_%2").arg(j).arg(i);
+//           else
+//             param = QString("k_%1%2_%3").arg(j).arg(k).arg(i);
+//           defs << ParameterDefinition(param);
+//         }
+//       }
+//     }
+    
+//     return defs;
+//   };
+
+
+//   virtual void function(const double * a,
+//                         FitData * /*data*/,
+//                         const DataSet * ds,
+//                         gsl_vector * target)
+//   {
+//     const Vector & x = ds->x();
+
+//     gsl_vector_complex * species = gsl_vector_complex_alloc(speciesNumber);
+//     gsl_vector_complex * amplitudes = gsl_vector_complex_alloc(speciesNumber);
+
+
+//     QVarLengthArray<gsl_vector_complex *, 30> eigenValues(distinctSteps);
+//     QVarLengthArray<gsl_matrix *, 30> kineticMatrices(distinctSteps);
+//     QVarLengthArray<gsl_matrix_complex *, 30> amplitudes2Species(distinctSteps);
+
+//     /// LU decomposition of the amplitudes2Species stuff.
+//     QVarLengthArray<gsl_matrix_complex *, 30> a2SLU(distinctSteps);
+//     QVarLengthArray<gsl_permutation *, 30> a2Sperm(distinctSteps);
+
+//     int currentStep = -1;
+
+//     gsl_eigen_nonsymmv_workspace * workspace = 
+//       gsl_eigen_nonsymmv_alloc(speciesNumber);
+
+
+
+//     // Diagonalisation of the matrices.
+//     for(int i = 0; i < distinctSteps; i++) {
+//       kineticMatrices[i] = gsl_matrix_alloc(speciesNumber, speciesNumber);
+//       eigenValues[i] = gsl_vector_complex_alloc(speciesNumber);
+
+//       amplitudes2Species[i] = 
+//         gsl_matrix_complex_alloc(speciesNumber, speciesNumber);
+//       a2SLU[i] = gsl_matrix_complex_alloc(speciesNumber, speciesNumber);
+//       a2Sperm[i] = gsl_permutation_alloc(speciesNumber);
+
+//       int paramsPerStep = speciesNumber * speciesNumber + 2; 
+//       /// (2 for kloss and I)
+
+
+      
+
+//       for(int j = 0; j < speciesNumber; j++) {
+//         double sum = 0;
+//         for(int k = 0; k < speciesNumber; k++) {
+//           double val = a[steps.size() + paramsPerStep * i + 2 +
+//                          j * speciesNumber + k];
+//           if(k == j)
+//             val += a[steps.size() + paramsPerStep * i + 1]; // kloss
+
+//           sum += val;
+//           gsl_matrix_set(kineticMatrices[i], j, k, val);
+//         }
+//         gsl_matrix_set(kineticMatrices[i], j, j, -sum); // Should work ?
+//       }
+      
+//       // Now, we diagonalize the matrix
+//       //
+//       // We use a temporary complex matrix.
+//       gsl_eigen_nonsymmv_params(0, workspace);
+//       int status = gsl_eigen_nonsymmv(kineticMatrices[i],
+//                                       eigenValues[i],  
+//                                       amplitudes2Species[i], 
+//                                       workspace);
+
+//       /// @todo We need the 
+//       if(status != GSL_SUCCESS) {
+//         Terminal::out << "Failed to diagonalize matrix for conditions #" 
+//                       << i << endl;
+//         return;
+//       }
+      
+//       gsl_matrix_complex_memcpy(a2SLU[i], amplitudes2Species[i]);
+//       int sig;
+//       gsl_linalg_complex_LU_decomp(a2SLU[i], a2Sperm[i], &sig);
+      
+//     }
+//     gsl_eigen_nonsymmv_free(workspace);
+    
+
+//     for(int i = 0; i < x.size(); i++) {
+      
+      
+//     }
+
+
+//     gsl_vector_complex_free(species);
+//     gsl_vector_complex_free(amplitudes);
+//     for(int i = 0; i < distinctSteps; i++) {
+//       gsl_vector_complex_free(eigenValues[i]);
+//       gsl_matrix_free(kineticMatrices[i]);
+//       gsl_matrix_complex_free(amplitudes2Species[i]);
+//       gsl_matrix_complex_free(a2SLU[i]);
+//       gsl_permutation_free(a2Sperm[i]);
+//     }
+//   };
+
+//   virtual void initialGuess(FitData * params, 
+//                             const DataSet *,
+//                             double * a)
+//   {
+//     for(int i = 0; i < params->parameterDefinitions.size(); i++)
+//       a[i] = 1;
+//   };
+
+
+//   KineticSystemFit() : PerDatasetFit("kinetic-system", 
+//                                      "Kinetic system fit",
+//                                      "", 1, -1, false) 
+//   { 
+//     ArgumentList * al = new 
+//       ArgumentList(QList<Argument *>()
+//                    << new IntegerArgument("species", 
+//                                           "Number of species",
+//                                           "Number of interconnected species")
+//                    << new 
+//                    SeveralIntegersArgument("steps", 
+//                                            "Steps",
+//                                            "Step list with numbered conditions"));
+                   
+
+//     makeCommands(al, 
+//                  optionLessEffector(this, 
+//                                     &KineticSystemFit::runFitCurrentDataSet),
+//                  optionLessEffector(this, 
+//                                     &KineticSystemFit::runFit));
+//   };
+// };
+
+// static KineticSystemFit arbFit;
+
+
+//////////////////////////////////////////////////////////////////////
+
+
+
+/// This fit fits three datasets at the same time, representing two
+/// phases of reactivation (fast, then slow) and a lost phase as a
+/// function of the time of exposition to a tri-state inactivation
+/// process.
+class ReactivationAmplitudeFit : public Fit {
+
+public:
+  virtual QList<ParameterDefinition> parameters() const {
+    QList<ParameterDefinition> defs;
+
+    // Kinetic parameters for inactivation:
+    for(int j = 0; j < 3; j++) {
+      for(int k = 0;  k < 3; k++) {
+        QString param;
+        if(j == k) // external loss
+          param = QString("k_i_%1").arg(j);
+        else
+          param = QString("k_i_%1%2").arg(j).arg(k);
+        defs << ParameterDefinition(param, false, false);
+      }
+    }
+    
+    // Kinetic parameters for reactivation (way too overdefined
+    for(int j = 0; j < 3; j++) {
+      for(int k = 0;  k < 3; k++) {
+        QString param;
+        if(j == k) // external loss
+          continue;           // No loss !
+        else
+          param = QString("k_r_%1%2").arg(j).arg(k);
+        defs << ParameterDefinition(param, false, false);
+      }
+    }
+    return defs;
+  };
+
+
+  /// Redefined to wrap to a call to the per-dataset function
+  virtual void function(const double * a,
+                        FitData * data, gsl_vector * target)
+  {
+    LinearKineticSystem inact(3);
+    LinearKineticSystem react(3);
+
+
+    /// Initial constants are fine
+    inact.setConstants(a);
+
+    QVector<double> kmr(9, 0);
+
+    int s = 9;
+    for(int j = 0; j < 3; j++) {
+      for(int k = 0;  k < 3; k++) {
+        if(j == k) // external loss
+          continue;           // No loss !
+        else {
+          kmr[j * 3 + k] = a[s];
+          s++;
+        }
+      }
+    }
+
+    react.setConstants(kmr.data());
+
+    QTextStream o(stdout);
+    o << "Inactivation matrix:\n"
+      << Utils::matrixString(inact.kineticMatrixValue()) << endl;
+
+    double concentrations[3] = {1,0,0};
+    gsl_vector_view cv = gsl_vector_view_array(concentrations, 3);
+
+    inact.setInitialConcentrations(&cv.vector);
+
+    o << "Reactivation matrix:\n"
+      << Utils::matrixString(react.kineticMatrixValue()) 
+      << endl;
+
+    // This assumes that the X values are identical over all
+    // datatsets.
+
+    gsl_vector_view fast_v = data->viewForDataset(0, target);
+    gsl_vector_view slow_v = data->viewForDataset(1, target);
+    gsl_vector_view dead_v = data->viewForDataset(2, target);
+
+    const Vector & xvals = data->datasets.first()->x();
+
+    // The side effect of that is simply to compute the
+    // eigenvalues/eigenvectors
+    react.setInitialConcentrations(&cv.vector);
+
+    // We decide which is the slow phase and which is the fast one.
+    int fast = -1;
+    double kfast = 0;
+    int slow = -1;
+    for(int i = 0; i < 3; i++) {
+      double v = GSL_REAL(gsl_vector_complex_get(react.eigenValuesVector(), i));
+      if(v < 0) {
+        if(fast < 0) {
+          fast = i;
+          kfast = v;
+        }
+        else {
+          if(v < kfast) {
+            slow = fast;
+            fast = i;
+          }
+          else
+            slow = i;
+        }
+      }
+    }
+
+    for(int i = 0; i < xvals.size(); i++) {
+
+      // We first get the concentrations at the time t
+      inact.getConcentrations(xvals[i], &cv.vector);
+
+      // This can be used to set the dead phase
+      double s = 0;
+      for(int j = 0; j < 3; j++)
+        s += concentrations[j];
+
+      gsl_vector_set(&dead_v.vector, i, 1 - s);
+      
+      // Now, we get all the phases:
+      react.setInitialConcentrations(&cv.vector);
+      
+      gsl_complex c = gsl_vector_complex_get(react.coordinateVector(), fast);
+      c = gsl_complex_mul(c, 
+                          gsl_matrix_complex_get(react.
+                                                 eigenVectorsValue(), 
+                                                 0, fast));
+
+      gsl_vector_set(&fast_v.vector, i, - s * GSL_REAL(c));
+
+      
+      c = gsl_vector_complex_get(react.coordinateVector(), slow);
+      c = gsl_complex_mul(c, 
+                          gsl_matrix_complex_get(react.
+                                                 eigenVectorsValue(), 
+                                                 0, slow));
+
+
+      gsl_vector_set(&slow_v.vector, i, - s * GSL_REAL(c));
+    }
+  };
+
+  /// Redefined to wrap to a call to the per-dataset function
+  virtual void initialGuess(FitData * data, double * a)
+  {
+    for(int i = 0; i < data->parameterDefinitions.size(); i++)
+      a[i] = 1;
+  };
+
+
+  ReactivationAmplitudeFit() : 
+    Fit("inact-react-amplitude-2phases", 
+        "...",
+        "...", 3, 3) 
+  { ;};
+
+
+};
+
+static ReactivationAmplitudeFit react;

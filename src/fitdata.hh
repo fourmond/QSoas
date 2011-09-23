@@ -39,7 +39,8 @@ public:
   double minDerivationStep;
 
   ActualParameter(int p, int ds, double dev = 1e-4) :
-    paramIndex(p), dsIndex(ds), derivationFactor(dev) {;};
+    paramIndex(p), dsIndex(ds), derivationFactor(dev), 
+    minDerivationStep(1e-8) {;};
 };
 
 /// A fixed parameter, ie a parameter whose value is fixed, and
@@ -67,19 +68,19 @@ class ParameterDefinition;
 /// Fit data. This data will be carried around using the void *
 /// argument to the function calls.
 ///
-/// @todo I'm unsure where the code should go, but the fit mechanism
-/// should have a way to detect when all the parameters are
-/// buffer-specific, which means that instead of running a full-scale
-/// fit, one could just run separate fits for each and every buffer.
-///
-/// That wouldn't be that simple, though, as one needs to keep track
-/// seperately of each buffer in the iteration process.
+/// This class is in charge of converting the fit parameters from the
+/// fit algorithm point of view (ie, only ActualParameter) to the Fit
+/// point of view (ie ParameterDefinition).
 class FitData {
 
   static int staticF(const gsl_vector * x, void * params, gsl_vector * f);
   static int staticDf(const gsl_vector * x, void * params, gsl_matrix * df);
   static int staticFdf(const gsl_vector * x, void * params, gsl_vector * f,
                        gsl_matrix * df);
+
+  int f(const gsl_vector * x, gsl_vector * f);
+  int df(const gsl_vector * x, gsl_matrix * df);
+  int fdf(const gsl_vector * x, gsl_vector * f, gsl_matrix * df);
 
   int totalSize;
 
@@ -88,6 +89,11 @@ class FitData {
   /// This list is full with several FitData, one for each dataset to
   /// perform independant fitting when indendentDataSets returns true.
   QList<FitData*> subordinates;
+
+  /// Returns the index of the packed parameter idx in the unpacked
+  /// version.
+  int packedToUnpackedIndex(int idx) const;
+
 
 public:
   /// The fit in use
@@ -151,10 +157,6 @@ public:
 
   /// Subtracts the (Y) data from the target vector;
   void subtractData(gsl_vector * target);
-
-  /// Returns the index of the packed parameter idx in the unpacked
-  /// version.
-  int packedToUnpackedIndex(int idx) const;
 
   /// Gets the current parameters (in unpacked form)
   void unpackCurrentParameters(double * target);

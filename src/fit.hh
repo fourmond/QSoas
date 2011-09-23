@@ -84,26 +84,15 @@ public:
     return name;
   };  
 
-  /// The parameters
-  virtual QList<ParameterDefinition> parameters() const = 0;
-
-  /// @name Inner computations
+  /// @name Public interface
   ///
-  /// These functions compute the residuals of the fit, or the
-  /// jacobian matrix.
-  ///
-  /// The function computing the residuals.
+  /// Most of these functions need to be reimplemented by subclasses.
   ///
   /// @{
-  virtual int f(const gsl_vector * parameters, 
-                FitData * data, gsl_vector * target_f);
 
-  virtual int df(const gsl_vector * parameters, 
-                 FitData * data, gsl_matrix * target_J);
-
-  virtual int fdf(const gsl_vector * parameters, 
-                  FitData * data, gsl_vector * f, 
-                  gsl_matrix * target_J);
+  /// The parameters
+  virtual QList<ParameterDefinition> parameters() const = 0;
+  
 
   /// Computes the function (ie in the absence of the residuals)
   ///

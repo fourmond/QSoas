@@ -63,20 +63,88 @@ FitData::~FitData()
 int FitData::staticF(const gsl_vector * x, void * params, gsl_vector * f)
 {
   FitData * data = reinterpret_cast<FitData *>(params);
-  return data->fit->f(x, data, f);
+  return data->f(x, f);
 }
 
 int FitData::staticDf(const gsl_vector * x, void * params, gsl_matrix * df)
 {
   FitData * data = reinterpret_cast<FitData *>(params);
-  return data->fit->df(x, data, df);
+  return data->df(x, df);
 }
 
 int FitData::staticFdf(const gsl_vector * x, void * params, gsl_vector * f,
                        gsl_matrix * df)
 {
   FitData * data = reinterpret_cast<FitData *>(params);
-  return data->fit->fdf(x, data, f, df);
+  return data->fdf(x, f, df);
+}
+
+int FitData::f(const gsl_vector * x, gsl_vector * f)
+{
+  QVarLengthArray<double, 1024> params(fullParameterNumber());
+  unpackParameters(x, params.data());
+
+  // First, compute the value in place
+  fit->function(params.data(), this, f);
+  // Then, subtract data.
+  subtractData(f);
+  /// @todo Data weighting ?
+
+  return GSL_SUCCESS;
+}
+
+
+int FitData::df(const gsl_vector * x, gsl_matrix * df)
+{
+  int nbparams = parameters.size();
+  if(x->size != nbparams)
+    throw InternalError("Size mismatch between GSL parameters "
+                        "and FitData data");
+
+  QVarLengthArray<double, 1024> gslParams(nbparams);
+  QVarLengthArray<double, 1024> unpackedParams(fullParameterNumber());
+
+  gsl_vector_view v = gsl_vector_view_array(gslParams.data(), nbparams);
+
+
+  gsl_vector_memcpy(&v.vector, x);
+  unpackParameters(&v.vector, unpackedParams.data());
+
+  
+  /// First, compute the common value, and store it in... the storage
+  /// place.
+  fit->function(unpackedParams.data(), this, storage);
+
+  /// Hmmm...
+  for(int i = 0; i < nbparams; i++) {
+    const ActualParameter & param = parameters[i];
+    double value = gslParams[i];
+    double step = param.derivationFactor * value;
+    if(fabs(step) < param.minDerivationStep)
+      step = param.minDerivationStep;
+
+    gslParams[i] += step;
+    unpackParameters(&v.vector, unpackedParams.data());
+    
+    gsl_vector_view col = gsl_matrix_column(df, i);
+
+    /// @todo turn back on the optimization with functionForDataSet if
+    /// I find the time and motivation (though improvement isn't that
+    /// great)
+    fit->function(unpackedParams.data(), this, &col.vector);
+
+    gsl_vector_sub(&col.vector, storage);
+    gsl_vector_scale(&col.vector, 1/step);
+    gslParams[i] = value;
+  }
+  return GSL_SUCCESS;
+}
+
+int FitData::fdf(const gsl_vector * x, gsl_vector * f, gsl_matrix * df)
+{
+  this->f(x, f);
+  this->df(x, df);
+  return GSL_SUCCESS;
 }
 
 int FitData::packedToUnpackedIndex(int i) const
@@ -126,6 +194,8 @@ void FitData::unpackParameters(const gsl_vector * packed,
         unpacked[param.paramIndex + j * nb_ds_params] = param.value;
     }
   }
+
+  /// @todo add here relations between parameters.
 }
 
 gsl_vector_view FitData::viewForDataset(int ds, gsl_vector * vect)

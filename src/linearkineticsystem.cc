@@ -67,6 +67,7 @@ void LinearKineticSystem::setConstants(const double * values,
     }
     gsl_matrix_set(kineticMatrix, j, j, -sum); // Should work ?
   }
+  gsl_matrix_transpose(kineticMatrix); // Yep !
   updateNeeded = true;
 }
 

@@ -44,6 +44,12 @@
    \li keyboard shortcuts for navigation in FitDialog: quick goto
    label editor, navigation between buffers, shortcuts for export/save
    and so on...
+
+   \li go further with the steps system, ie allow one to add the steps
+   in a permanent fashion to a DataSet (including setting the steps
+   manually -- or with a user-specified index list), and to use this
+   information to perform steps-aware subtractions/divisions (padding
+   with last values/first values ?)
    
 
    I need to setup a neat data browser to replace the old browse

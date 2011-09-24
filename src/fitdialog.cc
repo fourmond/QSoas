@@ -41,7 +41,9 @@
 
 
 FitParameterEditor::FitParameterEditor(const ParameterDefinition * d, 
-                                       int idx) : index(idx), def(d)
+                                       int idx, int totalDS, 
+                                       int totalParams) : 
+  index(idx), def(d)
 {
   QHBoxLayout * layout = new QHBoxLayout(this);
   layout->addWidget(new QLabel(QString("<b>%1: </b>").arg(def->name)), 1);
@@ -51,17 +53,35 @@ FitParameterEditor::FitParameterEditor(const ParameterDefinition * d,
   layout->addWidget(editor);
 
   QSize sz = editor->minimumSizeHint();
-  sz.setWidth(7*sz.width());
+  sz.setWidth(6*sz.width());
   editor->setMinimumSize(sz);
-
-  global = new QCheckBox(tr("(global)"));
-  connect(global, SIGNAL(clicked(bool)), SLOT(onGlobalClicked()));
-  layout->addWidget(global);
 
   fixed = new QCheckBox(tr("(fixed)"));
   connect(fixed, SIGNAL(clicked(bool)), SLOT(onFixedClicked()));
   layout->addWidget(fixed);
+  fixed->setToolTip(tr("If checked, the parameter is fixed"));
 
+
+  global = new QCheckBox(tr("(global)"));
+  connect(global, SIGNAL(clicked(bool)), SLOT(onGlobalClicked()));
+  layout->addWidget(global);
+  global->setToolTip(tr("If checked, the parameter is "
+                        "common to all data sets"));
+  
+  if(! d->canBeBufferSpecific) {
+    global->setChecked(true);
+    global->setEnabled(false);
+  }
+
+  if(totalDS <= 1)
+    global->setVisible(false);
+
+  if(totalParams >= 10) {
+    global->setText("(G)");
+    fixed->setText("(F)");
+    sz.setWidth(5*sz.width()/6);
+    editor->setMinimumSize(sz);
+  }
 
 }
   
@@ -171,10 +191,12 @@ void FitDialog::setupFrame()
 
   layout->addLayout(hb);
 
+  int nbParams = data->parameterDefinitions.size();
   FlowingGridLayout * inner = new FlowingGridLayout();
-  for(int i = 0; i < data->parameterDefinitions.size(); i++) {
+  for(int i = 0; i < nbParams; i++) {
     FitParameterEditor * ed = 
-      new FitParameterEditor(&data->parameterDefinitions[i], i);
+      new FitParameterEditor(&data->parameterDefinitions[i], i,
+                             data->datasets.size(), nbParams);
     inner->addWidget(ed);
     editors.append(ed);
     connect(ed, SIGNAL(fixedChanged(int, bool)), SLOT(onSetFixed(int)));

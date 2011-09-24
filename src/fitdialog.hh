@@ -46,7 +46,8 @@ class FitParameterEditor : public QWidget {
   QCheckBox * fixed;
 
 public:
-  FitParameterEditor(const ParameterDefinition * d, int idx);
+  FitParameterEditor(const ParameterDefinition * d, int idx, 
+                     int totalDatasets, int totalParams);
 
   /// Set the editor values.
   void setValues(double value, bool fixed, bool global);

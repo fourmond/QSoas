@@ -57,7 +57,7 @@ public:
   /// The actual value
   double value;
 
-  FixedParameter(int p, int ds, double v) :  :
+  FixedParameter(int p, int ds, double v)  :
     FitParameter(p, ds), value(v) {;};
 };
 

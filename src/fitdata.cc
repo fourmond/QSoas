@@ -29,6 +29,35 @@
 
 #include <fitdialog.hh>
 
+#include <ruby.hh>
+
+FormulaParameter::FormulaParameter(int p, int ds, const QString & f) :
+  FitParameter(p, ds), formula(f), block(Qnil)
+{
+  
+}
+
+void FormulaParameter::makeBlock()
+{
+  block = Ruby::run<QStringList *, 
+                    const QByteArray &>(&Ruby::makeBlock, 
+                                        &dependencies, formula.toLocal8Bit());
+}
+
+double FormulaParameter::compute(const double * unpacked) const
+{
+  int np = depsIndex.size();
+  VALUE args[np];
+  for(int i = 0; i < np; i++)
+    args[i] = rb_float_new(unpacked[depsIndex[i]]);
+  return NUM2DBL(Ruby::run(&rb_funcall2, block, 
+                           rb_intern("call"), np, 
+                           (const VALUE *) args));
+
+}
+
+
+
 FitData::FitData(Fit * f, const QList<const DataSet *> & ds) : 
   totalSize(0),
   fit(f), datasets(ds),
@@ -165,6 +194,14 @@ void FitData::packParameters(const double * unpacked,
     gsl_vector_set(packed, i, unpacked[packedToUnpackedIndex(i)]);
 }
 
+int FitData::namedParameter(const QString & name) const
+{
+  for(int i = 0; i < parameterDefinitions.size(); i++)
+    if(parameterDefinitions[i].name == name)
+      return i;
+  return -1;
+}
+
 /// @todo This function seriously lacks validation
 void FitData::unpackParameters(const gsl_vector * packed, 
                                double * unpacked) const
@@ -195,7 +232,19 @@ void FitData::unpackParameters(const gsl_vector * packed,
     }
   }
 
-  /// @todo add here relations between parameters.
+  for(int i = 0; i < formulaParameters.size(); i++) {
+    const FormulaParameter & param = formulaParameters[i];
+    if(param.dsIndex >= 0) {
+      unpacked[param.paramIndex + param.dsIndex * nb_ds_params] = 
+        param.compute(unpacked + param.dsIndex * nb_ds_params);
+    }
+    else {
+      for(int j = 0; j < nb_datasets; j++)
+        unpacked[param.paramIndex + j * nb_ds_params] = 
+          param.compute(unpacked + j * nb_ds_params);
+    }
+  }
+
 }
 
 gsl_vector_view FitData::viewForDataset(int ds, gsl_vector * vect)
@@ -224,6 +273,28 @@ void FitData::initializeSolver(const double * initialGuess)
 {
   nbIterations = 0;
   freeSolver();
+
+  // We update the fixed parameters computation, if needs arises
+
+  /// @todo Handle interdependencies !
+  for(int i = 0; i < formulaParameters.size(); i++) {
+    FormulaParameter & param = formulaParameters[i];
+    if(param.block == Qnil) {
+      // We make the block
+      param.makeBlock();
+
+      param.depsIndex.clear();
+      for(int j = 0; j < param.dependencies.size(); j++) {
+        int idx = namedParameter(param.dependencies[j]);
+        if(idx < 0)
+          throw RuntimeError(QString("In definition of parameter %1: "
+                                     "'%2' isn't a parameter name !").
+                             arg(parameterDefinitions[param.paramIndex].name).
+                             arg(param.dependencies[j]));
+        param.depsIndex << idx;
+      }
+    }
+  }
 
   if(independentDataSets()) {
     for(int i = 0; i < datasets.size(); i++) {

@@ -35,6 +35,9 @@ namespace Ruby {
   VALUE eval(QByteArray code);
 
   /// Makes a block from this code using the given variables.
+  ///
+  /// The \a variables gets updated with the actual variables that
+  /// were necessary to compile the block
   VALUE makeBlock(QStringList * variables, const QByteArray & code);
 
   /// The main object.

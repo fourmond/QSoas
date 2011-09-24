@@ -67,6 +67,25 @@ class FormulaParameter : public FitParameter {
 public:
   /// The formula
   QString formula;
+
+  /// The parameter dependencies (to ensure they are computed in the
+  /// correct order). It is also the argument list to the block
+  QStringList dependencies;
+
+  /// The same thing as dependencies, but with their index (in the
+  /// parametersDefinition)
+  QVector<int> depsIndex;
+
+  /// The Ruby block, obtained using Ruby::makeBlock;
+  VALUE block;
+
+  void makeBlock();
+
+  /// Compute the value of the parameter, given an already unpacked
+  /// parameters set.
+  double compute(const double * unpacked) const;
+
+  FormulaParameter(int p, int ds, const QString & formula);
 };
 
 class Fit;  
@@ -102,6 +121,10 @@ class FitData {
   /// version.
   int packedToUnpackedIndex(int idx) const;
 
+  /// Returns the index of the ParameterDefinition with the given
+  /// name.
+  int namedParameter(const QString & name) const;
+
 
 public:
   /// The fit in use
@@ -115,6 +138,9 @@ public:
 
   /// Fixed parameters
   QList<FixedParameter> fixedParameters;
+
+  /// Parameters fixed using a formula
+  QList<FormulaParameter> formulaParameters;
 
   /// A cache for the parameters description. It \b must be the same
   /// as what Fit::parameters() return.
@@ -139,7 +165,7 @@ public:
 
   /// Creates the solver, and initializes it with the correct
   /// parameters, based one the contents of parameterDefinitions and
-  /// the like.
+  /// parameters.
   void initializeSolver(const double * initialGuess);
 
   /// Iterates the solver, and returns the return code

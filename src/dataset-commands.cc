@@ -545,3 +545,41 @@ shiftx("shiftx", // command name
        "Shift X values",
        "Shift X values so that x[0] = 0",
        "Shift X values so that x[0] = 0");
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void statsCommand(const QString &, const CommandOptions & opts)
+{
+  DataSet * ds = soas().currentDataSet();
+  updateFromOptions(opts, "buffer", ds);
+
+  const Vector &x = ds->x();
+  const Vector &y = ds->y();
+
+  Terminal::out << "Statistics on buffer: " << ds->name << ":\n" 
+                << "x[0] = " << x.first() << "\tx[" << x.size() - 1
+                << "] = " << x.last() << "\n"
+                << "x_min = " << x.min() << "\tx_max = " << x.max() << "\n"
+                << "y[0] = " << y.first() << "\ty[" << y.size() - 1
+                << "] = " << y.last() << "\n"
+                << "y_min = " << y.min() << "\ty_max = " << y.max() 
+                << endl;
+}
+
+static ArgumentList 
+statsO(QList<Argument *>() 
+       << new DataSetArgument("buffer", 
+                              "Buffer",
+                              "An alternative buffer to get information on"));
+
+
+static Command 
+stats("stats", // command name
+      effector(statsCommand), // action
+      "buffer",  // group name
+      NULL, // arguments
+      &statsO, // options
+      "Statistics",
+      "Statistics",
+      "...");

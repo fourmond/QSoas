@@ -181,8 +181,7 @@ void FitDialog::setupFrame()
   connect(bufferSelection, SIGNAL(currentIndexChanged(int)),
           SLOT(dataSetChanged(int)));
   
-  bufferNumber = new QLabel(QString("%1/%2").
-                            arg(1).arg(data->datasets.size()));
+  bufferNumber = new QLabel();
   hb->addWidget(bufferNumber);
 
   bt = new QPushButton(tr("->"));
@@ -254,6 +253,7 @@ void FitDialog::setupFrame()
   hb->addWidget(bt);
 
   layout->addLayout(hb);
+  dataSetChanged(0);
 }
 
 
@@ -269,6 +269,7 @@ void FitDialog::dataSetChanged(int newds)
   stackedViews->setCurrentIndex(newds);
   currentIndex = newds;
   updateEditors();
+  /// @todo annotation !
   bufferNumber->setText(QString("%1/%2").
                         arg(newds + 1).arg(data->datasets.size()));
 }

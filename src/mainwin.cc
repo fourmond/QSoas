@@ -51,6 +51,11 @@
    manually -- or with a user-specified index list), and to use this
    information to perform steps-aware subtractions/divisions (padding
    with last values/first values ?)
+
+   Fits:
+   \li annotate buffers
+   \li option to pass certain parameters in the form of logarithms
+   (this could be done at the FitData level ?)
    
 
    I need to setup a neat data browser to replace the old browse

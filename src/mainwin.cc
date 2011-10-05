@@ -56,6 +56,19 @@
    \li annotate buffers
    \li option to pass certain parameters in the form of logarithms
    (this could be done at the FitData level ?)
+
+   Generally speaking, I should setup a whole way to transform
+   parameters. We have two parameter space: one natural parameter
+   space in which the problem is written. A fit parameter space, which
+   is is general a subset of the natural parameters (with provisions
+   made to factor out the fixed and/or common parameters). I think
+   this could be extended greatly:
+
+   \li FitData or FitParameters could provide generic transformations
+   (use the logarithm of the natural parameter as fit parameter, for
+   instance). This would also provide a way to generally restrict the
+   parameter space, by using for instance a hyperbolic tangent
+   transform or something like that.
    
 
    I need to setup a neat data browser to replace the old browse

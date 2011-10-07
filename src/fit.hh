@@ -122,6 +122,14 @@ public:
   /// Default implementation returns 0.
   virtual int parametersCheck(const double * parameters,
                               FitData * data);
+
+
+  /// Returns a string meant for the user to understand what is the
+  /// specific role of the given dataset.
+  ///
+  /// Of course, this function only make sense for fits that treat
+  /// buffers differently.
+  virtual QString annotateDataSet(int idx) const;
   /// @}
 
   /// Prepares an initial guess for all parameters. The \a guess array

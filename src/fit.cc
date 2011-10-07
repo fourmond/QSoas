@@ -106,6 +106,10 @@ void Fit::makeCommands(ArgumentList * args,
 void Fit::runFitCurrentDataSet(const QString & n)
 {
   QList<const DataSet *> ds;
+  /// @todo Implement correctly the "minimumDataSet thing". The trick
+  /// is to implement it only once, and not in every single complex
+  /// fit.
+  // for(int i = 0; i < 
   ds << soas().currentDataSet();
   runFit(n, ds);
 }
@@ -120,4 +124,10 @@ void Fit::runFit(const QString &, QList<const DataSet *> datasets)
 
 Fit::~Fit()
 {
+}
+
+
+QString Fit::annotateDataSet(int idx) const
+{
+  return QString();
 }

@@ -69,6 +69,22 @@
    instance). This would also provide a way to generally restrict the
    parameter space, by using for instance a hyperbolic tangent
    transform or something like that.
+
+   For that, I need a better abstraction for the fit parameters as
+   there is now. I should come up with a design that:
+
+   \li interface between GSL fit parameters, and the parameters as
+   seen from Fit children (though FitData::unpackParameters) \li
+   provide classes for handling normal, fixed, global, formula-based,
+   constrained parameters...
+   \li use a single parameter list using all those classes (ideas:
+   functions to tell if the parameter belongs or not into the GSL fit
+   parameters, and a way to unpack the parameters, possibly with
+   dependencies)
+   \li provide a decent editor for a single parameter (which means
+   handling the fact that we are dealing with derived classes ? - and
+   potential problems when switching from buffer-local to global
+   parameters...)
    
 
    I need to setup a neat data browser to replace the old browse

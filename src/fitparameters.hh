@@ -45,6 +45,10 @@ class FitParameters {
   /// Parameter values (same size as fixed)
   double * values;
 
+  /// Formulas. Non-empty string means that the corresponding
+  /// parameter should be handled by a formula
+  QString * formulas;
+
   /// The number of parameters for each dataset in the "unpacked" data
   int nbParameters;
 

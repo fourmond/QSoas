@@ -53,7 +53,8 @@ void Fit::functionForDataset(const double * parameters,
 
 void Fit::makeCommands(ArgumentList * args, 
                        CommandEffector * singleFit,
-                       CommandEffector * multiFit)
+                       CommandEffector * multiFit,
+                       ArgumentList * options)
 {
 
   QByteArray pn = "Fit: ";
@@ -71,7 +72,7 @@ void Fit::makeCommands(ArgumentList * args,
   new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
               singleFit ? singleFit : 
               optionLessEffector(this, &Fit::runFitCurrentDataSet),
-              "fits", fal, NULL, pn, sd, ld);
+              "fits", fal, options, pn, sd, ld);
   
   ArgumentList * al = NULL;
   if(args) {
@@ -98,7 +99,7 @@ void Fit::makeCommands(ArgumentList * args,
   new Command((const char*)(QString("mfit-") + name).toLocal8Bit(),
               multiFit ? multiFit : 
               optionLessEffector(this, &Fit::runFit),
-              "fits", al, NULL, pn, sd, ld);
+              "fits", al, options, pn, sd, ld);
 }
 
 

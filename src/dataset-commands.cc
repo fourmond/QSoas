@@ -141,6 +141,32 @@ expand("expand", // command name
      "??",
      "??");
 
+//////////////////////////////////////////////////////////////////////
+
+static void renameCommand(const QString &, QString name)
+{
+  DataSet * ds = soas().currentDataSet();
+  ds->name = name;
+  soas().view().repaint();
+}
+
+static ArgumentList 
+renameA(QList<Argument *>() 
+        << new StringArgument("new-name", 
+                              "New name",
+                              "New name "));
+
+
+static Command 
+renameCmd("rename", // command name
+          optionLessEffector(renameCommand), // action
+          "buffer",  // group name
+          &renameA, // arguments
+          NULL, // options
+          "Rename",
+          "??",
+          "??");
+
 
 //////////////////////////////////////////////////////////////////////
 

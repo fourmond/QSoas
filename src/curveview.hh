@@ -85,10 +85,6 @@ class CurveView : public QAbstractScrollArea {
   /// since repaint is disabled
   bool repaintRequested;
 
-  void repaint() {
-    doRepaint();
-  };
-
 public:
 
   CurveView();
@@ -127,6 +123,11 @@ public:
   static void nupPrint(QPrinter * printer, 
                        const QList<CurveView *> &views,
                        int cols, int rows, int individualHeight = -1);
+
+  /// Forces a repaint of the CurveView
+  void repaint() {
+    doRepaint();
+  };
 
 
 public slots:

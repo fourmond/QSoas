@@ -1,5 +1,5 @@
 /*
-  curveview.cc: displaying 2D curves...
+  curvepanel.cc: displaying 2D curves...
   Copyright 2011 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
@@ -221,6 +221,7 @@ void CurvePanel::paint(QPainter * painter)
   painter->drawRect(r2);
 
   // Now drawing tick labels
+
   if(drawingXTicks) {
     int bot = r2.bottom();
     for(int i = 0; i < xTicks.size(); i++) {
@@ -248,11 +249,20 @@ void CurvePanel::paint(QPainter * painter)
       
   }
 
+  /// @todo I handle drawing tick labels with a common factor, but it
+  /// would be interesting as well in some cases to extract an offset.
+  ///
+  /// @todo In real, I need a whole lot of functions to handle ticks
+  /// position and tick label choice. Those should get factored for
+  /// both X and Y ticks
+
   if(drawingYTicks) {
     QString realYLabel = yLabel;
     double fact = 1;
-    if(yTicksFactor < 0.1 || yTicksFactor > 1e3) {
-      fact = 1/yTicksFactor;
+    double magnitude = std::max(fabs(yTicks.min()), fabs(yTicks.max()));
+    double yf = pow(10, 3*floor(log10(magnitude)/3));
+    if(yf < 0.1 || yf >= 1e3) {
+      fact = 1/yf;
       realYLabel += QString(" (%1 %2)").
         arg(QChar(0xD7)
             // "scale:"

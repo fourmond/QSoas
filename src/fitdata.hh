@@ -31,12 +31,25 @@ public:
   /// The index of the dataset (-1) for global parameters.
   int dsIndex;
 
-  FitParameter(int p, int ds) : paramIndex(p), dsIndex(ds) {;};
+  /// The index of the parameter in the fit vector (-1 if not part of
+  /// the fit vector)
+  int fitIndex;
+
+  FitParameter(int p, int ds) : paramIndex(p), dsIndex(ds), 
+                                fitIndex(-1) {;};
+
+  /// Sets the target parameters (natural parameters) from the fit
+  /// parameters (the GSL vector).
+  virtual void copyToUnpacked(double * target, const gsl_vector * fit, 
+                             int nbdatasets, int nb_per_dataset) const = 0;
+
+  /// Whether or not the parameter is fixed
+  virtual bool fixed() { return false;};
 };
 
 /// A parameter, once it's in use. A list of that can be used to
 /// convert GSL parameters to dataset-specific parameter values.
-class ActualParameter : public FitParameter {
+class FreeParameter : public FitParameter {
 public:
 
   /// The factor used for derivation (when that applies)
@@ -45,26 +58,25 @@ public:
   /// The minimum step used for derivation
   double minDerivationStep;
 
-  ActualParameter(int p, int ds, double dev = 1e-4) :
+  virtual void copyToUnpacked(double * target, const gsl_vector * fit, 
+                             int nbdatasets, int nb_per_dataset) const;
+
+  
+  FreeParameter(int p, int ds, double dev = 1e-4) :
     FitParameter(p, ds), derivationFactor(dev), 
     minDerivationStep(1e-8) {;};
 };
 
 /// A fixed parameter, ie a parameter whose value is fixed, and
 /// hence isn't part of the gsl_vector of parameters.
-class FixedParameter : public FitParameter{
+///
+/// It can also be fixed by a formula; this is the case if formula
+/// isn't empty.
+class FixedParameter : public FitParameter {
 public:
   /// The actual value
   double value;
 
-  FixedParameter(int p, int ds, double v)  :
-    FitParameter(p, ds), value(v) {;};
-};
-
-/// A parameter that depends on the other ones through a formula (a
-/// piece of Ruby code)
-class FormulaParameter : public FitParameter {
-public:
   /// The formula
   QString formula;
 
@@ -79,13 +91,23 @@ public:
   /// The Ruby block, obtained using Ruby::makeBlock;
   VALUE block;
 
+  virtual void copyToUnpacked(double * target, const gsl_vector * fit, 
+                             int nbdatasets, int nb_per_dataset) const;
+
+
+
+  virtual bool fixed() { return true;};
+
+  FixedParameter(int p, int ds, double v)  :
+    FitParameter(p, ds), value(v), block(Qnil) {;};
+
+private:
   void makeBlock();
 
   /// Compute the value of the parameter, given an already unpacked
   /// parameters set.
   double compute(const double * unpacked) const;
 
-  FormulaParameter(int p, int ds, const QString & formula);
 };
 
 class Fit;  
@@ -134,13 +156,10 @@ public:
   QList<const DataSet *> datasets;
 
   /// Adjustable parameters
-  QList<ActualParameter> parameters;
+  QList<FreeParameter> parameters;
 
   /// Fixed parameters
   QList<FixedParameter> fixedParameters;
-
-  /// Parameters fixed using a formula
-  QList<FormulaParameter> formulaParameters;
 
   /// A cache for the parameters description. It \b must be the same
   /// as what Fit::parameters() return.

@@ -31,20 +31,40 @@
 
 #include <ruby.hh>
 
-FormulaParameter::FormulaParameter(int p, int ds, const QString & f) :
-  FitParameter(p, ds), formula(f), block(Qnil)
+void FreeParameter::copyToUnpacked(double * target, const gsl_vector * fit, 
+                                  int nb_datasets, int nb_per_dataset) const
 {
-  
+  /// @todo check that fitIndex is positive
+  double value = gsl_vector_get(fit, fitIndex);
+  if(dsIndex >= 0)
+    target[paramIndex + dsIndex * nb_per_dataset] = value;
+  else
+    for(int j = 0; j < nb_datasets; j++)
+      target[paramIndex + j * nb_per_dataset] = value;
 }
 
-void FormulaParameter::makeBlock()
+void FixedParameter::copyToUnpacked(double * target, const gsl_vector * fit, 
+                                   int nb_datasets, int nb_per_dataset) const
+{
+  /// @todo Formula-based stuff
+  if(dsIndex >= 0)
+    target[paramIndex + dsIndex * nb_per_dataset] = value;
+  else
+    for(int j = 0; j < nb_datasets; j++)
+      target[paramIndex + j * nb_per_dataset] = value;
+}
+
+
+
+
+void FixedParameter::makeBlock()
 {
   block = Ruby::run<QStringList *, 
                     const QByteArray &>(&Ruby::makeBlock, 
                                         &dependencies, formula.toLocal8Bit());
 }
 
-double FormulaParameter::compute(const double * unpacked) const
+double FixedParameter::compute(const double * unpacked) const
 {
   int np = depsIndex.size();
   VALUE args[np];
@@ -56,6 +76,8 @@ double FormulaParameter::compute(const double * unpacked) const
 
 }
 
+
+//////////////////////////////////////////////////////////////////////
 
 
 FitData::FitData(Fit * f, const QList<const DataSet *> & ds) : 
@@ -146,7 +168,7 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
 
   /// Hmmm...
   for(int i = 0; i < nbparams; i++) {
-    const ActualParameter & param = parameters[i];
+    const FreeParameter & param = parameters[i];
     double value = gslParams[i];
     double step = param.derivationFactor * value;
     if(fabs(step) < param.minDerivationStep)
@@ -180,7 +202,7 @@ int FitData::packedToUnpackedIndex(int i) const
 {
   // the number of parameters per dataset
   int nb_ds_params = parameterDefinitions.size();
-  const ActualParameter & param = parameters[i];
+  const FreeParameter & param = parameters[i];
   int idx = (param.dsIndex < 0 ? 
              param.paramIndex : 
              param.paramIndex + nb_ds_params * param.dsIndex);
@@ -210,41 +232,16 @@ void FitData::unpackParameters(const gsl_vector * packed,
   int nb_ds_params = parameterDefinitions.size();
   int nb_datasets = datasets.size();
 
-  for(int i = 0; i < parameters.size(); i++) {
-    const ActualParameter & param = parameters[i];
-    double value = gsl_vector_get(packed, i);
-    if(param.dsIndex >= 0)
-      unpacked[param.paramIndex + param.dsIndex * nb_ds_params] = value;
-    else {
-      for(int j = 0; j < nb_datasets; j++)
-        unpacked[param.paramIndex + j * nb_ds_params] = value;
-    }
-  }
+  
 
-  // Now, fixed parameters.
-  for(int i = 0; i < fixedParameters.size(); i++) {
-    const FixedParameter & param = fixedParameters[i];
-    if(param.dsIndex >= 0)
-      unpacked[param.paramIndex + param.dsIndex * nb_ds_params] = param.value;
-    else {
-      for(int j = 0; j < nb_datasets; j++)
-        unpacked[param.paramIndex + j * nb_ds_params] = param.value;
-    }
-  }
+  for(int i = 0; i < parameters.size(); i++)
+    parameters[i].copyToUnpacked(unpacked, packed, 
+                                 nb_datasets, nb_ds_params);
 
-  for(int i = 0; i < formulaParameters.size(); i++) {
-    const FormulaParameter & param = formulaParameters[i];
-    if(param.dsIndex >= 0) {
-      unpacked[param.paramIndex + param.dsIndex * nb_ds_params] = 
-        param.compute(unpacked + param.dsIndex * nb_ds_params);
-    }
-    else {
-      for(int j = 0; j < nb_datasets; j++)
-        unpacked[param.paramIndex + j * nb_ds_params] = 
-          param.compute(unpacked + j * nb_ds_params);
-    }
-  }
-
+  /// @todo Make a second pass (for formula parameters)
+  for(int i = 0; i < fixedParameters.size(); i++)
+    fixedParameters[i].copyToUnpacked(unpacked, packed, 
+                                      nb_datasets, nb_ds_params);
 }
 
 gsl_vector_view FitData::viewForDataset(int ds, gsl_vector * vect)
@@ -274,27 +271,31 @@ void FitData::initializeSolver(const double * initialGuess)
   nbIterations = 0;
   freeSolver();
 
+  // Update the free parameters index
+  for(int i = 0; i < parameters.size(); i++)
+    parameters[i].fitIndex = i;
+
   // We update the fixed parameters computation, if needs arises
 
   /// @todo Handle interdependencies !
-  for(int i = 0; i < formulaParameters.size(); i++) {
-    FormulaParameter & param = formulaParameters[i];
-    if(param.block == Qnil) {
-      // We make the block
-      param.makeBlock();
+  // for(int i = 0; i < formulaParameters.size(); i++) {
+  //   FormulaParameter & param = formulaParameters[i];
+  //   if(param.block == Qnil) {
+  //     // We make the block
+  //     param.makeBlock();
 
-      param.depsIndex.clear();
-      for(int j = 0; j < param.dependencies.size(); j++) {
-        int idx = namedParameter(param.dependencies[j]);
-        if(idx < 0)
-          throw RuntimeError(QString("In definition of parameter %1: "
-                                     "'%2' isn't a parameter name !").
-                             arg(parameterDefinitions[param.paramIndex].name).
-                             arg(param.dependencies[j]));
-        param.depsIndex << idx;
-      }
-    }
-  }
+  //     param.depsIndex.clear();
+  //     for(int j = 0; j < param.dependencies.size(); j++) {
+  //       int idx = namedParameter(param.dependencies[j]);
+  //       if(idx < 0)
+  //         throw RuntimeError(QString("In definition of parameter %1: "
+  //                                    "'%2' isn't a parameter name !").
+  //                            arg(parameterDefinitions[param.paramIndex].name).
+  //                            arg(param.dependencies[j]));
+  //       param.depsIndex << idx;
+  //     }
+  //   }
+  // }
 
   if(independentDataSets()) {
     for(int i = 0; i < datasets.size(); i++) {

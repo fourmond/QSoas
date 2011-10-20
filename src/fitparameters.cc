@@ -73,7 +73,7 @@ void FitParameters::setDataParameters()
             << FixedParameter(j, ds, values[j]);
         else 
           fitData->parameters
-            << ActualParameter(j, ds);
+            << FreeParameter(j, ds);
       }
       else {
         if(isFixed(j, i))
@@ -81,7 +81,7 @@ void FitParameters::setDataParameters()
             << FixedParameter(j, ds, getValue(j, i));
         else 
           fitData->parameters
-            << ActualParameter(j, ds);
+            << FreeParameter(j, ds);
       }
     }
   }

@@ -31,16 +31,36 @@
 
 #include <ruby.hh>
 
+void FitParameter::copyToPacked(gsl_vector * /*fit*/, 
+                                const double * /*unpacked*/,
+                                int /*nbdatasets*/, 
+                                int /*nb_per_dataset*/) const
+{
+  // Nothing to do !
+}
+
+
 void FreeParameter::copyToUnpacked(double * target, const gsl_vector * fit, 
                                   int nb_datasets, int nb_per_dataset) const
 {
-  /// @todo check that fitIndex is positive
+  /// @todo check that fitIndex is positive ??
   double value = gsl_vector_get(fit, fitIndex);
+
+  /// @todo Implement bijections !
   if(dsIndex >= 0)
     target[paramIndex + dsIndex * nb_per_dataset] = value;
   else
     for(int j = 0; j < nb_datasets; j++)
       target[paramIndex + j * nb_per_dataset] = value;
+}
+
+void FreeParameter::copyToPacked(gsl_vector * target, const double * unpacked,
+                                 int /*nbdatasets*/, int nb_per_dataset) const
+{
+  double value = unpacked[paramIndex + (dsIndex < 0 ? 0 : dsIndex) * 
+                          nb_per_dataset];
+  /// @todo Implement bijections !
+  gsl_vector_set(target, fitIndex, value);
 }
 
 void FixedParameter::copyToUnpacked(double * target, const gsl_vector * fit, 
@@ -212,8 +232,10 @@ int FitData::packedToUnpackedIndex(int i) const
 void FitData::packParameters(const double * unpacked, 
                              gsl_vector * packed) const
 {
+  int nb_ds_params = parameterDefinitions.size();
+  int nb_datasets = datasets.size();
   for(int i = 0; i < parameters.size(); i++)
-    gsl_vector_set(packed, i, unpacked[packedToUnpackedIndex(i)]);
+    parameters[i].copyToPacked(packed, unpacked, nb_datasets, nb_ds_params);
 }
 
 int FitData::namedParameter(const QString & name) const

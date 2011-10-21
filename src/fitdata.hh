@@ -43,6 +43,11 @@ public:
   virtual void copyToUnpacked(double * target, const gsl_vector * fit, 
                              int nbdatasets, int nb_per_dataset) const = 0;
 
+  /// Sets values of the fit parameters (the GSL vector) from the
+  /// natural parameters
+  virtual void copyToPacked(gsl_vector * fit, const double * unpacked,
+                            int nbdatasets, int nb_per_dataset) const;
+
   /// Whether or not the parameter is fixed
   virtual bool fixed() { return false;};
 };
@@ -61,6 +66,9 @@ public:
   virtual void copyToUnpacked(double * target, const gsl_vector * fit, 
                              int nbdatasets, int nb_per_dataset) const;
 
+
+  virtual void copyToPacked(gsl_vector * fit, const double * unpacked,
+                            int nbdatasets, int nb_per_dataset) const;
   
   FreeParameter(int p, int ds, double dev = 1e-4) :
     FitParameter(p, ds), derivationFactor(dev), 

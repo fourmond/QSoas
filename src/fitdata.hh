@@ -58,6 +58,9 @@ public:
 
   /// Whether or not the parameter needs a second pass.
   virtual bool needSecondPass() const {return false; } ;
+
+  /// Returns a duplicate of the object.
+  virtual FitParameter * dup() const = 0;
 };
 
 /// A parameter, once it's in use. A list of that can be used to
@@ -81,6 +84,11 @@ public:
   FreeParameter(int p, int ds, double dev = 1e-4) :
     FitParameter(p, ds), derivationFactor(dev), 
     minDerivationStep(1e-8) {;};
+
+  virtual FitParameter * dup() const {
+    return new FreeParameter(*this);
+  };
+  
 };
 
 /// A fixed parameter, ie a parameter whose value is fixed, and
@@ -120,6 +128,11 @@ public:
   virtual void initialize(FitData * data);
 
   virtual bool needSecondPass() const { return ! formula.isEmpty(); };
+
+  virtual FitParameter * dup() const {
+    return new FixedParameter(*this);
+  };
+
 
 
 private:
@@ -167,7 +180,13 @@ public:
   /// The datasets holding the data.
   QList<const DataSet *> datasets;
 
+  /// Push parameters 
+  FitData & operator<<(const FitParameter & param);
+  FitData & operator<<(FitParameter * param);
+
   /// Adjustable parameters
+  ///
+  /// @todo Turn that into a single list of pointers to FitParameter.
   QList<FreeParameter> parameters;
 
   /// Fixed parameters

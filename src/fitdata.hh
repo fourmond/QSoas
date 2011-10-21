@@ -21,6 +21,8 @@
 #ifndef __FITDATA_HH
 #define __FITDATA_HH
 
+class FitData;
+
 /// Base class for effective parameters
 class FitParameter {
 public:
@@ -49,7 +51,13 @@ public:
                             int nbdatasets, int nb_per_dataset) const;
 
   /// Whether or not the parameter is fixed
-  virtual bool fixed() { return false;};
+  virtual bool fixed() const { return false;};
+
+  /// Performs one-time setup at fit initialization
+  virtual void initialize(FitData * data);
+
+  /// Whether or not the parameter needs a second pass.
+  virtual bool needSecondPass() const {return false; } ;
 };
 
 /// A parameter, once it's in use. A list of that can be used to
@@ -104,10 +112,15 @@ public:
 
 
 
-  virtual bool fixed() { return true;};
+  virtual bool fixed() const { return true;};
 
   FixedParameter(int p, int ds, double v)  :
     FitParameter(p, ds), value(v), block(Qnil) {;};
+
+  virtual void initialize(FitData * data);
+
+  virtual bool needSecondPass() const { return ! formula.isEmpty(); };
+
 
 private:
   void makeBlock();
@@ -146,15 +159,6 @@ class FitData {
   /// This list is full with several FitData, one for each dataset to
   /// perform independant fitting when indendentDataSets returns true.
   QList<FitData*> subordinates;
-
-  /// Returns the index of the packed parameter idx in the unpacked
-  /// version.
-  int packedToUnpackedIndex(int idx) const;
-
-  /// Returns the index of the ParameterDefinition with the given
-  /// name.
-  int namedParameter(const QString & name) const;
-
 
 public:
   /// The fit in use
@@ -233,6 +237,11 @@ public:
   /// Detect whether the datasets in the fit are coupled or are
   /// completely independent.
   bool independentDataSets() const;
+
+  /// Returns the index of the ParameterDefinition with the given
+  /// name.
+  int namedParameterIndex(const QString & name) const;
+
 
 };
 

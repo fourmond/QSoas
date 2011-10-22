@@ -26,6 +26,11 @@
 class FitData;
 
 /// Base class for effective parameters
+///
+/// @todo This class should hold a way to save/load parameters. This
+/// functionalit should be stripped from the FitParameter class, which
+/// may simply become a wrapper around an array of FitParameter
+/// pointers.
 class FitParameter {
 public:
   /// The index of the parameters from within the Fit::parameters()

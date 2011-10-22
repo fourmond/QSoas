@@ -21,6 +21,8 @@
 #ifndef __FITDATA_HH
 #define __FITDATA_HH
 
+#include <possessive-containers.hh>
+
 class FitData;
 
 /// Base class for effective parameters
@@ -96,6 +98,9 @@ public:
 ///
 /// It can also be fixed by a formula; this is the case if formula
 /// isn't empty.
+///
+/// @todo Now that we're really using virtual classes, the formula
+/// stuff can go to a separate class.
 class FixedParameter : public FitParameter {
 public:
   /// The actual value
@@ -173,6 +178,10 @@ class FitData {
   /// perform independant fitting when indendentDataSets returns true.
   QList<FitData*> subordinates;
 
+  /// The number of GSL parameters. To be computed at initialization
+  /// time.
+  int gslParameters;
+
 public:
   /// The fit in use
   Fit * fit;
@@ -180,17 +189,12 @@ public:
   /// The datasets holding the data.
   QList<const DataSet *> datasets;
 
-  /// Push parameters 
+  /// Push parameters -- why not ?
   FitData & operator<<(const FitParameter & param);
   FitData & operator<<(FitParameter * param);
 
-  /// Adjustable parameters
-  ///
-  /// @todo Turn that into a single list of pointers to FitParameter.
-  QList<FreeParameter> parameters;
-
-  /// Fixed parameters
-  QList<FixedParameter> fixedParameters;
+  /// All parameters
+  PossessiveList<FitParameter> parameters;
 
   /// A cache for the parameters description. It \b must be the same
   /// as what Fit::parameters() return.

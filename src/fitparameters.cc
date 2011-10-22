@@ -60,7 +60,6 @@ void FitParameters::recompute()
 void FitParameters::setDataParameters()
 {
   fitData->parameters.clear();
-  fitData->fixedParameters.clear();
 
   for(int i = 0; i < datasets; i++) {
     for(int j = 0; j < nbParameters; j++) {
@@ -69,19 +68,15 @@ void FitParameters::setDataParameters()
         if(i)
           continue;
         if(fixed[j])
-          fitData->fixedParameters 
-            << FixedParameter(j, ds, values[j]);
+          fitData->parameters << new FixedParameter(j, ds, values[j]);
         else 
-          fitData->parameters
-            << FreeParameter(j, ds);
+          fitData->parameters << new FreeParameter(j, ds);
       }
       else {
         if(isFixed(j, i))
-          fitData->fixedParameters 
-            << FixedParameter(j, ds, getValue(j, i));
+          fitData->parameters << new FixedParameter(j, ds, getValue(j, i));
         else 
-          fitData->parameters
-            << FreeParameter(j, ds);
+          fitData->parameters << new FreeParameter(j, ds);
       }
     }
   }

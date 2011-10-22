@@ -191,15 +191,14 @@ int FitData::f(const gsl_vector * x, gsl_vector * f)
 
 int FitData::df(const gsl_vector * x, gsl_matrix * df)
 {
-  int nbparams = parameters.size();
-  if(x->size != nbparams)
+  if(x->size != gslParameters)
     throw InternalError("Size mismatch between GSL parameters "
                         "and FitData data");
 
-  QVarLengthArray<double, 1024> gslParams(nbparams);
+  QVarLengthArray<double, 1024> gslParams(gslParameters);
   QVarLengthArray<double, 1024> unpackedParams(fullParameterNumber());
 
-  gsl_vector_view v = gsl_vector_view_array(gslParams.data(), nbparams);
+  gsl_vector_view v = gsl_vector_view_array(gslParams.data(), gslParameters);
 
 
   gsl_vector_memcpy(&v.vector, x);
@@ -211,17 +210,19 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
   fit->function(unpackedParams.data(), this, storage);
 
   /// Hmmm...
-  for(int i = 0; i < nbparams; i++) {
-    const FreeParameter & param = parameters[i];
-    double value = gslParams[i];
-    double step = param.derivationFactor * value;
-    if(fabs(step) < param.minDerivationStep)
-      step = param.minDerivationStep;
+  for(int i = 0; i < parameters.size(); i++) {
+    FreeParameter * param = dynamic_cast<FreeParameter*>(parameters[i]);
+    if(! param)
+      continue;
+    double value = gslParams[param->fitIndex];
+    double step = param->derivationFactor * value;
+    if(fabs(step) < param->minDerivationStep)
+      step = param->minDerivationStep;
 
-    gslParams[i] += step;
+    gslParams[param->fitIndex] += step;
     unpackParameters(&v.vector, unpackedParams.data());
     
-    gsl_vector_view col = gsl_matrix_column(df, i);
+    gsl_vector_view col = gsl_matrix_column(df, param->fitIndex);
 
     /// @todo turn back on the optimization with functionForDataSet if
     /// I find the time and motivation (though improvement isn't that
@@ -230,7 +231,7 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
 
     gsl_vector_sub(&col.vector, storage);
     gsl_vector_scale(&col.vector, 1/step);
-    gslParams[i] = value;
+    gslParams[param->fitIndex] = value;
   }
   return GSL_SUCCESS;
 }
@@ -248,7 +249,7 @@ void FitData::packParameters(const double * unpacked,
   int nb_ds_params = parameterDefinitions.size();
   int nb_datasets = datasets.size();
   for(int i = 0; i < parameters.size(); i++)
-    parameters[i].copyToPacked(packed, unpacked, nb_datasets, nb_ds_params);
+    parameters[i]->copyToPacked(packed, unpacked, nb_datasets, nb_ds_params);
 }
 
 int FitData::namedParameterIndex(const QString & name) const
@@ -268,17 +269,10 @@ void FitData::unpackParameters(const gsl_vector * packed,
   int nb_datasets = datasets.size();
 
   for(int i = 0; i < parameters.size(); i++)
-    parameters[i].copyToUnpacked(unpacked, packed, 
+    parameters[i]->copyToUnpacked(unpacked, packed, 
                                  nb_datasets, nb_ds_params);
 
-  for(int i = 0; i < fixedParameters.size(); i++)
-    fixedParameters[i].copyToUnpacked(unpacked, packed, 
-                                      nb_datasets, nb_ds_params);
-
-  for(int i = 0; i < fixedParameters.size(); i++)
-    if(fixedParameters[i].needSecondPass())
-      fixedParameters[i].copyToUnpacked(unpacked, packed, 
-                                        nb_datasets, nb_ds_params);
+  /// @todo Second pass if required !
 }
 
 gsl_vector_view FitData::viewForDataset(int ds, gsl_vector * vect)
@@ -307,15 +301,17 @@ void FitData::initializeSolver(const double * initialGuess)
 {
   nbIterations = 0;
   freeSolver();
+  gslParameters = 0;
 
   // Update the free parameters index
   for(int i = 0; i < parameters.size(); i++) {
-    parameters[i].fitIndex = i;
-    parameters[i].initialize(this);
+    FitParameter * param = parameters[i];
+    if(! param->fixed())
+      param->fitIndex = gslParameters++;
+    else
+      param->fitIndex = -1;     // Should already be the case
+    param->initialize(this);
   }
-
-  for(int i = 0; i < fixedParameters.size(); i++)
-    fixedParameters[i].initialize(this);
 
   if(independentDataSets()) {
     for(int i = 0; i < datasets.size(); i++) {
@@ -324,18 +320,14 @@ void FitData::initializeSolver(const double * initialGuess)
       FitData * d = new FitData(fit, dss);
       subordinates.append(d);
 
-      for(int j = 0; j < parameters.size(); j++)
-        if(parameters[j].dsIndex == i) {
-          d->parameters << parameters[j];
-          d->parameters.last().dsIndex = 0;
+      for(int j = 0; j < parameters.size(); j++) {
+        FitParameter * param = parameters[j];
+        if(param->dsIndex == i || (param->fixed() && param->dsIndex == -1)) {
+          FitParameter * p2 = param->dup();
+          p2->dsIndex = 0;
+          d->parameters << p2;
         }
-
-      for(int j = 0; j < fixedParameters.size(); j++)
-        if(fixedParameters[j].dsIndex == i ||
-           fixedParameters[j].dsIndex == -1) {
-          d->fixedParameters << fixedParameters[j];
-          d->fixedParameters.last().dsIndex = 0;
-        }
+      }
 
       d->initializeSolver(initialGuess + 
                           (i * parameterDefinitions.size()));
@@ -344,12 +336,12 @@ void FitData::initializeSolver(const double * initialGuess)
   else {
   
     solver = gsl_multifit_fdfsolver_alloc(gsl_multifit_fdfsolver_lmsder,
-                                          totalSize, parameters.size());
+                                          totalSize, gslParameters);
     function.f = &FitData::staticF;
     function.df = &FitData::staticDf;
     function.fdf = &FitData::staticFdf;
     function.n = totalSize;
-    function.p = parameters.size();
+    function.p = gslParameters;
     function.params = this;
 
     gsl_vector_view v = gsl_vector_subvector(parametersStorage, 0, 
@@ -428,7 +420,7 @@ bool FitData::independentDataSets() const
                                 // subordinates in that case...
 
   for(int i = 0; i < parameters.size(); i++) {
-    if(parameters[i].dsIndex < 0)
+    if(! parameters[i]->fixed() && parameters[i]->dsIndex < 0)
       return false;
   }
   return true;

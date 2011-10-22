@@ -20,6 +20,8 @@
 #ifndef __POSSESSIVE_CONTAINERS_HH
 #define __POSSESSIVE_CONTAINERS_HH
 
+/// This class is a thin wrapper around a QList of pointers taking the
+/// ownership of the pointers (ie destroying them upon destruction).
 template <class T> class PossessiveList {
   void deleteValues() {
     for(int i = 0; i < values.size(); i++)
@@ -47,6 +49,18 @@ public:
   PossessiveList & operator <<(T * a) {
     values << a;
     return *this;
+  };
+
+  int size() const {
+    return values.size();
+  };
+
+  T * operator[](int idx) {
+    return values[idx];
+  };
+
+  const T * operator[](int idx) const {
+    return values[idx];
   };
 };
 

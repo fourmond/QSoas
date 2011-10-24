@@ -21,6 +21,7 @@
 #include <fitdialog.hh>
 #include <fit.hh>
 #include <fitdata.hh>
+#include <fitparametereditor.hh>
 #include <curveview.hh>
 #include <dataset.hh>
 
@@ -38,81 +39,6 @@
 
 #include <utils.hh>
 
-
-
-FitParameterEditor::FitParameterEditor(const ParameterDefinition * d, 
-                                       int idx, int totalDS, 
-                                       int totalParams) : 
-  index(idx), def(d)
-{
-  QHBoxLayout * layout = new QHBoxLayout(this);
-  layout->addWidget(new QLabel(QString("<b>%1: </b>").arg(def->name)), 1);
-  editor = new QLineEdit();
-  connect(editor, SIGNAL(textChanged(const QString &)),
-          SLOT(onValueChanged(const QString &)));
-  layout->addWidget(editor);
-
-  QSize sz = editor->minimumSizeHint();
-  sz.setWidth(6*sz.width());
-  editor->setMinimumSize(sz);
-
-  fixed = new QCheckBox(tr("(fixed)"));
-  connect(fixed, SIGNAL(clicked(bool)), SLOT(onFixedClicked()));
-  layout->addWidget(fixed);
-  fixed->setToolTip(tr("If checked, the parameter is fixed"));
-
-
-  global = new QCheckBox(tr("(global)"));
-  connect(global, SIGNAL(clicked(bool)), SLOT(onGlobalClicked()));
-  layout->addWidget(global);
-  global->setToolTip(tr("If checked, the parameter is "
-                        "common to all data sets"));
-  
-  if(! d->canBeBufferSpecific) {
-    global->setChecked(true);
-    global->setEnabled(false);
-  }
-
-  if(totalDS <= 1)
-    global->setVisible(false);
-
-  if(totalParams >= 10) {
-    global->setText("(G)");
-    fixed->setText("(F)");
-    sz.setWidth(5*sz.width()/6);
-    editor->setMinimumSize(sz);
-  }
-
-}
-  
-void FitParameterEditor::onFixedClicked()
-{
-  emit(fixedChanged(index, fixed->checkState() == Qt::Checked));
-}
-
-
-void FitParameterEditor::onGlobalClicked()
-{
-  emit(globalChanged(index, global->checkState() == Qt::Checked));
-}
-
-void FitParameterEditor::onValueChanged(const QString & str)
-{
-  bool ok;
-  double value = str.toDouble(&ok);
-  if(ok)
-    emit(valueChanged(index, value));
-}
-
-void FitParameterEditor::setValues(double v, bool f, bool g)
-{
-  editor->setText(QString::number(v));
-  fixed->setChecked(f);
-  global->setChecked(g);
-}
-
-
-//////////////////////////////////////////////////////////////////////
 
 static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
 

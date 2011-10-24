@@ -103,7 +103,8 @@ SOURCES += src/qmain.cc \
         src/exceptions.cc \
         src/file-arguments.cc \
         src/linearkineticsystem.cc \
-        src/simulation-commands.cc
+        src/simulation-commands.cc \
+        src/fitparametereditor.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -151,4 +152,5 @@ HEADERS += src/headers.hh \
         src/fitdata.hh \
         src/exceptions.hh \
         src/file-arguments.hh \
-        src/linearkineticsystem.hh
+        src/linearkineticsystem.hh \
+        src/fitparametereditor.hh

@@ -24,7 +24,18 @@ class FitData;
 class OutFile;
 
 /// Holds parameters of a fit (possibly multi-buffer), the way the
-/// user edits them
+/// user edits them.
+///
+/// This class is also responsible for saving/loading the parameters,
+/// for exporting (and importing ?) them and so on.
+///
+/// @todo This class needs to be rethought:
+/// @li global and fixed arrays don't make sense, it seems to me
+/// @li neither do the formulas array
+/// @li on the other hand the values are useful as a storage of
+/// unpacked data
+/// @li maybe most of these variables should be turned into a
+/// possessive list of FitParameter objects ?? 
 class FitParameters {
 
   /// The underlying FitData object.

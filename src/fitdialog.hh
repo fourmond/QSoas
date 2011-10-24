@@ -1,6 +1,6 @@
 /**
    \file fitdialog.hh
-   Main window for QSoas
+   Dialog box handling fits in QSoas
    Copyright 2011 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
@@ -24,54 +24,8 @@
 
 class FitData;
 class CurveView;
+class FitParameterEditor;
 class DataSet;
-class ParameterDefinition;
-
-/// A widget to edit the settings for a given parameter.
-///
-/// @todo Disable the global flag when there is only one dataset or
-/// that the parameter can't be buffer-local.
-class FitParameterEditor : public QWidget {
-  Q_OBJECT;
-  int index;
-  const ParameterDefinition * def;
-
-  /// The editor
-  QLineEdit * editor;
-  
-  /// The global checkbox
-  QCheckBox * global;
-
-  /// The fixed checkbox
-  QCheckBox * fixed;
-
-public:
-  FitParameterEditor(const ParameterDefinition * d, int idx, 
-                     int totalDatasets, int totalParams);
-
-  /// Set the editor values.
-  void setValues(double value, bool fixed, bool global);
-
-  /// Whether the parameter is global
-  bool isGlobal() const {
-    return global->checkState() == Qt::Checked;
-  };
-
-  /// Whether the parameter is fixed
-  bool isFixed() const {
-    return fixed->checkState() == Qt::Checked;
-  };
-
-signals:
-  void fixedChanged(int index, bool fixed);
-  void globalChanged(int index, bool global);
-  void valueChanged(int index, double value);
-
-protected slots:
-  void onFixedClicked();
-  void onGlobalClicked();
-  void onValueChanged(const QString & str);
-};
 
 
 /// This class handles all the user interaction during fits.

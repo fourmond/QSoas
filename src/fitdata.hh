@@ -26,11 +26,6 @@
 class FitData;
 
 /// Base class for effective parameters
-///
-/// @todo This class should hold a way to save/load parameters. This
-/// functionalit should be stripped from the FitParameter class, which
-/// may simply become a wrapper around an array of FitParameter
-/// pointers.
 class FitParameter {
 public:
   /// The index of the parameters from within the Fit::parameters()
@@ -64,10 +59,11 @@ public:
   virtual void initialize(FitData * data);
 
   /// Whether or not the parameter needs a second pass.
-  virtual bool needSecondPass() const {return false; } ;
+  virtual bool needSecondPass() const { return false; };
 
   /// Returns a duplicate of the object.
   virtual FitParameter * dup() const = 0;
+
 };
 
 /// A parameter, once it's in use. A list of that can be used to

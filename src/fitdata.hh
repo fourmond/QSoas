@@ -55,6 +55,9 @@ public:
   /// Whether or not the parameter is fixed
   virtual bool fixed() const { return false;};
 
+  /// Whether the parameter is global or dataset-local
+  virtual bool global() const { return dsIndex < 0; };
+
   /// Performs one-time setup at fit initialization
   virtual void initialize(FitData * data);
 
@@ -63,6 +66,22 @@ public:
 
   /// Returns a duplicate of the object.
   virtual FitParameter * dup() const = 0;
+
+  /// Returns the text value for the given parameter.
+  virtual QString textValue(double value) const {
+    return QString::number(value);
+  };
+
+  /// Sets the value corresponding to the given string.
+  ///
+  /// Most children will update \a target, but some may not (think
+  /// about formulas...)
+  virtual void setValue(double * target, const QString & value) {
+    bool ok;
+    double v = value.toDouble(&ok);
+    if(ok)
+      *target = v;
+  };
 
 };
 

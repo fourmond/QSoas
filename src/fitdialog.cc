@@ -120,14 +120,12 @@ void FitDialog::setupFrame()
   FlowingGridLayout * inner = new FlowingGridLayout();
   for(int i = 0; i < nbParams; i++) {
     FitParameterEditor * ed = 
-      new FitParameterEditor(&data->parameterDefinitions[i], i,
-                             data->datasets.size(), nbParams);
+      new FitParameterEditor(&data->parameterDefinitions[i], i, 
+                             &parameters);
     inner->addWidget(ed);
     editors.append(ed);
-    connect(ed, SIGNAL(fixedChanged(int, bool)), SLOT(onSetFixed(int)));
-    connect(ed, SIGNAL(globalChanged(int, bool)), SLOT(onSetGlobal(int)));
-    connect(ed, SIGNAL(valueChanged(int, double)), 
-            SLOT(onSetValue(int, double)));
+    ed->connect(this, SIGNAL(currentDataSetChanged(int)), 
+                SLOT(selectDataSet(int)));
   }
   layout->addLayout(inner);
 
@@ -194,6 +192,7 @@ void FitDialog::dataSetChanged(int newds)
 {
   stackedViews->setCurrentIndex(newds);
   currentIndex = newds;
+  emit(currentDataSetChanged(currentIndex));
   updateEditors();
   /// @todo annotation !
   bufferNumber->setText(QString("%1/%2").
@@ -214,25 +213,9 @@ void FitDialog::updateEditors()
   settingEditors = true;
   int sz = editors.size();
   for(int i = 0; i < sz; i++)
-    editors[i]->setValues(parameters.getValue(i, currentIndex),
-                          parameters.isFixed(i, currentIndex),
-                          parameters.isGlobal(i));
+    editors[i]->updateFromParameters();
+
   settingEditors = false;
-}
-
-void FitDialog::onSetGlobal(int index)
-{
-  parameters.setGlobal(index, editors[index]->isGlobal());
-}
-
-void FitDialog::onSetFixed(int index)
-{
-  parameters.setFixed(index, currentIndex, editors[index]->isFixed());
-}
-
-void FitDialog::onSetValue(int index, double v)
-{
-  parameters.setValue(index, currentIndex, v);
 }
 
 

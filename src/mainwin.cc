@@ -56,6 +56,7 @@
    \li annotate buffers
    \li option to pass certain parameters in the form of logarithms
    (this could be done at the FitData level ?)
+   \li options to automatically apply a bijection to the Y values too.
 
    Generally speaking, I should setup a whole way to transform
    parameters. We have two parameter space: one natural parameter

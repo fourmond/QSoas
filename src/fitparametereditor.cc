@@ -35,9 +35,8 @@
 
 
 FitParameterEditor::FitParameterEditor(const ParameterDefinition * d, 
-                                       int idx, int totalDS, 
-                                       int totalParams) : 
-  index(idx), def(d)
+                                       int idx, FitParameters * p) : 
+  index(idx), def(d), parameters(p), updatingEditor(false)
 {
   QHBoxLayout * layout = new QHBoxLayout(this);
   layout->addWidget(new QLabel(QString("<b>%1: </b>").arg(def->name)), 1);
@@ -67,40 +66,104 @@ FitParameterEditor::FitParameterEditor(const ParameterDefinition * d,
     global->setEnabled(false);
   }
 
-  if(totalDS <= 1)
+  if(parameters->datasets <= 1)
     global->setVisible(false);
 
-  if(totalParams >= 10) {
+  if(parameters->nbParameters >= 10) {
     global->setText("(G)");
     fixed->setText("(F)");
     sz.setWidth(5*sz.width()/6);
     editor->setMinimumSize(sz);
   }
 
+  updateFromParameters();
+
 }
   
 void FitParameterEditor::onFixedClicked()
 {
-  emit(fixedChanged(index, fixed->checkState() == Qt::Checked));
+  if(updatingEditor)
+    return;
+  FitParameter *& target = targetParameter();
+  int ds = target->dsIndex;
+  
+  delete target;
+  if(fixed->isChecked()) {
+    FixedParameter * param = new FixedParameter(index, ds,  0);
+    target = param;
+  }
+  else {
+    target = new FreeParameter(index, ds);
+  }
+  onValueChanged(editor->text());
 }
 
 
 void FitParameterEditor::onGlobalClicked()
 {
-  emit(globalChanged(index, global->checkState() == Qt::Checked));
+  if(updatingEditor)
+    return;
+  FitParameter *& target = parameters->parameter(index, 0);
+  if(global->isChecked()) {
+    target->dsIndex = -1;
+    for(int i = 1; i < parameters->datasets; i++) {
+      delete parameters->parameter(index, i);
+      parameters->parameter(index, i) = NULL;
+    }
+  }
+  else {
+    target->dsIndex = 0;
+    for(int i = 1; i < parameters->datasets; i++) {
+      FitParameter * p = target->dup();
+      p->dsIndex = i;
+      parameters->parameter(index, i) = p;
+    }
+  }
+  onValueChanged(editor->text());
+}
+
+bool FitParameterEditor::isGlobal() const
+{
+  return parameters->parameter(index, 0)->global();
 }
 
 void FitParameterEditor::onValueChanged(const QString & str)
 {
-  bool ok;
-  double value = str.toDouble(&ok);
-  if(ok)
-    emit(valueChanged(index, value));
+  if(updatingEditor)
+    return;
+  if(isGlobal()) {
+    for(int i = 0; i < parameters->datasets; i++)
+      parameters->parameter(index, 0)->
+        setValue(&parameters->valueFor(index, i), str);
+  }
+  else
+    parameters->parameter(index, dataset)->
+      setValue(&parameters->valueFor(index, dataset), str);
+  
+  // not necessary...
+  // parameters->dump();
 }
 
-void FitParameterEditor::setValues(double v, bool f, bool g)
+void FitParameterEditor::selectDataSet(int dsIndex)
 {
-  editor->setText(QString::number(v));
-  fixed->setChecked(f);
-  global->setChecked(g);
+  dataset = dsIndex;
+  updateFromParameters();
+}
+
+void FitParameterEditor::updateFromParameters()
+{
+  updatingEditor = true;
+  int dsIdx = dataset;
+  FitParameter * param = targetParameter();
+  if(param->global())
+    dsIdx = 0;
+
+  global->setChecked(param->global());
+  fixed->setChecked(param->fixed());
+  editor->
+    setText(param->textValue(parameters->
+                             values[index + dsIdx * parameters->nbParameters]));
+
+
+  updatingEditor = false;
 }

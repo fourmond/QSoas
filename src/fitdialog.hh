@@ -88,6 +88,9 @@ public:
   FitDialog(FitData * data);
   ~FitDialog();
 
+signals:
+  void currentDataSetChanged(int ds);
+
 protected slots:
 
   void dataSetChanged(int newds);
@@ -98,15 +101,6 @@ protected slots:
 
   /// Update all the editors
   void updateEditors();
-
-  /// Called when one of the global flags are clicked.
-  void onSetGlobal(int index);
-
-  /// Called whenever a fixed checkbox is clicked...
-  void onSetFixed(int index);
-
-  /// Called whenever a value gets updated.
-  void onSetValue(int index, double value);
 
   /// Starts the fit !
   void startFit();

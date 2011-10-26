@@ -27,29 +27,50 @@
 #include <outfile.hh>
 
 FitParameters::FitParameters(FitData * d) :
-  fitData(d)
+  fitData(d), parameters(d->datasets.size() * 
+                         d->parameterDefinitions.size())
 {
   datasets = d->datasets.size();
   nbParameters = d->parameterDefinitions.size();
-  global = new bool[nbParameters];
-  fixed = new bool[nbParameters * datasets];
   values = new double[nbParameters * datasets];
 
   // Now populate default values and fill the cache
   d->fit->initialGuess(d, values);
   for(int i = 0; i < nbParameters; i++) {
-    global[i] = ! d->parameterDefinitions[i].canBeBufferSpecific;
-    parameterIndices[d->parameterDefinitions[i].name] = i;
+    const ParameterDefinition * def = &d->parameterDefinitions[i];
+    parameterIndices[def->name] = i;
+
+    if(def->canBeBufferSpecific) {
+      for(int j = 0; j < datasets; j++) {
+        if(def->defaultsToFixed)
+          parameter(i,j) = new FixedParameter(i, j, valueFor(i, j));
+        else 
+          parameter(i,j) = new FreeParameter(i, j);
+      }
+    }
+    else {
+      // Keep in mind that all the rest has been initialized to 0
+      if(def->defaultsToFixed)
+        parameter(i,0) = new FixedParameter(i, -1, getValue(i, 0));
+      else
+        parameter(i,0) = new FreeParameter(i, -1);
+    }
   }
-  for(int i = 0; i != datasets * nbParameters; i++)
-    fixed[i] = d->parameterDefinitions[i % nbParameters].defaultsToFixed;
 }
 
 FitParameters::~FitParameters()
 {
   delete[] values;
-  delete[] global;
-  delete[] fixed;
+}
+
+bool FitParameters::isGlobal(int index) const
+{
+  return parameter(index, 0)->global();
+}
+
+bool FitParameters::isFixed(int index, int ds) const
+{
+  return parameter(index, (ds >= 0 ? ds : 0))->fixed();
 }
 
 void FitParameters::recompute()
@@ -57,34 +78,21 @@ void FitParameters::recompute()
   fitData->fit->function(values, fitData, fitData->storage);
 }
 
-void FitParameters::setDataParameters()
+void FitParameters::sendDataParameters()
 {
   fitData->parameters.clear();
-
-  for(int i = 0; i < datasets; i++) {
-    for(int j = 0; j < nbParameters; j++) {
-      int ds = (isGlobal(j) ? -1 : i);
-      if(isGlobal(j)) {
-        if(i)
-          continue;
-        if(fixed[j])
-          fitData->parameters << new FixedParameter(j, ds, values[j]);
-        else 
-          fitData->parameters << new FreeParameter(j, ds);
-      }
-      else {
-        if(isFixed(j, i))
-          fitData->parameters << new FixedParameter(j, ds, getValue(j, i));
-        else 
-          fitData->parameters << new FreeParameter(j, ds);
-      }
-    }
+  
+  for(int i = 0; i < parameters.size(); i++) {
+    FitParameter * param = parameters[i];
+    if(! param)
+      continue;
+    fitData->parameters << param->dup();
   }
 }
 
 void FitParameters::prepareFit()
 {
-  setDataParameters();
+  sendDataParameters();
   fitData->initializeSolver(values);
 }
 
@@ -183,53 +191,53 @@ void FitParameters::saveParameters(QIODevice * stream) const
 
 void FitParameters::loadParameters(QIODevice * source)
 {
-  QString line;
-  QRegExp paramRE("^([^\t []+)\\s*(?:\\[#(\\d+)\\])?\t(\\S+)\\s*!\\s*([01])");
-  QTextStream in(source);
-  while(true) {
-    line = in.readLine();
-    if(line.isNull())
-      break;                    // EOF
-    if(paramRE.indexIn(line) == 0) {
-      // We found a parameter
-      QString paramName = paramRE.cap(1);
-      int ds = -1;
-      if(! paramRE.cap(2).isEmpty())
-        ds = paramRE.cap(2).toInt();
+  // QString line;
+  // QRegExp paramRE("^([^\t []+)\\s*(?:\\[#(\\d+)\\])?\t(\\S+)\\s*!\\s*([01])");
+  // QTextStream in(source);
+  // while(true) {
+  //   line = in.readLine();
+  //   if(line.isNull())
+  //     break;                    // EOF
+  //   if(paramRE.indexIn(line) == 0) {
+  //     // We found a parameter
+  //     QString paramName = paramRE.cap(1);
+  //     int ds = -1;
+  //     if(! paramRE.cap(2).isEmpty())
+  //       ds = paramRE.cap(2).toInt();
       
-      double value = paramRE.cap(3).toDouble();
-      bool fxd = (paramRE.cap(4).toInt() == 0);
+  //     double value = paramRE.cap(3).toDouble();
+  //     bool fxd = (paramRE.cap(4).toInt() == 0);
 
-      int idx = parameterIndices.value(paramName, -1);
-      if(idx < 0) {
-        Terminal::out << "Found unkown parameter: '" << paramName 
-                      << "', ignoring" << endl;
-        continue;
-      }
+  //     int idx = parameterIndices.value(paramName, -1);
+  //     if(idx < 0) {
+  //       Terminal::out << "Found unkown parameter: '" << paramName 
+  //                     << "', ignoring" << endl;
+  //       continue;
+  //     }
       
-      if(ds > 0) {
-        if(ds >= datasets) {
-          Terminal::out << "Ignoring parameter '" << paramName 
-                        << "' for extra dataset #" << ds << endl;
-          continue;
-        }
-        global[idx] = false;    // Sure enough
-        values[idx + ds * nbParameters] = value;
-        fixed[idx + ds * nbParameters] = fxd;
-      }
-      else {
-        global[idx] = true;
-        for(int i = 0; i < datasets; i++)
-          values[idx + i * nbParameters] = value;
-        fixed[idx] = fxd;
-      }
-    }
-    else {
-      if(! line.startsWith("#"))
-        Terminal::out << "Line not understood: '" 
-                      << line << "'" << endl;
-    }
-  }
+  //     if(ds > 0) {
+  //       if(ds >= datasets) {
+  //         Terminal::out << "Ignoring parameter '" << paramName 
+  //                       << "' for extra dataset #" << ds << endl;
+  //         continue;
+  //       }
+  //       global[idx] = false;    // Sure enough
+  //       values[idx + ds * nbParameters] = value;
+  //       fixed[idx + ds * nbParameters] = fxd;
+  //     }
+  //     else {
+  //       global[idx] = true;
+  //       for(int i = 0; i < datasets; i++)
+  //         values[idx + i * nbParameters] = value;
+  //       fixed[idx] = fxd;
+  //     }
+  //   }
+  //   else {
+  //     if(! line.startsWith("#"))
+  //       Terminal::out << "Line not understood: '" 
+  //                     << line << "'" << endl;
+  //   }
+  // }
 }
 
 void FitParameters::resetAllToInitialGuess()
@@ -243,4 +251,18 @@ void FitParameters::resetToInitialGuess(int ds)
   fitData->fit->initialGuess(fitData, params.data());
   for(int i = 0; i < nbParameters; i++)
     values[i + ds * nbParameters] = params[i + ds * nbParameters];
+}
+
+void FitParameters::dump() const 
+{
+  QTextStream o(stdout);
+  for(int i = 0; i < parameters.size(); i++) {
+    const FitParameter * pm = parameters[i];
+    o << "Param #" << i << "\t" << pm << " = " << values[i] << "\t";
+    if(pm)
+      o << "fixed: " << pm->fixed() << "\tglobal:" << pm->global()
+        << "\t" << pm->paramIndex << "," << pm->dsIndex;
+    o << endl;
+  }
+  o << endl;
 }

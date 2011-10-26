@@ -33,7 +33,13 @@ class ParameterDefinition;
 /// that the parameter can't be buffer-local.
 class FitParameterEditor : public QWidget {
   Q_OBJECT;
+
+  /// The index in the ParameterDefinition
   int index;
+
+  /// The current dataset
+  int dataset;
+
   const ParameterDefinition * def;
 
   /// The editor
@@ -45,27 +51,30 @@ class FitParameterEditor : public QWidget {
   /// The fixed checkbox
   QCheckBox * fixed;
 
+  /// A pointer to the FitParameters object
+  FitParameters * parameters;
+
+  /// Set to true during updates to avoid infinite recursion
+  bool updatingEditor;
+
+  /// Whether the parameter is global or not
+  bool isGlobal() const;
+
+  /// Returns the target for the current conditions
+  FitParameter *& targetParameter() {
+    return (isGlobal() ? parameters->parameter(index, 0) : 
+            parameters->parameter(index, dataset));
+  };
+
 public:
-  FitParameterEditor(const ParameterDefinition * d, int idx, 
-                     int totalDatasets, int totalParams);
+  FitParameterEditor(const ParameterDefinition * d, int idx,
+                     FitParameters * params);
 
-  /// Set the editor values.
-  void setValues(double value, bool fixed, bool global);
+public slots:
+  void updateFromParameters();
 
-  /// Whether the parameter is global
-  bool isGlobal() const {
-    return global->checkState() == Qt::Checked;
-  };
-
-  /// Whether the parameter is fixed
-  bool isFixed() const {
-    return fixed->checkState() == Qt::Checked;
-  };
-
-signals:
-  void fixedChanged(int index, bool fixed);
-  void globalChanged(int index, bool global);
-  void valueChanged(int index, double value);
+  /// Changes the current dataset.
+  void selectDataSet(int dsIndex);
 
 protected slots:
   void onFixedClicked();

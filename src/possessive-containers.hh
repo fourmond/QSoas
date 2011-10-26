@@ -32,6 +32,11 @@ public:
 
   PossessiveList() {;};
   PossessiveList(const QList<T*> & v) : values(v) {;};
+  PossessiveList(int nb) {
+    values.reserve(nb);
+    for(int i = 0; i < nb; i++)
+      values.append(NULL);
+  };
 
   ~PossessiveList() {
     deleteValues();
@@ -55,7 +60,7 @@ public:
     return values.size();
   };
 
-  T * operator[](int idx) {
+  T *& operator[](int idx) {
     return values[idx];
   };
 

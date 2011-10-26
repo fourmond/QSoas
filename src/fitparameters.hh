@@ -20,7 +20,10 @@
 #ifndef __FITPARAMETERS_HH
 #define __FITPARAMETERS_HH
 
+#include <possessive-containers.hh>
+
 class FitData;
+class FitParameter;
 class OutFile;
 
 /// Holds parameters of a fit (possibly multi-buffer), the way the
@@ -47,55 +50,48 @@ class FitParameters {
   /// The number of datasets
   int datasets;
 
-  /// Parameters are global ? (nb parameters)
-  bool * global;
-
-  /// Parameters are fixed ? (nb parameters x nb buffers)
-  bool * fixed;
-
   /// Parameter values (same size as fixed)
   double * values;
 
-  /// Formulas. Non-empty string means that the corresponding
-  /// parameter should be handled by a formula
-  QString * formulas;
+  /// This list has the same size as values.
+  PossessiveList<FitParameter> parameters;
 
   /// The number of parameters for each dataset in the "unpacked" data
   int nbParameters;
+
+  friend class FitParameterEditor;
+
+  /// Returns the given parameter
+  const FitParameter * parameter(int idx, int ds) const {
+    return parameters[idx + nbParameters * ds];
+  };
+
+  /// Returns the given parameter
+  FitParameter * &parameter(int idx, int ds) {
+    return parameters[idx + nbParameters * ds];
+  };
+
+  double valueFor(int index, int dataset) const {
+    return values[dataset * nbParameters + (index % nbParameters)];
+  };
+
+  double & valueFor(int index, int dataset) {
+    return values[dataset * nbParameters + (index % nbParameters)];
+  };
+
+  void dump() const;
 
 public:
 
   FitParameters(FitData * data);
   ~FitParameters();
 
-  /// Sets the global status of the given parameter
-  void setGlobal(int index, bool glbl) {
-    global[index % nbParameters] = glbl;
-  };
-
   /// Whether or not the given parameter is global
-  bool isGlobal(int index) const {
-    return global[index % nbParameters];
-  };
+  bool isGlobal(int index) const;
+
+  /// Whether or not the given parameter is fixed
+  bool isFixed(int index, int ds) const;
   
-  /// Sets the fixed status of the given parameter
-  void setFixed(int index, int dataset, bool fixd) {
-    if(isGlobal(index))
-      fixed[index % nbParameters] = fixd;
-    else
-      fixed[dataset * nbParameters + (index % nbParameters)] = fixd;
-  };
-
-  /// Queries the fixed status of the given parameter
-  bool isFixed(int index, int dataset) const {
-    if(isGlobal(index))
-      return fixed[index % nbParameters];
-    else
-      return fixed[dataset * nbParameters + (index % nbParameters)];
-  };
-
-  /// Sets the value of the given parameter.
-  ///
   /// Setting a global parameter effectively sets all the parameters !
   void setValue(int index, int dataset, double val) {
     if(isGlobal(index)) {
@@ -121,7 +117,7 @@ public:
   void recompute();
 
   /// Translates the current state into FitData parameters.
-  void setDataParameters();
+  void sendDataParameters();
 
   /// Prepare fit
   void prepareFit();
@@ -135,11 +131,6 @@ public:
   /// Resets the parameters for the current dataset to the initial
   /// guess.
   void resetToInitialGuess(int ds);
-
-    
-
-  // /// Performs the fit
-  // void doFit();
 
   /// Export to the target stream. This essentially exports raw
   /// values, thereby losing information about what was fixed and what

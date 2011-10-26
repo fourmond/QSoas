@@ -81,6 +81,9 @@ class FitParameters {
 
   void dump() const;
 
+  /// Clears the parameter list
+  void clear();
+
 public:
 
   FitParameters(FitData * data);

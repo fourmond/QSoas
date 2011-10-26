@@ -45,6 +45,27 @@ void FitParameter::copyToPacked(gsl_vector * /*fit*/,
 }
 
 
+FitParameter * FitParameter::fromString(const QString & value, 
+                                        double * target, 
+                                        bool fixed, 
+                                        int paramIndex, int dsIndex)
+{
+  /// @todo This must be modified for formulas...
+  if(fixed) {
+    FixedParameter * pm = new FixedParameter(paramIndex, dsIndex, 0);
+    pm->setValue(target, value);
+    pm->value = *target;        /// @todo This should move to setValue
+    return pm;
+  }
+  else {
+    FreeParameter * pm = new FreeParameter(paramIndex, dsIndex);
+    pm->setValue(target, value);
+    return pm;
+  }
+}
+
+
+
 void FreeParameter::copyToUnpacked(double * target, const gsl_vector * fit, 
                                   int nb_datasets, int nb_per_dataset) const
 {

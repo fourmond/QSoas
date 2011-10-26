@@ -140,7 +140,7 @@ void FitParameterEditor::onValueChanged(const QString & str)
     parameters->parameter(index, dataset)->
       setValue(&parameters->valueFor(index, dataset), str);
   
-  // not necessary...
+  // not necessary... for now !
   // parameters->dump();
 }
 

@@ -168,76 +168,97 @@ void FitParameters::saveParameters(QIODevice * stream) const
 
   // A first pass to print out the global parameters
   for(int i = 0; i < nbParameters; i++) {
-    if(isGlobal(i) || datasets == 1)
+    if(isGlobal(i) || datasets == 1) {
+      const FitParameter * param = parameters[i];
       out << fitData->parameterDefinitions[i].name 
-          << "\t" << getValue(i, 0) << "\t!\t"
-          << (isFixed(i, 0) ? "0" : "1")
+          << "\t" << param->textValue(getValue(i, 0)) << "\t!\t"
+          << (param->fixed() ? "0" : "1")
           << endl;
+    }
   }
   if(datasets > 1) {
     for(int j = 0; j < datasets; j++) {
       for(int i = 0; i < nbParameters; i++) {
         if(isGlobal(i))
           continue;
+        const FitParameter * param = parameters[i];
         out << fitData->parameterDefinitions[i].name 
             << "[#" << j << "]\t"
-            << getValue(i, j) << "\t!\t"
-            << (isFixed(i, j) ? "0" : "1")
+            << param->textValue(getValue(i, 0)) << "\t!\t"
+            << (param->fixed() ? "0" : "1")
             << endl;
       }
     }
   }
 }
 
+void FitParameters::clear()
+{
+  for(int i = 0; i < parameters.size(); i++) {
+    delete parameters[i];
+    parameters[i] = NULL;
+  }
+}
+
 void FitParameters::loadParameters(QIODevice * source)
 {
-  // QString line;
-  // QRegExp paramRE("^([^\t []+)\\s*(?:\\[#(\\d+)\\])?\t(\\S+)\\s*!\\s*([01])");
-  // QTextStream in(source);
-  // while(true) {
-  //   line = in.readLine();
-  //   if(line.isNull())
-  //     break;                    // EOF
-  //   if(paramRE.indexIn(line) == 0) {
-  //     // We found a parameter
-  //     QString paramName = paramRE.cap(1);
-  //     int ds = -1;
-  //     if(! paramRE.cap(2).isEmpty())
-  //       ds = paramRE.cap(2).toInt();
-      
-  //     double value = paramRE.cap(3).toDouble();
-  //     bool fxd = (paramRE.cap(4).toInt() == 0);
+  QString line;
+  QRegExp paramRE("^([^\t []+)\\s*(?:\\[#(\\d+)\\])?\t(\\S+)\\s*!\\s*([01])");
+  QTextStream in(source);
+  
+  // clear();                      // Do we want that ?
 
-  //     int idx = parameterIndices.value(paramName, -1);
-  //     if(idx < 0) {
-  //       Terminal::out << "Found unkown parameter: '" << paramName 
-  //                     << "', ignoring" << endl;
-  //       continue;
-  //     }
+  while(true) {
+    line = in.readLine();
+    if(line.isNull())
+      break;                    // EOF
+    if(paramRE.indexIn(line) == 0) {
+      // We found a parameter
+      QString paramName = paramRE.cap(1);
+      int ds = -1;
+      if(! paramRE.cap(2).isEmpty())
+        ds = paramRE.cap(2).toInt();
       
-  //     if(ds > 0) {
-  //       if(ds >= datasets) {
-  //         Terminal::out << "Ignoring parameter '" << paramName 
-  //                       << "' for extra dataset #" << ds << endl;
-  //         continue;
-  //       }
-  //       global[idx] = false;    // Sure enough
-  //       values[idx + ds * nbParameters] = value;
-  //       fixed[idx + ds * nbParameters] = fxd;
-  //     }
-  //     else {
-  //       global[idx] = true;
-  //       for(int i = 0; i < datasets; i++)
-  //         values[idx + i * nbParameters] = value;
-  //       fixed[idx] = fxd;
-  //     }
-  //   }
-  //   else {
-  //     if(! line.startsWith("#"))
-  //       Terminal::out << "Line not understood: '" 
-  //                     << line << "'" << endl;
-  //   }
-  // }
+      QString value = paramRE.cap(3);
+      bool fxd = (paramRE.cap(4).toInt() == 0);
+
+      int idx = parameterIndices.value(paramName, -1);
+      if(idx < 0) {
+        Terminal::out << "Found unkown parameter: '" << paramName 
+                      << "', ignoring" << endl;
+        continue;
+      }
+
+      if(ds >= 0) {
+        if(ds >= datasets) {
+          Terminal::out << "Ignoring parameter '" << paramName 
+                        << "' for extra dataset #" << ds << endl;
+          continue;
+        }
+        
+        FitParameter * & pm = parameter(idx, ds);
+        delete pm;
+        pm = FitParameter::fromString(value, & valueFor(idx, ds),
+                                      fxd, idx, ds);
+      }
+      else {
+        FitParameter * & pm = parameter(idx, 0);
+        delete pm;
+        pm = FitParameter::fromString(value, & valueFor(idx, 0),
+                                      fxd, idx, -1);
+        for(int i = 1; i < datasets; i++) {
+          values[idx + i * nbParameters] = values[idx];
+          delete parameter(idx, i);
+          parameter(idx, i) = NULL;
+        }
+      }
+    }
+    else {
+      if(! line.startsWith("#"))
+        Terminal::out << "Line not understood: '" 
+                      << line << "'" << endl;
+    }
+  }
 }
 
 void FitParameters::resetAllToInitialGuess()

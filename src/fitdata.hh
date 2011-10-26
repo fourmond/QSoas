@@ -83,6 +83,11 @@ public:
       *target = v;
   };
 
+  /// Creates an appropriate FitParameter child from a string
+  static FitParameter * fromString(const QString & value, 
+                                   double * target, bool fixed,
+                                   int paramIndex, int dsIndex);
+
 };
 
 /// A parameter, once it's in use. A list of that can be used to

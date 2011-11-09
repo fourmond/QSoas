@@ -401,6 +401,20 @@ DataSet * DataSet::subset(int beg, int end, bool within) const
 }
 
 
+
+
+DataSet * DataSet::removeSpikes(int nb, double extra) const
+{
+  QList<Vector> cols;
+  for(int i = 0; i < columns.size(); i++)
+    cols += columns[i].removeSpikes(nb, extra);
+
+  DataSet * newds = new DataSet(cols);
+  newds->name = cleanedName() + "_spikes.dat";
+  return newds;
+}
+
+
 /* Simply returns the sign */
 static int signof(double x)
 {

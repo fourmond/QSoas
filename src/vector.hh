@@ -77,6 +77,22 @@ public:
   /// The maximum value
   double max() const;
 
+  /// Fills the target values with the average and variance of the set
+  void stats(double * average, double * variance) const;
+
+  /// @}
+
+  /// @name Other operations
+  ///
+  /// @{
+
+  /// Returns a vector of length n-1 containing the deltas between
+  /// successive values (x[i+1]-x[i]).
+  Vector deltas() const;
+
+  /// Returns a new vector with spikes removed.
+  Vector removeSpikes(int nb = 3, double extra = 200) const;
+
   /// @}
 
 

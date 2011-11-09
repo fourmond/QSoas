@@ -286,3 +286,49 @@ Vector Vector::fromGSLVector(const gsl_vector * vect)
     ret << gsl_vector_get(vect, i);
   return ret;
 }
+
+Vector Vector::deltas() const
+{
+  Vector ret;
+  ret.reserve(size()-1);
+  for(int i = 0; i < size() - 1; i++)
+    ret << value(i+1) - value(i);
+  return ret;
+}
+
+void Vector::stats(double * average, double * variance) const
+{
+  *average = 0;
+  *variance = 0;
+  int sz = size();
+  for(int i = 0; i < sz; i++) {
+    *average += value(i);
+    *variance += value(i)*value(i);
+  }
+  *average /= sz;
+  *variance /= sz;
+  *variance -= (*average * *average);
+}
+
+Vector Vector::removeSpikes(int nb, double extra) const
+{
+  Vector v = deltas();
+  Vector nv = (*this);
+  double davg, dvar;
+  v.stats(&davg, &dvar);
+
+  for(int i = nb-1; i < size() - nb - 2; i++) {
+    for(int j = 1; j <= nb; j++) {
+      double dvlim = j * (fabs(davg) + extra * dvar);
+      if((fabs(value(i + j) - value(i)) > dvlim) && 
+         ( (fabs(value(i + j + 1) - value(i)) < dvlim))) {
+        // We found a spike of j points: replace by the weighted
+        // average of bounds.
+        for(int k = 1; k <= j; k++)
+          nv[i+k] = (j - k)/(1.0*j) * value(i) + 
+            k/(1.0*j) * value(i + j + 1);
+      }
+    }
+  }
+  return nv;
+}

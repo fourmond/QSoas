@@ -541,3 +541,40 @@ fsc("find-steps", // command name
      "Find steps",
      "Find steps in the data",
      "...");
+
+//////////////////////////////////////////////////////////////////////
+
+static void removeSpikesCommand(const QString &, const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+  int nb = 5;                   // default to 5 !
+  double extra = 200;
+
+  updateFromOptions(opts, "number", nb);
+  updateFromOptions(opts, "factor", extra);
+  
+  soas().pushDataSet(ds->removeSpikes(nb, extra));
+}
+
+static ArgumentList 
+rsOps(QList<Argument *>() 
+      << new IntegerArgument("number", 
+                             "Number",
+                             "Number of points to look at")
+      << new NumberArgument("factor", 
+                            "Factor",
+                            "...")
+      );
+
+
+static Command 
+sort("remove-spikes", // command name
+     effector(removeSpikesCommand), // action
+     "buffer",  // group name
+     NULL, // arguments
+     &rsOps, // options
+     "Remove spikes",
+     "Remove spikes",
+     "Remove spikes using a simple heuristics",
+     "R");
+

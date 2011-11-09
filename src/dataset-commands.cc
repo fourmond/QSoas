@@ -583,6 +583,7 @@ static void statsCommand(const QString &, const CommandOptions & opts)
   const Vector &x = ds->x();
   const Vector &y = ds->y();
 
+  // @todo add averages and so on !
   Terminal::out << "Statistics on buffer: " << ds->name << ":\n" 
                 << "x[0] = " << x.first() << "\tx[" << x.size() - 1
                 << "] = " << x.last() << "\n"

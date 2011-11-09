@@ -29,6 +29,7 @@
 
 #include <exceptions.hh>
 
+#include <terminal.hh>
 
 /// @todo Include peak detection, with the algorithm used for the
 /// film_decay command in the old Soas.
@@ -400,14 +401,24 @@ DataSet * DataSet::subset(int beg, int end, bool within) const
   return newds;
 }
 
-
-
-
-DataSet * DataSet::removeSpikes(int nb, double extra) const
+DataSet * DataSet::removeSpikes(int nbc, double extra) const
 {
+  int nb = 0, nb2;
   QList<Vector> cols;
-  for(int i = 0; i < columns.size(); i++)
-    cols += columns[i].removeSpikes(nb, extra);
+  cols += columns[0].removeSpikes(nbc, extra, &nb2);
+  if(nb2) {
+    nb = nb2;
+    Terminal::out << "Found " << nb2 << " spikes on X values" << endl;
+  }
+
+  cols += columns[1].removeSpikes(nbc, extra, &nb2);
+  if(nb2) {
+    nb += nb2;
+    Terminal::out << "Found " << nb2 << " spikes on Y values" << endl;
+  }
+
+  if(! nb2)
+    return NULL;
 
   DataSet * newds = new DataSet(cols);
   newds->name = cleanedName() + "_spikes.dat";

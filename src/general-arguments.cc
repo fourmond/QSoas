@@ -46,6 +46,28 @@ ArgumentMarshaller * StringArgument::promptForValue(QWidget * base) const
 
 ////////////////////////////////////////////////////////////
 
+ArgumentMarshaller * BoolArgument::fromString(const QString & str) const
+{
+  QRegExp yesRE("y(es)?|true|on", Qt::CaseInsensitive);
+  QRegExp noRE("no?|false|off", Qt::CaseInsensitive);
+  bool val;
+  if(yesRE.indexIn(str) >= 0)
+    val = true;
+  else if(noRE.indexIn(str) >= 0)
+    val = false;
+  else
+    throw RuntimeError(QString("'%1' is neither true nor false").arg(str)); 
+  return new ArgumentMarshallerChild<bool>(val);
+}
+
+ArgumentMarshaller * BoolArgument::promptForValue(QWidget * ) const
+{
+  bool val = Utils::askConfirmation(description(), argumentName());
+  return new ArgumentMarshallerChild<bool>(val);
+}
+
+////////////////////////////////////////////////////////////
+
 QStringList ChoiceArgument::choices() const
 {
   QStringList c = fixedChoices;

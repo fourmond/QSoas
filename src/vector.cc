@@ -302,33 +302,50 @@ void Vector::stats(double * average, double * variance) const
   *variance = 0;
   int sz = size();
   for(int i = 0; i < sz; i++) {
-    *average += value(i);
-    *variance += value(i)*value(i);
+    double val = value(i);
+    *average += val;
+    *variance += val*val;
   }
   *average /= sz;
   *variance /= sz;
   *variance -= (*average * *average);
 }
 
-Vector Vector::removeSpikes(int nb, double extra) const
+Vector Vector::removeSpikes(int nb, double extra, int *nbFound) const
 {
   Vector v = deltas();
   Vector nv = (*this);
   double davg, dvar;
   v.stats(&davg, &dvar);
 
+  int found = 0;
+  
+  // We really use standard deviation and not variance !
+  dvar = sqrt(dvar);
+
   for(int i = nb-1; i < size() - nb - 2; i++) {
     for(int j = 1; j <= nb; j++) {
       double dvlim = j * (fabs(davg) + extra * dvar);
-      if((fabs(value(i + j) - value(i)) > dvlim) && 
-         ( (fabs(value(i + j + 1) - value(i)) < dvlim))) {
-        // We found a spike of j points: replace by the weighted
-        // average of bounds.
-        for(int k = 1; k <= j; k++)
-          nv[i+k] = (j - k)/(1.0*j) * value(i) + 
-            k/(1.0*j) * value(i + j + 1);
+      if((fabs(value(i + j) - value(i)) >= dvlim)) {
+        if((fabs(value(i + j + 1) - value(i)) <= dvlim)) {
+
+          // We found a spike of j points: replace by the weighted
+          // average of bounds.
+          printf("Found spike at index %d/%d\n", i, j);
+          for(int k = 1; k <= j; k++)
+            nv[i+k] = (j - k)/(1.0*j) * value(i) + 
+              k/(1.0*j) * value(i + j + 1);
+          i += j;
+          found++;
+          break;                  // exit the inner loop !
+        }
       }
+      else                      // There is no peak here, skip.
+                                // (should only happen for j == 1)
+        break;                  
     }
   }
+  if(nbFound)
+    *nbFound = found;
   return nv;
 }

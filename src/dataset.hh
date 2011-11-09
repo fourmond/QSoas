@@ -267,7 +267,11 @@ public:
   /// indices or outside of them
   DataSet * subset(int beg, int end, bool within = true) const;
 
-  /// Returns a new dataset with spikes removed
+  /// Returns a new dataset with spikes on X and Y columns removed.
+  /// @todo Other columns ?<
+  ///
+  /// @warning The returned dataset can be NULL if no spikes were
+  /// removed/
   DataSet * removeSpikes(int nb = 3, double extra = 200) const;
 
 

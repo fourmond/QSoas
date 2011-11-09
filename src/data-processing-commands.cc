@@ -548,12 +548,18 @@ static void removeSpikesCommand(const QString &, const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();
   int nb = 5;                   // default to 5 !
-  double extra = 200;
+  double extra = 3;
+  bool force = false;
 
   updateFromOptions(opts, "number", nb);
   updateFromOptions(opts, "factor", extra);
-  
-  soas().pushDataSet(ds->removeSpikes(nb, extra));
+  updateFromOptions(opts, "force-new", force);
+
+  DataSet * newDs = ds->removeSpikes(nb, extra);
+  if(newDs)
+    soas().pushDataSet(newDs);
+  else if(force)
+    soas().pushDataSet(new DataSet(*ds));
 }
 
 static ArgumentList 
@@ -564,6 +570,9 @@ rsOps(QList<Argument *>()
       << new NumberArgument("factor", 
                             "Factor",
                             "...")
+      << new BoolArgument("force-new", 
+                          "Force new buffer",
+                          "Adds a new buffer even if no spikes were removed")
       );
 
 

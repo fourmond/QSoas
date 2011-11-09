@@ -37,6 +37,21 @@ public:
   virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
 };
 
+/// A boolean argument
+class BoolArgument : public Argument {
+public:
+
+  BoolArgument(const char * cn, const char * pn,
+                 const char * d = "") : Argument(cn, pn, d) {
+  }; 
+  
+  /// Returns a wrapped bool
+  virtual ArgumentMarshaller * fromString(const QString & str) const;
+
+  /// 
+  virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
+};
+
 /// A choice between several fixed strings
 class ChoiceArgument : public Argument {
   QStringList fixedChoices;

@@ -91,7 +91,11 @@ public:
   Vector deltas() const;
 
   /// Returns a new vector with spikes removed.
-  Vector removeSpikes(int nb = 3, double extra = 200) const;
+  ///
+  /// The \a nbFound pointer, if not NULL, is filled with the number
+  /// of spikes found...
+  Vector removeSpikes(int nb = 3, double extra = 200, 
+                      int *nbFound = NULL) const;
 
   /// @}
 

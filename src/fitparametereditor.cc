@@ -76,7 +76,8 @@ FitParameterEditor::FitParameterEditor(const ParameterDefinition * d,
     editor->setMinimumSize(sz);
   }
 
-  updateFromParameters();
+  // We let the dialog box update
+  // updateFromParameters();
 
 }
   

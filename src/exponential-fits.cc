@@ -536,8 +536,9 @@ public:
     for(int i = 0; i < steps.size(); i++) {
       double * base = a + distinctSteps * (exponentials + 1) + 
         (exponentials + 2)*i;
-      
-      base[0] = i * 100;
+
+      double xmax = Utils::roundValue(x.max());
+      base[0] = i * xmax/steps.size();
       base[1] = 1e-4;
       for(int j = 0; j < exponentials; j++)
         base[j+2] = 0.2;

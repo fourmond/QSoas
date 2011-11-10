@@ -547,7 +547,7 @@ fsc("find-steps", // command name
 static void removeSpikesCommand(const QString &, const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();
-  int nb = 5;                   // default to 5 !
+  int nb = 2;                   // default to 2
   double extra = 3;
   bool force = false;
 

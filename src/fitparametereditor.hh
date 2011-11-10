@@ -62,8 +62,10 @@ class FitParameterEditor : public QWidget {
 
   /// Returns the target for the current conditions
   FitParameter *& targetParameter() {
-    return (isGlobal() ? parameters->parameter(index, 0) : 
-            parameters->parameter(index, dataset));
+    if(isGlobal())
+      return parameters->parameter(index, 0);
+    else
+      return parameters->parameter(index, dataset);
   };
 
 public:

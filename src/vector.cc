@@ -331,7 +331,7 @@ Vector Vector::removeSpikes(int nb, double extra, int *nbFound) const
 
           // We found a spike of j points: replace by the weighted
           // average of bounds.
-          printf("Found spike at index %d/%d\n", i, j);
+          // printf("Found spike at index %d/%d\n", i, j);
           for(int k = 1; k <= j; k++)
             nv[i+k] = (j - k)/(1.0*j) * value(i) + 
               k/(1.0*j) * value(i + j + 1);

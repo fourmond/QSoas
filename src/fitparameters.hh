@@ -84,6 +84,9 @@ class FitParameters {
   /// Clears the parameter list
   void clear();
 
+  /// The name of the numbered parameter
+  QString parameterName(int idx) const;
+
 public:
 
   FitParameters(FitData * data);
@@ -144,6 +147,12 @@ public:
   /// version).
   void exportParameters(QIODevice * out) const;
 
+  /// Write the result of the fits to the terminal, as those can be
+  /// quite interesting... It is different from exportParameters in
+  /// the sense that it is optimized for human reading.
+  ///
+  /// @todo Write the correlation matrix ? Write the confidence matrix ?
+  void writeToTerminal(bool writeMatrix = false) const;
 
   /// Export parameters to the given output file (or the default one)
   void exportToOutFile(OutFile * out = NULL) const;

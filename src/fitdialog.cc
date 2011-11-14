@@ -284,6 +284,8 @@ void FitDialog::startFit()
   }
   Terminal::out << "Fitting took an overall " << timer.elapsed() * 1e-3
                 << " seconds" << endl;
+
+  parameters.writeToTerminal();
   
   // parameters.retrieveParameters();
   compute();

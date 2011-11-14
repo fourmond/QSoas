@@ -64,6 +64,8 @@ FitParameter * FitParameter::fromString(const QString & value,
   }
 }
 
+//////////////////////////////////////////////////////////////////////
+
 
 
 void FreeParameter::copyToUnpacked(double * target, const gsl_vector * fit, 
@@ -89,6 +91,8 @@ void FreeParameter::copyToPacked(gsl_vector * target, const double * unpacked,
   gsl_vector_set(target, fitIndex, value);
 }
 
+//////////////////////////////////////////////////////////////////////
+
 void FixedParameter::copyToUnpacked(double * target, const gsl_vector * fit, 
                                    int nb_datasets, int nb_per_dataset) const
 {
@@ -98,6 +102,14 @@ void FixedParameter::copyToUnpacked(double * target, const gsl_vector * fit,
   else
     for(int j = 0; j < nb_datasets; j++)
       target[paramIndex + j * nb_per_dataset] = value;
+}
+
+void FixedParameter::copyToPacked(gsl_vector * target, const double * unpacked,
+                                  int /*nbdatasets*/, int nb_per_dataset) const
+{
+  // We retrieve the value from the unpacked parameters
+  value = unpacked[paramIndex + (dsIndex < 0 ? 0 : dsIndex) * 
+                   nb_per_dataset];
 }
 
 void FixedParameter::initialize(FitData * data)

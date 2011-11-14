@@ -129,7 +129,7 @@ public:
 class FixedParameter : public FitParameter {
 public:
   /// The actual value
-  double value;
+  mutable double value;
 
   /// The formula
   QString formula;
@@ -148,6 +148,9 @@ public:
   virtual void copyToUnpacked(double * target, const gsl_vector * fit, 
                              int nbdatasets, int nb_per_dataset) const;
 
+
+  virtual void copyToPacked(gsl_vector * fit, const double * unpacked,
+                            int nbdatasets, int nb_per_dataset) const;
 
 
   virtual bool fixed() const { return true;};

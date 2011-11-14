@@ -127,6 +127,11 @@ void FitParameters::exportParameters(QIODevice * stream) const
   }
 }
 
+QString FitParameters::parameterName(int idx) const
+{
+  return fitData->parameterDefinitions[idx].name;
+}
+
 void FitParameters::exportToOutFile(OutFile * out) const
 {
   if( ! out)
@@ -152,6 +157,41 @@ void FitParameters::exportToOutFile(OutFile * out) const
     lst << QString::number(fitData->datasets[i]->x().max());
     (*out) << lst.join("\t") << "\n" << flush;
   }
+}
+
+void FitParameters::writeToTerminal(bool /*writeMatrix*/) const
+{
+  /// @todo Write confidence limit.
+
+  // First, write out global parameters.
+  bool hasGlobal = false;
+  for(int i = 0; i < nbParameters; i++) {
+    if(isGlobal(i)) {
+      if(! hasGlobal) {
+        hasGlobal = true;
+        Terminal::out << "Global parameters: \n" << endl;
+      }
+      Terminal::out << parameterName(i) << "\t=\t" 
+                    << QString::number(getValue(i, 0)) << endl;
+    }
+  }
+
+  if(hasGlobal)
+    Terminal::out << "\n\n";
+  Terminal::out << "Buffer-local parameters: \n" << endl;
+
+
+  for(int j = 0; j < datasets; j++) {
+    Terminal::out << "Buffer: " << fitData->datasets[j]->name << endl;
+    for(int i = 0; i < nbParameters; i++) {
+      if(isGlobal(i))
+        continue;
+      Terminal::out << parameterName(i) << "\t=\t" 
+                    << QString::number(getValue(i, j)) << endl;
+    }
+  }
+
+  /// @todo Write chi squared
 }
 
 void FitParameters::saveParameters(QIODevice * stream) const

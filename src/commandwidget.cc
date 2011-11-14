@@ -27,15 +27,25 @@
 
 #include <exceptions.hh>
 
+#include <settings-templates.hh>
+
 using namespace Terminal;
 
 CommandWidget * CommandWidget::theCommandWidget = NULL;
+static SettingsValue<QString> logFileName("command/logfile", 
+                                          QString("soas.log"));
 
-CommandWidget::CommandWidget() 
+
+CommandWidget::CommandWidget() : watcherDevice(NULL)
 {
   if(! theCommandWidget)
     theCommandWidget = this;    // Or always ?
   QVBoxLayout * layout = new QVBoxLayout(this);
+
+  if(! ((QString)logFileName).isEmpty()) {
+    watcherDevice = new QFile(logFileName);
+    watcherDevice->open(QIODevice::Append);
+  }
 
   QHBoxLayout * h1 = new QHBoxLayout();
   terminalDisplay = new QTextEdit();
@@ -79,6 +89,7 @@ CommandWidget::CommandWidget()
 
 CommandWidget::~CommandWidget()
 {
+  delete watcherDevice;
 }
 
 void CommandWidget::runCommand(const QStringList & raw)
@@ -132,12 +143,19 @@ void CommandWidget::appendToTerminal(const QString & str)
 
 void CommandWidget::logString(const QString & str)
 {
-  if(theCommandWidget)
+  if(theCommandWidget) {
     theCommandWidget->appendToTerminal(str);
+    // If there is a watcher file, we duplicate there too.
+    if(theCommandWidget->watcherDevice) {
+      QTextStream o(theCommandWidget->watcherDevice);
+      o << str;
+    }
+  }
   else {
     QTextStream o(stdout);
     o << str;
   }
+
 }
 
 void CommandWidget::setLoopMode(bool loop)

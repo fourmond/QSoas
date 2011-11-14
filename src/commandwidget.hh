@@ -43,6 +43,9 @@ class CommandWidget : public QWidget {
   /// The terminal display
   QTextEdit * terminalDisplay;
 
+  /// A file to the terminal output.
+  QIODevice * watcherDevice;
+
   /// The label on the right of the terminal
   QLabel * sideBarLabel;
 

@@ -29,6 +29,8 @@
 
 #include <fitdialog.hh>
 
+#include <bijection.hh>
+
 #include <ruby.hh>
 
 void FitParameter::initialize(FitData * /*data*/)
@@ -74,7 +76,8 @@ void FreeParameter::copyToUnpacked(double * target, const gsl_vector * fit,
   /// @todo check that fitIndex is positive ??
   double value = gsl_vector_get(fit, fitIndex);
 
-  /// @todo Implement bijections !
+  if(bijection)
+    value = bijection->forward(value);
   if(dsIndex >= 0)
     target[paramIndex + dsIndex * nb_per_dataset] = value;
   else
@@ -87,7 +90,9 @@ void FreeParameter::copyToPacked(gsl_vector * target, const double * unpacked,
 {
   double value = unpacked[paramIndex + (dsIndex < 0 ? 0 : dsIndex) * 
                           nb_per_dataset];
-  /// @todo Implement bijections !
+  if(bijection)
+    value = bijection->backward(value);
+
   gsl_vector_set(target, fitIndex, value);
 }
 

@@ -23,6 +23,8 @@
 #include <fitdata.hh>
 #include <dataset.hh>
 
+#include <parametersdialog.hh>
+
 #include <terminal.hh>
 
 
@@ -60,6 +62,11 @@ FitParameterEditor::FitParameterEditor(const ParameterDefinition * d,
   layout->addWidget(global);
   global->setToolTip(tr("If checked, the parameter is "
                         "common to all data sets"));
+
+  QLabel * label = new QLabel(tr("<a href='biniou'>More</a>"));
+  connect(label, SIGNAL(linkActivated(const QString &)), 
+          SLOT(showEditor()));
+  layout->addWidget(label);
   
   if(! d->canBeBufferSpecific) {
     global->setChecked(true);
@@ -74,10 +81,8 @@ FitParameterEditor::FitParameterEditor(const ParameterDefinition * d,
     fixed->setText("(F)");
     sz.setWidth(5*sz.width()/6);
     editor->setMinimumSize(sz);
-  }
 
-  // We let the dialog box update
-  // updateFromParameters();
+  }
 
 }
   
@@ -167,4 +172,13 @@ void FitParameterEditor::updateFromParameters()
 
 
   updatingEditor = false;
+}
+
+void FitParameterEditor::showEditor()
+{
+  FreeParameter * param = dynamic_cast<FreeParameter*>(targetParameter());
+  if(param) {
+    ParametersDialog dlg(param);
+    dlg.exec();
+  }
 }

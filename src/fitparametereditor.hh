@@ -82,6 +82,8 @@ protected slots:
   void onFixedClicked();
   void onGlobalClicked();
   void onValueChanged(const QString & str);
+
+  void showEditor();
 };
 
 

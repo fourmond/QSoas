@@ -90,6 +90,8 @@ public:
 
 };
 
+class Bijection;
+
 /// A parameter, once it's in use. A list of that can be used to
 /// convert GSL parameters to dataset-specific parameter values.
 class FreeParameter : public FitParameter {
@@ -107,14 +109,22 @@ public:
 
   virtual void copyToPacked(gsl_vector * fit, const double * unpacked,
                             int nbdatasets, int nb_per_dataset) const;
+
+  /// The transformation applied to the parameter to go from the GSL
+  /// parameter space to the user- and fit- visible parameters.
+  ///
+  /// Will be NULL most of the times.
+  Bijection * bijection;
   
   FreeParameter(int p, int ds, double dev = 1e-4) :
     FitParameter(p, ds), derivationFactor(dev), 
-    minDerivationStep(1e-8) {;};
+    minDerivationStep(1e-8), bijection(NULL) {;};
 
   virtual FitParameter * dup() const {
     return new FreeParameter(*this);
   };
+
+  
   
 };
 

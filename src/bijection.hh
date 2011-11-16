@@ -21,6 +21,8 @@
 #ifndef __BIJECTION_HH
 #define __BIJECTION_HH
 
+#include <vector.hh>
+
 class Bijection;
 
 class BijectionFactoryItem {
@@ -59,6 +61,9 @@ class Bijection {
 
 
   static BijectionFactoryItem * namedFactoryItem(const QString & name);
+
+protected:
+  Vector parameterValues;
   
 public:
 
@@ -97,6 +102,17 @@ public:
 
   /// Duplicates the given object.
   virtual Bijection * dup() const = 0;
+
+
+  /// Get the value of the numbered parameter
+  virtual double parameterValue(int idx) const {
+    return parameterValues[idx];
+  };
+  
+  /// Sets the given parameter value
+  virtual void setParameterValue(int idx, double val) {
+    parameterValues[idx] = val;
+  };
 };
 
 

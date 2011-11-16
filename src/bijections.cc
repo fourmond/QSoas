@@ -51,3 +51,67 @@ static Bijection * createLog() {
 }
 
 BijectionFactoryItem logBijection(createLog);
+
+//////////////////////////////////////////////////////////////////////
+
+class HyperbolicRangeBijection : public Bijection {
+
+  void prepare(double & a, double & b) const {
+    a = parameterValues[0];
+    b = parameterValues[1];
+    if(a > b)
+      std::swap(a, b);
+    if(a == b)
+      b = a + 1;                // Whatever, anyway that doesn't make
+                                // sense.
+  };
+public:
+  
+  HyperbolicRangeBijection() {
+    parameterValues.resize(2);  // Two parameters
+  };
+
+  virtual QStringList parameters() const {
+    return QStringList() << "min" << "max";
+  };
+
+  virtual QString name() const {
+    return "hyper-range";
+  };
+
+  virtual QString publicName() const {
+    return "Range (hyperbolic)";
+  };
+
+  virtual double forward(double x) const {
+    double a,b;
+    prepare(a,b);
+    return 0.5 * (a + b) + 0.5 * (b - a) * tanh(x);
+  };
+
+  
+  virtual double backward(double y) const {
+    double a,b;
+    prepare(a,b);
+    if(y < a || y > b) 
+      return 0;       // Defaults to the middle of the range
+
+    double sc = 2 * (y - 0.5 * (a+b))/(b - a);
+    // QTextStream o(stdout);
+    // o << "
+    
+    /// @todo We should check for range errors here.
+    return atanh(sc);
+  };
+
+  virtual Bijection * dup() const {
+    return new HyperbolicRangeBijection(*this);
+  };
+
+};
+
+static Bijection * createHBR() {
+  return new HyperbolicRangeBijection;
+}
+
+BijectionFactoryItem hbBijection(createHBR);

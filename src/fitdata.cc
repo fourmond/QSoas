@@ -47,23 +47,52 @@ void FitParameter::copyToPacked(gsl_vector * /*fit*/,
 }
 
 
-FitParameter * FitParameter::fromString(const QString & value, 
-                                        double * target, 
-                                        bool fixed, 
-                                        int paramIndex, int dsIndex)
+QString FitParameter::saveExtraInfo() const
 {
-  /// @todo This must be modified for formulas...
+  return QString();
+}
+
+void FitParameter::loadExtraInfo(const QString & /*str*/)
+{
+  // Nothing to do by default
+}
+
+QString FitParameter::saveAsString(double value) const
+{
+  QString str = QString("%1\t!\t%2").
+    arg(textValue(value)).arg(fixed() ? "0" : "1");
+  QString extra = saveExtraInfo();
+  if(! extra.isEmpty()) 
+    str += "\t!\t" + extra;
+  return str;
+}
+
+FitParameter * FitParameter::loadFromString(const QString & str, 
+                                            double * target, 
+                                            int paramIndex, int dsIndex)
+{
+  QStringList lst = str.split("\t!\t");
+  bool fixed = (lst[1] == "0");
+
+  FitParameter * p;
+  
   if(fixed) {
     FixedParameter * pm = new FixedParameter(paramIndex, dsIndex, 0);
-    pm->setValue(target, value);
+    pm->setValue(target, lst[0]);
     pm->value = *target;        /// @todo This should move to setValue
-    return pm;
+    p = pm;
   }
   else {
     FreeParameter * pm = new FreeParameter(paramIndex, dsIndex);
-    pm->setValue(target, value);
-    return pm;
+    pm->setValue(target, lst[0]);
+    p =  pm;
   }
+  p->loadExtraInfo(lst.value(2, QString()));
+  return p;
+}
+
+FitParameter::~FitParameter()
+{
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -94,6 +123,33 @@ void FreeParameter::copyToPacked(gsl_vector * target, const double * unpacked,
     value = bijection->backward(value);
 
   gsl_vector_set(target, fitIndex, value);
+}
+
+QString FreeParameter::saveExtraInfo() const
+{
+  if(bijection)
+    return bijection->saveAsText();
+  return QString();
+}
+
+void FreeParameter::loadExtraInfo(const QString & str)
+{
+  delete bijection;
+  bijection = Bijection::loadFromText(str); // Can return NULL, that
+                                            // isn't a problem.
+}
+
+FreeParameter::~FreeParameter()
+{
+  delete bijection;             // This is where the fun starts...
+}
+
+FitParameter * FreeParameter::dup() const
+{
+  FreeParameter *p = new FreeParameter(*this);
+  if(bijection)
+    p->bijection = bijection->dup();
+  return p;
 }
 
 //////////////////////////////////////////////////////////////////////

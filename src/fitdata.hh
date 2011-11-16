@@ -83,10 +83,30 @@ public:
       *target = v;
   };
 
-  /// Creates an appropriate FitParameter child from a string
-  static FitParameter * fromString(const QString & value, 
-                                   double * target, bool fixed,
-                                   int paramIndex, int dsIndex);
+  /// Saves the parameter as a string. It is the second part of the
+  /// output of FitParameters::saveParameters().
+  ///
+  /// Its goal isn't to save context information (indices) but raw
+  /// FitParameter information. FitParameters::saveParameters takes
+  /// care of the context.
+  virtual QString saveAsString(double value) const;
+
+  /// It is the reverse of saveAsString().
+  static FitParameter * loadFromString(const QString & str, 
+                                       double * target, int paramIndex, 
+                                       int dsIndex);
+
+  virtual ~FitParameter();
+
+protected:
+
+  /// This returns extra parameters information that must be
+  /// saved. For instance, that is the way Bijection is stored for
+  /// FreeParameter.
+  virtual QString saveExtraInfo() const;
+
+  /// Load the information as saved by saveExtraInfo().
+  virtual void loadExtraInfo(const QString & str);
 
 };
 
@@ -120,11 +140,13 @@ public:
     FitParameter(p, ds), derivationFactor(dev), 
     minDerivationStep(1e-8), bijection(NULL) {;};
 
-  virtual FitParameter * dup() const {
-    return new FreeParameter(*this);
-  };
+  virtual FitParameter * dup() const;
 
-  
+  virtual ~FreeParameter();
+
+protected:
+  virtual QString saveExtraInfo() const;
+  virtual void loadExtraInfo(const QString & str);
   
 };
 

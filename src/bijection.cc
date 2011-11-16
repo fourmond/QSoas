@@ -74,3 +74,18 @@ QList<const BijectionFactoryItem *> Bijection::factoryItems()
     ret << i.value();
   return ret;
 }
+
+QString Bijection::saveAsText() const
+{
+  /// @todo Implement parameter saving.
+  return name();
+}
+
+Bijection * Bijection::loadFromText(const QString & spec)
+{
+  QStringList lst = spec.split(QRegExp("\\s*:\\s*"));
+  Bijection * bijection = createNamedBijection(lst[0]);
+
+  /// @todo Initialization based on the second member
+  return bijection;
+}

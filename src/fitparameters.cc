@@ -209,10 +209,9 @@ void FitParameters::saveParameters(QIODevice * stream) const
   // A first pass to print out the global parameters
   for(int i = 0; i < nbParameters; i++) {
     if(isGlobal(i) || datasets == 1) {
-      const FitParameter * param = parameters[i];
+      const FitParameter * param = parameter(i, 0);
       out << fitData->parameterDefinitions[i].name 
-          << "\t" << param->textValue(getValue(i, 0)) << "\t!\t"
-          << (param->fixed() ? "0" : "1")
+          << "\t" << param->saveAsString(getValue(i, 0))
           << endl;
     }
   }
@@ -221,11 +220,10 @@ void FitParameters::saveParameters(QIODevice * stream) const
       for(int i = 0; i < nbParameters; i++) {
         if(isGlobal(i))
           continue;
-        const FitParameter * param = parameters[i];
+        const FitParameter * param = parameter(i, j);
         out << fitData->parameterDefinitions[i].name 
             << "[#" << j << "]\t"
-            << param->textValue(getValue(i, 0)) << "\t!\t"
-            << (param->fixed() ? "0" : "1")
+            << "\t" << param->saveAsString(getValue(i, j))
             << endl;
       }
     }
@@ -243,7 +241,7 @@ void FitParameters::clear()
 void FitParameters::loadParameters(QIODevice * source)
 {
   QString line;
-  QRegExp paramRE("^([^\t []+)\\s*(?:\\[#(\\d+)\\])?\t(\\S+)\\s*!\\s*([01])");
+  QRegExp paramRE("^([^\t []+)\\s*(?:\\[#(\\d+)\\])?\t(.*)");
   QTextStream in(source);
   
   // clear();                      // Do we want that ?
@@ -259,8 +257,7 @@ void FitParameters::loadParameters(QIODevice * source)
       if(! paramRE.cap(2).isEmpty())
         ds = paramRE.cap(2).toInt();
       
-      QString value = paramRE.cap(3);
-      bool fxd = (paramRE.cap(4).toInt() == 0);
+      QString str = paramRE.cap(3);
 
       int idx = parameterIndices.value(paramName, -1);
       if(idx < 0) {
@@ -278,14 +275,14 @@ void FitParameters::loadParameters(QIODevice * source)
         
         FitParameter * & pm = parameter(idx, ds);
         delete pm;
-        pm = FitParameter::fromString(value, & valueFor(idx, ds),
-                                      fxd, idx, ds);
+        pm = FitParameter::loadFromString(str, &valueFor(idx, ds),
+                                          idx, ds);
       }
       else {
         FitParameter * & pm = parameter(idx, 0);
         delete pm;
-        pm = FitParameter::fromString(value, & valueFor(idx, 0),
-                                      fxd, idx, -1);
+        pm = FitParameter::loadFromString(str, &valueFor(idx, 0), 
+                                          idx, -1);
         for(int i = 1; i < datasets; i++) {
           values[idx + i * nbParameters] = values[idx];
           delete parameter(idx, i);

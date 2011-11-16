@@ -39,8 +39,14 @@ void ParametersDialog::setupFrame()
   QComboBox * cb = new QComboBox;
   cb->addItem("(none)", -1);
   
-  for(int i = 0; i < availableBijections.size(); i++)
-    cb->addItem(availableBijections[i]->publicName, i);
+  int idx = 0;
+  for(int i = 0; i < availableBijections.size(); i++) {
+    const BijectionFactoryItem * it = availableBijections[i];
+    cb->addItem(it->publicName, i);
+    if(param->bijection && it->name == param->bijection->name())
+      idx = i+1;
+  }
+  cb->setCurrentIndex(idx);
 
   connect(cb, SIGNAL(activated(int)), 
           SLOT(onBijectionChange(int)));

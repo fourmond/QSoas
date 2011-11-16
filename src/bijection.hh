@@ -84,10 +84,19 @@ public:
   static Bijection * createNamedBijection(const QString & name);
 
   /// Loads a Bijection from text, including parsing of parameters.
-  static Bijection * loadFromText(const QString & spec);
+  static Bijection * loadFromText(const QString & spec); 
+
+  /// Saves a bijection as a piece of text.
+  ///
+  /// @warning For loadFromText to work, any derived class
+  /// implementing this should start the spec by the name.
+  virtual QString saveAsText() const;
 
   /// Returns the available items
   static QList<const BijectionFactoryItem *> factoryItems();
+
+  /// Duplicates the given object.
+  virtual Bijection * dup() const = 0;
 };
 
 

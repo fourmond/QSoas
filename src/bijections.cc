@@ -40,6 +40,10 @@ public:
     return log(y);
   };
 
+  virtual Bijection * dup() const {
+    return new LogBijection(*this);
+  };
+
 };
 
 static Bijection * createLog() {

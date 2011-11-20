@@ -164,6 +164,7 @@ void FitDialog::setupFrame()
 
   startButton = new QPushButton(tr("Fit"));
   connect(startButton, SIGNAL(clicked()), SLOT(startFit()));
+  startButton->setDefault(true);
   hb->addWidget(startButton);
 
   cancelButton = new QPushButton(tr("Cancel fit"));

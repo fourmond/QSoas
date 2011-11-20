@@ -124,15 +124,17 @@ class ArbitraryFit : public FunctionFit {
     params.takeFirst();       // Remove x.
   }
     
-  void runFitCurrentDataSet(const QString & n, QString formula)
+  void runFitCurrentDataSet(const QString & n, 
+                            QString formula, const CommandOptions & opts)
   {
     QList<const DataSet *> ds;
     ds << soas().currentDataSet();
-    runFit(n, formula, ds);
+    runFit(n, formula, ds, opts);
   }
 
-  void runFit(const QString &, QString formula, 
-              QList<const DataSet *> datasets)
+  void runFit(const QString & name, QString formula, 
+              QList<const DataSet *> datasets,
+              const CommandOptions & opts)
   {
     callID = rb_intern("call"); // Shouldn't be done in the
     // constructor, called to early.
@@ -142,9 +144,7 @@ class ArbitraryFit : public FunctionFit {
     Terminal::out << " -> detected parameters:  " << params.join(", ") 
                   << endl;
 
-    FitData data(this, datasets);
-    FitDialog dlg(&data);
-    dlg.exec();
+    Fit::runFit(name, datasets, opts);
   }
     
 public:
@@ -187,8 +187,8 @@ public:
                                          "Formula for the fit"));
 
     makeCommands(al, 
-                 optionLessEffector(this, &ArbitraryFit::runFitCurrentDataSet),
-                 optionLessEffector(this, &ArbitraryFit::runFit));
+                 effector(this, &ArbitraryFit::runFitCurrentDataSet),
+                 effector(this, &ArbitraryFit::runFit));
   };
 };
 

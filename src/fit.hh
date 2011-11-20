@@ -21,6 +21,8 @@
 #ifndef __FIT_HH
 #define __FIT_HH
 
+#include <argumentmarshaller.hh>
+
 /// The definition of a parameter.
 class ParameterDefinition {
 public:
@@ -81,6 +83,12 @@ protected:
   /// The maximum number of datasets the fit can take (-1 for
   /// boundless)
   int maxDataSets;
+
+  /// Process the fit-specific options.
+  ///
+  /// This function can also be used to perfom per-fit initialization,
+  /// even if you don't care about options.
+  virtual void processOptions(const CommandOptions & opts);
 public:
 
   /// The fit name
@@ -168,10 +176,11 @@ public:
   /// Runs the fit on the current dataset, that is, pops up the dialog
   /// box prompting for fit parameters and for user interaction in
   /// general.
-  void runFitCurrentDataSet(const QString & name);
+  void runFitCurrentDataSet(const QString & name, const CommandOptions & opts);
 
   /// Runs the fit on the given datasets. \sa runFitCurrentDataSet
-  void runFit(const QString & name, QList<const DataSet *> datasets);
+  void runFit(const QString & name, QList<const DataSet *> datasets,
+              const CommandOptions & opts);
 };
 
 

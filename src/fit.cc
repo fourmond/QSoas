@@ -67,11 +67,13 @@ void Fit::makeCommands(ArgumentList * args,
   ArgumentList * fal = NULL;
   if(args) 
     fal = new ArgumentList(*args);
+
+  /// @todo Add option processing when applicable.
   
   
   new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
               singleFit ? singleFit : 
-              optionLessEffector(this, &Fit::runFitCurrentDataSet),
+              effector(this, &Fit::runFitCurrentDataSet),
               "fits", fal, options, pn, sd, ld);
   
   ArgumentList * al = NULL;
@@ -98,27 +100,34 @@ void Fit::makeCommands(ArgumentList * args,
   ld += longDesc;
   new Command((const char*)(QString("mfit-") + name).toLocal8Bit(),
               multiFit ? multiFit : 
-              optionLessEffector(this, &Fit::runFit),
+              effector(this, &Fit::runFit),
               "fits", al, options, pn, sd, ld);
+}
+
+void Fit::processOptions(const CommandOptions & /*opts*/)
+{
+  // No specific option to process by default.
 }
 
 
 
-void Fit::runFitCurrentDataSet(const QString & n)
+void Fit::runFitCurrentDataSet(const QString & n, const CommandOptions & opts)
 {
   QList<const DataSet *> ds;
   /// @todo Implement correctly the "minimumDataSet thing". The trick
   /// is to implement it only once, and not in every single complex
   /// fit.
-  // for(int i = 0; i < 
   ds << soas().currentDataSet();
-  runFit(n, ds);
+  runFit(n, ds, opts);
 }
 
-void Fit::runFit(const QString &, QList<const DataSet *> datasets)
+void Fit::runFit(const QString &, QList<const DataSet *> datasets,
+                 const CommandOptions & opts)
 {
+  processOptions(opts);
   FitData data(this, datasets);
   FitDialog dlg(&data);
+  /// @todo Global option processing 
   dlg.exec();
 }
 

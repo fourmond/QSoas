@@ -396,15 +396,7 @@ class MultiExpMultiStepFit : public PerDatasetFit {
   int exponentials;
   
 
-  void runFitCurrentDataSet(const QString &n, const CommandOptions & opts)
-  {
-    QList<const DataSet *> ds;
-    ds << soas().currentDataSet();
-    runFit(n, ds, opts);
-  }
-
-  void runFit(const QString &, QList<const DataSet *> datasets,
-              const CommandOptions & opts)
+  virtual void processOptions(const CommandOptions & opts)
   {
     steps.clear();
     steps << 0 << 1 << 0; // one step forward, one step backward.
@@ -418,13 +410,6 @@ class MultiExpMultiStepFit : public PerDatasetFit {
       if(distinctSteps < steps[i])
         distinctSteps = steps[i];
     distinctSteps++;            // To get the actual number ! 
-
-    
-    {
-      FitData data(this, datasets);
-      FitDialog dlg(&data);
-      dlg.exec();
-    }
   }
 
 public:
@@ -561,12 +546,7 @@ public:
                    SeveralIntegersArgument("steps", 
                                            "Steps",
                                            "Step list with numbered conditions"));
-    makeCommands(NULL, 
-                 effector(this, 
-                          &MultiExpMultiStepFit::runFitCurrentDataSet),
-                 effector(this, 
-                          &MultiExpMultiStepFit::runFit),
-                 opts);
+    makeCommands(NULL, NULL, NULL, opts);
   };
 };
 

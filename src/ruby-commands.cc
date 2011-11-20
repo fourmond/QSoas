@@ -32,7 +32,6 @@
 #include <perdatasetfit.hh>
 #include <dataset.hh>
 #include <vector.hh>
-#include <fitdialog.hh>
 #include <fitdata.hh>
 
 

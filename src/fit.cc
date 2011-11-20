@@ -25,6 +25,7 @@
 #include <group.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
+#include <file-arguments.hh>
 
 #include <exceptions.hh>
 
@@ -69,7 +70,11 @@ void Fit::makeCommands(ArgumentList * args,
     fal = new ArgumentList(*args);
 
   /// @todo Add option processing when applicable.
-  
+  if(! options) 
+    options = new ArgumentList();
+  *options << new FileArgument("parameters", 
+                               "Parameters",
+                               "Pre-loads parameters");
   
   new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
               singleFit ? singleFit : 
@@ -127,7 +132,11 @@ void Fit::runFit(const QString &, QList<const DataSet *> datasets,
   processOptions(opts);
   FitData data(this, datasets);
   FitDialog dlg(&data);
-  /// @todo Global option processing 
+
+  QString loadParameters;
+  updateFromOptions(opts, "parameters", loadParameters);
+  if(! loadParameters.isEmpty())
+    dlg.loadParametersFile(loadParameters);
   dlg.exec();
 }
 

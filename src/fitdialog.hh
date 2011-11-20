@@ -91,6 +91,11 @@ public:
 signals:
   void currentDataSetChanged(int ds);
 
+public slots:
+
+  /// Loads parameters from the given file.
+  void loadParametersFile(const QString & fileName);
+
 protected slots:
 
   void dataSetChanged(int newds);

@@ -23,10 +23,8 @@
 #include <vector.hh>
 
 #include <argumentmarshaller.hh>
-#include <fitdata.hh>
 #include <commandeffector.hh>
 #include <commandeffector-templates.hh>
-#include <fitdialog.hh>
 #include <general-arguments.hh>
 
 #include <soas.hh>

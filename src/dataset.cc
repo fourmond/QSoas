@@ -265,9 +265,6 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
     }
   }
   else {
-    for(int i = 0; i < nbcols; i++)
-      vects << Vector();
-
     int j = 0;
     for(int i = 0; i < size_a; i++) {
       /* We first look for the closest point */

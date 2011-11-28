@@ -509,7 +509,9 @@ double DataSet::yValueAt(double x) const
 }
 
 Vector DataSet::bSplinesSmooth(int order, const Vector & xvalues, 
-                               double * residuals, Vector * derivative) const
+                               double * residuals, 
+                               Vector * derivative,
+                               Vector * sd) const
 {
   Vector xv = xvalues;
   qSort(xv);
@@ -556,9 +558,9 @@ Vector DataSet::bSplinesSmooth(int order, const Vector & xvalues,
   // Computing the final Y values:
   gsl_blas_dgemv(CblasNoTrans, 1, X, coeffs, 0, &target.vector);
 
-  if(derivative) {
+  if(derivative || sd) {
     gsl_bspline_deriv_workspace * dw = gsl_bspline_deriv_alloc(order);
-    gsl_matrix * mtx = gsl_matrix_alloc(nbCoeffs, 2);
+    gsl_matrix * mtx = gsl_matrix_alloc(nbCoeffs, 3);
     for(int i = 0; i < nb; i++) {
       gsl_vector_view v = gsl_matrix_row(X, i);
       gsl_bspline_deriv_eval(xvals[i], 1, mtx, bw, dw);
@@ -570,6 +572,24 @@ Vector DataSet::bSplinesSmooth(int order, const Vector & xvalues,
 
     derivative->resize(nb);
     gsl_vector_view target = gsl_vector_view_array(derivative->data(), nb);
+    // Computing the final Y values:
+    gsl_blas_dgemv(CblasNoTrans, 1, X, coeffs, 0, &target.vector);
+  }
+
+  if(sd) {
+    gsl_bspline_deriv_workspace * dw = gsl_bspline_deriv_alloc(order);
+    gsl_matrix * mtx = gsl_matrix_alloc(nbCoeffs, 2);
+    for(int i = 0; i < nb; i++) {
+      gsl_vector_view v = gsl_matrix_row(X, i);
+      gsl_bspline_deriv_eval(xvals[i], 2, mtx, bw, dw);
+      gsl_vector_view s = gsl_matrix_column(mtx, 2);
+      gsl_vector_memcpy(&v.vector, &s.vector);
+    }
+    gsl_bspline_deriv_free(dw);
+    gsl_matrix_free(mtx);
+
+    sd->resize(nb);
+    gsl_vector_view target = gsl_vector_view_array(sd->data(), nb);
     // Computing the final Y values:
     gsl_blas_dgemv(CblasNoTrans, 1, X, coeffs, 0, &target.vector);
   }
@@ -714,6 +734,146 @@ DataSet * DataSet::sort(bool reverse) const
   ds->name = cleanedName() + "_sorted.dat";
   return ds;
 }
+
+DataSet * DataSet::derivedDataSet(const Vector &newy, 
+                                  const QString & suffix) const
+{
+  QList<Vector> nv;
+  nv << x();
+  nv << newy;
+
+  /// @todo Shall we put the other columns back in ?
+  DataSet * ds = new DataSet(nv);
+  ds->name = cleanedName() + suffix;
+  return ds;
+}
+
+DataSet * DataSet::firstDerivative() const
+{
+  int size = x().size();
+  if(size < 5)
+    throw RuntimeError("Need at least 5 points");
+  const double *x = this->x().data();
+  const double *y = this->y().data();
+
+  Vector deriv;
+  int i;
+  double delta_1, delta_2, delta_3, delta_4;
+  double alpha_1, alpha_2, alpha_3, alpha_4;
+  double v0,v1,v2,v3,v4;
+  /* TODO: what happens when there are less than 5 points ? */
+
+  for(i = 0; i < size; i++) {
+    /* First initialize values, though this is very suboptimal */
+    v0 = y[i];
+    if(i == 0) {
+      delta_1 = x[1] - x[0]; v1 = y[1];
+      delta_2 = x[2] - x[0]; v2 = y[2];
+      delta_3 = x[3] - x[0]; v3 = y[3];
+      delta_4 = x[4] - x[0]; v4 = y[4];
+    } else if(i == 1) {
+      delta_1 = x[0] - x[1]; v1 = y[0];
+      delta_2 = x[2] - x[1]; v2 = y[2];
+      delta_3 = x[3] - x[1]; v3 = y[3];
+      delta_4 = x[4] - x[1]; v4 = y[4];
+    } else if(i == size - 2) {
+      delta_1 = x[size-1] - x[size-2]; v1 = y[size-1];
+      delta_2 = x[size-3] - x[size-2]; v2 = y[size-3];
+      delta_3 = x[size-4] - x[size-2]; v3 = y[size-4];
+      delta_4 = x[size-5] - x[size-2]; v4 = y[size-5];
+    } else if(i == size - 1) {
+      delta_1 = x[size-2] - x[size-1]; v1 = y[size-2];
+      delta_2 = x[size-3] - x[size-1]; v2 = y[size-3];
+      delta_3 = x[size-4] - x[size-1]; v3 = y[size-4];
+      delta_4 = x[size-5] - x[size-1]; v4 = y[size-5];
+    } else {
+      delta_1 = x[i-2] - x[i]; v1 = y[i-2];
+      delta_2 = x[i-1] - x[i]; v2 = y[i-1];
+      delta_3 = x[i+2] - x[i]; v3 = y[i+2];
+      delta_4 = x[i+1] - x[i]; v4 = y[i+1];
+    }
+    alpha_1 = delta_2*delta_3*delta_4/
+      (delta_1 * (delta_2 - delta_1) * (delta_3 - delta_1) 
+       * (delta_4 - delta_1));
+    alpha_2 = delta_1*delta_3*delta_4/
+      (delta_2 * (delta_1 - delta_2) * (delta_3 - delta_2) 
+       * (delta_4 - delta_2));
+    alpha_3 = delta_1*delta_2*delta_4/
+      (delta_3 * (delta_1 - delta_3) * (delta_2 - delta_3) 
+       * (delta_4 - delta_3));
+    alpha_4 = delta_1*delta_2*delta_3/
+      (delta_4 * (delta_1 - delta_4) * (delta_2 - delta_4) 
+       * (delta_3 - delta_4));
+    deriv << -(alpha_1 + alpha_2 + alpha_3 + alpha_4) * v0 +
+      alpha_1 * v1 + alpha_2 * v2 + 
+      alpha_3 * v3 + alpha_4 * v4;
+  }
+  return derivedDataSet(deriv, "_diff");
+}
+
+DataSet * DataSet::secondDerivative() const
+{
+  int size = x().size();
+  if(size < 5)
+    throw RuntimeError("Need at least 5 points");
+  const double *x = this->x().data();
+  const double *y = this->y().data();
+
+  Vector deriv;
+  int i;
+  double delta_1, delta_2, delta_3, delta_4;
+  double alpha_1, alpha_2, alpha_3, alpha_4;
+  double v0,v1,v2,v3,v4;
+  /* TODO: what happens when there are less than 5 points ? */
+
+  for(i = 0; i < size; i++) {
+    /* First initialize values, though this is very suboptimal */
+    v0 = y[i];
+    if(i == 0) {
+      delta_1 = x[1] - x[0]; v1 = y[1];
+      delta_2 = x[2] - x[0]; v2 = y[2];
+      delta_3 = x[3] - x[0]; v3 = y[3];
+      delta_4 = x[4] - x[0]; v4 = y[4];
+    } else if(i == 1) {
+      delta_1 = x[0] - x[1]; v1 = y[0];
+      delta_2 = x[2] - x[1]; v2 = y[2];
+      delta_3 = x[3] - x[1]; v3 = y[3];
+      delta_4 = x[4] - x[1]; v4 = y[4];
+    } else if(i == size - 2) {
+      delta_1 = x[size-1] - x[size-2]; v1 = y[size-1];
+      delta_2 = x[size-3] - x[size-2]; v2 = y[size-3];
+      delta_3 = x[size-4] - x[size-2]; v3 = y[size-4];
+      delta_4 = x[size-5] - x[size-2]; v4 = y[size-5];
+    } else if(i == size - 1) {
+      delta_1 = x[size-2] - x[size-1]; v1 = y[size-2];
+      delta_2 = x[size-3] - x[size-1]; v2 = y[size-3];
+      delta_3 = x[size-4] - x[size-1]; v3 = y[size-4];
+      delta_4 = x[size-5] - x[size-1]; v4 = y[size-5];
+    } else {
+      delta_1 = x[i-2] - x[i]; v1 = y[i-2];
+      delta_2 = x[i-1] - x[i]; v2 = y[i-1];
+      delta_3 = x[i+2] - x[i]; v3 = y[i+2];
+      delta_4 = x[i+1] - x[i]; v4 = y[i+1];
+    }
+    alpha_1 = -2 * (delta_2*delta_3 + delta_2*delta_4 + delta_3*delta_4)/
+      (delta_1 * (delta_2 - delta_1) * (delta_3 - delta_1) 
+       * (delta_4 - delta_1));
+    alpha_2 = -2 * (delta_1*delta_3 + delta_1*delta_4 + delta_3*delta_4)/
+      (delta_2 * (delta_1 - delta_2) * (delta_3 - delta_2) 
+       * (delta_4 - delta_2));
+    alpha_3 = -2 * (delta_2*delta_1 + delta_2*delta_4 + delta_1*delta_4)/
+      (delta_3 * (delta_1 - delta_3) * (delta_2 - delta_3) 
+       * (delta_4 - delta_3));
+    alpha_4 = -2 * (delta_2*delta_3 + delta_2*delta_1 + delta_3*delta_1)/
+      (delta_4 * (delta_1 - delta_4) * (delta_2 - delta_4) 
+       * (delta_3 - delta_4));
+    deriv << -(alpha_1 + alpha_2 + alpha_3 + alpha_4) * v0 +
+			alpha_1 * v1 + alpha_2 * v2 + 
+			alpha_3 * v3 + alpha_4 * v4;
+  }
+  return derivedDataSet(deriv, "_diff2");
+}
+
 
 //////////////////////////////////////////////////////////////////////
 

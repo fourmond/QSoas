@@ -88,6 +88,11 @@ class DataSet {
   friend QDataStream & operator<<(QDataStream & out, const DataSet & ds);
   friend QDataStream & operator>>(QDataStream & in, DataSet & ds);
 
+  /// A small helper function for creating new datasets with the same
+  /// X, the given Y, and a name based on the original one with a
+  /// given suffix.
+  DataSet * derivedDataSet(const Vector &y, const QString & suffix) const;
+
 public:
 
   /// The name of the dataset, usually the name of the file.
@@ -216,9 +221,13 @@ public:
   /// are missing)
   ///
   /// Returns the smoothed Y values.
+  ///
+  /// @todo Sounds strange to have double for residuals but Vector for
+  /// derivatives ?
   Vector bSplinesSmooth(int order, const Vector & xvalues, 
                         double * residuals = NULL, 
-                        Vector * derivative = NULL) const;
+                        Vector * derivative = NULL,
+                        Vector * secondDerivative = NULL) const;
 
   /// Finds steps in the Y data, based on the following heuristic: at
   /// each point, estimate the projection of the Y value between point
@@ -273,6 +282,18 @@ public:
   /// @warning The returned dataset can be NULL if no spikes were
   /// removed/
   DataSet * removeSpikes(int nb = 3, double extra = 200) const;
+
+  /// Computes a 4-th order accurate first derivative.
+  ///
+  /// @warning This function fails if there are less than 5 data
+  /// points.
+  DataSet * firstDerivative() const;
+
+  /// Computes a 4-th order accurate second derivative.
+  ///
+  /// @warning This function fails if there are less than 5 data
+  /// points.
+  DataSet * secondDerivative() const;
 
 
 

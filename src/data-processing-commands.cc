@@ -458,12 +458,6 @@ static void bsplinesCommand(const QString &)
       ;
     }
     if(needCompute) {
-      // In any case, the bottom panel shows the delta.
-      // if(derive) {
-      //   d.yvalues = s.derivative(d.xvalues, type);
-      //   diff.yvalues = ds->y() - s.evaluate(d.xvalues, type);
-      // } 
-      // else {
       QRectF bb = ds->boundingBox();
       double xmin = bb.left();
       double xmax = bb.right();
@@ -577,13 +571,51 @@ rsOps(QList<Argument *>()
 
 
 static Command 
-sort("remove-spikes", // command name
-     effector(removeSpikesCommand), // action
+rs("remove-spikes", // command name
+   effector(removeSpikesCommand), // action
+   "buffer",  // group name
+   NULL, // arguments
+   &rsOps, // options
+   "Remove spikes",
+   "Remove spikes",
+   "Remove spikes using a simple heuristics",
+   "R");
+
+//////////////////////////////////////////////////////////////////////
+
+static void diffCommand(const QString &)
+{
+  const DataSet * ds = soas().currentDataSet();
+  soas().pushDataSet(ds->firstDerivative());
+}
+
+static Command 
+diff("diff", // command name
+     optionLessEffector(diffCommand), // action
      "buffer",  // group name
      NULL, // arguments
-     &rsOps, // options
-     "Remove spikes",
-     "Remove spikes",
-     "Remove spikes using a simple heuristics",
-     "R");
+     NULL, // options
+     "Derive",
+     "4th order accurate first derivative",
+     "Computes the 4th order accurate derivative of the buffer\n"
+     "Do not use this on noisy data");
+
+//////////////////////////////////////////////////////////////////////
+
+static void diff2Command(const QString &)
+{
+  const DataSet * ds = soas().currentDataSet();
+  soas().pushDataSet(ds->secondDerivative());
+}
+
+static Command 
+dif2("diff2", // command name
+     optionLessEffector(diff2Command), // action
+     "buffer",  // group name
+     NULL, // arguments
+     NULL, // options
+     "Derive",
+     "4th order accurate second derivative",
+     "Computes the 4th order accurate second derivative of the buffer\n"
+     "Do not use this on noisy data");
 

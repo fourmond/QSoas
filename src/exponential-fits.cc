@@ -562,9 +562,11 @@ public:
       base[0] = y.max();
       double ts = (x.max() - x.min())*0.3;
       for(int j = exponentials - 1 ; j >= 0; j--) {
-        base[1 + j] = ts;
+        base[baseTime() + j] = ts;
         ts *= 0.3;
       }
+      if(! independentLoss)
+        base[1] = 1e-4;
     }
 
     for(int i = 0; i < steps.size(); i++) {
@@ -574,7 +576,7 @@ public:
       base[0] = i * xmax/steps.size();
       base[1] = 1e-4;
       for(int j = 0; j < exponentials; j++)
-        base[j+2] = 0.2;
+        base[baseAmplitude() + j] = 0.2;
     }
     
   };

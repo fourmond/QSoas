@@ -381,7 +381,6 @@ Exp3RelFit fit_expd3_rel;
 
 /// This fit somehow summarizes almost all the others, while being
 /// more powerful (but slightly less easy to use).
-/// 
 class MultiExpMultiStepFit : public PerDatasetFit {
 
   /// The number of distinctSteps
@@ -392,7 +391,43 @@ class MultiExpMultiStepFit : public PerDatasetFit {
 
   /// The number of exponentials
   int exponentials;
+
+  /// Whether film loss depends the "position" or the "step" (ie
+  /// potential)
+  bool independentLoss;
+
+  /// The base index for step \a i
+  int baseStep(int i) const {
+    if(independentLoss)
+      return i * (exponentials + 1);
+    else 
+      return i * (exponentials + 2);
+  };
+
+  /// The base index for "position" \a i
+  int basePosition(int i) const {
+    return baseStep(distinctSteps) + 
+      i * (exponentials + (independentLoss ? 2 : 1) );
+  };
+
+  /// The base index for exponential time constants in step
+  int baseTime() {
+    if(independentLoss)
+      return 1;
+    else
+      return 2;
+  };
+
+  /// The base index for exponential amplitude in position
+  int baseAmplitude() {
+    if(independentLoss)
+      return 2;
+    else
+      return 1;
+  };
   
+
+protected:
 
   virtual void processOptions(const CommandOptions & opts)
   {
@@ -403,12 +438,17 @@ class MultiExpMultiStepFit : public PerDatasetFit {
     exponentials = 2;
     updateFromOptions(opts, "exponentials", exponentials);
 
+    independentLoss = true;
+    updateFromOptions(opts, "independent", independentLoss);
+
     distinctSteps = 0;
     for(int i = 0; i < steps.size(); i++)
       if(distinctSteps < steps[i])
         distinctSteps = steps[i];
     distinctSteps++;            // To get the actual number ! 
   }
+
+
 
 public:
 
@@ -421,9 +461,13 @@ public:
       /// Current of the active form
       defs << ParameterDefinition(QString("I_%1").arg(i+1));
 
+      if( ! independentLoss)
+        defs << ParameterDefinition(QString("kloss_%1").arg(i+1));
+
       /// Exponentials time constants:
       for(int j = 0; j < exponentials; j++) 
         defs << ParameterDefinition(QString("tau_%1_%2").arg(i+1).arg(j+1));
+        
     }
     
     // Then, step-based information
@@ -433,7 +477,8 @@ public:
       defs << ParameterDefinition(QString("xstart_%1").arg(step), true);
 
       /// Film loss.
-      defs << ParameterDefinition(QString("kloss_%1").arg(step));
+      if(independentLoss)
+        defs << ParameterDefinition(QString("kloss_%1").arg(step));
 
       /// Amplitudes
       for(int j = 0; j < exponentials; j++) 
@@ -473,24 +518,29 @@ public:
 
         // First, potential-dependant-stuff:
         int potential = steps[cur];
-        const double * base = a + potential * (exponentials + 1);
+        const double * base = a + baseStep(potential);
         I = base[0];
         for(int j = 0; j < exponentials; j++)
-          timeConstants[j] = base[1 + j];
+          timeConstants[j] = base[baseTime() + j];
+        if(! independentLoss)
+          kloss = base[1];
+
 
         // Then, step-dependant stuff:
-        base = a + distinctSteps * (exponentials + 1) + 
-          (exponentials + 2)*cur;
+        base = a + basePosition(cur);
+
+        if(independentLoss)
+          kloss = base[1];
+
         
         xstart = base[0];
         if(cur < steps.size() - 1)
-          xend = base[exponentials + 2];
+          xend = a[basePosition(cur+1)];
         else
           xend = xv.max();
 
-        kloss = base[1];
         for(int j = 0; j < exponentials; j++)
-          amplitudes[j] = base[j+2];
+          amplitudes[j] = base[j+baseAmplitude()];
       }
       x -= xstart;
       double val = 1;
@@ -508,7 +558,7 @@ public:
     const Vector & x = ds->x();
     const Vector & y = ds->y();
     for(int i = 0; i < distinctSteps; i++) {
-      double * base = a + i * (exponentials + 1);
+      double * base = a + baseStep(i);
       base[0] = y.max();
       double ts = (x.max() - x.min())*0.3;
       for(int j = exponentials - 1 ; j >= 0; j--) {
@@ -516,9 +566,9 @@ public:
         ts *= 0.3;
       }
     }
+
     for(int i = 0; i < steps.size(); i++) {
-      double * base = a + distinctSteps * (exponentials + 1) + 
-        (exponentials + 2)*i;
+      double * base = a + basePosition(i);
 
       double xmax = Utils::roundValue(x.max());
       base[0] = i * xmax/steps.size();
@@ -543,7 +593,13 @@ public:
                    << new 
                    SeveralIntegersArgument("steps", 
                                            "Steps",
-                                           "Step list with numbered conditions"));
+                                           "Step list with numbered conditions")
+                   << new 
+                   BoolArgument("independent", 
+                                "Independent",
+                                "Whether irreversible loss is independent on "
+                                "each step")
+                   );
     makeCommands(NULL, NULL, NULL, opts);
   };
 };

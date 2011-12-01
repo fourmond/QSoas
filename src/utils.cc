@@ -165,7 +165,7 @@ QString Utils::vectorString(const gsl_vector_complex * vector)
 
 double Utils::roundValue(double value, int rank)
 {
-  double rk = ceil(log10(rk));
+  double rk = ceil(log10(value));
   double v = value/pow(10, rk-rank);
   return round(v) * pow(10, rk-rank);
 }

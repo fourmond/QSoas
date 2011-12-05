@@ -52,6 +52,14 @@
    information to perform steps-aware subtractions/divisions (padding
    with last values/first values ?)
 
+   Conditions files:
+   \li annotate the buffers with information gotten from the
+   conditions.dat files I use so often, ie tab-separated
+   (customizable) files with a ##-starting header line (customizable
+   too). Ideally the conditions metadata handling would be written in
+   pure Ruby, with a simple interface from C++ (but not the other way
+   around), so that conditions files would be parseable in Ruby.
+
    Fits:
    \li annotate buffers
    \li option to pass certain parameters in the form of logarithms

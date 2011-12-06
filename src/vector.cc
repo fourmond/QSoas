@@ -349,3 +349,10 @@ Vector Vector::removeSpikes(int nb, double extra, int *nbFound) const
     *nbFound = found;
   return nv;
 }
+
+double Vector::norm() const
+{
+  gsl_vector_const_view v = 
+    gsl_vector_const_view_array(data(), size());
+  return gsl_blas_dnrm2(&v.vector);
+}

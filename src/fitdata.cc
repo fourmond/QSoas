@@ -507,6 +507,15 @@ double FitData::residuals()
   return gsl_blas_dnrm2(solver->f);
 }
 
+double FitData::relativeResiduals()
+{
+  double res = residuals();
+  double norm = 0;
+  for(int i = 0; i < datasets.size(); i++)
+    norm += datasets[i]->y().norm();
+  return res/norm;
+}
+
 bool FitData::independentDataSets() const
 {
   if(datasets.size() <= 1)

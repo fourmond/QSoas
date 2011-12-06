@@ -255,8 +255,9 @@ void FitDialog::startFit()
         ! shouldCancelFit) {
     int it = data->nbIterations;
     double residuals = data->residuals();
-    QString str = QString("Iteration #%1, residuals: %2").
-      arg(it).arg(residuals);
+    double relres = data->relativeResiduals();
+    QString str = QString("Iteration #%1, residuals: %2 (relative: %3)").
+      arg(it).arg(residuals).arg(relres);
     Terminal::out << str << endl;
 
     progressReport->setText(str);

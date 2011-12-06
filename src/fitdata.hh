@@ -310,9 +310,14 @@ public:
   void unpackCurrentParameters(double * target);
 
   /// The residuals (ie sum of the square of differences)
+  ///
+  /// @todo write code for accessing to residuals relative to a single
+  /// dataset ? (but that doesn't make much sense, does it ?)
   double residuals();
 
-  /// @todo add functions for saving/loading parameters
+  /// The relative residuals: norm of the residuals over the norm of
+  /// the data.
+  double relativeResiduals();
 
   ~FitData();
 

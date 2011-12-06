@@ -77,6 +77,9 @@ public:
   /// The maximum value
   double max() const;
 
+  /// The square root of the sum of the squares
+  double norm() const;
+
   /// Fills the target values with the average and variance of the set
   void stats(double * average, double * variance) const;
 

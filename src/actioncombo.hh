@@ -35,7 +35,17 @@ public:
   /// Adds an action with the given name, connected to the \a slot of
   /// the \a receiver.
   void addAction(const QString & name, QObject * receiver, 
-                 const char * slot);
+                 const char * slot, 
+                 const QKeySequence & shortCut = QKeySequence());
+
+  /// A helper function that creates actions. Used by ActionCombo, but
+  /// can be used by others too...
+  static QAction * createAction(const QString & name, 
+                                QObject * receiver, 
+                                const char * slot, 
+                                const QKeySequence & shortCut = 
+                                QKeySequence(),
+                                QObject * parent = NULL);
 
 protected slots:
 

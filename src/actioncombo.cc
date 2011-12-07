@@ -26,12 +26,15 @@ ActionCombo::ActionCombo(const QString & title)
 }
 
 void ActionCombo::addAction(const QString & name, QObject * receiver, 
-                            const char * slot)
+                            const char * slot, const QKeySequence & shortCut)
 {
-  addItem(name);
-  QAction * ac = new QAction(name, this);
-  receiver->connect(ac, SIGNAL(triggered()), slot);
+  QString str = name;
+  if(! shortCut.isEmpty())
+    str += "   (" + shortCut.toString() + ")";
+  addItem(str);
+  QAction * ac = createAction(name, receiver, slot, shortCut, this);
   actions << ac;
+  QWidget::addAction(ac);
 }
 
 void ActionCombo::elementSelected(int idx)
@@ -43,3 +46,17 @@ void ActionCombo::elementSelected(int idx)
   }
 }
 
+QAction * ActionCombo::createAction(const QString & name, 
+                                    QObject * receiver, 
+                                    const char * slot, 
+                                    const QKeySequence & shortCut,
+                                    QObject * parent)
+{
+  QAction * ac = new QAction(name, parent);
+  receiver->connect(ac, SIGNAL(triggered()), slot);
+  if(! shortCut.isEmpty()) {
+    ac->setShortcut(shortCut);
+    ac->setShortcutContext(Qt::WindowShortcut);
+  }
+  return ac;
+}

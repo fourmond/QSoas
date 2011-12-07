@@ -142,12 +142,18 @@ void FitDialog::setupFrame()
   hb->addWidget(ac);
   
   ac = new ActionCombo(tr("Parameters..."));
-  ac->addAction("Load from file", this, SLOT(loadParameters()));
-  ac->addAction("Save to file", this, SLOT(saveParameters()));
-  ac->addAction("Export", this, SLOT(exportParameters()));
-  ac->addAction("Export to output file", this, SLOT(exportToOutFile()));
+  ac->addAction("Load from file", this, 
+                SLOT(loadParameters()),
+                QKeySequence(tr("Ctrl+L")));
+  ac->addAction("Save to file", this, SLOT(saveParameters()),
+                QKeySequence(tr("Ctrl+S")));
+  ac->addAction("Export", this, SLOT(exportParameters()),
+                QKeySequence(tr("Ctrl+X")));
+  ac->addAction("Export to output file", this, SLOT(exportToOutFile())),
+                QKeySequence(tr("Ctrl+O"));
   ac->addAction("Reset this to initial guess", this, 
-                SLOT(resetThisToInitialGuess()));
+                SLOT(resetThisToInitialGuess()),
+                QKeySequence(tr("Ctrl+T")));
   ac->addAction("Reset all to initial guess !", this, 
                 SLOT(resetAllToInitialGuess()));
   hb->addWidget(ac);
@@ -155,11 +161,16 @@ void FitDialog::setupFrame()
   ac = new ActionCombo(tr("Print..."));
   ac->addAction("Save all as PDF", this, SLOT(saveAllPDF()));
 
+
   hb->addWidget(ac);
   hb->addStretch(1);
 
-  bt = new QPushButton(tr("Update curves"));
+  bt = new QPushButton(tr("Update curves (Ctrl+U)"));
   connect(bt, SIGNAL(clicked()), SLOT(compute()));
+  bt->addAction(ActionCombo::createAction(tr("Update curves"), 
+                                          this, SLOT(compute()),
+                                          QKeySequence(tr("Ctrl+U")), bt));
+  
   hb->addWidget(bt);
 
   startButton = new QPushButton(tr("Fit"));
@@ -173,8 +184,11 @@ void FitDialog::setupFrame()
   cancelButton->setVisible(false);
 
 
-  bt = new QPushButton(tr("Close"));
+  bt = new QPushButton(tr("Close (Ctrl+C)"));
   connect(bt, SIGNAL(clicked()), SLOT(close()));
+  bt->addAction(ActionCombo::createAction(tr("Close"), 
+                                          this, SLOT(close()),
+                                          QKeySequence(tr("Ctrl+C")), bt));
   hb->addWidget(bt);
 
   layout->addLayout(hb);

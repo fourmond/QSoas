@@ -73,6 +73,9 @@ public:
   /// Sets the initial concentrations
   void setInitialConcentrations(const gsl_vector * concentrations);
 
+  /// Sets the initial concentrations
+  void setInitialConcentrations(const double * concentrations);
+
   /// Returns in \a target the concentrations of the species at time
   /// t.
   void getConcentrations(double t, gsl_vector * target) const;

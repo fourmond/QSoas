@@ -98,6 +98,14 @@ void LinearKineticSystem::computeMatrices()
   updateNeeded = false;
 }
 
+void LinearKineticSystem::setInitialConcentrations(const double * 
+                                                   concentrations)
+{
+  gsl_vector_const_view v = 
+    gsl_vector_const_view_array(concentrations, speciesNumber);
+  setInitialConcentrations(&v.vector);
+}
+
 void LinearKineticSystem::setInitialConcentrations(const gsl_vector * 
                                                    concentrations)
 {

@@ -107,7 +107,8 @@ SOURCES += src/qmain.cc \
         src/fitparametereditor.cc \
         src/bijection.cc \
         src/bijections.cc \
-        src/parametersdialog.cc
+        src/parametersdialog.cc \
+        src/echem-fits.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \

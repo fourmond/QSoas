@@ -34,6 +34,9 @@
    \li filter/derivative
    \li convolution, that was quite useful
    \li step detection, dead useful too !
+
+   \li put back the temperature settings, and the values that depend
+   on it (such as values of n on linear regressions and so on)
    
 
    And other things too:

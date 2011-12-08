@@ -149,8 +149,9 @@ void FitDialog::setupFrame()
                 QKeySequence(tr("Ctrl+S")));
   ac->addAction("Export", this, SLOT(exportParameters()),
                 QKeySequence(tr("Ctrl+X")));
-  ac->addAction("Export to output file", this, SLOT(exportToOutFile())),
-                QKeySequence(tr("Ctrl+O"));
+  ac->addAction("Export to output file", this, 
+                SLOT(exportToOutFile()),
+                QKeySequence(tr("Ctrl+O")));
   ac->addAction("Reset this to initial guess", this, 
                 SLOT(resetThisToInitialGuess()),
                 QKeySequence(tr("Ctrl+T")));

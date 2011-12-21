@@ -37,11 +37,6 @@
 
    \li put back the temperature settings, and the values that depend
    on it (such as values of n on linear regressions and so on)
-
-   \b Urgent ? 
-   Add another function to the fits that simply compute the curve
-   without fitting, in a completely non-interactive fashion, passing a
-   parameters file as an argument.
    
 
    And other things too:

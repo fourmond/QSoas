@@ -96,6 +96,9 @@ public slots:
   /// Loads parameters from the given file.
   void loadParametersFile(const QString & fileName);
 
+  /// Add all simulated datasets to the data stack
+  void pushSimulatedCurves();
+
 protected slots:
 
   void dataSetChanged(int newds);
@@ -118,9 +121,6 @@ protected slots:
 
   /// Jumps to next dataset
   void nextDataset();
-
-  /// Add all simulated datasets to the data stack
-  void pushSimulatedCurves();
 
   /// Adds current simulated datset to the data stack
   void pushCurrentCurve();

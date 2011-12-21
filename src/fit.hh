@@ -181,6 +181,13 @@ public:
   /// Runs the fit on the given datasets. \sa runFitCurrentDataSet
   void runFit(const QString & name, QList<const DataSet *> datasets,
               const CommandOptions & opts);
+
+
+  /// Use the given data file to compute the simulated data, without
+  /// prompting
+  void computeFit(const QString & name, QString file,
+                  QList<const DataSet *> datasets,
+                  const CommandOptions & opts);
 };
 
 

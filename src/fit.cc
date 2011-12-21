@@ -55,7 +55,7 @@ void Fit::functionForDataset(const double * parameters,
 void Fit::makeCommands(ArgumentList * args, 
                        CommandEffector * singleFit,
                        CommandEffector * multiFit,
-                       ArgumentList * options)
+                       ArgumentList * originalOptions)
 {
 
   QByteArray pn = "Fit: ";
@@ -69,9 +69,11 @@ void Fit::makeCommands(ArgumentList * args,
   if(args) 
     fal = new ArgumentList(*args);
 
-  /// @todo Add option processing when applicable.
-  if(! options) 
+  ArgumentList * options;
+  if(! originalOptions) 
     options = new ArgumentList();
+  else 
+    options = new ArgumentList(*originalOptions);
   *options << new FileArgument("parameters", 
                                "Parameters",
                                "Pre-loads parameters");
@@ -107,6 +109,25 @@ void Fit::makeCommands(ArgumentList * args,
               multiFit ? multiFit : 
               effector(this, &Fit::runFit),
               "fits", al, options, pn, sd, ld);
+
+  if(! multiFit) {
+    /// @todo handle the case when there is a fit-specified effector.
+    pn = "Fit: ";
+    pn += shortDesc;;
+    sd = "fit simulation: ";
+    sd += shortDesc;
+    ld = "fit simulation:\n";
+    ld += longDesc;
+    ArgumentList * al2 = new ArgumentList(*al);
+    al2->insert(al2->size()-1, 
+                new FileArgument("parameters", 
+                                 "Parameters",
+                                 "File to load parameters from"));
+    new Command((const char*)(QString("sim-") + name).toLocal8Bit(),
+                effector(this, &Fit::computeFit),
+                "simulations", al2, originalOptions, pn, sd, ld);
+    
+  }
 }
 
 void Fit::processOptions(const CommandOptions & /*opts*/)
@@ -138,6 +159,17 @@ void Fit::runFit(const QString &, QList<const DataSet *> datasets,
   if(! loadParameters.isEmpty())
     dlg.loadParametersFile(loadParameters);
   dlg.exec();
+}
+
+void Fit::computeFit(const QString &, QString file,
+                     QList<const DataSet *> datasets,
+                     const CommandOptions & opts)
+{
+  processOptions(opts);
+  FitData data(this, datasets);
+  FitDialog dlg(&data);
+  dlg.loadParametersFile(file);
+  dlg.pushSimulatedCurves();
 }
 
 

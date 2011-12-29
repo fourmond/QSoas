@@ -119,7 +119,7 @@ hlpc("help", // command name
      "help",  // group name
      &helpA, // arguments
      NULL, // options
-     "Commands",
+     "Help on...",
      "Give help on command",
      "Gives all help available on the given command",
      "?");

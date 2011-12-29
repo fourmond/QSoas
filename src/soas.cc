@@ -32,7 +32,7 @@ CurveView & Soas::view()
 Soas * Soas::theSoasInstance = NULL;
 
 Soas::Soas(MainWin * w) : 
-  mw(w), antialias(false), opengl(false)
+  mw(w), antialias(false), opengl(false), temperature(298)
 {
   theSoasInstance = this;
   ds = new DataStack;

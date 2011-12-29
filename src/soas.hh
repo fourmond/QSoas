@@ -41,7 +41,10 @@ class Soas {
   
   bool antialias;
   bool opengl;
-  
+
+  /// The temperature, used in many places.
+  double temperature;
+
 public:
 
   Soas(MainWin * mw);
@@ -75,6 +78,16 @@ public:
   CurveView & view();
   CommandWidget & prompt(); 
 
+  
+  /// The current temperature
+  double getTemperature() const {
+    return temperature;
+  };
+
+  /// The current temperature
+  void setTemperature(double t)  {
+    temperature = t;
+  };
 };
 
 /// Returns the application-wide Soas instance

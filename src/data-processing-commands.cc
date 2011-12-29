@@ -38,6 +38,7 @@
 #include <outfile.hh>
 
 #include <spline.hh>
+#include <bsplines.hh>
 #include <pointpicker.hh>
 
 //////////////////////////////////////////////////////////////////////
@@ -403,6 +404,7 @@ static void bsplinesCommand(const QString &)
   Vector x;
   bool autoXValues = true;
   bool needCompute = true;
+  BSplines splines(ds, order);
 
   CurveVerticalLines lines;
   lines.xValues = &x;
@@ -472,14 +474,17 @@ static void bsplinesCommand(const QString &)
         for(int i = 0; i < nbPoints; i++)
           x << xmin + (xmax - xmin)/(nbPoints + 1)*(i+1);
         autoXValues = false;
+        splines.setBreakPoints(x);
       }
-      double value;
-      if(derive) {
+
+      // Should move to yet another place
+      double value = splines.computeCoefficients();
+      if(false && derive) {
         diff.yvalues = ds->y() - 
           ds->bSplinesSmooth(order, x, &value, &d.yvalues);
       }
       else {
-        d.yvalues = ds->bSplinesSmooth(order, x, &value);
+        d.yvalues = splines.computeValues();
         diff.yvalues = ds->y() - d.yvalues;
       }
       Terminal::out << "Residuals: " << value << endl;

@@ -19,12 +19,18 @@
 #include <headers.hh>
 #include <exceptions.hh>
 #include <bsplines.hh>
+#include <dataset.hh>
 
 #include <gsl/gsl_blas.h>
 
 BSplines::BSplines(const Vector & xvalues, 
                    const Vector & yvalues, int o) :
   splinesWS(NULL), order(o), x(xvalues), y(yvalues)
+{
+}
+
+BSplines::BSplines(const DataSet * ds, int o) :
+  splinesWS(NULL), order(o), x(ds->x()), y(ds->y())
 {
 }
 
@@ -37,7 +43,7 @@ void BSplines::allocateWS()
 {
   if(splinesWS)
     throw InternalError("Should not allocate twice B-splines workspace");
-  if(! breakPoints.size() < 1)
+  if(breakPoints.size() < 1)
     throw InternalError("Should have at least one breakpoint");
   
 
@@ -76,10 +82,22 @@ void BSplines::setBreakPoints(const Vector & bps)
 {
   int oldsize = breakPoints.size();
   breakPoints = bps;
-  if(bps.size() != oldsize) {
+
+  qSort(breakPoints);
+  if(breakPoints.min() > x.min())
+    breakPoints.prepend(x.min());
+  if(breakPoints.max() < x.max())
+    breakPoints.append(x.max());
+
+  if(breakPoints.size() != oldsize) {
     freeWS();                   // Reallocate everything
     allocateWS();
   }
+
+  gsl_vector_view v = gsl_vector_view_array(breakPoints.data(), 
+                                            breakPoints.size());
+  gsl_bspline_knots(&v.vector, splinesWS);
+
 
   const double * xvals = x.data();
 

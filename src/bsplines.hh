@@ -25,6 +25,7 @@
 #include <gsl/gsl_bspline.h>
 #include <gsl/gsl_multifit.h>
 
+class DataSet;
 
 /// This class provides filtering based on BSplines
 class BSplines {
@@ -72,6 +73,8 @@ public:
 
   BSplines(const Vector & xvalues, 
            const Vector & yvalues, int order = 4);
+
+  BSplines(const DataSet * ds, int order = 4);
 
   ~BSplines();
 

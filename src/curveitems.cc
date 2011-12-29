@@ -42,6 +42,20 @@ void CurveVerticalLine::paint(QPainter * painter, const QRectF & bbox,
   painter->restore();
 }
 
+void CurveVerticalLines::paint(QPainter * painter, const QRectF & bbox,
+                               const QTransform & ctw)
+{
+  if(! xValues)
+    return;
+  painter->save();
+  painter->setPen(pen);
+  for(int i = 0; i < xValues->size(); i++) {
+    double x = xValues->value(i);
+    painter->drawLine(ctw.map(QLineF(x, bbox.top(), x, bbox.bottom())));
+  }
+  painter->restore();
+}
+
 
 void CurveHorizontalRegion::setX(double value, Qt::MouseButton button)
 {

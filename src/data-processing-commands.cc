@@ -373,23 +373,16 @@ static void bsplinesCommand(const QString &)
   const DataSet * ds = soas().currentDataSet();
   CurveEventLoop loop;
   CurveView & view = soas().view();
-  // CurveMarker m;
   CurvePanel bottom;
   CurveData d;
   CurveData diff;
   bool derive = false;
   bottom.drawingXTicks = false;
   bottom.stretch = 30;        // 3/10ths of the main panel.
-  // PointPicker pick(&loop, ds);
   int nbPoints = 10;
   int order = 4;
 
-  // view.addItem(&m);
   view.addItem(&d);
-
-  // m.size = 4;
-  // m.pen = QPen(Qt::NoPen);
-  // m.brush = QBrush(QColor(0,0,255,100));
 
   d.pen = QPen(QColor("black"));
   d.xvalues = ds->x();
@@ -398,12 +391,23 @@ static void bsplinesCommand(const QString &)
   diff.xvalues = d.xvalues;
   diff.yvalues = ds->y();
 
-  bool needCompute = true;
+
 
   bottom.addItem(&diff);
   bottom.yLabel = Utils::deltaStr("Y");
 
   view.addPanel(&bottom);
+
+
+  /// Position of the segments
+  Vector x;
+  bool autoXValues = true;
+  bool needCompute = true;
+
+  CurveVerticalLines lines;
+  lines.xValues = &x;
+  lines.pen = QPen(QColor("blue"), 1, Qt::DotLine);
+  view.addItem(&lines);
 
   loop.setHelpString(QObject::tr("B-splines filtering:\n"
                                  "left click: place point\n"
@@ -411,7 +415,7 @@ static void bsplinesCommand(const QString &)
                                  "d: display derivative\n"
                                  "q: replace with filtered data\n"
                                  "ESC: abord"));
-  while(! loop.finished()) {
+  do {
     switch(loop.type()) {
     case QEvent::MouseButtonPress: 
       /// @todo actual point placing
@@ -420,11 +424,13 @@ static void bsplinesCommand(const QString &)
         if(nbPoints < 2)
           nbPoints = 2;
         needCompute = true;
+        autoXValues = true;
         Terminal::out << "Using : " << nbPoints << " points" << endl;
       }
       if(loop.button() == Qt::LeftButton) { // Remove
         nbPoints++;
         needCompute = true;
+        autoXValues = true;
         Terminal::out << "Using : " << nbPoints << " points" << endl;
       }
       break;
@@ -459,11 +465,14 @@ static void bsplinesCommand(const QString &)
     }
     if(needCompute) {
       QRectF bb = ds->boundingBox();
-      double xmin = bb.left();
-      double xmax = bb.right();
-      Vector x;
-      for(int i = 0; i < nbPoints; i++)
-        x << xmin + (xmax - xmin)/(nbPoints + 1)*(i+1);
+      if(autoXValues) {
+        double xmin = bb.left();
+        double xmax = bb.right();
+        x.clear();
+        for(int i = 0; i < nbPoints; i++)
+          x << xmin + (xmax - xmin)/(nbPoints + 1)*(i+1);
+        autoXValues = false;
+      }
       double value;
       if(derive) {
         diff.yvalues = ds->y() - 
@@ -478,7 +487,7 @@ static void bsplinesCommand(const QString &)
                        view.mainPanel());
       needCompute = false;
     }
-  }
+  } while(! loop.finished());
 }
 
 static Command 

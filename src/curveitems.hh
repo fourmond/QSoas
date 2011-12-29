@@ -46,6 +46,18 @@ public:
                      const QTransform & curveToWidget);
 };
 
+/// A set of vertical lines
+class CurveVerticalLines : public CurveItem {
+public:
+
+  const Vector * xValues;
+
+  CurveVerticalLines() : xValues(NULL) {;};
+
+  virtual void paint(QPainter * painter, const QRectF & bbox,
+                     const QTransform & curveToWidget);
+};
+
 
 /// A horizontal region, delimited by two vertical lines
 class CurveHorizontalRegion : public CurveItem {

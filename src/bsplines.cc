@@ -24,13 +24,13 @@
 #include <gsl/gsl_blas.h>
 
 BSplines::BSplines(const Vector & xvalues, 
-                   const Vector & yvalues, int o) :
-  splinesWS(NULL), order(o), x(xvalues), y(yvalues)
+                   const Vector & yvalues, int o, int mo) :
+  splinesWS(NULL), order(o), maxOrder(mo), x(xvalues), y(yvalues)
 {
 }
 
-BSplines::BSplines(const DataSet * ds, int o) :
-  splinesWS(NULL), order(o), x(ds->x()), y(ds->y())
+BSplines::BSplines(const DataSet * ds, int o, int mo) :
+  splinesWS(NULL), order(o), maxOrder(mo), x(ds->x()), y(ds->y())
 {
 }
 
@@ -48,6 +48,7 @@ void BSplines::allocateWS()
   
 
   splinesWS = gsl_bspline_alloc(order, breakPoints.size());
+  derivWS = gsl_bspline_deriv_alloc(order);
   nbCoeffs = gsl_bspline_ncoeffs(splinesWS);
 
   nb = x.size();
@@ -55,7 +56,11 @@ void BSplines::allocateWS()
     throw InternalError("X and Y size differ");
 
 
-  splines = gsl_matrix_alloc(nb, nbCoeffs);
+  for(int i = 0; i <= maxOrder; i++)
+    splines << gsl_matrix_alloc(nb, nbCoeffs);
+
+  storage = gsl_matrix_alloc(nbCoeffs, maxOrder + 1);
+
   fitWS = gsl_multifit_linear_alloc(nb, nbCoeffs);
 
   coeffs = gsl_vector_alloc(nbCoeffs);
@@ -66,13 +71,17 @@ void BSplines::freeWS()
 {
   if(! splinesWS)
     return;
-  gsl_matrix_free(splines);
+  for(int i = 0; i <= maxOrder; i++)
+    gsl_matrix_free(splines[i]);
+  splines.clear();
   gsl_matrix_free(cov);
+  gsl_matrix_free(storage);
   gsl_vector_free(coeffs);
 
   
   gsl_multifit_linear_free(fitWS);
   gsl_bspline_free(splinesWS);
+  gsl_bspline_deriv_free(derivWS);
 
 
   splinesWS = NULL;
@@ -102,8 +111,13 @@ void BSplines::setBreakPoints(const Vector & bps)
   const double * xvals = x.data();
 
   for(int i = 0; i < nb; i++) {
-    gsl_vector_view v = gsl_matrix_row(splines, i);
-    gsl_bspline_eval(xvals[i], &v.vector, splinesWS);
+    gsl_bspline_deriv_eval(xvals[i], maxOrder, storage, 
+                           splinesWS, derivWS);
+    for(int j = 0; j <= maxOrder; j++) {
+      gsl_vector_view s = gsl_matrix_column(storage, j);
+      gsl_vector_view v = gsl_matrix_row(splines[j], i);
+      gsl_vector_memcpy(&v.vector, &s.vector);
+    }
   }
 
 }
@@ -114,21 +128,21 @@ double BSplines::computeCoefficients()
   gsl_vector_const_view yv = 
     gsl_vector_const_view_array(y.data(), nb);
   
-  gsl_multifit_linear(splines, &yv.vector,
+  gsl_multifit_linear(splines[0], &yv.vector,
                       coeffs, cov, &chisq, fitWS);
   return chisq;
 }
 
-void BSplines::computeValues(gsl_vector * target) const
+void BSplines::computeValues(gsl_vector * target, int order) const
 {
-  gsl_blas_dgemv(CblasNoTrans, 1, splines, coeffs, 0, target);
+  gsl_blas_dgemv(CblasNoTrans, 1, splines[order], coeffs, 0, target);
 }
 
-Vector BSplines::computeValues() const
+Vector BSplines::computeValues(int order) const
 {
   Vector v(nb, 0);
   gsl_vector_view target = 
     gsl_vector_view_array(v.data(), nb);
-  computeValues(&target.vector);
+  computeValues(&target.vector, order);
   return v;
 }

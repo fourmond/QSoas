@@ -479,9 +479,9 @@ static void bsplinesCommand(const QString &)
 
       // Should move to yet another place
       double value = splines.computeCoefficients();
-      if(false && derive) {
-        diff.yvalues = ds->y() - 
-          ds->bSplinesSmooth(order, x, &value, &d.yvalues);
+      if(derive) {
+        diff.yvalues = ds->y() - splines.computeValues();
+        d.yvalues = splines.computeValues(1);
       }
       else {
         d.yvalues = splines.computeValues();

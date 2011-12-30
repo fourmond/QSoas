@@ -216,19 +216,6 @@ public:
   /// Returns the Y value the closest to the given X value
   double yValueAt(double x) const;
 
-  /// Performs a B-splines smoothing of the dataset, using the given X
-  /// values as knots (xmin and xmax are automatically added if they
-  /// are missing)
-  ///
-  /// Returns the smoothed Y values.
-  ///
-  /// @todo Sounds strange to have double for residuals but Vector for
-  /// derivatives ?
-  Vector bSplinesSmooth(int order, const Vector & xvalues, 
-                        double * residuals = NULL, 
-                        Vector * derivative = NULL,
-                        Vector * secondDerivative = NULL) const;
-
   /// Finds steps in the Y data, based on the following heuristic: at
   /// each point, estimate the projection of the Y value between point
   /// i - 1 and point i by linear regression from the left and right

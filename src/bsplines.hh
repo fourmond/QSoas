@@ -33,14 +33,20 @@ class BSplines {
   /// The workspace for splines
   gsl_bspline_workspace * splinesWS;
 
+  /// The workspace for the derivatives
+  gsl_bspline_deriv_workspace * derivWS;
+
   /// The workspace for fits:
   gsl_multifit_linear_workspace * fitWS;
 
   /// Vector space for the coefficients
   gsl_vector * coeffs;
 
-  /// Storage space for the spline functions
-  gsl_matrix * splines;
+  /// Storage space for the spline functions and the derivatives
+  QList<gsl_matrix *> splines;
+
+  /// Storage space for the all-orders-in-one-go splines evaluation
+  gsl_matrix * storage;
 
   /// Storage space for the covariance matrix
   gsl_matrix * cov;
@@ -53,6 +59,9 @@ class BSplines {
 
   /// Order of the splines
   int order;
+
+  /// Maximum order of the derivatives
+  int maxOrder;
 
   /// Positions of the breakPoints
   Vector breakPoints;
@@ -72,9 +81,9 @@ class BSplines {
 public:
 
   BSplines(const Vector & xvalues, 
-           const Vector & yvalues, int order = 4);
+           const Vector & yvalues, int order = 4, int maxorder = 2);
 
-  BSplines(const DataSet * ds, int order = 4);
+  BSplines(const DataSet * ds, int order = 4, int maxorder = 2);
 
   ~BSplines();
 
@@ -85,11 +94,12 @@ public:
   /// returns the residuals
   double computeCoefficients();
 
-  /// Computes the Y values (once the coefficients have been computed)
-  void computeValues(gsl_vector * target) const;
+  /// Computes the Y values of the \a order derivative (once the
+  /// coefficients have been computed)
+  void computeValues(gsl_vector * target, int order = 0) const;
 
   /// Computes the Y values and return them as a new Vector.
-  Vector computeValues() const;
+  Vector computeValues(int order = 0) const;
 };
 
 #endif

@@ -110,7 +110,7 @@ public:
 
   /// Optimize the placement of the breakpoints using a non-linear
   /// least-squares fit.
-  void optimize(int maxIterations = 10);
+  void optimize(int maxIterations = 15);
 };
 
 #endif

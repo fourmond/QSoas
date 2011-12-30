@@ -494,7 +494,7 @@ static void bsplinesCommand(const QString &)
         d.yvalues = splines.computeValues();
         diff.yvalues = ds->y() - d.yvalues;
       }
-      Terminal::out << "Residuals: " << value << endl;
+      Terminal::out << "Residuals: " << sqrt(value) << endl;
       bottom.setYRange(diff.yvalues.min(), diff.yvalues.max(), 
                        view.mainPanel());
       needCompute = false;

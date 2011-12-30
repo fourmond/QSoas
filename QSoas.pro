@@ -109,7 +109,8 @@ SOURCES += src/qmain.cc \
         src/bijections.cc \
         src/parametersdialog.cc \
         src/echem-fits.cc \
-        src/bsplines.cc
+        src/bsplines.cc \
+        src/fft.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -161,4 +162,5 @@ HEADERS += src/headers.hh \
         src/fitparametereditor.hh  \
         src/bijection.hh \
         src/parametersdialog.hh \
-        src/bsplines.hh
+        src/bsplines.hh \
+        src/fft.h

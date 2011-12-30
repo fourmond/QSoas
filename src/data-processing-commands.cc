@@ -415,6 +415,7 @@ static void bsplinesCommand(const QString &)
                                  "left click: place point\n"
                                  "right click: remove closest point\n"
                                  "d: display derivative\n"
+                                 "o: optimize positions\n"
                                  "q: replace with filtered data\n"
                                  "ESC: abord"));
   do {
@@ -448,6 +449,12 @@ static void bsplinesCommand(const QString &)
           soas().showMessage("Showing derivative");
         else
           soas().showMessage("Showing baseline");
+        break;
+      case 'O':
+      case 'o':
+        splines.optimize();
+        x = splines.getBreakPoints();
+        needCompute = true;
         break;
       case 'q':
       case 'Q': {

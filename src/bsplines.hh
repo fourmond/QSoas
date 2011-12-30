@@ -87,8 +87,15 @@ public:
 
   ~BSplines();
 
+
+  /// Returns the Y data we're trying to fit
+  const Vector & yData() const { return y; };
+
   /// Sets the break points
   void setBreakPoints(const Vector & bps);
+
+  /// Returns the current break points
+  const Vector & getBreakPoints() const { return breakPoints; };
 
   /// Computes the coefficients, according to the current breakpoints;
   /// returns the residuals
@@ -100,6 +107,10 @@ public:
 
   /// Computes the Y values and return them as a new Vector.
   Vector computeValues(int order = 0) const;
+
+  /// Optimize the placement of the breakpoints using a non-linear
+  /// least-squares fit.
+  void optimize(int maxIterations = 10);
 };
 
 #endif

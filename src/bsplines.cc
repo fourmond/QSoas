@@ -146,3 +146,106 @@ Vector BSplines::computeValues(int order) const
   computeValues(&target.vector, order);
   return v;
 }
+
+
+static int f(const gsl_vector * x, void * data, gsl_vector * f)
+{
+  BSplines * bs = (BSplines*) data;
+  Vector bps = bs->getBreakPoints();
+  gsl_vector_view v = gsl_vector_view_array(bps.data() + 1, x->size);
+  gsl_vector_memcpy(&v.vector, x);
+  bs->setBreakPoints(bps);
+  bs->computeCoefficients();
+  bs->computeValues(f);
+
+  const Vector & yd = bs->yData();
+  
+  gsl_vector_const_view v2 = 
+    gsl_vector_const_view_array(yd.data(), yd.size());
+  gsl_vector_sub(f, &v2.vector);
+  return GSL_SUCCESS;
+}
+
+static int df(const gsl_vector * x, void * data, gsl_matrix * J)
+{
+  BSplines * bs = (BSplines*) data;
+  // I need a temporary storage vector
+  gsl_vector * tmpStorage = gsl_vector_alloc(bs->yData().size());
+
+  Vector bps = bs->getBreakPoints();
+  gsl_vector_view v = gsl_vector_view_array(bps.data() + 1, x->size);
+  gsl_vector_memcpy(&v.vector, x);
+
+  bs->setBreakPoints(bps);
+  bs->computeCoefficients();
+  bs->computeValues(tmpStorage);
+
+
+  for(int i = 0; i < x->size; i++) {
+    // Pick up a reasonable dx: 1/10 of the distance between here and
+    // next step
+    double dx = 0.1*(bps[i+2] - bps[i+1]);
+    double oldx = bps[i+1];
+    bps[i+1] += dx;
+
+    bs->setBreakPoints(bps);
+    bs->computeCoefficients();
+    gsl_vector_view s = gsl_matrix_column(J, i);
+    bs->computeValues(&s.vector);
+    gsl_vector_sub(&s.vector, tmpStorage);
+    gsl_vector_scale(&s.vector,1/dx);
+
+    bps[i+1] = oldx;
+  }
+
+  gsl_vector_free(tmpStorage);
+  return GSL_SUCCESS;
+}
+
+static int fdf(const gsl_vector * x, void * data, gsl_vector * fs,
+               gsl_matrix * J)
+{
+  f(x,data,fs);
+  return df(x,data,J);
+}
+
+
+
+
+void BSplines::optimize(int maxIterations)
+{
+  Vector bps = breakPoints;
+  gsl_vector_view params = gsl_vector_view_array(bps.data() + 1, 
+                                                 bps.size() - 2);
+  gsl_multifit_function_fdf f;
+  f.f = &::f;
+  f.df = &::df;
+  f.fdf = &::fdf;
+  f.n = nb;
+  f.p = bps.size() - 2;
+  f.params = this;
+
+  gsl_multifit_fdfsolver *s = 
+    gsl_multifit_fdfsolver_alloc(gsl_multifit_fdfsolver_lmsder, nb, 
+                                 f.p);
+
+  gsl_multifit_fdfsolver_set(s, &f, &params.vector);
+
+  int status;
+  do {
+    maxIterations--;
+    status = gsl_multifit_fdfsolver_iterate(s);
+    if (status)
+      break;
+    status = gsl_multifit_test_delta(s->dx, s->x,
+                                     1e-4, 1e-4);
+    printf("Iterations left: %d -- status: %d, resids: %g\n", 
+           maxIterations, status, gsl_blas_dnrm2(s->f));
+  }
+  while(status == GSL_CONTINUE && maxIterations >0);
+  printf("Final left: %d -- status: %d\n", maxIterations, status);
+  gsl_vector_memcpy(&params.vector, s->x);
+  setBreakPoints(bps);
+
+  gsl_multifit_fdfsolver_free(s);
+}

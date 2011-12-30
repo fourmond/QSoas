@@ -21,6 +21,8 @@
 #include <bsplines.hh>
 #include <dataset.hh>
 
+#include <terminal.hh>
+
 #include <gsl/gsl_blas.h>
 
 BSplines::BSplines(const Vector & xvalues, 
@@ -122,6 +124,17 @@ void BSplines::setBreakPoints(const Vector & bps)
 
 }
 
+void BSplines::autoBreakPoints(int nbPoints)
+{
+  Vector bps;
+  double xmin = x.min();
+  double xmax = x.max();
+  for(int i = 0; i < nbPoints; i++)
+    bps << xmin + (xmax - xmin)/(nbPoints + 1)*(i+1);
+  setBreakPoints(bps);
+}
+
+
 double BSplines::computeCoefficients()
 {
   double chisq;
@@ -209,10 +222,7 @@ static int fdf(const gsl_vector * x, void * data, gsl_vector * fs,
   return df(x,data,J);
 }
 
-
-
-
-void BSplines::optimize(int maxIterations)
+void BSplines::optimize(int maxIterations, bool silent)
 {
   Vector bps = breakPoints;
   gsl_vector_view params = gsl_vector_view_array(bps.data() + 1, 
@@ -232,6 +242,7 @@ void BSplines::optimize(int maxIterations)
   gsl_multifit_fdfsolver_set(s, &f, &params.vector);
 
   int status;
+  int i = 0;
   do {
     maxIterations--;
     status = gsl_multifit_fdfsolver_iterate(s);
@@ -239,11 +250,18 @@ void BSplines::optimize(int maxIterations)
       break;
     status = gsl_multifit_test_delta(s->dx, s->x,
                                      1e-4, 1e-4);
-    printf("Iterations left: %d -- status: %d, resids: %g\n", 
-           maxIterations, status, gsl_blas_dnrm2(s->f));
+    if(! silent) {
+      Terminal::out << "Iteration: " << i++ 
+                    << " -- residuals: " << gsl_blas_dnrm2(s->f)
+                    << endl;
+
+      // Hmmm, this isn't really good, but I don't see any other way
+      // to do
+      QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
+    }
   }
   while(status == GSL_CONTINUE && maxIterations >0);
-  printf("Final left: %d -- status: %d\n", maxIterations, status);
+
   gsl_vector_memcpy(&params.vector, s->x);
   setBreakPoints(bps);
 

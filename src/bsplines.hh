@@ -94,6 +94,9 @@ public:
   /// Sets the break points
   void setBreakPoints(const Vector & bps);
 
+  /// Set equally spaced breakpoints
+  void autoBreakPoints(int nb);
+
   /// Returns the current break points
   const Vector & getBreakPoints() const { return breakPoints; };
 
@@ -110,7 +113,7 @@ public:
 
   /// Optimize the placement of the breakpoints using a non-linear
   /// least-squares fit.
-  void optimize(int maxIterations = 15);
+  void optimize(int maxIterations = 15, bool silent = true);
 };
 
 #endif

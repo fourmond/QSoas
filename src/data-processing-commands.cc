@@ -402,9 +402,11 @@ static void bsplinesCommand(const QString &)
 
   /// Position of the segments
   Vector x;
-  bool autoXValues = true;
+  bool autoXValues = false;
   bool needCompute = true;
   BSplines splines(ds, order);
+  splines.autoBreakPoints(nbPoints);
+  x = splines.getBreakPoints();
 
   CurveVerticalLines lines;
   lines.xValues = &x;
@@ -448,11 +450,11 @@ static void bsplinesCommand(const QString &)
         if(derive)
           soas().showMessage("Showing derivative");
         else
-          soas().showMessage("Showing baseline");
+          soas().showMessage("Showing filtered data");
         break;
       case 'O':
       case 'o':
-        splines.optimize();
+        splines.optimize(15, false);
         x = splines.getBreakPoints();
         needCompute = true;
         break;
@@ -473,15 +475,10 @@ static void bsplinesCommand(const QString &)
       ;
     }
     if(needCompute) {
-      QRectF bb = ds->boundingBox();
       if(autoXValues) {
-        double xmin = bb.left();
-        double xmax = bb.right();
-        x.clear();
-        for(int i = 0; i < nbPoints; i++)
-          x << xmin + (xmax - xmin)/(nbPoints + 1)*(i+1);
+        splines.autoBreakPoints(nbPoints);
+        x = splines.getBreakPoints();
         autoXValues = false;
-        splines.setBreakPoints(x);
       }
 
       // Should move to yet another place
@@ -511,6 +508,61 @@ bspl("filter-bsplines", // command name
      "Filter",
      "Filter using bsplines",
      "...");
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void autoFilterBSCommand(const QString &, const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+  int nb = 12;
+  int order = 4;
+  int derivatives = 0;
+
+  updateFromOptions(opts, "number", nb);
+  updateFromOptions(opts, "order", order);
+  updateFromOptions(opts, "derivatives", derivatives);
+
+  BSplines splines(ds, order, derivatives);
+  splines.autoBreakPoints(nb);
+  splines.optimize(15, false);
+  double value = splines.computeCoefficients();
+  Terminal::out << "Residuals: " << sqrt(value) << endl;
+  for(int i = 0; i <= derivatives; i++) {
+    DataSet * newds = new 
+      DataSet(QList<Vector>() << ds->x() << splines.computeValues(i));
+    newds->name = ds->cleanedName() + "_afbs";
+    if(i)
+      newds->name += QString("_diff_%1").arg(i);
+    newds->name += ".dat";
+    soas().pushDataSet(newds);
+  }
+}
+
+static ArgumentList 
+afbsOps(QList<Argument *>() 
+      << new IntegerArgument("number", 
+                             "Number",
+                             "Number of segments")
+      << new IntegerArgument("order", 
+                             "Order",
+                             "Order of the splines")
+      << new IntegerArgument("derivatives", 
+                             "Derivative order",
+                             "Compute derivatives up to the given ")
+      );
+
+
+static Command 
+afbs("auto-filter-bs", // command name
+     effector(autoFilterBSCommand), // action
+     "buffer",  // group name
+     NULL, // arguments
+     &afbsOps, // options
+     "Filter",
+     "Filter using bsplines",
+     "...",
+     "afbs");
 
 //////////////////////////////////////////////////////////////////////
 

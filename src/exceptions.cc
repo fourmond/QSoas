@@ -33,3 +33,19 @@ QString Exception::message() const throw()
 {
   return msg;
 }
+
+
+static void my_error_handler(const char * reason,
+                             const char * file,
+                             int line,
+                             int gsl_errno)
+{
+  QString error = QString("GSL error: %1 (in %2:%3) -- error code %4").
+    arg(reason).arg(file).arg(line).arg(gsl_errno);
+  throw GSLError(error);
+}
+
+void GSLError::setupGSLHandler()
+{
+  gsl_set_error_handler(&my_error_handler);
+}

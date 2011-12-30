@@ -26,6 +26,7 @@
 #include <ruby.hh>
 
 #include <settings.hh>
+#include <exceptions.hh>
 
 int main(int argc, char ** argv)
 {
@@ -33,6 +34,10 @@ int main(int argc, char ** argv)
   main.setApplicationName("QSoas");
   Command::crosslinkCommands();
   Ruby::initRuby();
+  
+  // We convert GSL's hard errors into C++ exceptions
+  GSLError::setupGSLHandler();
+
   int retval;
 
   Settings::loadSettings("bip.cnrs-mrs.fr", "Soas");

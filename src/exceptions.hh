@@ -28,6 +28,7 @@ public:
   virtual const char * what() const throw();
   virtual QString message() const throw();
   virtual ~Exception() throw() {;};
+
 };
 
 class RuntimeError : public Exception {
@@ -35,6 +36,16 @@ public:
   RuntimeError(const QString & msg) throw() : Exception(msg) {
   };
   virtual ~RuntimeError() throw() {;};
+};
+
+class GSLError : public RuntimeError {
+public:
+  GSLError(const QString & msg) throw() : RuntimeError(msg) {
+  };
+  virtual ~GSLError() throw() {;};
+
+  /// Setup the GSL handler to intercept GSL problems
+  static void setupGSLHandler();
 };
 
 class InternalError : public Exception {

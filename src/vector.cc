@@ -356,3 +356,38 @@ double Vector::norm() const
     gsl_vector_const_view_array(data(), size());
   return gsl_blas_dnrm2(&v.vector);
 }
+
+QList<int> Vector::extrema(int window) const
+{
+  /// @todo Shall I add threshold mechanisms here ?
+  QList<int> ret;
+  int sz = size();
+  const double * v = data();
+
+  for(int i = 0; i < sz; i++) {
+    int first = std::max(i - window, 0);
+    int last = std::min(i + window, sz - 1);
+    double min = v[first];
+    double max = v[first];
+    int where_min = first;
+    int where_max = first;
+
+    for(int j = first + 1; j <= last; j++) {
+      if(v[j] > max) {
+        where_max = j;
+        max = v[j];
+      }
+      else if(v[j] < min) {
+        where_min = j;
+        min = v[j];
+      }
+    }
+    if(where_min == i)
+      ret << -(i + 1);
+    else if(where_max == i)
+      ret << (i + 1);
+  }
+
+  return ret;
+  
+}

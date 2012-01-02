@@ -83,6 +83,13 @@ public:
   /// Fills the target values with the average and variance of the set
   void stats(double * average, double * variance) const;
 
+  /// Finds local extrema and returns:
+  /// \li 1 + index if it is a maximum
+  /// \li -(1 + index) if it is a minimum
+  ///
+  /// The extrema has to be an extrema for over \a window
+  QList<int> extrema(int window = 8) const; 
+
   /// @}
 
   /// @name Other operations

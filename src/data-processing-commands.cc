@@ -41,6 +41,8 @@
 #include <bsplines.hh>
 #include <pointpicker.hh>
 
+#include <peaks.hh>
+
 //////////////////////////////////////////////////////////////////////
 static void reglinCommand(const QString &)
 {
@@ -690,5 +692,58 @@ dif2("diff2", // command name
      "Derive",
      "4th order accurate second derivative",
      "Computes the 4th order accurate second derivative of the buffer\n"
-     "Do not use this on noisy data");
+     "Do not use this on noisy data !");
 
+
+//////////////////////////////////////////////////////////////////////
+
+static void findPeaksCommand(const QString &, const CommandOptions & opts)
+{
+  int window = 8;
+
+  updateFromOptions(opts, "window", window);
+
+  const DataSet * ds = soas().currentDataSet();
+  Peaks pk(ds, window);
+
+  QList<PeakInfo> peaks = pk.findPeaks();
+
+  CurveView & view = soas().view();
+  view.disableUpdates();
+  Terminal::out << "Found " << peaks.size() << " peaks" << endl;
+  Terminal::out << "Writing to output file " 
+                << OutFile::out.fileName() << endl;
+  OutFile::out.setHeader("buffer\twhat\tx\ty\tindex");
+  for(int i = 0; i < peaks.size(); i++) {
+    QString str = QString("%1\t%2\t%3\t%4\t%5").
+      arg(ds->name).arg((peaks[i].isMin ? "min" : "max" )).
+      arg(peaks[i].x).arg(peaks[i].y).arg(peaks[i].index);
+    OutFile::out << str << "\n" <<  flush;
+    Terminal::out << str << endl;
+    CurveLine * v= new CurveLine;
+    
+    v->p1 = QPointF(peaks[i].x, 0);
+    v->p2 = QPointF(peaks[i].x, peaks[i].y);
+    v->pen = QPen(QColor("blue"), 1, Qt::DotLine);
+    view.addItem(v);
+  }
+  view.enableUpdates();
+}
+
+static ArgumentList 
+fpOps(QList<Argument *>() 
+      << new IntegerArgument("window", 
+                            "Peak window",
+                            "...")
+      );
+      
+static Command 
+fp("find-peaks", // command name
+   effector(findPeaksCommand), // action
+   "buffer",  // group name
+   NULL, // arguments
+   &fpOps, // options
+   "Find peaks",
+   "Find all peaks",
+   "...",
+   "fp");

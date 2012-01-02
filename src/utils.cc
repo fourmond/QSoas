@@ -23,16 +23,44 @@
 
 QStringList Utils::glob(const QString & pattern, bool trim)
 {
-  QFileInfo info(pattern);
-  QDir dir = info.dir();
-  QStringList lst = dir.entryList(QStringList() << info.fileName(), 
-                                  QDir::NoDotAndDotDot |
-                                  QDir::Files | QDir::Dirs | 
-                                  QDir::CaseSensitive);
+  QStringList pats = QDir::fromNativeSeparators(pattern).split("/");
+  if(pats[0].size() == 0) {
+    pats.takeFirst();
+    pats[0] = "/" + pats[0];
+  }
+
+  QFileInfo info(pats.first());
+  QStringList directories;
+  directories << info.dir().path();
+  for(int i = 0; i < pats.size() - 1; i++) {
+    QStringList newdirs;
+    /// @todo There should be a way to implement ** at this stage, but
+    /// I don't see a simple one for now.
+    for(int j = 0; j < directories.size(); j++) {
+      QDir dir(directories[j]);
+      QStringList entries = dir.entryList(QStringList() << pats[i], 
+                                        QDir::NoDotAndDotDot | QDir::Dirs | 
+                                        QDir::CaseSensitive);
+      for(int j = 0; j < entries.size(); j++)
+        newdirs << dir.filePath(entries[j]);
+    }
+    directories = newdirs;
+  }
+
+
+  QStringList lst;
+  for(int i = 0; i < directories.size(); i++) {
+    QDir dir(directories[i]);
+    QStringList entries = dir.entryList(QStringList() << pats.last(), 
+                                        QDir::NoDotAndDotDot |
+                                        QDir::Files | QDir::Dirs | 
+                                        QDir::CaseSensitive);
+    for(int j = 0; j < entries.size(); j++)
+      lst << dir.filePath(entries[j]);
+  }
+
   if(lst.isEmpty() && ! trim)
-    lst << info.fileName();
-  for(int i = 0; i < lst.size(); i++)
-    lst[i] = dir.filePath(lst[i]);
+    lst << pattern;
   return lst;
 }
 

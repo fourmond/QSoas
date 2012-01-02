@@ -111,7 +111,8 @@ SOURCES += src/qmain.cc \
         src/echem-fits.cc \
         src/bsplines.cc \
         src/fft.cc \
-        src/peaks.cc
+        src/peaks.cc \
+        src/datasetbrowser.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -165,4 +166,5 @@ HEADERS += src/headers.hh \
         src/parametersdialog.hh \
         src/bsplines.hh \
         src/fft.hh \
-        src/peaks.hh
+        src/peaks.hh \
+        src/datasetbrowser.hh

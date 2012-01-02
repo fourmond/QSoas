@@ -110,6 +110,10 @@ public:
   /// Drops the given dataset
   void dropDataSet(const DataSet * ds);
 
+
+  /// Returns all the datasets in the numeric order
+  QList<const DataSet *> allDataSets() const;
+
 signals:
   /// Emitted whenever the current dataset changed.
   void currentDataSetChanged();

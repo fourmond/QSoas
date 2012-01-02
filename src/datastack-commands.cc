@@ -31,6 +31,8 @@
 #include <soas.hh>
 #include <utils.hh>
 
+#include <datasetbrowser.hh>
+
 static Group stack("stack", 1,
                    "Data Stack",
                    "Data stack manipulation");
@@ -411,3 +413,25 @@ poiCmd("points", // command name
        "Shows individual points in the datasets",
        "Shows all the points of datasets displayed.",
        "poi");
+
+
+//////////////////////////////////////////////////////////////////////
+
+static void browseStackCommand(const QString &)
+{
+  DatasetBrowser dlg;
+  dlg.displayDataSets(soas().stack().allDataSets());
+  dlg.exec();
+}
+
+
+static Command 
+browseStack("browse-stack", // command name
+            optionLessEffector(browseStackCommand), // action
+            "stack",  // group name
+            NULL, // arguments
+            NULL, // options
+            "Browse stack",
+            "Browse stack",
+            "Browse stack",
+            "");

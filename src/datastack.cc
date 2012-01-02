@@ -55,6 +55,15 @@ void DataStack::showStackContents(bool /*unused*/) const
   Terminal::out << "Total size: " << totalSize/1024 << " kB" << endl;
 }
 
+QList<const DataSet *> DataStack::allDataSets() const
+{
+  QList<const DataSet *> ret;
+  for(int i = -redoStack.size(); i < dataSets.size(); i++)
+    ret << numberedDataSet(i);
+  return ret;
+}
+
+
 int DataStack::dsNumber2Index(int nb, const QList<DataSet *> ** target) const
 {
   if(nb >= 0) {

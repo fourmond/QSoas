@@ -60,18 +60,27 @@ void DatasetBrowser::setupFrame()
   bufferDisplay = new QLabel("");
   hb->addWidget(bufferDisplay);
 
+
+  bt = new QPushButton(tr("Close"));
+  connect(bt, SIGNAL(clicked()), SLOT(accept()));
+  hb->addWidget(bt);
+
   bt = new QPushButton(tr("->"));
   connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
   hb->addWidget(bt);
 
   layout->addLayout(hb);
 
-  dataSetChanged(0);
 }
 
 void DatasetBrowser::dataSetChanged(int newds)
 {
   currentIndex = newds;
+  if(currentIndex >= datasets.size())
+    currentIndex = datasets.size() - 1;
+  if(currentIndex < 0)
+    currentIndex = 0;
+  currentIndex = currentIndex - (currentIndex % (width * height));
   setupGrid();
   bufferDisplay->setText(QString("%1-%2/%3").
                          arg(currentIndex+1).
@@ -88,10 +97,7 @@ void DatasetBrowser::displayDataSets(const QList<const DataSet *> &ds)
     view->showDataSet(datasets[i]);
     views << view;
   }
-
-  currentIndex = 0;
-  // Now, setup the grid
-  setupGrid();
+  dataSetChanged(0);
 }
 
 void DatasetBrowser::displayDataSets(const QList<DataSet *> &ds)
@@ -106,6 +112,8 @@ void DatasetBrowser::setupGrid()
 {
   // Empty the grid first:
   QTextStream o(stdout);
+  if(datasets.size() == 0)
+    return;
   
   while(grid->takeAt(0))
     ;                           // We don't delete, as widgets are in
@@ -118,22 +126,15 @@ void DatasetBrowser::setupGrid()
     int base = i - currentIndex;
     views[i]->show();
     grid->addWidget(views[i], base / width, base % width);
-    o << "..." << base << " - " << i << ":" 
-      << base / width << "x" <<  base % width << endl;
   }
 }
 
 void DatasetBrowser::nextPage()
 {
-  currentIndex += width*height;
-  int s = std::max(views.size() - width*height, 0);
-  currentIndex = std::min(s, currentIndex);
-  dataSetChanged(currentIndex);
+  dataSetChanged(currentIndex + width*height);
 }
 
 void DatasetBrowser::previousPage()
 {
-  currentIndex -= width*height;
-  currentIndex = std::max(0, currentIndex);
-  dataSetChanged(currentIndex);
+  dataSetChanged(currentIndex - width*height);
 }

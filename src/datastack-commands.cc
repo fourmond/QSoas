@@ -59,6 +59,7 @@ static void loadFilesAndDisplay(int nb, QStringList files)
     catch (const RuntimeError & e) {
       Terminal::out << "\n" << e.message() << endl;
     }
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
   }
   soas().view().enableUpdates();
 }
@@ -434,4 +435,53 @@ browseStack("browse-stack", // command name
             "Browse stack",
             "Browse stack",
             "Browse stack",
-            "");
+            "K");
+
+//////////////////////////////////////////////////////////////////////
+
+static void browseFilesCommand(const QString &, const CommandOptions & opts)
+{
+  DatasetBrowser dlg;
+  QString pattern = "*";
+  updateFromOptions(opts, "pattern", pattern);
+  QStringList files = Utils::glob(pattern);
+
+  QList<DataSet *> dataSets;
+  for(int i = 0; i < files.size(); i++) {
+    try {
+      DataSet * s = DataBackend::loadFile(files[i]);
+      dataSets << s;
+      Terminal::out << "Successfully loaded " << files[i] << endl;
+    }
+    catch (const RuntimeError & e) {
+      Terminal::out << e.message() << endl;
+    }
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
+  }
+  if(dataSets.size() > 0) {
+    dlg.displayDataSets(dataSets);
+    dlg.exec();
+  }
+  for(int i = 0; i < dataSets.size(); i++)
+    delete dataSets[i];
+}
+
+
+static ArgumentList 
+bfArgs(QList<Argument *>() 
+       << new StringArgument("pattern", 
+                             "Pattern",
+                             "Files to browse"
+                             ));
+                             
+
+static Command 
+browseFiles("browse", // command name
+            effector(browseFilesCommand), // action
+            "stack",  // group name
+            NULL, // args
+            &bfArgs, // options
+            "Browse files",
+            "Browse files",
+            "Browse files",
+            "W");

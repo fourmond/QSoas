@@ -57,9 +57,8 @@ void DatasetBrowser::setupFrame()
   connect(bt, SIGNAL(clicked()), SLOT(previousPage()));
   hb->addWidget(bt);
 
-  // hb->addWidget(bufferSelection, 1);
-  // connect(bufferSelection, SIGNAL(currentIndexChanged(int)),
-  //         SLOT(dataSetChanged(int)));
+  bufferDisplay = new QLabel("");
+  hb->addWidget(bufferDisplay);
 
   bt = new QPushButton(tr("->"));
   connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
@@ -74,6 +73,10 @@ void DatasetBrowser::dataSetChanged(int newds)
 {
   currentIndex = newds;
   setupGrid();
+  bufferDisplay->setText(QString("%1-%2/%3").
+                         arg(currentIndex+1).
+                         arg(currentIndex + height*width).
+                         arg(datasets.size()));
 }
 
 void DatasetBrowser::displayDataSets(const QList<const DataSet *> &ds)
@@ -102,14 +105,35 @@ void DatasetBrowser::displayDataSets(const QList<DataSet *> &ds)
 void DatasetBrowser::setupGrid()
 {
   // Empty the grid first:
+  QTextStream o(stdout);
   
   while(grid->takeAt(0))
     ;                           // We don't delete, as widgets are in
                                 // memory
   
+  for(int i = 0; i < views.size(); i++)
+    views[i]->hide();
   int up = std::min(currentIndex + width*height, views.size());
   for(int i = currentIndex; i < up; i++) {
     int base = i - currentIndex;
+    views[i]->show();
     grid->addWidget(views[i], base / width, base % width);
+    o << "..." << base << " - " << i << ":" 
+      << base / width << "x" <<  base % width << endl;
   }
+}
+
+void DatasetBrowser::nextPage()
+{
+  currentIndex += width*height;
+  int s = std::max(views.size() - width*height, 0);
+  currentIndex = std::min(s, currentIndex);
+  dataSetChanged(currentIndex);
+}
+
+void DatasetBrowser::previousPage()
+{
+  currentIndex -= width*height;
+  currentIndex = std::max(0, currentIndex);
+  dataSetChanged(currentIndex);
 }

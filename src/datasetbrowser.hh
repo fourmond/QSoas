@@ -52,7 +52,8 @@ private:
   /// The grid layout in use to display view
   QGridLayout * grid;
 
-
+  /// Display of the current buffers
+  QLabel * bufferDisplay;
 
   void setupFrame();
   void setupGrid();
@@ -73,6 +74,8 @@ public:
 protected slots:
 
   void dataSetChanged(int newds);
+  void nextPage();
+  void previousPage();
 
 };
 

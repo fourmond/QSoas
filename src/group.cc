@@ -77,6 +77,15 @@ void Group::fillMenuBar(QMenuBar * menu)
     return;
   QList<Group *> groups = availableGroups->values();
   qSort(groups.begin(), groups.end(), compareGroups);
-  for(int i = 0; i < groups.size(); i++)
-    menu->addAction(groups[i]->actionForGroup(menu->parent()));
+  for(int i = 0; i < groups.size(); i++) {
+    QAction * action = groups[i]->actionForGroup(menu->parent());
+    QMenu * sub = action->menu();
+    menu->addAction(action);
+#ifdef Q_WS_MACX
+    // This is a workaround for bug https://bugreports.qt.nokia.com/browse/QTBUG-19920
+    menu->connect(sub, SIGNAL(triggered(QAction*)), 
+                  SIGNAL(triggered(QAction*)));
+#endif
+
+  }
 }

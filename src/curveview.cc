@@ -398,6 +398,9 @@ void CurveView::enterLoop(CurveEventLoop * loop)
     return;
 
   eventLoop = loop;
+  savedProxy = focusProxy();
+  setFocusProxy(NULL);
+  setFocus();
   qApp->installEventFilter(eventLoop);
 }
 
@@ -407,6 +410,7 @@ void CurveView::leaveLoop()
     return;
 
   qApp->removeEventFilter(eventLoop);
+  setFocusProxy(savedProxy);
   eventLoop = NULL;
 }
 

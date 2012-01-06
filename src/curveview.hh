@@ -71,6 +71,9 @@ class CurveView : public QAbstractScrollArea {
   void enterLoop(CurveEventLoop * loop);
   void leaveLoop();
 
+  /// The saved focus proxy
+  QWidget * savedProxy;
+
   /// @}
 
   bool paintMarkers;

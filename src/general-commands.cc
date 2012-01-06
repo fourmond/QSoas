@@ -175,17 +175,18 @@ static void testELoopCommand(const QString &)
   m.brush = QBrush("blue");
   Debug::dumpCurrentFocus("Focus before loop: ");
   while(! loop.finished()) {
-    Debug::dumpCurrentFocus("Current focus: ");
-    o << "Event: " << loop.type()
-      << ", key " << QString("0x%1").arg(loop.key(), 8, 16, 
-                                         QChar('0')) << endl;
+    // Debug::dumpCurrentFocus("Current focus: ");
+    // o << "Event: " << loop.type()
+    //   << ", key " << QString("0x%1").arg(loop.key(), 8, 16, 
+    //                                      QChar('0')) << endl;
     if(loop.key() == Qt::Key_Escape)
       return;
 
     if(loop.type() == QEvent::MouseButtonPress) {
       QPointF p = loop.position();
+      Terminal::out << "Focus window: " << qApp->focusWidget() << endl;
       Terminal::out << "Press event at " << p.x() << "," << p.y() 
-                    << " -- " << loop.button() << endl;
+                    << " -- " << loop.button() << " #" << i << endl;
       
       if(i % 2)
         l.p2 = p;
@@ -194,7 +195,7 @@ static void testELoopCommand(const QString &)
       m.p = p;
       i++;
       if(loop.button() == Qt::MiddleButton)
-        return;                 // As a escape route in mac (doesn't work ?)
+        return;                 // As a escape route in mac
       if(i >= 10)
         return;                 // As a escape route in mac (too)
     }

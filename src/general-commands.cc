@@ -49,7 +49,7 @@ static Group file("file", 0,
 static void quitCommand(const QString & name)
 {
   if( name != "quit") {
-    if(! Utils::askConfirmation(QObject::tr("Are you really sure you "
+    if(! Utils::askConfirmation(QObject::tr("Are you sure you "
                                             "want to quit ?"))) {
       Terminal::out << "Great !" << endl;
       return;
@@ -57,6 +57,7 @@ static void quitCommand(const QString & name)
   }
   qApp->quit();
 }
+
 static Command 
 quit("quit", // command name
      optionLessEffector(quitCommand), // action
@@ -183,7 +184,8 @@ static void testELoopCommand(const QString &)
 
     if(loop.type() == QEvent::MouseButtonPress) {
       QPointF p = loop.position();
-      o << "Press event at " << p.x() << "," << p.y() << endl;
+      Terminal::out << "Press event at " << p.x() << "," << p.y() 
+                    << " -- " << loop.button() << endl;
       
       if(i % 2)
         l.p2 = p;
@@ -191,12 +193,19 @@ static void testELoopCommand(const QString &)
         l.p1 = p;
       m.p = p;
       i++;
+      if(loop.button() == Qt::MiddleButton)
+        return;                 // As a escape route in mac (doesn't work ?)
+      if(i >= 10)
+        return;                 // As a escape route in mac (too)
     }
-    else if(loop.type() == QEvent::KeyPress && loop.key() == 's') {
-      o << "Prompting: " << endl;
-      QString str = loop.promptForString("what ?");
-      o << "-> got: " << str << endl;
-      Terminal::out << "Got string: " << str << endl;
+    else if(loop.type() == QEvent::KeyPress) {
+      Terminal::out << "Key press: " << loop.key() 
+                    << " -- " << QChar(loop.key()) << endl;
+      if(loop.key() == 's') {
+        Terminal::out << "Prompting: " << endl;
+        QString str = loop.promptForString("what ?");
+        Terminal::out << "Got string: " << str << endl;
+      }
     }
   }
   Debug::dumpCurrentFocus("Focus after loop: ");

@@ -23,23 +23,21 @@
 
    Now, mainly, what I need to do, is to massage the functionalities
    of the old Soas back into this one
-   \li cd/pwd
-   \li browse ;-)...
-   \li dataset selection
-   \li peak detection (along with a CurvePeak CurveItem child to display
-   it neatly)
+
+   \li pwd
+   \li finalize peak detection (along with a CurvePeak CurveItem child
+   to display it neatly)
    \li catalytic baseline
-   \li FFT, based on GSL too (no need to pull in another
-   dependency)
-   \li filter/derivative
+   \li insert
+   \li FFT, based on GSL too (no need to pull in another dependency)
    \li convolution, that was quite useful
    \li step detection, dead useful too !
-
    \li put back the temperature settings, and the values that depend
    on it (such as values of n on linear regressions and so on)
    
 
    And other things too:
+   \li dataset selection
    \li history save/restore upon exit => probably not...
    \li resampling
    \li definition of new fits based on ruby subclasses of Fit,

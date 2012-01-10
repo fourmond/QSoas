@@ -347,7 +347,8 @@ cd("cd", // command name
    NULL, // options
    "Change directory",
    "Change current directory",
-   "Save all output from the terminal");
+   "Change current directory"
+   "G");
   
 
 

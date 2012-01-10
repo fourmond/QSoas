@@ -697,24 +697,18 @@ dif2("diff2", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void findPeaksCommand(const QString &, const CommandOptions & opts)
+static void displayPeaks(QList<PeakInfo> peaks, const DataSet * ds, 
+                         int maxnb = -1)
 {
-  int window = 8;
-
-  updateFromOptions(opts, "window", window);
-
-  const DataSet * ds = soas().currentDataSet();
-  Peaks pk(ds, window);
-
-  QList<PeakInfo> peaks = pk.findPeaks();
-
   CurveView & view = soas().view();
   view.disableUpdates();
   Terminal::out << "Found " << peaks.size() << " peaks" << endl;
   Terminal::out << "Writing to output file " 
                 << OutFile::out.fileName() << endl;
   OutFile::out.setHeader("buffer\twhat\tx\ty\tindex");
-  for(int i = 0; i < peaks.size(); i++) {
+  if(maxnb < 0)
+    maxnb = peaks.size();
+  for(int i = 0; i < maxnb; i++) {
     QString str = QString("%1\t%2\t%3\t%4\t%5").
       arg(ds->name).arg((peaks[i].isMin ? "min" : "max" )).
       arg(peaks[i].x).arg(peaks[i].y).arg(peaks[i].index);
@@ -730,11 +724,45 @@ static void findPeaksCommand(const QString &, const CommandOptions & opts)
   view.enableUpdates();
 }
 
+static void findPeaksCommand(const QString &name, const CommandOptions & opts)
+{
+  int window = 8;
+  int nb = -1;
+  if(name == "1")
+    nb = 1;
+  else if(name == "2")
+    nb = 2;
+
+  bool includeBorders = false;
+
+  updateFromOptions(opts, "window", window);
+  updateFromOptions(opts, "peaks", nb);
+  updateFromOptions(opts, "include-borders", includeBorders);
+
+  const DataSet * ds = soas().currentDataSet();
+  Peaks pk(ds, window);
+
+  QList<PeakInfo> peaks = pk.findPeaks(includeBorders);
+  if(nb >= 0)
+    PeakInfo::sortByMagnitude(peaks);
+  displayPeaks(peaks, ds, nb);
+}
+
 static ArgumentList 
-fpOps(QList<Argument *>() 
-      << new IntegerArgument("window", 
-                            "Peak window",
-                            "...")
+fpBaseOps(QList<Argument *>() 
+          << new IntegerArgument("window", 
+                                 "Peak window",
+                                 "...")
+          << new BoolArgument("include-borders",
+                              "Whether or not to include borders",
+                              "...")
+       );
+
+static ArgumentList 
+fpOps(QList<Argument *>(fpBaseOps) 
+      << new IntegerArgument("peaks", 
+                            "Number of peaks",
+                            "Display only that many peaks (by order of intensity)")
       );
       
 static Command 
@@ -745,5 +773,24 @@ fp("find-peaks", // command name
    &fpOps, // options
    "Find peaks",
    "Find all peaks",
-   "...",
-   "fp");
+   "...");
+
+static Command 
+fp1("1", // command name
+   effector(findPeaksCommand), // action
+   "buffer",  // group name
+    NULL, // arguments
+    &fpBaseOps, // options
+    "Find peak",
+    "Find the biggest peak",
+    "...");
+
+static Command 
+fp2("2", // command name
+   effector(findPeaksCommand), // action
+   "buffer",  // group name
+    NULL, // arguments
+    &fpBaseOps, // options
+    "Find two peak",
+    "Find the two biggest peaks",
+    "...");

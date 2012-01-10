@@ -42,9 +42,20 @@ public:
   /// The Y position of the peak
   double y;
 
+  /// The magnitude of the peak, ie the absolute value of the peak's
+  /// amplitude with respect to the average.
+  double magnitude;
+
   /// @todo More to come later here, such as witdh and assymetry (but
   /// this will have to be based on fits -- to the extent possible),
   /// surface, half-height width (or the other way around...)
+
+
+  /// Compare the peaks by reverse magnitude
+  static bool comparePeakMagnitude(const PeakInfo &a, const PeakInfo & b);
+
+  /// Sorts the peaks by magnitude
+  static void sortByMagnitude(QList<PeakInfo> & peaks);
 };
 
 
@@ -75,7 +86,7 @@ public:
   ///
   /// @todo This probably should be cached too, and it should be
   /// possible to refine.
-  QList<PeakInfo> findPeaks();
+  QList<PeakInfo> findPeaks(bool includeBorders = false);
   
 };
 

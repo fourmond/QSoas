@@ -21,6 +21,18 @@
 
 #include <dataset.hh>
 
+bool PeakInfo::comparePeakMagnitude(const PeakInfo &a, const PeakInfo & b)
+{
+  return a.magnitude > b.magnitude;
+}
+
+void PeakInfo::sortByMagnitude(QList<PeakInfo> & peaks)
+{
+  qSort(peaks.begin(), peaks.end(), &PeakInfo::comparePeakMagnitude);
+}
+
+
+
 Peaks::Peaks(const Vector & cx, const Vector & cy, int w) :
   x(cx), y(cy), window(w)
   
@@ -32,11 +44,13 @@ Peaks::Peaks(const DataSet * ds, int w) :
 {
 }
 
-QList<PeakInfo> Peaks::findPeaks()
+QList<PeakInfo> Peaks::findPeaks(bool includeBorders)
 {
   QList<PeakInfo> peaks;
   if(extrema.size() == 0)
     extrema = y.extrema(window);
+  double avg, var;
+  y.stats(&avg, &var);
 
 
   for(int i = 0; i < extrema.size(); i++) {
@@ -45,9 +59,12 @@ QList<PeakInfo> Peaks::findPeaks()
     PeakInfo info;
     info.isMin = idx < 0;
     idx = abs(idx) - 1;
+    if(! includeBorders && (idx == 0 || idx == y.size() - 1))
+      continue;
     info.index = idx;
     info.x = x[idx];
     info.y = y[idx];
+    info.magnitude = fabs(avg - info.y);
     peaks << info;
   }
   return peaks;

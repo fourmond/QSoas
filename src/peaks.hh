@@ -61,7 +61,7 @@ public:
 
 /// This class provides Peak detection facilities.
 ///
-/// @todo Threshold should be built in the Peaks class, rather than
+/// @todo Threshold should be built in the Peaks class
 class Peaks {
 
   /// X values

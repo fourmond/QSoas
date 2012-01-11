@@ -282,6 +282,9 @@ public:
   /// points.
   DataSet * secondDerivative() const;
 
+  /// Concatenates all datasets into a single one.
+  static DataSet * concatenateDataSets(QList<const DataSet *> datasets);
+
 
 
   /// @}

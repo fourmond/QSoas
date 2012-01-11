@@ -775,6 +775,29 @@ DataSet * DataSet::secondDerivative() const
   return derivedDataSet(deriv, "_diff2");
 }
 
+DataSet * DataSet::concatenateDataSets(QList<const DataSet *> datasets)
+{
+  int nbcols = datasets.first()->nbColumns();
+  for(int i = 1; i < datasets.size(); i++)
+    if(nbcols > datasets[i]->nbColumns())
+      nbcols = datasets[i]->nbColumns();
+
+  QList<Vector> vects;
+  for(int i = 0; i < nbcols; i++)
+    vects << Vector();
+  QStringList names;
+  for(int i = 0; i < datasets.size(); i++) {
+    const DataSet * ds = datasets[i];
+    names << ds->cleanedName();
+    for(int i = 0; i < nbcols; i++)
+      vects[i] << ds->column(i);
+  }
+  DataSet * newDs = new DataSet(vects);
+  newDs->name = names.join("_") + ".dat";
+  return newDs;
+}
+
+
 
 //////////////////////////////////////////////////////////////////////
 

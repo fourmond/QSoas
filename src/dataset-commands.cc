@@ -550,6 +550,37 @@ divc("div", // command name
 //////////////////////////////////////////////////////////////////////
 
 
+static void catCommand(const QString &, DataSet * a, 
+                       QList<const DataSet *> b, const CommandOptions & opts)
+{
+  b.prepend(a);
+  soas().pushDataSet(DataSet::concatenateDataSets(b));
+}
+
+static ArgumentList 
+catArgs(QList<Argument *>() 
+        << new DataSetArgument("first", 
+                               "Buffer",
+                               "First buffer")
+        << new SeveralDataSetArgument("second", 
+                                      "Buffer",
+                                      "Second buffer(s)"));
+
+
+static Command 
+cat("cat", // command name
+    effector(catCommand), // action
+    "buffer",  // group name
+    &catArgs, // arguments
+    NULL, // options
+    "Concatenate",
+    "Conc",
+    "Conc",
+    "i");
+
+//////////////////////////////////////////////////////////////////////
+
+
 static void shiftxCommand(const QString &)
 {
   const DataSet * ds = soas().currentDataSet();

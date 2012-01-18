@@ -145,6 +145,12 @@ class ArbitraryFit : public FunctionFit {
 
     Fit::runFit(name, datasets, opts);
   }
+
+protected:
+
+  virtual QString optionsString() const {
+    return "formula: " + lastFormula;
+  };
     
 public:
 

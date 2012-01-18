@@ -89,10 +89,20 @@ protected:
   /// This function can also be used to perfom per-fit initialization,
   /// even if you don't care about options.
   virtual void processOptions(const CommandOptions & opts);
+
+  /// Returns a string describing the options used, when applicable
+  virtual QString optionsString() const {
+    return QString();
+  };
 public:
 
   /// The fit name
-  QString fitName() const {
+  QString fitName(bool includeOptions = true) const {
+    if(includeOptions) {
+      QString str = optionsString();
+      if(str.size() > 0) 
+        return name + " (" + str + ")";
+    }
     return name;
   };  
 

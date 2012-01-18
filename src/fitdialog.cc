@@ -103,6 +103,8 @@ void FitDialog::setupFrame()
   connect(bt, SIGNAL(clicked()), SLOT(previousDataset()));
   hb->addWidget(bt);
 
+  hb->addWidget(new QLabel("<b>Fit:</b> " + data->fit->fitName()));
+
   hb->addWidget(bufferSelection, 1);
   connect(bufferSelection, SIGNAL(currentIndexChanged(int)),
           SLOT(dataSetChanged(int)));
@@ -335,7 +337,7 @@ DataSet *  FitDialog::simulatedData(int i)
   DataSet * ds = 
     new DataSet(QList<Vector>() << base->x() 
                 << Vector::fromGSLVector(&v.vector));
-  ds->name = base->cleanedName() + "_fit_" + data->fit->fitName() + ".dat";
+  ds->name = base->cleanedName() + "_fit_" + data->fit->fitName(false) + ".dat";
   return ds;
 }
 

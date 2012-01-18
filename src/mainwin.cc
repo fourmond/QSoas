@@ -34,6 +34,16 @@
    \li step detection, dead useful too !
    \li put back the temperature settings, and the values that depend
    on it (such as values of n on linear regressions and so on)
+
+   \b Various requests
+   \li add back deldp
+   \li find a way to display current directory on the printed stuff
+   \li add a whole bunch of functionalities to the stack/data browser
+   \li add arbitrary text to print ? (could this just be an annotate
+   command adding text to the current plot ? It would be nice to
+   choose its position, then ? -> no, just a waste of time)
+   \li chop: xvalues deltax (default) and indices
+   \li exponential fits: wrap all exponential fits into a single one.
    
 
    And other things too:

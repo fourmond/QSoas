@@ -119,7 +119,7 @@ QString CurveDataSet::toolTipText(const QPointF & pt)
   str += tr("Dataset%2: %1<br>").
     arg(dataSet->name).arg(dsIdx);
   QPointF p = dataSet->pointAt(lastPointIdx);
-  str += tr("Point #%1: <br>%2,%3").
+  str += tr("Point #%1: <br>X = %2, Y = %3").
     arg(lastPointIdx).arg(p.x()).arg(p.y());
   return str;
 }

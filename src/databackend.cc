@@ -61,9 +61,7 @@ DataBackend * DataBackend::backendForStream(QIODevice * stream,
   return backend;
 }
 
-DataSet * DataBackend::loadFile(const QString & fileName, 
-                                const QString & options, 
-                                const QString & backend)
+DataSet * DataBackend::loadFile(const QString & fileName)
 {
   /// @todo implement backend manual selection.
   QFile file(fileName);
@@ -73,5 +71,5 @@ DataSet * DataBackend::loadFile(const QString & fileName,
   if(! b)
     throw RuntimeError(QObject::tr("No backend found to load %1").
                        arg(fileName));
-  return b->readFromStream(&file, fileName, options);
+  return b->readFromStream(&file, fileName);
 }

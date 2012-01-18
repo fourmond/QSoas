@@ -31,6 +31,11 @@
 
 #include <terminal.hh>
 
+
+DataSet * DataSet::clone() const {
+  return new DataSet(*this);
+}
+
 /// @todo Include peak detection, with the algorithm used for the
 /// film_decay command in the old Soas.
 

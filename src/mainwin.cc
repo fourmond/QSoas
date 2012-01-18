@@ -44,13 +44,14 @@
    choose its position, then ? -> no, just a waste of time)
    \li chop: xvalues deltax (default) and indices
    \li exponential fits: wrap all exponential fits into a single one.
+   \li cache file loads to speed up successive browse commands
    
 
    And other things too:
    \li dataset selection
    \li find a way to have a "default" optional parameter whose name
    could be omitted: that would allow for an "optional" parameter to
-   be specified 
+   be specified as "default optional parameter"
    \li history save/restore upon exit => probably not...
    \li resampling
    \li definition of new fits based on ruby subclasses of Fit,

@@ -101,6 +101,9 @@ public:
   DataSet() {;};
   DataSet(const QList<Vector> & cols) : columns(cols) {;};
 
+  /// Returns a cloned copy of the dataset
+  DataSet * clone() const;
+
   /// Returns a version of name without the extension, that can be
   /// used for making up new buffer names from the old ones.
   QString cleanedName() const;

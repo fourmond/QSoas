@@ -25,12 +25,24 @@ class DataSet;
 /// The base class of a series that reads data from files.
 ///
 /// It supports auto-detection...
+///
+/// @todo I should have a way to have backends accept real
+/// CommandOption arguments and register them as real commands too, so
+/// that one could force using a particular backend.
+///
+/// Idea: load-as-text / load-as-binary / load-as-GPES, etc...
+///
+/// @todo Setup a cache. It needs a time stamp; should it be held by
+/// the cache, or by the DataSet ? Most probably the latter.
 class DataBackend {
   /// A global hash holding a correspondance name->databackend
   static QList<DataBackend*> * availableBackends;
 
   /// Registers the given backend to the static registry
   static void registerBackend(DataBackend * backend);
+
+
+  
 
 protected:
   /// A short code-like name
@@ -82,10 +94,6 @@ public:
   /// Reads a DataSet from the given stream. The \p fileName parameter
   /// does not necessarily point to a real file.
   ///
-  /// The \p args can be used to provide additional information, such
-  /// as which columns to load, or the like. We'll see if we really
-  /// need that later on.
-  ///
   /// \b Note The backend is responsible for setting as much meta-data
   /// as reasonably possible based on the given file, but also
   /// potentially on connected files.
@@ -97,8 +105,7 @@ public:
   /// so-called conditions.dat files I used so often now. I'll have to
   /// decide how the interface will go.
   virtual DataSet * readFromStream(QIODevice * stream,
-                                   const QString & fileName,
-                                   const QString & args = "") const  = 0;
+                                   const QString & fileName) const = 0;
 
   
   /// Find which DataBackend is best suited to load the given stream.
@@ -109,9 +116,9 @@ public:
 
   /// Loads the given file. Returns a valid DataSet pointer or raise
   /// an appropriate exception.
-  static DataSet * loadFile(const QString & fileName,
-                            const QString & options = "",
-                            const QString & backend = "");
+  ///
+  /// This function caches the result !
+  static DataSet * loadFile(const QString & fileName);
 };
 
 #endif

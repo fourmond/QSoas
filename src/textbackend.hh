@@ -36,8 +36,7 @@ public:
   TextBackend(const QRegExp & sep,
               const char * n, const char * pn, const char * d = "");
   virtual DataSet * readFromStream(QIODevice * stream,
-                                   const QString & fileName,
-                                   const QString & args = "") const;
+                                   const QString & fileName) const;
 };
 
 #endif

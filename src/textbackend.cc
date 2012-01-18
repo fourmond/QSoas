@@ -63,8 +63,7 @@ int TextBackend::couldBeMine(const QByteArray & peek,
 }
 
 DataSet * TextBackend::readFromStream(QIODevice * stream,
-                                      const QString & fileName,
-                                      const QString & /*args*/) const
+                                      const QString & fileName) const
 {
   /// @todo implement comments / header parsing... BTW, maybe
   /// Vector::readFromStream could be more verbose about the nature of

@@ -210,6 +210,8 @@ void MainWin::setupFrame()
                          SIGNAL(currentDataSetChanged()),
                          SLOT(printCurrentDataSetInfo()));
 
+  updateWindowName();
+
   
   setCentralWidget(mainSplitter);
 
@@ -220,6 +222,11 @@ void MainWin::menuActionTriggered(QAction * action)
 {
   QStringList cmd = action->data().toStringList();
   commandWidget->runCommand(cmd);
+}
+
+void MainWin::updateWindowName()
+{
+  setWindowTitle(QString("QSoas: %1").arg(QDir::currentPath()));
 }
 
 

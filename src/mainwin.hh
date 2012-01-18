@@ -50,6 +50,9 @@ public:
   /// Displays a message on the status bar
   void showMessage(const QString & str, int milliseconds = 3000);
 
+public slots:
+  /// Updates the windows name to have the current directory shown.
+  void updateWindowName();
 protected slots:
   void menuActionTriggered(QAction * action);
 

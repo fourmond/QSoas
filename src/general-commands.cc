@@ -39,6 +39,7 @@
 
 #include <debug.hh>
 #include <commandwidget.hh>
+#include <mainwin.hh>
 
 
 static Group file("file", 0,
@@ -360,15 +361,18 @@ run("run", // command name
   
 static ArgumentList 
 cda(QList<Argument *>() 
-    << new FileArgument("directory",  /// @todo use 
+    << new FileArgument("directory",  
                         "Directory",
-                        "New directory"));
+                        "New directory", true));
 
 static void cdCommand(const QString &, QString dir)
 {
   if(! QDir::setCurrent(dir))
     throw RuntimeError(QObject::tr("Could not cd to '%1'").
                        arg(dir));
+  soas().mainWin().updateWindowName();
+  Terminal::out << "Current directory now is: " << QDir::currentPath() 
+                << endl;
 }
 
 static Command 

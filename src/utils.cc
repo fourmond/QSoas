@@ -21,8 +21,30 @@
 #include <utils.hh>
 #include <exceptions.hh>
 
-QStringList Utils::glob(const QString & pattern, bool trim)
+/// Helper function for globs
+static QStringList dirGlob(QString directory, QString str,
+                           bool isDir, bool parentOK = false)
 {
+  QDir dir(directory);
+  QStringList rets;
+  QDir::Filters filters = QDir::Dirs | QDir::CaseSensitive | QDir::NoDot;
+  if(! isDir)
+    filters |= QDir::Files;
+  if(! ((isDir && parentOK) || str.startsWith(".")) )
+    filters |= QDir::NoDotDot;
+  if(str.size() == 0)
+    str = "*";
+  QStringList entries = dir.entryList(QStringList() << str, filters);
+  QTextStream o(stdout);
+  for(int j = 0; j < entries.size(); j++)
+    rets << dir.filePath(entries[j]);
+  
+  return rets;
+}
+
+QStringList Utils::glob(const QString & pattern, bool trim, bool isDir)
+{
+  
   QStringList pats = QDir::fromNativeSeparators(pattern).split("/");
   if(pats[0].size() == 0) {
     pats.takeFirst();
@@ -33,31 +55,19 @@ QStringList Utils::glob(const QString & pattern, bool trim)
   QStringList directories;
   directories << info.dir().path();
   for(int i = 0; i < pats.size() - 1; i++) {
+    // o << "Pattern:" << pats[i] 
     QStringList newdirs;
     /// @todo There should be a way to implement ** at this stage, but
     /// I don't see a simple one for now.
-    for(int j = 0; j < directories.size(); j++) {
-      QDir dir(directories[j]);
-      QStringList entries = dir.entryList(QStringList() << pats[i], 
-                                        QDir::NoDotAndDotDot | QDir::Dirs | 
-                                        QDir::CaseSensitive);
-      for(int j = 0; j < entries.size(); j++)
-        newdirs << dir.filePath(entries[j]);
-    }
+    for(int j = 0; j < directories.size(); j++)
+      newdirs += dirGlob(directories[j], pats[i], true);
     directories = newdirs;
   }
 
 
   QStringList lst;
-  for(int i = 0; i < directories.size(); i++) {
-    QDir dir(directories[i]);
-    QStringList entries = dir.entryList(QStringList() << pats.last(), 
-                                        QDir::NoDotAndDotDot |
-                                        QDir::Files | QDir::Dirs | 
-                                        QDir::CaseSensitive);
-    for(int j = 0; j < entries.size(); j++)
-      lst << dir.filePath(entries[j]);
-  }
+  for(int i = 0; i < directories.size(); i++)
+    lst += dirGlob(directories[i], pats.last(), isDir, isDir);
 
   if(lst.isEmpty() && ! trim)
     lst << pattern;

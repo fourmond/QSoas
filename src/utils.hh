@@ -42,7 +42,7 @@ namespace Utils {
   /// @todo Support */ as a glob (not currently supported). That one
   /// may come in nicely as a side effect of the above transformation.
   QStringList glob(const QString & pattern, 
-                   bool trim = true);
+                   bool trim = true, bool isDir = false);
 
   /// Returns all the strings from the given QStringList that start
   /// with the given string.

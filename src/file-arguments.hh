@@ -28,10 +28,14 @@
 ///
 /// @todo Provide filters for the dialog
 class FileArgument : public Argument {
+  
+  /// can it match directories ?
+  bool isDir;
 public:
 
   FileArgument(const char * cn, const char * pn,
-               const char * d = "") : Argument(cn, pn, d) {
+               const char * d = "", bool dir = false) : Argument(cn, pn, d),
+                                                        isDir(dir) {
   }; 
   
   /// Returns a wrapped QString

@@ -25,9 +25,10 @@
 #include <exceptions.hh>
 
 /// A utility function for a clean file completion.
-static QStringList proposeFileCompletion(const QString & str)
+static QStringList proposeFileCompletion(const QString & str, 
+                                         bool isDir = false)
 {
-  QStringList candidates = Utils::glob(str + "*");
+  QStringList candidates = Utils::glob(str + "*", true, isDir);
   for(int i = 0; i < candidates.size(); i++)
     candidates[i] = QDir::cleanPath(candidates[i]);
   if(candidates.size() == 1) {
@@ -46,9 +47,14 @@ ArgumentMarshaller * FileArgument::fromString(const QString & str) const
 
 ArgumentMarshaller * FileArgument::promptForValue(QWidget * base) const
 {
-  QString file = 
-    QFileDialog::getOpenFileName(base, publicName(),
-                                 QDir::currentPath());
+
+  QString file;
+  if(isDir)
+    file = QFileDialog::getExistingDirectory(base, publicName(),
+                                             QDir::currentPath());
+  else
+    file = QFileDialog::getOpenFileName(base, publicName(),
+                                        QDir::currentPath());
   if(file.isEmpty())
     throw RuntimeError("Aborted"); 
   /// @todo Maybe use a specific exception to signal abortion ?
@@ -58,7 +64,7 @@ ArgumentMarshaller * FileArgument::promptForValue(QWidget * base) const
 
 QStringList FileArgument::proposeCompletion(const QString & starter) const
 {
-  return proposeFileCompletion(starter);
+  return proposeFileCompletion(starter, isDir);
 }
 
 ////////////////////////////////////////////////////////////
@@ -118,6 +124,6 @@ void SeveralFilesArgument::concatenateArguments(ArgumentMarshaller * a,
 
 QStringList SeveralFilesArgument::proposeCompletion(const QString & starter) const
 {
-  return proposeFileCompletion(starter);
+  return proposeFileCompletion(starter, false);
 }
 

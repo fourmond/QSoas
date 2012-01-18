@@ -450,8 +450,13 @@ static void browseFilesCommand(const QString &, const CommandOptions & opts)
   for(int i = 0; i < files.size(); i++) {
     try {
       DataSet * s = DataBackend::loadFile(files[i]);
-      dataSets << s;
-      Terminal::out << "Successfully loaded " << files[i] << endl;
+      if(s->nbColumns() > 1 && s->nbRows() > 1) {
+          dataSets << s;
+          Terminal::out << "Successfully loaded " << files[i] << endl;
+      }
+      else
+        Terminal::out << files[i] << " doesn't contain enough rows and/or columns, skipping" << endl;
+
     }
     catch (const RuntimeError & e) {
       Terminal::out << e.message() << endl;

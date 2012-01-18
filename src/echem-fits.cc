@@ -37,10 +37,6 @@ public:
 
 
   /// Formula:
-  /// a[1] * exp(-(x - a[0]) / a[2]) + a[3];
-  ///
-  /// a[0] is a redundant parameter, but it can be of use to shift the
-  /// X axis without touching the original data.
   virtual double function(const double * a, 
                           FitData * , double x) {
     double f = GSL_CONST_MKSA_FARADAY /(a[0] * GSL_CONST_MKSA_MOLAR_GAS);
@@ -52,9 +48,7 @@ public:
                             const DataSet * ds,
                             double * a)
   {
-    a[0] = 298;                 /// @todo use global temperature
-                                /// settings when applicable
-    a[1] = 1;
+    a[0] = soas().temperature();   a[1] = 1;
     a[2] = 0.5*(ds->x().min() + ds->x().max());
     a[3] = ds->y().first();
     a[4] = ds->y().last();

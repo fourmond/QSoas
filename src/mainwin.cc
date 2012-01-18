@@ -38,6 +38,9 @@
 
    And other things too:
    \li dataset selection
+   \li find a way to have a "default" optional parameter whose name
+   could be omitted: that would allow for an "optional" parameter to
+   be specified 
    \li history save/restore upon exit => probably not...
    \li resampling
    \li definition of new fits based on ruby subclasses of Fit,
@@ -168,11 +171,12 @@ MainWin::MainWin()
     mainSplitter->restoreState(splitterState);
 
   Terminal::out << "This is Soas version " << SOAS_VERSION << " for Qt\n"
-                << "Copyright 2011 by Vincent Fourmond\n"
+                << "Copyright 2011-2012 by Vincent Fourmond\n"
                 << "Based on Christophe Leger's original Soas\n\n"
                 << "This program is free software, released under the terms of \n"
-                << "the GNU general public license (see http://www.gnu.org/copyleft/gpl.html)" 
-                << endl;
+                << "the GNU general public license (see http://www.gnu.org/copyleft/gpl.html)\n\n" 
+                << "Current temperature is: " << soasInstance->temperature() 
+                << " K" << endl;
 }
 
 void MainWin::setupFrame()

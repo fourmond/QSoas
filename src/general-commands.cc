@@ -117,6 +117,38 @@ ogl("opengl", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void temperatureCommand(const QString &,
+                               const CommandOptions & opts)
+{
+  Terminal::out << "Temperature is currently " 
+                << soas().temperature() << " K" << endl;
+  if(opts.contains("set")) {
+    soas().setTemperature(opts["set"]->value<double>());
+    Terminal::out << "Setting it to " 
+                  << soas().temperature() << " K" << endl;
+  }
+}
+
+static ArgumentList 
+tempOpts(QList<Argument *>() 
+         << new NumberArgument("set", 
+                               "Sets the temperature",
+                               "Sets the temperature"));
+
+static Command 
+temperature("temperature", // command name
+            effector(temperatureCommand), // action
+            "file",  // group name
+            NULL, // arguments
+            &tempOpts, // options
+            "Temperature",
+            "Reads/sets temperature",
+            "Shows or sets the temperature (using option)",
+            "T"
+            );
+
+//////////////////////////////////////////////////////////////////////
+
 static ArgumentList 
 pops(QList<Argument *>() 
      << new FileSaveArgument("file", 

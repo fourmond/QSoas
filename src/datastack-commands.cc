@@ -44,7 +44,7 @@ static void loadFilesAndDisplay(int nb, QStringList files)
 {
   soas().view().disableUpdates();
   for(int i = 0; i < files.size(); i++) {
-    Terminal::out << "Loading file '" << files[i] << "'";
+    // Terminal::out << "Loading file '" << files[i] << "'";
     try {
       DataSet * s = DataBackend::loadFile(files[i]);
       soas().stack().pushDataSet(s, true); // use the silent version
@@ -450,12 +450,12 @@ static void browseFilesCommand(const QString &, const CommandOptions & opts)
   for(int i = 0; i < files.size(); i++) {
     try {
       DataSet * s = DataBackend::loadFile(files[i]);
-      if(s->nbColumns() > 1 && s->nbRows() > 1) {
+      if(s->nbColumns() > 1 && s->nbRows() > 1)
           dataSets << s;
-          Terminal::out << "Successfully loaded " << files[i] << endl;
-      }
-      else
+      else {
         Terminal::out << files[i] << " doesn't contain enough rows and/or columns, skipping" << endl;
+        delete s;
+      }
 
     }
     catch (const RuntimeError & e) {

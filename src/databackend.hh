@@ -122,7 +122,7 @@ public:
   /// an appropriate exception.
   ///
   /// This function caches the result !
-  static DataSet * loadFile(const QString & fileName);
+  static DataSet * loadFile(const QString & fileName, bool verbose = true);
 };
 
 #endif

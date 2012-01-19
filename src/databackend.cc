@@ -22,6 +22,7 @@
 #include <utils.hh>
 
 #include <dataset.hh>
+#include <terminal.hh>
 
 #include <exceptions.hh>
 
@@ -66,7 +67,7 @@ DataBackend * DataBackend::backendForStream(QIODevice * stream,
   return backend;
 }
 
-DataSet * DataBackend::loadFile(const QString & fileName)
+DataSet * DataBackend::loadFile(const QString & fileName, bool verbose)
 {
   /// @todo implement backend manual selection.
   QFile file(fileName);
@@ -86,15 +87,26 @@ DataSet * DataBackend::loadFile(const QString & fileName)
     }
   }
 
+  if(verbose)
+    Terminal::out << "Loading file: '" << fileName << "' ";
+
   if(! ds) {
     Utils::open(&file, QIODevice::ReadOnly);
 
     DataBackend * b = backendForStream(&file, fileName);
     if(! b)
-      throw RuntimeError(QObject::tr("No backend found to load %1").
+      throw RuntimeError(QObject::tr("No backend found to load '%1'").
                          arg(fileName));
     ds = b->readFromStream(&file, fileName);
+
+    if(verbose)
+      Terminal::out << "using backend " << b->name << endl;
+
   }
+  else 
+    if(verbose)
+      Terminal::out << "(cached)" << endl;
+  
   if(!ds->date.isValid())
     ds->date = lastModified;
 

@@ -1,5 +1,5 @@
 # -*- mode: conf; -*-
-# QMake configuration file for QCam
+# QMake configuration file for QSoas
 
 TEMPLATE = app
 CONFIG += precompile_header debug warn_on thread exception
@@ -12,8 +12,12 @@ QT += opengl                    # Doesn't work that well, actually
 QT -= webkit                    # We really don't need webkit, for now ?
 
 VERSION = 0.0
+BUILD_DATE = 
+exists(/bin/date) {
+  BUILD_DATE = "+"$$system(/bin/date +%Y%m%d)
+}
 
-DEFINES += SOAS_VERSION=\'\"$$VERSION\"\'
+DEFINES += SOAS_VERSION=\'\"$$VERSION$$BUILD_DATE\"\'
 
 PRECOMPILED_HEADER = src/headers.hh
 

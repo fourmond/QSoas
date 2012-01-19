@@ -43,8 +43,6 @@
    command adding text to the current plot ? It would be nice to
    choose its position, then ? -> no, just a waste of time)
    \li chop: xvalues deltax (default) and indices
-   \li exponential fits: wrap all exponential fits into a single one.
-   \li cache file loads to speed up successive browse commands
    
 
    And other things too:
@@ -80,6 +78,8 @@
    \li option to pass certain parameters in the form of logarithms
    (this could be done at the FitData level ?)
    \li options to automatically apply a bijection to the Y values too.
+   \li optionnally add user-specified parameters, when the formula system
+   for fit parameters is ready.
 
    Generally speaking, I should setup a whole way to transform
    parameters. We have two parameter space: one natural parameter

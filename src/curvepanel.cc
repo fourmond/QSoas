@@ -39,6 +39,7 @@ CurvePanel::CurvePanel() :
 CurvePanel::~CurvePanel()
 {
   /// @todo Ensure all the objects are deleted ?
+  clear();
 }
 
 QRectF CurvePanel::currentZoom() const

@@ -32,10 +32,6 @@
 #include <terminal.hh>
 
 
-DataSet * DataSet::clone() const {
-  return new DataSet(*this);
-}
-
 /// @todo Include peak detection, with the algorithm used for the
 /// film_decay command in the old Soas.
 
@@ -651,6 +647,8 @@ DataSet * DataSet::derivedDataSet(const Vector &newy,
   /// @todo Shall we put the other columns back in ?
   DataSet * ds = new DataSet(nv);
   ds->name = cleanedName() + suffix;
+
+  /// @todo Should we update the date too ?
   return ds;
 }
 

@@ -98,11 +98,12 @@ public:
   /// The name of the dataset, usually the name of the file.
   QString name;
 
+  /// The date and time of the (original ?) data
+  QDateTime date;
+
+
   DataSet() {;};
   DataSet(const QList<Vector> & cols) : columns(cols) {;};
-
-  /// Returns a cloned copy of the dataset
-  DataSet * clone() const;
 
   /// Returns a version of name without the extension, that can be
   /// used for making up new buffer names from the old ones.

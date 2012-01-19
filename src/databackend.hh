@@ -42,6 +42,10 @@ class DataBackend {
   static void registerBackend(DataBackend * backend);
 
 
+  /// A cache for datasets
+  ///
+  /// @todo Should be a pointer ?
+  static QCache<QString, DataSet> cachedDatasets;
   
 
 protected:

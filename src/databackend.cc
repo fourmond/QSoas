@@ -21,9 +21,14 @@
 #include <databackend.hh>
 #include <utils.hh>
 
+#include <dataset.hh>
+
 #include <exceptions.hh>
 
 QList<DataBackend*> * DataBackend::availableBackends = NULL;
+
+// A 30 MB cache
+QCache<QString, DataSet> DataBackend::cachedDatasets(30*1024*1024);
 
 void DataBackend::registerBackend(DataBackend * backend)
 {
@@ -65,11 +70,37 @@ DataSet * DataBackend::loadFile(const QString & fileName)
 {
   /// @todo implement backend manual selection.
   QFile file(fileName);
-  Utils::open(&file, QIODevice::ReadOnly);
 
-  DataBackend * b = backendForStream(&file, fileName);
-  if(! b)
-    throw RuntimeError(QObject::tr("No backend found to load %1").
-                       arg(fileName));
-  return b->readFromStream(&file, fileName);
+  QFileInfo info(fileName);
+  QString key = info.canonicalFilePath();
+  QDateTime lastModified = info.lastModified();
+
+  DataSet * ds = NULL;
+
+  
+  if(cachedDatasets.contains(key)) {
+    ds = cachedDatasets.take(key);
+    if(ds->date < lastModified) {
+      delete ds;
+      ds = NULL;
+    }
+  }
+
+  if(! ds) {
+    Utils::open(&file, QIODevice::ReadOnly);
+
+    DataBackend * b = backendForStream(&file, fileName);
+    if(! b)
+      throw RuntimeError(QObject::tr("No backend found to load %1").
+                         arg(fileName));
+    ds = b->readFromStream(&file, fileName);
+  }
+  if(!ds->date.isValid())
+    ds->date = lastModified;
+
+  // We insert a copy in the cache 
+  DataSet * dscopy = new DataSet(*ds);
+  if(! cachedDatasets.insert(key, dscopy, ds->byteSize()))
+    delete dscopy;              // Delete if add failed
+  return ds;
 }

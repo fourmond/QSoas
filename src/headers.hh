@@ -87,6 +87,7 @@
 #include <QTemporaryFile>
 #include <QTimer>
 
+
 // Binary serialization
 #include <QDataStream>
 
@@ -95,6 +96,7 @@
 #include <QMultiHash>
 #include <QList>
 #include <QVarLengthArray>
+#include <QCache>
 
 // We want to be able to select the locale for parsing floating-point
 // values.

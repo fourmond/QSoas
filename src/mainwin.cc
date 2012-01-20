@@ -182,6 +182,10 @@
 
 #include <settings-templates.hh>
 
+#ifndef BUILD_ID
+#include <build.hh>
+#endif
+
 static SettingsValue<QSize> mainWinSize("mainwin/size", QSize(700,500));
 
 static SettingsValue<QByteArray> splitterState("mainwin/splitter", 
@@ -195,7 +199,8 @@ MainWin::MainWin()
   if(! splitterState->isEmpty())
     mainSplitter->restoreState(splitterState);
 
-  Terminal::out << "This is Soas version " << SOAS_VERSION << " for Qt\n"
+  Terminal::out << "This is Soas version " << SOAS_VERSION BUILD_ID 
+                << " for Qt\n"
                 << "Copyright 2011-2012 by Vincent Fourmond\n"
                 << "Based on Christophe Leger's original Soas\n\n"
                 << "This program is free software, released under the terms of \n"

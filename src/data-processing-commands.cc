@@ -268,6 +268,7 @@ static void baselineCommand(const QString &)
           return;
         case 'A':
         case 'a':
+          /// @todo Use a "toogle" to change the method used.
           type = Spline::Akima;
           needCompute = true;
           soas().showMessage("Using Akima spline interpolation");

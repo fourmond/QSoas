@@ -12,12 +12,18 @@ QT += opengl                    # Doesn't work that well, actually
 QT -= webkit                    # We really don't need webkit, for now ?
 
 VERSION = 0.0
-BUILD_DATE = 
-exists(/bin/date) {
-  BUILD_DATE = "+"$$system(/bin/date +%Y%m%d)
+
+exists(/bin/sh) {
+  system(/bin/sh prepare-build-info)
+  # Special build info file
+  HEADERS += src/build.hh
+}
+else {
+  DEFINES += BUILD_ID=\'\"\"\'
 }
 
-DEFINES += SOAS_VERSION=\'\"$$VERSION$$BUILD_DATE\"\'
+DEFINES += SOAS_VERSION=\'\"$$VERSION\"\'
+
 
 PRECOMPILED_HEADER = src/headers.hh
 
@@ -172,3 +178,4 @@ HEADERS += src/headers.hh \
         src/fft.hh \
         src/peaks.hh \
         src/datasetbrowser.hh
+

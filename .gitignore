@@ -8,3 +8,6 @@ QSoas
 Makefile
 build/
 dox/
+
+# Generated headers:
+src/build.hh

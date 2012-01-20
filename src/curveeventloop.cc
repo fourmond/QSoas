@@ -148,6 +148,17 @@ bool CurveEventLoop::finished()
   return done;
 }
 
+bool CurveEventLoop::isConventionalAccept() const
+{
+  if(type() == QEvent::MouseButtonPress && button() == Qt::MiddleButton)
+    return true;
+
+  if(type() == QEvent::KeyPress && (key() == 'q' || key() == 'Q'))
+    return true;
+  return false;
+}
+
+
 QPointF CurveEventLoop::position(CurvePanel * panel)
 {
   if(! panel)

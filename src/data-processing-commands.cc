@@ -230,10 +230,10 @@ static void baselineCommand(const QString &)
   view.addPanel(&bottom);
 
   loop.setHelpString(QObject::tr("Baseline interpolation:\n"
-                                 "left click: left boundary\n"
-                                 "right click: right boundary\n"
+                                 "left click: place point\n"
+                                 "right click: remove point\n"
                                  "d: display derivative\n"
-                                 "q: subtract baseline\n"
+                                 "q, middle click: subtract baseline\n"
                                  "v: divide by baseline\n"
                                  "u: to replace by baseline\n"
                                  "ESC: abord"));
@@ -246,6 +246,15 @@ static void baselineCommand(const QString &)
       }
     }
     else {
+      if(loop.isConventionalAccept()) {
+        // Subtracting, the data is already computed in d
+        /// @todo Probably
+        DataSet * newds = new 
+          DataSet(QList<Vector>() << d.xvalues << diff.yvalues);
+        newds->name = ds->cleanedName() + "_bl_sub.dat";
+        soas().pushDataSet(newds);
+        return;
+      }
       switch(loop.type()) {
       case QEvent::MouseButtonPress: 
         if(loop.button() == Qt::RightButton) { // Removing
@@ -303,15 +312,6 @@ static void baselineCommand(const QString &)
           needCompute = true;
           soas().showMessage("Using polynomial interpolation");
           break;
-        case 'q':
-        case 'Q': {
-          // Subtracting, the data is already computed in d
-          DataSet * newds = new 
-            DataSet(QList<Vector>() << d.xvalues << diff.yvalues);
-          newds->name = ds->cleanedName() + "_bl_sub.dat";
-          soas().pushDataSet(newds);
-          return;
-        }
         case 'U':
         case 'u': {
           // Replacing the data is already computed in d
@@ -377,6 +377,9 @@ static void bsplinesCommand(const QString &)
   CurveEventLoop loop;
   CurveView & view = soas().view();
   CurvePanel bottom;
+  /// @todo This assumes that the currently displayed dataset is the
+  /// first one.
+  CurveItem * dsDisplay = view.mainPanel()->items().first();
   CurveData d;
   CurveData diff;
   bool derive = false;
@@ -420,9 +423,17 @@ static void bsplinesCommand(const QString &)
                                  "right click: remove closest point\n"
                                  "d: display derivative\n"
                                  "o: optimize positions\n"
-                                 "q: replace with filtered data\n"
+                                 "q, middle click: replace with filtered data\n"
                                  "ESC: abord"));
   do {
+    if(loop.isConventionalAccept()) {
+      // Quit replacing with data
+      DataSet * newds = new 
+        DataSet(QList<Vector>() << d.xvalues << d.yvalues);
+      newds->name = ds->cleanedName() + "_filtered.dat";
+      soas().pushDataSet(newds);
+      return;
+    }
     switch(loop.type()) {
     case QEvent::MouseButtonPress: 
       /// @todo actual point placing
@@ -448,6 +459,7 @@ static void bsplinesCommand(const QString &)
       case 'D':
       case 'd':
         derive = ! derive;
+        dsDisplay->hidden = derive;
         needCompute = true;
         if(derive)
           soas().showMessage("Showing derivative");
@@ -460,15 +472,6 @@ static void bsplinesCommand(const QString &)
         x = splines.getBreakPoints();
         needCompute = true;
         break;
-      case 'q':
-      case 'Q': {
-        // Quit replacing with data
-        DataSet * newds = new 
-          DataSet(QList<Vector>() << d.xvalues << d.yvalues);
-        newds->name = ds->cleanedName() + "_filtered.dat";
-        soas().pushDataSet(newds);
-        return;
-      }
       default:
         ;
       }

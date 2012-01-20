@@ -318,25 +318,19 @@ static void cutCommand(const QString &)
     
   /// @todo selection mode ? (do we need that ?)
   while(! loop.finished()) {
+    if(loop.isConventionalAccept()) {
+      soas().pushDataSet(ds->subset(r.xleft, r.xright, true));
+      return;
+    }
     switch(loop.type()) {
-    case QEvent::MouseButtonPress: {
-      if(loop.button() == Qt::MiddleButton) {
-        soas().pushDataSet(ds->subset(r.xleft, r.xright, true));
-        return;
-      }
+    case QEvent::MouseButtonPress:
       r.setX(loop.position().x(), loop.button());
       break;
-    }
     case QEvent::KeyPress: 
       switch(loop.key()) {
       case Qt::Key_Escape:
         view.addDataSet(ds);  // To turn its display back on
         return;
-      case 'q':
-      case 'Q':
-        soas().pushDataSet(ds->subset(r.xleft, r.xright, true));
-        return;
-          
       case 'U':
       case 'u':
         soas().pushDataSet(ds->subset(r.xleft, r.xright, false));

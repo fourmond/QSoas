@@ -105,6 +105,10 @@ public:
   Qt::MouseButton button() const {
     return bt;
   };
+
+  /// Whether the current action is 'q' 'Q' or middle click, ie the
+  /// conventional "accept" event.
+  bool isConventionalAccept() const;
   
 
   /// Returns the position of the last mouse event, in curve

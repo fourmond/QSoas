@@ -19,6 +19,23 @@
 /**
    \mainpage Projects for QSoas
 
+   \section requests Requests
+
+   \li add back deldp
+   \li find a way to display current directory on the printed stuff
+   \li add a whole bunch of functionalities to the stack/data browser
+   \li add arbitrary text to print ? (could this just be an annotate
+   command adding text to the current plot ? It would be nice to
+   choose its position, then ? -> no, just a waste of time)
+   \li tweak manually segment position on filter-bsplines
+   \li use a third column for the fits (but an interface needs to be
+   clearly defined for that...); that also means to provide ways to
+   tweak the Z values...
+   \li FFT filtering/derivation
+
+
+
+
    \section various-todo Various things to do
 
    Now, mainly, what I need to do, is to massage the functionalities
@@ -28,29 +45,31 @@
    \li finalize peak detection (along with a CurvePeak CurveItem child
    to display it neatly)
    \li catalytic baseline
-   \li insert
    \li FFT, based on GSL too (no need to pull in another dependency)
    \li convolution, that was quite useful
    \li step detection, dead useful too !
    \li put back the temperature settings, and the values that depend
    on it (such as values of n on linear regressions and so on)
 
-   \b Various requests
-   \li add back deldp
-   \li find a way to display current directory on the printed stuff
-   \li add a whole bunch of functionalities to the stack/data browser
-   \li add arbitrary text to print ? (could this just be an annotate
-   command adding text to the current plot ? It would be nice to
-   choose its position, then ? -> no, just a waste of time)
-   
-
    And other things too:
+
+   \li write a CurveItem subclass that tracks the closest point to a
+   dataset and displays it ? (for deldp, for instance...) While at
+   first, it may be slow, this could be incremental and fast ! (but
+   that needs a pretty decent algorithm: if I sort the data by X
+   values, it is logarithmic to find the closest X and go away from it
+   until the distance is too great)
+
    \li dataset selection
    \li find a way to have a "default" optional parameter whose name
    could be omitted: that would allow for an "optional" parameter to
    be specified as "default optional parameter"
+   \li add a "basic string" fallback for parameters/options
+   \li come up with a full dialog box to edit @b all arguments to a
+   command. (including options !)
    \li history save/restore upon exit => probably not...
-   \li resampling
+   \li resampling (two possibilities: first, as a side-effect of the
+   filtering, second as a distinct function)
    \li definition of new fits based on ruby subclasses of Fit,
    PerDatasetFit and FunctionFit
    \li keyboard shortcuts for navigation in FitDialog: quick goto
@@ -141,10 +160,6 @@
 
    Find a way to prompt for additional arguments for greedy parameters
    (using an additional button in the dialog box ?)
-
-
-   \section requests Requests
-
 
 
    \section arch Architectural things

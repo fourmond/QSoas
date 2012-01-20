@@ -58,6 +58,8 @@ CommandWidget::CommandWidget() : watcherDevice(NULL)
   h1->addWidget(terminalDisplay);
 
   sideBarLabel = new QLabel();
+  // Align the label on top, nicer.
+  sideBarLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
   h1->addWidget(sideBarLabel);
 
   layout->addLayout(h1);

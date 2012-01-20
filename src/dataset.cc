@@ -172,24 +172,38 @@ void DataSet::splitAt(int idx, DataSet ** first, DataSet ** second) const
 }
 
 
-QList<DataSet *> DataSet::chop(const QList<double> & lengths) const
+QList<DataSet *> DataSet::chop(const QList<double> & lengths, 
+                               bool isLength) const
 {
   QList<DataSet *> retvals;
   int lastidx = 0;
   double tdx = 0;
   int size;
-  int curl = 0;
+  int curIdx = 0;
   const double *x = getValues(0, &size);
-  for(int i = 1; i < size; i++) {
-    double dx = fabs(x[i] - x[i-1]);
-    tdx += dx;
-    if(tdx >= lengths[curl]) {
-      retvals.append(subset(lastidx, i-1));
-      lastidx = i;
-      tdx = dx; // We restart as if the previous split had finished
-      curl++;
-      if(curl >= lengths.size())
-        break;
+  if(isLength) {
+    for(int i = 1; i < size; i++) {
+      double dx = fabs(x[i] - x[i-1]);
+      tdx += dx;
+      if(tdx >= lengths[curIdx]) {
+        retvals.append(subset(lastidx, i-1));
+        lastidx = i;
+        tdx = dx; // We restart as if the previous split had finished
+        curIdx++;
+        if(curIdx >= lengths.size())
+          break;
+      }
+    }
+  }
+  else {
+    for(int i = 0; i < size; i++) {
+      if(x[i] >= lengths[curIdx]) {
+        retvals.append(subset(lastidx, i-1));
+        lastidx = i;
+        curIdx++;
+        if(curIdx >= lengths.size())
+          break;
+      }
     }
   }
   if(lastidx < size - 1)

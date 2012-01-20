@@ -246,7 +246,10 @@ public:
 
   /// Splits a DataSet in multiple subdatasets of the given X lengths
   /// (computed in absolute value)
-  QList<DataSet *> chop(const QList<double> & lengths) const;
+  /// 
+  /// If @isLength is false, cut at the given X values.
+  QList<DataSet *> chop(const QList<double> & lengths, 
+                        bool isLength = true) const;
 
   /// Splits a DataSet in multiple subdatasets at the indices given
   QList<DataSet *> chop(const QList<int> & indices) const;

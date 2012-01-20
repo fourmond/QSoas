@@ -42,7 +42,6 @@
    \li add arbitrary text to print ? (could this just be an annotate
    command adding text to the current plot ? It would be nice to
    choose its position, then ? -> no, just a waste of time)
-   \li chop: xvalues deltax (default) and indices
    
 
    And other things too:

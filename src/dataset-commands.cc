@@ -175,14 +175,17 @@ static void chopCommand(const QString &, QList<double> values,
 {
   const DataSet * ds = soas().currentDataSet();
   QList<DataSet *> splitted;
-  if(testOption<QString>(opts, "mode", "index")) {
+  if(testOption<QString>(opts, "mode", "index") ||
+     testOption<QString>(opts, "mode", "indices")) {
     QList<int> split;
     for(int i = 0; i < values.size(); i++)
       split << values[i];
     splitted = ds->chop(split);
   }
-  else
-   splitted = ds->chop(values);
+  else if(testOption<QString>(opts, "mode", "xvalues"))
+    splitted = ds->chop(values, false);
+  else 
+    splitted = ds->chop(values);
   for(int i = splitted.size() - 1; i >= 0; i--)
     soas().pushDataSet(splitted[i]);
 }
@@ -196,7 +199,9 @@ chopA(QList<Argument *>()
 static ArgumentList 
 chopO(QList<Argument *>() 
       << new ChoiceArgument(QStringList()
+                            << "deltax"
                             << "xvalues"
+                            << "indices"
                             << "index",
                             "mode", 
                             "Mode",

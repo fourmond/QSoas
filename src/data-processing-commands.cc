@@ -386,7 +386,7 @@ static void bsplinesCommand(const QString &)
   bool derive = false;
   bottom.drawingXTicks = false;
   bottom.stretch = 30;        // 3/10ths of the main panel.
-  int nbPoints = 10;
+  int nbSegments = 10;
   int order = 4;
 
   view.addItem(&d);
@@ -411,7 +411,7 @@ static void bsplinesCommand(const QString &)
   bool autoXValues = false;
   bool needCompute = true;
   BSplines splines(ds, order);
-  splines.autoBreakPoints(nbPoints);
+  splines.autoBreakPoints(nbSegments-1);
   x = splines.getBreakPoints();
 
   CurveVerticalLines lines;
@@ -423,6 +423,7 @@ static void bsplinesCommand(const QString &)
                                  "left click: place point\n"
                                  "right click: remove closest point\n"
                                  "d: display derivative\n"
+                                 "a: equally spaced segments\n"
                                  "o: optimize positions\n"
                                  "q, middle click: replace with filtered data\n"
                                  "ESC: abord"));
@@ -437,20 +438,34 @@ static void bsplinesCommand(const QString &)
     }
     switch(loop.type()) {
     case QEvent::MouseButtonPress: 
-      /// @todo actual point placing
       if(loop.button() == Qt::RightButton) { // Remove
-        nbPoints--;
-        if(nbPoints < 2)
-          nbPoints = 2;
+        double xv = loop.position().x();
+        if(x.size() <= 2)
+          break;                // We don't remove.
+        for(int i = 0; i < x.size() - 1; i++) {
+          if(xv >= x[i] && xv <= x[i+1]) {
+            if(i == x.size() - 2 || 
+               ((xv - x[i]) < (x[i+1] - xv) && i > 0))
+              x.remove(i);
+            else
+              x.remove(i+1);
+          }
+        }
+        nbSegments = x.size() -1;
         needCompute = true;
-        autoXValues = true;
-        Terminal::out << "Using : " << nbPoints << " points" << endl;
+        Terminal::out << "Using : " << nbSegments << " segments" << endl;
       }
       if(loop.button() == Qt::LeftButton) { // Remove
-        nbPoints++;
+        double xv = loop.position().x();
+        for(int i = 0; i < x.size() - 1; i++)
+          if(xv >= x[i] && xv <= x[i+1]) {
+            x.insert(i+1, xv);
+            break;
+          }
+
+        nbSegments += 1;
         needCompute = true;
-        autoXValues = true;
-        Terminal::out << "Using : " << nbPoints << " points" << endl;
+        Terminal::out << "Using : " << nbSegments << " segments" << endl;
       }
       break;
     case QEvent::KeyPress: 
@@ -473,6 +488,11 @@ static void bsplinesCommand(const QString &)
         x = splines.getBreakPoints();
         needCompute = true;
         break;
+      case 'A':
+      case 'a':
+        needCompute = true;
+        autoXValues = true;
+        break;
       default:
         ;
       }
@@ -482,10 +502,12 @@ static void bsplinesCommand(const QString &)
     }
     if(needCompute) {
       if(autoXValues) {
-        splines.autoBreakPoints(nbPoints);
+        splines.autoBreakPoints(nbSegments - 1);
         x = splines.getBreakPoints();
         autoXValues = false;
       }
+      else
+        splines.setBreakPoints(x);
 
       // Should move to yet another place
       double value = splines.computeCoefficients();

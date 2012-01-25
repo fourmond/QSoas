@@ -192,7 +192,11 @@ showStack("show-stack", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-/// @todo Support options to select which dataset to remove.
+/// @bug Must clear the current overlays if they were removed. (else,
+/// segfault !)
+///
+/// @todo a /but option ? (or I should have that built into the
+/// dataset selection ?)
 static void dropDataSetCommand(const QString &, const CommandOptions & opts)
 {
   if(opts.contains("buffers")) {

@@ -122,14 +122,23 @@ ArgumentMarshaller * SeveralDataSetArgument::fromString(const QString & s) const
 {
   QStringList splitted = s.split(QRegExp("\\s*,\\s*"));
   QList<const DataSet *> dsets;
-  QRegExp multi("^\\s*(-?[0-9]+)\\s*..\\s*(-?[0-9]+)\\s*(?::(\\d+)\\s*)?");
+  QRegExp multi("^\\s*(-?[0-9]+)\\s*..\\s*(-?[0-9]+|end)\\s*(?::(\\d+)\\s*)?");
 
   for(int i = 0; i < splitted.size(); i++) {
     const QString & str = splitted[i];
     
-    if(multi.indexIn(str) == 0) {
-      int first = multi.cap(1).toInt();
-      int last = multi.cap(2).toInt();
+    if(multi.indexIn(str) == 0 || str == "all") {
+      int first;
+      int last;
+      if(str == "all") {
+        first = -soas().stack().redoStackSize();
+        last = soas().stack().stackSize()-1;
+      }
+      else {
+        first = multi.cap(1).toInt();
+        last = (multi.cap(2) == "end" ? soas().stack().stackSize()-1 : 
+                multi.cap(2).toInt());
+      }
       int sign = (first < last ? 1 : -1);
       int delta = 1;
       if(! multi.cap(3).isEmpty())

@@ -114,6 +114,17 @@ public:
   /// Returns all the datasets in the numeric order
   QList<const DataSet *> allDataSets() const;
 
+  /// Returns the size of the undo stack, not counting the redo
+  /// buffers.
+  int stackSize() const {
+    return dataSets.size();
+  };
+
+  /// Returns the size of the redo stack
+  int redoStackSize() const {
+    return redoStack.size();
+  };
+
 signals:
   /// Emitted whenever the current dataset changed.
   void currentDataSetChanged();

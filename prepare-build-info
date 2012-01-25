@@ -1,0 +1,6 @@
+#! /bin/sh
+
+date=`date +%Y%m%d`
+
+# @todo add git info ?
+echo "#define BUILD_ID \"+$date\"" > src/build.hh

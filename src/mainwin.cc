@@ -182,9 +182,7 @@
 
 #include <settings-templates.hh>
 
-#ifndef BUILD_ID
 #include <build.hh>
-#endif
 
 static SettingsValue<QSize> mainWinSize("mainwin/size", QSize(700,500));
 
@@ -199,14 +197,18 @@ MainWin::MainWin()
   if(! splitterState->isEmpty())
     mainSplitter->restoreState(splitterState);
 
-  Terminal::out << "This is Soas version " << SOAS_VERSION BUILD_ID 
+  Terminal::out << "This is Soas version " << SOAS_VERSION
                 << " for Qt\n"
+                << SOAS_BUILD_INFO 
                 << "Copyright 2011-2012 by Vincent Fourmond\n"
                 << "Based on Christophe Leger's original Soas\n\n"
                 << "This program is free software, released under the terms of \n"
                 << "the GNU general public license (see http://www.gnu.org/copyleft/gpl.html)\n\n" 
                 << "Current temperature is: " << soasInstance->temperature() 
-                << " K" << endl;
+                << " K\n\n" 
+                << "To list available commands, type 'commands'\n"
+                << "To get help on a specific command, type 'help command'\n"
+                << endl;
 }
 
 void MainWin::setupFrame()

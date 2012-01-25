@@ -13,15 +13,6 @@ QT -= webkit                    # We really don't need webkit, for now ?
 
 VERSION = 0.0
 
-exists(/bin/sh) {
-  system(/bin/sh prepare-build-info)
-  # Special build info file
-  HEADERS += src/build.hh
-}
-else {
-  DEFINES += BUILD_ID=\'\"\"\'
-}
-
 DEFINES += SOAS_VERSION=\'\"$$VERSION\"\'
 
 
@@ -54,6 +45,13 @@ isEmpty(RUBY_LIB_ARG) {
 }
 
 message("Ruby: using $$RUBY, found library: $$RUBY_LIB_ARG and includes at $$RUBY_INCLUDE_DIRS")
+
+# Here, we prepare the build information, using the only script
+# language we're guaranteed to have:
+
+system($$RUBY build-info.rb)
+        
+HEADERS += src/build.hh
 
 INCLUDEPATH += $$RUBY_INCLUDE_DIRS
 LIBS += $$RUBY_LIB_ARG

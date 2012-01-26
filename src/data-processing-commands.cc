@@ -60,6 +60,8 @@ static void reglinCommand(const QString &)
   bottom.addItem(&d);
 
   bottom.yLabel = Utils::deltaStr("Y");
+  d.countBB = true;
+
 
   view.addPanel(&bottom);
   r.pen = QPen(QColor("blue"), 1, Qt::DotLine);

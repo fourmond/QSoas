@@ -25,6 +25,7 @@
 
 #include <math.h>
 #include <utils.hh>
+#include <debug.hh>
 
 
 CurvePanel::CurvePanel() : 
@@ -44,7 +45,8 @@ CurvePanel::~CurvePanel()
 
 QRectF CurvePanel::currentZoom() const
 {
-  QRectF bbox = (zoom.isNull() ? boundingBox : zoom);
+  // DO NOT USE isEmpty, as it will return false for NaN bounding boxes !
+  QRectF bbox = (zoom.isValid() ? zoom : boundingBox);
   if(xTracking) {
     QRectF trackedX = xTracking->currentZoom();
     bbox.setLeft(trackedX.left());

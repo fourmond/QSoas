@@ -1,6 +1,6 @@
 /**
    \file debug.hh
-   Code useful for debugging. T
+   Code useful for debugging.
    Copyright 2011 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
@@ -27,6 +27,22 @@ namespace Debug {
   /// Writes some information about the widget currently holding the
   /// focus to standard output.
   void dumpCurrentFocus(const QString & str = "Current focus");
+
+
+  /// Returns a string used to represent a QPointF
+  inline QString dumpPoint(const QPointF & point) {
+    return QString("x: %1, y: %2").arg(point.x()).arg(point.y());
+  };
+
+  /// Returns a string used to represent a QRectF
+  inline QString dumpRect(const QRectF & rect) {
+    return QString("[%1 to %2, w: %3, h: %4, %5, %6]").
+      arg(dumpPoint(rect.topLeft())).
+      arg(dumpPoint(rect.bottomRight())).
+      arg(rect.width()).arg(rect.height()).
+      arg(rect.isValid() ? "valid" : "invalid").
+      arg(rect.isEmpty() ? "empty" : "non-empty");
+  };
 };
 
 #endif

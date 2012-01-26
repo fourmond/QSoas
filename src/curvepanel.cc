@@ -365,17 +365,34 @@ QPointF CurvePanel::scaleFactors() const
   return QPointF(transform.m11(), transform.m22());
 }
 
-void CurvePanel::zoomIn(const QPointF & point, double by)
+void CurvePanel::setZoom(const QRectF & recti)
 {
-  QTextStream o(stdout);
-  double factor = pow(1.3, - by);
-  QRectF rect = Utils::scaledAround(currentZoom(), point, factor, factor);
-
+  QRectF rect = recti;
   if(rect.contains(boundingBox))
     rect = QRectF();            // Disable zoom then.
   else
     rect = boundingBox.intersected(rect);
   zoom = rect;
+
+  // Here, forward to Xtracking
+  if(xTracking) {
+    QRectF trackedZoom = xTracking->currentZoom();
+    QRectF eff;
+    if(zoom.isValid())
+      eff = zoom;
+    else
+      eff = xTracking->boundingBox;
+    trackedZoom.setLeft(eff.left());
+    trackedZoom.setRight(eff.right());
+    xTracking->setZoom(trackedZoom);
+  }
+}
+
+void CurvePanel::zoomIn(const QPointF & point, double by)
+{
+  QTextStream o(stdout);
+  double factor = pow(1.3, - by);
+  setZoom(Utils::scaledAround(currentZoom(), point, factor, factor));
 }
 
 void CurvePanel::zoomIn(const QPointF & point, 
@@ -384,26 +401,19 @@ void CurvePanel::zoomIn(const QPointF & point,
 {
   QTextStream o(stdout);
   double factor = pow(1.3, - by);
-  QRectF rect = 
-    Utils::scaledAround(currentZoom(), point, 
-                        (orient == Qt::Horizontal ? factor : 1),
-                        (orient == Qt::Vertical ? factor : 1));
-
-  if(rect.contains(boundingBox))
-    rect = QRectF();            // Disable zoom then.
-  else
-    rect = boundingBox.intersected(rect);
-  zoom = rect;
+  setZoom(Utils::scaledAround(currentZoom(), point, 
+                              (orient == Qt::Horizontal ? factor : 1),
+                              (orient == Qt::Vertical ? factor : 1)));
 }
 
 void CurvePanel::resetZoom()
 {
-  zoom = QRectF();
+  setZoom(QRectF());
 }
 
 void CurvePanel::zoomIn(const QRectF & rect)
 {
-  zoom = rect;
+  setZoom(rect);
 }
 
 void CurvePanel::setYRange(double ymin, double ymax, 

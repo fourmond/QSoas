@@ -96,6 +96,10 @@ class CurvePanel : public QObject {
   /// If that value isn't NULL, this panel will use in permanence the
   /// X values of the other one
   QPointer<CurvePanel> xTracking;
+
+  /// Sets the zoom in such a way that the information is
+  /// forwarded to panels we track.
+  void setZoom(const QRectF & newBB);
   
 public:
 

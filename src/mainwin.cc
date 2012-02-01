@@ -164,7 +164,29 @@
 
    \section arch Architectural things
 
-   (nothing for now)
+   \b Ruby \b interface 
+
+   All commands should be interfaced to Ruby. That would allow really
+   powerful scripting, possibly requiring as little as possible user
+   interaction. This requires a new function in Argument to convert
+   from Ruby's VALUE (but that isn't much of a problem). Possibly a
+   first conversion to string followed by conversion from string would
+   do find for most types.
+
+   This would however rise the question of how to actually get data
+   from Soas to Ruby ? Possibly an interesting point would be to allow
+   access to the output file both as strings and as series of
+   tab-separated data (properly converted using template
+   specialization)
+
+   \b Headless \b mode
+
+   It would be very interesting to try to run Soas in headless mode
+   and/or from a Ruby script, ie without an X connection starting.
+   This however requires a careful rewrite of many places. Maybe it
+   would be possible to use a child and/or superclass of CurveView
+   that just would trash everything and abort on interactive requests
+   ?
    
 */
 

@@ -726,21 +726,24 @@ dif2("diff2", // command name
 //////////////////////////////////////////////////////////////////////
 
 static void displayPeaks(QList<PeakInfo> peaks, const DataSet * ds, 
-                         int maxnb = -1)
+                         int maxnb = -1, bool write = true)
 {
   CurveView & view = soas().view();
   view.disableUpdates();
   Terminal::out << "Found " << peaks.size() << " peaks" << endl;
-  Terminal::out << "Writing to output file " 
-                << OutFile::out.fileName() << endl;
-  OutFile::out.setHeader("buffer\twhat\tx\ty\tindex");
+  if(write) {
+    Terminal::out << "Writing to output file " 
+                  << OutFile::out.fileName() << endl;
+    OutFile::out.setHeader("buffer\twhat\tx\ty\tindex");
+  }
   if(maxnb < 0)
     maxnb = peaks.size();
   for(int i = 0; i < maxnb; i++) {
     QString str = QString("%1\t%2\t%3\t%4\t%5").
       arg(ds->name).arg((peaks[i].isMin ? "min" : "max" )).
       arg(peaks[i].x).arg(peaks[i].y).arg(peaks[i].index);
-    OutFile::out << str << "\n" <<  flush;
+    if(write)
+      OutFile::out << str << "\n" <<  flush;
     Terminal::out << str << endl;
     CurveLine * v= new CurveLine;
     
@@ -756,16 +759,20 @@ static void findPeaksCommand(const QString &name, const CommandOptions & opts)
 {
   int window = 8;
   int nb = -1;
+  bool write = true;
   if(name == "1")
     nb = 1;
   else if(name == "2")
     nb = 2;
+  else
+    write = false;
 
   bool includeBorders = false;
 
   updateFromOptions(opts, "window", window);
   updateFromOptions(opts, "peaks", nb);
   updateFromOptions(opts, "include-borders", includeBorders);
+  updateFromOptions(opts, "output", write);
 
   const DataSet * ds = soas().currentDataSet();
   Peaks pk(ds, window);
@@ -773,7 +780,7 @@ static void findPeaksCommand(const QString &name, const CommandOptions & opts)
   QList<PeakInfo> peaks = pk.findPeaks(includeBorders);
   if(nb >= 0)
     PeakInfo::sortByMagnitude(peaks);
-  displayPeaks(peaks, ds, nb);
+  displayPeaks(peaks, ds, nb, write);
 }
 
 static ArgumentList 
@@ -784,6 +791,9 @@ fpBaseOps(QList<Argument *>()
           << new BoolArgument("include-borders",
                               "Whether or not to include borders",
                               "...")
+          << new BoolArgument("output", 
+                              "Write to output file",
+                              "Whether peak information should be written to output file by default")
        );
 
 static ArgumentList 

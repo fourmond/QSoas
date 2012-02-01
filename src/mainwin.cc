@@ -299,5 +299,6 @@ void MainWin::showMessage(const QString & str, int ms)
 void MainWin::focusInEvent(QFocusEvent * ev)
 {
   QMainWindow::focusInEvent(ev);
-  commandWidget->setFocus();
+  commandWidget->setFocus();    // This doesn't seem to work
+                                // systematically.
 }

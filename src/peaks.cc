@@ -19,6 +19,8 @@
 #include <headers.hh>
 #include <peaks.hh>
 
+#include <exceptions.hh>
+
 #include <dataset.hh>
 
 bool PeakInfo::comparePeakMagnitude(const PeakInfo &a, const PeakInfo & b)
@@ -32,15 +34,11 @@ void PeakInfo::sortByMagnitude(QList<PeakInfo> & peaks)
 }
 
 
+//////////////////////////////////////////////////////////////////////
 
-Peaks::Peaks(const Vector & cx, const Vector & cy, int w) :
-  x(cx), y(cy), window(w)
-  
-{
-}
 
 Peaks::Peaks(const DataSet * ds, int w) :
-  x(ds->x()), y(ds->y()), window(w)
+  x(ds->x()), y(ds->y()), window(w), dataset(ds)
 {
 }
 
@@ -68,4 +66,69 @@ QList<PeakInfo> Peaks::findPeaks(bool includeBorders)
     peaks << info;
   }
   return peaks;
+}
+
+QList<EchemPeakPair> Peaks::findPeakPairs()
+{
+  QTextStream o(stdout);
+  QList<EchemPeakPair> pairs;
+  // First, look at the first sign change
+  int delta = dataset->deltaSignChange(0);
+
+  if(delta <= 0)
+    throw RuntimeError("The dataset must hold both forward and reverse scans");
+
+  double sign = x[1] - x[0];
+  
+  
+  QList<PeakInfo> peaks = findPeaks(false);
+  QList<PeakInfo> forward;
+  int breakPoint = 0;           // Will be the index of the first
+                                // backward peak.
+  for(; breakPoint < peaks.size(); breakPoint++) {
+    if(peaks[breakPoint].index >= delta)
+      break;
+    forward << peaks[breakPoint];
+  }
+  QList<PeakInfo> backward = peaks.mid(breakPoint);
+  PeakInfo::sortByMagnitude(forward);
+  // o << "Forward: " << forward.size() << " -- backward: " 
+  //   << backward.size() << endl;
+  
+  bool polarity = forward[0].isMin;
+
+  for(int i = 0; i < forward.size(); i++) {
+    if(forward[i].isMin != polarity) // XOR isn't it ?
+      break;                         // We stop at the first false positive ?
+    EchemPeakPair pair;
+    pair.forward = forward[i];
+    pair.backward.index = -1;   // No backward peak for now
+
+    double x = pair.forward.x;
+
+    o << "Looking for reverse peak: " << endl;
+    // Now, we look for the matching pair on the reverse scan, ie the
+    // first peak of the opposite direction right after this one.
+    for(int j = 0; j < backward.size(); j++) {
+      // o << " -> index " << backward[j].index << " (x = " 
+      //   << backward[j].x << ")" << endl;
+      if(backward[j].isMin == polarity)
+        continue;               // Can't be this one.
+
+      // o << " -> correct polarity " << (x - backward[j].x) 
+      //   << " | " << sign << " -- " <<  (x - backward[j].x) * sign 
+      //   << endl;
+    
+      // We pick the first one after the forward scan
+      if((x - backward[j].x) * sign >= 0) {
+        /// @todo Limit the maximum possible
+        pair.backward = backward[j];
+        backward[j].isMin = polarity; // Exclude it from next scans
+        break;
+      }
+    }
+    pairs << pair;
+  }
+
+  return pairs;
 }

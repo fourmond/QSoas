@@ -32,7 +32,10 @@ class CurveItem;
 /// labels will be drawn outside.
 ///
 /// @todo A way to ensure that several CurvePanel will share some of
-/// their BB (X axis, Y axis, and the like...)
+/// their BB (X axis, Y axis, and the like...) (this is done for X)
+///
+/// @todo Handle double Y axis display (ie to display both the data
+/// and the derivative in one go).
 class CurvePanel : public QObject {
 
   Q_OBJECT;

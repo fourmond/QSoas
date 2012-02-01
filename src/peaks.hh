@@ -27,6 +27,10 @@ class DataSet;
 /// A class representing a peak.
 ///
 /// @todo This is very basic for now...
+///
+/// @todo For real appropriate peak finding, one should have the
+/// derivative, in order to find the inflexion points too. Maybe an
+/// idea would have to add the 
 class PeakInfo {
 public:
 
@@ -44,6 +48,18 @@ public:
 
   /// The magnitude of the peak, ie the absolute value of the peak's
   /// amplitude with respect to the average.
+  ///
+  /// @todo Shouldn't it rather be:
+  /// @li value - average for max
+  /// @li the opposite for a min ?
+  /// Or should that be another parameter ?
+  ///
+  /// @todo A real amplitude should be the (absolute value ?) of the
+  /// difference between the extrema and the last extrema of opposed
+  /// polarity. This would be actually pretty good.
+  ///
+  /// @todo This class should hold the actual position of the extremum
+  /// of reference.
   double magnitude;
 
   /// @todo More to come later here, such as witdh and assymetry (but
@@ -56,6 +72,44 @@ public:
 
   /// Sorts the peaks by magnitude
   static void sortByMagnitude(QList<PeakInfo> & peaks);
+};
+
+/// A pair of forward and backward peaks, in particular in a
+/// voltammogram
+class EchemPeakPair {
+public:
+  /// The forward peak
+  PeakInfo forward;
+
+  /// The backward peak. Index < 0 if there is no backward peak
+  PeakInfo backward;
+
+  /// @name Data inspection facilities
+  ///
+  /// Almost all functions only make sense if isReversible() returns
+  /// true.
+  ///
+  /// @{
+
+  /// Is the peak reversible (ie both a forward and a backward peak ?)
+  bool isReversible() const {
+    return backward.index >= 0;
+  };
+
+  /// The delta X
+  double deltaX() const {
+    return fabs(backward.x - forward.x);
+  };
+
+  /// The delta Y
+  double deltaY() const {
+    return fabs(backward.y - forward.y);
+  };
+
+
+  /// @}
+
+  
 };
 
 
@@ -76,9 +130,11 @@ class Peaks {
   /// The local extrema
   QList<int> extrema;
 
+  /// The original dataset
+  const DataSet * dataset;
+
 public:
 
-  Peaks(const Vector & x, const Vector & y, int window = 8);
   Peaks(const DataSet * ds, int window = 8);
 
   /// Returns a list of possible peaks, based solely on local extrema
@@ -87,6 +143,13 @@ public:
   /// @todo This probably should be cached too, and it should be
   /// possible to refine.
   QList<PeakInfo> findPeaks(bool includeBorders = false);
+
+
+  /// Returns a list of possible electrochemical peak pairs, in the
+  /// order of the magnitude of the forward peak.
+  ///
+  /// @todo lots of parameters...
+  QList<EchemPeakPair> findPeakPairs();
   
 };
 

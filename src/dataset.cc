@@ -235,6 +235,8 @@ const double * DataSet::getValues(int col, int * size) const
 
 int DataSet::deltaSignChange(int col) const
 {
+  /// @todo Most probably this function should join
+  /// Vector.
   int size;
   const double *val = getValues(col, &size);
   if(size < 3)

@@ -832,3 +832,66 @@ fp2("2", // command name
     "Find two peak",
     "Find the two biggest peaks",
     "...");
+
+//////////////////////////////////////////////////////////////////////
+
+static void echemPeaksCommand(const QString &, const CommandOptions &)
+{
+  int window = 8;
+
+  const DataSet * ds = soas().currentDataSet();
+  Peaks pk(ds, window);
+
+  QList<EchemPeakPair> pairs = pk.findPeakPairs();
+  {
+    CurveView & view = soas().view();
+    view.disableUpdates();
+    Terminal::out << "Found " << pairs.size() << " peaks pairs" << endl;
+
+    for(int i = 0; i < pairs.size(); i++) {
+      QString str = QString("%1\t%2\t%3").
+        arg(ds->name).arg(pairs[i].forward.x).arg(pairs[i].forward.y);
+      CurveLine * v = new CurveLine;
+    
+      v->p1 = QPointF(pairs[i].forward.x, 0);
+      v->p2 = QPointF(pairs[i].forward.x, pairs[i].forward.y);
+      v->pen = QPen(QColor("blue"), 1, Qt::DotLine);
+      view.addItem(v);
+
+      if(pairs[i].isReversible()) {
+        str += QString("\t%1\t%2\t%3\t%4").
+          arg(pairs[i].backward.x).arg(pairs[i].backward.y).
+          arg(pairs[i].deltaX()).
+          arg(pairs[i].deltaY());          
+
+        v = new CurveLine;
+        v->p1 = QPointF(pairs[i].forward.x, 0);
+        v->p2 = QPointF(pairs[i].backward.x, 0);
+        v->pen = QPen(QColor("red"), 1, Qt::DotLine);
+        view.addItem(v);
+
+        v = new CurveLine;
+        v->p1 = QPointF(pairs[i].backward.x, 0);
+        v->p2 = QPointF(pairs[i].backward.x, pairs[i].backward.y);
+        v->pen = QPen(QColor("green"), 1, Qt::DotLine);
+        view.addItem(v);
+      }
+
+      Terminal::out << str << endl;
+
+    }
+    view.enableUpdates();
+  }
+}
+
+      
+static Command 
+ep("echem-peaks", // command name
+   effector(echemPeaksCommand), // action
+   "buffer",  // group name
+   NULL, // arguments
+   //&fpOps
+   NULL, // options
+   "Find peaks pairs",
+   "Find all peaks pairs",
+   "...");

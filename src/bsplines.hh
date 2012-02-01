@@ -28,6 +28,10 @@
 class DataSet;
 
 /// This class provides filtering based on BSplines
+///
+/// @todo This class should attempt (upon request) to handle each
+/// monotonic part one by one. Or should the invocation should handle
+/// it smoothly ?
 class BSplines {
 
   /// The workspace for splines

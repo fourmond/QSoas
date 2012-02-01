@@ -205,6 +205,7 @@
 #include <settings-templates.hh>
 
 #include <build.hh>
+#include <ducksim.hh>
 
 static SettingsValue<QSize> mainWinSize("mainwin/size", QSize(700,500));
 
@@ -231,6 +232,7 @@ MainWin::MainWin()
                 << "To list available commands, type 'commands'\n"
                 << "To get help on a specific command, type 'help command'\n"
                 << endl;
+  DuckSimFit::initialize();
 }
 
 void MainWin::setupFrame()

@@ -299,11 +299,14 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
   unpackParameters(&v.vector, unpackedParams.data());
 
   
-  /// First, compute the common value, and store it in... the storage
-  /// place.
+  // First, compute the common value, and store it in... the storage
+  // place.
   fit->function(unpackedParams.data(), this, storage);
 
-  /// Hmmm...
+  /// @todo This would greatly benefit from using multiple threads, if
+  /// possible. The downside is of course that it would be a real pain
+  /// to program ;-)... It would require fits to enable a flag saying
+  /// their function is thread-safe (which is almost always the case)
   for(int i = 0; i < parameters.size(); i++) {
     FreeParameter * param = dynamic_cast<FreeParameter*>(parameters[i]);
     if(! param)

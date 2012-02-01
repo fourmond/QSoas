@@ -56,6 +56,9 @@ public slots:
 protected slots:
   void menuActionTriggered(QAction * action);
 
+protected:
+  virtual void focusInEvent(QFocusEvent * evn);
+
 };
 
 #endif

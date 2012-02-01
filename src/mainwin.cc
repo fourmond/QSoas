@@ -273,3 +273,9 @@ void MainWin::showMessage(const QString & str, int ms)
 {
   statusBar()->showMessage(str, ms);
 }
+
+void MainWin::focusInEvent(QFocusEvent * ev)
+{
+  QMainWindow::focusInEvent(ev);
+  commandWidget->setFocus();
+}

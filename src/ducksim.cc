@@ -28,6 +28,8 @@
 #include <ducksim.hh>
 #include <terminal.hh>
 
+#include <gsl/gsl_const_mksa.h>
+
 QString DuckSimFit::fullPath;
 
 DuckSimFit * DuckSimFit::theInstance = NULL;
@@ -43,7 +45,10 @@ DuckSimFit::DuckSimFit() :
     ArgumentList(QList<Argument *>()
                  << new FileArgument("system", 
                                      "System",
-                                     "System")
+                                     "...")
+                 << new FileArgument("base-parameters", 
+                                     "Base parameters",
+                                     "...")
                  );
   makeCommands(NULL, NULL, NULL, opts);
 };
@@ -106,14 +111,33 @@ void DuckSimFit::processOptions(const CommandOptions & opts)
   initialValues.clear();
   fixedParameters.clear();
 
-  QString param = runDuckSim(QStringList() << "-L");
+  QString baseParams = "";
+  updateFromOptions(opts, "base-parameters", baseParams);
+
+  QString param;
+  if(baseParams.isEmpty())
+    param = runDuckSim(QStringList() << "-L");
+  else {
+    QFile p(baseParams);
+    p.open(QIODevice::ReadOnly);
+    param = p.readAll();
+  }
   QStringList lines = param.split("\n");
   
 
+  additionalParameters.clear();
+
+  // We first specify the surface.
+  fitParameters << "area";
+  initialValues << 0.07;        // diameter 3 mm, area in cm^-2
+  fixedParameters << true;
+
   for(int i = 0; i < lines.size(); i++) {
-    QStringList line = lines[i].split(QRegExp("\\s*=\\s*"));
-    if(line.size() != 2)
+    QStringList line = lines[i].split(QRegExp("\\s+=\\s+"));
+    if(line.size() != 2) {
+      additionalParameters.append(lines[i] + "\n");
       continue;
+    }
     QString pa = line[0];
     double value = line[1].toDouble();
     bool fixed = false;
@@ -133,6 +157,7 @@ void DuckSimFit::processOptions(const CommandOptions & opts)
             pa == "nb" ||
             pa == "time_order" ||
             pa == "beta" ||
+            pa == "v" ||
             pa == "dx" ||
             pa == "rpm" ||
             pa == "alpha" ||
@@ -142,6 +167,7 @@ void DuckSimFit::processOptions(const CommandOptions & opts)
     initialValues << value;
     fixedParameters << fixed;
   }
+
 }
 
   
@@ -177,7 +203,8 @@ void DuckSimFit::function(const double * a, FitData * data,
   int delta = ds->deltaSignChange(0);
   if(delta < 0) 
     throw RuntimeError("Must have a forward and backward scan !");
-  
+
+  po << additionalParameters << "\n";
   po << "E1 = " << xv[0] << endl;
   po << "E2 = " << xv[delta] << endl;
   po << "deltaE = " << fabs((xv[0] - xv[delta])/(delta + 1)) << endl;
@@ -199,7 +226,12 @@ void DuckSimFit::function(const double * a, FitData * data,
   gsl_vector_const_view cv = 
     gsl_vector_const_view_array(cols[2].data(), target->size);
   gsl_vector_memcpy(target, &cv.vector);
-  // And we're done !
+
+  // Now we compute the final factor, based on:
+  // * D in cm2.s-1
+  // * concentrations in millimolar.
+  double fact = a[0] * GSL_CONST_MKSA_FARADAY * 1e-6;
+  gsl_vector_scale(target, fact);
 }
 
 void DuckSimFit::initialize()

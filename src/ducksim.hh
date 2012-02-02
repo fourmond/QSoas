@@ -28,11 +28,6 @@
 ///
 /// @toto In addition, it doesn't support at all multi-threading,
 /// which is quite stupid too. (but it's not too slow)
-///
-/// @todo It should be possible to make use of the "relation" stuff of
-/// DuckSim, it is quite powerful.
-///
-/// @todo Use real values (ie add an electrode surface parameter)
 class DuckSimFit : public PerDatasetFit {
 
   /// Full path to the duck-sim executable.
@@ -59,6 +54,9 @@ class DuckSimFit : public PerDatasetFit {
 
   /// Dispose of the temporary directory
   void removeTemporaryDirectory();
+
+  /// Additional parameter specs
+  QString additionalParameters;
 
   /// Runs duck-sim with the given arguments, and returns the output.
   QString runDuckSim(const QStringList & args, bool * success = NULL);

@@ -32,8 +32,11 @@
    clearly defined for that...); that also means to provide ways to
    tweak the Z values...
    \li FFT filtering/derivation
-
-
+   \li make the fits formulas available (LaTeX ?) -> try to design a
+   clever way to do so... (embedded LaTeX would be cool, but hard to
+   handle => no: compile first, have a method produce the LaTeX
+   sources, and make a PDF from that -- and a CHTML file ? Look at the
+   help brower)
 
 
    \section various-todo Various things to do

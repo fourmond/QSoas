@@ -101,11 +101,15 @@ public:
     return fabs(backward.x - forward.x);
   };
 
+  /// Average X position
+  double midX() const {
+    return 0.5*(backward.x + forward.x);
+  };
+
   /// The delta Y
   double deltaY() const {
     return fabs(backward.y - forward.y);
   };
-
 
   /// @}
 

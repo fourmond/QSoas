@@ -859,10 +859,11 @@ static void echemPeaksCommand(const QString &, const CommandOptions &)
       view.addItem(v);
 
       if(pairs[i].isReversible()) {
-        str += QString("\t%1\t%2\t%3\t%4").
+        str += QString("\t%1\t%2\t%3\t%4\t%5").
           arg(pairs[i].backward.x).arg(pairs[i].backward.y).
           arg(pairs[i].deltaX()).
-          arg(pairs[i].deltaY());          
+          arg(pairs[i].deltaY()).
+          arg(pairs[i].midX());
 
         v = new CurveLine;
         v->p1 = QPointF(pairs[i].forward.x, 0);

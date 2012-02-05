@@ -68,6 +68,25 @@ cmds("commands", // command name
 //////////////////////////////////////////////////////////////////////
 
 
+static void texCommands(const QString &)
+{
+  QTextStream o(stdout);
+  o << Group::latexDocumentationAllGroups() << endl;
+}
+
+static Command 
+tcmd("tex-commands", // command name
+     optionLessEffector(texCommands), // action
+     "help",  // group name
+     NULL, // arguments
+     NULL, // options
+     "TeX",
+     "List commands",
+     "List all available commands, along with a little help");
+
+//////////////////////////////////////////////////////////////////////
+
+
 static void helpCommand(const QString &, QString command)
 {
   Command * cmd = Command::namedCommand(command);

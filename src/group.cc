@@ -92,8 +92,24 @@ void Group::fillMenuBar(QMenuBar * menu)
 
 QString Group::latexDocumentation() const
 {
+  QList<Command *> cmds = commands;
+  qSort(cmds.begin(), cmds.end(), compareCommands);
+
   QString ret = QString("\\section{\\texttt{%1}: %2}\n").
-    arg
+    arg(groupName()).arg(publicName());
   for(int i = 0; i < cmds.size(); i++)
-  
+    ret += cmds[i]->latexDocumentation();
+  return ret;
+}
+
+QString Group::latexDocumentationAllGroups()
+{
+  QString ret;
+  if(! availableGroups)
+    return ret;
+  QList<Group *> groups = availableGroups->values();
+  qSort(groups.begin(), groups.end(), compareGroups);
+  for(int i = 0; i < groups.size(); i++)
+    ret += groups[i]->latexDocumentation();
+  return ret;
 }

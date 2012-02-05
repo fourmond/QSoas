@@ -333,11 +333,11 @@ QString Command::latexDocumentation() const
       QString a = QString("\\texttt{%1}").
         arg(args[i]->argumentName());
       synopsis += " /" + a + "= \\emph{...}" ;
-      desc += QString("\\item \texttt{/%1}: %2\n").
+      desc += QString("\\item \\texttt{/%1}: %2\n").
         arg(args[i]->argumentName()).
         arg(args[i]->description());
     }
     desc += "\\end{itemize}\n\n";
   }
-  return ret + synopsis + desc + longDescription();
+  return ret + synopsis + "\n\n" + desc + longDescription();
 }

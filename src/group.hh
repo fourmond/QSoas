@@ -106,10 +106,14 @@ public:
   /// Fills a menu with all the groups informations.
   static void fillMenuBar(QMenuBar * menu);
 
-  
   /// Returns a LaTeX string that documents (more or less) the
   /// commands contained within the group.
   QString latexDocumentation() const;
+
+  /// Document all groups
+  static QString latexDocumentationAllGroups();
+
+  
 };
 
 #endif

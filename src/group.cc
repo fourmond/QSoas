@@ -89,3 +89,11 @@ void Group::fillMenuBar(QMenuBar * menu)
 
   }
 }
+
+QString Group::latexDocumentation() const
+{
+  QString ret = QString("\\section{\\texttt{%1}: %2}\n").
+    arg
+  for(int i = 0; i < cmds.size(); i++)
+  
+}

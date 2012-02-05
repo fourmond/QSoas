@@ -74,6 +74,9 @@ static void helpCommand(const QString &, QString command)
   
   QStringList synopsis;
   QString descs;
+
+  /// @todo the documentation-building facilities should join Command
+  /// rather than being here.
   if(cmd->commandArguments()) {
     const ArgumentList & args = *cmd->commandArguments();
     for(int i = 0; i < args.size(); i++) {

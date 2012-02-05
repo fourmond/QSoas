@@ -245,6 +245,10 @@ public:
   /// All available commands
   static QStringList allCommands();
 
+  /// Returns a LaTeX string documenting the command (using
+  /// subsection)
+  QString latexDocumentation() const;
+
 };
 
 #endif

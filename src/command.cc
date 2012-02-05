@@ -298,3 +298,46 @@ QStringList Command::allCommands()
     return QStringList();
   return availableCommands->keys();
 }
+
+QString Command::latexDocumentation() const
+{
+  QString ret;
+  ret = QString("\\subsection{\\texttt{%1}: %2}\n").
+    arg(commandName()).arg(shortDescription());
+
+  QString synopsis = QString("\\textbf{Synopsis:}\n\n\\texttt{%1}").
+    arg(commandName());
+
+  QString desc;
+
+  if(commandArguments()) {
+    desc += "\\textbf{Arguments:}\n\n\\begin{itemize}\n";
+    const ArgumentList & args = *commandArguments();
+    for(int i = 0; i < args.size(); i++) {
+      QString a = QString("\\emph{%1}").
+        arg(args[i]->argumentName());
+      if(args[i]->greedy)
+        a += "\\emph{...}";
+      synopsis += " " + a;
+      desc += QString("\\item \\emph{%1}: %2\n").
+        arg(args[i]->argumentName()).
+        arg(args[i]->description());
+    }
+    desc += "\\end{itemize}\n\n";
+  }
+
+  if(commandOptions()) {
+    desc += "\\textbf{Options:}\n\n\\begin{itemize}\n";
+    const ArgumentList & args = *commandOptions();
+    for(int i = 0; i < args.size(); i++) {
+      QString a = QString("\\texttt{%1}").
+        arg(args[i]->argumentName());
+      synopsis += " /" + a + "= \\emph{...}" ;
+      desc += QString("\\item \texttt{/%1}: %2\n").
+        arg(args[i]->argumentName()).
+        arg(args[i]->description());
+    }
+    desc += "\\end{itemize}\n\n";
+  }
+  return ret + synopsis + desc + longDescription();
+}

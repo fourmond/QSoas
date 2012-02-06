@@ -52,6 +52,9 @@ class DuckSimFit : public PerDatasetFit {
   /// The specification of the system, as an argument to duck-sim
   QStringList systemSpec;
 
+  /// The system we're using
+  QString system;
+
   /// Dispose of the temporary directory
   void removeTemporaryDirectory();
 

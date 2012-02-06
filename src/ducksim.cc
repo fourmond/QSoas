@@ -95,7 +95,7 @@ void DuckSimFit::processOptions(const CommandOptions & opts)
 
   QDir::root().mkpath(tempDir);
 
-  QString system = "";
+  system = "";
   updateFromOptions(opts, "system", system);
 
   // Compile
@@ -173,7 +173,7 @@ void DuckSimFit::processOptions(const CommandOptions & opts)
   
 QString DuckSimFit::optionsString() const {
   return QString("System: %1").
-    arg(systemSpec.size() > 0 ? systemSpec[1] : "default");
+    arg(system.isEmpty() ? "default" : system);
 }
 
 
@@ -222,7 +222,11 @@ void DuckSimFit::function(const double * a, FitData * data,
 
   QList<Vector> cols = Vector::readFromStream(&output);
   output.close();
-  /// @todo For now, there isn't a single check !
+  if(cols[2].size() < target->size)
+    throw RuntimeError(QString("Size mismatch detected: %1 read for %2 "
+                               "expected").
+                       arg(cols[2].size()).arg(target->size));
+
   gsl_vector_const_view cv = 
     gsl_vector_const_view_array(cols[2].data(), target->size);
   gsl_vector_memcpy(target, &cv.vector);

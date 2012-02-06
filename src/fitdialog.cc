@@ -43,6 +43,7 @@
 static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
 
 
+/// FitDialog should include provisions for making
 FitDialog::FitDialog(FitData * d) : data(d),
                                     stackedViews(NULL), 
                                     parameters(d),
@@ -220,7 +221,13 @@ void FitDialog::dataSetChanged(int newds)
 
 void FitDialog::compute()
 {
-  parameters.recompute();
+  try {
+    parameters.recompute();
+  }
+  catch (const RuntimeError & re) {
+    progressReport->setText(QString("An error occurred while computing: ") +
+                            re.message());
+  }
   if(stackedViews && stackedViews->currentWidget())
     stackedViews->currentWidget()->repaint();
 }

@@ -98,6 +98,7 @@ public:
   void setRect(const QRectF &r);
   
   CurveData() {;};
+  CurveData(const Vector & x, const Vector & y) : xvalues(x), yvalues(y) {;};
 
   virtual QRectF boundingRect() const;
   virtual void paint(QPainter * painter, const QRectF & bbox,

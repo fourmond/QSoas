@@ -30,6 +30,7 @@
 #include <curveview.hh>
 #include <curveeventloop.hh>
 #include <curvemarker.hh>
+#include <curvedataset.hh>
 #include <curveitems.hh>
 #include <curvepanel.hh>
 #include <math.h>
@@ -40,6 +41,7 @@
 #include <spline.hh>
 #include <bsplines.hh>
 #include <pointpicker.hh>
+#include <pointtracker.hh>
 
 #include <peaks.hh>
 
@@ -896,3 +898,63 @@ ep("echem-peaks", // command name
    "Find peaks pairs",
    "Find all peaks pairs",
    "...");
+
+//////////////////////////////////////////////////////////////////////
+
+static void deldpCommand(const QString &)
+{
+  const DataSet * ds = soas().currentDataSet();
+  CurveEventLoop loop;
+  CurveView & view = soas().view();
+
+  DataSet * newds = new DataSet(*ds);
+  newds->name = ds->cleanedName() + "_deldp.dat";
+
+  view.clear();
+
+  CurveDataSet d(newds);
+  PointTracker t(&loop, newds);
+  view.addItem(&d);
+  // d.brush = QBrush(QColor(255,0,0));
+  view.addItem(&t);
+
+  t.size = 4;
+  t.pen = QPen(Qt::NoPen);
+  t.brush = QBrush(QColor(0,0,255,100));
+
+  loop.setHelpString(QObject::tr("..."));
+  while(! loop.finished()) {
+    t.processEvent();
+    if(loop.isConventionalAccept()) {
+      soas().pushDataSet(newds);
+      return;
+    }
+    switch(loop.type()) {
+    case QEvent::MouseButtonPress: 
+      if(loop.button() == Qt::LeftButton) {
+        newds->removePoint(t.lastIndex);
+        d.invalidateCache();
+      }
+      
+      break;
+    case QEvent::KeyPress: 
+      switch(loop.key()) {
+      case Qt::Key_Escape:
+        delete newds;
+        return;
+      }
+    default:
+      ;
+    }
+  }
+}
+
+static Command 
+ddp("deldp", // command name
+    optionLessEffector(deldpCommand), // action
+    "buffer",  // group name
+    NULL, // arguments
+    NULL, // options
+    "Deldp",
+    "...",
+    "...");

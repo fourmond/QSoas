@@ -68,6 +68,9 @@ public:
                             double yscale);
   virtual QString toolTipText(const QPointF & p);
 
+  /// Invalidates the cache
+  void invalidateCache();
+
 };
 
 

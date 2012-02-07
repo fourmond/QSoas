@@ -121,7 +121,8 @@ SOURCES += src/qmain.cc \
         src/fft.cc \
         src/peaks.cc \
         src/datasetbrowser.cc \
-        src/ducksim.cc
+        src/ducksim.cc \
+        src/pointtracker.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -177,5 +178,5 @@ HEADERS += src/headers.hh \
         src/fft.hh \
         src/peaks.hh \
         src/datasetbrowser.hh \
-        src/ducksim.hh
-
+        src/ducksim.hh \
+        src/pointtracker.hh

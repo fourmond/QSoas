@@ -193,10 +193,19 @@ public:
     return distanceTo(p.x(), p.y(), xscale, yscale);
   };
 
+  /// Returns the distance of the \a point to the curve.
+  QPair<double, int> distanceTo(const QPointF & p, 
+                                const QPointF & scales) const {
+    return distanceTo(p.x(), p.y(), scales.x(), scales.y());
+  };
+
   /// Returns the numbered point
   QPointF pointAt(int i) const {
     return QPointF(columns[0][i], columns[1][i]);
   };
+
+  /// Removes the point at the given index.
+  void removePoint(int i);
 
   /// Returns the first index at which the delta between two
   /// consecutive elements of column \a i change. -1 if there is no

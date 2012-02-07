@@ -123,3 +123,9 @@ QString CurveDataSet::toolTipText(const QPointF & pt)
     arg(lastPointIdx).arg(p.x()).arg(p.y());
   return str;
 }
+
+void CurveDataSet::invalidateCache()
+{
+  delete cachedPath;
+  cachedPath = NULL;
+}

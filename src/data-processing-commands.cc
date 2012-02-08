@@ -229,6 +229,8 @@ static void baselineCommand(const QString &)
   diff.xvalues = d.xvalues;
   diff.yvalues = ds->y();
 
+  diff.countBB = true;
+
   bottom.addItem(&diff);
 
   view.addPanel(&bottom);
@@ -346,6 +348,7 @@ static void baselineCommand(const QString &)
         ;
       }
     }
+
     if(needCompute) {
       // In any case, the bottom panel shows the delta.
       if(derive) {
@@ -357,6 +360,7 @@ static void baselineCommand(const QString &)
         diff.yvalues = ds->y() - d.yvalues;
       }
       m.points = s.pointList();
+      QTextStream o(stdout);
       bottom.setYRange(diff.yvalues.min(), diff.yvalues.max(), 
                        view.mainPanel());
     }
@@ -401,6 +405,7 @@ static void bsplinesCommand(const QString &)
   d.countBB = true;
   diff.xvalues = d.xvalues;
   diff.yvalues = ds->y();
+  diff.countBB = true;
 
 
 
@@ -408,6 +413,7 @@ static void bsplinesCommand(const QString &)
   bottom.yLabel = Utils::deltaStr("Y");
 
   view.addPanel(&bottom);
+
 
 
   /// Position of the segments
@@ -915,7 +921,7 @@ static void deldpCommand(const QString &)
   CurveDataSet d(newds);
   PointTracker t(&loop, newds);
   view.addItem(&d);
-  // d.brush = QBrush(QColor(255,0,0));
+  d.pen = QPen(QColor("red"));
   view.addItem(&t);
 
   t.size = 4;

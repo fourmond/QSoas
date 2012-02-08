@@ -368,10 +368,12 @@ QPointF CurvePanel::scaleFactors() const
 void CurvePanel::setZoom(const QRectF & recti)
 {
   QRectF rect = recti;
-  if(rect.contains(boundingBox))
-    rect = QRectF();            // Disable zoom then.
-  else
-    rect = boundingBox.intersected(rect);
+  if(boundingBox.isValid()) {
+    if(rect.contains(boundingBox))
+      rect = QRectF();            // Disable zoom then.
+    else
+      rect = boundingBox.intersected(rect);
+  }
   zoom = rect;
 
   // Here, forward to Xtracking

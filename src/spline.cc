@@ -138,7 +138,7 @@ Vector Spline::innerEvaluation(const Vector & xvalues, Type type,
   gsl_interp_accel * accel = gsl_interp_accel_alloc();
   for(int i = 0; i < ret.size(); i++)
     ret[i] = f(interp, xvals.data(), yvals.data(),
-               ret[i], accel);
+               xvalues[i], accel);
 
   gsl_interp_accel_free(accel);
   gsl_interp_free(interp);

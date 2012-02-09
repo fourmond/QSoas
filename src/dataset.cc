@@ -819,6 +819,7 @@ DataSet * DataSet::concatenateDataSets(QList<const DataSet *> datasets)
 void DataSet::removePoint(int index) {
   for(int i = 0; i < columns.size(); i++)
     columns[i].remove(index);
+  invalidateCache();            // important.
 }
 
 

@@ -21,13 +21,11 @@
 
    \section requests Requests
 
-   \li add back deldp
    \li find a way to display current directory on the printed stuff
    \li add a whole bunch of functionalities to the stack/data browser
    \li add arbitrary text to print ? (could this just be an annotate
    command adding text to the current plot ? It would be nice to
    choose its position, then ? -> no, just a waste of time)
-   \li tweak manually segment position on filter-bsplines
    \li use a third column for the fits (but an interface needs to be
    clearly defined for that...); that also means to provide ways to
    tweak the Z values...
@@ -56,13 +54,7 @@
 
    And other things too:
 
-   \li write a CurveItem subclass that tracks the closest point to a
-   dataset and displays it ? (for deldp, for instance...) While at
-   first, it may be slow, this could be incremental and fast ! (but
-   that needs a pretty decent algorithm: if I sort the data by X
-   values, it is logarithmic to find the closest X and go away from it
-   until the distance is too great)
-
+   \li improve distance-to-dataset
    \li dataset selection
    \li find a way to have a "default" optional parameter whose name
    could be omitted: that would allow for an "optional" parameter to

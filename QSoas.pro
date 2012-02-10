@@ -4,6 +4,7 @@
 TEMPLATE = app
 CONFIG += precompile_header debug warn_on thread exception
 INCLUDEPATH += . src
+TARGET = QSoas
 
 DEPENDPATH += src
 

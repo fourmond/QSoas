@@ -1,0 +1,28 @@
+#! /bin/sh
+
+# This script automates the creation of the base files for macports,
+# by building the base archive and setting up the version name
+# correctly.
+#
+# It should be run from the QSoas/ directory (and not from the pkg/
+# subdir)
+
+version="$1"
+if [ -z "$version" ]; then
+    version=$(grep ^VERSION QSoas.pro | sed -r s/'.*=\s+'//)
+    version="$version"+`date +%Y.%m.%d`
+fi
+
+outdir=$HOME/tmp/qsoas
+echo "Preparing an archive and a portfile for version $version"
+echo " -> saving in $outdir"
+
+# copying directory
+rsync -a --exclude build --exclude dox --exclude pkg --exclude '*~' --exclude .git ./ $outdir/qsoas-$version
+rm -f $outdir/qsoas-$version/QSoas
+(
+    cd $outdir
+    tar cvzf qsoas-$version.tar.gz qsoas-$version
+)
+
+cat pkg/Portfile.base | sed 's/#VERSION#/'$version/g > $outdir/Portfile

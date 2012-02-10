@@ -1,0 +1,28 @@
+# -*- mode: tcl; -*-
+
+PortSystem          1.0
+
+name                qsoas
+version             #VERSION#
+categories          science
+platforms           darwin
+license             GPL
+maintainers         fv
+description         QSoas
+long_description    QSoas
+homepage            http://qsoas.org
+master_sites        http://10.234.32.140/soas/ \
+
+depends_lib         port:qt4-mac \
+                    port:ruby \
+                    port:gsl \
+
+checksum {
+    # @todo Enable checksums
+}
+
+destroot {
+    # Only install the application
+    xinstall -d ${destroot}${prefix}/Applications/
+    file copy ${worksrcpath}/QSoas.app ${destroot}${prefix}/Applications
+}

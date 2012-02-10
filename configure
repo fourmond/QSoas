@@ -1,0 +1,7 @@
+#! /bin/sh
+
+qmake
+
+# For some reason, mac's Qt writes a wrong library name for linking
+# when producing a debug stuff:
+perl -pi -e 's/_debug//g' Makefile

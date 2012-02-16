@@ -34,6 +34,7 @@
 #include <curvepanel.hh>
 
 #include <pointpicker.hh>
+#include <math.h>
 
 static Group grp("buffer", 2,
                  "Buffer",
@@ -305,7 +306,8 @@ static void cutCommand(const QString &)
   loop.setHelpString(QObject::tr("Cut:\n"
                                  "left/right: bounds\n"
                                  "q: keep only the inside\n"
-                                 "u: keep only the outside\n"
+                                 "u: keep only the outside \n"
+                                 "  (including the right side)\n"
                                  "ESC: cancel"));
 
   d.countBB = true;
@@ -316,7 +318,6 @@ static void cutCommand(const QString &)
   r.xleft = 0;
   r.xright = d.xvalues.size()-1;
     
-  /// @todo selection mode ? (do we need that ?)
   while(! loop.finished()) {
     if(loop.isConventionalAccept()) {
       soas().pushDataSet(ds->subset(r.xleft, r.xright, true));
@@ -324,7 +325,7 @@ static void cutCommand(const QString &)
     }
     switch(loop.type()) {
     case QEvent::MouseButtonPress:
-      r.setX(loop.position().x(), loop.button());
+      r.setX(round(loop.position().x()), loop.button());
       break;
     case QEvent::KeyPress: 
       switch(loop.key()) {

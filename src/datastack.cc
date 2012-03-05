@@ -160,7 +160,7 @@ void DataStack::dropDataSet(int nb)
 {
   QList<DataSet *> * lst;
   int idx = dsNumber2Index(nb, &lst);
-  if(idx < lst->size())
+  if(idx >= 0 && idx < lst->size())
     delete lst->takeAt(idx);
   if(! nb) 
     emit(currentDataSetChanged());

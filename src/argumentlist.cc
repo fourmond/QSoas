@@ -97,11 +97,15 @@ CommandArguments ArgumentList::parseArguments(const QStringList & args,
   int sz = std::max(size(), nb);
   for(int i = 0; i < sz; i++) {
     int idx = assignArg(i, nb);
-    if(idx > size()) {
+    if(idx >= size()) {
+      /// @todo Go on with the "default" options ? That doesn't seem
+      /// so easy...
+      /// 
       /// @todo add a warning function to Terminal ?
       Terminal::out << Terminal::bold(QObject::tr("Warning: ")) 
                     << QObject::tr("too many arguments: %1 for %2").
-        arg(nb).arg(size());
+        arg(nb).arg(size())
+                    << endl;
       break;
     }
     const Argument * arg = value(idx, NULL);

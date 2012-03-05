@@ -154,7 +154,11 @@ static ArgumentList
 pops(QList<Argument *>() 
      << new FileSaveArgument("file", 
                              "Save as file",
-                             "Save as file", "biniou.ps"));
+                             "Save as file", "biniou.ps")
+     << new StringArgument("title", 
+                           "Page title",
+                           "Sets the title of the page as printed")
+     );
 
 static void printCommand(const QString &, 
                          const CommandOptions & opts)
@@ -168,10 +172,13 @@ static void printCommand(const QString &,
     if(printDialog.exec() != QDialog::Accepted)
       return;
   }
+  QString title;
+  updateFromOptions(opts, "title", title);
+
   QPainter painter;
   painter.begin(&p);
   soas().view().render(&painter, 500,
-                       p.pageRect());
+                       p.pageRect(), title);
 }
 
 static Command 

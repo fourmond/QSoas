@@ -280,14 +280,31 @@ void CurveView::nupPrint(QPrinter * printer,
 void CurveView::render(QPainter * painter,
                        int innerHeight, 
                        const QRect & targetRectangle,
-                       const QString & /*title*/)
+                       const QString & title)
 {
   painter->save();
 
   QPointF tl = targetRectangle.topLeft();
   QPointF br = targetRectangle.bottomRight();
+  double ht = targetRectangle.height();
 
-  double scale = innerHeight/(targetRectangle.height()*1.0);
+  // First, write the title
+  if(! title.isEmpty()) {
+    painter->save();
+    QFont ft = painter->font();
+    ft.setPointSize(20);
+    painter->setFont(ft);
+    QRectF tr;
+    painter->drawText(targetRectangle.adjusted(0,2,0,0), 
+                      Qt::AlignHCenter|Qt::AlignTop|
+                      Qt::TextWordWrap, title, &tr);
+    // We need to set a neat font ?
+    tl.setY(tr.bottomLeft().y());
+    ht = fabs(tl.y() - br.y());
+    painter->restore();
+  }
+
+  double scale = innerHeight/ht;
 
   br *= scale;
   tl *= scale;

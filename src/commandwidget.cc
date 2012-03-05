@@ -65,7 +65,7 @@ CommandWidget::CommandWidget() : watcherDevice(NULL)
   layout->addLayout(h1);
 
   h1 = new QHBoxLayout();
-  promptLabel = new QLabel("Soas> ");
+  promptLabel = new QLabel("QSoas> ");
   h1->addWidget(promptLabel);
 
   commandLine = new CommandPrompt;
@@ -102,7 +102,7 @@ void CommandWidget::runCommand(const QStringList & raw)
     return;                     // Nothing to do here.
   
   QString cmd = Command::unsplitWords(raw);
-  out << bold("Soas> ") << cmd << endl;
+  out << bold("QSoas> ") << cmd << endl;
   commandLine->addHistoryItem(cmd);
   commandLine->setEnabled(false);
   soas().showMessage(tr("Running: %1").arg(cmd));

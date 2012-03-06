@@ -46,7 +46,7 @@ static const char * ruby_init_code =
   "  __blk = nil\n"
   "  begin\n" 
   "    __blk = eval \"proc do |#{__vars.join(',')}|\\n#{__code}\\nend\"\n"
-  "    __tmp = [0.0] * __vars.size\n"
+  "    __tmp = [1.0] * __vars.size\n"
   "    __blk.call(*__tmp)\n"
   "    __done = true\n"
   "  rescue NameError => __e\n"

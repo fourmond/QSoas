@@ -248,74 +248,81 @@ void FitDialog::startFit()
 {
   QTime timer;
   timer.start();
-  parameters.prepareFit();
-  shouldCancelFit = false;
+  try {
+    parameters.prepareFit();
+    shouldCancelFit = false;
   
-  QString params;
-  if(data->independentDataSets())
-    params = QString("%1 %2 %3").
-      arg(data->parameters.size() / data->datasets.size()).
-      arg(QChar(0xD7)).arg(data->datasets.size());
-  else
-    params = QString::number(data->parameters.size());
+    QString params;
+    if(data->independentDataSets())
+      params = QString("%1 %2 %3").
+        arg(data->parameters.size() / data->datasets.size()).
+        arg(QChar(0xD7)).arg(data->datasets.size());
+    else
+      params = QString::number(data->parameters.size());
   
-  Terminal::out << "Starting fit '" << data->fit->fitName() << "' with "
-                << params << " free parameters"
-                << endl;
+    Terminal::out << "Starting fit '" << data->fit->fitName() << "' with "
+                  << params << " free parameters"
+                  << endl;
 
 
-  cancelButton->setVisible(true);
-  startButton->setVisible(false);
-  progressReport->setText(QString("Starting fit with %1 free parameters").
-                          arg(params));
+    cancelButton->setVisible(true);
+    startButton->setVisible(false);
+    progressReport->setText(QString("Starting fit with %1 free parameters").
+                            arg(params));
 
   
-
-  QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-  /// @todo customize the number of iterations
-  int status;
-  while((status = data->iterate(), status == GSL_CONTINUE) && 
-        data->nbIterations < 100 && 
-        ! shouldCancelFit) {
-    int it = data->nbIterations;
-    double residuals = data->residuals();
-    double relres = data->relativeResiduals();
-    QString str = QString("Iteration #%1, residuals: %2 (relative: %3)").
-      arg(it).arg(residuals).arg(relres);
-    Terminal::out << str << endl;
-
-    progressReport->setText(str);
-    parameters.retrieveParameters();
-    updateEditors();
 
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-  }
-  cancelButton->setVisible(false);
-  startButton->setVisible(true);
-  if(shouldCancelFit) {
-    Terminal::out << "Fit cancelled" << endl;
-    progressReport->setText(progressReport->text() + " (cancelled)");
-  }
-  else {
-    QString st;
-    if(status != GSL_SUCCESS) {
+    /// @todo customize the number of iterations
+    int status;
+    while((status = data->iterate(), status == GSL_CONTINUE) && 
+          data->nbIterations < 100 && 
+          ! shouldCancelFit) {
+      int it = data->nbIterations;
+      double residuals = data->residuals();
+      double relres = data->relativeResiduals();
+      QString str = QString("Iteration #%1, residuals: %2 (relative: %3)").
+        arg(it).arg(residuals).arg(relres);
+      Terminal::out << str << endl;
+
+      progressReport->setText(str);
       parameters.retrieveParameters();
       updateEditors();
-      st = gsl_strerror(status);
+
+      QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
     }
-    else
-      st = "done";
-    progressReport->setText(progressReport->text() + 
-                            QString(" (%1)").arg(st));
+    cancelButton->setVisible(false);
+    startButton->setVisible(true);
+    if(shouldCancelFit) {
+      Terminal::out << "Fit cancelled" << endl;
+      progressReport->setText(progressReport->text() + " (cancelled)");
+    }
+    else {
+      QString st;
+      if(status != GSL_SUCCESS) {
+        parameters.retrieveParameters();
+        updateEditors();
+        st = gsl_strerror(status);
+      }
+      else
+        st = "done";
+      progressReport->setText(progressReport->text() + 
+                              QString(" (%1)").arg(st));
+    }
+  }
+  catch (const RuntimeError & re) {
+    cancelButton->setVisible(false);
+    startButton->setVisible(true);
+    parameters.retrieveParameters();
+    updateEditors();
+    progressReport->setText(QString("An error occurred while fitting: ") +
+                            re.message());
   }
   Terminal::out << "Fitting took an overall " << timer.elapsed() * 1e-3
                 << " seconds" << endl;
 
   parameters.writeToTerminal();
-  
-  // parameters.retrieveParameters();
   compute();
-  // updateEditors();
 }
 
 

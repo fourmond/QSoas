@@ -83,7 +83,7 @@ CommandWidget::CommandWidget() : watcherDevice(NULL)
 
   this->setFocusProxy(commandLine);
   terminalDisplay->setFocusProxy(commandLine);
-  terminalDisplay->setFocusPolicy(Qt::NoFocus);
+  terminalDisplay->setFocusPolicy(Qt::StrongFocus);
 
   setLoopMode(false);
   restrictedPrompt->setVisible(false);

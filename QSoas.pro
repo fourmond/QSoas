@@ -57,6 +57,8 @@ HEADERS += src/build.hh
 INCLUDEPATH += $$RUBY_INCLUDE_DIRS
 LIBS += $$RUBY_LIB_ARG
 
+RESOURCES += qsoas.qrc
+
 
 # GSL
 LIBS += -lgsl -lgslcblas -lm

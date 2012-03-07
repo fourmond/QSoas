@@ -40,6 +40,9 @@ namespace Ruby {
   /// were necessary to compile the block
   VALUE makeBlock(QStringList * variables, const QByteArray & code);
 
+  /// Read a file and execute it
+  VALUE loadFile(const QString & file);
+
   /// The main object.
   extern VALUE main;
 

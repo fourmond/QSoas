@@ -32,34 +32,6 @@ VALUE Ruby::globalRescueFunction(VALUE /*dummy*/, VALUE exception)
   return Qnil;
 }
 
-/// A few useful functions
-static const char * ruby_init_code = 
-  "def soas_eval(__str)\n"
-  "  begin\n"
-  "    eval(__str)\n"
-  "  rescue SyntaxError => __e\n"
-  "    raise \"Syntax error: #{__e.to_s}\"\n"
-  "  end\n"
-  "end\n\n"
-  "def soas_make_block(__vars, __code)\n"
-  "  __done = true\n"
-  "  __blk = nil\n"
-  "  begin\n" 
-  "    __blk = eval \"proc do |#{__vars.join(',')}|\\n#{__code}\\nend\"\n"
-  "    __tmp = [1.0] * __vars.size\n"
-  "    __blk.call(*__tmp)\n"
-  "    __done = true\n"
-  "  rescue NameError => __e\n"
-  "    if __e.is_a? NoMethodError\n"
-  "      raise __e\n"
-  "    end\n"
-  "    __vars << __e.name.to_s\n"
-  "    __done = false\n"
-  "  rescue SyntaxError => __e\n"
-  "    raise \"Syntax error: #{__e.to_s}\"\n"
-  "  end while ! __done\n"
-  "  return __blk\n"
-  "end\n";
 
 VALUE Ruby::main;
 
@@ -68,8 +40,18 @@ void Ruby::initRuby()
   ruby_init();
   main = rb_eval_string("self");
   rb_extend_object(main, rb_mMath);
-  rb_eval_string(ruby_init_code);
+  Ruby::loadFile(":/ruby/qsoas-base.rb");
 }
+
+VALUE Ruby::loadFile(const QString & file)
+{
+  QFile f(file);
+  if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+    return Qnil;  
+  QByteArray bt = f.readAll();
+  return rb_eval_string(bt);
+}
+
 
 VALUE Ruby::eval(QByteArray code)
 {

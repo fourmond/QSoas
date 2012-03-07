@@ -11,3 +11,6 @@ dox/
 
 # Generated headers:
 src/build.hh
+
+# generated files
+qrc_*.cpp

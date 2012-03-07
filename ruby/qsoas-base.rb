@@ -1,4 +1,4 @@
-# qsoas-base.rb: implementation of (some of) the ruby communication code
+# qsoas-base.rb: Ruby base functions for QSoas 
 # Copyright 2011, 2012 by Vincent Fourmond
 
 # This program is free software; you can redistribute it and/or modify
@@ -26,10 +26,36 @@ def soas_eval(__str)
 end
 
 def soas_make_block(__vars, __code)
-  __done = true
-  __blk = nil
+  __vars2 = soas_find_vars(__code)
+  __vars.concat(__vars2)
+  __vars.uniq!
   begin
     __blk = eval "proc do |#{__vars.join(',')}|\n#{__code}\nend"
+  rescue SyntaxError => __e
+    raise "Syntax error: #{__e.to_s}"
+  end
+  return __blk
+end
+
+
+## Find all the undefined variables in the given code, while trying
+## hard to avoid "out of range" errors...
+def soas_find_vars(__code)
+  __sandbox = Object.new
+
+  # First, fill in with dummy methods
+  for m in Math.methods - Object.methods do
+    ## @todo handle proper arity ?
+    __sandbox.send(:eval, "def self.#{m}(*a)\nreturn 1.0\nend")
+  end
+
+  __vars = []
+  
+  __done = false
+
+  begin
+    __blk = __sandbox.send(:eval,
+                           "proc do |#{__vars.join(',')}|\n#{__code}\nend")
     __tmp = [1.0] * __vars.size
     __blk.call(*__tmp)
     __done = true
@@ -42,5 +68,7 @@ def soas_make_block(__vars, __code)
   rescue SyntaxError => __e
     raise "Syntax error: #{__e.to_s}"
   end while ! __done
-  return __blk
+
+  return __vars
 end
+

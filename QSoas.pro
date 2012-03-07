@@ -125,7 +125,8 @@ SOURCES += src/qmain.cc \
         src/peaks.cc \
         src/datasetbrowser.cc \
         src/ducksim.cc \
-        src/pointtracker.cc
+        src/pointtracker.cc \
+        src/misc-fits.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \

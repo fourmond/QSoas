@@ -22,6 +22,7 @@
 #include <group.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
+#include <file-arguments.hh>
 #include <terminal.hh>
 #include <soas.hh>
 
@@ -91,6 +92,15 @@ protected:
   virtual QString optionsString() const {
     return "formula: " + lastFormula;
   };
+
+  virtual void processOptions(const CommandOptions & ) {
+    // In this function, we prepare the block if it is nil
+
+    if(block == Qnil) {
+      callID = rb_intern("call"); // Shouldn't be done in the
+      parseBlock(lastFormula);
+    }
+  };
     
 public:
 
@@ -105,6 +115,8 @@ public:
                              callID, nbargs, (const VALUE *) args));
   };
 
+  /// @todo Detection of temperature, "fara", and other constants of
+  /// this kind ?
   virtual void initialGuess(FitData * params, 
                             const DataSet *,
                             double * a)
@@ -123,7 +135,7 @@ public:
 
   ArbitraryFit() : FunctionFit("arb", 
                                "Arbitrary fit",
-                               "Arbitrary fit, with user-supplied formula", 1, -1, false) 
+                               "Arbitrary fit, with user-supplied formula", 1, -1, false), block(Qnil)
   { 
     ArgumentList * al = new 
       ArgumentList(QList<Argument *>()
@@ -141,9 +153,10 @@ public:
   ArbitraryFit(const QString & name, const QString & formula) : 
     FunctionFit(name.toLocal8Bit(), 
                 QString("Fit: %1").arg(formula).toLocal8Bit(),
-                QString("Fit of the formula %1").arg(formula).toLocal8Bit())
+                QString("Fit of the formula %1").arg(formula).toLocal8Bit()), 
+    block(Qnil)
   { 
-    parseBlock(formula);
+    lastFormula = formula;
   };
 
   const QString & formula() const {
@@ -153,3 +166,55 @@ public:
 };
 
 static ArbitraryFit arbFit;
+
+static QHash<QString, ArbitraryFit *> customFits;
+
+/// This function loads fits from a text stream
+static void loadFits(QTextStream & in, bool verbose = true) {
+  QString line;
+  QRegExp sep("^\\s*([a-z0-9A-Z-]+):(.*)");
+  do {
+    line = in.readLine();
+    if(sep.indexIn(line, 0) >= 0) {
+      QString name = sep.cap(1);
+      QString formula = sep.cap(2);
+      try {
+        /// @todo Check presence !
+        ArbitraryFit * fit = new ArbitraryFit(name, formula);
+        customFits[name] = fit;
+      }
+      catch(RuntimeError & er) {
+        Terminal::out << "Error loading fit " << name << " : " 
+                      << er.message() << endl;
+      }
+    }
+    
+  } while(! line.isNull());
+}
+
+//////////////////////////////////////////////////////////////////////
+
+static ArgumentList 
+lfArgs(QList<Argument *>() 
+        << new FileArgument("file", 
+                            "Fits file",
+                            "File containing the fits to load"));
+
+
+static void loadFitsCommand(const QString &, QString fitsFile)
+{
+  QFile file(fitsFile);
+  Utils::open(&file, QIODevice::ReadOnly);
+  QTextStream s(&file);
+  loadFits(s);
+}
+
+static Command 
+loadFitsC("load-fits", // command name
+         optionLessEffector(loadFitsCommand), // action
+         "file",  // group name
+         &lfArgs, // arguments
+         NULL, 
+         "Load fits",
+         "Load fits from a file",
+         "Load fits from a file");

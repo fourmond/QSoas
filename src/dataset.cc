@@ -80,8 +80,9 @@ QRectF DataSet::boundingBox() const
 {
   updateCache();
   QRectF r;
-  r.setCoords(cache.minima[0], cache.minima[1], 
-              cache.maxima[0], cache.maxima[1]);
+  if(columns.size() >= 2)
+    r.setCoords(cache.minima[0], cache.minima[1], 
+                cache.maxima[0], cache.maxima[1]);
   return r;
 }
 

@@ -144,7 +144,9 @@ public:
 
   /// Return the number of rows.
   int nbRows() const {
-    return x().size();
+    if(columns.size() > 0)
+      return x().size();
+    return 0;
   };
 
   /// Returns the number of columns

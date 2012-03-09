@@ -35,6 +35,8 @@
 #include <vector.hh>
 #include <fitdata.hh>
 
+#include <gsl/gsl_const_mksa.h>
+#include <gsl/gsl_math.h>
 /// Arbitrary fits, using Ruby as formula backend.
 ///
 /// @warning Two fits cannot be run at the same time, as the main
@@ -49,19 +51,21 @@ class ArbitraryFit : public FunctionFit {
 
   /// The last formula used.
   QString lastFormula;
-    
+
   /// The parameters
   QStringList params;
 
   void parseBlock(const QString &formula)
   {
     params.clear();
-    params << "x";
+    params << "x" << "f" << "pi" << "fara" << "temperature";
     lastFormula = formula;
     QByteArray bta = formula.toLocal8Bit();
     const QByteArray & c = bta;
     block = Ruby::run<QStringList *, const QByteArray &>(&Ruby::makeBlock, &params, c);
-    params.takeFirst();       // Remove x.
+    for(int i = 0; i < 4; i++)
+      params.takeFirst();       // Remove constants and/or derived stuff
+
   }
     
   void runFitCurrentDataSet(const QString & n, 
@@ -87,6 +91,26 @@ class ArbitraryFit : public FunctionFit {
     Fit::runFit(name, datasets, opts);
   }
 
+  /// Returns whether the parameter is fixed by default
+  bool paramFixed(const QString & name) const {
+    if(name == "temperature" || name == "y_0" || name == "x_0")
+      return true;
+    return false;
+  }
+
+  /// Returns the initial guess for the named parameter
+  double paramGuess(const QString & name, const DataSet * ds) const {
+    if(name == "temperature")
+      return soas().temperature();
+    // return GSL_CONST_MKSA_FARADAY/ (soas().temperature() * 
+    //                                 GSL_CONST_MKSA_MOLAR_GAS);
+    if(name == "y_0")
+      return ds->y().first();
+    if(name == "x_0")
+      return ds->x().first();
+    return 1;
+  };
+
 protected:
 
   virtual QString optionsString() const {
@@ -101,41 +125,49 @@ protected:
       parseBlock(lastFormula);
     }
   };
+
+
     
 public:
 
   virtual double function(const double * a, 
                           FitData * params, double x) {
-    int nbargs = params->parameterDefinitions.size() + 1;
+    int nbargs = params->parameterDefinitions.size() + 4;
     VALUE args[nbargs];
-    args[0] = rb_float_new(x);
+    args[0] = rb_float_new(x); // x
+    args[1] = rb_float_new(GSL_CONST_MKSA_FARADAY); // f
+    args[2] = rb_float_new(M_PI); // pi
+    args[3] = rb_float_new(GSL_CONST_MKSA_FARADAY/ 
+                           (a[0] * GSL_CONST_MKSA_MOLAR_GAS));
     for(int i = 0; i < params->parameterDefinitions.size(); i++)
-      args[i + 1] = rb_float_new(a[i]);
+      args[i + 4] = rb_float_new(a[i]);
     return NUM2DBL(Ruby::run(&rb_funcall2, block, 
                              callID, nbargs, (const VALUE *) args));
   };
 
-  /// @todo Detection of temperature, "fara", and other constants of
-  /// this kind ?
-  virtual void initialGuess(FitData * params, 
-                            const DataSet *,
+  virtual void initialGuess(FitData * /*params*/, 
+                            const DataSet * ds,
                             double * a)
   {
-    for(int i = 0; i < params->parameterDefinitions.size(); i++)
-      a[i] = 1;
+    // Or shall I use FitData ?
+    for(int i = 0; i < params.size(); i++)
+      a[i] = paramGuess(params[i], ds);
   };
 
   virtual QList<ParameterDefinition> parameters() const {
     QList<ParameterDefinition> p;
     for(int i = 0; i < params.size(); i++)
-      p << ParameterDefinition(params[i]);
+      p << ParameterDefinition(params[i], paramFixed(params[i]));
     return p;
   };
 
 
   ArbitraryFit() : FunctionFit("arb", 
                                "Arbitrary fit",
-                               "Arbitrary fit, with user-supplied formula", 1, -1, false), block(Qnil)
+                               "Arbitrary fit, with user-supplied formula\n"
+                               "Special parameters: temp, fara, y_0, x_0.\n"
+                               "Already defined constants: f, pi",
+                               1, -1, false), block(Qnil)
   { 
     ArgumentList * al = new 
       ArgumentList(QList<Argument *>()
@@ -173,22 +205,32 @@ static QHash<QString, ArbitraryFit *> customFits;
 static void loadFits(QTextStream & in, bool verbose = true) {
   QString line;
   QRegExp sep("^\\s*([a-z0-9A-Z-]+):(.*)");
+  QRegExp comment("^\\s*#");
+  int ln = 0;
   do {
     line = in.readLine();
+    ++ln;
     if(sep.indexIn(line, 0) >= 0) {
       QString name = sep.cap(1);
       QString formula = sep.cap(2);
       try {
-        /// @todo Check presence !
+        if(customFits.contains(name)) {
+          Terminal::out << "Fit '" << name << "' (line " << ln 
+                        << ") is already defined " << endl;
+          continue;
+        }
         ArbitraryFit * fit = new ArbitraryFit(name, formula);
         customFits[name] = fit;
       }
-      catch(RuntimeError & er) {
+      catch(Exception & er) {
         Terminal::out << "Error loading fit " << name << " : " 
                       << er.message() << endl;
       }
     }
-    
+    else {
+      if(comment.indexIn(line, 0) < 0)
+        Terminal::out << "Line " << ln << " not understood" << endl;
+    }
   } while(! line.isNull());
 }
 

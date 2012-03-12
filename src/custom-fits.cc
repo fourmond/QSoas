@@ -118,12 +118,8 @@ protected:
   };
 
   virtual void processOptions(const CommandOptions & ) {
-    // In this function, we prepare the block if it is nil
-
-    if(block == Qnil) {
-      callID = rb_intern("call"); // Shouldn't be done in the
-      parseBlock(lastFormula);
-    }
+    callID = rb_intern("call"); // Shouldn't be done in the
+    parseBlock(lastFormula);
   };
 
 

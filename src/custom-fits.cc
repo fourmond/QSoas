@@ -162,12 +162,13 @@ public:
   };
 
 
-  ArbitraryFit() : FunctionFit("arb", 
-                               "Arbitrary fit",
-                               "Arbitrary fit, with user-supplied formula\n"
-                               "Special parameters: temp, fara, y_0, x_0.\n"
-                               "Already defined constants: f, pi",
-                               1, -1, false), block(Qnil)
+  ArbitraryFit() : 
+    FunctionFit("arb", 
+                "Arbitrary fit",
+                "Arbitrary fit, with user-supplied formula\n"
+                "Special parameters: temperature, fara, y_0, x_0.\n"
+                "Already defined constants: f, pi",
+                1, -1, false), block(Qnil)
   { 
     ArgumentList * al = new 
       ArgumentList(QList<Argument *>()

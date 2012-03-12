@@ -102,75 +102,80 @@ void FitParameters::retrieveParameters()
 }
 
 
-void FitParameters::exportParameters(QIODevice * stream) const
-{
-  QTextStream out(stream);
-  QStringList lst;
-  out << "# Fit used: " << fitData->fit->fitName() 
-      << ", residuals: " << fitData->residuals() << endl;
-  lst << "Buffer";
-  for(int i = 0; i < nbParameters; i++)
-    lst << fitData->parameterDefinitions[i].name;
-  // We add xstart and xend:
-  lst << "xstart" << "xend" << "residuals" << "rel_residuals";
-
-  double res = fitData->residuals();
-  double rel_res = fitData->relativeResiduals();
-
-  out << "## " << lst.join("\t") << endl;
-  
-  for(int i = 0; i < datasets; i++) {
-    lst.clear();
-    lst << fitData->datasets[i]->name;
-    for(int j = 0; j < nbParameters; j++)
-      lst << QString::number(getValue(j, i));
-    lst << QString::number(fitData->datasets[i]->x().min());
-    lst << QString::number(fitData->datasets[i]->x().max());
-    lst << QString::number(res) << QString::number(rel_res);
-    out << lst.join("\t") << endl;
-  }
-}
-
 QString FitParameters::parameterName(int idx) const
 {
   return fitData->parameterDefinitions[idx].name;
 }
 
-void FitParameters::exportToOutFile(OutFile * out) const
+void FitParameters::prepareExport(QStringList & lst, QString & lines, 
+                                  bool exportErrors) const
+{
+  lst.clear();
+  lst << "Buffer";
+  for(int i = 0; i < nbParameters; i++) {
+    QString name = fitData->parameterDefinitions[i].name;
+    lst << name;
+    if(exportErrors)
+      lst << QString("%1_err").arg(name);
+  }
+  lst << "xstart" << "xend" << "residuals" << "rel_residuals";
+
+  double res = fitData->residuals();
+  double rel_res = fitData->relativeResiduals();
+  
+  const gsl_matrix * cov = (exportErrors ? fitData->covarianceMatrix() : NULL);
+
+  QStringList ls2;
+  lines.clear();
+  for(int i = 0; i < datasets; i++) {
+    ls2.clear();
+    ls2 << fitData->datasets[i]->name;
+    for(int j = 0; j < nbParameters; j++) {
+      ls2 << QString::number(getValue(j, i));
+      if(exportErrors) {
+        int idx = (isGlobal(j) ? j : j + i * nbParameters);
+        ls2 << QString::number(sqrt(gsl_matrix_get(cov, idx, idx)));
+      }
+    }
+    ls2 << QString::number(fitData->datasets[i]->x().min());
+    ls2 << QString::number(fitData->datasets[i]->x().max());
+    ls2 << QString::number(res) << QString::number(rel_res);
+    lines += ls2.join("\t") + "\n";
+  }
+}
+
+void FitParameters::exportToOutFile(bool exportErrors, OutFile * out) const
 {
   if( ! out)
     out = &OutFile::out;
 
   QStringList lst;
-  lst << "Buffer";
-  for(int i = 0; i < nbParameters; i++)
-    lst << fitData->parameterDefinitions[i].name;
-  // We add xstart and xend:
-  lst << "xstart" << "xend" << "residuals" << "rel_residuals";
-
-  double res = fitData->residuals();
-  double rel_res = fitData->relativeResiduals();
+  QString lines;
+  prepareExport(lst, lines, exportErrors);
 
   out->setHeader(QString("Fit: %1\n%2").
                  arg(fitData->fit->fitName()).
                  arg(lst.join("\t")));
-  
-  for(int i = 0; i < datasets; i++) {
-    lst.clear();
-    lst << fitData->datasets[i]->name;
-    for(int j = 0; j < nbParameters; j++)
-      lst << QString::number(getValue(j, i));
-    lst << QString::number(fitData->datasets[i]->x().min());
-    lst << QString::number(fitData->datasets[i]->x().max());
-    lst << QString::number(res) << QString::number(rel_res);
-    (*out) << lst.join("\t") << "\n" << flush;
-  }
+  (*out) << lines << flush;
+}
+
+void FitParameters::exportParameters(QIODevice * stream, 
+                                     bool exportErrors) const
+{
+  QTextStream out(stream);
+  QStringList lst;
+  out << "# Fit used: " << fitData->fit->fitName() 
+      << ", residuals: " << fitData->residuals() << endl;
+
+  QString lines;
+  prepareExport(lst, lines, exportErrors);
+  out << "## " << lst.join("\t") << endl;
+  out << lines << flush;
 }
 
 void FitParameters::writeToTerminal(bool /*writeMatrix*/) const
 {
-  /// @todo Write confidence limit.
-
+  const gsl_matrix * mat = fitData->covarianceMatrix();
   // First, write out global parameters.
   bool hasGlobal = false;
   for(int i = 0; i < nbParameters; i++) {
@@ -179,8 +184,15 @@ void FitParameters::writeToTerminal(bool /*writeMatrix*/) const
         hasGlobal = true;
         Terminal::out << "Global parameters: \n" << endl;
       }
+      double value = getValue(i, 0);
+      double error = sqrt(gsl_matrix_get(mat, i, i)); // correct ?
       Terminal::out << parameterName(i) << "\t=\t" 
-                    << QString::number(getValue(i, 0)) << endl;
+                    << QString::number(value) << "\t"
+                    << (isFixed(i, 0) ? "(fixed)" :
+                        QString("+- %1\t+-%2%").
+                        arg(error, 0, 'g', 2).
+                        arg(fabs(error/value)*100, 0, 'g', 2))
+                    << endl;
     }
   }
 
@@ -194,12 +206,18 @@ void FitParameters::writeToTerminal(bool /*writeMatrix*/) const
     for(int i = 0; i < nbParameters; i++) {
       if(isGlobal(i))
         continue;
+      double value = getValue(i, j);
+      double error = sqrt(gsl_matrix_get(mat, i + j*nbParameters, 
+                                         i + j*nbParameters)); // correct ?
       Terminal::out << parameterName(i) << "\t=\t" 
-                    << QString::number(getValue(i, j)) << endl;
+                    << QString::number(value) << "\t"
+                    << (isFixed(i, j) ? "(fixed)" :
+                        QString("+- %1\t+- %2%").
+                        arg(error, 0, 'g', 2).
+                        arg(fabs(error/value)*100, 0, 'g', 2))
+                    << endl;
     }
   }
-
-  /// @todo Write chi squared
 }
 
 void FitParameters::saveParameters(QIODevice * stream) const

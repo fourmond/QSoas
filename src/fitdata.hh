@@ -242,6 +242,10 @@ class FitData {
   /// time.
   int gslParameters;
 
+  /// A storage space for the covariance matrix
+  gsl_matrix * covarStorage;
+
+
 public:
   /// The fit in use
   Fit * fit;
@@ -273,6 +277,13 @@ public:
 
   /// Another storage space, this time large enough to hold all parameters.
   gsl_vector * parametersStorage;
+
+  /// Returns the covariance matrix, including the 0 elements of fixed
+  /// parameters.
+  ///
+  /// @todo As of now, it is the raw covariance matrix (ie plainly
+  /// wrong when using bijected parameters)
+  const gsl_matrix * covarianceMatrix();
 
 
   FitData(Fit * f, const QList<const DataSet *> & ds);

@@ -141,6 +141,9 @@ protected slots:
   /// Exports parameters to the current output file
   void exportToOutFile();
 
+  /// Exports parameters to the current output file (with errors)
+  void exportToOutFileWithErrors();
+
   /// Resets all the parameters data to the initial guess
   void resetAllToInitialGuess();
 

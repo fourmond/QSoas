@@ -148,13 +148,18 @@ void FitDialog::setupFrame()
   ac->addAction("Load from file", this, 
                 SLOT(loadParameters()),
                 QKeySequence(tr("Ctrl+L")));
-  ac->addAction("Save to file", this, SLOT(saveParameters()),
+  ac->addAction("Save to file (for reusing later)", 
+                this, SLOT(saveParameters()),
                 QKeySequence(tr("Ctrl+S")));
-  ac->addAction("Export", this, SLOT(exportParameters()),
+  ac->addAction("Export (for drawing/manipulating)", 
+                this, SLOT(exportParameters()),
                 QKeySequence(tr("Ctrl+X")));
   ac->addAction("Export to output file", this, 
                 SLOT(exportToOutFile()),
                 QKeySequence(tr("Ctrl+O")));
+  ac->addAction("Export to output file (w/errors)", this, 
+                SLOT(exportToOutFileWithErrors()),
+                QKeySequence(tr("Ctrl+Shift+O")));
   ac->addAction("Reset this to initial guess", this, 
                 SLOT(resetThisToInitialGuess()),
                 QKeySequence(tr("Ctrl+T")));
@@ -248,6 +253,7 @@ void FitDialog::startFit()
 {
   QTime timer;
   timer.start();
+
   try {
     parameters.prepareFit();
     shouldCancelFit = false;
@@ -263,7 +269,6 @@ void FitDialog::startFit()
     Terminal::out << "Starting fit '" << data->fit->fitName() << "' with "
                   << params << " free parameters"
                   << endl;
-
 
     cancelButton->setVisible(true);
     startButton->setVisible(false);
@@ -281,7 +286,8 @@ void FitDialog::startFit()
       int it = data->nbIterations;
       double residuals = data->residuals();
       double relres = data->relativeResiduals();
-      QString str = QString("Iteration #%1, residuals: %2 (relative: %3)").
+      QString str = QString("Iteration #%1, residuals: %2, "
+                            "relative residuals: %3").
         arg(it).arg(residuals).arg(relres);
       Terminal::out << str << endl;
 
@@ -293,22 +299,26 @@ void FitDialog::startFit()
     }
     cancelButton->setVisible(false);
     startButton->setVisible(true);
+
+
+    QString mention;
     if(shouldCancelFit) {
       Terminal::out << "Fit cancelled" << endl;
-      progressReport->setText(progressReport->text() + " (cancelled)");
+      mention = " <font color=#d00>(cancelled)</font>";
     }
     else {
       QString st;
       if(status != GSL_SUCCESS) {
         parameters.retrieveParameters();
         updateEditors();
-        st = gsl_strerror(status);
+        mention = QString(" <font color=#d00>(%1)</font>").
+          arg(gsl_strerror(status));
       }
       else
-        st = "done";
-      progressReport->setText(progressReport->text() + 
-                              QString(" (%1)").arg(st));
+        mention = " <font color=#080>(done)</font>";
     }
+    progressReport->setText(progressReport->text() + mention);
+      
   }
   catch (const RuntimeError & re) {
     cancelButton->setVisible(false);
@@ -448,6 +458,12 @@ void FitDialog::exportToOutFile()
 {
   parameters.exportToOutFile();
   Terminal::out << "Exported fit parameters to output file"  << endl;
+}
+
+void FitDialog::exportToOutFileWithErrors()
+{
+  parameters.exportToOutFile(true);
+  Terminal::out << "Exported fit parameters and errors to output file"  << endl;
 }
 
 void FitDialog::resetAllToInitialGuess()

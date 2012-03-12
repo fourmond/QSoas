@@ -81,6 +81,9 @@ class FitParameters {
   /// The name of the numbered parameter
   QString parameterName(int idx) const;
 
+  void prepareExport(QStringList & headers, QString & lines, 
+                     bool exportErrors = false) const;
+
 public:
 
   FitParameters(FitData * data);
@@ -139,7 +142,7 @@ public:
   /// On the other hand, it may be easier to work with than the output
   /// of saveParameters (which is closer to the original Soas
   /// version).
-  void exportParameters(QIODevice * out) const;
+  void exportParameters(QIODevice * out, bool writeError = false) const;
 
   /// Write the result of the fits to the terminal, as those can be
   /// quite interesting... It is different from exportParameters in
@@ -149,7 +152,7 @@ public:
   void writeToTerminal(bool writeMatrix = false) const;
 
   /// Export parameters to the given output file (or the default one)
-  void exportToOutFile(OutFile * out = NULL) const;
+  void exportToOutFile(bool writeError = false, OutFile * out = NULL) const;
 
   /// Save to the given stream
   void saveParameters(QIODevice * out) const;

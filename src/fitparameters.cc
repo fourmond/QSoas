@@ -350,3 +350,25 @@ void FitParameters::dump() const
   }
   o << endl;
 }
+
+void FitParameters::setupWithCovarianceMatrix(QTableWidget * widget)
+{
+  const gsl_matrix * mat = fitData->covarianceMatrix();
+  
+  widget->setColumnCount(mat->size1);
+  widget->setRowCount(mat->size1);
+
+  QStringList heads;
+  for(int i = 0; i < datasets; i++)
+    for(int j = 0; j < nbParameters; j++)
+      heads << QString("%1[%2]").arg(parameterName(j)).arg(i);
+  widget->setHorizontalHeaderLabels(heads);
+  widget->setVerticalHeaderLabels(heads);
+
+  for(int i = 0; i < mat->size1; i++)
+    for(int j = 0; j < mat->size1; j++)
+      widget->
+        setItem(i,j, new QTableWidgetItem(QString::
+                                          number(gsl_matrix_get(mat, i, j))));
+  
+}

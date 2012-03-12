@@ -165,6 +165,9 @@ void FitDialog::setupFrame()
                 QKeySequence(tr("Ctrl+T")));
   ac->addAction("Reset all to initial guess !", this, 
                 SLOT(resetAllToInitialGuess()));
+  ac->addAction("Show covariance matrix", this, 
+                SLOT(showCovarianceMatrix()),
+                QKeySequence(tr("Ctrl+M")));
   hb->addWidget(ac);
 
   ac = new ActionCombo(tr("Print..."));
@@ -486,4 +489,20 @@ void FitDialog::saveAllPDF()
   p.setOrientation(QPrinter::Landscape);
   p.setOutputFileName("fits.pdf");
   CurveView::nupPrint(&p, views, 3, 2);
+}
+
+void FitDialog::showCovarianceMatrix()
+{
+  QDialog dlg;//  = new QDialog();
+  // dlg->setAttribute(Qt::WA_DeleteOnClose);
+
+  QVBoxLayout * layout = new QVBoxLayout(&dlg);
+  QTableWidget * tw = new QTableWidget();
+  parameters.setupWithCovarianceMatrix(tw);
+  layout->addWidget(tw);
+
+  dlg.exec();
+
+  /// @todo Add possibility to save the covariance matrix + normalize
+  /// each row and column by the value of the parameter ?
 }

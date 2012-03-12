@@ -47,6 +47,7 @@
 #include <QDateTimeEdit>
 #include <QDateEdit>
 #include <QTimeEdit>
+#include <QTableWidget>
 
 // Dialogs and the like
 #include <QFileDialog>

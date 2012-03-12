@@ -159,6 +159,11 @@ public:
 
   /// Load from the given stream
   void loadParameters(QIODevice * out);
+
+
+  /// Fill up a QTableWidget with the contents of the covariance
+  /// matrix
+  void setupWithCovarianceMatrix(QTableWidget * widget);
   
 };
 

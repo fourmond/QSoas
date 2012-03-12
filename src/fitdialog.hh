@@ -154,6 +154,9 @@ protected slots:
   /// Saves all the views as PDF
   void saveAllPDF();
 
+  /// Shows the covariance matrix
+  void showCovarianceMatrix();
+
 };
 
 #endif

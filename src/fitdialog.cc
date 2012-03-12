@@ -48,7 +48,8 @@ FitDialog::FitDialog(FitData * d) : data(d),
                                     stackedViews(NULL), 
                                     parameters(d),
                                     currentIndex(0),
-                                    settingEditors(false)
+                                    settingEditors(false), 
+                                    progressReport(NULL)
 {
   resize(fitDialogSize);
 
@@ -233,8 +234,11 @@ void FitDialog::compute()
     parameters.recompute();
   }
   catch (const RuntimeError & re) {
-    progressReport->setText(QString("An error occurred while computing: ") +
-                            re.message());
+    QString s = QString("An error occurred while computing: ") +
+      re.message();
+    if(progressReport)
+      progressReport->setText(s);
+    Terminal::out << s << endl;
   }
   if(stackedViews && stackedViews->currentWidget())
     stackedViews->currentWidget()->repaint();

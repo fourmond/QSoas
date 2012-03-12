@@ -27,6 +27,8 @@
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
 
+#include <gsl/gsl_cdf.h>
+
 #include <fitdialog.hh>
 
 #include <bijection.hh>
@@ -573,8 +575,18 @@ const gsl_matrix * FitData::covarianceMatrix()
 
   // Scaling factor coming from the gsl documentation
   double res = residuals();
-  gsl_matrix_scale(covarStorage, res*res/(totalSize - gslParameters));
+  gsl_matrix_scale(covarStorage, res*res/doF());
 
   
   return covarStorage;
+}
+
+int FitData::doF() const
+{
+  return totalSize - gslParameters;
+}
+
+double FitData::confidenceLimitFactor(double conf) const
+{
+  return gsl_cdf_tdist_Pinv(conf, doF());
 }

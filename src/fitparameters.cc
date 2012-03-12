@@ -110,6 +110,7 @@ QString FitParameters::parameterName(int idx) const
 void FitParameters::prepareExport(QStringList & lst, QString & lines, 
                                   bool exportErrors) const
 {
+  double conf = fitData->confidenceLimitFactor(0.975);
   lst.clear();
   lst << "Buffer";
   for(int i = 0; i < nbParameters; i++) {
@@ -134,7 +135,7 @@ void FitParameters::prepareExport(QStringList & lst, QString & lines,
       ls2 << QString::number(getValue(j, i));
       if(exportErrors) {
         int idx = (isGlobal(j) ? j : j + i * nbParameters);
-        ls2 << QString::number(sqrt(gsl_matrix_get(cov, idx, idx)));
+        ls2 << QString::number(conf*sqrt(gsl_matrix_get(cov, idx, idx)));
       }
     }
     ls2 << QString::number(fitData->datasets[i]->x().min());
@@ -176,6 +177,7 @@ void FitParameters::exportParameters(QIODevice * stream,
 void FitParameters::writeToTerminal(bool /*writeMatrix*/) const
 {
   const gsl_matrix * mat = fitData->covarianceMatrix();
+  double conf = fitData->confidenceLimitFactor(0.975);
   // First, write out global parameters.
   bool hasGlobal = false;
   for(int i = 0; i < nbParameters; i++) {
@@ -190,8 +192,8 @@ void FitParameters::writeToTerminal(bool /*writeMatrix*/) const
                     << QString::number(value) << "\t"
                     << (isFixed(i, 0) ? "(fixed)" :
                         QString("+- %1\t+-%2%").
-                        arg(error, 0, 'g', 2).
-                        arg(fabs(error/value)*100, 0, 'g', 2))
+                        arg(conf*error, 0, 'g', 2).
+                        arg(conf*fabs(error/value)*100, 0, 'g', 2))
                     << endl;
     }
   }
@@ -213,8 +215,8 @@ void FitParameters::writeToTerminal(bool /*writeMatrix*/) const
                     << QString::number(value) << "\t"
                     << (isFixed(i, j) ? "(fixed)" :
                         QString("+- %1\t+- %2%").
-                        arg(error, 0, 'g', 2).
-                        arg(fabs(error/value)*100, 0, 'g', 2))
+                        arg(conf*error, 0, 'g', 2).
+                        arg(conf*fabs(error/value)*100, 0, 'g', 2))
                     << endl;
     }
   }

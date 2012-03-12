@@ -341,6 +341,13 @@ public:
   /// name.
   int namedParameterIndex(const QString & name) const;
 
+  /// Returns the number of degrees of freedom
+  int doF() const;
+
+  /// Returns the required factor to apply to the variance to get the
+  /// confidence limit with the given percentage
+  double confidenceLimitFactor(double conf) const;
+
 
 };
 

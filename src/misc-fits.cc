@@ -32,7 +32,7 @@
 
 #include <gsl/gsl_const_mksa.h>
 
-class SlowScanFit : public PerDatasetFit {
+class SlowScanLowPotFit : public PerDatasetFit {
 public:
 
 
@@ -73,7 +73,7 @@ public:
   };
 
 
-  SlowScanFit() : PerDatasetFit("slow-scan", 
+  SlowScanLowPotFit() : PerDatasetFit("slow-scan", 
                                 "Slow scan test",
                                 "Slow scan") 
   { ;};
@@ -81,4 +81,75 @@ public:
 
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
 // Its name doesn't matter.
-SlowScanFit fit_slow_scan;
+SlowScanLowPotFit fit_slow_scan_low_pot;
+
+
+class SlowScanHighPotFit : public PerDatasetFit {
+public:
+
+
+  /// Formula:
+  virtual void function(const double * a, FitData * , 
+                        const DataSet * ds , gsl_vector * target) {
+
+    const Vector & xv = ds->x();
+
+    bool first_bit = true;
+    double delta_E = xv[1] - xv[0];
+    double E_vertex = 0;
+    for(int i = 0; i < xv.size(); i++) {
+      double x = xv[i];
+      double t;
+      if(first_bit)
+        t = (x - a[0])/a[1];
+      else
+        t = (2*E_vertex - a[0] - x)/a[1];
+      
+      double act = a[4] + (a[5] - a[4]) * exp(-t/a[6]);
+
+      gsl_vector_set(target, i, 
+                     (a[2] * x + a[3]) * act);
+
+      if(first_bit && i < xv.size() - 1 && 
+         ( (xv[i+1] - xv[i])*delta_E < 0)) {
+        first_bit = false;
+        E_vertex = xv[i];
+      }
+    }
+
+  };
+
+  virtual void initialGuess(FitData * , 
+                            const DataSet * ds,
+                            double * a)
+  {
+    a[0] = ds->x()[0];
+    a[1] = 5e-4; 
+    a[2] = 1e-6; 
+    a[3] = 1e-6; 
+    a[4] = 0.1; 
+    a[5] = 1;
+    a[6] = 300;
+  };
+
+  virtual QList<ParameterDefinition> parameters() const {
+    return QList<ParameterDefinition>()
+      << ParameterDefinition("E1", true) // Potentiel initial
+      << ParameterDefinition("nu", true) // vitesse de balayage
+      << ParameterDefinition("a") //2
+      << ParameterDefinition("b") //3
+      << ParameterDefinition("alpha_e") //4
+      << ParameterDefinition("alpha_0") //5
+      << ParameterDefinition("tau");
+  };
+
+
+  SlowScanHighPotFit() : PerDatasetFit("slow-scan-hp", 
+                                       "Slow scan test",
+                                       "Slow scan") 
+  { ;};
+};
+
+// DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
+// Its name doesn't matter.
+SlowScanHighPotFit fit_slow_scan_high_pot;

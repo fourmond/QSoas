@@ -227,47 +227,62 @@ static void cursorCommand(const QString &)
   const DataSet * ds = soas().currentDataSet();
   CurveEventLoop loop;
   CurveMarker m;
+  CurveMarker r;
   CurveView & view = soas().view();
   PointPicker pick(&loop, ds);
+  pick.trackedButtons = Qt::LeftButton|Qt::RightButton;
 
   view.addItem(&m);
   m.size = 4;
   m.pen = QPen(Qt::NoPen);
   m.brush = QBrush(QColor(0,0,255,100)); // A kind of transparent blue
+
+  view.addItem(&r);
+  r.size = 4;
+  r.pen = QPen(Qt::NoPen);
+  r.brush = QBrush(QColor(0,128,0,100)); // A kind of transparent green
   loop.setHelpString(QObject::tr("Cursor:\n"
-                                 "click to see\n") 
+                                 "left click to see\n"
+                                 "right click for ref\n"
+                                 ) 
                      + pick.helpText() +
                      QObject::tr("space: write to output\n"
                                  "q or ESC to quit"));
+  Terminal::out << "Point positions:\nx\ty\tindex\tdx\tdy" << endl;
+  QString cur;
   while(! loop.finished()) {
     if(pick.processEvent()) {
-      if(pick.button() != Qt::NoButton) {
+      switch(pick.button()) {
+      case Qt::LeftButton:
         m.p = pick.point();
-        Terminal::out << m.p.x() << "\t"
-                      << m.p.y() << "\t" 
-                      << pick.pointIndex() << endl;
+        cur = QString("%1\t%2\t%3\t%4\t%5").
+          arg(m.p.x()).arg(m.p.y()).arg(pick.pointIndex()).
+          arg(m.p.x() - r.p.x()).arg(m.p.y() - r.p.y());
+        Terminal::out << cur << endl;
+        break;
+      case Qt::RightButton:
+        r.p = pick.point();
+        Terminal::out << "Reference:\t"  << r.p.x() << "\t" 
+                      << r.p.y() << endl;
+        break;
+      default:
+        ;
       }
     }
-    switch(loop.type()) {
-    case QEvent::KeyPress: 
-      if(loop.key() == 'q' || loop.key() == 'Q' ||
-         loop.key() == Qt::Key_Escape)
-        return;
-      if(loop.key() == ' ') {
+    if(loop.type() == QEvent::KeyPress && 
+       (loop.key() == 'q' || loop.key() == 'Q' ||
+        loop.key() == Qt::Key_Escape))
+      return;
+    if((loop.type() == QEvent::KeyPress && loop.key() == ' ') ||
+       (loop.type() == QEvent::MouseButtonPress && 
+        loop.button() == Qt::MiddleButton)) {
         // Write to output file
         OutFile::out.setHeader("Point positions:\n"
-                               "X\tY\t\tidx\tbuffer");
+                               "buffer\tX\tY\t\tidx\tdx\tdy");
         Terminal::out << "Writing position to output file: '" 
                       << OutFile::out.fileName() << "'" << endl;
 
-        OutFile::out << m.p.x() << "\t"
-                     << m.p.y() << "\t" 
-                     << pick.pointIndex() << "\t"
-                     << ds->name << "\n" << flush;
-      }
-      break;
-    default:
-      ;
+        OutFile::out << ds->name << "\t" << cur << "\n" << flush;
     }
   }
 }

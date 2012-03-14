@@ -202,8 +202,9 @@ static QHash<QString, ArbitraryFit *> customFits;
 static void loadFits(QTextStream & in, bool verbose = true) {
   QString line;
   QRegExp sep("^\\s*([a-z0-9A-Z-]+):(.*)");
-  QRegExp comment("^\\s*#");
+  QRegExp comment("^\\s*#|^\\s*$"); // Comment or fully blank line
   int ln = 0;
+  int init = customFits.size();
   do {
     line = in.readLine();
     ++ln;
@@ -229,6 +230,8 @@ static void loadFits(QTextStream & in, bool verbose = true) {
         Terminal::out << "Line " << ln << " not understood" << endl;
     }
   } while(! line.isNull());
+  Terminal::out << "Loaded " << customFits.size() - init 
+                << " fits" << endl;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -251,7 +254,7 @@ static void loadFitsCommand(const QString &, QString fitsFile)
 static Command 
 loadFitsC("load-fits", // command name
          optionLessEffector(loadFitsCommand), // action
-         "file",  // group name
+         "fits",  // group name
          &lfArgs, // arguments
          NULL, 
          "Load fits",

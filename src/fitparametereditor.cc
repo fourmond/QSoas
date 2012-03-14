@@ -23,8 +23,6 @@
 #include <fitdata.hh>
 #include <dataset.hh>
 
-#include <parametersdialog.hh>
-
 #include <terminal.hh>
 
 
@@ -64,13 +62,6 @@ FitParameterEditor::FitParameterEditor(const ParameterDefinition * d,
   global->setToolTip(tr("If checked, the parameter is "
                         "common to all data sets"));
 
-  if(! extended) {
-    QLabel * label = new QLabel(tr("<a href='biniou'>More</a>"));
-    connect(label, SIGNAL(linkActivated(const QString &)), 
-            SLOT(showEditor()));
-    layout->addWidget(label);
-  }
-  
   if(! d->canBeBufferSpecific) {
     global->setChecked(true);
     global->setEnabled(false);
@@ -135,6 +126,7 @@ void FitParameterEditor::updateBijectionEditors()
     updatingEditor = se;
 
   }
+  updateBijectionParameters();
 }
 
 
@@ -230,6 +222,7 @@ void FitParameterEditor::onGlobalClicked()
   FitParameter *& target = parameters->parameter(index, 0);
   if(global->isChecked()) {
     target->dsIndex = -1;
+    emit(globalChanged(index,true));
     for(int i = 1; i < parameters->datasets; i++) {
       delete parameters->parameter(index, i);
       parameters->parameter(index, i) = NULL;
@@ -242,6 +235,7 @@ void FitParameterEditor::onGlobalClicked()
       p->dsIndex = i;
       parameters->parameter(index, i) = p;
     }
+    emit(globalChanged(index,false));
   }
   onValueChanged(editor->text());
 }
@@ -290,13 +284,4 @@ void FitParameterEditor::updateFromParameters()
 
   updateBijectionEditors();
   updatingEditor = false;
-}
-
-void FitParameterEditor::showEditor()
-{
-  FreeParameter * param = dynamic_cast<FreeParameter*>(targetParameter());
-  if(param) {
-    ParametersDialog dlg(param);
-    dlg.exec();
-  }
 }

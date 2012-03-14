@@ -36,6 +36,7 @@
 #include <settings-templates.hh>
 
 #include <flowinggridlayout.hh>
+#include <parametersdialog.hh>
 
 #include <utils.hh>
 
@@ -62,7 +63,6 @@ FitDialog::FitDialog(FitData * d) : data(d),
 FitDialog::~FitDialog()
 {
   fitDialogSize = size();
-
 }
 
 void FitDialog::setupFrame()
@@ -184,6 +184,10 @@ void FitDialog::setupFrame()
                                           this, SLOT(compute()),
                                           QKeySequence(tr("Ctrl+U")), bt));
   
+  hb->addWidget(bt);
+
+  bt = new QPushButton(tr("Edit parameters"));
+  connect(bt, SIGNAL(clicked()), SLOT(editParameters()));
   hb->addWidget(bt);
 
   startButton = new QPushButton(tr("Fit"));
@@ -509,4 +513,12 @@ void FitDialog::showCovarianceMatrix()
 
   /// @todo Add possibility to save the covariance matrix + normalize
   /// each row and column by the value of the parameter ?
+}
+
+void FitDialog::editParameters() 
+{
+  ParametersDialog dlg(&parameters);
+
+  dlg.exec();
+  updateEditors();
 }

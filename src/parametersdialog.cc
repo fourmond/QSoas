@@ -18,57 +18,87 @@
 
 
 #include <headers.hh>
-#include <bijection.hh>
+#include <fit.hh>
 #include <fitdata.hh>
+#include <dataset.hh>
+#include <fitparameters.hh>
+#include <fitparametereditor.hh>
 #include <parametersdialog.hh>
 
-ParametersDialog::ParametersDialog(FreeParameter * p) :
-  param(p)
+
+#include <settings-templates.hh>
+
+static SettingsValue<QSize> parametersDialogSize("parametersdialog/size", 
+                                                 QSize(700,500));
+
+ParametersDialog::ParametersDialog(FitParameters * params) :
+  parameters(params)
 {
-  availableBijections = Bijection::factoryItems();
+  resize(parametersDialogSize);
   setupFrame();
 }
+
+ParametersDialog::~ParametersDialog()
+{
+  parametersDialogSize = size();
+}
+
 
 void ParametersDialog::setupFrame()
 {
   QVBoxLayout * layout = new QVBoxLayout(this);
 
-  QHBoxLayout * hb = new QHBoxLayout();
-  hb->addWidget(new QLabel("Transformation"));
-  
-  QComboBox * cb = new QComboBox;
-  cb->addItem("(none)", -1);
-  
-  int idx = 0;
-  for(int i = 0; i < availableBijections.size(); i++) {
-    const BijectionFactoryItem * it = availableBijections[i];
-    cb->addItem(it->publicName, i);
-    if(param->bijection && it->name == param->bijection->name())
-      idx = i+1;
+  QScrollArea * scrollArea = new QScrollArea;
+
+  QWidget * w = new QWidget;
+  QGridLayout * gd = new QGridLayout(w);
+
+  const QList<ParameterDefinition> & defs = 
+    parameters->data()->parameterDefinitions;
+
+  nbParams = defs.size();
+  QList<const DataSet *> datasets = parameters->data()->datasets;
+
+  nbDatasets = datasets.size();
+
+  int curRow = 0;
+  for(int i = 0; i < datasets.size(); i++) {
+    if(datasets.size() > 1)
+      gd->addWidget(new QLabel(datasets[i]->name), curRow, 0);
+      for(int j = 0; j < nbParams; ++j, ++curRow) {
+        FitParameterEditor * edit = 
+          new FitParameterEditor(&defs[j], j, parameters, true, false, i);
+        edit->updateFromParameters();
+        gd->addWidget(edit, curRow, 1);
+        editors << edit;
+        connect(edit, SIGNAL(globalChanged(int, bool)),
+                SLOT(onGlobalChanged(int, bool)));
+      }
   }
-  cb->setCurrentIndex(idx);
 
-  connect(cb, SIGNAL(activated(int)), 
-          SLOT(onBijectionChange(int)));
-  
+  // Setup global stuff:
+  for(int i = 0; i < nbParams; i++)
+    if(parameters->isGlobal(i))
+      onGlobalChanged(i, true);
 
-  hb->addWidget(cb);
-  layout->addLayout(hb);
-  
-
+  scrollArea->setWidget(w);
+  layout->addWidget(scrollArea);
   QPushButton * bt = new QPushButton(tr("Close"));
   connect(bt, SIGNAL(clicked()), SLOT(close()));
   layout->addWidget(bt);
 }
 
-void ParametersDialog::onBijectionChange(int idx)
+void ParametersDialog::onGlobalChanged(int index, bool global)
 {
-  delete param->bijection;
-  if(idx == 0) {
-    param->bijection = NULL;
-    return;
+  if(global) {
+    editors[index]->updateFromParameters();
+    for(int i = 1; i < nbDatasets; i++)
+      editors[index + i * nbParams]->setEnabled(false);
   }
-  idx--;
-  QString name = availableBijections[idx]->name;
-  param->bijection = Bijection::createNamedBijection(name);
+  else {
+    for(int i = 0; i < nbDatasets; i++) {
+      editors[index + i * nbParams]->setEnabled(true);
+      editors[index + i * nbParams]->updateFromParameters();
+    }
+  }
 }

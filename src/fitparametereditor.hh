@@ -75,7 +75,10 @@ class FitParameterEditor : public QWidget {
 
   /// Whether the parameter is global or not
   bool isFixed() const {
-    return parameters->isFixed(index, dataset);
+    if(isGlobal())
+      return parameters->isFixed(index, 0);
+    else
+      return parameters->isFixed(index, dataset);
   };
 
   /// Whether the editor also propose the edition of the Bijection
@@ -116,8 +119,6 @@ protected slots:
   void onGlobalClicked();
   void onValueChanged(const QString & str);
 
-  void showEditor();
-
   /// Update the bijection-related editors
   void updateBijectionEditors();
 
@@ -125,6 +126,10 @@ protected slots:
 
   void onBijectionParameterChanged();
   void onBijectionChanged(int idx);
+
+signals:
+  /// This signal is emitted whenever the global status is changing.
+  void globalChanged(int index, bool global);
 };
 
 

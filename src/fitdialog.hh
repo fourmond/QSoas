@@ -157,6 +157,9 @@ protected slots:
   /// Shows the covariance matrix
   void showCovarianceMatrix();
 
+  /// Edit all parameters in a dialog box
+  void editParameters();
+
 };
 
 #endif

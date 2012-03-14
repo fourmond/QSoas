@@ -113,6 +113,11 @@ public:
       return values[dataset * nbParameters + (index % nbParameters)];
   };
 
+  /// Returns the underlying data
+  const FitData * data() const {
+    return fitData;
+  };
+
   /// Various utility functions:
 
 

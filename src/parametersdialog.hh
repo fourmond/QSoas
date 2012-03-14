@@ -1,7 +1,7 @@
 /**
    \file parametersdialog.hh
    Dialog box handling fine-tuning of parameters details for fits
-   Copyright 2011 by Vincent Fourmond
+   Copyright 2012 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -20,31 +20,36 @@
 #ifndef __PARAMETERSDIALOG_HH
 #define __PARAMETERSDIALOG_HH
 
-class FreeParameter;
-class BijectionFactoryItem;
+class FitParameters;
+class FitParameterEditor;
 
-
-/// This class provides a dialog to fine-tune the exact nature of the
-/// parameters.
+/// This class provides a dialog to fine-tune the exact nature of all
+/// parameters
 class ParametersDialog : public QDialog {
 
   Q_OBJECT;
 
   void setupFrame();
 
-  /// The parameter we're going to tweak.
-  FreeParameter * param;
+  /// The parameters we'll be editing
+  FitParameters * parameters;
 
-  /// Cache for the available bijections.
-  QList<const BijectionFactoryItem *> availableBijections;
+  /// The editors needed for that:
+  QList<FitParameterEditor *> editors;
+
+  /// Number of parameters per dataset
+  int nbParams;
+
+  /// Number of datasets
+  int nbDatasets;
 
 public:
-  ParametersDialog(FreeParameter * param);
+  ParametersDialog(FitParameters * params);
+
+  virtual ~ParametersDialog();
 
 protected slots:
-  
-  void onBijectionChange(int id);
-
+  void onGlobalChanged(int index, bool global);
 };
 
 #endif

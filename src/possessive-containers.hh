@@ -60,6 +60,7 @@ public:
     return values.size();
   };
 
+  /// @todo This isn't safe if the pointer is modified...
   T *& operator[](int idx) {
     return values[idx];
   };

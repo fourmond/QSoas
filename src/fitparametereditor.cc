@@ -30,17 +30,18 @@
 
 #include <settings-templates.hh>
 
-#include <flowinggridlayout.hh>
-
+#include <bijection.hh>
 #include <utils.hh>
 
 
 
 FitParameterEditor::FitParameterEditor(const ParameterDefinition * d, 
-                                       int idx, FitParameters * p) : 
-  index(idx), def(d), parameters(p), updatingEditor(false)
+                                       int idx, FitParameters * p, 
+                                       bool ext, bool checkTight, int ds) : 
+  index(idx), dataset(ds), def(d), parameters(p), updatingEditor(false), 
+  extended(ext)
 {
-  QHBoxLayout * layout = new QHBoxLayout(this);
+  layout = new QHBoxLayout(this);
   layout->addWidget(new QLabel(QString("<b>%1: </b>").arg(def->name)), 1);
   editor = new QLineEdit();
   connect(editor, SIGNAL(textChanged(const QString &)),
@@ -63,10 +64,12 @@ FitParameterEditor::FitParameterEditor(const ParameterDefinition * d,
   global->setToolTip(tr("If checked, the parameter is "
                         "common to all data sets"));
 
-  QLabel * label = new QLabel(tr("<a href='biniou'>More</a>"));
-  connect(label, SIGNAL(linkActivated(const QString &)), 
-          SLOT(showEditor()));
-  layout->addWidget(label);
+  if(! extended) {
+    QLabel * label = new QLabel(tr("<a href='biniou'>More</a>"));
+    connect(label, SIGNAL(linkActivated(const QString &)), 
+            SLOT(showEditor()));
+    layout->addWidget(label);
+  }
   
   if(! d->canBeBufferSpecific) {
     global->setChecked(true);
@@ -76,14 +79,128 @@ FitParameterEditor::FitParameterEditor(const ParameterDefinition * d,
   if(parameters->datasets <= 1)
     global->setVisible(false);
 
-  if(parameters->nbParameters >= 10) {
+  if(parameters->nbParameters >= 10 && checkTight) {
     global->setText("(G)");
     fixed->setText("(F)");
     sz.setWidth(5*sz.width()/6);
     editor->setMinimumSize(sz);
-
   }
 
+  if(extended) {
+    QLabel * bijectionLabel = new QLabel("setup transformation: ");
+    layout->addWidget(bijectionLabel);
+
+    bijectionCombo = new QComboBox;
+    bijectionCombo->addItem("(none)", -1);
+    connect(bijectionCombo, SIGNAL(activated(int)), 
+            SLOT(onBijectionChanged(int)));
+    layout->addWidget(bijectionCombo);
+    
+    availableBijections = Bijection::factoryItems();
+
+    for(int i = 0; i < availableBijections.size(); i++) {
+      const BijectionFactoryItem * it = availableBijections[i];
+      bijectionCombo->addItem(it->publicName, i);
+    }
+
+    bijectionWidgets << bijectionLabel << bijectionCombo;
+
+    updateBijectionEditors();
+  }
+
+}
+void FitParameterEditor::updateBijectionEditors()
+{
+  if(! extended)
+    return;
+  if(isFixed())
+    for(int i = 0; i < bijectionWidgets.size(); i++)
+      bijectionWidgets[i]->hide();
+  else {
+    for(int i = 0; i < bijectionWidgets.size(); i++)
+      bijectionWidgets[i]->show();
+
+    FreeParameter * param = dynamic_cast<FreeParameter*>(targetParameter());
+    if(! param)
+      return ;                  // But, really, that shouldn't happen !
+    int idx = 0;
+    for(int j = 0; j < availableBijections.size(); j++) {
+      const BijectionFactoryItem * it = availableBijections[j];
+      if(param->bijection && it->name == param->bijection->name())
+        idx = j+1;
+    }
+    bool se = updatingEditor;   // Saving the value of updatingEditor.
+    updatingEditor = true;
+    bijectionCombo->setCurrentIndex(idx);
+    updatingEditor = se;
+
+  }
+}
+
+
+void FitParameterEditor::updateBijectionParameters()
+{
+  FreeParameter * param = dynamic_cast<FreeParameter*>(targetParameter());
+  if(! param)
+    return ;
+
+  for(int i = 0; i < bijectionParameterEditors.size(); i++) {
+    bijectionParameterEditors[i]->hide();
+    bijectionParameterLabels[i]->hide();
+  }
+
+  if(param->bijection) {
+    QStringList params = param->bijection->parameters();
+    for(int i = 0; i < params.size(); i++) {
+      QLabel * label = bijectionParameterLabels.value(i, NULL);
+      if(! label) {
+        label = new QLabel;
+        layout->addWidget(label);
+        bijectionParameterLabels << label;
+        bijectionWidgets << label;
+        QLineEdit * ed = new QLineEdit;
+        layout->addWidget(ed);
+        bijectionParameterEditors << ed;
+        bijectionWidgets << ed;
+        connect(ed, SIGNAL(textEdited(const QString &)),
+                SLOT(onBijectionParameterChanged()));
+      }
+      label->setText(params[i]);
+      bijectionParameterEditors[i]->
+        setText(QString::number(param->bijection->parameterValue(i)));
+      bijectionParameterEditors[i]->show();
+      bijectionParameterLabels[i]->show();
+    }
+  }
+}
+
+void FitParameterEditor::onBijectionParameterChanged()
+{
+  FreeParameter * param = dynamic_cast<FreeParameter*>(targetParameter());
+  if(! param)
+    return ;
+  if(param->bijection) {
+    QStringList params = param->bijection->parameters();
+    for(int i = 0; i < params.size(); i++)
+      param->bijection->
+        setParameterValue(i, bijectionParameterEditors[i]->text().toDouble());
+  }
+}
+
+void FitParameterEditor::onBijectionChanged(int idx)
+{
+  FreeParameter * param = dynamic_cast<FreeParameter*>(targetParameter());
+  if(! param)
+    return ;
+  delete param->bijection;
+  if(idx == 0)
+    param->bijection = NULL;
+  else {
+    idx--;
+    QString name = availableBijections[idx]->name;
+    param->bijection = Bijection::createNamedBijection(name);
+  }
+  updateBijectionParameters();
 }
   
 void FitParameterEditor::onFixedClicked()
@@ -101,6 +218,7 @@ void FitParameterEditor::onFixedClicked()
   else {
     target = new FreeParameter(index, ds);
   }
+  updateBijectionEditors();
   onValueChanged(editor->text());
 }
 
@@ -170,7 +288,7 @@ void FitParameterEditor::updateFromParameters()
     setText(param->textValue(parameters->
                              values[index + dsIdx * parameters->nbParameters]));
 
-
+  updateBijectionEditors();
   updatingEditor = false;
 }
 

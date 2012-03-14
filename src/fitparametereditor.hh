@@ -26,13 +26,18 @@ class FitData;
 class CurveView;
 class DataSet;
 class ParameterDefinition;
+class BijectionFactoryItem;
 
 /// A widget to edit the settings for a given parameter.
 ///
-/// @todo Disable the global flag when there is only one dataset or
-/// that the parameter can't be buffer-local.
+/// @todo There may be a way to force the Editor to add all its
+/// elements to a GridLayout -- or to write a horizontal layout
+/// connected to others (but HOW ?)
 class FitParameterEditor : public QWidget {
   Q_OBJECT;
+
+  /// The internal layout
+  QHBoxLayout * layout;
 
   /// The index in the ParameterDefinition
   int index;
@@ -68,9 +73,37 @@ class FitParameterEditor : public QWidget {
       return parameters->parameter(index, dataset);
   };
 
+  /// Whether the parameter is global or not
+  bool isFixed() const {
+    return parameters->isFixed(index, dataset);
+  };
+
+  /// Whether the editor also propose the edition of the Bijection
+  bool extended;
+
+
+  /// The combo box for edition of Bijection
+  QComboBox * bijectionCombo;
+
+  /// The labels for the bijection parameters
+  QList<QLabel*> bijectionParameterLabels;
+
+  /// The editors for the bijection parameters
+  QList<QLineEdit*> bijectionParameterEditors;
+
+  
+  /// All the available bijections
+  QList<const BijectionFactoryItem *> availableBijections;
+
+  /// All the widgets that must be turned off 
+  QList<QWidget*> bijectionWidgets;
+
 public:
+  /// Creates a widget to edit the given definition
   FitParameterEditor(const ParameterDefinition * d, int idx,
-                     FitParameters * params);
+                     FitParameters * params, bool extended = false,
+                     bool checkTight = true, 
+                     int ds = 0);
 
 public slots:
   void updateFromParameters();
@@ -84,6 +117,14 @@ protected slots:
   void onValueChanged(const QString & str);
 
   void showEditor();
+
+  /// Update the bijection-related editors
+  void updateBijectionEditors();
+
+  void updateBijectionParameters();
+
+  void onBijectionParameterChanged();
+  void onBijectionChanged(int idx);
 };
 
 

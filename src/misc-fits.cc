@@ -73,7 +73,7 @@ public:
   };
 
 
-  SlowScanLowPotFit() : PerDatasetFit("slow-scan", 
+  SlowScanLowPotFit() : PerDatasetFit("slow-scan-lp", 
                                 "Slow scan test",
                                 "Slow scan") 
   { ;};

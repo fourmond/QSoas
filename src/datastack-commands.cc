@@ -119,6 +119,8 @@ ovl("overlay", // command name
 static void saveCommand(const QString &, QString file)
 {
   soas().currentDataSet()->write(file);
+  soas().currentDataSet()->name = file;
+  soas().view().repaint();
 }
 
 static QString fileNameProvider() 

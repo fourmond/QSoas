@@ -553,6 +553,9 @@ void DataSet::write(const QString & n) const
   QFile file(fileName);
   Utils::open(&file, QIODevice::WriteOnly);
 
+  QTextStream o(&file);
+  o << "# saved from Soas buffer name " << name << endl;
+
   write(&file);
 }
 

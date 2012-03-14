@@ -46,16 +46,21 @@ QStringList Utils::glob(const QString & pattern, bool trim, bool isDir)
 {
   
   QStringList pats = QDir::fromNativeSeparators(pattern).split("/");
+  QTextStream o(stdout);
   if(pats[0].size() == 0) {
     pats.takeFirst();
     pats[0] = "/" + pats[0];
+  }
+  else if(pats[0] == "~") {
+    pats[0] = QDir::homePath();
   }
 
   QFileInfo info(pats.first());
   QStringList directories;
   directories << info.dir().path();
+  pats[0] = info.fileName();
+
   for(int i = 0; i < pats.size() - 1; i++) {
-    // o << "Pattern:" << pats[i] 
     QStringList newdirs;
     /// @todo There should be a way to implement ** at this stage, but
     /// I don't see a simple one for now.
@@ -146,6 +151,7 @@ QString Utils::deltaStr(const QString & w)
 
 void Utils::open(QFile * file, QIODevice::OpenMode mode)
 {
+  /// @todo Implement parsing of ~ ? (seems rather useless)
   if(! file->open(mode)) {
     QString mdStr;
     switch(mode & QIODevice::ReadWrite) {

@@ -539,44 +539,57 @@ bool FitData::independentDataSets() const
 
 const gsl_matrix * FitData::covarianceMatrix()
 {
+  /// @todo provide a function with a gsl_matrix target as argument.
   if(! covarStorage)
     covarStorage = gsl_matrix_alloc(fullParameterNumber(),
                                     fullParameterNumber());
 
   gsl_matrix_set_zero(covarStorage);
 
-  // We write the covariance matrix in the top-left corner of the
-  // storage space, and then move all the columns in place using
-  // permutations.
-  gsl_matrix_view m = gsl_matrix_submatrix(covarStorage, 0, 0, 
-                                           gslParameters, gslParameters);
-  gsl_multifit_covar(solver->J, 0, &m.matrix);
-
-  // Now, we perform permutations to place all the elements where they
-  // should be.
-  //
-  // We start from the top.
-  for(int i = parameters.size() - 1; i >= 0; i--) {
-    FitParameter * param = parameters[i];
-
-    if(param->fitIndex < 0)
-      continue;
-
-    /// @warning This function assumes a certain layout in the fit
-    /// parameters part of the fit vector, but as they are all free
-    /// parameters, things should be fine ?
-    int target = param->paramIndex + 
-      parameterDefinitions.size() * ( param->dsIndex >= 0 ? param->dsIndex : 0);
-    gsl_matrix_swap_rows(covarStorage, param->fitIndex, target);
-    gsl_matrix_swap_columns(covarStorage, param->fitIndex, target);
-
-    /// @todo add scaling to columns when applicable. (bijections)
+  if(subordinates.size() > 0) {
+    for(int i = 0; i < subordinates.size(); i++) {
+      const gsl_matrix * sub = subordinates[i]->covarianceMatrix();
+      int nb = parameterDefinitions.size();
+      gsl_matrix_view m = gsl_matrix_submatrix(covarStorage, nb*i, nb*i, 
+                                               nb, nb);
+      gsl_matrix_memcpy(&m.matrix, sub);
+    }
   }
+  else {
 
-  // Scaling factor coming from the gsl documentation
-  double res = residuals();
-  gsl_matrix_scale(covarStorage, res*res/doF());
+    // We write the covariance matrix in the top-left corner of the
+    // storage space, and then move all the columns in place using
+    // permutations.
+    gsl_matrix_view m = gsl_matrix_submatrix(covarStorage, 0, 0, 
+                                             gslParameters, gslParameters);
+    gsl_multifit_covar(solver->J, 0, &m.matrix);
 
+    // Now, we perform permutations to place all the elements where they
+    // should be.
+    //
+    // We start from the top.
+    for(int i = parameters.size() - 1; i >= 0; i--) {
+      FitParameter * param = parameters[i];
+
+      if(param->fitIndex < 0)
+        continue;
+
+      /// @warning This function assumes a certain layout in the fit
+      /// parameters part of the fit vector, but as they are all free
+      /// parameters, things should be fine ?
+      int target = param->paramIndex + 
+        parameterDefinitions.size() * ( param->dsIndex >= 0 ? 
+                                        param->dsIndex : 0);
+      gsl_matrix_swap_rows(covarStorage, param->fitIndex, target);
+      gsl_matrix_swap_columns(covarStorage, param->fitIndex, target);
+
+      /// @todo add scaling to columns when applicable. (bijections)
+    }
+
+    // Scaling factor coming from the gsl documentation
+    double res = residuals();
+    gsl_matrix_scale(covarStorage, res*res/doF());
+  }
   
   return covarStorage;
 }

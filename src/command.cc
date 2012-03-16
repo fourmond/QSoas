@@ -131,7 +131,10 @@ void Command::runCommand(const QStringList & cmd,
 QAction * Command::actionForCommand(QObject * parent) const
 {
   QAction * action = new QAction(parent);
-  action->setText(publicName());
+  QString str = publicName();
+  if(! shortCmdName.isEmpty())
+    str += QString(" (%1)").arg(shortCmdName);
+  action->setText(str);
   action->setStatusTip(QString("%1: %2").
                        arg(commandName()).
                        arg(shortDescription()));

@@ -390,7 +390,7 @@ cd("cd", // command name
    NULL, // options
    "Change directory",
    "Change current directory",
-   "Change current directory"
+   "Change current directory",
    "G");
   
 

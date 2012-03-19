@@ -1,6 +1,6 @@
 /**
-   @file exponential-fits.cc
-   Exponential-based fits.
+   @file misc-fits.cc
+   Various fits...
    Copyright 2011 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
@@ -33,6 +33,20 @@
 #include <gsl/gsl_const_mksa.h>
 
 class SlowScanLowPotFit : public PerDatasetFit {
+  bool explicitRate;
+
+protected:
+  virtual void processOptions(const CommandOptions & opts)
+  {
+    explicitRate = false;
+    updateFromOptions(opts, "explicit-rate", explicitRate);
+  }
+
+  
+  virtual QString optionsString() const {
+    return explicitRate ? "explicit rate" : "implicit rate";
+  }
+
 public:
 
 
@@ -41,12 +55,15 @@ public:
                         const DataSet * ds , gsl_vector * target) {
     
     double fara = GSL_CONST_MKSA_FARADAY /(a[0] * GSL_CONST_MKSA_MOLAR_GAS);
-    double D = pow(10, a[4]);
+    double alpha = (explicitRate ? a[6] : a[5]);
+
+    double D = (explicitRate ? pow(10, a[5])/(alpha * fara * a[4])
+                : pow(10, a[4]));
 
     const Vector & xv = ds->x();
     for(int i = 0; i < xv.size(); i++) {
       double x = xv[i];
-      double arg = exp(-a[5]*fara*x) - exp(-a[5]*fara*xv[0]);
+      double arg = exp(-alpha*fara*x) - exp(-alpha*fara*xv[0]);
       gsl_vector_set(target, i, 
                      (1 - a[3] * exp(-D * arg) )
                      *(a[1] * x + a[2]));
@@ -58,25 +75,55 @@ public:
                             double * a)
   {
     a[0] = soas().temperature();
-    a[1] = 1; a[2] = 1; a[4] = 1; a[5] = 1;
+    a[1] = 1; a[2] = 1; 
+    if(explicitRate) {
+      a[4] = 5e-4;
+      a[5] = 1;
+      a[6] = 1;
+    }
+    else {
+      a[4] = 1;
+      a[5] = 1;
+    }
+      
     a[3] = 0.5;
   };
 
   virtual QList<ParameterDefinition> parameters() const {
-    return QList<ParameterDefinition>()
-      << ParameterDefinition("temperature", true)
-      << ParameterDefinition("a")
-      << ParameterDefinition("b")
-      << ParameterDefinition("c")
-      << ParameterDefinition("log(D)")
-      << ParameterDefinition("alpha");
+    QList<ParameterDefinition> params;
+    params << ParameterDefinition("temperature", true)
+           << ParameterDefinition("a")
+           << ParameterDefinition("b")
+           << ParameterDefinition("c");
+    if(explicitRate)
+      params << ParameterDefinition("nu", true)
+             << ParameterDefinition("log(k)");
+    else
+      params << ParameterDefinition("log(D)");
+        
+
+    params << ParameterDefinition("alpha");
+
+    return params;
   };
 
 
   SlowScanLowPotFit() : PerDatasetFit("slow-scan-lp", 
-                                "Slow scan test",
-                                "Slow scan") 
-  { ;};
+                                      "Slow scan test",
+                                      "Slow scan", 1, -1, false)
+  { 
+    explicitRate = false;
+    ArgumentList * opts = new 
+      ArgumentList(QList<Argument *>()
+                   << new 
+                   BoolArgument("explicit-rate", 
+                                "Explicit rate",
+                                "Whether the scan rate is an explicit "
+                                "parameter of the fit")
+                   );
+    makeCommands(NULL, NULL, NULL, opts);
+
+;};
 };
 
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!

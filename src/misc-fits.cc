@@ -110,8 +110,7 @@ public:
 
   SlowScanLowPotFit() : PerDatasetFit("slow-scan-lp", 
                                       "Slow scan test",
-                                      "Slow scan", 1, -1, false)
-  { 
+                                      "Slow scan", 1, -1, false)  { 
     explicitRate = false;
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
@@ -200,3 +199,108 @@ public:
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
 // Its name doesn't matter.
 SlowScanHighPotFit fit_slow_scan_high_pot;
+
+
+
+/// Fits to the EECR model of electrochemical waves
+class EECRFit : public PerDatasetFit {
+  /// Whether or not the current plateaus off at extreme potentials.
+  bool plateau;
+
+protected:
+
+  virtual void processOptions(const CommandOptions & opts)
+  {
+    plateau = false;
+    updateFromOptions(opts, "plateau", plateau);
+  }
+
+  
+  virtual QString optionsString() const {
+    return (plateau ? "reaching plateau" : "not reaching plateau");
+  }
+
+public:
+
+
+  /// Formula:
+  virtual void function(const double * params, FitData * , 
+                        const DataSet * ds , gsl_vector * target) {
+
+    const Vector & xv = ds->x();
+    double f = GSL_CONST_MKSA_FARADAY /(params[0] * GSL_CONST_MKSA_MOLAR_GAS);
+
+    for(int i = 0; i < xv.size(); i++) {
+      double x = xv[i];
+      double e1 = exp(f * (x - params[1]));
+      double e2 = exp(f * (x - params[2]));
+      double b = params[4] * (params[5] * 
+                              (sqrt(e1) + sqrt(e2)/params[3] * (1 + e1)) +
+                              sqrt(e1) * (1 + e2) + e1 * sqrt(e2)/params[3]);
+      double a = 1 + e2*(1 + e1);
+      double ap = e1*e2/params[5];
+      
+      double v;
+      if(plateau)
+        v = params[6] * (1 - ap)/a * 
+          (1 + log((params[5] * a + b)/
+                   (params[5] * a + b * exp(params[7])))/params[7]);
+      else
+        v = params[6] * (1 - ap)/a * log((params[5] * a + b)/b);
+      gsl_vector_set(target, i, v);
+    }
+  };
+
+  virtual void initialGuess(FitData * , 
+                            const DataSet * ds,
+                            double * a)
+  {
+    a[0] = soas().temperature();
+    a[1] = -0.6; 
+    a[2] = -0.3; 
+    a[3] = 1; 
+    a[4] = 10; 
+    a[5] = 2;
+    a[6] = -1e-5;
+    if(plateau)
+      a[7] = 1;
+  };
+
+  virtual QList<ParameterDefinition> parameters() const {
+    QList<ParameterDefinition> defs;
+    defs << ParameterDefinition("temperature", true)
+         << ParameterDefinition("E1")
+         << ParameterDefinition("E2")
+         << ParameterDefinition("k02/k01")
+         << ParameterDefinition("k2/k0") // 4
+         << ParameterDefinition("k2/k-2"); 
+    if(plateau)
+      defs << ParameterDefinition("ilim")
+           << ParameterDefinition("betad0");
+    else
+      defs << ParameterDefinition("ilim/betad0");
+    return defs;
+  };
+
+
+  EECRFit() :
+    PerDatasetFit("eecr-wave", 
+                  "Fit of an EECR catalytic wave",
+                  "...", 1, -1, false) 
+  { 
+    ArgumentList * opts = new 
+      ArgumentList(QList<Argument *>()
+                   << new 
+                   BoolArgument("plateau", 
+                                "Plateau",
+                                "Whether to use the general expression or "
+                                "only that valid when plateaus are not reached")
+                   );
+    makeCommands(NULL, NULL, NULL, opts);
+  }
+};
+
+
+// DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
+// Its name doesn't matter.
+EECRFit fit_eecr;

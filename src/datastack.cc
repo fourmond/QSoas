@@ -39,12 +39,14 @@ void DataStack::pushDataSet(DataSet * dataset, bool silent)
     emit(currentDataSetChanged());
 }
 
-void DataStack::showStackContents(bool /*unused*/) const
+void DataStack::showStackContents(int nb, bool /*unused*/) const
 {
   int totalSize = 0;
   if(redoStack.size())
     Terminal::out << "Redo stack:" << endl;
   for(int i = -redoStack.size(); i < dataSets.size(); i++) {
+    if(nb > 0 && abs(i) >= nb)
+      continue;
     if(! i)
       Terminal::out << "Normal stack:" << endl;
     DataSet * ds = numberedDataSet(i);

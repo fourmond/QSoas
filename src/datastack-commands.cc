@@ -175,18 +175,26 @@ saveBuffers("save-buffers", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void showStackCommand(const QString &)
+static void showStackCommand(const QString &, const CommandOptions & opts)
 {
-  soas().stack().showStackContents();
+  int number = 0;
+  updateFromOptions(opts, "number", number);
+  soas().stack().showStackContents(number);
 }
+
+static ArgumentList 
+showSOpts(QList<Argument *>() 
+          << new IntegerArgument("number", 
+                                 "Limit display",
+                                 "Limit the display to a given number"));
 
 
 static Command 
 showStack("show-stack", // command name
-          optionLessEffector(showStackCommand), // action
+          effector(showStackCommand), // action
           "stack",  // group name
           NULL, // arguments
-          NULL, // options
+          &showSOpts, // options
           "Show stack",
           "Shows the stack contents",
           "Shows a small summary of what the stack is made of",

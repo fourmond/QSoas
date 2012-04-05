@@ -69,7 +69,7 @@ public:
 
   /// Displays to terminal a small text description of the contents of
   /// the stack.
-  void showStackContents(bool mostRecentFirst = true) const;
+  void showStackContents(int limit = 0,bool mostRecentFirst = true) const;
 
 
   /// Returns the numbered data set.

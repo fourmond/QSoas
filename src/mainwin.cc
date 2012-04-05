@@ -1,6 +1,6 @@
 /*
   mainwin.cc: Main window for QSoas
-  Copyright 2011 by Vincent Fourmond
+  Copyright 2011, 2012 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,6 +35,10 @@
    handle => no: compile first, have a method produce the LaTeX
    sources, and make a PDF from that -- and a CHTML file ? Look at the
    help brower)
+   \li option for k to limit the number of stuff displayed
+   \li include (or not) some data when using multifit (weight globally
+   a buffer ?)
+   \li detect newlines in pasted commands
 
 
    \section various-todo Various things to do

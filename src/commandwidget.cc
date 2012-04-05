@@ -131,7 +131,9 @@ void CommandWidget::commandEntered()
 {
   QString cmd = commandLine->text();
   commandLine->clear();
-  runCommand(cmd);
+  QStringList cmds = cmd.split("\n");
+  for(int i = 0; i < cmds.size(); i++)
+    runCommand(cmds[i]);
 }
 
 void CommandWidget::appendToTerminal(const QString & str)

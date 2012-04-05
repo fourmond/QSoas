@@ -820,10 +820,28 @@ DataSet * DataSet::concatenateDataSets(QList<const DataSet *> datasets)
   return newDs;
 }
 
-void DataSet::removePoint(int index) {
+void DataSet::removePoint(int index)
+{
   for(int i = 0; i < columns.size(); i++)
     columns[i].remove(index);
   invalidateCache();            // important.
+}
+
+Vector DataSet::segmentPositions() const
+{
+  Vector ret;
+  for(int i = 0; i < segments.size(); i++) {
+    int idx = segments[i];
+    if(idx >= x().size())
+      continue;                 // Avoid hard crashes here...
+    double xv = x()[idx];
+    if(idx > 0) {
+      xv *= 0.5;
+      xv += 0.5 * x()[idx-1];
+    }
+    ret << xv;
+  }
+  return ret;
 }
 
 

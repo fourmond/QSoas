@@ -608,23 +608,31 @@ static void findStepsCommand(const QString &, const CommandOptions & opts)
 {
   double thresh = 0.1;
   int nb = 10;
+  bool set = false;
 
   updateFromOptions(opts, "average", nb);
   updateFromOptions(opts, "threshold", thresh);
+  updateFromOptions(opts, "set-segments", set);
 
-  const DataSet * ds = soas().currentDataSet();
+  DataSet * ds = soas().currentDataSet();
   QList<int> steps = ds->findSteps(nb, thresh);
   CurveView & view = soas().view();
-  view.disableUpdates();
-  for(int i = 0; i < steps.size(); i++) {
-    Terminal::out << "Step #" << i << " @" << steps[i] 
-                  << "\t X= " << ds->x()[steps[i]] <<endl;
-    CurveVerticalLine * v= new CurveVerticalLine;
-    v->x = 0.5* (ds->x()[steps[i]] + ds->x()[steps[i]-1]);
-    v->pen = QPen(QColor("blue"), 1, Qt::DotLine);
-    view.addItem(v);
+  if(set) {
+    ds->segments = steps;
+    view.repaint();
   }
-  view.enableUpdates();
+  else {
+    view.disableUpdates();
+    for(int i = 0; i < steps.size(); i++) {
+      Terminal::out << "Step #" << i << " @" << steps[i] 
+                    << "\t X= " << ds->x()[steps[i]] <<endl;
+      CurveVerticalLine * v= new CurveVerticalLine;
+      v->x = 0.5* (ds->x()[steps[i]] + ds->x()[steps[i]-1]);
+      v->pen = QPen(QColor("blue"), 1, Qt::DotLine);
+      view.addItem(v);
+    }
+    view.enableUpdates();
+  }  
 }
 
 static ArgumentList 
@@ -635,6 +643,9 @@ fsOps(QList<Argument *>()
       << new NumberArgument("threshold", 
                             "Threshold",
                             "Detection threshold")
+      << new BoolArgument("set-segments", 
+                          "Set segments",
+                          "Whether or not to set the dataset segments")
       );
       
 static Command 
@@ -646,6 +657,96 @@ fsc("find-steps", // command name
      "Find steps",
      "Find steps in the data",
      "...");
+
+//////////////////////////////////////////////////////////////////////
+
+
+// Although this is not per se a data processing command, I guess it
+// makes sense to leave it around here.
+static void setSegmentsCommand(const QString &, const CommandOptions & )
+{
+  DataSet * ds = soas().currentDataSet();
+  CurveEventLoop loop;
+  CurveView & view = soas().view();
+
+  loop.setHelpString(QObject::tr("Set segments:\n"
+                                 "left click: place delimiter\n"
+                                 "right click: remove closest delimiter\n"
+                                 "q, mid: accept\n"
+                                 "ESC: abort (TODO!)"));
+  do {
+    if(loop.isConventionalAccept())
+      return;
+    switch(loop.type()) {
+    case QEvent::MouseButtonPress: {
+      QPair<double, int> dst = loop.distanceToDataSet(ds);
+      int idx = dst.second;
+      if(loop.button() == Qt::RightButton) { // Remove 
+        if(ds->segments.size() == 0)
+          break;
+        if(idx < ds->segments.first()) {
+          ds->segments.takeFirst();
+          break;
+        }
+        if(idx > ds->segments.last()) {
+          ds->segments.takeLast();
+          break;
+        }
+        double xv = loop.position().x();
+        for(int i = 1; i < ds->segments.size() - 1; i++) {
+          if(ds->segments[i] <= idx && ds->segments[i+1] >= idx) {
+            // We're in !
+            if(((xv - ds->x()[ds->segments[i]]) < 
+                (ds->x()[ds->segments[i+1]]) - xv))
+              ds->segments.takeAt(i);
+            else
+              ds->segments.takeAt(i+1);
+            break;
+          }
+        }
+      }
+      if(loop.button() == Qt::LeftButton) { // Add
+        int target = 0;
+        for(int i = 0; i <= ds->segments.size(); i++) {
+          target = i;
+          if(i < ds->segments.size() && ds->segments[i] > idx)
+            break;
+        }
+        ds->segments.insert(target, idx);
+      }
+      
+      Terminal::out << "Current segments: " << endl;
+      for(int i = 0; i < ds->segments.size(); i++)
+        Terminal::out << "Segment change #" << i << " @" << ds->segments[i] 
+                      << "\t X= " << ds->x()[ds->segments[i]] <<endl;
+        
+      break;
+    }
+    case QEvent::KeyPress: 
+      switch(loop.key()) {
+      case Qt::Key_Escape:
+        return;
+      default:
+        ;
+      }
+      break;
+    default:
+      ;
+    }
+  } while(! loop.finished());
+}
+
+static Command 
+ssc("set-segments", // command name
+     effector(setSegmentsCommand), // action
+     "buffer",  // group name
+     NULL, // arguments
+     NULL, // options
+     "Set segments",
+     "Set segments in the data (manually)",
+     "...");
+
+
 
 //////////////////////////////////////////////////////////////////////
 

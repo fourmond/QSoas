@@ -1,7 +1,7 @@
 /**
    \file dataset.hh
    The DataSet class, representing a data set (most of the time one data file)
-   Copyright 2011 by Vincent Fourmond
+   Copyright 2011, 2012 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -101,6 +101,27 @@ public:
   /// The date and time of the (original ?) data
   QDateTime date;
 
+  /// @name Segment-related functions
+  ///
+  /// @{
+
+  /// A list of indices delimiting segments in the dataset (each index
+  /// is the start point of a new segment). Segments correspond to
+  /// different phases of a single experiment, generally with a
+  /// corresponding variation of experimental conditions.
+  ///
+  /// By default, there are no segments.
+  ///
+  /// They will be used for:
+  /// @li segment-by-segment dataset operations
+  /// @li segment-by-segment film loss correction
+  /// @li other ideas ?
+  QList<int> segments;
+
+  /// Returns the X positions of the changes in segments.
+  Vector segmentPositions() const;
+
+  /// @}
 
   DataSet() {;};
   DataSet(const QList<Vector> & cols) : columns(cols) {;};

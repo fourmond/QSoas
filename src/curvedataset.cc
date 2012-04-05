@@ -49,7 +49,7 @@ void CurveDataSet::createPath()
 }
 
 
-void CurveDataSet::paint(QPainter * painter, const QRectF &,
+void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
                          const QTransform & ctw)
 {
   createPath();
@@ -61,6 +61,19 @@ void CurveDataSet::paint(QPainter * painter, const QRectF &,
                                CurveMarker::Circle, 3);
     }
   }
+
+  painter->save();
+  QPen pen(QColor("blue"), 1, Qt::DotLine);
+  painter->setPen(pen);
+  // Then, we paint the segments if applicable
+  Vector segments = dataSet->segmentPositions();
+  for(int i = 0; i < segments.size(); i++)
+    // @todo find a way to display the index of the segment !
+    // (left/right), ie: 1 | 2
+    painter->drawLine(ctw.map(QLineF(segments[i], bbox.top(), 
+                                     segments[i], bbox.bottom())));
+  painter->restore();
+
 }
 
 QRect CurveDataSet::paintLegend(QPainter * p, const QRect & rect)

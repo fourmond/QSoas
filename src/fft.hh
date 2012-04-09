@@ -1,7 +1,7 @@
 /**
    \file fft.hh
    The FFT class, providing GSL-based fourier transforms
-   Copyright 2011 by Vincent Fourmond
+   Copyright 2012 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -32,40 +32,66 @@ class FFT {
   /// The distance between two points from the normal space
   double deltaX;
 
-  /// Original Y data
-  Vector normal;
+  /// The first X value.
+  double firstX;
+  
 
-  /// Transformed data
-  Vector ffted;
-
-  /// Whether we have normal data
-  bool unFftDone;
+  /// Data (either real of FFTed)
+  Vector data;
 
 
-  gsl_fft_real_wavetable * realWT;
-  gsl_fft_halfcomplex_wavetable * hcWT;
-  gsl_fft_real_workspace * fftWS;
+  /// @name GSL interface
+  /// 
+  /// They are handled as shared pointers, for the sake of using copy
+  /// constructors.
+  ///
+  /// @{
+  QSharedPointer<gsl_fft_real_wavetable> realWT;
+  QSharedPointer<gsl_fft_halfcomplex_wavetable> hcWT;
+  QSharedPointer<gsl_fft_real_workspace> fftWS;
+  /// @}
+
+
+  /// setup the shared pointers
+  void setup();
 
   
-  /// Whether we use a cubic baseline or not
-  bool useCubicBase;
   
-  /// Coefficients of a cubic baseline.
-  double bl[4];
-
-  /// Sets up the mem allocation + computes the transform
-  void setup(double dx, const Vector & y, bool cub);
-
-  /// Frees all associated memory
-  void free();
-
 public:
 
-  /// Builds a FFT object from X and Y things.
+  /// Whether we use a cubic baseline or not
+  bool useCubicBaseline;
+
+  /// Coefficients of a cubic baseline.
+  double baseLine[4];
+
+  FFT(const Vector & x, const Vector & y, bool autoBL = true);
+  FFT(double dx, double fx, const Vector & y);
+
+  /// Performs the (destructive) forward transform, after subtracting
+  /// baseline.
+  void forward(bool useBaseline = true); 
+
+  /// Performs the reverse transform and add baseline back.
+  void reverse(bool useBaseline = true);
+
+  /// Computes a cubic baseline based on the given fraction of either
+  /// side of the dataset.
+  void computeBaseline(const Vector & x, const Vector & y, 
+                       double alpha = 0.05);
+
+  /// @name Frequency domain manipulations
   ///
-  /// Raises an exception if the points are not equally spaced.
-  FFT(const Vector & x, const Vector & y, bool cub = true);
-  FFT(double dx, const Vector & y, bool cub = true);
+  /// @{
+
+  /// The magnitude of the ith frequency (0 <= i < n)
+  double magnitude(int i) const;
+
+  /// Scales the given frequency element
+  double scaleFrequency(int i, double fact);
+  /// @}
+
+  
 };
 
 #endif

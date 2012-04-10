@@ -18,6 +18,7 @@
 
 #include <headers.hh>
 #include <fft.hh>
+#include <dataset.hh>
 
 void FFT::setup()
 {
@@ -50,9 +51,56 @@ FFT::FFT(double dx, double fx, const Vector & y) :
 }
 
 void FFT::computeBaseline(const Vector & x, const Vector & y, 
-                          double alpha )
+                          double alpha)
 {
-  /// @todo !
+  DataSet ds(x,y);
+  int nb = x.size();
+  int pa = alpha * nb;
+  QPair<double, double> beg = ds.reglin(0, pa);
+  QPair<double, double> end = ds.reglin(nb - pa -1,nb -1);
+
+  double x1 = x.first();
+  double sl1 = beg.first;
+  double y1 = beg.first * x1 + beg.second; 
+
+  double x2 = x.last();
+  double sl2 = end.first;
+  double y2 = end.first * x2 + end.second; 
+
+  double delta = (-pow(x1,3)+3*x2*pow(x1,2)+pow(x2,3)-3*x1*pow(x2,2));
+  if(delta != 0) {
+    // Is this correct ?
+
+    /// @todo use a matrix ?
+    baseLine[0] = -(-y1*pow(x2,3) + 3*y1*x1*pow(x2,2) + 
+                    pow(x1,2)*pow(x2,2)*sl2 - pow(x1,2)*pow(x2,2)*sl1 - 
+                    3*pow(x1,2)*x2*y2-pow(x1,3)*x2*sl2 + 
+                    pow(x1,3)*y2+x1*sl1*pow(x2,3))/delta;
+    baseLine[1] = (2*pow(x2,2)*x1*sl2 + pow(x2,2)*x1*sl1+6*x1*x2*y1 - 
+                   6*x1*x2*y2-2*pow(x1,2)*x2*sl1 - 
+                   pow(x1,2)*x2*sl2-pow(x1,3)*sl2+pow(x2,3)*sl1)/delta;
+    baseLine[2] = -(pow(x2,2)*sl2+2*pow(x2,2)*sl1+3*x2*y1 - 
+                    3*x2*y2-x2*x1*sl1+x2*x1*sl2-2*pow(x1,2)*sl2 + 
+                    3*x1*y1-3*x1*y2-pow(x1,2)*sl1)/delta;
+    baseLine[3] = (2*y1-x1*sl2-x1*sl1+x2*sl2+x2*sl1-2*y2)/delta;
+  }
+  else {
+    baseLine[0] = beg.second;
+    baseLine[1] = beg.first;
+    baseLine[2] = 0;
+    baseLine[3] = 0;
+  }
+}
+
+double FFT::baseline(double x) const
+{
+  double val = 0;
+  double coeff = 1;
+  for(int j = 0; j < 4; j++) {
+    val += baseLine[j] * coeff;
+    coeff *= x;
+  }
+  return val;
 }
 
 void FFT::forward(bool useBaseline)
@@ -60,16 +108,8 @@ void FFT::forward(bool useBaseline)
   
   if(useBaseline) {
     // Subtract the baseline
-    for(int i = 0; i < data.size(); i++) {
-      double x = firstX + i * deltaX;
-      double val = 0;
-      double coeff = 1;
-      for(int j = 0; j < 4; j++) {
-        val += baseLine[j] * coeff;
-        coeff *= x;
-      }
-      data[i] -= val;
-    }
+    for(int i = 0; i < data.size(); i++)
+      data[i] -= baseline(firstX + i * deltaX);
   }
   gsl_fft_real_transform(data.data(), 1, data.size(), realWT.data(), 
                          fftWS.data());
@@ -83,17 +123,44 @@ void FFT::reverse(bool useBaseline)
                                 fftWS.data());
 
   if(useBaseline) {
-    // add back the baseline
-    for(int i = 0; i < data.size(); i++) {
-      double x = firstX + i * deltaX;
-      double val = 0;
-      double coeff = 1;
-      for(int j = 0; j < 4; j++) {
-        val += baseLine[j] * coeff;
-        coeff *= x;
-      }
-      data[i] += val;
-    }
+    // Subtract the baseline
+    for(int i = 0; i < data.size(); i++)
+      data[i] += baseline(firstX + i * deltaX);
   }
   
+}
+
+void FFT::baseline(Vector * y) const
+{
+  /// @todo will crash if used with a vector smaller ?
+  for(int i = 0; i < data.size(); i++)
+    y->operator[](i) = baseline(firstX + i * deltaX);
+}
+
+Vector FFT::baseline() const
+{
+  Vector y(data.size(), 0);
+  baseline(&y);
+  return y;
+}
+
+double FFT::magnitude(int i) const
+{
+  if(i == 0)
+    return data[0];
+  int sz = data.size();
+  if(i > sz/2)
+    return 0.0/0.0;             /// @todo raise an exception ?
+  if(sz % 2 == 0 && i == sz/2)
+    return data[sz-1];
+  return sqrt(data[2*i-1]*data[2*i-1] + data[2*i]*data[2*i]);
+}
+
+Vector FFT::spectrum() const
+{
+  Vector s;
+  int sz = data.size();
+  for(int i = 0; i < sz/2; i++)
+    s << magnitude(i);
+  return s;
 }

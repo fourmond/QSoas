@@ -125,6 +125,9 @@ public:
 
   DataSet() {;};
   DataSet(const QList<Vector> & cols) : columns(cols) {;};
+  DataSet(const Vector & x, const Vector & y) {
+    columns << x << y;
+  };
 
   /// Returns a version of name without the extension, that can be
   /// used for making up new buffer names from the old ones.

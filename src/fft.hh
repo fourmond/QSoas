@@ -29,17 +29,6 @@
 /// filtering)
 class FFT {
 
-  /// The distance between two points from the normal space
-  double deltaX;
-
-  /// The first X value.
-  double firstX;
-  
-
-  /// Data (either real of FFTed)
-  Vector data;
-
-
   /// @name GSL interface
   /// 
   /// They are handled as shared pointers, for the sake of using copy
@@ -59,10 +48,23 @@ class FFT {
   
 public:
 
+  /// The distance between two points from the normal space
+  double deltaX;
+
+  /// The first X value.
+  double firstX;
+  
+
+  /// Data (either real of FFTed)
+  Vector data;
+
+
   /// Whether we use a cubic baseline or not
   bool useCubicBaseline;
 
   /// Coefficients of a cubic baseline.
+  ///
+  /// @todo Turn that into a general polynomial baseline ?
   double baseLine[4];
 
   FFT(const Vector & x, const Vector & y, bool autoBL = true);
@@ -84,12 +86,24 @@ public:
   ///
   /// @{
 
-  /// The magnitude of the ith frequency (0 <= i < n)
+  /// The magnitude of the ith frequency (0 <= i < n/2)
   double magnitude(int i) const;
 
-  /// Scales the given frequency element
+  /// The amplitude of all the frequencies
+  Vector spectrum() const;
+
+  /// Scales the given frequency element (0 <= i < (n+1)/2)
   double scaleFrequency(int i, double fact);
   /// @}
+
+  /// Returns the value of the baseline at the given X location
+  double baseline(double x) const;
+
+  /// Computes the baseline into the given vector
+  void baseline(Vector * y) const;
+
+  /// Computes the baseline
+  Vector baseline() const;
 
   
 };

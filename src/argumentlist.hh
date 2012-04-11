@@ -37,6 +37,9 @@ class ArgumentList : public QList<Argument *> {
   /// The number of the greedy arg, or -1 if there isn't.
   mutable int greedyArg;
 
+  /// The index of the default option, or -1 if there isn't.
+  mutable int defaultOptionIndex;
+
   /// Regenerate the cache, along with
   void regenerateCache() const;
 
@@ -70,9 +73,19 @@ public:
 
   /// Parse the given arguments, prompting using the given widget as
   /// base when necessary.
+  /// 
+  /// If @a defaultOption isn't NULL, then the first extra argument
+  /// will end up there.
   CommandArguments parseArguments(const QStringList & args,
+                                  QString * defaultOption,
                                   QWidget * base) const;
-  
+
+  /// Whether the ArgumentList has an argument marked as default
+  /// option.
+  bool hasDefaultOption() const;
+
+  /// Returns the default option, or NULL if there isn't
+  Argument * defaultOption() const;
 };
 
 #endif

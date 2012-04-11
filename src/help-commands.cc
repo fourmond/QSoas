@@ -114,9 +114,10 @@ static void helpCommand(const QString &, QString command)
     for(int i = 0; i < args.size(); i++) {
       QString a = args[i]->argumentName();
       synopsis << "/" + a + "=" ;
-      descs += QString("  * /%1: %2\n").
+      descs += QString("  * /%1%3: %2\n").
         arg(args[i]->argumentName()).
-        arg(args[i]->description());
+        arg(args[i]->description()).
+        arg(args[i]->defaultOption ? " (default)" : "");
     }
   }
 

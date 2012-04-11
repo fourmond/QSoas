@@ -224,7 +224,7 @@ static ArgumentList
 dropOps(QList<Argument *>() 
         << new SeveralDataSetArgument("buffers", 
                                       "Buffers",
-                                      "Buffers to drop"));
+                                      "Buffers to drop", true, true));
 
 
 static Command 
@@ -490,7 +490,7 @@ static ArgumentList
 bfArgs(QList<Argument *>() 
        << new StringArgument("pattern", 
                              "Pattern",
-                             "Files to browse"
+                             "Files to browse", true
                              ));
                              
 

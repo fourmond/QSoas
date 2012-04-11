@@ -66,11 +66,16 @@ protected:
 
   /// Parse the arguments, possibly prompting for them if the given
   /// widget isn't NULL
+  ///
+  /// If @a defaultOption isn't NULL, then the first extra argument
+  /// will end up there.
   CommandArguments parseArguments(const QStringList & arguments,
+                                  QString * defaultOption = NULL,
                                   QWidget * base = NULL) const;
 
   /// Parse the options. Doesn't prompt.
-  CommandOptions parseOptions(const QHash<QString, QString> & opts) const;
+  CommandOptions parseOptions(const QHash<QString, QString> & opts, 
+                              QString * defaultOption = NULL) const;
   
 
 

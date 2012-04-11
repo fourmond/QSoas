@@ -27,7 +27,8 @@ class StringArgument : public Argument {
 public:
 
   StringArgument(const char * cn, const char * pn,
-                 const char * d = "") : Argument(cn, pn, d) {
+                 const char * d = "", bool def = false) : 
+    Argument(cn, pn, d, false, def) {
   }; 
   
   /// Returns a wrapped QString
@@ -42,7 +43,8 @@ class BoolArgument : public Argument {
 public:
 
   BoolArgument(const char * cn, const char * pn,
-                 const char * d = "") : Argument(cn, pn, d) {
+               const char * d = "", bool def = false) : 
+    Argument(cn, pn, d, false, def) {
   }; 
   
   /// Returns a wrapped bool
@@ -63,13 +65,15 @@ public:
 
   ChoiceArgument(const QStringList & c,
                  const char * cn, const char * pn,
-                 const char * d = "") : Argument(cn, pn, d), 
-                                        fixedChoices(c), provider(NULL) {
+                 const char * d = "", bool def = false) : 
+    Argument(cn, pn, d, false, def), 
+    fixedChoices(c), provider(NULL) {
   }; 
 
   ChoiceArgument(QStringList (*p)(),
                  const char * cn, const char * pn,
-                 const char * d = "") : Argument(cn, pn, d), provider(p) {
+                 const char * d = "", bool def = false) : 
+    Argument(cn, pn, d, false, def), provider(p) {
   }; 
   
   /// Returns a wrapped QString
@@ -89,7 +93,8 @@ class DataSetArgument : public Argument {
 public:
 
   DataSetArgument(const char * cn, const char * pn,
-                  const char * d = "") : Argument(cn, pn, d) {
+                  const char * d = "", bool def = false) : 
+    Argument(cn, pn, d, false, def) {
   }; 
   
   /// Returns a wrapped DataSet *
@@ -103,8 +108,9 @@ class SeveralDataSetArgument : public Argument {
 public:
 
   SeveralDataSetArgument(const char * cn, const char * pn,
-                         const char * d = "", bool g = true) : 
-    Argument(cn, pn, d, g) {
+                         const char * d = "", bool g = true, 
+                         bool def = false) : 
+    Argument(cn, pn, d, g, def) {
   }; 
   
   /// Returns a wrapped QList<const DataSet *>
@@ -120,7 +126,8 @@ class NumberArgument : public Argument {
 public:
 
   NumberArgument(const char * cn, const char * pn,
-                 const char * d = "") : Argument(cn, pn, d) {
+                 const char * d = "", bool def = false) : 
+    Argument(cn, pn, d, false, def) {
   }; 
   
   /// Returns a wrapped double
@@ -135,8 +142,9 @@ class SeveralNumbersArgument : public Argument {
 public:
 
   SeveralNumbersArgument(const char * cn, const char * pn,
-                         const char * d = "", bool sl = true) : 
-    Argument(cn, pn, d, sl) {
+                         const char * d = "", bool sl = true, 
+                         bool def = false) : 
+    Argument(cn, pn, d, sl, def) {
   }; 
   
   /// Returns a wrapped QList<double>
@@ -152,7 +160,8 @@ class IntegerArgument : public Argument {
 public:
 
   IntegerArgument(const char * cn, const char * pn,
-                 const char * d = "") : Argument(cn, pn, d) {
+                  const char * d = "", bool def = false) : 
+    Argument(cn, pn, d, false, def) {
   }; 
   
   /// Returns a wrapped double
@@ -167,8 +176,9 @@ class SeveralIntegersArgument : public Argument {
 public:
 
   SeveralIntegersArgument(const char * cn, const char * pn,
-                         const char * d = "", bool sl = true) : 
-    Argument(cn, pn, d, sl) {
+                          const char * d = "", bool sl = true, 
+                          bool def = false) : 
+    Argument(cn, pn, d, sl, def) {
   }; 
   
   /// Returns a wrapped QList<double>

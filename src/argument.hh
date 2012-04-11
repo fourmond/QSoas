@@ -49,15 +49,18 @@ public:
   /// ArgumentList. 
   bool greedy;
 
+  /// There can be a default option, ie the one used
+  bool defaultOption;
+
   /// Specifies the various elements linked to the Argument.
   ///
   /// \warning Argument doesn't take ownership of any string; they
   /// should therefore point to locations that will not move, ideally
   /// constant strings.
   Argument(const char * cn, const char * pn,
-           const char * d = "", bool g = false) : 
+           const char * d = "", bool g = false, bool def = false) : 
     name(cn), pubName(pn), 
-    desc(d), greedy(g) {
+    desc(d), greedy(g), defaultOption(def) {
   }; 
   
 
@@ -68,9 +71,7 @@ public:
   };
 
 
-  /// The public name, the one to be used in the menus. This one gets
-  /// translated, which means that one should use QT_TRANSLATE_NOOP
-  /// macro for setting it.
+  /// The public name, the one to be used in the menus. 
   virtual QString publicName() const {
     return QObject::tr(pubName);
   };

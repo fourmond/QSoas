@@ -69,25 +69,32 @@ static ArgumentList emptyList;
 /// probably with much better checking of argument size and slurping
 /// arguments.
 CommandArguments Command::parseArguments(const QStringList & args,
+                                         QString * defaultOption,
                                          QWidget * base) const
 {
   ArgumentList * a = arguments ? arguments : &emptyList;
-  return a->parseArguments(args, base);
+  return a->parseArguments(args, defaultOption, base);
 }
 
-CommandOptions Command::parseOptions(const QHash<QString, QString> & opts) const
+CommandOptions Command::parseOptions(const QHash<QString, QString> & opts,
+                                     QString * defaultOption) const
 {
   /// @todo handle greedy arguments ? That requires a QMultiHash rather
   /// than a QHash, but that should be doable ?
   CommandOptions ret;  
   if(! options)
     return ret;
+  if(defaultOption && !defaultOption->isEmpty()) {
+    Argument * opt = options->defaultOption();
+    ret[opt->argumentName()] = opt->fromString(*defaultOption);
+  }
   for(QHash<QString, QString>::const_iterator i = opts.begin();
       i != opts.end(); i++) {
     Argument * opt = options->namedArgument(i.key());
     if(! opt)
       throw RuntimeError(QObject::tr("Unknown option '%1' for command %2").
                          arg(i.key()).arg(commandName()));
+    /// @bug Memory leak !
     ret[i.key()] = opt->fromString(i.value());
   }
   return ret;
@@ -101,10 +108,12 @@ void Command::runCommand(const QString & commandName,
   QPair<QStringList, QHash<QString, QString> > split = 
     splitArgumentsAndOptions(arguments);
 
+  bool hasDefault = (this->options ? this->options->hasDefaultOption() : false);
+  QString def;
   PossessiveList<ArgumentMarshaller> args = 
-    parseArguments(split.first, base);
+    parseArguments(split.first, (hasDefault ? &def : NULL), base);
   PossessiveHash<QString, ArgumentMarshaller> options = 
-    parseOptions(split.second);
+    parseOptions(split.second, (hasDefault ? &def : NULL));
   // Then the call !
   effector->runCommand(commandName, args, options);
 }

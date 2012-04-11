@@ -26,7 +26,7 @@
 
 
 ArgumentList::ArgumentList(const QList<Argument *> & lst)
-  : QList<Argument *>(lst), greedyArg(-1)
+  : QList<Argument *>(lst), greedyArg(-1), defaultOptionIndex(-1)
 {
 }
 
@@ -39,8 +39,11 @@ void ArgumentList::regenerateCache() const
   cache.clear();
   for(int i = 0; i < size(); i++) {
     cache[value(i)->argumentName()] = value(i);
+    /// @todo detect when more than one are greedy and/or default
     if(value(i)->greedy)
       greedyArg = i;
+    if(value(i)->defaultOption)
+      defaultOptionIndex = i;
   }
 }
 
@@ -86,6 +89,7 @@ int ArgumentList::assignArgument(int arg, int total) const
 
 
 CommandArguments ArgumentList::parseArguments(const QStringList & args,
+                                              QString * defaultOpt,
                                               QWidget * base) const
 {
 
@@ -98,15 +102,21 @@ CommandArguments ArgumentList::parseArguments(const QStringList & args,
   for(int i = 0; i < sz; i++) {
     int idx = assignArg(i, nb);
     if(idx >= size()) {
-      /// @todo Go on with the "default" options ? That doesn't seem
-      /// so easy...
-      /// 
-      /// @todo add a warning function to Terminal ?
-      Terminal::out << Terminal::bold(QObject::tr("Warning: ")) 
-                    << QObject::tr("too many arguments: %1 for %2").
-        arg(nb).arg(size())
-                    << endl;
-      break;
+      if(idx == size() && defaultOpt) {
+        *defaultOpt = args[i];
+        continue;
+      }
+      else {
+        /// @todo Go on with the "default" options ? That doesn't seem
+        /// so easy...
+        /// 
+        /// @todo add a warning function to Terminal ?
+        Terminal::out << Terminal::bold(QObject::tr("Warning: ")) 
+                      << QObject::tr("too many arguments: %1 for %2").
+          arg(nb).arg(size())
+                      << endl;
+        break;
+      }
     }
     const Argument * arg = value(idx, NULL);
     if(! arg)
@@ -128,4 +138,18 @@ CommandArguments ArgumentList::parseArguments(const QStringList & args,
       ret << value;
   }
   return ret;
+}
+
+bool ArgumentList::hasDefaultOption() const
+{
+  if(cache.size() != size())
+    regenerateCache();
+  return defaultOptionIndex >= 0;
+}
+
+Argument * ArgumentList::defaultOption() const
+{
+  if(! hasDefaultOption())
+    return NULL;
+  return value(defaultOptionIndex);
 }

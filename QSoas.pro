@@ -2,7 +2,7 @@
 # QMake configuration file for QSoas
 
 TEMPLATE = app
-CONFIG += precompile_header debug warn_on thread exception
+CONFIG += precompile_header debug warn_on thread exception 
 INCLUDEPATH += . src
 TARGET = QSoas
 
@@ -11,6 +11,7 @@ DEPENDPATH += src
 # For faster rendering of the antialiased curves
 QT += opengl                    # Doesn't work that well, actually
 QT -= webkit                    # We really don't need webkit, for now ?
+QT += testlib                   # For QTest::qSleep
 
 VERSION = 0.0
 

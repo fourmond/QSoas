@@ -139,7 +139,9 @@ bool CurveEventLoop::finished()
 
   view->viewport()->repaint();
   while(pendingEvents.size() == 0) {
-    QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
+    QCoreApplication::processEvents(QEventLoop::AllEvents|QEventLoop::WaitForMoreEvents, 10);
+    /// @todo Reimplement that using the "subclass to QThread" approach ?
+    QTest::qSleep(10);
   }
 
   QInputEvent * ie = pendingEvents.takeFirst();

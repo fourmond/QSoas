@@ -38,8 +38,11 @@
    \li option for k to limit the number of stuff displayed
    \li include (or not) some data when using multifit (weight globally
    a buffer ?)
-   \li detect newlines in pasted commands
+   @li a command to terminate the execution of a script.
 
+   \section bugs Known bugs
+   @li hard crashes on cut/deldp (index out of bounds)
+   @li fix bounding box calculation on infinite/NaN values.
 
    \section various-todo Various things to do
 
@@ -50,7 +53,6 @@
    \li finalize peak detection (along with a CurvePeak CurveItem child
    to display it neatly)
    \li catalytic baseline
-   \li FFT, based on GSL too (no need to pull in another dependency)
    \li convolution, that was quite useful
    \li step detection, dead useful too !
    \li put back the temperature settings, and the values that depend

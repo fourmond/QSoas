@@ -139,7 +139,7 @@ void FFT::baseline(Vector * y) const
 {
   /// @todo will crash if used with a vector smaller ?
   for(int i = 0; i < data.size(); i++)
-    y->operator[](i) = baseline(firstX + i * deltaX);
+    (*y)[i] = baseline(firstX + i * deltaX);
 }
 
 Vector FFT::baseline() const
@@ -217,7 +217,7 @@ void FFT::differentiate()
   if(data.size() % 2 == 0)
     data[data.size() - 1] = 0;
   for(int i = 1; i < (data.size()+1)/2; i++) {
-    double freq = i/(0.5 * data.size()) * (data.size()/deltaX);
+    double freq = 2 * M_PI * i/(data.size()*deltaX);
     double re = data[2*i-1];
     double im = data[2*i];
     data[2*i - 1] = - freq * im;

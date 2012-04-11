@@ -735,7 +735,6 @@ static void fftCommand(const QString &)
         double freq = i/(ds->x().size()*0.5);
         double xx = freq*freq;
         double fact = exp(-1*xx*cutoff*cutoff/2.);
-        fact *= pow(freq, order); // ?? 
         trans.scaleFrequency(i, fact);
       }
 

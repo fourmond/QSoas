@@ -99,6 +99,10 @@ public:
 
   /// Scales the given frequency element (0 <= i < (n+1)/2)
   void scaleFrequency(int i, double fact);
+
+  /// Returns the number of frequencies that can be tweaked using the
+  /// other functions.
+  int frequencies() const;
   /// @}
 
   /// Returns the value of the baseline at the given X location
@@ -119,7 +123,6 @@ public:
   /// Differentiates the data (assuming it is in Fourier space)
   void differentiate();
 
-  
 };
 
 #endif

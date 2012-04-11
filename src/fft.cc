@@ -153,25 +153,32 @@ double FFT::magnitude(int i) const
 {
   if(i == 0)
     return data[0];
-  int sz = data.size();
-  if(i > sz/2)
+  if(i >= frequencies() || i < 0)
     return 0.0/0.0;             /// @todo raise an exception ?
+  int sz = data.size();
   if(sz % 2 == 0 && i == sz/2)
     return data[sz-1];
   return sqrt(data[2*i-1]*data[2*i-1] + data[2*i]*data[2*i]);
 }
 
+int FFT::frequencies() const
+{
+  return data.size()/2 + 1;
+}
+
 Vector FFT::spectrum() const
 {
   Vector s;
-  int sz = data.size();
-  for(int i = 0; i < sz/2; i++)
+  int nb = frequencies();
+  for(int i = 0; i < nb; i++)
     s << magnitude(i);
   return s;
 }
 
 void FFT::scaleFrequency(int i, double scale)
 {
+  if(i >= frequencies() || i < 0)
+    return;
   if(i == 0)
     data[0] *= scale;
   else {
@@ -209,8 +216,8 @@ void FFT::differentiate()
   data[0] = 0;
   if(data.size() % 2 == 0)
     data[data.size() - 1] = 0;
-  for(int i = 1; i < data.size()/2; i++) {
-    double freq = i/(0.5 * data.size());
+  for(int i = 1; i < (data.size()+1)/2; i++) {
+    double freq = i/(0.5 * data.size()) * (data.size()/deltaX);
     double re = data[2*i-1];
     double im = data[2*i];
     data[2*i - 1] = - freq * im;

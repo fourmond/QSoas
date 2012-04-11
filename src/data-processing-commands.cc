@@ -566,6 +566,7 @@ static void fftCommand(const QString &)
   CurveData spec1;
   CurveData spec2;
   CurveVerticalLine lim;
+  FFT orig(ds->x(), ds->y());
 
 
   d.pen = QPen(QColor("black"));
@@ -606,7 +607,7 @@ static void fftCommand(const QString &)
 
   spec1.pen = QPen(QColor("red"));
   // We don't display the 0th frequency !
-  spec1.xvalues = Vector(ds->x().size()/2-1,0);
+  spec1.xvalues = Vector(orig.frequencies() - 1,0);
   for(int i = 0; i < spec1.xvalues.size(); i++)
     spec1.xvalues[i] = log((i+1)/(1.0*spec1.xvalues.size()));
   spec1.yvalues = spec1.xvalues;
@@ -639,7 +640,6 @@ static void fftCommand(const QString &)
 
   int cutoff = 20;
 
-  FFT orig(ds->x(), ds->y());
   {
     QList<int> facts = orig.factors();
     QStringList lst;
@@ -731,7 +731,7 @@ static void fftCommand(const QString &)
       FFT trans = orig;
       double cf = ds->x().size()/2 - cutoff;
       lim.x = -log(cutoff);
-      for(int i = 0; i < ds->x().size()/2; i++) { 
+      for(int i = 0; i < trans.frequencies(); i++) { 
         double freq = i/(ds->x().size()*0.5);
         double xx = freq*freq;
         double fact = exp(-1*xx*cutoff*cutoff/2.);
@@ -747,7 +747,7 @@ static void fftCommand(const QString &)
           spec2.yvalues[i] = log(trans.magnitude(i+1));
       }
         
-      trans.reverse(order == 0); // Don't use baseline on derivatives (for now)
+      trans.reverse();  // Don't use baseline on derivatives (for now)
       d.yvalues = trans.data;
       if(order == 0) 
         diff.yvalues = ds->y() - d.yvalues;

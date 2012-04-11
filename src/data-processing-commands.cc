@@ -1271,7 +1271,8 @@ static void deldpCommand(const QString &)
     switch(loop.type()) {
     case QEvent::MouseButtonPress: 
       if(loop.button() == Qt::LeftButton) {
-        newds->removePoint(t.lastIndex);
+        if(t.lastIndex >= 0)
+          newds->removePoint(t.lastIndex);
         d.invalidateCache();
       }
       

@@ -39,7 +39,10 @@ bool PointTracker::processEvent()
 {
   if(loop->type() == QEvent::MouseMove && loop->currentPanel())  {
     lastIndex = loop->distanceToDataSet(trackedDataSet).second;
-    p = trackedDataSet->pointAt(lastIndex);
+    if(lastIndex >= 0)
+      p = trackedDataSet->pointAt(lastIndex);
+    else
+      p = QPointF();
   }
   return false;
 }

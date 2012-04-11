@@ -31,10 +31,6 @@
 
 #include <terminal.hh>
 
-
-/// @todo Include peak detection, with the algorithm used for the
-/// film_decay command in the old Soas.
-
 void DataSet::dump() const
 {
   QTextStream o(stdout);
@@ -398,6 +394,18 @@ QPair<double, double> DataSet::reglin(double xmin, double xmax) const
 DataSet * DataSet::subset(int beg, int end, bool within) const
 {
   QList<Vector> cols;
+  int nb = nbRows();
+  // Sanity checking for indices
+  if(beg < 0)
+    beg = 0;
+  if(beg >= nb)
+    beg = nb - 1;
+  if(end < beg)
+    end = beg;
+  if(end >= nb)
+    end = nb-1;
+    
+
   if(within) {
     for(int i = 0; i < columns.size(); i++)
       cols << columns[i].mid(beg, 1+end-beg);

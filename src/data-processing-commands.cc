@@ -562,21 +562,30 @@ static void fftCommand(const QString &)
   CurveItem * dsDisplay = view.mainPanel()->items().first();
   CurveData d;
   CurveData diff;
+  CurveData baseline;
   CurveData spec1;
   CurveData spec2;
   CurveVerticalLine lim;
-  bool derive = false;
 
-  view.addItem(&d);
-
-  // **************************************************
-  // Setup of the "diff" panel
-  bottom.stretch = 40;        // 4/10ths of the main panel.
 
   d.pen = QPen(QColor("black"));
   d.xvalues = ds->x();
   d.yvalues = QVector<double>(d.xvalues.size(), 0);
   d.countBB = true;
+  view.addItem(&d);
+
+
+  baseline.pen = QPen(QColor("blue"), 1, Qt::DotLine);
+  baseline.xvalues = ds->x();
+  baseline.yvalues = baseline.xvalues;;
+  baseline.countBB = false;
+  view.addItem(&baseline);
+
+  // **************************************************
+  // Setup of the "diff" panel
+
+
+  bottom.stretch = 40;        // 4/10ths of the main panel.
 
   diff.xvalues = d.xvalues;
   diff.yvalues = ds->y();
@@ -586,6 +595,9 @@ static void fftCommand(const QString &)
 
   bottom.yLabel = Utils::deltaStr("Y");
   bottom.drawingXTicks = false;
+
+  // The order of the derivative
+  int order = 0;
 
 
   // **************************************************
@@ -683,12 +695,14 @@ static void fftCommand(const QString &)
       switch(loop.key()) {
       case Qt::Key_Escape:
         return;
-      case 'D':
       case 'd':
-        derive = ! derive;
-        dsDisplay->hidden = derive;
+        if(order > 0)
+          order = 0;
+        else
+          order = 1;
+        dsDisplay->hidden = order;
         needCompute = true;
-        if(derive)
+        if(order)
           soas().showMessage("Showing derivative");
         else
           soas().showMessage("Showing filtered data");
@@ -721,17 +735,26 @@ static void fftCommand(const QString &)
         double freq = i/(ds->x().size()*0.5);
         double xx = freq*freq;
         double fact = exp(-1*xx*cutoff*cutoff/2.);
+        fact *= pow(freq, order); // ?? 
         trans.scaleFrequency(i, fact);
       }
+
+      if(order > 0)             /// @todo and the second derivative ?
+        trans.differentiate();
 
       if(showSpectrum) {        // We need to update the values
         for(int i = 0; i < spec2.yvalues.size(); i++)
           spec2.yvalues[i] = log(trans.magnitude(i+1));
       }
         
-      trans.reverse();
+      trans.reverse(order == 0); // Don't use baseline on derivatives (for now)
       d.yvalues = trans.data;
-      diff.yvalues = ds->y() - d.yvalues;
+      if(order == 0) 
+        diff.yvalues = ds->y() - d.yvalues;
+
+      // Compute the baseline
+      trans.baseline(&baseline.yvalues);
+
       if(showSpectrum) {
         QRectF r = spec1.boundingRect();
         r.setTop(spec1.yvalues.min()-20);

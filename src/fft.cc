@@ -195,3 +195,26 @@ QList<int> FFT::factors() const
     lst << wt->factor[i];
   return lst;
 }
+
+void FFT::deriveBaseLine()
+{
+  for(int i = 0; i < 3; i++)
+    baseLine[i] = (i+1) * baseLine[i+1];
+  baseLine[3] = 0;
+}
+
+
+void FFT::differentiate()
+{
+  data[0] = 0;
+  if(data.size() % 2 == 0)
+    data[data.size() - 1] = 0;
+  for(int i = 1; i < data.size()/2; i++) {
+    double freq = i/(0.5 * data.size());
+    double re = data[2*i-1];
+    double im = data[2*i];
+    data[2*i - 1] = - freq * im;
+    data[2*i] = freq * re;
+  }
+  deriveBaseLine();
+}

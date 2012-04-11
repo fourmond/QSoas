@@ -113,6 +113,12 @@ public:
   /// Returns the list of factors used by the mix-radix routines
   QList<int> factors() const;
 
+  /// Differentiates the baseline
+  void deriveBaseLine();
+
+  /// Differentiates the data (assuming it is in Fourier space)
+  void differentiate();
+
   
 };
 

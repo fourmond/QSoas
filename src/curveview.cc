@@ -170,6 +170,11 @@ void CurveView::addPanel(CurvePanel * panel)
   additionalPanels << panel;
 }
 
+void CurveView::setPanel(int i, CurvePanel * panel)
+{
+  additionalPanels[i] = panel;
+}
+
 QList<CurvePanel*> CurveView::allPanels()
 {
   QList<CurvePanel *> panels;

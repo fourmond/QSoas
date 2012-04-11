@@ -96,8 +96,13 @@ public:
   /// Adds an item to the CurveView. It goes to the panel()
   void addItem(CurveItem * item);
 
-  /// Adds a panel. 
+  /// Adds a panel.
+  ///
+  /// The CurveView does not take ownership of the panels !
   void addPanel(CurvePanel * panel);
+
+  /// Sets the given panel
+  void setPanel(int i, CurvePanel * panel);
 
   /// Remove everything from the display
   void clear();

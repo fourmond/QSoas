@@ -35,7 +35,11 @@ class CurveItem;
 /// their BB (X axis, Y axis, and the like...) (this is done for X)
 ///
 /// @todo Handle double Y axis display (ie to display both the data
-/// and the derivative in one go).
+/// and the derivative in one go). THIS REALLY SHOULD BE DONE !
+///
+/// @todo Find a way to set 'maximum bounds' for a display, distinct
+/// from the BBox, which ensures that whatever happens, the drawing
+/// rect always end up there ?
 class CurvePanel : public QObject {
 
   Q_OBJECT;
@@ -133,6 +137,9 @@ public:
 
   /// Whether or not to draw the legend
   bool drawingLegend;
+
+  /// Whether or not zoom out of the bbox are allowed
+  bool anyZoom;
 
   /// The X label of the panel
   QString xLabel;

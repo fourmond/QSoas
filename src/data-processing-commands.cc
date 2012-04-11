@@ -557,17 +557,21 @@ static void fftCommand(const QString &)
   CurveEventLoop loop;
   CurveView & view = soas().view();
   CurvePanel bottom;
-  /// @todo This assumes that the currently displayed dataset is the
-  /// first one.
+  CurvePanel spectrum;
+
   CurveItem * dsDisplay = view.mainPanel()->items().first();
   CurveData d;
   CurveData diff;
   CurveData spec1;
   CurveData spec2;
+  CurveVerticalLine lim;
   bool derive = false;
-  bottom.stretch = 40;        // 4/10ths of the main panel.
 
   view.addItem(&d);
+
+  // **************************************************
+  // Setup of the "diff" panel
+  bottom.stretch = 40;        // 4/10ths of the main panel.
 
   d.pen = QPen(QColor("black"));
   d.xvalues = ds->x();
@@ -578,6 +582,14 @@ static void fftCommand(const QString &)
   diff.yvalues = ds->y();
   diff.countBB = true;
   bottom.addItem(&diff);
+  view.addPanel(&bottom);
+
+  bottom.yLabel = Utils::deltaStr("Y");
+  bottom.drawingXTicks = false;
+
+
+  // **************************************************
+  // Setup of the "power" panel
 
 
   spec1.pen = QPen(QColor("red"));
@@ -586,20 +598,24 @@ static void fftCommand(const QString &)
   for(int i = 0; i < spec1.xvalues.size(); i++)
     spec1.xvalues[i] = log((i+1)/(1.0*spec1.xvalues.size()));
   spec1.yvalues = spec1.xvalues;
-  spec1.hidden = true;
-  spec1.countBB = false;
-  bottom.addItem(&spec1);
+  spec1.countBB = true;
+  spectrum.addItem(&spec1);
 
   spec2.xvalues = spec1.xvalues;
   spec2.yvalues = spec1.yvalues;
-  spec2.hidden = true;
-  spec2.countBB = false;
-  bottom.addItem(&spec2);
+  spec2.countBB = false;        // Makes things complicated upon
+                                // encountering NaNs...
+  spectrum.addItem(&spec2);
 
-  bottom.yLabel = Utils::deltaStr("Y");
-  bottom.drawingXTicks = false;
+  spectrum.yLabel = "Power (log)";
+  spectrum.xLabel = "Frequency (log)";
 
-  view.addPanel(&bottom);
+  spectrum.stretch = 40;
+  spectrum.anyZoom = true;
+
+  lim.pen = QPen(QColor("blue"), 1, Qt::DotLine);
+  spectrum.addItem(&lim);
+
 
 
 
@@ -610,7 +626,6 @@ static void fftCommand(const QString &)
   bool needCompute = true;
 
   int cutoff = 20;
-  double order = 4;
 
   FFT orig(ds->x(), ds->y());
   {
@@ -642,17 +657,26 @@ static void fftCommand(const QString &)
     }
     switch(loop.type()) {
     case QEvent::MouseButtonPress: 
-      if(loop.button() == Qt::RightButton) { // Decrease
-        cutoff--;
-        if(cutoff < 2)
-          cutoff = 2;
+      if(loop.currentPanel() == &spectrum) {
+        if(loop.button() == Qt::LeftButton) { 
+          double x = loop.position(&spectrum).x();
+          cutoff = exp(-x);
+        }
       }
-      if(loop.button() == Qt::LeftButton) { // Remove
-        cutoff++;
-        if(cutoff > ds->x().size()/2 - 2)
-          cutoff = ds->x().size()/2 - 2;
+      else {                                 // +/- decrease.
+        if(loop.button() == Qt::RightButton) { // Decrease
+          cutoff--;
+          if(cutoff < 2)
+            cutoff = 2;
+        }
+        if(loop.button() == Qt::LeftButton) { // Remove
+          cutoff++;
+          if(cutoff > ds->x().size()/2 - 2)
+            cutoff = ds->x().size()/2 - 2;
+        }
+        /// @todo This should go on the panel ? 
+        Terminal::out << "Now using a cutoff of " << cutoff << endl;
       }
-      Terminal::out << "Now using a cutoff of " << cutoff << endl;
       needCompute = true;
       break;
     case QEvent::KeyPress: 
@@ -684,34 +708,15 @@ static void fftCommand(const QString &)
     if(needUpdate) {
       // called whenever the status of the bottom panel changes
       needUpdate = false;
-      if(showSpectrum) {
-        diff.countBB = false;
-        diff.hidden = true;
-        spec1.hidden = false;
-        spec1.countBB = true;
-        spec2.hidden = false;
-        spec2.countBB = true;
-        bottom.yLabel = "Power density (log)";
-        bottom.xLabel = "Frequency (log)";
-        bottom.drawingXTicks = true;
-      }
-      else {
-        diff.countBB = true;
-        diff.hidden = false;
-        spec1.hidden = true;
-        spec1.countBB = false;
-        spec2.hidden = true;
-        spec2.countBB = false;
-        bottom.yLabel = Utils::deltaStr("Y");
-        bottom.xLabel = "";
-        bottom.drawingXTicks = false;
-        bottom.setYRange(diff.yvalues.min(), diff.yvalues.max(), 
-                         view.mainPanel());
-      }
+      if(showSpectrum)
+        view.setPanel(0, &spectrum);
+      else
+        view.setPanel(0, &bottom);
     }
     if(needCompute) {
       FFT trans = orig;
       double cf = ds->x().size()/2 - cutoff;
+      lim.x = -log(cutoff);
       for(int i = 0; i < ds->x().size()/2; i++) { 
         double freq = i/(ds->x().size()*0.5);
         double xx = freq*freq;
@@ -728,11 +733,9 @@ static void fftCommand(const QString &)
       d.yvalues = trans.data;
       diff.yvalues = ds->y() - d.yvalues;
       if(showSpectrum) {
-        bottom.setYRange(diff.yvalues.min(), diff.yvalues.max(), 
-                         NULL);
         QRectF r = spec1.boundingRect();
         r.setTop(spec1.yvalues.min()-20);
-        bottom.zoomIn(r);
+        spectrum.zoomIn(r);
       }
       else
         bottom.setYRange(diff.yvalues.min(), diff.yvalues.max(), 

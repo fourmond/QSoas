@@ -32,7 +32,7 @@ CurvePanel::CurvePanel() :
   bgLinesPen(QColor("#DDD"), 1.5, Qt::DashLine),
   xTracking(0),
   drawingXTicks(true), drawingYTicks(true), drawingLegend(true),
-  xLabel("X"), yLabel("Y"), stretch(100)
+  xLabel("X"), yLabel("Y"), anyZoom(false), stretch(100)
 {
   bgLinesPen.setCosmetic(true);
 }
@@ -368,7 +368,7 @@ QPointF CurvePanel::scaleFactors() const
 void CurvePanel::setZoom(const QRectF & recti)
 {
   QRectF rect = recti;
-  if(boundingBox.isValid()) {
+  if(boundingBox.isValid() && !anyZoom) {
     if(rect.contains(boundingBox))
       rect = QRectF();            // Disable zoom then.
     else

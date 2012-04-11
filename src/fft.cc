@@ -116,12 +116,17 @@ void FFT::forward(bool useBaseline)
   
 }
 
-void FFT::reverse(bool useBaseline)
+void FFT::backward()
 {
   
   gsl_fft_halfcomplex_transform(data.data(), 1, data.size(), hcWT.data(), 
                                 fftWS.data());
+}
 
+void FFT::reverse(bool useBaseline)
+{
+  backward();
+  data /= data.size();
   if(useBaseline) {
     // Subtract the baseline
     for(int i = 0; i < data.size(); i++)
@@ -163,4 +168,30 @@ Vector FFT::spectrum() const
   for(int i = 0; i < sz/2; i++)
     s << magnitude(i);
   return s;
+}
+
+void FFT::scaleFrequency(int i, double scale)
+{
+  if(i == 0)
+    data[0] *= scale;
+  else {
+    int sz = data.size();
+    if(i > sz/2)
+      return;             /// @todo raise an exception ?
+    if(sz % 2 == 0 && i == sz/2)
+      data[sz-1] *= scale;
+    else {
+      data[2*i-1] *= scale;
+      data[2*i] *= scale;
+    }
+  }
+}
+
+QList<int> FFT::factors() const
+{
+  gsl_fft_real_wavetable * wt = realWT.data();
+  QList<int> lst;
+  for(size_t i = 0; i < wt->nf; i++)
+    lst << wt->factor[i];
+  return lst;
 }

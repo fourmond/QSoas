@@ -43,6 +43,8 @@
 #include <pointpicker.hh>
 #include <pointtracker.hh>
 
+#include <fft.hh>
+
 #include <peaks.hh>
 
 //////////////////////////////////////////////////////////////////////
@@ -436,7 +438,7 @@ static void bsplinesCommand(const QString &)
                                  "a: equally spaced segments\n"
                                  "o: optimize positions\n"
                                  "q, middle click: replace with filtered data\n"
-                                 "ESC: abord"));
+                                 "ESC: abort"));
   do {
     if(loop.isConventionalAccept()) {
       // Quit replacing with data
@@ -546,6 +548,211 @@ bspl("filter-bsplines", // command name
      "Filter",
      "Filter using bsplines",
      "...");
+
+//////////////////////////////////////////////////////////////////////
+
+static void fftCommand(const QString &)
+{
+  const DataSet * ds = soas().currentDataSet();
+  CurveEventLoop loop;
+  CurveView & view = soas().view();
+  CurvePanel bottom;
+  /// @todo This assumes that the currently displayed dataset is the
+  /// first one.
+  CurveItem * dsDisplay = view.mainPanel()->items().first();
+  CurveData d;
+  CurveData diff;
+  CurveData spec1;
+  CurveData spec2;
+  bool derive = false;
+  bottom.stretch = 40;        // 4/10ths of the main panel.
+
+  view.addItem(&d);
+
+  d.pen = QPen(QColor("black"));
+  d.xvalues = ds->x();
+  d.yvalues = QVector<double>(d.xvalues.size(), 0);
+  d.countBB = true;
+
+  diff.xvalues = d.xvalues;
+  diff.yvalues = ds->y();
+  diff.countBB = true;
+  bottom.addItem(&diff);
+
+
+  spec1.pen = QPen(QColor("red"));
+  // We don't display the 0th frequency !
+  spec1.xvalues = Vector(ds->x().size()/2-1,0);
+  for(int i = 0; i < spec1.xvalues.size(); i++)
+    spec1.xvalues[i] = log((i+1)/(1.0*spec1.xvalues.size()));
+  spec1.yvalues = spec1.xvalues;
+  spec1.hidden = true;
+  spec1.countBB = false;
+  bottom.addItem(&spec1);
+
+  spec2.xvalues = spec1.xvalues;
+  spec2.yvalues = spec1.yvalues;
+  spec2.hidden = true;
+  spec2.countBB = false;
+  bottom.addItem(&spec2);
+
+  bottom.yLabel = Utils::deltaStr("Y");
+  bottom.drawingXTicks = false;
+
+  view.addPanel(&bottom);
+
+
+
+  /// Position of the segments
+  Vector x;
+  bool needUpdate = false;
+  bool showSpectrum = false;
+  bool needCompute = true;
+
+  int cutoff = 20;
+  double order = 4;
+
+  FFT orig(ds->x(), ds->y());
+  {
+    QList<int> facts = orig.factors();
+    QStringList lst;
+    for(int i = 0; i < facts.size(); i++)
+      lst << QString::number(facts[i]);
+    Terminal::out << "Mixed-radix: " << ds->x().size() << " factorized as "
+                  << lst.join(" * ") << endl;
+  }
+  orig.forward();
+  for(int i = 0; i < spec1.yvalues.size(); i++)
+    spec1.yvalues[i] = log(orig.magnitude(i+1));
+
+  loop.setHelpString(QObject::tr("FFT filtering:\n"
+                                 "left click: place point\n"
+                                 "right click: remove closest point\n"
+                                 "p: toogle power spectrum\n"
+                                 "q, middle click: replace with filtered data\n"
+                                 "ESC: abort"));
+  do {
+    if(loop.isConventionalAccept()) {
+      // Quit replacing with data
+      DataSet * newds = new 
+        DataSet(QList<Vector>() << d.xvalues << d.yvalues);
+      newds->name = ds->cleanedName() + "_filtered.dat";
+      soas().pushDataSet(newds);
+      return;
+    }
+    switch(loop.type()) {
+    case QEvent::MouseButtonPress: 
+      if(loop.button() == Qt::RightButton) { // Decrease
+        cutoff--;
+        if(cutoff < 2)
+          cutoff = 2;
+      }
+      if(loop.button() == Qt::LeftButton) { // Remove
+        cutoff++;
+        if(cutoff > ds->x().size()/2 - 2)
+          cutoff = ds->x().size()/2 - 2;
+      }
+      Terminal::out << "Now using a cutoff of " << cutoff << endl;
+      needCompute = true;
+      break;
+    case QEvent::KeyPress: 
+      switch(loop.key()) {
+      case Qt::Key_Escape:
+        return;
+      case 'D':
+      case 'd':
+        derive = ! derive;
+        dsDisplay->hidden = derive;
+        needCompute = true;
+        if(derive)
+          soas().showMessage("Showing derivative");
+        else
+          soas().showMessage("Showing filtered data");
+        break;
+      case 'p':
+        showSpectrum = ! showSpectrum;
+        needUpdate = true;
+        needCompute = true;
+        break;
+      default:
+        ;
+      }
+      break;
+    default:
+      ;
+    }
+    if(needUpdate) {
+      // called whenever the status of the bottom panel changes
+      needUpdate = false;
+      if(showSpectrum) {
+        diff.countBB = false;
+        diff.hidden = true;
+        spec1.hidden = false;
+        spec1.countBB = true;
+        spec2.hidden = false;
+        spec2.countBB = true;
+        bottom.yLabel = "Power density (log)";
+        bottom.xLabel = "Frequency (log)";
+        bottom.drawingXTicks = true;
+      }
+      else {
+        diff.countBB = true;
+        diff.hidden = false;
+        spec1.hidden = true;
+        spec1.countBB = false;
+        spec2.hidden = true;
+        spec2.countBB = false;
+        bottom.yLabel = Utils::deltaStr("Y");
+        bottom.xLabel = "";
+        bottom.drawingXTicks = false;
+        bottom.setYRange(diff.yvalues.min(), diff.yvalues.max(), 
+                         view.mainPanel());
+      }
+    }
+    if(needCompute) {
+      FFT trans = orig;
+      double cf = ds->x().size()/2 - cutoff;
+      for(int i = 0; i < ds->x().size()/2; i++) { 
+        double freq = i/(ds->x().size()*0.5);
+        double xx = freq*freq;
+        double fact = exp(-1*xx*cutoff*cutoff/2.);
+        trans.scaleFrequency(i, fact);
+      }
+
+      if(showSpectrum) {        // We need to update the values
+        for(int i = 0; i < spec2.yvalues.size(); i++)
+          spec2.yvalues[i] = log(trans.magnitude(i+1));
+      }
+        
+      trans.reverse();
+      d.yvalues = trans.data;
+      diff.yvalues = ds->y() - d.yvalues;
+      if(showSpectrum) {
+        bottom.setYRange(diff.yvalues.min(), diff.yvalues.max(), 
+                         NULL);
+        QRectF r = spec1.boundingRect();
+        r.setTop(spec1.yvalues.min()-20);
+        bottom.zoomIn(r);
+      }
+      else
+        bottom.setYRange(diff.yvalues.min(), diff.yvalues.max(), 
+                         view.mainPanel());
+      needCompute = false;
+    }
+
+  } while(! loop.finished());
+}
+
+static Command 
+fft("filter-fft", // command name
+    optionLessEffector(fftCommand), // action
+    "buffer",  // group name
+    NULL, // arguments
+    NULL, // options
+    "Filter",
+    "Filter using FFT",
+    "...");
+
 
 //////////////////////////////////////////////////////////////////////
 

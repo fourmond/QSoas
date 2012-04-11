@@ -27,6 +27,8 @@
 
 /// This class provides fourier transforms facilities (including
 /// filtering)
+///
+/// @todo Implement auto padding !
 class FFT {
 
   /// @name GSL interface
@@ -53,7 +55,7 @@ public:
 
   /// The first X value.
   double firstX;
-  
+
 
   /// Data (either real of FFTed)
   Vector data;
@@ -74,6 +76,9 @@ public:
   /// baseline.
   void forward(bool useBaseline = true); 
 
+  /// Performs the backward (unscaled) transform.
+  void backward();
+
   /// Performs the reverse transform and add baseline back.
   void reverse(bool useBaseline = true);
 
@@ -93,7 +98,7 @@ public:
   Vector spectrum() const;
 
   /// Scales the given frequency element (0 <= i < (n+1)/2)
-  double scaleFrequency(int i, double fact);
+  void scaleFrequency(int i, double fact);
   /// @}
 
   /// Returns the value of the baseline at the given X location
@@ -104,6 +109,9 @@ public:
 
   /// Computes the baseline
   Vector baseline() const;
+
+  /// Returns the list of factors used by the mix-radix routines
+  QList<int> factors() const;
 
   
 };

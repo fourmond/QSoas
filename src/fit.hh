@@ -94,6 +94,15 @@ protected:
   virtual QString optionsString() const {
     return QString();
   };
+
+  /// Checks that the datasets provided to the fits are correct. Raise
+  /// an appropriate runtime exception if that isn't the case.
+  ///
+  /// In particular, this checks that the number of datasets is
+  /// correct (but other checks may be implemented based on the
+  /// contents of the datasets too).
+  virtual void checkDatasets(const FitData * data) const;
+
 public:
 
   /// The fit name
@@ -145,6 +154,12 @@ public:
   virtual int parametersCheck(const double * parameters,
                               FitData * data);
 
+
+  /// If true, then this is a multibuffer fit by essence, which means
+  /// that all parameters are necessarily global.
+  virtual bool isMultiBuffer() const {
+    return false;
+  };
 
   /// Returns a string meant for the user to understand what is the
   /// specific role of the given dataset.

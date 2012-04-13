@@ -139,13 +139,23 @@ void Fit::processOptions(const CommandOptions & /*opts*/)
 }
 
 
+void Fit::checkDatasets(const FitData * data) const
+{
+  int nb = data->datasets.size();
+  if(nb < minDataSets)
+    throw RuntimeError(QString("Fit %1 expects at least %2 datasets, "
+                               "but found only %3").
+                       arg(name).arg(minDataSets).arg(nb));
+  if(maxDataSets > 0 && nb > maxDataSets)
+    throw RuntimeError(QString("Fit %1 expects at most %2 datasets, "
+                               "but found %3").
+                       arg(name).arg(maxDataSets).arg(nb));
+}
+
 
 void Fit::runFitCurrentDataSet(const QString & n, const CommandOptions & opts)
 {
   QList<const DataSet *> ds;
-  /// @todo Implement correctly the "minimumDataSet thing". The trick
-  /// is to implement it only once, and not in every single complex
-  /// fit.
   ds << soas().currentDataSet();
   runFit(n, ds, opts);
 }
@@ -155,6 +165,7 @@ void Fit::runFit(const QString &, QList<const DataSet *> datasets,
 {
   processOptions(opts);
   FitData data(this, datasets);
+  checkDatasets(&data);
   FitDialog dlg(&data);
 
   QString loadParameters;
@@ -170,6 +181,7 @@ void Fit::computeFit(const QString &, QString file,
 {
   processOptions(opts);
   FitData data(this, datasets);
+  checkDatasets(&data);
   FitDialog dlg(&data);
   dlg.loadParametersFile(file);
   dlg.pushSimulatedCurves();

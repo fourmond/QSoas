@@ -37,11 +37,23 @@
 
 #include <gsl/gsl_const_mksa.h>
 #include <gsl/gsl_math.h>
+
 /// Arbitrary fits, using Ruby as formula backend.
 ///
 /// @warning Two fits cannot be run at the same time, as the main
 /// instance is used to keep track of the current formula.
 class ArbitraryFit : public FunctionFit {
+public:
+
+  /// A small wrapper around Ruby::makeBlock
+  static VALUE parseBlock(const QString & formula, QStringList & parameters)
+  {
+    QByteArray bta = formula.toLocal8Bit();
+    const QByteArray & c = bta;
+    return Ruby::run<QStringList *, const QByteArray &>(&Ruby::makeBlock, &parameters, c);
+  }
+
+private:
 
   /// The ID for :call
   ID callID;
@@ -55,17 +67,16 @@ class ArbitraryFit : public FunctionFit {
   /// The parameters
   QStringList params;
 
+
   void parseBlock(const QString &formula)
   {
+    lastFormula = formula;
     params.clear();
     params << "x" << "f" << "pi" << "fara" << "temperature";
-    lastFormula = formula;
-    QByteArray bta = formula.toLocal8Bit();
-    const QByteArray & c = bta;
-    block = Ruby::run<QStringList *, const QByteArray &>(&Ruby::makeBlock, &params, c);
+    block = parseBlock(formula, params);
     for(int i = 0; i < 4; i++)
       params.takeFirst();       // Remove constants and/or derived stuff
-
+    
   }
     
   void runFitCurrentDataSet(const QString & n, 
@@ -195,6 +206,181 @@ public:
 };
 
 static ArbitraryFit arbFit;
+
+//////////////////////////////////////////////////////////////////////
+
+/// Multi-buffer arbitrary fits, using Ruby as formula backend.
+///
+/// @warning Two fits cannot be run at the same time, as the main
+/// instance is used to keep track of the current formula.
+///
+/// @todo There is too much code copypasted between this fit and
+/// ArbitraryFit. They should be merged.
+class MultiBufferArbitraryFit : public Fit {
+private:
+
+  /// The ID for :call
+  ID callID;
+
+  /// Blocks 
+  QList<VALUE> blocks;
+
+  /// The last formula used.
+  ///
+  /// The formula is a list of |-separated formulas, applying each in
+  /// turn to the buffers.
+  QString lastFormula;
+
+  QStringList formulas;
+
+  /// The parameters
+  QStringList params;
+
+
+  void parseBlocks(const QString &formula)
+  {
+    lastFormula = formula;
+    params.clear();
+    params << "x" << "f" << "pi" << "fara" << "temperature";
+    formulas = formula.split("|");
+    for(int i = 0; i < blocks.size(); i++)
+      rb_gc_unregister_address(&blocks[i]);
+    blocks.clear();
+    for(int i = 0; i < formulas.size(); i++)
+      ArbitraryFit::parseBlock(formulas[i], params); // Just to update
+                                                     // the parameters
+                                                     // list
+    for(int i = 0; i < formulas.size(); i++) {
+      blocks << ArbitraryFit::parseBlock(formulas[i], params);
+      rb_gc_register_address(&blocks[i]);
+    }
+    for(int i = 0; i < 4; i++)
+      params.takeFirst();       // Remove constants and/or derived stuff
+  }
+    
+  void runFit(const QString & name, QString formula, 
+              QList<const DataSet *> datasets,
+              const CommandOptions & opts)
+  {
+    callID = rb_intern("call"); // Shouldn't be done in the
+    // constructor, called to early.
+    Terminal::out << "Fitting using formula '" << formula << "'" << endl;
+    parseBlocks(formula);
+    lastFormula = formula;
+    Terminal::out << " -> detected parameters:  " << params.join(", ") 
+                  << endl;
+    Fit::runFit(name, datasets, opts);
+  }
+
+  /// Returns whether the parameter is fixed by default
+  bool paramFixed(const QString & name) const {
+    if(name == "temperature" || name == "y_0" || name == "x_0")
+      return true;
+    return false;
+  }
+
+  /// Returns the initial guess for the named parameter
+  double paramGuess(const QString & name) const {
+    if(name == "temperature")
+      return soas().temperature();
+    return 1;
+  };
+
+protected:
+
+  virtual QString optionsString() const {
+    return "formula: " + lastFormula;
+  };
+
+  virtual void processOptions(const CommandOptions & ) {
+    callID = rb_intern("call"); // Shouldn't be done in the
+    parseBlocks(lastFormula);
+  };
+
+
+    
+public:
+
+  virtual void function(const double *a, 
+                        FitData *data, gsl_vector *target) {
+    /// @todo check the number of datasets
+    int k = 0;
+    int nbargs = data->parameterDefinitions.size() + 4;
+    VALUE args[nbargs];
+    args[1] = rb_float_new(GSL_CONST_MKSA_FARADAY); // f
+    args[2] = rb_float_new(M_PI); // pi
+    args[3] = rb_float_new(GSL_CONST_MKSA_FARADAY/ 
+                           (a[0] * GSL_CONST_MKSA_MOLAR_GAS));
+
+    for(int i = 0; i < data->parameterDefinitions.size(); i++)
+      args[i + 4] = rb_float_new(a[i]);
+    for(int i = 0; i < data->datasets.size(); i++) {
+      const Vector &xv = data->datasets[i]->x();
+      for(int j = 0; j < xv.size(); j++) {
+        args[0] = rb_float_new(xv[j]); // x
+        gsl_vector_set(target, k++,  
+                       NUM2DBL(Ruby::run(&rb_funcall2, blocks[i], 
+                                         callID, nbargs, (const VALUE *) args)));
+      }
+    }
+    
+  };
+
+  virtual void initialGuess(FitData * /*params*/, 
+                            double * a)
+  {
+    // Or shall I use FitData ?
+    for(int i = 0; i < params.size(); i++)
+      a[i] = paramGuess(params[i]);
+  };
+
+  virtual QList<ParameterDefinition> parameters() const {
+    QList<ParameterDefinition> p;
+    for(int i = 0; i < params.size(); i++)
+      p << ParameterDefinition(params[i], paramFixed(params[i]));
+    return p;
+  };
+
+
+  MultiBufferArbitraryFit() : 
+    Fit("marb", 
+        "Arbitrary multifit",
+        "Arbitrary fit with user-supplied formula spanning multiple buffers\n"
+        "Special parameters: temperature, fara.\n"
+        "Already defined constants: f, pi",
+        2, -1, false)
+  { 
+    ArgumentList * al = new 
+      ArgumentList(QList<Argument *>()
+                   << new StringArgument("formulas", 
+                                         "Formulas",
+                                         "|-separated formulas for the fit"));
+
+    makeCommands(al, NULL,
+                 effector(this, &MultiBufferArbitraryFit::runFit));
+  };
+
+  /// This alternative constructor is to help create named fits based
+  /// on formulas.
+  MultiBufferArbitraryFit(const QString & name, const QString & formula) : 
+    Fit(name.toLocal8Bit(), 
+        QString("Fit: %1").arg(formula).toLocal8Bit(),
+        QString("Fit of the formula %1").arg(formula).toLocal8Bit(), 2, -1)
+  { 
+    lastFormula = formula;
+  };
+
+  const QString & formula() const {
+    return lastFormula;
+  };
+
+};
+
+static MultiBufferArbitraryFit mBarbFit;
+
+
+
+//////////////////////////////////////////////////////////////////////
 
 static QHash<QString, ArbitraryFit *> customFits;
 

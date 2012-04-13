@@ -77,11 +77,14 @@ void Fit::makeCommands(ArgumentList * args,
   *options << new FileArgument("parameters", 
                                "Parameters",
                                "Pre-loads parameters");
-  
-  new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
-              singleFit ? singleFit : 
-              effector(this, &Fit::runFitCurrentDataSet),
-              "fits", fal, options, pn, sd, ld);
+
+  // We don't declare the fit command when multiple datasets are
+  // necessary.
+  if(minDataSets == 1)          
+    new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
+                singleFit ? singleFit : 
+                effector(this, &Fit::runFitCurrentDataSet),
+                "fits", fal, options, pn, sd, ld);
   
   ArgumentList * al = NULL;
   if(args) {

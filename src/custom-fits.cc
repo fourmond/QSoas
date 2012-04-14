@@ -202,7 +202,8 @@ public:
   virtual QList<ParameterDefinition> parameters() const {
     QList<ParameterDefinition> p;
     for(int i = 0; i < params.size(); i++)
-      p << ParameterDefinition(params[i], paramFixed(params[i]));
+      p << ParameterDefinition(params[i], paramFixed(params[i]), 
+                               blocks.size() == 1);
     return p;
   };
 
@@ -247,10 +248,12 @@ public:
       
   };
 
-  virtual bool isMultiBuffer() const {
-    return blocks.size() > 1;
-  };
-
+  virtual QString annotateDataSet(int index) const {
+    if(blocks.size() > 1)
+      return QString("(%1)").arg(formulas[index]);
+    else
+      return QString();
+  };	
 
   const QString & formula() const {
     return lastFormula;

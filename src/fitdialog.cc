@@ -227,8 +227,9 @@ void FitDialog::dataSetChanged(int newds)
   emit(currentDataSetChanged(currentIndex));
   updateEditors();
   /// @todo annotation !
-  bufferNumber->setText(QString("%1/%2").
-                        arg(newds + 1).arg(data->datasets.size()));
+  bufferNumber->setText(QString("%1/%2 %3").
+                        arg(newds + 1).arg(data->datasets.size()).
+                        arg(data->fit->annotateDataSet(newds)));
 }
 
 

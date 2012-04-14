@@ -155,12 +155,6 @@ public:
                               FitData * data);
 
 
-  /// If true, then this is a multibuffer fit by essence, which means
-  /// that all parameters are necessarily global.
-  virtual bool isMultiBuffer() const {
-    return false;
-  };
-
   /// Returns a string meant for the user to understand what is the
   /// specific role of the given dataset.
   ///

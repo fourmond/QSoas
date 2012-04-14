@@ -107,7 +107,7 @@ public:
 
   /// Gets the value of the given parameter
   double getValue(int index, int dataset) const {
-    if(isGlobal(index))
+    if(dataset == 0 || isGlobal(index))
       return values[index % nbParameters];
     else
       return values[dataset * nbParameters + (index % nbParameters)];

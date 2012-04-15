@@ -79,3 +79,9 @@ VALUE Ruby::makeBlock(QStringList * variables, const QByteArray & code)
   return ret;
 }
 
+
+VALUE Ruby::toString(const QString & str)
+{
+  QByteArray bta = str.toLocal8Bit();
+  return rb_str_new2(bta.constData());
+}

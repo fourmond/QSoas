@@ -43,16 +43,12 @@
 /// @warning Two fits cannot be run at the same time, as the main
 /// instance is used to keep track of the current formula.
 ///
-/// @todo There is too much code copypasted between this fit and
-/// ArbitraryFit. They should be merged.
+/// The blocks are stored in a Ruby global variable.
 class MultiBufferArbitraryFit : public Fit {
 private:
 
   /// The ID for :call
   ID callID;
-
-  /// Blocks 
-  QList<VALUE> blocks;
 
   /// The last formula used.
   ///
@@ -60,6 +56,7 @@ private:
   /// turn to the buffers.
   QString lastFormula;
 
+  /// The formulas, split.
   QStringList formulas;
 
   /// The parameters
@@ -73,6 +70,18 @@ private:
     return Ruby::run<QStringList *, const QByteArray &>(&Ruby::makeBlock, &parameters, c);
   }
 
+  /// This returns the global hash that contains a correspondance
+  /// fit-name -> [blocks]
+  static VALUE getGlobalBlocksHash() 
+  {
+    VALUE hsh = rb_gv_get("$fits_blocks");
+    if(! RTEST(hsh)) {
+      hsh = rb_hash_new();
+      rb_gv_set("$fits_blocks", hsh);
+    }
+    return hsh;
+  }
+
 
   void parseBlocks(const QString &formula)
   {
@@ -80,17 +89,18 @@ private:
     params.clear();
     params << "x" << "f" << "pi" << "fara" << "temperature";
     formulas = formula.split("|");
-    for(int i = 0; i < blocks.size(); i++)
-      rb_gc_unregister_address(&blocks[i]);
-    blocks.clear();
+
+
     for(int i = 0; i < formulas.size(); i++)
-      parseBlock(formulas[i], params); // Just to update
-                                                     // the parameters
-                                                     // list
-    for(int i = 0; i < formulas.size(); i++) {
-      blocks << parseBlock(formulas[i], params);
-      rb_gc_register_address(&blocks[i]);
-    }
+      parseBlock(formulas[i], params); // Just to update the
+                                       // parameters list
+
+    VALUE blks = rb_ary_new();
+    for(int i = 0; i < formulas.size(); i++)
+      rb_ary_push(blks, parseBlock(formulas[i], params));
+
+    VALUE hsh = getGlobalBlocksHash();
+    rb_hash_aset(hsh, Ruby::toString(name), blks);
     for(int i = 0; i < 4; i++)
       params.takeFirst();       // Remove constants and/or derived stuff
   }
@@ -106,7 +116,10 @@ private:
     lastFormula = formula;
     Terminal::out << " -> detected parameters:  " << params.join(", ") 
                   << endl;
+    // We go brutal !
+    rb_gc_disable();
     Fit::runFit(name, datasets, opts);
+    rb_gc_enable();
   }
 
   void runFitCurrentDataSet(const QString & n, 
@@ -159,6 +172,7 @@ public:
     int nbargs = nbparams + 4;
 
     VALUE args[nbargs];
+    args[0] = rb_float_new(0); // x
     args[1] = rb_float_new(GSL_CONST_MKSA_FARADAY); // f
     args[2] = rb_float_new(M_PI); // pi
     args[3] = rb_float_new(GSL_CONST_MKSA_FARADAY/ 
@@ -166,28 +180,35 @@ public:
 
     for(int i = 0; i < nbparams; i++)
       args[i + 4] = rb_float_new(a[i]);
+
+
+    VALUE hsh = getGlobalBlocksHash();
+    VALUE blocks = rb_hash_aref(hsh, Ruby::toString(name));
+    VALUE blk = Qnil;
+
     for(int i = 0; i < data->datasets.size(); i++) {
       const Vector &xv = data->datasets[i]->x();
-      VALUE blk;
-      if(blocks.size() > 1)
-        blk = blocks[i];
+      if(formulas.size() > 1)
+        blk = rb_ary_entry(blocks, i);
       else {
         // We need to initialize the correct parameters too
-        blk = blocks[0];
-        args[3] = rb_float_new(GSL_CONST_MKSA_FARADAY/ 
-                               (a[i * nbparams] * GSL_CONST_MKSA_MOLAR_GAS));
+        blk = rb_ary_entry(blocks, 0);
+        RFLOAT_VALUE(args[3]) = (GSL_CONST_MKSA_FARADAY/ 
+                                 (a[i * nbparams] * GSL_CONST_MKSA_MOLAR_GAS));
         
         for(int l = 0; l < data->parameterDefinitions.size(); l++)
-          args[l + 4] = rb_float_new(a[l + i * nbparams]);
+          RFLOAT_VALUE(args[l + 4]) = a[l + i * nbparams];
       }
+      // printf("Block: %d -- %p\n", i, (formulas.size() > 1 ? &blocks[i] : 
+      //                                 &blocks[0]));
+      // rb_p(blk);
       for(int j = 0; j < xv.size(); j++) {
-        args[0] = rb_float_new(xv[j]); // x
+        RFLOAT_VALUE(args[0]) = xv[j]; // x
         gsl_vector_set(target, k++,  
                        NUM2DBL(Ruby::run(&rb_funcall2, blk, 
                                          callID, nbargs, (const VALUE *) args)));
       }
     }
-    
   };
 
   virtual void initialGuess(FitData * data, 
@@ -203,7 +224,7 @@ public:
     QList<ParameterDefinition> p;
     for(int i = 0; i < params.size(); i++)
       p << ParameterDefinition(params[i], paramFixed(params[i]), 
-                               blocks.size() == 1);
+                               formulas.size() == 1);
     return p;
   };
 
@@ -240,16 +261,17 @@ public:
   };
 
   virtual void checkDatasets(const FitData * data) const {
-    if(blocks.size() > 1 && blocks.size() != data->datasets.size()) {
+    if(formulas.size() > 1 && formulas.size() != data->datasets.size()) {
       throw RuntimeError(QString("Fit %1 needs %2 datasets, "
                                  "but got %3").
-                         arg(name).arg(blocks.size()).arg(data->datasets.size()));
+                         arg(name).arg(formulas.size()).
+                         arg(data->datasets.size()));
     }
       
   };
 
   virtual QString annotateDataSet(int index) const {
-    if(blocks.size() > 1)
+    if(formulas.size() > 1)
       return QString("(%1)").arg(formulas[index]);
     else
       return QString();

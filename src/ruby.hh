@@ -43,6 +43,9 @@ namespace Ruby {
   /// Read a file and execute it
   VALUE loadFile(const QString & file);
 
+  /// Makes a ruby string from a Qt string
+  VALUE toString(const QString & str);
+
   /// The main object.
   extern VALUE main;
 

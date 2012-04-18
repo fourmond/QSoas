@@ -298,8 +298,12 @@ public:
   /// complex algorithm is used to match X values in the other case.
   DataSet * subtract(const DataSet * dataset, bool naive = false) const;
 
-  /// Dives by \a dataset and returns the result. \sa subtract.
+  /// Divides by \a dataset and returns the result. \sa subtract.
   DataSet * divide(const DataSet * dataset, bool naive = false) const;
+
+  /// Returns a dataset containing \a dataset's Y and further
+  /// columns as a function of Y of this dataset.
+  DataSet * merge(const DataSet * dataset, bool naive = false) const;
 
   /// Returns the subset of the dataset contained either within the
   /// indices or outside of them

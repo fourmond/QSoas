@@ -565,6 +565,35 @@ divc("div", // command name
 //////////////////////////////////////////////////////////////////////
 
 
+static void mergeCommand(const QString &, QList<const DataSet *> a,
+                         DataSet * b, const CommandOptions & opts)
+{
+  bool naive = testOption<QString>(opts, "mode", "indices");
+  
+  for(int i = 0; i < a.size(); i++) {
+    const DataSet * ds = a[i];
+    Terminal::out << QObject::tr("Merging buffer '%2' with buffer '%1'").
+      arg(b->name).arg(ds->name) 
+                  << (naive ? " (index mode)" : " (xvalues mode)" ) 
+                  << endl;
+    soas().pushDataSet(ds->merge(b, naive));
+  }
+}
+
+static Command 
+mergec("merge", // command name
+       effector(mergeCommand), // action
+       "buffer",  // group name
+       &operationArgs, // arguments
+       &operationOpts, // options
+       "Merge buffers on X values",
+       "Merge two buffer based on X values",
+       "Merge the second buffer with the first one, and keep Y "
+       "of the second as a function of Y of the first");
+
+//////////////////////////////////////////////////////////////////////
+
+
 static void catCommand(const QString &, DataSet * a, 
                        QList<const DataSet *> b, const CommandOptions & opts)
 {

@@ -317,6 +317,22 @@ DataSet * DataSet::divide(const DataSet * ds, bool naive) const
   return applyBinaryOperation(this, ds, div, "_div_", naive);
 }
 
+static inline double keep_second(double, double b)
+{
+  return b;
+}
+
+DataSet * DataSet::merge(const DataSet * ds, bool naive) const
+{
+  DataSet * nd = applyBinaryOperation(this, ds, keep_second, 
+                                      "_merged_", naive);
+  nd->columns << nd->columns[0];
+  nd->columns[0] = columns[1];
+  return nd;
+}
+
+
+
 
 /// Performs a linear regression on the given data, storing the result in
 /// \a a and \a b.

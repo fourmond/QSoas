@@ -117,6 +117,11 @@ void CommandWidget::runCommand(const QStringList & raw)
         << error.message() << endl
         << "This is a bug in Soas and may be worth reporting !" << endl;
   }
+  catch(const ControlFlowException & flow) {
+    commandLine->setEnabled(true);
+    commandLine->setFocus();
+    throw;                      // rethrow
+  }
   commandLine->setEnabled(true);
   commandLine->setFocus();
 }
@@ -132,8 +137,15 @@ void CommandWidget::commandEntered()
   QString cmd = commandLine->text();
   commandLine->clear();
   QStringList cmds = cmd.split("\n");
-  for(int i = 0; i < cmds.size(); i++)
-    runCommand(cmds[i]);
+  try {
+    for(int i = 0; i < cmds.size(); i++)
+      runCommand(cmds[i]);
+  }
+  catch(const ControlFlowException & flow) {
+    out << bold("Error: ") << "control flow command " << flow.message()
+        << " cannot be used outside of a script" << endl;
+  }
+
 }
 
 void CommandWidget::appendToTerminal(const QString & str)
@@ -226,13 +238,18 @@ void CommandWidget::runCommandFile(QIODevice * source)
 {
   QTextStream in(source);
   QRegExp commentRE("^\\s*#.*");
-  while(true) {
-    QString line = in.readLine();
-    if(line.isNull())
-      break;
-    if(commentRE.indexIn(line) == 0)
-      continue;
-    runCommand(line);
+  try {
+    while(true) {
+      QString line = in.readLine();
+      if(line.isNull())
+        break;
+      if(commentRE.indexIn(line) == 0)
+        continue;
+      runCommand(line);
+    }
+  }
+  catch(const ControlFlowException & flow) {
+    // Nothing to do !
   }
 }
 

@@ -55,5 +55,14 @@ public:
   virtual ~InternalError() throw() {;};
 };
 
+/// This exception in general isn't an error, but just an
+/// implementation of control flow...
+class ControlFlowException : public Exception {
+public:
+  ControlFlowException(const QString & msg) throw() : Exception(msg) {
+  };
+  virtual ~ControlFlowException() throw() {;};
+};
+
 
 #endif

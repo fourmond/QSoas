@@ -278,7 +278,15 @@ void MainWin::setupFrame()
 void MainWin::menuActionTriggered(QAction * action)
 {
   QStringList cmd = action->data().toStringList();
-  commandWidget->runCommand(cmd);
+  try {
+    commandWidget->runCommand(cmd);
+  }
+  catch(const ControlFlowException & flow) {
+    Terminal::out << Terminal::bold("Error: ") << "control flow command " 
+                  << flow.message()
+                  << " cannot be used outside of a script" << endl;
+  }
+
 }
 
 void MainWin::updateWindowName()

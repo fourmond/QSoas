@@ -24,6 +24,7 @@
 #include <general-arguments.hh>
 #include <file-arguments.hh>
 #include <terminal.hh>
+#include <exceptions.hh>
 
 #include <vector.hh>
 #include <dataset.hh>
@@ -45,7 +46,6 @@
 static Group file("file", 0,
                   "File",
                   "General purpose commands");
-
 
 static void quitCommand(const QString & name)
 {
@@ -69,6 +69,25 @@ quit("quit", // command name
      "Quit QSoas",
      "Exits QSoas, losing all the current session",
      "q");
+
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void breakCommand(const QString & )
+{
+  throw ControlFlowException("break");
+}
+
+static Command 
+breakc("break", // command name
+       optionLessEffector(breakCommand), // action
+       "file",  // group name
+       NULL, // arguments
+       NULL, // options
+       "Break",
+       "Break from script",
+       "Interrupts the run of the current script");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -392,6 +411,7 @@ cd("cd", // command name
    "Change current directory",
    "Change current directory",
    "G");
+
   
 
 

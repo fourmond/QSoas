@@ -79,9 +79,9 @@ void Group::fillMenuBar(QMenuBar * menu)
   qSort(groups.begin(), groups.end(), compareGroups);
   for(int i = 0; i < groups.size(); i++) {
     QAction * action = groups[i]->actionForGroup(menu->parent());
-    QMenu * sub = action->menu();
     menu->addAction(action);
 #ifdef Q_WS_MACX
+    QMenu * sub = action->menu();
     // This is a workaround for bug https://bugreports.qt.nokia.com/browse/QTBUG-19920
     menu->connect(sub, SIGNAL(triggered(QAction*)), 
                   SIGNAL(triggered(QAction*)));
@@ -98,7 +98,7 @@ QString Group::latexDocumentation() const
   QString ret = QString("\\section{\\texttt{%1}: %2}\n").
     arg(groupName()).arg(publicName());
   for(int i = 0; i < cmds.size(); i++)
-    ret += cmds[i]->latexDocumentation();
+    ret += cmds[i]->latexDocumentation() + "\n\n";
   return ret;
 }
 

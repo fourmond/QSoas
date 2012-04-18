@@ -22,6 +22,7 @@
 
 #include <mainwin.hh>
 #include <command.hh>
+#include <group.hh>
 
 #include <ruby.hh>
 
@@ -37,6 +38,17 @@ int main(int argc, char ** argv)
   
   // We convert GSL's hard errors into C++ exceptions
   GSLError::setupGSLHandler();
+
+  /// @todo This is a rudimentary command-line parsing, but it does
+  /// the job -- for the time being ;-)...
+  QString arg1;
+  if(argc > 1)
+    arg1 = argv[1];
+  if(arg1 == "--tex-help") {
+    QTextStream o(stdout);
+    o << Group::latexDocumentationAllGroups() << endl;
+    return 0;
+  }
 
   int retval;
 

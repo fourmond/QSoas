@@ -29,16 +29,13 @@
    \li use a third column for the fits (but an interface needs to be
    clearly defined for that...); that also means to provide ways to
    tweak the Z values...
-   \li FFT filtering/derivation
    \li make the fits formulas available (LaTeX ?) -> try to design a
    clever way to do so... (embedded LaTeX would be cool, but hard to
    handle => no: compile first, have a method produce the LaTeX
    sources, and make a PDF from that -- and a CHTML file ? Look at the
    help brower)
-   \li option for k to limit the number of stuff displayed
    \li include (or not) some data when using multifit (weight globally
    a buffer ?)
-   @li a command to terminate the execution of a script.
 
    \section bugs Known bugs
    @li hard crashes on cut/deldp (index out of bounds)
@@ -62,9 +59,6 @@
 
    \li improve distance-to-dataset
    \li dataset selection
-   \li find a way to have a "default" optional parameter whose name
-   could be omitted: that would allow for an "optional" parameter to
-   be specified as "default optional parameter"
    \li add a "basic string" fallback for parameters/options
    \li come up with a full dialog box to edit @b all arguments to a
    command. (including options !)
@@ -72,7 +66,8 @@
    \li resampling (two possibilities: first, as a side-effect of the
    filtering, second as a distinct function)
    \li definition of new fits based on ruby subclasses of Fit,
-   PerDatasetFit and FunctionFit
+   PerDatasetFit and FunctionFit (much less useful now that we have
+   custom fit loading)
    \li keyboard shortcuts for navigation in FitDialog: quick goto
    label editor, navigation between buffers, shortcuts for export/save
    and so on...
@@ -84,6 +79,10 @@
    information to perform steps-aware subtractions/divisions (padding
    with last values/first values ?)
 
+   @li I should come up with button-like widget containers that would
+   help selection of datasets in DatasetBrowser, and use these
+   selection for various operations...
+
    Conditions files:
    \li annotate the buffers with information gotten from the
    conditions.dat files I use so often, ie tab-separated
@@ -93,9 +92,6 @@
    around), so that conditions files would be parseable in Ruby.
 
    Fits:
-   \li annotate buffers
-   \li option to pass certain parameters in the form of logarithms
-   (this could be done at the FitData level ?)
    \li options to automatically apply a bijection to the Y values too.
    \li optionnally add user-specified parameters, when the formula system
    for fit parameters is ready.

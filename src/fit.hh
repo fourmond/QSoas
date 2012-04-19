@@ -103,6 +103,12 @@ protected:
   /// contents of the datasets too).
   virtual void checkDatasets(const FitData * data) const;
 
+  /// A static correspondance fit name -> Fit*
+  static QHash<QString, Fit*> * fitsByName;
+
+  /// Registers the given fit
+  static void registerFit(Fit * fit);
+
 public:
 
   /// The fit name
@@ -186,6 +192,7 @@ public:
       int min = 1, int max = -1, bool mkCmds = true) :
     name(n), shortDesc(sd), longDesc(desc),
     minDataSets(min), maxDataSets(max) { 
+    registerFit(this);
     if(mkCmds)
       makeCommands();
   };

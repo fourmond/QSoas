@@ -36,6 +36,19 @@ static Group fits("fits", 0,
                   "Fits",
                   "Fitting of data");
 
+QHash<QString, Fit*> * Fit::fitsByName = NULL;
+
+void Fit::registerFit(Fit * fit)
+{
+  if(! fit)
+    return;
+  if(! fitsByName)
+    fitsByName = new QHash<QString, Fit*>;
+  /// @todo check double registration ?
+  (*fitsByName)[fit->name] = fit;
+}
+
+
 /// @todo It may be relatively easy to copy/paste the lmder solver and
 /// tweak it in order to provide better handling of domain errors...
 int Fit::parametersCheck(const double * /*parameters*/,

@@ -90,6 +90,11 @@ protected:
   /// even if you don't care about options.
   virtual void processOptions(const CommandOptions & opts);
 
+  /// Very cumbersome, but it seems to be necessary anyway...
+  static void processOptions(Fit * f, const CommandOptions & opts) {
+    f->processOptions(opts);
+  };
+
   /// Returns a string describing the options used, when applicable
   virtual QString optionsString() const {
     return QString();
@@ -110,6 +115,12 @@ protected:
   static void registerFit(Fit * fit);
 
 public:
+
+  /// Returns the name of all the available fits.
+  static QStringList availableFits();
+
+  /// Returns the named fit. (or null)
+  static Fit * namedFit(const QString & name);
 
   /// The fit name
   QString fitName(bool includeOptions = true) const {

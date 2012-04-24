@@ -696,6 +696,69 @@ DataSet * DataSet::derivedDataSet(const Vector &newy,
   return ds;
 }
 
+void DataSet::firstDerivative(const double *x, int xstride, 
+                              const double *y, int ystride, 
+                              double * target, int tstride,
+                              int size)
+{
+
+  int i;
+  double delta_1, delta_2, delta_3, delta_4;
+  double alpha_1, alpha_2, alpha_3, alpha_4;
+  double v0,v1,v2,v3,v4;
+
+  if(size < 5)
+    throw RuntimeError("Need at least 5 points");
+
+  for(i = 0; i < size; i++) {
+    /* First initialize values, though this is very suboptimal */
+    v0 = y[i * ystride];
+    if(i == 0) {
+      delta_1 = x[1 * xstride] - x[0]; v1 = y[1 * ystride];
+      delta_2 = x[2 * xstride] - x[0]; v2 = y[2 * ystride];
+      delta_3 = x[3 * xstride] - x[0]; v3 = y[3 * ystride];
+      delta_4 = x[4 * xstride] - x[0]; v4 = y[4 * ystride];
+    } else if(i == 1) {
+      delta_1 = x[0 * xstride] - x[1 * xstride]; v1 = y[0 * ystride];
+      delta_2 = x[2 * xstride] - x[1 * xstride]; v2 = y[2 * ystride];
+      delta_3 = x[3 * xstride] - x[1 * xstride]; v3 = y[3 * ystride];
+      delta_4 = x[4 * xstride] - x[1 * xstride]; v4 = y[4 * ystride];
+    } else if(i == size - 2) {
+      delta_1 = x[(size-1) * xstride] - x[(size-2) * xstride]; v1 = y[(size-1) * ystride];
+      delta_2 = x[(size-3) * xstride] - x[(size-2) * xstride]; v2 = y[(size-3) * ystride];
+      delta_3 = x[(size-4) * xstride] - x[(size-2) * xstride]; v3 = y[(size-4) * ystride];
+      delta_4 = x[(size-5) * xstride] - x[(size-2) * xstride]; v4 = y[(size-5) * ystride];
+    } else if(i == size - 1) {
+      delta_1 = x[(size-2) * xstride] - x[(size-1) * xstride]; v1 = y[(size-2) * ystride];
+      delta_2 = x[(size-3) * xstride] - x[(size-1) * xstride]; v2 = y[(size-3) * ystride];
+      delta_3 = x[(size-4) * xstride] - x[(size-1) * xstride]; v3 = y[(size-4) * ystride];
+      delta_4 = x[(size-5) * xstride] - x[(size-1) * xstride]; v4 = y[(size-5) * ystride];
+    } else {
+      delta_1 = x[(i-2) * xstride] - x[i * xstride]; v1 = y[(i-2) * ystride];
+      delta_2 = x[(i-1) * xstride] - x[i * xstride]; v2 = y[(i-1) * ystride];
+      delta_3 = x[(i+2) * xstride] - x[i * xstride]; v3 = y[(i+2) * ystride];
+      delta_4 = x[(i+1) * xstride] - x[i * xstride]; v4 = y[(i+1) * ystride];
+    }
+    alpha_1 = delta_2*delta_3*delta_4/
+      (delta_1 * (delta_2 - delta_1) * (delta_3 - delta_1) 
+       * (delta_4 - delta_1));
+    alpha_2 = delta_1*delta_3*delta_4/
+      (delta_2 * (delta_1 - delta_2) * (delta_3 - delta_2) 
+       * (delta_4 - delta_2));
+    alpha_3 = delta_1*delta_2*delta_4/
+      (delta_3 * (delta_1 - delta_3) * (delta_2 - delta_3) 
+       * (delta_4 - delta_3));
+    alpha_4 = delta_1*delta_2*delta_3/
+      (delta_4 * (delta_1 - delta_4) * (delta_2 - delta_4) 
+       * (delta_3 - delta_4));
+    target[i * tstride] =  -(alpha_1 + alpha_2 + alpha_3 + alpha_4) * v0 +
+      alpha_1 * v1 + alpha_2 * v2 + 
+      alpha_3 * v3 + alpha_4 * v4;
+  }
+
+}
+
+
 DataSet * DataSet::firstDerivative() const
 {
   int size = x().size();

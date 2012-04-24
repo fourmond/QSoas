@@ -48,6 +48,19 @@ void Fit::registerFit(Fit * fit)
   (*fitsByName)[fit->name] = fit;
 }
 
+QStringList Fit::availableFits()
+{
+  if(! fitsByName)
+    return QStringList();
+  return fitsByName->keys();
+}
+
+Fit * Fit::namedFit(const QString & name)
+{
+  if(! fitsByName)
+    return NULL;
+  return fitsByName->value(name, NULL);
+}
 
 /// @todo It may be relatively easy to copy/paste the lmder solver and
 /// tweak it in order to provide better handling of domain errors...

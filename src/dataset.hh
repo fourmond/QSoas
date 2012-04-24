@@ -332,7 +332,6 @@ public:
   static DataSet * concatenateDataSets(QList<const DataSet *> datasets);
 
 
-
   /// @}
   
   /// Writes the contents of the dataset in tab-separated format to \a
@@ -342,6 +341,13 @@ public:
   /// Writes to the named file, or use the name of the dataset.
   void write(const QString & fileName = QString()) const;
 
+  /// A utility function to compute the first derivative of a given
+  /// series of points (not to be used on noisy -- or even simply
+  /// experimental -- data !)
+  static void firstDerivative(const double *x, int xstride, 
+                              const double *y, int ystride, 
+                              double * target, int tstride,
+                              int nb);
   
 };
 

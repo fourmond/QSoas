@@ -128,7 +128,8 @@ SOURCES += src/qmain.cc \
         src/ducksim.cc \
         src/pointtracker.cc \
         src/misc-fits.cc \
-        src/custom-fits.cc
+        src/custom-fits.cc \
+        src/derivativefit.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -185,4 +186,5 @@ HEADERS += src/headers.hh \
         src/peaks.hh \
         src/datasetbrowser.hh \
         src/ducksim.hh \
-        src/pointtracker.hh
+        src/pointtracker.hh \
+        src/derivativefit.hh

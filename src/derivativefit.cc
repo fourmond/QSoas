@@ -20,24 +20,65 @@
 #include <derivativefit.hh>
 
 #include <fitdata.hh>
+#include <dataset.hh>
 #include <perdatasetfit.hh>
 
 void DerivativeFit::processOptions(const CommandOptions & opts)
 {
-  Fit * f = underlyingFit;
-  /// @todo add options !
-  Fit::processOptions(f, opts);
+  /// @todo add options to the command definition
+  Fit::processOptions(underlyingFit, opts);
 }
 
 
 QString DerivativeFit::optionsString() const
 {
-  return QString();
-  // return underlyingFit->optionsString() + " -- derivative";
+  return Fit::optionsString(underlyingFit) + " -- derivative";
 }
 
 void DerivativeFit::checkDatasets(const FitData * data) const
 {
   if(data->datasets.size() != 2)
     throw RuntimeError("Fit " + name + " needs exactly two buffers");
+  if(data->datasets[0]->x() != data->datasets[1]->x())
+    throw RuntimeError("Fit " + name + " works under the assumption that both the derivative and the function datasets hold the same X values");
+    
 }
+
+QList<ParameterDefinition> DerivativeFit::parameters() const
+{
+  return underlyingFit->parameters(); // Nothing else, heh ?
+}
+
+void DerivativeFit::initialGuess(FitData * data, double * guess)
+{
+  underlyingFit->initialGuess(data, guess);
+}
+
+QString DerivativeFit::annotateDataSet(int idx) const
+{
+  if(idx == 0)
+    return "function";
+  return "derivative";
+}
+
+DerivativeFit::~DerivativeFit()
+{
+}
+
+void DerivativeFit::function(const double * parameters,
+                             FitData * data, gsl_vector * target)
+{
+  gsl_vector_view fnView = data->viewForDataset(0, target);
+  gsl_vector_view derView = data->viewForDataset(1, target);
+  const DataSet * baseDS = data->datasets[0];
+
+  // Only compute the function once !
+  underlyingFit->function(parameters, data,
+                          baseDS, &fnView.vector);
+  DataSet::firstDerivative(baseDS->x().data(), 1, 
+                           fnView.vector.data, fnView.vector.stride,
+                           derView.vector.data, derView.vector.stride,
+                           baseDS->x().size());
+                           
+}
+

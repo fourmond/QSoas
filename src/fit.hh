@@ -100,6 +100,11 @@ protected:
     return QString();
   };
 
+  /// Same cumbersome hack as for processOptions()
+  static QString optionsString(const Fit * f) {
+    return f->optionsString();
+  };
+
   /// Checks that the datasets provided to the fits are correct. Raise
   /// an appropriate runtime exception if that isn't the case.
   ///

@@ -24,7 +24,15 @@
 #include <dataset.hh>
 #include <terminal.hh>
 
+#include <commandeffector-templates.hh>
+#include <file-arguments.hh>
+#include <command.hh>
+
 #include <exceptions.hh>
+
+#include <soas.hh>
+#include <curveview.hh>
+#include <datastack.hh>
 
 QList<DataBackend*> * DataBackend::availableBackends = NULL;
 
@@ -97,7 +105,7 @@ DataSet * DataBackend::loadFile(const QString & fileName, bool verbose)
     if(! b)
       throw RuntimeError(QObject::tr("No backend found to load '%1'").
                          arg(fileName));
-    ds = b->readFromStream(&file, fileName);
+    ds = b->readFromStream(&file, fileName, CommandOptions());
 
     if(verbose)
       Terminal::out << "using backend " << b->name << endl;
@@ -115,4 +123,73 @@ DataSet * DataBackend::loadFile(const QString & fileName, bool verbose)
   if(! cachedDatasets.insert(key, dscopy, ds->byteSize()))
     delete dscopy;              // Delete if add failed
   return ds;
+}
+
+ArgumentList * DataBackend::loadOptions() const
+{
+  return NULL;
+}
+
+void DataBackend::registerBackendCommands()
+{
+  ArgumentList * lst = 
+    new ArgumentList(QList<Argument *>() 
+                     << new SeveralFilesArgument("file", 
+                                                 "File",
+                                                 "Files to load !", true
+                                                 ));
+
+  for(int i = 0; i < availableBackends->size(); i++) {
+    DataBackend * b = availableBackends->value(i);
+    ArgumentList * opts = b->loadOptions();
+
+    /// @todo Add general options processing.
+    QString name = "load-as-" + b->name;
+
+    QString d1 = QString("Load files with backend '%1'").arg(b->name);
+    QString d2 = QString("Load any number of files directly using the backend "
+                         "'%1', bypassing cache andautomatic backend "
+                         "detection, and "
+                         "giving more fine-tuning in the loading via the "
+                         "use of dedicated options").arg(b->name);
+
+    new Command(name.toLocal8Bit(),
+                effector(b, &DataBackend::loadDatasetCommand),
+                "stack", lst, opts, (const char*) d1.toLocal8Bit(), 
+                (const char*) d1.toLocal8Bit(), 
+                (const char*) d2.toLocal8Bit());
+  }
+}
+
+void DataBackend::loadDatasetCommand(const QString & /*cmdname*/, 
+                                     QStringList files,
+                                     const CommandOptions & opts)
+{
+
+  /// @todo There is some code shared with the loadAndDisplay
+  /// function. That should be factored out as far as possible.
+
+  soas().view().disableUpdates();
+  int nb = 0;
+  for(int i = 0; i < files.size(); i++) {
+    QString fileName = files[i];
+    Terminal::out << "Loading file '" << fileName << "'";
+    try {
+      QFile file(fileName);
+      Utils::open(&file, QIODevice::ReadOnly);
+      DataSet * ds = readFromStream(&file, fileName, opts);
+      soas().stack().pushDataSet(ds, true); // use the silent version
+      // as we display ourselves
+      if(nb++ > 0)
+        soas().view().addDataSet(ds);
+      else
+        soas().view().showDataSet(ds);
+      Terminal::out << " -- " << ds->nbColumns() << " columns" << endl;
+    }
+    catch (const RuntimeError & e) {
+      Terminal::out << "\n" << e.message() << endl;
+    }
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
+  }
+  soas().view().enableUpdates();
 }

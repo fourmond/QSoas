@@ -23,6 +23,7 @@
 #include <mainwin.hh>
 #include <command.hh>
 #include <group.hh>
+#include <databackend.hh>
 
 #include <ruby.hh>
 
@@ -33,7 +34,9 @@ int main(int argc, char ** argv)
 {
   QApplication main(argc, argv);
   main.setApplicationName("QSoas");
+  DataBackend::registerBackendCommands();
   Command::crosslinkCommands();
+
   Ruby::initRuby();
   
   // We convert GSL's hard errors into C++ exceptions

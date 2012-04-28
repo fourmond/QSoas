@@ -20,7 +20,11 @@
 #ifndef __DATABACKEND_HH
 #define __DATABACKEND_HH
 
+#include <argumentmarshaller.hh>
+class ArgumentList;
 class DataSet;
+
+
 
 /// The base class of a series that reads data from files.
 ///
@@ -94,6 +98,18 @@ protected:
   virtual int couldBeMine(const QByteArray & peek, 
                           const QString & fileName) const = 0;
 
+
+  /// Returns the list of options the backend can take when called
+  /// directly.
+  virtual ArgumentList * loadOptions() const;
+
+
+  /// The command for loading several datasets in a dataset-specific
+  /// fashion
+  void loadDatasetCommand(const QString & cmdname, 
+                          QStringList files,
+                          const CommandOptions & opts);
+
 public:
   /// Reads a DataSet from the given stream. The \p fileName parameter
   /// does not necessarily point to a real file.
@@ -109,7 +125,8 @@ public:
   /// so-called conditions.dat files I used so often now. I'll have to
   /// decide how the interface will go.
   virtual DataSet * readFromStream(QIODevice * stream,
-                                   const QString & fileName) const = 0;
+                                   const QString & fileName,
+                                   const CommandOptions & opts) const = 0;
 
   
   /// Find which DataBackend is best suited to load the given stream.
@@ -122,7 +139,11 @@ public:
   /// an appropriate exception.
   ///
   /// This function caches the result !
-  static DataSet * loadFile(const QString & fileName, bool verbose = true);
+  static DataSet * loadFile(const QString & fileName, 
+                            bool verbose = true);
+
+  /// Register all the individual backend load-as commands
+  static void registerBackendCommands();
 };
 
 #endif

@@ -71,6 +71,7 @@ QStringList FileArgument::proposeCompletion(const QString & starter) const
 
 ArgumentMarshaller * FileSaveArgument::fromString(const QString & str) const
 {
+  /// @todo Hmmm Move that to Utils::open.
   if(askOverwrite && QFile::exists(str)) {
     QString s = QObject::tr("Overwrite file '%1' ?").
       arg(str);
@@ -89,6 +90,10 @@ ArgumentMarshaller * FileSaveArgument::promptForValue(QWidget * base) const
 
   QFileDialog fd(base, publicName(), QDir::currentPath());
   fd.setAcceptMode(QFileDialog::AcceptSave);
+
+  // We disable confirmation for overwriting here, as confirmation is
+  // systematically asked elsewhere.
+  fd.setOption(QFileDialog::DontConfirmOverwrite, true);
   if(! def.isEmpty())
     fd.selectFile(def);
 

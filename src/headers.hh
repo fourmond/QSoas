@@ -70,6 +70,9 @@
 #include <QPrinter>
 #include <QPrintDialog>
 
+// Signals with sender !
+#include <QSignalMapper>
+
 // To have openGL rendering
 #include <QGLWidget>
 

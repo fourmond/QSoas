@@ -453,6 +453,20 @@ browseStack("browse-stack", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void pushOntoStack(const QList<const DataSet*> & lst)
+{
+  soas().view().disableUpdates();
+  for(int i = 0; i < lst.size(); i++) {
+    DataSet * ds = new DataSet(*lst[i]);
+    soas().stack().pushDataSet(ds);
+    if(i > 0)
+        soas().view().addDataSet(ds);
+    else
+      soas().view().showDataSet(ds);
+  }
+  soas().view().enableUpdates();
+}
+
 static void browseFilesCommand(const QString &, const CommandOptions & opts)
 {
   DatasetBrowser dlg;
@@ -478,6 +492,7 @@ static void browseFilesCommand(const QString &, const CommandOptions & opts)
     QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
   }
   if(dataSets.size() > 0) {
+    dlg.addButton("Push onto stack", &::pushOntoStack);
     dlg.displayDataSets(dataSets);
     dlg.exec();
   }

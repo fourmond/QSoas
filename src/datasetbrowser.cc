@@ -21,13 +21,55 @@
 #include <datasetbrowser.hh>
 #include <settings-templates.hh>
 
+
+CurveViewButton::CurveViewButton(SelectionMode mode)
+{
+  QVBoxLayout * layout = new QVBoxLayout(this);
+  layout->setContentsMargins(0,0,0,0);
+  view = new CurveView;
+  layout->addWidget(view);
+
+  checkBox = new QCheckBox("Select buffer");
+  layout->addWidget(checkBox);
+  setSelectionMode(mode);
+}
+
+void CurveViewButton::setSelectionMode(SelectionMode mode)
+{
+  switch(mode) {
+  case NoSelection:
+    checkBox->hide();
+    break;
+  case Multiple:
+    checkBox->show();
+    break;
+  }
+}
+
+CurveViewButton::~CurveViewButton()
+{
+}
+
+bool CurveViewButton::isSelected() const
+{
+  if(! checkBox->isVisible())
+    return false;
+  return checkBox->isChecked();
+}
+
+//////////////////////////////////////////////////////////////////////
+
 static SettingsValue<QSize> browserSize("browser/size", QSize(700,500));
 
 
-DatasetBrowser::DatasetBrowser() : width(4), height(4)
+DatasetBrowser::DatasetBrowser() : width(4), height(4), 
+                                   extendedSelection(false)
 {
   resize(browserSize);
   setupFrame();
+  actionsMapper = new QSignalMapper;
+  connect(actionsMapper, SIGNAL(mapped(int)),
+          SLOT(runHook(int)));
 }
 
 DatasetBrowser::~DatasetBrowser()
@@ -52,24 +94,24 @@ void DatasetBrowser::setupFrame()
   layout->addLayout(grid);
 
 
-  QHBoxLayout * hb = new QHBoxLayout;
+  bottomLayout = new QHBoxLayout;
   QPushButton * bt = new QPushButton(tr("<-"));
   connect(bt, SIGNAL(clicked()), SLOT(previousPage()));
-  hb->addWidget(bt);
+  bottomLayout->addWidget(bt);
 
   bufferDisplay = new QLabel("");
-  hb->addWidget(bufferDisplay);
+  bottomLayout->addWidget(bufferDisplay);
 
 
   bt = new QPushButton(tr("Close"));
   connect(bt, SIGNAL(clicked()), SLOT(accept()));
-  hb->addWidget(bt);
+  bottomLayout->addWidget(bt);
 
   bt = new QPushButton(tr("->"));
   connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
-  hb->addWidget(bt);
+  bottomLayout->addWidget(bt);
 
-  layout->addLayout(hb);
+  layout->addLayout(bottomLayout);
 
 }
 
@@ -88,24 +130,29 @@ void DatasetBrowser::dataSetChanged(int newds)
                          arg(datasets.size()));
 }
 
-void DatasetBrowser::displayDataSets(const QList<const DataSet *> &ds)
+void DatasetBrowser::displayDataSets(const QList<const DataSet *> &ds,
+                                     bool es)
 {
+  extendedSelection = es;
   cleanupViews();
   datasets = ds;
   for(int i = 0; i < datasets.size(); i++) {
-    CurveView * view = new CurveView;
-    view->showDataSet(datasets[i]);
-    views << view;
+    CurveViewButton * bt = 
+      new CurveViewButton(es ? CurveViewButton::Multiple : 
+                          CurveViewButton::NoSelection);
+    bt->view->showDataSet(datasets[i]);
+    views << bt;
   }
   dataSetChanged(0);
 }
 
-void DatasetBrowser::displayDataSets(const QList<DataSet *> &ds)
+void DatasetBrowser::displayDataSets(const QList<DataSet *> &ds, 
+                                     bool es)
 {
   QList<const DataSet * > ds2;
   for(int i = 0; i < ds.size(); i++)
     ds2 << ds[i];
-  displayDataSets(ds2);
+  displayDataSets(ds2, es);
 }
 
 void DatasetBrowser::setupGrid()
@@ -137,4 +184,33 @@ void DatasetBrowser::nextPage()
 void DatasetBrowser::previousPage()
 {
   dataSetChanged(currentIndex - width*height);
+}
+
+
+QList<const DataSet*> DatasetBrowser::selectedDatasets() const
+{
+  QList<const DataSet*> ret;
+  for(int i = 0; i < views.size(); i++)
+    if(views[i]->isSelected())
+      ret << datasets[i];
+  return ret;
+}
+
+void DatasetBrowser::runHook(int id)
+{
+  QList<const DataSet*> datasets = selectedDatasets();
+  ActOnSelected hook = actionHooks.value(id, NULL);
+  if(hook)
+    hook(datasets);
+  
+}
+
+void DatasetBrowser::addButton(QString name, ActOnSelected hook)
+{
+  QPushButton * button = new QPushButton(name);
+  actionsMapper->connect(button, SIGNAL(clicked()),
+                        SLOT(map()));
+  actionsMapper->setMapping(button, actionHooks.size());
+  actionHooks << hook;
+  bottomLayout->insertWidget(2, button);
 }

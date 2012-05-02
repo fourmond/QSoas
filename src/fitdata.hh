@@ -21,6 +21,7 @@
 #ifndef __FITDATA_HH
 #define __FITDATA_HH
 
+#include <vector.hh>
 #include <possessive-containers.hh>
 
 class FitData;
@@ -245,7 +246,6 @@ class FitData {
   /// A storage space for the covariance matrix
   gsl_matrix * covarStorage;
 
-
 public:
   /// The fit in use
   Fit * fit;
@@ -322,12 +322,17 @@ public:
 
   /// The residuals (ie sum of the square of differences)
   ///
+  /// This are the raw residuals, ie what is seen by the fit
+  /// algorithm.
+  ///
   /// @todo write code for accessing to residuals relative to a single
   /// dataset ? (but that doesn't make much sense, does it ?)
   double residuals();
 
   /// The relative residuals: norm of the residuals over the norm of
   /// the data.
+  ///
+  /// @warning This takes into account the weight of the data.
   double relativeResiduals();
 
   ~FitData();
@@ -347,6 +352,22 @@ public:
   /// Returns the required factor to apply to the variance to get the
   /// confidence limit with the given percentage
   double confidenceLimitFactor(double conf) const;
+
+  /// @name Weighting-related functions and attributes
+  ///
+  /// @{
+
+  /// The weight of each buffer, initialized to 1 by default.
+  Vector weightsPerBuffer;
+
+
+
+protected:
+  /// Weights the target vector
+  void weightVector(gsl_vector * tg);
+
+
+  /// @}
 
 
 };

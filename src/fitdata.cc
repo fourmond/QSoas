@@ -227,8 +227,10 @@ FitData::FitData(Fit * f, const QList<const DataSet *> & ds) :
   solver(0), nbIterations(0), storage(0)
   
 {
-  for(int i = 0; i < datasets.size(); i++) 
+  for(int i = 0; i < datasets.size(); i++) {
     totalSize += datasets[i]->nbRows();
+    weightsPerBuffer << 1;      // By default 1
+  }
 
   storage = gsl_vector_alloc(totalSize);
   parametersStorage = gsl_vector_alloc(fullParameterNumber());
@@ -252,6 +254,14 @@ FitData::~FitData()
   if(covarStorage)
     gsl_matrix_free(covarStorage);
   freeSolver();
+}
+
+void FitData::weightVector(gsl_vector * tg)
+{
+  for(int i = 0; i < datasets.size(); i++) {
+    gsl_vector_view v = viewForDataset(i, tg);
+    gsl_vector_scale(&v.vector, weightsPerBuffer[i]);
+  }
 }
 
 int FitData::staticF(const gsl_vector * x, void * params, gsl_vector * f)
@@ -282,6 +292,7 @@ int FitData::f(const gsl_vector * x, gsl_vector * f)
   fit->function(params.data(), this, f);
   // Then, subtract data.
   subtractData(f);
+  weightVector(f);
   /// @todo Data weighting ?
 
   return GSL_SUCCESS;
@@ -333,6 +344,7 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
 
     gsl_vector_sub(&col.vector, storage);
     gsl_vector_scale(&col.vector, 1/step);
+    weightVector(&col.vector);
     gslParams[param->fitIndex] = value;
   }
   return GSL_SUCCESS;
@@ -520,7 +532,7 @@ double FitData::relativeResiduals()
   double res = residuals();
   double norm = 0;
   for(int i = 0; i < datasets.size(); i++)
-    norm += datasets[i]->y().norm();
+    norm += datasets[i]->y().norm() * weightsPerBuffer[i];
   return res/norm;
 }
 

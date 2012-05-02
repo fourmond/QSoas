@@ -50,6 +50,10 @@ class FitDialog : public QDialog {
   /// Label displaying the current buffer number
   QLabel * bufferNumber;
 
+  /// The line editor for entering the weight of the buffer, set to
+  /// NULL if that has been opted out.
+  QLineEdit * bufferWeightEditor;
+
   /// List of editors
   QList<FitParameterEditor *> editors;
 
@@ -85,7 +89,7 @@ protected:
 
 
 public:
-  FitDialog(FitData * data);
+  FitDialog(FitData * data, bool displayWeights = false);
   ~FitDialog();
 
 signals:
@@ -102,6 +106,8 @@ public slots:
 protected slots:
 
   void dataSetChanged(int newds);
+
+  void weightEdited(const QString & str);
 
   /// Compute the new curves based on initial guesses (or
   /// hand-modified versions)

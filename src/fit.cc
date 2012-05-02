@@ -192,7 +192,7 @@ void Fit::runFit(const QString &, QList<const DataSet *> datasets,
   processOptions(opts);
   FitData data(this, datasets);
   checkDatasets(&data);
-  FitDialog dlg(&data);
+  FitDialog dlg(&data, true);
 
   QString loadParameters;
   updateFromOptions(opts, "parameters", loadParameters);

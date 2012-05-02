@@ -45,16 +45,21 @@ static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
 
 
 /// FitDialog should include provisions for making
-FitDialog::FitDialog(FitData * d) : data(d),
-                                    stackedViews(NULL), 
-                                    parameters(d),
-                                    currentIndex(0),
-                                    settingEditors(false), 
-                                    progressReport(NULL)
+FitDialog::FitDialog(FitData * d, bool displayWeights) : 
+  data(d),
+  stackedViews(NULL), 
+  parameters(d),
+  currentIndex(0),
+  settingEditors(false), 
+  progressReport(NULL)
 {
   resize(fitDialogSize);
 
   compute();
+  if(displayWeights && d->datasets.size() > 1)
+    bufferWeightEditor = new QLineEdit;
+  else
+    bufferWeightEditor = NULL;
   setupFrame();
 
   updateEditors();
@@ -113,6 +118,12 @@ void FitDialog::setupFrame()
   
   bufferNumber = new QLabel();
   hb->addWidget(bufferNumber);
+
+  if(bufferWeightEditor) {
+    hb->addWidget(bufferWeightEditor);
+    connect(bufferWeightEditor, SIGNAL(textEdited(const QString &)),
+            SLOT(weightEdited(const QString &)));
+  }
 
   bt = new QPushButton(tr("->"));
   connect(bt, SIGNAL(clicked()), SLOT(nextDataset()));
@@ -227,9 +238,10 @@ void FitDialog::dataSetChanged(int newds)
   emit(currentDataSetChanged(currentIndex));
   updateEditors();
   /// @todo annotation !
-  bufferNumber->setText(QString("%1/%2 %3").
+  bufferNumber->setText(QString("%1/%2 %3 %4").
                         arg(newds + 1).arg(data->datasets.size()).
-                        arg(data->fit->annotateDataSet(newds)));
+                        arg(data->fit->annotateDataSet(newds)).
+                        arg(bufferWeightEditor ? " weight: " : ""));
 }
 
 
@@ -256,6 +268,10 @@ void FitDialog::updateEditors()
   int sz = editors.size();
   for(int i = 0; i < sz; i++)
     editors[i]->updateFromParameters();
+
+  if(bufferWeightEditor)
+    bufferWeightEditor->
+      setText(QString::number(data->weightsPerBuffer[currentIndex]));
 
   settingEditors = false;
 }
@@ -523,3 +539,12 @@ void FitDialog::editParameters()
   dlg.exec();
   updateEditors();
 }
+
+void FitDialog::weightEdited(const QString & str)
+{
+  bool ok = false;
+  double nw = str.toDouble(&ok);
+  if(ok)
+    data->weightsPerBuffer[currentIndex] = nw;
+}
+

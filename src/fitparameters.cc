@@ -119,7 +119,8 @@ void FitParameters::prepareExport(QStringList & lst, QString & lines,
     if(exportErrors)
       lst << QString("%1_err").arg(name);
   }
-  lst << "xstart" << "xend" << "residuals" << "rel_residuals";
+  lst << "xstart" << "xend" << "residuals" << "rel_residuals" 
+      << "buffer_weight";
 
   double res = fitData->residuals();
   double rel_res = fitData->relativeResiduals();
@@ -141,6 +142,7 @@ void FitParameters::prepareExport(QStringList & lst, QString & lines,
     ls2 << QString::number(fitData->datasets[i]->x().min());
     ls2 << QString::number(fitData->datasets[i]->x().max());
     ls2 << QString::number(res) << QString::number(rel_res);
+    ls2 << QString::number(fitData->weightsPerBuffer[i]);
     lines += ls2.join("\t") + "\n";
   }
 }
@@ -204,7 +206,9 @@ void FitParameters::writeToTerminal(bool /*writeMatrix*/) const
 
 
   for(int j = 0; j < datasets; j++) {
-    Terminal::out << "Buffer: " << fitData->datasets[j]->name << endl;
+    Terminal::out << "Buffer: " << fitData->datasets[j]->name 
+                  << " (weight: " << fitData->weightsPerBuffer[j] 
+                  << ")" << endl;
     for(int i = 0; i < nbParameters; i++) {
       if(isGlobal(i))
         continue;
@@ -245,6 +249,8 @@ void FitParameters::saveParameters(QIODevice * stream) const
   }
   if(datasets > 1) {
     for(int j = 0; j < datasets; j++) {
+      out << "buffer_weight[#" << j << "]\t" << fitData->weightsPerBuffer[j] 
+          << endl;
       for(int i = 0; i < nbParameters; i++) {
         if(isGlobal(i))
           continue;
@@ -287,6 +293,26 @@ void FitParameters::loadParameters(QIODevice * source)
       
       QString str = paramRE.cap(3);
 
+      if(paramName == "buffer_weight") {
+        if(ds < 0) {
+          Terminal::out << "Found a global 'buffer_weight' specification. "
+            "That doesn't make sense !" << endl;
+          continue;
+        }
+        if(ds >= fitData->datasets.size()) {
+          Terminal::out << "Ignoring extra 'buffer_weight' specification." 
+                        << endl;
+          continue;
+        }
+        bool ok = false;
+        double w = str.toDouble(&ok);
+        if(ok)
+          fitData->weightsPerBuffer[ds] = w;
+        else
+          Terminal::out << "Weight not understood: '" << str 
+                        << "'" << endl;
+        continue;
+      }
       int idx = parameterIndices.value(paramName, -1);
       if(idx < 0) {
         Terminal::out << "Found unkown parameter: '" << paramName 

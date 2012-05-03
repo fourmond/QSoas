@@ -104,6 +104,10 @@
 #include <QVarLengthArray>
 #include <QCache>
 
+// Explicit sharing
+#include <QSharedData>
+#include <QExplicitlySharedDataPointer>
+
 // We want to be able to select the locale for parsing floating-point
 // values.
 #include <QLocale>

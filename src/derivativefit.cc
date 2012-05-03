@@ -128,11 +128,11 @@ ddfA(QList<Argument *>()
 
 
 static Command 
-ddf("defined-derived-fit", // command name
+ddf("define-derived-fit", // command name
      optionLessEffector(defineDerivedFit), // action
      "fits",  // group name
      &ddfA, // arguments
      NULL, // options
      "Create a derived fit",
      "Create a derived fit to fit both the data and its derivative",
-     "(...)");
+    "(...)");

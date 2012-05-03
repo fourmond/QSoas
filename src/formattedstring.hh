@@ -31,6 +31,9 @@
 ///
 /// This is done through a basic markup that will get documented here.
 ///
+/// Or, maybe, I should use a functional approach to that ? (ie
+/// FormattedString s + FormartedString::bold("stuff") + ... ?
+///
 /// In principle, no pointer to children should leak from this class.
 class FormattedString : public QSharedData {
 

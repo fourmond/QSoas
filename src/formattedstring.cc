@@ -35,7 +35,7 @@ public:
   };
 
   virtual QString toHTML() const {
-    return text;                /// @todo Quote !
+    return Qt::escape(text);
   };
 
   virtual QString toLaTeX() const {

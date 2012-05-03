@@ -100,17 +100,25 @@ void Fit::makeCommands(ArgumentList * args,
     options = new ArgumentList();
   else 
     options = new ArgumentList(*originalOptions);
+
   *options << new FileArgument("parameters", 
                                "Parameters",
                                "Pre-loads parameters");
 
   // We don't declare the fit command when multiple datasets are
   // necessary.
-  if(minDataSets == 1)          
+  if(minDataSets == 1) {
     new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
                 singleFit ? singleFit : 
                 effector(this, &Fit::runFitCurrentDataSet),
                 "fits", fal, options, pn, sd, ld);
+    options = new ArgumentList(*options); // Duplicate, as options
+                                          // will be different for single and multi fits
+  }
+  *options << new BoolArgument("weight-buffers", 
+                               "Weight buffers",
+                               "Whether or not to weight buffers (off by default)");
+
   
   ArgumentList * al = NULL;
   if(args) {
@@ -192,10 +200,14 @@ void Fit::runFit(const QString &, QList<const DataSet *> datasets,
   processOptions(opts);
   FitData data(this, datasets);
   checkDatasets(&data);
-  FitDialog dlg(&data, true);
 
   QString loadParameters;
+  bool showWeights = false;
   updateFromOptions(opts, "parameters", loadParameters);
+  updateFromOptions(opts, "weight-buffers", showWeights);
+
+  FitDialog dlg(&data, showWeights);
+
   if(! loadParameters.isEmpty())
     dlg.loadParametersFile(loadParameters);
   dlg.exec();

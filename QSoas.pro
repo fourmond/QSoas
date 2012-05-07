@@ -130,7 +130,8 @@ SOURCES += src/qmain.cc \
         src/misc-fits.cc \
         src/custom-fits.cc \
         src/derivativefit.cc \
-        src/formattedstring.cc
+        src/formattedstring.cc \
+        src/linearwave.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -189,4 +190,5 @@ HEADERS += src/headers.hh \
         src/ducksim.hh \
         src/pointtracker.hh \
         src/derivativefit.hh \
-        src/formattedstring.hh
+        src/formattedstring.hh \
+        src/linearwave.hh

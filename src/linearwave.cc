@@ -22,9 +22,14 @@
 #include <linearwave.hh>
 
 #include <terminal.hh>
+#include <utils.hh>
 
 
 // Temporary includes for commands
+#include <command.hh>
+#include <commandeffector-templates.hh>
+#include <general-arguments.hh>
+#include <file-arguments.hh>
 
 
 class LWSpecies {
@@ -33,6 +38,48 @@ public:
   QString name;
 
   /// @todo cross-refs
+
+  LWSpecies() { ; };
+  LWSpecies(const QString & n) : name(n) {;};
+};
+
+
+//////////////////////////////////////////////////////////////////////
+
+class LWReactionBase {
+public:
+  int reactantIndex;
+  int productIndex;
+  bool reversible;
+
+  LWReactionBase() {;};
+  LWReactionBase(int ri, int pi, bool rev) : 
+    reactantIndex(ri), 
+    productIndex(pi), reversible(rev) {;};
+
+};
+
+class LWReaction : public LWReactionBase {
+public:
+  QString forwardRate;
+  QString backwardRate;
+
+  LWReaction() {;};
+  LWReaction(int ri, int pi, bool rev) : 
+    LWReactionBase(ri, pi, rev) {;};
+};
+
+class LWRedoxReaction : public LWReactionBase {
+public:
+  QString potential;
+  QString rate;
+  QString asymmetry;
+
+  int electrons;
+
+  LWRedoxReaction() {;};
+  LWRedoxReaction(int ri, int pi, bool rev) : 
+    LWReactionBase(ri, pi, rev) {;};
 };
 
 
@@ -56,6 +103,7 @@ void LinearWave::parseSystem(QTextStream * s)
 {
   QRegExp commentRE("^\\s*(?:$|#)"); // blank or comment
   QRegExp reactionRE("^(.*)\\s*(<=>|->)\\s*([^[]+)\\s*(?:\\[(.*)\\])?$");
+  QRegExp redoxRE("^(.*)\\+\\s*(\\d+)?e-\\s*$");
   
   int nb;
   while(true) {
@@ -69,18 +117,83 @@ void LinearWave::parseSystem(QTextStream * s)
 
     if(reactionRE.indexIn(line, 0) != 0) {
       // We have a wrong line
-      throw RuntimeError(QString("Incorrect line for linear wave spec (line #%1)").arg(nb));
+      throw RuntimeError(QString("Incorrect line: '%2' for linear wave spec (line #%1)").arg(nb).arg(line.trimmed()));
     }
 
-    QString reactant = reactionRE.cap(1);
-    QString product = reactionRE.cap(3);
+    QString reactant = reactionRE.cap(1).trimmed();
+    QString product = reactionRE.cap(3).trimmed();
+    QStringList constantNames = reactionRE.cap(4).
+      split(",", QString::SkipEmptyParts);
     bool reversible = (reactionRE.cap(2) == "<=>");
-    QString add = reactionRE.cap(4);
+    int electrons = 0;
+
+    if(redoxRE.indexIn(reactant) == 0) {
+      if(redoxRE.cap(2).size() > 0)
+        electrons = redoxRE.cap(2).toInt();
+      else
+        electrons = 1;
+      reactant = redoxRE.cap(1).trimmed();
+    }
+
+    int rindex;
+    int pindex;
+
+    if(! speciesIndex.contains(reactant)) {
+      rindex = species.size();
+      species << LWSpecies(reactant);
+      speciesIndex[reactant] = rindex;
+    }
+    else
+      rindex = speciesIndex[reactant];
+
+
+    if(! speciesIndex.contains(product)) {
+      pindex = species.size();
+      species << LWSpecies(product);
+      speciesIndex[product] = pindex;
+    }
+    else
+      pindex = speciesIndex[product];
+
+    if(electrons > 0) {
+      redoxReactions << LWRedoxReaction(rindex, pindex, reversible);
+    }
+    else {
+      reactions << LWReaction(rindex, pindex, reversible);
+
+      LWReaction & react = reactions.last();
+
+      // Now, either read rate constant names or make them up:
+
+      /// @todo Offer the possibility to parametrize using one rate and
+      /// an equilibrium constant ?
+      if(constantNames.size() != 0) {
+        react.forwardRate = constantNames[0];
+        if(reversible)            /// @todo fail when not present
+          react.backwardRate = constantNames[1];
+      }
+      else {
+        react.forwardRate = QString("k_%1").arg(reactions.size());
+        if(reversible)            /// @todo fail when not present
+          react.backwardRate = QString("k_m%1").arg(reactions.size());
+      }
+    }    
 
     // see later for echem stuff
-    
-    
   }
+
+  for(int i = 0; i < species.size(); i++)
+    Terminal::out << "Species #" << i << ": " << species[i].name << endl;
+
+  for(int i = 0; i < reactions.size(); i++)
+    Terminal::out << "Reaction #" << i << ": " << reactions[i].reactantIndex 
+                  << " to " << reactions[i].productIndex 
+                  << " forw: " << reactions[i].forwardRate << endl;
+
+  for(int i = 0; i < redoxReactions.size(); i++)
+    Terminal::out << "Reaction redox #" << i << ": " << redoxReactions[i].reactantIndex 
+                  << " to " << redoxReactions[i].productIndex 
+                  << " els: " << redoxReactions[i].electrons << endl;
 }
 
 
@@ -88,3 +201,28 @@ void LinearWave::parseSystem(QTextStream * s)
 
 //////////////////////////////////////////////////////////////////////
 
+static ArgumentList 
+testLWArgs(QList<Argument *>() 
+           << new FileArgument("file", 
+                               "File",
+                               "Files to load !"));
+
+
+static void testLWCommand(const QString &, QString arg)
+{
+  QFile f(arg);
+  Utils::open(&f, QIODevice::ReadOnly);
+  LinearWave lw;
+  lw.parseSystem(&f);
+}
+
+
+static Command 
+testLW("test-lw", // command name
+       optionLessEffector(testLWCommand), // action
+       "simulations",  // group name
+       &testLWArgs, // arguments
+       NULL, // options
+       "TestLW",
+       "TestLW test command",
+       "TestLW command for testing purposes");

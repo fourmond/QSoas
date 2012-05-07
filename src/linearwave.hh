@@ -24,8 +24,8 @@
 
 
 class LWSpecies;
-// class LWReaction;
-// class LWElectrodeReaction;
+class LWReaction;
+class LWRedoxReaction;
 
 /// This class computes the catalytic wave of an arbitrary linear
 /// catalyst (ie all reactions can be represented by first-order or
@@ -47,10 +47,16 @@ class LWSpecies;
 class LinearWave {
 
   /// The various species within the catalytic cycle.
-  QList<LWSpecies *> species;
+  QList<LWSpecies> species;
 
   /// An index species name -> index in the species list
   QHash<QString, int> speciesIndex;
+
+  /// The list of (non-redox) reactions
+  QList<LWReaction> reactions;
+
+  /// The list of redox reactions
+  QList<LWRedoxReaction> redoxReactions;
   
 public:
 

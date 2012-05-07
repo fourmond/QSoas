@@ -68,13 +68,32 @@ public:
   };
 
   virtual QString toHTML() const {
-    return text;                /// @todo Quote + markup
+    return Qt::escape(text);    /// @todo Quote + markup
   };
 
   virtual QString toLaTeX() const {
     return text;                /// @todo Quote + markup
   };
 };
+
+// class FSEquation : public FormattedString {
+// protected:
+//   /// The equation, in LaTeX format
+//   QString equation;
+// public:
+
+//   FSEquation(const QString & eq) : FormattedString(), equation(eq) {
+//     ;
+//   };
+
+//   virtual QString toText() const {
+//     return text;    
+//   };
+
+//   virtual QString toHTML() const {
+//     return Qt::escape(text);    /// @todo try to use images ?
+//   };
+// };
 
 FormattedString::FormattedString() 
 {

@@ -124,15 +124,15 @@ static ArgumentList
 ddfA(QList<Argument *>() 
       << new ChoiceArgument(&Fit::availableFits,
                             "fit", "Fit",
-                            "The fit we're making a derived fit of"));
+                            "The fit to make a derived fit of"));
 
 
 static Command 
 ddf("define-derived-fit", // command name
-     optionLessEffector(defineDerivedFit), // action
-     "fits",  // group name
-     &ddfA, // arguments
-     NULL, // options
-     "Create a derived fit",
-     "Create a derived fit to fit both the data and its derivative",
+    optionLessEffector(defineDerivedFit), // action
+    "fits",  // group name
+    &ddfA, // arguments
+    NULL, // options
+    "Create a derived fit",
+    "Create a derived fit to fit both the data and its derivative",
     "(...)");

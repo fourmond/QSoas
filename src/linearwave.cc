@@ -59,15 +59,19 @@ public:
 
 };
 
+//////////////////////////////////////////////////////////////////////
+
 class LWReaction : public LWReactionBase {
 public:
-  QString forwardRate;
+  QString forwardRate;          /// @todo Change all names into indices !
   QString backwardRate;
 
   LWReaction() {;};
   LWReaction(int ri, int pi, bool rev) : 
     LWReactionBase(ri, pi, rev) {;};
 };
+
+//////////////////////////////////////////////////////////////////////
 
 class LWRedoxReaction : public LWReactionBase {
 public:
@@ -82,6 +86,15 @@ public:
     LWReactionBase(ri, pi, rev) {;};
 };
 
+//////////////////////////////////////////////////////////////////////
+
+class LWParameter  {
+public:
+  QString name;
+
+  LWParameter() { ; };
+  LWParameter(const QString & n) : name(n) {;};
+};
 
 //////////////////////////////////////////////////////////////////////
 
@@ -91,6 +104,27 @@ LinearWave::LinearWave()
 
 LinearWave::~LinearWave()
 {
+}
+
+int LinearWave::addParameter(const QString & name)
+{
+  if(parametersIndex.contains(name))
+    return parametersIndex[name];
+  int id = parameters.size();
+  parameters << LWParameter(name);
+  parametersIndex[name] = id;
+  return id;
+}
+
+
+int LinearWave::addSpecies(const QString & name)
+{
+  if(speciesIndex.contains(name))
+    return speciesIndex[name];
+  int id = species.size();
+  species << LWSpecies(name);
+  speciesIndex[name] = id;
+  return id;
 }
 
 void LinearWave::parseSystem(QIODevice * dev)
@@ -135,28 +169,30 @@ void LinearWave::parseSystem(QTextStream * s)
       reactant = redoxRE.cap(1).trimmed();
     }
 
-    int rindex;
-    int pindex;
-
-    if(! speciesIndex.contains(reactant)) {
-      rindex = species.size();
-      species << LWSpecies(reactant);
-      speciesIndex[reactant] = rindex;
-    }
-    else
-      rindex = speciesIndex[reactant];
-
-
-    if(! speciesIndex.contains(product)) {
-      pindex = species.size();
-      species << LWSpecies(product);
-      speciesIndex[product] = pindex;
-    }
-    else
-      pindex = speciesIndex[product];
+    int rindex = addSpecies(reactant);
+    int pindex = addSpecies(product);
 
     if(electrons > 0) {
       redoxReactions << LWRedoxReaction(rindex, pindex, reversible);
+
+      LWRedoxReaction & react = redoxReactions.last();
+      react.electrons = electrons;
+      
+      if(reversible && constantNames.size() == 3) {
+        react.potential = constantNames[0];
+        react.rate = constantNames[1];
+        react.asymmetry = constantNames[2];
+      }
+      else if(!reversible && constantNames.size() == 2) {
+        react.rate = constantNames[0]; // @ 0V
+        react.asymmetry = constantNames[1];
+      }
+      else {
+        int id = redoxReactions.size();
+        react.potential = QString("E0_%1").arg(id);
+        react.rate = QString("k0_%1").arg(id);
+        react.asymmetry = QString("alpha_%1").arg(id);
+      }
     }
     else {
       reactions << LWReaction(rindex, pindex, reversible);
@@ -181,6 +217,9 @@ void LinearWave::parseSystem(QTextStream * s)
 
     // see later for echem stuff
   }
+
+  // Now, we build the parameter list.
+  
 
   for(int i = 0; i < species.size(); i++)
     Terminal::out << "Species #" << i << ": " << species[i].name << endl;

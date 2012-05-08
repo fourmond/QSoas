@@ -26,6 +26,7 @@
 class LWSpecies;
 class LWReaction;
 class LWRedoxReaction;
+class LWParameter;
 
 /// This class computes the catalytic wave of an arbitrary linear
 /// catalyst (ie all reactions can be represented by first-order or
@@ -57,6 +58,22 @@ class LinearWave {
 
   /// The list of redox reactions
   QList<LWRedoxReaction> redoxReactions;
+
+  /// The list of parameters needed to compute the concentrations of
+  /// the different species at a given potential.
+  ///
+  /// Their order is important (it is the one used for double *
+  /// parameters)
+  QList<LWParameter> parameters;
+
+  /// A cross-ref of parameter name -> index in the parameters list
+  QHash<QString, int> parametersIndex;
+
+  /// Adds the given parameter, and return its index
+  int addParameter(const QString & name);
+
+  /// Adds the given species and returns its index;
+  int addSpecies(const QString & name);
   
 public:
 
@@ -70,6 +87,9 @@ public:
 
   /// Parses straight from a QTextStream
   void parseSystem(QTextStream * s);
+
+  /// Returns the list of parameters, in the order they are
+  QStringList parameterNames() const;
 };
 
 #endif

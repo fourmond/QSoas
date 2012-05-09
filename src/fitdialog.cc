@@ -44,7 +44,6 @@
 static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
 
 
-/// FitDialog should include provisions for making
 FitDialog::FitDialog(FitData * d, bool displayWeights) : 
   data(d),
   stackedViews(NULL), 
@@ -105,14 +104,20 @@ void FitDialog::setupFrame()
   }
   layout->addWidget(stackedViews, 1);
 
+  //////////////////////////////////////////////////////////////////////
+  // First line
   QHBoxLayout * hb = new QHBoxLayout;
   QPushButton * bt = new QPushButton(tr("<-"));
   connect(bt, SIGNAL(clicked()), SLOT(previousDataset()));
   hb->addWidget(bt);
 
-  hb->addWidget(new QLabel("<b>Fit:</b> " + data->fit->fitName()));
+  bt = new QPushButton(tr("->"));
+  connect(bt, SIGNAL(clicked()), SLOT(nextDataset()));
+  hb->addWidget(bt);
 
-  hb->addWidget(bufferSelection, 1);
+  hb->addWidget(new QLabel("<b>Fit:</b> " + data->fit->fitName()), 1);
+
+  hb->addWidget(bufferSelection);
   connect(bufferSelection, SIGNAL(currentIndexChanged(int)),
           SLOT(dataSetChanged(int)));
   
@@ -125,11 +130,19 @@ void FitDialog::setupFrame()
             SLOT(weightEdited(const QString &)));
   }
 
+  bt = new QPushButton(tr("<-"));
+  connect(bt, SIGNAL(clicked()), SLOT(previousDataset()));
+  hb->addWidget(bt);
+  
   bt = new QPushButton(tr("->"));
   connect(bt, SIGNAL(clicked()), SLOT(nextDataset()));
   hb->addWidget(bt);
 
   layout->addLayout(hb);
+
+  //////////////////////////////////////////////////////////////////////
+  // Parameters
+
 
   int nbParams = data->parameterDefinitions.size();
   FlowingGridLayout * inner = new FlowingGridLayout();
@@ -143,6 +156,10 @@ void FitDialog::setupFrame()
                 SLOT(selectDataSet(int)));
   }
   layout->addLayout(inner);
+
+
+  //////////////////////////////////////////////////////////////////////
+  // Bottom
 
   progressReport = new QLabel(" ");
   layout->addWidget(progressReport);
@@ -191,22 +208,20 @@ void FitDialog::setupFrame()
 
   bt = new QPushButton(tr("Update curves (Ctrl+U)"));
   connect(bt, SIGNAL(clicked()), SLOT(compute()));
-  bt->addAction(ActionCombo::createAction(tr("Update curves"), 
-                                          this, SLOT(compute()),
-                                          QKeySequence(tr("Ctrl+U")), bt));
-  
+
+
   hb->addWidget(bt);
 
   bt = new QPushButton(tr("Edit parameters"));
   connect(bt, SIGNAL(clicked()), SLOT(editParameters()));
   hb->addWidget(bt);
 
-  startButton = new QPushButton(tr("Fit"));
+  startButton = new QPushButton(tr("Fit (Ctrl+F)"));
   connect(startButton, SIGNAL(clicked()), SLOT(startFit()));
   startButton->setDefault(true);
   hb->addWidget(startButton);
 
-  cancelButton = new QPushButton(tr("Cancel fit"));
+  cancelButton = new QPushButton(tr("Abort (Ctrl+A)"));
   connect(cancelButton, SIGNAL(clicked()), SLOT(cancelFit()));
   hb->addWidget(cancelButton);
   cancelButton->setVisible(false);
@@ -214,12 +229,29 @@ void FitDialog::setupFrame()
 
   bt = new QPushButton(tr("Close (Ctrl+C)"));
   connect(bt, SIGNAL(clicked()), SLOT(close()));
-  bt->addAction(ActionCombo::createAction(tr("Close"), 
-                                          this, SLOT(close()),
-                                          QKeySequence(tr("Ctrl+C")), bt));
   hb->addWidget(bt);
 
+
   layout->addLayout(hb);
+
+  // Registering shortcuts:
+  Utils::registerShortCut(QKeySequence(tr("Ctrl+U")), 
+                          this, SLOT(compute()));
+  Utils::registerShortCut(QKeySequence(tr("Ctrl+C")), 
+                          this, SLOT(close()));
+  Utils::registerShortCut(QKeySequence(tr("Ctrl+F")), 
+                          this, SLOT(startFit()));
+  Utils::registerShortCut(QKeySequence(tr("Ctrl+A")), 
+                          this, SLOT(cancelFit()));
+
+  // Ctr + PgUp/PgDown to navigate the buffers
+  Utils::registerShortCut(QKeySequence(tr("Ctrl+PgUp")), 
+                          this, SLOT(previousDataset()));
+  Utils::registerShortCut(QKeySequence(tr("Ctrl+PgDown")), 
+                          this, SLOT(nextDataset()));
+
+  
+
   dataSetChanged(0);
 }
 

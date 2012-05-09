@@ -36,7 +36,7 @@ public:
   
   virtual double backward(double y) const {
     if(y <= 0)
-      return 0;                 // Stupid default value ?
+      return -200;                 // if negative, go for 0 !
     return log(y);
   };
 

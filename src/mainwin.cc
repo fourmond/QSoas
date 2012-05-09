@@ -79,11 +79,16 @@
    information to perform steps-aware subtractions/divisions (padding
    with last values/first values ?)
 
+   @b Qt-related @b stuff:
+
+   @li maybe one day Utils::registerShortCut could be used to
+   store/annotate the shortcuts available in a window ?
+
    @li I should come up with button-like widget containers that would
    help selection of datasets in DatasetBrowser, and use these
    selection for various operations...
 
-   Conditions files:
+   @b Conditions @b files:
    \li annotate the buffers with information gotten from the
    conditions.dat files I use so often, ie tab-separated
    (customizable) files with a ##-starting header line (customizable
@@ -91,7 +96,19 @@
    pure Ruby, with a simple interface from C++ (but not the other way
    around), so that conditions files would be parseable in Ruby.
 
-   Fits:
+   @b Fits @b dialogs:
+
+   Some useability improvements:
+
+   @li display the (scaled !) covariance matrix in terms of colors
+   (white uncorrelated, red positively correlated and blue negatively
+   ?)
+
+   @li keep track of all the recent parameters along with their
+   respective residuals, to allow for an easy fallback to the "last
+   valid/reasonable parameters"
+
+   \b Fits:
    \li options to automatically apply a bijection to the Y values too.
    \li optionnally add user-specified parameters, when the formula system
    for fit parameters is ready.

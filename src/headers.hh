@@ -51,6 +51,9 @@
 #include <QTimeEdit>
 #include <QTableWidget>
 
+// Keyboard short cuts
+#include <QShortcut>
+
 // Dialogs and the like
 #include <QFileDialog>
 #include <QDialog>

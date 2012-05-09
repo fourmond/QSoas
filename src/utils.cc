@@ -213,3 +213,14 @@ double Utils::roundValue(double value, int rank)
   double v = value/pow(10, rk-rank);
   return round(v) * pow(10, rk-rank);
 }
+
+void Utils::registerShortCut(const QKeySequence & seq, QObject * receiver, 
+                             const char * fn, QWidget * parent,
+                             Qt::ShortcutContext context)
+{
+  if(! parent)
+    parent = dynamic_cast<QWidget*>(receiver);
+  QShortcut * sc = new QShortcut(seq, parent);
+  sc->setContext(context);
+  receiver->connect(sc, SIGNAL(activated()), fn);
+}

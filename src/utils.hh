@@ -94,6 +94,13 @@ namespace Utils {
   /// Rounds \a value as if it had only \a ranks digits before the
   /// decimal point.
   double roundValue(double value, int ranks = 1);
+
+
+  /// Connects the given shortcut to the given receiver. If parent is
+  /// NULL, it is taken equal to the receiver.
+  void registerShortCut(const QKeySequence & seq, QObject * receiver, 
+                        const char * fn, QWidget * parent = NULL,
+                        Qt::ShortcutContext context = Qt::WindowShortcut);
 };
 
 #endif

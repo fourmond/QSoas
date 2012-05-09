@@ -115,16 +115,10 @@ public:
   /// A few functions to ease interoperability with GSL
   /// @{
 
-  /// Returns a gsl_vector object suitable to represent this dataset.
-  ///
-  /// \warning The return value should not be freed using
-  /// gsl_vector_free !
+  /// Returns a gsl_vector_view object suitable to represent this dataset.
   gsl_vector_view vectorView();
 
-  /// Returns a gsl_vector object suitable to represent this dataset.
-  ///
-  /// \warning The return value should not be freed using
-  /// gsl_vector_free !
+  /// Returns a gsl_vector_view object suitable to represent this dataset.
   gsl_vector_const_view vectorView() const;
 
   /// Constructs from a GSL vector

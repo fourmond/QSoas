@@ -24,6 +24,7 @@
 #include <fit.hh>
 
 class PerDatasetFit;
+class Vector;
 
 /// This class handles the simultaneous fitting of a single buffer
 /// along with its derivative.
@@ -42,6 +43,15 @@ protected:
   /// The underlying fit
   PerDatasetFit * underlyingFit;
 
+  /// Whether we fit the original data as well ?
+  bool alsoOriginal;
+
+  /// Various buffers for use with the computation of the derivatives
+  QList<Vector> buffers;
+
+  /// Make sure the buffers are the right size.
+  void reserveBuffers(const FitData * data);
+
 public:
 
   virtual QList<ParameterDefinition> parameters() const;
@@ -54,7 +64,7 @@ public:
 
   /// Creates (and registers) the derivative fit based on the given
   /// fit
-  DerivativeFit(PerDatasetFit * fit);
+  DerivativeFit(PerDatasetFit * fit, bool fitorig = true);
   virtual ~DerivativeFit();
 
 };

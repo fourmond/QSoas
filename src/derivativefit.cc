@@ -29,23 +29,23 @@
 
 void DerivativeFit::processOptions(const CommandOptions & opts)
 {
-  /// @todo add options to the command definition
   Fit::processOptions(underlyingFit, opts);
 }
 
 
 QString DerivativeFit::optionsString() const
 {
-  return Fit::optionsString(underlyingFit) + " -- derivative";
+  return Fit::optionsString(underlyingFit) + " -- derivative" + 
+    (alsoOriginal ? "" : " only");
 }
 
 void DerivativeFit::checkDatasets(const FitData * data) const
 {
-  if(data->datasets.size() != 2)
-    throw RuntimeError("Fit " + name + " needs exactly two buffers");
-  if(data->datasets[0]->x() != data->datasets[1]->x())
-    throw RuntimeError("Fit " + name + " works under the assumption that both the derivative and the function datasets hold the same X values");
-    
+  if(alsoOriginal) {
+    if(data->datasets.size() != 2)
+      throw RuntimeError("Fit " + name + " needs exactly two buffers");
+  }
+  // No restriction in the other case.
 }
 
 QList<ParameterDefinition> DerivativeFit::parameters() const
@@ -63,6 +63,8 @@ void DerivativeFit::initialGuess(FitData * data, double * guess)
 
 QString DerivativeFit::annotateDataSet(int idx) const
 {
+  if(! alsoOriginal)
+    return QString();
   if(idx == 0)
     return "function";
   return "derivative";
@@ -72,28 +74,53 @@ DerivativeFit::~DerivativeFit()
 {
 }
 
+void DerivativeFit::reserveBuffers(const FitData * data)
+{
+  for(int i = 0; i < data->datasets.size(); i++) {
+    if(i >= buffers.size())
+      buffers << Vector();
+    buffers[i].resize(data->datasets[i]->x().size());
+  }
+  /// @todo Potentially, this is a limited memory leak.
+  
+}
+
 void DerivativeFit::function(const double * parameters,
                              FitData * data, gsl_vector * target)
 {
-  gsl_vector_view fnView = data->viewForDataset(0, target);
-  gsl_vector_view derView = data->viewForDataset(1, target);
-  const DataSet * baseDS = data->datasets[0];
+  reserveBuffers(data);
+  int i = 0;
+  if(alsoOriginal) {
+    gsl_vector_view fnView = data->viewForDataset(0, target);
+    const DataSet * baseDS = data->datasets[0];
 
-  // Only compute the function once !
-  underlyingFit->function(parameters, data,
-                          baseDS, &fnView.vector);
-  DataSet::firstDerivative(baseDS->x().data(), 1, 
-                           fnView.vector.data, fnView.vector.stride,
-                           derView.vector.data, derView.vector.stride,
-                           baseDS->x().size());
-                           
+    underlyingFit->function(parameters, data,
+                            baseDS, &fnView.vector);
+    ++i;
+  }                      
+  for(; i < data->datasets.size(); ++i) {
+    gsl_vector_view derView = data->viewForDataset(i, target);
+    gsl_vector_view bufView = buffers[i].vectorView(); 
+
+    const DataSet * derDS = data->datasets[i];
+
+    underlyingFit->function(parameters, data,
+                            derDS, &bufView.vector);
+    DataSet::firstDerivative(derDS->x().data(), 1, 
+                             bufView.vector.data, bufView.vector.stride,
+                             derView.vector.data, derView.vector.stride,
+                             derDS->x().size());
+
+  }
 }
 
-DerivativeFit::DerivativeFit(PerDatasetFit * source) :
-  Fit(QString("deriv-" + source->fitName(false)).toLocal8Bit(), 
+DerivativeFit::DerivativeFit(PerDatasetFit * source, bool as) :
+  Fit(QString((as ? "deriv-" :"deriv-only-") +  
+              source->fitName(false)).toLocal8Bit(), 
       "Derived fit",
       "(derived fit)",
-      2, 2, false), underlyingFit(source)
+      (as ? 2: 1) , (as ? 2: -1) , false), 
+  underlyingFit(source), alsoOriginal(as)
 
 {
   // How to remove the "parameters" argument ?
@@ -111,13 +138,18 @@ DerivativeFit::DerivativeFit(PerDatasetFit * source) :
 // Now, the command !
 
 
-static void defineDerivedFit(const QString &, QString fitName)
+static void defineDerivedFit(const QString &, QString fitName, 
+                             const CommandOptions & opts)
 {
   PerDatasetFit * fit = dynamic_cast<PerDatasetFit *>(Fit::namedFit(fitName));
 
   if(! fit)
     throw RuntimeError("The fit " + fitName + " isn't working buffer-by-buffer: impossible to make a derived fit");
-  new DerivativeFit(fit);
+
+  bool derivOnly = false;
+  updateFromOptions(opts, "deriv-only", derivOnly);
+  
+  new DerivativeFit(fit, !derivOnly);
 }
 
 static ArgumentList 
@@ -126,13 +158,18 @@ ddfA(QList<Argument *>()
                             "fit", "Fit",
                             "The fit to make a derived fit of"));
 
+static ArgumentList 
+ddfO(QList<Argument *>() 
+     << new BoolArgument("deriv-only", "Derivative only",
+                         "If true, one only wants to fit the derivatives, without fitting the original function at the same time"));
+
 
 static Command 
 ddf("define-derived-fit", // command name
-    optionLessEffector(defineDerivedFit), // action
+    effector(defineDerivedFit), // action
     "fits",  // group name
     &ddfA, // arguments
-    NULL, // options
+    &ddfO, // arguments
     "Create a derived fit",
     "Create a derived fit to fit both the data and its derivative",
     "(...)");

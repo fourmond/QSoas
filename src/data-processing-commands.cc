@@ -437,6 +437,7 @@ static void bsplinesCommand(const QString &)
                                  "d: display derivative\n"
                                  "a: equally spaced segments\n"
                                  "o: optimize positions\n"
+                                 "+,-: change splines order\n"
                                  "q, middle click: replace with filtered data\n"
                                  "ESC: abort"));
   do {
@@ -505,6 +506,18 @@ static void bsplinesCommand(const QString &)
         needCompute = true;
         autoXValues = true;
         break;
+      case '+':
+        ++order;
+        Terminal::out << "Now using splines of order " << order << endl;
+        needCompute = true;
+        break;
+      case '-':
+        --order;
+        if(order < 2)
+          order = 2;            // must be at least linear !
+        Terminal::out << "Now using splines of order " << order << endl;
+        needCompute = true;
+        break;
       default:
         ;
       }
@@ -513,6 +526,7 @@ static void bsplinesCommand(const QString &)
       ;
     }
     if(needCompute) {
+      splines.setOrder(order);
       if(autoXValues) {
         splines.autoBreakPoints(nbSegments - 1);
         x = splines.getBreakPoints();

@@ -124,6 +124,17 @@ void BSplines::setBreakPoints(const Vector & bps)
 
 }
 
+void BSplines::setOrder(int no)
+{
+  if(no == order)
+    return;
+  freeWS();
+  order = no;
+  Vector bps = breakPoints;
+  allocateWS();
+  setBreakPoints(bps);
+}
+
 void BSplines::autoBreakPoints(int nbPoints)
 {
   Vector bps;

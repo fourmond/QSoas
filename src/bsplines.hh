@@ -101,6 +101,9 @@ public:
   /// Set equally spaced breakpoints
   void autoBreakPoints(int nb);
 
+  /// Sets the order of the splines
+  void setOrder(int order);
+
   /// Returns the current break points
   const Vector & getBreakPoints() const { return breakPoints; };
 

@@ -207,6 +207,16 @@ QString Utils::vectorString(const gsl_vector_complex * vector)
   return lst.join("\t");
 }
 
+QString Utils::vectorString(const gsl_vector * vector)
+{
+  QStringList lst;
+  for(size_t i = 0; i < vector->size; i++) {
+    double x = gsl_vector_get(vector, i);
+    lst << QString("%1").arg(x);
+  }
+  return lst.join("\t");
+}
+
 double Utils::roundValue(double value, int rank)
 {
   double rk = ceil(log10(value));

@@ -89,6 +89,7 @@ namespace Utils {
   QString matrixString(const gsl_matrix * matrix);
   QString matrixString(const gsl_matrix_complex * matrix);
 
+  QString vectorString(const gsl_vector * vect);
   QString vectorString(const gsl_vector_complex * vect);
 
   /// Rounds \a value as if it had only \a ranks digits before the

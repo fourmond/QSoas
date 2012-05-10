@@ -93,13 +93,13 @@ public:
   virtual double backward(double y) const {
     double a,b;
     prepare(a,b);
-    if(y < a || y > b) 
-      return 0;       // Defaults to the middle of the range
+    if(y < a)
+      return -80;
+    if(y > b) 
+      return +80;
 
     double sc = 2 * (y - 0.5 * (a+b))/(b - a);
-    // QTextStream o(stdout);
-    // o << "
-    
+
     /// @todo We should check for range errors here.
     return atanh(sc);
   };

@@ -74,6 +74,12 @@ class LinearWave {
 
   /// Adds the given species and returns its index;
   int addSpecies(const QString & name);
+
+  /// The system matrix
+  gsl_matrix * systemMatrix;
+
+  void prepareMatrix(double potential, double temperature, 
+                     const double * parameters);
   
 public:
 
@@ -90,6 +96,24 @@ public:
 
   /// Returns the list of parameters, in the order they are
   QStringList parameterNames() const;
+
+  /// Returns the number of species
+  int speciesNumber() const {
+    return species.size();
+  };
+
+  /// Returns the number of parameters
+  int parametersNumber() const {
+    return parameters.size();
+  };
+
+  // /// Computes the concentrations of all species for the given
+  // /// potential and the given parameters; they are stored in \a
+  // /// result.
+  // void computeParameters(double potential, double temperature, 
+  //                        const double * parameters,
+  //                        gsl_vector * result);
+
 };
 
 #endif

@@ -100,10 +100,13 @@ public:
 
 LinearWave::LinearWave()
 {
+  systemMatrix = NULL;
 }
 
 LinearWave::~LinearWave()
 {
+  if(systemMatrix)
+    gsl_matrix_free(systemMatrix);
 }
 
 int LinearWave::addParameter(const QString & name)
@@ -135,6 +138,9 @@ void LinearWave::parseSystem(QIODevice * dev)
 
 void LinearWave::parseSystem(QTextStream * s)
 {
+  if(systemMatrix)
+    throw RuntimeError("Cannot re-use an already defined LinearWave system");
+
   QRegExp commentRE("^\\s*(?:$|#)"); // blank or comment
   QRegExp reactionRE("^(.*)\\s*(<=>|->)\\s*([^[]+)\\s*(?:\\[(.*)\\])?$");
   QRegExp redoxRE("^(.*)\\+\\s*(\\d+)?e-\\s*$");
@@ -178,6 +184,8 @@ void LinearWave::parseSystem(QTextStream * s)
       LWRedoxReaction & react = redoxReactions.last();
       react.electrons = electrons;
 
+      /// @todo in real, irreversible reactions are only supported for
+      /// reductions.
       if(constantNames.size() != (reversible ? 3 : 2)) {
         int id = redoxReactions.size();
         constantNames.clear();
@@ -212,8 +220,6 @@ void LinearWave::parseSystem(QTextStream * s)
   }
 
   // Now, we build the parameter list.
-  
-
   for(int i = 0; i < species.size(); i++)
     Terminal::out << "Species #" << i << ": " << species[i].name << endl;
 
@@ -229,6 +235,8 @@ void LinearWave::parseSystem(QTextStream * s)
   for(int i = 0; i < parameters.size(); i++)
     Terminal::out << "Parameter #" << i << ": " 
                   << parameters[i].name << endl;
+
+  systemMatrix = gsl_matrix_alloc(speciesNumber(), speciesNumber());
 }
 
 QStringList LinearWave::parameterNames() const
@@ -238,6 +246,75 @@ QStringList LinearWave::parameterNames() const
     params << parameters[i].name;
   return params;
 }
+
+
+// void LinearWave::computeParameters(double potential, const double * parameters,
+//                                    gsl_vector * result)
+// {
+//   // First, we need to prepare the matrix:
+  
+// }
+
+static inline void matrixAdd(gsl_matrix * m, int i, int j, double val)
+{
+  gsl_matrix_set(m, i, j, val + gsl_matrix_get(m, i, j));
+}
+
+static inline void matrixAddReaction(gsl_matrix * m, int from, int to, 
+                                     double val)
+{
+  matrixAdd(m, from, from, - val);
+  matrixAdd(m, to, from, + val);
+}
+
+void LinearWave::prepareMatrix(double potential, double temperature, 
+                               const double * parameters)
+{
+  // First, we must clear the matrix.
+  gsl_matrix_set_zero(systemMatrix);
+
+
+  /// @todo add a function that computes a vector that gives the
+  /// current by scalar multiplication with the concentrations
+
+  for(int i = 0; i < reactions.size(); i++) {
+    const LWReaction & react = reactions[i];
+    int ri = react.reactantIndex, pi = react.productIndex, 
+      fi = react.forwardRateIndex, bi = react.backwardRateIndex;
+    matrixAddReaction(systemMatrix, ri, pi, parameters[fi]);
+
+    if(react.reversible)
+      matrixAddReaction(systemMatrix, pi, ri, parameters[bi]);
+  }
+
+  // double fara = GSL_CONST_MKSA_FARADAY/ 
+  //   (temperature * GSL_CONST_MKSA_MOLAR_GAS);
+
+  // for(int i = 0; i < redoxReactions.size(); i++) {
+  //   const LWRedoxReaction & react = redoxReactions[i];
+  //   int ri = react.reactantIndex, pi = react.productIndex;
+
+  //   if(! react.reversible)
+  //     throw RuntimeError("Irreversible redox reactions not implemented");
+
+  //   /// @todo Handle irreversible reactions ?? 
+
+  //   double pot = parameters[react.potentialIndex];
+
+  //   double fr = exp(
+  //     fi = react.forwardRateIndex, bi = react.backwardRateIndex;
+
+  //   matrixAddReaction(systemMatrix, ri, pi, parameters[fi]);
+
+  //   if(react.reversible)
+  //     matrixAddReaction(systemMatrix, pi, ri, parameters[bi]);
+  // }
+
+
+
+  
+}
+
 
 
 

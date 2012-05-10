@@ -78,8 +78,16 @@ class LinearWave {
   /// The system matrix
   gsl_matrix * systemMatrix;
 
+  /// Fill up the system with a matrix
   void prepareMatrix(double potential, double temperature, 
                      const double * parameters);
+
+  /// Compute the rate constants of the forward and backward
+  /// directions of the electrochemical reaction
+  void computeEchemRateConstants(double fara, double potential, 
+                                 const LWRedoxReaction &reac,
+                                 const double * parameters,
+                                 double * kforw, double * kback);
   
 public:
 
@@ -107,12 +115,12 @@ public:
     return parameters.size();
   };
 
-  // /// Computes the concentrations of all species for the given
-  // /// potential and the given parameters; they are stored in \a
-  // /// result.
-  // void computeParameters(double potential, double temperature, 
-  //                        const double * parameters,
-  //                        gsl_vector * result);
+  /// Computes the concentrations of all species for the given
+  /// potential and the given parameters; they are stored in \a
+  /// result.
+  void computeConcentrations(double potential, double temperature, 
+                             const double * parameters,
+                             gsl_vector * result);
 
 };
 

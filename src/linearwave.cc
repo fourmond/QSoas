@@ -31,6 +31,9 @@
 #include <general-arguments.hh>
 #include <file-arguments.hh>
 
+#include <gsl/gsl_const_mksa.h>
+#include <gsl/gsl_math.h>
+
 
 class LWSpecies {
 public:
@@ -248,12 +251,13 @@ QStringList LinearWave::parameterNames() const
 }
 
 
-// void LinearWave::computeParameters(double potential, const double * parameters,
-//                                    gsl_vector * result)
-// {
-//   // First, we need to prepare the matrix:
+void LinearWave::computeConcentrations(double potential, double temperature,
+                                       const double * parameters,
+                                       gsl_vector * result)
+{
+  // First, we need to prepare the matrix:
   
-// }
+}
 
 static inline void matrixAdd(gsl_matrix * m, int i, int j, double val)
 {
@@ -265,6 +269,23 @@ static inline void matrixAddReaction(gsl_matrix * m, int from, int to,
 {
   matrixAdd(m, from, from, - val);
   matrixAdd(m, to, from, + val);
+}
+
+void LinearWave::computeEchemRateConstants(double fara, double potential, 
+                                           const LWRedoxReaction & react,
+                                           const double * parameters,
+                                           double * kforw, double * kback)
+{
+  double pot = parameters[react.potentialIndex];
+  double k0 = parameters[react.potentialIndex];
+  double alpha = parameters[react.asymmetryIndex];
+  int nb = react.electrons;
+
+  /// @todo handle irreversible reactions ?
+
+  // Reduction
+  *kforw = exp(fara * (pot - potential) * alpha * nb) * k0;
+  *kback = exp(fara * (potential - pot) * (1 - alpha) * nb) * k0;
 }
 
 void LinearWave::prepareMatrix(double potential, double temperature, 
@@ -287,28 +308,25 @@ void LinearWave::prepareMatrix(double potential, double temperature,
       matrixAddReaction(systemMatrix, pi, ri, parameters[bi]);
   }
 
-  // double fara = GSL_CONST_MKSA_FARADAY/ 
-  //   (temperature * GSL_CONST_MKSA_MOLAR_GAS);
+  double fara = GSL_CONST_MKSA_FARADAY/ 
+    (temperature * GSL_CONST_MKSA_MOLAR_GAS);
 
-  // for(int i = 0; i < redoxReactions.size(); i++) {
-  //   const LWRedoxReaction & react = redoxReactions[i];
-  //   int ri = react.reactantIndex, pi = react.productIndex;
+  for(int i = 0; i < redoxReactions.size(); i++) {
+    const LWRedoxReaction & react = redoxReactions[i];
+    int ri = react.reactantIndex, pi = react.productIndex;
 
-  //   if(! react.reversible)
-  //     throw RuntimeError("Irreversible redox reactions not implemented");
+    if(! react.reversible)
+      throw RuntimeError("Irreversible redox reactions not implemented");
 
-  //   /// @todo Handle irreversible reactions ?? 
+    /// @todo Handle irreversible reactions ?? 
 
-  //   double pot = parameters[react.potentialIndex];
+    double kf, kb;
+    computeEchemRateConstants(fara, potential, react,
+                              parameters, &kf, &kb);
 
-  //   double fr = exp(
-  //     fi = react.forwardRateIndex, bi = react.backwardRateIndex;
-
-  //   matrixAddReaction(systemMatrix, ri, pi, parameters[fi]);
-
-  //   if(react.reversible)
-  //     matrixAddReaction(systemMatrix, pi, ri, parameters[bi]);
-  // }
+    matrixAddReaction(systemMatrix, ri, pi, kf);
+    matrixAddReaction(systemMatrix, pi, ri, kb);
+  }
 
 
 

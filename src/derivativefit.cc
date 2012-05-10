@@ -134,9 +134,7 @@ DerivativeFit::DerivativeFit(PerDatasetFit * source, bool as) :
 
 
 //////////////////////////////////////////////////////////////////////
-
 // Now, the command !
-
 
 static void defineDerivedFit(const QString &, QString fitName, 
                              const CommandOptions & opts)

@@ -63,8 +63,8 @@ public:
 
 class LWReaction : public LWReactionBase {
 public:
-  QString forwardRate;          /// @todo Change all names into indices !
-  QString backwardRate;
+  int forwardRateIndex;
+  int backwardRateIndex;
 
   LWReaction() {;};
   LWReaction(int ri, int pi, bool rev) : 
@@ -75,9 +75,9 @@ public:
 
 class LWRedoxReaction : public LWReactionBase {
 public:
-  QString potential;
-  QString rate;
-  QString asymmetry;
+  int potentialIndex;
+  int rateIndex;
+  int asymmetryIndex;
 
   int electrons;
 
@@ -157,7 +157,7 @@ void LinearWave::parseSystem(QTextStream * s)
     QString reactant = reactionRE.cap(1).trimmed();
     QString product = reactionRE.cap(3).trimmed();
     QStringList constantNames = reactionRE.cap(4).
-      split(",", QString::SkipEmptyParts);
+      split(QRegExp("\\s*,\\s*"), QString::SkipEmptyParts);
     bool reversible = (reactionRE.cap(2) == "<=>");
     int electrons = 0;
 
@@ -177,22 +177,19 @@ void LinearWave::parseSystem(QTextStream * s)
 
       LWRedoxReaction & react = redoxReactions.last();
       react.electrons = electrons;
-      
-      if(reversible && constantNames.size() == 3) {
-        react.potential = constantNames[0];
-        react.rate = constantNames[1];
-        react.asymmetry = constantNames[2];
-      }
-      else if(!reversible && constantNames.size() == 2) {
-        react.rate = constantNames[0]; // @ 0V
-        react.asymmetry = constantNames[1];
-      }
-      else {
+
+      if(constantNames.size() != (reversible ? 3 : 2)) {
         int id = redoxReactions.size();
-        react.potential = QString("E0_%1").arg(id);
-        react.rate = QString("k0_%1").arg(id);
-        react.asymmetry = QString("alpha_%1").arg(id);
+        constantNames.clear();
+        if(reversible)
+          constantNames << QString("E0_%1").arg(id);
+        constantNames << QString("k0_%1").arg(id);
+        constantNames << QString("alpha_%1").arg(id);
       }
+      if(reversible)
+        react.potentialIndex = addParameter(constantNames.takeFirst());
+      react.rateIndex = addParameter(constantNames[0]);
+      react.asymmetryIndex = addParameter(constantNames[1]);
     }
     else {
       reactions << LWReaction(rindex, pindex, reversible);
@@ -200,21 +197,17 @@ void LinearWave::parseSystem(QTextStream * s)
       LWReaction & react = reactions.last();
 
       // Now, either read rate constant names or make them up:
-
-      /// @todo Offer the possibility to parametrize using one rate and
-      /// an equilibrium constant ?
-      if(constantNames.size() != 0) {
-        react.forwardRate = constantNames[0];
-        if(reversible)            /// @todo fail when not present
-          react.backwardRate = constantNames[1];
+      if(constantNames.size() != (reversible ? 2 : 1)) {
+        int id = redoxReactions.size();
+        constantNames.clear();
+        constantNames << QString("k_%1").arg(id);
+        if(reversible)
+          constantNames << QString("k_m%1").arg(id);
       }
-      else {
-        react.forwardRate = QString("k_%1").arg(reactions.size());
-        if(reversible)            /// @todo fail when not present
-          react.backwardRate = QString("k_m%1").arg(reactions.size());
-      }
+      react.forwardRateIndex = addParameter(constantNames[0]);
+      if(reversible)            /// @todo fail when not present
+        react.backwardRateIndex = addParameter(constantNames[1]);
     }    
-
     // see later for echem stuff
   }
 
@@ -226,13 +219,24 @@ void LinearWave::parseSystem(QTextStream * s)
 
   for(int i = 0; i < reactions.size(); i++)
     Terminal::out << "Reaction #" << i << ": " << reactions[i].reactantIndex 
-                  << " to " << reactions[i].productIndex 
-                  << " forw: " << reactions[i].forwardRate << endl;
+                  << " to " << reactions[i].productIndex << endl;
 
   for(int i = 0; i < redoxReactions.size(); i++)
     Terminal::out << "Reaction redox #" << i << ": " << redoxReactions[i].reactantIndex 
                   << " to " << redoxReactions[i].productIndex 
                   << " els: " << redoxReactions[i].electrons << endl;
+
+  for(int i = 0; i < parameters.size(); i++)
+    Terminal::out << "Parameter #" << i << ": " 
+                  << parameters[i].name << endl;
+}
+
+QStringList LinearWave::parameterNames() const
+{
+  QStringList params;
+  for(int i = 0; i < parameters.size(); i++)
+    params << parameters[i].name;
+  return params;
 }
 
 

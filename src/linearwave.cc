@@ -217,7 +217,7 @@ void LinearWave::parseSystem(QTextStream * s)
 
       // Now, either read rate constant names or make them up:
       if(constantNames.size() != (reversible ? 2 : 1)) {
-        int id = redoxReactions.size();
+        int id = reactions.size();
         constantNames.clear();
         constantNames << QString("k_%1").arg(id);
         if(reversible)
@@ -234,6 +234,31 @@ void LinearWave::parseSystem(QTextStream * s)
   concStorage = gsl_vector_alloc(speciesNumber());
   curStorage = gsl_vector_alloc(speciesNumber());
 }
+
+
+void LinearWave::dumpSystem() const
+{
+
+  for(int i = 0; i < species.size(); i++)
+    Terminal::out << "Species #" << i << ": " << species[i].name << endl;
+
+  for(int i = 0; i < reactions.size(); i++)
+    Terminal::out << "Reaction #" << i << ": " << reactions[i].reactantIndex 
+                  << " to " << reactions[i].productIndex 
+                  << "\tf: #" << reactions[i].forwardRateIndex << endl;
+
+  for(int i = 0; i < redoxReactions.size(); i++)
+    Terminal::out << "Reaction redox #" << i << ": " << redoxReactions[i].reactantIndex 
+                  << " to " << redoxReactions[i].productIndex 
+                  << " els: " << redoxReactions[i].electrons << endl;
+
+  for(int i = 0; i < parameters.size(); i++)
+    Terminal::out << "Parameter #" << i << ": " 
+                  << parameters[i].name << endl; 
+}
+
+
+
 
 QStringList LinearWave::parameterNames() const
 {
@@ -412,6 +437,7 @@ static void testLWCommand(const QString &, QString arg)
   Utils::open(&f, QIODevice::ReadOnly);
   LinearWave lw;
   lw.parseSystem(&f);
+  lw.dumpSystem();
 }
 
 

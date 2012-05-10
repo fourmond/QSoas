@@ -142,6 +142,9 @@ public:
 
   QString lastConcentrations() const;
   QString lastCurrent() const;
+
+  /// Display a whole bunch of interesting? things to the terminal.
+  void dumpSystem() const;
 };
 
 #endif

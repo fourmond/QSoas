@@ -27,6 +27,7 @@
 
 // Temporary includes for commands
 #include <command.hh>
+#include <vector.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
 #include <file-arguments.hh>
@@ -34,6 +35,10 @@
 #include <gsl/gsl_const_mksa.h>
 #include <gsl/gsl_math.h>
 
+#include <soas.hh>
+#include <dataset.hh>
+#include <datastack.hh>
+#include <curveview.hh>
 
 class LWSpecies {
 public:
@@ -108,8 +113,11 @@ LinearWave::LinearWave()
 
 LinearWave::~LinearWave()
 {
-  if(systemMatrix)
+  if(systemMatrix) {
     gsl_matrix_free(systemMatrix);
+    gsl_vector_free(concStorage);
+    gsl_vector_free(curStorage);
+  }
 }
 
 int LinearWave::addParameter(const QString & name)
@@ -219,27 +227,12 @@ void LinearWave::parseSystem(QTextStream * s)
       if(reversible)            /// @todo fail when not present
         react.backwardRateIndex = addParameter(constantNames[1]);
     }    
-    // see later for echem stuff
   }
 
-  // Now, we build the parameter list.
-  for(int i = 0; i < species.size(); i++)
-    Terminal::out << "Species #" << i << ": " << species[i].name << endl;
-
-  for(int i = 0; i < reactions.size(); i++)
-    Terminal::out << "Reaction #" << i << ": " << reactions[i].reactantIndex 
-                  << " to " << reactions[i].productIndex << endl;
-
-  for(int i = 0; i < redoxReactions.size(); i++)
-    Terminal::out << "Reaction redox #" << i << ": " << redoxReactions[i].reactantIndex 
-                  << " to " << redoxReactions[i].productIndex 
-                  << " els: " << redoxReactions[i].electrons << endl;
-
-  for(int i = 0; i < parameters.size(); i++)
-    Terminal::out << "Parameter #" << i << ": " 
-                  << parameters[i].name << endl;
 
   systemMatrix = gsl_matrix_alloc(speciesNumber(), speciesNumber());
+  concStorage = gsl_vector_alloc(speciesNumber());
+  curStorage = gsl_vector_alloc(speciesNumber());
 }
 
 QStringList LinearWave::parameterNames() const
@@ -250,14 +243,6 @@ QStringList LinearWave::parameterNames() const
   return params;
 }
 
-
-void LinearWave::computeConcentrations(double potential, double temperature,
-                                       const double * parameters,
-                                       gsl_vector * result)
-{
-  // First, we need to prepare the matrix:
-  
-}
 
 static inline void matrixAdd(gsl_matrix * m, int i, int j, double val)
 {
@@ -277,7 +262,7 @@ void LinearWave::computeEchemRateConstants(double fara, double potential,
                                            double * kforw, double * kback)
 {
   double pot = parameters[react.potentialIndex];
-  double k0 = parameters[react.potentialIndex];
+  double k0 = parameters[react.rateIndex];
   double alpha = parameters[react.asymmetryIndex];
   int nb = react.electrons;
 
@@ -327,11 +312,86 @@ void LinearWave::prepareMatrix(double potential, double temperature,
     matrixAddReaction(systemMatrix, ri, pi, kf);
     matrixAddReaction(systemMatrix, pi, ri, kb);
   }
-
-
-
-  
 }
+
+
+static inline void vectorAdd(gsl_vector * v, int i, double val)
+{
+  gsl_vector_set(v, i, val + gsl_vector_get(v, i));
+}
+
+void LinearWave::computeCurrentVector(double potential, double temperature, 
+                                      const double * parameters,
+                                      gsl_vector * result)
+{
+  gsl_vector_set_zero(result);
+
+  double fara = GSL_CONST_MKSA_FARADAY/ 
+    (temperature * GSL_CONST_MKSA_MOLAR_GAS);
+
+  for(int i = 0; i < redoxReactions.size(); i++) {
+    const LWRedoxReaction & react = redoxReactions[i];
+    int ri = react.reactantIndex, pi = react.productIndex;
+    double kf, kb;
+    computeEchemRateConstants(fara, potential, react,
+                              parameters, &kf, &kb);
+    vectorAdd(result, ri, - react.electrons * kf);
+    vectorAdd(result, pi, react.electrons * kb);
+  }
+}
+
+void LinearWave::computeConcentrations(double potential, double temperature,
+                                       const double * parameters,
+                                       gsl_vector * result)
+{
+  // First, we need to prepare the matrix:
+  prepareMatrix(potential, temperature, parameters);
+
+  gsl_permutation * p = gsl_permutation_alloc(speciesNumber());
+
+  // Now, we set the first line to 0:
+  for(int i = 0; i < speciesNumber(); i++)
+    gsl_matrix_set(systemMatrix, 0, i, 1);
+
+  int sgn;
+  gsl_linalg_LU_decomp(systemMatrix, p, &sgn);
+
+  gsl_vector_set_zero(result);
+  gsl_vector_set(result, 0, 1);
+
+  gsl_linalg_LU_svx(systemMatrix, p, result);
+
+  gsl_permutation_free(p);
+}
+
+double LinearWave::computeCurrent(double potential, double temperature,
+                                  const double * parameters)
+{
+  computeConcentrations(potential, temperature, parameters, concStorage);
+  computeCurrentVector(potential, temperature, parameters, curStorage);
+  double val;
+  gsl_blas_ddot(concStorage, curStorage, &val);
+  return val;
+}
+
+
+QString LinearWave::getMatrix(double potential, double temperature,
+                              const double * parameters)
+{
+  prepareMatrix(potential, temperature, parameters);
+  return Utils::matrixString(systemMatrix);
+}
+
+QString LinearWave::lastConcentrations() const
+{
+    return Utils::vectorString(concStorage);
+}
+
+QString LinearWave::lastCurrent() const 
+{
+  return Utils::vectorString(curStorage);
+}
+
 
 
 
@@ -364,3 +424,74 @@ testLW("test-lw", // command name
        "TestLW",
        "TestLW test command",
        "TestLW command for testing purposes");
+
+
+//////////////////////////////////////////////////////////////////////
+
+static ArgumentList 
+simLWArgs(QList<Argument *>() 
+           << new FileArgument("file", 
+                               "System",
+                               "System to load")
+           << new SeveralNumbersArgument("parameters", 
+                                         "Parameters")
+           );
+
+
+static void simulateLWCommand(const QString &, QString file, 
+                              QList<double> consts)
+{
+  QFile f(file);
+  Utils::open(&f, QIODevice::ReadOnly);
+  LinearWave lw;
+  lw.parseSystem(&f);
+
+  QStringList pn = lw.parameterNames();
+
+  while(consts.size() < lw.parametersNumber())
+    consts << 0;
+
+  Terminal::out << "Parameters are: " << endl;
+  for(int i = 0; i < pn.size(); i++)
+    Terminal::out << " - " << pn[i] << " = " << consts[i] << endl;
+
+  Vector params = consts.toVector();
+
+  double xstart = 0;
+  double xend = -1;
+  int nb = 1000;
+  double temperature = soas().temperature();
+
+  Vector x;
+  Vector y;
+  for(int i = 0; i < nb; i++) {
+    double p = xstart + ((xend - xstart) * i)/(nb - 1);
+    x << p;
+    y << lw.computeCurrent(p, temperature, params.data());
+    // if(i % 100 == 0)            // Arbitrary !
+    //   Terminal::out << "\n\nPotential : " << p << endl
+    //                 << "Matrix is:\n" 
+    //                 << lw.getMatrix(p, temperature, params.data())
+    //                 << "\nConcentrations:\n"
+    //                 << lw.lastConcentrations()
+    //                 << "\nCurrent linear form:\n"
+    //                 << lw.lastCurrent()
+    //                 << endl;
+  }
+
+  DataSet * ds = new DataSet(x, y);
+  ds->name = "linear-wave-simul.dat";
+  soas().stack().pushDataSet(ds); 
+  // soas().view().addDataSet(ds);
+}
+
+
+static Command 
+simLW("sim-lw", // command name
+       optionLessEffector(simulateLWCommand), // action
+       "simulations",  // group name
+       &simLWArgs, // arguments
+       NULL, // options
+       "Simulate linear wave",
+       "Simulate linear wave based on kinetic model",
+       "...");

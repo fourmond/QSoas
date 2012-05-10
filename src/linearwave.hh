@@ -78,6 +78,10 @@ class LinearWave {
   /// The system matrix
   gsl_matrix * systemMatrix;
 
+  /// Two vectors for storage
+  gsl_vector * concStorage;
+  gsl_vector * curStorage;
+
   /// Fill up the system with a matrix
   void prepareMatrix(double potential, double temperature, 
                      const double * parameters);
@@ -122,6 +126,22 @@ public:
                              const double * parameters,
                              gsl_vector * result);
 
+  /// Returns a vector that can be used to obtain the current once one
+  /// multiplies it with the concentrations (scalar product)
+  void computeCurrentVector(double potential, double temperature, 
+                            const double * parameters,
+                            gsl_vector * result);
+
+  /// Computes the current at a given potential for the parameters and
+  /// the temperature.
+  double computeCurrent(double potential, double temperature, 
+                        const double * parameters);
+
+  QString getMatrix(double potential, double temperature, 
+                    const double * parameters);
+
+  QString lastConcentrations() const;
+  QString lastCurrent() const;
 };
 
 #endif

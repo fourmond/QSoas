@@ -104,8 +104,8 @@ void DerivativeFit::function(const double * parameters,
 
     const DataSet * derDS = data->datasets[i];
 
-    underlyingFit->function(parameters, data,
-                            derDS, &bufView.vector);
+    underlyingFit->function(parameters + i * data->parameterDefinitions.size(), 
+                            data, derDS, &bufView.vector);
     DataSet::firstDerivative(derDS->x().data(), 1, 
                              bufView.vector.data, bufView.vector.stride,
                              derView.vector.data, derView.vector.stride,

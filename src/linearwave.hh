@@ -47,6 +47,17 @@ class LWParameter;
 /// @todo Try to go with the k0 dispersion scheme later on.
 class LinearWave {
 
+public:
+
+  typedef enum {
+    Rate,
+    Potential,
+    Alpha
+  } ParameterType;
+
+
+private:
+
   /// The various species within the catalytic cycle.
   QList<LWSpecies> species;
 
@@ -69,8 +80,10 @@ class LinearWave {
   /// A cross-ref of parameter name -> index in the parameters list
   QHash<QString, int> parametersIndex;
 
+  
+
   /// Adds the given parameter, and return its index
-  int addParameter(const QString & name);
+  int addParameter(const QString & name, ParameterType t = Rate);
 
   /// Adds the given species and returns its index;
   int addSpecies(const QString & name);
@@ -145,6 +158,12 @@ public:
 
   /// Display a whole bunch of interesting? things to the terminal.
   void dumpSystem() const;
+
+  /// Returns the parameter type of the numbered parameter.
+  ParameterType parameterType(int index) const;
+
+  /// Return all the indices of the parameters with the given type
+  QList<int> typedParameters(ParameterType type) const;
 };
 
 #endif

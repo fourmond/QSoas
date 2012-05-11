@@ -131,7 +131,8 @@ SOURCES += src/qmain.cc \
         src/custom-fits.cc \
         src/derivativefit.cc \
         src/formattedstring.cc \
-        src/linearwave.cc
+        src/linearwave.cc \
+        src/linearwavefit.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \

@@ -100,8 +100,12 @@ class LWParameter  {
 public:
   QString name;
 
+  LinearWave::ParameterType type;
+    
+
   LWParameter() { ; };
-  LWParameter(const QString & n) : name(n) {;};
+  LWParameter(const QString & n, LinearWave::ParameterType t = 
+              LinearWave::Rate) : name(n), type(t) {;};
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -120,12 +124,12 @@ LinearWave::~LinearWave()
   }
 }
 
-int LinearWave::addParameter(const QString & name)
+int LinearWave::addParameter(const QString & name, LinearWave::ParameterType t)
 {
   if(parametersIndex.contains(name))
     return parametersIndex[name];
   int id = parameters.size();
-  parameters << LWParameter(name);
+  parameters << LWParameter(name, t);
   parametersIndex[name] = id;
   return id;
 }
@@ -206,9 +210,10 @@ void LinearWave::parseSystem(QTextStream * s)
         constantNames << QString("alpha_%1").arg(id);
       }
       if(reversible)
-        react.potentialIndex = addParameter(constantNames.takeFirst());
+        react.potentialIndex = addParameter(constantNames.takeFirst(), 
+                                            Potential);
       react.rateIndex = addParameter(constantNames[0]);
-      react.asymmetryIndex = addParameter(constantNames[1]);
+      react.asymmetryIndex = addParameter(constantNames[1], Alpha);
     }
     else {
       reactions << LWReaction(rindex, pindex, reversible);
@@ -417,6 +422,20 @@ QString LinearWave::lastCurrent() const
   return Utils::vectorString(curStorage);
 }
 
+LinearWave::ParameterType LinearWave::parameterType(int index) const
+{
+  return parameters[index].type;
+}
+
+QList<int> LinearWave::typedParameters(LinearWave::ParameterType type) const
+{
+  QList<int> ret;
+  for(int i = 0; i < parameters.size(); i++)
+    if(parameters[i].type == type)
+      ret << i;
+  return ret;
+}
+
 
 
 
@@ -494,21 +513,11 @@ static void simulateLWCommand(const QString &, QString file,
     double p = xstart + ((xend - xstart) * i)/(nb - 1);
     x << p;
     y << lw.computeCurrent(p, temperature, params.data());
-    // if(i % 100 == 0)            // Arbitrary !
-    //   Terminal::out << "\n\nPotential : " << p << endl
-    //                 << "Matrix is:\n" 
-    //                 << lw.getMatrix(p, temperature, params.data())
-    //                 << "\nConcentrations:\n"
-    //                 << lw.lastConcentrations()
-    //                 << "\nCurrent linear form:\n"
-    //                 << lw.lastCurrent()
-    //                 << endl;
   }
 
   DataSet * ds = new DataSet(x, y);
   ds->name = "linear-wave-simul.dat";
   soas().stack().pushDataSet(ds); 
-  // soas().view().addDataSet(ds);
 }
 
 

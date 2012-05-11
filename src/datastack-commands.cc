@@ -240,38 +240,50 @@ drop("drop", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void undoCommand(const QString &)
+static ArgumentList 
+unredoOps(QList<Argument *>() 
+        << new IntegerArgument("number", 
+                              "Number",
+                              "Number of operations to undo", true));
+
+static void undoCommand(const QString &, const CommandOptions & opts)
 {
-  soas().stack().undo();
+  int number = 1;
+  updateFromOptions(opts, "number", number);
+  while(number-- > 0)
+    soas().stack().undo();
 }
 
 
 static Command 
 undo("undo", // command name
-     optionLessEffector(undoCommand), // action
+     effector(undoCommand), // action
      "stack",  // group name
      NULL, // arguments
-     NULL, // options
+     &unredoOps, // options
      "Undo",
      "Return to the previous buffer",
-     QT_TR_NOOP("Returns to the previous buffer, and push the "
-                "current to the redo stack"),
+     "Returns to the previous buffer, and push the "
+     "current to the redo stack",
      "u");
 
 //////////////////////////////////////////////////////////////////////
 
-static void redoCommand(const QString &)
+static void redoCommand(const QString &, const CommandOptions & opts)
 {
-  soas().stack().redo();
+  int number = 1;
+  updateFromOptions(opts, "number", number);
+  while(number-- > 0)
+    soas().stack().redo();
 }
 
 
 static Command 
 redo("redo", // command name
-     optionLessEffector(redoCommand), // action
+     effector(redoCommand), // action
      "stack",  // group name
      NULL, // arguments
-     NULL, // options
+     &unredoOps, // options
      "Redo",
      "Retrieves the last undone buffer",
      QT_TR_NOOP("Pops the last buffer from the redo stack and set it "

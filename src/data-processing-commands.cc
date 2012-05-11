@@ -1312,3 +1312,36 @@ ddp("deldp", // command name
     "Deldp",
     "...",
     "...");
+
+//////////////////////////////////////////////////////////////////////
+
+static void normCommand(const QString &, const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+  Vector y = ds->y();
+  bool positive = true;
+  updateFromOptions(opts, "positive", positive);
+  double fact = 1/(positive ? y.max() : -y.min());
+  y *= fact;
+  DataSet * nds = new DataSet(ds->x(), y);
+  nds->name = ds->cleanedName() + "_norm.dat";
+  soas().pushDataSet(nds);
+}
+
+static ArgumentList 
+normOps(QList<Argument *>() 
+        << new BoolArgument("positive", 
+                            "Whether we normalize on positive "
+                            "or negative values",
+                            "...")
+        );
+
+static Command 
+norm("norm", // command name
+     effector(normCommand), // action
+     "buffer",  // group name
+     NULL, // arguments
+     &normOps, // options
+     "Normalize",
+     "Divides by the maximum",
+     "Normalize the current buffer by its maximum value");

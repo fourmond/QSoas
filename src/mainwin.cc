@@ -175,8 +175,29 @@
    Find a way to prompt for additional arguments for greedy parameters
    (using an additional button in the dialog box ?)
 
-
    \section arch Architectural things
+
+   @b Expressions
+
+   In many places I could use a decent expressions system, ie
+   something à la SCalc that would allow for easy evaluations, but
+   based on Ruby. Bonus points if I can come up with something that
+   can evaluate derivatives, but at this point it doesn't matter so
+   much.
+
+   In any case, this must be a C++ object that doesn't require
+   external manipulations of VALUE, with introspection capacities
+   (which parameters, evaluation with a hash, with a const double *)
+
+   This would warrant a decent rewrite of MultiBufferArbitraryFit
+
+   @b Differential @b systems
+   
+   As of now, there are two frameworks that are making use of (linear)
+   differential systems: LinearKineticSystem and LinearWave. It would
+   be very interesting to merge that functionality into Linear and
+   Non-Linear systems... (which would allow simplification of the fits
+   as well...)
 
    \b Ruby \b interface 
 

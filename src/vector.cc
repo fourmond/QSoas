@@ -97,6 +97,19 @@ double Vector::min() const
   return m;
 }
 
+double Vector::magnitude() const
+{
+  int sz = size();
+  if(! sz)
+    return 0.0/0.0;
+  const double * d = data();
+  double m = d[0];
+  for(int i = 1; i < sz; i++)
+    if(fabs(d[i]) > fabs(m))
+      m = d[i];
+  return m;
+}
+
 double Vector::max() const
 {
   int sz = size();

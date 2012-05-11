@@ -77,6 +77,9 @@ public:
   /// The maximum value
   double max() const;
 
+  /// The value most distant from 0
+  double magnitude() const;
+
   /// The square root of the sum of the squares
   double norm() const;
 

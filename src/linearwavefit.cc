@@ -51,7 +51,17 @@ protected:
     return "(linear wave)";
   };
 
-  virtual void processOptions(const CommandOptions & ) {
+  virtual void processOptions(const CommandOptions & opts) {
+    QString ref;
+    updateFromOptions(opts, "reference-rate", ref);
+    if(! ref.isEmpty()) {
+      QStringList params = system->parameterNames();
+      int idx = params.indexOf(ref);
+      if(idx >= 0 && system->parameterType(idx) == LinearWave::Rate)
+        referenceRate = idx;
+      else
+        Terminal::out << "Unkown rate: " << ref << endl;
+    }
   };
 
 
@@ -64,7 +74,7 @@ public:
     a[0] = soas().temperature();
     for(int i = 0; i < system->parametersNumber(); i++) {
       if(i == referenceRate) {
-        a[i + 1] = ds->y().magnitude();
+        a[i + 1] = fabs(ds->y().magnitude());
         continue;
       }
       switch(system->parameterType(i)) {
@@ -86,16 +96,33 @@ public:
     p << ParameterDefinition("temperature", true);
 
     QStringList params = system->parameterNames();
-    for(int i = 0; i < params.size(); i++)
-      p << ParameterDefinition(params[i], system->parameterType(i) == 
+    QString refName = params[referenceRate];
+    for(int i = 0; i < params.size(); i++) {
+      QString name = params[i];
+      if(system->parameterType(i) == LinearWave::Rate) {
+        if(i == referenceRate)
+          name = "iref";
+        else
+          name += "/" + refName;
+      }
+      p << ParameterDefinition(name, system->parameterType(i) == 
                                LinearWave::Alpha);
+    }
 
     return p;
   };
 
   virtual double function(const double *a, FitData *data, double x)
   {
-    return system->computeCurrent(x, a[0], a + 1);
+    QVarLengthArray<double, 100> params(system->parametersNumber());
+
+    for(int i = 0; i < system->parametersNumber(); i++) {
+      if(system->parameterType(i) == LinearWave::Rate && i != referenceRate)
+        params[i] = a[i+1] * a[referenceRate + 1];
+      else
+        params[i] = a[i+1];
+    }
+    return system->computeCurrent(x, a[0], params.data());
   }
 
 
@@ -110,6 +137,11 @@ public:
   { 
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
+                   << new StringArgument("reference-rate",
+                                         "Reference rate",
+                                         "The reference rate, ie the one "
+                                         "used for real current determination; "
+                                         "all the other rates are relative to this one" )
                    );
     makeCommands(NULL, NULL, NULL, opts);
 

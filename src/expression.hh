@@ -40,7 +40,25 @@ class Expression {
   /// minimalVariables.
   QStringList variables;
 
-  
+
+  /// The ID of the function call !
+  static ID callIDCache;
+
+  /// And the way to access it
+  static ID callID();
+
+  /// Returns the hash for safe-keeping of the Ruby procs, ie to avoid
+  /// Ruby GC to treat them as unreferenced
+  static VALUE safeKeepingHash();
+
+  /// "frees" the code associated with the expression.
+  void freeCode();
+
+  /// Returns a unique key for the current hash.
+  VALUE hashKey();
+
+  /// Builds the code, using the current variable list.
+  void buildCode();
 
 public:
 
@@ -49,8 +67,7 @@ public:
 
   /// Creates an expression object responding to the given variables.
   ///
-  /// Equivalent to creating and setting the variables (save that
-  /// there is only one Ruby evaluation in that case)
+  /// Equivalent to creating and setting the variables
   Expression(const QString & expression, const QStringList & variables);
 
   /// A neat copy constructor.

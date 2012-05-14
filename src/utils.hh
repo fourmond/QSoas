@@ -102,6 +102,10 @@ namespace Utils {
   void registerShortCut(const QKeySequence & seq, QObject * receiver, 
                         const char * fn, QWidget * parent = NULL,
                         Qt::ShortcutContext context = Qt::WindowShortcut);
+
+  /// Abbreviates the string so that it fits within the given
+  /// number. It should also sanitize the string to some extent.
+  QString abbreviateString(const QString & str, int nb = 50);
 };
 
 #endif

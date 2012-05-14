@@ -234,3 +234,14 @@ void Utils::registerShortCut(const QKeySequence & seq, QObject * receiver,
   sc->setContext(context);
   receiver->connect(sc, SIGNAL(activated()), fn);
 }
+
+QString Utils::abbreviateString(const QString & str, int nb)
+{
+  if(nb < 4)
+    nb = 4;
+  if(str.size() <= nb)
+    return str;
+  QString s = str;
+  s.truncate(nb-3);
+  return  s + "...";
+}

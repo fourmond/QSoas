@@ -74,6 +74,10 @@ FitParameter * FitParameter::loadFromString(const QString & str,
                                             int paramIndex, int dsIndex)
 {
   QStringList lst = str.split("\t!\t");
+  if(lst.size() < 2) 
+    throw RuntimeError(QString("Invalid parameter specification '%1'").
+                       arg(Utils::abbreviateString(str)));
+
   bool fixed = (lst[1] == "0");
 
   FitParameter * p;

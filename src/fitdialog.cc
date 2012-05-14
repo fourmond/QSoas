@@ -490,11 +490,19 @@ void FitDialog::loadParametersFile(const QString & file)
   QFile f(file);
   if(! f.open(QIODevice::ReadOnly))
     return;                     /// @todo Signal !
-
-  parameters.loadParameters(&f);
-  updateEditors();
-  compute();
-  Terminal::out << "Loaded fit parameters from file " << file << endl;
+  QString msg;
+  try {
+    parameters.loadParameters(&f);
+    updateEditors();
+    compute();
+    msg = QString("Loaded fit parameters from file %1").arg(file);
+  }
+  catch (const Exception & e) {
+    msg = QString("Could not load parameters from '%1':").
+      arg(file) + e.message();
+  }
+  Terminal::out << msg;
+  progressReport->setText(msg);
 }
 
 

@@ -334,9 +334,13 @@ void FitParameters::loadParameters(QIODevice * source)
       }
       else {
         FitParameter * & pm = parameter(idx, 0);
-        delete pm;
-        pm = FitParameter::loadFromString(str, &valueFor(idx, 0), 
-                                          idx, -1);
+        FitParameter * np = 
+          FitParameter::loadFromString(str, &valueFor(idx, 0), 
+                                       idx, -1);
+        // We delete after we know we have a correct value for the
+        // replacement
+        delete pm;              
+        pm = np;
         for(int i = 1; i < datasets; i++) {
           values[idx + i * nbParameters] = values[idx];
           delete parameter(idx, i);

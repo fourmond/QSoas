@@ -101,7 +101,7 @@ public:
       QString name = params[i];
       if(system->parameterType(i) == LinearWave::Rate) {
         if(i == referenceRate)
-          name = "iref";
+          name = "iref_"+name;
         else
           name += "/" + refName;
       }

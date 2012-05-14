@@ -1,6 +1,6 @@
 /*
   exceptions.cc: exceptions definitions
-  Copyright 2011 by Vincent Fourmond
+  Copyright 2011, 2012 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 #include <headers.hh>
 #include <exceptions.hh>
 
+#include <terminal.hh>
+
 Exception::Exception(const QString & m) throw() : 
   msg(m) {
 };
@@ -34,6 +36,31 @@ QString Exception::message() const throw()
   return msg;
 }
 
+
+static void qtMessageHandler(QtMsgType type, const char *msg)
+{
+  switch (type) {
+  case QtDebugMsg:
+    fprintf(stderr, "Debug: %s\n", msg);
+    break;
+  case QtWarningMsg:
+    fprintf(stderr, "Warning: %s\n", msg);
+    break;
+  case QtCriticalMsg:
+    fprintf(stderr, "Critical: %s\n", msg);
+    Terminal::out << "Critical error: " << msg << endl;
+    break;
+  case QtFatalMsg:
+    throw InternalError(QString("Fatal error: %1").arg(msg));
+  }
+}
+
+void Exception::setupQtMessageHandler()
+{
+  qInstallMsgHandler(&qtMessageHandler);
+}
+
+//////////////////////////////////////////////////////////////////////
 
 static void my_error_handler(const char * reason,
                              const char * file,

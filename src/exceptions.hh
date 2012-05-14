@@ -29,6 +29,9 @@ public:
   virtual QString message() const throw();
   virtual ~Exception() throw() {;};
 
+  /// Setup the qt message handler to catch problems
+  static void setupQtMessageHandler();
+
 };
 
 class RuntimeError : public Exception {

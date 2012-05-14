@@ -42,6 +42,9 @@ int main(int argc, char ** argv)
   // We convert GSL's hard errors into C++ exceptions
   GSLError::setupGSLHandler();
 
+  // And we do the same for Qt's hard errors
+  Exception::setupQtMessageHandler();
+
   /// @todo This is a rudimentary command-line parsing, but it does
   /// the job -- for the time being ;-)...
   QString arg1;

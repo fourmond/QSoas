@@ -96,52 +96,6 @@
    pure Ruby, with a simple interface from C++ (but not the other way
    around), so that conditions files would be parseable in Ruby.
 
-   @b Fits @b dialogs:
-
-   Some useability improvements:
-
-   @li display the (scaled !) covariance matrix in terms of colors
-   (white uncorrelated, red positively correlated and blue negatively
-   ?)
-
-   @li keep track of all the recent parameters along with their
-   respective residuals, to allow for an easy fallback to the "last
-   valid/reasonable parameters"
-
-   \b Fits:
-   \li options to automatically apply a bijection to the Y values too.
-   \li optionnally add user-specified parameters, when the formula system
-   for fit parameters is ready.
-
-   Generally speaking, I should setup a whole way to transform
-   parameters. We have two parameter space: one natural parameter
-   space in which the problem is written. A fit parameter space, which
-   is is general a subset of the natural parameters (with provisions
-   made to factor out the fixed and/or common parameters). I think
-   this could be extended greatly:
-
-   \li FitData or FitParameters could provide generic transformations
-   (use the logarithm of the natural parameter as fit parameter, for
-   instance). This would also provide a way to generally restrict the
-   parameter space, by using for instance a hyperbolic tangent
-   transform or something like that.
-
-   For that, I need a better abstraction for the fit parameters as
-   there is now. I should come up with a design that:
-
-   \li interface between GSL fit parameters, and the parameters as
-   seen from Fit children (though FitData::unpackParameters) \li
-   provide classes for handling normal, fixed, global, formula-based,
-   constrained parameters...
-   \li use a single parameter list using all those classes (ideas:
-   functions to tell if the parameter belongs or not into the GSL fit
-   parameters, and a way to unpack the parameters, possibly with
-   dependencies)
-   \li provide a decent editor for a single parameter (which means
-   handling the fact that we are dealing with derived classes ? - and
-   potential problems when switching from buffer-local to global
-   parameters...)
-   
 
    I need to setup a neat data browser to replace the old browse
    command, and something that could also be used to display datasets
@@ -174,6 +128,42 @@
 
    Find a way to prompt for additional arguments for greedy parameters
    (using an additional button in the dialog box ?)
+
+
+   \section fits Fit-related things
+
+   \li options to automatically apply a bijection to the Y values too.
+   \li possibility to add user-specified parameters, when the formula
+   system for fit parameters is ready.
+
+   @b Fits @b dialogs:
+
+   Some useability improvements:
+
+   @li It should be possible to build a "stack" of FitParameters
+   without interference between them, and choose at the right time.
+   @li display the (scaled !) covariance matrix in terms of colors
+   (white uncorrelated, red positively correlated and blue negatively
+   ?)
+   @li keep track of all the recent parameters along with their
+   respective residuals, to allow for an easy fallback to the "last
+   valid/reasonable parameters"
+
+   @b Fit @b drivers
+
+   For now, the only way to perform fits is through the use of the
+   GSL. However, it may be desirable to implement other fit
+   "backends", ie objects that just initialize data based on a FitData
+   object and conduct the fit, iteration by iteration. Maybe the
+   driver could be changed at the FitData level (ie allocation not at
+   allocation time, but at the time of "binding" with FitData).  That
+   may eventually allow orthogonal fits later on, although this may
+   require strong structural changes, which may not be desirable at
+   all. The fit driver should be switchable at run-time within the
+   dialog.
+
+   This is necessary since the GSL fit engine is showing some of its
+   shortcomings.
 
    \section arch Architectural things
 

@@ -20,6 +20,7 @@
 #include <linearkineticsystem.hh>
 
 #include <terminal.hh>
+#include <exceptions.hh>
 
 LinearKineticSystem::LinearKineticSystem(int species) : 
   speciesNumber(species), updateNeeded(true)
@@ -86,10 +87,8 @@ void LinearKineticSystem::computeMatrices()
                                   eigenVectors, 
                                   workspace);
 
-  if(status != GSL_SUCCESS) {
-    Terminal::out << "Failed to diagonalize matrix" << endl;
-    return;
-  }
+  if(status != GSL_SUCCESS)
+    throw RuntimeError("Failed to diagonalize kinetic matrix");
       
   gsl_matrix_complex_memcpy(eVLU, eigenVectors);
   int sig;

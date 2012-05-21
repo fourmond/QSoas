@@ -685,3 +685,50 @@ stats("stats", // command name
       "Statistics",
       "Statistics",
       "...");
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void generateDSCommand(const QString &, double beg, double end, 
+                              const CommandOptions & opts)
+{
+  int samples = 1000;
+  updateFromOptions(opts, "samples", samples);
+
+  Vector x;
+  for(int i = 0; i < samples; i++)
+    x << beg + i*(end - beg)/(samples - 1);
+
+  Vector y = x;
+
+  DataSet * newDs = new DataSet(x,y);
+  newDs->name = "generated.dat";
+  soas().pushDataSet(newDs);
+}
+
+static ArgumentList 
+gDSA(QList<Argument *>() 
+       << new NumberArgument("start", 
+                             "Start",
+                             "The first X value")
+       << new NumberArgument("end", 
+                             "End",
+                             "The last X value")
+       );
+
+static ArgumentList 
+gDSO(QList<Argument *>() 
+       << new IntegerArgument("samples", 
+                              "Number of samples",
+                              "The number of samples"));
+
+
+static Command 
+gDS("generate-buffer", // command name
+    effector(generateDSCommand), // action
+    "buffer",  // group name
+    &gDSA, // arguments
+    &gDSO, // options
+    "Generate buffer",
+    "Generate a ramp",
+    "...");

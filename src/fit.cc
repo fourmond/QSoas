@@ -32,6 +32,8 @@
 #include <fitdata.hh>
 #include <fitdialog.hh>
 
+#include <terminal.hh>
+
 static Group fits("fits", 0,
                   "Fits",
                   "Fitting of data");
@@ -160,10 +162,18 @@ void Fit::makeCommands(ArgumentList * args,
                 new FileArgument("parameters", 
                                  "Parameters",
                                  "File to load parameters from"));
+
+    ArgumentList * nopts = 
+      (originalOptions ? new ArgumentList(*originalOptions) : 
+       new ArgumentList());
+
+    *nopts << new StringArgument("override",
+                                 "Override parameters",
+                                 "A comma-separated list of parameters "
+                                 "to override");
     new Command((const char*)(QString("sim-") + name).toLocal8Bit(),
                 effector(this, &Fit::computeFit),
-                "simulations", al2, originalOptions, pn, sd, ld);
-    
+                "simulations", al2, nopts, pn, sd, ld);
   }
 }
 
@@ -218,10 +228,39 @@ void Fit::computeFit(const QString &, QString file,
                      const CommandOptions & opts)
 {
   processOptions(opts);
+
+  // Additional option: overrides
+
+  QString overridesStr;
+
+  updateFromOptions(opts, "override", overridesStr);
+
   FitData data(this, datasets);
   checkDatasets(&data);
   FitDialog dlg(&data);
   dlg.loadParametersFile(file);
+
+
+  /// @todo Use mutliple value strings/options when they are
+  /// available.
+  QStringList overrides = overridesStr.split(QRegExp("\\s*,\\s*"));
+  for(int i = 0; i < overrides.size(); i++) {
+    QStringList spec = overrides[i].split(QRegExp("\\s*=\\s*"));
+    if(spec.size() != 2)
+      Terminal::out << "Override not understood: '" << overrides[i] 
+                    << "'" << endl;
+    else {
+      bool ok;
+      double value = spec[1].toDouble(&ok);
+      if(! ok) {
+        Terminal::out << "Not a number: '" << spec[1] 
+                      << "'" << endl;
+        continue;
+      }
+      dlg.overrideParameter(spec[0], value);
+    }
+  }
+
   dlg.pushSimulatedCurves();
 }
 

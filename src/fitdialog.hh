@@ -107,6 +107,9 @@ public slots:
   /// Add all simulated datasets to the data stack
   void pushSimulatedCurves();
 
+  /// Overrides the given parameter.
+  void overrideParameter(const QString & name, double value);
+
 protected slots:
 
   void dataSetChanged(int newds);

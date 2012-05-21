@@ -520,6 +520,19 @@ void FitDialog::loadParametersFile(const QString & file)
   progressReport->setText(msg);
 }
 
+void FitDialog::overrideParameter(const QString & name, double value)
+{
+  try {
+    parameters.setValue(name, value);
+    updateEditors();
+    compute();
+  }
+  catch (const Exception & e) {
+  }
+}
+
+
+
 
 void FitDialog::exportParameters()
 {

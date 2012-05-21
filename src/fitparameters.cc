@@ -272,6 +272,29 @@ void FitParameters::clear()
   }
 }
 
+void FitParameters::setValue(const QString & name, double value)
+{
+  QRegExp specRE("([^[]+)\\[#(\\d+)\\]");
+  QString p = name;
+  int dsi = -1;
+  if(specRE.indexIn(name) >= 0) {
+    p = specRE.cap(1);
+    dsi = specRE.cap(2).toInt();
+  }
+  int idx = parameterIndices.value(p, -1);
+  if(idx < 0) {
+    Terminal::out << "No such parameter: '" << name << "'" << endl;
+    return;
+  }
+  if(dsi >= datasets)
+    return;
+  if(dsi >= 0)
+    setValue(idx, dsi, value);
+  else
+    for(int i = 0; i < datasets; i++)
+      setValue(idx, i, value);
+}
+
 void FitParameters::loadParameters(QIODevice * source)
 {
   QString line;

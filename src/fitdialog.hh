@@ -27,6 +27,7 @@ class CurveView;
 class FitParameterEditor;
 class DataSet;
 
+class SavedParameters;
 
 /// This class handles all the user interaction during fits.
 class FitDialog : public QDialog {
@@ -82,6 +83,9 @@ class FitDialog : public QDialog {
 
   /// Whether or not we should cancel the current fit.
   bool shouldCancelFit;
+
+  /// A list of the most recently used parameters
+  QList<SavedParameters> lastParameters;
 
 protected:
 

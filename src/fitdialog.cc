@@ -40,6 +40,21 @@
 
 #include <utils.hh>
 
+class SavedParameters {
+public:
+
+  /// The residuals linked to these parameters
+  double residuals;
+
+  /// The same thing with relative residuals:
+  double relativeResiduals;
+
+  /// The actual parameters
+  Vector parameters;
+};
+
+
+//////////////////////////////////////////////////////////////////////
 
 static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
 

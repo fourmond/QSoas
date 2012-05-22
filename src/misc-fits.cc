@@ -131,6 +131,23 @@ SlowScanLowPotFit fit_slow_scan_low_pot;
 
 
 class SlowScanHighPotFit : public PerDatasetFit {
+
+  /// Whether we have a bi-exponential decay or not.
+  bool biExp;
+
+protected:
+
+  virtual void processOptions(const CommandOptions & opts)
+  {
+    biExp = false;
+    updateFromOptions(opts, "bi-exp", biExp);
+  }
+
+  
+  virtual QString optionsString() const {
+    return (biExp ? "bi-exponential" : "mono-exponential");
+  }
+
 public:
 
 
@@ -151,7 +168,11 @@ public:
       else
         t = (2*E_vertex - a[0] - x)/a[1];
       
-      double act = a[4] + (a[5] - a[4]) * exp(-t/a[6]);
+      double dec = (biExp ? 
+                    (1 - a[8]) * exp(-t/a[6]) + 
+                    a[8] * exp(-t/a[7])
+                    : exp(-t/a[6]));
+      double act = a[4] + (a[5] - a[4]) * dec;
 
       gsl_vector_set(target, i, 
                      (a[2] * x + a[3]) * act);
@@ -176,24 +197,46 @@ public:
     a[4] = 0.1; 
     a[5] = 1;
     a[6] = 300;
+    if(biExp) {
+      a[7] = 800;
+      a[8] = 0.3;
+    }
   };
 
   virtual QList<ParameterDefinition> parameters() const {
-    return QList<ParameterDefinition>()
-      << ParameterDefinition("E1", true) // Potentiel initial
-      << ParameterDefinition("nu", true) // vitesse de balayage
-      << ParameterDefinition("a") //2
-      << ParameterDefinition("b") //3
-      << ParameterDefinition("alpha_e") //4
-      << ParameterDefinition("alpha_0") //5
-      << ParameterDefinition("tau");
+    QList<ParameterDefinition> ret;
+    ret << ParameterDefinition("E1", true) // Potentiel initial
+        << ParameterDefinition("nu", true) // vitesse de balayage
+        << ParameterDefinition("a") //2
+        << ParameterDefinition("b") //3
+        << ParameterDefinition("alpha_e") //4
+        << ParameterDefinition("alpha_0") //5
+        << ParameterDefinition("tau");
+    
+    if(biExp)
+      ret << ParameterDefinition("tau_slow")
+          << ParameterDefinition("frac_slow"); 
+    // Fraction of the slow phase with respect to the total
+    // inactivation.
+    
+    return ret;
   };
 
 
-  SlowScanHighPotFit() : PerDatasetFit("slow-scan-hp", 
-                                       "Slow scan test",
-                                       "Slow scan") 
-  { ;};
+  SlowScanHighPotFit() : 
+    PerDatasetFit("slow-scan-hp", 
+                  "Slow scan test",
+                  "Slow scan", 1, -1, false), biExp(false) { 
+    ArgumentList * opts = new 
+      ArgumentList(QList<Argument *>()
+                   << new 
+                   BoolArgument("bi-exp", 
+                                "Bi exp",
+                                "Whether we have a bi-exponential or a "
+                                "mono-exponential")
+                   );
+    makeCommands(NULL, NULL, NULL, opts);
+  };
 };
 
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!

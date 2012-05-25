@@ -224,9 +224,9 @@ double FixedParameter::compute(const double * unpacked) const
 //////////////////////////////////////////////////////////////////////
 
 
-FitData::FitData(Fit * f, const QList<const DataSet *> & ds) : 
+FitData::FitData(Fit * f, const QList<const DataSet *> & ds, bool d) : 
   totalSize(0), covarStorage(NULL),
-  fit(f), datasets(ds),
+  fit(f), debug(d), datasets(ds),
   parameterDefinitions(f->parameters()),
   solver(0), nbIterations(0), storage(0)
   
@@ -292,12 +292,22 @@ int FitData::f(const gsl_vector * x, gsl_vector * f)
   QVarLengthArray<double, 1024> params(fullParameterNumber());
   unpackParameters(x, params.data());
 
+  if(debug) {
+    dumpString("Entering f computation");
+    dumpGSLParameters(x);
+    dumpFitParameters(params.data());
+  }
+
   // First, compute the value in place
+
   fit->function(params.data(), this, f);
   // Then, subtract data.
   subtractData(f);
   weightVector(f);
   /// @todo Data weighting ?
+
+  if(debug)
+    dumpString("Entering f computation");
 
   return GSL_SUCCESS;
 }
@@ -318,6 +328,9 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
   gsl_vector_memcpy(&v.vector, x);
   unpackParameters(&v.vector, unpackedParams.data());
 
+  if(debug)
+    dumpString("Entering df computation");
+
   
   // First, compute the common value, and store it in... the storage
   // place.
@@ -336,8 +349,15 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
     if(fabs(step) < param->minDerivationStep)
       step = param->minDerivationStep;
 
+
+
     gslParams[param->fitIndex] += step;
     unpackParameters(&v.vector, unpackedParams.data());
+
+    if(debug) {
+      dumpGSLParameters(&v.vector);
+      dumpFitParameters(unpackedParams.data());
+    }
     
     gsl_vector_view col = gsl_matrix_column(df, param->fitIndex);
 
@@ -351,6 +371,8 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
     weightVector(&col.vector);
     gslParams[param->fitIndex] = value;
   }
+  if(debug)
+    dumpString("Finished df computation");
   return GSL_SUCCESS;
 }
 
@@ -619,3 +641,36 @@ double FitData::confidenceLimitFactor(double conf) const
 {
   return gsl_cdf_tdist_Pinv(conf, doF());
 }
+
+
+// Debug-related functions
+void FitData::dumpString(const QString & str) const
+{
+  QTextStream o(stdout);
+  o << str << endl;
+}
+
+void FitData::dumpGSLParameters(const gsl_vector * params) const
+{
+  QString s("GSL:");
+  for(int i = 0; i < gslParameters; i++)
+    s += QString("\t%1").arg(gsl_vector_get(params, i));
+  dumpString(s);
+}
+
+void FitData::dumpFitParameters(const double * params) const
+{
+  // WW at 4 params ?
+  QString s;
+  for(int i = 0; i < parameterDefinitions.size() * datasets.size(); i++) {
+    if((i+1) % 5 == 0)
+      s += "\n";
+    QString name = QString("%1[#%2]").
+      arg(parameterDefinitions[i % parameterDefinitions.size()].name).
+      arg(i / parameterDefinitions.size());
+    s += QString("\t%1: %2").arg(name).arg(params[i]);
+  }
+  dumpString(s);
+}
+
+

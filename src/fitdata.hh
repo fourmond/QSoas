@@ -246,9 +246,23 @@ class FitData {
   /// A storage space for the covariance matrix
   gsl_matrix * covarStorage;
 
+  /// Dumps the given string if debug is on
+  void dumpString(const QString & str) const;
+
+  /// Dumps the parameters as seen by the GSL if debug is on
+  void dumpGSLParameters(const gsl_vector * params) const;
+
+  /// Dump the fit parameters if debug is on
+  void dumpFitParameters(const double * params) const;
+
 public:
   /// The fit in use
   Fit * fit;
+
+  /// A debug flag. If that flag is on, all calls to the functions are
+  /// instrumented. For debugging the fit engine and/or the fit
+  /// functions.
+  bool debug;
 
   /// The datasets holding the data.
   QList<const DataSet *> datasets;
@@ -286,7 +300,7 @@ public:
   const gsl_matrix * covarianceMatrix();
 
 
-  FitData(Fit * f, const QList<const DataSet *> & ds);
+  FitData(Fit * f, const QList<const DataSet *> & ds, bool d = false);
 
   /// Creates the solver, and initializes it with the correct
   /// parameters, based one the contents of parameterDefinitions and

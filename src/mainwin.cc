@@ -135,6 +135,9 @@
    \li options to automatically apply a bijection to the Y values too.
    \li possibility to add user-specified parameters, when the formula
    system for fit parameters is ready.
+   \li detection of "weird" parameters, ie a parameter that suddenly
+   takes INF or NAN values while it didn't take before. This is a
+   clear sign of something going wrong.
 
    @b Fits @b dialogs:
 

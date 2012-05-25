@@ -106,6 +106,10 @@ void Fit::makeCommands(ArgumentList * args,
   *options << new FileArgument("parameters", 
                                "Parameters",
                                "Pre-loads parameters");
+  *options << new BoolArgument("debug", 
+                               "Debug",
+                               "Turn on debugging (for QSoas developers only)");
+
 
   // We don't declare the fit command when multiple datasets are
   // necessary.
@@ -208,7 +212,9 @@ void Fit::runFit(const QString &, QList<const DataSet *> datasets,
                  const CommandOptions & opts)
 {
   processOptions(opts);
-  FitData data(this, datasets);
+  bool debug = false;
+  updateFromOptions(opts, "debug", debug);
+  FitData data(this, datasets, debug);
   checkDatasets(&data);
 
   QString loadParameters;

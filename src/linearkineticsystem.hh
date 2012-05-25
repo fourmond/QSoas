@@ -35,6 +35,11 @@ class LinearKineticSystem {
   /// The matrix of evolution of the system
   gsl_matrix * kineticMatrix;
 
+
+  /// The matrix of evolution of the system, saved from the ravages of
+  /// the eigen values search (for debugging purposes)
+  gsl_matrix * savedKineticMatrix;
+
   /// The eigenvalues of the system
   gsl_vector_complex * eigenValues;
   

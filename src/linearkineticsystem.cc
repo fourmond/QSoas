@@ -19,8 +19,8 @@
 #include <headers.hh>
 #include <linearkineticsystem.hh>
 
-#include <terminal.hh>
 #include <exceptions.hh>
+#include <utils.hh>
 
 LinearKineticSystem::LinearKineticSystem(int species) : 
   speciesNumber(species), updateNeeded(true)
@@ -32,6 +32,7 @@ LinearKineticSystem::LinearKineticSystem(int species) :
 
 
   kineticMatrix = gsl_matrix_alloc(speciesNumber, speciesNumber);
+  savedKineticMatrix = gsl_matrix_alloc(speciesNumber, speciesNumber);
   eigenVectors = gsl_matrix_complex_alloc(speciesNumber, speciesNumber);
   eVLU = gsl_matrix_complex_alloc(speciesNumber, speciesNumber);
 
@@ -47,6 +48,7 @@ LinearKineticSystem::~LinearKineticSystem()
 
 
   gsl_matrix_free(kineticMatrix);
+  gsl_matrix_free(savedKineticMatrix);
   gsl_matrix_complex_free(eigenVectors);
   gsl_matrix_complex_free(eVLU);
 
@@ -69,6 +71,7 @@ void LinearKineticSystem::setConstants(const double * values,
     gsl_matrix_set(kineticMatrix, j, j, -sum); // Should work ?
   }
   gsl_matrix_transpose(kineticMatrix); // Yep !
+  gsl_matrix_memcpy(savedKineticMatrix, kineticMatrix);
   updateNeeded = true;
 }
 
@@ -87,8 +90,17 @@ void LinearKineticSystem::computeMatrices()
                                   eigenVectors, 
                                   workspace);
 
-  if(status != GSL_SUCCESS)
-    throw RuntimeError("Failed to diagonalize kinetic matrix");
+  
+
+  if(status != GSL_SUCCESS) {
+    QTextStream o(stdout);
+    o << "Diagonlization failed for matrix:\n" 
+      << Utils::matrixString(savedKineticMatrix)
+      << "\nThe process went as far as:\n"
+      << Utils::matrixString(kineticMatrix)
+      << endl;
+    throw RuntimeError(QString("Failed to diagonalize kinetic matrix: only got %1 eigenvalues").arg(workspace->nonsymm_workspace_p->n_evals));
+  }
       
   gsl_matrix_complex_memcpy(eVLU, eigenVectors);
   int sig;

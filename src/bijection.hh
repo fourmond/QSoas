@@ -113,6 +113,9 @@ public:
   virtual void setParameterValue(int idx, double val) {
     parameterValues[idx] = val;
   };
+
+  /// We need a virtual destructor.
+  virtual ~Bijection() {;};
 };
 
 

@@ -1,6 +1,6 @@
 /*
   fitparameters.cc: implementation of the FitParameters class
-  Copyright 2011 by Vincent Fourmond
+  Copyright 2011, 2012 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,6 +25,95 @@
 #include <soas.hh>
 #include <dataset.hh>
 #include <outfile.hh>
+
+/// A storage class for parameters as read from a file
+///
+/// @todo Maybe this class could handle the writing of the parameters
+/// file as well.
+class FitParametersFile {
+public:
+
+  /// The names of the datasets, as guessed from the comments
+  QStringList datasetsName;
+
+  /// The original name of the fit
+  QString fitName;
+
+  /// Comments (all of them)
+  QStringList comments;
+  
+  class Parameter {
+  public:
+    /// Name of the parameter
+    QString name;
+
+    /// Index of the dataset (-1 if unspecified)
+    int datasetIndex;
+
+    /// String value of the parameter.
+    QString value;
+
+    Parameter(const QString & n, int ds, const QString & v) :
+      name(n), datasetIndex(ds), value(v) {;};
+
+    double toDouble(bool * ok = NULL) const {
+      return value.toDouble(ok);
+    };
+
+    void replaceParameter(FitParameter * & parameter, double * tg, 
+                          int idx, int ds) {
+      FitParameter * npm = 
+        FitParameter::loadFromString(value, tg, idx, ds);
+      delete parameter;
+      parameter = npm;
+    };
+  };
+
+  /// All the parameters read from the file.
+  QList<Parameter> parameters;
+
+  /// Reads a stream and parses the contents into
+  void readFromStream(QTextStream & in) {
+
+    QRegExp paramRE("^([^\t []+)\\s*(?:\\[#(\\d+)\\])?\t(.*)");
+    QRegExp commentRE("^\\s*#\\s*(.*)");
+    QRegExp blankLineRE("^\\s*$");
+
+    QString line;
+
+    int nb = 0;
+    
+    while(true) {
+      line = in.readLine();
+      if(line.isNull())
+        break;                    // EOF
+      nb++;
+      if(paramRE.indexIn(line) == 0) {
+        int ds = -1;
+        if(! paramRE.cap(2).isEmpty())
+          ds = paramRE.cap(2).toInt();
+        parameters << Parameter(paramRE.cap(1), ds, paramRE.cap(3));
+      }
+      else if(commentRE.indexIn(line) == 0) {
+        comments << commentRE.cap(1);
+
+        // Parse comments, if possible.
+      }
+      else if(blankLineRE.indexIn(line) == 0) {
+        continue;
+      }
+      else {
+        Terminal::out << "Line #" << nb << "not understood: '" 
+                      << line.trimmed() << "'" << endl;
+      }
+    }
+  };
+
+  
+};
+
+
+//////////////////////////////////////////////////////////////////////
 
 FitParameters::FitParameters(FitData * d) :
   fitData(d), parameters(d->datasets.size() * 
@@ -297,84 +386,59 @@ void FitParameters::setValue(const QString & name, double value)
 
 void FitParameters::loadParameters(QIODevice * source)
 {
-  QString line;
-  QRegExp paramRE("^([^\t []+)\\s*(?:\\[#(\\d+)\\])?\t(.*)");
   QTextStream in(source);
-  
-  // clear();                      // Do we want that ?
+  FitParametersFile params;
 
-  while(true) {
-    line = in.readLine();
-    if(line.isNull())
-      break;                    // EOF
-    if(paramRE.indexIn(line) == 0) {
-      // We found a parameter
-      QString paramName = paramRE.cap(1);
-      int ds = -1;
-      if(! paramRE.cap(2).isEmpty())
-        ds = paramRE.cap(2).toInt();
-      
-      QString str = paramRE.cap(3);
+  params.readFromStream(in);
 
-      if(paramName == "buffer_weight") {
-        if(ds < 0) {
-          Terminal::out << "Found a global 'buffer_weight' specification. "
-            "That doesn't make sense !" << endl;
-          continue;
-        }
-        if(ds >= fitData->datasets.size()) {
-          Terminal::out << "Ignoring extra 'buffer_weight' specification." 
-                        << endl;
-          continue;
-        }
-        bool ok = false;
-        double w = str.toDouble(&ok);
-        if(ok)
-          fitData->weightsPerBuffer[ds] = w;
-        else
-          Terminal::out << "Weight not understood: '" << str 
-                        << "'" << endl;
+  for(int k = 0; k < params.parameters.size(); k++) {
+    FitParametersFile::Parameter & param = params.parameters[k];
+    int & ds = param.datasetIndex; // That's cheating ;-)...
+    
+    if(param.name == "buffer_weight") {
+      if(ds < 0) {
+        Terminal::out << "Found a global 'buffer_weight' specification. "
+          "That doesn't make sense !" << endl;
         continue;
       }
-      int idx = parameterIndices.value(paramName, -1);
+      if(ds >= fitData->datasets.size()) {
+        Terminal::out << "Ignoring extra 'buffer_weight' specification." 
+                      << endl;
+        continue;
+      }
+      bool ok = false;
+      double w = param.toDouble(&ok);
+      if(ok)
+        fitData->weightsPerBuffer[ds] = w;
+      else
+        Terminal::out << "Weight not understood: '" << param.value 
+                      << "'" << endl;
+    }
+    else {
+      int idx = parameterIndices.value(param.name, -1);
       if(idx < 0) {
-        Terminal::out << "Found unkown parameter: '" << paramName 
+        Terminal::out << "Found unkown parameter: '" << param.name
                       << "', ignoring" << endl;
         continue;
       }
-
       if(ds >= 0) {
         if(ds >= datasets) {
-          Terminal::out << "Ignoring parameter '" << paramName 
+          Terminal::out << "Ignoring parameter '" << param.name
                         << "' for extra dataset #" << ds << endl;
           continue;
         }
-        
-        FitParameter * & pm = parameter(idx, ds);
-        delete pm;
-        pm = FitParameter::loadFromString(str, &valueFor(idx, ds),
-                                          idx, ds);
+        param.replaceParameter(parameter(idx, ds), &valueFor(idx, ds),
+                               idx, ds);
       }
       else {
-        FitParameter * & pm = parameter(idx, 0);
-        FitParameter * np = 
-          FitParameter::loadFromString(str, &valueFor(idx, 0), 
-                                       idx, -1);
-        // We delete after we know we have a correct value for the
-        // replacement
-        delete pm;              
-        pm = np;
+        param.replaceParameter(parameter(idx, 0), &valueFor(idx, 0),
+                               idx, -1);
         for(int i = 1; i < datasets; i++) {
           values[idx + i * nbParameters] = values[idx];
           delete parameter(idx, i);
           parameter(idx, i) = NULL;
         }
       }
-    }
-    else {
-      if(! line.startsWith("#"))
-        Terminal::out << "Line not understood: '" 
-                      << line << "'" << endl;
     }
   }
 }

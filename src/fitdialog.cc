@@ -192,6 +192,9 @@ void FitDialog::setupFrame()
   ac->addAction("Load from file", this, 
                 SLOT(loadParameters()),
                 QKeySequence(tr("Ctrl+L")));
+  ac->addAction("Load for this buffer only", this, 
+                SLOT(loadParametersForCurrent()),
+                QKeySequence(tr("Ctrl+Shift+L")));
   ac->addAction("Save to file (for reusing later)", 
                 this, SLOT(saveParameters()),
                 QKeySequence(tr("Ctrl+S")));
@@ -500,14 +503,26 @@ void FitDialog::loadParameters()
     loadParametersFile(load);
 }
 
-void FitDialog::loadParametersFile(const QString & file)
+void FitDialog::loadParametersForCurrent()
+{
+  QString load = 
+    QFileDialog::getOpenFileName(this, 
+                                 tr("Load parameters for dataset #%1").
+                                 arg(currentIndex));
+  if(load.isEmpty())
+    return;
+  else 
+    loadParametersFile(load, currentIndex);
+}
+
+void FitDialog::loadParametersFile(const QString & file, int targetDS)
 {
   QFile f(file);
   if(! f.open(QIODevice::ReadOnly))
     return;                     /// @todo Signal !
   QString msg;
   try {
-    parameters.loadParameters(&f);
+    parameters.loadParameters(&f, targetDS);
     updateEditors();
     compute();
     msg = QString("Loaded fit parameters from file %1").arg(file);

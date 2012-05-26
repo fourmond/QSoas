@@ -26,13 +26,15 @@ class FitData;
 class FitParameter;
 class OutFile;
 
+class FitParametersFile;
+
 /// Holds parameters of a fit (possibly multi-buffer), the way the
 /// user edits them.
 ///
 /// This class is also responsible for saving/loading the parameters,
 /// for exporting (and importing ?) them and so on.
 ///
-/// @todo Handle import (which is different from load).
+/// @todo Handle import (which is quite different from load).
 class FitParameters {
 
   /// The underlying FitData object.
@@ -83,6 +85,13 @@ class FitParameters {
 
   void prepareExport(QStringList & headers, QString & lines, 
                      bool exportErrors = false) const;
+
+  /// Loads parameters from a parsed parameters file.
+  ///
+  /// If \a targetDS isn't negative, we copy only from \a sourceDS to
+  /// the given targetDS.
+  void loadParameters(FitParametersFile & params, int targetDS = -1, 
+                      int sourceDS = 0);
 
 public:
 
@@ -166,7 +175,7 @@ public:
   void saveParameters(QIODevice * out) const;
 
   /// Load from the given stream
-  void loadParameters(QIODevice * out);
+  void loadParameters(QIODevice * out, int targetDS = -1, int sourceDS = 0);
 
 
   /// Fill up a QTableWidget with the contents of the covariance

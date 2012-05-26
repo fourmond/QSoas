@@ -384,16 +384,30 @@ void FitParameters::setValue(const QString & name, double value)
       setValue(idx, i, value);
 }
 
-void FitParameters::loadParameters(QIODevice * source)
+void FitParameters::loadParameters(QIODevice * source, 
+                                   int targetDS, int sourceDS)
 {
   QTextStream in(source);
   FitParametersFile params;
 
   params.readFromStream(in);
 
+  loadParameters(params, targetDS, sourceDS);
+}
+
+
+void FitParameters::loadParameters(FitParametersFile & params, 
+                                   int targetDS, int sourceDS)
+{
   for(int k = 0; k < params.parameters.size(); k++) {
     FitParametersFile::Parameter & param = params.parameters[k];
-    int & ds = param.datasetIndex; // That's cheating ;-)...
+    int ds = param.datasetIndex; // That's cheating ;-)...
+    if(targetDS >= 0) {
+      if(ds >= 0 && ds != sourceDS)
+        continue;               // We only care about the parameters
+                                // which are global or from sourceDS
+      ds = targetDS;
+    }
     
     if(param.name == "buffer_weight") {
       if(ds < 0) {
@@ -427,6 +441,8 @@ void FitParameters::loadParameters(QIODevice * source)
                         << "' for extra dataset #" << ds << endl;
           continue;
         }
+
+        /// @todo Avoid setting a global parameter this way ?
         param.replaceParameter(parameter(idx, ds), &valueFor(idx, ds),
                                idx, ds);
       }
@@ -442,6 +458,7 @@ void FitParameters::loadParameters(QIODevice * source)
     }
   }
 }
+
 
 void FitParameters::resetAllToInitialGuess()
 {

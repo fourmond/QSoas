@@ -102,7 +102,7 @@ signals:
 public slots:
 
   /// Loads parameters from the given file.
-  void loadParametersFile(const QString & fileName);
+  void loadParametersFile(const QString & fileName, int targetDS = -1);
 
   /// Add all simulated datasets to the data stack
   void pushSimulatedCurves();
@@ -143,6 +143,9 @@ protected slots:
 
   /// Loads parameters from files
   void loadParameters();
+
+  /// Loads parameters for the current dataset
+  void loadParametersForCurrent();
 
   /// Saves parameters to a file
   void saveParameters();

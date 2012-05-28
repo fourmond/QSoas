@@ -176,6 +176,20 @@ protected slots:
   /// Edit all parameters in a dialog box
   void editParameters();
 
+  /// Assign equal weights to all buffers, ie compensate for the
+  /// inevitable inequalities arising from difference in intensity and
+  /// point numbers.
+  void equalWeightsPerBuffer();
+
+  /// Resets all the weights to 1.
+  void resetWeights();
+
+  /// Double the weight of the current buffer
+  void doubleWeight();
+  
+  /// Divides by two the weight of the current buffer
+  void halfWeight();
+
 };
 
 #endif

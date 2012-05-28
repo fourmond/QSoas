@@ -130,7 +130,11 @@ void FitDialog::setupFrame()
   connect(bt, SIGNAL(clicked()), SLOT(nextDataset()));
   hb->addWidget(bt);
 
-  hb->addWidget(new QLabel("<b>Fit:</b> " + data->fit->fitName()), 1);
+
+  // Here, we try to be clever a little about the size of that...
+  QLabel * label = new QLabel("<b>Fit:</b> " + data->fit->fitName());
+  label->setWordWrap(true);
+  hb->addWidget(label, 1);
 
   hb->addWidget(bufferSelection);
   connect(bufferSelection, SIGNAL(currentIndexChanged(int)),
@@ -143,6 +147,14 @@ void FitDialog::setupFrame()
     hb->addWidget(bufferWeightEditor);
     connect(bufferWeightEditor, SIGNAL(textEdited(const QString &)),
             SLOT(weightEdited(const QString &)));
+
+    bt = new QPushButton(tr("x 2"));
+    connect(bt, SIGNAL(clicked()), SLOT(doubleWeight()));
+    hb->addWidget(bt);
+
+    bt = new QPushButton(tr("/ 2"));
+    connect(bt, SIGNAL(clicked()), SLOT(halfWeight()));
+    hb->addWidget(bt);
   }
 
   bt = new QPushButton(tr("<-"));
@@ -215,7 +227,17 @@ void FitDialog::setupFrame()
   ac->addAction("Show covariance matrix", this, 
                 SLOT(showCovarianceMatrix()),
                 QKeySequence(tr("Ctrl+M")));
+
+  if(bufferWeightEditor) {
+    ac->addAction("Reset all weights to 1", this, 
+                  SLOT(resetWeights()),
+                  QKeySequence(tr("Ctrl+Shift+W")));
+    ac->addAction("Give equal importance to all buffers", this, 
+                  SLOT(equalWeightsPerBuffer()),
+                  QKeySequence(tr("Ctrl+Shift+B")));
+  }
   hb->addWidget(ac);
+
 
   ac = new ActionCombo(tr("Print..."));
   ac->addAction("Save all as PDF", this, SLOT(saveAllPDF()));
@@ -631,3 +653,43 @@ void FitDialog::weightEdited(const QString & str)
     data->weightsPerBuffer[currentIndex] = nw;
 }
 
+
+void FitDialog::resetWeights()
+{
+  for(int i = 0; i < data->datasets.size(); i++)
+    data->weightsPerBuffer[i] = 1;
+  updateEditors();
+}
+
+void FitDialog::equalWeightsPerBuffer()
+{
+  // Now, we'll have to compute a weight for each buffer based on
+  // their number of points/magnitude
+  QVarLengthArray<double, 1024> weight(data->datasets.size());
+
+  double max = 0;
+  for(int i = 0; i < data->datasets.size(); i++) {
+    const DataSet * ds = data->datasets[i];
+    double w = 0;
+    for(int j = 0; j < ds->y().size(); j++)
+      w += ds->y()[j];
+    weight[i] = 1/w;
+    if(weight[i] > max)
+      max = weight[i];
+  }
+  for(int i = 0; i < data->datasets.size(); i++)
+    data->weightsPerBuffer[i] = weight[i]/max;
+  updateEditors();
+}
+
+void FitDialog::doubleWeight()
+{
+  data->weightsPerBuffer[currentIndex] *= 2;
+  updateEditors();
+}
+
+void FitDialog::halfWeight()
+{
+  data->weightsPerBuffer[currentIndex] *= 0.5;
+  updateEditors();
+}

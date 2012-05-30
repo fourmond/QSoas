@@ -100,7 +100,7 @@ void FitDialog::setupFrame()
     vec->pen.setColor("#080");
     view->addItem(vec);
 
-    CurvePanel * bottomPanel = new CurvePanel();
+    CurvePanel * bottomPanel = new CurvePanel(); // Leaks memory !
     bottomPanel->stretch = 30;
     bottomPanel->drawingXTicks = false;
     bottomPanel->drawingLegend = false;

@@ -56,7 +56,7 @@ QAction * Group::actionForGroup(QObject * parent) const
   action->setText(publicName());
   action->setStatusTip(shortDescription());
   action->setToolTip(shortDescription()); // probably useless.
-  QMenu * menu = new QMenu();
+  QMenu * menu = new QMenu();             // Leaks ? Isn't that a Qt bug ?
   for(int i = 0; i < cmds.size(); i++)
     menu->addAction(cmds[i]->actionForCommand(parent));
 

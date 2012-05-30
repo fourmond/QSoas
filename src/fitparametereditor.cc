@@ -19,8 +19,8 @@
 
 #include <headers.hh>
 #include <fitparametereditor.hh>
+#include <fitparameter.hh>
 #include <fit.hh>
-#include <fitdata.hh>
 #include <dataset.hh>
 
 #include <terminal.hh>

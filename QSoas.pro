@@ -133,7 +133,8 @@ SOURCES += src/qmain.cc \
         src/formattedstring.cc \
         src/linearwave.cc \
         src/linearwavefit.cc \
-        src/expression.cc
+        src/expression.cc \
+        src/fitparameter.cc
 
 HEADERS += src/headers.hh \
         src/mainwin.hh \
@@ -194,4 +195,5 @@ HEADERS += src/headers.hh \
         src/derivativefit.hh \
         src/formattedstring.hh \
         src/linearwave.hh \
-        src/expression.hh
+        src/expression.hh \
+        src/fitparameter.hh

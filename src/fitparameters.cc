@@ -20,6 +20,7 @@
 #include <fitparameters.hh>
 #include <fit.hh>
 #include <fitdata.hh>
+#include <fitparameter.hh>
 
 #include <terminal.hh>
 #include <soas.hh>

@@ -31,12 +31,22 @@ ID Expression::callID()
   return callIDCache;
 }
 
-VALUE Expression::safeKeepingHash()
+VALUE Expression::codeSafeKeepingHash()
 {
   VALUE hsh = rb_gv_get("$expression_codes");
   if(! RTEST(hsh)) {
     hsh = rb_hash_new();
     rb_gv_set("$expression_codes", hsh);
+  }
+  return hsh;
+}
+
+VALUE Expression::argsSafeKeepingHash()
+{
+  VALUE hsh = rb_gv_get("$expression_args");
+  if(! RTEST(hsh)) {
+    hsh = rb_hash_new();
+    rb_gv_set("$expression_args", hsh);
   }
   return hsh;
 }
@@ -47,6 +57,21 @@ VALUE Expression::hashKey()
   long val = reinterpret_cast<long>(this);
   val >>= 1;
   return INT2FIX(val);
+}
+
+void Expression::buildArgs()
+{
+  delete[] args;
+  args = new VALUE[variables.size()];
+
+  VALUE ary = rb_ary_new();
+  rb_hash_aset(argsSafeKeepingHash(), hashKey(), ary);
+
+  for(int i = 0; i < variables.size(); i++) {
+    VALUE db = rb_float_new(0);
+    rb_ary_push(ary, db);
+    args[i] = db;
+  }
 }
 
 void Expression::buildCode()
@@ -62,13 +87,18 @@ void Expression::buildCode()
   }
   else if(vars.size() > variables.size())
     throw RuntimeError("Not all the variables needed");
-  rb_hash_aset(safeKeepingHash(), hashKey(), code);
+  rb_hash_aset(codeSafeKeepingHash(), hashKey(), code);
+
+  buildArgs();                  // Build the arguments cache
 }
 
 void Expression::freeCode()
 {
-  rb_hash_delete(safeKeepingHash(), hashKey());
+  rb_hash_delete(codeSafeKeepingHash(), hashKey());
+  rb_hash_delete(argsSafeKeepingHash(), hashKey());
   code = Qnil;
+  delete[] args;
+  args = NULL;
 }
 
 Expression::Expression(const QString & expr) :
@@ -78,7 +108,7 @@ Expression::Expression(const QString & expr) :
 }
 
 Expression::Expression(const QString & expr, const QStringList & vars) :
-  expression(expr)
+  expression(expr), args(NULL)
 {
   buildCode();
   setVariables(vars);
@@ -112,10 +142,13 @@ const QStringList & Expression::naturalVariables() const
   return minimalVariables;
 }
 
-double Expression::evaluate(const double * variables) const
+double Expression::evaluate(const double * values) const
 {
-  /// @todo Add a cache for Ruby Floats as large as the number of
-  /// variables. (in the same spirit as the "cache" for code)
-  return 0;
+  int size = variables.size();
+  for(int i = 0; i < size; i++)
+    RFLOAT_VALUE(args[i]) = values[i];
+  VALUE ret = Ruby::run(&rb_funcall2, code, 
+                        callID(), size, (const VALUE *) args);
+  return NUM2DBL(ret);
 }
 

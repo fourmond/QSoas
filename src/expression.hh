@@ -32,6 +32,9 @@ class Expression {
   /// The current Ruby code for this expression.
   VALUE code;
 
+  /// The list of doubles used as cache for argument passing.
+  VALUE * args;
+
   /// The list of variables naturally present in the expression, in
   /// the order in which they are found by the Ruby code.
   QStringList minimalVariables;
@@ -49,7 +52,11 @@ class Expression {
 
   /// Returns the hash for safe-keeping of the Ruby procs, ie to avoid
   /// Ruby GC to treat them as unreferenced
-  static VALUE safeKeepingHash();
+  static VALUE codeSafeKeepingHash();
+
+  /// Returns the hash for safe-keeping of the Ruby arrays of doubles,
+  /// ie to avoid Ruby GC to treat them as unreferenced
+  static VALUE argsSafeKeepingHash();
 
   /// "frees" the code associated with the expression.
   void freeCode();
@@ -59,6 +66,9 @@ class Expression {
 
   /// Builds the code, using the current variable list.
   void buildCode();
+
+  /// Builds the args array
+  void buildArgs();
 
 public:
 

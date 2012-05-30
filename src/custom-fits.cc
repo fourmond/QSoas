@@ -27,28 +27,27 @@
 #include <soas.hh>
 
 #include <datastack.hh>
-#include <ruby.hh>
-#include <ruby-templates.hh>
 
 #include <perdatasetfit.hh>
 #include <dataset.hh>
 #include <vector.hh>
 #include <fitdata.hh>
 
+#include <expression.hh>
+
 #include <gsl/gsl_const_mksa.h>
 #include <gsl/gsl_math.h>
 
-/// Multi-buffer arbitrary fits, using Ruby as formula backend.
+/// Multi-buffer arbitrary fits, using the Expression class as formula
+/// backend.
 ///
 /// @warning Two fits cannot be run at the same time, as the main
 /// instance is used to keep track of the current formula.
 ///
-/// The blocks are stored in a Ruby global variable.
+/// @ŧodo Remove the passing of constants in such a ugly way... They
+/// should be passed as constants !
 class MultiBufferArbitraryFit : public Fit {
 private:
-
-  /// The ID for :call
-  ID callID;
 
   /// The last formula used.
   ///
@@ -59,67 +58,55 @@ private:
   /// The formulas, split.
   QStringList formulas;
 
+  /// The expressions being used !
+  QList<Expression> expressions;
+
   /// The parameters
   QStringList params;
 
-  /// A small wrapper around Ruby::makeBlock
-  static VALUE parseBlock(const QString & formula, QStringList & parameters)
-  {
-    QByteArray bta = formula.toLocal8Bit();
-    const QByteArray & c = bta;
-    return Ruby::run<QStringList *, const QByteArray &>(&Ruby::makeBlock, &parameters, c);
-  }
-
-  /// This returns the global hash that contains a correspondance
-  /// fit-name -> [blocks]
-  static VALUE getGlobalBlocksHash() 
-  {
-    VALUE hsh = rb_gv_get("$fits_blocks");
-    if(! RTEST(hsh)) {
-      hsh = rb_hash_new();
-      rb_gv_set("$fits_blocks", hsh);
-    }
-    return hsh;
-  }
-
-
-  void parseBlocks(const QString &formula)
+  void parseFormulas(const QString &formula)
   {
     lastFormula = formula;
     params.clear();
     params << "x" << "f" << "pi" << "fara" << "temperature";
     formulas = formula.split("|");
 
+    for(int i = 0; i < formulas.size(); i++) {
+      Expression s(formulas[i]);
+      params << s.naturalVariables();
+    }
+    
+    // Now, we make the list unique, keeping the order
+    {
+      QSet<QString> names;
+      for(int i = 0; i < params.size(); i++) {
+        QString s = params[i];
+        if(names.contains(s)) {
+          params.takeAt(i);
+          --i;
+        }
+        names.insert(s);
+      }
+    }
 
+    expressions.clear();
     for(int i = 0; i < formulas.size(); i++)
-      parseBlock(formulas[i], params); // Just to update the
-                                       // parameters list
+      expressions << Expression(formulas[i], params);
 
-    VALUE blks = rb_ary_new();
-    for(int i = 0; i < formulas.size(); i++)
-      rb_ary_push(blks, parseBlock(formulas[i], params));
-
-    VALUE hsh = getGlobalBlocksHash();
-    rb_hash_aset(hsh, Ruby::toString(name), blks);
     for(int i = 0; i < 4; i++)
-      params.takeFirst();       // Remove constants and/or derived stuff
+      params.takeFirst();  
   }
 
   void runFit(const QString & name, QString formula, 
               QList<const DataSet *> datasets,
               const CommandOptions & opts)
   {
-    callID = rb_intern("call"); // Shouldn't be done in the
-    // constructor, called to early.
     Terminal::out << "Fitting using formula '" << formula << "'" << endl;
-    parseBlocks(formula);
+    parseFormulas(formula);
     lastFormula = formula;
     Terminal::out << " -> detected parameters:  " << params.join(", ") 
                   << endl;
-    // We go brutal !
-    rb_gc_disable();
     Fit::runFit(name, datasets, opts);
-    rb_gc_enable();
   }
 
   void runFitCurrentDataSet(const QString & n, 
@@ -157,8 +144,7 @@ protected:
   };
 
   virtual void processOptions(const CommandOptions & ) {
-    callID = rb_intern("call");
-    parseBlocks(lastFormula);
+    parseFormulas(lastFormula);
   };
 
 
@@ -171,42 +157,33 @@ public:
     int nbparams = data->parameterDefinitions.size();
     int nbargs = nbparams + 4;
 
-    VALUE args[nbargs];
-    args[0] = rb_float_new(0); // x
-    args[1] = rb_float_new(GSL_CONST_MKSA_FARADAY); // f
-    args[2] = rb_float_new(M_PI); // pi
-    args[3] = rb_float_new(GSL_CONST_MKSA_FARADAY/ 
-                           (a[0] * GSL_CONST_MKSA_MOLAR_GAS));
+    QVarLengthArray<double, 100> args(4 + nbparams);
+    args[0] = 0; // x
+    args[1] = GSL_CONST_MKSA_FARADAY; // f
+    args[2] = M_PI; // pi
+    args[3] = GSL_CONST_MKSA_FARADAY/ 
+      (a[0] * GSL_CONST_MKSA_MOLAR_GAS);
 
     for(int i = 0; i < nbparams; i++)
-      args[i + 4] = rb_float_new(a[i]);
-
-
-    VALUE hsh = getGlobalBlocksHash();
-    VALUE blocks = rb_hash_aref(hsh, Ruby::toString(name));
-    VALUE blk = Qnil;
+      args[i + 4] = a[i];
 
     for(int i = 0; i < data->datasets.size(); i++) {
       const Vector &xv = data->datasets[i]->x();
+
+      const Expression * expr = NULL;
       if(formulas.size() > 1)
-        blk = rb_ary_entry(blocks, i);
+        expr = &expressions[i];
       else {
-        // We need to initialize the correct parameters too
-        blk = rb_ary_entry(blocks, 0);
-        RFLOAT_VALUE(args[3]) = (GSL_CONST_MKSA_FARADAY/ 
-                                 (a[i * nbparams] * GSL_CONST_MKSA_MOLAR_GAS));
-        
+        expr = &expressions[0];
+        args[3] = (GSL_CONST_MKSA_FARADAY/ 
+                   (a[i * nbparams] * GSL_CONST_MKSA_MOLAR_GAS));
         for(int l = 0; l < data->parameterDefinitions.size(); l++)
-          RFLOAT_VALUE(args[l + 4]) = a[l + i * nbparams];
+          args[l + 4] = a[l + i * nbparams];
       }
-      // printf("Block: %d -- %p\n", i, (formulas.size() > 1 ? &blocks[i] : 
-      //                                 &blocks[0]));
-      // rb_p(blk);
+
       for(int j = 0; j < xv.size(); j++) {
-        RFLOAT_VALUE(args[0]) = xv[j]; // x
-        gsl_vector_set(target, k++,  
-                       NUM2DBL(Ruby::run(&rb_funcall2, blk, 
-                                         callID, nbargs, (const VALUE *) args)));
+        args[0] = xv[j]; // x
+        gsl_vector_set(target, k++, expr->evaluate(args.data()));
       }
     }
   };

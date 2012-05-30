@@ -21,6 +21,7 @@
 #include <expression.hh>
 #include <exceptions.hh>
 #include <ruby.hh>
+#include <ruby-templates.hh>
 
 ID Expression::callIDCache = 0;
 
@@ -102,7 +103,7 @@ void Expression::freeCode()
 }
 
 Expression::Expression(const QString & expr) :
-  expression(expr)
+  expression(expr), args(NULL)
 {
   buildCode();
 }
@@ -122,7 +123,7 @@ void Expression::setVariables(const QStringList & vars)
 
 Expression::Expression(const Expression & c) :
   expression(c.expression), minimalVariables(c.minimalVariables), 
-  variables(c.variables)
+  variables(c.variables), args(NULL)
 {
   buildCode();
 }
@@ -151,4 +152,5 @@ double Expression::evaluate(const double * values) const
                         callID(), size, (const VALUE *) args);
   return NUM2DBL(ret);
 }
+
 

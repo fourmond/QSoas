@@ -228,8 +228,6 @@ public:
     return new FormulaParameter(*this);
   };
 
-  virtual QString saveAsString(double value) const;
-
   virtual QString textValue(double value) const;
 
   virtual void setValue(double * target, const QString & value);

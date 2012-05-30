@@ -165,6 +165,23 @@ bool FitParameters::isFixed(int index, int ds) const
 
 void FitParameters::recompute()
 {
+  // These steps are necessary to ensure the correct initialization of
+  // formula-based stuff.
+  sendDataParameters();
+  fitData->initializeParameters();
+
+  QVarLengthArray<double, 1000> params(fitData->freeParameters());
+  gsl_vector_view v = gsl_vector_view_array(params.data(), 
+                                            fitData->freeParameters());
+
+  // We need a pack/unpack cycle to ensure the dependent parameters
+  // are computed correctly.
+
+  /// @todo the pack/unpack cycle should be implemented at the FitData
+  /// level !
+  fitData->packParameters(values, &v.vector);
+  fitData->unpackParameters(&v.vector, values);
+
   fitData->fit->function(values, fitData, fitData->storage);
 }
 

@@ -218,8 +218,6 @@ void FormulaParameter::initialize(FitData * data)
 void FormulaParameter::copyToUnpacked(double * target, const gsl_vector * fit, 
                                       int nb_datasets, int nb_per_dataset) const
 {
-  QTextStream o(stdout);
-  o << "Copying to unpacked: " <<  paramIndex << " -- " << dsIndex << endl;
   if(dsIndex >= 0) {
     lastValue = expression->evaluate(target + dsIndex * nb_per_dataset);
     target[paramIndex + dsIndex * nb_per_dataset] = lastValue;
@@ -238,14 +236,9 @@ void FormulaParameter::copyToPacked(gsl_vector * target, const double * unpacked
                        nb_per_dataset]; // necessary ??
 }
 
-QString FormulaParameter::saveAsString(double ) const
-{
-  return QString("=%1").arg(formula);
-}
-
 void FormulaParameter::setValue(double *, const QString & value)
 {
-  formula = value;
+  formula = value.mid(1);
   needsUpdate = true;
 }
 

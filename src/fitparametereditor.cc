@@ -98,8 +98,11 @@ FitParameterEditor::FitParameterEditor(const ParameterDefinition * d,
 
     updateBijectionEditors();
   }
-
 }
+
+
+/// It shouldn't be too difficult to keep the last bijection used in
+/// memory in order to find it again
 void FitParameterEditor::updateBijectionEditors()
 {
   if(! extended)
@@ -201,7 +204,8 @@ void FitParameterEditor::onFixedClicked()
     return;
   FitParameter *& target = targetParameter();
   int ds = target->dsIndex;
-  
+
+  QString oldText = editor->text();
   delete target;
   if(fixed->isChecked()) {
     FixedParameter * param = new FixedParameter(index, ds,  0);
@@ -209,9 +213,14 @@ void FitParameterEditor::onFixedClicked()
   }
   else {
     target = new FreeParameter(index, ds);
+    if(oldText.size() > 0 && oldText[0] == '=') {
+      oldText = QString::number(parameters->valueFor(index, dataset));
+      editor->setText(oldText);
+    }
+
   }
   updateBijectionEditors();
-  onValueChanged(editor->text());
+  onValueChanged(oldText);
 }
 
 
@@ -249,7 +258,29 @@ void FitParameterEditor::onValueChanged(const QString & str)
 {
   if(updatingEditor)
     return;
+
+  if(isFixed() && str.size() > 0) {
+    // We need to detect if we are changing the category (ie normal
+    // fixed vs other) of the parameter.
+    FitParameter *& target = targetParameter();
+    int ds = target->dsIndex;
+    if(dynamic_cast<FormulaParameter *>(target) != NULL && str[0] != '=') {
+      // Replace
+      FixedParameter * param = new FixedParameter(index, ds,  0);
+      delete target;
+      target = param;
+    }
+    else if(dynamic_cast<FormulaParameter *>(target) == NULL 
+            && str[0] == '=') {
+      FormulaParameter * param = new FormulaParameter(index, ds, "0");
+      delete target;
+      target = param;
+    }
+  }
+
   if(isGlobal()) {
+    /// @todo This whole loop may not be necessary anymore now that we
+    /// have a pack/unpack cycle in FitParameters::recompute()
     for(int i = 0; i < parameters->datasets; i++)
       parameters->parameter(index, 0)->
         setValue(&parameters->valueFor(index, i), str);

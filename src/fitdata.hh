@@ -184,6 +184,9 @@ public:
   /// Returns the number of degrees of freedom
   int doF() const;
 
+  /// Returns the number of free parameters
+  int freeParameters() const { return gslParameters; } ;
+
   /// Returns the required factor to apply to the variance to get the
   /// confidence limit with the given percentage
   double confidenceLimitFactor(double conf) const;

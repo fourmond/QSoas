@@ -217,11 +217,18 @@ void FitData::unpackParameters(const gsl_vector * packed,
   int nb_ds_params = parameterDefinitions.size();
   int nb_datasets = datasets.size();
 
+
   for(int i = 0; i < parameters.size(); i++)
     parameters[i]->copyToUnpacked(unpacked, packed, 
                                  nb_datasets, nb_ds_params);
 
-  /// @todo Second pass if required !
+  /// @todo Make that much more subtle to handle interdependence ?
+  /// Lets say that for now, interdependence isn't an option !
+  for(int i = 0; i < parameters.size(); i++)
+    if(parameters[i]->needSecondPass())
+      parameters[i]->copyToUnpacked(unpacked, packed, 
+                                    nb_datasets, nb_ds_params);
+
 }
 
 gsl_vector_view FitData::viewForDataset(int ds, gsl_vector * vect)
@@ -246,10 +253,8 @@ void FitData::subtractData(gsl_vector * target)
   }
 }
 
-void FitData::initializeSolver(const double * initialGuess)
+void FitData::initializeParameters()
 {
-  nbIterations = 0;
-  freeSolver();
   gslParameters = 0;
 
   // Update the free parameters index
@@ -259,8 +264,18 @@ void FitData::initializeSolver(const double * initialGuess)
       param->fitIndex = gslParameters++;
     else
       param->fitIndex = -1;     // Should already be the case
-    param->initialize(this);
+    if(param->needsInit())
+      param->initialize(this);
   }
+}
+
+
+void FitData::initializeSolver(const double * initialGuess)
+{
+  nbIterations = 0;
+  freeSolver();
+
+  initializeParameters();
 
   if(independentDataSets()) {
     for(int i = 0; i < datasets.size(); i++) {

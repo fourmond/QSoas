@@ -66,7 +66,7 @@ FitParameter * FitParameter::loadFromString(const QString & str,
   if(lst.size() < 2) 
     throw RuntimeError(QString("Invalid parameter specification '%1'").
                        arg(Utils::abbreviateString(str)));
-
+  
   bool fixed = (lst[1] == "0");
 
   FitParameter * p;
@@ -178,17 +178,28 @@ void FixedParameter::copyToPacked(gsl_vector * target, const double * unpacked,
 
 void FormulaParameter::initialize(FitData * data)
 {
-  if(formula != expression.formula())
-    expression = Expression(formula);
-  depsIndex.clear();
+  if(! needsUpdate)
+    return;
+
+  QStringList parameters;
+  for(int i = 0; i < data->parameterDefinitions.size(); i++)
+    parameters << data->parameterDefinitions[i].name;
+
+  QString exp2 = Expression::rubyIzeExpression(formula, parameters);
+  QTextStream o(stdout);
+  o << "Tweaked expression: '" << formula << "' -> '" << exp2 << endl;
+
+  delete expression;
+  expression = new Expression(exp2);
+
 
   // Hmmmm... This means that all the fancy variables with # signs
   // inside will be delicate to handle...
-  dependencies = expression.naturalVariables();
+  dependencies = expression->naturalVariables();
 
   // <unnecessary> I think all this is completely unnecessary...
   for(int j = 0; j < dependencies.size(); j++) {
-    int idx = data->namedParameterIndex(dependencies[j]);
+    int idx = parameters.indexOf(dependencies[j]);
     if(idx < 0)
       throw RuntimeError(QString("In definition of parameter %1: "
                                  "'%2' isn't a parameter name !").
@@ -198,10 +209,8 @@ void FormulaParameter::initialize(FitData * data)
   }
   // </unnecessary>
   
-  QStringList parameters;
-  for(int i = 0; i < data->parameterDefinitions.size(); i++)
-    parameters << data->parameterDefinitions[i].name;
-  expression.setVariables(parameters);
+  expression->setVariables(parameters);
+  needsUpdate = false;
 }
 
 
@@ -209,12 +218,14 @@ void FormulaParameter::initialize(FitData * data)
 void FormulaParameter::copyToUnpacked(double * target, const gsl_vector * fit, 
                                       int nb_datasets, int nb_per_dataset) const
 {
+  QTextStream o(stdout);
+  o << "Copying to unpacked: " <<  paramIndex << " -- " << dsIndex << endl;
   if(dsIndex >= 0) {
-    lastValue = expression.evaluate(target + dsIndex * nb_per_dataset);
+    lastValue = expression->evaluate(target + dsIndex * nb_per_dataset);
     target[paramIndex + dsIndex * nb_per_dataset] = lastValue;
   }
   else {
-    lastValue = expression.evaluate(target);
+    lastValue = expression->evaluate(target);
     for(int j = 0; j < nb_datasets; j++)
       target[paramIndex + j * nb_per_dataset] = lastValue;
   }
@@ -229,12 +240,21 @@ void FormulaParameter::copyToPacked(gsl_vector * target, const double * unpacked
 
 QString FormulaParameter::saveAsString(double ) const
 {
-  return QString("=%1").arg(expression.formula());
+  return QString("=%1").arg(formula);
 }
 
 void FormulaParameter::setValue(double *, const QString & value)
 {
   formula = value;
-  // Set a flag
+  needsUpdate = true;
 }
 
+FormulaParameter::~FormulaParameter()
+{
+  delete expression;
+}
+
+QString FormulaParameter::textValue(double ) const
+{
+  return "=" + formula;
+};

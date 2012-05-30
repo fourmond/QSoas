@@ -108,6 +108,18 @@ public:
   QString formula() const {
     return expression;
   };
+
+  
+  /// Takes a name that people would expect they can use (or maybe
+  /// simply they have to use), and transform it into somethin Ruby
+  /// can chew.
+  static QString rubyIzeName(const QString &name);
+
+  /// RubyIze a full expression, ie transform all the variables given
+  /// in the expression
+  static QString rubyIzeExpression(const QString &expr, 
+                                   QStringList & variables);
+
   
 };
 

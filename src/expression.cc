@@ -154,3 +154,26 @@ double Expression::evaluate(const double * values) const
 }
 
 
+
+QString Expression::rubyIzeName(const QString & name)
+{
+  QString ret = name;
+  // For now, conversions are simple
+  ret[0] = ret[0].toLower();  // avoid using constants !
+  ret.replace(QRegExp("[#-]"), "_");
+  return ret;
+}
+
+QString Expression::rubyIzeExpression(const QString & expr, 
+                                      QStringList & variables)
+{
+  QStringList oldVars = variables;
+  QList<QRegExp> replacements;
+  QString ret = expr;
+  for(int i = 0; i < oldVars.size(); i++) {
+    variables[i] = rubyIzeName(oldVars[i]);
+    ret.replace(QRegExp("(^|\\W)" + QRegExp::escape(oldVars[i]) + "($|\\W)"), 
+                QString("\\1") + variables[i] + QString("\\2"));
+  }
+  return ret;
+}

@@ -184,7 +184,8 @@ public:
 /// A parameter whose value is defined as a function of other
 /// parameters.
 class FormulaParameter : public FitParameter {
-  Expression expression;
+  /// The expression we're using
+  Expression * expression;
 
   /// The parameter dependencies (to ensure they are computed in the
   /// correct order). It is also the argument list to the block
@@ -197,6 +198,8 @@ class FormulaParameter : public FitParameter {
 
 
   QString formula;
+
+  bool needsUpdate;
 
   // The last value this stuff took... (could be useful ?)
   mutable double lastValue;
@@ -215,7 +218,7 @@ public:
   virtual bool fixed() const { return true;};
 
   FormulaParameter(int p, int ds, const QString & f)  :
-    FitParameter(p, ds), expression(f), formula(f) {;};
+    FitParameter(p, ds), expression(NULL), formula(f), needsUpdate(true) {;};
 
   virtual void initialize(FitData * data);
 
@@ -227,11 +230,15 @@ public:
 
   virtual QString saveAsString(double value) const;
 
-  virtual QString textValue(double ) const {
-    return expression.formula();
-  };
+  virtual QString textValue(double value) const;
 
   virtual void setValue(double * target, const QString & value);
+
+  virtual bool needsInit() const {
+    return needsUpdate;
+  };
+
+  virtual ~FormulaParameter();
 
 };
 

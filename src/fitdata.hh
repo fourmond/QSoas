@@ -122,6 +122,12 @@ public:
   /// parameters.
   void initializeSolver(const double * initialGuess);
 
+
+  /// Initializes the parameters (if needed). This may have to be
+  /// called more often than initializeSolver, basically every single
+  /// time one wants to use f() or df().
+  void initializeParameters();
+
   /// Iterates the solver, and returns the return code
   int iterate();
 

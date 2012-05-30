@@ -83,10 +83,17 @@ FitParameter * FitParameter::loadFromString(const QString & str,
   FitParameter * p;
   
   if(fixed) {
-    FixedParameter * pm = new FixedParameter(paramIndex, dsIndex, 0);
-    pm->setValue(target, lst[0]);
-    pm->value = *target;        /// @todo This should move to setValue
-    p = pm;
+    if(lst[0].startsWith("=")) {
+      FormulaParameter * fm = 
+        new FormulaParameter(paramIndex, dsIndex,lst[0].mid(1));
+      p = fm;
+    }
+    else {
+      FixedParameter * pm = new FixedParameter(paramIndex, dsIndex, 0);
+      pm->setValue(target, lst[0]);
+      pm->value = *target;        /// @todo This should move to setValue
+      p = pm;
+    }
   }
   else {
     FreeParameter * pm = new FreeParameter(paramIndex, dsIndex);
@@ -163,7 +170,6 @@ FitParameter * FreeParameter::dup() const
 void FixedParameter::copyToUnpacked(double * target, const gsl_vector * fit, 
                                    int nb_datasets, int nb_per_dataset) const
 {
-  /// @todo Formula-based stuff
   if(dsIndex >= 0)
     target[paramIndex + dsIndex * nb_per_dataset] = value;
   else
@@ -179,14 +185,19 @@ void FixedParameter::copyToPacked(gsl_vector * target, const double * unpacked,
                    nb_per_dataset];
 }
 
-void FixedParameter::initialize(FitData * data)
+//////////////////////////////////////////////////////////////////////
+
+void FormulaParameter::initialize(FitData * data)
 {
-  if(formula.isEmpty())
-    return;
-
-  makeBlock();
-
+  if(formula != expression.formula())
+    expression = Expression(formula);
   depsIndex.clear();
+
+  // Hmmmm... This means that all the fancy variables with # signs
+  // inside will be delicate to handle...
+  dependencies = expression.naturalVariables();
+
+  // <unnecessary> I think all this is completely unnecessary...
   for(int j = 0; j < dependencies.size(); j++) {
     int idx = data->namedParameterIndex(dependencies[j]);
     if(idx < 0)
@@ -196,29 +207,49 @@ void FixedParameter::initialize(FitData * data)
                          arg(dependencies[j]));
     depsIndex << idx;
   }
+  // </unnecessary>
+  
+  QStringList parameters;
+  for(int i = 0; i < data->parameterDefinitions.size(); i++)
+    parameters << data->parameterDefinitions[i].name;
+  expression.setVariables(parameters);
 }
 
 
 
-
-void FixedParameter::makeBlock()
+void FormulaParameter::copyToUnpacked(double * target, const gsl_vector * fit, 
+                                      int nb_datasets, int nb_per_dataset) const
 {
-  block = Ruby::run<QStringList *, 
-                    const QByteArray &>(&Ruby::makeBlock, 
-                                        &dependencies, formula.toLocal8Bit());
+  if(dsIndex >= 0) {
+    lastValue = expression.evaluate(target + dsIndex * nb_per_dataset);
+    target[paramIndex + dsIndex * nb_per_dataset] = lastValue;
+  }
+  else {
+    lastValue = expression.evaluate(target);
+    for(int j = 0; j < nb_datasets; j++)
+      target[paramIndex + j * nb_per_dataset] = lastValue;
+  }
 }
 
-double FixedParameter::compute(const double * unpacked) const
+void FormulaParameter::copyToPacked(gsl_vector * target, const double * unpacked,
+                                    int /*nbdatasets*/, int nb_per_dataset) const
 {
-  int np = depsIndex.size();
-  VALUE args[np];
-  for(int i = 0; i < np; i++)
-    args[i] = rb_float_new(unpacked[depsIndex[i]]);
-  return NUM2DBL(Ruby::run(&rb_funcall2, block, 
-                           rb_intern("call"), np, 
-                           (const VALUE *) args));
-
+  lastValue = unpacked[paramIndex + (dsIndex < 0 ? 0 : dsIndex) * 
+                       nb_per_dataset]; // necessary ??
 }
+
+QString FormulaParameter::saveAsString(double ) const
+{
+  return QString("=%1").arg(expression.formula());
+}
+
+void FormulaParameter::setValue(double *, const QString & value)
+{
+  formula = value;
+  // Set a flag
+}
+
+
 
 
 //////////////////////////////////////////////////////////////////////

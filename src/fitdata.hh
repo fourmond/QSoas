@@ -24,6 +24,9 @@
 #include <vector.hh>
 #include <possessive-containers.hh>
 
+// For the expression handling with the fit parameters...
+#include <expression.hh>
+
 class FitData;
 
 /// Base class for effective parameters
@@ -153,30 +156,10 @@ protected:
 
 /// A fixed parameter, ie a parameter whose value is fixed, and
 /// hence isn't part of the gsl_vector of parameters.
-///
-/// It can also be fixed by a formula; this is the case if formula
-/// isn't empty.
-///
-/// @todo Now that we're really using virtual classes, the formula
-/// stuff can go to a separate class.
 class FixedParameter : public FitParameter {
 public:
   /// The actual value
   mutable double value;
-
-  /// The formula
-  QString formula;
-
-  /// The parameter dependencies (to ensure they are computed in the
-  /// correct order). It is also the argument list to the block
-  QStringList dependencies;
-
-  /// The same thing as dependencies, but with their index (in the
-  /// parametersDefinition)
-  QVector<int> depsIndex;
-
-  /// The Ruby block, obtained using Ruby::makeBlock;
-  VALUE block;
 
   virtual void copyToUnpacked(double * target, const gsl_vector * fit, 
                              int nbdatasets, int nb_per_dataset) const;
@@ -189,26 +172,68 @@ public:
   virtual bool fixed() const { return true;};
 
   FixedParameter(int p, int ds, double v)  :
-    FitParameter(p, ds), value(v), block(Qnil) {;};
-
-  virtual void initialize(FitData * data);
-
-  virtual bool needSecondPass() const { return ! formula.isEmpty(); };
+    FitParameter(p, ds), value(v) {;};
 
   virtual FitParameter * dup() const {
     return new FixedParameter(*this);
   };
+};
+
+/// A parameter whose value is defined as a function of other
+/// parameters.
+class FormulaParameter : public FitParameter {
+  Expression expression;
+
+public:
+
+  /// The parameter dependencies (to ensure they are computed in the
+  /// correct order). It is also the argument list to the block
+  QStringList dependencies;
+
+  /// The same thing as dependencies, but with their index (in the
+  /// parametersDefinition)
+  QVector<int> depsIndex;
 
 
 
-private:
-  void makeBlock();
+  QString formula;
 
-  /// Compute the value of the parameter, given an already unpacked
-  /// parameters set.
-  double compute(const double * unpacked) const;
+  // The last value this stuff took... (could be useful ?)
+  mutable double lastValue;
+
+  virtual void copyToUnpacked(double * target, const gsl_vector * fit, 
+                             int nbdatasets, int nb_per_dataset) const;
+
+
+  virtual void copyToPacked(gsl_vector * fit, const double * unpacked,
+                            int nbdatasets, int nb_per_dataset) const;
+
+
+  virtual bool fixed() const { return true;};
+
+  FormulaParameter(int p, int ds, const QString & f)  :
+    FitParameter(p, ds), expression(f), formula(f) {;};
+
+  virtual void initialize(FitData * data);
+
+  virtual bool needSecondPass() const { return true; };
+
+  virtual FitParameter * dup() const {
+    return new FormulaParameter(*this);
+  };
+
+  virtual QString saveAsString(double value) const;
+
+  virtual QString textValue(double ) const {
+    return expression.formula();
+  };
+
+  virtual void setValue(double * target, const QString & value);
 
 };
+
+
+
 
 class Fit;  
 class DataSet;

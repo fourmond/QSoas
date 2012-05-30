@@ -104,6 +104,10 @@ public:
   /// Returns the list of variables needed to process the given
   /// expression
   static QStringList variablesNeeded(const QString & expression);
+
+  QString formula() const {
+    return expression;
+  };
   
 };
 

@@ -163,7 +163,7 @@ bool FitParameters::isFixed(int index, int ds) const
   return parameter(index, (ds >= 0 ? ds : 0))->fixed();
 }
 
-void FitParameters::recompute()
+void FitParameters::updateParameterValues()
 {
   // These steps are necessary to ensure the correct initialization of
   // formula-based stuff.
@@ -177,11 +177,15 @@ void FitParameters::recompute()
   // We need a pack/unpack cycle to ensure the dependent parameters
   // are computed correctly.
 
-  /// @todo the pack/unpack cycle should be implemented at the FitData
-  /// level !
+  /// @todo maybe the pack/unpack cycle should be implemented at the
+  /// FitData level ? 
   fitData->packParameters(values, &v.vector);
   fitData->unpackParameters(&v.vector, values);
+}
 
+void FitParameters::recompute()
+{
+  updateParameterValues();
   fitData->fit->function(values, fitData, fitData->storage);
 }
 
@@ -215,8 +219,9 @@ QString FitParameters::parameterName(int idx) const
 }
 
 void FitParameters::prepareExport(QStringList & lst, QString & lines, 
-                                  bool exportErrors) const
+                                  bool exportErrors)
 {
+  updateParameterValues();
   double conf = fitData->confidenceLimitFactor(0.975);
   lst.clear();
   lst << "Buffer";
@@ -240,7 +245,8 @@ void FitParameters::prepareExport(QStringList & lst, QString & lines,
     ls2.clear();
     ls2 << fitData->datasets[i]->name;
     for(int j = 0; j < nbParameters; j++) {
-      ls2 << QString::number(getValue(j, i));
+      // We don't use getValue here because it can be misleading ? 
+      ls2 << QString::number(values[i * nbParameters + j]);
       if(exportErrors) {
         int idx = (isGlobal(j) ? j : j + i * nbParameters);
         ls2 << QString::number(conf*sqrt(gsl_matrix_get(cov, idx, idx)));
@@ -254,7 +260,7 @@ void FitParameters::prepareExport(QStringList & lst, QString & lines,
   }
 }
 
-void FitParameters::exportToOutFile(bool exportErrors, OutFile * out) const
+void FitParameters::exportToOutFile(bool exportErrors, OutFile * out)
 {
   if( ! out)
     out = &OutFile::out;
@@ -270,7 +276,7 @@ void FitParameters::exportToOutFile(bool exportErrors, OutFile * out) const
 }
 
 void FitParameters::exportParameters(QIODevice * stream, 
-                                     bool exportErrors) const
+                                     bool exportErrors)
 {
   QTextStream out(stream);
   QStringList lst;
@@ -283,7 +289,7 @@ void FitParameters::exportParameters(QIODevice * stream,
   out << lines << flush;
 }
 
-void FitParameters::writeToTerminal(bool /*writeMatrix*/) const
+void FitParameters::writeToTerminal(bool /*writeMatrix*/)
 {
   const gsl_matrix * mat = fitData->covarianceMatrix();
   double conf = fitData->confidenceLimitFactor(0.975);

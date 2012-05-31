@@ -225,7 +225,7 @@ public:
   virtual bool needSecondPass() const { return true; };
 
   virtual FitParameter * dup() const {
-    return new FormulaParameter(*this);
+    return new FormulaParameter(paramIndex, dsIndex, formula);
   };
 
   virtual QString textValue(double value) const;

@@ -223,9 +223,10 @@ void FormulaParameter::copyToUnpacked(double * target, const gsl_vector * fit,
     target[paramIndex + dsIndex * nb_per_dataset] = lastValue;
   }
   else {
-    lastValue = expression->evaluate(target);
-    for(int j = 0; j < nb_datasets; j++)
+    for(int j = 0; j < nb_datasets; j++) {
+      lastValue = expression->evaluate(target + j * nb_per_dataset);
       target[paramIndex + j * nb_per_dataset] = lastValue;
+    }
   }
 }
 

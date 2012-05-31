@@ -84,7 +84,7 @@ class FitParameters {
   QString parameterName(int idx) const;
 
   void prepareExport(QStringList & headers, QString & lines, 
-                     bool exportErrors = false) const;
+                     bool exportErrors = false);
 
   /// Loads parameters from a parsed parameters file.
   ///
@@ -92,6 +92,11 @@ class FitParameters {
   /// the given targetDS.
   void loadParameters(FitParametersFile & params, int targetDS = -1, 
                       int sourceDS = 0);
+
+
+  /// This updates the parameters values, by packing from values and
+  /// unpacking back to values. This takes care of the
+  void updateParameterValues();
 
 public:
 
@@ -159,17 +164,17 @@ public:
   /// On the other hand, it may be easier to work with than the output
   /// of saveParameters (which is closer to the original Soas
   /// version).
-  void exportParameters(QIODevice * out, bool writeError = false) const;
+  void exportParameters(QIODevice * out, bool writeError = false);
 
   /// Write the result of the fits to the terminal, as those can be
   /// quite interesting... It is different from exportParameters in
   /// the sense that it is optimized for human reading.
   ///
   /// @todo Write the correlation matrix ? Write the confidence matrix ?
-  void writeToTerminal(bool writeMatrix = false) const;
+  void writeToTerminal(bool writeMatrix = false);
 
   /// Export parameters to the given output file (or the default one)
-  void exportToOutFile(bool writeError = false, OutFile * out = NULL) const;
+  void exportToOutFile(bool writeError = false, OutFile * out = NULL);
 
   /// Save to the given stream
   void saveParameters(QIODevice * out) const;

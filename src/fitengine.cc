@@ -107,7 +107,12 @@ int GSLFitEngine::iterate()
   if(status)
     return status;
 
-  // This is garbage...
+  // This is garbage... It doesn't stop where it should.
   return gsl_multifit_test_delta(solver->dx, solver->x,
                                  1e-4, 1e-4);
+}
+
+double GSLFitEngine::residuals() const
+{
+  return gsl_blas_dnrm2(solver->f);
 }

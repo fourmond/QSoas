@@ -38,9 +38,6 @@ protected:
   /// The underlying fit data
   FitData * fitData;
 
-  /// The number of iterations since the last call to initialize();
-  int iterations;
-
 public:
   FitEngine(FitData * data);
   virtual ~FitEngine();
@@ -61,6 +58,13 @@ public:
 
   /// Performs the next iteration (possibly cheating). 
   virtual int iterate() = 0;
+
+  /// Returns the residuals as computed by the last step
+  virtual double residuals() const = 0;
+
+  /// The number of iterations since the last call to initialize();
+  int iterations;
+
 };
 
 
@@ -90,6 +94,7 @@ public:
   virtual const gsl_vector * currentParameters() const;
   virtual void computeCovarianceMatrix(gsl_matrix * target) const;
   virtual int iterate();
+  virtual double residuals() const;
 };
 
 #endif

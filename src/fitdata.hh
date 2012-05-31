@@ -25,6 +25,7 @@
 #include <possessive-containers.hh>
 
 class Fit;  
+class FitEngine;
 class FitParameter;
 class DataSet;
 class ParameterDefinition;
@@ -36,11 +37,6 @@ class ParameterDefinition;
 /// fit algorithm point of view (ie, only ActualParameter) to the Fit
 /// point of view (ie ParameterDefinition).
 class FitData {
-
-  static int staticF(const gsl_vector * x, void * params, gsl_vector * f);
-  static int staticDf(const gsl_vector * x, void * params, gsl_matrix * df);
-  static int staticFdf(const gsl_vector * x, void * params, gsl_vector * f,
-                       gsl_matrix * df);
 
 public:
   int f(const gsl_vector * x, gsl_vector * f);
@@ -73,6 +69,9 @@ private:
   /// Dump the fit parameters if debug is on
   void dumpFitParameters(const double * params) const;
 
+  /// The fit engine in use
+  FitEngine * engine;
+
 public:
   /// The fit in use
   Fit * fit;
@@ -85,6 +84,11 @@ public:
   /// The datasets holding the data.
   QList<const DataSet *> datasets;
 
+
+  /// The number of iterations
+  int nbIterations;
+
+
   /// Push parameters -- why not ?
   FitData & operator<<(const FitParameter & param);
   FitData & operator<<(FitParameter * param);
@@ -96,14 +100,6 @@ public:
   /// as what Fit::parameters() return.
   QList<ParameterDefinition> parameterDefinitions;
     
-  /// The solver in use
-  gsl_multifit_fdfsolver * solver;
-
-  /// The function in use
-  gsl_multifit_function_fdf function;
-
-  int nbIterations;
-
   /// A storage vector of the same size as the data points vector
   gsl_vector * storage;
 

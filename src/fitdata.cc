@@ -31,13 +31,13 @@
 #include <gsl/gsl_cdf.h>
 
 #include <fitdialog.hh>
+#include <fitengine.hh>
 
 
 FitData::FitData(Fit * f, const QList<const DataSet *> & ds, bool d) : 
-  totalSize(0), covarStorage(NULL),
+  totalSize(0), covarStorage(NULL), engine(NULL),
   fit(f), debug(d), datasets(ds),
-  parameterDefinitions(f->parameters()),
-  solver(0), nbIterations(0), storage(0)
+  parameterDefinitions(f->parameters()), nbIterations(0), storage(0)
   
 {
   for(int i = 0; i < datasets.size(); i++) {
@@ -51,9 +51,8 @@ FitData::FitData(Fit * f, const QList<const DataSet *> & ds, bool d) :
 
 void FitData::freeSolver()
 {
-  if(solver)
-    gsl_multifit_fdfsolver_free(solver);
-  solver = NULL;
+  delete engine;
+  engine = NULL;
   for(int i = 0; i < subordinates.size(); i++)
     delete subordinates[i];
   subordinates.clear();
@@ -75,25 +74,6 @@ void FitData::weightVector(gsl_vector * tg)
     gsl_vector_view v = viewForDataset(i, tg);
     gsl_vector_scale(&v.vector, weightsPerBuffer[i]);
   }
-}
-
-int FitData::staticF(const gsl_vector * x, void * params, gsl_vector * f)
-{
-  FitData * data = reinterpret_cast<FitData *>(params);
-  return data->f(x, f);
-}
-
-int FitData::staticDf(const gsl_vector * x, void * params, gsl_matrix * df)
-{
-  FitData * data = reinterpret_cast<FitData *>(params);
-  return data->df(x, df);
-}
-
-int FitData::staticFdf(const gsl_vector * x, void * params, gsl_vector * f,
-                       gsl_matrix * df)
-{
-  FitData * data = reinterpret_cast<FitData *>(params);
-  return data->fdf(x, f, df);
 }
 
 int FitData::f(const gsl_vector * x, gsl_vector * f)
@@ -295,20 +275,8 @@ void FitData::initializeSolver(const double * initialGuess)
     }
   }
   else {
-  
-    solver = gsl_multifit_fdfsolver_alloc(gsl_multifit_fdfsolver_lmsder,
-                                          totalSize, gslParameters);
-    function.f = &FitData::staticF;
-    function.df = &FitData::staticDf;
-    function.fdf = &FitData::staticFdf;
-    function.n = totalSize;
-    function.p = gslParameters;
-    function.params = this;
-
-    gsl_vector_view v = gsl_vector_subvector(parametersStorage, 0, 
-                                             function.p);
-    packParameters(initialGuess, &v.vector);
-    gsl_multifit_fdfsolver_set(solver, &function, &v.vector);
+    engine = new GSLFitEngine(this);
+    engine->initialize(initialGuess);
   }
   // And this should be fine.
 }
@@ -321,7 +289,7 @@ void FitData::unpackCurrentParameters(double * target)
         unpackCurrentParameters(target + i * parameterDefinitions.size());
   }
   else
-    unpackParameters(solver->x, target);
+    unpackParameters(engine->currentParameters(), target);
 }
 
 int FitData::iterate()
@@ -344,21 +312,8 @@ int FitData::iterate()
     else
       return GSL_SUCCESS;
   }
-  else {
-    int status = gsl_multifit_fdfsolver_iterate(solver);
-    if(status)
-      return status;
-
-    QVarLengthArray<double, 1024> params(fullParameterNumber());
-    unpackParameters(solver->x, params.data());
-    status = fit->parametersCheck(params.data(), this);
-    if(status)
-      return status;
-    
-    /// @todo customize this !
-    return gsl_multifit_test_delta(solver->dx, solver->x,
-                                   1e-4, 1e-4);
-  }
+  else
+    return engine->iterate();
 }
 
 double FitData::residuals()
@@ -369,9 +324,9 @@ double FitData::residuals()
       res += subordinates[i]->residuals();
     return res;
   }
-  if(! solver)
+  if(! engine)
     return 0.0/0.0;
-  return gsl_blas_dnrm2(solver->f);
+  return engine->residuals();
 }
 
 double FitData::relativeResiduals()
@@ -421,7 +376,7 @@ const gsl_matrix * FitData::covarianceMatrix()
     // permutations.
     gsl_matrix_view m = gsl_matrix_submatrix(covarStorage, 0, 0, 
                                              gslParameters, gslParameters);
-    gsl_multifit_covar(solver->J, 0, &m.matrix);
+    engine->computeCovarianceMatrix(&m.matrix);
 
     // Now, we perform permutations to place all the elements where they
     // should be.
@@ -493,5 +448,4 @@ void FitData::dumpFitParameters(const double * params) const
   }
   dumpString(s);
 }
-
 

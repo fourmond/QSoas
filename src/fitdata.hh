@@ -42,9 +42,12 @@ class FitData {
   static int staticFdf(const gsl_vector * x, void * params, gsl_vector * f,
                        gsl_matrix * df);
 
+public:
   int f(const gsl_vector * x, gsl_vector * f);
   int df(const gsl_vector * x, gsl_matrix * df);
   int fdf(const gsl_vector * x, gsl_vector * f, gsl_matrix * df);
+
+private:
 
   int totalSize;
 
@@ -186,6 +189,9 @@ public:
 
   /// Returns the number of free parameters
   int freeParameters() const { return gslParameters; } ;
+
+  /// Returns the overall number of data points
+  int dataPoints() const { return totalSize; };
 
   /// Returns the required factor to apply to the variance to get the
   /// confidence limit with the given percentage

@@ -121,13 +121,16 @@ class Bijection;
 /// A parameter, once it's in use. A list of that can be used to
 /// convert GSL parameters to dataset-specific parameter values.
 class FreeParameter : public FitParameter {
-public:
 
   /// The factor used for derivation (when that applies)
   double derivationFactor;
     
   /// The minimum step used for derivation
+  ///
+  /// (unused for now)
   double minDerivationStep;
+
+public:
 
   virtual void copyToUnpacked(double * target, const gsl_vector * fit, 
                              int nbdatasets, int nb_per_dataset) const;
@@ -135,6 +138,15 @@ public:
 
   virtual void copyToPacked(gsl_vector * fit, const double * unpacked,
                             int nbdatasets, int nb_per_dataset) const;
+
+  /// Takes the current value and computes a rough estimate of a good
+  /// derivation step ?
+  ///
+  /// @todo While the default heuristics should work for non-bijected
+  /// parameters, bijected parameters are more delicate, as a small
+  /// variation of \a value will only translate linearly onto the
+  /// target, which isn't what we want at all.
+  double derivationStep(double value) const;
 
   /// The transformation applied to the parameter to go from the GSL
   /// parameter space to the user- and fit- visible parameters.

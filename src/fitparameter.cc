@@ -154,6 +154,17 @@ FitParameter * FreeParameter::dup() const
   return p;
 }
 
+
+double FreeParameter::derivationStep(double value) const
+{
+  if(bijection)
+    return bijection->derivationStep(value);
+  double v = value*derivationFactor;
+  if(fabs(v) < minDerivationStep)
+    v = minDerivationStep;
+  return v;
+}
+
 //////////////////////////////////////////////////////////////////////
 
 void FixedParameter::copyToUnpacked(double * target, const gsl_vector * fit, 

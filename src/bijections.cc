@@ -44,6 +44,10 @@ public:
     return new LogBijection(*this);
   };
 
+  virtual double derivationStep(double /*value*/) const {
+    return 0.1;                        // should be decent ?
+  };
+
 };
 
 static Bijection * createLog() {

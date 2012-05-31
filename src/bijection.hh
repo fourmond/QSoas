@@ -116,6 +116,9 @@ public:
 
   /// We need a virtual destructor.
   virtual ~Bijection() {;};
+
+  /// Choose a derivation step for the given value
+  virtual double derivationStep(double value) const;
 };
 
 

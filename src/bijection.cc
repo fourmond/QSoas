@@ -107,3 +107,9 @@ Bijection * Bijection::loadFromText(const QString & spec)
 
   return bijection;
 }
+
+
+double Bijection::derivationStep(double value) const
+{
+  return 3e-4 * value;
+}

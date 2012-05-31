@@ -154,10 +154,7 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
     if(! param)
       continue;
     double value = gslParams[param->fitIndex];
-    double step = param->derivationFactor * value;
-    if(fabs(step) < param->minDerivationStep)
-      step = param->minDerivationStep;
-
+    double step = param->derivationStep(value);
 
 
     gslParams[param->fitIndex] += step;

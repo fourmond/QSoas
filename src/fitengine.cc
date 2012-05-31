@@ -19,6 +19,7 @@
 #include <headers.hh>
 #include <fitdata.hh>
 #include <fitengine.hh>
+#include <exceptions.hh>
 
 FitEngine::FitEngine(FitData * d) : fitData(d) 
 {
@@ -37,7 +38,7 @@ FitEngine::~FitEngine()
 
 GSLFitEngine::GSLFitEngine(FitData * data, 
                            const gsl_multifit_fdfsolver_type * type) :
-  FitEngine(data)
+  FitEngine(data), jacobianScalingFactor(1)
 {
   solver = gsl_multifit_fdfsolver_alloc(type,
                                         fitData->dataPoints(), 
@@ -63,14 +64,20 @@ int GSLFitEngine::staticDf(const gsl_vector * x, void * params, gsl_matrix * df)
   GSLFitEngine * engine = reinterpret_cast<GSLFitEngine *>(params);
 
   // Here, scale the jacobian when necessary !
-  return engine->fitData->df(x, df);
+  int status = engine->fitData->df(x, df);
+  if(engine->jacobianScalingFactor != 1)
+    gsl_matrix_scale(df, engine->jacobianScalingFactor);
+  return status;
 }
 
 int GSLFitEngine::staticFdf(const gsl_vector * x, void * params, gsl_vector * f,
                        gsl_matrix * df)
 {
   GSLFitEngine * engine = reinterpret_cast<GSLFitEngine *>(params);
-  return engine->fitData->fdf(x, f, df);
+  int status = engine->fitData->fdf(x, f, df);
+  if(engine->jacobianScalingFactor != 1)
+    gsl_matrix_scale(df, engine->jacobianScalingFactor);
+  return status;
 }
 
 
@@ -89,6 +96,7 @@ void GSLFitEngine::initialize(const double * initialGuess)
   gsl_multifit_fdfsolver_set(solver, &function, &v.vector);
 
   iterations = 0;
+  jacobianScalingFactor = 1.0;
 }
 
 const gsl_vector * GSLFitEngine::currentParameters() const
@@ -103,13 +111,38 @@ void GSLFitEngine::computeCovarianceMatrix(gsl_matrix * target) const
 
 int GSLFitEngine::iterate() 
 {
-  int status = gsl_multifit_fdfsolver_iterate(solver);
-  if(status)
-    return status;
+  int nbTries = 0;
+  jacobianScalingFactor = 1.0;
+  while(1) {
+    try {
+      int status = gsl_multifit_fdfsolver_iterate(solver);
+      if(status)
+        return status;
+      
+      // This is garbage... It doesn't stop where it should.
+      if(jacobianScalingFactor != 1.0)
+        return GSL_CONTINUE;
+      return gsl_multifit_test_delta(solver->dx, solver->x,
+                                     1e-4, 1e-4);
+    }
+    catch(const RuntimeError & e) { /// @todo Maybe there should be a
+                                    /// specific exception for that ?
+      nbTries++;
+      jacobianScalingFactor *= 2;
+      if(nbTries >= 10)
+        throw;
+      QTextStream o(stdout);
+      o << "Scaling problem, scaling the jacobian by : " 
+        << jacobianScalingFactor << endl;
 
-  // This is garbage... It doesn't stop where it should.
-  return gsl_multifit_test_delta(solver->dx, solver->x,
-                                 1e-4, 1e-4);
+      // We apparently need to reinitialize the solver...
+      QVarLengthArray<double, 1000> storage(function.p);
+      gsl_vector_view v = gsl_vector_view_array(storage.data(), function.p);
+      gsl_vector_memcpy(&v.vector, solver->x);
+      gsl_multifit_fdfsolver_set(solver, &function, &v.vector);
+    }
+  }
+    return -1;                  // Never reached.
 }
 
 double GSLFitEngine::residuals() const

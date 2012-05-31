@@ -76,6 +76,9 @@ class GSLFitEngine : public FitEngine {
   /// The function in use
   gsl_multifit_function_fdf function;
 
+  /// The current scaling factor of the jacobian...
+  double jacobianScalingFactor;
+
 protected:
 
   static int staticF(const gsl_vector * x, void * params, gsl_vector * f);

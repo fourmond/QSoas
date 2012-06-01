@@ -224,6 +224,9 @@ void FitDialog::setupFrame()
                 QKeySequence(tr("Ctrl+T")));
   ac->addAction("Reset all to initial guess !", this, 
                 SLOT(resetAllToInitialGuess()));
+  ac->addAction("Reset to backup", this, 
+                SLOT(resetParameters()),
+                QKeySequence(tr("Ctrl+Shift+R")));
   ac->addAction("Show covariance matrix", this, 
                 SLOT(showCovarianceMatrix()),
                 QKeySequence(tr("Ctrl+M")));
@@ -252,7 +255,7 @@ void FitDialog::setupFrame()
 
   hb->addWidget(bt);
 
-  bt = new QPushButton(tr("Edit parameters"));
+  bt = new QPushButton(tr("Edit parameters (Ctrl+E)"));
   connect(bt, SIGNAL(clicked()), SLOT(editParameters()));
   hb->addWidget(bt);
 
@@ -283,6 +286,8 @@ void FitDialog::setupFrame()
                           this, SLOT(startFit()));
   Utils::registerShortCut(QKeySequence(tr("Ctrl+A")), 
                           this, SLOT(cancelFit()));
+  Utils::registerShortCut(QKeySequence(tr("Ctrl+E")), 
+                          this, SLOT(editParameters()));
 
   // Ctr + PgUp/PgDown to navigate the buffers
   Utils::registerShortCut(QKeySequence(tr("Ctrl+PgUp")), 
@@ -356,15 +361,17 @@ void FitDialog::startFit()
 
   try {
     parameters.prepareFit();
+    parametersBackup = parameters.saveParameterValues();
     shouldCancelFit = false;
   
     QString params;
+    int freeParams = data->freeParameters();
     if(data->independentDataSets())
       params = QString("%1 %2 %3").
-        arg(data->parameters.size() / data->datasets.size()).
+        arg(freeParams / data->datasets.size()).
         arg(QChar(0xD7)).arg(data->datasets.size());
     else
-      params = QString::number(data->parameters.size());
+      params = QString::number(freeParams);
   
     Terminal::out << "Starting fit '" << data->fit->fitName() << "' with "
                   << params << " free parameters"
@@ -691,5 +698,13 @@ void FitDialog::doubleWeight()
 void FitDialog::halfWeight()
 {
   data->weightsPerBuffer[currentIndex] *= 0.5;
+  updateEditors();
+}
+
+void FitDialog::resetParameters()
+{
+  parameters.restoreParameterValues(parametersBackup);
+  compute();
+  progressReport->setText(tr("Restored parameters"));
   updateEditors();
 }

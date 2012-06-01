@@ -87,6 +87,13 @@ class FitDialog : public QDialog {
   /// A list of the most recently used parameters
   QList<SavedParameters> lastParameters;
 
+  /// The parameters as saved just before starting the fit
+  ///
+  /// @todo This may be extended later on, in combination with
+  /// FitEngine (?), with a full-blown exploration of the parameters
+  /// the fit took during the iterative process.
+  Vector parametersBackup;
+
 protected:
 
   virtual void closeEvent(QCloseEvent * event);
@@ -189,6 +196,9 @@ protected slots:
   
   /// Divides by two the weight of the current buffer
   void halfWeight();
+
+  /// Resets the parameters to the original values (before the fit).
+  void resetParameters();
 
 };
 

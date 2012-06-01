@@ -21,6 +21,7 @@
 #define __FITPARAMETERS_HH
 
 #include <possessive-containers.hh>
+#include <vector.hh>
 
 class FitData;
 class FitParameter;
@@ -186,6 +187,21 @@ public:
   /// Fill up a QTableWidget with the contents of the covariance
   /// matrix
   void setupWithCovarianceMatrix(QTableWidget * widget);
+
+
+
+  /// @name Functions to backup parameters...
+  ///
+  /// @{
+
+  /// Saves the current parameters as a Vector
+  Vector saveParameterValues();
+
+  /// Restores the previously saved values.
+  void restoreParameterValues(const Vector & values);
+
+
+  /// @}
   
 };
 

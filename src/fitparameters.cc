@@ -532,3 +532,21 @@ void FitParameters::setupWithCovarianceMatrix(QTableWidget * widget)
                                           number(gsl_matrix_get(mat, i, j))));
   
 }
+
+Vector FitParameters::saveParameterValues()
+{
+  updateParameterValues();
+  Vector ret;
+  int size = nbParameters * datasets;
+  for(int i = 0; i < size; i++)
+    ret << values[i];
+  return ret;
+}
+
+void FitParameters::restoreParameterValues(const Vector & vect)
+{
+  int size = nbParameters * datasets;
+  for(int i = 0; (i < size && i < vect.size()); i++)
+    values[i] = vect[i];
+  updateParameterValues();
+}

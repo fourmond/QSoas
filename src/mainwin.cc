@@ -151,6 +151,7 @@
    @li keep track of all the recent parameters along with their
    respective residuals, to allow for an easy fallback to the "last
    valid/reasonable parameters"
+   @li possibility of partially loading parameters from a file
 
    @b Fit @b drivers
 

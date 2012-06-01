@@ -24,6 +24,23 @@
 class Fit;  
 class FitData;
 
+#include <vector.hh>
+
+/// A simple wrapper class around parameters found after an iteration.
+class StoredParameters {
+public:
+
+  /// The parameters
+  Vector parameters;
+
+  /// The corresponding residuals
+  double residuals;
+
+  StoredParameters() {;};
+  StoredParameters(const Vector & v, double r) : 
+    parameters(v), residuals(r) {;};
+};
+
 /// This class wraps around call to the GSL for handling fits.
 ///
 /// This class only sees the "GSL" side of the fits.
@@ -37,6 +54,13 @@ protected:
 
   /// The underlying fit data
   FitData * fitData;
+
+  /// Stored parameters
+  QList<StoredParameters> storedParameters;
+
+  /// Pushes the current parameters onto the stack. It uses
+  /// currentParameters() and residuals();
+  void pushCurrentParameters();
 
 public:
   FitEngine(FitData * data);

@@ -34,6 +34,15 @@ FitEngine::~FitEngine()
 {
 }
 
+void FitEngine::pushCurrentParameters()
+{
+  Vector v;
+  v.resize(fitData->freeParameters());
+  gsl_vector_view vi  = gsl_vector_view_array(v.data(), v.size());
+  copyCurrentParameters(&vi.vector);
+  storedParameters << StoredParameters(v, residuals());
+}
+
 //////////////////////////////////////////////////////////////////////
 
 GSLFitEngine::GSLFitEngine(FitData * data, 
@@ -95,6 +104,7 @@ void GSLFitEngine::initialize(const double * initialGuess)
   fitData->packParameters(initialGuess, &v.vector);
   gsl_multifit_fdfsolver_set(solver, &function, &v.vector);
 
+  storedParameters.clear();
   iterations = 0;
   jacobianScalingFactor = 1.0;
 }
@@ -113,17 +123,40 @@ int GSLFitEngine::iterate()
 {
   int nbTries = 0;
   jacobianScalingFactor = 1.0;
+  pushCurrentParameters();
   while(1) {
     try {
       int status = gsl_multifit_fdfsolver_iterate(solver);
       if(status)
         return status;
       
+      pushCurrentParameters();
+
       // This is garbage... It doesn't stop where it should.
       if(jacobianScalingFactor != 1.0)
         return GSL_CONTINUE;
-      return gsl_multifit_test_delta(solver->dx, solver->x,
-                                     1e-4, 1e-4);
+
+      // We stop if we are progressing less than 1e-4 in relative units.
+      status = gsl_multifit_test_delta(solver->dx, solver->x,
+                                       0, 1e-4);
+
+      if(status != GSL_SUCCESS && storedParameters.size() > 10) {
+        double res = storedParameters[storedParameters.size() - 1].residuals;
+        double lastres = storedParameters[storedParameters.size() - 2].residuals;
+        double relprog = (lastres - res)/res;
+        if(relprog >= 0 && relprog < 1e-4)
+          return GSL_SUCCESS;   // No need to go on with hundreds of
+                                // small steps !
+      }
+
+      /// @todo Maybe use the gradient ? The residuals ?
+      
+      // if(status != GSL_SUCCESS)
+      //   return status;
+      // QVarLengthArray<double, 1000> storage(function.p);
+      // gsl_vector_view v = gsl_vector_view_array(storage.data(), function.p);
+      // gsl_vector_memcpy(&v.vector, solver->x);
+      return status;
     }
     catch(const RuntimeError & e) { /// @todo Maybe there should be a
                                     /// specific exception for that ?

@@ -264,13 +264,13 @@ void FitDialog::setupFrame()
   startButton->setDefault(true);
   hb->addWidget(startButton);
 
-  cancelButton = new QPushButton(tr("Abort (Ctrl+A)"));
+  cancelButton = new QPushButton(tr("Abort (Ctrl+B)"));
   connect(cancelButton, SIGNAL(clicked()), SLOT(cancelFit()));
   hb->addWidget(cancelButton);
   cancelButton->setVisible(false);
 
 
-  bt = new QPushButton(tr("Close (Ctrl+C)"));
+  bt = new QPushButton(tr("Close (Ctrl+W)"));
   connect(bt, SIGNAL(clicked()), SLOT(close()));
   hb->addWidget(bt);
 
@@ -280,11 +280,11 @@ void FitDialog::setupFrame()
   // Registering shortcuts:
   Utils::registerShortCut(QKeySequence(tr("Ctrl+U")), 
                           this, SLOT(compute()));
-  Utils::registerShortCut(QKeySequence(tr("Ctrl+C")), 
+  Utils::registerShortCut(QKeySequence(tr("Ctrl+W")), 
                           this, SLOT(close()));
   Utils::registerShortCut(QKeySequence(tr("Ctrl+F")), 
                           this, SLOT(startFit()));
-  Utils::registerShortCut(QKeySequence(tr("Ctrl+A")), 
+  Utils::registerShortCut(QKeySequence(tr("Ctrl+B")), 
                           this, SLOT(cancelFit()));
   Utils::registerShortCut(QKeySequence(tr("Ctrl+E")), 
                           this, SLOT(editParameters()));
@@ -388,7 +388,7 @@ void FitDialog::startFit()
     /// @todo customize the number of iterations
     int status;
     while((status = data->iterate(), status == GSL_CONTINUE) && 
-          data->nbIterations < 100 && 
+          data->nbIterations < 300 && 
           ! shouldCancelFit) {
       int it = data->nbIterations;
       double residuals = data->residuals();

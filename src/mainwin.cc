@@ -151,6 +151,11 @@
    @li keep track of all the recent parameters along with their
    respective residuals, to allow for an easy fallback to the "last
    valid/reasonable parameters"
+   @li on a similar note, it should be possible to "mark" the
+   resulting parameters of a fit and store them on a stack to browse
+   later (and possibly export all in one go ?), and come back to if
+   necessary. The main purpose of that would be the comparison between
+   different conditions...
    @li possibility of partially loading parameters from a file
 
    @b Fit @b drivers

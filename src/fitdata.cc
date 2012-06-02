@@ -81,6 +81,9 @@ int FitData::f(const gsl_vector * x, gsl_vector * f)
   QVarLengthArray<double, 1024> params(fullParameterNumber());
   unpackParameters(x, params.data());
 
+  /// @todo It may be possible to add range checking simply here by
+  /// checking all parameters.
+
   if(debug) {
     dumpString("Entering f computation");
     dumpGSLParameters(x);
@@ -150,7 +153,22 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
     /// @todo turn back on the optimization with functionForDataSet if
     /// I find the time and motivation (though improvement isn't that
     /// great)
-    fit->function(unpackedParams.data(), this, &col.vector);
+
+    try {
+      fit->function(unpackedParams.data(), this, &col.vector);
+    }
+    catch (const RuntimeError & e) {
+      // If forward step fails, we try backwards...
+      step = -step;
+      gslParams[param->fitIndex] = value + step;
+      unpackParameters(&v.vector, unpackedParams.data());
+
+      if(debug) {
+        dumpGSLParameters(&v.vector);
+        dumpFitParameters(unpackedParams.data());
+      }
+      fit->function(unpackedParams.data(), this, &col.vector);
+    }
 
     gsl_vector_sub(&col.vector, storage);
     gsl_vector_scale(&col.vector, 1/step);

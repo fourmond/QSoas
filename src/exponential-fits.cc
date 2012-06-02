@@ -108,6 +108,12 @@ public:
   {
     const Vector & xv = ds->x();
 
+    // Checking that the time constants are positive.
+    /// @todo This check could optionnally be turned off.
+    for(int j = 0; j < exponentials; j++)
+      if(a[2*j + 2] < 0)
+        throw RangeError("Negative time constant !");
+
     for(int i = 0; i < xv.size(); i++) {
       double x = xv[i] - a[0];
 

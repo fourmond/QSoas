@@ -337,9 +337,18 @@ public:
         for(int i = 0; i < species; i++)
           currents[i] = base[i];
 
+
+        // Now, range checking: we don't want rate constants to be
+        // negative !
+        const double * sc = stepConstants(a, potential);
+
+        /// @todo This check could optionnally be turned off.
+        for(int i = 0; i <= species * species; i++)
+          if(sc[i] < 0)
+            throw RangeError(QString("Found a negative rate constant !"));
+
         // Global loss...
-        sys.setConstants(stepConstants(a, potential), 
-                         stepConstants(a, potential)[species*species]);
+        sys.setConstants(sc, sc[species*species]);
 
         /// @todo There may be an "off-by-one-data-point" mistake here
         sys.setInitialConcentrations(&vco.vector);

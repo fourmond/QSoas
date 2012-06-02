@@ -51,6 +51,16 @@ public:
   static void setupGSLHandler();
 };
 
+
+/// A specific error for "out of range" parameters in fits.
+class RangeError : public RuntimeError {
+public:
+  RangeError(const QString & msg) throw() : RuntimeError(msg) {
+  };
+  virtual ~RangeError() throw() {;};
+
+};
+
 class InternalError : public Exception {
 public:
   InternalError(const QString & msg) throw() : Exception(msg) {

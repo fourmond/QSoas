@@ -64,14 +64,6 @@ Fit * Fit::namedFit(const QString & name)
   return fitsByName->value(name, NULL);
 }
 
-/// @todo It may be relatively easy to copy/paste the lmder solver and
-/// tweak it in order to provide better handling of domain errors...
-int Fit::parametersCheck(const double * /*parameters*/,
-                         FitData * /*data*/)
-{
-  return GSL_SUCCESS;
-}
-
 void Fit::functionForDataset(const double * parameters,
                              FitData * data, gsl_vector * target, 
                              int /*dataset*/)

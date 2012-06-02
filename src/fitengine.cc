@@ -161,8 +161,8 @@ int GSLFitEngine::iterate()
     catch(const RuntimeError & e) { /// @todo Maybe there should be a
                                     /// specific exception for that ?
       nbTries++;
-      jacobianScalingFactor *= 2;
-      if(nbTries >= 10)
+      jacobianScalingFactor *= 3;
+      if(nbTries >= 13)
         throw;
       QTextStream o(stdout);
       o << "Scaling problem, scaling the jacobian by : " 

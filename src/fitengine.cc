@@ -107,6 +107,7 @@ void GSLFitEngine::initialize(const double * initialGuess)
   storedParameters.clear();
   iterations = 0;
   jacobianScalingFactor = 1.0;
+  pushCurrentParameters();
 }
 
 const gsl_vector * GSLFitEngine::currentParameters() const
@@ -123,18 +124,29 @@ int GSLFitEngine::iterate()
 {
   int nbTries = 0;
   jacobianScalingFactor = 1.0;
-  pushCurrentParameters();
   while(1) {
     try {
       int status = gsl_multifit_fdfsolver_iterate(solver);
-      if(status)
-        return status;
-      
+      // QTextStream o(stdout);
+      // o << "Iteration: " << status << " -- " << jacobianScalingFactor << endl;
       pushCurrentParameters();
 
-      // This is garbage... It doesn't stop where it should.
-      if(jacobianScalingFactor != 1.0)
+
+      if(jacobianScalingFactor != 1.0) {
+        // We reset the fit status, that may be altered by the
+        // jacobian fiddling...
+        jacobianScalingFactor = 1;
+        QVarLengthArray<double, 1000> storage(function.p);
+        gsl_vector_view v = 
+          gsl_vector_view_array(storage.data(), function.p);
+        gsl_vector_memcpy(&v.vector, solver->x);
+        gsl_multifit_fdfsolver_set(solver, &function, &v.vector);
+        jacobianScalingFactor = 2; // Just != 1 is good enough.
         return GSL_CONTINUE;
+      }
+
+      if(status)
+        return status;
 
       // We stop if we are progressing less than 1e-4 in relative units.
       status = gsl_multifit_test_delta(solver->dx, solver->x,
@@ -160,9 +172,14 @@ int GSLFitEngine::iterate()
     }
     catch(const RuntimeError & e) { /// @todo Maybe there should be a
                                     /// specific exception for that ?
+      // if(nbTries)
+      //   jacobianScalingFactor *= jacobianScalingFactor;
+      // else
+      //   jacobianScalingFactor = 1.25; // Starting slowly, but...
+      
+      jacobianScalingFactor *= 1.6;
       nbTries++;
-      jacobianScalingFactor *= 3;
-      if(nbTries >= 13)
+      if(nbTries >= 19)          // That's quite enough
         throw;
       QTextStream o(stdout);
       o << "Scaling problem, scaling the jacobian by : " 

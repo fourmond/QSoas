@@ -175,6 +175,7 @@ void FitDialog::setupFrame()
   // Bottom
 
   progressReport = new QLabel(" ");
+  progressReport->setWordWrap(true);
   layout->addWidget(progressReport);
 
 

@@ -39,22 +39,7 @@
 #include <parametersdialog.hh>
 
 #include <utils.hh>
-
-class SavedParameters {
-public:
-
-  /// The residuals linked to these parameters
-  double residuals;
-
-  /// The same thing with relative residuals:
-  double relativeResiduals;
-
-  /// The actual parameters
-  Vector parameters;
-};
-
-
-//////////////////////////////////////////////////////////////////////
+#include <fittrajectorydisplay.hh>
 
 static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
 
@@ -65,7 +50,8 @@ FitDialog::FitDialog(FitData * d, bool displayWeights) :
   parameters(d),
   currentIndex(0),
   settingEditors(false), 
-  progressReport(NULL)
+  progressReport(NULL),
+  trajectoryDisplay(NULL)
 {
   resize(fitDialogSize);
 
@@ -227,6 +213,8 @@ void FitDialog::setupFrame()
   ac->addAction("Reset to backup", this, 
                 SLOT(resetParameters()),
                 QKeySequence(tr("Ctrl+Shift+R")));
+  ac->addAction("Show Trajectories", this, 
+                SLOT(displayTrajectories()));
   ac->addAction("Show covariance matrix", this, 
                 SLOT(showCovarianceMatrix()),
                 QKeySequence(tr("Ctrl+M")));
@@ -358,7 +346,11 @@ void FitDialog::startFit()
 {
   QTime timer;
   timer.start();
+  
+  int iterationLimit = 150;
 
+  int status = -1;
+  double residuals = 0.0/0.0, relres = 0.0/0.0;
   try {
     parameters.prepareFit();
     parametersBackup = parameters.saveParameterValues();
@@ -386,16 +378,13 @@ void FitDialog::startFit()
 
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
     /// @todo customize the number of iterations
-    int status;
-    while((status = data->iterate(), status == GSL_CONTINUE) && 
-          data->nbIterations < 300 && 
-          ! shouldCancelFit) {
-      int it = data->nbIterations;
-      double residuals = data->residuals();
-      double relres = data->relativeResiduals();
+    do {
+      status = data->iterate();
+      residuals = data->residuals();
+      relres = data->relativeResiduals();
       QString str = QString("Iteration #%1, residuals: %2, "
                             "relative residuals: %3").
-        arg(it).arg(residuals).arg(relres);
+        arg(data->nbIterations).arg(residuals).arg(relres);
       Terminal::out << str << endl;
 
       progressReport->setText(str);
@@ -403,10 +392,13 @@ void FitDialog::startFit()
       updateEditors();
 
       QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-    }
+      if(shouldCancelFit || status != GSL_CONTINUE || 
+         data->nbIterations >= iterationLimit)
+        break;
+
+    } while(true);
     cancelButton->setVisible(false);
     startButton->setVisible(true);
-
 
     QString mention;
     if(shouldCancelFit) {
@@ -435,6 +427,17 @@ void FitDialog::startFit()
     progressReport->setText(QString("An error occurred while fitting: ") +
                             re.message());
   }
+
+  trajectories << 
+    FitTrajectory(parametersBackup, parameters.saveParameterValues(),
+                  residuals, relres);
+  if(shouldCancelFit)
+    trajectories.last().ending = FitTrajectory::Cancelled;
+  else if(data->nbIterations >= iterationLimit)
+    trajectories.last().ending = FitTrajectory::TimeOut;
+  else if(status != GSL_SUCCESS)
+    trajectories.last().ending = FitTrajectory::Error;
+    
   Terminal::out << "Fitting took an overall " << timer.elapsed() * 1e-3
                 << " seconds" << endl;
 
@@ -707,4 +710,13 @@ void FitDialog::resetParameters()
   compute();
   progressReport->setText(tr("Restored parameters"));
   updateEditors();
+}
+
+void FitDialog::displayTrajectories()
+{
+  // if(! trajectoryDisplay)
+  //   trajectoryDisplay = new FitTrajectoryDisplay(this, data, &trajectories);
+  FitTrajectoryDisplay dlg(this, data, &trajectories);
+  dlg.update();
+  dlg.exec();
 }

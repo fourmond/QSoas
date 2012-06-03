@@ -27,7 +27,8 @@ class CurveView;
 class FitParameterEditor;
 class DataSet;
 
-class SavedParameters;
+class FitTrajectory;
+class FitTrajectoryDisplay;
 
 /// This class handles all the user interaction during fits.
 class FitDialog : public QDialog {
@@ -84,15 +85,17 @@ class FitDialog : public QDialog {
   /// Whether or not we should cancel the current fit.
   bool shouldCancelFit;
 
-  /// A list of the most recently used parameters
-  QList<SavedParameters> lastParameters;
+  /// A list of all the fits started (and ended) since the spawning of
+  /// the dialog
+  QList<FitTrajectory> trajectories;
 
   /// The parameters as saved just before starting the fit
-  ///
-  /// @todo This may be extended later on, in combination with
-  /// FitEngine (?), with a full-blown exploration of the parameters
-  /// the fit took during the iterative process.
   Vector parametersBackup;
+
+  
+  /// Dialog box to show fit trajectories...
+  FitTrajectoryDisplay * trajectoryDisplay;
+
 
 protected:
 
@@ -199,6 +202,9 @@ protected slots:
 
   /// Resets the parameters to the original values (before the fit).
   void resetParameters();
+
+  /// Display the fit trajectories
+  void displayTrajectories();
 
 };
 

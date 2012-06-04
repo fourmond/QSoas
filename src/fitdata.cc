@@ -76,7 +76,7 @@ void FitData::weightVector(gsl_vector * tg)
   }
 }
 
-int FitData::f(const gsl_vector * x, gsl_vector * f)
+int FitData::f(const gsl_vector * x, gsl_vector * f, bool doSubtract)
 {
   QVarLengthArray<double, 1024> params(fullParameterNumber());
   unpackParameters(x, params.data());
@@ -94,7 +94,8 @@ int FitData::f(const gsl_vector * x, gsl_vector * f)
 
   fit->function(params.data(), this, f);
   // Then, subtract data.
-  subtractData(f);
+  if(doSubtract)
+    subtractData(f);
   weightVector(f);
   /// @todo Data weighting ?
 

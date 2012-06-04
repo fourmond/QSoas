@@ -40,7 +40,7 @@ class ParameterDefinition;
 class FitData {
 
 public:
-  int f(const gsl_vector * x, gsl_vector * f);
+  int f(const gsl_vector * x, gsl_vector * f, bool doSubtract = true);
   int df(const gsl_vector * x, gsl_matrix * df);
   int fdf(const gsl_vector * x, gsl_vector * f, gsl_matrix * df);
 
@@ -203,8 +203,6 @@ public:
   Vector weightsPerBuffer;
 
 
-
-protected:
   /// Weights the target vector
   void weightVector(gsl_vector * tg);
 

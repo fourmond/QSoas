@@ -52,6 +52,9 @@ public:
 
   /// 
   virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
+
+
+  virtual QStringList proposeCompletion(const QString & starter) const;
 };
 
 /// A choice between several fixed strings

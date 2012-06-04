@@ -66,6 +66,16 @@ ArgumentMarshaller * BoolArgument::promptForValue(QWidget * ) const
   return new ArgumentMarshallerChild<bool>(val);
 }
 
+static QStringList yesno = (QStringList() 
+                            << "yes" << "no" 
+                            << "true" << "false" 
+                            << "on" << "off");
+
+QStringList BoolArgument::proposeCompletion(const QString & starter) const
+{
+  return Utils::stringsStartingWith(yesno, starter);
+}
+
 ////////////////////////////////////////////////////////////
 
 QStringList ChoiceArgument::choices() const

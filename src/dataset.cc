@@ -171,6 +171,8 @@ void DataSet::splitAt(int idx, DataSet ** first, DataSet ** second) const
 }
 
 
+/// @todo The logic used in chop and co should be turned into
+/// something spitting a dataset into a list of ints.
 QList<DataSet *> DataSet::chop(const QList<double> & lengths, 
                                bool isLength) const
 {

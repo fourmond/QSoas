@@ -221,6 +221,27 @@ chopC("chop", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void chopIntoSegmentsCommand(const QString &)
+{
+  const DataSet * ds = soas().currentDataSet();
+  QList<DataSet *> splitted = ds->chopIntoSegments();
+  for(int i = splitted.size() - 1; i >= 0; i--)
+    soas().pushDataSet(splitted[i]);
+}
+
+static Command 
+chopS("chop-into-segments", // command name
+      optionLessEffector(chopIntoSegmentsCommand), // action
+      "buffer",  // group name
+      NULL, // arguments
+      NULL, // options
+      "Chop into segments",
+      "Cuts buffer based on predefined segments",
+      "Cuts the buffer into several ones based on the segments defined "
+      "using set-segments or find-step /set-segments");
+
+//////////////////////////////////////////////////////////////////////
+
 
 static void cursorCommand(const QString &)
 {
@@ -486,10 +507,14 @@ zo("zoom", // command name
 //////////////////////////////////////////////////////////////////////
 
 
+/// @todo Maybe most of the code shared between this and divide should
+/// be shared ?
 static void subCommand(const QString &, QList<const DataSet *> a, 
                        DataSet * b, const CommandOptions & opts)
 {
   bool naive = testOption<QString>(opts, "mode", "indices");
+  bool useSteps = false;
+  updateFromOptions(opts, "use-segments", useSteps);
 
   for(int i = 0; i < a.size(); i++) {
     const DataSet * ds = a[i];
@@ -498,7 +523,7 @@ static void subCommand(const QString &, QList<const DataSet *> a,
                   << (naive ? " (index mode)" : " (xvalues mode)" ) 
                   << endl;
 
-    soas().pushDataSet(ds->subtract(b, naive));
+    soas().pushDataSet(ds->subtract(b, naive, useSteps));
   }
 }
 
@@ -519,7 +544,11 @@ operationOpts(QList<Argument *>()
                                     "mode", 
                                     "Operation mode",
                                     "Whether operations try to match x "
-                                    "values or indices"));
+                                    "values or indices")
+              << new BoolArgument("use-segments", 
+                                  "Use segments ?",
+                                  "If on, operations are performed "
+                                  "segment-by-segment"));
 
 
 static Command 
@@ -541,6 +570,8 @@ static void divCommand(const QString &, QList<const DataSet *> a,
                        DataSet * b, const CommandOptions & opts)
 {
   bool naive = testOption<QString>(opts, "mode", "indices");
+  bool useSteps = false;
+  updateFromOptions(opts, "use-segments", useSteps);
 
   for(int i = 0; i < a.size(); i++) {
     const DataSet * ds = a[i];
@@ -548,7 +579,7 @@ static void divCommand(const QString &, QList<const DataSet *> a,
       arg(b->name).arg(ds->name) 
                   << (naive ? " (index mode)" : " (xvalues mode)" ) 
                   << endl;
-    soas().pushDataSet(ds->divide(b, naive));
+    soas().pushDataSet(ds->divide(b, naive, useSteps));
   }
 }
 
@@ -569,6 +600,8 @@ static void mergeCommand(const QString &, QList<const DataSet *> a,
                          DataSet * b, const CommandOptions & opts)
 {
   bool naive = testOption<QString>(opts, "mode", "indices");
+  bool useSteps = false;
+  updateFromOptions(opts, "use-segments", useSteps);
   
   for(int i = 0; i < a.size(); i++) {
     const DataSet * ds = a[i];
@@ -576,7 +609,7 @@ static void mergeCommand(const QString &, QList<const DataSet *> a,
       arg(b->name).arg(ds->name) 
                   << (naive ? " (index mode)" : " (xvalues mode)" ) 
                   << endl;
-    soas().pushDataSet(ds->merge(b, naive));
+    soas().pushDataSet(ds->merge(b, naive, useSteps));
   }
 }
 

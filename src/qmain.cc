@@ -42,14 +42,18 @@ int main(int argc, char ** argv)
   // We convert GSL's hard errors into C++ exceptions
   GSLError::setupGSLHandler();
 
-  // And we do the same for Qt's hard errors
-  Exception::setupQtMessageHandler();
 
-  /// @todo This is a rudimentary command-line parsing, but it does
-  /// the job -- for the time being ;-)...
   QString arg1;
   if(argc > 1)
     arg1 = argv[1];
+
+  // And we do the same for Qt's hard errors, but only if no --debug
+  // flag is given
+  if(arg1 != "--debug")
+    Exception::setupQtMessageHandler();
+
+  /// @todo This is a rudimentary command-line parsing, but it does
+  /// the job -- for the time being ;-)...
   if(arg1 == "--tex-help") {
     QTextStream o(stdout);
     o << Group::latexDocumentationAllGroups() << endl;

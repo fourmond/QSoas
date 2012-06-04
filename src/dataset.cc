@@ -31,6 +31,8 @@
 
 #include <terminal.hh>
 
+#include <possessive-containers.hh>
+
 void DataSet::dump() const
 {
   QTextStream o(stdout);
@@ -223,6 +225,16 @@ QList<DataSet *> DataSet::chop(const QList<int> & indices) const
 }
 
 
+QList<DataSet *> DataSet::chopIntoSegments() const
+{
+  QList<DataSet *> retvals = chop(segments);
+  for(int i = 0; i < retvals.size(); i++)
+    retvals[i]->name = cleanedName() + QString("_seg#%1.dat").
+      arg(i);
+  return retvals;
+}
+
+
 const double * DataSet::getValues(int col, int * size) const
 {
   if(size)
@@ -252,43 +264,76 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
                                         const DataSet * b,
                                         double (*op)(double, double),
                                         const QString & cat, 
-                                        bool naive)
+                                        bool naive, bool useSteps)
 {
   // only deal with the common columns
   int nbcols = std::min(a->nbColumns(), b->nbColumns());
   if(nbcols < 2)
     throw RuntimeError("Need at least a Y column for both datasets");
 
-  int size_a = a->nbRows();
-  const double * xa = a->columns[0].data();
-
-  int size_b = b->nbRows();
-  const double * xb = b->columns[0].data();
-
   QList<Vector> vects; 
-  for(int i = 0; i < nbcols; i++)
-    vects << Vector();
-  if(naive) {
-    for(int i = 0; i < size_a; i++) {
-      vects[0] << xa[i];
-      int si = i;
-      if(i >= size_b)
-        si = size_b - 1;        // Pad with last value
-      for(int k = 1; k < nbcols; k++)
-        vects[k] << op(a->columns[k][i], b->columns[k][si]);
+  if(useSteps) {
+
+    // We first split into segments, shift X values, apply and then
+    // combine everything back
+    
+    // We use possessive lists to avoid
+    PossessiveList<DataSet> ads = a->chopIntoSegments();
+    PossessiveList<DataSet> bds = b->chopIntoSegments();
+
+    if(bds.size() < ads.size())
+      throw RuntimeError(QString("Dataset '%1' has less segments than '%2': "
+                                 "cannot perform segment-by-segment "
+                                 "operation !").
+                         arg(b->name).arg(a->name));
+
+    for(int j = 0; j < nbcols; j++)
+      vects << Vector();
+    for(int i = 0; i < ads.size(); i++) {
+      ads[i]->x() -= ads[i]->x()[0];
+      bds[i]->x() -= bds[i]->x()[0];
+      DataSet * nds = applyBinaryOperation(ads[i], bds[i], op, cat, naive, false);
+
+      for(int j = 0; j < nbcols-1; j++)
+        vects[j] << nds->columns[j+1];
+
+      delete nds;
     }
+    
+    vects.insert(0, a->x());
   }
   else {
-    int j = 0;
-    for(int i = 0; i < size_a; i++) {
-      /* We first look for the closest point */
-      double diff = fabs(xa[i] - xb[j]);
-      while((j < (size_b - 1)) && (fabs(xa[i] - xb[j+1]) <  diff))
-        diff = fabs(xa[i] - xb[++j]);
-      // ys[i] -= yo[j];
-      vects[0] << xa[i];        // a is the master dataset
-      for(int k = 1; k < nbcols; k++)
-        vects[k] << op(a->columns[k][i], b->columns[k][j]);
+
+    int size_a = a->nbRows();
+    const double * xa = a->columns[0].data();
+
+    int size_b = b->nbRows();
+    const double * xb = b->columns[0].data();
+
+    for(int i = 0; i < nbcols; i++)
+      vects << Vector();
+    if(naive) {
+      for(int i = 0; i < size_a; i++) {
+        vects[0] << xa[i];
+        int si = i;
+        if(i >= size_b)
+          si = size_b - 1;        // Pad with last value
+        for(int k = 1; k < nbcols; k++)
+          vects[k] << op(a->columns[k][i], b->columns[k][si]);
+      }
+    }
+    else {
+      int j = 0;
+      for(int i = 0; i < size_a; i++) {
+        /* We first look for the closest point */
+        double diff = fabs(xa[i] - xb[j]);
+        while((j < (size_b - 1)) && (fabs(xa[i] - xb[j+1]) <  diff))
+          diff = fabs(xa[i] - xb[++j]);
+        // ys[i] -= yo[j];
+        vects[0] << xa[i];        // a is the master dataset
+        for(int k = 1; k < nbcols; k++)
+          vects[k] << op(a->columns[k][i], b->columns[k][j]);
+      }
     }
   }
 
@@ -302,9 +347,9 @@ static inline double sub(double a, double b)
   return a - b;
 }
 
-DataSet * DataSet::subtract(const DataSet * ds, bool naive) const
+DataSet * DataSet::subtract(const DataSet * ds, bool naive, bool useSteps) const
 {
-  return applyBinaryOperation(this, ds, sub, "-", naive);
+  return applyBinaryOperation(this, ds, sub, "-", naive, useSteps);
 }
 
 static inline double div(double a, double b)
@@ -312,9 +357,9 @@ static inline double div(double a, double b)
   return a/b;
 }
 
-DataSet * DataSet::divide(const DataSet * ds, bool naive) const
+DataSet * DataSet::divide(const DataSet * ds, bool naive, bool useSteps) const
 {
-  return applyBinaryOperation(this, ds, div, "_div_", naive);
+  return applyBinaryOperation(this, ds, div, "_div_", naive, useSteps);
 }
 
 static inline double keep_second(double, double b)
@@ -322,10 +367,11 @@ static inline double keep_second(double, double b)
   return b;
 }
 
-DataSet * DataSet::merge(const DataSet * ds, bool naive) const
+DataSet * DataSet::merge(const DataSet * ds, bool naive, 
+                         bool useSteps) const
 {
   DataSet * nd = applyBinaryOperation(this, ds, keep_second, 
-                                      "_merged_", naive);
+                                      "_merged_", naive, useSteps);
   nd->columns << nd->columns[0];
   nd->columns[0] = columns[1];
   return nd;

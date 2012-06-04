@@ -70,19 +70,23 @@ class DataSet {
   const double * getValues(int col, int * size) const;
 
   /// Applies a binary operation to all Y columns while trying to keep
-  /// X matching. Returns a brand new DataSet.
+  /// X matching. Returns a brand new DataSet. If \a naive is on, it
+  /// works index by index. If \a useSteps is on, each step on each
+  /// side is compared to each on the other. For that to work, there
+  /// must be at least as many steps in \a b than in \a a.
+  ///
+  /// 
   ///
   /// The operation takes quadratic time, as all X of a are matched
   /// against all X of b for each value (which is bad,
   /// admittedly). There are probably ways to be much more clever than
   /// that.
-  ///
-  /// Performance shouldn't
   static DataSet * applyBinaryOperation(const DataSet * a,
                                         const DataSet * b,
                                         double (*op)(double, double),
                                         const QString & cat = "_op_",
-                                        bool naive = false);
+                                        bool naive = false, 
+                                        bool useSteps = false);
 
 
   friend QDataStream & operator<<(QDataStream & out, const DataSet & ds);
@@ -279,6 +283,10 @@ public:
   /// The point at idx is included in \b both datasets.
   void splitAt(int idx, DataSet ** first, DataSet ** second = NULL) const;
 
+  /// Like chop with indices, but uses the saved segments (and changes a
+  /// bit the dataset_names...)
+  QList<DataSet *> chopIntoSegments() const;
+
   /// Splits a DataSet in multiple subdatasets of the given X lengths
   /// (computed in absolute value)
   /// 
@@ -296,14 +304,17 @@ public:
   ///
   /// If \a naive is true, only indices are matched, while a more
   /// complex algorithm is used to match X values in the other case.
-  DataSet * subtract(const DataSet * dataset, bool naive = false) const;
+  DataSet * subtract(const DataSet * dataset, bool naive = false, 
+                     bool useSteps = false) const;
 
   /// Divides by \a dataset and returns the result. \sa subtract.
-  DataSet * divide(const DataSet * dataset, bool naive = false) const;
+  DataSet * divide(const DataSet * dataset, bool naive = false, 
+                   bool useSteps = false) const;
 
   /// Returns a dataset containing \a dataset's Y and further
   /// columns as a function of Y of this dataset.
-  DataSet * merge(const DataSet * dataset, bool naive = false) const;
+  DataSet * merge(const DataSet * dataset, bool naive = false, 
+                  bool useSteps = false) const;
 
   /// Returns the subset of the dataset contained either within the
   /// indices or outside of them

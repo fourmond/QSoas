@@ -182,7 +182,8 @@ int GSLFitEngine::iterate()
       if(nbTries >= 19)          // That's quite enough
         throw;
       QTextStream o(stdout);
-      o << "Scaling problem, scaling the jacobian by : " 
+      o << "Scaling problem:" << e.message() << 
+        "\n -> scaling the jacobian by : " 
         << jacobianScalingFactor << endl;
 
       // We apparently need to reinitialize the solver...

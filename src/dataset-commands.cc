@@ -230,7 +230,7 @@ static void chopIntoSegmentsCommand(const QString &)
 }
 
 static Command 
-chopS("chop-into-segments", // command name
+chopS("segments-chop", // command name
       optionLessEffector(chopIntoSegmentsCommand), // action
       "buffer",  // group name
       NULL, // arguments

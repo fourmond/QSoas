@@ -345,7 +345,9 @@ public:
         /// @todo This check could optionnally be turned off.
         for(int i = 0; i <= species * species; i++)
           if(sc[i] < 0)
-            throw RangeError(QString("Found a negative rate constant !"));
+            throw RangeError(QString("Found a negative rate "
+                                     "constant (step: %1): %2 !").
+                             arg(potential).arg(i));
 
         // Global loss...
         sys.setConstants(sc, sc[species*species]);

@@ -1,0 +1,88 @@
+This package was debianized by Kevin McCarty <kmccarty@debian.org> on
+Sat,  9 Nov 2002 23:30:19 +0100.
+
+It was downloaded from http://www-zeus.desy.de/~burow/cfortran/ except
+for the file cfortran.h, which is a more recent version obtained at
+http://wwwinfo.cern.ch/asd/cernlib/download/2003_source/tar/src_cfortran.tar.gz
+
+Upstream Author: Burkhard Burow <burow@desy.de>
+
+Copyright (C) 1990-2003 Burkhard Burow.
+
+    cfortran is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Library General Public
+    License as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
+
+    cfortran is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Library General Public License for more details.
+
+    You should have received a copy of the GNU Library General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+On Debian systems, the complete text of the GNU Library General Public License
+can be found in `/usr/share/common-licenses/LGPL-2'.
+
+The upstream version of cfortran does not state that it is licensed under the
+LGPL; however, its author has made the following statement making it so.
+
+-----
+
+Date: Tue, 22 Oct 2002 12:48:00 -0400
+From: Burkhard D Steinmacher-burow <steinmac@us.ibm.com>
+To: Kevin B. McCarty <kmccarty@Princeton.EDU>
+Subject: Re: CFortran licensing question
+
+Kevin,
+
+[Just noticed that I didn't send this yesterady.]
+
+I have no time right now to read through licenses.
+IIRC, library GPL is fairly unrestrictive, so I'll choose that. So.....
+
+You may consider this e-mail as a notice that as an alternative to any
+other cfortran licenses,
+I hereby relase all versions and all parts of cfortran under the
+the Library GPL license.
+From among these licenses, the user is free to choose
+the license or licenses under which cfortran is used.
+
+Contact me if you'd like to be able to choose another license.
+
+Burkhard
+
+steinmac@us.ibm.com, (914)945-3756, Fax 3684, Tieline 862
+
+-----
+
+cfortran may also be used and distributed under the following license:
+
+THIS PACKAGE, I.E. CFORTRAN.H, THIS DOCUMENT, AND THE CFORTRAN.H EXAMPLE
+PROGRAMS ARE PROPERTY OF THE AUTHOR WHO RESERVES ALL RIGHTS. THIS PACKAGE AND
+THE CODE IT PRODUCES MAY BE FREELY DISTRIBUTED WITHOUT FEES, SUBJECT TO THE
+FOLLOWING RESTRICTIONS:
+- YOU MUST ACCOMPANY ANY COPIES OR DISTRIBUTION WITH THIS (UNALTERED) NOTICE.
+- YOU MAY NOT RECEIVE MONEY FOR THE DISTRIBUTION OR FOR ITS MEDIA  
+  (E.G. TAPE, DISK, COMPUTER, PAPER.)
+- YOU MAY NOT PREVENT OTHERS FROM COPYING IT FREELY.
+- YOU MAY NOT DISTRIBUTE MODIFIED VERSIONS WITHOUT CLEARLY DOCUMENTING YOUR
+  CHANGES AND NOTIFYING THE AUTHOR.
+- YOU MAY NOT MISREPRESENTED THE ORIGIN OF THIS SOFTWARE, EITHER BY EXPLICIT
+  CLAIM OR BY OMISSION.
+
+THE INTENT OF THE ABOVE TERMS IS TO ENSURE THAT THE CFORTRAN.H PACKAGE NOT BE
+USED FOR PROFIT MAKING ACTIVITIES UNLESS SOME ROYALTY ARRANGEMENT IS ENTERED
+INTO WITH ITS AUTHOR.
+
+THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+EXPRESSED OR IMPLIED. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE
+SOFTWARE IS WITH YOU. SHOULD THE SOFTWARE PROVE DEFECTIVE, YOU ASSUME THE COST
+OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION. THE AUTHOR IS NOT RESPONSIBLE
+FOR ANY SUPPORT OR SERVICE OF THE CFORTRAN.H PACKAGE.
+
+                                              Burkhard Burow
+                                              burow@desy.de
+

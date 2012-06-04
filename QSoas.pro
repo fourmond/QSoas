@@ -203,3 +203,14 @@ HEADERS += src/headers.hh \
         src/fitparameter.hh \
         src/fitengine.hh \
         src/fittrajectorydisplay.hh
+
+
+# Here come the dirtiest things on earth: we actually link the code
+# with fortran code...
+
+exists(odrpack/dodr.a) {
+  # We link with the library
+  message("Found the odrpack library, trying to link it in...")
+  LIBS += odrpack/dodr.a -lgfortran
+  SOURCES += odrpack/odrpackfitengine.cc
+}

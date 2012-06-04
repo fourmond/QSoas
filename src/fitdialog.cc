@@ -21,6 +21,7 @@
 #include <fitdialog.hh>
 #include <fit.hh>
 #include <fitdata.hh>
+#include <fitengine.hh>
 #include <fitparametereditor.hh>
 #include <curveview.hh>
 #include <dataset.hh>
@@ -51,7 +52,8 @@ FitDialog::FitDialog(FitData * d, bool displayWeights) :
   currentIndex(0),
   settingEditors(false), 
   progressReport(NULL),
-  trajectoryDisplay(NULL)
+  trajectoryDisplay(NULL),
+  fitEngineFactory(NULL)
 {
   resize(fitDialogSize);
 
@@ -61,8 +63,10 @@ FitDialog::FitDialog(FitData * d, bool displayWeights) :
   else
     bufferWeightEditor = NULL;
   setupFrame();
+  setFitEngineFactory(FitEngine::defaultFactoryItem());
 
   updateEditors();
+
 }
 
 FitDialog::~FitDialog()
@@ -172,11 +176,30 @@ void FitDialog::setupFrame()
 
 
   //////////////////////////////////////////////////////////////////////
-  // Bottom
+  // Progress line (with fit engine choice)
 
+  hb = new QHBoxLayout;
+  
   progressReport = new QLabel(" ");
   progressReport->setWordWrap(true);
-  layout->addWidget(progressReport);
+  hb->addWidget(progressReport, 1);
+
+  hb->addWidget(new QLabel("Fit engine:"));
+
+  fitEngineSelection = new QComboBox;
+  {
+    QStringList fengines = FitEngine::availableEngines();
+    for(int i = 0; i < fengines.size(); i++) {
+      FitEngineFactoryItem * it = FitEngine::namedFactoryItem(fengines[i]);
+      fitEngineSelection->addItem(it->publicName, it->name);
+    }
+    connect(fitEngineSelection, SIGNAL(activated(int)), 
+            SLOT(engineSelected(int)));
+  }
+  hb->addWidget(fitEngineSelection);
+  layout->addLayout(hb);
+
+  // Bottom
 
 
   hb = new QHBoxLayout;
@@ -353,7 +376,7 @@ void FitDialog::startFit()
   int status = -1;
   double residuals = 0.0/0.0, relres = 0.0/0.0;
   try {
-    parameters.prepareFit();
+    parameters.prepareFit(fitEngineFactory);
     parametersBackup = parameters.saveParameterValues();
     shouldCancelFit = false;
   
@@ -720,4 +743,25 @@ void FitDialog::displayTrajectories()
   FitTrajectoryDisplay dlg(this, data, &trajectories);
   dlg.update();
   dlg.exec();
+}
+
+void FitDialog::setFitEngineFactory(const QString & name)
+{
+  FitEngineFactoryItem * fact = FitEngine::namedFactoryItem(name);
+  if(fact)
+    setFitEngineFactory(fact);
+}
+
+void FitDialog::setFitEngineFactory(FitEngineFactoryItem * fact)
+{
+  fitEngineFactory = fact; 
+
+  // Now update the combo box...
+  int idx = fitEngineSelection->findData(fact->name);
+  fitEngineSelection->setCurrentIndex(idx);
+}
+
+void FitDialog::engineSelected(int id)
+{
+  setFitEngineFactory(fitEngineSelection->itemData(id).toString());
 }

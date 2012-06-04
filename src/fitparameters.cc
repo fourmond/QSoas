@@ -18,6 +18,7 @@
 
 #include <headers.hh>
 #include <fitparameters.hh>
+#include <fitengine.hh>
 #include <fit.hh>
 #include <fitdata.hh>
 #include <fitparameter.hh>
@@ -201,10 +202,10 @@ void FitParameters::sendDataParameters()
   }
 }
 
-void FitParameters::prepareFit()
+void FitParameters::prepareFit(FitEngineFactoryItem * it)
 {
   sendDataParameters();
-  fitData->initializeSolver(values);
+  fitData->initializeSolver(values, it);
 }
 
 void FitParameters::retrieveParameters()

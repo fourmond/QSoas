@@ -26,6 +26,7 @@
 class FitData;
 class FitParameter;
 class OutFile;
+class FitEngineFactoryItem;
 
 class FitParametersFile;
 
@@ -146,7 +147,7 @@ public:
   void sendDataParameters();
 
   /// Prepare fit
-  void prepareFit();
+  void prepareFit(FitEngineFactoryItem * fitEngine = NULL);
 
   /// Retrieve parameters from the fit
   void retrieveParameters();

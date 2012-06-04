@@ -21,10 +21,29 @@
 #ifndef __FITENGINE_HH
 #define __FITENGINE_HH
 
+#include <vector.hh>
+
 class Fit;  
 class FitData;
+class FitEngine;
 
-#include <vector.hh>
+
+class FitEngineFactoryItem {
+public:
+  typedef FitEngine * (*Creator)(FitData * data);
+
+  /// The creation function
+  Creator creator;
+
+  /// The creation name
+  QString name;
+
+  /// The public name
+  QString publicName;
+  /// Creates and register a factory item.
+  FitEngineFactoryItem(const QString & n, const QString & pn, Creator c);
+};
+
 
 /// A simple wrapper class around parameters found after an iteration.
 class StoredParameters {
@@ -41,6 +60,8 @@ public:
     parameters(v), residuals(r) {;};
 };
 
+
+
 /// This class wraps around call to the GSL for handling fits.
 ///
 /// This class only sees the "GSL" side of the fits.
@@ -51,6 +72,14 @@ public:
 /// parameters ?
 class FitEngine {
 protected:
+
+  friend class FitEngineFactoryItem;
+
+  /// The application-wide FitEngine factory
+  static QHash<QString, FitEngineFactoryItem*> * factory;
+
+  static void registerFactoryItem(FitEngineFactoryItem * item);
+
 
   /// The underlying fit data
   FitData * fitData;
@@ -66,6 +95,17 @@ public:
   FitEngine(FitData * data);
   virtual ~FitEngine();
 
+  /// Returns the short name of all available fit engines
+  static QStringList availableEngines();
+
+  /// Creates a named fir engine (or return NULL)
+  static FitEngine * createEngine(const QString & name, FitData * data);
+
+  /// Returns the named factory item - or NULL if there isn't.
+  static FitEngineFactoryItem * namedFactoryItem(const QString & name);
+
+  /// Returns the default factory item.
+  static FitEngineFactoryItem * defaultFactoryItem();
 
   /// Initialize the fit engine and set the initial parameters
   virtual void initialize(const double * initialGuess) = 0;
@@ -89,39 +129,6 @@ public:
   /// The number of iterations since the last call to initialize();
   int iterations;
 
-};
-
-
-class GSLFitEngine : public FitEngine {
-  
-  /// The solver in use
-  gsl_multifit_fdfsolver * solver;
-
-  /// The function in use
-  gsl_multifit_function_fdf function;
-
-  /// The current scaling factor of the jacobian...
-  double jacobianScalingFactor;
-
-protected:
-
-  static int staticF(const gsl_vector * x, void * params, gsl_vector * f);
-  static int staticDf(const gsl_vector * x, void * params, gsl_matrix * df);
-  static int staticFdf(const gsl_vector * x, void * params, gsl_vector * f,
-                       gsl_matrix * df);
-
-public:
-
-  GSLFitEngine(FitData * data, const gsl_multifit_fdfsolver_type * T = 
-               gsl_multifit_fdfsolver_lmsder);
-  virtual ~GSLFitEngine();
-
-
-  virtual void initialize(const double * initialGuess);
-  virtual const gsl_vector * currentParameters() const;
-  virtual void computeCovarianceMatrix(gsl_matrix * target) const;
-  virtual int iterate();
-  virtual double residuals() const;
 };
 
 #endif

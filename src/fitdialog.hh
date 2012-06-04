@@ -28,6 +28,7 @@ class FitParameterEditor;
 class DataSet;
 
 class FitTrajectory;
+class FitEngineFactoryItem;
 class FitTrajectoryDisplay;
 
 /// This class handles all the user interaction during fits.
@@ -92,9 +93,14 @@ class FitDialog : public QDialog {
   /// The parameters as saved just before starting the fit
   Vector parametersBackup;
 
-  
   /// Dialog box to show fit trajectories...
   FitTrajectoryDisplay * trajectoryDisplay;
+
+  /// The fit engine factory in use
+  FitEngineFactoryItem * fitEngineFactory;
+
+  /// Selection of the fit engines...
+  QComboBox * fitEngineSelection;
 
 
 protected:
@@ -105,6 +111,13 @@ protected:
 public:
   FitDialog(FitData * data, bool displayWeights = false);
   ~FitDialog();
+
+  /// Sets the fit engine to the named one
+  void setFitEngineFactory(const QString & name);
+
+  /// Idem, directly with the factory item
+  void setFitEngineFactory(FitEngineFactoryItem * factory);
+
 
 signals:
   void currentDataSetChanged(int ds);
@@ -119,6 +132,7 @@ public slots:
 
   /// Overrides the given parameter.
   void overrideParameter(const QString & name, double value);
+
 
 protected slots:
 
@@ -206,6 +220,8 @@ protected slots:
   /// Display the fit trajectories
   void displayTrajectories();
 
+  /// Upon change in the FitEngine combo box...
+  void engineSelected(int id);
 };
 
 #endif

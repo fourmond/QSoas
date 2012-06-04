@@ -265,7 +265,8 @@ void FitData::initializeParameters()
 }
 
 
-void FitData::initializeSolver(const double * initialGuess)
+void FitData::initializeSolver(const double * initialGuess, 
+                               FitEngineFactoryItem * feit)
 {
   nbIterations = 0;
   freeSolver();
@@ -293,7 +294,9 @@ void FitData::initializeSolver(const double * initialGuess)
     }
   }
   else {
-    engine = new GSLFitEngine(this);
+    if(! feit)
+      feit = FitEngine::defaultFactoryItem();
+    engine = feit->creator(this);
     engine->initialize(initialGuess);
   }
   // And this should be fine.

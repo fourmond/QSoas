@@ -26,6 +26,7 @@
 
 class Fit;  
 class FitEngine;
+class FitEngineFactoryItem;
 class FitParameter;
 class DataSet;
 class ParameterDefinition;
@@ -119,7 +120,8 @@ public:
   /// Creates the solver, and initializes it with the correct
   /// parameters, based one the contents of parameterDefinitions and
   /// parameters.
-  void initializeSolver(const double * initialGuess);
+  void initializeSolver(const double * initialGuess, 
+                        FitEngineFactoryItem * engine = NULL);
 
 
   /// Initializes the parameters (if needed). This may have to be

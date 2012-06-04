@@ -136,7 +136,8 @@ SOURCES += src/qmain.cc \
         src/expression.cc \
         src/fitparameter.cc \
         src/fitengine.cc \
-        src/fittrajectorydisplay.cc
+        src/fittrajectorydisplay.cc \
+        src/gslfitengine.cc
 
 
 HEADERS += src/headers.hh \

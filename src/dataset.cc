@@ -289,7 +289,7 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
                                  "operation !").
                          arg(b->name).arg(a->name));
 
-    for(int j = 0; j < nbcols; j++)
+    for(int j = 0; j < nbcols-1; j++)
       vects << Vector();
     for(int i = 0; i < ads.size(); i++) {
       ads[i]->x() -= ads[i]->x()[0];

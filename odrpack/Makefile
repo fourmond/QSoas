@@ -3,9 +3,12 @@
 
 DODR_SOURCE = d_lpkbls.f d_odr.f d_mprec.f
 DODR_OBJECTS = $(patsubst %.f, %.o, $(DODR_SOURCE))
+DODR_CONVERTED = $(patsubst %.f, %.c, $(DODR_SOURCE))
 
-%.o: %.f
-	gfortran -c $< -o $@
+c: $(DODR_CONVERTED)
+
+%.c: %.f
+	f2c $<
 
 lib: dodr.a($(DODR_OBJECTS))
 

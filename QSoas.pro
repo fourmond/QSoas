@@ -211,6 +211,11 @@ HEADERS += src/headers.hh \
 exists(odrpack/dodr.a) {
   # We link with the library
   message("Found the odrpack library, trying to link it in...")
-  LIBS += odrpack/dodr.a -lgfortran
+  LIBS += odrpack/dodr.a
+  exists(/usr/lib/libf2c.a) {
+    LIBS += /usr/lib/libf2c.a
+  } else {
+    LIBS += -lf2c
+  }   
   SOURCES += odrpack/odrpackfitengine.cc
 }

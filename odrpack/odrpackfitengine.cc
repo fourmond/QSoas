@@ -142,12 +142,13 @@ void ODRPACKFitEngine::initialize(const double * initialGuess)
   // We only do allocation here...
   parameters = new double[fitData->freeParameters()];
   parametersAreFree = new int[fitData->freeParameters()];
-  for(int i = 0; i < fitData->freeParameters(); i++) {
-    parameters[i] = initialGuess[i];
+  for(int i = 0; i < fitData->freeParameters(); i++)
     parametersAreFree[i] = 1;
-  }
-
+  
   pmview = gsl_vector_view_array(parameters, fitData->freeParameters());
+  fitData->packParameters(initialGuess, &pmview.vector);
+
+
 
   // Work vector allocation
   int p = fitData->freeParameters();
@@ -229,7 +230,7 @@ int ODRPACKFitEngine::iterate()
   int q = 1;
   int one = 1;
   int neg = -1;
-  int job = 20;                 // OLS + derivatives by forward
+  int job = 2;                  // OLS + derivatives by forward
                                 // difference
 
   double weight = -1;
@@ -273,7 +274,12 @@ void ODRPACKFitEngine::fcn(const int * n, const int * m,
   *istop = 0;
   gsl_vector_const_view params = gsl_vector_const_view_array(beta, *np);
   gsl_vector_view target = gsl_vector_view_array(f, *n);
-  engine->fitData->f(&params.vector, &target.vector, false);
+  try {
+    engine->fitData->f(&params.vector, &target.vector, false);
+  }
+  catch(const RuntimeError & re) {
+    *istop = 1;
+  }
 }
 
 static FitEngine * odrpack(FitData * d)

@@ -205,17 +205,18 @@ HEADERS += src/headers.hh \
         src/fittrajectorydisplay.hh
 
 
-# Here come the dirtiest things on earth: we actually link the code
-# with fortran code...
+# We link with the library
+message("Using odrpack")
 
-exists(odrpack/dodr.a) {
-  # We link with the library
-  message("Found the odrpack library, trying to link it in...")
-  LIBS += odrpack/dodr.a
-  exists(/usr/lib/libf2c.a) {
-    LIBS += /usr/lib/libf2c.a
-  } else {
-    LIBS += -lf2c
-  }   
-  SOURCES += odrpack/odrpackfitengine.cc
+exists(/usr/lib/libf2c.a)
+
+SOURCES += odrpack/odrpackfitengine.cc \        
+        odrpack/d_lpkbls.c \
+        odrpack/d_odr.c \
+        odrpack/d_mprec.c
+  
+exists(/usr/lib/libf2c.a) {
+  LIBS += /usr/lib/libf2c.a
+} else {
+  LIBS += -lf2c
 }

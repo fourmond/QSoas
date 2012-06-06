@@ -52,6 +52,12 @@ FitEngineFactoryItem * FitEngine::namedFactoryItem(const QString & name)
 
 FitEngineFactoryItem * FitEngine::defaultFactoryItem()
 {
+#ifndef Q_WS_MAC
+  // For now, it fails on mac, so we don't use it.
+  FitEngineFactoryItem * it = namedFactoryItem("odrpack");
+  if(it)
+    return it;
+#endif
   return namedFactoryItem("lmsder"); // For now
 }
 

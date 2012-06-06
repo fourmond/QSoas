@@ -21,6 +21,7 @@
 /// @todo There are probably a great number of useless headers
 /// here. Sort them out.
 
+#if defined __cplusplus
 #include <QApplication>
 #include <QThread>
 #include <QTest>                // For waiting...
@@ -118,6 +119,10 @@
 
 // We do C++ sometimes
 #include <stdexcept>
+
+#endif
+
+// Now, C inclues
 
 // ... and Ruby !
 #include <ruby.h>

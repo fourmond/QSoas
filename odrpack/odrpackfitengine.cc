@@ -89,6 +89,9 @@ ODRPACKFitEngine::ODRPACKFitEngine(FitData * data) :
   FitEngine(data)
 {
   dummyXValues = new double[fitData->dataPoints()];
+  for(int i = 0; i < fitData->dataPoints(); i++)
+    dummyXValues[i] = i;        // Good default choice, isn't it ?
+
   yValues = new double[fitData->dataPoints()];
 
   parameters = NULL;
@@ -224,6 +227,11 @@ PROTOCCALLSFSUB25(DODR,dodr,                                    \
 
 int ODRPACKFitEngine::iterate()
 {
+  /// @warning This specific bit makes the fit engine
+  /// non-reentrant. But as there is no reason why iterate on another
+  /// instance would be called during this function, this is nothing
+  /// to worry about for now.
+  ::engine = this;
   int nb = fitData->dataPoints();
   int m = 1;
   int np = fitData->freeParameters();
@@ -236,10 +244,6 @@ int ODRPACKFitEngine::iterate()
   double weight = -1;
   int info = 0; 
 
-  QTextStream o(stdout);
-  o << "Work vector size " << wvSize << endl;
-
-  
   call_dodr(&fcn, nb, m, np, q, //
             parameters, 
             yValues, nb, dummyXValues, nb, // We're at LDX
@@ -266,11 +270,6 @@ void ODRPACKFitEngine::fcn(const int * n, const int * m,
                            double * f, double * fjacb, double * fjacd,
                            int * istop)
 {
-  QTextStream o(stdout);
-  o << "Fit engine: " << engine << "\n"
-    << "x data: " << xplusd << " (odrpack)\t" << engine->dummyXValues
-    << " (engine)" << endl;
-
   *istop = 0;
   gsl_vector_const_view params = gsl_vector_const_view_array(beta, *np);
   gsl_vector_view target = gsl_vector_view_array(f, *n);

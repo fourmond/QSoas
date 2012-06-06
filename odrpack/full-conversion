@@ -1,0 +1,45 @@
+#! /usr/bin/perl
+
+for my $file (@ARGV) {
+    open IN, $file;
+    $file =~ s/\.c$/.new.c/;
+    open OUT, "> $file";
+
+    my $openparent = 0;
+    my $nb;
+    while (my $line = <IN>) {
+        $nb ++;
+        $line =~ s/\binteger\b/int/g;
+        $line =~ s/\b(double)?real\b/double/g;
+        $line =~ s/\blogical\b/int/g;
+
+        # We skip all references to io stuff:
+        if($line =~ /io___|do_fio|s_copy|[es]_wsf[ei]/ || $openparent > 0) {
+            $line =~ s/\(/$openparent++/ge;
+            $line =~ s/\)/$openparent--/ge;
+            next;
+        }
+        if($line =~ /"f2c.h"/) {
+            print OUT <<EOD
+/* This file was heavily modified to allow complete removal of 
+  dependencies on f2c library and others */
+typedef int /* Unknown procedure type */ (*U_fp)();
+typedef /* Subroutine */ int (*S_fp)();
+
+#define TRUE_ 1
+#define FALSE_ 0
+#define abs(x) ((x) >= 0 ? (x) : -(x))
+#define dabs(x) (doublereal)abs(x)
+#define min(a,b) ((a) <= (b) ? (a) : (b))
+#define max(a,b) ((a) >= (b) ? (a) : (b))
+#define dmin(a,b) (doublereal)min(a,b)
+#define dmax(a,b) (doublereal)max(a,b)
+EOD
+        }
+        else {
+            print OUT $line;
+        }
+    }
+    close IN;
+    close OUT;
+}

@@ -208,15 +208,8 @@ HEADERS += src/headers.hh \
 # We link with the library
 message("Using odrpack")
 
-exists(/usr/lib/libf2c.a)
-
 SOURCES += odrpack/odrpackfitengine.cc \        
-        odrpack/d_lpkbls.c \
-        odrpack/d_odr.c \
-        odrpack/d_mprec.c
-  
-exists(/usr/lib/libf2c.a) {
-  LIBS += /usr/lib/libf2c.a
-} else {
-  LIBS += -lf2c
-}
+        odrpack/d_lpkbls.new.c \
+        odrpack/d_odr.new.c \
+        odrpack/d_mprec.new.c \
+        odrpack/f2c_remains.c

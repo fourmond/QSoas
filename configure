@@ -5,3 +5,4 @@ qmake
 # For some reason, mac's Qt writes a wrong library name for linking
 # when producing a debug stuff:
 perl -pi -e 's/_debug//g' Makefile
+cd odrpack; ./full-conversion d_lpkbls.c d_mprec.c d_odr.c

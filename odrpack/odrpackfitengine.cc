@@ -187,43 +187,14 @@ double ODRPACKFitEngine::residuals() const
   return 0;                     // Surely a bad choice for now !
 }
 
+typedef void (*U_fp)(...);
 
-     //  SUBROUTINE DODR
-     // +   (FCN,
-     // +   N,M,NP,NQ,
-     // +   BETA,
-     // +   Y,LDY,X,LDX,
-     // +   WE,LDWE,LD2WE,WD,LDWD,LD2WD,
-     // +   JOB,
-     // +   IPRINT,LUNERR,LUNRPT,
-     // +   WORK,LWORK,IWORK,LIWORK,
-     // +   INFO)
-
-// Prototype for the above call, using the same lines
-PROTOCCALLSFSUB25(DODR,dodr,                                    \
-                  ROUTINE,                                      \
-                  INT,INT,INT,INT,                              \
-                  DOUBLEV,                                      \
-                  DOUBLEV, INT, DOUBLEV, INT,                   \
-                  DOUBLEV, INT, INT, DOUBLEV, INT, INT,         \
-                  INT,                                          \
-                  INT, INT, INT,                                \
-                  DOUBLEV, INT, INTV, INT,                      \
-                  PINT                                          \
-                  );
-
-#define call_dodr(A1,A2,A3,A4,A5,A6,A7,A8,A9,AA,AB,AC,AD,AE,AF,AG,AH,AI,AJ,AK,AL,AM,AN,AO,AP) \
-  CCALLSFSUB25(DODR,dodr,                                               \
-               ROUTINE,                                                 \
-               INT,INT,INT,INT,                                         \
-               DOUBLEV,                                                 \
-               DOUBLEV, INT, DOUBLEV, INT,                              \
-               DOUBLEV, INT, INT, DOUBLEV, INT, INT,                    \
-               INT,                                                     \
-               INT, INT, INT,                                           \
-               DOUBLEV, INT, INTV, INT,                                 \
-               PINT,                                                    \
-               A1,A2,A3,A4,A5,A6,A7,A8,A9,AA,AB,AC,AD,AE,AF,AG,AH,AI,AJ,AK,AL,AM,AN,AO,AP)
+extern "C" int dodr_(U_fp fcn, int *n, int *m, int *np, 
+                 int *nq, double *beta, double *y, int *ldy, 
+                 double *x, int *ldx, double *we, int *ldwe, int *
+                 ld2we, double *wd, int *ldwd, int *ld2wd, int *job, 
+                 int *iprint, int *lunerr, int *lunrpt, double *work, 
+                 int *lwork, int *iwork, int *liwork, int *info);
 
 int ODRPACKFitEngine::iterate()
 {
@@ -244,15 +215,16 @@ int ODRPACKFitEngine::iterate()
   double weight = -1;
   int info = 0; 
 
-  call_dodr(&fcn, nb, m, np, q, //
-            parameters, 
-            yValues, nb, dummyXValues, nb, // We're at LDX
-            &weight,one,one, &weight, one, one, // We're at LD2WD
-            job,
-            neg,neg,neg,
-            workVector, wvSize,
-            workIntegers, wiSize,
-            info);
+
+  dodr_((U_fp) &fcn, &nb, &m, &np, &q, //
+        parameters, 
+        yValues, &nb, dummyXValues, &nb, // We're at LDX
+        &weight,&one,&one, &weight, &one, &one, // We're at LD2WD
+        &job,
+        &neg,&neg,&neg,
+        workVector, &wvSize,
+        workIntegers, &wiSize,
+        &info);
 
   return GSL_SUCCESS;
 }

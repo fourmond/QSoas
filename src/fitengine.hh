@@ -120,7 +120,7 @@ public:
   /// x n matrix (n being the number of free parameters)
   virtual void computeCovarianceMatrix(gsl_matrix * target) const = 0;
 
-  /// Performs the next iteration (possibly cheating). 
+  /// Performs the next iteration.
   virtual int iterate() = 0;
 
   /// Returns the residuals as computed by the last step
@@ -132,5 +132,17 @@ public:
   int iterations;
 
 };
+
+
+  // /// Returns a message pertaining to the status returned by iterate()
+  // virtual QString message();
+  // ///
+  // /// Return code as following:
+  // /// 0 -> continue iteration process
+  // /// 1 -> everything went fine
+  // /// 2 -> some error occurred
+  // ///
+  // /// In cases 1 and 2, more information can be obtained using the
+  // /// message() function
 
 #endif

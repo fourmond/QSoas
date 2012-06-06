@@ -28,6 +28,9 @@ OBJECTS_DIR = build
 # best case (excepted when a function only exits via an exception)
 QMAKE_CXXFLAGS += -Werror=return-type 
 
+
+QMAKE_CFLAGS += -O3
+
 # Generate doxygen documentation
 doc.commands = doxygen 
 

@@ -23,8 +23,6 @@
 #include <fitengine.hh>
 #include <exceptions.hh>
 
-#include "cfortran/cfortran.h"
-
 class ODRPACKFitEngine : public FitEngine {
 
 protected:
@@ -69,6 +67,32 @@ protected:
   /// ... its size;
   int wiSize;
 
+  /// The number of iterations since the beginning
+  int iterationNumber;
+
+
+  /// @name Digging the work vector
+  ///
+  /// These are indices of importance in the work vector
+  ///
+  /// @{
+  
+  /// Standard deviation
+  int standardDeviationIdx;
+
+  /// Covariance matrix
+  int covarianceMatrixIdx;
+
+  /// Sum of squares
+  int residualsIdx;
+
+  /// Condition number
+  int conditionNumberIdx;
+  
+
+
+  /// @}
+
 
   void freeBeforeInitialization();
 
@@ -98,6 +122,8 @@ ODRPACKFitEngine::ODRPACKFitEngine(FitData * data) :
   parametersAreFree = NULL;
   workVector = NULL;
   workIntegers = NULL;
+  residualsIdx = -1;
+  covarianceMatrixIdx = -1;
 
   // Initialize with the data:
   gsl_vector_view yv = gsl_vector_view_array(yValues, fitData->dataPoints());
@@ -123,7 +149,8 @@ void ODRPACKFitEngine::freeBeforeInitialization()
   delete[] workIntegers;
   workIntegers = NULL;
 
-
+  residualsIdx = -1;
+  covarianceMatrixIdx = -1;
 }
 
 
@@ -165,6 +192,8 @@ void ODRPACKFitEngine::initialize(const double * initialGuess)
 
   wiSize = 20 + p + q * (p + m);
   workIntegers = new int[wiSize];
+
+  iterationNumber = 0;
   
 
   // We are currently fitting this fit
@@ -178,23 +207,67 @@ const gsl_vector * ODRPACKFitEngine::currentParameters() const
 
 void ODRPACKFitEngine::computeCovarianceMatrix(gsl_matrix * target) const
 {
-  /// @todo Hmmm, this is bad, and it will have to be dealt with soon !
+  if(covarianceMatrixIdx < 0)
+    gsl_matrix_set_zero(target);
+  else {
+    gsl_matrix_view v = 
+      gsl_matrix_view_array(workVector + covarianceMatrixIdx - 1,
+                            fitData->freeParameters(), 
+                            fitData->freeParameters());
+    gsl_matrix_memcpy(target, (const gsl_matrix *)&v.matrix);
+  }
 }
 
+/// @todo There seems to be a problem in scaling...
 double ODRPACKFitEngine::residuals() const
 {
-  /// @todo A great pain to extract...
+  if(residualsIdx >= 0)
+    return workVector[residualsIdx - 1]; // Argh !
   return 0;                     // Surely a bad choice for now !
 }
 
 typedef void (*U_fp)(...);
 
-extern "C" int dodr_(U_fp fcn, int *n, int *m, int *np, 
-                 int *nq, double *beta, double *y, int *ldy, 
-                 double *x, int *ldx, double *we, int *ldwe, int *
-                 ld2we, double *wd, int *ldwd, int *ld2wd, int *job, 
-                 int *iprint, int *lunerr, int *lunrpt, double *work, 
-                 int *lwork, int *iwork, int *liwork, int *info);
+/// @todo These functions headers will eventually need to a dedicated
+/// header file, which should allow me to change a few int * into
+/// const int *, and possibly even into "int" !
+extern "C" 
+int dodr_(U_fp fcn, int *n, int *m, int *np, 
+          int *nq, double *beta, double *y, int *ldy, 
+          double *x, int *ldx, double *we, int *ldwe, int *
+          ld2we, double *wd, int *ldwd, int *ld2wd, int *job, 
+          int *iprint, int *lunerr, int *lunrpt, double *work, 
+          int *lwork, int *iwork, int *liwork, int *info);
+
+extern "C" 
+int dodrc_(U_fp fcn, int *n, int *m, int *np, 
+           int *nq, double *beta, double *y, int *ldy, 
+           double *x, int *ldx, double *we, int *ldwe, int *
+           ld2we, double *wd, int *ldwd, int *ld2wd, int *ifixb, 
+           int *ifixx, int *ldifx, int *job, int *ndigit, 
+           double *taufac, double *sstol, double *partol, int *
+           maxit, int *iprint, int *lunerr, int *lunrpt, double *
+           stpb, double *stpd, int *ldstpd, double *sclb, double 
+           *scld, int *ldscld, double *work, int *lwork, int *
+           iwork, int *liwork, int *info);
+
+extern "C" 
+int dwinf_(int *n, int *m, int *np, int *nq, 
+           int *ldwe, int *ld2we, int *isodr, int *deltai, 
+           int *epsi, int *xplusi, int *fni, int *sdi, int *
+           vcvi, int *rvari, int *wssi, int *wssdei, int *wssepi,
+           int *rcondi, int *etai, int *olmavi, int *taui, 
+           int *alphai, int *actrsi, int *pnormi, int *rnorsi, 
+           int *prersi, int *partli, int *sstoli, int *taufci, 
+           int *epsmai, int *beta0i, int *betaci, int *betasi, 
+           int *betani, int *si, int *ssi, int *ssfi, int *
+           qrauxi, int *ui, int *fsi, int *fjacbi, int *we1i, 
+           int *diffi, int *deltsi, int *deltni, int *ti, 
+           int *tti, int *omegai, int *fjacdi, int *wrk1i, 
+           int *wrk2i, int *wrk3i, int *wrk4i, int *wrk5i, 
+           int *wrk6i, int *wrk7i, int *lwkmn);
+
+
 
 int ODRPACKFitEngine::iterate()
 {
@@ -211,20 +284,58 @@ int ODRPACKFitEngine::iterate()
   int neg = -1;
   int job = 2;                  // OLS + derivatives by forward
                                 // difference
+  int ndigit = 0;
 
   double weight = -1;
   int info = 0; 
+  double taufac = -1;
+  double dneg = -1;
+  int maxit = 1;                // We go only one iteration !
+
+  if(iterationNumber > 0)
+    job += 10000;               // Fit is a restart
+  else {
+    int isodr = 0;
+    int data[50];
+    int *d = data;  // for not interesting variables
+    // We prepare the position of the parameters...
+
+    dwinf_(&nb, &m, &np, &q, &one, &one, &isodr, // These are the *in*
+           // parameters
+           d++, d++, d++, d++,                  // FNI
+           &standardDeviationIdx, &covarianceMatrixIdx, d++, // RVARI
+           &residualsIdx, d++, d++, &conditionNumberIdx, d++, // ETAI
+           d++, d++, d++, // ALPHAI
+           d++, d++, d++, d++, d++, d++, d++, d++, d++, d++, d++, d++, //BETANI
+           d++, d++, d++, d++, d++, d++, d++, d++, d++, d++, d++, d++, //TI
+           d++, d++, d++, d++, d++, d++, d++, d++, d++, d++, d++ //LWKMN
+           );
+    QTextStream o(stdout);
+    o << "Residuals idx: " << residualsIdx << endl;
+
+  }
 
 
-  dodr_((U_fp) &fcn, &nb, &m, &np, &q, //
-        parameters, 
-        yValues, &nb, dummyXValues, &nb, // We're at LDX
-        &weight,&one,&one, &weight, &one, &one, // We're at LD2WD
-        &job,
-        &neg,&neg,&neg,
-        workVector, &wvSize,
-        workIntegers, &wiSize,
-        &info);
+  iterationNumber++;
+
+  dodrc_((U_fp) &fcn, &nb, &m, &np, &q, //
+         parameters, 
+         yValues, &nb, dummyXValues, &nb, // We're at LDX
+         &weight,&one,&one, &weight, &one, &one, // We're at LD2WD
+         // Now the fixed stuff
+         parametersAreFree, &neg, &one,
+         &job, &ndigit, &taufac,
+         &dneg, &dneg, &maxit,
+         &neg,&neg,&neg,        // We're at LUNRPRT
+         &dneg, &dneg, &one,    // We're at LDSTPD
+         &dneg, &dneg, &one,    // We're at LDSCLD
+         workVector, &wvSize,
+         workIntegers, &wiSize,
+         &info);
+
+  /// @todo Better error handling...
+  if(info == 4)
+    return GSL_CONTINUE;
 
   return GSL_SUCCESS;
 }

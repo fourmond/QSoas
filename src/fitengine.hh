@@ -124,6 +124,8 @@ public:
   virtual int iterate() = 0;
 
   /// Returns the residuals as computed by the last step
+  ///
+  /// Residuals are the square root of the sum of squares.
   virtual double residuals() const = 0;
 
   /// The number of iterations since the last call to initialize();

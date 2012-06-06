@@ -218,11 +218,10 @@ void ODRPACKFitEngine::computeCovarianceMatrix(gsl_matrix * target) const
   }
 }
 
-/// @todo There seems to be a problem in scaling...
 double ODRPACKFitEngine::residuals() const
 {
   if(residualsIdx >= 0)
-    return workVector[residualsIdx - 1]; // Argh !
+    return sqrt(workVector[residualsIdx - 1]); // Argh !
   return 0;                     // Surely a bad choice for now !
 }
 
@@ -310,9 +309,6 @@ int ODRPACKFitEngine::iterate()
            d++, d++, d++, d++, d++, d++, d++, d++, d++, d++, d++, d++, //TI
            d++, d++, d++, d++, d++, d++, d++, d++, d++, d++, d++ //LWKMN
            );
-    QTextStream o(stdout);
-    o << "Residuals idx: " << residualsIdx << endl;
-
   }
 
 

@@ -273,6 +273,10 @@ public:
     const Vector & xv = ds->x();
     double f = GSL_CONST_MKSA_FARADAY /(params[0] * GSL_CONST_MKSA_MOLAR_GAS);
 
+    for(int i = 3; i <= 5; i++)
+      if(params[i] < 0)
+        throw RangeError(QString("Negative rate constant ratio: #%1").arg(i));
+
     for(int i = 0; i < xv.size(); i++) {
       double x = xv[i];
       double e1 = exp(f * (x - params[1]));

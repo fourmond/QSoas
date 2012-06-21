@@ -337,10 +337,16 @@ public:
         int potential = steps[cur];
         const double * base = a + baseStep(potential);
         I = base[0];
-        for(int j = 0; j < exponentials; j++)
+        for(int j = 0; j < exponentials; j++) {
           timeConstants[j] = base[baseTime() + j];
+          if(timeConstants[j] < 0)
+            throw RangeError("Negative time constant !");
+        }
+
         if(! independentLoss)
           kloss = base[1];
+        if(kloss < 0)
+          throw RangeError("Negative film loss rate constant !");
 
 
         // Then, step-dependant stuff:

@@ -47,7 +47,10 @@ FitParameterEditor::FitParameterEditor(const ParameterDefinition * d,
   layout->addWidget(editor);
 
   QSize sz = editor->minimumSizeHint();
-  sz.setWidth(6*sz.width());
+  int minWidth = 6*sz.width(); // For some reason, this doesn't work at all for MacOS.
+  if(minWidth < 60)
+    minWidth = 60;              // 60 = 10 * 6 =  6 digits ?
+  sz.setWidth(minWidth);    
   editor->setMinimumSize(sz);
 
   fixed = new QCheckBox(tr("(fixed)"));

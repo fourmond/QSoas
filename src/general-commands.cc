@@ -153,7 +153,7 @@ static ArgumentList
 tempOpts(QList<Argument *>() 
          << new NumberArgument("set", 
                                "Sets the temperature",
-                               "Sets the temperature"));
+                               "Sets the temperature", true));
 
 static Command 
 temperature("temperature", // command name

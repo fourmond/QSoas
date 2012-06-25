@@ -135,17 +135,23 @@ class SlowScanHighPotFit : public PerDatasetFit {
   /// Whether we have a bi-exponential decay or not.
   bool biExp;
 
+  /// Whether or not we add an additional constant factor
+  bool scaling;
+
 protected:
 
   virtual void processOptions(const CommandOptions & opts)
   {
     biExp = false;
     updateFromOptions(opts, "bi-exp", biExp);
+    scaling = false;
+    updateFromOptions(opts, "scaling", scaling);
   }
 
   
   virtual QString optionsString() const {
-    return (biExp ? "bi-exponential" : "mono-exponential");
+    return QString(biExp ? "bi-exponential" : "mono-exponential") + 
+      QString(scaling ? " with " : " without ") + "scaling";
   }
 
 public:
@@ -160,6 +166,9 @@ public:
     bool first_bit = true;
     double delta_E = xv[1] - xv[0];
     double E_vertex = 0;
+    double scale = 1;
+    if(scaling)
+      scale = a[biExp ? 9 : 7];
     for(int i = 0; i < xv.size(); i++) {
       double x = xv[i];
       double t;
@@ -175,7 +184,7 @@ public:
       double act = a[4] + (a[5] - a[4]) * dec;
 
       gsl_vector_set(target, i, 
-                     (a[2] * x + a[3]) * act);
+                     (a[2] * x + a[3]) * act * scale);
 
       if(first_bit && i < xv.size() - 1 && 
          ( (xv[i+1] - xv[i])*delta_E < 0)) {
@@ -197,10 +206,14 @@ public:
     a[4] = 0.1; 
     a[5] = 1;
     a[6] = 300;
+    int base = 7;
     if(biExp) {
       a[7] = 800;
       a[8] = 0.3;
+      base = 9;
     }
+    if(scaling)
+      a[base] = 1;
   };
 
   virtual QList<ParameterDefinition> parameters() const {
@@ -215,9 +228,11 @@ public:
     
     if(biExp)
       ret << ParameterDefinition("tau_slow")
-          << ParameterDefinition("frac_slow"); 
+          << ParameterDefinition("frac_slow");
     // Fraction of the slow phase with respect to the total
     // inactivation.
+    if(scaling)
+      ret << ParameterDefinition("fact"); // prefactor
     
     return ret;
   };
@@ -234,6 +249,10 @@ public:
                                 "Bi exp",
                                 "Whether we have a bi-exponential or a "
                                 "mono-exponential")
+                   << new 
+                   BoolArgument("scaling", 
+                                "Scaling",
+                                "Use an additional scaling factor")
                    );
     makeCommands(NULL, NULL, NULL, opts);
   };

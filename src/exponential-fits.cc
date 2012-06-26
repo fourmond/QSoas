@@ -345,8 +345,6 @@ public:
 
         if(! independentLoss)
           kloss = base[1];
-        if(kloss < 0)
-          throw RangeError("Negative film loss rate constant !");
 
 
         // Then, step-dependant stuff:
@@ -354,6 +352,9 @@ public:
 
         if(independentLoss)
           kloss = base[1];
+
+        if(kloss < 0)
+          throw RangeError("Negative film loss rate constant !");
 
         
         xstart = base[0];

@@ -76,8 +76,6 @@ FitParameterEditor::FitParameterEditor(const ParameterDefinition * d,
   if(parameters->nbParameters >= 10 && checkTight) {
     global->setText("(G)");
     fixed->setText("(F)");
-    sz.setWidth(5*sz.width()/6);
-    editor->setMinimumSize(sz);
   }
 
   if(extended) {
@@ -157,6 +155,12 @@ void FitParameterEditor::updateBijectionParameters()
         bijectionParameterLabels << label;
         bijectionWidgets << label;
         QLineEdit * ed = new QLineEdit;
+        QSize sz = ed->minimumSizeHint();
+        int minWidth = 4*sz.width(); 
+        if(minWidth < 40)
+          minWidth = 40;             
+        sz.setWidth(minWidth);    
+        ed->setMinimumSize(sz);
         layout->addWidget(ed);
         bijectionParameterEditors << ed;
         bijectionWidgets << ed;

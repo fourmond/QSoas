@@ -359,6 +359,10 @@ public:
                               const double *y, int ystride, 
                               double * target, int tstride,
                               int nb);
+
+  /// Splits into a series of disconnected buffers whose X values (or
+  /// the values of the given column) are monotonic.
+  QList<DataSet * > splitIntoMonotonic(int col = 0) const;
   
 };
 

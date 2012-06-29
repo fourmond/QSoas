@@ -94,6 +94,26 @@ sb("splitb", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void splitMonotonicCommand(const QString &)
+{
+  const DataSet * ds = soas().currentDataSet();
+  QList<DataSet *> nds = ds->splitIntoMonotonic();
+  for(int i = 0; i < nds.size(); i++)
+    soas().pushDataSet(nds[i]);
+}
+        
+
+static Command 
+sm("split-monotonic", // command name
+   optionLessEffector(splitMonotonicCommand), // action
+   "buffer",  // group name
+   NULL, // arguments
+   NULL, // options
+   "Split into monotonic parts",
+   "Splits a buffer into subparts where the change in X are monotonic");
+
+//////////////////////////////////////////////////////////////////////
+
 static void sortCommand(const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
@@ -509,6 +529,7 @@ zo("zoom", // command name
 
 /// @todo Maybe most of the code shared between this and divide should
 /// be shared ?
+/// (and some with average ?)
 static void subCommand(const QString &, QList<const DataSet *> a, 
                        DataSet * b, const CommandOptions & opts)
 {
@@ -625,6 +646,58 @@ mergec("merge", // command name
        "of the second as a function of Y of the first");
 
 //////////////////////////////////////////////////////////////////////
+
+static void avgCommand(const QString &, QList<const DataSet *> all,
+                       const CommandOptions & opts)
+{
+  bool naive = testOption<QString>(opts, "mode", "indices");
+  bool useSteps = false;
+  updateFromOptions(opts, "use-segments", useSteps);
+  bool autosplit = (all.size() == 1);
+  updateFromOptions(opts, "split", autosplit);
+
+  if(naive && autosplit)
+    Terminal::out << "Using mode indices and split at the same "
+      "time probably isn't a very good idea. "
+      "Proceeding nonetheless" << endl;
+
+  QList<const DataSet * > data;
+  if(autosplit) {
+    for(int i = 0; i < all.size(); i++)
+      ;
+  }
+  else 
+    data = all;
+
+}
+
+static ArgumentList 
+aveArgs(QList<Argument *>() 
+              << new SeveralDataSetArgument("buffers", 
+                                            "Buffer",
+                                            "Buffers"));
+
+static ArgumentList 
+aveOpts(QList<Argument *>(operationArgs)
+        << new BoolArgument("split", 
+                            "Split into monotonic parts",
+                            "If on, buffers are automatically "
+                            "split into monotonic parts before averaging."));
+
+
+static Command 
+ave("average", // command name
+    effector(subCommand), // action
+    "buffer",  // group name
+    &operationArgs, // arguments
+    &operationOpts, // options
+    "Average",
+    "Average buffers",
+    "Average all buffers, possibly splitting them into monotonic parts if "
+    "applicable");
+
+//////////////////////////////////////////////////////////////////////
+
 
 
 static void catCommand(const QString &, DataSet * a, 

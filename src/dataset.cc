@@ -262,6 +262,45 @@ int DataSet::deltaSignChange(int col) const
 }
 
 
+/// @bug Doesn't work for now.
+QList<DataSet *> DataSet::splitIntoMonotonic(int col) const
+{
+  QList<DataSet *> ret;
+  
+  int size;
+  const double *val = getValues(col, &size);
+  int idx = 1;
+  int curStart = 0;
+  if(size >= 3) {
+    double dv0 = val[1] - val[0];
+    for(idx = 1; idx < size - 1; idx++) {
+      double dv = val[idx+1] - val[idx];
+      if(dv * dv0 < 0) {
+        // We spit out
+        QList<Vector> cols;
+        for(int j = 0; j < columns.size(); j++)
+          cols << columns.mid(curStart, idx - curStart + 1);
+        DataSet * ds = new DataSet(cols);
+        ds->name = cleanedName() + QString("_part%1.dat").arg(ret.size());
+        ret << ds;
+        curStart = idx+1;
+        idx = curStart + 1;
+        if(idx < size)
+          dv0 = val[idx] - val[idx-1];
+      }
+      
+    }
+  }
+  QList<Vector> cols;
+  for(int j = 0; j < columns.size(); j++)
+    cols << columns.mid(curStart, columns[j].size() - curStart);
+  DataSet * ds = new DataSet(cols);
+  ds->name = cleanedName() + QString("_part%1.dat").arg(ret.size());
+  ret << ds;
+  return ret;
+}
+
+
 DataSet * DataSet::applyBinaryOperation(const DataSet * a,
                                         const DataSet * b,
                                         double (*op)(double, double),

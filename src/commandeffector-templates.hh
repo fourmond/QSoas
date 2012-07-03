@@ -179,7 +179,7 @@ effector(void (*f)(const QString &, A1,
   return new CommandEffectorCallback1<A1>(f);
 };
 
-/// Callback to a static function with one argument + options.
+/// Callback to a static function with two arguments + options.
 ///
 /// Rather than using this class directly, use
 /// effector().
@@ -210,6 +210,41 @@ template<class A1, class A2> CommandEffector *
 effector(void (*f)(const QString &, A1, A2,
                    const CommandOptions &)) {
   return new CommandEffectorCallback2<A1, A2>(f);
+};
+
+
+/// Callback to a static function with three argument + options.
+///
+/// Rather than using this class directly, use
+/// effector().
+template <class A1, class A2, class A3>
+class CommandEffectorCallback3 : public CommandEffector {
+
+  typedef void (*Callback)(const QString &, A1, A2, A3, const CommandOptions &);
+  Callback callback;
+
+public:
+
+  CommandEffectorCallback3(Callback c) : callback(c) {;};
+
+  inline virtual void runCommand(const QString & commandName, 
+                                 const CommandArguments & args,
+                                 const CommandOptions & options) {
+    if(args.size() != 3)
+      throw InternalError(QString("3 arguments expected, but got %2").
+                          arg(args.size()));
+    A1 a1 = args[0]->value<A1>();
+    A2 a2 = args[1]->value<A2>();
+    A3 a3 = args[2]->value<A3>();
+    callback(commandName, a1, a2, a3, options);
+  };
+
+};
+
+template<class A1, class A2, class A3> CommandEffector * 
+effector(void (*f)(const QString &, A1, A2, A3,
+                   const CommandOptions &)) {
+  return new CommandEffectorCallback3<A1, A2, A3>(f);
 };
 
 

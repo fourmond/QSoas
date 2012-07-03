@@ -60,8 +60,11 @@ protected:
   /// y2... and so on to designate each of the fits.
   Expression formula;
 
+  /// Own parameters
+  QStringList ownParameters;
+
   /// Make sure the buffers are the right size.
-  void reserveBuffers(const FitData * data);
+  void reserveBuffers(const DataSet * ds);
 
 public:
 

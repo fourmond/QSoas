@@ -89,6 +89,43 @@ public:
   virtual QStringList proposeCompletion(const QString & starter) const;
 };
 
+
+/// A choice between several fixed strings
+class SeveralChoicesArgument : public Argument {
+  QStringList fixedChoices;
+
+  QStringList (*provider)();
+
+  QStringList choices() const;
+public:
+
+  SeveralChoicesArgument(const QStringList & c,
+                         const char * cn, const char * pn,
+                         const char * d = "", bool g = true, 
+                         bool def = false) : 
+    Argument(cn, pn, d, g, def), 
+    fixedChoices(c), provider(NULL) {
+  }; 
+
+  SeveralChoicesArgument(QStringList (*p)(),
+                         const char * cn, const char * pn,
+                         const char * d = "", bool g = true, 
+                         bool def = false) : 
+    Argument(cn, pn, d, g, def), provider(p) {
+  }; 
+  
+  /// Returns a wrapped QString
+  virtual ArgumentMarshaller * fromString(const QString & str) const;
+
+  /// a rather easy one.
+  virtual QStringList proposeCompletion(const QString & starter) const;
+
+  virtual void concatenateArguments(ArgumentMarshaller * a, 
+                                    const ArgumentMarshaller * b) const;
+
+};
+
+
 /// A dataset from the stack
 ///
 /// @todo Add prompting, but that will be fun.

@@ -113,6 +113,41 @@ QStringList ChoiceArgument::proposeCompletion(const QString & starter) const
   return Utils::stringsStartingWith(choices(), starter);
 }
 
+////////////////////////////////////////////////////////////
+
+QStringList SeveralChoicesArgument::choices() const
+{
+  QStringList c = fixedChoices;
+  if(provider)
+    c = provider();
+  qSort(c);
+  return c;
+}
+
+ArgumentMarshaller * SeveralChoicesArgument::fromString(const QString & str) const
+{
+  QStringList c = choices();
+  if(! c.contains(str))
+    throw 
+      RuntimeError(QObject::tr("Invalid argument: '%1'\nValid choices: %2").
+                   arg(str).arg(c.join(", ")));
+  QStringList r;
+  r << str;
+  return new ArgumentMarshallerChild<QStringList>(r);
+}
+
+QStringList SeveralChoicesArgument::proposeCompletion(const QString & starter) const
+{
+  return Utils::stringsStartingWith(choices(), starter);
+}
+
+void SeveralChoicesArgument::concatenateArguments(ArgumentMarshaller * a, 
+                                                  const ArgumentMarshaller * b) const
+{
+  a->value<QStringList>() += 
+    b->value<QStringList>();
+  
+}
 
 ////////////////////////////////////////////////////////////
 

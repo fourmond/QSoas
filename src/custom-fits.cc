@@ -1,6 +1,6 @@
 /**
-   \file ruby-commands.cc Ruby-related commands
-   Copyright 2011 by Vincent Fourmond
+   \file custom-fits.cc custom fits
+   Copyright 2011, 2012 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,8 +44,11 @@
 /// @warning Two fits cannot be run at the same time, as the main
 /// instance is used to keep track of the current formula.
 ///
-/// @ŧodo Remove the passing of constants in such a ugly way... They
+/// @todo Remove the passing of constants in such a ugly way... They
 /// should be passed as constants !
+///
+/// @todo In addition to x as function parameter, provide i (or
+/// anything else) as the index ?
 class MultiBufferArbitraryFit : public Fit {
 private:
 
@@ -75,19 +78,8 @@ private:
       Expression s(formulas[i]);
       params << s.naturalVariables();
     }
-    
-    // Now, we make the list unique, keeping the order
-    {
-      QSet<QString> names;
-      for(int i = 0; i < params.size(); i++) {
-        QString s = params[i];
-        if(names.contains(s)) {
-          params.takeAt(i);
-          --i;
-        }
-        names.insert(s);
-      }
-    }
+
+    Utils::makeUnique(params);
 
     expressions.clear();
     for(int i = 0; i < formulas.size(); i++)

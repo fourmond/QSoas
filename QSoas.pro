@@ -140,7 +140,8 @@ SOURCES += src/qmain.cc \
         src/fitparameter.cc \
         src/fitengine.cc \
         src/fittrajectorydisplay.cc \
-        src/gslfitengine.cc
+        src/gslfitengine.cc \
+        src/combinedfit.cc
 
 
 HEADERS += src/headers.hh \
@@ -205,10 +206,11 @@ HEADERS += src/headers.hh \
         src/expression.hh \
         src/fitparameter.hh \
         src/fitengine.hh \
-        src/fittrajectorydisplay.hh
+        src/fittrajectorydisplay.hh \
+        src/combinedfit.hh
 
 
-# We link with the library
+# We link with the converted ODRPACK library
 message("Using odrpack")
 
 SOURCES += odrpack/odrpackfitengine.cc \        

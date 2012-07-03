@@ -68,7 +68,5 @@ def soas_find_vars(__code)
   rescue SyntaxError => __e
     raise "Syntax error: #{__e.to_s}"
   end while ! __done
-
   return __vars
 end
-

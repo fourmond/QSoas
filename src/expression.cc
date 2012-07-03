@@ -87,7 +87,8 @@ void Expression::buildCode()
     variables = vars;
   }
   else if(vars.size() > variables.size())
-    throw RuntimeError("Not all the variables needed");
+    throw RuntimeError(QString("Not all the variables needed: %1 vs %2").
+                       arg(vars.join(", ")).arg(variables.join(", ")));
   rb_hash_aset(codeSafeKeepingHash(), hashKey(), code);
 
   buildArgs();                  // Build the arguments cache

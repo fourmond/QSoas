@@ -106,6 +106,21 @@ namespace Utils {
   /// Abbreviates the string so that it fits within the given
   /// number. It should also sanitize the string to some extent.
   QString abbreviateString(const QString & str, int nb = 50);
+
+  /// Makes the items in the list unique while keeping the order
+  template <typename T> void makeUnique(QList<T> & list) {
+    QSet<T> elems;
+    for(int i = 0; i < list.size(); i++) {
+      const T & t = list[i];
+      if(elems.contains(t)) {
+          list.takeAt(i);
+          --i;
+      }
+      else
+        elems.insert(t);
+    }
+  };
+
 };
 
 #endif

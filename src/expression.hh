@@ -105,6 +105,7 @@ public:
   /// expression
   static QStringList variablesNeeded(const QString & expression);
 
+  /// Returns the formula of the expression.
   QString formula() const {
     return expression;
   };

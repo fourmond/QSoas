@@ -240,7 +240,11 @@
    This however requires a careful rewrite of many places. Maybe it
    would be possible to use a child and/or superclass of CurveView
    that just would trash everything and abort on interactive requests
-   ?
+   ? Maybe the trick is simply to use xvfb and modify interactive
+   commands so that they abort in non-interactive mode (that is
+   CurveEventLoop, argument prompting and fit dialogs -- any dialog in
+   fact -- maybe we need a subclass of QDialog that aborts on exec()
+   in non-interactive mode ?).
    
 */
 

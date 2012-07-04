@@ -176,6 +176,26 @@
 
    \section arch Architectural things
 
+   \b Documentation
+
+   Although the current way to do documentation isn't that bad, it
+   doesn't scale well, and it really is a pain to maintain for
+   now. What I need is 
+
+   @li a simple plain text file (with an appropriate markup system --
+   why not maruku or kramdown ? -- most probably kramdown) containing
+   all the commands along with comment wrappers to position the
+   "generated part" (ie name, arguments, options) and the "description
+   part" (full description, in plain text).
+   @li extra text could be inserted in this at no cost (outside of the
+   designated areas), in order to turn that into a real useful
+   documentation
+   @li it should allow easy hyperlinking to other commands
+   @li I should be able to somehow process the output of the program
+   to get inline documentation (possibly included as qrc resource ?)
+
+
+
    @b Expressions
 
    In many places I could use a decent expressions system, ie

@@ -37,7 +37,8 @@ void FFT::setup()
 FFT::FFT(const Vector & x, const Vector & y, bool autoBL) :
   data(y), useCubicBaseline(false)
 {
-  deltaX = x[1] - x[0];
+  // Hmm, here is the problem:
+  deltaX = (x.last() - x.first())/(x.size() - 1);
   firstX = x[0];
   if(autoBL)
     computeBaseline(x,y);

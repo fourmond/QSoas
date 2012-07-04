@@ -85,6 +85,10 @@ class FitTrajectoryDisplay : public QDialog {
   QList<FitTrajectory> * trajectories;
 
 
+  /// The heads of the display
+  QStringList heads;
+
+
   /// Setup the insides of the dialog box.
   void setupFrame();
 public:
@@ -98,6 +102,8 @@ public slots:
   /// Update the display.
   void update();
 
+  /// Export to TAB-separated data file
+  void exportToFile();
 };
 
 

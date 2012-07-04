@@ -43,7 +43,7 @@ void FitTrajectoryDisplay::setupFrame()
 
   
 
-  QStringList heads;
+  heads.clear();
   heads << "status";
   for(int i = 0; i < fitData->datasets.size(); i++)
     for(int j = 0; j < fitData->parameterDefinitions.size(); j++)
@@ -52,8 +52,13 @@ void FitTrajectoryDisplay::setupFrame()
   heads << "residuals" << "rel res";
   parametersDisplay->setColumnCount(heads.size());
   parametersDisplay->setHorizontalHeaderLabels(heads);
+
+  QPushButton * bt = new QPushButton(tr("Export"));
+  connect(bt, SIGNAL(clicked()), SLOT(exportToFile()));
+  l->addWidget(bt);
 }
 
+/// @todo Should join FitTrajectory...
 static QString describe(FitTrajectory::Ending e)
 {
   switch(e) {
@@ -108,3 +113,41 @@ FitTrajectoryDisplay::~FitTrajectoryDisplay()
   
 }
 
+
+void FitTrajectoryDisplay::exportToFile()
+{
+  QString save = QFileDialog::getSaveFileName(this, tr("Export data"));
+  if(save.isEmpty())
+    return;
+  
+  QFile f(save);
+  if(! f.open(QIODevice::WriteOnly))
+    return;
+
+  QTextStream o(&f);
+
+  o << heads.join("\t") << endl;
+  for(int i = 0; i < trajectories->size(); i++) {
+    QStringList lst;
+    const FitTrajectory & tr = trajectories->value(i);
+
+    lst << "(init)";
+
+    for(int j = 0; j < fitData->fullParameterNumber(); j++)
+      lst << QString::number(tr.initialParameters[j]);
+    o << lst.join("\t") << endl;
+    
+    lst.clear();
+
+    lst << describe(tr.ending);
+              
+    for(int j = 0; j < fitData->fullParameterNumber(); j++)
+      lst << QString::number(tr.finalParameters[j]);
+
+    lst << QString::number(tr.residuals) 
+        << QString::number(tr.relativeResiduals);
+
+    o << lst.join("\t") << endl;
+  }
+
+}

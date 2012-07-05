@@ -285,7 +285,8 @@ MainWin::MainWin()
                 << "Based on Christophe Leger's original Soas\n\n"
                 << "This program is free software, released under the terms of \n"
                 << "the GNU general public license (see http://www.gnu.org/copyleft/gpl.html)\n\n" 
-                << "Current temperature is: " << soasInstance->temperature() 
+                << "Starting at " << QDateTime::currentDateTime().toString()
+                << "\nCurrent temperature is: " << soasInstance->temperature() 
                 << " K\n\n" 
                 << "To list available commands, type 'commands'\n"
                 << "To get help on a specific command, type 'help command'\n"

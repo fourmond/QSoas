@@ -140,6 +140,18 @@ public:
   /// Adds a new column to the data set.
   DataSet & operator<<(const Vector & column);
 
+  /// Inserts a column at the given position.
+  void insertColumn(int idx, const Vector & col) {
+    invalidateCache();
+    columns.insert(idx, col);
+  };
+
+  /// Inserts a column at the given position.
+  Vector takeColumn(int idx) {
+    invalidateCache();
+    return columns.takeAt(idx);
+  };
+
   Vector & x() {
     invalidateCache();
     return columns[0];
@@ -161,6 +173,12 @@ public:
   
   /// Returns the numbered column
   const Vector & column(int i) const {
+    return columns[i];
+  };
+
+  /// Returns the numbered column
+  Vector & column(int i) {
+    invalidateCache();
     return columns[i];
   };
 
@@ -305,6 +323,13 @@ public:
   /// If \a naive is true, only indices are matched, while a more
   /// complex algorithm is used to match X values in the other case.
   DataSet * subtract(const DataSet * dataset, bool naive = false, 
+                     bool useSteps = false) const;
+
+  /// Adds \a dataset to this DataSet and returns the result.
+  ///
+  /// If \a naive is true, only indices are matched, while a more
+  /// complex algorithm is used to match X values in the other case.
+  DataSet * add(const DataSet * dataset, bool naive = false, 
                      bool useSteps = false) const;
 
   /// Divides by \a dataset and returns the result. \sa subtract.

@@ -279,7 +279,7 @@ QList<DataSet *> DataSet::splitIntoMonotonic(int col) const
         // We spit out
         QList<Vector> cols;
         for(int j = 0; j < columns.size(); j++)
-          cols << columns.mid(curStart, idx - curStart + 1);
+          cols << columns[j].mid(curStart, idx - curStart + 1);
         DataSet * ds = new DataSet(cols);
         ds->name = cleanedName() + QString("_part%1.dat").arg(ret.size());
         ret << ds;
@@ -293,7 +293,7 @@ QList<DataSet *> DataSet::splitIntoMonotonic(int col) const
   }
   QList<Vector> cols;
   for(int j = 0; j < columns.size(); j++)
-    cols << columns.mid(curStart, columns[j].size() - curStart);
+    cols << columns[j].mid(curStart, columns[j].size() - curStart);
   DataSet * ds = new DataSet(cols);
   ds->name = cleanedName() + QString("_part%1.dat").arg(ret.size());
   ret << ds;
@@ -364,16 +364,26 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
       }
     }
     else {
-      int j = 0;
+      /// @todo We may improve all this by looking at all the signs
+      /// and see if things are monotonic or not.
+
       for(int i = 0; i < size_a; i++) {
+
         /* We first look for the closest point */
-        double diff = fabs(xa[i] - xb[j]);
-        while((j < (size_b - 1)) && (fabs(xa[i] - xb[j+1]) <  diff))
-          diff = fabs(xa[i] - xb[++j]);
-        // ys[i] -= yo[j];
+        double diff = fabs(xa[i] - xb[0]);
+        int found = 0;
+        // We do not assume that X values are varying 
+        for(int j = 0; j < size_b; j++) {
+          double d = fabs(xa[i] - xb[j]);
+          if(d < diff) {
+            diff  = d;
+            found = j;
+          }
+        }
+
         vects[0] << xa[i];        // a is the master dataset
         for(int k = 1; k < nbcols; k++)
-          vects[k] << op(a->columns[k][i], b->columns[k][j]);
+          vects[k] << op(a->columns[k][i], b->columns[k][found]);
       }
     }
   }
@@ -391,6 +401,16 @@ static inline double sub(double a, double b)
 DataSet * DataSet::subtract(const DataSet * ds, bool naive, bool useSteps) const
 {
   return applyBinaryOperation(this, ds, sub, "-", naive, useSteps);
+}
+
+static inline double add(double a, double b)
+{
+  return a + b;
+}
+
+DataSet * DataSet::add(const DataSet * ds, bool naive, bool useSteps) const
+{
+  return applyBinaryOperation(this, ds, ::add, "+", naive, useSteps);
 }
 
 static inline double div(double a, double b)

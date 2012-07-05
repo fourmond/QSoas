@@ -661,14 +661,52 @@ static void avgCommand(const QString &, QList<const DataSet *> all,
       "time probably isn't a very good idea. "
       "Proceeding nonetheless" << endl;
 
-  QList<const DataSet * > data;
-  if(autosplit) {
-    for(int i = 0; i < all.size(); i++)
-      ;
-  }
-  else 
-    data = all;
 
+  // The idea behind the average is add a column with the number 1
+  QList<DataSet * > data;
+  if(autosplit) {
+    for(int i = 0; i < all.size(); i++) {
+      QList<DataSet * > splt = all[i]->splitIntoMonotonic();
+      Terminal::out << "Split " << all[i]->name << " into " 
+                    << splt.size() << " parts" << endl;
+      data.append(splt);
+    }
+  }
+  else {
+    for(int i = 0; i < all.size(); i++)
+      data << new DataSet(*all[i]);
+  }
+
+  Terminal::out << "Averaging over " << data.size() <<  " buffers" << endl;
+
+  // Now, we modify all the datasets to add a column filled with 1 as
+  // the third column (we'll shift that as last later on).
+
+  for(int i = 0; i < data.size(); i++)
+    data[i]->insertColumn(2, Vector(data[i]->nbRows(), 1));
+
+  // Now, perform all the additions
+  DataSet * ret = data.takeFirst();
+  for(int i = 0; i < data.size(); i++) {
+    DataSet * nr = ret->add(data[i]);
+    delete ret;                 // What a memory waste !
+    delete data[i];             // Same here
+    ret = nr;
+  }
+
+  Vector avg = ret->takeColumn(2);   // The number column
+  for(int i = 0; i < ret->nbRows(); i++) {
+    for(int j = 1; j < ret->nbColumns(); j++)
+      ret->column(j)[i] /= avg[i];
+  }
+  
+  ret->insertColumn(ret->nbColumns(), avg);        // For memory
+  QStringList names;
+  for(int i = 0; i < all.size(); i++)
+    names << all[i]->cleanedName();
+  names << "avg";
+  ret->name = names.join("_") + ".dat";
+  soas().pushDataSet(ret);
 }
 
 static ArgumentList 
@@ -678,7 +716,7 @@ aveArgs(QList<Argument *>()
                                             "Buffers"));
 
 static ArgumentList 
-aveOpts(QList<Argument *>(operationArgs)
+aveOpts(QList<Argument *>(operationOpts)
         << new BoolArgument("split", 
                             "Split into monotonic parts",
                             "If on, buffers are automatically "
@@ -687,10 +725,10 @@ aveOpts(QList<Argument *>(operationArgs)
 
 static Command 
 ave("average", // command name
-    effector(subCommand), // action
+    effector(avgCommand), // action
     "buffer",  // group name
-    &operationArgs, // arguments
-    &operationOpts, // options
+    &aveArgs, // arguments
+    &aveOpts, // options
     "Average",
     "Average buffers",
     "Average all buffers, possibly splitting them into monotonic parts if "

@@ -22,9 +22,11 @@
 #include <group.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
+#include <file-arguments.hh>
 #include <terminal.hh>
 
 #include <soas.hh>
+#include <exceptions.hh>
 
 static Group help("help", 1000,
                   "Help",
@@ -146,5 +148,96 @@ hlpc("help", // command name
      "Give help on command",
      "Gives all help available on the given command",
      "?");
+
+//////////////////////////////////////////////////////////////////////
+
+
+
+static void updateDocumentationFile(const QString &, QString file)
+{
+  QString str;
+  try {
+    QFile f(file);
+    Utils::open(&f, QIODevice::ReadOnly|QIODevice::Text);
+    str = f.readAll();
+    f.close();
+    QFile::remove(file + ".old");
+    QFile::rename(file, file + ".old");
+  }
+  catch (RuntimeError &re) {
+    // Nothing to do !
+  }
+
+
+  // Now perform updates
+  QStringList cmds = Command::allCommands();
+  qSort(cmds);
+
+  for(int i = 0; i < cmds.size(); i++) {
+    Command * cmd = Command::namedCommand(cmds[i]);
+    cmd->updateDocumentation(str);
+  }
+
+  QFile o(file);
+  Utils::open(&o, QIODevice::WriteOnly|QIODevice::Text);
+  o.write(str.toLocal8Bit());
+  
+}
+
+static ArgumentList 
+udfA(QList<Argument *>() 
+     << new FileArgument("file", "File",
+                         "The file to update"));
+
+static Command 
+udCmd("update-documentation", // command name
+     optionLessEffector(updateDocumentationFile), // action
+     "help",  // group name
+     &udfA, // arguments
+     NULL, // options
+     "Update documentation",
+     "Update documentation file",
+     "...");
+
+//////////////////////////////////////////////////////////////////////
+
+
+
+static void loadDocumentationFile(const QString &, QString file)
+{
+  QString str;
+  QFile f(file);
+  Utils::open(&f, QIODevice::ReadOnly|QIODevice::Text);
+  str = f.readAll();
+  f.close();
+
+  /// @todo Setup a standard location for the documentation file and
+  /// load at startup.
+
+  Terminal::out << "Loading documentation from file " << file << endl;
+
+  // Now perform updates
+  QStringList cmds = Command::allCommands();
+
+  for(int i = 0; i < cmds.size(); i++) {
+    Command * cmd = Command::namedCommand(cmds[i]);
+    cmd->loadDocumentation(str);
+  }
+}
+
+static ArgumentList 
+ldfA(QList<Argument *>() 
+     << new FileArgument("file", "File",
+                         "The document file to load"));
+
+static Command 
+ldCmd("load-documentation", // command name
+     optionLessEffector(loadDocumentationFile), // action
+     "help",  // group name
+     &ldfA, // arguments
+     NULL, // options
+     "Load documentation",
+     "Load documentation file",
+     "...");
 
 //////////////////////////////////////////////////////////////////////

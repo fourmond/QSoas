@@ -353,3 +353,72 @@ QString Command::latexDocumentation() const
   }
   return ret + synopsis + "\n\n" + desc + longDescription();
 }
+
+QString Command::synopsis(bool markup) const 
+{
+  QStringList synopsis;
+  QString descs;
+
+  if(commandArguments()) {
+    const ArgumentList & args = *commandArguments();
+    for(int i = 0; i < args.size(); i++) {
+      QString a = args[i]->argumentName();
+      if(args[i]->greedy)
+        a += "...";
+      synopsis << a;
+      descs += QString("  * %1: %2\n").
+        arg(args[i]->argumentName()).
+        arg(args[i]->description());
+    }
+  }
+
+  if(commandOptions()) {
+    const ArgumentList & args = *commandOptions();
+    for(int i = 0; i < args.size(); i++) {
+      QString a = args[i]->argumentName();
+      synopsis << "/" + a + "=" ;
+      descs += QString("  * /%1%3: %2\n").
+        arg(args[i]->argumentName()).
+        arg(args[i]->description()).
+        arg(args[i]->defaultOption ? " (default)" : "");
+    }
+  }
+
+  return cmdName +  " " + synopsis.join(" ") + "\n\n" + descs + "\n";
+}
+
+QString & Command::updateDocumentation(QString & str) const
+{
+  // First, look for the synopsis block
+  int nb = 0;
+
+  QString ret = "\\{::comment\\} synopsis-start: " + cmdName + " \\{:/\\}.*" +
+    "\\{::comment\\} synopsis-end: " + cmdName + " \\{:/\\}\\s*";
+
+  QRegExp re(ret);
+  int left = re.indexIn(str, 0);
+
+  QString syn = "{::comment} synopsis-start: " + cmdName + " {:/}\n\n" +
+    "## " + cmdName + " - " + pubName + " {#cmd-" + cmdName + "}\n\n" +
+    synopsis() + "{::comment} synopsis-end: " + cmdName + " {:/}\n";
+  if(left >= 0)
+    nb = re.cap(0).size();
+  else {
+    left = str.size();
+    syn += "{::comment} description-start: " + cmdName + " {:/}\n" +
+      longDesc + "\n{::comment} description-end: " + cmdName + " {:/}\n\n";
+  }
+  str.replace(left, nb, syn);
+  return str;
+}
+
+void Command::loadDocumentation(const QString & str)
+{
+  QString ret = "\\{::comment\\} description-start: " + cmdName + 
+    " \\{:/\\}\\s*(.*)" + 
+    "\\{::comment\\} description-end: " + cmdName + " \\{:/\\}\\s*";
+
+  QRegExp re(ret);
+  if(re.indexIn(str, 0) >= 0)
+    longDesc = re.cap(1);
+}

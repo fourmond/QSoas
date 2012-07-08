@@ -44,7 +44,7 @@ protected:
 
   QByteArray shortDesc;
   
-  QByteArray longDesc;
+  QString longDesc;
 
   QByteArray groupName;
 
@@ -156,18 +156,18 @@ public:
   /// translated, which means that one should use QT_TRANSLATE_NOOP
   /// macro for setting it.
   virtual QString publicName() const {
-    return QObject::tr(pubName);
+    return pubName;
   };
 
   /// A short description, typically to be used for the status bar.
   virtual QString shortDescription() const {
-    return QObject::tr(shortDesc);
+    return shortDesc;
   };
 
   /// A long informative description, such as a full help text,
   /// possibly with examples too.
   virtual QString longDescription() const {
-    return QObject::tr(longDesc);
+    return longDesc;
   };
 
   /// Returns the arguments to this command. This can be NULL !
@@ -252,7 +252,27 @@ public:
 
   /// Returns a LaTeX string documenting the command (using
   /// subsection)
+  ///
+  /// @deprecated
   QString latexDocumentation() const;
+
+  
+  /// Makes up a text synopsis for the command
+  QString synopsis(bool markup = false) const;
+
+
+  /// Updates a QString containing the documentation of the command
+  /// (in kramdown format). This documentation is split into two
+  /// parts:
+  /// @li first, the synopsis, which is always updated from to
+  /// program to the documentation file
+  /// @li second, the long description, updated from the documentation
+  /// file to the program (or for the first time, the other way
+  /// around)
+  QString & updateDocumentation(QString & str) const;
+
+  /// Loads the long description from the documentation string
+  void loadDocumentation(const QString & str);
 
 };
 

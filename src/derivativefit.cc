@@ -26,6 +26,7 @@
 #include <argumentlist.hh>
 #include <general-arguments.hh>
 #include <commandeffector-templates.hh>
+#include <possessive-containers.hh>
 
 void DerivativeFit::processOptions(const CommandOptions & opts)
 {
@@ -63,9 +64,9 @@ QList<ParameterDefinition> DerivativeFit::parameters() const
   QList<ParameterDefinition> params = underlyingFit->parameters(); 
   originalParameters = params.size();
   for(int i = 0; i < originalParameters; i++)
-    params[i].canBeBufferSpecific = (mode == Separated);
+    params[i].canBeBufferSpecific = (mode != Separated);
   if(mode == Combined)
-    params << ParameterDefinition("deriv_scale", false); 
+    params << ParameterDefinition("deriv_scale", true); 
   /// @todo add index of switch ?
   return params;
 }
@@ -126,34 +127,41 @@ void DerivativeFit::function(const double * parameters,
 
     const DataSet * derDS = data->datasets[i];
 
+    int pbase = i * data->parameterDefinitions.size();
+
     if(mode == Combined) {
       // We split the dataset and feed that information to the function
-      QList<DataSet *> sub = derDS->splitIntoMonotonic();
+      /// @todo This is very memory/speed inefficient.
+      PossessiveList<DataSet> sub = derDS->splitIntoMonotonic();
+      if(sub.size() != 2)
+        throw RuntimeError(QString("Dataset '%1' should be made of two "
+                                   "monotonic parts !").arg(derDS->name));
 
       int idx = sub[0]->x().size();
 
       // We create sub-views of the original view...
       gsl_vector_view sFnView = gsl_vector_subvector(&derView.vector, 0, idx);
-      underlyingFit->function(parameters + i * 
-                              data->parameterDefinitions.size(), 
+      underlyingFit->function(parameters + pbase, 
                               data, sub[0], &sFnView.vector);
 
-      underlyingFit->function(parameters + i * 
-                              data->parameterDefinitions.size(), 
+      underlyingFit->function(parameters + pbase, 
                               data, sub[1], &bufView.vector);
       // Now copying back 
-      DataSet::firstDerivative(derDS->x().data(), 1, 
-                               bufView.vector.data + 
-                               bufView.vector.stride * idx, 
+      DataSet::firstDerivative(sub[1]->x().data(), 1, 
+                               bufView.vector.data, 
                                bufView.vector.stride,
                                derView.vector.data + 
                                derView.vector.stride * idx, 
                                derView.vector.stride,
-                               derDS->x().size());
+                               sub[1]->x().size());
 
-      /// @todo This is very memory/speed inefficient.
-      for(int i = 0; i < sub.size(); i++)
-        delete sub[i];
+      // And scaling...
+      gsl_vector_view sDerView = 
+        gsl_vector_subvector(&derView.vector, idx, sub[1]->x().size());
+
+      // Do scaling of the derivative !
+      gsl_vector_scale(&sDerView.vector, 
+                       parameters[pbase + originalParameters]);
     }
     else {
       underlyingFit->function(parameters + i * 
@@ -170,10 +178,10 @@ void DerivativeFit::function(const double * parameters,
 }
 
 DerivativeFit::DerivativeFit(PerDatasetFit * source, DerivativeFit::Mode m) :
-  Fit(QString((m == DerivativeFit::Separated ? "deriv-" : 
-               (m == DerivativeFit::DerivativeOnly ? "deriv-only-" : 
-                "deriv-combined")) +  
-              source->fitName(false)).toLocal8Bit(), 
+  Fit((QString((m == DerivativeFit::Separated ? "deriv-" : 
+                (m == DerivativeFit::DerivativeOnly ? "deriv-only-" : 
+                 "deriv-combined-"))) +
+       source->fitName(false)).toLocal8Bit(), 
       "Derived fit",
       "(derived fit)",
       (m == DerivativeFit::Separated ? 2: 1) , 

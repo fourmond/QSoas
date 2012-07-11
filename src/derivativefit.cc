@@ -35,35 +35,57 @@ void DerivativeFit::processOptions(const CommandOptions & opts)
 
 QString DerivativeFit::optionsString() const
 {
-  return Fit::optionsString(underlyingFit) + " -- derivative" + 
-    (alsoOriginal ? "" : " only");
+  QString n;
+  switch(mode) {
+  case DerivativeOnly:
+    n = " only";break;
+  case Separated:
+    n = " (separated)"; break;
+  case Combined:
+    n = " (combined)"; break;
+  default:
+    ;
+  }
+  return Fit::optionsString(underlyingFit) + " -- derivative" + n;
 }
 
 void DerivativeFit::checkDatasets(const FitData * data) const
 {
-  if(alsoOriginal) {
+  if(mode == Separated) {
     if(data->datasets.size() != 2)
       throw RuntimeError("Fit " + name + " needs exactly two buffers");
   }
-  // No restriction in the other case.
+  // No restriction in the other cases
 }
 
 QList<ParameterDefinition> DerivativeFit::parameters() const
 {
   QList<ParameterDefinition> params = underlyingFit->parameters(); 
-  for(int i = 0; i < params.size(); i++)
-    params[i].canBeBufferSpecific = false;
+  originalParameters = params.size();
+  for(int i = 0; i < originalParameters; i++)
+    params[i].canBeBufferSpecific = (mode == Separated);
+  if(mode == Combined)
+    params << ParameterDefinition("deriv_scale", false); 
+  /// @todo add index of switch ?
   return params;
 }
 
 void DerivativeFit::initialGuess(FitData * data, double * guess)
 {
-  underlyingFit->initialGuess(data, guess);
+  // Now, that won't work !
+  int tp = originalParameters;
+  if(mode == Combined)
+    ++tp;
+  for(int i = 0; i < data->datasets.size(); i++) {
+    underlyingFit->initialGuess(data, data->datasets[i], guess + i*tp);
+    if(mode == Combined)
+      guess[i*tp + originalParameters] = 1; // Makes a good default scale !
+  }
 }
 
 QString DerivativeFit::annotateDataSet(int idx) const
 {
-  if(! alsoOriginal)
+  if(mode != Separated)
     return QString();
   if(idx == 0)
     return "function";
@@ -90,7 +112,7 @@ void DerivativeFit::function(const double * parameters,
 {
   reserveBuffers(data);
   int i = 0;
-  if(alsoOriginal) {
+  if(mode == Separated) {
     gsl_vector_view fnView = data->viewForDataset(0, target);
     const DataSet * baseDS = data->datasets[0];
 
@@ -104,23 +126,59 @@ void DerivativeFit::function(const double * parameters,
 
     const DataSet * derDS = data->datasets[i];
 
-    underlyingFit->function(parameters + i * data->parameterDefinitions.size(), 
-                            data, derDS, &bufView.vector);
-    DataSet::firstDerivative(derDS->x().data(), 1, 
-                             bufView.vector.data, bufView.vector.stride,
-                             derView.vector.data, derView.vector.stride,
-                             derDS->x().size());
+    if(mode == Combined) {
+      // We split the dataset and feed that information to the function
+      QList<DataSet *> sub = derDS->splitIntoMonotonic();
+
+      int idx = sub[0]->x().size();
+
+      // We create sub-views of the original view...
+      gsl_vector_view sFnView = gsl_vector_subvector(&derView.vector, 0, idx);
+      underlyingFit->function(parameters + i * 
+                              data->parameterDefinitions.size(), 
+                              data, sub[0], &sFnView.vector);
+
+      underlyingFit->function(parameters + i * 
+                              data->parameterDefinitions.size(), 
+                              data, sub[1], &bufView.vector);
+      // Now copying back 
+      DataSet::firstDerivative(derDS->x().data(), 1, 
+                               bufView.vector.data + 
+                               bufView.vector.stride * idx, 
+                               bufView.vector.stride,
+                               derView.vector.data + 
+                               derView.vector.stride * idx, 
+                               derView.vector.stride,
+                               derDS->x().size());
+
+      /// @todo This is very memory/speed inefficient.
+      for(int i = 0; i < sub.size(); i++)
+        delete sub[i];
+    }
+    else {
+      underlyingFit->function(parameters + i * 
+                              data->parameterDefinitions.size(), 
+                              data, derDS, &bufView.vector);
+      DataSet::firstDerivative(derDS->x().data(), 1, 
+                               bufView.vector.data, bufView.vector.stride,
+                               derView.vector.data, derView.vector.stride,
+                               derDS->x().size());
+    }
+
 
   }
 }
 
-DerivativeFit::DerivativeFit(PerDatasetFit * source, bool as) :
-  Fit(QString((as ? "deriv-" :"deriv-only-") +  
+DerivativeFit::DerivativeFit(PerDatasetFit * source, DerivativeFit::Mode m) :
+  Fit(QString((m == DerivativeFit::Separated ? "deriv-" : 
+               (m == DerivativeFit::DerivativeOnly ? "deriv-only-" : 
+                "deriv-combined")) +  
               source->fitName(false)).toLocal8Bit(), 
       "Derived fit",
       "(derived fit)",
-      (as ? 2: 1) , (as ? 2: -1) , false), 
-  underlyingFit(source), alsoOriginal(as)
+      (m == DerivativeFit::Separated ? 2: 1) , 
+      (m == DerivativeFit::Separated ? 2: -1) , false), 
+  underlyingFit(source), mode(m)
 
 {
   // How to remove the "parameters" argument ?
@@ -144,10 +202,13 @@ static void defineDerivedFit(const QString &, QString fitName,
   if(! fit)
     throw RuntimeError("The fit " + fitName + " isn't working buffer-by-buffer: impossible to make a derived fit");
 
-  bool derivOnly = false;
-  updateFromOptions(opts, "deriv-only", derivOnly);
   
-  new DerivativeFit(fit, !derivOnly);
+  DerivativeFit::Mode mode = DerivativeFit::Separated;
+  if(testOption(opts, "mode", QString("deriv-only")))
+    mode = DerivativeFit::DerivativeOnly;
+  else if(testOption(opts, "mode", QString("combined")))
+    mode = DerivativeFit::Combined;
+  new DerivativeFit(fit, mode);
 }
 
 static ArgumentList 
@@ -158,8 +219,14 @@ ddfA(QList<Argument *>()
 
 static ArgumentList 
 ddfO(QList<Argument *>() 
-     << new BoolArgument("deriv-only", "Derivative only",
-                         "If true, one only wants to fit the derivatives, without fitting the original function at the same time"));
+     << new ChoiceArgument(QStringList() 
+                           << "deriv-only" 
+                           << "separated" 
+                           << "combined", 
+                           "mode", "Derivative mode",
+                           "Whether one fits only the derivative, both the "
+                           "derivative and the original data together or "
+                           "separated"));
 
 
 static Command 

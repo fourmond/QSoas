@@ -34,6 +34,13 @@ class Vector;
 /// framekwork makes it impossible to pass arguments around. (handling
 /// of options is hackish enough already)
 class DerivativeFit : public Fit {
+public: 
+  typedef enum {
+    DerivativeOnly,
+    Separated,
+    Combined
+  } Mode;
+
 protected:
   virtual void processOptions(const CommandOptions & opts);
   virtual QString optionsString() const;
@@ -43,14 +50,20 @@ protected:
   /// The underlying fit
   PerDatasetFit * underlyingFit;
 
-  /// Whether we fit the original data as well ?
-  bool alsoOriginal;
+
+  /// The mode of the fit, ie do we fit the derivative only, the
+  /// derivative and the original as separated buffers or combined
+  /// into one ?
+  Mode mode;
 
   /// Various buffers for use with the computation of the derivatives
   QList<Vector> buffers;
 
   /// Make sure the buffers are the right size.
   void reserveBuffers(const FitData * data);
+
+  /// Number of parameters in the original fit
+  mutable int originalParameters;
 
 public:
 
@@ -64,7 +77,7 @@ public:
 
   /// Creates (and registers) the derivative fit based on the given
   /// fit
-  DerivativeFit(PerDatasetFit * fit, bool fitorig = true);
+  DerivativeFit(PerDatasetFit * fit, Mode m = Separated);
   virtual ~DerivativeFit();
 
 };

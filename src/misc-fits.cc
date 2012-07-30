@@ -272,6 +272,10 @@ class EECRFit : public PerDatasetFit {
   /// Whether we use Eoc or k2/k_m2
   bool useEoc;
 
+  /// Whether the current is a reduction current (default) or an
+  /// oxidation current
+  bool isOxidation;
+
 protected:
 
   virtual void processOptions(const CommandOptions & opts)
@@ -280,13 +284,15 @@ protected:
     useEoc = false;
     updateFromOptions(opts, "plateau", plateau);
     updateFromOptions(opts, "use-eoc", useEoc);
+    updateFromOptions(opts, "oxidation", isOxidation);
   }
 
   
   virtual QString optionsString() const {
-    return QString("%1, %2").
+    return QString("%1, %2, %3").
       arg(plateau ? "reaching plateau" : "not reaching plateau").
-      arg(useEoc ? "eoc" : "bias");
+      arg(useEoc ? "eoc" : "bias").
+      arg(isOxidation ? "oxidation" : "reduction");
   }
 
 public:
@@ -303,14 +309,22 @@ public:
       if(params[i] < 0)
         throw RangeError(QString("Negative rate constant ratio: #%1").arg(i));
 
+    double cur = params[6];
+    double bias = params[5];
+    if(useEoc)
+      bias = exp(f * (params[5] - params[1])) * 
+        exp(f * (params[5] - params[2]));
+    
+    if(isOxidation)
+      cur = -cur * bias;
+
+    if(cur > 0)
+      throw RangeError("Positive reduction current");
+
     for(int i = 0; i < xv.size(); i++) {
       double x = xv[i];
-      double bias = params[5];
       double e1 = exp(f * (x - params[1]));
       double e2 = exp(f * (x - params[2]));
-      if(useEoc)
-        bias = exp(f * (params[5] - params[1])) * 
-          exp(f * (params[5] - params[2]));
       
       double b = params[4] * (bias * 
                               (sqrt(e1) + sqrt(e2)/params[3] * (1 + e1)) +
@@ -320,11 +334,11 @@ public:
       
       double v;
       if(plateau)
-        v = params[6] * (1 - ap)/a * 
+        v = cur * (1 - ap)/a * 
           (1 + log((bias * a + b)/
                    (bias * a + b * exp(params[7])))/params[7]);
       else
-        v = params[6] * (1 - ap)/a * log((bias * a + b)/b);
+        v = cur * (1 - ap)/a * log((bias * a + b)/b);
       gsl_vector_set(target, i, v);
     }
   };
@@ -339,7 +353,7 @@ public:
     a[3] = 1; 
     a[4] = 10; 
     a[5] = (useEoc ? -0.66 : 2);
-    a[6] = -1e-5;
+    a[6] = (isOxidation ? 1e-5 : -1e-5);
     if(plateau)
       a[7] = 1;
   };
@@ -376,6 +390,10 @@ public:
                                 "Plateau",
                                 "Whether to use the general expression or "
                                 "only that valid when plateaus are not reached")
+                   << new 
+                   BoolArgument("oxidation", 
+                                "...",
+                                "???")
                    << new 
                    BoolArgument("use-eoc", 
                                 "Use open circuit",
@@ -430,6 +448,9 @@ public:
     for(int i = 3; i <= (useEoc ? 4 : 5); i++)
       if(params[i] < 0)
         throw RangeError(QString("Negative rate constant ratio: #%1").arg(i));
+
+    if(params[8] > 0)
+      throw RangeError("Positive reduction current");
 
     for(int i = 0; i < xv.size(); i++) {
       double x = xv[i];
@@ -501,6 +522,7 @@ public:
       defs << ParameterDefinition("Eoc"); // parameter 7
     else
       defs << ParameterDefinition("K2"); 
+
     if(plateau)
       defs << ParameterDefinition("ilim")
            << ParameterDefinition("betad0");

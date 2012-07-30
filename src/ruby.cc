@@ -22,12 +22,28 @@
 
 #include <exceptions.hh>
 
+
+// We define a whole bunch of ruby constants here
+#include <gsl/gsl_const_mksa.h>
+
 VALUE Ruby::globalRescueFunction(VALUE /*dummy*/, VALUE exception)
 {
+  printf("Caught ruby exception: ");
+  fflush(stdout);
   rb_p(exception);
   QString str = QObject::tr("Ruby exception: ");
+  // printf("1\n");
+  // fflush(stdout);
   VALUE in = rb_inspect(exception);  // Probably shouldn't throw an exception ?
-  str += StringValueCStr(exception); // Or in ? See call stack too ?
+  // printf("2\n");
+  // fflush(stdout);
+
+  // Apparently, when using exception, we mess up with the stack
+  // value for some reason.
+
+  str += StringValueCStr(in); // Or in ? See call stack too ?
+  // printf("3\n");
+  // fflush(stdout);
   throw RuntimeError(str);
   return Qnil;
 }
@@ -41,6 +57,15 @@ void Ruby::initRuby()
   main = rb_eval_string("self");
   rb_extend_object(main, rb_mMath);
   Ruby::loadFile(":/ruby/qsoas-base.rb");
+
+  // Here, we define a whole bunch of constants that can be useful !
+
+  /// @todo Find a way to keep track/display those ? 
+  rb_define_global_const("F", rb_float_new(GSL_CONST_MKSA_FARADAY));
+  rb_define_global_const("Pi", rb_float_new(M_PI));
+  rb_define_global_const("PI", rb_float_new(M_PI));
+  rb_define_global_const("R", rb_float_new(GSL_CONST_MKSA_MOLAR_GAS));
+  rb_define_global_const("C", rb_float_new(GSL_CONST_MKSA_SPEED_OF_LIGHT));
 }
 
 VALUE Ruby::loadFile(const QString & file)

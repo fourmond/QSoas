@@ -269,17 +269,24 @@ class EECRFit : public PerDatasetFit {
   /// Whether or not the current plateaus off at extreme potentials.
   bool plateau;
 
+  /// Whether we use Eoc or k2/k_m2
+  bool useEoc;
+
 protected:
 
   virtual void processOptions(const CommandOptions & opts)
   {
     plateau = false;
+    useEoc = false;
     updateFromOptions(opts, "plateau", plateau);
+    updateFromOptions(opts, "use-eoc", useEoc);
   }
 
   
   virtual QString optionsString() const {
-    return (plateau ? "reaching plateau" : "not reaching plateau");
+    return QString("%1, %2").
+      arg(plateau ? "reaching plateau" : "not reaching plateau").
+      arg(useEoc ? "eoc" : "bias");
   }
 
 public:
@@ -292,27 +299,32 @@ public:
     const Vector & xv = ds->x();
     double f = GSL_CONST_MKSA_FARADAY /(params[0] * GSL_CONST_MKSA_MOLAR_GAS);
 
-    for(int i = 3; i <= 5; i++)
+    for(int i = 3; i <= (useEoc ? 4 : 5); i++)
       if(params[i] < 0)
         throw RangeError(QString("Negative rate constant ratio: #%1").arg(i));
 
     for(int i = 0; i < xv.size(); i++) {
       double x = xv[i];
+      double bias = params[5];
       double e1 = exp(f * (x - params[1]));
       double e2 = exp(f * (x - params[2]));
-      double b = params[4] * (params[5] * 
+      if(useEoc)
+        bias = exp(f * (params[5] - params[1])) * 
+          exp(f * (params[5] - params[2]));
+      
+      double b = params[4] * (bias * 
                               (sqrt(e1) + sqrt(e2)/params[3] * (1 + e1)) +
                               sqrt(e1) * (1 + e2) + e1 * sqrt(e2)/params[3]);
       double a = 1 + e2*(1 + e1);
-      double ap = e1*e2/params[5];
+      double ap = e1*e2/bias;
       
       double v;
       if(plateau)
         v = params[6] * (1 - ap)/a * 
-          (1 + log((params[5] * a + b)/
-                   (params[5] * a + b * exp(params[7])))/params[7]);
+          (1 + log((bias * a + b)/
+                   (bias * a + b * exp(params[7])))/params[7]);
       else
-        v = params[6] * (1 - ap)/a * log((params[5] * a + b)/b);
+        v = params[6] * (1 - ap)/a * log((bias * a + b)/b);
       gsl_vector_set(target, i, v);
     }
   };
@@ -326,7 +338,7 @@ public:
     a[2] = -0.3; 
     a[3] = 1; 
     a[4] = 10; 
-    a[5] = 2;
+    a[5] = (useEoc ? -0.66 : 2);
     a[6] = -1e-5;
     if(plateau)
       a[7] = 1;
@@ -338,8 +350,11 @@ public:
          << ParameterDefinition("E1")
          << ParameterDefinition("E2")
          << ParameterDefinition("k02/k01")
-         << ParameterDefinition("k2/k0") // 4
-         << ParameterDefinition("k2/k-2"); 
+         << ParameterDefinition("k2/k0");
+    if(useEoc)
+      defs << ParameterDefinition("Eoc"); // parameter 5
+    else
+      defs << ParameterDefinition("k2/k-2"); 
     if(plateau)
       defs << ParameterDefinition("ilim")
            << ParameterDefinition("betad0");
@@ -361,6 +376,11 @@ public:
                                 "Plateau",
                                 "Whether to use the general expression or "
                                 "only that valid when plateaus are not reached")
+                   << new 
+                   BoolArgument("use-eoc", 
+                                "Use open circuit",
+                                "Whether to use explicitly the bias or compute "
+                                "it using the open circuit potential")
                    );
     makeCommands(NULL, NULL, NULL, opts);
   }
@@ -370,3 +390,149 @@ public:
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
 // Its name doesn't matter.
 EECRFit fit_eecr;
+
+
+/// Fits to the ECECR model of electrochemical waves
+class ECECRFit : public PerDatasetFit {
+  /// Whether or not the current plateaus off at extreme potentials.
+  bool plateau;
+
+  /// Whether we use Eoc or k2/k_m2
+  bool useEoc;
+
+protected:
+
+  virtual void processOptions(const CommandOptions & opts)
+  {
+    plateau = false;
+    useEoc = false;
+    updateFromOptions(opts, "plateau", plateau);
+    updateFromOptions(opts, "use-eoc", useEoc);
+  }
+
+  
+  virtual QString optionsString() const {
+    return QString("%1, NI: %2").
+      arg(plateau ? "reaching plateau" : "not reaching plateau").
+      arg(useEoc ? "eoc" : "K2");
+  }
+
+public:
+
+
+  /// Formula:
+  virtual void function(const double * params, FitData * , 
+                        const DataSet * ds , gsl_vector * target) {
+
+    const Vector & xv = ds->x();
+    double f = GSL_CONST_MKSA_FARADAY /(params[0] * GSL_CONST_MKSA_MOLAR_GAS);
+
+    for(int i = 3; i <= (useEoc ? 4 : 5); i++)
+      if(params[i] < 0)
+        throw RangeError(QString("Negative rate constant ratio: #%1").arg(i));
+
+    for(int i = 0; i < xv.size(); i++) {
+      double x = xv[i];
+      double d1 = exp(0.5 * f * (x - params[1]));
+      double e1 = d1*d1;
+      double d2 = exp(0.5 * f * (x - params[2]));
+      double e2 = d2*d2;
+      double kappa = params[3];
+      double alpha = params[5];
+      double K1 = params[6];
+      double K2 = params[7];
+
+      if(useEoc)
+        K2 = exp(f * (params[7] - params[1])) * 
+          exp(f * (params[7] - params[2]))/K1;
+
+      // Rate constants divided by k1 + k2
+      double k1 = 1/(1 + alpha);
+      double km1 = k1/K1;
+      double k2 = alpha * k1;
+      double km2 = k2/K2;
+
+      double ap = e1 * e2 / (K1 * K2);
+
+      double a = (k1 + e1 * km2) * (1 + e2) + (1 + e1) * (k2 + e2 * km1);
+      
+      double b = params[4] * (
+        (k1 + km1) * d2 * (kappa * d1 * d2 * km2 + k2) +
+        (k2 + km2) * d1 * (kappa * k1 + d1 * d2 * km1))/sqrt(kappa);
+      
+      double v;
+      if(plateau)
+        v = params[8] * (1 - ap)/a * 
+          (1 + log((a + b)/
+                   (a + b * exp(params[9])))/params[9]);
+      else
+        v = params[8] * (1 - ap)/a * log((a + b)/b);
+      gsl_vector_set(target, i, v);
+    }
+  };
+
+  virtual void initialGuess(FitData * , 
+                            const DataSet * ds,
+                            double * a)
+  {
+    a[0] = soas().temperature();
+    a[1] = -0.6; 
+    a[2] = -0.3; 
+    a[3] = 1; 
+    a[4] = 10;
+    a[5] = 2;
+    a[6] = 2;
+    a[7] = (useEoc ? -0.66 : 3);
+    a[8] = -1e-5;
+    if(plateau)
+      a[9] = 1;
+  };
+
+  virtual QList<ParameterDefinition> parameters() const {
+    QList<ParameterDefinition> defs;
+    defs << ParameterDefinition("temperature", true)
+         << ParameterDefinition("E1")
+         << ParameterDefinition("E2")
+         << ParameterDefinition("k02/k01") // params[3]
+         << ParameterDefinition("k2+k1/k0")
+         << ParameterDefinition("k2/k1") 
+         << ParameterDefinition("K1");
+    if(useEoc)
+      defs << ParameterDefinition("Eoc"); // parameter 7
+    else
+      defs << ParameterDefinition("K2"); 
+    if(plateau)
+      defs << ParameterDefinition("ilim")
+           << ParameterDefinition("betad0");
+    else
+      defs << ParameterDefinition("ilim/betad0");
+    return defs;
+  };
+
+
+  ECECRFit() :
+    PerDatasetFit("ececr-wave", 
+                  "Fit of an ECECR catalytic wave",
+                  "...", 1, -1, false) 
+  { 
+    ArgumentList * opts = new 
+      ArgumentList(QList<Argument *>()
+                   << new 
+                   BoolArgument("plateau", 
+                                "Plateau",
+                                "Whether to use the general expression or "
+                                "only that valid when plateaus are not reached")
+                   << new 
+                   BoolArgument("use-eoc", 
+                                "Use open circuit",
+                                "Whether to use explicitly the bias or compute "
+                                "it using the open circuit potential")
+                   );
+    makeCommands(NULL, NULL, NULL, opts);
+  }
+};
+
+
+// DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
+// Its name doesn't matter.
+ECECRFit fit_ececr;

@@ -186,7 +186,7 @@ public:
   /// Redefined to wrap to a call to the per-dataset function
   virtual void initialGuess(FitData * data, double * a)
   {
-    for(int i = 0; i < data->parameterDefinitions.size(); i++)
+    for(int i = 0; i < data->parametersPerDataset(); i++)
       a[i] = 1;
   };
 

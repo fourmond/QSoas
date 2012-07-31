@@ -46,7 +46,7 @@ void FitTrajectoryDisplay::setupFrame()
   heads.clear();
   heads << "status";
   for(int i = 0; i < fitData->datasets.size(); i++)
-    for(int j = 0; j < fitData->parameterDefinitions.size(); j++)
+    for(int j = 0; j < fitData->parametersPerDataset(); j++)
       heads << QString("%1[%2]").arg(fitData->parameterDefinitions[j].name).
         arg(i);
   heads << "residuals" << "rel res";

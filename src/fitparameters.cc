@@ -119,10 +119,10 @@ public:
 
 FitParameters::FitParameters(FitData * d) :
   fitData(d), parameters(d->datasets.size() * 
-                         d->parameterDefinitions.size())
+                         d->parametersPerDataset())
 {
   datasets = d->datasets.size();
-  nbParameters = d->parameterDefinitions.size();
+  nbParameters = d->parametersPerDataset();
   values = new double[nbParameters * datasets];
 
   // Now populate default values and fill the cache

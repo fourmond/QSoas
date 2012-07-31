@@ -146,7 +146,7 @@ public:
   virtual void function(const double *a, 
                         FitData *data, gsl_vector *target) {
     int k = 0;
-    int nbparams = data->parameterDefinitions.size();
+    int nbparams = data->parametersPerDataset();
     int nbargs = nbparams + 4;
 
     QVarLengthArray<double, 100> args(4 + nbparams);
@@ -169,7 +169,7 @@ public:
         expr = &expressions[0];
         args[3] = (GSL_CONST_MKSA_FARADAY/ 
                    (a[i * nbparams] * GSL_CONST_MKSA_MOLAR_GAS));
-        for(int l = 0; l < data->parameterDefinitions.size(); l++)
+        for(int l = 0; l < data->parametersPerDataset(); l++)
           args[l + 4] = a[l + i * nbparams];
       }
 
@@ -183,7 +183,7 @@ public:
   virtual void initialGuess(FitData * data, 
                             double * a)
   {
-    int nbparams = data->parameterDefinitions.size();
+    int nbparams = data->parametersPerDataset();
     for(int j = 0; j < data->datasets.size(); j++)
       for(int i = 0; i < params.size(); i++)
         a[i + j*nbparams] = paramGuess(params[i], data->datasets[j]);

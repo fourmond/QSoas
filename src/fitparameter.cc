@@ -193,7 +193,7 @@ void FormulaParameter::initialize(FitData * data)
     return;
 
   QStringList parameters;
-  for(int i = 0; i < data->parameterDefinitions.size(); i++)
+  for(int i = 0; i < data->parametersPerDataset(); i++)
     parameters << data->parameterDefinitions[i].name;
 
   QString exp2 = Expression::rubyIzeExpression(formula, parameters);

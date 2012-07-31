@@ -161,7 +161,7 @@ void FitDialog::setupFrame()
   // Parameters
 
 
-  int nbParams = data->parameterDefinitions.size();
+  int nbParams = data->parametersPerDataset();
   FlowingGridLayout * inner = new FlowingGridLayout();
   for(int i = 0; i < nbParams; i++) {
     FitParameterEditor * ed = 

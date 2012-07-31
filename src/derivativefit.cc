@@ -127,7 +127,7 @@ void DerivativeFit::function(const double * parameters,
 
     const DataSet * derDS = data->datasets[i];
 
-    int pbase = i * data->parameterDefinitions.size();
+    int pbase = i * data->parametersPerDataset();
 
     if(mode == Combined) {
       // We split the dataset and feed that information to the function
@@ -165,7 +165,7 @@ void DerivativeFit::function(const double * parameters,
     }
     else {
       underlyingFit->function(parameters + i * 
-                              data->parameterDefinitions.size(), 
+                              data->parametersPerDataset(), 
                               data, derDS, &bufView.vector);
       DataSet::firstDerivative(derDS->x().data(), 1, 
                                bufView.vector.data, bufView.vector.stride,

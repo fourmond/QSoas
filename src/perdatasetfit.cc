@@ -22,10 +22,11 @@
 #include <dataset.hh>
 #include <fitdata.hh>
 
+
 void PerDatasetFit::function(const double * parameters,
                              FitData * data, gsl_vector * target)
 {
-  int nb_ds_params = data->parameterDefinitions.size();
+  int nb_ds_params = data->parametersPerDataset();
   for(int i = 0; i < data->datasets.size(); i++) {
     gsl_vector_view dsView = data->viewForDataset(i, target);
     function(parameters + nb_ds_params * i, data,
@@ -37,7 +38,7 @@ void PerDatasetFit::functionForDataset(const double * parameters,
                                        FitData * data, gsl_vector * target,
                                        int i)
 {
-  int nb_ds_params = data->parameterDefinitions.size();
+  int nb_ds_params = data->parametersPerDataset();
   gsl_vector_view dsView = data->viewForDataset(i, target);
   function(parameters + nb_ds_params * i, data,
            data->datasets[i], &dsView.vector);
@@ -45,7 +46,7 @@ void PerDatasetFit::functionForDataset(const double * parameters,
 
 void PerDatasetFit::initialGuess(FitData * data, double * guess)
 {
-  int nb_ds_params = data->parameterDefinitions.size();
+  int nb_ds_params = data->parametersPerDataset();
   for(int i = 0; i < data->datasets.size(); i++)
     initialGuess(data, data->datasets[i], 
                  guess + nb_ds_params * i);
@@ -59,7 +60,7 @@ PerDatasetFit::~PerDatasetFit()
 int PerDatasetFit::parametersCheck(const double * parameters,
                                    FitData * data)
 {
-  int nb_ds_params = data->parameterDefinitions.size();
+  int nb_ds_params = data->parametersPerDataset();
   for(int i = 0; i < data->datasets.size(); i++) {
     int status = parametersCheck(parameters + nb_ds_params * i,
                                  data, data->datasets[i]);

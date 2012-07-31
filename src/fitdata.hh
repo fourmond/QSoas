@@ -91,8 +91,8 @@ public:
 
 
   /// Push parameters -- why not ?
-  FitData & operator<<(const FitParameter & param);
-  FitData & operator<<(FitParameter * param);
+  FitData & operator<<(const FitParameter & param) __attribute__ ((deprecated));
+  FitData & operator<<(FitParameter * param) __attribute__ ((deprecated));
 
   /// All parameters
   PossessiveList<FitParameter> parameters;
@@ -144,11 +144,18 @@ public:
 
   gsl_vector_view viewForDataset(int ds, gsl_vector * vect);
 
+  /// Returns the number of (unpacked) double parameters necessary for
+  /// one dataset
+  int parametersPerDataset() const {
+    return parameterDefinitions.size();
+  };
+
   /// Returns the number of double parameters necessary to store an
   /// unpacked version of the parameters
   int fullParameterNumber() const {
-    return datasets.size() * parameterDefinitions.size();
+    return datasets.size() * parametersPerDataset();
   };
+
 
   /// Subtracts the (Y) data from the target vector;
   void subtractData(gsl_vector * target);

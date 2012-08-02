@@ -102,6 +102,12 @@ void Fit::makeCommands(ArgumentList * args,
                                "Debug",
                                "Turn on debugging (for QSoas developers only)");
 
+  /// @todo This probably should use a SeveralStringsArgument when
+  /// available.
+  *options << new StringArgument("extra-parameters", 
+                                 "Extra parameters",
+                                 "Define supplementary parameters");
+
 
   // We don't declare the fit command when multiple datasets are
   // necessary.
@@ -206,7 +212,11 @@ void Fit::runFit(const QString &, QList<const DataSet *> datasets,
   processOptions(opts);
   bool debug = false;
   updateFromOptions(opts, "debug", debug);
-  FitData data(this, datasets, debug);
+  QString extraParams;
+  updateFromOptions(opts, "extra-parameters", extraParams);
+  QStringList ep = extraParams.split(",", QString::SkipEmptyParts);
+  
+  FitData data(this, datasets, debug, ep);
   checkDatasets(&data);
 
   QString loadParameters;

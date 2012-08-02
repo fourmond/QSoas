@@ -34,12 +34,14 @@
 #include <fitengine.hh>
 
 
-FitData::FitData(Fit * f, const QList<const DataSet *> & ds, bool d) : 
-  totalSize(0), covarStorage(NULL), engine(NULL),
+FitData::FitData(Fit * f, const QList<const DataSet *> & ds, bool d, 
+                 const QStringList & ex) : 
+  totalSize(0), covarStorage(NULL), engine(NULL), extra(ex),
   fit(f), debug(d), datasets(ds),
   parameterDefinitions(f->parameters()), nbIterations(0), storage(0)
-  
 {
+  for(int i = 0; i < extra.size(); i++)
+    parameterDefinitions << ParameterDefinition(extra[i]);
   for(int i = 0; i < datasets.size(); i++) {
     totalSize += datasets[i]->nbRows();
     weightsPerBuffer << 1;      // By default 1
@@ -278,7 +280,7 @@ void FitData::initializeSolver(const double * initialGuess,
     for(int i = 0; i < datasets.size(); i++) {
       QList<const DataSet * > dss;
       dss << datasets[i];
-      FitData * d = new FitData(fit, dss);
+      FitData * d = new FitData(fit, dss, debug, extra);
       subordinates.append(d);
 
       for(int j = 0; j < parameters.size(); j++) {

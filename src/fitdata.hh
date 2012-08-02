@@ -73,6 +73,9 @@ private:
   /// The fit engine in use
   FitEngine * engine;
 
+  /// Extra parameters
+  QStringList extra;
+
 public:
   /// The fit in use
   Fit * fit;
@@ -115,7 +118,9 @@ public:
   const gsl_matrix * covarianceMatrix();
 
 
-  FitData(Fit * f, const QList<const DataSet *> & ds, bool d = false);
+  
+  FitData(Fit * f, const QList<const DataSet *> & ds, 
+          bool d = false, const QStringList & extra = QStringList());
 
   /// Creates the solver, and initializes it with the correct
   /// parameters, based one the contents of parameterDefinitions and

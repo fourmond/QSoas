@@ -1,0 +1,1673 @@
+# Data loading/saving
+
+
+# Data stack manipulation
+
+
+# Data inspection facilities
+
+{::comment} synopsis-start: 1 {:/}
+
+## 1 - Find peak {#cmd-1}
+
+1 /window= /include-borders= /output=
+
+  * /window: ...
+  * /include-borders: ...
+  * /output: Whether peak information should be written to output file by default
+
+{::comment} synopsis-end: 1 {:/}
+{::comment} description-start: 1 {:/}
+...
+{::comment} description-end: 1 {:/}
+
+{::comment} synopsis-start: 2 {:/}
+
+## 2 - Find two peak {#cmd-2}
+
+2 /window= /include-borders= /output=
+
+  * /window: ...
+  * /include-borders: ...
+  * /output: Whether peak information should be written to output file by default
+
+{::comment} synopsis-end: 2 {:/}
+{::comment} description-start: 2 {:/}
+...
+{::comment} description-end: 2 {:/}
+
+{::comment} synopsis-start: help {:/}
+
+## help - Help on... {#cmd-help}
+
+help command
+
+  * command: The command on which to give help
+
+{::comment} synopsis-end: help {:/}
+{::comment} description-start: help {:/}
+Gives all help available on the given command
+{::comment} description-end: help {:/}
+
+{::comment} synopsis-start: run {:/}
+
+## run - Run commands {#cmd-run}
+
+run file
+
+  * file: File containing the commands to run
+
+{::comment} synopsis-end: run {:/}
+{::comment} description-start: run {:/}
+Run commands saved in a file
+{::comment} description-end: run {:/}
+
+{::comment} synopsis-start: antialias {:/}
+
+## antialias - Antialias {#cmd-antialias}
+
+antialias 
+
+
+{::comment} synopsis-end: antialias {:/}
+{::comment} description-start: antialias {:/}
+Toggles anti-aliasing for graphics rendering.
+{::comment} description-end: antialias {:/}
+
+{::comment} synopsis-start: apply-formula {:/}
+
+## apply-formula - Apply formula {#cmd-apply-formula}
+
+apply-formula formula
+
+  * formula: Formula (valid Ruby code)
+
+{::comment} synopsis-end: apply-formula {:/}
+{::comment} description-start: apply-formula {:/}
+Applies a formula to the current dataset. The formula must be valid Ruby code.
+{::comment} description-end: apply-formula {:/}
+
+{::comment} synopsis-start: cd {:/}
+
+## cd - Change directory {#cmd-cd}
+
+cd directory
+
+  * directory: New directory
+
+{::comment} synopsis-end: cd {:/}
+{::comment} description-start: cd {:/}
+Change current directory
+{::comment} description-end: cd {:/}
+
+{::comment} synopsis-start: browse-stack {:/}
+
+## browse-stack - Browse stack {#cmd-browse-stack}
+
+browse-stack 
+
+
+{::comment} synopsis-end: browse-stack {:/}
+{::comment} description-start: browse-stack {:/}
+Browse stack
+{::comment} description-end: browse-stack {:/}
+
+{::comment} synopsis-start: remove-spikes {:/}
+
+## remove-spikes - Remove spikes {#cmd-remove-spikes}
+
+remove-spikes /number= /factor= /force-new=
+
+  * /number: Number of points to look at
+  * /factor: ...
+  * /force-new: Adds a new buffer even if no spikes were removed
+
+{::comment} synopsis-end: remove-spikes {:/}
+{::comment} description-start: remove-spikes {:/}
+Remove spikes using a simple heuristics
+{::comment} description-end: remove-spikes {:/}
+
+{::comment} synopsis-start: subtract {:/}
+
+## subtract - Subtract {#cmd-subtract}
+
+subtract first... second /mode= /use-segments=
+
+  * first: First buffer(s)
+  * second: Second buffer
+  * /mode: Whether operations try to match x values or indices
+  * /use-segments: If on, operations are performed segment-by-segment
+
+{::comment} synopsis-end: subtract {:/}
+{::comment} description-start: subtract {:/}
+Subtract the second buffer from the first. Works with several 'first' buffers.
+{::comment} description-end: subtract {:/}
+
+{::comment} synopsis-start: temperature {:/}
+
+## temperature - Temperature {#cmd-temperature}
+
+temperature /set=
+
+  * /set (default): Sets the temperature
+
+{::comment} synopsis-end: temperature {:/}
+{::comment} description-start: temperature {:/}
+Shows or sets the temperature (using option)
+{::comment} description-end: temperature {:/}
+
+{::comment} synopsis-start: overlay-buffer {:/}
+
+## overlay-buffer - Overlay buffers {#cmd-overlay-buffer}
+
+overlay-buffer buffers...
+
+  * buffers: Buffers to overlay
+
+{::comment} synopsis-end: overlay-buffer {:/}
+{::comment} description-start: overlay-buffer {:/}
+Overlay buffers that are already in memory on top of the current one
+{::comment} description-end: overlay-buffer {:/}
+
+{::comment} synopsis-start: browse {:/}
+
+## browse - Browse files {#cmd-browse}
+
+browse /pattern=
+
+  * /pattern (default): Files to browse
+
+{::comment} synopsis-end: browse {:/}
+{::comment} description-start: browse {:/}
+Browse files
+{::comment} description-end: browse {:/}
+
+{::comment} synopsis-start: rename {:/}
+
+## rename - Rename {#cmd-rename}
+
+rename new-name
+
+  * new-name: New name 
+
+{::comment} synopsis-end: rename {:/}
+{::comment} description-start: rename {:/}
+??
+{::comment} description-end: rename {:/}
+
+{::comment} synopsis-start: auto-filter-bs {:/}
+
+## auto-filter-bs - Filter {#cmd-auto-filter-bs}
+
+auto-filter-bs /number= /order= /derivatives=
+
+  * /number: Number of segments
+  * /order: Order of the splines
+  * /derivatives: Compute derivatives up to the given 
+
+{::comment} synopsis-end: auto-filter-bs {:/}
+{::comment} description-start: auto-filter-bs {:/}
+...
+{::comment} description-end: auto-filter-bs {:/}
+
+{::comment} synopsis-start: average {:/}
+
+## average - Average {#cmd-average}
+
+average buffers... /mode= /use-segments= /split=
+
+  * buffers: Buffers
+  * /mode: Whether operations try to match x values or indices
+  * /use-segments: If on, operations are performed segment-by-segment
+  * /split: If on, buffers are automatically split into monotonic parts before averaging.
+
+{::comment} synopsis-end: average {:/}
+{::comment} description-start: average {:/}
+Average all buffers, possibly splitting them into monotonic parts if applicable
+{::comment} description-end: average {:/}
+
+{::comment} synopsis-start: baseline {:/}
+
+## baseline - Baseline {#cmd-baseline}
+
+baseline 
+
+
+{::comment} synopsis-end: baseline {:/}
+{::comment} description-start: baseline {:/}
+...
+{::comment} description-end: baseline {:/}
+
+{::comment} synopsis-start: break {:/}
+
+## break - Break {#cmd-break}
+
+break 
+
+
+{::comment} synopsis-end: break {:/}
+{::comment} description-start: break {:/}
+Interrupts the run of the current script
+{::comment} description-end: break {:/}
+
+{::comment} synopsis-start: cut {:/}
+
+## cut - Cut {#cmd-cut}
+
+cut 
+
+
+{::comment} synopsis-end: cut {:/}
+{::comment} description-start: cut {:/}
+Cuts bits from the current curve
+{::comment} description-end: cut {:/}
+
+{::comment} synopsis-start: cat {:/}
+
+## cat - Concatenate {#cmd-cat}
+
+cat first second...
+
+  * first: First buffer
+  * second: Second buffer(s)
+
+{::comment} synopsis-end: cat {:/}
+{::comment} description-start: cat {:/}
+Conc
+{::comment} description-end: cat {:/}
+
+{::comment} synopsis-start: chop {:/}
+
+## chop - Chop Buffer {#cmd-chop}
+
+chop lengths... /mode=
+
+  * lengths: Lengths of the subsets
+  * /mode: Whether to cut on index or x values (default)
+
+{::comment} synopsis-end: chop {:/}
+{::comment} description-start: chop {:/}
+Cuts the buffer into several subsets of the lengths given as arguments
+{::comment} description-end: chop {:/}
+
+{::comment} synopsis-start: clear {:/}
+
+## clear - Clear view {#cmd-clear}
+
+clear 
+
+
+{::comment} synopsis-end: clear {:/}
+{::comment} description-start: clear {:/}
+Removes all datasets but the current one from the display
+{::comment} description-end: clear {:/}
+
+{::comment} synopsis-start: clear-stack {:/}
+
+## clear-stack - Clear stack {#cmd-clear-stack}
+
+clear-stack 
+
+
+{::comment} synopsis-end: clear-stack {:/}
+{::comment} description-start: clear-stack {:/}
+Removes all the buffers from both normal and redo stack
+{::comment} description-end: clear-stack {:/}
+
+{::comment} synopsis-start: combine-fits {:/}
+
+## combine-fits - Combine fits {#cmd-combine-fits}
+
+combine-fits name formula fits...
+
+  * name: The name of the new fit
+  * formula: How to combine the various fits
+  * fits: The fit to combine together
+
+{::comment} synopsis-end: combine-fits {:/}
+{::comment} description-start: combine-fits {:/}
+(...)
+{::comment} description-end: combine-fits {:/}
+
+{::comment} synopsis-start: commands {:/}
+
+## commands - Commands {#cmd-commands}
+
+commands 
+
+
+{::comment} synopsis-end: commands {:/}
+{::comment} description-start: commands {:/}
+List all available commands, along with a little help
+{::comment} description-end: commands {:/}
+
+{::comment} synopsis-start: cursor {:/}
+
+## cursor - Cursor {#cmd-cursor}
+
+cursor 
+
+
+{::comment} synopsis-end: cursor {:/}
+{::comment} description-start: cursor {:/}
+Displays cursors on the curve
+{::comment} description-end: cursor {:/}
+
+{::comment} synopsis-start: define-derived-fit {:/}
+
+## define-derived-fit - Create a derived fit {#cmd-define-derived-fit}
+
+define-derived-fit fit /mode=
+
+  * fit: The fit to make a derived fit of
+  * /mode: Whether one fits only the derivative, both the derivative and the original data together or separated
+
+{::comment} synopsis-end: define-derived-fit {:/}
+{::comment} description-start: define-derived-fit {:/}
+(...)
+{::comment} description-end: define-derived-fit {:/}
+
+{::comment} synopsis-start: define-lw-fit {:/}
+
+## define-lw-fit - Define a fit based on a kinetic mode {#cmd-define-lw-fit}
+
+define-lw-fit file name
+
+  * file: System to load
+  * name: 
+
+{::comment} synopsis-end: define-lw-fit {:/}
+{::comment} description-start: define-lw-fit {:/}
+...
+{::comment} description-end: define-lw-fit {:/}
+
+{::comment} synopsis-start: deldp {:/}
+
+## deldp - Deldp {#cmd-deldp}
+
+deldp 
+
+
+{::comment} synopsis-end: deldp {:/}
+{::comment} description-start: deldp {:/}
+...
+{::comment} description-end: deldp {:/}
+
+{::comment} synopsis-start: diff {:/}
+
+## diff - Derive {#cmd-diff}
+
+diff 
+
+
+{::comment} synopsis-end: diff {:/}
+{::comment} description-start: diff {:/}
+Computes the 4th order accurate derivative of the buffer
+Do not use this on noisy data
+{::comment} description-end: diff {:/}
+
+{::comment} synopsis-start: diff2 {:/}
+
+## diff2 - Derive {#cmd-diff2}
+
+diff2 
+
+
+{::comment} synopsis-end: diff2 {:/}
+{::comment} description-start: diff2 {:/}
+Computes the 4th order accurate second derivative of the buffer
+Do not use this on noisy data !
+{::comment} description-end: diff2 {:/}
+
+{::comment} synopsis-start: div {:/}
+
+## div - Divide {#cmd-div}
+
+div first... second /mode= /use-segments=
+
+  * first: First buffer(s)
+  * second: Second buffer
+  * /mode: Whether operations try to match x values or indices
+  * /use-segments: If on, operations are performed segment-by-segment
+
+{::comment} synopsis-end: div {:/}
+{::comment} description-start: div {:/}
+Divide the first buffer by the second
+{::comment} description-end: div {:/}
+
+{::comment} synopsis-start: drop {:/}
+
+## drop - Drop dataset {#cmd-drop}
+
+drop /buffers=
+
+  * /buffers (default): Buffers to drop
+
+{::comment} synopsis-end: drop {:/}
+{::comment} description-start: drop {:/}
+Drops the current dataset (or the ones specified in the buffers options) and frees the associated memory
+{::comment} description-end: drop {:/}
+
+{::comment} synopsis-start: dummy {:/}
+
+## dummy - Dummy {#cmd-dummy}
+
+dummy file /file= /fiddle= /stuff=
+
+  * file: Files to load !
+  * /file: Files to load !
+  * /fiddle: Files to load !
+  * /stuff: Files to load !
+
+{::comment} synopsis-end: dummy {:/}
+{::comment} description-start: dummy {:/}
+Dummy command for testing purposes
+{::comment} description-end: dummy {:/}
+
+{::comment} synopsis-start: echem-peaks {:/}
+
+## echem-peaks - Find peaks pairs {#cmd-echem-peaks}
+
+echem-peaks 
+
+
+{::comment} synopsis-end: echem-peaks {:/}
+{::comment} description-start: echem-peaks {:/}
+...
+{::comment} description-end: echem-peaks {:/}
+
+{::comment} synopsis-start: expand {:/}
+
+## expand - Expand {#cmd-expand}
+
+expand 
+
+
+{::comment} synopsis-end: expand {:/}
+{::comment} description-start: expand {:/}
+??
+{::comment} description-end: expand {:/}
+
+{::comment} synopsis-start: filter-bsplines {:/}
+
+## filter-bsplines - Filter {#cmd-filter-bsplines}
+
+filter-bsplines 
+
+
+{::comment} synopsis-end: filter-bsplines {:/}
+{::comment} description-start: filter-bsplines {:/}
+...
+{::comment} description-end: filter-bsplines {:/}
+
+{::comment} synopsis-start: filter-fft {:/}
+
+## filter-fft - Filter {#cmd-filter-fft}
+
+filter-fft 
+
+
+{::comment} synopsis-end: filter-fft {:/}
+{::comment} description-start: filter-fft {:/}
+...
+{::comment} description-end: filter-fft {:/}
+
+{::comment} synopsis-start: find-peaks {:/}
+
+## find-peaks - Find peaks {#cmd-find-peaks}
+
+find-peaks /window= /include-borders= /output= /peaks=
+
+  * /window: ...
+  * /include-borders: ...
+  * /output: Whether peak information should be written to output file by default
+  * /peaks: Display only that many peaks (by order of intensity)
+
+{::comment} synopsis-end: find-peaks {:/}
+{::comment} description-start: find-peaks {:/}
+...
+{::comment} description-end: find-peaks {:/}
+
+{::comment} synopsis-start: find-steps {:/}
+
+## find-steps - Find steps {#cmd-find-steps}
+
+find-steps /average= /threshold= /set-segments=
+
+  * /average: Average over that many points
+  * /threshold: Detection threshold
+  * /set-segments: Whether or not to set the dataset segments
+
+{::comment} synopsis-end: find-steps {:/}
+{::comment} description-start: find-steps {:/}
+...
+{::comment} description-end: find-steps {:/}
+
+{::comment} synopsis-start: fit-arb {:/}
+
+## fit-arb - Fit: Arbitrary fit {#cmd-fit-arb}
+
+fit-arb formulas /parameters= /debug= /extra-parameters=
+
+  * formulas: \|-separated formulas for the fit
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+
+{::comment} synopsis-end: fit-arb {:/}
+{::comment} description-start: fit-arb {:/}
+Single buffer fit:
+Arbitrary fit with user-supplied formula (possibly spanning multiple buffers)
+Special parameters: x_0, y_0, temperature, fara.
+Already defined constants: f, pi
+{::comment} description-end: fit-arb {:/}
+
+{::comment} synopsis-start: fit-duck-sim {:/}
+
+## fit-duck-sim - Fit: Diffusive electrochemical  {#cmd-fit-duck-sim}
+
+fit-duck-sim /system= /base-parameters= /parameters= /debug= /extra-parameters=
+
+  * /system: ...
+  * /base-parameters: ...
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+
+{::comment} synopsis-end: fit-duck-sim {:/}
+{::comment} description-start: fit-duck-sim {:/}
+Single buffer fit:
+...
+{::comment} description-end: fit-duck-sim {:/}
+
+{::comment} synopsis-start: fit-ececr-wave {:/}
+
+## fit-ececr-wave - Fit: Fit of an ECECR catalytic wave {#cmd-fit-ececr-wave}
+
+fit-ececr-wave /plateau= /use-eoc= /parameters= /debug= /extra-parameters=
+
+  * /plateau: Whether to use the general expression or only that valid when plateaus are not reached
+  * /use-eoc: Whether to use explicitly the bias or compute it using the open circuit potential
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+
+{::comment} synopsis-end: fit-ececr-wave {:/}
+{::comment} description-start: fit-ececr-wave {:/}
+Single buffer fit:
+...
+{::comment} description-end: fit-ececr-wave {:/}
+
+{::comment} synopsis-start: fit-eecr-wave {:/}
+
+## fit-eecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-fit-eecr-wave}
+
+fit-eecr-wave /plateau= /oxidation= /use-eoc= /parameters= /debug= /extra-parameters=
+
+  * /plateau: Whether to use the general expression or only that valid when plateaus are not reached
+  * /oxidation: ???
+  * /use-eoc: Whether to use explicitly the bias or compute it using the open circuit potential
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+
+{::comment} synopsis-end: fit-eecr-wave {:/}
+{::comment} description-start: fit-eecr-wave {:/}
+Single buffer fit:
+...
+{::comment} description-end: fit-eecr-wave {:/}
+
+{::comment} synopsis-start: fit-exponential-decay {:/}
+
+## fit-exponential-decay - Fit: Multi-exponential fits {#cmd-fit-exponential-decay}
+
+fit-exponential-decay /exponentials= /absolute= /loss= /slow= /parameters= /debug= /extra-parameters=
+
+  * /exponentials: Number of exponentials
+  * /absolute: Amplitude is absolute or relative to the asymptote ?
+  * /loss: Is there an overall fully exponential loss ?
+  * /slow: Is there a very slow phase ?
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+
+{::comment} synopsis-end: fit-exponential-decay {:/}
+{::comment} description-start: fit-exponential-decay {:/}
+Single buffer fit:
+...
+{::comment} description-end: fit-exponential-decay {:/}
+
+{::comment} synopsis-start: fit-kinetic-system {:/}
+
+## fit-kinetic-system - Fit: Several steps with a kinetic evolution {#cmd-fit-kinetic-system}
+
+fit-kinetic-system /species= /steps= /parameters= /debug= /extra-parameters=
+
+  * /species: Number of species
+  * /steps: Step list with numbered conditions
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+
+{::comment} synopsis-end: fit-kinetic-system {:/}
+{::comment} description-start: fit-kinetic-system {:/}
+Single buffer fit:
+Fits of exponentials on several steps with film loss bookkeeping
+{::comment} description-end: fit-kinetic-system {:/}
+
+{::comment} synopsis-start: fit-multiexp-multistep {:/}
+
+## fit-multiexp-multistep - Fit: Multi-step and multi-exponential {#cmd-fit-multiexp-multistep}
+
+fit-multiexp-multistep /exponentials= /steps= /independent= /parameters= /debug= /extra-parameters=
+
+  * /exponentials: Number of exponentials
+  * /steps: Step list with numbered conditions
+  * /independent: Whether irreversible loss is independent on each step
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+
+{::comment} synopsis-end: fit-multiexp-multistep {:/}
+{::comment} description-start: fit-multiexp-multistep {:/}
+Single buffer fit:
+Fits of exponentials on several steps with film loss bookkeeping
+{::comment} description-end: fit-multiexp-multistep {:/}
+
+{::comment} synopsis-start: fit-nernst {:/}
+
+## fit-nernst - Fit: Nerstian behaviour {#cmd-fit-nernst}
+
+fit-nernst /parameters= /debug= /extra-parameters=
+
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+
+{::comment} synopsis-end: fit-nernst {:/}
+{::comment} description-start: fit-nernst {:/}
+Single buffer fit:
+Fit to a Nerst equation
+{::comment} description-end: fit-nernst {:/}
+
+{::comment} synopsis-start: fit-react-exp {:/}
+
+## fit-react-exp - Fit: Exponential reactivation {#cmd-fit-react-exp}
+
+fit-react-exp /exponentials= /dead= /parameters= /debug= /extra-parameters=
+
+  * /exponentials: Number of exponentials
+  * /dead: Whether we include a dead phase or not
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+
+{::comment} synopsis-end: fit-react-exp {:/}
+{::comment} description-start: fit-react-exp {:/}
+Single buffer fit:
+Reactivation
+{::comment} description-end: fit-react-exp {:/}
+
+{::comment} synopsis-start: fit-slow-scan-hp {:/}
+
+## fit-slow-scan-hp - Fit: Slow scan test {#cmd-fit-slow-scan-hp}
+
+fit-slow-scan-hp /bi-exp= /scaling= /parameters= /debug= /extra-parameters=
+
+  * /bi-exp: Whether we have a bi-exponential or a mono-exponential
+  * /scaling: Use an additional scaling factor
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+
+{::comment} synopsis-end: fit-slow-scan-hp {:/}
+{::comment} description-start: fit-slow-scan-hp {:/}
+Single buffer fit:
+Slow scan
+{::comment} description-end: fit-slow-scan-hp {:/}
+
+{::comment} synopsis-start: fit-slow-scan-lp {:/}
+
+## fit-slow-scan-lp - Fit: Slow scan test {#cmd-fit-slow-scan-lp}
+
+fit-slow-scan-lp /explicit-rate= /parameters= /debug= /extra-parameters=
+
+  * /explicit-rate: Whether the scan rate is an explicit parameter of the fit
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+
+{::comment} synopsis-end: fit-slow-scan-lp {:/}
+{::comment} description-start: fit-slow-scan-lp {:/}
+Single buffer fit:
+Slow scan
+{::comment} description-end: fit-slow-scan-lp {:/}
+
+{::comment} synopsis-start: generate-buffer {:/}
+
+## generate-buffer - Generate buffer {#cmd-generate-buffer}
+
+generate-buffer start end /samples=
+
+  * start: The first X value
+  * end: The last X value
+  * /samples: The number of samples
+
+{::comment} synopsis-end: generate-buffer {:/}
+{::comment} description-start: generate-buffer {:/}
+...
+{::comment} description-end: generate-buffer {:/}
+
+{::comment} synopsis-start: show-stack {:/}
+
+## show-stack - Show stack {#cmd-show-stack}
+
+show-stack /number=
+
+  * /number: Limit the display to a given number
+
+{::comment} synopsis-end: show-stack {:/}
+{::comment} description-start: show-stack {:/}
+Shows a small summary of what the stack is made of
+{::comment} description-end: show-stack {:/}
+
+{::comment} synopsis-start: kinetic-system {:/}
+
+## kinetic-system - Linear kinetic system {#cmd-kinetic-system}
+
+kinetic-system species constants... /samples= /base-name= /duration=
+
+  * species: 
+  * constants: 
+  * /samples: 
+  * /base-name: 
+  * /duration: 
+
+{::comment} synopsis-end: kinetic-system {:/}
+{::comment} description-start: kinetic-system {:/}
+...
+{::comment} description-end: kinetic-system {:/}
+
+{::comment} synopsis-start: load {:/}
+
+## load - Load {#cmd-load}
+
+load file...
+
+  * file: Files to load !
+
+{::comment} synopsis-end: load {:/}
+{::comment} description-start: load {:/}
+Loads the given files and push them onto the data stack
+{::comment} description-end: load {:/}
+
+{::comment} synopsis-start: load-as-csv {:/}
+
+## load-as-csv - Load files with backend 'csv' {#cmd-load-as-csv}
+
+load-as-csv file...
+
+  * file: Files to load !
+
+{::comment} synopsis-end: load-as-csv {:/}
+{::comment} description-start: load-as-csv {:/}
+Load any number of files directly using the backend 'csv', bypassing cache andautomatic backend detection, and giving more fine-tuning in the loading via the use of dedicated options
+{::comment} description-end: load-as-csv {:/}
+
+{::comment} synopsis-start: load-as-text {:/}
+
+## load-as-text - Load files with backend 'text' {#cmd-load-as-text}
+
+load-as-text file...
+
+  * file: Files to load !
+
+{::comment} synopsis-end: load-as-text {:/}
+{::comment} description-start: load-as-text {:/}
+Load any number of files directly using the backend 'text', bypassing cache andautomatic backend detection, and giving more fine-tuning in the loading via the use of dedicated options
+{::comment} description-end: load-as-text {:/}
+
+{::comment} synopsis-start: load-documentation {:/}
+
+## load-documentation - Load documentation {#cmd-load-documentation}
+
+load-documentation file
+
+  * file: The document file to load
+
+{::comment} synopsis-end: load-documentation {:/}
+{::comment} description-start: load-documentation {:/}
+...
+{::comment} description-end: load-documentation {:/}
+
+{::comment} synopsis-start: load-fits {:/}
+
+## load-fits - Load fits {#cmd-load-fits}
+
+load-fits file
+
+  * file: File containing the fits to load
+
+{::comment} synopsis-end: load-fits {:/}
+{::comment} description-start: load-fits {:/}
+Load fits from a file
+{::comment} description-end: load-fits {:/}
+
+{::comment} synopsis-start: load-stack {:/}
+
+## load-stack - Load stack {#cmd-load-stack}
+
+load-stack file
+
+  * file: File name for saving stack
+
+{::comment} synopsis-end: load-stack {:/}
+{::comment} description-start: load-stack {:/}
+Loads the stack as saved using save-stack
+{::comment} description-end: load-stack {:/}
+
+{::comment} synopsis-start: merge {:/}
+
+## merge - Merge buffers on X values {#cmd-merge}
+
+merge first... second /mode= /use-segments=
+
+  * first: First buffer(s)
+  * second: Second buffer
+  * /mode: Whether operations try to match x values or indices
+  * /use-segments: If on, operations are performed segment-by-segment
+
+{::comment} synopsis-end: merge {:/}
+{::comment} description-start: merge {:/}
+Merge the second buffer with the first one, and keep Y of the second as a function of Y of the first
+{::comment} description-end: merge {:/}
+
+{::comment} synopsis-start: mfit-arb {:/}
+
+## mfit-arb - Multi fit: Arbitrary fit {#cmd-mfit-arb}
+
+mfit-arb formulas datasets... /parameters= /debug= /extra-parameters= /weight-buffers=
+
+  * formulas: \|-separated formulas for the fit
+  * datasets: Datasets to fit
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+  * /weight-buffers: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-arb {:/}
+{::comment} description-start: mfit-arb {:/}
+multi buffer fit:
+Arbitrary fit with user-supplied formula (possibly spanning multiple buffers)
+Special parameters: x_0, y_0, temperature, fara.
+Already defined constants: f, pi
+{::comment} description-end: mfit-arb {:/}
+
+{::comment} synopsis-start: mfit-duck-sim {:/}
+
+## mfit-duck-sim - Multi fit: Diffusive electrochemical  {#cmd-mfit-duck-sim}
+
+mfit-duck-sim datasets... /system= /base-parameters= /parameters= /debug= /extra-parameters= /weight-buffers=
+
+  * datasets: Datasets to fit
+  * /system: ...
+  * /base-parameters: ...
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+  * /weight-buffers: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-duck-sim {:/}
+{::comment} description-start: mfit-duck-sim {:/}
+multi buffer fit:
+...
+{::comment} description-end: mfit-duck-sim {:/}
+
+{::comment} synopsis-start: mfit-ececr-wave {:/}
+
+## mfit-ececr-wave - Multi fit: Fit of an ECECR catalytic wave {#cmd-mfit-ececr-wave}
+
+mfit-ececr-wave datasets... /plateau= /use-eoc= /parameters= /debug= /extra-parameters= /weight-buffers=
+
+  * datasets: Datasets to fit
+  * /plateau: Whether to use the general expression or only that valid when plateaus are not reached
+  * /use-eoc: Whether to use explicitly the bias or compute it using the open circuit potential
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+  * /weight-buffers: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-ececr-wave {:/}
+{::comment} description-start: mfit-ececr-wave {:/}
+multi buffer fit:
+...
+{::comment} description-end: mfit-ececr-wave {:/}
+
+{::comment} synopsis-start: mfit-eecr-wave {:/}
+
+## mfit-eecr-wave - Multi fit: Fit of an EECR catalytic wave {#cmd-mfit-eecr-wave}
+
+mfit-eecr-wave datasets... /plateau= /oxidation= /use-eoc= /parameters= /debug= /extra-parameters= /weight-buffers=
+
+  * datasets: Datasets to fit
+  * /plateau: Whether to use the general expression or only that valid when plateaus are not reached
+  * /oxidation: ???
+  * /use-eoc: Whether to use explicitly the bias or compute it using the open circuit potential
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+  * /weight-buffers: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-eecr-wave {:/}
+{::comment} description-start: mfit-eecr-wave {:/}
+multi buffer fit:
+...
+{::comment} description-end: mfit-eecr-wave {:/}
+
+{::comment} synopsis-start: mfit-exponential-decay {:/}
+
+## mfit-exponential-decay - Multi fit: Multi-exponential fits {#cmd-mfit-exponential-decay}
+
+mfit-exponential-decay datasets... /exponentials= /absolute= /loss= /slow= /parameters= /debug= /extra-parameters= /weight-buffers=
+
+  * datasets: Datasets to fit
+  * /exponentials: Number of exponentials
+  * /absolute: Amplitude is absolute or relative to the asymptote ?
+  * /loss: Is there an overall fully exponential loss ?
+  * /slow: Is there a very slow phase ?
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+  * /weight-buffers: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-exponential-decay {:/}
+{::comment} description-start: mfit-exponential-decay {:/}
+multi buffer fit:
+...
+{::comment} description-end: mfit-exponential-decay {:/}
+
+{::comment} synopsis-start: mfit-inact-react-amplitude-2phases {:/}
+
+## mfit-inact-react-amplitude-2phases - Multi fit: ... {#cmd-mfit-inact-react-amplitude-2phases}
+
+mfit-inact-react-amplitude-2phases datasets... /parameters= /debug= /extra-parameters= /weight-buffers=
+
+  * datasets: Datasets to fit
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+  * /weight-buffers: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-inact-react-amplitude-2phases {:/}
+{::comment} description-start: mfit-inact-react-amplitude-2phases {:/}
+multi buffer fit:
+...
+{::comment} description-end: mfit-inact-react-amplitude-2phases {:/}
+
+{::comment} synopsis-start: mfit-kinetic-system {:/}
+
+## mfit-kinetic-system - Multi fit: Several steps with a kinetic evolution {#cmd-mfit-kinetic-system}
+
+mfit-kinetic-system datasets... /species= /steps= /parameters= /debug= /extra-parameters= /weight-buffers=
+
+  * datasets: Datasets to fit
+  * /species: Number of species
+  * /steps: Step list with numbered conditions
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+  * /weight-buffers: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-kinetic-system {:/}
+{::comment} description-start: mfit-kinetic-system {:/}
+multi buffer fit:
+Fits of exponentials on several steps with film loss bookkeeping
+{::comment} description-end: mfit-kinetic-system {:/}
+
+{::comment} synopsis-start: mfit-multiexp-multistep {:/}
+
+## mfit-multiexp-multistep - Multi fit: Multi-step and multi-exponential {#cmd-mfit-multiexp-multistep}
+
+mfit-multiexp-multistep datasets... /exponentials= /steps= /independent= /parameters= /debug= /extra-parameters= /weight-buffers=
+
+  * datasets: Datasets to fit
+  * /exponentials: Number of exponentials
+  * /steps: Step list with numbered conditions
+  * /independent: Whether irreversible loss is independent on each step
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+  * /weight-buffers: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-multiexp-multistep {:/}
+{::comment} description-start: mfit-multiexp-multistep {:/}
+multi buffer fit:
+Fits of exponentials on several steps with film loss bookkeeping
+{::comment} description-end: mfit-multiexp-multistep {:/}
+
+{::comment} synopsis-start: mfit-nernst {:/}
+
+## mfit-nernst - Multi fit: Nerstian behaviour {#cmd-mfit-nernst}
+
+mfit-nernst datasets... /parameters= /debug= /extra-parameters= /weight-buffers=
+
+  * datasets: Datasets to fit
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+  * /weight-buffers: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-nernst {:/}
+{::comment} description-start: mfit-nernst {:/}
+multi buffer fit:
+Fit to a Nerst equation
+{::comment} description-end: mfit-nernst {:/}
+
+{::comment} synopsis-start: mfit-react-exp {:/}
+
+## mfit-react-exp - Multi fit: Exponential reactivation {#cmd-mfit-react-exp}
+
+mfit-react-exp datasets... /exponentials= /dead= /parameters= /debug= /extra-parameters= /weight-buffers=
+
+  * datasets: Datasets to fit
+  * /exponentials: Number of exponentials
+  * /dead: Whether we include a dead phase or not
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+  * /weight-buffers: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-react-exp {:/}
+{::comment} description-start: mfit-react-exp {:/}
+multi buffer fit:
+Reactivation
+{::comment} description-end: mfit-react-exp {:/}
+
+{::comment} synopsis-start: mfit-slow-scan-hp {:/}
+
+## mfit-slow-scan-hp - Multi fit: Slow scan test {#cmd-mfit-slow-scan-hp}
+
+mfit-slow-scan-hp datasets... /bi-exp= /scaling= /parameters= /debug= /extra-parameters= /weight-buffers=
+
+  * datasets: Datasets to fit
+  * /bi-exp: Whether we have a bi-exponential or a mono-exponential
+  * /scaling: Use an additional scaling factor
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+  * /weight-buffers: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-slow-scan-hp {:/}
+{::comment} description-start: mfit-slow-scan-hp {:/}
+multi buffer fit:
+Slow scan
+{::comment} description-end: mfit-slow-scan-hp {:/}
+
+{::comment} synopsis-start: mfit-slow-scan-lp {:/}
+
+## mfit-slow-scan-lp - Multi fit: Slow scan test {#cmd-mfit-slow-scan-lp}
+
+mfit-slow-scan-lp datasets... /explicit-rate= /parameters= /debug= /extra-parameters= /weight-buffers=
+
+  * datasets: Datasets to fit
+  * /explicit-rate: Whether the scan rate is an explicit parameter of the fit
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+  * /weight-buffers: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-slow-scan-lp {:/}
+{::comment} description-start: mfit-slow-scan-lp {:/}
+multi buffer fit:
+Slow scan
+{::comment} description-end: mfit-slow-scan-lp {:/}
+
+{::comment} synopsis-start: norm {:/}
+
+## norm - Normalize {#cmd-norm}
+
+norm /positive=
+
+  * /positive: ...
+
+{::comment} synopsis-end: norm {:/}
+{::comment} description-start: norm {:/}
+Normalize the current buffer by its maximum value
+{::comment} description-end: norm {:/}
+
+{::comment} synopsis-start: opengl {:/}
+
+## opengl - OpenGL {#cmd-opengl}
+
+opengl 
+
+
+{::comment} synopsis-end: opengl {:/}
+{::comment} description-start: opengl {:/}
+Toggles the use of OpenGL for graphics rendering.
+{::comment} description-end: opengl {:/}
+
+{::comment} synopsis-start: overlay {:/}
+
+## overlay - Overlay {#cmd-overlay}
+
+overlay file...
+
+  * file: Files to load !
+
+{::comment} synopsis-end: overlay {:/}
+{::comment} description-start: overlay {:/}
+Loads the given files and push them onto the data stack, adding them to the display at the same time
+{::comment} description-end: overlay {:/}
+
+{::comment} synopsis-start: print {:/}
+
+## print - Print {#cmd-print}
+
+print /file= /title=
+
+  * /file: Save as file
+  * /title: Sets the title of the page as printed
+
+{::comment} synopsis-end: print {:/}
+{::comment} description-start: print {:/}
+Prints the current main panel of the current view
+{::comment} description-end: print {:/}
+
+{::comment} synopsis-start: points {:/}
+
+## points - Show points {#cmd-points}
+
+points 
+
+
+{::comment} synopsis-end: points {:/}
+{::comment} description-start: points {:/}
+Shows all the points of datasets displayed.
+{::comment} description-end: points {:/}
+
+{::comment} synopsis-start: quit {:/}
+
+## quit - Quit {#cmd-quit}
+
+quit 
+
+
+{::comment} synopsis-end: quit {:/}
+{::comment} description-start: quit {:/}
+Exits QSoas, losing all the current session
+{::comment} description-end: quit {:/}
+
+{::comment} synopsis-start: redo {:/}
+
+## redo - Redo {#cmd-redo}
+
+redo /number=
+
+  * /number (default): Number of operations to undo
+
+{::comment} synopsis-end: redo {:/}
+{::comment} description-start: redo {:/}
+Pops the last buffer from the redo stack and set it as the current buffer
+{::comment} description-end: redo {:/}
+
+{::comment} synopsis-start: reglin {:/}
+
+## reglin - Linear regression {#cmd-reglin}
+
+reglin 
+
+
+{::comment} synopsis-end: reglin {:/}
+{::comment} description-start: reglin {:/}
+...
+{::comment} description-end: reglin {:/}
+
+{::comment} synopsis-start: save {:/}
+
+## save - Save {#cmd-save}
+
+save file
+
+  * file: File name for saving
+
+{::comment} synopsis-end: save {:/}
+{::comment} description-start: save {:/}
+Saves the current buffer to a file
+{::comment} description-end: save {:/}
+
+{::comment} synopsis-start: save-buffers {:/}
+
+## save-buffers - Save {#cmd-save-buffers}
+
+save-buffers buffers...
+
+  * buffers: Buffers to save
+
+{::comment} synopsis-end: save-buffers {:/}
+{::comment} description-start: save-buffers {:/}
+Saves the designated buffers to file
+{::comment} description-end: save-buffers {:/}
+
+{::comment} synopsis-start: save-history {:/}
+
+## save-history - Save history {#cmd-save-history}
+
+save-history file
+
+  * file: Output file
+
+{::comment} synopsis-end: save-history {:/}
+{::comment} description-start: save-history {:/}
+Saves all the command history to a plain text file, to be used again with run
+{::comment} description-end: save-history {:/}
+
+{::comment} synopsis-start: save-output {:/}
+
+## save-output - Save output {#cmd-save-output}
+
+save-output file
+
+  * file: Output file
+
+{::comment} synopsis-end: save-output {:/}
+{::comment} description-start: save-output {:/}
+Save all output from the terminal
+{::comment} description-end: save-output {:/}
+
+{::comment} synopsis-start: save-stack {:/}
+
+## save-stack - Save stack {#cmd-save-stack}
+
+save-stack file
+
+  * file: File name for saving stack
+
+{::comment} synopsis-end: save-stack {:/}
+{::comment} description-start: save-stack {:/}
+Saves the contents of the stack for later use, in a private binary format
+{::comment} description-end: save-stack {:/}
+
+{::comment} synopsis-start: segments-chop {:/}
+
+## segments-chop - Chop into segments {#cmd-segments-chop}
+
+segments-chop 
+
+
+{::comment} synopsis-end: segments-chop {:/}
+{::comment} description-start: segments-chop {:/}
+Cuts the buffer into several ones based on the segments defined using set-segments or find-step /set-segments
+{::comment} description-end: segments-chop {:/}
+
+{::comment} synopsis-start: set-segments {:/}
+
+## set-segments - Set segments {#cmd-set-segments}
+
+set-segments 
+
+
+{::comment} synopsis-end: set-segments {:/}
+{::comment} description-start: set-segments {:/}
+...
+{::comment} description-end: set-segments {:/}
+
+{::comment} synopsis-start: shiftx {:/}
+
+## shiftx - Shift X values {#cmd-shiftx}
+
+shiftx 
+
+
+{::comment} synopsis-end: shiftx {:/}
+{::comment} description-start: shiftx {:/}
+Shift X values so that x[0] = 0
+{::comment} description-end: shiftx {:/}
+
+{::comment} synopsis-start: sim-duck-sim {:/}
+
+## sim-duck-sim - Fit: Diffusive electrochemical  {#cmd-sim-duck-sim}
+
+sim-duck-sim parameters datasets... /system= /base-parameters= /override=
+
+  * parameters: File to load parameters from
+  * datasets: Datasets to fit
+  * /system: ...
+  * /base-parameters: ...
+  * /override: A comma-separated list of parameters to override
+
+{::comment} synopsis-end: sim-duck-sim {:/}
+{::comment} description-start: sim-duck-sim {:/}
+fit simulation:
+...
+{::comment} description-end: sim-duck-sim {:/}
+
+{::comment} synopsis-start: sim-ececr-wave {:/}
+
+## sim-ececr-wave - Fit: Fit of an ECECR catalytic wave {#cmd-sim-ececr-wave}
+
+sim-ececr-wave parameters datasets... /plateau= /use-eoc= /override=
+
+  * parameters: File to load parameters from
+  * datasets: Datasets to fit
+  * /plateau: Whether to use the general expression or only that valid when plateaus are not reached
+  * /use-eoc: Whether to use explicitly the bias or compute it using the open circuit potential
+  * /override: A comma-separated list of parameters to override
+
+{::comment} synopsis-end: sim-ececr-wave {:/}
+{::comment} description-start: sim-ececr-wave {:/}
+fit simulation:
+...
+{::comment} description-end: sim-ececr-wave {:/}
+
+{::comment} synopsis-start: sim-eecr-wave {:/}
+
+## sim-eecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-sim-eecr-wave}
+
+sim-eecr-wave parameters datasets... /plateau= /oxidation= /use-eoc= /override=
+
+  * parameters: File to load parameters from
+  * datasets: Datasets to fit
+  * /plateau: Whether to use the general expression or only that valid when plateaus are not reached
+  * /oxidation: ???
+  * /use-eoc: Whether to use explicitly the bias or compute it using the open circuit potential
+  * /override: A comma-separated list of parameters to override
+
+{::comment} synopsis-end: sim-eecr-wave {:/}
+{::comment} description-start: sim-eecr-wave {:/}
+fit simulation:
+...
+{::comment} description-end: sim-eecr-wave {:/}
+
+{::comment} synopsis-start: sim-exponential-decay {:/}
+
+## sim-exponential-decay - Fit: Multi-exponential fits {#cmd-sim-exponential-decay}
+
+sim-exponential-decay parameters datasets... /exponentials= /absolute= /loss= /slow= /override=
+
+  * parameters: File to load parameters from
+  * datasets: Datasets to fit
+  * /exponentials: Number of exponentials
+  * /absolute: Amplitude is absolute or relative to the asymptote ?
+  * /loss: Is there an overall fully exponential loss ?
+  * /slow: Is there a very slow phase ?
+  * /override: A comma-separated list of parameters to override
+
+{::comment} synopsis-end: sim-exponential-decay {:/}
+{::comment} description-start: sim-exponential-decay {:/}
+fit simulation:
+...
+{::comment} description-end: sim-exponential-decay {:/}
+
+{::comment} synopsis-start: sim-inact-react-amplitude-2phases {:/}
+
+## sim-inact-react-amplitude-2phases - Fit: ... {#cmd-sim-inact-react-amplitude-2phases}
+
+sim-inact-react-amplitude-2phases parameters datasets... /override=
+
+  * parameters: File to load parameters from
+  * datasets: Datasets to fit
+  * /override: A comma-separated list of parameters to override
+
+{::comment} synopsis-end: sim-inact-react-amplitude-2phases {:/}
+{::comment} description-start: sim-inact-react-amplitude-2phases {:/}
+fit simulation:
+...
+{::comment} description-end: sim-inact-react-amplitude-2phases {:/}
+
+{::comment} synopsis-start: sim-kinetic-system {:/}
+
+## sim-kinetic-system - Fit: Several steps with a kinetic evolution {#cmd-sim-kinetic-system}
+
+sim-kinetic-system parameters datasets... /species= /steps= /override=
+
+  * parameters: File to load parameters from
+  * datasets: Datasets to fit
+  * /species: Number of species
+  * /steps: Step list with numbered conditions
+  * /override: A comma-separated list of parameters to override
+
+{::comment} synopsis-end: sim-kinetic-system {:/}
+{::comment} description-start: sim-kinetic-system {:/}
+fit simulation:
+Fits of exponentials on several steps with film loss bookkeeping
+{::comment} description-end: sim-kinetic-system {:/}
+
+{::comment} synopsis-start: sim-lw {:/}
+
+## sim-lw - Simulate linear wave {#cmd-sim-lw}
+
+sim-lw file parameters...
+
+  * file: System to load
+  * parameters: 
+
+{::comment} synopsis-end: sim-lw {:/}
+{::comment} description-start: sim-lw {:/}
+...
+{::comment} description-end: sim-lw {:/}
+
+{::comment} synopsis-start: sim-multiexp-multistep {:/}
+
+## sim-multiexp-multistep - Fit: Multi-step and multi-exponential {#cmd-sim-multiexp-multistep}
+
+sim-multiexp-multistep parameters datasets... /exponentials= /steps= /independent= /override=
+
+  * parameters: File to load parameters from
+  * datasets: Datasets to fit
+  * /exponentials: Number of exponentials
+  * /steps: Step list with numbered conditions
+  * /independent: Whether irreversible loss is independent on each step
+  * /override: A comma-separated list of parameters to override
+
+{::comment} synopsis-end: sim-multiexp-multistep {:/}
+{::comment} description-start: sim-multiexp-multistep {:/}
+fit simulation:
+Fits of exponentials on several steps with film loss bookkeeping
+{::comment} description-end: sim-multiexp-multistep {:/}
+
+{::comment} synopsis-start: sim-nernst {:/}
+
+## sim-nernst - Fit: Nerstian behaviour {#cmd-sim-nernst}
+
+sim-nernst parameters datasets... /override=
+
+  * parameters: File to load parameters from
+  * datasets: Datasets to fit
+  * /override: A comma-separated list of parameters to override
+
+{::comment} synopsis-end: sim-nernst {:/}
+{::comment} description-start: sim-nernst {:/}
+fit simulation:
+Fit to a Nerst equation
+{::comment} description-end: sim-nernst {:/}
+
+{::comment} synopsis-start: sim-react-exp {:/}
+
+## sim-react-exp - Fit: Exponential reactivation {#cmd-sim-react-exp}
+
+sim-react-exp parameters datasets... /exponentials= /dead= /override=
+
+  * parameters: File to load parameters from
+  * datasets: Datasets to fit
+  * /exponentials: Number of exponentials
+  * /dead: Whether we include a dead phase or not
+  * /override: A comma-separated list of parameters to override
+
+{::comment} synopsis-end: sim-react-exp {:/}
+{::comment} description-start: sim-react-exp {:/}
+fit simulation:
+Reactivation
+{::comment} description-end: sim-react-exp {:/}
+
+{::comment} synopsis-start: sim-slow-scan-hp {:/}
+
+## sim-slow-scan-hp - Fit: Slow scan test {#cmd-sim-slow-scan-hp}
+
+sim-slow-scan-hp parameters datasets... /bi-exp= /scaling= /override=
+
+  * parameters: File to load parameters from
+  * datasets: Datasets to fit
+  * /bi-exp: Whether we have a bi-exponential or a mono-exponential
+  * /scaling: Use an additional scaling factor
+  * /override: A comma-separated list of parameters to override
+
+{::comment} synopsis-end: sim-slow-scan-hp {:/}
+{::comment} description-start: sim-slow-scan-hp {:/}
+fit simulation:
+Slow scan
+{::comment} description-end: sim-slow-scan-hp {:/}
+
+{::comment} synopsis-start: sim-slow-scan-lp {:/}
+
+## sim-slow-scan-lp - Fit: Slow scan test {#cmd-sim-slow-scan-lp}
+
+sim-slow-scan-lp parameters datasets... /explicit-rate= /override=
+
+  * parameters: File to load parameters from
+  * datasets: Datasets to fit
+  * /explicit-rate: Whether the scan rate is an explicit parameter of the fit
+  * /override: A comma-separated list of parameters to override
+
+{::comment} synopsis-end: sim-slow-scan-lp {:/}
+{::comment} description-start: sim-slow-scan-lp {:/}
+fit simulation:
+Slow scan
+{::comment} description-end: sim-slow-scan-lp {:/}
+
+{::comment} synopsis-start: sort {:/}
+
+## sort - Sort {#cmd-sort}
+
+sort 
+
+
+{::comment} synopsis-end: sort {:/}
+{::comment} description-start: sort {:/}
+
+{::comment} description-end: sort {:/}
+
+{::comment} synopsis-start: split-monotonic {:/}
+
+## split-monotonic - Split into monotonic parts {#cmd-split-monotonic}
+
+split-monotonic 
+
+
+{::comment} synopsis-end: split-monotonic {:/}
+{::comment} description-start: split-monotonic {:/}
+
+{::comment} description-end: split-monotonic {:/}
+
+{::comment} synopsis-start: splita {:/}
+
+## splita - Split first {#cmd-splita}
+
+splita 
+
+
+{::comment} synopsis-end: splita {:/}
+{::comment} description-start: splita {:/}
+Returns the first part of the buffer, until the first change of sign of dx
+{::comment} description-end: splita {:/}
+
+{::comment} synopsis-start: splitb {:/}
+
+## splitb - Split second {#cmd-splitb}
+
+splitb 
+
+
+{::comment} synopsis-end: splitb {:/}
+{::comment} description-start: splitb {:/}
+Returns the part of the buffer after the first change of sign of dx
+{::comment} description-end: splitb {:/}
+
+{::comment} synopsis-start: stats {:/}
+
+## stats - Statistics {#cmd-stats}
+
+stats /buffer=
+
+  * /buffer: An alternative buffer to get information on
+
+{::comment} synopsis-end: stats {:/}
+{::comment} description-start: stats {:/}
+...
+{::comment} description-end: stats {:/}
+
+{::comment} synopsis-start: test-event-loop {:/}
+
+## test-event-loop - Test event loop {#cmd-test-event-loop}
+
+test-event-loop 
+
+
+{::comment} synopsis-end: test-event-loop {:/}
+{::comment} description-start: test-event-loop {:/}
+Exits QSoas, losing all the current session
+{::comment} description-end: test-event-loop {:/}
+
+{::comment} synopsis-start: test-lw {:/}
+
+## test-lw - TestLW {#cmd-test-lw}
+
+test-lw file
+
+  * file: Files to load !
+
+{::comment} synopsis-end: test-lw {:/}
+{::comment} description-start: test-lw {:/}
+TestLW command for testing purposes
+{::comment} description-end: test-lw {:/}
+
+{::comment} synopsis-start: tex-commands {:/}
+
+## tex-commands - TeX {#cmd-tex-commands}
+
+tex-commands 
+
+
+{::comment} synopsis-end: tex-commands {:/}
+{::comment} description-start: tex-commands {:/}
+List all available commands, along with a little help
+{::comment} description-end: tex-commands {:/}
+
+{::comment} synopsis-start: undo {:/}
+
+## undo - Undo {#cmd-undo}
+
+undo /number=
+
+  * /number (default): Number of operations to undo
+
+{::comment} synopsis-end: undo {:/}
+{::comment} description-start: undo {:/}
+Returns to the previous buffer, and push the current to the redo stack
+{::comment} description-end: undo {:/}
+
+{::comment} synopsis-start: update-documentation {:/}
+
+## update-documentation - Update documentation {#cmd-update-documentation}
+
+update-documentation file
+
+  * file: The file to update
+
+{::comment} synopsis-end: update-documentation {:/}
+{::comment} description-start: update-documentation {:/}
+...
+{::comment} description-end: update-documentation {:/}
+
+{::comment} synopsis-start: zoom {:/}
+
+## zoom - Zoom {#cmd-zoom}
+
+zoom 
+
+
+{::comment} synopsis-end: zoom {:/}
+{::comment} description-start: zoom {:/}
+Zooms on the current curve
+{::comment} description-end: zoom {:/}
+

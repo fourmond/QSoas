@@ -384,6 +384,10 @@ QString Command::synopsis(bool markup) const
     }
   }
 
+  // We need to escape |, which comes in too many times
+  if(markup)
+    descs.replace(QString("|"), QString("\\|"));
+
   return cmdName +  " " + synopsis.join(" ") + "\n\n" + descs + "\n";
 }
 
@@ -400,7 +404,7 @@ QString & Command::updateDocumentation(QString & str) const
 
   QString syn = "{::comment} synopsis-start: " + cmdName + " {:/}\n\n" +
     "## " + cmdName + " - " + pubName + " {#cmd-" + cmdName + "}\n\n" +
-    synopsis() + "{::comment} synopsis-end: " + cmdName + " {:/}\n";
+    synopsis(true) + "{::comment} synopsis-end: " + cmdName + " {:/}\n";
   if(left >= 0)
     nb = re.cap(0).size();
   else {

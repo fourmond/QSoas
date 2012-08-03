@@ -173,6 +173,9 @@ void Fit::makeCommands(ArgumentList * args,
                                  "Override parameters",
                                  "A comma-separated list of parameters "
                                  "to override");
+    *nopts << new StringArgument("extra-parameters", 
+                                 "Extra parameters",
+                                 "Define supplementary parameters");
     new Command((const char*)(QString("sim-") + name).toLocal8Bit(),
                 effector(this, &Fit::computeFit),
                 "simulations", al2, nopts, pn, sd, ld);
@@ -243,7 +246,11 @@ void Fit::computeFit(const QString &, QString file,
 
   updateFromOptions(opts, "override", overridesStr);
 
-  FitData data(this, datasets);
+  QString extraParams;
+  updateFromOptions(opts, "extra-parameters", extraParams);
+  QStringList ep = extraParams.split(",", QString::SkipEmptyParts);
+
+  FitData data(this, datasets, false, ep); // In case we do need them !
   checkDatasets(&data);
   FitDialog dlg(&data);
   dlg.loadParametersFile(file);

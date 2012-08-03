@@ -391,10 +391,12 @@ QString Command::synopsis(bool markup) const
   return cmdName +  " " + synopsis.join(" ") + "\n\n" + descs + "\n";
 }
 
-QString & Command::updateDocumentation(QString & str) const
+QString & Command::updateDocumentation(QString & str, int level) const
 {
   // First, look for the synopsis block
   int nb = 0;
+
+  QString headings(level, '#');
 
   QString ret = "\\{::comment\\} synopsis-start: " + cmdName + " \\{:/\\}.*" +
     "\\{::comment\\} synopsis-end: " + cmdName + " \\{:/\\}\\s*";
@@ -403,7 +405,7 @@ QString & Command::updateDocumentation(QString & str) const
   int left = re.indexIn(str, 0);
 
   QString syn = "{::comment} synopsis-start: " + cmdName + " {:/}\n\n" +
-    "## " + cmdName + " - " + pubName + " {#cmd-" + cmdName + "}\n\n" +
+    headings + " " + cmdName + " - " + pubName + " {#cmd-" + cmdName + "}\n\n" +
     synopsis(true) + "{::comment} synopsis-end: " + cmdName + " {:/}\n";
   if(left >= 0)
     nb = re.cap(0).size();

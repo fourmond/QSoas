@@ -1,14 +1,139 @@
 # Data loading/saving
 
+The main command for loading data is [`load`](#cmd-load)
+
+{::comment} synopsis-start: load {:/}
+
+### load - Load {#cmd-load}
+
+load file...
+
+  * file: Files to load !
+
+{::comment} synopsis-end: load {:/}
+{::comment} description-start: load {:/}
+
+Loads the given files and push them onto the data stack. QSoas
+features several backends for loading files. In principle, QSoas is
+smart enough to figure out which one is the correct one, but you can
+force a given backend by using the appropriate `load-as-` command. Using
+a backend directly also provides more control on the way files are
+loaded. Currently available backends:
+
+ * [`text`](#cmd-load-as-text) for plain space-separated text
+ * [`csv`](#cmd-load-as-csv) for CSV data
+
+Look in their documentation for more information. QSoas tells you
+which backend it used for loading a given file:
+
+~~~~
+QSoas> load 03.dat
+Loading file: './03.dat' using backend text
+~~~~
+
+The command `load` caches the loaded file. If for some reason, the
+cache gets in the way, use the direct `load-as-` commands.
+
+{::comment} description-end: load {:/}
+
+
+{::comment} synopsis-start: load-as-text {:/}
+
+### load-as-text - Load files with backend 'text' {#cmd-load-as-text}
+
+load-as-text file...
+
+  * file: Files to load !
+
+{::comment} synopsis-end: load-as-text {:/}
+{::comment} description-start: load-as-text {:/}
+
+Load any number of files using the backend `text`, bypassing cache and
+automatic backend detection. `text` recognises space-separated data
+(which includes tab-separated data). Most "plain text" files will give
+good results. By default, it loads all the columns of the file, but
+only displays the second as a function of the first. If you want to
+work on other columns, have a look at [`expand`](#cmd-expand).
+
+{::comment} description-end: load-as-text {:/}
+
+
+{::comment} synopsis-start: load-as-csv {:/}
+
+### load-as-csv - Load files with backend 'csv' {#cmd-load-as-csv}
+
+load-as-csv file...
+
+  * file: Files to load !
+
+{::comment} synopsis-end: load-as-csv {:/}
+{::comment} description-start: load-as-csv {:/}
+Same as for [`load-as-text`](#cmd-load-as-text)
+{::comment} description-end: load-as-csv {:/}
+
+
 
 # Data stack manipulation
+
+# Operations involving several buffers
+
+It is possible to combine several buffers into one by applying
+mathematical operations (subtraction, division and the like). Each of
+these processes involve matching a point in a given buffer to a point
+in another buffer. There are two ways to do that, chosen by the
+`/mode` option:
+
+
+ * with `/mode=xvalues`, the default, uses the values of X (ie the
+   closest X value is picked). **Warning** this doesnât give the
+   expected result for buffers with several times the same X values,
+   such as full cyclic voltammograms.
+
+ * with `/mode=indices`, points are matched on a one-to-one basis, ie
+   point 1 of dataset 1 to point 2 of dataset 2, irrespective of the X
+   values.
+
+In addition to that, the operations can make use of the segments
+defined on each buffer...
+
+{::comment} synopsis-start: div {:/}
+
+### div - Divide {#cmd-div}
+
+div first... second /mode= /use-segments=
+
+  * first: First buffer(s)
+  * second: Second buffer
+  * /mode: Whether operations try to match x values or indices
+  * /use-segments: If on, operations are performed segment-by-segment
+
+{::comment} synopsis-end: div {:/}
+{::comment} description-start: div {:/}
+Divide the first buffer by the second
+{::comment} description-end: div {:/}
+
+{::comment} synopsis-start: subtract {:/}
+
+### subtract - Subtract {#cmd-subtract}
+
+subtract first... second /mode= /use-segments=
+
+  * first: First buffer(s)
+  * second: Second buffer
+  * /mode: Whether operations try to match x values or indices
+  * /use-segments: If on, operations are performed segment-by-segment
+
+{::comment} synopsis-end: subtract {:/}
+{::comment} description-start: subtract {:/}
+Subtract the second buffer from the first. Works with several 'first' buffers.
+{::comment} description-end: subtract {:/}
 
 
 # Data inspection facilities
 
 {::comment} synopsis-start: 1 {:/}
 
-## 1 - Find peak {#cmd-1}
+### 1 - Find peak {#cmd-1}
 
 1 /window= /include-borders= /output=
 
@@ -23,7 +148,7 @@
 
 {::comment} synopsis-start: 2 {:/}
 
-## 2 - Find two peak {#cmd-2}
+### 2 - Find two peak {#cmd-2}
 
 2 /window= /include-borders= /output=
 
@@ -38,7 +163,7 @@
 
 {::comment} synopsis-start: help {:/}
 
-## help - Help on... {#cmd-help}
+### help - Help on... {#cmd-help}
 
 help command
 
@@ -51,7 +176,7 @@ Gives all help available on the given command
 
 {::comment} synopsis-start: run {:/}
 
-## run - Run commands {#cmd-run}
+### run - Run commands {#cmd-run}
 
 run file
 
@@ -64,7 +189,7 @@ Run commands saved in a file
 
 {::comment} synopsis-start: antialias {:/}
 
-## antialias - Antialias {#cmd-antialias}
+### antialias - Antialias {#cmd-antialias}
 
 antialias 
 
@@ -76,7 +201,7 @@ Toggles anti-aliasing for graphics rendering.
 
 {::comment} synopsis-start: apply-formula {:/}
 
-## apply-formula - Apply formula {#cmd-apply-formula}
+### apply-formula - Apply formula {#cmd-apply-formula}
 
 apply-formula formula
 
@@ -89,7 +214,7 @@ Applies a formula to the current dataset. The formula must be valid Ruby code.
 
 {::comment} synopsis-start: cd {:/}
 
-## cd - Change directory {#cmd-cd}
+### cd - Change directory {#cmd-cd}
 
 cd directory
 
@@ -102,7 +227,7 @@ Change current directory
 
 {::comment} synopsis-start: browse-stack {:/}
 
-## browse-stack - Browse stack {#cmd-browse-stack}
+### browse-stack - Browse stack {#cmd-browse-stack}
 
 browse-stack 
 
@@ -114,7 +239,7 @@ Browse stack
 
 {::comment} synopsis-start: remove-spikes {:/}
 
-## remove-spikes - Remove spikes {#cmd-remove-spikes}
+### remove-spikes - Remove spikes {#cmd-remove-spikes}
 
 remove-spikes /number= /factor= /force-new=
 
@@ -127,25 +252,9 @@ remove-spikes /number= /factor= /force-new=
 Remove spikes using a simple heuristics
 {::comment} description-end: remove-spikes {:/}
 
-{::comment} synopsis-start: subtract {:/}
-
-## subtract - Subtract {#cmd-subtract}
-
-subtract first... second /mode= /use-segments=
-
-  * first: First buffer(s)
-  * second: Second buffer
-  * /mode: Whether operations try to match x values or indices
-  * /use-segments: If on, operations are performed segment-by-segment
-
-{::comment} synopsis-end: subtract {:/}
-{::comment} description-start: subtract {:/}
-Subtract the second buffer from the first. Works with several 'first' buffers.
-{::comment} description-end: subtract {:/}
-
 {::comment} synopsis-start: temperature {:/}
 
-## temperature - Temperature {#cmd-temperature}
+### temperature - Temperature {#cmd-temperature}
 
 temperature /set=
 
@@ -158,7 +267,7 @@ Shows or sets the temperature (using option)
 
 {::comment} synopsis-start: overlay-buffer {:/}
 
-## overlay-buffer - Overlay buffers {#cmd-overlay-buffer}
+### overlay-buffer - Overlay buffers {#cmd-overlay-buffer}
 
 overlay-buffer buffers...
 
@@ -171,7 +280,7 @@ Overlay buffers that are already in memory on top of the current one
 
 {::comment} synopsis-start: browse {:/}
 
-## browse - Browse files {#cmd-browse}
+### browse - Browse files {#cmd-browse}
 
 browse /pattern=
 
@@ -184,7 +293,7 @@ Browse files
 
 {::comment} synopsis-start: rename {:/}
 
-## rename - Rename {#cmd-rename}
+### rename - Rename {#cmd-rename}
 
 rename new-name
 
@@ -197,7 +306,7 @@ rename new-name
 
 {::comment} synopsis-start: auto-filter-bs {:/}
 
-## auto-filter-bs - Filter {#cmd-auto-filter-bs}
+### auto-filter-bs - Filter {#cmd-auto-filter-bs}
 
 auto-filter-bs /number= /order= /derivatives=
 
@@ -212,7 +321,7 @@ auto-filter-bs /number= /order= /derivatives=
 
 {::comment} synopsis-start: average {:/}
 
-## average - Average {#cmd-average}
+### average - Average {#cmd-average}
 
 average buffers... /mode= /use-segments= /split=
 
@@ -228,7 +337,7 @@ Average all buffers, possibly splitting them into monotonic parts if applicable
 
 {::comment} synopsis-start: baseline {:/}
 
-## baseline - Baseline {#cmd-baseline}
+### baseline - Baseline {#cmd-baseline}
 
 baseline 
 
@@ -240,7 +349,7 @@ baseline
 
 {::comment} synopsis-start: break {:/}
 
-## break - Break {#cmd-break}
+### break - Break {#cmd-break}
 
 break 
 
@@ -252,7 +361,7 @@ Interrupts the run of the current script
 
 {::comment} synopsis-start: cut {:/}
 
-## cut - Cut {#cmd-cut}
+### cut - Cut {#cmd-cut}
 
 cut 
 
@@ -264,7 +373,7 @@ Cuts bits from the current curve
 
 {::comment} synopsis-start: cat {:/}
 
-## cat - Concatenate {#cmd-cat}
+### cat - Concatenate {#cmd-cat}
 
 cat first second...
 
@@ -278,7 +387,7 @@ Conc
 
 {::comment} synopsis-start: chop {:/}
 
-## chop - Chop Buffer {#cmd-chop}
+### chop - Chop Buffer {#cmd-chop}
 
 chop lengths... /mode=
 
@@ -292,7 +401,7 @@ Cuts the buffer into several subsets of the lengths given as arguments
 
 {::comment} synopsis-start: clear {:/}
 
-## clear - Clear view {#cmd-clear}
+### clear - Clear view {#cmd-clear}
 
 clear 
 
@@ -304,7 +413,7 @@ Removes all datasets but the current one from the display
 
 {::comment} synopsis-start: clear-stack {:/}
 
-## clear-stack - Clear stack {#cmd-clear-stack}
+### clear-stack - Clear stack {#cmd-clear-stack}
 
 clear-stack 
 
@@ -316,7 +425,7 @@ Removes all the buffers from both normal and redo stack
 
 {::comment} synopsis-start: combine-fits {:/}
 
-## combine-fits - Combine fits {#cmd-combine-fits}
+### combine-fits - Combine fits {#cmd-combine-fits}
 
 combine-fits name formula fits...
 
@@ -331,7 +440,7 @@ combine-fits name formula fits...
 
 {::comment} synopsis-start: commands {:/}
 
-## commands - Commands {#cmd-commands}
+### commands - Commands {#cmd-commands}
 
 commands 
 
@@ -343,7 +452,7 @@ List all available commands, along with a little help
 
 {::comment} synopsis-start: cursor {:/}
 
-## cursor - Cursor {#cmd-cursor}
+### cursor - Cursor {#cmd-cursor}
 
 cursor 
 
@@ -355,7 +464,7 @@ Displays cursors on the curve
 
 {::comment} synopsis-start: define-derived-fit {:/}
 
-## define-derived-fit - Create a derived fit {#cmd-define-derived-fit}
+### define-derived-fit - Create a derived fit {#cmd-define-derived-fit}
 
 define-derived-fit fit /mode=
 
@@ -369,7 +478,7 @@ define-derived-fit fit /mode=
 
 {::comment} synopsis-start: define-lw-fit {:/}
 
-## define-lw-fit - Define a fit based on a kinetic mode {#cmd-define-lw-fit}
+### define-lw-fit - Define a fit based on a kinetic mode {#cmd-define-lw-fit}
 
 define-lw-fit file name
 
@@ -383,7 +492,7 @@ define-lw-fit file name
 
 {::comment} synopsis-start: deldp {:/}
 
-## deldp - Deldp {#cmd-deldp}
+### deldp - Deldp {#cmd-deldp}
 
 deldp 
 
@@ -395,7 +504,7 @@ deldp
 
 {::comment} synopsis-start: diff {:/}
 
-## diff - Derive {#cmd-diff}
+### diff - Derive {#cmd-diff}
 
 diff 
 
@@ -408,7 +517,7 @@ Do not use this on noisy data
 
 {::comment} synopsis-start: diff2 {:/}
 
-## diff2 - Derive {#cmd-diff2}
+### diff2 - Derive {#cmd-diff2}
 
 diff2 
 
@@ -419,25 +528,9 @@ Computes the 4th order accurate second derivative of the buffer
 Do not use this on noisy data !
 {::comment} description-end: diff2 {:/}
 
-{::comment} synopsis-start: div {:/}
-
-## div - Divide {#cmd-div}
-
-div first... second /mode= /use-segments=
-
-  * first: First buffer(s)
-  * second: Second buffer
-  * /mode: Whether operations try to match x values or indices
-  * /use-segments: If on, operations are performed segment-by-segment
-
-{::comment} synopsis-end: div {:/}
-{::comment} description-start: div {:/}
-Divide the first buffer by the second
-{::comment} description-end: div {:/}
-
 {::comment} synopsis-start: drop {:/}
 
-## drop - Drop dataset {#cmd-drop}
+### drop - Drop dataset {#cmd-drop}
 
 drop /buffers=
 
@@ -450,7 +543,7 @@ Drops the current dataset (or the ones specified in the buffers options) and fre
 
 {::comment} synopsis-start: dummy {:/}
 
-## dummy - Dummy {#cmd-dummy}
+### dummy - Dummy {#cmd-dummy}
 
 dummy file /file= /fiddle= /stuff=
 
@@ -466,7 +559,7 @@ Dummy command for testing purposes
 
 {::comment} synopsis-start: echem-peaks {:/}
 
-## echem-peaks - Find peaks pairs {#cmd-echem-peaks}
+### echem-peaks - Find peaks pairs {#cmd-echem-peaks}
 
 echem-peaks 
 
@@ -478,7 +571,7 @@ echem-peaks
 
 {::comment} synopsis-start: expand {:/}
 
-## expand - Expand {#cmd-expand}
+### expand - Expand {#cmd-expand}
 
 expand 
 
@@ -490,7 +583,7 @@ expand
 
 {::comment} synopsis-start: filter-bsplines {:/}
 
-## filter-bsplines - Filter {#cmd-filter-bsplines}
+### filter-bsplines - Filter {#cmd-filter-bsplines}
 
 filter-bsplines 
 
@@ -502,7 +595,7 @@ filter-bsplines
 
 {::comment} synopsis-start: filter-fft {:/}
 
-## filter-fft - Filter {#cmd-filter-fft}
+### filter-fft - Filter {#cmd-filter-fft}
 
 filter-fft 
 
@@ -514,7 +607,7 @@ filter-fft
 
 {::comment} synopsis-start: find-peaks {:/}
 
-## find-peaks - Find peaks {#cmd-find-peaks}
+### find-peaks - Find peaks {#cmd-find-peaks}
 
 find-peaks /window= /include-borders= /output= /peaks=
 
@@ -530,7 +623,7 @@ find-peaks /window= /include-borders= /output= /peaks=
 
 {::comment} synopsis-start: find-steps {:/}
 
-## find-steps - Find steps {#cmd-find-steps}
+### find-steps - Find steps {#cmd-find-steps}
 
 find-steps /average= /threshold= /set-segments=
 
@@ -545,7 +638,7 @@ find-steps /average= /threshold= /set-segments=
 
 {::comment} synopsis-start: fit-arb {:/}
 
-## fit-arb - Fit: Arbitrary fit {#cmd-fit-arb}
+### fit-arb - Fit: Arbitrary fit {#cmd-fit-arb}
 
 fit-arb formulas /parameters= /debug= /extra-parameters=
 
@@ -564,7 +657,7 @@ Already defined constants: f, pi
 
 {::comment} synopsis-start: fit-duck-sim {:/}
 
-## fit-duck-sim - Fit: Diffusive electrochemical  {#cmd-fit-duck-sim}
+### fit-duck-sim - Fit: Diffusive electrochemical  {#cmd-fit-duck-sim}
 
 fit-duck-sim /system= /base-parameters= /parameters= /debug= /extra-parameters=
 
@@ -582,7 +675,7 @@ Single buffer fit:
 
 {::comment} synopsis-start: fit-ececr-wave {:/}
 
-## fit-ececr-wave - Fit: Fit of an ECECR catalytic wave {#cmd-fit-ececr-wave}
+### fit-ececr-wave - Fit: Fit of an ECECR catalytic wave {#cmd-fit-ececr-wave}
 
 fit-ececr-wave /plateau= /use-eoc= /parameters= /debug= /extra-parameters=
 
@@ -600,7 +693,7 @@ Single buffer fit:
 
 {::comment} synopsis-start: fit-eecr-wave {:/}
 
-## fit-eecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-fit-eecr-wave}
+### fit-eecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-fit-eecr-wave}
 
 fit-eecr-wave /plateau= /oxidation= /use-eoc= /parameters= /debug= /extra-parameters=
 
@@ -619,7 +712,7 @@ Single buffer fit:
 
 {::comment} synopsis-start: fit-exponential-decay {:/}
 
-## fit-exponential-decay - Fit: Multi-exponential fits {#cmd-fit-exponential-decay}
+### fit-exponential-decay - Fit: Multi-exponential fits {#cmd-fit-exponential-decay}
 
 fit-exponential-decay /exponentials= /absolute= /loss= /slow= /parameters= /debug= /extra-parameters=
 
@@ -639,7 +732,7 @@ Single buffer fit:
 
 {::comment} synopsis-start: fit-kinetic-system {:/}
 
-## fit-kinetic-system - Fit: Several steps with a kinetic evolution {#cmd-fit-kinetic-system}
+### fit-kinetic-system - Fit: Several steps with a kinetic evolution {#cmd-fit-kinetic-system}
 
 fit-kinetic-system /species= /steps= /parameters= /debug= /extra-parameters=
 
@@ -657,7 +750,7 @@ Fits of exponentials on several steps with film loss bookkeeping
 
 {::comment} synopsis-start: fit-multiexp-multistep {:/}
 
-## fit-multiexp-multistep - Fit: Multi-step and multi-exponential {#cmd-fit-multiexp-multistep}
+### fit-multiexp-multistep - Fit: Multi-step and multi-exponential {#cmd-fit-multiexp-multistep}
 
 fit-multiexp-multistep /exponentials= /steps= /independent= /parameters= /debug= /extra-parameters=
 
@@ -676,7 +769,7 @@ Fits of exponentials on several steps with film loss bookkeeping
 
 {::comment} synopsis-start: fit-nernst {:/}
 
-## fit-nernst - Fit: Nerstian behaviour {#cmd-fit-nernst}
+### fit-nernst - Fit: Nerstian behaviour {#cmd-fit-nernst}
 
 fit-nernst /parameters= /debug= /extra-parameters=
 
@@ -692,7 +785,7 @@ Fit to a Nerst equation
 
 {::comment} synopsis-start: fit-react-exp {:/}
 
-## fit-react-exp - Fit: Exponential reactivation {#cmd-fit-react-exp}
+### fit-react-exp - Fit: Exponential reactivation {#cmd-fit-react-exp}
 
 fit-react-exp /exponentials= /dead= /parameters= /debug= /extra-parameters=
 
@@ -710,7 +803,7 @@ Reactivation
 
 {::comment} synopsis-start: fit-slow-scan-hp {:/}
 
-## fit-slow-scan-hp - Fit: Slow scan test {#cmd-fit-slow-scan-hp}
+### fit-slow-scan-hp - Fit: Slow scan test {#cmd-fit-slow-scan-hp}
 
 fit-slow-scan-hp /bi-exp= /scaling= /parameters= /debug= /extra-parameters=
 
@@ -728,7 +821,7 @@ Slow scan
 
 {::comment} synopsis-start: fit-slow-scan-lp {:/}
 
-## fit-slow-scan-lp - Fit: Slow scan test {#cmd-fit-slow-scan-lp}
+### fit-slow-scan-lp - Fit: Slow scan test {#cmd-fit-slow-scan-lp}
 
 fit-slow-scan-lp /explicit-rate= /parameters= /debug= /extra-parameters=
 
@@ -745,7 +838,7 @@ Slow scan
 
 {::comment} synopsis-start: generate-buffer {:/}
 
-## generate-buffer - Generate buffer {#cmd-generate-buffer}
+### generate-buffer - Generate buffer {#cmd-generate-buffer}
 
 generate-buffer start end /samples=
 
@@ -760,7 +853,7 @@ generate-buffer start end /samples=
 
 {::comment} synopsis-start: show-stack {:/}
 
-## show-stack - Show stack {#cmd-show-stack}
+### show-stack - Show stack {#cmd-show-stack}
 
 show-stack /number=
 
@@ -773,7 +866,7 @@ Shows a small summary of what the stack is made of
 
 {::comment} synopsis-start: kinetic-system {:/}
 
-## kinetic-system - Linear kinetic system {#cmd-kinetic-system}
+### kinetic-system - Linear kinetic system {#cmd-kinetic-system}
 
 kinetic-system species constants... /samples= /base-name= /duration=
 
@@ -788,48 +881,10 @@ kinetic-system species constants... /samples= /base-name= /duration=
 ...
 {::comment} description-end: kinetic-system {:/}
 
-{::comment} synopsis-start: load {:/}
-
-## load - Load {#cmd-load}
-
-load file...
-
-  * file: Files to load !
-
-{::comment} synopsis-end: load {:/}
-{::comment} description-start: load {:/}
-Loads the given files and push them onto the data stack
-{::comment} description-end: load {:/}
-
-{::comment} synopsis-start: load-as-csv {:/}
-
-## load-as-csv - Load files with backend 'csv' {#cmd-load-as-csv}
-
-load-as-csv file...
-
-  * file: Files to load !
-
-{::comment} synopsis-end: load-as-csv {:/}
-{::comment} description-start: load-as-csv {:/}
-Load any number of files directly using the backend 'csv', bypassing cache andautomatic backend detection, and giving more fine-tuning in the loading via the use of dedicated options
-{::comment} description-end: load-as-csv {:/}
-
-{::comment} synopsis-start: load-as-text {:/}
-
-## load-as-text - Load files with backend 'text' {#cmd-load-as-text}
-
-load-as-text file...
-
-  * file: Files to load !
-
-{::comment} synopsis-end: load-as-text {:/}
-{::comment} description-start: load-as-text {:/}
-Load any number of files directly using the backend 'text', bypassing cache andautomatic backend detection, and giving more fine-tuning in the loading via the use of dedicated options
-{::comment} description-end: load-as-text {:/}
 
 {::comment} synopsis-start: load-documentation {:/}
 
-## load-documentation - Load documentation {#cmd-load-documentation}
+### load-documentation - Load documentation {#cmd-load-documentation}
 
 load-documentation file
 
@@ -842,7 +897,7 @@ load-documentation file
 
 {::comment} synopsis-start: load-fits {:/}
 
-## load-fits - Load fits {#cmd-load-fits}
+### load-fits - Load fits {#cmd-load-fits}
 
 load-fits file
 
@@ -855,7 +910,7 @@ Load fits from a file
 
 {::comment} synopsis-start: load-stack {:/}
 
-## load-stack - Load stack {#cmd-load-stack}
+### load-stack - Load stack {#cmd-load-stack}
 
 load-stack file
 
@@ -868,7 +923,7 @@ Loads the stack as saved using save-stack
 
 {::comment} synopsis-start: merge {:/}
 
-## merge - Merge buffers on X values {#cmd-merge}
+### merge - Merge buffers on X values {#cmd-merge}
 
 merge first... second /mode= /use-segments=
 
@@ -884,7 +939,7 @@ Merge the second buffer with the first one, and keep Y of the second as a functi
 
 {::comment} synopsis-start: mfit-arb {:/}
 
-## mfit-arb - Multi fit: Arbitrary fit {#cmd-mfit-arb}
+### mfit-arb - Multi fit: Arbitrary fit {#cmd-mfit-arb}
 
 mfit-arb formulas datasets... /parameters= /debug= /extra-parameters= /weight-buffers=
 
@@ -905,7 +960,7 @@ Already defined constants: f, pi
 
 {::comment} synopsis-start: mfit-duck-sim {:/}
 
-## mfit-duck-sim - Multi fit: Diffusive electrochemical  {#cmd-mfit-duck-sim}
+### mfit-duck-sim - Multi fit: Diffusive electrochemical  {#cmd-mfit-duck-sim}
 
 mfit-duck-sim datasets... /system= /base-parameters= /parameters= /debug= /extra-parameters= /weight-buffers=
 
@@ -925,7 +980,7 @@ multi buffer fit:
 
 {::comment} synopsis-start: mfit-ececr-wave {:/}
 
-## mfit-ececr-wave - Multi fit: Fit of an ECECR catalytic wave {#cmd-mfit-ececr-wave}
+### mfit-ececr-wave - Multi fit: Fit of an ECECR catalytic wave {#cmd-mfit-ececr-wave}
 
 mfit-ececr-wave datasets... /plateau= /use-eoc= /parameters= /debug= /extra-parameters= /weight-buffers=
 
@@ -945,7 +1000,7 @@ multi buffer fit:
 
 {::comment} synopsis-start: mfit-eecr-wave {:/}
 
-## mfit-eecr-wave - Multi fit: Fit of an EECR catalytic wave {#cmd-mfit-eecr-wave}
+### mfit-eecr-wave - Multi fit: Fit of an EECR catalytic wave {#cmd-mfit-eecr-wave}
 
 mfit-eecr-wave datasets... /plateau= /oxidation= /use-eoc= /parameters= /debug= /extra-parameters= /weight-buffers=
 
@@ -966,7 +1021,7 @@ multi buffer fit:
 
 {::comment} synopsis-start: mfit-exponential-decay {:/}
 
-## mfit-exponential-decay - Multi fit: Multi-exponential fits {#cmd-mfit-exponential-decay}
+### mfit-exponential-decay - Multi fit: Multi-exponential fits {#cmd-mfit-exponential-decay}
 
 mfit-exponential-decay datasets... /exponentials= /absolute= /loss= /slow= /parameters= /debug= /extra-parameters= /weight-buffers=
 
@@ -988,7 +1043,7 @@ multi buffer fit:
 
 {::comment} synopsis-start: mfit-inact-react-amplitude-2phases {:/}
 
-## mfit-inact-react-amplitude-2phases - Multi fit: ... {#cmd-mfit-inact-react-amplitude-2phases}
+### mfit-inact-react-amplitude-2phases - Multi fit: ... {#cmd-mfit-inact-react-amplitude-2phases}
 
 mfit-inact-react-amplitude-2phases datasets... /parameters= /debug= /extra-parameters= /weight-buffers=
 
@@ -1006,7 +1061,7 @@ multi buffer fit:
 
 {::comment} synopsis-start: mfit-kinetic-system {:/}
 
-## mfit-kinetic-system - Multi fit: Several steps with a kinetic evolution {#cmd-mfit-kinetic-system}
+### mfit-kinetic-system - Multi fit: Several steps with a kinetic evolution {#cmd-mfit-kinetic-system}
 
 mfit-kinetic-system datasets... /species= /steps= /parameters= /debug= /extra-parameters= /weight-buffers=
 
@@ -1026,7 +1081,7 @@ Fits of exponentials on several steps with film loss bookkeeping
 
 {::comment} synopsis-start: mfit-multiexp-multistep {:/}
 
-## mfit-multiexp-multistep - Multi fit: Multi-step and multi-exponential {#cmd-mfit-multiexp-multistep}
+### mfit-multiexp-multistep - Multi fit: Multi-step and multi-exponential {#cmd-mfit-multiexp-multistep}
 
 mfit-multiexp-multistep datasets... /exponentials= /steps= /independent= /parameters= /debug= /extra-parameters= /weight-buffers=
 
@@ -1047,7 +1102,7 @@ Fits of exponentials on several steps with film loss bookkeeping
 
 {::comment} synopsis-start: mfit-nernst {:/}
 
-## mfit-nernst - Multi fit: Nerstian behaviour {#cmd-mfit-nernst}
+### mfit-nernst - Multi fit: Nerstian behaviour {#cmd-mfit-nernst}
 
 mfit-nernst datasets... /parameters= /debug= /extra-parameters= /weight-buffers=
 
@@ -1065,7 +1120,7 @@ Fit to a Nerst equation
 
 {::comment} synopsis-start: mfit-react-exp {:/}
 
-## mfit-react-exp - Multi fit: Exponential reactivation {#cmd-mfit-react-exp}
+### mfit-react-exp - Multi fit: Exponential reactivation {#cmd-mfit-react-exp}
 
 mfit-react-exp datasets... /exponentials= /dead= /parameters= /debug= /extra-parameters= /weight-buffers=
 
@@ -1085,7 +1140,7 @@ Reactivation
 
 {::comment} synopsis-start: mfit-slow-scan-hp {:/}
 
-## mfit-slow-scan-hp - Multi fit: Slow scan test {#cmd-mfit-slow-scan-hp}
+### mfit-slow-scan-hp - Multi fit: Slow scan test {#cmd-mfit-slow-scan-hp}
 
 mfit-slow-scan-hp datasets... /bi-exp= /scaling= /parameters= /debug= /extra-parameters= /weight-buffers=
 
@@ -1105,7 +1160,7 @@ Slow scan
 
 {::comment} synopsis-start: mfit-slow-scan-lp {:/}
 
-## mfit-slow-scan-lp - Multi fit: Slow scan test {#cmd-mfit-slow-scan-lp}
+### mfit-slow-scan-lp - Multi fit: Slow scan test {#cmd-mfit-slow-scan-lp}
 
 mfit-slow-scan-lp datasets... /explicit-rate= /parameters= /debug= /extra-parameters= /weight-buffers=
 
@@ -1124,7 +1179,7 @@ Slow scan
 
 {::comment} synopsis-start: norm {:/}
 
-## norm - Normalize {#cmd-norm}
+### norm - Normalize {#cmd-norm}
 
 norm /positive=
 
@@ -1137,7 +1192,7 @@ Normalize the current buffer by its maximum value
 
 {::comment} synopsis-start: opengl {:/}
 
-## opengl - OpenGL {#cmd-opengl}
+### opengl - OpenGL {#cmd-opengl}
 
 opengl 
 
@@ -1149,7 +1204,7 @@ Toggles the use of OpenGL for graphics rendering.
 
 {::comment} synopsis-start: overlay {:/}
 
-## overlay - Overlay {#cmd-overlay}
+### overlay - Overlay {#cmd-overlay}
 
 overlay file...
 
@@ -1162,7 +1217,7 @@ Loads the given files and push them onto the data stack, adding them to the disp
 
 {::comment} synopsis-start: print {:/}
 
-## print - Print {#cmd-print}
+### print - Print {#cmd-print}
 
 print /file= /title=
 
@@ -1176,7 +1231,7 @@ Prints the current main panel of the current view
 
 {::comment} synopsis-start: points {:/}
 
-## points - Show points {#cmd-points}
+### points - Show points {#cmd-points}
 
 points 
 
@@ -1188,7 +1243,7 @@ Shows all the points of datasets displayed.
 
 {::comment} synopsis-start: quit {:/}
 
-## quit - Quit {#cmd-quit}
+### quit - Quit {#cmd-quit}
 
 quit 
 
@@ -1200,7 +1255,7 @@ Exits QSoas, losing all the current session
 
 {::comment} synopsis-start: redo {:/}
 
-## redo - Redo {#cmd-redo}
+### redo - Redo {#cmd-redo}
 
 redo /number=
 
@@ -1213,7 +1268,7 @@ Pops the last buffer from the redo stack and set it as the current buffer
 
 {::comment} synopsis-start: reglin {:/}
 
-## reglin - Linear regression {#cmd-reglin}
+### reglin - Linear regression {#cmd-reglin}
 
 reglin 
 
@@ -1225,7 +1280,7 @@ reglin
 
 {::comment} synopsis-start: save {:/}
 
-## save - Save {#cmd-save}
+### save - Save {#cmd-save}
 
 save file
 
@@ -1238,7 +1293,7 @@ Saves the current buffer to a file
 
 {::comment} synopsis-start: save-buffers {:/}
 
-## save-buffers - Save {#cmd-save-buffers}
+### save-buffers - Save {#cmd-save-buffers}
 
 save-buffers buffers...
 
@@ -1251,7 +1306,7 @@ Saves the designated buffers to file
 
 {::comment} synopsis-start: save-history {:/}
 
-## save-history - Save history {#cmd-save-history}
+### save-history - Save history {#cmd-save-history}
 
 save-history file
 
@@ -1264,7 +1319,7 @@ Saves all the command history to a plain text file, to be used again with run
 
 {::comment} synopsis-start: save-output {:/}
 
-## save-output - Save output {#cmd-save-output}
+### save-output - Save output {#cmd-save-output}
 
 save-output file
 
@@ -1277,7 +1332,7 @@ Save all output from the terminal
 
 {::comment} synopsis-start: save-stack {:/}
 
-## save-stack - Save stack {#cmd-save-stack}
+### save-stack - Save stack {#cmd-save-stack}
 
 save-stack file
 
@@ -1290,7 +1345,7 @@ Saves the contents of the stack for later use, in a private binary format
 
 {::comment} synopsis-start: segments-chop {:/}
 
-## segments-chop - Chop into segments {#cmd-segments-chop}
+### segments-chop - Chop into segments {#cmd-segments-chop}
 
 segments-chop 
 
@@ -1302,7 +1357,7 @@ Cuts the buffer into several ones based on the segments defined using set-segmen
 
 {::comment} synopsis-start: set-segments {:/}
 
-## set-segments - Set segments {#cmd-set-segments}
+### set-segments - Set segments {#cmd-set-segments}
 
 set-segments 
 
@@ -1314,7 +1369,7 @@ set-segments
 
 {::comment} synopsis-start: shiftx {:/}
 
-## shiftx - Shift X values {#cmd-shiftx}
+### shiftx - Shift X values {#cmd-shiftx}
 
 shiftx 
 
@@ -1326,15 +1381,16 @@ Shift X values so that x[0] = 0
 
 {::comment} synopsis-start: sim-duck-sim {:/}
 
-## sim-duck-sim - Fit: Diffusive electrochemical  {#cmd-sim-duck-sim}
+### sim-duck-sim - Fit: Diffusive electrochemical  {#cmd-sim-duck-sim}
 
-sim-duck-sim parameters datasets... /system= /base-parameters= /override=
+sim-duck-sim parameters datasets... /system= /base-parameters= /override= /extra-parameters=
 
   * parameters: File to load parameters from
   * datasets: Datasets to fit
   * /system: ...
   * /base-parameters: ...
   * /override: A comma-separated list of parameters to override
+  * /extra-parameters: Define supplementary parameters
 
 {::comment} synopsis-end: sim-duck-sim {:/}
 {::comment} description-start: sim-duck-sim {:/}
@@ -1344,15 +1400,16 @@ fit simulation:
 
 {::comment} synopsis-start: sim-ececr-wave {:/}
 
-## sim-ececr-wave - Fit: Fit of an ECECR catalytic wave {#cmd-sim-ececr-wave}
+### sim-ececr-wave - Fit: Fit of an ECECR catalytic wave {#cmd-sim-ececr-wave}
 
-sim-ececr-wave parameters datasets... /plateau= /use-eoc= /override=
+sim-ececr-wave parameters datasets... /plateau= /use-eoc= /override= /extra-parameters=
 
   * parameters: File to load parameters from
   * datasets: Datasets to fit
   * /plateau: Whether to use the general expression or only that valid when plateaus are not reached
   * /use-eoc: Whether to use explicitly the bias or compute it using the open circuit potential
   * /override: A comma-separated list of parameters to override
+  * /extra-parameters: Define supplementary parameters
 
 {::comment} synopsis-end: sim-ececr-wave {:/}
 {::comment} description-start: sim-ececr-wave {:/}
@@ -1362,9 +1419,9 @@ fit simulation:
 
 {::comment} synopsis-start: sim-eecr-wave {:/}
 
-## sim-eecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-sim-eecr-wave}
+### sim-eecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-sim-eecr-wave}
 
-sim-eecr-wave parameters datasets... /plateau= /oxidation= /use-eoc= /override=
+sim-eecr-wave parameters datasets... /plateau= /oxidation= /use-eoc= /override= /extra-parameters=
 
   * parameters: File to load parameters from
   * datasets: Datasets to fit
@@ -1372,6 +1429,7 @@ sim-eecr-wave parameters datasets... /plateau= /oxidation= /use-eoc= /override=
   * /oxidation: ???
   * /use-eoc: Whether to use explicitly the bias or compute it using the open circuit potential
   * /override: A comma-separated list of parameters to override
+  * /extra-parameters: Define supplementary parameters
 
 {::comment} synopsis-end: sim-eecr-wave {:/}
 {::comment} description-start: sim-eecr-wave {:/}
@@ -1381,9 +1439,9 @@ fit simulation:
 
 {::comment} synopsis-start: sim-exponential-decay {:/}
 
-## sim-exponential-decay - Fit: Multi-exponential fits {#cmd-sim-exponential-decay}
+### sim-exponential-decay - Fit: Multi-exponential fits {#cmd-sim-exponential-decay}
 
-sim-exponential-decay parameters datasets... /exponentials= /absolute= /loss= /slow= /override=
+sim-exponential-decay parameters datasets... /exponentials= /absolute= /loss= /slow= /override= /extra-parameters=
 
   * parameters: File to load parameters from
   * datasets: Datasets to fit
@@ -1392,6 +1450,7 @@ sim-exponential-decay parameters datasets... /exponentials= /absolute= /loss= /s
   * /loss: Is there an overall fully exponential loss ?
   * /slow: Is there a very slow phase ?
   * /override: A comma-separated list of parameters to override
+  * /extra-parameters: Define supplementary parameters
 
 {::comment} synopsis-end: sim-exponential-decay {:/}
 {::comment} description-start: sim-exponential-decay {:/}
@@ -1401,13 +1460,14 @@ fit simulation:
 
 {::comment} synopsis-start: sim-inact-react-amplitude-2phases {:/}
 
-## sim-inact-react-amplitude-2phases - Fit: ... {#cmd-sim-inact-react-amplitude-2phases}
+### sim-inact-react-amplitude-2phases - Fit: ... {#cmd-sim-inact-react-amplitude-2phases}
 
-sim-inact-react-amplitude-2phases parameters datasets... /override=
+sim-inact-react-amplitude-2phases parameters datasets... /override= /extra-parameters=
 
   * parameters: File to load parameters from
   * datasets: Datasets to fit
   * /override: A comma-separated list of parameters to override
+  * /extra-parameters: Define supplementary parameters
 
 {::comment} synopsis-end: sim-inact-react-amplitude-2phases {:/}
 {::comment} description-start: sim-inact-react-amplitude-2phases {:/}
@@ -1417,15 +1477,16 @@ fit simulation:
 
 {::comment} synopsis-start: sim-kinetic-system {:/}
 
-## sim-kinetic-system - Fit: Several steps with a kinetic evolution {#cmd-sim-kinetic-system}
+### sim-kinetic-system - Fit: Several steps with a kinetic evolution {#cmd-sim-kinetic-system}
 
-sim-kinetic-system parameters datasets... /species= /steps= /override=
+sim-kinetic-system parameters datasets... /species= /steps= /override= /extra-parameters=
 
   * parameters: File to load parameters from
   * datasets: Datasets to fit
   * /species: Number of species
   * /steps: Step list with numbered conditions
   * /override: A comma-separated list of parameters to override
+  * /extra-parameters: Define supplementary parameters
 
 {::comment} synopsis-end: sim-kinetic-system {:/}
 {::comment} description-start: sim-kinetic-system {:/}
@@ -1435,7 +1496,7 @@ Fits of exponentials on several steps with film loss bookkeeping
 
 {::comment} synopsis-start: sim-lw {:/}
 
-## sim-lw - Simulate linear wave {#cmd-sim-lw}
+### sim-lw - Simulate linear wave {#cmd-sim-lw}
 
 sim-lw file parameters...
 
@@ -1449,9 +1510,9 @@ sim-lw file parameters...
 
 {::comment} synopsis-start: sim-multiexp-multistep {:/}
 
-## sim-multiexp-multistep - Fit: Multi-step and multi-exponential {#cmd-sim-multiexp-multistep}
+### sim-multiexp-multistep - Fit: Multi-step and multi-exponential {#cmd-sim-multiexp-multistep}
 
-sim-multiexp-multistep parameters datasets... /exponentials= /steps= /independent= /override=
+sim-multiexp-multistep parameters datasets... /exponentials= /steps= /independent= /override= /extra-parameters=
 
   * parameters: File to load parameters from
   * datasets: Datasets to fit
@@ -1459,6 +1520,7 @@ sim-multiexp-multistep parameters datasets... /exponentials= /steps= /independen
   * /steps: Step list with numbered conditions
   * /independent: Whether irreversible loss is independent on each step
   * /override: A comma-separated list of parameters to override
+  * /extra-parameters: Define supplementary parameters
 
 {::comment} synopsis-end: sim-multiexp-multistep {:/}
 {::comment} description-start: sim-multiexp-multistep {:/}
@@ -1468,13 +1530,14 @@ Fits of exponentials on several steps with film loss bookkeeping
 
 {::comment} synopsis-start: sim-nernst {:/}
 
-## sim-nernst - Fit: Nerstian behaviour {#cmd-sim-nernst}
+### sim-nernst - Fit: Nerstian behaviour {#cmd-sim-nernst}
 
-sim-nernst parameters datasets... /override=
+sim-nernst parameters datasets... /override= /extra-parameters=
 
   * parameters: File to load parameters from
   * datasets: Datasets to fit
   * /override: A comma-separated list of parameters to override
+  * /extra-parameters: Define supplementary parameters
 
 {::comment} synopsis-end: sim-nernst {:/}
 {::comment} description-start: sim-nernst {:/}
@@ -1484,15 +1547,16 @@ Fit to a Nerst equation
 
 {::comment} synopsis-start: sim-react-exp {:/}
 
-## sim-react-exp - Fit: Exponential reactivation {#cmd-sim-react-exp}
+### sim-react-exp - Fit: Exponential reactivation {#cmd-sim-react-exp}
 
-sim-react-exp parameters datasets... /exponentials= /dead= /override=
+sim-react-exp parameters datasets... /exponentials= /dead= /override= /extra-parameters=
 
   * parameters: File to load parameters from
   * datasets: Datasets to fit
   * /exponentials: Number of exponentials
   * /dead: Whether we include a dead phase or not
   * /override: A comma-separated list of parameters to override
+  * /extra-parameters: Define supplementary parameters
 
 {::comment} synopsis-end: sim-react-exp {:/}
 {::comment} description-start: sim-react-exp {:/}
@@ -1502,15 +1566,16 @@ Reactivation
 
 {::comment} synopsis-start: sim-slow-scan-hp {:/}
 
-## sim-slow-scan-hp - Fit: Slow scan test {#cmd-sim-slow-scan-hp}
+### sim-slow-scan-hp - Fit: Slow scan test {#cmd-sim-slow-scan-hp}
 
-sim-slow-scan-hp parameters datasets... /bi-exp= /scaling= /override=
+sim-slow-scan-hp parameters datasets... /bi-exp= /scaling= /override= /extra-parameters=
 
   * parameters: File to load parameters from
   * datasets: Datasets to fit
   * /bi-exp: Whether we have a bi-exponential or a mono-exponential
   * /scaling: Use an additional scaling factor
   * /override: A comma-separated list of parameters to override
+  * /extra-parameters: Define supplementary parameters
 
 {::comment} synopsis-end: sim-slow-scan-hp {:/}
 {::comment} description-start: sim-slow-scan-hp {:/}
@@ -1520,14 +1585,15 @@ Slow scan
 
 {::comment} synopsis-start: sim-slow-scan-lp {:/}
 
-## sim-slow-scan-lp - Fit: Slow scan test {#cmd-sim-slow-scan-lp}
+### sim-slow-scan-lp - Fit: Slow scan test {#cmd-sim-slow-scan-lp}
 
-sim-slow-scan-lp parameters datasets... /explicit-rate= /override=
+sim-slow-scan-lp parameters datasets... /explicit-rate= /override= /extra-parameters=
 
   * parameters: File to load parameters from
   * datasets: Datasets to fit
   * /explicit-rate: Whether the scan rate is an explicit parameter of the fit
   * /override: A comma-separated list of parameters to override
+  * /extra-parameters: Define supplementary parameters
 
 {::comment} synopsis-end: sim-slow-scan-lp {:/}
 {::comment} description-start: sim-slow-scan-lp {:/}
@@ -1537,7 +1603,7 @@ Slow scan
 
 {::comment} synopsis-start: sort {:/}
 
-## sort - Sort {#cmd-sort}
+### sort - Sort {#cmd-sort}
 
 sort 
 
@@ -1549,7 +1615,7 @@ sort
 
 {::comment} synopsis-start: split-monotonic {:/}
 
-## split-monotonic - Split into monotonic parts {#cmd-split-monotonic}
+### split-monotonic - Split into monotonic parts {#cmd-split-monotonic}
 
 split-monotonic 
 
@@ -1561,7 +1627,7 @@ split-monotonic
 
 {::comment} synopsis-start: splita {:/}
 
-## splita - Split first {#cmd-splita}
+### splita - Split first {#cmd-splita}
 
 splita 
 
@@ -1573,7 +1639,7 @@ Returns the first part of the buffer, until the first change of sign of dx
 
 {::comment} synopsis-start: splitb {:/}
 
-## splitb - Split second {#cmd-splitb}
+### splitb - Split second {#cmd-splitb}
 
 splitb 
 
@@ -1585,7 +1651,7 @@ Returns the part of the buffer after the first change of sign of dx
 
 {::comment} synopsis-start: stats {:/}
 
-## stats - Statistics {#cmd-stats}
+### stats - Statistics {#cmd-stats}
 
 stats /buffer=
 
@@ -1598,7 +1664,7 @@ stats /buffer=
 
 {::comment} synopsis-start: test-event-loop {:/}
 
-## test-event-loop - Test event loop {#cmd-test-event-loop}
+### test-event-loop - Test event loop {#cmd-test-event-loop}
 
 test-event-loop 
 
@@ -1610,7 +1676,7 @@ Exits QSoas, losing all the current session
 
 {::comment} synopsis-start: test-lw {:/}
 
-## test-lw - TestLW {#cmd-test-lw}
+### test-lw - TestLW {#cmd-test-lw}
 
 test-lw file
 
@@ -1623,7 +1689,7 @@ TestLW command for testing purposes
 
 {::comment} synopsis-start: tex-commands {:/}
 
-## tex-commands - TeX {#cmd-tex-commands}
+### tex-commands - TeX {#cmd-tex-commands}
 
 tex-commands 
 
@@ -1635,7 +1701,7 @@ List all available commands, along with a little help
 
 {::comment} synopsis-start: undo {:/}
 
-## undo - Undo {#cmd-undo}
+### undo - Undo {#cmd-undo}
 
 undo /number=
 
@@ -1648,7 +1714,7 @@ Returns to the previous buffer, and push the current to the redo stack
 
 {::comment} synopsis-start: update-documentation {:/}
 
-## update-documentation - Update documentation {#cmd-update-documentation}
+### update-documentation - Update documentation {#cmd-update-documentation}
 
 update-documentation file
 
@@ -1661,7 +1727,7 @@ update-documentation file
 
 {::comment} synopsis-start: zoom {:/}
 
-## zoom - Zoom {#cmd-zoom}
+### zoom - Zoom {#cmd-zoom}
 
 zoom 
 

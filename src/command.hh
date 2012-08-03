@@ -269,7 +269,9 @@ public:
   /// @li second, the long description, updated from the documentation
   /// file to the program (or for the first time, the other way
   /// around)
-  QString & updateDocumentation(QString & str) const;
+  ///
+  /// The headings says which level of nesting is used for commands.
+  QString & updateDocumentation(QString & str, int headings = 3) const;
 
   /// Loads the long description from the documentation string
   void loadDocumentation(const QString & str);

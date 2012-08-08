@@ -105,6 +105,7 @@ public:
   int frequencies() const;
   /// @}
 
+
   /// Returns the value of the baseline at the given X location
   double baseline(double x) const;
 
@@ -122,6 +123,17 @@ public:
 
   /// Differentiates the data (assuming it is in Fourier space)
   void differentiate();
+
+  /// @name Filtering operations
+  ///
+  /// Filtering operations that apply only in the Fourier space
+  /// @{
+
+  /// Apply a Gaussian filter with the given cutoff (frequencies range
+  /// from 0 to 1)
+  void applyGaussianFilter(double cutoff);
+
+  /// @}
 
 };
 

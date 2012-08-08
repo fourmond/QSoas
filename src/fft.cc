@@ -226,3 +226,14 @@ void FFT::differentiate()
   }
   deriveBaseLine();
 }
+
+void FFT::applyGaussianFilter(double cutoff)
+{
+  int nb = frequencies();
+  for(int i = 0; i < nb; i++) { 
+    double freq = i/(nb*1.0);
+    double xx = freq*freq;
+    double fact = exp(-1*xx*cutoff*cutoff/2.);
+    scaleFrequency(i, fact);
+  }
+}

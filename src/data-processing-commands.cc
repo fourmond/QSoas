@@ -745,12 +745,7 @@ static void fftCommand(const QString &)
       FFT trans = orig;
       double cf = ds->x().size()/2 - cutoff;
       lim.x = -log(cutoff);
-      for(int i = 0; i < trans.frequencies(); i++) { 
-        double freq = i/(ds->x().size()*0.5);
-        double xx = freq*freq;
-        double fact = exp(-1*xx*cutoff*cutoff/2.);
-        trans.scaleFrequency(i, fact);
-      }
+      trans.applyGaussianFilter(cutoff);
 
       if(order > 0)             /// @todo and the second derivative ?
         trans.differentiate();
@@ -847,6 +842,58 @@ afbs("auto-filter-bs", // command name
      "Filter using bsplines",
      "...",
      "afbs");
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void autoFilterFFTCommand(const QString &, const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+  int cutoff = 20;
+  int derivatives = 0;
+
+  updateFromOptions(opts, "cutoff", cutoff);
+  updateFromOptions(opts, "derive", derivatives);
+
+  FFT orig(ds->x(), ds->y());
+  orig.forward();
+  orig.applyGaussianFilter(cutoff);
+  
+  for(int i = 0; i < derivatives; i++)
+    orig.differentiate();
+  orig.reverse();  // Don't use baseline on derivatives (for now)
+
+  DataSet * newds = new DataSet(ds->x(), orig.data);
+
+  newds->name = ds->cleanedName() + "_fft";
+  if(derivatives)
+    newds->name += QString("_diff_%1").arg(derivatives);
+
+  newds->name += ".dat";
+  soas().pushDataSet(newds);
+}
+
+static ArgumentList 
+afftOps(QList<Argument *>() 
+        << new IntegerArgument("cutoff", 
+                               "Number",
+                               "Number of segments")
+        << new IntegerArgument("derive", 
+                               "Derive",
+                               "Differentiate to the given order")
+      );
+
+
+static Command 
+afft("auto-filter-fft", // command name
+     effector(autoFilterFFTCommand), // action
+     "buffer",  // group name
+     NULL, // arguments
+     &afftOps, // options
+     "Filter",
+     "Filter using bsplines",
+     "...",
+     "afft");
 
 //////////////////////////////////////////////////////////////////////
 

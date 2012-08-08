@@ -30,6 +30,7 @@
 
 CurvePanel::CurvePanel() : 
   bgLinesPen(QColor("#DDD"), 1.5, Qt::DashLine),
+  orgPen(QColor("#BBB"), 2.4, Qt::DashLine),
   xTracking(0),
   drawingXTicks(true), drawingYTicks(true), drawingLegend(true),
   xLabel("X"), yLabel("Y"), anyZoom(false), stretch(100)
@@ -184,13 +185,20 @@ void CurvePanel::paintCurves(QPainter * p)
   
   /// p->setTransform(transform, true);
 
-  p->setPen(bgLinesPen); 
   for(int i = 0; i < xTicks.size(); i++) {
     double x = xTicks[i];
+    if(x == 0.0)
+      p->setPen(orgPen); 
+    else
+      p->setPen(bgLinesPen); 
     p->drawLine(transform.map(QLineF(x, r.bottom(), x, r.top())));
   }
   for(int i = 0; i < yTicks.size(); i++) {
     double y = yTicks[i];
+    if(y == 0.0)
+      p->setPen(orgPen); 
+    else
+      p->setPen(bgLinesPen); 
     p->drawLine(transform.map(QLineF(r.left(), y, r.right(), y)));
   }
 

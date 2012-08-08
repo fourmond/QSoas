@@ -88,6 +88,9 @@ class CurvePanel : public QObject {
   /// The pen used to draw backgroundLines
   QPen bgLinesPen;
 
+  /// The pen used to draw background lines for X and Y = 0
+  QPen orgPen;
+
   /// Paint all the curves.
   void paintCurves(QPainter * p);
   

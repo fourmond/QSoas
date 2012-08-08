@@ -846,6 +846,8 @@ afbs("auto-filter-bs", // command name
 //////////////////////////////////////////////////////////////////////
 
 
+/// @todo the auto-filter-... commands should be all merged into one
+/// (?) or at least provide a consistent interface.
 static void autoFilterFFTCommand(const QString &, const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();

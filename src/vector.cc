@@ -404,3 +404,21 @@ QList<int> Vector::extrema(int window) const
   return ret;
   
 }
+
+int Vector::closestPoint(double v) const
+{
+  const double * d = data();
+  if(size() <= 0)
+    throw RuntimeError("Cannot find a point in an empty vector");
+  double delta = fabs(v - d[0]);
+  int idx = 0;
+  for(int i = 1; i < size(); i++) {
+    double nd = fabs(v - d[i]);
+    if(nd < delta) {
+      delta = nd;
+      idx = i;
+    }
+  }
+  // We could also return delta, but, well...
+  return idx;
+}

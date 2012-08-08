@@ -93,6 +93,9 @@ public:
   /// The extrema has to be an extrema for over \a window
   QList<int> extrema(int window = 8) const; 
 
+  /// Find the index of the value the closest to the one given here
+  int closestPoint(double value) const;
+
   /// @}
 
   /// @name Other operations

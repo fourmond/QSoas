@@ -1394,3 +1394,54 @@ norm("norm", // command name
      "Normalize",
      "Divides by the maximum",
      "Normalize the current buffer by its maximum value");
+
+//////////////////////////////////////////////////////////////////////
+
+static void zeroCommand(const QString &, double val, 
+                        const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+  bool isX = testOption<QString>(opts, "axis", "x");
+  Vector nx = ds->x();
+  Vector ny = ds->y();
+  
+  if(isX) {
+    int idx = ny.closestPoint(val);
+    double off = nx[idx];
+    nx -= off;
+    Terminal::out << "Offset X values by " << -off << endl;
+  }
+  else {
+    int idx = nx.closestPoint(val);
+    double off = ny[idx];
+    ny -= off;
+    Terminal::out << "Offset Y values by " << -off << endl;
+  }
+  DataSet * nds = new DataSet(nx, ny);
+  nds->name = ds->cleanedName() + "_off.dat";
+  soas().pushDataSet(nds);
+}
+
+static ArgumentList 
+zeroArgs(QList<Argument *>() 
+         << new NumberArgument("value", 
+                               "Value at which the other axis should be 0", 
+                               "...")
+         );
+
+static ArgumentList 
+zeroOps(QList<Argument *>() 
+        << new ChoiceArgument(QStringList() << "x" << "y",
+                              "axis", 
+                              "Which axis is 0ed", "...")
+        );
+
+static Command 
+zerp("zero", // command name
+     effector(zeroCommand), // action
+     "buffer",  // group name
+     &zeroArgs, // arguments
+     &zeroOps, // options
+     "Makes 0",
+     "Ensure that a given point has X or Y value equal to 0",
+     "...");

@@ -93,7 +93,8 @@ public:
   QString terminalContents() const;
 
   /// Runs the command coming from the given device
-  void runCommandFile(QIODevice * source);
+  void runCommandFile(QIODevice * source, 
+                      const QStringList & args = QStringList());
 
   /// Returns the history of all commands run so far.
   ///
@@ -117,7 +118,8 @@ public slots:
   void printCurrentDataSetInfo(); 
 
   /// Runs the commands contained in a file.
-  void runCommandFile(const QString & fileName);
+  void runCommandFile(const QString & fileName, 
+                      const QStringList & args = QStringList());
 
 protected slots:
   void commandEntered();

@@ -234,7 +234,8 @@ QString CommandWidget::terminalContents() const
   return terminalDisplay->toPlainText();
 }
 
-void CommandWidget::runCommandFile(QIODevice * source)
+void CommandWidget::runCommandFile(QIODevice * source, 
+                                   const QStringList & args)
 {
   QTextStream in(source);
   QRegExp commentRE("^\\s*#.*");
@@ -245,6 +246,14 @@ void CommandWidget::runCommandFile(QIODevice * source)
         break;
       if(commentRE.indexIn(line) == 0)
         continue;
+
+      // Argument substitution
+
+      /// @todo escape ?
+      for(int i = 0; i < args.size(); i++) {
+        QString argname = QString("${%1}").arg(i + 1);
+        line.replace(argname, args[i]);
+      }
       runCommand(line);
     }
   }
@@ -253,11 +262,12 @@ void CommandWidget::runCommandFile(QIODevice * source)
   }
 }
 
-void CommandWidget::runCommandFile(const QString & fileName)
+void CommandWidget::runCommandFile(const QString & fileName, 
+                                   const QStringList & args)
 {
   QFile file(fileName);
   Utils::open(&file, QIODevice::ReadOnly);
-  runCommandFile(&file);
+  runCommandFile(&file, args);
 }
 
 QStringList CommandWidget::history() const

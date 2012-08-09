@@ -343,14 +343,8 @@ sh("save-history", // command name
 
 //////////////////////////////////////////////////////////////////////
   
-static ArgumentList 
-runArgs(QList<Argument *>() 
-        << new FileArgument("file", 
-                            "Command file",
-                            "File containing the commands to run"));
 
-
-static void runCommand(const QString &, QString cmdfile, 
+static void runCommand(const QString &, QStringList args, 
                        const CommandOptions &opts)
 {
   if(testOption<QString>(opts, "silent", "yes")) {
@@ -358,8 +352,9 @@ static void runCommand(const QString &, QString cmdfile,
     o << "Running in silent mode" << endl;
     soas().view().disableUpdates();
   }
+  QString cmdfile = args.takeFirst();
 
-  soas().prompt().runCommandFile(cmdfile);
+  soas().prompt().runCommandFile(cmdfile, args);
   soas().view().enableUpdates();
 }
 
@@ -370,6 +365,13 @@ runOpts(QList<Argument *>()
                               "Silent processing",
                               "Whether or not display is updated "
                               "during the load"));
+
+static ArgumentList 
+runArgs(QList<Argument *>() 
+        << new SeveralFilesArgument("file", 
+                                    "Files",
+                                    "First is the command files, "
+                                    "following are arguments", true));
 
 
 static Command 
@@ -382,6 +384,43 @@ run("run", // command name
    "Run commands from a file",
    "Run commands saved in a file",
    "@");
+
+//////////////////////////////////////////////////////////////////////
+  
+
+static void runForEachCommand(const QString &, QString script,
+                              QStringList args, 
+                              const CommandOptions &opts)
+{
+  int nb = 1;
+  while(args.size() > 0) {
+    QStringList a;
+    for(int i = 0; i < nb && args.size() > 0; i++)
+      a << args.takeFirst();
+    soas().prompt().runCommandFile(script, a);
+  }
+}
+
+static ArgumentList 
+rfeArgs(QList<Argument *>() 
+        << new FileArgument("script", 
+                            "Script",
+                            "The script file")
+        << new SeveralFilesArgument("arguments", 
+                                    "Arguments",
+                                    "All the arguments for the script file "
+                                    "to loop on", true));
+
+
+static Command 
+rfe("run-for-each", // command name
+    effector(runForEachCommand), // action
+   "file",  // group name
+   &rfeArgs, // arguments
+    NULL, 
+   "Loop run a script",
+   "Runs a script file repetitively with the given arguments",
+   "...");
 
 //////////////////////////////////////////////////////////////////////
   

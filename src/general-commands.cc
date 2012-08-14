@@ -388,6 +388,9 @@ run("run", // command name
 //////////////////////////////////////////////////////////////////////
   
 
+/// @todo Choose the number of arguments (ie one by one, two by two,
+/// and so on)
+/// @todo select extra arguments using options
 static void runForEachCommand(const QString &, QString script,
                               QStringList args, 
                               const CommandOptions &opts)

@@ -24,6 +24,11 @@
 #include <soas.hh>
 #include <datastack.hh>
 
+/// @todo The CurveDataSet object should register itself and the
+/// dataset it points to somewhere, so that when a DataSet gets
+/// deleted, we make sure the corresponding views become invalid. A
+/// way to do that would be to make DataSet a QObject and use guarded
+/// pointers, but that doesn't sound like a smart thing to do... 
 CurveDataSet::~CurveDataSet()
 {
   delete cachedPath;

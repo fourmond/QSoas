@@ -85,7 +85,7 @@ in another buffer. There are two ways to do that, chosen by the
 
 
  * with `/mode=xvalues`, the default, uses the values of X (ie the
-   closest X value is picked). **Warning** this doesnât give the
+   closest X value is picked). **Warning** this doesn't give the
    expected result for buffers with several times the same X values,
    such as full cyclic voltammograms.
 
@@ -94,7 +94,13 @@ in another buffer. There are two ways to do that, chosen by the
    values.
 
 In addition to that, the operations can make use of the segments
-defined on each buffer...
+defined on each buffer (see [`find-steps`](#cmd-find-steps) and
+[`set-segments`](#cmd-set-segments)). If segments are defined and
+`/use-segments=true`, then the operations are applied
+segment-by-segment, with the first point of each segment matching the
+corresponding point in the other buffer. This mode is particularly
+useful to manipulate series of potential steps when some series are
+using shorter times than others.
 
 {::comment} synopsis-start: div {:/}
 
@@ -109,7 +115,10 @@ div first... second /mode= /use-segments=
 
 {::comment} synopsis-end: div {:/}
 {::comment} description-start: div {:/}
-Divide the first buffer by the second
+Divides all buffers by the last one. This is useful to get rid of film
+loss when one have an independent measure of film loss, see
+`doi:`[`10.1021/ac8025702`](http://dx.doi.org/10.1021/ac8025702) for
+more information on that way to use divisions.
 {::comment} description-end: div {:/}
 
 {::comment} synopsis-start: subtract {:/}
@@ -125,9 +134,11 @@ subtract first... second /mode= /use-segments=
 
 {::comment} synopsis-end: subtract {:/}
 {::comment} description-start: subtract {:/}
-Subtract the second buffer from the first. Works with several 'first' buffers.
+Subtracts the last buffer from all the other ones. Useful for standard
+baseline removal.
 {::comment} description-end: subtract {:/}
 
+# Data filtering
 
 # Data inspection facilities
 
@@ -160,6 +171,21 @@ Subtract the second buffer from the first. Works with several 'first' buffers.
 {::comment} description-start: 2 {:/}
 ...
 {::comment} description-end: 2 {:/}
+
+
+{::comment} synopsis-start: stats {:/}
+
+### stats - Statistics {#cmd-stats}
+
+stats /buffer=
+
+  * /buffer: An alternative buffer to get information on
+
+{::comment} synopsis-end: stats {:/}
+{::comment} description-start: stats {:/}
+...
+{::comment} description-end: stats {:/}
+
 
 {::comment} synopsis-start: help {:/}
 
@@ -1648,19 +1674,6 @@ splitb
 {::comment} description-start: splitb {:/}
 Returns the part of the buffer after the first change of sign of dx
 {::comment} description-end: splitb {:/}
-
-{::comment} synopsis-start: stats {:/}
-
-### stats - Statistics {#cmd-stats}
-
-stats /buffer=
-
-  * /buffer: An alternative buffer to get information on
-
-{::comment} synopsis-end: stats {:/}
-{::comment} description-start: stats {:/}
-...
-{::comment} description-end: stats {:/}
 
 {::comment} synopsis-start: test-event-loop {:/}
 

@@ -19,6 +19,7 @@
 #include <headers.hh>
 #include <ruby.hh>
 #include <ruby-templates.hh>
+#include <gslfunction.hh>
 
 #include <exceptions.hh>
 
@@ -66,6 +67,9 @@ void Ruby::initRuby()
   rb_define_global_const("PI", rb_float_new(M_PI));
   rb_define_global_const("R", rb_float_new(GSL_CONST_MKSA_MOLAR_GAS));
   rb_define_global_const("C", rb_float_new(GSL_CONST_MKSA_SPEED_OF_LIGHT));
+
+  VALUE mSpecial = GSLFunction::registerAllFunctions();
+  rb_extend_object(main, mSpecial);
 }
 
 VALUE Ruby::loadFile(const QString & file)

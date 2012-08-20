@@ -34,8 +34,12 @@ public:
   /// module
   virtual void registerFunction(VALUE module) = 0;
 
-  /// Register all functions to the Ruby interpreter
-  static void registerAllFunctions();
+  /// Register all functions to the Ruby interpreter. Returns the
+  /// "Special" module
+  static VALUE registerAllFunctions();
+
+  /// Creates and registers the given object.
+  GSLFunction(const QString & n, bool autoreg = true);
 };
 
 #endif

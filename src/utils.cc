@@ -245,3 +245,62 @@ QString Utils::abbreviateString(const QString & str, int nb)
   s.truncate(nb-3);
   return  s + "...";
 }
+
+
+QStringList Utils::parseConfigurationFile(QIODevice * source, 
+                                          bool keepCR, QStringList * tComments,
+                                          QList< QPair<int, int> > * 
+                                            lineNumbers)
+#if 0
+                                          ) emacs does not like this;
+#endif 
+{
+  QTextStream in(source);
+  QString line;
+  QRegExp comment("^\\s*#|^\\s*$"); // Comment or fully blank line
+  QStringList validLines;
+  QList< QPair<int, int> > numbers;
+  QStringList comments;
+  int ln = 0;
+  QString contLine;
+  int contFrom = -1;
+  
+  do {
+    line = in.readLine();
+    ++ln;
+    
+    // Avoid comments;
+    if(contFrom < 0 && comment.indexIn(line, 0) >= 0)
+      comments << line;
+    else {
+      bool cont = false;
+      if(line.endsWith("\\")) {
+        line.chop(1);
+        cont = true;
+        if(keepCR)
+          line += "\n";         // well...
+        if(contFrom < 0)
+          contFrom = ln;
+      }
+      contLine += line;
+      if(! cont) {
+        // we have done
+        validLines << contLine;
+        contLine.clear();
+        numbers.append(QPair<int, int>(contFrom < 0 ? ln : contFrom, ln));
+        contFrom = -1;
+      }
+    }
+    
+  } while(! line.isNull());
+
+  // Update user-supplied arguments when applicable
+  if(lineNumbers)
+    *lineNumbers = numbers;
+
+  if(tComments)
+    *tComments = comments;
+
+  return validLines;
+}
+

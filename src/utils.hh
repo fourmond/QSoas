@@ -121,6 +121,19 @@ namespace Utils {
     }
   };
 
+  /// This function parses a configuration file, stripping out
+  /// comments and concatenating lines when applicable, ie for lines
+  /// finishing with
+  ///
+  /// If \a keepCR is on, the final \n isn't stripped from escaped
+  /// lines. If \a comments isn't NULL, comments are stored there. If
+  /// \a lineNumbers isn't NULL, it is filled with the begin/end line
+  /// numbers from the original file (for the corresponding line)
+  QStringList parseConfigurationFile(QIODevice * source, 
+                                     bool keepCR = false,
+                                     QStringList * comments = NULL,
+                                     QList< QPair<int, int> > * lineNumbers = NULL);
+
 };
 
 #endif

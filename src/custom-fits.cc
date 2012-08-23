@@ -261,21 +261,28 @@ static MultiBufferArbitraryFit mBarbFit;
 static QHash<QString, MultiBufferArbitraryFit *> customFits;
 
 /// This function loads fits from a text stream
-static void loadFits(QTextStream & in, bool verbose = true) {
-  QString line;
+static void loadFits(QIODevice * source, bool verbose = true) {
+  QList<QPair<int, int> > numbers;
+  QStringList lines = 
+    Utils::parseConfigurationFile(source, false, NULL, &numbers);
+
   QRegExp sep("^\\s*([a-z0-9A-Z-]+):(.*)");
-  QRegExp comment("^\\s*#|^\\s*$"); // Comment or fully blank line
-  int ln = 0;
   int init = customFits.size();
-  do {
-    line = in.readLine();
-    ++ln;
+
+
+  for(int i = 0; i < lines.size(); i++) {
+    QString line = lines[i];
+    QString lnNb = (numbers[i].first == numbers[i].second ?
+                    QString("line %1").arg(numbers[i].first) :
+                    QString("lines %1-%2").
+                    arg(numbers[i].first).arg(numbers[i].second));
+                    
     if(sep.indexIn(line, 0) >= 0) {
       QString name = sep.cap(1);
       QString formula = sep.cap(2);
       try {
         if(customFits.contains(name)) {
-          Terminal::out << "Fit '" << name << "' (line " << ln 
+          Terminal::out << "Fit '" << name << "' (" << lnNb  
                         << ") is already defined " << endl;
           continue;
         }
@@ -284,15 +291,14 @@ static void loadFits(QTextStream & in, bool verbose = true) {
         customFits[name] = fit;
       }
       catch(Exception & er) {
-        Terminal::out << "Error loading fit " << name << " : " 
+        Terminal::out << "Error loading fit " << name << " on " 
+                      << lnNb << " : "
                       << er.message() << endl;
       }
     }
-    else {
-      if(comment.indexIn(line, 0) < 0)
-        Terminal::out << "Line " << ln << " not understood" << endl;
-    }
-  } while(! line.isNull());
+    else 
+      Terminal::out << "Error: " << lnNb <<  " not understood" << endl;
+  }
   Terminal::out << "Loaded " << customFits.size() - init 
                 << " fits" << endl;
 }
@@ -310,8 +316,7 @@ static void loadFitsCommand(const QString &, QString fitsFile)
 {
   QFile file(fitsFile);
   Utils::open(&file, QIODevice::ReadOnly);
-  QTextStream s(&file);
-  loadFits(s);
+  loadFits(&file);
 }
 
 static Command 

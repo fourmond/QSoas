@@ -41,7 +41,8 @@ GSLFunction::GSLFunction(const QString & n, bool autoreg) : name(n)
 
 VALUE GSLFunction::registerAllFunctions()
 {
-  VALUE mSpecial = rb_define_module("Special");
+  VALUE mSpecial = //rb_define_module("Special");
+    rb_mMath;
 
   if(! functions)
     return mSpecial;            // Nothing to do
@@ -70,7 +71,9 @@ public:
 
   virtual void registerFunction(VALUE module) {
     rb_define_method(module, name.toLocal8Bit(), 
-                     (VALUE (*)(...)) rubyFunction, 1);
+                               (VALUE (*)(...)) rubyFunction, 1);
+    rb_define_singleton_method(module, name.toLocal8Bit(), 
+                               (VALUE (*)(...)) rubyFunction, 1);
   };
 
 };
@@ -95,7 +98,9 @@ public:
 
   virtual void registerFunction(VALUE module) {
     rb_define_method(module, name.toLocal8Bit(), 
-                     (VALUE (*)(...)) rubyFunction, 2);
+                     (VALUE (*)(...)) rubyFunction, 1);
+    rb_define_singleton_method(module, name.toLocal8Bit(), 
+                               (VALUE (*)(...)) rubyFunction, 2);
   };
 
 };

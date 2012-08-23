@@ -57,7 +57,6 @@ void Ruby::initRuby()
   ruby_init();
   main = rb_eval_string("self");
   rb_extend_object(main, rb_mMath);
-  Ruby::loadFile(":/ruby/qsoas-base.rb");
 
   // Here, we define a whole bunch of constants that can be useful !
 
@@ -70,6 +69,10 @@ void Ruby::initRuby()
 
   VALUE mSpecial = GSLFunction::registerAllFunctions();
   rb_extend_object(main, mSpecial);
+
+
+  // Has to come last ?
+  Ruby::loadFile(":/ruby/qsoas-base.rb");
 }
 
 VALUE Ruby::loadFile(const QString & file)
@@ -85,6 +88,7 @@ VALUE Ruby::loadFile(const QString & file)
 VALUE Ruby::eval(QByteArray code)
 {
   VALUE s = rb_str_new2(code.constData());
+  rb_p(main);
   return rb_funcall2(main, rb_intern("soas_eval"), 1, &s);
 }
 
@@ -96,6 +100,7 @@ VALUE Ruby::makeBlock(QStringList * variables, const QByteArray & code)
     rb_ary_push(args[0], rb_str_new2(variables->value(i).toLocal8Bit().
                                  constData()));
   args[1] = rb_str_new2(code.constData());
+  rb_p(main);
   VALUE ret = rb_funcall2(main, rb_intern("soas_make_block"), 2, args);
   
   // Now get back the string values:

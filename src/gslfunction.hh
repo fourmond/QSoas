@@ -21,6 +21,8 @@
 #define __GSLFUNCTION_HH
 
 /// Base class for all the functions
+///
+/// @todo Add a description
 class GSLFunction {
   static QList<GSLFunction *> * functions;
 

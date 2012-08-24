@@ -103,18 +103,18 @@ public:
 
 GSLSimpleFunction<gsl_sf_bessel_J0> 
 bessel_J0("bessel_j0", "Regular cylindrical Bessel function of "
-          "0th order, $J_0(x)$");
+          "0th order, $$J_0(x)$$");
 
 GSLSimpleFunction<gsl_sf_bessel_J1> 
 bessel_J1("bessel_j1", "Regular cylindrical Bessel function of "
-          "first order, $J_1(x)$");
+          "first order, $$J_1(x)$$");
 
 GSLSimpleFunction<gsl_sf_expint_E1> 
-expint_E1("expint_e1", "Exponential integral $E_1(x) = "
-          "\\int_{x}{\\infty} \\frac{\\exp -t}{t} \\mathrm{d} t$");
+expint_E1("expint_e1", "Exponential integral $$E_1(x) = "
+          "\\int_{x}{\\infty} \\frac{\\exp -t}{t} \\mathrm{d} t$$");
 GSLSimpleFunction<gsl_sf_expint_E2> 
-expint_E2("expint_e2", "Exponential integral $E_2(x) = "
-          "\\int_{x}{\\infty} \\frac{\\exp -t}{t^2} \\mathrm{d} t$");
+expint_E2("expint_e2", "Exponential integral $$E_2(x) = "
+          "\\int_{x}{\\infty} \\frac{\\exp -t}{t^2} \\mathrm{d} t$$");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -141,10 +141,10 @@ public:
 
 GSLIndexedFunction<gsl_sf_bessel_Jn> 
 bessel_Jn("bessel_jn", "Regular cylindrical Bessel function of "
-          "n-th order, $J_n(x)$");
+          "n-th order, $$J_n(x)$$");
 GSLIndexedFunction<gsl_sf_expint_En> 
-expint_En("expint_en", "Exponential integral $E_n(x) = "
-          "\\int_{x}{\\infty} \\frac{\\exp -t}{t^n} \\mathrm{d} t$");
+expint_En("expint_en", "Exponential integral $$E_n(x) = "
+          "\\int_{x}{\\infty} \\frac{\\exp -t}{t^n} \\mathrm{d} t$$");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -215,7 +215,7 @@ QString GSLConstant::availableConstants()
 }
 
 
-GSLConstant f("F", "Faraday's constant", GSL_CONST_MKSA_FARADAY);
-GSLConstant pi(QStringList() << "Pi" << "PI", "Pi", M_PI);
-GSLConstant r("R", "Molar gas constant", GSL_CONST_MKSA_MOLAR_GAS);
+GSLConstant f("F", "Faraday's constant, $$F$$", GSL_CONST_MKSA_FARADAY);
+GSLConstant pi(QStringList() << "Pi" << "PI", "$$\\pi$$", M_PI);
+GSLConstant r("R", "Molar gas constant, $$R$$", GSL_CONST_MKSA_MOLAR_GAS);
 //  rb_define_global_const("C", rb_float_new(GSL_CONST_MKSA_SPEED_OF_LIGHT));

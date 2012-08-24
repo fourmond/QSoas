@@ -140,6 +140,85 @@ baseline removal.
 
 # Data filtering
 
+QSoas provides different ways to process data to remove unwanted
+noise: 
+
+ * Fourier transform filtering using [`filter-fft`](#cmd-filter-fft)
+   or [`auto-filter-fft`](#cmd-auto-filter-fft).
+ * Data approximation using basis splines via 
+   [`filter-bsplines`](#cmd-filter-bsplines) or 
+   [`auto-filter-bs`](#cmd-auto-filter-bs).
+ * Splike removals using [`remove-spikes`](#cmd-remove-spikes).
+
+
+{::comment} synopsis-start: filter-bsplines {:/}
+
+### filter-bsplines - Filter {#cmd-filter-bsplines}
+
+filter-bsplines 
+
+
+{::comment} synopsis-end: filter-bsplines {:/}
+{::comment} description-start: filter-bsplines {:/}
+...
+{::comment} description-end: filter-bsplines {:/}
+
+{::comment} synopsis-start: filter-fft {:/}
+
+### filter-fft - Filter {#cmd-filter-fft}
+
+filter-fft 
+
+
+{::comment} synopsis-end: filter-fft {:/}
+{::comment} description-start: filter-fft {:/}
+...
+{::comment} description-end: filter-fft {:/}
+
+
+{::comment} synopsis-start: auto-filter-bs {:/}
+
+### auto-filter-bs - Filter {#cmd-auto-filter-bs}
+
+auto-filter-bs /number= /order= /derivatives=
+
+  * /number: Number of segments
+  * /order: Order of the splines
+  * /derivatives: Compute derivatives up to the given 
+
+{::comment} synopsis-end: auto-filter-bs {:/}
+{::comment} description-start: auto-filter-bs {:/}
+...
+{::comment} description-end: auto-filter-bs {:/}
+
+
+{::comment} synopsis-start: auto-filter-fft {:/}
+
+### auto-filter-fft - Filter {#cmd-auto-filter-fft}
+
+auto-filter-fft /cutoff= /derive=
+
+  * /cutoff: Number of segments
+  * /derive: Differentiate to the given order
+
+{::comment} synopsis-end: auto-filter-fft {:/}
+
+{::comment} synopsis-start: remove-spikes {:/}
+
+### remove-spikes - Remove spikes {#cmd-remove-spikes}
+
+remove-spikes /number= /factor= /force-new=
+
+  * /number: Number of points to look at
+  * /factor: ...
+  * /force-new: Adds a new buffer even if no spikes were removed
+
+{::comment} synopsis-end: remove-spikes {:/}
+{::comment} description-start: remove-spikes {:/}
+Remove spikes using a simple heuristics
+{::comment} description-end: remove-spikes {:/}
+
+
 # Data inspection facilities
 
 {::comment} synopsis-start: 1 {:/}
@@ -204,9 +283,9 @@ Gives all help available on the given command
 
 ### run - Run commands {#cmd-run}
 
-run file
+run file...
 
-  * file: File containing the commands to run
+  * file: First is the command files, following are arguments
 
 {::comment} synopsis-end: run {:/}
 {::comment} description-start: run {:/}
@@ -263,20 +342,6 @@ browse-stack
 Browse stack
 {::comment} description-end: browse-stack {:/}
 
-{::comment} synopsis-start: remove-spikes {:/}
-
-### remove-spikes - Remove spikes {#cmd-remove-spikes}
-
-remove-spikes /number= /factor= /force-new=
-
-  * /number: Number of points to look at
-  * /factor: ...
-  * /force-new: Adds a new buffer even if no spikes were removed
-
-{::comment} synopsis-end: remove-spikes {:/}
-{::comment} description-start: remove-spikes {:/}
-Remove spikes using a simple heuristics
-{::comment} description-end: remove-spikes {:/}
 
 {::comment} synopsis-start: temperature {:/}
 
@@ -330,20 +395,6 @@ rename new-name
 ??
 {::comment} description-end: rename {:/}
 
-{::comment} synopsis-start: auto-filter-bs {:/}
-
-### auto-filter-bs - Filter {#cmd-auto-filter-bs}
-
-auto-filter-bs /number= /order= /derivatives=
-
-  * /number: Number of segments
-  * /order: Order of the splines
-  * /derivatives: Compute derivatives up to the given 
-
-{::comment} synopsis-end: auto-filter-bs {:/}
-{::comment} description-start: auto-filter-bs {:/}
-...
-{::comment} description-end: auto-filter-bs {:/}
 
 {::comment} synopsis-start: average {:/}
 
@@ -606,30 +657,6 @@ expand
 {::comment} description-start: expand {:/}
 ??
 {::comment} description-end: expand {:/}
-
-{::comment} synopsis-start: filter-bsplines {:/}
-
-### filter-bsplines - Filter {#cmd-filter-bsplines}
-
-filter-bsplines 
-
-
-{::comment} synopsis-end: filter-bsplines {:/}
-{::comment} description-start: filter-bsplines {:/}
-...
-{::comment} description-end: filter-bsplines {:/}
-
-{::comment} synopsis-start: filter-fft {:/}
-
-### filter-fft - Filter {#cmd-filter-fft}
-
-filter-fft 
-
-
-{::comment} synopsis-end: filter-fft {:/}
-{::comment} description-start: filter-fft {:/}
-...
-{::comment} description-end: filter-fft {:/}
 
 {::comment} synopsis-start: find-peaks {:/}
 
@@ -1750,3 +1777,73 @@ zoom
 Zooms on the current curve
 {::comment} description-end: zoom {:/}
 
+
+{::comment} synopsis-start: run-for-each {:/}
+### run-for-each - Loop run a script {#cmd-run-for-each}
+
+run-for-each script arguments...
+
+  * script: The script file
+  * arguments: All the arguments for the script file to loop on
+
+{::comment} synopsis-end: run-for-each {:/}
+{::comment} synopsis-start: zero {:/}
+
+### zero - Makes 0 {#cmd-zero}
+
+zero value /axis=
+
+  * value: ...
+  * /axis: ...
+
+{::comment} synopsis-end: zero {:/}
+
+
+
+## Ruby code {#ruby}
+
+QSoas internally uses [Ruby][ruby] for the interpretation of all
+formulas. This means in particular that all formulas must be valid
+ruby code.
+
+Basically, the [Ruby][ruby] syntax ressembles that of other symbolic
+evaluation programs (it is quite close to the one from
+[gnuplot][gnuplot]), with the following restrictions: 
+
+ * never use a name starting with an uppercase for parameters, as
+   those have a special meaning to the Ruby interpreter
+ * don't abbreviate floating points: `2.` and `.4` are invalid, use
+   `2.0` and `0.4` instead
+ * case matters: `Pi` is $$\pi$$, while `pi` is nothing defined.
+
+In addition to standard mathematical functions from the 
+[Math][math] module, the
+following special functions are available:
+
+{::comment} special-functions-start {:/}
+
+ * `bessel_j0`: Regular cylindrical Bessel function of 0th order, $$J_0(x)$$
+ * `bessel_j1`: Regular cylindrical Bessel function of first order, $$J_1(x)$$
+ * `bessel_jn`: Regular cylindrical Bessel function of n-th order, $$J_n(x)$$
+ * `expint_e1`: Exponential integral $$E_1(x) = \int_{x}{\infty} \frac{\exp -t}{t} \mathrm{d} t$$
+ * `expint_e2`: Exponential integral $$E_2(x) = \int_{x}{\infty} \frac{\exp -t}{t^2} \mathrm{d} t$$
+ * `expint_en`: Exponential integral $$E_n(x) = \int_{x}{\infty} \frac{\exp -t}{t^n} \mathrm{d} t$$
+
+{::comment} special-functions-end {:/}
+
+Similarly, some physical/mathematical constants are available. Please
+keep in mind again that they necessarily start with an **uppercase**
+letter.
+
+{::comment} constants-start {:/}
+
+ * `F`: Faraday's constant, $$F$$ -- 96485.3
+ * `Pi`, `PI`: $$\pi$$ -- 3.14159
+ * `R`: Molar gas constant, $$R$$ -- 8.31447
+
+{::comment} constants-end {:/}
+
+
+[ruby]:http://www.ruby-lang.org/ "Ruby, the programming language"
+[math]:http://www.ruby-doc.org/core-1.9.3/Math.html "Documentation of the Math module"
+[gnuplot]:http://www.gnuplot.info/ "Gnuplot, the plotting program"

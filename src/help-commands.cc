@@ -187,6 +187,10 @@ static void updateDocumentationFile(const QString &, QString file)
     Utils::updateWithin(str, "{::comment} special-functions-start {:/}",
                         "{::comment} special-functions-end {:/}\n",
                         "\n" + GSLFunction::availableFunctions());
+
+    Utils::updateWithin(str, "{::comment} constants-start {:/}",
+                        "{::comment} constants-end {:/}\n",
+                        "\n" + GSLConstant::availableConstants());
   }
 
 

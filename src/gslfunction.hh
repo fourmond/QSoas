@@ -51,4 +51,43 @@ public:
   static QString availableFunctions();
 };
 
+
+// We also add a GSLConstant class here, although more to avoid the
+// hassle to create and additional file ;-)...
+
+/// Represents one of the constants available in the Ruby code
+class GSLConstant {
+  static QList<GSLConstant *> * constants;
+
+  void registerSelf();
+
+  /// Make this constant available to Ruby code
+  void registerConstant();;
+
+public:
+
+  /// All the available names (the first one is used for ordering)
+  QStringList names;
+
+  /// A short description
+  QString description;
+
+  /// The value
+  double value;
+
+
+  /// Creates and registers all constants at startup time
+  static void registerAllConstants();
+
+  /// Returns a markup-friendly list of available constants
+  static QString availableConstants();
+
+  GSLConstant(const QString & n, const QString & d, 
+              double value, bool autoreg = true);
+  GSLConstant(const QStringList & ns, const QString & d, 
+              double value, bool autoreg = true);
+
+  
+};
+
 #endif

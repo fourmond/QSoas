@@ -21,6 +21,7 @@
 #include <gslfunction.hh>
 
 #include <gsl/gsl_sf.h>
+#include <gsl/gsl_const_mksa.h>
 
 
 QList<GSLFunction *> * GSLFunction::functions = NULL;
@@ -144,3 +145,77 @@ bessel_Jn("bessel_jn", "Regular cylindrical Bessel function of "
 GSLIndexedFunction<gsl_sf_expint_En> 
 expint_En("expint_en", "Exponential integral $E_n(x) = "
           "\\int_{x}{\\infty} \\frac{\\exp -t}{t^n} \\mathrm{d} t$");
+
+//////////////////////////////////////////////////////////////////////
+
+QList<GSLConstant *> * GSLConstant::constants = NULL;
+
+void GSLConstant::registerSelf()
+{
+  if(! constants)
+    constants = new QList<GSLConstant *>;
+  constants->append(this);
+}
+
+
+GSLConstant::GSLConstant(const QStringList & ns, const QString & d, 
+                         double v, bool autoreg) : 
+  names(ns), description(d), value(v)
+{
+  if(autoreg)
+    registerSelf();
+}
+
+GSLConstant::GSLConstant(const QString & n, const QString & d,
+                         double v, bool autoreg) : 
+  description(d), value(v)
+{
+  names << n;
+  if(autoreg)
+    registerSelf();
+}
+
+void GSLConstant::registerConstant()
+{
+  VALUE v = rb_float_new(value);
+  for(int i = 0; i < names.size(); i++)
+    rb_define_global_const(qPrintable(names[i]), v);
+}
+
+void GSLConstant::registerAllConstants()
+{
+  for(int i = 0; i < constants->size(); i++)
+    constants->value(i)->registerConstant();
+}
+
+static bool cmpConstants(GSLConstant * a, GSLConstant * b)
+{
+  return a->names.first() < b->names.first();
+}
+
+QString GSLConstant::availableConstants()
+{
+  if(! constants)
+    return QString();
+  QList<GSLConstant *> sorted = *constants;
+  qSort(sorted.begin(), sorted.end(),  &cmpConstants);
+
+  QString retval;
+  
+  for(int i = 0; i < sorted.size(); i++) {
+    QStringList qn;
+    const GSLConstant * cst = sorted[i];
+    for(int j = 0; j < cst->names.size(); j++)
+      qn << QString("`%1`").arg(cst->names[j]);
+    retval += QString(" * %1: %2 -- %3\n").
+      arg(qn.join(", ")).arg(cst->description).arg(cst->value);
+  }
+
+  return retval;
+}
+
+
+GSLConstant f("F", "Faraday's constant", GSL_CONST_MKSA_FARADAY);
+GSLConstant pi(QStringList() << "Pi" << "PI", "Pi", M_PI);
+GSLConstant r("R", "Molar gas constant", GSL_CONST_MKSA_MOLAR_GAS);
+//  rb_define_global_const("C", rb_float_new(GSL_CONST_MKSA_SPEED_OF_LIGHT));

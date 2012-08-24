@@ -24,9 +24,6 @@
 #include <exceptions.hh>
 
 
-// We define a whole bunch of ruby constants here
-#include <gsl/gsl_const_mksa.h>
-
 VALUE Ruby::globalRescueFunction(VALUE /*dummy*/, VALUE exception)
 {
   printf("Caught ruby exception: ");
@@ -60,16 +57,9 @@ void Ruby::initRuby()
 
   // Here, we define a whole bunch of constants that can be useful !
 
-  /// @todo Find a way to keep track/display those ? 
-  rb_define_global_const("F", rb_float_new(GSL_CONST_MKSA_FARADAY));
-  rb_define_global_const("Pi", rb_float_new(M_PI));
-  rb_define_global_const("PI", rb_float_new(M_PI));
-  rb_define_global_const("R", rb_float_new(GSL_CONST_MKSA_MOLAR_GAS));
-  rb_define_global_const("C", rb_float_new(GSL_CONST_MKSA_SPEED_OF_LIGHT));
-
   VALUE mSpecial = GSLFunction::registerAllFunctions();
+  GSLConstant::registerAllConstants();
   rb_extend_object(main, mSpecial);
-
 
   // Has to come last ?
   Ruby::loadFile(":/ruby/qsoas-base.rb");

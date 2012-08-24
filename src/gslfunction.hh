@@ -22,7 +22,7 @@
 
 /// Base class for all the functions
 ///
-/// @todo Add a description
+/// @todo Rename as "special functions"
 class GSLFunction {
   static QList<GSLFunction *> * functions;
 
@@ -31,6 +31,10 @@ public:
 
   /// The (ruby) name of the function
   QString name;
+
+  /// A short description
+  QString description;
+  
 
   /// Registers the function to the Ruby interpreter, under the given
   /// module
@@ -41,7 +45,10 @@ public:
   static VALUE registerAllFunctions();
 
   /// Creates and registers the given object.
-  GSLFunction(const QString & n, bool autoreg = true);
+  GSLFunction(const QString & n, const QString & d, bool autoreg = true);
+
+  /// Returns a markup-friendly list of all available functions
+  static QString availableFunctions();
 };
 
 #endif

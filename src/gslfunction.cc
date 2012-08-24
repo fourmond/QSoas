@@ -33,7 +33,8 @@ void GSLFunction::registerSelf()
 }
 
 
-GSLFunction::GSLFunction(const QString & n, bool autoreg) : name(n)
+GSLFunction::GSLFunction(const QString & n, const QString & d,
+                         bool autoreg) : name(n), description(d)
 {
   if(autoreg)
     registerSelf();
@@ -54,6 +55,26 @@ VALUE GSLFunction::registerAllFunctions()
   return mSpecial;
 }
 
+static bool cmpFunctions(GSLFunction * a, GSLFunction * b)
+{
+  return a->name < b->name;
+}
+
+QString GSLFunction::availableFunctions()
+{
+  if(! functions)
+    return QString();
+  QList<GSLFunction *> sorted = *functions;
+  qSort(sorted.begin(), sorted.end(),  &cmpFunctions);
+
+  QString retval;
+  for(int i = 0; i < sorted.size(); i++)
+    retval += QString(" * `%1`: %2\n").
+      arg(sorted[i]->name).arg(sorted[i]->description);
+
+  return retval;
+}
+
 
 
 //////////////////////////////////////////////////////////////////////
@@ -66,7 +87,8 @@ template < double (*func)(double) > class GSLSimpleFunction :
   };
 
 public:
-  GSLSimpleFunction(const QString & n) : GSLFunction(n) {
+  GSLSimpleFunction(const QString & n, const QString & d) : 
+    GSLFunction(n, d) {
   };
 
   virtual void registerFunction(VALUE module) {
@@ -78,10 +100,20 @@ public:
 
 };
 
-GSLSimpleFunction<gsl_sf_bessel_J0> bessel_J0("bessel_j0");
-GSLSimpleFunction<gsl_sf_bessel_J1> bessel_J1("bessel_j1");
-GSLSimpleFunction<gsl_sf_expint_E1> expint_E1("expint_e1");
-GSLSimpleFunction<gsl_sf_expint_E2> expint_E2("expint_e2");
+GSLSimpleFunction<gsl_sf_bessel_J0> 
+bessel_J0("bessel_j0", "Regular cylindrical Bessel function of "
+          "0th order, $J_0(x)$");
+
+GSLSimpleFunction<gsl_sf_bessel_J1> 
+bessel_J1("bessel_j1", "Regular cylindrical Bessel function of "
+          "first order, $J_1(x)$");
+
+GSLSimpleFunction<gsl_sf_expint_E1> 
+expint_E1("expint_e1", "Exponential integral $E_1(x) = "
+          "\\int_{x}{\\infty} \\frac{\\exp -t}{t} \\mathrm{d} t$");
+GSLSimpleFunction<gsl_sf_expint_E2> 
+expint_E2("expint_e2", "Exponential integral $E_2(x) = "
+          "\\int_{x}{\\infty} \\frac{\\exp -t}{t^2} \\mathrm{d} t$");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -93,7 +125,8 @@ template < double (*func)(int, double) > class GSLIndexedFunction :
   };
 
 public:
-  GSLIndexedFunction(const QString & n) : GSLFunction(n) {
+  GSLIndexedFunction(const QString & n, const QString & d) : 
+    GSLFunction(n,d) {
   };
 
   virtual void registerFunction(VALUE module) {
@@ -105,5 +138,9 @@ public:
 
 };
 
-GSLIndexedFunction<gsl_sf_bessel_Jn> bessel_Jn("bessel_jn");
-GSLIndexedFunction<gsl_sf_expint_En> expint_En("expint_en");
+GSLIndexedFunction<gsl_sf_bessel_Jn> 
+bessel_Jn("bessel_jn", "Regular cylindrical Bessel function of "
+          "n-th order, $J_n(x)$");
+GSLIndexedFunction<gsl_sf_expint_En> 
+expint_En("expint_en", "Exponential integral $E_n(x) = "
+          "\\int_{x}{\\infty} \\frac{\\exp -t}{t^n} \\mathrm{d} t$");

@@ -27,6 +27,7 @@
 
 #include <soas.hh>
 #include <exceptions.hh>
+#include <gslfunction.hh>
 
 static Group help("help", 1000,
                   "Help",
@@ -170,13 +171,25 @@ static void updateDocumentationFile(const QString &, QString file)
 
 
   // Now perform updates
-  QStringList cmds = Command::allCommands();
-  qSort(cmds);
 
-  for(int i = 0; i < cmds.size(); i++) {
-    Command * cmd = Command::namedCommand(cmds[i]);
-    cmd->updateDocumentation(str);
+  
+  {                             // Commands first
+    QStringList cmds = Command::allCommands();
+    qSort(cmds);
+
+    for(int i = 0; i < cmds.size(); i++) {
+      Command * cmd = Command::namedCommand(cmds[i]);
+      cmd->updateDocumentation(str);
+    }
   }
+
+  {                             // Then functions
+    Utils::updateWithin(str, "{::comment} special-functions-start {:/}",
+                        "{::comment} special-functions-end {:/}\n",
+                        "\n" + GSLFunction::availableFunctions());
+  }
+
+
 
   QFile o(file);
   Utils::open(&o, QIODevice::WriteOnly|QIODevice::Text);

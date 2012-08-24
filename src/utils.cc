@@ -304,3 +304,25 @@ QStringList Utils::parseConfigurationFile(QIODevice * source,
   return validLines;
 }
 
+
+bool Utils::updateWithin(QString & str, const QString & begin, 
+                         const QString & end, const QString & newText,
+                         bool appendIfNotFound)
+{
+  QRegExp re(QRegExp::escape(begin) + ".*" +
+             QRegExp::escape(end));
+
+  int left = re.indexIn(str, 0);
+  int nb = 0;
+  if(left < 0) {
+    if(! appendIfNotFound)
+      return false;
+    else
+      left = str.size();
+  }
+  else
+    nb = re.cap(0).size();
+  str.replace(left, nb, begin + newText + end);
+  return true;
+}
+

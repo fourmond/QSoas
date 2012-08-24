@@ -25,6 +25,7 @@
 
 #include <possessive-containers.hh>
 #include <exceptions.hh>
+#include <utils.hh>
 
 
 QHash<QString, Command*> * Command::availableCommands = NULL;
@@ -393,28 +394,19 @@ QString Command::synopsis(bool markup) const
 
 QString & Command::updateDocumentation(QString & str, int level) const
 {
-  // First, look for the synopsis block
-  int nb = 0;
+  QString beg = QString("{::comment} synopsis-start: %1 {:/}").
+    arg(cmdName);
+
+  QString end = QString("{::comment} synopsis-end: %1 {:/}\n").
+    arg(cmdName);
 
   QString headings(level, '#');
+  QString syn = "\n\n" +
+    headings + " " + cmdName + " - " + pubName + 
+    " {#cmd-" + cmdName + "}\n\n" + 
+    synopsis(true);
 
-  QString ret = "\\{::comment\\} synopsis-start: " + cmdName + " \\{:/\\}.*" +
-    "\\{::comment\\} synopsis-end: " + cmdName + " \\{:/\\}\\s*";
-
-  QRegExp re(ret);
-  int left = re.indexIn(str, 0);
-
-  QString syn = "{::comment} synopsis-start: " + cmdName + " {:/}\n\n" +
-    headings + " " + cmdName + " - " + pubName + " {#cmd-" + cmdName + "}\n\n" +
-    synopsis(true) + "{::comment} synopsis-end: " + cmdName + " {:/}\n";
-  if(left >= 0)
-    nb = re.cap(0).size();
-  else {
-    left = str.size();
-    syn += "{::comment} description-start: " + cmdName + " {:/}\n" +
-      longDesc + "\n{::comment} description-end: " + cmdName + " {:/}\n\n";
-  }
-  str.replace(left, nb, syn);
+  Utils::updateWithin(str, beg, end, syn);
   return str;
 }
 

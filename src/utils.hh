@@ -134,6 +134,14 @@ namespace Utils {
                                      QStringList * comments = NULL,
                                      QList< QPair<int, int> > * lineNumbers = NULL);
 
+
+  /// Updates a string so that anything between \a begin and \a end
+  /// are replaced with \a newText. Returns true if any replacement
+  /// was performed.
+  bool updateWithin(QString & str, const QString & begin, 
+                    const QString & end, const QString & newText, 
+                    bool appendIfNotFound = true);
+
 };
 
 #endif

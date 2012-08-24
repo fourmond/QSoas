@@ -1779,6 +1779,7 @@ Zooms on the current curve
 
 
 {::comment} synopsis-start: run-for-each {:/}
+
 ### run-for-each - Loop run a script {#cmd-run-for-each}
 
 run-for-each script arguments...

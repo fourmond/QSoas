@@ -142,7 +142,8 @@ SOURCES += src/qmain.cc \
         src/fittrajectorydisplay.cc \
         src/gslfitengine.cc \
         src/combinedfit.cc \
-        src/gslfunction.cc
+        src/gslfunction.cc \
+        src/odesolver.cc
 
 
 HEADERS += src/headers.hh \
@@ -209,7 +210,8 @@ HEADERS += src/headers.hh \
         src/fitengine.hh \
         src/fittrajectorydisplay.hh \
         src/combinedfit.hh \
-        src/gslfunction.hh
+        src/gslfunction.hh \
+        src/odesolver.hh
 
 
 # We link with the converted ODRPACK library

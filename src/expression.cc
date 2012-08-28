@@ -154,6 +154,28 @@ double Expression::evaluate(const double * values) const
   return NUM2DBL(ret);
 }
 
+int Expression::evaluateIntoArray(const double * values, 
+                                  double * target, int ts) const
+{
+  int size = variables.size();
+  for(int i = 0; i < size; i++)
+    RFLOAT_VALUE(args[i]) = values[i];
+  VALUE ret = Ruby::run(&rb_funcall2, code, 
+                        callID(), size, (const VALUE *) args);
+
+  // Now, we parse the return value
+  if(rb_obj_class(ret) != rb_cArray) {
+    if(ts >= 1)
+      *target = NUM2DBL(ret);
+    return 1;
+  }
+  int sz = RARRAY_LEN(ret);
+  for(int i = 0; i < ts && i < sz ; i++)
+    target[i] = NUM2DBL(rb_ary_entry(ret, i));
+
+  return sz;
+}
+
 
 
 QString Expression::rubyIzeName(const QString & name)

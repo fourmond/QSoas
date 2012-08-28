@@ -90,6 +90,19 @@ public:
   /// Evaluate the expression with the given values for the variables
   double evaluate(const double * variables) const;
 
+  /// Evaluate into an array. This can be used when an expression
+  /// isn't expected to return a single value, but rather an array of
+  /// values (think applyFormula).
+  ///
+  /// \a target is the storage space meant to receive the variables,
+  /// \a size its size
+  ///
+  /// The return value is the number of values that resulted from the
+  /// expression. It can be greater than \a size (but in that case,
+  /// some values are simply lost).
+  int evaluateIntoArray(const double * variables, double * target, 
+                        int size) const;
+
   /// Change the list of variables we're evaluating against. It has to
   /// contain all the natural variables, but can be larger than that,
   /// of course.

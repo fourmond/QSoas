@@ -1826,9 +1826,9 @@ following special functions are available:
  * `bessel_j0`: Regular cylindrical Bessel function of 0th order, $$J_0(x)$$
  * `bessel_j1`: Regular cylindrical Bessel function of first order, $$J_1(x)$$
  * `bessel_jn`: Regular cylindrical Bessel function of n-th order, $$J_n(x)$$
- * `expint_e1`: Exponential integral $$E_1(x) = \int_{x}{\infty} \frac{\exp -t}{t} \mathrm{d} t$$
- * `expint_e2`: Exponential integral $$E_2(x) = \int_{x}{\infty} \frac{\exp -t}{t^2} \mathrm{d} t$$
- * `expint_en`: Exponential integral $$E_n(x) = \int_{x}{\infty} \frac{\exp -t}{t^n} \mathrm{d} t$$
+ * `expint_e1`: Exponential integral $$E_1(x) = \int_{x}^{\infty} \frac{\exp -t}{t} \mathrm{d} t$$
+ * `expint_e2`: Exponential integral $$E_2(x) = \int_{x}^{\infty} \frac{\exp -t}{t^2} \mathrm{d} t$$
+ * `expint_en`: Exponential integral $$E_n(x) = \int_{x}^{\infty} \frac{\exp -t}{t^n} \mathrm{d} t$$
 
 {::comment} special-functions-end {:/}
 

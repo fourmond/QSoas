@@ -111,10 +111,10 @@ bessel_J1("bessel_j1", "Regular cylindrical Bessel function of "
 
 GSLSimpleFunction<gsl_sf_expint_E1> 
 expint_E1("expint_e1", "Exponential integral $$E_1(x) = "
-          "\\int_{x}{\\infty} \\frac{\\exp -t}{t} \\mathrm{d} t$$");
+          "\\int_{x}^{\\infty} \\frac{\\exp -t}{t} \\mathrm{d} t$$");
 GSLSimpleFunction<gsl_sf_expint_E2> 
 expint_E2("expint_e2", "Exponential integral $$E_2(x) = "
-          "\\int_{x}{\\infty} \\frac{\\exp -t}{t^2} \\mathrm{d} t$$");
+          "\\int_{x}^{\\infty} \\frac{\\exp -t}{t^2} \\mathrm{d} t$$");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -144,7 +144,7 @@ bessel_Jn("bessel_jn", "Regular cylindrical Bessel function of "
           "n-th order, $$J_n(x)$$");
 GSLIndexedFunction<gsl_sf_expint_En> 
 expint_En("expint_en", "Exponential integral $$E_n(x) = "
-          "\\int_{x}{\\infty} \\frac{\\exp -t}{t^n} \\mathrm{d} t$$");
+          "\\int_{x}^{\\infty} \\frac{\\exp -t}{t^n} \\mathrm{d} t$$");
 
 //////////////////////////////////////////////////////////////////////
 

@@ -23,15 +23,73 @@
 
 /// This is the base class for all the ODE solver problems. To use it,
 /// you must use a derived class and reimplement the
+///
+///
+/// @todo Add automatic jacobian computation ? (don't know if that's
+/// that smart...) Possibly using gsl numerical differentiation
+/// functions ?
 class ODESolver {
 
   /// Initialize the driver function.
   void initializeDriver();
+
+  /// Frees the driver
+  void freeDriver();
+
+  /// The underlying driver 
+  gsl_odeiv2_driver * driver;
+
+  /// The type of the solver
+  const gsl_odeiv2_step_type * type;
+
+  /// The current values
+  double *yValues;
+
+  /// The current time
+  double t;
+
+  /// The function computing the next derivative
+  static int function(double t, const double y[], double dydt[], 
+                      void * params);
+
+
+  /// Underlying system
+  gsl_odeiv2_system system;
 public:
+
+  /// Builds a solver object.
+  ///
+  /// @todo Add "control" object selection (and parametrization)
+  ODESolver(const gsl_odeiv2_step_type * T = gsl_odeiv2_step_rkf45);
+
+  virtual ~ODESolver();
 
   /// Returns the dimension of the problem
   virtual int dimension() const = 0;
 
   /// Computes the derivatives at the given point, and store them in
   /// \a dydt
-  virtual int computeDerivatives(double t, const double * y, double * dydt);
+  virtual int computeDerivatives(double t, const double * y, 
+                                 double * dydt) = 0;
+
+  /// Resets the solver to the given starting values
+  void initialize(const double * yStart, double tstart);
+
+  /// Returns the current Y values
+  const double * currentValues() const {
+    return yValues;
+  };
+
+  /// Returns the current time
+  double currentTime() const {
+    return t;
+  };
+
+  /// Steps to the given time
+  ///
+  /// This function probably should raise an exception upon GSL error
+  void stepTo(double t);
+  
+};
+
+#endif

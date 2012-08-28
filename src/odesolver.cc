@@ -20,3 +20,57 @@
 #include <headers.hh>
 #include <odesolver.hh>
 
+ODESolver::ODESolver(const gsl_odeiv2_step_type * t) :
+  driver(NULL), type(t), yValues(NULL)
+{
+}
+
+int ODESolver::function(double t, const double y[], double dydt[], 
+                        void * params)
+{
+  ODESolver * solver = static_cast<ODESolver*>(params);
+  return solver->computeDerivatives(t, y, dydt);
+}
+
+
+void ODESolver::initializeDriver()
+{
+  yValues = new double[dimension()];
+  system.function = &ODESolver::function;
+  system.jacobian = NULL;       // Hey !
+  system.dimension = dimension();
+  system.params = this;
+
+  driver = gsl_odeiv2_driver_alloc_y_new(&system, type, 
+                                         0.01, 1e-6, 1e-6);
+}
+
+void ODESolver::freeDriver()
+{
+  if(! driver) 
+    return;
+  gsl_odeiv2_driver_free(driver);
+  delete[] yValues;
+}
+
+ODESolver::~ODESolver()
+{
+  freeDriver();
+}
+
+void ODESolver::initialize(const double * yStart, double tStart)
+{
+  if(! driver)
+    initializeDriver();
+
+  gsl_odeiv2_driver_reset(driver);
+
+  for(int i = 0; i < system.dimension; i++)
+    yValues[i] = yStart[i];
+  t = tStart;
+}
+
+void ODESolver::stepTo(double to)
+{
+  int status = gsl_odeiv2_driver_apply(driver, &t, to, yValues);
+}

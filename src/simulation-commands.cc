@@ -33,6 +33,7 @@
 #include <datastack.hh>
 #include <curveview.hh>
 
+#include <rubyodesolver.hh>
 
 
 static Group simulations("simulations", 10,
@@ -139,7 +140,6 @@ static void kineticSystemCommand(const QString &, int specs,
   }
 }
 
-/// @todo this should join a proper "simulations" group
 static Command 
 p("kinetic-system", // command name
   effector(kineticSystemCommand), // action
@@ -149,3 +149,52 @@ p("kinetic-system", // command name
   "Linear kinetic system",
   "Computes the concentration of species of a linear kinetic system",
   "...");
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void odeComputationCommand(const QString &, QString init, 
+                                  QString derivs)
+{
+  const DataSet * ds = soas().currentDataSet();
+  RubyODESolver solver(init, derivs);
+
+  Terminal::out << "Solving the ODE for variables " 
+                << solver.variables().join(", ") << endl;
+  
+  QList<Vector> cols;
+  for(int i = -1; i < solver.dimension(); i++)
+    cols << Vector();
+
+  const Vector & xs = ds->x();
+  solver.initialize(xs[0]);
+
+  for(int i = 0; i < xs.size(); i++) {
+    double t = xs[i];
+    solver.stepTo(t);
+    cols[0] << solver.currentTime();
+    for(int j = 0; j < solver.dimension(); j++)
+      cols[j+1] << solver.currentValues()[j];
+  }
+  DataSet * nds = new DataSet(cols);
+  nds->name = "ode.dat";
+  soas().stack().pushDataSet(nds); 
+}
+
+static ArgumentList 
+odeArgs(QList<Argument *>() 
+        << new StringArgument("initial", 
+                              "Initial values")
+        << new StringArgument("derivatives", 
+                              "Formula for computing derivatives")
+        );
+
+static Command 
+ode("ode", // command name
+    optionLessEffector(odeComputationCommand), // action
+    "simulations",  // group name
+    &odeArgs, // arguments
+    NULL, // options
+    "ODE solver",
+    "Solves the given set of ODE",
+    "...");

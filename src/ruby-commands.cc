@@ -29,15 +29,17 @@
 #include <ruby.hh>
 #include <ruby-templates.hh>
 
-#include <perdatasetfit.hh>
 #include <dataset.hh>
 #include <vector.hh>
-#include <fitdata.hh>
+
+#include <expression.hh>
 
 
 //////////////////////////////////////////////////////////////////////
 
 
+// Paradoxally, this command isn't really anymore related to Ruby --
+// or much less than before
 
 static ArgumentList 
 fA(QList<Argument *>() 
@@ -45,34 +47,37 @@ fA(QList<Argument *>()
                          "Formula",
                          "Formula (valid Ruby code)"));
 
-static VALUE applyFormula(VALUE code, const DataSet * ds,
-                          Vector * newX, Vector * newY)
-{
-  ID id = rb_intern("call");
-  VALUE args[2];
-  const Vector & xc = ds->x();
-  const Vector & yc = ds->y();
-  for(int i = 0; i < xc.size(); i++) {
-    args[0] = rb_float_new(xc[i]);
-    args[1] = rb_float_new(yc[i]);
-    VALUE ret = rb_funcall2(code, id, 2, args);
-    *newX << NUM2DBL(rb_ary_entry(ret, 0));
-    *newY << NUM2DBL(rb_ary_entry(ret, 1));
-  }      
-  return Qnil;
-}
-  
 static void applyFormulaCommand(const QString &, QString formula)
 {
   const DataSet * ds = soas().currentDataSet();
   Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
     arg(formula).arg(ds->name) << endl;
-  formula = QString("proc do |x,y|\n  %1\n  [x,y]\nend").arg(formula);
-  QByteArray form = formula.toLocal8Bit();
-  VALUE block = Ruby::run(Ruby::eval, form);
-  Vector newX, newY;
+  QStringList vars;
+  vars << "x" << "y";              // @todo handle the case of a
+                                   // larger number of columns
 
-  Ruby::run(&applyFormula, block, ds, &newX, &newY);
+  formula = QString("%1\n%3\n[%2]").
+    arg(vars.join("\n")).       /// @todo This is hackish, but, well
+                                /// it should work !
+    arg(vars.join(",")).
+    arg(formula);
+
+  Expression exp(formula, vars);
+  
+  Vector newX, newY;
+  {
+    const Vector & xc = ds->x();
+    const Vector & yc = ds->y();
+    double vars[2];
+    double values[2];
+    for(int i = 0; i < xc.size(); i++) {
+      vars[0] = xc[i];
+      vars[1] = yc[i];
+      exp.evaluateIntoArray(vars, values, 2);
+      newX << values[0];
+      newY << values[1];
+    }
+  }
 
   DataSet * newDs = new DataSet(QList<Vector>() << newX << newY);
   newDs->name = ds->cleanedName() + "_mod.dat";

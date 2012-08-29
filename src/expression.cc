@@ -109,10 +109,12 @@ Expression::Expression(const QString & expr) :
   buildCode();
 }
 
-Expression::Expression(const QString & expr, const QStringList & vars) :
+Expression::Expression(const QString & expr, const QStringList & vars, 
+                       bool skip) :
   expression(expr), args(NULL)
 {
-  buildCode();
+  if(! skip)
+    buildCode();
   setVariables(vars);
 }
 

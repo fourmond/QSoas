@@ -77,8 +77,11 @@ public:
 
   /// Creates an expression object responding to the given variables.
   ///
-  /// Equivalent to creating and setting the variables
-  Expression(const QString & expression, const QStringList & variables);
+  /// Equivalent to creating and setting the variables, excepted in
+  /// the case when \a skipAutodetect is true, in which case the
+  /// detection of natural variables isn't performed.
+  Expression(const QString & expression, 
+             const QStringList & variables, bool skipAutodect = false);
 
   /// A neat copy constructor.
   Expression(const Expression & expression);

@@ -20,9 +20,13 @@
 #include <ruby.hh>
 #include <ruby-templates.hh>
 #include <gslfunction.hh>
+#include <settings-templates.hh>
 
 #include <exceptions.hh>
 
+
+/// A global toogle. @todo Make that configurable at runtime
+static SettingsValue<bool> debugRuby("ruby/debug", false);
 
 VALUE Ruby::globalRescueFunction(VALUE /*dummy*/, VALUE exception)
 {
@@ -30,18 +34,18 @@ VALUE Ruby::globalRescueFunction(VALUE /*dummy*/, VALUE exception)
   fflush(stdout);
   rb_p(exception);
   QString str = QObject::tr("Ruby exception: ");
-  // printf("1\n");
-  // fflush(stdout);
   VALUE in = rb_inspect(exception);  // Probably shouldn't throw an exception ?
-  // printf("2\n");
-  // fflush(stdout);
-
-  // Apparently, when using exception, we mess up with the stack
-  // value for some reason.
-
   str += StringValueCStr(in); // Or in ? See call stack too ?
-  // printf("3\n");
-  // fflush(stdout);
+
+  // We add the call stack
+  if(debugRuby) {
+    VALUE ct = rb_funcall2(exception, rb_intern("backtrace"), 0, NULL);
+    rb_p(ct);
+    VALUE s = rb_str_new2("\n");
+    VALUE s2 = rb_funcall2(ct, rb_intern("join"), 1, &s);
+    str += "\n";
+    str += StringValueCStr(s2);
+  }
   throw RuntimeError(str);
   return Qnil;
 }
@@ -78,7 +82,6 @@ VALUE Ruby::loadFile(const QString & file)
 VALUE Ruby::eval(QByteArray code)
 {
   VALUE s = rb_str_new2(code.constData());
-  rb_p(main);
   return rb_funcall2(main, rb_intern("soas_eval"), 1, &s);
 }
 
@@ -90,7 +93,6 @@ VALUE Ruby::makeBlock(QStringList * variables, const QByteArray & code)
     rb_ary_push(args[0], rb_str_new2(variables->value(i).toLocal8Bit().
                                  constData()));
   args[1] = rb_str_new2(code.constData());
-  rb_p(main);
   VALUE ret = rb_funcall2(main, rb_intern("soas_make_block"), 2, args);
   
   // Now get back the string values:

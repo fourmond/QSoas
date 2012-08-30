@@ -75,6 +75,120 @@ Same as for [`load-as-text`](#cmd-load-as-text)
 
 # Data stack manipulation
 
+Data files are loaded and manipulated in a stack. Every time a file is
+loaded or a buffer modified (with the exception of changing the steps
+???), the new buffer is pushed onto the top of the stack, and becomes
+the current buffer (numbered 0). Older buffers have increasing numbers
+(the previous buffer is 1, the one before 2, and so on). There is also
+a "redo" stack populated by the [`undo`](#cmd-undo) command. Stack can
+be manipulated in different ways:
+
+ * the current buffer can be changed using
+   [`undo`](#cmd-undo)/[`redo`](#cmd-redo);
+ * buffers can be permanently removed from the stack using
+   [`drop`](#cmd-drop);
+ * the whole stack can be saved for later use with
+   [`save-stack`](#cmd-save-stack) and restored using
+   [`load-stack`](#cmd-load-stack), or dropped altogether using
+   [`clear-stack`](#cmd-clear-stack);
+ * contents of the stack can be displayed in the terminal using
+   [`show-stack`](#cmd-show-stack) or in a dialog bog with 
+   [`browse-stack`](#cmd-browse-stack).
+
+
+{::comment} synopsis-start: browse-stack {:/}
+
+### browse-stack - Browse stack {#cmd-browse-stack}
+
+browse-stack 
+
+
+{::comment} synopsis-end: browse-stack {:/}
+{::comment} description-start: browse-stack {:/}
+Browse stack
+{::comment} description-end: browse-stack {:/}
+
+{::comment} synopsis-start: show-stack {:/}
+
+### show-stack - Show stack {#cmd-show-stack}
+
+show-stack /number=
+
+  * /number: Limit the display to a given number
+
+{::comment} synopsis-end: show-stack {:/}
+{::comment} description-start: show-stack {:/}
+Shows a small summary of what the stack is made of
+{::comment} description-end: show-stack {:/}
+
+
+{::comment} synopsis-start: redo {:/}
+
+### redo - Redo {#cmd-redo}
+
+redo /number=
+
+  * /number (default): Number of operations to undo
+
+{::comment} synopsis-end: redo {:/}
+{::comment} description-start: redo {:/}
+Pops the last buffer from the redo stack and set it as the current buffer
+{::comment} description-end: redo {:/}
+
+{::comment} synopsis-start: undo {:/}
+
+### undo - Undo {#cmd-undo}
+
+undo /number=
+
+  * /number (default): Number of operations to undo
+
+{::comment} synopsis-end: undo {:/}
+{::comment} description-start: undo {:/}
+Returns to the previous buffer, and push the current to the redo stack
+{::comment} description-end: undo {:/}
+
+{::comment} synopsis-start: load-stack {:/}
+
+### load-stack - Load stack {#cmd-load-stack}
+
+load-stack file
+
+  * file: File name for saving stack
+
+{::comment} synopsis-end: load-stack {:/}
+{::comment} description-start: load-stack {:/}
+Loads the stack as saved using save-stack
+{::comment} description-end: load-stack {:/}
+
+{::comment} synopsis-start: save-stack {:/}
+
+### save-stack - Save stack {#cmd-save-stack}
+
+save-stack file
+
+  * file: File name for saving stack
+
+{::comment} synopsis-end: save-stack {:/}
+{::comment} description-start: save-stack {:/}
+Saves the contents of the stack for later use, in a private binary format
+{::comment} description-end: save-stack {:/}
+
+
+{::comment} synopsis-start: clear-stack {:/}
+
+### clear-stack - Clear stack {#cmd-clear-stack}
+
+clear-stack 
+
+
+{::comment} synopsis-end: clear-stack {:/}
+{::comment} description-start: clear-stack {:/}
+Removes all the buffers from both normal and redo stack
+{::comment} description-end: clear-stack {:/}
+
+
+
 # Operations involving several buffers
 
 It is possible to combine several buffers into one by applying
@@ -330,19 +444,6 @@ cd directory
 Change current directory
 {::comment} description-end: cd {:/}
 
-{::comment} synopsis-start: browse-stack {:/}
-
-### browse-stack - Browse stack {#cmd-browse-stack}
-
-browse-stack 
-
-
-{::comment} synopsis-end: browse-stack {:/}
-{::comment} description-start: browse-stack {:/}
-Browse stack
-{::comment} description-end: browse-stack {:/}
-
-
 {::comment} synopsis-start: temperature {:/}
 
 ### temperature - Temperature {#cmd-temperature}
@@ -487,18 +588,6 @@ clear
 {::comment} description-start: clear {:/}
 Removes all datasets but the current one from the display
 {::comment} description-end: clear {:/}
-
-{::comment} synopsis-start: clear-stack {:/}
-
-### clear-stack - Clear stack {#cmd-clear-stack}
-
-clear-stack 
-
-
-{::comment} synopsis-end: clear-stack {:/}
-{::comment} description-start: clear-stack {:/}
-Removes all the buffers from both normal and redo stack
-{::comment} description-end: clear-stack {:/}
 
 {::comment} synopsis-start: combine-fits {:/}
 
@@ -904,19 +993,6 @@ generate-buffer start end /samples=
 ...
 {::comment} description-end: generate-buffer {:/}
 
-{::comment} synopsis-start: show-stack {:/}
-
-### show-stack - Show stack {#cmd-show-stack}
-
-show-stack /number=
-
-  * /number: Limit the display to a given number
-
-{::comment} synopsis-end: show-stack {:/}
-{::comment} description-start: show-stack {:/}
-Shows a small summary of what the stack is made of
-{::comment} description-end: show-stack {:/}
-
 {::comment} synopsis-start: kinetic-system {:/}
 
 ### kinetic-system - Linear kinetic system {#cmd-kinetic-system}
@@ -961,18 +1037,6 @@ load-fits file
 Load fits from a file
 {::comment} description-end: load-fits {:/}
 
-{::comment} synopsis-start: load-stack {:/}
-
-### load-stack - Load stack {#cmd-load-stack}
-
-load-stack file
-
-  * file: File name for saving stack
-
-{::comment} synopsis-end: load-stack {:/}
-{::comment} description-start: load-stack {:/}
-Loads the stack as saved using save-stack
-{::comment} description-end: load-stack {:/}
 
 {::comment} synopsis-start: merge {:/}
 
@@ -1306,18 +1370,6 @@ quit
 Exits QSoas, losing all the current session
 {::comment} description-end: quit {:/}
 
-{::comment} synopsis-start: redo {:/}
-
-### redo - Redo {#cmd-redo}
-
-redo /number=
-
-  * /number (default): Number of operations to undo
-
-{::comment} synopsis-end: redo {:/}
-{::comment} description-start: redo {:/}
-Pops the last buffer from the redo stack and set it as the current buffer
-{::comment} description-end: redo {:/}
 
 {::comment} synopsis-start: reglin {:/}
 
@@ -1382,19 +1434,6 @@ save-output file
 {::comment} description-start: save-output {:/}
 Save all output from the terminal
 {::comment} description-end: save-output {:/}
-
-{::comment} synopsis-start: save-stack {:/}
-
-### save-stack - Save stack {#cmd-save-stack}
-
-save-stack file
-
-  * file: File name for saving stack
-
-{::comment} synopsis-end: save-stack {:/}
-{::comment} description-start: save-stack {:/}
-Saves the contents of the stack for later use, in a private binary format
-{::comment} description-end: save-stack {:/}
 
 {::comment} synopsis-start: segments-chop {:/}
 
@@ -1738,19 +1777,6 @@ tex-commands
 {::comment} description-start: tex-commands {:/}
 List all available commands, along with a little help
 {::comment} description-end: tex-commands {:/}
-
-{::comment} synopsis-start: undo {:/}
-
-### undo - Undo {#cmd-undo}
-
-undo /number=
-
-  * /number (default): Number of operations to undo
-
-{::comment} synopsis-end: undo {:/}
-{::comment} description-start: undo {:/}
-Returns to the previous buffer, and push the current to the redo stack
-{::comment} description-end: undo {:/}
 
 {::comment} synopsis-start: update-documentation {:/}
 

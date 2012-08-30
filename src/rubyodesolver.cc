@@ -23,6 +23,9 @@
 #include <utils.hh>
 
 
+/// @todo Here, we have a problem in the sense that it isn't possible
+/// to specify additional parameters -- which is very detrimental in
+/// the case of fits !
 RubyODESolver::RubyODESolver(const QString & init, const QString & der)
 {
   // First, we look at the initialization to find out which variables

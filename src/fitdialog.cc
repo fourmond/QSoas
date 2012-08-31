@@ -55,6 +55,7 @@ FitDialog::FitDialog(FitData * d, bool displayWeights) :
   trajectoryDisplay(NULL),
   fitEngineFactory(NULL)
 {
+  setWindowModality(Qt::WindowModal);
   resize(fitDialogSize);
 
   compute();

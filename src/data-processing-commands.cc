@@ -909,12 +909,13 @@ static void findStepsCommand(const QString &, const CommandOptions & opts)
   updateFromOptions(opts, "threshold", thresh);
   updateFromOptions(opts, "set-segments", set);
 
-  DataSet * ds = soas().currentDataSet();
+  const DataSet * ds = soas().currentDataSet();
   QList<int> steps = ds->findSteps(nb, thresh);
   CurveView & view = soas().view();
   if(set) {
-    ds->segments = steps;
-    view.repaint();
+    DataSet * nds = new DataSet(*ds);
+    nds->segments = steps;
+    soas().pushDataSet(nds);
   }
   else {
     view.disableUpdates();
@@ -958,9 +959,11 @@ fsc("find-steps", // command name
 
 // Although this is not per se a data processing command, I guess it
 // makes sense to leave it around here.
+
 static void setSegmentsCommand(const QString &, const CommandOptions & )
 {
   DataSet * ds = soas().currentDataSet();
+  QList<int> savedSegments = ds->segments;
   CurveEventLoop loop;
   CurveView & view = soas().view();
 
@@ -970,8 +973,16 @@ static void setSegmentsCommand(const QString &, const CommandOptions & )
                                  "q, mid: accept\n"
                                  "ESC: abort (TODO!)"));
   do {
-    if(loop.isConventionalAccept())
-      return;
+    if(loop.isConventionalAccept()) {
+      if(ds->segments != savedSegments) {
+        DataSet * nds = new DataSet(*ds);
+        soas().pushDataSet(nds);
+      }
+      else
+        Terminal::out << "Segments didn't change, not creating a new buffer" 
+                      << endl;
+      break;
+    }
     switch(loop.type()) {
     case QEvent::MouseButtonPress: {
       QPair<double, int> dst = loop.distanceToDataSet(ds);
@@ -1020,7 +1031,8 @@ static void setSegmentsCommand(const QString &, const CommandOptions & )
     case QEvent::KeyPress: 
       switch(loop.key()) {
       case Qt::Key_Escape:
-        return;
+        loop.terminate();
+        break;
       default:
         ;
       }
@@ -1029,6 +1041,10 @@ static void setSegmentsCommand(const QString &, const CommandOptions & )
       ;
     }
   } while(! loop.finished());
+  
+  // Whatever happened, we restore the segments
+  ds->segments = savedSegments;
+
 }
 
 static Command 

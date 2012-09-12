@@ -53,8 +53,9 @@ int DataSet::byteSize() const
 
 QString DataSet::stringDescription() const
 {
-  return QObject::tr("'%1': %2 columns, %3 rows, %4 bytes").
-    arg(name).arg(nbColumns()).arg(nbRows()).arg(byteSize());
+  return QObject::tr("'%1': %2 columns, %3 rows, %4 bytes, %5 segments").
+    arg(name).arg(nbColumns()).arg(nbRows()).
+    arg(byteSize()).arg(segments.size() + 1);
 }
 
 void DataSet::regenerateCache() const
@@ -170,11 +171,21 @@ void DataSet::splitAt(int idx, DataSet ** first, DataSet ** second) const
   }
 }
 
+/// Small helper for chop
+static void pushNext(const DataSet * ds,
+                     QList<DataSet *> * target, QList<int> * indices,
+                     int s, int e)
+{
+  if(indices) {
+    if(e+1 < ds->nbRows())
+      indices->append(e+1);     // No need to push the last one ! 
+  }
+  else
+    target->append(ds->subset(s, e));
+ }
 
-/// @todo The logic used in chop and co should be turned into
-/// something spitting a dataset into a list of ints.
 QList<DataSet *> DataSet::chop(const QList<double> & lengths, 
-                               bool isLength) const
+                               bool isLength, QList<int> * indices) const
 {
   QList<DataSet *> retvals;
   int lastidx = 0;
@@ -187,7 +198,7 @@ QList<DataSet *> DataSet::chop(const QList<double> & lengths,
       double dx = fabs(x[i] - x[i-1]);
       tdx += dx;
       if(tdx >= lengths[curIdx]) {
-        retvals.append(subset(lastidx, i-1));
+        pushNext(this, &retvals, indices, lastidx, i-1);
         lastidx = i;
         tdx = dx; // We restart as if the previous split had finished
         curIdx++;
@@ -199,7 +210,7 @@ QList<DataSet *> DataSet::chop(const QList<double> & lengths,
   else {
     for(int i = 0; i < size; i++) {
       if(x[i] >= lengths[curIdx]) {
-        retvals.append(subset(lastidx, i-1));
+        pushNext(this, &retvals, indices, lastidx, i-1);
         lastidx = i;
         curIdx++;
         if(curIdx >= lengths.size())
@@ -208,7 +219,7 @@ QList<DataSet *> DataSet::chop(const QList<double> & lengths,
     }
   }
   if(lastidx < size - 1)
-    retvals.append(subset(lastidx, size-1));
+    pushNext(this, &retvals, indices, lastidx, size-1);
   return retvals;
 }
 

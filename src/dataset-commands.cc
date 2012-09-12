@@ -196,19 +196,37 @@ static void chopCommand(const QString &, QList<double> values,
 {
   const DataSet * ds = soas().currentDataSet();
   QList<DataSet *> splitted;
+  
+  /// target for indices
+  QList<int> * indices = NULL;
+  bool setSegs = false;
+  updateFromOptions(opts, "set-segments", setSegs);
+  if(setSegs)
+    indices = new QList<int>(ds->segments);
+  
   if(testOption<QString>(opts, "mode", "index") ||
      testOption<QString>(opts, "mode", "indices")) {
     QList<int> split;
     for(int i = 0; i < values.size(); i++)
       split << values[i];
-    splitted = ds->chop(split);
+    if(indices)
+      *indices += split;
+    else
+      splitted = ds->chop(split);
   }
   else if(testOption<QString>(opts, "mode", "xvalues"))
-    splitted = ds->chop(values, false);
+    splitted = ds->chop(values, false, indices);
   else 
-    splitted = ds->chop(values);
-  for(int i = splitted.size() - 1; i >= 0; i--)
-    soas().pushDataSet(splitted[i]);
+    splitted = ds->chop(values, true, indices);
+  if(indices) {
+    DataSet * nds = new DataSet(*ds);
+    nds->segments = *indices;
+    soas().pushDataSet(nds);
+    delete indices;
+  }
+  else
+    for(int i = splitted.size() - 1; i >= 0; i--)
+      soas().pushDataSet(splitted[i]);
 }
 
 static ArgumentList 
@@ -226,7 +244,13 @@ chopO(QList<Argument *>()
                             << "index",
                             "mode", 
                             "Mode",
-                            "Whether to cut on index or x values (default)"));
+                            "Whether to cut on index or x values (default)")
+      << new BoolArgument("set-segments", 
+                          "Set segments",
+                          "Whether to actually cut the dataset, or just "
+                          "to set segments where the cuts would have "
+                          "been")
+      );
 
 static Command 
 chopC("chop", // command name

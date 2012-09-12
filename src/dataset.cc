@@ -1060,6 +1060,8 @@ QDataStream & operator<<(QDataStream & out, const DataSet & ds)
     out << ds.columns[i];
 
   out << ds.name;
+
+  out << ds.segments;
   return out;
 }
 
@@ -1076,5 +1078,7 @@ QDataStream & operator>>(QDataStream & in, DataSet & ds)
   }
 
   in >> ds.name;
+
+  in >> ds.segments;
   return in;
 }

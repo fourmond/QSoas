@@ -177,6 +177,12 @@ void DataStack::dropDataSet(const DataSet * ds)
 
 //////////////////////////////////////////////////////////////////////
 
+/// @todo It may be possible to implement data serialization
+/// versioning, ie being a little more tolerant about data persistence:
+/// @li it would need a global variable -- as QDataStream doesn't have
+/// means to carry use attribues
+/// @li it would probably be good too to write out the QDataStream
+/// version
 QDataStream & operator<<(QDataStream & out, const DataStack & stack)
 {
   qint32 nbDs = stack.dataSets.size();

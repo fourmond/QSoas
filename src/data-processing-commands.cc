@@ -197,6 +197,177 @@ reg("reglin", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+/// @todo This should be turned into a lambda expression !
+static void zoomToSegment(const DataSet * ds, int seg, CurveView & view)
+{
+  CurvePanel * p = view.mainPanel();
+  QRectF r = p->currentZoom();
+  
+  int s = ds->segments.value(seg-1, 0);
+  int e = ds->segments.value(seg, ds->x().size()) - 1;
+  r.setLeft(std::min(ds->x()[s],ds->x()[e]));
+  r.setRight(std::max(ds->x()[s],ds->x()[e]));
+
+  Terminal::out << "Displaying segment #" << seg + 1 << endl;
+
+  p->zoomIn(r);
+}
+
+static void filmLossCommand(const QString &)
+{
+  const DataSet * ds = soas().currentDataSet();
+  CurveEventLoop loop;
+  CurveLine line;
+  CurveHorizontalRegion r;
+  CurveView & view = soas().view();
+  CurvePanel bottom;
+  CurveData d;
+  CurveData corr;
+  d.xvalues = ds->x();
+  d.yvalues = ds->x();
+  corr.xvalues = ds->x();
+  corr.yvalues = ds->y();
+  bottom.drawingXTicks = false;
+  bottom.stretch = 30;        // 3/10ths of the main panel.
+  view.addItem(&line);
+  view.addItem(&r);
+  bottom.addItem(&d);
+  view.addItem(&corr);
+
+  bottom.yLabel = "Remaining coverage";
+  d.countBB = true;
+
+
+  view.addPanel(&bottom);
+  r.pen = QPen(QColor("blue"), 1, Qt::DotLine);
+  r.pen.setCosmetic(true);
+  line.pen = r.pen;        // Change color ? Use a utils function ?
+  d.pen = QPen(QColor("red"));
+  QPair<double, double> reg;
+  double xleft = ds->x().min();
+  double xright = ds->x().max();
+
+
+  loop.setHelpString(QObject::tr("Film loss:\n"
+                                 "left click: left boundary\n"
+                                 "right click: right boundary\n"
+                                 "space, n: jump to next\n"
+                                 "z: zoom on current segment\n"
+                                 "k: enter rate constant manually\n"
+                                 "b: back to previous segment\n"
+                                 "r: replace buffer by coverage\n"
+                                 "q: quit dividing by coverage"));
+
+  int currentSegment = 0;
+  zoomToSegment(ds, currentSegment, view);
+
+  QVarLengthArray<double, 200> rateConstants(ds->segments.size() + 1);
+  for(int i = 0; i <= ds->segments.size(); i++)
+    rateConstants[i] = 0;
+      
+
+  while(! loop.finished()) {
+    switch(loop.type()) {
+    case QEvent::MouseButtonPress: {
+      r.setX(loop.position().x(), loop.button());
+      reg = ds->reglin(r.xleft, r.xright);
+      double y = reg.first * xleft + reg.second;
+      line.p1 = QPointF(xleft, y);
+      y = reg.first * xright + reg.second;
+      line.p2 = QPointF(xright, y);
+      double decay = 1/(-reg.second/reg.first - r.xleft);
+      rateConstants[currentSegment] = decay;
+      Terminal::out << reg.first << "\t" << reg.second 
+                    << "\t" << decay << endl;
+      soas().showMessage(QObject::tr("Regression between X=%1 and X=%2 "
+                                     "(segment #%3)").
+                         arg(r.xleft).arg(r.xright).arg(currentSegment + 1));
+
+      // Here, we update the remaining coverage...
+
+      double init = 1;
+      for(int i = 0; i <= ds->segments.size(); i++) {
+        double r = rateConstants[i];
+        int s = ds->segments.value(i-1, 0);
+        int e = ds->segments.value(i, d.xvalues.size()) - 1;
+        double xs = (s == 0 ? d.xvalues[0] : d.xvalues[s-1]);
+        for(int j = s; j <= e; j++) {
+          d.yvalues[j] = init * exp(-r * (d.xvalues[j] - xs));
+          corr.yvalues[j] = ds->y()[j] / d.yvalues[j];
+        }
+        init = d.yvalues[e];
+      }
+      
+      bottom.setYRange(d.yvalues.min(), d.yvalues.max(), view.mainPanel());
+
+      break;
+    }
+    case QEvent::KeyPress: 
+      switch(loop.key()) {
+      case 'z':
+      case 'Z':
+        zoomToSegment(ds, currentSegment, view);
+        break;
+
+      case 'q':
+      case 'Q': {
+        DataSet * nds = new DataSet(*ds);
+        nds->name = ds->cleanedName() + "_corr.dat";
+        nds->y() = corr.yvalues;
+        soas().pushDataSet(nds);
+        return;
+      }
+      case 'r':
+      case 'R': {
+        DataSet * nds = new DataSet(*ds);
+        nds->name = ds->cleanedName() + "_coverage.dat";
+        nds->y() = d.yvalues;
+        soas().pushDataSet(nds);
+        return;
+      }
+      case Qt::Key_Escape:
+        return;
+      case ' ':
+      case 'n':
+      case 'N': {
+        currentSegment += 1;
+        if(currentSegment > ds->segments.size())
+          currentSegment = ds->segments.size();
+        else
+          zoomToSegment(ds, currentSegment, view);
+        break;
+      }
+      case 'b':
+      case 'B': {
+        currentSegment -= 1;
+        if(currentSegment < 0)
+          currentSegment = 0;
+        else
+          zoomToSegment(ds, currentSegment, view);
+        break;
+      }
+      default:
+        ;
+      }
+      break;
+    default:
+      ;
+    }
+  }
+}
+
+static Command 
+fl("film-loss", // command name
+    optionLessEffector(filmLossCommand), // action
+    "buffer",  // group name
+    NULL, // arguments
+    NULL, // options
+    "Film loss",
+    "Corrects for film loss segment-by-segment",
+    "...");
+
+//////////////////////////////////////////////////////////////////////
+
 static void baselineCommand(const QString &)
 {
   const DataSet * ds = soas().currentDataSet();

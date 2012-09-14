@@ -465,6 +465,32 @@ browseStack("browse-stack", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void fetchCommand(const QString &, QList<const DataSet *> buffers)
+{
+  for(int i = 0; i < buffers.size(); i++)
+    soas().pushDataSet(new DataSet(*buffers[i]));
+}
+
+static ArgumentList 
+fetchArgs(QList<Argument *>() 
+          << new SeveralDataSetArgument("buffers", 
+                                        "Buffers",
+                                        "Buffers to drop", true));
+
+
+static Command 
+fetch("fetch", // command name
+      optionLessEffector(fetchCommand), // action
+      "stack",  // group name
+      &fetchArgs, // arguments
+      NULL, // options
+      "Fetch an old buffer",
+      "Fetch old buffers from the stack and put them back on "
+      "the top of the stack.",
+      "...");
+
+//////////////////////////////////////////////////////////////////////
+
 static void pushOntoStack(const QList<const DataSet*> & lst)
 {
   soas().view().disableUpdates();

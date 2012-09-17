@@ -269,7 +269,7 @@ noise:
 
 ### filter-bsplines - Filter {#cmd-filter-bsplines}
 
-filter-bsplines 
+filter-bsplines **(interactive)**
 
 
 {::comment} synopsis-end: filter-bsplines {:/}
@@ -281,7 +281,7 @@ filter-bsplines
 
 ### filter-fft - Filter {#cmd-filter-fft}
 
-filter-fft 
+filter-fft **(interactive)**
 
 
 {::comment} synopsis-end: filter-fft {:/}
@@ -517,7 +517,7 @@ Average all buffers, possibly splitting them into monotonic parts if applicable
 
 ### baseline - Baseline {#cmd-baseline}
 
-baseline 
+baseline **(interactive)**
 
 
 {::comment} synopsis-end: baseline {:/}
@@ -541,7 +541,7 @@ Interrupts the run of the current script
 
 ### cut - Cut {#cmd-cut}
 
-cut 
+cut **(interactive)**
 
 
 {::comment} synopsis-end: cut {:/}
@@ -567,10 +567,11 @@ Conc
 
 ### chop - Chop Buffer {#cmd-chop}
 
-chop lengths... /mode=
+chop lengths... /mode= /set-segments=
 
   * lengths: Lengths of the subsets
   * /mode: Whether to cut on index or x values (default)
+  * /set-segments: Whether to actually cut the dataset, or just to set segments where the cuts would have been
 
 {::comment} synopsis-end: chop {:/}
 {::comment} description-start: chop {:/}
@@ -620,7 +621,7 @@ List all available commands, along with a little help
 
 ### cursor - Cursor {#cmd-cursor}
 
-cursor 
+cursor **(interactive)**
 
 
 {::comment} synopsis-end: cursor {:/}
@@ -660,7 +661,7 @@ define-lw-fit file name
 
 ### deldp - Deldp {#cmd-deldp}
 
-deldp 
+deldp **(interactive)**
 
 
 {::comment} synopsis-end: deldp {:/}
@@ -782,7 +783,7 @@ find-steps /average= /threshold= /set-segments=
 
 ### fit-arb - Fit: Arbitrary fit {#cmd-fit-arb}
 
-fit-arb formulas /parameters= /debug= /extra-parameters=
+fit-arb formulas /parameters= /debug= /extra-parameters= **(interactive)**
 
   * formulas: \|-separated formulas for the fit
   * /parameters: Pre-loads parameters
@@ -801,7 +802,7 @@ Already defined constants: f, pi
 
 ### fit-duck-sim - Fit: Diffusive electrochemical  {#cmd-fit-duck-sim}
 
-fit-duck-sim /system= /base-parameters= /parameters= /debug= /extra-parameters=
+fit-duck-sim /system= /base-parameters= /parameters= /debug= /extra-parameters= **(interactive)**
 
   * /system: ...
   * /base-parameters: ...
@@ -819,7 +820,7 @@ Single buffer fit:
 
 ### fit-ececr-wave - Fit: Fit of an ECECR catalytic wave {#cmd-fit-ececr-wave}
 
-fit-ececr-wave /plateau= /use-eoc= /parameters= /debug= /extra-parameters=
+fit-ececr-wave /plateau= /use-eoc= /parameters= /debug= /extra-parameters= **(interactive)**
 
   * /plateau: Whether to use the general expression or only that valid when plateaus are not reached
   * /use-eoc: Whether to use explicitly the bias or compute it using the open circuit potential
@@ -837,7 +838,7 @@ Single buffer fit:
 
 ### fit-eecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-fit-eecr-wave}
 
-fit-eecr-wave /plateau= /oxidation= /use-eoc= /parameters= /debug= /extra-parameters=
+fit-eecr-wave /plateau= /oxidation= /use-eoc= /parameters= /debug= /extra-parameters= **(interactive)**
 
   * /plateau: Whether to use the general expression or only that valid when plateaus are not reached
   * /oxidation: ???
@@ -856,7 +857,7 @@ Single buffer fit:
 
 ### fit-exponential-decay - Fit: Multi-exponential fits {#cmd-fit-exponential-decay}
 
-fit-exponential-decay /exponentials= /absolute= /loss= /slow= /parameters= /debug= /extra-parameters=
+fit-exponential-decay /exponentials= /absolute= /loss= /slow= /parameters= /debug= /extra-parameters= **(interactive)**
 
   * /exponentials: Number of exponentials
   * /absolute: Amplitude is absolute or relative to the asymptote ?
@@ -876,7 +877,7 @@ Single buffer fit:
 
 ### fit-kinetic-system - Fit: Several steps with a kinetic evolution {#cmd-fit-kinetic-system}
 
-fit-kinetic-system /species= /steps= /parameters= /debug= /extra-parameters=
+fit-kinetic-system /species= /steps= /parameters= /debug= /extra-parameters= **(interactive)**
 
   * /species: Number of species
   * /steps: Step list with numbered conditions
@@ -894,7 +895,7 @@ Fits of exponentials on several steps with film loss bookkeeping
 
 ### fit-multiexp-multistep - Fit: Multi-step and multi-exponential {#cmd-fit-multiexp-multistep}
 
-fit-multiexp-multistep /exponentials= /steps= /independent= /parameters= /debug= /extra-parameters=
+fit-multiexp-multistep /exponentials= /steps= /independent= /parameters= /debug= /extra-parameters= **(interactive)**
 
   * /exponentials: Number of exponentials
   * /steps: Step list with numbered conditions
@@ -913,7 +914,7 @@ Fits of exponentials on several steps with film loss bookkeeping
 
 ### fit-nernst - Fit: Nerstian behaviour {#cmd-fit-nernst}
 
-fit-nernst /parameters= /debug= /extra-parameters=
+fit-nernst /parameters= /debug= /extra-parameters= **(interactive)**
 
   * /parameters: Pre-loads parameters
   * /debug: Turn on debugging (for QSoas developers only)
@@ -929,7 +930,7 @@ Fit to a Nerst equation
 
 ### fit-react-exp - Fit: Exponential reactivation {#cmd-fit-react-exp}
 
-fit-react-exp /exponentials= /dead= /parameters= /debug= /extra-parameters=
+fit-react-exp /exponentials= /dead= /parameters= /debug= /extra-parameters= **(interactive)**
 
   * /exponentials: Number of exponentials
   * /dead: Whether we include a dead phase or not
@@ -947,7 +948,7 @@ Reactivation
 
 ### fit-slow-scan-hp - Fit: Slow scan test {#cmd-fit-slow-scan-hp}
 
-fit-slow-scan-hp /bi-exp= /scaling= /parameters= /debug= /extra-parameters=
+fit-slow-scan-hp /bi-exp= /scaling= /parameters= /debug= /extra-parameters= **(interactive)**
 
   * /bi-exp: Whether we have a bi-exponential or a mono-exponential
   * /scaling: Use an additional scaling factor
@@ -965,7 +966,7 @@ Slow scan
 
 ### fit-slow-scan-lp - Fit: Slow scan test {#cmd-fit-slow-scan-lp}
 
-fit-slow-scan-lp /explicit-rate= /parameters= /debug= /extra-parameters=
+fit-slow-scan-lp /explicit-rate= /parameters= /debug= /extra-parameters= **(interactive)**
 
   * /explicit-rate: Whether the scan rate is an explicit parameter of the fit
   * /parameters: Pre-loads parameters
@@ -1058,7 +1059,7 @@ Merge the second buffer with the first one, and keep Y of the second as a functi
 
 ### mfit-arb - Multi fit: Arbitrary fit {#cmd-mfit-arb}
 
-mfit-arb formulas datasets... /parameters= /debug= /extra-parameters= /weight-buffers=
+mfit-arb formulas datasets... /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
 
   * formulas: \|-separated formulas for the fit
   * datasets: Datasets to fit
@@ -1079,7 +1080,7 @@ Already defined constants: f, pi
 
 ### mfit-duck-sim - Multi fit: Diffusive electrochemical  {#cmd-mfit-duck-sim}
 
-mfit-duck-sim datasets... /system= /base-parameters= /parameters= /debug= /extra-parameters= /weight-buffers=
+mfit-duck-sim datasets... /system= /base-parameters= /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
 
   * datasets: Datasets to fit
   * /system: ...
@@ -1099,7 +1100,7 @@ multi buffer fit:
 
 ### mfit-ececr-wave - Multi fit: Fit of an ECECR catalytic wave {#cmd-mfit-ececr-wave}
 
-mfit-ececr-wave datasets... /plateau= /use-eoc= /parameters= /debug= /extra-parameters= /weight-buffers=
+mfit-ececr-wave datasets... /plateau= /use-eoc= /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
 
   * datasets: Datasets to fit
   * /plateau: Whether to use the general expression or only that valid when plateaus are not reached
@@ -1119,7 +1120,7 @@ multi buffer fit:
 
 ### mfit-eecr-wave - Multi fit: Fit of an EECR catalytic wave {#cmd-mfit-eecr-wave}
 
-mfit-eecr-wave datasets... /plateau= /oxidation= /use-eoc= /parameters= /debug= /extra-parameters= /weight-buffers=
+mfit-eecr-wave datasets... /plateau= /oxidation= /use-eoc= /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
 
   * datasets: Datasets to fit
   * /plateau: Whether to use the general expression or only that valid when plateaus are not reached
@@ -1140,7 +1141,7 @@ multi buffer fit:
 
 ### mfit-exponential-decay - Multi fit: Multi-exponential fits {#cmd-mfit-exponential-decay}
 
-mfit-exponential-decay datasets... /exponentials= /absolute= /loss= /slow= /parameters= /debug= /extra-parameters= /weight-buffers=
+mfit-exponential-decay datasets... /exponentials= /absolute= /loss= /slow= /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
 
   * datasets: Datasets to fit
   * /exponentials: Number of exponentials
@@ -1162,7 +1163,7 @@ multi buffer fit:
 
 ### mfit-inact-react-amplitude-2phases - Multi fit: ... {#cmd-mfit-inact-react-amplitude-2phases}
 
-mfit-inact-react-amplitude-2phases datasets... /parameters= /debug= /extra-parameters= /weight-buffers=
+mfit-inact-react-amplitude-2phases datasets... /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
 
   * datasets: Datasets to fit
   * /parameters: Pre-loads parameters
@@ -1180,7 +1181,7 @@ multi buffer fit:
 
 ### mfit-kinetic-system - Multi fit: Several steps with a kinetic evolution {#cmd-mfit-kinetic-system}
 
-mfit-kinetic-system datasets... /species= /steps= /parameters= /debug= /extra-parameters= /weight-buffers=
+mfit-kinetic-system datasets... /species= /steps= /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
 
   * datasets: Datasets to fit
   * /species: Number of species
@@ -1200,7 +1201,7 @@ Fits of exponentials on several steps with film loss bookkeeping
 
 ### mfit-multiexp-multistep - Multi fit: Multi-step and multi-exponential {#cmd-mfit-multiexp-multistep}
 
-mfit-multiexp-multistep datasets... /exponentials= /steps= /independent= /parameters= /debug= /extra-parameters= /weight-buffers=
+mfit-multiexp-multistep datasets... /exponentials= /steps= /independent= /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
 
   * datasets: Datasets to fit
   * /exponentials: Number of exponentials
@@ -1221,7 +1222,7 @@ Fits of exponentials on several steps with film loss bookkeeping
 
 ### mfit-nernst - Multi fit: Nerstian behaviour {#cmd-mfit-nernst}
 
-mfit-nernst datasets... /parameters= /debug= /extra-parameters= /weight-buffers=
+mfit-nernst datasets... /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
 
   * datasets: Datasets to fit
   * /parameters: Pre-loads parameters
@@ -1239,7 +1240,7 @@ Fit to a Nerst equation
 
 ### mfit-react-exp - Multi fit: Exponential reactivation {#cmd-mfit-react-exp}
 
-mfit-react-exp datasets... /exponentials= /dead= /parameters= /debug= /extra-parameters= /weight-buffers=
+mfit-react-exp datasets... /exponentials= /dead= /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
 
   * datasets: Datasets to fit
   * /exponentials: Number of exponentials
@@ -1259,7 +1260,7 @@ Reactivation
 
 ### mfit-slow-scan-hp - Multi fit: Slow scan test {#cmd-mfit-slow-scan-hp}
 
-mfit-slow-scan-hp datasets... /bi-exp= /scaling= /parameters= /debug= /extra-parameters= /weight-buffers=
+mfit-slow-scan-hp datasets... /bi-exp= /scaling= /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
 
   * datasets: Datasets to fit
   * /bi-exp: Whether we have a bi-exponential or a mono-exponential
@@ -1279,7 +1280,7 @@ Slow scan
 
 ### mfit-slow-scan-lp - Multi fit: Slow scan test {#cmd-mfit-slow-scan-lp}
 
-mfit-slow-scan-lp datasets... /explicit-rate= /parameters= /debug= /extra-parameters= /weight-buffers=
+mfit-slow-scan-lp datasets... /explicit-rate= /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
 
   * datasets: Datasets to fit
   * /explicit-rate: Whether the scan rate is an explicit parameter of the fit
@@ -1375,7 +1376,7 @@ Exits QSoas, losing all the current session
 
 ### reglin - Linear regression {#cmd-reglin}
 
-reglin 
+reglin **(interactive)**
 
 
 {::comment} synopsis-end: reglin {:/}
@@ -1451,7 +1452,7 @@ Cuts the buffer into several ones based on the segments defined using set-segmen
 
 ### set-segments - Set segments {#cmd-set-segments}
 
-set-segments 
+set-segments **(interactive)**
 
 
 {::comment} synopsis-end: set-segments {:/}
@@ -1745,7 +1746,7 @@ Returns the part of the buffer after the first change of sign of dx
 
 ### test-event-loop - Test event loop {#cmd-test-event-loop}
 
-test-event-loop 
+test-event-loop **(interactive)**
 
 
 {::comment} synopsis-end: test-event-loop {:/}
@@ -1795,7 +1796,7 @@ update-documentation file
 
 ### zoom - Zoom {#cmd-zoom}
 
-zoom 
+zoom **(interactive)**
 
 
 {::comment} synopsis-end: zoom {:/}
@@ -1804,16 +1805,6 @@ Zooms on the current curve
 {::comment} description-end: zoom {:/}
 
 
-{::comment} synopsis-start: run-for-each {:/}
-
-### run-for-each - Loop run a script {#cmd-run-for-each}
-
-run-for-each script arguments...
-
-  * script: The script file
-  * arguments: All the arguments for the script file to loop on
-
-{::comment} synopsis-end: run-for-each {:/}
 {::comment} synopsis-start: zero {:/}
 
 ### zero - Makes 0 {#cmd-zero}
@@ -1825,6 +1816,121 @@ zero value /axis=
 
 {::comment} synopsis-end: zero {:/}
 
+# Scripting facilities {#scripting}
+
+QSoas provides facilities for scripting, ie running commands
+unattended, for instance for preparing series of data files for
+fitting or further use. There are a few commands useful only in this
+context, such as the following
+
+
+## Scripting commands
+
+{::comment} synopsis-start: run-for-each {:/}
+
+### run-for-each - Loop run a script {#cmd-run-for-each}
+
+run-for-each script arguments...
+
+  * script: The script file
+  * arguments: All the arguments for the script file to loop on
+
+{::comment} synopsis-end: run-for-each {:/}
+
+
+## Non-interactive commands
+
+In addition to purely scripting commands, many commands do not require
+user interaction, provided all their arguments are given. They are
+listed here:
+
+{::comment} non-interactive-start {:/}
+
+ * [`1`](#cmd-1)
+ * [`2`](#cmd-2)
+ * [`antialias`](#cmd-antialias)
+ * [`apply-formula`](#cmd-apply-formula)
+ * [`auto-filter-bs`](#cmd-auto-filter-bs)
+ * [`auto-filter-fft`](#cmd-auto-filter-fft)
+ * [`average`](#cmd-average)
+ * [`break`](#cmd-break)
+ * [`browse`](#cmd-browse)
+ * [`browse-stack`](#cmd-browse-stack)
+ * [`cat`](#cmd-cat)
+ * [`cd`](#cmd-cd)
+ * [`chop`](#cmd-chop)
+ * [`clear`](#cmd-clear)
+ * [`clear-stack`](#cmd-clear-stack)
+ * [`combine-fits`](#cmd-combine-fits)
+ * [`commands`](#cmd-commands)
+ * [`define-derived-fit`](#cmd-define-derived-fit)
+ * [`define-lw-fit`](#cmd-define-lw-fit)
+ * [`diff`](#cmd-diff)
+ * [`diff2`](#cmd-diff2)
+ * [`div`](#cmd-div)
+ * [`drop`](#cmd-drop)
+ * [`dummy`](#cmd-dummy)
+ * [`echem-peaks`](#cmd-echem-peaks)
+ * [`expand`](#cmd-expand)
+ * [`fetch`](#cmd-fetch)
+ * [`find-peaks`](#cmd-find-peaks)
+ * [`find-steps`](#cmd-find-steps)
+ * [`generate-buffer`](#cmd-generate-buffer)
+ * [`help`](#cmd-help)
+ * [`kinetic-system`](#cmd-kinetic-system)
+ * [`load`](#cmd-load)
+ * [`load-as-csv`](#cmd-load-as-csv)
+ * [`load-as-text`](#cmd-load-as-text)
+ * [`load-documentation`](#cmd-load-documentation)
+ * [`load-fits`](#cmd-load-fits)
+ * [`load-stack`](#cmd-load-stack)
+ * [`merge`](#cmd-merge)
+ * [`norm`](#cmd-norm)
+ * [`ode`](#cmd-ode)
+ * [`opengl`](#cmd-opengl)
+ * [`overlay`](#cmd-overlay)
+ * [`overlay-buffer`](#cmd-overlay-buffer)
+ * [`points`](#cmd-points)
+ * [`print`](#cmd-print)
+ * [`quit`](#cmd-quit)
+ * [`redo`](#cmd-redo)
+ * [`remove-spikes`](#cmd-remove-spikes)
+ * [`rename`](#cmd-rename)
+ * [`run`](#cmd-run)
+ * [`run-for-each`](#cmd-run-for-each)
+ * [`save`](#cmd-save)
+ * [`save-buffers`](#cmd-save-buffers)
+ * [`save-history`](#cmd-save-history)
+ * [`save-output`](#cmd-save-output)
+ * [`save-stack`](#cmd-save-stack)
+ * [`segments-chop`](#cmd-segments-chop)
+ * [`shiftx`](#cmd-shiftx)
+ * [`show-stack`](#cmd-show-stack)
+ * [`sim-duck-sim`](#cmd-sim-duck-sim)
+ * [`sim-ececr-wave`](#cmd-sim-ececr-wave)
+ * [`sim-eecr-wave`](#cmd-sim-eecr-wave)
+ * [`sim-exponential-decay`](#cmd-sim-exponential-decay)
+ * [`sim-inact-react-amplitude-2phases`](#cmd-sim-inact-react-amplitude-2phases)
+ * [`sim-kinetic-system`](#cmd-sim-kinetic-system)
+ * [`sim-lw`](#cmd-sim-lw)
+ * [`sim-multiexp-multistep`](#cmd-sim-multiexp-multistep)
+ * [`sim-nernst`](#cmd-sim-nernst)
+ * [`sim-react-exp`](#cmd-sim-react-exp)
+ * [`sim-slow-scan-hp`](#cmd-sim-slow-scan-hp)
+ * [`sim-slow-scan-lp`](#cmd-sim-slow-scan-lp)
+ * [`sort`](#cmd-sort)
+ * [`split-monotonic`](#cmd-split-monotonic)
+ * [`splita`](#cmd-splita)
+ * [`splitb`](#cmd-splitb)
+ * [`stats`](#cmd-stats)
+ * [`subtract`](#cmd-subtract)
+ * [`temperature`](#cmd-temperature)
+ * [`test-lw`](#cmd-test-lw)
+ * [`tex-commands`](#cmd-tex-commands)
+ * [`undo`](#cmd-undo)
+ * [`update-documentation`](#cmd-update-documentation)
+ * [`zero`](#cmd-zero)
+{::comment} non-interacive-end {:/}
 
 
 ## Ruby code {#ruby}
@@ -1874,3 +1980,30 @@ letter.
 [ruby]:http://www.ruby-lang.org/ "Ruby, the programming language"
 [math]:http://www.ruby-doc.org/core-1.9.3/Math.html "Documentation of the Math module"
 [gnuplot]:http://www.gnuplot.info/ "Gnuplot, the plotting program"
+{::comment} synopsis-start: fetch {:/}
+
+### fetch - Fetch an old buffer {#cmd-fetch}
+
+fetch buffers...
+
+  * buffers: Buffers to drop
+
+{::comment} synopsis-end: fetch {:/}
+{::comment} synopsis-start: film-loss {:/}
+
+### film-loss - Film loss {#cmd-film-loss}
+
+film-loss **(interactive)**
+
+
+{::comment} synopsis-end: film-loss {:/}
+{::comment} synopsis-start: ode {:/}
+
+### ode - ODE solver {#cmd-ode}
+
+ode initial derivatives
+
+  * initial: 
+  * derivatives: 
+
+{::comment} synopsis-end: ode {:/}

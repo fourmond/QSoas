@@ -26,6 +26,7 @@
 #include <possessive-containers.hh>
 #include <exceptions.hh>
 #include <utils.hh>
+#include <curveeventloop.hh>
 
 
 QHash<QString, Command*> * Command::availableCommands = NULL;
@@ -116,7 +117,13 @@ void Command::runCommand(const QString & commandName,
   PossessiveHash<QString, ArgumentMarshaller> options = 
     parseOptions(split.second, (hasDefault ? &def : NULL));
   // Then the call !
-  effector->runCommand(commandName, args, options);
+
+  if(effector->needsLoop()) {
+    CurveEventLoop loop; /// @todo Find a way to provide context ?
+    effector->runWithLoop(loop, commandName, args, options);
+  }
+  else 
+    effector->runCommand(commandName, args, options);
 }
 
 Command * Command::namedCommand(const QString & cmd)
@@ -312,6 +319,35 @@ QStringList Command::allCommands()
   return availableCommands->keys();
 }
 
+QStringList Command::interactiveCommands()
+{
+  if(! availableCommands)
+    return QStringList();
+
+  QStringList ret;
+  
+  for(QHash<QString, Command*>::const_iterator i = availableCommands->begin();
+      i != availableCommands->end(); i++)
+    if(i.value()->isInteractive())
+      ret << i.value()->cmdName;
+  return ret;
+}
+
+QStringList Command::nonInteractiveCommands()
+{
+  if(! availableCommands)
+    return QStringList();
+
+  QStringList ret;
+  
+  for(QHash<QString, Command*>::const_iterator i = availableCommands->begin();
+      i != availableCommands->end(); i++)
+    if(! i.value()->isInteractive())
+      ret << i.value()->cmdName;
+  return ret;
+}
+
+
 QString Command::latexDocumentation() const
 {
   QString ret;
@@ -382,8 +418,12 @@ QString Command::synopsis(bool markup) const
         arg(args[i]->argumentName()).
         arg(args[i]->description()).
         arg(args[i]->defaultOption ? " (default)" : "");
+
     }
   }
+
+  if(isInteractive())
+    synopsis << (markup ? "**(interactive)**" : "(interactive)");
 
   // We need to escape |, which comes in too many times
   if(markup)
@@ -419,4 +459,9 @@ void Command::loadDocumentation(const QString & str)
   QRegExp re(ret);
   if(re.indexIn(str, 0) >= 0)
     longDesc = re.cap(1);
+}
+
+bool Command::isInteractive() const
+{
+  return effector->isInteractive();
 }

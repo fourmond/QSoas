@@ -23,10 +23,17 @@
 #include <argumentlist.hh>
 #include <argumentmarshaller.hh>
 
+class CurveEventLoop;
+
 /// This abstract base class serves as the base for all the code for
 /// the commands.
 class CommandEffector {
+  
+  bool interactive;
 public:
+
+  CommandEffector(bool inter) : interactive(inter) {;};
+  
   /// Runs the command with the given \b typed arguments.
   ///
   /// This function must be reimplemented by children, and is run
@@ -34,6 +41,24 @@ public:
   virtual void runCommand(const QString & commandName, 
                           const CommandArguments & arguments,
                           const CommandOptions & options) = 0;
+
+  /// Runs the command using an event loop
+  virtual void runWithLoop(CurveEventLoop & loop,
+                           const QString & commandName, 
+                           const CommandArguments & arguments,
+                           const CommandOptions & options);
+
+  /// Whether or not the effector needs an event loop
+  virtual bool needsLoop() const {
+    return false;
+  };
+
+  /// If this returns true, the command should be considered an
+  /// interactive one.
+  virtual bool isInteractive() const {
+    return needsLoop() || interactive;
+  };
+
 };
 
 #endif

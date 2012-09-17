@@ -23,6 +23,7 @@
 class CurveView;
 class DataSet;
 class CurvePanel;
+#include <command.hh>
 
 /// Inner event loop for use with CurveView
 ///
@@ -76,9 +77,21 @@ class CurveEventLoop : public QObject {
 
   bool promptOK;
   QString inputText;
+
+private:
+
+  /// The constructor is private so that only the friend class can
+  /// build it (ie we can count the number of functions that need an
+  /// event loop...)
+  CurveEventLoop(CurveView * v = NULL);
+
+  /// Command is the only 
+  friend void Command::runCommand(const QString & commandName, 
+                                  const QStringList & arguments,
+                                  QWidget * base);
+
 public:
 
-  CurveEventLoop(CurveView * v = NULL);
   ~CurveEventLoop();
 
 

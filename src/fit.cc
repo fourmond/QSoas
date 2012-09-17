@@ -114,7 +114,7 @@ void Fit::makeCommands(ArgumentList * args,
   if(minDataSets == 1) {
     new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
                 singleFit ? singleFit : 
-                effector(this, &Fit::runFitCurrentDataSet),
+                effector(this, &Fit::runFitCurrentDataSet, true),
                 "fits", fal, options, pn, sd, ld);
     options = new ArgumentList(*options); // Duplicate, as options
                                           // will be different for single and multi fits
@@ -148,7 +148,7 @@ void Fit::makeCommands(ArgumentList * args,
   ld += longDesc;
   new Command((const char*)(QString("mfit-") + name).toLocal8Bit(),
               multiFit ? multiFit : 
-              effector(this, &Fit::runFit),
+              effector(this, &Fit::runFit, true),
               "fits", al, options, pn, sd, ld);
 
   if(! multiFit) {

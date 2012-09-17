@@ -214,10 +214,10 @@ p("print", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void testELoopCommand(const QString &)
+static void testELoopCommand(CurveEventLoop & loop, const QString &)
 {
-  Debug::dumpCurrentFocus("Focus before creation: ");
-  CurveEventLoop loop;
+  // Debug::dumpCurrentFocus("Focus before creation: ");
+  // CurveEventLoop loop;
   Debug::dumpCurrentFocus("Focus after creation: ");
   CurveLine l;
   CurveMarker m;
@@ -393,7 +393,7 @@ run("run", // command name
 /// @todo select extra arguments using options
 static void runForEachCommand(const QString &, QString script,
                               QStringList args, 
-                              const CommandOptions &opts)
+                              const CommandOptions &/*opts*/)
 {
   int nb = 1;
   while(args.size() > 0) {

@@ -48,10 +48,10 @@
 #include <peaks.hh>
 
 //////////////////////////////////////////////////////////////////////
-static void reglinCommand(const QString &)
+static void reglinCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
-  CurveEventLoop loop;
+  ;
   CurveLine line;
   CurveHorizontalRegion r;
   CurveView & view = soas().view();
@@ -213,10 +213,9 @@ static void zoomToSegment(const DataSet * ds, int seg, CurveView & view)
   p->zoomIn(r);
 }
 
-static void filmLossCommand(const QString &)
+static void filmLossCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
-  CurveEventLoop loop;
   CurveLine line;
   CurveHorizontalRegion r;
   CurveView & view = soas().view();
@@ -368,10 +367,9 @@ fl("film-loss", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void baselineCommand(const QString &)
+static void baselineCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
-  CurveEventLoop loop;
   CurveView & view = soas().view();
   CurveMarker m;
   CurvePanel bottom;
@@ -553,10 +551,9 @@ bsl("baseline", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void bsplinesCommand(const QString &)
+static void bsplinesCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
-  CurveEventLoop loop;
   CurveView & view = soas().view();
   CurvePanel bottom;
   /// @todo This assumes that the currently displayed dataset is the
@@ -736,10 +733,9 @@ bspl("filter-bsplines", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void fftCommand(const QString &)
+static void fftCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
-  CurveEventLoop loop;
   CurveView & view = soas().view();
   CurvePanel bottom;
   CurvePanel spectrum;
@@ -1131,11 +1127,10 @@ fsc("find-steps", // command name
 // Although this is not per se a data processing command, I guess it
 // makes sense to leave it around here.
 
-static void setSegmentsCommand(const QString &, const CommandOptions & )
+static void setSegmentsCommand(CurveEventLoop &loop, const QString &)
 {
   DataSet * ds = soas().currentDataSet();
   QList<int> savedSegments = ds->segments;
-  CurveEventLoop loop;
   CurveView & view = soas().view();
 
   loop.setHelpString(QObject::tr("Set segments:\n"
@@ -1220,7 +1215,7 @@ static void setSegmentsCommand(const QString &, const CommandOptions & )
 
 static Command 
 ssc("set-segments", // command name
-     effector(setSegmentsCommand), // action
+     optionLessEffector(setSegmentsCommand), // action
      "buffer",  // group name
      NULL, // arguments
      NULL, // options
@@ -1490,10 +1485,9 @@ ep("echem-peaks", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void deldpCommand(const QString &)
+static void deldpCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
-  CurveEventLoop loop;
   CurveView & view = soas().view();
 
   DataSet * newds = new DataSet(*ds);

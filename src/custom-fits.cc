@@ -213,8 +213,8 @@ public:
                                          "Formulas",
                                          "|-separated formulas for the fit"));
 
-    makeCommands(al, effector(this, &MultiBufferArbitraryFit::runFitCurrentDataSet),
-                 effector(this, &MultiBufferArbitraryFit::runFit));
+    makeCommands(al, effector(this, &MultiBufferArbitraryFit::runFitCurrentDataSet, true),
+                 effector(this, &MultiBufferArbitraryFit::runFit, true));
   };
 
   /// This alternative constructor is to help create named fits based

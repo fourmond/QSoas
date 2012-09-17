@@ -287,10 +287,9 @@ chopS("segments-chop", // command name
 //////////////////////////////////////////////////////////////////////
 
 
-static void cursorCommand(const QString &)
+static void cursorCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
-  CurveEventLoop loop;
   CurveMarker m;
   CurveMarker r;
   CurveView & view = soas().view();
@@ -365,7 +364,7 @@ cu("cursor", // command name
 //////////////////////////////////////////////////////////////////////
 
 
-static void cutCommand(const QString &)
+static void cutCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
   CurveHorizontalRegion r;
@@ -373,7 +372,6 @@ static void cutCommand(const QString &)
 
   /// We remove the current display
   view.clear();
-  CurveEventLoop loop;
   CurveData d;
   view.addItem(&r);
   view.addItem(&d);
@@ -440,10 +438,9 @@ cut("cut", // command name
 //////////////////////////////////////////////////////////////////////
 
 
-static void zoomCommand(const QString &)
+static void zoomCommand(CurveEventLoop &loop, const QString &)
 {
   soas().currentDataSet(); // to ensure datasets are loaded
-  CurveEventLoop loop;
   CurveRectangle r;
   CurveView & view = soas().view();
   CurvePanel * panel = NULL;

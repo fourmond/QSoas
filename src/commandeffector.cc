@@ -19,3 +19,13 @@
 
 #include <headers.hh>
 #include <commandeffector.hh>
+#include <exceptions.hh>
+
+void CommandEffector::runWithLoop(CurveEventLoop & loop,
+                                  const QString & commandName, 
+                                  const CommandArguments & arguments,
+                                  const CommandOptions & options)
+{
+  throw InternalError("Attempting to run a non-interactive effector "
+                      "with an event loop");
+}

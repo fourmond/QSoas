@@ -250,6 +250,12 @@ public:
   /// All available commands
   static QStringList allCommands();
 
+  /// All interactive commands
+  static QStringList interactiveCommands();
+
+  /// All non-interactive commands
+  static QStringList nonInteractiveCommands();
+
   /// Returns a LaTeX string documenting the command (using
   /// subsection)
   ///
@@ -259,6 +265,8 @@ public:
   
   /// Makes up a text synopsis for the command
   QString synopsis(bool markup = false) const;
+
+  bool isInteractive() const;
 
 
   /// Updates a QString containing the documentation of the command

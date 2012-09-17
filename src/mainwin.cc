@@ -194,23 +194,6 @@
    @li I should be able to somehow process the output of the program
    to get inline documentation (possibly included as qrc resource ?)
 
-   @b Non-interactive @b commands
-
-   Many commands are not interactive, ie they don't require access to
-   a CurveEventLoop object. It would be nice to have a way to keep
-   track of them automatically, as this would have two benefits:
-
-   @li first, it would be possible to update their list in the
-   documentation file
-   @li second, and most importantly, it would be possible to guarantee
-   that non-interactive functions are not called when not possible
-
-   Probably, a way to do that would be to disallow the constructor of
-   CurveEventLoop (only for friend classes), but have an alias to it
-   as argument to the command function.
-
-
-
    @b Expressions
 
    In many places I could use a decent expressions system, ie

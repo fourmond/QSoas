@@ -22,6 +22,7 @@
 
 #include <commandeffector.hh>
 #include <argumentmarshaller.hh>
+#include <exceptions.hh>
 #include <utils.hh>
 
 /// Argumentless and optionless callback to static function
@@ -35,7 +36,8 @@ class CommandEffectorCallback0OptionLess : public CommandEffector {
 
 public:
 
-  CommandEffectorCallback0OptionLess(Callback c) : callback(c) {;};
+  CommandEffectorCallback0OptionLess(Callback c, bool i = false) : 
+    CommandEffector(i), callback(c) {;};
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments &,
@@ -47,8 +49,9 @@ public:
 
 
 /// Effector for an argumentless and optionless command
-inline CommandEffector * optionLessEffector(void (*f)(const QString &)) {
-  return new CommandEffectorCallback0OptionLess(f);
+inline CommandEffector * optionLessEffector(void (*f)(const QString &), 
+                                            bool i = false) {
+  return new CommandEffectorCallback0OptionLess(f, i);
 };
 
 /// Optionless callback to a static function with one argument
@@ -63,7 +66,8 @@ class CommandEffectorCallback1OptionLess : public CommandEffector {
 
 public:
 
-  CommandEffectorCallback1OptionLess(Callback c) : callback(c) {;};
+  CommandEffectorCallback1OptionLess(Callback c, bool i = false) : 
+    CommandEffector(i), callback(c) {;};
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
@@ -80,8 +84,8 @@ public:
 
 
 /// Effector for an optionless command that takes one argument.
-template<class A1> CommandEffector * optionLessEffector(void (*f)(const QString &, A1)) {
-  return new CommandEffectorCallback1OptionLess<A1>(f);
+template<class A1> CommandEffector * optionLessEffector(void (*f)(const QString &, A1), bool i = false) {
+  return new CommandEffectorCallback1OptionLess<A1>(f, i);
 };
 
 /// Optionless callback to a static function with two arguments
@@ -96,7 +100,8 @@ class CommandEffectorCallback2OptionLess : public CommandEffector {
 
 public:
 
-  CommandEffectorCallback2OptionLess(Callback c) : callback(c) {;};
+  CommandEffectorCallback2OptionLess(Callback c, bool i = false) : 
+    CommandEffector(i), callback(c) {;};
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
@@ -112,8 +117,8 @@ public:
 };
 
 /// Effector for an optionless command that takes two arguments.
-template<class A1, class A2> CommandEffector * optionLessEffector(void (*f)(const QString &, A1, A2)) {
-  return new CommandEffectorCallback2OptionLess<A1, A2>(f);
+template<class A1, class A2> CommandEffector * optionLessEffector(void (*f)(const QString &, A1, A2), bool i = false) {
+  return new CommandEffectorCallback2OptionLess<A1, A2>(f, i);
 };
 
 
@@ -128,7 +133,8 @@ class CommandEffectorCallback0 : public CommandEffector {
 
 public:
 
-  CommandEffectorCallback0(Callback c) : callback(c) {;};
+  CommandEffectorCallback0(Callback c, bool i = false) : 
+    CommandEffector(i), callback(c) {;};
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
@@ -143,8 +149,8 @@ public:
 
 inline CommandEffector * 
 effector(void (*f)(const QString &, 
-                   const CommandOptions &)) {
-  return new CommandEffectorCallback0(f);
+                   const CommandOptions &), bool i = false) {
+  return new CommandEffectorCallback0(f, i);
 };
 
 /// Callback to a static function with one argument + options.
@@ -159,7 +165,8 @@ class CommandEffectorCallback1 : public CommandEffector {
 
 public:
 
-  CommandEffectorCallback1(Callback c) : callback(c) {;};
+  CommandEffectorCallback1(Callback c, bool i = false) : 
+    CommandEffector(i), callback(c) {;};
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
@@ -175,8 +182,8 @@ public:
 
 template<class A1> CommandEffector * 
 effector(void (*f)(const QString &, A1, 
-                   const CommandOptions &)) {
-  return new CommandEffectorCallback1<A1>(f);
+                   const CommandOptions &), bool i = false) {
+  return new CommandEffectorCallback1<A1>(f, i);
 };
 
 /// Callback to a static function with two arguments + options.
@@ -191,7 +198,8 @@ class CommandEffectorCallback2 : public CommandEffector {
 
 public:
 
-  CommandEffectorCallback2(Callback c) : callback(c) {;};
+  CommandEffectorCallback2(Callback c, bool i = false) : 
+    CommandEffector(i), callback(c) {;};
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
@@ -208,8 +216,8 @@ public:
 
 template<class A1, class A2> CommandEffector * 
 effector(void (*f)(const QString &, A1, A2,
-                   const CommandOptions &)) {
-  return new CommandEffectorCallback2<A1, A2>(f);
+                   const CommandOptions &), bool i = false) {
+  return new CommandEffectorCallback2<A1, A2>(f, i);
 };
 
 
@@ -225,7 +233,8 @@ class CommandEffectorCallback3 : public CommandEffector {
 
 public:
 
-  CommandEffectorCallback3(Callback c) : callback(c) {;};
+  CommandEffectorCallback3(Callback c, bool i = false) : 
+    CommandEffector(i), callback(c) {;};
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
@@ -243,8 +252,8 @@ public:
 
 template<class A1, class A2, class A3> CommandEffector * 
 effector(void (*f)(const QString &, A1, A2, A3,
-                   const CommandOptions &)) {
-  return new CommandEffectorCallback3<A1, A2, A3>(f);
+                   const CommandOptions &), bool i = false) {
+  return new CommandEffectorCallback3<A1, A2, A3>(f, i);
 };
 
 
@@ -264,9 +273,10 @@ class CommandEffectorMemberCallback0OptionLess : public CommandEffector {
 
 public:
 
-  CommandEffectorMemberCallback0OptionLess(C * t,
-                                           Callback c) : callback(c), 
-                                                         target(t) {;};
+  CommandEffectorMemberCallback0OptionLess(C * t, Callback c, 
+                                           bool i = false) : 
+    CommandEffector(i), callback(c), 
+    target(t) {;};
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments &,
@@ -278,8 +288,8 @@ public:
 
 
 /// Effector for an argumentless and optionless command
-template<class C> CommandEffector * optionLessEffector(C * cls, void (C::*f)(const QString &)) {
-  return new CommandEffectorMemberCallback0OptionLess<C>(cls, f);
+template<class C> CommandEffector * optionLessEffector(C * cls, void (C::*f)(const QString &), bool i = false) {
+  return new CommandEffectorMemberCallback0OptionLess<C>(cls, f, i);
 };
 
 /// Argumentless callback to member function with options
@@ -297,8 +307,9 @@ class CommandEffectorMemberCallback0 : public CommandEffector {
 public:
 
   CommandEffectorMemberCallback0(C * t,
-                                 Callback c) : callback(c), 
-                                               target(t) {;};
+                                 Callback c, bool i = false) : 
+    CommandEffector(i), callback(c), 
+    target(t) {;};
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments &,
@@ -310,8 +321,8 @@ public:
 
 
 /// Effector for an argumentless and optionless command
-template<class C> CommandEffector * effector(C * cls, void (C::*f)(const QString &, const CommandOptions &)) {
-  return new CommandEffectorMemberCallback0<C>(cls, f);
+template<class C> CommandEffector * effector(C * cls, void (C::*f)(const QString &, const CommandOptions &), bool i = false) {
+  return new CommandEffectorMemberCallback0<C>(cls, f, i);
 };
 
 
@@ -329,8 +340,9 @@ class CommandEffectorMemberCallback1OptionLess : public CommandEffector {
 public:
 
   CommandEffectorMemberCallback1OptionLess(C * t,
-                                           Callback c) : callback(c), 
-                                                         target(t) {;};
+                                           Callback c, bool i = false) : 
+    CommandEffector(i), callback(c), 
+    target(t) {;};
   
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
@@ -343,8 +355,8 @@ public:
 
 
 /// Effector for an optionless command taking one argument
-template<class C, class A1> CommandEffector * optionLessEffector(C * cls, void (C::*f)(const QString &, A1)) {
-  return new CommandEffectorMemberCallback1OptionLess<C, A1>(cls, f);
+template<class C, class A1> CommandEffector * optionLessEffector(C * cls, void (C::*f)(const QString &, A1), bool i = false) {
+  return new CommandEffectorMemberCallback1OptionLess<C, A1>(cls, f, i);
 };
 
 
@@ -363,8 +375,9 @@ class CommandEffectorMemberCallback1 : public CommandEffector {
 public:
 
   CommandEffectorMemberCallback1(C * t,
-                                 Callback c) : callback(c), 
-                                               target(t) {;};
+                                 Callback c, bool i = false) : 
+    CommandEffector(i), callback(c), 
+    target(t) {;};
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
@@ -377,8 +390,8 @@ public:
 
 
 /// Effector for an argumentless and optionless command
-template<class C, class A1> CommandEffector * effector(C * cls, void (C::*f)(const QString &, A1, const CommandOptions &)) {
-  return new CommandEffectorMemberCallback1<C, A1>(cls, f);
+template<class C, class A1> CommandEffector * effector(C * cls, void (C::*f)(const QString &, A1, const CommandOptions &), bool i = false) {
+  return new CommandEffectorMemberCallback1<C, A1>(cls, f, i);
 };
 
 
@@ -395,8 +408,9 @@ class CommandEffectorMemberCallback2OptionLess : public CommandEffector {
 public:
 
   CommandEffectorMemberCallback2OptionLess(C * t,
-                                           Callback c) : callback(c), 
-                                                         target(t) {;};
+                                           Callback c, bool i = false) : 
+    CommandEffector(i), callback(c), 
+    target(t) {;};
   
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
@@ -410,8 +424,8 @@ public:
 
 
 /// Effector for an argumentless and optionless command
-template<class C, class A1, class A2> CommandEffector * optionLessEffector(C * cls, void (C::*f)(const QString &, A1, A2)) {
-  return new CommandEffectorMemberCallback2OptionLess<C, A1, A2>(cls, f);
+template<class C, class A1, class A2> CommandEffector * optionLessEffector(C * cls, void (C::*f)(const QString &, A1, A2), bool i = false) {
+  return new CommandEffectorMemberCallback2OptionLess<C, A1, A2>(cls, f, i);
 };
 
 
@@ -433,8 +447,9 @@ class CommandEffectorMemberCallback2 : public CommandEffector {
 public:
 
   CommandEffectorMemberCallback2(C * t,
-                                 Callback c) : callback(c), 
-                                               target(t) {;};
+                                 Callback c, bool i = false) : 
+    CommandEffector(i), callback(c), 
+    target(t) {;};
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
@@ -448,8 +463,8 @@ public:
 
 
 /// Effector for an argumentless and optionless command
-template<class C, class A1, class A2> CommandEffector * effector(C * cls, void (C::*f)(const QString &, A1, A2, const CommandOptions &)) {
-  return new CommandEffectorMemberCallback2<C, A1, A2>(cls, f);
+template<class C, class A1, class A2> CommandEffector * effector(C * cls, void (C::*f)(const QString &, A1, A2, const CommandOptions &), bool i = false) {
+  return new CommandEffectorMemberCallback2<C, A1, A2>(cls, f, i);
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -465,15 +480,16 @@ class CommandEffectorMemberCallback3OptionLess : public CommandEffector {
 public:
 
   CommandEffectorMemberCallback3OptionLess(C * t,
-                                           Callback c) : callback(c), 
-                                                         target(t) {;};
+                                           Callback c, bool i = false) : 
+    CommandEffector(i), callback(c), 
+    target(t) {;};
   
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
                                  const CommandOptions &) {
     A1 a1 = args[0]->value<A1>();
     A2 a2 = args[1]->value<A2>();
-    A3 a3 = args[1]->value<A3>();
+    A3 a3 = args[2]->value<A3>();
     CALL_MEMBER_FN(*target, callback)(commandName, a1, a2, a3);
   };
   
@@ -481,11 +497,56 @@ public:
 
 
 /// Effector for an argumentless and optionless command
-template<class C, class A1, class A2, class A3> CommandEffector * optionLessEffector(C * cls, void (C::*f)(const QString &, A1, A2, A3)) {
-  return new CommandEffectorMemberCallback3OptionLess<C, A1, A2, A3>(cls, f);
+template<class C, class A1, class A2, class A3> CommandEffector * optionLessEffector(C * cls, void (C::*f)(const QString &, A1, A2, A3), bool i = false) {
+  return new CommandEffectorMemberCallback3OptionLess<C, A1, A2, A3>(cls, f, i);
 };
 
 /// @todo Maybe we need a generic effector wrapping a call to
 /// something getting directly CommandArguments.
+
+
+//////////////////////////////////////////////////////////////////////
+
+/// Argumentless and optionless callback to static function
+///
+/// Rather than using this class directly, use
+/// CommandEffector::functionEffector().
+class InteractiveCommandEffectorCallback0OptionLess : public CommandEffector {
+
+  typedef void (*Callback)(CurveEventLoop &, const QString &);
+  Callback callback;
+
+public:
+
+  InteractiveCommandEffectorCallback0OptionLess(Callback c) : 
+    CommandEffector(true), callback(c) {;};
+
+  inline virtual void runCommand(const QString & /*commandName*/, 
+                                 const CommandArguments &,
+                                 const CommandOptions &) {
+    throw InternalError("Trying to run an interactive command without a loop");
+  };
+
+  inline virtual bool needsLoop() const {
+    return true;
+  };
+
+  inline virtual void runWithLoop(CurveEventLoop & loop,
+                                  const QString & commandName, 
+                                  const CommandArguments & /*arguments*/,
+                                  const CommandOptions & /*options*/) {
+    callback(loop, commandName);
+  };
+
+
+};
+
+
+/// Effector for an argumentless and optionless command
+inline CommandEffector * optionLessEffector(void (*f)(CurveEventLoop &,
+                                                      const QString &)) {
+  return new InteractiveCommandEffectorCallback0OptionLess(f);
+};
+
 
 #endif

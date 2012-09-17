@@ -191,6 +191,17 @@ static void updateDocumentationFile(const QString &, QString file)
     Utils::updateWithin(str, "{::comment} constants-start {:/}",
                         "{::comment} constants-end {:/}\n",
                         "\n\n" + GSLConstant::availableConstants() + "\n");
+
+    QStringList nonInt = Command::nonInteractiveCommands();
+    qSort(nonInt);
+    Utils::makeUnique(nonInt);
+    for(int i = 0; i < nonInt.size(); i++)
+      nonInt[i] = QString(" * [`%1`](#cmd-%2)").arg(nonInt[i]).
+        arg(nonInt[i]);
+
+    Utils::updateWithin(str, "{::comment} non-interactive-start {:/}",
+                        "{::comment} non-interacive-end {:/}\n",
+                        "\n\n" + nonInt.join("\n") + "\n");
   }
 
 

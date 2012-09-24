@@ -54,6 +54,8 @@ protected:
   static QList<QExplicitlySharedDataPointer<FormattedString> > parseString(const QString & str);
 public:
 
+  virtual ~FormattedString();
+
   
   /// Constructs a formatted string with the given marked up string.
   FormattedString(const QString & str);

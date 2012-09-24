@@ -99,6 +99,10 @@ FormattedString::FormattedString()
 {
 }
 
+FormattedString::~FormattedString() 
+{
+}
+
 QList<QExplicitlySharedDataPointer<FormattedString> > 
 FormattedString::parseString(const QString & str)
 {

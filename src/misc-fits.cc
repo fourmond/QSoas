@@ -411,28 +411,17 @@ EECRFit fit_eecr;
 
 
 /// Fits to the ECECR model of electrochemical waves
-class ECECRFit : public PerDatasetFit {
-  /// Whether or not the current plateaus off at extreme potentials.
-  bool plateau;
-
-  /// Whether we use Eoc or k2/k_m2
-  bool useEoc;
+class EECRRelayFit : public PerDatasetFit {
 
 protected:
 
   virtual void processOptions(const CommandOptions & opts)
   {
-    plateau = false;
-    useEoc = false;
-    updateFromOptions(opts, "plateau", plateau);
-    updateFromOptions(opts, "use-eoc", useEoc);
   }
 
   
   virtual QString optionsString() const {
-    return QString("%1, NI: %2").
-      arg(plateau ? "reaching plateau" : "not reaching plateau").
-      arg(useEoc ? "eoc" : "K2");
+    return "";
   }
 
 public:
@@ -443,52 +432,93 @@ public:
                         const DataSet * ds , gsl_vector * target) {
 
     const Vector & xv = ds->x();
-    double f = GSL_CONST_MKSA_FARADAY /(params[0] * GSL_CONST_MKSA_MOLAR_GAS);
+    const double f = GSL_CONST_MKSA_FARADAY 
+      /(params[0] * GSL_CONST_MKSA_MOLAR_GAS);
 
-    for(int i = 3; i <= (useEoc ? 4 : 5); i++)
+    for(int i = 2; i <= 7; i++)
       if(params[i] < 0)
         throw RangeError(QString("Negative rate constant ratio: #%1").arg(i));
 
     if(params[8] > 0)
       throw RangeError("Positive reduction current");
 
+    // We rename the parameters...
+    //
+    // Let's keep in mind that k2 is one.
+    const double k_0M    = params[2];
+    const double k_2     = 1;
+    const double k_m2    = params[3];
+    const double k_1     = params[4];
+    const double k_m1    = params[5];
+    const double kp_1    = params[6];
+    const double kp_m1   = params[7];
+    const double ilim    = params[8];
+    const double beta_d0 = params[9];
+    const double k_0m    = k_0M * exp(-beta_d0);
+
+
+    // We now precompute the  coefficients of all the A,B,C,D,E,F constants:
+    // The number is the power of d.
+    //
+    // These come straight from Maple
+    const double A_0 = k_m1*k_2*kp_m1;
+    const double A_4 = -k_1*k_m2*kp_1;
+
+    const double B_0 = kp_m1*k_m2+k_2*kp_m1+k_2*k_m1+k_m1*kp_m1;
+    const double B_2 = k_2*k_m1 + kp_1*k_m1 + k_2*kp_m1 + k_1*k_m2 + 
+      kp_1*k_m2 + kp_m1*k_m2 + k_2*k_1;
+    const double B_4 = k_1*kp_1+k_1*k_m2+k_2*k_1+kp_1*k_m2;
+
+    const double C_1 = kp_m1*k_1*k_m2+k_m1*k_2*kp_m1 + 
+      kp_1*k_2*k_m1+k_2*kp_m1*k_1;
+    const double C_3 = 2*kp_1*k_1*k_m2+k_m2*kp_m1*k_m1+2*kp_m1*k_1*k_m2 + 
+      2*k_m1*k_2*kp_m1+kp_1*k_2*k_1+2*k_2*kp_m1*k_1;
+    const double C_5 = kp_1*k_1*k_m2+kp_1*k_m1*k_m2 + 
+      kp_m1*k_1*k_m2+k_2*kp_m1*k_1;
+
+    const double D_2 = 2*k_2*k_2*kp_m1*k_m1+kp_1*k_2*k_m2*k_m1 +
+      k_2*k_2*kp_m1*k_1+2*k_2*k_m2*kp_m1*k_m1 + 
+      2*kp_m1*k_1*k_2*k_m2+kp_m1*k_1*k_m2*k_m2;
+    const double D_4 = kp_m1*k_1*k_m2*k_m2+2*kp_m1*k_1*k_2*k_m2 + 
+      2*kp_1*k_2*k_m2*k_1+2*kp_1*k_1*k_m2*k_m2 + 
+      k_2*k_2*kp_m1*k_1+kp_1*k_2*k_m2*k_m1;
+
+    const double E_0 = 1;
+    const double E_2 = 1;
+    
+    const double F_1 = k_2 + k_m2;
+     
+
+
+    // The prefactor, dependent on ilim but not only.
+    double pref = ilim * B_0/(A_0);
+
     for(int i = 0; i < xv.size(); i++) {
-      double x = xv[i];
-      double d1 = exp(0.5 * f * (x - params[1]));
-      double e1 = d1*d1;
-      double d2 = exp(0.5 * f * (x - params[2]));
-      double e2 = d2*d2;
-      double kappa = params[3];
-      double alpha = params[5];
-      double K1 = params[6];
-      double K2 = params[7];
-
-      if(useEoc)
-        K2 = exp(f * (params[7] - params[1])) * 
-          exp(f * (params[7] - params[2]))/K1;
-
-      // Rate constants divided by k1 + k2
-      double k1 = 1/(1 + alpha);
-      double km1 = k1/K1;
-      double k2 = alpha * k1;
-      double km2 = k2/K2;
-
-      double ap = e1 * e2 / (K1 * K2);
-
-      double a = (k1 + e1 * km2) * (1 + e2) + (1 + e1) * (k2 + e2 * km1);
+      const double x = xv[i];
+      const double d = exp(0.5 * f * (x - params[1]));
       
-      double b = params[4] * (
-        (k1 + km1) * d2 * (kappa * d1 * d2 * km2 + k2) +
-        (k2 + km2) * d1 * (kappa * k1 + d1 * d2 * km1))/sqrt(kappa);
+      const double A = A_0 + A_4 * pow(d, 4);
+      const double B = B_0 + B_2 * pow(d, 2) + B_4 * pow(d, 4);
+      const double C = C_1 * d + C_3 * pow(d, 3) + C_5 * pow(d, 5);
+      const double D = D_2 * pow(d, 2) + D_4 * pow(d, 4);
+      const double E = E_0 + E_2 * pow(d, 2);
+      const double F = F_1 * d;
+
+      const double Gamma1_M = B * k_0M*k_0M + k_0M * (B * F + C) + D;
+      const double Gamma1_m = B * k_0m*k_0m + k_0m * (B * F + C) + D;
+      const double g1 = B*B*F*F + 2 * B*F*C + C*C - 4*D*B*E;
+      if(g1 < 0)
+        fprintf(stderr, "Warning: negative value "
+                "as argument for sqrt: %f\tpotential: %f\n", g1, x);
+      const double Gamma2   = sqrt(g1);
+      const double Gamma3_M = 2 * B * E * k_0M + B*F + C;
+      const double Gamma3_m = 2 * B * E * k_0m + B*F + C;
+
+      const double par = log(Gamma1_M/Gamma1_m) + 
+        (B*F - C)/Gamma2 * log(((Gamma2 - Gamma3_M) * (Gamma2 + Gamma3_m))/
+                               ((Gamma2 + Gamma3_M) * (Gamma2 - Gamma3_m)));
       
-      double v;
-      if(plateau)
-        v = params[8] * (1 - ap)/a * 
-          (1 + log((a + b)/
-                   (a + b * exp(params[9])))/params[9]);
-      else
-        v = params[8] * (1 - ap)/a * log((a + b)/b);
-      gsl_vector_set(target, i, v);
+      gsl_vector_set(target, i, pref * A/(2 * B) * par);
     }
   };
 
@@ -498,57 +528,39 @@ public:
   {
     a[0] = soas().temperature();
     a[1] = -0.6; 
-    a[2] = -0.3; 
+    a[2] = 1; 
     a[3] = 1; 
     a[4] = 10;
     a[5] = 2;
     a[6] = 2;
-    a[7] = (useEoc ? -0.66 : 3);
+    a[7] = 1;
     a[8] = -1e-5;
-    if(plateau)
-      a[9] = 1;
+    a[9] = 1;
   };
 
   virtual QList<ParameterDefinition> parameters() const {
     QList<ParameterDefinition> defs;
     defs << ParameterDefinition("temperature", true)
-         << ParameterDefinition("E1")
-         << ParameterDefinition("E2")
-         << ParameterDefinition("k02/k01") // params[3]
-         << ParameterDefinition("k2+k1/k0")
-         << ParameterDefinition("k2/k1") 
-         << ParameterDefinition("K1");
-    if(useEoc)
-      defs << ParameterDefinition("Eoc"); // parameter 7
-    else
-      defs << ParameterDefinition("K2"); 
-
-    if(plateau)
-      defs << ParameterDefinition("ilim")
-           << ParameterDefinition("betad0");
-    else
-      defs << ParameterDefinition("ilim/betad0");
+         << ParameterDefinition("Er")
+         << ParameterDefinition("k0r/k2")
+         << ParameterDefinition("km2/k2") // params[3]
+         << ParameterDefinition("k1/k2") 
+         << ParameterDefinition("km1/k2") 
+         << ParameterDefinition("kp1/k2") // params[6]
+         << ParameterDefinition("kpm1/k2") 
+         << ParameterDefinition("ilim")
+         << ParameterDefinition("betad0");
     return defs;
   };
 
 
-  ECECRFit() :
-    PerDatasetFit("ececr-wave", 
-                  "Fit of an ECECR catalytic wave",
+  EECRRelayFit() :
+    PerDatasetFit("eecr-relay-wave", 
+                  "Fit of an EECR+relay catalytic wave",
                   "...", 1, -1, false) 
   { 
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
-                   << new 
-                   BoolArgument("plateau", 
-                                "Plateau",
-                                "Whether to use the general expression or "
-                                "only that valid when plateaus are not reached")
-                   << new 
-                   BoolArgument("use-eoc", 
-                                "Use open circuit",
-                                "Whether to use explicitly the bias or compute "
-                                "it using the open circuit potential")
                    );
     makeCommands(NULL, NULL, NULL, opts);
   }
@@ -557,4 +569,4 @@ public:
 
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
 // Its name doesn't matter.
-ECECRFit fit_ececr;
+EECRRelayFit fit_ececr_relay;

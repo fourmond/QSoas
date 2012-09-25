@@ -506,18 +506,34 @@ public:
 
       const double Gamma1_M = B * k_0M*k_0M + k_0M * (B * F + C) + D;
       const double Gamma1_m = B * k_0m*k_0m + k_0m * (B * F + C) + D;
-      const double g1 = B*B*F*F + 2 * B*F*C + C*C - 4*D*B*E;
-      if(g1 < 0)
-        fprintf(stderr, "Warning: negative value "
-                "as argument for sqrt: %f\tpotential: %f\n", g1, x);
-      const double Gamma2   = sqrt(g1);
+      const double g2 = B*B*F*F + 2 * B*F*C + C*C - 4*D*B*E;
+      const double Gamma2   = sqrt(fabs(g2));
       const double Gamma3_M = 2 * B * E * k_0M + B*F + C;
       const double Gamma3_m = 2 * B * E * k_0m + B*F + C;
 
-      const double par = log(Gamma1_M/Gamma1_m) + 
-        (B*F - C)/Gamma2 * log(((Gamma2 - Gamma3_M) * (Gamma2 + Gamma3_m))/
-                               ((Gamma2 + Gamma3_M) * (Gamma2 - Gamma3_m)));
-      
+
+
+      double delta;
+      if(g2 > 0)
+        delta = 0.5 * log(((Gamma2 - Gamma3_M) * (Gamma2 + Gamma3_m))/
+                          ((Gamma2 + Gamma3_M) * (Gamma2 - Gamma3_m)));
+      else 
+        // delta = atan(Gamma3_m/Gamma2) - atan(Gamma3_M/Gamma2);
+        // Another way that comes from the numerical handbook of
+        // mathematical functions, page 121:
+        // atan(u) - atan(v) = atan((u - v)/(1 + u*v))
+        delta = atan((Gamma3_m/Gamma2 - Gamma3_M/Gamma2)/
+                     (1 + Gamma3_m*Gamma3_M/g2));
+      // OK, this is much better, but we still have numerical
+      // inaccuracies, though much smaller now.
+      const double rest = log(Gamma1_M/Gamma1_m);
+
+      // if(fabs(g2) < 1e2)
+      //   fprintf(stderr, "Values x=%g\tg2=%g\tdelta=%g\trest=%g\tfact=%g"
+      //           "\td/g2=%g\n", 
+      //           x, g2, delta, rest, (B*F - C)/Gamma2, delta/Gamma2);
+
+      const double par =  rest + (B*F - C)/Gamma2 * 2 * delta;
       gsl_vector_set(target, i, pref * A/(2 * B) * par);
     }
   };

@@ -594,6 +594,9 @@ static void bsplinesCommand(CurveEventLoop &loop, const QString &)
   splines.autoBreakPoints(nbSegments-1);
   x = splines.getBreakPoints();
 
+  int resample = -1;            // If not negative, resample to that
+                                // number of samples.
+
   CurveVerticalLines lines;
   lines.xValues = &x;
   lines.pen = QPen(QColor("blue"), 1, Qt::DotLine);
@@ -674,6 +677,26 @@ static void bsplinesCommand(CurveEventLoop &loop, const QString &)
         needCompute = true;
         autoXValues = true;
         break;
+      case 'R':
+      case 'r': {
+        bool ok = false;
+        QString str = loop.promptForString("Resample to the given number of points:", &ok);
+        if(ok) {
+          int val = str.toInt(&ok);
+          needCompute = true;
+          if(ok && val > 2) {
+            resample = val;
+            Terminal::out << "Resampling to " << resample << " points" << endl;
+          }
+          else {
+            val = -1;
+            Terminal::out << "Not resampling anymore" << endl;
+          }
+        }
+        else
+          soas().showMessage("Not changing resampling");
+        break;
+      }
       case '+':
         ++order;
         Terminal::out << "Now using splines of order " << order << endl;
@@ -707,11 +730,24 @@ static void bsplinesCommand(CurveEventLoop &loop, const QString &)
       double value = splines.computeCoefficients();
       if(derive) {
         diff.yvalues = ds->y() - splines.computeValues();
-        d.yvalues = splines.computeValues(1);
+
+        if(resample < 2)
+          d.yvalues = splines.computeValues(1);
+        else {
+          d.xvalues = ds->x().resample(resample);
+          d.yvalues = splines.computeValues(d.xvalues, 1);
+        }
       }
       else {
-        d.yvalues = splines.computeValues();
-        diff.yvalues = ds->y() - d.yvalues;
+        if(resample < 2) {
+          d.yvalues = splines.computeValues();
+          diff.yvalues = ds->y() - d.yvalues;
+        }
+        else {
+          d.xvalues = ds->x().resample(resample);
+          d.yvalues = splines.computeValues(d.xvalues);
+          diff.yvalues = ds->y() - splines.computeValues();
+        }
       }
       Terminal::out << "Residuals: " << sqrt(value) << endl;
       bottom.setYRange(diff.yvalues.min(), diff.yvalues.max(), 

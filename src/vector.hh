@@ -113,6 +113,12 @@ public:
   Vector removeSpikes(int nb = 3, double extra = 200, 
                       int *nbFound = NULL) const;
 
+
+  /// Resamples the vector, ie returns a uniformly spaced vector
+  /// spanning the same range, but uniformly spaced
+  Vector resample(int nb = -1) const;
+
+
   /// @}
 
 

@@ -118,6 +118,14 @@ public:
   /// Computes the Y values and return them as a new Vector.
   Vector computeValues(int order = 0) const;
 
+  /// Computes the Y values corresponding to the given X values and
+  /// return them as a new vector.
+  ///
+  /// @warning This function should be much less efficient than the
+  /// other one, but, well
+  Vector computeValues(const Vector & x, int order = 0) const;
+
+
   /// Optimize the placement of the breakpoints using a non-linear
   /// least-squares fit.
   void optimize(int maxIterations = 15, bool silent = true);

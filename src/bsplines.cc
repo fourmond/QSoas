@@ -171,6 +171,26 @@ Vector BSplines::computeValues(int order) const
   return v;
 }
 
+Vector BSplines::computeValues(const Vector & x, int order) const
+{
+  Vector y(x.size(), 0);
+  QVarLengthArray<double, 5000> eval((order+1) * nbCoeffs);
+  for(int i = 0; i < x.size(); i++) {
+    gsl_matrix_view m = gsl_matrix_view_array(eval.data(), nbCoeffs, 
+                                              order+1);
+    gsl_matrix_set_zero(&m.matrix);
+    // I need those const casts here... (probably better than mark the
+    // workspaces as mutable)
+    gsl_bspline_deriv_eval(x[i], order, &m.matrix, 
+                           const_cast<gsl_bspline_workspace *>(splinesWS), 
+                           const_cast<gsl_bspline_deriv_workspace*>(derivWS));
+    gsl_vector_view v = gsl_matrix_column(&m.matrix, order);
+    gsl_blas_ddot(&v.vector, coeffs, &y[i]);
+  }
+    
+  return y;
+}
+
 
 static int f(const gsl_vector * x, void * data, gsl_vector * f)
 {

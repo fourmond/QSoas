@@ -608,6 +608,7 @@ static void bsplinesCommand(CurveEventLoop &loop, const QString &)
                                  "d: display derivative\n"
                                  "a: equally spaced segments\n"
                                  "o: optimize positions\n"
+                                 "r: resample output\n"
                                  "+,-: change splines order\n"
                                  "q, middle click: replace with filtered data\n"
                                  "ESC: abort"));
@@ -667,11 +668,12 @@ static void bsplinesCommand(CurveEventLoop &loop, const QString &)
           soas().showMessage("Showing filtered data");
         break;
       case 'O':
-      case 'o':
+      case 'o': {
         splines.optimize(15, false);
         x = splines.getBreakPoints();
         needCompute = true;
         break;
+      }
       case 'A':
       case 'a':
         needCompute = true;

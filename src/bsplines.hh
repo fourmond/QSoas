@@ -128,6 +128,8 @@ public:
 
   /// Optimize the placement of the breakpoints using a non-linear
   /// least-squares fit.
+  ///
+  /// @warning This function will occasionally throw exceptions
   void optimize(int maxIterations = 15, bool silent = true);
 };
 

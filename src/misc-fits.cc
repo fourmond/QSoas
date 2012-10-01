@@ -504,9 +504,9 @@ public:
       const double E = E_0 + E_2 * pow(d, 2);
       const double F = F_1 * d;
 
-      const double Gamma1_M = B * k_0M*k_0M + k_0M * (B * F + C) + D;
-      const double Gamma1_m = B * k_0m*k_0m + k_0m * (B * F + C) + D;
-      const double g2 = B*B*F*F + 2 * B*F*C + C*C - 4*D*B*E;
+      const double Gamma1_M = B * k_0M*k_0M * E + k_0M * (B * F + C) + D;
+      const double Gamma1_m = B * k_0m*k_0m * E  + k_0m * (B * F + C) + D;
+      const double g2       = B*B*F*F + 2 * B*F*C + C*C - 4*D*B*E;
       const double Gamma2   = sqrt(fabs(g2));
       const double Gamma3_M = 2 * B * E * k_0M + B*F + C;
       const double Gamma3_m = 2 * B * E * k_0m + B*F + C;
@@ -514,18 +514,14 @@ public:
 
 
       double delta;
+      // the argument of arctan(h)?
+      const double arg = Gamma2 * (Gamma3_M - Gamma3_m)/
+        (g2 - Gamma3_M * Gamma3_m);
       if(g2 > 0)
-        delta = 0.5 * log(((Gamma2 - Gamma3_M) * (Gamma2 + Gamma3_m))/
-                          ((Gamma2 + Gamma3_M) * (Gamma2 - Gamma3_m)));
+        delta = atanh(arg);
       else 
-        // delta = atan(Gamma3_m/Gamma2) - atan(Gamma3_M/Gamma2);
-        // Another way that comes from the numerical handbook of
-        // mathematical functions, page 121:
-        // atan(u) - atan(v) = atan((u - v)/(1 + u*v))
-        delta = atan((Gamma3_m/Gamma2 - Gamma3_M/Gamma2)/
-                     (1 + Gamma3_m*Gamma3_M/g2));
-      // OK, this is much better, but we still have numerical
-      // inaccuracies, though much smaller now.
+        delta = atan(arg);
+
       const double rest = log(Gamma1_M/Gamma1_m);
 
       // if(fabs(g2) < 1e2)

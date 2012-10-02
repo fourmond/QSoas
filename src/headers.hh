@@ -128,6 +128,7 @@
 #include <ruby.h>
 
 // The gsl
+#include <headers.hh>
 #ifndef Q_WS_WIN
 // We don't use inlined functions on windows, I can't get them to work
 // for now !

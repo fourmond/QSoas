@@ -17,6 +17,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <headers.hh>
 #ifndef __ODESOLVER_HH
 #define __ODESOLVER_HH
 

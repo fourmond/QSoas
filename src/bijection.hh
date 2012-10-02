@@ -18,6 +18,7 @@
 */
 
 
+#include <headers.hh>
 #ifndef __BIJECTION_HH
 #define __BIJECTION_HH
 

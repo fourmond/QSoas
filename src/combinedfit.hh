@@ -18,6 +18,7 @@
 */
 
 
+#include <headers.hh>
 #ifndef __COMBINEDFIT_HH
 #define __COMBINEDFIT_HH
 

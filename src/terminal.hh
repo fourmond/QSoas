@@ -18,6 +18,7 @@
 */
 
 
+#include <headers.hh>
 #ifndef __TERMINAL_HH
 #define __TERMINAL_HH
 

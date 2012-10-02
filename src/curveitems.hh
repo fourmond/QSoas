@@ -17,6 +17,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <headers.hh>
 #ifndef __CURVEITEMS_HH
 #define __CURVEITEMS_HH
 

@@ -17,6 +17,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <headers.hh>
 #ifndef __COMMANDWIDGET_HH
 #define __COMMANDWIDGET_HH
 

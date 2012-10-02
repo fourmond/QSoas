@@ -17,6 +17,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <headers.hh>
 #ifndef __CURVEEVENTLOOP_HH
 #define __CURVEEVENTLOOP_HH
 

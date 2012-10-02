@@ -17,6 +17,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <headers.hh>
 #ifndef __CURVEDATASET_HH
 #define __CURVEDATASET_HH
 

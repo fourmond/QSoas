@@ -18,6 +18,7 @@
 */
 
 
+#include <headers.hh>
 #ifndef __FITDATA_HH
 #define __FITDATA_HH
 

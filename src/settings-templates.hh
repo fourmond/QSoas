@@ -18,6 +18,7 @@
 */
 
 
+#include <headers.hh>
 #ifndef __SETTINGS_TEMPLATES_HH
 #define __SETTINGS_TEMPLATES_HH
 

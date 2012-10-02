@@ -18,6 +18,7 @@
 */
 
 
+#include <headers.hh>
 #ifndef __DEBUG_HH
 #define __DEBUG_HH
 

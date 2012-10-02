@@ -18,6 +18,7 @@
 */
 
 
+#include <headers.hh>
 #ifndef __EXCEPTIONS_HH
 #define __EXCEPTIONS_HH
 

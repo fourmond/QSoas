@@ -2,7 +2,8 @@
 # QMake configuration file for QSoas
 
 TEMPLATE = app
-CONFIG += precompile_header debug warn_on thread exception 
+
+CONFIG += debug warn_on thread exception 
 INCLUDEPATH += . src
 TARGET = QSoas
 
@@ -17,11 +18,16 @@ VERSION = 0.0
 
 DEFINES += SOAS_VERSION=\'\"$$VERSION\"\'
 
+# We use a precompiled header everywhere but on macosX (it fails !)
+! macx {
+  CONFIG += precompile_header
+  PRECOMPILED_HEADER = src/headers.hh
+}
 
-PRECOMPILED_HEADER = src/headers.hh
 
 # Use a build/ directory for building
 MOC_DIR = build
+
 OBJECTS_DIR = build
 
 # Really, this should be the default, since it means segfault in the

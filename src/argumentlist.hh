@@ -17,6 +17,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <headers.hh>
 #ifndef __ARGUMENTLIST_HH
 #define __ARGUMENTLIST_HH
 #include <argument.hh>

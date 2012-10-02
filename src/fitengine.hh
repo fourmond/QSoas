@@ -18,6 +18,7 @@
 */
 
 
+#include <headers.hh>
 #ifndef __FITENGINE_HH
 #define __FITENGINE_HH
 

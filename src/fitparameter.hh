@@ -18,6 +18,7 @@
 */
 
 
+#include <headers.hh>
 #ifndef __FITPARAMETER_HH
 #define __FITPARAMETER_HH
 

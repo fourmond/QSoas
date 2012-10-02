@@ -235,16 +235,6 @@ void Utils::registerShortCut(const QKeySequence & seq, QObject * receiver,
   receiver->connect(sc, SIGNAL(activated()), fn);
 }
 
-QString Utils::abbreviateString(const QString & str, int nb)
-{
-  if(nb < 4)
-    nb = 4;
-  if(str.size() <= nb)
-    return str;
-  QString s = str;
-  s.truncate(nb-3);
-  return  s + "...";
-}
 
 
 QStringList Utils::parseConfigurationFile(QIODevice * source, 
@@ -326,3 +316,17 @@ bool Utils::updateWithin(QString & str, const QString & begin,
   return true;
 }
 
+
+// For some reason, on win32, truncate is redefined by Ruby, which
+// makes a mess
+QString Utils::abbreviateString(const QString & str, int nb)
+{
+  if(nb < 4)
+    nb = 4;
+  if(str.size() <= nb)
+    return str;
+  QString s = str;
+#undef truncate
+  s.truncate(nb-3);
+  return  s + "...";
+}

@@ -100,6 +100,7 @@ Bijection * Bijection::loadFromText(const QString & spec)
   int nbparams = bijection->parameters().size();
   if(nbparams) {
     bijection->parameterValues.resize(nbparams);
+#undef lst2
     QStringList lst2 = lst[1].split(QRegExp("\\s+"));
     for(int i = 0; i < nbparams; i++)
       bijection->parameterValues[i] = lst2.value(i, "").toDouble();

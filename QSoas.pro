@@ -45,6 +45,9 @@ isEmpty(RUBY):RUBY = ruby
 RUBY_LIB_ARG = $$system($$RUBY ./get-ruby-config.rb libarg)
 RUBY_INCLUDE_DIRS = $$system($$RUBY ./get-ruby-config.rb includedir)
 
+RUBY_LIB_DIR = $$system($$RUBY ./get-ruby-config.rb libdir)
+
+
 isEmpty(RUBY_LIB_ARG) {
   error("Could not find ruby, make sure $$RUBY is in the PATH !")
 }
@@ -61,11 +64,19 @@ HEADERS += src/build.hh
 INCLUDEPATH += $$RUBY_INCLUDE_DIRS
 LIBS += $$RUBY_LIB_ARG
 
+win32:LIBS += -L$$RUBY_LIB_DIR
+
 RESOURCES += qsoas.qrc
 
 
-# GSL
+# GSL: we may have to build against non-standard gsl locations:
+! isEmpty(GSL_DIR) {
+  # We add the directory to both the include path and the lib path:
+  LIBS += -L$$GSL_DIR
+  INCLUDEPATH += $$GSL_DIR
+}
 LIBS += -lgsl -lgslcblas -lm
+                 
 
 # Input files
 SOURCES += src/qmain.cc \

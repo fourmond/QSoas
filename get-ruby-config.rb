@@ -4,6 +4,8 @@ require 'rbconfig'
 case ARGV[0]
 when "libarg"
   puts RbConfig::CONFIG['LIBRUBYARG']
+when "libdir"
+  puts RbConfig::CONFIG['libdir']
 when "includedir"
   if RbConfig::CONFIG.key? 'rubyhdrdir'
     puts "#{RbConfig::CONFIG['rubyhdrdir']} "+

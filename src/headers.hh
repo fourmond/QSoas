@@ -128,7 +128,11 @@
 #include <ruby.h>
 
 // The gsl
+#ifndef Q_WS_WIN
+// We don't use inlined functions on windows, I can't get them to work
+// for now !
 #define HAVE_INLINE             // Using gsl inline functions
+#endif
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_multifit_nlin.h>

@@ -8,7 +8,7 @@ require 'rbconfig'
 
 out = open('pkg\dependencies.nsi', "wt")
 
-for f in %w[QtCore4 QtGui4 QtOpenGL4]
+for f in %w[QtCore4 QtGui4 QtOpenGL4 QtTest4]
   lib_file = "#{ENV['QTDIR']}\\bin\\#{f}.dll"
   out.puts "File \"#{lib_file}\""
 end
@@ -21,7 +21,7 @@ out.puts "File \"#{rb}\""
 # And now, we look for g++ libraries:
 
 path = ENV['PATH'].split(/\s*;\s*/)
-for f in %w[libgcc_s_dw2-1.dll libstdc++-6.dll]
+for f in %w[libgcc_s_dw2-1.dll libstdc++-6.dll mingwm10.dll]
   for d in path
     t = File::join(d,f)
     if File.exists?(t)

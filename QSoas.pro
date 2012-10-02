@@ -82,6 +82,10 @@ RESOURCES += qsoas.qrc
   INCLUDEPATH += $$GSL_DIR
 }
 LIBS += -lgsl -lgslcblas -lm
+
+win32 {
+  system($$RUBY prepare-nsis-include.rb)
+}
                  
 
 # Input files

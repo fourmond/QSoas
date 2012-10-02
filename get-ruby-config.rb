@@ -1,4 +1,8 @@
-# A small wrapper around ruby to bypass qmake's bad word breaking
+# Copyright 2012 by Vincent Fourmond
+# Usable, modifiable and redistributable under the same terms as QSoas itself
+#
+# This small script is run by qmake to setup Ruby-related compilation
+# variables.
 require 'rbconfig'
 
 case ARGV[0]

@@ -44,7 +44,6 @@
 
 static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
 
-
 FitDialog::FitDialog(FitData * d, bool displayWeights) : 
   data(d),
   stackedViews(NULL), 
@@ -707,7 +706,8 @@ void FitDialog::equalWeightsPerBuffer()
     const DataSet * ds = data->datasets[i];
     double w = 0;
     for(int j = 0; j < ds->y().size(); j++)
-      w += ds->y()[j];
+      w += fabs(ds->y()[j]);    // Or square ? Absolute value looks
+                                // more reasonable.
     weight[i] = 1/w;
     if(weight[i] > max)
       max = weight[i];

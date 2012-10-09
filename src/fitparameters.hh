@@ -187,8 +187,9 @@ public:
 
 
   /// Fill up a QTableWidget with the contents of the covariance
-  /// matrix
-  void setupWithCovarianceMatrix(QTableWidget * widget);
+  /// matrix. If not in raw mode, display the correlation coefficients
+  /// and the square root of the diagonal parameters.
+  void setupWithCovarianceMatrix(QTableWidget * widget, bool raw = false);
 
 
 
@@ -205,6 +206,23 @@ public:
 
   /// @}
   
+};
+
+
+/// This class wraps up a QTableWidget to display covariance matrices
+/// (and possibly save them up ?)
+class CovarianceMatrixDisplay : public QDialog {
+  Q_OBJECT;
+
+  FitParameters * parameters;
+  
+  QTableWidget * widget;
+
+  void setupFrame();
+public:
+  CovarianceMatrixDisplay(FitParameters * params, QWidget * parent = 0);
+
+public slots:
 };
 
 #endif

@@ -1838,7 +1838,7 @@ run-for-each script arguments...
 {::comment} synopsis-end: run-for-each {:/}
 
 
-## Non-interactive commands
+## Non-interactive commands {#non-interactive}
 
 In addition to purely scripting commands, many commands do not require
 user interaction, provided all their arguments are given. They are
@@ -1907,7 +1907,7 @@ listed here:
  * [`shiftx`](#cmd-shiftx)
  * [`show-stack`](#cmd-show-stack)
  * [`sim-duck-sim`](#cmd-sim-duck-sim)
- * [`sim-ececr-wave`](#cmd-sim-ececr-wave)
+ * [`sim-eecr-relay-wave`](#cmd-sim-eecr-relay-wave)
  * [`sim-eecr-wave`](#cmd-sim-eecr-wave)
  * [`sim-exponential-decay`](#cmd-sim-exponential-decay)
  * [`sim-inact-react-amplitude-2phases`](#cmd-sim-inact-react-amplitude-2phases)
@@ -2007,3 +2007,39 @@ ode initial derivatives
   * derivatives: 
 
 {::comment} synopsis-end: ode {:/}
+{::comment} synopsis-start: fit-eecr-relay-wave {:/}
+
+### fit-eecr-relay-wave - Fit: Fit of an EECR+relay catalytic wave {#cmd-fit-eecr-relay-wave}
+
+fit-eecr-relay-wave /parameters= /debug= /extra-parameters= **(interactive)**
+
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+
+{::comment} synopsis-end: fit-eecr-relay-wave {:/}
+{::comment} synopsis-start: mfit-eecr-relay-wave {:/}
+
+### mfit-eecr-relay-wave - Multi fit: Fit of an EECR+relay catalytic wave {#cmd-mfit-eecr-relay-wave}
+
+mfit-eecr-relay-wave datasets... /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
+
+  * datasets: Datasets to fit
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+  * /weight-buffers: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-eecr-relay-wave {:/}
+{::comment} synopsis-start: sim-eecr-relay-wave {:/}
+
+### sim-eecr-relay-wave - Fit: Fit of an EECR+relay catalytic wave {#cmd-sim-eecr-relay-wave}
+
+sim-eecr-relay-wave parameters datasets... /override= /extra-parameters=
+
+  * parameters: File to load parameters from
+  * datasets: Datasets to fit
+  * /override: A comma-separated list of parameters to override
+  * /extra-parameters: Define supplementary parameters
+
+{::comment} synopsis-end: sim-eecr-relay-wave {:/}

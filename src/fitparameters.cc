@@ -512,7 +512,8 @@ void FitParameters::dump() const
   o << endl;
 }
 
-void FitParameters::setupWithCovarianceMatrix(QTableWidget * widget)
+void FitParameters::setupWithCovarianceMatrix(QTableWidget * widget, 
+                                              bool raw)
 {
   const gsl_matrix * mat = fitData->covarianceMatrix();
   
@@ -527,11 +528,38 @@ void FitParameters::setupWithCovarianceMatrix(QTableWidget * widget)
   widget->setVerticalHeaderLabels(heads);
 
   for(int i = 0; i < mat->size1; i++)
-    for(int j = 0; j < mat->size1; j++)
-      widget->
-        setItem(i,j, new QTableWidgetItem(QString::
-                                          number(gsl_matrix_get(mat, i, j))));
-  
+    for(int j = 0; j < mat->size1; j++) {
+      double rawValue = gsl_matrix_get(mat, i, j);
+      double cooked = rawValue;
+      if(j == i)
+        cooked = sqrt(rawValue);
+      else {
+        double norm = gsl_matrix_get(mat, i, i) * gsl_matrix_get(mat, j, j);
+        norm = sqrt(norm);
+        if(norm > 0)
+          cooked /= norm;
+      }
+      QTableWidgetItem * it = 
+        new QTableWidgetItem(QString::number(raw ? rawValue : cooked));
+
+      // Whatever mode, we set the color of non-diagonal coefficients
+      // according to the cooked value.
+      QColor col("white");
+      if(i != j) {
+        // We assume that the value is somewhat between -1 and 1
+        if(cooked < 0) {
+          col.setGreenF(1 + cooked*0.3);
+          col.setBlueF(1 + cooked*0.3);
+        }
+        else {
+          col.setRedF(1 - cooked*0.3);
+          col.setBlueF(1 - cooked*0.3);
+        }
+      }
+      it->setBackground(col);
+      it->setTextAlignment(Qt::AlignCenter);
+      widget->setItem(i, j, it);
+    }
 }
 
 Vector FitParameters::saveParameterValues()
@@ -550,4 +578,32 @@ void FitParameters::restoreParameterValues(const Vector & vect)
   for(int i = 0; (i < size && i < vect.size()); i++)
     values[i] = vect[i];
   updateParameterValues();
+}
+
+
+//////////////////////////////////////////////////////////////////////
+
+CovarianceMatrixDisplay::CovarianceMatrixDisplay(FitParameters * params, 
+                                                 QWidget * parent) :
+  QDialog(parent), parameters(params)
+{
+  setupFrame();
+  parameters->setupWithCovarianceMatrix(widget);
+  widget->resizeColumnsToContents();
+  widget->resizeRowsToContents();
+
+  // OK, so now the game is to resize the window so that 
+  resize(sizeHint());
+}
+
+void CovarianceMatrixDisplay::setupFrame()
+{
+  QVBoxLayout * layout = new QVBoxLayout(this);
+  widget = new QTableWidget();
+  layout->addWidget(widget);
+  QPushButton * bt = new QPushButton("Close");
+  connect(bt, SIGNAL(clicked()), SLOT(accept()));
+  layout->addWidget(bt);
+  /// @todo Add the possibility to switch to raw display + export the
+  /// matrix.
 }

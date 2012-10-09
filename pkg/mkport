@@ -13,7 +13,11 @@ if [ -z "$version" ]; then
     version="$version"+`date +%Y.%m.%d`
 fi
 
-outdir=$HOME/tmp/qsoas
+if [ -z "$QSOAS_BUILDS" ]; then
+    outdir=$HOME/tmp/qsoas
+else
+    outdir="$QSOAS_BUILDS"
+fi
 echo "Preparing an archive and a portfile for version $version"
 echo " -> saving in $outdir"
 

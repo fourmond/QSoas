@@ -592,8 +592,7 @@ CovarianceMatrixDisplay::CovarianceMatrixDisplay(FitParameters * params,
   widget->resizeColumnsToContents();
   widget->resizeRowsToContents();
 
-  // OK, so now the game is to resize the window so that 
-  resize(sizeHint());
+  resize(sizeHint());           // ??
 }
 
 void CovarianceMatrixDisplay::setupFrame()

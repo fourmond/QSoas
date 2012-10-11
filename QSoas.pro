@@ -14,7 +14,11 @@ QT += opengl                    # Doesn't work that well, actually
 QT -= webkit                    # We really don't need webkit, for now ?
 QT += testlib                   # For QTest::qSleep
 
-VERSION = 0.0
+
+# The version should be provided on the command-line.
+isEmpty(VERSION) {
+  VERSION = 0.0
+}
 
 DEFINES += SOAS_VERSION=\'\"$$VERSION\"\'
 

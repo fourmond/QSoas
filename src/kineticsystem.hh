@@ -22,6 +22,8 @@
 #ifndef __KINETICSYSTEM_HH
 #define __KINETICSYSTEM_HH
 
+class Expression;
+
 /// The KineticSystem, a class that parses a chemical description of a
 /// full kinetic system, be it or not, and provide functions for
 /// solving the concentration of species over time or at the
@@ -50,7 +52,10 @@ public:
   };
 
   /// A reaction. It is considered an elementary reaction, in the
-  /// sense that 
+  /// sense that the rate constants are provided, which are mutiplied
+  /// by the concentration to the power of the stoechiometry. However,
+  /// it is still possible to cancel out some terms in that by using
+  /// the appropriate concentration factor in the rates.
   class Reaction {
   public:
     /// List of indices of the reactants or products
@@ -70,6 +75,28 @@ public:
     /// Expression for the reverse rate (if empty, then the reaction
     /// is irreversible)
     QString backwardRate;
+
+    
+    Expression * forward;
+    Expression * backward;
+
+    Reaction() : forward(NULL), backward(NULL) {;};
+
+    void clearExpressions();
+
+    ~Reaction() {
+      clearExpressions();
+    };
+
+    /// Computes the expressions
+    void makeExpressions(const QStringList & vars = QStringList());
+
+    /// Sets the parameters of the expressions
+    void setParameters(const QStringList & parameters);
+
+    /// Returns the parameters needed by the rates
+    QSet<QString> parameters() const;
+
   };
 
 protected:
@@ -85,6 +112,18 @@ protected:
 
   /// Returns the index of the species, and registers it if needed.
   int speciesIndex(const QString & str);
+
+
+  /// All the external parameters of the system. Includes initial
+  /// concentrations. The parameters value must be provided \b in \b
+  /// the \b same \b order !
+  QStringList parameters;
+
+  /// Ensures all the reactions are ready for evaluation, computing
+  /// the parameters as a side effect.
+  ///
+  /// For now, no checking for work already done.
+  void ensureReady();
   
 public:
 
@@ -92,10 +131,40 @@ public:
   KineticSystem();
   ~KineticSystem();
 
+  /// Adds a reaction to the system
   void addReaction(QList<QString> species, QList<int> stoechiometry, 
                    const QString & forward, 
                    const QString & backward = "");
-  
+
+  /// Ensures the object is ready to perform computations.
+  void prepare();
+
+  /// Returns all the parameters
+  QStringList allParameters() const;
+
+  /// Returns the name of all the species, in the order in which they
+  /// come in the parameters.
+  QStringList allSpecies() const;
+
+  /// Sets the initial concentrations from the parameter list
+  void setInitialConcentrations(double * target, 
+                                const double * parameters) const;
+
+  /// Compute the derivatives of the concentrations for the given
+  /// conditions, and store them in \a target.
+  ///
+  /// @question Shall we explicitly include the time here ?  Doesn't
+  /// make too much sense to me.
+  ///
+  /// @todo Make a function taking only a const double *
+  /// concentrations_followed_by_parameters ?
+  void computeDerivatives(double * target, const double * concentrations,
+                          const double * parameters) const;
+
+
+  /// Reads reactions from a file, and add them to the current system.
+  void parseFile(QIODevice * stream);
+ 
 };
 
 #endif

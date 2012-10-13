@@ -19,8 +19,46 @@
 #include <headers.hh>
 #include <kineticsystem.hh>
 
+#include <expression.hh>
 #include <exceptions.hh>
 #include <utils.hh>
+
+
+void KineticSystem::Reaction::makeExpressions(const QStringList & vars)
+{
+  clearExpressions();
+  forward = new Expression(forwardRate);
+  if(! backwardRate.isEmpty())
+    backward = new Expression(backwardRate);
+  if(! vars.isEmpty()) {
+    forward->setVariables(vars);
+    if(backward)
+      backward->setVariables(vars);
+  }
+}
+
+QSet<QString> KineticSystem::Reaction::parameters() const
+{
+  
+  if(! forward)
+    return QSet<QString>();
+  QSet<QString> params = QSet<QString>::fromList(forward->naturalVariables());
+  if(backward)
+    params += QSet<QString>::fromList(backward->naturalVariables());
+  return params;
+}
+
+
+void KineticSystem::Reaction::clearExpressions() 
+{
+  delete forward;
+  forward = NULL;
+  delete backward;
+  backward = NULL;
+}
+
+
+//////////////////////////////////////////////////////////////////////
 
 KineticSystem::KineticSystem()
 {
@@ -47,6 +85,7 @@ void KineticSystem::addReaction(QList<QString> species,
                                 const QString & forward, 
                                 const QString & backward)
 {
+  parameters.clear();
   int reactionIndex = reactions.size();
   reactions.append(Reaction());
   Reaction & reac = reactions[reactionIndex];
@@ -63,4 +102,104 @@ void KineticSystem::addReaction(QList<QString> species,
   }
   reac.forwardRate = forward;
   reac.backwardRate = backward;
+}
+
+void KineticSystem::ensureReady()
+{
+  QSet<QString> params;
+  
+  for(int i = 0; i < reactions.size(); i++) {
+    reactions[i].makeExpressions();
+    params += reactions[i].parameters();
+  }
+
+  // We remove the concentration parameters, as we want those to come
+  // first, for the sake of simplicity ?
+  QStringList conc;
+  QStringList conc0;
+  for(int i = 0; i < species.size(); i++) {
+    QString str = QString("c0_%1").arg(species[i].name);
+    params.remove(str);
+    conc0.append(str);
+    str = QString("c_%1").arg(species[i].name);
+    params.remove(str);
+    conc.append(str);
+  }
+  parameters.clear();
+  parameters = params.toList();
+  qSort(parameters);
+  // First concentrations, then initial concentrations, then the
+  // remaining parameters.
+  parameters = conc + conc0 + parameters;
+}
+
+void KineticSystem::prepare()
+{
+  ensureReady();
+}
+
+QStringList KineticSystem::allParameters() const
+{
+  if(parameters.isEmpty())
+    throw InternalError("Looks like you called allParameters() on an "
+                        "unready KineticSystem object");
+
+  // We only return the "external parameters", ie we leave the current
+  // concentrations out.
+  return parameters.mid(species.size());
+}
+
+QStringList KineticSystem::allSpecies() const
+{
+  QStringList ret;
+  for(int i = 0; i < species.size(); i++)
+    ret += species[i].name;
+  return ret;
+}
+
+void KineticSystem::setInitialConcentrations(double * target, 
+                                             const double * parameters) const
+{
+  for(int i = 0; i < species.size(); i++)
+    target[i] = parameters[i];
+}
+
+void KineticSystem::computeDerivatives(double * target, 
+                                       const double * concentrations,
+                                       const double * params) const
+{
+  // Now starts the real fun: evaluating all the derivatives !
+  QVarLengthArray<double, 800> vals(parameters.size());
+
+  // We put all the eggs in the same basket.
+  for(int i = 0; i < species.size(); i++) {
+    vals[i] = concentrations[i];
+    target[i] = 0;
+  }
+  for(int i = species.size(); i < parameters.size(); i++)
+    vals[i] = params[i - species.size()];
+
+  // Now, we compute the forward and reverse rates of all reactions
+  for(int i = 0; i < reactions.size(); i++) {
+    const Reaction & r = reactions[i];
+    double forwardRate = r.forward->evaluate(vals.data());
+    double backwardRate = (r.backward ? r.backward->evaluate(vals.data()) : 0);
+
+    for(int j = 0; j < r.speciesStoechiometry.size(); j++) {
+      int s = r.speciesStoechiometry[j];
+      if(s < 0)
+        forwardRate *= gsl_pow_int(concentrations[r.speciesIndices[j]], -s);
+      else
+        backwardRate *= gsl_pow_int(concentrations[r.speciesIndices[j]], s);
+    }
+    double rate = forwardRate - backwardRate;
+    for(int j = 0; j < r.speciesStoechiometry.size(); j++) {
+      target[r.speciesIndices[j]] += r.speciesStoechiometry[j] * rate;
+    }
+  }
+}
+
+void KineticSystem::parseFile(QIODevice * device)
+{
+  QTextStream in(device);
 }

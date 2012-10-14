@@ -199,7 +199,70 @@ void KineticSystem::computeDerivatives(double * target,
   }
 }
 
+/// Parses a reactant list
+static void parseReactants(const QString & reactants,
+                           QStringList * target,
+                           QList<int> * stoechiometry,
+                           int sign = 1,
+                           int line = 0)
+{
+  QString s = reactants.trimmed();
+  QStringList in = s.split(QRegExp("\\s*\\+\\s*"));
+  QRegExp one("^(\\d+)?\\s*(\\w+|e-)$");
+  for(int i = 0; i < in.size(); i++) {
+    if(one.indexIn(in[i]) != 0)
+      throw RuntimeError(QString("invalid species: '%1' at line %2").
+                         arg(in[i]).arg(line));
+    target->append(one.cap(2));
+    if(one.cap(1).isEmpty())
+      stoechiometry->append(sign);
+    else
+      stoechiometry->append(one.cap(1).toInt() * sign);
+  }
+}
+
 void KineticSystem::parseFile(QIODevice * device)
 {
   QTextStream in(device);
+
+  QRegExp blankRE("^\\s*(#|$)");
+  QRegExp irreversibleRE("^\\s*(.*)->\\[(.*)\\]\\s*(.*)$");
+  QRegExp reversibleRE("^\\s*(.*)<=>\\[(.*)\\]\\s*\\[(.*)\\]\\s*(.*)$");
+  
+  int number = 0;
+  while(true) {
+    QString line = in.readLine();
+    ++number;
+    if(line.isNull())
+      break;
+    if(blankRE.indexIn(line) >= 0)
+      continue;
+    
+    QString fr;
+    QString br;
+    QString left;
+    QString right;
+
+    if(irreversibleRE.indexIn(line) == 0) {
+      left = irreversibleRE.cap(1);
+      fr = irreversibleRE.cap(2);
+      right = irreversibleRE.cap(2);
+    }
+    else if(reversibleRE.indexIn(line) == 0) {
+      left = reversibleRE.cap(1);
+      fr = reversibleRE.cap(2);
+      br = reversibleRE.cap(3);
+      right = reversibleRE.cap(3);
+    }
+    else
+      throw RuntimeError(QString("Line %1: '%2' not valid").
+                         arg(number).arg(line));
+
+    QStringList reactants;
+    QList<int> stoechiometry;
+
+    parseReactants(left, &reactants, &stoechiometry, -1, number);
+    parseReactants(right, &reactants, &stoechiometry, 1, number);
+    addReaction(reactants, stoechiometry, fr, br);
+  }
 }

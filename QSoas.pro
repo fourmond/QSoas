@@ -170,7 +170,8 @@ SOURCES += src/qmain.cc \
         src/gslfunction.cc \
         src/odesolver.cc \
         src/rubyodesolver.cc \
-        src/kineticsystem.cc
+        src/kineticsystem.cc \
+        src/kineticsystemevolver.cc
 
 
 HEADERS += src/headers.hh \
@@ -240,7 +241,8 @@ HEADERS += src/headers.hh \
         src/gslfunction.hh \
         src/odesolver.hh \
         src/rubyodesolver.hh \
-        src/kineticsystem.hh
+        src/kineticsystem.hh \
+        src/kineticsystemevolver.hh
 
 
 # We link with the converted ODRPACK library

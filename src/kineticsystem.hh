@@ -146,6 +146,9 @@ public:
   /// come in the parameters.
   QStringList allSpecies() const;
 
+  /// The number of species in the system...
+  int speciesNumber() const;
+
   /// Sets the initial concentrations from the parameter list
   void setInitialConcentrations(double * target, 
                                 const double * parameters) const;

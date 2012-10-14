@@ -21,6 +21,7 @@
 #ifndef __ODESOLVER_HH
 #define __ODESOLVER_HH
 
+class Vector;
 
 /// This is the base class for all the ODE solver problems. To use it,
 /// you must use a derived class and reimplement the
@@ -90,7 +91,10 @@ public:
   ///
   /// This function probably should raise an exception upon GSL error
   void stepTo(double t);
-  
+
+  /// Performs several steps to all the t values, and returns all the
+  /// concentrations.
+  QList<Vector> steps(const Vector & tvalues);
 };
 
 #endif

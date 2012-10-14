@@ -1,6 +1,6 @@
 /*
   kineticsystem.cc: implementation of KineticSystem
-  Copyright 2011 by Vincent Fourmond
+  Copyright 2012 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -68,6 +68,10 @@ KineticSystem::~KineticSystem()
 {
 }
 
+int KineticSystem::speciesNumber() const
+{
+  return species.size();
+}
 
 int KineticSystem::speciesIndex(const QString & str)
 {

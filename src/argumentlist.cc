@@ -87,7 +87,8 @@ int ArgumentList::assignArgument(int arg, int total) const
   return assignArg(arg, total);
 }
 
-
+/// @bug This function will leak ArgumentMarshaller objects when an
+/// exception arises.
 CommandArguments ArgumentList::parseArguments(const QStringList & args,
                                               QString * defaultOpt,
                                               QWidget * base) const

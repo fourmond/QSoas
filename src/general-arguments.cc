@@ -226,12 +226,7 @@ void SeveralDataSetArgument::concatenateArguments(ArgumentMarshaller * a,
 
 ArgumentMarshaller * NumberArgument::fromString(const QString & str) const
 {
-  bool ok;
-  double v = str.toDouble(&ok);
-  if(! ok)
-    throw RuntimeError(QObject::tr("Not a number: '%1'").
-                       arg(str));
-  return new ArgumentMarshallerChild<double>(v);
+  return new ArgumentMarshallerChild<double>(Utils::stringToDouble(str));
 }
 
 ArgumentMarshaller * NumberArgument::promptForValue(QWidget * base) const
@@ -251,14 +246,8 @@ ArgumentMarshaller * SeveralNumbersArgument::fromString(const QString & str) con
 {
   QStringList strs = str.split(QRegExp("\\s*,\\s*"));
   QList<double> l;
-  for(int i = 0; i < strs.size(); i++) {
-    bool ok;
-    double v = strs[i].toDouble(&ok);
-    if(! ok)
-      throw RuntimeError(QObject::tr("Not a number: '%1'").
-                         arg(str));
-    l << v;
-  }
+  for(int i = 0; i < strs.size(); i++)
+    l << Utils::stringToDouble(strs[i]);
   return new ArgumentMarshallerChild< QList<double> >(l);
 }
 
@@ -274,12 +263,7 @@ void SeveralNumbersArgument::concatenateArguments(ArgumentMarshaller * a,
 
 ArgumentMarshaller * IntegerArgument::fromString(const QString & str) const
 {
-  bool ok;
-  int v = str.toInt(&ok);
-  if(! ok)
-    throw RuntimeError(QObject::tr("Not a integer: '%1'").
-                       arg(str));
-  return new ArgumentMarshallerChild<int>(v);
+  return new ArgumentMarshallerChild<int>(Utils::stringToInt(str));
 }
 
 ArgumentMarshaller * IntegerArgument::promptForValue(QWidget * base) const
@@ -299,14 +283,9 @@ ArgumentMarshaller * SeveralIntegersArgument::fromString(const QString & str) co
 {
   QStringList strs = str.split(QRegExp("\\s*,\\s*"));
   QList<int> l;
-  for(int i = 0; i < strs.size(); i++) {
-    bool ok;
-    int v = strs[i].toInt(&ok);
-    if(! ok)
-      throw RuntimeError(QObject::tr("Not a number: '%1'").
-                         arg(str));
-    l << v;
-  }
+  for(int i = 0; i < strs.size(); i++)
+    l << Utils::stringToInt(strs[i]);
+
   return new ArgumentMarshallerChild< QList<int> >(l);
 }
 
@@ -315,4 +294,25 @@ void SeveralIntegersArgument::concatenateArguments(ArgumentMarshaller * a,
 {
   a->value<QList<int> >() += 
     b->value<QList<int> >();
+}
+
+//////////////////////////////////////////////////////////////////////
+
+ArgumentMarshaller * ParametersHashArgument::fromString(const QString & str) const
+{
+  // Doesn't support splitting for now
+  QStringList lst = str.split(delims);
+  if(lst.size() != 2)
+    throw RuntimeError(QString("Invalid parameter specification: '%1'").
+                       arg(str));
+  QHash<QString, double> v;
+  v[lst[0]] = Utils::stringToDouble(lst[1]);
+  return new ArgumentMarshallerChild< QHash<QString, double> >(v);
+}
+
+void ParametersHashArgument::concatenateArguments(ArgumentMarshaller * a, 
+                                                  const ArgumentMarshaller * b) const
+{
+  a->value< QHash<QString, double> >().
+    unite(b->value<QHash<QString, double> >());
 }

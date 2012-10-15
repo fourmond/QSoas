@@ -231,4 +231,29 @@ public:
 };
 
 
+/// A parameters hash (QString -> double)
+///
+/// @todo add automatic completion for keys ? Doesn't sound like a
+/// clever thing to do...
+class ParametersHashArgument : public Argument {
+  QRegExp delims;
+public:
+
+  ParametersHashArgument(const char * cn, const char * pn,
+                         const char * d = "", bool sl = true, 
+                         bool def = false, 
+                         const char * dels = "\\s*[=:]\\s*") : 
+    Argument(cn, pn, d, sl, def), delims(dels) {
+    
+  }; 
+  
+  /// Returns a wrapped QList<double>
+  virtual ArgumentMarshaller * fromString(const QString & str) const;
+
+  virtual void concatenateArguments(ArgumentMarshaller * a, 
+                                    const ArgumentMarshaller * b) const;
+  
+};
+
+
 #endif

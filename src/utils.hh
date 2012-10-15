@@ -143,6 +143,16 @@ namespace Utils {
                     const QString & end, const QString & newText, 
                     bool appendIfNotFound = true);
 
+
+  /// A function to safely parse a double from a string -- or raise an
+  /// exception
+  double stringToDouble(const QString & str);
+
+  /// A function to safely parse an int from a string -- or raise an
+  /// exception
+  int stringToInt(const QString & str);
+  
+
 };
 
 #endif

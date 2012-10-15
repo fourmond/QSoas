@@ -330,3 +330,23 @@ QString Utils::abbreviateString(const QString & str, int nb)
   s.truncate(nb-3);
   return  s + "...";
 }
+
+double Utils::stringToDouble(const QString & str)
+{
+  bool ok = false;
+  double v = str.toDouble(&ok);
+  if(! ok)
+    throw RuntimeError(QObject::tr("Not a valid number: '%1'").
+                       arg(str));
+  return v;
+}
+
+int Utils::stringToInt(const QString & str)
+{
+  bool ok = false;
+  int v = str.toInt(&ok);
+  if(! ok)
+    throw RuntimeError(QObject::tr("Not an integer: '%1'").
+                       arg(str));
+  return v;
+}

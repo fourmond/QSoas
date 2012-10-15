@@ -833,7 +833,7 @@ static void statsCommand(const QString &, const CommandOptions & opts)
                   << "\n" << n << "_min = " << c.min() 
                   << "\t" << n << "_max = " << c.max() 
                   << "\n" << n << "_average = " << a 
-                  << "\t" << n << "_norm = " << c.norm() ;
+                  << "\t" << n << "_norm = " << c.norm();
   }
   Terminal::out << endl;
 }

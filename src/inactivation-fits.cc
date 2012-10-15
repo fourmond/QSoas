@@ -404,7 +404,7 @@ public:
   };
 
   KineticSystemFit() :
-    PerDatasetFit("kinetic-system", 
+    PerDatasetFit("linear-kinetic-system", 
                   "Several steps with a kinetic evolution",
                   "Fits of exponentials on several steps with "
                   "film loss bookkeeping", 1, -1, false) 

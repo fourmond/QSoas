@@ -39,6 +39,28 @@ public:
   virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
 };
 
+/// Several strings
+///
+/// @todo implement automatic splitting when necessary.
+class SeveralStringsArgument : public Argument {
+public:
+
+  SeveralStringsArgument(const char * cn, const char * pn,
+                         const char * d = "", bool g = true, 
+                         bool def = false) : 
+    Argument(cn, pn, d, g, def) {
+  }; 
+
+
+  /// Returns a wrapped QStringList
+  virtual ArgumentMarshaller * fromString(const QString & str) const;
+
+  virtual void concatenateArguments(ArgumentMarshaller * a, 
+                                    const ArgumentMarshaller * b) const;
+
+};
+
+
 /// A boolean argument
 class BoolArgument : public Argument {
 public:

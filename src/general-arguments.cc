@@ -46,6 +46,23 @@ ArgumentMarshaller * StringArgument::promptForValue(QWidget * base) const
 
 ////////////////////////////////////////////////////////////
 
+ArgumentMarshaller * SeveralStringsArgument::fromString(const QString & str) const
+{
+  QStringList r;
+  r << str;
+  return new ArgumentMarshallerChild<QStringList>(r);
+}
+
+void SeveralStringsArgument::concatenateArguments(ArgumentMarshaller * a, 
+                                                  const ArgumentMarshaller * b) const
+{
+  a->value<QStringList>() += 
+    b->value<QStringList>();
+}
+
+
+////////////////////////////////////////////////////////////
+
 ArgumentMarshaller * BoolArgument::fromString(const QString & str) const
 {
   QRegExp yesRE("y(es)?|true|on", Qt::CaseInsensitive);

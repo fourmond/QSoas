@@ -82,9 +82,22 @@ namespace Utils {
   /// Returns the string Delta something. Pityful, isn't it ;-) ?
   QString deltaStr(const QString & w);
 
+  /// @name File-related functions
+  ///
+  /// A bunch of file-related functions
+  ///
+  /// @{
+
   /// Opens the given file with the target mode, raising a
   /// RuntimeError if that couldn't happen for some reason.
   void open(QFile * file, QIODevice::OpenMode mode);
+
+  /// Asks confirmation before overwriting the target file if it exists.
+  ///
+  /// Throws an exception if user cancelled unless \a silent is true.
+  bool confirmOverwrite(const QString & fileName, bool silent = false);
+
+  /// @}
 
   /// Converts the given matrix to a string
   QString matrixString(const gsl_matrix * matrix);
@@ -124,7 +137,7 @@ namespace Utils {
 
   /// This function parses a configuration file, stripping out
   /// comments and concatenating lines when applicable, ie for lines
-  /// finishing with
+  /// finishing with "\"
   ///
   /// If \a keepCR is on, the final \n isn't stripped from escaped
   /// lines. If \a comments isn't NULL, comments are stored there. If

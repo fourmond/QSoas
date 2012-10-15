@@ -116,8 +116,17 @@ ovl("overlay", // command name
 //////////////////////////////////////////////////////////////////////
 
 
-static void saveCommand(const QString &, QString file)
+static void saveCommand(const QString &, QString file, 
+                        const CommandOptions & opts)
 {
+  bool overwrite = false;
+  bool mkpath = false;
+  updateFromOptions(opts, "overwrite", overwrite);
+  updateFromOptions(opts, "mkpath", mkpath);
+  if(! overwrite)
+    Utils::confirmOverwrite(file);
+  if(mkpath)
+    QDir::current().mkpath(QFileInfo(file).dir().path());
   soas().currentDataSet()->write(file);
   soas().currentDataSet()->name = file;
   soas().view().repaint();
@@ -133,15 +142,25 @@ saveArgs(QList<Argument *>()
          << new FileSaveArgument("file", 
                                  "File name",
                                  "File name for saving",
-                                 &fileNameProvider));
+                                 &fileNameProvider, false));
+
+static ArgumentList 
+saveOpts(QList<Argument *>() 
+         << new BoolArgument("overwrite", 
+                             "Overwrite",
+                             "If true, overwrite without prompting")
+         << new BoolArgument("mkpath",
+                             "Make path",
+                             "If true, creates all necessary directories")
+         );
 
 
 static Command 
 sv("save", // command name
-   optionLessEffector(saveCommand), // action
+   effector(saveCommand), // action
    "stack",  // group name
    &saveArgs, // arguments
-   NULL, // options
+   &saveOpts, // options
    "Save",
    "Saves the current buffer",
    "Saves the current buffer to a file",

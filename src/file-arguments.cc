@@ -71,13 +71,8 @@ QStringList FileArgument::proposeCompletion(const QString & starter) const
 
 ArgumentMarshaller * FileSaveArgument::fromString(const QString & str) const
 {
-  /// @todo Hmmm Move that to Utils::open.
-  if(askOverwrite && QFile::exists(str)) {
-    QString s = QObject::tr("Overwrite file '%1' ?").
-      arg(str);
-    if(! Utils::askConfirmation(s))
-      throw RuntimeError("Aborted");
-  }
+  if(askOverwrite)
+    Utils::confirmOverwrite(str);
   return new ArgumentMarshallerChild<QString>(str);
 }
 

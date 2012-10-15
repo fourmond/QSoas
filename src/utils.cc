@@ -173,6 +173,23 @@ void Utils::open(QFile * file, QIODevice::OpenMode mode)
   }
 }
 
+bool Utils::confirmOverwrite(const QString & fileName, bool silent)
+{
+  if(QFile::exists(fileName)) {
+    QString s = QObject::tr("Overwrite file '%1' ?").
+      arg(fileName);
+    if(! Utils::askConfirmation(s)) {
+      if(silent)
+        return false;
+      else
+        throw RuntimeError("Aborted");
+    }
+  }
+  return true;
+}
+
+
+
 QString Utils::matrixString(const gsl_matrix * matrix)
 {
   QString ret;

@@ -860,10 +860,7 @@ static void generateDSCommand(const QString &, double beg, double end,
   int samples = 1000;
   updateFromOptions(opts, "samples", samples);
 
-  Vector x;
-  for(int i = 0; i < samples; i++)
-    x << beg + i*(end - beg)/(samples - 1);
-
+  Vector x = Vector::uniformlySpaced(beg, end, samples);
   Vector y = x;
 
   DataSet * newDs = new DataSet(x,y);

@@ -34,7 +34,7 @@
 
 
 KineticSystemEvolver::KineticSystemEvolver(KineticSystem * sys) :
-  system(sys)
+  system(sys), callback(NULL)
 {
   QStringList p = system->allParameters();
   for(int i = 0; i < p.size(); i++)
@@ -59,6 +59,9 @@ int KineticSystemEvolver::dimension() const
 int KineticSystemEvolver::computeDerivatives(double t, const double * y, 
                                              double * dydt)
 {
+  if(callback)                  // Tweak the time-dependent parameters
+                                // when applicable
+    callback(parameters, t, callbackParameter);
   system->computeDerivatives(dydt, y, parameters);
   if(false) {                /// @todo Add real debugging facilities ?
     // Debugging information
@@ -101,6 +104,15 @@ QHash<QString, double> KineticSystemEvolver::parameterValues() const
   return ret;
 }
 
+
+void KineticSystemEvolver::setupCallback(void (*cb)(double *, double, void *), 
+                                         void * params)
+{
+  callback = cb;
+  callbackParameter = params;
+}
+
+
 //////////////////////////////////////////////////////////////////////
 
 static ArgumentList 
@@ -122,6 +134,13 @@ ksOpts (QList<Argument *>()
         << new BoolArgument("dump", 
                             "If on, dumps the system rather than solving")
         );
+
+/// Just replace the time in the expression by its value !
+static void setTime(double * params, double t, void * p)
+{
+  int idx = *((int*)p);
+  params[idx] = t;
+}
 
 static void kineticSystemCommand(const QString &, QString file,
                                  QHash<QString, double> parameters,
@@ -159,9 +178,15 @@ static void kineticSystemCommand(const QString &, QString file,
                   << endl;
 
   QHash<QString, double> params = evolver.parameterValues();
+  int timeIndex = 0;
+  if(params.contains("t")) {
+    params.remove("t");
+    timeIndex = evolver.getParameterIndex("t");
+    evolver.setupCallback(::setTime, &timeIndex);
+  }
   QStringList p = params.keys();
   qSort(p);
-  
+
   Terminal::out << "Parameter values: " << endl;
   for(int i = 0; i < p.size(); i++)
     Terminal::out << " * " << p[i] << " = " << params[p[i]] << endl;

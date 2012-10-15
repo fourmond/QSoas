@@ -29,8 +29,9 @@ class KineticSystem;
 /// This class computes the concentrations over time of a
 /// KineticSystem, for the given parameters.
 ///
-/// @todo Add callback systems for computing the values of parameters
-/// at a given point in time.
+/// @todo Add a template-based system for clever callbacks, to remove
+/// the need for the void * parameter. Lambdas would be nice, now that
+/// I think of it.
 class KineticSystemEvolver : public ODESolver {
   KineticSystem * system;
 
@@ -38,6 +39,12 @@ class KineticSystemEvolver : public ODESolver {
 
   /// Indices of the parameters
   QHash<QString, int> parameterIndex;
+
+  /// Parameter to the callback
+  void * callbackParameter;
+
+  /// A callback called for every time step.
+  void (*callback)(double * parameters, double t, void * param);
   
 public:
   /// This doesn't take ownership of the kinetic system !
@@ -57,6 +64,15 @@ public:
   /// Initializes the solver. Uses the initial concentrations set
   /// using setParameters()
   void initialize(double tstart);
+
+  /// Sets up a callback, or cancel it, if called with a NULL value.
+  void setupCallback(void (*callback)(double *, double, void *), 
+                     void * params);
+
+  /// Returns the index of the parameter
+  int getParameterIndex(const QString & str) const {
+    return parameterIndex.value(str, -1);
+  };
 };
 
 #endif

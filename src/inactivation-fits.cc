@@ -207,7 +207,7 @@ static ReactivationAmplitudeFit react;
 
 /// This fit somehow summarizes almost all the others, while being
 /// more powerful (but slightly less easy to use).
-class KineticSystemFit : public PerDatasetFit {
+class LinearKineticSystemFit : public PerDatasetFit {
 
   /// The number of distinctSteps
   int distinctSteps;
@@ -403,7 +403,7 @@ public:
     
   };
 
-  KineticSystemFit() :
+  LinearKineticSystemFit() :
     PerDatasetFit("linear-kinetic-system", 
                   "Several steps with a kinetic evolution",
                   "Fits of exponentials on several steps with "
@@ -425,4 +425,4 @@ public:
 
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
 // Its name doesn't matter.
-KineticSystemFit fit_kinetic_system;
+LinearKineticSystemFit fit_linear_kinetic_system;

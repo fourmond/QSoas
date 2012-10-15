@@ -32,6 +32,10 @@
 #include <dataset.hh>
 #include <datastack.hh>
 
+// Here come fits !
+#include <perdatasetfit.hh>
+#include <fitdata.hh>
+
 
 KineticSystemEvolver::KineticSystemEvolver(KineticSystem * sys) :
   system(sys), callback(NULL)
@@ -86,6 +90,14 @@ QStringList KineticSystemEvolver::setParameters(const QHash<QString, double> & p
     }
   }
   return params.toList();
+}
+
+void KineticSystemEvolver::setParameters(const double * source, int skip)
+{
+  int j = 0;
+  for(int i = 0; i < parameterIndex.size(); i++)
+    if(i != skip)
+      parameters[i] = source[j++];
 }
 
 void KineticSystemEvolver::initialize(double tstart)
@@ -157,11 +169,7 @@ static void kineticSystemCommand(const QString &, QString file,
   updateFromOptions(opts, "start", start);
   
   KineticSystem sys; 
-  {
-    QFile f(file);
-    Utils::open(&f, QIODevice::ReadOnly);
-    sys.parseFile(&f);
-  }
+  sys.parseFile(file);
   sys.prepare();
   if(dump) {
     Terminal::out << "System " << file << ":\n" 
@@ -210,3 +218,137 @@ kineticSystem("kinetic-system", // command name
               "Computes the concentration of species of an "
               "arbitrary kinetic system",
               "...");
+
+//////////////////////////////////////////////////////////////////////
+
+/// Fits a full kinetic system.
+class KineticSystemFit : public PerDatasetFit {
+
+  /// System we're working on - deleted and recreated for each fit.
+  KineticSystem * system;
+
+  /// Index of the current's system index for the time
+  mutable int timeIndex;
+  
+
+protected:
+
+  virtual void processOptions(const CommandOptions & opts)
+  {
+    // For now, no extra stuff !
+  }
+
+  void runFit(const QString & name, QString fileName, 
+              QList<const DataSet *> datasets,
+              const CommandOptions & opts)
+  {
+    delete system;
+    system = new KineticSystem;
+    system->parseFile(fileName);
+    system->prepare();
+    Fit::runFit(name, datasets, opts);
+  }
+
+  void runFitCurrentDataSet(const QString & n, 
+                            QString fileName, const CommandOptions & opts)
+  {
+    QList<const DataSet *> ds;
+    ds << soas().currentDataSet();
+    runFit(n, fileName, ds, opts);
+  }
+
+
+public:
+
+  virtual QList<ParameterDefinition> parameters() const {
+    QList<ParameterDefinition> defs;
+
+    QStringList parameters = system->allParameters();
+    timeIndex= -1;
+
+    QStringList species = system->allSpecies();
+    for(int i = 0; i < species.size(); i++)
+      defs << ParameterDefinition(QString("i_%1").
+                                  arg(species[i]), i != 0);
+
+    for(int i = 0; i < parameters.size(); i++) {
+      if(parameters[i] == "t") {
+        timeIndex = i;
+        continue;
+      }
+      defs << ParameterDefinition(parameters[i], 
+                                  i < system->speciesNumber()); 
+    }
+    return defs;
+  };
+
+  virtual void function(const double * a, FitData * data, 
+                        const DataSet * ds , gsl_vector * target)
+  {
+    KineticSystemEvolver evolver(system);
+    evolver.setParameters(a + system->speciesNumber(), 
+                          timeIndex);
+    const Vector & xv = ds->x();
+    evolver.initialize(xv[0]);
+
+    // @todo TIME !
+
+    for(int i = 0; i < xv.size(); i++) {
+      evolver.stepTo(xv[i]);
+      double val = 0;
+      const double * cv = evolver.currentValues();
+      for(int j = 0; j < system->speciesNumber(); j++)
+        val += cv[j] * a[j];
+      gsl_vector_set(target, i, val);
+    }
+
+  };
+
+  virtual void initialGuess(FitData * params, 
+                            const DataSet *ds,
+                            double * a)
+  {
+    const Vector & x = ds->x();
+    const Vector & y = ds->y();
+
+    int nb = system->speciesNumber();
+
+    // All currents to 0 but the first
+    for(int i = 0; i < nb; i++)
+      a[i] = (i == 0 ? y.max() : 0);
+
+    // All initial concentrations to 0 but the first
+    for(int i = 0; i < nb; i++)
+      a[i + nb] = (i == 0 ? 1 : 0);
+    
+    // All rate constants and other to 1 ?
+    for(int i = 2*nb; i < params->parameterDefinitions.size(); i++)
+      a[i] = 1;                 // Simple, heh ?
+
+  };
+
+  KineticSystemFit() :
+    PerDatasetFit("kinetic-system", 
+                  "Full kinetic system",
+                  "", 1, -1, false) 
+  { 
+
+    ArgumentList * al = new 
+      ArgumentList(QList<Argument *>()
+                   << new FileArgument("system", 
+                                       "System",
+                                       "Path to the file describing the "
+                                       "system"));
+
+    ArgumentList * opts = new 
+      ArgumentList(QList<Argument *>()
+                   );
+
+    makeCommands(al, 
+                 effector(this, &KineticSystemFit::runFitCurrentDataSet, true),
+                 effector(this, &KineticSystemFit::runFit, true),
+                 opts);
+  };
+};
+
+static KineticSystemFit fit_kinetic_system;

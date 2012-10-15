@@ -229,6 +229,14 @@ void KineticSystem::computeDerivatives(double * target,
   }
 }
 
+void KineticSystem::parseFile(const QString & fileName)
+{
+  QFile f(fileName);
+  Utils::open(&f, QIODevice::ReadOnly);
+  parseFile(&f);
+}
+
+
 /// Parses a reactant list
 static void parseReactants(const QString & reactants,
                            QStringList * target,

@@ -167,7 +167,12 @@ public:
 
   /// Reads reactions from a file, and add them to the current system.
   void parseFile(QIODevice * stream);
- 
+
+  /// Dump into a file
+  void dump(QTextStream & out) const;
+
+  /// Dumps as a string
+  QString toString() const;
 };
 
 #endif

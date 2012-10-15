@@ -20,6 +20,8 @@
 #include <headers.hh>
 #include <odesolver.hh>
 
+#include <vector.hh>
+
 ODESolver::ODESolver(const gsl_odeiv2_step_type * t) :
   driver(NULL), type(t), yValues(NULL)
 {
@@ -73,4 +75,19 @@ void ODESolver::initialize(const double * yStart, double tStart)
 void ODESolver::stepTo(double to)
 {
   int status = gsl_odeiv2_driver_apply(driver, &t, to, yValues);
+  /// @todo It may be a good idea to inspect the return value...
 }
+
+QList<Vector> ODESolver::steps(const Vector &tValues)
+{
+  QList<Vector> ret;
+  for(int i = 0; i < dimension(); i++)
+    ret += tValues;
+  for(int i = 0; i < tValues.size(); i++) {
+    stepTo(tValues[i]);
+    for(int j = 0; j < ret.size(); j++)
+      ret[j][i] = yValues[j];
+  }
+  return ret;
+}
+

@@ -57,6 +57,18 @@ void KineticSystem::Reaction::clearExpressions()
   backward = NULL;
 }
 
+void KineticSystem::Reaction::setParameters(const QStringList & parameters)
+{
+  if(! forward)
+    return;
+  forward->setVariables(parameters);
+  if(! backward)
+    return;
+  backward->setVariables(parameters);
+}
+
+
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -135,6 +147,9 @@ void KineticSystem::ensureReady()
   // First concentrations, then initial concentrations, then the
   // remaining parameters.
   parameters = conc + conc0 + parameters;
+
+  for(int i = 0; i < reactions.size(); i++)
+    reactions[i].setParameters(parameters);
 }
 
 void KineticSystem::prepare()
@@ -189,6 +204,12 @@ void KineticSystem::computeDerivatives(double * target,
     double forwardRate = r.forward->evaluate(vals.data());
     double backwardRate = (r.backward ? r.backward->evaluate(vals.data()) : 0);
 
+    if(false) {                 /// @todo Add real debugging facilities ?
+      QTextStream o(stdout);
+      o << " Rate constants for reaction " << i << ": " 
+        << forwardRate << " - " << backwardRate << endl;
+    }
+
     for(int j = 0; j < r.speciesStoechiometry.size(); j++) {
       int s = r.speciesStoechiometry[j];
       if(s < 0)
@@ -197,6 +218,11 @@ void KineticSystem::computeDerivatives(double * target,
         backwardRate *= gsl_pow_int(concentrations[r.speciesIndices[j]], s);
     }
     double rate = forwardRate - backwardRate;
+    if(false) {              /// @todo Add real debugging facilities ?
+      QTextStream o(stdout);
+      o << " Rate for reaction " << i << ": " 
+        << rate << " = " << forwardRate << " - " << backwardRate << endl;
+    }
     for(int j = 0; j < r.speciesStoechiometry.size(); j++) {
       target[r.speciesIndices[j]] += r.speciesStoechiometry[j] * rate;
     }
@@ -250,13 +276,13 @@ void KineticSystem::parseFile(QIODevice * device)
     if(irreversibleRE.indexIn(line) == 0) {
       left = irreversibleRE.cap(1);
       fr = irreversibleRE.cap(2);
-      right = irreversibleRE.cap(2);
+      right = irreversibleRE.cap(3);
     }
     else if(reversibleRE.indexIn(line) == 0) {
       left = reversibleRE.cap(1);
       fr = reversibleRE.cap(2);
       br = reversibleRE.cap(3);
-      right = reversibleRE.cap(3);
+      right = reversibleRE.cap(4);
     }
     else
       throw RuntimeError(QString("Line %1: '%2' not valid").
@@ -269,4 +295,39 @@ void KineticSystem::parseFile(QIODevice * device)
     parseReactants(right, &reactants, &stoechiometry, 1, number);
     addReaction(reactants, stoechiometry, fr, br);
   }
+}
+
+void KineticSystem::dump(QTextStream & o) const
+{
+  o << "Species: \n";
+  for(int i = 0; i < species.size(); i++)
+    o << " * " << species[i].name << "\n";
+
+  o << "Reactions: \n";
+  for(int i = 0; i < reactions.size(); i++) {
+    const Reaction & reac = reactions[i];
+    QStringList reactants;
+    QStringList products;
+    for(int j = 0; j < reac.speciesIndices.size(); j++) {
+      int idx = reac.speciesIndices[j];
+      int s = reac.speciesStoechiometry[j];
+      QString n = QString("%1 %2").arg(abs(s)).arg(species[idx].name);
+      if(s > 0)
+        products << n;
+      else
+        reactants << n;
+    }
+    o << " * " << reactants.join(" + ") 
+      << (reac.backwardRate.isEmpty() ? " -> " : " <=> ")
+      << products.join(" + ") 
+      << " -- " << reac.forwardRate << " -- " << reac.backwardRate << "\n";
+  }
+}
+
+QString KineticSystem::toString() const
+{
+  QString s;
+  QTextStream o(&s);
+  dump(o);
+  return s;
 }

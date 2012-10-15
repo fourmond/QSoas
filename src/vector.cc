@@ -440,5 +440,5 @@ Vector Vector::resample(int nb) const
     nb = size();
   if(nb == 1)
     return *this;               // Well, it's still correct, isn't it ?
-  return  uniformlySpaced(min(), max(), nb);
+  return uniformlySpaced(min(), max(), nb);
 }

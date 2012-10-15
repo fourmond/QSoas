@@ -141,7 +141,7 @@ static void kineticSystemCommand(const QString &, int specs,
 }
 
 static Command 
-p("kinetic-system", // command name
+p("linear-kinetic-system", // command name
   effector(kineticSystemCommand), // action
   "simulations",  // group name
   &kSArgs, // arguments
@@ -171,10 +171,11 @@ static void odeComputationCommand(const QString &, QString init,
 
   for(int i = 0; i < xs.size(); i++) {
     double t = xs[i];
+    const double * cvs = solver.currentValues();
     solver.stepTo(t);
     cols[0] << solver.currentTime();
     for(int j = 0; j < solver.dimension(); j++)
-      cols[j+1] << solver.currentValues()[j];
+      cols[j+1] << cvs[j];
   }
   DataSet * nds = new DataSet(cols);
   nds->name = "ode.dat";

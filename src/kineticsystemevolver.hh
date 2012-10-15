@@ -50,6 +50,13 @@ public:
 
   /// Sets the parameters. Returns the list of undefined parameters.
   QStringList setParameters(const QHash<QString, double> & parameters);
+
+  /// Returns the current values of the parameters.
+  QHash<QString, double> parameterValues() const;
+
+  /// Initializes the solver. Uses the initial concentrations set
+  /// using setParameters()
+  void initialize(double tstart);
 };
 
 #endif

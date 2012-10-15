@@ -282,16 +282,27 @@ public:
     return defs;
   };
 
+  static void timeDependentRates(double * params, double t, void * p)
+  {
+    KineticSystemFit * fit = reinterpret_cast<KineticSystemFit *>(p);
+    if(fit->timeIndex >= 0)
+      params[fit->timeIndex] = t;
+
+    // Now, must handle the steps.
+  }
+
   virtual void function(const double * a, FitData * data, 
                         const DataSet * ds , gsl_vector * target)
   {
     KineticSystemEvolver evolver(system);
     evolver.setParameters(a + system->speciesNumber(), 
                           timeIndex);
+    evolver.setupCallback(KineticSystemFit::timeDependentRates, this);
+
     const Vector & xv = ds->x();
     evolver.initialize(xv[0]);
 
-    // @todo TIME !
+    /// @todo TIME !
 
     for(int i = 0; i < xv.size(); i++) {
       evolver.stepTo(xv[i]);

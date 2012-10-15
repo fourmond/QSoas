@@ -820,18 +820,22 @@ static void statsCommand(const QString &, const CommandOptions & opts)
   DataSet * ds = soas().currentDataSet();
   updateFromOptions(opts, "buffer", ds);
 
-  const Vector &x = ds->x();
-  const Vector &y = ds->y();
+  Terminal::out << "Statistics on buffer: " << ds->name << ":";
 
-  // @todo add averages and so on !
-  Terminal::out << "Statistics on buffer: " << ds->name << ":\n" 
-                << "x[0] = " << x.first() << "\tx[" << x.size() - 1
-                << "] = " << x.last() << "\n"
-                << "x_min = " << x.min() << "\tx_max = " << x.max() << "\n"
-                << "y[0] = " << y.first() << "\ty[" << y.size() - 1
-                << "] = " << y.last() << "\n"
-                << "y_min = " << y.min() << "\ty_max = " << y.max() 
-                << endl;
+  QStringList names = ds->columnNames();
+  for(int i = 0; i < ds->nbColumns(); i++) {
+    const QString & n = names[i];
+    const Vector & c = ds->column(i);
+    double a,v;
+    c.stats(&a, &v);
+    Terminal::out << "\n" << n << "[0] = " << c.first() 
+                  << "\t" << n << "[" << c.size() - 1  << "] = " << c.last() 
+                  << "\n" << n << "_min = " << c.min() 
+                  << "\t" << n << "_max = " << c.max() 
+                  << "\n" << n << "_average = " << a 
+                  << "\t" << n << "_norm = " << c.norm() ;
+  }
+  Terminal::out << endl;
 }
 
 static ArgumentList 

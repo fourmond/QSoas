@@ -393,6 +393,12 @@ public:
   /// Splits into a series of disconnected buffers whose X values (or
   /// the values of the given column) are monotonic.
   QList<DataSet * > splitIntoMonotonic(int col = 0) const;
+
+
+  /// Returns the names of the columns.
+  ///
+  /// @todo find a way to customize that later on.
+  QStringList columnNames() const;
   
 };
 

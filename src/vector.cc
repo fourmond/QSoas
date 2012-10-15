@@ -423,16 +423,22 @@ int Vector::closestPoint(double v) const
   return idx;
 }
 
+Vector Vector::uniformlySpaced(double min, double max, int nb)
+{
+  Vector r(nb, 0);
+  if(nb < 2)
+    throw RuntimeError("Cannot create a segment-spanning vector of "
+                       "less than 2 points !");
+  for(int i = 0; i < nb; i++)
+    r[i] = min + (max - min) * i/(nb - 1);
+  return r;
+}
+
 Vector Vector::resample(int nb) const
 {
   if(nb < 2)
     nb = size();
-  Vector r(nb, 0);
-  if(nb < 2)
-    throw RuntimeError("Cannot resample to less than 2 points !");
-  double valMin = min();
-  double valMax = max();
-  for(int i = 0; i < nb; i++)
-    r[i] = valMin + (valMax - valMin) * i/(nb - 1);
-  return r;
+  if(nb == 1)
+    return *this;               // Well, it's still correct, isn't it ?
+  return  uniformlySpaced(min(), max(), nb);
 }

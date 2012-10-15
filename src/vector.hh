@@ -149,6 +149,13 @@ public:
                                       const QString & separatorRE = "\\s+",
                                       const QString & commentRE = "^\\s*#",
                                       QStringList * comments = NULL);
+
+  /// Returns a vector with nb values spaced uniformly on the
+  /// [min:max] segment.
+  ///
+  /// @todo Write the same function with log transform ?
+  /// With *any* Bijection, for that matter ?
+  static Vector uniformlySpaced(double min, double max, int nb);
 };
 
 #endif

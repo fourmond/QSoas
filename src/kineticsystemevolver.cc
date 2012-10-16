@@ -100,6 +100,15 @@ void KineticSystemEvolver::setParameters(const double * source, int skip)
       parameters[i] = source[j++];
 }
 
+void KineticSystemEvolver::setParameters(const double * source, 
+                                         const QSet<int> & skipped)
+{
+  int j = 0;
+  for(int i = 0; i < parameterIndex.size(); i++)
+    if(! skipped.contains(i))
+      parameters[i] = source[j++];
+}
+
 void KineticSystemEvolver::initialize(double tstart)
 {
   QVarLengthArray<double, 1000> tg(system->speciesNumber());
@@ -339,6 +348,8 @@ class KineticSystemFit : public PerDatasetFit {
   /// mutable by moving parameter computation somewhere else.
   mutable int timeIndex;
 
+  mutable QSet<int> skippedIndices;
+
   /// Time-dependent parameters !
   QHash<int, TimeDependentParameter> timeDependentParameters;
 
@@ -352,6 +363,10 @@ class KineticSystemFit : public PerDatasetFit {
   /// Parameter lists for the time-dependent stuff
   QList<ParameterDefinition> tdParameters;
 
+  /// A hash time dependent parameter name -> index in 
+  /// timeDependentParameter 
+  QHash<QString, int> tdParameterNames;
+
 protected:
 
   virtual void processOptions(const CommandOptions & opts)
@@ -363,6 +378,8 @@ protected:
 
     int baseIndex = 0;
     tdParameters.clear();
+
+    tdParameterNames.clear();
 
     for(int i = 0; i < lst.size(); i++) {
       Terminal::out << "Parsing spec: " << lst[i] << endl;
@@ -381,6 +398,7 @@ protected:
       QList<ParameterDefinition> defs = param.parameters(s2[0]);
       baseIndex += defs.size();
       tdParameters += defs;
+      tdParameterNames[s2[0]] = idx;
     }
   }
 
@@ -419,11 +437,17 @@ public:
       defs << ParameterDefinition(QString("i_%1").
                                   arg(species[i]), i != 0);
 
+    skippedIndices.clear();
     for(int i = 0; i < parameters.size(); i++) {
       if(parameters[i] == "t") {
         timeIndex = i; /// @hack modifying a mutable stuff. Move the
                        /// preparation of the parameter list in its
                        /// own function after options processing.
+        skippedIndices.insert(i);
+        continue;
+      }
+      if(tdParameterNames.contains(parameters[i])) {
+        skippedIndices.insert(i);
         continue;
       }
       defs << ParameterDefinition(parameters[i], 
@@ -450,7 +474,7 @@ public:
                         const DataSet * ds , gsl_vector * target)
   {
     evolver->setParameters(a + system->speciesNumber(), 
-                          timeIndex);
+                          skippedIndices);
 
     evolver->setupCallback(KineticSystemFit::timeDependentRates, this);
     const Vector & xv = ds->x();

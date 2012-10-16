@@ -62,6 +62,10 @@ public:
   /// they are found. Can skip 1 parameter though
   void setParameters(const double * source, int skip = -1);
 
+  /// Sets the parameters from a double array, in the same order as
+  /// they are found, skipping any parameter found in the set
+  void setParameters(const double * source, const QSet<int> & skip);
+
   /// Returns the current values of the parameters.
   QHash<QString, double> parameterValues() const;
 

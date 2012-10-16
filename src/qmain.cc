@@ -32,10 +32,16 @@
 
 int main(int argc, char ** argv)
 {
-  QApplication main(argc, argv);
-  main.setApplicationName("QSoas");
   DataBackend::registerBackendCommands();
   Command::crosslinkCommands();
+  if(QString(argv[1]) == "--spec") {
+    QTextStream o(stdout);
+    Command::writeSpecFile(o);
+    return 0;
+  }
+
+  QApplication main(argc, argv);
+  main.setApplicationName("QSoas");
 
   Ruby::initRuby();
   

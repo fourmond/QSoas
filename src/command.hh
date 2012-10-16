@@ -285,6 +285,17 @@ public:
   /// Loads the long description from the documentation string
   void loadDocumentation(const QString & str);
 
+
+  /// Returns a simple string describing the command, all its
+  /// arguments and options and if it is interactive or not, in a
+  /// specification-like fashion (ie, things that can be
+  /// compared). Not for use for a help string. Should be \b stable.
+  QString commandSpec() const;
+
+  /// Writes out a specification for all commands, in the alphabetic
+  /// order.
+  static void writeSpecFile(QTextStream & out);
+
 };
 
 #endif

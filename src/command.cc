@@ -465,3 +465,36 @@ bool Command::isInteractive() const
 {
   return effector->isInteractive();
 }
+
+QString Command::commandSpec() const
+{
+  QString ret;
+  ret = cmdName;
+  if(isInteractive())
+    ret += " (interactive)";
+  ret += "\n";
+  if(arguments)
+    for(int i = 0; i < arguments->size(); i++) {
+      Argument * arg = (*arguments)[i];
+      ret += " - " + arg->argumentName() + 
+        (arg->greedy ? "..." : "") + "\n";
+    }
+  if(options)
+    for(int i = 0; i < options->size(); i++) {
+      Argument * arg = (*options)[i];
+      ret += " - /" + arg->argumentName() + 
+        (arg->defaultOption ? "*" : "") + "\n";
+    } 
+  return ret;
+}
+
+void Command::writeSpecFile(QTextStream & out)
+{
+  QStringList cmds = Command::allCommands();
+  qSort(cmds);
+
+  for(int i = 0; i < cmds.size(); i++) {
+    Command * cmd = Command::namedCommand(cmds[i]);
+    out << cmd->commandSpec();
+  }
+}

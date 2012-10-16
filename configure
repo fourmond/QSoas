@@ -1,6 +1,10 @@
 #! /bin/sh
 
-qmake
+v=""
+if [ "$1" ]; then
+    v="VERSION=$1"
+fi
+qmake $v
 
 # For some reason, mac's Qt writes a wrong library name for linking
 # when producing a debug stuff:

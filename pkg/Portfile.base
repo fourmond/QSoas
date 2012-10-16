@@ -17,6 +17,8 @@ depends_lib         port:qt4-mac \
                     port:ruby \
                     port:gsl \
 
+configure.cmd ./configure #VERSION#
+
 checksum {
     # @todo Enable checksums
 }

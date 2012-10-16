@@ -474,7 +474,7 @@ public:
                         const DataSet * ds , gsl_vector * target)
   {
     evolver->setParameters(a + system->speciesNumber(), 
-                          skippedIndices);
+                           skippedIndices);
 
     evolver->setupCallback(KineticSystemFit::timeDependentRates, this);
     const Vector & xv = ds->x();

@@ -33,6 +33,11 @@ public:
   /// Setup the qt message handler to catch problems
   static void setupQtMessageHandler();
 
+  template<typename T> Exception & arg(T a) {
+    msg.arg(a);
+    return *this;
+  }; 
+
 };
 
 class RuntimeError : public Exception {

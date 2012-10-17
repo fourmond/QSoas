@@ -8,5 +8,7 @@ qmake $v
 
 # For some reason, mac's Qt writes a wrong library name for linking
 # when producing a debug stuff:
-perl -pi -e 's/_debug//g' Makefile
+if [ -z "$NOTWEAK" ]; then
+    perl -pi -e 's/_debug//g' Makefile
+fi
 cd odrpack; ./full-conversion d_lpkbls.c d_mprec.c d_odr.c

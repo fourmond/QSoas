@@ -276,8 +276,7 @@ MainWin::MainWin()
   if(! splitterState->isEmpty())
     mainSplitter->restoreState(splitterState);
 
-  Terminal::out << "This is Soas version " << SOAS_VERSION
-                << " for Qt\n"
+  Terminal::out << "This is QSoas version " << SOAS_VERSION << "\n"
                 << SOAS_BUILD_INFO 
                 << "Copyright 2011-2012 by Vincent Fourmond\n"
                 << "Based on Christophe Leger's original Soas\n\n"

@@ -101,6 +101,17 @@ class FitParameters {
   /// unpacking back to values. This takes care of the
   void updateParameterValues();
 
+  /// Two temporary storage for the covariance matrix
+  gsl_matrix * rawCVMatrix;
+  gsl_matrix * cookedCVMatrix;
+
+  /// Frees the matrices
+  void freeMatrices();
+
+  /// Allocates and computes the covariance matrices.
+  void computeMatrices();
+  
+
 public:
 
   FitParameters(FitData * data);
@@ -189,7 +200,16 @@ public:
   /// Fill up a QTableWidget with the contents of the covariance
   /// matrix. If not in raw mode, display the correlation coefficients
   /// and the square root of the diagonal parameters.
+  ///
+  /// A side effect of this function (is that a hack ?)
   void setupWithCovarianceMatrix(QTableWidget * widget, bool raw = false);
+
+
+  /// Writes the covariance matrix to a file
+  void writeCovarianceMatrix(QTextStream & out,  bool raw = false);
+
+  /// Writes the covariance matrix in latex-friendly form to a file.
+  void writeCovarianceMatrixLatex(QTextStream & out,  bool raw = false);
 
 
 
@@ -223,6 +243,12 @@ public:
   CovarianceMatrixDisplay(FitParameters * params, QWidget * parent = 0);
 
 public slots:
+
+  /// Export to file
+  void exportToFile();
+
+  /// Export as a LaTeX table ?
+  void exportAsLatex();
 };
 
 #endif

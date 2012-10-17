@@ -23,6 +23,7 @@
 
 #if defined __cplusplus
 #include <QApplication>
+#include <QClipboard>
 #include <QThread>
 #include <QTest>                // For waiting...
 #include <QSettings>

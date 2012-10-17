@@ -28,6 +28,8 @@
 #include <dataset.hh>
 #include <outfile.hh>
 
+#include <utils.hh>
+
 /// A storage class for parameters as read from a file
 ///
 /// @todo Maybe this class could handle the writing of the parameters
@@ -119,7 +121,8 @@ public:
 
 FitParameters::FitParameters(FitData * d) :
   fitData(d), parameters(d->datasets.size() * 
-                         d->parametersPerDataset())
+                         d->parametersPerDataset()),
+  rawCVMatrix(NULL), cookedCVMatrix(NULL)
 {
   datasets = d->datasets.size();
   nbParameters = d->parametersPerDataset();
@@ -149,9 +152,20 @@ FitParameters::FitParameters(FitData * d) :
   }
 }
 
+void FitParameters::freeMatrices()
+{
+  if(rawCVMatrix) {
+    gsl_matrix_free(rawCVMatrix);
+    rawCVMatrix = NULL;
+    gsl_matrix_free(cookedCVMatrix);
+    cookedCVMatrix = NULL;
+  }
+}
+
 FitParameters::~FitParameters()
 {
   delete[] values;
+  freeMatrices();
 }
 
 bool FitParameters::isGlobal(int index) const
@@ -512,23 +526,15 @@ void FitParameters::dump() const
   o << endl;
 }
 
-void FitParameters::setupWithCovarianceMatrix(QTableWidget * widget, 
-                                              bool raw)
+void FitParameters::computeMatrices()
 {
   const gsl_matrix * mat = fitData->covarianceMatrix();
-  
-  widget->setColumnCount(mat->size1);
-  widget->setRowCount(mat->size1);
-
-  QStringList heads;
-  for(int i = 0; i < datasets; i++)
-    for(int j = 0; j < nbParameters; j++)
-      heads << QString("%1[%2]").arg(parameterName(j)).arg(i);
-  widget->setHorizontalHeaderLabels(heads);
-  widget->setVerticalHeaderLabels(heads);
-
+  freeMatrices();
+  rawCVMatrix = gsl_matrix_alloc(mat->size1, mat->size2);
+  gsl_matrix_memcpy(rawCVMatrix, mat);
+  cookedCVMatrix = gsl_matrix_alloc(mat->size1, mat->size2);
   for(int i = 0; i < mat->size1; i++)
-    for(int j = 0; j < mat->size1; j++) {
+    for(int j = 0; j < mat->size2; j++) {
       double rawValue = gsl_matrix_get(mat, i, j);
       double cooked = rawValue;
       if(j == i)
@@ -539,6 +545,29 @@ void FitParameters::setupWithCovarianceMatrix(QTableWidget * widget,
         if(norm > 0)
           cooked /= norm;
       }
+      gsl_matrix_set(cookedCVMatrix, i, j, cooked);
+    }
+}
+
+void FitParameters::setupWithCovarianceMatrix(QTableWidget * widget, 
+                                              bool raw)
+{
+  computeMatrices();
+
+  widget->setColumnCount(rawCVMatrix->size1);
+  widget->setRowCount(rawCVMatrix->size1);
+
+  QStringList heads;
+  for(int i = 0; i < datasets; i++)
+    for(int j = 0; j < nbParameters; j++)
+      heads << QString("%1[%2]").arg(parameterName(j)).arg(i);
+  widget->setHorizontalHeaderLabels(heads);
+  widget->setVerticalHeaderLabels(heads);
+
+  for(int i = 0; i < rawCVMatrix->size1; i++)
+    for(int j = 0; j < rawCVMatrix->size1; j++) {
+      double rawValue = gsl_matrix_get(rawCVMatrix, i, j);
+      double cooked = gsl_matrix_get(cookedCVMatrix, i, j);
       QTableWidgetItem * it = 
         new QTableWidgetItem(QString::number(raw ? rawValue : cooked));
 
@@ -562,6 +591,14 @@ void FitParameters::setupWithCovarianceMatrix(QTableWidget * widget,
     }
 }
 
+void FitParameters::writeCovarianceMatrix(QTextStream & out,  bool raw)
+{
+  computeMatrices();            // Makes double work, but that isn't a
+                                // problem ?
+  const gsl_matrix  * mat = (raw ? rawCVMatrix : cookedCVMatrix);
+  out << Utils::matrixString(mat);
+}
+
 Vector FitParameters::saveParameterValues()
 {
   updateParameterValues();
@@ -578,6 +615,29 @@ void FitParameters::restoreParameterValues(const Vector & vect)
   for(int i = 0; (i < size && i < vect.size()); i++)
     values[i] = vect[i];
   updateParameterValues();
+}
+
+void FitParameters::writeCovarianceMatrixLatex(QTextStream & out,  bool raw)
+{
+  computeMatrices();            // Makes double work, but that isn't a
+                                // problem ?
+  const gsl_matrix  * mat = (raw ? rawCVMatrix : cookedCVMatrix);
+
+  /// @todo Probably the code here should to to Utils later on.
+  QRegExp conv("(.*)e([+-])0*(\\d+)");
+  for(int i = 0; i < mat->size1; i++) {
+    for(int j = 0; j < mat->size2; j++) {
+      if(j)
+        out << " & ";
+      QString number = QString::number(gsl_matrix_get(mat, i, j));
+      if(conv.indexIn(number) == 0) {
+        number = conv.cap(1) + "\times 10^{" + conv.cap(2) + 
+          conv.cap(3) + "}";
+      }
+      out << number;
+    }
+    out << "\\\\\n";
+  }
 }
 
 
@@ -600,9 +660,43 @@ void CovarianceMatrixDisplay::setupFrame()
   QVBoxLayout * layout = new QVBoxLayout(this);
   widget = new QTableWidget();
   layout->addWidget(widget);
-  QPushButton * bt = new QPushButton("Close");
+  QHBoxLayout * horiz = new QHBoxLayout();
+  
+  QPushButton * bt = new QPushButton("Export");
+  connect(bt, SIGNAL(clicked()), SLOT(exportToFile()));
+  horiz->addWidget(bt);
+
+  bt = new QPushButton("LaTeX");
+  connect(bt, SIGNAL(clicked()), SLOT(exportAsLatex()));
+  horiz->addWidget(bt);
+
+  bt = new QPushButton("Close");
   connect(bt, SIGNAL(clicked()), SLOT(accept()));
-  layout->addWidget(bt);
+  horiz->addWidget(bt);
+
+  layout->addLayout(horiz);
   /// @todo Add the possibility to switch to raw display + export the
   /// matrix.
 }
+
+void CovarianceMatrixDisplay::exportToFile()
+{
+  // Exports the current contents to file
+  QString file = QFileDialog::getSaveFileName(this, tr("Save matrix"));
+  if(file.isEmpty())
+    return;
+  QFile f(file);
+  Utils::open(&f, QIODevice::WriteOnly|QIODevice::Text);
+  QTextStream o(&f);
+  parameters->writeCovarianceMatrix(o);
+}
+
+void CovarianceMatrixDisplay::exportAsLatex()
+{
+  QString data;
+  QTextStream o(&data);
+  parameters->writeCovarianceMatrixLatex(o);
+  QClipboard * clipboard = QApplication::clipboard();
+  clipboard->setText(data);
+}
+

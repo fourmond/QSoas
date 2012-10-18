@@ -20,6 +20,8 @@ isEmpty(VERSION) {
   VERSION = 0.0
 }
 
+
+
 DEFINES += SOAS_VERSION=\'\"$$VERSION\"\'
 
 # We use a precompiled header everywhere but on macosX (it fails !)
@@ -88,6 +90,9 @@ RESOURCES += qsoas.qrc
 LIBS += -lgsl -lgslcblas -lm
 
 win32 {
+# Simplify the version scheme for win32, that doesn't like it so much...
+  VERSION=system($$RUBY strip-win-version.rb $$VERSION)
+  message("Mangled version to $$VERSION")
   system($$RUBY prepare-nsis-include.rb)
 }
                  

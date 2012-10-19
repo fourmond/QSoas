@@ -631,7 +631,7 @@ void FitParameters::writeCovarianceMatrixLatex(QTextStream & out,  bool raw)
         out << " & ";
       QString number = QString::number(gsl_matrix_get(mat, i, j));
       if(conv.indexIn(number) == 0) {
-        number = conv.cap(1) + "\times 10^{" + conv.cap(2) + 
+        number = conv.cap(1) + "\\times 10^{" + conv.cap(2) + 
           conv.cap(3) + "}";
       }
       out << number;

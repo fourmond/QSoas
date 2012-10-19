@@ -32,8 +32,8 @@ DEFINES += SOAS_VERSION=\'\"$$VERSION\"\'
 
 
 # Use a build/ directory for building
-MOC_DIR = build
 
+MOC_DIR = build
 OBJECTS_DIR = build
 
 # Really, this should be the default, since it means segfault in the
@@ -91,7 +91,7 @@ LIBS += -lgsl -lgslcblas -lm
 
 win32 {
 # Simplify the version scheme for win32, that doesn't like it so much...
-  VERSION=system($$RUBY strip-win-version.rb $$VERSION)
+  VERSION=$$system($$RUBY strip-win-version.rb $$VERSION)
   message("Mangled version to $$VERSION")
   system($$RUBY prepare-nsis-include.rb)
 }

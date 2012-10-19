@@ -410,13 +410,17 @@ public:
 EECRFit fit_eecr;
 
 
-/// Fits to the ECECR model of electrochemical waves
+/// Fits to the EECR + relay model of electrochemical waves
 class EECRRelayFit : public PerDatasetFit {
 
 protected:
 
+  bool newParams;
+
   virtual void processOptions(const CommandOptions & opts)
   {
+    newParams = false;
+    updateFromOptions(opts, "new-params", newParams);
   }
 
   
@@ -449,9 +453,9 @@ public:
     const double k_2     = 1;
     const double k_m2    = params[3];
     const double k_1     = params[4];
-    const double k_m1    = params[5];
+    const double k_m1    = (newParams ? params[4]/params[5] : params[5]);
     const double kp_1    = params[6];
-    const double kp_m1   = params[7];
+    const double kp_m1   = (newParams ? params[6]/params[7] : params[7]);
     const double ilim    = params[8];
     const double beta_d0 = params[9];
     const double k_0m    = k_0M * exp(-beta_d0);
@@ -557,9 +561,9 @@ public:
          << ParameterDefinition("k0r/k2")
          << ParameterDefinition("km2/k2") // params[3]
          << ParameterDefinition("k1/k2") 
-         << ParameterDefinition("km1/k2") 
+         << ParameterDefinition(newParams ? "k1/km1" : "km1/k2") 
          << ParameterDefinition("kp1/k2") // params[6]
-         << ParameterDefinition("kpm1/k2") 
+         << ParameterDefinition(newParams ? "kp1/kpm1" :"kpm1/k2") 
          << ParameterDefinition("ilim")
          << ParameterDefinition("betad0");
     return defs;
@@ -573,6 +577,10 @@ public:
   { 
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
+                   << new 
+                   BoolArgument("new-params", 
+                                "New params",
+                                "...")
                    );
     makeCommands(NULL, NULL, NULL, opts);
   }

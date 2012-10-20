@@ -6,7 +6,6 @@
 
 version = ARGV[0]
 version = version.gsub(/\+(\d+)\.(\d+)\.(\d+)/, '.\1\2\3.')
-puts version
 vc = version.split(/[.]/)
 vc = vc[0..3]
 for v in vc

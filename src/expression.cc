@@ -180,12 +180,14 @@ int Expression::evaluateIntoArray(const double * values,
 
 
 
+/// @questions Shall we replace simply everything that cannot be part
+/// of an identifier ? This would allow basically everything !
 QString Expression::rubyIzeName(const QString & name)
 {
   QString ret = name;
   // For now, conversions are simple
   ret[0] = ret[0].toLower();  // avoid using constants !
-  ret.replace(QRegExp("[#-]"), "_");
+  ret.replace(QRegExp("[#/-]"), "_"); 
   return ret;
 }
 

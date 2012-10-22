@@ -118,6 +118,46 @@ expint_E2("expint_e2", "Exponential integral $$E_2(x) = "
 
 //////////////////////////////////////////////////////////////////////
 
+// Now, the implementation of the various special functions we need
+// internally
+//
+// atan:
+//
+//             3        5        7        9      10
+//    x - 1/3 x  + 1/5 x  - 1/7 x  + 1/9 x  + O(x  )
+
+double qsoas_atanc(double x)
+{
+  if(x < 0.01 && x > -0.01)
+    return 1 - x*x/3 + gsl_pow_4(x)/5 - gsl_pow_6(x)/7 + gsl_pow_8(x)/9;
+  else
+    return atan(x)/x;
+}
+
+static GSLSimpleFunction<qsoas_atanc> 
+atanc("atanc", "\\tan^{-1} x / x");
+
+
+//
+// atanh:    
+//             3        5        7        9      10
+//    x + 1/3 x  + 1/5 x  + 1/7 x  + 1/9 x  + O(x  )
+
+double qsoas_atanhc(double x)
+{
+  if(x < 0.01 && x > -0.01)
+    return 1 + x*x/3 + gsl_pow_4(x)/5 + gsl_pow_6(x)/7 + gsl_pow_8(x)/9;
+  else
+    return atanh(x)/x;
+}
+
+static GSLSimpleFunction<qsoas_atanhc> 
+atanhc("atanhc", "\\tanh^{-1} x / x");
+
+
+
+//////////////////////////////////////////////////////////////////////
+
 template < double (*func)(int, double) > class GSLIndexedFunction : 
   public GSLFunction {
 

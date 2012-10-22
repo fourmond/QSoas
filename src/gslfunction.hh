@@ -1,6 +1,6 @@
 /**
    \file gslfunction.hh
-   Access from Ruby to GSL special mathematical functions
+   Access from Ruby to GSL special mathematical functions (and others)
    Copyright 2012 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
@@ -90,5 +90,19 @@ public:
 
   
 };
+
+/// @name Specially-defined functions
+///
+/// @{
+
+/// Returns atan(x)/x, with a formula that is accurate even for small
+/// x.
+double qsoas_atanc(double value);
+
+/// Returns atanh(x)/x, with a formula that is accurate even for small
+/// x.
+double qsoas_atanhc(double value);
+
+/// @} 
 
 #endif

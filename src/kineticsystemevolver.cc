@@ -302,6 +302,10 @@ public:
         double t0   = parameters[baseIndex + (independentBits ? i*3+1 : 2*i+2)];
         double conc = parameters[baseIndex + (independentBits ? i*3   : 2*i+1)];
         double tau  = parameters[baseIndex + (independentBits ? i*3+2 : 0)];
+        if(tau < 0)             // Well, the check happens a lot, but
+                                // is less expensive than an
+                                // exponential anyway
+          throw RangeError("Negative tau value");
         if(t >= t0)
           value += conc * exp(-(t - t0)/tau);
       }

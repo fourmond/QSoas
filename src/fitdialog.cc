@@ -351,12 +351,12 @@ void FitDialog::compute()
 }
 
 
-void FitDialog::updateEditors()
+void FitDialog::updateEditors(bool updateErrors)
 {
   settingEditors = true;
   int sz = editors.size();
   for(int i = 0; i < sz; i++)
-    editors[i]->updateFromParameters();
+    editors[i]->updateFromParameters(updateErrors);
 
   if(bufferWeightEditor)
     bufferWeightEditor->
@@ -437,8 +437,10 @@ void FitDialog::startFit()
         mention = QString(" <font color=#d00>(%1)</font>").
           arg(gsl_strerror(status));
       }
-      else
+      else {
         mention = " <font color=#080>(done)</font>";
+        updateEditors(true);
+      }
     }
     progressReport->setText(progressReport->text() + mention);
       

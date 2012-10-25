@@ -146,7 +146,7 @@ protected slots:
   void compute();
 
   /// Update all the editors
-  void updateEditors();
+  void updateEditors(bool updateErrors = false);
 
   /// Starts the fit !
   void startFit();

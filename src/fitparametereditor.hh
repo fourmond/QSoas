@@ -1,7 +1,7 @@
 /**
    \file fitparametereditor.hh
    Editor for a single fit parameter (one per dataset ?)
-   Copyright 2011 by Vincent Fourmond
+   Copyright 2011,2012 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -102,6 +102,11 @@ class FitParameterEditor : public QWidget {
   /// All the widgets that must be turned off 
   QList<QWidget*> bijectionWidgets;
 
+  /// The relative error of the parameter. It is used for two things:
+  /// @li first, set the background color for the line editor
+  /// @li second, as a mouseover popup ?
+  double relativeError;
+
 public:
   /// Creates a widget to edit the given definition
   FitParameterEditor(const ParameterDefinition * d, int idx,
@@ -110,10 +115,14 @@ public:
                      int ds = 0);
 
 public slots:
-  void updateFromParameters();
+  /// If set error is false, all the errors are reset.
+  void updateFromParameters(bool setErrors = false);
 
   /// Changes the current dataset.
   void selectDataSet(int dsIndex);
+
+  /// Sets the relative error. A negative value cancels display
+  void setRelativeError(double error);
 
 protected slots:
   void onFixedClicked();

@@ -650,6 +650,23 @@ void FitParameters::writeCovarianceMatrixLatex(QTextStream & out,  bool raw)
   }
 }
 
+double FitParameters::getParameterError(int i, int ds) const
+{
+  const gsl_matrix * mat = fitData->covarianceMatrix();
+  double conf = fitData->confidenceLimitFactor(0.975);
+  double value;
+  double error;
+  if(isGlobal(i)) {
+    value = getValue(i, 0);
+    error = sqrt(gsl_matrix_get(mat, i, i));
+  }
+  else {
+    value = getValue(i, ds);
+    error = sqrt(gsl_matrix_get(mat, ds*nbParameters + i, 
+                                ds*nbParameters + i));
+  }
+  return conf*fabs(error/value);
+}
 
 //////////////////////////////////////////////////////////////////////
 

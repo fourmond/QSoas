@@ -1,6 +1,6 @@
 /*
   fitparametereditor.cc: implementation of the FitParameter editors
-  Copyright 2011 by Vincent Fourmond
+  Copyright 2011,2012 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -266,6 +266,8 @@ void FitParameterEditor::onValueChanged(const QString & str)
   if(updatingEditor)
     return;
 
+  setRelativeError(-1);         // Errors are meaningless if we edit !
+
   if(isFixed() && str.size() > 0) {
     // We need to detect if we are changing the category (ie normal
     // fixed vs other) of the parameter.
@@ -306,7 +308,7 @@ void FitParameterEditor::selectDataSet(int dsIndex)
   updateFromParameters();
 }
 
-void FitParameterEditor::updateFromParameters()
+void FitParameterEditor::updateFromParameters(bool setErrors)
 {
   updatingEditor = true;
   int dsIdx = dataset;
@@ -322,4 +324,37 @@ void FitParameterEditor::updateFromParameters()
 
   updateBijectionEditors();
   updatingEditor = false;
+  if(setErrors)
+    setRelativeError(parameters->getParameterError(index, dsIdx));
+  else
+    setRelativeError(-1);
+}
+
+void FitParameterEditor::setRelativeError(double value)
+{
+  relativeError = value;        // Doesn't seem to be necessary !
+  QColor background;
+  if(relativeError <= 0) {
+    background = QColor(255,255,255); // White !
+    editor->setToolTip("");           // Clear tool tip
+  }
+  else {
+    double ra = log10(relativeError) + 0.5;
+    if(ra < -2.5)
+      ra = -2.5;
+    if(ra > 2.5)
+      ra = 2.5;
+    ra /= -2.5;                    // Between -1 and 1
+     
+    QTextStream o(stdout);
+    o << "Setting palette for error: " << value << ", ra = " << ra << endl;
+    background = QColor::fromHsvF((ra + 1)/6, 0.2, 1);
+
+    editor->setToolTip(QString("Error: %1 %").arg(100 * value));
+  }
+  
+  QPalette p;
+  p.setColor(QPalette::Base, background);
+  editor->setPalette(p);
+
 }

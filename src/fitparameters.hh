@@ -148,6 +148,9 @@ public:
       return values[dataset * nbParameters + (index % nbParameters)];
   };
 
+  /// Returns the value of the relative error for the given parameter:
+  double getParameterError(int index, int dataset) const;
+
   /// Returns the underlying data
   const FitData * data() const {
     return fitData;

@@ -304,7 +304,9 @@ void FitParameters::exportParameters(QIODevice * stream,
   out << lines << flush;
 }
 
-void FitParameters::writeToTerminal(bool /*writeMatrix*/)
+template <typename T> void FitParameters::writeText(T & target, 
+                                                    bool /*writeMatrix*/,
+                                                    const QString & prefix) const
 {
   const gsl_matrix * mat = fitData->covarianceMatrix();
   double conf = fitData->confidenceLimitFactor(0.975);
@@ -314,44 +316,49 @@ void FitParameters::writeToTerminal(bool /*writeMatrix*/)
     if(isGlobal(i)) {
       if(! hasGlobal) {
         hasGlobal = true;
-        Terminal::out << "Global parameters: \n" << endl;
+        target << prefix << "Global parameters: \n" << endl;
       }
       double value = getValue(i, 0);
       double error = sqrt(gsl_matrix_get(mat, i, i)); // correct ?
-      Terminal::out << parameterName(i) << "\t=\t" 
-                    << QString::number(value) << "\t"
-                    << (isFixed(i, 0) ? "(fixed)" :
-                        QString("+- %1\t+-%2%").
-                        arg(conf*error, 0, 'g', 2).
-                        arg(conf*fabs(error/value)*100, 0, 'g', 2))
-                    << endl;
+      target << prefix << parameterName(i) << "\t=\t" 
+             << QString::number(value) << "\t"
+             << (isFixed(i, 0) ? "(fixed)" :
+                 QString("+- %1\t+-%2%").
+                 arg(conf*error, 0, 'g', 2).
+                 arg(conf*fabs(error/value)*100, 0, 'g', 2))
+             << endl;
     }
   }
 
   if(hasGlobal)
-    Terminal::out << "\n\n";
-  Terminal::out << "Buffer-local parameters: \n" << endl;
-
+    target << prefix << "\n" << prefix << "\n";
+  target << prefix << "Buffer-local parameters: \n" << prefix << endl;
+  
 
   for(int j = 0; j < datasets; j++) {
-    Terminal::out << "Buffer: " << fitData->datasets[j]->name 
-                  << " (weight: " << fitData->weightsPerBuffer[j] 
-                  << ")" << endl;
+    target << prefix << "Buffer: " << fitData->datasets[j]->name 
+           << " (weight: " << fitData->weightsPerBuffer[j] 
+           << ")" << endl;
     for(int i = 0; i < nbParameters; i++) {
       if(isGlobal(i))
         continue;
       double value = getValue(i, j);
       double error = sqrt(gsl_matrix_get(mat, i + j*nbParameters, 
                                          i + j*nbParameters)); // correct ?
-      Terminal::out << parameterName(i) << "\t=\t" 
-                    << QString::number(value) << "\t"
-                    << (isFixed(i, j) ? "(fixed)" :
-                        QString("+- %1\t+- %2%").
-                        arg(conf*error, 0, 'g', 2).
-                        arg(conf*fabs(error/value)*100, 0, 'g', 2))
-                    << endl;
+      target << prefix << parameterName(i) << "\t=\t" 
+             << QString::number(value) << "\t"
+             << (isFixed(i, j) ? "(fixed)" :
+                 QString("+- %1\t+- %2%").
+                 arg(conf*error, 0, 'g', 2).
+                 arg(conf*fabs(error/value)*100, 0, 'g', 2))
+             << endl;
     }
   }
+}
+
+void FitParameters::writeToTerminal(bool writeMatrix)
+{
+  writeText(Terminal::out, writeMatrix);
 }
 
 void FitParameters::saveParameters(QIODevice * stream) const
@@ -390,6 +397,9 @@ void FitParameters::saveParameters(QIODevice * stream) const
       }
     }
   }
+  out << "# The following contains a more human-readable listing of the "
+    "parameters that is NEVER READ by QSoas" << endl;
+  writeText(out, false, "# ");
 }
 
 void FitParameters::clear()

@@ -110,7 +110,11 @@ class FitParameters {
 
   /// Allocates and computes the covariance matrices.
   void computeMatrices();
-  
+
+  /// Writes the text to the stream-like target (
+  template <typename T>  void writeText(T & target, 
+                                        bool writeMatrix = false,
+                                        const QString & prefix = "") const;
 
 public:
 

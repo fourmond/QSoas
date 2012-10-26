@@ -1,5 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
   <file>ruby/qsoas-base.rb</file>
+  <file>doc/qsoas.kd</file>
 </qresource>
 </RCC>

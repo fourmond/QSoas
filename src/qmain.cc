@@ -30,6 +30,10 @@
 #include <settings.hh>
 #include <exceptions.hh>
 
+extern void loadDocumentationFile(const QString &, QString file, 
+                                  const CommandOptions & opts = CommandOptions());
+
+
 int main(int argc, char ** argv)
 {
   DataBackend::registerBackendCommands();
@@ -67,6 +71,8 @@ int main(int argc, char ** argv)
   }
 
   int retval;
+
+  loadDocumentationFile("load-documentation", ":/doc/qsoas.kd");
 
   Settings::loadSettings("bip.cnrs-mrs.fr", "Soas");
   

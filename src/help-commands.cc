@@ -231,9 +231,10 @@ udCmd("update-documentation", // command name
 
 
 
-static void loadDocumentationFile(const QString &, 
-                                  QString file, 
-                                  const CommandOptions & opts)
+/// This functions loads a documentation file
+void loadDocumentationFile(const QString &, 
+                           QString file, 
+                           const CommandOptions & opts)
 {
   bool silent = true;
   updateFromOptions(opts, "silent", silent);

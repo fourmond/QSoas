@@ -283,7 +283,9 @@ public:
   QString & updateDocumentation(QString & str, int headings = 3) const;
 
   /// Loads the long description from the documentation string
-  void loadDocumentation(const QString & str);
+  ///
+  /// Returns true if documentation was effectively loaded.
+  bool loadDocumentation(const QString & str);
 
 
   /// Returns a simple string describing the command, all its

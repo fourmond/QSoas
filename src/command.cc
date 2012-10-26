@@ -450,15 +450,18 @@ QString & Command::updateDocumentation(QString & str, int level) const
   return str;
 }
 
-void Command::loadDocumentation(const QString & str)
+bool Command::loadDocumentation(const QString & str)
 {
   QString ret = "\\{::comment\\} description-start: " + cmdName + 
     " \\{:/\\}\\s*(.*)" + 
     "\\{::comment\\} description-end: " + cmdName + " \\{:/\\}\\s*";
 
   QRegExp re(ret);
-  if(re.indexIn(str, 0) >= 0)
+  if(re.indexIn(str, 0) >= 0) {
     longDesc = re.cap(1);
+    return true;
+  }
+  return false;
 }
 
 bool Command::isInteractive() const

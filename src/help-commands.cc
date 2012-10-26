@@ -231,8 +231,12 @@ udCmd("update-documentation", // command name
 
 
 
-static void loadDocumentationFile(const QString &, QString file)
+static void loadDocumentationFile(const QString &, 
+                                  QString file, 
+                                  const CommandOptions & opts)
 {
+  bool silent = true;
+  updateFromOptions(opts, "silent", silent);
   QString str;
   QFile f(file);
   Utils::open(&f, QIODevice::ReadOnly|QIODevice::Text);
@@ -249,23 +253,34 @@ static void loadDocumentationFile(const QString &, QString file)
 
   for(int i = 0; i < cmds.size(); i++) {
     Command * cmd = Command::namedCommand(cmds[i]);
-    cmd->loadDocumentation(str);
+    bool load = cmd->loadDocumentation(str);
+    if(!silent && !load)
+      Terminal::out << "Documentation missing for " << cmds[i] << endl;
   }
 }
 
 static ArgumentList 
 ldfA(QList<Argument *>() 
      << new FileArgument("file", "File",
-                         "The document file to load"));
+                         "The document file to load")
+     );
+
+static ArgumentList 
+ldfO(QList<Argument *>() 
+     << new BoolArgument("silent", "Silent",
+                         "Whether to say something when "
+                         "documentation is missing",
+                         true)
+     );
 
 static Command 
-ldCmd("load-documentation", // command name
-     optionLessEffector(loadDocumentationFile), // action
-     "help",  // group name
-     &ldfA, // arguments
-     NULL, // options
-     "Load documentation",
-     "Load documentation file",
-     "...");
+ldCmd("load-documentation",            // command name
+      effector(loadDocumentationFile), // action
+      "help",                          // group name
+      &ldfA,                           // arguments
+      &ldfO,                           // options
+      "Load documentation",
+      "Load documentation file",
+      "...");
 
 //////////////////////////////////////////////////////////////////////

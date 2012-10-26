@@ -779,6 +779,40 @@ find-steps /average= /threshold= /set-segments=
 ...
 {::comment} description-end: find-steps {:/}
 
+# Fits 
+
+## Exponential fits
+
+{::comment} synopsis-start: fit-exponential-decay {:/}
+
+### fit-exponential-decay - Fit: Multi-exponential fits {#cmd-fit-exponential-decay}
+
+fit-exponential-decay /exponentials= /absolute= /loss= /slow= /parameters= /debug= /extra-parameters= **(interactive)**
+
+  * /exponentials: Number of exponentials
+  * /absolute: Amplitude is absolute or relative to the asymptote ?
+  * /loss: Is there an overall fully exponential loss ?
+  * /slow: Is there a very slow phase ?
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+
+{::comment} synopsis-end: fit-exponential-decay {:/}
+{::comment} description-start: fit-exponential-decay {:/}
+Fits to the formula:
+
+$$ \left(A_\infty + \sum_{i=1}^n A_i \exp(-(x - x_0)/\tau_i) + b\,
+x\right) \exp (- k_{loss}(x - x_0))$$
+
+$$b\,x$$ is only present if the `/slow` option is on, and $$k_{loss}$$
+is not 0 only if `/loss` is on. If `/relative` is on, $$A_i$$ is not
+a parameter of the fit, but $$\alpha_i$$ defined by 
+$$A_i = \alpha_i A_\infty$$.  
+This should not be used to fit data that tend to 0.
+
+{::comment} description-end: fit-exponential-decay {:/}
+
+
 {::comment} synopsis-start: fit-arb {:/}
 
 ### fit-arb - Fit: Arbitrary fit {#cmd-fit-arb}
@@ -853,34 +887,14 @@ Single buffer fit:
 ...
 {::comment} description-end: fit-eecr-wave {:/}
 
-{::comment} synopsis-start: fit-exponential-decay {:/}
-
-### fit-exponential-decay - Fit: Multi-exponential fits {#cmd-fit-exponential-decay}
-
-fit-exponential-decay /exponentials= /absolute= /loss= /slow= /parameters= /debug= /extra-parameters= **(interactive)**
-
-  * /exponentials: Number of exponentials
-  * /absolute: Amplitude is absolute or relative to the asymptote ?
-  * /loss: Is there an overall fully exponential loss ?
-  * /slow: Is there a very slow phase ?
-  * /parameters: Pre-loads parameters
-  * /debug: Turn on debugging (for QSoas developers only)
-  * /extra-parameters: Define supplementary parameters
-
-{::comment} synopsis-end: fit-exponential-decay {:/}
-{::comment} description-start: fit-exponential-decay {:/}
-Single buffer fit:
-...
-{::comment} description-end: fit-exponential-decay {:/}
-
 {::comment} synopsis-start: fit-kinetic-system {:/}
 
-### fit-kinetic-system - Fit: Several steps with a kinetic evolution {#cmd-fit-kinetic-system}
+### fit-kinetic-system - Fit: Full kinetic system {#cmd-fit-kinetic-system}
 
-fit-kinetic-system /species= /steps= /parameters= /debug= /extra-parameters= **(interactive)**
+fit-kinetic-system system /with= /parameters= /debug= /extra-parameters= **(interactive)**
 
-  * /species: Number of species
-  * /steps: Step list with numbered conditions
+  * system: Path to the file describing the system
+  * /with: Dependency upon time of various parameters
   * /parameters: Pre-loads parameters
   * /debug: Turn on debugging (for QSoas developers only)
   * /extra-parameters: Define supplementary parameters
@@ -996,15 +1010,16 @@ generate-buffer start end /samples=
 
 {::comment} synopsis-start: kinetic-system {:/}
 
-### kinetic-system - Linear kinetic system {#cmd-kinetic-system}
+### kinetic-system - Kinetic system evolver {#cmd-kinetic-system}
 
-kinetic-system species constants... /samples= /base-name= /duration=
+kinetic-system reaction-file parameters... /start= /end= /number= /dump=
 
-  * species: 
-  * constants: 
-  * /samples: 
-  * /base-name: 
-  * /duration: 
+  * reaction-file: 
+  * parameters: 
+  * /start: 
+  * /end: 
+  * /number: 
+  * /dump: 
 
 {::comment} synopsis-end: kinetic-system {:/}
 {::comment} description-start: kinetic-system {:/}
@@ -1016,9 +1031,10 @@ kinetic-system species constants... /samples= /base-name= /duration=
 
 ### load-documentation - Load documentation {#cmd-load-documentation}
 
-load-documentation file
+load-documentation file /silent=
 
   * file: The document file to load
+  * /silent (default): Whether to say something when documentation is missing
 
 {::comment} synopsis-end: load-documentation {:/}
 {::comment} description-start: load-documentation {:/}
@@ -1179,13 +1195,13 @@ multi buffer fit:
 
 {::comment} synopsis-start: mfit-kinetic-system {:/}
 
-### mfit-kinetic-system - Multi fit: Several steps with a kinetic evolution {#cmd-mfit-kinetic-system}
+### mfit-kinetic-system - Multi fit: Full kinetic system {#cmd-mfit-kinetic-system}
 
-mfit-kinetic-system datasets... /species= /steps= /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
+mfit-kinetic-system system datasets... /with= /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
 
+  * system: Path to the file describing the system
   * datasets: Datasets to fit
-  * /species: Number of species
-  * /steps: Step list with numbered conditions
+  * /with: Dependency upon time of various parameters
   * /parameters: Pre-loads parameters
   * /debug: Turn on debugging (for QSoas developers only)
   * /extra-parameters: Define supplementary parameters
@@ -1388,9 +1404,11 @@ reglin **(interactive)**
 
 ### save - Save {#cmd-save}
 
-save file
+save file /overwrite= /mkpath=
 
   * file: File name for saving
+  * /overwrite: If true, overwrite without prompting
+  * /mkpath: If true, creates all necessary directories
 
 {::comment} synopsis-end: save {:/}
 {::comment} description-start: save {:/}
@@ -1878,6 +1896,7 @@ listed here:
  * [`generate-buffer`](#cmd-generate-buffer)
  * [`help`](#cmd-help)
  * [`kinetic-system`](#cmd-kinetic-system)
+ * [`linear-kinetic-system`](#cmd-linear-kinetic-system)
  * [`load`](#cmd-load)
  * [`load-as-csv`](#cmd-load-as-csv)
  * [`load-as-text`](#cmd-load-as-text)
@@ -1911,7 +1930,7 @@ listed here:
  * [`sim-eecr-wave`](#cmd-sim-eecr-wave)
  * [`sim-exponential-decay`](#cmd-sim-exponential-decay)
  * [`sim-inact-react-amplitude-2phases`](#cmd-sim-inact-react-amplitude-2phases)
- * [`sim-kinetic-system`](#cmd-sim-kinetic-system)
+ * [`sim-linear-kinetic-system`](#cmd-sim-linear-kinetic-system)
  * [`sim-lw`](#cmd-sim-lw)
  * [`sim-multiexp-multistep`](#cmd-sim-multiexp-multistep)
  * [`sim-nernst`](#cmd-sim-nernst)
@@ -1955,6 +1974,8 @@ following special functions are available:
 
 {::comment} special-functions-start {:/}
 
+ * `atanc`: \tan^{-1} x / x
+ * `atanhc`: \tanh^{-1} x / x
  * `bessel_j0`: Regular cylindrical Bessel function of 0th order, $$J_0(x)$$
  * `bessel_j1`: Regular cylindrical Bessel function of first order, $$J_1(x)$$
  * `bessel_jn`: Regular cylindrical Bessel function of n-th order, $$J_n(x)$$
@@ -2043,3 +2064,58 @@ sim-eecr-relay-wave parameters datasets... /override= /extra-parameters=
   * /extra-parameters: Define supplementary parameters
 
 {::comment} synopsis-end: sim-eecr-relay-wave {:/}
+{::comment} synopsis-start: fit-linear-kinetic-system {:/}
+
+### fit-linear-kinetic-system - Fit: Several steps with a kinetic evolution {#cmd-fit-linear-kinetic-system}
+
+fit-linear-kinetic-system /species= /steps= /parameters= /debug= /extra-parameters= **(interactive)**
+
+  * /species: Number of species
+  * /steps: Step list with numbered conditions
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+
+{::comment} synopsis-end: fit-linear-kinetic-system {:/}
+{::comment} synopsis-start: linear-kinetic-system {:/}
+
+### linear-kinetic-system - Linear kinetic system {#cmd-linear-kinetic-system}
+
+linear-kinetic-system species constants... /samples= /base-name= /duration=
+
+  * species: 
+  * constants: 
+  * /samples: 
+  * /base-name: 
+  * /duration: 
+
+{::comment} synopsis-end: linear-kinetic-system {:/}
+{::comment} synopsis-start: mfit-linear-kinetic-system {:/}
+
+### mfit-linear-kinetic-system - Multi fit: Several steps with a kinetic evolution {#cmd-mfit-linear-kinetic-system}
+
+mfit-linear-kinetic-system datasets... /species= /steps= /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
+
+  * datasets: Datasets to fit
+  * /species: Number of species
+  * /steps: Step list with numbered conditions
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+  * /weight-buffers: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-linear-kinetic-system {:/}
+{::comment} synopsis-start: sim-linear-kinetic-system {:/}
+
+### sim-linear-kinetic-system - Fit: Several steps with a kinetic evolution {#cmd-sim-linear-kinetic-system}
+
+sim-linear-kinetic-system parameters datasets... /species= /steps= /override= /extra-parameters=
+
+  * parameters: File to load parameters from
+  * datasets: Datasets to fit
+  * /species: Number of species
+  * /steps: Step list with numbered conditions
+  * /override: A comma-separated list of parameters to override
+  * /extra-parameters: Define supplementary parameters
+
+{::comment} synopsis-end: sim-linear-kinetic-system {:/}

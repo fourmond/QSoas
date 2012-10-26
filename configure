@@ -4,7 +4,12 @@ v=""
 if [ "$1" ]; then
     v="VERSION=$1"
 fi
-/opt/local/bin/qmake $v
+# How I hate all these slight differences that make things difficult
+QMAKE=/opt/local/bin/qmake
+if [ -r /usr/bin/qmake ]; then
+    QMAKE=/usr/bin/qmake
+fi
+$QMAKE $v
 
 # For some reason, mac's Qt writes a wrong library name for linking
 # when producing a debug stuff:

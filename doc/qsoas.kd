@@ -88,6 +88,21 @@ X, Y1, Y2, Y3 buffer will be turned into a X, Y1, a X, Y2 and a X, Y3
 buffers.
 {::comment} description-end: expand {:/}
 
+{::comment} synopsis-start: save {:/}
+
+### save - Save {#cmd-save}
+
+save file /overwrite= /mkpath=
+
+  * file: File name for saving
+  * /overwrite: If true, overwrite without prompting
+  * /mkpath: If true, creates all necessary directories
+
+{::comment} synopsis-end: save {:/}
+{::comment} description-start: save {:/}
+Saves the current buffer to the named file.
+{::comment} description-end: save {:/}
+
 
 
 # Data stack manipulation
@@ -298,6 +313,21 @@ shiftx
 Shift X values so that the first point has a X value of 0.
 {::comment} description-end: shiftx {:/}
 
+{::comment} synopsis-start: norm {:/}
+
+### norm - Normalize {#cmd-norm}
+
+norm /positive=
+
+  * /positive: Whether we normalize on positive or negative values
+
+{::comment} synopsis-end: norm {:/}
+{::comment} description-start: norm {:/}
+Normalize the current buffer by its maximum value (or by the absolute
+value of its most negative value if `/positive` is `false`).
+{::comment} description-end: norm {:/}
+
+
 {::comment} synopsis-start: deldp {:/}
 
 ### deldp - Deldp {#cmd-deldp}
@@ -311,6 +341,109 @@ With this command, you can click on given data points to remove
 them. Useful to remove a few spikes from the data. Middle click or `q`
 to accept the modifications, hit escape to cancel them.
 {::comment} description-end: deldp {:/}
+
+{::comment} synopsis-start: cut {:/}
+
+### cut - Cut {#cmd-cut}
+
+cut **(interactive)**
+
+
+{::comment} synopsis-end: cut {:/}
+{::comment} description-start: cut {:/}
+Interactively cuts bits out of the buffer. Left and right mouse clicks
+set the left and right limit. Middle click or q quits leaving only the
+part that is within the region, while u leaves only the outer
+part. Hit escape to cancel.
+{::comment} description-end: cut {:/}
+
+{::comment} synopsis-start: chop {:/}
+
+### chop - Chop Buffer {#cmd-chop}
+
+chop lengths... /mode= /set-segments=
+
+  * lengths: Lengths of the subsets
+  * /mode: Whether to cut on index or x values (default)
+  * /set-segments: Whether to actually cut the dataset, or just to set segments where the cuts would have been
+
+{::comment} synopsis-end: chop {:/}
+{::comment} description-start: chop {:/}
+Cuts the buffer into several parts based on the numbers given as
+arguments, and save them as separate
+buffers. The intepretation of the numbers depends on the value of the
+`/mode` option:
+
+  * `deltax` (default): the numbers are the length (in terms of X) of
+    the sub-buffers
+  * `xvalues`: the numbers are the X values at which to split
+  * `index` (or `indices`): the numbers are the indices of the points
+    at which to split
+
+If `/set-segments` is on, rather than cutting the buffer into several
+parts, the [segments](#segments) are set to where the buffer would
+have been cut.
+
+{::comment} description-end: chop {:/}
+
+{::comment} synopsis-start: sort {:/}
+
+### sort - Sort {#cmd-sort}
+
+sort 
+
+
+{::comment} synopsis-end: sort {:/}
+{::comment} description-start: sort {:/}
+Sorts the buffer in ascending X values.
+{::comment} description-end: sort {:/}
+
+## Splitting the dataset in bits
+
+{::comment} synopsis-start: splita {:/}
+
+### splita - Split first {#cmd-splita}
+
+splita 
+
+
+{::comment} synopsis-end: splita {:/}
+{::comment} description-start: splita {:/}
+Returns the first part of the buffer, until the first change of sign
+of $$\Delta x$$. 
+
+Useful to get the forward scan of a cyclic voltammogram.
+{::comment} description-end: splita {:/}
+
+{::comment} synopsis-start: splitb {:/}
+
+### splitb - Split second {#cmd-splitb}
+
+splitb 
+
+
+{::comment} synopsis-end: splitb {:/}
+{::comment} description-start: splitb {:/}
+Returns the part of the buffer after the first change of sign
+of $$\Delta x$$. 
+
+Useful to get the backward scan of a cyclic voltammogram.
+{::comment} description-end: splitb {:/}
+
+
+{::comment} synopsis-start: split-monotonic {:/}
+
+### split-monotonic - Split into monotonic parts {#cmd-split-monotonic}
+
+split-monotonic 
+
+
+{::comment} synopsis-end: split-monotonic {:/}
+{::comment} description-start: split-monotonic {:/}
+Splits the buffer into buffers where all parts have X values that
+increase or decrease monotonically.
+{::comment} description-end: split-monotonic {:/}
+
 
 
 # Data filtering
@@ -395,15 +528,18 @@ remove-spikes /number= /factor= /force-new=
 Remove spikes using a simple heuristics
 {::comment} description-end: remove-spikes {:/}
 
-# Segments
+# Segments {#segments}
 
 It if possible to split a buffer into logical segments. This does not
 change the contents of the buffer, but the position of the segment
 boundaries are marked by a vertical line. They can be used for
 different purposes: for 
-[segment-by-segment operations](#buffer-operations) 
-or step-by-step film loss correction
-(using [`film-loss`](#cmd-film-loss)). Segments can be detected using
+[segment-by-segment operations](#buffer-operations), 
+step-by-step film loss correction
+(using [`film-loss`](#cmd-film-loss)) or buffer splitting 
+(using [`segments-chop`](#cmd-segments-chop)).
+
+Segments can be detected using
 [`find-steps`](#cmd-find-steps), set manually using
 [`set-segments`](#cmd-set-segments) or [`chop`](#cmd-chop).
 
@@ -442,6 +578,23 @@ Interactively prompts for the addition/removal of segments. A left
 click adds a segment where the mouse is, while a right click removes
 the closest segment.
 {::comment} description-end: set-segments {:/}
+
+{::comment} synopsis-start: segments-chop {:/}
+
+### segments-chop - Chop into segments {#cmd-segments-chop}
+
+segments-chop 
+
+
+{::comment} synopsis-end: segments-chop {:/}
+{::comment} description-start: segments-chop {:/}
+
+Cuts the buffer into several ones based on the segments defined in the
+current buffer. (ie the effect of a [`chop`](#cmd-chop)
+`/set-segment=true` followed by `segments-chop` is the same as the
+`chop` without `/set-segment=true`.
+
+{::comment} description-end: segments-chop {:/}
 
 
 
@@ -487,8 +640,8 @@ div first... second /mode= /use-segments=
 {::comment} description-start: div {:/}
 Divides all buffers by the last one. This is useful to get rid of film
 loss when one have an independent measure of film loss, see
-`doi:`[`10.1021/ac8025702`](http://dx.doi.org/10.1021/ac8025702) for
-more information on that way to use divisions.
+[Fourmond _et al_,Anal. Chem. 2009](http://dx.doi.org/10.1021/ac8025702)
+for more information on that way to use divisions.
 {::comment} description-end: div {:/}
 
 {::comment} synopsis-start: subtract {:/}
@@ -531,6 +684,28 @@ is on). That is even the default in the case when only one buffer is
 provided. This proves useful for averaging the forward and return scan
 in a cyclic voltammogram.
 {::comment} description-end: average {:/}
+
+{::comment} synopsis-start: merge {:/}
+
+### merge - Merge buffers on X values {#cmd-merge}
+
+merge first... second /mode= /use-segments=
+
+  * first: First buffer(s)
+  * second: Second buffer
+  * /mode: Whether operations try to match x values or indices
+  * /use-segments: If on, operations are performed segment-by-segment
+
+{::comment} synopsis-end: merge {:/}
+{::comment} description-start: merge {:/}
+Merge the second buffer with the first one, and keep Y of the second
+as a function of Y of the first. The algorithm for finding which point
+in the second corresponds to a given one in the first is the same as
+that of the other buffers. 
+
+If more than two buffers are specified, the last one gets merged to
+all the ones before.
+{::comment} description-end: merge {:/}
 
 # Data inspection facilities
 
@@ -715,18 +890,6 @@ break
 Interrupts the run of the current script
 {::comment} description-end: break {:/}
 
-{::comment} synopsis-start: cut {:/}
-
-### cut - Cut {#cmd-cut}
-
-cut **(interactive)**
-
-
-{::comment} synopsis-end: cut {:/}
-{::comment} description-start: cut {:/}
-Cuts bits from the current curve
-{::comment} description-end: cut {:/}
-
 {::comment} synopsis-start: cat {:/}
 
 ### cat - Concatenate {#cmd-cat}
@@ -740,21 +903,6 @@ cat first second...
 {::comment} description-start: cat {:/}
 Conc
 {::comment} description-end: cat {:/}
-
-{::comment} synopsis-start: chop {:/}
-
-### chop - Chop Buffer {#cmd-chop}
-
-chop lengths... /mode= /set-segments=
-
-  * lengths: Lengths of the subsets
-  * /mode: Whether to cut on index or x values (default)
-  * /set-segments: Whether to actually cut the dataset, or just to set segments where the cuts would have been
-
-{::comment} synopsis-end: chop {:/}
-{::comment} description-start: chop {:/}
-Cuts the buffer into several subsets of the lengths given as arguments
-{::comment} description-end: chop {:/}
 
 {::comment} synopsis-start: clear {:/}
 
@@ -1358,22 +1506,6 @@ load-documentation file /silent=
 {::comment} description-end: load-documentation {:/}
 
 
-{::comment} synopsis-start: merge {:/}
-
-### merge - Merge buffers on X values {#cmd-merge}
-
-merge first... second /mode= /use-segments=
-
-  * first: First buffer(s)
-  * second: Second buffer
-  * /mode: Whether operations try to match x values or indices
-  * /use-segments: If on, operations are performed segment-by-segment
-
-{::comment} synopsis-end: merge {:/}
-{::comment} description-start: merge {:/}
-Merge the second buffer with the first one, and keep Y of the second as a function of Y of the first
-{::comment} description-end: merge {:/}
-
 {::comment} synopsis-start: mfit-duck-sim {:/}
 
 ### mfit-duck-sim - Multi fit: Diffusive electrochemical  {#cmd-mfit-duck-sim}
@@ -1512,19 +1644,6 @@ multi buffer fit:
 Reactivation
 {::comment} description-end: mfit-react-exp {:/}
 
-{::comment} synopsis-start: norm {:/}
-
-### norm - Normalize {#cmd-norm}
-
-norm /positive=
-
-  * /positive: ...
-
-{::comment} synopsis-end: norm {:/}
-{::comment} description-start: norm {:/}
-Normalize the current buffer by its maximum value
-{::comment} description-end: norm {:/}
-
 {::comment} synopsis-start: opengl {:/}
 
 ### opengl - OpenGL {#cmd-opengl}
@@ -1601,21 +1720,6 @@ reglin **(interactive)**
 ...
 {::comment} description-end: reglin {:/}
 
-{::comment} synopsis-start: save {:/}
-
-### save - Save {#cmd-save}
-
-save file /overwrite= /mkpath=
-
-  * file: File name for saving
-  * /overwrite: If true, overwrite without prompting
-  * /mkpath: If true, creates all necessary directories
-
-{::comment} synopsis-end: save {:/}
-{::comment} description-start: save {:/}
-Saves the current buffer to a file
-{::comment} description-end: save {:/}
-
 {::comment} synopsis-start: save-buffers {:/}
 
 ### save-buffers - Save {#cmd-save-buffers}
@@ -1654,18 +1758,6 @@ save-output file
 {::comment} description-start: save-output {:/}
 Save all output from the terminal
 {::comment} description-end: save-output {:/}
-
-{::comment} synopsis-start: segments-chop {:/}
-
-### segments-chop - Chop into segments {#cmd-segments-chop}
-
-segments-chop 
-
-
-{::comment} synopsis-end: segments-chop {:/}
-{::comment} description-start: segments-chop {:/}
-Cuts the buffer into several ones based on the segments defined using set-segments or find-step /set-segments
-{::comment} description-end: segments-chop {:/}
 
 
 {::comment} synopsis-start: sim-duck-sim {:/}
@@ -1869,53 +1961,6 @@ fit simulation:
 Slow scan
 {::comment} description-end: sim-slow-scan-lp {:/}
 
-{::comment} synopsis-start: sort {:/}
-
-### sort - Sort {#cmd-sort}
-
-sort 
-
-
-{::comment} synopsis-end: sort {:/}
-{::comment} description-start: sort {:/}
-
-{::comment} description-end: sort {:/}
-
-{::comment} synopsis-start: split-monotonic {:/}
-
-### split-monotonic - Split into monotonic parts {#cmd-split-monotonic}
-
-split-monotonic 
-
-
-{::comment} synopsis-end: split-monotonic {:/}
-{::comment} description-start: split-monotonic {:/}
-
-{::comment} description-end: split-monotonic {:/}
-
-{::comment} synopsis-start: splita {:/}
-
-### splita - Split first {#cmd-splita}
-
-splita 
-
-
-{::comment} synopsis-end: splita {:/}
-{::comment} description-start: splita {:/}
-Returns the first part of the buffer, until the first change of sign of dx
-{::comment} description-end: splita {:/}
-
-{::comment} synopsis-start: splitb {:/}
-
-### splitb - Split second {#cmd-splitb}
-
-splitb 
-
-
-{::comment} synopsis-end: splitb {:/}
-{::comment} description-start: splitb {:/}
-Returns the part of the buffer after the first change of sign of dx
-{::comment} description-end: splitb {:/}
 
 {::comment} synopsis-start: test-event-loop {:/}
 

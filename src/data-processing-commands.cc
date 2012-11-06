@@ -1598,10 +1598,9 @@ static void normCommand(const QString &, const CommandOptions & opts)
 
 static ArgumentList 
 normOps(QList<Argument *>() 
-        << new BoolArgument("positive", 
+        << new BoolArgument("positive", "Positive",
                             "Whether we normalize on positive "
-                            "or negative values",
-                            "...")
+                            "or negative values")
         );
 
 static Command 

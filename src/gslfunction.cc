@@ -135,7 +135,7 @@ double qsoas_atanc(double x)
 }
 
 static GSLSimpleFunction<qsoas_atanc> 
-atanc("atanc", "\\tan^{-1} x / x");
+atanc("atanc", "$$\\frac{\\tan^{-1} x}{x}$$");
 
 
 //
@@ -152,7 +152,7 @@ double qsoas_atanhc(double x)
 }
 
 static GSLSimpleFunction<qsoas_atanhc> 
-atanhc("atanhc", "\\tanh^{-1} x / x");
+atanhc("atanhc", "$$\\frac{\\tanh^{-1} x}{x}$$");
 
 
 

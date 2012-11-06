@@ -1644,15 +1644,15 @@ static void zeroCommand(const QString &, double val,
 static ArgumentList 
 zeroArgs(QList<Argument *>() 
          << new NumberArgument("value", 
-                               "Value at which the other axis should be 0", 
-                               "...")
+                               "Value"
+                               "Value at which the other axis should be 0")
          );
 
 static ArgumentList 
 zeroOps(QList<Argument *>() 
         << new ChoiceArgument(QStringList() << "x" << "y",
-                              "axis", 
-                              "Which axis is 0ed", "...")
+                              "axis", "Axis", 
+                              "Which axis is zero-ed")
         );
 
 static Command 

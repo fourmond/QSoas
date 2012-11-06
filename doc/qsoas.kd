@@ -72,6 +72,23 @@ Same as for [`load-as-text`](#cmd-load-as-text)
 {::comment} description-end: load-as-csv {:/}
 
 
+{::comment} synopsis-start: expand {:/}
+
+### expand - Expand {#cmd-expand}
+
+expand 
+
+
+{::comment} synopsis-end: expand {:/}
+{::comment} description-start: expand {:/}
+Even if a buffer contains several columns, QSoas only displays the
+second as a function of the first. With expand, you can split the
+current buffer into as many buffers as there are Y columns, ie a
+X, Y1, Y2, Y3 buffer will be turned into a X, Y1, a X, Y2 and a X, Y3
+buffers.
+{::comment} description-end: expand {:/}
+
+
 
 # Data stack manipulation
 
@@ -94,18 +111,20 @@ be manipulated in different ways:
  * contents of the stack can be displayed in the terminal using
    [`show-stack`](#cmd-show-stack) or in a dialog bog with 
    [`browse-stack`](#cmd-browse-stack).
+ * an old buffer can be put back on the top of the stack with
+   [`fetch`](#cmd-fetch).
 
 
 {::comment} synopsis-start: browse-stack {:/}
 
 ### browse-stack - Browse stack {#cmd-browse-stack}
 
-browse-stack 
+browse-stack **(interactive)**
 
 
 {::comment} synopsis-end: browse-stack {:/}
 {::comment} description-start: browse-stack {:/}
-Browse stack
+Displays a dialog box to show the current contents of the stack.
 {::comment} description-end: browse-stack {:/}
 
 {::comment} synopsis-start: show-stack {:/}
@@ -114,7 +133,7 @@ Browse stack
 
 show-stack /number=
 
-  * /number: Limit the display to a given number
+  * /number (default): Limit the display to a given number
 
 {::comment} synopsis-end: show-stack {:/}
 {::comment} description-start: show-stack {:/}
@@ -187,70 +206,112 @@ clear-stack
 Removes all the buffers from both normal and redo stack
 {::comment} description-end: clear-stack {:/}
 
+{::comment} synopsis-start: fetch {:/}
+
+### fetch - Fetch an old buffer {#cmd-fetch}
+
+fetch buffers...
+
+  * buffers: Buffers to fetch
+
+{::comment} synopsis-end: fetch {:/}
+{::comment} description-start: fetch {:/}
+Put back a copy of the given buffer on the top of the stack. Useful
+when you want to work again on a old buffer buried in the stack.
+{::comment} description-end: fetch {:/}
+
+{::comment} synopsis-start: drop {:/}
+
+### drop - Drop dataset {#cmd-drop}
+
+drop /buffers=
+
+  * /buffers (default): Buffers to drop
+
+{::comment} synopsis-end: drop {:/}
+{::comment} description-start: drop {:/}
+Permanently deletes the current dataset (or the ones specified in the
+`/buffers` options) from the stack.
+
+~~~~
+QSoas> drop 3..16
+~~~~ 
+
+drops all the buffers from 3 to 16 included. 
+
+Use it when you don't find the buffers you're interested in anymore !
+{::comment} description-end: drop {:/}
 
 
-# Operations involving several buffers
+# Basic data manipulation at the buffer level
 
-It is possible to combine several buffers into one by applying
-mathematical operations (subtraction, division and the like). Each of
-these processes involve matching a point in a given buffer to a point
-in another buffer. There are two ways to do that, chosen by the
-`/mode` option:
+{::comment} synopsis-start: apply-formula {:/}
+
+### apply-formula - Apply formula {#cmd-apply-formula}
+
+apply-formula formula
+
+  * formula: Formula (valid Ruby code)
+
+{::comment} synopsis-end: apply-formula {:/}
+{::comment} description-start: apply-formula {:/}
+Applies a formula to the current dataset. It should specify how the
+`x` and/or `y` values of the dataset are modified:
+
+~~~~
+QSoas> apply-formula 'x = x**2'
+QSoas> apply-formula 'y = sin(x**2)'
+QSoas> apply-formula 'x,y = y,x'
+~~~~
+
+The last bit swaps the X and Y values of the buffer. The formula must
+be valid [ruby](#ruby) code.
+
+{::comment} description-end: apply-formula {:/}
+
+{::comment} synopsis-start: zero {:/}
+
+### zero - Makes 0 {#cmd-zero}
+
+zero value /axis=
+
+  * value: 
+  * /axis: Which axis is zero-ed
+
+{::comment} synopsis-end: zero {:/}
+{::comment} description-start: zero {:/}
+Given an X value, shifts the Y values so that the point the closest to
+the given X value has 0 as Y value.
+
+If `/axis` is `x`, swap X and Y in the above description.
+{::comment} description-end: zero {:/}
+
+{::comment} synopsis-start: shiftx {:/}
+
+### shiftx - Shift X values {#cmd-shiftx}
+
+shiftx 
 
 
- * with `/mode=xvalues`, the default, uses the values of X (ie the
-   closest X value is picked). **Warning** this doesn't give the
-   expected result for buffers with several times the same X values,
-   such as full cyclic voltammograms.
+{::comment} synopsis-end: shiftx {:/}
+{::comment} description-start: shiftx {:/}
+Shift X values so that the first point has a X value of 0.
+{::comment} description-end: shiftx {:/}
 
- * with `/mode=indices`, points are matched on a one-to-one basis, ie
-   point 1 of dataset 1 to point 2 of dataset 2, irrespective of the X
-   values.
+{::comment} synopsis-start: deldp {:/}
 
-In addition to that, the operations can make use of the segments
-defined on each buffer (see [`find-steps`](#cmd-find-steps) and
-[`set-segments`](#cmd-set-segments)). If segments are defined and
-`/use-segments=true`, then the operations are applied
-segment-by-segment, with the first point of each segment matching the
-corresponding point in the other buffer. This mode is particularly
-useful to manipulate series of potential steps when some series are
-using shorter times than others.
+### deldp - Deldp {#cmd-deldp}
 
-{::comment} synopsis-start: div {:/}
+deldp **(interactive)**
 
-### div - Divide {#cmd-div}
 
-div first... second /mode= /use-segments=
+{::comment} synopsis-end: deldp {:/}
+{::comment} description-start: deldp {:/}
+With this command, you can click on given data points to remove
+them. Useful to remove a few spikes from the data. Middle click or `q`
+to accept the modifications, hit escape to cancel them.
+{::comment} description-end: deldp {:/}
 
-  * first: First buffer(s)
-  * second: Second buffer
-  * /mode: Whether operations try to match x values or indices
-  * /use-segments: If on, operations are performed segment-by-segment
-
-{::comment} synopsis-end: div {:/}
-{::comment} description-start: div {:/}
-Divides all buffers by the last one. This is useful to get rid of film
-loss when one have an independent measure of film loss, see
-`doi:`[`10.1021/ac8025702`](http://dx.doi.org/10.1021/ac8025702) for
-more information on that way to use divisions.
-{::comment} description-end: div {:/}
-
-{::comment} synopsis-start: subtract {:/}
-
-### subtract - Subtract {#cmd-subtract}
-
-subtract first... second /mode= /use-segments=
-
-  * first: First buffer(s)
-  * second: Second buffer
-  * /mode: Whether operations try to match x values or indices
-  * /use-segments: If on, operations are performed segment-by-segment
-
-{::comment} synopsis-end: subtract {:/}
-{::comment} description-start: subtract {:/}
-Subtracts the last buffer from all the other ones. Useful for standard
-baseline removal.
-{::comment} description-end: subtract {:/}
 
 # Data filtering
 
@@ -263,6 +324,8 @@ noise:
    [`filter-bsplines`](#cmd-filter-bsplines) or 
    [`auto-filter-bs`](#cmd-auto-filter-bs).
  * Splike removals using [`remove-spikes`](#cmd-remove-spikes).
+ * You even may considerd that manual point removal is filtering, in
+   which case the [`deldp`](#cmd-deldp) command qualifies too. 
 
 
 {::comment} synopsis-start: filter-bsplines {:/}
@@ -332,6 +395,142 @@ remove-spikes /number= /factor= /force-new=
 Remove spikes using a simple heuristics
 {::comment} description-end: remove-spikes {:/}
 
+# Segments
+
+It if possible to split a buffer into logical segments. This does not
+change the contents of the buffer, but the position of the segment
+boundaries are marked by a vertical line. They can be used for
+different purposes: for 
+[segment-by-segment operations](#buffer-operations) 
+or step-by-step film loss correction
+(using [`film-loss`](#cmd-film-loss)). Segments can be detected using
+[`find-steps`](#cmd-find-steps), set manually using
+[`set-segments`](#cmd-set-segments) or [`chop`](#cmd-chop).
+
+{::comment} synopsis-start: find-steps {:/}
+
+### find-steps - Find steps {#cmd-find-steps}
+
+find-steps /average= /threshold= /set-segments=
+
+  * /average: Average over that many points
+  * /threshold: Detection threshold
+  * /set-segments: Whether or not to set the dataset segments
+
+{::comment} synopsis-end: find-steps {:/}
+{::comment} description-start: find-steps {:/}
+This function detects ``jumps'' in the data (such as potential changes
+in a chronoamperometry experiment, for instance), and display them
+both to the terminal output and on the data display. 
+
+If the option `/set-segments` is on, the segments of the dataset are
+set to that found by `find-steps` (removing the ones previously
+there).
+
+{::comment} description-end: find-steps {:/}
+
+{::comment} synopsis-start: set-segments {:/}
+
+### set-segments - Set segments {#cmd-set-segments}
+
+set-segments **(interactive)**
+
+
+{::comment} synopsis-end: set-segments {:/}
+{::comment} description-start: set-segments {:/}
+Interactively prompts for the addition/removal of segments. A left
+click adds a segment where the mouse is, while a right click removes
+the closest segment.
+{::comment} description-end: set-segments {:/}
+
+
+
+# Operations involving several buffers {#buffer-operations}
+
+It is possible to combine several buffers into one by applying
+mathematical operations (subtraction, division and the like). Each of
+these processes involve matching a point in a given buffer to a point
+in another buffer. There are two ways to do that, chosen by the
+`/mode` option:
+
+
+ * with `/mode=xvalues`, the default, uses the values of X (ie the
+   closest X value is picked). **Warning** this doesn't give the
+   expected result for buffers with several times the same X values,
+   such as full cyclic voltammograms.
+
+ * with `/mode=indices`, points are matched on a one-to-one basis, ie
+   point 1 of dataset 1 to point 2 of dataset 2, irrespective of the X
+   values.
+
+In addition to that, the operations can make use of the segments
+defined on each buffer (see [`find-steps`](#cmd-find-steps) and
+[`set-segments`](#cmd-set-segments)). If segments are defined and
+`/use-segments=true`, then the operations are applied
+segment-by-segment, with the first point of each segment matching the
+corresponding point in the other buffer. This mode is particularly
+useful to manipulate series of potential steps when some series are
+using shorter times than others.
+
+{::comment} synopsis-start: div {:/}
+
+### div - Divide {#cmd-div}
+
+div first... second /mode= /use-segments=
+
+  * first: First buffer(s)
+  * second: Second buffer
+  * /mode: Whether operations try to match x values or indices
+  * /use-segments: If on, operations are performed segment-by-segment
+
+{::comment} synopsis-end: div {:/}
+{::comment} description-start: div {:/}
+Divides all buffers by the last one. This is useful to get rid of film
+loss when one have an independent measure of film loss, see
+`doi:`[`10.1021/ac8025702`](http://dx.doi.org/10.1021/ac8025702) for
+more information on that way to use divisions.
+{::comment} description-end: div {:/}
+
+{::comment} synopsis-start: subtract {:/}
+
+### subtract - Subtract {#cmd-subtract}
+
+subtract first... second /mode= /use-segments=
+
+  * first: First buffer(s)
+  * second: Second buffer
+  * /mode: Whether operations try to match x values or indices
+  * /use-segments: If on, operations are performed segment-by-segment
+
+{::comment} synopsis-end: subtract {:/}
+{::comment} description-start: subtract {:/}
+Subtracts the last buffer from all the other ones. Useful for standard
+baseline removal.
+{::comment} description-end: subtract {:/}
+
+{::comment} synopsis-start: average {:/}
+
+### average - Average {#cmd-average}
+
+average buffers... /mode= /use-segments= /split=
+
+  * buffers: Buffers
+  * /mode: Whether operations try to match x values or indices
+  * /use-segments: If on, operations are performed segment-by-segment
+  * /split: If on, buffers are automatically split into monotonic parts before averaging.
+
+{::comment} synopsis-end: average {:/}
+{::comment} description-start: average {:/}
+In a manner similar to [`subtract`](#cmd-subtract) and
+[`divide`](#cmd-divide), the `average` command averages all the
+buffers given into one, with the same segment-by-segment capacities.
+
+An additional feature of `average`, though is its ability to first
+split the buffers into monotonic parts before averaging (when `/split`
+is on). That is even the default in the case when only one buffer is
+provided. This proves useful for averaging the forward and return scan
+in a cyclic voltammogram.
+{::comment} description-end: average {:/}
 
 # Data inspection facilities
 
@@ -372,11 +571,19 @@ Remove spikes using a simple heuristics
 
 stats /buffer=
 
-  * /buffer: An alternative buffer to get information on
+  * /buffer (default): An alternative buffer to get information on
 
 {::comment} synopsis-end: stats {:/}
 {::comment} description-start: stats {:/}
-...
+Stats display various statistics about the current buffer (or the one
+specified as the `/buffer` option). The exact list of statistics
+displayed grows slowly with time and needs. It is currently, for each
+column:
+
+ * the first and last values (displayed with the index)
+ * the `_min` and `_max` values
+ * the average
+ * the `_norm`, ie the square root of the sum of the squares
 {::comment} description-end: stats {:/}
 
 
@@ -417,19 +624,6 @@ antialias
 {::comment} description-start: antialias {:/}
 Toggles anti-aliasing for graphics rendering.
 {::comment} description-end: antialias {:/}
-
-{::comment} synopsis-start: apply-formula {:/}
-
-### apply-formula - Apply formula {#cmd-apply-formula}
-
-apply-formula formula
-
-  * formula: Formula (valid Ruby code)
-
-{::comment} synopsis-end: apply-formula {:/}
-{::comment} description-start: apply-formula {:/}
-Applies a formula to the current dataset. The formula must be valid Ruby code.
-{::comment} description-end: apply-formula {:/}
 
 {::comment} synopsis-start: cd {:/}
 
@@ -496,22 +690,6 @@ rename new-name
 ??
 {::comment} description-end: rename {:/}
 
-
-{::comment} synopsis-start: average {:/}
-
-### average - Average {#cmd-average}
-
-average buffers... /mode= /use-segments= /split=
-
-  * buffers: Buffers
-  * /mode: Whether operations try to match x values or indices
-  * /use-segments: If on, operations are performed segment-by-segment
-  * /split: If on, buffers are automatically split into monotonic parts before averaging.
-
-{::comment} synopsis-end: average {:/}
-{::comment} description-start: average {:/}
-Average all buffers, possibly splitting them into monotonic parts if applicable
-{::comment} description-end: average {:/}
 
 {::comment} synopsis-start: baseline {:/}
 
@@ -657,18 +835,6 @@ define-lw-fit file name
 ...
 {::comment} description-end: define-lw-fit {:/}
 
-{::comment} synopsis-start: deldp {:/}
-
-### deldp - Deldp {#cmd-deldp}
-
-deldp **(interactive)**
-
-
-{::comment} synopsis-end: deldp {:/}
-{::comment} description-start: deldp {:/}
-...
-{::comment} description-end: deldp {:/}
-
 {::comment} synopsis-start: diff {:/}
 
 ### diff - Derive {#cmd-diff}
@@ -695,18 +861,6 @@ Computes the 4th order accurate second derivative of the buffer
 Do not use this on noisy data !
 {::comment} description-end: diff2 {:/}
 
-{::comment} synopsis-start: drop {:/}
-
-### drop - Drop dataset {#cmd-drop}
-
-drop /buffers=
-
-  * /buffers (default): Buffers to drop
-
-{::comment} synopsis-end: drop {:/}
-{::comment} description-start: drop {:/}
-Drops the current dataset (or the ones specified in the buffers options) and frees the associated memory
-{::comment} description-end: drop {:/}
 
 {::comment} synopsis-start: dummy {:/}
 
@@ -736,18 +890,6 @@ echem-peaks
 ...
 {::comment} description-end: echem-peaks {:/}
 
-{::comment} synopsis-start: expand {:/}
-
-### expand - Expand {#cmd-expand}
-
-expand 
-
-
-{::comment} synopsis-end: expand {:/}
-{::comment} description-start: expand {:/}
-??
-{::comment} description-end: expand {:/}
-
 {::comment} synopsis-start: find-peaks {:/}
 
 ### find-peaks - Find peaks {#cmd-find-peaks}
@@ -764,24 +906,37 @@ find-peaks /window= /include-borders= /output= /peaks=
 ...
 {::comment} description-end: find-peaks {:/}
 
-{::comment} synopsis-start: find-steps {:/}
-
-### find-steps - Find steps {#cmd-find-steps}
-
-find-steps /average= /threshold= /set-segments=
-
-  * /average: Average over that many points
-  * /threshold: Detection threshold
-  * /set-segments: Whether or not to set the dataset segments
-
-{::comment} synopsis-end: find-steps {:/}
-{::comment} description-start: find-steps {:/}
-...
-{::comment} description-end: find-steps {:/}
-
 # Fits 
 
+QSoas is particularly good when it comes to fitting data, and allows
+for complex fits, and in particular multi-buffer fits, when functions
+with shared parameters are fit to different buffers. Fits fall into
+two different categories:
+
+ * mono-buffer fits, ie fits that apply to one buffer, but that can be
+   applied to several buffers at the same time with shared parameters
+ * multi-buffer fits, ie fits that need at least two buffers to work
+
+Fits provide several commands: all provide a `mfit-`_fit_ and a
+`sim-`_fit_ command, and mono-buffer fits provide a `fit-`_fit_ in
+addition.
+
+ * The `fit` command fits a single buffer, when the fits allows
+   that. It takes no argument
+ * The `mfit` command fits several buffers at the same time. It takes
+   the numbers of the buffers it will work on.
+ * The `sim` command takes a saved parameters file and a series of
+   buffers, and pushes the data computed from the parameters on the
+   stack.
+
+In addition to these commands, QSoas provides commands to combine fits
+together and to create fit to fit derivatives of the signals.
+
 ## Exponential fits
+
+There are several ways to fit exponentials to data. The simplest is by
+far the [`fit-exponential-decay`](#cmd-fit-exponential-decay) that
+fits a decay with an arbitrary number of exponentials to the data.
 
 {::comment} synopsis-start: fit-exponential-decay {:/}
 
@@ -812,6 +967,81 @@ This should not be used to fit data that tend to 0.
 
 {::comment} description-end: fit-exponential-decay {:/}
 
+{::comment} synopsis-start: mfit-exponential-decay {:/}
+
+### mfit-exponential-decay - Multi fit: Multi-exponential fits {#cmd-mfit-exponential-decay}
+
+mfit-exponential-decay datasets... /exponentials= /absolute= /loss= /slow= /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
+
+  * datasets: Datasets to fit
+  * /exponentials: Number of exponentials
+  * /absolute: Amplitude is absolute or relative to the asymptote ?
+  * /loss: Is there an overall fully exponential loss ?
+  * /slow: Is there a very slow phase ?
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+  * /weight-buffers: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-exponential-decay {:/}
+{::comment} description-start: mfit-exponential-decay {:/}
+Multi-buffer version of the
+[`fit-exponential-decay`](#cmd-fit-exponential-decay) fit.
+{::comment} description-end: mfit-exponential-decay {:/}
+
+
+{::comment} synopsis-start: sim-exponential-decay {:/}
+
+### sim-exponential-decay - Fit: Multi-exponential fits {#cmd-sim-exponential-decay}
+
+sim-exponential-decay parameters datasets... /exponentials= /absolute= /loss= /slow= /override= /extra-parameters=
+
+  * parameters: File to load parameters from
+  * datasets: Datasets to fit
+  * /exponentials: Number of exponentials
+  * /absolute: Amplitude is absolute or relative to the asymptote ?
+  * /loss: Is there an overall fully exponential loss ?
+  * /slow: Is there a very slow phase ?
+  * /override: A comma-separated list of parameters to override
+  * /extra-parameters: Define supplementary parameters
+
+{::comment} synopsis-end: sim-exponential-decay {:/}
+{::comment} description-start: sim-exponential-decay {:/}
+Simulation command for the
+[`fit-exponential-decay`](#cmd-fit-exponential-decay) fit.
+{::comment} description-end: sim-exponential-decay {:/}
+
+
+{::comment} synopsis-start: fit-multiexp-multistep {:/}
+
+### fit-multiexp-multistep - Fit: Multi-step and multi-exponential {#cmd-fit-multiexp-multistep}
+
+fit-multiexp-multistep /exponentials= /steps= /independent= /parameters= /debug= /extra-parameters= **(interactive)**
+
+  * /exponentials: Number of exponentials
+  * /steps: Step list with numbered conditions
+  * /independent: Whether irreversible loss is independent on each step
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+
+{::comment} synopsis-end: fit-multiexp-multistep {:/}
+{::comment} description-start: fit-multiexp-multistep {:/}
+Single buffer fit:
+Fits of exponentials on several steps with film loss bookkeeping
+{::comment} description-end: fit-multiexp-multistep {:/}
+
+## Arbitrary fits
+
+QSoas provides ways to fit arbitrary formulas (written in
+[Ruby](#ruby)) to data. While it is possible to do that on a
+case-by-case basis using [`fit-arb`](#cmd-fit-arb), it is also
+possible to store formulas in a plain text file and load them using 
+[`load-fits`](#cmd-load-fits). 
+
+For the time being, arbitrary fits don't have a `sim-` command (but to
+get roughly the same effect, you can use
+[`apply-formyla`](#cmd-apply-formula).
 
 {::comment} synopsis-start: fit-arb {:/}
 
@@ -826,11 +1056,85 @@ fit-arb formulas /parameters= /debug= /extra-parameters= **(interactive)**
 
 {::comment} synopsis-end: fit-arb {:/}
 {::comment} description-start: fit-arb {:/}
-Single buffer fit:
-Arbitrary fit with user-supplied formula (possibly spanning multiple buffers)
-Special parameters: x_0, y_0, temperature, fara.
-Already defined constants: f, pi
+Fits _formula_ to the current buffer. _formula_ is a \|-separated list
+of [Ruby](#ruby) formulas that apply to different buffers (of course,
+if you specify more than one formula that way, you must use the
+[`mfit-arb`](#cmd-mfit-arb) command, see its documentation for more
+information). 
+
+Parameters are auto-detected. Some parameters are treated
+specifically:
+ * `x_0` and `y_0` are fixed by default and initialized to the first
+   X or Y value of the buffer the fit applies to;
+ * `temperature` is also fixed and set to the current
+   [temperature](#cmd-temperature)
+ * Using `fara` counts as using `temperature` excepted that its value is
+   $$f = F/RT$$. You never get `fara` as a fit parameter.
 {::comment} description-end: fit-arb {:/}
+
+{::comment} synopsis-start: mfit-arb {:/}
+
+### mfit-arb - Multi fit: Arbitrary fit {#cmd-mfit-arb}
+
+mfit-arb formulas datasets... /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
+
+  * formulas: \|-separated formulas for the fit
+  * datasets: Datasets to fit
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+  * /weight-buffers: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-arb {:/}
+{::comment} description-start: mfit-arb {:/}
+Same as [`fit-arb`](#cmd-fit-arb), but for multiple buffers.
+
+If only one formula is specified, the same formula is applied to all
+buffers (with, as usual, the possibility to select which parameters
+are global or buffer-local).
+
+If more than one formula is specified, the exact same number of
+buffers should be supplied; the first formula applies to the first
+buffer, the second formula to the second buffer, and so on... For
+instance, if you run:
+
+~~~~
+QSoas> mfit-arb a*x+b|a*x+c|a*x+d 0 1 2
+~~~~
+
+Buffer 0 get fits with `a*x+b`, 1 with `a*x+c` and 2 with `a*x+d`.
+
+{::comment} description-end: mfit-arb {:/}
+
+{::comment} synopsis-start: load-fits {:/}
+
+### load-fits - Load fits {#cmd-load-fits}
+
+load-fits file
+
+  * file: File containing the fits to load
+
+{::comment} synopsis-end: load-fits {:/}
+{::comment} description-start: load-fits {:/}
+Load arbitrary fits from a plain text file. The fits are turned into
+normal QSoas fits (which means they can be used with
+[`define-derived-fit`](#cmd-define-derived-fit) or
+[`combine-fits`](#cmd-combine-fits) for instance). Files should look
+like this:
+
+~~~~
+# Comments are allowed
+michaelis: vmax/(1 + km/x)
+sigm-log: log((exp(a_red*log(10.0)) +exp(a_ox*log(10.0)) * \
+          exp(-fara*(x-e0)))/ \
+          (1 + exp(-fara*(x-e0))))
+~~~~
+
+Comments are allowed, as are line continuations with `\`.
+
+
+{::comment} description-end: load-fits {:/}
+
 
 {::comment} synopsis-start: fit-duck-sim {:/}
 
@@ -849,24 +1153,6 @@ fit-duck-sim /system= /base-parameters= /parameters= /debug= /extra-parameters= 
 Single buffer fit:
 ...
 {::comment} description-end: fit-duck-sim {:/}
-
-{::comment} synopsis-start: fit-ececr-wave {:/}
-
-### fit-ececr-wave - Fit: Fit of an ECECR catalytic wave {#cmd-fit-ececr-wave}
-
-fit-ececr-wave /plateau= /use-eoc= /parameters= /debug= /extra-parameters= **(interactive)**
-
-  * /plateau: Whether to use the general expression or only that valid when plateaus are not reached
-  * /use-eoc: Whether to use explicitly the bias or compute it using the open circuit potential
-  * /parameters: Pre-loads parameters
-  * /debug: Turn on debugging (for QSoas developers only)
-  * /extra-parameters: Define supplementary parameters
-
-{::comment} synopsis-end: fit-ececr-wave {:/}
-{::comment} description-start: fit-ececr-wave {:/}
-Single buffer fit:
-...
-{::comment} description-end: fit-ececr-wave {:/}
 
 {::comment} synopsis-start: fit-eecr-wave {:/}
 
@@ -905,24 +1191,6 @@ Single buffer fit:
 Fits of exponentials on several steps with film loss bookkeeping
 {::comment} description-end: fit-kinetic-system {:/}
 
-{::comment} synopsis-start: fit-multiexp-multistep {:/}
-
-### fit-multiexp-multistep - Fit: Multi-step and multi-exponential {#cmd-fit-multiexp-multistep}
-
-fit-multiexp-multistep /exponentials= /steps= /independent= /parameters= /debug= /extra-parameters= **(interactive)**
-
-  * /exponentials: Number of exponentials
-  * /steps: Step list with numbered conditions
-  * /independent: Whether irreversible loss is independent on each step
-  * /parameters: Pre-loads parameters
-  * /debug: Turn on debugging (for QSoas developers only)
-  * /extra-parameters: Define supplementary parameters
-
-{::comment} synopsis-end: fit-multiexp-multistep {:/}
-{::comment} description-start: fit-multiexp-multistep {:/}
-Single buffer fit:
-Fits of exponentials on several steps with film loss bookkeeping
-{::comment} description-end: fit-multiexp-multistep {:/}
 
 {::comment} synopsis-start: fit-nernst {:/}
 
@@ -958,6 +1226,14 @@ Single buffer fit:
 Reactivation
 {::comment} description-end: fit-react-exp {:/}
 
+## Slow scans fits
+
+These specific fits were used in the context of the interpretation of
+cyclic voltammograms of adorbed nickel-iron hydrogenase that undergo
+inactivations under oxidizing conditions. For more information, refer
+to [Abou-Hamdam _et al_, __PNAS__ 2012](http://dx.doi.org/lskdjf)
+(which you probably should cite anyway if you use them).
+
 {::comment} synopsis-start: fit-slow-scan-hp {:/}
 
 ### fit-slow-scan-hp - Fit: Slow scan test {#cmd-fit-slow-scan-hp}
@@ -992,6 +1268,46 @@ fit-slow-scan-lp /explicit-rate= /parameters= /debug= /extra-parameters= **(inte
 Single buffer fit:
 Slow scan
 {::comment} description-end: fit-slow-scan-lp {:/}
+
+{::comment} synopsis-start: mfit-slow-scan-hp {:/}
+
+### mfit-slow-scan-hp - Multi fit: Slow scan test {#cmd-mfit-slow-scan-hp}
+
+mfit-slow-scan-hp datasets... /bi-exp= /scaling= /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
+
+  * datasets: Datasets to fit
+  * /bi-exp: Whether we have a bi-exponential or a mono-exponential
+  * /scaling: Use an additional scaling factor
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+  * /weight-buffers: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-slow-scan-hp {:/}
+{::comment} description-start: mfit-slow-scan-hp {:/}
+multi buffer fit:
+Slow scan
+{::comment} description-end: mfit-slow-scan-hp {:/}
+
+{::comment} synopsis-start: mfit-slow-scan-lp {:/}
+
+### mfit-slow-scan-lp - Multi fit: Slow scan test {#cmd-mfit-slow-scan-lp}
+
+mfit-slow-scan-lp datasets... /explicit-rate= /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
+
+  * datasets: Datasets to fit
+  * /explicit-rate: Whether the scan rate is an explicit parameter of the fit
+  * /parameters: Pre-loads parameters
+  * /debug: Turn on debugging (for QSoas developers only)
+  * /extra-parameters: Define supplementary parameters
+  * /weight-buffers: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-slow-scan-lp {:/}
+{::comment} description-start: mfit-slow-scan-lp {:/}
+multi buffer fit:
+Slow scan
+{::comment} description-end: mfit-slow-scan-lp {:/}
+
 
 {::comment} synopsis-start: generate-buffer {:/}
 
@@ -1041,19 +1357,6 @@ load-documentation file /silent=
 ...
 {::comment} description-end: load-documentation {:/}
 
-{::comment} synopsis-start: load-fits {:/}
-
-### load-fits - Load fits {#cmd-load-fits}
-
-load-fits file
-
-  * file: File containing the fits to load
-
-{::comment} synopsis-end: load-fits {:/}
-{::comment} description-start: load-fits {:/}
-Load fits from a file
-{::comment} description-end: load-fits {:/}
-
 
 {::comment} synopsis-start: merge {:/}
 
@@ -1070,27 +1373,6 @@ merge first... second /mode= /use-segments=
 {::comment} description-start: merge {:/}
 Merge the second buffer with the first one, and keep Y of the second as a function of Y of the first
 {::comment} description-end: merge {:/}
-
-{::comment} synopsis-start: mfit-arb {:/}
-
-### mfit-arb - Multi fit: Arbitrary fit {#cmd-mfit-arb}
-
-mfit-arb formulas datasets... /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
-
-  * formulas: \|-separated formulas for the fit
-  * datasets: Datasets to fit
-  * /parameters: Pre-loads parameters
-  * /debug: Turn on debugging (for QSoas developers only)
-  * /extra-parameters: Define supplementary parameters
-  * /weight-buffers: Whether or not to weight buffers (off by default)
-
-{::comment} synopsis-end: mfit-arb {:/}
-{::comment} description-start: mfit-arb {:/}
-multi buffer fit:
-Arbitrary fit with user-supplied formula (possibly spanning multiple buffers)
-Special parameters: x_0, y_0, temperature, fara.
-Already defined constants: f, pi
-{::comment} description-end: mfit-arb {:/}
 
 {::comment} synopsis-start: mfit-duck-sim {:/}
 
@@ -1112,26 +1394,6 @@ multi buffer fit:
 ...
 {::comment} description-end: mfit-duck-sim {:/}
 
-{::comment} synopsis-start: mfit-ececr-wave {:/}
-
-### mfit-ececr-wave - Multi fit: Fit of an ECECR catalytic wave {#cmd-mfit-ececr-wave}
-
-mfit-ececr-wave datasets... /plateau= /use-eoc= /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
-
-  * datasets: Datasets to fit
-  * /plateau: Whether to use the general expression or only that valid when plateaus are not reached
-  * /use-eoc: Whether to use explicitly the bias or compute it using the open circuit potential
-  * /parameters: Pre-loads parameters
-  * /debug: Turn on debugging (for QSoas developers only)
-  * /extra-parameters: Define supplementary parameters
-  * /weight-buffers: Whether or not to weight buffers (off by default)
-
-{::comment} synopsis-end: mfit-ececr-wave {:/}
-{::comment} description-start: mfit-ececr-wave {:/}
-multi buffer fit:
-...
-{::comment} description-end: mfit-ececr-wave {:/}
-
 {::comment} synopsis-start: mfit-eecr-wave {:/}
 
 ### mfit-eecr-wave - Multi fit: Fit of an EECR catalytic wave {#cmd-mfit-eecr-wave}
@@ -1152,28 +1414,6 @@ mfit-eecr-wave datasets... /plateau= /oxidation= /use-eoc= /parameters= /debug= 
 multi buffer fit:
 ...
 {::comment} description-end: mfit-eecr-wave {:/}
-
-{::comment} synopsis-start: mfit-exponential-decay {:/}
-
-### mfit-exponential-decay - Multi fit: Multi-exponential fits {#cmd-mfit-exponential-decay}
-
-mfit-exponential-decay datasets... /exponentials= /absolute= /loss= /slow= /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
-
-  * datasets: Datasets to fit
-  * /exponentials: Number of exponentials
-  * /absolute: Amplitude is absolute or relative to the asymptote ?
-  * /loss: Is there an overall fully exponential loss ?
-  * /slow: Is there a very slow phase ?
-  * /parameters: Pre-loads parameters
-  * /debug: Turn on debugging (for QSoas developers only)
-  * /extra-parameters: Define supplementary parameters
-  * /weight-buffers: Whether or not to weight buffers (off by default)
-
-{::comment} synopsis-end: mfit-exponential-decay {:/}
-{::comment} description-start: mfit-exponential-decay {:/}
-multi buffer fit:
-...
-{::comment} description-end: mfit-exponential-decay {:/}
 
 {::comment} synopsis-start: mfit-inact-react-amplitude-2phases {:/}
 
@@ -1271,45 +1511,6 @@ mfit-react-exp datasets... /exponentials= /dead= /parameters= /debug= /extra-par
 multi buffer fit:
 Reactivation
 {::comment} description-end: mfit-react-exp {:/}
-
-{::comment} synopsis-start: mfit-slow-scan-hp {:/}
-
-### mfit-slow-scan-hp - Multi fit: Slow scan test {#cmd-mfit-slow-scan-hp}
-
-mfit-slow-scan-hp datasets... /bi-exp= /scaling= /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
-
-  * datasets: Datasets to fit
-  * /bi-exp: Whether we have a bi-exponential or a mono-exponential
-  * /scaling: Use an additional scaling factor
-  * /parameters: Pre-loads parameters
-  * /debug: Turn on debugging (for QSoas developers only)
-  * /extra-parameters: Define supplementary parameters
-  * /weight-buffers: Whether or not to weight buffers (off by default)
-
-{::comment} synopsis-end: mfit-slow-scan-hp {:/}
-{::comment} description-start: mfit-slow-scan-hp {:/}
-multi buffer fit:
-Slow scan
-{::comment} description-end: mfit-slow-scan-hp {:/}
-
-{::comment} synopsis-start: mfit-slow-scan-lp {:/}
-
-### mfit-slow-scan-lp - Multi fit: Slow scan test {#cmd-mfit-slow-scan-lp}
-
-mfit-slow-scan-lp datasets... /explicit-rate= /parameters= /debug= /extra-parameters= /weight-buffers= **(interactive)**
-
-  * datasets: Datasets to fit
-  * /explicit-rate: Whether the scan rate is an explicit parameter of the fit
-  * /parameters: Pre-loads parameters
-  * /debug: Turn on debugging (for QSoas developers only)
-  * /extra-parameters: Define supplementary parameters
-  * /weight-buffers: Whether or not to weight buffers (off by default)
-
-{::comment} synopsis-end: mfit-slow-scan-lp {:/}
-{::comment} description-start: mfit-slow-scan-lp {:/}
-multi buffer fit:
-Slow scan
-{::comment} description-end: mfit-slow-scan-lp {:/}
 
 {::comment} synopsis-start: norm {:/}
 
@@ -1466,29 +1667,6 @@ segments-chop
 Cuts the buffer into several ones based on the segments defined using set-segments or find-step /set-segments
 {::comment} description-end: segments-chop {:/}
 
-{::comment} synopsis-start: set-segments {:/}
-
-### set-segments - Set segments {#cmd-set-segments}
-
-set-segments **(interactive)**
-
-
-{::comment} synopsis-end: set-segments {:/}
-{::comment} description-start: set-segments {:/}
-...
-{::comment} description-end: set-segments {:/}
-
-{::comment} synopsis-start: shiftx {:/}
-
-### shiftx - Shift X values {#cmd-shiftx}
-
-shiftx 
-
-
-{::comment} synopsis-end: shiftx {:/}
-{::comment} description-start: shiftx {:/}
-Shift X values so that x[0] = 0
-{::comment} description-end: shiftx {:/}
 
 {::comment} synopsis-start: sim-duck-sim {:/}
 
@@ -1547,27 +1725,6 @@ sim-eecr-wave parameters datasets... /plateau= /oxidation= /use-eoc= /override= 
 fit simulation:
 ...
 {::comment} description-end: sim-eecr-wave {:/}
-
-{::comment} synopsis-start: sim-exponential-decay {:/}
-
-### sim-exponential-decay - Fit: Multi-exponential fits {#cmd-sim-exponential-decay}
-
-sim-exponential-decay parameters datasets... /exponentials= /absolute= /loss= /slow= /override= /extra-parameters=
-
-  * parameters: File to load parameters from
-  * datasets: Datasets to fit
-  * /exponentials: Number of exponentials
-  * /absolute: Amplitude is absolute or relative to the asymptote ?
-  * /loss: Is there an overall fully exponential loss ?
-  * /slow: Is there a very slow phase ?
-  * /override: A comma-separated list of parameters to override
-  * /extra-parameters: Define supplementary parameters
-
-{::comment} synopsis-end: sim-exponential-decay {:/}
-{::comment} description-start: sim-exponential-decay {:/}
-fit simulation:
-...
-{::comment} description-end: sim-exponential-decay {:/}
 
 {::comment} synopsis-start: sim-inact-react-amplitude-2phases {:/}
 
@@ -1823,16 +1980,6 @@ Zooms on the current curve
 {::comment} description-end: zoom {:/}
 
 
-{::comment} synopsis-start: zero {:/}
-
-### zero - Makes 0 {#cmd-zero}
-
-zero value /axis=
-
-  * value: ...
-  * /axis: ...
-
-{::comment} synopsis-end: zero {:/}
 
 # Scripting facilities {#scripting}
 
@@ -1854,6 +2001,8 @@ run-for-each script arguments...
   * arguments: All the arguments for the script file to loop on
 
 {::comment} synopsis-end: run-for-each {:/}
+{::comment} description-start: run-for-each {:/}
+{::comment} description-end: run-for-each {:/}
 
 
 ## Non-interactive commands {#non-interactive}
@@ -1873,7 +2022,6 @@ listed here:
  * [`average`](#cmd-average)
  * [`break`](#cmd-break)
  * [`browse`](#cmd-browse)
- * [`browse-stack`](#cmd-browse-stack)
  * [`cat`](#cmd-cat)
  * [`cd`](#cmd-cd)
  * [`chop`](#cmd-chop)
@@ -1968,14 +2116,13 @@ evaluation programs (it is quite close to the one from
    `2.0` and `0.4` instead
  * case matters: `Pi` is $$\pi$$, while `pi` is nothing defined.
 
-In addition to standard mathematical functions from the 
-[Math][math] module, the
-following special functions are available:
+In addition to standard mathematical functions from the [Math][math]
+module, the following special functions are available:
 
 {::comment} special-functions-start {:/}
 
- * `atanc`: \tan^{-1} x / x
- * `atanhc`: \tanh^{-1} x / x
+ * `atanc`: $$\frac{\tan^{-1} x}{x}$$
+ * `atanhc`: $$\frac{\tanh^{-1} x}{x}$$
  * `bessel_j0`: Regular cylindrical Bessel function of 0th order, $$J_0(x)$$
  * `bessel_j1`: Regular cylindrical Bessel function of first order, $$J_1(x)$$
  * `bessel_jn`: Regular cylindrical Bessel function of n-th order, $$J_n(x)$$
@@ -2001,15 +2148,7 @@ letter.
 [ruby]:http://www.ruby-lang.org/ "Ruby, the programming language"
 [math]:http://www.ruby-doc.org/core-1.9.3/Math.html "Documentation of the Math module"
 [gnuplot]:http://www.gnuplot.info/ "Gnuplot, the plotting program"
-{::comment} synopsis-start: fetch {:/}
 
-### fetch - Fetch an old buffer {#cmd-fetch}
-
-fetch buffers...
-
-  * buffers: Buffers to drop
-
-{::comment} synopsis-end: fetch {:/}
 {::comment} synopsis-start: film-loss {:/}
 
 ### film-loss - Film loss {#cmd-film-loss}

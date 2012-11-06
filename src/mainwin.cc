@@ -22,6 +22,9 @@
    \section requests Requests
 
    \li find a way to display current directory on the printed stuff
+   @li find a way to plot some datasets against a second Y axis (this
+   could simply be an option to the overlay command) -- possibly a
+   second X axis too ?
    \li add a whole bunch of functionalities to the stack/data browser
    \li add arbitrary text to print ? (could this just be an annotate
    command adding text to the current plot ? It would be nice to
@@ -84,6 +87,14 @@
    @li maybe one day Utils::registerShortCut could be used to
    store/annotate the shortcuts available in a window ?
 
+   @li Probably it would be nice as well to get a way to document all
+   keys used in a CurveEventLoop stuff. A great way to do so would be
+   to implement real callbacks (with lambdas ?), but I'm not sure it
+   would be that readable. One neat thing though is that it would
+   allow automatic documentation, but that would be a pain to
+   write. \b Maybe only making the help text static ? Even that
+   doesn't feel so great... I shall have a look at lambdas, then
+
    @li I should come up with button-like widget containers that would
    help selection of datasets in DatasetBrowser, and use these
    selection for various operations...
@@ -133,8 +144,6 @@
    \section fits Fit-related things
 
    \li options to automatically apply a bijection to the Y values too.
-   \li possibility to add user-specified parameters, when the formula
-   system for fit parameters is ready.
    \li detection of "weird" parameters, ie a parameter that suddenly
    takes INF or NAN values while it didn't take before. This is a
    clear sign of something going wrong.
@@ -158,22 +167,6 @@
    different conditions...
    @li possibility of partially loading parameters from a file
 
-   @b Fit @b drivers
-
-   For now, the only way to perform fits is through the use of the
-   GSL. However, it may be desirable to implement other fit
-   "backends", ie objects that just initialize data based on a FitData
-   object and conduct the fit, iteration by iteration. Maybe the
-   driver could be changed at the FitData level (ie allocation not at
-   allocation time, but at the time of "binding" with FitData).  That
-   may eventually allow orthogonal fits later on, although this may
-   require strong structural changes, which may not be desirable at
-   all. The fit driver should be switchable at run-time within the
-   dialog.
-
-   This is necessary since the GSL fit engine is showing some of its
-   shortcomings.
-
    \section arch Architectural things
 
    \b Documentation
@@ -194,19 +187,11 @@
    @li I should be able to somehow process the output of the program
    to get inline documentation (possibly included as qrc resource ?)
 
-   @b Expressions
+   @b Expressions and derivatives
 
-   In many places I could use a decent expressions system, ie
-   something à la SCalc that would allow for easy evaluations, but
-   based on Ruby. Bonus points if I can come up with something that
-   can evaluate derivatives, but at this point it doesn't matter so
-   much.
-
-   In any case, this must be a C++ object that doesn't require
-   external manipulations of VALUE, with introspection capacities
-   (which parameters, evaluation with a hash, with a const double *)
-
-   This would warrant a decent rewrite of MultiBufferArbitraryFit
+   The expressions system could be rewritten to take advantage of the
+   Ruby 1.9.1 ripper extension for the detection of parameters and/or
+   for the making of derivatives.
 
    @b Differential @b systems
    
@@ -223,7 +208,7 @@
    interaction. This requires a new function in Argument to convert
    from Ruby's VALUE (but that isn't much of a problem). Possibly a
    first conversion to string followed by conversion from string would
-   do find for most types.
+   do fine for most types.
 
    This would however rise the question of how to actually get data
    from Soas to Ruby ? Possibly an interesting point would be to allow
@@ -243,6 +228,9 @@
    CurveEventLoop, argument prompting and fit dialogs -- any dialog in
    fact -- maybe we need a subclass of QDialog that aborts on exec()
    in non-interactive mode ?).
+
+   The bad thing about xvfb, though, is that this isn't portable at
+   all to win/mac (which is very bad !).
    
 */
 

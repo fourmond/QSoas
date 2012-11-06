@@ -205,7 +205,8 @@ static ArgumentList
 showSOpts(QList<Argument *>() 
           << new IntegerArgument("number", 
                                  "Limit display",
-                                 "Limit the display to a given number"));
+                                 "Limit the display to a given number",
+                                 true));
 
 
 static Command 
@@ -472,11 +473,11 @@ static void browseStackCommand(const QString &)
 
 
 static Command 
-browseStack("browse-stack", // command name
-            optionLessEffector(browseStackCommand), // action
-            "stack",  // group name
-            NULL, // arguments
-            NULL, // options
+browseStack("browse-stack",     // command name
+            optionLessEffector(browseStackCommand, true), // action
+            "stack",            // group name
+            NULL,               // arguments
+            NULL,               // options
             "Browse stack",
             "Browse stack",
             "Browse stack",
@@ -494,7 +495,7 @@ static ArgumentList
 fetchArgs(QList<Argument *>() 
           << new SeveralDataSetArgument("buffers", 
                                         "Buffers",
-                                        "Buffers to drop", true));
+                                        "Buffers to fetch", true));
 
 
 static Command 

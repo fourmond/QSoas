@@ -261,7 +261,8 @@ static MultiBufferArbitraryFit mBarbFit;
 static QHash<QString, MultiBufferArbitraryFit *> customFits;
 
 /// This function loads fits from a text stream
-static void loadFits(QIODevice * source, bool verbose = true) {
+static void loadFits(QIODevice * source, bool verbose = true,
+                     bool overwrite = false) {
   QList<QPair<int, int> > numbers;
   QStringList lines = 
     Utils::parseConfigurationFile(source, false, NULL, &numbers);
@@ -282,8 +283,16 @@ static void loadFits(QIODevice * source, bool verbose = true) {
       QString formula = sep.cap(2);
       try {
         if(customFits.contains(name)) {
-          Terminal::out << "Fit '" << name << "' (" << lnNb  
-                        << ") is already defined " << endl;
+          if(overwrite) {
+            Terminal::out << "Replacing fit '" << name  << "' (" 
+                          << lnNb << ") with a new definition" << endl;
+            /// @todo Implement safe deletion ! (because for now, in
+            /// terms of commands, that won't work so well...
+          }
+          else {
+            Terminal::out << "Fit '" << name << "' (" << lnNb  
+                          << ") is already defined " << endl;
+          }
           continue;
         }
         MultiBufferArbitraryFit * fit = 

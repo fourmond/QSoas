@@ -842,7 +842,8 @@ static ArgumentList
 statsO(QList<Argument *>() 
        << new DataSetArgument("buffer", 
                               "Buffer",
-                              "An alternative buffer to get information on"));
+                              "An alternative buffer to get information on",
+                              true));
 
 
 static Command 

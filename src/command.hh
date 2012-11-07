@@ -251,6 +251,9 @@ public:
   /// All available commands
   static QStringList allCommands();
 
+  /// A set of all the commands
+  static QSet<Command *> uniqueCommands();
+
   /// All interactive commands
   static QStringList interactiveCommands();
 

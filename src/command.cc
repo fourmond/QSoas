@@ -391,6 +391,16 @@ QString Command::latexDocumentation() const
   return ret + synopsis + "\n\n" + desc + longDescription();
 }
 
+/// @todo Probably should join Utils some day.
+QString wrapIf(const QString & str, const QString & left, bool cond, 
+               const QString & right = QString())
+{
+  if(cond) 
+    return QString("%1%2%3").arg(left).arg(str).
+      arg(right.isEmpty() ? left : right);
+  return str;
+}
+
 QString Command::synopsis(bool markup) const 
 {
   QStringList synopsis;
@@ -399,12 +409,12 @@ QString Command::synopsis(bool markup) const
   if(commandArguments()) {
     const ArgumentList & args = *commandArguments();
     for(int i = 0; i < args.size(); i++) {
-      QString a = args[i]->argumentName();
+      QString a = wrapIf(args[i]->argumentName(), "_", markup);
       if(args[i]->greedy)
         a += "...";
       synopsis << a;
       descs += QString("  * %1: %2\n").
-        arg(args[i]->argumentName()).
+        arg(wrapIf(args[i]->argumentName(), "_", markup)).
         arg(args[i]->description());
     }
   }
@@ -413,9 +423,9 @@ QString Command::synopsis(bool markup) const
     const ArgumentList & args = *commandOptions();
     for(int i = 0; i < args.size(); i++) {
       QString a = args[i]->argumentName();
-      synopsis << "/" + a + "=" ;
-      descs += QString("  * /%1%3: %2\n").
-        arg(args[i]->argumentName()).
+      synopsis << wrapIf("/" + a + "=", "`", markup);
+      descs += QString("  * %1%3: %2\n").
+        arg(wrapIf("/" + args[i]->argumentName(), "`", markup)).
         arg(args[i]->description()).
         arg(args[i]->defaultOption ? " (default)" : "");
 
@@ -423,13 +433,17 @@ QString Command::synopsis(bool markup) const
   }
 
   if(isInteractive())
-    synopsis << (markup ? "**(interactive)**" : "(interactive)");
+    synopsis << wrapIf("(interactive)", "**", markup);
+
+  if(! shortCmdName.isEmpty())
+    descs = "Alias: " + wrapIf(shortCmdName, "`", markup) + "\n\n" + descs;
 
   // We need to escape |, which comes in too many times
   if(markup)
     descs.replace(QString("|"), QString("\\|"));
 
-  return cmdName +  " " + synopsis.join(" ") + "\n\n" + descs + "\n";
+  return wrapIf(cmdName,"`", markup) + " " + 
+    synopsis.join(" ") + "\n\n" + descs + "\n";
 }
 
 QString & Command::updateDocumentation(QString & str, int level) const
@@ -476,6 +490,8 @@ QString Command::commandSpec() const
   if(isInteractive())
     ret += " (interactive)";
   ret += "\n";
+  if(! shortCmdName.isEmpty())
+    ret += QString("  -> aliased as %1\n").arg(shortCmdName);
   if(arguments)
     for(int i = 0; i < arguments->size(); i++) {
       Argument * arg = (*arguments)[i];
@@ -491,13 +507,25 @@ QString Command::commandSpec() const
   return ret;
 }
 
+
+QSet<Command *> Command::uniqueCommands()
+{
+  if(! availableCommands)
+    return QSet<Command * >();
+  return QSet<Command * >::fromList(availableCommands->values());
+}
+
+static bool cmpCommands(const Command * a, const Command * b)
+{
+  return a->commandName() < b->commandName();
+}
+
 void Command::writeSpecFile(QTextStream & out)
 {
-  QStringList cmds = Command::allCommands();
-  qSort(cmds);
+  QList<Command *> lst = uniqueCommands().toList();
+  qSort(lst.begin(), lst.end(), ::cmpCommands);
 
-  for(int i = 0; i < cmds.size(); i++) {
-    Command * cmd = Command::namedCommand(cmds[i]);
-    out << cmd->commandSpec();
-  }
+  for(int i = 0; i < lst.size(); i++)
+    out << lst[i]->commandSpec();
+
 }

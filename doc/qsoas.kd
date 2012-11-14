@@ -1331,24 +1331,75 @@ Comments are allowed, as are line continuations with `\`.
 
 {::comment} description-end: load-fits {:/}
 
+## Redox titration fits
 
-{::comment} synopsis-start: fit-duck-sim {:/}
+{::comment} synopsis-start: fit-nernst {:/}
 
-### fit-duck-sim - Fit: Diffusive electrochemical  {#cmd-fit-duck-sim}
+### fit-nernst - Fit: Nerstian behaviour {#cmd-fit-nernst}
 
-`fit-duck-sim` `/system=` `/base-parameters=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
+`fit-nernst` `/states=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
 
-  * `/system`: ...
-  * `/base-parameters`: ...
+  * `/states`: Number of redox states
   * `/parameters`: Pre-loads parameters
   * `/debug`: Turn on debugging (for QSoas developers only)
   * `/extra-parameters`: Define supplementary parameters
 
-{::comment} synopsis-end: fit-duck-sim {:/}
-{::comment} description-start: fit-duck-sim {:/}
-Single buffer fit:
-...
-{::comment} description-end: fit-duck-sim {:/}
+{::comment} synopsis-end: fit-nernst {:/}
+{::comment} description-start: fit-nernst {:/}
+Fits the absorbance (or anything else) of a single chemical species
+present under several redox states as a function of the potential,
+using the Nernst equation.
+
+The number of redox states is given to the option `/states` (defaults
+to 2). The states are numbered from 0, which is the most reduced
+state. $$A_i$$ is the absorbance (or whatever else) of the state
+numbered $$i$$.
+
+This fit is useful to fit the results of a the redox titration at a
+single wavelength. If several wavelength are available, separate them
+into several buffers as a function of the potential and fit them using
+[`mfit-nernst`](#cmd-mfit-nernst), while keeping the redox potentials
+(and electron numbers) global and only the absorbances as
+buffer-local.
+{::comment} description-end: fit-nernst {:/}
+
+{::comment} synopsis-start: mfit-nernst {:/}
+
+### mfit-nernst - Multi fit: Nerstian behaviour {#cmd-mfit-nernst}
+
+`mfit-nernst` _datasets_... `/states=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
+
+  * _datasets_: Datasets to fit
+  * `/states`: Number of redox states
+  * `/parameters`: Pre-loads parameters
+  * `/debug`: Turn on debugging (for QSoas developers only)
+  * `/extra-parameters`: Define supplementary parameters
+  * `/weight-buffers`: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-nernst {:/}
+{::comment} description-start: mfit-nernst {:/}
+Multi-buffer version of [`fit-nernst`](#cmd-fit-nernst). To be used
+for fitting multi-wavelength redox titrations.
+{::comment} description-end: mfit-nernst {:/}
+
+{::comment} synopsis-start: sim-nernst {:/}
+
+### sim-nernst - Fit: Nerstian behaviour {#cmd-sim-nernst}
+
+`sim-nernst` _parameters_ _datasets_... `/states=` `/override=` `/extra-parameters=`
+
+  * _parameters_: File to load parameters from
+  * _datasets_: Datasets to fit
+  * `/states`: Number of redox states
+  * `/override`: A comma-separated list of parameters to override
+  * `/extra-parameters`: Define supplementary parameters
+
+{::comment} synopsis-end: sim-nernst {:/}
+{::comment} description-start: sim-nernst {:/}
+Simulation command for [`fit-nernst`](#cmd-fit-nernst)
+{::comment} description-end: sim-nernst {:/}
+
+
 
 {::comment} synopsis-start: fit-eecr-wave {:/}
 
@@ -1388,21 +1439,6 @@ Fits of exponentials on several steps with film loss bookkeeping
 {::comment} description-end: fit-kinetic-system {:/}
 
 
-{::comment} synopsis-start: fit-nernst {:/}
-
-### fit-nernst - Fit: Nerstian behaviour {#cmd-fit-nernst}
-
-`fit-nernst` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
-
-  * `/parameters`: Pre-loads parameters
-  * `/debug`: Turn on debugging (for QSoas developers only)
-  * `/extra-parameters`: Define supplementary parameters
-
-{::comment} synopsis-end: fit-nernst {:/}
-{::comment} description-start: fit-nernst {:/}
-Single buffer fit:
-Fit to a Nerst equation
-{::comment} description-end: fit-nernst {:/}
 
 {::comment} synopsis-start: fit-react-exp {:/}
 
@@ -1427,7 +1463,7 @@ Reactivation
 These specific fits were used in the context of the interpretation of
 cyclic voltammograms of adorbed nickel-iron hydrogenase that undergo
 inactivations under oxidizing conditions. For more information, refer
-to [Abou-Hamdam _et al_, __PNAS__ 2012](http://dx.doi.org/lskdjf)
+to [Abou-Hamdam _et al_, __PNAS__ 2012](http://dx.doi.org/10.1073/pnas.1212258109)
 (which you probably should cite anyway if you use them).
 
 {::comment} synopsis-start: fit-slow-scan-hp {:/}
@@ -1504,6 +1540,71 @@ multi buffer fit:
 Slow scan
 {::comment} description-end: mfit-slow-scan-lp {:/}
 
+## Unsupported fits
+
+Most of these fits are not documented, not guaranteed to be reasonably
+stable, or even to actually have ever been in use.
+
+
+{::comment} synopsis-start: fit-duck-sim {:/}
+
+### fit-duck-sim - Fit: Diffusive electrochemical  {#cmd-fit-duck-sim}
+
+`fit-duck-sim` `/system=` `/base-parameters=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
+
+  * `/system`: ...
+  * `/base-parameters`: ...
+  * `/parameters`: Pre-loads parameters
+  * `/debug`: Turn on debugging (for QSoas developers only)
+  * `/extra-parameters`: Define supplementary parameters
+
+{::comment} synopsis-end: fit-duck-sim {:/}
+{::comment} description-start: fit-duck-sim {:/}
+Single buffer fit:
+...
+{::comment} description-end: fit-duck-sim {:/}
+
+{::comment} synopsis-start: mfit-duck-sim {:/}
+
+### mfit-duck-sim - Multi fit: Diffusive electrochemical  {#cmd-mfit-duck-sim}
+
+`mfit-duck-sim` _datasets_... `/system=` `/base-parameters=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
+
+  * _datasets_: Datasets to fit
+  * `/system`: ...
+  * `/base-parameters`: ...
+  * `/parameters`: Pre-loads parameters
+  * `/debug`: Turn on debugging (for QSoas developers only)
+  * `/extra-parameters`: Define supplementary parameters
+  * `/weight-buffers`: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-duck-sim {:/}
+{::comment} description-start: mfit-duck-sim {:/}
+multi buffer fit:
+...
+{::comment} description-end: mfit-duck-sim {:/}
+
+{::comment} synopsis-start: sim-duck-sim {:/}
+
+### sim-duck-sim - Fit: Diffusive electrochemical  {#cmd-sim-duck-sim}
+
+`sim-duck-sim` _parameters_ _datasets_... `/system=` `/base-parameters=` `/override=` `/extra-parameters=`
+
+  * _parameters_: File to load parameters from
+  * _datasets_: Datasets to fit
+  * `/system`: ...
+  * `/base-parameters`: ...
+  * `/override`: A comma-separated list of parameters to override
+  * `/extra-parameters`: Define supplementary parameters
+
+{::comment} synopsis-end: sim-duck-sim {:/}
+{::comment} description-start: sim-duck-sim {:/}
+fit simulation:
+...
+{::comment} description-end: sim-duck-sim {:/}
+
+
+
 
 {::comment} synopsis-start: generate-buffer {:/}
 
@@ -1553,26 +1654,6 @@ Slow scan
 ...
 {::comment} description-end: load-documentation {:/}
 
-
-{::comment} synopsis-start: mfit-duck-sim {:/}
-
-### mfit-duck-sim - Multi fit: Diffusive electrochemical  {#cmd-mfit-duck-sim}
-
-`mfit-duck-sim` _datasets_... `/system=` `/base-parameters=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
-
-  * _datasets_: Datasets to fit
-  * `/system`: ...
-  * `/base-parameters`: ...
-  * `/parameters`: Pre-loads parameters
-  * `/debug`: Turn on debugging (for QSoas developers only)
-  * `/extra-parameters`: Define supplementary parameters
-  * `/weight-buffers`: Whether or not to weight buffers (off by default)
-
-{::comment} synopsis-end: mfit-duck-sim {:/}
-{::comment} description-start: mfit-duck-sim {:/}
-multi buffer fit:
-...
-{::comment} description-end: mfit-duck-sim {:/}
 
 {::comment} synopsis-start: mfit-eecr-wave {:/}
 
@@ -1654,23 +1735,6 @@ multi buffer fit:
 Fits of exponentials on several steps with film loss bookkeeping
 {::comment} description-end: mfit-multiexp-multistep {:/}
 
-{::comment} synopsis-start: mfit-nernst {:/}
-
-### mfit-nernst - Multi fit: Nerstian behaviour {#cmd-mfit-nernst}
-
-`mfit-nernst` _datasets_... `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
-
-  * _datasets_: Datasets to fit
-  * `/parameters`: Pre-loads parameters
-  * `/debug`: Turn on debugging (for QSoas developers only)
-  * `/extra-parameters`: Define supplementary parameters
-  * `/weight-buffers`: Whether or not to weight buffers (off by default)
-
-{::comment} synopsis-end: mfit-nernst {:/}
-{::comment} description-start: mfit-nernst {:/}
-multi buffer fit:
-Fit to a Nerst equation
-{::comment} description-end: mfit-nernst {:/}
 
 {::comment} synopsis-start: mfit-react-exp {:/}
 
@@ -1818,25 +1882,6 @@ Save all output from the terminal
 {::comment} description-end: save-output {:/}
 
 
-{::comment} synopsis-start: sim-duck-sim {:/}
-
-### sim-duck-sim - Fit: Diffusive electrochemical  {#cmd-sim-duck-sim}
-
-`sim-duck-sim` _parameters_ _datasets_... `/system=` `/base-parameters=` `/override=` `/extra-parameters=`
-
-  * _parameters_: File to load parameters from
-  * _datasets_: Datasets to fit
-  * `/system`: ...
-  * `/base-parameters`: ...
-  * `/override`: A comma-separated list of parameters to override
-  * `/extra-parameters`: Define supplementary parameters
-
-{::comment} synopsis-end: sim-duck-sim {:/}
-{::comment} description-start: sim-duck-sim {:/}
-fit simulation:
-...
-{::comment} description-end: sim-duck-sim {:/}
-
 {::comment} synopsis-start: sim-ececr-wave {:/}
 
 ### sim-ececr-wave - Fit: Fit of an ECECR catalytic wave {#cmd-sim-ececr-wave}
@@ -1946,22 +1991,6 @@ fit simulation:
 Fits of exponentials on several steps with film loss bookkeeping
 {::comment} description-end: sim-multiexp-multistep {:/}
 
-{::comment} synopsis-start: sim-nernst {:/}
-
-### sim-nernst - Fit: Nerstian behaviour {#cmd-sim-nernst}
-
-`sim-nernst` _parameters_ _datasets_... `/override=` `/extra-parameters=`
-
-  * _parameters_: File to load parameters from
-  * _datasets_: Datasets to fit
-  * `/override`: A comma-separated list of parameters to override
-  * `/extra-parameters`: Define supplementary parameters
-
-{::comment} synopsis-end: sim-nernst {:/}
-{::comment} description-start: sim-nernst {:/}
-fit simulation:
-Fit to a Nerst equation
-{::comment} description-end: sim-nernst {:/}
 
 {::comment} synopsis-start: sim-react-exp {:/}
 

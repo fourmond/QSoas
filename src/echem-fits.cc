@@ -50,7 +50,7 @@ protected:
   virtual void processOptions(const CommandOptions & opts)
   {
     number = 2;
-    updateFromOptions(opts, "species", number);
+    updateFromOptions(opts, "states", number);
 
     QList<int> unstable;
     /// @todo Implement unstable species !
@@ -137,9 +137,9 @@ public:
   { 
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
-                   << new IntegerArgument("species", 
-                                          "Number of species",
-                                          "Number of redox species")
+                   << new IntegerArgument("states", 
+                                          "Number of states",
+                                          "Number of redox states")
                    );
     makeCommands(NULL, NULL, NULL, opts);
 

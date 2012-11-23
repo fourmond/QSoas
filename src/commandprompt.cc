@@ -25,7 +25,10 @@
 #include <mainwin.hh>
 #include <soas.hh>
 
-CommandPrompt::CommandPrompt() : nbSuccessiveTabs(0), historyItem(-1)
+#include <terminal.hh>
+
+CommandPrompt::CommandPrompt() : nbSuccessiveTabs(0), lastTab(false), 
+                                 historyItem(-1)
 {
 }
 
@@ -67,7 +70,15 @@ void CommandPrompt::doCompletion()
     if(common == c.word) {
       QString str = tr("%1 completions: %2").
         arg(completions.size()).arg(completions.join(", "));
-      soas().showMessage(str);
+      if(completions.size() > 15) {
+        if(lastTab)
+          Terminal::out << str << endl;
+        else
+          soas().showMessage(QString("Found %1 completions: display all by pressing again TAB").arg(completions.size()), 5000);
+      }
+      else {
+        soas().showMessage(str, 5000);
+      }
     }
     else {
       replaceWord(c, Command::quoteString(common), false);
@@ -97,7 +108,7 @@ void CommandPrompt::keyPressEvent(QKeyEvent * event)
   case Qt::Key_Down:
     event->accept();
     if(historyItem < 0)
-      return;
+      break;
     historyItem--;
     if(historyItem >= 0)
       setText(savedHistory[historyItem]);
@@ -119,6 +130,7 @@ void CommandPrompt::keyPressEvent(QKeyEvent * event)
   default:
     QLineEdit::keyPressEvent(event);
   }
+  lastTab = (event->key() == Qt::Key_Tab);
 }
 
 void CommandPrompt::addHistoryItem(const QString & str)

@@ -31,6 +31,10 @@ class CommandPrompt : public QLineEdit {
   /// The number of successive hits on the TAB key
   int nbSuccessiveTabs;
 
+
+  /// Wether the last key pressed was a TAB?
+  bool lastTab;
+
   /// The current completions
   QStringList completions;
 

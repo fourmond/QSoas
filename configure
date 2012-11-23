@@ -9,7 +9,13 @@ QMAKE=/opt/local/bin/qmake
 if [ -r /usr/bin/qmake ]; then
     QMAKE=/usr/bin/qmake
 fi
-$QMAKE $v
+
+# Here, we try using ruby1.9 on mac if it is present ?
+if [ -r /opt/local/bin/ruby1.9 ]; then
+    extra="RUBY=/opt/local/bin/ruby1.9"
+fi
+
+$QMAKE $extra $v 
 
 # For some reason, mac's Qt writes a wrong library name for linking
 # when producing a debug stuff:

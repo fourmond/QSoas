@@ -51,6 +51,9 @@ namespace Ruby {
   /// Makes a ruby string from a Qt string
   VALUE toString(const QString & str);
 
+  /// Returns the version string of Ruby
+  QString versionString();
+
   /// The main object.
   extern VALUE main;
 

@@ -251,6 +251,8 @@
 #include <build.hh>
 #include <ducksim.hh>
 
+#include <ruby.hh>
+
 static SettingsValue<QSize> mainWinSize("mainwin/size", QSize(700,500));
 
 static SettingsValue<QByteArray> splitterState("mainwin/splitter", 
@@ -264,8 +266,9 @@ MainWin::MainWin()
   if(! splitterState->isEmpty())
     mainSplitter->restoreState(splitterState);
 
-  Terminal::out << "This is QSoas version " << SOAS_VERSION << "\n"
-                << SOAS_BUILD_INFO 
+  Terminal::out << "This is QSoas version " << SOAS_VERSION 
+                << " running with " << Ruby::versionString() 
+                << "\n" << SOAS_BUILD_INFO 
                 << "Copyright 2011-2012 by Vincent Fourmond\n"
                 << "Based on Christophe Leger's original Soas\n\n"
                 << "This program is free software, released under the terms of \n"

@@ -130,3 +130,9 @@ VALUE Ruby::toString(const QString & str)
   QByteArray bta = str.toLocal8Bit();
   return rb_str_new2(bta.constData());
 }
+
+QString Ruby::versionString()
+{
+  VALUE v = eval("RUBY_DESCRIPTION");
+  return StringValueCStr(v);
+}

@@ -28,6 +28,10 @@ namespace Ruby {
   /// Inits the Ruby interpreter. Must be called <b>only once ! </b>
   void initRuby();
 
+  /// Calls the given C \a function with the given args in an
+  /// exception-safe way, ie with proper handling of the exceptions...
+  VALUE exceptionSafeCall(VALUE (*function)(...), void * args);
+
   /// The global rescue function, whose role is to convert Ruby
   /// exceptions into proper C++ exceptions.
   VALUE globalRescueFunction(VALUE, VALUE exception);

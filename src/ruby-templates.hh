@@ -38,8 +38,7 @@ public:
 
   /// Runs the code wrapping it into a rb_rescue code
   VALUE run() {
-    return rb_rescue((VALUE (*)(...)) &wrapper, (VALUE) this,
-                     (VALUE (*)(...)) &Ruby::globalRescueFunction, Qnil);
+    return Ruby::exceptionSafeCall((VALUE (*)(...)) &wrapper, this);
   };
 
 };
@@ -66,8 +65,7 @@ public:
 
   /// Runs the code wrapping it into a rb_rescue code
   VALUE run() {
-    return rb_rescue((VALUE (*)(...)) &wrapper, (VALUE) this,
-                     (VALUE (*)(...)) &Ruby::globalRescueFunction, Qnil);
+    return Ruby::exceptionSafeCall((VALUE (*)(...)) &wrapper, this);
   };
 
 };
@@ -96,8 +94,7 @@ public:
 
   /// Runs the code wrapping it into a rb_rescue code
   VALUE run() {
-    return rb_rescue((VALUE (*)(...)) &wrapper, (VALUE) this,
-                     (VALUE (*)(...)) &Ruby::globalRescueFunction, Qnil);
+    return Ruby::exceptionSafeCall((VALUE (*)(...)) &wrapper, this);
   };
 
 };
@@ -132,8 +129,7 @@ public:
 
   /// Runs the code wrapping it into a rb_rescue code
   VALUE run() {
-    return rb_rescue((VALUE (*)(...)) &wrapper, (VALUE) this,
-                     (VALUE (*)(...)) &Ruby::globalRescueFunction, Qnil);
+    return Ruby::exceptionSafeCall((VALUE (*)(...)) &wrapper, this);
   };
 
 };

@@ -30,9 +30,6 @@ static SettingsValue<bool> debugRuby("ruby/debug", false);
 
 VALUE Ruby::globalRescueFunction(VALUE /*dummy*/, VALUE exception)
 {
-  printf("Caught ruby exception: ");
-  fflush(stdout);
-  rb_p(exception);
   QString str = QObject::tr("Ruby exception: ");
   VALUE in = rb_inspect(exception);  // Probably shouldn't throw an exception ?
   str += StringValueCStr(in); // Or in ? See call stack too ?
@@ -40,15 +37,37 @@ VALUE Ruby::globalRescueFunction(VALUE /*dummy*/, VALUE exception)
   // We add the call stack
   if(debugRuby) {
     VALUE ct = rb_funcall2(exception, rb_intern("backtrace"), 0, NULL);
-    rb_p(ct);
     VALUE s = rb_str_new2("\n");
     VALUE s2 = rb_funcall2(ct, rb_intern("join"), 1, &s);
     str += "\n";
     str += StringValueCStr(s2);
   }
+  QTextStream o(stderr);
+  o << "Caught Ruby exception: " << str << endl;
   throw RuntimeError(str);
   return Qnil;
 }
+
+/// This is the old version
+static VALUE old_exceptionSafeCall(VALUE (*function)(...), void * args)
+{
+  return rb_rescue(function, (VALUE) args, 
+                   (VALUE (*)(...)) Ruby::globalRescueFunction, Qnil);
+}
+
+VALUE Ruby::exceptionSafeCall(VALUE (*function)(...), void * args)
+{
+  int error;
+  VALUE ret = rb_protect((VALUE (*)(VALUE)) function, 
+                         (VALUE) args, &error);
+  if(error) {
+    // An exception occurred, we need to handle it.
+    VALUE exception = rb_gv_get("$!");
+    return Ruby::globalRescueFunction(Qnil, exception);
+  }
+  return ret;
+}
+
 
 
 VALUE Ruby::main;

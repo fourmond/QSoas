@@ -1,3 +1,155 @@
+# General
+
+Here are the commands to interact with QSoas in the most general way:
+exit, change directory, change various global parameters.
+
+
+{::comment} synopsis-start: quit {:/}
+
+### quit - Quit {#cmd-quit}
+
+`quit` 
+
+Alias: `q`
+
+
+{::comment} synopsis-end: quit {:/}
+{::comment} description-start: quit {:/}
+Exits QSoas, losing all the current session. Keep in mind, though,
+that the full log of the session is always available in the
+`soas.log` file created in the initial directory, that is indicated in
+the very beginning in the terminal.
+{::comment} description-end: quit {:/}
+
+{::comment} synopsis-start: save-history {:/}
+
+### save-history - Save history {#cmd-save-history}
+
+`save-history` _file_
+
+  * _file_: Output file
+
+{::comment} synopsis-end: save-history {:/}
+{::comment} description-start: save-history {:/}
+Saves all the commands contained in the history, that is all the
+commands that were launched from the beginning of the session, to the
+given (text) file.
+
+This can be used for saving a series of command that should be applied
+repetitively as a [script](#scripting).
+{::comment} description-end: save-history {:/}
+
+{::comment} synopsis-start: cd {:/}
+
+### cd - Change directory {#cmd-cd}
+
+`cd` _directory_
+
+Alias: `G`
+
+  * _directory_: New directory
+
+{::comment} synopsis-end: cd {:/}
+{::comment} description-start: cd {:/}
+Changes the current working directory. 
+
+As of now, it doesn't change the output files and the log files, but
+it eventually will.
+{::comment} description-end: cd {:/}
+
+{::comment} synopsis-start: temperature {:/}
+
+### temperature - Temperature {#cmd-temperature}
+
+`temperature` `/set=`
+
+Alias: `T`
+
+  * `/set` (default): Sets the temperature
+
+{::comment} synopsis-end: temperature {:/}
+{::comment} description-start: temperature {:/}
+Shows or sets the current temperature. The temperature is used in many
+places, mostly in fits to serve as the initial value for the
+temperature parameter.
+{::comment} description-end: temperature {:/}
+
+{::comment} synopsis-start: commands {:/}
+
+### commands - Commands {#cmd-commands}
+
+`commands` 
+
+
+{::comment} synopsis-end: commands {:/}
+{::comment} description-start: commands {:/}
+List all available commands, along with a little help. This also
+includes used-defined commands, such as custom fits loaded from a fit file.
+{::comment} description-end: commands {:/}
+
+{::comment} synopsis-start: antialias {:/}
+
+### antialias - Antialias {#cmd-antialias}
+
+`antialias` 
+
+Alias: `AA`
+
+
+{::comment} synopsis-end: antialias {:/}
+{::comment} description-start: antialias {:/}
+
+Toggles anti-aliasing for on-screen graphics rendering. This can slow
+down the display tremendously on large datasets. Turning on OpenGL
+rendering with [`opengl`](#cmd-opengl) may help in that case.
+
+Printing always uses antialiased rendering, so you don't need to turn
+that on for neat printed output.
+{::comment} description-end: antialias {:/}
+
+
+{::comment} synopsis-start: opengl {:/}
+
+### opengl - OpenGL {#cmd-opengl}
+
+`opengl` 
+
+
+{::comment} synopsis-end: opengl {:/}
+{::comment} description-start: opengl {:/}
+Toggles the use of OpenGL for graphics rendering. This may be useful
+if you turn [`antialias`](#cmd-antialias) on. OpenGL support may be
+dropped in a future release of QSoas, but you shouldn't really need it
+anyway. 
+{::comment} description-end: opengl {:/}
+
+{::comment} synopsis-start: print {:/}
+
+### print - Print {#cmd-print}
+
+`print` `/file=` `/title=`
+
+Alias: `p`
+
+  * `/file`: Save as file
+  * `/title`: Sets the title of the page as printed
+
+{::comment} synopsis-end: print {:/}
+{::comment} description-start: print {:/}
+Prints the current view, providing a usual print dialog. If you just
+want a PDF or PostScript file, just provide the file name as the
+`/file` option.
+
+An optional title can be added using the `/title` option.
+
+**Important note** please keep in mind that QSoas is not designed to
+be a data plotting system, only a data analysis system. So plotting
+capacities don't go far...
+{::comment} description-end: print {:/}
+
+
+
+
 # Data loading/saving
 
 The main command for loading data is [`load`](#cmd-load)
@@ -358,6 +510,20 @@ them. Useful to remove a few spikes from the data. Middle click or `q`
 to accept the modifications, hit escape to cancel them.
 {::comment} description-end: deldp {:/}
 
+{::comment} synopsis-start: sort {:/}
+
+### sort - Sort {#cmd-sort}
+
+`sort` 
+
+
+{::comment} synopsis-end: sort {:/}
+{::comment} description-start: sort {:/}
+Sorts the buffer in ascending X values.
+{::comment} description-end: sort {:/}
+
+## Splitting the dataset in bits
+
 {::comment} synopsis-start: cut {:/}
 
 ### cut - Cut {#cmd-cut}
@@ -403,20 +569,6 @@ parts, the [segments](#segments) are set to where the buffer would
 have been cut.
 
 {::comment} description-end: chop {:/}
-
-{::comment} synopsis-start: sort {:/}
-
-### sort - Sort {#cmd-sort}
-
-`sort` 
-
-
-{::comment} synopsis-end: sort {:/}
-{::comment} description-start: sort {:/}
-Sorts the buffer in ascending X values.
-{::comment} description-end: sort {:/}
-
-## Splitting the dataset in bits
 
 {::comment} synopsis-start: splita {:/}
 
@@ -475,7 +627,7 @@ noise:
    [`filter-bsplines`](#cmd-filter-bsplines) or 
    [`auto-filter-bs`](#cmd-auto-filter-bs).
  * Splike removals using [`remove-spikes`](#cmd-remove-spikes).
- * You even may considerd that manual point removal is filtering, in
+ * You even may consider that manual point removal is filtering, in
    which case the [`deldp`](#cmd-deldp) command qualifies too. 
 
 
@@ -818,50 +970,6 @@ Alias: `@`
 Run commands saved in a file
 {::comment} description-end: run {:/}
 
-{::comment} synopsis-start: antialias {:/}
-
-### antialias - Antialias {#cmd-antialias}
-
-`antialias` 
-
-Alias: `AA`
-
-
-{::comment} synopsis-end: antialias {:/}
-{::comment} description-start: antialias {:/}
-Toggles anti-aliasing for graphics rendering.
-{::comment} description-end: antialias {:/}
-
-{::comment} synopsis-start: cd {:/}
-
-### cd - Change directory {#cmd-cd}
-
-`cd` _directory_
-
-Alias: `G`
-
-  * _directory_: New directory
-
-{::comment} synopsis-end: cd {:/}
-{::comment} description-start: cd {:/}
-Change current directory
-{::comment} description-end: cd {:/}
-
-{::comment} synopsis-start: temperature {:/}
-
-### temperature - Temperature {#cmd-temperature}
-
-`temperature` `/set=`
-
-Alias: `T`
-
-  * `/set` (default): Sets the temperature
-
-{::comment} synopsis-end: temperature {:/}
-{::comment} description-start: temperature {:/}
-Shows or sets the temperature (using option)
-{::comment} description-end: temperature {:/}
-
 {::comment} synopsis-start: overlay-buffer {:/}
 
 ### overlay-buffer - Overlay buffers {#cmd-overlay-buffer}
@@ -976,18 +1084,6 @@ Removes all datasets but the current one from the display
 {::comment} description-start: combine-fits {:/}
 (...)
 {::comment} description-end: combine-fits {:/}
-
-{::comment} synopsis-start: commands {:/}
-
-### commands - Commands {#cmd-commands}
-
-`commands` 
-
-
-{::comment} synopsis-end: commands {:/}
-{::comment} description-start: commands {:/}
-List all available commands, along with a little help
-{::comment} description-end: commands {:/}
 
 {::comment} synopsis-start: cursor {:/}
 
@@ -1400,6 +1496,75 @@ Simulation command for [`fit-nernst`](#cmd-fit-nernst)
 {::comment} description-end: sim-nernst {:/}
 
 
+## Kinetic systems
+
+It is possible with QSoas to fit kinetic traces that follow the
+concentration of one or more species that are part of a full kinetic
+system. For that, you need to write a simple text file of the
+following form:
+
+~~~~
+A <=>[k_i][k_a] I1
+I1 ->[k_i2 * o2] I2
+~~~~
+
+This describes a kinetic system with three species, `A`, `I1` and
+`I2`, with a reversible reaction from `A` to `I1` with a forward
+rate of `k_i` and a backward rate of `k_a`, and an irreversible
+reaction from `I1` to `I2` with a rate of `k_i2 * o2`. 
+
+The files can contain comment lines starting with a `#`, and can
+contain an arbitrary large number of reactions.
+
+QSoas automatically detects the parameters from the fit, here `k_i`,
+`k_a`, `k_i2` and `o2`.
+
+It is possible to assign special time dependence to any of the
+parameters by using the `/with` option: 
+
+~~~~
+QSoas> fit-kinetic-system /with=o2:3,exp kinetic-file.txt
+~~~~
+
+This gives to `o2` the value of the sum of three exponential decays
+shifted in time (see formula below).
+
+There is for now only one type of time-dependence:
+
+  * `exp`, where the given parameter, `p` is given by:
+
+  $$ p = \sum_{i=1}^n p_i \exp \left( - \frac{t -
+  t^p_i}{\tau^p_i}\right) \times H(t - t^p_i)$$
+
+  where $$H$$ is the heavyside step function (1 for positive argument,
+  0 else) and $$n$$ is the number given just after `:` (in the above
+  command-line, that means you will have three different steps). You
+  may wish to have all $$\tau$$ values common, which you do by adding
+  `,common` in the spec:
+
+~~~~
+QSoas> fit-kinetic-system /with=o2:3,exp,common kinetic-file.txt
+~~~~
+
+
+{::comment} synopsis-start: fit-kinetic-system {:/}
+
+### fit-kinetic-system - Fit: Full kinetic system {#cmd-fit-kinetic-system}
+
+`fit-kinetic-system` _system_ `/with=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
+
+  * _system_: Path to the file describing the system
+  * `/with`: Dependency upon time of various parameters
+  * `/parameters`: Pre-loads parameters
+  * `/debug`: Turn on debugging (for QSoas developers only)
+  * `/extra-parameters`: Define supplementary parameters
+
+{::comment} synopsis-end: fit-kinetic-system {:/}
+{::comment} description-start: fit-kinetic-system {:/}
+Single buffer fit:
+Fits of exponentials on several steps with film loss bookkeeping
+{::comment} description-end: fit-kinetic-system {:/}
+
 
 {::comment} synopsis-start: fit-eecr-wave {:/}
 
@@ -1420,23 +1585,6 @@ Single buffer fit:
 ...
 {::comment} description-end: fit-eecr-wave {:/}
 
-{::comment} synopsis-start: fit-kinetic-system {:/}
-
-### fit-kinetic-system - Fit: Full kinetic system {#cmd-fit-kinetic-system}
-
-`fit-kinetic-system` _system_ `/with=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
-
-  * _system_: Path to the file describing the system
-  * `/with`: Dependency upon time of various parameters
-  * `/parameters`: Pre-loads parameters
-  * `/debug`: Turn on debugging (for QSoas developers only)
-  * `/extra-parameters`: Define supplementary parameters
-
-{::comment} synopsis-end: fit-kinetic-system {:/}
-{::comment} description-start: fit-kinetic-system {:/}
-Single buffer fit:
-Fits of exponentials on several steps with film loss bookkeeping
-{::comment} description-end: fit-kinetic-system {:/}
 
 
 
@@ -1480,8 +1628,14 @@ to [Abou-Hamdam _et al_, __PNAS__ 2012](http://dx.doi.org/10.1073/pnas.121225810
 
 {::comment} synopsis-end: fit-slow-scan-hp {:/}
 {::comment} description-start: fit-slow-scan-hp {:/}
-Single buffer fit:
-Slow scan
+Fit for the "high-potential" part of a slow voltammetric scan where
+inactivation occurs with rate constants that do not depend on
+time. The current for the active form is assumed to depend linearly on
+the potential.
+
+Formula:
+
+
 {::comment} description-end: fit-slow-scan-hp {:/}
 
 {::comment} synopsis-start: fit-slow-scan-lp {:/}
@@ -1497,8 +1651,21 @@ Slow scan
 
 {::comment} synopsis-end: fit-slow-scan-lp {:/}
 {::comment} description-start: fit-slow-scan-lp {:/}
-Single buffer fit:
-Slow scan
+Fit for the "low-potential" part of a slow voltammetric scan where the
+enzyme reactivates with a rate constant that depends exponentially on
+the potential: 
+
+$$ k_a = k \exp(- \alpha f E)$$
+
+The overall formula is:
+
+$$ i(E) = \underbrace{(A\times E+B)}_{\text{stationnary current}}
+   \underbrace{\left(  1 - (1-y_1) \exp^{-\frac{k}{\alpha f \nu}
+   (\exp^{\alpha f E}-\exp^{\alpha f E_1})}\right)}_
+   {\text{active fraction}} $$
+
+$$E_1$$ is the initial potential, $$\nu$$ the scan rate
+
 {::comment} description-end: fit-slow-scan-lp {:/}
 
 {::comment} synopsis-start: mfit-slow-scan-hp {:/}
@@ -1517,8 +1684,8 @@ Slow scan
 
 {::comment} synopsis-end: mfit-slow-scan-hp {:/}
 {::comment} description-start: mfit-slow-scan-hp {:/}
-multi buffer fit:
-Slow scan
+Multi-buffer variant of the
+[`fit-slow-scan-hp`](#cmd-fit-slow-scan-hp) fit.
 {::comment} description-end: mfit-slow-scan-hp {:/}
 
 {::comment} synopsis-start: mfit-slow-scan-lp {:/}
@@ -1536,14 +1703,19 @@ Slow scan
 
 {::comment} synopsis-end: mfit-slow-scan-lp {:/}
 {::comment} description-start: mfit-slow-scan-lp {:/}
-multi buffer fit:
-Slow scan
+Multi-buffer variant of the
+[`fit-slow-scan-lp`](#cmd-fit-slow-scan-lp) fit.
 {::comment} description-end: mfit-slow-scan-lp {:/}
+
+## Wave shape fits
+
+
 
 ## Unsupported fits
 
-Most of these fits are not documented, not guaranteed to be reasonably
-stable, or even to actually have ever been in use.
+These fits are not documented, not guaranteed to be reasonably stable,
+stay in future versions of QSoas, or even to actually have ever been
+used.
 
 
 {::comment} synopsis-start: fit-duck-sim {:/}
@@ -1756,18 +1928,6 @@ multi buffer fit:
 Reactivation
 {::comment} description-end: mfit-react-exp {:/}
 
-{::comment} synopsis-start: opengl {:/}
-
-### opengl - OpenGL {#cmd-opengl}
-
-`opengl` 
-
-
-{::comment} synopsis-end: opengl {:/}
-{::comment} description-start: opengl {:/}
-Toggles the use of OpenGL for graphics rendering.
-{::comment} description-end: opengl {:/}
-
 {::comment} synopsis-start: overlay {:/}
 
 ### overlay - Overlay {#cmd-overlay}
@@ -1783,22 +1943,6 @@ Alias: `v`
 Loads the given files and push them onto the data stack, adding them to the display at the same time
 {::comment} description-end: overlay {:/}
 
-{::comment} synopsis-start: print {:/}
-
-### print - Print {#cmd-print}
-
-`print` `/file=` `/title=`
-
-Alias: `p`
-
-  * `/file`: Save as file
-  * `/title`: Sets the title of the page as printed
-
-{::comment} synopsis-end: print {:/}
-{::comment} description-start: print {:/}
-Prints the current main panel of the current view
-{::comment} description-end: print {:/}
-
 {::comment} synopsis-start: points {:/}
 
 ### points - Show points {#cmd-points}
@@ -1813,19 +1957,6 @@ Alias: `poi`
 Shows all the points of datasets displayed.
 {::comment} description-end: points {:/}
 
-{::comment} synopsis-start: quit {:/}
-
-### quit - Quit {#cmd-quit}
-
-`quit` 
-
-Alias: `q`
-
-
-{::comment} synopsis-end: quit {:/}
-{::comment} description-start: quit {:/}
-Exits QSoas, losing all the current session
-{::comment} description-end: quit {:/}
 
 
 {::comment} synopsis-start: reglin {:/}
@@ -1854,19 +1985,6 @@ Alias: `reg`
 {::comment} description-start: save-buffers {:/}
 Saves the designated buffers to file
 {::comment} description-end: save-buffers {:/}
-
-{::comment} synopsis-start: save-history {:/}
-
-### save-history - Save history {#cmd-save-history}
-
-`save-history` _file_
-
-  * _file_: Output file
-
-{::comment} synopsis-end: save-history {:/}
-{::comment} description-start: save-history {:/}
-Saves all the command history to a plain text file, to be used again with run
-{::comment} description-end: save-history {:/}
 
 {::comment} synopsis-start: save-output {:/}
 

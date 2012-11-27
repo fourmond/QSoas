@@ -39,6 +39,7 @@
    help brower)
    \li include (or not) some data when using multifit (weight globally
    a buffer ?)
+   @li manually tweak/set the baseline for FFT
 
    \section bugs Known bugs
    @li hard crashes on cut/deldp (index out of bounds)
@@ -274,6 +275,7 @@ MainWin::MainWin()
                 << "This program is free software, released under the terms of \n"
                 << "the GNU general public license (see http://www.gnu.org/copyleft/gpl.html)\n\n" 
                 << "Starting at " << QDateTime::currentDateTime().toString()
+                << "\nCurrent directory is: " << QDir::currentPath() 
                 << "\nCurrent temperature is: " << soasInstance->temperature() 
                 << " K\n\n" 
                 << "To list available commands, type 'commands'\n"

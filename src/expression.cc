@@ -146,14 +146,24 @@ const QStringList & Expression::naturalVariables() const
   return minimalVariables;
 }
 
-double Expression::evaluate(const double * values) const
+VALUE Expression::rubyEvaluation(const double * values) const
 {
   int size = variables.size();
   for(int i = 0; i < size; i++)
     RFLOAT_VALUE(args[i]) = values[i];
   VALUE ret = Ruby::run(&rb_funcall2, code, 
                         callID(), size, (const VALUE *) args);
-  return NUM2DBL(ret);
+  return ret;
+}
+
+double Expression::evaluate(const double * values) const
+{
+  return NUM2DBL(rubyEvaluation(values));
+}
+
+bool Expression::evaluateAsBoolean(const double * values) const
+{
+  return RTEST(rubyEvaluation(values));
 }
 
 int Expression::evaluateIntoArray(const double * values, 

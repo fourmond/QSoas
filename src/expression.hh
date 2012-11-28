@@ -71,6 +71,9 @@ class Expression {
   /// Builds the args array
   void buildArgs();
 
+  /// Evaluate as a Ruby VALUE
+  VALUE rubyEvaluation(const double * values) const;
+
 public:
 
   /// Creates an expression object (and compile it)
@@ -93,6 +96,11 @@ public:
 
   /// Evaluate the expression with the given values for the variables
   double evaluate(const double * variables) const;
+
+  
+  /// Evaluate the expression as a boolean
+  bool evaluateAsBoolean(const double * variables) const;
+  
 
   /// Evaluate into an array. This can be used when an expression
   /// isn't expected to return a single value, but rather an array of

@@ -26,8 +26,6 @@
 #include <soas.hh>
 
 #include <datastack.hh>
-#include <ruby.hh>
-#include <ruby-templates.hh>
 
 #include <dataset.hh>
 #include <vector.hh>
@@ -53,8 +51,8 @@ static void applyFormulaCommand(const QString &, QString formula)
   Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
     arg(formula).arg(ds->name) << endl;
   QStringList vars;
-  vars << "x" << "y";              // @todo handle the case of a
-                                   // larger number of columns
+  vars << "x" << "y";              /// @todo handle the case of a
+                                   /// larger number of columns
 
   formula = QString("%1\n%3\n[%2]").
     arg(vars.join("\n")).       /// @todo This is hackish, but, well
@@ -96,3 +94,56 @@ load("apply-formula", // command name
      QT_TR_NOOP("Applies a formula to the current dataset. "
                 "The formula must be valid Ruby code."),
      "F");
+
+//////////////////////////////////////////////////////////////////////
+
+static ArgumentList 
+tA(QList<Argument *>() 
+   << new StringArgument("formula", 
+                         "Formula",
+                         "Ruby boolean expression"));
+
+static void trimIfCommand(const QString &, QString formula)
+{
+  const DataSet * ds = soas().currentDataSet();
+  Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
+    arg(formula).arg(ds->name) << endl;
+  QStringList vars;
+  vars << "x" << "y";              // @todo handle the case of a
+                                   // larger number of columns
+
+  Expression exp(formula, vars);
+  
+  Vector newX, newY;
+  int dropped = 0;
+  {
+    const Vector & xc = ds->x();
+    const Vector & yc = ds->y();
+    double vars[2];
+    for(int i = 0; i < xc.size(); i++) {
+      vars[0] = xc[i];
+      vars[1] = yc[i];
+      if(! exp.evaluateAsBoolean(vars)) {
+        newX << vars[0];
+        newY << vars[1];
+      }
+      else
+        ++dropped;
+    }
+  }
+
+  Terminal::out << "Removed " << dropped << " points" << endl;
+  DataSet * newDs = new DataSet(QList<Vector>() << newX << newY);
+  newDs->name = ds->cleanedName() + "_trimmed.dat";
+  soas().pushDataSet(newDs);
+}
+
+
+static Command 
+trimIf("trim-if", // command name
+       optionLessEffector(trimIfCommand), // action
+       "stack",  // group name
+       &tA, // arguments
+       NULL, // options
+       "Trim points",
+       "Remove points for which the formula is true", "");

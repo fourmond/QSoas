@@ -412,6 +412,7 @@ protected:
   {
     delete system;
     delete evolver;
+    evolver = NULL;             // Prevent segfault upon destruction if
     system = new KineticSystem;
     system->parseFile(fileName);
     system->prepare();

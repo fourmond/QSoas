@@ -76,6 +76,9 @@ static void reglinCommand(CurveEventLoop &loop, const QString &)
   double xleft = ds->x().min();
   double xright = ds->x().max();
 
+  // Computed fields:
+  double decay_rate = 0;
+
 
   loop.setHelpString(QObject::tr("Linear regression:\n"
                                  "left click: left boundary\n"
@@ -96,7 +99,11 @@ static void reglinCommand(CurveEventLoop &loop, const QString &)
         line.p1 = QPointF(xleft, y);
         y = reg.first * xright + reg.second;
         line.p2 = QPointF(xright, y);
-        Terminal::out << reg.first << "\t" << reg.second << endl;
+
+        // Apparent first-order rate constants
+        decay_rate = reg.first/(reg.second + reg.first * r.xleft);
+        Terminal::out << reg.first << "\t" << reg.second 
+                      << "\t" << decay_rate << endl;
         soas().showMessage(QObject::tr("Regression between X=%1 and X=%2").
                            arg(r.xleft).arg(r.xright));
 
@@ -140,11 +147,13 @@ static void reglinCommand(CurveEventLoop &loop, const QString &)
       }
       case ' ': {
         OutFile::out.setHeader(QString("Dataset: %1\n"
-                                       "a\tb\txleft\txright").
+                                       "a\tb\tkeff\txleft\txright").
                                arg(ds->name));
         /// @todo add other fields ? 
-        OutFile::out << reg.first << "\t" << reg.second << "\t"
-                     << r.xleft << "\t" << r.xright << "\n" << flush;
+        OutFile::out << reg.first << "\t" << reg.second 
+                     << "\t" << decay_rate
+                     << "\t" << r.xleft << "\t" << r.xright 
+                     << "\n" << flush;
         Terminal::out << "Writing to output file " << OutFile::out.fileName()
                       << endl;
         break;

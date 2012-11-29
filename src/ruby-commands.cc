@@ -103,7 +103,7 @@ tA(QList<Argument *>()
                          "Formula",
                          "Ruby boolean expression"));
 
-static void trimIfCommand(const QString &, QString formula)
+static void stripIfCommand(const QString &, QString formula)
 {
   const DataSet * ds = soas().currentDataSet();
   Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
@@ -140,10 +140,10 @@ static void trimIfCommand(const QString &, QString formula)
 
 
 static Command 
-trimIf("trim-if", // command name
-       optionLessEffector(trimIfCommand), // action
+stripIf("strip-if", // command name
+       optionLessEffector(stripIfCommand), // action
        "stack",  // group name
        &tA, // arguments
        NULL, // options
-       "Trim points",
+       "Strip points",
        "Remove points for which the formula is true", "");

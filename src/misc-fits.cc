@@ -265,6 +265,136 @@ SlowScanHighPotFit fit_slow_scan_high_pot;
 
 
 /// Fits to the EECR model of electrochemical waves
+class ECRFit : public PerDatasetFit {
+  /// Whether or not the current plateaus off at extreme potentials.
+  bool plateau;
+
+  /// Whether we use Eoc or k2/k_m2
+  bool useEoc;
+
+  /// Whether the current is a reduction current (default) or an
+  /// oxidation current
+  bool isOxidation;
+
+protected:
+
+  virtual void processOptions(const CommandOptions & opts)
+  {
+    plateau = false;
+    useEoc = false;
+    isOxidation = false;
+    updateFromOptions(opts, "plateau", plateau);
+    // updateFromOptions(opts, "use-eoc", useEoc);
+    // updateFromOptions(opts, "oxidation", isOxidation);
+  }
+
+  
+  virtual QString optionsString() const {
+    return QString("%1, %2, %3").
+      arg(plateau ? "reaching plateau" : "not reaching plateau").
+      arg(useEoc ? "eoc" : "bias").
+      arg(isOxidation ? "oxidation" : "reduction");
+  }
+
+public:
+
+
+  /// Formula:
+  virtual void function(const double * params, FitData * , 
+                        const DataSet * ds , gsl_vector * target) {
+
+    const Vector & xv = ds->x();
+    double f = GSL_CONST_MKSA_FARADAY /(params[0] * GSL_CONST_MKSA_MOLAR_GAS);
+
+    for(int i = 2; i <= 3; i++)
+      if(params[i] < 0)
+        throw RangeError(QString("Negative rate constant ratio: #%1").arg(i));
+
+    double cur = params[4];
+    double bias = params[3];
+
+    if(cur > 0)
+      throw RangeError("Positive reduction current");
+
+    for(int i = 0; i < xv.size(); i++) {
+      double x = xv[i];
+      double eone = exp(f * (x - params[1]));
+      
+      double b = params[2] * sqrt(eone) * (1 + 1/bias);
+      double a = 1 + eone;
+      double ap = eone/bias;
+      
+      double v;
+      if(plateau)
+        v = cur * (1 - ap)/a * 
+          (1 + log((bias * a + b)/
+                   (bias * a + b * exp(params[5])))/params[5]);
+      else
+        v = cur * (1 - ap)/a * log((bias * a + b)/b);
+      gsl_vector_set(target, i, v);
+    }
+  };
+
+  virtual void initialGuess(FitData * , 
+                            const DataSet * ds,
+                            double * a)
+  {
+    a[0] = soas().temperature();
+    a[1] = -0.6; 
+    a[2] = 1; 
+    a[3] = 2; 
+    a[4] = -1e-5;
+    if(plateau)
+      a[5] = 1;
+  };
+
+  virtual QList<ParameterDefinition> parameters() const {
+    QList<ParameterDefinition> defs;
+    defs << ParameterDefinition("temperature", true)
+         << ParameterDefinition("E0")
+         << ParameterDefinition("k2/k0");
+    defs << ParameterDefinition("k2/k-2"); 
+    if(plateau)
+      defs << ParameterDefinition("ilim")
+           << ParameterDefinition("betad0");
+    else
+      defs << ParameterDefinition("ilim/betad0");
+    return defs;
+  };
+
+
+  ECRFit() :
+    PerDatasetFit("ecr-wave", 
+                  "Fit of an EECR catalytic wave",
+                  "...", 1, -1, false) 
+  { 
+    ArgumentList * opts = new 
+      ArgumentList(QList<Argument *>()
+                   << new 
+                   BoolArgument("plateau", 
+                                "Plateau",
+                                "Whether to use the general expression or "
+                                "only that valid when plateaus are not reached")
+                   << new 
+                   BoolArgument("oxidation", 
+                                "...",
+                                "???")
+                   << new 
+                   BoolArgument("use-eoc", 
+                                "Use open circuit",
+                                "Whether to use explicitly the bias or compute "
+                                "it using the open circuit potential")
+                   );
+    makeCommands(NULL, NULL, NULL, opts);
+  }
+};
+
+
+// DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
+// Its name doesn't matter.
+ECRFit fit_ecr;
+
+/// Fits to the EECR model of electrochemical waves
 class EECRFit : public PerDatasetFit {
   /// Whether or not the current plateaus off at extreme potentials.
   bool plateau;
@@ -282,6 +412,7 @@ protected:
   {
     plateau = false;
     useEoc = false;
+    isOxidation = false;
     updateFromOptions(opts, "plateau", plateau);
     updateFromOptions(opts, "use-eoc", useEoc);
     updateFromOptions(opts, "oxidation", isOxidation);

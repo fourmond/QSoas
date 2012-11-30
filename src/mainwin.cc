@@ -148,6 +148,10 @@
    \li detection of "weird" parameters, ie a parameter that suddenly
    takes INF or NAN values while it didn't take before. This is a
    clear sign of something going wrong.
+   @li All parameters should be saved somewhere in memory in a
+   session, in order to recover from a fit one quits too fast ;-)...
+   @li Ideally, fit iterations should be done in a cancellable
+   parallel thread to make sure one can abort a very-long computation.
 
    @b Fits @b dialogs:
 

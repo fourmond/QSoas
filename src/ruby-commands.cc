@@ -103,6 +103,7 @@ tA(QList<Argument *>()
                          "Formula",
                          "Ruby boolean expression"));
 
+/// @todo Large number of columns must be handled !
 static void stripIfCommand(const QString &, QString formula)
 {
   const DataSet * ds = soas().currentDataSet();
@@ -113,19 +114,20 @@ static void stripIfCommand(const QString &, QString formula)
                                    // larger number of columns
 
   Expression exp(formula, vars);
-  
-  Vector newX, newY;
+
+  QList<Vector> newcols;
+  for(int i = 0; i < ds->nbColumns(); i++)
+    newcols << Vector();
   int dropped = 0;
   {
     const Vector & xc = ds->x();
-    const Vector & yc = ds->y();
-    double vars[2];
+    QVarLengthArray<double, 1000> vars(ds->nbColumns());
     for(int i = 0; i < xc.size(); i++) {
-      vars[0] = xc[i];
-      vars[1] = yc[i];
-      if(! exp.evaluateAsBoolean(vars)) {
-        newX << vars[0];
-        newY << vars[1];
+      for(int j = 0; j < ds->nbColumns(); j++)
+        vars[j] = ds->column(j)[i];
+      if(! exp.evaluateAsBoolean(vars.data())) {
+        for(int j = 0; j < ds->nbColumns(); j++)
+          newcols[j] << vars[j];
       }
       else
         ++dropped;
@@ -133,7 +135,7 @@ static void stripIfCommand(const QString &, QString formula)
   }
 
   Terminal::out << "Removed " << dropped << " points" << endl;
-  DataSet * newDs = new DataSet(QList<Vector>() << newX << newY);
+  DataSet * newDs = new DataSet(newcols);
   newDs->name = ds->cleanedName() + "_trimmed.dat";
   soas().pushDataSet(newDs);
 }

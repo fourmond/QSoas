@@ -22,6 +22,7 @@
 #define __DATASET_HH
 
 #include <vector.hh>
+#include <guarded.hh>
 
 /// A class representing a data set (formerly Soas buffers).
 ///
@@ -31,7 +32,7 @@
 /// later.
 ///
 /// @todo Add support for meta-data.
-class DataSet {
+class DataSet : public Guardable {
 
   /// The columns
   QList<Vector> columns;

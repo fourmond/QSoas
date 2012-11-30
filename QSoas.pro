@@ -247,7 +247,8 @@ HEADERS += src/headers.hh \
         src/odesolver.hh \
         src/rubyodesolver.hh \
         src/kineticsystem.hh \
-        src/kineticsystemevolver.hh
+        src/kineticsystemevolver.hh \
+        src/guarded.hh
 
 
 # We link with the converted ODRPACK library

@@ -22,6 +22,7 @@
 #define __CURVEDATASET_HH
 
 #include <curveitem.hh>
+#include <guarded.hh>
 
 class DataSet;
 
@@ -30,7 +31,7 @@ class DataSet;
 /// @todo Add markers on demand !
 class CurveDataSet : public CurveItem {
   /// The dataset attached to this object
-  const DataSet * dataSet;
+  ConstGuardedPointer<DataSet> dataSet;
 
   QPolygonF * cachedPath;
 

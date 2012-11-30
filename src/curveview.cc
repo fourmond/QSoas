@@ -61,7 +61,7 @@ void CurveView::doRepaint()
     repaintRequested = true;
   }
   else {
-    viewport()->repaint();
+    viewport()->update();
   }
 }
 

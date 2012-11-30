@@ -36,11 +36,16 @@ CurveDataSet::~CurveDataSet()
 
 QRectF CurveDataSet::boundingRect() const
 {
-  return dataSet->boundingBox();
+  if(dataSet)
+    return dataSet->boundingBox();
+  else
+    return QRectF();
 }
 
 void CurveDataSet::createPath()
 {
+  if(! dataSet)
+    return;
   if(cachedPath)
     return;
   cachedPath = new QPolygonF;
@@ -57,6 +62,8 @@ void CurveDataSet::createPath()
 void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
                          const QTransform & ctw)
 {
+  if(! dataSet)
+    return;
   createPath();
   painter->setPen(pen);
   painter->drawPolyline(ctw.map(*cachedPath));
@@ -83,6 +90,8 @@ void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
 
 QRect CurveDataSet::paintLegend(QPainter * p, const QRect & rect)
 {
+  if(! dataSet)
+    return QRect();
   /// @todo many things to customize here...
   
   QPoint p1 = QPoint(rect.left(), (rect.bottom() + rect.top())/2);
@@ -127,6 +136,8 @@ double CurveDataSet::distanceTo(const QPointF & point,
 
 QString CurveDataSet::toolTipText(const QPointF & pt)
 {
+  if(! dataSet)
+    return QString();
   if(lastPointIdx < 0 || pt != lastPoint)
     return QString();
   QString str;

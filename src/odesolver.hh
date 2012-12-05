@@ -21,10 +21,91 @@
 #ifndef __ODESOLVER_HH
 #define __ODESOLVER_HH
 
+#include <argumentmarshaller.hh>
+
 class Vector;
+class Argument;
+
+/// Simple wrapper around options for ODEStepper.
+///
+/// @todo Probably the easiest customization would be
+/// bit-by-bit, ie:
+/// 
+///   /adaptative=true /step=0.0001 /method=rk45...
+///
+/// For that, a simple approach would be options definition and
+/// parsing at the ODEStepperOptions level
+class ODEStepperOptions {
+public:
+
+  /// Which stepper is used
+  const gsl_odeiv2_step_type * type;
+
+  /// Initial step size
+  double hStart;
+
+  /// Absolute error
+  double epsAbs;
+
+  /// Relative error
+  double epsRel;
+
+  /// Whether or not the system uses a fixed step
+  bool fixed;
+
+  ODEStepperOptions(const gsl_odeiv2_step_type * t = gsl_odeiv2_step_rkf45,
+                    double hs = 0.01, double ea = 1e-5, 
+                    double er = 1e-5, bool fixed = false);
+
+  /// Returns a list of commandOptions suitable to add to stepper
+  /// functions.
+  static QList<Argument*> commandOptions();
+
+  /// Parses the stepper-related options in the given CommandOptions
+  void parseOptions(const CommandOptions & opts);
+
+  /// Describes the options
+  QString description() const;
+};
+
+/// This class embeds a driver object
+class ODEStepper {
+  
+  /// The driver for the integration
+  gsl_odeiv2_driver * driver;
+
+  /// The target system
+  gsl_odeiv2_system * system;
+
+  /// Frees the driver
+  void freeDriver();
+
+  /// The configuration options.
+  ODEStepperOptions options;
+
+public:
+  ODEStepper();
+  ~ODEStepper();
+  
+  /// Initializes the stepper to work on the target system.
+  void initialize(gsl_odeiv2_system * system);
+
+  /// Resets the system (necessary to restart evolution ?)
+  void reset();
+
+  /// Steps from *t to t1
+  int apply(double * t, const double t1, double y[]);
+
+  /// Configures the stepper
+  void setOptions(const ODEStepperOptions & options);
+
+  /// Returns the current options
+  const ODEStepperOptions & getOptions() const { return options;};
+};
 
 /// This is the base class for all the ODE solver problems. To use it,
-/// you must use a derived class and reimplement the
+/// you must use a derived class and reimplement the dimension() and
+/// computeDerivatives() function.
 ///
 ///
 /// @todo Add automatic jacobian computation ? (don't know if that's
@@ -38,11 +119,8 @@ class ODESolver {
   /// Frees the driver
   void freeDriver();
 
-  /// The underlying driver 
-  gsl_odeiv2_driver * driver;
-
-  /// The type of the solver
-  const gsl_odeiv2_step_type * type;
+  /// The underlying stepper
+  ODEStepper stepper;
 
   /// The current values
   double *yValues;
@@ -62,9 +140,14 @@ public:
   /// Builds a solver object.
   ///
   /// @todo Add "control" object selection (and parametrization)
-  ODESolver(const gsl_odeiv2_step_type * T = gsl_odeiv2_step_rkf45);
-
+  ODESolver();
   virtual ~ODESolver();
+
+  /// Sets the stepper options
+  void setStepperOptions(const ODEStepperOptions & opts);
+
+  /// Gets the current stepper options
+  const ODEStepperOptions & getStepperOptions();
 
   /// Returns the dimension of the problem
   virtual int dimension() const = 0;

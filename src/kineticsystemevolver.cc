@@ -380,6 +380,30 @@ protected:
     QStringList lst;
     updateFromOptions(opts, "with", lst);
 
+    // Parse ODEStepperOptions
+    ODEStepperOptions op = evolver->getStepperOptions();
+    op.fixed = true;           // fixed step by default.
+    op.parseOptions(opts);
+
+    if(op.fixed) {
+      // Decrease drastically the precision !
+      op.epsAbs = 1e-2;
+      op.epsRel = 1e-2;
+
+      // By default, set the step size to 0 in that case 
+      // (meaning make one step by data point)
+      op.hStart = 0;
+      op.parseOptions(opts);    // Parse again in case the step was
+                                // set in the options
+    }
+
+    evolver->setStepperOptions(op);
+
+    // Dump the options on the terminal ?
+    Terminal::out << "Using integrator parameters: " 
+                  << op.description() << endl;
+    
+
     int baseIndex = 0;
     tdParameters.clear();
 
@@ -535,7 +559,7 @@ public:
                                        "system"));
 
     ArgumentList * opts = new 
-      ArgumentList(QList<Argument *>()
+      ArgumentList(ODEStepperOptions::commandOptions()
                    << new SeveralStringsArgument("with", 
                                                  "Time dependent parameters",
                                                  "Dependency upon time of "

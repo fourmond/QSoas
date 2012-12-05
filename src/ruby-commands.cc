@@ -86,7 +86,7 @@ static void applyFormulaCommand(const QString &, QString formula)
 static Command 
 load("apply-formula", // command name
      optionLessEffector(applyFormulaCommand), // action
-     "stack",  // group name
+     "buffer",  // group name
      &fA, // arguments
      NULL, // options
      "Apply formula",
@@ -144,7 +144,7 @@ static void stripIfCommand(const QString &, QString formula)
 static Command 
 stripIf("strip-if", // command name
        optionLessEffector(stripIfCommand), // action
-       "stack",  // group name
+       "buffer",  // group name
        &tA, // arguments
        NULL, // options
        "Strip points",

@@ -90,13 +90,32 @@ tcmd("tex-commands", // command name
 //////////////////////////////////////////////////////////////////////
 
 
-static void helpCommand(const QString &, QString command)
+/// @todo This will have to be customizable later on (and probably
+/// even version-dependent !)
+///
+/// @todo Maybe this will make it obsolete to have embedded
+/// documentation ?
+QString docUrl("http://10.234.32.140/soas/qsoas.html");
+
+
+static void helpCommand(const QString &, QString command, 
+                        const CommandOptions & opts)
 {
   Command * cmd = Command::namedCommand(command);
   
   QStringList synopsis;
   QString descs;
 
+  
+  bool online = true; /// @todo Have that customizable ?
+
+  updateFromOptions(opts, "online", online);
+  if(online) {
+    QUrl url = docUrl;
+    url.setFragment("cmd-" + cmd->commandName());
+    QDesktopServices::openUrl(url);
+    return;
+  }
   /// @todo the documentation-building facilities should join Command
   /// rather than being here.
   if(cmd->commandArguments()) {
@@ -138,13 +157,19 @@ helpA(QList<Argument *>()
                             "command", "Command",
                             "The command on which to give help"));
 
+static ArgumentList 
+helpO(QList<Argument *>() 
+      << new BoolArgument("online", "Online version",
+                          "Show the online documentation in a browser",
+                          true));
+
 
 static Command 
 hlpc("help", // command name
-     optionLessEffector(helpCommand), // action
+     effector(helpCommand), // action
      "help",  // group name
      &helpA, // arguments
-     NULL, // options
+     &helpO, // options
      "Help on...",
      "Give help on command",
      "Gives all help available on the given command",

@@ -64,7 +64,22 @@ public:
 class CurveHorizontalRegion : public CurveItem {
 public:
 
+  /// Whether this guarantees xleft < xright.
+  ///
+  /// Off by default
+  bool autoSwap;
+
+  CurveHorizontalRegion();
+
+  QPen leftPen;
+  QPen rightPen;
   double xleft, xright;
+
+  /// Returns the lowest X value
+  double xmin() const;
+
+  /// Returns the highest X value
+  double xmax() const;
 
   /// Sets either the left of right X value, depending on the button
   /// pressed. (or neither)

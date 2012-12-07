@@ -49,7 +49,7 @@ public:
   SettingsValue(const QString & n, const T & v) : Settings(n), value(v) {
   };
 
-  operator T () {
+  operator T () const {
     return value;
   };
 

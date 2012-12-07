@@ -32,6 +32,7 @@
 #include <dataset.hh>
 
 #include <soas.hh>
+#include <graphicssettings.hh>
 #include <datastack.hh>
 
 #include <exceptions.hh>
@@ -48,7 +49,7 @@ CurveView::CurveView() :
   setFrameShape(QFrame::NoFrame);
   setCursor(Qt::CrossCursor);
 
-  setOpenGL(soas().openGL());
+  setOpenGL(soas().graphicsSettings().openGL());
 }
 
 CurveView::~CurveView()
@@ -102,7 +103,7 @@ void CurveView::paintEvent(QPaintEvent * /*event*/)
 {
   QPainter p(viewport());
 
-  if(soas().antiAlias()) {
+  if(soas().graphicsSettings().antiAlias()) {
     p.setRenderHints(QPainter::Antialiasing, true);
     p.setRenderHints(QPainter::HighQualityAntialiasing, true);
   }
@@ -120,15 +121,9 @@ void CurveView::paintEvent(QPaintEvent * /*event*/)
   }
 }
 
-static const char * colors[] = 
-  { "red", "blue", "#080", "orange", "purple" };
-static int nbColors = sizeof(colors)/sizeof(colors[0]);
-
 QPen CurveView::penForNextCurve()
 {
-  /// @todo and what about
-  QPen p(QColor(colors[nbStyled++ % nbColors]), 1.2);
-  return p;
+  return soas().graphicsSettings().dataSetPen(nbStyled++);
 }
 
 void CurveView::addItem(CurveItem * item)

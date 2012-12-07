@@ -33,6 +33,8 @@
 #include <curveitems.hh>
 #include <curvepanel.hh>
 
+#include <graphicssettings.hh>
+
 #include <pointpicker.hh>
 #include <math.h>
 
@@ -367,6 +369,8 @@ cu("cursor", // command name
 static void cutCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
+  const GraphicsSettings & gs = soas().graphicsSettings();
+
   CurveHorizontalRegion r;
   CurveView & view = soas().view();
 
@@ -376,8 +380,7 @@ static void cutCommand(CurveEventLoop &loop, const QString &)
   view.addItem(&r);
   view.addItem(&d);
 
-  r.pen = QPen(QColor("blue"), 1, Qt::DotLine);
-  d.pen = QPen(QColor("red"));
+  d.pen = gs.getPen(GraphicsSettings::ResultPen);
 
   view.mainPanel()->xLabel = "Index";
 
@@ -445,7 +448,7 @@ static void zoomCommand(CurveEventLoop &loop, const QString &)
   CurveView & view = soas().view();
   CurvePanel * panel = NULL;
   view.addItem(&r);
-  r.pen = QPen(Qt::DotLine);
+  r.pen = QPen(Qt::DotLine); /// @todo customize this
   r.brush = QBrush(QColor(0,0,255,50)); // A kind of transparent blue
 
   loop.setHelpString(QObject::tr("Zoom:\n"

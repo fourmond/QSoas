@@ -24,6 +24,8 @@
 #include <datastack.hh>
 #include <curveview.hh>
 
+#include <graphicssettings.hh>
+
 #include <settings-templates.hh>
 
 CurveView & Soas::view()
@@ -36,10 +38,11 @@ Soas * Soas::theSoasInstance = NULL;
 static SettingsValue<double> temperature("soas/temperature", 298);
 
 Soas::Soas() : 
-  mw(NULL), antialias(false), opengl(false)
+  mw(NULL)
 {
   theSoasInstance = this;
   ds = new DataStack;
+  gs = new GraphicsSettings;
 }
 
 double Soas::temperature() const {
@@ -48,17 +51,6 @@ double Soas::temperature() const {
 
 void Soas::setTemperature(double d) {
   ::temperature = d;
-}
-
-void Soas::setAntiAlias(bool b)
-{
-  antialias = b;
-}
-
-void Soas::setOpenGL(bool b)
-{
-  opengl = b;
-  view().setOpenGL(opengl);
 }
 
 CommandWidget & Soas::prompt() 

@@ -38,12 +38,10 @@ class Soas {
 
   MainWin * mw;
   DataStack * ds;
+  GraphicsSettings * gs;
 
   static Soas * theSoasInstance;
   
-  bool antialias;
-  bool opengl;
-
 public:
 
   Soas();
@@ -56,16 +54,6 @@ public:
     return theSoasInstance;
   };
 
-  void setAntiAlias(bool b);
-  bool antiAlias() const {
-    return antialias;
-  };
-
-  void setOpenGL(bool b);
-  bool openGL() const {
-    return opengl;
-  };
-
   /// Shows a message in the main window status bar.
   void showMessage(const QString &str, int ms = 3000);
 
@@ -76,10 +64,16 @@ public:
   void pushDataSet(DataSet * ds);
 
 
+  /// @name Element accessors
+  ///
+  /// Accessors to the main elements
+  /// @{
   MainWin & mainWin() { return *mw; };
   DataStack & stack() { return *ds; };
   CurveView & view();
   CommandWidget & prompt(); 
+  GraphicsSettings & graphicsSettings() { return *gs;};
+  /// @}
 
   
   /// The current temperature
@@ -87,6 +81,8 @@ public:
 
   /// The current temperature
   void setTemperature(double t);
+
+
 };
 
 /// Returns the application-wide Soas instance

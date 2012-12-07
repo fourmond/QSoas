@@ -24,6 +24,8 @@
 #include <soas.hh>
 #include <datastack.hh>
 
+#include <graphicssettings.hh>
+
 /// @todo The CurveDataSet object should register itself and the
 /// dataset it points to somewhere, so that when a DataSet gets
 /// deleted, we make sure the corresponding views become invalid. A
@@ -62,6 +64,7 @@ void CurveDataSet::createPath()
 void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
                          const QTransform & ctw)
 {
+  const GraphicsSettings & gs = soas().graphicsSettings();
   if(! dataSet)
     return;
   createPath();
@@ -75,8 +78,7 @@ void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
   }
 
   painter->save();
-  QPen pen(QColor("blue"), 1, Qt::DotLine);
-  painter->setPen(pen);
+  painter->setPen(gs.getPen(GraphicsSettings::SegmentsPen));
   // Then, we paint the segments if applicable
   Vector segments = dataSet->segmentPositions();
   for(int i = 0; i < segments.size(); i++)

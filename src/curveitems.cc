@@ -19,6 +19,9 @@
 #include <headers.hh>
 #include <curveitems.hh>
 
+#include <graphicssettings.hh>
+#include <soas.hh>
+
 QRectF CurveLine::boundingRect() const
 {
   return QRectF(p1, p2).normalized();
@@ -56,6 +59,13 @@ void CurveVerticalLines::paint(QPainter * painter, const QRectF & bbox,
   painter->restore();
 }
 
+CurveHorizontalRegion::CurveHorizontalRegion() :
+  autoSwap(false)
+{
+  leftPen = soas().graphicsSettings().getPen(GraphicsSettings::LeftSidePen);
+  rightPen = soas().graphicsSettings().getPen(GraphicsSettings::RightSidePen);
+}
+  
 
 void CurveHorizontalRegion::setX(double value, Qt::MouseButton button)
 {
@@ -69,8 +79,22 @@ void CurveHorizontalRegion::setX(double value, Qt::MouseButton button)
   default:
     ;
   }
-  if(xleft > xright)
+  if(autoSwap && xleft > xright)
     std::swap(xleft, xright);
+}
+
+double CurveHorizontalRegion::xmin() const
+{
+  if(xleft > xright)
+    return xright;
+  return xleft;
+}
+
+double CurveHorizontalRegion::xmax() const
+{
+  if(xleft < xright)
+    return xright;
+  return xleft;
 }
 
 
@@ -78,9 +102,10 @@ void CurveHorizontalRegion::paint(QPainter * painter, const QRectF & bbox,
                                   const QTransform & ctw)
 {
   painter->save();
-  painter->setPen(pen);
+  painter->setPen(leftPen);
   painter->drawLine(ctw.map(QLineF(xleft, bbox.top(), 
                                    xleft, bbox.bottom())));
+  painter->setPen(rightPen);
   painter->drawLine(ctw.map(QLineF(xright, bbox.top(), 
                                    xright, bbox.bottom())));
   painter->restore();

@@ -43,6 +43,8 @@
 #include <pointpicker.hh>
 #include <pointtracker.hh>
 
+#include <graphicssettings.hh>
+
 #include <fft.hh>
 
 #include <peaks.hh>
@@ -51,7 +53,8 @@
 static void reglinCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
-  ;
+  const GraphicsSettings & gs = soas().graphicsSettings();
+
   CurveLine line;
   CurveHorizontalRegion r;
   CurveView & view = soas().view();
@@ -68,10 +71,8 @@ static void reglinCommand(CurveEventLoop &loop, const QString &)
 
 
   view.addPanel(&bottom);
-  r.pen = QPen(QColor("blue"), 1, Qt::DotLine);
-  r.pen.setCosmetic(true);
-  line.pen = r.pen;        // Change color ? Use a utils function ?
-  d.pen = QPen(QColor("red"));
+  line.pen = gs.getPen(GraphicsSettings::ReglinPen);
+  d.pen = gs.getPen(GraphicsSettings::ResultPen);
   QPair<double, double> reg;
   double xleft = ds->x().min();
   double xright = ds->x().max();
@@ -94,7 +95,7 @@ static void reglinCommand(CurveEventLoop &loop, const QString &)
     case QEvent::MouseButtonPress: 
       {
         r.setX(loop.position().x(), loop.button());
-        reg = ds->reglin(r.xleft, r.xright);
+        reg = ds->reglin(r.xmin(), r.xmax());
         double y = reg.first * xleft + reg.second;
         line.p1 = QPointF(xleft, y);
         y = reg.first * xright + reg.second;
@@ -225,6 +226,8 @@ static void zoomToSegment(const DataSet * ds, int seg, CurveView & view)
 static void filmLossCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
+  const GraphicsSettings & gs = soas().graphicsSettings();
+
   CurveLine line;
   CurveHorizontalRegion r;
   CurveView & view = soas().view();
@@ -247,10 +250,8 @@ static void filmLossCommand(CurveEventLoop &loop, const QString &)
 
 
   view.addPanel(&bottom);
-  r.pen = QPen(QColor("blue"), 1, Qt::DotLine);
-  r.pen.setCosmetic(true);
-  line.pen = r.pen;        // Change color ? Use a utils function ?
-  d.pen = QPen(QColor("red"));
+  line.pen = gs.getPen(GraphicsSettings::ReglinPen);
+  d.pen = gs.getPen(GraphicsSettings::ResultPen);
   QPair<double, double> reg;
   double xleft = ds->x().min();
   double xright = ds->x().max();
@@ -379,6 +380,8 @@ fl("film-loss", // command name
 static void baselineCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
+  const GraphicsSettings & gs = soas().graphicsSettings();
+
   CurveView & view = soas().view();
   CurveMarker m;
   CurvePanel bottom;
@@ -398,11 +401,11 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
 
   m.size = 4;
   m.pen = QPen(Qt::NoPen);
-  m.brush = QBrush(QColor(0,0,255,100));
+  m.brush = QBrush(QColor(0,0,255,100)); ///@todo customize that too 
 
   Spline::Type type = Spline::CSpline;
 
-  d.pen = QPen(QColor("black"));
+  d.pen = gs.getPen(GraphicsSettings::BaselinePen);
   d.xvalues = ds->x();
   d.yvalues = QVector<double>(d.xvalues.size(), 0);
   d.countBB = true;
@@ -563,6 +566,8 @@ bsl("baseline", // command name
 static void bsplinesCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
+  const GraphicsSettings & gs = soas().graphicsSettings();
+
   CurveView & view = soas().view();
   CurvePanel bottom;
   /// @todo This assumes that the currently displayed dataset is the
@@ -578,7 +583,7 @@ static void bsplinesCommand(CurveEventLoop &loop, const QString &)
 
   view.addItem(&d);
 
-  d.pen = QPen(QColor("black"));
+  d.pen = gs.getPen(GraphicsSettings::BaselinePen);
   d.xvalues = ds->x();
   d.yvalues = QVector<double>(d.xvalues.size(), 0);
   d.countBB = true;
@@ -608,7 +613,7 @@ static void bsplinesCommand(CurveEventLoop &loop, const QString &)
 
   CurveVerticalLines lines;
   lines.xValues = &x;
-  lines.pen = QPen(QColor("blue"), 1, Qt::DotLine);
+  lines.pen = gs.getPen(GraphicsSettings::SeparationPen);
   view.addItem(&lines);
 
   loop.setHelpString(QObject::tr("B-splines filtering:\n"
@@ -783,6 +788,8 @@ bspl("filter-bsplines", // command name
 static void fftCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
+  const GraphicsSettings & gs = soas().graphicsSettings();
+
   CurveView & view = soas().view();
   CurvePanel bottom;
   CurvePanel spectrum;
@@ -797,14 +804,14 @@ static void fftCommand(CurveEventLoop &loop, const QString &)
   FFT orig(ds->x(), ds->y());
 
 
-  d.pen = QPen(QColor("black"));
+  d.pen = gs.getPen(GraphicsSettings::ResultPen);
   d.xvalues = ds->x();
   d.yvalues = QVector<double>(d.xvalues.size(), 0);
   d.countBB = true;
   view.addItem(&d);
 
 
-  baseline.pen = QPen(QColor("blue"), 1, Qt::DotLine);
+  baseline.pen = gs.getPen(GraphicsSettings::BaselinePen);
   baseline.xvalues = ds->x();
   baseline.yvalues = baseline.xvalues;;
   baseline.countBB = false;
@@ -833,7 +840,7 @@ static void fftCommand(CurveEventLoop &loop, const QString &)
   // Setup of the "power" panel
 
 
-  spec1.pen = QPen(QColor("red"));
+  spec1.pen = gs.getPen(GraphicsSettings::ResultPen);
   // We don't display the 0th frequency !
   spec1.xvalues = Vector(orig.frequencies() - 1,0);
   for(int i = 0; i < spec1.xvalues.size(); i++)
@@ -854,7 +861,7 @@ static void fftCommand(CurveEventLoop &loop, const QString &)
   spectrum.stretch = 40;
   spectrum.anyZoom = true;
 
-  lim.pen = QPen(QColor("blue"), 1, Qt::DotLine);
+  lim.pen = gs.getPen(GraphicsSettings::SeparationPen);
   spectrum.addItem(&lim);
 
 
@@ -1118,6 +1125,7 @@ static void findStepsCommand(const QString &, const CommandOptions & opts)
   double thresh = 0.1;
   int nb = 10;
   bool set = false;
+  const GraphicsSettings & gs = soas().graphicsSettings();
 
   updateFromOptions(opts, "average", nb);
   updateFromOptions(opts, "threshold", thresh);
@@ -1138,7 +1146,8 @@ static void findStepsCommand(const QString &, const CommandOptions & opts)
                     << "\t X= " << ds->x()[steps[i]] <<endl;
       CurveVerticalLine * v= new CurveVerticalLine;
       v->x = 0.5* (ds->x()[steps[i]] + ds->x()[steps[i]-1]);
-      v->pen = QPen(QColor("blue"), 1, Qt::DotLine);
+      v->pen =gs.getPen(GraphicsSettings::SeparationPen);
+
       view.addItem(v);
     }
     view.enableUpdates();
@@ -1361,6 +1370,7 @@ dif2("diff2", // command name
 static void displayPeaks(QList<PeakInfo> peaks, const DataSet * ds, 
                          int maxnb = -1, bool write = true)
 {
+  const GraphicsSettings & gs = soas().graphicsSettings();
   CurveView & view = soas().view();
   view.disableUpdates();
   Terminal::out << "Found " << peaks.size() << " peaks" << endl;
@@ -1382,7 +1392,7 @@ static void displayPeaks(QList<PeakInfo> peaks, const DataSet * ds,
     
     v->p1 = QPointF(peaks[i].x, 0);
     v->p2 = QPointF(peaks[i].x, peaks[i].y);
-    v->pen = QPen(QColor("blue"), 1, Qt::DotLine);
+    v->pen = gs.getPen(GraphicsSettings::PeaksPen);
     view.addItem(v);
   }
   view.enableUpdates();
@@ -1473,6 +1483,7 @@ static void echemPeaksCommand(const QString &, const CommandOptions &)
   int window = 8;
 
   const DataSet * ds = soas().currentDataSet();
+  const GraphicsSettings & gs = soas().graphicsSettings();
   Peaks pk(ds, window);
 
   QList<EchemPeakPair> pairs = pk.findPeakPairs();
@@ -1488,7 +1499,7 @@ static void echemPeaksCommand(const QString &, const CommandOptions &)
     
       v->p1 = QPointF(pairs[i].forward.x, 0);
       v->p2 = QPointF(pairs[i].forward.x, pairs[i].forward.y);
-      v->pen = QPen(QColor("blue"), 1, Qt::DotLine);
+      v->pen = gs.getPen(GraphicsSettings::PeaksPen);
       view.addItem(v);
 
       if(pairs[i].isReversible()) {
@@ -1501,13 +1512,13 @@ static void echemPeaksCommand(const QString &, const CommandOptions &)
         v = new CurveLine;
         v->p1 = QPointF(pairs[i].forward.x, 0);
         v->p2 = QPointF(pairs[i].backward.x, 0);
-        v->pen = QPen(QColor("red"), 1, Qt::DotLine);
+        v->pen = gs.getPen(GraphicsSettings::PeaksPen);
         view.addItem(v);
 
         v = new CurveLine;
         v->p1 = QPointF(pairs[i].backward.x, 0);
         v->p2 = QPointF(pairs[i].backward.x, pairs[i].backward.y);
-        v->pen = QPen(QColor("green"), 1, Qt::DotLine);
+        v->pen = gs.getPen(GraphicsSettings::PeaksPen);
         view.addItem(v);
       }
 
@@ -1535,6 +1546,8 @@ ep("echem-peaks", // command name
 static void deldpCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
+  const GraphicsSettings & gs = soas().graphicsSettings();
+
   CurveView & view = soas().view();
 
   DataSet * newds = new DataSet(*ds);
@@ -1545,7 +1558,7 @@ static void deldpCommand(CurveEventLoop &loop, const QString &)
   CurveDataSet d(newds);
   PointTracker t(&loop, newds);
   view.addItem(&d);
-  d.pen = QPen(QColor("red"));
+  d.pen = gs.getPen(GraphicsSettings::ResultPen);
   view.addItem(&t);
 
   t.size = 4;

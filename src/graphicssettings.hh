@@ -25,6 +25,8 @@
 #include <settings-templates.hh>
 #include <argumentmarshaller.hh>
 
+extern void graphicsSettingsCommand(const QString &, 
+                                    const CommandOptions & );
 /// This class contains a whole bunch of graphics-related settings,
 /// for.
 class GraphicsSettings {

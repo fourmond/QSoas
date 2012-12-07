@@ -26,6 +26,7 @@ class CurveView;
 class DataSet;
 class DataStack;
 class CommandWidget;
+class GraphicsSettings;
 
 /// The class holding all information/actor related to Soas.
 ///
@@ -45,7 +46,11 @@ class Soas {
 
 public:
 
-  Soas(MainWin * mw);
+  Soas();
+
+  void setMainWindow(MainWin * m) {
+    mw = m;
+  };
 
   static Soas * soasInstance() {
     return theSoasInstance;

@@ -28,6 +28,7 @@
 #include <ruby.hh>
 
 #include <settings.hh>
+#include <soas.hh>
 #include <exceptions.hh>
 
 extern void loadDocumentationFile(const QString &, QString file, 
@@ -74,10 +75,12 @@ int main(int argc, char ** argv)
 
   loadDocumentationFile("load-documentation", ":/doc/qsoas.kd");
 
+  Soas theSoas;
+
   Settings::loadSettings("bip.cnrs-mrs.fr", "Soas");
   
   {
-    MainWin win;
+    MainWin win(&theSoas);
     win.show();
     retval = main.exec();
   }

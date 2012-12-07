@@ -263,9 +263,10 @@ static SettingsValue<QSize> mainWinSize("mainwin/size", QSize(700,500));
 static SettingsValue<QByteArray> splitterState("mainwin/splitter", 
                                                QByteArray());
 
-MainWin::MainWin()
+MainWin::MainWin(Soas * theSoas)
 {
-  soasInstance = new Soas(this);
+  soasInstance = theSoas;
+  theSoas->setMainWindow(this);
   setupFrame();
   resize(mainWinSize);
   if(! splitterState->isEmpty())
@@ -351,7 +352,6 @@ MainWin::~MainWin()
 {
   mainWinSize = size();
   splitterState = mainSplitter->saveState();
-  delete soasInstance;
 }
 
 void MainWin::showMessage(const QString & str, int ms)

@@ -45,7 +45,7 @@ class MainWin : public QMainWindow {
   QSplitter * mainSplitter;
 
 public:
-  MainWin();
+  MainWin(Soas * theSoas);
   ~MainWin();
 
   /// Displays a message on the status bar

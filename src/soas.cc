@@ -35,8 +35,8 @@ Soas * Soas::theSoasInstance = NULL;
 
 static SettingsValue<double> temperature("soas/temperature", 298);
 
-Soas::Soas(MainWin * w) : 
-  mw(w), antialias(false), opengl(false)
+Soas::Soas() : 
+  mw(NULL), antialias(false), opengl(false)
 {
   theSoasInstance = this;
   ds = new DataStack;

@@ -22,6 +22,7 @@
 #define __ARGUMENTMARSHALLER_HH
 
 #include <exceptions.hh>
+#include <settings-templates.hh>
 
 /// A base class for handling type-safe argument list passing
 class ArgumentMarshaller {
@@ -64,6 +65,13 @@ typedef QHash<QString, ArgumentMarshaller *> CommandOptions;
 template<typename T> void updateFromOptions(const CommandOptions & opts,
                                             const QString & option,
                                             T & value) {
+  if(opts.contains(option))
+    value = opts[option]->value<T>();
+};
+
+template<typename T> void updateFromOptions(const CommandOptions & opts,
+                                            const QString & option,
+                                            SettingsValue<T> & value) {
   if(opts.contains(option))
     value = opts[option]->value<T>();
 };

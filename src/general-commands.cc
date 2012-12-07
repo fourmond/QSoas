@@ -89,51 +89,6 @@ breakc("break", // command name
        "Break from script",
        "Interrupts the run of the current script");
 
-// //////////////////////////////////////////////////////////////////////
-
-// static void antialiasCommand(const QString &)
-// {
-//   soas().setAntiAlias(! soas().antiAlias());
-//   Terminal::out << "Antialiasing now " 
-//                 << (soas().antiAlias() ? "on" : "off") 
-//                 << endl;
-//   if(! soas().openGL())
-//     Terminal::out << "You may want to use the command opengl "
-//                   << "to speed up rendering"
-//                   << endl;
-// }
-
-// static Command 
-// aa("antialias", // command name
-//    optionLessEffector(antialiasCommand), // action
-//    "file",  // group name
-//    NULL, // arguments
-//    NULL, // options
-//    "Antialias",
-//    "Toggle anti-aliasing",
-//    "Toggles anti-aliasing for graphics rendering.",
-//    "AA");
-
-// //////////////////////////////////////////////////////////////////////
-
-// static void openglCommand(const QString &)
-// {
-//   soas().setOpenGL(! soas().openGL());
-//   Terminal::out << "The use of OpenGL is now " 
-//                 << (soas().openGL() ? "on" : "off") 
-//                 << endl;
-// }
-
-// static Command 
-// ogl("opengl", // command name
-//     optionLessEffector(openglCommand), // action
-//     "file",  // group name
-//     NULL, // arguments
-//     NULL, // options
-//     "OpenGL",
-//     "Toggle OpenGL",
-//     "Toggles the use of OpenGL for graphics rendering."
-//     );
 
 //////////////////////////////////////////////////////////////////////
 

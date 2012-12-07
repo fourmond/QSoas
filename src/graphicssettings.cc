@@ -22,6 +22,15 @@
 #include <soas.hh>
 #include <curveview.hh>
 
+
+#include <command.hh>
+#include <group.hh>
+#include <commandeffector-templates.hh>
+#include <general-arguments.hh>
+
+#include <terminal.hh>
+
+
 GraphicsSettings::GraphicsSettings() :
   antialias("graphics/antialias", false),
   opengl("graphics/opengl", false),
@@ -87,3 +96,46 @@ QPen GraphicsSettings::dataSetPen(int nb) const
   return QPen(QColor(colors[nb % nbColors]), 
               1.3 * baseLineWidth);
 }
+
+// Settings-related commands:
+
+//////////////////////////////////////////////////////////////////////
+
+void graphicsSettingsCommand(const QString &, 
+                                    const CommandOptions & opts)
+{
+  GraphicsSettings & gs = soas().graphicsSettings();
+  if(opts.size() == 0) {
+    
+    // display settings
+    return;
+  }
+
+  // @todo Make a template function for that !
+  double lw = gs.baseLineWidth;
+  updateFromOptions(opts, "line-width", lw);
+  if(lw != gs.baseLineWidth) {
+    gs.baseLineWidth = lw;
+    Terminal::out << "Setting base line width to " << lw << endl;
+  }
+
+  // Display current settings ?
+  
+}
+
+static ArgumentList 
+gsOpts(QList<Argument *>() 
+         << new NumberArgument("line-width", 
+                               "Line with",
+                               "Sets the base line width for all lines/curves"));
+
+
+static Command 
+gs("graphics-settings", // command name
+   effector(graphicsSettingsCommand), // action
+   "file",  // group name
+   NULL, // arguments
+   &gsOpts, // options
+   "Graphics settings",
+   "Display/sets graphics settings");
+

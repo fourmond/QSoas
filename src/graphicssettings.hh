@@ -23,6 +23,7 @@
 #define __GRAPHICSSETTINGS_HH
 
 #include <settings-templates.hh>
+#include <argumentmarshaller.hh>
 
 /// This class contains a whole bunch of graphics-related settings,
 /// for.
@@ -33,6 +34,9 @@ class GraphicsSettings {
 
   /// The base line width for all pens (can be multiplied later)
   SettingsValue<double> baseLineWidth;
+
+  friend void ::graphicsSettingsCommand(const QString &, 
+                                        const CommandOptions & );
   
 
 public:

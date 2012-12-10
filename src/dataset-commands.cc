@@ -312,7 +312,9 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
                                  "right click for ref\n"
                                  ) 
                      + pick.helpText() +
-                     QObject::tr("space: write to output\n"
+                     QObject::tr("space: write last to output\n"
+                                 "u: quit subtracting last Y\n"
+                                 "v: quit dividing by last Y\n"
                                  "q or ESC to quit"));
   Terminal::out << "Point positions:\nx\ty\tindex\tdx\tdy" << endl;
   QString cur;
@@ -335,10 +337,34 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
         ;
       }
     }
-    if(loop.type() == QEvent::KeyPress && 
-       (loop.key() == 'q' || loop.key() == 'Q' ||
-        loop.key() == Qt::Key_Escape))
-      return;
+    if(loop.type() == QEvent::KeyPress) {
+      switch(loop.key()) {
+      case 'q':
+      case 'Q':
+      case Qt::Key_Escape:
+        return;
+      case 'u':
+      case 'U': {
+        Vector ny = ds->y() - m.p.y();
+        Terminal::out << "Subtracting Y value: " << m.p.y() << endl;
+        soas().pushDataSet(ds->derivedDataSet(ny, "_sub.dat"));
+        return;
+      }
+
+      case 'v':
+      case 'V': {
+        /// @todo This idiom is coming often; there should be a way to
+        /// make it simpler ?
+        Vector ny = ds->y()/m.p.y();
+        Terminal::out << "Dividing by Y value: " << m.p.y() << endl;
+        soas().pushDataSet(ds->derivedDataSet(ny, "_sub.dat"));
+        return;
+      }
+        
+      default:
+        ;
+      }
+    }
     if((loop.type() == QEvent::KeyPress && loop.key() == ' ') ||
        (loop.type() == QEvent::MouseButtonPress && 
         loop.button() == Qt::MiddleButton)) {

@@ -94,12 +94,13 @@ class DataSet : public Guardable {
   friend QDataStream & operator<<(QDataStream & out, const DataSet & ds);
   friend QDataStream & operator>>(QDataStream & in, DataSet & ds);
 
+public:
+
+
   /// A small helper function for creating new datasets with the same
   /// X, the given Y, and a name based on the original one with a
   /// given suffix.
   DataSet * derivedDataSet(const Vector &y, const QString & suffix) const;
-
-public:
 
   /// The name of the dataset, usually the name of the file.
   QString name;

@@ -66,12 +66,12 @@ void Spline::preparePoints(Vector * xt,
     *xv << i.key();
     *yv << i.value();
   }
-  if(xv->value(0) > xt->value(0)) {
+  if((xv->size() == 0) || (xv->value(0) > xt->value(0))) {
     // Padding:
     xv->prepend(xt->value(0));
     yv->prepend(yv->value(0));
   }
-  if(xv->last() < xt->last()) {
+  if((xv->size() == 0) || (xv->last() < xt->last())) {
     xv->append(xt->last());
     yv->append(yv->last());
   }

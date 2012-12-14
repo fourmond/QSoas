@@ -536,14 +536,17 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
       // In any case, the bottom panel shows the delta.
       if(derive) {
         d.yvalues = s.derivative(d.xvalues, type);
-        diff.yvalues = ds->y() - s.evaluate(d.xvalues, type);
+        diff.yvalues = (d.yvalues.size() == ds->y().size() ?
+                        ds->y() - s.evaluate(d.xvalues, type):
+                        ds->y());
       } 
       else {
         d.yvalues = s.evaluate(d.xvalues, type);
-        diff.yvalues = ds->y() - d.yvalues;
+        diff.yvalues = (d.yvalues.size() == ds->y().size() ? 
+                        ds->y() - d.yvalues :
+                        ds->y());
       }
       m.points = s.pointList();
-      QTextStream o(stdout);
       bottom.setYRange(diff.yvalues.min(), diff.yvalues.max(), 
                        view.mainPanel());
     }

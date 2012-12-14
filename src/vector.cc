@@ -154,7 +154,7 @@ static inline Vector & bang_operate(Vector & a, const Vector & b,
 {
   int sz = a.size();
   if(sz != b.size())
-    throw RuntimeError("Size mismatch in vector operation");
+    throw InternalError("Size mismatch in vector operation");
 
   double * aval = a.data();
   const double * bval = b.data();
@@ -168,7 +168,7 @@ static inline Vector dup_operate(const Vector &a, const Vector & b,
 {
   int sz = a.size();
   if(sz != b.size())
-    throw RuntimeError("Size mismatch in vector operation");
+    throw InternalError("Size mismatch in vector operation");
 
   const double * aval = a.data();
   const double * bval = b.data();

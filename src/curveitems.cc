@@ -132,6 +132,8 @@ void CurveRectangle::setRect(const QRectF & r)
 
 QRectF CurveData::boundingRect() const
 {
+  if(xvalues.size() == 0)
+    return QRectF();
   double xmin = xvalues.min();
   double xmax = xvalues.max();
   double ymin = yvalues.min();

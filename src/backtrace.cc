@@ -39,6 +39,10 @@ QStringList Utils::backtrace(int maxframes)
 QStringList Utils::backtrace(int maxframes)
 {
   return QStringList();         // Not implemented here
+
+  // On windows:
+  // CaptureStackBackTrace (http://msdn.microsoft.com/en-us/library/windows/desktop/bb204633%28v=vs.85%29.aspx)
+  // SymFromAddr (http://msdn.microsoft.com/en-us/library/windows/desktop/ms681323%28v=vs.85%29.aspx)
 }
 
 #endif

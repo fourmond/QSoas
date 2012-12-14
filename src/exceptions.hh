@@ -23,6 +23,7 @@
 #define __EXCEPTIONS_HH
 
 class Exception : public std::exception {
+protected:
   QString msg;
 public:
   Exception(const QString & msg) throw();
@@ -69,8 +70,7 @@ public:
 
 class InternalError : public Exception {
 public:
-  InternalError(const QString & msg) throw() : Exception(msg) {
-  };
+  InternalError(const QString & msg) throw();
   virtual ~InternalError() throw() {;};
 };
 

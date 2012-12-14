@@ -1,7 +1,7 @@
 /**
    \file utils.hh
    Generally useful code
-   Copyright 2011 by Vincent Fourmond
+   Copyright 2011, 2012 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -164,7 +164,13 @@ namespace Utils {
   /// A function to safely parse an int from a string -- or raise an
   /// exception
   int stringToInt(const QString & str);
-  
+
+  /// This function returns a caller stack trace. It is not guaranteed
+  /// to be accurate, or even to be of any use at all. But, it will
+  /// probably work on linux and MacOS even.
+  ///
+  /// One string per stack frame
+  QStringList backtrace(int maxframes = 20);
 
 };
 

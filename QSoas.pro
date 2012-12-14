@@ -24,6 +24,16 @@ isEmpty(VERSION) {
 
 DEFINES += SOAS_VERSION=\'\"$$VERSION\"\'
 
+# This is a very crude test, but as this is a completely non-vital
+# part of the work, we can afford not detecting this feature
+exists(/usr/include/execinfo.h) {
+  DEFINES += HAS_EXECINFO                               
+  message("Found /usr/include/execinfo.h, so we should have stack traces")
+}
+else {
+  message("No stack traces, but that doesn't matter anyway")
+}
+
 # We use a precompiled header everywhere but on macosX (it fails !)
 ! macx {
   CONFIG += precompile_header
@@ -177,7 +187,8 @@ SOURCES += src/qmain.cc \
         src/rubyodesolver.cc \
         src/kineticsystem.cc \
         src/kineticsystemevolver.cc \
-        src/graphicssettings.cc
+        src/graphicssettings.cc \
+        src/backtrace.cc
 
 
 HEADERS += src/headers.hh \

@@ -21,6 +21,7 @@
 #include <exceptions.hh>
 
 #include <terminal.hh>
+#include <utils.hh>
 
 Exception::Exception(const QString & m) throw() : 
   msg(m) {
@@ -75,4 +76,17 @@ static void my_error_handler(const char * reason,
 void GSLError::setupGSLHandler()
 {
   gsl_set_error_handler(&my_error_handler);
+}
+
+//////////////////////////////////////////////////////////////////////
+
+InternalError::InternalError(const QString & ms) throw() :
+  Exception(ms)
+{
+  QStringList bt = Utils::backtrace();
+
+  if(bt.size() > 0)
+    msg += "\nBacktrace:\n\t" + bt.join("\n\t");
+  else
+    msg += " [no backtrace available]";
 }

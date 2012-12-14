@@ -1,6 +1,6 @@
 /**
    \file dataset-commands.cc commands for tweaking datasets
-   Copyright 2011 by Vincent Fourmond
+   Copyright 2011, 2012 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -37,6 +37,8 @@
 
 #include <pointpicker.hh>
 #include <math.h>
+
+#include <expression.hh>
 
 static Group grp("buffer", 2,
                  "Buffer",
@@ -894,8 +896,22 @@ static void generateDSCommand(const QString &, double beg, double end,
   int samples = 1000;
   updateFromOptions(opts, "samples", samples);
 
+  QString formula;
+  updateFromOptions(opts, "formula", formula);
+
   Vector x = Vector::uniformlySpaced(beg, end, samples);
   Vector y = x;
+  if(! formula.isEmpty()) {
+    Expression expr(formula);
+    /// @todo have a global way to incorporate all "constants"
+    /// (temperature and fara) into that.
+    if(expr.naturalVariables().size() != 1 ||
+       expr.naturalVariables()[0] != "x") {
+      throw RuntimeError("Formula '%1' must depend only on x").arg(formula);
+    }
+    for(int i = 0; i < x.size(); i++)
+      y[i] = expr.evaluate(&x[i]);
+  }
 
   DataSet * newDs = new DataSet(x,y);
   newDs->name = "generated.dat";
@@ -916,7 +932,12 @@ static ArgumentList
 gDSO(QList<Argument *>() 
        << new IntegerArgument("samples", 
                               "Number of samples",
-                              "The number of samples"));
+                              "The number of samples")
+       << new StringArgument("formula", 
+                             "The Y values",
+                             "Formula to generate the Y values",
+                             true)
+     );
 
 
 static Command 

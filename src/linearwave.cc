@@ -110,6 +110,14 @@ public:
 
 //////////////////////////////////////////////////////////////////////
 
+/// @todo This whole system is now (almost) obsoleted by the
+/// KineticSystem class, with two major problems though:
+/// @li we don't implement redox reactions in KineticSystem
+/// (at least for now)
+/// @li the implementation here implicitly assumes that all the
+/// species belong to the same "overall species" (ie only interconvert
+/// between each other). The code should manage to detect that
+/// correctly, and possibly fail if that isn't the case ?
 LinearWave::LinearWave()
 {
   systemMatrix = NULL;

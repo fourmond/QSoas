@@ -86,9 +86,37 @@ public:
   virtual ArgumentMarshaller * fromString(const QString & str) const = 0;
 
   /// Prompts for a value for the argument, using something of a
-  /// dialog box or the like. Default implementation raises an
-  /// exception.
-  virtual ArgumentMarshaller * promptForValue(QWidget * base) const ;
+  /// dialog box or the like. Default implementation prompts for a
+  /// standard string.
+  virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
+
+  
+  /// Prompts for a value for the argument, but returns the value as a
+  /// QString.
+  ///
+  /// @todo This should be rewritten as a QString-returning function
+  /// for prompting all arguments/options (in a grid-like widget with
+  /// addition of options + line edit + automatic completion +
+  /// prompting when applicable)
+  ///
+  /// Ideas: how to decide whether we want to use a full dialog box or
+  /// just prompt for the missing arguments ?
+  ///
+  /// If there is more than one argument missing, always display the
+  /// dialog box.
+  ///
+  /// If there is only one missing, maybe CTRL+Enter would allow the
+  /// display of the fully-blown dialog box ?
+  virtual QString promptAsString(QWidget * base) const;
+
+  /// If this function returns an non-empty list, then it corresponds
+  /// to all the possible choices (ie no free-form). In particular,
+  /// prompting will be done using a non-editable QComboBox, and no
+  /// prompting dialog will show up.
+  ///
+  /// @todo Maybe have a way to provide a "real" string and a
+  /// "display" string ?
+  virtual QStringList allChoices() const;
 
 
   /// Handling of automatic completion. Provided with a beginning of

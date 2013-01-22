@@ -33,16 +33,6 @@ ArgumentMarshaller * StringArgument::fromString(const QString & str) const
   return new ArgumentMarshallerChild<QString>(str);
 }
 
-ArgumentMarshaller * StringArgument::promptForValue(QWidget * base) const
-{
-  bool ok = false;
-  QString str = 
-    QInputDialog::getText(base, argumentName(), description(),
-                          QLineEdit::Normal, QString(), &ok);
-  if(! ok)
-    throw RuntimeError("Aborted"); 
-  return fromString(str);
-}
 
 ////////////////////////////////////////////////////////////
 

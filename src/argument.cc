@@ -19,11 +19,22 @@
 #include <headers.hh>
 #include <argument.hh>
 
-ArgumentMarshaller * Argument::promptForValue(QWidget * ) const
+ArgumentMarshaller * Argument::promptForValue(QWidget * base) const
+{
+  bool ok = false;
+  QString str = 
+    QInputDialog::getText(base, argumentName(), description(),
+                          QLineEdit::Normal, QString(), &ok);
+  if(! ok)
+    throw RuntimeError("Aborted"); 
+  return fromString(str);
+}
+
+QString Argument::promptAsString(QWidget * ) const
 {
   throw RuntimeError(QObject::tr("Argument %1 does not support prompting").
                      arg(name));
-  return NULL;                // Useless
+  return QString();
 }
 
 QStringList Argument::proposeCompletion(const QString & ) const
@@ -36,4 +47,9 @@ void Argument::concatenateArguments(ArgumentMarshaller *,
 {
   throw InternalError("Trying to use a greedy argument with "
                       "a type that does not support it");
+}
+
+QStringList Argument::allChoices() const
+{
+  return QStringList();
 }

@@ -100,7 +100,7 @@ public:
 
     for(int i = 0; i < number; i++) {
       if(i > 0) {
-        rel *= exp( fara * (x - couples[0])/couples[1]);
+        rel *= exp( fara * couples[1] * (x - couples[0]));
         couples += 2;
       }
       denom += rel;

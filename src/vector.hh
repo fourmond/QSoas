@@ -146,6 +146,13 @@ public:
   ///
   /// @todo Quite a lot of things to improve here.
   static QList<Vector> readFromStream(QIODevice * source,
+                                      const QRegExp & separatorRE,
+                                      const QRegExp & commentRE,
+                                      QStringList * comments = NULL);
+
+
+  /// Convenience overload
+  static QList<Vector> readFromStream(QIODevice * source,
                                       const QString & separatorRE = "\\s+",
                                       const QString & commentRE = "^\\s*#",
                                       QStringList * comments = NULL);

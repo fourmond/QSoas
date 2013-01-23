@@ -30,6 +30,9 @@ protected:
 
   /// The column separator
   QRegExp separator;
+
+  /// The comments lines
+  QRegExp comments;
   virtual int couldBeMine(const QByteArray & peek, 
                           const QString & fileName) const;
 

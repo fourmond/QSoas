@@ -23,7 +23,7 @@
 
 TextBackend::TextBackend(const QRegExp & sep,
                          const char * n, const char * pn, const char * d) : 
-  DataBackend(n, pn, d), separator(sep) {
+  DataBackend(n, pn, d), separator(sep), comments("^\\s*#") {
 }
 
 int TextBackend::couldBeMine(const QByteArray & peek, 
@@ -52,7 +52,7 @@ int TextBackend::couldBeMine(const QByteArray & peek,
     return 0;                   // Most probably not
   QString str(peek);
   int nbSeparatorMatches = str.split(separator).size();
-  /// Heuristic: we must one or more separators per line.
+  /// Heuristic: we must have one or more separators per line.
   if(nbSeparatorMatches > nbRet) {
     if(separator.indexIn(" \t") >= 0)
       return 2*nbSeparatorMatches - (5 * nbRet)/3;
@@ -68,11 +68,10 @@ DataSet * TextBackend::readFromStream(QIODevice * stream,
 {
   /// @todo implement comments / header parsing... BTW, maybe
   /// Vector::readFromStream could be more verbose about the nature of
-  /// the commends (the exact line, for instance ?)
-  QList<Vector> columns = Vector::readFromStream(stream, 
-                                                 separator.pattern());
-  /// @todo separator.pattern() is simply ugly. Fix that somehow (on
-  /// the Vector side)
+  /// the comments (the exact line, for instance ?)
+  QList<Vector> columns = Vector::readFromStream(stream, separator, 
+                                                 comments);
+
   DataSet * ds = new DataSet(columns);
   ds->name = QDir::cleanPath(fileName);
   /// @todo 
@@ -81,6 +80,8 @@ DataSet * TextBackend::readFromStream(QIODevice * stream,
 
 
 
+/// @todo This is not a real CSV backend, as it will not parse
+/// properly files with quoted text that contains delimitedrs.
 TextBackend csv(QRegExp("\\s*[;,]\\s*"),
                 "csv",
                 "CSV files",

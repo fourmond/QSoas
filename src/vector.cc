@@ -22,8 +22,8 @@
 #include <exceptions.hh>
 
 QList<Vector> Vector::readFromStream(QIODevice * source,
-                                     const QString & separatorREt,
-                                     const QString & commentREt,
+                                     const QRegExp & separatorREt,
+                                     const QRegExp & commentREt,
                                      QStringList * comments)
 {
   QList<Vector> retVal;
@@ -78,11 +78,19 @@ QList<Vector> Vector::readFromStream(QIODevice * source,
   for(int i = 0; i < retVal.size(); i++)
     retVal[i].squeeze();
 
-  // QTextStream o(stdout);
-  // o << "Read " << retVal.size() << " columns and "
-  //   << numberRead << " rows and " << lineNumber << " lines" << endl;
   return retVal;
 }
+
+QList<Vector> Vector::readFromStream(QIODevice * source,
+                                     const QString & separatorREt,
+                                     const QString & commentREt,
+                                     QStringList * comments)
+{
+  return readFromStream(source, QRegExp(separatorREt),
+                        QRegExp(commentREt), comments);
+}
+
+
 
 double Vector::min() const
 {

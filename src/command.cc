@@ -1,6 +1,6 @@
 /*
   command.cc: implementation of the Command class
-  Copyright 2011 by Vincent Fourmond
+  Copyright 2011, 2013 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -78,11 +78,9 @@ CommandArguments Command::parseArguments(const QStringList & args,
   return a->parseArguments(args, defaultOption, base);
 }
 
-CommandOptions Command::parseOptions(const QHash<QString, QString> & opts,
+CommandOptions Command::parseOptions(const QMultiHash<QString, QString> & opts,
                                      QString * defaultOption) const
 {
-  /// @todo handle greedy arguments ? That requires a QMultiHash rather
-  /// than a QHash, but that should be doable ?
   CommandOptions ret;  
   if(! options)
     return ret;
@@ -90,14 +88,33 @@ CommandOptions Command::parseOptions(const QHash<QString, QString> & opts,
     Argument * opt = options->defaultOption();
     ret[opt->argumentName()] = opt->fromString(*defaultOption);
   }
-  for(QHash<QString, QString>::const_iterator i = opts.begin();
-      i != opts.end(); i++) {
+
+  // We need to make a copy of the initial MultiHash so that the
+  // inserted keys come in the right order !
+  QMultiHash<QString, QString> newopts;
+  for(QMultiHash<QString, QString>::const_iterator i = opts.begin();
+      i != opts.end(); i++)
+    newopts.insert(i.key(), i.value());
+
+  for(QMultiHash<QString, QString>::const_iterator i = newopts.begin();
+      i != newopts.end(); i++) {
     Argument * opt = options->namedArgument(i.key());
     if(! opt)
       throw RuntimeError(QObject::tr("Unknown option '%1' for command %2").
                          arg(i.key()).arg(commandName()));
-    /// @bug Memory leak !
-    ret[i.key()] = opt->fromString(i.value());
+    /// @bug Memory leak in case of an exception thrown: ret is not
+    /// freed (and that happens often !)
+    ArgumentMarshaller * newv = opt->fromString(i.value());
+    if(ret.contains(i.key())) {
+      if(opt->greedy) {
+        opt->concatenateArguments(ret[i.key()],
+                                  newv);
+        delete newv;
+        continue;
+      }
+      delete ret[i.key()];      // Make sure we don't forget this pointer.
+    }
+    ret[i.key()] = newv;
   }
   return ret;
 }
@@ -107,7 +124,7 @@ void Command::runCommand(const QString & commandName,
                          QWidget * base)
 {
   // First, arguments conversion
-  QPair<QStringList, QHash<QString, QString> > split = 
+  QPair<QStringList, QMultiHash<QString, QString> > split = 
     splitArgumentsAndOptions(arguments);
 
   bool hasDefault = (this->options ? this->options->hasDefaultOption() : false);
@@ -161,14 +178,14 @@ QAction * Command::actionForCommand(QObject * parent) const
 }
 
 
-QPair<QStringList, QHash<QString, QString> > 
+QPair<QStringList, QMultiHash<QString, QString> > 
 Command::splitArgumentsAndOptions(const QStringList & rawArgs,
                                   QList<int> * annotate,
                                   bool * pendingOption)
 {
-  QPair<QStringList, QHash<QString, QString> > ret;
+  QPair<QStringList, QMultiHash<QString, QString> > ret;
   QStringList & args = ret.first;
-  QHash<QString, QString> & opts = ret.second;
+  QMultiHash<QString, QString> & opts = ret.second;
   int size = rawArgs.size();
   if(pendingOption)
     *pendingOption = false;
@@ -195,22 +212,22 @@ Command::splitArgumentsAndOptions(const QStringList & rawArgs,
       QString optionName = optionRE.cap(1);
       if(! optionRE.cap(2).isEmpty()) {
         // The most simple case: an option in a single word
-        opts[optionName] = optionRE.cap(2);
+        opts.insert(optionName, optionRE.cap(2));
       }
       else {                    // Looking at next words
         i++;
         QString next = rawArgs.value(i, "");
         if(equalRE.indexIn(next) == 0) {
           if(! equalRE.cap(1).isEmpty())
-            opts[optionName] = equalRE.cap(1);
+            opts.insert(optionName, equalRE.cap(1));
           else {
             i++;
             next = rawArgs.value(i, "");
-            opts[optionName] = next;
+            opts.insert(optionName, next);
           }
         }
         else
-          opts[optionName] = next;
+          opts.insert(optionName, next);
         // We're left with an unfinished option.
         if(pendingOption && i >= rawArgs.size())
           *pendingOption = true;

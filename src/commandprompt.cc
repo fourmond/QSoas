@@ -160,7 +160,7 @@ CommandPrompt::CompletionContext CommandPrompt::getCompletionContext() const
   QString str = text();
   QStringList splitted = Command::wordSplit(str, &beg, &end);
   bool pendingOption = false;
-  QPair<QStringList, QHash<QString, QString> > p = 
+  QPair<QStringList, QMultiHash<QString, QString> > p = 
     Command::splitArgumentsAndOptions(splitted.mid(1), &ann, &pendingOption);
   int i = 0;
   for(; i < end.size(); i++)

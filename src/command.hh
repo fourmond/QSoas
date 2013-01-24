@@ -75,7 +75,7 @@ protected:
                                   QWidget * base = NULL) const;
 
   /// Parse the options. Doesn't prompt.
-  CommandOptions parseOptions(const QHash<QString, QString> & opts, 
+  CommandOptions parseOptions(const QMultiHash<QString, QString> & opts, 
                               QString * defaultOption = NULL) const;
   
 
@@ -226,7 +226,7 @@ public:
   ///
   /// \p pendingOption is set to true if an option is still pending to
   /// be parsed.
-  static QPair<QStringList, QHash<QString, QString> > 
+  static QPair<QStringList, QMultiHash<QString, QString> > 
   splitArgumentsAndOptions(const QStringList & rawArgs,
                            QList<int> * annotate = NULL,
                            bool * pendingOption = NULL);

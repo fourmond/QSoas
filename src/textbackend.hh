@@ -36,6 +36,8 @@ protected:
   virtual int couldBeMine(const QByteArray & peek, 
                           const QString & fileName) const;
 
+  virtual ArgumentList * loadOptions() const;
+
 public:
   TextBackend(const QRegExp & sep,
               const char * n, const char * pn, const char * d = "");

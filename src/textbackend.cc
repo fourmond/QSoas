@@ -21,6 +21,11 @@
 #include <textbackend.hh>
 #include <dataset.hh>
 
+#include <argumentlist.hh>
+#include <argumentmarshaller.hh>
+#include <general-arguments.hh>
+
+
 TextBackend::TextBackend(const QRegExp & sep,
                          const char * n, const char * pn, const char * d) : 
   DataBackend(n, pn, d), separator(sep), comments("^\\s*#") {
@@ -62,14 +67,42 @@ int TextBackend::couldBeMine(const QByteArray & peek,
   return 0;
 }
 
+static ArgumentList 
+textLoadOptions(QList<Argument *>() 
+                << new StringArgument("separator", 
+                                      "Separator",
+                                      "Separator regular expression")
+                << new StringArgument("separator-exact", 
+                                      "Exact separator",
+                                      "Exact separator")
+                );
+
+ArgumentList * TextBackend::loadOptions() const
+{
+  return &textLoadOptions;
+}
+
 DataSet * TextBackend::readFromStream(QIODevice * stream,
                                       const QString & fileName,
                                       const CommandOptions & opts) const
 {
+  QString sep;
+  if(opts.contains("separator-exact"))
+    sep = QRegExp::escape(opts["separator-exact"]->value<QString>());
+  else if(opts.contains("separator"))
+    sep = opts["separator"]->value<QString>();
+
+  QRegExp s = separator;
+  if(! sep.isEmpty()) {
+    s = QRegExp(sep);
+    QTextStream o(stdout);
+    o << "Using separator: " << sep <<  " -- " << s.pattern() << endl;
+  }
+  
   /// @todo implement comments / header parsing... BTW, maybe
   /// Vector::readFromStream could be more verbose about the nature of
   /// the comments (the exact line, for instance ?)
-  QList<Vector> columns = Vector::readFromStream(stream, separator, 
+  QList<Vector> columns = Vector::readFromStream(stream, s, 
                                                  comments);
 
   DataSet * ds = new DataSet(columns);
@@ -77,6 +110,8 @@ DataSet * TextBackend::readFromStream(QIODevice * stream,
   /// @todo 
   return ds;
 }
+
+
 
 
 

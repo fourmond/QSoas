@@ -188,7 +188,8 @@ SOURCES += src/qmain.cc \
         src/kineticsystem.cc \
         src/kineticsystemevolver.cc \
         src/graphicssettings.cc \
-        src/backtrace.cc
+        src/backtrace.cc \
+        src/alias.cc
 
 
 HEADERS += src/headers.hh \

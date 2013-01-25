@@ -98,11 +98,9 @@ tcmd("tex-commands", // command name
 QString docUrl("http://10.234.32.140/soas/qsoas.html");
 
 
-static void helpCommand(const QString &, QString command, 
+static void helpCommand(const QString &, Command * cmd, 
                         const CommandOptions & opts)
 {
-  Command * cmd = Command::namedCommand(command);
-  
   QStringList synopsis;
   QString descs;
 
@@ -143,9 +141,9 @@ static void helpCommand(const QString &, QString command,
     }
   }
 
-  Terminal::out << "Command: " << command << " -- "
+  Terminal::out << "Command: " << cmd->commandName() << " -- "
                 << cmd->publicName() << "\n\n"
-                << "  " << command << " " 
+                << "  " << cmd->commandName() << " " 
                 << synopsis.join(" ") << "\n" 
                 << descs << "\n"
                 << cmd->longDescription() << endl;
@@ -153,9 +151,8 @@ static void helpCommand(const QString &, QString command,
 
 static ArgumentList 
 helpA(QList<Argument *>() 
-      << new ChoiceArgument(&Command::allCommands,
-                            "command", "Command",
-                            "The command on which to give help"));
+      << new CommandArgument("command", "Command",
+                             "The command on which to give help"));
 
 static ArgumentList 
 helpO(QList<Argument *>() 

@@ -27,6 +27,7 @@
 #include <terminal.hh>
 
 #include <exceptions.hh>
+#include <command.hh>
 
 ArgumentMarshaller * StringArgument::fromString(const QString & str) const
 {
@@ -322,4 +323,27 @@ void ParametersHashArgument::concatenateArguments(ArgumentMarshaller * a,
 {
   a->value< QHash<QString, double> >().
     unite(b->value<QHash<QString, double> >());
+}
+
+//////////////////////////////////////////////////////////////////////
+
+CommandArgument::CommandArgument(const char * cn, const char * pn,
+                                 const char * d, bool def)
+  : ChoiceArgument(Command::allCommands, cn, pn, d, def) {
+}; 
+
+ArgumentMarshaller * CommandArgument::fromString(const QString & str) const
+{
+  Command * cmd = Command::namedCommand(str);
+  if(! cmd)
+    throw RuntimeError("Invalid command: %1").arg(str);
+  return new ArgumentMarshallerChild<Command *>(cmd);
+}
+
+ArgumentMarshaller * CommandArgument::promptForValue(QWidget * base) const
+{
+  ArgumentMarshaller * a = ChoiceArgument::promptForValue(base);
+  QString s = a->value<QString>();
+  delete a;
+  return fromString(s);
 }

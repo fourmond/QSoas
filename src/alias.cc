@@ -50,9 +50,9 @@ public:
     PossessiveHash<QString, ArgumentMarshaller> args = 
       targetCommand->parseOptions(defaultOptions);
 
-    CommandArguments args2 = args;
-    for(CommandArguments::const_iterator i 
-          = options->begin(); i != options->end(); i++) {
+    CommandOptions args2 = args;
+    for(CommandOptions::const_iterator i 
+          = options.begin(); i != options.end(); i++) {
       if(args2.contains(i.key())) {
           Argument * arg = 
             targetCommand->commandOptions()->namedArgument(i.key());
@@ -74,4 +74,64 @@ public:
 };
 
 
+static QHash<QString, Alias *> definedAliases;
+
 //////////////////////////////////////////////////////////////////////
+
+static void defineAliasCommand(const QString &, QString alias,
+                               Command * cmd, 
+                               const CommandOptions & opts)
+{
+  // 
+  // if(definedAliases.contains(alias))
+  //   throw RuntimeError("An alias named %1 already exists !").arg(alias);
+  if(Command::namedCommand(alias))
+    throw RuntimeError("A command named '%1' already exists !").
+      arg(alias);
+
+  // First convert the options hash to a QMultiHash:
+  QMultiHash<QString, QString> options;
+
+  /// @todo Don't forget to remove alias-specific options first !
+  for(CommandOptions::const_iterator i = opts.begin();
+      i != opts.end(); i++)
+    options.replace(i.key(), i.value()->value<QString>());
+
+
+  Alias * a = new Alias(cmd);
+  definedAliases[alias] = a;
+  a->defaultOptions = options;
+
+  QString sh = QString("Alias for %1").arg(cmd->commandName());
+
+  /// @bug ? Maybe there are pointer problems here ?
+  new Command(alias.toLocal8Bit(), a, 
+              cmd->group->groupName().toLocal8Bit(),
+              const_cast<ArgumentList*>(cmd->commandArguments()),
+              const_cast<ArgumentList*>(cmd->commandOptions()),
+              sh.toLocal8Bit(), sh.toLocal8Bit());
+}
+
+static ArgumentList 
+daA(QList<Argument *>() 
+      << new StringArgument("alias", "Alias",
+                             "The name to give to the new alias")
+      << new CommandArgument("command", "Command",
+                             "The command to give an alias for"));
+
+static ArgumentList 
+daO(QList<Argument *>() 
+      << new StringArgument("*", "Options",
+                            "All options",
+                            true));
+
+
+static Command 
+hlpc("define-alias", // command name
+     effector(defineAliasCommand), // action
+     "file",  // group name
+     &daA, // arguments
+     &daO, // options
+     "Define alias",
+     "Make an alias for another command");
+

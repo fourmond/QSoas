@@ -87,42 +87,6 @@ List all available commands, along with a little help. This also
 includes used-defined commands, such as custom fits loaded from a fit file.
 {::comment} description-end: commands {:/}
 
-{::comment} synopsis-start: antialias {:/}
-
-### antialias - Antialias {#cmd-antialias}
-
-`antialias` 
-
-Alias: `AA`
-
-
-{::comment} synopsis-end: antialias {:/}
-{::comment} description-start: antialias {:/}
-
-Toggles anti-aliasing for on-screen graphics rendering. This can slow
-down the display tremendously on large datasets. Turning on OpenGL
-rendering with [`opengl`](#cmd-opengl) may help in that case.
-
-Printing always uses antialiased rendering, so you don't need to turn
-that on for neat printed output.
-{::comment} description-end: antialias {:/}
-
-
-{::comment} synopsis-start: opengl {:/}
-
-### opengl - OpenGL {#cmd-opengl}
-
-`opengl` 
-
-
-{::comment} synopsis-end: opengl {:/}
-{::comment} description-start: opengl {:/}
-Toggles the use of OpenGL for graphics rendering. This may be useful
-if you turn [`antialias`](#cmd-antialias) on. OpenGL support may be
-dropped in a future release of QSoas, but you shouldn't really need it
-anyway. 
-{::comment} description-end: opengl {:/}
-
 {::comment} synopsis-start: print {:/}
 
 ### print - Print {#cmd-print}
@@ -147,6 +111,50 @@ be a data plotting system, only a data analysis system. So plotting
 capacities don't go far...
 {::comment} description-end: print {:/}
 
+
+{::comment} synopsis-start: define-alias {:/}
+
+### define-alias - Define alias {#cmd-define-alias}
+
+`define-alias` _alias_ _command_ `/*=`
+
+  * _alias_: The name to give to the new alias
+  * _command_: The command to give an alias for
+  * `/*` (default): All options
+
+{::comment} synopsis-end: define-alias {:/}
+{::comment} description-start: define-alias {:/}
+The `define-alias` commands allows one to defined a shortcut for a
+command one uses often with the same options. For instance, running:
+
+~~~~
+QSoas> define-alias fit-2exp fit-exponential-decay /exponentials=2 /loss=true
+~~~~
+
+creates a `fit-2exp` command that is equivalent to starting 
+[`fit-exponential-decay`](#cmd-fit-exponential-decay) with two
+exponentials by default and film loss on. 
+
+While it is possible to define "default options" for aliased commands
+this way, there is no way to add arguments: you must still go on
+specifying all the arguments to the alias.
+{::comment} description-end: define-alias {:/}
+
+{::comment} synopsis-start: graphics-settings {:/}
+
+### graphics-settings - Graphics settings {#cmd-graphics-settings}
+
+`graphics-settings` `/line-width=`
+
+  * `/line-width`: Sets the base line width for all lines/curves
+
+{::comment} synopsis-end: graphics-settings {:/}
+{::comment} description-start: graphics-settings {:/}
+Gives the possibility to tweak a few settings concerning display.
+
+The settings are persistent and kept from one QSoas session until the
+next one.
+{::comment} description-end: graphics-settings {:/}
 
 
 
@@ -195,9 +203,11 @@ cache gets in the way, use the direct `load-as-` commands.
 
 ### load-as-text - Load files with backend 'text' {#cmd-load-as-text}
 
-`load-as-text` _file_...
+`load-as-text` _file_... `/separator=` `/separator-exact=`
 
   * _file_: Files to load !
+  * `/separator`: Separator regular expression
+  * `/separator-exact`: Exact separator
 
 {::comment} synopsis-end: load-as-text {:/}
 {::comment} description-start: load-as-text {:/}
@@ -216,9 +226,11 @@ work on other columns, have a look at [`expand`](#cmd-expand).
 
 ### load-as-csv - Load files with backend 'csv' {#cmd-load-as-csv}
 
-`load-as-csv` _file_...
+`load-as-csv` _file_... `/separator=` `/separator-exact=`
 
   * _file_: Files to load !
+  * `/separator`: Separator regular expression
+  * `/separator-exact`: Exact separator
 
 {::comment} synopsis-end: load-as-csv {:/}
 {::comment} description-start: load-as-csv {:/}
@@ -944,11 +956,12 @@ column:
 
 ### help - Help on... {#cmd-help}
 
-`help` _command_
+`help` _command_ `/online=`
 
 Alias: `?`
 
   * _command_: The command on which to give help
+  * `/online` (default): Show the online documentation in a browser
 
 {::comment} synopsis-end: help {:/}
 {::comment} description-start: help {:/}
@@ -1551,9 +1564,11 @@ QSoas> fit-kinetic-system /with=o2:3,exp,common kinetic-file.txt
 
 ### fit-kinetic-system - Fit: Full kinetic system {#cmd-fit-kinetic-system}
 
-`fit-kinetic-system` _system_ `/with=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
+`fit-kinetic-system` _system_ `/adaptative=` `/step-size=` `/with=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
 
   * _system_: Path to the file describing the system
+  * `/adaptative`: Whether or not to use adaptative stepper
+  * `/step-size`: Initial step size for the stepper
   * `/with`: Dependency upon time of various parameters
   * `/parameters`: Pre-loads parameters
   * `/debug`: Turn on debugging (for QSoas developers only)
@@ -1782,11 +1797,12 @@ fit simulation:
 
 ### generate-buffer - Generate buffer {#cmd-generate-buffer}
 
-`generate-buffer` _start_ _end_ `/samples=`
+`generate-buffer` _start_ _end_ `/samples=` `/formula=`
 
   * _start_: The first X value
   * _end_: The last X value
   * `/samples`: The number of samples
+  * `/formula` (default): Formula to generate the Y values
 
 {::comment} synopsis-end: generate-buffer {:/}
 {::comment} description-start: generate-buffer {:/}
@@ -1870,10 +1886,12 @@ multi buffer fit:
 
 ### mfit-kinetic-system - Multi fit: Full kinetic system {#cmd-mfit-kinetic-system}
 
-`mfit-kinetic-system` _system_ _datasets_... `/with=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
+`mfit-kinetic-system` _system_ _datasets_... `/adaptative=` `/step-size=` `/with=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
 
   * _system_: Path to the file describing the system
   * _datasets_: Datasets to fit
+  * `/adaptative`: Whether or not to use adaptative stepper
+  * `/step-size`: Initial step size for the stepper
   * `/with`: Dependency upon time of various parameters
   * `/parameters`: Pre-loads parameters
   * `/debug`: Turn on debugging (for QSoas developers only)
@@ -2267,7 +2285,6 @@ listed here:
 
  * [`1`](#cmd-1)
  * [`2`](#cmd-2)
- * [`antialias`](#cmd-antialias)
  * [`apply-formula`](#cmd-apply-formula)
  * [`auto-filter-bs`](#cmd-auto-filter-bs)
  * [`auto-filter-fft`](#cmd-auto-filter-fft)
@@ -2281,6 +2298,7 @@ listed here:
  * [`clear-stack`](#cmd-clear-stack)
  * [`combine-fits`](#cmd-combine-fits)
  * [`commands`](#cmd-commands)
+ * [`define-alias`](#cmd-define-alias)
  * [`define-derived-fit`](#cmd-define-derived-fit)
  * [`define-lw-fit`](#cmd-define-lw-fit)
  * [`diff`](#cmd-diff)
@@ -2294,6 +2312,7 @@ listed here:
  * [`find-peaks`](#cmd-find-peaks)
  * [`find-steps`](#cmd-find-steps)
  * [`generate-buffer`](#cmd-generate-buffer)
+ * [`graphics-settings`](#cmd-graphics-settings)
  * [`help`](#cmd-help)
  * [`kinetic-system`](#cmd-kinetic-system)
  * [`linear-kinetic-system`](#cmd-linear-kinetic-system)
@@ -2306,7 +2325,6 @@ listed here:
  * [`merge`](#cmd-merge)
  * [`norm`](#cmd-norm)
  * [`ode`](#cmd-ode)
- * [`opengl`](#cmd-opengl)
  * [`overlay`](#cmd-overlay)
  * [`overlay-buffer`](#cmd-overlay-buffer)
  * [`points`](#cmd-points)
@@ -2326,6 +2344,7 @@ listed here:
  * [`shiftx`](#cmd-shiftx)
  * [`show-stack`](#cmd-show-stack)
  * [`sim-duck-sim`](#cmd-sim-duck-sim)
+ * [`sim-ecr-wave`](#cmd-sim-ecr-wave)
  * [`sim-eecr-relay-wave`](#cmd-sim-eecr-relay-wave)
  * [`sim-eecr-wave`](#cmd-sim-eecr-wave)
  * [`sim-exponential-decay`](#cmd-sim-exponential-decay)
@@ -2342,6 +2361,7 @@ listed here:
  * [`splita`](#cmd-splita)
  * [`splitb`](#cmd-splitb)
  * [`stats`](#cmd-stats)
+ * [`strip-if`](#cmd-strip-if)
  * [`subtract`](#cmd-subtract)
  * [`temperature`](#cmd-temperature)
  * [`test-lw`](#cmd-test-lw)
@@ -2510,3 +2530,57 @@ letter.
   * `/extra-parameters`: Define supplementary parameters
 
 {::comment} synopsis-end: sim-linear-kinetic-system {:/}
+{::comment} synopsis-start: fit-ecr-wave {:/}
+
+### fit-ecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-fit-ecr-wave}
+
+`fit-ecr-wave` `/plateau=` `/oxidation=` `/use-eoc=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
+
+  * `/plateau`: Whether to use the general expression or only that valid when plateaus are not reached
+  * `/oxidation`: ???
+  * `/use-eoc`: Whether to use explicitly the bias or compute it using the open circuit potential
+  * `/parameters`: Pre-loads parameters
+  * `/debug`: Turn on debugging (for QSoas developers only)
+  * `/extra-parameters`: Define supplementary parameters
+
+{::comment} synopsis-end: fit-ecr-wave {:/}
+{::comment} synopsis-start: mfit-ecr-wave {:/}
+
+### mfit-ecr-wave - Multi fit: Fit of an EECR catalytic wave {#cmd-mfit-ecr-wave}
+
+`mfit-ecr-wave` _datasets_... `/plateau=` `/oxidation=` `/use-eoc=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
+
+  * _datasets_: Datasets to fit
+  * `/plateau`: Whether to use the general expression or only that valid when plateaus are not reached
+  * `/oxidation`: ???
+  * `/use-eoc`: Whether to use explicitly the bias or compute it using the open circuit potential
+  * `/parameters`: Pre-loads parameters
+  * `/debug`: Turn on debugging (for QSoas developers only)
+  * `/extra-parameters`: Define supplementary parameters
+  * `/weight-buffers`: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-ecr-wave {:/}
+{::comment} synopsis-start: sim-ecr-wave {:/}
+
+### sim-ecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-sim-ecr-wave}
+
+`sim-ecr-wave` _parameters_ _datasets_... `/plateau=` `/oxidation=` `/use-eoc=` `/override=` `/extra-parameters=`
+
+  * _parameters_: File to load parameters from
+  * _datasets_: Datasets to fit
+  * `/plateau`: Whether to use the general expression or only that valid when plateaus are not reached
+  * `/oxidation`: ???
+  * `/use-eoc`: Whether to use explicitly the bias or compute it using the open circuit potential
+  * `/override`: A comma-separated list of parameters to override
+  * `/extra-parameters`: Define supplementary parameters
+
+{::comment} synopsis-end: sim-ecr-wave {:/}
+{::comment} synopsis-start: strip-if {:/}
+
+### strip-if - Strip points {#cmd-strip-if}
+
+`strip-if` _formula_
+
+  * _formula_: Ruby boolean expression
+
+{::comment} synopsis-end: strip-if {:/}

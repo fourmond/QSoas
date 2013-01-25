@@ -65,6 +65,8 @@ protected:
   /// options.
   ArgumentList * options;
 
+public:
+
   /// Parse the arguments, possibly prompting for them if the given
   /// widget isn't NULL
   ///
@@ -77,10 +79,7 @@ protected:
   /// Parse the options. Doesn't prompt.
   CommandOptions parseOptions(const QMultiHash<QString, QString> & opts, 
                               QString * defaultOption = NULL) const;
-  
 
-
-public:
 
   /// The effector, ie the code that will actually run the command.
   CommandEffector * effector;

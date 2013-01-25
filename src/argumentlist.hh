@@ -56,6 +56,10 @@ public:
   bool contains(const QString & name) const;
 
   /// Returns the named argument, or NULL if there isn't any
+  ///
+  /// If there is a special argument (option) named *, then it is
+  /// returned for all calls that would otherwise not return an
+  /// option.
   Argument * namedArgument(const QString & name) const;
 
   /// Returns the names of all the arguments.

@@ -58,9 +58,11 @@ Argument * ArgumentList::namedArgument(const QString & name) const
 {
   if(cache.size() != size())
     regenerateCache();
-  return cache.value(name, NULL);
+  Argument * arg = cache.value(name, NULL);
+  if(! arg)
+    return cache.value("*", NULL); // we return "*" if it exists
+  return arg;                   
 }
-
 
 QStringList ArgumentList::argumentNames() const
 {

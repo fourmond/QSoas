@@ -105,6 +105,10 @@ CommandOptions Command::parseOptions(const QMultiHash<QString, QString> & opts,
     /// @bug Memory leak in case of an exception thrown: ret is not
     /// freed (and that happens often !)
     ArgumentMarshaller * newv = opt->fromString(i.value());
+
+    /// @todo Probably, instead of setting the target hash based on
+    /// the key, one should ask options or opt where to put it ? This
+    /// would allow abbreviation of option names ?
     if(ret.contains(i.key())) {
       if(opt->greedy) {
         opt->concatenateArguments(ret[i.key()],

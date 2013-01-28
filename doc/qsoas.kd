@@ -980,7 +980,27 @@ Alias: `@`
 
 {::comment} synopsis-end: run {:/}
 {::comment} description-start: run {:/}
-Run commands saved in a file
+Run commands saved in a file. Commands don't have to have full
+arguments provided, as prompting will still be performed in case of
+missing arguments.
+
+All the arguments after the first are arguments for the scripts. They
+are passed as "special variables" `${1}`, and `${2}`...
+
+Imagine you are often doing the same processing a given type of data
+files, say, simply filtering them. You just have to write a script
+`process.cmd` containing:
+
+~~~~
+load ${1}
+auto-filter-fft 
+~~~~
+
+And run it this way:
+~~~~
+QSoas> @ process.cmd data_file.dat
+~~~~
+
 {::comment} description-end: run {:/}
 
 {::comment} synopsis-start: overlay-buffer {:/}

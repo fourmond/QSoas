@@ -103,6 +103,10 @@ public:
   /// with that.
   QStringList history() const;
 
+  /// Returns a modifiable list of startup files, ie a list of files
+  /// that are read at startup.
+  static QStringList & startupFiles();
+
 public slots:
 
   void runCommand(const QString & str);

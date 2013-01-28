@@ -459,3 +459,59 @@ dummy("dummy", // command name
       "Dummy",
       "Dummy test command",
       "Dummy command for testing purposes");
+
+//////////////////////////////////////////////////////////////////////
+
+// Startup files commands
+
+void startupFilesCommand(const QString &, const CommandOptions & opts)
+{
+  // Without anything, just displays the commands
+  QString file;
+  QStringList &sf = CommandWidget::startupFiles();
+  updateFromOptions(opts, "add", file);
+  if(! file.isEmpty()) {
+    Terminal::out << "Adding file " << file << " to startup files" << endl;
+    sf << file;
+    return;
+  }
+  int del = -1;
+  updateFromOptions(opts, "rm", del);
+  if(del >= 0) {
+    if(del < sf.size()) {
+      Terminal::out << "Removing file numbered #" << del << endl;
+      sf.removeAt(del);
+    }
+    else {
+      Terminal::out << "No startup file numbered #" << del << endl;
+    }
+    return;
+  }
+  
+  Terminal::out << "Displaying the list of current startup files: " 
+                << endl;
+  for(int i = 0; i < sf.size(); i++)
+    Terminal::out << " * [" << i << "]: " << sf[i] << endl;
+}
+
+static ArgumentList 
+sfO(QList<Argument *>() 
+    << new FileArgument("add", 
+                        "Startup file",
+                        "Adds the given startup file", false, 
+                        true)
+    << new IntegerArgument("rm",
+                           "Remove",
+                           "Removes the numbered file")
+    );
+
+static Command 
+sf("startup-files", // command name
+   effector(startupFilesCommand), // action
+   "file",  // group name
+   NULL, // arguments
+   &sfO, // options
+   "Startup files",
+   "Handle startup files");
+
+

@@ -61,7 +61,12 @@ public:
   T * operator->() {
     return &value;
   };
+
+  T & ref() {
+    return value;
+  };
   
+
 };
 
 

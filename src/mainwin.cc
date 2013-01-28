@@ -263,6 +263,7 @@ static SettingsValue<QSize> mainWinSize("mainwin/size", QSize(700,500));
 static SettingsValue<QByteArray> splitterState("mainwin/splitter", 
                                                QByteArray());
 
+
 MainWin::MainWin(Soas * theSoas)
 {
   soasInstance = theSoas;
@@ -286,6 +287,20 @@ MainWin::MainWin(Soas * theSoas)
                 << "To list available commands, type 'commands'\n"
                 << "To get help on a specific command, type 'help command'\n"
                 << endl;
+
+  // Now, running all the startup files
+  QStringList sf = CommandWidget::startupFiles();
+  for(int i = 0; i < sf.size(); i++) {
+    Terminal::out << "Running startup file : " << sf[i] << endl;
+    try {
+      soas().prompt().runCommandFile(sf[i]);
+    }
+    catch(Exception & e) {
+      Terminal::out << "There was a problem running " << sf[i] 
+                    << ": " << e.message() << endl;
+    }
+  }
+ 
   DuckSimFit::initialize();
 }
 

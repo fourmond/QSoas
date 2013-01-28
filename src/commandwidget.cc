@@ -36,6 +36,14 @@ static SettingsValue<QString> logFileName("command/logfile",
                                           QString("soas.log"));
 
 
+static SettingsValue<QStringList> startupFiles("command/startup-files",
+                                               QStringList());
+
+QStringList & CommandWidget::startupFiles()
+{
+  return ::startupFiles.ref();
+}
+
 CommandWidget::CommandWidget() : watcherDevice(NULL)
 {
   if(! theCommandWidget)

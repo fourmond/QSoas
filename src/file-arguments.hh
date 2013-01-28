@@ -35,7 +35,8 @@ class FileArgument : public Argument {
 public:
 
   FileArgument(const char * cn, const char * pn,
-               const char * d = "", bool dir = false) : Argument(cn, pn, d),
+               const char * d = "", bool dir = false,
+               bool def = false) : Argument(cn, pn, d, false, def),
                                                         isDir(dir) {
   }; 
   

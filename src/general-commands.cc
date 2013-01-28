@@ -381,6 +381,10 @@ rfe("run-for-each", // command name
    "...");
 
 //////////////////////////////////////////////////////////////////////
+
+// This contains the list of all directories so far.
+static QStringList previousDirectories;
+
   
 static ArgumentList 
 cda(QList<Argument *>() 
@@ -388,11 +392,36 @@ cda(QList<Argument *>()
                         "Directory",
                         "New directory", true));
 
-static void cdCommand(const QString &, QString dir)
+static ArgumentList 
+cdo(QList<Argument *>() 
+    << new BoolArgument("from-home",  
+                        "From home",
+                        "If on, relative from the home directory"));
+
+static void cdCommand(const QString &, QString dir, 
+                      const CommandOptions & opts)
 {
+  QRegExp back("^(-+)$");
+  bool fromHome = false;
+  updateFromOptions(opts, "from-home", fromHome);
+  if(back.indexIn(dir) == 0) {
+    // We must go back in the history list
+    int nb = back.cap(1).size();
+    if(nb > previousDirectories.size())
+      throw RuntimeError("There are not %1 directories in the cd history").
+        arg(nb);
+    dir = previousDirectories[nb-1];
+  }
+  else if(fromHome) {
+    dir = QDir::home().absoluteFilePath(dir);
+  }
+
+  QString prev = QDir::currentPath();
+
   if(! QDir::setCurrent(dir))
-    throw RuntimeError(QObject::tr("Could not cd to '%1'").
-                       arg(dir));
+    throw RuntimeError("Could not cd to '%1'").
+      arg(dir);
+  previousDirectories.insert(0,prev);
   soas().mainWin().updateWindowName();
   Terminal::out << "Current directory now is: " << QDir::currentPath() 
                 << endl;
@@ -400,10 +429,10 @@ static void cdCommand(const QString &, QString dir)
 
 static Command 
 cd("cd", // command name
-   optionLessEffector(cdCommand), // action
+   effector(cdCommand), // action
    "file",  // group name
    &cda, // arguments
-   NULL, // options
+   &cdo, // options
    "Change directory",
    "Change current directory",
    "Change current directory",

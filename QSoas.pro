@@ -20,6 +20,10 @@ isEmpty(VERSION) {
   VERSION = 0.0
 }
 
+# We want icons
+
+macx:ICON = QSoas.icns
+win32:RC_FILE = QSoas-icon.rc
 
 
 DEFINES += SOAS_VERSION=\'\"$$VERSION\"\'
@@ -55,8 +59,10 @@ QMAKE_CFLAGS += -O3
 
 # Generate doxygen documentation
 doc.commands = doxygen 
-
 QMAKE_EXTRA_TARGETS += doc
+
+
+
 
 # You can specify the full path of ruby on the command-line using:
 # qmake RUBY=/usr/local/ruby1.8/bin/ruby
@@ -89,7 +95,6 @@ LIBS += $$RUBY_LIB_ARG
 win32:LIBS += -L$$RUBY_LIB_DIR
 
 RESOURCES += qsoas.qrc
-
 
 # GSL: we may have to build against non-standard gsl locations:
 ! isEmpty(GSL_DIR) {

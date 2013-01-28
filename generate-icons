@@ -1,0 +1,15 @@
+#!/bin/sh
+# A ruby script to regenerate all the icons files
+#
+# This script is intended to be run from a Linux machine with convert
+# on.
+
+convert QSoas-logo.svg QSoas.ico
+
+mkdir -p tmp-icons
+for res in 16 32 48 128 256 512; do
+    convert -density 1000 QSoas-logo.svg -resize "$res"x"$res" tmp-icons/QSoas-$res.png
+done
+png2icns QSoas.icns tmp-icons/*.png
+rm -rf tmp-icons
+

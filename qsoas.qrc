@@ -2,5 +2,6 @@
 <qresource>
   <file>ruby/qsoas-base.rb</file>
   <file>doc/qsoas.kd</file>
+  <file>QSoas-logo.svg</file>
 </qresource>
 </RCC>

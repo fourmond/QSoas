@@ -273,6 +273,10 @@ MainWin::MainWin(Soas * theSoas)
   if(! splitterState->isEmpty())
     mainSplitter->restoreState(splitterState);
 
+  // We load the icon
+  QIcon appIcon(":QSoas-logo.svg");
+  setWindowIcon(appIcon);
+
   Terminal::out << "This is QSoas version " << SOAS_VERSION 
                 << " running with " << Ruby::versionString() 
                 << "\n" << SOAS_BUILD_INFO 

@@ -31,27 +31,12 @@
 /// This class wraps another command along with a few options, and
 /// possibly some time later arguments too.
 class Alias : public CommandEffector {
-public:
 
-  /// The wrapped command
-  Command * targetCommand;
+protected:
 
-  /// The default options. They are not parsed yet.
-  QMultiHash<QString, QString> defaultOptions;
-
-  /// Arguments to come later ?
-
-  Alias(Command * tg) : CommandEffector(tg->effector->isInteractive()),
-                        targetCommand(tg) {
-  };
-
-  virtual void runCommand(const QString & commandName, 
-                          const CommandArguments & arguments,
-                          const CommandOptions & options) {
-
-    PossessiveHash<QString, ArgumentMarshaller> args = 
-      targetCommand->parseOptions(defaultOptions);
-
+  CommandOptions spliceOptions(const CommandOptions & args,
+                               const CommandOptions & options)
+  {
     CommandOptions args2 = args;
     for(CommandOptions::const_iterator i 
           = options.begin(); i != options.end(); i++) {
@@ -69,8 +54,50 @@ public:
       else
         args2[i.key()] = i.value();
     }
+    return args2;
+  };
+
+public:
+
+  /// The wrapped command
+  Command * targetCommand;
+
+  /// The default options. They are not parsed yet.
+  QMultiHash<QString, QString> defaultOptions;
+
+  virtual bool needsLoop() const {
+    return targetCommand->effector->needsLoop();
+  };
+
+  /// Arguments to come later ?
+
+
+  Alias(Command * tg) : CommandEffector(tg->effector->isInteractive()),
+                        targetCommand(tg) {
+  };
+
+  virtual void runCommand(const QString & commandName, 
+                          const CommandArguments & arguments,
+                          const CommandOptions & options) {
+
+    PossessiveHash<QString, ArgumentMarshaller> args = 
+      targetCommand->parseOptions(defaultOptions);
+    CommandOptions args2 = spliceOptions(args, options);
+
     targetCommand->effector->runCommand(commandName, arguments, args2);
   };
+
+  virtual void runWithLoop(CurveEventLoop & loop,
+                           const QString & commandName, 
+                           const CommandArguments & arguments,
+                           const CommandOptions & options)
+  {
+    PossessiveHash<QString, ArgumentMarshaller> args = 
+      targetCommand->parseOptions(defaultOptions);
+    CommandOptions args2 = spliceOptions(args, options);
+
+    targetCommand->effector->runWithLoop(loop,commandName, arguments, args2);
+  }
 
   
 };

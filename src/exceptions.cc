@@ -25,11 +25,15 @@
 
 Exception::Exception(const QString & m) throw() : 
   msg(m) {
+  backtrace = Utils::backtrace();
+  // Conversion is done initially, as when done during what(), it may
+  // trigger memory allocation that may be disallowed.
+  full = (msg + "\n" + backtrace.join("\n")).toLocal8Bit();
 };
 
 const char * Exception::what() const throw()
 {
-  return msg.toLocal8Bit().constData();
+  return full.constData();
 }
 
 QString Exception::message() const throw()
@@ -83,10 +87,13 @@ void GSLError::setupGSLHandler()
 InternalError::InternalError(const QString & ms) throw() :
   Exception(ms)
 {
-  QStringList bt = Utils::backtrace();
+}
 
-  if(bt.size() > 0)
-    msg += "\nBacktrace:\n\t" + bt.join("\n\t");
+
+QString InternalError::message() const throw()
+{
+  if(backtrace.size() > 0)
+    return msg + "\nBacktrace:\n\t" + backtrace.join("\n\t");
   else
-    msg += " [no backtrace available]";
+    return msg + "[no backtrace available]";
 }

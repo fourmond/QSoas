@@ -25,6 +25,8 @@
 class Exception : public std::exception {
 protected:
   QString msg;
+  QStringList backtrace;
+  QByteArray full;
 public:
   Exception(const QString & msg) throw();
   virtual const char * what() const throw();
@@ -34,11 +36,6 @@ public:
   /// Setup the qt message handler to catch problems
   static void setupQtMessageHandler();
 
-  template<typename T> Exception & arg(T a) {
-    msg.arg(a);
-    return *this;
-  }; 
-
 };
 
 class RuntimeError : public Exception {
@@ -46,6 +43,13 @@ public:
   RuntimeError(const QString & msg) throw() : Exception(msg) {
   };
   virtual ~RuntimeError() throw() {;};
+
+  // we need a redefition to avoid throwing Exception rather than
+  template<typename T> RuntimeError & arg(T a) {
+    msg = msg.arg(a);
+    return *this;
+  }; 
+
 };
 
 class GSLError : public RuntimeError {
@@ -72,6 +76,13 @@ class InternalError : public Exception {
 public:
   InternalError(const QString & msg) throw();
   virtual ~InternalError() throw() {;};
+  virtual QString message() const throw();
+
+  template<typename T> InternalError & arg(T a) {
+    msg = msg.arg(a);
+    return *this;
+  }; 
+
 };
 
 /// This exception in general isn't an error, but just an

@@ -23,6 +23,8 @@
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
 
+#include <terminal.hh>
+
 #include <possessive-containers.hh>
 
 
@@ -135,3 +137,34 @@ hlpc("define-alias", // command name
      "Define alias",
      "Make an alias for another command");
 
+
+//////////////////////////////////////////////////////////////////////
+
+static void displayAliasesCommand(const QString &)
+{
+  QStringList aliases = definedAliases.keys();
+  qSort(aliases);
+
+  Terminal::out << "Defined aliases:" << endl;
+  for(int i = 0; i < aliases.size(); i++) {
+    const QString & name = aliases[i];
+    Alias * alias = definedAliases[name];
+    QString optString;
+    for(QMultiHash<QString, QString>::const_iterator i = 
+          alias->defaultOptions.begin(); 
+        i != alias->defaultOptions.end(); i++)
+      optString += QString("/%1=%2 ").arg(i.key()).arg(i.value());
+    Terminal::out << " * " << name << ": " 
+                  << alias->targetCommand->commandName()
+                  << " " << optString << endl;
+  }
+}
+
+static Command 
+display("display-aliases", // command name
+     optionLessEffector(displayAliasesCommand), // action
+     "file",  // group name
+     NULL, // arguments
+     NULL, // options
+     "Display aliases",
+     "Displays all defined aliases");

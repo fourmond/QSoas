@@ -194,7 +194,8 @@ SOURCES += src/qmain.cc \
         src/kineticsystemevolver.cc \
         src/graphicssettings.cc \
         src/backtrace.cc \
-        src/alias.cc
+        src/alias.cc \
+        src/credits.cc
 
 
 HEADERS += src/headers.hh \
@@ -267,7 +268,8 @@ HEADERS += src/headers.hh \
         src/kineticsystem.hh \
         src/kineticsystemevolver.hh \
         src/guarded.hh \
-        src/graphicssettings.hh
+        src/graphicssettings.hh \
+        src/credits.hh
 
 
 # We link with the converted ODRPACK library

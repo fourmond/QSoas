@@ -71,6 +71,8 @@ namespace Ruby {
   template<typename A1, typename A2, 
            typename A3, typename A4> VALUE run(VALUE (*f)(A1, A2, A3, A4), 
                                                A1, A2, A3, A4); 
+
+  /// @}
 };
 
 

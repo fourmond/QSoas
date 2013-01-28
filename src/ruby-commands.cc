@@ -22,6 +22,7 @@
 #include <group.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
+#include <file-arguments.hh>
 #include <terminal.hh>
 #include <soas.hh>
 
@@ -29,6 +30,9 @@
 
 #include <dataset.hh>
 #include <vector.hh>
+
+#include <ruby.hh>
+#include <ruby-templates.hh>
 
 #include <expression.hh>
 
@@ -149,3 +153,31 @@ stripIf("strip-if", // command name
        NULL, // options
        "Strip points",
        "Remove points for which the formula is true", "");
+
+//////////////////////////////////////////////////////////////////////
+
+// This command is actually a real Ruby command!
+
+void rubyRunFile(const QString &, QString file)
+{
+  QFile f(file);
+  Utils::open(&f, QIODevice::ReadOnly | QIODevice::Text);
+  QByteArray bt = f.readAll();
+  Ruby::run(Ruby::eval, bt);
+}
+
+static ArgumentList 
+rA(QList<Argument *>() 
+   << new FileArgument("file", 
+                       "File",
+                       "Ruby file to load"));
+
+
+static Command 
+lf("ruby-run", // command name
+   optionLessEffector(rubyRunFile), // action
+   "file",  // group name
+   &rA, // arguments
+   NULL, // options
+   "Ruby load",
+   "Loads and runs a file containing ruby code", "");

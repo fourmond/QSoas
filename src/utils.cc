@@ -367,3 +367,13 @@ int Utils::stringToInt(const QString & str)
                        arg(str));
   return v;
 }
+
+QString Utils::expandTilde(const QString & name)
+{
+  if(name == "~")
+    return QDir::homePath();
+
+  if(name.startsWith("~/"))
+    return QDir::home().filePath(name.mid(2));
+  return name;
+}

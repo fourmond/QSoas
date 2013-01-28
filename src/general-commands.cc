@@ -415,6 +415,8 @@ static void cdCommand(const QString &, QString dir,
   else if(fromHome) {
     dir = QDir::home().absoluteFilePath(dir);
   }
+  else
+    dir = Utils::expandTilde(dir);
 
   QString prev = QDir::currentPath();
 

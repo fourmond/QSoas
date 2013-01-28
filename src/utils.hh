@@ -172,6 +172,9 @@ namespace Utils {
   /// One string per stack frame
   QStringList backtrace(int maxframes = 20);
 
+  /// Expands a leading ~ into the home directory of the user.
+  QString expandTilde(const QString & name);
+
 };
 
 #endif

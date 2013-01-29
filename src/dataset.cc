@@ -401,6 +401,9 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
 
   DataSet * ds = new DataSet(vects);
   ds->name = a->cleanedName() + cat + b->cleanedName() + ".dat";
+
+  // We put back the segments present in the first dataset
+  ds->segments = a->segments;
   return ds;
 }
 

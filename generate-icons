@@ -8,7 +8,7 @@ convert QSoas-logo.svg QSoas.ico
 
 mkdir -p tmp-icons
 for res in 16 32 48 128 256 512; do
-    convert -density 1000 QSoas-logo.svg -resize "$res"x"$res" tmp-icons/QSoas-$res.png
+    rsvg-convert -w $res -h $res QSoas-logo.svg > tmp-icons/QSoas-$res.png
 done
 png2icns QSoas.icns tmp-icons/*.png
 rm -rf tmp-icons

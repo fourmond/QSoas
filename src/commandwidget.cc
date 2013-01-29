@@ -58,6 +58,12 @@ CommandWidget::CommandWidget() : watcherDevice(NULL)
   QHBoxLayout * h1 = new QHBoxLayout();
   terminalDisplay = new QTextEdit();
   terminalDisplay->setReadOnly(true);
+  terminalDisplay->setContextMenuPolicy(Qt::NoContextMenu);
+
+  setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), 
+          SLOT(onMenuRequested(const QPoint &)));
+
   // We use a monospace font !
   terminalDisplay->setFont(QFont("monospace")); /// @todo customize settings
   // terminalDisplay->document()-> 
@@ -281,4 +287,14 @@ void CommandWidget::runCommandFile(const QString & fileName,
 QStringList CommandWidget::history() const
 {
   return commandLine->history();
+}
+
+void CommandWidget::onMenuRequested(const QPoint & pos)
+{
+  QPoint inner = terminalDisplay->mapFromParent(pos);
+  if(terminalDisplay->rect().contains(inner)) {
+    QMenu * menu = terminalDisplay->createStandardContextMenu(inner);
+    QPoint glb = mapToGlobal(pos);
+    menu->exec(glb);
+  }
 }

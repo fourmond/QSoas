@@ -129,6 +129,7 @@ public slots:
 protected slots:
   void commandEntered();
 
+  void onMenuRequested(const QPoint & pos);
 };
 
 #endif

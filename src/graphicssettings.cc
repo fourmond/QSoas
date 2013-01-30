@@ -78,7 +78,7 @@ QPen GraphicsSettings::getPen(PenRoles role) const
   case ReglinPen:
     return QPen(QColor("blue"), baseLineWidth, Qt::DotLine);
   case ResultPen:
-    return QPen(QColor("red"), baseLineWidth);
+    return QPen(QColor(200,0,200), baseLineWidth);
   default:
     return QPen();
   };

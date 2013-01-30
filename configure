@@ -4,6 +4,11 @@ v=""
 if [ "$1" ]; then
     v="VERSION=$1"
 fi
+
+if echo $2 | grep -i UNIVERSAL; then
+    univ="UNIVERSAL=1";
+fi
+
 # How I hate all these slight differences that make things difficult
 QMAKE=/opt/local/bin/qmake
 if [ -r /usr/bin/qmake ]; then
@@ -15,7 +20,7 @@ if [ -r /opt/local/bin/ruby1.9 ]; then
     extra="RUBY=/opt/local/bin/ruby1.9"
 fi
 
-$QMAKE $extra $v 
+$QMAKE $extra $v $univ
 
 # For some reason, mac's Qt writes a wrong library name for linking
 # when producing a debug stuff:

@@ -20,6 +20,11 @@ isEmpty(VERSION) {
   VERSION = 0.0
 }
 
+isEmpty(UNIVERSAL) {
+} else:macx {
+  CONFIG += x86_64 x86
+}                
+
 # We want icons
 
 macx:ICON = QSoas.icns

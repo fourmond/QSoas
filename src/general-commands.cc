@@ -440,6 +440,22 @@ cd("cd", // command name
    "Change current directory",
    "G");
 
+//////////////////////////////////////////////////////////////////////
+
+static void pwdCommand(const QString &)
+{
+  Terminal::out << "Current directory: " << QDir::currentPath()
+                << endl;
+}
+
+static Command 
+pwd("pwd", // command name
+   optionLessEffector(pwdCommand), // action
+   "file",  // group name
+   NULL, // arguments
+   NULL, // options
+   "Working directory",
+   "Print working directory");
   
 
 

@@ -141,6 +141,16 @@
    Find a way to prompt for additional arguments for greedy parameters
    (using an additional button in the dialog box ?)
 
+   @section segments Segments
+
+   There are a lot of operations that could benefit from potentially
+   setting automatically segments, such as:
+
+   @li concatenation
+   @li unwrapping
+   @li splitting into monotonic parts could instead set the segments
+   @li more ideas ?
+
 
    \section fits Fit-related things
 

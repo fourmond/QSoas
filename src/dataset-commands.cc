@@ -118,6 +118,37 @@ sm("split-monotonic", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void unwrapCommand(const QString &)
+{
+  const DataSet * ds = soas().currentDataSet();
+  Vector newX;
+  const Vector & oldX = ds->x();
+  for(int i = 0; i < oldX.size(); i++) {
+    if(i)
+      newX << newX.last() + fabs(oldX[i] - oldX[i-1]);
+    else
+      newX << oldX[i];
+  }
+  DataSet * nds = new DataSet(*ds);
+  nds->x() = newX;
+  nds->name = ds->cleanedName() + "-unwrap.dat";
+  soas().pushDataSet(nds);
+}
+        
+
+static Command 
+uw("unwrap", // command name
+   optionLessEffector(unwrapCommand), // action
+   "buffer",  // group name
+   NULL, // arguments
+   NULL, // options
+   "Unwrap",
+   "Unwrap the buffer so that X is always increasing");
+
+
+
+//////////////////////////////////////////////////////////////////////
+
 static void sortCommand(const QString &)
 {
   const DataSet * ds = soas().currentDataSet();

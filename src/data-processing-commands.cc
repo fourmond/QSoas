@@ -1688,3 +1688,52 @@ zerp("zero", // command name
      "Makes 0",
      "Ensure that a given point has X or Y value equal to 0",
      "...");
+
+//////////////////////////////////////////////////////////////////////
+
+static void autoCorrelationCommand(const QString &,
+                                   const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+
+  FFT f(ds->x(), ds->y(), false);
+
+  f.forward(false);
+
+  double dx = f.deltaX;
+
+  int nb = f.frequencies();
+  /// @todo Probably this should join FFT ?
+  for(int i = 0; i < nb; i++) {
+    double &re = f.real(i);
+    double &im = f.imag(i);
+    re = (re*re) + (im * im);
+    im = 0;
+  }
+  f.reverse(false);
+
+  // Now, we splice the output value as we know the output function to
+  // be periodic but we'd like to have 0 in the middle ;-)
+
+  int offset = f.data.size() - nb;
+  Vector ny = f.data.mid(nb) + f.data.mid(0,nb);
+  if(ny.size() != f.data.size())
+    throw InternalError("blunder !");
+
+  Vector nx;
+  for(int i = 0; i < ds->x().size(); i++)
+    nx << f.deltaX * (i-offset);
+
+  DataSet * nds = new DataSet(nx, ny);
+  nds->name = ds->cleanedName() + "_corr.dat";
+  soas().pushDataSet(nds);
+}
+
+static Command 
+ac("auto-correlation", // command name
+   effector(autoCorrelationCommand), // action
+   "buffer",  // group name
+   NULL, // arguments
+   NULL, // options
+   "Auto-correlation",
+   "Computes the auto-correlation function", "", "ac");

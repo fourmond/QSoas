@@ -47,6 +47,9 @@ class FFT {
   /// setup the shared pointers
   void setup();
 
+  /// A dummy value to be used as a returned reference for the last
+  /// frequency on even numbers
+  double dummy;
   
   
 public:
@@ -104,6 +107,16 @@ public:
   /// Returns the number of frequencies that can be tweaked using the
   /// other functions.
   int frequencies() const;
+
+  /// Returns a reference to the real part of the i-th frequency element
+  double & real(int i);
+  // double real(int i) const;
+
+  /// Returns a reference to the imaginary part of the i-th frequency element
+  double & imag(int i);
+  // double imag(int i) const;
+
+
   /// @}
 
 

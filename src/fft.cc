@@ -20,6 +20,8 @@
 #include <fft.hh>
 #include <dataset.hh>
 
+#include <exceptions.hh>
+
 void FFT::setup()
 {
   realWT = QSharedPointer<gsl_fft_real_wavetable>
@@ -161,6 +163,32 @@ double FFT::magnitude(int i) const
     return data[sz-1];
   return sqrt(data[2*i-1]*data[2*i-1] + data[2*i]*data[2*i]);
 }
+
+double & FFT::real(int i)
+{
+  if(i >= frequencies() || i < 0)
+    throw InternalError("FFT:real(): invalid frequency: %1").arg(i);
+  if(i == 0)
+    return data[0];
+  int sz = data.size();
+  if(sz % 2 == 0 && i == sz/2)
+    return data[sz-1];
+  return data[2*i-1];
+}
+
+double & FFT::imag(int i)
+{
+  if(i >= frequencies() || i < 0)
+    throw InternalError("FFT:real(): invalid frequency: %1").arg(i);
+  int sz = data.size();
+  if((i == 0) || (sz % 2 == 0 && i == sz/2)) {
+    dummy = 0;
+    return dummy;               // Never used !
+  }
+  return data[2*i];
+}
+
+
 
 int FFT::frequencies() const
 {

@@ -1711,6 +1711,8 @@ static void autoCorrelationCommand(const QString &,
     im = 0;
   }
   f.reverse(false);
+  f.data /= f.data.size();       // because the transform is n times
+                                 // too large, and it is squared above
 
   // Now, we splice the output value as we know the output function to
   // be periodic but we'd like to have 0 in the middle ;-)

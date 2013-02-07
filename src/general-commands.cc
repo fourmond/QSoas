@@ -396,7 +396,11 @@ static ArgumentList
 cdo(QList<Argument *>() 
     << new BoolArgument("from-home",  
                         "From home",
-                        "If on, relative from the home directory"));
+                        "If on, relative from the home directory")
+    << new BoolArgument("from-script",  
+                        "From script",
+                        "If on, cd relative from the current script directory")
+    );
 
 static void cdCommand(const QString &, QString dir, 
                       const CommandOptions & opts)
@@ -404,6 +408,9 @@ static void cdCommand(const QString &, QString dir,
   QRegExp back("^(-+)$");
   bool fromHome = false;
   updateFromOptions(opts, "from-home", fromHome);
+
+  bool fromScript = false;
+  updateFromOptions(opts, "from-script", fromScript);
   if(back.indexIn(dir) == 0) {
     // We must go back in the history list
     int nb = back.cap(1).size();
@@ -414,6 +421,13 @@ static void cdCommand(const QString &, QString dir,
   }
   else if(fromHome) {
     dir = QDir::home().absoluteFilePath(dir);
+  }
+  else if(fromScript) {
+    QString n = soas().prompt().scriptFileName();
+    if(n.isEmpty())
+      throw RuntimeError("Cannot cd relative to script dir outsite "
+                         "of a script !");
+    dir = QFileInfo(n).dir().path();
   }
   else
     dir = Utils::expandTilde(dir);

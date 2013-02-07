@@ -63,6 +63,14 @@ class CommandWidget : public QWidget {
   /// the first one to be created.
   static CommandWidget * theCommandWidget;
 
+  /// The name of the script currently being run. Empty if not running
+  /// a script.
+  QString scriptFile;
+
+  /// Runs the command coming from the given device
+  void runCommandFile(QIODevice * source, 
+                      const QStringList & args = QStringList());
+
 public:
 
   CommandWidget();
@@ -93,10 +101,6 @@ public:
   /// Returns the whole string contained by the terminal (as plain text)
   QString terminalContents() const;
 
-  /// Runs the command coming from the given device
-  void runCommandFile(QIODevice * source, 
-                      const QStringList & args = QStringList());
-
   /// Returns the history of all commands run so far.
   ///
   /// @todo if I do history loading from settings, I'll have to deal
@@ -106,6 +110,10 @@ public:
   /// Returns a modifiable list of startup files, ie a list of files
   /// that are read at startup.
   static QStringList & startupFiles();
+
+  /// Returns the name of the script currently being run. Returns an
+  /// empty string should no script be running.
+  const QString & scriptFileName() const;
 
 public slots:
 

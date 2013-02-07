@@ -274,7 +274,8 @@ HEADERS += src/headers.hh \
         src/kineticsystemevolver.hh \
         src/guarded.hh \
         src/graphicssettings.hh \
-        src/credits.hh
+        src/credits.hh \
+        src/temporarychange.hh
 
 
 # We link with the converted ODRPACK library

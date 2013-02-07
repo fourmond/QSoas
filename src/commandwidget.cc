@@ -28,6 +28,7 @@
 #include <exceptions.hh>
 
 #include <settings-templates.hh>
+#include <temporarychange.hh>
 
 using namespace Terminal;
 
@@ -280,6 +281,7 @@ void CommandWidget::runCommandFile(const QString & fileName,
                                    const QStringList & args)
 {
   QFile file(fileName);
+  TemporaryChange<QString> ch(scriptFile, fileName);
   Utils::open(&file, QIODevice::ReadOnly);
   runCommandFile(&file, args);
 }
@@ -297,4 +299,9 @@ void CommandWidget::onMenuRequested(const QPoint & pos)
     QPoint glb = mapToGlobal(pos);
     menu->exec(glb);
   }
+}
+
+const QString & CommandWidget::scriptFileName() const
+{
+  return scriptFile;
 }

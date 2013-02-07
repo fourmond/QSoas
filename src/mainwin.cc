@@ -94,7 +94,13 @@
    would be that readable. One neat thing though is that it would
    allow automatic documentation, but that would be a pain to
    write. \b Maybe only making the help text static ? Even that
-   doesn't feel so great... I shall have a look at lambdas, then
+   doesn't feel so great... I shall have a look at lambdas, then.  @b
+   Maybe what is necessary is just a static (documented) conversion
+   between events and custom numbers (enums ?) That would allow to
+   greatly simplify some of the loops (removing the need for testing
+   for the nature of the event), while still using a switch-based
+   mechanism that reads nicer than callback-based stuff, and providing
+   automatic (static !) documentation along with accurate use of keys...
 
    @li I should come up with button-like widget containers that would
    help selection of datasets in DatasetBrowser, and use these

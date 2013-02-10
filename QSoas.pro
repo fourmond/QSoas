@@ -200,7 +200,8 @@ SOURCES += src/qmain.cc \
         src/graphicssettings.cc \
         src/backtrace.cc \
         src/alias.cc \
-        src/credits.cc
+        src/credits.cc \
+        src/eventhandler.cc
 
 
 HEADERS += src/headers.hh \
@@ -275,7 +276,8 @@ HEADERS += src/headers.hh \
         src/guarded.hh \
         src/graphicssettings.hh \
         src/credits.hh \
-        src/temporarychange.hh
+        src/temporarychange.hh \
+        src/eventhandler.hh
 
 
 # We link with the converted ODRPACK library

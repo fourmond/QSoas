@@ -63,7 +63,6 @@
 
    \li improve distance-to-dataset
    \li dataset selection
-   \li add a "basic string" fallback for parameters/options
    \li come up with a full dialog box to edit @b all arguments to a
    command. (including options !)
    \li history save/restore upon exit => probably not...
@@ -77,11 +76,17 @@
    and so on...
    \li an apply-formula command spanning several datasets (using x[0],
    x[1] and so on...)
-   \li go further with the steps system, ie allow one to add the steps
-   in a permanent fashion to a DataSet (including setting the steps
-   manually -- or with a user-specified index list), and to use this
-   information to perform steps-aware subtractions/divisions (padding
-   with last values/first values ?)
+
+   When comparing datasets, it is irksome to lose overlays by
+   loading/manipulating datasets. Maybe what we need is either to
+   @li make some overlays persistent (ie, they stay until an explicit
+   call to clear ?). This may even be the default ?
+   @li link datasets one to the other (and every time one dataset with
+   links is displayed, all others are displayed too !
+   
+   While both approaches have their merit, 
+   
+   
 
    @b Qt-related @b stuff:
 

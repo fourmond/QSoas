@@ -43,6 +43,8 @@
 #include <pointpicker.hh>
 #include <pointtracker.hh>
 
+#include <eventhandler.hh>
+
 #include <graphicssettings.hh>
 
 #include <fft.hh>
@@ -50,6 +52,31 @@
 #include <peaks.hh>
 
 //////////////////////////////////////////////////////////////////////
+
+typedef enum {
+  LeftPick,
+  RightPick,
+  Quit,
+  Subtract,
+  Divide,
+  Write,
+  Exponential
+} ReglinActions;
+
+EventHandler reglinHandler = EventHandler("reg").
+  addClick(Qt::LeftButton, LeftPick, "pick left bound").
+  addClick(Qt::RightButton, RightPick, "pick right bound").
+  addKey('q', Quit, "quit").
+  addKey('Q', Quit).
+  addKey(Qt::Key_Escape, Quit).
+  addKey('u', Subtract, "subtract").
+  addKey('U', Subtract).
+  addKey(' ', Write, "write to output file").
+  addKey('e', Exponential, "divide by exponential").
+  addKey('E', Exponential).
+  addKey('v', Divide, "divide").
+  addKey('V', Divide);
+
 static void reglinCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();

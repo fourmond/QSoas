@@ -118,103 +118,94 @@ static void reglinCommand(CurveEventLoop &loop, const QString &)
                                  "q, ESC: quit"));
   /// @todo selection mode ? (do we need that ?)
   while(! loop.finished()) {
-    switch(loop.type()) {
-    case QEvent::MouseButtonPress: 
-      {
-        r.setX(loop.position().x(), loop.button());
-        reg = ds->reglin(r.xmin(), r.xmax());
-        double y = reg.first * xleft + reg.second;
-        line.p1 = QPointF(xleft, y);
-        y = reg.first * xright + reg.second;
-        line.p2 = QPointF(xright, y);
+    switch(reglinHandler.nextAction(loop)) {
+    case LeftPick:
+    case RightPick: {
+      r.setX(loop.position().x(), loop.button());
+      reg = ds->reglin(r.xmin(), r.xmax());
+      double y = reg.first * xleft + reg.second;
+      line.p1 = QPointF(xleft, y);
+      y = reg.first * xright + reg.second;
+      line.p2 = QPointF(xright, y);
 
-        // Apparent first-order rate constants
-        decay_rate = reg.first/(reg.second + reg.first * r.xleft);
-        Terminal::out << reg.first << "\t" << reg.second 
-                      << "\t" << decay_rate << endl;
-        soas().showMessage(QObject::tr("Regression between X=%1 and X=%2").
-                           arg(r.xleft).arg(r.xright));
+      // Apparent first-order rate constants
+      decay_rate = reg.first/(reg.second + reg.first * r.xleft);
+      Terminal::out << reg.first << "\t" << reg.second 
+                    << "\t" << decay_rate << endl;
+      soas().showMessage(QObject::tr("Regression between X=%1 and X=%2").
+                         arg(r.xleft).arg(r.xright));
 
-        // Now, we fill the d vector with data
-        if(d.xvalues.size() == 0) {
-          // First time in the loop
-          d.xvalues = ds->x();
-          d.yvalues = ds->y(); // Not really important, only size
-          // matters
+      // Now, we fill the d vector with data
+      if(d.xvalues.size() == 0) {
+        // First time in the loop
+        d.xvalues = ds->x();
+        d.yvalues = ds->y(); // Not really important, only size
+        // matters
+      }
+      double dy_min = 0;
+      double dy_max = 0;
+      for(int i = 0; i < d.xvalues.size(); i++) {
+        double x = d.xvalues[i];
+        double y = ds->y()[i] -  x * reg.first - reg.second;
+        d.yvalues[i] = y;
+        if(x >= r.xleft && x <= r.xright) {
+          if(y < dy_min)
+            dy_min = y;
+          if(y > dy_max)
+            dy_max = y;
         }
-        double dy_min = 0;
-        double dy_max = 0;
-        for(int i = 0; i < d.xvalues.size(); i++) {
-          double x = d.xvalues[i];
-          double y = ds->y()[i] -  x * reg.first - reg.second;
-          d.yvalues[i] = y;
-          if(x >= r.xleft && x <= r.xright) {
-            if(y < dy_min)
-              dy_min = y;
-            if(y > dy_max)
-              dy_max = y;
-          }
-        }
-        bottom.setYRange(dy_min, dy_max, view.mainPanel());
-        break;
       }
-    case QEvent::KeyPress: 
-      switch(loop.key()) {
-      case 'q':
-      case 'Q':
-      case Qt::Key_Escape:
-        return;
-      case 'U':
-      case 'u': {
-        // Subtracting, the data is already computed in d
-        DataSet * newds = new 
-          DataSet(QList<Vector>() << d.xvalues << d.yvalues);
-        newds->name = ds->cleanedName() + "_linsub.dat";
-        soas().pushDataSet(newds);
-        return;
-      }
-      case ' ': {
-        OutFile::out.setHeader(QString("Dataset: %1\n"
-                                       "a\tb\tkeff\txleft\txright").
-                               arg(ds->name));
-        /// @todo add other fields ? 
-        OutFile::out << reg.first << "\t" << reg.second 
-                     << "\t" << decay_rate
-                     << "\t" << r.xleft << "\t" << r.xright 
-                     << "\n" << flush;
-        Terminal::out << "Writing to output file " << OutFile::out.fileName()
-                      << endl;
-        break;
-      }
-      case 'V':
-      case 'v': {
-        // Dividing
-        Vector newy = ds->y();
-        for(int i = 0; i < newy.size(); i++)
-          newy[i] /= (d.xvalues[i] * reg.first + reg.second);
-        DataSet * newds = new 
-          DataSet(QList<Vector>() << d.xvalues << newy);
-        newds->name = ds->cleanedName() + "_lindiv.dat";
-        soas().pushDataSet(newds);
-        return;
-      }
-      case 'E':
-      case 'e': {
-        // Dividing by exponential decay
-        Vector newy = ds->y();
-        double rate = reg.first/(reg.second - reg.first*d.xvalues[0]);
-        for(int i = 1; i < newy.size(); i++)
-          newy[i] /= exp(rate * (d.xvalues[i] - d.xvalues[0]));
-        DataSet * newds = new 
-          DataSet(QList<Vector>() << d.xvalues << newy);
-        newds->name = ds->cleanedName() + "_expdiv.dat";
-        soas().pushDataSet(newds);
-        return;
-      }
-      default:
-        ;
-      }
+      bottom.setYRange(dy_min, dy_max, view.mainPanel());
       break;
+    }
+    case Quit:
+      return;
+    case Subtract: {
+      // Subtracting, the data is already computed in d
+      DataSet * newds = new 
+        DataSet(QList<Vector>() << d.xvalues << d.yvalues);
+      newds->name = ds->cleanedName() + "_linsub.dat";
+      soas().pushDataSet(newds);
+      return;
+    }
+    case Write: {
+      OutFile::out.setHeader(QString("Dataset: %1\n"
+                                     "a\tb\tkeff\txleft\txright").
+                             arg(ds->name));
+      /// @todo add other fields ? This should be done through an
+      /// appropriate class, as far as I can tell.
+      OutFile::out << reg.first << "\t" << reg.second 
+                   << "\t" << decay_rate
+                   << "\t" << r.xleft << "\t" << r.xright 
+                   << "\n" << flush;
+      Terminal::out << "Writing to output file " << OutFile::out.fileName()
+                    << endl;
+      break;
+    }
+    case Divide: {
+      // Dividing
+      Vector newy = ds->y();
+      for(int i = 0; i < newy.size(); i++)
+        newy[i] /= (d.xvalues[i] * reg.first + reg.second);
+      DataSet * newds = new 
+        DataSet(QList<Vector>() << d.xvalues << newy);
+      newds->name = ds->cleanedName() + "_lindiv.dat";
+      soas().pushDataSet(newds);
+      return;
+    }
+    case Exponential: {
+      // Dividing by exponential decay
+      Vector newy = ds->y();
+      /// @bug Wrong here !
+      double rate = reg.first/(reg.second - reg.first*d.xvalues[0]);
+      for(int i = 1; i < newy.size(); i++)
+        newy[i] /= exp(rate * (d.xvalues[i] - d.xvalues[0]));
+      DataSet * newds = new 
+        DataSet(QList<Vector>() << d.xvalues << newy);
+      newds->name = ds->cleanedName() + "_expdiv.dat";
+      soas().pushDataSet(newds);
+      return;
+    }
     default:
       ;
     }

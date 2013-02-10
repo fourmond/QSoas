@@ -32,19 +32,23 @@ class CurvePanel;
 /// like in the old Soas (but with a great number of improvements). It
 /// gets used this way:
 ///
-///   CurveEventLoop loop;
+/// \code
 ///
-///   while(! loop.finished()) {
-///     switch(loop.type()) {
-///     case QEvent::MouseMove:
-///       // handle mouse move
-///       break;
-///     case QEvent::KeyPress:
-///       //
-///       break;
-///     default:
-///     }
+/// CurveEventLoop loop;
+///
+/// while(! loop.finished()) {
+///   switch(loop.type()) {
+///   case QEvent::MouseMove:
+///     // handle mouse move
+///     break;
+///   case QEvent::KeyPress:
+///     //
+///     break;
+///   default:
 ///   }
+/// }
+///
+/// \endcode
 ///
 /// @todo I should add a way to easily customize the message shown on
 /// the status bar during the even loop.

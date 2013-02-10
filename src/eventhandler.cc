@@ -30,6 +30,32 @@ EventHandler::~EventHandler()
 {
 }
 
+
+QString EventHandler::keyString(int key)
+{
+  // Gets it wrong for the upper-case/lowercase stuff
+  if(key > 64 && key < 128)
+    return QChar(key);
+  QKeySequence seq(key);
+  return seq.toString();
+}
+
+QString EventHandler::clickString(Qt::MouseButton button)
+{
+  switch(button) {
+  case Qt::LeftButton:
+    return "left";
+  case Qt::RightButton:
+    return "right";
+  case Qt::MidButton:
+    return "mid";
+  default:
+    return "?";
+  }
+  return QString();
+}
+
+
 EventHandler & EventHandler::addKey(int key, int action, const QString & help)
 {
   keyActions[key] = action;
@@ -61,3 +87,31 @@ int EventHandler::nextAction(const CurveEventLoop & loop) const
   return -1;
 }
 
+QString EventHandler::buildHelpString(bool useHTML) const
+{
+  QList<int> actions = helpTexts.keys();
+  qSort(actions);
+
+  QString text;
+
+  for(int i = 0; i < actions.size(); i++) {
+    // First get all the actions corresponding to 
+    int action = actions[i];
+    QStringList shortcuts;
+    
+    for(QHash<Qt::MouseButton, int>::const_iterator it = clickActions.begin();
+        it != clickActions.end(); it++)
+      if(it.value() == action)
+        shortcuts << clickString(it.key());
+
+    for(QHash<int, int>::const_iterator it = keyActions.begin();
+        it != keyActions.end(); it++)
+      if(it.value() == action)
+        shortcuts << keyString(it.key());
+    
+    text.append(QString("%1: %2\n").arg(shortcuts.join(", ")).
+                arg(helpTexts[action]));
+  }
+  return text;
+  
+}

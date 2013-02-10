@@ -33,13 +33,23 @@ class CurveEventLoop;
 /// @todo Handle more complex stuff, such as Ctrl modifiers for clicks
 ///
 /// @question Should this class handle PointPicker ??
+///
+/// @todo The structure should be extended to handle more complex
+/// stuff: maybe a hash Eventtype -> hashes of int to action ? Or more
+/// complex filters ? Maybe even event objects (or subclasses ?)
+///
+///
+/// @todo Add commands with "optional" help text, ie things that won't
+/// get displayed on the help text unless we ask for it. This may
+/// become necessary for interactive commands with many shortcuts.
+///
+/// @todo Handle double clicks
 class EventHandler{
 protected:
 
   /// The command name with which this handler is used. Of no use for
   /// now.
   QString commandName;
-
 
   /// Help text for the given action.
   QHash<int, QString> helpTexts;
@@ -49,6 +59,12 @@ protected:
   
   /// Actions for the given keys
   QHash<int, int> keyActions;
+
+  /// A string representing the key press
+  static QString keyString(int key);
+
+  /// A string representing the mouse click
+  static QString clickString(Qt::MouseButton button);
   
 public:
 
@@ -57,7 +73,7 @@ public:
 
 
   /// Adds a keypress event to the handler. Help text doesn't override
-  /// existing.
+  /// existing, though you can override a key press handler this way.
   EventHandler & addKey(int key, int action, const QString & help = "");
 
 

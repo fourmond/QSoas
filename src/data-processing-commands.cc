@@ -56,11 +56,11 @@
 typedef enum {
   LeftPick,
   RightPick,
-  Quit,
   Subtract,
   Divide,
   Write,
-  Exponential
+  Exponential,
+  Quit
 } ReglinActions;
 
 EventHandler reglinHandler = EventHandler("reg").
@@ -69,12 +69,12 @@ EventHandler reglinHandler = EventHandler("reg").
   addKey('q', Quit, "quit").
   addKey('Q', Quit).
   addKey(Qt::Key_Escape, Quit).
-  addKey('u', Subtract, "subtract").
+  addKey('u', Subtract, "subtract trend").
   addKey('U', Subtract).
   addKey(' ', Write, "write to output file").
   addKey('e', Exponential, "divide by exponential").
   addKey('E', Exponential).
-  addKey('v', Divide, "divide").
+  addKey('v', Divide, "divide by trend").
   addKey('V', Divide);
 
 static void reglinCommand(CurveEventLoop &loop, const QString &)
@@ -108,14 +108,8 @@ static void reglinCommand(CurveEventLoop &loop, const QString &)
   double decay_rate = 0;
 
 
-  loop.setHelpString(QObject::tr("Linear regression:\n"
-                                 "left click: left boundary\n"
-                                 "right click: right boundary\n"
-                                 "space: write to output file\n"
-                                 "u: subtract trend\n"
-                                 "v: divide by trend\n"
-                                 "e: divide by exp decay\n"
-                                 "q, ESC: quit"));
+  loop.setHelpString(QString("Linear regression:\n")
+                     + reglinHandler.buildHelpString());
   /// @todo selection mode ? (do we need that ?)
   while(! loop.finished()) {
     switch(reglinHandler.nextAction(loop)) {

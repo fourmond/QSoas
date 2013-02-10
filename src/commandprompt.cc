@@ -246,6 +246,11 @@ QStringList CommandPrompt::getCompletions(const CompletionContext & c,
     else 
       arg = cmd->commandArguments()->
         whichArgument(argid, c.argumentNumber);
+    if(! arg && cmd->commandOptions() && 
+       cmd->commandOptions()->hasDefaultOption()) {
+      reason->clear();
+      arg = cmd->commandOptions()->defaultOption();
+    }
   }
   
   if(! arg)

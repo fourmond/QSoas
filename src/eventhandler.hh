@@ -81,7 +81,9 @@ public:
   EventHandler & addClick(Qt::MouseButton button, int action,
                           const QString & help = "");
 
-  
+  /// Adds the action corresponding to a conventional accept.
+  EventHandler & conventionalAccept(int action, const QString & help = "");
+
   /// Builds a help string (in the order of the int of the actions)
   QString buildHelpString(bool useHTML = false) const;
 

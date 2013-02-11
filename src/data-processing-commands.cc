@@ -53,6 +53,7 @@
 
 //////////////////////////////////////////////////////////////////////
 
+namespace {
 typedef enum {
   LeftPick,
   RightPick,
@@ -63,7 +64,7 @@ typedef enum {
   Quit
 } ReglinActions;
 
-EventHandler reglinHandler = EventHandler("reg").
+static EventHandler reglinHandler = EventHandler("reg").
   addClick(Qt::LeftButton, LeftPick, "pick left bound").
   addClick(Qt::RightButton, RightPick, "pick right bound").
   addKey('q', Quit, "quit").
@@ -216,6 +217,7 @@ reg("reglin", // command name
     "Performs linear regression",
     "...",
     "reg");
+};
 
 //////////////////////////////////////////////////////////////////////
 
@@ -388,6 +390,25 @@ fl("film-loss", // command name
     "...");
 
 //////////////////////////////////////////////////////////////////////
+
+
+namespace __bl {
+typedef enum {
+  AddPoint,
+  ChangeType,
+  RemovePoint,
+  Add10Left,
+  Add10Right,
+  ClearAll,
+  Derive,
+  Replace,
+  Divide,
+  Subtract,
+  Abort
+} BaselineActions;
+
+static EventHandler baselineHandler = EventHandler("baseline").
+  addKey(Qt::Key_Escape, Abort);
 
 static void baselineCommand(CurveEventLoop &loop, const QString &)
 {
@@ -575,6 +596,7 @@ bsl("baseline", // command name
     "Interpolation-based baseline",
     "...",
     "b");
+}
 
 //////////////////////////////////////////////////////////////////////
 

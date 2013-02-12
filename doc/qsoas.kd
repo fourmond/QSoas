@@ -21,6 +21,24 @@ that the full log of the session is always available in the
 the very beginning in the terminal.
 {::comment} description-end: quit {:/}
 
+
+{::comment} synopsis-start: credits {:/}
+
+### credits - Credits {#cmd-credits}
+
+`credits` 
+
+{::comment} synopsis-end: credits {:/}
+{::comment} description-start: credits {:/}
+
+This command displays credits, copyright and license information of 
+QSoas and all the dependencies linked to or built in your version.
+
+It also lists publications whose findings/equations/algorithms were
+directly used in QSoas.
+{::comment} description-end: credits {:/}
+
+
 {::comment} synopsis-start: save-history {:/}
 
 ### save-history - Save history {#cmd-save-history}
@@ -43,15 +61,23 @@ repetitively as a [script](#scripting).
 
 ### cd - Change directory {#cmd-cd}
 
-`cd` _directory_
+`cd` _directory_ `/from-home=` `/from-script=`
 
 Alias: `G`
 
   * _directory_: New directory
+  * `/from-home`: If on, relative from the home directory
+  * `/from-script`: If on, cd relative from the current script directory
 
 {::comment} synopsis-end: cd {:/}
 {::comment} description-start: cd {:/}
-Changes the current working directory. 
+Changes the current working directory. If `/from-home` is specified,
+the directory is assumed to be relative to the user's home directory. 
+If `/from-script` is specified, the directory is assumed to be
+relative to that of the command file currently being executed by a 
+[`run`](#cmd-run) command (or in a [startup script](#cmd-startup-files)).
+
+
 
 As of now, it doesn't change the output files and the log files, but
 it eventually will.
@@ -497,14 +523,25 @@ Shift X values so that the first point has a X value of 0.
 
 ### norm - Normalize {#cmd-norm}
 
-`norm` `/positive=`
+`norm` `/positive=` `/map-to=`
 
   * `/positive`: Whether we normalize on positive or negative values
+  * `/map-to` (default): Normalizes by mapping to the given segment
 
 {::comment} synopsis-end: norm {:/}
 {::comment} description-start: norm {:/}
 Normalize the current buffer by its maximum value (or by the absolute
 value of its most negative value if `/positive` is `false`).
+
+If the `/map-to` option is specified, the original dataset is mapped
+linearly to the given segment: 
+
+~~~~ 
+norm /map-to=2:4
+~~~~
+
+shifts and scales the original data so that the Y minimum is 2 and the
+Y maximum is 4.
 {::comment} description-end: norm {:/}
 
 
@@ -2306,6 +2343,7 @@ listed here:
  * [`1`](#cmd-1)
  * [`2`](#cmd-2)
  * [`apply-formula`](#cmd-apply-formula)
+ * [`auto-correlation`](#cmd-auto-correlation)
  * [`auto-filter-bs`](#cmd-auto-filter-bs)
  * [`auto-filter-fft`](#cmd-auto-filter-fft)
  * [`average`](#cmd-average)
@@ -2318,11 +2356,13 @@ listed here:
  * [`clear-stack`](#cmd-clear-stack)
  * [`combine-fits`](#cmd-combine-fits)
  * [`commands`](#cmd-commands)
+ * [`credits`](#cmd-credits)
  * [`define-alias`](#cmd-define-alias)
  * [`define-derived-fit`](#cmd-define-derived-fit)
  * [`define-lw-fit`](#cmd-define-lw-fit)
  * [`diff`](#cmd-diff)
  * [`diff2`](#cmd-diff2)
+ * [`display-aliases`](#cmd-display-aliases)
  * [`div`](#cmd-div)
  * [`drop`](#cmd-drop)
  * [`dummy`](#cmd-dummy)
@@ -2349,10 +2389,12 @@ listed here:
  * [`overlay-buffer`](#cmd-overlay-buffer)
  * [`points`](#cmd-points)
  * [`print`](#cmd-print)
+ * [`pwd`](#cmd-pwd)
  * [`quit`](#cmd-quit)
  * [`redo`](#cmd-redo)
  * [`remove-spikes`](#cmd-remove-spikes)
  * [`rename`](#cmd-rename)
+ * [`ruby-run`](#cmd-ruby-run)
  * [`run`](#cmd-run)
  * [`run-for-each`](#cmd-run-for-each)
  * [`save`](#cmd-save)
@@ -2380,6 +2422,7 @@ listed here:
  * [`split-monotonic`](#cmd-split-monotonic)
  * [`splita`](#cmd-splita)
  * [`splitb`](#cmd-splitb)
+ * [`startup-files`](#cmd-startup-files)
  * [`stats`](#cmd-stats)
  * [`strip-if`](#cmd-strip-if)
  * [`subtract`](#cmd-subtract)
@@ -2387,6 +2430,7 @@ listed here:
  * [`test-lw`](#cmd-test-lw)
  * [`tex-commands`](#cmd-tex-commands)
  * [`undo`](#cmd-undo)
+ * [`unwrap`](#cmd-unwrap)
  * [`update-documentation`](#cmd-update-documentation)
  * [`zero`](#cmd-zero)
 {::comment} non-interacive-end {:/}
@@ -2604,3 +2648,56 @@ letter.
   * _formula_: Ruby boolean expression
 
 {::comment} synopsis-end: strip-if {:/}
+{::comment} synopsis-start: auto-correlation {:/}
+
+### auto-correlation - Auto-correlation {#cmd-auto-correlation}
+
+`auto-correlation` 
+
+Alias: `ac`
+
+
+{::comment} synopsis-end: auto-correlation {:/}
+{::comment} synopsis-start: display-aliases {:/}
+
+### display-aliases - Display aliases {#cmd-display-aliases}
+
+`display-aliases` 
+
+
+{::comment} synopsis-end: display-aliases {:/}
+{::comment} synopsis-start: pwd {:/}
+
+### pwd - Working directory {#cmd-pwd}
+
+`pwd` 
+
+
+{::comment} synopsis-end: pwd {:/}
+{::comment} synopsis-start: ruby-run {:/}
+
+### ruby-run - Ruby load {#cmd-ruby-run}
+
+`ruby-run` _file_
+
+  * _file_: Ruby file to load
+
+{::comment} synopsis-end: ruby-run {:/}
+{::comment} synopsis-start: startup-files {:/}
+
+### startup-files - Startup files {#cmd-startup-files}
+
+`startup-files` `/add=` `/rm=`
+
+  * `/add` (default): Adds the given startup file
+  * `/rm`: Removes the numbered file
+
+{::comment} synopsis-end: startup-files {:/}
+{::comment} synopsis-start: unwrap {:/}
+
+### unwrap - Unwrap {#cmd-unwrap}
+
+`unwrap` 
+
+
+{::comment} synopsis-end: unwrap {:/}

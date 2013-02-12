@@ -252,7 +252,7 @@ ArgumentMarshaller * NumberArgument::promptForValue(QWidget * base) const
 
 ArgumentMarshaller * SeveralNumbersArgument::fromString(const QString & str) const
 {
-  QStringList strs = str.split(QRegExp("\\s*,\\s*"));
+  QStringList strs = str.split(QRegExp(QString("\\s*%1\\s*").arg(delim)));
   QList<double> l;
   for(int i = 0; i < strs.size(); i++)
     l << Utils::stringToDouble(strs[i]);

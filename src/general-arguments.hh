@@ -199,12 +199,16 @@ public:
 
 /// Several numbers
 class SeveralNumbersArgument : public Argument {
+protected:
+
+  QString delim;
 public:
 
   SeveralNumbersArgument(const char * cn, const char * pn,
                          const char * d = "", bool sl = true, 
-                         bool def = false) : 
-    Argument(cn, pn, d, sl, def) {
+                         bool def = false,
+                         const char * del = ",") : 
+    Argument(cn, pn, d, sl, def), delim(del) {
   }; 
   
   /// Returns a wrapped QList<double>

@@ -1648,8 +1648,23 @@ static void normCommand(const QString &, const CommandOptions & opts)
   Vector y = ds->y();
   bool positive = true;
   updateFromOptions(opts, "positive", positive);
-  double fact = 1/(positive ? y.max() : -y.min());
-  y *= fact;
+  QList<double> mapTo;
+  updateFromOptions(opts, "map-to", mapTo);
+  if(mapTo.isEmpty()) {
+    double fact = 1/(positive ? y.max() : -y.min());
+    y *= fact;
+  }
+  else {
+    double ym = y.min();
+    double yM = y.max();
+
+    double ymT = mapTo[0];
+    double yMT = mapTo[1];
+    y -= ym;
+    y *= (yMT - ymT)/(yM - ym);
+    y += ymT;
+  }
+
   DataSet * nds = new DataSet(ds->x(), y);
   nds->name = ds->cleanedName() + "_norm.dat";
   soas().pushDataSet(nds);
@@ -1660,6 +1675,9 @@ normOps(QList<Argument *>()
         << new BoolArgument("positive", "Positive",
                             "Whether we normalize on positive "
                             "or negative values")
+        << new SeveralNumbersArgument("map-to", "Map to segment",
+                                      "Normalizes by mapping to the given "
+                                      "segment", true, true, ":")
         );
 
 static Command 

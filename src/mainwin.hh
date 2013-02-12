@@ -45,7 +45,7 @@ class MainWin : public QMainWindow {
   QSplitter * mainSplitter;
 
 public:
-  MainWin(Soas * theSoas);
+  MainWin(Soas * theSoas, bool runStartupFiles);
   ~MainWin();
 
   /// Displays a message on the status bar

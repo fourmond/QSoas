@@ -71,6 +71,10 @@ int main(int argc, char ** argv)
     return 0;
   }
 
+  bool startup = true;
+  if(arg1 == "--no-startup-files")
+    startup = false;
+
   int retval;
 
   loadDocumentationFile("load-documentation", ":/doc/qsoas.kd");
@@ -80,7 +84,7 @@ int main(int argc, char ** argv)
   Settings::loadSettings("bip.cnrs-mrs.fr", "Soas");
   
   {
-    MainWin win(&theSoas);
+    MainWin win(&theSoas, startup);
     win.show();
     retval = main.exec();
   }

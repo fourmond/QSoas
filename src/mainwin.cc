@@ -285,7 +285,7 @@ static SettingsValue<QByteArray> splitterState("mainwin/splitter",
                                                QByteArray());
 
 
-MainWin::MainWin(Soas * theSoas)
+MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
 {
   soasInstance = theSoas;
   theSoas->setMainWindow(this);
@@ -314,17 +314,21 @@ MainWin::MainWin(Soas * theSoas)
                 << endl;
 
   // Now, running all the startup files
-  QStringList sf = CommandWidget::startupFiles();
-  for(int i = 0; i < sf.size(); i++) {
-    Terminal::out << "Running startup file : " << sf[i] << endl;
-    try {
-      soas().prompt().runCommandFile(sf[i]);
-    }
-    catch(Exception & e) {
-      Terminal::out << "There was a problem running " << sf[i] 
-                    << ": " << e.message() << endl;
+  if(runStartupFiles) {
+    QStringList sf = CommandWidget::startupFiles();
+    for(int i = 0; i < sf.size(); i++) {
+      Terminal::out << "Running startup file : " << sf[i] << endl;
+      try {
+        soas().prompt().runCommandFile(sf[i]);
+      }
+      catch(Exception & e) {
+        Terminal::out << "There was a problem running " << sf[i] 
+                      << ": " << e.message() << endl;
+      }
     }
   }
+  else
+    Terminal::out << "Not loading any startup file as requested" << endl;
  
   DuckSimFit::initialize();
 }

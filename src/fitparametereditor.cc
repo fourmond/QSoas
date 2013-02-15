@@ -346,8 +346,6 @@ void FitParameterEditor::setRelativeError(double value)
       ra = 2.5;
     ra /= -2.5;                    // Between -1 and 1
      
-    QTextStream o(stdout);
-    o << "Setting palette for error: " << value << ", ra = " << ra << endl;
     background = QColor::fromHsvF((ra + 1)/6, 0.2, 1);
 
     editor->setToolTip(QString("Error: %1 %").arg(100 * value));

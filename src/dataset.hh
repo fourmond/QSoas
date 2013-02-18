@@ -100,7 +100,18 @@ public:
   /// A small helper function for creating new datasets with the same
   /// X, the given Y, and a name based on the original one with a
   /// given suffix.
+  ///
+  /// It keeps other columns unchanged.
   DataSet * derivedDataSet(const Vector &y, const QString & suffix) const;
+
+  /// A small helper function for creating new datasets that keep as
+  /// much information as possible from the old dataset while changing
+  /// all the columns.
+  ///
+  /// This function (or its sister) should be used systematically
+  /// whenever one creates a new dataset based on an old one.
+  DataSet * derivedDataSet(const QList<Vector> &newCols, 
+                           const QString & suffix) const;
 
   /// The name of the dataset, usually the name of the file.
   QString name;

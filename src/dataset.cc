@@ -773,7 +773,8 @@ static bool greaterThan(const QPair<double, int> &a,
 DataSet * DataSet::sort(bool reverse) const
 {
   /// @todo This algorithm isn't fast nor space-efficient, but it does
-  /// work, and its simple.
+  /// work, and its simple. (well, it's still n ln(n) excepted in
+  /// pathological cases)
 
   QList< QPair<double, int> > vals;
 
@@ -802,19 +803,26 @@ DataSet * DataSet::sort(bool reverse) const
   return ds;
 }
 
+DataSet * DataSet::derivedDataSet(const QList<Vector> &newCols, 
+                                  const QString & suffix) const
+{
+  DataSet * ds = new DataSet(newCols);
+  ds->name = cleanedName() + suffix;
+
+  /// @todo Optionnally drop the segments (with an optional argument ?)
+  ds->segments = segments;
+
+  /// @question Should we update the date too ?
+  return ds;
+}
+
+
 DataSet * DataSet::derivedDataSet(const Vector &newy, 
                                   const QString & suffix) const
 {
-  QList<Vector> nv;
-  nv << x();
-  nv << newy;
-
-  /// @todo Shall we put the other columns back in ?
-  DataSet * ds = new DataSet(nv);
-  ds->name = cleanedName() + suffix;
-
-  /// @todo Should we update the date too ?
-  return ds;
+  QList<Vector> newCols = columns;
+  newCols[1] = newy;
+  return derivedDataSet(newCols, suffix);
 }
 
 void DataSet::firstDerivative(const double *x, int xstride, 

@@ -28,6 +28,7 @@ the very beginning in the terminal.
 
 `credits` 
 
+
 {::comment} synopsis-end: credits {:/}
 {::comment} description-start: credits {:/}
 
@@ -181,6 +182,54 @@ Gives the possibility to tweak a few settings concerning display.
 The settings are persistent and kept from one QSoas session until the
 next one.
 {::comment} description-end: graphics-settings {:/}
+
+
+{::comment} synopsis-start: ruby-run {:/}
+
+### ruby-run - Ruby load {#cmd-ruby-run}
+
+`ruby-run` _file_
+
+  * _file_: Ruby file to load
+
+{::comment} synopsis-end: ruby-run {:/}
+{::comment} description-start: ruby-run {:/}
+This command loads and executes a Ruby file. For the time being, the
+main interest of this command is to define complex functions in a
+separate file. 
+
+Imagine you have a file `function.rb` containing the text:
+
+~~~~ ruby
+def function(x,a)
+  return x**(a**x)
+end
+~~~~
+
+After running 
+
+~~~~
+QSoas> ruby-run function.rb
+~~~~
+
+You can use `function` like any normal function for fitting:
+
+~~~~
+QSoas> fit-arb 'function(x,a)'
+~~~~
+{::comment} description-end: ruby-run {:/}
+
+
+{::comment} synopsis-start: startup-files {:/}
+
+### startup-files - Startup files {#cmd-startup-files}
+
+`startup-files` `/add=` `/rm=`
+
+  * `/add` (default): Adds the given startup file
+  * `/rm`: Removes the numbered file
+
+{::comment} synopsis-end: startup-files {:/}
 
 
 
@@ -468,11 +517,12 @@ Use it when you don't find the buffers you're interested in anymore !
 
 ### apply-formula - Apply formula {#cmd-apply-formula}
 
-`apply-formula` _formula_
+`apply-formula` _formula_ `/extra-columns=`
 
 Alias: `F`
 
   * _formula_: Formula (valid Ruby code)
+  * `/extra-columns`: Number of extra columns to create
 
 {::comment} synopsis-end: apply-formula {:/}
 {::comment} description-start: apply-formula {:/}
@@ -487,6 +537,24 @@ QSoas> apply-formula 'x,y = y,x'
 
 The last bit swaps the X and Y values of the buffer. The formula must
 be valid [ruby](#ruby) code.
+
+In addition to `x` and `y` (note the lowercase !), the formula can
+refer to: 
+
+  * `i` (the index of the data point)
+  * `y2`, `y3`, etc when there are more than 2 columns in the dataset
+
+`i` cannot be modified, but `y2` and so on can.
+
+Extra columns initially filled with 0 can be created by using the
+`/extra-columns` option:
+
+~~~~
+QSoas> apply-formula /extra-columns=1 'y2 = y**2'
+~~~~
+
+This creates a second column containing the square of the values of
+the Y column.
 
 {::comment} description-end: apply-formula {:/}
 
@@ -2674,25 +2742,6 @@ Alias: `ac`
 
 
 {::comment} synopsis-end: pwd {:/}
-{::comment} synopsis-start: ruby-run {:/}
-
-### ruby-run - Ruby load {#cmd-ruby-run}
-
-`ruby-run` _file_
-
-  * _file_: Ruby file to load
-
-{::comment} synopsis-end: ruby-run {:/}
-{::comment} synopsis-start: startup-files {:/}
-
-### startup-files - Startup files {#cmd-startup-files}
-
-`startup-files` `/add=` `/rm=`
-
-  * `/add` (default): Adds the given startup file
-  * `/rm`: Removes the numbered file
-
-{::comment} synopsis-end: startup-files {:/}
 {::comment} synopsis-start: unwrap {:/}
 
 ### unwrap - Unwrap {#cmd-unwrap}

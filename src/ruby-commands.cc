@@ -43,20 +43,20 @@
 // Paradoxally, this command isn't really anymore related to Ruby --
 // or much less than before
 
-static ArgumentList 
-fA(QList<Argument *>() 
-   << new StringArgument("formula", 
-                         "Formula",
-                         "Formula (valid Ruby code)"));
-
-static void applyFormulaCommand(const QString &, QString formula)
+static void applyFormulaCommand(const QString &, QString formula,
+                                const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();
+
+  int extra = 0;
+  updateFromOptions(opts, "extra-columns", extra);
+
   Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
     arg(formula).arg(ds->name) << endl;
   QStringList vars;
-  vars << "x" << "y";              /// @todo handle the case of a
-                                   /// larger number of columns
+  vars << "i" << "x" << "y";
+  for(int i = 2; i < ds->nbColumns() + extra; i++)
+    vars << QString("y%1").arg(i);
 
   formula = QString("%1\n%3\n[%2]").
     arg(vars.join("\n")).       /// @todo This is hackish, but, well
@@ -65,38 +65,54 @@ static void applyFormulaCommand(const QString &, QString formula)
     arg(formula);
 
   Expression exp(formula, vars);
+
+  QList<Vector> newCols;
+  for(int i = 0; i < ds->nbColumns() + extra; i++)
+    newCols << Vector();
   
-  Vector newX, newY;
-  {
-    const Vector & xc = ds->x();
-    const Vector & yc = ds->y();
-    double vars[2];
-    double values[2];
-    for(int i = 0; i < xc.size(); i++) {
-      vars[0] = xc[i];
-      vars[1] = yc[i];
-      exp.evaluateIntoArray(vars, values, 2);
-      newX << values[0];
-      newY << values[1];
+  int size = ds->x().size();
+  for(int i = 0; i < size; i++) {
+    QVarLengthArray<double, 50> args(newCols.size() + 1);
+    QVarLengthArray<double, 50> ret(newCols.size() + 1);
+    
+    args[0] = i;                // the index !
+    for(int j = 1; j < args.size(); j++) {
+      if(j > ds->nbColumns())
+        args[j] = 0;
+      else
+        args[j] = ds->column(j-1)[i];
     }
+    exp.evaluateIntoArray(args.data(), ret.data(), ret.size());
+    for(int j = 1; j < ret.size(); j++)
+      newCols[j-1].append(ret[j]);
   }
 
-  DataSet * newDs = new DataSet(QList<Vector>() << newX << newY);
-  newDs->name = ds->cleanedName() + "_mod.dat";
+  DataSet * newDs = ds->derivedDataSet(newCols, "_mod.dat");
   soas().pushDataSet(newDs);
 }
+
+static ArgumentList 
+fA(QList<Argument *>() 
+   << new StringArgument("formula", 
+                         "Formula",
+                         "Formula (valid Ruby code)"));
+
+static ArgumentList 
+fO(QList<Argument *>() 
+   << new IntegerArgument("extra-columns", 
+                          "Extra columns",
+                          "Number of extra columns to create"));
 
 
 static Command 
 load("apply-formula", // command name
-     optionLessEffector(applyFormulaCommand), // action
+     effector(applyFormulaCommand), // action
      "buffer",  // group name
      &fA, // arguments
-     NULL, // options
+     &fO, // options
      "Apply formula",
      "Applies a formula to the current dataset",
-     QT_TR_NOOP("Applies a formula to the current dataset. "
-                "The formula must be valid Ruby code."),
+     "...",
      "F");
 
 //////////////////////////////////////////////////////////////////////

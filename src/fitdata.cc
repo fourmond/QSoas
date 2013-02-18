@@ -378,9 +378,13 @@ bool FitData::independentDataSets() const
 const gsl_matrix * FitData::covarianceMatrix()
 {
   /// @todo provide a function with a gsl_matrix target as argument.
-  if(! covarStorage)
-    covarStorage = gsl_matrix_alloc(fullParameterNumber(),
-                                    fullParameterNumber());
+  if(! covarStorage) {
+    int sz = fullParameterNumber();
+    if(sz == 0)
+      sz = 1;                   /// @hack Work around GSL failing on
+                                /// empty matrix
+    covarStorage = gsl_matrix_alloc(sz, sz);
+  }
 
   gsl_matrix_set_zero(covarStorage);
 
@@ -398,8 +402,11 @@ const gsl_matrix * FitData::covarianceMatrix()
     // We write the covariance matrix in the top-left corner of the
     // storage space, and then move all the columns in place using
     // permutations.
+
+    int nbparams = (gslParameters > 0 ? gslParameters : 1); 
+    /// @hack Work around the GSL limitation on having empty matrices
     gsl_matrix_view m = gsl_matrix_submatrix(covarStorage, 0, 0, 
-                                             gslParameters, gslParameters);
+                                             nbparams, nbparams);
     if(engine) {
       engine->computeCovarianceMatrix(&m.matrix);
 

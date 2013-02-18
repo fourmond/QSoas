@@ -36,6 +36,11 @@ public:
   /// Setup the qt message handler to catch problems
   static void setupQtMessageHandler();
 
+  /// Returns the backtrace
+  const QStringList & exceptionBacktrace() const throw() {
+    return backtrace;
+  };
+
 };
 
 class RuntimeError : public Exception {

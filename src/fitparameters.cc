@@ -186,8 +186,12 @@ void FitParameters::updateParameterValues()
   fitData->initializeParameters();
 
   QVarLengthArray<double, 1000> params(fitData->freeParameters());
-  gsl_vector_view v = gsl_vector_view_array(params.data(), 
-                                            fitData->freeParameters());
+
+  int sz = fitData->freeParameters();
+  if(sz == 0)               /// @hack Work around GSL limitation on
+                            /// empty vectors
+    sz = 1;                     
+  gsl_vector_view v = gsl_vector_view_array(params.data(), sz);
 
   // We need a pack/unpack cycle to ensure the dependent parameters
   // are computed correctly.

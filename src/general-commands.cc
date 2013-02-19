@@ -528,6 +528,14 @@ dummy("dummy", // command name
 void startupFilesCommand(const QString &, const CommandOptions & opts)
 {
   // Without anything, just displays the commands
+  bool run = false;
+  updateFromOptions(opts, "run", run);
+  if(run) {
+    CommandWidget::runStartupFiles();
+    return;
+  }
+
+
   QString file;
   QStringList &sf = CommandWidget::startupFiles();
   updateFromOptions(opts, "add", file);
@@ -564,6 +572,9 @@ sfO(QList<Argument *>()
     << new IntegerArgument("rm",
                            "Remove",
                            "Removes the numbered file")
+    << new BoolArgument("run",
+                        "Run",
+                        "If on, runs all the startup files right now")
     );
 
 static Command 

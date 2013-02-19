@@ -305,3 +305,18 @@ const QString & CommandWidget::scriptFileName() const
 {
   return scriptFile;
 }
+
+void CommandWidget::runStartupFiles()
+{
+  QStringList sf = CommandWidget::startupFiles();
+  for(int i = 0; i < sf.size(); i++) {
+    Terminal::out << "Running startup file : " << sf[i] << endl;
+    try {
+      soas().prompt().runCommandFile(sf[i]);
+    }
+    catch(Exception & e) {
+      Terminal::out << "There was a problem running " << sf[i] 
+                    << ": " << e.message() << endl;
+    }
+  }
+}

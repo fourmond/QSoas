@@ -115,6 +115,10 @@ public:
   /// empty string should no script be running.
   const QString & scriptFileName() const;
 
+
+  /// Runs all the startup files
+  static void runStartupFiles();
+
 public slots:
 
   void runCommand(const QString & str);

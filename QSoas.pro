@@ -59,6 +59,9 @@ OBJECTS_DIR = build
 # best case (excepted when a function only exits via an exception)
 QMAKE_CXXFLAGS += -Werror=return-type 
 
+# Let's try building C++11
+QMAKE_CXXFLAGS += -std=c++11
+
 
 QMAKE_CFLAGS += -O3
 

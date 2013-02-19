@@ -60,7 +60,12 @@ OBJECTS_DIR = build
 QMAKE_CXXFLAGS += -Werror=return-type 
 
 # Let's try building C++11
-QMAKE_CXXFLAGS += -std=c++11
+# @todo Try detecting the mingw version properly !
+win32 {
+  QMAKE_CXXFLAGS += -std=c++0x  #We use an old version of gcc on win !
+} else {
+  QMAKE_CXXFLAGS += -std=c++11
+}
 
 
 QMAKE_CFLAGS += -O3

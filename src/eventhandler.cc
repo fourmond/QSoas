@@ -115,3 +115,11 @@ QString EventHandler::buildHelpString(bool useHTML) const
   return text;
   
 }
+
+EventHandler & EventHandler::conventionalAccept(int action, 
+                                                const QString & help)
+{
+  addClick(Qt::MidButton, action, help);
+  addKey('q', action);
+  return addKey('Q', action);
+}

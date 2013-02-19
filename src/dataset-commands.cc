@@ -40,6 +40,9 @@
 
 #include <expression.hh>
 
+#include <eventhandler.hh>
+
+
 static Group grp("buffer", 2,
                  "Buffer",
                  "Buffer manipulations");
@@ -424,78 +427,102 @@ cu("cursor", // command name
    "cu");
 //////////////////////////////////////////////////////////////////////
 
+namespace Cut {
+  typedef enum {
+    LeftPick,
+    RightPick,
+    SelectInside,
+    SelectOutside,
+    RemoveInside,
+    Abort
+  } CutActions;
 
-static void cutCommand(CurveEventLoop &loop, const QString &)
-{
-  const DataSet * ds = soas().currentDataSet();
-  const GraphicsSettings & gs = soas().graphicsSettings();
+  static EventHandler cutHandler = EventHandler("cut").
+    addClick(Qt::LeftButton, LeftPick, "pick left bound").
+    addClick(Qt::RightButton, RightPick, "pick right bound").
+    conventionalAccept(SelectInside, "keep only the inside").
+    addKey('u', SelectOutside, "keep only the outside").
+    addKey('U', SelectOutside).
+    addKey('r', RemoveInside, "remove inside and go on").
+    addKey('R', RemoveInside).
+    addKey(Qt::Key_Escape, Abort, "cancel");
 
-  CurveHorizontalRegion r;
-  CurveView & view = soas().view();
+  static void cutCommand(CurveEventLoop &loop, const QString &)
+  {
+    const DataSet * ds = soas().currentDataSet();
+    const DataSet * origDs = ds;
+    const GraphicsSettings & gs = soas().graphicsSettings();
 
-  /// We remove the current display
-  view.clear();
-  CurveData d;
-  view.addItem(&r);
-  view.addItem(&d);
+    CurveHorizontalRegion r;
+    CurveView & view = soas().view();
 
-  d.pen = gs.getPen(GraphicsSettings::ResultPen);
+    /// We remove the current display
+    view.clear();
+    CurveData d;
+    view.addItem(&r);
+    view.addItem(&d);
 
-  view.mainPanel()->xLabel = "Index";
+    d.pen = gs.getPen(GraphicsSettings::ResultPen);
 
-  loop.setHelpString(QObject::tr("Cut:\n"
-                                 "left/right: bounds\n"
-                                 "q: keep only the inside\n"
-                                 "u: keep only the outside \n"
-                                 "  (including the right side)\n"
-                                 "ESC: cancel"));
+    view.mainPanel()->xLabel = "Index";
 
-  d.countBB = true;
-  d.yvalues = ds->y();
-  d.xvalues = d.yvalues;
-  for(int i = 0; i < d.xvalues.size(); i++)
-    d.xvalues[i] = i;
-  r.xleft = 0;
-  r.xright = d.xvalues.size()-1;
-    
-  while(! loop.finished()) {
-    if(loop.isConventionalAccept()) {
-      soas().pushDataSet(ds->subset(r.xleft, r.xright, true));
-      return;
-    }
-    switch(loop.type()) {
-    case QEvent::MouseButtonPress:
-      r.setX(round(loop.position().x()), loop.button());
-      break;
-    case QEvent::KeyPress: 
-      switch(loop.key()) {
-      case Qt::Key_Escape:
-        view.addDataSet(ds);  // To turn its display back on
+    loop.setHelpString("Cut:\n" + cutHandler.buildHelpString());
+
+    d.countBB = true;
+    d.yvalues = ds->y();
+    d.xvalues = d.yvalues;
+    for(int i = 0; i < d.xvalues.size(); i++)
+      d.xvalues[i] = i;
+    r.xleft = 0;
+    r.xright = d.xvalues.size()-1;
+
+    while(! loop.finished()) {
+      switch(cutHandler.nextAction(loop)) {
+      case SelectInside: 
+        soas().pushDataSet(ds->subset(r.xleft, r.xright, true));
         return;
-      case 'U':
-      case 'u':
+      case LeftPick:
+      case RightPick:
+        r.setX(round(loop.position().x()), loop.button());
+        break;
+      case Abort:
+        if(ds != origDs)
+          delete nds;
+        view.addDataSet(origDs);  // To turn its display back on
+        return;
+      case SelectOutside:
         soas().pushDataSet(ds->subset(r.xleft, r.xright, false));
         return;
+      case RemoveInside: {
+        DataSet * nds = ds->subset(r.xleft, r.xright, false);
+        nds->name = origDs->cleanedName() + "_perf.dat";
+        if(ds != origDs)
+          delete nds;
+        ds = nds;
+        d.yvalues = ds->y();
+        d.xvalues = d.yvalues;
+        for(int i = 0; i < d.xvalues.size(); i++)
+          d.xvalues[i] = i;
+        r.xleft = 0;
+        r.xright = d.xvalues.size()-1;
+      }
       default:
         ;
       }
-      break;
-    default:
-      ;
     }
   }
-}
 
-static Command 
-cut("cut", // command name
-    optionLessEffector(cutCommand), // action
-    "buffer",  // group name
-    NULL, // arguments
-    NULL, // options
-    "Cut",
-    "Cuts the current curve",
-    "Cuts bits from the current curve",
-    "c");
+  static Command 
+  cut("cut", // command name
+      optionLessEffector(cutCommand), // action
+      "buffer",  // group name
+      NULL, // arguments
+      NULL, // options
+      "Cut",
+      "Cuts the current curve",
+      "Cuts bits from the current curve",
+      "c");
+};
 
 //////////////////////////////////////////////////////////////////////
 

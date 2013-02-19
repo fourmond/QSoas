@@ -487,7 +487,7 @@ namespace Cut {
         break;
       case Abort:
         if(ds != origDs)
-          delete nds;
+          delete ds;
         view.addDataSet(origDs);  // To turn its display back on
         return;
       case SelectOutside:

@@ -197,3 +197,33 @@ lf("ruby-run", // command name
    NULL, // options
    "Ruby load",
    "Loads and runs a file containing ruby code", "");
+
+//////////////////////////////////////////////////////////////////////
+
+/// @todo This function could make many information available (stats
+/// about the current buffer and so on).
+///
+/// @todo There should also be a way to store the result somehow
+/// (although using global variables is always possible !)
+void eval(const QString &, QString code)
+{
+  QByteArray bt = code.toLocal8Bit();
+  VALUE value = Ruby::run(Ruby::eval, bt);
+  Terminal::out << " => " << Ruby::toString(value) << endl;
+}
+
+static ArgumentList 
+eA(QList<Argument *>() 
+   << new StringArgument("code", 
+                         "Code",
+                         "Any ruby code"));
+
+
+static Command 
+ev("eval", // command name
+   optionLessEffector(eval), // action
+   "file",  // group name
+   &eA, // arguments
+   NULL, // options
+   "Ruby eval",
+   "Evaluates a Ruby expression and prints the result", "");

@@ -48,8 +48,12 @@ namespace Ruby {
   /// Read a file and execute it
   VALUE loadFile(const QString & file);
 
-  /// Makes a ruby string from a Qt string
-  VALUE toString(const QString & str);
+
+  /// Makes a textual representation of any Ruby object (kinda rp_p)
+  ///
+  /// This function is already ruby-exception safe, ie no need to wrap
+  /// it in a Ruby::run() call.
+  QString toString(VALUE val);
 
   /// Returns the version string of Ruby
   QString versionString();

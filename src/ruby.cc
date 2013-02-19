@@ -124,11 +124,18 @@ VALUE Ruby::makeBlock(QStringList * variables, const QByteArray & code)
   return ret;
 }
 
-
-VALUE Ruby::toString(const QString & str)
+static VALUE toStringHelper(VALUE val, QString * target)
 {
-  QByteArray bta = str.toLocal8Bit();
-  return rb_str_new2(bta.constData());
+  VALUE strval = rb_obj_as_string(rb_inspect(val));
+  *target = StringValueCStr(strval);
+  return Qnil;
+}
+
+QString Ruby::toString(VALUE val)
+{
+  QString ret;
+  Ruby::run(toStringHelper, val, &ret);
+  return ret;
 }
 
 QString Ruby::versionString()

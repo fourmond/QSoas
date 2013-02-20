@@ -497,7 +497,7 @@ namespace Cut {
         DataSet * nds = ds->subset(r.xleft, r.xright, false);
         nds->name = origDs->cleanedName() + "_perf.dat";
         if(ds != origDs)
-          delete nds;
+          delete ds;
         ds = nds;
         d.yvalues = ds->y();
         d.xvalues = d.yvalues;

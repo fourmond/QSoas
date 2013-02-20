@@ -256,9 +256,30 @@ static MultiBufferArbitraryFit mBarbFit;
 
 
 
+
 //////////////////////////////////////////////////////////////////////
 
 static QHash<QString, MultiBufferArbitraryFit *> customFits;
+
+static MultiBufferArbitraryFit * createCustomFit(const QString & name,
+                                                 const QString & formula,
+                                                 bool overwrite = false)
+{
+  if(customFits.contains(name)) {
+    if(overwrite) {
+      Terminal::out << "Replacing fit '" << name  
+                    << "' with a new definition" << endl;
+      /// @todo Implement safe deletion ! (because for now, in
+      /// terms of commands, that won't work so well...
+    }
+    else
+      throw RuntimeError("Fit '%1' is already defined").arg(name);
+  }
+  MultiBufferArbitraryFit * fit = 
+    new MultiBufferArbitraryFit(name, formula);
+  customFits[name] = fit;
+  return fit;
+}
 
 /// This function loads fits from a text stream
 static void loadFits(QIODevice * source, bool verbose = true,
@@ -282,22 +303,7 @@ static void loadFits(QIODevice * source, bool verbose = true,
       QString name = sep.cap(1);
       QString formula = sep.cap(2);
       try {
-        if(customFits.contains(name)) {
-          if(overwrite) {
-            Terminal::out << "Replacing fit '" << name  << "' (" 
-                          << lnNb << ") with a new definition" << endl;
-            /// @todo Implement safe deletion ! (because for now, in
-            /// terms of commands, that won't work so well...
-          }
-          else {
-            Terminal::out << "Fit '" << name << "' (" << lnNb  
-                          << ") is already defined " << endl;
-          }
-          continue;
-        }
-        MultiBufferArbitraryFit * fit = 
-          new MultiBufferArbitraryFit(name, formula);
-        customFits[name] = fit;
+        createCustomFit(name, formula, overwrite);
       }
       catch(Exception & er) {
         Terminal::out << "Error loading fit " << name << " on " 
@@ -337,3 +343,34 @@ loadFitsC("load-fits", // command name
          "Load fits",
          "Load fits from a file",
          "Load fits from a file");
+
+//////////////////////////////////////////////////////////////////////
+
+
+
+static void defineCustomFitCommand(const QString &, 
+                                   QString name, QString formula)
+{
+  /// @todo overwrite ?
+  bool overwrite  = false;
+  createCustomFit(name, formula, overwrite);
+}
+
+static ArgumentList 
+cfArgs(QList<Argument *>() 
+        << new StringArgument("name", 
+                              "Name",
+                              "Name for the new fit")
+        << new StringArgument("formula", 
+                              "Formula",
+                              "Mathematical expression for the fit")
+       );
+
+static Command 
+defineCustom("custom-fit", // command name
+             optionLessEffector(defineCustomFitCommand), // action
+             "fits",  // group name
+             &cfArgs, // arguments
+             NULL, 
+             "Define fit",
+             "Define custom fit from a formula");

@@ -32,8 +32,8 @@ class Vector;
 /// This class combines a whole variety of fits into a single one,
 /// using a mathematical formula.
 ///
-/// It only applies to per-dataset fits (it would be a nightmare to
-/// extend that beyond the dataset limit).
+/// It only applies to per-dataset fits, because extending to more
+/// complex fits would involve splicing all the parameters.
 ///
 /// The formula uses y1, y2 and so on to designate the various
 /// fits. Also incorporates the same variables as custom fits...
@@ -66,6 +66,37 @@ protected:
 
   /// Make sure the buffers are the right size.
   void reserveBuffers(const DataSet * ds);
+
+
+  /// @name Parameter splicing
+  ///
+  /// These bits ensure the conversion between per-fit parameters and
+  /// the parameters as they are provided to CombinedFit by the fit
+  /// engine.
+  ///
+  /// Many of these functions deal with converting parameters from a
+  /// place where all parameters for all buffers in one fit are
+  /// consecutive (internal representation, referred to a spliced) to
+  /// one where all are spliced (ie all parameters for one dataset are
+  /// consecutive).
+  ///
+  /// @{
+
+  // /// Returns the base index for all the parameters of the fit \a i
+  // /// for the "all parameters for one fit consecutive" representation.
+  // int splicedIndex(FitData * data, int fit) const;
+
+  /// Splice the external parameters into the internal representation.
+  void spliceParameters(FitData * data, double * target, 
+                        const double * source);
+
+
+  /// Unsplice the internal representation back into external
+  /// representation.
+  void unspliceParameters(FitData * data, double * target, 
+                          const double * source);
+
+  /// @}
 
 public:
 

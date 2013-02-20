@@ -158,6 +158,47 @@ CombinedFit::CombinedFit(const QString & name, const QString & f,
 }
 
 
+// int CombinedFit::splicedIndex(FitData * data, int fit) const
+// {
+//   return firstParameterIndex[fit] * data->datasets.size();
+// }
+
+void CombinedFit::spliceParameters(FitData * data, double * target, 
+                                   const double * source)
+{
+  int nbds = data->datasets.size();
+  int tparams = overallParameters.size();
+
+  for(int i = 0; i < underlyingFits.size(); i++) {
+    int base = firstParameterIndex[i];
+    int nbparams = firstParameterIndex.value(i+1, tparams) - base;
+    for(int j = 0; j < nbds; j++) {
+      for(int k = 0; k < nbparams; k++)
+        target[base * nbds + nbparams * j + k] = 
+          source[tparams * j + base + k];
+    }
+  }
+
+}
+
+void CombinedFit::unspliceParameters(FitData * data, double * target, 
+                                     const double * source)
+{
+  int nbds = data->datasets.size();
+  int tparams = overallParameters.size();
+
+  /// @todo rewrite both functions using lambdas !
+  for(int i = 0; i < underlyingFits.size(); i++) {
+    int base = firstParameterIndex[i];
+    int nbparams = firstParameterIndex.value(i+1, tparams) - base;
+    for(int j = 0; j < nbds; j++) {
+      for(int k = 0; k < nbparams; k++)
+        target[tparams * j + base + k] = 
+          source[base * nbds + nbparams * j + k];
+    }
+  }
+}
+
 //////////////////////////////////////////////////////////////////////
 // Now, the command !
 

@@ -220,18 +220,6 @@ QSoas> fit-arb 'function(x,a)'
 {::comment} description-end: ruby-run {:/}
 
 
-{::comment} synopsis-start: startup-files {:/}
-
-### startup-files - Startup files {#cmd-startup-files}
-
-`startup-files` `/add=` `/rm=`
-
-  * `/add` (default): Adds the given startup file
-  * `/rm`: Removes the numbered file
-
-{::comment} synopsis-end: startup-files {:/}
-
-
 
 # Data loading/saving
 
@@ -1073,41 +1061,6 @@ Alias: `?`
 Gives all help available on the given command
 {::comment} description-end: help {:/}
 
-{::comment} synopsis-start: run {:/}
-
-### run - Run commands {#cmd-run}
-
-`run` _file_...
-
-Alias: `@`
-
-  * _file_: First is the command files, following are arguments
-
-{::comment} synopsis-end: run {:/}
-{::comment} description-start: run {:/}
-Run commands saved in a file. Commands don't have to have full
-arguments provided, as prompting will still be performed in case of
-missing arguments.
-
-All the arguments after the first are arguments for the scripts. They
-are passed as "special variables" `${1}`, and `${2}`...
-
-Imagine you are often doing the same processing a given type of data
-files, say, simply filtering them. You just have to write a script
-`process.cmd` containing:
-
-~~~~
-load ${1}
-auto-filter-fft 
-~~~~
-
-And run it this way:
-~~~~
-QSoas> @ process.cmd data_file.dat
-~~~~
-
-{::comment} description-end: run {:/}
-
 {::comment} synopsis-start: overlay-buffer {:/}
 
 ### overlay-buffer - Overlay buffers {#cmd-overlay-buffer}
@@ -1207,21 +1160,6 @@ Conc
 {::comment} description-start: clear {:/}
 Removes all datasets but the current one from the display
 {::comment} description-end: clear {:/}
-
-{::comment} synopsis-start: combine-fits {:/}
-
-### combine-fits - Combine fits {#cmd-combine-fits}
-
-`combine-fits` _name_ _formula_ _fits_...
-
-  * _name_: The name of the new fit
-  * _formula_: How to combine the various fits
-  * _fits_: The fit to combine together
-
-{::comment} synopsis-end: combine-fits {:/}
-{::comment} description-start: combine-fits {:/}
-(...)
-{::comment} description-end: combine-fits {:/}
 
 {::comment} synopsis-start: cursor {:/}
 
@@ -1361,6 +1299,22 @@ addition.
 
 In addition to these commands, QSoas provides commands to combine fits
 together and to create fit to fit derivatives of the signals.
+
+
+{::comment} synopsis-start: combine-fits {:/}
+
+### combine-fits - Combine fits {#cmd-combine-fits}
+
+`combine-fits` _name_ _formula_ _fits_...
+
+  * _name_: The name of the new fit
+  * _formula_: How to combine the various fits
+  * _fits_: The fit to combine together
+
+{::comment} synopsis-end: combine-fits {:/}
+{::comment} description-start: combine-fits {:/}
+(...)
+{::comment} description-end: combine-fits {:/}
 
 ## Exponential fits
 
@@ -2386,6 +2340,76 @@ context, such as the following
 
 ## Scripting commands
 
+{::comment} synopsis-start: run {:/}
+
+### run - Run commands {#cmd-run}
+
+`run` _file_...
+
+Alias: `@`
+
+  * _file_: First is the command files, following are arguments
+
+{::comment} synopsis-end: run {:/}
+{::comment} description-start: run {:/}
+Run commands saved in a file. Commands don't have to have full
+arguments provided, as prompting will still be performed in case of
+missing arguments.
+
+All the arguments after the first are arguments for the scripts. They
+are passed as "special variables" `${1}`, and `${2}`...
+
+Imagine you are often doing the same processing a given type of data
+files, say, simply filtering them. You just have to write a script
+`process.cmd` containing:
+
+~~~~
+load ${1}
+auto-filter-fft 
+~~~~
+
+And run it this way:
+
+~~~~
+QSoas> @ process.cmd data_file.dat
+~~~~
+
+You may wish to check the other scripting commands once you start to
+use `run` regularly.
+
+{::comment} description-end: run {:/}
+
+
+{::comment} synopsis-start: startup-files {:/}
+
+### startup-files - Startup files {#cmd-startup-files}
+
+`startup-files` `/add=` `/rm=` `/run=`
+
+  * `/add` (default): Adds the given startup file
+  * `/rm`: Removes the numbered file
+  * `/run`: If on, runs all the startup files right now
+
+{::comment} synopsis-end: startup-files {:/}
+{::comment} description-start: startup-files {:/}
+Using this command, you can instruct `QSoas` to execute command files
+at startup. Without options, this command displays the list of command
+files that `QSoas` will read at the next startup.
+
+Files given to the `/add` options are added at the end of the list.
+
+You remove files from this list by supplying their __number__ (as
+given by `startup-files` without options) to the `/rm` option.
+
+Finally, you can re-run all startup files by running:
+
+~~~
+QSoas> startup-files /run=true
+~~~
+
+{::comment} description-end: startup-files {:/}
+
+
 {::comment} synopsis-start: run-for-each {:/}
 
 ### run-for-each - Loop run a script {#cmd-run-for-each}
@@ -2425,6 +2449,7 @@ listed here:
  * [`combine-fits`](#cmd-combine-fits)
  * [`commands`](#cmd-commands)
  * [`credits`](#cmd-credits)
+ * [`custom-fit`](#cmd-custom-fit)
  * [`define-alias`](#cmd-define-alias)
  * [`define-derived-fit`](#cmd-define-derived-fit)
  * [`define-lw-fit`](#cmd-define-lw-fit)
@@ -2435,6 +2460,7 @@ listed here:
  * [`drop`](#cmd-drop)
  * [`dummy`](#cmd-dummy)
  * [`echem-peaks`](#cmd-echem-peaks)
+ * [`eval`](#cmd-eval)
  * [`expand`](#cmd-expand)
  * [`fetch`](#cmd-fetch)
  * [`find-peaks`](#cmd-find-peaks)
@@ -2750,3 +2776,22 @@ Alias: `ac`
 
 
 {::comment} synopsis-end: unwrap {:/}
+{::comment} synopsis-start: custom-fit {:/}
+
+### custom-fit - Define fit {#cmd-custom-fit}
+
+`custom-fit` _name_ _formula_
+
+  * _name_: Name for the new fit
+  * _formula_: Mathematical expression for the fit
+
+{::comment} synopsis-end: custom-fit {:/}
+{::comment} synopsis-start: eval {:/}
+
+### eval - Ruby eval {#cmd-eval}
+
+`eval` _code_
+
+  * _code_: Any ruby code
+
+{::comment} synopsis-end: eval {:/}

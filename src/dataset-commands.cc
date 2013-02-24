@@ -926,6 +926,8 @@ static void statsCommand(const QString &, const CommandOptions & opts)
           << QString("%1_min").arg(n) << c.min()
           << QString("%1_max").arg(n) << c.max()
           << QString("%1_average").arg(n) << a
+          << QString("%1_med").arg(n) << c.median() /// @todo get rid
+                                                    /// if too slow ?
           << QString("%1_var").arg(n) << v
           << QString("%1_norm").arg(n) << c.norm();
 

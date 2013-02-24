@@ -87,6 +87,10 @@ public:
   /// Fills the target values with the average and variance of the set
   void stats(double * average, double * variance) const;
 
+  /// Returns the median value. Uses a sorted copy, ie nlogn time.
+  double median() const;
+  
+
   /// Finds local extrema and returns:
   /// \li 1 + index if it is a maximum
   /// \li -(1 + index) if it is a minimum

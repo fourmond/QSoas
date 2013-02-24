@@ -450,3 +450,15 @@ Vector Vector::resample(int nb) const
     return *this;               // Well, it's still correct, isn't it ?
   return uniformlySpaced(min(), max(), nb);
 }
+
+
+/// @todo Use a more time-efficient algorithm ? See
+/// http://stackoverflow.com/questions/2579912/how-do-i-find-the-median-of-numbers-in-linear-time-using-heaps
+double Vector::median() const
+{
+  if(! size())
+    throw RuntimeError("Need at least one element !");
+  Vector v = *this;
+  qSort(v);
+  return v[v.size()/2];
+}

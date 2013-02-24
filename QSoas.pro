@@ -60,7 +60,7 @@ OBJECTS_DIR = build
 QMAKE_CXXFLAGS += -Werror=return-type 
 
 # Let's try building C++11 (or almost, with lambdas at least !)
-compiler_version = $$system($$QMAKE_CXX -v)
+# compiler_version = $$system($$QMAKE_CXX -v)
 # @todo Try detecting the mingw version properly !
 win32|exists(/usr/bin/gcc-4.6) {
   message("Old compiler, using the -std=c++0x flag for C++ 11")

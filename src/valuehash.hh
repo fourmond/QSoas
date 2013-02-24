@@ -26,6 +26,11 @@
 /// meta-data, that can be represented as key/value pairs.
 ///
 /// Values may be numeric, but also dates, plain text.
+///
+/// @todo This should be convertible to a Ruby hash, and in particular
+/// many functions should be able to store the results they display
+/// into a Ruby hash. An interface still needs to be designed for
+/// that.
 class ValueHash : public QHash<QString, QVariant> {
 protected:
   /// Extract keys that can be converted to the given type.
@@ -38,6 +43,8 @@ protected:
 
 
 
+  /// Used for the << "key" << value scheme
+  QString lastKey;
 public:
 
   /// Extract values that can be converted to double.
@@ -63,7 +70,26 @@ public:
   /// @todo Maybe make a function to write out several of those in a
   /// row ?
   QString toString(const QString & sep = "\t", 
-                   const QString & missing = "") const;
+                   const QString & missing = "",
+                   bool skipUnordered = false) const;
+
+  /// Formats the elements as "key = value" in tab-separated columns
+  ///
+  /// @todo Customization.
+  QString prettyPrint(int nbCols = 3) const;
+
+  /// Depending on the number of times used so far:
+  /// @li if even, sets the key for the next addition
+  /// @li if odd, sets the value corresponding to the last key
+  ///
+  /// keyOrder is the same as the arguments
+  ///
+  /// This allows uses like:
+  ///
+  /// \code
+  /// hsh << "key" << value;
+  /// \endcode
+  ValueHash& operator <<(const QVariant & var);
 
 };
 

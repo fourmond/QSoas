@@ -1,7 +1,7 @@
 /**
    \file outfile.hh
    A thin wrapper around QTextStream to write data to the outfile
-   Copyright 2010, 2011 by Vincent Fourmond
+   Copyright 2010, 2011, 2013 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -22,8 +22,7 @@
 #ifndef __OUTFILE_HH
 #define __OUTFILE_HH
 
-#include <typeinfo>
-
+class ValueHash;
 
 /// A very thin wrapper around a text file stream to handle various
 /// details, such as:
@@ -74,6 +73,12 @@ public:
 
 
   ~OutFile();
+
+  /// Writes a full ValueHash to the output file, making sure the
+  /// headers are set correctly.
+  ///
+  /// @warning The only headers we're interested in are the ones in
+  void writeValueHash(const ValueHash & hsh);
 
 
 };

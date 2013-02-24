@@ -47,9 +47,10 @@ QHash<QString, QDateTime> ValueHash::extractDates() const
 }
 
 QString ValueHash::toString(const QString & sep, 
-                            const QString & missing) const
+                            const QString & missing,
+                            bool skip) const
 {
-  QHash<QString, QString> strings;
+  QHash<QString, QString> strings = extractStrings();
   QHash<QString, QString>::iterator it;
   QStringList output;
   for(int i = 0; i < keyOrder.size(); i++) {
@@ -62,8 +63,56 @@ QString ValueHash::toString(const QString & sep,
     else
       output << missing;
   }
-  
-  for(it = strings.begin(); it != strings.end(); it++)
-    output << *it;
+
+  if(! skip)
+    for(it = strings.begin(); it != strings.end(); it++)
+      output << *it;
   return output.join(sep);
+}
+
+QString ValueHash::prettyPrint(int nbCols) const
+{
+  QString output;
+  QHash<QString, QString> strings = extractStrings();
+  QHash<QString, QString>::iterator it;
+  int done = 0;
+
+  for(int i = 0; i < keyOrder.size(); i++) {
+    const QString & k = keyOrder[i];
+    it = strings.find(k);
+    if(it != strings.end()) {
+      output += QString("%1 = %2").arg(k).arg(*it);
+      done++;
+      if(done % nbCols)
+        output += "\t";
+      else
+        output += "\n";
+      strings.erase(it);
+    }
+  }
+  
+  for(it = strings.begin(); it != strings.end(); it++) {
+    output += QString("%1 = %2").arg(it.key()).arg(*it);
+    done++;
+    if(done % nbCols)
+      output += "\t";
+    else
+      output += "\n";
+  }
+  return output;
+}
+
+
+ValueHash & ValueHash::operator<<(const QVariant & v)
+{
+  if(lastKey.isEmpty())
+    /// @todo maybe should raise a warning if initial type isn't
+    /// string ?
+    lastKey = v.toString();
+  else {
+    (*this)[lastKey] = v;
+    keyOrder << lastKey;
+    lastKey.clear();
+  }
+  return *this;
 }

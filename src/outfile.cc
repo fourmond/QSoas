@@ -20,6 +20,8 @@
 #include <outfile.hh>
 #include <terminal.hh>
 
+#include <valuehash.hh>
+
 OutFile OutFile::out("out.dat");
 
 OutFile::OutFile(const QString &n) :
@@ -54,3 +56,10 @@ OutFile::~OutFile()
   delete internalStream;
   delete output;
 }
+
+void OutFile::writeValueHash(const ValueHash & hsh)
+{
+  setHeader(hsh.keyOrder.join("\t"));
+  (*this) << hsh.toString("\t", "x", true) << "\n" << flush;
+}
+

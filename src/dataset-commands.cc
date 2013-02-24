@@ -42,6 +42,8 @@
 
 #include <eventhandler.hh>
 
+#include <valuehash.hh>
+
 
 static Group grp("buffer", 2,
                  "Buffer",
@@ -917,20 +919,25 @@ static void statsCommand(const QString &, const CommandOptions & opts)
     const Vector & c = ds->column(i);
     double a,v;
     c.stats(&a, &v);
-    Terminal::out << "\n" << n << "[0] = " << c.first() 
-                  << "\t" << n << "[" << c.size() - 1  << "] = " << c.last() 
-                  << "\n" << n << "_min = " << c.min() 
-                  << "\t" << n << "_max = " << c.max() 
-                  << "\n" << n << "_average = " << a 
-                  << "\t" << n << "_norm = " << c.norm();
+
+    ValueHash stats;
+    stats << QString("%1[0]").arg(n) << c.first()
+          << QString("%1[%2]").arg(n).arg(c.size() - 1) << c.last()
+          << QString("%1_min").arg(n) << c.min()
+          << QString("%1_max").arg(n) << c.max()
+          << QString("%1_average").arg(n) << a
+          << QString("%1_var").arg(n) << v
+          << QString("%1_norm").arg(n) << c.norm();
+
     if(i > 0) {
       // Write integral
       const Vector & x = ds->x();
       double sum = 0;
       for(int j = 1; j < c.size(); j++)
         sum += (x[j] - x[j-1]) * 0.5 * (c[j] + c[j-1]);
-      Terminal::out << "\n" << n << "_int = " << sum;
+      stats << QString("%1_int").arg(n) << sum;
     }
+    Terminal::out << "\n" << stats.prettyPrint();
   }
   Terminal::out << endl;
 }

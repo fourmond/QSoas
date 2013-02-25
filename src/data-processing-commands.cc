@@ -334,18 +334,12 @@ static void filmLossCommand(CurveEventLoop &loop, const QString &)
 
       case 'q':
       case 'Q': {
-        DataSet * nds = new DataSet(*ds);
-        nds->name = ds->cleanedName() + "_corr.dat";
-        nds->y() = corr.yvalues;
-        soas().pushDataSet(nds);
+        soas().pushDataSet(ds->derivedDataSet(corr.yvalues, "_corr.dat"));
         return;
       }
       case 'r':
       case 'R': {
-        DataSet * nds = new DataSet(*ds);
-        nds->name = ds->cleanedName() + "_coverage.dat";
-        nds->y() = d.yvalues;
-        soas().pushDataSet(nds);
+        soas().pushDataSet(ds->derivedDataSet(d.yvalues, "_coverage.dat"));
         return;
       }
       case Qt::Key_Escape:
@@ -471,10 +465,7 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
       if(loop.isConventionalAccept()) {
         // Subtracting, the data is already computed in d
         /// @todo Probably
-        DataSet * newds = new 
-          DataSet(QList<Vector>() << d.xvalues << diff.yvalues);
-        newds->name = ds->cleanedName() + "_bl_sub.dat";
-        soas().pushDataSet(newds);
+        soas().pushDataSet(ds->derivedDataSet(diff.yvalues, "_bl_sub.dat"));
         return;
       }
       switch(loop.type()) {
@@ -538,11 +529,10 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
         case 'U':
         case 'u': {
           // Replacing the data is already computed in d
-          DataSet * newds = new 
-            DataSet(QList<Vector>() << d.xvalues << d.yvalues);
-          newds->name = ds->cleanedName() + (derive ? "_diff.dat" : 
-                                             "_bl.dat");
-          soas().pushDataSet(newds);
+          soas().
+            pushDataSet(ds->derivedDataSet(d.yvalues, 
+                                           (derive ? "_diff.dat" : 
+                                            "_bl.dat")));
           return;
         }
         case 'V':
@@ -550,10 +540,7 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
           // Dividing
           Vector newy = ds->y();
           newy /= d.yvalues;
-          DataSet * newds = new 
-            DataSet(QList<Vector>() << d.xvalues << newy);
-          newds->name = ds->cleanedName() + "_bl_div.dat";
-          soas().pushDataSet(newds);
+          soas().pushDataSet(ds->derivedDataSet(newy, "_bl_div.dat"));
           return;
         }
         default:

@@ -1210,6 +1210,7 @@ static void setSegmentsCommand(CurveEventLoop &loop, const QString &)
   do {
     if(loop.isConventionalAccept()) {
       if(ds->segments != savedSegments) {
+        /// @hack This is ugly
         DataSet * nds = new DataSet(*ds);
         soas().pushDataSet(nds);
       }
@@ -1563,8 +1564,7 @@ static void deldpCommand(CurveEventLoop &loop, const QString &)
 
   CurveView & view = soas().view();
 
-  DataSet * newds = new DataSet(*ds);
-  newds->name = ds->cleanedName() + "_deldp.dat";
+  DataSet * newds = ds->derivedDataSet(ds->y(), "_deldp.dat");
 
   view.clear();
 
@@ -1641,9 +1641,8 @@ static void normCommand(const QString &, const CommandOptions & opts)
     y += ymT;
   }
 
-  DataSet * nds = new DataSet(ds->x(), y);
-  nds->name = ds->cleanedName() + "_norm.dat";
-  soas().pushDataSet(nds);
+  
+  soas().pushDataSet(ds->derivedDataSet(y, "_norm.dat"));
 }
 
 static ArgumentList 

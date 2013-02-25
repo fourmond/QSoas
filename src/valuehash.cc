@@ -116,3 +116,12 @@ ValueHash & ValueHash::operator<<(const QVariant & v)
   }
   return *this;
 }
+
+void ValueHash::merge(const ValueHash & other)
+{
+  for(const_iterator it = other.begin(); it != other.end(); it++)
+    (*this)[it.key()] = it.value();
+  keyOrder += other.keyOrder;
+  /// @todo Only run if necessary ?
+  keyOrder.removeDuplicates();
+}

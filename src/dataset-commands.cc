@@ -909,10 +909,16 @@ shiftx("shiftx", // command name
 static void statsCommand(const QString &, const CommandOptions & opts)
 {
   DataSet * ds = soas().currentDataSet();
+  bool output = false;
   updateFromOptions(opts, "buffer", ds);
+  updateFromOptions(opts, "to-file", output);
+
+
+
+  ValueHash os;
+  os << "buffer" << ds->name;
 
   Terminal::out << "Statistics on buffer: " << ds->name << ":";
-
   QStringList names = ds->columnNames();
   for(int i = 0; i < ds->nbColumns(); i++) {
     const QString & n = names[i];
@@ -939,9 +945,14 @@ static void statsCommand(const QString &, const CommandOptions & opts)
         sum += (x[j] - x[j-1]) * 0.5 * (c[j] + c[j-1]);
       stats << QString("%1_int").arg(n) << sum;
     }
+    os.merge(stats);
     Terminal::out << "\n" << stats.prettyPrint();
   }
   Terminal::out << endl;
+  if(output) {
+    Terminal::out << "Writing stats to output file" << endl;
+    OutFile::out.writeValueHash(os);
+  }
 }
 
 static ArgumentList 
@@ -949,7 +960,11 @@ statsO(QList<Argument *>()
        << new DataSetArgument("buffer", 
                               "Buffer",
                               "An alternative buffer to get information on",
-                              true));
+                              true)
+       << new BoolArgument("to-file", 
+                           "To file",
+                           "Also write stats to output file")
+       );
 
 
 static Command 

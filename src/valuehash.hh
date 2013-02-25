@@ -91,6 +91,12 @@ public:
   /// \endcode
   ValueHash& operator <<(const QVariant & var);
 
+  /// Merges another ValueHash in this one, while keeping the current
+  /// order of the keys and appending the new ones.
+  ///
+  /// Elements in \a other override those already present.
+  void merge(const ValueHash & other);
+
 };
 
 

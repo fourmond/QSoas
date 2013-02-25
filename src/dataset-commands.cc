@@ -906,15 +906,8 @@ shiftx("shiftx", // command name
 //////////////////////////////////////////////////////////////////////
 
 
-static void statsCommand(const QString &, const CommandOptions & opts)
+static void statsOn(const DataSet * ds, bool output)
 {
-  DataSet * ds = soas().currentDataSet();
-  bool output = false;
-  updateFromOptions(opts, "buffer", ds);
-  updateFromOptions(opts, "to-file", output);
-
-
-
   ValueHash os;
   os << "buffer" << ds->name;
 
@@ -955,6 +948,26 @@ static void statsCommand(const QString &, const CommandOptions & opts)
   }
 }
 
+static void statsCommand(const QString &, const CommandOptions & opts)
+{
+  DataSet * ds = soas().currentDataSet();
+  bool output = false;
+  updateFromOptions(opts, "buffer", ds);
+  updateFromOptions(opts, "to-file", output);
+  bool bySegments = false;
+  updateFromOptions(opts, "use-segments", bySegments);
+
+  if(bySegments) {
+    QList<DataSet * > segs = ds->chopIntoSegments();
+    for(int i = 0; i < segs.size(); i++) {
+      statsOn(segs[i], output);
+      delete segs[i];
+    }
+  }
+  else
+    statsOn(ds, output);
+}
+
 static ArgumentList 
 statsO(QList<Argument *>() 
        << new DataSetArgument("buffer", 
@@ -964,6 +977,9 @@ statsO(QList<Argument *>()
        << new BoolArgument("to-file", 
                            "To file",
                            "Also write stats to output file")
+       << new BoolArgument("use-segments", 
+                           "Use segments",
+                           "Make statistics segments by segment")
        );
 
 

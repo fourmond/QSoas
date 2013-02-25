@@ -139,6 +139,10 @@ public:
   /// Returns the X positions of the changes in segments.
   Vector segmentPositions() const;
 
+  /// Like chop with indices, but uses the saved segments (and changes a
+  /// bit the dataset_names...)
+  QList<DataSet *> chopIntoSegments() const;
+
   /// @}
 
   DataSet() {;};
@@ -314,10 +318,6 @@ public:
   ///
   /// The point at idx is included in \b both datasets.
   void splitAt(int idx, DataSet ** first, DataSet ** second = NULL) const;
-
-  /// Like chop with indices, but uses the saved segments (and changes a
-  /// bit the dataset_names...)
-  QList<DataSet *> chopIntoSegments() const;
 
   /// Splits a DataSet in multiple subdatasets of the given X lengths
   /// (computed in absolute value)

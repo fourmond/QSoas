@@ -652,11 +652,7 @@ static void bsplinesCommand(CurveEventLoop &loop, const QString &)
                                  "ESC: abort"));
   do {
     if(loop.isConventionalAccept()) {
-      // Quit replacing with data
-      DataSet * newds = new 
-        DataSet(QList<Vector>() << d.xvalues << d.yvalues);
-      newds->name = ds->cleanedName() + "_filtered.dat";
-      soas().pushDataSet(newds);
+      soas().pushDataSet(ds->derivedDataSet(d.yvalues, "_filtered.dat"));
       return;
     }
     switch(loop.type()) {
@@ -920,10 +916,7 @@ static void fftCommand(CurveEventLoop &loop, const QString &)
   do {
     if(loop.isConventionalAccept()) {
       // Quit replacing with data
-      DataSet * newds = new 
-        DataSet(QList<Vector>() << d.xvalues << d.yvalues);
-      newds->name = ds->cleanedName() + "_filtered.dat";
-      soas().pushDataSet(newds);
+      soas().pushDataSet(ds->derivedDataSet(d.yvalues, "_filtered.dat"));
       return;
     }
     switch(loop.type()) {
@@ -1052,15 +1045,11 @@ static void autoFilterBSCommand(const QString &, const CommandOptions & opts)
   splines.optimize(15, false);
   double value = splines.computeCoefficients();
   Terminal::out << "Residuals: " << sqrt(value) << endl;
-  for(int i = 0; i <= derivatives; i++) {
-    DataSet * newds = new 
-      DataSet(QList<Vector>() << ds->x() << splines.computeValues(i));
-    newds->name = ds->cleanedName() + "_afbs";
-    if(i)
-      newds->name += QString("_diff_%1").arg(i);
-    newds->name += ".dat";
-    soas().pushDataSet(newds);
-  }
+  for(int i = 0; i <= derivatives; i++)
+    soas().
+      pushDataSet(ds->derivedDataSet(splines.computeValues(i),
+                                     (i ? QString("_afbs_diff_%1.dat").arg(i) :
+                                      "_afbs.dat")));
 }
 
 static ArgumentList 
@@ -1110,14 +1099,12 @@ static void autoFilterFFTCommand(const QString &, const CommandOptions & opts)
     orig.differentiate();
   orig.reverse();  // Don't use baseline on derivatives (for now)
 
-  DataSet * newds = new DataSet(ds->x(), orig.data);
 
-  newds->name = ds->cleanedName() + "_fft";
-  if(derivatives)
-    newds->name += QString("_diff_%1").arg(derivatives);
-
-  newds->name += ".dat";
-  soas().pushDataSet(newds);
+  soas().
+    pushDataSet(ds->derivedDataSet(orig.data,
+                                   (derivatives ? 
+                                    QString("_afft_diff_%1.dat").arg(derivatives) :
+                                    "_afft.dat")));
 }
 
 static ArgumentList 
@@ -1159,7 +1146,9 @@ static void findStepsCommand(const QString &, const CommandOptions & opts)
   QList<int> steps = ds->findSteps(nb, thresh);
   CurveView & view = soas().view();
   if(set) {
-    DataSet * nds = new DataSet(*ds);
+    DataSet * nds = new DataSet(*ds); // This is probably the
+                                      // only legitimate use of the
+                                      // copy constructor.
     nds->segments = steps;
     soas().pushDataSet(nds);
   }

@@ -256,8 +256,24 @@ int QSoasFitEngine::iterate()
 
     double ns = 0;
     double ns2 = 0;
-    trialStep(lambda, testp, testf, &ns);
-    trialStep(lambda/scale, testp2, testf2, &ns2);
+    bool didFirst = false;
+    try {
+      trialStep(lambda, testp, testf, &ns);
+      didFirst = true;
+      /// @todo Compute that step only if it hasn't been computed
+      /// already (on the second iteration, for instance, if the
+      /// reason why)
+      trialStep(lambda/scale, testp2, testf2, &ns2);
+
+      /// @todo Implement the angle limit ?
+    }
+    catch(const RuntimeError & re) {
+      // Try a smaller step, or, in other words, increase lambda.
+      ns2 = 2 * cur_squares;
+      ns = 2 * cur_squares;
+      if(! didFirst)
+        lambda *= scale;
+    }
 
     // Heh !
     if(ns2 < cur_squares) {

@@ -212,7 +212,8 @@ SOURCES += src/qmain.cc \
         src/alias.cc \
         src/credits.cc \
         src/eventhandler.cc \
-        src/valuehash.cc
+        src/valuehash.cc \
+        src/qsoasfitengine.cc
 
 
 HEADERS += src/headers.hh \

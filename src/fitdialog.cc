@@ -452,6 +452,8 @@ void FitDialog::startFit()
     updateEditors();
     progressReport->setText(QString("An error occurred while fitting: ") +
                             re.message());
+    QTextStream o(stdout);
+    o << "Backtrace:\n\t" << re.exceptionBacktrace().join("\n\t") << endl;
   }
 
   trajectories << 

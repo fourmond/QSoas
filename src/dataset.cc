@@ -33,6 +33,10 @@
 
 #include <possessive-containers.hh>
 
+// I don't like that so much, but...
+#include <soas.hh>
+#include <commandwidget.hh>
+
 void DataSet::dump() const
 {
   QTextStream o(stdout);
@@ -808,9 +812,15 @@ DataSet * DataSet::derivedDataSet(const QList<Vector> &newCols,
 {
   DataSet * ds = new DataSet(newCols);
   ds->name = cleanedName() + suffix;
+  ds->metaData = metaData;      // Copy !
+  // add a "derived-from" attribute ?
 
   /// @todo Optionnally drop the segments (with an optional argument ?)
   ds->segments = segments;
+
+  // We append the current command to the "commands" key
+  ds->metaData.appendToList("commands", 
+                            soas().prompt().currentCommandLine());
 
   /// @question Should we update the date too ?
   return ds;
@@ -1084,8 +1094,8 @@ QDataStream & operator<<(QDataStream & out, const DataSet & ds)
     out << ds.columns[i];
 
   out << ds.name;
-
   out << ds.segments;
+  out << ds.metaData;
   return out;
 }
 
@@ -1104,5 +1114,7 @@ QDataStream & operator>>(QDataStream & in, DataSet & ds)
   in >> ds.name;
 
   in >> ds.segments;
+
+  in >> ds.metaData;
   return in;
 }

@@ -125,3 +125,10 @@ void ValueHash::merge(const ValueHash & other)
   /// @todo Only run if necessary ?
   keyOrder.removeDuplicates();
 }
+
+void ValueHash::appendToList(const QString & key, const QString & val)
+{
+  QStringList newval = value(key, QVariant()).toStringList();
+  newval << val;
+  (*this)[key] = newval;
+}

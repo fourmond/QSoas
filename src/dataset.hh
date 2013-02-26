@@ -23,6 +23,7 @@
 
 #include <vector.hh>
 #include <guarded.hh>
+#include <valuehash.hh>
 
 /// A class representing a data set (formerly Soas buffers).
 ///
@@ -36,6 +37,11 @@ class DataSet : public Guardable {
 
   /// The columns
   QList<Vector> columns;
+
+  /// A set of meta-data. Basically anything !
+  ///
+  /// @todo Have the data handled by that
+  ValueHash metaData;
 
   /// A private cache
   class Cache {

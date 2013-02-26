@@ -190,6 +190,9 @@ void QSoasFitEngine::computeCovarianceMatrix(gsl_matrix * target) const
 
   int sign = 0;
   gsl_matrix_memcpy(cur, jTj);
+
+  /// @todo Write a method to solve matrix equations using singular
+  /// value decomposition should LU decomposition fail to perform.
   gsl_linalg_LU_decomp(cur, perm, &sign);
   gsl_linalg_LU_invert(cur, perm, target);
 }

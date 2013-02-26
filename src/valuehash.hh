@@ -25,7 +25,12 @@
 /// This class embeds a series of related information, such as dataset
 /// meta-data, that can be represented as key/value pairs.
 ///
-/// Values may be numeric, but also dates, plain text.
+/// Values may be numeric, but also dates, plain text, string lists...
+///
+/// A particular feature of ValueHash that make it useful to store
+/// data is the "ordered key" feature, where displaying/exporting
+/// makes keys come in a specific order. This doesn't have to be used,
+/// though.
 ///
 /// @todo This should be convertible to a Ruby hash, and in particular
 /// many functions should be able to store the results they display
@@ -96,6 +101,10 @@ public:
   ///
   /// Elements in \a other override those already present.
   void merge(const ValueHash & other);
+
+  /// Appends the @a value to the list of strings stored in @a key.
+  void appendToList(const QString & key, const QString & value);
+  
 
 };
 

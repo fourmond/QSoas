@@ -67,6 +67,9 @@ class CommandWidget : public QWidget {
   /// a script.
   QString scriptFile;
 
+  /// Within a command, this holds the full command-line
+  QString curCmdline;
+
   /// Runs the command coming from the given device
   void runCommandFile(QIODevice * source, 
                       const QStringList & args = QStringList());
@@ -114,6 +117,9 @@ public:
   /// Returns the name of the script currently being run. Returns an
   /// empty string should no script be running.
   const QString & scriptFileName() const;
+
+  /// Returns the full command line being run
+  const QString & currentCommandLine() const;
 
 
   /// Runs all the startup files

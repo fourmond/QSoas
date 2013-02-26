@@ -120,8 +120,10 @@ void CommandWidget::runCommand(const QStringList & raw)
   out << bold("QSoas> ") << cmd << endl;
   commandLine->addHistoryItem(cmd);
   commandLine->setEnabled(false);
+
   soas().showMessage(tr("Running: %1").arg(cmd));
   try {
+    TemporaryChange<QString> ch(curCmdline, raw.join(" "));
     Command::runCommand(raw, this);
   }
   catch(const RuntimeError & error) {
@@ -305,6 +307,13 @@ const QString & CommandWidget::scriptFileName() const
 {
   return scriptFile;
 }
+
+const QString & CommandWidget::currentCommandLine() const
+{
+  return curCmdline;
+}
+
+
 
 void CommandWidget::runStartupFiles()
 {

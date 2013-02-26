@@ -1687,9 +1687,7 @@ static void zeroCommand(const QString &, double val,
     ny -= off;
     Terminal::out << "Offset Y values by " << -off << endl;
   }
-  DataSet * nds = new DataSet(nx, ny);
-  nds->name = ds->cleanedName() + "_off.dat";
-  soas().pushDataSet(nds);
+  soas().pushDataSet(ds->derivedDataSet(ny, "_off.dat", nx));
 }
 
 static ArgumentList 
@@ -1753,9 +1751,7 @@ static void autoCorrelationCommand(const QString &,
   for(int i = 0; i < ds->x().size(); i++)
     nx << f.deltaX * (i-offset);
 
-  DataSet * nds = new DataSet(nx, ny);
-  nds->name = ds->cleanedName() + "_corr.dat";
-  soas().pushDataSet(nds);
+  soas().pushDataSet(ds->derivedDataSet(ny, "_corr.dat", nx));
 }
 
 static Command 

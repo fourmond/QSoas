@@ -134,10 +134,7 @@ static void unwrapCommand(const QString &)
     else
       newX << oldX[i];
   }
-  DataSet * nds = new DataSet(*ds);
-  nds->x() = newX;
-  nds->name = ds->cleanedName() + "-unwrap.dat";
-  soas().pushDataSet(nds);
+  soas().pushDataSet(ds->derivedDataSet(ds->y(), "_unwrap.dat", newX));
 }
         
 
@@ -185,9 +182,9 @@ static void expandCommand(const QString &)
     QList<Vector> cols;
     cols << ds->x();
     cols << ds->column(i);
-    DataSet * newds = new DataSet(cols);
-    newds->name = ds->cleanedName() + QString("_col_%1.dat").arg(i+1);
-    soas().pushDataSet(newds);
+    soas().
+      pushDataSet(ds->derivedDataSet(cols,
+                                     QString("_col_%1.dat").arg(i+1) ));
   }
 }
 
@@ -884,13 +881,12 @@ cat("cat", // command name
 static void shiftxCommand(const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
-  DataSet * newDs = new DataSet(*ds);
-  double x = newDs->x()[0];
+  Vector nx = ds->x();
+  double x = nx[0];
   Terminal::out << QObject::tr("Shifting X axis by %1").
     arg(x) << endl;
-  newDs->x() -= x;
-  newDs->name = newDs->cleanedName() + "_shiftx.dat";
-  soas().pushDataSet(newDs);
+  nx -= x;
+  soas().pushDataSet(ds->derivedDataSet(ds->y(), "_shiftx.dat", nx));
 }
 
 static Command 

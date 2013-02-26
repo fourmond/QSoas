@@ -818,10 +818,14 @@ DataSet * DataSet::derivedDataSet(const QList<Vector> &newCols,
 
 
 DataSet * DataSet::derivedDataSet(const Vector &newy, 
-                                  const QString & suffix) const
+                                  const QString & suffix,
+                                  const Vector & newx) const
 {
   QList<Vector> newCols = columns;
   newCols[1] = newy;
+  if(newx.size() > 0)
+    newCols[0] = newx;
+    
   return derivedDataSet(newCols, suffix);
 }
 

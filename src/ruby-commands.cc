@@ -155,9 +155,7 @@ static void stripIfCommand(const QString &, QString formula)
   }
 
   Terminal::out << "Removed " << dropped << " points" << endl;
-  DataSet * newDs = new DataSet(newcols);
-  newDs->name = ds->cleanedName() + "_trimmed.dat";
-  soas().pushDataSet(newDs);
+  soas().pushDataSet(ds->derivedDataSet(newcols, "_trimmed.dat"));
 }
 
 

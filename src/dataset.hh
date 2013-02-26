@@ -99,10 +99,11 @@ public:
 
   /// A small helper function for creating new datasets with the same
   /// X, the given Y, and a name based on the original one with a
-  /// given suffix.
+  /// given suffix. X can be changed using the optional \a x argument.
   ///
   /// It keeps other columns unchanged.
-  DataSet * derivedDataSet(const Vector &y, const QString & suffix) const;
+  DataSet * derivedDataSet(const Vector &y, const QString & suffix,
+                           const Vector &x = Vector()) const;
 
   /// A small helper function for creating new datasets that keep as
   /// much information as possible from the old dataset while changing

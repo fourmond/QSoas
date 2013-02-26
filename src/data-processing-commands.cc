@@ -53,170 +53,170 @@
 
 //////////////////////////////////////////////////////////////////////
 
-namespace {
-typedef enum {
-  LeftPick,
-  RightPick,
-  Subtract,
-  Divide,
-  Write,
-  Exponential,
-  Quit
-} ReglinActions;
+namespace __reg {
+  typedef enum {
+    LeftPick,
+    RightPick,
+    Subtract,
+    Divide,
+    Write,
+    Exponential,
+    Quit
+  } ReglinActions;
 
-static EventHandler reglinHandler = EventHandler("reg").
-  addClick(Qt::LeftButton, LeftPick, "pick left bound").
-  addClick(Qt::RightButton, RightPick, "pick right bound").
-  addKey('q', Quit, "quit").
-  addKey('Q', Quit).
-  addKey(Qt::Key_Escape, Quit).
-  addKey('u', Subtract, "subtract trend").
-  addKey('U', Subtract).
-  addKey(' ', Write, "write to output file").
-  addKey('e', Exponential, "divide by exponential").
-  addKey('E', Exponential).
-  addKey('v', Divide, "divide by trend").
-  addKey('V', Divide);
+  static EventHandler reglinHandler = EventHandler("reg").
+    addClick(Qt::LeftButton, LeftPick, "pick left bound").
+    addClick(Qt::RightButton, RightPick, "pick right bound").
+    addKey('q', Quit, "quit").
+    alsoKey('Q').
+    addKey(Qt::Key_Escape, Quit).
+    addKey('u', Subtract, "subtract trend").
+    alsoKey('U').
+    addKey(' ', Write, "write to output file").
+    addKey('e', Exponential, "divide by exponential").
+    alsoKey('E').
+    addKey('v', Divide, "divide by trend").
+    alsoKey('V');
 
-static void reglinCommand(CurveEventLoop &loop, const QString &)
-{
-  const DataSet * ds = soas().currentDataSet();
-  const GraphicsSettings & gs = soas().graphicsSettings();
+  static void reglinCommand(CurveEventLoop &loop, const QString &)
+  {
+    const DataSet * ds = soas().currentDataSet();
+    const GraphicsSettings & gs = soas().graphicsSettings();
 
-  CurveLine line;
-  CurveHorizontalRegion r;
-  CurveView & view = soas().view();
-  CurvePanel bottom;
-  CurveData d;
-  bottom.drawingXTicks = false;
-  bottom.stretch = 30;        // 3/10ths of the main panel.
-  view.addItem(&line);
-  view.addItem(&r);
-  bottom.addItem(&d);
+    CurveLine line;
+    CurveHorizontalRegion r;
+    CurveView & view = soas().view();
+    CurvePanel bottom;
+    CurveData d;
+    bottom.drawingXTicks = false;
+    bottom.stretch = 30;        // 3/10ths of the main panel.
+    view.addItem(&line);
+    view.addItem(&r);
+    bottom.addItem(&d);
 
-  bottom.yLabel = Utils::deltaStr("Y");
-  d.countBB = true;
-
-
-  view.addPanel(&bottom);
-  line.pen = gs.getPen(GraphicsSettings::ReglinPen);
-  d.pen = gs.getPen(GraphicsSettings::ResultPen);
-  QPair<double, double> reg;
-  double xleft = ds->x().min();
-  double xright = ds->x().max();
-
-  // Computed fields:
-  double decay_rate = 0;
+    bottom.yLabel = Utils::deltaStr("Y");
+    d.countBB = true;
 
 
-  loop.setHelpString(QString("Linear regression:\n")
-                     + reglinHandler.buildHelpString());
-  /// @todo selection mode ? (do we need that ?)
-  while(! loop.finished()) {
-    switch(reglinHandler.nextAction(loop)) {
-    case LeftPick:
-    case RightPick: {
-      r.setX(loop.position().x(), loop.button());
-      reg = ds->reglin(r.xmin(), r.xmax());
-      double y = reg.first * xleft + reg.second;
-      line.p1 = QPointF(xleft, y);
-      y = reg.first * xright + reg.second;
-      line.p2 = QPointF(xright, y);
+    view.addPanel(&bottom);
+    line.pen = gs.getPen(GraphicsSettings::ReglinPen);
+    d.pen = gs.getPen(GraphicsSettings::ResultPen);
+    QPair<double, double> reg;
+    double xleft = ds->x().min();
+    double xright = ds->x().max();
 
-      // Apparent first-order rate constants
-      decay_rate = reg.first/(reg.second + reg.first * r.xleft);
-      Terminal::out << reg.first << "\t" << reg.second 
-                    << "\t" << decay_rate << endl;
-      soas().showMessage(QObject::tr("Regression between X=%1 and X=%2").
-                         arg(r.xleft).arg(r.xright));
+    // Computed fields:
+    double decay_rate = 0;
 
-      // Now, we fill the d vector with data
-      if(d.xvalues.size() == 0) {
-        // First time in the loop
-        d.xvalues = ds->x();
-        d.yvalues = ds->y(); // Not really important, only size
-        // matters
-      }
-      double dy_min = 0;
-      double dy_max = 0;
-      for(int i = 0; i < d.xvalues.size(); i++) {
-        double x = d.xvalues[i];
-        double y = ds->y()[i] -  x * reg.first - reg.second;
-        d.yvalues[i] = y;
-        if(x >= r.xleft && x <= r.xright) {
-          if(y < dy_min)
-            dy_min = y;
-          if(y > dy_max)
-            dy_max = y;
+
+    loop.setHelpString(QString("Linear regression:\n")
+                       + reglinHandler.buildHelpString());
+    /// @todo selection mode ? (do we need that ?)
+    while(! loop.finished()) {
+      switch(reglinHandler.nextAction(loop)) {
+      case LeftPick:
+      case RightPick: {
+        r.setX(loop.position().x(), loop.button());
+        reg = ds->reglin(r.xmin(), r.xmax());
+        double y = reg.first * xleft + reg.second;
+        line.p1 = QPointF(xleft, y);
+        y = reg.first * xright + reg.second;
+        line.p2 = QPointF(xright, y);
+
+        // Apparent first-order rate constants
+        decay_rate = reg.first/(reg.second + reg.first * r.xleft);
+        Terminal::out << reg.first << "\t" << reg.second 
+                      << "\t" << decay_rate << endl;
+        soas().showMessage(QObject::tr("Regression between X=%1 and X=%2").
+                           arg(r.xleft).arg(r.xright));
+
+        // Now, we fill the d vector with data
+        if(d.xvalues.size() == 0) {
+          // First time in the loop
+          d.xvalues = ds->x();
+          d.yvalues = ds->y(); // Not really important, only size
+          // matters
         }
+        double dy_min = 0;
+        double dy_max = 0;
+        for(int i = 0; i < d.xvalues.size(); i++) {
+          double x = d.xvalues[i];
+          double y = ds->y()[i] -  x * reg.first - reg.second;
+          d.yvalues[i] = y;
+          if(x >= r.xleft && x <= r.xright) {
+            if(y < dy_min)
+              dy_min = y;
+            if(y > dy_max)
+              dy_max = y;
+          }
+        }
+        bottom.setYRange(dy_min, dy_max, view.mainPanel());
+        break;
       }
-      bottom.setYRange(dy_min, dy_max, view.mainPanel());
-      break;
-    }
-    case Quit:
-      return;
-    case Subtract: {
-      // Subtracting, the data is already computed in d
-      DataSet * newds = new 
-        DataSet(QList<Vector>() << d.xvalues << d.yvalues);
-      newds->name = ds->cleanedName() + "_linsub.dat";
-      soas().pushDataSet(newds);
-      return;
-    }
-    case Write: {
-      OutFile::out.setHeader(QString("Dataset: %1\n"
-                                     "a\tb\tkeff\txleft\txright").
-                             arg(ds->name));
-      /// @todo add other fields ? This should be done through an
-      /// appropriate class, as far as I can tell.
-      OutFile::out << reg.first << "\t" << reg.second 
-                   << "\t" << decay_rate
-                   << "\t" << r.xleft << "\t" << r.xright 
-                   << "\n" << flush;
-      Terminal::out << "Writing to output file " << OutFile::out.fileName()
-                    << endl;
-      break;
-    }
-    case Divide: {
-      // Dividing
-      Vector newy = ds->y();
-      for(int i = 0; i < newy.size(); i++)
-        newy[i] /= (d.xvalues[i] * reg.first + reg.second);
-      DataSet * newds = new 
-        DataSet(QList<Vector>() << d.xvalues << newy);
-      newds->name = ds->cleanedName() + "_lindiv.dat";
-      soas().pushDataSet(newds);
-      return;
-    }
-    case Exponential: {
-      // Dividing by exponential decay
-      Vector newy = ds->y();
-      /// @bug Wrong here !
-      double rate = reg.first/(reg.second - reg.first*d.xvalues[0]);
-      for(int i = 1; i < newy.size(); i++)
-        newy[i] /= exp(rate * (d.xvalues[i] - d.xvalues[0]));
-      DataSet * newds = new 
-        DataSet(QList<Vector>() << d.xvalues << newy);
-      newds->name = ds->cleanedName() + "_expdiv.dat";
-      soas().pushDataSet(newds);
-      return;
-    }
-    default:
-      ;
+      case Quit:
+        return;
+      case Subtract: {
+        // Subtracting, the data is already computed in d
+        DataSet * newds = new 
+          DataSet(QList<Vector>() << d.xvalues << d.yvalues);
+        newds->name = ds->cleanedName() + "_linsub.dat";
+        soas().pushDataSet(newds);
+        return;
+      }
+      case Write: {
+        OutFile::out.setHeader(QString("Dataset: %1\n"
+                                       "a\tb\tkeff\txleft\txright").
+                               arg(ds->name));
+        /// @todo add other fields ? This should be done through an
+        /// appropriate class, as far as I can tell.
+        OutFile::out << reg.first << "\t" << reg.second 
+                     << "\t" << decay_rate
+                     << "\t" << r.xleft << "\t" << r.xright 
+                     << "\n" << flush;
+        Terminal::out << "Writing to output file " << OutFile::out.fileName()
+                      << endl;
+        break;
+      }
+      case Divide: {
+        // Dividing
+        Vector newy = ds->y();
+        for(int i = 0; i < newy.size(); i++)
+          newy[i] /= (d.xvalues[i] * reg.first + reg.second);
+        DataSet * newds = new 
+          DataSet(QList<Vector>() << d.xvalues << newy);
+        newds->name = ds->cleanedName() + "_lindiv.dat";
+        soas().pushDataSet(newds);
+        return;
+      }
+      case Exponential: {
+        // Dividing by exponential decay
+        Vector newy = ds->y();
+        /// @bug Wrong here !
+        double rate = reg.first/(reg.second - reg.first*d.xvalues[0]);
+        for(int i = 1; i < newy.size(); i++)
+          newy[i] /= exp(rate * (d.xvalues[i] - d.xvalues[0]));
+        DataSet * newds = new 
+          DataSet(QList<Vector>() << d.xvalues << newy);
+        newds->name = ds->cleanedName() + "_expdiv.dat";
+        soas().pushDataSet(newds);
+        return;
+      }
+      default:
+        ;
+      }
     }
   }
-}
 
-static Command 
-reg("reglin", // command name
-    optionLessEffector(reglinCommand), // action
-    "buffer",  // group name
-    NULL, // arguments
-    NULL, // options
-    "Linear regression",
-    "Performs linear regression",
-    "...",
-    "reg");
+  static Command 
+  reg("reglin", // command name
+      optionLessEffector(reglinCommand), // action
+      "buffer",  // group name
+      NULL, // arguments
+      NULL, // options
+      "Linear regression",
+      "Performs linear regression",
+      "...",
+      "reg");
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -389,8 +389,8 @@ fl("film-loss", // command name
 namespace __bl {
 typedef enum {
   AddPoint,
-  ChangeType,
   RemovePoint,
+  ChangeType,
   Add10Left,
   Add10Right,
   ClearAll,
@@ -402,7 +402,8 @@ typedef enum {
 } BaselineActions;
 
 static EventHandler baselineHandler = EventHandler("baseline").
-  addKey(Qt::Key_Escape, Abort);
+  addKey(Qt::Key_Escape, Abort, "abort");
+  
 
 static void baselineCommand(CurveEventLoop &loop, const QString &)
 {
@@ -587,77 +588,101 @@ bsl("baseline", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void bsplinesCommand(CurveEventLoop &loop, const QString &)
-{
-  const DataSet * ds = soas().currentDataSet();
-  const GraphicsSettings & gs = soas().graphicsSettings();
+namespace __bs {
 
-  CurveView & view = soas().view();
-  CurvePanel bottom;
-  /// @todo This assumes that the currently displayed dataset is the
-  /// first one.
-  CurveItem * dsDisplay = view.mainPanel()->items().first();
-  CurveData d;
-  CurveData diff;
-  bool derive = false;
-  bottom.drawingXTicks = false;
-  bottom.stretch = 30;        // 3/10ths of the main panel.
-  int nbSegments = 10;
-  int order = 4;
+  typedef enum {
+    AddSegment,
+    RemoveSegment,
+    ToggleDerivative,
+    Optimize,
+    EquallySpaced,
+    Resample,
+    IncreaseSplinesOrder,
+    DecreaseSplinesOrder,
+    Replace,
+    Abort
+  } BSplinesActions;
 
-  view.addItem(&d);
-
-  d.pen = gs.getPen(GraphicsSettings::BaselinePen);
-  d.xvalues = ds->x();
-  d.yvalues = QVector<double>(d.xvalues.size(), 0);
-  d.countBB = true;
-  diff.xvalues = d.xvalues;
-  diff.yvalues = ds->y();
-  diff.countBB = true;
-
-
-
-  bottom.addItem(&diff);
-  bottom.yLabel = Utils::deltaStr("Y");
-
-  view.addPanel(&bottom);
+  static EventHandler bsplinesHandler = EventHandler("filter-bsplines").
+    addKey(Qt::Key_Escape, Abort, "abort").
+    conventionalAccept(Replace, "replace with filtered data").
+    addClick(Qt::LeftButton, AddSegment, "add segment").
+    addClick(Qt::RightButton, RemoveSegment, "remove segment").
+    addKey('d', ToggleDerivative, "toggle display of derivative").
+    alsoKey('D').
+    addKey('a', EquallySpaced, "equally spaced segments").
+    alsoKey('A').
+    addKey('r', Resample, "resample output").
+    alsoKey('R').
+    addKey('o', Optimize, "optimize positions").
+    alsoKey('O').
+    addKey('+', IncreaseSplinesOrder, "increase splines order").
+    addKey('-', DecreaseSplinesOrder, "decrease splines order");
+  
+  
 
 
+  static void bsplinesCommand(CurveEventLoop &loop, const QString &)
+  {
+    const DataSet * ds = soas().currentDataSet();
+    const GraphicsSettings & gs = soas().graphicsSettings();
 
-  /// Position of the segments
-  Vector x;
-  bool autoXValues = false;
-  bool needCompute = true;
-  BSplines splines(ds, order);
-  splines.autoBreakPoints(nbSegments-1);
-  x = splines.getBreakPoints();
+    CurveView & view = soas().view();
+    CurvePanel bottom;
+    /// @todo This assumes that the currently displayed dataset is the
+    /// first one.
+    CurveItem * dsDisplay = view.mainPanel()->items().first();
+    CurveData d;
+    CurveData diff;
+    bool derive = false;
+    bottom.drawingXTicks = false;
+    bottom.stretch = 30;        // 3/10ths of the main panel.
+    int nbSegments = 10;
+    int order = 4;
 
-  int resample = -1;            // If not negative, resample to that
-                                // number of samples.
+    view.addItem(&d);
 
-  CurveVerticalLines lines;
-  lines.xValues = &x;
-  lines.pen = gs.getPen(GraphicsSettings::SeparationPen);
-  view.addItem(&lines);
+    d.pen = gs.getPen(GraphicsSettings::BaselinePen);
+    d.xvalues = ds->x();
+    d.yvalues = QVector<double>(d.xvalues.size(), 0);
+    d.countBB = true;
+    diff.xvalues = d.xvalues;
+    diff.yvalues = ds->y();
+    diff.countBB = true;
 
-  loop.setHelpString(QObject::tr("B-splines filtering:\n"
-                                 "left click: place point\n"
-                                 "right click: remove closest point\n"
-                                 "d: display derivative\n"
-                                 "a: equally spaced segments\n"
-                                 "o: optimize positions\n"
-                                 "r: resample output\n"
-                                 "+,-: change splines order\n"
-                                 "q, middle click: replace with filtered data\n"
-                                 "ESC: abort"));
-  do {
-    if(loop.isConventionalAccept()) {
-      soas().pushDataSet(ds->derivedDataSet(d.yvalues, "_filtered.dat"));
-      return;
-    }
-    switch(loop.type()) {
-    case QEvent::MouseButtonPress: 
-      if(loop.button() == Qt::RightButton) { // Remove
+
+
+    bottom.addItem(&diff);
+    bottom.yLabel = Utils::deltaStr("Y");
+
+    view.addPanel(&bottom);
+
+
+
+    /// Position of the segments
+    Vector x;
+    bool autoXValues = false;
+    bool needCompute = true;
+    BSplines splines(ds, order);
+    splines.autoBreakPoints(nbSegments-1);
+    x = splines.getBreakPoints();
+
+    int resample = -1;            // If not negative, resample to that
+    // number of samples.
+
+    CurveVerticalLines lines;
+    lines.xValues = &x;
+    lines.pen = gs.getPen(GraphicsSettings::SeparationPen);
+    view.addItem(&lines);
+
+    loop.setHelpString("B-splines filtering:\n"
+                       + bsplinesHandler.buildHelpString());
+    do {
+      switch(bsplinesHandler.nextAction(loop)) {
+      case Replace:
+        soas().pushDataSet(ds->derivedDataSet(d.yvalues, "_filtered.dat"));
+        return;
+      case RemoveSegment: { // Remove
         double xv = loop.position().x();
         if(x.size() <= 2)
           break;                // We don't remove.
@@ -673,26 +698,24 @@ static void bsplinesCommand(CurveEventLoop &loop, const QString &)
         nbSegments = x.size() -1;
         needCompute = true;
         Terminal::out << "Using : " << nbSegments << " segments" << endl;
+        break;
       }
-      if(loop.button() == Qt::LeftButton) { // Remove
+      case AddSegment: {
         double xv = loop.position().x();
         for(int i = 0; i < x.size() - 1; i++)
           if(xv >= x[i] && xv <= x[i+1]) {
             x.insert(i+1, xv);
             break;
           }
-
+        
         nbSegments += 1;
         needCompute = true;
         Terminal::out << "Using : " << nbSegments << " segments" << endl;
+        break;
       }
-      break;
-    case QEvent::KeyPress: 
-      switch(loop.key()) {
-      case Qt::Key_Escape:
+      case Abort:
         return;
-      case 'D':
-      case 'd':
+      case ToggleDerivative:
         derive = ! derive;
         dsDisplay->hidden = derive;
         needCompute = true;
@@ -701,20 +724,17 @@ static void bsplinesCommand(CurveEventLoop &loop, const QString &)
         else
           soas().showMessage("Showing filtered data");
         break;
-      case 'O':
-      case 'o': {
+      case Optimize: {
         splines.optimize(15, false);
         x = splines.getBreakPoints();
         needCompute = true;
         break;
       }
-      case 'A':
-      case 'a':
+      case EquallySpaced: 
         needCompute = true;
         autoXValues = true;
         break;
-      case 'R':
-      case 'r': {
+      case Resample: {
         bool ok = false;
         QString str = loop.promptForString("Resample to the given number of points:", &ok);
         if(ok) {
@@ -733,12 +753,12 @@ static void bsplinesCommand(CurveEventLoop &loop, const QString &)
           soas().showMessage("Not changing resampling");
         break;
       }
-      case '+':
+      case IncreaseSplinesOrder:
         ++order;
         Terminal::out << "Now using splines of order " << order << endl;
         needCompute = true;
         break;
-      case '-':
+      case DecreaseSplinesOrder:
         --order;
         if(order < 2)
           order = 2;            // must be at least linear !
@@ -748,60 +768,57 @@ static void bsplinesCommand(CurveEventLoop &loop, const QString &)
       default:
         ;
       }
-      break;
-    default:
-      ;
-    }
-    if(needCompute) {
-      splines.setOrder(order);
-      if(autoXValues) {
-        splines.autoBreakPoints(nbSegments - 1);
-        x = splines.getBreakPoints();
-        autoXValues = false;
-      }
-      else
-        splines.setBreakPoints(x);
-
-      // Should move to yet another place
-      double value = splines.computeCoefficients();
-      if(derive) {
-        diff.yvalues = ds->y() - splines.computeValues();
-
-        if(resample < 2)
-          d.yvalues = splines.computeValues(1);
-        else {
-          d.xvalues = ds->x().resample(resample);
-          d.yvalues = splines.computeValues(d.xvalues, 1);
+      if(needCompute) {
+        splines.setOrder(order);
+        if(autoXValues) {
+          splines.autoBreakPoints(nbSegments - 1);
+          x = splines.getBreakPoints();
+          autoXValues = false;
         }
-      }
-      else {
-        if(resample < 2) {
-          d.yvalues = splines.computeValues();
-          diff.yvalues = ds->y() - d.yvalues;
-        }
-        else {
-          d.xvalues = ds->x().resample(resample);
-          d.yvalues = splines.computeValues(d.xvalues);
+        else
+          splines.setBreakPoints(x);
+
+        // Should move to yet another place
+        double value = splines.computeCoefficients();
+        if(derive) {
           diff.yvalues = ds->y() - splines.computeValues();
-        }
-      }
-      Terminal::out << "Residuals: " << sqrt(value) << endl;
-      bottom.setYRange(diff.yvalues.min(), diff.yvalues.max(), 
-                       view.mainPanel());
-      needCompute = false;
-    }
-  } while(! loop.finished());
-}
 
-static Command 
-bspl("filter-bsplines", // command name
-     optionLessEffector(bsplinesCommand), // action
-     "buffer",  // group name
-     NULL, // arguments
-     NULL, // options
-     "Filter",
-     "Filter using bsplines",
-     "...");
+          if(resample < 2)
+            d.yvalues = splines.computeValues(1);
+          else {
+            d.xvalues = ds->x().resample(resample);
+            d.yvalues = splines.computeValues(d.xvalues, 1);
+          }
+        }
+        else {
+          if(resample < 2) {
+            d.yvalues = splines.computeValues();
+            diff.yvalues = ds->y() - d.yvalues;
+          }
+          else {
+            d.xvalues = ds->x().resample(resample);
+            d.yvalues = splines.computeValues(d.xvalues);
+            diff.yvalues = ds->y() - splines.computeValues();
+          }
+        }
+        Terminal::out << "Residuals: " << sqrt(value) << endl;
+        bottom.setYRange(diff.yvalues.min(), diff.yvalues.max(), 
+                         view.mainPanel());
+        needCompute = false;
+      }
+    } while(! loop.finished());
+  }
+
+  static Command 
+  bspl("filter-bsplines", // command name
+       optionLessEffector(bsplinesCommand), // action
+       "buffer",  // group name
+       NULL, // arguments
+       NULL, // options
+       "Filter",
+       "Filter using bsplines",
+       "...");
+};
 
 //////////////////////////////////////////////////////////////////////
 

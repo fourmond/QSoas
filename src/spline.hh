@@ -59,7 +59,8 @@ public:
     Linear,
     Polynomial,
     CSpline,
-    Akima
+    Akima,
+    SplineTypes
   } Type;
 
   /// Computes the values for the given X vector.

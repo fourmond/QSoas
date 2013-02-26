@@ -178,6 +178,8 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
     }
 
     gsl_vector_sub(&col.vector, storage);
+    // Improve precision again:
+    step = gslParams[param->fitIndex] - value;
     gsl_vector_scale(&col.vector, 1/step);
     weightVector(&col.vector);
     gslParams[param->fitIndex] = value;

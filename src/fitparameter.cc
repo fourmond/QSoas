@@ -100,6 +100,13 @@ FitParameter::~FitParameter()
 //////////////////////////////////////////////////////////////////////
 
 
+FreeParameter::FreeParameter(int p, int ds, double dev) :
+  FitParameter(p, ds), derivationFactor(dev), 
+    minDerivationStep(0), bijection(NULL) 
+{
+  ;
+}
+
 
 void FreeParameter::copyToUnpacked(double * target, const gsl_vector * fit, 
                                   int nb_datasets, int nb_per_dataset) const

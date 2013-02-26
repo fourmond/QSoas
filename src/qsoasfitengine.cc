@@ -90,7 +90,6 @@ protected:
   /// The last residuals !
   double lastResiduals;
 
-
   
   /// Makes a trial step at the given value of lambda, and store the
   /// results in:
@@ -183,6 +182,12 @@ const gsl_vector * QSoasFitEngine::currentParameters() const
 void QSoasFitEngine::computeCovarianceMatrix(gsl_matrix * target) const
 {
   /// @todo Handle properly the case when we're having singular values !
+
+  /// @todo Recompute the jacobian when necessary ?
+  // fitData->df(parameters, jacobian);
+  // gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1, 
+  //                jacobian, jacobian, 0, jTj);
+
   int sign = 0;
   gsl_matrix_memcpy(cur, jTj);
   gsl_linalg_LU_decomp(cur, perm, &sign);

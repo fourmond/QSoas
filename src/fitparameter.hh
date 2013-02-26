@@ -155,9 +155,8 @@ public:
   /// Will be NULL most of the times.
   Bijection * bijection;
   
-  FreeParameter(int p, int ds, double dev = 1e-4) :
-    FitParameter(p, ds), derivationFactor(dev), 
-    minDerivationStep(1e-8), bijection(NULL) {;};
+  /// dev is the square root of machine precision
+  FreeParameter(int p, int ds, double dev = 1e-7);
 
   virtual FitParameter * dup() const;
 

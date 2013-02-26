@@ -21,7 +21,7 @@
 #include <curveeventloop.hh>
 
 EventHandler::EventHandler(const QString & cmd) :
-  commandName(cmd)
+  commandName(cmd), lastAction(-1)
 {
   
 }
@@ -61,6 +61,13 @@ EventHandler & EventHandler::addKey(int key, int action, const QString & help)
   keyActions[key] = action;
   if(! helpTexts.contains(action))
     helpTexts[action] = help;
+  lastAction = action;
+  return *this;
+}
+
+EventHandler & EventHandler::alsoKey(int key)
+{
+  keyActions[key] = lastAction;
   return *this;
 }
 
@@ -70,6 +77,13 @@ EventHandler & EventHandler::addClick(Qt::MouseButton button,
   clickActions[button] = action;
   if(! helpTexts.contains(action))
     helpTexts[action] = help;
+  lastAction = action;
+  return *this;
+}
+
+EventHandler & EventHandler::alsoClick(Qt::MouseButton button)
+{
+  clickActions[button] = lastAction;
   return *this;
 }
 

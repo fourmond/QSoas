@@ -65,6 +65,9 @@ protected:
 
   /// A string representing the mouse click
   static QString clickString(Qt::MouseButton button);
+
+  /// The last action
+  int lastAction;
   
 public:
 
@@ -77,9 +80,17 @@ public:
   EventHandler & addKey(int key, int action, const QString & help = "");
 
 
+
   /// Adds a mouse click event to the handler
   EventHandler & addClick(Qt::MouseButton button, int action,
                           const QString & help = "");
+
+  /// Provides a key shortcut for the last action added
+  EventHandler & alsoKey(int key);
+
+  /// Provides a key shortcut for the last action added
+  EventHandler & alsoClick(Qt::MouseButton button);
+
 
   /// Adds the action corresponding to a conventional accept.
   EventHandler & conventionalAccept(int action, const QString & help = "");

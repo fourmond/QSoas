@@ -36,9 +36,18 @@ QHash<QString, double> ValueHash::extractDoubles() const
   return extract<double>(QVariant::Double);
 }
 
-QHash<QString, QString> ValueHash::extractStrings() const
+QHash<QString, QString> ValueHash::extractStrings(const QString & joinStringLists) const
 {
-  return extract<QString>(QVariant::String);
+  QHash<QString, QString> ret = extract<QString>(QVariant::String);
+  if(! joinStringLists.isNull()) {
+    // We look for string lists that were not converted already:
+    for(const_iterator i = begin(); i != end(); i++) {
+      QVariant v = i.value();
+      if(! ret.contains(i.key()) && (v.type() == QVariant::StringList))
+        ret[i.key()] = i.value().toStringList().join(joinStringLists);
+    }
+  }
+  return ret;
 }
 
 QHash<QString, QDateTime> ValueHash::extractDates() const
@@ -70,16 +79,20 @@ QString ValueHash::toString(const QString & sep,
   return output.join(sep);
 }
 
-QString ValueHash::prettyPrint(int nbCols) const
+ QString ValueHash::prettyPrint(int nbCols, 
+                                const QString & prefix, 
+                                const QString & joinStringLists) const
 {
   QString output;
-  QHash<QString, QString> strings = extractStrings();
+  QHash<QString, QString> strings = extractStrings(joinStringLists);
   QHash<QString, QString>::iterator it;
   int done = 0;
 
   for(int i = 0; i < keyOrder.size(); i++) {
     const QString & k = keyOrder[i];
     it = strings.find(k);
+    if(! (done % nbCols))
+      output += prefix;
     if(it != strings.end()) {
       output += QString("%1 = %2").arg(k).arg(*it);
       done++;
@@ -92,6 +105,8 @@ QString ValueHash::prettyPrint(int nbCols) const
   }
   
   for(it = strings.begin(); it != strings.end(); it++) {
+    if(! (done % nbCols))
+      output += prefix;
     output += QString("%1 = %2").arg(it.key()).arg(*it);
     done++;
     if(done % nbCols)

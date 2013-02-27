@@ -679,7 +679,9 @@ void DataSet::write(QIODevice * target) const
 {
   QTextStream o(target);
   
-  /// @todo Write header and meta-information when applicable.
+  /// @todo Write header ?
+
+  o << metaData.prettyPrint(1, "# ", "\n#\t") + "\n";
 
   int nb = nbRows();
   for(int i = 0; i < nb; i++) {

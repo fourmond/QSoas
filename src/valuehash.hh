@@ -56,7 +56,11 @@ public:
   QHash<QString, double> extractDoubles() const;
 
   /// Extract values that can be converted to strings (ie most ?)
-  QHash<QString, QString> extractStrings() const;
+  ///
+  /// If \a joinStringLists isn't null, then string lists are
+  /// converted to string by using join().
+  QHash<QString, QString> extractStrings(const QString & joinStringLists = 
+                                         QString()) const;
 
   /// Extract values that can be converted to dates
   QHash<QString, QDateTime> extractDates() const;
@@ -81,7 +85,9 @@ public:
   /// Formats the elements as "key = value" in tab-separated columns
   ///
   /// @todo Customization.
-  QString prettyPrint(int nbCols = 3) const;
+  QString prettyPrint(int nbCols = 3,
+                      const QString & prefix = "",
+                      const QString & joinStringLists = QString()) const;
 
   /// Depending on the number of times used so far:
   /// @li if even, sets the key for the next addition

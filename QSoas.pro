@@ -213,7 +213,8 @@ SOURCES += src/qmain.cc \
         src/credits.cc \
         src/eventhandler.cc \
         src/valuehash.cc \
-        src/qsoasfitengine.cc
+        src/qsoasfitengine.cc \
+        src/curve-effectors.cc
 
 
 HEADERS += src/headers.hh \
@@ -290,7 +291,8 @@ HEADERS += src/headers.hh \
         src/credits.hh \
         src/temporarychange.hh \
         src/eventhandler.hh \
-        src/valuehash.hh
+        src/valuehash.hh \
+        src/curve-effectors.hh
 
 
 # We link with the converted ODRPACK library

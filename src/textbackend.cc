@@ -75,6 +75,9 @@ textLoadOptions(QList<Argument *>()
                 << new StringArgument("separator-exact", 
                                       "Exact separator",
                                       "Exact separator")
+                << new SeveralIntegersArgument("columns", 
+                                               "Columns",
+                                               "Order of the columns")
                 );
 
 ArgumentList * TextBackend::loadOptions() const
@@ -91,6 +94,8 @@ DataSet * TextBackend::readFromStream(QIODevice * stream,
     sep = QRegExp::escape(opts["separator-exact"]->value<QString>());
   else if(opts.contains("separator"))
     sep = opts["separator"]->value<QString>();
+  QList<int> cols;
+  updateFromOptions(opts, "columns", cols);
 
   QRegExp s = separator;
   if(! sep.isEmpty()) {
@@ -105,9 +110,25 @@ DataSet * TextBackend::readFromStream(QIODevice * stream,
   QList<Vector> columns = Vector::readFromStream(stream, s, 
                                                  comments);
 
-  DataSet * ds = new DataSet(columns);
+  /// @todo Allow 0 as column containing the index ?
+  QSet<int> cl = QSet<int>::fromList(cols);
+  QList<int> colOrder;
+  for(int i = 0; i < cols.size(); i++)
+    colOrder << cols[i] - 1;
+
+  for(int i = 0; i < columns.size(); i++) {
+    if(! cl.contains(i + 1))
+      colOrder << i;
+  }
+  
+  QList<Vector> finalColumns;
+  for(int i = 0; i < colOrder.size(); i++)
+    finalColumns << columns[colOrder[i]];
+
+  
+
+  DataSet * ds = new DataSet(finalColumns);
   ds->name = QDir::cleanPath(fileName);
-  /// @todo 
   return ds;
 }
 

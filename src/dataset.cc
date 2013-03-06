@@ -161,8 +161,7 @@ void DataSet::splitAt(int idx, DataSet ** first, DataSet ** second) const
       newcols << Vector(columns[i].mid(0, idx+1));
     /// @todo Shall we handle the name change here ? Why not, after
     /// all ? Things still can change later on.
-    *first = new DataSet(newcols);
-    (*first)->name = cleanedName() + "_a.dat";
+    *first = derivedDataSet(newcols, "_a.dat");
   }
   if(second) {
     if(idx >= nbRows())         // Ensure we don't go over.
@@ -170,8 +169,7 @@ void DataSet::splitAt(int idx, DataSet ** first, DataSet ** second) const
     QList<Vector> newcols;
     for(int i = 0; i < columns.size(); i++)
       newcols << Vector(columns[i].mid(idx));
-    *second = new DataSet(newcols);
-    (*second)->name = cleanedName() + "_b.dat";
+    *second = derivedDataSet(newcols, "_b.dat");
   }
 }
 

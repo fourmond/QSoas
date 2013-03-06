@@ -1083,6 +1083,10 @@ QStringList DataSet::columnNames() const
   return ret;
 }
 
+void DataSet::setMetaData(const QString & name, const QVariant & val)
+{
+  metaData[name] = val;
+}
 
 //////////////////////////////////////////////////////////////////////
 

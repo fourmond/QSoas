@@ -111,6 +111,11 @@ protected:
                           QStringList files,
                           const CommandOptions & opts);
 
+  /// Decorates a \a dataset's metadata with file information about
+  /// the file name.
+  static void setMetaDataForFile(DataSet * dataset, 
+                                 const QString& fileName);
+ 
 public:
   /// Reads a DataSet from the given stream. The \p fileName parameter
   /// does not necessarily point to a real file.

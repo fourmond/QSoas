@@ -129,6 +129,7 @@ DataSet * TextBackend::readFromStream(QIODevice * stream,
 
   DataSet * ds = new DataSet(finalColumns);
   ds->name = QDir::cleanPath(fileName);
+  setMetaDataForFile(ds, fileName);
   return ds;
 }
 

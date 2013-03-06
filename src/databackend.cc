@@ -193,3 +193,11 @@ void DataBackend::loadDatasetCommand(const QString & /*cmdname*/,
   }
   soas().view().enableUpdates();
 }
+
+void DataBackend::setMetaDataForFile(DataSet * dataset, 
+                                     const QString& filename)
+{
+  QDir dir = QDir::current();
+  dataset->setMetaData("original-file",
+                       QDir::cleanPath(dir.absoluteFilePath(filename)));
+}

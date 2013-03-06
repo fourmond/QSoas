@@ -419,6 +419,9 @@ public:
   ///
   /// @todo find a way to customize that later on.
   QStringList columnNames() const;
+
+  /// Sets the given meta-data
+  void setMetaData(const QString & name, const QVariant & value);
   
 };
 

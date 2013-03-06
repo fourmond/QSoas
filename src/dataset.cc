@@ -293,9 +293,8 @@ QList<DataSet *> DataSet::splitIntoMonotonic(int col) const
         QList<Vector> cols;
         for(int j = 0; j < columns.size(); j++)
           cols << columns[j].mid(curStart, idx - curStart + 1);
-        DataSet * ds = new DataSet(cols);
-        ds->name = cleanedName() + QString("_part%1.dat").arg(ret.size());
-        ret << ds;
+        ret << derivedDataSet(cols,
+                              QString("_part%1.dat").arg(ret.size()));
         curStart = idx+1;
         idx = curStart + 1;
         if(idx < size)
@@ -307,9 +306,8 @@ QList<DataSet *> DataSet::splitIntoMonotonic(int col) const
   QList<Vector> cols;
   for(int j = 0; j < columns.size(); j++)
     cols << columns[j].mid(curStart, columns[j].size() - curStart);
-  DataSet * ds = new DataSet(cols);
-  ds->name = cleanedName() + QString("_part%1.dat").arg(ret.size());
-  ret << ds;
+  ret << derivedDataSet(cols,
+                        QString("_part%1.dat").arg(ret.size()));
   return ret;
 }
 
@@ -401,8 +399,10 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
     }
   }
 
-  DataSet * ds = new DataSet(vects);
-  ds->name = a->cleanedName() + cat + b->cleanedName() + ".dat";
+  DataSet * ds = a->derivedDataSet(vects, 
+                                   cat + b->cleanedName() + ".dat");
+
+  /// @todo Add meta-data to track which buffer was combined into this one ?
 
   // We put back the segments present in the first dataset
   ds->segments = a->segments;
@@ -556,11 +556,9 @@ DataSet * DataSet::subset(int beg, int end, bool within) const
       cols << v;
     }
   }
-  DataSet * newds = new DataSet(cols);
-  newds->name = cleanedName() + QString("_%1from_%2_to_%3.dat").
-    arg(within ? "" : "excl_").
-    arg(columns[0][beg]).arg(columns[0][end]);
-  return newds;
+  return derivedDataSet(cols, QString("_%1from_%2_to_%3.dat").
+                        arg(within ? "" : "excl_").
+                        arg(columns[0][beg]).arg(columns[0][end]));
 }
 
 DataSet * DataSet::removeSpikes(int nbc, double extra) const
@@ -582,9 +580,7 @@ DataSet * DataSet::removeSpikes(int nbc, double extra) const
   if(! nb2)
     return NULL;
 
-  DataSet * newds = new DataSet(cols);
-  newds->name = cleanedName() + "_spikes.dat";
-  return newds;
+  return derivedDataSet(cols, "_spikes.dat");
 }
 
 
@@ -802,9 +798,7 @@ DataSet * DataSet::sort(bool reverse) const
       nv[j][i] = columns[j][(vals[i].second)];
   }
 
-  DataSet * ds = new DataSet(nv);
-  ds->name = cleanedName() + "_sorted.dat";
-  return ds;
+  return derivedDataSet(nv,"_sorted.dat");
 }
 
 DataSet * DataSet::derivedDataSet(const QList<Vector> &newCols, 
@@ -1045,6 +1039,8 @@ DataSet * DataSet::concatenateDataSets(QList<const DataSet *> datasets)
     for(int i = 0; i < nbcols; i++)
       vects[i] << ds->column(i);
   }
+
+  /// @question hmmm, what do we do HERE about meta-data ?
   DataSet * newDs = new DataSet(vects);
   newDs->name = names.join("_") + ".dat";
   return newDs;

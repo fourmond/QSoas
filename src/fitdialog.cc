@@ -496,11 +496,8 @@ DataSet *  FitDialog::simulatedData(int i)
 {
   const DataSet * base = data->datasets[i];
   gsl_vector_view v =  data->viewForDataset(i, data->storage);    
-  DataSet * ds = 
-    new DataSet(QList<Vector>() << base->x() 
-                << Vector::fromGSLVector(&v.vector));
-  ds->name = base->cleanedName() + "_fit_" + data->fit->fitName(false) + ".dat";
-  return ds;
+  return base->derivedDataSet(Vector::fromGSLVector(&v.vector), 
+                              "_fit_" + data->fit->fitName(false) + ".dat");
 }
 
                 

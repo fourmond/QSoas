@@ -32,6 +32,8 @@
 
 #include <gsl/gsl_const_mksa.h>
 
+#include <odesolver.hh>
+
 class SlowScanLowPotFit : public PerDatasetFit {
   bool explicitRate;
 
@@ -713,3 +715,169 @@ public:
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
 // Its name doesn't matter.
 EECRRelayFit fit_ececr_relay;
+
+
+//////////////////////////////////////////////////////////////////////
+
+/// Private fits for the anaerobic inactivation of FeFe hydrogenases.
+///
+/// Model: [0, 1, 2] is [A, I', I'']
+///
+/// * k'_i and k''_i constant
+/// * k'_a = k'_a_overox + k'_a_ox0 * exp( - F * E/RT)
+/// * k'' = ...
+/// * k_loss (applying to A only) = k_loss_0 * exp( - F * E/2*RT)
+///
+/// Additional parameters:
+/// * scan rate
+/// * temperature of course
+///
+///
+/// function() is not thread-safe.
+class FeFeHighPotentialInactivation : 
+  public PerDatasetFit, public ODESolver {
+
+protected:
+
+  virtual void processOptions(const CommandOptions & opts)
+  {
+  }
+
+  
+  virtual QString optionsString() const {
+    return "";
+  }
+
+  /// Internal parameter storage
+  double kp_i, kpp_i;
+  double kp_a_overox, kpp_a_overox;
+  double kp_a_ox0, kpp_a_ox0;
+  double k_loss_0;
+  double scan_rate;
+  double fara;
+
+  double vertex_value;
+
+
+  void copyParameters(const double * params, const Vector&x) {
+    fara = GSL_CONST_MKSA_FARADAY 
+      /(params[0] * GSL_CONST_MKSA_MOLAR_GAS);
+
+    for(int i = 1; i <= 7; i++)
+      if(params[i] < 0)
+        throw RangeError(QString("Negative rate constant ratio: #%1").arg(i));
+    
+    kp_i = params[1];
+    kpp_i = params[2];
+    kp_a_overox = params[3];
+    kp_a_ox0 = params[4];
+    kpp_a_overox = params[5];
+    kpp_a_ox0 = params[6];
+    k_loss_0 = params[7];
+    scan_rate = params[8];
+    vertex_value = x.max();     // Enough ?  Don't try successive
+                                // scans, though ;-)...
+  };
+
+public:
+
+  virtual int dimension() const {
+    return 3;
+  };
+
+  virtual int computeDerivatives(double t, const double *y, double *dydt) {
+    const double e = vertex_value - fabs(t * scan_rate);
+
+    const double kloss = k_loss_0 * exp(fara * e * 0.5);
+    double kp_a = kp_a_overox + kp_a_ox0 * exp(-fara * e);
+    // We implement a cutoff for the activation rate constants
+    if(kp_a > 1e2)
+      kp_a = 1e2;
+    double kpp_a = kpp_a_overox + kpp_a_ox0 * exp(-fara * e);
+    if(kpp_a > 1e2)
+      kpp_a = 1e2;
+
+    dydt[0] = - y[0] * (kp_i + kpp_i + kloss) 
+      + y[1] * kp_a + y[2] * kpp_a;
+    dydt[1] = y[0] * kp_i - y[1] * kp_a;
+    dydt[2] = y[0] * kpp_i - y[2] * kpp_a;
+
+    // QTextStream o(stdout);
+    // o << "Potential " << e << "\n"
+    //   << "kp_a = " << kp_a << "\tkp_i = " << kp_i << "\n"
+    //   << "kpp_a = " << kpp_a << "\tkpp_i = " << kpp_i << endl;
+    
+    return GSL_SUCCESS;
+  };
+    
+
+
+  /// Formula:
+  virtual void function(const double * params, FitData * , 
+                        const DataSet * ds , gsl_vector * target) {
+
+    const Vector & xv = ds->x();
+    copyParameters(params, xv);
+
+    double mul = -1/scan_rate;
+    double t0 = mul * (vertex_value - xv[0]);
+    double init[3] = {1, 0, 0};
+    initialize(init, t0);
+    
+
+    for(int i = 0; i < xv.size(); i++) {
+      const double x = xv[i];
+      const double t = mul * (vertex_value - x);
+      if(t == 0)
+        mul *= -1;              // Switch at 0 !
+      stepTo(t);
+      gsl_vector_set(target, i, currentValues()[0]);
+    }
+  };
+
+  virtual void initialGuess(FitData * , 
+                            const DataSet * ds,
+                            double * a)
+  {
+    a[0] = soas().temperature();
+    a[1] = 2e-2; 
+    a[2] = 5e-2; 
+    a[3] = 1e-2; 
+    a[4] = 1;
+    a[5] = 1e-1;
+    a[6] = 1;
+    a[7] = 1e-4;
+    a[8] = 0.02;
+  };
+
+  virtual QList<ParameterDefinition> parameters() const {
+    QList<ParameterDefinition> defs;
+    defs << ParameterDefinition("temperature", true)
+         << ParameterDefinition("k'_i")
+         << ParameterDefinition("k''_i")
+         << ParameterDefinition("k'_a_overox") // params[3]
+         << ParameterDefinition("k'_a_ox0") 
+         << ParameterDefinition("k''_a_overox") // params[5]
+         << ParameterDefinition("k''_a_ox0") 
+         << ParameterDefinition("k_loss0") 
+         << ParameterDefinition("nu", true); 
+    return defs;
+  };
+
+
+  FeFeHighPotentialInactivation() :
+    PerDatasetFit("fefe-hp-inact", 
+                  "High potential inactivation of FeFe hydrogenases",
+                  "...", 1, -1, false) 
+  { 
+    ArgumentList * opts = new 
+      ArgumentList(QList<Argument *>()
+                   );
+    makeCommands(NULL, NULL, NULL, opts);
+  }
+};
+
+
+// DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
+// Its name doesn't matter.
+FeFeHighPotentialInactivation fit_fefe_inact;

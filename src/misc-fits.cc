@@ -755,6 +755,7 @@ protected:
   double k_loss_0;
   double scan_rate;
   double fara;
+  double overall_loss;
 
   double vertex_value;
 
@@ -774,7 +775,8 @@ protected:
     kpp_a_overox = params[5];
     kpp_a_ox0 = params[6];
     k_loss_0 = params[7];
-    scan_rate = params[8];
+    overall_loss = params[8];
+    scan_rate = params[9];
     vertex_value = x.max();     // Enough ?  Don't try successive
                                 // scans, though ;-)...
   };
@@ -797,10 +799,10 @@ public:
     if(kpp_a > 1e2)
       kpp_a = 1e2;
 
-    dydt[0] = - y[0] * (kp_i + kpp_i + kloss) 
+    dydt[0] = - y[0] * (kp_i + kpp_i + kloss + overall_loss) 
       + y[1] * kp_a + y[2] * kpp_a;
-    dydt[1] = y[0] * kp_i - y[1] * kp_a;
-    dydt[2] = y[0] * kpp_i - y[2] * kpp_a;
+    dydt[1] = y[0] * kp_i  - y[1] * (kp_a + overall_loss);
+    dydt[2] = y[0] * kpp_i - y[2] * (kpp_a + overall_loss);
 
     // QTextStream o(stdout);
     // o << "Potential " << e << "\n"
@@ -847,7 +849,8 @@ public:
     a[5] = 1e-1;
     a[6] = 1;
     a[7] = 1e-4;
-    a[8] = 0.02;
+    a[8] = 1e-4;
+    a[9] = 0.02;
   };
 
   virtual QList<ParameterDefinition> parameters() const {
@@ -860,6 +863,7 @@ public:
          << ParameterDefinition("k''_a_overox") // params[5]
          << ParameterDefinition("k''_a_ox0") 
          << ParameterDefinition("k_loss0") 
+         << ParameterDefinition("k_film") 
          << ParameterDefinition("nu", true); 
     return defs;
   };

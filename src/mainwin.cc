@@ -295,7 +295,7 @@ MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
     mainSplitter->restoreState(splitterState);
 
   // We load the icon
-  QIcon appIcon(":QSoas-logo.svg");
+  QIcon appIcon(":QSoas-logo.png");
   setWindowIcon(appIcon);
 
   Terminal::out << "This is QSoas version " << SOAS_VERSION 

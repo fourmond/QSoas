@@ -5,6 +5,8 @@
 # on.
 
 convert QSoas-logo.svg QSoas.ico
+rsvg-convert -w 256 -h 256 QSoas-logo.svg > QSoas-logo.png
+
 
 mkdir -p tmp-icons
 for res in 16 32 48 128 256 512; do

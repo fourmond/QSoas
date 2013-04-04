@@ -214,7 +214,8 @@ SOURCES += src/qmain.cc \
         src/eventhandler.cc \
         src/valuehash.cc \
         src/qsoasfitengine.cc \
-        src/curve-effectors.cc
+        src/curve-effectors.cc \
+        src/simplexfitengine.cc
 
 
 HEADERS += src/headers.hh \

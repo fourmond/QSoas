@@ -48,6 +48,9 @@ public:
 
 /// A simple wrapper class around parameters found after an iteration.
 class StoredParameters {
+
+  /// A view around the current parameters.
+  gsl_vector_view view;
 public:
 
   /// The parameters
@@ -59,6 +62,16 @@ public:
   StoredParameters() {;};
   StoredParameters(const Vector & v, double r) : 
     parameters(v), residuals(r) {;};
+  StoredParameters(const gsl_vector *, double r);
+
+  /// Compares on residuals
+  bool operator<(const StoredParameters & o) const {
+    return residuals < o.residuals;
+  };
+
+  /// Returns a gsl vector for the 
+  gsl_vector * toGSL();
+
 };
 
 

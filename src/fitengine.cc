@@ -1,6 +1,6 @@
 /*
   fitengine.cc: implementation of FitEngine and derived classes
-  Copyright 2012 by Vincent Fourmond
+  Copyright 2012, 2013 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,6 +27,18 @@ FitEngineFactoryItem::FitEngineFactoryItem(const QString & n,
 {
   FitEngine::registerFactoryItem(this);
 }
+
+
+//////////////////////////////////////////////////////////////////////
+
+StoredParameters::StoredParameters(const gsl_vector *v, double r) :
+  parameters(v->size, 0),
+  residuals(r)
+{
+  for(int i = 0; i < v->size; i++)
+    parameters[i] = gsl_vector_get(v, i);
+}
+
 
 //////////////////////////////////////////////////////////////////////
 

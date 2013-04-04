@@ -40,6 +40,10 @@ static SettingsValue<QString> logFileName("command/logfile",
 static SettingsValue<QStringList> startupFiles("command/startup-files",
                                                QStringList());
 
+
+static SettingsValue<QString> terminalFont("command/terminal-font",
+                                           "Courier");
+
 QStringList & CommandWidget::startupFiles()
 {
   return ::startupFiles.ref();
@@ -66,7 +70,11 @@ CommandWidget::CommandWidget() : watcherDevice(NULL)
           SLOT(onMenuRequested(const QPoint &)));
 
   // We use a monospace font !
-  terminalDisplay->setFont(QFont("monospace")); /// @todo customize settings
+  QFont mono(terminalFont);
+  QFontInfo m(mono);
+  QTextStream o(stdout);
+  o << "Font used for terminal display: " << m.family() << endl;
+  terminalDisplay->setFont(mono);
   // terminalDisplay->document()-> 
   //   setDefaultStyleSheet("p { white-space: pre; }");
   // Doesn't seem to have any effect...

@@ -46,10 +46,16 @@ FitParameterEditor::FitParameterEditor(const ParameterDefinition * d,
           SLOT(onValueChanged(const QString &)));
   layout->addWidget(editor);
 
+  
   QSize sz = editor->minimumSizeHint();
-  int minWidth = 6*sz.width(); // For some reason, this doesn't work at all for MacOS.
+
+
+  QFontMetrics metrics(editor->font());
+  int minWidth = metrics.width("1234567890");
+
   if(minWidth < 60)
     minWidth = 60;              // 60 = 10 * 6 =  6 digits ?
+
   sz.setWidth(minWidth);    
   editor->setMinimumSize(sz);
 

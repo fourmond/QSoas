@@ -59,7 +59,7 @@ public:
   /// The corresponding residuals
   double residuals;
 
-  StoredParameters() {;};
+  StoredParameters() : residuals(-1) {;};
   StoredParameters(const Vector & v, double r) : 
     parameters(v), residuals(r) {;};
   StoredParameters(const gsl_vector *, double r);

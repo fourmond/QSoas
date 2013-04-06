@@ -75,6 +75,11 @@ public:
   virtual double residuals() const;
 };
 
+void SimplexFitEngine::initialize(const double * initialGuess)
+{
+  // fitData->packParameters(initialGuess, parameters);
+}
+
 
 StoredParameters SimplexFitEngine::findNeighbourhood(const gsl_vector * orig,
                                                      const gsl_vector * target,
@@ -88,12 +93,12 @@ StoredParameters SimplexFitEngine::findNeighbourhood(const gsl_vector * orig,
   /// that?
   QVarLengthArray<double, 100> deltaVals;
   gsl_vector_view delta = gsl_vector_view_array(deltaVals.data(), 
-                                                orig->size());
+                                                orig->size);
   
   
   QVarLengthArray<double, 100> curVals;
-  gsl_vector_view cur = gsl_vector_view_array(cur.data(), 
-                                              orig->size());
+  gsl_vector_view cur = gsl_vector_view_array(curVals.data(), 
+                                              orig->size);
   gsl_vector_memcpy(&delta.vector, target);
   gsl_vector_sub(&delta.vector, orig);
   
@@ -103,13 +108,21 @@ StoredParameters SimplexFitEngine::findNeighbourhood(const gsl_vector * orig,
     gsl_blas_daxpy(factor, &delta.vector, &cur.vector);
 
     try {
-      
+      fitData->f(&cur.vector, func, true);
+      double res;
+      gsl_blas_ddot(func, func, &res);
+      return StoredParameters(&cur.vector, res);
     }
-    
+    catch(RuntimeError & e) {
+      // Try smaller
+      factor *= 0.5;
+    }
   }
 
+  throw RuntimeError("Could not find suitable step");
+
   // Never reached ?
-  return 
+  return StoredParameters(); 
 }
 
 // static FitEngine * simplexFE(FitData * d)

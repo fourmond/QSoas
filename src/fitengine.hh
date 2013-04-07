@@ -50,7 +50,7 @@ public:
 class StoredParameters {
 
   /// A view around the current parameters.
-  gsl_vector_view view;
+  mutable gsl_vector_view view;
 public:
 
   /// The parameters
@@ -70,7 +70,7 @@ public:
   };
 
   /// Returns a gsl vector for the 
-  gsl_vector * toGSL();
+  const gsl_vector * toGSLVector() const;
 
 };
 

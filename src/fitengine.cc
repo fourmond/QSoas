@@ -40,6 +40,15 @@ StoredParameters::StoredParameters(const gsl_vector *v, double r) :
 }
 
 
+const gsl_vector * StoredParameters::toGSLVector() const
+{
+  // Ugly, but as I can't stored a gsl_const_view...
+  view = gsl_vector_view_array(const_cast<double*>(parameters.data()), 
+                               parameters.size());
+  return &view.vector;
+}
+
+
 //////////////////////////////////////////////////////////////////////
 
 QHash<QString, FitEngineFactoryItem*> * FitEngine::factory = NULL;

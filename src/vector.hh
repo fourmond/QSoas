@@ -147,6 +147,14 @@ public:
   /// Returns a gsl_vector suitable to modify this Vector
   gsl_vector * toGSLVector();
 
+  operator gsl_vector *() {
+    return toGSLVector();
+  };
+
+  operator const gsl_vector *() const {
+    return toGSLVector();
+  };
+
   /// Returns a gsl_vector suitable to access this Vector
   const gsl_vector * toGSLVector() const;
 

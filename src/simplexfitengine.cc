@@ -22,6 +22,7 @@
 #include <fitengine.hh>
 #include <exceptions.hh>
 
+#include <utils.hh>
 
 /// A Nelder-Mead fit engine.
 ///
@@ -175,6 +176,16 @@ int SimplexFitEngine::iterate()
   gsl_vector_scale(&candidate.vector, alpha);
   gsl_vector_add(&candidate.vector, &center.vector);
 
+
+  // Idea: instead of antagonizing x_1 and x_n+1, it may be more
+  // clever to use a weighted barycenter to get both center and what
+  // currently is the x_n+1 point.
+  //
+  // Weight would be a non-linear function of the residuals linearly
+  // mapped to a [0,1] segment. (0 = x_1, 1 = x_n+1). (and the weight
+  // for the x_n+1 point would be the 1-complement of the weight for
+  // the barycenter)
+
   StoredParameters np = computeVertex(&candidate.vector);
 
   if(np < vertices[0]) {
@@ -191,7 +202,7 @@ int SimplexFitEngine::iterate()
       vertices[nb] = np;
     
   }
-  else if(vertices[nb-1] < np) {
+  else if(np < vertices[nb-1]) {
     vertices[nb] = np;
   }
   else {
@@ -200,7 +211,7 @@ int SimplexFitEngine::iterate()
       scale = -gamma;           // inside contraction
 
     gsl_vector_sub(&candidate.vector, &center.vector);
-    gsl_vector_scale(&candidate.vector, gamma);
+    gsl_vector_scale(&candidate.vector, scale);
     gsl_vector_add(&candidate.vector, &center.vector);
     StoredParameters np2 = computeVertex(&candidate.vector);
     if(np2 < np)

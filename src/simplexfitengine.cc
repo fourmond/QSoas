@@ -159,11 +159,9 @@ int SimplexFitEngine::iterate()
 
   /// @todo Maybe I should make a small class to have gsl_vectors
   /// allocated on the stack ?
-  QVarLengthArray<double, 100> p1(nb);
-  gsl_vector_view center = gsl_vector_view_array(p1.data(), nb); 
 
-  QVarLengthArray<double, 100> p2(nb);
-  gsl_vector_view candidate = gsl_vector_view_array(p2.data(), nb); 
+  Vector center(nb, 0);
+  Vector candidate(nb, 0);
 
   // QVarLengthArray<double, 100> p3(nb);
   // gsl_vector_view delta = gsl_vector_view_array(p3.data(), nb); 
@@ -172,18 +170,23 @@ int SimplexFitEngine::iterate()
   /// @todo all the the computeVertex functions should be replaced by
   /// appropriate versions with the findNeighbourhood() function.
 
-  gsl_vector_set_zero(&center.vector);
-  // First, compute the barycenter of the n best vertices.
-  for(int i = 0; i < nb; i++)
-    gsl_vector_add(&center.vector, vertices[i].toGSLVector());
+  gsl_vector_set_zero(center);
 
-  gsl_vector_scale(&center.vector, 1.0/nb);
+  double total = 0;
+  // First, compute the barycenter of the n best vertices.
+  for(int i = 0; i < nb; i++) {
+    /// @todo Use arbitrary weights
+    double f = 1;               // To change !
+    gsl_blas_daxpy(f, vertices[i].toGSLVector(), center);
+    total += f;
+  }
+  gsl_vector_scale(center, 1/total);
 
   // Reflection:
-  gsl_vector_memcpy(&candidate.vector, &center.vector);
-  gsl_vector_sub(&candidate.vector, vertices[nb].toGSLVector());
-  gsl_vector_scale(&candidate.vector, alpha);
-  gsl_vector_add(&candidate.vector, &center.vector);
+  gsl_vector_memcpy(candidate, center);
+  gsl_vector_sub(candidate, vertices[nb].toGSLVector());
+  gsl_vector_scale(candidate, alpha);
+  gsl_vector_add(candidate, center);
 
 
   // Idea: instead of antagonizing x_1 and x_n+1, it may be more
@@ -195,15 +198,17 @@ int SimplexFitEngine::iterate()
   // for the x_n+1 point would be the 1-complement of the weight for
   // the barycenter)
 
-  StoredParameters np = computeVertex(&candidate.vector);
+  // We assume implicitly that the barycenter is within the definition
+  // domain of the stuff.
+  StoredParameters np = findNeighbourhood(center, candidate);
 
   if(np < vertices[0]) {
     // Better than the best, do expansion
 
-    gsl_vector_sub(&candidate.vector, &center.vector);
-    gsl_vector_scale(&candidate.vector, beta);
-    gsl_vector_add(&candidate.vector, &center.vector);
-    StoredParameters np2 = computeVertex(&candidate.vector);
+    gsl_vector_sub(candidate, center);
+    gsl_vector_scale(candidate, beta);
+    gsl_vector_add(candidate, center);
+    StoredParameters np2 = findNeighbourhood(center, candidate);
 
     if(np2 < np)
       vertices[nb] = np2;
@@ -219,10 +224,10 @@ int SimplexFitEngine::iterate()
     if(vertices[nb] < np)
       scale = -gamma;           // inside contraction
 
-    gsl_vector_sub(&candidate.vector, &center.vector);
-    gsl_vector_scale(&candidate.vector, scale);
-    gsl_vector_add(&candidate.vector, &center.vector);
-    StoredParameters np2 = computeVertex(&candidate.vector);
+    gsl_vector_sub(candidate, center);
+    gsl_vector_scale(candidate, scale);
+    gsl_vector_add(candidate, center);
+    StoredParameters np2 = findNeighbourhood(center, candidate);
     if(np2 < np)
       vertices[nb] = np2;
     else {
@@ -230,12 +235,12 @@ int SimplexFitEngine::iterate()
 
       for(int i = 1; i <= nb; i++) {
 
-        gsl_vector_memcpy(&candidate.vector, vertices[i].toGSLVector());
-        gsl_vector_sub(&candidate.vector, vertices[0].toGSLVector());
-        gsl_vector_scale(&candidate.vector, delta);
-        gsl_vector_add(&candidate.vector, vertices[0].toGSLVector());
+        gsl_vector_memcpy(candidate, vertices[i].toGSLVector());
+        gsl_vector_sub(candidate, vertices[0].toGSLVector());
+        gsl_vector_scale(candidate, delta);
+        gsl_vector_add(candidate, vertices[0].toGSLVector());
         
-        vertices[i] = computeVertex(&candidate.vector);
+        vertices[i] = findNeighbourhood(center, candidate);
       }
     }
   }

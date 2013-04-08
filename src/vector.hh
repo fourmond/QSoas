@@ -25,6 +25,12 @@
 ///
 /// It is but a QVector of double with additional functionalities.
 class Vector : public QVector<double> {
+protected:
+
+  /// A private vector view. The mutable attribute is nice but not
+  /// necessary, as I'm const-casting anyway.
+  mutable gsl_vector_view view;
+  
 public:
 
   Vector() {;};
@@ -138,7 +144,14 @@ public:
   /// Returns a gsl_vector_view object suitable to represent this dataset.
   gsl_vector_const_view vectorView() const;
 
+  /// Returns a gsl_vector suitable to modify this Vector
+  gsl_vector * toGSLVector();
+
+  /// Returns a gsl_vector suitable to access this Vector
+  const gsl_vector * toGSLVector() const;
+
   /// Constructs from a GSL vector
+  /// @todo make a constructor ?
   static Vector fromGSLVector(const gsl_vector * vect);
   
   /// @}

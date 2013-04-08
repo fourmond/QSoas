@@ -299,6 +299,19 @@ gsl_vector_const_view Vector::vectorView() const
   return gsl_vector_const_view_array(data(),size());
 }
 
+gsl_vector * Vector::toGSLVector()
+{
+  view = vectorView();
+  return &view.vector;
+}
+
+const gsl_vector * Vector::toGSLVector() const
+{
+  return const_cast<Vector*>(this)->toGSLVector();
+}
+
+
+
 Vector Vector::fromGSLVector(const gsl_vector * vect)
 {
   Vector ret;

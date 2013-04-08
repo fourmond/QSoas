@@ -62,6 +62,15 @@ protected:
                                      const gsl_vector * target,
                                      double threshold = 1e-3);
 
+  /// Attemps to find a point in the given direction that is
+  /// valid. The point will be at most \a scale times \a direction
+  /// away from \a origin, and at least \a threshold times \a
+  /// direction.
+  StoredParameters findTowards(const gsl_vector * orig,
+                               const gsl_vector * direction,
+                               double threshold = 1e-3,
+                               double scale = 1);
+
 
   /// Computes the fits/residuals at the given location.
   StoredParameters computeVertex(const gsl_vector * pos);
@@ -260,30 +269,27 @@ StoredParameters SimplexFitEngine::findNeighbourhood(const gsl_vector * orig,
                                                      const gsl_vector * target,
                                                      double threshold)
 {
-  double factor = 1;
-  
-  // We need two vectors:
+  Vector delta(orig->size, 0);
+  gsl_vector_memcpy(delta, target);
+  gsl_vector_sub(delta, orig);
 
-  /// @question Should they be allocated on the heap ? No reason for
-  /// that?
-  QVarLengthArray<double, 100> deltaVals(orig->size);
-  gsl_vector_view delta = gsl_vector_view_array(deltaVals.data(), 
-                                                orig->size);
-  
-  
-  QVarLengthArray<double, 100> curVals(orig->size);
-  gsl_vector_view cur = gsl_vector_view_array(curVals.data(), 
-                                              orig->size);
-  gsl_vector_memcpy(&delta.vector, target);
-  gsl_vector_sub(&delta.vector, orig);
+  return findTowards(orig, delta, threshold, 1);
+}
+
+StoredParameters SimplexFitEngine::findTowards(const gsl_vector * orig,
+                                               const gsl_vector * direction,
+                                               double threshold,
+                                               double factor)
+{
+  Vector cur(orig->size, 0);
   
   while(factor >= threshold) {
     // Make a trial step
-    gsl_vector_memcpy(&cur.vector, orig);
-    gsl_blas_daxpy(factor, &delta.vector, &cur.vector);
+    gsl_vector_memcpy(cur, orig);
+    gsl_blas_daxpy(factor, direction, cur);
 
     try {
-      return computeVertex(&cur.vector);
+      return computeVertex(cur);
     }
     catch(RuntimeError & e) {
       // Try smaller

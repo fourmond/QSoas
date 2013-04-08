@@ -33,11 +33,18 @@ void OutFile::ensureOpened()
 {
   if(! output) {
     output = new QFile(name);
+    
     if(! output->open(QIODevice::ReadWrite | QIODevice::Text)) 
       Terminal::out << "Failed to open output file '" 
                     << name << "'" << endl;
     else
       output->seek(output->size());
+
+    fullFilePath = QDir::current().absoluteFilePath(name);
+
+    Terminal::out << "Opening output file '" 
+                  << fullFilePath << "'" << endl;
+
     internalStream = new QTextStream(output);
   }
   if(! internalStream)
@@ -63,3 +70,19 @@ void OutFile::writeValueHash(const ValueHash & hsh)
   (*this) << hsh.toString("\t", "x", true) << "\n" << flush;
 }
 
+bool OutFile::isOpened() const
+{
+  return internalStream && output;
+}
+
+void OutFile::setFileName(const QString & nn)
+{
+  if(internalStream && output) {
+    delete internalStream;
+    internalStream = NULL;
+    delete output;
+    output = NULL;
+    currentHeader = QString();  // else we lose the headers upon file change
+  }
+  name = nn;
+}

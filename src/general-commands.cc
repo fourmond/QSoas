@@ -1,6 +1,6 @@
 /**
    \file general-commands.cc various general purpose commands and groups
-   Copyright 2011 by Vincent Fourmond
+   Copyright 2011,2012,2013 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -41,6 +41,8 @@
 #include <debug.hh>
 #include <commandwidget.hh>
 #include <mainwin.hh>
+
+#include <outfile.hh>
 
 
 static Group file("file", 0,
@@ -439,6 +441,18 @@ static void cdCommand(const QString &, QString dir,
       arg(dir);
   previousDirectories.insert(0,prev);
   soas().mainWin().updateWindowName();
+
+
+  // Change the output file, if it is opened already
+  if(OutFile::out.isOpened()) {
+    QFileInfo inf(OutFile::out.fileName());
+    QString f = inf.fileName();
+    // Relative to current dir.
+    OutFile::out.setFileName(f);
+    Terminal::out << "Closing the previous output file at: '" << 
+      OutFile::out.filePath() << "'" << endl;
+  }
+
   Terminal::out << "Current directory now is: " << QDir::currentPath() 
                 << endl;
 }

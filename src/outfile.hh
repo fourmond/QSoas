@@ -36,6 +36,9 @@ class OutFile {
   /// The file name
   QString name;
 
+  /// The full file path
+  QString fullFilePath;
+
   /// The underlying file.
   QFile * output;
 
@@ -56,6 +59,11 @@ public:
     return name;
   };
 
+  /// Returns the file path
+  QString filePath() const {
+    return fullFilePath;
+  };
+
   /// Sets a header for the currently output data.
   void setHeader(const QString & head);
 
@@ -73,6 +81,9 @@ public:
 
 
   ~OutFile();
+
+  /// Whether the output file currently is opened or not.
+  bool isOpened() const;
 
   /// Writes a full ValueHash to the output file, making sure the
   /// headers are set correctly.

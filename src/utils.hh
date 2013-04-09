@@ -175,6 +175,11 @@ namespace Utils {
   /// Expands a leading ~ into the home directory of the user.
   QString expandTilde(const QString & name);
 
+
+  /// Shortens the string so that it has at most \a len characters,
+  /// out of which @a last are from the end.
+  QString shortenString(const QString & str, int len = 50, int last = 10);
+
 };
 
 #endif

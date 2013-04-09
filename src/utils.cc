@@ -377,3 +377,13 @@ QString Utils::expandTilde(const QString & name)
     return QDir::home().filePath(name.mid(2));
   return name;
 }
+
+QString Utils::shortenString(const QString & str, int len, int last)
+{
+  if(str.size() < len)
+    return str;
+  QString s = str.left(len - 3 - last);
+  s += "...";
+  s += str.right(last);
+  return s;
+}

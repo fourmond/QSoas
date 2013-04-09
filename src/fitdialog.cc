@@ -105,7 +105,7 @@ void FitDialog::setupFrame()
     
     stackedViews->addWidget(view);
     views << view;
-    bufferSelection->addItem(ds->name);
+    bufferSelection->addItem(Utils::shortenString(ds->name));
   }
   layout->addWidget(stackedViews, 1);
 

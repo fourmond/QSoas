@@ -78,6 +78,10 @@ private:
   QStringList extra;
 
 public:
+  /// The number of function evaluations since the last change of fit
+  /// engine.
+  int evaluationNumber;
+
   /// The fit in use
   Fit * fit;
 

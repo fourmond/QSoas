@@ -467,7 +467,8 @@ void FitDialog::startFit()
     trajectories.last().ending = FitTrajectory::Error;
     
   Terminal::out << "Fitting took an overall " << timer.elapsed() * 1e-3
-                << " seconds" << endl;
+                << " seconds, with " << data->evaluationNumber 
+                << " evaluations" << endl;
 
   parameters.writeToTerminal();
   compute();

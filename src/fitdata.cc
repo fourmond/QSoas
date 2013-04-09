@@ -37,6 +37,7 @@
 FitData::FitData(Fit * f, const QList<const DataSet *> & ds, bool d, 
                  const QStringList & ex) : 
   totalSize(0), covarStorage(NULL), engine(NULL), extra(ex),
+  evaluationNumber(0), 
   fit(f), debug(d), datasets(ds),
   parameterDefinitions(f->parameters()), nbIterations(0), storage(0)
 {
@@ -95,6 +96,7 @@ int FitData::f(const gsl_vector * x, gsl_vector * f, bool doSubtract)
   // First, compute the value in place
 
   fit->function(params.data(), this, f);
+  evaluationNumber++;
   // Then, subtract data.
   if(doSubtract)
     subtractData(f);
@@ -130,6 +132,7 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
   // First, compute the common value, and store it in... the storage
   // place.
   fit->function(unpackedParams.data(), this, storage);
+  evaluationNumber++;
 
   /// @todo This would greatly benefit from using multiple threads, if
   /// possible. The downside is of course that it would be a real pain
@@ -163,6 +166,7 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
 
     try {
       fit->function(unpackedParams.data(), this, &col.vector);
+      evaluationNumber++;
     }
     catch (const RuntimeError & e) {
       // If forward step fails, we try backwards...
@@ -175,6 +179,7 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
         dumpFitParameters(unpackedParams.data());
       }
       fit->function(unpackedParams.data(), this, &col.vector);
+      evaluationNumber++;
     }
 
     gsl_vector_sub(&col.vector, storage);
@@ -278,6 +283,7 @@ void FitData::initializeSolver(const double * initialGuess,
                                FitEngineFactoryItem * feit)
 {
   nbIterations = 0;
+  evaluationNumber = 0;
   freeSolver();
 
   initializeParameters();

@@ -454,6 +454,16 @@ DataSet * DataSet::merge(const DataSet * ds, bool naive,
   return nd;
 }
 
+DataSet * DataSet::contract(const DataSet * ds, bool naive, 
+                            bool useSteps) const
+{
+  DataSet * nd = applyBinaryOperation(this, ds, keep_second, 
+                                      "_cont_", naive, useSteps);
+  for(int i = 1; i < columns.size(); i++)
+    nd->columns.insert(i, columns[i]);
+  return nd;
+}
+
 
 
 

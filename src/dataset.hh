@@ -366,6 +366,10 @@ public:
   DataSet * merge(const DataSet * dataset, bool naive = false, 
                   bool useSteps = false) const;
 
+  /// Does the reverse of expand
+  DataSet * contract(const DataSet * dataset, bool naive = false, 
+                     bool useSteps = false) const;
+
   /// Returns the subset of the dataset contained either within the
   /// indices or outside of them
   DataSet * subset(int beg, int end, bool within = true) const;

@@ -756,6 +756,39 @@ mergec("merge", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+
+static void contractCommand(const QString &, QList<const DataSet *> a,
+                            DataSet * b, const CommandOptions & opts)
+{
+  bool naive = testOption<QString>(opts, "mode", "indices");
+  bool useSteps = false;
+  updateFromOptions(opts, "use-segments", useSteps);
+  
+  DataSet * cur = const_cast<DataSet *>(a[0]); // Yeah, well...
+  a << b;
+  for(int i = 1; i < a.size(); i++) {
+    const DataSet * ds = a[i];
+    DataSet * n = cur->contract(ds, naive, useSteps);
+    if(i> 1)
+      delete cur;               // May seem very inefficient, but
+                                // isn't thanks to shared data.
+    cur = n;
+  }
+  soas().pushDataSet(cur);
+}
+
+static Command 
+contractc("contract", // command name
+          effector(contractCommand), // action
+          "buffer",  // group name
+          &operationArgs, // arguments
+          &operationOpts, // options
+          "Group buffers on X values",
+          "Group buffers into a X,Y1,Y2",
+          "");
+
+//////////////////////////////////////////////////////////////////////
+
 static void avgCommand(const QString &, QList<const DataSet *> all,
                        const CommandOptions & opts)
 {

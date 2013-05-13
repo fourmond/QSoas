@@ -73,6 +73,20 @@ public:
 
   virtual ~PerDatasetFit();
 
+
+  /// Reimplementation that calls the computeSubFunctions()
+  /// virtual function.
+  virtual void computeSubFunctions(const double * parameters,
+                                   FitData * data, 
+                                   QList<Vector> * targetData,
+                                   QStringList * targetAnnotations);
+
+  virtual void computeSubFunctions(const double * parameters,
+                                   FitData * data, 
+                                   const DataSet * ds,
+                                   QList<Vector> * targetData,
+                                   QStringList * targetAnnotations);
+
 };
 
 /// This abstract class handles the very simple but also very common

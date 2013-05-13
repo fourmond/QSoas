@@ -289,3 +289,22 @@ QString Fit::annotateDataSet(int idx) const
 {
   return QString();
 }
+
+
+bool Fit::hasSubFunctions() const
+{
+  return false;
+}
+
+bool Fit::displaySubFunctions() const
+{
+  return true;
+}
+
+void Fit::computeSubFunctions(const double * parameters,
+                              FitData * data, 
+                              QList<Vector> * targetData,
+                              QStringList * targetAnnotations)
+{
+  throw InternalError("subfunctions are not implemented");
+}

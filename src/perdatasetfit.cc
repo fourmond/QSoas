@@ -78,6 +78,26 @@ int PerDatasetFit::parametersCheck(const double * parameters,
 }
 
 
+void PerDataSetFit::computeSubFunctions(const double * parameters,
+                                   FitData * data, 
+                                   QList<Vector> * targetData,
+                                   QStringList * targetAnnotations)
+{
+}
+
+void PerDataSetFit::computeSubFunctions(const double * parameters,
+                                        FitData * data, 
+                                        const DataSet * ds,
+                                        QList<Vector> * targetData,
+                                        QStringList * targetAnnotations)
+{
+  throw InternalError("subfunctions not implemented");
+}
+
+
+
+//////////////////////////////////////////////////////////////////////
+
 void FunctionFit::function(const double * parameters,
                            FitData * data, 
                            const DataSet * ds,
@@ -95,3 +115,4 @@ void FunctionFit::prepare(const double * /*parameters*/,
                           const DataSet * /*ds*/)
 {
 }
+

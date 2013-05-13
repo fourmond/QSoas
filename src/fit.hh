@@ -52,7 +52,7 @@ class ArgumentList;
 class CommandEffector;
 class FitData;
 class DataSet;
-
+class Vector;
 
 /// This abstract class defines the interface for handling fits.
 ///
@@ -222,6 +222,41 @@ public:
   void computeFit(const QString & name, QString file,
                   QList<const DataSet *> datasets,
                   const CommandOptions & opts);
+
+  /// @name Subfunctions-related functions
+  ///
+  /// For some fits, the fit function naturally splits into
+  /// subcomponents (mostly additive, but there's no reason to
+  /// restrict ourselves to only that). We can think of that for fit
+  /// for adsorbed species (ie display redox couples individually),
+  /// but there's many more potential applications.
+  ///
+  /// These are functions for advertising and handling that.
+  ///
+  /// @{
+
+  /// Whether or not the fit has subfunctions. Defaults to false.
+  virtual bool hasSubFunctions() const;
+
+  /// Whether or not to display the subfunctions by default when
+  /// hasSubFunctions() returns true. Defaults to true.
+  virtual bool displaySubFunctions() const;
+
+  /// Computes the subfunctions. This function places the results
+  /// inside the two target lists:
+  /// \li \a targetData receives the raw data for all datasets;
+  /// \li \a targetAnnotations receives a small text describing each of the
+  /// data vectors
+  ///
+  /// All other arguments as in function().
+  ///
+  /// Default implementation raises an exception.
+  virtual void computeSubFunctions(const double * parameters,
+                                   FitData * data, 
+                                   QList<Vector> * targetData,
+                                   QStringList * targetAnnotations);
+
+  /// @}
 };
 
 

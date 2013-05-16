@@ -78,14 +78,14 @@ int PerDatasetFit::parametersCheck(const double * parameters,
 }
 
 
-void PerDataSetFit::computeSubFunctions(const double * parameters,
+void PerDatasetFit::computeSubFunctions(const double * parameters,
                                    FitData * data, 
                                    QList<Vector> * targetData,
                                    QStringList * targetAnnotations)
 {
 }
 
-void PerDataSetFit::computeSubFunctions(const double * parameters,
+void PerDatasetFit::computeSubFunctions(const double * parameters,
                                         FitData * data, 
                                         const DataSet * ds,
                                         QList<Vector> * targetData,

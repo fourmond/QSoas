@@ -71,6 +71,49 @@ protected:
       arg(slowPhase ? "slow phase" : "no slow phase");
   }
 
+  /// This computes the same thing as function but in addition
+  /// computes the annotations should the annotations pointer be NULL.
+  void annotatedFunction(const double * a, FitData * data, 
+                         const DataSet * ds , gsl_vector * target,
+                         QList<Vector> * annotations = NULL)
+  {
+    const Vector & xv = ds->x();
+
+    // Checking that the time constants are positive.
+    /// @todo This check could optionnally be turned off.
+    for(int j = 0; j < exponentials; j++)
+      if(a[2*j + 2] < 0)
+        throw RangeError("Negative time constant !");
+
+    for(int i = 0; i < xv.size(); i++) {
+      double x = xv[i] - a[0];
+
+      double phases = 0;
+      double ph;
+      int fl_offset = 0;
+      for(int j = 0; j < exponentials; j++)  {
+        ph = a[2*j + 3] * exp(-x/a[2*j + 2]);
+        phases += ph;
+        if(annotations) {
+          if(! absolute)
+            ph *= a[1];
+          (*annotations)[j][i] = ph;
+        }
+      }
+      if(slowPhase) {
+        phases += a[2 * exponentials + 2] * x;
+        fl_offset += 1;
+      }
+      if(! absolute)
+        phases *= a[1];
+      phases += a[1];
+      // Most things done
+      if(filmLoss)
+        phases *= exp(-x * a[2 * exponentials + 2 + fl_offset]);
+      gsl_vector_set(target, i, phases);
+    }
+  };
+
 
 public:
 
@@ -103,36 +146,12 @@ public:
     return defs;
   };
 
+  
+
   virtual void function(const double * a, FitData * data, 
                         const DataSet * ds , gsl_vector * target)
   {
-    const Vector & xv = ds->x();
-
-    // Checking that the time constants are positive.
-    /// @todo This check could optionnally be turned off.
-    for(int j = 0; j < exponentials; j++)
-      if(a[2*j + 2] < 0)
-        throw RangeError("Negative time constant !");
-
-    for(int i = 0; i < xv.size(); i++) {
-      double x = xv[i] - a[0];
-
-      double phases = 0;
-      int fl_offset = 0;
-      for(int j = 0; j < exponentials; j++) 
-        phases += a[2*j + 3] * exp(-x/a[2*j + 2]);
-      if(slowPhase) {
-        phases += a[2 * exponentials + 2] * x;
-        fl_offset += 1;
-      }
-      if(! absolute)
-        phases *= a[1];
-      phases += a[1];
-      // Most things done
-      if(filmLoss)
-        phases *= exp(-x * a[2 * exponentials + 2 + fl_offset]);
-      gsl_vector_set(target, i, phases);
-    }
+    annotatedFunction(a, data, ds, target);
   };
 
   virtual void initialGuess(FitData * params, 

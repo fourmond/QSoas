@@ -110,7 +110,8 @@ protected:
       // Most things done
       if(filmLoss)
         phases *= exp(-x * a[2 * exponentials + 2 + fl_offset]);
-      gsl_vector_set(target, i, phases);
+      if(target)
+        gsl_vector_set(target, i, phases);
     }
   };
 
@@ -179,6 +180,26 @@ public:
       a[2 * exponentials + 2 + fl_off] = 0.03 / delta_x;
   };
 
+  virtual void computeSubFunctions(const double * parameters,
+                                   FitData * data, 
+                                   const DataSet * ds,
+                                   QList<Vector> * targetData,
+                                   QStringList * targetAnnotations)
+  {
+    targetData->clear();
+    targetAnnotations->clear();
+
+    int sz = ds->x().size();
+    for(int i = 0; i < exponentials; i++) {
+      (*targetData) << Vector(sz, 0);
+      *targetAnnotations << QString("Phase %1").arg(i+1);
+    }
+    
+    annotatedFunction(parameters, data, ds, NULL,
+                      targetData);
+  };
+
+
   ExponentialFit() :
     PerDatasetFit("exponential-decay", 
                   "Multi-exponential fits",
@@ -205,6 +226,8 @@ public:
                    );
     makeCommands(NULL, NULL, NULL, opts);
   };
+
+
 };
 
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!

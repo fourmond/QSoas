@@ -208,6 +208,18 @@ void FitParameters::recompute()
   fitData->fit->function(values, fitData, fitData->storage);
 }
 
+QList<Vector> FitParameters::computeSubFunctions()
+{
+  QList<Vector> ret;
+  if(! fitData->fit->hasSubFunctions())
+    return ret;
+  updateParameterValues();
+  QStringList str;
+  fitData->fit->computeSubFunctions(values, fitData, 
+                                    &ret, &str);
+  return ret;
+}
+
 void FitParameters::sendDataParameters()
 {
   fitData->parameters.clear();

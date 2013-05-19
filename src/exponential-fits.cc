@@ -1,7 +1,7 @@
 /**
    @file exponential-fits.cc
    Exponential-based fits.
-   Copyright 2011 by Vincent Fourmond
+   Copyright 2011, 2013 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -71,6 +71,10 @@ protected:
       arg(slowPhase ? "slow phase" : "no slow phase");
   }
 
+  virtual bool hasSubFunctions () const {
+    return exponentials > 1;
+  };
+
   /// This computes the same thing as function but in addition
   /// computes the annotations should the annotations pointer be NULL.
   void annotatedFunction(const double * a, FitData * data, 
@@ -97,7 +101,7 @@ protected:
         if(annotations) {
           if(! absolute)
             ph *= a[1];
-          (*annotations)[j][i] = ph;
+          (*annotations)[j][i] = ph + a[1];
         }
       }
       if(slowPhase) {

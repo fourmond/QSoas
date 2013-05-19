@@ -83,6 +83,24 @@ void PerDatasetFit::computeSubFunctions(const double * parameters,
                                    QList<Vector> * targetData,
                                    QStringList * targetAnnotations)
 {
+  targetData->clear();
+  for(int i = 0; i < data->datasets.size(); i++) {
+    if(! i)
+      computeSubFunctions(parameters, data, 
+                          data->datasets[i],
+                          targetData, targetAnnotations);
+    else {
+      QList<Vector> dt;
+      computeSubFunctions(parameters, data, 
+                          data->datasets[i],
+                          &dt, targetAnnotations);
+      if(dt.size() != targetData->size())
+        throw InternalError("Mismatched subfunctions number: %1 vs %2").
+          arg(dt.size()).arg(targetData->size());
+      for(int j = 0; j < targetData->size(); j++)
+        (targetData)[i] += dt[i];
+    }
+  }
 }
 
 void PerDatasetFit::computeSubFunctions(const double * parameters,

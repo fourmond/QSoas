@@ -31,10 +31,13 @@
 #include <soas.hh>
 #include <terminal.hh>
 
+#include <curveitems.hh>
+
 #include <actioncombo.hh>
 #include <vector.hh>
 
 #include <settings-templates.hh>
+#include <graphicssettings.hh>
 
 #include <flowinggridlayout.hh>
 #include <parametersdialog.hh>
@@ -50,6 +53,7 @@ FitDialog::FitDialog(FitData * d, bool displayWeights) :
   parameters(d),
   currentIndex(0),
   settingEditors(false), 
+  displaySubFunctions(false),
   progressReport(NULL),
   trajectoryDisplay(NULL),
   fitEngineFactory(NULL)
@@ -65,8 +69,11 @@ FitDialog::FitDialog(FitData * d, bool displayWeights) :
   setupFrame();
   setFitEngineFactory(FitEngine::defaultFactoryItem());
 
-  updateEditors();
+  
+  if(data->fit->hasSubFunctions())
+    displaySubFunctions = data->fit->displaySubFunctions();
 
+  updateEditors();
 }
 
 FitDialog::~FitDialog()
@@ -333,11 +340,43 @@ void FitDialog::dataSetChanged(int newds)
                         arg(bufferWeightEditor ? " weight: " : ""));
 }
 
+void FitDialog::setupSubFunctionCurves()
+{
+  
+  // Cleanup the storage
+  for(int i = 0; i < subFunctionCurves.size(); i++)
+    delete subFunctionCurves[i];
+  subFunctionCurves.clear();
+
+  if(! displaySubFunctions)
+    return;
+
+  QList<Vector> subFunctions = parameters.computeSubFunctions();
+
+  int base = 0;
+  const GraphicsSettings & gs = soas().graphicsSettings();
+
+  for(int i = 0; i < data->datasets.size(); i++) {
+    const DataSet * ds = data->datasets[i];
+    int sz = ds->x().size();
+    for(int j = 0; j < subFunctions.size(); j++) {
+      Vector subY = subFunctions[j].mid(base, sz);
+      CurveData * dt = new CurveData(ds->x(), subY);
+      dt->pen = gs.getPen(GraphicsSettings::ResultPen);
+
+      views[i]->addItem(dt);
+      subFunctionCurves << dt;
+    }
+    base += sz;
+  }
+    
+}
 
 void FitDialog::compute()
 {
   try {
     parameters.recompute();
+    setupSubFunctionCurves();
   }
   catch (const RuntimeError & re) {
     QString s = QString("An error occurred while computing: ") +

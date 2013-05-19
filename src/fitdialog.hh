@@ -70,6 +70,19 @@ class FitDialog : public QDialog {
   /// A flag to avoid updating twice...
   bool settingEditors;
 
+  /// Wheter we're showing subfunctions or not
+  bool displaySubFunctions;
+
+  /// A list of the curve data objects in current use.
+  ///
+  /// These should be cleared basically every time we setup the
+  /// curves.
+  QList<CurveData*> subFunctionCurves;
+
+  /// Setup the clearing and display of the subfunction curves. Does
+  /// nothing when the subfunction display is off.
+  void setupSubFunctionCurves();
+
   /// A small text display to report current progress
   QLabel * progressReport;
 

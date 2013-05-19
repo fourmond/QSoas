@@ -31,6 +31,8 @@ class FitEngineFactoryItem;
 
 class FitParametersFile;
 
+class CurveData;
+
 /// Holds parameters of a fit (possibly multi-buffer), the way the
 /// user edits them.
 ///
@@ -111,7 +113,7 @@ class FitParameters {
   /// Allocates and computes the covariance matrices.
   void computeMatrices();
 
-  /// Writes the text to the stream-like target (
+  /// Writes the text to the stream-like target
   template <typename T>  void writeText(T & target, 
                                         bool writeMatrix = false,
                                         const QString & prefix = "") const;
@@ -161,6 +163,10 @@ public:
 
   /// Recompute data stored in the storage vector of fitData
   void recompute();
+
+
+  /// Returns the computed subfunctions
+  QList<Vector> computeSubFunctions();
 
   /// Translates the current state into FitData parameters.
   void sendDataParameters();

@@ -251,6 +251,10 @@ public:
   /// All other arguments as in function().
   ///
   /// Default implementation raises an exception.
+  ///
+  /// @todo Having a single vector for the whole set of data is
+  /// cumbersome. It would probably be nice to have it available on a
+  /// per-dataset basis ? (but then it would mean chacheing ?)
   virtual void computeSubFunctions(const double * parameters,
                                    FitData * data, 
                                    QList<Vector> * targetData,

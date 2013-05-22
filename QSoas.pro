@@ -293,7 +293,8 @@ HEADERS += src/headers.hh \
         src/temporarychange.hh \
         src/eventhandler.hh \
         src/valuehash.hh \
-        src/curve-effectors.hh
+        src/curve-effectors.hh \
+        src/idioms.hh
 
 
 # We link with the converted ODRPACK library

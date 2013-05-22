@@ -959,14 +959,9 @@ static void statsOn(const DataSet * ds, bool output)
           << QString("%1_var").arg(n) << v
           << QString("%1_norm").arg(n) << c.norm();
 
-    if(i > 0) {
-      // Write integral
-      const Vector & x = ds->x();
-      double sum = 0;
-      for(int j = 1; j < c.size(); j++)
-        sum += (x[j] - x[j-1]) * 0.5 * (c[j] + c[j-1]);
-      stats << QString("%1_int").arg(n) << sum;
-    }
+    if(i > 0)                   // Integrate
+      stats << QString("%1_int").arg(n) << Vector::integrate(ds->x(), c);
+
     os.merge(stats);
     Terminal::out << "\n" << stats.prettyPrint();
   }

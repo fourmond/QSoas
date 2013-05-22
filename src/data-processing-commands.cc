@@ -1,7 +1,7 @@
 /**
    \file data-processing-commands.cc
    Commands to extract information from datasets
-   Copyright 2011 by Vincent Fourmond
+   Copyright 2011, 2013 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -50,6 +50,7 @@
 #include <fft.hh>
 
 #include <peaks.hh>
+#include <idioms.hh>
 
 //////////////////////////////////////////////////////////////////////
 
@@ -410,6 +411,14 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
   const DataSet * ds = soas().currentDataSet();
   const GraphicsSettings & gs = soas().graphicsSettings();
 
+  /// The charge computed in the previous call
+  /// @todo Make that more flexible ?
+  static double oldCharge = 0;
+  double charge = 0;
+  // Make sure the charge is updated whenever we go out of scope ?
+  DelayedAssign<double> chrg(oldCharge, charge);
+  
+
   CurveView & view = soas().view();
   CurveMarker m;
   CurvePanel bottom;
@@ -429,7 +438,7 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
 
   m.size = 4;
   m.pen = QPen(Qt::NoPen);
-  m.brush = QBrush(QColor(0,0,255,100)); ///@todo customize that too 
+  m.brush = QBrush(QColor(0,0,255,100)); /// @todo customize that too 
 
   Spline::Type type = Spline::CSpline;
 
@@ -479,6 +488,7 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
       case QEvent::KeyPress: 
         switch(loop.key()) {
         case Qt::Key_Escape:
+          chrg.cancel = true;
           return;
         case 'A':
         case 'a':
@@ -567,11 +577,18 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
                         ds->y() - d.yvalues :
                         ds->y());
       }
+
+      charge = Vector::integrate(ds->x(), diff.yvalues);
+      Terminal::out << "Charge: " << charge << " (old: " 
+                    << oldCharge << ")" << endl;
+
+      
       m.points = s.pointList();
       bottom.setYRange(diff.yvalues.min(), diff.yvalues.max(), 
                        view.mainPanel());
     }
   }
+  
 }
 
 static Command 

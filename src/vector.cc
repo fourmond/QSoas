@@ -475,3 +475,15 @@ double Vector::median() const
   qSort(v);
   return v[v.size()/2];
 }
+
+double Vector::integrate(const Vector & x, const Vector & y)
+{
+  int sz = y.size();
+  if(x.size() != sz)
+    throw RuntimeError("X and Y vectors must have same size (%1 vs %2)").
+      arg(x.size()).arg(sz);
+  double sum = 0;
+  for(int j = 1; j < y.size(); j++)
+    sum += (x[j] - x[j-1]) * 0.5 * (y[j] + y[j-1]);
+  return sum;
+}

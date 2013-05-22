@@ -188,6 +188,10 @@ public:
   /// @todo Write the same function with log transform ?
   /// With *any* Bijection, for that matter ?
   static Vector uniformlySpaced(double min, double max, int nb);
+
+
+  /// Integrates the given X,Y data into a single sum.
+  static double integrate(const Vector & x, const Vector & y);
 };
 
 #endif

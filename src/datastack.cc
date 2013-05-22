@@ -65,6 +65,17 @@ QList<const DataSet *> DataStack::allDataSets() const
   return ret;
 }
 
+QList<DataSet *> DataStack::markedDataSets(bool marked)
+{
+  QList<DataSet *> ret;
+  for(int i = -redoStack.size(); i < dataSets.size(); i++) {
+    DataSet * ds = numberedDataSet(i);
+    if(ds->marked == marked)
+      ret << ds;
+  }
+  return ret;
+}
+
 
 int DataStack::dsNumber2Index(int nb, const QList<DataSet *> ** target) const
 {

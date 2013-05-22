@@ -577,3 +577,59 @@ browseFiles("browse", // command name
             "Browse files",
             "Browse files",
             "W");
+
+//////////////////////////////////////////////////////////////////////
+
+static void markUnMark(const CommandOptions & opts, 
+                       bool marked = true)
+{
+  QList<const DataSet *> buffers;
+  if(opts.contains("buffers"))
+    buffers = opts["buffers"]->value<QList<const DataSet *> >();
+  else
+    buffers << soas().currentDataSet();
+
+  QTextStream o(stdout);
+  o << "Buffers: " << buffers.size() << endl;
+  for(int i = 0; i < buffers.size(); i++) {
+    
+    DataSet * ds = const_cast<DataSet *>(buffers[i]);
+    ds->marked = marked;
+  }
+}
+
+static void markDataSetsCommand(const QString &, const CommandOptions & opts)
+{
+  markUnMark(opts, true);
+}
+
+static ArgumentList 
+muOps(QList<Argument *>() 
+      << new SeveralDataSetArgument("buffers", 
+                                    "Buffers",
+                                    "Buffers to mark/unmark", true, true));
+
+
+static Command 
+mark("mark", // command name
+     effector(markDataSetsCommand), // action
+     "stack",  // group name
+     NULL, // arguments
+     &muOps, // options
+     "Mark datasets",
+     "Mark datasets", "M");
+
+
+static void unmarkDataSetsCommand(const QString &, const CommandOptions & opts)
+{
+  markUnMark(opts, false);
+}
+
+static Command 
+unmark("unmark", // command name
+     effector(unmarkDataSetsCommand), // action
+     "stack",  // group name
+     NULL, // arguments
+     &muOps, // options
+     "Unmark datasets",
+     "Unmark datasets", "U");

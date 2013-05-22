@@ -72,6 +72,9 @@ public:
   /// the stack.
   void showStackContents(int limit = 0,bool mostRecentFirst = true) const;
 
+  /// Returns the list of marked datasets
+  QList<DataSet *> markedDataSets(bool marked = true);
+
 
   /// Returns the numbered data set.
   /// \li 0 is the most recent

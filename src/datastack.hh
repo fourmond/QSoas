@@ -50,6 +50,14 @@ class DataStack : public QObject {
   friend QDataStream & operator<<(QDataStream & out, const DataStack & stack);
   friend QDataStream & operator>>(QDataStream & in, DataStack & stack);
 
+
+  /// The version of the current serialization load. Stored as a
+  /// negative number in the binary storage.
+  static qint32 serializationVersion;
+
+  friend QDataStream & operator<<(QDataStream & out, const DataSet & ds);
+  friend QDataStream & operator>>(QDataStream & in, DataSet & ds);
+
 public:
 
   /// Constructs a DataStack object.

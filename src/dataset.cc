@@ -37,6 +37,8 @@
 #include <soas.hh>
 #include <commandwidget.hh>
 
+#include <datastack.hh>
+
 void DataSet::dump() const
 {
   QTextStream o(stdout);
@@ -1108,6 +1110,9 @@ QDataStream & operator<<(QDataStream & out, const DataSet & ds)
   out << ds.name;
   out << ds.segments;
   out << ds.metaData;
+
+  // For version 1 onwards
+  out << ds.marked;
   return out;
 }
 
@@ -1128,5 +1133,9 @@ QDataStream & operator>>(QDataStream & in, DataSet & ds)
   in >> ds.segments;
 
   in >> ds.metaData;
+
+  if(DataStack::serializationVersion >= 1)
+    in >> ds.marked;
+
   return in;
 }

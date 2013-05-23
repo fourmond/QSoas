@@ -186,7 +186,10 @@ void DataStack::dropDataSet(const DataSet * ds)
     dropDataSet(idx);
 }
 
+qint32 DataStack::serializationVersion = 0;
+
 //////////////////////////////////////////////////////////////////////
+
 
 /// @todo It may be possible to implement data serialization
 /// versioning, ie being a little more tolerant about data persistence:
@@ -194,8 +197,17 @@ void DataStack::dropDataSet(const DataSet * ds)
 /// means to carry use attribues
 /// @li it would probably be good too to write out the QDataStream
 /// version
+
+
+
+#define MAGIC 0xFF342210
+
 QDataStream & operator<<(QDataStream & out, const DataStack & stack)
 {
+  qint32 v = -1;                // Current version
+  out << v;
+  v = MAGIC;
+  out << v;
   qint32 nbDs = stack.dataSets.size();
   out << nbDs;
   for(qint32 i = 0; i < nbDs; i++)
@@ -208,10 +220,23 @@ QDataStream & operator<<(QDataStream & out, const DataStack & stack)
   return out;
 }
 
+
 QDataStream & operator>>(QDataStream & in, DataStack & stack)
 {
   qint32 nbDs;
   in >> nbDs;
+
+  // Versioning !
+  if(nbDs >= 0)
+    DataStack::serializationVersion = 0;
+  else {
+    DataStack::serializationVersion = -nbDs;
+    in >> nbDs;
+    if(nbDs != MAGIC)
+      throw RuntimeError("Bad signature for stack file, aborting");
+    in >> nbDs;
+  }
+
   stack.dataSets.clear();
   for(qint32 i = 0; i < nbDs; i++) {
     DataSet * ds = new DataSet;

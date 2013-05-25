@@ -214,6 +214,10 @@ protected slots:
   /// Edit all parameters in a dialog box
   void editParameters();
 
+
+  /// Toggle the display of sub components when applicable
+  void toggleSubFunctions();
+
   /// Assign equal weights to all buffers, ie compensate for the
   /// inevitable inequalities arising from difference in intensity and
   /// point numbers.

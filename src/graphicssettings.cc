@@ -91,10 +91,14 @@ static const char * colors[] =
 static int nbColors = sizeof(colors)/sizeof(colors[0]);
 
 /// @todo Customize + make the defaults a little nicer ;-)...
-QPen GraphicsSettings::dataSetPen(int nb) const
+QPen GraphicsSettings::dataSetPen(int nb, bool alternative) const
 {
-  return QPen(QColor(colors[nb % nbColors]), 
-              1.3 * baseLineWidth);
+  QPen a(QColor(colors[nb % nbColors]), 
+         1.3 * baseLineWidth);
+  if(alternative)
+    a.setStyle(Qt::DashLine);
+  //    a.setDashPattern(QVector<qreal>() << 15 << 7 << 10 << 7); // 
+  return a;
 }
 
 // Settings-related commands:
@@ -102,7 +106,7 @@ QPen GraphicsSettings::dataSetPen(int nb) const
 //////////////////////////////////////////////////////////////////////
 
 void graphicsSettingsCommand(const QString &, 
-                                    const CommandOptions & opts)
+                             const CommandOptions & opts)
 {
   GraphicsSettings & gs = soas().graphicsSettings();
   if(opts.size() == 0) {
@@ -111,7 +115,7 @@ void graphicsSettingsCommand(const QString &,
     return;
   }
 
-  // @todo Make a template function for that !
+  /// @todo Make a template function for that !
   double lw = gs.baseLineWidth;
   updateFromOptions(opts, "line-width", lw);
   if(lw != gs.baseLineWidth) {

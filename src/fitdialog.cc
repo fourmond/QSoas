@@ -215,6 +215,9 @@ void FitDialog::setupFrame()
   ac->addAction("Push all to stack", this, SLOT(pushSimulatedCurves()));
   ac->addAction("Push current to stack", this, SLOT(pushCurrentCurve()));
   ac->addAction("Save all", this, SLOT(saveSimulatedCurves()));
+  if(data->fit->hasSubFunctions())
+    ac->addAction("Toggle subfunctions display", this, 
+                  SLOT(toggleSubFunctions()));
   hb->addWidget(ac);
   
   ac = new ActionCombo(tr("Parameters..."));
@@ -362,7 +365,7 @@ void FitDialog::setupSubFunctionCurves()
     for(int j = 0; j < subFunctions.size(); j++) {
       Vector subY = subFunctions[j].mid(base, sz);
       CurveData * dt = new CurveData(ds->x(), subY);
-      dt->pen = gs.getPen(GraphicsSettings::ResultPen);
+      dt->pen = gs.dataSetPen(j+2, true);
 
       views[i]->addItem(dt);
       subFunctionCurves << dt;
@@ -797,3 +800,12 @@ void FitDialog::engineSelected(int id)
 {
   setFitEngineFactory(fitEngineSelection->itemData(id).toString());
 }
+
+void FitDialog::toggleSubFunctions()
+{
+  if(data->fit->hasSubFunctions()) {
+    displaySubFunctions = ! displaySubFunctions;
+    compute();                  // update display
+  }
+}
+

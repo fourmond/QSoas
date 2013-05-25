@@ -85,8 +85,11 @@ public:
   /// @todo Implement variants in terms of color.
   QPen getPen(PenRoles role) const;
 
-  /// Returns a pen suitable for the n-th dataset
-  QPen dataSetPen(int n) const;
+  /// Returns a pen suitable for the n-th dataset.
+  ///
+  /// If alternative is true, then returns a somehow modified pen
+  /// (possibly for sub-components ?)
+  QPen dataSetPen(int n, bool alternative = false) const;
 
 };
 

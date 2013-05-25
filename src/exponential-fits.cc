@@ -75,6 +75,10 @@ protected:
     return exponentials > 1;
   };
 
+  virtual bool displaySubFunctions () const {
+    return false;               // Don't display them by default ?
+  };
+
   /// This computes the same thing as function but in addition
   /// computes the annotations should the annotations pointer be NULL.
   void annotatedFunction(const double * a, FitData * data, 

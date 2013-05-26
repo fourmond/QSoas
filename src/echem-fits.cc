@@ -31,7 +31,12 @@
 
 #include <gsl/gsl_const_mksa.h>
 
-/// Fit for a full nerstian system.
+/// Fit for a full nerstian single system.
+///
+/// @todo Extend that fit -- or write another one -- for the
+/// superposition of various independant species ?
+///
+/// I actually need to really think about that...
 class NernstFit : public FunctionFit {
 
   /// The number of species
@@ -149,3 +154,119 @@ public:
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
 // Its name doesn't matter.
 NernstFit fit_nernst;
+
+//////////////////////////////////////////////////////////////////////
+
+
+/// Fit to any number of 'ideal' adsorbed species.
+class AdsorbedFit : public PerDatasetFit {
+
+  /// The number of species
+  int number;
+
+protected:
+
+  virtual void processOptions(const CommandOptions & opts)
+  {
+    number = 2;
+    updateFromOptions(opts, "species", number);
+
+  }
+
+  
+  virtual QString optionsString() const {
+    return QString("%1 species").
+      arg(number);
+  }
+
+
+public:
+
+  /// Numbering: 0 is the most reduced species.
+  virtual QList<ParameterDefinition> parameters() const {
+    QList<ParameterDefinition> defs;
+
+    defs << ParameterDefinition("temperature", true);
+    
+    // amplitudes
+    for(int i = 0; i < number; i++) {
+      defs << ParameterDefinition(QString("i_%1").arg(i));
+      defs << ParameterDefinition(QString("E_%1").arg(i));
+      defs << ParameterDefinition(QString("n_%1").arg(i), true);
+    }
+    return defs;
+  };
+
+  virtual bool hasSubFunctions () const {
+    return number > 1;
+  };
+
+  virtual bool displaySubFunctions () const {
+    return true;               
+  };
+
+
+  virtual double function(const double * a, 
+                          FitData * , double x) {
+    double rel = 1;             // Relative amount of species
+    double numer = 0;           // Sum for the numerator
+    double denom = 0;           // Sum for the denominator
+
+
+    double fara = GSL_CONST_MKSA_FARADAY /
+      (a[0] * GSL_CONST_MKSA_MOLAR_GAS);
+
+    const double * ampl = a+1;
+    const double * couples = ampl + number;
+
+    for(int i = 0; i < number; i++) {
+      if(i > 0) {
+        rel *= exp( fara * couples[1] * (x - couples[0]));
+        couples += 2;
+      }
+      denom += rel;
+      numer += *ampl * rel;
+      ++ampl;
+    }
+    return numer/denom;
+  };
+
+  virtual void initialGuess(FitData * params, 
+                            const DataSet *ds,
+                            double * a)
+  {
+    double *t = a-1;
+    *(++t) = soas().temperature();
+    const double ymin = ds->y().min();
+    const double ymax = ds->y().max();
+    for(int i = 0; i < number; i++)
+      *(++t) = ymin + i *(ymax - ymin)/(number-1);
+    
+    // Now transitions
+    const double xmin = ds->x().min();
+    const double xmax = ds->x().max();
+    for(int i = 0; i < number-1; i++) {
+      *(++t) = xmin + (i+0.5) *(xmax - xmin)/(number-1);
+      *(++t) = 1;
+    }
+  };
+  
+  
+  AdsorbedFit() : PerDatasetFit("adsorbed", 
+                                "Ideal adsorbed species",
+                                "Ideal adsorbed species", 1, -1, false) 
+  { 
+    ArgumentList * opts = new 
+      ArgumentList(QList<Argument *>()
+                   << new IntegerArgument("species", 
+                                          "Number of species",
+                                          "Overall number of species")
+                   );
+    makeCommands(NULL, NULL, NULL, opts);
+
+  };
+};
+
+// DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
+// Its name doesn't matter.
+AdsorbedFit fit_adsorbed;

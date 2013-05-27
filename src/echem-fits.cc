@@ -1,7 +1,7 @@
 /**
    @file echem-fits.cc
    Fits related to electrochemistry
-   Copyright 2011, 2012 by Vincent Fourmond
+   Copyright 2011, 2012, 2013 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -168,7 +168,7 @@ protected:
 
   virtual void processOptions(const CommandOptions & opts)
   {
-    number = 2;
+    number = 1;
     updateFromOptions(opts, "species", number);
 
   }
@@ -179,6 +179,41 @@ protected:
       arg(number);
   }
 
+  /// This computes the same thing as function but in addition
+  /// computes the annotations should the annotations pointer be NULL.
+  void annotatedFunction(const double * a, FitData * data, 
+                         const DataSet * ds , gsl_vector * target,
+                         QList<Vector> * annotations = NULL)
+  {
+    const Vector & xv = ds->x();
+
+    // We look at the sign of the first
+    double sign = (xv[0] > xv[1] ? -1 : 1);
+
+    double fara = GSL_CONST_MKSA_FARADAY /
+      (a[0] * GSL_CONST_MKSA_MOLAR_GAS);
+    const double & scan_rate = a[1];
+
+    for(int i = 0; i < xv.size(); i++) {
+      double x = xv[i];
+
+      double cur = 0;
+      for(int j = 0; j < number; j++) {
+        // Assignments for readability, I hope they're optimized out.
+        const double & gamma = a[j*3 + 2];
+        const double & e0 = a[j*3 + 3];
+        const double & n = a[j*3 + 4];
+        double e = exp(fara * n * (xv[i] - e0));
+        double spec = scan_rate * n * n * GSL_CONST_MKSA_FARADAY * 
+          fara * gamma * e/(1 + e*e) * sign;
+        if(annotations)
+          (*annotations)[j][i] = spec;
+        cur += spec;
+      }
+      if(target)
+        gsl_vector_set(target, i, cur);
+    }
+  };
 
 public:
 
@@ -187,10 +222,14 @@ public:
     QList<ParameterDefinition> defs;
 
     defs << ParameterDefinition("temperature", true);
+
+    // We use the scan rate to determine the electroactive coverage
+    defs << ParameterDefinition("nu", true);
     
     // amplitudes
     for(int i = 0; i < number; i++) {
-      defs << ParameterDefinition(QString("i_%1").arg(i));
+      // We use electroactive coverage, that's what we want !
+      defs << ParameterDefinition(QString("Gamma_%1").arg(i));
       defs << ParameterDefinition(QString("E_%1").arg(i));
       defs << ParameterDefinition(QString("n_%1").arg(i), true);
     }
@@ -205,31 +244,33 @@ public:
     return true;               
   };
 
+  
 
-  virtual double function(const double * a, 
-                          FitData * , double x) {
-    double rel = 1;             // Relative amount of species
-    double numer = 0;           // Sum for the numerator
-    double denom = 0;           // Sum for the denominator
-
-
-    double fara = GSL_CONST_MKSA_FARADAY /
-      (a[0] * GSL_CONST_MKSA_MOLAR_GAS);
-
-    const double * ampl = a+1;
-    const double * couples = ampl + number;
-
-    for(int i = 0; i < number; i++) {
-      if(i > 0) {
-        rel *= exp( fara * couples[1] * (x - couples[0]));
-        couples += 2;
-      }
-      denom += rel;
-      numer += *ampl * rel;
-      ++ampl;
-    }
-    return numer/denom;
+  virtual void function(const double * a, FitData * data, 
+                        const DataSet * ds , gsl_vector * target)
+  {
+    annotatedFunction(a, data, ds, target);
   };
+
+  virtual void computeSubFunctions(const double * parameters,
+                                   FitData * data, 
+                                   const DataSet * ds,
+                                   QList<Vector> * targetData,
+                                   QStringList * targetAnnotations)
+  {
+    targetData->clear();
+    targetAnnotations->clear();
+
+    int sz = ds->x().size();
+    for(int i = 0; i < number; i++) {
+      (*targetData) << Vector(sz, 0);
+      *targetAnnotations << QString("Species %1").arg(i+1);
+    }
+    
+    annotatedFunction(parameters, data, ds, NULL,
+                      targetData);
+  };
+
 
   virtual void initialGuess(FitData * params, 
                             const DataSet *ds,
@@ -237,16 +278,14 @@ public:
   {
     double *t = a-1;
     *(++t) = soas().temperature();
-    const double ymin = ds->y().min();
-    const double ymax = ds->y().max();
-    for(int i = 0; i < number; i++)
-      *(++t) = ymin + i *(ymax - ymin)/(number-1);
-    
-    // Now transitions
+    *(++t) = 0.1;               // default scan rate
+
     const double xmin = ds->x().min();
     const double xmax = ds->x().max();
-    for(int i = 0; i < number-1; i++) {
-      *(++t) = xmin + (i+0.5) *(xmax - xmin)/(number-1);
+
+    for(int i = 0; i < number; i++) {
+      *(++t) = 1e-11;           // gamma
+      *(++t) = xmin + (i+0.5) *(xmax - xmin)/(number);
       *(++t) = 1;
     }
   };
@@ -256,6 +295,7 @@ public:
                                 "Ideal adsorbed species",
                                 "Ideal adsorbed species", 1, -1, false) 
   { 
+    number = 1;
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new IntegerArgument("species", 

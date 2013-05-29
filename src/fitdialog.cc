@@ -693,9 +693,17 @@ void FitDialog::resetThisToInitialGuess()
 
 void FitDialog::saveAllPDF()
 {
+  QString fileName = 
+    QFileDialog::getSaveFileName(this, tr("Save as"),
+                                 QString(),
+                                 tr("Documents (*.pdf *.ps)"));
+  if(fileName.isEmpty())
+    return;
+
   QPrinter p;
   p.setOrientation(QPrinter::Landscape);
-  p.setOutputFileName("fits.pdf");
+  
+  p.setOutputFileName(fileName);
   CurveView::nupPrint(&p, views, 3, 2);
 }
 

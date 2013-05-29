@@ -1236,11 +1236,11 @@ static void setSegmentsCommand(CurveEventLoop &loop, const QString &)
   QList<int> savedSegments = ds->segments;
   CurveView & view = soas().view();
 
-  loop.setHelpString(QObject::tr("Set segments:\n"
-                                 "left click: place delimiter\n"
-                                 "right click: remove closest delimiter\n"
-                                 "q, mid: accept\n"
-                                 "ESC: abort (TODO!)"));
+  loop.setHelpString("Set segments:\n"
+                     "left click: place delimiter\n"
+                     "right click: remove closest delimiter\n"
+                     "q, mid: accept\n"
+                     "ESC: abort\n");
   do {
     if(loop.isConventionalAccept()) {
       if(ds->segments != savedSegments) {
@@ -1257,31 +1257,63 @@ static void setSegmentsCommand(CurveEventLoop &loop, const QString &)
     case QEvent::MouseButtonPress: {
       QPair<double, int> dst = loop.distanceToDataSet(ds);
       int idx = dst.second;
+      const Vector & xv = ds->x();
+
+      // Now, we refine the actual position so that the index is just
+      // next to the x value.
+
+
+      // Refine upwards/downwards
+      double tg_x = loop.position().x();
+      for(int j = 0; j < xv.size(); j++) {
+        
+        // First try up:
+        double xl = xv.value(idx + j, xv.last());
+        double xr = xv.value(idx + j + 1, xv.last());
+        if(xl > xr)
+          std::swap(xl,xr);
+        if(xl <= tg_x && 
+           tg_x <= xr) {
+          idx = idx + j + 1;
+          break;
+        }
+
+        // Same thing down
+        xl = xv.value(idx - j - 1, xv.last());
+        xr = xv.value(idx - j, xv.last());
+        if(xl > xr)
+          std::swap(xl,xr);
+        if(xl <= tg_x && 
+           tg_x <= xr) {
+          idx = idx - j;
+          break;
+        }
+      } // Should alway reach something fast.
+
       if(loop.button() == Qt::RightButton) { // Remove 
-        if(ds->segments.size() == 0)
-          break;
-        if(idx < ds->segments.first()) {
+        if(ds->segments.size() == 0);
+        else if(idx <= ds->segments.first()) {
           ds->segments.takeFirst();
-          break;
         }
-        if(idx > ds->segments.last()) {
+        else if(idx >= ds->segments.last()) {
           ds->segments.takeLast();
-          break;
         }
-        double xv = loop.position().x();
-        for(int i = 1; i < ds->segments.size() - 1; i++) {
-          if(ds->segments[i] <= idx && ds->segments[i+1] >= idx) {
-            // We're in !
-            if(((xv - ds->x()[ds->segments[i]]) < 
-                (ds->x()[ds->segments[i+1]]) - xv))
-              ds->segments.takeAt(i);
-            else
-              ds->segments.takeAt(i+1);
-            break;
+        else {
+          double xv = loop.position().x();
+          for(int i = 0; i < ds->segments.size() - 1; i++) {
+            if(ds->segments[i] <= idx && ds->segments[i+1] >= idx) {
+              // We're in !
+              if(fabs(xv - ds->x()[ds->segments[i]]) <
+                 fabs(ds->x()[ds->segments[i+1]] - xv))
+                ds->segments.takeAt(i);
+              else
+                ds->segments.takeAt(i+1);
+              break;
+            }
           }
         }
       }
-      if(loop.button() == Qt::LeftButton) { // Add
+      else if(loop.button() == Qt::LeftButton) { // Add
         int target = 0;
         for(int i = 0; i <= ds->segments.size(); i++) {
           target = i;
@@ -1295,7 +1327,7 @@ static void setSegmentsCommand(CurveEventLoop &loop, const QString &)
       for(int i = 0; i < ds->segments.size(); i++)
         Terminal::out << "Segment change #" << i << " @" << ds->segments[i] 
                       << "\t X= " << ds->x()[ds->segments[i]] <<endl;
-        
+      
       break;
     }
     case QEvent::KeyPress: 

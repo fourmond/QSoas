@@ -1808,3 +1808,84 @@ ac("auto-correlation", // command name
    NULL, // options
    "Auto-correlation",
    "Computes the auto-correlation function", "", "ac");
+
+
+//////////////////////////////////////////////////////////////////////
+
+
+/// Decomposition into singular values.
+/// 
+/// This function decomposes a given dataset containing more than 1 Y
+/// column into singular values, applying a threshold when applicable.
+///
+/// When fully-functional (ie not only displaying the singular
+/// values), this command generates two datasets:
+/// \li the "components" dataset, that has the same X values as the original
+/// one
+/// \li the "amplitudes" dataset, that has as many rows as there are Y
+/// columns initially (would be the time amplitude if the original dataset
+/// are spectra recorded at different times)
+static void svCommand(const QString &,
+                      const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+
+  int nbrows = ds->nbRows();
+  int nbcols = ds->nbColumns() - 1;
+  if(nbcols < 2)
+    throw RuntimeError("Need more than 1 Y columns !");
+  gsl_matrix * data = gsl_matrix_alloc(nbrows, nbcols);
+
+  // Now, populate the matrix
+  for(int i = 0; i < nbcols; i++) {
+    gsl_vector_view col = gsl_matrix_column(data, i);
+    gsl_vector_memcpy(&col.vector, ds->column(i+1).toGSLVector());
+  }
+
+  Terminal::out << "Preparing matrices of " << nbcols << "x" << nbrows << endl;
+
+  gsl_matrix * amplitudes = gsl_matrix_alloc(nbcols, nbcols);
+  gsl_vector * values = gsl_vector_alloc(nbcols);
+  gsl_vector * work = gsl_vector_alloc(nbcols);
+
+  gsl_linalg_SV_decomp(data, amplitudes, values, work);
+
+  // Now, we show the values:
+  Terminal::out << "Singular values: ";
+  for(int i = 0; i < nbcols; i++) 
+    Terminal::out << gsl_vector_get(values, i) << " ";
+  Terminal::out << "Condition number: " 
+                << gsl_vector_get(values, 0)/
+    gsl_vector_get(values, nbcols - 1) << endl;
+
+
+  // And we must do something with that now !
+    
+
+
+  
+
+  // Cleanup !
+  gsl_matrix_free(amplitudes);
+  gsl_matrix_free(data);
+  gsl_vector_free(values);
+  gsl_vector_free(work);
+}
+
+
+static ArgumentList 
+svOpts(QList<Argument *>() 
+       << new BoolArgument("display-only", 
+                           "Display only",
+                           "When on, do not create datasets, "
+                           "only show the values")
+       );
+
+static Command 
+svc("sv-decomp", // command name
+    effector(svCommand), // action
+    "buffer",  // group name
+    NULL, // arguments
+    &svOpts, // options
+    "SV decomposition",
+    "Singular value decomposition");

@@ -1,6 +1,6 @@
 /**
    \file dataset-commands.cc commands for tweaking datasets
-   Copyright 2011, 2012 by Vincent Fourmond
+   Copyright 2011, 2012, 2013 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -43,6 +43,8 @@
 #include <eventhandler.hh>
 
 #include <valuehash.hh>
+
+#include <datastack.hh>
 
 
 static Group grp("buffer", 2,
@@ -182,9 +184,12 @@ static void expandCommand(const QString &)
     QList<Vector> cols;
     cols << ds->x();
     cols << ds->column(i);
-    soas().
-      pushDataSet(ds->derivedDataSet(cols,
-                                     QString("_col_%1.dat").arg(i+1) ));
+    DataSet * s = ds->derivedDataSet(cols, QString("_col_%1.dat").arg(i+1));
+    soas().stack().pushDataSet(s, true);
+    if(i > 1)
+      soas().view().addDataSet(s);
+    else
+      soas().view().showDataSet(s);
   }
 }
 

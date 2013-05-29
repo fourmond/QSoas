@@ -63,6 +63,12 @@ public:
     SplineTypes
   } Type;
 
+  /// Cycles to the next spline type, wrapping back to initial if necessary
+  static Type nextType(Type type);
+
+  /// Returns a name suitable to describe the current spline type
+  static QString typeName(Type type);
+
   /// Computes the values for the given X vector.
   ///
   /// Returns an empty vector if there wasn't enough points to compute

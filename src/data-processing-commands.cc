@@ -391,7 +391,7 @@ namespace __bl {
 typedef enum {
   AddPoint,
   RemovePoint,
-  ChangeType,
+  CycleSplineType,
   Add10Left,
   Add10Right,
   ClearAll,
@@ -403,6 +403,21 @@ typedef enum {
 } BaselineActions;
 
 static EventHandler baselineHandler = EventHandler("baseline").
+  addClick(Qt::LeftButton, AddPoint, "place marker").
+  addClick(Qt::RightButton, RemovePoint, "remove marker").
+  addKey('q', Subtract, "subtract baseline").
+  alsoKey('Q').
+  alsoClick(Qt::MiddleButton).
+  addKey('v', Divide, "divide by baseline").
+  alsoKey('V').
+  addKey('u', Replace, "replace by baseline").
+  alsoKey('U').
+  addKey('d', Derive, "display derivative").
+  alsoKey('D').
+  addKey('1', Add10Left, "add 10 to the left").
+  addKey('2', Add10Right, "add 10 to the right").
+  addKey('s', CycleSplineType, "cycle interpolation types").
+  alsoKey('S').
   addKey(Qt::Key_Escape, Abort, "abort");
   
 
@@ -455,112 +470,77 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
 
   view.addPanel(&bottom);
 
-  loop.setHelpString(QObject::tr("Baseline interpolation:\n"
-                                 "left click: place point\n"
-                                 "right click: remove point\n"
-                                 "d: display derivative\n"
-                                 "q, middle click: subtract baseline\n"
-                                 "v: divide by baseline\n"
-                                 "u: to replace by baseline\n"
-                                 "ESC: abord"));
+  loop.setHelpString(QString("Linear regression:\n")
+                     + baselineHandler.buildHelpString() + "\n" + 
+                     pick.helpText());
+
   while(! loop.finished()) {
     bool needCompute = false;
-    if(pick.processEvent()) {
-      if(pick.button() != Qt::NoButton) {
-        s.insert(pick.point());
-        needCompute = true;
-      }
+    bool isLeft = false;     // Used for sharing code for the 1/2 actions.
+
+    pick.processEvent();        // We don't filter actions out.
+
+    switch(baselineHandler.nextAction(loop)) {
+    case AddPoint: 
+      s.insert(pick.point());
+      needCompute = true;
+      break;
+    case RemovePoint:
+      s.remove(loop.position().x());
+      needCompute = true;
+      break;
+    case Subtract:
+      soas().pushDataSet(ds->derivedDataSet(diff.yvalues, "_bl_sub.dat"));
+      return;
+    case Divide: {
+      // Dividing
+      Vector newy = ds->y();
+      newy /= d.yvalues;
+      soas().pushDataSet(ds->derivedDataSet(newy, "_bl_div.dat"));
+      return;
     }
-    else {
-      if(loop.isConventionalAccept()) {
-        // Subtracting, the data is already computed in d
-        /// @todo Probably
-        soas().pushDataSet(ds->derivedDataSet(diff.yvalues, "_bl_sub.dat"));
-        return;
+    case Replace: {
+      // Replacing the data is already computed in d
+      soas().
+        pushDataSet(ds->derivedDataSet(d.yvalues, 
+                                       (derive ? "_diff.dat" : 
+                                        "_bl.dat")));
+      return;
+    }
+    case Abort:
+      chrg.cancel = true;
+      return;
+    case Derive:
+      derive = ! derive;
+      needCompute = true;
+      if(derive)
+        soas().showMessage("Showing derivative");
+      else
+        soas().showMessage("Showing baseline");
+      break;
+    case CycleSplineType:
+      type = Spline::nextType(type);
+      Terminal::out << "Now using interpolation: " 
+                    << Spline::typeName(type) << endl;
+      needCompute = true;
+      break;
+    case Add10Left:
+      isLeft = true;
+    case Add10Right: {
+      // Closest data point:
+      double xlim = (isLeft ? 
+                     ds->x().min() : ds->x().max());
+      double x = loop.position().x();
+      for(int i = 0; i < 10; i++) {
+        double nx = xlim + (x - xlim)*i/9;
+        double ny = ds->yValueAt(nx);
+        s.insert(QPointF(nx, ny));
       }
-      switch(loop.type()) {
-      case QEvent::MouseButtonPress: 
-        if(loop.button() == Qt::RightButton) { // Removing
-          s.remove(loop.position().x());
-          needCompute = true;
-        }
-        break;
-      case QEvent::KeyPress: 
-        switch(loop.key()) {
-        case Qt::Key_Escape:
-          chrg.cancel = true;
-          return;
-        case 'A':
-        case 'a':
-          /// @todo Use a "toogle" to change the method used.
-          type = Spline::Akima;
-          needCompute = true;
-          soas().showMessage("Using Akima spline interpolation");
-          break;
-        case '-':
-          s.clear();
-          needCompute = true;
-          break;
-        case '1': // left
-        case '2': // right
-          {
-            // Closest data point:
-            double xlim = (loop.key() == '1' ? 
-                           ds->x().min() : ds->x().max());
-            double x = loop.position().x();
-            for(int i = 0; i < 10; i++) {
-              double nx = xlim + (x - xlim)*i/9;
-              double ny = ds->yValueAt(nx);
-              s.insert(QPointF(nx, ny));
-            }
-            needCompute = true;
-          }
-          break;
-        case 'D':
-        case 'd':
-          derive = ! derive;
-          needCompute = true;
-          if(derive)
-            soas().showMessage("Showing derivative");
-          else
-            soas().showMessage("Showing baseline");
-          break;
-        case 'C':
-        case 'c':
-          type = Spline::CSpline;
-          needCompute = true;
-          soas().showMessage("Using C-spline interpolation");
-          break;
-        case 'P':
-        case 'p':
-          type = Spline::Polynomial;
-          needCompute = true;
-          soas().showMessage("Using polynomial interpolation");
-          break;
-        case 'U':
-        case 'u': {
-          // Replacing the data is already computed in d
-          soas().
-            pushDataSet(ds->derivedDataSet(d.yvalues, 
-                                           (derive ? "_diff.dat" : 
-                                            "_bl.dat")));
-          return;
-        }
-        case 'V':
-        case 'v': {
-          // Dividing
-          Vector newy = ds->y();
-          newy /= d.yvalues;
-          soas().pushDataSet(ds->derivedDataSet(newy, "_bl_div.dat"));
-          return;
-        }
-        default:
-          ;
-        }
-        break;
-      default:
-        ;
-      }
+      needCompute = true;
+    }
+      break;
+    default:
+      ;
     }
 
     if(needCompute) {

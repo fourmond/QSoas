@@ -145,3 +145,28 @@ Vector Spline::innerEvaluation(const Vector & xvalues, Type type,
   return ret;
 }
 
+
+Spline::Type Spline::nextType(Spline::Type type)
+{
+  int t = (int) type + 1;
+  if(t >= SplineTypes)
+    t = Linear;
+  return (Type) t;
+}
+
+QString Spline::typeName(Spline::Type type)
+{
+  switch(type) {
+  case Linear:
+    return "linear";
+  case Polynomial:
+    return "polynomial";
+  case CSpline:
+    return "C-spline";
+  case Akima:
+    return "Akima spline";
+  default:
+    ;
+  }
+  return QString();
+}

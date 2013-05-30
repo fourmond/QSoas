@@ -1860,8 +1860,43 @@ static void svCommand(const QString &,
 
 
   // And we must do something with that now !
-    
 
+  int components = -1;
+  bool filterOnly = false;
+  updateFromOptions(opts, "components", components);
+
+  // If components are computed, either directly or though a
+  // threshold, and in the case we don't filter, we create two buffers
+  // with the same number of columns (number of selected components
+  if(components > 0) {
+    if(! filterOnly) {
+      QList<Vector> ds1;
+      QList<Vector> ds2;
+      ds1 << ds->x();
+
+      // the amplitude is held by the the main matrix
+      for(int i = 0; i < components; i++) {
+        double val = gsl_vector_get(values, i);
+        gsl_vector_view v = gsl_matrix_column(data, i);
+        gsl_vector_scale(&v.vector, val);
+        ds1 << Vector::fromGSLVector(&v.vector);
+      }
+
+      Vector nx;
+      for(int j = 0; j < nbcols; j++)
+        nx << j;
+      ds2 << nx;
+      for(int i = 0; i < components; i++) {
+        gsl_vector_view v = gsl_matrix_column(amplitudes, i);
+        ds2 << Vector::fromGSLVector(&v.vector);
+      }
+      soas().pushDataSet(ds->derivedDataSet(ds2, "_amplitudes.dat"));
+      soas().pushDataSet(ds->derivedDataSet(ds1, "_components.dat"));
+    }
+    else {
+      /// @todo !
+    }
+  }
 
   
 
@@ -1875,10 +1910,12 @@ static void svCommand(const QString &,
 
 static ArgumentList 
 svOpts(QList<Argument *>() 
-       << new BoolArgument("display-only", 
-                           "Display only",
-                           "When on, do not create datasets, "
-                           "only show the values")
+       << new IntegerArgument("components", 
+                              "Number of components to keep",
+                              "If specified, keeps only that many components")
+       << new BoolArgument("filter", 
+                           "Filter only",
+                           "If on, does not decompose, only filter")
        );
 
 static Command 

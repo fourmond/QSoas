@@ -289,9 +289,6 @@ public:
   /// Returns a wrapped Command*
   virtual ArgumentMarshaller * fromString(const QString & str) const;
 
-  /// Prompting uses QInputDialog.
-  virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
-
 };
 
 

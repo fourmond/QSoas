@@ -349,11 +349,3 @@ ArgumentMarshaller * CommandArgument::fromString(const QString & str) const
     throw RuntimeError("Invalid command: %1").arg(str);
   return new ArgumentMarshallerChild<Command *>(cmd);
 }
-
-ArgumentMarshaller * CommandArgument::promptForValue(QWidget * base) const
-{
-  ArgumentMarshaller * a = ChoiceArgument::promptForValue(base);
-  QString s = a->value<QString>();
-  delete a;
-  return fromString(s);
-}

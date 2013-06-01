@@ -38,7 +38,20 @@ GraphicsSettings::GraphicsSettings() :
 {
 }
 
+void GraphicsSettings::initialSetup(bool silent)
+{
+  setOpenGL(opengl);
+  if(! silent)
+    showCurrentSettings();
+}
 
+void GraphicsSettings::showCurrentSettings()
+{
+  Terminal::out << "Antialias is " << (antialias ? "on" : "off") 
+                << "\n" << (opengl ? "Using" : "Not using") 
+                << " OpenGL for acceleration" << endl;
+}
+  
 void GraphicsSettings::setAntiAlias(bool b)
 {
   antialias = b;
@@ -123,15 +136,34 @@ void graphicsSettingsCommand(const QString &,
     Terminal::out << "Setting base line width to " << lw << endl;
   }
 
+
+  bool opengl = gs.openGL();
+  updateFromOptions(opts, "opengl",opengl);
+  if(opengl != gs.openGL())
+    gs.setOpenGL(opengl);
+
+  bool antialias = gs.antiAlias();
+  updateFromOptions(opts, "antialias", antialias);
+  if(antialias != gs.antiAlias())
+    gs.setAntiAlias(antialias);
+
   // Display current settings ?
+  gs.showCurrentSettings();
   
 }
 
 static ArgumentList 
 gsOpts(QList<Argument *>() 
-         << new NumberArgument("line-width", 
-                               "Line with",
-                               "Sets the base line width for all lines/curves"));
+       << new NumberArgument("line-width", 
+                             "Line with",
+                             "Sets the base line width for all lines/curves")
+       << new BoolArgument("opengl", 
+                           "OpenGL",
+                           "Turns on/off the use of OpenGL acceleration")
+       << new BoolArgument("antialias", 
+                           "Antialias",
+                           "Turns on/off the use of antialised graphics")
+       );
 
 
 static Command 

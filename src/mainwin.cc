@@ -279,6 +279,8 @@
 
 #include <ruby.hh>
 
+#include <graphicssettings.hh>
+
 static SettingsValue<QSize> mainWinSize("mainwin/size", QSize(700,500));
 
 static SettingsValue<QByteArray> splitterState("mainwin/splitter", 
@@ -308,8 +310,10 @@ MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
                 << "Starting at " << QDateTime::currentDateTime().toString()
                 << "\nCurrent directory is: " << QDir::currentPath() 
                 << "\nCurrent temperature is: " << soasInstance->temperature() 
-                << " K\n\n" 
-                << "To list available commands, type 'commands'\n"
+                << " K\n";
+  soasInstance->graphicsSettings().initialSetup();
+  
+  Terminal::out << "To list available commands, type 'commands'\n"
                 << "To get help on a specific command, type 'help command'\n"
                 << endl;
 

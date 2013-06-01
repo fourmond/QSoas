@@ -46,6 +46,16 @@ public:
   GraphicsSettings();
 
 
+  /// Does initial setup, ie from the default values to loaded values.
+  ///
+  /// If not \b silent, then prints a small text to the terminal
+  /// containing the most important current settings.
+  void initialSetup(bool silent = false);
+
+  /// Show the current settings. (that's the function called by
+  /// setting \a silent to false in initialSetup())
+  void showCurrentSettings();
+
   void setAntiAlias(bool b);
   bool antiAlias() const;
 

@@ -22,6 +22,7 @@
 #define __CURVEVIEW_HH
 
 #include <curvepanel.hh>
+#include <curvedataset.hh>
 class CurveEventLoop;
 class DataSet;
 
@@ -89,6 +90,10 @@ class CurveView : public QAbstractScrollArea {
   /// since repaint is disabled
   bool repaintRequested;
 
+
+  /// The "currently displayed dataset". 
+  QPointer<CurveDataSet> currentDataSet;
+
 public:
 
   CurveView();
@@ -136,6 +141,11 @@ public:
   /// Forces a repaint of the CurveView
   void repaint() {
     doRepaint();
+  };
+
+  /// Returns the current dataset
+  CurveDataSet * getCurrentDataSet() const {
+    return currentDataSet;
   };
 
 

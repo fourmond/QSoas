@@ -398,6 +398,7 @@ typedef enum {
   Derive,
   Replace,
   Divide,
+  HideDataset,
   Subtract,
   Abort
 } BaselineActions;
@@ -414,6 +415,8 @@ static EventHandler baselineHandler = EventHandler("baseline").
   alsoKey('U').
   addKey('d', Derive, "display derivative").
   alsoKey('D').
+  addKey('h', HideDataset, "hide dataset").
+  alsoKey('H').
   addKey('1', Add10Left, "add 10 to the left").
   addKey('2', Add10Right, "add 10 to the right").
   addKey('s', CycleSplineType, "cycle interpolation types").
@@ -448,6 +451,8 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
 
   PointPicker pick(&loop, ds);
 
+  CurveItem * cds = view.getCurrentDataSet();
+
   view.addItem(&m);
   view.addItem(&d);
 
@@ -470,7 +475,7 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
 
   view.addPanel(&bottom);
 
-  loop.setHelpString(QString("Linear regression:\n")
+  loop.setHelpString("Spline interpolation:\n"
                      + baselineHandler.buildHelpString() + "\n" + 
                      pick.helpText());
 
@@ -488,6 +493,10 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
     case RemovePoint:
       s.remove(loop.position().x());
       needCompute = true;
+      break;
+    case HideDataset:
+      cds->hidden = ! cds->hidden;
+      // m.hidden = cds->hidden; // (not needed)
       break;
     case Subtract:
       soas().pushDataSet(ds->derivedDataSet(diff.yvalues, "_bl_sub.dat"));
@@ -533,6 +542,8 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
       double x = loop.position().x();
       for(int i = 0; i < 10; i++) {
         double nx = xlim + (x - xlim)*i/9;
+
+        // Use the current point picker method (hmmm, if on)
         double ny = ds->yValueAt(nx);
         s.insert(QPointF(nx, ny));
       }

@@ -140,6 +140,8 @@ void CurveView::addDataSet(const DataSet * ds)
   item->paintMarkers = paintMarkers;
   item->pen = penForNextCurve();
   addItem(item);
+  if(! currentDataSet)
+    currentDataSet = item;
 }
 
 void CurveView::clear()
@@ -147,6 +149,7 @@ void CurveView::clear()
   nbStyled = 0;
   panel.clear();
   doRepaint();
+  currentDataSet = NULL;
 }
 
 void CurveView::showCurrentDataSet()

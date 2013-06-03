@@ -23,8 +23,7 @@
 
 #include <curveitem.hh>
 #include <guarded.hh>
-
-class DataSet;
+#include <dataset.hh>
 
 /// A representation of a DataSet attached to a CurveView class.
 ///

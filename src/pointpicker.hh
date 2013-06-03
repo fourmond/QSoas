@@ -102,6 +102,9 @@ public:
 
   /// Returns a small text to insert into the loop's help string
   QString helpText() const;
+
+  /// Picks a number of points between the given indices.
+  QList<QPointF> pickBetween(int firstIndex, int lastIndex, int number);
   
 };
 

@@ -81,8 +81,14 @@ public:
   /// The minimum value
   double min() const;
 
+  /// The index of the last minimum value
+  int whereMin() const;
+
   /// The maximum value
   double max() const;
+
+  /// The index of the last maximum value
+  int whereMax() const;
 
   /// The value most distant from 0
   double magnitude() const;

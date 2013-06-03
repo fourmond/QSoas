@@ -24,9 +24,11 @@
 #include <dataset.hh>
 #include <curvedataset.hh>
 
+#include <exceptions.hh>
+
 #include <soas.hh>
 
-/// @todo Should this be a customization item ?
+/// Should this be a customization item ? NO
 PointPicker::Method PointPicker::lastMethodUsed = PointPicker::Exact;
 
 PointPicker::PointPicker(CurveEventLoop * l, const DataSet * ds, 
@@ -122,4 +124,27 @@ QString PointPicker::helpText() const
                      "x: eXact\n"
                      "s: smooth\n"
                      "o: Off data\n");
+}
+
+QList<QPointF> PointPicker::pickBetween(int firstIndex, int lastIndex, 
+                                        int number)
+{
+  QList<QPointF> points;
+  if(number < 2)
+    throw InternalError("Requires at least to pick two points");
+  for(int i = 0; i < number; i++) {
+    int idx = firstIndex + (lastIndex - firstIndex) * i / (number - 1);
+    switch(method) {
+    case Exact:
+    case Off:
+      points << trackedDataSet->pointAt(idx);
+      break;
+    case Smooth: 
+      points << trackedDataSet->smoothPick(idx);
+      break;
+    default:
+      ;
+    }
+  }
+  return points;
 }

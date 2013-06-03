@@ -105,18 +105,22 @@ double Vector::min() const
   return m;
 }
 
-double Vector::magnitude() const
+int Vector::whereMin() const
 {
   int sz = size();
   if(! sz)
-    return 0.0/0.0;
+    return -1;
   const double * d = data();
   double m = d[0];
+  int lastidx = 0;
   for(int i = 1; i < sz; i++)
-    if(fabs(d[i]) > fabs(m))
+    if(d[i] < m) {
       m = d[i];
-  return m;
+      lastidx = i;
+    }
+  return lastidx;
 }
+
 
 double Vector::max() const
 {
@@ -127,6 +131,35 @@ double Vector::max() const
   double m = d[0];
   for(int i = 1; i < sz; i++)
     if(d[i] > m)
+      m = d[i];
+  return m;
+}
+
+int Vector::whereMax() const
+{
+  int sz = size();
+  if(! sz)
+    return -1;
+  const double * d = data();
+  double m = d[0];
+  int lastidx = 0;
+  for(int i = 1; i < sz; i++)
+    if(d[i] > m) {
+      m = d[i];
+      lastidx = i;
+    }
+  return lastidx;
+}
+
+double Vector::magnitude() const
+{
+  int sz = size();
+  if(! sz)
+    return 0.0/0.0;
+  const double * d = data();
+  double m = d[0];
+  for(int i = 1; i < sz; i++)
+    if(fabs(d[i]) > fabs(m))
       m = d[i];
   return m;
 }

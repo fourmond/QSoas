@@ -394,6 +394,7 @@ typedef enum {
   CycleSplineType,
   Add10Left,
   Add10Right,
+  Add20Everywhere,
   ClearAll,
   Derive,
   Replace,
@@ -419,8 +420,9 @@ static EventHandler baselineHandler = EventHandler("baseline").
   alsoKey('H').
   addKey('1', Add10Left, "add 10 to the left").
   addKey('2', Add10Right, "add 10 to the right").
-  addKey('s', CycleSplineType, "cycle interpolation types").
-  alsoKey('S').
+  addKey('0', Add20Everywhere, "add 20 regularly spaced").
+  addKey('t', CycleSplineType, "cycle interpolation types").
+  alsoKey('T').
   addKey(Qt::Key_Escape, Abort, "abort");
   
 
@@ -537,19 +539,24 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
       isLeft = true;
     case Add10Right: {
       // Closest data point:
-      double xlim = (isLeft ? 
-                     ds->x().min() : ds->x().max());
-      double x = loop.position().x();
-      for(int i = 0; i < 10; i++) {
-        double nx = xlim + (x - xlim)*i/9;
+      int side = (isLeft ? ds->x().whereMin() :
+                  ds->x().whereMax());
+      QPair<double, int> dst = loop.distanceToDataSet(ds);
 
-        // Use the current point picker method (hmmm, if on)
-        double ny = ds->yValueAt(nx);
-        s.insert(QPointF(nx, ny));
-      }
+      int cur = dst.second;
+      QList<QPointF> points = pick.pickBetween(side, cur, 10);
+      for(int i = 0; i < points.size(); i++)
+        s.insert(points[i]);
       needCompute = true;
     }
       break;
+    case Add20Everywhere: {
+      QList<QPointF> points = pick.pickBetween(0, ds->x().size()-1, 20);
+      for(int i = 0; i < points.size(); i++)
+        s.insert(points[i]);
+      needCompute = true;
+      
+    }
     default:
       ;
     }

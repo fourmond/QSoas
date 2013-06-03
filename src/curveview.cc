@@ -442,3 +442,21 @@ CurvePanel * CurveView::panelAt(const QPoint & pos)
       return panels[i];
   return NULL;
 }
+
+QList<DataSet *> CurveView::displayedDataSets()
+{
+  QList<DataSet *> ret;
+  QList<CurvePanel *> panels = allPanels();
+  for(int i = 0; i < panels.size(); i++) {
+    QList<CurveItem *> items = panels[i]->items();
+    for(int j = 0; j < items.size(); j++) {
+      CurveDataSet * cds = dynamic_cast<CurveDataSet *>(items[j]);
+      if(cds) {
+        const DataSet * ds = cds->displayedDataSet();
+        if(ds)
+          ret << const_cast<DataSet*>(ds);
+      }
+    }
+  }
+  return ret;
+}

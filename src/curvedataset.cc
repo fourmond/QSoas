@@ -160,3 +160,8 @@ void CurveDataSet::invalidateCache()
   delete cachedPath;
   cachedPath = NULL;
 }
+
+const DataSet * CurveDataSet::displayedDataSet() const
+{
+  return dataSet;
+}

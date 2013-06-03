@@ -28,6 +28,7 @@
 
 #include <exceptions.hh>
 #include <command.hh>
+#include <curveview.hh>
 
 ArgumentMarshaller * StringArgument::fromString(const QString & str) const
 {
@@ -219,6 +220,11 @@ ArgumentMarshaller * SeveralDataSetArgument::fromString(const QString & s) const
     }
     else if(str == "unmarked")  {
       QList<DataSet *> mkd = soas().stack().markedDataSets(false);
+      for(int i = 0; i < mkd.size(); i++)
+        dsets << mkd[i];
+    }
+    else if(str == "displayed")  {
+      QList<DataSet *> mkd = soas().view().displayedDataSets();
       for(int i = 0; i < mkd.size(); i++)
         dsets << mkd[i];
     }

@@ -72,6 +72,8 @@ public:
   /// Invalidates the cache
   void invalidateCache();
 
+  /// The dataset this item displays
+  const DataSet * displayedDataSet() const;
 };
 
 

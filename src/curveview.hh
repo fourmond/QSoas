@@ -149,6 +149,12 @@ public:
   };
 
 
+  /// Returns the list of datasets that are currently displayed in the
+  /// main panel.
+  QList<DataSet *> displayedDataSets();
+   
+
+
 public slots:
 
   /// Shows the current data set (see DataStack::currentDataSet)
@@ -169,6 +175,7 @@ public slots:
   /// Reenable on-change updates that were disabled using
   /// disableUpdates()
   void enableUpdates();
+
 
 
 public:

@@ -610,6 +610,9 @@ static int signof(double x)
 }
 
 /// The smooth pick algorithm, see 10.1016/j.bioelechem.2009.02.010
+///
+/// @todo This implementation is absolutely not what I remember from
+/// smooth picks
 double smooth_pick(const double *x, const double *y, 
 		   int nb, int idx, int range)
 {
@@ -626,6 +629,7 @@ double smooth_pick(const double *x, const double *y,
     reglin(x+left, y+left, right-left,&a,&b);
     if(range == 6)
       break; 			/* We stop here */
+    range = right - left;
     last_sign = 0;
     for(i = left; i < right; i++) {
       double residual = y[i] - a * x[i] - b;

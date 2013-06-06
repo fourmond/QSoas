@@ -1,6 +1,6 @@
 # -*- mode: nsis; -*-
 
-RequestExecutionLevel user
+RequestExecutionLevel admin ; we want administrator rights, don't we ?
 
 Name "QSoas"
 

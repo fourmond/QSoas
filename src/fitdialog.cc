@@ -500,6 +500,7 @@ void FitDialog::startFit()
 
   trajectories << 
     FitTrajectory(parametersBackup, parameters.saveParameterValues(),
+                  parameters.saveParameterErrors(),
                   residuals, relres);
   if(shouldCancelFit)
     trajectories.last().ending = FitTrajectory::Cancelled;
@@ -773,10 +774,8 @@ void FitDialog::halfWeight()
 
 void FitDialog::resetParameters()
 {
-  parameters.restoreParameterValues(parametersBackup);
-  compute();
+  setParameterValues(parametersBackup);
   progressReport->setText(tr("Restored parameters"));
-  updateEditors();
 }
 
 void FitDialog::displayTrajectories()
@@ -817,3 +816,10 @@ void FitDialog::toggleSubFunctions()
   }
 }
 
+
+void FitDialog::setParameterValues(const Vector & values)
+{
+  parameters.restoreParameterValues(values);
+  compute();
+  updateEditors();
+}

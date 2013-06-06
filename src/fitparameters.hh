@@ -233,6 +233,9 @@ public:
   /// Saves the current parameters as a Vector
   Vector saveParameterValues();
 
+  /// Saves the errors on the parameters as a Vector
+  Vector saveParameterErrors();
+
   /// Restores the previously saved values.
   void restoreParameterValues(const Vector & values);
 

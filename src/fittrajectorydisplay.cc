@@ -35,12 +35,21 @@ FitTrajectoryDisplay::FitTrajectoryDisplay(FitDialog * dlg, FitData * data,
 
 }
 
+/// @todo Several things to do here:
+/// @li sort trajectories according to final residuals
+/// @li cluster the trajectories according to whether the parameters
+/// "match" (i.e. whether they are within each other's errors)
+/// @li plot convergence regions ?
 void FitTrajectoryDisplay::setupFrame()
 {
   QVBoxLayout * l = new QVBoxLayout(this);
   parametersDisplay = new QTableWidget();
   l->addWidget(parametersDisplay);
+  parametersDisplay->setContextMenuPolicy(Qt::CustomContextMenu);
 
+  connect(parametersDisplay, 
+          SIGNAL(customContextMenuRequested(const QPoint&)),
+          SLOT(contextMenuOnTable(const QPoint&)));
   
 
   heads.clear();
@@ -53,9 +62,18 @@ void FitTrajectoryDisplay::setupFrame()
   parametersDisplay->setColumnCount(heads.size());
   parametersDisplay->setHorizontalHeaderLabels(heads);
 
+
+  QHBoxLayout * hb = new QHBoxLayout();
+
   QPushButton * bt = new QPushButton(tr("Export"));
   connect(bt, SIGNAL(clicked()), SLOT(exportToFile()));
-  l->addWidget(bt);
+  hb->addWidget(bt);
+
+  bt = new QPushButton(tr("Close"));
+  connect(bt, SIGNAL(clicked()), SLOT(close()));
+  hb->addWidget(bt);
+
+  l->addLayout(hb);
 }
 
 /// @todo Should join FitTrajectory...
@@ -150,4 +168,24 @@ void FitTrajectoryDisplay::exportToFile()
     o << lst.join("\t") << endl;
   }
 
+}
+
+void FitTrajectoryDisplay::contextMenuOnTable(const QPoint & pos)
+{
+  QMenu menu;
+  QAction * a = new QAction(tr("Reuse parameters"), this);
+  menu.addAction(a);
+  QAction * got = menu.exec(parametersDisplay->mapToGlobal(pos));
+  if(got == a) {
+    // Send back the given parameters to the fitdialog
+    int idx = parametersDisplay->currentRow();
+    if(idx < 0)
+      return;
+    Vector parameters;
+    if(idx % 2)
+      parameters = (*trajectories)[idx/2].finalParameters;
+    else
+      parameters = (*trajectories)[idx/2].initialParameters;
+    fitDialog->setParameterValues(parameters);
+  }
 }

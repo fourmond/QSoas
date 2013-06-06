@@ -28,6 +28,8 @@ class FitData;
 
 /// This class represents a "fit operation", ie what happens every
 /// time the user clicks on the fit button.
+///
+/// @todo Add storage of integers for indexing ?
 class FitTrajectory {
 public:
 
@@ -37,6 +39,9 @@ public:
 
   /// The final parameters
   Vector finalParameters;
+
+  /// The errors on the final parameters
+  Vector parameterErrors;
 
   typedef enum {
     Converged,
@@ -57,9 +62,11 @@ public:
   FitTrajectory() {
   };
 
-  FitTrajectory(const Vector & init, const Vector & final, 
+  FitTrajectory(const Vector & init, const Vector & final,
+                const Vector & errors, 
                 double res, double rr) :
     initialParameters(init), finalParameters(final), 
+    parameterErrors(errors),
     ending(Converged), residuals(res), relativeResiduals(rr) {
   };
 
@@ -105,6 +112,10 @@ public slots:
 
   /// Export to TAB-separated data file
   void exportToFile();
+
+protected slots:
+
+  void contextMenuOnTable(const QPoint & pos);
 };
 
 

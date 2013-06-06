@@ -147,6 +147,8 @@ public slots:
   /// Overrides the given parameter.
   void overrideParameter(const QString & name, double value);
 
+  /// Sets the values of the parameters
+  void setParameterValues(const Vector & values);
 
 protected slots:
 
@@ -240,6 +242,9 @@ protected slots:
 
   /// Upon change in the FitEngine combo box...
   void engineSelected(int id);
+
+
+
 };
 
 #endif

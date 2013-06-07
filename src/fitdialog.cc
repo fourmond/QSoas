@@ -501,7 +501,7 @@ void FitDialog::startFit()
   trajectories << 
     FitTrajectory(parametersBackup, parameters.saveParameterValues(),
                   parameters.saveParameterErrors(),
-                  residuals, relres);
+                  residuals, relres, fitEngineFactory->name);
   if(shouldCancelFit)
     trajectories.last().ending = FitTrajectory::Cancelled;
   else if(data->nbIterations >= iterationLimit)

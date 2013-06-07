@@ -58,7 +58,7 @@ void FitTrajectoryDisplay::setupFrame()
     for(int j = 0; j < fitData->parametersPerDataset(); j++)
       heads << QString("%1[%2]").arg(fitData->parameterDefinitions[j].name).
         arg(i);
-  heads << "residuals" << "rel res";
+  heads << "residuals" << "rel res" << "engine"; 
   parametersDisplay->setColumnCount(heads.size());
   parametersDisplay->setHorizontalHeaderLabels(heads);
 
@@ -67,6 +67,10 @@ void FitTrajectoryDisplay::setupFrame()
 
   QPushButton * bt = new QPushButton(tr("Export"));
   connect(bt, SIGNAL(clicked()), SLOT(exportToFile()));
+  hb->addWidget(bt);
+
+  bt = new QPushButton(tr("Sort"));
+  connect(bt, SIGNAL(clicked()), SLOT(sortByResiduals()));
   hb->addWidget(bt);
 
   bt = new QPushButton(tr("Close"));
@@ -110,10 +114,13 @@ void FitTrajectoryDisplay::update()
     parametersDisplay->
       setItem(i*2 + 1, 0, new QTableWidgetItem(describe(tr.ending)));
               
-    for(int j = 0; j < fitData->fullParameterNumber(); j++)
-      parametersDisplay->
-        setItem(i*2 + 1, 1+j, 
-                new QTableWidgetItem(QString::number(tr.finalParameters[j])));
+    for(int j = 0; j < fitData->fullParameterNumber(); j++) {
+      QTableWidgetItem * it = 
+        new QTableWidgetItem(QString::number(tr.finalParameters[j]));
+      it->setToolTip(QString("Error: %1 %").arg(100 * tr.parameterErrors[j] /
+                                                tr.finalParameters[j]));
+      parametersDisplay->setItem(i*2 + 1, 1+j, it);
+    }
 
     parametersDisplay->
       setItem(i*2 + 1, fitData->fullParameterNumber() + 1, 
@@ -121,6 +128,9 @@ void FitTrajectoryDisplay::update()
     parametersDisplay->
       setItem(i*2 + 1, fitData->fullParameterNumber() + 2, 
               new QTableWidgetItem(QString::number(tr.relativeResiduals)));
+    parametersDisplay->
+      setItem(i*2 + 1, fitData->fullParameterNumber() + 3, 
+              new QTableWidgetItem(tr.engine));
   }
 
   parametersDisplay->resizeColumnsToContents();
@@ -188,4 +198,10 @@ void FitTrajectoryDisplay::contextMenuOnTable(const QPoint & pos)
       parameters = (*trajectories)[idx/2].initialParameters;
     fitDialog->setParameterValues(parameters);
   }
+}
+
+void FitTrajectoryDisplay::sortByResiduals()
+{
+  qSort(*trajectories);
+  update();
 }

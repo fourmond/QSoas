@@ -1,6 +1,6 @@
 /*
   fittrajectorydisplay.cc: display of fit trajectories
-  Copyright 2012 by Vincent Fourmond
+  Copyright 2013 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,6 +24,32 @@
 #include <fitdata.hh>
 #include <actioncombo.hh>
 
+
+
+void ParameterRangeEditor::insertIntoGrid(QGridLayout * grid, int row, 
+                                          int baseColumn)
+{
+}
+
+ParameterRangeEditor::ParameterRangeEditor(const QString & name, int idx, 
+                                           int ds, 
+                                           bool fixed, double val) {
+    
+    variable = new QCheckBox(name);
+    
+};
+
+ParameterRangeEditor::~ParameterRangeEditor() {
+  delete variable;
+  delete lowLabel;
+  delete lowerRange;
+  delete upLabel;
+  delete upperRange;
+  delete isLog;
+}
+
+
+//////////////////////////////////////////////////////////////////////
 
 FitTrajectoryDisplay::FitTrajectoryDisplay(FitDialog * dlg, FitData * data, 
                                            QList<FitTrajectory> * tr) :

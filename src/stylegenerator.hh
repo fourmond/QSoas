@@ -50,8 +50,7 @@ public:
                             const QString & pn, Creator c);
 };
 
-/// A StyleGenerator is a two way transformation from R to a possibly
-/// smaller subset of R.
+/// Generates a style for the next curve.
 class StyleGenerator {
 
   /// The application-wide StyleGenerator factory
@@ -77,12 +76,19 @@ public:
                                                int nb = -1, 
                                                const QString & arg = "");
 
-  /// Returns the available items
-  static QList<const StyleGeneratorFactoryItem *> availableGenerators();
+  /// almost the same as createNamedGenerator, excepted that the
+  /// argument is parsed from the string. 
+  static StyleGenerator * fromText(const QString & name, int nb = -1);
+
+  /// Returns the names of the available generators
+  static QStringList availableGenerators();
 
   /// We need a virtual destructor.
   virtual ~StyleGenerator() {;};
 
+
+  /// Sets the total number of elements to give a style to.
+  void setTotal(int nb) { totalNumber = nb;};
 
   StyleGenerator(int nb) : totalNumber(nb) { ; }; 
 

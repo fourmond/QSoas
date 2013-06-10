@@ -19,6 +19,8 @@
 #include <headers.hh>
 #include <stylegenerator.hh>
 
+#include <graphicssettings.hh>
+#include <soas.hh>
 
 QHash<QString, StyleGeneratorFactoryItem*> * StyleGenerator::factory = NULL;
 
@@ -55,3 +57,59 @@ StyleGenerator * StyleGenerator::createNamedGenerator(const QString & name,
   return NULL;
 }
 
+QStringList StyleGenerator::availableGenerators()
+{
+  if(! factory)
+    return QStringList();
+  QStringList keys = factory->keys();
+  qSort(keys);
+  return keys;
+}
+
+//////////////////////////////////////////////////////////////////////
+
+// First elements: gradients
+
+/// A gradient, ie something whose "coordinates" vary linearly from
+/// beginning to the end.
+///
+/// @todo Add the possibility to use coordinates other than RGB ? (but
+/// that needs some thinking, obviously).
+class SimpleGradient : public StyleGenerator {
+  Vector beg;
+  Vector end;
+
+  int idx;
+
+public:
+
+  SimpleGradient(const QColor & b, const QColor & e, int nb) : 
+    StyleGenerator(nb), idx(0) {
+    beg = Vector() << b.red() << b.green() << b.blue();
+    end = Vector() << e.red() << e.green() << e.blue();
+  };
+
+  virtual QPen nextStyle() {
+    // Assume RGB color space:
+    double d = (totalNumber > 1 ? totalNumber - 1 : 100);
+    double alpha = idx++ / d;
+    Vector s = beg;
+    s *= 1.0 - alpha;
+    Vector s2 = end;
+    s2 *= alpha;
+    s += s2;
+
+    QColor c(s[0], s[1], s[2]);
+    QPen pen = soas().graphicsSettings().dataSetPen(0);
+    pen.setColor(c);
+    return c;
+  };
+};
+
+static StyleGeneratorFactoryItem 
+st("red-blue", "Red-blue gradient",
+   [](int n, const QString &) -> StyleGenerator *{
+     return new SimpleGradient(QColor("red"),
+                               QColor("blue"),
+                               n);
+   });

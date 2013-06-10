@@ -32,6 +32,9 @@ class ParameterRangeEditor : public QObject {
   
   Q_OBJECT;
 
+  /// Shows/hides all the editors
+  void showEditors(bool show = true);
+  
 public:
   /// Whether the parameter varies at all (and its name)
   QPointer<QCheckBox> variable;
@@ -68,6 +71,15 @@ public:
                        bool fixed, double val);
 
   virtual ~ParameterRangeEditor();
+
+  /// Returns the value corresponding to alpha (a value between 0 and 1)
+  double value(double alpha);
+  
+
+public slots:
+
+  /// Called when the variable status changed
+  void variableChanged();
 
 };
 
@@ -154,10 +166,20 @@ class FitTrajectoryDisplay : public QDialog {
   /// The heads of the display
   QStringList heads;
 
+  /// Number of repetitions
+  QLineEdit * repetitions;
+
+  
+
 
   /// A scroll area holding all the parameters for the automatic
   /// screening procedure.
-  QScrollArea * screeningControls;
+  ///
+  /// to be used later ?
+  QScrollArea * explorationControls;
+
+  /// The grid layout used for the exploration controls
+  QGridLayout * explorationLayout;
 
   /// The list of editors of parameter ranges
   QList<ParameterRangeEditor *> parameterRangeEditors;
@@ -165,7 +187,12 @@ class FitTrajectoryDisplay : public QDialog {
   /// Setup the insides of the dialog box.
   void setupFrame();
 
-  
+  /// Setup the part that actually deals with the range editors and the rest
+  void setupExploration();
+
+  int currentIteration;
+
+  int lastIteration;
 public:
 
   FitTrajectoryDisplay(FitDialog * dlg, FitData * data, 
@@ -186,6 +213,10 @@ public slots:
 protected slots:
 
   void contextMenuOnTable(const QPoint & pos);
+
+  void startExploration();
+
+  void sendNextParameters();
 };
 
 

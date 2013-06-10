@@ -25,18 +25,49 @@
 #include <actioncombo.hh>
 
 
+void ParameterRangeEditor::showEditors(bool show)
+{
+  lowLabel->setVisible(show);
+  lowerRange->setVisible(show);
+  upLabel->setVisible(show);
+  upperRange->setVisible(show);
+  isLog->setVisible(show);
+}
+
 
 void ParameterRangeEditor::insertIntoGrid(QGridLayout * grid, int row, 
                                           int baseColumn)
 {
+  grid->addWidget(variable, row, baseColumn++);
+  grid->addWidget(lowLabel, row, baseColumn++);
+  grid->addWidget(lowerRange, row, baseColumn++);
+  grid->addWidget(upLabel, row, baseColumn++);
+  grid->addWidget(upperRange, row, baseColumn++);
+  grid->addWidget(isLog, row, baseColumn++);
 }
 
 ParameterRangeEditor::ParameterRangeEditor(const QString & name, int idx, 
                                            int ds, 
-                                           bool fixed, double val) {
-    
+                                           bool fixed, double val) : 
+  index(idx), dataset(ds)
+{
     variable = new QCheckBox(name);
+    lowLabel = new QLabel("Lower: ");
+    upLabel = new QLabel("Upper: ");
+
+    QString a = QString::number(val * 0.1);
     
+    lowerRange = new QLineEdit(a);
+    a = QString::number(val * 10);
+    upperRange = new QLineEdit(a);
+
+    isLog = new QCheckBox("log ?");
+    
+    connect(variable, SIGNAL(toggled(bool)),
+            SLOT(variableChanged()));
+
+    variable->setChecked(! fixed);
+    variableChanged();
 };
 
 ParameterRangeEditor::~ParameterRangeEditor() {
@@ -48,12 +79,31 @@ ParameterRangeEditor::~ParameterRangeEditor() {
   delete isLog;
 }
 
+void ParameterRangeEditor::variableChanged()
+{
+  showEditors(isVariable());
+}
+
+double ParameterRangeEditor::value(double alpha)
+{
+  double min = lowerRange->text().toDouble();
+  double max = upperRange->text().toDouble();
+  if(isLog->isChecked()) {
+    min = log(min);
+    max = log(max);
+  }
+  double val = min + (max - min) * alpha;
+  if(isLog->isChecked())
+    return exp(val);
+  return val;
+}
 
 //////////////////////////////////////////////////////////////////////
 
 FitTrajectoryDisplay::FitTrajectoryDisplay(FitDialog * dlg, FitData * data, 
                                            QList<FitTrajectory> * tr) :
-  fitDialog(dlg), fitData(data), trajectories(tr)
+  fitDialog(dlg), fitData(data), trajectories(tr),
+  currentIteration(-1), lastIteration(-1)
 {
   setupFrame();
 
@@ -62,7 +112,6 @@ FitTrajectoryDisplay::FitTrajectoryDisplay(FitDialog * dlg, FitData * data,
 }
 
 /// @todo Several things to do here:
-/// @li sort trajectories according to final residuals
 /// @li cluster the trajectories according to whether the parameters
 /// "match" (i.e. whether they are within each other's errors)
 /// @li plot convergence regions ?
@@ -104,6 +153,9 @@ void FitTrajectoryDisplay::setupFrame()
   hb->addWidget(bt);
 
   l->addLayout(hb);
+  setupExploration();
+
+  l->addLayout(explorationLayout);
 }
 
 /// @todo Should join FitTrajectory...
@@ -164,6 +216,60 @@ void FitTrajectoryDisplay::update()
 
 FitTrajectoryDisplay::~FitTrajectoryDisplay()
 {
+  for(int i = 0; i < parameterRangeEditors.size(); i++)
+    delete parameterRangeEditors[i];
+}
+
+void FitTrajectoryDisplay::setupExploration()
+{
+  explorationLayout = new QGridLayout();
+
+  int rows = 0;
+  
+  int nbparams = fitData->parametersPerDataset();
+  int nbds = fitData->datasets.size();
+
+  if(nbds > 1) {
+    // First pass on global parameters
+    for(int i = 0; i < nbparams; i++) {
+      if(fitDialog->parameters.isGlobal(i)) {
+        ParameterRangeEditor * ed = new 
+          ParameterRangeEditor(fitData->parameterDefinitions[i].name,
+                               i, -1, 
+                               fitDialog->parameters.isFixed(i, 0),
+                               fitDialog->parameters.getValue(i, 0));
+
+        parameterRangeEditors << ed;
+        ed->insertIntoGrid(explorationLayout, rows++);
+      }
+    }
+  }
+
+  for(int j = 0; j < nbds; j++) {
+    for(int i = 0; i < nbparams; i++) {
+      if(! fitDialog->parameters.isGlobal(i)) {
+        ParameterRangeEditor * ed = new 
+          ParameterRangeEditor(fitData->parameterDefinitions[i].name,
+                               i, j, 
+                               fitDialog->parameters.isFixed(i, j),
+                               fitDialog->parameters.getValue(i, j));
+        parameterRangeEditors << ed;
+        ed->insertIntoGrid(explorationLayout, rows++);
+      }
+    }
+  }
+
+  explorationLayout->addWidget(new QLabel("Repetitions"), 
+                               rows, 0, 1, 2);
+  repetitions = new QLineEdit("10");
+  explorationLayout->addWidget(repetitions, rows, 2, 1, 2);
+  QPushButton * bt = new QPushButton("Go !");
+
+  explorationLayout->addWidget(bt, rows, 4);
+
+  connect(bt, SIGNAL(clicked()), SLOT(startExploration()));
+  connect(fitDialog, SIGNAL(finishedFitting()), 
+          SLOT(sendNextParameters()), Qt::QueuedConnection);
   
 }
 
@@ -231,3 +337,34 @@ void FitTrajectoryDisplay::sortByResiduals()
   qSort(*trajectories);
   update();
 }
+
+void FitTrajectoryDisplay::startExploration()
+{
+  currentIteration = 0;
+  lastIteration = repetitions->text().toInt();
+
+  sendNextParameters();
+}
+
+void FitTrajectoryDisplay::sendNextParameters()
+{
+  if(currentIteration < 0 || lastIteration < 0)
+    return;
+  if(currentIteration >= lastIteration) {
+    lastIteration = currentIteration = -1;
+    return;
+  }
+
+  currentIteration++;
+  for(int i = 0; i < parameterRangeEditors.size(); i++) {
+    ParameterRangeEditor * ed = parameterRangeEditors[i];
+    double x = rand() * 1.0/RAND_MAX;
+    x = ed->value(x);
+    fitDialog->parameters.setValue(ed->index, ed->dataset, x);
+  }
+  fitDialog->updateEditors();
+  fitDialog->startFit();
+  update();
+}
+
+

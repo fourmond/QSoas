@@ -515,6 +515,7 @@ void FitDialog::startFit()
 
   parameters.writeToTerminal();
   compute();
+  emit(finishedFitting());
 }
 
 

@@ -37,6 +37,9 @@ class FitDialog : public QDialog {
 
   Q_OBJECT;
 
+  /// We need that to access to the parameters
+  friend class FitTrajectoryDisplay;
+
   void setupFrame();
 
   /// The FitData object we'll populate and run
@@ -135,6 +138,8 @@ public:
 
 signals:
   void currentDataSetChanged(int ds);
+
+  void finishedFitting();
 
 public slots:
 

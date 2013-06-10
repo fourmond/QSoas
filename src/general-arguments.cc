@@ -30,6 +30,8 @@
 #include <command.hh>
 #include <curveview.hh>
 
+#include <stylegenerator.hh>
+
 ArgumentMarshaller * StringArgument::fromString(const QString & str) const
 {
   return new ArgumentMarshallerChild<QString>(str);
@@ -354,4 +356,17 @@ ArgumentMarshaller * CommandArgument::fromString(const QString & str) const
   if(! cmd)
     throw RuntimeError("Invalid command: %1").arg(str);
   return new ArgumentMarshallerChild<Command *>(cmd);
+}
+
+//////////////////////////////////////////////////////////////////////
+
+StyleGeneratorArgument::StyleGeneratorArgument(const char * cn, const char * pn,
+                                 const char * d, bool def)
+  : ChoiceArgument(StyleGenerator::availableGenerators, cn, pn, d, def) {
+}; 
+
+// No verification done here.
+ArgumentMarshaller * StyleGeneratorArgument::fromString(const QString & str) const
+{
+  return new ArgumentMarshallerChild<QString>(str);
 }

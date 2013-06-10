@@ -57,6 +57,13 @@ StyleGenerator * StyleGenerator::createNamedGenerator(const QString & name,
   return NULL;
 }
 
+StyleGenerator * StyleGenerator::fromText(const QString & txt, 
+                                          int nb)
+{
+  // simple for now
+  return createNamedGenerator(txt, nb);
+}
+
 QStringList StyleGenerator::availableGenerators()
 {
   if(! factory)

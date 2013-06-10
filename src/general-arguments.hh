@@ -1,7 +1,7 @@
 /**
    \file general-arguments.hh
    Various types of general Argument children
-   Copyright 2011 by Vincent Fourmond
+   Copyright 2011, 2012, 2013 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -290,6 +290,20 @@ public:
   virtual ArgumentMarshaller * fromString(const QString & str) const;
 
 };
+
+/// A style -- returned as a QString though, to avoid the problem of
+/// spurious allocation.
+class StyleGeneratorArgument : public ChoiceArgument {
+public:
+
+  StyleGeneratorArgument(const char * cn, const char * pn,
+                         const char * d = "", 
+                         bool def = false);  
+
+  virtual ArgumentMarshaller * fromString(const QString & str) const;
+
+};
+
 
 
 #endif

@@ -32,6 +32,7 @@
 #include <utils.hh>
 
 #include <datasetbrowser.hh>
+#include <stylegenerator.hh>
 
 static Group stack("stack", 1,
                    "Data Stack",
@@ -40,9 +41,14 @@ static Group stack("stack", 1,
 //////////////////////////////////////////////////////////////////////
 
 
-static void loadFilesAndDisplay(int nb, QStringList files)
+static void loadFilesAndDisplay(int nb, QStringList files, 
+                                const CommandOptions & opts)
 {
   soas().view().disableUpdates();
+  QString style;
+  updateFromOptions(opts, "style", style);
+  QScopedPointer<StyleGenerator> 
+    gen(StyleGenerator::fromText(style, files.size()));
   for(int i = 0; i < files.size(); i++) {
     // Terminal::out << "Loading file '" << files[i] << "'";
     try {
@@ -50,9 +56,9 @@ static void loadFilesAndDisplay(int nb, QStringList files)
       soas().stack().pushDataSet(s, true); // use the silent version
       // as we display ourselves
       if(nb > 0)
-        soas().view().addDataSet(s);
+        soas().view().addDataSet(s, gen.data());
       else
-        soas().view().showDataSet(s);
+        soas().view().showDataSet(s, gen.data());
       Terminal::out << " -- " << s->nbColumns() << " columns" << endl;
       nb++;
     }
@@ -70,13 +76,20 @@ loadArgs(QList<Argument *>()
                                      "File",
                                      "Files to load !", true
                                      ));
+
+static ArgumentList 
+styleOpts(QList<Argument *>() 
+          << new StyleGeneratorArgument("style", 
+                                        "Style",
+                                        "Style for curves display"));
                              
 
 
-static void loadCommand(const QString &, QStringList files)
+static void loadCommand(const QString &, QStringList files, 
+                        const CommandOptions & opts)
 {
   /// @todo add the possibility to select the backend
-  loadFilesAndDisplay(0, files);
+  loadFilesAndDisplay(0, files, opts);
 }
 
 
@@ -85,19 +98,20 @@ static void loadCommand(const QString &, QStringList files)
 /// @li swap X and Y (/transpose=yes)
 static Command 
 load("load", // command name
-     optionLessEffector(loadCommand), // action
+     effector(loadCommand), // action
      "stack",  // group name
      &loadArgs, // arguments
-     NULL, // options
+     &styleOpts, // options
      "Load",
      "Loads one or several files",
      "Loads the given files and push them onto the data stack",
      "l");
 //////////////////////////////////////////////////////////////////////
 
-static void overlayFilesCommand(const QString &, QStringList files)
+static void overlayFilesCommand(const QString &, QStringList files, 
+                                const CommandOptions & opts)
 {
-  loadFilesAndDisplay(1, files);
+  loadFilesAndDisplay(1, files, opts);
 }
 
 
@@ -106,7 +120,7 @@ ovl("overlay", // command name
     optionLessEffector(overlayFilesCommand), // action
     "stack",  // group name
     &loadArgs, // arguments
-    NULL, // options
+    &styleOpts, // options
     "Overlay",
     "Loads files and overlay them",
     QT_TR_NOOP("Loads the given files and push them onto the data "
@@ -390,11 +404,16 @@ loadStack("load-stack", // command name
 //////////////////////////////////////////////////////////////////////
 
 
-static void ovCommand(const QString &, QList<const DataSet *> ds)
+static void ovCommand(const QString &, QList<const DataSet *> ds,
+                      const CommandOptions & opts)
 {
+  QString style;
+  updateFromOptions(opts, "style", style);
+  QScopedPointer<StyleGenerator> 
+    gen(StyleGenerator::fromText(style, ds.size()));
   soas().view().disableUpdates();
   for(int i = 0; i < ds.size(); i++)
-    soas().view().addDataSet(ds[i]);
+    soas().view().addDataSet(ds[i], gen.data());
   soas().view().enableUpdates();
 }
 
@@ -407,10 +426,10 @@ ovArgs(QList<Argument *>()
 
 static Command 
 ovlb("overlay-buffer", // command name
-     optionLessEffector(ovCommand), // action
+     effector(ovCommand), // action
      "stack",  // group name
      &ovArgs, // arguments
-     NULL, // options
+     &styleOpts, // options
      "Overlay buffers",
      "Overlay buffer to the current one",
      "Overlay buffers that are already in memory "

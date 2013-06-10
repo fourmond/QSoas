@@ -24,6 +24,8 @@
 
 /// Assigns the current value of source to dest when the object goes
 /// out of scope.
+///
+/// @todo This is really TemporaryChange with another name ?
 template <class T> class DelayedAssign {
   T & dest;
   const T & source;

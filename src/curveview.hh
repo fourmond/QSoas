@@ -23,8 +23,10 @@
 
 #include <curvepanel.hh>
 #include <curvedataset.hh>
+
 class CurveEventLoop;
 class DataSet;
+class StyleGenerator;
 
 /// This widget displays CurveItem (or children thereof). -- hmm, not
 /// that anymore.
@@ -161,10 +163,10 @@ public slots:
   void showCurrentDataSet();
 
   /// Adds a DataSet to the display.
-  void addDataSet(const DataSet * ds);
+  void addDataSet(const DataSet * ds, StyleGenerator * generator = NULL);
 
   /// Shows the given DataSet (and forget about the other things)
-  void showDataSet(const DataSet * ds);
+  void showDataSet(const DataSet * ds, StyleGenerator * generator = NULL);
 
   /// Whether or not datasets should display markers when applicable.
   void setPaintMarkers(bool enabled);

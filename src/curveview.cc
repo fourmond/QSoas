@@ -1,6 +1,6 @@
 /*
   curveview.cc: displaying 2D curves...
-  Copyright 2011 by Vincent Fourmond
+  Copyright 2011, 2012, 2013 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -36,6 +36,9 @@
 #include <datastack.hh>
 
 #include <exceptions.hh>
+#include <stylegenerator.hh>
+
+
 
 
 
@@ -132,13 +135,19 @@ void CurveView::addItem(CurveItem * item)
   doRepaint();
 }
 
-void CurveView::addDataSet(const DataSet * ds)
+void CurveView::addDataSet(const DataSet * ds, StyleGenerator * gen)
 {
   if(! ds)
     return;
   CurveDataSet * item = new CurveDataSet(ds);
   item->paintMarkers = paintMarkers;
-  item->pen = penForNextCurve();
+
+  /// @todo Maybe the overall setup should be more complex than just
+  /// choosing the pen ?
+  if(gen)
+    item->pen = gen->nextStyle();
+  else
+    item->pen = penForNextCurve();
   addItem(item);
   if(! currentDataSet)
     currentDataSet = item;
@@ -157,10 +166,10 @@ void CurveView::showCurrentDataSet()
   showDataSet(soas().stack().currentDataSet());
 }
 
-void CurveView::showDataSet(const DataSet * ds)
+void CurveView::showDataSet(const DataSet * ds, StyleGenerator * gen)
 {
   clear();
-  addDataSet(ds);
+  addDataSet(ds, gen);
 }
 
 void CurveView::addPanel(CurvePanel * panel)

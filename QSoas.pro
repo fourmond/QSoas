@@ -20,6 +20,7 @@ isEmpty(VERSION) {
   VERSION = 0.0
 }
 
+# We attempt to make a universal binary on mac
 isEmpty(UNIVERSAL) {
 } else:macx {
   CONFIG += x86_64 x86
@@ -215,7 +216,8 @@ SOURCES += src/qmain.cc \
         src/valuehash.cc \
         src/qsoasfitengine.cc \
         src/curve-effectors.cc \
-        src/simplexfitengine.cc
+        src/simplexfitengine.cc \
+        src/stylegenerator.cc
 
 
 HEADERS += src/headers.hh \
@@ -294,7 +296,8 @@ HEADERS += src/headers.hh \
         src/eventhandler.hh \
         src/valuehash.hh \
         src/curve-effectors.hh \
-        src/idioms.hh
+        src/idioms.hh \
+        src/stylegenerator.hh
 
 
 # We link with the converted ODRPACK library

@@ -120,6 +120,7 @@
 
 // We do C++ sometimes
 #include <stdexcept>
+#include <functional>
 
 #endif
 

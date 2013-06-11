@@ -30,8 +30,12 @@ class StyleGeneratorFactoryItem {
 public:
   /// A generator function, taking the overall number of styles to
   /// give and an optional string argument.
-  typedef std::function<StyleGenerator * (int, const QString &)>
-  Creator;
+
+  // Hell, clang doesn't have std::function !
+  // typedef std::function<StyleGenerator * (int, const QString &)>
+  // Creator;
+
+  typedef StyleGenerator * (*Creator) (int, const QString &);
 
 protected:
   friend class StyleGenerator;

@@ -169,6 +169,12 @@ class FitTrajectoryDisplay : public QDialog {
   /// Number of repetitions
   QLineEdit * repetitions;
 
+  /// Show start and stop
+  QPushButton * startStopButton;
+
+  /// Iteration counter
+  QLabel * iterationDisplay;
+ 
   
 
 
@@ -213,6 +219,10 @@ public slots:
 protected slots:
 
   void contextMenuOnTable(const QPoint & pos);
+
+  void startStopExploration();
+
+  void stopExploration();
 
   void startExploration();
 

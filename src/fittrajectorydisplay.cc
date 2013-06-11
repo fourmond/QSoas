@@ -156,6 +156,10 @@ void FitTrajectoryDisplay::setupFrame()
   setupExploration();
 
   l->addLayout(explorationLayout);
+
+  connect(fitDialog, SIGNAL(finishedFitting()), 
+          SLOT(update()), Qt::QueuedConnection);
+
 }
 
 /// @todo Should join FitTrajectory...
@@ -183,7 +187,7 @@ void FitTrajectoryDisplay::update()
   for(int i = 0; i < trajectories->size(); i++) {
     const FitTrajectory & tr = trajectories->value(i);
     parametersDisplay->setItem(i*2, 0, new QTableWidgetItem("(init)"));
-    
+
     for(int j = 0; j < fitData->fullParameterNumber(); j++)
       parametersDisplay->
         setItem(i*2, 1+j, 
@@ -209,6 +213,23 @@ void FitTrajectoryDisplay::update()
     parametersDisplay->
       setItem(i*2 + 1, fitData->fullParameterNumber() + 3, 
               new QTableWidgetItem(tr.engine));
+
+    // Now select a color for the bottom line
+    QColor c;
+    switch(tr.ending) {
+    case FitTrajectory::Converged:
+      c = QColor::fromHsv(120, 15, 255);
+      break;
+    case FitTrajectory::Cancelled:
+      c = QColor::fromHsv(270, 15, 255);
+      break;
+    case FitTrajectory::TimeOut:
+    default:
+      c = QColor::fromHsv(359, 15, 255);
+      break;
+    }
+    for(int j = 0; j <= fitData->fullParameterNumber() + 3; j++)
+      parametersDisplay->item(i*2+1, j)->setBackground(c);
   }
 
   parametersDisplay->resizeColumnsToContents();
@@ -262,12 +283,18 @@ void FitTrajectoryDisplay::setupExploration()
   explorationLayout->addWidget(new QLabel("Repetitions"), 
                                rows, 0, 1, 2);
   repetitions = new QLineEdit("10");
+
   explorationLayout->addWidget(repetitions, rows, 2, 1, 2);
-  QPushButton * bt = new QPushButton("Go !");
 
-  explorationLayout->addWidget(bt, rows, 4);
+  rows++;
 
-  connect(bt, SIGNAL(clicked()), SLOT(startExploration()));
+  iterationDisplay = new QLabel();
+  explorationLayout->addWidget(iterationDisplay, rows, 0, 1, 5);
+
+  startStopButton = new QPushButton("Go !");
+  explorationLayout->addWidget(startStopButton, rows, 5);
+
+  connect(startStopButton, SIGNAL(clicked()), SLOT(startExploration()));
   connect(fitDialog, SIGNAL(finishedFitting()), 
           SLOT(sendNextParameters()), Qt::QueuedConnection);
   
@@ -338,8 +365,29 @@ void FitTrajectoryDisplay::sortByResiduals()
   update();
 }
 
+
+void FitTrajectoryDisplay::stopExploration()
+{
+  startStopButton->setText("Go");
+
+  lastIteration = currentIteration = -1;
+  iterationDisplay->setText("");
+}
+
+
+void FitTrajectoryDisplay::startStopExploration()
+{
+  // Actually stop !
+  if(lastIteration > 0)
+    stopExploration();
+  else
+    startExploration();
+}
+
 void FitTrajectoryDisplay::startExploration()
 {
+  startStopButton->setText("Stop");
+
   currentIteration = 0;
   lastIteration = repetitions->text().toInt();
 
@@ -351,20 +399,25 @@ void FitTrajectoryDisplay::sendNextParameters()
   if(currentIteration < 0 || lastIteration < 0)
     return;
   if(currentIteration >= lastIteration) {
-    lastIteration = currentIteration = -1;
+    stopExploration();
     return;
   }
 
   currentIteration++;
+  iterationDisplay->setText(QString("Iteration %1/%2").
+                            arg(currentIteration).
+                            arg(lastIteration));
+
   for(int i = 0; i < parameterRangeEditors.size(); i++) {
     ParameterRangeEditor * ed = parameterRangeEditors[i];
+    if(! ed->isVariable())
+      continue;
     double x = rand() * 1.0/RAND_MAX;
     x = ed->value(x);
     fitDialog->parameters.setValue(ed->index, ed->dataset, x);
   }
   fitDialog->updateEditors();
   fitDialog->startFit();
-  update();
 }
 
 

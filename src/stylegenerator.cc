@@ -109,7 +109,7 @@ public:
     QColor c(s[0], s[1], s[2]);
     QPen pen = soas().graphicsSettings().dataSetPen(0);
     pen.setColor(c);
-    return c;
+    return pen;
   };
 };
 

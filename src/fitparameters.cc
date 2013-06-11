@@ -175,7 +175,10 @@ bool FitParameters::isGlobal(int index) const
 
 bool FitParameters::isFixed(int index, int ds) const
 {
-  return parameter(index, (ds >= 0 ? ds : 0))->fixed();
+  // Make sure the correct dataset is used.
+  if(ds < 0 || isGlobal(index))
+    ds = 0;
+  return parameter(index, ds)->fixed();
 }
 
 void FitParameters::updateParameterValues()

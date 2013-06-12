@@ -99,12 +99,30 @@ namespace Utils {
 
   /// @}
 
+
+  /// @name GSL-related functions
+  ///
+  /// Various bunch of useful GSL-related functions.
+  ///
+  /// @{
+  
   /// Converts the given matrix to a string
   QString matrixString(const gsl_matrix * matrix);
   QString matrixString(const gsl_matrix_complex * matrix);
 
   QString vectorString(const gsl_vector * vect);
   QString vectorString(const gsl_vector_complex * vect);
+
+  /// Inverts the given matrix using SV decomposition.
+  /// The original matrix is destroyed in the process.
+  ///
+  /// If threshold is a positive value, any singular value smaller
+  /// than threshold times the large one is considered to have that
+  /// value. 
+  void invertMatrix(gsl_matrix  * mat, gsl_matrix * target,
+                    double threshold = -1);
+
+  /// @}
 
   /// Rounds \a value as if it had only \a ranks digits before the
   /// decimal point.

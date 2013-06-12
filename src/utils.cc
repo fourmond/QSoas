@@ -21,6 +21,8 @@
 #include <utils.hh>
 #include <exceptions.hh>
 
+#include <vector.hh>
+
 /// Helper function for globs
 static QStringList dirGlob(QString directory, QString str,
                            bool isDir, bool parentOK = false)
@@ -387,3 +389,36 @@ QString Utils::shortenString(const QString & str, int len, int last)
   s += str.right(last);
   return s;
 }
+
+void Utils::invertMatrix(gsl_matrix  * mat, gsl_matrix * target,
+                         double threshold)
+{
+  if(mat->size1 != mat->size2)
+    throw RuntimeError("Impossible to invert a rectangular matrix: %1 != %2").
+      arg(mat->size1).arg(mat->size2);
+
+  int sz = mat->size1;
+  Vector sv(sz, 0);             // singular values
+  Vector w(sz, 0);              // work
+  Vector tmpm(sz*sz, 0);
+
+  gsl_matrix_view m = gsl_matrix_view_array(tmpm.data(), sz, sz);
+
+  gsl_linalg_SV_decomp(mat, &m.matrix, sv.toGSLVector(), w.toGSLVector());
+
+  // Now, we invert the diagonal elements and multiply V by that
+  double max = sv[0];
+  double t = max * threshold;
+  for(int i = 0; i < sz; i++) {
+    double elem = sv[i];
+    if(t > 0 && elem < t)
+      elem = t;
+    gsl_vector_view col = gsl_matrix_column(&m.matrix, i);
+    gsl_vector_scale(&col.vector, 1/elem);
+  }
+
+  // target = V * U^T
+  gsl_blas_dgemm(CblasNoTrans, CblasTrans, 1.0, &m.matrix, mat, 
+                 0.0, target);
+}
+

@@ -76,6 +76,10 @@ public:
 
   /// Returns the value corresponding to alpha (a value between 0 and 1)
   double value(double alpha);
+
+  /// This storage place is used for communication between the
+  /// parameter space explorators and the trajectory display
+  double chosenValue;
   
 
 public slots:

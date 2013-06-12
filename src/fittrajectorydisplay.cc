@@ -48,20 +48,21 @@ void ParameterRangeEditor::insertIntoGrid(QGridLayout * grid, int row,
 
 ParameterRangeEditor::ParameterRangeEditor(const QString & name, int idx, 
                                            int ds, 
-                                           bool fixed, double val) : 
+                                           bool fixed, double val,
+                                           QWidget * parent) : 
   index(idx), dataset(ds)
 {
-    variable = new QCheckBox(name);
-    lowLabel = new QLabel("Lower: ");
-    upLabel = new QLabel("Upper: ");
+  variable = new QCheckBox(name, parent);
+    lowLabel = new QLabel("Lower: ", parent);
+    upLabel = new QLabel("Upper: ", parent);
 
     QString a = QString::number(val * 0.1);
     
-    lowerRange = new QLineEdit(a);
+    lowerRange = new QLineEdit(a, parent);
     a = QString::number(val * 10);
-    upperRange = new QLineEdit(a);
+    upperRange = new QLineEdit(a, parent);
 
-    isLog = new QCheckBox("log ?");
+    isLog = new QCheckBox("log ?", parent);
     
     connect(variable, SIGNAL(toggled(bool)),
             SLOT(variableChanged()));
@@ -118,6 +119,7 @@ FitTrajectoryDisplay::FitTrajectoryDisplay(FitDialog * dlg, FitData * data,
 void FitTrajectoryDisplay::setupFrame()
 {
   QVBoxLayout * l = new QVBoxLayout(this);
+  overallLayout = l;            // l is just a handy shortcut
   parametersDisplay = new QTableWidget();
   l->addWidget(parametersDisplay);
   parametersDisplay->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -153,9 +155,11 @@ void FitTrajectoryDisplay::setupFrame()
   hb->addWidget(bt);
 
   l->addLayout(hb);
-  setupExploration();
 
-  l->addLayout(explorationLayout);
+  explorationControls = new QScrollArea;
+  l->addWidget(explorationControls);
+
+  setupExploration();
 
   connect(fitDialog, SIGNAL(finishedFitting()), 
           SLOT(update()), Qt::QueuedConnection);
@@ -243,13 +247,16 @@ FitTrajectoryDisplay::~FitTrajectoryDisplay()
 
 void FitTrajectoryDisplay::setupExploration()
 {
-  explorationLayout = new QGridLayout();
+  explorationControls->setWidget(new QWidget());
+  explorationControls->setWidgetResizable(true);
+  explorationLayout = new QGridLayout(explorationControls->widget());
 
   int rows = 0;
   
   int nbparams = fitData->parametersPerDataset();
   int nbds = fitData->datasets.size();
 
+  QWidget * sw = explorationControls->widget();
   if(nbds > 1) {
     // First pass on global parameters
     for(int i = 0; i < nbparams; i++) {
@@ -258,7 +265,7 @@ void FitTrajectoryDisplay::setupExploration()
           ParameterRangeEditor(fitData->parameterDefinitions[i].name,
                                i, -1, 
                                fitDialog->parameters.isFixed(i, 0),
-                               fitDialog->parameters.getValue(i, 0));
+                               fitDialog->parameters.getValue(i, 0), sw);
 
         parameterRangeEditors << ed;
         ed->insertIntoGrid(explorationLayout, rows++);
@@ -273,31 +280,37 @@ void FitTrajectoryDisplay::setupExploration()
           ParameterRangeEditor(fitData->parameterDefinitions[i].name,
                                i, j, 
                                fitDialog->parameters.isFixed(i, j),
-                               fitDialog->parameters.getValue(i, j));
+                               fitDialog->parameters.getValue(i, j), sw);
         parameterRangeEditors << ed;
         ed->insertIntoGrid(explorationLayout, rows++);
       }
     }
   }
 
-  explorationLayout->addWidget(new QLabel("Repetitions"), 
-                               rows, 0, 1, 2);
+  // Now are things outside of the scroll area
+
+  QHBoxLayout * hl = new QHBoxLayout;
+  hl->addWidget(new QLabel("Repetitions"));
+
   repetitions = new QLineEdit("10");
+  hl->addWidget(repetitions);
 
-  explorationLayout->addWidget(repetitions, rows, 2, 1, 2);
+  overallLayout->addLayout(hl);
 
-  rows++;
+  hl = new QHBoxLayout;
 
   iterationDisplay = new QLabel();
-  explorationLayout->addWidget(iterationDisplay, rows, 0, 1, 5);
+  hl->addWidget(iterationDisplay, 1);
 
   startStopButton = new QPushButton("Go !");
-  explorationLayout->addWidget(startStopButton, rows, 5);
+  hl->addWidget(startStopButton);
+
+  overallLayout->addLayout(hl);
 
   connect(startStopButton, SIGNAL(clicked()), SLOT(startExploration()));
   connect(fitDialog, SIGNAL(finishedFitting()), 
           SLOT(sendNextParameters()), Qt::QueuedConnection);
-  
+
 }
 
 

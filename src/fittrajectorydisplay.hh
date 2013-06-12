@@ -67,8 +67,10 @@ public:
     return variable->checkState() == Qt::Checked;
   };
 
+  /// The parent parameter is important to avoid spurious widgets
+  /// showing up unwanted.
   ParameterRangeEditor(const QString & name, int idx, int ds, 
-                       bool fixed, double val);
+                       bool fixed, double val, QWidget * parent);
 
   virtual ~ParameterRangeEditor();
 
@@ -186,6 +188,10 @@ class FitTrajectoryDisplay : public QDialog {
 
   /// The grid layout used for the exploration controls
   QGridLayout * explorationLayout;
+
+
+  /// The global vertical layout
+  QVBoxLayout * overallLayout;
 
   /// The list of editors of parameter ranges
   QList<ParameterRangeEditor *> parameterRangeEditors;

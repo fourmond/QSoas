@@ -248,7 +248,8 @@ void FitDialog::setupFrame()
                 SLOT(resetParameters()),
                 QKeySequence(tr("Ctrl+Shift+R")));
   ac->addAction("Show Trajectories", this, 
-                SLOT(displayTrajectories()));
+                SLOT(displayTrajectories()),
+                QKeySequence(tr("Ctrl+Shift+T")));
   ac->addAction("Show covariance matrix", this, 
                 SLOT(showCovarianceMatrix()),
                 QKeySequence(tr("Ctrl+M")));

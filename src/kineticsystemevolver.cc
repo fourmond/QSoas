@@ -316,6 +316,20 @@ public:
     return value;
   };
 
+  /// Returns the time at which there are potential discontinuities
+  Vector discontinuities(const double * parameters) const {
+    Vector ret;
+    switch(type) {
+    case Exponential:
+      for(int i = 0; i < number; i++)
+        ret << parameters[baseIndex + (independentBits ? i*3+1 : 2*i+2)];
+      break;
+    default:
+      ;
+    }
+    return ret;
+  };
+
   /// Parses a spec for the time-based stuff. Takes a string of the
   /// form number, type, common
   void parseFromString(const QString & str) {
@@ -355,6 +369,7 @@ class KineticSystemFit : public PerDatasetFit {
   mutable QSet<int> skippedIndices;
 
   /// Time-dependent parameters !
+  /// A hash parameter index -> its time dependence
   QHash<int, TimeDependentParameter> timeDependentParameters;
 
   /// For now, a rather hackish substitute for callbacks with
@@ -511,7 +526,28 @@ public:
     evolver->initialize(xv[0]);
     params = a + tdBase;///  @hack this looks pretty hackish to me...
 
+    Vector discontinuities;
+    for(QHash<int, TimeDependentParameter>::const_iterator i = 
+          timeDependentParameters.begin(); 
+        i != timeDependentParameters.end(); i++)
+      discontinuities << i.value().discontinuities(params);
+    qSort(discontinuities);
+
     for(int i = 0; i < xv.size(); i++) {
+      // Here, we must be wary of the discontinuity points (ie those
+      // of the time-evolving stuff)
+
+      double tg = xv[i];
+
+      if(discontinuities.size() > 0) {
+        double td = discontinuities[0];
+        if(evolver->currentTime() < td && tg > td) {
+          // Make a first step to the discontinuity
+          evolver->stepTo(td);
+          discontinuities.remove(0);
+        }
+      }
+
       evolver->stepTo(xv[i]);
       double val = 0;
       const double * cv = evolver->currentValues();

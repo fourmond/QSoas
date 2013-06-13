@@ -180,7 +180,7 @@ void ODESolver::initialize(const double * yStart, double tStart)
 
 void ODESolver::stepTo(double to)
 {
-  /// @todo It may be a good idea to inspect the return value...
+  
   int status = stepper.apply(&t, to, yValues);
   if(status != GSL_SUCCESS) {
     throw RuntimeError("Integration failed to give the desired "

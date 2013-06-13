@@ -1,7 +1,7 @@
 /**
-   @file exponential-fits.cc
-   Exponential-based fits.
-   Copyright 2011 by Vincent Fourmond
+   @file inactivation-fits.cc
+   Fits for inactivation processes
+   Copyright 2011, 2012, 2013 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -218,6 +218,9 @@ class LinearKineticSystemFit : public PerDatasetFit {
   /// The number of species
   int species;
 
+  /// Whether or not an offset is present
+  bool offset;
+
 
 protected:
 
@@ -230,6 +233,9 @@ protected:
     species = 2;
     updateFromOptions(opts, "species", species);
 
+    offset = false;
+    updateFromOptions(opts, "offset", offset);
+
     distinctSteps = 0;
     for(int i = 0; i < steps.size(); i++)
       if(distinctSteps < steps[i])
@@ -237,29 +243,31 @@ protected:
     distinctSteps++;            // To get the actual number ! 
   }
 
-  const double * initialConcentrations(const double * params) {
-    return params + (species * (species + 1) + 1) * distinctSteps;
-  };
-
-  double * initialConcentrations(double * params) {
-    return params + (species * (species + 1) + 1) * distinctSteps;
-  };
-
-  const double * stepConstants(const double * params, int step) {
-    return params + (species * (species + 1) + 1) * step + species;
-  };
-
-  double * stepConstants(double * params, int step) {
-    return params + (species * (species + 1) + 1) * step + species;
-  };
-
   const double * currents(const double * params, int step) {
-    return params + (species * (species + 1) + 1) * step;
+    return params + (species * (species + 1) + (offset ? 2 : 1)) * step;
   };
 
   double * currents(double * params, int step) {
-    return params + (species * (species + 1) + 1) * step;
+    return params + (species * (species + 1) + (offset ? 2 : 1)) * step;
   };
+
+
+  const double * stepConstants(const double * params, int step) {
+    return currents(params, step) + (offset ? species +1 : species);
+  };
+
+  double * stepConstants(double * params, int step) {
+    return currents(params, step) + (offset ? species +1 : species);
+  };
+
+  const double * initialConcentrations(const double * params) {
+    return currents(params, distinctSteps);
+  };
+
+  double * initialConcentrations(double * params) {
+    return currents(params, distinctSteps);
+  };
+
 
 
 public:
@@ -275,13 +283,16 @@ public:
       for(int j = 0; j < species; j++)
         defs << ParameterDefinition(QString("I_%1%2").arg(j+1).arg(suffix));
 
+      if(offset)
+        defs << ParameterDefinition(QString("I_off_%1").arg(suffix), true);
+
       /// Reaction constants
       for(int j = 0; j < species; j++)
         for(int k = 0; k < species; k++)
           defs << ParameterDefinition(QString("k_%1_%2%3").
                                       arg(j+1).arg(k+1).arg(suffix)); 
 
-      defs << ParameterDefinition(QString("k_loss%1").arg(suffix)); 
+      defs << ParameterDefinition(QString("k_loss%1").arg(suffix));
       /// @todo Offer the possibility to set the sum and ratio rather
       /// than each individually
         
@@ -313,6 +324,7 @@ public:
     QVarLengthArray<double, 30> currents(species);
     gsl_vector_view vcu = gsl_vector_view_array(currents.data(), species);
 
+    double offset_value = 0;
     int cur = -1;
     double xstart = 0;
     double xend = 0;
@@ -331,11 +343,14 @@ public:
 
         // First, potential-dependant-stuff:
         int potential = steps[cur];
-        
+       
         // Currents:
         const double  * base = this->currents(a, potential);
         for(int i = 0; i < species; i++)
           currents[i] = base[i];
+
+        if(offset)
+          offset_value = base[species];
 
 
         // Now, range checking: we don't want rate constants to be
@@ -366,6 +381,7 @@ public:
       sys.getConcentrations(x, &vco.vector);
       double res = 0;
       gsl_blas_ddot(&vco.vector, &vcu.vector, &res);
+      res += offset_value;
       gsl_vector_set(target, i, res);
     }
 
@@ -383,6 +399,9 @@ public:
       base = currents(a, i);
       for(int j = 0; j < species; j++)
         base[j] = (j == 0 ? y.max() : 0);
+
+      if(offset)                // Alway set to 0
+        base[species] = 0;
 
       base = stepConstants(a, i);
       for(int j = 0; j < species; j++)
@@ -414,6 +433,9 @@ public:
                    << new IntegerArgument("species", 
                                           "Number of species",
                                           "Number of species")
+                   << new BoolArgument("offset", 
+                                       "Constant offset",
+                                       "If on, allow for a constant offset to be added")
                    << new 
                    SeveralIntegersArgument("steps", 
                                            "Steps",

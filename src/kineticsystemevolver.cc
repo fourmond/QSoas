@@ -316,6 +316,25 @@ public:
     return value;
   };
 
+  /// Sets a reasonable initial guess for these parameters
+  void setInitialGuess(double * parameters, const DataSet * ds) const {
+    double dx = ds->x().max() - ds->x().min();
+    switch(type) {
+    case Exponential:
+      for(int i = 0; i < number; i++) {
+        double & t0   = parameters[baseIndex + (independentBits ? i*3+1 : 2*i+2)];
+        double & conc = parameters[baseIndex + (independentBits ? i*3   : 2*i+1)];
+        double & tau  = parameters[baseIndex + (independentBits ? i*3+2 : 0)];
+        tau = 20;
+        conc = 1;
+        t0 = ds->x().min() + (i+1) * dx/(number+1);
+      }
+      break;
+    default:
+      ;
+    }
+  };
+
   /// Returns the time at which there are potential discontinuities
   Vector discontinuities(const double * parameters) const {
     Vector ret;
@@ -578,6 +597,13 @@ public:
     // All rate constants and other to 1 ?
     for(int i = 2*nb; i < params->parameterDefinitions.size(); i++)
       a[i] = 1;                 // Simple, heh ?
+
+
+    // And have the parameters handle themselves:
+    for(QHash<int, TimeDependentParameter>::const_iterator i = 
+          timeDependentParameters.begin(); 
+        i != timeDependentParameters.end(); i++)
+      i.value().setInitialGuess(a + tdBase, ds);
 
   };
 

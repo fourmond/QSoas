@@ -218,7 +218,9 @@ SOURCES += src/qmain.cc \
         src/curve-effectors.cc \
         src/simplexfitengine.cc \
         src/stylegenerator.cc \
-        src/parameterspaceexplorator.cc
+        src/parameterspaceexplorator.cc \
+        src/explorators.cc \
+        src/widgets.cc
 
 
 HEADERS += src/headers.hh \
@@ -299,7 +301,8 @@ HEADERS += src/headers.hh \
         src/curve-effectors.hh \
         src/idioms.hh \
         src/stylegenerator.hh \
-        src/parameterspaceexplorator.hh
+        src/parameterspaceexplorator.hh  \
+        src/widgets.hh
 
 
 # We link with the converted ODRPACK library

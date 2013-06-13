@@ -24,6 +24,8 @@
 #include <fitdata.hh>
 #include <actioncombo.hh>
 
+#include <parameterspaceexplorator.hh>
+
 
 void ParameterRangeEditor::showEditors(bool show)
 {
@@ -104,7 +106,7 @@ double ParameterRangeEditor::value(double alpha)
 FitTrajectoryDisplay::FitTrajectoryDisplay(FitDialog * dlg, FitData * data, 
                                            QList<FitTrajectory> * tr) :
   fitDialog(dlg), fitData(data), trajectories(tr),
-  currentIteration(-1), lastIteration(-1)
+  iterationsStarted(false), shouldStop(false)
 {
   setupFrame();
 
@@ -289,15 +291,48 @@ void FitTrajectoryDisplay::setupExploration()
 
   // Now are things outside of the scroll area
 
+
+  // setup of the space explorator choice and its parameters.
+  exploratorHBox = new QHBoxLayout;
+  
+  exploratorHBox->addWidget(new QLabel("Explorator"));
+
+  exploratorWidget = NULL;
+  currentExplorator = NULL;
+
+  exploratorCombo = new QComboBox;
+  exploratorHBox->addWidget(exploratorCombo);
+
+  // Now, we populate the combo:
+  QHash<QString, QString> explorators = 
+    ParameterSpaceExplorator::availableExplorators();
+
+  QStringList eNames = explorators.keys();
+  qSort(eNames);
+  int def = -1;
+  for(int i = 0; i < eNames.size(); i++) {
+    QString pn = eNames[i];
+    QString n = explorators[pn];
+    exploratorCombo->addItem(pn, n);
+    if(n == "monte-carlo")
+      def = i;
+  }
+  // To make sure we're actually moving...
+  exploratorCombo->setCurrentIndex(-1);
+
+  connect(exploratorCombo, SIGNAL(currentIndexChanged(int)), 
+          SLOT(exploratorChanged(int)));
+
+  // We set to the default explorator
+  if(def >= 0)
+    exploratorCombo->setCurrentIndex(def);
+
+  // This also sets the exploratorWidget and currentExplorator
+  
+
+  overallLayout->addLayout(exploratorHBox);
+
   QHBoxLayout * hl = new QHBoxLayout;
-  hl->addWidget(new QLabel("Repetitions"));
-
-  repetitions = new QLineEdit("10");
-  hl->addWidget(repetitions);
-
-  overallLayout->addLayout(hl);
-
-  hl = new QHBoxLayout;
 
   iterationDisplay = new QLabel();
   hl->addWidget(iterationDisplay, 1);
@@ -383,15 +418,14 @@ void FitTrajectoryDisplay::stopExploration()
 {
   startStopButton->setText("Go");
 
-  lastIteration = currentIteration = -1;
+  iterationsStarted = false;
   iterationDisplay->setText("");
 }
 
 
 void FitTrajectoryDisplay::startStopExploration()
 {
-  // Actually stop !
-  if(lastIteration > 0)
+  if(iterationsStarted)
     stopExploration();
   else
     startExploration();
@@ -399,38 +433,68 @@ void FitTrajectoryDisplay::startStopExploration()
 
 void FitTrajectoryDisplay::startExploration()
 {
+  if(! currentExplorator)
+    return;                     // Nothing to do ?
+
+  iterationsStarted = true;
+  shouldStop = false;
   startStopButton->setText("Stop");
 
-  currentIteration = 0;
-  lastIteration = repetitions->text().toInt();
+  currentExplorator->prepareIterations(exploratorWidget, 
+                                       &parameterRangeEditors);
 
   sendNextParameters();
 }
 
 void FitTrajectoryDisplay::sendNextParameters()
 {
-  if(currentIteration < 0 || lastIteration < 0)
+  if(! iterationsStarted)
     return;
-  if(currentIteration >= lastIteration) {
+  if(! currentExplorator)
+    return;
+  if(shouldStop) {
     stopExploration();
     return;
   }
 
-  currentIteration++;
-  iterationDisplay->setText(QString("Iteration %1/%2").
-                            arg(currentIteration).
-                            arg(lastIteration));
+  if(currentExplorator->sendNextParameters() < 0) {
+    stopExploration();
+    return;
+  }
 
   for(int i = 0; i < parameterRangeEditors.size(); i++) {
     ParameterRangeEditor * ed = parameterRangeEditors[i];
-    if(! ed->isVariable())
-      continue;
-    double x = rand() * 1.0/RAND_MAX;
-    x = ed->value(x);
-    fitDialog->parameters.setValue(ed->index, ed->dataset, x);
+    if(ed->isVariable())
+      fitDialog->parameters.setValue(ed->index, ed->dataset, ed->chosenValue);
   }
+
   fitDialog->updateEditors();
   fitDialog->startFit();
 }
 
 
+void FitTrajectoryDisplay::exploratorChanged(int index)
+{
+  delete currentExplorator;
+  currentExplorator = NULL;
+
+  delete exploratorWidget;
+  exploratorWidget = NULL;
+
+  if(index >= 0) {
+    QVariant dat = exploratorCombo->itemData(index);
+    if(! dat.isValid())
+      return ;
+    QString n = dat.toString();
+    currentExplorator = 
+      ParameterSpaceExplorator::createExplorator(n, fitData);
+    if(! currentExplorator)
+      return;
+    exploratorWidget = currentExplorator->
+      createParametersWidget(this);
+    if(exploratorWidget)
+      exploratorHBox->addWidget(exploratorWidget);
+
+    // All ?
+  }
+}

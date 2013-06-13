@@ -69,10 +69,15 @@ protected:
   /// Underlying data
   FitData * data;
 
+  /// a storage space for the editors
+  QList<ParameterRangeEditor*> * editors;
+
 public:
 
   /// Creates the parameter space exploration
   ParameterSpaceExplorator(FitData * data);
+
+  virtual ~ParameterSpaceExplorator();
 
   /// A hash public name -> real name for the explorators.
   static QHash<QString, QString> availableExplorators();

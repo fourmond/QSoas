@@ -42,6 +42,15 @@ void ParameterSpaceExplorator::registerFactoryItem(ParameterSpaceExploratorFacto
   (*factory)[item->name] = item;
 }
 
+ParameterSpaceExplorator::ParameterSpaceExplorator(FitData * d) :
+  data(d) 
+{
+}
+
+ParameterSpaceExplorator::~ParameterSpaceExplorator()
+{
+}
+
 ParameterSpaceExploratorFactoryItem * ParameterSpaceExplorator::namedFactoryItem(const QString & name)
 {
   if(! factory)
@@ -69,4 +78,9 @@ QHash<QString, QString> ParameterSpaceExplorator::availableExplorators()
     ret[i.value()->publicName] = i.value()->name;
 
   return ret;
+}
+
+void ParameterSpaceExplorator::resultingTrajectory(const FitTrajectory & )
+{
+  // no-op
 }

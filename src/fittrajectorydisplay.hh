@@ -89,6 +89,7 @@ public slots:
 
 };
 
+
 /// This class represents a "fit operation", ie what happens every
 /// time the user clicks on the fit button.
 ///
@@ -145,6 +146,10 @@ public:
 
 };
 
+
+class ParameterSpaceExplorator;
+
+
 /// A dialog box displaying a set of FitTrajectory objects.
 ///
 /// It also provides means to run automatic screening of the parameter
@@ -197,6 +202,18 @@ class FitTrajectoryDisplay : public QDialog {
   /// The global vertical layout
   QVBoxLayout * overallLayout;
 
+  /// The horizontal layout that holds the space explorator choice
+  /// combo + the space explorator widget
+  QHBoxLayout * exploratorHBox;
+
+  /// The space explorator combo box
+  QComboBox * exploratorCombo;
+
+  /// The space explorator accessory widget
+  QWidget * exploratorWidget;
+
+  ParameterSpaceExplorator * currentExplorator;
+
   /// The list of editors of parameter ranges
   QList<ParameterRangeEditor *> parameterRangeEditors;
 
@@ -206,9 +223,12 @@ class FitTrajectoryDisplay : public QDialog {
   /// Setup the part that actually deals with the range editors and the rest
   void setupExploration();
 
-  int currentIteration;
 
-  int lastIteration;
+  /// Whether iterations did start
+  bool iterationsStarted;
+
+  /// Whether we should stop iterations
+  bool shouldStop;
 public:
 
   FitTrajectoryDisplay(FitDialog * dlg, FitData * data, 
@@ -237,6 +257,9 @@ protected slots:
   void startExploration();
 
   void sendNextParameters();
+
+  /// Called when the combo box for choosing the explorator is changed.
+  void exploratorChanged(int idx);
 };
 
 

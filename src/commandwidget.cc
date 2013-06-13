@@ -32,7 +32,10 @@
 
 using namespace Terminal;
 
-CommandWidget * CommandWidget::theCommandWidget = NULL;
+/// @todo Replace with a QPointer to avoid sending stuff once it's
+/// destroyed ?
+
+QPointer<CommandWidget> CommandWidget::theCommandWidget(NULL);
 static SettingsValue<QString> logFileName("command/logfile", 
                                           QString("soas.log"));
 

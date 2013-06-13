@@ -61,7 +61,7 @@ class CommandWidget : public QWidget {
 
   /// The CommandWidget that will receive log (Terminal) messages, ie
   /// the first one to be created.
-  static CommandWidget * theCommandWidget;
+  static QPointer<CommandWidget> theCommandWidget;
 
   /// The name of the script currently being run. Empty if not running
   /// a script.

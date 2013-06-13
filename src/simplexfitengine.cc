@@ -135,7 +135,7 @@ const gsl_vector * SimplexFitEngine::currentParameters() const
 
 double SimplexFitEngine::residuals() const
 {
-  return vertices[0].residuals;
+  return sqrt(vertices[0].residuals);
 }
 
 void SimplexFitEngine::computeCovarianceMatrix(gsl_matrix * target) const

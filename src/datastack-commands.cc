@@ -117,7 +117,7 @@ static void overlayFilesCommand(const QString &, QStringList files,
 
 static Command 
 ovl("overlay", // command name
-    optionLessEffector(overlayFilesCommand), // action
+    effector(overlayFilesCommand), // action
     "stack",  // group name
     &loadArgs, // arguments
     &styleOpts, // options

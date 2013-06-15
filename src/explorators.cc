@@ -60,7 +60,7 @@ public:
       ParameterRangeEditor * ed = (*editors)[i];
       if(! ed->isVariable())
         continue;
-      double x = rand() * 1.0/RAND_MAX;
+      double x = random();
 
       x = ed->value(x);
       ed->chosenValue = x;
@@ -77,3 +77,94 @@ montecarlo("monte-carlo", "Monte Carlo",
              return new MonteCarloExplorator(d);
            });
                                                
+
+//////////////////////////////////////////////////////////////////////
+
+
+class GridExplorator : public ParameterSpaceExplorator {
+
+  int iterations;
+
+  int currentIteration;
+
+  int steps;
+
+  QList<int> current;
+public:
+
+  GridExplorator(FitData * data) : ParameterSpaceExplorator(data) {
+    ;
+  };
+
+  virtual int prepareIterations(QWidget * parameters,
+                                QList<ParameterRangeEditor*> * eds) {
+    LabeledEdit * ed = dynamic_cast<LabeledEdit *>(parameters);
+    if(! ed)
+      throw InternalError("Invalid widget passed onto the "
+                          "grid explorator");
+    steps = ed->text().toInt();
+    if(steps <= 1)
+      return 0;
+    currentIteration = 0;
+
+    iterations = 1;
+    current.clear();
+    editors = eds;
+
+    for(int i = 0; i < editors->size(); i++) {
+      ParameterRangeEditor * ed = (*editors)[i];
+      if(ed->isVariable()) {
+        iterations *= steps;    // this is going to be large !
+        current << 0;
+      }
+    }
+
+    return iterations;
+  };
+
+
+  QWidget * createParametersWidget(QWidget * parent) {
+    return new LabeledEdit("Grid size", "4", parent);
+  };
+
+  virtual int sendNextParameters() {
+    if(currentIteration >= iterations)
+      return -1;
+
+
+    int idx = 0;
+    for(int i = 0; i < editors->size(); i++) {
+      ParameterRangeEditor * ed = (*editors)[i];
+      if(! ed->isVariable())
+        continue;
+      double x = current[idx] * 1.0/(steps-1);
+
+      x = ed->value(x);
+      ed->chosenValue = x;
+      idx++;
+    }
+
+    ++currentIteration;
+
+    int id = current.size() - 1;
+    while(true) {
+      if(current[id] < steps - 1) {
+        current[id] ++;
+        for(int i = id+1; i < current.size(); i++)
+          current[i] = 0;
+        break;
+      }
+      id--;
+      if(id < 0)
+        return -1;              // We're done !
+    }
+    return currentIteration;
+  };
+
+};
+
+ParameterSpaceExploratorFactoryItem 
+grid("grid", "Grid search", 
+     [](FitData *d) -> ParameterSpaceExplorator * {
+       return new GridExplorator(d);
+     });

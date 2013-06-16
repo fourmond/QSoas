@@ -35,7 +35,8 @@ public:
   };
 
   virtual int prepareIterations(QWidget * parameters,
-                                QList<ParameterRangeEditor*> * eds) {
+                                QList<ParameterRangeEditor*> * eds,
+                                QString * tg) {
     LabeledEdit * ed = dynamic_cast<LabeledEdit *>(parameters);
     if(! ed)
       throw InternalError("Invalid widget passed onto the "
@@ -53,7 +54,7 @@ public:
     return new LabeledEdit("Iterations", "20", parent);
   };
 
-  virtual int sendNextParameters() {
+  virtual int sendNextParameters(QString * tg) {
     if(currentIteration >= iterations)
       return -1;
     for(int i = 0; i < editors->size(); i++) {
@@ -66,6 +67,11 @@ public:
       ed->chosenValue = x;
     }
     ++currentIteration;
+    
+    if(tg)
+      *tg = QString("Iteration %1/%2").arg(currentIteration).
+        arg(iterations);
+
     return currentIteration;
   };
 
@@ -97,7 +103,8 @@ public:
   };
 
   virtual int prepareIterations(QWidget * parameters,
-                                QList<ParameterRangeEditor*> * eds) {
+                                QList<ParameterRangeEditor*> * eds,
+                                QString * tg) {
     LabeledEdit * ed = dynamic_cast<LabeledEdit *>(parameters);
     if(! ed)
       throw InternalError("Invalid widget passed onto the "
@@ -127,7 +134,7 @@ public:
     return new LabeledEdit("Grid size", "4", parent);
   };
 
-  virtual int sendNextParameters() {
+  virtual int sendNextParameters(QString * tg) {
     if(currentIteration >= iterations)
       return -1;
 
@@ -145,6 +152,11 @@ public:
     }
 
     ++currentIteration;
+
+    if(tg)
+      *tg = QString("Iteration %1/%2").arg(currentIteration).
+        arg(iterations);
+
 
     int id = current.size() - 1;
     while(true) {

@@ -98,7 +98,8 @@ public:
   ///
   /// Returns the number of iterations.
   virtual int prepareIterations(QWidget * parameters,
-                                QList<ParameterRangeEditor*> * editors) = 0;
+                                QList<ParameterRangeEditor*> * editors,
+                                QString * tg) = 0;
 
 
   /// Creates a widget suitable for editing the various parameters.
@@ -107,7 +108,10 @@ public:
   /// Stores parameters for the next iteration within the
   /// editors. Returns a negative number when no further iterations
   /// are under way.
-  virtual int sendNextParameters() = 0;
+  ///
+  /// The string is used to store a message to display on the progress
+  /// dialog
+  virtual int sendNextParameters(QString * tg) = 0;
 
   /// After the fit is performed, the trajectory is send to the
   /// explorator through this function. (a no-op in general)

@@ -440,8 +440,11 @@ void FitTrajectoryDisplay::startExploration()
   shouldStop = false;
   startStopButton->setText("Stop");
 
+  QString txt;
   currentExplorator->prepareIterations(exploratorWidget, 
-                                       &parameterRangeEditors);
+                                       &parameterRangeEditors,
+                                       &txt);
+  iterationDisplay->setText(txt);
 
   sendNextParameters();
 }
@@ -457,10 +460,13 @@ void FitTrajectoryDisplay::sendNextParameters()
     return;
   }
 
-  if(currentExplorator->sendNextParameters() < 0) {
+  QString txt;
+  if(currentExplorator->sendNextParameters(&txt) < 0) {
     stopExploration();
     return;
   }
+
+  iterationDisplay->setText(txt);
 
   for(int i = 0; i < parameterRangeEditors.size(); i++) {
     ParameterRangeEditor * ed = parameterRangeEditors[i];

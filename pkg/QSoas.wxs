@@ -25,10 +25,10 @@
                   Name='QSoas.exe' 
                   DiskId='1' Source='release\QSoas.exe' 
                   KeyPath='yes'>
-              <!-- <Shortcut Id="startmenuQSoas"  -->
-              <!--           Directory="ProgramMenuDir"  -->
-              <!--           Name="QSoas" WorkingDirectory='INSTALLDIR'  -->
-              <!--           Icon="QSoas.ico" IconIndex="0" Advertise="yes" /> -->
+              <Shortcut Id="startmenuQSoas"
+                        Directory="ProgramMenuDir"
+                        Name="QSoas" WorkingDirectory='INSTALLDIR'
+                        Icon="QSoas.ico" IconIndex="0" Advertise="yes" />
               </File>
             </Component>
 
@@ -36,13 +36,29 @@
 
         </Directory>
       </Directory>
+
+      <Directory Id="ProgramMenuFolder" Name="Programs">
+        <Directory Id="ProgramMenuDir" Name="QSoas">
+          <Component Id="ProgramMenuDir" Guid="#StartMenuID#">
+            <RemoveFolder Id='ProgramMenuDir' On='uninstall' />
+            <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Type='string' Value='' KeyPath='yes' />
+          </Component>
+        </Directory>
+      </Directory>
+
     </Directory>
 
     <Feature Id='Complete' Level='1'>
       <ComponentRef Id='MainExecutable' />
+      <ComponentRef Id='ProgramMenuDir' />
       #DLL_REFS#
     </Feature>
 
+    <!-- 
+         We perform what we call major upgrades systematically as they
+         are much less painful for the users (no need to run manually
+         msiexec...)
+    -->
     <Upgrade Id='#UpgradeID#'>
       <UpgradeVersion OnlyDetect='no' Property='SELFFOUND'
                       Minimum='0.0' IncludeMinimum='yes'
@@ -50,10 +66,10 @@
     </Upgrade>
 
     <InstallExecuteSequence>
-      <!-- <Custom Action=' ... ' After=' ... '>UPGRADINGPRODUCTCODE</Custom> -->
       <RemoveExistingProducts Before="InstallInitialize" />
     </InstallExecuteSequence>
 
-    <!-- <Icon Id="QSoas" SourceFile="QSoas.ico" /> -->
+    <Icon Id="QSoas.ico" SourceFile="QSoas.ico" />
+
   </Product>
 </Wix>

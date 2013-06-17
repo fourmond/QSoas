@@ -63,7 +63,7 @@ end
 # We add a few keys
 keys = md5sums.values
 
-keys += ["UpgradeID", "ProductID", "QSoasID"]
+keys += ["UpgradeID", "ProductID", "QSoasID", "StartMenuID"]
 
 # Now, we generate all the missing UUIDs
 for k in keys

@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+  <Product Name='QSoas #VERSION#' 
+           Id='#ProductID#' 
+           UpgradeCode='#UpgradeID#'
+           Language='1033' Codepage='1252' 
+           Version='#WIN_VERSION#' 
+           Manufacturer='BIP CNRS'>
+
+    <Package Id='*' Keywords='Installer' 
+             Description="QSoas #VERSION#'s Installer"
+             Manufacturer='BIP CNRS'
+             InstallerVersion='100' Languages='1033' 
+             Compressed='yes' SummaryCodepage='1252' />
+
+    <Media Id='1' Cabinet='QSoas.cab' EmbedCab='yes' DiskPrompt="CD-ROM #1" />
+    <Property Id='DiskPrompt' Value="QSoas's Installation Media" />
+
+    <Directory Id='TARGETDIR' Name='SourceDir'>
+      <Directory Id='ProgramFilesFolder' Name='PFiles'>
+        <Directory Id='INSTALLDIR' Name='QSoas'>
+          <Component Id='MainExecutable' 
+                     Guid='#QSOAS_UUID#'>
+            <File Id='QSoasEXE' 
+                  Name='QSoas.exe' 
+                  DiskId='1' Source='release\QSoas.exe' 
+                  KeyPath='yes'>
+              <Shortcut Id="startmenuQSoas" 
+                        Directory="ProgramMenuDir" 
+                        Name="QSoas" WorkingDirectory='INSTALLDIR' 
+                        Icon="QSoas.ico" IconIndex="0" Advertise="yes" />
+              </File>
+            </Component>
+
+            #DLLS#
+
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <Feature Id='Complete' Level='1'>
+      <ComponentRef Id='MainExecutable' />
+      #DLL_REFS#
+    </Feature>
+
+    <Icon Id="QSoas" SourceFile="QSoas.ico" />
+  </Product>
+</Wix>

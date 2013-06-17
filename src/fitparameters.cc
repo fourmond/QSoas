@@ -647,12 +647,12 @@ void FitParameters::restoreParameterValues(const Vector & vect)
 }
 
 
-Vector FitParameters::saveParameterErrors()
+Vector FitParameters::saveParameterErrors(double th)
 {
   Vector ret;
   for(int i = 0; i < datasets; i++)
     for(int j = 0; j < nbParameters; j++)
-      ret << getParameterError(j, i);
+      ret << getParameterError(j, i, th);
   return ret;
 }
 
@@ -679,10 +679,10 @@ void FitParameters::writeCovarianceMatrixLatex(QTextStream & out,  bool raw)
   }
 }
 
-double FitParameters::getParameterError(int i, int ds) const
+double FitParameters::getParameterError(int i, int ds, double th) const
 {
   const gsl_matrix * mat = fitData->covarianceMatrix();
-  double conf = fitData->confidenceLimitFactor(0.975);
+  double conf = fitData->confidenceLimitFactor(th);
   double value;
   double error;
   if(isFixed(i, ds))

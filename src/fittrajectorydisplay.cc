@@ -24,6 +24,8 @@
 #include <fitdata.hh>
 #include <actioncombo.hh>
 
+#include <terminal.hh>
+
 #include <parameterspaceexplorator.hh>
 
 
@@ -152,8 +154,8 @@ void FitTrajectoryDisplay::setupFrame()
   connect(bt, SIGNAL(clicked()), SLOT(sortByResiduals()));
   hb->addWidget(bt);
 
-  bt = new QPushButton(tr("Close"));
-  connect(bt, SIGNAL(clicked()), SLOT(close()));
+  bt = new QPushButton(tr("Cluster"));
+  connect(bt, SIGNAL(clicked()), SLOT(clusterTrajectories()));
   hb->addWidget(bt);
 
   l->addLayout(hb);
@@ -205,8 +207,8 @@ void FitTrajectoryDisplay::update()
     for(int j = 0; j < fitData->fullParameterNumber(); j++) {
       QTableWidgetItem * it = 
         new QTableWidgetItem(QString::number(tr.finalParameters[j]));
-      it->setToolTip(QString("Error: %1 %").arg(100 * tr.parameterErrors[j] /
-                                                tr.finalParameters[j]));
+      // Errors are relative ;-)
+      it->setToolTip(QString("Error: %1 %").arg(100 * tr.parameterErrors[j]));
       parametersDisplay->setItem(i*2 + 1, 1+j, it);
     }
 
@@ -340,9 +342,13 @@ void FitTrajectoryDisplay::setupExploration()
   startStopButton = new QPushButton("Go !");
   hl->addWidget(startStopButton);
 
+  QPushButton * bt = new QPushButton(tr("Close"));
+  connect(bt, SIGNAL(clicked()), SLOT(close()));
+  hl->addWidget(bt);
+
   overallLayout->addLayout(hl);
 
-  connect(startStopButton, SIGNAL(clicked()), SLOT(startExploration()));
+  connect(startStopButton, SIGNAL(clicked()), SLOT(startStopExploration()));
   connect(fitDialog, SIGNAL(finishedFitting()), 
           SLOT(sendNextParameters()), Qt::QueuedConnection);
 
@@ -419,6 +425,7 @@ void FitTrajectoryDisplay::stopExploration()
   startStopButton->setText("Go");
 
   iterationsStarted = false;
+  shouldStop = true;
   iterationDisplay->setText("");
 }
 
@@ -503,4 +510,15 @@ void FitTrajectoryDisplay::exploratorChanged(int index)
 
     // All ?
   }
+}
+
+void FitTrajectoryDisplay::clusterTrajectories()
+{
+  QList<FitTrajectoryCluster> clusters = 
+    FitTrajectoryCluster::clusterTrajectories(trajectories);
+
+  Terminal::out << "Found " << clusters.size() << " clusters" << endl;
+  for(int i = 0; i < clusters.size(); i++)
+    Terminal::out  << "Cluster #" << i << ":\n" 
+                   << clusters[i].dump() << endl;
 }

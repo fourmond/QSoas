@@ -151,7 +151,8 @@ public:
   };
 
   /// Returns the value of the relative error for the given parameter:
-  double getParameterError(int index, int dataset) const;
+  double getParameterError(int index, int dataset, 
+                           double confidenceThreshold = 0.975) const;
 
   /// Returns the underlying data
   const FitData * data() const {
@@ -233,8 +234,8 @@ public:
   /// Saves the current parameters as a Vector
   Vector saveParameterValues();
 
-  /// Saves the errors on the parameters as a Vector
-  Vector saveParameterErrors();
+  /// Returns the \b relative errors on the parameters as a Vector
+  Vector saveParameterErrors(double confidenceThreshold = 0.975);
 
   /// Restores the previously saved values.
   void restoreParameterValues(const Vector & values);

@@ -21,7 +21,7 @@
 #ifndef __FITTRAJECTORYDISPLAY_HH
 #define __FITTRAJECTORYDISPLAY_HH
 
-#include <vector.hh>
+#include <fittrajectory.hh>
 
 class FitDialog;
 class FitData;
@@ -86,63 +86,6 @@ public slots:
 
   /// Called when the variable status changed
   void variableChanged();
-
-};
-
-
-/// This class represents a "fit operation", ie what happens every
-/// time the user clicks on the fit button.
-///
-/// @todo Add storage of integers for indexing ?
-class FitTrajectory {
-public:
-
-
-  /// The initial parameters
-  Vector initialParameters;
-
-  /// The final parameters
-  Vector finalParameters;
-
-  /// The errors on the final parameters
-  Vector parameterErrors;
-
-  typedef enum {
-    Converged,
-    Cancelled,
-    TimeOut,
-    Error
-  } Ending;
-
-  /// How the fit ended.
-  Ending ending;
-
-  /// The residuals of the final parameters
-  double residuals;
-
-  /// The (relative) residuals
-  double relativeResiduals;
-
-  /// The fit engine
-  QString engine;
-
-  FitTrajectory() {
-  };
-
-  FitTrajectory(const Vector & init, const Vector & final,
-                const Vector & errors, 
-                double res, double rr,
-                const QString & eng) :
-    initialParameters(init), finalParameters(final), 
-    parameterErrors(errors),
-    ending(Converged), residuals(res), relativeResiduals(rr),
-    engine(eng) {
-  };
-
-  /// Comparison by residuals.
-  bool operator<(const FitTrajectory & o) const {
-    return relativeResiduals < o.relativeResiduals;
-  };
 
 };
 
@@ -245,6 +188,9 @@ public slots:
 
   /// Sort with the smallest residuals first
   void sortByResiduals();
+
+  /// Attempts to cluster the trajectories
+  void clusterTrajectories();
 
 protected slots:
 

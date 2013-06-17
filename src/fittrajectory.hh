@@ -1,0 +1,120 @@
+/**
+   \file fittrajectory.hh
+   Definition of fit trajectories.
+   Copyright 2013 by Vincent Fourmond
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include <headers.hh>
+#ifndef __FITTRAJECTORY_HH
+#define __FITTRAJECTORY_HH
+
+#include <vector.hh>
+
+/// This class represents a "fit operation", ie what happens every
+/// time the user clicks on the fit button.
+///
+/// @todo Add storage of integers for indexing ?
+class FitTrajectory {
+public:
+
+
+  /// The initial parameters
+  Vector initialParameters;
+
+  /// The final parameters
+  Vector finalParameters;
+
+  /// The errors on the final parameters
+  Vector parameterErrors;
+
+  typedef enum {
+    Converged,
+    Cancelled,
+    TimeOut,
+    Error
+  } Ending;
+
+  /// How the fit ended.
+  Ending ending;
+
+  /// The residuals of the final parameters
+  double residuals;
+
+  /// The (relative) residuals
+  double relativeResiduals;
+
+  /// The fit engine
+  QString engine;
+
+  FitTrajectory() {
+  };
+
+  FitTrajectory(const Vector & init, const Vector & final,
+                const Vector & errors, 
+                double res, double rr,
+                const QString & eng) :
+    initialParameters(init), finalParameters(final), 
+    parameterErrors(errors),
+    ending(Converged), residuals(res), relativeResiduals(rr),
+    engine(eng) {
+  };
+
+  /// Comparison by residuals.
+  bool operator<(const FitTrajectory & o) const {
+    return relativeResiduals < o.relativeResiduals;
+  };
+
+
+  /// Returns true if the argument is within the error range of this
+  /// one (that does not necessarily mean that the reverse is true).
+  bool isWithinErrorRange(const FitTrajectory & o) const;
+
+};
+
+
+/// A series of trajectories grouped together.
+class FitTrajectoryCluster {
+
+  /// Whether the given trajectory should belong to the cluster or
+  /// not.
+  bool belongsToCluster(const FitTrajectory & traj) const;
+
+
+  /// Merges the given cluster into this one.
+  void mergeCluster(const FitTrajectoryCluster & other);
+  
+public:
+
+  /// The trajectories that belong to this cluster.
+  QList<FitTrajectory> trajectories;
+
+  FitTrajectoryCluster(const FitTrajectory & seed);
+
+  /// Cluster the given trajectories.
+  ///
+  /// A trajectory belongs to a cluster if it is within the error
+  /// range of a trajectory already within that cluster.
+  static QList<FitTrajectoryCluster> clusterTrajectories(const QList<FitTrajectory> * trajectories);
+
+  /// Returns a description of the cluster as a small text. Should be
+  /// used after sorting.
+  ///
+  /// @todo This can't be the right thing, as we're not handling named
+  /// parameters.
+  QString dump() const;
+};
+
+#endif

@@ -220,7 +220,8 @@ SOURCES += src/qmain.cc \
         src/stylegenerator.cc \
         src/parameterspaceexplorator.cc \
         src/explorators.cc \
-        src/widgets.cc
+        src/widgets.cc \
+        src/fittrajectory.cc
 
 
 HEADERS += src/headers.hh \
@@ -302,7 +303,8 @@ HEADERS += src/headers.hh \
         src/idioms.hh \
         src/stylegenerator.hh \
         src/parameterspaceexplorator.hh  \
-        src/widgets.hh
+        src/widgets.hh \
+        src/fittrajectory.hh
 
 
 # We link with the converted ODRPACK library

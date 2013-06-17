@@ -330,7 +330,7 @@ void FitParameterEditor::updateFromParameters(bool setErrors)
 
   updateBijectionEditors();
   updatingEditor = false;
-  if(setErrors)
+  if(setErrors && (!parameters->isFixed(index, dsIdx)))
     setRelativeError(parameters->getParameterError(index, dsIdx));
   else
     setRelativeError(-1);

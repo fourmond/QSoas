@@ -120,11 +120,14 @@ RESOURCES += qsoas.qrc
 }
 LIBS += -lgsl -lgslcblas -lm
 
+FULL_VERSION=$$VERSION
+
 win32 {
 # Simplify the version scheme for win32, that doesn't like it so much...
   VERSION=$$system($$RUBY strip-win-version.rb $$VERSION)
   message("Mangled version to $$VERSION")
   system($$RUBY prepare-nsis-include.rb)
+  system($$RUBY prepare-wix-input.rb $$FULL_VERSION $$VERSION)
 }
                  
 

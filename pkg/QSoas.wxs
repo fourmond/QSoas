@@ -20,15 +20,15 @@
       <Directory Id='ProgramFilesFolder' Name='PFiles'>
         <Directory Id='INSTALLDIR' Name='QSoas'>
           <Component Id='MainExecutable' 
-                     Guid='#QSOAS_UUID#'>
+                     Guid='#QSoasID#'>
             <File Id='QSoasEXE' 
                   Name='QSoas.exe' 
                   DiskId='1' Source='release\QSoas.exe' 
                   KeyPath='yes'>
-              <Shortcut Id="startmenuQSoas" 
-                        Directory="ProgramMenuDir" 
-                        Name="QSoas" WorkingDirectory='INSTALLDIR' 
-                        Icon="QSoas.ico" IconIndex="0" Advertise="yes" />
+              <!-- <Shortcut Id="startmenuQSoas"  -->
+              <!--           Directory="ProgramMenuDir"  -->
+              <!--           Name="QSoas" WorkingDirectory='INSTALLDIR'  -->
+              <!--           Icon="QSoas.ico" IconIndex="0" Advertise="yes" /> -->
               </File>
             </Component>
 
@@ -43,6 +43,6 @@
       #DLL_REFS#
     </Feature>
 
-    <Icon Id="QSoas" SourceFile="QSoas.ico" />
+    <!-- <Icon Id="QSoas" SourceFile="QSoas.ico" /> -->
   </Product>
 </Wix>

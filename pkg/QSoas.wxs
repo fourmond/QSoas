@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='windows-1252'?>
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
   <Product Name='QSoas #VERSION#' 
-           Id='#ProductID#' 
+           Id='*' 
            UpgradeCode='#UpgradeID#'
            Language='1033' Codepage='1252' 
            Version='#WIN_VERSION#' 
@@ -69,11 +69,12 @@
     </Upgrade>
 
     <!-- Maybe there's something I should have a closer look at ? -->
-    <!-- <MajorUpgrade AllowSameVersionUpgrades='yes' /> -->
+    <MajorUpgrade AllowSameVersionUpgrades='yes' 
+                  DowngradeErrorMessage='Not allowing to downgrade ?'/>
 
-    <InstallExecuteSequence>
-      <RemoveExistingProducts Before="InstallInitialize" />
-    </InstallExecuteSequence>
+    <!-- <InstallExecuteSequence> -->
+    <!--   <RemoveExistingProducts Before="InstallInitialize" /> -->
+    <!-- </InstallExecuteSequence> -->
 
     <Icon Id="QSoas.ico" SourceFile="QSoas.ico" />
 

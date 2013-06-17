@@ -68,6 +68,9 @@
                       Maximum='#WIN_VERSION#' IncludeMaximum='yes' />
     </Upgrade>
 
+    <!-- Maybe there's something I should have a closer look at ? -->
+    <!-- <MajorUpgrade AllowSameVersionUpgrades='yes' /> -->
+
     <InstallExecuteSequence>
       <RemoveExistingProducts Before="InstallInitialize" />
     </InstallExecuteSequence>

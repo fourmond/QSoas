@@ -75,7 +75,6 @@ end
 store = uuids.dup
 
 # These are UUIDS that should change at every run
-store.delete("ProductID")
 store.delete("QSoasID")
 
 File.open("uuids.yaml", "w") do |f|

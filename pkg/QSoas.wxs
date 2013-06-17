@@ -43,6 +43,17 @@
       #DLL_REFS#
     </Feature>
 
+    <Upgrade Id='#UpgradeID#'>
+      <UpgradeVersion OnlyDetect='no' Property='SELFFOUND'
+                      Minimum='0.0' IncludeMinimum='yes'
+                      Maximum='#WIN_VERSION#' IncludeMaximum='yes' />
+    </Upgrade>
+
+    <InstallExecuteSequence>
+      <!-- <Custom Action=' ... ' After=' ... '>UPGRADINGPRODUCTCODE</Custom> -->
+      <RemoveExistingProducts Before="InstallInitialize" />
+    </InstallExecuteSequence>
+
     <!-- <Icon Id="QSoas" SourceFile="QSoas.ico" /> -->
   </Product>
 </Wix>

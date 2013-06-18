@@ -56,7 +56,7 @@ for f in files
   md5.gsub!(/ .*/, '')
   md5.gsub!(/\\/, '')
   md5.chomp!
-  print "#{f} -> #{md5}"
+  # print "#{f} -> #{md5}"
   md5sums[f] = md5
 end
 
@@ -81,7 +81,7 @@ File.open("uuids.yaml", "w") do |f|
   YAML::dump(store, f)
 end
 
-p uuids
+# p uuids
 
 # Generation of the two components
 

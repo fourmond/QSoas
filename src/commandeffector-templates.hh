@@ -538,8 +538,6 @@ public:
                                   const CommandOptions & /*options*/) {
     callback(loop, commandName);
   };
-
-
 };
 
 
@@ -547,6 +545,49 @@ public:
 inline CommandEffector * optionLessEffector(void (*f)(CurveEventLoop &,
                                                       const QString &)) {
   return new InteractiveCommandEffectorCallback0OptionLess(f);
+};
+
+//////////////////////////////////////////////////////////////////////
+
+/// Argumentless and optionless callback to static function
+///
+/// Rather than using this class directly, use
+/// CommandEffector::functionEffector().
+class InteractiveCommandEffectorCallback0 : public CommandEffector {
+
+  typedef void (*Callback)(CurveEventLoop &, const QString &, 
+                           const CommandOptions &);
+  Callback callback;
+
+public:
+
+  InteractiveCommandEffectorCallback0(Callback c) : 
+    CommandEffector(true), callback(c) {;};
+
+  inline virtual void runCommand(const QString & /*commandName*/, 
+                                 const CommandArguments &,
+                                 const CommandOptions &) {
+    throw InternalError("Trying to run an interactive command without a loop");
+  };
+
+  inline virtual bool needsLoop() const {
+    return true;
+  };
+
+  inline virtual void runWithLoop(CurveEventLoop & loop,
+                                  const QString & commandName, 
+                                  const CommandArguments & /*arguments*/,
+                                  const CommandOptions & options) {
+    callback(loop, commandName, options);
+  };
+};
+
+
+/// Effector for an argumentless and optionless command
+inline CommandEffector * effector(void (*f)(CurveEventLoop &,
+                                            const QString &,
+                                            const CommandOptions&)) {
+  return new InteractiveCommandEffectorCallback0(f);
 };
 
 

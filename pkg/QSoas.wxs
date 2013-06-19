@@ -29,7 +29,10 @@
                         Directory="ProgramMenuDir"
                         Name="QSoas" WorkingDirectory='INSTALLDIR'
                         Icon="QSoas.ico" IconIndex="0" Advertise="yes" />
-              </File>
+              <Shortcut Id="desktopQSoas" Directory="DesktopFolder" 
+                        Name="QSoas" WorkingDirectory='INSTALLDIR' 
+                        Icon="QSoas.ico" IconIndex="0" Advertise="yes" />
+            </File>
             </Component>
 
             #DLLS#
@@ -46,6 +49,7 @@
         </Directory>
       </Directory>
 
+      <Directory Id="DesktopFolder" Name="Desktop" />
     </Directory>
 
     <Feature Id='Complete' Level='1' Title='QSoas' 

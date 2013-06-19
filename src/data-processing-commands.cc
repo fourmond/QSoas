@@ -840,14 +840,10 @@ namespace __bs {
 namespace __fft {
 
   typedef enum {
-    AddSegment,
-    RemoveSegment,
+    IncreaseSetCutoff,
+    DecreaseCutoff,
     ToggleDerivative,
-    Optimize,
-    EquallySpaced,
-    Resample,
-    IncreaseSplinesOrder,
-    DecreaseSplinesOrder,
+    TogglePowerSpectrum,
     Replace,
     Abort
   } FFTActions;
@@ -855,21 +851,17 @@ namespace __fft {
   static EventHandler fftHandler = EventHandler("filter-fft").
     addKey(Qt::Key_Escape, Abort, "abort").
     conventionalAccept(Replace, "replace with filtered data").
-    addClick(Qt::LeftButton, AddSegment, "add segment").
-    addClick(Qt::RightButton, RemoveSegment, "remove segment").
+    addClick(Qt::LeftButton, IncreaseSetCutoff, "increase/set cutoff").
+    addClick(Qt::RightButton, DecreaseCutoff, "decrease cutoff").
     addKey('d', ToggleDerivative, "toggle display of derivative").
     alsoKey('D').
-    addKey('a', EquallySpaced, "equally spaced segments").
-    alsoKey('A').
-    addKey('r', Resample, "resample output").
-    alsoKey('R').
-    addKey('o', Optimize, "optimize positions").
-    alsoKey('O').
-    addKey('+', IncreaseSplinesOrder, "increase splines order").
-    addKey('-', DecreaseSplinesOrder, "decrease splines order");
+    addKey('p', TogglePowerSpectrum, "display power spectrum").
+    alsoKey('P');
 
 
-static void fftCommand(CurveEventLoop &loop, const QString &)
+  /// @todo Add windowing function change, bandcut filters, highpass filter ?
+  static void fftCommand(CurveEventLoop &loop, const QString &, 
+                         const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();
   const GraphicsSettings & gs = soas().graphicsSettings();
@@ -916,8 +908,11 @@ static void fftCommand(CurveEventLoop &loop, const QString &)
   bottom.yLabel = Utils::deltaStr("Y");
   bottom.drawingXTicks = false;
 
+  // For some reason, we can't just set the order right now.
+  bool derive = false;
+  updateFromOptions(opts, "derive", derive);
   // The order of the derivative
-  int order = 0;
+  int order = (derive ? 1 : 0);
 
 
   // **************************************************
@@ -958,6 +953,7 @@ static void fftCommand(CurveEventLoop &loop, const QString &)
   bool needCompute = true;
 
   int cutoff = 20;
+  dsDisplay->hidden = derive;
 
   {
     QList<int> facts = orig.factors();
@@ -971,69 +967,55 @@ static void fftCommand(CurveEventLoop &loop, const QString &)
   for(int i = 0; i < spec1.yvalues.size(); i++)
     spec1.yvalues[i] = log(orig.magnitude(i+1));
 
-  loop.setHelpString(QObject::tr("FFT filtering:\n"
-                                 "left click: place point\n"
-                                 "right click: remove closest point\n"
-                                 "p: toogle power spectrum\n"
-                                 "q, middle click: replace with filtered data\n"
-                                 "ESC: abort"));
+  loop.setHelpString("FFT filtering:\n"
+                       + fftHandler.buildHelpString());
   do {
-    if(loop.isConventionalAccept()) {
-      // Quit replacing with data
+    switch(fftHandler.nextAction(loop)) {
+    case Replace:
       soas().pushDataSet(ds->derivedDataSet(d.yvalues, "_filtered.dat"));
       return;
-    }
-    switch(loop.type()) {
-    case QEvent::MouseButtonPress: 
+
+    case IncreaseSetCutoff:
       if(loop.currentPanel() == &spectrum) {
-        if(loop.button() == Qt::LeftButton) { 
-          double x = loop.position(&spectrum).x();
-          cutoff = exp(-x);
-        }
+        double x = loop.position(&spectrum).x();
+        cutoff = exp(-x);
       }
       else {                                 // +/- decrease.
-        if(loop.button() == Qt::RightButton) { // Decrease
-          cutoff--;
-          if(cutoff < 2)
-            cutoff = 2;
-        }
-        if(loop.button() == Qt::LeftButton) { // Remove
-          cutoff++;
-          if(cutoff > ds->x().size()/2 - 2)
-            cutoff = ds->x().size()/2 - 2;
-        }
-        /// @todo This should go on the panel ? 
-        Terminal::out << "Now using a cutoff of " << cutoff << endl;
+        cutoff++;
+        if(cutoff > ds->x().size()/2 - 2)
+          cutoff = ds->x().size()/2 - 2;
       }
+      Terminal::out << "Now using a cutoff of " << cutoff << endl;
       needCompute = true;
       break;
-    case QEvent::KeyPress: 
-      switch(loop.key()) {
-      case Qt::Key_Escape:
-        return;
-      case 'd':
-        if(order > 0)
-          order = 0;
-        else
-          order = 1;
-        dsDisplay->hidden = order;
-        needCompute = true;
-        if(order)
-          soas().showMessage("Showing derivative");
-        else
-          soas().showMessage("Showing filtered data");
-        break;
-      case 'p':
+    case DecreaseCutoff:
+      cutoff--;
+      if(cutoff < 2)
+        cutoff = 2;
+      Terminal::out << "Now using a cutoff of " << cutoff << endl;
+      needCompute = true;
+      break;
+    case Abort:
+      return;
+    case ToggleDerivative:
+      if(order > 0)
+        order = 0;
+      else
+        order = 1;
+      dsDisplay->hidden = order;
+      needCompute = true;
+      if(order)
+        soas().showMessage("Showing derivative");
+      else
+        soas().showMessage("Showing filtered data");
+      break;
+    case TogglePowerSpectrum:
         showSpectrum = ! showSpectrum;
         needUpdate = true;
         needCompute = true;
         break;
-      default:
-        ;
-      }
-      break;
     default:
-      ;
+        ;
     }
     if(needUpdate) {
       // called whenever the status of the bottom panel changes
@@ -1075,16 +1057,24 @@ static void fftCommand(CurveEventLoop &loop, const QString &)
                          view.mainPanel());
       needCompute = false;
     }
-
+    
   } while(! loop.finished());
 }
 
+static ArgumentList 
+fftOps(QList<Argument *>() 
+       << new BoolArgument("derive", 
+                           "Derive",
+                           "Whether to derive by default")
+      );
+
+
 static Command 
 fft("filter-fft", // command name
-    optionLessEffector(fftCommand), // action
+    effector(fftCommand), // action
     "buffer",  // group name
     NULL, // arguments
-    NULL, // options
+    &fftOps, // options
     "Filter",
     "Filter using FFT",
     "...");
@@ -1100,6 +1090,7 @@ static void autoFilterBSCommand(const QString &, const CommandOptions & opts)
   int nb = 12;
   int order = 4;
   int derivatives = 0;
+
 
   updateFromOptions(opts, "number", nb);
   updateFromOptions(opts, "order", order);

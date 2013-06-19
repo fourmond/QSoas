@@ -837,6 +837,38 @@ namespace __bs {
 
 //////////////////////////////////////////////////////////////////////
 
+namespace __fft {
+
+  typedef enum {
+    AddSegment,
+    RemoveSegment,
+    ToggleDerivative,
+    Optimize,
+    EquallySpaced,
+    Resample,
+    IncreaseSplinesOrder,
+    DecreaseSplinesOrder,
+    Replace,
+    Abort
+  } FFTActions;
+
+  static EventHandler fftHandler = EventHandler("filter-fft").
+    addKey(Qt::Key_Escape, Abort, "abort").
+    conventionalAccept(Replace, "replace with filtered data").
+    addClick(Qt::LeftButton, AddSegment, "add segment").
+    addClick(Qt::RightButton, RemoveSegment, "remove segment").
+    addKey('d', ToggleDerivative, "toggle display of derivative").
+    alsoKey('D').
+    addKey('a', EquallySpaced, "equally spaced segments").
+    alsoKey('A').
+    addKey('r', Resample, "resample output").
+    alsoKey('R').
+    addKey('o', Optimize, "optimize positions").
+    alsoKey('O').
+    addKey('+', IncreaseSplinesOrder, "increase splines order").
+    addKey('-', DecreaseSplinesOrder, "decrease splines order");
+
+
 static void fftCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
@@ -1057,6 +1089,7 @@ fft("filter-fft", // command name
     "Filter using FFT",
     "...");
 
+}
 
 //////////////////////////////////////////////////////////////////////
 

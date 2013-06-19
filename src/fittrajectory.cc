@@ -48,7 +48,13 @@ FitTrajectoryCluster::FitTrajectoryCluster(const FitTrajectory & trj)
 /// A sort function to have big clusters come out first.
 static bool cmp(const FitTrajectoryCluster & a, const FitTrajectoryCluster & b)
 {
-  return a.trajectories.size() > b.trajectories.size();
+  if( (a.trajectories.size() > 0) && 
+      (a.trajectories.size() == b.trajectories.size()) )
+    return (a.trajectories[0].relativeResiduals < 
+              b.trajectories[0].relativeResiduals);
+            
+            // Hey emacs, you'r not quite right about indentation here
+            return a.trajectories.size() > b.trajectories.size();
 }
 
 QList<FitTrajectoryCluster> FitTrajectoryCluster::clusterTrajectories(const QList<FitTrajectory> * trajectories)
@@ -108,9 +114,12 @@ bool FitTrajectoryCluster::belongsToCluster(const FitTrajectory & traj) const
 QString FitTrajectoryCluster::dump() const 
 {
   QString str;
-  str += QString("Cluster with %1 members\n"
-                 "Representative member:\n").arg(trajectories.size());
   const FitTrajectory & rep = trajectories[0];
+  str += QString("Cluster with %1 members\n"
+                 "Best residuals: %2\n"
+                 "Representative member:\n").
+    arg(trajectories.size()).
+    arg(rep.relativeResiduals);
   for(int i = 0; i < rep.finalParameters.size(); i++)
     str += QString(" * param[%1] = %2 +- %3%\n").arg(i).
       arg(rep.finalParameters[i]).

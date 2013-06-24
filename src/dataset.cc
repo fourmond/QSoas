@@ -334,8 +334,8 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
     // combine everything back
     
     // We use possessive lists to avoid
-    PossessiveList<DataSet> ads = a->chopIntoSegments();
-    PossessiveList<DataSet> bds = b->chopIntoSegments();
+    PossessiveList<DataSet> ads(a->chopIntoSegments());
+    PossessiveList<DataSet> bds(b->chopIntoSegments());
 
     if(bds.size() < ads.size())
       throw RuntimeError(QString("Dataset '%1' has less segments than '%2': "

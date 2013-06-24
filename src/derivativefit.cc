@@ -132,7 +132,7 @@ void DerivativeFit::function(const double * parameters,
     if(mode == Combined) {
       // We split the dataset and feed that information to the function
       /// @todo This is very memory/speed inefficient.
-      PossessiveList<DataSet> sub = derDS->splitIntoMonotonic();
+      PossessiveList<DataSet> sub(derDS->splitIntoMonotonic());
       if(sub.size() != 2)
         throw RuntimeError(QString("Dataset '%1' should be made of two "
                                    "monotonic parts !").arg(derDS->name));

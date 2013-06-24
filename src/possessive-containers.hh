@@ -32,7 +32,7 @@ public:
   QList<T*> values;
 
   PossessiveList() {;};
-  PossessiveList(const QList<T*> & v) : values(v) {;};
+  explicit PossessiveList(const QList<T*> & v) : values(v) {;};
   PossessiveList(int nb) {
     values.reserve(nb);
     for(int i = 0; i < nb; i++)

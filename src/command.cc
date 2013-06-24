@@ -133,10 +133,10 @@ void Command::runCommand(const QString & commandName,
 
   bool hasDefault = (this->options ? this->options->hasDefaultOption() : false);
   QString def;
-  PossessiveList<ArgumentMarshaller> args = 
-    parseArguments(split.first, (hasDefault ? &def : NULL), base);
-  PossessiveHash<QString, ArgumentMarshaller> options = 
-    parseOptions(split.second, (hasDefault ? &def : NULL));
+  PossessiveList<ArgumentMarshaller> 
+    args(parseArguments(split.first, (hasDefault ? &def : NULL), base));
+  PossessiveHash<QString, ArgumentMarshaller> 
+    options(parseOptions(split.second, (hasDefault ? &def : NULL)));
   // Then the call !
 
   if(effector->needsLoop()) {

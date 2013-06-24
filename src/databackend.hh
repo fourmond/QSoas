@@ -1,7 +1,7 @@
 /**
    \file databackend.hh
    Backends for reading data files.
-   Copyright 2011 by Vincent Fourmond
+   Copyright 2011, 2013 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -25,6 +25,9 @@
 class ArgumentList;
 class DataSet;
 
+
+/// This is an element of the cache. Implementation internal.
+class CachedDataSets;
 
 
 /// The base class of a series that reads data from files.
@@ -50,7 +53,7 @@ class DataBackend {
   /// A cache for datasets
   ///
   /// @todo Should be a pointer ?
-  static QCache<QString, DataSet> cachedDatasets;
+  static QCache<QString, CachedDataSets> cachedDatasets;
   
 
 protected:
@@ -115,8 +118,7 @@ protected:
   /// the file name.
   static void setMetaDataForFile(DataSet * dataset, 
                                  const QString& fileName);
- 
-public:
+
   /// Reads a DataSet from the given stream. The \p fileName parameter
   /// does not necessarily point to a real file.
   ///
@@ -130,9 +132,14 @@ public:
   /// @todo I should find a way to also gather information from the
   /// so-called conditions.dat files I used so often now. I'll have to
   /// decide how the interface will go.
-  virtual DataSet * readFromStream(QIODevice * stream,
-                                   const QString & fileName,
-                                   const CommandOptions & opts) const = 0;
+  virtual QList<DataSet *> readFromStream(QIODevice * stream,
+                                          const QString & fileName,
+                                          const CommandOptions & opts) const = 0;
+
+public:
+
+  QList<DataSet *> readFile(const QString & fileName, 
+                            const CommandOptions & opts) const;
 
   
   /// Find which DataBackend is best suited to load the given stream.
@@ -145,11 +152,18 @@ public:
   /// an appropriate exception.
   ///
   /// This function caches the result !
-  static DataSet * loadFile(const QString & fileName, 
-                            bool verbose = true);
+  static QList<DataSet *> loadFile(const QString & fileName, 
+                                   bool verbose = true);
 
   /// Register all the individual backend load-as commands
   static void registerBackendCommands();
+
+  /// Load files using the given backend (or with backend detection
+  /// should the backend pointer be NULL) and display them.
+  static void loadFilesAndDisplay(int nb, QStringList files, 
+                                  const CommandOptions & opts,
+                                  DataBackend * backend = NULL);
+
 };
 
 #endif

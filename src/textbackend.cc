@@ -18,12 +18,35 @@
 
 
 #include <headers.hh>
-#include <textbackend.hh>
+#include <databackend.hh>
 #include <dataset.hh>
 
 #include <argumentlist.hh>
 #include <argumentmarshaller.hh>
 #include <general-arguments.hh>
+
+/// A general-purpose text files reader.
+class TextBackend : public DataBackend {
+protected:
+
+  /// The column separator
+  QRegExp separator;
+
+  /// The comments lines
+  QRegExp comments;
+  virtual int couldBeMine(const QByteArray & peek, 
+                          const QString & fileName) const;
+
+  virtual ArgumentList * loadOptions() const;
+
+  virtual QList<DataSet *> readFromStream(QIODevice * stream,
+                                   const QString & fileName,
+                                   const CommandOptions & opts) const;
+
+public:
+  TextBackend(const QRegExp & sep,
+              const char * n, const char * pn, const char * d = "");
+};
 
 
 TextBackend::TextBackend(const QRegExp & sep,
@@ -85,9 +108,9 @@ ArgumentList * TextBackend::loadOptions() const
   return &textLoadOptions;
 }
 
-DataSet * TextBackend::readFromStream(QIODevice * stream,
-                                      const QString & fileName,
-                                      const CommandOptions & opts) const
+QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
+                                             const QString & fileName,
+                                             const CommandOptions & opts) const
 {
   QString sep;
   if(opts.contains("separator-exact"))
@@ -127,10 +150,12 @@ DataSet * TextBackend::readFromStream(QIODevice * stream,
 
   
 
+  QList<DataSet *> ret;
   DataSet * ds = new DataSet(finalColumns);
   ds->name = QDir::cleanPath(fileName);
   setMetaDataForFile(ds, fileName);
-  return ds;
+  ret << ds;
+  return ret;
 }
 
 

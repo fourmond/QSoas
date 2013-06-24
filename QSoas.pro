@@ -245,7 +245,6 @@ HEADERS += src/headers.hh \
         src/dataset.hh \
         src/commandprompt.hh \
         src/databackend.hh \
-        src/textbackend.hh \
         src/datastack.hh \
         src/curveitem.hh \
         src/curveview.hh \

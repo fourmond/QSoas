@@ -26,18 +26,53 @@
 
 #include <commandeffector-templates.hh>
 #include <file-arguments.hh>
+#include <general-arguments.hh>
 #include <command.hh>
 
 #include <exceptions.hh>
+
+#include <possessive-containers.hh>
 
 #include <soas.hh>
 #include <curveview.hh>
 #include <datastack.hh>
 
+#include <stylegenerator.hh>
+
 QList<DataBackend*> * DataBackend::availableBackends = NULL;
 
-// A 30 MB cache
-QCache<QString, DataSet> DataBackend::cachedDatasets(30*1024*1024);
+
+class CachedDataSets {
+  
+  static QList<DataSet *> deepCopy(const QList<DataSet*> & dss) {
+    QList<DataSet *> ret;
+    for(int i = 0; i < dss.size(); i++)
+      ret << new DataSet(*dss[i]);
+    return ret;
+  };
+
+  PossessiveList<DataSet> datasets;
+  
+public:
+
+  /// The date
+  QDateTime date;
+
+  /// We use deep copy
+  CachedDataSets(const QList<DataSet*> & dss)  : 
+    datasets(deepCopy(dss)) {
+    date = QDateTime::currentDateTime();
+  };
+
+  QList<DataSet *> cachedDataSets() const {
+    return deepCopy(datasets);
+  };
+
+};
+
+// A cache for 1000 datasets
+/// @todo Use real size ?
+QCache<QString, CachedDataSets> DataBackend::cachedDatasets(1000);
 
 void DataBackend::registerBackend(DataBackend * backend)
 {
@@ -75,7 +110,7 @@ DataBackend * DataBackend::backendForStream(QIODevice * stream,
   return backend;
 }
 
-DataSet * DataBackend::loadFile(const QString & fileName, bool verbose)
+QList<DataSet *> DataBackend::loadFile(const QString & fileName, bool verbose)
 {
   /// @todo implement backend manual selection.
   QFile file(fileName);
@@ -84,51 +119,50 @@ DataSet * DataBackend::loadFile(const QString & fileName, bool verbose)
   QString key = info.canonicalFilePath();
   QDateTime lastModified = info.lastModified();
 
-  DataSet * ds = NULL;
-
-  
-  if(cachedDatasets.contains(key)) {
-    ds = cachedDatasets.take(key);
-    if(ds->date < lastModified) {
-      delete ds;
-      ds = NULL;
-    }
-  }
+  QList<DataSet *> datasets;
 
   if(verbose)
     Terminal::out << "Loading file: '" << fileName << "' ";
+  
+  CachedDataSets * cached = cachedDatasets.object(key);
 
-  if(! ds) {
+  if(! cached || cached->date < lastModified) {
     Utils::open(&file, QIODevice::ReadOnly);
 
     DataBackend * b = backendForStream(&file, fileName);
     if(! b)
       throw RuntimeError(QObject::tr("No backend found to load '%1'").
                          arg(fileName));
-    ds = b->readFromStream(&file, fileName, CommandOptions());
+    datasets = b->readFromStream(&file, fileName, CommandOptions());
 
     if(verbose)
       Terminal::out << "using backend " << b->name << endl;
 
+    // Now we update the cache
+    cachedDatasets.insert(key, new CachedDataSets(datasets));
   }
-  else 
+  else {
+    datasets = cached->cachedDataSets();
     if(verbose)
       Terminal::out << "(cached)" << endl;
+  }
   
-  if(!ds->date.isValid())
-    ds->date = lastModified;
-
-  // We insert a copy in the cache 
-  DataSet * dscopy = new DataSet(*ds);
-  if(! cachedDatasets.insert(key, dscopy, ds->byteSize()))
-    delete dscopy;              // Delete if add failed
-  return ds;
+  return datasets;
 }
 
 ArgumentList * DataBackend::loadOptions() const
 {
   return NULL;
 }
+
+QList<DataSet *> DataBackend::readFile(const QString & fileName, 
+                                       const CommandOptions & opts) const
+{
+  QFile file(fileName);
+  Utils::open(&file, QIODevice::ReadOnly);
+  return readFromStream(&file, fileName, opts);
+}
+
 
 void DataBackend::registerBackendCommands()
 {
@@ -142,13 +176,18 @@ void DataBackend::registerBackendCommands()
   for(int i = 0; i < availableBackends->size(); i++) {
     DataBackend * b = availableBackends->value(i);
     ArgumentList * opts = b->loadOptions();
-
+    /// @todo Try to find a way to share that with options for the
+    /// load and overlay commands.
+    *opts << new StyleGeneratorArgument("style", 
+                                        "Style",
+                                        "Style for curves display");
+      
     /// @todo Add general options processing.
     QString name = "load-as-" + b->name;
 
     QString d1 = QString("Load files with backend '%1'").arg(b->name);
     QString d2 = QString("Load any number of files directly using the backend "
-                         "'%1', bypassing cache andautomatic backend "
+                         "'%1', bypassing cache and automatic backend "
                          "detection, and "
                          "giving more fine-tuning in the loading via the "
                          "use of dedicated options").arg(b->name);
@@ -161,37 +200,58 @@ void DataBackend::registerBackendCommands()
   }
 }
 
-void DataBackend::loadDatasetCommand(const QString & /*cmdname*/, 
-                                     QStringList files,
-                                     const CommandOptions & opts)
+void DataBackend::loadFilesAndDisplay(int nb, QStringList files, 
+                                      const CommandOptions & opts,
+                                      DataBackend * backend)
 {
-
-  /// @todo There is some code shared with the loadAndDisplay
-  /// function. That should be factored out as far as possible.
-
   soas().view().disableUpdates();
-  int nb = 0;
+  QString style;
+  updateFromOptions(opts, "style", style);
+
+  // First load
+  QList<DataSet *> datasets;
+
   for(int i = 0; i < files.size(); i++) {
-    QString fileName = files[i];
-    Terminal::out << "Loading file '" << fileName << "'";
     try {
-      QFile file(fileName);
-      Utils::open(&file, QIODevice::ReadOnly);
-      DataSet * ds = readFromStream(&file, fileName, opts);
-      soas().stack().pushDataSet(ds, true); // use the silent version
-      // as we display ourselves
-      if(nb++ > 0)
-        soas().view().addDataSet(ds);
+      QList<DataSet *> dss = 
+        (backend ? backend->readFile(files[i], opts) : 
+         DataBackend::loadFile(files[i]));
+
+      if(dss.size() > 1)
+        Terminal::out << " -> got " << dss.size() << " datasets" << endl;
       else
-        soas().view().showDataSet(ds);
-      Terminal::out << " -- " << ds->nbColumns() << " columns" << endl;
+        Terminal::out << " -> OK" << endl;
+      datasets << dss;
     }
     catch (const RuntimeError & e) {
       Terminal::out << "\n" << e.message() << endl;
     }
     QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
   }
+
+  QScopedPointer<StyleGenerator> 
+    gen(StyleGenerator::fromText(style, datasets.size()));
+        
+  for(int i = 0; i < datasets.size(); i++) {
+    DataSet * s = datasets[i];
+    soas().stack().pushDataSet(s, true); // use the silent version
+    // as we display ourselves
+    if(nb > 0)
+      soas().view().addDataSet(s, gen.data());
+    else
+      soas().view().showDataSet(s, gen.data());
+    nb++;
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
+  }
+
   soas().view().enableUpdates();
+}
+
+void DataBackend::loadDatasetCommand(const QString & /*cmdname*/, 
+                                     QStringList files,
+                                     const CommandOptions & opts)
+{
+  loadFilesAndDisplay(0, files, opts, this);
 }
 
 void DataBackend::setMetaDataForFile(DataSet * dataset, 

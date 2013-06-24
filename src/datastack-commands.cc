@@ -41,35 +41,6 @@ static Group stack("stack", 1,
 //////////////////////////////////////////////////////////////////////
 
 
-static void loadFilesAndDisplay(int nb, QStringList files, 
-                                const CommandOptions & opts)
-{
-  soas().view().disableUpdates();
-  QString style;
-  updateFromOptions(opts, "style", style);
-  QScopedPointer<StyleGenerator> 
-    gen(StyleGenerator::fromText(style, files.size()));
-  for(int i = 0; i < files.size(); i++) {
-    // Terminal::out << "Loading file '" << files[i] << "'";
-    try {
-      DataSet * s = DataBackend::loadFile(files[i]);
-      soas().stack().pushDataSet(s, true); // use the silent version
-      // as we display ourselves
-      if(nb > 0)
-        soas().view().addDataSet(s, gen.data());
-      else
-        soas().view().showDataSet(s, gen.data());
-      Terminal::out << " -- " << s->nbColumns() << " columns" << endl;
-      nb++;
-    }
-    catch (const RuntimeError & e) {
-      Terminal::out << "\n" << e.message() << endl;
-    }
-    QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
-  }
-  soas().view().enableUpdates();
-}
-
 static ArgumentList 
 loadArgs(QList<Argument *>() 
          << new SeveralFilesArgument("file", 
@@ -88,8 +59,7 @@ styleOpts(QList<Argument *>()
 static void loadCommand(const QString &, QStringList files, 
                         const CommandOptions & opts)
 {
-  /// @todo add the possibility to select the backend
-  loadFilesAndDisplay(0, files, opts);
+  DataBackend::loadFilesAndDisplay(0, files, opts);
 }
 
 
@@ -111,7 +81,7 @@ load("load", // command name
 static void overlayFilesCommand(const QString &, QStringList files, 
                                 const CommandOptions & opts)
 {
-  loadFilesAndDisplay(1, files, opts);
+  DataBackend::loadFilesAndDisplay(1, files, opts);
 }
 
 
@@ -554,14 +524,16 @@ static void browseFilesCommand(const QString &, const CommandOptions & opts)
   QList<DataSet *> dataSets;
   for(int i = 0; i < files.size(); i++) {
     try {
-      DataSet * s = DataBackend::loadFile(files[i]);
-      if(s->nbColumns() > 1 && s->nbRows() > 1)
+      QList<DataSet *> sets = DataBackend::loadFile(files[i]);
+      for(int j = 0; j < sets.size(); j++) {
+        DataSet * s = sets[j];
+        if(s->nbColumns() > 1 && s->nbRows() > 1)
           dataSets << s;
-      else {
-        Terminal::out << files[i] << " doesn't contain enough rows and/or columns, skipping" << endl;
-        delete s;
+        else {
+          Terminal::out << files[i] << " doesn't contain enough rows and/or columns, skipping" << endl;
+          delete s;
+        }
       }
-
     }
     catch (const RuntimeError & e) {
       Terminal::out << e.message() << endl;

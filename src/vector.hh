@@ -171,22 +171,29 @@ public:
   /// @}
 
   /// Reads textual data from a file.
-  /// \li separator is specified by 
+  /// \li separator is specified by the regular expression
   /// \li comment lines are those that match \p commentRE. They are stored
   /// in \p comments when not NULL.
+  /// \li if splitOnBlank is true, then a new list of vectors is built for
+  /// every time a blank line is found.
   ///
   /// @todo Quite a lot of things to improve here.
-  static QList<Vector> readFromStream(QIODevice * source,
-                                      const QRegExp & separatorRE,
-                                      const QRegExp & commentRE,
-                                      QStringList * comments = NULL);
+  static QList<QList<Vector> > readFromStream(QIODevice * source,
+                                             const QRegExp & separatorRE,
+                                             const QRegExp & commentRE,
+                                             bool splitOnBlank = false,
+                                             const QRegExp & blankRE = 
+                                              QRegExp("^\\s*$"),
+                                             QStringList * comments = NULL);
 
 
   /// Convenience overload
-  static QList<Vector> readFromStream(QIODevice * source,
-                                      const QString & separatorRE = "\\s+",
-                                      const QString & commentRE = "^\\s*#",
-                                      QStringList * comments = NULL);
+  static QList<QList<Vector> > readFromStream(QIODevice * source,
+                                              const QString & separatorRE = "\\s+",
+                                              const QString & commentRE = "^\\s*#",
+                                              bool splitOnBlank = false,
+                                              const QString & blankRE = "^\\s*$",
+                                              QStringList * comments = NULL);
 
   /// Returns a vector with nb values spaced uniformly on the
   /// [min:max] segment.

@@ -220,7 +220,8 @@ void DuckSimFit::function(const double * a, FitData * data,
   QFile output(tempDir + "/data-00.dat");
   output.open(QIODevice::ReadOnly);
 
-  QList<Vector> cols = Vector::readFromStream(&output);
+  QList<QList<Vector> > c = Vector::readFromStream(&output);
+  QList<Vector> cols = c.first();
   output.close();
   if(cols[2].size() < target->size)
     throw RuntimeError(QString("Size mismatch detected: %1 read for %2 "

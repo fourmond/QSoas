@@ -21,16 +21,22 @@
 
 #include <exceptions.hh>
 
-QList<Vector> Vector::readFromStream(QIODevice * source,
-                                     const QRegExp & separatorREt,
-                                     const QRegExp & commentREt,
-                                     QStringList * comments)
+QList<QList<Vector> > Vector::readFromStream(QIODevice * source,
+                                             const QRegExp & separatorREt,
+                                             const QRegExp & commentREt,
+                                             bool splitOnBlank,
+                                             const QRegExp & blankREt,
+                                             QStringList * comments)
 {
-  QList<Vector> retVal;
+
+  QList<QList<Vector> > retval;
+  retval << QList<Vector>();
+
+  QList<Vector> * curCols = &retval.first();
   int lineNumber = 0;
   QRegExp separatorRE(separatorREt);
   QRegExp commentRE(commentREt);
-  QRegExp blankLineRE("^\\s*$"); /// @todo halt on blank lines
+  QRegExp blankLineRE(blankREt);
 
   QLocale locale = QLocale::c(); /// @todo offer the possibility to customize.
 
@@ -51,43 +57,47 @@ QList<Vector> Vector::readFromStream(QIODevice * source,
     /// outperforms this, but well...
     QStringList elements = line.trimmed().split(separatorRE);
     /// @todo customize trimming.
-    while(retVal.size() < elements.size()) {
-      retVal << Vector(numberRead, 0.0/0.0);
-      retVal.last().reserve(10000); // Most files won't be as large
+    while(curCols->size() < elements.size()) {
+      *curCols << Vector(numberRead, 0.0/0.0);
+      curCols->last().reserve(10000); // Most files won't be as large
     }
     int nbNans = 0;
-    for(int i = 0; i < retVal.size(); i++) {
+    for(int i = 0; i < curCols->size(); i++) {
       bool ok = false;
       double value = locale.toDouble(elements.value(i, ""), &ok);
       if(! ok)
         value = 0.0/0.0; /// @todo customize
       if(value != value)
         nbNans++;
-      retVal[i] << value;
+      (*curCols)[i] << value;
     }
     // We remove lines fully made of NaNs
-    if(nbNans == retVal.size()) {
-      for(int i = 0; i < retVal.size(); i++)
-        retVal[i].resize(retVal[i].size() - 1);
+    if(nbNans == curCols->size()) {
+      for(int i = 0; i < curCols->size(); i++)
+        (*curCols)[i].resize((*curCols)[i].size() - 1);
     }
     else
       numberRead++;
   }
-  // Trim the values in order to save memory a bit (at the cost of
-  // quite a bit of reallocation/copying time)
-  for(int i = 0; i < retVal.size(); i++)
-    retVal[i].squeeze();
 
-  return retVal;
+  // // Trim the values in order to save memory a bit (at the cost of
+  // // quite a bit of reallocation/copying time)
+  // for(int i = 0; i < curCols->size(); i++)
+  //   retVal[i].squeeze();
+
+  return retval;
 }
 
-QList<Vector> Vector::readFromStream(QIODevice * source,
-                                     const QString & separatorREt,
-                                     const QString & commentREt,
-                                     QStringList * comments)
+QList<QList<Vector> > Vector::readFromStream(QIODevice * source,
+                                             const QString & separatorREt,
+                                             const QString & commentREt,
+                                             bool soB,
+                                             const QString & blankRE,
+                                             QStringList * comments)
 {
   return readFromStream(source, QRegExp(separatorREt),
-                        QRegExp(commentREt), comments);
+                        QRegExp(commentREt), soB, QRegExp(blankRE),
+                        comments);
 }
 
 

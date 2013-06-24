@@ -130,31 +130,40 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
   /// @todo implement comments / header parsing... BTW, maybe
   /// Vector::readFromStream could be more verbose about the nature of
   /// the comments (the exact line, for instance ?)
-  QList<Vector> columns = Vector::readFromStream(stream, s, 
-                                                 comments);
 
-  /// @todo Allow 0 as column containing the index ?
-  QSet<int> cl = QSet<int>::fromList(cols);
-  QList<int> colOrder;
-  for(int i = 0; i < cols.size(); i++)
-    colOrder << cols[i] - 1;
 
-  for(int i = 0; i < columns.size(); i++) {
-    if(! cl.contains(i + 1))
-      colOrder << i;
-  }
-  
-  QList<Vector> finalColumns;
-  for(int i = 0; i < colOrder.size(); i++)
-    finalColumns << columns[colOrder[i]];
-
-  
+  QList<QList<Vector> > allColumns = Vector::readFromStream(stream, s, 
+                                                            comments);
 
   QList<DataSet *> ret;
-  DataSet * ds = new DataSet(finalColumns);
-  ds->name = QDir::cleanPath(fileName);
-  setMetaDataForFile(ds, fileName);
-  ret << ds;
+
+  int total = allColumns.size();
+  for(int j = 0; j < total; j++) {
+    QList<Vector> & columns = allColumns[j];
+
+    /// @todo Allow 0 as column containing the index ?
+    QSet<int> cl = QSet<int>::fromList(cols);
+    QList<int> colOrder;
+    for(int i = 0; i < cols.size(); i++)
+      colOrder << cols[i] - 1;
+    
+    for(int i = 0; i < columns.size(); i++) {
+      if(! cl.contains(i + 1))
+        colOrder << i;
+    }
+    
+    QList<Vector> finalColumns;
+    for(int i = 0; i < colOrder.size(); i++)
+      finalColumns << columns[colOrder[i]];
+
+    DataSet * ds = new DataSet(finalColumns);
+    ds->name = QDir::cleanPath(fileName);
+    if(total > 1) {
+      ds->name += QString("#%1").arg(j);
+    }
+    setMetaDataForFile(ds, fileName);
+    ret << ds;
+  }
   return ret;
 }
 

@@ -101,6 +101,9 @@ textLoadOptions(QList<Argument *>()
                 << new SeveralIntegersArgument("columns", 
                                                "Columns",
                                                "Order of the columns")
+                << new BoolArgument("auto-split", 
+                                    "Auto split",
+                                    "Split on blank lines")
                 );
 
 ArgumentList * TextBackend::loadOptions() const
@@ -119,6 +122,8 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
     sep = opts["separator"]->value<QString>();
   QList<int> cols;
   updateFromOptions(opts, "columns", cols);
+  bool autoSplit = false;
+  updateFromOptions(opts, "auto-split", autoSplit);
 
   QRegExp s = separator;
   if(! sep.isEmpty()) {
@@ -132,8 +137,9 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
   /// the comments (the exact line, for instance ?)
 
 
-  QList<QList<Vector> > allColumns = Vector::readFromStream(stream, s, 
-                                                            comments);
+  QList<QList<Vector> > allColumns = 
+    Vector::readFromStream(stream, s, 
+                           comments, autoSplit);
 
   QList<DataSet *> ret;
 

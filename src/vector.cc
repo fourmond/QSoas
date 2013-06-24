@@ -50,6 +50,12 @@ QList<QList<Vector> > Vector::readFromStream(QIODevice * source,
       continue;
     }
     if(blankLineRE.indexIn(line) == 0) {
+      if(splitOnBlank && curCols->size() > 0 && curCols->first().size() > 0) {
+        // we split !
+        retval << QList<Vector>();
+        curCols = &retval.last();
+        numberRead = 0;
+      }
       continue;
     }
     /// @todo A manual split would be much much faster (no memory
@@ -79,6 +85,12 @@ QList<QList<Vector> > Vector::readFromStream(QIODevice * source,
     else
       numberRead++;
   }
+
+  // We don't leave an empty dataset at the end, excepted if it's the
+  // last one ;-)...
+  if(curCols->size() == 0 && retval.size() > 1)
+    retval.takeLast();
+  
 
   // // Trim the values in order to save memory a bit (at the cost of
   // // quite a bit of reallocation/copying time)

@@ -42,15 +42,16 @@ void DataStack::pushDataSet(DataSet * dataset, bool silent)
 void DataStack::showStackContents(int nb, bool /*unused*/) const
 {
   int totalSize = 0;
+  QString head("\t M  C\tRows\tSegs");
   if(redoStack.size())
-    Terminal::out << "Redo stack:" << endl;
+    Terminal::out << "Redo stack:\n" << head << endl;
   for(int i = -redoStack.size(); i < dataSets.size(); i++) {
     if(nb > 0 && abs(i) >= nb)
       continue;
     if(! i)
-      Terminal::out << "Normal stack:" << endl;
+      Terminal::out << "Normal stack:\n" << head << endl;
     DataSet * ds = numberedDataSet(i);
-    Terminal::out << "#" << i << ": "
+    Terminal::out << "#" << i << "\t"
                   << ds->stringDescription() << endl;
     totalSize += ds->byteSize();
   }

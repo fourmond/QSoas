@@ -60,10 +60,9 @@ int DataSet::byteSize() const
 QString DataSet::stringDescription() const
 {
   /// @todo Possibly clean that up ?
-  return QObject::tr("'%1':\t%2 columns,\t%3 rows,\t%4 bytes,\t%5 segments%6").
-    arg(name).arg(nbColumns()).arg(nbRows()).
-    arg(byteSize()).arg(segments.size() + 1).
-    arg(marked ? " (*)" : "");
+  return QObject::tr("%6 %2\t%3\t%5\t'%1'").
+    arg(name).arg(nbColumns()).arg(nbRows()).arg(segments.size() + 1).
+    arg(marked ? "(*)" : "   ");
 }
 
 void DataSet::regenerateCache() const

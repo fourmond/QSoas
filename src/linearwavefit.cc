@@ -33,6 +33,7 @@
 #include <dataset.hh>
 #include <vector.hh>
 #include <fitdata.hh>
+#include <exceptions.hh>
 
 #include <gsl/gsl_const_mksa.h>
 #include <gsl/gsl_math.h>
@@ -121,6 +122,16 @@ public:
         params[i] = a[i+1] * a[referenceRate + 1];
       else
         params[i] = a[i+1];
+      
+      // Now, parameter range check
+      switch(system->parameterType(i)) {
+      case LinearWave::Rate:
+        if(params[i] < 0)
+          throw RangeError("Negative rate constant");
+        break;
+      default:
+        ;
+      }
     }
     return system->computeCurrent(x, a[0], params.data());
   }

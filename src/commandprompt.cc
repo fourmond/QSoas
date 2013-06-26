@@ -56,6 +56,7 @@ void CommandPrompt::doCompletion()
   QString reason = tr("No completion");
   bool complete = true;
   completions = getCompletions(c, &reason, &complete);
+  completions = Utils::stringsStartingWith(completions, c.word);
   if(completions.size() == 0) {
     soas().showMessage(reason);
     return;

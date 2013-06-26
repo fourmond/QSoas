@@ -350,13 +350,24 @@ run("run", // command name
 /// @todo select extra arguments using options
 static void runForEachCommand(const QString &, QString script,
                               QStringList args, 
-                              const CommandOptions &/*opts*/)
+                              const CommandOptions & opts)
 {
   int nb = 1;
+
+  QStringList additionalArgs;
+
+  for(int i = 2; i <= 5; i++) {
+    QString on = QString("arg%1").arg(i);
+    if(opts.contains(on))
+      additionalArgs << opts[on]->value<QString>();
+    else
+      break;
+  }  
   while(args.size() > 0) {
     QStringList a;
     for(int i = 0; i < nb && args.size() > 0; i++)
       a << args.takeFirst();
+    a << additionalArgs;
     soas().prompt().runCommandFile(script, a);
   }
 }
@@ -371,16 +382,33 @@ rfeArgs(QList<Argument *>()
                                     "All the arguments for the script file "
                                     "to loop on", true));
 
+static ArgumentList 
+rfeOpts(QList<Argument *>() 
+        << new FileArgument("arg2", 
+                            "Second argument",
+                            "Second argument to the script")
+        << new FileArgument("arg3", 
+                            "Third argument",
+                            "Third argument to the script")
+        << new FileArgument("arg4", 
+                            "Fourth argument",
+                            "Fourth argument to the script")
+        << new FileArgument("arg5", 
+                            "Fifth argument",
+                            "Fifth argument to the script")
+        );
+
+
 
 static Command 
 rfe("run-for-each", // command name
     effector(runForEachCommand), // action
-   "file",  // group name
-   &rfeArgs, // arguments
-    NULL, 
-   "Loop run a script",
-   "Runs a script file repetitively with the given arguments",
-   "...");
+    "file",  // group name
+    &rfeArgs, // arguments
+    &rfeOpts, 
+    "Loop run a script",
+    "Runs a script file repetitively with the given arguments",
+    "...");
 
 //////////////////////////////////////////////////////////////////////
 

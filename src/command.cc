@@ -200,7 +200,7 @@ Command::splitArgumentsAndOptions(const QStringList & rawArgs,
       *annotate << -1;
   }
   
-  QRegExp optionRE("^\\s*/([a-zA-Z-]+)\\s*(?:=?\\s*|=\\s*(.*))$");
+  QRegExp optionRE("^\\s*/([a-zA-Z0-9-]+)\\s*(?:=?\\s*|=\\s*(.*))$");
   QRegExp equalRE("^\\s*=\\s*(.*)$");
 
   for(int i = 0; i < size; i++) {

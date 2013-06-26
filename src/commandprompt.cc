@@ -200,7 +200,9 @@ QStringList CommandPrompt::getCompletions(const CompletionContext & c,
 
     // Big question: do we complete on the option name or the option
     // value ?
-    QRegExp optionRE("^/([a-zA-Z-]*)\\s*(=\\s*(.*))?");
+
+    /// @todo This regexp \b must be common !!!
+    QRegExp optionRE("^/([a-z0-9A-Z-]*)\\s*(=\\s*(.*))?");
     if(optionRE.indexIn(c.word) >= 0) {
       if(optionRE.cap(2).isEmpty()) {
         *complete = false;

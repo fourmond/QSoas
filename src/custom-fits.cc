@@ -41,6 +41,11 @@
 
 /// This is a base class for fits that hold formulas
 class FormulaBasedFit {
+public:
+
+  static QStringList splitFormulas(const QString & fms) {
+    return fms.split("|");
+  };
 protected:
 
   /// The last formula used.
@@ -63,7 +68,7 @@ protected:
     lastFormula = formula;
     params.clear();
     params << "x" << "f" << "pi" << "fara" << "temperature";
-    formulas = formula.split("|");
+    formulas = splitFormulas(formula); 
 
     for(int i = 0; i < formulas.size(); i++) {
       Expression s(formulas[i]);
@@ -203,7 +208,6 @@ public:
     int nbparams = data->parametersPerDataset();
 
     for(int i = 0; i < data->datasets.size(); i++) {
-      const Vector &xv = data->datasets[i]->x();
       gsl_vector_view v = data->viewForDataset(i, target);
 
       computeDataSet(a + i * nbparams, 
@@ -282,15 +286,76 @@ public:
 static MultiBufferArbitraryFit mBarbFit;
 
 
+//////////////////////////////////////////////////////////////////////
+
+/// This class holds a fit using a single formula, that hence applies
+/// naturally to several datasets. There is no 'arb' fit from that
+class SingleBufferArbitraryFit : public PerDatasetFit, 
+                                 public FormulaBasedFit {
+
+protected:
+
+  virtual QString optionsString() const {
+    return "formula: " + lastFormula;
+  };
+
+  virtual void processOptions(const CommandOptions & ) {
+    parseFormulas(lastFormula);
+    if(formulas.size() > 1)
+      throw InternalError("Somehow got to define a single buffer fit "
+                          "with several formulas");
+  };
+
+
+    
+public:
+
+  virtual void function(const double *parameters, FitData *data, 
+                        const DataSet *ds, gsl_vector *target) {
+    computeDataSet(parameters, ds, data, target);
+  };
+
+  virtual void initialGuess(FitData * /*data*/, 
+                            const DataSet * ds,
+                            double * a)
+  {
+    initialGuessForDataset(ds, a);
+  };
+
+
+  /// This alternative constructor is to help create named fits based
+  /// on formulas.
+  SingleBufferArbitraryFit(const QString & name, const QString & formula) : 
+    PerDatasetFit(name.toLocal8Bit(), 
+        QString("Fit: %1").arg(formula).toLocal8Bit(),
+        QString("Fit of the formula %1").arg(formula).toLocal8Bit(), 1, -1)
+  { 
+    /// @todo make sure that the fit- command isn't generated for
+    /// intrinsically multi-buffer fits.
+    lastFormula = formula;
+  };
+
+
+  const QString & formula() const {
+    return lastFormula;
+  };
+
+  QList<ParameterDefinition> parameters() const {
+    return FormulaBasedFit::parameters();
+  };
+
+};
+
+
 
 
 //////////////////////////////////////////////////////////////////////
 
-static QHash<QString, MultiBufferArbitraryFit *> customFits;
+static QHash<QString, FormulaBasedFit *> customFits;
 
-static MultiBufferArbitraryFit * createCustomFit(const QString & name,
-                                                 const QString & formula,
-                                                 bool overwrite = false)
+static FormulaBasedFit * createCustomFit(const QString & name,
+                                         const QString & formula,
+                                         bool overwrite = false)
 {
   if(customFits.contains(name)) {
     if(overwrite) {
@@ -302,8 +367,14 @@ static MultiBufferArbitraryFit * createCustomFit(const QString & name,
     else
       throw RuntimeError("Fit '%1' is already defined").arg(name);
   }
-  MultiBufferArbitraryFit * fit = 
-    new MultiBufferArbitraryFit(name, formula);
+
+  int nb = FormulaBasedFit::splitFormulas(formula).size();
+  FormulaBasedFit * fit;
+  if(nb > 1)
+    fit = new MultiBufferArbitraryFit(name, formula);
+  else
+    fit = new SingleBufferArbitraryFit(name, formula);
+     
   customFits[name] = fit;
   return fit;
 }

@@ -1,6 +1,6 @@
 /**
    \file custom-fits.cc custom fits
-   Copyright 2011, 2012 by Vincent Fourmond
+   Copyright 2011, 2012, 2013 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -38,19 +38,10 @@
 #include <gsl/gsl_const_mksa.h>
 #include <gsl/gsl_math.h>
 
-/// Multi-buffer arbitrary fits, using the Expression class as formula
-/// backend.
-///
-/// @warning Two fits cannot be run at the same time, as the main
-/// instance is used to keep track of the current formula.
-///
-/// @todo Remove the passing of constants in such a ugly way... They
-/// should be passed as constants !
-///
-/// @todo In addition to x as function parameter, provide i (or
-/// anything else) as the index ?
-class MultiBufferArbitraryFit : public Fit {
-private:
+
+/// This is a base class for fits that hold formulas
+class FormulaBasedFit {
+protected:
 
   /// The last formula used.
   ///
@@ -89,6 +80,86 @@ private:
       params.takeFirst();  
   }
 
+  /// Returns the initial guess for the named parameter
+  double paramGuess(const QString & name, const DataSet * ds) const {
+    if(name == "temperature")
+      return soas().temperature();
+    if(name == "y_0")
+      return ds->y().first();
+    if(name == "x_0")
+      return ds->x().first();
+    return 1;
+  };
+
+  /// Returns whether the parameter is fixed by default
+  bool paramFixed(const QString & name) const {
+    if(name == "temperature" || name == "y_0" || name == "x_0")
+      return true;
+    return false;
+  }
+
+  void initialGuessForDataset(const DataSet * ds,
+                              double * a)
+  {
+    for(int i = 0; i < params.size(); i++)
+      a[i] = paramGuess(params[i], ds);
+  };
+
+  QList<ParameterDefinition> parameters() const {
+    QList<ParameterDefinition> p;
+    for(int i = 0; i < params.size(); i++)
+      p << ParameterDefinition(params[i], paramFixed(params[i]), 
+                               formulas.size() == 1);
+    return p;
+  };
+
+  /// Computes the function for the given dataset, assuming that the
+  /// parameters are those for the given dataset. 
+  void computeDataSet(const double *a, 
+                      const DataSet * ds,
+                      FitData *data, 
+                      gsl_vector *target,
+                      int formulaIndex = 0) {
+    int k = 0;
+    int nbparams = data->parametersPerDataset();
+    int nbargs = nbparams + 4;
+
+    QVarLengthArray<double, 100> args(4 + nbparams);
+    args[0] = 0; // x
+    args[1] = GSL_CONST_MKSA_FARADAY; // f
+    args[2] = M_PI; // pi
+    args[3] = GSL_CONST_MKSA_FARADAY/ 
+      (a[0] * GSL_CONST_MKSA_MOLAR_GAS);
+
+    for(int i = 0; i < nbparams; i++)
+      args[i + 4] = a[i];
+
+    const Vector &xv = ds->x();
+
+    const Expression * expr =  &expressions[formulaIndex];
+    for(int j = 0; j < xv.size(); j++) {
+      args[0] = xv[j]; // x
+      gsl_vector_set(target, k++, expr->evaluate(args.data()));
+    }
+  };
+
+};
+
+/// Multi-buffer arbitrary fits, using the Expression class as formula
+/// backend.
+///
+/// @warning Two fits cannot be run at the same time, as the main
+/// instance is used to keep track of the current formula.
+///
+/// @todo Remove the passing of constants in such a ugly way... They
+/// should be passed as constants !
+///
+/// @todo In addition to x as function parameter, provide i (or
+/// anything else) as the index ?
+class MultiBufferArbitraryFit : public Fit, public  FormulaBasedFit {
+private:
+
+
   void runFit(const QString & name, QString formula, 
               QList<const DataSet *> datasets,
               const CommandOptions & opts)
@@ -110,24 +181,8 @@ private:
   }
     
 
-  /// Returns whether the parameter is fixed by default
-  bool paramFixed(const QString & name) const {
-    if(name == "temperature" || name == "y_0" || name == "x_0")
-      return true;
-    return false;
-  }
 
 
-  /// Returns the initial guess for the named parameter
-  double paramGuess(const QString & name, const DataSet * ds) const {
-    if(name == "temperature")
-      return soas().temperature();
-    if(name == "y_0")
-      return ds->y().first();
-    if(name == "x_0")
-      return ds->x().first();
-    return 1;
-  };
 
 protected:
 
@@ -145,38 +200,16 @@ public:
 
   virtual void function(const double *a, 
                         FitData *data, gsl_vector *target) {
-    int k = 0;
     int nbparams = data->parametersPerDataset();
-    int nbargs = nbparams + 4;
-
-    QVarLengthArray<double, 100> args(4 + nbparams);
-    args[0] = 0; // x
-    args[1] = GSL_CONST_MKSA_FARADAY; // f
-    args[2] = M_PI; // pi
-    args[3] = GSL_CONST_MKSA_FARADAY/ 
-      (a[0] * GSL_CONST_MKSA_MOLAR_GAS);
-
-    for(int i = 0; i < nbparams; i++)
-      args[i + 4] = a[i];
 
     for(int i = 0; i < data->datasets.size(); i++) {
       const Vector &xv = data->datasets[i]->x();
+      gsl_vector_view v = data->viewForDataset(i, target);
 
-      const Expression * expr = NULL;
-      if(formulas.size() > 1)
-        expr = &expressions[i];
-      else {
-        expr = &expressions[0];
-        args[3] = (GSL_CONST_MKSA_FARADAY/ 
-                   (a[i * nbparams] * GSL_CONST_MKSA_MOLAR_GAS));
-        for(int l = 0; l < data->parametersPerDataset(); l++)
-          args[l + 4] = a[l + i * nbparams];
-      }
-
-      for(int j = 0; j < xv.size(); j++) {
-        args[0] = xv[j]; // x
-        gsl_vector_set(target, k++, expr->evaluate(args.data()));
-      }
+      computeDataSet(a + i * nbparams, 
+                     data->datasets[i],
+                     data, &v.vector,
+                     i % formulas.size());
     }
   };
 
@@ -185,18 +218,8 @@ public:
   {
     int nbparams = data->parametersPerDataset();
     for(int j = 0; j < data->datasets.size(); j++)
-      for(int i = 0; i < params.size(); i++)
-        a[i + j*nbparams] = paramGuess(params[i], data->datasets[j]);
+      initialGuessForDataset(data->datasets[j], a + j*nbparams);
   };
-
-  virtual QList<ParameterDefinition> parameters() const {
-    QList<ParameterDefinition> p;
-    for(int i = 0; i < params.size(); i++)
-      p << ParameterDefinition(params[i], paramFixed(params[i]), 
-                               formulas.size() == 1);
-    return p;
-  };
-
 
   MultiBufferArbitraryFit() : 
     Fit("arb", 
@@ -248,6 +271,10 @@ public:
 
   const QString & formula() const {
     return lastFormula;
+  };
+
+  QList<ParameterDefinition> parameters() const {
+    return FormulaBasedFit::parameters();
   };
 
 };

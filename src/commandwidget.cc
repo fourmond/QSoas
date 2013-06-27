@@ -283,6 +283,8 @@ void CommandWidget::runCommandFile(QIODevice * source,
         line.replace(argname, args[i]);
       }
       runCommand(line);
+      // And we allow for deferred slots to take place ?
+      QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
     }
   }
   catch(const ControlFlowException & flow) {

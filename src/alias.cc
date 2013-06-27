@@ -133,9 +133,9 @@ static void defineAliasCommand(const QString &, QString alias,
 
   QString sh = QString("Alias for %1").arg(cmd->commandName());
 
-  /// @bug ? Maybe there are pointer problems here ?
+  QString groupName = (cmd->group ? cmd->group->groupName() : "");
   new Command(alias.toLocal8Bit(), a, 
-              cmd->group->groupName().toLocal8Bit(),
+              groupName.toLocal8Bit(),
               const_cast<ArgumentList*>(cmd->commandArguments()),
               const_cast<ArgumentList*>(cmd->commandOptions()),
               sh.toLocal8Bit(), sh.toLocal8Bit());

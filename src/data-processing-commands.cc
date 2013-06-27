@@ -843,6 +843,7 @@ namespace __fft {
     IncreaseSetCutoff,
     DecreaseCutoff,
     ToggleDerivative,
+    ToggleBaseline,
     TogglePowerSpectrum,
     Replace,
     Abort
@@ -855,6 +856,8 @@ namespace __fft {
     addClick(Qt::RightButton, DecreaseCutoff, "decrease cutoff").
     addKey('d', ToggleDerivative, "toggle display of derivative").
     alsoKey('D').
+    addKey('b', ToggleBaseline, "toggle display of baseline").
+    alsoKey('B').
     addKey('p', TogglePowerSpectrum, "display power spectrum").
     alsoKey('P');
 
@@ -891,6 +894,9 @@ namespace __fft {
   baseline.xvalues = ds->x();
   baseline.yvalues = baseline.xvalues;;
   baseline.countBB = false;
+
+  // We don't show base line by default
+  baseline.hidden = true;
   view.addItem(&baseline);
 
   // **************************************************
@@ -919,7 +925,7 @@ namespace __fft {
   // Setup of the "power" panel
 
 
-  spec1.pen = gs.getPen(GraphicsSettings::ResultPen);
+  spec1.pen = gs.dataSetPen(0);
   // We don't display the 0th frequency !
   spec1.xvalues = Vector(orig.frequencies() - 1,0);
   for(int i = 0; i < spec1.xvalues.size(); i++)
@@ -928,6 +934,7 @@ namespace __fft {
   spec1.countBB = true;
   spectrum.addItem(&spec1);
 
+  spec2.pen = gs.getPen(GraphicsSettings::ResultPen);
   spec2.xvalues = spec1.xvalues;
   spec2.yvalues = spec1.yvalues;
   spec2.countBB = false;        // Makes things complicated upon
@@ -997,6 +1004,9 @@ namespace __fft {
       break;
     case Abort:
       return;
+    case ToggleBaseline:
+      baseline.hidden = ! baseline.hidden;
+      break;
     case ToggleDerivative:
       if(order > 0)
         order = 0;
@@ -1049,7 +1059,7 @@ namespace __fft {
 
       if(showSpectrum) {
         QRectF r = spec1.boundingRect();
-        r.setTop(spec1.yvalues.min()-20);
+        r.setTop(spec1.yvalues.min()-5);
         spectrum.zoomIn(r);
       }
       else

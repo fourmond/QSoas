@@ -1,0 +1,13 @@
+custom-fit a1 'a*x+b'
+generate-buffer 0 10 '2*x+3+0.4*sin(exp(x+100))'
+generate-buffer 0 10 '2*x+5+0.4*sin(exp(x+100))'
+generate-buffer 0 10 '2.2*x+2+0.4*sin(exp(x+100))'
+
+mfit-a1 0 1 2
+
+define-derived-fit a1
+
+
+custom-fit a2 'a*x+b|a*x+c'
+# This should now fail
+define-derived-fit a2

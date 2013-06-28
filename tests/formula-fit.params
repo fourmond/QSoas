@@ -1,0 +1,4 @@
+# Fit used: arb (formula: a*x+b)
+temperature		274	!	0
+a	1	!	1
+b	=a*2	!	0

@@ -1,0 +1,4 @@
+@ lines.cmds
+
+fit-arb /parameters=formula-fit.params 'a*x+b' 
+mfit-arb /parameters=formula-mfit.params 'a*x+b' 0 1 2

@@ -1,0 +1,11 @@
+# Fit used: arb (formula: a*x+b)
+buffer_weight[#0]	1
+temperature	274	!	0
+a[#0]	1	!	1
+b[#0]	= a*2	!	0
+buffer_weight[#1]	1
+a[#1]	1	!	1
+b[#1]	1	!	1
+buffer_weight[#2]	1
+a[#2]	1	!	1
+b[#2]	1	!	1

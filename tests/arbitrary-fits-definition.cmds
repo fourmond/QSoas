@@ -1,7 +1,6 @@
+@ lines.cmds
+
 custom-fit a1 'a*x+b'
-generate-buffer 0 10 '2*x+3+0.4*sin(exp(x+100))'
-generate-buffer 0 10 '2*x+5+0.4*sin(exp(x+100))'
-generate-buffer 0 10 '2.2*x+2+0.4*sin(exp(x+100))'
 
 mfit-a1 0 1 2
 

@@ -1,5 +1,4 @@
-generate-buffer 0 10 '2*x+3+0.4*sin(exp(x+100))'
-generate-buffer 0 10 '2*x+5+0.4*sin(exp(x+100))'
-generate-buffer 0 10 '2.2*x+2+0.4*sin(exp(x+100))'
+@ lines.cmds
+
 mfit-arb 'a*x+b' 0 1 2
 mfit-arb 'a*x+b|a*x+c|d*x+e' 2 1 0

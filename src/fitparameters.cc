@@ -79,7 +79,9 @@ public:
   /// Reads a stream and parses the contents into
   void readFromStream(QTextStream & in) {
 
-    QRegExp paramRE("^([^\t []+)\\s*(?:\\[#(\\d+)\\])?\t(.*)");
+    // The \\S really shouldn't be necessary, but it looks like a Qt
+    // regexp bug ?
+    QRegExp paramRE("^([^\t []+)\\s*(?:\\[#(\\d+)\\])?\t\\s*(\\S.*)");
     QRegExp commentRE("^\\s*#\\s*(.*)");
     QRegExp blankLineRE("^\\s*$");
 

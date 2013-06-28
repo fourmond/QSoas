@@ -571,8 +571,8 @@ browseFiles("browse", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void markUnMark(const CommandOptions & opts, 
-                       bool marked = true)
+static void flagUnFlag(const CommandOptions & opts, 
+                       bool flagged = true)
 {
   QList<const DataSet *> buffers;
   if(opts.contains("buffers"))
@@ -585,42 +585,42 @@ static void markUnMark(const CommandOptions & opts,
   for(int i = 0; i < buffers.size(); i++) {
     
     DataSet * ds = const_cast<DataSet *>(buffers[i]);
-    ds->marked = marked;
+    ds->flagged = flagged;
   }
 }
 
-static void markDataSetsCommand(const QString &, const CommandOptions & opts)
+static void flagDataSetsCommand(const QString &, const CommandOptions & opts)
 {
-  markUnMark(opts, true);
+  flagUnFlag(opts, true);
 }
 
 static ArgumentList 
 muOps(QList<Argument *>() 
       << new SeveralDataSetArgument("buffers", 
                                     "Buffers",
-                                    "Buffers to mark/unmark", true, true));
+                                    "Buffers to flag/unflag", true, true));
 
 
 static Command 
-mark("mark", // command name
-     effector(markDataSetsCommand), // action
+flag("flag", // command name
+     effector(flagDataSetsCommand), // action
      "stack",  // group name
      NULL, // arguments
      &muOps, // options
-     "Mark datasets",
-     "Mark datasets", "M");
+     "Flag datasets",
+     "Flag datasets", "M");
 
 
-static void unmarkDataSetsCommand(const QString &, const CommandOptions & opts)
+static void unflagDataSetsCommand(const QString &, const CommandOptions & opts)
 {
-  markUnMark(opts, false);
+  flagUnFlag(opts, false);
 }
 
 static Command 
-unmark("unmark", // command name
-     effector(unmarkDataSetsCommand), // action
+unflag("unflag", // command name
+     effector(unflagDataSetsCommand), // action
      "stack",  // group name
      NULL, // arguments
      &muOps, // options
-     "Unmark datasets",
-     "Unmark datasets", "U");
+     "Unflag datasets",
+     "Unflag datasets", "U");

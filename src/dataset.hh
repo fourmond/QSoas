@@ -127,7 +127,7 @@ public:
   QDateTime date;
 
   /// A mark. Marked buffers can be recalled effectively.
-  bool marked;
+  bool flagged;
 
   /// @name Segment-related functions
   ///
@@ -155,9 +155,9 @@ public:
 
   /// @}
 
-  DataSet() : marked(false) {;};
-  DataSet(const QList<Vector> & cols) : columns(cols), marked(false) {;};
-  DataSet(const Vector & x, const Vector & y) : marked(false) {
+  DataSet() : flagged(false) {;};
+  DataSet(const QList<Vector> & cols) : columns(cols), flagged(false) {;};
+  DataSet(const Vector & x, const Vector & y) : flagged(false) {
     columns << x << y;
   };
 

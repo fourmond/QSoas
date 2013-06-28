@@ -42,7 +42,7 @@ void DataStack::pushDataSet(DataSet * dataset, bool silent)
 void DataStack::showStackContents(int nb, bool /*unused*/) const
 {
   int totalSize = 0;
-  QString head("\t M  C\tRows\tSegs");
+  QString head("\t F  C\tRows\tSegs");
   if(redoStack.size())
     Terminal::out << "Redo stack:\n" << head << endl;
   for(int i = -redoStack.size(); i < dataSets.size(); i++) {
@@ -66,12 +66,12 @@ QList<const DataSet *> DataStack::allDataSets() const
   return ret;
 }
 
-QList<DataSet *> DataStack::markedDataSets(bool marked)
+QList<DataSet *> DataStack::flaggedDataSets(bool flagged)
 {
   QList<DataSet *> ret;
   for(int i = -redoStack.size(); i < dataSets.size(); i++) {
     DataSet * ds = numberedDataSet(i);
-    if(ds->marked == marked)
+    if(ds->flagged == flagged)
       ret << ds;
   }
   return ret;

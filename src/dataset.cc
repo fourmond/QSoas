@@ -62,7 +62,7 @@ QString DataSet::stringDescription() const
   /// @todo Possibly clean that up ?
   return QObject::tr("%6 %2\t%3\t%5\t'%1'").
     arg(name).arg(nbColumns()).arg(nbRows()).arg(segments.size() + 1).
-    arg(marked ? "(*)" : "   ");
+    arg(flagged ? "(*)" : "   ");
 }
 
 void DataSet::regenerateCache() const
@@ -1115,7 +1115,7 @@ QDataStream & operator<<(QDataStream & out, const DataSet & ds)
   out << ds.metaData;
 
   // For version 1 onwards
-  out << ds.marked;
+  out << ds.flagged;
   return out;
 }
 
@@ -1138,7 +1138,7 @@ QDataStream & operator>>(QDataStream & in, DataSet & ds)
   in >> ds.metaData;
 
   if(DataStack::serializationVersion >= 1)
-    in >> ds.marked;
+    in >> ds.flagged;
 
   return in;
 }

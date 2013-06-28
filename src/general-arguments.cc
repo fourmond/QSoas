@@ -215,13 +215,13 @@ ArgumentMarshaller * SeveralDataSetArgument::fromString(const QString & s) const
                                    "to no buffers").
                        arg(str)) ;
     }
-    else if(str == "marked")  {
-      QList<DataSet *> mkd = soas().stack().markedDataSets();
+    else if(str == "flagged")  {
+      QList<DataSet *> mkd = soas().stack().flaggedDataSets();
       for(int i = 0; i < mkd.size(); i++)
         dsets << mkd[i];
     }
-    else if(str == "unmarked")  {
-      QList<DataSet *> mkd = soas().stack().markedDataSets(false);
+    else if(str == "unflagged")  {
+      QList<DataSet *> mkd = soas().stack().flaggedDataSets(false);
       for(int i = 0; i < mkd.size(); i++)
         dsets << mkd[i];
     }

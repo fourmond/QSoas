@@ -510,13 +510,41 @@ Vector Vector::uniformlySpaced(double min, double max, int nb)
   return r;
 }
 
-Vector Vector::resample(int nb) const
+Vector Vector::uniformlySpaced(int nb) const
 {
   if(nb < 2)
     nb = size();
   if(nb == 1)
     return *this;               // Well, it's still correct, isn't it ?
   return uniformlySpaced(min(), max(), nb);
+}
+
+
+Vector Vector::downSample(int factor) const
+{
+  // bounds checking ?
+  Vector ret;
+  if(factor >= size())
+    factor = size()/2;
+  
+  if(factor <= 1)
+    factor = 1;
+  
+  int cur_nb = 0;
+  double cur_val = 0;
+  for(int i = 0; i < size(); i++) {
+    if(cur_nb == factor) {
+      ret << cur_val / factor;
+      cur_nb = 0;
+      cur_val =0;
+    }
+    cur_val += value(i);
+    cur_nb++;
+  }
+  if(cur_nb)
+    ret << cur_val / cur_nb;
+
+  return ret;
 }
 
 

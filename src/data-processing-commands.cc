@@ -801,7 +801,7 @@ namespace __bs {
           if(resample < 2)
             d.yvalues = splines.computeValues(1);
           else {
-            d.xvalues = ds->x().resample(resample);
+            d.xvalues = ds->x().uniformlySpaced(resample);
             d.yvalues = splines.computeValues(d.xvalues, 1);
           }
         }
@@ -811,7 +811,7 @@ namespace __bs {
             diff.yvalues = ds->y() - d.yvalues;
           }
           else {
-            d.xvalues = ds->x().resample(resample);
+            d.xvalues = ds->x().uniformlySpaced(resample);
             d.yvalues = splines.computeValues(d.xvalues);
             diff.yvalues = ds->y() - splines.computeValues();
           }
@@ -1978,3 +1978,36 @@ svc("sv-decomp", // command name
     &svOpts, // options
     "SV decomposition",
     "Singular value decomposition");
+
+//////////////////////////////////////////////////////////////////////
+
+static void downsampleCommand(const QString &,
+                              const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+
+  int factor = 10;
+  updateFromOptions(opts, "factor", factor);
+
+  QList<Vector> cols;
+  for(int i = 0; i < ds->nbColumns(); i++)
+    cols << ds->column(i).downSample(factor);
+  soas().pushDataSet(ds->derivedDataSet(cols, "_ds.dat"));
+}
+
+
+static ArgumentList 
+dsOpts(QList<Argument *>() 
+       << new IntegerArgument("factor", 
+                              "Factor",
+                              "Downsampling factor")
+       );
+
+static Command 
+ds("downsample", // command name
+    effector(downsampleCommand), // action
+    "buffer",  // group name
+    NULL, // arguments
+    &dsOpts, // options
+    "Downsample",
+    "Decrease the number of points in a dataset");

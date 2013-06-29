@@ -131,9 +131,15 @@ public:
                       int *nbFound = NULL) const;
 
 
-  /// Resamples the vector, ie returns a uniformly spaced vector
-  /// spanning the same range, but uniformly spaced
-  Vector resample(int nb = -1) const;
+  /// Returns a uniformly spaced vector spanning the same range, with
+  /// possibly a different number of points.
+  Vector uniformlySpaced(int nb = -1) const;
+
+  /// Resamples the vector, ie returns a vector with factor times less
+  /// points.
+  ///
+  /// It is not designed to be very effective in being precise.
+  Vector downSample(int factor) const;
 
 
   /// @}

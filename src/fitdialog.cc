@@ -634,7 +634,7 @@ void FitDialog::loadParametersFile(const QString & file, int targetDS)
     msg = QString("Could not load parameters from '%1':").
       arg(file) + e.message();
   }
-  Terminal::out << msg;
+  Terminal::out << msg << endl;
   progressReport->setText(msg);
 }
 

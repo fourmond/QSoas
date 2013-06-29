@@ -38,7 +38,7 @@ class FitParametersFile {
 public:
 
   /// The names of the datasets, as guessed from the comments
-  QStringList datasetsName;
+  QHash<int, QString> datasetNames;
 
   /// The original name of the fit
   QString fitName;
@@ -82,7 +82,8 @@ public:
     // The \\S really shouldn't be necessary, but it looks like a Qt
     // regexp bug ?
     QRegExp paramRE("^([^\t []+)\\s*(?:\\[#(\\d+)\\])?\t\\s*(\\S.*)");
-    QRegExp commentRE("^\\s*#\\s*(.*)");
+    QRegExp commentRE("^\\s*#\\s*(.*)$");
+    QRegExp bufferCommentRE("^\\s*Buffer\\s*#(\\d+)\\s*:\\s(.*)");
     QRegExp blankLineRE("^\\s*$");
 
     QString line;
@@ -101,7 +102,13 @@ public:
         parameters << Parameter(paramRE.cap(1), ds, paramRE.cap(3));
       }
       else if(commentRE.indexIn(line) == 0) {
-        comments << commentRE.cap(1);
+        QString cmt = commentRE.cap(1);
+        comments << cmt;
+        if(bufferCommentRE.indexIn(cmt) == 0) {
+          // We found a comment describing the buffers
+          int idx = bufferCommentRE.cap(1).toInt();
+          datasetNames[idx] = bufferCommentRE.cap(2);
+        }
 
         // Parse comments, if possible.
       }
@@ -113,6 +120,14 @@ public:
                       << line.trimmed() << "'" << endl;
       }
     }
+
+    // Now we output the list of files we detected:
+    // QList<int> lst = datasetNames.keys();
+    // QTextStream o(stdout);
+    // for(int i = 0; i < lst.size(); i++) {
+    //   int idx = lst[i];
+    //   o << "Buffer #" << idx << " was " << datasetNames[idx] << endl;
+    // }
   };
 
   

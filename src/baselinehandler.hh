@@ -47,6 +47,14 @@ class EventHandler;
 /// provided.
 ///
 /// @todo Find a smooth way to handle resampling ?
+///
+/// @todo Provide an other additional object that lives in the bottom
+/// panel, that could be shown/quit replaced on demand like divide
+/// (for exponential division for instance in reg).
+///
+/// @todo Most/all actions should be made into functions
+///
+/// @todo Get rid of the shoudlComputeDerivative stuff...
 class BaselineHandler {
 public:
 

@@ -139,7 +139,7 @@ EventHandler & EventHandler::conventionalAccept(int action,
   return addKey('Q', action);
 }
 
-EventHandler & EventHandler::baselineHandler(const BaselineHandler::Options & opts)
+EventHandler & EventHandler::baselineHandler(BaselineHandler::Options opts)
 {
   return BaselineHandler::addToEventHandler(*this, opts);
 }

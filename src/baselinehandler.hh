@@ -45,6 +45,8 @@ class EventHandler;
 /// outside function to populate modified, derivative, diff and
 /// divided. For the last two, however, a convenience function is
 /// provided.
+///
+/// @todo Find a smooth way to handle resampling ?
 class BaselineHandler {
 public:
 
@@ -119,7 +121,8 @@ public:
   /// addition, it stores a series of parameters into the bool
   /// parameters
   bool nextAction(int eh, bool * shouldQuit, 
-                  bool * shouldComputeDerivative = NULL);
+                  bool * shouldComputeDerivative = NULL,
+                  bool * shouldRecompute = NULL);
 
 
   /// Bottom curves can be computed automatically provided modified is

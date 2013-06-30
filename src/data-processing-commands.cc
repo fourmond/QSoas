@@ -407,17 +407,7 @@ typedef enum {
 static EventHandler baselineHandler = EventHandler("baseline").
   addClick(Qt::LeftButton, AddPoint, "place marker").
   addClick(Qt::RightButton, RemovePoint, "remove marker").
-  addKey('q', Subtract, "subtract baseline").
-  alsoKey('Q').
-  alsoClick(Qt::MiddleButton).
-  addKey('v', Divide, "divide by baseline").
-  alsoKey('V').
-  addKey('u', Replace, "replace by baseline").
-  alsoKey('U').
-  addKey('d', Derive, "display derivative").
-  alsoKey('D').
-  addKey('h', HideDataset, "hide dataset").
-  alsoKey('H').
+  baselineHandler().
   addKey('1', Add10Left, "add 10 to the left").
   addKey('2', Add10Right, "add 10 to the right").
   addKey('0', Add20Everywhere, "add 20 regularly spaced").
@@ -441,41 +431,17 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
 
   CurveView & view = soas().view();
   CurveMarker m;
-  CurvePanel bottom;
   Spline s;
-  CurveData d;
-  CurveData diff;
-  bool derive = false;
-  bottom.drawingXTicks = false;
-  bottom.stretch = 30;        // 3/10ths of the main panel.
 
-  bottom.yLabel = Utils::deltaStr("Y");
-
+  BaselineHandler h(view, ds, "bl", BaselineHandler::None);
   PointPicker pick(&loop, ds);
-
-  CurveItem * cds = view.getCurrentDataSet();
-
   view.addItem(&m);
-  view.addItem(&d);
 
   m.size = 4;
   m.pen = QPen(Qt::NoPen);
   m.brush = QBrush(QColor(0,0,255,100)); /// @todo customize that too 
 
   Spline::Type type = Spline::CSpline;
-
-  d.pen = gs.getPen(GraphicsSettings::BaselinePen);
-  d.xvalues = ds->x();
-  d.yvalues = QVector<double>(d.xvalues.size(), 0);
-  d.countBB = true;
-  diff.xvalues = d.xvalues;
-  diff.yvalues = ds->y();
-
-  diff.countBB = true;
-
-  bottom.addItem(&diff);
-
-  view.addPanel(&bottom);
 
   loop.setHelpString("Spline interpolation:\n"
                      + baselineHandler.buildHelpString() + "\n" + 
@@ -487,103 +453,76 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
 
     pick.processEvent();        // We don't filter actions out.
 
-    switch(baselineHandler.nextAction(loop)) {
-    case AddPoint: 
-      s.insert(pick.point());
-      needCompute = true;
-      break;
-    case RemovePoint:
-      s.remove(loop.position().x());
-      needCompute = true;
-      break;
-    case HideDataset:
-      cds->hidden = ! cds->hidden;
-      // m.hidden = cds->hidden; // (not needed)
-      break;
-    case Subtract:
-      soas().pushDataSet(ds->derivedDataSet(diff.yvalues, "_bl_sub.dat"));
-      return;
-    case Divide: {
-      // Dividing
-      Vector newy = ds->y();
-      newy /= d.yvalues;
-      soas().pushDataSet(ds->derivedDataSet(newy, "_bl_div.dat"));
-      return;
+    bool computeDerivative = false;
+    bool shouldQuit = false;
+    int action = baselineHandler.nextAction(loop);
+    if(h.nextAction(action, &shouldQuit, &computeDerivative,
+                    &needCompute)) {
+      if(shouldQuit)
+        return;
     }
-    case Replace: {
-      // Replacing the data is already computed in d
-      soas().
-        pushDataSet(ds->derivedDataSet(d.yvalues, 
-                                       (derive ? "_diff.dat" : 
-                                        "_bl.dat")));
-      return;
-    }
-    case Abort:
-      chrg.cancel = true;
-      return;
-    case Derive:
-      derive = ! derive;
-      needCompute = true;
-      if(derive)
-        soas().showMessage("Showing derivative");
-      else
-        soas().showMessage("Showing baseline");
-      break;
-    case CycleSplineType:
-      type = Spline::nextType(type);
-      Terminal::out << "Now using interpolation: " 
-                    << Spline::typeName(type) << endl;
-      needCompute = true;
-      break;
-    case Add10Left:
-      isLeft = true;
-    case Add10Right: {
-      // Closest data point:
-      int side = (isLeft ? ds->x().whereMin() :
-                  ds->x().whereMax());
-      QPair<double, int> dst = loop.distanceToDataSet(ds);
+    else {
+      switch(action) {
+      case AddPoint: 
+        s.insert(pick.point());
+        needCompute = true;
+        break;
+      case RemovePoint:
+        s.remove(loop.position().x());
+        needCompute = true;
+        break;
+      case Abort:
+        chrg.cancel = true;
+        return;
+      case CycleSplineType:
+        type = Spline::nextType(type);
+        Terminal::out << "Now using interpolation: " 
+                      << Spline::typeName(type) << endl;
+        needCompute = true;
+        break;
+      case Add10Left:
+        isLeft = true;
+      case Add10Right: {
+        // Closest data point:
+        int side = (isLeft ? ds->x().whereMin() :
+                    ds->x().whereMax());
+        QPair<double, int> dst = loop.distanceToDataSet(ds);
 
-      int cur = dst.second;
-      QList<QPointF> points = pick.pickBetween(side, cur, 10);
-      for(int i = 0; i < points.size(); i++)
-        s.insert(points[i]);
-      needCompute = true;
-    }
-      break;
-    case Add20Everywhere: {
-      QList<QPointF> points = pick.pickBetween(0, ds->x().size()-1, 20);
-      for(int i = 0; i < points.size(); i++)
-        s.insert(points[i]);
-      needCompute = true;
+        int cur = dst.second;
+        QList<QPointF> points = pick.pickBetween(side, cur, 10);
+        for(int i = 0; i < points.size(); i++)
+          s.insert(points[i]);
+        needCompute = true;
+      }
+        break;
+      case Add20Everywhere: {
+        QList<QPointF> points = pick.pickBetween(0, ds->x().size()-1, 20);
+        for(int i = 0; i < points.size(); i++)
+          s.insert(points[i]);
+        needCompute = true;
       
-    }
-    default:
-      ;
+      }
+      default:
+        ;
+      }
     }
 
     if(needCompute) {
-      // In any case, the bottom panel shows the delta.
-      if(derive) {
-        d.yvalues = s.derivative(d.xvalues, type);
-        diff.yvalues = (d.yvalues.size() == ds->y().size() ?
-                        ds->y() - s.evaluate(d.xvalues, type):
-                        ds->y());
-      } 
-      else {
-        d.yvalues = s.evaluate(d.xvalues, type);
-        diff.yvalues = (d.yvalues.size() == ds->y().size() ? 
-                        ds->y() - d.yvalues :
-                        ds->y());
-      }
+      h.modified.yvalues = s.evaluate(h.diff.xvalues, type);
+      if(computeDerivative)
+        h.derivative.yvalues = s.derivative(h.diff.xvalues, type);
 
-      charge = Vector::integrate(ds->x(), diff.yvalues);
+      h.updateBottom();
+      charge = Vector::integrate(ds->x(), h.diff.yvalues);
       Terminal::out << "Charge: " << charge << " (old: " 
                     << oldCharge << ")" << endl;
 
       
       m.points = s.pointList();
-      bottom.setYRange(diff.yvalues.min(), diff.yvalues.max(), 
-                       view.mainPanel());
+
+      // ?? no ?
+      // h.bottom.setYRange(diff.yvalues.min(), diff.yvalues.max(), 
+      //                    view.mainPanel());
     }
   }
   

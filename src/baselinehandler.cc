@@ -93,8 +93,12 @@ BaselineHandler::BaselineHandler(CurveView & view, const DataSet * ds,
 }
 
 bool BaselineHandler::nextAction(int action, bool * shouldQuit,
-                                 bool * shouldComputeDerivative)
+                                 bool * shouldComputeDerivative,
+                                 bool * shouldRecompute)
 {
+  *shouldQuit = false;
+  if(shouldRecompute)
+    *shouldRecompute = false;
   if(shouldComputeDerivative)
     *shouldComputeDerivative = showingDerivative;
   switch(action) {
@@ -106,6 +110,10 @@ bool BaselineHandler::nextAction(int action, bool * shouldQuit,
     showingDerivative = ! showingDerivative;
     modified.hidden = showingDerivative;
     derivative.hidden = ! showingDerivative;
+    if(shouldRecompute)
+      *shouldRecompute = true;
+    if(shouldComputeDerivative)
+      *shouldComputeDerivative = showingDerivative;
     return true;
 
   case ToggleDivision:
@@ -116,9 +124,14 @@ bool BaselineHandler::nextAction(int action, bool * shouldQuit,
 
     // Now the quitting commands
   case QuitSubtracting:
-    soas().pushDataSet(signal->derivedDataSet(diff.yvalues, 
-                                              QString("_%1_sub.dat").
-                                              arg(suffix)));
+    if(showingDerivative)
+      soas().pushDataSet(signal->derivedDataSet(derivative.yvalues, 
+                                                QString("_%1_diff.dat").
+                                                arg(suffix)));
+    else
+      soas().pushDataSet(signal->derivedDataSet(diff.yvalues, 
+                                                QString("_%1_sub.dat").
+                                                arg(suffix)));
     *shouldQuit = true;
     return true;
   case QuitReplacing:

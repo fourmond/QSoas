@@ -98,7 +98,8 @@ public:
 
   /// Adds all actions corresponding to a BaselineHandler with the
   /// given options
-  EventHandler & baselineHandler(const BaselineHandler::Options & opts);
+  EventHandler & baselineHandler(BaselineHandler::Options opts = 
+                                 BaselineHandler::None);
 
   /// Builds a help string (in the order of the int of the actions)
   QString buildHelpString(bool useHTML = false) const;

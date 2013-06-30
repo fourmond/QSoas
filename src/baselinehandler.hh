@@ -41,7 +41,10 @@ class EventHandler;
 /// @li display in the bottom panel either the diff or the result of
 /// the division
 ///
-/// 
+/// No operation is performed here, the BaselineHandler relies on the
+/// outside function to populate modified, derivative, diff and
+/// divided. For the last two, however, a convenience function is
+/// provided.
 class BaselineHandler {
 public:
 
@@ -50,6 +53,17 @@ public:
     
   } Option;
   Q_DECLARE_FLAGS(Options, Option);
+
+
+  typedef enum {
+    HandlerActionsBase = 1000,
+    ToggleDerivative = HandlerActionsBase,
+    HideDataset = HandlerActionsBase+1,
+    QuitReplacing = HandlerActionsBase+2,
+    QuitSubtracting = HandlerActionsBase+3,
+    QuitDividing =   HandlerActionsBase+4,
+    ToggleDivision = HandlerActionsBase+5,
+  } HandlerActions;
 
   /// The options of the BaselineHandler.
   Options options;
@@ -64,26 +78,53 @@ public:
   /// "modified" signal.
   CurveData modified;
 
+  /// This object lives in the top panel, is hidden by default, and
+  /// is meant to contain the derivative.
+  CurveData derivative;
+
   /// This object lives in the bottom panel and constantly represents
   /// the difference between the signal and the modified one.
   CurveData diff;
+
+  /// This object lives in the bottom panel and represents the effect
+  /// of dividing the signal by the modified thing.
+  CurveData divided;
 
   /// A pointer to the item displaying the current dataset. (comes in
   /// useful to hide it, BTW)
   CurveItem * datasetDisplay;
 
+  /// Whether we are showing derivative or not.
+  bool showingDerivative;
+
+  /// Whether we are showing the divided signal
+  bool showingDivided;
+
+  /// A suffix whose derived names are based on.
+  QString suffix;
+
   /// Adds all the necessary commands to the 
-  static void addToEventHandler(EventHandler & target, Options opts);
+  static EventHandler & addToEventHandler(EventHandler & target, Options opts);
 
 public:
 
   BaselineHandler(CurveView & view, const DataSet * ds,
-                  Options opts);
+                  const QString & suffix,
+                  Options opts = None);
   ~BaselineHandler();
 
-  /// Processes the next action returned by the handler
-  bool nextAction(int eh, bool * shouldQuit);
+  /// Processes the next action returned by the handler.
+  ///
+  /// Returns true if the action was processed by the handler. In
+  /// addition, it stores a series of parameters into the bool
+  /// parameters
+  bool nextAction(int eh, bool * shouldQuit, 
+                  bool * shouldComputeDerivative = NULL);
 
+
+  /// Bottom curves can be computed automatically provided modified is
+  /// up-to-date.
+  void updateBottom();
 };
 
 

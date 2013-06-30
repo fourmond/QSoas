@@ -19,6 +19,7 @@
 #include <headers.hh>
 #include <eventhandler.hh>
 #include <curveeventloop.hh>
+#include <baselinehandler.hh>
 
 EventHandler::EventHandler(const QString & cmd) :
   commandName(cmd), lastAction(-1)
@@ -136,4 +137,9 @@ EventHandler & EventHandler::conventionalAccept(int action,
   addClick(Qt::MidButton, action, help);
   addKey('q', action);
   return addKey('Q', action);
+}
+
+EventHandler & EventHandler::baselineHandler(const BaselineHandler::Options & opts)
+{
+  return BaselineHandler::addToEventHandler(*this, opts);
 }

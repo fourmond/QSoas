@@ -21,6 +21,7 @@
 #ifndef __EVENTHANDLER_HH
 #define __EVENTHANDLER_HH
 
+#include <baselinehandler.hh>
 class CurveEventLoop;
 
 /// This helper class allows one to transform input from a command
@@ -94,6 +95,10 @@ public:
 
   /// Adds the action corresponding to a conventional accept.
   EventHandler & conventionalAccept(int action, const QString & help = "");
+
+  /// Adds all actions corresponding to a BaselineHandler with the
+  /// given options
+  EventHandler & baselineHandler(const BaselineHandler::Options & opts);
 
   /// Builds a help string (in the order of the int of the actions)
   QString buildHelpString(bool useHTML = false) const;

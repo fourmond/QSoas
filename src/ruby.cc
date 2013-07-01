@@ -30,12 +30,23 @@ static SettingsValue<bool> debugRuby("ruby/debug", false);
 
 VALUE Ruby::globalRescueFunction(VALUE /*dummy*/, VALUE exception)
 {
-  QString str = QObject::tr("Ruby exception: ");
+  static VALUE cQSoasException = Qnil;
+  if(cQSoasException == Qnil)
+    cQSoasException = rb_eval_string("QSoasException");
+
+  bool isQSoasException = false;
+  if(rb_class_of(exception) == cQSoasException)
+    isQSoasException = true;
+
+  QString str = (isQSoasException ? "" : "Ruby exception: ");
+
   VALUE in = rb_inspect(exception);  // Probably shouldn't throw an exception ?
   str += StringValueCStr(in); // Or in ? See call stack too ?
 
+
+
   // We add the call stack
-  if(debugRuby) {
+  if(debugRuby && (! isQSoasException) ) {
     VALUE ct = rb_funcall2(exception, rb_intern("backtrace"), 0, NULL);
     VALUE s = rb_str_new2("\n");
     VALUE s2 = rb_funcall2(ct, rb_intern("join"), 1, &s);

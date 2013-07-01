@@ -17,6 +17,19 @@
     
 ## @file This file contains various utility functions
 
+# This class maps into a QSoas runtime error
+class QSoasException < Exception
+  def initialize(msg)
+    super(msg)
+    @message = msg
+  end
+
+  def inspect()
+    return @message
+  end
+
+end
+
 def soas_eval(__str)
   begin
     __blk = eval(__str)
@@ -62,6 +75,12 @@ def soas_find_vars(__code)
   rescue NameError => __e
     if __e.is_a? NoMethodError
       raise __e
+    end
+    __var_name = __e.name.to_s
+    if __var_name =~ /^\p{Upper}/
+      raise QSoasException.new("Parameter/variable '#{__var_name}' should not start " +
+                               "with an uppercase. " +
+                               "This could also mean that you misspelled a constant")
     end
     __vars << __e.name.to_s
     __done = false

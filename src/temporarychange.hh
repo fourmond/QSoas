@@ -25,6 +25,8 @@
 /// Changes the value of the target during the scope of the existence
 /// of the variable, which makes a temporary modification
 /// exception-safe.
+///
+/// @todo This should be a child of DelayedAssign
 template<typename T> class TemporaryChange{
 protected:
 

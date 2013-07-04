@@ -304,25 +304,34 @@ sh("save-history", // command name
 static void runCommand(const QString &, QStringList args, 
                        const CommandOptions &opts)
 {
-  if(testOption<QString>(opts, "silent", "yes")) {
+  bool addToHistory = false;
+  updateFromOptions(opts, "add-to-history", addToHistory);
+  bool silent = false;
+  updateFromOptions(opts, "silent", silent);
+
+  if(silent) {
     QTextStream o(stdout);
     o << "Running in silent mode" << endl;
     soas().view().disableUpdates();
   }
   QString cmdfile = args.takeFirst();
 
-  soas().prompt().runCommandFile(cmdfile, args);
-  if(testOption<QString>(opts, "silent", "yes"))
+  soas().prompt().runCommandFile(cmdfile, args, addToHistory);
+  if(silent)
     soas().view().enableUpdates();
 }
 
 static ArgumentList
 runOpts(QList<Argument *>() 
-        << new ChoiceArgument(QStringList() << "yes" << "no",
-                              "silent", 
-                              "Silent processing",
-                              "Whether or not display is updated "
-                              "during the load"));
+        << new BoolArgument("silent", 
+                            "Silent processing",
+                            "Whether or not display is updated "
+                            "during the load")
+        << new BoolArgument("add-to-history", 
+                            "Add commands to history",
+                            "Whether the commands run are added to the "
+                            "history (defaults to false)")
+        );
 
 static ArgumentList 
 runArgs(QList<Argument *>() 
@@ -334,14 +343,14 @@ runArgs(QList<Argument *>()
 
 static Command 
 run("run", // command name
-   effector(runCommand), // action
-   "file",  // group name
-   &runArgs, // arguments
-    NULL, //&runOpts, // options doesn't seem to work anyway...
-   "Run commands",
-   "Run commands from a file",
-   "Run commands saved in a file",
-   "@");
+    effector(runCommand), // action
+    "file",  // group name
+    &runArgs, // arguments
+    &runOpts, // options doesn't seem to work anyway...
+    "Run commands",
+    "Run commands from a file",
+    "Run commands saved in a file",
+    "@");
 
 //////////////////////////////////////////////////////////////////////
   
@@ -352,6 +361,8 @@ static void runForEachCommand(const QString &, QString script,
                               QStringList args, 
                               const CommandOptions & opts)
 {
+  bool addToHistory = false;
+  updateFromOptions(opts, "add-to-history", addToHistory);
   int nb = 1;
 
   QStringList additionalArgs;
@@ -368,7 +379,7 @@ static void runForEachCommand(const QString &, QString script,
     for(int i = 0; i < nb && args.size() > 0; i++)
       a << args.takeFirst();
     a << additionalArgs;
-    soas().prompt().runCommandFile(script, a);
+    soas().prompt().runCommandFile(script, a, addToHistory);
   }
 }
 
@@ -396,6 +407,10 @@ rfeOpts(QList<Argument *>()
         << new FileArgument("arg5", 
                             "Fifth argument",
                             "Fifth argument to the script")
+        << new BoolArgument("add-to-history", 
+                            "Add commands to history",
+                            "Whether the commands run are added to the "
+                            "history (defaults to false)")
         );
 
 

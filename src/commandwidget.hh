@@ -70,9 +70,14 @@ class CommandWidget : public QWidget {
   /// Within a command, this holds the full command-line
   QString curCmdline;
 
+  /// Whether we add current commands to the history. Enabled
+  /// everywhere but scripts.
+  bool addToHistory;
+
   /// Runs the command coming from the given device
   void runCommandFile(QIODevice * source, 
-                      const QStringList & args = QStringList());
+                      const QStringList & args = QStringList(),
+                      bool addToHist = false);
 
 public:
 
@@ -142,7 +147,8 @@ public slots:
 
   /// Runs the commands contained in a file.
   void runCommandFile(const QString & fileName, 
-                      const QStringList & args = QStringList());
+                      const QStringList & args = QStringList(),
+                      bool addToHist = false);
 
 protected slots:
   void commandEntered();

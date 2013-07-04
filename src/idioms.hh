@@ -28,6 +28,8 @@
 /// @todo This is really TemporaryChange with another name ?
 template <class T> class DelayedAssign {
   T & dest;
+
+  /// @todo This shouldn't be a const ref
   const T & source;
 public:
   bool cancel;

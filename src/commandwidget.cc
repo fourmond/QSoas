@@ -52,7 +52,9 @@ QStringList & CommandWidget::startupFiles()
   return ::startupFiles.ref();
 }
 
-CommandWidget::CommandWidget() : watcherDevice(NULL)
+CommandWidget::CommandWidget() : 
+  watcherDevice(NULL),
+  addToHistory(true)
 {
   if(! theCommandWidget)
     theCommandWidget = this;    // Or always ?
@@ -129,7 +131,9 @@ void CommandWidget::runCommand(const QStringList & raw)
   
   QString cmd = Command::unsplitWords(raw);
   out << bold("QSoas> ") << cmd << endl;
-  commandLine->addHistoryItem(cmd);
+  
+  if(addToHistory)
+    commandLine->addHistoryItem(cmd);
   commandLine->setEnabled(false);
 
   soas().showMessage(tr("Running: %1").arg(cmd));
@@ -146,6 +150,8 @@ void CommandWidget::runCommand(const QStringList & raw)
         << "This is a bug in Soas and may be worth reporting !" << endl;
   }
   catch(const ControlFlowException & flow) {
+    /// @todo This should be implemented as an idiom when clang
+    /// supports std::function
     commandLine->setEnabled(true);
     commandLine->setFocus();
     throw;                      // rethrow
@@ -263,10 +269,14 @@ QString CommandWidget::terminalContents() const
 }
 
 void CommandWidget::runCommandFile(QIODevice * source, 
-                                   const QStringList & args)
+                                   const QStringList & args,
+                                   bool addToHist)
 {
   QTextStream in(source);
   QRegExp commentRE("^\\s*#.*");
+
+  // Disable history when applicable
+  TemporaryChange<bool> ch(addToHistory, addToHist);
   try {
     while(true) {
       QString line = in.readLine();
@@ -293,12 +303,13 @@ void CommandWidget::runCommandFile(QIODevice * source,
 }
 
 void CommandWidget::runCommandFile(const QString & fileName, 
-                                   const QStringList & args)
+                                   const QStringList & args,
+                                   bool addToHist)
 {
   QFile file(fileName);
-  TemporaryChange<QString> ch(scriptFile, fileName);
   Utils::open(&file, QIODevice::ReadOnly);
-  runCommandFile(&file, args);
+  TemporaryChange<QString> ch(scriptFile, fileName);
+  runCommandFile(&file, args, addToHist);
 }
 
 QStringList CommandWidget::history() const

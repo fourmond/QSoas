@@ -132,8 +132,13 @@ public:
 
 public slots:
 
-  void runCommand(const QString & str);
-  void runCommand(const QStringList & raw);
+
+  bool runCommand(const QString & str);
+
+  /// Runs the given command (already split into words). Returns true
+  /// if everything went fine, or false if it finished with an error
+  /// (or a control flow exception).
+  bool runCommand(const QStringList & raw);
 
   /// Appends the given (HTML) text to the log output.
   void appendToTerminal(const QString & str);

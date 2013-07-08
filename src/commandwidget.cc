@@ -122,12 +122,14 @@ CommandWidget::~CommandWidget()
   delete watcherDevice;
 }
 
-void CommandWidget::runCommand(const QStringList & raw)
+bool CommandWidget::runCommand(const QStringList & raw)
 {
   /// @todo use a different prompt whether the call is internal or
   /// external ?
+
+  bool status = true;
   if(raw.isEmpty())
-    return;                     // Nothing to do here.
+    return true;                     // Nothing to do here.
   
   QString cmd = Command::unsplitWords(raw);
   out << bold("QSoas> ") << cmd << endl;
@@ -143,11 +145,13 @@ void CommandWidget::runCommand(const QStringList & raw)
   }
   catch(const RuntimeError & error) {
     out << bold("Error: ") << error.message() << endl;
+    status = false;
   }
   catch(const InternalError & error) {
     out << bold("Internal error: ") 
         << error.message() << endl
         << "This is a bug in Soas and may be worth reporting !" << endl;
+    status = false;
   }
   catch(const ControlFlowException & flow) {
     /// @todo This should be implemented as an idiom when clang
@@ -158,12 +162,13 @@ void CommandWidget::runCommand(const QStringList & raw)
   }
   commandLine->setEnabled(true);
   commandLine->setFocus();
+  return status;
 }
 
-void CommandWidget::runCommand(const QString & str)
+bool CommandWidget::runCommand(const QString & str)
 {
   QStringList split = Command::wordSplit(str);
-  runCommand(split);
+  return runCommand(split);
 }
 
 void CommandWidget::commandEntered()
@@ -287,12 +292,77 @@ void CommandWidget::runCommandFile(QIODevice * source,
 
       // Argument substitution
 
-      /// @todo escape ?
-      for(int i = 0; i < args.size(); i++) {
-        QString argname = QString("${%1}").arg(i + 1);
-        line.replace(argname, args[i]);
+
+      // Now, we look for all possible argument substitutions
+      // |:+ ?
+      QRegExp substitutionRE("\\$\\{(\\d+)(?:(%%|##|:-)([^}]+))?\\}");
+
+      typedef enum {
+        Plain, RemoveSuffix, RemovePrefix, DefaultValue
+      } SubstitutionType;
+
+      // We prepare the substitutions in advance in this hash:
+      QHash<QString, QString> substitutions;
+
+      int pos = 0;
+      while((pos = substitutionRE.indexIn(line, pos)) != -1) {
+        // We build one substitution
+        QString key = substitutionRE.cap(0);
+        int argn = substitutionRE.cap(1).toInt() - 1;
+        QString w = substitutionRE.cap(2);
+        SubstitutionType type = Plain;
+        QString oa = substitutionRE.cap(3);
+        QString subst;
+
+        if(w == "%%")
+          type = RemoveSuffix;
+        else if(w == "##")
+          type = RemovePrefix;
+        else if(w == ":-")
+          type = DefaultValue;
+
+        if(type != DefaultValue && argn >= args.size()) {
+          throw RuntimeError("Script was given %1 parameters, "
+                             "but it needs at least %2").
+            arg(args.size()).arg(argn+1);
+        }
+        switch(type) {
+        case RemoveSuffix:
+          subst = args[argn];
+          if(subst.endsWith(oa))
+            subst.truncate(subst.size() - oa.size());
+          break;
+        case RemovePrefix:
+          subst = args[argn];
+          if(subst.startsWith(oa))
+            subst = subst.mid(oa.size());
+          break;
+        case DefaultValue:
+          if(argn >= args.size())
+            subst = oa;
+          else
+            subst = args[argn];
+          break;
+        default:
+        case Plain:
+          subst = args[argn];
+          break;
+        }
+        pos += substitutionRE.matchedLength();
+        substitutions[key] = subst;
       }
-      runCommand(line);
+      
+
+      /// @todo escape ?
+      for(QHash<QString, QString>::const_iterator i = substitutions.begin();
+          i != substitutions.end(); i++)
+        line.replace(i.key(), i.value());
+
+      /// @todo Make that configurable
+      if(! runCommand(line)) {
+        Terminal::out << "Command failed: aborting script" << endl;
+        break;
+      }
       // And we allow for deferred slots to take place ?
       QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
     }

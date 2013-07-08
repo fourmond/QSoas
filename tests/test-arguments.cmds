@@ -1,0 +1,15 @@
+# This test should be called with various arguments to see the effect
+generate-buffer 0 10
+# This is just to make sure the break is visible in the stack !
+a -------------------------
+generate-buffer 0 10
+a ${1}
+generate-buffer 0 10
+a ${1%%.ocw}.dat
+generate-buffer 0 10
+a ${1##pre}
+generate-buffer 0 10
+a ${2:-stuff}
+generate-buffer 0 10
+# Only this command should fail when there is no second argument
+a ${2}

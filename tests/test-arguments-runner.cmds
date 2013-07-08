@@ -1,0 +1,5 @@
+# Without arguments, should fail
+@ test-arguments.cmds a.dat 2
+@ test-arguments.cmds a.ocw 2
+@ test-arguments.cmds pre_b.ocw 2
+@ test-arguments.cmds d

@@ -99,5 +99,4 @@ public:
   virtual ~ControlFlowException() throw() {;};
 };
 
-
 #endif

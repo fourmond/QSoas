@@ -221,6 +221,10 @@ class LinearKineticSystemFit : public PerDatasetFit {
   /// Whether or not an offset is present
   bool offset;
 
+  /// Whether or not we have additional irreversible loss rate
+  /// constants (who could go below 0 ?)
+  bool additionalLoss;
+
 
 protected:
 
@@ -235,6 +239,9 @@ protected:
 
     offset = false;
     updateFromOptions(opts, "offset", offset);
+
+    additionalLoss = false;
+    updateFromOptions(opts, "additional-loss", additionalLoss);
 
     distinctSteps = 0;
     for(int i = 0; i < steps.size(); i++)
@@ -308,6 +315,14 @@ public:
       /// Starting time (including the 0)
       defs << ParameterDefinition(QString("xstart_%1").arg(step), true);
     }
+
+    if(additionalLoss) {
+      for(int i = 0; i < steps.size(); i++) {
+        QChar step('a' + i);
+        /// Starting time (including the 0)
+        defs << ParameterDefinition(QString("kloss_%1").arg(step), true);
+      }
+    }
     
     return defs;
   };
@@ -343,7 +358,9 @@ public:
 
         // First, potential-dependant-stuff:
         int potential = steps[cur];
-       
+        double loss_add = 0;
+
+        
         // Currents:
         const double  * base = this->currents(a, potential);
         for(int i = 0; i < species; i++)
@@ -353,24 +370,27 @@ public:
           offset_value = base[species];
 
 
-        // Now, range checking: we don't want rate constants to be
-        // negative !
         const double * sc = stepConstants(a, potential);
 
         /// @todo This check could optionnally be turned off.
+        // Now, range checking: we don't want rate constants to be
+        // negative !
         for(int i = 0; i <= species * species; i++)
           if(sc[i] < 0)
             throw RangeError(QString("Found a negative rate "
                                      "constant (step: %1): %2 !").
                              arg(potential).arg(i));
 
+        base = initialConcentrations(a) + species;
+        if(additionalLoss)
+          loss_add = base[cur + steps.size()];
+        
         // Global loss...
-        sys.setConstants(sc, sc[species*species]);
+        sys.setConstants(sc, sc[species*species] + loss_add);
 
         /// @todo There may be an "off-by-one-data-point" mistake here
         sys.setInitialConcentrations(&vco.vector);
 
-        base = initialConcentrations(a) + species;
         xstart = base[cur];
         if(cur < steps.size() - 1)
           xend = base[cur+1];
@@ -419,6 +439,13 @@ public:
     double xmax = Utils::roundValue(x.max());
     for(int i = 0; i < steps.size(); i++)
       base[i] = i * xmax/steps.size();
+
+    
+    if(additionalLoss) {
+      base += steps.size();
+      for(int i = 0; i < steps.size(); i++)
+        base[i] = 0;
+    }
     
   };
 
@@ -436,6 +463,9 @@ public:
                    << new BoolArgument("offset", 
                                        "Constant offset",
                                        "If on, allow for a constant offset to be added")
+                   << new BoolArgument("additional-loss", 
+                                       "Additional loss",
+                                       "Additional unconstrained 'irreversible loss' rate constants")
                    << new 
                    SeveralIntegersArgument("steps", 
                                            "Steps",

@@ -383,10 +383,21 @@ void CurvePanel::setZoom(const QRectF & recti)
 {
   QRectF rect = recti;
   if(boundingBox.isValid() && !anyZoom) {
-    if(rect.contains(boundingBox))
+    // 10% around
+    double dx = fabs(rect.width() * 0.05);
+    double dy = fabs(rect.height() * 0.05);
+
+    // not very satisfying...
+    // We need to implement a drag stuff...
+    QRectF bb = boundingBox.normalized().adjusted(-dx, -dy, dx, dy);
+
+    if(rect.contains(bb))
       rect = QRectF();            // Disable zoom then.
-    else
-      rect = boundingBox.intersected(rect);
+    else {
+      // We try to be smart and take up to 10% of the zoom around the
+      // full bounding box.
+      rect = bb.intersected(rect);
+    }
   }
   zoom = rect;
 

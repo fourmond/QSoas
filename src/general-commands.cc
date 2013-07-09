@@ -355,6 +355,38 @@ run("run", // command name
 //////////////////////////////////////////////////////////////////////
   
 
+static void noopCommand(const QString &, QStringList args, 
+                        const CommandOptions &opts)
+{
+}
+
+static ArgumentList 
+noopArgs(QList<Argument *>() 
+         << new SeveralStringsArgument("ignored", 
+                                       "Ignored arguments",
+                                       "Ignored arguments", true));
+
+static ArgumentList 
+noopOpts(QList<Argument *>() 
+         << new StringArgument("*", "Ignored options",
+                               "Ignored options",
+                               true));
+
+
+static Command 
+noop("noop", // command name
+     effector(noopCommand), // action
+     "file",  // group name
+     &noopArgs, // arguments
+     &noopOpts, // options
+     "No op",
+     "Does nothing",
+     "Does nothing");
+
+
+//////////////////////////////////////////////////////////////////////
+  
+
 /// @todo Choose the number of arguments (ie one by one, two by two,
 /// and so on)
 static void runForEachCommand(const QString &, QString script,

@@ -295,10 +295,10 @@ void CommandWidget::runCommandFile(QIODevice * source,
 
       // Now, we look for all possible argument substitutions
       // |:+ ?
-      QRegExp substitutionRE("\\$\\{(\\d+)(?:(%%|##|:-)([^}]*))?\\}");
+      QRegExp substitutionRE("\\$\\{(\\d+)(?:(%%|##|:-:+)([^}]*))?\\}");
 
       typedef enum {
-        Plain, RemoveSuffix, RemovePrefix, DefaultValue
+        Plain, RemoveSuffix, RemovePrefix, DefaultValue, AlternateValue
       } SubstitutionType;
 
       // We prepare the substitutions in advance in this hash:
@@ -320,8 +320,11 @@ void CommandWidget::runCommandFile(QIODevice * source,
           type = RemovePrefix;
         else if(w == ":-")
           type = DefaultValue;
+        else if(w == ":+")
+          type = AlternateValue;
 
-        if(type != DefaultValue && argn >= args.size()) {
+        if(type != DefaultValue && type != AlternateValue && 
+           argn >= args.size()) {
           throw RuntimeError("Script was given %1 parameters, "
                              "but it needs at least %2").
             arg(args.size()).arg(argn+1);
@@ -342,6 +345,12 @@ void CommandWidget::runCommandFile(QIODevice * source,
             subst = oa;
           else
             subst = args[argn];
+          break;
+        case AlternateValue:
+          if(argn >= args.size())
+            subst = "";
+          else
+            subst = oa;         // the value of the parameter is not used :
           break;
         default:
         case Plain:

@@ -1,6 +1,6 @@
 /**
-    \file headers.hh precompiled headers for QSoas
-    Copyright 2011 by Vincent Fourmond
+    \file headers.hh shared headers for QSoas (for use with precompiled headers)
+    Copyright 2011, 2013 by Vincent Fourmond
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -129,8 +129,11 @@
 // ... and Ruby !
 #include <ruby.h>
 
+// Ruby pollutes the name space, which is quite a pain
+#undef truncate
+
+
 // The gsl
-#include <headers.hh>
 #ifndef Q_WS_WIN
 // We don't use inlined functions on windows, I can't get them to work
 // for now !

@@ -345,7 +345,6 @@ QString Utils::abbreviateString(const QString & str, int nb)
   if(str.size() <= nb)
     return str;
   QString s = str;
-#undef truncate
   s.truncate(nb-3);
   return  s + "...";
 }

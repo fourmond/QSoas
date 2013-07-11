@@ -305,5 +305,18 @@ public:
 };
 
 
+/// A Regex
+class RegexArgument : public Argument {
+public:
+
+  RegexArgument(const char * cn, const char * pn,
+                const char * d = "", bool def = false) : 
+    Argument(cn, pn, d, false, def) {
+  }; 
+  
+  /// Returns a wrapped Regex
+  virtual ArgumentMarshaller * fromString(const QString & str) const;
+};
+
 
 #endif

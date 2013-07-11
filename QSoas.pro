@@ -225,7 +225,9 @@ SOURCES += src/qmain.cc \
         src/explorators.cc \
         src/widgets.cc \
         src/fittrajectory.cc \
-        src/baselinehandler.cc
+        src/baselinehandler.cc \
+        src/regex.cc
+
 
 
 HEADERS += src/headers.hh \
@@ -308,7 +310,8 @@ HEADERS += src/headers.hh \
         src/parameterspaceexplorator.hh  \
         src/widgets.hh \
         src/fittrajectory.hh \
-        src/baselinehandler.hh
+        src/baselinehandler.hh \
+        src/regex.hh
 
 
 # We link with the converted ODRPACK library

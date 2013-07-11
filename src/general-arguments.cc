@@ -1,6 +1,6 @@
 /*
   general-arguments.cc:
-  Copyright 2011 by Vincent Fourmond
+  Copyright 2011, 2012, 2013 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include <curveview.hh>
 
 #include <stylegenerator.hh>
+#include <regex.hh>
 
 ArgumentMarshaller * StringArgument::fromString(const QString & str) const
 {
@@ -369,4 +370,11 @@ StyleGeneratorArgument::StyleGeneratorArgument(const char * cn, const char * pn,
 ArgumentMarshaller * StyleGeneratorArgument::fromString(const QString & str) const
 {
   return new ArgumentMarshallerChild<QString>(str);
+}
+
+//////////////////////////////////////////////////////////////////////
+
+ArgumentMarshaller * RegexArgument::fromString(const QString & str) const
+{
+  return new ArgumentMarshallerChild<Regex>(str);
 }

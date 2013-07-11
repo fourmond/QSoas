@@ -51,7 +51,7 @@ public:
                               Qt::CaseSensitivity * cs);
 
   /// Returns a fresh ready-to-use QRegExp object
-  QRegExp toRegExp() const;
+  QRegExp toQRegExp() const;
 };
 
 #endif

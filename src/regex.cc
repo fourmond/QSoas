@@ -52,13 +52,13 @@ QString Regex::parsePattern(const QString & pattern,
   else if(pattern == "{blank}")          // blank line
     p = "\\s+";
   else if(pattern == "{text-line}")  // text line
-    p = "^\\s*[^0-9.+-]";
+    p = "^\\s*[^0-9.+-\\s]";
   else
     p = QRegExp::escape(pattern);
   return p;
 }
 
-QRegExp Regex::toRegExp() const
+QRegExp Regex::toQRegExp() const
 {
   return QRegExp(pattern, cs, QRegExp::RegExp2);
 }

@@ -25,15 +25,17 @@
 #include <argumentmarshaller.hh>
 #include <general-arguments.hh>
 
+#include <regex.hh>
+
 /// A general-purpose text files reader.
 class TextBackend : public DataBackend {
 protected:
 
   /// The column separator
-  QRegExp separator;
+  Regex separator;
 
   /// The comments lines
-  QRegExp comments;
+  Regex comments;
   virtual int couldBeMine(const QByteArray & peek, 
                           const QString & fileName) const;
 
@@ -44,14 +46,14 @@ protected:
                                    const CommandOptions & opts) const;
 
 public:
-  TextBackend(const QRegExp & sep,
+  TextBackend(const QString & sep,
               const char * n, const char * pn, const char * d = "");
 };
 
 
-TextBackend::TextBackend(const QRegExp & sep,
+TextBackend::TextBackend(const QString & sep,
                          const char * n, const char * pn, const char * d) : 
-  DataBackend(n, pn, d), separator(sep), comments("^\\s*#") {
+  DataBackend(n, pn, d), separator(sep), comments("{text-line}") {
 }
 
 int TextBackend::couldBeMine(const QByteArray & peek, 
@@ -79,25 +81,40 @@ int TextBackend::couldBeMine(const QByteArray & peek,
   if(nbSpecials > peek.size()/100)
     return 0;                   // Most probably not
   QString str(peek);
-  int nbSeparatorMatches = str.split(separator).size();
-  /// Heuristic: we must have one or more separators per line.
-  if(nbSeparatorMatches > nbRet) {
-    if(separator.indexIn(" \t") >= 0)
-      return 2*nbSeparatorMatches - (5 * nbRet)/3;
+
+  // We split into lines, el
+  QStringList lines = str.split("\n");
+
+  int nbSeps = 0;
+  int nbLines = 0;
+  QRegExp sep = separator.toQRegExp();
+  QRegExp cmt = comments.toQRegExp();
+  for(int i = 0; i < lines.size(); i++) {
+    const QString & l = lines[i];
+    if(cmt.indexIn(l) >= 0)
+      continue;
+    ++nbLines;
+    /// @todo Don't use split, but count !
+    nbSeps += l.split(sep).size();
+  }
+
+  if(nbSeps > nbLines) {
+    if(sep.indexIn(" \t") >= 0)
+      return 2*nbSeps - (5 * nbLines)/3;
     else
-      return 2*nbSeparatorMatches - nbRet;
+      return 5*(2*nbSeps - nbLines)/3;
   }
   return 0;
 }
 
 static ArgumentList 
 textLoadOptions(QList<Argument *>() 
-                << new StringArgument("separator", 
-                                      "Separator",
-                                      "Separator regular expression")
-                << new StringArgument("separator-exact", 
-                                      "Exact separator",
-                                      "Exact separator")
+                << new RegexArgument("separator", 
+                                     "Separator",
+                                     "Separator between columns")
+                << new RegexArgument("comments", 
+                                     "Comments",
+                                     "Comment lines")
                 << new SeveralIntegersArgument("columns", 
                                                "Columns",
                                                "Order of the columns")
@@ -115,31 +132,26 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
                                              const QString & fileName,
                                              const CommandOptions & opts) const
 {
-  QString sep;
-  if(opts.contains("separator-exact"))
-    sep = QRegExp::escape(opts["separator-exact"]->value<QString>());
-  else if(opts.contains("separator"))
-    sep = opts["separator"]->value<QString>();
+  Regex sep = separator;
+  updateFromOptions(opts, "separator", sep);
+
+  Regex cmt = comments;
+  updateFromOptions(opts, "comments", cmt);
+
   QList<int> cols;
   updateFromOptions(opts, "columns", cols);
+
   bool autoSplit = false;
   updateFromOptions(opts, "auto-split", autoSplit);
 
-  QRegExp s = separator;
-  if(! sep.isEmpty()) {
-    s = QRegExp(sep);
-    QTextStream o(stdout);
-    o << "Using separator: " << sep <<  " -- " << s.pattern() << endl;
-  }
-  
   /// @todo implement comments / header parsing... BTW, maybe
   /// Vector::readFromStream could be more verbose about the nature of
   /// the comments (the exact line, for instance ?)
 
 
   QList<QList<Vector> > allColumns = 
-    Vector::readFromStream(stream, s, 
-                           comments, autoSplit);
+    Vector::readFromStream(stream, sep.toQRegExp(), 
+                           cmt.toQRegExp(), autoSplit);
 
   QList<DataSet *> ret;
 
@@ -179,13 +191,13 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
 
 /// @todo This is not a real CSV backend, as it will not parse
 /// properly files with quoted text that contains delimitedrs.
-TextBackend csv(QRegExp("\\s*[;,]\\s*"),
+TextBackend csv("/\\s*[;,]\\s*/",
                 "csv",
                 "CSV files",
                 "Backend to read CSV files");
 
 
-TextBackend text(QRegExp("\\s+"),
+TextBackend text("/\\s+/",
                  "text",
                  "Text files",
                  "Backend to read plain text files");

@@ -185,12 +185,12 @@ public:
   ///
   /// @todo Quite a lot of things to improve here.
   static QList<QList<Vector> > readFromStream(QIODevice * source,
-                                             const QRegExp & separatorRE,
-                                             const QRegExp & commentRE,
-                                             bool splitOnBlank = false,
-                                             const QRegExp & blankRE = 
-                                              QRegExp("^\\s*$"),
-                                             QStringList * comments = NULL);
+                                              const QRegExp & separatorRE,
+                                              const QRegExp & commentRE,
+                                              bool splitOnBlank = false,
+                                              const QString & decimalSep = QString(),
+                                              const QRegExp & blankRE = QRegExp("^\\s*$"),
+                                              QStringList * comments = NULL);
 
 
   /// Convenience overload

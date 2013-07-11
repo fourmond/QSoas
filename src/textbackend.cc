@@ -112,6 +112,9 @@ textLoadOptions(QList<Argument *>()
                 << new RegexArgument("separator", 
                                      "Separator",
                                      "Separator between columns")
+                << new StringArgument("decimal", 
+                                      "Decimal separator",
+                                      "Decimal separator")
                 << new RegexArgument("comments", 
                                      "Comments",
                                      "Comment lines")
@@ -138,6 +141,9 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
   Regex cmt = comments;
   updateFromOptions(opts, "comments", cmt);
 
+  QString dSep;
+  updateFromOptions(opts, "decimal", dSep);
+
   QList<int> cols;
   updateFromOptions(opts, "columns", cols);
 
@@ -151,7 +157,7 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
 
   QList<QList<Vector> > allColumns = 
     Vector::readFromStream(stream, sep.toQRegExp(), 
-                           cmt.toQRegExp(), autoSplit);
+                           cmt.toQRegExp(), autoSplit, dSep);
 
   QList<DataSet *> ret;
 

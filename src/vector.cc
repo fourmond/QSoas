@@ -25,6 +25,7 @@ QList<QList<Vector> > Vector::readFromStream(QIODevice * source,
                                              const QRegExp & separatorREt,
                                              const QRegExp & commentREt,
                                              bool splitOnBlank,
+                                             const QString & decimalSep,
                                              const QRegExp & blankREt,
                                              QStringList * comments)
 {
@@ -70,7 +71,10 @@ QList<QList<Vector> > Vector::readFromStream(QIODevice * source,
     int nbNans = 0;
     for(int i = 0; i < curCols->size(); i++) {
       bool ok = false;
-      double value = locale.toDouble(elements.value(i, ""), &ok);
+      QString s = elements.value(i, "");
+      if(! decimalSep.isEmpty())
+        s.replace(decimalSep, ".");
+      double value = locale.toDouble(s, &ok);
       if(! ok)
         value = 0.0/0.0; /// @todo customize
       if(value != value)
@@ -108,7 +112,8 @@ QList<QList<Vector> > Vector::readFromStream(QIODevice * source,
                                              QStringList * comments)
 {
   return readFromStream(source, QRegExp(separatorREt),
-                        QRegExp(commentREt), soB, QRegExp(blankRE),
+                        QRegExp(commentREt), soB, QString(),
+                        QRegExp(blankRE),
                         comments);
 }
 

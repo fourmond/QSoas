@@ -1,7 +1,7 @@
 /**
    \file datasetbrowser.hh
    Dialog box handling fits in QSoas
-   Copyright 2011 by Vincent Fourmond
+   Copyright 2011,2013 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -34,11 +34,20 @@ class DatasetBrowser : public QDialog {
 
 private:
 
+  /// Widgets embedding all datasets for a given page
+  QList<QWidget *> pages;
+
+  /// Distribute all the datasets into pages...
+  void setupPages();
+
   /// The dataset views
   QList<CheckableWidget *> views;
 
+  /// Stacked layout for the pages
+  QStackedLayout * pageStackLayout;
+
   /// The current index
-  int currentIndex;
+  int currentPage;
 
   /// The currently displayed datasets
   QList<const DataSet *> datasets;
@@ -51,9 +60,6 @@ private:
 
   /// Base index
   int index;
-
-  /// The grid layout in use to display view
-  QGridLayout * grid;
 
   /// Display of the current buffers
   QLabel * bufferDisplay;
@@ -87,7 +93,7 @@ public:
 
 protected slots:
 
-  void dataSetChanged(int newds);
+  void pageChanged(int newpage);
   void nextPage();
   void previousPage();
 

@@ -42,7 +42,8 @@
 
 
 
-CurveView::CurveView() : 
+CurveView::CurveView(QWidget * parent) : 
+  QAbstractScrollArea(parent),
   eventLoop(NULL), paintMarkers(false),
   repaintDisabled(false)
                                             

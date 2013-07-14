@@ -53,6 +53,9 @@
 #include <QTimeEdit>
 #include <QTableWidget>
 
+#include <QStackedLayout>
+
+
 // Keyboard short cuts
 #include <QShortcut>
 

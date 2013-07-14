@@ -45,6 +45,34 @@ DatasetBrowser::~DatasetBrowser()
   cleanupViews();
 }
 
+void DatasetBrowser::setupPages()
+{
+  int nbPerPage = width * height;
+  int pgs = (views.size() - 1)/nbPerPage + 1;
+
+  while(pages.size() > 0) {
+    QWidget * wd = pages.takeAt(0);
+    QLayout * layout = wd->layout();
+    // We remove all the objects from the layout.
+    if(layout)
+      while(layout->takeAt(0));
+    delete wd;
+  }
+  
+  for(int i = 0; i < pgs; i++) {
+    int base = i * nbPerPage;
+    QWidget * page = new QWidget(this);
+    QGridLayout * layout = new QGridLayout(page);
+    for(int j = 0; j < nbPerPage; j++) {
+      QWidget * w = views.value(base + j, NULL);
+      if(w)
+        layout->addWidget(w, j % width, j/width);
+    }
+    pageStackLayout->addWidget(page);
+    pages << page;
+  }
+}
+
 void DatasetBrowser::cleanupViews()
 {
   for(int i = 0; i < views.size(); i++)
@@ -57,8 +85,8 @@ void DatasetBrowser::setupFrame()
 {
   QVBoxLayout * layout = new QVBoxLayout(this);
 
-  grid = new QGridLayout();
-  layout->addLayout(grid);
+  pageStackLayout = new QStackedLayout();
+  layout->addLayout(pageStackLayout);
 
 
   bottomLayout = new QHBoxLayout;
@@ -82,19 +110,19 @@ void DatasetBrowser::setupFrame()
 
 }
 
-void DatasetBrowser::dataSetChanged(int newds)
+void DatasetBrowser::pageChanged(int newpage)
 {
-  currentIndex = newds;
-  if(currentIndex >= datasets.size())
-    currentIndex = datasets.size() - 1;
-  if(currentIndex < 0)
-    currentIndex = 0;
-  currentIndex = currentIndex - (currentIndex % (width * height));
-  setupGrid();
-  bufferDisplay->setText(QString("%1-%2/%3").
-                         arg(currentIndex+1).
-                         arg(currentIndex + height*width).
-                         arg(datasets.size()));
+  currentPage = newpage;
+  if(currentPage >= pages.size())
+    currentPage = pages.size() - 1;
+  if(currentPage < 0)
+    currentPage = 0;
+
+  pageStackLayout->setCurrentIndex(currentPage);
+
+  bufferDisplay->setText(QString("%1/%2").
+                         arg(currentPage+1).
+                         arg(pages.size()));
 }
 
 void DatasetBrowser::displayDataSets(const QList<const DataSet *> &ds,
@@ -105,11 +133,13 @@ void DatasetBrowser::displayDataSets(const QList<const DataSet *> &ds,
   datasets = ds;
   for(int i = 0; i < datasets.size(); i++) {
     CheckableWidget * cw = 
-      new CheckableWidget(new CurveView, this);
+      new CheckableWidget(new CurveView(this), this);
     cw->subWidget<CurveView>()->showDataSet(datasets[i]);
     views << cw;
   }
-  dataSetChanged(0);
+  setupPages();
+
+  pageChanged(0);
 }
 
 void DatasetBrowser::displayDataSets(const QList<DataSet *> &ds, 
@@ -121,35 +151,15 @@ void DatasetBrowser::displayDataSets(const QList<DataSet *> &ds,
   displayDataSets(ds2, es);
 }
 
-void DatasetBrowser::setupGrid()
-{
-  // Empty the grid first:
-  QTextStream o(stdout);
-  if(datasets.size() == 0)
-    return;
-  
-  while(grid->takeAt(0))
-    ;                           // We don't delete, as widgets are in
-                                // memory
-  
-  for(int i = 0; i < views.size(); i++)
-    views[i]->hide();
-  int up = std::min(currentIndex + width*height, views.size());
-  for(int i = currentIndex; i < up; i++) {
-    int base = i - currentIndex;
-    views[i]->show();
-    grid->addWidget(views[i], base / width, base % width);
-  }
-}
 
 void DatasetBrowser::nextPage()
 {
-  dataSetChanged(currentIndex + width*height);
+  pageChanged(currentPage + 1);
 }
 
 void DatasetBrowser::previousPage()
 {
-  dataSetChanged(currentIndex - width*height);
+  pageChanged(currentPage - 1);
 }
 
 

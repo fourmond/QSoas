@@ -226,8 +226,8 @@ SOURCES += src/qmain.cc \
         src/widgets.cc \
         src/fittrajectory.cc \
         src/baselinehandler.cc \
-        src/regex.cc
-
+        src/regex.cc \
+        src/checkablewidget.cc
 
 
 HEADERS += src/headers.hh \
@@ -311,8 +311,8 @@ HEADERS += src/headers.hh \
         src/widgets.hh \
         src/fittrajectory.hh \
         src/baselinehandler.hh \
-        src/regex.hh
-
+        src/regex.hh \
+        src/checkablewidget.hh
 
 # We link with the converted ODRPACK library
 message("Using odrpack")

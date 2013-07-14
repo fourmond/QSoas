@@ -21,41 +21,8 @@
 #include <datasetbrowser.hh>
 #include <settings-templates.hh>
 
+#include <checkablewidget.hh>
 
-CurveViewButton::CurveViewButton(SelectionMode mode)
-{
-  QVBoxLayout * layout = new QVBoxLayout(this);
-  layout->setContentsMargins(0,0,0,0);
-  view = new CurveView;
-  layout->addWidget(view);
-
-  checkBox = new QCheckBox("Select buffer");
-  layout->addWidget(checkBox);
-  setSelectionMode(mode);
-}
-
-void CurveViewButton::setSelectionMode(SelectionMode mode)
-{
-  switch(mode) {
-  case NoSelection:
-    checkBox->hide();
-    break;
-  case Multiple:
-    checkBox->show();
-    break;
-  }
-}
-
-CurveViewButton::~CurveViewButton()
-{
-}
-
-bool CurveViewButton::isSelected() const
-{
-  if(! checkBox->isVisible())
-    return false;
-  return checkBox->isChecked();
-}
 
 //////////////////////////////////////////////////////////////////////
 
@@ -137,11 +104,10 @@ void DatasetBrowser::displayDataSets(const QList<const DataSet *> &ds,
   cleanupViews();
   datasets = ds;
   for(int i = 0; i < datasets.size(); i++) {
-    CurveViewButton * bt = 
-      new CurveViewButton(es ? CurveViewButton::Multiple : 
-                          CurveViewButton::NoSelection);
-    bt->view->showDataSet(datasets[i]);
-    views << bt;
+    CheckableWidget * cw = 
+      new CheckableWidget(new CurveView, this);
+    cw->subWidget<CurveView>()->showDataSet(datasets[i]);
+    views << cw;
   }
   dataSetChanged(0);
 }
@@ -191,7 +157,7 @@ QList<const DataSet*> DatasetBrowser::selectedDatasets() const
 {
   QList<const DataSet*> ret;
   for(int i = 0; i < views.size(); i++)
-    if(views[i]->isSelected())
+    if(views[i]->isChecked())
       ret << datasets[i];
   return ret;
 }

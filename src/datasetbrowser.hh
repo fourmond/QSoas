@@ -24,40 +24,7 @@
 #include <dataset.hh>
 #include <curveview.hh>
 
-
-/// This small widget represents a CurveView, optionally attached to a
-/// checkbox, or something similar, in order to provide selection
-/// facilities.
-class CurveViewButton : public QWidget {
-  
-  Q_OBJECT;
-
-  /// The check box underneath the view
-  QCheckBox * checkBox;
-
-public:
-  
-  /// The curve view (own)
-  CurveView * view;
-
-  /// The selection mode
-  ///
-  /// @todo This isn't really implemented yet.
-  typedef enum { 
-    NoSelection,
-    Multiple
-  } SelectionMode;
-
-  CurveViewButton(SelectionMode mode = NoSelection);
-
-  /// Sets the selection mode
-  void setSelectionMode(SelectionMode mode);
-
-  /// Whether this object is selected or not.
-  bool isSelected() const;
-
-  virtual ~CurveViewButton();
-};
+class CheckableWidget;
 
 
 /// This class handles all the user interaction during fits.
@@ -68,7 +35,7 @@ class DatasetBrowser : public QDialog {
 private:
 
   /// The dataset views
-  QList<CurveViewButton *> views;
+  QList<CheckableWidget *> views;
 
   /// The current index
   int currentIndex;

@@ -41,5 +41,22 @@ public:
   };
 };
 
+template<typename T> class TemporaryChange : public DelayedAssign<T> {
+protected:
+  T initialValue;
+
+public:
+  
+  TemporaryChange(T & t, const T & newval) : 
+    DelayedAssign<T>(t, initialValue), initialValue(t)  {
+    t = newval;
+  };
+  
+  TemporaryChange(T & t) : 
+  DelayedAssign<T>(t, initialValue), initialValue(t) {
+  };
+  
+};
+
 
 #endif

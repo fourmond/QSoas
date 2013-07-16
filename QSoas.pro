@@ -300,7 +300,6 @@ HEADERS += src/headers.hh \
         src/guarded.hh \
         src/graphicssettings.hh \
         src/credits.hh \
-        src/temporarychange.hh \
         src/eventhandler.hh \
         src/valuehash.hh \
         src/curve-effectors.hh \

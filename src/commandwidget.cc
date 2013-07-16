@@ -28,7 +28,7 @@
 #include <exceptions.hh>
 
 #include <settings-templates.hh>
-#include <temporarychange.hh>
+#include <idioms.hh>
 
 using namespace Terminal;
 

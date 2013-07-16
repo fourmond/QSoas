@@ -50,14 +50,9 @@ void DatasetBrowser::setupPages()
   int nbPerPage = width * height;
   int pgs = (views.size() - 1)/nbPerPage + 1;
 
-  while(pages.size() > 0) {
-    QWidget * wd = pages.takeAt(0);
-    QLayout * layout = wd->layout();
-    // We remove all the objects from the layout.
-    if(layout)
-      while(layout->takeAt(0));
-    delete wd;
-  }
+  QList<QWidget * > oldpages = pages;
+  pages.clear();
+
   
   for(int i = 0; i < pgs; i++) {
     int base = i * nbPerPage;
@@ -71,6 +66,10 @@ void DatasetBrowser::setupPages()
     pageStackLayout->addWidget(page);
     pages << page;
   }
+
+  // we delete later so that the child widgets have already changed parents.
+  while(oldpages.size() > 0)
+    delete oldpages.takeAt(0);
 }
 
 void DatasetBrowser::cleanupViews()
@@ -101,6 +100,17 @@ void DatasetBrowser::setupFrame()
   bt = new QPushButton(tr("Close"));
   connect(bt, SIGNAL(clicked()), SLOT(accept()));
   bottomLayout->addWidget(bt);
+
+  QComboBox * cb = new QComboBox;
+  cb->setEditable(true);
+  cb->addItem("4 x 4");
+  cb->addItem("3 x 3");
+  cb->addItem("2 x 2");
+  cb->addItem("6 x 6");
+  cb->addItem("3 x 2");
+  connect(cb, SIGNAL(activated(const QString&)), 
+          SLOT(changeNup(const QString &)));
+  bottomLayout->addWidget(cb);
 
   bt = new QPushButton(tr("->"));
   connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
@@ -160,6 +170,25 @@ void DatasetBrowser::nextPage()
 void DatasetBrowser::previousPage()
 {
   pageChanged(currentPage - 1);
+}
+
+void DatasetBrowser::changeNup(int w, int h)
+{
+  int curDS = currentPage * width * height;
+  width = w;
+  height = h;
+  setupPages();
+  pageChanged(curDS/(width * height));
+}
+
+void DatasetBrowser::changeNup(const QString & nup)
+{
+  QRegExp re("^\\s*(\\d+)\\s*x\\s*(\\d+)");
+  if(re.indexIn(nup, 0) == 0) {
+    int w = re.cap(1).toInt();
+    int h = re.cap(2).toInt();
+    changeNup(w, h);
+  }
 }
 
 

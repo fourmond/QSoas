@@ -99,6 +99,13 @@ protected slots:
 
   /// Runs the numbered hook
   void runHook(int hook);
+  
+  /// Changes the nup of the window.
+  void changeNup(int width, int height);
+
+
+  /// Changes the nup based on some wxh specification.
+  void changeNup(const QString & str);
 
 public:
   /// @name Actions

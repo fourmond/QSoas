@@ -61,7 +61,9 @@ void DatasetBrowser::setupPages()
     for(int j = 0; j < nbPerPage; j++) {
       QWidget * w = views.value(base + j, NULL);
       if(w)
-        layout->addWidget(w, j % width, j/width);
+        layout->addWidget(w, j/width, j % width);
+      else 
+        layout->addWidget(new CurveView, j/width, j % width);
     }
     pageStackLayout->addWidget(page);
     pages << page;

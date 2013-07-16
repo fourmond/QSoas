@@ -421,3 +421,15 @@ void Utils::invertMatrix(gsl_matrix  * mat, gsl_matrix * target,
                  0.0, target);
 }
 
+class Sleep : public QThread {
+public:
+
+  static void msleep(unsigned long ms) {
+    QThread::msleep(ms);
+  };
+};
+
+void Utils::msleep(unsigned long ms)
+{
+  Sleep::msleep(ms);
+}

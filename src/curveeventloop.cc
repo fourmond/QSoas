@@ -24,6 +24,7 @@
 #include <dataset.hh>
 
 #include <terminal.hh>
+#include <utils.hh>
 
 
 CurveEventLoop::CurveEventLoop(CurveView * v) : 
@@ -140,8 +141,7 @@ bool CurveEventLoop::finished()
   view->viewport()->repaint();
   while(pendingEvents.size() == 0) {
     QCoreApplication::processEvents(QEventLoop::AllEvents|QEventLoop::WaitForMoreEvents, 10);
-    /// @todo Reimplement that using the "subclass to QThread" approach ?
-    QTest::qSleep(10);
+    Utils::msleep(10);
   }
 
   QInputEvent * ie = pendingEvents.takeFirst();

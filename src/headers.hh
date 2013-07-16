@@ -25,7 +25,6 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QThread>
-#include <QTest>                // For waiting...
 #include <QSettings>
 
 // Main GUI Classse

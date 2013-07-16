@@ -12,7 +12,6 @@ DEPENDPATH += src
 # For faster rendering of the antialiased curves
 QT += opengl                    # Doesn't work that well, actually
 QT -= webkit                    # We really don't need webkit, for now ?
-QT += testlib                   # For QTest::qSleep
 
 
 # The version should be provided on the command-line.

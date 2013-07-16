@@ -198,6 +198,10 @@ namespace Utils {
   /// out of which @a last are from the end.
   QString shortenString(const QString & str, int len = 50, int last = 10);
 
+  
+  /// Sleeps that many milliseconds
+  void msleep(unsigned long msecs);
+
 };
 
 #endif

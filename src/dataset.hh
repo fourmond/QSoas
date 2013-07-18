@@ -24,6 +24,7 @@
 #include <vector.hh>
 #include <guarded.hh>
 #include <valuehash.hh>
+#include <datasetoptions.hh>
 
 /// A class representing a data set (formerly Soas buffers).
 ///
@@ -126,8 +127,11 @@ public:
   /// The date and time of the (original ?) data
   QDateTime date;
 
-  /// A mark. Marked buffers can be recalled effectively.
+  /// A flag. Flagged buffers can be recalled effectively.
   bool flagged;
+
+  /// The options attached to this dataset
+  DatasetOptions options;
 
   /// @name Segment-related functions
   ///

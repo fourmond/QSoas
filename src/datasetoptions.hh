@@ -52,9 +52,17 @@ public:
   /// Whether or not the options have errors for Y points.
   bool hasYErrors() const;
 
+  /// Whether or not the given dataset would have error bar for Y
+  /// points (takes into account whether the target has the necessary
+  /// columns)
+  bool hasYErrors(const DataSet * ds) const;
+
   /// Returns the error on the given Y point, or 0 if there isn't any
   /// error. Errors are assumed to be symmetric.
   double yError(const DataSet * ds, int idx) const;
+
+  /// Sets the columns for Y errors
+  void setYErrors(int col);
 
 
   DatasetOptions();

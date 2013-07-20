@@ -32,7 +32,11 @@ class CurveDataSet : public CurveItem {
   /// The dataset attached to this object
   ConstGuardedPointer<DataSet> dataSet;
 
+  /// Cache for the main path
   QPolygonF * cachedPath;
+
+  /// Cache for the error filling path
+  QPolygonF * errorPath;
 
   void createPath();
 
@@ -48,6 +52,7 @@ public:
   CurveDataSet(const DataSet * ds): CurveItem(true), 
                                     dataSet(ds), 
                                     cachedPath(NULL),
+                                    errorPath(NULL),
                                     lastPointIdx(-1),
                                     paintMarkers(false)
   {;};

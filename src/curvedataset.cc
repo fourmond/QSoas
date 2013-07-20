@@ -33,7 +33,7 @@
 /// pointers, but that doesn't sound like a smart thing to do... 
 CurveDataSet::~CurveDataSet()
 {
-  delete cachedPath;
+  invalidateCache();
 }
 
 QRectF CurveDataSet::boundingRect() const
@@ -58,6 +58,14 @@ void CurveDataSet::createPath()
   const Vector & y = dataSet->y();
   for(int i = 0; i < x.size(); i++)
     cachedPath->append(QPointF(x[i], y[i]));
+
+  if(dataSet->options.hasYErrors(dataSet)) {
+    errorPath = new QPolygonF;
+    for(int i = 0; i < x.size(); i++)
+      errorPath->append(QPointF(x[i], y[i] - dataSet->yError(i)));
+    for(int i = x.size() - 1; i >= 0; i--)
+      errorPath->append(QPointF(x[i], y[i] + dataSet->yError(i)));
+  }
 }
 
 
@@ -68,6 +76,19 @@ void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
   if(! dataSet)
     return;
   createPath();
+  if(errorPath) {
+    // paint it first so that lines/markers show up on top.
+    QPen p(pen);
+    QColor c = p.color();
+    /// @todo make that customizable
+    c.setAlphaF(0.2);
+    p.setColor(c);
+    painter->setPen(p);
+    QPainterPath pp;
+    pp.addPolygon(ctw.map(*errorPath));
+    // painter->drawPolyline(ctw.map(*errorPath));
+    painter->fillPath(pp, QBrush(c));
+  }
   painter->setPen(pen);
   painter->drawPolyline(ctw.map(*cachedPath));
   if(paintMarkers) {
@@ -159,6 +180,8 @@ void CurveDataSet::invalidateCache()
 {
   delete cachedPath;
   cachedPath = NULL;
+  delete errorPath;
+  errorPath = NULL;
 }
 
 const DataSet * CurveDataSet::displayedDataSet() const

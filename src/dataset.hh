@@ -130,8 +130,20 @@ public:
   /// A flag. Flagged buffers can be recalled effectively.
   bool flagged;
 
+  /// @name Options and option-related functions.
+  ///
+  /// @{
+
   /// The options attached to this dataset
   DatasetOptions options;
+
+  /// The Y error for the given index
+  double yError(int idx) const {
+    return options.yError(this, idx);
+  };
+
+  /// @}
+
 
   /// @name Segment-related functions
   ///

@@ -39,6 +39,7 @@ FitData::FitData(Fit * f, const QList<const DataSet *> & ds, bool d,
   totalSize(0), covarStorage(NULL), engine(NULL), extra(ex),
   evaluationNumber(0), 
   fit(f), debug(d), datasets(ds),
+  standardYErrors(NULL), pointWeights(NULL),
   parameterDefinitions(f->parameters()), nbIterations(0), storage(0)
 {
   for(int i = 0; i < extra.size(); i++)
@@ -50,6 +51,42 @@ FitData::FitData(Fit * f, const QList<const DataSet *> & ds, bool d,
 
   storage = gsl_vector_alloc(totalSize);
   parametersStorage = gsl_vector_alloc(fullParameterNumber());
+
+  computeWeights();
+}
+
+void FitData::computeWeights()
+{
+  // first, we loop through all the datasets to check that all have
+  // errors
+  int nb = 0;
+  for(int i = 0; i < datasets.size(); i++) {
+    if(datasets[i]->options.hasYErrors(datasets[i]))
+      nb++;
+  }
+  if(nb < datasets.size()) {
+    if(nb > 0)
+      ;                         /// @todo Emit warning...
+    // Nothing to do
+  }
+  else {
+    // All datasets have error information
+    standardYErrors = gsl_vector_alloc(totalSize);
+    pointWeights = gsl_vector_alloc(totalSize);
+
+    for(int i = 0; i < datasets.size(); i++) {
+      gsl_vector_view ve = viewForDataset(i, standardYErrors);
+      gsl_vector_view vp = viewForDataset(i, pointWeights);
+
+      const DataSet * ds = datasets[i];
+      int sz = ds->nbRows();
+      for(int j = 0; j < sz; j++) {
+        double e = ds->yError(j);
+        gsl_vector_set(&ve.vector, j, e);
+        gsl_vector_set(&vp.vector, j, 1/(e*e));
+      }
+    }
+  }
 }
 
 void FitData::freeSolver()
@@ -68,6 +105,10 @@ FitData::~FitData()
   gsl_vector_free(parametersStorage);
   if(covarStorage)
     gsl_matrix_free(covarStorage);
+  if(standardYErrors) {
+    gsl_vector_free(standardYErrors);
+    gsl_vector_free(pointWeights);
+  }
   freeSolver();
 }
 
@@ -77,6 +118,15 @@ void FitData::weightVector(gsl_vector * tg)
     gsl_vector_view v = viewForDataset(i, tg);
     gsl_vector_scale(&v.vector, weightsPerBuffer[i]);
   }
+  if(standardYErrors && engine && !engine->handlesWeights()) {
+    /// @todo Would be faster if I multiply ;-)...
+    gsl_vector_div(tg, standardYErrors);
+  }
+}
+
+bool FitData::usesPointWeights() const
+{
+  return standardYErrors != NULL;
 }
 
 int FitData::f(const gsl_vector * x, gsl_vector * f, bool doSubtract)

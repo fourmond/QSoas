@@ -71,6 +71,8 @@ private:
   /// Dump the fit parameters if debug is on
   void dumpFitParameters(const double * params) const;
 
+
+  friend class FitEngine;
   /// The fit engine in use
   FitEngine * engine;
 
@@ -92,6 +94,19 @@ public:
 
   /// The datasets holding the data.
   QList<const DataSet *> datasets;
+
+  /// If not NULL, standard gaussian errors on Y for each point
+  gsl_vector * standardYErrors;
+
+  /// If not NULL, weight of each point (1/error^2) for each point
+  gsl_vector * pointWeights;
+
+  /// Whether or not this FitData makes use of point weights
+  bool usesPointWeights() const;
+
+  /// Ensure the standardYErrors and pointWeights are set to some
+  /// meaningful value (or unset)
+  void computeWeights();
 
 
   /// The number of iterations

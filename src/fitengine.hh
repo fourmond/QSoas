@@ -137,6 +137,13 @@ public:
   /// Performs the next iteration.
   virtual int iterate() = 0;
 
+  /// Whether or not the fit engine is weighting individual points on
+  /// its own. If off, then FitData will perform the weighting on its
+  /// own.
+  ///
+  /// Off for all but ODRpack
+  virtual bool handlesWeights() const;
+
   /// Returns the residuals as computed by the last step
   ///
   /// Residuals are the square root of the sum of squares.

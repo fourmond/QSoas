@@ -80,6 +80,11 @@ FitEngineFactoryItem * FitEngine::defaultFactoryItem()
   return namedFactoryItem("lmsder"); // For now
 }
 
+bool FitEngine::handlesWeights() const
+{
+  return false;
+}
+
 QStringList FitEngine::availableEngines()
 {
   if(factory)
@@ -98,6 +103,7 @@ FitEngine * FitEngine::createEngine(const QString & name, FitData * data)
 
 FitEngine::FitEngine(FitData * d) : fitData(d) 
 {
+  fitData->engine = this;
 }
 
 void FitEngine::copyCurrentParameters(gsl_vector * target) const

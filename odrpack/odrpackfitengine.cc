@@ -101,6 +101,9 @@ public:
   ODRPACKFitEngine(FitData * data);
   virtual ~ODRPACKFitEngine();
 
+  virtual bool handlesWeights() const {
+    return false;
+  };
 
   virtual void initialize(const double * initialGuess);
   virtual const gsl_vector * currentParameters() const;

@@ -154,10 +154,18 @@ p("linear-kinetic-system", // command name
 
 
 static void odeComputationCommand(const QString &, QString init, 
-                                  QString derivs)
+                                  QString derivs, const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();
   RubyODESolver solver(init, derivs);
+
+  ODEStepperOptions op = solver.getStepperOptions();
+  op.parseOptions(opts);
+  solver.setStepperOptions(op);
+
+  QString extra;
+  updateFromOptions(opts, "parameters", extra);
+  solver.setParameterValues(extra);
 
   Terminal::out << "Solving the ODE for variables " 
                 << solver.variables().join(", ") << endl;
@@ -190,12 +198,21 @@ odeArgs(QList<Argument *>()
                               "Formula for computing derivatives")
         );
 
+static ArgumentList 
+odeOpts(QList<Argument *>() 
+        << new StringArgument("parameters", 
+                              "Parameter values",
+                              "Values of the extra parameters",
+                              true)
+        << ODEStepperOptions::commandOptions()
+        );
+
 static Command 
 ode("ode", // command name
-    optionLessEffector(odeComputationCommand), // action
+    effector(odeComputationCommand), // action
     "simulations",  // group name
     &odeArgs, // arguments
-    NULL, // options
+    &odeOpts, // options
     "ODE solver",
     "Solves the given set of ODE",
     "...");

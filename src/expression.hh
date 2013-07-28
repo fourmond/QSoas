@@ -127,8 +127,9 @@ public:
   const QStringList & naturalVariables() const;
 
   /// Returns the list of variables needed to process the given
-  /// expression
-  static QStringList variablesNeeded(const QString & expression);
+  /// expression, in addition to the ones given as second argument.
+  static QStringList variablesNeeded(const QString & expression,
+                                     const QStringList & variables = QStringList());
 
   /// Returns the formula of the expression.
   QString formula() const {

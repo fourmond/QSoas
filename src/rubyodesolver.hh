@@ -1,7 +1,7 @@
 /**
    \file rubyodesolver.hh
-   Access from Ruby to GSL special mathematical functions
-   Copyright 2012 by Vincent Fourmond
+   ODE based on ruby expressions
+   Copyright 2013 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 
 #include <odesolver.hh>
 #include <expression.hh>
+#include <vector.hh>
 
 /// An ODE solver that uses expressions. 
 class RubyODESolver : public ODESolver {
@@ -34,11 +35,23 @@ class RubyODESolver : public ODESolver {
   Expression * derivatives;
 
 
+  /// The variables that are being integrated
   QStringList vars;
+
+  /// The list of the extra parameters needed for computing all the
+  /// values (initial and derivatives)
+  QStringList extraParams;
+
+
+  Vector extraParamsValues;
 public:
 
   /// Builds a solver object.
   RubyODESolver(const QString & init, const QString & derivs);
+
+  /// Parses the given equations into the corresponding expressions.
+  void parseSystem(const QString & initialConditions, 
+                   const QString & derivatives);
 
   virtual ~RubyODESolver();
 
@@ -52,9 +65,20 @@ public:
     return vars;
   };
 
+  /// returns the extra parameters list
+  const QStringList & extraParameters() const {
+    return extraParams;
+  };
+
   /// Initializes the solver to the (possibly t0-dependent) initial
   /// values.
   void initialize(double t);
+
+
+  /// Sets extra parameters from the given ruby expression (that
+  /// doesn't involve anything but the parameters themselves and
+  /// constants).
+  void setParameterValues(const QString & formula);
 };
 
 #endif

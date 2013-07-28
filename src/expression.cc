@@ -75,6 +75,8 @@ void Expression::buildArgs()
   }
 }
 
+/// @bug This function raises exceptions while being called from the
+/// constructor, which may lead to memory leaks.
 void Expression::buildCode()
 {
   QStringList vars = variables;
@@ -188,6 +190,17 @@ int Expression::evaluateIntoArray(const double * values,
   return sz;
 }
 
+QStringList Expression::variablesNeeded(const QString & expression,
+                                        const QStringList & variables)
+{
+  QStringList vars = variables;
+  QByteArray bta = expression.toLocal8Bit();
+  VALUE code = 
+    Ruby::run<QStringList *, const QByteArray &>(&Ruby::makeBlock, &vars, bta);
+  for(int i = 0; i < variables.size(); i++)
+    vars.takeAt(0);
+  return vars;
+}
 
 
 /// @questions Shall we replace simply everything that cannot be part

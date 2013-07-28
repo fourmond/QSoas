@@ -26,8 +26,42 @@
 /// @todo Here, we have a problem in the sense that it isn't possible
 /// to specify additional parameters -- which is very detrimental in
 /// the case of fits !
-RubyODESolver::RubyODESolver(const QString & init, const QString & der)
+RubyODESolver::RubyODESolver(const QString & init, const QString & der) :
+  initialization(NULL), derivatives(NULL)
 {
+  parseSystem(init, der);
+}
+
+
+void RubyODESolver::setParameterValues(const QString & formula)
+{
+  if(extraParams.size() == 0)
+    return;
+
+  QStringList defs;
+  for(int i = 0; i < extraParams.size(); i++) {
+    const QString & n = extraParams[i];
+    defs << QString("%1 = 0").arg(n);
+  }
+
+  QString code = QString("%3\n%2\n[%1]").arg(extraParams.join(",")).
+    arg(formula).
+    arg(defs.join("\n"));
+  
+  Expression ex(code);
+  double v;
+  ex.evaluateIntoArray(&v, extraParamsValues.data(), 
+                       extraParams.size());
+}
+
+
+void RubyODESolver::parseSystem(const QString & init, const QString & der)
+{
+  delete initialization;
+  initialization = NULL;
+  delete derivatives;
+  derivatives = NULL;
+
   // First, we look at the initialization to find out which variables
   // are necessary.
 
@@ -44,9 +78,21 @@ RubyODESolver::RubyODESolver(const QString & init, const QString & der)
 
   QString code = QString("%2\n[%1]").arg(vars.join(",")).arg(init);
 
-  
   QStringList allv;
-  allv << "t";
+  allv << "t" << Expression::variablesNeeded(init)
+       << Expression::variablesNeeded(der, vars);
+
+  Utils::makeUnique(allv);
+  QTextStream o(stdout);
+  o << "Stuff: " << allv.join(", ") << endl;
+  o << "Stuff: " << vars.join(", ") << endl;
+
+
+  extraParams = allv;
+  extraParams.takeAt(0);
+
+  o << "Stuff: " << extraParams.join(", ") << endl;
+
   initialization = new Expression(code, allv);
 
   // Now, we prepare the derivatives
@@ -63,7 +109,10 @@ RubyODESolver::RubyODESolver(const QString & init, const QString & der)
   allv << vars;
   derivatives = new Expression(code, allv);
 
+  // We initialize all the extram parameters to 0
+  extraParamsValues = Vector(extraParams.size(), 0);
 }
+
 
 int RubyODESolver::dimension() const
 {
@@ -73,10 +122,13 @@ int RubyODESolver::dimension() const
 int RubyODESolver::computeDerivatives(double t, const double * y, 
                                       double * dydt)
 {
-  double v[vars.size() + 1];
-  v[0] = t;
+  double v[vars.size() + extraParams.size() + 1];
+  int j = 0;
+  v[j++] = t;
+  for(int i = 0; i < extraParams.size(); i++)
+    v[j++] = extraParamsValues[i];
   for(int i = 0; i < vars.size(); i++)
-    v[i+1] = y[i];
+    v[j++] = y[i];
 
   derivatives->evaluateIntoArray(v, dydt, vars.size());
   
@@ -91,7 +143,13 @@ RubyODESolver::~RubyODESolver()
 
 void RubyODESolver::initialize(double t)
 {
-  double v[vars.size()];
-  initialization->evaluateIntoArray(&t, v, vars.size());
-  ODESolver::initialize(v, t);
+  double tg[vars.size()];
+  double v[extraParams.size() + 1];
+  int j = 0;
+  v[j++] = t;
+  for(int i = 0; i < extraParams.size(); i++)
+    v[j++] = extraParamsValues[i];
+  initialization->evaluateIntoArray(v, tg, vars.size());
+  ODESolver::initialize(tg, t);
 }
+

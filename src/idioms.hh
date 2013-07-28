@@ -24,12 +24,9 @@
 
 /// Assigns the current value of source to dest when the object goes
 /// out of scope.
-///
-/// @todo This is really TemporaryChange with another name ?
 template <class T> class DelayedAssign {
   T & dest;
 
-  /// @todo This shouldn't be a const ref
   const T & source;
 public:
   bool cancel;
@@ -41,20 +38,32 @@ public:
   };
 };
 
-template<typename T> class TemporaryChange : public DelayedAssign<T> {
+/// Temporary changes the value of the given variable.
+///
+/// This \b cannot be a child of DelayedAssign, because it involves
+/// referencing to an object living in the child that has therefore
+/// already been destroyed before the based class uses its value...
+template<typename T> class TemporaryChange {
 protected:
+  T & target;
+  
   T initialValue;
 
 public:
   
   TemporaryChange(T & t, const T & newval) : 
-    DelayedAssign<T>(t, initialValue), initialValue(t)  {
+    target(t), initialValue(t) {
     t = newval;
   };
   
   TemporaryChange(T & t) : 
-  DelayedAssign<T>(t, initialValue), initialValue(t) {
+    target(t), initialValue(t) {
   };
+
+  ~TemporaryChange() {
+    target = initialValue;
+  };
+  
   
 };
 

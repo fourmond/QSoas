@@ -25,6 +25,7 @@
 
 #include <argumentmarshaller.hh>
 #include <general-arguments.hh>
+#include <argument-templates.hh>
 
 ODEStepperOptions::ODEStepperOptions(const gsl_odeiv2_step_type * t,
                                      double hs, double ea, 
@@ -36,10 +37,31 @@ ODEStepperOptions::ODEStepperOptions(const gsl_odeiv2_step_type * t,
 QList<Argument*> ODEStepperOptions::commandOptions()
 {
   QList<Argument*> args;
+
+  QHash<QString, const gsl_odeiv2_step_type *> types;
+  types["rk2"] = gsl_odeiv2_step_rk2;
+  types["rk4"] =  gsl_odeiv2_step_rk4;
+  types["rkf45"] = gsl_odeiv2_step_rkf45;
+  types["rkck"] = gsl_odeiv2_step_rkck;
+  types["rk8pd"] = gsl_odeiv2_step_rk8pd;
+
+  /*
+  types["rklimp"] = gsl_odeiv2_step_rk1imp;
+  types["rk2imp"] = gsl_odeiv2_step_rk2imp;
+  types["rk4imp"] = gsl_odeiv2_step_rk4imp;
+  types["bsimp"] = gsl_odeiv2_step_bsimp;
+  types["msadams"] = gsl_odeiv2_step_msadams;
+  types["msbdf"] = gsl_odeiv2_step_msbdf;
+  */
+
+
   args << new BoolArgument("adaptative", "Adaptative step",
                            "Whether or not to use adaptative stepper")
        << new NumberArgument("step-size", "Step size",
-                             "Initial step size for the stepper");
+                             "Initial step size for the stepper")
+       << new TemplateChoiceArgument<const gsl_odeiv2_step_type *>
+    (types, "stepper", "Stepper algorithm",
+     "Algorithm used for integration");
   return args;
 }
 
@@ -49,6 +71,7 @@ void ODEStepperOptions::parseOptions(const CommandOptions & opts)
   updateFromOptions(opts, "adaptative", adapt);
   fixed = ! adapt;
   updateFromOptions(opts, "step-size", hStart);
+  updateFromOptions(opts, "stepper", type);
 }
 
 QString ODEStepperOptions::description() const

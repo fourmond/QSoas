@@ -312,7 +312,8 @@ HEADERS += src/headers.hh \
         src/baselinehandler.hh \
         src/regex.hh \
         src/checkablewidget.hh \
-        src/datasetoptions.hh
+        src/datasetoptions.hh \
+        src/argument-templates.hh
 
 # We link with the converted ODRPACK library
 message("Using odrpack")

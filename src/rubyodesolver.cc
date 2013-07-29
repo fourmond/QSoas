@@ -83,15 +83,9 @@ void RubyODESolver::parseSystem(const QString & init, const QString & der)
        << Expression::variablesNeeded(der, vars);
 
   Utils::makeUnique(allv);
-  QTextStream o(stdout);
-  o << "Stuff: " << allv.join(", ") << endl;
-  o << "Stuff: " << vars.join(", ") << endl;
-
 
   extraParams = allv;
   extraParams.takeAt(0);
-
-  o << "Stuff: " << extraParams.join(", ") << endl;
 
   initialization = new Expression(code, allv);
 

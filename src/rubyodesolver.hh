@@ -79,6 +79,11 @@ public:
   /// doesn't involve anything but the parameters themselves and
   /// constants).
   void setParameterValues(const QString & formula);
+
+  /// Returns the values of the extra parameters
+  const Vector & parameterValues() const {
+    return extraParamsValues;
+  };
 };
 
 #endif

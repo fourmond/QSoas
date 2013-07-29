@@ -169,6 +169,15 @@ static void odeComputationCommand(const QString &, QString init,
 
   Terminal::out << "Solving the ODE for variables " 
                 << solver.variables().join(", ") << endl;
+  QStringList params = solver.extraParameters();
+  if(params.size() > 0) {
+    QStringList desc;
+    const Vector &v = solver.parameterValues();
+    for(int i = 0; i < params.size(); i++)
+      desc << QString("%1 = %2").
+        arg(params[i]).arg(v[i]);
+    Terminal::out << "With parameters " << desc.join(", ") << endl;
+  }
   
   QList<Vector> cols;
   for(int i = -1; i < solver.dimension(); i++)

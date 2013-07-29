@@ -132,6 +132,11 @@ class ODESolver {
   static int function(double t, const double y[], double dydt[], 
                       void * params);
 
+  static int jacobian(double t, const double y[], 
+                      double * dfdy,
+                      double dydt[], 
+                      void * params);
+
 
   /// Underlying system
   gsl_odeiv2_system system;

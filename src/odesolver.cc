@@ -44,16 +44,12 @@ QList<Argument*> ODEStepperOptions::commandOptions()
   types["rkf45"] = gsl_odeiv2_step_rkf45;
   types["rkck"] = gsl_odeiv2_step_rkck;
   types["rk8pd"] = gsl_odeiv2_step_rk8pd;
-
-  /*
   types["rklimp"] = gsl_odeiv2_step_rk1imp;
   types["rk2imp"] = gsl_odeiv2_step_rk2imp;
   types["rk4imp"] = gsl_odeiv2_step_rk4imp;
   types["bsimp"] = gsl_odeiv2_step_bsimp;
   types["msadams"] = gsl_odeiv2_step_msadams;
   types["msbdf"] = gsl_odeiv2_step_msbdf;
-  */
-
 
   args << new BoolArgument("adaptative", "Adaptative step",
                            "Whether or not to use adaptative stepper")
@@ -159,11 +155,41 @@ int ODESolver::function(double t, const double y[], double dydt[],
 }
 
 
+int ODESolver::jacobian(double t, const double y[], 
+                        double * dfdy,
+                        double dydt[], 
+                        void * params)
+{
+  ODESolver * solver = static_cast<ODESolver*>(params);
+  
+  solver->computeDerivatives(t, y, dydt);
+  int sz = solver->dimension();
+  double parameters[sz];
+  double buffer[sz];
+  memcpy(parameters, y, sizeof(parameters));
+  
+  for(int i = 0; i < sz; i++) {
+    double orig = parameters[i];
+    double step = orig * 1e-7;
+    if(fabs(step) < 1e-13)
+      step = 1e-13;
+    parameters[i] = orig + step;
+    double fact = 1/step;
+    solver->computeDerivatives(t, parameters, buffer);
+    for(int j = 0; j < sz; j++)
+      dfdy[j * sz + i] = (buffer[j] - dydt[j]) * fact;
+
+    parameters[i] = orig;
+  }
+  return GSL_SUCCESS;
+}
+
+
 void ODESolver::initializeDriver()
 {
   yValues = new double[dimension()];
   system.function = &ODESolver::function;
-  system.jacobian = NULL;       // Hey !
+  system.jacobian = &ODESolver::jacobian;       // Hey !
   system.dimension = dimension();
   system.params = this;
   

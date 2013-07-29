@@ -37,6 +37,11 @@ class RubyODESolver : public ODESolver {
   /// Expression that computes the values of the derivatives
   Expression * derivatives;
 
+  /// Expression that computes the values we are interested in. Can be
+  /// null, in which case the reporterValues() function returns the values of
+  /// the variables.
+  Expression * reporters;
+
 
   /// The variables that are being integrated
   QStringList vars;
@@ -58,11 +63,17 @@ public:
 
   /// Parses the given equations into the corresponding expressions.
   void parseSystem(const QString & initialConditions, 
-                   const QString & derivatives);
+                   const QString & derivatives,
+                   const QString & reporters = QString());
 
   /// Parses the system from a file. A blank line separates the
   /// initial conditions from the derivatives.
   void parseFromFile(QIODevice * device);
+
+  /// Returns the set of values defined by the reporters expression --
+  /// or the values of the variables should there not be any
+  /// expression.
+  Vector reporterValues() const;
 
   virtual ~RubyODESolver();
 

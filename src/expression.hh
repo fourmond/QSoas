@@ -21,6 +21,8 @@
 #ifndef __EXPRESSION_HH
 #define __EXPRESSION_HH
 
+#include <vector.hh>
+
 /// This class represents a mathematical expression, internally
 /// handled by Ruby.
 ///
@@ -100,11 +102,18 @@ public:
   
   /// Evaluate the expression as a boolean
   bool evaluateAsBoolean(const double * variables) const;
+
+  /// Evaluates the expression as an array of doubles. Most probably
+  /// not very efficient, but does not require to know in advance how
+  /// many numbers are expected.
+  Vector evaluateAsArray(const double * variables) const;
   
 
   /// Evaluate into an array. This can be used when an expression
   /// isn't expected to return a single value, but rather an array of
-  /// values (think applyFormula).
+  /// values (think applyFormula), and we know more or less how many
+  /// there will be in advance. If that's not the case, it is better
+  /// to use evaluateAsArray().
   ///
   /// \a target is the storage space meant to receive the variables,
   /// \a size its size

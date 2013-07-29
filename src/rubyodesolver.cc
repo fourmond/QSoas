@@ -23,13 +23,13 @@
 #include <utils.hh>
 
 RubyODESolver::RubyODESolver(const QString & init, const QString & der) :
-  initialization(NULL), derivatives(NULL)
+  initialization(NULL), derivatives(NULL), reporters(NULL)
 {
   parseSystem(init, der);
 }
 
 RubyODESolver::RubyODESolver() : 
-  initialization(NULL), derivatives(NULL)
+  initialization(NULL), derivatives(NULL), reporters(NULL)
 {
 }
 
@@ -60,22 +60,26 @@ void RubyODESolver::parseFromFile(QIODevice * file)
 {
   QStringList lines = Utils::parseConfigurationFile(file);
   QRegExp blnk("^\\s*$");
-  int idx = lines.indexOf(blnk);
-  if(idx < 0)
+
+  QList<QStringList> sections = Utils::splitOn(lines, blnk);
+  if(sections.size() < 2)
     throw RuntimeError("File does not contain two sections "
                        "separated by a fully blank line");
   
-  QStringList init = lines.mid(0, idx);
-  QStringList derivs = lines.mid(idx+1);
-  parseSystem(init.join("\n"), derivs.join("\n"));
+  parseSystem(sections[0].join("\n"), 
+              sections[1].join("\n"), 
+              (sections.size() > 2 ? sections[2].join("\n") : QString()) );
 }
 
-void RubyODESolver::parseSystem(const QString & init, const QString & der)
+void RubyODESolver::parseSystem(const QString & init, const QString & der,
+                                const QString & rep)
 {
   delete initialization;
   initialization = NULL;
   delete derivatives;
   derivatives = NULL;
+  delete reporters;
+  reporters = NULL;
 
   // First, we look at the initialization to find out which variables
   // are necessary.
@@ -97,12 +101,16 @@ void RubyODESolver::parseSystem(const QString & init, const QString & der)
   allv << "t" << Expression::variablesNeeded(init)
        << Expression::variablesNeeded(der, vars);
 
+  if(! rep.isEmpty())
+    allv << Expression::variablesNeeded(rep, vars);
+
   Utils::makeUnique(allv);
 
   extraParams = allv;
   extraParams.takeAt(0);
 
   initialization = new Expression(code, allv);
+
 
   // Now, we prepare the derivatives
   QStringList derivs;
@@ -118,10 +126,34 @@ void RubyODESolver::parseSystem(const QString & init, const QString & der)
   allv << vars;
   derivatives = new Expression(code, allv);
 
+  if(! rep.isEmpty())
+    reporters = new Expression(rep, allv);
+
   // We initialize all the extram parameters to 0
   extraParamsValues = Vector(extraParams.size(), 0);
 }
 
+
+Vector RubyODESolver::reporterValues() const
+{
+  const double * vals = currentValues();
+  if(reporters) {
+    double v[vars.size() + extraParams.size() + 1];
+    int j = 0;
+    v[j++] = currentTime();
+    for(int i = 0; i < extraParams.size(); i++)
+      v[j++] = extraParamsValues[i];
+    for(int i = 0; i < vars.size(); i++)
+      v[j++] = vals[i];
+
+    return reporters->evaluateAsArray(v);
+  }
+
+  Vector s;
+  for(int i = 0; i < vars.size(); i++)
+    s << vals[i];
+  return s;
+}
 
 int RubyODESolver::dimension() const
 {

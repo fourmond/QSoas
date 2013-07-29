@@ -171,11 +171,7 @@ bool Expression::evaluateAsBoolean(const double * values) const
 int Expression::evaluateIntoArray(const double * values, 
                                   double * target, int ts) const
 {
-  int size = variables.size();
-  for(int i = 0; i < size; i++)
-    RFLOAT_VALUE(args[i]) = values[i];
-  VALUE ret = Ruby::run(&rb_funcall2, code, 
-                        callID(), size, (const VALUE *) args);
+  VALUE ret = rubyEvaluation(values);
 
   // Now, we parse the return value
   if(rb_obj_class(ret) != rb_cArray) {
@@ -188,6 +184,23 @@ int Expression::evaluateIntoArray(const double * values,
     target[i] = NUM2DBL(rb_ary_entry(ret, i));
 
   return sz;
+}
+
+
+Vector Expression::evaluateAsArray(const double * values) const
+{
+  VALUE ret = rubyEvaluation(values);
+
+  Vector tg;
+  // Now, we parse the return value
+  if(rb_obj_class(ret) != rb_cArray)
+    tg << NUM2DBL(ret);
+  else {
+    int sz = RARRAY_LEN(ret);
+    for(int i = 0; i < sz ; i++)
+      tg << NUM2DBL(rb_ary_entry(ret, i));
+  }
+  return tg;
 }
 
 QStringList Expression::variablesNeeded(const QString & expression,

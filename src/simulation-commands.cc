@@ -188,19 +188,21 @@ static void odeComputationCommand(const QString &, QString file,
   }
   
   QList<Vector> cols;
-  for(int i = -1; i < solver.dimension(); i++)
-    cols << Vector();
+  cols << Vector();
 
   const Vector & xs = ds->x();
   solver.initialize(xs[0]);
 
   for(int i = 0; i < xs.size(); i++) {
     double t = xs[i];
-    const double * cvs = solver.currentValues();
     solver.stepTo(t);
+    Vector vals = solver.reporterValues();
     cols[0] << solver.currentTime();
-    for(int j = 0; j < solver.dimension(); j++)
-      cols[j+1] << cvs[j];
+    for(int j = 0; j < vals.size(); j++) {
+      if(cols.size() <= j+1)
+        cols << Vector(cols[0].size() - 1, 0);
+      cols[j+1] << vals[j];
+    }
   }
   DataSet * nds = new DataSet(cols);
   nds->name = "ode.dat";

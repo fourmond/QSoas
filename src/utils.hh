@@ -167,6 +167,11 @@ namespace Utils {
                                      QList< QPair<int, int> > * lineNumbers = NULL,
                                      bool stripBlank = false);
 
+  /// Splits a list of strings into several sublist of strings. Can be
+  /// nicely combined with the parseConfigurationFile() function.
+  QList<QStringList> splitOn(const QStringList & lines,
+                             const QRegExp & re);
+
 
   /// Updates a string so that anything between \a begin and \a end
   /// are replaced with \a newText. Returns true if any replacement

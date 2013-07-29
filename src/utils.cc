@@ -431,3 +431,31 @@ void Utils::msleep(unsigned long ms)
 {
   Sleep::msleep(ms);
 }
+
+
+QList<QStringList> Utils::splitOn(const QStringList & lines,
+                                  const QRegExp & re)
+{
+  QList<QStringList> ret;
+
+  ret << QStringList();
+  
+  QRegExp sep(re);
+
+  bool lastMatched = true;      // We don't want to create an empty
+                                // val on the first line if it
+                                // matches.
+  for(int i = 0; i < lines.size(); i++) {
+    const QString & l = lines[i];
+    if(sep.indexIn(l) >= 0) {
+      if(! lastMatched) 
+        ret << QStringList();
+      lastMatched = true;
+    }
+    else {
+      ret.last() << l;
+      lastMatched = false;
+    }
+  }
+  return ret;
+}

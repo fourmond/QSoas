@@ -384,7 +384,7 @@ static void loadFits(QIODevice * source, bool verbose = true,
                      bool overwrite = false) {
   QList<QPair<int, int> > numbers;
   QStringList lines = 
-    Utils::parseConfigurationFile(source, false, NULL, &numbers);
+    Utils::parseConfigurationFile(source, false, NULL, &numbers, true);
 
   QRegExp sep("^\\s*([a-z0-9A-Z-]+):(.*)");
   int init = customFits.size();

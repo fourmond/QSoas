@@ -28,6 +28,7 @@
 #include <group.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
+#include <file-arguments.hh>
 #include <vector.hh>
 #include <dataset.hh>
 #include <datastack.hh>
@@ -153,11 +154,18 @@ p("linear-kinetic-system", // command name
 //////////////////////////////////////////////////////////////////////
 
 
-static void odeComputationCommand(const QString &, QString init, 
-                                  QString derivs, const CommandOptions & opts)
+
+/// @todo Bring back the old "everything on command-line" approach ?
+static void odeComputationCommand(const QString &, QString file,
+                                  const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();
-  RubyODESolver solver(init, derivs);
+  RubyODESolver solver;
+
+  QFile f(file);
+  Utils::open(&f, QIODevice::ReadOnly);
+
+  solver.parseFromFile(&f);
 
   ODEStepperOptions op = solver.getStepperOptions();
   op.parseOptions(opts);
@@ -201,10 +209,9 @@ static void odeComputationCommand(const QString &, QString init,
 
 static ArgumentList 
 odeArgs(QList<Argument *>() 
-        << new StringArgument("initial", 
-                              "Initial values")
-        << new StringArgument("derivatives", 
-                              "Formula for computing derivatives")
+        << new FileArgument("file", 
+                            "File",
+                            "File containing the system")
         );
 
 static ArgumentList 

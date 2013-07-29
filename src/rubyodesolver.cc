@@ -22,14 +22,15 @@
 
 #include <utils.hh>
 
-
-/// @todo Here, we have a problem in the sense that it isn't possible
-/// to specify additional parameters -- which is very detrimental in
-/// the case of fits !
 RubyODESolver::RubyODESolver(const QString & init, const QString & der) :
   initialization(NULL), derivatives(NULL)
 {
   parseSystem(init, der);
+}
+
+RubyODESolver::RubyODESolver() : 
+  initialization(NULL), derivatives(NULL)
+{
 }
 
 
@@ -54,6 +55,20 @@ void RubyODESolver::setParameterValues(const QString & formula)
                        extraParams.size());
 }
 
+
+void RubyODESolver::parseFromFile(QIODevice * file)
+{
+  QStringList lines = Utils::parseConfigurationFile(file);
+  QRegExp blnk("^\\s*$");
+  int idx = lines.indexOf(blnk);
+  if(idx < 0)
+    throw RuntimeError("File does not contain two sections "
+                       "separated by a fully blank line");
+  
+  QStringList init = lines.mid(0, idx);
+  QStringList derivs = lines.mid(idx+1);
+  parseSystem(init.join("\n"), derivs.join("\n"));
+}
 
 void RubyODESolver::parseSystem(const QString & init, const QString & der)
 {

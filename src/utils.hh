@@ -164,7 +164,8 @@ namespace Utils {
   QStringList parseConfigurationFile(QIODevice * source, 
                                      bool keepCR = false,
                                      QStringList * comments = NULL,
-                                     QList< QPair<int, int> > * lineNumbers = NULL);
+                                     QList< QPair<int, int> > * lineNumbers = NULL,
+                                     bool stripBlank = false);
 
 
   /// Updates a string so that anything between \a begin and \a end

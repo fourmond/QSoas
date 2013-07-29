@@ -25,7 +25,10 @@
 #include <expression.hh>
 #include <vector.hh>
 
-/// An ODE solver that uses expressions. 
+/// An ODE solver that uses expressions.
+///
+/// @todo Add "reporters", ie results of the differential equation
+/// that are not one of the variables
 class RubyODESolver : public ODESolver {
 
   /// Expression called at startup
@@ -42,16 +45,24 @@ class RubyODESolver : public ODESolver {
   /// values (initial and derivatives)
   QStringList extraParams;
 
-
+  /// Values for the extra parameters
   Vector extraParamsValues;
 public:
 
   /// Builds a solver object.
   RubyODESolver(const QString & init, const QString & derivs);
 
+  /// Builds a systemless solver that must be further initialized
+  /// using parseSystem() or parseFromFile()
+  RubyODESolver();
+
   /// Parses the given equations into the corresponding expressions.
   void parseSystem(const QString & initialConditions, 
                    const QString & derivatives);
+
+  /// Parses the system from a file. A blank line separates the
+  /// initial conditions from the derivatives.
+  void parseFromFile(QIODevice * device);
 
   virtual ~RubyODESolver();
 

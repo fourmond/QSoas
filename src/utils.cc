@@ -259,14 +259,12 @@ void Utils::registerShortCut(const QKeySequence & seq, QObject * receiver,
 QStringList Utils::parseConfigurationFile(QIODevice * source, 
                                           bool keepCR, QStringList * tComments,
                                           QList< QPair<int, int> > * 
-                                            lineNumbers)
-#if 0
-                                          ) emacs does not like this;
-#endif 
+                                          lineNumbers, bool stripBlank)
 {
   QTextStream in(source);
   QString line;
-  QRegExp comment("^\\s*#|^\\s*$"); // Comment or fully blank line
+  QRegExp comment(stripBlank ? "^\\s*#|^\\s*$"
+                  : "^\\s*#");    // Comment, possibly with blank line
   QStringList validLines;
   QList< QPair<int, int> > numbers;
   QStringList comments;

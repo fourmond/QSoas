@@ -49,12 +49,16 @@ QStringList Utils::glob(const QString & pattern, bool trim, bool isDir)
   
   QStringList pats = QDir::fromNativeSeparators(pattern).split("/");
   QTextStream o(stdout);
+  bool rewriteHome = false;
+  QString hp;
   if(pats[0].size() == 0) {
     pats.takeFirst();
     pats[0] = "/" + pats[0];
   }
   else if(pats[0] == "~") {
     pats[0] = QDir::homePath();
+    rewriteHome = true;
+    hp = pats[0] + "/";
   }
 
   QFileInfo info(pats.first());
@@ -78,6 +82,13 @@ QStringList Utils::glob(const QString & pattern, bool trim, bool isDir)
 
   if(lst.isEmpty() && ! trim)
     lst << pattern;
+
+  // Sounds a little hackish, but should work anyway
+  if(rewriteHome) {
+    QRegExp rp("^" + QRegExp::escape(hp));
+    lst.replaceInStrings(rp, "~/");
+  }
+
   return lst;
 }
 

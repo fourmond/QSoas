@@ -112,8 +112,7 @@ DataBackend * DataBackend::backendForStream(QIODevice * stream,
 
 QList<DataSet *> DataBackend::loadFile(const QString & fileName, bool verbose)
 {
-  /// @todo implement backend manual selection.
-  QFile file(fileName);
+  QFile file(Utils::expandTilde(fileName));
 
   QFileInfo info(fileName);
   QString key = info.canonicalFilePath();
@@ -158,7 +157,7 @@ ArgumentList * DataBackend::loadOptions() const
 QList<DataSet *> DataBackend::readFile(const QString & fileName, 
                                        const CommandOptions & opts) const
 {
-  QFile file(fileName);
+  QFile file(Utils::expandTilde(fileName));
   Utils::open(&file, QIODevice::ReadOnly);
   return readFromStream(&file, fileName, opts);
 }

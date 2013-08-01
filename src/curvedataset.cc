@@ -54,6 +54,8 @@ void CurveDataSet::createPath()
   int size = dataSet->nbRows();
   if(! size)
     return;
+  if(dataSet->nbColumns() < 2)
+    return;
   const Vector & x = dataSet->x();
   const Vector & y = dataSet->y();
   for(int i = 0; i < x.size(); i++)

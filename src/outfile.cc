@@ -53,7 +53,7 @@ void OutFile::ensureOpened()
 
 void OutFile::setHeader(const QString & head)
 {
-  if(head != currentHeader)
+  if(head != currentHeader || (! isOpened()))
     (*this) << "\n" << head << "\n";
   currentHeader = head;
 }

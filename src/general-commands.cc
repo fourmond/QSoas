@@ -91,6 +91,32 @@ breakc("break", // command name
        "Break from script",
        "Interrupts the run of the current script");
 
+//////////////////////////////////////////////////////////////////////
+
+
+// Changes the output file to the named one.
+static void outputCommand(const QString &, QString file)
+{
+  OutFile::out.setFileName(file);
+}
+
+ArgumentList oArgs(QList<Argument*>() 
+                   << new FileArgument("file", 
+                                       "New output file",
+                                       "Name of the new output file")
+                   );
+
+
+static Command 
+output("output", // command name
+       optionLessEffector(outputCommand), // action
+       "file",  // group name
+       &oArgs, // arguments
+       NULL, // options
+       "Change output file",
+       "Change the name of the current output file",
+       "Interrupts the run of the current script");
+
 
 //////////////////////////////////////////////////////////////////////
 

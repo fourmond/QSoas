@@ -117,6 +117,32 @@ output("output", // command name
        "Change the name of the current output file",
        "Interrupts the run of the current script");
 
+//////////////////////////////////////////////////////////////////////
+
+
+// Changes the output file to the named one.
+static void commentCommand(const QString &, QString cmt)
+{
+  OutFile::out.setHeader("");
+  OutFile::out << cmt << "\n" << flush;
+}
+
+ArgumentList cArgs(QList<Argument*>() 
+                   << new StringArgument("comment", 
+                                         "Comment",
+                                         "Comment line added to output file")
+                   );
+
+
+static Command 
+comment("comment", // command name
+       optionLessEffector(commentCommand), // action
+       "file",  // group name
+       &cArgs, // arguments
+       NULL, // options
+       "Write line to output",
+       "Writes a comment line to the current output file");
+
 
 //////////////////////////////////////////////////////////////////////
 

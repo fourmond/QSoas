@@ -91,6 +91,12 @@ public:
 
   /// Returns the default option, or NULL if there isn't
   Argument * defaultOption() const;
+
+  /// Merges another argument list while trying to avoid name clashes.
+  ///
+  /// For now, duplicate names will get ignored. @todo Make this
+  /// configurable
+  void mergeOptions(const ArgumentList & other);
 };
 
 #endif

@@ -163,41 +163,6 @@ QList<DataSet *> DataBackend::readFile(const QString & fileName,
 }
 
 
-void DataBackend::registerBackendCommands()
-{
-  ArgumentList * lst = 
-    new ArgumentList(QList<Argument *>() 
-                     << new SeveralFilesArgument("file", 
-                                                 "File",
-                                                 "Files to load !", true
-                                                 ));
-
-  for(int i = 0; i < availableBackends->size(); i++) {
-    DataBackend * b = availableBackends->value(i);
-    ArgumentList * opts = b->loadOptions();
-    /// @todo Try to find a way to share that with options for the
-    /// load and overlay commands.
-    *opts << new StyleGeneratorArgument("style", 
-                                        "Style",
-                                        "Style for curves display");
-      
-    /// @todo Add general options processing.
-    QString name = "load-as-" + b->name;
-
-    QString d1 = QString("Load files with backend '%1'").arg(b->name);
-    QString d2 = QString("Load any number of files directly using the backend "
-                         "'%1', bypassing cache and automatic backend "
-                         "detection, and "
-                         "giving more fine-tuning in the loading via the "
-                         "use of dedicated options").arg(b->name);
-
-    new Command(name.toLocal8Bit(),
-                effector(b, &DataBackend::loadDatasetCommand),
-                "stack", lst, opts, (const char*) d1.toLocal8Bit(), 
-                (const char*) d1.toLocal8Bit(), 
-                (const char*) d2.toLocal8Bit());
-  }
-}
 
 void DataBackend::loadFilesAndDisplay(int nb, QStringList files, 
                                       const CommandOptions & opts,
@@ -259,4 +224,49 @@ void DataBackend::setMetaDataForFile(DataSet * dataset,
   QDir dir = QDir::current();
   dataset->setMetaData("original-file",
                        QDir::cleanPath(dir.absoluteFilePath(filename)));
+}
+
+
+void DataBackend::registerBackendCommands()
+{
+  ArgumentList * lst = 
+    new ArgumentList(QList<Argument *>() 
+                     << new SeveralFilesArgument("file", 
+                                                 "File",
+                                                 "Files to load !", true
+                                                 ));
+
+  ArgumentList * overallOptions = 
+    new ArgumentList(QList<Argument *>() 
+                     << new StyleGeneratorArgument("style", 
+                                                   "Style",
+                                                   "Style for curves display"));
+  
+
+  for(int i = 0; i < availableBackends->size(); i++) {
+    DataBackend * b = availableBackends->value(i);
+    ArgumentList * opts = b->loadOptions();
+    overallOptions->mergeOptions(*opts);
+    /// @todo Try to find a way to share that with options for the
+    /// load and overlay commands.
+    *opts << new StyleGeneratorArgument("style", 
+                                        "Style",
+                                        "Style for curves display");
+      
+    /// @todo Add general options processing.
+    QString name = "load-as-" + b->name;
+
+    QString d1 = QString("Load files with backend '%1'").arg(b->name);
+    QString d2 = QString("Load any number of files directly using the backend "
+                         "'%1', bypassing cache and automatic backend "
+                         "detection, and "
+                         "giving more fine-tuning in the loading via the "
+                         "use of dedicated options").arg(b->name);
+
+    new Command(name.toLocal8Bit(),
+                effector(b, &DataBackend::loadDatasetCommand),
+                "stack", lst, opts, (const char*) d1.toLocal8Bit(), 
+                (const char*) d1.toLocal8Bit(), 
+                (const char*) d2.toLocal8Bit());
+  }
 }

@@ -156,3 +156,19 @@ Argument * ArgumentList::defaultOption() const
     return NULL;
   return value(defaultOptionIndex);
 }
+
+void ArgumentList::mergeOptions(const ArgumentList & other)
+{
+  regenerateCache();
+  for(int i = 0; i < other.size();i++) {
+    Argument * arg = other[i];
+    if(! cache.contains(arg->argumentName())) {
+      *this << arg;
+      cache[arg->argumentName()] = NULL; // good enough until the end.
+    }
+    else 
+      ;                         // do something ?
+    
+  }
+  regenerateCache();
+}

@@ -155,7 +155,8 @@ public:
   static QList<DataSet *> loadFile(const QString & fileName, 
                                    bool verbose = true);
 
-  /// Register all the individual backend load-as commands
+  /// Register all the individual backend load-as commands. Then,
+  /// registers the overall load functions
   static void registerBackendCommands();
 
   /// Load files using the given backend (or with backend detection
@@ -163,6 +164,8 @@ public:
   static void loadFilesAndDisplay(int nb, QStringList files, 
                                   const CommandOptions & opts,
                                   DataBackend * backend = NULL);
+
+
 
 };
 

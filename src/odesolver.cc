@@ -55,6 +55,8 @@ QList<Argument*> ODEStepperOptions::commandOptions()
                            "Whether or not to use adaptative stepper")
        << new NumberArgument("step-size", "Step size",
                              "Initial step size for the stepper")
+       << new NumberArgument("prec-relative", "Relative precision",
+                             "Relative precision required")
        << new TemplateChoiceArgument<const gsl_odeiv2_step_type *>
     (types, "stepper", "Stepper algorithm",
      "Algorithm used for integration");
@@ -68,6 +70,7 @@ void ODEStepperOptions::parseOptions(const CommandOptions & opts)
   fixed = ! adapt;
   updateFromOptions(opts, "step-size", hStart);
   updateFromOptions(opts, "stepper", type);
+  updateFromOptions(opts, "prec-relative", epsRel);
 }
 
 QString ODEStepperOptions::description() const

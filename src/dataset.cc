@@ -1117,8 +1117,11 @@ QDataStream & operator<<(QDataStream & out, const DataSet & ds)
   out << ds.segments;
   out << ds.metaData;
 
-  // For version 1 onwards
+  // From version 1 onwards
   out << ds.flagged;
+
+  // From version 2
+  out << ds.perpCoords;
   return out;
 }
 
@@ -1142,6 +1145,9 @@ QDataStream & operator>>(QDataStream & in, DataSet & ds)
 
   if(DataStack::serializationVersion >= 1)
     in >> ds.flagged;
+
+  if(DataStack::serializationVersion >= 2)
+    in >> ds.perpCoords;
 
   return in;
 }

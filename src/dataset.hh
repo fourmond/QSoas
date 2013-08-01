@@ -39,6 +39,12 @@ class DataSet : public Guardable {
   /// The columns
   QList<Vector> columns;
 
+  /// The coordinate in the perpendicular direction: [0] would be the
+  /// Y coordinate for column 1, [1] for column 2 and so on.
+  ///
+  /// This makes sense only for datasets that are intrinsically 3D.
+  Vector perpCoords;
+
   /// A set of meta-data. Basically anything !
   ///
   /// @todo Have the data handled by that

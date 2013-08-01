@@ -833,6 +833,9 @@ DataSet * DataSet::derivedDataSet(const QList<Vector> &newCols,
   ds->metaData.appendToList("commands", 
                             soas().prompt().currentCommandLine());
 
+  // We copy the options !
+  ds->options = options;
+
   /// @question Should we update the date too ?
   return ds;
 }

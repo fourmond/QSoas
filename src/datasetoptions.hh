@@ -21,7 +21,10 @@
 #ifndef __DATASETOPTIONS_HH
 #define __DATASETOPTIONS_HH
 
+#include <argumentlist.hh>
+
 class DataSet;
+class ArgumentList;
 
 /// This class holds a whole lot of indications on a dataset about
 /// what are the roles of the different columsn, and other various
@@ -66,6 +69,17 @@ public:
 
 
   DatasetOptions();
+
+
+  /// Returns an option list whose parsing can be fed to
+  /// setDatasetOptions()
+  static ArgumentList * optionList();
+
+
+  /// Sets the target dataset options from the (user-supplied)
+  /// CommandOptions given.
+  static void setDatasetOptions(DataSet * ds, 
+                                const CommandOptions & opts);
 };
 
 

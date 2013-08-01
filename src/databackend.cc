@@ -39,6 +39,8 @@
 
 #include <stylegenerator.hh>
 
+#include <datasetoptions.hh>
+
 QList<DataBackend*> * DataBackend::availableBackends = NULL;
 
 
@@ -116,6 +118,9 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName,
 {
   QFile file(Utils::expandTilde(fileName));
 
+  bool ignoreCache = false;
+  updateFromOptions(opts, "ignore-cache", ignoreCache);
+
   QFileInfo info(fileName);
   QString key = info.canonicalFilePath();
   QDateTime lastModified = info.lastModified();
@@ -127,7 +132,7 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName,
   
   CachedDataSets * cached = cachedDatasets.object(key);
 
-  if(! cached || cached->date < lastModified) {
+  if(! cached || cached->date < lastModified || ignoreCache) {
     Utils::open(&file, QIODevice::ReadOnly);
 
     DataBackend * b = backendForStream(&file, fileName);
@@ -200,6 +205,8 @@ void DataBackend::loadFilesAndDisplay(int nb, QStringList files,
         
   for(int i = 0; i < datasets.size(); i++) {
     DataSet * s = datasets[i];
+    // Set the options:
+    DatasetOptions::setDatasetOptions(s, opts);
     soas().stack().pushDataSet(s, true); // use the silent version
     // as we display ourselves
     if(nb > 0)
@@ -255,18 +262,28 @@ void DataBackend::registerBackendCommands()
     new ArgumentList(QList<Argument *>() 
                      << new StyleGeneratorArgument("style", 
                                                    "Style",
-                                                   "Style for curves display"));
-  
+                                                   "Style for curves display")
+                     << new BoolArgument("ignore-cache", 
+                                         "Ignores cache",
+                                         "If on, ignores what is in the cache")
+                     );
+
+  ArgumentList * oo = DatasetOptions::optionList();
+  overallOptions->mergeOptions(*oo);
+
 
   for(int i = 0; i < availableBackends->size(); i++) {
     DataBackend * b = availableBackends->value(i);
     ArgumentList * opts = b->loadOptions();
-    overallOptions->mergeOptions(*opts);
+    if(opts)
+      overallOptions->mergeOptions(*opts);
     /// @todo Try to find a way to share that with options for the
     /// load and overlay commands.
     *opts << new StyleGeneratorArgument("style", 
                                         "Style",
                                         "Style for curves display");
+    
+    opts->mergeOptions(*oo);
       
     /// @todo Add general options processing.
     QString name = "load-as-" + b->name;

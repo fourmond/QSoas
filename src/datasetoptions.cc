@@ -53,6 +53,28 @@ void DatasetOptions::setYErrors(int col)
   yErrors = col;
 }
 
+ArgumentList * DatasetOptions::optionList() 
+{
+  return 
+    new ArgumentList(QList<Argument *>() 
+                     << new IntegerArgument("yerrors", 
+                                            "Y errors",
+                                            "Column containing y errors")
+                     );
+}
+
+
+void DatasetOptions::setDatasetOptions(DataSet * ds, 
+                                       const CommandOptions & opts)
+{
+  if(opts.contains("yerrors")) {
+    int col = 0;
+    updateFromOptions(opts, "yerrors", col);
+    ds->options.setYErrors(col);
+  }
+}
+
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -78,27 +100,15 @@ static void optionsCommand(const QString &, const CommandOptions & opts)
 {
   /// @todo Make that a new dataset ?
   DataSet * ds = soas().currentDataSet();
-  
-  if(opts.contains("yerrors")) {
-    int col = 0;
-    updateFromOptions(opts, "yerrors", col);
-    ds->options.setYErrors(col);
-  }
+  DatasetOptions::setDatasetOptions(ds, opts);
 }
 
-static ArgumentList 
-opOps(QList<Argument *>() 
-        << new IntegerArgument("yerrors", 
-                               "Y errors",
-                               "Column containing y errors"));
-
-
 static Command 
-opts("dataset-options", // command name
-     effector(optionsCommand), // action
-     "stack",                  // group name
-     NULL,                     // arguments
-     &opOps,                 // options
+opts("dataset-options",            // command name
+     effector(optionsCommand),     // action
+     "stack",                      // group name
+     NULL,                         // arguments
+     DatasetOptions::optionList(), // options
      "Options",
      "Set dataset options");
 

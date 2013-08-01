@@ -41,65 +41,6 @@ static Group stack("stack", 1,
 //////////////////////////////////////////////////////////////////////
 
 
-static ArgumentList 
-loadArgs(QList<Argument *>() 
-         << new SeveralFilesArgument("file", 
-                                     "File",
-                                     "Files to load !", true
-                                     ));
-
-static ArgumentList 
-styleOpts(QList<Argument *>() 
-          << new StyleGeneratorArgument("style", 
-                                        "Style",
-                                        "Style for curves display"));
-                             
-
-
-static void loadCommand(const QString &, QStringList files, 
-                        const CommandOptions & opts)
-{
-  DataBackend::loadFilesAndDisplay(0, files, opts);
-}
-
-
-/// @todo We should add options to:
-/// @li only read within a certain X range
-/// @li swap X and Y (/transpose=yes)
-static Command 
-load("load", // command name
-     effector(loadCommand), // action
-     "stack",  // group name
-     &loadArgs, // arguments
-     &styleOpts, // options
-     "Load",
-     "Loads one or several files",
-     "Loads the given files and push them onto the data stack",
-     "l");
-//////////////////////////////////////////////////////////////////////
-
-static void overlayFilesCommand(const QString &, QStringList files, 
-                                const CommandOptions & opts)
-{
-  DataBackend::loadFilesAndDisplay(1, files, opts);
-}
-
-
-static Command 
-ovl("overlay", // command name
-    effector(overlayFilesCommand), // action
-    "stack",  // group name
-    &loadArgs, // arguments
-    &styleOpts, // options
-    "Overlay",
-    "Loads files and overlay them",
-    QT_TR_NOOP("Loads the given files and push them onto the data "
-               "stack, adding them to the display at the same time"),
-    "v");
-
-//////////////////////////////////////////////////////////////////////
-
-
 static void saveCommand(const QString &, QString file, 
                         const CommandOptions & opts)
 {
@@ -393,7 +334,13 @@ ovArgs(QList<Argument *>()
                                      "Buffers",
                                      "Buffers to overlay"));
 
+//////////////////////////////////////////////////////////////////////
 
+static ArgumentList 
+styleOpts(QList<Argument *>() 
+          << new StyleGeneratorArgument("style", 
+                                        "Style",
+                                        "Style for curves display"));
 static Command 
 ovlb("overlay-buffer", // command name
      effector(ovCommand), // action

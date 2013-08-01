@@ -153,6 +153,8 @@ public:
   ///
   /// This function caches the result !
   static QList<DataSet *> loadFile(const QString & fileName, 
+                                   const CommandOptions & opts = 
+                                   CommandOptions(), 
                                    bool verbose = true);
 
   /// Register all the individual backend load-as commands. Then,

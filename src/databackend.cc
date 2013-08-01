@@ -110,7 +110,9 @@ DataBackend * DataBackend::backendForStream(QIODevice * stream,
   return backend;
 }
 
-QList<DataSet *> DataBackend::loadFile(const QString & fileName, bool verbose)
+QList<DataSet *> DataBackend::loadFile(const QString & fileName, 
+                                       const CommandOptions & opts, 
+                                       bool verbose)
 {
   QFile file(Utils::expandTilde(fileName));
 
@@ -132,7 +134,7 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName, bool verbose)
     if(! b)
       throw RuntimeError(QObject::tr("No backend found to load '%1'").
                          arg(fileName));
-    datasets = b->readFromStream(&file, fileName, CommandOptions());
+    datasets = b->readFromStream(&file, fileName, opts);
 
     if(verbose)
       Terminal::out << "using backend " << b->name << endl;
@@ -179,7 +181,7 @@ void DataBackend::loadFilesAndDisplay(int nb, QStringList files,
     try {
       QList<DataSet *> dss = 
         (backend ? backend->readFile(files[i], opts) : 
-         DataBackend::loadFile(files[i]));
+         DataBackend::loadFile(files[i], opts));
 
       if(dss.size() > 1)
         Terminal::out << " -> got " << dss.size() << " datasets" << endl;
@@ -226,6 +228,19 @@ void DataBackend::setMetaDataForFile(DataSet * dataset,
                        QDir::cleanPath(dir.absoluteFilePath(filename)));
 }
 
+static void loadCommand(const QString &, QStringList files, 
+                        const CommandOptions & opts)
+{
+  DataBackend::loadFilesAndDisplay(0, files, opts);
+}
+
+static void overlayFilesCommand(const QString &, QStringList files, 
+                                const CommandOptions & opts)
+{
+  DataBackend::loadFilesAndDisplay(1, files, opts);
+}
+
+
 
 void DataBackend::registerBackendCommands()
 {
@@ -269,4 +284,30 @@ void DataBackend::registerBackendCommands()
                 (const char*) d1.toLocal8Bit(), 
                 (const char*) d2.toLocal8Bit());
   }
+
+  // Now, we create the load and overlay commands.
+
+  Command * cmd = 
+    new Command("load", // command name
+                effector(loadCommand), // action
+                "stack",  // group name
+                lst, // arguments
+                overallOptions, // options
+                "Load",
+                "Loads one or several files",
+                "Loads the given files and push them onto the data stack",
+                "l");
+
+  cmd = 
+    new Command("overlay", // command name
+                effector(overlayFilesCommand), // action
+                "stack",  // group name
+                lst, // arguments
+                overallOptions, // options
+                "Overlay",
+                "Loads files and overlay them",
+                "Loads the given files and push them onto the data "
+                "stack, adding them to the display at the same time",
+                "v");
+  
 }

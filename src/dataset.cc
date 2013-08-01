@@ -836,6 +836,9 @@ DataSet * DataSet::derivedDataSet(const QList<Vector> &newCols,
   // We copy the options !
   ds->options = options;
 
+  // We copy the perpendicular coordinates
+  ds->perpCoords = perpCoords;
+
   /// @question Should we update the date too ?
   return ds;
 }
@@ -1102,6 +1105,32 @@ QStringList DataSet::columnNames() const
 void DataSet::setMetaData(const QString & name, const QVariant & val)
 {
   metaData[name] = val;
+}
+
+DataSet * DataSet::transpose() const
+{
+  // First, check sanity of perpendicular coordinate, or create it as
+  // index
+  Vector pc = perpCoords;
+  if(pc.size() != nbColumns() - 1) {
+    pc.clear();
+    for(int i = 0; i < nbColumns() - 1; i++)
+      pc << i;
+  }
+
+  QList<Vector> cols;
+  cols << pc;
+  for(int i = 0; i < nbRows(); i++)
+    cols << Vector(pc.size(), 0);
+
+  for(int i = 0; i < nbColumns() - 1; i++) {
+    for(int j = 0; j < nbRows(); j++) 
+      cols[j+1][i] = columns[i+1][j]; 
+  }
+
+  DataSet * ds = derivedDataSet(cols, "_transposed.dat");
+  ds->perpCoords = x();
+  return ds;
 }
 
 //////////////////////////////////////////////////////////////////////

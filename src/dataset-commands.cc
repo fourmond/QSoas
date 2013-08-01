@@ -125,6 +125,24 @@ sm("split-monotonic", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void transposeCommand(const QString &)
+{
+  const DataSet * ds = soas().currentDataSet();
+  soas().pushDataSet(ds->transpose());
+}
+        
+
+static Command 
+tp("transpose", // command name
+   optionLessEffector(transposeCommand), // action
+   "buffer",  // group name
+   NULL, // arguments
+   NULL, // options
+   "Transpose",
+   "Transpose, ie converts a X,Y,Z grid into a Y,X,Z grid");
+
+//////////////////////////////////////////////////////////////////////
+
 static void unwrapCommand(const QString &)
 {
   const DataSet * ds = soas().currentDataSet();

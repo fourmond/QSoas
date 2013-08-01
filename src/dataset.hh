@@ -423,6 +423,11 @@ public:
 
 
   /// @}
+
+  /// Transpose a dataset, ie creates a new dataset where the
+  /// perpendicular coordinate becomes the X coordinate and vice versa
+  /// (ie swap columns and rows, somehow)
+  DataSet * transpose() const;
   
   /// Writes the contents of the dataset in tab-separated format to \a
   /// target.

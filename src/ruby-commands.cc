@@ -54,7 +54,7 @@ static void applyFormulaCommand(const QString &, QString formula,
   Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
     arg(formula).arg(ds->name) << endl;
   QStringList vars;
-  vars << "i" << "x" << "y";
+  vars << "i" << "seg" << "x" << "y";
   for(int i = 2; i < ds->nbColumns() + extra; i++)
     vars << QString("y%1").arg(i);
 
@@ -71,20 +71,26 @@ static void applyFormulaCommand(const QString &, QString formula,
     newCols << Vector();
   
   int size = ds->x().size();
+  int seg = 0;
   for(int i = 0; i < size; i++) {
-    QVarLengthArray<double, 50> args(newCols.size() + 1);
-    QVarLengthArray<double, 50> ret(newCols.size() + 1);
+    QVarLengthArray<double, 50> args(newCols.size() + 2);
+    QVarLengthArray<double, 50> ret(newCols.size() + 2);
+
+    while(seg < ds->segments.size() && i >= ds->segments[seg])
+      seg++;
     
     args[0] = i;                // the index !
-    for(int j = 1; j < args.size(); j++) {
+    args[1] = seg;
+
+    for(int j = 2; j < args.size(); j++) {
       if(j > ds->nbColumns())
         args[j] = 0;
       else
-        args[j] = ds->column(j-1)[i];
+        args[j] = ds->column(j-2)[i];
     }
     exp.evaluateIntoArray(args.data(), ret.data(), ret.size());
-    for(int j = 1; j < ret.size(); j++)
-      newCols[j-1].append(ret[j]);
+    for(int j = 2; j < ret.size(); j++)
+      newCols[j-2].append(ret[j]);
   }
 
   DataSet * newDs = ds->derivedDataSet(newCols, "_mod.dat");

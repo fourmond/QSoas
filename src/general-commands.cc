@@ -451,13 +451,47 @@ static void runForEachCommand(const QString &, QString script,
 
   QStringList additionalArgs;
 
-  for(int i = 2; i <= 5; i++) {
+  for(int i = 2; i <= 6; i++) {
     QString on = QString("arg%1").arg(i);
     if(opts.contains(on))
       additionalArgs << opts[on]->value<QString>();
     else
       break;
   }  
+
+  QStringList oa = args;
+  QString type;
+  updateFromOptions(opts, "range-type", type);
+  // If range-type is specified, we parse the arguments into number
+  // ranges.
+  if(! type.isEmpty()) {
+    bool lg = (type == "log");
+    args.clear();
+    QRegExp rangeRE("^(.*)\\.\\.(.*)\\s*:\\s*(\\d+)$");
+    for(int i = 0; i < oa.size(); i++) {
+      const QString & a = oa[i];
+      if(rangeRE.indexIn(a) == 0) {
+        double s = rangeRE.cap(1).toDouble();
+        double e = rangeRE.cap(2).toDouble();
+        if(lg) {
+          s = log(s);
+          e = log(e);
+        }
+        Terminal::out << "s = " << s << "\te = " << e << endl;
+        int nb = rangeRE.cap(3).toInt();
+        for(int j = 0; j < nb; j++) {
+          double x = s + ((e - s) * j)/(nb - 1);
+          if(lg)
+            x = exp(x);
+          args << QString::number(x);
+        }
+      }
+      else
+        args << a;
+    }
+  }
+
+
   while(args.size() > 0) {
     QStringList a;
     for(int i = 0; i < nb && args.size() > 0; i++)
@@ -491,6 +525,13 @@ rfeOpts(QList<Argument *>()
         << new FileArgument("arg5", 
                             "Fifth argument",
                             "Fifth argument to the script")
+        << new FileArgument("arg6",
+                            "Sixth argument",
+                            "Sixth argument to the script")
+        << new ChoiceArgument(QStringList() << "lin" << "log",
+                              "range-type",
+                              "Numerical range type",
+                              "If one, transform arguments into ranged numbers")
         << new BoolArgument("add-to-history", 
                             "Add commands to history",
                             "Whether the commands run are added to the "

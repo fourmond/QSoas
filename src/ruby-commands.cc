@@ -61,11 +61,13 @@ static void applyFormulaCommand(const QString &, QString formula,
   for(int i = 2; i < ds->nbColumns() + extra; i++)
     colNames << QString("y%1").arg(i);
 
-  formula = QString("%3\n[%2]").
+  vars += colNames;
+
+  formula = QString("%1\n%3\n[%2]").
+    arg(vars.join("\n")).
     arg(colNames.join(",")).
     arg(formula);
 
-  vars += colNames;
 
   Expression exp(formula, vars);
 

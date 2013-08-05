@@ -1201,11 +1201,15 @@ fsc("find-steps", // command name
 // Although this is not per se a data processing command, I guess it
 // makes sense to leave it around here.
 
-static void setSegmentsCommand(CurveEventLoop &loop, const QString &)
+static void setSegmentsCommand(CurveEventLoop &loop, const QString &,
+                               const CommandOptions & opts)
 {
   DataSet * ds = soas().currentDataSet();
   QList<int> savedSegments = ds->segments;
   CurveView & view = soas().view();
+
+  bool dump = false;
+  updateFromOptions(opts, "dump", dump);
 
   loop.setHelpString("Set segments:\n"
                      "left click: place delimiter\n"
@@ -1314,18 +1318,35 @@ static void setSegmentsCommand(CurveEventLoop &loop, const QString &)
       ;
     }
   } while(! loop.finished());
+
+  if(dump && ds->segments.size() > 0) {
+    QStringList cmd;
+    cmd << "chop" << "/set-segments=true" << "/mode=indices";
+    for(int i = 0; i < ds->segments.size(); i++)
+      cmd << QString::number(ds->segments[i]);
+    Terminal::out << "Segments can be set again using:\n" 
+                  << cmd.join(" ") << endl;
+  }
   
   // Whatever happened, we restore the segments
   ds->segments = savedSegments;
 
 }
 
+static ArgumentList 
+ssOps(QList<Argument *>() 
+      << new BoolArgument("dump", 
+                          "Dump segments",
+                          "Dumps the segments to terminal as a command if on")
+      );
+
+
 static Command 
 ssc("set-segments", // command name
-     optionLessEffector(setSegmentsCommand), // action
+     effector(setSegmentsCommand), // action
      "buffer",  // group name
      NULL, // arguments
-     NULL, // options
+     &ssOps, // options
      "Set segments",
      "Set segments in the data (manually)",
      "...");

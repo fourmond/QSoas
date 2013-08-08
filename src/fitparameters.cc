@@ -247,11 +247,11 @@ void FitParameters::computeResiduals()
     tr += r;
     td += d;
 
-    pointResiduals << r/w;
-    relativeResiduals << r/d;
+    pointResiduals << sqrt(r/w);
+    relativeResiduals << sqrt(r/d);
   }
-  overallPointResiduals = tr/tw;
-  overallRelativeResiduals = tr/td;
+  overallPointResiduals = sqrt(tr/tw);
+  overallRelativeResiduals = sqrt(tr/td);
 }
 
 QList<Vector> FitParameters::computeSubFunctions()

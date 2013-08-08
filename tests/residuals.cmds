@@ -1,0 +1,12 @@
+generate-buffer 0 10 'sin(exp(x+100))'
+stats
+
+# The norm of the previous thing should be related to the "point residuals"
+# echo $((21.9326860884908/(1000.0**0.5)*0.3))
+# 0.20807172973536078
+# ->  seems right, doesn't it ?
+
+
+@ lines.cmds
+
+mfit-arb 'a*x+b' 0 1 2

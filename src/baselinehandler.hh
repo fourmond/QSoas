@@ -60,7 +60,7 @@ public:
 
   typedef enum  {
     None = 0,
-    
+    NoDerivative = 0x1,
   } Option;
   Q_DECLARE_FLAGS(Options, Option);
 
@@ -114,9 +114,8 @@ public:
   QString suffix;
 
   /// Adds all the necessary commands to the 
-  static EventHandler & addToEventHandler(EventHandler & target, Options opts);
-
-public:
+  static EventHandler & addToEventHandler(EventHandler & target, 
+                                          Options opts);
 
   BaselineHandler(CurveView & view, const DataSet * ds,
                   const QString & suffix,

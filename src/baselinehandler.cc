@@ -35,10 +35,11 @@ EventHandler & BaselineHandler::addToEventHandler(EventHandler & target,
     addKey('v', QuitDividing, "quit dividing").
     addKey('V', ToggleDivision, "show divided signal").
     addKey('u', QuitReplacing, "quit replacing").
-    alsoKey('U').
-    addKey('d', ToggleDerivative, "toogle derivative").
-    alsoKey('D').
-    addKey('h', HideDataset, "hide/show original data").
+    alsoKey('U');
+  if(! opts.testFlag(NoDerivative))
+    target.addKey('d', ToggleDerivative, "toogle derivative").
+      alsoKey('D');
+  target.addKey('h', HideDataset, "hide/show original data").
     alsoKey('H');
   return target;
 }
@@ -107,14 +108,18 @@ bool BaselineHandler::nextAction(int action, bool * shouldQuit,
     return true;
 
   case ToggleDerivative:
-    showingDerivative = ! showingDerivative;
-    modified.hidden = showingDerivative;
-    derivative.hidden = ! showingDerivative;
-    if(shouldRecompute)
-      *shouldRecompute = true;
-    if(shouldComputeDerivative)
-      *shouldComputeDerivative = showingDerivative;
-    return true;
+    if(! options.testFlag(NoDerivative)) {
+      showingDerivative = ! showingDerivative;
+      modified.hidden = showingDerivative;
+      derivative.hidden = ! showingDerivative;
+      if(shouldRecompute)
+        *shouldRecompute = true;
+      if(shouldComputeDerivative)
+        *shouldComputeDerivative = showingDerivative;
+      return true;
+    }
+    else
+      return false;
 
   case ToggleDivision:
     showingDivided = ! showingDivided;

@@ -156,9 +156,10 @@ double FitData::weightedSquareSumForDataset(int ds, const gsl_vector * vect,
     double v = w;
     if(weight)
       v *= gsl_vector_get(weight, j);
+    v = 1/v;
     double val = (vect ? gsl_vector_get(vect, j) : 0);
     if(vect || subtract)
-      v = (subtract ? val - y[j] : val)/v;
+      v *= (subtract ? val - y[j] : val);
     ret += v*v;
   }
   return ret;

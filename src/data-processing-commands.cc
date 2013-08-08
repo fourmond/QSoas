@@ -1789,7 +1789,6 @@ static void deldpCommand(CurveEventLoop &loop, const QString &)
       if(loop.button() == Qt::LeftButton) {
         if(t.lastIndex >= 0)
           newds->removePoint(t.lastIndex);
-        d.invalidateCache();
       }
       
       break;

@@ -29,7 +29,7 @@ class DataSet;
 /// styles.
 ///
 /// @todo It would be nice if the iterator could implement clipping on
-/// its own, that is, given a bounding box, draw only the points
+/// its own, that is, given a bounding box, return only the points
 /// inside and the points "immediately next" (ie just before/just
 /// after). It may be difficult when there is not a single point within
 /// the region, though ?

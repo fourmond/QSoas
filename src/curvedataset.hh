@@ -32,14 +32,6 @@ class CurveDataSet : public CurveItem {
   /// The dataset attached to this object
   ConstGuardedPointer<DataSet> dataSet;
 
-  /// Cache for the main path
-  QPolygonF * cachedPath;
-
-  /// Cache for the error filling path
-  QPolygonF * errorPath;
-
-  void createPath();
-
   /// Cache for the tooltip
   QPointF lastPoint;
   int lastPointIdx;
@@ -51,8 +43,6 @@ public:
 
   CurveDataSet(const DataSet * ds): CurveItem(true), 
                                     dataSet(ds), 
-                                    cachedPath(NULL),
-                                    errorPath(NULL),
                                     lastPointIdx(-1),
                                     paintMarkers(false)
   {;};
@@ -73,9 +63,6 @@ public:
                             double xscale,
                             double yscale);
   virtual QString toolTipText(const QPointF & p);
-
-  /// Invalidates the cache
-  void invalidateCache();
 
   /// The dataset this item displays
   const DataSet * displayedDataSet() const;

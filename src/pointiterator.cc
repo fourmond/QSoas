@@ -39,7 +39,7 @@ bool PointIterator::hasNext() const
 {
   switch(type) {
   case Errors:
-    return ! ((sub == 1) && (index == 0));
+    return ! ((sub == 1) && (index < 0));
   default:
     ;
   }
@@ -60,6 +60,11 @@ QPointF PointIterator::peek() const
     return QPointF(x[index], y[index] + ds->yError(index));
   case ErrorsBelow: 
     return QPointF(x[index], y[index] - ds->yError(index));
+  case Errors:
+    if(sub == 1)                // backwards
+      return QPointF(x[index], y[index] - ds->yError(index));
+    else
+      return QPointF(x[index], y[index] + ds->yError(index));
   case Steps: {
     // here is a little more complex...
     // sub == 0 -> left, sub == 1 -> right
@@ -92,6 +97,18 @@ void PointIterator::advance()
     }
     else
       sub = 1;
+    break;
+  case Errors:
+    if(sub == 0) {
+      index++;
+      if(index >= total) {
+        sub = 1;
+        index = total - 1;
+      }
+    }
+    else
+      index--;
+    break;
   default:
     index++;
   }
@@ -104,7 +121,14 @@ QPointF PointIterator::next(const QTransform & trans)
 
 void PointIterator::addToPath(QPainterPath & path, const QTransform & trans)
 {
-  while(hasNext())
-    path.lineTo(next(trans));
+  bool first = true;
+  while(hasNext()) {
+    if(first) {
+      path.moveTo(next(trans));
+      first = false;
+    }
+    else 
+      path.lineTo(next(trans));
+  }
 }
 

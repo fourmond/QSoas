@@ -26,14 +26,10 @@
 
 #include <graphicssettings.hh>
 
-/// @todo The CurveDataSet object should register itself and the
-/// dataset it points to somewhere, so that when a DataSet gets
-/// deleted, we make sure the corresponding views become invalid. A
-/// way to do that would be to make DataSet a QObject and use guarded
-/// pointers, but that doesn't sound like a smart thing to do... 
+#include <pointiterator.hh>
+
 CurveDataSet::~CurveDataSet()
 {
-  invalidateCache();
 }
 
 QRectF CurveDataSet::boundingRect() const
@@ -44,41 +40,41 @@ QRectF CurveDataSet::boundingRect() const
     return QRectF();
 }
 
-void CurveDataSet::createPath()
-{
-  if(! dataSet)
-    return;
-  if(cachedPath)
-    return;
-  cachedPath = new QPolygonF;
-  int size = dataSet->nbRows();
-  if(! size)
-    return;
-  if(dataSet->nbColumns() < 2)
-    return;
-  const Vector & x = dataSet->x();
-  const Vector & y = dataSet->y();
-  for(int i = 0; i < x.size(); i++)
-    cachedPath->append(QPointF(x[i], y[i]));
+// void CurveDataSet::createPath()
+// {
+//   if(! dataSet)
+//     return;
+//   if(cachedPath)
+//     return;
+//   cachedPath = new QPolygonF;
+//   int size = dataSet->nbRows();
+//   if(! size)
+//     return;
+//   if(dataSet->nbColumns() < 2)
+//     return;
+//   const Vector & x = dataSet->x();
+//   const Vector & y = dataSet->y();
+//   for(int i = 0; i < x.size(); i++)
+//     cachedPath->append(QPointF(x[i], y[i]));
 
-  if(dataSet->options.hasYErrors(dataSet)) {
-    errorPath = new QPolygonF;
-    for(int i = 0; i < x.size(); i++)
-      errorPath->append(QPointF(x[i], y[i] - dataSet->yError(i)));
-    for(int i = x.size() - 1; i >= 0; i--)
-      errorPath->append(QPointF(x[i], y[i] + dataSet->yError(i)));
-  }
-}
+//   if(dataSet->options.hasYErrors(dataSet)) {
+//     errorPath = new QPolygonF;
+//     for(int i = 0; i < x.size(); i++)
+//       errorPath->append(QPointF(x[i], y[i] - dataSet->yError(i)));
+//     for(int i = x.size() - 1; i >= 0; i--)
+//       errorPath->append(QPointF(x[i], y[i] + dataSet->yError(i)));
+//   }
+// }
 
 
 void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
                          const QTransform & ctw)
 {
+  painter->save();
   const GraphicsSettings & gs = soas().graphicsSettings();
   if(! dataSet)
     return;
-  createPath();
-  if(errorPath) {
+  if(dataSet->options.hasYErrors(dataSet)) {
     // paint it first so that lines/markers show up on top.
     QPen p(pen);
     QColor c = p.color();
@@ -87,20 +83,24 @@ void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
     p.setColor(c);
     painter->setPen(p);
     QPainterPath pp;
-    pp.addPolygon(ctw.map(*errorPath));
-    // painter->drawPolyline(ctw.map(*errorPath));
+    PointIterator it(dataSet, PointIterator::Errors);
+    it.addToPath(pp, ctw);
     painter->fillPath(pp, QBrush(c));
   }
-  painter->setPen(pen);
-  painter->drawPolyline(ctw.map(*cachedPath));
+  {
+    painter->setPen(pen); 
+    QPainterPath pp;
+    PointIterator it(dataSet);
+    it.addToPath(pp, ctw);
+    painter->drawPath(pp);
+  }
   if(paintMarkers) {
-    for(int i = 0; i < cachedPath->size(); i++) {
-      CurveMarker::paintMarker(painter, ctw.map(cachedPath->value(i)),
+    PointIterator it(dataSet);
+    while(it.hasNext())
+      CurveMarker::paintMarker(painter, it.next(ctw),
                                CurveMarker::Circle, 3);
-    }
   }
 
-  painter->save();
   painter->setPen(gs.getPen(GraphicsSettings::SegmentsPen));
   // Then, we paint the segments if applicable
   Vector segments = dataSet->segmentPositions();
@@ -178,13 +178,6 @@ QString CurveDataSet::toolTipText(const QPointF & pt)
   return str;
 }
 
-void CurveDataSet::invalidateCache()
-{
-  delete cachedPath;
-  cachedPath = NULL;
-  delete errorPath;
-  errorPath = NULL;
-}
 
 const DataSet * CurveDataSet::displayedDataSet() const
 {

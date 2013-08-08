@@ -1055,15 +1055,17 @@ static void generateDSCommand(const QString &, double beg, double end,
   Vector x = Vector::uniformlySpaced(beg, end, samples);
   Vector y = x;
   if(! formula.isEmpty()) {
-    Expression expr(formula);
+    QStringList vars;
+    vars << "x" << "i";
+    Expression expr(formula, vars);
     /// @todo have a global way to incorporate all "constants"
     /// (temperature and fara) into that.
-    if(expr.naturalVariables().size() != 1 ||
-       expr.naturalVariables()[0] != "x") {
-      throw RuntimeError("Formula '%1' must depend only on x").arg(formula);
+    double v[2];
+    for(int i = 0; i < x.size(); i++) {
+      v[0] = x[i];
+      v[1] = i;
+      y[i] = expr.evaluate(v);
     }
-    for(int i = 0; i < x.size(); i++)
-      y[i] = expr.evaluate(&x[i]);
   }
 
   DataSet * newDs = new DataSet(x,y);

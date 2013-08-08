@@ -76,6 +76,9 @@ class FitDialog : public QDialog {
   /// Wheter we're showing subfunctions or not
   bool displaySubFunctions;
 
+  /// Whether or not we've already shown inconsistency warning
+  bool errorInconsistencyShown;
+
   /// A list of the curve data objects in current use.
   ///
   /// These should be cleared basically every time we setup the

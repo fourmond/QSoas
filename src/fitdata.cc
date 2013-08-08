@@ -55,6 +55,18 @@ FitData::FitData(Fit * f, const QList<const DataSet *> & ds, bool d,
   computeWeights();
 }
 
+bool FitData::checkWeightsConsistency() const
+{
+  int nb = 0;
+  for(int i = 0; i < datasets.size(); i++) {
+    if(datasets[i]->options.hasYErrors(datasets[i]))
+      nb++;
+  }
+  if(nb < datasets.size() && nb > 0)
+    return false;
+  return true;
+}
+
 void FitData::computeWeights()
 {
   // first, we loop through all the datasets to check that all have

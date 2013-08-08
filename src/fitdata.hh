@@ -111,6 +111,13 @@ public:
   void computeWeights();
 
 
+  /// Checks if some datasets have error bars and some others don't,
+  /// in which case the error bars are NOT taken into account.
+  ///
+  /// Returns false if the weights are not used consistently.
+  bool checkWeightsConsistency() const;
+
+
   /// The number of iterations
   int nbIterations;
 

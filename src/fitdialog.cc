@@ -54,6 +54,7 @@ FitDialog::FitDialog(FitData * d, bool displayWeights) :
   currentIndex(0),
   settingEditors(false), 
   displaySubFunctions(false),
+  errorInconsistencyShown(false),
   progressReport(NULL),
   residualsDisplay(NULL),
   trajectoryDisplay(NULL),
@@ -425,6 +426,16 @@ void FitDialog::startFit()
 
   int status = -1;
   double residuals = 0.0/0.0, relres = 0.0/0.0;
+
+  if(! errorInconsistencyShown) {
+    errorInconsistencyShown = true;
+    if(! data->checkWeightsConsistency()) {
+      QMessageBox::warning(this, "Error bar inconsistency" ,
+                           "You are about to fit multiple buffers where some of the buffers have error bars and some others don't.\n They will NOT be taken into account ! \nStart fit again to ignore");
+      return;
+    }
+  }
+
   try {
     parameters.prepareFit(fitEngineFactory);
     parametersBackup = parameters.saveParameterValues();

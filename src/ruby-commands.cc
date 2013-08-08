@@ -88,7 +88,7 @@ static void applyFormulaCommand(const QString &, QString formula,
     args[1] = seg;
 
     for(int j = 0; j < newCols.size(); j++) {
-      if(j > ds->nbColumns())
+      if(j >= ds->nbColumns())
         args[j+2] = 0;
       else
         args[j+2] = ds->column(j)[i];

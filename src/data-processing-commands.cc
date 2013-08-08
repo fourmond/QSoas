@@ -396,11 +396,6 @@ typedef enum {
   Add10Right,
   Add20Everywhere,
   ClearAll,
-  Derive,
-  Replace,
-  Divide,
-  HideDataset,
-  Subtract,
   Abort
 } BaselineActions;
 
@@ -538,6 +533,152 @@ bsl("baseline", // command name
     "Interpolation-based baseline",
     "...",
     "b");
+}
+
+//////////////////////////////////////////////////////////////////////
+
+
+namespace __cbl {
+typedef enum {
+  AddPoint,
+  NextMarker,
+  Replace,
+  Divide,
+  HideDataset,
+  Subtract,
+  Abort
+} BaselineActions;
+
+static EventHandler baselineHandler = EventHandler("catalytic-baseline").
+  addClick(Qt::LeftButton, AddPoint, "place marker").
+  addClick(Qt::RightButton, NextMarker, "next marker").
+  baselineHandler(BaselineHandler::NoDerivative).
+  addKey(Qt::Key_Escape, Abort, "abort");
+  
+
+static void cBaselineCommand(CurveEventLoop &loop, const QString &)
+{
+  const DataSet * ds = soas().currentDataSet();
+  const GraphicsSettings & gs = soas().graphicsSettings();
+
+  CurveView & view = soas().view();
+  CurveMarker m;
+
+  int currentIndex = 0;
+
+  BaselineHandler h(view, ds, "cbl", BaselineHandler::NoDerivative);
+  PointPicker pick(&loop, ds);
+  view.addItem(&m);
+
+  m.size = 4;
+  m.pen = QPen(Qt::NoPen);
+  m.brush = QBrush(QColor(0,0,255,100)); /// @todo customize that too 
+
+  loop.setHelpString("Catalytic baseline:\n"
+                     + baselineHandler.buildHelpString() + "\n" + 
+                     pick.helpText());
+
+  while(! loop.finished()) {
+    bool needCompute = false;
+    bool isLeft = false;     // Used for sharing code for the 1/2 actions.
+
+    pick.processEvent();        // We don't filter actions out.
+
+    bool computeDerivative = false;
+    bool shouldQuit = false;
+    int action = baselineHandler.nextAction(loop);
+    if(h.nextAction(action, &shouldQuit, &computeDerivative,
+                    &needCompute)) {
+      if(shouldQuit)
+        return;
+    }
+    else {
+      switch(action) {
+      case AddPoint:
+        if(m.points.size() <= currentIndex) {
+          m.points << pick.point();
+          m.labels << QString::number(currentIndex + 1);
+        }
+        else 
+          m.points[currentIndex] = pick.point();
+        ++currentIndex;
+        currentIndex %= 4;
+        needCompute = true;
+        break;
+      case NextMarker:
+        ++currentIndex;
+        currentIndex %= 4;
+        break;
+      case Abort:
+        return;
+      default:
+        ;
+      }
+    }
+
+    if(needCompute) {
+      if(m.points.size() == 4) {
+
+        /// @todo Provide various strategies (for instance, one could
+        /// use an exponential decay, too ?) Any three-parameters
+        /// function would do (provided the equation can be inverted
+        /// at compile time, else it would be too much of a pain)
+
+        // We need to extract the parameters:
+        double x_0 = 0.5 * (m.points[0].x() + m.points[1].x());
+        double y_0 = 0.5 * (m.points[0].y() + m.points[1].y());
+        double dy_0 = (m.points[0].y() - m.points[1].y())/
+          (m.points[0].x() - m.points[1].x());
+
+        double x_lim = 0.5 * (m.points[2].x() + m.points[3].x());
+        double y_lim = 0.5 * (m.points[2].y() + m.points[3].y());
+        double dy_lim = (m.points[2].y() - m.points[3].y())/
+          (m.points[2].x() - m.points[3].x());
+
+
+        // Coming straight from the old soas documentation.
+        double a = (dy_lim - dy_0)/(2 * (x_lim - x_0));
+        double b = (x_lim * dy_0 - x_0 * dy_lim)/(x_lim - x_0);
+        double c = (x_0 * x_0 * (dy_0 + dy_lim) + 
+                    2 * y_0 * (x_lim - x_0) - 
+                    2 * x_0 * x_lim * dy_0)/(2 * (x_lim - x_0));
+
+        double y_lim_eff = x_lim*x_lim*a + x_lim*b + c;
+
+        const Vector & xv = ds->x();
+        int sz = xv.size();
+        for(int i = 0; i < sz; i++) {
+          double x = xv[i];
+          if((x - x_0) * (x_lim - x) >= 0) {
+            // Within the range
+            h.modified.yvalues[i] = x*x*a + x*b + c;
+          }
+          else {
+            // Outside the range
+            if(fabs(x - x_0) > fabs(x - x_lim)) // Closer to the _lim range
+              h.modified.yvalues[i] = (x - x_lim) * dy_lim + y_lim_eff;
+            else
+              h.modified.yvalues[i] = (x - x_0) * dy_0 + y_0;
+          }
+        }
+
+        h.updateBottom();
+      }
+    }
+  }
+  
+}
+
+static Command 
+cbsl("catalytic-baseline", // command name
+    optionLessEffector(cBaselineCommand), // action
+    "buffer",  // group name
+    NULL, // arguments
+    NULL, // options
+    "Catalytic baseline",
+    "Cubic baseline",
+    "...",
+    "B");
 }
 
 //////////////////////////////////////////////////////////////////////

@@ -1,6 +1,6 @@
 /*
   curvemarker.cc: implementation of the useful CurveItem children
-  Copyright 2011 by Vincent Fourmond
+  Copyright 2011, 2013 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,6 +35,24 @@ void CurveMarker::paintMarker(QPainter * painter, const QPointF & realPos,
   }
 }
 
+void CurveMarker::paintMarkerLabel(QPainter * painter, const QPointF & realPos,
+                                   MarkerType type, double size, 
+                                   const QString & str, const QPen & pen)
+{
+  if(realPos.x() != realPos.x() || // NaN != NaN
+     realPos.y() != realPos.y())
+    return;                     // Do not attempt to draw anything.
+  QPointF a(realPos);
+
+  // Draw label at the bottom right
+  a += QPointF(size, size);
+  QRectF r(a, QSizeF(50,50));
+  painter->save();
+  painter->setPen(pen);
+  painter->drawText(r, Qt::AlignLeft|Qt::AlignTop|Qt::TextDontClip, str);
+  painter->restore();
+}
+
 
 void CurveMarker::paint(QPainter * painter, const QRectF &,
                         const QTransform & ctw)
@@ -42,10 +60,20 @@ void CurveMarker::paint(QPainter * painter, const QRectF &,
   painter->save();
   painter->setPen(pen);
   painter->setBrush(brush);
-  if(points.size() == 0)
-    paintMarker(painter, ctw.map(p),type, size);
-  else
-    for(int i = 0; i < points.size(); i++)
-      paintMarker(painter, ctw.map(points[i]), type, size);
+  if(points.size() == 0) {
+    QPointF pos = ctw.map(p);
+    paintMarker(painter, pos, type, size);
+    if(! l.isEmpty())
+      paintMarkerLabel(painter, pos, type, size, l);
+  }
+  else {
+    for(int i = 0; i < points.size(); i++) {
+      QPointF pos = ctw.map(points[i]);
+      paintMarker(painter, pos, type, size);
+      if(labels.size() > i && (! labels[i].isEmpty()))
+        paintMarkerLabel(painter, pos, type, size, 
+                         labels[i], textPen);
+    }
+  }
   painter->restore();
 }

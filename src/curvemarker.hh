@@ -1,7 +1,7 @@
 /**
    \file curvemarker.hh
    The CurveMarker class to draw markers.
-   Copyright 2011 by Vincent Fourmond
+   Copyright 2011, 2013 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -28,13 +28,22 @@
 class CurveMarker : public CurveItem {
 public:
 
+  /// The point of the marker
   QPointF p;
 
   /// Points. If empty, p is used.
   QList<QPointF> points;
 
+  /// A label for the point \a p if applicable
+  QString l;
+
+  /// Labels for \a points
+  QStringList labels;
+
   QBrush brush;
   double size;
+
+  QPen textPen;
 
   typedef enum {
     Circle,
@@ -49,6 +58,14 @@ public:
   /// given position, using the current pen and brush.
   static void paintMarker(QPainter * painter, const QPointF & p,
                           MarkerType type, double size);
+
+  /// Paints a label for the marker of the given type at point p.
+  ///
+  /// @todo add alignment flags ?
+  static void paintMarkerLabel(QPainter * painter, const QPointF & p,
+                               MarkerType type, double size, 
+                               const QString & label, 
+                               const QPen & pen = QPen());
 
   CurveMarker() : p(0.0/0.0, 0.0/0.0), size(1.0), type(Circle) {;};
 };

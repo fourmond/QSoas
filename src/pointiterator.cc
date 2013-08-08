@@ -21,12 +21,16 @@
 #include <vector.hh>
 #include <dataset.hh>
 
+#include <exceptions.hh>
+
 PointIterator::PointIterator(const Vector & xv, 
                              const Vector & yv,
                              PointIterator::Type t) :
   x(xv), y(yv), ds(NULL), type(t), index(0), sub(0)
 {
   total = std::min(x.size(), y.size());
+  if(type == Errors || type == ErrorsAbove || type == ErrorsBelow)
+    throw InternalError("Wrong iterator type: errors need a dataset");
 }
 
 PointIterator::PointIterator(const DataSet *d, PointIterator::Type t) :

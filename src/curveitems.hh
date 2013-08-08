@@ -24,7 +24,6 @@
 #include <curveitem.hh>
 #include <vector.hh>
 
-
 /// A simple line
 class CurveLine : public CurveItem {
 public:
@@ -111,10 +110,13 @@ public:
   Vector yvalues;
   // QBrush brush;
 
+  bool histogram;
+
   void setRect(const QRectF &r);
   
-  CurveData() {;};
-  CurveData(const Vector & x, const Vector & y) : xvalues(x), yvalues(y) {;};
+  CurveData() : histogram(false) {;};
+  CurveData(const Vector & x, const Vector & y) : 
+    xvalues(x), yvalues(y), histogram(false) {;};
 
   virtual QRectF boundingRect() const;
   virtual void paint(QPainter * painter, const QRectF & bbox,

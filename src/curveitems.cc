@@ -22,6 +22,8 @@
 #include <graphicssettings.hh>
 #include <soas.hh>
 
+#include <pointiterator.hh>
+
 QRectF CurveLine::boundingRect() const
 {
   return QRectF(p1, p2).normalized();
@@ -150,11 +152,11 @@ void CurveData::paint(QPainter * painter, const QRectF &,
     return;                     // Not much to do, admittedly
   painter->save();
   painter->setPen(pen);
-  QPointF first = ctw.map(QPointF(xvalues[0], yvalues[0]));
-  for(int i = 1; i < nb; i++) {
-    QPointF second = ctw.map(QPointF(xvalues[i], yvalues[i]));
-    painter->drawLine(first, second);
-    first = second;
-  }
+
+  QPainterPath pp;
+  PointIterator it(xvalues, yvalues, 
+                   histogram ? PointIterator::Steps : PointIterator::Normal);
+  it.addToPath(pp, ctw);
+  painter->drawPath(pp);
   painter->restore();
 }

@@ -1012,11 +1012,13 @@ namespace __fft {
     spec1.xvalues[i] = log((i+1)/(1.0*spec1.xvalues.size()));
   spec1.yvalues = spec1.xvalues;
   spec1.countBB = true;
+  spec1.histogram = true;
   spectrum.addItem(&spec1);
 
   spec2.pen = gs.getPen(GraphicsSettings::ResultPen);
   spec2.xvalues = spec1.xvalues;
   spec2.yvalues = spec1.yvalues;
+  spec2.histogram = true;
   spec2.countBB = false;        // Makes things complicated upon
                                 // encountering NaNs...
   spectrum.addItem(&spec2);

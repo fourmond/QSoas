@@ -120,6 +120,31 @@ class FitParameters {
 
 public:
 
+  /// @name Residuals
+  ///
+  /// Residuals-related storage
+  /// @{
+
+
+  /// The point-average residuals for each dataset
+  Vector pointResiduals;
+
+  /// The overall point residuals
+  double overallPointResiduals;
+
+  /// The relative residuals for each dataset
+  Vector relativeResiduals;
+
+  /// The overall relative residuals;
+  double overallRelativeResiduals;
+
+  /// Recomputes all the residuals -- assumes that the
+  /// fitData->storage contains the right parameters.
+  void computeResiduals();
+  
+  /// @}
+
+
   FitParameters(FitData * data);
   ~FitParameters();
 
@@ -162,7 +187,8 @@ public:
   /// Various utility functions:
 
 
-  /// Recompute data stored in the storage vector of fitData
+  /// Recompute data stored in the storage vector of fitData. Also
+  /// updates the residuals.
   void recompute();
 
 

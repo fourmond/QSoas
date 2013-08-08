@@ -89,6 +89,11 @@ class FitDialog : public QDialog {
   /// A small text display to report current progress
   QLabel * progressReport;
 
+  /// A small text right next to progressReport to display residuals.
+  QLabel * residualsDisplay;
+
+
+
   /// the start button
   QPushButton * startButton;
 
@@ -156,6 +161,9 @@ public slots:
   void setParameterValues(const Vector & values);
 
 protected slots:
+
+  /// Updates the display of residuals.
+  void updateResidualsDisplay();
 
   void dataSetChanged(int newds);
 

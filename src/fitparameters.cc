@@ -226,6 +226,32 @@ void FitParameters::recompute()
 {
   updateParameterValues();
   fitData->fit->function(values, fitData, fitData->storage);
+  computeResiduals();
+}
+
+void FitParameters::computeResiduals()
+{
+  double tw = 0;                // weights
+  double tr = 0;                // residuals
+  double td = 0;                // data
+
+  pointResiduals.clear();
+  relativeResiduals.clear();
+  for(int i = 0; i < fitData->datasets.size(); i++) {
+    gsl_vector_view v = fitData->viewForDataset(i, fitData->storage);
+    double w = fitData->weightedSquareSumForDataset(i, NULL, false);
+    double d = fitData->weightedSquareSumForDataset(i, NULL, true);
+    double r = fitData->weightedSquareSumForDataset(i, &v.vector, true);
+
+    tw += w;
+    tr += r;
+    td += d;
+
+    pointResiduals << r/w;
+    relativeResiduals << r/d;
+  }
+  overallPointResiduals = tr/tw;
+  overallRelativeResiduals = tr/td;
 }
 
 QList<Vector> FitParameters::computeSubFunctions()
@@ -283,11 +309,9 @@ void FitParameters::prepareExport(QStringList & lst, QString & lines,
       lst << QString("%1_err").arg(name);
   }
   lst << "xstart" << "xend" << "residuals" << "rel_residuals" 
+      << "overall_res" << "overall_rel_res"
       << "buffer_weight";
 
-  double res = fitData->residuals();
-  double rel_res = fitData->relativeResiduals();
-  
   const gsl_matrix * cov = (exportErrors ? fitData->covarianceMatrix() : NULL);
 
   QStringList ls2;
@@ -305,7 +329,10 @@ void FitParameters::prepareExport(QStringList & lst, QString & lines,
     }
     ls2 << QString::number(fitData->datasets[i]->x().min());
     ls2 << QString::number(fitData->datasets[i]->x().max());
-    ls2 << QString::number(res) << QString::number(rel_res);
+    ls2 << QString::number(pointResiduals[i]) 
+        << QString::number(relativeResiduals[i]);
+    ls2 << QString::number(overallPointResiduals) 
+        << QString::number(overallRelativeResiduals);
     ls2 << QString::number(fitData->weightsPerBuffer[i]);
     lines += ls2.join("\t") + "\n";
   }
@@ -332,7 +359,7 @@ void FitParameters::exportParameters(QIODevice * stream,
   QTextStream out(stream);
   QStringList lst;
   out << "# Fit used: " << fitData->fit->fitName() 
-      << ", residuals: " << fitData->residuals() << endl;
+      << ", residuals: " << overallPointResiduals << endl;
 
   QString lines;
   prepareExport(lst, lines, exportErrors);

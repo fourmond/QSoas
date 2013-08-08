@@ -124,6 +124,51 @@ void FitData::weightVector(gsl_vector * tg)
   }
 }
 
+double FitData::weightedSquareSumForDataset(int ds, const gsl_vector * vect, 
+                                            bool subtract)
+{
+  double ret = 0;
+  double w = weightsPerBuffer[ds];
+  gsl_vector_view wv;
+
+  const Vector & y = datasets[ds]->y();
+  gsl_vector * weight = NULL;
+  if(standardYErrors) {
+    wv = viewForDataset(ds, standardYErrors);
+    weight = &(wv.vector);
+  }
+
+
+  int sz = datasets[ds]->x().size();
+  for(int j = 0; j < sz; j++) {
+    double v = w;
+    if(weight)
+      v *= gsl_vector_get(weight, j);
+    double val = (vect ? gsl_vector_get(vect, j) : 0);
+    if(vect || subtract)
+      v = (subtract ? val - y[j] : val)/v;
+    ret += v*v;
+  }
+  return ret;
+}
+
+
+double FitData::weightedSquareSum(const gsl_vector * src, 
+                                  bool subtract)
+{
+  double ret = 0;
+  for(int i = 0; i < datasets.size(); i++) {
+    gsl_vector_const_view vv = (src ? 
+                                viewForDataset(i, src) :
+                                viewForDataset(i, (const gsl_vector*) storage) );
+    const gsl_vector * vect = NULL;
+    if(src)
+      vect = &(vv.vector);
+    ret += weightedSquareSumForDataset(i, vect, subtract);
+  }
+  return ret;
+}
+
 bool FitData::usesPointWeights() const
 {
   return standardYErrors != NULL;
@@ -298,6 +343,14 @@ gsl_vector_view FitData::viewForDataset(int ds, gsl_vector * vect)
   return gsl_vector_subvector(vect, total, datasets[ds]->nbRows());
 }
 
+gsl_vector_const_view FitData::viewForDataset(int ds, const gsl_vector * vect)
+{
+  int total = 0;
+  for(int i = 0; i < ds; i++)
+    total += datasets[i]->nbRows();
+  return gsl_vector_const_subvector(vect, total, datasets[ds]->nbRows());
+}
+
 void FitData::subtractData(gsl_vector * target)
 {
   // Then, subtract the data.
@@ -415,14 +468,6 @@ double FitData::residuals()
   return engine->residuals();
 }
 
-double FitData::relativeResiduals()
-{
-  double res = residuals();
-  double norm = 0;
-  for(int i = 0; i < datasets.size(); i++)
-    norm += datasets[i]->y().norm() * weightsPerBuffer[i];
-  return res/norm;
-}
 
 bool FitData::independentDataSets() const
 {

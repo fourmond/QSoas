@@ -79,6 +79,8 @@ private:
   /// Extra parameters
   QStringList extra;
 
+
+
 public:
   /// The number of function evaluations since the last change of fit
   /// engine.
@@ -111,6 +113,9 @@ public:
 
   /// The number of iterations
   int nbIterations;
+
+  /// The residuals, as reported by the FitEngine.
+  double residuals();
 
 
   /// Push parameters -- why not ?
@@ -168,6 +173,7 @@ public:
                         double * unpacked) const;
 
   gsl_vector_view viewForDataset(int ds, gsl_vector * vect);
+  gsl_vector_const_view viewForDataset(int ds, const gsl_vector * vect);
 
   /// Returns the number of (unpacked) double parameters necessary for
   /// one dataset
@@ -188,20 +194,6 @@ public:
   /// Gets the current parameters (in unpacked form)
   void unpackCurrentParameters(double * target);
 
-  /// The residuals (ie sum of the square of differences)
-  ///
-  /// This are the raw residuals, ie what is seen by the fit
-  /// algorithm.
-  ///
-  /// @todo write code for accessing to residuals relative to a single
-  /// dataset ? (but that doesn't make much sense, does it ?)
-  double residuals();
-
-  /// The relative residuals: norm of the residuals over the norm of
-  /// the data.
-  ///
-  /// @warning This takes into account the weight of the data.
-  double relativeResiduals();
 
   ~FitData();
 
@@ -238,6 +230,17 @@ public:
   /// Weights the target vector
   void weightVector(gsl_vector * tg);
 
+  /// Computes a weighted sum of squares of the given vector, or
+  /// simpled the sum of the square of the weights if the target
+  /// vector is NULL. If subtractData is not NULL, the data gets
+  /// subtracted in any case (wether or not \a src is provided)
+  double weightedSquareSum(const gsl_vector * src = NULL, 
+                           bool subtractData = false);
+
+  /// Does the same as weightedSquareSum, but only considering the
+  /// given dataset. If provided, \a src is assumed to 
+  double weightedSquareSumForDataset(int ds, const gsl_vector * src = NULL,
+                                     bool subtractData = false);
 
   /// @}
 

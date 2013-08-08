@@ -55,6 +55,7 @@ FitDialog::FitDialog(FitData * d, bool displayWeights) :
   settingEditors(false), 
   displaySubFunctions(false),
   progressReport(NULL),
+  residualsDisplay(NULL),
   trajectoryDisplay(NULL),
   fitEngineFactory(NULL)
 {
@@ -189,7 +190,11 @@ void FitDialog::setupFrame()
   
   progressReport = new QLabel(" ");
   progressReport->setWordWrap(true);
+  progressReport->setTextFormat(Qt::RichText);
   hb->addWidget(progressReport, 1);
+
+  residualsDisplay = new QLabel(" ");
+  hb->addWidget(residualsDisplay);
 
   hb->addWidget(new QLabel("Fit engine:"));
 
@@ -342,6 +347,7 @@ void FitDialog::dataSetChanged(int newds)
                         arg(newds + 1).arg(data->datasets.size()).
                         arg(data->fit->annotateDataSet(newds)).
                         arg(bufferWeightEditor ? " weight: " : ""));
+  updateResidualsDisplay();
 }
 
 void FitDialog::setupSubFunctionCurves()
@@ -381,6 +387,7 @@ void FitDialog::compute()
   try {
     parameters.recompute();
     setupSubFunctionCurves();
+    updateResidualsDisplay();
   }
   catch (const RuntimeError & re) {
     QString s = QString("An error occurred while computing: ") +
@@ -448,10 +455,8 @@ void FitDialog::startFit()
     do {
       status = data->iterate();
       residuals = data->residuals();
-      relres = data->relativeResiduals();
-      QString str = QString("Iteration #%1, residuals: %2, "
-                            "relative residuals: %3").
-        arg(data->nbIterations).arg(residuals).arg(relres);
+      QString str = QString("Iteration #%1, current internal residuals: %2\n").
+        arg(data->nbIterations).arg(residuals);
       Terminal::out << str << endl;
 
       progressReport->setText(str);
@@ -824,4 +829,16 @@ void FitDialog::setParameterValues(const Vector & values)
   parameters.restoreParameterValues(values);
   compute();
   updateEditors();
+}
+
+void FitDialog::updateResidualsDisplay()
+{
+  if(! residualsDisplay)
+    return;
+  QString s("Point: %1 (overall: %2)  Relative: %3 (overall: %4)");
+  s = s.arg(parameters.pointResiduals[currentIndex]).
+    arg(parameters.overallPointResiduals).
+    arg(parameters.relativeResiduals[currentIndex]).
+    arg(parameters.overallRelativeResiduals);
+  residualsDisplay->setText(s);
 }

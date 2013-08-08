@@ -1,0 +1,7 @@
+@ lines-with-errors.cmds
+
+# First test the residuals:
+mfit-arb a*x+b 2,3
+
+# Then, test the error bars
+mfit-arb a*x+b 0,1

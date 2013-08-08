@@ -1,0 +1,21 @@
+# First line with +0.3 / -0.3 errors
+generate-buffer 0 10 '2*x+3+ 0.3 * (-1)**i'
+rename 'Residuals-of-0.3.dat'
+
+# Second line with alternative +-0.3 +-0.9 errors
+generate-buffer 0 10 '2*x+3 - 0.3 * sin(PI * i / 2) + 1.0 * cos(PI * i / 2)'
+
+# echo $(((0.5 * (0.3**2 + 1))**0.5))
+# 0.73824115301167004
+rename 'Residuals-of-0.74.dat'
+
+# Now build up on the last to add errors
+
+# Here, we should select only the 0.3 error
+apply-formula /extra-columns=1 'y2 = 1e-3 * sin(PI * i / 2) + 3 * cos(PI * i / 2)'
+dataset-options /yerrors=2
+rename 'Residuals-of-0.3.dat'
+
+# Here, we should select only the 1 error
+apply-formula 'y2 = 3 * sin(PI * i / 2) + 1e-3 * cos(PI * i / 2)'
+rename 'Residuals-of-1.dat'

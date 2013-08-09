@@ -3,7 +3,8 @@
 
 TEMPLATE = app
 
-CONFIG += debug warn_on thread exception 
+CONFIG += debug warn_on thread exception
+
 INCLUDEPATH += . src
 TARGET = QSoas
 
@@ -12,6 +13,10 @@ DEPENDPATH += src
 # For faster rendering of the antialiased curves
 QT += opengl                    # Doesn't work that well, actually
 QT -= webkit                    # We really don't need webkit, for now ?
+
+# We want to build a console application on win32 as we don't have a
+# proper winmain for windows only applications.
+win32:CONFIG += console
 
 
 # The version should be provided on the command-line.

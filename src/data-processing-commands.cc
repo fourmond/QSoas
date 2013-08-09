@@ -1963,6 +1963,45 @@ ac("auto-correlation", // command name
    "Auto-correlation",
    "Computes the auto-correlation function", "", "ac");
 
+//////////////////////////////////////////////////////////////////////
+
+static void binCommand(const QString &,
+                       const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+  int boxes = std::max(ds->nbRows()/15, 10);
+  updateFromOptions(opts, "boxes", boxes);
+  int col = 1;
+  updateFromOptions(opts, "column", col);
+  bool lg = false;
+  updateFromOptions(opts, "log", lg);
+  DataSet * nds = ds->derivedDataSet(ds->column(col).bin(boxes, lg), 
+                                     "_binned.dat");
+  nds->options.histogram = true;
+  soas().pushDataSet(nds);
+}
+
+static ArgumentList 
+binOpts(QList<Argument *>() 
+        << new IntegerArgument("boxes", 
+                              "Boxes"
+                              "Number of bin boxes")
+        << new IntegerArgument("column", 
+                              "Column"
+                              "Which column to bin")
+        << new BoolArgument("log", 
+                            "Log scale"
+                            "Take the log10 before binning")
+        );
+
+static Command bn("bin", // command name
+    effector(binCommand), // action
+    "buffer",  // group name
+    NULL, // arguments
+    &binOpts, // options
+    "Bin",
+    "Make histograms");
+
 
 //////////////////////////////////////////////////////////////////////
 

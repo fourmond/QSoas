@@ -1,6 +1,6 @@
 /*
   vector.cc: implementation of the Vector class
-  Copyright 2011 by Vincent Fourmond
+  Copyright 2011, 2013 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 #include <vector.hh>
 
 #include <exceptions.hh>
+
+#include <gsl/gsl_histogram.h>
 
 QList<QList<Vector> > Vector::readFromStream(QIODevice * source,
                                              const QRegExp & separatorREt,
@@ -574,4 +576,53 @@ double Vector::integrate(const Vector & x, const Vector & y)
   for(int j = 1; j < y.size(); j++)
     sum += (x[j] - x[j-1]) * 0.5 * (y[j] + y[j-1]);
   return sum;
+}
+
+
+QList<Vector> Vector::bin(int boxes, bool lg) const
+{
+  double mi = min();
+  double ma = max();
+
+  if(lg && mi <= 0)
+    throw RuntimeError("Cannot bin using a log scale with negative numbers !");
+
+  gsl_histogram * hist = gsl_histogram_alloc(boxes);
+
+  if(lg) {
+    mi = log10(mi);
+    ma = log10(ma);
+  }
+
+  // We extend the ma slightly to higher values in order for the
+  // maximum to be counted too (remember range is exclusive for the
+  // upper bound !)
+  ma += 1e-5 * (ma - mi);
+    
+  gsl_histogram_set_ranges_uniform(hist, mi, ma);
+
+  for(int i = 0; i < size(); i++) {
+    double v = value(i);
+    if(lg)
+      v = log10(v);
+    gsl_histogram_increment(hist, v);
+  }
+  
+
+  Vector mid;
+  Vector bin;
+
+  for(int i = 0; i < boxes; i++) {
+    double lr, ur;
+    gsl_histogram_get_range(hist, i, &lr, &ur);
+    mid << 0.5 * (lr + ur);
+    bin << gsl_histogram_get(hist, i);
+  }
+  
+
+  gsl_histogram_free(hist);
+
+  QList<Vector> ret;
+  ret << mid << bin;
+  return ret;
 }

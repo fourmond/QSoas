@@ -1,7 +1,7 @@
 /**
    \file vector.hh
    The Vector class, representing one data column
-   Copyright 2011 by Vincent Fourmond
+   Copyright 2011, 2013 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -138,8 +138,14 @@ public:
   /// Resamples the vector, ie returns a vector with factor times less
   /// points.
   ///
-  /// It is not designed to be very effective in being precise.
+  /// It is not designed to be very precise.
   Vector downSample(int factor) const;
+
+
+  /// Bins the vector into the given number of boxes (or the log of
+  /// the vector). Returns two vectors, one with the mid points of the
+  /// ranges, the other with the numbers.
+  QList<Vector> bin(int boxes, bool log = false) const;
 
 
   /// @}

@@ -1,6 +1,6 @@
 /*
   fitdialog.cc: Main window for QSoas
-  Copyright 2011 by Vincent Fourmond
+  Copyright 2011, 2012, 2013 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -261,12 +261,18 @@ void FitDialog::setupFrame()
                 QKeySequence(tr("Ctrl+M")));
 
   if(bufferWeightEditor) {
+    hb->addWidget(ac);
+    
+    ac = new ActionCombo(tr("Weights"));
     ac->addAction("Reset all weights to 1", this, 
                   SLOT(resetWeights()),
                   QKeySequence(tr("Ctrl+Shift+W")));
     ac->addAction("Give equal importance to all buffers", this, 
                   SLOT(equalWeightsPerBuffer()),
                   QKeySequence(tr("Ctrl+Shift+B")));
+    ac->addAction("Give equal importance to all points", this, 
+                  SLOT(equalWeightsPerPoint()),
+                  QKeySequence(tr("Ctrl+Shift+P")));
   }
   hb->addWidget(ac);
 
@@ -764,12 +770,30 @@ void FitDialog::equalWeightsPerBuffer()
 
   double max = 0;
   for(int i = 0; i < data->datasets.size(); i++) {
-    const DataSet * ds = data->datasets[i];
-    double w = 0;
-    for(int j = 0; j < ds->y().size(); j++)
-      w += fabs(ds->y()[j]);    // Or square ? Absolute value looks
-                                // more reasonable.
-    weight[i] = 1/w;
+    data->weightsPerBuffer[i] = 1;
+    double w = data->weightedSquareSumForDataset(i, NULL, true);
+
+    weight[i] = 1/sqrt(w);
+    if(weight[i] > max)
+      max = weight[i];
+  }
+  for(int i = 0; i < data->datasets.size(); i++)
+    data->weightsPerBuffer[i] = weight[i]/max;
+  updateEditors();
+}
+
+void FitDialog::equalWeightsPerPoint()
+{
+  // Now, we'll have to compute a weight for each buffer based on
+  // their number of points/magnitude
+  QVarLengthArray<double, 1024> weight(data->datasets.size());
+
+  double max = 0;
+  for(int i = 0; i < data->datasets.size(); i++) {
+    data->weightsPerBuffer[i] = 1;
+    double w = data->weightedSquareSumForDataset(i, NULL, true);
+
+    weight[i] = data->datasets[i]->nbRows()/sqrt(w);
     if(weight[i] > max)
       max = weight[i];
   }

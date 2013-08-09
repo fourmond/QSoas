@@ -1,7 +1,7 @@
 /**
    \file fitdialog.hh
    Dialog box handling fits in QSoas
-   Copyright 2011 by Vincent Fourmond
+   Copyright 2011, 2012, 2013 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -240,6 +240,10 @@ protected slots:
   /// inevitable inequalities arising from difference in intensity and
   /// point numbers.
   void equalWeightsPerBuffer();
+
+  /// Assign weights to buffers so that all points have about the same
+  /// importance in average.
+  void equalWeightsPerPoint();
 
   /// Resets all the weights to 1.
   void resetWeights();

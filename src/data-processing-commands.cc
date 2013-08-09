@@ -546,13 +546,21 @@ typedef enum {
   Divide,
   HideDataset,
   Subtract,
-  Abort
+  Abort,
+  Pick1,
+  Pick2 = Pick1+1,
+  Pick3 = Pick1+2,
+  Pick4 = Pick1+3
 } BaselineActions;
 
 static EventHandler baselineHandler = EventHandler("catalytic-baseline").
   addClick(Qt::LeftButton, AddPoint, "place marker").
   addClick(Qt::RightButton, NextMarker, "next marker").
   baselineHandler(BaselineHandler::NoDerivative).
+  addKey('1', Pick1, "pick point 1").
+  addKey('2', Pick2, "pick point 2").
+  addKey('3', Pick3, "pick point 3").
+  addKey('4', Pick4, "pick point 4").
   addKey(Qt::Key_Escape, Abort, "abort");
   
 
@@ -609,6 +617,21 @@ static void cBaselineCommand(CurveEventLoop &loop, const QString &)
         ++currentIndex;
         currentIndex %= 4;
         break;
+      case Pick1:
+      case Pick2:
+      case Pick3:
+      case Pick4: {
+        int w = action - Pick1;
+        pick.pickPoint();
+        if(m.points.size() <= w) {
+          m.points << pick.point();
+          m.labels << QString::number(m.points.size());
+        }
+        else 
+          m.points[w] = pick.point();
+        needCompute = true;
+        break;
+      }
       case Abort:
         return;
       default:

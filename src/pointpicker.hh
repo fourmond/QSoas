@@ -103,6 +103,11 @@ public:
   /// Returns a small text to insert into the loop's help string
   QString helpText() const;
 
+  
+  /// Picks the point where the mouse currently is. Updates the return
+  /// values of point() and pointIndex().
+  void pickPoint();
+
   /// Picks a number of points between the given indices.
   QList<QPointF> pickBetween(int firstIndex, int lastIndex, int number);
   

@@ -46,39 +46,42 @@ PointPicker::~PointPicker()
   lastMethodUsed = method;
 }
 
+void PointPicker::pickPoint()
+{
+  switch(method) {
+  case Off:
+    lastPos = loop->position();
+    lastIndex = -1;
+    break;
+  case Exact:
+  case Smooth:
+    if(trackedDataSet) {
+      /// @todo distance checking ?
+      ///
+      /// @todo handle the case of multiple datasets.
+      QPair<double, int> dst = loop->distanceToDataSet(trackedDataSet);
+      if(0 <= dst.second) { 
+        if(method == Exact) {
+          lastIndex = dst.second;
+          lastPos = trackedDataSet->pointAt(lastIndex);
+        }
+        else {
+          lastIndex = dst.second;
+          lastPos = trackedDataSet->smoothPick(lastIndex);
+        }
+      }
+      break;
+    }
+  }
+}
+
 bool PointPicker::processEvent()
 {
   lastButton = Qt::NoButton;
   if(loop->type() == QEvent::MouseButtonPress && 
      trackedButtons.testFlag(loop->button())) {
     lastButton = loop->button();
-    // here, pick points
-    switch(method) {
-    case Off:
-      lastPos = loop->position();
-      lastIndex = -1;
-      break;
-    case Exact:
-    case Smooth:
-      if(trackedDataSet) {
-        /// @todo distance checking ?
-        ///
-        /// @todo handle the case of multiple datasets.
-        QPair<double, int> dst = loop->distanceToDataSet(trackedDataSet);
-        if(0 <= dst.second) { 
-          if(method == Exact) {
-            lastIndex = dst.second;
-            lastPos = trackedDataSet->pointAt(lastIndex);
-          }
-          else {
-            lastIndex = dst.second;
-            lastPos = trackedDataSet->smoothPick(lastIndex);
-          }
-        }
-        break;
-      }
-    }
-
+    pickPoint();
     return true;
   }
   else if(loop->type() == QEvent::KeyPress) {

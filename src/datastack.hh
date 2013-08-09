@@ -58,6 +58,9 @@ class DataStack : public QObject {
   friend QDataStream & operator<<(QDataStream & out, const DataSet & ds);
   friend QDataStream & operator>>(QDataStream & in, DataSet & ds);
 
+  friend QDataStream & operator<<(QDataStream & out, const DatasetOptions & ds);
+  friend QDataStream & operator>>(QDataStream & in, DatasetOptions & ds);
+
 public:
 
   /// Constructs a DataStack object.

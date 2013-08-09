@@ -68,6 +68,10 @@ public:
   void setYErrors(int col);
 
 
+  /// If on, the dataset should be shown as histograms.
+  bool histogram;
+
+
   DatasetOptions();
 
 

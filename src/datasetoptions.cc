@@ -25,9 +25,11 @@
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
 #include <soas.hh>
+#include <curveview.hh>
+#include <datastack.hh>
 
 DatasetOptions::DatasetOptions() :
-  yErrors(-1)
+  yErrors(-1), histogram(false)
 {
 }
 
@@ -60,6 +62,9 @@ ArgumentList * DatasetOptions::optionList()
                      << new IntegerArgument("yerrors", 
                                             "Y errors",
                                             "Column containing y errors")
+                     << new BoolArgument("histogram", 
+                                         "Histogram",
+                                         "Show as a histogram")
                      );
 }
 
@@ -72,6 +77,7 @@ void DatasetOptions::setDatasetOptions(DataSet * ds,
     updateFromOptions(opts, "yerrors", col);
     ds->options.setYErrors(col);
   }
+  updateFromOptions(opts, "histogram", ds->options.histogram);
 }
 
 
@@ -81,7 +87,8 @@ void DatasetOptions::setDatasetOptions(DataSet * ds,
 QDataStream & operator<<(QDataStream & out, const DatasetOptions & ds)
 {
   out << ds.yErrors;
-  
+
+  out << ds.histogram;
   return out;
 }
 
@@ -89,7 +96,8 @@ QDataStream & operator<<(QDataStream & out, const DatasetOptions & ds)
 QDataStream & operator>>(QDataStream & in, DatasetOptions & ds)
 {
   in >> ds.yErrors;
-  // if(DataStack::serializationVersion >= 1)
+  if(DataStack::serializationVersion >= 3)
+    in >> ds.histogram;
   return in;
 }
 
@@ -101,6 +109,8 @@ static void optionsCommand(const QString &, const CommandOptions & opts)
   /// @todo Make that a new dataset ?
   DataSet * ds = soas().currentDataSet();
   DatasetOptions::setDatasetOptions(ds, opts);
+
+  soas().view().repaint();
 }
 
 static Command 

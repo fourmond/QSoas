@@ -40,33 +40,6 @@ QRectF CurveDataSet::boundingRect() const
     return QRectF();
 }
 
-// void CurveDataSet::createPath()
-// {
-//   if(! dataSet)
-//     return;
-//   if(cachedPath)
-//     return;
-//   cachedPath = new QPolygonF;
-//   int size = dataSet->nbRows();
-//   if(! size)
-//     return;
-//   if(dataSet->nbColumns() < 2)
-//     return;
-//   const Vector & x = dataSet->x();
-//   const Vector & y = dataSet->y();
-//   for(int i = 0; i < x.size(); i++)
-//     cachedPath->append(QPointF(x[i], y[i]));
-
-//   if(dataSet->options.hasYErrors(dataSet)) {
-//     errorPath = new QPolygonF;
-//     for(int i = 0; i < x.size(); i++)
-//       errorPath->append(QPointF(x[i], y[i] - dataSet->yError(i)));
-//     for(int i = x.size() - 1; i >= 0; i--)
-//       errorPath->append(QPointF(x[i], y[i] + dataSet->yError(i)));
-//   }
-// }
-
-
 void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
                          const QTransform & ctw)
 {
@@ -90,7 +63,8 @@ void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
   {
     painter->setPen(pen); 
     QPainterPath pp;
-    PointIterator it(dataSet);
+    PointIterator it(dataSet, dataSet->options.histogram ? 
+                     PointIterator::Steps : PointIterator::Normal);
     it.addToPath(pp, ctw);
     painter->drawPath(pp);
   }

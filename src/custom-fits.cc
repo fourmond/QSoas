@@ -67,7 +67,7 @@ protected:
   {
     lastFormula = formula;
     params.clear();
-    params << "x" << "f" << "pi" << "fara" << "temperature";
+    params << "x" << "i" << "seg" << "fara" << "temperature";
     formulas = splitFormulas(formula); 
 
     for(int i = 0; i < formulas.size(); i++) {
@@ -127,12 +127,12 @@ protected:
                       int formulaIndex = 0) {
     int k = 0;
     int nbparams = data->parametersPerDataset();
-    int nbargs = nbparams + 4;
 
+    int seg = 0;
     QVarLengthArray<double, 100> args(4 + nbparams);
     args[0] = 0; // x
-    args[1] = GSL_CONST_MKSA_FARADAY; // f
-    args[2] = M_PI; // pi
+    args[1] = 0; // i
+    args[2] = 0; // seg
     args[3] = GSL_CONST_MKSA_FARADAY/ 
       (a[0] * GSL_CONST_MKSA_MOLAR_GAS);
 
@@ -143,7 +143,12 @@ protected:
 
     const Expression * expr =  &expressions[formulaIndex];
     for(int j = 0; j < xv.size(); j++) {
+      while(seg < ds->segments.size() && j >= ds->segments[seg])
+        seg++;
+
       args[0] = xv[j]; // x
+      args[1] = j;     // i !
+      args[2] = seg;
       gsl_vector_set(target, k++, expr->evaluate(args.data()));
     }
   };

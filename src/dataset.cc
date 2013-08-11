@@ -1045,8 +1045,10 @@ DataSet * DataSet::secondDerivative() const
   return derivedDataSet(deriv, "_diff2");
 }
 
-DataSet * DataSet::concatenateDataSets(QList<const DataSet *> datasets)
+DataSet * DataSet::concatenateDataSets(QList<const DataSet *> datasets, 
+                                       bool set)
 {
+  QList<int> segs;
   int nbcols = datasets.first()->nbColumns();
   for(int i = 1; i < datasets.size(); i++)
     if(nbcols > datasets[i]->nbColumns())
@@ -1056,15 +1058,23 @@ DataSet * DataSet::concatenateDataSets(QList<const DataSet *> datasets)
   for(int i = 0; i < nbcols; i++)
     vects << Vector();
   QStringList names;
+  int idx = 0;
   for(int i = 0; i < datasets.size(); i++) {
     const DataSet * ds = datasets[i];
     names << ds->cleanedName();
-    for(int i = 0; i < nbcols; i++)
-      vects[i] << ds->column(i);
+    for(int j = 0; j < nbcols; j++)
+      vects[j] << ds->column(j);
+
+    if(set && i > 0)
+      segs << idx;
+    for(int j = 0; j < ds->segments.size(); j++)
+      segs << ds->segments[j] + idx;
+    idx += ds->nbRows();
   }
 
   /// @question hmmm, what do we do HERE about meta-data ?
-  DataSet * newDs = new DataSet(vects);
+  DataSet * newDs = datasets.first()->derivedDataSet(vects, "");
+  newDs->segments = segs;
   newDs->name = names.join("_") + ".dat";
   return newDs;
 }

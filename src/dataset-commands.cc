@@ -907,7 +907,9 @@ static void catCommand(const QString &, DataSet * a,
                        QList<const DataSet *> b, const CommandOptions & opts)
 {
   b.prepend(a);
-  soas().pushDataSet(DataSet::concatenateDataSets(b));
+  bool setSegs = true;
+  updateFromOptions(opts, "add-segments", setSegs);
+  soas().pushDataSet(DataSet::concatenateDataSets(b, setSegs));
 }
 
 static ArgumentList 
@@ -920,12 +922,19 @@ catArgs(QList<Argument *>()
                                       "Second buffer(s)"));
 
 
+static ArgumentList 
+catOpts(QList<Argument *>()
+        << new BoolArgument("add-segments", 
+                            "Add segments",
+                            "If on (default) segments are added between "
+                            "the old buffers"));
+
 static Command 
 cat("cat", // command name
     effector(catCommand), // action
     "buffer",  // group name
     &catArgs, // arguments
-    NULL, // options
+    &catOpts, // options
     "Concatenate",
     "Conc",
     "Conc",

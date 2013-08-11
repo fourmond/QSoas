@@ -419,7 +419,12 @@ public:
   DataSet * secondDerivative() const;
 
   /// Concatenates all datasets into a single one.
-  static DataSet * concatenateDataSets(QList<const DataSet *> datasets);
+  ///
+  /// If \a setSegments is true, then new segments are added at the
+  /// boundary points. In any case, the original segments are
+  /// preserved.
+  static DataSet * concatenateDataSets(QList<const DataSet *> datasets, 
+                                       bool setSegments = true);
 
 
   /// @}

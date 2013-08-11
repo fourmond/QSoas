@@ -1,5 +1,8 @@
 This directory contains a series of QSoas command files that can be
 used to check that various aspects of QSoas work fine.
 
+They can be considered an informal test suite, even if they don't
+really deserve that name.
+
 These files can be considered examples, and as such, they can be used,
 modified and redistributed without restriction.

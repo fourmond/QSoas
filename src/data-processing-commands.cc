@@ -542,15 +542,12 @@ namespace __cbl {
 typedef enum {
   AddPoint,
   NextMarker,
-  Replace,
-  Divide,
-  HideDataset,
-  Subtract,
-  Abort,
+  ToggleExponential,
   Pick1,
   Pick2 = Pick1+1,
   Pick3 = Pick1+2,
-  Pick4 = Pick1+3
+  Pick4 = Pick1+3,
+  Abort,
 } BaselineActions;
 
 static EventHandler baselineHandler = EventHandler("catalytic-baseline").
@@ -561,6 +558,8 @@ static EventHandler baselineHandler = EventHandler("catalytic-baseline").
   addKey('2', Pick2, "pick point 2").
   addKey('3', Pick3, "pick point 3").
   addKey('4', Pick4, "pick point 4").
+  addKey('x', ToggleExponential, "toggle exponential").
+  alsoKey('X').
   addKey(Qt::Key_Escape, Abort, "abort");
   
 
@@ -584,6 +583,8 @@ static void cBaselineCommand(CurveEventLoop &loop, const QString &)
   loop.setHelpString("Catalytic baseline:\n"
                      + baselineHandler.buildHelpString() + "\n" + 
                      pick.helpText());
+
+  bool isExponential = false;
 
   while(! loop.finished()) {
     bool needCompute = false;
@@ -614,6 +615,13 @@ static void cBaselineCommand(CurveEventLoop &loop, const QString &)
       case NextMarker:
         ++currentIndex;
         currentIndex %= 4;
+        break;
+      case ToggleExponential:
+        isExponential = ! isExponential;
+        needCompute = true;
+        Terminal::out << "Using " 
+                      << (isExponential ? "exponential" : "quadratic") 
+                      << " baseline" << endl;
         break;
       case Pick1:
       case Pick2:
@@ -656,30 +664,40 @@ static void cBaselineCommand(CurveEventLoop &loop, const QString &)
         double dy_lim = (m.points[2].y() - m.points[3].y())/
           (m.points[2].x() - m.points[3].x());
 
-
-        // Coming straight from the old soas documentation.
-        double a = (dy_lim - dy_0)/(2 * (x_lim - x_0));
-        double b = (x_lim * dy_0 - x_0 * dy_lim)/(x_lim - x_0);
-        double c = (x_0 * x_0 * (dy_0 + dy_lim) + 
-                    2 * y_0 * (x_lim - x_0) - 
-                    2 * x_0 * x_lim * dy_0)/(2 * (x_lim - x_0));
-
-        double y_lim_eff = x_lim*x_lim*a + x_lim*b + c;
-
         const Vector & xv = ds->x();
         int sz = xv.size();
-        for(int i = 0; i < sz; i++) {
-          double x = xv[i];
-          if((x - x_0) * (x_lim - x) >= 0) {
-            // Within the range
-            h.modified.yvalues[i] = x*x*a + x*b + c;
-          }
-          else {
-            // Outside the range
-            if(fabs(x - x_0) > fabs(x - x_lim)) // Closer to the _lim range
-              h.modified.yvalues[i] = (x - x_lim) * dy_lim + y_lim_eff;
-            else
-              h.modified.yvalues[i] = (x - x_0) * dy_0 + y_0;
+
+        if(isExponential) {
+          double tau = (x_lim - x_0)/log(dy_0/dy_lim);
+          double a = - dy_0 * tau * exp(x_0/tau);
+          double b = y_0 - a * exp(-x_0/tau);
+          for(int i = 0; i < sz; i++)
+            h.modified.yvalues[i] = b + a*exp(-xv[i]/tau);
+        }
+        else {
+
+          // Coming straight from the old soas documentation.
+          double a = (dy_lim - dy_0)/(2 * (x_lim - x_0));
+          double b = (x_lim * dy_0 - x_0 * dy_lim)/(x_lim - x_0);
+          double c = (x_0 * x_0 * (dy_0 + dy_lim) + 
+                      2 * y_0 * (x_lim - x_0) - 
+                      2 * x_0 * x_lim * dy_0)/(2 * (x_lim - x_0));
+
+          double y_lim_eff = x_lim*x_lim*a + x_lim*b + c;
+
+          for(int i = 0; i < sz; i++) {
+            double x = xv[i];
+            if((x - x_0) * (x_lim - x) >= 0) {
+              // Within the range
+              h.modified.yvalues[i] = x*x*a + x*b + c;
+            }
+            else {
+              // Outside the range
+              if(fabs(x - x_0) > fabs(x - x_lim)) // Closer to the _lim range
+                h.modified.yvalues[i] = (x - x_lim) * dy_lim + y_lim_eff;
+              else
+                h.modified.yvalues[i] = (x - x_0) * dy_0 + y_0;
+            }
           }
         }
 

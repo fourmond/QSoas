@@ -470,3 +470,23 @@ QList<QStringList> Utils::splitOn(const QStringList & lines,
   }
   return ret;
 }
+
+
+QStringList Utils::extractMatches(QString & str, const QRegExp & ore, 
+                                  int group)
+{
+  QStringList ret;
+  int idx = 0;
+  QRegExp re(ore);
+  
+  
+  while(re.indexIn(str, idx) >= 0) {
+    int idx = re.pos();
+    if(group < 0)
+      ret << re.capturedTexts();
+    else
+      ret << re.cap(group);
+    str.replace(idx, re.matchedLength(), "");
+  }
+  return ret;
+}

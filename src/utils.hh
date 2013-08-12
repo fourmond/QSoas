@@ -45,6 +45,13 @@ namespace Utils {
   QStringList glob(const QString & pattern, 
                    bool trim = true, bool isDir = false);
 
+
+  /// @name String-related functiosn
+  ///
+  /// A series of functions dealing with strings
+  ///
+  /// @{
+
   /// Returns all the strings from the given QStringList that start
   /// with the given string.
   QStringList stringsStartingWith(const QStringList & strings, 
@@ -52,6 +59,53 @@ namespace Utils {
 
   /// Returns the common part at the beginning of the given string
   QString commonBeginning(const QStringList & strings);
+
+
+  /// Returns the string Delta something. Pityful, isn't it ;-) ?
+  QString deltaStr(const QString & w);
+
+  /// Abbreviates the string so that it fits within the given
+  /// number. It should also sanitize the string to some extent.
+  QString abbreviateString(const QString & str, int nb = 50);
+
+  /// Shortens the string so that it has at most \a len characters,
+  /// out of which @a last are from the end.
+  QString shortenString(const QString & str, int len = 50, int last = 10);
+
+  /// Splits a list of strings into several sublist of strings,
+  /// separated by stings that match the given regular expression. Can
+  /// be nicely combined with the parseConfigurationFile() function.
+  QList<QStringList> splitOn(const QStringList & lines,
+                             const QRegExp & re);
+
+  /// Updates a string so that anything between \a begin and \a end
+  /// are replaced with \a newText. Returns true if any replacement
+  /// was performed.
+  bool updateWithin(QString & str, const QString & begin, 
+                    const QString & end, const QString & newText, 
+                    bool appendIfNotFound = true);
+
+
+  /// A function to safely parse a double from a string -- or raise an
+  /// exception
+  double stringToDouble(const QString & str);
+
+  /// A function to safely parse an int from a string -- or raise an
+  /// exception
+  int stringToInt(const QString & str);
+
+
+  /// Extract all the strings matching the given regular expression
+  /// while removing them from the original string.
+  ///
+  /// The returned list is the list of the \a group-th capturing
+  /// group. If -1 is specified, then all capturing groups are
+  /// returned.
+  QStringList extractMatches(QString & str, const QRegExp & re, 
+                             int group = 0);
+
+
+  /// @}
 
   /// Dumps the contents of a rectangle to the target stream
   template<typename T, typename Rect> void dumpRectangle(T & stream, 
@@ -79,8 +133,6 @@ namespace Utils {
   QRectF scaledAround(const QRectF & rect, const QPointF & point,
                       double xscale, double yscale);
 
-  /// Returns the string Delta something. Pityful, isn't it ;-) ?
-  QString deltaStr(const QString & w);
 
   /// @name File-related functions
   ///
@@ -96,6 +148,9 @@ namespace Utils {
   ///
   /// Throws an exception if user cancelled unless \a silent is true.
   bool confirmOverwrite(const QString & fileName, bool silent = false);
+
+  /// Expands a leading ~ into the home directory of the user.
+  QString expandTilde(const QString & name);
 
   /// @}
 
@@ -135,9 +190,6 @@ namespace Utils {
                         const char * fn, QWidget * parent = NULL,
                         Qt::ShortcutContext context = Qt::WindowShortcut);
 
-  /// Abbreviates the string so that it fits within the given
-  /// number. It should also sanitize the string to some extent.
-  QString abbreviateString(const QString & str, int nb = 50);
 
   /// Makes the items in the list unique while keeping the order
   template <typename T> void makeUnique(QList<T> & list) {
@@ -167,27 +219,8 @@ namespace Utils {
                                      QList< QPair<int, int> > * lineNumbers = NULL,
                                      bool stripBlank = false);
 
-  /// Splits a list of strings into several sublist of strings. Can be
-  /// nicely combined with the parseConfigurationFile() function.
-  QList<QStringList> splitOn(const QStringList & lines,
-                             const QRegExp & re);
 
 
-  /// Updates a string so that anything between \a begin and \a end
-  /// are replaced with \a newText. Returns true if any replacement
-  /// was performed.
-  bool updateWithin(QString & str, const QString & begin, 
-                    const QString & end, const QString & newText, 
-                    bool appendIfNotFound = true);
-
-
-  /// A function to safely parse a double from a string -- or raise an
-  /// exception
-  double stringToDouble(const QString & str);
-
-  /// A function to safely parse an int from a string -- or raise an
-  /// exception
-  int stringToInt(const QString & str);
 
   /// This function returns a caller stack trace. It is not guaranteed
   /// to be accurate, or even to be of any use at all. But, it will
@@ -196,15 +229,6 @@ namespace Utils {
   /// One string per stack frame
   QStringList backtrace(int maxframes = 20);
 
-  /// Expands a leading ~ into the home directory of the user.
-  QString expandTilde(const QString & name);
-
-
-  /// Shortens the string so that it has at most \a len characters,
-  /// out of which @a last are from the end.
-  QString shortenString(const QString & str, int len = 50, int last = 10);
-
-  
   /// Sleeps that many milliseconds
   void msleep(unsigned long msecs);
 

@@ -655,7 +655,9 @@ static void cBaselineCommand(CurveEventLoop &loop, const QString &)
 
         // We need to extract the parameters:
         double x_0 = 0.5 * (m.points[0].x() + m.points[1].x());
-        double y_0 = 0.5 * (m.points[0].y() + m.points[1].y());
+        double y_0 = (isExponential ? 
+                      sqrt(m.points[0].y()*m.points[1].y()) : 
+                      0.5 * (m.points[0].y() + m.points[1].y()));
         double dy_0 = (m.points[0].y() - m.points[1].y())/
           (m.points[0].x() - m.points[1].x());
 

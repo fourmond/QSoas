@@ -414,7 +414,7 @@ static EventHandler baselineHandler = EventHandler("baseline").
 static void baselineCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
-  const GraphicsSettings & gs = soas().graphicsSettings();
+  // const GraphicsSettings & gs = soas().graphicsSettings();
 
   /// The charge computed in the previous call
   /// @todo Make that more flexible ?
@@ -567,7 +567,6 @@ static EventHandler baselineHandler = EventHandler("catalytic-baseline").
 static void cBaselineCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
-  const GraphicsSettings & gs = soas().graphicsSettings();
 
   CurveView & view = soas().view();
   CurveMarker m;
@@ -653,7 +652,7 @@ static void cBaselineCommand(CurveEventLoop &loop, const QString &)
           (m.points[0].x() - m.points[1].x());
 
         double x_lim = 0.5 * (m.points[2].x() + m.points[3].x());
-        double y_lim = 0.5 * (m.points[2].y() + m.points[3].y());
+        // y_lim isn't necessary
         double dy_lim = (m.points[2].y() - m.points[3].y())/
           (m.points[2].x() - m.points[3].x());
 
@@ -1141,7 +1140,6 @@ namespace __fft {
     }
     if(needCompute) {
       FFT trans = orig;
-      double cf = ds->x().size()/2 - cutoff;
       lim.x = -log(cutoff);
       trans.applyGaussianFilter(cutoff);
 
@@ -1387,11 +1385,10 @@ namespace __ss {
     alsoKey('R');
 
 static void setSegmentsCommand(CurveEventLoop &loop, const QString &,
-                               const CommandOptions & opts)
+                               const CommandOptions & /*opts*/)
 {
   DataSet * ds = soas().currentDataSet();
   QList<int> savedSegments = ds->segments;
-  CurveView & view = soas().view();
 
   loop.setHelpString("Set segments:\n"
                        + ssHandler.buildHelpString());
@@ -1944,15 +1941,13 @@ zerp("zero", // command name
 //////////////////////////////////////////////////////////////////////
 
 static void autoCorrelationCommand(const QString &,
-                                   const CommandOptions & opts)
+                                   const CommandOptions & /*opts*/)
 {
   const DataSet * ds = soas().currentDataSet();
 
   FFT f(ds->x(), ds->y(), false);
 
   f.forward(false);
-
-  double dx = f.deltaX;
 
   int nb = f.frequencies();
   /// @todo Probably this should join FFT ?

@@ -166,8 +166,9 @@ void ArgumentList::mergeOptions(const ArgumentList & other)
       *this << arg;
       cache[arg->argumentName()] = NULL; // good enough until the end.
     }
-    else 
+    else  {
       ;                         // do something ?
+    }
     
   }
   regenerateCache();

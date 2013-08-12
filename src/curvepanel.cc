@@ -33,7 +33,7 @@ CurvePanel::CurvePanel() :
   orgPen(QColor("#BBB"), 2.4, Qt::DashLine),
   xTracking(0),
   drawingXTicks(true), drawingYTicks(true), drawingLegend(true),
-  xLabel("X"), yLabel("Y"), anyZoom(false), stretch(100)
+  anyZoom(false),  xLabel("X"), yLabel("Y"), stretch(100)
 {
   bgLinesPen.setCosmetic(true);
 }

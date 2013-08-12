@@ -407,8 +407,8 @@ run("run", // command name
 //////////////////////////////////////////////////////////////////////
   
 
-static void noopCommand(const QString &, QStringList args, 
-                        const CommandOptions &opts)
+static void noopCommand(const QString &, QStringList /*args*/, 
+                        const CommandOptions &/*opts*/)
 {
 }
 

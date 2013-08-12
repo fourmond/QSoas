@@ -36,7 +36,7 @@ void CurveMarker::paintMarker(QPainter * painter, const QPointF & realPos,
 }
 
 void CurveMarker::paintMarkerLabel(QPainter * painter, const QPointF & realPos,
-                                   MarkerType type, double size, 
+                                   MarkerType /*type*/, double size, 
                                    const QString & str, const QPen & pen)
 {
   if(realPos.x() != realPos.x() || // NaN != NaN

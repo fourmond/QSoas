@@ -264,44 +264,72 @@ void KineticSystem::parseFile(QIODevice * device)
   QTextStream in(device);
 
   QRegExp blankRE("^\\s*(#|$)");
-  QRegExp irreversibleRE("^\\s*(.*)->\\[(.*)\\]\\s*(.*)$");
-  QRegExp reversibleRE("^\\s*(.*)<=>\\[(.*)\\]\\s*\\[(.*)\\]\\s*(.*)$");
+  QRegExp reactionRE("^\\s*(.*)(<=>|->)\\s*(.*)$");
+
+  QRegExp doubleBraceRE("\\[\\[(.*)\\]\\]");
+  doubleBraceRE.setMinimal(true);
+
+  QRegExp singleBraceRE("\\[([^\\]]*)\\]");
   
   int number = 0;
+
+  int reaction = 0;
   while(true) {
     QString line = in.readLine();
+    QString orig = line;
     ++number;
     if(line.isNull())
       break;
-    if(blankRE.indexIn(line) >= 0)
+    if(blankRE.indexIn(line) == 0)
       continue;
-    
-    QString fr;
-    QString br;
-    QString left;
-    QString right;
 
-    if(irreversibleRE.indexIn(line) == 0) {
-      left = irreversibleRE.cap(1);
-      fr = irreversibleRE.cap(2);
-      right = irreversibleRE.cap(3);
-    }
-    else if(reversibleRE.indexIn(line) == 0) {
-      left = reversibleRE.cap(1);
-      fr = reversibleRE.cap(2);
-      br = reversibleRE.cap(3);
-      right = reversibleRE.cap(4);
+    // The groups containing the parameter expressions.
+    QStringList literals;
+
+    // We strip the line of those before.
+
+    // To allow for complex expressions, if there is an occurrence of
+    // [[ in the line, we only capture groups within [[ ]] (which are
+    // not Ruby-specific idioms)
+
+
+    if(line.contains("[["))
+      literals = Utils::extractMatches(line, doubleBraceRE, 1);
+    else 
+      literals = Utils::extractMatches(line, singleBraceRE, 1);
+
+    
+    if(reactionRE.indexIn(line) ==  0) {
+      ++reaction;
+      QString left = reactionRE.cap(1);
+      QString right = reactionRE.cap(3);
+      bool reversible = (reactionRE.cap(2) == "<=>");
+
+      QString fr;
+      QString br;
+
+      /// @todo Adapt for reactions with electrons
+      if(literals.size() > 0)
+        fr = literals.takeFirst();
+      else 
+        fr = QString("k_%1").arg(reaction);
+      if(reversible) {
+        if(literals.size() > 0)
+          br = literals.takeFirst();
+        else 
+          br = QString("k_m%1").arg(reaction);
+      }
+
+      QStringList reactants;
+      QList<int> stoechiometry;
+
+      parseReactants(left, &reactants, &stoechiometry, -1, number);
+      parseReactants(right, &reactants, &stoechiometry, 1, number);
+      addReaction(reactants, stoechiometry, fr, br);
     }
     else
       throw RuntimeError(QString("Line %1: '%2' not valid").
-                         arg(number).arg(line));
-
-    QStringList reactants;
-    QList<int> stoechiometry;
-
-    parseReactants(left, &reactants, &stoechiometry, -1, number);
-    parseReactants(right, &reactants, &stoechiometry, 1, number);
-    addReaction(reactants, stoechiometry, fr, br);
+                         arg(number).arg(orig));
   }
 }
 

@@ -32,12 +32,16 @@ class Expression;
 /// It parses reactions with arbitrary formulas as rate constants. The
 /// concentration of the species are reffered to as c_species from
 /// within the formulas.
-///
-/// It feels a little like
 class KineticSystem {
 public:
 
-  /// A subclass to store species.
+  typedef enum {
+    None,                       // no diffusion, ie homogeneous or
+                                // adsorbed.
+    Forced                      // forced convection, (ie RDE)
+  } Diffusion;
+
+  /// A species involved in the reactions.
   class Species {
   public:
     
@@ -47,7 +51,10 @@ public:
     /// The indices of the reactions the species takes part in
     QList<int> reactions;
 
-    Species(const QString & n) : name(n) {;};
+    /// The type of diffusion.
+    Diffusion diffusion;
+
+    Species(const QString & n) : name(n), diffusion(None) {;};
     
   };
 

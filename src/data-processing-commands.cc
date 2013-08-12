@@ -588,7 +588,6 @@ static void cBaselineCommand(CurveEventLoop &loop, const QString &)
 
   while(! loop.finished()) {
     bool needCompute = false;
-    bool isLeft = false;     // Used for sharing code for the 1/2 actions.
 
     pick.processEvent();        // We don't filter actions out.
 
@@ -1367,6 +1366,26 @@ fsc("find-steps", // command name
 // Although this is not per se a data processing command, I guess it
 // makes sense to leave it around here.
 
+namespace __ss {
+
+  typedef enum {
+    AddSegment,
+    RemoveSegment,
+    DumpSegments,
+    Accept,
+    Abort
+  } SetSegmentsActions;
+
+  static EventHandler ssHandler = EventHandler("set-segments").
+    addKey(Qt::Key_Escape, Abort, "abort").
+    addKey('d', DumpSegments, "dump segments").
+    alsoKey('d').
+    conventionalAccept(Accept, "replace with filtered data").
+    addClick(Qt::LeftButton, AddSegment, "add segment").
+    addClick(Qt::RightButton, RemoveSegment, "remove segment").
+    alsoKey('r').
+    alsoKey('R');
+
 static void setSegmentsCommand(CurveEventLoop &loop, const QString &,
                                const CommandOptions & opts)
 {
@@ -1374,16 +1393,13 @@ static void setSegmentsCommand(CurveEventLoop &loop, const QString &,
   QList<int> savedSegments = ds->segments;
   CurveView & view = soas().view();
 
-  bool dump = false;
-  updateFromOptions(opts, "dump", dump);
-
   loop.setHelpString("Set segments:\n"
-                     "left click: place delimiter\n"
-                     "right click: remove closest delimiter\n"
-                     "q, mid: accept\n"
-                     "ESC: abort\n");
+                       + ssHandler.buildHelpString());
+
   do {
-    if(loop.isConventionalAccept()) {
+    int action = ssHandler.nextAction(loop);
+    switch(action) {
+    case Accept:
       if(ds->segments != savedSegments) {
         /// @hack This is ugly
         DataSet * nds = new DataSet(*ds);
@@ -1393,9 +1409,8 @@ static void setSegmentsCommand(CurveEventLoop &loop, const QString &,
         Terminal::out << "Segments didn't change, not creating a new buffer" 
                       << endl;
       break;
-    }
-    switch(loop.type()) {
-    case QEvent::MouseButtonPress: {
+    case AddSegment:
+    case RemoveSegment: {
       QPair<double, int> dst = loop.distanceToDataSet(ds);
       int idx = dst.second;
       const Vector & xv = ds->x();
@@ -1431,7 +1446,7 @@ static void setSegmentsCommand(CurveEventLoop &loop, const QString &,
         }
       } // Should alway reach something fast.
 
-      if(loop.button() == Qt::RightButton) { // Remove 
+      if(action == RemoveSegment) { // Remove 
         if(ds->segments.size() == 0);
         else if(idx <= ds->segments.first()) {
           ds->segments.takeFirst();
@@ -1454,7 +1469,7 @@ static void setSegmentsCommand(CurveEventLoop &loop, const QString &,
           }
         }
       }
-      else if(loop.button() == Qt::LeftButton) { // Add
+      else if(action == AddSegment) { // Add
         int target = 0;
         for(int i = 0; i <= ds->segments.size(); i++) {
           target = i;
@@ -1471,52 +1486,41 @@ static void setSegmentsCommand(CurveEventLoop &loop, const QString &,
       
       break;
     }
-    case QEvent::KeyPress: 
-      switch(loop.key()) {
-      case Qt::Key_Escape:
-        loop.terminate();
-        break;
-      default:
-        ;
+    case DumpSegments:
+      if(ds->segments.size() > 0) {
+        QStringList cmd;
+        cmd << "chop" << "/set-segments=true" << "/mode=indices";
+        for(int i = 0; i < ds->segments.size(); i++)
+          cmd << QString::number(ds->segments[i]);
+        Terminal::out << "Segments can be set again using:\n" 
+                      << cmd.join(" ") << endl;
       }
       break;
+    case Abort:
+        loop.terminate();
+        break;
     default:
       ;
     }
   } while(! loop.finished());
 
-  if(dump && ds->segments.size() > 0) {
-    QStringList cmd;
-    cmd << "chop" << "/set-segments=true" << "/mode=indices";
-    for(int i = 0; i < ds->segments.size(); i++)
-      cmd << QString::number(ds->segments[i]);
-    Terminal::out << "Segments can be set again using:\n" 
-                  << cmd.join(" ") << endl;
-  }
-  
   // Whatever happened, we restore the segments
   ds->segments = savedSegments;
-
 }
 
-static ArgumentList 
-ssOps(QList<Argument *>() 
-      << new BoolArgument("dump", 
-                          "Dump segments",
-                          "Dumps the segments to terminal as a command if on")
-      );
 
 
 static Command 
 ssc("set-segments", // command name
-     effector(setSegmentsCommand), // action
-     "buffer",  // group name
-     NULL, // arguments
-     &ssOps, // options
-     "Set segments",
-     "Set segments in the data (manually)",
-     "...");
+    effector(setSegmentsCommand), // action
+    "buffer",  // group name
+    NULL, // arguments
+    NULL, // options
+    "Set segments",
+    "Set segments in the data (manually)",
+    "...");
 
+};
 
 
 //////////////////////////////////////////////////////////////////////

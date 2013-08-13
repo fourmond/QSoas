@@ -21,16 +21,45 @@
 #include <curveeventloop.hh>
 #include <baselinehandler.hh>
 
+QHash<QString, EventHandler *> * EventHandler::registeredHandlers = NULL;
+
+
 EventHandler::EventHandler(const QString & cmd) :
   commandName(cmd), lastAction(-1)
 {
-  
+}
+
+EventHandler::EventHandler(const EventHandler & o) :
+  commandName(o.commandName), helpTexts(o.helpTexts),
+  clickActions(o.clickActions), keyActions(o.keyActions),
+  lastAction(o.lastAction)
+{
+  // We only register in the copy constructor, as all the baseline
+  // handlers are built using a copy constructor !
+  registerSelf();
 }
 
 EventHandler::~EventHandler()
 {
 }
 
+void EventHandler::registerSelf()
+{
+  if(! registeredHandlers)
+    registeredHandlers = new QHash<QString, EventHandler *>();
+  if(registeredHandlers->contains(commandName))
+    throw InternalError("Two handlers for the same command: %1").
+      arg(commandName);
+
+  (*registeredHandlers)[commandName] = this;
+}
+
+EventHandler * EventHandler::handlerForCommand(const QString & cmd)
+{
+  if(! registeredHandlers)
+    return NULL;
+  return registeredHandlers->value(cmd, NULL);
+}
 
 QString EventHandler::keyString(int key)
 {
@@ -102,7 +131,7 @@ int EventHandler::nextAction(const CurveEventLoop & loop) const
   return -1;
 }
 
-QString EventHandler::buildHelpString(bool useHTML) const
+QString EventHandler::buildHelpString(bool /*useHTML*/) const
 {
   QList<int> actions = helpTexts.keys();
   qSort(actions);
@@ -128,6 +157,36 @@ QString EventHandler::buildHelpString(bool useHTML) const
                 arg(helpTexts[action]));
   }
   return text;
+  
+}
+
+QString EventHandler::buildSpec() const
+{
+  QList<int> actions = helpTexts.keys();
+  qSort(actions);
+
+  QStringList sc;
+
+  for(int i = 0; i < actions.size(); i++) {
+    // First get all the actions corresponding to 
+    int action = actions[i];
+    QStringList shortcuts;
+    
+    for(QHash<Qt::MouseButton, int>::const_iterator it = clickActions.begin();
+        it != clickActions.end(); it++)
+      if(it.value() == action)
+        shortcuts << clickString(it.key());
+
+    for(QHash<int, int>::const_iterator it = keyActions.begin();
+        it != keyActions.end(); it++)
+      if(it.value() == action)
+        shortcuts << keyString(it.key());
+    
+    sc.append(QString("(%1: %2)").
+                arg(shortcuts.join(", ")).
+                arg(action));
+  }
+  return sc.join(" ");
   
 }
 

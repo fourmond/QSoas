@@ -48,6 +48,13 @@ class CurveEventLoop;
 class EventHandler{
 protected:
 
+  /// A global storage for all the handlers. Used for the specs file,
+  /// and possibly for the help text too.
+  static QHash<QString, EventHandler *> * registeredHandlers;
+
+  /// Register self to the global storage
+  void registerSelf();
+
   /// The command name with which this handler is used. Of no use for
   /// now.
   QString commandName;
@@ -73,6 +80,7 @@ protected:
 public:
 
   EventHandler(const QString & cmd = "");
+  EventHandler(const EventHandler & other);
   ~EventHandler();
 
 
@@ -104,9 +112,17 @@ public:
   /// Builds a help string (in the order of the int of the actions)
   QString buildHelpString(bool useHTML = false) const;
 
+  /// Builds a cryptic spec text that can be used to see what has
+  /// changed.
+  QString buildSpec() const;
+
   /// Handles the current loop event, and returns the corresponding
   /// action, or -1 if the event matches no action.
   int nextAction(const CurveEventLoop & loop) const;
+
+
+  /// Returns the handler for a given command, or NULL if there isn't.
+  static EventHandler * handlerForCommand(const QString & cmd);
 
 };
 

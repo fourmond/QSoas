@@ -28,6 +28,8 @@
 #include <utils.hh>
 #include <curveeventloop.hh>
 
+#include <eventhandler.hh>
+
 
 QHash<QString, Command*> * Command::availableCommands = NULL;
 
@@ -508,8 +510,17 @@ QString Command::commandSpec() const
 {
   QString ret;
   ret = cmdName;
-  if(isInteractive())
+  if(isInteractive()) {
     ret += " (interactive)";
+    if(effector->needsLoop()) {
+      ret += "\n  handler: ";
+      EventHandler * handler = EventHandler::handlerForCommand(cmdName);
+      if(handler)
+        ret += handler->buildSpec();
+      else
+        ret += " (none)";
+    }
+  }
   ret += "\n";
   if(! shortCmdName.isEmpty())
     ret += QString("  -> aliased as %1\n").arg(shortCmdName);

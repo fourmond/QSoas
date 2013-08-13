@@ -46,6 +46,8 @@
 
 #include <datastack.hh>
 
+#include <dataseteditor.hh>
+
 
 static Group grp("buffer", 2,
                  "Buffer",
@@ -1113,3 +1115,22 @@ gDS("generate-buffer", // command name
     "Generate buffer",
     "Generate a ramp",
     "...");
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void editCommand(const QString &)
+{
+  const DataSet * ds = soas().currentDataSet();
+  DatasetEditor e(ds);
+  e.exec();
+}
+
+static Command 
+edit("edit", // command name
+     optionLessEffector(editCommand), // action
+     "buffer",  // group name
+     NULL, // arguments
+     NULL, // options
+     "Edit dataset",
+     "Display a table to edit the dataset");

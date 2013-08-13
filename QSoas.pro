@@ -233,7 +233,8 @@ SOURCES += src/qmain.cc \
         src/regex.cc \
         src/checkablewidget.cc \
         src/datasetoptions.cc \
-        src/pointiterator.cc
+        src/pointiterator.cc \
+        src/dataseteditor.cc
 
 
 HEADERS += src/headers.hh \
@@ -320,7 +321,8 @@ HEADERS += src/headers.hh \
         src/checkablewidget.hh \
         src/datasetoptions.hh \
         src/argument-templates.hh \
-        src/pointiterator.hh
+        src/pointiterator.hh \
+        src/dataseteditor.hh
 
 # We link with the converted ODRPACK library
 message("Using odrpack")

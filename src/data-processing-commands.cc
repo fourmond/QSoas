@@ -1399,7 +1399,7 @@ namespace __ss {
     addKey(Qt::Key_Escape, Abort, "abort").
     addKey('d', DumpSegments, "dump segments").
     alsoKey('d').
-    conventionalAccept(Accept, "replace with filtered data").
+    conventionalAccept(Accept, "save segments").
     addClick(Qt::LeftButton, AddSegment, "add segment").
     addClick(Qt::RightButton, RemoveSegment, "remove segment").
     alsoKey('r').
@@ -1426,6 +1426,7 @@ static void setSegmentsCommand(CurveEventLoop &loop, const QString &,
       else
         Terminal::out << "Segments didn't change, not creating a new buffer" 
                       << endl;
+      loop.terminate();
       break;
     case AddSegment:
     case RemoveSegment: {

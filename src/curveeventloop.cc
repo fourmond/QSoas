@@ -40,6 +40,9 @@ CurveEventLoop::CurveEventLoop(CurveView * v) :
   // Then, we switch the command widget to loop mode
   soas().prompt().setLoopMode(true);
   setHelpString(tr("To escape, \n hit ESC"));
+
+  connect(qApp, SIGNAL(lastWindowClosed()), 
+          SLOT(onLastWindowClosed()));
 }
 
 void CurveEventLoop::setHelpString(const QString & str)
@@ -229,4 +232,9 @@ QPair<double, int> CurveEventLoop::distanceToDataSet(const DataSet * ds)
 CurvePanel * CurveEventLoop::currentPanel()
 {
   return view->panelAt(pos);
+}
+
+void CurveEventLoop::onLastWindowClosed()
+{
+  done = true;
 }

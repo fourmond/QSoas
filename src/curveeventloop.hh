@@ -166,6 +166,12 @@ public:
   /// Whether printing is allowed (default) or not (in the case you
   /// choose to redefine the behavior of the print screen key)
   bool printingAllowed;
+
+protected slots:
+
+  /// Called when the last window of the application was closed, ie
+  /// this loop should finish.
+  void onLastWindowClosed();
   
 };
 

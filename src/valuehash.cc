@@ -20,6 +20,8 @@
 #include <headers.hh>
 #include <valuehash.hh>
 
+#include <ruby.hh>
+
 template<class T> QHash<QString, T> ValueHash::extract(QVariant::Type t) const
 {
   QHash<QString, T> ret;
@@ -146,4 +148,28 @@ void ValueHash::appendToList(const QString & key, const QString & val)
   QStringList newval = value(key, QVariant()).toStringList();
   newval << val;
   (*this)[key] = newval;
+}
+
+
+VALUE ValueHash::toRuby() const
+{
+  VALUE ret = rb_hash_new();
+  for(const_iterator it = begin(); it != end(); it++) {
+    // Hmmm, QVariant says type() is QVariant::Type, but the
+    // documentation says is really is QMetaType::Type.
+    VALUE key = Ruby::fromQString(it.key());
+    VALUE val = Qnil;
+    switch(it.value().type()) {
+    case QMetaType::Double:
+      val = rb_float_new(it.value().toDouble());
+      break;
+    case QMetaType::QString:
+      val = Ruby::fromQString(it.value().toString());
+      break;
+    default:
+      ;
+    }
+    rb_hash_aset(ret, key, val);
+  }
+  return ret;
 }

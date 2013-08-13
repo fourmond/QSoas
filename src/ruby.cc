@@ -142,11 +142,16 @@ static VALUE toStringHelper(VALUE val, QString * target)
   return Qnil;
 }
 
-QString Ruby::toString(VALUE val)
+QString Ruby::toQString(VALUE val)
 {
   QString ret;
   Ruby::run(toStringHelper, val, &ret);
   return ret;
+}
+
+VALUE Ruby::fromQString(const QString & str)
+{
+  return rb_str_new2(str.toLocal8Bit().constData());
 }
 
 QString Ruby::versionString()

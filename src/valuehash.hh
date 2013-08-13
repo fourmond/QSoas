@@ -31,11 +31,6 @@
 /// data is the "ordered key" feature, where displaying/exporting
 /// makes keys come in a specific order. This doesn't have to be used,
 /// though.
-///
-/// @todo This should be convertible to a Ruby hash, and in particular
-/// many functions should be able to store the results they display
-/// into a Ruby hash. An interface still needs to be designed for
-/// that.
 class ValueHash : public QHash<QString, QVariant> {
 protected:
   /// Extract keys that can be converted to the given type.
@@ -110,6 +105,12 @@ public:
 
   /// Appends the @a value to the list of strings stored in @a key.
   void appendToList(const QString & key, const QString & value);
+
+  /// Converts to a Ruby Hash.
+  ///
+  /// Only converts strings and doubles. (the rest will follow as
+  /// needed...)
+  VALUE toRuby() const;
   
 
 };

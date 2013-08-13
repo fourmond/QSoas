@@ -349,6 +349,30 @@ chopS("segments-chop", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+namespace __cu {
+
+  typedef enum {
+    PickPoint,
+    PickRef,
+    QuitSubtracting,
+    QuitDividing,
+    WriteToOutput,
+    Quit
+  } CursorActions;
+
+  static EventHandler cursorHandler = EventHandler("cursor").
+    addClick(Qt::LeftButton, PickPoint, "place cursor").
+    addClick(Qt::RightButton, PickRef, "place reference").
+    addKey('v', QuitDividing, "quit dividing by Y value").
+    alsoKey('V').
+    addKey('u', QuitSubtracting, "quit subtracting Y value").
+    alsoKey('U').
+    addKey(Qt::Key_Escape, Quit, "quit").
+    alsoKey('q').alsoKey('Q').
+    addClick(Qt::MiddleButton, WriteToOutput, "write to output").
+    alsoKey(' ');
+
+
 
 static void cursorCommand(CurveEventLoop &loop, const QString &)
 {
@@ -368,74 +392,51 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
   r.size = 4;
   r.pen = QPen(Qt::NoPen);
   r.brush = QBrush(QColor(0,128,0,100)); // A kind of transparent green
-  loop.setHelpString(QObject::tr("Cursor:\n"
-                                 "left click to see\n"
-                                 "right click for ref\n"
-                                 ) 
-                     + pick.helpText() +
-                     QObject::tr("space: write last to output\n"
-                                 "u: quit subtracting last Y\n"
-                                 "v: quit dividing by last Y\n"
-                                 "q or ESC to quit"));
+  loop.setHelpString("Cursor:\n" +
+                     cursorHandler.buildHelpString() +
+                     pick.helpText());
+
   Terminal::out << "Point positions:\nx\ty\tindex\tdx\tdy" << endl;
   QString cur;
   while(! loop.finished()) {
-    if(pick.processEvent()) {
-      switch(pick.button()) {
-      case Qt::LeftButton:
+    pick.processEvent();
+
+    switch(cursorHandler.nextAction(loop)) {
+    case PickPoint:
         m.p = pick.point();
         cur = QString("%1\t%2\t%3\t%4\t%5").
           arg(m.p.x()).arg(m.p.y()).arg(pick.pointIndex()).
           arg(m.p.x() - r.p.x()).arg(m.p.y() - r.p.y());
         Terminal::out << cur << endl;
         break;
-      case Qt::RightButton:
-        r.p = pick.point();
-        Terminal::out << "Reference:\t"  << r.p.x() << "\t" 
-                      << r.p.y() << endl;
-        break;
-      default:
-        ;
-      }
+    case PickRef:
+      r.p = pick.point();
+      Terminal::out << "Reference:\t"  << r.p.x() << "\t" 
+                    << r.p.y() << endl;
+      break;
+    case Quit:
+        return;
+    case QuitSubtracting: {
+      Vector ny = ds->y() - m.p.y();
+      Terminal::out << "Subtracting Y value: " << m.p.y() << endl;
+      soas().pushDataSet(ds->derivedDataSet(ny, "_sub.dat"));
+      return;
     }
-    if(loop.type() == QEvent::KeyPress) {
-      switch(loop.key()) {
-      case 'q':
-      case 'Q':
-      case Qt::Key_Escape:
-        return;
-      case 'u':
-      case 'U': {
-        Vector ny = ds->y() - m.p.y();
-        Terminal::out << "Subtracting Y value: " << m.p.y() << endl;
-        soas().pushDataSet(ds->derivedDataSet(ny, "_sub.dat"));
-        return;
-      }
-
-      case 'v':
-      case 'V': {
-        /// @todo This idiom is coming often; there should be a way to
-        /// make it simpler ?
-        Vector ny = ds->y()/m.p.y();
-        Terminal::out << "Dividing by Y value: " << m.p.y() << endl;
-        soas().pushDataSet(ds->derivedDataSet(ny, "_sub.dat"));
-        return;
-      }
-        
-      default:
-        ;
-      }
+    case QuitDividing: {
+      Vector ny = ds->y()/m.p.y();
+      Terminal::out << "Dividing by Y value: " << m.p.y() << endl;
+      soas().pushDataSet(ds->derivedDataSet(ny, "_sub.dat"));
+      return;
     }
-    if((loop.type() == QEvent::KeyPress && loop.key() == ' ') ||
-       (loop.type() == QEvent::MouseButtonPress && 
-        loop.button() == Qt::MiddleButton)) {
-        // Write to output file
-        OutFile::out.setHeader("Point positions:\n"
-                               "buffer\tX\tY\t\tidx\tdx\tdy");
-        Terminal::out << "Writing position to output file: '" 
-                      << OutFile::out.fileName() << "'" << endl;
-
-        OutFile::out << ds->name << "\t" << cur << "\n" << flush;
+    case WriteToOutput:
+      OutFile::out.setHeader("Point positions:\n"
+                             "buffer\tX\tY\t\tidx\tdx\tdy");
+      Terminal::out << "Writing position to output file: '" 
+                    << OutFile::out.fileName() << "'" << endl;
+      
+      OutFile::out << ds->name << "\t" << cur << "\n" << flush;
+    default:
+      ;
     }
   }
 }
@@ -450,6 +451,7 @@ cu("cursor", // command name
    "Display cursors on the curve",
    "Displays cursors on the curve",
    "cu");
+};
 //////////////////////////////////////////////////////////////////////
 
 namespace Cut {

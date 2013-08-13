@@ -285,7 +285,7 @@ Fit::~Fit()
 }
 
 
-QString Fit::annotateDataSet(int idx) const
+QString Fit::annotateDataSet(int /*idx*/) const
 {
   return QString();
 }
@@ -301,10 +301,10 @@ bool Fit::displaySubFunctions() const
   return true;
 }
 
-void Fit::computeSubFunctions(const double * parameters,
-                              FitData * data, 
-                              QList<Vector> * targetData,
-                              QStringList * targetAnnotations)
+void Fit::computeSubFunctions(const double * /*parameters*/,
+                              FitData * /*data*/, 
+                              QList<Vector> * /*targetData*/,
+                              QStringList * /*targetAnnotations*/)
 {
   throw InternalError("subfunctions are not implemented");
 }

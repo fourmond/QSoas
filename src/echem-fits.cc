@@ -115,7 +115,7 @@ public:
     return numer/denom;
   };
 
-  virtual void initialGuess(FitData * params, 
+  virtual void initialGuess(FitData * /*data*/, 
                             const DataSet *ds,
                             double * a)
   {
@@ -181,7 +181,7 @@ protected:
 
   /// This computes the same thing as function but in addition
   /// computes the annotations should the annotations pointer be NULL.
-  void annotatedFunction(const double * a, FitData * data, 
+  void annotatedFunction(const double * a, FitData * /*data*/, 
                          const DataSet * ds , gsl_vector * target,
                          QList<Vector> * annotations = NULL)
   {
@@ -195,8 +195,6 @@ protected:
     const double & scan_rate = a[1];
 
     for(int i = 0; i < xv.size(); i++) {
-      double x = xv[i];
-
       double cur = 0;
       for(int j = 0; j < number; j++) {
         // Assignments for readability, I hope they're optimized out.
@@ -272,7 +270,7 @@ public:
   };
 
 
-  virtual void initialGuess(FitData * params, 
+  virtual void initialGuess(FitData * /*data*/, 
                             const DataSet *ds,
                             double * a)
   {

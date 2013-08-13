@@ -327,7 +327,7 @@ public:
     return defs;
   };
 
-  virtual void function(const double * a, FitData * data, 
+  virtual void function(const double * a, FitData * /*data*/, 
                         const DataSet * ds , gsl_vector * target)
   {
     LinearKineticSystem sys(species);
@@ -407,7 +407,7 @@ public:
 
   };
 
-  virtual void initialGuess(FitData * params, 
+  virtual void initialGuess(FitData * /*data*/, 
                             const DataSet *ds,
                             double * a)
   {

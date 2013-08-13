@@ -606,8 +606,8 @@ void FitParameters::computeMatrices()
   rawCVMatrix = gsl_matrix_alloc(mat->size1, mat->size2);
   gsl_matrix_memcpy(rawCVMatrix, mat);
   cookedCVMatrix = gsl_matrix_alloc(mat->size1, mat->size2);
-  for(int i = 0; i < mat->size1; i++)
-    for(int j = 0; j < mat->size2; j++) {
+  for(size_t i = 0; i < mat->size1; i++)
+    for(size_t j = 0; j < mat->size2; j++) {
       double rawValue = gsl_matrix_get(mat, i, j);
       double cooked = rawValue;
       if(j == i)
@@ -637,8 +637,8 @@ void FitParameters::setupWithCovarianceMatrix(QTableWidget * widget,
   widget->setHorizontalHeaderLabels(heads);
   widget->setVerticalHeaderLabels(heads);
 
-  for(int i = 0; i < rawCVMatrix->size1; i++)
-    for(int j = 0; j < rawCVMatrix->size1; j++) {
+  for(size_t i = 0; i < rawCVMatrix->size1; i++)
+    for(size_t j = 0; j < rawCVMatrix->size1; j++) {
       double rawValue = gsl_matrix_get(rawCVMatrix, i, j);
       double cooked = gsl_matrix_get(cookedCVMatrix, i, j);
       QTableWidgetItem * it = 
@@ -708,8 +708,8 @@ void FitParameters::writeCovarianceMatrixLatex(QTextStream & out,  bool raw)
 
   /// @todo Probably the code here should to to Utils later on.
   QRegExp conv("(.*)e([+-])0*(\\d+)");
-  for(int i = 0; i < mat->size1; i++) {
-    for(int j = 0; j < mat->size2; j++) {
+  for(size_t i = 0; i < mat->size1; i++) {
+    for(size_t j = 0; j < mat->size2; j++) {
       if(j)
         out << " & ";
       QString number = QString::number(gsl_matrix_get(mat, i, j));

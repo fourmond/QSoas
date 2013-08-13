@@ -59,12 +59,6 @@ VALUE Ruby::globalRescueFunction(VALUE /*dummy*/, VALUE exception)
   return Qnil;
 }
 
-/// This is the old version
-static VALUE old_exceptionSafeCall(VALUE (*function)(...), void * args)
-{
-  return rb_rescue(function, (VALUE) args, 
-                   (VALUE (*)(...)) Ruby::globalRescueFunction, Qnil);
-}
 
 VALUE Ruby::exceptionSafeCall(VALUE (*function)(...), void * args)
 {

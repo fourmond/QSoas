@@ -35,7 +35,7 @@ StoredParameters::StoredParameters(const gsl_vector *v, double r) :
   parameters(v->size, 0),
   residuals(r)
 {
-  for(int i = 0; i < v->size; i++)
+  for(size_t i = 0; i < v->size; i++)
     parameters[i] = gsl_vector_get(v, i);
 }
 

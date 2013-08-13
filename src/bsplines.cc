@@ -225,7 +225,7 @@ static int df(const gsl_vector * x, void * data, gsl_matrix * J)
   bs->computeValues(tmpStorage);
 
 
-  for(int i = 0; i < x->size; i++) {
+  for(size_t i = 0; i < x->size; i++) {
     // Pick up a reasonable dx: 1/10 of the distance between here and
     // next step
     double dx = 0.1*(bps[i+2] - bps[i+1]);

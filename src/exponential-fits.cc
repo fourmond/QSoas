@@ -81,7 +81,7 @@ protected:
 
   /// This computes the same thing as function but in addition
   /// computes the annotations should the annotations pointer be NULL.
-  void annotatedFunction(const double * a, FitData * data, 
+  void annotatedFunction(const double * a, FitData * /*data*/, 
                          const DataSet * ds , gsl_vector * target,
                          QList<Vector> * annotations = NULL)
   {
@@ -163,7 +163,7 @@ public:
     annotatedFunction(a, data, ds, target);
   };
 
-  virtual void initialGuess(FitData * params, 
+  virtual void initialGuess(FitData * /*data*/, 
                             const DataSet *ds,
                             double * a)
   {
@@ -355,7 +355,7 @@ public:
     return defs;
   };
 
-  virtual void function(const double * a, FitData * data, 
+  virtual void function(const double * a, FitData * /*data*/, 
                         const DataSet * ds , gsl_vector * target)
   {
     // Stuff only pertaining to a given step
@@ -425,7 +425,7 @@ public:
     }
   };
 
-  virtual void initialGuess(FitData * params, 
+  virtual void initialGuess(FitData * /*data*/, 
                             const DataSet *ds,
                             double * a)
   {

@@ -40,7 +40,7 @@ FitData::FitData(Fit * f, const QList<const DataSet *> & ds, bool d,
   evaluationNumber(0), 
   fit(f), debug(d), datasets(ds),
   standardYErrors(NULL), pointWeights(NULL),
-  parameterDefinitions(f->parameters()), nbIterations(0), storage(0)
+  nbIterations(0), parameterDefinitions(f->parameters()), storage(0)
 {
   for(int i = 0; i < extra.size(); i++)
     parameterDefinitions << ParameterDefinition(extra[i]);
@@ -77,8 +77,9 @@ void FitData::computeWeights()
       nb++;
   }
   if(nb < datasets.size()) {
-    if(nb > 0)
+    if(nb > 0) {
       ;                         /// @todo Emit warning...
+    }
     // Nothing to do
   }
   else {

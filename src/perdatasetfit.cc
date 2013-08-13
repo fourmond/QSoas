@@ -70,9 +70,9 @@ int PerDatasetFit::parametersCheck(const double * parameters,
   return GSL_SUCCESS;
 }
 
-int PerDatasetFit::parametersCheck(const double * parameters,
-                                   FitData * data,
-                                   const DataSet * ds)
+int PerDatasetFit::parametersCheck(const double * /*parameters*/,
+                                   FitData * /*data*/,
+                                   const DataSet * /*ds*/)
 {
   return GSL_SUCCESS;
 }
@@ -103,11 +103,11 @@ void PerDatasetFit::computeSubFunctions(const double * parameters,
   }
 }
 
-void PerDatasetFit::computeSubFunctions(const double * parameters,
-                                        FitData * data, 
-                                        const DataSet * ds,
-                                        QList<Vector> * targetData,
-                                        QStringList * targetAnnotations)
+void PerDatasetFit::computeSubFunctions(const double * /*parameters*/,
+                                        FitData * /*data*/, 
+                                        const DataSet * /*ds*/,
+                                        QList<Vector> * /*targetData*/,
+                                        QStringList * /*targetAnnotations*/)
 {
   throw InternalError("subfunctions not implemented");
 }
@@ -123,7 +123,7 @@ void FunctionFit::function(const double * parameters,
 {
   const Vector & xvalues = ds->x();
   prepare(parameters, data, ds);
-  for(int i = 0; i < target->size; i++)
+  for(size_t i = 0; i < target->size; i++)
     gsl_vector_set(target, i, function(parameters, data, 
                                        xvalues[i]));
 }

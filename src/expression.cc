@@ -127,8 +127,8 @@ void Expression::setVariables(const QStringList & vars)
 }
 
 Expression::Expression(const Expression & c) :
-  expression(c.expression), minimalVariables(c.minimalVariables), 
-  variables(c.variables), args(NULL)
+  expression(c.expression), args(NULL), 
+  minimalVariables(c.minimalVariables), variables(c.variables)
 {
   buildCode();
 }
@@ -208,8 +208,8 @@ QStringList Expression::variablesNeeded(const QString & expression,
 {
   QStringList vars = variables;
   QByteArray bta = expression.toLocal8Bit();
-  VALUE code = 
-    Ruby::run<QStringList *, const QByteArray &>(&Ruby::makeBlock, &vars, bta);
+  // VALUE code = 
+  Ruby::run<QStringList *, const QByteArray &>(&Ruby::makeBlock, &vars, bta);
   for(int i = 0; i < variables.size(); i++)
     vars.takeAt(0);
   return vars;

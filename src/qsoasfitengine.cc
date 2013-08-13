@@ -136,13 +136,13 @@ QSoasFitEngine::QSoasFitEngine(FitData * data) :
   jacobian = gsl_matrix_alloc(m, n);
   perm = gsl_permutation_alloc(n);
 
-  for(int i = 0; i < sizeof(fv)/sizeof(gsl_vector *); i++)
+  for(size_t i = 0; i < sizeof(fv)/sizeof(gsl_vector *); i++)
     fv[i] = gsl_vector_alloc(m);
 
-  for(int i = 0; i < sizeof(vectors)/sizeof(gsl_vector *); i++)
+  for(size_t i = 0; i < sizeof(vectors)/sizeof(gsl_vector *); i++)
     vectors[i] = gsl_vector_alloc(n);
 
-  for(int i = 0; i < sizeof(matrices)/sizeof(gsl_matrix *); i++)
+  for(size_t i = 0; i < sizeof(matrices)/sizeof(gsl_matrix *); i++)
     matrices[i] = gsl_matrix_alloc(n,n);
 }
 
@@ -152,13 +152,13 @@ QSoasFitEngine::~QSoasFitEngine()
   gsl_matrix_free(jacobian);
   gsl_permutation_free(perm);
 
-  for(int i = 0; i < sizeof(vectors)/sizeof(gsl_vector *); i++)
+  for(size_t i = 0; i < sizeof(vectors)/sizeof(gsl_vector *); i++)
     gsl_vector_free(vectors[i]);
 
-  for(int i = 0; i < sizeof(fv)/sizeof(gsl_vector *); i++)
+  for(size_t i = 0; i < sizeof(fv)/sizeof(gsl_vector *); i++)
     gsl_vector_free(fv[i]);
 
-  for(int i = 0; i < sizeof(matrices)/sizeof(gsl_matrix *); i++)
+  for(size_t i = 0; i < sizeof(matrices)/sizeof(gsl_matrix *); i++)
     gsl_matrix_free(matrices[i]);
 }
 
@@ -181,14 +181,11 @@ const gsl_vector * QSoasFitEngine::currentParameters() const
 
 void QSoasFitEngine::computeCovarianceMatrix(gsl_matrix * target) const
 {
-  /// @todo Handle properly the case when we're having singular values !
-
   /// @todo Recompute the jacobian when necessary ?
   // fitData->df(parameters, jacobian);
   // gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1, 
   //                jacobian, jacobian, 0, jTj);
 
-  int sign = 0;
   gsl_matrix_memcpy(cur, jTj);
 
   // Tolerance of 1e-7 for the singular values.

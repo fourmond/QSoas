@@ -52,6 +52,10 @@ public:
   /// in the target value hash if not NULL.
   QList<ValueHash> statsByColumns(ValueHash * overall = NULL);
 
+  /// Returns segment-by-segments statistics, and the overall
+  /// statistics in the target value hash if not NULL.
+  QList<ValueHash> statsBySegments(ValueHash * overall = NULL);
+  
 };
 
 #endif

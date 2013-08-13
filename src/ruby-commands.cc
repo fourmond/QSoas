@@ -35,6 +35,7 @@
 #include <ruby-templates.hh>
 
 #include <expression.hh>
+#include <statistics.hh>
 
 
 //////////////////////////////////////////////////////////////////////
@@ -50,6 +51,27 @@ static void applyFormulaCommand(const QString &, QString formula,
 
   int extra = 0;
   updateFromOptions(opts, "extra-columns", extra);
+  bool useStats = false;
+  updateFromOptions(opts, "use-stats", useStats);
+
+  /// @question I'm using a global variable here since it is
+  /// impossible for the time being to pass a plain Ruby object
+  /// through Expression.
+
+  VALUE oldStats = Qnil;
+  if(useStats) {
+    oldStats = rb_gv_get("$stats");
+    Statistics st(ds);
+    ValueHash s;
+    QList<ValueHash> sstats = st.statsBySegments(&s);
+    VALUE hsh = s.toRuby();
+    for(int i = 0; i < sstats.size(); i++) {
+      VALUE v = sstats[i].toRuby();
+      rb_hash_aset(hsh, INT2FIX(i), v);
+      rb_hash_aset(hsh, rb_float_new(i), v);
+    }
+    rb_gv_set("$stats", hsh);
+  }
 
   Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
     arg(formula).arg(ds->name) << endl;
@@ -97,6 +119,8 @@ static void applyFormulaCommand(const QString &, QString formula,
     for(int j = 0; j < ret.size(); j++)
       newCols[j].append(ret[j]);
   }
+  if(useStats)
+    rb_gv_set("$stats", oldStats);
 
   DataSet * newDs = ds->derivedDataSet(newCols, "_mod.dat");
   soas().pushDataSet(newDs);
@@ -112,7 +136,12 @@ static ArgumentList
 fO(QList<Argument *>() 
    << new IntegerArgument("extra-columns", 
                           "Extra columns",
-                          "Number of extra columns to create"));
+                          "Number of extra columns to create")
+   << new BoolArgument("use-stats", 
+                       "Use statistics",
+                       "If on, a $stats hash is available that contains "
+                       "statistics")
+   );
 
 
 static Command 

@@ -81,3 +81,19 @@ QList<ValueHash> Statistics::statsByColumns(ValueHash * overall)
   internalStats(overall, &ret);
   return ret;
 }
+
+QList<ValueHash> Statistics::statsBySegments(ValueHash * overall)
+{
+  if(segs.size() == 0)
+    segs = source->chopIntoSegments();
+  QList<ValueHash> ret;
+
+  if(overall)
+    internalStats(overall, NULL);
+
+  for(int i = 0; i < segs.size(); i++) {
+    Statistics s(segs[i]);
+    ret << s.stats();
+  }
+  return ret;
+}

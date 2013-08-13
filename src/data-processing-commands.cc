@@ -65,7 +65,7 @@ namespace __reg {
     Quit
   } ReglinActions;
 
-  static EventHandler reglinHandler = EventHandler("reg").
+  static EventHandler reglinHandler = EventHandler("reglin").
     addClick(Qt::LeftButton, LeftPick, "pick left bound").
     addClick(Qt::RightButton, RightPick, "pick right bound").
     addKey('q', Quit, "quit").
@@ -222,6 +222,37 @@ namespace __reg {
 
 //////////////////////////////////////////////////////////////////////
 
+namespace __fl {
+
+  typedef enum {
+    PickLeft,
+    PickRight,
+    ZoomIn,
+    ZoomOut,
+    QuitDividing,
+    QuitReplacing,
+    NextSegment,
+    PreviousSegment,
+    SetManually,
+    Abort
+  } FilmLossActions;
+
+  static EventHandler filmLossHandler = EventHandler("film-loss").
+    addClick(Qt::LeftButton, PickLeft, "pick left bound").
+    addClick(Qt::RightButton, PickRight, "pick right bound").
+    addKey('q', QuitDividing, "quit dividing by coverage").
+    alsoKey('Q').
+    addKey(Qt::Key_Escape, Abort).
+    addKey('z', ZoomIn, "zoom to current segment").
+    addKey('Z', ZoomOut, "zoom to overall view").
+    addKey(' ', NextSegment, "next segment").
+    alsoKey('n').alsoKey('N').
+    addKey('p', PreviousSegment, "previous segment").
+    alsoKey('P').alsoKey('b').alsoKey('B').
+    addKey('k', SetManually, "set manually rate constant").
+    alsoKey('K');
+
+
 /// @todo This should be turned into a lambda expression !
 static void zoomToSegment(const DataSet * ds, int seg, CurveView & view)
 {
@@ -271,16 +302,9 @@ static void filmLossCommand(CurveEventLoop &loop, const QString &)
   double xleft = ds->x().min();
   double xright = ds->x().max();
 
-
-  loop.setHelpString(QObject::tr("Film loss:\n"
-                                 "left click: left boundary\n"
-                                 "right click: right boundary\n"
-                                 "space, n: jump to next\n"
-                                 "z: zoom on current segment\n"
-                                 "k: enter rate constant manually\n"
-                                 "b: back to previous segment\n"
-                                 "r: replace buffer by coverage\n"
-                                 "q: quit dividing by coverage"));
+  loop.setHelpString(QString("Film loss:\n")
+                       + filmLossHandler.buildHelpString());
+  bool needUpdate = false;
 
   int currentSegment = 0;
   zoomToSegment(ds, currentSegment, view);
@@ -288,25 +312,72 @@ static void filmLossCommand(CurveEventLoop &loop, const QString &)
   QVarLengthArray<double, 200> rateConstants(ds->segments.size() + 1);
   for(int i = 0; i <= ds->segments.size(); i++)
     rateConstants[i] = 0;
-      
 
   while(! loop.finished()) {
-    switch(loop.type()) {
-    case QEvent::MouseButtonPress: {
+    int action = filmLossHandler.nextAction(loop);
+    switch(action) {
+    case PickLeft:
+    case PickRight: {
       r.setX(loop.position().x(), loop.button());
-      reg = ds->reglin(r.xleft, r.xright);
+      reg = ds->reglin(r.xmin(), r.xmax());
       double y = reg.first * xleft + reg.second;
       line.p1 = QPointF(xleft, y);
       y = reg.first * xright + reg.second;
       line.p2 = QPointF(xright, y);
       double decay = 1/(-reg.second/reg.first - r.xleft);
       rateConstants[currentSegment] = decay;
-      Terminal::out << reg.first << "\t" << reg.second 
+      Terminal::out << "xleft = " << r.xleft << "\t" 
+                    << "xright = " << r.xright << "\t" 
+                    << reg.first << "\t" << reg.second 
                     << "\t" << decay << endl;
       soas().showMessage(QObject::tr("Regression between X=%1 and X=%2 "
                                      "(segment #%3)").
                          arg(r.xleft).arg(r.xright).arg(currentSegment + 1));
-
+      needUpdate = true;
+      break;
+    }
+    case SetManually: {
+      QString str = loop.promptForString("Decay rate constant:");
+      bool ok = false;
+      double val = str.toDouble(&ok);
+      if(ok) {
+        rateConstants[currentSegment] = val;
+        needUpdate = true;
+      }
+      break;
+    }
+    case ZoomIn:
+      zoomToSegment(ds, currentSegment, view);
+      break;
+    case ZoomOut:
+      view.mainPanel()->zoomIn(QRectF());
+      break;
+    case QuitDividing:
+      soas().pushDataSet(ds->derivedDataSet(corr.yvalues, "_corr.dat"));
+      return;
+    case QuitReplacing:
+      soas().pushDataSet(ds->derivedDataSet(d.yvalues, "_coverage.dat"));
+      return;
+    case Abort:
+      return;
+    case NextSegment:
+      currentSegment += 1;
+      if(currentSegment > ds->segments.size())
+        currentSegment = ds->segments.size();
+      else
+        zoomToSegment(ds, currentSegment, view);
+      break;
+    case PreviousSegment:
+      currentSegment -= 1;
+      if(currentSegment < 0)
+        currentSegment = 0;
+      else
+        zoomToSegment(ds, currentSegment, view);
+      break;
+    default:
+      ;
+    }
+    if(needUpdate) {
       // Here, we update the remaining coverage...
 
       double init = 1;
@@ -323,53 +394,6 @@ static void filmLossCommand(CurveEventLoop &loop, const QString &)
       }
       
       bottom.setYRange(d.yvalues.min(), d.yvalues.max(), view.mainPanel());
-
-      break;
-    }
-    case QEvent::KeyPress: 
-      switch(loop.key()) {
-      case 'z':
-      case 'Z':
-        zoomToSegment(ds, currentSegment, view);
-        break;
-
-      case 'q':
-      case 'Q': {
-        soas().pushDataSet(ds->derivedDataSet(corr.yvalues, "_corr.dat"));
-        return;
-      }
-      case 'r':
-      case 'R': {
-        soas().pushDataSet(ds->derivedDataSet(d.yvalues, "_coverage.dat"));
-        return;
-      }
-      case Qt::Key_Escape:
-        return;
-      case ' ':
-      case 'n':
-      case 'N': {
-        currentSegment += 1;
-        if(currentSegment > ds->segments.size())
-          currentSegment = ds->segments.size();
-        else
-          zoomToSegment(ds, currentSegment, view);
-        break;
-      }
-      case 'b':
-      case 'B': {
-        currentSegment -= 1;
-        if(currentSegment < 0)
-          currentSegment = 0;
-        else
-          zoomToSegment(ds, currentSegment, view);
-        break;
-      }
-      default:
-        ;
-      }
-      break;
-    default:
-      ;
     }
   }
 }
@@ -383,6 +407,8 @@ fl("film-loss", // command name
     "Film loss",
     "Corrects for film loss segment-by-segment",
     "...");
+
+};
 
 //////////////////////////////////////////////////////////////////////
 

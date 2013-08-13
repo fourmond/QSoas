@@ -48,6 +48,7 @@ static void saveCommand(const QString &, QString file,
   bool mkpath = false;
   updateFromOptions(opts, "overwrite", overwrite);
   updateFromOptions(opts, "mkpath", mkpath);
+  file = Utils::expandTilde(file);
   if(! overwrite)
     Utils::confirmOverwrite(file);
   if(mkpath)

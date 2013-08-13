@@ -142,7 +142,11 @@ namespace Utils {
 
   /// Opens the given file with the target mode, raising a
   /// RuntimeError if that couldn't happen for some reason.
-  void open(QFile * file, QIODevice::OpenMode mode);
+  ///
+  /// Unless \a expandTilde is set to false, tilde are automatically
+  /// expanded.
+  void open(QFile * file, QIODevice::OpenMode mode, 
+            bool expandTilde = true);
 
   /// Asks confirmation before overwriting the target file if it exists.
   ///

@@ -712,7 +712,7 @@ void DataSet::write(const QString & n) const
   if(fileName.isEmpty())
     fileName = cleanedName() + ".dat";
   
-  QFile file(Utils::expandTilde(fileName));
+  QFile file(fileName);
   Utils::open(&file, QIODevice::WriteOnly);
 
   QTextStream o(&file);

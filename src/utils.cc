@@ -162,9 +162,13 @@ QString Utils::deltaStr(const QString & w)
 }
 
 
-void Utils::open(QFile * file, QIODevice::OpenMode mode)
+void Utils::open(QFile * file, QIODevice::OpenMode mode, bool expand)
 {
-  /// @todo Implement parsing of ~ ? (seems rather useless)
+  if(expand) {
+    QString efn = Utils::expandTilde(file->fileName());
+    if(efn != file->fileName())
+      file->setFileName(efn);
+  }
   if(! file->open(mode)) {
     QString mdStr;
     switch(mode & QIODevice::ReadWrite) {

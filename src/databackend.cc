@@ -116,12 +116,13 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName,
                                        const CommandOptions & opts, 
                                        bool verbose)
 {
-  QFile file(Utils::expandTilde(fileName));
+  QString fn = Utils::expandTilde(fileName);
+  QFile file(fn);
 
   bool ignoreCache = false;
   updateFromOptions(opts, "ignore-cache", ignoreCache);
 
-  QFileInfo info(fileName);
+  QFileInfo info(fn);
   QString key = info.canonicalFilePath();
   QDateTime lastModified = info.lastModified();
 

@@ -20,6 +20,7 @@
 #include <outfile.hh>
 #include <terminal.hh>
 
+#include <utils.hh>
 #include <valuehash.hh>
 
 OutFile OutFile::out("out.dat");
@@ -32,6 +33,7 @@ OutFile::OutFile(const QString &n) :
 void OutFile::ensureOpened()
 {
   if(! output) {
+    name = Utils::expandTilde(name);
     output = new QFile(name);
     
     if(! output->open(QIODevice::ReadWrite | QIODevice::Text)) 

@@ -47,6 +47,7 @@
 #include <datastack.hh>
 
 #include <dataseteditor.hh>
+#include <statistics.hh>
 
 
 static Group grp("buffer", 2,
@@ -971,34 +972,15 @@ shiftx("shiftx", // command name
 
 static void statsOn(const DataSet * ds, bool output)
 {
+  Statistics stats(ds);
+
   ValueHash os;
-  os << "buffer" << ds->name;
+  QList<ValueHash> byCols = stats.statsByColumns(&os);
 
   Terminal::out << "Statistics on buffer: " << ds->name << ":";
-  QStringList names = ds->columnNames();
-  for(int i = 0; i < ds->nbColumns(); i++) {
-    const QString & n = names[i];
-    const Vector & c = ds->column(i);
-    double a,v;
-    c.stats(&a, &v);
+  for(int i = 0; i < ds->nbColumns(); i++)
+    Terminal::out << "\n" << byCols[i].prettyPrint();
 
-    ValueHash stats;
-    stats << QString("%1[0]").arg(n) << c.first()
-          << QString("%1[%2]").arg(n).arg(c.size() - 1) << c.last()
-          << QString("%1_min").arg(n) << c.min()
-          << QString("%1_max").arg(n) << c.max()
-          << QString("%1_average").arg(n) << a
-          << QString("%1_med").arg(n) << c.median() /// @todo get rid
-                                                    /// if too slow ?
-          << QString("%1_var").arg(n) << v
-          << QString("%1_norm").arg(n) << c.norm();
-
-    if(i > 0)                   // Integrate
-      stats << QString("%1_int").arg(n) << Vector::integrate(ds->x(), c);
-
-    os.merge(stats);
-    Terminal::out << "\n" << stats.prettyPrint();
-  }
   Terminal::out << endl;
   if(output) {
     Terminal::out << "Writing stats to output file" << endl;

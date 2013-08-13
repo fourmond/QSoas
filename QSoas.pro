@@ -234,7 +234,8 @@ SOURCES += src/qmain.cc \
         src/checkablewidget.cc \
         src/datasetoptions.cc \
         src/pointiterator.cc \
-        src/dataseteditor.cc
+        src/dataseteditor.cc \
+        src/statistics.cc
 
 
 HEADERS += src/headers.hh \
@@ -322,7 +323,8 @@ HEADERS += src/headers.hh \
         src/datasetoptions.hh \
         src/argument-templates.hh \
         src/pointiterator.hh \
-        src/dataseteditor.hh
+        src/dataseteditor.hh \
+        src/statistics.hh
 
 # We link with the converted ODRPACK library
 message("Using odrpack")

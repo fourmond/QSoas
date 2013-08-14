@@ -39,8 +39,13 @@ class Guardable {
     watchers.remove(watcher);
   };
 
+public:
+  Guardable() {;};
+  
+  Guardable(const Guardable & /*tg*/) {;}; // we don't copy the watchers list !
+
 protected:
-  ~Guardable();
+  virtual ~Guardable();
 
 };
 
@@ -64,7 +69,7 @@ protected:
       _target->addWatcher(this);
   };
 
-  ~GuardedPointerBase() {
+  virtual ~GuardedPointerBase() {
     if(_target)
       _target->removeWatcher(this);
   };

@@ -304,13 +304,13 @@ int ODRPACKFitEngine::iterate()
 
     dwinf_(&nb, &m, &np, &q, &one, &one, &isodr, // These are the *in*
            // parameters
-           d++, d++, d++, d++,                  // FNI
-           &standardDeviationIdx, &covarianceMatrixIdx, d++, // RVARI
-           &residualsIdx, d++, d++, &conditionNumberIdx, d++, // ETAI
-           d++, d++, d++, // ALPHAI
-           d++, d++, d++, d++, d++, d++, d++, d++, d++, d++, d++, d++, //BETANI
-           d++, d++, d++, d++, d++, d++, d++, d++, d++, d++, d++, d++, //TI
-           d++, d++, d++, d++, d++, d++, d++, d++, d++, d++, d++ //LWKMN
+           d+1, d+2, d+3, d+4,                  // FNI
+           &standardDeviationIdx, &covarianceMatrixIdx, d+5, // RVARI
+           &residualsIdx, d+6, d+7, &conditionNumberIdx, d+8, // ETAI
+           d+9, d+10, d+11, // ALPHAI
+           d+12, d+13, d+14, d+15, d+16, d+17, d+18, d+19, d+20, d+21, d+22, d+23, //BETANI
+           d+24, d+25, d+26, d+27, d+28, d+29, d+30, d+31, d+32, d+33, d+34, d+35, //TI
+           d+36, d+37, d+38, d+39, d+40, d+41, d+42, d+43, d+44, d+45, d+46 //LWKMN
            );
   }
 

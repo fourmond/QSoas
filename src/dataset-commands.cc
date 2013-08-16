@@ -367,6 +367,7 @@ namespace __cu {
     alsoKey('V').
     addKey('u', QuitSubtracting, "quit subtracting Y value").
     alsoKey('U').
+    addPointPicker().
     addKey(Qt::Key_Escape, Quit, "quit").
     alsoKey('q').alsoKey('Q').
     addClick(Qt::MiddleButton, WriteToOutput, "write to output").
@@ -393,15 +394,15 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
   r.pen = QPen(Qt::NoPen);
   r.brush = QBrush(QColor(0,128,0,100)); // A kind of transparent green
   loop.setHelpString("Cursor:\n" +
-                     cursorHandler.buildHelpString() +
-                     pick.helpText());
+                     cursorHandler.buildHelpString());
 
   Terminal::out << "Point positions:\nx\ty\tindex\tdx\tdy" << endl;
   QString cur;
   while(! loop.finished()) {
-    pick.processEvent();
 
-    switch(cursorHandler.nextAction(loop)) {
+    int action = cursorHandler.nextAction(loop);
+    pick.processEvent(action);
+    switch(action) {
     case PickPoint:
         m.p = pick.point();
         cur = QString("%1\t%2\t%3\t%4\t%5").

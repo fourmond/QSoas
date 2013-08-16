@@ -100,6 +100,9 @@ public:
   /// Provides a key shortcut for the last action added
   EventHandler & alsoClick(Qt::MouseButton button);
 
+  /// Adds PointPicker actions to the handler: (only the key presses)
+  EventHandler & addPointPicker();
+
 
   /// Adds the action corresponding to a conventional accept.
   EventHandler & conventionalAccept(int action, const QString & help = "");

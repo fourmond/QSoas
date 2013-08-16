@@ -25,6 +25,8 @@ class CurveEventLoop;
 class CurvePanel;
 class DataSet;
 
+class EventHandler;
+
 
 /// A class for picking points from a dataset in a CurvePanel. It
 /// supports three point picking modes:
@@ -52,6 +54,12 @@ class PointPicker {
     Smooth
   } Method;
 
+  typedef enum {
+    ExactMethod = 100,
+    SmoothMethod = 101,
+    OffMethod = 102,
+  } Actions;
+
   /// The current method for point picking.
   Method method;
 
@@ -73,14 +81,19 @@ public:
   /// The buttons that are being followed for this event.
   Qt::MouseButtons trackedButtons;
 
+  /// Adds the acions to the given EventHandler. Better use directly
+  /// EventHandler::addPointPicker().
+  static void addToHandler(EventHandler & handler);
 
   /// Process events from the loop. Returns \a true if the event
   /// shouldn't be processed anymore.
   ///
+  /// The action given as argument is the pointpicker action. 
+  ///
   /// @todo Maybe I could even add hooks to the CurveEventLoop
   /// framework so that the user wouldn't even have to call manually
   /// processEvents ?
-  bool processEvent();
+  bool processEvent(int action);
 
   /// Returns the last button pressed for point picking, or
   /// Qt::NoButton if the last point wasn't a tracked button pressed.

@@ -429,6 +429,7 @@ static EventHandler baselineHandler = EventHandler("baseline").
   addClick(Qt::LeftButton, AddPoint, "place marker").
   addClick(Qt::RightButton, RemovePoint, "remove marker").
   baselineHandler().
+  addPointPicker().
   addKey('1', Add10Left, "add 10 to the left").
   addKey('2', Add10Right, "add 10 to the right").
   addKey('0', Add20Everywhere, "add 20 regularly spaced").
@@ -465,18 +466,18 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
   Spline::Type type = Spline::CSpline;
 
   loop.setHelpString("Spline interpolation:\n"
-                     + baselineHandler.buildHelpString() + "\n" + 
-                     pick.helpText());
+                     + baselineHandler.buildHelpString());
 
   while(! loop.finished()) {
     bool needCompute = false;
     bool isLeft = false;     // Used for sharing code for the 1/2 actions.
 
-    pick.processEvent();        // We don't filter actions out.
 
     bool computeDerivative = false;
     bool shouldQuit = false;
     int action = baselineHandler.nextAction(loop);
+
+    pick.processEvent(action);        // We don't filter actions out.
     if(h.nextAction(action, &shouldQuit, &computeDerivative,
                     &needCompute)) {
       if(shouldQuit)
@@ -580,12 +581,13 @@ static EventHandler baselineHandler = EventHandler("catalytic-baseline").
   addClick(Qt::LeftButton, AddPoint, "place marker").
   addClick(Qt::RightButton, NextMarker, "next marker").
   baselineHandler(BaselineHandler::NoDerivative).
+  addPointPicker().
   addKey('1', Pick1, "pick point 1").
   addKey('2', Pick2, "pick point 2").
   addKey('3', Pick3, "pick point 3").
   addKey('4', Pick4, "pick point 4").
-  addKey('x', ToggleExponential, "toggle exponential").
-  alsoKey('X').
+  addKey('e', ToggleExponential, "toggle exponential").
+  alsoKey('E').
   addKey(Qt::Key_Escape, Abort, "abort");
   
 
@@ -607,19 +609,18 @@ static void cBaselineCommand(CurveEventLoop &loop, const QString &)
   m.brush = QBrush(QColor(0,0,255,100)); /// @todo customize that too 
 
   loop.setHelpString("Catalytic baseline:\n"
-                     + baselineHandler.buildHelpString() + "\n" + 
-                     pick.helpText());
+                     + baselineHandler.buildHelpString());
 
   bool isExponential = false;
 
   while(! loop.finished()) {
     bool needCompute = false;
 
-    pick.processEvent();        // We don't filter actions out.
 
     bool computeDerivative = false;
     bool shouldQuit = false;
     int action = baselineHandler.nextAction(loop);
+    pick.processEvent(action);        // We don't filter actions out.
     if(h.nextAction(action, &shouldQuit, &computeDerivative,
                     &needCompute)) {
       if(shouldQuit)
@@ -1424,7 +1425,7 @@ namespace __ss {
   static EventHandler ssHandler = EventHandler("set-segments").
     addKey(Qt::Key_Escape, Abort, "abort").
     addKey('d', DumpSegments, "dump segments").
-    alsoKey('d').
+    alsoKey('D').
     conventionalAccept(Accept, "save segments").
     addClick(Qt::LeftButton, AddSegment, "add segment").
     addClick(Qt::RightButton, RemoveSegment, "remove segment").

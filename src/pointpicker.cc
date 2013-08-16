@@ -25,6 +25,7 @@
 #include <curvedataset.hh>
 
 #include <exceptions.hh>
+#include <eventhandler.hh>
 
 #include <soas.hh>
 
@@ -44,6 +45,17 @@ PointPicker::PointPicker(CurveEventLoop * l, const DataSet * ds,
 PointPicker::~PointPicker()
 {
   lastMethodUsed = method;
+}
+
+void PointPicker::addToHandler(EventHandler & handler)
+{
+  handler.
+    addKey('x', ExactMethod, "pick marker: exact").
+    alsoKey('X').
+    addKey('o', OffMethod, "...off").
+    alsoKey('O').
+    addKey('s', SmoothMethod, "...smooth").
+    alsoKey('S');
 }
 
 void PointPicker::pickPoint()
@@ -75,7 +87,7 @@ void PointPicker::pickPoint()
   }
 }
 
-bool PointPicker::processEvent()
+bool PointPicker::processEvent(int action)
 {
   lastButton = Qt::NoButton;
   if(loop->type() == QEvent::MouseButtonPress && 
@@ -84,28 +96,22 @@ bool PointPicker::processEvent()
     pickPoint();
     return true;
   }
-  else if(loop->type() == QEvent::KeyPress) {
-    switch(loop->key()) {
-    case 'x':
-    case 'X':                   // eXact
+  switch(action) {
+  case ExactMethod:
       method = Exact;
       break;
-    case 'o':
-    case 'O':                   // Off
+  case OffMethod:
       method = Off;
       break;
-    case 's':
-    case 'S':                   // Smooth
+  case SmoothMethod:
       method = Smooth;
       break;
-    default:
-      return false;
-    }
-    loop->ppMessage = pointPickerMessage();
-    loop->updateMessage();
-    return true;
+  default:
+    return false;
   }
-  return false;
+  loop->ppMessage = pointPickerMessage();
+  loop->updateMessage();
+  return true;
 }
 
 QString PointPicker::pointPickerMessage() const

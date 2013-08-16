@@ -20,6 +20,9 @@
 #include <eventhandler.hh>
 #include <curveeventloop.hh>
 #include <baselinehandler.hh>
+#include <pointpicker.hh>
+
+#include <exceptions.hh>
 
 QHash<QString, EventHandler *> * EventHandler::registeredHandlers = NULL;
 
@@ -85,9 +88,16 @@ QString EventHandler::clickString(Qt::MouseButton button)
   return QString();
 }
 
+EventHandler & EventHandler::addPointPicker()
+{
+  PointPicker::addToHandler(*this);
+  return *this;
+}
 
 EventHandler & EventHandler::addKey(int key, int action, const QString & help)
 {
+  if(keyActions.contains(key))
+    throw InternalError("Multiply defined key: %1").arg(key);
   keyActions[key] = action;
   if(! helpTexts.contains(action))
     helpTexts[action] = help;
@@ -97,6 +107,8 @@ EventHandler & EventHandler::addKey(int key, int action, const QString & help)
 
 EventHandler & EventHandler::alsoKey(int key)
 {
+  if(keyActions.contains(key))
+    throw InternalError("Multiply defined key: %1").arg(key);
   keyActions[key] = lastAction;
   return *this;
 }
@@ -104,6 +116,8 @@ EventHandler & EventHandler::alsoKey(int key)
 EventHandler & EventHandler::addClick(Qt::MouseButton button, 
                                       int action, const QString & help)
 {
+  if(clickActions.contains(button))
+    throw InternalError("Multiply defined click: %1").arg(button);
   clickActions[button] = action;
   if(! helpTexts.contains(action))
     helpTexts[action] = help;

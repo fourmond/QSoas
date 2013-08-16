@@ -75,6 +75,11 @@ win32|exists(/usr/bin/gcc-4.6) {
   QMAKE_CXXFLAGS += -std=c++11
 }
 
+# We need to use libc++ on macos to have the correct C++ 11 header
+# files
+macx:QMAKE_CXXFLAGS += -stdlib=libc++
+
+
 
 QMAKE_CFLAGS += -O3
 

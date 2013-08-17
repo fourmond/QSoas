@@ -69,4 +69,18 @@ public:
   double solve(double x0);
 };
 
+
+/// A class for solving an equation that can be provided as a lambda
+/// expression
+class LambdaSolver : public Solver {
+protected:
+  std::function<double (double)> fnc;
+public:
+  LambdaSolver(const std::function<double (double)> & f, 
+               const gsl_root_fdfsolver_type * type = 
+               gsl_root_fdfsolver_steffenson);
+
+  virtual double f(double x);
+};
+
 #endif

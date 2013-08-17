@@ -103,3 +103,19 @@ double Solver::solve()
   }
   return xp;
 }
+
+
+//////////////////////////////////////////////////////////////////////
+
+LambdaSolver::LambdaSolver(const std::function<double (double)> & f, 
+                           const gsl_root_fdfsolver_type * type) :
+  Solver(type), fnc(f)
+{
+  
+}
+
+double LambdaSolver::f(double x)
+{
+  return fnc(x);
+}
+

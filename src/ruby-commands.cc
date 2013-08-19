@@ -36,6 +36,7 @@
 
 #include <expression.hh>
 #include <statistics.hh>
+#include <rubysolver.hh>
 
 
 //////////////////////////////////////////////////////////////////////
@@ -243,7 +244,7 @@ lf("ruby-run", // command name
 ///
 /// @todo There should also be a way to store the result somehow
 /// (although using global variables is always possible !)
-void eval(const QString &, QString code)
+static void eval(const QString &, QString code)
 {
   QByteArray bt = code.toLocal8Bit();
   VALUE value = Ruby::run(Ruby::eval, bt);
@@ -265,3 +266,31 @@ ev("eval", // command name
    NULL, // options
    "Ruby eval",
    "Evaluates a Ruby expression and prints the result", "");
+
+//////////////////////////////////////////////////////////////////////
+
+static void solve(const QString &, QString formula, double seed)
+{
+  RubySolver slv(formula);
+  double rt = slv.solve(seed);
+  Terminal::out << "Found root at: " << rt << endl;
+}
+
+static ArgumentList 
+sA(QList<Argument *>() 
+   << new StringArgument("formula", 
+                         "Formula",
+                         "An expression of 1 variable (not an equation !)")
+   << new NumberArgument("seed", "Seed", 
+                         "Initial X value from which to search")
+   );
+
+
+static Command 
+sv("find-root", // command name
+   optionLessEffector(solve), // action
+   "file",  // group name
+   &sA, // arguments
+   NULL, // options
+   "Finds a root",
+   "Finds a root for the given expression");

@@ -72,7 +72,29 @@ public:
 
   /// Solves until the desired relative and absolute accuracies
   void solve(); 
+
+  /// Combines initialize() and solve(), and return the roots found
+  const gsl_vector * solve(const gsl_vector * init); 
 };
 
+
+
+/// A lambda-based multidimensional solver
+class LambdaMSolver : public MSolver {
+protected:
+  std::function<void (const gsl_vector * x, gsl_vector * tg)> func;
+
+  int dim;
+public:
+
+  LambdaMSolver(int size, 
+                const std::function<void (const gsl_vector * x, gsl_vector * tg)> & fn, 
+                const gsl_multiroot_fdfsolver_type * type = 
+                gsl_multiroot_fdfsolver_hybridsj);
+
+  virtual int dimension() const;
+
+  virtual int f(const gsl_vector * x, gsl_vector * tg);
+};
 
 #endif

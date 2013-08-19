@@ -128,4 +128,32 @@ void MSolver::solve()
   }
 }
 
+const gsl_vector * MSolver::solve(const gsl_vector * init)
+{
+  initialize(init);
+  solve();
+  return currentValue();
+}
 
+
+//////////////////////////////////////////////////////////////////////
+
+
+
+LambdaMSolver::LambdaMSolver(int size,
+                             const std::function<void (const gsl_vector * x, gsl_vector * tg)> & fn, 
+                             const gsl_multiroot_fdfsolver_type * type) :
+  MSolver(type), func(fn), dim(size)
+{
+}
+
+int LambdaMSolver::dimension() const
+{
+  return dim;
+}
+
+int LambdaMSolver::f(const gsl_vector * x, gsl_vector * tg)
+{
+  func(x, tg);
+  return GSL_SUCCESS;
+}

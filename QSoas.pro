@@ -241,7 +241,8 @@ SOURCES += src/qmain.cc \
         src/pointiterator.cc \
         src/dataseteditor.cc \
         src/statistics.cc \
-        src/solver.cc
+        src/solver.cc \
+        src/rubysolver.cc
 
 
 HEADERS += src/headers.hh \
@@ -331,7 +332,8 @@ HEADERS += src/headers.hh \
         src/pointiterator.hh \
         src/dataseteditor.hh \
         src/statistics.hh \
-        src/solver.hh
+        src/solver.hh \
+        src/rubysolver.hh
 
 # We link with the converted ODRPACK library
 message("Using odrpack")

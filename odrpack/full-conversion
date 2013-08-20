@@ -6,6 +6,7 @@ for my $file (@ARGV) {
     open OUT, "> $file";
 
     my $openparent = 0;
+    my $fmts = 0;
     my $nb;
     while (my $line = <IN>) {
         $nb ++;
@@ -17,6 +18,16 @@ for my $file (@ARGV) {
         if($line =~ /io___|do_fio|s_copy|[es]_wsf[ei]/ || $openparent > 0) {
             $line =~ s/\(/$openparent++/ge;
             $line =~ s/\)/$openparent--/ge;
+            next;
+        }
+        # We strip all format strings delimited by the given comments
+        if($line =~ m#/\* Format strings \*/#) {
+            $fmts = 1;
+        }
+        elsif($line =~ m#/\*.*\*/#) {
+            $fmts = 0;
+        }
+        if($fmts) {
             next;
         }
         if($line =~ /"f2c.h"/) {

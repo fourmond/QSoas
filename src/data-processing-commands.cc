@@ -52,6 +52,8 @@
 #include <peaks.hh>
 #include <idioms.hh>
 
+#include <msolver.hh>
+
 //////////////////////////////////////////////////////////////////////
 
 namespace __reg {
@@ -701,6 +703,41 @@ static void cBaselineCommand(CurveEventLoop &loop, const QString &)
           double tau = (x_lim - x_0)/log(dy_0/dy_lim);
           double a = - dy_0 * tau * exp(x_0/tau);
           double b = y_0 - a * exp(-x_0/tau);
+          
+          // Here, we solve the real equation, ie exact values at
+          // first and second points + ratio of the last two points
+          // equal to the first
+          double vals[3] = {tau, a, b};
+
+          gsl_vector_view v = gsl_vector_view_array(vals, 3);
+          
+          LambdaMSolver slv(3, 
+                            [&](const gsl_vector * x, 
+                                gsl_vector * tg) -> void {
+                              double mt = gsl_vector_get(x, 0);
+                              double ma = gsl_vector_get(x, 1);
+                              double mb = gsl_vector_get(x, 2);
+
+                              gsl_vector_set(tg, 0, 
+                                             mb + ma * exp(-m.points[0].x()/mt) - m.points[0].y());
+                              gsl_vector_set(tg, 1, 
+                                             mb + ma * exp(-m.points[1].x()/mt) - m.points[1].y());
+                              double rat = mb + ma * exp(-m.points[3].x()/mt);
+                              rat /= mb + ma * exp(-m.points[2].x()/mt);
+                              gsl_vector_set(tg, 2, rat - m.points[3].y()/m.points[2].y());
+                            });
+          try {
+            slv.solve(&v.vector);
+            const gsl_vector * vect = slv.currentValue();
+            tau = gsl_vector_get(vect, 0);
+            a = gsl_vector_get(vect, 1);
+            b = gsl_vector_get(vect, 2);
+          }
+          catch(RuntimeError & er) {
+            Terminal::out << "Impossible to solve the equation: " 
+                          << er.message() << endl;
+          }
+
           for(int i = 0; i < sz; i++)
             h.modified.yvalues[i] = b + a*exp(-xv[i]/tau);
         }

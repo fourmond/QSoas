@@ -21,7 +21,8 @@ for my $file (@ARGV) {
             next;
         }
         # We strip all format strings delimited by the given comments
-        if($line =~ m#/\* Format strings \*/#) {
+        # -- but only in the d_odr file...
+        if($line =~ m#/\* Format strings \*/# && $file =~ /d_odr/) {
             $fmts = 1;
         }
         elsif($line =~ m#/\*.*\*/#) {

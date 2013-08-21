@@ -132,9 +132,9 @@ double Solver::solve()
 
     int status = 0;
     if(fsolver)
-      gsl_root_test_interval(gsl_root_fsolver_x_lower(fsolver),
-                             gsl_root_fsolver_x_upper(fsolver),
-                             absolutePrec, relativePrec);
+      status = gsl_root_test_interval(gsl_root_fsolver_x_lower(fsolver),
+                                     gsl_root_fsolver_x_upper(fsolver),
+                                     absolutePrec, relativePrec);
     else 
       status = gsl_root_test_delta (xn, xp, absolutePrec, relativePrec);
 

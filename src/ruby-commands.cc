@@ -269,10 +269,19 @@ ev("eval", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void solve(const QString &, QString formula, double seed)
+static void solve(const QString &, QString formula, double seed, 
+                  const CommandOptions & opts)
 {
   RubySolver slv(formula);
-  double rt = slv.solve(seed);
+  
+  double rt = 1.0/0.0;
+  if(opts.contains("max")) {
+    double max = seed;
+    updateFromOptions(opts, "max", max);
+    rt = slv.solve(seed, max);
+  }
+  else 
+    rt = slv.solve(seed);
   Terminal::out << "Found root at: " << rt << endl;
 }
 
@@ -286,11 +295,19 @@ sA(QList<Argument *>()
    );
 
 
+static ArgumentList 
+sO(QList<Argument *>() 
+   << new NumberArgument("max", "Max", 
+                         "If present, uses dichotomy between seed and max",
+                         true)
+   );
+
+
 static Command 
 sv("find-root", // command name
-   optionLessEffector(solve), // action
+   effector(solve), // action
    "file",  // group name
    &sA, // arguments
-   NULL, // options
+   &sO, // options
    "Finds a root",
    "Finds a root for the given expression");

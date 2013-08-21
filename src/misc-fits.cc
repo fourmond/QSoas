@@ -964,14 +964,26 @@ public:
       const double &S = base[2];
       double omega = base[4] * 2 * M_PI/60; // rads/second
       const double &nu = base[5];
-      
-      conv = 2 * GSL_CONST_MKSA_FARADAY * 0.620 * 1e-6 * S * 
-        pow(D * D * D * D * omega * omega * omega / nu, 1.0/6.0);
+
+      // double fct = pow(D * D * D * D * omega * omega * omega / nu, 1.0/6.0);
+      // double fct = pow(D, 2.0/3.0) *sqrt(omega)/
+      //   pow(nu, 1.0/6.0);
+
+      // QTextStream o(stdout);
+      // o << "D = " << D << "\tS = " << S 
+      //   << "\tomega = " << omega << " (= " << base[4] << " RPMS)"
+      //   << "\tnu = " << nu << "\tfct = " << fct
+      //   << endl;
+
+      conv = 2 * GSL_CONST_MKSA_FARADAY * 0.620 * 1e-6 * S * fct;
+      if(! isOxidation)
+        conv = - conv;
 
       km = base[0];
       s_inf = base[1];
     }
 
+    double last = 0;
     for(int i = 0; i < xv.size(); i++) {
       double x = xv[i];
 
@@ -1002,9 +1014,18 @@ public:
                                           bd0);
           });
         double ov = v;
-        v = slv.solve(ov);
+
+        // Actually, the initial parameter is critical. Using the last
+        // one just works if the voltammogram starts from 0. If not,
+        // maybe we can use a little less than s_inf as the starting value ?
+        double i_lim = conv * s_inf;
+
+        if(fabs(v) > fabs(i_lim))
+          v = i_lim;
+        v = slv.solve((i > 0 ? last : v));
       }
 
+      last = v;
       gsl_vector_set(target, i, v);
     }
   };
@@ -1076,6 +1097,10 @@ public:
                                 "Plateau",
                                 "Whether to use the general expression or "
                                 "only that valid when plateaus are not reached")
+                   << new 
+                   BoolArgument("transport", 
+                                "Transport",
+                                "If transport is truly on")
                    << new 
                    BoolArgument("oxidation", 
                                 "...",

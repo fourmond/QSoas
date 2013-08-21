@@ -1899,7 +1899,7 @@ static void deldpCommand(CurveEventLoop &loop, const QString &)
     switch(loop.type()) {
     case QEvent::MouseButtonPress: 
       if(loop.button() == Qt::LeftButton) {
-        if(t.lastIndex >= 0)
+        if(t.lastIndex >= 0 && t.lastIndex < newds.nbRows())
           newds->removePoint(t.lastIndex);
       }
       

@@ -21,15 +21,25 @@
 
 #include <exceptions.hh>
 
-Solver::Solver(const gsl_root_fdfsolver_type * type) :
-  absolutePrec(0), relativePrec(1e-4), maxIterations(15)
+Solver::Solver(const gsl_root_fdfsolver_type * t) :
+  fdfsolver(NULL), fsolver(NULL),
+  absolutePrec(0), relativePrec(1e-4), maxIterations(25), type(t)
 {
-  fdfsolver = gsl_root_fdfsolver_alloc(type);
+}
+
+void Solver::freeSolvers()
+{
+  if(fdfsolver)
+    gsl_root_fdfsolver_free(fdfsolver);
+  fdfsolver = NULL;
+  if(fsolver)
+    gsl_root_fsolver_free(fsolver);
+  fsolver = NULL;
 }
 
 Solver::~Solver()
 {
-  gsl_root_fdfsolver_free(fdfsolver);
+  freeSolvers();
 }
 
 double Solver::f(double x, void * params)
@@ -60,16 +70,24 @@ void Solver::fdf(double x, void * params, double * f, double * df)
 
 double Solver::currentValue() const
 {
-  return gsl_root_fdfsolver_root(fdfsolver);
+  if(fdfsolver)
+    return gsl_root_fdfsolver_root(fdfsolver);
+  else
+    return gsl_root_fsolver_root(fsolver);
 }
 
 int Solver::iterate()
 {
-  return gsl_root_fdfsolver_iterate(fdfsolver);
+  if(fdfsolver)
+    return gsl_root_fdfsolver_iterate(fdfsolver);
+  else
+    return gsl_root_fsolver_iterate(fsolver);
 }
 
 void Solver::initialize(double x0)
 {
+  freeSolvers();
+  fdfsolver = gsl_root_fdfsolver_alloc(type);
   function.f = &Solver::f;
   function.df = &Solver::df;
   function.fdf = &Solver::fdf;
@@ -79,9 +97,28 @@ void Solver::initialize(double x0)
   gsl_root_fdfsolver_set(fdfsolver, &function, x0);
 }
 
+void Solver::initialize(double min, double max)
+{
+  freeSolvers();
+  fsolver = gsl_root_fsolver_alloc(gsl_root_fsolver_brent);
+
+  if(min > max)
+    std::swap(min, max);
+  fnc.function = &Solver::f;
+  fnc.params = this;
+
+  gsl_root_fsolver_set(fsolver, &fnc, min, max);
+}
+
 double Solver::solve(double x0)
 {
   initialize(x0);
+  return solve();
+}
+
+double Solver::solve(double min, double max)
+{
+  initialize(min, max);
   return solve();
 }
 
@@ -92,7 +129,14 @@ double Solver::solve()
   while(true) {
     iterate();
     double xn = currentValue();
-    int status = gsl_root_test_delta (xn, xp, absolutePrec, relativePrec);
+
+    int status = 0;
+    if(fsolver)
+      gsl_root_test_interval(gsl_root_fsolver_x_lower(fsolver),
+                             gsl_root_fsolver_x_upper(fsolver),
+                             absolutePrec, relativePrec);
+    else 
+      status = gsl_root_test_delta (xn, xp, absolutePrec, relativePrec);
 
     if (status == GSL_SUCCESS)
       return xn;

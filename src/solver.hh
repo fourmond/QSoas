@@ -22,13 +22,23 @@
 #define __SOLVER_HH
 
 /// Solves a 1-dimensional equation. This is a virtual base class.
+///
+/// This solver can use two different strategies depending on how they
+/// are initialized: dichotomy if used via the range-specifiying
+/// initialization or newton stuff in the other case.
 class Solver {
 protected:
-  /// The solver
+  /// The solver used for the one-variable initial conditions
   gsl_root_fdfsolver * fdfsolver;
+
+  /// The solver used for the dichotomy approach
+  gsl_root_fsolver * fsolver;
 
   /// The function provided to the solver
   gsl_function_fdf function;
+
+  /// The other function provided to the solver
+  gsl_function fnc;
 
   static double  f(double x, void * params);
   static double df(double x, void * params);
@@ -43,6 +53,11 @@ protected:
   /// Maximum number of iterations
   int maxIterations;
 
+  /// frees all solvers
+  void freeSolvers();
+
+  /// The type for fdfsolvers.
+  const gsl_root_fdfsolver_type * type;
 
 public:
   Solver(const gsl_root_fdfsolver_type * type = 
@@ -50,8 +65,12 @@ public:
 
   virtual ~Solver();
 
-  /// Initializes the solver with the given value
+  /// Initializes the solver with the given value for using a
+  /// newton-like approach
   void initialize(double x0);
+
+  /// Initializes the solver for a bisection-type approach
+  void initialize(double min, double max);
 
   /// Returns the value of the function whose root we should find !
   virtual double f(double x) = 0;
@@ -67,6 +86,9 @@ public:
 
   /// Combines initialize() and the other solve() in one go
   double solve(double x0);
+
+  /// Combines initialize() and the other solve() in one go
+  double solve(double min, double max);
 };
 
 

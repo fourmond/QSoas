@@ -1,7 +1,7 @@
 /**
    @file misc-fits.cc
    Various fits...
-   Copyright 2011 by Vincent Fourmond
+   Copyright 2011, 2012, 2013 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@
 #include <gsl/gsl_const_mksa.h>
 
 #include <odesolver.hh>
+#include <solver.hh>
 
 class SlowScanLowPotFit : public PerDatasetFit {
   bool explicitRate;
@@ -885,3 +886,206 @@ public:
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
 // Its name doesn't matter.
 FeFeHighPotentialInactivation fit_fefe_inact;
+
+//////////////////////////////////////////////////////////////////////
+
+/// Fits to an irreversible EEC irreversible model with transport
+class EECTransportFit : public PerDatasetFit {
+  /// Whether or not the current plateaus off at extreme potentials.
+  bool plateau;
+
+  /// Whether or not we actually take transport into account.
+  bool transport;
+
+  /// Whether the current is a reduction current (default) or an
+  /// oxidation current
+  bool isOxidation;
+
+protected:
+
+  virtual void processOptions(const CommandOptions & opts)
+  {
+    plateau = false;
+    updateFromOptions(opts, "plateau", plateau);
+
+    transport = true;
+    updateFromOptions(opts, "transport", transport);
+
+    isOxidation = true;
+    updateFromOptions(opts, "oxidation", isOxidation);
+  }
+
+  
+  virtual QString optionsString() const {
+    return QString("%1, %2 transport, %3").
+      arg(plateau ? "reaching plateau" : "not reaching plateau").
+      arg(transport ? "with" : "without").
+      arg(isOxidation ? "oxidation" : "reduction");
+  }
+
+public:
+
+  double current(double a, double b_rl, double kcat_ov_k0, 
+                 double cur, double bd0 = 0)
+  {
+    double b = b_rl * kcat_ov_k0;
+    if(plateau)
+      return cur / a * 
+        (1 + log((a + b)/
+                 (a + b * exp(bd0)))/bd0);
+      else
+        return cur / a * log((a + b)/b);
+  }
+
+  /// Formula:
+  virtual void function(const double * params, FitData * , 
+                        const DataSet * ds , gsl_vector * target) {
+
+    const Vector & xv = ds->x();
+    double f = GSL_CONST_MKSA_FARADAY /(params[0] * GSL_CONST_MKSA_MOLAR_GAS);
+
+      if(params[3] < 0 || params[4] < 0)
+        throw RangeError("Negative rate constant ratio");
+
+    double cur = params[5];
+    double kappa = params[3];
+    double bd0 = (plateau ? params[6] : 0);
+
+    double km = 0;
+    double s_inf = 0;
+    // Coefficient to convert concentration gradient in mM to current
+    double conv = 0;
+    if(transport) {
+      // Now, we elaborate...
+      //
+      // 1 mM = 1 mol/m^3 = 1e-6 mol.cm^-3
+      const double * base = params + (plateau ? 7 : 6);
+      const double &D = base[3];
+      const double &S = base[2];
+      double omega = base[4] * 2 * M_PI/60; // rads/second
+      const double &nu = base[5];
+      
+      conv = 2 * GSL_CONST_MKSA_FARADAY * 0.620 * 1e-6 * S * 
+        pow(D * D * D * D * omega * omega * omega / nu, 1.0/6.0);
+
+      km = base[0];
+      s_inf = base[1];
+    }
+
+    for(int i = 0; i < xv.size(); i++) {
+      double x = xv[i];
+
+      double d1 = exp(f * 0.5 * (x - params[1]));
+      double e1 = d1 * d1;
+      double d2 = exp(f * 0.5 * (x - params[2]));
+      double e2 = d2 * d2;
+      
+      // b without the kcat/k0 factor
+      double b_rl = (isOxidation ?
+                     (d1 * (1 + e2) + e1 * d2/kappa)/(e1 * e2) :
+                     (d1 + d2/kappa * (1 + e1))
+                     );
+      double a = 1 + e2*(1 + e1);
+      if(isOxidation)
+        a /= (e1 * e2);
+
+      double v = current(a, b_rl, params[4], cur,
+                         bd0);
+
+      // Hmmm, now transport.
+      if(transport) {
+        LambdaSolver slv([&, this](double x) -> double {
+            double s0 = s_inf - x/conv;
+            double mm_fact = s0/(s0 + km);
+            double kc_ov_k0 = params[4] * mm_fact;
+            return  x - mm_fact * current(a, b_rl, kc_ov_k0, cur,
+                                          bd0);
+          });
+        double ov = v;
+        v = slv.solve(ov);
+      }
+
+      gsl_vector_set(target, i, v);
+    }
+  };
+
+  virtual void initialGuess(FitData * , 
+                            const DataSet * ds,
+                            double * a)
+  {
+    a[0] = soas().temperature();
+    a[1] = -0.3; 
+    a[2] = -0.6; 
+    a[3] = 1; 
+    a[4] = 10; 
+    a[5] = (isOxidation ? 1e-5 : -1e-5);
+
+    double * base = a + 6;
+    if(plateau) {
+      a[6] = 1;
+      base++;
+    }
+
+    // Transport-related stuff:
+    if(transport) {
+      base[0] = 0.01;           // Km
+      base[1] = 1;              // s_inf
+      base[2] = 0.07;           // cm^2, 3 mm diameter
+      base[3] = 1e-5;           // cm^2/s
+      base[4] = 5000;           // 5 krpm
+      base[5] = 0.01;           // cm^2/s, that of water
+    }
+  };
+
+  virtual QList<ParameterDefinition> parameters() const {
+    QList<ParameterDefinition> defs;
+    defs << ParameterDefinition("temperature", true)
+         << ParameterDefinition("E1")
+         << ParameterDefinition("E2")
+         << ParameterDefinition("k02/k01")
+         << ParameterDefinition("kcat/k0");
+    if(plateau)
+      defs << ParameterDefinition("ilim")
+           << ParameterDefinition("betad0");
+    else
+      defs << ParameterDefinition("ilim/betad0");
+
+    // Transport related things
+    if(transport)
+      defs << ParameterDefinition("km")          // in mM
+           << ParameterDefinition("s_inf", true) // bulk concentration (mM)
+           << ParameterDefinition("S", true)     // electrode surface (cm^2)
+           << ParameterDefinition("D", true) // diffusion coefficent cm^2/s
+           << ParameterDefinition("omega", true) // electrode rotation (rpm)
+           << ParameterDefinition("nu", true); // kinematic viscosity cm^2/s
+    
+    // Add the transport-related stuff
+    return defs;
+  };
+
+
+  EECTransportFit() :
+    PerDatasetFit("eec-transport", 
+                  "Fit of an EEC catalytic wave with transport",
+                  "...", 1, -1, false) 
+  { 
+    ArgumentList * opts = new 
+      ArgumentList(QList<Argument *>()
+                   << new 
+                   BoolArgument("plateau", 
+                                "Plateau",
+                                "Whether to use the general expression or "
+                                "only that valid when plateaus are not reached")
+                   << new 
+                   BoolArgument("oxidation", 
+                                "...",
+                                "???")
+                   );
+    makeCommands(NULL, NULL, NULL, opts);
+  }
+};
+  
+
+// DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
+// Its name doesn't matter.
+EECTransportFit fit_eectranport;

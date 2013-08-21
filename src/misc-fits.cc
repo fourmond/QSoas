@@ -966,8 +966,7 @@ public:
       const double &nu = base[5];
 
       // double fct = pow(D * D * D * D * omega * omega * omega / nu, 1.0/6.0);
-      // double fct = pow(D, 2.0/3.0) *sqrt(omega)/
-      //   pow(nu, 1.0/6.0);
+      double fct = pow(D, 2.0/3.0) *sqrt(omega)/pow(nu, 1.0/6.0);
 
       // QTextStream o(stdout);
       // o << "D = " << D << "\tS = " << S 

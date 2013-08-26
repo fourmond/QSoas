@@ -871,9 +871,12 @@ void FitDialog::updateResidualsDisplay()
   if(! residualsDisplay)
     return;
   QString s("Point: %1 (overall: %2)  Relative: %3 (overall: %4)");
-  s = s.arg(parameters.pointResiduals[currentIndex], 0, 'g', 2).
-    arg(parameters.overallPointResiduals, 0, 'g', 2).
-    arg(parameters.relativeResiduals[currentIndex], 0, 'g', 2).
-    arg(parameters.overallRelativeResiduals, 0, 'g', 2);
+  if(! parameters.pointResiduals.size())
+    s = "(impossible to compute residuals)";
+  else
+    s = s.arg(parameters.pointResiduals[currentIndex], 0, 'g', 2).
+      arg(parameters.overallPointResiduals, 0, 'g', 2).
+      arg(parameters.relativeResiduals[currentIndex], 0, 'g', 2).
+      arg(parameters.overallRelativeResiduals, 0, 'g', 2);
   residualsDisplay->setText(s);
 }

@@ -34,6 +34,26 @@
 extern void loadDocumentationFile(const QString &, QString file, 
                                   const CommandOptions & opts = CommandOptions());
 
+class QSoasApplication : public QApplication {
+public:
+  bool notify(QObject * receiver, QEvent * event) 
+  {
+    try {
+      return QApplication::notify(receiver, event);
+    } 
+    catch(Exception & e) {
+      QTextStream o(stdout);
+      o << "Exception thrown from an event handler:" << e.message() 
+        << "\nBacktrace: " << e.exceptionBacktrace().join("\n\t") 
+        << endl;
+    }
+    return false;
+  }
+  
+  QSoasApplication(int & argc, char ** argv) : QApplication(argc, argv) {
+  };
+};
+
 
 int main(int argc, char ** argv)
 {
@@ -45,7 +65,7 @@ int main(int argc, char ** argv)
     return 0;
   }
 
-  QApplication main(argc, argv);
+  QSoasApplication main(argc, argv);
   main.setApplicationName("QSoas");
 
   Ruby::initRuby();

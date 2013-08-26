@@ -160,6 +160,10 @@ int ODESolver::function(double t, const double y[], double dydt[],
   return solver->computeDerivatives(t, y, dydt);
 }
 
+void ODESolver::resetStepper()
+{
+  stepper.reset();
+}
 
 int ODESolver::jacobian(double t, const double y[], 
                         double * dfdy,

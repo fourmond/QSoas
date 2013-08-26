@@ -157,6 +157,9 @@ public:
   /// Returns the dimension of the problem
   virtual int dimension() const = 0;
 
+  /// Resets the stepper
+  void resetStepper();
+
   /// Computes the derivatives at the given point, and store them in
   /// \a dydt
   virtual int computeDerivatives(double t, const double * y, 

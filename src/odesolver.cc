@@ -104,8 +104,11 @@ void ODEStepper::freeDriver()
 void ODEStepper::initialize(gsl_odeiv2_system * system)
 {
   freeDriver();
+  double hs = options.hStart;
+  if(hs == 0)
+    hs = 0.01;                  // As good as anything ?
   driver = gsl_odeiv2_driver_alloc_y_new(system, options.type, 
-                                         options.hStart,
+                                         hs,
                                          options.epsAbs,
                                          options.epsRel);
 }

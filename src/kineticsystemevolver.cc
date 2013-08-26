@@ -464,18 +464,31 @@ protected:
     }
   }
 
+  void freeEvolver()
+  {
+    delete evolver;
+    evolver = NULL;             // Prevent segfault upon destruction
+                                // if next step fails
+  }
+
+  void prepareEvolver()
+  {
+    freeEvolver();
+    evolver = new KineticSystemEvolver(system);
+  }
+    
+
   void runFit(const QString & name, QString fileName, 
               QList<const DataSet *> datasets,
               const CommandOptions & opts)
   {
     delete system;
-    delete evolver;
-    evolver = NULL;             // Prevent segfault upon destruction
-                                // if next step fails
+
+    freeEvolver();
+
     system = new KineticSystem;
     system->parseFile(fileName);
     system->prepare();
-    evolver = new KineticSystemEvolver(system);
     Fit::runFit(name, datasets, opts);
   }
 
@@ -537,6 +550,9 @@ public:
   virtual void function(const double * a, FitData * data, 
                         const DataSet * ds , gsl_vector * target)
   {
+    prepareEvolver();           // Allocated for each run to avoid
+                                // trying to run a broken evolver
+                                // later on.
     evolver->setParameters(a + system->speciesNumber(), 
                            skippedIndices);
 

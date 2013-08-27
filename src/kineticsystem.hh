@@ -24,6 +24,8 @@
 
 class Expression;
 
+
+
 /// The KineticSystem, a class that parses a chemical description of a
 /// full kinetic system, be it or not, and provide functions for
 /// solving the concentration of species over time or at the
@@ -91,18 +93,24 @@ public:
 
     void clearExpressions();
 
-    ~Reaction() {
+    virtual ~Reaction() {
       clearExpressions();
     };
 
     /// Computes the expressions
-    void makeExpressions(const QStringList & vars = QStringList());
+    virtual void makeExpressions(const QStringList & vars = QStringList());
 
     /// Sets the parameters of the expressions
-    void setParameters(const QStringList & parameters);
+    virtual void setParameters(const QStringList & parameters);
 
     /// Returns the parameters needed by the rates
-    QSet<QString> parameters() const;
+    virtual QSet<QString> parameters() const;
+
+    /// Computes the forward rate (with the given parameters)
+    virtual double computeForwardRate(const double * vals) const;
+
+    /// Computes the backward rate (with the given parameters)
+    virtual double computeBackwardRate(const double * vals) const;
 
   };
 
@@ -112,7 +120,7 @@ protected:
   QList<Species> species;
 
   /// List of reactions
-  QList<Reaction> reactions;
+  QList<Reaction *> reactions;
 
   /// A hash species name -> species index
   QHash<QString, int> speciesLookup;

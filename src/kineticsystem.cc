@@ -67,6 +67,18 @@ void KineticSystem::Reaction::setParameters(const QStringList & parameters)
   backward->setVariables(parameters);
 }
 
+double KineticSystem::Reaction::computeForwardRate(const double * vals) const
+{
+  return forward->evaluate(vals);
+}
+
+double KineticSystem::Reaction::computeBackwardRate(const double * vals) const
+{
+  if(backward)
+    return backward->evaluate(vals);
+  return 0;
+}
+
 
 
 
@@ -78,6 +90,8 @@ KineticSystem::KineticSystem()
 
 KineticSystem::~KineticSystem()
 {
+  while(reactions.size() > 0)
+    delete reactions.takeFirst();
 }
 
 int KineticSystem::speciesNumber() const
@@ -103,21 +117,17 @@ void KineticSystem::addReaction(QList<QString> species,
 {
   parameters.clear();
   int reactionIndex = reactions.size();
-  reactions.append(Reaction());
-  Reaction & reac = reactions[reactionIndex];
-  reac.electrons = 0;
+  Reaction * reac = new Reaction();
+  reac->electrons = 0;
   for(int i = 0; i < species.size(); i++) {
-    if(species[i] == "e-")
-      reac.electrons = stoechiometry[i];
-    else {
-      int spi = speciesIndex(species[i]);
-      reac.speciesIndices.append(spi);
-      this->species[spi].reactions.append(reactionIndex);
-      reac.speciesStoechiometry.append(stoechiometry[i]);
-    }
+    int spi = speciesIndex(species[i]);
+    reac->speciesIndices.append(spi);
+    this->species[spi].reactions.append(reactionIndex);
+    reac->speciesStoechiometry.append(stoechiometry[i]);
   }
-  reac.forwardRate = forward;
-  reac.backwardRate = backward;
+  reac->forwardRate = forward;
+  reac->backwardRate = backward;
+  reactions.append(reac);
 }
 
 void KineticSystem::ensureReady()
@@ -125,8 +135,8 @@ void KineticSystem::ensureReady()
   QSet<QString> params;
   
   for(int i = 0; i < reactions.size(); i++) {
-    reactions[i].makeExpressions();
-    params += reactions[i].parameters();
+    reactions[i]->makeExpressions();
+    params += reactions[i]->parameters();
   }
 
   // We remove the concentration parameters, as we want those to come
@@ -149,7 +159,7 @@ void KineticSystem::ensureReady()
   parameters = conc + conc0 + parameters;
 
   for(int i = 0; i < reactions.size(); i++)
-    reactions[i].setParameters(parameters);
+    reactions[i]->setParameters(parameters);
 }
 
 void KineticSystem::prepare()
@@ -200,31 +210,21 @@ void KineticSystem::computeDerivatives(double * target,
 
   // Now, we compute the forward and reverse rates of all reactions
   for(int i = 0; i < reactions.size(); i++) {
-    const Reaction & r = reactions[i];
-    double forwardRate = r.forward->evaluate(vals.data());
-    double backwardRate = (r.backward ? r.backward->evaluate(vals.data()) : 0);
+    const Reaction * r = reactions[i];
+    double forwardRate = r->computeForwardRate(vals.data());
+    double backwardRate = r->computeBackwardRate(vals.data());
 
-    if(false) {                 /// @todo Add real debugging facilities ?
-      QTextStream o(stdout);
-      o << " Rate constants for reaction " << i << ": " 
-        << forwardRate << " - " << backwardRate << endl;
-    }
-
-    for(int j = 0; j < r.speciesStoechiometry.size(); j++) {
-      int s = r.speciesStoechiometry[j];
+    for(int j = 0; j < r->speciesStoechiometry.size(); j++) {
+      int s = r->speciesStoechiometry[j];
       if(s < 0)
-        forwardRate *= gsl_pow_int(concentrations[r.speciesIndices[j]], -s);
+        forwardRate *= gsl_pow_int(concentrations[r->speciesIndices[j]], -s);
       else
-        backwardRate *= gsl_pow_int(concentrations[r.speciesIndices[j]], s);
+        backwardRate *= gsl_pow_int(concentrations[r->speciesIndices[j]], s);
     }
     double rate = forwardRate - backwardRate;
-    if(false) {              /// @todo Add real debugging facilities ?
-      QTextStream o(stdout);
-      o << " Rate for reaction " << i << ": " 
-        << rate << " = " << forwardRate << " - " << backwardRate << endl;
-    }
-    for(int j = 0; j < r.speciesStoechiometry.size(); j++) {
-      target[r.speciesIndices[j]] += r.speciesStoechiometry[j] * rate;
+
+    for(int j = 0; j < r->speciesStoechiometry.size(); j++) {
+      target[r->speciesIndices[j]] += r->speciesStoechiometry[j] * rate;
     }
   }
 }
@@ -308,6 +308,27 @@ void KineticSystem::parseFile(QIODevice * device)
       QString fr;
       QString br;
 
+      QStringList reactants;
+      QList<int> stoechiometry;
+
+      parseReactants(left, &reactants, &stoechiometry, -1, number);
+      parseReactants(right, &reactants, &stoechiometry, 1, number);
+
+      int els = 0;
+
+      for(int i = 0; i < reactants.size(); i++) {
+        if(reactants[i] == "e-") {
+          if(els != 0)
+            throw RuntimeError("Line %1: '%2' electrons cannot appear "
+                               "more than once in a reaction").
+              arg(number).arg(orig);
+          els = stoechiometry[i];
+          reactants.takeAt(i);
+          stoechiometry.takeAt(i);
+          --i;
+        }
+      }
+
       /// @todo Adapt for reactions with electrons
       if(literals.size() > 0)
         fr = literals.takeFirst();
@@ -320,11 +341,6 @@ void KineticSystem::parseFile(QIODevice * device)
           br = QString("k_m%1").arg(reaction);
       }
 
-      QStringList reactants;
-      QList<int> stoechiometry;
-
-      parseReactants(left, &reactants, &stoechiometry, -1, number);
-      parseReactants(right, &reactants, &stoechiometry, 1, number);
       addReaction(reactants, stoechiometry, fr, br);
     }
     else
@@ -341,12 +357,12 @@ void KineticSystem::dump(QTextStream & o) const
 
   o << "Reactions: \n";
   for(int i = 0; i < reactions.size(); i++) {
-    const Reaction & reac = reactions[i];
+    const Reaction * reac = reactions[i];
     QStringList reactants;
     QStringList products;
-    for(int j = 0; j < reac.speciesIndices.size(); j++) {
-      int idx = reac.speciesIndices[j];
-      int s = reac.speciesStoechiometry[j];
+    for(int j = 0; j < reac->speciesIndices.size(); j++) {
+      int idx = reac->speciesIndices[j];
+      int s = reac->speciesStoechiometry[j];
       QString n = QString("%1 %2").arg(abs(s)).arg(species[idx].name);
       if(s > 0)
         products << n;
@@ -354,9 +370,9 @@ void KineticSystem::dump(QTextStream & o) const
         reactants << n;
     }
     o << " * " << reactants.join(" + ") 
-      << (reac.backwardRate.isEmpty() ? " -> " : " <=> ")
+      << (reac->backwardRate.isEmpty() ? " -> " : " <=> ")
       << products.join(" + ") 
-      << " -- " << reac.forwardRate << " -- " << reac.backwardRate << "\n";
+      << " -- " << reac->forwardRate << " -- " << reac->backwardRate << "\n";
   }
 }
 

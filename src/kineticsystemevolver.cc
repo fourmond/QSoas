@@ -469,7 +469,7 @@ protected:
               const CommandOptions & opts)
   {
     delete system;
-    sysem = NULL;
+    system = NULL;
     delete evolver;
     evolver = NULL;             // Prevent segfault upon destruction
                                 // if next step fails

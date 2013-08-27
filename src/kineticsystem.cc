@@ -26,7 +26,8 @@
 #include <gsl/gsl_const_mksa.h>
 
 KineticSystem::Reaction::Reaction(const QString & fd, const QString & bd) :
-  forwardRate(fd), backwardRate(bd), forward(NULL), backward(NULL) 
+  forwardRate(fd), backwardRate(bd), forward(NULL), backward(NULL), 
+  electrons(0)
 {
 }
 
@@ -167,14 +168,17 @@ int KineticSystem::speciesIndex(const QString & str)
 }
 
 void KineticSystem::addReaction(QList<QString> species, 
-                                QList<int> stoechiometry, 
+                                QList<int> stoechiometry,
+                                int els, 
                                 const QString & forward, 
                                 const QString & backward)
 {
   parameters.clear();
   int reactionIndex = reactions.size();
-  Reaction * reac = new Reaction(forward, backward);
-  reac->electrons = 0;
+  Reaction * reac = (els ? 
+                     new RedoxReaction(els, forward, backward) 
+                     :
+                     new Reaction(forward, backward));
   for(int i = 0; i < species.size(); i++) {
     int spi = speciesIndex(species[i]);
     reac->speciesIndices.append(spi);
@@ -387,15 +391,15 @@ void KineticSystem::parseFile(QIODevice * device)
       if(literals.size() > 0)
         fr = literals.takeFirst();
       else 
-        fr = QString("k_%1").arg(reaction);
+        fr = QString(els != 0 ? "e0_%1" : "k_%1").arg(reaction);
       if(reversible) {
         if(literals.size() > 0)
           br = literals.takeFirst();
         else 
-          br = QString("k_m%1").arg(reaction);
+          br = QString(els != 0 ? "k0_%1" : "k_m%1").arg(reaction);
       }
 
-      addReaction(reactants, stoechiometry, fr, br);
+      addReaction(reactants, stoechiometry, els, fr, br);
     }
     else
       throw RuntimeError(QString("Line %1: '%2' not valid").

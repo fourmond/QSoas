@@ -174,6 +174,7 @@ public:
 
   /// Adds a reaction to the system
   void addReaction(QList<QString> species, QList<int> stoechiometry, 
+                   int els,
                    const QString & forward, 
                    const QString & backward = "");
 

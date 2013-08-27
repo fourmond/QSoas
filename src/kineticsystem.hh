@@ -66,17 +66,7 @@ public:
   /// it is still possible to cancel out some terms in that by using
   /// the appropriate concentration factor in the rates.
   class Reaction {
-  public:
-    /// List of indices of the reactants or products
-    QList<int> speciesIndices;
-
-    /// Their stoechiometry (negative if on the reactants side,
-    /// positive if on the products size). In the same order as
-    /// speciesIndices.
-    QList<int> speciesStoechiometry;
-
-    /// the number of electrons (counted positively if on the left)
-    int electrons;
+  protected:
 
     /// Expression for the forward rate
     QString forwardRate;
@@ -89,7 +79,21 @@ public:
     Expression * forward;
     Expression * backward;
 
-    Reaction() : forward(NULL), backward(NULL) {;};
+  public:
+    /// List of indices of the reactants or products
+    QList<int> speciesIndices;
+
+    /// Their stoechiometry (negative if on the reactants side,
+    /// positive if on the products size). In the same order as
+    /// speciesIndices.
+    QList<int> speciesStoechiometry;
+
+    /// the number of electrons (counted negatively if on the left)
+    int electrons;
+
+
+
+    Reaction(const QString & fd, const QString & bd = "" );
 
     void clearExpressions();
 
@@ -106,11 +110,33 @@ public:
     /// Returns the parameters needed by the rates
     virtual QSet<QString> parameters() const;
 
-    /// Computes the forward rate (with the given parameters)
-    virtual double computeForwardRate(const double * vals) const;
 
-    /// Computes the backward rate (with the given parameters)
-    virtual double computeBackwardRate(const double * vals) const;
+    /// Computes both the forward and backward rates
+    virtual void computeRates(const double * vals, 
+                              double * forward, double * backward) const;
+
+  };
+
+
+  class RedoxReaction : public Reaction {
+  protected:
+    /// Index of the potential in the parameters
+    int potentialIndex;
+
+    /// Index of the temperature in the parameters
+    int temperatureIndex;
+
+    // We reuse the forward/backward stuff but with a different
+    // meaning.
+  public:
+    RedoxReaction(int els, const QString & e0, const QString & k0);
+
+    virtual void setParameters(const QStringList & parameters);
+
+    virtual QSet<QString> parameters() const;
+
+    virtual void computeRates(const double * vals, 
+                              double * forward, double * backward) const;
 
   };
 

@@ -23,6 +23,13 @@
 #include <exceptions.hh>
 #include <utils.hh>
 
+#include <gsl/gsl_const_mksa.h>
+
+KineticSystem::Reaction::Reaction(const QString & fd, const QString & bd) :
+  forwardRate(fd), backwardRate(bd), forward(NULL), backward(NULL) 
+{
+}
+
 
 void KineticSystem::Reaction::makeExpressions(const QStringList & vars)
 {
@@ -67,20 +74,69 @@ void KineticSystem::Reaction::setParameters(const QStringList & parameters)
   backward->setVariables(parameters);
 }
 
-double KineticSystem::Reaction::computeForwardRate(const double * vals) const
+void KineticSystem::Reaction::computeRates(const double * vals, 
+                                           double * fd, 
+                                           double * bd) const
 {
-  return forward->evaluate(vals);
-}
-
-double KineticSystem::Reaction::computeBackwardRate(const double * vals) const
-{
+  *fd = forward->evaluate(vals);
   if(backward)
-    return backward->evaluate(vals);
-  return 0;
+    *bd = backward->evaluate(vals);
+  else
+    *bd = 0;
 }
 
+//////////////////////////////////////////////////////////////////////
 
 
+KineticSystem::RedoxReaction::RedoxReaction(int els, const QString & e0, 
+                                            const QString & k0) :
+  Reaction(e0, k0)
+{
+  electrons = els;
+}
+
+QSet<QString> KineticSystem::RedoxReaction::parameters() const
+{
+  QSet<QString> params = Reaction::parameters();
+  params += "e";                // We always need the potential !
+  params += "temperature";                // We always need the potential !
+  return params;
+}
+
+void KineticSystem::RedoxReaction::setParameters(const QStringList & parameters)
+{
+  Reaction::setParameters(parameters);
+  potentialIndex = -1;
+  temperatureIndex = -1;
+  for(int i = 0; i < parameters.size(); i++) {
+    if(parameters[i] == "e") {
+      potentialIndex = i;
+    }
+    if(parameters[i] == "temperature") {
+      temperatureIndex = i;
+    }
+  }
+  if(potentialIndex < 0)
+    throw InternalError("Somehow there is no 'e' parameter "
+                        "for a redox reaction");
+  if(temperatureIndex < 0)
+    throw InternalError("Somehow there is no 'temperature' parameter "
+                        "for a redox reaction");
+}
+
+void KineticSystem::RedoxReaction::computeRates(const double * vals, 
+                                                double * fd, 
+                                                double * bd) const
+{
+  double e0, k0;                // e0 is forward, k0 is backward
+  Reaction::computeRates(vals, &e0, &k0);
+  double e = vals[potentialIndex];
+  double fara = GSL_CONST_MKSA_FARADAY /
+    (vals[temperatureIndex] * GSL_CONST_MKSA_MOLAR_GAS);
+  
+  *fd = k0 * exp(fara * 0.5 * electrons * (e - e0));
+  *bd = k0 * exp(fara * 0.5 * electrons * (e0 - e));
+}
 
 //////////////////////////////////////////////////////////////////////
 
@@ -117,7 +173,7 @@ void KineticSystem::addReaction(QList<QString> species,
 {
   parameters.clear();
   int reactionIndex = reactions.size();
-  Reaction * reac = new Reaction();
+  Reaction * reac = new Reaction(forward, backward);
   reac->electrons = 0;
   for(int i = 0; i < species.size(); i++) {
     int spi = speciesIndex(species[i]);
@@ -125,8 +181,6 @@ void KineticSystem::addReaction(QList<QString> species,
     this->species[spi].reactions.append(reactionIndex);
     reac->speciesStoechiometry.append(stoechiometry[i]);
   }
-  reac->forwardRate = forward;
-  reac->backwardRate = backward;
   reactions.append(reac);
 }
 
@@ -211,8 +265,8 @@ void KineticSystem::computeDerivatives(double * target,
   // Now, we compute the forward and reverse rates of all reactions
   for(int i = 0; i < reactions.size(); i++) {
     const Reaction * r = reactions[i];
-    double forwardRate = r->computeForwardRate(vals.data());
-    double backwardRate = r->computeBackwardRate(vals.data());
+    double forwardRate, backwardRate;
+    r->computeRates(vals.data(), &forwardRate, &backwardRate);
 
     for(int j = 0; j < r->speciesStoechiometry.size(); j++) {
       int s = r->speciesStoechiometry[j];
@@ -351,29 +405,29 @@ void KineticSystem::parseFile(QIODevice * device)
 
 void KineticSystem::dump(QTextStream & o) const
 {
-  o << "Species: \n";
-  for(int i = 0; i < species.size(); i++)
-    o << " * " << species[i].name << "\n";
+  // o << "Species: \n";
+  // for(int i = 0; i < species.size(); i++)
+  //   o << " * " << species[i].name << "\n";
 
-  o << "Reactions: \n";
-  for(int i = 0; i < reactions.size(); i++) {
-    const Reaction * reac = reactions[i];
-    QStringList reactants;
-    QStringList products;
-    for(int j = 0; j < reac->speciesIndices.size(); j++) {
-      int idx = reac->speciesIndices[j];
-      int s = reac->speciesStoechiometry[j];
-      QString n = QString("%1 %2").arg(abs(s)).arg(species[idx].name);
-      if(s > 0)
-        products << n;
-      else
-        reactants << n;
-    }
-    o << " * " << reactants.join(" + ") 
-      << (reac->backwardRate.isEmpty() ? " -> " : " <=> ")
-      << products.join(" + ") 
-      << " -- " << reac->forwardRate << " -- " << reac->backwardRate << "\n";
-  }
+  // o << "Reactions: \n";
+  // for(int i = 0; i < reactions.size(); i++) {
+  //   const Reaction * reac = reactions[i];
+  //   QStringList reactants;
+  //   QStringList products;
+  //   for(int j = 0; j < reac->speciesIndices.size(); j++) {
+  //     int idx = reac->speciesIndices[j];
+  //     int s = reac->speciesStoechiometry[j];
+  //     QString n = QString("%1 %2").arg(abs(s)).arg(species[idx].name);
+  //     if(s > 0)
+  //       products << n;
+  //     else
+  //       reactants << n;
+  //   }
+  //   o << " * " << reactants.join(" + ") 
+  //     << (reac->backwardRate.isEmpty() ? " -> " : " <=> ")
+  //     << products.join(" + ") 
+  //     << " -- " << reac->forwardRate << " -- " << reac->backwardRate << "\n";
+  // }
 }
 
 QString KineticSystem::toString() const

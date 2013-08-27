@@ -1,3 +1,10 @@
+**Important warning**
+Some commands of `QSoas` may not be documented here. It means they are
+supported in no way: their syntax may change without notice, they may
+disappear, they may turn out to do completely different things in the
+end. In short, **use them at your own risks** (and it would be a good
+idea to check out the code, in that case).
+
 # General
 
 Here are the commands to interact with QSoas in the most general way:
@@ -171,9 +178,11 @@ specifying all the arguments to the alias.
 
 ### graphics-settings - Graphics settings {#cmd-graphics-settings}
 
-`graphics-settings` `/line-width=`
+`graphics-settings` `/line-width=` `/opengl=` `/antialias=`
 
   * `/line-width`: Sets the base line width for all lines/curves
+  * `/opengl`: Turns on/off the use of OpenGL acceleration
+  * `/antialias`: Turns on/off the use of antialised graphics
 
 {::comment} synopsis-end: graphics-settings {:/}
 {::comment} description-start: graphics-settings {:/}
@@ -181,6 +190,15 @@ Gives the possibility to tweak a few settings concerning display.
 
 The settings are persistent and kept from one QSoas session until the
 next one.
+
+Turning on antialias will make QSoas use antialiased drawings, which
+looks admittedly nicer, but need much more computational time.
+
+If you experience performance problems for displaying curves, use
+`/opengl=true`, as this will instruct QSoas to use hardware
+acceleration to display curves, which should greatly enhance the
+display speed. It is off by default as some setups do not really
+benefit from that.
 {::comment} description-end: graphics-settings {:/}
 
 
@@ -229,11 +247,20 @@ The main command for loading data is [`load`](#cmd-load)
 
 ### load - Load {#cmd-load}
 
-`load` _file_...
+`load` _file_... `/style=` `/ignore-cache=` `/yerrors=` `/histogram=` `/separator=` `/decimal=` `/comments=` `/columns=` `/auto-split=`
 
 Alias: `l`
 
   * _file_: Files to load !
+  * `/style`: Style for curves display
+  * `/ignore-cache`: If on, ignores what is in the cache
+  * `/yerrors`: Column containing y errors
+  * `/histogram`: Show as a histogram
+  * `/separator`: Separator between columns
+  * `/decimal`: Decimal separator
+  * `/comments`: Comment lines
+  * `/columns`: Order of the columns
+  * `/auto-split`: Split on blank lines
 
 {::comment} synopsis-end: load {:/}
 {::comment} description-start: load {:/}
@@ -241,9 +268,11 @@ Alias: `l`
 Loads the given files and push them onto the data stack. QSoas
 features several backends for loading files. In principle, QSoas is
 smart enough to figure out which one is the correct one, but you can
-force a given backend by using the appropriate `load-as-` command. Using
-a backend directly also provides more control on the way files are
-loaded. Currently available backends:
+force a given backend by using the appropriate `load-as-`
+command. Using a backend directly also provides more control on the
+way files are loaded (this can also be done via the numerous options
+to `load`, which are forwarded to the appropriate backend). Currently
+available backends:
 
  * [`text`](#cmd-load-as-text) for plain space-separated text
  * [`csv`](#cmd-load-as-csv) for CSV data
@@ -257,7 +286,40 @@ Loading file: './03.dat' using backend text
 ~~~~
 
 The command `load` caches the loaded file. If for some reason, the
-cache gets in the way, use the direct `load-as-` commands.
+cache gets in the way, use the direct `load-as-` commands, or
+alternatively use `/ignore-cache=true`.
+
+`load`, together with all the other commands that take several files
+as arguments understand unix-like wildcards:
+
+~~~~
+QSoas> load *.dat
+~~~~
+
+This command loads all the `.dat` files from the current directory.
+
+~~~~
+QSoas> load [0-4]*.dat
+~~~~
+
+This loads only those that start with a digit from 0 to 4, etc.
+
+The `load` command and the corresponding `load-as-` command makes it
+possible to set dataset options just as with the 
+[`dataset-options`](#cmd-dataset-options).
+
+Finally, the `/style` option makes it possible to fine-tune the color
+when loading several curves:
+
+~~~~
+QSoas> load *.dat /style=red-blue
+~~~~
+
+This loads all the `.dat` files in the current directory, and displays
+them with a color gradient from red (for the first loaded file) to
+blue (for the last loaded file). This makes it very easy to follow
+subtle modifications from one data file to the next.
+
 
 {::comment} description-end: load {:/}
 
@@ -266,11 +328,18 @@ cache gets in the way, use the direct `load-as-` commands.
 
 ### load-as-text - Load files with backend 'text' {#cmd-load-as-text}
 
-`load-as-text` _file_... `/separator=` `/separator-exact=`
+`load-as-text` _file_... `/separator=` `/decimal=` `/comments=` `/columns=` `/auto-split=` `/style=` `/yerrors=` `/histogram=` `/style=`
 
   * _file_: Files to load !
-  * `/separator`: Separator regular expression
-  * `/separator-exact`: Exact separator
+  * `/separator`: Separator between columns
+  * `/decimal`: Decimal separator
+  * `/comments`: Comment lines
+  * `/columns`: Order of the columns
+  * `/auto-split`: Split on blank lines
+  * `/style`: Style for curves display
+  * `/yerrors`: Column containing y errors
+  * `/histogram`: Show as a histogram
+  * `/style`: Style for curves display
 
 {::comment} synopsis-end: load-as-text {:/}
 {::comment} description-start: load-as-text {:/}
@@ -282,6 +351,26 @@ good results. By default, it loads all the columns of the file, but
 only displays the second as a function of the first. If you want to
 work on other columns, have a look at [`expand`](#cmd-expand).
 
+Apart from the options of [`dataset-options`](#cmd-dataset-options)
+and the `/style` documented above, the `text` backend accepts several
+options controlling the way the text files are interpreted:
+
+  * `/separator` is the text that separate the columns (blank space by
+    default. You can use [Qt regular
+    expressions](http://qt-project.org/doc/qt-4.8/qregexp.html#introduction)
+    enclosed by `/`, such as: `/[;,]/` to split columns on semicolon
+    or commas.
+  * `/decimal` is the decimal separator (default is the dot).
+  * `/comments` is a regular expression describing comment lines (ie
+    lines that get ignored). By default, any line that doesn't start
+    by a number is ignored.
+  * If `/auto-split` is `true`, then `QSoas` will create a new dataset
+    everytime it hits a series of blank lines in the file.
+  * `/columns` is a series of numbers saying in which order the file
+    columns will be used to make a dataset. For instance,
+    `/columns=2,1` will swap X and Y at load time.
+
+
 {::comment} description-end: load-as-text {:/}
 
 
@@ -289,11 +378,18 @@ work on other columns, have a look at [`expand`](#cmd-expand).
 
 ### load-as-csv - Load files with backend 'csv' {#cmd-load-as-csv}
 
-`load-as-csv` _file_... `/separator=` `/separator-exact=`
+`load-as-csv` _file_... `/separator=` `/decimal=` `/comments=` `/columns=` `/auto-split=` `/style=` `/yerrors=` `/histogram=` `/style=`
 
   * _file_: Files to load !
-  * `/separator`: Separator regular expression
-  * `/separator-exact`: Exact separator
+  * `/separator`: Separator between columns
+  * `/decimal`: Decimal separator
+  * `/comments`: Comment lines
+  * `/columns`: Order of the columns
+  * `/auto-split`: Split on blank lines
+  * `/style`: Style for curves display
+  * `/yerrors`: Column containing y errors
+  * `/histogram`: Show as a histogram
+  * `/style`: Style for curves display
 
 {::comment} synopsis-end: load-as-csv {:/}
 {::comment} description-start: load-as-csv {:/}
@@ -317,6 +413,24 @@ X, Y1, Y2, Y3 buffer will be turned into a X, Y1, a X, Y2 and a X, Y3
 buffers.
 {::comment} description-end: expand {:/}
 
+{::comment} synopsis-start: rename {:/}
+
+### rename - Rename {#cmd-rename}
+
+`rename` _new-name_
+
+Alias: `a`
+
+  * _new-name_: New name 
+
+{::comment} synopsis-end: rename {:/}
+{::comment} description-start: rename {:/}
+Changes the current name of the buffer. The name of a buffer 
+gets bigger with each operation performed on it (which is a way to
+track the operations that it has seen). `rename` can be used to change
+that to give it a more meaningful name.
+{::comment} description-end: rename {:/}
+
 {::comment} synopsis-start: save {:/}
 
 ### save - Save {#cmd-save}
@@ -334,17 +448,55 @@ Alias: `s`
 Saves the current buffer to the named file.
 {::comment} description-end: save {:/}
 
+{::comment} synopsis-start: browse {:/}
+
+### browse - Browse files {#cmd-browse}
+
+`browse` `/pattern=`
+
+Alias: `W`
+
+  * `/pattern` (default): Files to browse
+
+{::comment} synopsis-end: browse {:/}
+{::comment} description-start: browse {:/}
+Browse all datafiles in the current directory (or those matching the
+pattern given to `/pattern`). Very useful to find quickly the file
+you're looking for.
+{::comment} description-end: browse {:/}
+
+
+# Data display
+
+{::comment} synopsis-start: overlay-buffer {:/}
+
+### overlay-buffer - Overlay buffers {#cmd-overlay-buffer}
+
+`overlay-buffer` _buffers_... `/style=`
+
+Alias: `V`
+
+  * _buffers_: Buffers to overlay
+  * `/style`: Style for curves display
+
+{::comment} synopsis-end: overlay-buffer {:/}
+{::comment} description-start: overlay-buffer {:/}
+Overlay buffers that are already in memory on top of the current one
+
+See [`load`](#cmd-load) for the description of the `/style` option.
+{::comment} description-end: overlay-buffer {:/}
+
 
 
 # Data stack manipulation
 
 Data files are loaded and manipulated in a stack. Every time a file is
-loaded or a buffer modified (with the exception of changing the steps
-???), the new buffer is pushed onto the top of the stack, and becomes
-the current buffer (numbered 0). Older buffers have increasing numbers
-(the previous buffer is 1, the one before 2, and so on). There is also
-a "redo" stack populated by the [`undo`](#cmd-undo) command. Stack can
-be manipulated in different ways:
+loaded or a buffer modified, the new buffer is pushed onto the top of
+the stack, and becomes the current buffer (numbered 0). Older buffers
+have increasing numbers (the previous buffer is 1, the one before 2,
+and so on). There is also a "redo" stack populated by the
+[`undo`](#cmd-undo) command. Stack can be manipulated in different
+ways:
 
  * the current buffer can be changed using
    [`undo`](#cmd-undo)/[`redo`](#cmd-redo);
@@ -359,6 +511,9 @@ be manipulated in different ways:
    [`browse-stack`](#cmd-browse-stack).
  * an old buffer can be put back on the top of the stack with
    [`fetch`](#cmd-fetch).
+ * buffers can be flagged ([`flag`](#cmd-flag)) or unflagged
+   ([`unflag`](#cmd-unflag)) to be used later using the `flagged`
+   buffer selector.
 
 
 {::comment} synopsis-start: browse-stack {:/}
@@ -472,7 +627,7 @@ Removes all the buffers from both normal and redo stack
 
 {::comment} synopsis-end: fetch {:/}
 {::comment} description-start: fetch {:/}
-Put back a copy of the given buffer on the top of the stack. Useful
+Put back a *copy* of the given buffer on the top of the stack. Useful
 when you want to work again on a old buffer buried in the stack.
 {::comment} description-end: fetch {:/}
 
@@ -497,6 +652,34 @@ drops all the buffers from 3 to 16 included.
 
 Use it when you don't find the buffers you're interested in anymore !
 {::comment} description-end: drop {:/}
+{::comment} synopsis-start: flag {:/}
+
+### flag - Flag datasets {#cmd-flag}
+
+`flag` `/buffers=`
+
+  * `/buffers` (default): Buffers to flag/unflag
+
+{::comment} synopsis-end: flag {:/}
+{::comment} description-start: flag {:/}
+Flags the given buffer (or the current one if none is supplied) for
+later use. All currently flagged buffers can be specified using the
+`flagged` argument to, for instance,
+[`overlay-buffer`](#cmd-overlay-buffer).
+{::comment} description-end: flag {:/}
+{::comment} synopsis-start: unflag {:/}
+
+### unflag - Unflag datasets {#cmd-unflag}
+
+`unflag` `/buffers=`
+
+  * `/buffers` (default): Buffers to flag/unflag
+
+{::comment} synopsis-end: unflag {:/}
+{::comment} description-start: unflag {:/}
+Removes the flag on the given datasets.
+{::comment} description-end: unflag {:/}
+
 
 
 # Basic data manipulation at the buffer level
@@ -505,12 +688,13 @@ Use it when you don't find the buffers you're interested in anymore !
 
 ### apply-formula - Apply formula {#cmd-apply-formula}
 
-`apply-formula` _formula_ `/extra-columns=`
+`apply-formula` _formula_ `/extra-columns=` `/use-stats=`
 
 Alias: `F`
 
   * _formula_: Formula (valid Ruby code)
   * `/extra-columns`: Number of extra columns to create
+  * `/use-stats`: If on, a $stats hash is available that contains statistics
 
 {::comment} synopsis-end: apply-formula {:/}
 {::comment} description-start: apply-formula {:/}
@@ -543,6 +727,22 @@ QSoas> apply-formula /extra-columns=1 'y2 = y**2'
 
 This creates a second column containing the square of the values of
 the Y column.
+
+If `/use-stats=true` is used, a global variable `$stats` can be used
+within the Ruby expression that contains all the statistics displayed
+by [`stats`](#cmd-stats). For
+instance, to normalize the Y values by dividing by the median, one would use:
+
+~~~ 
+QSoas> apply-formula /use-stats=true 'y = y/$stats["y_med"]'
+~~~
+
+Statistics by segments are available too, which means if you want to
+normalize by the medians of the first segment, you could do
+
+~~~ 
+QSoas> apply-formula /use-stats=true 'y = y/$stats[0]["y_med"]'
+~~~
 
 {::comment} description-end: apply-formula {:/}
 
@@ -752,8 +952,9 @@ noise:
 
 ### filter-fft - Filter {#cmd-filter-fft}
 
-`filter-fft` **(interactive)**
+`filter-fft` `/derive=` **(interactive)**
 
+  * `/derive`: Whether to derive by default
 
 {::comment} synopsis-end: filter-fft {:/}
 {::comment} description-start: filter-fft {:/}
@@ -990,6 +1191,26 @@ If more than two buffers are specified, the last one gets merged to
 all the ones before.
 {::comment} description-end: merge {:/}
 
+{::comment} synopsis-start: contract {:/}
+
+### contract - Group buffers on X values {#cmd-contract}
+
+`contract` _first_... _second_ `/mode=` `/use-segments=`
+
+  * _first_: First buffer(s)
+  * _second_: Second buffer
+  * `/mode`: Whether operations try to match x values or indices
+  * `/use-segments`: If on, operations are performed segment-by-segment
+
+{::comment} synopsis-end: contract {:/}
+{::comment} description-start: contract {:/}
+As may be anticipated from the name, `contract` does the reverse of 
+[`expand`](#cmd-expand), ie it regroups in one buffer several values
+of Y that run against the same values of X. The result is a buffer
+that contains as many Y columns as the total of Y columns of all the
+arguments. X matching is done as for the other operations.
+{::comment} description-end: contract {:/}
+
 # Data inspection facilities
 
 {::comment} synopsis-start: 1 {:/}
@@ -1027,9 +1248,11 @@ all the ones before.
 
 ### stats - Statistics {#cmd-stats}
 
-`stats` `/buffer=`
+`stats` `/buffer=` `/to-file=` `/use-segments=`
 
   * `/buffer` (default): An alternative buffer to get information on
+  * `/to-file`: Also write stats to output file
+  * `/use-segments`: Make statistics segments by segment
 
 {::comment} synopsis-end: stats {:/}
 {::comment} description-start: stats {:/}
@@ -1041,7 +1264,14 @@ column:
  * the first and last values (displayed with the index)
  * the `_min` and `_max` values
  * the average
+ * `_var`, the variance
  * the `_norm`, ie the square root of the sum of the squares
+ * for Y columns, the integral is also displayed, indexed by `_int`.
+
+Statistics can be written to the output file with `/to-file=true`. If
+you specify `/use-segments=true`, the statistics are also displayed
+segment-by-segment (and written out to the output file if asked for).
+
 {::comment} description-end: stats {:/}
 
 
@@ -1060,51 +1290,6 @@ Alias: `?`
 {::comment} description-start: help {:/}
 Gives all help available on the given command
 {::comment} description-end: help {:/}
-
-{::comment} synopsis-start: overlay-buffer {:/}
-
-### overlay-buffer - Overlay buffers {#cmd-overlay-buffer}
-
-`overlay-buffer` _buffers_...
-
-Alias: `V`
-
-  * _buffers_: Buffers to overlay
-
-{::comment} synopsis-end: overlay-buffer {:/}
-{::comment} description-start: overlay-buffer {:/}
-Overlay buffers that are already in memory on top of the current one
-{::comment} description-end: overlay-buffer {:/}
-
-{::comment} synopsis-start: browse {:/}
-
-### browse - Browse files {#cmd-browse}
-
-`browse` `/pattern=`
-
-Alias: `W`
-
-  * `/pattern` (default): Files to browse
-
-{::comment} synopsis-end: browse {:/}
-{::comment} description-start: browse {:/}
-Browse files
-{::comment} description-end: browse {:/}
-
-{::comment} synopsis-start: rename {:/}
-
-### rename - Rename {#cmd-rename}
-
-`rename` _new-name_
-
-Alias: `a`
-
-  * _new-name_: New name 
-
-{::comment} synopsis-end: rename {:/}
-{::comment} description-start: rename {:/}
-??
-{::comment} description-end: rename {:/}
 
 
 {::comment} synopsis-start: baseline {:/}
@@ -1137,16 +1322,22 @@ Interrupts the run of the current script
 
 ### cat - Concatenate {#cmd-cat}
 
-`cat` _first_ _second_...
+`cat` _first_ _second_... `/add-segments=`
 
 Alias: `i`
 
   * _first_: First buffer
   * _second_: Second buffer(s)
+  * `/add-segments`: If on (default) segments are added between the old buffers
 
 {::comment} synopsis-end: cat {:/}
 {::comment} description-start: cat {:/}
-Conc
+Concatenates the buffers given as arguments, adding segment stops
+inbetween (unless `/add-segments=false` is used).
+
+This does not change the number of columns. If you're trying to gather
+several Y columns as a function of the same X, you should try
+[`contract`](#cmd-contract) instead.
 {::comment} description-end: cat {:/}
 
 {::comment} synopsis-start: clear {:/}
@@ -1643,11 +1834,13 @@ QSoas> fit-kinetic-system /with=o2:3,exp,common kinetic-file.txt
 
 ### fit-kinetic-system - Fit: Full kinetic system {#cmd-fit-kinetic-system}
 
-`fit-kinetic-system` _system_ `/adaptative=` `/step-size=` `/with=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
+`fit-kinetic-system` _system_ `/adaptative=` `/step-size=` `/prec-relative=` `/stepper=` `/with=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
 
   * _system_: Path to the file describing the system
   * `/adaptative`: Whether or not to use adaptative stepper
   * `/step-size`: Initial step size for the stepper
+  * `/prec-relative`: Relative precision required
+  * `/stepper`: Algorithm used for integration
   * `/with`: Dependency upon time of various parameters
   * `/parameters`: Pre-loads parameters
   * `/debug`: Turn on debugging (for QSoas developers only)
@@ -1965,12 +2158,14 @@ multi buffer fit:
 
 ### mfit-kinetic-system - Multi fit: Full kinetic system {#cmd-mfit-kinetic-system}
 
-`mfit-kinetic-system` _system_ _datasets_... `/adaptative=` `/step-size=` `/with=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
+`mfit-kinetic-system` _system_ _datasets_... `/adaptative=` `/step-size=` `/prec-relative=` `/stepper=` `/with=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
 
   * _system_: Path to the file describing the system
   * _datasets_: Datasets to fit
   * `/adaptative`: Whether or not to use adaptative stepper
   * `/step-size`: Initial step size for the stepper
+  * `/prec-relative`: Relative precision required
+  * `/stepper`: Algorithm used for integration
   * `/with`: Dependency upon time of various parameters
   * `/parameters`: Pre-loads parameters
   * `/debug`: Turn on debugging (for QSoas developers only)
@@ -2029,11 +2224,20 @@ Reactivation
 
 ### overlay - Overlay {#cmd-overlay}
 
-`overlay` _file_...
+`overlay` _file_... `/style=` `/ignore-cache=` `/yerrors=` `/histogram=` `/separator=` `/decimal=` `/comments=` `/columns=` `/auto-split=`
 
 Alias: `v`
 
   * _file_: Files to load !
+  * `/style`: Style for curves display
+  * `/ignore-cache`: If on, ignores what is in the cache
+  * `/yerrors`: Column containing y errors
+  * `/histogram`: Show as a histogram
+  * `/separator`: Separator between columns
+  * `/decimal`: Decimal separator
+  * `/comments`: Comment lines
+  * `/columns`: Order of the columns
+  * `/auto-split`: Split on blank lines
 
 {::comment} synopsis-end: overlay {:/}
 {::comment} description-start: overlay {:/}
@@ -2344,11 +2548,13 @@ context, such as the following
 
 ### run - Run commands {#cmd-run}
 
-`run` _file_...
+`run` _file_... `/silent=` `/add-to-history=`
 
 Alias: `@`
 
   * _file_: First is the command files, following are arguments
+  * `/silent`: Whether or not display is updated during the load
+  * `/add-to-history`: Whether the commands run are added to the history (defaults to false)
 
 {::comment} synopsis-end: run {:/}
 {::comment} description-start: run {:/}
@@ -2408,20 +2614,38 @@ QSoas> startup-files /run=true
 ~~~
 
 {::comment} description-end: startup-files {:/}
-
-
 {::comment} synopsis-start: run-for-each {:/}
 
 ### run-for-each - Loop run a script {#cmd-run-for-each}
 
-`run-for-each` _script_ _arguments_...
+`run-for-each` _script_ _arguments_... `/arg2=` `/arg3=` `/arg4=` `/arg5=` `/arg6=` `/range-type=` `/add-to-history=`
 
   * _script_: The script file
   * _arguments_: All the arguments for the script file to loop on
+  * `/arg2`: Second argument to the script
+  * `/arg3`: Third argument to the script
+  * `/arg4`: Fourth argument to the script
+  * `/arg5`: Fifth argument to the script
+  * `/arg6`: Sixth argument to the script
+  * `/range-type`: If one, transform arguments into ranged numbers
+  * `/add-to-history`: Whether the commands run are added to the history (defaults to false)
 
 {::comment} synopsis-end: run-for-each {:/}
 {::comment} description-start: run-for-each {:/}
 {::comment} description-end: run-for-each {:/}
+{::comment} synopsis-start: noop {:/}
+
+### noop - No op {#cmd-noop}
+
+`noop` _ignored_... `/*=`
+
+  * _ignored_: Ignored arguments
+  * `/*` (default): Ignored options
+
+{::comment} synopsis-end: noop {:/}
+{::comment} description-start: noop {:/}
+Does not do anything, but slurps all arguments and options given.
+{::comment} description-end: noop {:/}
 
 
 ## Non-interactive commands {#non-interactive}
@@ -2439,6 +2663,7 @@ listed here:
  * [`auto-filter-bs`](#cmd-auto-filter-bs)
  * [`auto-filter-fft`](#cmd-auto-filter-fft)
  * [`average`](#cmd-average)
+ * [`bin`](#cmd-bin)
  * [`break`](#cmd-break)
  * [`browse`](#cmd-browse)
  * [`cat`](#cmd-cat)
@@ -2448,8 +2673,11 @@ listed here:
  * [`clear-stack`](#cmd-clear-stack)
  * [`combine-fits`](#cmd-combine-fits)
  * [`commands`](#cmd-commands)
+ * [`comment`](#cmd-comment)
+ * [`contract`](#cmd-contract)
  * [`credits`](#cmd-credits)
  * [`custom-fit`](#cmd-custom-fit)
+ * [`dataset-options`](#cmd-dataset-options)
  * [`define-alias`](#cmd-define-alias)
  * [`define-derived-fit`](#cmd-define-derived-fit)
  * [`define-lw-fit`](#cmd-define-lw-fit)
@@ -2457,14 +2685,18 @@ listed here:
  * [`diff2`](#cmd-diff2)
  * [`display-aliases`](#cmd-display-aliases)
  * [`div`](#cmd-div)
+ * [`downsample`](#cmd-downsample)
  * [`drop`](#cmd-drop)
  * [`dummy`](#cmd-dummy)
  * [`echem-peaks`](#cmd-echem-peaks)
+ * [`edit`](#cmd-edit)
  * [`eval`](#cmd-eval)
  * [`expand`](#cmd-expand)
  * [`fetch`](#cmd-fetch)
  * [`find-peaks`](#cmd-find-peaks)
+ * [`find-root`](#cmd-find-root)
  * [`find-steps`](#cmd-find-steps)
+ * [`flag`](#cmd-flag)
  * [`generate-buffer`](#cmd-generate-buffer)
  * [`graphics-settings`](#cmd-graphics-settings)
  * [`help`](#cmd-help)
@@ -2477,8 +2709,10 @@ listed here:
  * [`load-fits`](#cmd-load-fits)
  * [`load-stack`](#cmd-load-stack)
  * [`merge`](#cmd-merge)
+ * [`noop`](#cmd-noop)
  * [`norm`](#cmd-norm)
  * [`ode`](#cmd-ode)
+ * [`output`](#cmd-output)
  * [`overlay`](#cmd-overlay)
  * [`overlay-buffer`](#cmd-overlay-buffer)
  * [`points`](#cmd-points)
@@ -2499,11 +2733,14 @@ listed here:
  * [`segments-chop`](#cmd-segments-chop)
  * [`shiftx`](#cmd-shiftx)
  * [`show-stack`](#cmd-show-stack)
+ * [`sim-adsorbed`](#cmd-sim-adsorbed)
  * [`sim-duck-sim`](#cmd-sim-duck-sim)
  * [`sim-ecr-wave`](#cmd-sim-ecr-wave)
+ * [`sim-eec-transport`](#cmd-sim-eec-transport)
  * [`sim-eecr-relay-wave`](#cmd-sim-eecr-relay-wave)
  * [`sim-eecr-wave`](#cmd-sim-eecr-wave)
  * [`sim-exponential-decay`](#cmd-sim-exponential-decay)
+ * [`sim-fefe-hp-inact`](#cmd-sim-fefe-hp-inact)
  * [`sim-inact-react-amplitude-2phases`](#cmd-sim-inact-react-amplitude-2phases)
  * [`sim-linear-kinetic-system`](#cmd-sim-linear-kinetic-system)
  * [`sim-lw`](#cmd-sim-lw)
@@ -2520,10 +2757,13 @@ listed here:
  * [`stats`](#cmd-stats)
  * [`strip-if`](#cmd-strip-if)
  * [`subtract`](#cmd-subtract)
+ * [`sv-decomp`](#cmd-sv-decomp)
  * [`temperature`](#cmd-temperature)
  * [`test-lw`](#cmd-test-lw)
  * [`tex-commands`](#cmd-tex-commands)
+ * [`transpose`](#cmd-transpose)
  * [`undo`](#cmd-undo)
+ * [`unflag`](#cmd-unflag)
  * [`unwrap`](#cmd-unwrap)
  * [`update-documentation`](#cmd-update-documentation)
  * [`zero`](#cmd-zero)
@@ -2591,10 +2831,14 @@ letter.
 
 ### ode - ODE solver {#cmd-ode}
 
-`ode` _initial_ _derivatives_
+`ode` _file_ `/parameters=` `/adaptative=` `/step-size=` `/prec-relative=` `/stepper=`
 
-  * _initial_: 
-  * _derivatives_: 
+  * _file_: File containing the system
+  * `/parameters` (default): Values of the extra parameters
+  * `/adaptative`: Whether or not to use adaptative stepper
+  * `/step-size`: Initial step size for the stepper
+  * `/prec-relative`: Relative precision required
+  * `/stepper`: Algorithm used for integration
 
 {::comment} synopsis-end: ode {:/}
 {::comment} synopsis-start: fit-eecr-relay-wave {:/}
@@ -2637,9 +2881,11 @@ letter.
 
 ### fit-linear-kinetic-system - Fit: Several steps with a kinetic evolution {#cmd-fit-linear-kinetic-system}
 
-`fit-linear-kinetic-system` `/species=` `/steps=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
+`fit-linear-kinetic-system` `/species=` `/offset=` `/additional-loss=` `/steps=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
 
   * `/species`: Number of species
+  * `/offset`: If on, allow for a constant offset to be added
+  * `/additional-loss`: Additional unconstrained 'irreversible loss' rate constants
   * `/steps`: Step list with numbered conditions
   * `/parameters`: Pre-loads parameters
   * `/debug`: Turn on debugging (for QSoas developers only)
@@ -2663,10 +2909,12 @@ letter.
 
 ### mfit-linear-kinetic-system - Multi fit: Several steps with a kinetic evolution {#cmd-mfit-linear-kinetic-system}
 
-`mfit-linear-kinetic-system` _datasets_... `/species=` `/steps=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
+`mfit-linear-kinetic-system` _datasets_... `/species=` `/offset=` `/additional-loss=` `/steps=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
 
   * _datasets_: Datasets to fit
   * `/species`: Number of species
+  * `/offset`: If on, allow for a constant offset to be added
+  * `/additional-loss`: Additional unconstrained 'irreversible loss' rate constants
   * `/steps`: Step list with numbered conditions
   * `/parameters`: Pre-loads parameters
   * `/debug`: Turn on debugging (for QSoas developers only)
@@ -2678,11 +2926,13 @@ letter.
 
 ### sim-linear-kinetic-system - Fit: Several steps with a kinetic evolution {#cmd-sim-linear-kinetic-system}
 
-`sim-linear-kinetic-system` _parameters_ _datasets_... `/species=` `/steps=` `/override=` `/extra-parameters=`
+`sim-linear-kinetic-system` _parameters_ _datasets_... `/species=` `/offset=` `/additional-loss=` `/steps=` `/override=` `/extra-parameters=`
 
   * _parameters_: File to load parameters from
   * _datasets_: Datasets to fit
   * `/species`: Number of species
+  * `/offset`: If on, allow for a constant offset to be added
+  * `/additional-loss`: Additional unconstrained 'irreversible loss' rate constants
   * `/steps`: Step list with numbered conditions
   * `/override`: A comma-separated list of parameters to override
   * `/extra-parameters`: Define supplementary parameters
@@ -2795,3 +3045,218 @@ Alias: `ac`
   * _code_: Any ruby code
 
 {::comment} synopsis-end: eval {:/}
+{::comment} synopsis-start: catalytic-baseline {:/}
+
+### catalytic-baseline - Catalytic baseline {#cmd-catalytic-baseline}
+
+`catalytic-baseline` **(interactive)**
+
+Alias: `B`
+
+
+{::comment} synopsis-end: catalytic-baseline {:/}
+{::comment} synopsis-start: bin {:/}
+
+### bin - Bin {#cmd-bin}
+
+`bin` `/boxes=` `/column=` `/log=`
+
+  * `/boxes`: 
+  * `/column`: 
+  * `/log`: 
+
+{::comment} synopsis-end: bin {:/}
+{::comment} synopsis-start: comment {:/}
+
+### comment - Write line to output {#cmd-comment}
+
+`comment` _comment_
+
+  * _comment_: Comment line added to output file
+
+{::comment} synopsis-end: comment {:/}
+{::comment} synopsis-start: dataset-options {:/}
+
+### dataset-options - Options {#cmd-dataset-options}
+
+`dataset-options` `/yerrors=` `/histogram=`
+
+  * `/yerrors`: Column containing y errors
+  * `/histogram`: Show as a histogram
+
+{::comment} synopsis-end: dataset-options {:/}
+{::comment} synopsis-start: downsample {:/}
+
+### downsample - Downsample {#cmd-downsample}
+
+`downsample` `/factor=`
+
+  * `/factor`: Downsampling factor
+
+{::comment} synopsis-end: downsample {:/}
+{::comment} synopsis-start: edit {:/}
+
+### edit - Edit dataset {#cmd-edit}
+
+`edit` 
+
+
+{::comment} synopsis-end: edit {:/}
+{::comment} synopsis-start: find-root {:/}
+
+### find-root - Finds a root {#cmd-find-root}
+
+`find-root` _formula_ _seed_ `/max=`
+
+  * _formula_: An expression of 1 variable (not an equation !)
+  * _seed_: Initial X value from which to search
+  * `/max` (default): If present, uses dichotomy between seed and max
+
+{::comment} synopsis-end: find-root {:/}
+{::comment} synopsis-start: fit-adsorbed {:/}
+
+### fit-adsorbed - Fit: Ideal adsorbed species {#cmd-fit-adsorbed}
+
+`fit-adsorbed` `/species=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
+
+  * `/species`: Overall number of species
+  * `/parameters`: Pre-loads parameters
+  * `/debug`: Turn on debugging (for QSoas developers only)
+  * `/extra-parameters`: Define supplementary parameters
+
+{::comment} synopsis-end: fit-adsorbed {:/}
+{::comment} synopsis-start: fit-eec-transport {:/}
+
+### fit-eec-transport - Fit: Fit of an EEC catalytic wave with transport {#cmd-fit-eec-transport}
+
+`fit-eec-transport` `/plateau=` `/transport=` `/oxidation=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
+
+  * `/plateau`: Whether to use the general expression or only that valid when plateaus are not reached
+  * `/transport`: If transport is truly on
+  * `/oxidation`: ???
+  * `/parameters`: Pre-loads parameters
+  * `/debug`: Turn on debugging (for QSoas developers only)
+  * `/extra-parameters`: Define supplementary parameters
+
+{::comment} synopsis-end: fit-eec-transport {:/}
+{::comment} synopsis-start: fit-fefe-hp-inact {:/}
+
+### fit-fefe-hp-inact - Fit: High potential inactivation of FeFe hydrogenases {#cmd-fit-fefe-hp-inact}
+
+`fit-fefe-hp-inact` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
+
+  * `/parameters`: Pre-loads parameters
+  * `/debug`: Turn on debugging (for QSoas developers only)
+  * `/extra-parameters`: Define supplementary parameters
+
+{::comment} synopsis-end: fit-fefe-hp-inact {:/}
+{::comment} synopsis-start: mfit-adsorbed {:/}
+
+### mfit-adsorbed - Multi fit: Ideal adsorbed species {#cmd-mfit-adsorbed}
+
+`mfit-adsorbed` _datasets_... `/species=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
+
+  * _datasets_: Datasets to fit
+  * `/species`: Overall number of species
+  * `/parameters`: Pre-loads parameters
+  * `/debug`: Turn on debugging (for QSoas developers only)
+  * `/extra-parameters`: Define supplementary parameters
+  * `/weight-buffers`: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-adsorbed {:/}
+{::comment} synopsis-start: mfit-eec-transport {:/}
+
+### mfit-eec-transport - Multi fit: Fit of an EEC catalytic wave with transport {#cmd-mfit-eec-transport}
+
+`mfit-eec-transport` _datasets_... `/plateau=` `/transport=` `/oxidation=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
+
+  * _datasets_: Datasets to fit
+  * `/plateau`: Whether to use the general expression or only that valid when plateaus are not reached
+  * `/transport`: If transport is truly on
+  * `/oxidation`: ???
+  * `/parameters`: Pre-loads parameters
+  * `/debug`: Turn on debugging (for QSoas developers only)
+  * `/extra-parameters`: Define supplementary parameters
+  * `/weight-buffers`: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-eec-transport {:/}
+{::comment} synopsis-start: mfit-fefe-hp-inact {:/}
+
+### mfit-fefe-hp-inact - Multi fit: High potential inactivation of FeFe hydrogenases {#cmd-mfit-fefe-hp-inact}
+
+`mfit-fefe-hp-inact` _datasets_... `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
+
+  * _datasets_: Datasets to fit
+  * `/parameters`: Pre-loads parameters
+  * `/debug`: Turn on debugging (for QSoas developers only)
+  * `/extra-parameters`: Define supplementary parameters
+  * `/weight-buffers`: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-fefe-hp-inact {:/}
+{::comment} synopsis-start: output {:/}
+
+### output - Change output file {#cmd-output}
+
+`output` _file_
+
+  * _file_: Name of the new output file
+
+{::comment} synopsis-end: output {:/}
+{::comment} synopsis-start: sim-adsorbed {:/}
+
+### sim-adsorbed - Fit: Ideal adsorbed species {#cmd-sim-adsorbed}
+
+`sim-adsorbed` _parameters_ _datasets_... `/species=` `/override=` `/extra-parameters=`
+
+  * _parameters_: File to load parameters from
+  * _datasets_: Datasets to fit
+  * `/species`: Overall number of species
+  * `/override`: A comma-separated list of parameters to override
+  * `/extra-parameters`: Define supplementary parameters
+
+{::comment} synopsis-end: sim-adsorbed {:/}
+{::comment} synopsis-start: sim-eec-transport {:/}
+
+### sim-eec-transport - Fit: Fit of an EEC catalytic wave with transport {#cmd-sim-eec-transport}
+
+`sim-eec-transport` _parameters_ _datasets_... `/plateau=` `/transport=` `/oxidation=` `/override=` `/extra-parameters=`
+
+  * _parameters_: File to load parameters from
+  * _datasets_: Datasets to fit
+  * `/plateau`: Whether to use the general expression or only that valid when plateaus are not reached
+  * `/transport`: If transport is truly on
+  * `/oxidation`: ???
+  * `/override`: A comma-separated list of parameters to override
+  * `/extra-parameters`: Define supplementary parameters
+
+{::comment} synopsis-end: sim-eec-transport {:/}
+{::comment} synopsis-start: sim-fefe-hp-inact {:/}
+
+### sim-fefe-hp-inact - Fit: High potential inactivation of FeFe hydrogenases {#cmd-sim-fefe-hp-inact}
+
+`sim-fefe-hp-inact` _parameters_ _datasets_... `/override=` `/extra-parameters=`
+
+  * _parameters_: File to load parameters from
+  * _datasets_: Datasets to fit
+  * `/override`: A comma-separated list of parameters to override
+  * `/extra-parameters`: Define supplementary parameters
+
+{::comment} synopsis-end: sim-fefe-hp-inact {:/}
+{::comment} synopsis-start: sv-decomp {:/}
+
+### sv-decomp - SV decomposition {#cmd-sv-decomp}
+
+`sv-decomp` `/components=` `/filter=`
+
+  * `/components`: If specified, keeps only that many components
+  * `/filter`: If on, does not decompose, only filter
+
+{::comment} synopsis-end: sv-decomp {:/}
+{::comment} synopsis-start: transpose {:/}
+
+### transpose - Transpose {#cmd-transpose}
+
+`transpose` 
+
+
+{::comment} synopsis-end: transpose {:/}

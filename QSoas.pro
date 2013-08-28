@@ -243,7 +243,8 @@ SOURCES += src/qmain.cc \
         src/statistics.cc \
         src/solver.cc \
         src/rubysolver.cc \
-        src/msolver.cc
+        src/msolver.cc \
+        src/kineticsystemsteadystate.cc
 
 
 HEADERS += src/headers.hh \
@@ -335,7 +336,8 @@ HEADERS += src/headers.hh \
         src/statistics.hh \
         src/solver.hh \
         src/rubysolver.hh \
-        src/msolver.hh
+        src/msolver.hh \
+        src/kineticsystemsteadystate.hh
 
 # We link with the converted ODRPACK library
 message("Using odrpack")

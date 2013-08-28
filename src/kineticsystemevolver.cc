@@ -179,7 +179,7 @@ static void kineticSystemCommand(const QString &, QString file,
   
   KineticSystem sys; 
   sys.parseFile(file);
-  sys.prepare();
+  sys.prepareForTimeEvolution();
   if(dump) {
     Terminal::out << "System " << file << ":\n" 
                   << sys.toString() << endl;
@@ -475,7 +475,9 @@ protected:
                                 // if next step fails
     system = new KineticSystem;
     system->parseFile(fileName);
-    system->prepare();
+
+    /// @todo That should join KineticSystemEvolver ?
+    system->prepareForTimeEvolution();
     evolver = new KineticSystemEvolver(system);
     Fit::runFit(name, datasets, opts);
   }

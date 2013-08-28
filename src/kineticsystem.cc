@@ -1,6 +1,6 @@
 /*
   kineticsystem.cc: implementation of KineticSystem
-  Copyright 2012 by Vincent Fourmond
+  Copyright 2012, 2013 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -188,7 +188,7 @@ void KineticSystem::addReaction(QList<QString> species,
   reactions.append(reac);
 }
 
-void KineticSystem::ensureReady()
+void KineticSystem::ensureReady(const QStringList & add)
 {
   QSet<QString> params;
   
@@ -197,32 +197,48 @@ void KineticSystem::ensureReady()
     params += reactions[i]->parameters();
   }
 
-  // We remove the concentration parameters, as we want those to come
-  // first, for the sake of simplicity ?
+
+  // We remove the concentrations
   QStringList conc;
-  QStringList conc0;
   for(int i = 0; i < species.size(); i++) {
-    QString str = QString("c0_%1").arg(species[i].name);
-    params.remove(str);
-    conc0.append(str);
-    str = QString("c_%1").arg(species[i].name);
+    QString str = QString("c_%1").arg(species[i].name);
     params.remove(str);
     conc.append(str);
   }
+
+  for(int i = 0; i < add.size(); i++)
+    params.remove(add[i]);
+
   parameters.clear();
   parameters = params.toList();
   qSort(parameters);
-  // First concentrations, then initial concentrations, then the
+
+  // First concentrations, then additional parameters, then the
   // remaining parameters.
-  parameters = conc + conc0 + parameters;
+  parameters = conc + add + parameters;
 
   for(int i = 0; i < reactions.size(); i++)
     reactions[i]->setParameters(parameters);
 }
 
-void KineticSystem::prepare()
+void KineticSystem::prepareForTimeEvolution()
 {
-  ensureReady();
+  // initial concentrations
+  QStringList conc0;
+  for(int i = 0; i < species.size(); i++)
+    conc0.append(QString("c0_%1").arg(species[i].name));
+
+  ensureReady(conc0);
+}
+
+
+void KineticSystem::prepareForSteadyState()
+{
+  // initial concentrations
+  QStringList params;
+  params << "temperature" << "e" << "C_tot";
+
+  ensureReady(params);
 }
 
 QStringList KineticSystem::allParameters() const
@@ -255,13 +271,23 @@ void KineticSystem::computeDerivatives(double * target,
                                        const double * concentrations,
                                        const double * params) const
 {
+  gsl_vector_view tg = gsl_vector_view_array(target, species.size());
+  gsl_vector_const_view conc = 
+    gsl_vector_const_view_array(concentrations, species.size());
+  computeDerivatives(&tg.vector, &conc.vector, params);
+}
+
+void KineticSystem::computeDerivatives(gsl_vector * target, 
+                                       const gsl_vector * concentrations,
+                                       const double * params) const
+{
   // Now starts the real fun: evaluating all the derivatives !
   QVarLengthArray<double, 800> vals(parameters.size());
 
   // We put all the eggs in the same basket.
   for(int i = 0; i < species.size(); i++) {
-    vals[i] = concentrations[i];
-    target[i] = 0;
+    vals[i] = gsl_vector_get(concentrations, i);
+    gsl_vector_set(target, i, 0);
   }
   for(int i = species.size(); i < parameters.size(); i++)
     vals[i] = params[i - species.size()];
@@ -275,14 +301,18 @@ void KineticSystem::computeDerivatives(double * target,
     for(int j = 0; j < r->speciesStoechiometry.size(); j++) {
       int s = r->speciesStoechiometry[j];
       if(s < 0)
-        forwardRate *= gsl_pow_int(concentrations[r->speciesIndices[j]], -s);
+        forwardRate *= 
+          gsl_pow_int(gsl_vector_get(concentrations, r->speciesIndices[j]), -s);
       else
-        backwardRate *= gsl_pow_int(concentrations[r->speciesIndices[j]], s);
+        backwardRate *= 
+          gsl_pow_int(gsl_vector_get(concentrations, r->speciesIndices[j]), s);
     }
     double rate = forwardRate - backwardRate;
 
     for(int j = 0; j < r->speciesStoechiometry.size(); j++) {
-      target[r->speciesIndices[j]] += r->speciesStoechiometry[j] * rate;
+      gsl_vector_set(target, r->speciesIndices[j],
+                     gsl_vector_get(target, r->speciesIndices[j]) +
+                     + r->speciesStoechiometry[j] * rate);
     }
   }
 }
@@ -377,7 +407,7 @@ void KineticSystem::parseFile(QIODevice * device)
       for(int i = 0; i < reactants.size(); i++) {
         if(reactants[i] == "e-") {
           if(els != 0)
-            throw RuntimeError("Line %1: '%2' electrons cannot appear "
+            throw RuntimeError("Line %1: '%2' -- electrons cannot appear "
                                "more than once in a reaction").
               arg(number).arg(orig);
           els = stoechiometry[i];
@@ -387,7 +417,6 @@ void KineticSystem::parseFile(QIODevice * device)
         }
       }
 
-      /// @todo Adapt for reactions with electrons
       if(literals.size() > 0)
         fr = literals.takeFirst();
       else 
@@ -409,9 +438,9 @@ void KineticSystem::parseFile(QIODevice * device)
 
 void KineticSystem::dump(QTextStream & o) const
 {
-  // o << "Species: \n";
-  // for(int i = 0; i < species.size(); i++)
-  //   o << " * " << species[i].name << "\n";
+  o << "Species: \n";
+  for(int i = 0; i < species.size(); i++)
+    o << " * " << species[i].name << "\n";
 
   // o << "Reactions: \n";
   // for(int i = 0; i < reactions.size(); i++) {

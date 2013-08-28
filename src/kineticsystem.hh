@@ -2,7 +2,7 @@
    \file kineticsystem.hh 
    Handling of arbitrary kinetic systems
 
-   Copyright 2012 by Vincent Fourmond
+   Copyright 2012, 2013 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -34,6 +34,8 @@ class Expression;
 /// It parses reactions with arbitrary formulas as rate constants. The
 /// concentration of the species are reffered to as c_species from
 /// within the formulas.
+///
+/// @todo Add reporters, ie expressions that make up something
 class KineticSystem {
 public:
 
@@ -156,16 +158,18 @@ protected:
 
 
   /// All the external parameters of the system. Includes initial
-  /// concentrations. The parameters value must be provided \b in \b
+  /// concentrations. The parameters values must be provided \b in \b
   /// the \b same \b order !
   QStringList parameters;
 
   /// Ensures all the reactions are ready for evaluation, computing
   /// the parameters as a side effect.
   ///
-  /// For now, no checking for work already done.
-  void ensureReady();
-  
+  /// Additional parameters needed (such as initial concentrations for
+  /// time evolution, total concentration and potential/temperature
+  /// for steady-state current) are given in order.
+  void ensureReady(const QStringList & parameters);
+
 public:
 
   /// Builds an empty KineticSystem
@@ -178,8 +182,17 @@ public:
                    const QString & forward, 
                    const QString & backward = "");
 
-  /// Ensures the object is ready to perform computations.
-  void prepare();
+  /// Prepares the system for time evolution, ie using initial
+  /// concentrations as additional parameters.
+  void prepareForTimeEvolution();
+
+  /// Prepares the system for steady-state, using:
+  /// @li the potential
+  /// @li the temperature
+  /// @li and a total concentration (to be changed later on)
+  /// 
+  /// as the additional parameters
+  void prepareForSteadyState();
 
   /// Returns all the parameters
   QStringList allParameters() const;
@@ -204,6 +217,12 @@ public:
   /// @todo Make a function taking only a const double *
   /// concentrations_followed_by_parameters ?
   void computeDerivatives(double * target, const double * concentrations,
+                          const double * parameters) const;
+
+
+  /// Computations are performed there.
+  void computeDerivatives(gsl_vector * target, 
+                          const gsl_vector * concentrations,
                           const double * parameters) const;
 
 

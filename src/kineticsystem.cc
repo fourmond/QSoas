@@ -86,6 +86,26 @@ void KineticSystem::Reaction::computeRates(const double * vals,
     *bd = 0;
 }
 
+QString KineticSystem::Reaction::toString(const QList<Species> & species) const
+{
+  QString str;
+  QStringList reactants;
+  QStringList products;
+  for(int j = 0; j < speciesIndices.size(); j++) {
+    int idx = speciesIndices[j];
+    int s = speciesStoechiometry[j];
+    QString n = QString("%1 %2").arg(abs(s)).arg(species[idx].name);
+    if(s > 0)
+      products << n;
+    else
+      reactants << n;
+  }
+  return reactants.join(" + ")  + 
+    (backwardRate.isEmpty() ? " -> " : " <=> ") + 
+    products.join(" + ") + " -- forward: " + 
+    forwardRate + " -- backward: " + backwardRate;
+}
+
 //////////////////////////////////////////////////////////////////////
 
 
@@ -442,25 +462,9 @@ void KineticSystem::dump(QTextStream & o) const
   for(int i = 0; i < species.size(); i++)
     o << " * " << species[i].name << "\n";
 
-  // o << "Reactions: \n";
-  // for(int i = 0; i < reactions.size(); i++) {
-  //   const Reaction * reac = reactions[i];
-  //   QStringList reactants;
-  //   QStringList products;
-  //   for(int j = 0; j < reac->speciesIndices.size(); j++) {
-  //     int idx = reac->speciesIndices[j];
-  //     int s = reac->speciesStoechiometry[j];
-  //     QString n = QString("%1 %2").arg(abs(s)).arg(species[idx].name);
-  //     if(s > 0)
-  //       products << n;
-  //     else
-  //       reactants << n;
-  //   }
-  //   o << " * " << reactants.join(" + ") 
-  //     << (reac->backwardRate.isEmpty() ? " -> " : " <=> ")
-  //     << products.join(" + ") 
-  //     << " -- " << reac->forwardRate << " -- " << reac->backwardRate << "\n";
-  // }
+  o << "Reactions: \n";
+  for(int i = 0; i < reactions.size(); i++)
+    o << " * " << reactions[i]->toString(species) << "\n";
 }
 
 QString KineticSystem::toString() const

@@ -117,6 +117,9 @@ public:
     virtual void computeRates(const double * vals, 
                               double * forward, double * backward) const;
 
+    /// String depiction of the equation (along with the rates)
+    virtual QString toString(const QList<Species> & species) const;
+
   };
 
 
@@ -139,7 +142,6 @@ public:
 
     virtual void computeRates(const double * vals, 
                               double * forward, double * backward) const;
-
   };
 
 protected:

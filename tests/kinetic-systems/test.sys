@@ -1,0 +1,4 @@
+# Note how we need to add tau in the second part for it to be detected
+#  -> this should be fixed in future versions of QSoas
+A <=>[ki * (if t > t0; then exp(-(t - t0)/tau); else tau*0; end)][ka] B
+B ->[k2] C

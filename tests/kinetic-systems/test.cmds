@@ -1,0 +1,4 @@
+cd . /from-script=true
+kinetic-system test.sys 'c0_A = 1; ki = 0.1; t0 = 1; ka = 0.1; tau=1' /number=1000
+kinetic-system test.sys 'c0_A = 1; ki = 0.1; t0 = 6; ka = 0.1; tau=0.1' /number=1000
+cd -

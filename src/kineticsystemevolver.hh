@@ -58,6 +58,9 @@ public:
   /// Sets the parameters. Returns the list of undefined parameters.
   QStringList setParameters(const QHash<QString, double> & parameters);
 
+  /// Sets the parameters from a Ruby formula
+  void setParameters(const QString & str);
+
   /// Sets the parameters from a double array, in the same order as
   /// they are found. Can skip 1 parameter though
   void setParameters(const double * source, int skip = -1);

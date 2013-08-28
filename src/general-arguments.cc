@@ -328,6 +328,9 @@ void SeveralIntegersArgument::concatenateArguments(ArgumentMarshaller * a,
 ArgumentMarshaller * ParametersHashArgument::fromString(const QString & str) const
 {
   QHash<QString, double> v;
+
+  // We split on ; by default
+
   QStringList elems = str.split(QRegExp("\\s*;\\s*"));
   
   for(int i = 0; i < elems.size(); i++) {

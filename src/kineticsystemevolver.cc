@@ -32,6 +32,8 @@
 #include <dataset.hh>
 #include <datastack.hh>
 
+#include <expression.hh>
+
 // Here come fits !
 #include <perdatasetfit.hh>
 #include <fitdata.hh>
@@ -92,6 +94,12 @@ QStringList KineticSystemEvolver::setParameters(const QHash<QString, double> & p
   return params.toList();
 }
 
+void KineticSystemEvolver::setParameters(const QString & str)
+{
+  Expression::setParametersFromExpression(system->allParameters(),
+                                          str, parameters);
+}
+
 void KineticSystemEvolver::setParameters(const double * source, int skip)
 {
   int j = 0;
@@ -140,8 +148,8 @@ static ArgumentList
 ksArgs (QList<Argument *>() 
         << new FileArgument("reaction-file", 
                            "File describing the kinetic system")
-        << new ParametersHashArgument("parameters", 
-                                     "Parameters of the model")
+        << new StringArgument("parameters", 
+                              "Parameters of the model")
         );
 
 static ArgumentList 
@@ -164,7 +172,7 @@ static void setTime(double * params, double t, void * p)
 }
 
 static void kineticSystemCommand(const QString &, QString file,
-                                 QHash<QString, double> parameters,
+                                 QString parameters,
                                  const CommandOptions & opts)
 {
   double start = 0;
@@ -189,10 +197,7 @@ static void kineticSystemCommand(const QString &, QString file,
   }
   
   KineticSystemEvolver evolver(&sys);
-  QStringList missingParams = evolver.setParameters(parameters);
-  if(missingParams.size() > 0)
-    Terminal::out << "Missing parameters: " << missingParams.join(", ") 
-                  << endl;
+  evolver.setParameters(parameters);
 
   QHash<QString, double> params = evolver.parameterValues();
   int timeIndex = 0;

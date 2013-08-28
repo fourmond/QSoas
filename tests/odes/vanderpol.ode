@@ -1,0 +1,9 @@
+# Van der pol oscillator
+# Initial conditions
+u = 1
+v = 0
+
+
+# Derivatives
+d_u = v
+d_v = -u + mu * v * (1 - u**2)

@@ -1,0 +1,11 @@
+# solves the vanderpol oscillator for a value of mu given
+# as the first argument.
+# We need to cd to here
+cd . /from-script=true
+generate-buffer 0 100 /samples=10000
+ode  /prec-relative=1e-4 vanderpol.ode 'mu = ${1}'
+drop 1
+a 'mu_${1}.dat'
+# Draw the phase space
+apply-formula 'x = y; y = y2'
+cd -

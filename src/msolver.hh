@@ -47,6 +47,14 @@ protected:
   /// Maximum number of iterations
   int maxIterations;
 
+  /// Resets the solver to the next initial value
+  void reset(const gsl_vector * newx);
+
+
+  /// A hook run for each iteration, that can modify the current
+  /// values using reset(), in which case _true_ should be returned.
+  virtual bool iterateHook(const gsl_vector * values);
+
 
 public:
   MSolver(const gsl_multiroot_fdfsolver_type * type = 

@@ -33,6 +33,11 @@ MSolver::~MSolver()
     gsl_multiroot_fdfsolver_free(solver);
 }
 
+void MSolver::reset(const gsl_vector * init)
+{
+  gsl_multiroot_fdfsolver_set(solver, &function, init);
+}
+
 void MSolver::initialize(const gsl_vector * init)
 {
   solver = gsl_multiroot_fdfsolver_alloc(type, dimension());
@@ -42,13 +47,18 @@ void MSolver::initialize(const gsl_vector * init)
   function.n = dimension();
   function.params = this;
 
-  gsl_multiroot_fdfsolver_set(solver, &function, init);
+  reset(init);
 }
 
 int MSolver::f(const gsl_vector * x, void * params, gsl_vector * f)
 {
   MSolver * slv = reinterpret_cast<MSolver*>(params);
   return slv->f(x, f);
+}
+
+bool MSolver::iterateHook(const gsl_vector * x)
+{
+  return false;
 }
 
 int MSolver::fdf(const gsl_vector * x, void * params, 
@@ -114,7 +124,12 @@ void MSolver::solve()
                         "on an uninitialized solver");
   int nb = 0;
   while(true) {
+    nb++;
+    if(nb > maxIterations)
+      throw RuntimeError("Maximum number of iterations reached, giving up !");
     iterate();
+    if(iterateHook(gsl_multiroot_fdfsolver_dx(solver)))
+       continue;
     int status = 
       gsl_multiroot_test_delta(gsl_multiroot_fdfsolver_dx(solver), 
                                gsl_multiroot_fdfsolver_root(solver), 
@@ -122,9 +137,6 @@ void MSolver::solve()
 
     if (status == GSL_SUCCESS)
       return;
-    nb++;
-    if(nb >= maxIterations)
-      throw RuntimeError("Maximum number of iterations reached, giving up !");
   }
 }
 

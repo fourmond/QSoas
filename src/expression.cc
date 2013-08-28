@@ -105,6 +105,31 @@ void Expression::freeCode()
   args = NULL;
 }
 
+void Expression::setParametersFromExpression(const QStringList & params,
+                                             const QString &expression,
+                                             double * target, 
+                                             double def)
+{
+  if(params.size() == 0)
+    return;                     // Nothing to do
+  QStringList pm = params;
+  QString expr = rubyIzeExpression(expression, pm);
+
+  QStringList beg;
+  for(int i = 0; i < pm.size(); i++)
+    beg << QString("%1 = %2").arg(pm[i]).arg(def);
+  QString final = QString("%1\n%2\n[%3]").
+    arg(beg.join("\n")).arg(expr).arg(pm.join(", "));
+
+  Expression ex(final);
+  if(ex.minimalVariables.size() > 0)
+    throw RuntimeError("Undefined parameters: '%1'").
+      arg(ex.minimalVariables.join("', '"));
+  double a;
+  ex.evaluateIntoArray(&a, target, pm.size());
+}
+
+
 Expression::Expression(const QString & expr) :
   expression(expr), args(NULL)
 {

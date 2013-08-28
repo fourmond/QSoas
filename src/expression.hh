@@ -107,6 +107,21 @@ public:
   /// not very efficient, but does not require to know in advance how
   /// many numbers are expected.
   Vector evaluateAsArray(const double * variables) const;
+
+
+  /// This takes:
+  /// @li a list of named parameters
+  /// @li a Ruby expression given values to them
+  /// @li a target array of doubles meant to get the values of the
+  ///    parameters in the same order as the first argument
+  ///
+  /// Uses evaluateIntoArray internally.
+  ///
+  /// @todo This function should be used about everywhere.
+  static void setParametersFromExpression(const QStringList & params,
+                                          const QString &expression,
+                                          double * target,
+                                          double defaultValue = 0);
   
 
   /// Evaluate into an array. This can be used when an expression

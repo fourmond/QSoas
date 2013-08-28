@@ -327,13 +327,16 @@ void SeveralIntegersArgument::concatenateArguments(ArgumentMarshaller * a,
 
 ArgumentMarshaller * ParametersHashArgument::fromString(const QString & str) const
 {
-  // Doesn't support splitting for now
-  QStringList lst = str.split(delims);
-  if(lst.size() != 2)
-    throw RuntimeError(QString("Invalid parameter specification: '%1'").
-                       arg(str));
   QHash<QString, double> v;
-  v[lst[0]] = Utils::stringToDouble(lst[1]);
+  QStringList elems = str.split(QRegExp("\\s*;\\s*"));
+  
+  for(int i = 0; i < elems.size(); i++) {
+    QStringList lst = elems[i].split(delims);
+    if(lst.size() != 2)
+      throw RuntimeError(QString("Invalid parameter specification: '%1'").
+                         arg(str));
+    v[lst[0]] = Utils::stringToDouble(lst[1]);
+  }
   return new ArgumentMarshallerChild< QHash<QString, double> >(v);
 }
 

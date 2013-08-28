@@ -36,23 +36,8 @@ RubyODESolver::RubyODESolver() :
 
 void RubyODESolver::setParameterValues(const QString & formula)
 {
-  if(extraParams.size() == 0)
-    return;
-
-  QStringList defs;
-  for(int i = 0; i < extraParams.size(); i++) {
-    const QString & n = extraParams[i];
-    defs << QString("%1 = 0").arg(n);
-  }
-
-  QString code = QString("%3\n%2\n[%1]").arg(extraParams.join(",")).
-    arg(formula).
-    arg(defs.join("\n"));
-  
-  Expression ex(code);
-  double v;
-  ex.evaluateIntoArray(&v, extraParamsValues.data(), 
-                       extraParams.size());
+  Expression::setParametersFromExpression(extraParams, formula, 
+                                          extraParamsValues.data());
 }
 
 

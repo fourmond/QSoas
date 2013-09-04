@@ -30,7 +30,21 @@ class KineticSystem;
 class KineticSystemSteadyState : public MSolver {
   KineticSystem * system;
 
+  /// This contains the values of all the parameters.
   double * parameters;
+
+  /// The name of the parameters, as returned by
+  /// KineticSystem::allParameters()
+  QStringList parameterNames;
+
+  /// Index of the temperature
+  int tempIndex;
+
+  /// Index of the total concentration
+  int tcIndex;
+
+  /// Index of the potential
+  int potIndex;
 
 public:
   /// This doesn't take ownership of the kinetic system !
@@ -41,7 +55,7 @@ public:
   virtual int f(const gsl_vector * x,
                 gsl_vector * tg);
 
-  /// Sets the parameters. Returns the list of undefined parameters.
+  /// Sets the parameters.
   void setParameters(const QString & str);
 
 };

@@ -20,4 +20,68 @@
 #include <kineticsystemsteadystate.hh>
 
 #include <kineticsystem.hh>
+#include <expression.hh>
 #include <exceptions.hh>
+
+KineticSystemSteadyState::KineticSystemSteadyState(KineticSystem * sys) : 
+  system(sys)
+{
+
+  parameterNames = sys->allParameters();
+  parameters = new double[parameterNames.size()];
+  tempIndex = -1;
+  tcIndex = -1;
+  potIndex = -1;
+  for(int i = 0; i < parameterNames.size(); i++) {
+    parameters[i] = 0;          // initialize to 0
+    const QString & s = parameterNames[i];
+    if(s == "temperature")
+      tempIndex = i;
+    else if(s == "e")
+      potIndex = i;
+    else if(s == "C_tot")
+      tcIndex = i;
+  }
+
+  /// @question or throw from another function ?
+  if(tcIndex < 0 || potIndex < 0 || tempIndex < 0)
+    throw InternalError("Using a KineticSystem that was not "
+                        "prepared for steady-state computations");
+}
+
+KineticSystemSteadyState::~KineticSystemSteadyState()
+{
+  delete[] parameters;
+}
+
+void KineticSystemSteadyState::setParameters(const QString & str)
+{
+  Expression::setParametersFromExpression(parameterNames,
+                                          str, parameters);
+}
+
+
+int KineticSystemSteadyState::dimension() const
+{
+  return system->speciesNumber();
+}
+
+
+int KineticSystemSteadyState::f(const gsl_vector * x,
+                                gsl_vector * tg)
+{
+  system->computeDerivatives(tg, x, parameters);
+
+  // Now, we need to replace one of these value by the "total
+  // concentration" constraint.
+  
+  double c = parameters[tcIndex];
+
+  /// @todo Move that code into KineticSystem
+  int sz = dimension();
+  for(int i = 0; i < sz; i++)
+    c -= gsl_vector_get(x, i);
+  gsl_vector_set(tg, 0, c);
+
+  return GSL_SUCCESS;
+}

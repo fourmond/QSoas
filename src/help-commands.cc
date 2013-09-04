@@ -95,7 +95,7 @@ tcmd("tex-commands", // command name
 ///
 /// @todo Maybe this will make it obsolete to have embedded
 /// documentation ?
-QString docUrl("http://10.234.32.140/soas/qsoas.html");
+QString docUrl("http://10.234.32.140/cnrs/qsoas/manual.html");
 
 
 static void helpCommand(const QString &, Command * cmd, 

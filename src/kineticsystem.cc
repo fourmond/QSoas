@@ -154,7 +154,7 @@ void KineticSystem::RedoxReaction::computeRates(const double * vals,
   double e = vals[potentialIndex];
   double fara = GSL_CONST_MKSA_FARADAY /
     (vals[temperatureIndex] * GSL_CONST_MKSA_MOLAR_GAS);
-  
+
   *fd = k0 * exp(fara * 0.5 * electrons * (e - e0));
   *bd = k0 * exp(fara * 0.5 * electrons * (e0 - e));
 }
@@ -287,17 +287,17 @@ void KineticSystem::setInitialConcentrations(double * target,
     target[i] = parameters[i];
 }
 
-void KineticSystem::computeDerivatives(double * target, 
+double KineticSystem::computeDerivatives(double * target, 
                                        const double * concentrations,
                                        const double * params) const
 {
   gsl_vector_view tg = gsl_vector_view_array(target, species.size());
   gsl_vector_const_view conc = 
     gsl_vector_const_view_array(concentrations, species.size());
-  computeDerivatives(&tg.vector, &conc.vector, params);
+  return computeDerivatives(&tg.vector, &conc.vector, params);
 }
 
-void KineticSystem::computeDerivatives(gsl_vector * target, 
+double KineticSystem::computeDerivatives(gsl_vector * target, 
                                        const gsl_vector * concentrations,
                                        const double * params) const
 {
@@ -307,15 +307,23 @@ void KineticSystem::computeDerivatives(gsl_vector * target,
   // We put all the eggs in the same basket.
   for(int i = 0; i < species.size(); i++) {
     vals[i] = gsl_vector_get(concentrations, i);
-    gsl_vector_set(target, i, 0);
+    if(target)
+      gsl_vector_set(target, i, 0);
   }
   for(int i = species.size(); i < parameters.size(); i++)
     vals[i] = params[i - species.size()];
+
+  double current = 0;
 
   // Now, we compute the forward and reverse rates of all reactions
   for(int i = 0; i < reactions.size(); i++) {
     const Reaction * r = reactions[i];
     double forwardRate, backwardRate;
+
+    // Do not compute if we don't need !
+    if(! target && r->electrons == 0)
+      continue;
+
     r->computeRates(vals.data(), &forwardRate, &backwardRate);
 
     for(int j = 0; j < r->speciesStoechiometry.size(); j++) {
@@ -328,14 +336,20 @@ void KineticSystem::computeDerivatives(gsl_vector * target,
           gsl_pow_int(gsl_vector_get(concentrations, r->speciesIndices[j]), s);
     }
     double rate = forwardRate - backwardRate;
+    current += r->electrons * rate;
 
-    for(int j = 0; j < r->speciesStoechiometry.size(); j++) {
-      gsl_vector_set(target, r->speciesIndices[j],
-                     gsl_vector_get(target, r->speciesIndices[j]) +
-                     + r->speciesStoechiometry[j] * rate);
+    if(target) {
+      for(int j = 0; j < r->speciesStoechiometry.size(); j++) {
+        int idx = r->speciesIndices[j];
+        gsl_vector_set(target, idx,
+                       gsl_vector_get(target, idx) +
+                       + r->speciesStoechiometry[j] * rate);
+      }
     }
   }
+  return current;
 }
+
 
 void KineticSystem::parseFile(const QString & fileName)
 {

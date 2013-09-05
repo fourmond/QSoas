@@ -87,13 +87,18 @@ int KineticSystemSteadyState::f(const gsl_vector * x,
   return GSL_SUCCESS;
 }
 
-QList<Vector> KineticSystemSteadyState::computeConcentrations(const Vector & potentials)
+void KineticSystemSteadyState::computeVoltammogram(const Vector & potentials,
+                                                   Vector * current,
+                                                   QList<Vector> * concs)
 {
-  QList<Vector> ret;
-
   int nb = dimension();
-  for(int i = 0; i < nb; i++)
-    ret << potentials;
+  if(current)
+    *current = potentials;
+  if(concs) {
+    concs->clear();
+    for(int i = 0; i < nb; i++)
+      *concs << potentials;
+  }
 
   double concentrations[nb];
   // Initialize by spreading the concentration everywhere.
@@ -107,8 +112,11 @@ QList<Vector> KineticSystemSteadyState::computeConcentrations(const Vector & pot
     parameters[potIndex] = potentials[j];
     const gsl_vector * conc = solve(&a.vector);
     gsl_vector_memcpy(&a.vector, conc);
-    for(int i = 0; i < nb; i++)
-      ret[i][j] = concentrations[i];
+    if(current)
+      (*current)[j] = system->computeDerivatives(NULL, &a.vector,
+                                                 parameters);
+    if(concs)
+      for(int i = 0; i < nb; i++)
+        (*concs)[i][j] = concentrations[i];
   }
-  return ret;
 }

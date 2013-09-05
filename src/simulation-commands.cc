@@ -252,10 +252,13 @@ static void ksSteadyStateCommand(const QString &, QString file,
   KineticSystemSteadyState ss(&sys);
   ss.setParameters(parameters);
 
-  QList<Vector> cols = ss.computeConcentrations(ds->x());
-  cols.insert(0, ds->x());
+  Vector cur;
+  QList<Vector> concs;
+  ss.computeVoltammogram(ds->x(), &cur, &concs);
+  concs.insert(0, ds->x());
+  concs.insert(1, cur);
 
-  DataSet * nds = ds->derivedDataSet(cols, "_ss_sim.dat");
+  DataSet * nds = ds->derivedDataSet(concs, "_ss_sim.dat");
   soas().stack().pushDataSet(nds); 
 }
 

@@ -59,9 +59,12 @@ public:
   /// Sets the parameters.
   void setParameters(const QString & str);
 
-  /// Solves the steady-state and returns the list of
-  /// concentrations. 
-  QList<Vector> computeConcentrations(const Vector & potentials);
+  /// Solves the steady-state equation for all potentials and stores:
+  /// \li the current in \a current
+  /// \li the concentraations in \a concentrations 
+  void computeVoltammogram(const Vector & potentials,
+                           Vector * current = NULL,
+                           QList<Vector> * concentrations = NULL);
 
 };
 

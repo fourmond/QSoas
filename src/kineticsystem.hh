@@ -218,14 +218,18 @@ public:
   ///
   /// @todo Make a function taking only a const double *
   /// concentrations_followed_by_parameters ?
-  void computeDerivatives(double * target, const double * concentrations,
+  double computeDerivatives(double * target, const double * concentrations,
                           const double * parameters) const;
 
 
   /// Computations are performed there.
-  void computeDerivatives(gsl_vector * target, 
-                          const gsl_vector * concentrations,
-                          const double * parameters) const;
+  ///
+  /// It returns the current.
+  ///
+  /// If \a target is NULL, then only the current is computed.
+  double computeDerivatives(gsl_vector * target, 
+                            const gsl_vector * concentrations,
+                            const double * parameters) const;
 
 
   /// Reads reactions from a file, and add them to the current system.

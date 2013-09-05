@@ -19,6 +19,7 @@
 #include <headers.hh>
 #include <kineticsystemsteadystate.hh>
 
+#include <vector.hh>
 #include <kineticsystem.hh>
 #include <expression.hh>
 #include <exceptions.hh>
@@ -39,7 +40,7 @@ KineticSystemSteadyState::KineticSystemSteadyState(KineticSystem * sys) :
       tempIndex = i;
     else if(s == "e")
       potIndex = i;
-    else if(s == "C_tot")
+    else if(s == "c_tot")
       tcIndex = i;
   }
 
@@ -84,4 +85,30 @@ int KineticSystemSteadyState::f(const gsl_vector * x,
   gsl_vector_set(tg, 0, c);
 
   return GSL_SUCCESS;
+}
+
+QList<Vector> KineticSystemSteadyState::computeConcentrations(const Vector & potentials)
+{
+  QList<Vector> ret;
+
+  int nb = dimension();
+  for(int i = 0; i < nb; i++)
+    ret << potentials;
+
+  double concentrations[nb];
+  // Initialize by spreading the concentration everywhere.
+  for(int i = 0; i < nb; i++)
+    concentrations[i] = parameters[tcIndex]/nb;
+  
+  gsl_vector_view a = gsl_vector_view_array(concentrations, nb);
+  
+
+  for(int j = 0; j < potentials.size(); j++) {
+    parameters[potIndex] = potentials[j];
+    const gsl_vector * conc = solve(&a.vector);
+    gsl_vector_memcpy(&a.vector, conc);
+    for(int i = 0; i < nb; i++)
+      ret[i][j] = concentrations[i];
+  }
+  return ret;
 }

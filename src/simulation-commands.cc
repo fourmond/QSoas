@@ -35,6 +35,8 @@
 #include <curveview.hh>
 
 #include <rubyodesolver.hh>
+#include <kineticsystem.hh>
+#include <kineticsystemsteadystate.hh>
 
 
 static Group simulations("simulations", 10,
@@ -234,3 +236,47 @@ ode("ode", // command name
     "ODE solver",
     "Solves the given set of ODE",
     "...");
+
+//////////////////////////////////////////////////////////////////////
+
+static void ksSteadyStateCommand(const QString &, QString file,
+                                 QString parameters,
+                                 const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+
+  KineticSystem sys; 
+  sys.parseFile(file);
+  sys.prepareForSteadyState();
+
+  KineticSystemSteadyState ss(&sys);
+  ss.setParameters(parameters);
+
+  QList<Vector> cols = ss.computeConcentrations(ds->x());
+  cols.insert(0, ds->x());
+
+  DataSet * nds = ds->derivedDataSet(cols, "_ss_sim.dat");
+  soas().stack().pushDataSet(nds); 
+}
+
+static ArgumentList 
+ksSSArgs(QList<Argument *>() 
+         << new FileArgument("file", 
+                             "File",
+                             "File containing the kinetic system")
+         << new StringArgument("parameters", 
+                               "Parameter values",
+                               "Values of the extra parameters")
+         );
+
+static ArgumentList 
+ksSSOpts;
+
+static Command 
+kss("kinetic-system-steady-state", // command name
+    effector(ksSteadyStateCommand), // action
+    "simulations",  // group name
+    &ksSSArgs, // arguments
+    &ksSSOpts, // options
+    "Kinetic system steady-state",
+    "Kinetic system steady-state");

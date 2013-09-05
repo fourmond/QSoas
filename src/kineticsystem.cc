@@ -256,7 +256,7 @@ void KineticSystem::prepareForSteadyState()
 {
   // initial concentrations
   QStringList params;
-  params << "temperature" << "e" << "C_tot";
+  params << "temperature" << "e" << "c_tot";
 
   ensureReady(params);
 }

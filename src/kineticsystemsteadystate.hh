@@ -25,6 +25,7 @@
 #include <msolver.hh>
 
 class KineticSystem;
+class Vector;
 
 /// Solves the steady state
 class KineticSystemSteadyState : public MSolver {
@@ -57,6 +58,10 @@ public:
 
   /// Sets the parameters.
   void setParameters(const QString & str);
+
+  /// Solves the steady-state and returns the list of
+  /// concentrations. 
+  QList<Vector> computeConcentrations(const Vector & potentials);
 
 };
 

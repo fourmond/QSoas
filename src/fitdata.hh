@@ -149,6 +149,9 @@ public:
   /// wrong when using bijected parameters)
   const gsl_matrix * covarianceMatrix();
 
+  /// Forces the recomputation of the jacobian. Only supported by very
+  /// few fit engines.
+  void recomputeJacobian();
 
   
   FitData(Fit * f, const QList<const DataSet *> & ds, 

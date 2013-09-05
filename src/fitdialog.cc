@@ -880,3 +880,9 @@ void FitDialog::updateResidualsDisplay()
       arg(parameters.overallRelativeResiduals, 0, 'g', 2);
   residualsDisplay->setText(s);
 }
+
+void FitDialog::recomputeErrors()
+{
+  parameters.prepareFit(fitEngineFactory);
+  parameters.recomputeJacobian();
+}

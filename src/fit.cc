@@ -172,10 +172,13 @@ void Fit::makeCommands(ArgumentList * args,
     *nopts << new StringArgument("override",
                                  "Override parameters",
                                  "A comma-separated list of parameters "
-                                 "to override");
-    *nopts << new StringArgument("extra-parameters", 
+                                 "to override")
+           << new StringArgument("extra-parameters", 
                                  "Extra parameters",
-                                 "Define supplementary parameters");
+                                 "Define supplementary parameters")
+           << new BoolArgument("reexport", 
+                               "Re export",
+                               "Do not compute data, just re-export fit parameters and errors");
     new Command((const char*)(QString("sim-") + name).toLocal8Bit(),
                 effector(this, &Fit::computeFit),
                 "simulations", al2, nopts, pn, sd, ld);
@@ -250,15 +253,23 @@ void Fit::computeFit(const QString &, QString file,
   updateFromOptions(opts, "extra-parameters", extraParams);
   QStringList ep = extraParams.split(",", QString::SkipEmptyParts);
 
+  bool reexport;
+  updateFromOptions(opts, "reexport", reexport);
+
   FitData data(this, datasets, false, ep); // In case we do need them !
   checkDatasets(&data);
   FitDialog dlg(&data);
+  if(reexport)
+    dlg.setFitEngineFactory("qsoas"); // The only one supporting that !
+
   dlg.loadParametersFile(file);
+
 
 
   /// @todo Use mutliple value strings/options when they are
   /// available.
-  QStringList overrides = overridesStr.split(QRegExp("\\s*,\\s*"));
+  QStringList overrides = overridesStr.split(QRegExp("\\s*,\\s*"), 
+                                             QString::SkipEmptyParts);
   for(int i = 0; i < overrides.size(); i++) {
     QStringList spec = overrides[i].split(QRegExp("\\s*=\\s*"));
     if(spec.size() != 2)
@@ -275,8 +286,12 @@ void Fit::computeFit(const QString &, QString file,
       dlg.overrideParameter(spec[0], value);
     }
   }
-
-  dlg.pushSimulatedCurves();
+  if(reexport) {
+    dlg.recomputeErrors();
+    dlg.exportToOutFileWithErrors();
+  }
+  else
+    dlg.pushSimulatedCurves();
 }
 
 

@@ -191,6 +191,9 @@ public:
   /// updates the residuals.
   void recompute();
 
+  /// Force the recomputation of the jacobian, useful to ensure that
+  /// the errors are up-to-date. Use with caution
+  void recomputeJacobian();
 
   /// Returns the computed subfunctions
   QList<Vector> computeSubFunctions();

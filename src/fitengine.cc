@@ -124,3 +124,7 @@ void FitEngine::pushCurrentParameters()
   storedParameters << StoredParameters(v, residuals());
 }
 
+void FitEngine::recomputeJacobian()
+{
+  throw InternalError("Impossible to recompute the jacobian with this fit engine");
+}

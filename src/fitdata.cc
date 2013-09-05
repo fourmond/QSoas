@@ -496,6 +496,11 @@ bool FitData::independentDataSets() const
   return true;
 }
 
+void FitData::recomputeJacobian()
+{
+  engine->recomputeJacobian();
+}
+
 const gsl_matrix * FitData::covarianceMatrix()
 {
   /// @todo provide a function with a gsl_matrix target as argument.
@@ -555,6 +560,7 @@ const gsl_matrix * FitData::covarianceMatrix()
 
       // Scaling factor coming from the gsl documentation
       double res = residuals();
+      /// @bug This is not accurate for weighted fits !!!!
       gsl_matrix_scale(covarStorage, res*res/doF());
     } 
     else

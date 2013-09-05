@@ -743,6 +743,12 @@ double FitParameters::getParameterError(int i, int ds, double th) const
   return conf*fabs(error/value);
 }
 
+void FitParameters::recomputeJacobian()
+{
+  fitData->recomputeJacobian();
+}
+
+
 //////////////////////////////////////////////////////////////////////
 
 CovarianceMatrixDisplay::CovarianceMatrixDisplay(FitParameters * params, 

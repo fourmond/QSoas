@@ -163,6 +163,16 @@ public slots:
   /// Sets the values of the parameters
   void setParameterValues(const Vector & values);
 
+  /// Compute the new curves based on initial guesses (or
+  /// hand-modified versions)
+  void compute();
+
+  /// Recompute errors
+  void recomputeErrors();
+
+  /// Exports parameters to the current output file (with errors)
+  void exportToOutFileWithErrors();
+
 protected slots:
 
   /// Updates the display of residuals.
@@ -171,10 +181,6 @@ protected slots:
   void dataSetChanged(int newds);
 
   void weightEdited(const QString & str);
-
-  /// Compute the new curves based on initial guesses (or
-  /// hand-modified versions)
-  void compute();
 
   /// Update all the editors
   void updateEditors(bool updateErrors = false);
@@ -212,9 +218,6 @@ protected slots:
 
   /// Exports parameters to the current output file
   void exportToOutFile();
-
-  /// Exports parameters to the current output file (with errors)
-  void exportToOutFileWithErrors();
 
   /// Resets all the parameters data to the initial guess
   void resetAllToInitialGuess();

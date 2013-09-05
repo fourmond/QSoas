@@ -152,6 +152,13 @@ public:
   /// The number of iterations since the last call to initialize();
   int iterations;
 
+
+  /// Recomputes the jacobian with the current parameters. Can be used
+  /// to compute the errors.
+  ///
+  /// @warning This is almost never implemented ;-)...
+  virtual void recomputeJacobian();
+
 };
 
 

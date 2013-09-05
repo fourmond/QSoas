@@ -114,6 +114,7 @@ public:
   virtual void computeCovarianceMatrix(gsl_matrix * target) const;
   virtual int iterate();
   virtual double residuals() const;
+  virtual void recomputeJacobian();
 };
 
 QSoasFitEngine::QSoasFitEngine(FitData * data) :
@@ -178,6 +179,18 @@ const gsl_vector * QSoasFitEngine::currentParameters() const
 {
   return parameters;
 }
+
+void QSoasFitEngine::recomputeJacobian()
+{
+  fitData->fdf(parameters, function, jacobian);
+  gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1, 
+                 jacobian, jacobian, 0, jTj);
+  double cur_squares = 0;
+  gsl_blas_ddot(function, function, &cur_squares);
+
+  lastResiduals = sqrt(cur_squares);
+}
+
 
 void QSoasFitEngine::computeCovarianceMatrix(gsl_matrix * target) const
 {

@@ -247,7 +247,14 @@ static void ksSteadyStateCommand(const QString &, QString file,
 
   KineticSystem sys; 
   sys.parseFile(file);
-  sys.prepareForSteadyState();
+  bool dispersion = false;
+  updateFromOptions(opts, "dispersion", dispersion);
+
+  QStringList extra;
+  if(dispersion)
+    extra << "bd0";
+
+  sys.prepareForSteadyState(extra);
 
   KineticSystemSteadyState ss(&sys);
   ss.setParameters(parameters);
@@ -273,7 +280,10 @@ ksSSArgs(QList<Argument *>()
          );
 
 static ArgumentList 
-ksSSOpts;
+ksSSOpts(QList<Argument *>() 
+         << new BoolArgument("dispersion", 
+                             "Dispersion",
+                             "If on, handles the dispersion of k_0 values"));
 
 static Command 
 kss("kinetic-system-steady-state", // command name

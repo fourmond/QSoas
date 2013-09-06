@@ -330,7 +330,8 @@ static void integrate(const QString &, QString formula,
   
   Terminal::out << "Integral value: " << val 
                 << "\testimated error: " << err << "\t in " 
-                << in.functionCalls() << " evaluations" << endl;
+                << in.functionCalls() << " evaluations over " 
+                << in.intervals() << " intervals " << endl;
 }
 
 static ArgumentList 

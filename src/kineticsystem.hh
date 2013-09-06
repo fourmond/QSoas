@@ -120,6 +120,11 @@ public:
     /// String depiction of the equation (along with the rates)
     virtual QString toString(const QList<Species> & species) const;
 
+    /// Returns the expression of the exchange rate for the
+    /// reaction. Returns an empty string if there isn't an exchange
+    /// rate.
+    virtual QString exchangeRate() const;
+
   };
 
 
@@ -142,6 +147,7 @@ public:
 
     virtual void computeRates(const double * vals, 
                               double * forward, double * backward) const;
+    virtual QString exchangeRate() const;
   };
 
 protected:
@@ -194,7 +200,9 @@ public:
   /// @li and a total concentration (to be changed later on)
   /// 
   /// as the additional parameters
-  void prepareForSteadyState();
+  ///
+  /// Takes also an extra list of parameters
+  void prepareForSteadyState(const QStringList & extra = QStringList());
 
   /// Returns all the parameters
   QStringList allParameters() const;
@@ -210,6 +218,11 @@ public:
   void setInitialConcentrations(double * target, 
                                 const double * parameters) const;
 
+
+  /// A global scaling factor for all redox reactions. Can be used to
+  /// implement very efficiently dispersion of values of k_0.
+  double redoxReactionScaling;
+
   /// Compute the derivatives of the concentrations for the given
   /// conditions, and store them in \a target.
   ///
@@ -219,7 +232,7 @@ public:
   /// @todo Make a function taking only a const double *
   /// concentrations_followed_by_parameters ?
   double computeDerivatives(double * target, const double * concentrations,
-                          const double * parameters) const;
+                            const double * parameters) const;
 
 
   /// Computations are performed there.
@@ -244,6 +257,9 @@ public:
 
   /// Dumps as a string
   QString toString() const;
+
+  /// Returns the exchange rate constants for redox reactions.
+  QSet<QString> exchangeRates() const;
 };
 
 #endif

@@ -24,6 +24,8 @@
 #include <expression.hh>
 #include <exceptions.hh>
 
+#include <integrator.hh>
+
 KineticSystemSteadyState::KineticSystemSteadyState(KineticSystem * sys) : 
   system(sys)
 {
@@ -33,6 +35,7 @@ KineticSystemSteadyState::KineticSystemSteadyState(KineticSystem * sys) :
   tempIndex = -1;
   tcIndex = -1;
   potIndex = -1;
+  bd0Index = -1;
   for(int i = 0; i < parameterNames.size(); i++) {
     parameters[i] = 0;          // initialize to 0
     const QString & s = parameterNames[i];
@@ -42,6 +45,8 @@ KineticSystemSteadyState::KineticSystemSteadyState(KineticSystem * sys) :
       potIndex = i;
     else if(s == "c_tot")
       tcIndex = i;
+    else if(s == "bd0")
+      bd0Index = i;
   }
 
   /// @question or throw from another function ?
@@ -96,8 +101,9 @@ void KineticSystemSteadyState::computeVoltammogram(const Vector & potentials,
     *current = potentials;
   if(concs) {
     concs->clear();
-    for(int i = 0; i < nb; i++)
-      *concs << potentials;
+    if(bd0Index < 0)            // 
+      for(int i = 0; i < nb; i++)
+        *concs << potentials;
   }
 
   double concentrations[nb];
@@ -106,17 +112,33 @@ void KineticSystemSteadyState::computeVoltammogram(const Vector & potentials,
     concentrations[i] = parameters[tcIndex]/nb;
   
   gsl_vector_view a = gsl_vector_view_array(concentrations, nb);
+
+  Integrator in;
   
+  std::function<double (double)> fnc = [this, &a] (double bd) -> double {
+    system->redoxReactionScaling = exp(-bd);
+    const gsl_vector * conc = solve(&a.vector);
+    return system->computeDerivatives(NULL, conc,
+                                      parameters);
+  };
 
   for(int j = 0; j < potentials.size(); j++) {
     parameters[potIndex] = potentials[j];
-    const gsl_vector * conc = solve(&a.vector);
-    gsl_vector_memcpy(&a.vector, conc);
-    if(current)
-      (*current)[j] = system->computeDerivatives(NULL, &a.vector,
-                                                 parameters);
-    if(concs)
-      for(int i = 0; i < nb; i++)
-        (*concs)[i][j] = concentrations[i];
+    
+    if(bd0Index >= 0) {
+      double c = in.integrateSegment(fnc, 0, parameters[bd0Index]);
+      if(current)
+        (*current)[j] = c;
+    }
+    else {
+      const gsl_vector * conc = solve(&a.vector);
+      gsl_vector_memcpy(&a.vector, conc);
+      if(current)
+        (*current)[j] = system->computeDerivatives(NULL, &a.vector,
+                                                   parameters);
+      if(concs)
+        for(int i = 0; i < nb; i++)
+          (*concs)[i][j] = concentrations[i];
+    }
   }
 }

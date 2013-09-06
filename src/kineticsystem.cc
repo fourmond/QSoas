@@ -106,6 +106,12 @@ QString KineticSystem::Reaction::toString(const QList<Species> & species) const
     forwardRate + " -- backward: " + backwardRate;
 }
 
+QString KineticSystem::Reaction::exchangeRate() const
+{
+  return QString();
+}
+
+
 //////////////////////////////////////////////////////////////////////
 
 
@@ -159,9 +165,15 @@ void KineticSystem::RedoxReaction::computeRates(const double * vals,
   *bd = k0 * exp(fara * 0.5 * electrons * (e0 - e));
 }
 
+QString KineticSystem::RedoxReaction::exchangeRate() const
+{
+  return backwardRate;
+}
+
 //////////////////////////////////////////////////////////////////////
 
-KineticSystem::KineticSystem()
+KineticSystem::KineticSystem() : 
+  redoxReactionScaling(1)
 {
 }
 
@@ -252,11 +264,12 @@ void KineticSystem::prepareForTimeEvolution()
 }
 
 
-void KineticSystem::prepareForSteadyState()
+void KineticSystem::prepareForSteadyState(const QStringList & extra)
 {
   // initial concentrations
   QStringList params;
   params << "temperature" << "e" << "c_tot";
+  params << extra;
 
   ensureReady(params);
 }
@@ -336,6 +349,9 @@ double KineticSystem::computeDerivatives(gsl_vector * target,
           gsl_pow_int(gsl_vector_get(concentrations, r->speciesIndices[j]), s);
     }
     double rate = forwardRate - backwardRate;
+    // We scale the rate of redox reactions
+    if(r->electrons)
+      rate *= redoxReactionScaling;
     current += r->electrons * rate;
 
     if(target) {
@@ -487,4 +503,19 @@ QString KineticSystem::toString() const
   QTextStream o(&s);
   dump(o);
   return s;
+}
+
+
+QSet<QString> KineticSystem::exchangeRates() const
+{
+  QSet<QString> ret;
+
+  for(int i = 0; i < reactions.size(); i++) {
+    QString er = reactions[i]->exchangeRate();
+    if(er.isEmpty())
+      continue;
+    ret << er.trimmed();
+  }
+
+  return ret;
 }

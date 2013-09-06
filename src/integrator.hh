@@ -54,7 +54,7 @@ protected:
   
 public:
 
-  Integrator(int intervals = 20, 
+  Integrator(int intervals = 30, 
              double rel = 1e-4, double abs = 0);
 
   ~Integrator();
@@ -70,6 +70,11 @@ public:
   /// integration.
   int functionCalls() const {
     return funcalls;
+  };
+
+  /// Returns the number of intervals used for the last computation
+  int intervals() const {
+    return workspace->size;
   };
 };
 

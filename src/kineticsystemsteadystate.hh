@@ -47,6 +47,10 @@ class KineticSystemSteadyState : public MSolver {
   /// Index of the potential
   int potIndex;
 
+  /// Index of the beta d0 parameter. If positive, then it means we
+  /// have dispersion of k0 values;
+  int bd0Index;
+
 public:
   /// This doesn't take ownership of the kinetic system !
   KineticSystemSteadyState(KineticSystem * sys);

@@ -46,6 +46,10 @@ class Expression {
   /// minimalVariables.
   QStringList variables;
 
+  /// If that index isn't negative, then the expression actually
+  /// reduces to a single variable whose index is given
+  int singleVariableIndex;
+
 
   /// The ID of the function call !
   static ID callIDCache;

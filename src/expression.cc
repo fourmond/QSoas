@@ -79,6 +79,8 @@ void Expression::buildArgs()
 /// constructor, which may lead to memory leaks.
 void Expression::buildCode()
 {
+  singleVariableIndex = -1;
+
   QStringList vars = variables;
   QByteArray bta = expression.toLocal8Bit();
   code = 
@@ -92,6 +94,25 @@ void Expression::buildCode()
     throw RuntimeError(QString("Not all the variables needed: %1 vs %2").
                        arg(vars.join(", ")).arg(variables.join(", ")));
   rb_hash_aset(codeSafeKeepingHash(), hashKey(), code);
+
+
+  //////////////////////////////////////////////////
+  ///// Optimizations !
+
+  /// @todo Maybe code optimization could end up in a separate function ? 
+
+  // Now, we find out if the expression is reduced to a single
+  // variable:
+  if(minimalVariables.size() == 1) {
+    if(expression.trimmed() == minimalVariables[0]) {
+      // Then, we have a single variable, whose index we'll find
+      while(true) {
+        ++singleVariableIndex;
+        if(variables[singleVariableIndex] == minimalVariables[0])
+          break;
+      }
+    }
+  }
 
   buildArgs();                  // Build the arguments cache
 }
@@ -175,6 +196,10 @@ const QStringList & Expression::naturalVariables() const
 
 VALUE Expression::rubyEvaluation(const double * values) const
 {
+  // Greatly simplified code in case the expression reduces to only
+  // one variable !
+  if(singleVariableIndex >=  0)
+    return rb_float_new(values[singleVariableIndex]);
   int size = variables.size();
   for(int i = 0; i < size; i++)
     RFLOAT_VALUE(args[i]) = values[i];
@@ -185,6 +210,8 @@ VALUE Expression::rubyEvaluation(const double * values) const
 
 double Expression::evaluate(const double * values) const
 {
+  if(singleVariableIndex >=  0)
+    return values[singleVariableIndex];
   return NUM2DBL(rubyEvaluation(values));
 }
 

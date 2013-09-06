@@ -114,10 +114,12 @@ void KineticSystemSteadyState::computeVoltammogram(const Vector & potentials,
   gsl_vector_view a = gsl_vector_view_array(concentrations, nb);
 
   Integrator in;
+  prepareSolver();              // Does one-time initialization.
   
   std::function<double (double)> fnc = [this, &a] (double bd) -> double {
     system->redoxReactionScaling = exp(-bd);
-    const gsl_vector * conc = solve(&a.vector);
+    reset(&a.vector);
+    const gsl_vector * conc = solve();
     return system->computeDerivatives(NULL, conc,
                                       parameters);
   };
@@ -131,7 +133,8 @@ void KineticSystemSteadyState::computeVoltammogram(const Vector & potentials,
         (*current)[j] = c;
     }
     else {
-      const gsl_vector * conc = solve(&a.vector);
+      reset(&a.vector);
+      const gsl_vector * conc = solve();
       gsl_vector_memcpy(&a.vector, conc);
       if(current)
         (*current)[j] = system->computeDerivatives(NULL, &a.vector,

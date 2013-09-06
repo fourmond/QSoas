@@ -38,7 +38,7 @@ void MSolver::reset(const gsl_vector * init)
   gsl_multiroot_fdfsolver_set(solver, &function, init);
 }
 
-void MSolver::initialize(const gsl_vector * init)
+void MSolver::prepareSolver()
 {
   solver = gsl_multiroot_fdfsolver_alloc(type, dimension());
   function.f = &MSolver::f;
@@ -46,7 +46,11 @@ void MSolver::initialize(const gsl_vector * init)
   function.fdf = &MSolver::fdf;
   function.n = dimension();
   function.params = this;
+}
 
+void MSolver::initialize(const gsl_vector * init)
+{
+  prepareSolver();
   reset(init);
 }
 
@@ -117,7 +121,7 @@ const gsl_vector * MSolver::currentValue() const
   return gsl_multiroot_fdfsolver_root(solver);
 }
 
-void MSolver::solve()
+const gsl_vector * MSolver::solve()
 {
   if(! solver)
     throw InternalError("Trying to use solve() "
@@ -136,15 +140,15 @@ void MSolver::solve()
                                absolutePrec, relativePrec);
 
     if (status == GSL_SUCCESS)
-      return;
+      return currentValue();
   }
+  return currentValue();
 }
 
 const gsl_vector * MSolver::solve(const gsl_vector * init)
 {
   initialize(init);
-  solve();
-  return currentValue();
+  return solve();
 }
 
 

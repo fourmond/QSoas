@@ -47,6 +47,10 @@ protected:
   /// Maximum number of iterations
   int maxIterations;
 
+  /// Prepare the solver, ie does the one-time initialization for the
+  /// solver dimension.
+  void prepareSolver();
+
   /// Resets the solver to the next initial value
   void reset(const gsl_vector * newx);
 
@@ -79,7 +83,7 @@ public:
   int iterate();
 
   /// Solves until the desired relative and absolute accuracies
-  void solve(); 
+  const gsl_vector * solve(); 
 
   /// Combines initialize() and solve(), and return the roots found
   const gsl_vector * solve(const gsl_vector * init); 

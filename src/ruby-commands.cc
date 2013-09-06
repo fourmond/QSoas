@@ -37,6 +37,7 @@
 #include <expression.hh>
 #include <statistics.hh>
 #include <rubysolver.hh>
+#include <integrator.hh>
 
 
 //////////////////////////////////////////////////////////////////////
@@ -311,3 +312,47 @@ sv("find-root", // command name
    &sO, // options
    "Finds a root",
    "Finds a root for the given expression");
+
+//////////////////////////////////////////////////////////////////////
+
+static void integrate(const QString &, QString formula, 
+                      double a, double b,
+                      const CommandOptions & opts)
+{
+  Integrator in;
+
+  Expression ex(formula);
+  std::function<double (double)> fn = [&ex](double x) -> double {
+    return ex.evaluate(&x);
+  };
+  double err = 0;
+  double val = in.integrateSegment(fn, a, b, &err);
+  
+  Terminal::out << "Integral value: " << val 
+                << "\testimated error: " << err << "\t in " 
+                << in.functionCalls() << " evaluations" << endl;
+}
+
+static ArgumentList 
+iA(QList<Argument *>() 
+   << new StringArgument("formula", 
+                         "Formula",
+                         "An expression of 1 variable (not an equation !)")
+   << new NumberArgument("a", "a", 
+                         "Left bound of the segment")
+   << new NumberArgument("b", "b", 
+                         "Right bound of the segment")
+   );
+
+
+static ArgumentList iO;
+
+
+static Command 
+in("integrate", // command name
+   effector(integrate), // action
+   "file",  // group name
+   &iA, // arguments
+   &iO, // options
+   "Integrate expression",
+   "Integrate the given expression");

@@ -2260,3 +2260,60 @@ ds("downsample", // command name
     &dsOpts, // options
     "Downsample",
     "Decrease the number of points in a dataset");
+
+//////////////////////////////////////////////////////////////////////
+
+static void dxCommand(const QString &,
+                      const CommandOptions & /*opts*/)
+{
+  const DataSet * ds = soas().currentDataSet();
+  const Vector & x = ds->x();
+  Vector nx, dx;
+  for(int i = 1; i < x.size(); i++) {
+    nx << x[i-1];
+    dx << x[i] - x[i-1];
+  }
+  QList<Vector> cols;
+  cols << nx << dx;
+
+  soas().pushDataSet(ds->derivedDataSet(cols, "_dx.dat"));
+}
+
+
+static Command 
+dx("dx", // command name
+    effector(dxCommand), // action
+    "buffer",  // group name
+    NULL, // arguments
+    NULL, // options
+    "DX",
+    "Replace Y by delta X");
+
+//////////////////////////////////////////////////////////////////////
+
+static void dyCommand(const QString &,
+                      const CommandOptions & /*opts*/)
+{
+  const DataSet * ds = soas().currentDataSet();
+  const Vector & x = ds->x();
+  const Vector & y = ds->y();
+  Vector nx, dy;
+  for(int i = 1; i < x.size(); i++) {
+    nx << x[i-1];
+    dy << y[i] - y[i-1];
+  }
+  QList<Vector> cols;
+  cols << nx << dy;
+
+  soas().pushDataSet(ds->derivedDataSet(cols, "_dy.dat"));
+}
+
+
+static Command 
+dy("dy", // command name
+    effector(dyCommand), // action
+    "buffer",  // group name
+    NULL, // arguments
+    NULL, // options
+    "DY",
+    "Replace Y by delta Y");

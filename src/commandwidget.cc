@@ -294,11 +294,11 @@ void CommandWidget::runCommandFile(QIODevice * source,
 
 
       // Now, we look for all possible argument substitutions
-      // |:+ ?
-      QRegExp substitutionRE("\\$\\{(\\d+)(?:(%%|##|:-|:\\+)([^}]*))?\\}");
+      QRegExp substitutionRE("\\$\\{(\\d+)(?:(%%|##|:-|:\\+|\\?)([^}]*))?\\}");
 
       typedef enum {
-        Plain, RemoveSuffix, RemovePrefix, DefaultValue, AlternateValue
+        Plain, RemoveSuffix, RemovePrefix, DefaultValue, AlternateValue,
+        TernaryValue
       } SubstitutionType;
 
       // We prepare the substitutions in advance in this hash:
@@ -322,9 +322,11 @@ void CommandWidget::runCommandFile(QIODevice * source,
           type = DefaultValue;
         else if(w == ":+")
           type = AlternateValue;
+        else if(w == "?")
+          type = TernaryValue;
 
         if(type != DefaultValue && type != AlternateValue && 
-           argn >= args.size()) {
+           type != TernaryValue && argn >= args.size()) {
           throw RuntimeError("Script was given %1 parameters, "
                              "but it needs at least %2").
             arg(args.size()).arg(argn+1);
@@ -351,6 +353,18 @@ void CommandWidget::runCommandFile(QIODevice * source,
             subst = "";
           else
             subst = oa;         // the value of the parameter is not used :
+          break;
+        case TernaryValue: {
+          QStringList bits = oa.split(":");
+          if(bits.size() != 2)
+            throw RuntimeError("No ':' found in parameter ternary expansion: "
+                               "'%1'").
+            arg(oa);
+          if(argn >= args.size())
+            subst = bits[1];
+          else
+            subst = bits[0];         // the value of the parameter is not used
+        }
           break;
         default:
         case Plain:

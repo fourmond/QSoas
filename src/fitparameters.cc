@@ -347,7 +347,7 @@ void FitParameters::exportToOutFile(bool exportErrors, OutFile * out)
   QString lines;
   prepareExport(lst, lines, exportErrors);
 
-  out->setHeader(QString("Fit: %1\n%2").
+  out->setHeader(QString("# Fit: %1\n## %2").
                  arg(fitData->fit->fitName()).
                  arg(lst.join("\t")));
   (*out) << lines << flush;

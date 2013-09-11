@@ -95,9 +95,13 @@ breakc("break", // command name
 
 
 // Changes the output file to the named one.
-static void outputCommand(const QString &, QString file)
+static void outputCommand(const QString &, QString file, 
+                          const CommandOptions & opts)
 {
   OutFile::out.setFileName(file);
+
+  OutFile::out.truncate = false;
+  updateFromOptions(opts, "truncate", OutFile::out.truncate);
 }
 
 ArgumentList oArgs(QList<Argument*>() 
@@ -106,13 +110,19 @@ ArgumentList oArgs(QList<Argument*>()
                                        "Name of the new output file")
                    );
 
+ArgumentList oOpts(QList<Argument*>() 
+                   << new BoolArgument("truncate", 
+                                       "Truncate",
+                                       "If on, removes all the contents of the target before opening")
+                   );
+
 
 static Command 
 output("output", // command name
-       optionLessEffector(outputCommand), // action
+       effector(outputCommand), // action
        "file",  // group name
        &oArgs, // arguments
-       NULL, // options
+       &oOpts, // options
        "Change output file",
        "Change the name of the current output file",
        "Interrupts the run of the current script");

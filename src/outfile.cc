@@ -35,8 +35,13 @@ void OutFile::ensureOpened()
   if(! output) {
     name = Utils::expandTilde(name);
     output = new QFile(name);
-    
-    if(! output->open(QIODevice::ReadWrite | QIODevice::Text)) 
+
+    QIODevice::OpenMode mode = QIODevice::ReadWrite | QIODevice::Text;
+    if(truncate) {
+      truncate = false;
+      mode |= QIODevice::Truncate;
+    }
+    if(! output->open(mode))
       Terminal::out << "Failed to open output file '" 
                     << name << "'" << endl;
     else

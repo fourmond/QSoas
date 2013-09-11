@@ -49,6 +49,9 @@ class OutFile {
   QString currentHeader;
 public:
 
+  /// If this flag is on, output file is truncated
+  bool truncate;
+
   OutFile(const QString & name);
 
   /// Change the underlying file

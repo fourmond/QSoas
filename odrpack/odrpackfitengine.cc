@@ -110,6 +110,9 @@ public:
   virtual void computeCovarianceMatrix(gsl_matrix * target) const;
   virtual int iterate();
   virtual double residuals() const;
+
+
+  virtual void recomputeJacobian();
 };
 
 ODRPACKFitEngine::ODRPACKFitEngine(FitData * data) :
@@ -340,6 +343,65 @@ int ODRPACKFitEngine::iterate()
   o << "Fitting procedure report: info is " << info << endl;
 
   return GSL_SUCCESS;
+}
+
+
+void ODRPACKFitEngine::recomputeJacobian()
+{
+  /// @warning This specific bit makes the fit engine
+  /// non-reentrant. But as there is no reason why iterate on another
+  /// instance would be called during this function, this is nothing
+  /// to worry about for now.
+  ::engine = this;
+  int nb = fitData->dataPoints();
+  int m = 1;
+  int np = fitData->freeParameters();
+  int q = 1;
+  int one = 1;
+  int neg = -1;
+  int job = 2;                  // OLS + derivatives by forward
+                                // difference
+  int ndigit = 0;
+
+  double weight = -1;
+  int info = 0; 
+  double taufac = -1;
+  double dneg = -1;
+  int maxit = 0;                // We go only one iteration !
+
+  int isodr = 0;
+  int data[50];
+  int *d = data;  // for not interesting variables
+  // We prepare the position of the parameters...
+
+  dwinf_(&nb, &m, &np, &q, &one, &one, &isodr, // These are the *in*
+         // parameters
+         d+1, d+2, d+3, d+4,                  // FNI
+         &standardDeviationIdx, &covarianceMatrixIdx, d+5, // RVARI
+         &residualsIdx, d+6, d+7, &conditionNumberIdx, d+8, // ETAI
+         d+9, d+10, d+11, // ALPHAI
+         d+12, d+13, d+14, d+15, d+16, d+17, d+18, d+19, d+20, d+21, d+22, d+23, //BETANI
+         d+24, d+25, d+26, d+27, d+28, d+29, d+30, d+31, d+32, d+33, d+34, d+35, //TI
+         d+36, d+37, d+38, d+39, d+40, d+41, d+42, d+43, d+44, d+45, d+46 //LWKMN
+         );
+
+
+  iterationNumber++;
+
+  dodrc_((U_fp) &fcn, &nb, &m, &np, &q, //
+         parameters, 
+         yValues, &nb, dummyXValues, &nb, // We're at LDX
+         &weight,&one,&one, &weight, &one, &one, // We're at LD2WD
+         // Now the fixed stuff
+         parametersAreFree, &neg, &one,
+         &job, &ndigit, &taufac,
+         &dneg, &dneg, &maxit,
+         &neg,&neg,&neg,        // We're at LUNRPRT
+         &dneg, &dneg, &one,    // We're at LDSTPD
+         &dneg, &dneg, &one,    // We're at LDSCLD
+         workVector, &wvSize,
+         workIntegers, &wiSize,
+         &info);
 }
 
 

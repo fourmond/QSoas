@@ -260,7 +260,7 @@ void Fit::computeFit(const QString &, QString file,
   checkDatasets(&data);
   FitDialog dlg(&data);
   if(reexport)
-    dlg.setFitEngineFactory("qsoas"); // The only one supporting that !
+    dlg.setFitEngineFactory("odrpack"); // The only one supporting that !
 
   dlg.loadParametersFile(file);
 

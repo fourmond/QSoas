@@ -156,6 +156,13 @@ namespace Utils {
   /// Expands a leading ~ into the home directory of the user.
   QString expandTilde(const QString & name);
 
+  /// Reads a text line from the next file, treating any of the
+  /// standard newline delimiters as such.
+  ///
+  /// Returns the line, terminated by a newline character (even if
+  /// there wasn't one in the first place).
+  QString readTextLine(QIODevice * device);
+
   /// @}
 
 

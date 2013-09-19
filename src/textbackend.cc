@@ -60,22 +60,29 @@ int TextBackend::couldBeMine(const QByteArray & peek,
                              const QString & /*fileName*/) const
 {
   int nbSpaces = 0, nbSpecials = 0, nbRet = 0;
+  bool lastRet = false;
   for(int i = 0; i < peek.size(); i++) {
     unsigned char c = peek[i];
     switch(c) {
     case '\n': 
       nbRet++;
+      lastRet = true;
       break;
     case ' ':
     case '\t':
+      lastRet = false;
       nbSpaces++;
       break;
     case '\r': // ignoring that guy, especially useful for things
                // coming from windows.
+      if(! lastRet)
+        nbRet++;
+      lastRet = false;
       break;
     default:
       if(c < 32)
         nbSpecials++;
+      lastRet = false;
     }
   }
   if(nbSpecials > peek.size()/100)
@@ -83,7 +90,7 @@ int TextBackend::couldBeMine(const QByteArray & peek,
   QString str(peek);
 
   // We split into lines, el
-  QStringList lines = str.split("\n");
+  QStringList lines = str.split(QRegExp("[\n\r]"));
 
   int nbSeps = 0;
   int nbLines = 0;

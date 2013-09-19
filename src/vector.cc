@@ -20,6 +20,7 @@
 #include <vector.hh>
 
 #include <exceptions.hh>
+#include <utils.hh>
 
 #include <gsl/gsl_histogram.h>
 
@@ -46,7 +47,7 @@ QList<QList<Vector> > Vector::readFromStream(QIODevice * source,
   int numberRead = 0;
   while(! source->atEnd()) {
     lineNumber++;
-    QString line = source->readLine();
+    QString line = Utils::readTextLine(source);
     if(commentRE.indexIn(line) >= 0) {
       if(comments)
         *comments << line;

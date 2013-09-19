@@ -494,3 +494,24 @@ QStringList Utils::extractMatches(QString & str, const QRegExp & ore,
   }
   return ret;
 }
+
+QString Utils::readTextLine(QIODevice * device)
+{
+  char c;
+
+  QString ret;
+  while(device->getChar(&c)) {
+    if(c == '\r')
+      break;
+    if(c == '\n') {
+      if(device->getChar(&c)) {
+        if(c != '\r')
+          device->ungetChar(c);
+      }
+      break;
+    }
+    ret.append(c);
+  }
+  ret.append('\n');
+  return ret;
+}

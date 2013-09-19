@@ -713,7 +713,7 @@ void DataSet::write(const QString & n) const
     fileName = cleanedName() + ".dat";
   
   QFile file(fileName);
-  Utils::open(&file, QIODevice::WriteOnly);
+  Utils::open(&file, QIODevice::WriteOnly|QIODevice::Text);
 
   QTextStream o(&file);
   o << "# saved from Soas buffer name " << name << endl;

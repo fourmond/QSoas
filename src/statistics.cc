@@ -35,8 +35,11 @@ void Statistics::internalStats(ValueHash * overall,
                                QList<ValueHash> * byColumn)
 {
   // This is the real job.
-  if(overall)
+  if(overall) {
     (*overall) << "buffer" << source->name;
+    (*overall) << "rows" << source->nbRows();
+    (*overall) << "columns" << source->nbColumns();
+  }
 
 
   QStringList names = source->columnNames();

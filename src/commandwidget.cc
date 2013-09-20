@@ -26,6 +26,7 @@
 #include <utils.hh>
 
 #include <exceptions.hh>
+#include <datastack.hh>
 
 #include <settings-templates.hh>
 #include <idioms.hh>
@@ -260,7 +261,7 @@ void CommandWidget::scrollTerminal(int nb)
 
 void CommandWidget::printCurrentDataSetInfo()
 {
-  const DataSet * ds = soas().currentDataSet();
+  const DataSet * ds = soas().stack().currentDataSet(true);
   if(ds)
     Terminal::out << tr("Current buffer now is: '") 
                   << ds->name << "'" << endl;

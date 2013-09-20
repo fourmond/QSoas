@@ -163,6 +163,9 @@ ksOpts (QList<Argument *>()
         << new BoolArgument("dump", 
                             "If on, dumps the system rather than solving")
         << ODEStepperOptions::commandOptions()
+        << new BoolArgument("annotate", 
+                            "Annotate",
+                            "If on, a last column will contain the number of function evaluation for each step")
         );
 
 /// Just replace the time in the expression by its value !
@@ -204,6 +207,9 @@ static void kineticSystemCommand(const QString &, QString file,
   op.parseOptions(opts);
   evolver.setStepperOptions(op);
 
+  bool annotate = false;
+  updateFromOptions(opts, "annotate", annotate);
+
 
   QHash<QString, double> params = evolver.parameterValues();
   int timeIndex = 0;
@@ -221,7 +227,7 @@ static void kineticSystemCommand(const QString &, QString file,
   
   evolver.initialize(start);
   Vector tValues = Vector::uniformlySpaced(start, end, nb);
-  QList<Vector> concentrations = evolver.steps(tValues);
+  QList<Vector> concentrations = evolver.steps(tValues, annotate);
   concentrations.insert(0, tValues);
   DataSet * nds = new DataSet(concentrations);
   nds->name = QString("ks-%1.dat").arg(QFileInfo(file).fileName());

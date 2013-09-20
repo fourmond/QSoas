@@ -253,15 +253,21 @@ void ODESolver::stepTo(double to)
   }
 }
 
-QList<Vector> ODESolver::steps(const Vector &tValues)
+QList<Vector> ODESolver::steps(const Vector &tValues, bool annotate)
 {
   QList<Vector> ret;
+  int dim = dimension();
   for(int i = 0; i < dimension(); i++)
     ret += tValues;
+  if(annotate)
+    ret += tValues;
   for(int i = 0; i < tValues.size(); i++) {
+    int last = evaluations;
     stepTo(tValues[i]);
-    for(int j = 0; j < ret.size(); j++)
+    for(int j = 0; j < dim; j++)
       ret[j][i] = yValues[j];
+    if(annotate)
+      ret[dim][i] = evaluations - last;
   }
   return ret;
 }

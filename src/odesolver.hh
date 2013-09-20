@@ -27,14 +27,6 @@ class Vector;
 class Argument;
 
 /// Simple wrapper around options for ODEStepper.
-///
-/// @todo Probably the easiest customization would be
-/// bit-by-bit, ie:
-/// 
-///   /adaptative=true /step=0.0001 /method=rk45...
-///
-/// For that, a simple approach would be options definition and
-/// parsing at the ODEStepperOptions level
 class ODEStepperOptions {
 public:
 
@@ -186,7 +178,11 @@ public:
 
   /// Performs several steps to all the t values, and returns all the
   /// concentrations.
-  QList<Vector> steps(const Vector & tvalues);
+  ///
+  /// If @a annotate is true, then a last column is added that will
+  /// contain the number of function evaluations needed for each
+  /// point. (may prove really useful for debugging !)
+  QList<Vector> steps(const Vector & tvalues, bool annotate = false);
 
   /// The overall number of function evaluations since the beginning.
   int evaluations;

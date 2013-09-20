@@ -177,8 +177,8 @@ static void odeComputationCommand(const QString &, QString file,
   updateFromOptions(opts, "parameters", extra);
   solver.setParameterValues(extra);
 
-  // bool verb = false;
-  // updateFromOptions(opts, "verbose", verb);
+  bool annotate = false;
+  updateFromOptions(opts, "annotate", annotate);
 
   Terminal::out << "Solving the ODE for variables " 
                 << solver.variables().join(", ") << endl;
@@ -193,22 +193,14 @@ static void odeComputationCommand(const QString &, QString file,
   }
   
   QList<Vector> cols;
-  cols << Vector();
 
   const Vector & xs = ds->x();
   solver.initialize(xs[0]);
 
-  for(int i = 0; i < xs.size(); i++) {
-    double t = xs[i];
-    solver.stepTo(t);
-    Vector vals = solver.reporterValues();
-    cols[0] << solver.currentTime();
-    for(int j = 0; j < vals.size(); j++) {
-      if(cols.size() <= j+1)
-        cols << Vector(cols[0].size() - 1, 0);
-      cols[j+1] << vals[j];
-    }
-  }
+  cols << xs;
+
+  cols << solver.steps(xs, annotate);
+  
   DataSet * nds = new DataSet(cols);
   nds->name = "ode.dat";
   Terminal::out << "Total number of function evaluations: " 
@@ -229,9 +221,9 @@ odeOpts(QList<Argument *>()
                               "Parameter values",
                               "Values of the extra parameters",
                               true)
-        // << new BoolArgument("verbose", 
-        //                     "More output",
-        //                     "If on, displays additional information at the end")
+        << new BoolArgument("annotate", 
+                            "Annotate",
+                            "If on, a last column will contain the number of function evaluation for each step")
         << ODEStepperOptions::commandOptions()
         );
 

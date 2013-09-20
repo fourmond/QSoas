@@ -162,6 +162,7 @@ ksOpts (QList<Argument *>()
                               "Number of steps")
         << new BoolArgument("dump", 
                             "If on, dumps the system rather than solving")
+        << ODEStepperOptions::commandOptions()
         );
 
 /// Just replace the time in the expression by its value !
@@ -198,6 +199,11 @@ static void kineticSystemCommand(const QString &, QString file,
   
   KineticSystemEvolver evolver(&sys);
   evolver.setParameters(parameters);
+
+  ODEStepperOptions op = evolver.getStepperOptions();
+  op.parseOptions(opts);
+  evolver.setStepperOptions(op);
+
 
   QHash<QString, double> params = evolver.parameterValues();
   int timeIndex = 0;

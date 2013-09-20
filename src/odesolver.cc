@@ -44,7 +44,7 @@ QList<Argument*> ODEStepperOptions::commandOptions()
   types["rkf45"] = gsl_odeiv2_step_rkf45;
   types["rkck"] = gsl_odeiv2_step_rkck;
   types["rk8pd"] = gsl_odeiv2_step_rk8pd;
-  types["rklimp"] = gsl_odeiv2_step_rk1imp;
+  types["rk1imp"] = gsl_odeiv2_step_rk1imp;
   types["rk2imp"] = gsl_odeiv2_step_rk2imp;
   types["rk4imp"] = gsl_odeiv2_step_rk4imp;
   types["bsimp"] = gsl_odeiv2_step_bsimp;

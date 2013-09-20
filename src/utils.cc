@@ -276,7 +276,6 @@ QStringList Utils::parseConfigurationFile(QIODevice * source,
                                           QList< QPair<int, int> > * 
                                           lineNumbers, bool stripBlank)
 {
-  QTextStream in(source);
   QString line;
   QRegExp comment(stripBlank ? "^\\s*#|^\\s*$"
                   : "^\\s*#");    // Comment, possibly with blank line
@@ -286,9 +285,10 @@ QStringList Utils::parseConfigurationFile(QIODevice * source,
   int ln = 0;
   QString contLine;
   int contFrom = -1;
-  
-  do {
-    line = in.readLine();
+
+  while(! source->atEnd()) {
+    line = Utils::readTextLine(source, false); // More resistant to platform changes
+    
     ++ln;
     
     // Avoid comments;
@@ -313,8 +313,7 @@ QStringList Utils::parseConfigurationFile(QIODevice * source,
         contFrom = -1;
       }
     }
-    
-  } while(! line.isNull());
+  }
 
   // Update user-supplied arguments when applicable
   if(lineNumbers)
@@ -495,7 +494,7 @@ QStringList Utils::extractMatches(QString & str, const QRegExp & ore,
   return ret;
 }
 
-QString Utils::readTextLine(QIODevice * device)
+QString Utils::readTextLine(QIODevice * device, bool keepCR)
 {
   char c;
 
@@ -512,6 +511,7 @@ QString Utils::readTextLine(QIODevice * device)
     }
     ret.append(c);
   }
-  ret.append('\n');
+  if(keepCR)
+    ret.append('\n');
   return ret;
 }

@@ -161,7 +161,7 @@ namespace Utils {
   ///
   /// Returns the line, terminated by a newline character (even if
   /// there wasn't one in the first place).
-  QString readTextLine(QIODevice * device);
+  QString readTextLine(QIODevice * device, bool stripCR = false);
 
   /// @}
 

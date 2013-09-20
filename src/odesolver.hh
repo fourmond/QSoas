@@ -140,6 +140,7 @@ class ODESolver {
 
   /// Underlying system
   gsl_odeiv2_system system;
+
 public:
 
   /// Builds a solver object.
@@ -186,6 +187,9 @@ public:
   /// Performs several steps to all the t values, and returns all the
   /// concentrations.
   QList<Vector> steps(const Vector & tvalues);
+
+  /// The overall number of function evaluations since the beginning.
+  int evaluations;
 };
 
 #endif

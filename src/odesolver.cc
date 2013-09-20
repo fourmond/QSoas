@@ -157,6 +157,7 @@ int ODESolver::function(double t, const double y[], double dydt[],
                         void * params)
 {
   ODESolver * solver = static_cast<ODESolver*>(params);
+  solver->evaluations++;
   return solver->computeDerivatives(t, y, dydt);
 }
 
@@ -173,6 +174,7 @@ int ODESolver::jacobian(double t, const double y[],
   ODESolver * solver = static_cast<ODESolver*>(params);
   
   solver->computeDerivatives(t, y, dydt);
+  solver->evaluations++;
   int sz = solver->dimension();
   double parameters[sz];
   double buffer[sz];
@@ -186,6 +188,7 @@ int ODESolver::jacobian(double t, const double y[],
     parameters[i] = orig + step;
     double fact = 1/step;
     solver->computeDerivatives(t, parameters, buffer);
+    solver->evaluations++;
     for(int j = 0; j < sz; j++)
       dfdy[j * sz + i] = (buffer[j] - dydt[j]) * fact;
 
@@ -234,7 +237,9 @@ void ODESolver::initialize(const double * yStart, double tStart)
 
   for(int i = 0; i < system.dimension; i++)
     yValues[i] = yStart[i];
+
   t = tStart;
+  evaluations = 0;
 }
 
 void ODESolver::stepTo(double to)

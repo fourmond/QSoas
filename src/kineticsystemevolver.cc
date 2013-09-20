@@ -219,7 +219,11 @@ static void kineticSystemCommand(const QString &, QString file,
   concentrations.insert(0, tValues);
   DataSet * nds = new DataSet(concentrations);
   nds->name = QString("ks-%1.dat").arg(QFileInfo(file).fileName());
+
+  Terminal::out << "Total number of function evaluations: " 
+                << evolver.evaluations << endl;
   soas().stack().pushDataSet(nds); 
+
 }
 
 static Command 

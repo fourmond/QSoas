@@ -177,6 +177,9 @@ static void odeComputationCommand(const QString &, QString file,
   updateFromOptions(opts, "parameters", extra);
   solver.setParameterValues(extra);
 
+  // bool verb = false;
+  // updateFromOptions(opts, "verbose", verb);
+
   Terminal::out << "Solving the ODE for variables " 
                 << solver.variables().join(", ") << endl;
   QStringList params = solver.extraParameters();
@@ -208,7 +211,9 @@ static void odeComputationCommand(const QString &, QString file,
   }
   DataSet * nds = new DataSet(cols);
   nds->name = "ode.dat";
-  soas().stack().pushDataSet(nds); 
+  Terminal::out << "Total number of function evaluations: " 
+                << solver.evaluations << endl;
+  soas().stack().pushDataSet(nds);
 }
 
 static ArgumentList 
@@ -224,6 +229,9 @@ odeOpts(QList<Argument *>()
                               "Parameter values",
                               "Values of the extra parameters",
                               true)
+        // << new BoolArgument("verbose", 
+        //                     "More output",
+        //                     "If on, displays additional information at the end")
         << ODEStepperOptions::commandOptions()
         );
 

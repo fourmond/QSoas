@@ -528,10 +528,7 @@ static void flagUnFlag(const CommandOptions & opts,
   else
     buffers << soas().currentDataSet();
 
-  QTextStream o(stdout);
-  o << "Buffers: " << buffers.size() << endl;
   for(int i = 0; i < buffers.size(); i++) {
-    
     DataSet * ds = const_cast<DataSet *>(buffers[i]);
     ds->flagged = flagged;
   }

@@ -114,6 +114,10 @@ namespace __reg {
 
     loop.setHelpString(QString("Linear regression:\n")
                        + reglinHandler.buildHelpString());
+
+    Terminal::out << "Linear regression:\na\tb\tkeff\txleft\txright" 
+                  << endl;
+
     /// @todo selection mode ? (do we need that ?)
     while(! loop.finished()) {
       switch(reglinHandler.nextAction(loop)) {
@@ -129,7 +133,8 @@ namespace __reg {
         // Apparent first-order rate constants
         decay_rate = reg.first/(reg.second + reg.first * r.xleft);
         Terminal::out << reg.first << "\t" << reg.second 
-                      << "\t" << decay_rate << endl;
+                      << "\t" << decay_rate 
+                      << "\t" << r.xleft << "\t" << r.xright << endl;
         soas().showMessage(QObject::tr("Regression between X=%1 and X=%2").
                            arg(r.xleft).arg(r.xright));
 
@@ -167,8 +172,8 @@ namespace __reg {
         return;
       }
       case Write: {
-        OutFile::out.setHeader(QString("Dataset: %1\n"
-                                       "a\tb\tkeff\txleft\txright").
+        OutFile::out.setHeader(QString("# Dataset: %1\n"
+                                       "## a\tb\tkeff\txleft\txright").
                                arg(ds->name));
         /// @todo add other fields ? This should be done through an
         /// appropriate class, as far as I can tell.
@@ -1702,7 +1707,7 @@ static void displayPeaks(QList<PeakInfo> peaks, const DataSet * ds,
   if(write) {
     Terminal::out << "Writing to output file " 
                   << OutFile::out.fileName() << endl;
-    OutFile::out.setHeader("buffer\twhat\tx\ty\tindex");
+    OutFile::out.setHeader("## buffer\twhat\tx\ty\tindex");
   }
   if(maxnb < 0)
     maxnb = peaks.size();

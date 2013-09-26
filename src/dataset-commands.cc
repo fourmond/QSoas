@@ -430,8 +430,8 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
       return;
     }
     case WriteToOutput:
-      OutFile::out.setHeader("Point positions:\n"
-                             "buffer\tX\tY\t\tidx\tdx\tdy");
+      OutFile::out.setHeader("# Point positions:\n"
+                             "## buffer\tX\tY\t\tidx\tdx\tdy");
       Terminal::out << "Writing position to output file: '" 
                     << OutFile::out.fileName() << "'" << endl;
       

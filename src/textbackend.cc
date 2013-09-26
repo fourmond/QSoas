@@ -173,14 +173,16 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
     QList<Vector> & columns = allColumns[j];
 
     /// @todo Allow 0 as column containing the index ?
-    QSet<int> cl = QSet<int>::fromList(cols);
     QList<int> colOrder;
-    for(int i = 0; i < cols.size(); i++)
-      colOrder << cols[i] - 1;
-    
-    for(int i = 0; i < columns.size(); i++) {
-      if(! cl.contains(i + 1))
+
+    if(cols.size() > 0) {
+      for(int i = 0; i < cols.size(); i++)
+        colOrder << cols[i] - 1;
+    }
+    else {
+      for(int i = 0; i < columns.size(); i++) {
         colOrder << i;
+      }
     }
     
     QList<Vector> finalColumns;

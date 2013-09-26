@@ -557,10 +557,18 @@ DataSet * DataSet::subset(int beg, int end, bool within) const
   if(end >= nb)
     end = nb-1;
     
+  QList<int> newSegs;
 
   if(within) {
     for(int i = 0; i < columns.size(); i++)
       cols << columns[i].mid(beg, 1+end-beg);
+
+    // Now adjust segments:
+    for(int i = 0; i < segments.size(); i++) {
+      int idx = segments[i];
+      if(idx >= beg && idx <= end)
+        newSegs << idx - beg;
+    }
   }
   else {
     for(int i = 0; i < columns.size(); i++) {
@@ -568,10 +576,22 @@ DataSet * DataSet::subset(int beg, int end, bool within) const
       v << columns[i].mid(end);
       cols << v;
     }
+
+    for(int i = 0; i < segments.size(); i++) {
+      int idx = segments[i];
+      if(idx <= beg)
+         newSegs << idx;
+      else if(idx >= end)
+        newSegs << idx - (end - beg);
+    }
   }
-  return derivedDataSet(cols, QString("_%1from_%2_to_%3.dat").
-                        arg(within ? "" : "excl_").
-                        arg(columns[0][beg]).arg(columns[0][end]));
+
+  DataSet * ds = derivedDataSet(cols, QString("_%1from_%2_to_%3.dat").
+                                arg(within ? "" : "excl_").
+                                arg(columns[0][beg]).arg(columns[0][end]));
+
+  ds->segments = newSegs;
+  return ds;
 }
 
 DataSet * DataSet::removeSpikes(int nbc, double extra) const

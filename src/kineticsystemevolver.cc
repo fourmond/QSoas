@@ -154,12 +154,6 @@ ksArgs (QList<Argument *>()
 
 static ArgumentList 
 ksOpts (QList<Argument *>() 
-        << new NumberArgument("start", 
-                              "The starting time")
-        << new NumberArgument("end", 
-                              "The ending time")
-        << new IntegerArgument("number", 
-                              "Number of steps")
         << new BoolArgument("dump", 
                             "If on, dumps the system rather than solving")
         << ODEStepperOptions::commandOptions()
@@ -179,15 +173,10 @@ static void kineticSystemCommand(const QString &, QString file,
                                  QString parameters,
                                  const CommandOptions & opts)
 {
-  double start = 0;
-  double end = 10;
-  int nb = 100;
+  const DataSet * ds = soas().currentDataSet();
 
   bool dump = false;
   updateFromOptions(opts, "dump", dump);
-  updateFromOptions(opts, "number", nb);
-  updateFromOptions(opts, "end", end);
-  updateFromOptions(opts, "start", start);
   
   KineticSystem sys; 
   sys.parseFile(file);
@@ -225,10 +214,9 @@ static void kineticSystemCommand(const QString &, QString file,
   for(int i = 0; i < p.size(); i++)
     Terminal::out << " * " << p[i] << " = " << params[p[i]] << endl;
   
-  evolver.initialize(start);
-  Vector tValues = Vector::uniformlySpaced(start, end, nb);
-  QList<Vector> concentrations = evolver.steps(tValues, annotate);
-  concentrations.insert(0, tValues);
+  evolver.initialize(ds->x()[0]);
+  QList<Vector> concentrations = evolver.steps(ds->x(), annotate);
+  concentrations.insert(0, ds->x());
   DataSet * nds = new DataSet(concentrations);
   nds->name = QString("ks-%1.dat").arg(QFileInfo(file).fileName());
 

@@ -245,7 +245,8 @@ SOURCES += src/qmain.cc \
         src/rubysolver.cc \
         src/msolver.cc \
         src/kineticsystemsteadystate.cc \
-        src/integrator.cc
+        src/integrator.cc \
+        src/fitcatalyticwave.cc
 
 
 HEADERS += src/headers.hh \

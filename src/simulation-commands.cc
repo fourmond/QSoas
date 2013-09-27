@@ -257,7 +257,16 @@ static void ksSteadyStateCommand(const QString &, QString file,
   sys.prepareForSteadyState(extra);
 
   KineticSystemSteadyState ss(&sys);
-  ss.setParameters(parameters);
+
+  ss.setParameters(QString("temperature = %1").arg(soas().temperature()));
+
+  ss.setParameters(parameters, false);
+
+  QStringList params = sys.allParameters();
+  Terminal::out << "Computing with parameters: \n";
+  for(int i = 0; i < params.size(); i++)
+    Terminal::out << " * " << params[i] << " = " 
+                  << ss.getParameters()[i] << endl;
 
   Vector cur;
   QList<Vector> concs;
@@ -286,7 +295,7 @@ ksSSOpts(QList<Argument *>()
                              "If on, handles the dispersion of k_0 values"));
 
 static Command 
-kss("kinetic-system-steady-state", // command name
+kss("catalytic-wave", // command name
     effector(ksSteadyStateCommand), // action
     "simulations",  // group name
     &ksSSArgs, // arguments

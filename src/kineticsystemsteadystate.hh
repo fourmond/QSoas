@@ -61,13 +61,25 @@ public:
                 gsl_vector * tg);
 
   /// Sets the parameters.
-  void setParameters(const QString & str);
+  void setParameters(const QString & str, bool overwrite = true);
+
+  /// Sets the target numbered parameter
+  void setParameter(int idx, double value);
+
+  /// Returns the parameters
+  const double * getParameters() const {
+    return parameters;
+  };
+
+  void computeVoltammogram(const Vector & potentials,
+                           Vector * current = NULL,
+                           QList<Vector> * concentrations = NULL);
 
   /// Solves the steady-state equation for all potentials and stores:
   /// \li the current in \a current
-  /// \li the concentraations in \a concentrations 
+  /// \li the concentrations in \a concentrations 
   void computeVoltammogram(const Vector & potentials,
-                           Vector * current = NULL,
+                           gsl_vector * current = NULL,
                            QList<Vector> * concentrations = NULL);
 
 };

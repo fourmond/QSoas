@@ -125,6 +125,7 @@ public:
   static void setParametersFromExpression(const QStringList & params,
                                           const QString &expression,
                                           double * target,
+                                          bool forceDefault = true,
                                           double defaultValue = 0);
   
 

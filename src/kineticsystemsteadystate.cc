@@ -60,11 +60,20 @@ KineticSystemSteadyState::~KineticSystemSteadyState()
   delete[] parameters;
 }
 
-void KineticSystemSteadyState::setParameters(const QString & str)
+void KineticSystemSteadyState::setParameters(const QString & str, 
+                                             bool overwrite)
 {
   Expression::setParametersFromExpression(parameterNames,
-                                          str, parameters);
+                                          str, parameters, 
+                                          overwrite);
 }
+
+void KineticSystemSteadyState::setParameter(int idx, double value)
+{
+  parameters[idx] = value;
+}
+
+
 
 
 int KineticSystemSteadyState::dimension() const
@@ -96,9 +105,19 @@ void KineticSystemSteadyState::computeVoltammogram(const Vector & potentials,
                                                    Vector * current,
                                                    QList<Vector> * concs)
 {
+  gsl_vector * v = NULL;
+  if(current) {
+    (*current) = potentials;
+    v = current->toGSLVector();
+  }
+  computeVoltammogram(potentials, v, concs);
+}
+
+void KineticSystemSteadyState::computeVoltammogram(const Vector & potentials,
+                                                   gsl_vector * current,
+                                                   QList<Vector> * concs)
+{
   int nb = dimension();
-  if(current)
-    *current = potentials;
   if(concs) {
     concs->clear();
     if(bd0Index < 0)            // 
@@ -130,15 +149,15 @@ void KineticSystemSteadyState::computeVoltammogram(const Vector & potentials,
     if(bd0Index >= 0) {
       double c = in.integrateSegment(fnc, 0, parameters[bd0Index]);
       if(current)
-        (*current)[j] = c;
+        gsl_vector_set(current, j, c);
     }
     else {
       reset(&a.vector);
       const gsl_vector * conc = solve();
       gsl_vector_memcpy(&a.vector, conc);
       if(current)
-        (*current)[j] = system->computeDerivatives(NULL, &a.vector,
-                                                   parameters);
+        gsl_vector_set(current, j, system->computeDerivatives(NULL, &a.vector,
+                                                              parameters));
       if(concs)
         for(int i = 0; i < nb; i++)
           (*concs)[i][j] = concentrations[i];

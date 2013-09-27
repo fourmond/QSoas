@@ -129,6 +129,7 @@ void Expression::freeCode()
 void Expression::setParametersFromExpression(const QStringList & params,
                                              const QString &expression,
                                              double * target, 
+                                             bool forceDefault,
                                              double def)
 {
   if(params.size() == 0)
@@ -138,7 +139,8 @@ void Expression::setParametersFromExpression(const QStringList & params,
 
   QStringList beg;
   for(int i = 0; i < pm.size(); i++)
-    beg << QString("%1 = %2").arg(pm[i]).arg(def);
+    beg << QString("%1 = %2").arg(pm[i]).
+      arg(forceDefault ? def : target[i], 0, 'g', 20);
   QString final = QString("%1\n%2\n[%3]").
     arg(beg.join("\n")).arg(expr).arg(pm.join(", "));
 

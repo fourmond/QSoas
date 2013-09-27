@@ -340,7 +340,8 @@ HEADERS += src/headers.hh \
         src/rubysolver.hh \
         src/msolver.hh \
         src/kineticsystemsteadystate.hh \
-        src/integrator.hh
+        src/integrator.hh \
+        src/factory.hh
 
 # We link with the converted ODRPACK library
 message("Using odrpack")

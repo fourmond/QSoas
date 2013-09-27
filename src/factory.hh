@@ -67,6 +67,13 @@ public:
     registerInstance(this);
   };
 
+  Factory(const QString & n, 
+          const QString & desc, 
+          const Creator & c) :
+    name(n), description(desc), creator(c) {
+    registerInstance(this);
+  };
+
   
   /// Returns the item in the factory bearing the given name.
   static Factory * namedItem(const QString & n) {
@@ -82,6 +89,13 @@ public:
       throw RuntimeError("Trying to instanciate '%1', which is not known").
         arg(n);
     return f->creator(arguments...);
+  };
+
+  /// Returns all the available items
+  static QStringList availableItems() {
+    if(! factory)
+      return QStringList();
+    return factory->keys();
   };
   
   

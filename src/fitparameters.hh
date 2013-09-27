@@ -21,13 +21,14 @@
 #ifndef __FITPARAMETERS_HH
 #define __FITPARAMETERS_HH
 
+
+#include <fitengine.hh>
 #include <possessive-containers.hh>
 #include <vector.hh>
 
 class FitData;
 class FitParameter;
 class OutFile;
-class FitEngineFactoryItem;
 
 class FitParametersFile;
 

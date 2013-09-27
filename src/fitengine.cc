@@ -17,19 +17,12 @@
 */
 
 #include <headers.hh>
-#include <fitdata.hh>
 #include <fitengine.hh>
+#include <fitdata.hh>
 #include <exceptions.hh>
 
-FitEngineFactoryItem::FitEngineFactoryItem(const QString & n, 
-                                           const QString & pn, Creator c):
-  creator(c), name(n), publicName(pn)
-{
-  FitEngine::registerFactoryItem(this);
-}
+#include <factory.hh>
 
-
-//////////////////////////////////////////////////////////////////////
 
 StoredParameters::StoredParameters(const gsl_vector *v, double r) :
   parameters(v->size, 0),
@@ -51,24 +44,9 @@ const gsl_vector * StoredParameters::toGSLVector() const
 
 //////////////////////////////////////////////////////////////////////
 
-QHash<QString, FitEngineFactoryItem*> * FitEngine::factory = NULL;
-
-void FitEngine::registerFactoryItem(FitEngineFactoryItem * item)
-{
-  if(! factory)
-    factory = new QHash<QString, FitEngineFactoryItem*>();
-
-  if(factory->contains(item->name))
-    throw InternalError(QString("Defining the same fit engine twice: %1").
-                        arg(item->name));
-  factory->insert(item->name, item);
-}
-
 FitEngineFactoryItem * FitEngine::namedFactoryItem(const QString & name)
 {
-  if(! factory)
-    return NULL;
-  return factory->value(name, NULL);
+  return FitEngineFactoryItem::namedItem(name);
 }
 
 FitEngineFactoryItem * FitEngine::defaultFactoryItem()
@@ -87,9 +65,7 @@ bool FitEngine::handlesWeights() const
 
 QStringList FitEngine::availableEngines()
 {
-  if(factory)
-    return factory->keys();
-  return QStringList();
+  return FitEngineFactoryItem::availableItems();
 }
 
 FitEngine * FitEngine::createEngine(const QString & name, FitData * data)

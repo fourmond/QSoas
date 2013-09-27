@@ -25,9 +25,9 @@
 #include <vector.hh>
 #include <possessive-containers.hh>
 
+#include <fitengine.hh>
+
 class Fit;  
-class FitEngine;
-class FitEngineFactoryItem;
 class FitParameter;
 class DataSet;
 class ParameterDefinition;

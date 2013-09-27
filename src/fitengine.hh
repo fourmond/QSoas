@@ -23,29 +23,10 @@
 #define __FITENGINE_HH
 
 #include <vector.hh>
+#include <factory.hh>
 
 class Fit;  
 class FitData;
-class FitEngine;
-
-
-class FitEngineFactoryItem {
-public:
-  typedef FitEngine * (*Creator)(FitData * data);
-
-  /// The creation function
-  Creator creator;
-
-  /// The creation name
-  QString name;
-
-  /// The public name
-  QString publicName;
-  /// Creates and register a factory item.
-  FitEngineFactoryItem(const QString & n, const QString & pn, Creator c);
-};
-
-
 /// A simple wrapper class around parameters found after an iteration.
 class StoredParameters {
 
@@ -75,6 +56,9 @@ public:
 };
 
 
+class FitEngine;
+typedef Factory<FitEngine, FitData *> FitEngineFactoryItem;
+
 
 /// This class wraps around call to the GSL for handling fits.
 ///
@@ -86,13 +70,6 @@ public:
 /// parameters ?
 class FitEngine {
 protected:
-
-  friend class FitEngineFactoryItem;
-
-  /// The application-wide FitEngine factory
-  static QHash<QString, FitEngineFactoryItem*> * factory;
-
-  static void registerFactoryItem(FitEngineFactoryItem * item);
 
 
   /// The underlying fit data

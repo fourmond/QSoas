@@ -204,7 +204,7 @@ void FitDialog::setupFrame()
     QStringList fengines = FitEngine::availableEngines();
     for(int i = 0; i < fengines.size(); i++) {
       FitEngineFactoryItem * it = FitEngine::namedFactoryItem(fengines[i]);
-      fitEngineSelection->addItem(it->publicName, it->name);
+      fitEngineSelection->addItem(it->description, it->name);
     }
     connect(fitEngineSelection, SIGNAL(activated(int)), 
             SLOT(engineSelected(int)));

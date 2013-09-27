@@ -21,6 +21,7 @@
 #ifndef __FITDIALOG_HH
 #define __FITDIALOG_HH
 
+#include <fitengine.hh>
 #include <fitparameters.hh>
 
 class FitData;
@@ -29,7 +30,6 @@ class FitParameterEditor;
 class DataSet;
 
 class FitTrajectory;
-class FitEngineFactoryItem;
 class FitTrajectoryDisplay;
 
 /// This class handles all the user interaction during fits.

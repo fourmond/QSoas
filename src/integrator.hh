@@ -1,6 +1,6 @@
 /**
    \file integrator.hh
-   The Integrator class, a one dimensional root finder
+   The Integrator class, a one dimensional integrator
    Copyright 2013 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
@@ -21,9 +21,17 @@
 #ifndef __INTEGRATOR_HH
 #define __INTEGRATOR_HH
 
-#include <gsl/gsl_integration.h>
+#include <factory.hh>
 
+class Integrator;
+/// The factory, with parameters number, relative precision, absolute
+/// precision.
+typedef Factory<Integrator, int, double, double> IntegratorFactory;
 
+/// This is the base class of various one-dimensional integrators
+///
+/// @todo Add provisions for integrating a vector over a single
+/// variable?
 class Integrator {
 protected:
 
@@ -33,37 +41,26 @@ protected:
   /// relative precision
   double relativePrec;
 
-  /// Maximum of intervals
-  int max;
-
   /// Number of function calls for the integration
   int funcalls;
-
-  /// The integration workspace
-  gsl_integration_workspace * workspace;
 
   /// The underlying function, set upon 
   std::function<double (double)> fnc;
 
-  /// The integration function
-  static double f(double x, void * params);
-
-
-  /// The function pointing towards f
-  gsl_function intf;
-  
 public:
 
-  Integrator(int intervals = 30, 
-             double rel = 1e-4, double abs = 0);
+  static Integrator * createNamedIntegrator(const QString & name = "gauss31",
+                                            int intervals = 30,
+                                            double relative = 1e-4, 
+                                            double abs = 0);
 
-  ~Integrator();
+  Integrator(double rel = 1e-4, double abs = 0);
+
+  virtual ~Integrator();
 
   /// Integrate over a segment
-  double integrateSegment(const std::function<double (double)> & f, 
-                          double a, double b, double * error = NULL,
-                          int limit = -1,
-                          int key = 3);
+  virtual double integrateSegment(const std::function<double (double)> & f, 
+                                  double a, double b, double * error = NULL) = 0;
                           
 
   /// Returns the number of function calls during the last
@@ -73,9 +70,7 @@ public:
   };
 
   /// Returns the number of intervals used for the last computation
-  int intervals() const {
-    return workspace->size;
-  };
+  virtual int intervals() const = 0;
 };
 
 #endif

@@ -319,19 +319,19 @@ static void integrate(const QString &, QString formula,
                       double a, double b,
                       const CommandOptions & opts)
 {
-  Integrator in;
+  QScopedPointer<Integrator> in(Integrator::createNamedIntegrator());
 
   Expression ex(formula);
   std::function<double (double)> fn = [&ex](double x) -> double {
     return ex.evaluate(&x);
   };
   double err = 0;
-  double val = in.integrateSegment(fn, a, b, &err);
+  double val = in->integrateSegment(fn, a, b, &err);
   
   Terminal::out << "Integral value: " << val 
                 << "\testimated error: " << err << "\t in " 
-                << in.functionCalls() << " evaluations over " 
-                << in.intervals() << " intervals " << endl;
+                << in->functionCalls() << " evaluations over " 
+                << in->intervals() << " intervals " << endl;
 }
 
 static ArgumentList 

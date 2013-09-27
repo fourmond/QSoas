@@ -21,45 +21,23 @@
 
 #include <exceptions.hh>
 
-Integrator::Integrator(int intervals, double rel, double abs) :
+Integrator::Integrator(double rel, double abs) :
   absolutePrec(abs), relativePrec(rel)
 {
-  
-  workspace = gsl_integration_workspace_alloc(intervals);
-  max = intervals;
-  intf.params = this;
-  intf.function = &Integrator::f;
 }
 
-double Integrator::f(double x, void * params)
+Integrator * Integrator::createNamedIntegrator(const QString & name,
+                                               int intervals,
+                                               double relative,
+                                               double abs)
 {
-  Integrator * i = reinterpret_cast<Integrator*>(params);
-  i->funcalls++;
-  return i->fnc(x);
+  return IntegratorFactory::createObject(name, intervals, relative, abs);
 }
 
 Integrator::~Integrator()
 {
-  gsl_integration_workspace_free(workspace);
 }
 
-double Integrator::integrateSegment(const std::function<double (double)> & f, 
-                                    double a, double b, double * error,
-                                    int limit, int key)
-{
-  double res = 0;
-  double err = 0;
-  if(limit < 0)
-    limit = max;
-  funcalls = 0;
-  fnc = f;
-  
-  int status = gsl_integration_qag(&intf, a, b, absolutePrec, relativePrec,
-                                   limit, key, workspace, &res, &err);
-  if(error)
-    *error = err;
-  return res;
-}
 
 
 

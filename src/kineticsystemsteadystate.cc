@@ -132,7 +132,7 @@ void KineticSystemSteadyState::computeVoltammogram(const Vector & potentials,
   
   gsl_vector_view a = gsl_vector_view_array(concentrations, nb);
 
-  Integrator in;
+  QScopedPointer<Integrator> in(Integrator::createNamedIntegrator());
   prepareSolver();              // Does one-time initialization.
   
   std::function<double (double)> fnc = [this, &a] (double bd) -> double {
@@ -147,7 +147,7 @@ void KineticSystemSteadyState::computeVoltammogram(const Vector & potentials,
     parameters[potIndex] = potentials[j];
     
     if(bd0Index >= 0) {
-      double c = in.integrateSegment(fnc, 0, parameters[bd0Index]);
+      double c = in->integrateSegment(fnc, 0, parameters[bd0Index]);
       if(current)
         gsl_vector_set(current, j, c);
     }

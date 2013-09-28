@@ -86,6 +86,10 @@ public:
   /// engine.
   int evaluationNumber;
 
+  bool hasEngine() const {
+    return engine;
+  };
+
   /// The fit in use
   Fit * fit;
 

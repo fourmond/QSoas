@@ -389,12 +389,18 @@ void FitDialog::setupSubFunctionCurves()
     
 }
 
+
+void FitDialog::internalCompute()
+{
+  parameters.recompute();
+  setupSubFunctionCurves();
+  updateResidualsDisplay();
+}
+
 void FitDialog::compute()
 {
   try {
-    parameters.recompute();
-    setupSubFunctionCurves();
-    updateResidualsDisplay();
+    internalCompute();
   }
   catch (const RuntimeError & re) {
     QString s = QString("An error occurred while computing: ") +
@@ -513,8 +519,11 @@ void FitDialog::startFit()
   catch (const RuntimeError & re) {
     cancelButton->setVisible(false);
     startButton->setVisible(true);
-    parameters.retrieveParameters();
-    updateEditors();
+    // We only take back the parameters if the fit really started !
+    if(data->hasEngine()) {
+      parameters.retrieveParameters();
+      updateEditors();
+    }
     progressReport->setText(QString("An error occurred while fitting: ") +
                             re.message());
     QTextStream o(stdout);
@@ -649,7 +658,7 @@ void FitDialog::loadParametersFile(const QString & file, int targetDS)
   try {
     parameters.loadParameters(&f, targetDS);
     updateEditors();
-    compute();
+    internalCompute();
     msg = QString("Loaded fit parameters from file %1").arg(file);
   }
   catch (const Exception & e) {

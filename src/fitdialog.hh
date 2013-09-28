@@ -132,6 +132,9 @@ protected:
 
   virtual void closeEvent(QCloseEvent * event);
 
+  /// Same thing as compute, but raises an exception if something failed.
+  void internalCompute();
+
 
 public:
   FitDialog(FitData * data, bool displayWeights = false);

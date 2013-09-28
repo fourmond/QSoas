@@ -342,7 +342,8 @@ HEADERS += src/headers.hh \
         src/msolver.hh \
         src/kineticsystemsteadystate.hh \
         src/integrator.hh \
-        src/factory.hh
+        src/factory.hh \
+        src/factoryargument.hh
 
 # We link with the converted ODRPACK library
 message("Using odrpack")

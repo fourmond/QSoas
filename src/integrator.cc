@@ -21,6 +21,8 @@
 
 #include <exceptions.hh>
 
+#include <factoryargument.hh>
+
 Integrator::Integrator(double rel, double abs) :
   absolutePrec(abs), relativePrec(rel)
 {
@@ -38,6 +40,25 @@ Integrator::~Integrator()
 {
 }
 
+QList<Argument *> Integrator::integratorOptions()
+{
+  QList<Argument *> args;
+  args << new FactoryArgument<IntegratorFactory>
+    ("integrator", 
+     "Integrator",
+     "The algorithm used for integration");
+  return args;
+}
 
+Integrator * Integrator::fromOptions(const CommandOptions & opts, 
+                                     int maxnum)
+{
+  IntegratorFactory * c = IntegratorFactory::namedItem("gauss31");
+  
+  updateFromOptions(opts, "integrator", c);
 
-
+  double relPrec = 1e-4;
+  double absPrec = 0;
+  
+  return c->creator(maxnum, relPrec, absPrec);
+}

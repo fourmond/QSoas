@@ -22,11 +22,15 @@
 #define __INTEGRATOR_HH
 
 #include <factory.hh>
+#include <argumentmarshaller.hh>
 
 class Integrator;
 /// The factory, with parameters number, relative precision, absolute
 /// precision.
 typedef Factory<Integrator, int, double, double> IntegratorFactory;
+
+
+class Argument;
 
 /// This is the base class of various one-dimensional integrators
 ///
@@ -71,6 +75,13 @@ public:
 
   /// Returns the number of intervals used for the last computation
   virtual int intervals() const = 0;
+
+  /// Returns a series of arguments suitable to add to commands using
+  /// integrators.
+  static QList<Argument *> integratorOptions();
+
+  /// Creates an Integrator subclass based on the given options.
+  static Integrator * fromOptions(const CommandOptions & opts, int maxnum = 30);
 };
 
 #endif

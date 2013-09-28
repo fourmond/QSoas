@@ -319,7 +319,7 @@ static void integrate(const QString &, QString formula,
                       double a, double b,
                       const CommandOptions & opts)
 {
-  QScopedPointer<Integrator> in(Integrator::createNamedIntegrator());
+  QScopedPointer<Integrator> in(Integrator::fromOptions(opts));
 
   Expression ex(formula);
   std::function<double (double)> fn = [&ex](double x) -> double {
@@ -328,7 +328,7 @@ static void integrate(const QString &, QString formula,
   double err = 0;
   double val = in->integrateSegment(fn, a, b, &err);
   
-  Terminal::out << "Integral value: " << val 
+  Terminal::out << "Integral value: " << QString::number(val, 'g', 10)
                 << "\testimated error: " << err << "\t in " 
                 << in->functionCalls() << " evaluations over " 
                 << in->intervals() << " intervals " << endl;
@@ -346,7 +346,11 @@ iA(QList<Argument *>()
    );
 
 
-static ArgumentList iO;
+static ArgumentList 
+iO(QList<Argument *>()
+   << Integrator::integratorOptions()
+   );
+
 
 
 static Command 

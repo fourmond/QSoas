@@ -66,6 +66,7 @@ GSLIntegrator::GSLIntegrator(int intervals, double rel, double abs, int k) :
   intf.function = &GSLIntegrator::f;
 }
 
+/// @todo Should join Integrator ?
 double GSLIntegrator::f(double x, void * params)
 {
   GSLIntegrator * i = reinterpret_cast<GSLIntegrator*>(params);
@@ -117,3 +118,76 @@ IntegratorFactory gauss61("gauss61", "61-points Gauss-Kronrod",
                           [](int segs, double rel, double abs) -> Integrator * {
                             return new GSLIntegrator(segs, rel, abs, 6);
                           });
+
+//////////////////////////////////////////////////////////////////////
+
+class GSLQNGIntegrator : public Integrator {
+protected:
+  /// Maximum of intervals
+  int max;
+
+  /// The integration function
+  static double f(double x, void * params);
+
+  /// The function pointing towards f
+  gsl_function intf;
+
+  /// The algorithm 'key'
+  int key;
+ 
+  
+public:
+
+  GSLQNGIntegrator(double rel = 1e-4, double abs = 0);
+
+  ~GSLQNGIntegrator();
+
+  /// Integrate over a segment
+  virtual double integrateSegment(const std::function<double (double)> & f, 
+                                  double a, double b, double * error = NULL);
+                          
+
+  /// Returns the number of intervals used for the last computation
+  int intervals() const {
+    return 1;
+  };
+};
+
+GSLQNGIntegrator::GSLQNGIntegrator(double rel, double abs) :
+  Integrator(rel, abs)
+{
+  intf.params = this;
+  intf.function = &GSLQNGIntegrator::f;
+}
+
+GSLQNGIntegrator::~GSLQNGIntegrator()
+{
+}
+
+double GSLQNGIntegrator::f(double x, void * params)
+{
+  GSLQNGIntegrator * i = reinterpret_cast<GSLQNGIntegrator*>(params);
+  i->funcalls++;
+  return i->fnc(x);
+}
+
+double GSLQNGIntegrator::integrateSegment(const std::function<double (double)> & f, 
+                                          double a, double b, double * error)
+{
+  double res = 0;
+  double err = 0;
+  funcalls = 0;
+  fnc = f;
+  
+  size_t nb = 0;
+  int status = gsl_integration_qng(&intf, a, b, absolutePrec, relativePrec,
+                                   &res, &err, &nb);
+  if(error)
+    *error = err;
+  return res;
+}
+
+IntegratorFactory qng("qng", "Non-adaptative Gauss-Kronrod",
+                      [](int /*segs*/, double rel, double abs) -> Integrator * {
+                        return new GSLQNGIntegrator(rel, abs);
+                      });

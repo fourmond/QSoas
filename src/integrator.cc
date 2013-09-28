@@ -21,6 +21,7 @@
 
 #include <exceptions.hh>
 
+#include <general-arguments.hh>
 #include <factoryargument.hh>
 
 Integrator::Integrator(double rel, double abs) :
@@ -46,7 +47,11 @@ QList<Argument *> Integrator::integratorOptions()
   args << new FactoryArgument<IntegratorFactory>
     ("integrator", 
      "Integrator",
-     "The algorithm used for integration");
+     "The algorithm used for integration")
+       << new NumberArgument("relative-int", "Relative integration precision",
+                             "Relative precision required for integration")
+       << new NumberArgument("absolute-int", "Absolute integration precision",
+                             "Absolute precision required for integration");
   return args;
 }
 
@@ -58,7 +63,9 @@ Integrator * Integrator::fromOptions(const CommandOptions & opts,
   updateFromOptions(opts, "integrator", c);
 
   double relPrec = 1e-4;
+  updateFromOptions(opts, "relative-int", relPrec);
   double absPrec = 0;
+  updateFromOptions(opts, "absolute-int", absPrec);
   
   return c->creator(maxnum, relPrec, absPrec);
 }

@@ -1440,6 +1440,22 @@ Alias: `R`
 Remove spikes using a simple heuristics
 {::comment} description-end: remove-spikes {:/}
 
+{::comment} synopsis-start: downsample {:/}
+
+### downsample - Downsample {#cmd-downsample}
+
+`downsample` `/factor=`
+
+  * `/factor`: Downsampling factor
+
+{::comment} synopsis-end: downsample {:/}
+{::comment} description-start: downsample {:/}
+Creates a buffer with about _factor_ times less points than the
+original buffer (default 10 times less) by averaging the original X
+and Y values in groups of _factor_.
+{::comment} description-end: downsample {:/}
+
+
 {::comment} synopsis-start: baseline {:/}
 
 ### baseline - Baseline {#cmd-baseline}
@@ -1486,6 +1502,40 @@ There are two baselines implemented for now:
     and has the same ratio as the data for the last two points
 
 {::comment} description-end: catalytic-baseline {:/}
+
+{::comment} synopsis-start: auto-correlation {:/}
+
+### auto-correlation - Auto-correlation {#cmd-auto-correlation}
+
+`auto-correlation` 
+
+Alias: `ac`
+
+
+{::comment} synopsis-end: auto-correlation {:/}
+{::comment} description-start: auto-correlation {:/}
+Computes the auto-correlation function of the data, using FFT.
+{::comment} description-end: auto-correlation {:/}
+{::comment} synopsis-start: bin {:/}
+
+### bin - Bin {#cmd-bin}
+
+`bin` `/boxes=` `/column=` `/log=`
+
+  * `/boxes`: 
+  * `/column`: 
+  * `/log`: 
+
+{::comment} synopsis-end: bin {:/}
+{::comment} description-start: bin {:/}
+Bins the X values into various boxes (whose number can be controlled
+using the `/boxes` option). The new buffer has for X values the center
+of the boxes and as Y values the number of data points that were in
+the boxes.
+{::comment} description-end: bin {:/}
+
+
+
 
 # Segments {#segments}
 
@@ -3299,27 +3349,6 @@ letter.
   * `/reexport`: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-ecr-wave {:/}
-{::comment} synopsis-start: auto-correlation {:/}
-
-### auto-correlation - Auto-correlation {#cmd-auto-correlation}
-
-`auto-correlation` 
-
-Alias: `ac`
-
-
-{::comment} synopsis-end: auto-correlation {:/}
-{::comment} synopsis-start: bin {:/}
-
-### bin - Bin {#cmd-bin}
-
-`bin` `/boxes=` `/column=` `/log=`
-
-  * `/boxes`: 
-  * `/column`: 
-  * `/log`: 
-
-{::comment} synopsis-end: bin {:/}
 {::comment} synopsis-start: dataset-options {:/}
 
 ### dataset-options - Options {#cmd-dataset-options}
@@ -3330,15 +3359,6 @@ Alias: `ac`
   * `/histogram`: Show as a histogram
 
 {::comment} synopsis-end: dataset-options {:/}
-{::comment} synopsis-start: downsample {:/}
-
-### downsample - Downsample {#cmd-downsample}
-
-`downsample` `/factor=`
-
-  * `/factor`: Downsampling factor
-
-{::comment} synopsis-end: downsample {:/}
 {::comment} synopsis-start: fit-adsorbed {:/}
 
 ### fit-adsorbed - Fit: Ideal adsorbed species {#cmd-fit-adsorbed}

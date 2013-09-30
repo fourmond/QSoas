@@ -220,6 +220,11 @@ public:
     return columns[1];
   };
 
+  /// All the columns
+  const QList<Vector> & allColumns() const {
+    return columns;
+  };
+
   
   /// Returns the numbered column
   const Vector & column(int i) const {

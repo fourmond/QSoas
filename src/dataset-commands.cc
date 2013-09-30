@@ -1119,3 +1119,50 @@ edit("edit", // command name
      NULL, // options
      "Edit dataset",
      "Display a table to edit the dataset");
+
+//////////////////////////////////////////////////////////////////////
+
+static void tweakColumnsCommand(const QString &, 
+                                const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+
+  QList<Vector> cols = ds->allColumns();
+
+  /// @todo Swap columns
+
+
+  // Removing last
+  QList<int> toRemove;
+  updateFromOptions(opts, "remove", toRemove);
+  qSort(toRemove);
+  for(int i = toRemove.size() - 1; i >= 0; i--)
+    cols.removeAt(toRemove[i] - 1);
+
+
+  DataSet * nds = ds->derivedDataSet(cols, "_tweaked.dat");
+  soas().pushDataSet(nds);
+}
+
+static ArgumentList 
+tcA;
+
+static ArgumentList 
+tcO(QList<Argument *>() 
+    /// @todo a 1..4 syntax for 
+    << new SeveralIntegersArgument("remove", 
+                                   "Columns to remove",
+                                   "The column numbers to remove "
+                                   "(X = 1, Y = 2, etc...)", true)
+    );
+
+
+static Command 
+tc("tweak-columns", // command name
+   effector(tweakColumnsCommand), // action
+   "buffer",  // group name
+   &tcA, // arguments
+   &tcO, // options
+   "Tweak columns",
+   "Tweak columns");
+

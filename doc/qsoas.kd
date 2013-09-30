@@ -90,6 +90,19 @@ relative to that of the command file currently being executed by a
 As of now, it doesn't change the output files and the log files, but
 it eventually will.
 {::comment} description-end: cd {:/}
+{::comment} synopsis-start: pwd {:/}
+
+### pwd - Working directory {#cmd-pwd}
+
+`pwd` 
+
+
+{::comment} synopsis-end: pwd {:/}
+{::comment} description-start: pwd {:/}
+Prints the full path of the current directory.
+
+It is also the one indicated in the title of the QSoas window.
+{::comment} description-end: pwd {:/}
 
 {::comment} synopsis-start: temperature {:/}
 
@@ -120,6 +133,24 @@ temperature parameter.
 List all available commands, along with a little help. This also
 includes used-defined commands, such as custom fits loaded from a fit file.
 {::comment} description-end: commands {:/}
+{::comment} synopsis-start: help {:/}
+
+### help - Help on... {#cmd-help}
+
+`help` _command_ `/online=`
+
+Alias: `?`
+
+  * _command_: The command on which to give help
+  * `/online` (default): Show the online documentation in a browser
+
+{::comment} synopsis-end: help {:/}
+{::comment} description-start: help {:/}
+Gives all help available on the given command. By default, it fires up
+a browser to show the online help, but should that not be a good idea,
+you can use `/online=false` to disable that.
+{::comment} description-end: help {:/}
+
 
 {::comment} synopsis-start: print {:/}
 
@@ -173,6 +204,18 @@ While it is possible to define "default options" for aliased commands
 this way, there is no way to add arguments: you must still go on
 specifying all the arguments to the alias.
 {::comment} description-end: define-alias {:/}
+
+{::comment} synopsis-start: display-aliases {:/}
+
+### display-aliases - Display aliases {#cmd-display-aliases}
+
+`display-aliases` 
+
+
+{::comment} synopsis-end: display-aliases {:/}
+{::comment} description-start: display-aliases {:/}
+Shows a list of all the currently defined aliases.
+{::comment} description-end: display-aliases {:/}
 
 {::comment} synopsis-start: graphics-settings {:/}
 
@@ -236,6 +279,141 @@ You can use `function` like any normal function for fitting:
 QSoas> fit-arb 'function(x,a)'
 ~~~~
 {::comment} description-end: ruby-run {:/}
+
+{::comment} synopsis-start: break {:/}
+
+### break - Break {#cmd-break}
+
+`break` 
+
+
+{::comment} synopsis-end: break {:/}
+{::comment} description-start: break {:/}
+Exits from the current script. 
+
+Has no effect if not within a script.
+{::comment} description-end: break {:/}
+
+
+## Evaluation functions
+
+While it is not its primary purpose, QSoas provides various functions
+to evaluate the result of mathematical operations.
+
+{::comment} synopsis-start: eval {:/}
+
+### eval - Ruby eval {#cmd-eval}
+
+`eval` _code_
+
+  * _code_: Any ruby code
+
+{::comment} synopsis-end: eval {:/}
+{::comment} description-start: eval {:/}
+Evaluates the given code as a Ruby expression:
+
+~~~~
+QSoas> eval 2*3
+ => 6
+~~~~
+
+It runs in the same environment as the
+[`apply-formula`](#cmd-apply-formula) and the custom fits (excepted,
+of course, that there are no `x` and `y` variables). It can be useful
+to check that a function has been correctly defined in a file loaded
+by [`ruby-run`](#cmd-ruby-run).
+{::comment} description-end: eval {:/}
+
+{::comment} synopsis-start: find-root {:/}
+
+### find-root - Finds a root {#cmd-find-root}
+
+`find-root` _formula_ _seed_ `/max=`
+
+  * _formula_: An expression of 1 variable (not an equation !)
+  * _seed_: Initial X value from which to search
+  * `/max` (default): If present, uses dichotomy between seed and max
+
+{::comment} synopsis-end: find-root {:/}
+{::comment} description-start: find-root {:/}
+
+Find the root of the given `x`-dependent expression using an iterative
+algorithm, using _seed_ as the initial value. If the `/max` option is
+specified, then the search proceeds using dichotomy between the two
+values.
+
+~~~~
+QSoas> find-root 'x**2 - 3' 1
+Found root at: 1.73205
+~~~~
+
+Do not use a equal sign. The returned value is that for which the
+expression is 0.
+{::comment} description-end: find-root {:/}
+{::comment} synopsis-start: integrate {:/}
+
+### integrate - Integrate expression {#cmd-integrate}
+
+`integrate` _formula_ _a_ _b_ `/integrator=` `/relative-int=` `/absolute-int=`
+
+  * _formula_: An expression of 1 variable (not an equation !)
+  * _a_: Left bound of the segment
+  * _b_: Right bound of the segment
+  * `/integrator`: The algorithm used for integration
+  * `/relative-int`: Relative precision required for integration
+  * `/absolute-int`: Absolute precision required for integration
+
+{::comment} synopsis-end: integrate {:/}
+{::comment} description-start: integrate {:/}
+Computes the integral of the given expression of `x` between bounds
+_a_ and _b_:
+
+~~~~
+QSoas> integrate x**2 -1 23
+Integral value: 4056	estimated error: 4.50306e-11	 in 31 evaluations over 1 intervals 
+~~~~
+
+{::comment} description-end: integrate {:/}
+
+
+## Output file manipulation
+
+Several commands have the possibility to write data to the output
+file, such as various data analysis commands and the fit commands.
+
+By default, the first time it is used, a `output.dat` file is created
+in the current directory. Another file can be used by providing its
+name to the [`output`](#cmd-output) command.
+
+{::comment} synopsis-start: output {:/}
+
+### output - Change output file {#cmd-output}
+
+`output` _file_ `/truncate=`
+
+  * _file_: Name of the new output file
+  * `/truncate`: If on, removes all the contents of the target before opening
+
+{::comment} synopsis-end: output {:/}
+{::comment} description-start: output {:/}
+Opens _file_ as the new output file. By default, if the file existst,
+new data is appended, and the old data is left untouched. You can
+force overwriting by specifiying `/truncate=true`.
+{::comment} description-end: output {:/}
+
+{::comment} synopsis-start: comment {:/}
+
+### comment - Write line to output {#cmd-comment}
+
+`comment` _comment_
+
+  * _comment_: Comment line added to output file
+
+{::comment} synopsis-end: comment {:/}
+{::comment} description-start: comment {:/}
+Writes the given line _comment_ to the output file.
+{::comment} description-end: comment {:/}
+
 
 
 
@@ -448,6 +626,23 @@ Alias: `s`
 Saves the current buffer to the named file.
 {::comment} description-end: save {:/}
 
+{::comment} synopsis-start: save-buffers {:/}
+
+### save-buffers - Save {#cmd-save-buffers}
+
+`save-buffers` _buffers_...
+
+  * _buffers_: Buffers to save
+
+{::comment} synopsis-end: save-buffers {:/}
+{::comment} description-start: save-buffers {:/}
+Saves the designated buffers to file.
+
+Unlike the [`save`](#cmd-save) command, this saves the buffers using
+their current name, and does not prompt for a file name. It is
+probably a good idea to use [`rename`](#cmd-rename) first.
+{::comment} description-end: save-buffers {:/}
+
 {::comment} synopsis-start: browse {:/}
 
 ### browse - Browse files {#cmd-browse}
@@ -485,6 +680,84 @@ Overlay buffers that are already in memory on top of the current one
 
 See [`load`](#cmd-load) for the description of the `/style` option.
 {::comment} description-end: overlay-buffer {:/}
+
+{::comment} synopsis-start: overlay {:/}
+
+### overlay - Overlay {#cmd-overlay}
+
+`overlay` _file_... `/style=` `/ignore-cache=` `/yerrors=` `/histogram=` `/separator=` `/decimal=` `/comments=` `/columns=` `/auto-split=`
+
+Alias: `v`
+
+  * _file_: Files to load !
+  * `/style`: Style for curves display
+  * `/ignore-cache`: If on, ignores what is in the cache
+  * `/yerrors`: Column containing y errors
+  * `/histogram`: Show as a histogram
+  * `/separator`: Separator between columns
+  * `/decimal`: Decimal separator
+  * `/comments`: Comment lines
+  * `/columns`: Order of the columns
+  * `/auto-split`: Split on blank lines
+
+{::comment} synopsis-end: overlay {:/}
+{::comment} description-start: overlay {:/}
+This command combines [`overlay-buffer`](#cmd-overlay-buffer) and 
+[`load`](#cmd-load) in one go: loads the files given as arguments and
+overlays them to the current buffer.
+{::comment} description-end: overlay {:/}
+
+{::comment} synopsis-start: clear {:/}
+
+### clear - Clear view {#cmd-clear}
+
+`clear` 
+
+
+{::comment} synopsis-end: clear {:/}
+{::comment} description-start: clear {:/}
+Removes all datasets but the current one from the display. Use to
+revert the effect of a previous overlay command, or can be useful if
+for some reason a command failed while not restoring the display (but
+that really should not happen anyway).
+{::comment} description-end: clear {:/}
+
+{::comment} synopsis-start: points {:/}
+
+### points - Show points {#cmd-points}
+
+`points` 
+
+Alias: `poi`
+
+
+{::comment} synopsis-end: points {:/}
+{::comment} description-start: points {:/}
+Shows all the points of datasets displayed.
+
+Use this with parcimony, as for large datasets, it can significantly
+slow down the display.
+{::comment} description-end: points {:/}
+
+{::comment} synopsis-start: zoom {:/}
+
+### zoom - Zoom {#cmd-zoom}
+
+`zoom` **(interactive)**
+
+Alias: `z`
+
+
+{::comment} synopsis-end: zoom {:/}
+{::comment} description-start: zoom {:/}
+Zooms on the current curve. 
+
+While zooming is already possible to zoom using the mouse wheel, this
+command makes it possible to describe the rectangle one wants to zoom
+on.
+
+{::comment} description-end: zoom {:/}
+
 
 
 
@@ -842,6 +1115,21 @@ them. Useful to remove a few spikes from the data. Middle click or `q`
 to accept the modifications, hit escape to cancel them.
 {::comment} description-end: deldp {:/}
 
+
+{::comment} synopsis-start: edit {:/}
+
+### edit - Edit dataset {#cmd-edit}
+
+`edit` 
+
+
+{::comment} synopsis-end: edit {:/}
+{::comment} description-start: edit {:/}
+Pops up a spreadsheet-like window where you can view and edit the
+individual values of the current dataset. If you want to save your
+modification, press the "push new" button.
+{::comment} description-end: edit {:/}
+
 {::comment} synopsis-start: sort {:/}
 
 ### sort - Sort {#cmd-sort}
@@ -854,7 +1142,36 @@ to accept the modifications, hit escape to cancel them.
 Sorts the buffer in ascending X values.
 {::comment} description-end: sort {:/}
 
-## Splitting the dataset in bits
+
+{::comment} synopsis-start: strip-if {:/}
+
+### strip-if - Strip points {#cmd-strip-if}
+
+`strip-if` _formula_
+
+  * _formula_: Ruby boolean expression
+
+{::comment} synopsis-end: strip-if {:/}
+{::comment} description-start: strip-if {:/}
+Removes all points for which the ruby expression returns `true`. This
+can be used for quite advanced data selection:
+
+~~~~
+QSoas> strip-if 'x > 2'
+~~~~ 
+
+This removes all points whose X value is over 2.
+
+~~~~
+QSoas> strip-if 'x * y < 10 && x > 2'
+~~~~
+
+This removes all the points for which both the X value is over 2 and
+the product of X and Y is below 10.
+{::comment} description-end: strip-if {:/}
+
+
+## Splitting the dataset in bits (and back)
 
 {::comment} synopsis-start: cut {:/}
 
@@ -945,6 +1262,47 @@ Useful to get the backward scan of a cyclic voltammogram.
 Splits the buffer into buffers where all parts have X values that
 increase or decrease monotonically.
 {::comment} description-end: split-monotonic {:/}
+{::comment} synopsis-start: unwrap {:/}
+
+### unwrap - Unwrap {#cmd-unwrap}
+
+`unwrap` 
+
+
+{::comment} synopsis-end: unwrap {:/}
+{::comment} description-start: unwrap {:/}
+
+This command makes the X values of the current buffer monotonic by
+ensuring that the value of $$\Delta x$$ always have the same sign,
+changing it if needs be.
+
+This is useful for instance to convert a cyclic voltammogram from 
+$$i = f(E)$$ to $$i = f(t)$$, after dividing by the scan rate.
+
+{::comment} description-end: unwrap {:/}
+
+{::comment} synopsis-start: cat {:/}
+
+### cat - Concatenate {#cmd-cat}
+
+`cat` _first_ _second_... `/add-segments=`
+
+Alias: `i`
+
+  * _first_: First buffer
+  * _second_: Second buffer(s)
+  * `/add-segments`: If on (default) segments are added between the old buffers
+
+{::comment} synopsis-end: cat {:/}
+{::comment} description-start: cat {:/}
+Concatenates the buffers given as arguments, adding segment stops
+inbetween (unless `/add-segments=false` is used). This can be used to
+reverse the effect of the previous commands.
+
+This does not change the number of columns. If you're trying to gather
+several Y columns as a function of the same X, you should try
+[`contract`](#cmd-contract) instead.
+{::comment} description-end: cat {:/}
 
 
 
@@ -1393,71 +1751,6 @@ segment-by-segment (and written out to the output file if asked for).
 
 {::comment} description-end: stats {:/}
 
-
-{::comment} synopsis-start: help {:/}
-
-### help - Help on... {#cmd-help}
-
-`help` _command_ `/online=`
-
-Alias: `?`
-
-  * _command_: The command on which to give help
-  * `/online` (default): Show the online documentation in a browser
-
-{::comment} synopsis-end: help {:/}
-{::comment} description-start: help {:/}
-Gives all help available on the given command
-{::comment} description-end: help {:/}
-
-
-
-{::comment} synopsis-start: break {:/}
-
-### break - Break {#cmd-break}
-
-`break` 
-
-
-{::comment} synopsis-end: break {:/}
-{::comment} description-start: break {:/}
-Interrupts the run of the current script
-{::comment} description-end: break {:/}
-
-{::comment} synopsis-start: cat {:/}
-
-### cat - Concatenate {#cmd-cat}
-
-`cat` _first_ _second_... `/add-segments=`
-
-Alias: `i`
-
-  * _first_: First buffer
-  * _second_: Second buffer(s)
-  * `/add-segments`: If on (default) segments are added between the old buffers
-
-{::comment} synopsis-end: cat {:/}
-{::comment} description-start: cat {:/}
-Concatenates the buffers given as arguments, adding segment stops
-inbetween (unless `/add-segments=false` is used).
-
-This does not change the number of columns. If you're trying to gather
-several Y columns as a function of the same X, you should try
-[`contract`](#cmd-contract) instead.
-{::comment} description-end: cat {:/}
-
-{::comment} synopsis-start: clear {:/}
-
-### clear - Clear view {#cmd-clear}
-
-`clear` 
-
-
-{::comment} synopsis-end: clear {:/}
-{::comment} description-start: clear {:/}
-Removes all datasets but the current one from the display
-{::comment} description-end: clear {:/}
-
 {::comment} synopsis-start: cursor {:/}
 
 ### cursor - Cursor {#cmd-cursor}
@@ -1469,36 +1762,41 @@ Alias: `cu`
 
 {::comment} synopsis-end: cursor {:/}
 {::comment} description-start: cursor {:/}
-Displays cursors on the curve
+Position a cursor on the curve to know its exact X and Y positions. 
+
+Using the right mouse button, it is also possible to position a
+reference point. After that the difference in X,Y coordinates between
+the cursor and the reference point is also displayed.
+
+Cursor positions can be saved to the output file by pressing the space
+bar.
+
 {::comment} description-end: cursor {:/}
 
-{::comment} synopsis-start: define-derived-fit {:/}
+{::comment} synopsis-start: reglin {:/}
 
-### define-derived-fit - Create a derived fit {#cmd-define-derived-fit}
+### reglin - Linear regression {#cmd-reglin}
 
-`define-derived-fit` _fit_ `/mode=`
+`reglin` **(interactive)**
 
-  * _fit_: The fit to make a derived fit of
-  * `/mode`: Whether one fits only the derivative, both the derivative and the original data together or separated
+Alias: `reg`
 
-{::comment} synopsis-end: define-derived-fit {:/}
-{::comment} description-start: define-derived-fit {:/}
-(...)
-{::comment} description-end: define-derived-fit {:/}
 
-{::comment} synopsis-start: define-lw-fit {:/}
+{::comment} synopsis-end: reglin {:/}
+{::comment} description-start: reglin {:/}
+Linear regression. Using the left and right mouse buttons, select a
+region whose slope is of interest. The terminal shows the $$a$$ and $$b$$
+parameters, and also the effective first order rate constant, ie the
+$$k$$ parameter of the equation
 
-### define-lw-fit - Define a fit based on a kinetic mode {#cmd-define-lw-fit}
+$$ f_0 \exp \left[-k \, (x - x_0) \right] $$
 
-`define-lw-fit` _file_ _name_
+with values that match the same initial slope.
 
-  * _file_: System to load
-  * _name_: 
+Using the space bar it is possible to save the values displayed in the
+terminal to the output file.
+{::comment} description-end: reglin {:/}
 
-{::comment} synopsis-end: define-lw-fit {:/}
-{::comment} description-start: define-lw-fit {:/}
-...
-{::comment} description-end: define-lw-fit {:/}
 
 {::comment} synopsis-start: diff {:/}
 
@@ -1526,22 +1824,6 @@ Computes the 4th order accurate second derivative of the buffer
 Do not use this on noisy data !
 {::comment} description-end: diff2 {:/}
 
-
-{::comment} synopsis-start: dummy {:/}
-
-### dummy - Dummy {#cmd-dummy}
-
-`dummy` _file_ `/file=` `/fiddle=` `/stuff=`
-
-  * _file_: Files to load !
-  * `/file`: Files to load !
-  * `/fiddle`: Files to load !
-  * `/stuff`: Files to load !
-
-{::comment} synopsis-end: dummy {:/}
-{::comment} description-start: dummy {:/}
-Dummy command for testing purposes
-{::comment} description-end: dummy {:/}
 
 {::comment} synopsis-start: echem-peaks {:/}
 
@@ -1816,6 +2098,28 @@ Comments are allowed, as are line continuations with `\`.
 
 
 {::comment} description-end: load-fits {:/}
+
+{::comment} synopsis-start: custom-fit {:/}
+
+### custom-fit - Define fit {#cmd-custom-fit}
+
+`custom-fit` _name_ _formula_
+
+  * _name_: Name for the new fit
+  * _formula_: Mathematical expression for the fit
+
+{::comment} synopsis-end: custom-fit {:/}
+{::comment} description-start: custom-fit {:/}
+Directly defines a custom fit with the given _name_ and
+_formula_. Equivalent to having a line
+
+<pre>
+<i>name</i>: <i>formula</i>
+</pre>
+
+in a file loaded by [`load-fits`](#cmd-load-fits).
+{::comment} description-end: custom-fit {:/}
+
 
 ## Redox titration fits
 
@@ -2171,6 +2475,26 @@ fit simulation:
 {::comment} description-end: sim-duck-sim {:/}
 
 
+## Manipulation of fits
+
+QSoas provides ways to make fits from other fits, by combining them or
+making fits of the derivatives.
+
+{::comment} synopsis-start: define-derived-fit {:/}
+
+### define-derived-fit - Create a derived fit {#cmd-define-derived-fit}
+
+`define-derived-fit` _fit_ `/mode=`
+
+  * _fit_: The fit to make a derived fit of
+  * `/mode`: Whether one fits only the derivative, both the derivative and the original data together or separated
+
+{::comment} synopsis-end: define-derived-fit {:/}
+{::comment} description-start: define-derived-fit {:/}
+(...)
+{::comment} description-end: define-derived-fit {:/}
+
+
 
 
 {::comment} synopsis-start: generate-buffer {:/}
@@ -2330,72 +2654,8 @@ multi buffer fit:
 Reactivation
 {::comment} description-end: mfit-react-exp {:/}
 
-{::comment} synopsis-start: overlay {:/}
-
-### overlay - Overlay {#cmd-overlay}
-
-`overlay` _file_... `/style=` `/ignore-cache=` `/yerrors=` `/histogram=` `/separator=` `/decimal=` `/comments=` `/columns=` `/auto-split=`
-
-Alias: `v`
-
-  * _file_: Files to load !
-  * `/style`: Style for curves display
-  * `/ignore-cache`: If on, ignores what is in the cache
-  * `/yerrors`: Column containing y errors
-  * `/histogram`: Show as a histogram
-  * `/separator`: Separator between columns
-  * `/decimal`: Decimal separator
-  * `/comments`: Comment lines
-  * `/columns`: Order of the columns
-  * `/auto-split`: Split on blank lines
-
-{::comment} synopsis-end: overlay {:/}
-{::comment} description-start: overlay {:/}
-Loads the given files and push them onto the data stack, adding them to the display at the same time
-{::comment} description-end: overlay {:/}
-
-{::comment} synopsis-start: points {:/}
-
-### points - Show points {#cmd-points}
-
-`points` 
-
-Alias: `poi`
 
 
-{::comment} synopsis-end: points {:/}
-{::comment} description-start: points {:/}
-Shows all the points of datasets displayed.
-{::comment} description-end: points {:/}
-
-
-
-{::comment} synopsis-start: reglin {:/}
-
-### reglin - Linear regression {#cmd-reglin}
-
-`reglin` **(interactive)**
-
-Alias: `reg`
-
-
-{::comment} synopsis-end: reglin {:/}
-{::comment} description-start: reglin {:/}
-...
-{::comment} description-end: reglin {:/}
-
-{::comment} synopsis-start: save-buffers {:/}
-
-### save-buffers - Save {#cmd-save-buffers}
-
-`save-buffers` _buffers_...
-
-  * _buffers_: Buffers to save
-
-{::comment} synopsis-end: save-buffers {:/}
-{::comment} description-start: save-buffers {:/}
-Saves the designated buffers to file
-{::comment} description-end: save-buffers {:/}
 
 {::comment} synopsis-start: save-output {:/}
 
@@ -2582,72 +2842,6 @@ Slow scan
 fit simulation:
 Slow scan
 {::comment} description-end: sim-slow-scan-lp {:/}
-
-
-{::comment} synopsis-start: test-event-loop {:/}
-
-### test-event-loop - Test event loop {#cmd-test-event-loop}
-
-`test-event-loop` **(interactive)**
-
-
-{::comment} synopsis-end: test-event-loop {:/}
-{::comment} description-start: test-event-loop {:/}
-Exits QSoas, losing all the current session
-{::comment} description-end: test-event-loop {:/}
-
-{::comment} synopsis-start: test-lw {:/}
-
-### test-lw - TestLW {#cmd-test-lw}
-
-`test-lw` _file_
-
-  * _file_: Files to load !
-
-{::comment} synopsis-end: test-lw {:/}
-{::comment} description-start: test-lw {:/}
-TestLW command for testing purposes
-{::comment} description-end: test-lw {:/}
-
-{::comment} synopsis-start: tex-commands {:/}
-
-### tex-commands - TeX {#cmd-tex-commands}
-
-`tex-commands` 
-
-
-{::comment} synopsis-end: tex-commands {:/}
-{::comment} description-start: tex-commands {:/}
-List all available commands, along with a little help
-{::comment} description-end: tex-commands {:/}
-
-{::comment} synopsis-start: update-documentation {:/}
-
-### update-documentation - Update documentation {#cmd-update-documentation}
-
-`update-documentation` _file_
-
-  * _file_: The file to update
-
-{::comment} synopsis-end: update-documentation {:/}
-{::comment} description-start: update-documentation {:/}
-...
-{::comment} description-end: update-documentation {:/}
-
-{::comment} synopsis-start: zoom {:/}
-
-### zoom - Zoom {#cmd-zoom}
-
-`zoom` **(interactive)**
-
-Alias: `z`
-
-
-{::comment} synopsis-end: zoom {:/}
-{::comment} description-start: zoom {:/}
-Zooms on the current curve
-{::comment} description-end: zoom {:/}
-
 
 
 # Scripting facilities {#scripting}
@@ -3105,15 +3299,6 @@ letter.
   * `/reexport`: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-ecr-wave {:/}
-{::comment} synopsis-start: strip-if {:/}
-
-### strip-if - Strip points {#cmd-strip-if}
-
-`strip-if` _formula_
-
-  * _formula_: Ruby boolean expression
-
-{::comment} synopsis-end: strip-if {:/}
 {::comment} synopsis-start: auto-correlation {:/}
 
 ### auto-correlation - Auto-correlation {#cmd-auto-correlation}
@@ -3124,49 +3309,6 @@ Alias: `ac`
 
 
 {::comment} synopsis-end: auto-correlation {:/}
-{::comment} synopsis-start: display-aliases {:/}
-
-### display-aliases - Display aliases {#cmd-display-aliases}
-
-`display-aliases` 
-
-
-{::comment} synopsis-end: display-aliases {:/}
-{::comment} synopsis-start: pwd {:/}
-
-### pwd - Working directory {#cmd-pwd}
-
-`pwd` 
-
-
-{::comment} synopsis-end: pwd {:/}
-{::comment} synopsis-start: unwrap {:/}
-
-### unwrap - Unwrap {#cmd-unwrap}
-
-`unwrap` 
-
-
-{::comment} synopsis-end: unwrap {:/}
-{::comment} synopsis-start: custom-fit {:/}
-
-### custom-fit - Define fit {#cmd-custom-fit}
-
-`custom-fit` _name_ _formula_
-
-  * _name_: Name for the new fit
-  * _formula_: Mathematical expression for the fit
-
-{::comment} synopsis-end: custom-fit {:/}
-{::comment} synopsis-start: eval {:/}
-
-### eval - Ruby eval {#cmd-eval}
-
-`eval` _code_
-
-  * _code_: Any ruby code
-
-{::comment} synopsis-end: eval {:/}
 {::comment} synopsis-start: bin {:/}
 
 ### bin - Bin {#cmd-bin}
@@ -3178,15 +3320,6 @@ Alias: `ac`
   * `/log`: 
 
 {::comment} synopsis-end: bin {:/}
-{::comment} synopsis-start: comment {:/}
-
-### comment - Write line to output {#cmd-comment}
-
-`comment` _comment_
-
-  * _comment_: Comment line added to output file
-
-{::comment} synopsis-end: comment {:/}
 {::comment} synopsis-start: dataset-options {:/}
 
 ### dataset-options - Options {#cmd-dataset-options}
@@ -3206,25 +3339,6 @@ Alias: `ac`
   * `/factor`: Downsampling factor
 
 {::comment} synopsis-end: downsample {:/}
-{::comment} synopsis-start: edit {:/}
-
-### edit - Edit dataset {#cmd-edit}
-
-`edit` 
-
-
-{::comment} synopsis-end: edit {:/}
-{::comment} synopsis-start: find-root {:/}
-
-### find-root - Finds a root {#cmd-find-root}
-
-`find-root` _formula_ _seed_ `/max=`
-
-  * _formula_: An expression of 1 variable (not an equation !)
-  * _seed_: Initial X value from which to search
-  * `/max` (default): If present, uses dichotomy between seed and max
-
-{::comment} synopsis-end: find-root {:/}
 {::comment} synopsis-start: fit-adsorbed {:/}
 
 ### fit-adsorbed - Fit: Ideal adsorbed species {#cmd-fit-adsorbed}
@@ -3305,16 +3419,6 @@ Alias: `ac`
   * `/weight-buffers`: Whether or not to weight buffers (off by default)
 
 {::comment} synopsis-end: mfit-fefe-hp-inact {:/}
-{::comment} synopsis-start: output {:/}
-
-### output - Change output file {#cmd-output}
-
-`output` _file_ `/truncate=`
-
-  * _file_: Name of the new output file
-  * `/truncate`: If on, removes all the contents of the target before opening
-
-{::comment} synopsis-end: output {:/}
 {::comment} synopsis-start: sim-adsorbed {:/}
 
 ### sim-adsorbed - Fit: Ideal adsorbed species {#cmd-sim-adsorbed}
@@ -3376,17 +3480,3 @@ Alias: `ac`
 
 
 {::comment} synopsis-end: transpose {:/}
-{::comment} synopsis-start: integrate {:/}
-
-### integrate - Integrate expression {#cmd-integrate}
-
-`integrate` _formula_ _a_ _b_ `/integrator=` `/relative-int=` `/absolute-int=`
-
-  * _formula_: An expression of 1 variable (not an equation !)
-  * _a_: Left bound of the segment
-  * _b_: Right bound of the segment
-  * `/integrator`: The algorithm used for integration
-  * `/relative-int`: Relative precision required for integration
-  * `/absolute-int`: Absolute precision required for integration
-
-{::comment} synopsis-end: integrate {:/}

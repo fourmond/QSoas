@@ -746,6 +746,33 @@ QSoas> apply-formula /use-stats=true 'y = y/$stats[0]["y_med"]'
 
 {::comment} description-end: apply-formula {:/}
 
+
+{::comment} synopsis-start: dx {:/}
+
+### dx - DX {#cmd-dx}
+
+`dx` 
+
+
+{::comment} synopsis-end: dx {:/}
+{::comment} description-start: dx {:/}
+Replaces the Y values by the values of delta X.
+
+This is useful to see if the X values are equally spaced.
+{::comment} description-end: dx {:/}
+{::comment} synopsis-start: dy {:/}
+
+### dy - DY {#cmd-dy}
+
+`dy` 
+
+
+{::comment} synopsis-end: dy {:/}
+{::comment} description-start: dy {:/}
+Same as [`dx`](#cmd-dx) but for Y values: replaces the Y values by the
+values of delta Y.
+{::comment} description-end: dy {:/}
+
 {::comment} synopsis-start: zero {:/}
 
 ### zero - Makes 0 {#cmd-zero}
@@ -921,7 +948,7 @@ increase or decrease monotonically.
 
 
 
-# Data filtering
+# Data filtering/processing
 
 QSoas provides different ways to process data to remove unwanted
 noise: 
@@ -933,20 +960,15 @@ noise:
    [`auto-filter-bs`](#cmd-auto-filter-bs).
  * Splike removals using [`remove-spikes`](#cmd-remove-spikes).
  * You even may consider that manual point removal is filtering, in
-   which case the [`deldp`](#cmd-deldp) command qualifies too. 
+   which case the [`deldp`](#cmd-deldp) command qualifies too.
 
+In addition, QSoas provides ways to remove "baselines" (for a given
+value of "base"):
 
-{::comment} synopsis-start: filter-bsplines {:/}
+ * splines-based baseline with [`baseline`](#cmd-baseline)
+ * so-called catalytic baselines with 
+   [`catalytic-baseline`](#cmd-catalytic-baseline)
 
-### filter-bsplines - Filter {#cmd-filter-bsplines}
-
-`filter-bsplines` **(interactive)**
-
-
-{::comment} synopsis-end: filter-bsplines {:/}
-{::comment} description-start: filter-bsplines {:/}
-...
-{::comment} description-end: filter-bsplines {:/}
 
 {::comment} synopsis-start: filter-fft {:/}
 
@@ -958,9 +980,52 @@ noise:
 
 {::comment} synopsis-end: filter-fft {:/}
 {::comment} description-start: filter-fft {:/}
-...
+Filter data using FFT, ie the data is Fourier transformed, then a
+filter function is applied to the frequency domain and the result is
+backward transformed.
+
+Cutoff can be changed using the mouse left/right buttons. Power
+spectrum can be displayed using the `p` key, and the derivative can be
+displayed with `d` (in which case you get the derivative of the signal
+when accepting the data).
+
+Behind the scenes, a cubic baseline is computed and subtracted from
+the data to ensure that the data to which the FFT is applied has 0
+value and 0 derivative on both sides. This greatly reduces artifacts
+at the extremities of the dataset. This baseline is computed using a
+small heuristic. You can display it using the `b` key.
 {::comment} description-end: filter-fft {:/}
 
+{::comment} synopsis-start: filter-bsplines {:/}
+
+### filter-bsplines - Filter {#cmd-filter-bsplines}
+
+`filter-bsplines` **(interactive)**
+
+
+{::comment} synopsis-end: filter-bsplines {:/}
+{::comment} description-start: filter-bsplines {:/}
+Filters the data using B-splines takes the reverse approach of FFT
+filtering. In FFT filtering, one takes the original data and *removes*
+noise, with B-splines one constructs functions (linear combinations of
+polynomes) and finds the one that is the closest to the original data.
+
+This approach amounts to taking the projection of the original data
+onto the subspace of the polynomial functions.
+
+More information about the polynomial splines used can be found in
+the [GSL documentation](http://www.gnu.org/software/gsl/manual/html_node/Overview-of-B_002dsplines.html).  
+
+The result can be tuned by placing "nodes". Put more nodes in an area
+where the data is not described properly by the smoothed
+function. Increasing the order (using `+`) may help too.
+
+Like for [`filter-fft`](#cmd-filter-fft), you can derive the data as
+well pushing the `d` key.
+
+Pushing the `o` keys optimizes the position of the segments in order
+to minimize the difference between the data and the approximation.
+{::comment} description-end: filter-bsplines {:/}
 
 {::comment} synopsis-start: auto-filter-bs {:/}
 
@@ -976,7 +1041,10 @@ Alias: `afbs`
 
 {::comment} synopsis-end: auto-filter-bs {:/}
 {::comment} description-start: auto-filter-bs {:/}
-...
+Filters the data using B-splines in a non-interactive fashion.
+Performs automatically an optimization step. 
+
+This is mostly useful in scripts.
 {::comment} description-end: auto-filter-bs {:/}
 
 
@@ -992,6 +1060,10 @@ Alias: `afft`
   * `/derive`: Differentiate to the given order
 
 {::comment} synopsis-end: auto-filter-fft {:/}
+{::comment} description-start: auto-filter-fft {:/}
+Filters data using FFT in a non-interactive fashion.
+Useful in scripts.
+{::comment} description-end: auto-filter-fft {:/}
 
 {::comment} synopsis-start: remove-spikes {:/}
 
@@ -1009,6 +1081,53 @@ Alias: `R`
 {::comment} description-start: remove-spikes {:/}
 Remove spikes using a simple heuristics
 {::comment} description-end: remove-spikes {:/}
+
+{::comment} synopsis-start: baseline {:/}
+
+### baseline - Baseline {#cmd-baseline}
+
+`baseline` **(interactive)**
+
+Alias: `b`
+
+
+{::comment} synopsis-end: baseline {:/}
+{::comment} description-start: baseline {:/}
+
+Draw a baseline by placing points on the curve using the mouse (or off
+the curve, after using key `o`). Baseline is computing using one of
+several interpolation algorithms: C-splines, linear or polynomial
+interpolation and Akima splines (the latter usually follows best the
+accidents on the curve). Cycle between the various schemes using `c`.
+{::comment} description-end: baseline {:/}
+
+{::comment} synopsis-start: catalytic-baseline {:/}
+
+### catalytic-baseline - Catalytic baseline {#cmd-catalytic-baseline}
+
+`catalytic-baseline` **(interactive)**
+
+Alias: `B`
+
+
+{::comment} synopsis-end: catalytic-baseline {:/}
+{::comment} description-start: catalytic-baseline {:/}
+Draws a so-called "catalytic" baseline. There are several types of
+baselines, but they all share the following features:
+
+  * they are defined by 4 points
+  * the first two points correspond to points where the baseline
+    sticks to the data
+  * the last two points give a "direction"
+
+There are two baselines implemented for now:
+
+  * a cubic baseline, that goes through the first two points and is
+    parallel to the slope of the last two
+  * an exponential baseline, that goes through the first two points
+    and has the same ratio as the data for the last two points
+
+{::comment} description-end: catalytic-baseline {:/}
 
 # Segments {#segments}
 
@@ -1292,19 +1411,6 @@ Gives all help available on the given command
 {::comment} description-end: help {:/}
 
 
-{::comment} synopsis-start: baseline {:/}
-
-### baseline - Baseline {#cmd-baseline}
-
-`baseline` **(interactive)**
-
-Alias: `b`
-
-
-{::comment} synopsis-end: baseline {:/}
-{::comment} description-start: baseline {:/}
-...
-{::comment} description-end: baseline {:/}
 
 {::comment} synopsis-start: break {:/}
 
@@ -1569,7 +1675,7 @@ Multi-buffer version of the
 
 ### sim-exponential-decay - Fit: Multi-exponential fits {#cmd-sim-exponential-decay}
 
-`sim-exponential-decay` _parameters_ _datasets_... `/exponentials=` `/absolute=` `/loss=` `/slow=` `/override=` `/extra-parameters=`
+`sim-exponential-decay` _parameters_ _datasets_... `/exponentials=` `/absolute=` `/loss=` `/slow=` `/override=` `/extra-parameters=` `/reexport=`
 
   * _parameters_: File to load parameters from
   * _datasets_: Datasets to fit
@@ -1579,6 +1685,7 @@ Multi-buffer version of the
   * `/slow`: Is there a very slow phase ?
   * `/override`: A comma-separated list of parameters to override
   * `/extra-parameters`: Define supplementary parameters
+  * `/reexport`: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-exponential-decay {:/}
 {::comment} description-start: sim-exponential-decay {:/}
@@ -1765,13 +1872,14 @@ for fitting multi-wavelength redox titrations.
 
 ### sim-nernst - Fit: Nerstian behaviour {#cmd-sim-nernst}
 
-`sim-nernst` _parameters_ _datasets_... `/states=` `/override=` `/extra-parameters=`
+`sim-nernst` _parameters_ _datasets_... `/states=` `/override=` `/extra-parameters=` `/reexport=`
 
   * _parameters_: File to load parameters from
   * _datasets_: Datasets to fit
   * `/states`: Number of redox states
   * `/override`: A comma-separated list of parameters to override
   * `/extra-parameters`: Define supplementary parameters
+  * `/reexport`: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-nernst {:/}
 {::comment} description-start: sim-nernst {:/}
@@ -2085,14 +2193,16 @@ fit simulation:
 
 ### kinetic-system - Kinetic system evolver {#cmd-kinetic-system}
 
-`kinetic-system` _reaction-file_ _parameters_... `/start=` `/end=` `/number=` `/dump=`
+`kinetic-system` _reaction-file_ _parameters_ `/dump=` `/adaptative=` `/step-size=` `/prec-relative=` `/stepper=` `/annotate=`
 
   * _reaction-file_: 
   * _parameters_: 
-  * `/start`: 
-  * `/end`: 
-  * `/number`: 
   * `/dump`: 
+  * `/adaptative`: Whether or not to use adaptative stepper
+  * `/step-size`: Initial step size for the stepper
+  * `/prec-relative`: Relative precision required
+  * `/stepper`: Algorithm used for integration
+  * `/annotate`: If on, a last column will contain the number of function evaluation for each step
 
 {::comment} synopsis-end: kinetic-system {:/}
 {::comment} description-start: kinetic-system {:/}
@@ -2324,7 +2434,7 @@ fit simulation:
 
 ### sim-eecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-sim-eecr-wave}
 
-`sim-eecr-wave` _parameters_ _datasets_... `/plateau=` `/oxidation=` `/use-eoc=` `/override=` `/extra-parameters=`
+`sim-eecr-wave` _parameters_ _datasets_... `/plateau=` `/oxidation=` `/use-eoc=` `/override=` `/extra-parameters=` `/reexport=`
 
   * _parameters_: File to load parameters from
   * _datasets_: Datasets to fit
@@ -2333,6 +2443,7 @@ fit simulation:
   * `/use-eoc`: Whether to use explicitly the bias or compute it using the open circuit potential
   * `/override`: A comma-separated list of parameters to override
   * `/extra-parameters`: Define supplementary parameters
+  * `/reexport`: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-eecr-wave {:/}
 {::comment} description-start: sim-eecr-wave {:/}
@@ -2344,12 +2455,13 @@ fit simulation:
 
 ### sim-inact-react-amplitude-2phases - Fit: ... {#cmd-sim-inact-react-amplitude-2phases}
 
-`sim-inact-react-amplitude-2phases` _parameters_ _datasets_... `/override=` `/extra-parameters=`
+`sim-inact-react-amplitude-2phases` _parameters_ _datasets_... `/override=` `/extra-parameters=` `/reexport=`
 
   * _parameters_: File to load parameters from
   * _datasets_: Datasets to fit
   * `/override`: A comma-separated list of parameters to override
   * `/extra-parameters`: Define supplementary parameters
+  * `/reexport`: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-inact-react-amplitude-2phases {:/}
 {::comment} description-start: sim-inact-react-amplitude-2phases {:/}
@@ -2394,7 +2506,7 @@ Fits of exponentials on several steps with film loss bookkeeping
 
 ### sim-multiexp-multistep - Fit: Multi-step and multi-exponential {#cmd-sim-multiexp-multistep}
 
-`sim-multiexp-multistep` _parameters_ _datasets_... `/exponentials=` `/steps=` `/independent=` `/override=` `/extra-parameters=`
+`sim-multiexp-multistep` _parameters_ _datasets_... `/exponentials=` `/steps=` `/independent=` `/override=` `/extra-parameters=` `/reexport=`
 
   * _parameters_: File to load parameters from
   * _datasets_: Datasets to fit
@@ -2403,6 +2515,7 @@ Fits of exponentials on several steps with film loss bookkeeping
   * `/independent`: Whether irreversible loss is independent on each step
   * `/override`: A comma-separated list of parameters to override
   * `/extra-parameters`: Define supplementary parameters
+  * `/reexport`: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-multiexp-multistep {:/}
 {::comment} description-start: sim-multiexp-multistep {:/}
@@ -2415,7 +2528,7 @@ Fits of exponentials on several steps with film loss bookkeeping
 
 ### sim-react-exp - Fit: Exponential reactivation {#cmd-sim-react-exp}
 
-`sim-react-exp` _parameters_ _datasets_... `/exponentials=` `/dead=` `/override=` `/extra-parameters=`
+`sim-react-exp` _parameters_ _datasets_... `/exponentials=` `/dead=` `/override=` `/extra-parameters=` `/reexport=`
 
   * _parameters_: File to load parameters from
   * _datasets_: Datasets to fit
@@ -2423,6 +2536,7 @@ Fits of exponentials on several steps with film loss bookkeeping
   * `/dead`: Whether we include a dead phase or not
   * `/override`: A comma-separated list of parameters to override
   * `/extra-parameters`: Define supplementary parameters
+  * `/reexport`: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-react-exp {:/}
 {::comment} description-start: sim-react-exp {:/}
@@ -2434,7 +2548,7 @@ Reactivation
 
 ### sim-slow-scan-hp - Fit: Slow scan test {#cmd-sim-slow-scan-hp}
 
-`sim-slow-scan-hp` _parameters_ _datasets_... `/bi-exp=` `/scaling=` `/override=` `/extra-parameters=`
+`sim-slow-scan-hp` _parameters_ _datasets_... `/bi-exp=` `/scaling=` `/override=` `/extra-parameters=` `/reexport=`
 
   * _parameters_: File to load parameters from
   * _datasets_: Datasets to fit
@@ -2442,6 +2556,7 @@ Reactivation
   * `/scaling`: Use an additional scaling factor
   * `/override`: A comma-separated list of parameters to override
   * `/extra-parameters`: Define supplementary parameters
+  * `/reexport`: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-slow-scan-hp {:/}
 {::comment} description-start: sim-slow-scan-hp {:/}
@@ -2453,13 +2568,14 @@ Slow scan
 
 ### sim-slow-scan-lp - Fit: Slow scan test {#cmd-sim-slow-scan-lp}
 
-`sim-slow-scan-lp` _parameters_ _datasets_... `/explicit-rate=` `/override=` `/extra-parameters=`
+`sim-slow-scan-lp` _parameters_ _datasets_... `/explicit-rate=` `/override=` `/extra-parameters=` `/reexport=`
 
   * _parameters_: File to load parameters from
   * _datasets_: Datasets to fit
   * `/explicit-rate`: Whether the scan rate is an explicit parameter of the fit
   * `/override`: A comma-separated list of parameters to override
   * `/extra-parameters`: Define supplementary parameters
+  * `/reexport`: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-slow-scan-lp {:/}
 {::comment} description-start: sim-slow-scan-lp {:/}
@@ -2688,6 +2804,8 @@ listed here:
  * [`downsample`](#cmd-downsample)
  * [`drop`](#cmd-drop)
  * [`dummy`](#cmd-dummy)
+ * [`dx`](#cmd-dx)
+ * [`dy`](#cmd-dy)
  * [`echem-peaks`](#cmd-echem-peaks)
  * [`edit`](#cmd-edit)
  * [`eval`](#cmd-eval)
@@ -2700,6 +2818,7 @@ listed here:
  * [`generate-buffer`](#cmd-generate-buffer)
  * [`graphics-settings`](#cmd-graphics-settings)
  * [`help`](#cmd-help)
+ * [`integrate`](#cmd-integrate)
  * [`kinetic-system`](#cmd-kinetic-system)
  * [`linear-kinetic-system`](#cmd-linear-kinetic-system)
  * [`load`](#cmd-load)
@@ -2734,7 +2853,6 @@ listed here:
  * [`shiftx`](#cmd-shiftx)
  * [`show-stack`](#cmd-show-stack)
  * [`sim-adsorbed`](#cmd-sim-adsorbed)
- * [`sim-duck-sim`](#cmd-sim-duck-sim)
  * [`sim-ecr-wave`](#cmd-sim-ecr-wave)
  * [`sim-eec-transport`](#cmd-sim-eec-transport)
  * [`sim-eecr-relay-wave`](#cmd-sim-eecr-relay-wave)
@@ -2831,10 +2949,11 @@ letter.
 
 ### ode - ODE solver {#cmd-ode}
 
-`ode` _file_ `/parameters=` `/adaptative=` `/step-size=` `/prec-relative=` `/stepper=`
+`ode` _file_ `/parameters=` `/annotate=` `/adaptative=` `/step-size=` `/prec-relative=` `/stepper=`
 
   * _file_: File containing the system
   * `/parameters` (default): Values of the extra parameters
+  * `/annotate`: If on, a last column will contain the number of function evaluation for each step
   * `/adaptative`: Whether or not to use adaptative stepper
   * `/step-size`: Initial step size for the stepper
   * `/prec-relative`: Relative precision required
@@ -2869,12 +2988,13 @@ letter.
 
 ### sim-eecr-relay-wave - Fit: Fit of an EECR+relay catalytic wave {#cmd-sim-eecr-relay-wave}
 
-`sim-eecr-relay-wave` _parameters_ _datasets_... `/override=` `/extra-parameters=`
+`sim-eecr-relay-wave` _parameters_ _datasets_... `/override=` `/extra-parameters=` `/reexport=`
 
   * _parameters_: File to load parameters from
   * _datasets_: Datasets to fit
   * `/override`: A comma-separated list of parameters to override
   * `/extra-parameters`: Define supplementary parameters
+  * `/reexport`: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-eecr-relay-wave {:/}
 {::comment} synopsis-start: fit-linear-kinetic-system {:/}
@@ -2926,7 +3046,7 @@ letter.
 
 ### sim-linear-kinetic-system - Fit: Several steps with a kinetic evolution {#cmd-sim-linear-kinetic-system}
 
-`sim-linear-kinetic-system` _parameters_ _datasets_... `/species=` `/offset=` `/additional-loss=` `/steps=` `/override=` `/extra-parameters=`
+`sim-linear-kinetic-system` _parameters_ _datasets_... `/species=` `/offset=` `/additional-loss=` `/steps=` `/override=` `/extra-parameters=` `/reexport=`
 
   * _parameters_: File to load parameters from
   * _datasets_: Datasets to fit
@@ -2936,6 +3056,7 @@ letter.
   * `/steps`: Step list with numbered conditions
   * `/override`: A comma-separated list of parameters to override
   * `/extra-parameters`: Define supplementary parameters
+  * `/reexport`: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-linear-kinetic-system {:/}
 {::comment} synopsis-start: fit-ecr-wave {:/}
@@ -2972,7 +3093,7 @@ letter.
 
 ### sim-ecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-sim-ecr-wave}
 
-`sim-ecr-wave` _parameters_ _datasets_... `/plateau=` `/oxidation=` `/use-eoc=` `/override=` `/extra-parameters=`
+`sim-ecr-wave` _parameters_ _datasets_... `/plateau=` `/oxidation=` `/use-eoc=` `/override=` `/extra-parameters=` `/reexport=`
 
   * _parameters_: File to load parameters from
   * _datasets_: Datasets to fit
@@ -2981,6 +3102,7 @@ letter.
   * `/use-eoc`: Whether to use explicitly the bias or compute it using the open circuit potential
   * `/override`: A comma-separated list of parameters to override
   * `/extra-parameters`: Define supplementary parameters
+  * `/reexport`: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-ecr-wave {:/}
 {::comment} synopsis-start: strip-if {:/}
@@ -3045,16 +3167,6 @@ Alias: `ac`
   * _code_: Any ruby code
 
 {::comment} synopsis-end: eval {:/}
-{::comment} synopsis-start: catalytic-baseline {:/}
-
-### catalytic-baseline - Catalytic baseline {#cmd-catalytic-baseline}
-
-`catalytic-baseline` **(interactive)**
-
-Alias: `B`
-
-
-{::comment} synopsis-end: catalytic-baseline {:/}
 {::comment} synopsis-start: bin {:/}
 
 ### bin - Bin {#cmd-bin}
@@ -3197,29 +3309,31 @@ Alias: `B`
 
 ### output - Change output file {#cmd-output}
 
-`output` _file_
+`output` _file_ `/truncate=`
 
   * _file_: Name of the new output file
+  * `/truncate`: If on, removes all the contents of the target before opening
 
 {::comment} synopsis-end: output {:/}
 {::comment} synopsis-start: sim-adsorbed {:/}
 
 ### sim-adsorbed - Fit: Ideal adsorbed species {#cmd-sim-adsorbed}
 
-`sim-adsorbed` _parameters_ _datasets_... `/species=` `/override=` `/extra-parameters=`
+`sim-adsorbed` _parameters_ _datasets_... `/species=` `/override=` `/extra-parameters=` `/reexport=`
 
   * _parameters_: File to load parameters from
   * _datasets_: Datasets to fit
   * `/species`: Overall number of species
   * `/override`: A comma-separated list of parameters to override
   * `/extra-parameters`: Define supplementary parameters
+  * `/reexport`: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-adsorbed {:/}
 {::comment} synopsis-start: sim-eec-transport {:/}
 
 ### sim-eec-transport - Fit: Fit of an EEC catalytic wave with transport {#cmd-sim-eec-transport}
 
-`sim-eec-transport` _parameters_ _datasets_... `/plateau=` `/transport=` `/oxidation=` `/override=` `/extra-parameters=`
+`sim-eec-transport` _parameters_ _datasets_... `/plateau=` `/transport=` `/oxidation=` `/override=` `/extra-parameters=` `/reexport=`
 
   * _parameters_: File to load parameters from
   * _datasets_: Datasets to fit
@@ -3228,18 +3342,20 @@ Alias: `B`
   * `/oxidation`: ???
   * `/override`: A comma-separated list of parameters to override
   * `/extra-parameters`: Define supplementary parameters
+  * `/reexport`: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-eec-transport {:/}
 {::comment} synopsis-start: sim-fefe-hp-inact {:/}
 
 ### sim-fefe-hp-inact - Fit: High potential inactivation of FeFe hydrogenases {#cmd-sim-fefe-hp-inact}
 
-`sim-fefe-hp-inact` _parameters_ _datasets_... `/override=` `/extra-parameters=`
+`sim-fefe-hp-inact` _parameters_ _datasets_... `/override=` `/extra-parameters=` `/reexport=`
 
   * _parameters_: File to load parameters from
   * _datasets_: Datasets to fit
   * `/override`: A comma-separated list of parameters to override
   * `/extra-parameters`: Define supplementary parameters
+  * `/reexport`: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-fefe-hp-inact {:/}
 {::comment} synopsis-start: sv-decomp {:/}
@@ -3260,3 +3376,17 @@ Alias: `B`
 
 
 {::comment} synopsis-end: transpose {:/}
+{::comment} synopsis-start: integrate {:/}
+
+### integrate - Integrate expression {#cmd-integrate}
+
+`integrate` _formula_ _a_ _b_ `/integrator=` `/relative-int=` `/absolute-int=`
+
+  * _formula_: An expression of 1 variable (not an equation !)
+  * _a_: Left bound of the segment
+  * _b_: Right bound of the segment
+  * `/integrator`: The algorithm used for integration
+  * `/relative-int`: Relative precision required for integration
+  * `/absolute-int`: Absolute precision required for integration
+
+{::comment} synopsis-end: integrate {:/}

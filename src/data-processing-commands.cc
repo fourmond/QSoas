@@ -1105,11 +1105,9 @@ namespace __fft {
   bottom.yLabel = Utils::deltaStr("Y");
   bottom.drawingXTicks = false;
 
-  // For some reason, we can't just set the order right now.
-  bool derive = false;
-  updateFromOptions(opts, "derive", derive);
-  // The order of the derivative
-  int order = (derive ? 1 : 0);
+  
+  int order = 0;
+  updateFromOptions(opts, "derive", order);
 
 
   // **************************************************
@@ -1153,7 +1151,7 @@ namespace __fft {
   bool needCompute = true;
 
   int cutoff = 20;
-  dsDisplay->hidden = derive;
+  dsDisplay->hidden = order > 0;
 
   {
     QList<int> facts = orig.factors();
@@ -1205,9 +1203,9 @@ namespace __fft {
         order = 0;
       else
         order = 1;
-      dsDisplay->hidden = order;
+      dsDisplay->hidden = (order > 0);
       needCompute = true;
-      if(order)
+      if(order > 0)
         soas().showMessage("Showing derivative");
       else
         soas().showMessage("Showing filtered data");
@@ -1265,9 +1263,9 @@ namespace __fft {
 
 static ArgumentList 
 fftOps(QList<Argument *>() 
-       << new BoolArgument("derive", 
-                           "Derive",
-                           "Whether to derive by default")
+       << new IntegerArgument("derive", 
+                              "Derivation order",
+                              "The starting order of derivation")
       );
 
 

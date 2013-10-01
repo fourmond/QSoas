@@ -75,7 +75,8 @@ void Fit::functionForDataset(const double * parameters,
 void Fit::makeCommands(ArgumentList * args, 
                        CommandEffector * singleFit,
                        CommandEffector * multiFit,
-                       ArgumentList * originalOptions)
+                       ArgumentList * originalOptions,
+                       CommandEffector * sim)
 {
 
   QByteArray pn = "Fit: ";
@@ -151,7 +152,7 @@ void Fit::makeCommands(ArgumentList * args,
               effector(this, &Fit::runFit, true),
               "fits", al, options, pn, sd, ld);
 
-  if(! multiFit) {
+  if(! multiFit || sim) {
     /// @todo handle the case when there is a fit-specified effector.
     pn = "Fit: ";
     pn += shortDesc;;
@@ -180,7 +181,7 @@ void Fit::makeCommands(ArgumentList * args,
                                "Re export",
                                "Do not compute data, just re-export fit parameters and errors");
     new Command((const char*)(QString("sim-") + name).toLocal8Bit(),
-                effector(this, &Fit::computeFit),
+                (sim ? sim : effector(this, &Fit::computeFit)),
                 "simulations", al2, nopts, pn, sd, ld);
   }
 }

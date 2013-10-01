@@ -76,7 +76,9 @@ protected:
   void makeCommands(ArgumentList * args = NULL, 
                     CommandEffector * singleFit = NULL,
                     CommandEffector * multiFit = NULL,
-                    ArgumentList * options = NULL);
+                    ArgumentList * options = NULL,
+                    CommandEffector * sim = NULL
+                    );
 
   /// The minimum number of datasets the fit should take.
   int minDataSets;

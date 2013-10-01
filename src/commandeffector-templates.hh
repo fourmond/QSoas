@@ -26,6 +26,8 @@
 #include <exceptions.hh>
 #include <utils.hh>
 
+
+
 /// Argumentless and optionless callback to static function
 ///
 /// Rather than using this class directly, use
@@ -500,6 +502,75 @@ public:
 /// Effector for an argumentless and optionless command
 template<class C, class A1, class A2, class A3> CommandEffector * optionLessEffector(C * cls, void (C::*f)(const QString &, A1, A2, A3), bool i = false) {
   return new CommandEffectorMemberCallback3OptionLess<C, A1, A2, A3>(cls, f, i);
+};
+
+//////////////////////////////////////////////////////////////////////
+
+/// Callback to member function with three arguments
+template<class C, class A1, class A2, class A3>
+class CommandEffectorMemberCallback3 : public CommandEffector {
+
+  typedef void (C::*Callback)(const QString &, A1, A2, A3, const CommandOptions &);
+  Callback callback;
+  C * target;
+
+public:
+
+  CommandEffectorMemberCallback3(C * t,
+                                 Callback c, bool i = false) : 
+    CommandEffector(i), callback(c), 
+    target(t) {;};
+  
+  inline virtual void runCommand(const QString & commandName, 
+                                 const CommandArguments & args,
+                                 const CommandOptions & opts) {
+    A1 a1 = args[0]->value<A1>();
+    A2 a2 = args[1]->value<A2>();
+    A3 a3 = args[2]->value<A3>();
+    CALL_MEMBER_FN(*target, callback)(commandName, a1, a2, a3, opts);
+  };
+  
+};
+
+
+/// Effector for an argumentless and optionless command
+template<class C, class A1, class A2, class A3> CommandEffector * effector(C * cls, void (C::*f)(const QString &, A1, A2, A3, const CommandOptions &), bool i = false) {
+  return new CommandEffectorMemberCallback3<C, A1, A2, A3>(cls, f, i);
+};
+
+//////////////////////////////////////////////////////////////////////
+
+/// Optionless callback to member function with four arguments
+template<class C, class A1, class A2, class A3, class A4>
+class CommandEffectorMemberCallback4OptionLess : public CommandEffector {
+
+  typedef void (C::*Callback)(const QString &, A1, A2, A3, A4);
+  Callback callback;
+  C * target;
+
+public:
+
+  CommandEffectorMemberCallback4OptionLess(C * t,
+                                           Callback c, bool i = false) : 
+    CommandEffector(i), callback(c), 
+    target(t) {;};
+  
+  inline virtual void runCommand(const QString & commandName, 
+                                 const CommandArguments & args,
+                                 const CommandOptions &) {
+    A1 a1 = args[0]->value<A1>();
+    A2 a2 = args[1]->value<A2>();
+    A3 a3 = args[2]->value<A3>();
+    A4 a4 = args[3]->value<A4>();
+    CALL_MEMBER_FN(*target, callback)(commandName, a1, a2, a3, a4);
+  };
+  
+};
+
+
+/// Effector for an argumentless and optionless command
+template<class C, class A1, class A2, class A3, class A4> CommandEffector * optionLessEffector(C * cls, void (C::*f)(const QString &, A1, A2, A3, A4), bool i = false) {
+  return new CommandEffectorMemberCallback4OptionLess<C, A1, A2, A3, A4>(cls, f, i);
 };
 
 /// @todo Maybe we need a generic effector wrapping a call to

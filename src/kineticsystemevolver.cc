@@ -475,9 +475,7 @@ protected:
     }
   }
 
-  void runFit(const QString & name, QString fileName, 
-              QList<const DataSet *> datasets,
-              const CommandOptions & opts)
+  void prepareFit(const QString & fileName)
   {
     delete system;
     system = NULL;
@@ -490,6 +488,13 @@ protected:
     /// @todo That should join KineticSystemEvolver ?
     system->prepareForTimeEvolution();
     evolver = new KineticSystemEvolver(system);
+  }
+
+  void runFit(const QString & name, QString fileName, 
+              QList<const DataSet *> datasets,
+              const CommandOptions & opts)
+  {
+    prepareFit(fileName);
     Fit::runFit(name, datasets, opts);
   }
 
@@ -499,6 +504,15 @@ protected:
     QList<const DataSet *> ds;
     ds << soas().currentDataSet();
     runFit(n, fileName, ds, opts);
+  }
+
+  void computeFit(const QString & name, QString fileName,
+                  QString params,
+                  QList<const DataSet *> datasets,
+                  const CommandOptions & opts)
+  {
+    prepareFit(fileName);
+    Fit::computeFit(name, params, datasets, opts);
   }
 
 
@@ -671,7 +685,9 @@ public:
     makeCommands(al, 
                  effector(this, &KineticSystemFit::runFitCurrentDataSet, true),
                  effector(this, &KineticSystemFit::runFit, true),
-                 opts);
+                 opts,
+                 effector(this, &KineticSystemFit::computeFit)
+                 );
   };
 };
 

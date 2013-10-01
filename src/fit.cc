@@ -268,7 +268,7 @@ void Fit::computeFit(const QString &, QString file,
 
   /// @todo Use mutliple value strings/options when they are
   /// available.
-  QStringList overrides = overridesStr.split(QRegExp("\\s*,\\s*"), 
+  QStringList overrides = overridesStr.split(QRegExp("\\s*[,;]\\s*"), 
                                              QString::SkipEmptyParts);
   for(int i = 0; i < overrides.size(); i++) {
     QStringList spec = overrides[i].split(QRegExp("\\s*=\\s*"));

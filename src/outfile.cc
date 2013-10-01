@@ -73,7 +73,7 @@ OutFile::~OutFile()
 
 void OutFile::writeValueHash(const ValueHash & hsh)
 {
-  setHeader(hsh.keyOrder.join("\t"));
+  setHeader(QString("## %1").arg(hsh.keyOrder.join("\t")));
   (*this) << hsh.toString("\t", "x", true) << "\n" << flush;
 }
 

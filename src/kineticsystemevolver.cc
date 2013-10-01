@@ -425,7 +425,7 @@ protected:
 
     // Parse ODEStepperOptions
     ODEStepperOptions op = evolver->getStepperOptions();
-    op.fixed = true;           // fixed step by default.
+    op.fixed = false;           // Drop non-adaptative steps !
     op.parseOptions(opts);
 
     if(op.fixed) {
@@ -448,9 +448,11 @@ protected:
     
 
     int baseIndex = 0;
-    tdParameters.clear();
 
+    // Get rid of all time-dependent parameters first.
+    tdParameters.clear();
     tdParameterNames.clear();
+    timeDependentParameters.clear();
 
     for(int i = 0; i < lst.size(); i++) {
       Terminal::out << "Parsing spec: " << lst[i] << endl;
@@ -499,6 +501,28 @@ protected:
     runFit(n, fileName, ds, opts);
   }
 
+
+  void dumpAllParameters()
+  {
+    // Dumps all the parameters to standard out
+    QTextStream o(stdout);
+
+    QHash<QString, double> vals = evolver->parameterValues();
+
+    QStringList s = vals.keys();
+    qSort(s);
+
+    for(int i = 0; i < s.size(); i++)
+      o << s[i] << " = " << vals[s[i]] << endl;
+
+    QStringList p = system->allParameters();
+
+    o << "There are " << timeDependentParameters.size() << " td-parameters" << endl;
+    for(auto i = timeDependentParameters.begin(); i != timeDependentParameters.end(); i++) {
+      o << "TD parameter for parameter index " << i.key()
+        << " -> " << p[i.key()] << endl;
+    }
+  }
 
 public:
 
@@ -557,6 +581,9 @@ public:
     const Vector & xv = ds->x();
     evolver->initialize(xv[0]);
     params = a + tdBase;///  @hack this looks pretty hackish to me...
+
+    if(data->debug)
+      dumpAllParameters();
 
     Vector discontinuities;
     for(QHash<int, TimeDependentParameter>::const_iterator i = 

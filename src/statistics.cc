@@ -50,8 +50,8 @@ void Statistics::internalStats(ValueHash * overall,
     c.stats(&a, &v);
 
     ValueHash stats;
-    stats << QString("%1[0]").arg(n) << c.first()
-          << QString("%1[%2]").arg(n).arg(c.size() - 1) << c.last()
+    stats << QString("%1_first").arg(n) << c.first()
+          << QString("%1_last").arg(n) << c.last()
           << QString("%1_min").arg(n) << c.min()
           << QString("%1_max").arg(n) << c.max()
           << QString("%1_average").arg(n) << a

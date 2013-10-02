@@ -151,6 +151,22 @@ a browser to show the online help, but should that not be a good idea,
 you can use `/online=false` to disable that.
 {::comment} description-end: help {:/}
 
+{::comment} synopsis-start: save-output {:/}
+
+### save-output - Save output {#cmd-save-output}
+
+`save-output` _file_
+
+  * _file_: Output file
+
+{::comment} synopsis-end: save-output {:/}
+{::comment} description-start: save-output {:/}
+Save all text in the terminal to a plain text file.
+
+Equivalent to copy-pasting the contents of the terminal to a plain
+text file in a text editor.
+{::comment} description-end: save-output {:/}
+
 
 {::comment} synopsis-start: print {:/}
 
@@ -369,11 +385,36 @@ Computes the integral of the given expression of `x` between bounds
 _a_ and _b_:
 
 ~~~~
-QSoas> integrate x**2 -1 23
-Integral value: 4056	estimated error: 4.50306e-11	 in 31 evaluations over 1 intervals 
+QSoas> integrate x**2 10 22
+Integral value: 3216	estimated error: 3.57048e-11	 in 31 evaluations over 1 intervals 
 ~~~~
 
 {::comment} description-end: integrate {:/}
+
+{::comment} synopsis-start: generate-buffer {:/}
+
+### generate-buffer - Generate buffer {#cmd-generate-buffer}
+
+`generate-buffer` _start_ _end_ `/samples=` `/formula=`
+
+  * _start_: The first X value
+  * _end_: The last X value
+  * `/samples`: The number of samples
+  * `/formula` (default): Formula to generate the Y values
+
+{::comment} synopsis-end: generate-buffer {:/}
+{::comment} description-start: generate-buffer {:/}
+Generates a buffer with _samples_ samples (by default 1000) uniformly
+spaced between _start_ and _end_.
+
+If formula is provided, it sets Y values according to this formula
+(else Y is take equal to X).
+
+
+~~~~
+QSoas> generate-buffer -10 10 sin(x)
+~~~~
+{::comment} description-end: generate-buffer {:/}
 
 
 ## Output file manipulation
@@ -1170,6 +1211,37 @@ This removes all the points for which both the X value is over 2 and
 the product of X and Y is below 10.
 {::comment} description-end: strip-if {:/}
 
+{::comment} synopsis-start: diff {:/}
+
+### diff - Derive {#cmd-diff}
+
+`diff` 
+
+
+{::comment} synopsis-end: diff {:/}
+{::comment} description-start: diff {:/}
+Computes the 4th order accurate derivative of the buffer.
+
+This is efficient to compute the derivative of a mathematical
+function, but it gives very poor results on noisy data. In general,
+for derivation, prefer [`filter-fft`](#cmd-filter-fft) or 
+[`filter-bsplines`](#cmd-filter-bsplines).
+{::comment} description-end: diff {:/}
+
+{::comment} synopsis-start: diff2 {:/}
+
+### diff2 - Derive {#cmd-diff2}
+
+`diff2` 
+
+
+{::comment} synopsis-end: diff2 {:/}
+{::comment} description-start: diff2 {:/}
+Computes the 4th order accurate second derivative of the buffer. 
+
+The same warnings apply as for [`diff`](#cmd-diff).
+{::comment} description-end: diff2 {:/}
+
 
 ## Splitting the dataset in bits (and back)
 
@@ -1740,6 +1812,42 @@ arguments. X matching is done as for the other operations.
 
 # Data inspection facilities
 
+{::comment} synopsis-start: find-peaks {:/}
+
+### find-peaks - Find peaks {#cmd-find-peaks}
+
+`find-peaks` `/window=` `/include-borders=` `/output=` `/peaks=`
+
+  * `/window`: ...
+  * `/include-borders`: ...
+  * `/output`: Whether peak information should be written to output file by default
+  * `/peaks`: Display only that many peaks (by order of intensity)
+
+{::comment} synopsis-end: find-peaks {:/}
+{::comment} description-start: find-peaks {:/}
+Find all the peaks of the current dataset. If `/output` is on, then
+the peak data is written to the output file. This function will find
+many peaks on noisy data, you can limit to the first _n_ ones by using 
+`/peaks=`_n_.
+
+Peaks are indicated on the buffer using lines, and their position is
+written to the terminal.
+{::comment} description-end: find-peaks {:/}
+
+{::comment} synopsis-start: echem-peaks {:/}
+
+### echem-peaks - Find peaks pairs {#cmd-echem-peaks}
+
+`echem-peaks` 
+
+
+{::comment} synopsis-end: echem-peaks {:/}
+{::comment} description-start: echem-peaks {:/}
+This function tries to find "pairs" of peaks that may be the anodic
+and cathodic peaks of a redox couple, and outputs useful information
+about those.
+{::comment} description-end: echem-peaks {:/}
+
 {::comment} synopsis-start: 1 {:/}
 
 ### 1 - Find peak {#cmd-1}
@@ -1752,7 +1860,11 @@ arguments. X matching is done as for the other operations.
 
 {::comment} synopsis-end: 1 {:/}
 {::comment} description-start: 1 {:/}
-...
+Essentially equivalent to 
+
+~~~~
+QSoas> find-peaks /peaks=1 /output=true
+~~~~
 {::comment} description-end: 1 {:/}
 
 {::comment} synopsis-start: 2 {:/}
@@ -1767,7 +1879,11 @@ arguments. X matching is done as for the other operations.
 
 {::comment} synopsis-end: 2 {:/}
 {::comment} description-start: 2 {:/}
-...
+Essentially equivalent to 
+
+~~~~
+QSoas> find-peaks /peaks=2 /output=true
+~~~~
 {::comment} description-end: 2 {:/}
 
 
@@ -1848,60 +1964,7 @@ terminal to the output file.
 {::comment} description-end: reglin {:/}
 
 
-{::comment} synopsis-start: diff {:/}
 
-### diff - Derive {#cmd-diff}
-
-`diff` 
-
-
-{::comment} synopsis-end: diff {:/}
-{::comment} description-start: diff {:/}
-Computes the 4th order accurate derivative of the buffer
-Do not use this on noisy data
-{::comment} description-end: diff {:/}
-
-{::comment} synopsis-start: diff2 {:/}
-
-### diff2 - Derive {#cmd-diff2}
-
-`diff2` 
-
-
-{::comment} synopsis-end: diff2 {:/}
-{::comment} description-start: diff2 {:/}
-Computes the 4th order accurate second derivative of the buffer
-Do not use this on noisy data !
-{::comment} description-end: diff2 {:/}
-
-
-{::comment} synopsis-start: echem-peaks {:/}
-
-### echem-peaks - Find peaks pairs {#cmd-echem-peaks}
-
-`echem-peaks` 
-
-
-{::comment} synopsis-end: echem-peaks {:/}
-{::comment} description-start: echem-peaks {:/}
-...
-{::comment} description-end: echem-peaks {:/}
-
-{::comment} synopsis-start: find-peaks {:/}
-
-### find-peaks - Find peaks {#cmd-find-peaks}
-
-`find-peaks` `/window=` `/include-borders=` `/output=` `/peaks=`
-
-  * `/window`: ...
-  * `/include-borders`: ...
-  * `/output`: Whether peak information should be written to output file by default
-  * `/peaks`: Display only that many peaks (by order of intensity)
-
-{::comment} synopsis-end: find-peaks {:/}
-{::comment} description-start: find-peaks {:/}
-...
-{::comment} description-end: find-peaks {:/}
 
 # Fits 
 
@@ -1942,8 +2005,33 @@ together and to create fit to fit derivatives of the signals.
 
 {::comment} synopsis-end: combine-fits {:/}
 {::comment} description-start: combine-fits {:/}
-(...)
+Creates a new fit named _name_ based on other fits, combined through a
+formula.
 {::comment} description-end: combine-fits {:/}
+
+{::comment} synopsis-start: define-derived-fit {:/}
+
+### define-derived-fit - Create a derived fit {#cmd-define-derived-fit}
+
+`define-derived-fit` _fit_ `/mode=`
+
+  * _fit_: The fit to make a derived fit of
+  * `/mode`: Whether one fits only the derivative, both the derivative and the original data together or separated
+
+{::comment} synopsis-end: define-derived-fit {:/}
+{::comment} description-start: define-derived-fit {:/}
+Defines a new fit based on the already defined _fit_ that will fit:
+
+  * only the derivative if `/mode=deriv-only`
+  * the original function in one buffer and the derivative in the
+    second if `/mode=separated`
+  * both the original function and the derivative in a single buffer
+    (the derivative is assumed to be the data after the first
+    discontinuity in the X values) if `/mode=combined`
+
+This function is explained in more details in the [tutorial](tutorial.html).  
+{::comment} description-end: define-derived-fit {:/}
+
 
 ## Exponential fits
 
@@ -2315,45 +2403,6 @@ Fits of exponentials on several steps with film loss bookkeeping
 {::comment} description-end: fit-kinetic-system {:/}
 
 
-{::comment} synopsis-start: fit-eecr-wave {:/}
-
-### fit-eecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-fit-eecr-wave}
-
-`fit-eecr-wave` `/plateau=` `/oxidation=` `/use-eoc=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
-
-  * `/plateau`: Whether to use the general expression or only that valid when plateaus are not reached
-  * `/oxidation`: ???
-  * `/use-eoc`: Whether to use explicitly the bias or compute it using the open circuit potential
-  * `/parameters`: Pre-loads parameters
-  * `/debug`: Turn on debugging (for QSoas developers only)
-  * `/extra-parameters`: Define supplementary parameters
-
-{::comment} synopsis-end: fit-eecr-wave {:/}
-{::comment} description-start: fit-eecr-wave {:/}
-Single buffer fit:
-...
-{::comment} description-end: fit-eecr-wave {:/}
-
-
-
-
-{::comment} synopsis-start: fit-react-exp {:/}
-
-### fit-react-exp - Fit: Exponential reactivation {#cmd-fit-react-exp}
-
-`fit-react-exp` `/exponentials=` `/dead=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
-
-  * `/exponentials`: Number of exponentials
-  * `/dead`: Whether we include a dead phase or not
-  * `/parameters`: Pre-loads parameters
-  * `/debug`: Turn on debugging (for QSoas developers only)
-  * `/extra-parameters`: Define supplementary parameters
-
-{::comment} synopsis-end: fit-react-exp {:/}
-{::comment} description-start: fit-react-exp {:/}
-Single buffer fit:
-Reactivation
-{::comment} description-end: fit-react-exp {:/}
 
 ## Slow scans fits
 
@@ -2459,109 +2508,46 @@ Multi-buffer variant of the
 ## Wave shape fits
 
 
+{::comment} synopsis-start: fit-eecr-wave {:/}
 
-## Unsupported fits
+### fit-eecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-fit-eecr-wave}
 
-These fits are not documented, not guaranteed to be reasonably stable,
-stay in future versions of QSoas, or even to actually have ever been
-used.
+`fit-eecr-wave` `/plateau=` `/oxidation=` `/use-eoc=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
 
-
-{::comment} synopsis-start: fit-duck-sim {:/}
-
-### fit-duck-sim - Fit: Diffusive electrochemical  {#cmd-fit-duck-sim}
-
-`fit-duck-sim` `/system=` `/base-parameters=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
-
-  * `/system`: ...
-  * `/base-parameters`: ...
+  * `/plateau`: Whether to use the general expression or only that valid when plateaus are not reached
+  * `/oxidation`: ???
+  * `/use-eoc`: Whether to use explicitly the bias or compute it using the open circuit potential
   * `/parameters`: Pre-loads parameters
   * `/debug`: Turn on debugging (for QSoas developers only)
   * `/extra-parameters`: Define supplementary parameters
 
-{::comment} synopsis-end: fit-duck-sim {:/}
-{::comment} description-start: fit-duck-sim {:/}
+{::comment} synopsis-end: fit-eecr-wave {:/}
+{::comment} description-start: fit-eecr-wave {:/}
 Single buffer fit:
 ...
-{::comment} description-end: fit-duck-sim {:/}
+{::comment} description-end: fit-eecr-wave {:/}
 
-{::comment} synopsis-start: mfit-duck-sim {:/}
 
-### mfit-duck-sim - Multi fit: Diffusive electrochemical  {#cmd-mfit-duck-sim}
+{::comment} synopsis-start: mfit-eecr-wave {:/}
 
-`mfit-duck-sim` _datasets_... `/system=` `/base-parameters=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
+### mfit-eecr-wave - Multi fit: Fit of an EECR catalytic wave {#cmd-mfit-eecr-wave}
+
+`mfit-eecr-wave` _datasets_... `/plateau=` `/oxidation=` `/use-eoc=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
 
   * _datasets_: Datasets to fit
-  * `/system`: ...
-  * `/base-parameters`: ...
+  * `/plateau`: Whether to use the general expression or only that valid when plateaus are not reached
+  * `/oxidation`: ???
+  * `/use-eoc`: Whether to use explicitly the bias or compute it using the open circuit potential
   * `/parameters`: Pre-loads parameters
   * `/debug`: Turn on debugging (for QSoas developers only)
   * `/extra-parameters`: Define supplementary parameters
   * `/weight-buffers`: Whether or not to weight buffers (off by default)
 
-{::comment} synopsis-end: mfit-duck-sim {:/}
-{::comment} description-start: mfit-duck-sim {:/}
-multi buffer fit:
-...
-{::comment} description-end: mfit-duck-sim {:/}
+{::comment} synopsis-end: mfit-eecr-wave {:/}
+{::comment} description-start: mfit-eecr-wave {:/}
+Multi-buffer variant of [`fit-eecr-wave`](#cmd-fit-eecr-wave).
+{::comment} description-end: mfit-eecr-wave {:/}
 
-{::comment} synopsis-start: sim-duck-sim {:/}
-
-### sim-duck-sim - Fit: Diffusive electrochemical  {#cmd-sim-duck-sim}
-
-`sim-duck-sim` _parameters_ _datasets_... `/system=` `/base-parameters=` `/override=` `/extra-parameters=`
-
-  * _parameters_: File to load parameters from
-  * _datasets_: Datasets to fit
-  * `/system`: ...
-  * `/base-parameters`: ...
-  * `/override`: A comma-separated list of parameters to override
-  * `/extra-parameters`: Define supplementary parameters
-
-{::comment} synopsis-end: sim-duck-sim {:/}
-{::comment} description-start: sim-duck-sim {:/}
-fit simulation:
-...
-{::comment} description-end: sim-duck-sim {:/}
-
-
-## Manipulation of fits
-
-QSoas provides ways to make fits from other fits, by combining them or
-making fits of the derivatives.
-
-{::comment} synopsis-start: define-derived-fit {:/}
-
-### define-derived-fit - Create a derived fit {#cmd-define-derived-fit}
-
-`define-derived-fit` _fit_ `/mode=`
-
-  * _fit_: The fit to make a derived fit of
-  * `/mode`: Whether one fits only the derivative, both the derivative and the original data together or separated
-
-{::comment} synopsis-end: define-derived-fit {:/}
-{::comment} description-start: define-derived-fit {:/}
-(...)
-{::comment} description-end: define-derived-fit {:/}
-
-
-
-
-{::comment} synopsis-start: generate-buffer {:/}
-
-### generate-buffer - Generate buffer {#cmd-generate-buffer}
-
-`generate-buffer` _start_ _end_ `/samples=` `/formula=`
-
-  * _start_: The first X value
-  * _end_: The last X value
-  * `/samples`: The number of samples
-  * `/formula` (default): Formula to generate the Y values
-
-{::comment} synopsis-end: generate-buffer {:/}
-{::comment} description-start: generate-buffer {:/}
-...
-{::comment} description-end: generate-buffer {:/}
 
 {::comment} synopsis-start: kinetic-system {:/}
 
@@ -2584,41 +2570,6 @@ making fits of the derivatives.
 {::comment} description-end: kinetic-system {:/}
 
 
-{::comment} synopsis-start: load-documentation {:/}
-
-### load-documentation - Load documentation {#cmd-load-documentation}
-
-`load-documentation` _file_ `/silent=`
-
-  * _file_: The document file to load
-  * `/silent` (default): Whether to say something when documentation is missing
-
-{::comment} synopsis-end: load-documentation {:/}
-{::comment} description-start: load-documentation {:/}
-...
-{::comment} description-end: load-documentation {:/}
-
-
-{::comment} synopsis-start: mfit-eecr-wave {:/}
-
-### mfit-eecr-wave - Multi fit: Fit of an EECR catalytic wave {#cmd-mfit-eecr-wave}
-
-`mfit-eecr-wave` _datasets_... `/plateau=` `/oxidation=` `/use-eoc=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
-
-  * _datasets_: Datasets to fit
-  * `/plateau`: Whether to use the general expression or only that valid when plateaus are not reached
-  * `/oxidation`: ???
-  * `/use-eoc`: Whether to use explicitly the bias or compute it using the open circuit potential
-  * `/parameters`: Pre-loads parameters
-  * `/debug`: Turn on debugging (for QSoas developers only)
-  * `/extra-parameters`: Define supplementary parameters
-  * `/weight-buffers`: Whether or not to weight buffers (off by default)
-
-{::comment} synopsis-end: mfit-eecr-wave {:/}
-{::comment} description-start: mfit-eecr-wave {:/}
-multi buffer fit:
-...
-{::comment} description-end: mfit-eecr-wave {:/}
 
 {::comment} synopsis-start: mfit-inact-react-amplitude-2phases {:/}
 
@@ -2705,20 +2656,6 @@ Reactivation
 {::comment} description-end: mfit-react-exp {:/}
 
 
-
-
-{::comment} synopsis-start: save-output {:/}
-
-### save-output - Save output {#cmd-save-output}
-
-`save-output` _file_
-
-  * _file_: Output file
-
-{::comment} synopsis-end: save-output {:/}
-{::comment} description-start: save-output {:/}
-Save all output from the terminal
-{::comment} description-end: save-output {:/}
 
 
 {::comment} synopsis-start: sim-ececr-wave {:/}

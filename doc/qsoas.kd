@@ -311,111 +311,6 @@ Has no effect if not within a script.
 {::comment} description-end: break {:/}
 
 
-## Evaluation functions
-
-While it is not its primary purpose, QSoas provides various functions
-to evaluate the result of mathematical operations.
-
-{::comment} synopsis-start: eval {:/}
-
-### eval - Ruby eval {#cmd-eval}
-
-`eval` _code_
-
-  * _code_: Any ruby code
-
-{::comment} synopsis-end: eval {:/}
-{::comment} description-start: eval {:/}
-Evaluates the given code as a Ruby expression:
-
-~~~~
-QSoas> eval 2*3
- => 6
-~~~~
-
-It runs in the same environment as the
-[`apply-formula`](#cmd-apply-formula) and the custom fits (excepted,
-of course, that there are no `x` and `y` variables). It can be useful
-to check that a function has been correctly defined in a file loaded
-by [`ruby-run`](#cmd-ruby-run).
-{::comment} description-end: eval {:/}
-
-{::comment} synopsis-start: find-root {:/}
-
-### find-root - Finds a root {#cmd-find-root}
-
-`find-root` _formula_ _seed_ `/max=`
-
-  * _formula_: An expression of 1 variable (not an equation !)
-  * _seed_: Initial X value from which to search
-  * `/max` (default): If present, uses dichotomy between seed and max
-
-{::comment} synopsis-end: find-root {:/}
-{::comment} description-start: find-root {:/}
-
-Find the root of the given `x`-dependent expression using an iterative
-algorithm, using _seed_ as the initial value. If the `/max` option is
-specified, then the search proceeds using dichotomy between the two
-values.
-
-~~~~
-QSoas> find-root 'x**2 - 3' 1
-Found root at: 1.73205
-~~~~
-
-Do not use a equal sign. The returned value is that for which the
-expression is 0.
-{::comment} description-end: find-root {:/}
-{::comment} synopsis-start: integrate {:/}
-
-### integrate - Integrate expression {#cmd-integrate}
-
-`integrate` _formula_ _a_ _b_ `/integrator=` `/relative-int=` `/absolute-int=`
-
-  * _formula_: An expression of 1 variable (not an equation !)
-  * _a_: Left bound of the segment
-  * _b_: Right bound of the segment
-  * `/integrator`: The algorithm used for integration
-  * `/relative-int`: Relative precision required for integration
-  * `/absolute-int`: Absolute precision required for integration
-
-{::comment} synopsis-end: integrate {:/}
-{::comment} description-start: integrate {:/}
-Computes the integral of the given expression of `x` between bounds
-_a_ and _b_:
-
-~~~~
-QSoas> integrate x**2 10 22
-Integral value: 3216	estimated error: 3.57048e-11	 in 31 evaluations over 1 intervals 
-~~~~
-
-{::comment} description-end: integrate {:/}
-
-{::comment} synopsis-start: generate-buffer {:/}
-
-### generate-buffer - Generate buffer {#cmd-generate-buffer}
-
-`generate-buffer` _start_ _end_ `/samples=` `/formula=`
-
-  * _start_: The first X value
-  * _end_: The last X value
-  * `/samples`: The number of samples
-  * `/formula` (default): Formula to generate the Y values
-
-{::comment} synopsis-end: generate-buffer {:/}
-{::comment} description-start: generate-buffer {:/}
-Generates a buffer with _samples_ samples (by default 1000) uniformly
-spaced between _start_ and _end_.
-
-If formula is provided, it sets Y values according to this formula
-(else Y is take equal to X).
-
-
-~~~~
-QSoas> generate-buffer -10 10 sin(x)
-~~~~
-{::comment} description-end: generate-buffer {:/}
-
 
 ## Output file manipulation
 
@@ -2133,6 +2028,49 @@ Single buffer fit:
 Fits of exponentials on several steps with film loss bookkeeping
 {::comment} description-end: fit-multiexp-multistep {:/}
 
+
+{::comment} synopsis-start: mfit-multiexp-multistep {:/}
+
+### mfit-multiexp-multistep - Multi fit: Multi-step and multi-exponential {#cmd-mfit-multiexp-multistep}
+
+`mfit-multiexp-multistep` _datasets_... `/exponentials=` `/steps=` `/independent=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
+
+  * _datasets_: Datasets to fit
+  * `/exponentials`: Number of exponentials
+  * `/steps`: Step list with numbered conditions
+  * `/independent`: Whether irreversible loss is independent on each step
+  * `/parameters`: Pre-loads parameters
+  * `/debug`: Turn on debugging (for QSoas developers only)
+  * `/extra-parameters`: Define supplementary parameters
+  * `/weight-buffers`: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-multiexp-multistep {:/}
+{::comment} description-start: mfit-multiexp-multistep {:/}
+multi buffer fit:
+Fits of exponentials on several steps with film loss bookkeeping
+{::comment} description-end: mfit-multiexp-multistep {:/}
+
+{::comment} synopsis-start: sim-multiexp-multistep {:/}
+
+### sim-multiexp-multistep - Fit: Multi-step and multi-exponential {#cmd-sim-multiexp-multistep}
+
+`sim-multiexp-multistep` _parameters_ _datasets_... `/exponentials=` `/steps=` `/independent=` `/override=` `/extra-parameters=` `/reexport=`
+
+  * _parameters_: File to load parameters from
+  * _datasets_: Datasets to fit
+  * `/exponentials`: Number of exponentials
+  * `/steps`: Step list with numbered conditions
+  * `/independent`: Whether irreversible loss is independent on each step
+  * `/override`: A comma-separated list of parameters to override
+  * `/extra-parameters`: Define supplementary parameters
+  * `/reexport`: Do not compute data, just re-export fit parameters and errors
+
+{::comment} synopsis-end: sim-multiexp-multistep {:/}
+{::comment} description-start: sim-multiexp-multistep {:/}
+fit simulation:
+Fits of exponentials on several steps with film loss bookkeeping
+{::comment} description-end: sim-multiexp-multistep {:/}
+
 ## Arbitrary fits
 
 QSoas provides ways to fit arbitrary formulas (written in
@@ -2398,9 +2336,52 @@ QSoas> fit-kinetic-system /with=o2:3,exp,common kinetic-file.txt
 
 {::comment} synopsis-end: fit-kinetic-system {:/}
 {::comment} description-start: fit-kinetic-system {:/}
-Single buffer fit:
-Fits of exponentials on several steps with film loss bookkeeping
+Full kinetic system...
 {::comment} description-end: fit-kinetic-system {:/}
+
+{::comment} synopsis-start: mfit-kinetic-system {:/}
+
+### mfit-kinetic-system - Multi fit: Full kinetic system {#cmd-mfit-kinetic-system}
+
+`mfit-kinetic-system` _system_ _datasets_... `/adaptative=` `/step-size=` `/prec-relative=` `/stepper=` `/with=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
+
+  * _system_: Path to the file describing the system
+  * _datasets_: Datasets to fit
+  * `/adaptative`: Whether or not to use adaptative stepper
+  * `/step-size`: Initial step size for the stepper
+  * `/prec-relative`: Relative precision required
+  * `/stepper`: Algorithm used for integration
+  * `/with`: Dependency upon time of various parameters
+  * `/parameters`: Pre-loads parameters
+  * `/debug`: Turn on debugging (for QSoas developers only)
+  * `/extra-parameters`: Define supplementary parameters
+  * `/weight-buffers`: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-kinetic-system {:/}
+{::comment} description-start: mfit-kinetic-system {:/}
+Multi-buffer variant of the
+[`kinetic-system`](#cmd-fit-kinetic-system) fit.
+{::comment} description-end: mfit-kinetic-system {:/}
+
+{::comment} synopsis-start: sim-kinetic-system {:/}
+
+### sim-kinetic-system - Fit: Several steps with a kinetic evolution {#cmd-sim-kinetic-system}
+
+sim-kinetic-system parameters datasets... /species= /steps= /override= /extra-parameters=
+
+  * parameters: File to load parameters from
+  * datasets: Datasets to fit
+  * /species: Number of species
+  * /steps: Step list with numbered conditions
+  * /override: A comma-separated list of parameters to override
+  * /extra-parameters: Define supplementary parameters
+
+{::comment} synopsis-end: sim-kinetic-system {:/}
+{::comment} description-start: sim-kinetic-system {:/}
+Computation for the 
+[`kinetic-system`](#cmd-fit-kinetic-system) fit.
+{::comment} description-end: sim-kinetic-system {:/}
+
 
 
 
@@ -2505,7 +2486,58 @@ Multi-buffer variant of the
 [`fit-slow-scan-lp`](#cmd-fit-slow-scan-lp) fit.
 {::comment} description-end: mfit-slow-scan-lp {:/}
 
+{::comment} synopsis-start: sim-slow-scan-lp {:/}
+
+### sim-slow-scan-lp - Fit: Slow scan test {#cmd-sim-slow-scan-lp}
+
+`sim-slow-scan-lp` _parameters_ _datasets_... `/explicit-rate=` `/override=` `/extra-parameters=` `/reexport=`
+
+  * _parameters_: File to load parameters from
+  * _datasets_: Datasets to fit
+  * `/explicit-rate`: Whether the scan rate is an explicit parameter of the fit
+  * `/override`: A comma-separated list of parameters to override
+  * `/extra-parameters`: Define supplementary parameters
+  * `/reexport`: Do not compute data, just re-export fit parameters and errors
+
+{::comment} synopsis-end: sim-slow-scan-lp {:/}
+{::comment} description-start: sim-slow-scan-lp {:/}
+Computation for the 
+[`slow-scan-lp`](#cmd-fit-slow-scan-lp) fit.
+{::comment} description-end: sim-slow-scan-lp {:/}
+
+{::comment} synopsis-start: sim-slow-scan-hp {:/}
+
+### sim-slow-scan-hp - Fit: Slow scan test {#cmd-sim-slow-scan-hp}
+
+`sim-slow-scan-hp` _parameters_ _datasets_... `/bi-exp=` `/scaling=` `/override=` `/extra-parameters=` `/reexport=`
+
+  * _parameters_: File to load parameters from
+  * _datasets_: Datasets to fit
+  * `/bi-exp`: Whether we have a bi-exponential or a mono-exponential
+  * `/scaling`: Use an additional scaling factor
+  * `/override`: A comma-separated list of parameters to override
+  * `/extra-parameters`: Define supplementary parameters
+  * `/reexport`: Do not compute data, just re-export fit parameters and errors
+
+{::comment} synopsis-end: sim-slow-scan-hp {:/}
+{::comment} description-start: sim-slow-scan-hp {:/}
+Computation for the 
+[`slow-scan-hp`](#cmd-fit-slow-scan-hp) fit.
+{::comment} description-end: sim-slow-scan-hp {:/}
+
+
+
 ## Wave shape fits
+
+These fits correspond to the various models described in 
+[Fourmond _et al_, *JACS*2013](http://dx.doi.org/10.1021/ja311607s):
+
+ * [`fit-eecr-wave`](#cmd-fit-eecr-wave) is the *EEC* model
+ * [`fit-ecr-wave`](#cmd-fit-ecr-wave) is the *EC* model
+ * [`fit-eecr-relay-wave`](#cmd-fit-eecr-relay-wave) is the *EECR*
+   model
+
+Please refer to that paper for more information.
 
 
 {::comment} synopsis-start: fit-eecr-wave {:/}
@@ -2523,8 +2555,19 @@ Multi-buffer variant of the
 
 {::comment} synopsis-end: fit-eecr-wave {:/}
 {::comment} description-start: fit-eecr-wave {:/}
-Single buffer fit:
-...
+Fits the so-called EEC model in [Fourmond _et al_, *JACS*2013](http://dx.doi.org/10.1021/ja311607s) 
+to the data.
+
+If `/plateau` is off (default), then the equation used is that for the
+limit where the dispersion of values of $$k_0$$ 
+large $$\beta d_0 \to \infty$$, while the full expression is used in
+the other case.
+
+If `/oxidation` is true, the reference current is the oxidation current
+(and not the reduction current as is the default).
+
+If `/use-eoc` is true, then the open circuit potential is used as a
+parameter rather than the ratio $$k_2/k_{-2}$$.
 {::comment} description-end: fit-eecr-wave {:/}
 
 
@@ -2548,135 +2591,6 @@ Single buffer fit:
 Multi-buffer variant of [`fit-eecr-wave`](#cmd-fit-eecr-wave).
 {::comment} description-end: mfit-eecr-wave {:/}
 
-
-{::comment} synopsis-start: kinetic-system {:/}
-
-### kinetic-system - Kinetic system evolver {#cmd-kinetic-system}
-
-`kinetic-system` _reaction-file_ _parameters_ `/dump=` `/adaptative=` `/step-size=` `/prec-relative=` `/stepper=` `/annotate=`
-
-  * _reaction-file_: 
-  * _parameters_: 
-  * `/dump`: 
-  * `/adaptative`: Whether or not to use adaptative stepper
-  * `/step-size`: Initial step size for the stepper
-  * `/prec-relative`: Relative precision required
-  * `/stepper`: Algorithm used for integration
-  * `/annotate`: If on, a last column will contain the number of function evaluation for each step
-
-{::comment} synopsis-end: kinetic-system {:/}
-{::comment} description-start: kinetic-system {:/}
-...
-{::comment} description-end: kinetic-system {:/}
-
-
-
-{::comment} synopsis-start: mfit-inact-react-amplitude-2phases {:/}
-
-### mfit-inact-react-amplitude-2phases - Multi fit: ... {#cmd-mfit-inact-react-amplitude-2phases}
-
-`mfit-inact-react-amplitude-2phases` _datasets_... `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
-
-  * _datasets_: Datasets to fit
-  * `/parameters`: Pre-loads parameters
-  * `/debug`: Turn on debugging (for QSoas developers only)
-  * `/extra-parameters`: Define supplementary parameters
-  * `/weight-buffers`: Whether or not to weight buffers (off by default)
-
-{::comment} synopsis-end: mfit-inact-react-amplitude-2phases {:/}
-{::comment} description-start: mfit-inact-react-amplitude-2phases {:/}
-multi buffer fit:
-...
-{::comment} description-end: mfit-inact-react-amplitude-2phases {:/}
-
-{::comment} synopsis-start: mfit-kinetic-system {:/}
-
-### mfit-kinetic-system - Multi fit: Full kinetic system {#cmd-mfit-kinetic-system}
-
-`mfit-kinetic-system` _system_ _datasets_... `/adaptative=` `/step-size=` `/prec-relative=` `/stepper=` `/with=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
-
-  * _system_: Path to the file describing the system
-  * _datasets_: Datasets to fit
-  * `/adaptative`: Whether or not to use adaptative stepper
-  * `/step-size`: Initial step size for the stepper
-  * `/prec-relative`: Relative precision required
-  * `/stepper`: Algorithm used for integration
-  * `/with`: Dependency upon time of various parameters
-  * `/parameters`: Pre-loads parameters
-  * `/debug`: Turn on debugging (for QSoas developers only)
-  * `/extra-parameters`: Define supplementary parameters
-  * `/weight-buffers`: Whether or not to weight buffers (off by default)
-
-{::comment} synopsis-end: mfit-kinetic-system {:/}
-{::comment} description-start: mfit-kinetic-system {:/}
-multi buffer fit:
-Fits of exponentials on several steps with film loss bookkeeping
-{::comment} description-end: mfit-kinetic-system {:/}
-
-{::comment} synopsis-start: mfit-multiexp-multistep {:/}
-
-### mfit-multiexp-multistep - Multi fit: Multi-step and multi-exponential {#cmd-mfit-multiexp-multistep}
-
-`mfit-multiexp-multistep` _datasets_... `/exponentials=` `/steps=` `/independent=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
-
-  * _datasets_: Datasets to fit
-  * `/exponentials`: Number of exponentials
-  * `/steps`: Step list with numbered conditions
-  * `/independent`: Whether irreversible loss is independent on each step
-  * `/parameters`: Pre-loads parameters
-  * `/debug`: Turn on debugging (for QSoas developers only)
-  * `/extra-parameters`: Define supplementary parameters
-  * `/weight-buffers`: Whether or not to weight buffers (off by default)
-
-{::comment} synopsis-end: mfit-multiexp-multistep {:/}
-{::comment} description-start: mfit-multiexp-multistep {:/}
-multi buffer fit:
-Fits of exponentials on several steps with film loss bookkeeping
-{::comment} description-end: mfit-multiexp-multistep {:/}
-
-
-{::comment} synopsis-start: mfit-react-exp {:/}
-
-### mfit-react-exp - Multi fit: Exponential reactivation {#cmd-mfit-react-exp}
-
-`mfit-react-exp` _datasets_... `/exponentials=` `/dead=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
-
-  * _datasets_: Datasets to fit
-  * `/exponentials`: Number of exponentials
-  * `/dead`: Whether we include a dead phase or not
-  * `/parameters`: Pre-loads parameters
-  * `/debug`: Turn on debugging (for QSoas developers only)
-  * `/extra-parameters`: Define supplementary parameters
-  * `/weight-buffers`: Whether or not to weight buffers (off by default)
-
-{::comment} synopsis-end: mfit-react-exp {:/}
-{::comment} description-start: mfit-react-exp {:/}
-multi buffer fit:
-Reactivation
-{::comment} description-end: mfit-react-exp {:/}
-
-
-
-
-{::comment} synopsis-start: sim-ececr-wave {:/}
-
-### sim-ececr-wave - Fit: Fit of an ECECR catalytic wave {#cmd-sim-ececr-wave}
-
-sim-ececr-wave parameters datasets... /plateau= /use-eoc= /override= /extra-parameters=
-
-  * parameters: File to load parameters from
-  * datasets: Datasets to fit
-  * /plateau: Whether to use the general expression or only that valid when plateaus are not reached
-  * /use-eoc: Whether to use explicitly the bias or compute it using the open circuit potential
-  * /override: A comma-separated list of parameters to override
-  * /extra-parameters: Define supplementary parameters
-
-{::comment} synopsis-end: sim-ececr-wave {:/}
-{::comment} description-start: sim-ececr-wave {:/}
-fit simulation:
-...
-{::comment} description-end: sim-ececr-wave {:/}
-
 {::comment} synopsis-start: sim-eecr-wave {:/}
 
 ### sim-eecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-sim-eecr-wave}
@@ -2694,15 +2608,39 @@ fit simulation:
 
 {::comment} synopsis-end: sim-eecr-wave {:/}
 {::comment} description-start: sim-eecr-wave {:/}
-fit simulation:
-...
+Simulation for the [`eecr-wave`](#cmd-fit-eecr-wave) fit.
 {::comment} description-end: sim-eecr-wave {:/}
 
-{::comment} synopsis-start: sim-inact-react-amplitude-2phases {:/}
 
-### sim-inact-react-amplitude-2phases - Fit: ... {#cmd-sim-inact-react-amplitude-2phases}
+{::comment} synopsis-start: fit-eecr-relay-wave {:/}
 
-`sim-inact-react-amplitude-2phases` _parameters_ _datasets_... `/override=` `/extra-parameters=` `/reexport=`
+### fit-eecr-relay-wave - Fit: Fit of an EECR+relay catalytic wave {#cmd-fit-eecr-relay-wave}
+
+`fit-eecr-relay-wave` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
+
+  * `/parameters`: Pre-loads parameters
+  * `/debug`: Turn on debugging (for QSoas developers only)
+  * `/extra-parameters`: Define supplementary parameters
+
+{::comment} synopsis-end: fit-eecr-relay-wave {:/}
+{::comment} synopsis-start: mfit-eecr-relay-wave {:/}
+
+### mfit-eecr-relay-wave - Multi fit: Fit of an EECR+relay catalytic wave {#cmd-mfit-eecr-relay-wave}
+
+`mfit-eecr-relay-wave` _datasets_... `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
+
+  * _datasets_: Datasets to fit
+  * `/parameters`: Pre-loads parameters
+  * `/debug`: Turn on debugging (for QSoas developers only)
+  * `/extra-parameters`: Define supplementary parameters
+  * `/weight-buffers`: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-eecr-relay-wave {:/}
+{::comment} synopsis-start: sim-eecr-relay-wave {:/}
+
+### sim-eecr-relay-wave - Fit: Fit of an EECR+relay catalytic wave {#cmd-sim-eecr-relay-wave}
+
+`sim-eecr-relay-wave` _parameters_ _datasets_... `/override=` `/extra-parameters=` `/reexport=`
 
   * _parameters_: File to load parameters from
   * _datasets_: Datasets to fit
@@ -2710,125 +2648,203 @@ fit simulation:
   * `/extra-parameters`: Define supplementary parameters
   * `/reexport`: Do not compute data, just re-export fit parameters and errors
 
-{::comment} synopsis-end: sim-inact-react-amplitude-2phases {:/}
-{::comment} description-start: sim-inact-react-amplitude-2phases {:/}
-fit simulation:
-...
-{::comment} description-end: sim-inact-react-amplitude-2phases {:/}
+{::comment} synopsis-end: sim-eecr-relay-wave {:/}
 
-{::comment} synopsis-start: sim-kinetic-system {:/}
+{::comment} synopsis-start: fit-ecr-wave {:/}
 
-### sim-kinetic-system - Fit: Several steps with a kinetic evolution {#cmd-sim-kinetic-system}
+### fit-ecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-fit-ecr-wave}
 
-sim-kinetic-system parameters datasets... /species= /steps= /override= /extra-parameters=
+`fit-ecr-wave` `/plateau=` `/oxidation=` `/use-eoc=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
 
-  * parameters: File to load parameters from
-  * datasets: Datasets to fit
-  * /species: Number of species
-  * /steps: Step list with numbered conditions
-  * /override: A comma-separated list of parameters to override
-  * /extra-parameters: Define supplementary parameters
+  * `/plateau`: Whether to use the general expression or only that valid when plateaus are not reached
+  * `/oxidation`: ???
+  * `/use-eoc`: Whether to use explicitly the bias or compute it using the open circuit potential
+  * `/parameters`: Pre-loads parameters
+  * `/debug`: Turn on debugging (for QSoas developers only)
+  * `/extra-parameters`: Define supplementary parameters
 
-{::comment} synopsis-end: sim-kinetic-system {:/}
-{::comment} description-start: sim-kinetic-system {:/}
-fit simulation:
-Fits of exponentials on several steps with film loss bookkeeping
-{::comment} description-end: sim-kinetic-system {:/}
+{::comment} synopsis-end: fit-ecr-wave {:/}
+{::comment} synopsis-start: mfit-ecr-wave {:/}
 
-{::comment} synopsis-start: sim-lw {:/}
+### mfit-ecr-wave - Multi fit: Fit of an EECR catalytic wave {#cmd-mfit-ecr-wave}
 
-### sim-lw - Simulate linear wave {#cmd-sim-lw}
+`mfit-ecr-wave` _datasets_... `/plateau=` `/oxidation=` `/use-eoc=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
 
-`sim-lw` _file_ _parameters_...
+  * _datasets_: Datasets to fit
+  * `/plateau`: Whether to use the general expression or only that valid when plateaus are not reached
+  * `/oxidation`: ???
+  * `/use-eoc`: Whether to use explicitly the bias or compute it using the open circuit potential
+  * `/parameters`: Pre-loads parameters
+  * `/debug`: Turn on debugging (for QSoas developers only)
+  * `/extra-parameters`: Define supplementary parameters
+  * `/weight-buffers`: Whether or not to weight buffers (off by default)
 
-  * _file_: System to load
+{::comment} synopsis-end: mfit-ecr-wave {:/}
+{::comment} synopsis-start: sim-ecr-wave {:/}
+
+### sim-ecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-sim-ecr-wave}
+
+`sim-ecr-wave` _parameters_ _datasets_... `/plateau=` `/oxidation=` `/use-eoc=` `/override=` `/extra-parameters=` `/reexport=`
+
+  * _parameters_: File to load parameters from
+  * _datasets_: Datasets to fit
+  * `/plateau`: Whether to use the general expression or only that valid when plateaus are not reached
+  * `/oxidation`: ???
+  * `/use-eoc`: Whether to use explicitly the bias or compute it using the open circuit potential
+  * `/override`: A comma-separated list of parameters to override
+  * `/extra-parameters`: Define supplementary parameters
+  * `/reexport`: Do not compute data, just re-export fit parameters and errors
+
+{::comment} synopsis-end: sim-ecr-wave {:/}
+
+# Computation/simulations functions
+
+The commands in this section in general don't deal with experimental
+data, though most require a buffer to work on, to act as a model for
+the X values. If you're not trying to reproduce experimental data,
+generate the buffers using [`generate-buffer`](#cmd-generate-buffer).
+
+## Evaluation functions
+
+While it is not its primary purpose, QSoas provides various functions
+to evaluate the result of mathematical operations.
+
+{::comment} synopsis-start: eval {:/}
+
+### eval - Ruby eval {#cmd-eval}
+
+`eval` _code_
+
+  * _code_: Any ruby code
+
+{::comment} synopsis-end: eval {:/}
+{::comment} description-start: eval {:/}
+Evaluates the given code as a Ruby expression:
+
+~~~~
+QSoas> eval 2*3
+ => 6
+~~~~
+
+It runs in the same environment as the
+[`apply-formula`](#cmd-apply-formula) and the custom fits (excepted,
+of course, that there are no `x` and `y` variables). It can be useful
+to check that a function has been correctly defined in a file loaded
+by [`ruby-run`](#cmd-ruby-run).
+{::comment} description-end: eval {:/}
+
+{::comment} synopsis-start: find-root {:/}
+
+### find-root - Finds a root {#cmd-find-root}
+
+`find-root` _formula_ _seed_ `/max=`
+
+  * _formula_: An expression of 1 variable (not an equation !)
+  * _seed_: Initial X value from which to search
+  * `/max` (default): If present, uses dichotomy between seed and max
+
+{::comment} synopsis-end: find-root {:/}
+{::comment} description-start: find-root {:/}
+
+Find the root of the given `x`-dependent expression using an iterative
+algorithm, using _seed_ as the initial value. If the `/max` option is
+specified, then the search proceeds using dichotomy between the two
+values.
+
+~~~~
+QSoas> find-root 'x**2 - 3' 1
+Found root at: 1.73205
+~~~~
+
+Do not use a equal sign. The returned value is that for which the
+expression is 0.
+{::comment} description-end: find-root {:/}
+{::comment} synopsis-start: integrate {:/}
+
+### integrate - Integrate expression {#cmd-integrate}
+
+`integrate` _formula_ _a_ _b_ `/integrator=` `/relative-int=` `/absolute-int=`
+
+  * _formula_: An expression of 1 variable (not an equation !)
+  * _a_: Left bound of the segment
+  * _b_: Right bound of the segment
+  * `/integrator`: The algorithm used for integration
+  * `/relative-int`: Relative precision required for integration
+  * `/absolute-int`: Absolute precision required for integration
+
+{::comment} synopsis-end: integrate {:/}
+{::comment} description-start: integrate {:/}
+Computes the integral of the given expression of `x` between bounds
+_a_ and _b_:
+
+~~~~
+QSoas> integrate x**2 10 22
+Integral value: 3216	estimated error: 3.57048e-11	 in 31 evaluations over 1 intervals 
+~~~~
+
+{::comment} description-end: integrate {:/}
+
+{::comment} synopsis-start: generate-buffer {:/}
+
+### generate-buffer - Generate buffer {#cmd-generate-buffer}
+
+`generate-buffer` _start_ _end_ `/samples=` `/formula=`
+
+  * _start_: The first X value
+  * _end_: The last X value
+  * `/samples`: The number of samples
+  * `/formula` (default): Formula to generate the Y values
+
+{::comment} synopsis-end: generate-buffer {:/}
+{::comment} description-start: generate-buffer {:/}
+Generates a buffer with _samples_ samples (by default 1000) uniformly
+spaced between _start_ and _end_.
+
+If formula is provided, it sets Y values according to this formula
+(else Y is take equal to X).
+
+
+~~~~
+QSoas> generate-buffer -10 10 sin(x)
+~~~~
+{::comment} description-end: generate-buffer {:/}
+
+## Simulation functions
+
+
+
+{::comment} synopsis-start: kinetic-system {:/}
+
+### kinetic-system - Kinetic system evolver {#cmd-kinetic-system}
+
+`kinetic-system` _reaction-file_ _parameters_ `/dump=` `/adaptative=` `/step-size=` `/prec-relative=` `/stepper=` `/annotate=`
+
+  * _reaction-file_: 
   * _parameters_: 
+  * `/dump`: 
+  * `/adaptative`: Whether or not to use adaptative stepper
+  * `/step-size`: Initial step size for the stepper
+  * `/prec-relative`: Relative precision required
+  * `/stepper`: Algorithm used for integration
+  * `/annotate`: If on, a last column will contain the number of function evaluation for each step
 
-{::comment} synopsis-end: sim-lw {:/}
-{::comment} description-start: sim-lw {:/}
-...
-{::comment} description-end: sim-lw {:/}
+{::comment} synopsis-end: kinetic-system {:/}
 
-{::comment} synopsis-start: sim-multiexp-multistep {:/}
+{::comment} synopsis-start: ode {:/}
 
-### sim-multiexp-multistep - Fit: Multi-step and multi-exponential {#cmd-sim-multiexp-multistep}
+### ode - ODE solver {#cmd-ode}
 
-`sim-multiexp-multistep` _parameters_ _datasets_... `/exponentials=` `/steps=` `/independent=` `/override=` `/extra-parameters=` `/reexport=`
+`ode` _file_ `/parameters=` `/annotate=` `/adaptative=` `/step-size=` `/prec-relative=` `/stepper=`
 
-  * _parameters_: File to load parameters from
-  * _datasets_: Datasets to fit
-  * `/exponentials`: Number of exponentials
-  * `/steps`: Step list with numbered conditions
-  * `/independent`: Whether irreversible loss is independent on each step
-  * `/override`: A comma-separated list of parameters to override
-  * `/extra-parameters`: Define supplementary parameters
-  * `/reexport`: Do not compute data, just re-export fit parameters and errors
+  * _file_: File containing the system
+  * `/parameters` (default): Values of the extra parameters
+  * `/annotate`: If on, a last column will contain the number of function evaluation for each step
+  * `/adaptative`: Whether or not to use adaptative stepper
+  * `/step-size`: Initial step size for the stepper
+  * `/prec-relative`: Relative precision required
+  * `/stepper`: Algorithm used for integration
 
-{::comment} synopsis-end: sim-multiexp-multistep {:/}
-{::comment} description-start: sim-multiexp-multistep {:/}
-fit simulation:
-Fits of exponentials on several steps with film loss bookkeeping
-{::comment} description-end: sim-multiexp-multistep {:/}
-
-
-{::comment} synopsis-start: sim-react-exp {:/}
-
-### sim-react-exp - Fit: Exponential reactivation {#cmd-sim-react-exp}
-
-`sim-react-exp` _parameters_ _datasets_... `/exponentials=` `/dead=` `/override=` `/extra-parameters=` `/reexport=`
-
-  * _parameters_: File to load parameters from
-  * _datasets_: Datasets to fit
-  * `/exponentials`: Number of exponentials
-  * `/dead`: Whether we include a dead phase or not
-  * `/override`: A comma-separated list of parameters to override
-  * `/extra-parameters`: Define supplementary parameters
-  * `/reexport`: Do not compute data, just re-export fit parameters and errors
-
-{::comment} synopsis-end: sim-react-exp {:/}
-{::comment} description-start: sim-react-exp {:/}
-fit simulation:
-Reactivation
-{::comment} description-end: sim-react-exp {:/}
-
-{::comment} synopsis-start: sim-slow-scan-hp {:/}
-
-### sim-slow-scan-hp - Fit: Slow scan test {#cmd-sim-slow-scan-hp}
-
-`sim-slow-scan-hp` _parameters_ _datasets_... `/bi-exp=` `/scaling=` `/override=` `/extra-parameters=` `/reexport=`
-
-  * _parameters_: File to load parameters from
-  * _datasets_: Datasets to fit
-  * `/bi-exp`: Whether we have a bi-exponential or a mono-exponential
-  * `/scaling`: Use an additional scaling factor
-  * `/override`: A comma-separated list of parameters to override
-  * `/extra-parameters`: Define supplementary parameters
-  * `/reexport`: Do not compute data, just re-export fit parameters and errors
-
-{::comment} synopsis-end: sim-slow-scan-hp {:/}
-{::comment} description-start: sim-slow-scan-hp {:/}
-fit simulation:
-Slow scan
-{::comment} description-end: sim-slow-scan-hp {:/}
-
-{::comment} synopsis-start: sim-slow-scan-lp {:/}
-
-### sim-slow-scan-lp - Fit: Slow scan test {#cmd-sim-slow-scan-lp}
-
-`sim-slow-scan-lp` _parameters_ _datasets_... `/explicit-rate=` `/override=` `/extra-parameters=` `/reexport=`
-
-  * _parameters_: File to load parameters from
-  * _datasets_: Datasets to fit
-  * `/explicit-rate`: Whether the scan rate is an explicit parameter of the fit
-  * `/override`: A comma-separated list of parameters to override
-  * `/extra-parameters`: Define supplementary parameters
-  * `/reexport`: Do not compute data, just re-export fit parameters and errors
-
-{::comment} synopsis-end: sim-slow-scan-lp {:/}
-{::comment} description-start: sim-slow-scan-lp {:/}
-fit simulation:
-Slow scan
-{::comment} description-end: sim-slow-scan-lp {:/}
+{::comment} synopsis-end: ode {:/}
 
 
 # Scripting facilities {#scripting}
@@ -3126,58 +3142,6 @@ letter.
 
 
 {::comment} synopsis-end: film-loss {:/}
-{::comment} synopsis-start: ode {:/}
-
-### ode - ODE solver {#cmd-ode}
-
-`ode` _file_ `/parameters=` `/annotate=` `/adaptative=` `/step-size=` `/prec-relative=` `/stepper=`
-
-  * _file_: File containing the system
-  * `/parameters` (default): Values of the extra parameters
-  * `/annotate`: If on, a last column will contain the number of function evaluation for each step
-  * `/adaptative`: Whether or not to use adaptative stepper
-  * `/step-size`: Initial step size for the stepper
-  * `/prec-relative`: Relative precision required
-  * `/stepper`: Algorithm used for integration
-
-{::comment} synopsis-end: ode {:/}
-{::comment} synopsis-start: fit-eecr-relay-wave {:/}
-
-### fit-eecr-relay-wave - Fit: Fit of an EECR+relay catalytic wave {#cmd-fit-eecr-relay-wave}
-
-`fit-eecr-relay-wave` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
-
-  * `/parameters`: Pre-loads parameters
-  * `/debug`: Turn on debugging (for QSoas developers only)
-  * `/extra-parameters`: Define supplementary parameters
-
-{::comment} synopsis-end: fit-eecr-relay-wave {:/}
-{::comment} synopsis-start: mfit-eecr-relay-wave {:/}
-
-### mfit-eecr-relay-wave - Multi fit: Fit of an EECR+relay catalytic wave {#cmd-mfit-eecr-relay-wave}
-
-`mfit-eecr-relay-wave` _datasets_... `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
-
-  * _datasets_: Datasets to fit
-  * `/parameters`: Pre-loads parameters
-  * `/debug`: Turn on debugging (for QSoas developers only)
-  * `/extra-parameters`: Define supplementary parameters
-  * `/weight-buffers`: Whether or not to weight buffers (off by default)
-
-{::comment} synopsis-end: mfit-eecr-relay-wave {:/}
-{::comment} synopsis-start: sim-eecr-relay-wave {:/}
-
-### sim-eecr-relay-wave - Fit: Fit of an EECR+relay catalytic wave {#cmd-sim-eecr-relay-wave}
-
-`sim-eecr-relay-wave` _parameters_ _datasets_... `/override=` `/extra-parameters=` `/reexport=`
-
-  * _parameters_: File to load parameters from
-  * _datasets_: Datasets to fit
-  * `/override`: A comma-separated list of parameters to override
-  * `/extra-parameters`: Define supplementary parameters
-  * `/reexport`: Do not compute data, just re-export fit parameters and errors
-
-{::comment} synopsis-end: sim-eecr-relay-wave {:/}
 {::comment} synopsis-start: fit-linear-kinetic-system {:/}
 
 ### fit-linear-kinetic-system - Fit: Several steps with a kinetic evolution {#cmd-fit-linear-kinetic-system}
@@ -3240,52 +3204,6 @@ letter.
   * `/reexport`: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-linear-kinetic-system {:/}
-{::comment} synopsis-start: fit-ecr-wave {:/}
-
-### fit-ecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-fit-ecr-wave}
-
-`fit-ecr-wave` `/plateau=` `/oxidation=` `/use-eoc=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
-
-  * `/plateau`: Whether to use the general expression or only that valid when plateaus are not reached
-  * `/oxidation`: ???
-  * `/use-eoc`: Whether to use explicitly the bias or compute it using the open circuit potential
-  * `/parameters`: Pre-loads parameters
-  * `/debug`: Turn on debugging (for QSoas developers only)
-  * `/extra-parameters`: Define supplementary parameters
-
-{::comment} synopsis-end: fit-ecr-wave {:/}
-{::comment} synopsis-start: mfit-ecr-wave {:/}
-
-### mfit-ecr-wave - Multi fit: Fit of an EECR catalytic wave {#cmd-mfit-ecr-wave}
-
-`mfit-ecr-wave` _datasets_... `/plateau=` `/oxidation=` `/use-eoc=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
-
-  * _datasets_: Datasets to fit
-  * `/plateau`: Whether to use the general expression or only that valid when plateaus are not reached
-  * `/oxidation`: ???
-  * `/use-eoc`: Whether to use explicitly the bias or compute it using the open circuit potential
-  * `/parameters`: Pre-loads parameters
-  * `/debug`: Turn on debugging (for QSoas developers only)
-  * `/extra-parameters`: Define supplementary parameters
-  * `/weight-buffers`: Whether or not to weight buffers (off by default)
-
-{::comment} synopsis-end: mfit-ecr-wave {:/}
-{::comment} synopsis-start: sim-ecr-wave {:/}
-
-### sim-ecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-sim-ecr-wave}
-
-`sim-ecr-wave` _parameters_ _datasets_... `/plateau=` `/oxidation=` `/use-eoc=` `/override=` `/extra-parameters=` `/reexport=`
-
-  * _parameters_: File to load parameters from
-  * _datasets_: Datasets to fit
-  * `/plateau`: Whether to use the general expression or only that valid when plateaus are not reached
-  * `/oxidation`: ???
-  * `/use-eoc`: Whether to use explicitly the bias or compute it using the open circuit potential
-  * `/override`: A comma-separated list of parameters to override
-  * `/extra-parameters`: Define supplementary parameters
-  * `/reexport`: Do not compute data, just re-export fit parameters and errors
-
-{::comment} synopsis-end: sim-ecr-wave {:/}
 {::comment} synopsis-start: dataset-options {:/}
 
 ### dataset-options - Options {#cmd-dataset-options}
@@ -3308,31 +3226,6 @@ letter.
   * `/extra-parameters`: Define supplementary parameters
 
 {::comment} synopsis-end: fit-adsorbed {:/}
-{::comment} synopsis-start: fit-eec-transport {:/}
-
-### fit-eec-transport - Fit: Fit of an EEC catalytic wave with transport {#cmd-fit-eec-transport}
-
-`fit-eec-transport` `/plateau=` `/transport=` `/oxidation=` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
-
-  * `/plateau`: Whether to use the general expression or only that valid when plateaus are not reached
-  * `/transport`: If transport is truly on
-  * `/oxidation`: ???
-  * `/parameters`: Pre-loads parameters
-  * `/debug`: Turn on debugging (for QSoas developers only)
-  * `/extra-parameters`: Define supplementary parameters
-
-{::comment} synopsis-end: fit-eec-transport {:/}
-{::comment} synopsis-start: fit-fefe-hp-inact {:/}
-
-### fit-fefe-hp-inact - Fit: High potential inactivation of FeFe hydrogenases {#cmd-fit-fefe-hp-inact}
-
-`fit-fefe-hp-inact` `/parameters=` `/debug=` `/extra-parameters=` **(interactive)**
-
-  * `/parameters`: Pre-loads parameters
-  * `/debug`: Turn on debugging (for QSoas developers only)
-  * `/extra-parameters`: Define supplementary parameters
-
-{::comment} synopsis-end: fit-fefe-hp-inact {:/}
 {::comment} synopsis-start: mfit-adsorbed {:/}
 
 ### mfit-adsorbed - Multi fit: Ideal adsorbed species {#cmd-mfit-adsorbed}
@@ -3347,35 +3240,6 @@ letter.
   * `/weight-buffers`: Whether or not to weight buffers (off by default)
 
 {::comment} synopsis-end: mfit-adsorbed {:/}
-{::comment} synopsis-start: mfit-eec-transport {:/}
-
-### mfit-eec-transport - Multi fit: Fit of an EEC catalytic wave with transport {#cmd-mfit-eec-transport}
-
-`mfit-eec-transport` _datasets_... `/plateau=` `/transport=` `/oxidation=` `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
-
-  * _datasets_: Datasets to fit
-  * `/plateau`: Whether to use the general expression or only that valid when plateaus are not reached
-  * `/transport`: If transport is truly on
-  * `/oxidation`: ???
-  * `/parameters`: Pre-loads parameters
-  * `/debug`: Turn on debugging (for QSoas developers only)
-  * `/extra-parameters`: Define supplementary parameters
-  * `/weight-buffers`: Whether or not to weight buffers (off by default)
-
-{::comment} synopsis-end: mfit-eec-transport {:/}
-{::comment} synopsis-start: mfit-fefe-hp-inact {:/}
-
-### mfit-fefe-hp-inact - Multi fit: High potential inactivation of FeFe hydrogenases {#cmd-mfit-fefe-hp-inact}
-
-`mfit-fefe-hp-inact` _datasets_... `/parameters=` `/debug=` `/extra-parameters=` `/weight-buffers=` **(interactive)**
-
-  * _datasets_: Datasets to fit
-  * `/parameters`: Pre-loads parameters
-  * `/debug`: Turn on debugging (for QSoas developers only)
-  * `/extra-parameters`: Define supplementary parameters
-  * `/weight-buffers`: Whether or not to weight buffers (off by default)
-
-{::comment} synopsis-end: mfit-fefe-hp-inact {:/}
 {::comment} synopsis-start: sim-adsorbed {:/}
 
 ### sim-adsorbed - Fit: Ideal adsorbed species {#cmd-sim-adsorbed}
@@ -3390,50 +3254,3 @@ letter.
   * `/reexport`: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-adsorbed {:/}
-{::comment} synopsis-start: sim-eec-transport {:/}
-
-### sim-eec-transport - Fit: Fit of an EEC catalytic wave with transport {#cmd-sim-eec-transport}
-
-`sim-eec-transport` _parameters_ _datasets_... `/plateau=` `/transport=` `/oxidation=` `/override=` `/extra-parameters=` `/reexport=`
-
-  * _parameters_: File to load parameters from
-  * _datasets_: Datasets to fit
-  * `/plateau`: Whether to use the general expression or only that valid when plateaus are not reached
-  * `/transport`: If transport is truly on
-  * `/oxidation`: ???
-  * `/override`: A comma-separated list of parameters to override
-  * `/extra-parameters`: Define supplementary parameters
-  * `/reexport`: Do not compute data, just re-export fit parameters and errors
-
-{::comment} synopsis-end: sim-eec-transport {:/}
-{::comment} synopsis-start: sim-fefe-hp-inact {:/}
-
-### sim-fefe-hp-inact - Fit: High potential inactivation of FeFe hydrogenases {#cmd-sim-fefe-hp-inact}
-
-`sim-fefe-hp-inact` _parameters_ _datasets_... `/override=` `/extra-parameters=` `/reexport=`
-
-  * _parameters_: File to load parameters from
-  * _datasets_: Datasets to fit
-  * `/override`: A comma-separated list of parameters to override
-  * `/extra-parameters`: Define supplementary parameters
-  * `/reexport`: Do not compute data, just re-export fit parameters and errors
-
-{::comment} synopsis-end: sim-fefe-hp-inact {:/}
-{::comment} synopsis-start: sv-decomp {:/}
-
-### sv-decomp - SV decomposition {#cmd-sv-decomp}
-
-`sv-decomp` `/components=` `/filter=`
-
-  * `/components`: If specified, keeps only that many components
-  * `/filter`: If on, does not decompose, only filter
-
-{::comment} synopsis-end: sv-decomp {:/}
-{::comment} synopsis-start: transpose {:/}
-
-### transpose - Transpose {#cmd-transpose}
-
-`transpose` 
-
-
-{::comment} synopsis-end: transpose {:/}

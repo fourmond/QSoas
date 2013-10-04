@@ -34,10 +34,8 @@ ODEStepperOptions::ODEStepperOptions(const gsl_odeiv2_step_type * t,
 {
 }
 
-QList<Argument*> ODEStepperOptions::commandOptions()
+QHash<QString, const gsl_odeiv2_step_type *> stepperTypes()
 {
-  QList<Argument*> args;
-
   QHash<QString, const gsl_odeiv2_step_type *> types;
   types["rk2"] = gsl_odeiv2_step_rk2;
   types["rk4"] =  gsl_odeiv2_step_rk4;
@@ -50,15 +48,23 @@ QList<Argument*> ODEStepperOptions::commandOptions()
   types["bsimp"] = gsl_odeiv2_step_bsimp;
   types["msadams"] = gsl_odeiv2_step_msadams;
   types["msbdf"] = gsl_odeiv2_step_msbdf;
+  return types;
+}
 
+
+QList<Argument*> ODEStepperOptions::commandOptions()
+{
+  QList<Argument*> args;
   args << new BoolArgument("adaptative", "Adaptative step",
                            "Whether or not to use adaptative stepper")
        << new NumberArgument("step-size", "Step size",
                              "Initial step size for the stepper")
        << new NumberArgument("prec-relative", "Relative precision",
                              "Relative precision required")
+       << new NumberArgument("prec-absolute", "Absolute precision",
+                             "Absolute precision required")
        << new TemplateChoiceArgument<const gsl_odeiv2_step_type *>
-    (types, "stepper", "Stepper algorithm",
+    (stepperTypes(), "stepper", "Stepper algorithm",
      "Algorithm used for integration");
   return args;
 }
@@ -71,17 +77,27 @@ void ODEStepperOptions::parseOptions(const CommandOptions & opts)
   updateFromOptions(opts, "step-size", hStart);
   updateFromOptions(opts, "stepper", type);
   updateFromOptions(opts, "prec-relative", epsRel);
+  updateFromOptions(opts, "prec-absolute", epsAbs);
 }
 
 QString ODEStepperOptions::description() const
 {
-  return QString("%1, with %2step size: %3 %4-- absolute precision: %5, relative precision: %6").
+  QString s = "unknown";
+  QHash<QString, const gsl_odeiv2_step_type *> types = stepperTypes();
+  for(auto i = types.begin(); i != types.end(); i++) {
+    if(i.value() == type) {
+      s = i.key();
+      break;
+    }
+  }
+  return QString("%7 %1, with %2step size: %3 %4-- absolute precision: %5, relative precision: %6").
     arg(fixed ? "fixed" : "adaptative").
     arg(fixed ? "" : "initial ").
     arg(hStart).
     arg(hStart == 0 && fixed ? "(step is data delta_t) " :"").
     arg(epsAbs).
-    arg(epsRel);
+    arg(epsRel).
+    arg(s);
 }
 
 //////////////////////////////////////////////////////////////////////

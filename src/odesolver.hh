@@ -46,7 +46,7 @@ public:
   bool fixed;
 
   ODEStepperOptions(const gsl_odeiv2_step_type * t = gsl_odeiv2_step_rkf45,
-                    double hs = 0.01, double ea = 1e-5, 
+                    double hs = 0.01, double ea = 0, 
                     double er = 1e-5, bool fixed = false);
 
   /// Returns a list of commandOptions suitable to add to stepper

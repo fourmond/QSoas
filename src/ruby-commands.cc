@@ -205,8 +205,14 @@ static void stripIfCommand(const QString &, QString formula)
   int dropped = 0;
 
   /// @todo Fix segments !
-  loopOverDataset(ds, [&dropped, &newcols, &exp, ds] (double * args, 
-                                                      double * data){
+  QList<int> segs;
+  int lastSeg = 0;
+  loopOverDataset(ds, [&, ds] (double * args, 
+                               double * data){
+      if( (int) args[1] > lastSeg) {
+        segs << ds->segments[lastSeg] - dropped;
+        lastSeg = args[1];
+      }
       if(! exp.evaluateAsBoolean(args)) {
         for(int j = 0; j < ds->nbColumns(); j++)
           newcols[j] << data[j];
@@ -216,7 +222,9 @@ static void stripIfCommand(const QString &, QString formula)
     });
 
   Terminal::out << "Removed " << dropped << " points" << endl;
-  soas().pushDataSet(ds->derivedDataSet(newcols, "_trimmed.dat"));
+  DataSet * nds = ds->derivedDataSet(newcols, "_trimmed.dat");
+  nds->segments = segs;
+  soas().pushDataSet(nds);
 }
 
 

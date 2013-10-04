@@ -264,8 +264,8 @@ void ODESolver::stepTo(double to)
   int status = stepper.apply(&t, to, yValues);
   if(status != GSL_SUCCESS) {
     throw RuntimeError("Integration failed to give the desired "
-                       "precision stepping from %1 to %2").
-      arg(t).arg(to);
+                       "precision stepping from %1 to %2: %3").
+      arg(t).arg(to).arg(gsl_strerror(status));
   }
 }
 

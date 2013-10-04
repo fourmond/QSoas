@@ -136,6 +136,14 @@ protected:
   void internalCompute();
 
 
+  /// Writes a message, with immediate display
+  void message(const QString & str);
+
+
+  /// Appends the given text to the current message
+  void appendToMessage(const QString & str, bool format = false);
+
+
 public:
   FitDialog(FitData * data, bool displayWeights = false);
   ~FitDialog();

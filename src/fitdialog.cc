@@ -83,6 +83,26 @@ FitDialog::~FitDialog()
   fitDialogSize = size();
 }
 
+void FitDialog::message(const QString & str)
+{
+  if(progressReport) {
+    progressReport->setText(str);
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+  }
+}
+
+void FitDialog::appendToMessage(const QString & str, bool format)
+{
+  if(progressReport) {
+    QString txt = progressReport->text();
+    if(format)
+      txt = str.arg(txt);
+    else
+      txt += str;
+    message(txt);
+  }
+}
+
 void FitDialog::setupFrame()
 {
   QVBoxLayout * layout = new QVBoxLayout(this);
@@ -400,13 +420,14 @@ void FitDialog::internalCompute()
 void FitDialog::compute()
 {
   try {
+    message("Computing...");
     internalCompute();
+    appendToMessage(" done");
   }
   catch (const RuntimeError & re) {
     QString s = QString("An error occurred while computing: ") +
       re.message();
-    if(progressReport)
-      progressReport->setText(s);
+    message(s);
     Terminal::out << s << endl;
   }
   if(stackedViews && stackedViews->currentWidget())
@@ -468,8 +489,8 @@ void FitDialog::startFit()
 
     cancelButton->setVisible(true);
     startButton->setVisible(false);
-    progressReport->setText(QString("Starting fit with %1 free parameters").
-                            arg(params));
+    message(QString("Starting fit with %1 free parameters").
+            arg(params));
 
   
 
@@ -482,7 +503,7 @@ void FitDialog::startFit()
         arg(data->nbIterations).arg(residuals);
       Terminal::out << str << endl;
 
-      progressReport->setText(str);
+      message(str);
       parameters.retrieveParameters();
       updateEditors();
 
@@ -513,7 +534,7 @@ void FitDialog::startFit()
         updateEditors(true);
       }
     }
-    progressReport->setText(progressReport->text() + mention);
+    appendToMessage(mention);
       
   }
   catch (const RuntimeError & re) {
@@ -524,8 +545,8 @@ void FitDialog::startFit()
       parameters.retrieveParameters();
       updateEditors();
     }
-    progressReport->setText(QString("An error occurred while fitting: ") +
-                            re.message());
+    message(QString("An error occurred while fitting: ") +
+            re.message());
     QTextStream o(stdout);
     o << "Backtrace:\n\t" << re.exceptionBacktrace().join("\n\t") << endl;
   }
@@ -656,6 +677,7 @@ void FitDialog::loadParametersFile(const QString & file, int targetDS)
     return;                     /// @todo Signal !
   QString msg;
   try {
+    message(QString("Loading from file %1...").arg(file));
     parameters.loadParameters(&f, targetDS);
     updateEditors();
     internalCompute();
@@ -666,7 +688,7 @@ void FitDialog::loadParametersFile(const QString & file, int targetDS)
       arg(file) + e.message();
   }
   Terminal::out << msg << endl;
-  progressReport->setText(msg);
+  message(msg);
 }
 
 void FitDialog::overrideParameter(const QString & name, double value)
@@ -826,7 +848,7 @@ void FitDialog::halfWeight()
 void FitDialog::resetParameters()
 {
   setParameterValues(parametersBackup);
-  progressReport->setText(tr("Restored parameters"));
+  message("Restored parameters");
 }
 
 void FitDialog::displayTrajectories()

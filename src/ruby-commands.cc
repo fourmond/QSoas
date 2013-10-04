@@ -42,6 +42,50 @@
 
 //////////////////////////////////////////////////////////////////////
 
+static QStringList prepareArgs(const DataSet * ds, int extra = 0,
+                               QStringList * cn = NULL)
+{
+  QStringList vars;
+  vars << "i" << "seg";
+
+  QStringList colNames;
+  colNames << "x" << "y";
+  for(int i = 2; i < ds->nbColumns() + extra; i++)
+    colNames << QString("y%1").arg(i);
+
+  vars += colNames;
+  if(cn)
+    *cn = colNames;
+
+  return vars;
+}
+
+static void loopOverDataset(const DataSet * ds, 
+                            std::function<void (double * args, 
+                                                double * cols)> loop, 
+                            int extra = 0)
+{
+  int size = ds->x().size();
+  int seg = 0;
+  int origCols = ds->nbColumns();
+  int columns = origCols + extra;
+  QVarLengthArray<double, 50> args(columns + 2);
+  for(int i = 0; i < size; i++) {
+    while(seg < ds->segments.size() && i >= ds->segments[seg])
+      seg++;
+    args[0] = i;                // the index !
+    args[1] = seg;
+
+    for(int j = 0; j < columns; j++) {
+      if(j >= origCols)
+        args[j+2] = 0;
+      else
+        args[j+2] = ds->column(j)[i];
+    }
+    loop(args.data(), args.data() + 2);
+  }
+}
+
 
 // Paradoxally, this command isn't really anymore related to Ruby --
 // or much less than before
@@ -77,15 +121,9 @@ static void applyFormulaCommand(const QString &, QString formula,
 
   Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
     arg(formula).arg(ds->name) << endl;
-  QStringList vars;
-  vars << "i" << "seg";
 
   QStringList colNames;
-  colNames << "x" << "y";
-  for(int i = 2; i < ds->nbColumns() + extra; i++)
-    colNames << QString("y%1").arg(i);
-
-  vars += colNames;
+  QStringList vars = prepareArgs(ds, extra, &colNames);
 
   formula = QString("%1\n%3\n[%2]").
     arg(vars.join("\n")).
@@ -98,29 +136,14 @@ static void applyFormulaCommand(const QString &, QString formula,
   QList<Vector> newCols;
   for(int i = 0; i < ds->nbColumns() + extra; i++)
     newCols << Vector();
-  
-  int size = ds->x().size();
-  int seg = 0;
-  for(int i = 0; i < size; i++) {
-    QVarLengthArray<double, 50> args(newCols.size() + 2);
-    QVarLengthArray<double, 50> ret(newCols.size());
 
-    while(seg < ds->segments.size() && i >= ds->segments[seg])
-      seg++;
-    
-    args[0] = i;                // the index !
-    args[1] = seg;
+  QVarLengthArray<double, 50> ret(newCols.size());
+  loopOverDataset(ds, [&newCols, &exp, &ret](double *args, double *) {
+      exp.evaluateIntoArray(args, ret.data(), ret.size());
+      for(int j = 0; j < ret.size(); j++)
+        newCols[j].append(ret[j]);
+    }, extra);
 
-    for(int j = 0; j < newCols.size(); j++) {
-      if(j >= ds->nbColumns())
-        args[j+2] = 0;
-      else
-        args[j+2] = ds->column(j)[i];
-    }
-    exp.evaluateIntoArray(args.data(), ret.data(), ret.size());
-    for(int j = 0; j < ret.size(); j++)
-      newCols[j].append(ret[j]);
-  }
   if(useStats)
     rb_gv_set("$stats", oldStats);
 
@@ -171,9 +194,8 @@ static void stripIfCommand(const QString &, QString formula)
   const DataSet * ds = soas().currentDataSet();
   Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
     arg(formula).arg(ds->name) << endl;
-  QStringList vars;
-  vars << "x" << "y";              // @todo handle the case of a
-                                   // larger number of columns
+
+  QStringList vars = prepareArgs(ds);
 
   Expression exp(formula, vars);
 
@@ -181,20 +203,17 @@ static void stripIfCommand(const QString &, QString formula)
   for(int i = 0; i < ds->nbColumns(); i++)
     newcols << Vector();
   int dropped = 0;
-  {
-    const Vector & xc = ds->x();
-    QVarLengthArray<double, 1000> vars(ds->nbColumns());
-    for(int i = 0; i < xc.size(); i++) {
-      for(int j = 0; j < ds->nbColumns(); j++)
-        vars[j] = ds->column(j)[i];
-      if(! exp.evaluateAsBoolean(vars.data())) {
+
+  /// @todo Fix segments !
+  loopOverDataset(ds, [&dropped, &newcols, &exp, ds] (double * args, 
+                                                      double * data){
+      if(! exp.evaluateAsBoolean(args)) {
         for(int j = 0; j < ds->nbColumns(); j++)
-          newcols[j] << vars[j];
+          newcols[j] << data[j];
       }
       else
         ++dropped;
-    }
-  }
+    });
 
   Terminal::out << "Removed " << dropped << " points" << endl;
   soas().pushDataSet(ds->derivedDataSet(newcols, "_trimmed.dat"));

@@ -22,7 +22,7 @@
 #include <curvepanel.hh>
 #include <curveview.hh>
 
-CEHideAll::CEHideAll(CurvePanel * tg) :
+CEHideAll::CEHideAll(CurvePanel * tg, bool doHide) :
   target(tg)
 {
   QList<CurveItem *> items = target->items();
@@ -30,7 +30,8 @@ CEHideAll::CEHideAll(CurvePanel * tg) :
     CurveItem * it = items[i];
     if(it && (!it->hidden)) {
       initiallyVisibleItems << it;
-      it->hidden = true;
+      if(doHide)
+        it->hidden = true;
     }
   }
 }

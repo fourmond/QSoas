@@ -26,6 +26,8 @@ class CurveItem;
 
 /// Hides everything currently displayed in a panel, until the
 /// effector goes out of scope.
+///
+/// If
 class CEHideAll {
   /// The list of objects that are initially visible
   QList< QPointer<CurveItem> > initiallyVisibleItems;
@@ -33,7 +35,7 @@ class CEHideAll {
   /// The target panel
   CurvePanel * target;
 public:
-  CEHideAll(CurvePanel * tg);
+  CEHideAll(CurvePanel * tg, bool doHide = true);
   ~CEHideAll();
 };
 

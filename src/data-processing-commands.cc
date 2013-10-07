@@ -51,6 +51,7 @@
 
 #include <peaks.hh>
 #include <idioms.hh>
+#include <curve-effectors.hh>
 
 #include <msolver.hh>
 
@@ -834,6 +835,9 @@ namespace __bs {
     const GraphicsSettings & gs = soas().graphicsSettings();
 
     CurveView & view = soas().view();
+
+    CEHideAll ha(view.mainPanel(), false);
+
     CurvePanel bottom;
     /// @todo This assumes that the currently displayed dataset is the
     /// first one.
@@ -1065,6 +1069,9 @@ namespace __fft {
   CurvePanel spectrum;
 
   CurveItem * dsDisplay = view.mainPanel()->items().first();
+
+  CEHideAll ha(view.mainPanel(), false);
+
   CurveData d;
   CurveData diff;
   CurveData baseline;
@@ -1876,7 +1883,10 @@ static void deldpCommand(CurveEventLoop &loop, const QString &)
   const DataSet * ds = soas().currentDataSet();
   const GraphicsSettings & gs = soas().graphicsSettings();
 
+
   CurveView & view = soas().view();
+
+  CEHideAll ha(view.mainPanel(), false);
 
   DataSet * newds = ds->derivedDataSet(ds->y(), "_deldp.dat");
 

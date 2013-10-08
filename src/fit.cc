@@ -92,7 +92,7 @@ void Fit::makeCommands(ArgumentList * args,
 
   ArgumentList * options;
   if(! originalOptions) 
-    options = new ArgumentList();
+    options = new ArgumentList;
   else 
     options = new ArgumentList(*originalOptions);
 

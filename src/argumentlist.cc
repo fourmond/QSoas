@@ -30,7 +30,7 @@ ArgumentList::ArgumentList(const QList<Argument *> & lst)
 {
 }
 
-ArgumentList::ArgumentList() : greedyArg(-1)
+ArgumentList::ArgumentList() : greedyArg(-1), defaultOptionIndex(-1)
 {
 }
 

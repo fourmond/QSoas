@@ -66,9 +66,10 @@ class HyperbolicRangeBijection : public Bijection {
     b = parameterValues[1];
     if(a > b)
       std::swap(a, b);
-    if(a == b)
-      b = a + 1;                // Whatever, anyway that doesn't make
-                                // sense.
+    if(a == b) {
+      a -= 100;
+      b += 100;
+    }
   };
 public:
   
@@ -98,9 +99,9 @@ public:
   virtual double backward(double y) const {
     double a,b;
     prepare(a,b);
-    if(y < a)
+    if(y <= a)
       return -80;
-    if(y > b) 
+    if(y >= b) 
       return +80;
 
     double sc = 2 * (y - 0.5 * (a+b))/(b - a);

@@ -122,6 +122,25 @@ protected:
   /// Registers the given fit
   static void registerFit(Fit * fit);
 
+
+  /// This function returns the arguments to the fit, ie the stuff
+  /// that have to be passed to the fit function.
+  ///
+  /// Mostly empty
+  virtual ArgumentList * fitArguments() const;
+
+  /// The options to the fit, ie the options whose value may affect
+  /// the number/interepretation of the fit parameters.
+  ///
+  /// Any change to these options must happen before the start of the
+  /// fit.
+  virtual ArgumentList * fitHardOptions() const;
+
+  /// These options can be provided before the beginning of the fit,
+  /// but they can be changed from within the dialog box without
+  /// adverse effects.
+  virtual ArgumentList * fitSoftOptions() const;
+
 public:
 
   /// Returns the name of all the available fits.

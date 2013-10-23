@@ -72,6 +72,25 @@ void Fit::functionForDataset(const double * parameters,
   function(parameters, data, target);
 }
 
+
+ArgumentList * Fit::fitArguments() const
+{
+  return NULL;
+}
+
+ArgumentList * Fit::fitHardOptions() const
+{
+  return NULL;
+}
+
+ArgumentList * Fit::fitSoftOptions() const
+{
+  return NULL;
+}
+
+
+/// @todo This function needs to be rewritten (with completely
+/// different arguments, for that matter).
 void Fit::makeCommands(ArgumentList * args, 
                        CommandEffector * singleFit,
                        CommandEffector * multiFit,
@@ -87,14 +106,28 @@ void Fit::makeCommands(ArgumentList * args,
   ld += longDesc;
 
   ArgumentList * fal = NULL;
+  if(! args)
+    args = fitArguments();
   if(args) 
     fal = new ArgumentList(*args);
 
   ArgumentList * options;
-  if(! originalOptions) 
-    options = new ArgumentList;
+  if(! originalOptions) {
+    originalOptions = new ArgumentList;
+    ArgumentList * tmp = fitHardOptions();
+    if(tmp)
+      (*originalOptions) << *tmp;
+    tmp = fitSoftOptions();
+    if(tmp)
+      (*originalOptions) << *tmp;
+    options = new ArgumentList(*originalOptions);
+  }
   else 
     options = new ArgumentList(*originalOptions);
+
+  *options << new StringArgument("extra-parameters", 
+                                 "Extra parameters",
+                                 "Define supplementary parameters");
 
   *options << new FileArgument("parameters", 
                                "Parameters",
@@ -103,11 +136,6 @@ void Fit::makeCommands(ArgumentList * args,
                                "Debug",
                                "Turn on debugging (for QSoas developers only)");
 
-  /// @todo This probably should use a SeveralStringsArgument when
-  /// available.
-  *options << new StringArgument("extra-parameters", 
-                                 "Extra parameters",
-                                 "Define supplementary parameters");
 
 
   // We don't declare the fit command when multiple datasets are
@@ -169,6 +197,7 @@ void Fit::makeCommands(ArgumentList * args,
     ArgumentList * nopts = 
       (originalOptions ? new ArgumentList(*originalOptions) : 
        new ArgumentList());
+
 
     *nopts << new StringArgument("override",
                                  "Override parameters",

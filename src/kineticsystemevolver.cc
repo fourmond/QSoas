@@ -661,31 +661,38 @@ public:
 
   };
 
-  KineticSystemFit() :
-    PerDatasetFit("kinetic-system", 
-                  "Full kinetic system",
-                  "", 1, -1, false), system(NULL), evolver(NULL)
-  { 
-
-    ArgumentList * al = new 
+  virtual ArgumentList * fitArguments() const {
+    return new 
       ArgumentList(QList<Argument *>()
                    << new FileArgument("system", 
                                        "System",
                                        "Path to the file describing the "
                                        "system"));
+  };
 
-    ArgumentList * opts = new 
-      ArgumentList(ODEStepperOptions::commandOptions()
+  virtual ArgumentList * fitSoftOptions() const {
+    return new ArgumentList(ODEStepperOptions::commandOptions());
+  };
+
+  virtual ArgumentList * fitHardOptions() const {
+    return new 
+      ArgumentList(QList<Argument *>()
                    << new SeveralStringsArgument("with", 
                                                  "Time dependent parameters",
                                                  "Dependency upon time of "
                                                  "various parameters")
                    );
+  };
 
-    makeCommands(al, 
+  KineticSystemFit() :
+    PerDatasetFit("kinetic-system", 
+                  "Full kinetic system",
+                  "", 1, -1, false), system(NULL), evolver(NULL)
+  { 
+    makeCommands(NULL, 
                  effector(this, &KineticSystemFit::runFitCurrentDataSet, true),
                  effector(this, &KineticSystemFit::runFit, true),
-                 opts,
+                 NULL,
                  effector(this, &KineticSystemFit::computeFit)
                  );
   };

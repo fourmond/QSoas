@@ -158,30 +158,38 @@ public:
     }
   };
 
-  CatalyticWaveFit() :
-    PerDatasetFit("catalytic-wave", 
-                  "Catalytic wave",
-                  "", 1, -1, false), system(NULL), solver(NULL)
-  { 
-
+  virtual ArgumentList * fitArguments() const {
     ArgumentList * al = new 
       ArgumentList(QList<Argument *>()
                    << new FileArgument("system", 
                                        "System",
                                        "Path to the file describing the "
                                        "system"));
+    return al;
+  };
 
+  virtual ArgumentList * fitHardOptions() const {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new BoolArgument("dispersion", 
                                        "Dispersion",
                                        "If on, handles the dispersion of k_0 values")
                    );
+    return opts;
+  };
 
-    makeCommands(al, 
+  CatalyticWaveFit() :
+    PerDatasetFit("catalytic-wave", 
+                  "Catalytic wave",
+                  "", 1, -1, false), system(NULL), solver(NULL)
+  { 
+
+
+
+    makeCommands(NULL, 
                  effector(this, &CatalyticWaveFit::runFitCurrentDataSet, true),
                  effector(this, &CatalyticWaveFit::runFit, true),
-                 opts);
+                 NULL);
   };
 };
 

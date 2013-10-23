@@ -123,6 +123,16 @@ protected:
   static void registerFit(Fit * fit);
 
 
+
+public:
+
+  /// Returns the name of all the available fits.
+  static QStringList availableFits();
+
+  /// Returns the named fit. (or null)
+  static Fit * namedFit(const QString & name);
+
+
   /// This function returns the arguments to the fit, ie the stuff
   /// that have to be passed to the fit function.
   ///
@@ -141,13 +151,11 @@ protected:
   /// adverse effects.
   virtual ArgumentList * fitSoftOptions() const;
 
-public:
 
-  /// Returns the name of all the available fits.
-  static QStringList availableFits();
-
-  /// Returns the named fit. (or null)
-  static Fit * namedFit(const QString & name);
+  /// This function processes the soft options, ie the ones returned
+  /// by fitSoftOptions(). They MUST NOT change the number of
+  /// parameters in the fit, else it will be a big mess.
+  virtual void processSoftOptions(const CommandOptions & opts);
 
   /// The fit name
   QString fitName(bool includeOptions = true) const {

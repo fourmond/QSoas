@@ -88,8 +88,12 @@ ArgumentList * Fit::fitSoftOptions() const
   return NULL;
 }
 
+void Fit::processSoftOptions(const CommandOptions & opts)
+{
+}
 
-/// @todo This function needs to be rewritten (with completely
+
+/// @todo This function probably needs to be rewritten (with completely
 /// different arguments, for that matter).
 void Fit::makeCommands(ArgumentList * args, 
                        CommandEffector * singleFit,

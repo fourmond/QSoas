@@ -423,29 +423,7 @@ protected:
     QStringList lst;
     updateFromOptions(opts, "with", lst);
 
-    // Parse ODEStepperOptions
-    ODEStepperOptions op = evolver->getStepperOptions();
-    op.fixed = false;           // Drop non-adaptative steps !
-    op.parseOptions(opts);
-
-    if(op.fixed) {
-      // Decrease drastically the precision !
-      op.epsAbs = 1e-2;
-      op.epsRel = 1e-2;
-
-      // By default, set the step size to 0 in that case 
-      // (meaning make one step by data point)
-      op.hStart = 0;
-      op.parseOptions(opts);    // Parse again in case the step was
-                                // set in the options
-    }
-
-    evolver->setStepperOptions(op);
-
-    // Dump the options on the terminal ?
-    Terminal::out << "Using integrator parameters: " 
-                  << op.description() << endl;
-    
+    processSoftOptions(opts);
 
     int baseIndex = 0;
 
@@ -539,6 +517,31 @@ protected:
   }
 
 public:
+
+  virtual void processSoftOptions(const CommandOptions & opts) {
+    // Parse ODEStepperOptions
+    ODEStepperOptions op = evolver->getStepperOptions();
+    op.fixed = false;           // Drop non-adaptative steps !
+    op.parseOptions(opts);
+
+    if(op.fixed) {
+      // Decrease drastically the precision !
+      op.epsAbs = 1e-2;
+      op.epsRel = 1e-2;
+
+      // By default, set the step size to 0 in that case 
+      // (meaning make one step by data point)
+      op.hStart = 0;
+      op.parseOptions(opts);    // Parse again in case the step was
+                                // set in the options
+    }
+
+    evolver->setStepperOptions(op);
+
+    // Dump the options on the terminal ?
+    Terminal::out << "Using integrator parameters: " 
+                  << op.description() << endl;
+  };
 
   virtual QList<ParameterDefinition> parameters() const {
     QList<ParameterDefinition> defs;

@@ -110,11 +110,7 @@ public:
     return params;
   };
 
-
-  SlowScanLowPotFit() : PerDatasetFit("slow-scan-lp", 
-                                      "Slow scan test",
-                                      "Slow scan", 1, -1, false)  { 
-    explicitRate = false;
+  virtual ArgumentList * fitHardOptions() const {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new 
@@ -123,9 +119,16 @@ public:
                                 "Whether the scan rate is an explicit "
                                 "parameter of the fit")
                    );
-    makeCommands(NULL, NULL, NULL, opts);
+    return opts;
+  };
 
-;};
+  SlowScanLowPotFit() : PerDatasetFit("slow-scan-lp", 
+                                      "Slow scan test",
+                                      "Slow scan", 1, -1, false)  { 
+    explicitRate = false;
+    makeCommands();
+
+  };
 };
 
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
@@ -240,11 +243,7 @@ public:
     return ret;
   };
 
-
-  SlowScanHighPotFit() : 
-    PerDatasetFit("slow-scan-hp", 
-                  "Slow scan test",
-                  "Slow scan", 1, -1, false), biExp(false) { 
+  virtual ArgumentList * fitHardOptions() const {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new 
@@ -257,7 +256,14 @@ public:
                                 "Scaling",
                                 "Use an additional scaling factor")
                    );
-    makeCommands(NULL, NULL, NULL, opts);
+    return opts;
+  };
+
+  SlowScanHighPotFit() : 
+    PerDatasetFit("slow-scan-hp", 
+                  "Slow scan test",
+                  "Slow scan", 1, -1, false), biExp(false) { 
+    makeCommands();
   };
 };
 
@@ -365,12 +371,7 @@ public:
     return defs;
   };
 
-
-  ECRFit() :
-    PerDatasetFit("ecr-wave", 
-                  "Fit of an EECR catalytic wave",
-                  "...", 1, -1, false) 
-  { 
+  virtual ArgumentList * fitHardOptions() const {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new 
@@ -388,7 +389,15 @@ public:
                                 "Whether to use explicitly the bias or compute "
                                 "it using the open circuit potential")
                    );
-    makeCommands(NULL, NULL, NULL, opts);
+    return opts;
+  };
+
+  ECRFit() :
+    PerDatasetFit("ecr-wave", 
+                  "Fit of an EECR catalytic wave",
+                  "...", 1, -1, false) 
+  { 
+    makeCommands();
   }
 };
 
@@ -511,12 +520,7 @@ public:
     return defs;
   };
 
-
-  EECRFit() :
-    PerDatasetFit("eecr-wave", 
-                  "Fit of an EECR catalytic wave",
-                  "...", 1, -1, false) 
-  { 
+  virtual ArgumentList * fitHardOptions() const {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new 
@@ -534,7 +538,16 @@ public:
                                 "Whether to use explicitly the bias or compute "
                                 "it using the open circuit potential")
                    );
-    makeCommands(NULL, NULL, NULL, opts);
+    return opts;
+  };
+
+
+  EECRFit() :
+    PerDatasetFit("eecr-wave", 
+                  "Fit of an EECR catalytic wave",
+                  "...", 1, -1, false) 
+  { 
+    makeCommands();
   }
 };
 
@@ -705,10 +718,7 @@ public:
                   "Fit of an EECR+relay catalytic wave",
                   "...", 1, -1, false) 
   { 
-    ArgumentList * opts = new 
-      ArgumentList(QList<Argument *>()
-                   );
-    makeCommands(NULL, NULL, NULL, opts);
+    makeCommands();
   }
 };
 
@@ -875,10 +885,7 @@ public:
                   "High potential inactivation of FeFe hydrogenases",
                   "...", 1, -1, false) 
   { 
-    ArgumentList * opts = new 
-      ArgumentList(QList<Argument *>()
-                   );
-    makeCommands(NULL, NULL, NULL, opts);
+    makeCommands();
   }
 };
 
@@ -1083,12 +1090,7 @@ public:
     return defs;
   };
 
-
-  EECTransportFit() :
-    PerDatasetFit("eec-transport", 
-                  "Fit of an EEC catalytic wave with transport",
-                  "...", 1, -1, false) 
-  { 
+  virtual ArgumentList * fitHardOptions() const {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new 
@@ -1105,7 +1107,15 @@ public:
                                 "...",
                                 "???")
                    );
-    makeCommands(NULL, NULL, NULL, opts);
+    return opts;
+  };
+
+  EECTransportFit() :
+    PerDatasetFit("eec-transport", 
+                  "Fit of an EEC catalytic wave with transport",
+                  "...", 1, -1, false) 
+  { 
+    makeCommands();
   }
 };
   

@@ -136,6 +136,17 @@ public:
     return system->computeCurrent(x, a[0], params.data());
   }
 
+  virtual ArgumentList * fitHardOptions() const {
+    ArgumentList * opts = new 
+      ArgumentList(QList<Argument *>()
+                   << new StringArgument("reference-rate",
+                                         "Reference rate",
+                                         "The reference rate, ie the one "
+                                         "used for real current determination; "
+                                         "all the other rates are relative to this one" )
+                   );
+    return opts;
+  };
 
   LinearWaveFit(const char * name, LinearWave * sys) : 
     FunctionFit(name, 
@@ -146,15 +157,7 @@ public:
                 "Already defined constants: f, pi",
                 1, -1, false), system(sys)
   { 
-    ArgumentList * opts = new 
-      ArgumentList(QList<Argument *>()
-                   << new StringArgument("reference-rate",
-                                         "Reference rate",
-                                         "The reference rate, ie the one "
-                                         "used for real current determination; "
-                                         "all the other rates are relative to this one" )
-                   );
-    makeCommands(NULL, NULL, NULL, opts);
+    makeCommands();
 
     // We need to pick up a reference rate;
     referenceRate = 0;
@@ -164,8 +167,6 @@ public:
   };
 
 };
-
-//////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////
 

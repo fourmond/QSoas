@@ -449,12 +449,7 @@ public:
     
   };
 
-  LinearKineticSystemFit() :
-    PerDatasetFit("linear-kinetic-system", 
-                  "Several steps with a kinetic evolution",
-                  "Fits of exponentials on several steps with "
-                  "film loss bookkeeping", 1, -1, false) 
-  { 
+  virtual ArgumentList * fitHardOptions() const {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new IntegerArgument("species", 
@@ -471,7 +466,16 @@ public:
                                            "Steps",
                                            "Step list with numbered conditions")
                    );
-    makeCommands(NULL, NULL, NULL, opts);
+    return opts;
+  };
+
+  LinearKineticSystemFit() :
+    PerDatasetFit("linear-kinetic-system", 
+                  "Several steps with a kinetic evolution",
+                  "Fits of exponentials on several steps with "
+                  "film loss bookkeeping", 1, -1, false) 
+  { 
+    makeCommands();
   };
 };
 

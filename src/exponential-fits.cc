@@ -207,12 +207,7 @@ public:
                       targetData);
   };
 
-
-  ExponentialFit() :
-    PerDatasetFit("exponential-decay", 
-                  "Multi-exponential fits",
-                  "...", 1, -1, false) 
-  { 
+  virtual ArgumentList * fitHardOptions() const {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new IntegerArgument("exponentials", 
@@ -232,7 +227,15 @@ public:
                                 "Slow phase",
                                 "Is there a very slow phase ?")
                    );
-    makeCommands(NULL, NULL, NULL, opts);
+    return opts;
+  };
+
+  ExponentialFit() :
+    PerDatasetFit("exponential-decay", 
+                  "Multi-exponential fits",
+                  "...", 1, -1, false) 
+  { 
+    makeCommands();
   };
 
 
@@ -455,12 +458,7 @@ public:
     
   };
 
-  MultiExpMultiStepFit() :
-    PerDatasetFit("multiexp-multistep", 
-                  "Multi-step and multi-exponential",
-                  "Fits of exponentials on several steps with "
-                  "film loss bookkeeping", 1, -1, false) 
-  { 
+  virtual ArgumentList * fitHardOptions() const {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new IntegerArgument("exponentials", 
@@ -476,7 +474,16 @@ public:
                                 "Whether irreversible loss is independent on "
                                 "each step")
                    );
-    makeCommands(NULL, NULL, NULL, opts);
+    return opts;
+  };
+
+  MultiExpMultiStepFit() :
+    PerDatasetFit("multiexp-multistep", 
+                  "Multi-step and multi-exponential",
+                  "Fits of exponentials on several steps with "
+                  "film loss bookkeeping", 1, -1, false) 
+  { 
+    makeCommands();
   };
 };
 
@@ -568,12 +575,7 @@ public:
     return a[1] * val;
   };
 
-
-  ExponentialReactivationFit() :
-    FunctionFit("react-exp", 
-                "Exponential reactivation",
-                "Reactivation", 1, -1, false) 
-  { 
+  virtual ArgumentList * fitHardOptions() const {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new IntegerArgument("exponentials", 
@@ -583,7 +585,15 @@ public:
                    BoolArgument("dead", 
                                 "Dead",
                                 "Whether we include a dead phase or not"));
-    makeCommands(NULL, NULL, NULL, opts);
+    return opts;
+  };
+
+  ExponentialReactivationFit() :
+    FunctionFit("react-exp", 
+                "Exponential reactivation",
+                "Reactivation", 1, -1, false) 
+  { 
+    makeCommands();
   };
 };
 

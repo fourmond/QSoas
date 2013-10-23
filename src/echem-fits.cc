@@ -135,18 +135,21 @@ public:
     }
   };
   
-  
-  NernstFit() : FunctionFit("nernst", 
-                            "Nerstian behaviour",
-                            "Fit to a Nerst equation", 1, -1, false) 
-  { 
+  virtual ArgumentList * fitHardOptions() const {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new IntegerArgument("states", 
                                           "Number of states",
                                           "Number of redox states")
                    );
-    makeCommands(NULL, NULL, NULL, opts);
+    return opts;
+  };
+  
+  NernstFit() : FunctionFit("nernst", 
+                            "Nerstian behaviour",
+                            "Fit to a Nerst equation", 1, -1, false) 
+  { 
+    makeCommands();
 
   };
 };
@@ -288,19 +291,22 @@ public:
     }
   };
   
-  
-  AdsorbedFit() : PerDatasetFit("adsorbed", 
-                                "Ideal adsorbed species",
-                                "Ideal adsorbed species", 1, -1, false) 
-  { 
-    number = 1;
+  virtual ArgumentList * fitHardOptions() const {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new IntegerArgument("species", 
                                           "Number of species",
                                           "Overall number of species")
                    );
-    makeCommands(NULL, NULL, NULL, opts);
+    return opts;
+  };
+  
+  AdsorbedFit() : PerDatasetFit("adsorbed", 
+                                "Ideal adsorbed species",
+                                "Ideal adsorbed species", 1, -1, false) 
+  { 
+    number = 1;
+    makeCommands();
 
   };
 };

@@ -193,13 +193,20 @@ int FitData::f(const gsl_vector * x, gsl_vector * f, bool doSubtract)
   QVarLengthArray<double, 1024> params(fullParameterNumber());
   unpackParameters(x, params.data());
 
-  /// @todo It may be possible to add range checking simply here by
-  /// checking all parameters.
+  /// @question It may be desirable to add range checking simply here
+  /// by checking all parameters.
 
   if(debug) {
     dumpString("Entering f computation");
     dumpGSLParameters(x);
     dumpFitParameters(params.data());
+
+    QVarLengthArray<double, 1024> p2(gslParameters);
+    for(int i = 0; i < gslParameters; i++)
+      p2[i] = -100;
+    gsl_vector_view v = gsl_vector_view_array(p2.data(), gslParameters);
+    packParameters(params.data(), &v.vector);
+    dumpGSLParameters(&v.vector);
   }
 
   // First, compute the value in place
@@ -213,7 +220,7 @@ int FitData::f(const gsl_vector * x, gsl_vector * f, bool doSubtract)
   /// @todo Data weighting ?
 
   if(debug)
-    dumpString("Entering f computation");
+    dumpString("Finished f computation");
 
   return GSL_SUCCESS;
 }
@@ -404,6 +411,9 @@ void FitData::initializeSolver(const double * initialGuess,
   freeSolver();
 
   initializeParameters();
+
+  if(debug)
+    dumpFitParameterStructure();
 
   if(independentDataSets()) {
     for(int i = 0; i < datasets.size(); i++) {
@@ -602,14 +612,28 @@ void FitData::dumpGSLParameters(const gsl_vector * params) const
 void FitData::dumpFitParameters(const double * params) const
 {
   // WW at 4 params ?
-  QString s;
+  QString s("Fit:");
   for(int i = 0; i < parameterDefinitions.size() * datasets.size(); i++) {
     if((i+1) % 5 == 0)
       s += "\n";
     QString name = QString("%1[#%2]").
       arg(parameterDefinitions[i % parameterDefinitions.size()].name).
       arg(i / parameterDefinitions.size());
-    s += QString("\t%1: %2").arg(name).arg(params[i]);
+    s += QString("\t%1: %2").arg(name, -13).arg(params[i],-6);
+  }
+  dumpString(s);
+}
+
+void FitData::dumpFitParameterStructure() const
+{
+  QString s("Parameters:\n");
+  for(int i = 0; i < parameters.size(); i++) {
+    s += QString(" * #%1 %2[%3]:\t%4\t%5\n").
+      arg(parameters[i]->paramIndex).
+      arg(parameterDefinitions[parameters[i]->paramIndex].name).
+      arg(parameters[i]->dsIndex).
+      arg(parameters[i]->fitIndex).
+      arg(parameters[i]->fixed() ? "fixed" : "free");
   }
   dumpString(s);
 }

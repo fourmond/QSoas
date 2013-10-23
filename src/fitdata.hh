@@ -71,6 +71,10 @@ private:
   /// Dump the fit parameters if debug is on
   void dumpFitParameters(const double * params) const;
 
+  /// Dumpts the structure of the parameters, ie what parameters are
+  /// fixed, how they unpack and so on...
+  void dumpFitParameterStructure() const;
+
 
   friend class FitEngine;
   /// The fit engine in use

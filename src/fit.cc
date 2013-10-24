@@ -88,6 +88,11 @@ ArgumentList * Fit::fitSoftOptions() const
   return NULL;
 }
 
+CommandOptions Fit::currentSoftOptions() const
+{
+  return CommandOptions();
+}
+
 void Fit::processSoftOptions(const CommandOptions & opts)
 {
 }

@@ -152,6 +152,10 @@ public:
   virtual ArgumentList * fitSoftOptions() const;
 
 
+  /// This function returns the current values of the soft options.
+  virtual CommandOptions currentSoftOptions() const;
+
+
   /// This function processes the soft options, ie the ones returned
   /// by fitSoftOptions(). They MUST NOT change the number of
   /// parameters in the fit, else it will be a big mess.

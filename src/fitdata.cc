@@ -201,12 +201,19 @@ int FitData::f(const gsl_vector * x, gsl_vector * f, bool doSubtract)
     dumpGSLParameters(x);
     dumpFitParameters(params.data());
 
+    dumpString("Reprocessed parameters:");
     QVarLengthArray<double, 1024> p2(gslParameters);
     for(int i = 0; i < gslParameters; i++)
       p2[i] = -100;
     gsl_vector_view v = gsl_vector_view_array(p2.data(), gslParameters);
     packParameters(params.data(), &v.vector);
     dumpGSLParameters(&v.vector);
+
+    QVarLengthArray<double, 1024> p3(fullParameterNumber());
+    for(int i = 0; i < fullParameterNumber(); i++)
+      p3[i] = -100;
+    unpackParameters(&v.vector, p3.data());
+    dumpFitParameters(p3.data());
   }
 
   // First, compute the value in place
@@ -458,6 +465,10 @@ void FitData::unpackCurrentParameters(double * target)
 int FitData::iterate()
 {
   nbIterations++;
+  if(debug) {
+    dumpString(QString("Fit iteration: #%1").arg(nbIterations));
+    dumpFitParameterStructure();
+  }
   if(subordinates.size() > 0) {
     int nbGoingOn = 0;
     for(int i = 0; i < subordinates.size(); i++) {
@@ -613,7 +624,7 @@ void FitData::dumpFitParameters(const double * params) const
 {
   // WW at 4 params ?
   QString s("Fit:");
-  for(int i = 0; i < parameterDefinitions.size() * datasets.size(); i++) {
+  for(int i = 0; i < parametersPerDataset() * datasets.size(); i++) {
     if((i+1) % 5 == 0)
       s += "\n";
     QString name = QString("%1[#%2]").
@@ -633,7 +644,7 @@ void FitData::dumpFitParameterStructure() const
       arg(parameterDefinitions[parameters[i]->paramIndex].name).
       arg(parameters[i]->dsIndex).
       arg(parameters[i]->fitIndex).
-      arg(parameters[i]->fixed() ? "fixed" : "free");
+      arg(parameters[i]->fixed() ? "fixed" : "FREE");
   }
   dumpString(s);
 }

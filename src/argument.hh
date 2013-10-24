@@ -150,6 +150,9 @@ public:
   ///
   /// It is allowed to return NULL in case the editor is unable to
   /// edit anything (unsupported).
+  ///
+  /// This implementation does the right thing (TM) if the widget is a
+  /// line edit.
   virtual ArgumentMarshaller * getEditorValue(QWidget * editor) const;
 
   /// @}

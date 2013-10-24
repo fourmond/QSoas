@@ -67,5 +67,8 @@ void Argument::setEditorValue(QWidget * editor,
 
 ArgumentMarshaller * Argument::getEditorValue(QWidget * editor) const
 {
+  QLineEdit * le = dynamic_cast<QLineEdit *>(editor);
+  if(le)
+    return fromString(le->text());
   return NULL;
 }

@@ -34,6 +34,12 @@ public:
   
   /// Returns a wrapped QString
   virtual ArgumentMarshaller * fromString(const QString & str) const;
+
+
+  // Direct use of a line edit
+  virtual QWidget * createEditor(QWidget * parent = NULL) const;
+  virtual void setEditorValue(QWidget * editor, 
+                              ArgumentMarshaller * value) const;
 };
 
 /// Several strings
@@ -195,6 +201,13 @@ public:
 
   /// Prompting uses QInputDialog.
   virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
+
+
+  // Use of a line edit
+  virtual QWidget * createEditor(QWidget * parent = NULL) const;
+  virtual void setEditorValue(QWidget * editor, 
+                              ArgumentMarshaller * value) const;
+
 };
 
 /// Several numbers

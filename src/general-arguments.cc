@@ -38,6 +38,21 @@ ArgumentMarshaller * StringArgument::fromString(const QString & str) const
   return new ArgumentMarshallerChild<QString>(str);
 }
 
+QWidget * StringArgument::createEditor(QWidget * parent) const
+{
+  return new QLineEdit(parent);
+}
+
+void StringArgument::setEditorValue(QWidget * editor, 
+                                    ArgumentMarshaller * value) const
+{
+  QLineEdit * le = dynamic_cast<QLineEdit*>(editor);
+  if(! le)
+    throw InternalError("Wrong editor given to setEditorValue");
+
+  le->setText(value->value<QString>());
+}
+
 
 ////////////////////////////////////////////////////////////
 
@@ -265,6 +280,21 @@ ArgumentMarshaller * NumberArgument::promptForValue(QWidget * base) const
   if(! ok)
     throw RuntimeError("Aborted"); 
   return fromString(str);
+}
+
+QWidget * NumberArgument::createEditor(QWidget * parent) const
+{
+  return new QLineEdit(parent);
+}
+
+void NumberArgument::setEditorValue(QWidget * editor, 
+                                    ArgumentMarshaller * value) const
+{
+  QLineEdit * le = dynamic_cast<QLineEdit*>(editor);
+  if(! le)
+    throw InternalError("Wrong editor given to setEditorValue");
+
+  le->setText(QString::number(value->value<double>()));
 }
 
 ////////////////////////////////////////////////////////////

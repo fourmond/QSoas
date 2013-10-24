@@ -93,6 +93,27 @@ ArgumentMarshaller * BoolArgument::promptForValue(QWidget * ) const
   return new ArgumentMarshallerChild<bool>(val);
 }
 
+QWidget * BoolArgument::createEditor(QWidget * parent) const {
+  QComboBox * cb = new QComboBox(parent);
+  cb->addItem("yes");
+  cb->addItem("no");
+  return cb;
+}
+
+void BoolArgument::setEditorValue(QWidget * editor, 
+                                  ArgumentMarshaller * value) const {
+  QComboBox * cb = dynamic_cast<QComboBox*>(editor);
+  if(! cb)
+    throw InternalError("Not a combo box");
+
+  bool val = value->value<bool>();
+  if(val)
+    cb->setCurrentIndex(0);
+  else
+    cb->setCurrentIndex(1);
+}
+
+
 static QStringList yesno = (QStringList() 
                             << "yes" << "no" 
                             << "true" << "false" 

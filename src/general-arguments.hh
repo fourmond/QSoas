@@ -79,6 +79,10 @@ public:
   /// 
   virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
 
+  virtual QWidget * createEditor(QWidget * parent = NULL) const;
+  virtual void setEditorValue(QWidget * editor, 
+                              ArgumentMarshaller * value) const;
+
 
   virtual QStringList proposeCompletion(const QString & starter) const;
 };

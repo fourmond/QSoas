@@ -70,5 +70,8 @@ ArgumentMarshaller * Argument::getEditorValue(QWidget * editor) const
   QLineEdit * le = dynamic_cast<QLineEdit *>(editor);
   if(le)
     return fromString(le->text());
+  QComboBox * cb = dynamic_cast<QComboBox *>(editor);
+  if(cb)
+    return fromString(cb->currentText());
   return NULL;
 }

@@ -62,6 +62,32 @@ public:
   virtual QStringList proposeCompletion(const QString & starter) const {
     return Utils::stringsStartingWith(fixedChoices.keys(), starter);
   };
+
+  
+  virtual QWidget * createEditor(QWidget * parent = NULL) const {
+    QComboBox * cb = new QComboBox(parent);
+
+    QStringList keys = fixedChoices.keys();
+    qSort(keys);
+    for(int i = 0; i < keys.size(); i++)
+      cb->addItem(keys[i]);
+    return cb;
+  };
+
+  virtual void setEditorValue(QWidget * editor, 
+                              ArgumentMarshaller * value) const {
+    QComboBox * cb = dynamic_cast<QComboBox*>(editor);
+    if(! cb)
+      throw InternalError("Not a combo box");
+    T val = value->value<T>();
+    for(int i = 0; i < cb->count();i++) {
+      if(fixedChoices[cb->itemText(i)] == val) {
+        cb->setCurrentIndex(i);
+        break;
+      }
+    }
+  };
+
 };
 
 #endif

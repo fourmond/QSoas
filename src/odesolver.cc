@@ -51,6 +51,19 @@ QHash<QString, const gsl_odeiv2_step_type *> stepperTypes()
   return types;
 }
 
+CommandOptions ODEStepperOptions::asOptions() const
+{
+  CommandOptions opts;
+
+  opts["adaptative"] = new ArgumentMarshallerChild<bool>(! fixed);
+  opts["step-size"] = new ArgumentMarshallerChild<double>(hStart);
+  opts["prec-relative"] = new ArgumentMarshallerChild<double>(epsRel);
+  opts["prec-absolute"] = new ArgumentMarshallerChild<double>(epsAbs);
+  opts["stepper"] = new ArgumentMarshallerChild<const gsl_odeiv2_step_type *>(type);
+
+  return opts;
+}
+
 
 QList<Argument*> ODEStepperOptions::commandOptions()
 {
@@ -228,6 +241,7 @@ void ODESolver::initializeDriver()
 void ODESolver::freeDriver()
 {
   delete[] yValues;
+  yValues = NULL;
 }
 
 ODESolver::~ODESolver()
@@ -238,6 +252,7 @@ ODESolver::~ODESolver()
 void ODESolver::setStepperOptions(const ODEStepperOptions & opts)
 {
   stepper.setOptions(opts);
+  freeDriver();                 // Force reinitialization of driver
 }
 
 const ODEStepperOptions & ODESolver::getStepperOptions()

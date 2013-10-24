@@ -56,6 +56,9 @@ public:
   /// Parses the stepper-related options in the given CommandOptions
   void parseOptions(const CommandOptions & opts);
 
+  /// Converts the ODEStepperOptions into plain CommandOptions.
+  CommandOptions asOptions() const;
+
   /// Describes the options
   QString description() const;
 };

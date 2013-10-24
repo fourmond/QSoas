@@ -518,6 +518,10 @@ protected:
 
 public:
 
+  virtual CommandOptions currentSoftOptions() const {
+    return evolver->getStepperOptions().asOptions();
+  };
+
   virtual void processSoftOptions(const CommandOptions & opts) {
     // Parse ODEStepperOptions
     ODEStepperOptions op = evolver->getStepperOptions();
@@ -537,6 +541,7 @@ public:
     }
 
     evolver->setStepperOptions(op);
+    evolver->resetStepper();
 
     // Dump the options on the terminal ?
     Terminal::out << "Using integrator parameters: " 

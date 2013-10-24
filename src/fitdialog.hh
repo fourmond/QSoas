@@ -31,6 +31,7 @@ class DataSet;
 
 class FitTrajectory;
 class FitTrajectoryDisplay;
+class ArgumentList;
 
 /// This class handles all the user interaction during fits.
 class FitDialog : public QDialog {
@@ -60,6 +61,10 @@ class FitDialog : public QDialog {
   /// The line editor for entering the weight of the buffer, set to
   /// NULL if that has been opted out.
   QLineEdit * bufferWeightEditor;
+
+  /// Soft options of the fit. Only non-NULL if there is at least one
+  /// option.
+  ArgumentList * softOptions;
 
   /// List of editors
   QList<FitParameterEditor *> editors;
@@ -188,6 +193,9 @@ protected slots:
 
   /// Updates the display of residuals.
   void updateResidualsDisplay();
+
+  /// Pops up a dialog box to set soft options.
+  void setSoftOptions();
 
   void dataSetChanged(int newds);
 

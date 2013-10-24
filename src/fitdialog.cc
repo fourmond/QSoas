@@ -68,6 +68,13 @@ FitDialog::FitDialog(FitData * d, bool displayWeights) :
     bufferWeightEditor = new QLineEdit;
   else
     bufferWeightEditor = NULL;
+
+  softOptions = data->fit->fitSoftOptions();
+  if(softOptions && softOptions->size() == 0) {
+    delete softOptions;
+    softOptions = NULL;
+  }
+
   setupFrame();
   setFitEngineFactory(FitEngine::defaultFactoryItem());
 
@@ -247,6 +254,9 @@ void FitDialog::setupFrame()
   hb->addWidget(ac);
   
   ac = new ActionCombo(tr("Parameters..."));
+  ac->addAction("Edit", this, 
+                SLOT(editParameters()),
+                QKeySequence(tr("Ctrl+E")));
   ac->addAction("Load from file", this, 
                 SLOT(loadParameters()),
                 QKeySequence(tr("Ctrl+L")));
@@ -310,9 +320,11 @@ void FitDialog::setupFrame()
 
   hb->addWidget(bt);
 
-  bt = new QPushButton(tr("Edit parameters (Ctrl+E)"));
-  connect(bt, SIGNAL(clicked()), SLOT(editParameters()));
-  hb->addWidget(bt);
+  if(softOptions) {
+    bt = new QPushButton(tr("Fit options"));
+    connect(bt, SIGNAL(clicked()), SLOT(setSoftOptions()));
+    hb->addWidget(bt);
+  }
 
   startButton = new QPushButton(tr("Fit (Ctrl+F)"));
   connect(startButton, SIGNAL(clicked()), SLOT(startFit()));
@@ -341,8 +353,6 @@ void FitDialog::setupFrame()
                           this, SLOT(startFit()));
   Utils::registerShortCut(QKeySequence(tr("Ctrl+B")), 
                           this, SLOT(cancelFit()));
-  Utils::registerShortCut(QKeySequence(tr("Ctrl+E")), 
-                          this, SLOT(editParameters()));
 
   // Ctr + PgUp/PgDown to navigate the buffers
   Utils::registerShortCut(QKeySequence(tr("Ctrl+PgUp")), 
@@ -916,4 +926,65 @@ void FitDialog::recomputeErrors()
 {
   parameters.prepareFit(fitEngineFactory);
   parameters.recomputeJacobian();
+}
+
+void FitDialog::setSoftOptions()
+{
+  QDialog dlg;
+  
+  QVBoxLayout * l= new QVBoxLayout(&dlg);
+  QGridLayout * gd = new QGridLayout;
+  
+  l->addLayout(gd);
+
+  QHBoxLayout * bot = new QHBoxLayout;
+  
+  QPushButton * bt = new QPushButton(tr("OK"));
+  dlg.connect(bt, SIGNAL(clicked()), SLOT(accept()));
+  bot->addWidget(bt);
+
+  bt = new QPushButton(tr("Cancel"));
+  dlg.connect(bt, SIGNAL(clicked()), SLOT(reject()));
+  bot->addWidget(bt);
+
+  l->addLayout(bot);
+
+  // Now, we populate the grid with editors;
+
+  CommandOptions co = data->fit->currentSoftOptions();
+
+  QHash<QString, QWidget *> widgets;
+
+  for(int i = 0; i < softOptions->size(); i++) {
+    Argument * ag = softOptions->value(i);
+    gd->addWidget(new QLabel(ag->publicName()), i, 0);
+    QWidget * w = ag->createEditor(&dlg);
+    gd->addWidget(w, i, 1);
+    widgets[ag->argumentName()] = w;
+
+    if(co.contains(ag->argumentName())) {
+      ag->setEditorValue(w, co[ag->argumentName()]);
+    }
+  }
+
+  for(auto i = co.begin(); i != co.end(); i++)
+    delete i.value();
+
+  co.clear();
+
+  if(dlg.exec()) {
+    for(int i = 0; i < softOptions->size(); i++) {
+      Argument * ag = softOptions->value(i);
+      QWidget * w = widgets[ag->argumentName()];
+      ArgumentMarshaller * val = ag->getEditorValue(w);
+      if(val)
+        co[ag->argumentName()] = val;
+    }
+    data->fit->processSoftOptions(co);
+    for(auto i = co.begin(); i != co.end(); i++)
+      delete i.value();
+  }
+
+
+  
 }

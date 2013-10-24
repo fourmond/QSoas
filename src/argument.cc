@@ -53,3 +53,19 @@ QStringList Argument::allChoices() const
 {
   return QStringList();
 }
+
+QWidget * Argument::createEditor(QWidget * parent) const
+{
+  return new QLabel("<b>(not modifiable)</b>", parent);
+}
+
+void Argument::setEditorValue(QWidget * editor, 
+                              ArgumentMarshaller * value) const
+{
+  // nothing !
+}
+
+ArgumentMarshaller * Argument::getEditorValue(QWidget * editor) const
+{
+  return NULL;
+}

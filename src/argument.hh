@@ -127,6 +127,32 @@ public:
   /// arguments that can be greedy.
   virtual void concatenateArguments(ArgumentMarshaller * a, 
                                     const ArgumentMarshaller * b) const;
+
+
+  
+  /// @name Custom widgets for edition of arguments
+  ///
+  /// @{
+
+  /// Create a widget for the edition of the parameter.
+  ///
+  /// The default implementation returns a grayed-out label.
+  virtual QWidget * createEditor(QWidget * parent = NULL) const;
+
+  /// Sets the value of the widget from an ArgumentMarshaller stuff.
+  ///
+  /// The QWidget passed will be one that has been previously created
+  /// using createEditor();
+  virtual void setEditorValue(QWidget * editor, 
+                              ArgumentMarshaller * value) const;
+
+  /// Returns the current value of the given editor.
+  ///
+  /// It is allowed to return NULL in case the editor is unable to
+  /// edit anything (unsupported).
+  virtual ArgumentMarshaller * getEditorValue(QWidget * editor) const;
+
+  /// @}
   
 };
 

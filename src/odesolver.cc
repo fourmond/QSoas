@@ -275,12 +275,13 @@ void ODESolver::initialize(const double * yStart, double tStart)
 
 void ODESolver::stepTo(double to)
 {
-  
+  double dt = to - t;
+  double org = t;
   int status = stepper.apply(&t, to, yValues);
   if(status != GSL_SUCCESS) {
     throw RuntimeError("Integration failed to give the desired "
-                       "precision stepping from %1 to %2: %3").
-      arg(t).arg(to).arg(gsl_strerror(status));
+                       "precision stepping from %1 to %2 (delta= %4): %3").
+      arg(org).arg(to).arg(gsl_strerror(status)).arg(dt);
   }
 }
 

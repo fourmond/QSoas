@@ -637,6 +637,12 @@ public:
       gsl_vector_set(target, i, val);
     }
 
+    if(data->debug) {
+      QTextStream o(stdout);
+      o << "Number of evaluations: " << evolver->evaluations << endl;
+    }
+      
+
   };
 
   virtual void initialGuess(FitData * params, 

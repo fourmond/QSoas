@@ -150,6 +150,8 @@ void ODEStepper::reset()
 
 int ODEStepper::apply(double * t, const double t1, double y[])
 {
+  int status = GSL_FAILURE;
+  double orig = *t;
   if(! driver)
     throw InternalError("Using step() on an unitialized ODEStepper");
   if(options.fixed) {
@@ -158,10 +160,27 @@ int ODEStepper::apply(double * t, const double t1, double y[])
     if(options.hStart > 0)
        nb = (int) ceil((t1 - *t)/options.hStart);
     double step = (t1 - *t)/nb;
-    return gsl_odeiv2_driver_apply_fixed_step(driver, t, step, nb, y);
+    status = gsl_odeiv2_driver_apply_fixed_step(driver, t, step, nb, y);
   }
-  else
-    return gsl_odeiv2_driver_apply(driver, t, t1, y);
+  else {
+    status = gsl_odeiv2_driver_apply(driver, t, t1, y);
+    if(status == GSL_FAILURE) {
+      // We try to reset the driver with the initial step where we are
+      // now and proceeed
+      double hs = options.hStart;
+      if(hs == 0.0)
+        hs = 0.01;
+      gsl_odeiv2_driver_reset_hstart(driver, hs);
+      return apply(t, t1, y);
+    }
+  }
+
+  // QTextStream o(stdout);
+  // o << "Step from " << orig << " to " << t1  << "(dt= " << t1 - *t << ")"
+  //   << ":\t h=" << driver->h << " -> " << status <<  "\t" 
+  //   << "last_step: " << driver->e->last_step <<  "\tfailed:" 
+  //   << driver->e->failed_steps << endl;
+  return status;
 }
 
 void ODEStepper::setOptions(const ODEStepperOptions & opts)
@@ -280,8 +299,8 @@ void ODESolver::stepTo(double to)
   int status = stepper.apply(&t, to, yValues);
   if(status != GSL_SUCCESS) {
     throw RuntimeError("Integration failed to give the desired "
-                       "precision stepping from %1 to %2 (delta= %4): %3").
-      arg(org).arg(to).arg(gsl_strerror(status)).arg(dt);
+                       "precision stepping from %1 to %2 (last delta= %4): %3 (%5)").
+      arg(org).arg(to).arg(gsl_strerror(status)).arg(to-t).arg(status);
   }
 }
 

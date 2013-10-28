@@ -265,15 +265,17 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
     FreeParameter * param = dynamic_cast<FreeParameter*>(parameters[i]);
     if(! param)
       continue;
-    double value = gslParams[param->fitIndex];
+    volatile double value = gslParams[param->fitIndex];
 
     /// @todo It is crucial to come up with a much better way to
     /// handle the choice of the step. Look at
     /// http://en.wikipedia.org/wiki/Numerical_differentiation
-    double step = param->derivationStep(value);
+
+    double step = (value == 0 ? 1e-6 : param->derivationStep(value));
 
 
     gslParams[param->fitIndex] += step;
+    step = gslParams[param->fitIndex] - value;
     unpackParameters(&v.vector, unpackedParams.data());
 
     if(debug) {

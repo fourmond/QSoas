@@ -259,6 +259,13 @@ int QSoasFitEngine::iterate()
   gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1, 
                  jacobian, jacobian, 0, jTj);
 
+  if(fitData->debug) {
+    // Dump the jTj matrix:
+    QTextStream o(stdout);
+    o << "jTj matrix: \n"
+      << Utils::matrixString(jTj) << endl;
+  }
+
   // OK, so now we go through various tries.
   int nbtries = 0;
   while(true) {

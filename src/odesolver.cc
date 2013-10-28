@@ -170,7 +170,9 @@ int ODEStepper::apply(double * t, const double t1, double y[])
       double hs = options.hStart;
       if(hs == 0.0)
         hs = 0.01;
-      gsl_odeiv2_driver_reset_hstart(driver, hs);
+      //      gsl_odeiv2_driver_reset_hstart(driver, hs);
+      gsl_odeiv2_driver_reset_hstart(driver);
+      driver->h = hs;
       return apply(t, t1, y);
     }
   }

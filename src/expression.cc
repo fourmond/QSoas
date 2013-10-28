@@ -276,7 +276,11 @@ QString Expression::rubyIzeName(const QString & name)
 {
   QString ret = name;
   // For now, conversions are simple
-  ret[0] = ret[0].toLower();  // avoid using constants !
+  // This is looking for clashes if two parameters differ only by the case
+  // of the first letter
+  if(ret[0].isUpper())
+    ret = "_up_" + ret;
+
   ret.replace(QRegExp("[#/-]"), "_"); 
   return ret;
 }

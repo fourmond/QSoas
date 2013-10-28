@@ -577,7 +577,14 @@ void FitDialog::startFit()
                 << " evaluations" << endl;
 
   parameters.writeToTerminal();
-  compute();
+  try {
+    internalCompute();
+    if(stackedViews && stackedViews->currentWidget())
+      stackedViews->currentWidget()->repaint();
+  }
+  catch (const Exception & e) {
+    appendToMessage(QString("Error while computing: ") + e.message());
+  }
   emit(finishedFitting());
 }
 

@@ -449,6 +449,41 @@ noop("noop", // command name
 //////////////////////////////////////////////////////////////////////
   
 
+static void runForDatasetsCommand(const QString &, QString script,
+                                  QList<const DataSet*> datasets, 
+                                  const CommandOptions & opts)
+{
+  while(datasets.size() > 0) {
+    QStringList a;
+    soas().pushDataSet(new DataSet(*datasets.takeLast()));
+    soas().prompt().runCommandFile(script, a, false);
+  }
+}
+
+static ArgumentList 
+rfdArgs(QList<Argument *>() 
+        << new FileArgument("script", 
+                            "Script",
+                            "The script file")
+        << new SeveralDataSetArgument("datasets", 
+                                      "Arguments",
+                                      "All the arguments for the script file "
+                                      "to loop on", true));
+
+
+
+static Command 
+rfd("run-for-datasets", // command name
+    effector(runForDatasetsCommand), // action
+    "file",  // group name
+    &rfdArgs, // arguments
+    NULL, 
+    "Loop run a script",
+    "Runs a script file repetitively with the given arguments",
+    "...");
+
+//////////////////////////////////////////////////////////////////////
+
 /// @todo Choose the number of arguments (ie one by one, two by two,
 /// and so on)
 static void runForEachCommand(const QString &, QString script,

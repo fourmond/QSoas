@@ -555,8 +555,12 @@ void FitParameters::loadParameters(FitParametersFile & params,
         }
 
         /// @todo Avoid setting a global parameter this way ?
-        param.replaceParameter(parameter(idx, ds), &valueFor(idx, ds),
-                               idx, ds);
+        if(isGlobal(idx))
+          Terminal::out << "Not replacing global parameter by a local one: " 
+                        << param.name << endl;
+        else
+          param.replaceParameter(parameter(idx, ds), &valueFor(idx, ds),
+                                 idx, ds);
       }
       else {
         param.replaceParameter(parameter(idx, 0), &valueFor(idx, 0),

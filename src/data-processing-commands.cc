@@ -2024,7 +2024,7 @@ static ArgumentList
 zeroOps(QList<Argument *>() 
         << new ChoiceArgument(QStringList() << "x" << "y",
                               "axis", "Axis", 
-                              "Which axis is zero-ed")
+                              "Which axis is zero-ed", false, "axis")
         );
 
 static Command 

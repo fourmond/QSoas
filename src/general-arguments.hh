@@ -40,6 +40,13 @@ public:
   virtual QWidget * createEditor(QWidget * parent = NULL) const;
   virtual void setEditorValue(QWidget * editor, 
                               ArgumentMarshaller * value) const;
+
+  virtual QString typeName() const {
+    return "text";
+  };
+  virtual QString typeDescription() const {
+    return "Arbitrary text. If you need spaces, do not forget to quote them with ', for instance";
+  };
 };
 
 /// Several strings
@@ -61,6 +68,9 @@ public:
   virtual void concatenateArguments(ArgumentMarshaller * a, 
                                     const ArgumentMarshaller * b) const;
 
+  virtual QString typeName() const  {
+    return "texts";
+  };
 };
 
 
@@ -85,6 +95,14 @@ public:
 
 
   virtual QStringList proposeCompletion(const QString & starter) const;
+
+  virtual QString typeName() const {
+    return "yes-no";
+  };
+
+  virtual QString typeDescription() const {
+    return "A boolean: yes, on, true or no, off, false";
+  };
 };
 
 /// A choice between several fixed strings
@@ -94,19 +112,23 @@ class ChoiceArgument : public Argument {
   QStringList (*provider)();
 
   QStringList choices() const;
+
+  QString choiceName;
 public:
 
   ChoiceArgument(const QStringList & c,
                  const char * cn, const char * pn,
-                 const char * d = "", bool def = false) : 
+                 const char * d = "", bool def = false,
+                 const char * chN = "") : 
     Argument(cn, pn, d, false, def), 
-    fixedChoices(c), provider(NULL) {
+    fixedChoices(c), provider(NULL), choiceName(chN) {
   }; 
 
   ChoiceArgument(QStringList (*p)(),
                  const char * cn, const char * pn,
-                 const char * d = "", bool def = false) : 
-    Argument(cn, pn, d, false, def), provider(p) {
+                 const char * d = "", bool def = false,
+                 const char * chN = "") : 
+    Argument(cn, pn, d, false, def), provider(p), choiceName(chN) {
   }; 
   
   /// Returns a wrapped QString
@@ -117,6 +139,10 @@ public:
 
   /// a rather easy one.
   virtual QStringList proposeCompletion(const QString & starter) const;
+
+  virtual QString typeName() const;
+  virtual QString typeDescription() const;
+
 };
 
 
@@ -169,6 +195,14 @@ public:
   
   /// Returns a wrapped DataSet *
   virtual ArgumentMarshaller * fromString(const QString & str) const;
+
+  virtual QString typeName() const {
+    return "buffer";
+  };
+
+  virtual QString typeDescription() const {
+    return "The number of a buffer in the stack";
+  };
 };
 
 /// Several datasets from the stack
@@ -188,6 +222,14 @@ public:
 
   virtual void concatenateArguments(ArgumentMarshaller * a, 
                                     const ArgumentMarshaller * b) const;
+
+  virtual QString typeName() const {
+    return "buffers";
+  };
+
+  virtual QString typeDescription() const {
+    return "Comma-separated lists of datasets in the stack";
+  };
 };
 
 
@@ -212,6 +254,14 @@ public:
   virtual void setEditorValue(QWidget * editor, 
                               ArgumentMarshaller * value) const;
 
+  virtual QString typeName() const {
+    return "number";
+  };
+
+  virtual QString typeDescription() const {
+    return "A floating-point number";
+  };
+
 };
 
 /// Several numbers
@@ -234,6 +284,14 @@ public:
   virtual void concatenateArguments(ArgumentMarshaller * a, 
                                     const ArgumentMarshaller * b) const;
 
+  virtual QString typeName() const {
+    return "numbers";
+  };
+
+  virtual QString typeDescription() const {
+    return QString("Several numbers, separated by %1").arg(delim);
+  };
+
 };
 
 /// A integer
@@ -250,6 +308,15 @@ public:
 
   /// Prompting uses QInputDialog.
   virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
+
+  virtual QString typeName() const {
+    return "integer";
+  };
+
+  virtual QString typeDescription() const {
+    return "An integer";
+  };
+
 };
 
 /// Several integers
@@ -267,6 +334,14 @@ public:
 
   virtual void concatenateArguments(ArgumentMarshaller * a, 
                                     const ArgumentMarshaller * b) const;
+
+  virtual QString typeName() const {
+    return "integers";
+  };
+
+  virtual QString typeDescription() const {
+    return "A comma-separated list of integers";
+  };
 
 };
 
@@ -306,6 +381,14 @@ public:
   /// Returns a wrapped Command*
   virtual ArgumentMarshaller * fromString(const QString & str) const;
 
+  virtual QString typeName() const {
+    return "command";
+  };
+
+  virtual QString typeDescription() const {
+    return "The name of one of QSoas's commands";
+  };
+
 };
 
 /// A style -- returned as a QString though, to avoid the problem of
@@ -318,6 +401,10 @@ public:
                          bool def = false);  
 
   virtual ArgumentMarshaller * fromString(const QString & str) const;
+
+  virtual QString typeName() const {
+    return "style";
+  };
 
 };
 
@@ -333,6 +420,15 @@ public:
   
   /// Returns a wrapped Regex
   virtual ArgumentMarshaller * fromString(const QString & str) const;
+
+  virtual QString typeName() const {
+    return "pattern";
+  };
+
+  virtual QString typeDescription() const {
+    return "Text, or Qt regular expression enclosed within / / delimiters";
+  };
+
 };
 
 

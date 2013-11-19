@@ -53,7 +53,6 @@ void StringArgument::setEditorValue(QWidget * editor,
   le->setText(value->value<QString>());
 }
 
-
 ////////////////////////////////////////////////////////////
 
 ArgumentMarshaller * SeveralStringsArgument::fromString(const QString & str) const
@@ -124,6 +123,7 @@ QStringList BoolArgument::proposeCompletion(const QString & starter) const
   return Utils::stringsStartingWith(yesno, starter);
 }
 
+
 ////////////////////////////////////////////////////////////
 
 QStringList ChoiceArgument::choices() const
@@ -160,6 +160,22 @@ QStringList ChoiceArgument::proposeCompletion(const QString & starter) const
 {
   return Utils::stringsStartingWith(choices(), starter);
 }
+
+QString ChoiceArgument::typeName() const
+{
+  if(choiceName.isEmpty())
+    return "choice";
+  return choiceName;
+}
+
+QString ChoiceArgument::typeDescription() const
+{
+  QStringList cs = choices();
+  if(cs.size() > 7)
+    return "";
+  return QString("One of: %1").arg(cs.join(", "));
+}
+
 
 ////////////////////////////////////////////////////////////
 

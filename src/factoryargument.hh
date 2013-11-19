@@ -30,6 +30,8 @@
 /// @todo An option to return either the name of the Factory item.
 template <typename F> class FactoryArgument : 
   public  Argument {
+
+  QString choiceName;
 public:
   FactoryArgument(const char * cn, const char * pn,
                   const char * d = "", bool def = false) : 
@@ -48,6 +50,18 @@ public:
   {
     return Utils::stringsStartingWith(F::availableItems(), 
                                       starter);
+  };
+
+  virtual QString typeName() const {
+    if(choiceName.isEmpty())
+      return "choice";
+    return choiceName;
+  };
+
+  virtual QString typeDescription() const {
+    QStringList cs = F::availableItems();
+    qSort(cs);
+    return QString("One of: %1").arg(cs.join(", "));
   };
 
 

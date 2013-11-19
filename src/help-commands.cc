@@ -176,7 +176,7 @@ hlpc("help", // command name
 
 
 
-static void updateDocumentationFile(const QString &, QString file)
+void updateDocumentationFile(const QString &, QString file)
 {
   QString str;
   try {

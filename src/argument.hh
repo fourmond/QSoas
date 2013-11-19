@@ -1,7 +1,7 @@
 /**
    \file argument.hh
    Argument handling for QSoas.
-   Copyright 2011 by Vincent Fourmond
+   Copyright 2011,2013 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -63,7 +63,6 @@ public:
     name(cn), pubName(pn), 
     desc(d), greedy(g), defaultOption(def) {
   }; 
-  
 
   /// The argument name, for displaying purposes (not the same as
   /// public name)
@@ -81,6 +80,16 @@ public:
   virtual QString description() const {
     return QObject::tr(desc);
   };
+
+
+  /// The type name is single word (ie no spaces) used to describe the
+  /// nature of the argument
+  virtual QString typeName() const;
+
+  /// More detailed description of the type, intended to be used as a
+  /// pop-up or something like that.
+  virtual QString typeDescription() const;
+
 
   /// Converts from string to the argument with the correct type.
   virtual ArgumentMarshaller * fromString(const QString & str) const = 0;

@@ -46,6 +46,15 @@ public:
   /// Prompting uses a QFileDialog.
   virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
   virtual QStringList proposeCompletion(const QString & starter) const;
+
+  virtual QString typeName() const {
+    return "file";
+  };
+
+  virtual QString typeDescription() const {
+    return "Path of a file (or a directory)";
+  };
+
 };
 
 /// An argument representing a unique file name, for saving.
@@ -82,6 +91,7 @@ public:
   
   /// Prompting uses a QFileDialog.
   virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
+
 };
 
 
@@ -102,6 +112,15 @@ public:
   virtual void concatenateArguments(ArgumentMarshaller * a, 
                                     const ArgumentMarshaller * b) const;
   virtual QStringList proposeCompletion(const QString & starter) const;
+
+
+  virtual QString typeName() const {
+    return "files";
+  };
+
+  virtual QString typeDescription() const {
+     return "One or more files. Can include wildcards such as *, [0-4], etc...";
+  };
 };
 
 #endif

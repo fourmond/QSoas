@@ -1,6 +1,6 @@
 /*
   argument.cc: implementation of default functions for Argument
-  Copyright 2011 by Vincent Fourmond
+  Copyright 2011, 2013 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -74,4 +74,14 @@ ArgumentMarshaller * Argument::getEditorValue(QWidget * editor) const
   if(cb)
     return fromString(cb->currentText());
   return NULL;
+}
+
+QString Argument::typeName() const
+{
+  return "NAME-MISSING";
+}
+
+QString Argument::typeDescription() const
+{
+  return QString();
 }

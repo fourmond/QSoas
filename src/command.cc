@@ -432,12 +432,18 @@ QString Command::synopsis(bool markup) const
   if(commandArguments()) {
     const ArgumentList & args = *commandArguments();
     for(int i = 0; i < args.size(); i++) {
-      QString a = wrapIf(args[i]->argumentName(), "_", markup);
+      QString n = args[i]->argumentName();
       if(args[i]->greedy)
-        a += "...";
+        n += "...";
+      QString a = wrapIf(n, "_", markup);
+      if(markup) {
+        QString td = args[i]->typeDescription();
+        if(! td.isEmpty())
+          a += QString("{:title=\"%1\"}").arg(td);
+      }
       synopsis << a;
       descs += QString("  * %1: %2\n").
-        arg(wrapIf(args[i]->argumentName(), "_", markup)).
+        arg(a).
         arg(args[i]->description());
     }
   }
@@ -446,9 +452,14 @@ QString Command::synopsis(bool markup) const
     const ArgumentList & args = *commandOptions();
     for(int i = 0; i < args.size(); i++) {
       QString a = args[i]->argumentName();
-      synopsis << wrapIf("/" + a + "=", "`", markup);
+      QString td = args[i]->typeDescription();
+      QString b = wrapIf("/" + a + "=", "`", markup) + 
+        wrapIf(args[i]->typeName(), "_", markup) + 
+        ((markup && !(td.isEmpty())) ? 
+         QString("{:title=\"%1\"}").arg(td) : "");
+      synopsis << b;
       descs += QString("  * %1%3: %2\n").
-        arg(wrapIf("/" + args[i]->argumentName(), "`", markup)).
+        arg(b).
         arg(args[i]->description()).
         arg(args[i]->defaultOption ? " (default)" : "");
 

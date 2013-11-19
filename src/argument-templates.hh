@@ -29,14 +29,28 @@
 template <class T> 
 class TemplateChoiceArgument : public Argument {
   QHash<QString, T> fixedChoices;
+
+  QString choiceName;
 public:
 
   TemplateChoiceArgument(const QHash<QString, T> & c,
                          const char * cn, const char * pn,
-                         const char * d = "", bool def = false) : 
+                         const char * d = "", bool def = false,
+                         const char * chN = "") : 
     Argument(cn, pn, d, false, def), 
-    fixedChoices(c) {
+    fixedChoices(c), choiceName(chN) {
   }; 
+
+  virtual QString typeName() const {
+    if(choiceName.isEmpty())
+      return "choice";
+    return choiceName;
+  };
+  virtual QString typeDescription() const {
+    QStringList cs = fixedChoices.keys();
+    qSort(cs);
+    return QString("One of: %1").arg(cs.join(", "));
+  };
 
   /// Returns a wrapped T
   virtual ArgumentMarshaller * fromString(const QString & str) const {

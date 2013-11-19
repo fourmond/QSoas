@@ -556,7 +556,7 @@ public:
 
     QStringList species = system->allSpecies();
     for(int i = 0; i < species.size(); i++)
-      defs << ParameterDefinition(QString("i_%1").
+      defs << ParameterDefinition(QString("y_%1").
                                   arg(species[i]), i != 0);
 
     skippedIndices.clear();

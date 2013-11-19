@@ -43,10 +43,13 @@ QRectF CurveDataSet::boundingRect() const
 void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
                          const QTransform & ctw)
 {
-  painter->save();
-  const GraphicsSettings & gs = soas().graphicsSettings();
   if(! dataSet)
     return;
+  if(dataSet->nbColumns() < 2)
+    return;
+
+  painter->save();
+  const GraphicsSettings & gs = soas().graphicsSettings();
   if(dataSet->options.hasYErrors(dataSet)) {
     // paint it first so that lines/markers show up on top.
     QPen p(pen);

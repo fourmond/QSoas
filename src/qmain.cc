@@ -33,6 +33,8 @@
 
 extern void loadDocumentationFile(const QString &, QString file, 
                                   const CommandOptions & opts = CommandOptions());
+extern void updateDocumentationFile(const QString &, QString file);
+
 
 class QSoasApplication : public QApplication {
 public:
@@ -88,6 +90,11 @@ int main(int argc, char ** argv)
   if(arg1 == "--tex-help") {
     QTextStream o(stdout);
     o << Group::latexDocumentationAllGroups() << endl;
+    return 0;
+  }
+
+  if(arg1 == "--update-documentation") {
+    updateDocumentationFile("ud", argv[2]);
     return 0;
   }
 

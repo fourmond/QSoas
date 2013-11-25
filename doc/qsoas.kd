@@ -69,7 +69,7 @@ Alias: `q`
 {::comment} description-start: quit {:/}
 Exits QSoas, losing all the current session. Keep in mind, though,
 that the full log of the session is always available in the
-`soas.log` file created in the initial directory, that is indicated in
+`soas.log` file created in the initial directory, which is indicated in
 the very beginning in the terminal.
 {::comment} description-end: quit {:/}
 
@@ -181,7 +181,7 @@ QSoas> temperature 310
 
 {::comment} synopsis-end: commands {:/}
 {::comment} description-start: commands {:/}
-List all available commands, along with a little help. This also
+List all available commands, with a short help text. This also
 includes used-defined commands, such as custom fits loaded from a fit file.
 {::comment} description-end: commands {:/}
 {::comment} synopsis-start: help {:/}
@@ -198,8 +198,7 @@ Alias: `?`
 {::comment} synopsis-end: help {:/}
 {::comment} description-start: help {:/}
 Gives all help available on the given command. By default, it fires up
-a browser to show the online help, but should that not be a good idea,
-you can use `/online=false` to disable that.
+a browser to show the online help, unless you use `/online=false`.
 {::comment} description-end: help {:/}
 
 {::comment} synopsis-start: save-output {:/}
@@ -215,7 +214,7 @@ you can use `/online=false` to disable that.
 Save all text in the terminal to a plain text file.
 
 Equivalent to copy-pasting the contents of the terminal to a plain
-text file in a text editor.
+text file using a text editor.
 {::comment} description-end: save-output {:/}
 
 
@@ -239,7 +238,7 @@ want a PDF or PostScript file, just provide the file name as the
 An optional title can be added using the `/title` option.
 
 **Important note** please keep in mind that QSoas is not designed to
-be a data plotting system, only a data analysis system. So plotting
+be a data plotting system, it is a data analysis system. So plotting
 capacities don't go far...
 {::comment} description-end: print {:/}
 
@@ -302,7 +301,9 @@ The settings are persistent and kept from one QSoas session until the
 next one.
 
 Turning on antialias will make QSoas use antialiased drawings, which
-looks admittedly nicer, but need much more computational time.
+looks admittedly nicer, but requires much more computational
+time. Printing or exporting to PDF files through [`print`](#cmd-print)
+always produces antialiased graphics, regardless of this option.
 
 If you experience performance problems for displaying curves, use
 `/opengl=true`, as this will instruct QSoas to use hardware
@@ -328,7 +329,7 @@ separate file.
 
 Imagine you have a file `function.rb` containing the text:
 
-~~~~ ruby
+~~~~
 def function(x,a)
   return x**(a**x)
 end
@@ -365,12 +366,12 @@ Has no effect if not within a script.
 
 ## Output file manipulation
 
-Several commands have the possibility to write data to the output
-file, such as various data analysis commands and the fit commands.
+Several commands (e.g.  various data analysis commands and the fit
+commands) write data to the output file.
 
-By default, the first time it is used, a `output.dat` file is created
-in the current directory. Another file can be used by providing its
-name to the [`output`](#cmd-output) command.
+By default, the first time the output file is used, a `output.dat`
+file is created in the current directory. Another file can be used by
+providing its name to the [`output`](#cmd-output) command.
 
 {::comment} synopsis-start: output {:/}
 
@@ -383,8 +384,8 @@ name to the [`output`](#cmd-output) command.
 
 {::comment} synopsis-end: output {:/}
 {::comment} description-start: output {:/}
-Opens _file_ as the new output file. By default, if the file existst,
-new data is appended, and the old data is left untouched. You can
+Opens _file_ as the new output file. By default, if the file exists,
+new data are appended, and the old data are left untouched. You can
 force overwriting by specifiying `/truncate=true`.
 {::comment} description-end: output {:/}
 
@@ -431,7 +432,8 @@ Alias: `l`
 {::comment} description-start: load {:/}
 
 Loads the given files and push them onto the data stack. QSoas
-features several backends for loading files. In principle, QSoas is
+features several backends for loading files (``backends'' are roughly
+equivalent to ``file formats''). In principle, QSoas is
 smart enough to figure out which one is the correct one, but you can
 force a given backend by using the appropriate `load-as-`
 command. Using a backend directly also provides more control on the
@@ -473,8 +475,7 @@ The `load` command and the corresponding `load-as-` command makes it
 possible to set dataset options just as with the 
 [`dataset-options`](#cmd-dataset-options).
 
-Finally, the `/style` option makes it possible to fine-tune the color
-when loading several curves:
+The style option sets the color style when loading several curves:
 
 ~~~~
 QSoas> load *.dat /style=red-blue
@@ -558,7 +559,11 @@ options controlling the way the text files are interpreted:
 
 {::comment} synopsis-end: load-as-csv {:/}
 {::comment} description-start: load-as-csv {:/}
-Same as for [`load-as-text`](#cmd-load-as-text)
+The `csv` backend is essentially the same backend as the
+[`text`](#cmd-load-as-text) one, but with the separators set by
+default to commas and semicolons, to parse CSV files. 
+Hence, the options have the same
+meaning as for [`load-as-text`](#cmd-load-as-text).
 {::comment} description-end: load-as-csv {:/}
 
 
@@ -571,11 +576,10 @@ Same as for [`load-as-text`](#cmd-load-as-text)
 
 {::comment} synopsis-end: expand {:/}
 {::comment} description-start: expand {:/}
-Even if a buffer contains several columns, QSoas only displays the
-second as a function of the first. With expand, you can split the
-current buffer into as many buffers as there are Y columns, ie a
-X, Y1, Y2, Y3 buffer will be turned into a X, Y1, a X, Y2 and a X, Y3
-buffers.
+If a buffer contains several columns, QSoas only displays the second as a
+function of the first.  expand splits the current buffer into as many
+buffers as there are Y columns, ie a X, Y1, Y2, Y3 buffer will be split
+into three buffers: X, Y1;   X, Y2 and  X, Y3.
 {::comment} description-end: expand {:/}
 
 {::comment} synopsis-start: rename {:/}
@@ -590,10 +594,10 @@ Alias: `a`
 
 {::comment} synopsis-end: rename {:/}
 {::comment} description-start: rename {:/}
-Changes the current name of the buffer. The name of a buffer 
-gets bigger with each operation performed on it (which is a way to
-track the operations that it has seen). `rename` can be used to change
-that to give it a more meaningful name.
+Changes the current name of the buffer. To help track the
+operations applied to a buffer, its name is modified and gets
+longer after each modification. `rename` can be used to change
+that to give it a more meaningful (and less long) name .
 {::comment} description-end: rename {:/}
 
 {::comment} synopsis-start: save {:/}
@@ -610,7 +614,7 @@ Alias: `s`
 
 {::comment} synopsis-end: save {:/}
 {::comment} description-start: save {:/}
-Saves the current buffer to the named file.
+Saves the current buffer to a file.
 {::comment} description-end: save {:/}
 
 {::comment} synopsis-start: save-buffers {:/}
@@ -643,7 +647,8 @@ Alias: `W`
 {::comment} synopsis-end: browse {:/}
 {::comment} description-start: browse {:/}
 Browse all datafiles in the current directory (or those matching the
-pattern given to `/pattern`). Very useful to find quickly the file
+wildcard pattern given to `/pattern`, see [`load`](#cmd-load) for more
+information about wildcards). Very useful to find quickly the file
 you're looking for.
 {::comment} description-end: browse {:/}
 
@@ -663,7 +668,7 @@ Alias: `V`
 
 {::comment} synopsis-end: overlay-buffer {:/}
 {::comment} description-start: overlay-buffer {:/}
-Overlay buffers that are already in memory on top of the current one
+Plots one or several buffers on top of the current buffer.
 
 See [`load`](#cmd-load) for the description of the `/style` option.
 {::comment} description-end: overlay-buffer {:/}
@@ -691,7 +696,7 @@ Alias: `v`
 {::comment} description-start: overlay {:/}
 This command combines [`overlay-buffer`](#cmd-overlay-buffer) and 
 [`load`](#cmd-load) in one go: loads the files given as arguments and
-overlays them to the current buffer.
+adds them to the current plot.
 {::comment} description-end: overlay {:/}
 
 {::comment} synopsis-start: clear {:/}
@@ -703,7 +708,7 @@ overlays them to the current buffer.
 
 {::comment} synopsis-end: clear {:/}
 {::comment} description-start: clear {:/}
-Removes all datasets but the current one from the display. Use to
+Removes all datasets except the current buffer from the display. Use to
 revert the effect of a previous overlay command, or can be useful if
 for some reason a command failed while not restoring the display (but
 that really should not happen anyway).
@@ -720,7 +725,8 @@ Alias: `poi`
 
 {::comment} synopsis-end: points {:/}
 {::comment} description-start: points {:/}
-Shows all the points of datasets displayed.
+Shows datapoints (by default, datasets are plotted by connecting
+datapoints with a line).
 
 Use this with parcimony, as for large datasets, it can significantly
 slow down the display.
@@ -739,9 +745,9 @@ Alias: `z`
 {::comment} description-start: zoom {:/}
 Zooms on the current curve. 
 
-While zooming is already possible to zoom using the mouse wheel, this
-command makes it possible to describe the rectangle one wants to zoom
-on.
+While zooming is already possible to zoom using the mouse wheel, with
+this command one draws a rectangle with the mouse around the region of
+interest.
 
 {::comment} description-end: zoom {:/}
 
@@ -999,8 +1005,9 @@ instance, to normalize the Y values by dividing by the median, one would use:
 QSoas> apply-formula /use-stats=true 'y = y/$stats["y_med"]'
 ~~~
 
-Statistics by segments are available too, which means if you want to
-normalize by the medians of the first segment, you could do
+Statistics by segments (see more about segments [there](#segments))
+are available too, which means if you want to normalize by the medians
+of the first segment, you could do
 
 ~~~ 
 QSoas> apply-formula /use-stats=true 'y = y/$stats[0]["y_med"]'
@@ -1018,7 +1025,8 @@ QSoas> apply-formula /use-stats=true 'y = y/$stats[0]["y_med"]'
 
 {::comment} synopsis-end: dx {:/}
 {::comment} description-start: dx {:/}
-Replaces the Y values by the values of delta X.
+Replaces the Y values by the values of delta X, i.e, 
+`y[i] = x[i+1] - x[i]`
 
 This is useful to see if the X values are equally spaced.
 {::comment} description-end: dx {:/}
@@ -1128,7 +1136,7 @@ modification, press the "push new" button.
 
 {::comment} synopsis-end: sort {:/}
 {::comment} description-start: sort {:/}
-Sorts the buffer in ascending X values.
+Sorts the buffer in increasing X values.
 {::comment} description-end: sort {:/}
 
 
@@ -1157,6 +1165,18 @@ QSoas> strip-if 'x * y < 10 && x > 2'
 
 This removes all the points for which both the X value is over 2 and
 the product of X and Y is below 10.
+
+When reading data files that contain spurious data points (such as
+text lines containing no data within a file read with
+[`load-as-text`](#cmd-load-as-text)), QSoas replaces the missing data
+by weird numbers called NaN (Not a Number). They can be useful at
+times, but mess up statistics and fits. To remove them, use:
+
+~~~~
+QSoas> strip-if '(x != x) || (y != y)'
+~~~~
+
+
 {::comment} description-end: strip-if {:/}
 
 {::comment} synopsis-start: diff {:/}
@@ -1170,7 +1190,7 @@ the product of X and Y is below 10.
 {::comment} description-start: diff {:/}
 Computes the 4th order accurate derivative of the buffer.
 
-This is efficient to compute the derivative of a mathematical
+This is efficient to compute the derivative of a very smooth
 function, but it gives very poor results on noisy data. In general,
 for derivation, prefer [`filter-fft`](#cmd-filter-fft) or 
 [`filter-bsplines`](#cmd-filter-bsplines).
@@ -1224,7 +1244,7 @@ Alias: `c`
 {::comment} synopsis-end: cut {:/}
 {::comment} description-start: cut {:/}
 Interactively cuts bits out of the buffer. Left and right mouse clicks
-set the left and right limit. Middle click or q quits leaving only the
+set the left and right limits. Middle click or q quits leaving only the
 part that is within the region, while u leaves only the outer
 part. Hit escape to cancel.
 {::comment} description-end: cut {:/}
@@ -1252,9 +1272,8 @@ buffers. The intepretation of the numbers depends on the value of the
   * `index` (or `indices`): the numbers are the indices of the points
     at which to split
 
-If `/set-segments` is on, rather than cutting the buffer into several
-parts, the [segments](#segments) are set to where the buffer would
-have been cut.
+If `/set-segments` is on, the X values not used to create independent
+buffers but rather to set the position of the  [segments](#segments).
 
 {::comment} description-end: chop {:/}
 
@@ -1791,7 +1810,8 @@ As may be anticipated from the name, `contract` does the reverse of
 [`expand`](#cmd-expand), ie it regroups in one buffer several values
 of Y that run against the same values of X. The result is a buffer
 that contains as many Y columns as the total of Y columns of all the
-arguments. X matching is done as for the other operations.
+arguments. X matching between the buffers is done as for the other
+operations such as [`div`](#cmd-div) or  [`subtract`](#cmd-subtract).
 {::comment} description-end: contract {:/}
 
 # Data inspection facilities
@@ -3003,8 +3023,10 @@ And run it this way:
 QSoas> @ process.cmd data_file.dat
 ~~~~
 
-You may wish to check the other scripting commands once you start to
-use `run` regularly.
+If you start to use `run` regularly, you may be interested in the
+other scripting commands, such as [`run-for-each`](#cmd-run-for-each),
+[`run-for-datasets`](#cmd-run-for-datasets) and
+[`startup-files`](#cmd-startup-files)
 
 {::comment} description-end: run {:/}
 

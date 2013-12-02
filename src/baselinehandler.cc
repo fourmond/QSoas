@@ -160,8 +160,11 @@ bool BaselineHandler::nextAction(int action, bool * shouldQuit,
 
 void BaselineHandler::updateBottom()
 {
-  diff.yvalues = signal->y() - modified.yvalues;
-  divided.yvalues = signal->y()/modified.yvalues;
+  // Do not update if the size do not match
+  if(modified.yvalues.size() == signal->y().size()) {
+    diff.yvalues = signal->y() - modified.yvalues;
+    divided.yvalues = signal->y()/modified.yvalues;
+  }
 }
 
 BaselineHandler::~BaselineHandler()

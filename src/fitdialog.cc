@@ -63,7 +63,7 @@ FitDialog::FitDialog(FitData * d, bool displayWeights) :
   setWindowModality(Qt::WindowModal);
   resize(fitDialogSize);
 
-  compute();
+
   if(displayWeights && d->datasets.size() > 1)
     bufferWeightEditor = new QLineEdit;
   else
@@ -75,12 +75,15 @@ FitDialog::FitDialog(FitData * d, bool displayWeights) :
     softOptions = NULL;
   }
 
+
   setupFrame();
   setFitEngineFactory(FitEngine::defaultFactoryItem());
 
-  
   if(data->fit->hasSubFunctions())
     displaySubFunctions = data->fit->displaySubFunctions();
+  compute();
+
+  
 
   updateEditors();
 }
@@ -425,6 +428,10 @@ void FitDialog::internalCompute()
   parameters.recompute();
   setupSubFunctionCurves();
   updateResidualsDisplay();
+
+  // Update here ?
+  if(stackedViews && stackedViews->currentWidget())
+    stackedViews->currentWidget()->repaint();
 }
 
 void FitDialog::compute()
@@ -440,8 +447,6 @@ void FitDialog::compute()
     message(s);
     Terminal::out << s << endl;
   }
-  if(stackedViews && stackedViews->currentWidget())
-    stackedViews->currentWidget()->repaint();
 }
 
 
@@ -579,8 +584,6 @@ void FitDialog::startFit()
   parameters.writeToTerminal();
   try {
     internalCompute();
-    if(stackedViews && stackedViews->currentWidget())
-      stackedViews->currentWidget()->repaint();
   }
   catch (const Exception & e) {
     appendToMessage(QString("Error while computing: ") + e.message());

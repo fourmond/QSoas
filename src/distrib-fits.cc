@@ -34,6 +34,8 @@
 
 
 /// Base class for all distribution-based fits
+/// @todo make it possible to use a common "sigma" parameter ?
+/// @todo use peak information for initial values.
 template <double f(double, double)>
 class DistribFit : public PerDatasetFit {
 
@@ -194,5 +196,8 @@ public:
 };
 
 
-DistribFit<gsl_ran_gaussian_pdf> gaussian("gaussian", 
+static DistribFit<gsl_ran_gaussian_pdf> gaussian("gaussian", 
                                           "One or several gaussians", "sigma");
+
+static DistribFit<gsl_ran_cauchy_pdf> lorentzian("lorentzian", 
+                                                 "A Lorentzian (also named Cauchy distribution)", "gamma");

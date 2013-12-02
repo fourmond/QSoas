@@ -1886,11 +1886,9 @@ static void deldpCommand(CurveEventLoop &loop, const QString &)
 
   CurveView & view = soas().view();
 
-  CEHideAll ha(view.mainPanel(), false);
+  CEHideAll ha(view.mainPanel());
 
   DataSet * newds = ds->derivedDataSet(ds->y(), "_deldp.dat");
-
-  view.clear();
 
   CurveDataSet d(newds);
   PointTracker t(&loop, newds);

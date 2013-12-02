@@ -247,7 +247,8 @@ SOURCES += src/qmain.cc \
         src/kineticsystemsteadystate.cc \
         src/integrator.cc \
         src/fitcatalyticwave.cc \
-        src/gslintegrator.cc 
+        src/gslintegrator.cc \
+        src/distrib-fits.cc
 
 
 HEADERS += src/headers.hh \

@@ -1807,7 +1807,7 @@ fp2("2", // command name
    "buffer",  // group name
     NULL, // arguments
     &fpBaseOps, // options
-    "Find two peak",
+    "Find two peaks",
     "Find the two biggest peaks",
     "...");
 

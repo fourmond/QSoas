@@ -49,6 +49,10 @@ QSoas> temperature 300
 In this documentation, all options and arguments have mouseover texts
 that give a short explanation of what kind of values are expected.
 
+Some commands are marked as *(interactive)*. This means that their use
+requires user interaction, which in particular makes them unsuitable
+for using inside [scripts](#scripting).
+
 
 # General
 
@@ -1374,15 +1378,15 @@ noise:
  * Data approximation using basis splines via 
    [`filter-bsplines`](#cmd-filter-bsplines) or 
    [`auto-filter-bs`](#cmd-auto-filter-bs).
- * Splike removals using [`remove-spikes`](#cmd-remove-spikes).
- * You even may consider that manual point removal is filtering, in
-   which case the [`deldp`](#cmd-deldp) command qualifies too.
+ * Splike removals using [`remove-spikes`](#cmd-remove-spikes) or 
+   which case the [`deldp`](#cmd-deldp).
 
-In addition, QSoas provides ways to remove "baselines" (for a given
-value of "base"):
+In addition, QSoas provides ways to remove calculated "baselines":
 
- * splines-based baseline with [`baseline`](#cmd-baseline)
- * so-called catalytic baselines with 
+ * baselines interpolated from datapoints with
+   [`baseline`](#cmd-baseline)
+ * baselines interpolated between two segments using either a cubic
+   function or an exponential function with
    [`catalytic-baseline`](#cmd-catalytic-baseline)
 
 
@@ -1397,13 +1401,13 @@ value of "base"):
 {::comment} synopsis-end: filter-fft {:/}
 {::comment} description-start: filter-fft {:/}
 Filter data using FFT, ie the data is Fourier transformed, then a
-filter function is applied to the frequency domain and the result is
+filter function is applied in the frequency domain and the result is
 backward transformed.
 
-Cutoff can be changed using the mouse left/right buttons. Power
-spectrum can be displayed using the `p` key, and the derivative can be
-displayed with `d` (in which case you get the derivative of the signal
-when accepting the data).
+The cutoff can be changed using the mouse left/right buttons. The
+power spectrum can be displayed using the `p` key, and the derivative
+can be displayed with `d` (in which case you get the derivative of the
+signal when accepting the data).
 
 Behind the scenes, a cubic baseline is computed and subtracted from
 the data to ensure that the data to which the FFT is applied has 0
@@ -1421,10 +1425,11 @@ small heuristic. You can display it using the `b` key.
 
 {::comment} synopsis-end: filter-bsplines {:/}
 {::comment} description-start: filter-bsplines {:/}
-Filters the data using B-splines takes the reverse approach of FFT
-filtering. In FFT filtering, one takes the original data and *removes*
-noise, with B-splines one constructs functions (linear combinations of
-polynomes) and finds the one that is the closest to the original data.
+
+Filters the data using B-splines: B-splines are polynomial functions
+of a given order defined over segments. The filtering process finds
+the linear combination of these splines functions that is the closest
+to the original data.
 
 This approach amounts to taking the projection of the original data
 onto the subspace of the polynomial functions.
@@ -1432,15 +1437,17 @@ onto the subspace of the polynomial functions.
 More information about the polynomial splines used can be found in
 the [GSL documentation](http://www.gnu.org/software/gsl/manual/html_node/Overview-of-B_002dsplines.html).  
 
-The result can be tuned by placing "nodes". Put more nodes in an area
+The result can be tuned by placing "nodes", ie the X positions of the
+segments over which the splines are defined. Put more nodes in an area
 where the data is not described properly by the smoothed
 function. Increasing the order (using `+`) may help too.
 
 Like for [`filter-fft`](#cmd-filter-fft), you can derive the data as
 well pushing the `d` key.
 
-Pushing the `o` keys optimizes the position of the segments in order
-to minimize the difference between the data and the approximation.
+Hitting the `o` key optimizes the position of the segments in order
+to minimize the difference between the data and the
+approximation. (be careful as this function may fail at times).
 {::comment} description-end: filter-bsplines {:/}
 
 {::comment} synopsis-start: auto-filter-bs {:/}
@@ -1525,10 +1532,9 @@ Alias: `b`
 
 {::comment} synopsis-end: baseline {:/}
 {::comment} description-start: baseline {:/}
-
-Draw a baseline by placing points on the curve using the mouse (or off
-the curve, after using key `o`). Baseline is computing using one of
-several interpolation algorithms: C-splines, linear or polynomial
+Draw a baseline by placing markers on the curve using the mouse (or
+off the curve, after using key `o`). Baseline is computing using one
+of several interpolation algorithms: C-splines, linear or polynomial
 interpolation and Akima splines (the latter usually follows best the
 accidents on the curve). Cycle between the various schemes using `c`.
 {::comment} description-end: baseline {:/}
@@ -1586,17 +1592,18 @@ Computes the auto-correlation function of the data, using FFT.
 
 {::comment} synopsis-end: bin {:/}
 {::comment} description-start: bin {:/}
-Bins the X values into various boxes (whose number can be controlled
-using the `/boxes` option). The new buffer has for X values the center
-of the boxes and as Y values the number of data points that were in
-the boxes.
+Creates an histogram by binning the Y values (or the values of the
+column given by the `/column` option, 0 for X, 1 for Y, 2 for Y2...)
+into various boxes (whose number can be controlled using the `/boxes`
+option). The new buffer has for X values the center of the boxes and
+as Y values the number of data points that were in the boxes.
 {::comment} description-end: bin {:/}
 
 
 # Segments {#segments}
 
-It if possible to split a buffer into logical segments. This does not
-change the contents of the buffer, but the position of the segment
+It if possible to split a buffer into logical segments without changing
+the contents of the buffer, but the position of the segment
 boundaries are marked by a vertical line. They can be used for
 different purposes: for 
 [segment-by-segment operations](#buffer-operations), 
@@ -1624,10 +1631,9 @@ This function detects ``jumps'' in the data (such as potential changes
 in a chronoamperometry experiment, for instance), and display them
 both to the terminal output and on the data display. 
 
-If the option `/set-segments` is on, the segments of the dataset are
-set to that found by `find-steps` (removing the ones previously
-there).
-
+By default, this function only shows the segments it finds, but if the
+option `/set-segments` is on, the segments are set to that found by
+`find-steps` (removing the ones previously there).
 {::comment} description-end: find-steps {:/}
 
 {::comment} synopsis-start: set-segments {:/}
@@ -1697,7 +1703,7 @@ in another buffer. There are two ways to do that, chosen by the
    such as full cyclic voltammograms.
 
  * with `/mode=indices`, points are matched on a one-to-one basis, ie
-   point 1 of dataset 1 to point 2 of dataset 2, irrespective of the X
+   point 1 of buffer 1 to point 1 of buffer 2, irrespective of the X
    values.
 
 In addition to that, the operations can make use of the segments
@@ -1706,8 +1712,8 @@ defined on each buffer (see [`find-steps`](#cmd-find-steps) and
 `/use-segments=true`, then the operations are applied
 segment-by-segment, with the first point of each segment matching the
 corresponding point in the other buffer. This mode is particularly
-useful to manipulate series of potential steps when some series are
-using shorter times than others.
+useful to manipulate series of potential steps with different time
+intervals.
 
 {::comment} synopsis-start: div {:/}
 
@@ -1723,9 +1729,9 @@ using shorter times than others.
 {::comment} synopsis-end: div {:/}
 {::comment} description-start: div {:/}
 Divides all buffers by the last one. This is useful to get rid of film
-loss when one have an independent measure of film loss, see
+loss when one has an independent measure of film loss, see
 [Fourmond _et al_, Anal. Chem. 2009](http://dx.doi.org/10.1021/ac8025702)
-for more information on that way to use divisions.
+for more information.
 {::comment} description-end: div {:/}
 
 {::comment} synopsis-start: subtract {:/}
@@ -1743,8 +1749,8 @@ Alias: `S`
 
 {::comment} synopsis-end: subtract {:/}
 {::comment} description-start: subtract {:/}
-Subtracts the last buffer from all the other ones. Useful for standard
-baseline removal.
+Subtracts the last buffer from all the other ones (there can be more
+than one _first_ buffer). Useful for standard baseline removal.
 {::comment} description-end: subtract {:/}
 
 {::comment} synopsis-start: average {:/}
@@ -1789,8 +1795,8 @@ as a function of Y of the first. The algorithm for finding which point
 in the second corresponds to a given one in the first is the same as
 that of the other buffers. 
 
-If more than two buffers are specified, the last one gets merged to
-all the ones before.
+If more than two buffers are specified, the last one gets merged with
+each of those before.
 {::comment} description-end: merge {:/}
 
 {::comment} synopsis-start: contract {:/}
@@ -1832,10 +1838,10 @@ operations such as [`div`](#cmd-div) or  [`subtract`](#cmd-subtract).
 Find all the peaks of the current dataset. If `/output` is on, then
 the peak data is written to the output file. This function will find
 many peaks on noisy data, you can limit to the first _n_ ones by using 
-`/peaks=`_n_.
+`/peaks=`_n_ (peaks are ranked by amplitude).
 
 Peaks are indicated on the buffer using lines, and their position is
-written to the terminal.
+written to the terminal, if `/output` is on (off by default).
 {::comment} description-end: find-peaks {:/}
 
 {::comment} synopsis-start: echem-peaks {:/}
@@ -1903,7 +1909,7 @@ QSoas> find-peaks /peaks=2 /output=true
 
 {::comment} synopsis-end: stats {:/}
 {::comment} description-start: stats {:/}
-Stats display various statistics about the current buffer (or the one
+`stats` displays various statistics about the current buffer (or the one
 specified as the `/buffer` option). The exact list of statistics
 displayed grows slowly with time and needs. It is currently, for each
 column:
@@ -1941,6 +1947,9 @@ the cursor and the reference point is also displayed.
 Cursor positions can be saved to the output file by pressing the space
 bar.
 
+Hitting `u` subtracts the Y value of the current point to the Y values
+of the buffer and returns. Hitting `v` divides by the current Y value.
+
 {::comment} description-end: cursor {:/}
 
 {::comment} synopsis-start: reglin {:/}
@@ -1957,11 +1966,13 @@ Alias: `reg`
 Linear regression. Using the left and right mouse buttons, select a
 region whose slope is of interest. The terminal shows the $$a$$ and $$b$$
 parameters, and also the effective first order rate constant, ie the
-$$k$$ parameter of the equation
+$$k_{eff}$$ parameter of the equation
 
-$$ f_0 \exp \left[-k \, (x - x_0) \right] $$
+$$ f_0 \exp \left[-k_{eff} \, (x - x_0) \right] $$
 
-with values that match the same initial slope.
+whose first-order expansion gives the same linear approximation, ie:
+
+$$ f_0 \times \left[1 - k_{eff} (x - x_0))\right] = a x + b$$
 
 Using the space bar it is possible to save the values displayed in the
 terminal to the output file.
@@ -1972,18 +1983,18 @@ terminal to the output file.
 
 # Fits 
 
-QSoas is particularly good when it comes to fitting data, and allows
-for complex fits, and in particular multi-buffer fits, when functions
-with shared parameters are fit to different buffers. Fits fall into
-two different categories:
+QSoas was designed with a particular emphasis on fitting data. It
+allows complex fits, and in particular multi-buffer fits, when
+functions with shared parameters are fit to different buffers. Fits
+fall into two different categories:
 
  * mono-buffer fits, ie fits that apply to one buffer, but that can be
    applied to several buffers at the same time with shared parameters
  * multi-buffer fits, ie fits that need at least two buffers to work
 
-Fits provide several commands: all provide a `mfit-`_fit_ and a
-`sim-`_fit_ command, and mono-buffer fits provide a `fit-`_fit_ in
-addition.
+Fits can be used through several commands: for all fits there are a
+`mfit-`_fit_ and a `sim-`_fit_ command, and for mono-buffer fits,
+there is a `fit-`_fit_ in addition.
 
  * The `fit` command fits a single buffer, when the fits allows
    that. It takes no argument
@@ -1991,10 +2002,11 @@ addition.
    the numbers of the buffers it will work on.
  * The `sim` command takes a saved parameters file and a series of
    buffers, and pushes the data computed from the parameters on the
-   stack.
+   stack using the X values of the buffers given as arguments (their Y
+   values are not used).
 
 In addition to these commands, QSoas provides commands to combine fits
-together and to create fit to fit derivatives of the signals.
+together and to fit derivatives of the signals.
 
 
 {::comment} synopsis-start: combine-fits {:/}
@@ -2010,7 +2022,12 @@ together and to create fit to fit derivatives of the signals.
 {::comment} synopsis-end: combine-fits {:/}
 {::comment} description-start: combine-fits {:/}
 Creates a new fit named _name_ based on other fits, combined through a
-formula.
+formula. The formula use `y1`, `y2` and so on to refer to the
+fits. You specify the fit names by removing the `fit-` or `mfit-`
+prefix.
+
+TODO FINISH THIS HERE WITH GAUSSIAN STUFF OR USER DEFINED STUFF ?
+
 {::comment} description-end: combine-fits {:/}
 
 {::comment} synopsis-start: define-derived-fit {:/}
@@ -2188,9 +2205,8 @@ case-by-case basis using [`fit-arb`](#cmd-fit-arb), it is also
 possible to store formulas in a plain text file and load them using 
 [`load-fits`](#cmd-load-fits). 
 
-For the time being, arbitrary fits don't have a `sim-` command (but to
-get roughly the same effect, you can use
-[`apply-formyla`](#cmd-apply-formula).
+Arbitrary fits don't have a corresponding `sim-` command 
+(use [`apply-formula`](#cmd-apply-formula) instead).
 
 {::comment} synopsis-start: fit-arb {:/}
 
@@ -2425,6 +2441,10 @@ There is for now only one type of time-dependence:
 ~~~~
 QSoas> fit-kinetic-system /with=o2:3,exp,common kinetic-file.txt
 ~~~~
+
+This kind of functions were used to analyse the inhibition of NiFe
+hydrogenase by CO and O2, see for instance [Liebgott _et al_,
+_Nat. Chem. Biol._, 2010](http://dx.doi.org/10.1038/nchembio.276).
 
 
 {::comment} synopsis-start: fit-kinetic-system {:/}

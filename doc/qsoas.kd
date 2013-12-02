@@ -53,6 +53,20 @@ Some commands are marked as *(interactive)*. This means that their use
 requires user interaction, which in particular makes them unsuitable
 for using inside [scripts](#scripting).
 
+## Note about text files
+
+Many commands of QSoas make use of "plain text files", i.e. files that
+simply contain unformatted text. These are for instance:
+
+ * files for defining fits with [`load-fits`](#cmd-load-fits)
+ * scripts to be run with [`run`](#cmd-run)
+ * definitions of kinetic systems for
+  [`fit-kinetic-system`](#cmd-fit-kinetic-system)
+ * even saved fit parameters are plain text files
+
+On windows, use Notepad to edit them. On Linux, `pico`, `nano`, `vi`
+or `emacs` are pretty good choices. On MacOS, ??? 
+
 
 # General
 
@@ -1536,7 +1550,7 @@ Draw a baseline by placing markers on the curve using the mouse (or
 off the curve, after using key `o`). Baseline is computing using one
 of several interpolation algorithms: C-splines, linear or polynomial
 interpolation and Akima splines (the latter usually follows best the
-accidents on the curve). Cycle between the various schemes using `c`.
+accidents on the curve). Cycle between the various schemes by hitting `t`.
 {::comment} description-end: baseline {:/}
 
 {::comment} synopsis-start: catalytic-baseline {:/}

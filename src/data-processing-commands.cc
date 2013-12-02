@@ -132,7 +132,7 @@ namespace __reg {
         line.p2 = QPointF(xright, y);
 
         // Apparent first-order rate constants
-        decay_rate = reg.first/(reg.second + reg.first * r.xleft);
+        decay_rate = - reg.first/(reg.second + reg.first * r.xleft);
         Terminal::out << reg.first << "\t" << reg.second 
                       << "\t" << decay_rate 
                       << "\t" << r.xleft << "\t" << r.xright << endl;

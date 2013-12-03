@@ -2022,6 +2022,15 @@ there is a `fit-`_fit_ in addition.
 In addition to these commands, QSoas provides commands to combine fits
 together and to fit derivatives of the signals.
 
+All fits commands share several common options, which are detailed
+here:
+
+ * With the `/extra-parameters` option, on defines additional
+   parameters to the fit, that can be used to define parameters by
+   formulas
+ * Passing the name of a saved parameters file to the `/parameters`
+   option preloads the given parameters at the beginning of the fit.
+
 
 {::comment} synopsis-start: combine-fits {:/}
 
@@ -2038,10 +2047,18 @@ together and to fit derivatives of the signals.
 Creates a new fit named _name_ based on other fits, combined through a
 formula. The formula use `y1`, `y2` and so on to refer to the
 fits. You specify the fit names by removing the `fit-` or `mfit-`
-prefix.
+prefix. For instance, to fit a sum of lorentzians and gaussians, one
+just has to do:
 
-TODO FINISH THIS HERE WITH GAUSSIAN STUFF OR USER DEFINED STUFF ?
+~~~
+QSoas> combine-fits lg 'y1 + y2' lorentzian gaussian
+~~~
 
+This creates a new fit, `lg`, and hence three new commands, `fit-lg`,
+`mfit-lg` and `sim-lg`. The fit is a sum of a
+[lorentzian](#cmd-fit-lorentzian) fit (`y1`) and a
+[gaussian](#cmd-fit-gaussian) fit (`y2`). The new fit shares the
+options of all the original fits.  
 {::comment} description-end: combine-fits {:/}
 
 {::comment} synopsis-start: define-derived-fit {:/}
@@ -2055,14 +2072,18 @@ TODO FINISH THIS HERE WITH GAUSSIAN STUFF OR USER DEFINED STUFF ?
 
 {::comment} synopsis-end: define-derived-fit {:/}
 {::comment} description-start: define-derived-fit {:/}
-Defines a new fit based on the already defined _fit_ that will fit:
+Defines a new fit based on the already defined _fit_ (just the fit
+name, that is without the `fit-` prefix) that will fit:
 
-  * only the derivative if `/mode=deriv-only`
-  * the original function in one buffer and the derivative in the
-    second if `/mode=separated`
+  * only the derivative if `/mode=deriv-only`, in which case is is
+    named `fit-deriv-only-`_fit_;
+  * a multibuffer fit for the original function in one buffer 
+    and the derivative in the second if `/mode=separated` (the default
+    mode), in which case the fit is named `mfit-deriv-`_fit_;
   * both the original function and the derivative in a single buffer
     (the derivative is assumed to be the data after the first
-    discontinuity in the X values) if `/mode=combined`
+    discontinuity in the X values) if `/mode=combined`, in which case
+    the new fit is named `fit-deriv-combined-`_fit_;
 
 This function is explained in more details in the [tutorial](tutorial.html).  
 {::comment} description-end: define-derived-fit {:/}
@@ -2096,9 +2117,9 @@ $$ \left(A_\infty + \sum_{i=1}^n A_i \exp(-(x - x_0)/\tau_i) + b\,
 x\right) \exp (- k_{loss}(x - x_0))$$
 
 $$b\,x$$ is only present if the `/slow` option is on, and $$k_{loss}$$
-is not 0 only if `/loss` is on. If `/relative` is on, $$A_i$$ is not
-a parameter of the fit, but $$\alpha_i$$ defined by 
-$$A_i = \alpha_i A_\infty$$.  
+is not 0 only if `/loss` is on. 
+If `/relative` is on, the parameter of the fit is $$\alpha_i$$ 
+(defined by $$A_i = \alpha_i A_\infty$$) rather than $$A_i$$.  
 This should not be used to fit data that tend to 0.
 
 {::comment} description-end: fit-exponential-decay {:/}
@@ -2235,20 +2256,22 @@ Arbitrary fits don't have a corresponding `sim-` command
 
 {::comment} synopsis-end: fit-arb {:/}
 {::comment} description-start: fit-arb {:/}
-Fits _formula_ to the current buffer. _formula_ is a \|-separated list
-of [Ruby](#ruby) formulas that apply to different buffers (of course,
-if you specify more than one formula that way, you must use the
-[`mfit-arb`](#cmd-mfit-arb) command, see its documentation for more
-information). 
+Fits _formula_ (a piece of [Ruby](#ruby) code) to the current buffer. 
 
 Parameters are auto-detected. Some parameters are treated
 specifically:
- * `x_0` and `y_0` are fixed by default and initialized to the first
-   X or Y value of the buffer the fit applies to;
- * `temperature` is also fixed and set to the current
-   [temperature](#cmd-temperature)
- * Using `fara` counts as using `temperature` excepted that its value is
-   $$f = F/RT$$. You never get `fara` as a fit parameter.
+
+  * `x_0` and `y_0` are fixed by default and initialized to the first
+    X or Y value of the buffer the fit applies to;
+  * `temperature` is also fixed and set to the current
+    [temperature](#cmd-temperature)
+  * Using `fara` counts as using `temperature` excepted that its value is
+    $$f = F/RT$$. You never get `fara` as a fit parameter.
+
+If you often use the same formula for `fit-arb`, you should consider
+using [`custom-fit`](#cmd-custom-fit) or writing it in a file and
+loading that file with [`load-fits`](#cmd-load-fits).
+
 {::comment} description-end: fit-arb {:/}
 
 {::comment} synopsis-start: mfit-arb {:/}
@@ -2267,6 +2290,9 @@ specifically:
 {::comment} synopsis-end: mfit-arb {:/}
 {::comment} description-start: mfit-arb {:/}
 Same as [`fit-arb`](#cmd-fit-arb), but for multiple buffers.
+
+Using `mfit-arb`, it is possible to specify several formulas,
+separated by a `\|`. 
 
 If only one formula is specified, the same formula is applied to all
 buffers (with, as usual, the possibility to select which parameters
@@ -2295,10 +2321,10 @@ Buffer 0 get fits with `a*x+b`, 1 with `a*x+c` and 2 with `a*x+d`.
 
 {::comment} synopsis-end: load-fits {:/}
 {::comment} description-start: load-fits {:/}
-Load arbitrary fits from a plain text file. The fits are turned into
-normal QSoas fits (which means they can be used with
-[`define-derived-fit`](#cmd-define-derived-fit) or
-[`combine-fits`](#cmd-combine-fits) for instance). Files should look
+Load fits of arbitrary functions from a plain text file, and create
+the corresponding `fit-`, `mfit-` and `sim-` functions, that can be
+used with [`define-derived-fit`](#cmd-define-derived-fit) or
+[`combine-fits`](#cmd-combine-fits) for instance. Files should look
 like this:
 
 ~~~~
@@ -2406,7 +2432,7 @@ Simulation command for [`fit-nernst`](#cmd-fit-nernst)
 {::comment} description-end: sim-nernst {:/}
 
 
-## Kinetic systems
+## Kinetic systems {#kinetic-systems}
 
 It is possible with QSoas to fit kinetic traces that follow the
 concentration of one or more species that are part of a full kinetic
@@ -2785,6 +2811,11 @@ Simulation for the [`eecr-wave`](#cmd-fit-eecr-wave) fit.
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
 
 {::comment} synopsis-end: fit-eecr-relay-wave {:/}
+{::comment} description-start: fit-eecr-relay-wave {:/}
+Fits the so-called EEC with relay model in [Fourmond _et al_,
+*JACS*2013](http://dx.doi.org/10.1021/ja311607s) to the data.
+{::comment} description-end: fit-eecr-relay-wave {:/}
+
 {::comment} synopsis-start: mfit-eecr-relay-wave {:/}
 
 ### mfit-eecr-relay-wave - Multi fit: Fit of an EECR+relay catalytic wave {#cmd-mfit-eecr-relay-wave}
@@ -2798,6 +2829,9 @@ Simulation for the [`eecr-wave`](#cmd-fit-eecr-wave) fit.
   * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
 
 {::comment} synopsis-end: mfit-eecr-relay-wave {:/}
+{::comment} description-start: mfit-eecr-relay-wave {:/}
+Multi-buffer version of the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
+{::comment} description-end: mfit-eecr-relay-wave {:/}
 {::comment} synopsis-start: sim-eecr-relay-wave {:/}
 
 ### sim-eecr-relay-wave - Fit: Fit of an EECR+relay catalytic wave {#cmd-sim-eecr-relay-wave}
@@ -2811,6 +2845,9 @@ Simulation for the [`eecr-wave`](#cmd-fit-eecr-wave) fit.
   * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-eecr-relay-wave {:/}
+{::comment} description-start: sim-eecr-relay-wave {:/}
+Simulation command for the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
+{::comment} description-end: sim-eecr-relay-wave {:/}
 
 {::comment} synopsis-start: fit-ecr-wave {:/}
 
@@ -2826,6 +2863,10 @@ Simulation for the [`eecr-wave`](#cmd-fit-eecr-wave) fit.
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
 
 {::comment} synopsis-end: fit-ecr-wave {:/}
+{::comment} description-start: fit-ecr-wave {:/}
+Fits the so-called EC model in [Fourmond _et al_,
+*JACS*2013](http://dx.doi.org/10.1021/ja311607s) to the data.
+{::comment} description-end: fit-ecr-wave {:/}
 {::comment} synopsis-start: mfit-ecr-wave {:/}
 
 ### mfit-ecr-wave - Multi fit: Fit of an EECR catalytic wave {#cmd-mfit-ecr-wave}
@@ -2842,6 +2883,9 @@ Simulation for the [`eecr-wave`](#cmd-fit-eecr-wave) fit.
   * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
 
 {::comment} synopsis-end: mfit-ecr-wave {:/}
+{::comment} description-start: mfit-ecr-wave {:/}
+Multi-buffer version of the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
+{::comment} description-end: mfit-ecr-wave {:/}
 {::comment} synopsis-start: sim-ecr-wave {:/}
 
 ### sim-ecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-sim-ecr-wave}
@@ -2858,13 +2902,16 @@ Simulation for the [`eecr-wave`](#cmd-fit-eecr-wave) fit.
   * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-ecr-wave {:/}
+{::comment} description-start: mfit-ecr-wave {:/}
+Simulation command for the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
+{::comment} description-end: mfit-ecr-wave {:/}
 
 # Computation/simulations functions
 
-The commands in this section in general don't deal with experimental
-data, though most require a buffer to work on, to act as a model for
-the X values. If you're not trying to reproduce experimental data,
-generate the buffers using [`generate-buffer`](#cmd-generate-buffer).
+The commands in this section generate data "from scracth", though most
+require a buffer to work on, to act as a model for the X values. You
+can create a buffer for those commands using
+[`generate-buffer`](#cmd-generate-buffer). 
 
 ## Evaluation functions
 
@@ -2911,7 +2958,7 @@ by [`ruby-run`](#cmd-ruby-run).
 Find the root of the given `x`-dependent expression using an iterative
 algorithm, using _seed_ as the initial value. If the `/max` option is
 specified, then the search proceeds using dichotomy between the two
-values.
+values (_seed_ and _max_).
 
 ~~~~
 QSoas> find-root 'x**2 - 3' 1
@@ -2919,7 +2966,7 @@ Found root at: 1.73205
 ~~~~
 
 Do not use a equal sign. The returned value is that for which the
-expression is 0.
+expression equates 0.
 {::comment} description-end: find-root {:/}
 {::comment} synopsis-start: integrate {:/}
 
@@ -2992,6 +3039,31 @@ QSoas> generate-buffer -10 10 sin(x)
   * `/annotate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, a last column will contain the number of function evaluation for each step
 
 {::comment} synopsis-end: kinetic-system {:/}
+{::comment} description-start: kinetic-system {:/}
+Simulates the evolution over time of the [kinetic
+system](#kinetic-systems) given in the _reaction-file_ (see the
+section [kinetic system](#kinetic-systems) for the syntax of the
+reaction files).
+
+This commands will use the current buffer as a source for X values. 
+
+The result is a multi-column buffer containing the concentration of
+all the species in the different columns.
+
+_parameters_ is a list of assignments evaluated at the beginning of the
+time evolution to set the parameters of the system. (all parameters
+not set this way default to 0).
+
+For instance, if the reaction file contains:
+
+~~~
+A <=>[ki][ka] I
+~~~
+
+You can run
+
+{::comment} description-end: kinetic-system {:/}
+
 
 {::comment} synopsis-start: ode {:/}
 

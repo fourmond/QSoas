@@ -147,14 +147,17 @@ void KineticSystemEvolver::setupCallback(void (*cb)(double *, double, void *),
 static ArgumentList 
 ksArgs (QList<Argument *>() 
         << new FileArgument("reaction-file", 
-                           "File describing the kinetic system")
-        << new StringArgument("parameters", 
+                            "Reaction file",
+                            "File describing the kinetic system")
+        << new StringArgument("parameters",
+                              "Parameters",
                               "Parameters of the model")
         );
 
 static ArgumentList 
 ksOpts (QList<Argument *>() 
         << new BoolArgument("dump", 
+                            "Dump system",
                             "If on, dumps the system rather than solving")
         << ODEStepperOptions::commandOptions()
         << new BoolArgument("annotate", 

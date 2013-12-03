@@ -221,11 +221,11 @@ public:
                    << new 
                    BoolArgument("loss", 
                                 "Loss",
-                                "Is there an overall fully exponential loss ?")
+                                "Wether the sum of exponentials should be multiplied by an exp(-kt) function")
                    << new 
                    BoolArgument("slow", 
                                 "Slow phase",
-                                "Is there a very slow phase ?")
+                                "Is there a very slow phase (that shows up as a linear change in Y against time) ?")
                    );
     return opts;
   };

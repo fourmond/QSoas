@@ -273,7 +273,7 @@ SlowScanHighPotFit fit_slow_scan_high_pot;
 
 
 
-/// Fits to the EECR model of electrochemical waves
+/// Fits to the ECR model of electrochemical waves
 class ECRFit : public PerDatasetFit {
   /// Whether or not the current plateaus off at extreme potentials.
   bool plateau;
@@ -394,7 +394,7 @@ public:
 
   ECRFit() :
     PerDatasetFit("ecr-wave", 
-                  "Fit of an EECR catalytic wave",
+                  "Fit of an ECR catalytic wave",
                   "...", 1, -1, false) 
   { 
     makeCommands();

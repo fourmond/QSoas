@@ -3054,13 +3054,25 @@ _parameters_ is a list of assignments evaluated at the beginning of the
 time evolution to set the parameters of the system. (all parameters
 not set this way default to 0).
 
-For instance, if the reaction file contains:
+For instance, if the reaction file (`system.sys`) contains:
 
 ~~~
 A <=>[ki][ka] I
 ~~~
 
-You can run
+You can run the following commands to simulate the time evolution of
+the system with initial concentration of A equal to 1 (the parameter
+`c0_A`), of I equal to 0 (the parameter `c0_I`, here not specified so
+assumed to be 0) and with `ki` and `ka` equal to 1:
+
+~~~
+QSoas> generate-buffer 0 10
+QSoas> kinetic-system system.sys 'c0_A = 1;ka = 1; ki = 1'
+~~~
+
+The _parameters_ argument is actually a [Ruby](#ruby) expression that
+is evaluated once before the computations start, so you can use more
+complex formulas.
 
 {::comment} description-end: kinetic-system {:/}
 
@@ -3081,6 +3093,89 @@ You can run
   * `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: Algorithm used for integration
 
 {::comment} synopsis-end: ode {:/}
+{::comment} description-start: ode {:/}
+`ode` solves ordinary differential equations. The equation definition
+file is structure in three parts, separated by at least one fully
+blank line, the last one being optional. 
+
+The first section defines the "initial conditions"; there are as many
+integrated variables as there are lines in this section. This section
+is only evaluated at the beginning of the system.
+
+The second section defines the derivatives; they are evaluated several
+times for each time step. 
+
+Here is the contents of the file (say `sine.ode`) one would use to
+obtain $$\sin t$$ and $$\cos t$$ as solutions.
+
+~~~
+sin = 0
+cos = 1
+
+d_sin = cos
+d_cos = -sin
+~~~
+
+After running the commands
+
+~~~
+QSoas> generate-buffer 0 10
+QSoas> ode sine.ode
+~~~
+
+One has a buffer with one X column (representing the $$t$$ values),
+and two Y columns, $$\sin t$$ and $$\cos t$$ (in the order in which
+they are given in the "initial conditions" section).
+
+The optional third section can be used to control the exact output of
+the program. The above example can be completed thus:
+
+~~~
+sin = 0
+cos = 1
+
+d_sin = cos
+d_cos = -sin
+
+[sin, cos, sin**2 + cos**2]
+~~~
+
+Using this gives 3 Y columns: $$\sin t$$, $$\cos t$$ and 
+$$\sin^2 t + \cos^2 t$$, that should hopefully be very close to 1.
+
+Details of the integrations procedures can be tweaked using the
+parameters:
+
+ * `/stepper`: the ODE stepper algorithm. You can find more about them
+   in the [GSL documentation](http://www.gnu.org/software/gsl/manual/html_node/Stepping-Functions.html)
+ * `/prec-relative` and `/prec-absolute` control the precision. A step
+   will be deemed precise enough if the error estimate is **either**
+   smaller than the relative precision or than the absolute precision
+ * `/adaptative` controls whether an adaptative step size is used (the
+   values of $$t$$ in the resulting buffer are always those asked, but
+   there may be more intermediate steps). You should seldom need to
+   turn it off
+
+If `/annotate` is on, a last column is added that contains the number
+of the evaluations of derivatives for each step (useful for
+understanding why an integration takes so long, for instance).
+
+The system of equations may contain undefined variables; one could
+have for instance used:
+
+~~~
+d_sin = omega * cos
+d_cos = -omega * sin
+~~~
+
+Their values are set to 0 by default. You can change their values
+using the `/parameters` option:
+
+~~~
+QSoas> ode sine.ode /parameters="omega = 3"
+~~~
+
+{::comment} description-end: ode {:/}
 
 
 # Scripting facilities {#scripting}
@@ -3107,12 +3202,11 @@ Alias: `@`
 
 {::comment} synopsis-end: run {:/}
 {::comment} description-start: run {:/}
-Run commands saved in a file. Commands don't have to have full
-arguments provided, as prompting will still be performed in case of
-missing arguments.
+Run commands saved in a file. If a compulsory argument is missing,
+QSoas will prompt the user.
 
-All the arguments after the first are arguments for the scripts. They
-are passed as "special variables" `${1}`, and `${2}`...
+Arguments following the name of the script are passed to the script as
+"special variables" ${1}, and ${2} etc.
 
 Imagine you are often doing the same processing a given type of data
 files, say, simply filtering them. You just have to write a script
@@ -3155,10 +3249,11 @@ files that `QSoas` will read at the next startup.
 
 Files given to the `/add` options are added at the end of the list.
 
-You remove files from this list by supplying their __number__ (as
-given by `startup-files` without options) to the `/rm` option.
+To remove a fil from the list, obtain its number by running
+startup-fileswithout any option, then use
+startup-files again with the option /rm=.
 
-Finally, you can re-run all startup files by running:
+You can re-run all startup files by running:
 
 ~~~
 QSoas> startup-files /run=true
@@ -3198,10 +3293,10 @@ QSoas> @ process-my-file.cmds file2
 QSoas> @ process-my-file.cmds file3
 ~~~
 
-The arguments don't actually have to be file names, although automatic
-completion will only complete file names. If the script you want to
-run requires more than one argument, you can specify them (for all the
-runs) using the options `/arg2`, `/arg3` and so on:
+The arguments may not be file names, although automatic completion
+will only complete file names. If the script you want to run requires
+more than one argument, you can specify them (for all the runs) using
+the options `/arg2`, `/arg3` and so on:
 
 ~~~
 QSoas> run-for-each process-my-file.cmds /arg2=other file1 file2 
@@ -3379,11 +3474,12 @@ Basically, the [Ruby][ruby] syntax ressembles that of other symbolic
 evaluation programs (it is quite close to the one from
 [gnuplot][gnuplot]), with the following restrictions: 
 
- * never use a name starting with an uppercase for parameters, as
-   those have a special meaning to the Ruby interpreter
- * don't abbreviate floating points: `2.` and `.4` are invalid, use
-   `2.0` and `0.4` instead
- * case matters: `Pi` is $$\pi$$, while `pi` is nothing defined.
+ * Parameter names **cannot start with an uppercase letter**, as those have a
+   special meaning to the Ruby interpreter: anything that starts with
+   an uppercase letter is assumed to be a constant.
+ * Don't abbreviate floating points: `2.` and `.4` are invalid, use
+   `2.0` and `0.4` instead.
+ * Dase matters: `Pi` is $$\pi$$, while `pi` is nothing defined.
 
 In addition to standard mathematical functions from the [Math][math]
 module, the following special functions are available:
@@ -3401,9 +3497,8 @@ module, the following special functions are available:
 
 {::comment} special-functions-end {:/}
 
-Similarly, some physical/mathematical constants are available. Please
-keep in mind again that they necessarily start with an **uppercase**
-letter.
+Some physical/mathematical constants are available; their name starts
+with an **uppercase** letter.
 
 {::comment} constants-start {:/}
 

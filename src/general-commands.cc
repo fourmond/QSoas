@@ -478,8 +478,8 @@ rfd("run-for-datasets", // command name
     "file",  // group name
     &rfdArgs, // arguments
     NULL, 
-    "Loop run a script",
-    "Runs a script file repetitively with the given arguments",
+    "Runs a script for several datasets",
+    "Runs a script file repetitively with the given buffers",
     "...");
 
 //////////////////////////////////////////////////////////////////////
@@ -591,7 +591,7 @@ rfe("run-for-each", // command name
     "file",  // group name
     &rfeArgs, // arguments
     &rfeOpts, 
-    "Loop run a script",
+    "Runs a script for several arguments",
     "Runs a script file repetitively with the given arguments",
     "...");
 

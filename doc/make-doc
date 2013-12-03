@@ -3,7 +3,7 @@
 # This script takes the qsoas.kd documentation and creates the HTML
 # and PDF documentation from it.
 
-cat head.html <(echo 'Last updated on <b>'; date; echo '</b></p>') <(kramdown -o html < qsoas.kd) tail.html > qsoas.html
-cat head.tex <(kramdown -o latex < qsoas.kd) tail.tex > qsoas.tex
+cat head.html <(echo 'Last updated on <b>'; date; echo '</b></p>') <(./preprocess-doc qsoas.kd | kramdown -o html) tail.html > qsoas.html
+cat head.tex <(./preprocess-doc qsoas.kd | kramdown -o latex) tail.tex > qsoas.tex
 
 

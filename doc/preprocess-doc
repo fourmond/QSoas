@@ -1,0 +1,10 @@
+#! /usr/bin/ruby
+
+# Reads a documentation file in ARGV and prints modified lines
+
+file = File.open(ARGV[0])
+for l in file
+  l.gsub!(/\[cmd:\s*([^\]]+)\]/, '[`\\1`](#cmd-\\1)')
+  l.gsub!(/\[fit:\s*([^\]]+)\]/, '[`\\1`](#cmd-fit-\\1)')
+  print l
+end

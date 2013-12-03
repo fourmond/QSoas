@@ -1893,7 +1893,7 @@ QSoas> find-peaks /peaks=1 /output=true
 
 {::comment} synopsis-start: 2 {:/}
 
-### 2 - Find two peak {#cmd-2}
+### 2 - Find two peaks {#cmd-2}
 
 `2` `/window=`_integer_{:title="An integer"} `/include-borders=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
@@ -2103,8 +2103,8 @@ fits a decay with an arbitrary number of exponentials to the data.
 
   * `/exponentials=`_integer_{:title="An integer"}: Number of exponentials
   * `/absolute=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Amplitude is absolute or relative to the asymptote ?
-  * `/loss=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Is there an overall fully exponential loss ?
-  * `/slow=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Is there a very slow phase ?
+  * `/loss=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Wether the sum of exponentials should be multiplied by an exp(-kt) function
+  * `/slow=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Is there a very slow phase (that shows up as a linear change in Y against time) ?
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
@@ -2133,8 +2133,8 @@ This should not be used to fit data that tend to 0.
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/exponentials=`_integer_{:title="An integer"}: Number of exponentials
   * `/absolute=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Amplitude is absolute or relative to the asymptote ?
-  * `/loss=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Is there an overall fully exponential loss ?
-  * `/slow=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Is there a very slow phase ?
+  * `/loss=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Wether the sum of exponentials should be multiplied by an exp(-kt) function
+  * `/slow=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Is there a very slow phase (that shows up as a linear change in Y against time) ?
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
@@ -2157,8 +2157,8 @@ Multi-buffer version of the
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/exponentials=`_integer_{:title="An integer"}: Number of exponentials
   * `/absolute=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Amplitude is absolute or relative to the asymptote ?
-  * `/loss=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Is there an overall fully exponential loss ?
-  * `/slow=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Is there a very slow phase ?
+  * `/loss=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Wether the sum of exponentials should be multiplied by an exp(-kt) function
+  * `/slow=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Is there a very slow phase (that shows up as a linear change in Y against time) ?
   * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
@@ -2851,7 +2851,7 @@ Simulation command for the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
 
 {::comment} synopsis-start: fit-ecr-wave {:/}
 
-### fit-ecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-fit-ecr-wave}
+### fit-ecr-wave - Fit: Fit of an ECR catalytic wave {#cmd-fit-ecr-wave}
 
 `fit-ecr-wave` `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} **(interactive)**
 
@@ -2869,7 +2869,7 @@ Fits the so-called EC model in [Fourmond _et al_,
 {::comment} description-end: fit-ecr-wave {:/}
 {::comment} synopsis-start: mfit-ecr-wave {:/}
 
-### mfit-ecr-wave - Multi fit: Fit of an EECR catalytic wave {#cmd-mfit-ecr-wave}
+### mfit-ecr-wave - Multi fit: Fit of an ECR catalytic wave {#cmd-mfit-ecr-wave}
 
 `mfit-ecr-wave` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} **(interactive)**
 
@@ -2888,7 +2888,7 @@ Multi-buffer version of the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
 {::comment} description-end: mfit-ecr-wave {:/}
 {::comment} synopsis-start: sim-ecr-wave {:/}
 
-### sim-ecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-sim-ecr-wave}
+### sim-ecr-wave - Fit: Fit of an ECR catalytic wave {#cmd-sim-ecr-wave}
 
 `sim-ecr-wave` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
@@ -3028,9 +3028,9 @@ QSoas> generate-buffer -10 10 sin(x)
 
 `kinetic-system` _reaction-file_{:title="Path of a file (or a directory)"} _parameters_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/dump=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/annotate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
-  * _reaction-file_{:title="Path of a file (or a directory)"}: 
-  * _parameters_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: 
-  * `/dump=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
+  * _reaction-file_{:title="Path of a file (or a directory)"}: File describing the kinetic system
+  * _parameters_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Parameters of the model
+  * `/dump=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, dumps the system rather than solving
   * `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptative stepper
   * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
   * `/prec-relative=`_number_{:title="A floating-point number"}: Relative precision required
@@ -3262,7 +3262,7 @@ QSoas> startup-files /run=true
 {::comment} description-end: startup-files {:/}
 {::comment} synopsis-start: run-for-each {:/}
 
-### run-for-each - Loop run a script {#cmd-run-for-each}
+### run-for-each - Runs a script for several arguments {#cmd-run-for-each}
 
 `run-for-each` _script_{:title="Path of a file (or a directory)"} _arguments..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/arg2=`_file_{:title="Path of a file (or a directory)"} `/arg3=`_file_{:title="Path of a file (or a directory)"} `/arg4=`_file_{:title="Path of a file (or a directory)"} `/arg5=`_file_{:title="Path of a file (or a directory)"} `/arg6=`_file_{:title="Path of a file (or a directory)"} `/range-type=`_choice_{:title="One of: lin, log"} `/add-to-history=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
@@ -3312,7 +3312,7 @@ QSoas> @ process-my-file.cmds file2 other
 {::comment} description-end: run-for-each {:/}
 {::comment} synopsis-start: run-for-datasets {:/}
 
-### run-for-datasets - Loop run a script {#cmd-run-for-datasets}
+### run-for-datasets - Runs a script for several datasets {#cmd-run-for-datasets}
 
 `run-for-datasets` _script_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"}
 

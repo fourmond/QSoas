@@ -23,7 +23,7 @@ sure you quote them using `"` or `'`, like in the above example.
 Arguments are indicated like _that_ in the documentation below. You
 need to provide all the arguments for a command to work. Some
 arguments are followed by _..._, which means that you can pass several
-space-separated arguments. This is the case for [`load`](#cmd-load),
+space-separated arguments. This is the case for [cmd: load],
 for instance:
 
 ~~~
@@ -33,7 +33,7 @@ QSoas> load file1 file2 file3
 Some options are marked as "(default)", which means that, if all
 arguments of the command are already specified, you can omit the
 `/option=` part of the option. For instance, to set the
-[`temperature`](#cmd-temperature) to 300 K, you should be doing that:
+[cmd: temperature] to 300 K, you should be doing that:
 
 ~~~
 QSoas> temperature /set=300
@@ -58,10 +58,10 @@ for using inside [scripts](#scripting).
 Many commands of QSoas make use of "plain text files", i.e. files that
 simply contain unformatted text. These are for instance:
 
- * files for defining fits with [`load-fits`](#cmd-load-fits)
- * scripts to be run with [`run`](#cmd-run)
+ * files for defining fits with [cmd: load-fits]
+ * scripts to be run with [cmd: run]
  * definitions of kinetic systems for
-  [`fit-kinetic-system`](#cmd-fit-kinetic-system)
+  [cmd: fit-kinetic-system]
  * even saved fit parameters are plain text files
 
 On windows, use Notepad to edit them. On Linux, `pico`, `nano`, `vi`
@@ -146,7 +146,7 @@ Changes the current working directory. If `/from-home` is specified,
 the directory is assumed to be relative to the user's home directory. 
 If `/from-script` is specified, the directory is assumed to be
 relative to that of the command file currently being executed by a 
-[`run`](#cmd-run) command (or in a [startup script](#cmd-startup-files)).
+[cmd: run] command (or in a [startup script](#cmd-startup-files)).
 
 
 
@@ -281,7 +281,7 @@ QSoas> define-alias fit-2exp fit-exponential-decay /exponentials=2 /loss=true
 ~~~~
 
 creates a `fit-2exp` command that is equivalent to starting 
-[`fit-exponential-decay`](#cmd-fit-exponential-decay) with two
+[cmd: fit-exponential-decay] with two
 exponentials by default and film loss on. 
 
 While it is possible to define "default options" for aliased commands
@@ -320,7 +320,7 @@ next one.
 
 Turning on antialias will make QSoas use antialiased drawings, which
 looks admittedly nicer, but requires much more computational
-time. Printing or exporting to PDF files through [`print`](#cmd-print)
+time. Printing or exporting to PDF files through [cmd: print]
 always produces antialiased graphics, regardless of this option.
 
 If you experience performance problems for displaying curves, use
@@ -389,7 +389,7 @@ commands) write data to the output file.
 
 By default, the first time the output file is used, a `output.dat`
 file is created in the current directory. Another file can be used by
-providing its name to the [`output`](#cmd-output) command.
+providing its name to the [cmd: output] command.
 
 {::comment} synopsis-start: output {:/}
 
@@ -425,7 +425,7 @@ Writes the given line _comment_ to the output file.
 
 # Data loading/saving
 
-The main command for loading data is [`load`](#cmd-load)
+The main command for loading data is [cmd: load]
 
 {::comment} synopsis-start: load {:/}
 
@@ -491,7 +491,7 @@ This loads only those that start with a digit from 0 to 4, etc.
 
 The `load` command and the corresponding `load-as-` command makes it
 possible to set dataset options just as with the 
-[`dataset-options`](#cmd-dataset-options).
+[cmd: dataset-options].
 
 The style option sets the color style when loading several curves:
 
@@ -533,9 +533,9 @@ automatic backend detection. `text` recognises space-separated data
 (which includes tab-separated data). Most "plain text" files will give
 good results. By default, it loads all the columns of the file, but
 only displays the second as a function of the first. If you want to
-work on other columns, have a look at [`expand`](#cmd-expand).
+work on other columns, have a look at [cmd: expand].
 
-Apart from the options of [`dataset-options`](#cmd-dataset-options)
+Apart from the options of [cmd: dataset-options]
 and the `/style` documented above, the `text` backend accepts several
 options controlling the way the text files are interpreted:
 
@@ -581,7 +581,7 @@ The `csv` backend is essentially the same backend as the
 [`text`](#cmd-load-as-text) one, but with the separators set by
 default to commas and semicolons, to parse CSV files. 
 Hence, the options have the same
-meaning as for [`load-as-text`](#cmd-load-as-text).
+meaning as for [cmd: load-as-text].
 {::comment} description-end: load-as-csv {:/}
 
 
@@ -647,9 +647,9 @@ Saves the current buffer to a file.
 {::comment} description-start: save-buffers {:/}
 Saves the designated buffers to file.
 
-Unlike the [`save`](#cmd-save) command, this saves the buffers using
+Unlike the [cmd: save] command, this saves the buffers using
 their current name, and does not prompt for a file name. It is
-probably a good idea to use [`rename`](#cmd-rename) first.
+probably a good idea to use [cmd: rename] first.
 {::comment} description-end: save-buffers {:/}
 
 {::comment} synopsis-start: browse {:/}
@@ -665,7 +665,7 @@ Alias: `W`
 {::comment} synopsis-end: browse {:/}
 {::comment} description-start: browse {:/}
 Browse all datafiles in the current directory (or those matching the
-wildcard pattern given to `/pattern`, see [`load`](#cmd-load) for more
+wildcard pattern given to `/pattern`, see [cmd: load] for more
 information about wildcards). Very useful to find quickly the file
 you're looking for.
 {::comment} description-end: browse {:/}
@@ -688,7 +688,7 @@ Alias: `V`
 {::comment} description-start: overlay-buffer {:/}
 Plots one or several buffers on top of the current buffer.
 
-See [`load`](#cmd-load) for the description of the `/style` option.
+See [cmd: load] for the description of the `/style` option.
 {::comment} description-end: overlay-buffer {:/}
 
 {::comment} synopsis-start: overlay {:/}
@@ -712,8 +712,8 @@ Alias: `v`
 
 {::comment} synopsis-end: overlay {:/}
 {::comment} description-start: overlay {:/}
-This command combines [`overlay-buffer`](#cmd-overlay-buffer) and 
-[`load`](#cmd-load) in one go: loads the files given as arguments and
+This command combines [cmd: overlay-buffer] and 
+[cmd: load] in one go: loads the files given as arguments and
 adds them to the current plot.
 {::comment} description-end: overlay {:/}
 
@@ -779,24 +779,24 @@ loaded or a buffer modified, the new buffer is pushed onto the top of
 the stack, and becomes the current buffer (numbered 0). Older buffers
 have increasing numbers (the previous buffer is 1, the one before 2,
 and so on). There is also a "redo" stack populated by the
-[`undo`](#cmd-undo) command. Stack can be manipulated in different
+[cmd: undo] command. Stack can be manipulated in different
 ways:
 
  * the current buffer can be changed using
-   [`undo`](#cmd-undo)/[`redo`](#cmd-redo);
+   [cmd: undo]/[cmd: redo];
  * buffers can be permanently removed from the stack using
-   [`drop`](#cmd-drop);
+   [cmd: drop];
  * the whole stack can be saved for later use with
-   [`save-stack`](#cmd-save-stack) and restored using
-   [`load-stack`](#cmd-load-stack), or dropped altogether using
-   [`clear-stack`](#cmd-clear-stack);
+   [cmd: save-stack] and restored using
+   [cmd: load-stack], or dropped altogether using
+   [cmd: clear-stack];
  * contents of the stack can be displayed in the terminal using
-   [`show-stack`](#cmd-show-stack) or in a dialog bog with 
-   [`browse-stack`](#cmd-browse-stack).
+   [cmd: show-stack] or in a dialog bog with 
+   [cmd: browse-stack].
  * an old buffer can be put back on the top of the stack with
-   [`fetch`](#cmd-fetch).
- * buffers can be flagged ([`flag`](#cmd-flag)) or unflagged
-   ([`unflag`](#cmd-unflag)) to be used later using the `flagged`
+   [cmd: fetch].
+ * buffers can be flagged ([cmd: flag]) or unflagged
+   ([cmd: unflag]) to be used later using the `flagged`
    buffer selector.
 
 
@@ -935,7 +935,7 @@ QSoas> drop 3..16
 drops all the buffers from 3 to 16 included. 
 
 *Important:* it is *not* possible to recover a buffer once it has been
-dropped from the stack. [`undo`](#cmd-undo) won't work. Use it only on
+dropped from the stack. [cmd: undo] won't work. Use it only on
 buffers you're sure you won't need again (such as computation intermediates). 
 {::comment} description-end: drop {:/}
 {::comment} synopsis-start: flag {:/}
@@ -951,7 +951,7 @@ buffers you're sure you won't need again (such as computation intermediates).
 Flags the given buffer (or the current one if none is supplied) for
 later use. All currently flagged buffers can be specified using the
 `flagged` argument to, for instance,
-[`overlay-buffer`](#cmd-overlay-buffer).
+[cmd: overlay-buffer].
 {::comment} description-end: flag {:/}
 {::comment} synopsis-start: unflag {:/}
 
@@ -1016,7 +1016,7 @@ the Y column.
 
 If `/use-stats=true` is used, a global variable `$stats` can be used
 within the Ruby expression that contains all the statistics displayed
-by [`stats`](#cmd-stats). For
+by [cmd: stats]. For
 instance, to normalize the Y values by dividing by the median, one would use:
 
 ~~~ 
@@ -1057,7 +1057,7 @@ This is useful to see if the X values are equally spaced.
 
 {::comment} synopsis-end: dy {:/}
 {::comment} description-start: dy {:/}
-Same as [`dx`](#cmd-dx) but for Y values: replaces the Y values by the
+Same as [cmd: dx] but for Y values: replaces the Y values by the
 values of delta Y.
 {::comment} description-end: dy {:/}
 
@@ -1186,7 +1186,7 @@ the product of X and Y is below 10.
 
 When reading data files that contain spurious data points (such as
 text lines containing no data within a file read with
-[`load-as-text`](#cmd-load-as-text)), QSoas replaces the missing data
+[cmd: load-as-text]), QSoas replaces the missing data
 by weird numbers called NaN (Not a Number). They can be useful at
 times, but mess up statistics and fits. To remove them, use:
 
@@ -1210,8 +1210,8 @@ Computes the 4th order accurate derivative of the buffer.
 
 This is efficient to compute the derivative of a very smooth
 function, but it gives very poor results on noisy data. In general,
-for derivation, prefer [`filter-fft`](#cmd-filter-fft) or 
-[`filter-bsplines`](#cmd-filter-bsplines).
+for derivation, prefer [cmd: filter-fft] or 
+[cmd: filter-bsplines].
 {::comment} description-end: diff {:/}
 
 {::comment} synopsis-start: diff2 {:/}
@@ -1225,7 +1225,7 @@ for derivation, prefer [`filter-fft`](#cmd-filter-fft) or
 {::comment} description-start: diff2 {:/}
 Computes the 4th order accurate second derivative of the buffer. 
 
-The same warnings apply as for [`diff`](#cmd-diff).
+The same warnings apply as for [cmd: diff].
 {::comment} description-end: diff2 {:/}
 {::comment} synopsis-start: dataset-options {:/}
 
@@ -1377,7 +1377,7 @@ reverse the effect of the previous commands.
 
 This does not change the number of columns. If you're trying to gather
 several Y columns as a function of the same X, you should try
-[`contract`](#cmd-contract) instead.
+[cmd: contract] instead.
 {::comment} description-end: cat {:/}
 
 
@@ -1387,21 +1387,21 @@ several Y columns as a function of the same X, you should try
 QSoas provides different ways to process data to remove unwanted
 noise: 
 
- * Fourier transform filtering using [`filter-fft`](#cmd-filter-fft)
-   or [`auto-filter-fft`](#cmd-auto-filter-fft).
+ * Fourier transform filtering using [cmd: filter-fft]
+   or [cmd: auto-filter-fft].
  * Data approximation using basis splines via 
-   [`filter-bsplines`](#cmd-filter-bsplines) or 
-   [`auto-filter-bs`](#cmd-auto-filter-bs).
- * Splike removals using [`remove-spikes`](#cmd-remove-spikes) or 
-   which case the [`deldp`](#cmd-deldp).
+   [cmd: filter-bsplines] or 
+   [cmd: auto-filter-bs].
+ * Splike removals using [cmd: remove-spikes] or 
+   which case the [cmd: deldp].
 
 In addition, QSoas provides ways to remove calculated "baselines":
 
  * baselines interpolated from datapoints with
-   [`baseline`](#cmd-baseline)
+   [cmd: baseline]
  * baselines interpolated between two segments using either a cubic
    function or an exponential function with
-   [`catalytic-baseline`](#cmd-catalytic-baseline)
+   [cmd: catalytic-baseline]
 
 
 {::comment} synopsis-start: filter-fft {:/}
@@ -1456,7 +1456,7 @@ segments over which the splines are defined. Put more nodes in an area
 where the data is not described properly by the smoothed
 function. Increasing the order (using `+`) may help too.
 
-Like for [`filter-fft`](#cmd-filter-fft), you can derive the data as
+Like for [cmd: filter-fft], you can derive the data as
 well pushing the `d` key.
 
 Hitting the `o` key optimizes the position of the segments in order
@@ -1622,12 +1622,12 @@ boundaries are marked by a vertical line. They can be used for
 different purposes: for 
 [segment-by-segment operations](#buffer-operations), 
 step-by-step film loss correction
-(using [`film-loss`](#cmd-film-loss)) or buffer splitting 
-(using [`segments-chop`](#cmd-segments-chop)).
+(using [cmd: film-loss]) or buffer splitting 
+(using [cmd: segments-chop]).
 
 Segments can be detected using
-[`find-steps`](#cmd-find-steps), set manually using
-[`set-segments`](#cmd-set-segments) or [`chop`](#cmd-chop).
+[cmd: find-steps], set manually using
+[cmd: set-segments] or [cmd: chop].
 
 {::comment} synopsis-start: find-steps {:/}
 
@@ -1675,7 +1675,7 @@ the closest segment.
 {::comment} description-start: segments-chop {:/}
 
 Cuts the buffer into several ones based on the segments defined in the
-current buffer. This way, the effect of a [`chop`](#cmd-chop)
+current buffer. This way, the effect of a [cmd: chop]
 `/set-segment=true` followed by `segments-chop` is the same as the
 `chop` without `/set-segment=true`.
 
@@ -1693,7 +1693,7 @@ Applies stepwise film loss correction (in the spirit of the $$K_m$$
 experiments in [Fourmond _et al_, _Anal. Chem._,
 *2009*](http://dx.doi.org/10.1021/ac8025702). For that, the current
 buffer must be separated into segments, using
-[`set-segments`](#cmd-set-segments), for instance. QSoas then zooms on
+[cmd: set-segments], for instance. QSoas then zooms on
 the first segment. Right and left clicking around the final linear
 decay will set the value of the film loss rate constant for this
 step. Push space to switch to the next step, and when you have done
@@ -1721,8 +1721,8 @@ in another buffer. There are two ways to do that, chosen by the
    values.
 
 In addition to that, the operations can make use of the segments
-defined on each buffer (see [`find-steps`](#cmd-find-steps) and
-[`set-segments`](#cmd-set-segments)). If segments are defined and
+defined on each buffer (see [cmd: find-steps] and
+[cmd: set-segments]). If segments are defined and
 `/use-segments=true`, then the operations are applied
 segment-by-segment, with the first point of each segment matching the
 corresponding point in the other buffer. This mode is particularly
@@ -1780,8 +1780,8 @@ than one _first_ buffer). Useful for standard baseline removal.
 
 {::comment} synopsis-end: average {:/}
 {::comment} description-start: average {:/}
-In a manner similar to [`subtract`](#cmd-subtract) and
-[`divide`](#cmd-divide), the `average` command averages all the
+In a manner similar to [cmd: subtract] and
+[cmd: divide], the `average` command averages all the
 buffers given into one, with the same segment-by-segment capacities.
 
 An additional feature of `average`, though is its ability to first
@@ -1827,11 +1827,11 @@ each of those before.
 {::comment} synopsis-end: contract {:/}
 {::comment} description-start: contract {:/}
 As may be anticipated from the name, `contract` does the reverse of 
-[`expand`](#cmd-expand), ie it regroups in one buffer several values
+[cmd: expand], ie it regroups in one buffer several values
 of Y that run against the same values of X. The result is a buffer
 that contains as many Y columns as the total of Y columns of all the
 arguments. X matching between the buffers is done as for the other
-operations such as [`div`](#cmd-div) or  [`subtract`](#cmd-subtract).
+operations such as [cmd: div] or  [cmd: subtract].
 {::comment} description-end: contract {:/}
 
 # Data inspection facilities
@@ -2092,7 +2092,7 @@ This function is explained in more details in the [tutorial](tutorial.html).
 ## Exponential fits
 
 There are several ways to fit exponentials to data. The simplest is by
-far the [`fit-exponential-decay`](#cmd-fit-exponential-decay) that
+far the [cmd: fit-exponential-decay] that
 fits a decay with an arbitrary number of exponentials to the data.
 
 {::comment} synopsis-start: fit-exponential-decay {:/}
@@ -2143,7 +2143,7 @@ This should not be used to fit data that tend to 0.
 {::comment} synopsis-end: mfit-exponential-decay {:/}
 {::comment} description-start: mfit-exponential-decay {:/}
 Multi-buffer version of the
-[`fit-exponential-decay`](#cmd-fit-exponential-decay) fit.
+[cmd: fit-exponential-decay] fit.
 {::comment} description-end: mfit-exponential-decay {:/}
 
 
@@ -2166,7 +2166,7 @@ Multi-buffer version of the
 {::comment} synopsis-end: sim-exponential-decay {:/}
 {::comment} description-start: sim-exponential-decay {:/}
 Simulation command for the
-[`fit-exponential-decay`](#cmd-fit-exponential-decay) fit.
+[cmd: fit-exponential-decay] fit.
 {::comment} description-end: sim-exponential-decay {:/}
 
 
@@ -2236,12 +2236,12 @@ Fits of exponentials on several steps with film loss bookkeeping
 
 QSoas provides ways to fit arbitrary formulas (written in
 [Ruby](#ruby)) to data. While it is possible to do that on a
-case-by-case basis using [`fit-arb`](#cmd-fit-arb), it is also
+case-by-case basis using [cmd: fit-arb], it is also
 possible to store formulas in a plain text file and load them using 
-[`load-fits`](#cmd-load-fits). 
+[cmd: load-fits]. 
 
 Arbitrary fits don't have a corresponding `sim-` command 
-(use [`apply-formula`](#cmd-apply-formula) instead).
+(use [cmd: apply-formula] instead).
 
 {::comment} synopsis-start: fit-arb {:/}
 
@@ -2269,8 +2269,8 @@ specifically:
     $$f = F/RT$$. You never get `fara` as a fit parameter.
 
 If you often use the same formula for `fit-arb`, you should consider
-using [`custom-fit`](#cmd-custom-fit) or writing it in a file and
-loading that file with [`load-fits`](#cmd-load-fits).
+using [cmd: custom-fit] or writing it in a file and
+loading that file with [cmd: load-fits].
 
 {::comment} description-end: fit-arb {:/}
 
@@ -2289,7 +2289,7 @@ loading that file with [`load-fits`](#cmd-load-fits).
 
 {::comment} synopsis-end: mfit-arb {:/}
 {::comment} description-start: mfit-arb {:/}
-Same as [`fit-arb`](#cmd-fit-arb), but for multiple buffers.
+Same as [cmd: fit-arb], but for multiple buffers.
 
 Using `mfit-arb`, it is possible to specify several formulas,
 separated by a `\|`. 
@@ -2323,8 +2323,8 @@ Buffer 0 get fits with `a*x+b`, 1 with `a*x+c` and 2 with `a*x+d`.
 {::comment} description-start: load-fits {:/}
 Load fits of arbitrary functions from a plain text file, and create
 the corresponding `fit-`, `mfit-` and `sim-` functions, that can be
-used with [`define-derived-fit`](#cmd-define-derived-fit) or
-[`combine-fits`](#cmd-combine-fits) for instance. Files should look
+used with [cmd: define-derived-fit] or
+[cmd: combine-fits] for instance. Files should look
 like this:
 
 ~~~~
@@ -2358,7 +2358,7 @@ _formula_. Equivalent to having a line
 <i>name</i>: <i>formula</i>
 </pre>
 
-in a file loaded by [`load-fits`](#cmd-load-fits).
+in a file loaded by [cmd: load-fits].
 {::comment} description-end: custom-fit {:/}
 
 
@@ -2389,7 +2389,7 @@ numbered $$i$$.
 This fit is useful to fit the results of a the redox titration at a
 single wavelength. If several wavelength are available, separate them
 into several buffers as a function of the potential and fit them using
-[`mfit-nernst`](#cmd-mfit-nernst), while keeping the redox potentials
+[cmd: mfit-nernst], while keeping the redox potentials
 (and electron numbers) global and only the absorbances as
 buffer-local.
 {::comment} description-end: fit-nernst {:/}
@@ -2409,7 +2409,7 @@ buffer-local.
 
 {::comment} synopsis-end: mfit-nernst {:/}
 {::comment} description-start: mfit-nernst {:/}
-Multi-buffer version of [`fit-nernst`](#cmd-fit-nernst). To be used
+Multi-buffer version of [cmd: fit-nernst]. To be used
 for fitting multi-wavelength redox titrations.
 {::comment} description-end: mfit-nernst {:/}
 
@@ -2428,7 +2428,7 @@ for fitting multi-wavelength redox titrations.
 
 {::comment} synopsis-end: sim-nernst {:/}
 {::comment} description-start: sim-nernst {:/}
-Simulation command for [`fit-nernst`](#cmd-fit-nernst)
+Simulation command for [cmd: fit-nernst]
 {::comment} description-end: sim-nernst {:/}
 
 
@@ -2652,7 +2652,7 @@ $$E_1$$ is the initial potential, $$\nu$$ the scan rate
 {::comment} synopsis-end: mfit-slow-scan-hp {:/}
 {::comment} description-start: mfit-slow-scan-hp {:/}
 Multi-buffer variant of the
-[`fit-slow-scan-hp`](#cmd-fit-slow-scan-hp) fit.
+[cmd: fit-slow-scan-hp] fit.
 {::comment} description-end: mfit-slow-scan-hp {:/}
 
 {::comment} synopsis-start: mfit-slow-scan-lp {:/}
@@ -2671,7 +2671,7 @@ Multi-buffer variant of the
 {::comment} synopsis-end: mfit-slow-scan-lp {:/}
 {::comment} description-start: mfit-slow-scan-lp {:/}
 Multi-buffer variant of the
-[`fit-slow-scan-lp`](#cmd-fit-slow-scan-lp) fit.
+[cmd: fit-slow-scan-lp] fit.
 {::comment} description-end: mfit-slow-scan-lp {:/}
 
 {::comment} synopsis-start: sim-slow-scan-lp {:/}
@@ -2720,9 +2720,9 @@ Computation for the
 These fits correspond to the various models described in 
 [Fourmond _et al_, *JACS*2013](http://dx.doi.org/10.1021/ja311607s):
 
- * [`fit-eecr-wave`](#cmd-fit-eecr-wave) is the *EEC* model
- * [`fit-ecr-wave`](#cmd-fit-ecr-wave) is the *EC* model
- * [`fit-eecr-relay-wave`](#cmd-fit-eecr-relay-wave) is the *EECR*
+ * [cmd: fit-eecr-wave] is the *EEC* model
+ * [cmd: fit-ecr-wave] is the *EC* model
+ * [cmd: fit-eecr-relay-wave] is the *EECR*
    model
 
 Please refer to that paper for more information.
@@ -2776,7 +2776,7 @@ parameter rather than the ratio $$k_2/k_{-2}$$.
 
 {::comment} synopsis-end: mfit-eecr-wave {:/}
 {::comment} description-start: mfit-eecr-wave {:/}
-Multi-buffer variant of [`fit-eecr-wave`](#cmd-fit-eecr-wave).
+Multi-buffer variant of [cmd: fit-eecr-wave].
 {::comment} description-end: mfit-eecr-wave {:/}
 
 {::comment} synopsis-start: sim-eecr-wave {:/}
@@ -2911,7 +2911,7 @@ Simulation command for the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
 The commands in this section generate data "from scracth", though most
 require a buffer to work on, to act as a model for the X values. You
 can create a buffer for those commands using
-[`generate-buffer`](#cmd-generate-buffer). 
+[cmd: generate-buffer]. 
 
 ## Evaluation functions
 
@@ -2936,10 +2936,10 @@ QSoas> eval 2*3
 ~~~~
 
 It runs in the same environment as the
-[`apply-formula`](#cmd-apply-formula) and the custom fits (excepted,
+[cmd: apply-formula] and the custom fits (excepted,
 of course, that there are no `x` and `y` variables). It can be useful
 to check that a function has been correctly defined in a file loaded
-by [`ruby-run`](#cmd-ruby-run).
+by [cmd: ruby-run].
 {::comment} description-end: eval {:/}
 
 {::comment} synopsis-start: find-root {:/}
@@ -3224,9 +3224,9 @@ QSoas> @ process.cmd data_file.dat
 ~~~~
 
 If you start to use `run` regularly, you may be interested in the
-other scripting commands, such as [`run-for-each`](#cmd-run-for-each),
-[`run-for-datasets`](#cmd-run-for-datasets) and
-[`startup-files`](#cmd-startup-files)
+other scripting commands, such as [cmd: run-for-each],
+[cmd: run-for-datasets] and
+[cmd: startup-files]
 
 {::comment} description-end: run {:/}
 
@@ -3323,7 +3323,7 @@ QSoas> @ process-my-file.cmds file2 other
 {::comment} description-start: run-for-datasets {:/}
 Runs the given script file for each of the datasets given. Before each
 invocation of the script, the dataset is pushed back to the top of the
-stack, as if by [`fetch`](#cmd-fetch).
+stack, as if by [cmd: fetch].
 {::comment} description-end: run-for-datasets {:/}
 {::comment} synopsis-start: noop {:/}
 

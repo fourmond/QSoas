@@ -61,6 +61,7 @@ public:
   typedef enum  {
     None = 0,
     NoDerivative = 0x1,
+    NoPush = 0x2,
   } Option;
   Q_DECLARE_FLAGS(Options, Option);
 
@@ -73,6 +74,7 @@ public:
     QuitSubtracting = HandlerActionsBase+3,
     QuitDividing =   HandlerActionsBase+4,
     ToggleDivision = HandlerActionsBase+5,
+    PushCurrent = HandlerActionsBase+6,
   } HandlerActions;
 
   /// The options of the BaselineHandler.

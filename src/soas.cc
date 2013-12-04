@@ -68,7 +68,7 @@ DataSet * Soas::currentDataSet()
   return ds->currentDataSet(false);
 }
 
-void Soas::pushDataSet(DataSet * d)
+void Soas::pushDataSet(DataSet * d, bool silent)
 {
-  return ds->pushDataSet(d);
+  return ds->pushDataSet(d, silent);
 }

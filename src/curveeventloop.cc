@@ -107,7 +107,7 @@ void CurveEventLoop::updateMessage()
 
 void CurveEventLoop::processKeyEvent(QKeyEvent * event)
 {
-  k = event->key();
+  k = event->key() | event->modifiers();
 
   if(printingAllowed && k == Qt::Key_Print) {
     QPrinter p;

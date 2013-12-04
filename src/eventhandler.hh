@@ -76,6 +76,9 @@ protected:
 
   /// The last action
   int lastAction;
+
+  /// Normalize a few things for keys
+  static int normalizeKey(int key);
   
 public:
 

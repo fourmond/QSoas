@@ -61,7 +61,7 @@ public:
   DataSet * currentDataSet();
 
   /// Pushes a new dataset onto the stack
-  void pushDataSet(DataSet * ds);
+  void pushDataSet(DataSet * ds, bool silent = false);
 
 
   /// @name Element accessors

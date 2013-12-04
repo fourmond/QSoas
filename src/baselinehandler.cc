@@ -39,6 +39,8 @@ EventHandler & BaselineHandler::addToEventHandler(EventHandler & target,
   if(! opts.testFlag(NoDerivative))
     target.addKey('d', ToggleDerivative, "toogle derivative").
       alsoKey('D');
+  if(! opts.testFlag(NoPush))
+    target.addKey(Qt::CTRL + 'p', PushCurrent, "push current to stack");
   target.addKey('h', HideDataset, "hide/show original data").
     alsoKey('H');
   return target;
@@ -129,15 +131,16 @@ bool BaselineHandler::nextAction(int action, bool * shouldQuit,
 
     // Now the quitting commands
   case QuitSubtracting:
+    *shouldQuit = true;
+  case PushCurrent:
     if(showingDerivative)
       soas().pushDataSet(signal->derivedDataSet(derivative.yvalues, 
                                                 QString("_%1_diff.dat").
-                                                arg(suffix)));
+                                                arg(suffix)), !*shouldQuit);
     else
       soas().pushDataSet(signal->derivedDataSet(diff.yvalues, 
                                                 QString("_%1_sub.dat").
-                                                arg(suffix)));
-    *shouldQuit = true;
+                                                arg(suffix)), !*shouldQuit);
     return true;
   case QuitReplacing:
     soas().pushDataSet(signal->derivedDataSet(modified.yvalues, 

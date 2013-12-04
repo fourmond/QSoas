@@ -94,8 +94,17 @@ EventHandler & EventHandler::addPointPicker()
   return *this;
 }
 
+int EventHandler::normalizeKey(int key)
+{
+  if( (key&255) > 96 && (key&255) <= 96+26 
+     && (key & (Qt::CTRL|Qt::ALT|Qt::META)))
+     key -= 32;                 // Use uppercase !
+  return key;
+}
+
 EventHandler & EventHandler::addKey(int key, int action, const QString & help)
 {
+  key = normalizeKey(key);
   if(keyActions.contains(key))
     throw InternalError("Multiply defined key: %1").arg(key);
   keyActions[key] = action;
@@ -107,6 +116,7 @@ EventHandler & EventHandler::addKey(int key, int action, const QString & help)
 
 EventHandler & EventHandler::alsoKey(int key)
 {
+  key = normalizeKey(key);
   if(keyActions.contains(key))
     throw InternalError("Multiply defined key: %1").arg(key);
   keyActions[key] = lastAction;

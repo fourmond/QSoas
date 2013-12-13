@@ -83,6 +83,7 @@ void PerDatasetFit::computeSubFunctions(const double * parameters,
                                    QList<Vector> * targetData,
                                    QStringList * targetAnnotations)
 {
+  int nb_ds_params = data->parametersPerDataset();
   targetData->clear();
   for(int i = 0; i < data->datasets.size(); i++) {
     if(! i)
@@ -91,7 +92,7 @@ void PerDatasetFit::computeSubFunctions(const double * parameters,
                           targetData, targetAnnotations);
     else {
       QList<Vector> dt;
-      computeSubFunctions(parameters, data, 
+      computeSubFunctions(parameters, data + i * nb_ds_params, 
                           data->datasets[i],
                           &dt, targetAnnotations);
       if(dt.size() != targetData->size())

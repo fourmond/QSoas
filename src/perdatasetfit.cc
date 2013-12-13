@@ -98,7 +98,7 @@ void PerDatasetFit::computeSubFunctions(const double * parameters,
         throw InternalError("Mismatched subfunctions number: %1 vs %2").
           arg(dt.size()).arg(targetData->size());
       for(int j = 0; j < targetData->size(); j++)
-        (targetData)[i] += dt[i];
+        (*targetData)[j] += dt[j];
     }
   }
 }

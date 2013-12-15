@@ -2361,6 +2361,147 @@ _formula_. Equivalent to having a line
 in a file loaded by [cmd: load-fits].
 {::comment} description-end: custom-fit {:/}
 
+## Peak fits
+
+The fits in this section can be used to fit various "peaks" obeying to
+different distributions, such as the
+
+ * gaussian distribution [cmd: fit-gaussian]
+ * lorentzian distribution [cmd: fit-lorentzian]
+
+For all these fits, you can specify the number of "peaks" using a
+common `/number` option. For each peak, there is a position, an
+amplitude and a width parameter. If you are more interested in the
+total surface under the peak rather than the amplitude of the peak,
+the fits provide a `/use-surface` argument that changes the amplitude
+parameter into a surface one.
+
+{::comment} synopsis-start: fit-gaussian {:/}
+
+### fit-gaussian - Fit: One or several gaussians {#cmd-fit-gaussian}
+
+`fit-gaussian` `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} **(interactive)**
+
+  * `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use a surface or an amplitude parameter
+  * `/number=`_integer_{:title="An integer"}: Number of distinct peaks
+  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
+  * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+
+{::comment} synopsis-end: fit-gaussian {:/}
+{::comment} description-start: fit-gaussian {:/}
+Fits a number of gaussians, given by:
+
+$$\sum_i \frac{A_i}{\sqrt{2 \pi {\sigma_i}^2}} 
+\exp \left[-\frac{(x-x_i)^2}{2{\sigma_i}^2}\right]$$
+
+More information in the [GSL
+documentation](http://www.gnu.org/software/gsl/manual/html_node/The-Gaussian-Distribution.html).
+
+The `/number` option controls the number of different peaks, while
+using `/use-surface=true` fits the surface of the peak instead of the
+amplitude.
+{::comment} description-end: fit-gaussian {:/}
+{::comment} synopsis-start: mfit-gaussian {:/}
+
+### mfit-gaussian - Multi fit: One or several gaussians {#cmd-mfit-gaussian}
+
+`mfit-gaussian` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} **(interactive)**
+
+  * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
+  * `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use a surface or an amplitude parameter
+  * `/number=`_integer_{:title="An integer"}: Number of distinct peaks
+  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
+  * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-gaussian {:/}
+{::comment} decription-start: mfit-gaussian {:/}
+Multi-buffer variant of the [cmd: fit-gaussian] fit.
+{::comment} decription-end: mfit-gaussian {:/}
+{::comment} synopsis-start: sim-gaussian {:/}
+
+### sim-gaussian - Fit: One or several gaussians {#cmd-sim-gaussian}
+
+`sim-gaussian` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+
+  * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
+  * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
+  * `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use a surface or an amplitude parameter
+  * `/number=`_integer_{:title="An integer"}: Number of distinct peaks
+  * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
+  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
+
+{::comment} synopsis-end: sim-gaussian {:/}
+{::comment} decription-start: sim-gaussian {:/}
+Simulation command for the  [cmd: fit-gaussian] fit.
+{::comment} decription-end: sim-gaussian {:/}
+{::comment} synopsis-start: fit-lorentzian {:/}
+
+### fit-lorentzian - Fit: A Lorentzian (also named Cauchy distribution) {#cmd-fit-lorentzian}
+
+`fit-lorentzian` `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} **(interactive)**
+
+  * `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use a surface or an amplitude parameter
+  * `/number=`_integer_{:title="An integer"}: Number of distinct peaks
+  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
+  * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+
+{::comment} synopsis-end: fit-lorentzian {:/}
+{::comment} description-start: fit-lorentzian {:/}
+Fits a number of lorentzians, given by:
+
+$$\sum_i 
+\frac{A_i}{a_i\pi \left(1 + \left[(x-x_i)/a_i\right]^2\right) }
+$$
+
+More information in the [GSL
+documentation](http://www.gnu.org/software/gsl/manual/html_node/The-Cauchy-Distribution.html).
+
+The `/number` option controls the number of different peaks, while
+using `/use-surface=true` fits the surface of the peak instead of the
+amplitude.
+{::comment} description-end: fit-lorentzian {:/}
+{::comment} synopsis-start: mfit-lorentzian {:/}
+
+### mfit-lorentzian - Multi fit: A Lorentzian (also named Cauchy distribution) {#cmd-mfit-lorentzian}
+
+`mfit-lorentzian` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} **(interactive)**
+
+  * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
+  * `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use a surface or an amplitude parameter
+  * `/number=`_integer_{:title="An integer"}: Number of distinct peaks
+  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
+  * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
+
+{::comment} synopsis-end: mfit-lorentzian {:/}
+{::comment} description-start: mfit-lorentzian {:/}
+Multi-buffer variant of the [cmd: fit-lorentzian] fit.
+{::comment} description-end: mfit-lorentzian {:/}
+{::comment} synopsis-start: sim-lorentzian {:/}
+
+### sim-lorentzian - Fit: A Lorentzian (also named Cauchy distribution) {#cmd-sim-lorentzian}
+
+`sim-lorentzian` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+
+  * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
+  * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
+  * `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use a surface or an amplitude parameter
+  * `/number=`_integer_{:title="An integer"}: Number of distinct peaks
+  * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
+  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
+
+{::comment} synopsis-end: sim-lorentzian {:/}
+{::comment} description-start: sim-lorentzian {:/}
+Simulation command for the  [cmd: fit-lorentzian] fit.
+{::comment} description-end: sim-lorentzian {:/}
+
 
 ## Redox titration fits
 

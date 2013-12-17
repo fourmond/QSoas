@@ -65,7 +65,9 @@ simply contain unformatted text. These are for instance:
  * even saved fit parameters are plain text files
 
 On windows, use Notepad to edit them. On Linux, `pico`, `nano`, `vi`
-or `emacs` are pretty good choices. On MacOS, ??? 
+or `emacs` are pretty good choices. On MacOS, TextEdit, but make sure
+you hit Cmd+Shift+T to switch to "plain text" format (the default is
+rich text in the RTF format, and `QSoas` does not understand RTF).
 
 
 # General

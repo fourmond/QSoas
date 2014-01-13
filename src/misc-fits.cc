@@ -32,6 +32,8 @@
 
 #include <gsl/gsl_const_mksa.h>
 
+#include <gsl/gsl_poly.h>
+
 #include <odesolver.hh>
 #include <solver.hh>
 
@@ -1123,3 +1125,146 @@ public:
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
 // Its name doesn't matter.
 EECTransportFit fit_eectranport;
+
+//////////////////////////////////////////////////////////////////////
+
+/// Fits to a polynomial (with various constaints). The polynomial 0
+/// is given by x_0.
+class PolynomialFit : public PerDatasetFit {
+  /// Whether or not the function should be monotonic
+  bool monotonic;
+
+  /// Whether or not the first derivative should be monotonic
+  bool firstMonotonic;
+
+  /// The order of the polynomials
+  int order;
+
+protected:
+
+  virtual void processOptions(const CommandOptions & opts)
+  {
+    order = 10;
+    updateFromOptions(opts, "order", order);
+  }
+
+  
+  virtual QString optionsString() const {
+    return QString("order %1").
+      arg(order);
+  }
+
+public:
+
+  virtual void processSoftOptions(const CommandOptions & opts)
+  {
+    monotonic = false;
+    firstMonotonic = false;
+
+    updateFromOptions(opts, "monotonic", monotonic);
+    updateFromOptions(opts, "first-monotonic", firstMonotonic);
+  }
+
+  /// Formula:
+  virtual void function(const double * params, FitData * , 
+                        const DataSet * ds , gsl_vector * target) {
+
+    const Vector & xv = ds->x();
+
+    double values[3];
+
+    const double & x0 = params[0];
+
+    double d1 = 0;
+    double d2 = 0;
+
+    for(int i = 0; i < xv.size(); i++) {
+      double x = xv[i] - x0;
+      gsl_poly_eval_derivs(params + 1, order + 1, x, values, 3);
+      gsl_vector_set(target, i, values[0]);
+      if(monotonic) {
+        if(d1 != 0) {
+          if(d1 * values[1] < 0)
+            throw RangeError("Non-monotonic");
+        }
+        else {
+          d1 = values[1];
+        }
+      }
+
+      if(firstMonotonic) {
+        if(d2 != 0) {
+          if(d2 * values[2] < 0)
+            throw RangeError("Inflexion points");
+        }
+        else {
+          d2 = values[2];
+        }
+      }
+
+
+    }
+  }
+
+  virtual void initialGuess(FitData * , 
+                            const DataSet * ds,
+                            double * a)
+  {
+    a[0] = ds->x().min();
+    double ymin = ds->y().min();
+    double ymax = ds->y().max();
+    double dx = ds->x().max() - a[0];
+    a[1] = ymin;
+    for(int i = 0; i < order; i++) {
+      a[2 + i] = (ymax - ymin)/pow(dx, i);
+    }
+  };
+
+  virtual QList<ParameterDefinition> parameters() const {
+    QList<ParameterDefinition> defs;
+    defs << ParameterDefinition("x_0", true);
+    for(int i = 0; i <= order; i++)
+      defs << ParameterDefinition(QString("A_%1").arg(i));
+    return defs;
+  };
+
+  virtual ArgumentList * fitHardOptions() const {
+    ArgumentList * opts = new 
+      ArgumentList(QList<Argument *>()
+                   << new 
+                   IntegerArgument("order", 
+                                   "Order",
+                                   "Order of the polynomial function")
+                   );
+    return opts;
+  };
+
+  virtual ArgumentList * fitSoftOptions() const {
+    ArgumentList * opts = new 
+      ArgumentList(QList<Argument *>()
+                   << new 
+                   BoolArgument("monotonic", 
+                                "Monotonic",
+                                "With this on, only monotonic functions "
+                                "are solutions")
+                   << new 
+                   BoolArgument("without-inflexions", 
+                                "Without inflexion points",
+                                "If this is on, there are no inflexion points")
+                   );
+    return opts;
+  };
+
+  PolynomialFit() :
+    PerDatasetFit("polynomial", 
+                  "Fit to a polynomial function",
+                  "...", 1, -1, false) 
+  { 
+    makeCommands();
+  }
+};
+  
+
+// DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
+// Its name doesn't matter.
+PolynomialFit fit_polynomial;

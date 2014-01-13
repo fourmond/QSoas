@@ -1297,14 +1297,19 @@ static void autoFilterBSCommand(const QString &, const CommandOptions & opts)
   int nb = 12;
   int order = 4;
   int derivatives = 0;
+  int weights = -1;
 
 
   updateFromOptions(opts, "number", nb);
   updateFromOptions(opts, "order", order);
   updateFromOptions(opts, "derivatives", derivatives);
+  updateFromOptions(opts, "weight-col", weights);
 
   BSplines splines(ds, order, derivatives);
   splines.autoBreakPoints(nb);
+  if(weights >= 0) {
+    splines.setWeights(ds->column(weights));
+  }
   splines.optimize(15, false);
   double value = splines.computeCoefficients();
   Terminal::out << "Residuals: " << sqrt(value) << endl;
@@ -1323,6 +1328,9 @@ afbsOps(QList<Argument *>()
       << new IntegerArgument("order", 
                              "Order",
                              "Order of the splines")
+      << new IntegerArgument("weight-col", 
+                             "Weights",
+                             "Use the weights in the given column")
       << new IntegerArgument("derivatives", 
                              "Derivative order",
                              "Compute derivatives up to the given ")

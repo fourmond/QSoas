@@ -188,13 +188,12 @@ tA(QList<Argument *>()
                          "Formula",
                          "Ruby boolean expression"));
 
-/// @todo Large number of columns must be handled !
-static void stripIfCommand(const QString &, QString formula)
+/// This function is called from other places, but this is just a
+/// workaround before a decent dataset-formula-looping class is
+/// written.
+DataSet * stripDataset(const DataSet * ds, const QString & formula, 
+                       int * nbDropped)
 {
-  const DataSet * ds = soas().currentDataSet();
-  Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
-    arg(formula).arg(ds->name) << endl;
-
   QStringList vars = prepareArgs(ds);
 
   Expression exp(formula, vars);
@@ -220,10 +219,24 @@ static void stripIfCommand(const QString &, QString formula)
       else
         ++dropped;
     });
-
-  Terminal::out << "Removed " << dropped << " points" << endl;
   DataSet * nds = ds->derivedDataSet(newcols, "_trimmed.dat");
   nds->segments = segs;
+  if(nbDropped)
+    *nbDropped = dropped;
+  return nds;
+}
+
+/// @todo Large number of columns must be handled !
+static void stripIfCommand(const QString &, QString formula)
+{
+  const DataSet * ds = soas().currentDataSet();
+  Terminal::out << QObject::tr("Stripping buffer %2 where the data points match '%1' ").
+    arg(formula).arg(ds->name) << endl;
+
+  int dropped = 0;
+  DataSet * nds = stripDataset(ds, formula, &dropped);
+
+  Terminal::out << "Removed " << dropped << " points" << endl;
   soas().pushDataSet(nds);
 }
 

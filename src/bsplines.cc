@@ -151,9 +151,14 @@ double BSplines::computeCoefficients()
   double chisq;
   gsl_vector_const_view yv = 
     gsl_vector_const_view_array(y.data(), nb);
-  
-  gsl_multifit_linear(splines[0], &yv.vector,
-                      coeffs, cov, &chisq, fitWS);
+
+  if(weights.size() > 0)
+    gsl_multifit_wlinear(splines[0], weights.toGSLVector(),
+                         &yv.vector,
+                         coeffs, cov, &chisq, fitWS);
+  else
+    gsl_multifit_linear(splines[0], &yv.vector,
+                        coeffs, cov, &chisq, fitWS);
   return chisq;
 }
 
@@ -169,6 +174,11 @@ Vector BSplines::computeValues(int order) const
     gsl_vector_view_array(v.data(), nb);
   computeValues(&target.vector, order);
   return v;
+}
+
+void BSplines::setWeights(const Vector & w)
+{
+  weights = w;
 }
 
 Vector BSplines::computeValues(const Vector & x, int order) const
@@ -288,6 +298,8 @@ void BSplines::optimize(int maxIterations, bool silent)
 
       // Hmmm, this isn't really good, but I don't see any other way
       // to do
+
+      /// @todo Maybe endl should automatically process events ?
       QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
     }
   }

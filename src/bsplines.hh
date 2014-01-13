@@ -77,6 +77,10 @@ class BSplines {
   /// Y values of the data to filter
   Vector y;
 
+  /// Weights. If not empty, the weights will be used for computing
+  /// the coefficients.
+  Vector weights;
+
   /// Frees all allocated memory
   void freeWS();
 
@@ -98,6 +102,10 @@ public:
 
   /// Sets the break points
   void setBreakPoints(const Vector & bps);
+
+
+  /// Sets the weights vector
+  void setWeights(const Vector & bps);
 
   /// Set equally spaced breakpoints
   void autoBreakPoints(int nb);

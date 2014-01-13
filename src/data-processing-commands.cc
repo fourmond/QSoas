@@ -829,7 +829,7 @@ namespace __bs {
   
 
 
-  static void bsplinesCommand(CurveEventLoop &loop, const QString &)
+  static void bsplinesCommand(CurveEventLoop &loop, const QString &, const CommandOptions &opts)
   {
     const DataSet * ds = soas().currentDataSet();
     const GraphicsSettings & gs = soas().graphicsSettings();
@@ -875,6 +875,13 @@ namespace __bs {
     bool needCompute = true;
     BSplines splines(ds, order);
     splines.autoBreakPoints(nbSegments-1);
+
+    {
+      int weights = -1;
+      updateFromOptions(opts, "weight-col", weights);
+      if(weights >= 0) 
+        splines.setWeights(ds->column(weights));
+    }
     x = splines.getBreakPoints();
 
     int resample = -1;            // If not negative, resample to that
@@ -1019,12 +1026,19 @@ namespace __bs {
     } while(! loop.finished());
   }
 
+  static ArgumentList 
+  bsOpts(QList<Argument *>() 
+      << new IntegerArgument("weight-col", 
+                             "Weights",
+                             "Use the weights in the given column")
+        );
+
   static Command 
   bspl("filter-bsplines", // command name
-       optionLessEffector(bsplinesCommand), // action
+       effector(bsplinesCommand), // action
        "buffer",  // group name
        NULL, // arguments
-       NULL, // options
+       &bsOpts, // options
        "Filter",
        "Filter using bsplines",
        "...");

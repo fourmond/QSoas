@@ -1268,3 +1268,139 @@ public:
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
 // Its name doesn't matter.
 PolynomialFit fit_polynomial;
+
+//////////////////////////////////////////////////////////////////////
+
+/// Fits to two polynomials connected by a linear segment, of class C1
+class TwoPolynomialFit : public PerDatasetFit {
+  /// The order of the polynomials
+  int order;
+
+protected:
+
+  virtual void processOptions(const CommandOptions & opts)
+  {
+    order = 5;
+    updateFromOptions(opts, "order", order);
+  }
+
+  
+  virtual QString optionsString() const {
+    return QString("order %1").
+      arg(order);
+  }
+
+public:
+
+  /// Formula:
+  virtual void function(const double * params, FitData * , 
+                        const DataSet * ds , gsl_vector * target) {
+
+    const Vector & xv = ds->x();
+    const double & xl = params[0];
+    const double & xr = params[1];
+
+    const double & a = params[2];
+    const double & b = params[3];
+
+    
+    double lbase[order+1];
+    double rbase[order+1];
+
+    // Prepare coefficients:
+    lbase[0] = xl * a + b;
+    lbase[1] = a;
+
+    rbase[0] = xr * a + b;
+    rbase[1] = a;
+
+    for(int i = 0; i < order - 1; i++) {
+      lbase[i+2] = params[4+i];
+      rbase[i+2] = params[4+i + order - 1];
+    }
+
+    if(xl > xr)
+      throw RangeError("xl must be smaller than xr");
+
+
+    for(int i = 0; i < xv.size(); i++) {
+      double x = xv[i];
+      double v;
+      if(x < xl) {
+        double dx = x - xl;
+        v = gsl_poly_eval(lbase, order + 1, dx);
+      }
+      else if(x > xr) {
+        double dx = x - xr;
+        v = gsl_poly_eval(rbase, order + 1, dx);
+      }
+      else {
+        v = a*x + b;
+      }
+      gsl_vector_set(target, i, v);
+    }
+  }
+
+  virtual void initialGuess(FitData * , 
+                            const DataSet * ds,
+                            double * a)
+  {
+    double xmin = ds->x().min();
+    double xmax = ds->x().max();
+
+    a[0] = 0.7 * xmin + 0.3*xmax;
+    a[1] = 0.7 * xmax + 0.3*xmin;
+
+    QPair<double, double> rl = ds->reglin(a[0], a[1]);
+    a[2] = rl.first;
+    a[3] = rl.second;
+
+
+    double ymin = ds->y().min();
+    double ymax = ds->y().max();
+
+    double ylex = ymin - (a[2] *xmin + a[3]);
+    double yrex = ymax - (a[2] *xmax + a[3]);
+    double dxl = xmin - a[0];
+    double dxr = xmax - a[1];
+    for(int i = 0; i < order - 1; i++) {
+      a[4 + i] = ylex/(order * pow(dxl, i));
+      a[4 + i + order - 2] = yrex/(order * pow(dxr, i));
+    }
+  };
+
+  virtual QList<ParameterDefinition> parameters() const {
+    QList<ParameterDefinition> defs;
+    defs << ParameterDefinition("x_l");
+    defs << ParameterDefinition("x_r");
+    for(int i = 2; i <= order; i++)
+      defs << ParameterDefinition(QString("Al_%1").arg(i));
+    for(int i = 2; i <= order; i++)
+      defs << ParameterDefinition(QString("Ar_%1").arg(i));
+    return defs;
+  };
+
+  virtual ArgumentList * fitHardOptions() const {
+    ArgumentList * opts = new 
+      ArgumentList(QList<Argument *>()
+                   << new 
+                   IntegerArgument("order", 
+                                   "Order",
+                                   "Order of the polynomial function")
+                   );
+    return opts;
+  };
+
+  TwoPolynomialFit() :
+    PerDatasetFit("two-polynomials", 
+                  "Fit to a polynomial function",
+                  "...", 1, -1, false) 
+  { 
+    makeCommands();
+  }
+};
+  
+
+// DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
+// Its name doesn't matter.
+TwoPolynomialFit fit_two_polynomial;

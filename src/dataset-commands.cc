@@ -1140,14 +1140,29 @@ static void tweakColumnsCommand(const QString &,
 
   /// @todo Swap columns
 
+  bool flip = false;
+  bool flipAll = false;
+  
+  updateFromOptions(opts, "flip", flip);
+  updateFromOptions(opts, "flip-all", flipAll);
+  if(flipAll) {
+    Utils::reverseList(cols);
+  }
+  else if(flip) {
+    Vector x = cols.takeFirst();
+    Utils::reverseList(cols);
+    cols.insert(0, x);
+  }
+
 
   // Removing last
   QList<int> toRemove;
   updateFromOptions(opts, "remove", toRemove);
-  qSort(toRemove);
-  for(int i = toRemove.size() - 1; i >= 0; i--)
-    cols.removeAt(toRemove[i] - 1);
-
+  if(toRemove.size()) {
+    qSort(toRemove);
+    for(int i = toRemove.size() - 1; i >= 0; i--)
+      cols.removeAt(toRemove[i] - 1);
+  }
 
   DataSet * nds = ds->derivedDataSet(cols, "_tweaked.dat");
   soas().pushDataSet(nds);
@@ -1163,6 +1178,12 @@ tcO(QList<Argument *>()
                                    "Columns to remove",
                                    "The column numbers to remove "
                                    "(X = 1, Y = 2, etc...)", true)
+    << new BoolArgument("flip", 
+                        "Flip Y columns",
+                        "If true, flips all the Y columns")
+    << new BoolArgument("flip-all", 
+                        "Flip all columns",
+                        "If true, flips all the columns, including the X column")
     );
 
 

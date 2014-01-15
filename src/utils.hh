@@ -243,6 +243,15 @@ namespace Utils {
   /// Sleeps that many milliseconds
   void msleep(unsigned long msecs);
 
+
+  /// Reverses the order of the list, in place.
+  template <class T> void reverseList(QList<T> & list) {
+    int sz = list.size();
+    int l = sz/2;
+    for(int i = 0; i < l; i++) 
+      list.swap(i, sz - i - 1);
+  }
+
 };
 
 #endif

@@ -58,7 +58,10 @@ void StringArgument::setEditorValue(QWidget * editor,
 ArgumentMarshaller * SeveralStringsArgument::fromString(const QString & str) const
 {
   QStringList r;
-  r << str;
+  if(separator.isEmpty())
+    r << str;
+  else
+    r = str.split(separator);
   return new ArgumentMarshallerChild<QStringList>(r);
 }
 
@@ -233,6 +236,8 @@ ArgumentMarshaller * SeveralDataSetArgument::fromString(const QString & s) const
   QList<const DataSet *> dsets;
   QRegExp multi("^\\s*(-?[0-9]+)\\s*..\\s*(-?[0-9]+|end)\\s*(?::(\\d+)\\s*)?");
 
+  QRegExp flgs("^\\s*(un)?flagged:(.*)");
+
   for(int i = 0; i < splitted.size(); i++) {
     const QString & str = splitted[i];
     
@@ -280,6 +285,13 @@ ArgumentMarshaller * SeveralDataSetArgument::fromString(const QString & s) const
     }
     else if(str == "displayed")  {
       QList<DataSet *> mkd = soas().view().displayedDataSets();
+      for(int i = 0; i < mkd.size(); i++)
+        dsets << mkd[i];
+    }
+    else if(flgs.indexIn(str) == 0) {
+      bool flg = (flgs.cap(1).size() == 0);
+      QList<DataSet *> mkd = 
+        soas().stack().flaggedDataSets(flg, flgs.cap(2));
       for(int i = 0; i < mkd.size(); i++)
         dsets << mkd[i];
     }

@@ -50,6 +50,11 @@ class DataSet : public Guardable {
   /// @todo Have the data handled by that
   ValueHash metaData;
 
+  
+  /// The set of flags attached to this dataset
+  QSet<QString> flags;
+  
+
   /// A private cache
   class Cache {
   public:
@@ -133,8 +138,35 @@ public:
   /// The date and time of the (original ?) data
   QDateTime date;
 
-  /// A flag. Flagged buffers can be recalled effectively.
-  bool flagged;
+  /// @name Flag-related functions
+  ///
+  /// @{
+
+  /// Whether the dataset has one or more flags attached to it.
+  bool flagged() const;
+
+  /// Whether the dataset has the given flag attached to it.
+  bool flagged(const QString & str) const;
+
+  /// Returns all the flags
+  QSet<QString> allFlags() const;
+
+  /// Sets the given flag
+  void setFlag(const QString & str);
+
+  /// Sets the given flags
+  void setFlags(const QStringList & lst);
+
+  /// Removes the given flag
+  void clearFlag(const QString & str);
+
+  /// Removes the given flags;
+  void clearFlags(const QStringList & lst);
+
+  /// Removes all the flags
+  void clearFlags();
+
+  /// @}
 
   /// @name Options and option-related functions.
   ///
@@ -177,9 +209,9 @@ public:
 
   /// @}
 
-  DataSet() : flagged(false) {;};
-  DataSet(const QList<Vector> & cols) : columns(cols), flagged(false) {;};
-  DataSet(const Vector & x, const Vector & y) : flagged(false) {
+  DataSet() {;};
+  DataSet(const QList<Vector> & cols) : columns(cols) {;};
+  DataSet(const Vector & x, const Vector & y) {
     columns << x << y;
   };
 

@@ -62,7 +62,7 @@ QString DataSet::stringDescription() const
   /// @todo Possibly clean that up ?
   return QObject::tr("%6 %2\t%3\t%5\t'%1'").
     arg(name).arg(nbColumns()).arg(nbRows()).arg(segments.size() + 1).
-    arg(flagged ? "(*)" : "   ");
+    arg(flagged() ? "(*)" : "   ");
 }
 
 void DataSet::regenerateCache() const
@@ -1163,6 +1163,50 @@ DataSet * DataSet::transpose() const
   return ds;
 }
 
+
+bool DataSet::flagged() const
+{
+  return flags.size() > 0;
+}
+
+bool DataSet::flagged(const QString & str) const
+{
+  return flags.contains(str);
+}
+
+void DataSet::setFlag(const QString & str)
+{
+  flags.insert(str);
+}
+
+void DataSet::setFlags(const QStringList & lst)
+{
+  QSet<QString> s = QSet<QString>::fromList(lst);
+  flags.unite(s);
+}
+
+void DataSet::clearFlag(const QString & str)
+{
+  flags.remove(str);
+}
+
+void DataSet::clearFlags()
+{
+  flags.clear();
+}
+
+void DataSet::clearFlags(const QStringList & lst)
+{
+  for(int i = 0; i < lst.size(); i++)
+    clearFlag(lst[i]);
+}
+
+QSet<QString> DataSet::allFlags() const
+{
+  return flags;
+}
+
+
 //////////////////////////////////////////////////////////////////////
 
 QDataStream & operator<<(QDataStream & out, const DataSet & ds)
@@ -1177,10 +1221,13 @@ QDataStream & operator<<(QDataStream & out, const DataSet & ds)
   out << ds.metaData;
 
   // From version 1 onwards
-  out << ds.flagged;
+  // out << ds.flagged;
 
   // From version 2
   out << ds.perpCoords;
+
+  // From version 3
+  out << ds.flags;
   return out;
 }
 
@@ -1202,11 +1249,22 @@ QDataStream & operator>>(QDataStream & in, DataSet & ds)
 
   in >> ds.metaData;
 
-  if(DataStack::serializationVersion >= 1)
-    in >> ds.flagged;
+  bool flagged = false;
+  if(DataStack::serializationVersion >= 1 &&
+     DataStack::serializationVersion < 4) {
+    in >> flagged;
+    ds.flags.clear();
+    if(flagged)
+      ds.flags.insert("default");
+  }
 
   if(DataStack::serializationVersion >= 2)
     in >> ds.perpCoords;
+
+  if(DataStack::serializationVersion >= 4) 
+    in >> ds.flags;
+
+
 
   return in;
 }

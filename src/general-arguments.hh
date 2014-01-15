@@ -50,15 +50,21 @@ public:
 };
 
 /// Several strings
-///
-/// @todo implement automatic splitting when necessary.
 class SeveralStringsArgument : public Argument {
+  QRegExp separator;
 public:
 
   SeveralStringsArgument(const char * cn, const char * pn,
                          const char * d = "", bool g = true, 
                          bool def = false) : 
     Argument(cn, pn, d, g, def) {
+  }; 
+
+  SeveralStringsArgument(const QRegExp & re, 
+                         const char * cn, const char * pn,
+                         const char * d = "", bool g = true, 
+                         bool def = false) : 
+    Argument(cn, pn, d, g, def), separator(re) {
   }; 
 
 

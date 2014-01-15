@@ -528,9 +528,22 @@ static void flagUnFlag(const CommandOptions & opts,
   else
     buffers << soas().currentDataSet();
 
+  QStringList flags;
+  updateFromOptions(opts, "flags", flags);
+  if(flagged && flags.isEmpty()) 
+    flags << "default";
+
   for(int i = 0; i < buffers.size(); i++) {
     DataSet * ds = const_cast<DataSet *>(buffers[i]);
-    ds->flagged = flagged;
+    if(flagged) {
+      ds->setFlags(flags);
+    }
+    else {
+      if(flags.isEmpty())
+        ds->clearFlags();
+      else
+        ds->clearFlags(flags);
+    }
   }
 }
 
@@ -543,7 +556,11 @@ static ArgumentList
 muOps(QList<Argument *>() 
       << new SeveralDataSetArgument("buffers", 
                                     "Buffers",
-                                    "Buffers to flag/unflag", true, true));
+                                    "Buffers to flag/unflag", true, true)
+      << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                    "flags", 
+                                    "Buffers",
+                                    "Buffers to flag/unflag"));
 
 
 static Command 

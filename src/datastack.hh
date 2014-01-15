@@ -83,8 +83,10 @@ public:
   /// the stack.
   void showStackContents(int limit = 0,bool mostRecentFirst = true) const;
 
-  /// Returns the list of flagged datasets
-  QList<DataSet *> flaggedDataSets(bool flagged = true);
+  /// Returns the list of datasets flagged (or not) with the given
+  /// flag (or with any flag if the second argument is empty)
+  QList<DataSet *> flaggedDataSets(bool flagged = true, 
+                                   const QString &  flag = QString());
 
 
   /// Returns the numbered data set.

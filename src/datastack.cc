@@ -66,12 +66,16 @@ QList<const DataSet *> DataStack::allDataSets() const
   return ret;
 }
 
-QList<DataSet *> DataStack::flaggedDataSets(bool flagged)
+QList<DataSet *> DataStack::flaggedDataSets(bool flagged, const QString & flag)
 {
   QList<DataSet *> ret;
   for(int i = -redoStack.size(); i < dataSets.size(); i++) {
     DataSet * ds = numberedDataSet(i);
-    if(ds->flagged == flagged)
+
+    QStringList lst = QStringList::fromSet(ds->allFlags());
+
+    bool flg = flag.isEmpty() ? ds->flagged() : ds->flagged(flag);
+    if((!flg) == (!flagged))
       ret << ds;
   }
   return ret;
@@ -205,7 +209,7 @@ qint32 DataStack::serializationVersion = 0;
 
 QDataStream & operator<<(QDataStream & out, const DataStack & stack)
 {
-  qint32 v = -3;                // (negative) Current version
+  qint32 v = -4;                // (negative) Current version
   out << v;
   v = MAGIC;
   out << v;

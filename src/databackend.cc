@@ -153,7 +153,7 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName,
     if(verbose)
       Terminal::out << "(cached)" << endl;
   }
-  
+
   return datasets;
 }
 
@@ -199,6 +199,14 @@ void DataBackend::loadFilesAndDisplay(int nb, QStringList files,
       Terminal::out << "\n" << e.message() << endl;
     }
     QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
+  }
+
+  // If applicable, we decorate the datasets with the flags given
+  QStringList flags;
+  updateFromOptions(opts, "flags", flags);
+  if(flags.size() > 0) {
+    for(int i = 0; i < datasets.size(); i++)
+      datasets[i]->setFlags(flags);
   }
 
   QScopedPointer<StyleGenerator> 
@@ -264,6 +272,10 @@ void DataBackend::registerBackendCommands()
                      << new StyleGeneratorArgument("style", 
                                                    "Style",
                                                    "Style for curves display")
+                     << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                                   "flags", 
+                                                   "Flags",
+                                                   "Flags for the newly created buffers")
                      << new BoolArgument("ignore-cache", 
                                          "Ignores cache",
                                          "If on, ignores what is in the cache")

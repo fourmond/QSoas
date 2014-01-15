@@ -788,14 +788,16 @@ mergec("merge", // command name
 
 
 static void contractCommand(const QString &, QList<const DataSet *> a,
-                            DataSet * b, const CommandOptions & opts)
+                            const CommandOptions & opts)
 {
   bool naive = testOption<QString>(opts, "mode", "indices");
   bool useSteps = false;
   updateFromOptions(opts, "use-segments", useSteps);
   
   DataSet * cur = const_cast<DataSet *>(a[0]); // Yeah, well...
-  a << b;
+
+  if(a.size() < 2)
+    throw RuntimeError("You need more than one buffer to run contract");
   for(int i = 1; i < a.size(); i++) {
     const DataSet * ds = a[i];
     DataSet * n = cur->contract(ds, naive, useSteps);
@@ -807,11 +809,17 @@ static void contractCommand(const QString &, QList<const DataSet *> a,
   soas().pushDataSet(cur);
 }
 
+static ArgumentList 
+contractArgs(QList<Argument *>() 
+             << new SeveralDataSetArgument("buffers", 
+                                           "Buffers",
+                                           "Buffers to contract"));
+
 static Command 
 contractc("contract", // command name
           effector(contractCommand), // action
           "buffer",  // group name
-          &operationArgs, // arguments
+          &contractArgs, // arguments
           &operationOpts, // options
           "Group buffers on X values",
           "Group buffers into a X,Y1,Y2",

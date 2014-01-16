@@ -2198,6 +2198,7 @@ static void svCommand(const QString &,
   int components = -1;
   bool filterOnly = false;
   updateFromOptions(opts, "components", components);
+  updateFromOptions(opts, "filter", filterOnly);
 
   // If components are computed, either directly or though a
   // threshold, and in the case we don't filter, we create two buffers
@@ -2228,8 +2229,34 @@ static void svCommand(const QString &,
       soas().pushDataSet(ds->derivedDataSet(ds1, "_components.dat"));
     }
     else {
-      /// @todo !
+      // We just remove extra components
+
+      for(int i = 0; i < nbcols; i++) {
+        double val = (i < components ? gsl_vector_get(values, i) : 0);
+        gsl_vector_view v = gsl_matrix_column(data, i);
+        gsl_vector_scale(&v.vector, val);
+      }
+
+      gsl_matrix * final = gsl_matrix_alloc(nbrows, nbcols);
+      gsl_blas_dgemm(CblasNoTrans, CblasTrans, 1.0, 
+                     data, amplitudes, 0, final);
+      
+      QList<Vector> newCols;
+      newCols << ds->x();
+
+      for(int i = 0; i < nbcols; i++) {
+        gsl_vector_view v = gsl_matrix_column(final, i);
+        newCols << Vector::fromGSLVector(&v.vector);
+      }
+      gsl_matrix_free(final);
+
+      soas().pushDataSet(ds->derivedDataSet(newCols, "_sv_filtered.dat"));
     }
+  }
+  else {
+    Terminal::out << "Not doing anything. If you want decomposition or "
+      "filtering, you must specify the number of components "
+      "using /components" << endl;
   }
 
   

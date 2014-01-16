@@ -294,7 +294,11 @@ void DataBackend::registerBackendCommands()
     /// load and overlay commands.
     *opts << new StyleGeneratorArgument("style", 
                                         "Style",
-                                        "Style for curves display");
+                                        "Style for curves display")
+    << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                  "flags", 
+                                  "Flags",
+                                  "Flags for the newly created buffers");
     
     opts->mergeOptions(*oo);
       

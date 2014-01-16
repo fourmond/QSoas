@@ -70,6 +70,35 @@ you hit Cmd+Shift+T to switch to "plain text" format (the default is
 rich text in the RTF format, and `QSoas` does not understand RTF).
 
 
+## Buffer list arguments {#buffer-lists}
+
+Many commands, such as [cmd: flag], [cmd: contract] and so on take
+lists of buffers (or datasets) as arguments. This list can take
+several forms:
+
+ * A comma-separated of buffer numbers (the ones given by 
+   [cmd: show-stack]), such as: `1,4,7` (0 is the current buffer, 1,
+   the one just before, which you can reach using [cmd: undo], etc.).
+ * A number range, such as `1..7`, meaning all buffers from 1 to 7
+   included.
+ * A number range with a step, such as `1..7:3`, meaning `1,4,7`.
+ * `all` for all buffers on the stack.
+ * `displayed` for the currently displayed buffers.
+
+It is also possible to make use of buffer flags set by [cmd: flag]:
+
+ * `flagged` stands for all flagged buffers (regardless of the name of
+   the flag);
+ * `unflagged` for all buffers that don't have a flag;
+ * `flagged-` and `unflagged-` do the same, but with the buffers in
+   the reverse order;
+ * `flagged:`_flagname_ for all buffers that have the flag _flagname_;
+ * `unflagged:`_flagname_ for all buffers that don't have the flag
+   _flagname_;
+ * and the variants `flagged-:`_flagname_ and `unflagged-:`_flagname_
+   for the reversed order.
+
+
 # General
 
 Here are the commands to interact with QSoas in the most general way:
@@ -433,12 +462,13 @@ The main command for loading data is [cmd: load]
 
 ### load - Load {#cmd-load}
 
-`load` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/style=`_style_{:title="One of: red-blue"} `/ignore-cache=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`load` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/ignore-cache=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
 Alias: `l`
 
   * _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."}: Files to load !
   * `/style=`_style_{:title="One of: red-blue"}: Style for curves display
+  * `/flags=`_texts_: Flags for the newly created buffers
   * `/ignore-cache=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, ignores what is in the cache
   * `/yerrors=`_integer_{:title="An integer"}: Column containing y errors
   * `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Show as a histogram
@@ -506,6 +536,10 @@ them with a color gradient from red (for the first loaded file) to
 blue (for the last loaded file). This makes it very easy to follow
 subtle modifications from one data file to the next.
 
+The `/flags=` option makes it possible to flag buffers as they get
+loaded. It has the same effect as running [cmd: flag] with the same
+option on loaded datasets.
+
 
 {::comment} description-end: load {:/}
 
@@ -514,7 +548,7 @@ subtle modifications from one data file to the next.
 
 ### load-as-text - Load files with backend 'text' {#cmd-load-as-text}
 
-`load-as-text` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"}
+`load-as-text` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_
 
   * _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."}: Files to load !
   * `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"}: Separator between columns
@@ -523,9 +557,11 @@ subtle modifications from one data file to the next.
   * `/columns=`_integers_{:title="A comma-separated list of integers"}: Order of the columns
   * `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Split on blank lines
   * `/style=`_style_{:title="One of: red-blue"}: Style for curves display
+  * `/flags=`_texts_: Flags for the newly created buffers
   * `/yerrors=`_integer_{:title="An integer"}: Column containing y errors
   * `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Show as a histogram
   * `/style=`_style_{:title="One of: red-blue"}: Style for curves display
+  * `/flags=`_texts_: Flags for the newly created buffers
 
 {::comment} synopsis-end: load-as-text {:/}
 {::comment} description-start: load-as-text {:/}
@@ -537,8 +573,8 @@ good results. By default, it loads all the columns of the file, but
 only displays the second as a function of the first. If you want to
 work on other columns, have a look at [cmd: expand].
 
-Apart from the options of [cmd: dataset-options]
-and the `/style` documented above, the `text` backend accepts several
+Apart from the options of [cmd: dataset-options] and the `/style` and
+`/flags` options documented above, the `text` backend accepts several
 options controlling the way the text files are interpreted:
 
   * `/separator` is the text that separate the columns (blank space by
@@ -564,7 +600,7 @@ options controlling the way the text files are interpreted:
 
 ### load-as-csv - Load files with backend 'csv' {#cmd-load-as-csv}
 
-`load-as-csv` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"}
+`load-as-csv` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_
 
   * _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."}: Files to load !
   * `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"}: Separator between columns
@@ -573,9 +609,11 @@ options controlling the way the text files are interpreted:
   * `/columns=`_integers_{:title="A comma-separated list of integers"}: Order of the columns
   * `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Split on blank lines
   * `/style=`_style_{:title="One of: red-blue"}: Style for curves display
+  * `/flags=`_texts_: Flags for the newly created buffers
   * `/yerrors=`_integer_{:title="An integer"}: Column containing y errors
   * `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Show as a histogram
   * `/style=`_style_{:title="One of: red-blue"}: Style for curves display
+  * `/flags=`_texts_: Flags for the newly created buffers
 
 {::comment} synopsis-end: load-as-csv {:/}
 {::comment} description-start: load-as-csv {:/}
@@ -697,12 +735,13 @@ See [cmd: load] for the description of the `/style` option.
 
 ### overlay - Overlay {#cmd-overlay}
 
-`overlay` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/style=`_style_{:title="One of: red-blue"} `/ignore-cache=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`overlay` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/ignore-cache=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
 Alias: `v`
 
   * _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."}: Files to load !
   * `/style=`_style_{:title="One of: red-blue"}: Style for curves display
+  * `/flags=`_texts_: Flags for the newly created buffers
   * `/ignore-cache=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, ignores what is in the cache
   * `/yerrors=`_integer_{:title="An integer"}: Column containing y errors
   * `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Show as a histogram
@@ -944,28 +983,43 @@ buffers you're sure you won't need again (such as computation intermediates).
 
 ### flag - Flag datasets {#cmd-flag}
 
-`flag` `/buffers=`_buffers_{:title="Comma-separated lists of datasets in the stack"}
+`flag` `/buffers=`_buffers_{:title="Comma-separated lists of datasets in the stack"} `/flags=`_texts_
 
   * `/buffers=`_buffers_{:title="Comma-separated lists of datasets in the stack"} (default): Buffers to flag/unflag
+  * `/flags=`_texts_: Buffers to flag/unflag
 
 {::comment} synopsis-end: flag {:/}
 {::comment} description-start: flag {:/}
 Flags the given buffer (or the current one if none is supplied) for
 later use. All currently flagged buffers can be specified using the
-`flagged` argument to, for instance,
-[cmd: overlay-buffer].
+`flagged` argument to, for instance, [cmd: overlay-buffer].
+
+`QSoas` supports arbitrary text flags, by passing a comma-separated
+list of flags to the `/flags=` option. In the absence of that, the
+buffers are flagged with the flag name `default`. Buffers can hold
+an arbitrary number of flags. For instance:
+
+~~~~
+QSoas> flag 0..5 /flags=exp1,fit
+~~~~
+
+flags buffers 0 to 5 with the flags `exp1` and `fit`. Buffers are
+flagged 'in-place': the current buffer is not changed.
+
 {::comment} description-end: flag {:/}
 {::comment} synopsis-start: unflag {:/}
 
 ### unflag - Unflag datasets {#cmd-unflag}
 
-`unflag` `/buffers=`_buffers_{:title="Comma-separated lists of datasets in the stack"}
+`unflag` `/buffers=`_buffers_{:title="Comma-separated lists of datasets in the stack"} `/flags=`_texts_
 
   * `/buffers=`_buffers_{:title="Comma-separated lists of datasets in the stack"} (default): Buffers to flag/unflag
+  * `/flags=`_texts_: Buffers to flag/unflag
 
 {::comment} synopsis-end: unflag {:/}
 {::comment} description-start: unflag {:/}
-Removes the flag on the given datasets.
+Removes all flags on the given datasets, or only those specified by
+the `/flags` option if the latter is present.
 {::comment} description-end: unflag {:/}
 
 
@@ -1436,8 +1490,9 @@ small heuristic. You can display it using the `b` key.
 
 ### filter-bsplines - Filter {#cmd-filter-bsplines}
 
-`filter-bsplines` **(interactive)**
+`filter-bsplines` `/weight-col=`_integer_{:title="An integer"} **(interactive)**
 
+  * `/weight-col=`_integer_{:title="An integer"}: Use the weights in the given column
 
 {::comment} synopsis-end: filter-bsplines {:/}
 {::comment} description-start: filter-bsplines {:/}
@@ -1470,12 +1525,13 @@ approximation. (be careful as this function may fail at times).
 
 ### auto-filter-bs - Filter {#cmd-auto-filter-bs}
 
-`auto-filter-bs` `/number=`_integer_{:title="An integer"} `/order=`_integer_{:title="An integer"} `/derivatives=`_integer_{:title="An integer"}
+`auto-filter-bs` `/number=`_integer_{:title="An integer"} `/order=`_integer_{:title="An integer"} `/weight-col=`_integer_{:title="An integer"} `/derivatives=`_integer_{:title="An integer"}
 
 Alias: `afbs`
 
   * `/number=`_integer_{:title="An integer"}: Number of segments
   * `/order=`_integer_{:title="An integer"}: Order of the splines
+  * `/weight-col=`_integer_{:title="An integer"}: Use the weights in the given column
   * `/derivatives=`_integer_{:title="An integer"}: Compute derivatives up to the given 
 
 {::comment} synopsis-end: auto-filter-bs {:/}
@@ -1819,10 +1875,9 @@ each of those before.
 
 ### contract - Group buffers on X values {#cmd-contract}
 
-`contract` _first..._{:title="Comma-separated lists of datasets in the stack"} _second_{:title="The number of a buffer in the stack"} `/mode=`_choice_{:title="One of: indices, xvalues"} `/use-segments=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`contract` _buffers..._{:title="Comma-separated lists of datasets in the stack"} `/mode=`_choice_{:title="One of: indices, xvalues"} `/use-segments=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
-  * _first..._{:title="Comma-separated lists of datasets in the stack"}: First buffer(s)
-  * _second_{:title="The number of a buffer in the stack"}: Second buffer
+  * _buffers..._{:title="Comma-separated lists of datasets in the stack"}: Buffers to contract
   * `/mode=`_choice_{:title="One of: indices, xvalues"}: Whether operations try to match x values or indices
   * `/use-segments=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, operations are performed segment-by-segment
 

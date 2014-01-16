@@ -230,13 +230,15 @@ ArgumentMarshaller * DataSetArgument::fromString(const QString & str) const
 
 ////////////////////////////////////////////////////////////
 
+/// @todo This function belongs in DataStack and not here !
 ArgumentMarshaller * SeveralDataSetArgument::fromString(const QString & s) const
 {
   QStringList splitted = s.split(QRegExp("\\s*,\\s*"));
   QList<const DataSet *> dsets;
   QRegExp multi("^\\s*(-?[0-9]+)\\s*..\\s*(-?[0-9]+|end)\\s*(?::(\\d+)\\s*)?");
 
-  QRegExp flgs("^\\s*(un)?flagged:(.*)");
+  QRegExp flgs("^\\s*(un)?flagged(-)?(:(.*))?\\s*$");
+  flgs.setMinimal(true);        // to catch the last - if applicable
 
   for(int i = 0; i < splitted.size(); i++) {
     const QString & str = splitted[i];
@@ -273,25 +275,26 @@ ArgumentMarshaller * SeveralDataSetArgument::fromString(const QString & s) const
                                    "to no buffers").
                        arg(str)) ;
     }
-    else if(str == "flagged")  {
-      QList<DataSet *> mkd = soas().stack().flaggedDataSets();
-      for(int i = 0; i < mkd.size(); i++)
-        dsets << mkd[i];
-    }
-    else if(str == "unflagged")  {
-      QList<DataSet *> mkd = soas().stack().flaggedDataSets(false);
-      for(int i = 0; i < mkd.size(); i++)
-        dsets << mkd[i];
-    }
-    else if(str == "displayed")  {
-      QList<DataSet *> mkd = soas().view().displayedDataSets();
-      for(int i = 0; i < mkd.size(); i++)
-        dsets << mkd[i];
-    }
     else if(flgs.indexIn(str) == 0) {
       bool flg = (flgs.cap(1).size() == 0);
-      QList<DataSet *> mkd = 
-        soas().stack().flaggedDataSets(flg, flgs.cap(2));
+      bool dec = (flgs.cap(2).size() > 0); // the - sign at the end
+      
+      QString flagName = flgs.cap(4);
+      QList<DataSet *> mkd;
+      if(flagName.isEmpty())
+        mkd = soas().stack().flaggedDataSets(flg);
+      else
+        mkd = soas().stack().flaggedDataSets(flg, flagName);
+
+      if(dec)
+        Utils::reverseList(mkd);
+
+      for(int i = 0; i < mkd.size(); i++)
+        dsets << mkd[i];
+    }
+      
+    else if(str == "displayed")  {
+      QList<DataSet *> mkd = soas().view().displayedDataSets();
       for(int i = 0; i < mkd.size(); i++)
         dsets << mkd[i];
     }

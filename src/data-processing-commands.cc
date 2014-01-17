@@ -639,7 +639,8 @@ static void cBaselineCommand(CurveEventLoop &loop, const QString &)
       case AddPoint:
         if(m.points.size() <= currentIndex) {
           m.points << pick.point();
-          m.labels << QString::number(currentIndex + 1);
+          m.labels << QString::number(m.points.size());
+          currentIndex = m.points.size() - 1;
         }
         else 
           m.points[currentIndex] = pick.point();

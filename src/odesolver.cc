@@ -30,7 +30,7 @@
 ODEStepperOptions::ODEStepperOptions(const gsl_odeiv2_step_type * t,
                                      double hs, double ea, 
                                      double er, bool f) :
-  type(t), hStart(hs), epsAbs(ea), epsRel(er), fixed(f)
+  type(t), hStart(hs), epsAbs(ea), epsRel(er), fixed(f), nmax(100)
 {
 }
 
@@ -76,6 +76,8 @@ QList<Argument*> ODEStepperOptions::commandOptions()
                              "Relative precision required")
        << new NumberArgument("prec-absolute", "Absolute precision",
                              "Absolute precision required")
+       << new IntegerArgument("max-iterations", "Maximum of iterations",
+                             "Maximum number of internal iterations for each step (0 to allow infinite number)")
        << new TemplateChoiceArgument<const gsl_odeiv2_step_type *>
     (stepperTypes(), "stepper", "Stepper algorithm",
      "Algorithm used for integration");
@@ -91,6 +93,7 @@ void ODEStepperOptions::parseOptions(const CommandOptions & opts)
   updateFromOptions(opts, "stepper", type);
   updateFromOptions(opts, "prec-relative", epsRel);
   updateFromOptions(opts, "prec-absolute", epsAbs);
+  updateFromOptions(opts, "max-iterations", nmax);
 }
 
 QString ODEStepperOptions::description() const
@@ -140,6 +143,7 @@ void ODEStepper::initialize(gsl_odeiv2_system * system)
                                          hs,
                                          options.epsAbs,
                                          options.epsRel);
+  gsl_odeiv2_driver_set_nmax(driver, options.nmax);
 }
 
 void ODEStepper::reset()
@@ -163,8 +167,10 @@ int ODEStepper::apply(double * t, const double t1, double y[])
     status = gsl_odeiv2_driver_apply_fixed_step(driver, t, step, nb, y);
   }
   else {
+    // QTextStream o(stdout);
+    // o << "Trying from " << *t << " to " << t1  << endl;
     status = gsl_odeiv2_driver_apply(driver, t, t1, y);
-    if(status == GSL_FAILURE) {
+    if(status == GSL_FAILURE || status == GSL_EMAXITER) {
       // We try to reset the driver with the initial step where we are
       // now and proceeed
       double hs = options.hStart;
@@ -173,7 +179,13 @@ int ODEStepper::apply(double * t, const double t1, double y[])
       //      gsl_odeiv2_driver_reset_hstart(driver, hs);
       gsl_odeiv2_driver_reset(driver);
       driver->h = hs;
-      return apply(t, t1, y);
+      if(fabs(*t - t1) < 1e-14 * (fabs(t1) + fabs(*t))) {
+        // Sometimes the final value is not exactly reached, in which
+        // case the program goes on forever...
+        return GSL_SUCCESS;     // Just a small glitch ;-)...
+      }
+      else
+        return apply(t, t1, y);
     }
   }
 
@@ -181,7 +193,7 @@ int ODEStepper::apply(double * t, const double t1, double y[])
   // o << "Step from " << orig << " to " << t1  << "(dt= " << t1 - *t << ")"
   //   << ":\t h=" << driver->h << " -> " << status <<  "\t" 
   //   << "last_step: " << driver->e->last_step <<  "\tfailed:" 
-  //   << driver->e->failed_steps << endl;
+  //   << driver->e->failed_steps << "\tmax tries:" << driver->nmax << endl;
   return status;
 }
 

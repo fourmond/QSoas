@@ -45,6 +45,10 @@ public:
   /// Whether or not the system uses a fixed step
   bool fixed;
 
+  /// The maximum number of internal steps for each "external step".
+  /// Defaults to 100.
+  int nmax;
+
   ODEStepperOptions(const gsl_odeiv2_step_type * t = gsl_odeiv2_step_rkf45,
                     double hs = 0.01, double ea = 1e-16, 
                     // Should always be safe ?

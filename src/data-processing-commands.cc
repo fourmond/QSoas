@@ -2188,7 +2188,12 @@ static void svCommand(const QString &,
   Terminal::out << "Singular values: ";
   for(int i = 0; i < nbcols; i++) 
     Terminal::out << gsl_vector_get(values, i) << " ";
-  Terminal::out << "Condition number: " 
+
+  Terminal::out << "\nNormalized singular values: ";
+  for(int i = 0; i < nbcols; i++) 
+    Terminal::out << gsl_vector_get(values, i)/gsl_vector_get(values, 0) << " ";
+
+  Terminal::out << "\nCondition number: " 
                 << gsl_vector_get(values, 0)/
     gsl_vector_get(values, nbcols - 1) << endl;
 
@@ -2255,7 +2260,7 @@ static void svCommand(const QString &,
   }
   else {
     Terminal::out << "Not doing anything. If you want decomposition or "
-      "filtering, you must specify the number of components "
+      "filtering, you must specify the final number of components "
       "using /components" << endl;
   }
 

@@ -100,8 +100,9 @@ public:
   /// Merges another ValueHash in this one, while keeping the current
   /// order of the keys and appending the new ones.
   ///
-  /// Elements in \a other override those already present.
-  void merge(const ValueHash & other);
+  /// Elements in \a other override those already present,
+  /// unless \a override is false.
+  void merge(const ValueHash & other, bool override = true);
 
   /// Appends the @a value to the list of strings stored in @a key.
   void appendToList(const QString & key, const QString & value);

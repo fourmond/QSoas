@@ -248,7 +248,8 @@ SOURCES += src/qmain.cc \
         src/integrator.cc \
         src/fitcatalyticwave.cc \
         src/gslintegrator.cc \
-        src/distrib-fits.cc
+        src/distrib-fits.cc \
+        src/metadataprovider.cc
 
 
 HEADERS += src/headers.hh \
@@ -345,7 +346,8 @@ HEADERS += src/headers.hh \
         src/integrator.hh \
         src/namedinstance.hh \
         src/factory.hh \
-        src/factoryargument.hh
+        src/factoryargument.hh \
+        src/metadataprovider.hh
 
 # We link with the converted ODRPACK library
 message("Using odrpack")

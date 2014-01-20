@@ -30,11 +30,33 @@
 /// Classes making use of this should derive from this one.
 template <typename C> class NamedInstance {
 protected:
+
+  /// The hash of instances
+  typedef QHash<QString,  C * > InstanceHash;
+
+  
+
   /// The global register for the instances
   ///
   /// Must be a pointer to ensure we don't initialize the hash after
   /// the first registration !
-  static QHash<QString,  C * > * instances;
+  static InstanceHash * instances;
+
+  /// Iterator pointing to the first instance
+  static typename InstanceHash::iterator begin() {
+    if(! instances)
+      instances = new InstanceHash();
+    return instances->begin();
+  };
+  
+  /// Iterator pointing to the "one-after-last" instance. @warning 
+  /// This is invalid if there is no instance registered and begin()
+  /// wasn't called before !
+  static typename InstanceHash::iterator end() {
+    return instances->end();
+  };
+
+  
 
   /// The name of the instance
   static QString instanceName(C * instance) {
@@ -43,6 +65,7 @@ protected:
 
   // /// The name of the instance. SFINAE overload to handle both the
   // /// cases where the name is an attribute or a function.
+  // SFINAE doesn't work, it seems
   // static QString instanceName(C * instance) {
   //   return instance->name();
   // };

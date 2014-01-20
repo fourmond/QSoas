@@ -112,7 +112,12 @@ public:
   /// Only converts strings and doubles. (the rest will follow as
   /// needed...)
   VALUE toRuby() const;
+
+  /// Sets data from a Ruby hash
+  void setFromRuby(VALUE hsh);
   
+  /// Builds a new ValueHash from a Ruby hsh
+  static ValueHash fromRuby(VALUE hsh);
 
 };
 

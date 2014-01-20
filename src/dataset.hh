@@ -496,8 +496,21 @@ public:
   /// @todo find a way to customize that later on.
   QStringList columnNames() const;
 
+
+  /// @name Meta-data related functions
+  ///
+  /// @{
+
   /// Sets the given meta-data
   void setMetaData(const QString & name, const QVariant & value);
+
+  /// Returns all the meta-data
+  const ValueHash & getMetaData() const;
+
+  /// Add a whole new set of meta-data
+  void addMetaData(const ValueHash & val, bool override = true);
+
+  /// @}
   
 };
 

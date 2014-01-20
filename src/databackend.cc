@@ -38,8 +38,8 @@
 #include <datastack.hh>
 
 #include <stylegenerator.hh>
-
 #include <datasetoptions.hh>
+#include <metadataprovider.hh>
 
 QList<DataBackend*> * DataBackend::availableBackends = NULL;
 
@@ -239,9 +239,13 @@ void DataBackend::loadDatasetCommand(const QString & /*cmdname*/,
 void DataBackend::setMetaDataForFile(DataSet * dataset, 
                                      const QString& filename)
 {
+  /// @todo Should the new meta-data stuff go here or somewhere else ?
+  /// Here is fine.
   QDir dir = QDir::current();
-  dataset->setMetaData("original-file",
-                       QDir::cleanPath(dir.absoluteFilePath(filename)));
+  QString fp = QDir::cleanPath(dir.absoluteFilePath(filename));
+  dataset->setMetaData("original-file", fp);
+  ValueHash md = MetaDataProvider::allMetaDataForFile(fp);
+  dataset->addMetaData(md);
 }
 
 static void loadCommand(const QString &, QStringList files, 

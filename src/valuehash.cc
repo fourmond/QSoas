@@ -21,6 +21,7 @@
 #include <valuehash.hh>
 
 #include <ruby.hh>
+#include <exceptions.hh>
 
 template<class T> QHash<QString, T> ValueHash::extract(QVariant::Type t) const
 {
@@ -174,4 +175,31 @@ VALUE ValueHash::toRuby() const
     rb_hash_aset(ret, key, val);
   }
   return ret;
+}
+
+static int setFromRubyInternalHelper(VALUE key, VALUE val, void * arg)
+{
+  ValueHash * target = static_cast<ValueHash *>(arg);
+  QString k = Ruby::toQString(key);
+  QTextStream o(stdout);
+  o << "Key: " << k << endl;
+  // For now, very naive conversion...
+  target->operator[](k) = Ruby::toQString(val);
+  return ST_CONTINUE;
+}
+
+void ValueHash::setFromRuby(VALUE hsh)
+{
+  if(! RTEST(rb_obj_is_instance_of(hsh, rb_cHash)))
+    throw RuntimeError("Trying to set a hash from a ruby value "
+                       "that isn't a hash");
+  rb_hash_foreach(hsh, (int (*)(...))
+                  ::setFromRubyInternalHelper, (VALUE)this);
+}
+
+ValueHash ValueHash::fromRuby(VALUE hsh)
+{
+  ValueHash h;
+  h.setFromRuby(hsh);
+  return h;
 }

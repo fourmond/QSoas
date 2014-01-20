@@ -53,11 +53,14 @@ namespace Ruby {
   ///
   /// This function is already ruby-exception safe, ie no need to wrap
   /// it in a Ruby::run() call.
-  QString toQString(VALUE val);
+  QString inspect(VALUE val);
 
   /// Creates a Ruby string from a QString. No exception handling, but
   /// it should never fail !
   VALUE fromQString(const QString & str);
+
+  /// Transforms the Ruby value into a string
+  QString toQString(VALUE val);
 
   /// Returns the version string of Ruby
   QString versionString();

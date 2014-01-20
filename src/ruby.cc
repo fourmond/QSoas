@@ -91,6 +91,7 @@ void Ruby::initRuby()
 
   // Has to come last ?
   Ruby::loadFile(":/ruby/qsoas-base.rb");
+  Ruby::loadFile(":/ruby/conditions.rb");
 }
 
 VALUE Ruby::loadFile(const QString & file)
@@ -131,7 +132,7 @@ VALUE Ruby::makeBlock(QStringList * variables, const QByteArray & code)
 
 static VALUE toStringHelper(VALUE val, QString * target)
 {
-  VALUE strval = rb_obj_as_string(rb_inspect(val));
+  VALUE strval = rb_obj_as_string(val);
   *target = StringValueCStr(strval);
   return Qnil;
 }
@@ -140,6 +141,14 @@ QString Ruby::toQString(VALUE val)
 {
   QString ret;
   Ruby::run(toStringHelper, val, &ret);
+  return ret;
+}
+
+QString Ruby::inspect(VALUE val)
+{
+  QString ret;
+  VALUE v = Ruby::run(rb_inspect, val);
+  Ruby::run(toStringHelper, v, &ret);
   return ret;
 }
 

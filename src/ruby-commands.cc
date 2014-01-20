@@ -289,7 +289,7 @@ static void eval(const QString &, QString code)
 {
   QByteArray bt = code.toLocal8Bit();
   VALUE value = Ruby::run(Ruby::eval, bt);
-  Terminal::out << " => " << Ruby::toQString(value) << endl;
+  Terminal::out << " => " << Ruby::inspect(value) << endl;
 }
 
 static ArgumentList 

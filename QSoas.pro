@@ -249,7 +249,8 @@ SOURCES += src/qmain.cc \
         src/fitcatalyticwave.cc \
         src/gslintegrator.cc \
         src/distrib-fits.cc \
-        src/metadataprovider.cc
+        src/metadataprovider.cc \
+        src/conditionsprovider.cc
 
 
 HEADERS += src/headers.hh \

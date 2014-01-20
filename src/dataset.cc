@@ -1132,10 +1132,22 @@ QStringList DataSet::columnNames() const
   return ret;
 }
 
+
 void DataSet::setMetaData(const QString & name, const QVariant & val)
 {
   metaData[name] = val;
 }
+
+const ValueHash & DataSet::getMetaData() const
+{
+  return metaData;
+}
+
+void DataSet::addMetaData(const ValueHash & val, bool override)
+{
+  metaData.merge(val, override);
+}
+
 
 DataSet * DataSet::transpose() const
 {
@@ -1205,6 +1217,9 @@ QSet<QString> DataSet::allFlags() const
 {
   return flags;
 }
+
+
+
 
 
 //////////////////////////////////////////////////////////////////////

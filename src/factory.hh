@@ -22,30 +22,15 @@
 #ifndef __FACTORY_HH
 #define __FACTORY_HH
 
+#include <namedinstance.hh>
 #include <exceptions.hh>
 
 /// This class provides a factory/creator scheme.
 ///
 /// C is the class, Args is the arguments to the creation function.
-template <typename C, typename... Args> class Factory {
+template <typename C, typename... Args> class Factory : 
+  public NamedInstance<Factory<C, Args...> > {
 protected:
-  /// The global register for the factory.
-  ///
-  /// Must be a pointer to ensure we don't initialize the hash after
-  /// the first registration !
-  static QHash<QString, Factory<C, Args...> * > * factory;
-
-  /// Registers the instance again. Throw an exception if already
-  /// defined.
-  static void registerInstance(Factory * instance) {
-    if(! factory)
-      factory = new QHash<QString, Factory<C, Args...> * >();
-    
-    if(factory->contains(instance->name))
-      throw InternalError("Factory already contains an instance of %1").
-        arg(instance->name);
-    (*factory)[instance->name] = instance;
-  };
 
 public:
   typedef std::function<C * (Args...)> Creator;
@@ -64,24 +49,27 @@ public:
           const Creator & c,
           const QString & desc = "") : 
     name(n), description(desc), creator(c) {
-    registerInstance(this);
+    NamedInstance<Factory<C, Args...> >::registerInstance(this);
   };
 
   Factory(const QString & n, 
           const QString & desc, 
           const Creator & c) :
     name(n), description(desc), creator(c) {
-    registerInstance(this);
+    NamedInstance<Factory<C, Args...> >::registerInstance(this);
+  };
+
+  /// Returns all the available items
+  static QStringList availableItems() {
+    return NamedInstance<Factory<C, Args...> >::availableItems();
+  };
+
+  /// Returns the item in the namedinstance bearing the given name.
+  static Factory * namedItem(const QString & n) {
+    return NamedInstance<Factory<C, Args...> >::namedItem(n);
   };
 
   
-  /// Returns the item in the factory bearing the given name.
-  static Factory * namedItem(const QString & n) {
-    if(! factory)
-      return NULL;
-    return factory->value(n, NULL);
-  };
-
   /// Creates a object for the given stuff.
   static C * createObject(const QString & n, Args... arguments) {
     Factory * f = namedItem(n);
@@ -91,18 +79,10 @@ public:
     return f->creator(arguments...);
   };
 
-  /// Returns all the available items
-  static QStringList availableItems() {
-    if(! factory)
-      return QStringList();
-    return factory->keys();
-  };
   
   
 }; 
 
 
-template <typename C, typename... Args>
-QHash<QString, Factory<C, Args...> * > * Factory<C, Args...>::factory = NULL;
 
 #endif

@@ -343,6 +343,7 @@ HEADERS += src/headers.hh \
         src/msolver.hh \
         src/kineticsystemsteadystate.hh \
         src/integrator.hh \
+        src/namedinstance.hh \
         src/factory.hh \
         src/factoryargument.hh
 

@@ -586,3 +586,29 @@ unflag("unflag", // command name
      &muOps, // options
      "Unflag datasets",
      "Unflag datasets", "U");
+
+//////////////////////////////////////////////////////////////////////
+
+static void showBuffersCommand(const QString &, 
+                               QList<const DataSet *> datasets)
+{
+  for(int i = 0; i < datasets.size(); i++)
+    Terminal::out << "Dataset " << datasets[i]->stringDescription(true) << endl;
+}
+
+static ArgumentList 
+ssBArgs(QList<Argument *>() 
+         << new SeveralDataSetArgument("buffers", 
+                                       "Buffers to show",
+                                       "Buffers to show"));
+
+
+static Command 
+showBuffers("show", // command name
+            optionLessEffector(showBuffersCommand), // action
+            "stack",  // group name
+            &ssBArgs, // arguments
+            NULL, // options
+            "Show",
+            "Show the given",
+            "Show details about the given buffers");

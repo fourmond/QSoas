@@ -181,8 +181,7 @@ static int setFromRubyInternalHelper(VALUE key, VALUE val, void * arg)
 {
   ValueHash * target = static_cast<ValueHash *>(arg);
   QString k = Ruby::toQString(key);
-  QTextStream o(stdout);
-  o << "Key: " << k << endl;
+
   // For now, very naive conversion...
   target->operator[](k) = Ruby::toQString(val);
   return ST_CONTINUE;

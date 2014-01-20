@@ -287,8 +287,9 @@ public:
     return columns.size();
   };
 
-  /// Returns a small text representing the data set.
-  QString stringDescription() const;
+  /// Returns a small text representing the data set (or a long one,
+  /// if longDescription is on).
+  QString stringDescription(bool longDescription = false) const;
 
   /// Returns the overall size used by the DataSet (not counting the
   /// QList overhead, probably much smaller than the rest anyway).

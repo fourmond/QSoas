@@ -145,6 +145,11 @@ void Fit::makeCommands(ArgumentList * args,
                                "Debug",
                                "Turn on debugging (for QSoas developers only)");
 
+  *options << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                         "set-from-meta", 
+                                         "Set from meta-data",
+                                         "Set parameter values from meta-data");
+
 
 
   // We don't declare the fit command when multiple datasets are
@@ -269,10 +274,52 @@ void Fit::runFit(const QString &, QList<const DataSet *> datasets,
   updateFromOptions(opts, "parameters", loadParameters);
   updateFromOptions(opts, "weight-buffers", showWeights);
 
+
   FitDialog dlg(&data, showWeights);
 
   if(! loadParameters.isEmpty())
     dlg.loadParametersFile(loadParameters);
+
+
+  {
+    QStringList fromMeta;
+    updateFromOptions(opts, "set-from-meta", fromMeta);
+    
+    // We transform that into a hash param = meta
+    QHash<QString, QString> fm;
+    QRegExp re("^\\s*(\\S+)\\s*=\\s*(\\S+)\\s*$");
+    for(int i = 0; i < fromMeta.size(); i++) {
+      if(re.indexIn(fromMeta[i]) == 0) {
+        fm[re.cap(1)] = re.cap(2);
+      }
+      else
+        Terminal::out << "Error parsing 'set-from-meta' '" 
+                      << fromMeta[i] << "'" << endl;
+    }
+
+    int nb = 0;
+    for(QHash<QString, QString>::iterator i = fm.begin(); i != fm.end(); i++) {
+
+      const QString & param = i.key();
+      const QString & meta = i.value();
+
+      for(int j = 0; j < datasets.size(); j++) {
+        const DataSet * ds = datasets[j];
+        const ValueHash & vh = ds->getMetaData();
+        if(vh.contains(meta)) {
+          dlg.setParameterValue(param, vh[meta].toDouble(), j);
+          ++nb;
+        }
+      }
+    }
+    if(nb > 0)
+      dlg.compute();
+  }
+
+  // We now spl
+  
+
+
   dlg.exec();
 }
 

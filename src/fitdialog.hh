@@ -173,11 +173,16 @@ public slots:
   /// Add all simulated datasets to the data stack
   void pushSimulatedCurves();
 
-  /// Overrides the given parameter.
+  /// Overrides the given parameter, and recomputes.
   void overrideParameter(const QString & name, double value);
 
   /// Sets the values of the parameters
   void setParameterValues(const Vector & values);
+
+  /// Sets the parameter value by name.
+  ///
+  /// This function does @b not recompute the value of the fit.
+  void setParameterValue(const QString & name, double value, int ds = -1);
 
   /// Compute the new curves based on initial guesses (or
   /// hand-modified versions)

@@ -165,8 +165,8 @@ public:
       values[dataset * nbParameters + (index % nbParameters)] = val;
   };
 
-  /// Sets the value by name
-  void setValue(const QString & name, double value);
+  /// Sets the value by name. 
+  void setValue(const QString & name, double value, int ds = -1);
 
   /// Gets the value of the given parameter
   double getValue(int index, int dataset) const {

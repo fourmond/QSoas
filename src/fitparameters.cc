@@ -473,12 +473,11 @@ void FitParameters::clear()
   }
 }
 
-void FitParameters::setValue(const QString & name, double value)
+void FitParameters::setValue(const QString & name, double value, int dsi)
 {
   QRegExp specRE("([^[]+)\\[#(\\d+)\\]");
   QString p = name;
-  int dsi = -1;
-  if(specRE.indexIn(name) >= 0) {
+  if(dsi >= 0 && specRE.indexIn(name) >= 0) {
     p = specRE.cap(1);
     dsi = specRE.cap(2).toInt();
   }

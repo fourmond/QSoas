@@ -722,6 +722,12 @@ void FitDialog::overrideParameter(const QString & name, double value)
   }
 }
 
+void FitDialog::setParameterValue(const QString & name, double value, int ds)
+{
+  parameters.setValue(name, value, ds);
+  updateEditors();
+}
+
 
 
 

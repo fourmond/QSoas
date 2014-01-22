@@ -81,6 +81,7 @@ class ConditionsFile
     a = has_file?(file)
     ret = {}
     if a
+      ret['conditions-file'] = @file_path
       1.upto(@column_names.size - 1) do |i|
         ret[@column_names[i]] = a[i]
       end

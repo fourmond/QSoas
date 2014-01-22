@@ -168,6 +168,22 @@ public:
 
   /// @}
 
+
+  /// @name Perpendicular coordinates handling
+  ///
+  /// @{
+
+  /// Returns the perpendicular coordinates
+  const Vector & perpendicularCoordinates() const;
+
+  /// Sets perpendicular coordinates
+  void setPerpendicularCoordinates(const Vector & vect);
+
+  /// Set perpendicular coordinates
+  void setPerpendicularCoordinates(double val);
+
+  /// @}
+
   /// @name Options and option-related functions.
   ///
   /// @{
@@ -507,6 +523,9 @@ public:
 
   /// Returns all the meta-data
   const ValueHash & getMetaData() const;
+
+  /// Returns the given metadata
+  QVariant getMetaData(const QString & val) const;
 
   /// Add a whole new set of meta-data
   void addMetaData(const ValueHash & val, bool override = true);

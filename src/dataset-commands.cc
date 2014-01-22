@@ -793,17 +793,24 @@ static void contractCommand(const QString &, QList<const DataSet *> a,
   bool naive = testOption<QString>(opts, "mode", "indices");
   bool useSteps = false;
   updateFromOptions(opts, "use-segments", useSteps);
-  
-  DataSet * cur = const_cast<DataSet *>(a[0]); // Yeah, well...
 
+  QString pc;
+  updateFromOptions(opts, "perp-meta", pc);
+  
+  DataSet * cur = new DataSet(*a[0]);
+  if(pc.size() > 0)
+    cur->setPerpendicularCoordinates(cur->getMetaData(pc).toDouble());
+  
   if(a.size() < 2)
     throw RuntimeError("You need more than one buffer to run contract");
   for(int i = 1; i < a.size(); i++) {
-    const DataSet * ds = a[i];
+    DataSet * ds = new DataSet(*a[i]);
+    if(pc.size() > 0)
+      ds->setPerpendicularCoordinates(ds->getMetaData(pc).toDouble());
+
     DataSet * n = cur->contract(ds, naive, useSteps);
-    if(i> 1)
-      delete cur;               // May seem very inefficient, but
-                                // isn't thanks to shared data.
+    delete cur;
+    delete ds;
     cur = n;
   }
   soas().pushDataSet(cur);
@@ -815,12 +822,18 @@ contractArgs(QList<Argument *>()
                                            "Buffers",
                                            "Buffers to contract"));
 
+static ArgumentList 
+contractOpts(QList<Argument *>(operationOpts) 
+             << new StringArgument("perp-meta", 
+                                   "Perpendicular coordinate",
+                                   "Define the perpendicular coordinate from meta-data"));
+
 static Command 
 contractc("contract", // command name
           effector(contractCommand), // action
           "buffer",  // group name
           &contractArgs, // arguments
-          &operationOpts, // options
+          &contractOpts, // options
           "Group buffers on X values",
           "Group buffers into a X,Y1,Y2",
           "");

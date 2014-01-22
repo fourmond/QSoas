@@ -476,6 +476,8 @@ DataSet * DataSet::contract(const DataSet * ds, bool naive,
                                       "_cont_", naive, useSteps);
   for(int i = 1; i < columns.size(); i++)
     nd->columns.insert(i, columns[i]);
+
+  nd->perpCoords << ds->perpCoords;
   return nd;
 }
 
@@ -1155,10 +1157,36 @@ const ValueHash & DataSet::getMetaData() const
   return metaData;
 }
 
+QVariant DataSet::getMetaData(const QString & val) const
+{
+  return metaData[val];
+}
+
+
 void DataSet::addMetaData(const ValueHash & val, bool override)
 {
   metaData.merge(val, override);
 }
+
+const Vector & DataSet::perpendicularCoordinates() const
+{
+  return perpCoords;
+}
+
+void DataSet::setPerpendicularCoordinates(const Vector & vect)
+{
+  if(vect.size() > 0 && vect.size() != nbColumns() - 1)
+    throw InternalError("Wrong number of perpendicular coordinates %1 vs %2").
+      arg(vect.size()).arg(nbColumns() - 1);
+  perpCoords = vect;
+}
+
+void DataSet::setPerpendicularCoordinates(double val)
+{
+  perpCoords = Vector(nbColumns() - 1, val);
+}
+
+
 
 
 DataSet * DataSet::transpose() const

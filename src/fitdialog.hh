@@ -111,7 +111,7 @@ class FitDialog : public QDialog {
   /// Fills the FitData with parameter information
   void setDataParameters();
 
-  DataSet * simulatedData(int i);
+  DataSet * simulatedData(int i, bool residuals = false);
 
   /// Whether or not we should cancel the current fit.
   bool shouldCancelFit;
@@ -172,6 +172,9 @@ public slots:
 
   /// Add all simulated datasets to the data stack
   void pushSimulatedCurves();
+
+  /// Adds all the residuals to the data stack
+  void pushResiduals();
 
   /// Overrides the given parameter, and recomputes.
   void overrideParameter(const QString & name, double value);

@@ -251,6 +251,7 @@ void FitDialog::setupFrame()
   ac->addAction("Push all to stack", this, SLOT(pushSimulatedCurves()));
   ac->addAction("Push current to stack", this, SLOT(pushCurrentCurve()));
   ac->addAction("Save all", this, SLOT(saveSimulatedCurves()));
+  ac->addAction("Push all residuals to stack", this, SLOT(pushResiduals()));
   if(data->fit->hasSubFunctions())
     ac->addAction("Toggle subfunctions display", this, 
                   SLOT(toggleSubFunctions()));
@@ -610,12 +611,15 @@ void FitDialog::previousDataset()
     bufferSelection->setCurrentIndex(currentIndex - 1);
 }
 
-DataSet *  FitDialog::simulatedData(int i)
+DataSet *  FitDialog::simulatedData(int i, bool residuals)
 {
   const DataSet * base = data->datasets[i];
-  gsl_vector_view v =  data->viewForDataset(i, data->storage);    
-  return base->derivedDataSet(Vector::fromGSLVector(&v.vector), 
-                              "_fit_" + data->fit->fitName(false) + ".dat");
+  gsl_vector_view v =  data->viewForDataset(i, data->storage);
+  Vector ny = Vector::fromGSLVector(&v.vector);
+  if(residuals)
+    ny = base->y() - ny;
+  return base->derivedDataSet(ny, (residuals ? "_delta_" : "_fit_")
+                              + data->fit->fitName(false) + ".dat");
 }
 
                 
@@ -623,6 +627,12 @@ void FitDialog::pushSimulatedCurves()
 {
   for(int i = 0; i < views.size(); i++)
     soas().pushDataSet(simulatedData(i));
+}
+
+void FitDialog::pushResiduals()
+{
+  for(int i = 0; i < views.size(); i++)
+    soas().pushDataSet(simulatedData(i, true));
 }
 
 void FitDialog::pushCurrentCurve()

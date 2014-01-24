@@ -69,6 +69,9 @@ class FitDialog : public QDialog {
   /// List of editors
   QList<FitParameterEditor *> editors;
 
+  /// Temporary storage for subfunctions
+  QList<Vector> subFunctions;
+
   /// The parameters
   FitParameters parameters;
 
@@ -175,6 +178,9 @@ public slots:
 
   /// Adds all the residuals to the data stack
   void pushResiduals();
+
+  /// Pushes all computed subfunctions to the stack
+  void pushSubFunctions();
 
   /// Overrides the given parameter, and recomputes.
   void overrideParameter(const QString & name, double value);

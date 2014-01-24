@@ -252,9 +252,12 @@ void FitDialog::setupFrame()
   ac->addAction("Push current to stack", this, SLOT(pushCurrentCurve()));
   ac->addAction("Save all", this, SLOT(saveSimulatedCurves()));
   ac->addAction("Push all residuals to stack", this, SLOT(pushResiduals()));
-  if(data->fit->hasSubFunctions())
+  if(data->fit->hasSubFunctions()) {
     ac->addAction("Toggle subfunctions display", this, 
                   SLOT(toggleSubFunctions()));
+    ac->addAction("Push all subfunctions", this, 
+                  SLOT(pushSubFunctions()));
+  }
   hb->addWidget(ac);
   
   ac = new ActionCombo(tr("Parameters..."));
@@ -402,7 +405,7 @@ void FitDialog::setupSubFunctionCurves()
   if(! displaySubFunctions)
     return;
 
-  QList<Vector> subFunctions = parameters.computeSubFunctions();
+  subFunctions = parameters.computeSubFunctions();
 
   int base = 0;
   const GraphicsSettings & gs = soas().graphicsSettings();
@@ -620,6 +623,25 @@ DataSet *  FitDialog::simulatedData(int i, bool residuals)
     ny = base->y() - ny;
   return base->derivedDataSet(ny, (residuals ? "_delta_" : "_fit_")
                               + data->fit->fitName(false) + ".dat");
+}
+
+void FitDialog::pushSubFunctions()
+{
+  int base = 0;
+  for(int i = 0; i < views.size(); i++) {
+    const DataSet * ds = data->datasets[i];
+    int sz = ds->x().size();
+    for(int j = 0; j < subFunctions.size(); j++) {
+      Vector subY = subFunctions[j].mid(base, sz);
+
+      soas().
+        pushDataSet(ds->
+                    derivedDataSet(subY,
+                                   QString("_fit_%1_sub%2.dat").
+                                   arg(data->fit->fitName(false)).arg(j+1)));
+    }
+    base += sz;
+  }
 }
 
                 

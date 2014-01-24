@@ -44,7 +44,7 @@ QRectF CurveVector::boundingRect() const
 double CurveVector::yValue(int i) const
 {
   if(residuals)
-    return gsl_vector_get(&view.vector, i) - dataSet->y()[i];
+    return dataSet->y()[i]- gsl_vector_get(&view.vector, i);
   else
     return gsl_vector_get(&view.vector, i);
 }

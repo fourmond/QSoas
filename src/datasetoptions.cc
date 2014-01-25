@@ -87,8 +87,8 @@ void DatasetOptions::setDatasetOptions(DataSet * ds,
 QDataStream & operator<<(QDataStream & out, const DatasetOptions & ds)
 {
   out << ds.yErrors;
-
   out << ds.histogram;
+
   return out;
 }
 
@@ -96,8 +96,8 @@ QDataStream & operator<<(QDataStream & out, const DatasetOptions & ds)
 QDataStream & operator>>(QDataStream & in, DatasetOptions & ds)
 {
   in >> ds.yErrors;
-  if(DataStack::serializationVersion >= 3)
-    in >> ds.histogram;
+  in >> ds.histogram;
+
   return in;
 }
 

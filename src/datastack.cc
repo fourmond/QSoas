@@ -209,7 +209,7 @@ qint32 DataStack::serializationVersion = 0;
 
 QDataStream & operator<<(QDataStream & out, const DataStack & stack)
 {
-  qint32 v = -4;                // (negative) Current version
+  qint32 v = -5;                // (negative) Current version
   out << v;
   v = MAGIC;
   out << v;

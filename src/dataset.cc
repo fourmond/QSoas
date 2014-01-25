@@ -1281,8 +1281,12 @@ QDataStream & operator<<(QDataStream & out, const DataSet & ds)
   // From version 2
   out << ds.perpCoords;
 
-  // From version 3
+  // From version 4
   out << ds.flags;
+
+  // From version 5
+  out << ds.options;
+
   return out;
 }
 
@@ -1318,6 +1322,9 @@ QDataStream & operator>>(QDataStream & in, DataSet & ds)
 
   if(DataStack::serializationVersion >= 4) 
     in >> ds.flags;
+
+  if(DataStack::serializationVersion >= 5) 
+    in >> ds.options;
 
 
 

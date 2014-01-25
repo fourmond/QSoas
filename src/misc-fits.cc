@@ -1365,7 +1365,7 @@ public:
     double dxr = xmax - a[1];
     for(int i = 0; i < order - 1; i++) {
       a[4 + i] = ylex/(order * pow(dxl, i));
-      a[4 + i + order - 2] = yrex/(order * pow(dxr, i));
+      a[4 + i + order - 1] = yrex/(order * pow(dxr, i));
     }
   };
 
@@ -1373,6 +1373,9 @@ public:
     QList<ParameterDefinition> defs;
     defs << ParameterDefinition("x_l");
     defs << ParameterDefinition("x_r");
+    defs << ParameterDefinition("a");
+    defs << ParameterDefinition("b");
+
     for(int i = 2; i <= order; i++)
       defs << ParameterDefinition(QString("Al_%1").arg(i));
     for(int i = 2; i <= order; i++)

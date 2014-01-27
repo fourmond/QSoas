@@ -22,7 +22,8 @@
 
 #include <exceptions.hh>
 
-DataStack::DataStack()
+DataStack::DataStack() : 
+  cachedByteSize(0)
 {
 }
 
@@ -31,17 +32,27 @@ DataStack::~DataStack()
   clear();
 }
 
+int DataStack::totalSize() const
+{
+  return stackSize() + redoStackSize();
+}
+
+quint64 DataStack::byteSize() const
+{
+  return cachedByteSize;
+}
+
 void DataStack::pushDataSet(DataSet * dataset, bool silent)
 {
   dataSets << dataset;
   dataSetByName[dataset->name] = dataset;
+  cachedByteSize += dataset->byteSize();
   if(! silent)
     emit(currentDataSetChanged());
 }
 
 void DataStack::showStackContents(int nb, bool /*unused*/) const
 {
-  int totalSize = 0;
   QString head("\t F  C\tRows\tSegs");
   if(redoStack.size())
     Terminal::out << "Redo stack:\n" << head << endl;
@@ -53,9 +64,8 @@ void DataStack::showStackContents(int nb, bool /*unused*/) const
     DataSet * ds = numberedDataSet(i);
     Terminal::out << "#" << i << "\t"
                   << ds->stringDescription() << endl;
-    totalSize += ds->byteSize();
   }
-  Terminal::out << "Total size: " << totalSize/1024 << " kB" << endl;
+  Terminal::out << "Total size: " << (cachedByteSize >> 10) << " kB" << endl;
 }
 
 QList<const DataSet *> DataStack::allDataSets() const
@@ -178,8 +188,11 @@ void DataStack::dropDataSet(int nb)
 {
   QList<DataSet *> * lst;
   int idx = dsNumber2Index(nb, &lst);
-  if(idx >= 0 && idx < lst->size())
-    delete lst->takeAt(idx);
+  if(idx >= 0 && idx < lst->size()) {
+    DataSet * ds = lst->takeAt(idx);
+    cachedByteSize -= ds->byteSize();
+    delete ds;
+  }
   if(! nb) 
     emit(currentDataSetChanged());
 }
@@ -242,11 +255,13 @@ QDataStream & operator>>(QDataStream & in, DataStack & stack)
     in >> nbDs;
   }
 
+  stack.cachedByteSize = 0;
   stack.dataSets.clear();
   for(qint32 i = 0; i < nbDs; i++) {
     DataSet * ds = new DataSet;
     in >> *ds;
     stack.dataSets.append(ds);
+    stack.cachedByteSize += ds->byteSize();
   }
 
   in >> nbDs;
@@ -255,6 +270,7 @@ QDataStream & operator>>(QDataStream & in, DataStack & stack)
     DataSet * ds = new DataSet;
     in >> *ds;
     stack.redoStack.append(ds);
+    stack.cachedByteSize += ds->byteSize();
   }
   /// Explicity signal call !
   stack.currentDataSetChanged();

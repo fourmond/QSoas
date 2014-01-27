@@ -353,6 +353,10 @@ void MainWin::setupFrame()
           SIGNAL(currentDataSetChanged()),
           curveView,SLOT(showCurrentDataSet()), Qt::QueuedConnection);
 
+  connect(&(soasInstance->stack()),
+          SIGNAL(currentDataSetChanged()),
+          SLOT(updateWindowName()), Qt::QueuedConnection);
+
   commandWidget->connect(&soasInstance->stack(), 
                          SIGNAL(currentDataSetChanged()),
                          SLOT(printCurrentDataSetInfo()));
@@ -381,7 +385,10 @@ void MainWin::menuActionTriggered(QAction * action)
 
 void MainWin::updateWindowName()
 {
-  setWindowTitle(QString("QSoas: %1").arg(QDir::currentPath()));
+  setWindowTitle(QString("QSoas: %1 (%2 buffers, %3 kB)").
+                 arg(QDir::currentPath()).
+                 arg(soasInstance->stack().totalSize()).
+                 arg(soasInstance->stack().byteSize() >> 10));
 }
 
 

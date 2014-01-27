@@ -61,6 +61,9 @@ class DataStack : public QObject {
   friend QDataStream & operator<<(QDataStream & out, const DatasetOptions & ds);
   friend QDataStream & operator>>(QDataStream & in, DatasetOptions & ds);
 
+  /// Total size of the stack.
+  quint64 cachedByteSize;
+
 public:
 
   /// Constructs a DataStack object.
@@ -141,6 +144,12 @@ public:
   int redoStackSize() const {
     return redoStack.size();
   };
+
+  /// Returns the total number of datasets
+  int totalSize() const;
+
+  /// Returns the total byte size of the stack
+  quint64 byteSize() const;
 
 signals:
   /// Emitted whenever the current dataset changed.

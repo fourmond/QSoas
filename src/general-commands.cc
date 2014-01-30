@@ -450,9 +450,15 @@ noop("noop", // command name
   
 
 static void runForDatasetsCommand(const QString &, QString script,
-                                  QList<const DataSet*> datasets, 
+                                  QList<const DataSet*> dss, 
                                   const CommandOptions & opts)
 {
+  // First, copy
+
+  QList<DataSet * > datasets;
+  for(int i = 0; i < dss.size(); i++)
+    datasets << new DataSet(*dss[i]);
+
   while(datasets.size() > 0) {
     QStringList a;
     soas().pushDataSet(new DataSet(*datasets.takeLast()));

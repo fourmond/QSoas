@@ -155,13 +155,7 @@ double KineticSystemEvolver::reporterValue() const
   for(int i = 0; i < parameterIndex.size(); i++)
     tg[i+idx] = parameters[i];
 
-  double a = system->reporterExpression->evaluate(tg.data());
-  QTextStream o(stdout);
-  for(int i = 0; i < tg.size(); i++) {
-    o << " - " << tg[i] << "\n";
-  }
-  o << " -> " << a << endl;
-  return a;
+  return system->reporterExpression->evaluate(tg.data());
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -421,6 +415,9 @@ class KineticSystemFit : public PerDatasetFit {
 
   mutable QSet<int> skippedIndices;
 
+  
+
+
   /// Time-dependent parameters !
   /// A hash parameter index -> its time dependence
   QHash<int, TimeDependentParameter> timeDependentParameters;
@@ -429,7 +426,10 @@ class KineticSystemFit : public PerDatasetFit {
   /// parameters
   const double * params;
 
-  /// Base index for the time-dependent stuff. @hack Drop the mutable
+  /// the base of the kinetic systems parameters;
+  mutable int parametersBase;
+
+  /// Base index for the time-dependent stuff. 
   mutable int tdBase;
 
   /// Parameter lists for the time-dependent stuff
@@ -585,6 +585,8 @@ public:
         defs << ParameterDefinition(QString("y_%1").
                                     arg(species[i]), i != 0);
     }
+    
+    parametersBase = defs.size();
 
     skippedIndices.clear();
     for(int i = 0; i < parameters.size(); i++) {
@@ -623,16 +625,14 @@ public:
                         const DataSet * ds , gsl_vector * target)
   {
     evolver->resetStepper();
-    
 
-    evolver->setParameters(a + (system->reporterExpression ? 0 :
-                                system->speciesNumber() ), 
+    evolver->setParameters(a + parametersBase,
                            skippedIndices);
 
     evolver->setupCallback(KineticSystemFit::timeDependentRates, this);
     const Vector & xv = ds->x();
     evolver->initialize(xv[0]);
-    params = a + tdBase;///  @hack this looks pretty hackish to me...
+    params = a + tdBase;
 
     if(data->debug)
       dumpAllParameters();
@@ -688,23 +688,22 @@ public:
 
     int nb = system->speciesNumber();
 
-    double * b;
     if(! system->reporterExpression) {
       // All currents to 0 but the first
       for(int i = 0; i < nb; i++)
         a[i] = (i == 0 ? y.max() : 0);
-      b = a + nb;
     }
-    else
-      b = a;
+
+    double * b = a + parametersBase;
 
     // All initial concentrations to 0 but the first
     for(int i = 0; i < nb; i++)
       b[i] = (i == 0 ? 1 : 0);
     
     // All rate constants and other to 1 ?
-    for(int i = nb; i < params->parameterDefinitions.size(); i++)
-      b[i] = 1;                 // Simple, heh ?
+    for(int i = nb + parametersBase; i < params->parameterDefinitions.size();
+        i++)
+      a[i] = 1;                 // Simple, heh ?
 
 
     // And have the parameters handle themselves:

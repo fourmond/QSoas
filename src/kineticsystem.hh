@@ -178,6 +178,8 @@ protected:
   /// for steady-state current) are given in order.
   void ensureReady(const QStringList & parameters);
 
+
+
 public:
 
   /// Builds an empty KineticSystem
@@ -260,6 +262,11 @@ public:
 
   /// Returns the exchange rate constants for redox reactions.
   QSet<QString> exchangeRates() const;
+
+  /// A "reporter" expression. If this exists, then the "time value"
+  /// of the system is taken to be the result of this expression.
+  Expression * reporterExpression;
+
 };
 
 #endif

@@ -84,6 +84,10 @@ public:
   int getParameterIndex(const QString & str) const {
     return parameterIndex.value(str, -1);
   };
+
+  /// Evaluates the reporter expression based on the current value of
+  /// the parameters.
+  double reporterValue() const;
 };
 
 #endif

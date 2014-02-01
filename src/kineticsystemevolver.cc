@@ -142,6 +142,28 @@ void KineticSystemEvolver::setupCallback(void (*cb)(double *, double, void *),
 }
 
 
+double KineticSystemEvolver::reporterValue() const
+{
+  if(! system->reporterExpression)
+    return 0;                   // but really, this should fail
+  QVarLengthArray<double, 1000> tg(system->speciesNumber() + 
+                                   parameterIndex.size());
+  
+  for(int i = 0; i < system->speciesNumber(); i++)
+    tg[i] = currentValues()[i];
+  int idx = system->speciesNumber();
+  for(int i = 0; i < parameterIndex.size(); i++)
+    tg[i+idx] = parameters[i];
+
+  double a = system->reporterExpression->evaluate(tg.data());
+  QTextStream o(stdout);
+  for(int i = 0; i < tg.size(); i++) {
+    o << " - " << tg[i] << "\n";
+  }
+  o << " -> " << a << endl;
+  return a;
+}
+
 //////////////////////////////////////////////////////////////////////
 
 static ArgumentList 
@@ -557,10 +579,12 @@ public:
     QStringList parameters = system->allParameters();
     timeIndex= -1;
 
-    QStringList species = system->allSpecies();
-    for(int i = 0; i < species.size(); i++)
-      defs << ParameterDefinition(QString("y_%1").
-                                  arg(species[i]), i != 0);
+    if(! system->reporterExpression) {
+      QStringList species = system->allSpecies();
+      for(int i = 0; i < species.size(); i++)
+        defs << ParameterDefinition(QString("y_%1").
+                                    arg(species[i]), i != 0);
+    }
 
     skippedIndices.clear();
     for(int i = 0; i < parameters.size(); i++) {
@@ -599,7 +623,10 @@ public:
                         const DataSet * ds , gsl_vector * target)
   {
     evolver->resetStepper();
-    evolver->setParameters(a + system->speciesNumber(), 
+    
+
+    evolver->setParameters(a + (system->reporterExpression ? 0 :
+                                system->speciesNumber() ), 
                            skippedIndices);
 
     evolver->setupCallback(KineticSystemFit::timeDependentRates, this);
@@ -635,8 +662,12 @@ public:
       evolver->stepTo(xv[i]);
       double val = 0;
       const double * cv = evolver->currentValues();
-      for(int j = 0; j < system->speciesNumber(); j++)
-        val += cv[j] * a[j];
+      if(system->reporterExpression)
+        val = evolver->reporterValue();
+      else {
+        for(int j = 0; j < system->speciesNumber(); j++)
+          val += cv[j] * a[j];
+      }
       gsl_vector_set(target, i, val);
     }
 
@@ -657,17 +688,23 @@ public:
 
     int nb = system->speciesNumber();
 
-    // All currents to 0 but the first
-    for(int i = 0; i < nb; i++)
-      a[i] = (i == 0 ? y.max() : 0);
+    double * b;
+    if(! system->reporterExpression) {
+      // All currents to 0 but the first
+      for(int i = 0; i < nb; i++)
+        a[i] = (i == 0 ? y.max() : 0);
+      b = a + nb;
+    }
+    else
+      b = a;
 
     // All initial concentrations to 0 but the first
     for(int i = 0; i < nb; i++)
-      a[i + nb] = (i == 0 ? 1 : 0);
+      b[i] = (i == 0 ? 1 : 0);
     
     // All rate constants and other to 1 ?
-    for(int i = 2*nb; i < params->parameterDefinitions.size(); i++)
-      a[i] = 1;                 // Simple, heh ?
+    for(int i = nb; i < params->parameterDefinitions.size(); i++)
+      b[i] = 1;                 // Simple, heh ?
 
 
     // And have the parameters handle themselves:

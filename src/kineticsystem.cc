@@ -173,7 +173,7 @@ QString KineticSystem::RedoxReaction::exchangeRate() const
 //////////////////////////////////////////////////////////////////////
 
 KineticSystem::KineticSystem() : 
-  redoxReactionScaling(1)
+  redoxReactionScaling(1), reporterExpression(NULL)
 {
 }
 
@@ -181,6 +181,7 @@ KineticSystem::~KineticSystem()
 {
   while(reactions.size() > 0)
     delete reactions.takeFirst();
+  delete reporterExpression;
 }
 
 int KineticSystem::speciesNumber() const
@@ -229,6 +230,9 @@ void KineticSystem::ensureReady(const QStringList & add)
     params += reactions[i]->parameters();
   }
 
+  if(reporterExpression)
+    params += QSet<QString>::fromList(reporterExpression->currentVariables());
+
 
   // We remove the concentrations
   QStringList conc;
@@ -251,6 +255,8 @@ void KineticSystem::ensureReady(const QStringList & add)
 
   for(int i = 0; i < reactions.size(); i++)
     reactions[i]->setParameters(parameters);
+  if(reporterExpression)
+    reporterExpression->setVariables(parameters);
 }
 
 void KineticSystem::prepareForTimeEvolution()
@@ -404,6 +410,8 @@ void KineticSystem::parseFile(QIODevice * device)
   QRegExp blankRE("^\\s*(#|$)");
   QRegExp reactionRE("^\\s*(.*)(<=>|->)\\s*(.*)$");
 
+  QRegExp reporterRE("^\\s*y\\s*=\\s*(.*)$");
+
   QRegExp doubleBraceRE("\\[\\[(.*)\\]\\]");
   doubleBraceRE.setMinimal(true);
 
@@ -420,6 +428,13 @@ void KineticSystem::parseFile(QIODevice * device)
       break;
     if(blankRE.indexIn(line) == 0)
       continue;
+
+    if(reporterRE.indexIn(line) == 0) {
+      if(reporterExpression)
+        throw RuntimeError("Trying to set two reporters");
+      reporterExpression = new Expression(reporterRE.cap(1));
+      continue;
+    }
 
     // The groups containing the parameter expressions.
     QStringList literals;

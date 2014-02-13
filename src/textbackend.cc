@@ -26,6 +26,7 @@
 #include <general-arguments.hh>
 
 #include <regex.hh>
+#include <exceptions.hh>
 
 /// A general-purpose text files reader.
 class TextBackend : public DataBackend {
@@ -161,7 +162,6 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
   /// Vector::readFromStream could be more verbose about the nature of
   /// the comments (the exact line, for instance ?)
 
-
   QList<QList<Vector> > allColumns = 
     Vector::readFromStream(stream, sep.toQRegExp(), 
                            cmt.toQRegExp(), autoSplit, dSep);
@@ -186,8 +186,12 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
     }
     
     QList<Vector> finalColumns;
-    for(int i = 0; i < colOrder.size(); i++)
+    for(int i = 0; i < colOrder.size(); i++) {
+      if(colOrder[i] >= columns.size())
+        throw RuntimeError("There are not %1 columns in file %2").
+          arg(colOrder[i]+1).arg(fileName);
       finalColumns << columns[colOrder[i]];
+    }
 
     DataSet * ds = new DataSet(finalColumns);
     ds->name = QDir::cleanPath(fileName);

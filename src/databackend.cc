@@ -244,6 +244,13 @@ void DataBackend::setMetaDataForFile(DataSet * dataset,
   QDir dir = QDir::current();
   QString fp = QDir::cleanPath(dir.absoluteFilePath(filename));
   dataset->setMetaData("original-file", fp);
+  QFileInfo info(fp);
+  dataset->setMetaData("file-date", info.lastModified());
+
+  dataset->setMetaData("age", info.lastModified().
+                       msecsTo(soas().startupTime()) * 1e-3);
+
+  
   ValueHash md = MetaDataProvider::allMetaDataForFile(fp);
   dataset->addMetaData(md);
 }

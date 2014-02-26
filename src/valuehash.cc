@@ -202,3 +202,33 @@ ValueHash ValueHash::fromRuby(VALUE hsh)
   h.setFromRuby(hsh);
   return h;
 }
+
+
+double ValueHash::doubleValue(const QString & key) const
+{
+  bool ok;
+  return doubleValue(key, &ok);
+}
+
+double ValueHash::doubleValue(const QString & key, bool * ok) const
+{
+  *ok = false;
+  double n = 0.0/0.0;
+  if(! contains(key)) {
+    *ok = false;
+    return n;
+  }
+
+  QVariant val = value(key);
+  QVariant val2 = val;
+  if(val.convert(QVariant::Double)) {
+    *ok = true;
+    return val.toDouble();
+  }
+  else if(val2.convert(QVariant::DateTime)) {
+    *ok = true;
+    QDateTime dt = val2.toDateTime();
+    return dt.toMSecsSinceEpoch()*1e-3;
+  }
+  return n;
+} 

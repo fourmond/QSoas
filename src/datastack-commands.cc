@@ -499,7 +499,7 @@ static void browseFilesCommand(const QString &, const CommandOptions & opts)
 
 
 static ArgumentList 
-bfArgs(QList<Argument *>() 
+bfOpts(QList<Argument *>() 
        << new StringArgument("pattern", 
                              "Pattern",
                              "Files to browse", true
@@ -511,7 +511,7 @@ browseFiles("browse", // command name
             effector(browseFilesCommand), // action
             "stack",  // group name
             NULL, // args
-            &bfArgs, // options
+            &bfOpts, // options
             "Browse files",
             "Browse files",
             "Browse files",

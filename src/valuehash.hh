@@ -113,6 +113,16 @@ public:
   /// needed...)
   VALUE toRuby() const;
 
+
+  /// Returns the value of the meta-data as a double.
+  ///
+  /// Performs some type checking and conversions otherwise not
+  /// supported by QVariant.
+  double doubleValue(const QString & param, bool * ok) const;
+
+  /// Overridden to disable quality control
+  double doubleValue(const QString & param) const;
+
   /// Sets data from a Ruby hash
   void setFromRuby(VALUE hsh);
   

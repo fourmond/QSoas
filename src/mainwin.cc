@@ -307,7 +307,7 @@ MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
                 << "Based on Christophe Leger's original Soas\n\n"
                 << "This program is free software, released under the terms of \n"
                 << "the GNU general public license (see http://www.gnu.org/copyleft/gpl.html)\n\n" 
-                << "Starting at " << QDateTime::currentDateTime().toString()
+                << "Starting at " << soasInstance->startupTime().toString()
                 << "\nCurrent directory is: " << QDir::currentPath() 
                 << "\nCurrent temperature is: " << soasInstance->temperature() 
                 << " K\n";

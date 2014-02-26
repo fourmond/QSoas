@@ -41,6 +41,9 @@ class Soas {
   GraphicsSettings * gs;
 
   static Soas * theSoasInstance;
+
+  /// The date of QSoas's startup
+  QDateTime startup;
   
 public:
 
@@ -81,6 +84,11 @@ public:
 
   /// The current temperature
   void setTemperature(double t);
+
+  /// Returns the startup time of QSoas
+  const QDateTime & startupTime() const {
+    return startup;
+  };
 
 
 };

@@ -40,6 +40,7 @@ static SettingsValue<double> temperature("soas/temperature", 298);
 Soas::Soas() : 
   mw(NULL)
 {
+  startup = QDateTime::currentDateTime();
   theSoasInstance = this;
   ds = new DataStack;
   gs = new GraphicsSettings;

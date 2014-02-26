@@ -307,7 +307,14 @@ void Fit::runFit(const QString &, QList<const DataSet *> datasets,
         const DataSet * ds = datasets[j];
         const ValueHash & vh = ds->getMetaData();
         if(vh.contains(meta)) {
-          dlg.setParameterValue(param, vh[meta].toDouble(), j);
+          bool ok;
+          double v = vh.doubleValue(meta, &ok);
+          if(ok)
+            dlg.setParameterValue(param, v, j);
+          else
+            Terminal::out << "Could not convert meta-data '" << meta 
+                          << "' = '" <<  vh[meta].toString() 
+                          << "' to double" << endl;
           ++nb;
         }
       }

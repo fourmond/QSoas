@@ -36,16 +36,24 @@ void FFT::setup()
 }
 
 
-FFT::FFT(const Vector & x, const Vector & y, bool autoBL) :
-  data(y), useCubicBaseline(false)
+FFT::FFT(const Vector & x, const Vector & y, bool autoBL, double alpha) :
+  useCubicBaseline(false)
 {
-  // Hmm, here is the problem:
+  initialize(x, y, autoBL, alpha);
+  setup();
+}
+
+void FFT::initialize(const Vector & x, const Vector & y, bool autoBL, 
+                     double alpha)
+{
+  data = y;
   deltaX = (x.last() - x.first())/(x.size() - 1);
   firstX = x[0];
   if(autoBL)
-    computeBaseline(x,y);
-  setup();
+    computeBaseline(x,y, alpha);
 }
+
+
 
 FFT::FFT(double dx, double fx, const Vector & y) : 
   deltaX(dx), firstX(fx), data(y), useCubicBaseline(false)

@@ -230,10 +230,11 @@ void CommandWidget::setSideBarLabel(const QString & str)
   sideBarLabel->setText(str);
 }
 
-QLineEdit * CommandWidget::enterPromptMode(const QString & prompt)
+QLineEdit * CommandWidget::enterPromptMode(const QString & prompt, 
+                                           const QString & init)
 {
   commandLine->setVisible(false);
-  restrictedPrompt->setText("");
+  restrictedPrompt->setText(init);
   restrictedPrompt->setVisible(true);
   
   promptLabel->setText(prompt);

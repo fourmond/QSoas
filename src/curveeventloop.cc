@@ -208,9 +208,10 @@ bool CurveEventLoop::eventFilter(QObject *, QEvent * event)
   return false;
 }
 
-QString CurveEventLoop::promptForString(const QString & pr, bool * ok)
+QString CurveEventLoop::promptForString(const QString & pr, bool * ok,
+                                        const QString & init)
 {
-  prompt = soas().prompt().enterPromptMode(pr);
+  prompt = soas().prompt().enterPromptMode(pr, init);
   promptOK = false;
 
   while(prompt)

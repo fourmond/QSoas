@@ -73,12 +73,18 @@ public:
   /// @todo Turn that into a general polynomial baseline ?
   double baseLine[4];
 
-  FFT(const Vector & x, const Vector & y, bool autoBL = true);
+  FFT(const Vector & x, const Vector & y, bool autoBL = true, 
+      double alpha = 0.05);
   FFT(double dx, double fx, const Vector & y);
 
   /// Performs the (destructive) forward transform, after subtracting
   /// baseline.
   void forward(bool useBaseline = true); 
+
+  /// (re)-initializes the object using the given X and Y values
+  /// (recomputing the baseline if needed).
+  void initialize(const Vector & x, const Vector & y, bool autoBL = true, 
+                  double alpha = 0.05);
 
   /// Performs the backward (unscaled) transform.
   void backward();

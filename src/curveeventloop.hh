@@ -142,7 +142,8 @@ public:
   void setHelpString(const QString & str);
   
   /// Prompts for a string input
-  QString promptForString(const QString & prompt, bool * ok = NULL);
+  QString promptForString(const QString & prompt, bool * ok = NULL,
+                          const QString & init = "");
 
   /// This function gets installed as application-wide event filter
   /// upon entering the loop.

@@ -101,7 +101,8 @@ public:
   void setSideBarLabel(const QString & str);
 
   /// Enter the inner prompting mode
-  QLineEdit * enterPromptMode(const QString & prompt);
+  QLineEdit * enterPromptMode(const QString & prompt, 
+                              const QString & init = "");
 
   /// Leave the inner prompting mode
   void leavePromptMode();

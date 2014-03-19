@@ -1055,6 +1055,7 @@ namespace __fft {
     ToggleDerivative,
     ToggleBaseline,
     TogglePowerSpectrum,
+    ChangeAlpha,
     Replace,
     Abort
   } FFTActions;
@@ -1067,7 +1068,8 @@ namespace __fft {
     addKey('d', ToggleDerivative, "toggle display of derivative").
     alsoKey('D').
     addKey('b', ToggleBaseline, "toggle display of baseline").
-    alsoKey('B').
+    addKey('a', ChangeAlpha, "change alpha").
+    alsoKey('A').
     addKey('p', TogglePowerSpectrum, "display power spectrum").
     alsoKey('P');
 
@@ -1093,6 +1095,10 @@ namespace __fft {
   CurveData spec1;
   CurveData spec2;
   CurveVerticalLine lim;
+
+
+  double ap = 0.05;
+  bool recomputeForward = true;
   FFT orig(ds->x(), ds->y());
 
 
@@ -1175,6 +1181,7 @@ namespace __fft {
   int cutoff = 20;
   dsDisplay->hidden = order > 0;
 
+
   {
     QList<int> facts = orig.factors();
     QStringList lst;
@@ -1183,7 +1190,7 @@ namespace __fft {
     Terminal::out << "Mixed-radix: " << ds->x().size() << " factorized as "
                   << lst.join(" * ") << endl;
   }
-  orig.forward();
+
   for(int i = 0; i < spec1.yvalues.size(); i++)
     spec1.yvalues[i] = log(orig.magnitude(i+1));
 
@@ -1233,10 +1240,23 @@ namespace __fft {
         soas().showMessage("Showing filtered data");
       break;
     case TogglePowerSpectrum:
-        showSpectrum = ! showSpectrum;
-        needUpdate = true;
-        needCompute = true;
-        break;
+      showSpectrum = ! showSpectrum;
+      needUpdate = true;
+      needCompute = true;
+      break;
+    case ChangeAlpha: {
+      bool ok = false;
+      QString na = loop.promptForString("new value of alpha (%):", 
+                                        &ok, QString::number(100 * ap));
+      if(ok) {
+        double v = na.toDouble(&ok);
+        if(ok) {
+          ap = v*0.01;
+          needCompute = true;
+          recomputeForward = true;
+        }
+      }
+    }
     default:
         ;
     }
@@ -1249,6 +1269,11 @@ namespace __fft {
         view.setPanel(0, &bottom);
     }
     if(needCompute) {
+      if(recomputeForward) {
+        orig.initialize(ds->x(), ds->y(), true, ap);
+        orig.forward();
+        recomputeForward = false;
+      }
       FFT trans = orig;
       lim.x = -log(cutoff);
       trans.applyGaussianFilter(cutoff);
@@ -1265,6 +1290,8 @@ namespace __fft {
       d.yvalues = trans.data;
       if(order == 0) 
         diff.yvalues = ds->y() - d.yvalues;
+
+      view.mainPanel()->setYRange(d.yvalues.min(), d.yvalues.max());
 
       // Compute the baseline
       trans.baseline(&baseline.yvalues);

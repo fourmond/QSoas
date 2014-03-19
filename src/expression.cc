@@ -214,7 +214,7 @@ double Expression::evaluate(const double * values) const
 {
   if(singleVariableIndex >=  0)
     return values[singleVariableIndex];
-  return NUM2DBL(rubyEvaluation(values));
+  return Ruby::toDouble(rubyEvaluation(values));
 }
 
 bool Expression::evaluateAsBoolean(const double * values) const
@@ -230,12 +230,12 @@ int Expression::evaluateIntoArray(const double * values,
   // Now, we parse the return value
   if(rb_obj_class(ret) != rb_cArray) {
     if(ts >= 1)
-      *target = NUM2DBL(ret);
+      *target = Ruby::toDouble(ret);
     return 1;
   }
   int sz = RARRAY_LEN(ret);
   for(int i = 0; i < ts && i < sz ; i++)
-    target[i] = NUM2DBL(rb_ary_entry(ret, i));
+    target[i] = Ruby::toDouble(rb_ary_entry(ret, i));
 
   return sz;
 }
@@ -248,11 +248,11 @@ Vector Expression::evaluateAsArray(const double * values) const
   Vector tg;
   // Now, we parse the return value
   if(rb_obj_class(ret) != rb_cArray)
-    tg << NUM2DBL(ret);
+    tg << Ruby::toDouble(ret);
   else {
     int sz = RARRAY_LEN(ret);
     for(int i = 0; i < sz ; i++)
-      tg << NUM2DBL(rb_ary_entry(ret, i));
+      tg << Ruby::toDouble(rb_ary_entry(ret, i));
   }
   return tg;
 }

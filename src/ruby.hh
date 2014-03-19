@@ -48,6 +48,12 @@ namespace Ruby {
   /// Read a file and execute it
   VALUE loadFile(const QString & file);
 
+  /// Converts to a double in a Ruby-exception safe way: Ruby
+  /// exceptions will result in proper C++ exceptions.
+  ///
+  /// Don't use NUM2DBL directly, unless you know it's is a Float.
+  double toDouble(VALUE val);
+
 
   /// Makes a textual representation of any Ruby object (kinda rp_p)
   ///

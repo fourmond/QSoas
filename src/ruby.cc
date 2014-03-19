@@ -162,3 +162,17 @@ QString Ruby::versionString()
   VALUE v = eval("RUBY_DESCRIPTION");
   return StringValueCStr(v);
 }
+
+static VALUE conv(VALUE val, double * tg)
+{
+  *tg = NUM2DBL(val);
+  return Qnil;
+}
+
+double Ruby::toDouble(VALUE val)
+{
+  double v;
+  Ruby::run(&conv, val, &v);
+  return v;
+}
+

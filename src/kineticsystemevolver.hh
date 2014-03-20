@@ -69,6 +69,9 @@ public:
   /// they are found, skipping any parameter found in the set
   void setParameters(const double * source, const QSet<int> & skip);
 
+  /// Sets the given parameter
+  void setParameter(int index, double value);
+
   /// Returns the current values of the parameters.
   QHash<QString, double> parameterValues() const;
 

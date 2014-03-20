@@ -38,6 +38,8 @@
 #include <perdatasetfit.hh>
 #include <fitdata.hh>
 
+#include <gsl/gsl_const_mksa.h>
+
 
 KineticSystemEvolver::KineticSystemEvolver(KineticSystem * sys) :
   system(sys), callback(NULL)
@@ -78,6 +80,11 @@ int KineticSystemEvolver::computeDerivatives(double t, const double * y,
         << dydt[i] << endl;
   }
   return GSL_SUCCESS;
+}
+
+void KineticSystemEvolver::setParameter(int index, double value)
+{
+  parameters[index] = value;
 }
 
 QStringList KineticSystemEvolver::setParameters(const QHash<QString, double> & p)
@@ -415,8 +422,22 @@ class KineticSystemFit : public PerDatasetFit {
 
   mutable QSet<int> skippedIndices;
 
+
+  /// Wether or not this is fitting a voltammogram
+  bool voltammogram;
+  
+  mutable int potentialIndex;
+
+  mutable int faraIndex;
+
+  mutable int temperatureIndex;
   
 
+  /// These two parameters are needed for the proper computation of
+  /// potentials in intermediate steps:
+  double lastTime;
+  double lastPot;
+  double direction;             // ie algrebrized scan rate.
 
   /// Time-dependent parameters !
   /// A hash parameter index -> its time dependence
@@ -448,9 +469,16 @@ protected:
     QStringList lst;
     updateFromOptions(opts, "with", lst);
 
-    processSoftOptions(opts);
+    voltammogram = false;
+    updateFromOptions(opts, "voltammogram", voltammogram);
+
+    potentialIndex = -1;
+    temperatureIndex = -1;
+    faraIndex = -1;
 
     int baseIndex = 0;
+    processSoftOptions(opts);
+
 
     // Get rid of all time-dependent parameters first.
     tdParameters.clear();
@@ -576,6 +604,12 @@ public:
   virtual QList<ParameterDefinition> parameters() const {
     QList<ParameterDefinition> defs;
 
+    if(voltammogram) {
+      // add temperature and scan rate at the beginning
+      defs << ParameterDefinition("temperature", true)
+           << ParameterDefinition("v", true);
+    }
+
     QStringList parameters = system->allParameters();
     timeIndex= -1;
 
@@ -601,6 +635,21 @@ public:
         skippedIndices.insert(i);
         continue;
       }
+      if(voltammogram && parameters[i] == "temperature") {
+        temperatureIndex = i;
+        skippedIndices.insert(i);
+        continue;
+      }
+      if(voltammogram && parameters[i] == "e") {
+        potentialIndex = i;
+        skippedIndices.insert(i);
+        continue;
+      }
+      if(voltammogram && parameters[i] == "fara") {
+        faraIndex = i;
+        skippedIndices.insert(i);
+        continue;
+      }
       defs << ParameterDefinition(parameters[i], 
                                   i < system->speciesNumber()); 
     }
@@ -619,6 +668,11 @@ public:
           fit->timeDependentParameters.begin(); 
         i != fit->timeDependentParameters.end(); i++)
       params[i.key()] = i.value().computeValue(t, fit->params);
+
+    if(fit->voltammogram && fit->potentialIndex >= 0) {
+      params[fit->potentialIndex] = fit->lastPot + 
+        fit->direction * (t - fit->lastTime);
+    }
   }
 
   virtual void function(const double * a, FitData * data, 
@@ -626,12 +680,25 @@ public:
   {
     evolver->resetStepper();
 
+    double sr = 0;
+
     evolver->setParameters(a + parametersBase,
                            skippedIndices);
 
+    if(voltammogram) {
+      double temp = a[0];
+      if(temperatureIndex >= 0)
+        evolver->setParameter(temperatureIndex, temp);
+      if(faraIndex >= 0)
+        evolver->setParameter(faraIndex, 
+                              GSL_CONST_MKSA_FARADAY/ 
+                              (a[0] * GSL_CONST_MKSA_MOLAR_GAS));
+      sr = a[1];
+    }
+
     evolver->setupCallback(KineticSystemFit::timeDependentRates, this);
     const Vector & xv = ds->x();
-    evolver->initialize(xv[0]);
+    evolver->initialize(voltammogram ? 0 : xv[0]);
     params = a + tdBase;
 
     if(data->debug)
@@ -644,11 +711,21 @@ public:
       discontinuities << i.value().discontinuities(params);
     qSort(discontinuities);
 
+    direction = xv[1] > xv[0] ? sr : -sr;
+    lastTime = 0;
+    lastPot = xv[0];
     for(int i = 0; i < xv.size(); i++) {
       // Here, we must be wary of the discontinuity points (ie those
       // of the time-evolving stuff)
 
-      double tg = xv[i];
+      if(voltammogram && i > 0) {
+        double pot = xv[i];
+        if((pot - lastPot) * direction < 0) // at change of direction
+          direction = -direction;
+        lastTime += (pot - lastPot) / direction;
+        lastPot = pot;
+      }
+      double tg = (voltammogram ? lastTime : xv[i]);
 
       if(discontinuities.size() > 0) {
         double td = discontinuities[0];
@@ -659,14 +736,14 @@ public:
         }
       }
 
-      evolver->stepTo(xv[i]);
+      evolver->stepTo(tg);
       double val = 0;
       const double * cv = evolver->currentValues();
       if(system->reporterExpression)
         val = evolver->reporterValue();
       else {
         for(int j = 0; j < system->speciesNumber(); j++)
-          val += cv[j] * a[j];
+          val += cv[j] * a[j + (voltammogram ? 2 : 0)];
       }
       gsl_vector_set(target, i, val);
     }
@@ -686,12 +763,16 @@ public:
     const Vector & x = ds->x();
     const Vector & y = ds->y();
 
-    int nb = system->speciesNumber();
+    if(voltammogram) {
+      a[0] = soas().temperature();
+      a[1] = 0.02;
+    }
 
+    int nb = system->speciesNumber();
     if(! system->reporterExpression) {
       // All currents to 0 but the first
       for(int i = 0; i < nb; i++)
-        a[i] = (i == 0 ? y.max() : 0);
+        a[i + (voltammogram ? 2 : 0)] = (i == 0 ? y.max() : 0);
     }
 
     double * b = a + parametersBase;
@@ -734,6 +815,9 @@ public:
                                                  "Time dependent parameters",
                                                  "Dependency upon time of "
                                                  "various parameters")
+                   << new BoolArgument("voltammogram", 
+                                       "If on, x is not taken to be time, but "
+                                       "potential in a voltammetric experiment")
                    );
   };
 

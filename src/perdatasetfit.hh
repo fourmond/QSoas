@@ -67,7 +67,7 @@ public:
                               const DataSet * ds);
 
 
-  PerDatasetFit(const char * n, const char * sd, const char * desc,
+  PerDatasetFit(const QString & n, const QString & sd, const QString & desc,
       int min = 1, int max = -1, bool mkCmds = true) :
     Fit(n, sd, desc, min, max, mkCmds) { ;};
 
@@ -108,7 +108,7 @@ public:
   virtual void prepare(const double * parameters, FitData * data, 
                        const DataSet * ds);
 
-  FunctionFit(const char * n, const char * sd, const char * desc,
+  FunctionFit(const QString &n, const QString &sd, const QString &desc,
       int min = 1, int max = -1, bool mkCmds = true) :
     PerDatasetFit(n, sd, desc, min, max, mkCmds) { ;};
 

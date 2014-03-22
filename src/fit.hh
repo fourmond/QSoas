@@ -64,10 +64,10 @@ protected:
   QString name;
 
   /// Fit description
-  const char * shortDesc;
+  QString shortDesc;
 
   /// Long description
-  const char * longDesc;
+  QString longDesc;
 
   /// Prepares and registers the commands corresponding to the fit.
   ///
@@ -219,17 +219,18 @@ public:
 
   /// Short description.
   QString shortDescription() const {
-    return QObject::tr(shortDesc);
+    return shortDesc;
   };
 
   /// Long description
   QString description() const {
-    return QObject::tr(longDesc);
+    return longDesc;
   };
 
   /// Constructs a Fit object with the given parameters and registers
   /// the corresponding commands.
-  Fit(const char * n, const char * sd, const char * desc,
+  Fit(const QString & n, const QString & sd, 
+      const QString & desc,
       int min = 1, int max = -1, bool mkCmds = true) :
     name(n), shortDesc(sd), longDesc(desc),
     minDataSets(min), maxDataSets(max) { 

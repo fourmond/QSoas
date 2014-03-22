@@ -431,6 +431,8 @@ class KineticSystemFit : public PerDatasetFit {
   mutable int faraIndex;
 
   mutable int temperatureIndex;
+
+  mutable int parametersNumber;
   
 
   /// These two parameters are needed for the proper computation of
@@ -602,6 +604,10 @@ public:
   };
 
   virtual QList<ParameterDefinition> parameters() const {
+
+    /// @todo all this code should move in a specific function called
+    /// at fit setup time (which would remove the need for mutable
+    /// attributes).
     QList<ParameterDefinition> defs;
 
     if(voltammogram) {
@@ -655,6 +661,7 @@ public:
     }
     tdBase = defs.size();
     defs += tdParameters;
+    parametersNumber = defs.size();
     return defs;
   };
 
@@ -782,7 +789,10 @@ public:
       b[i] = (i == 0 ? 1 : 0);
     
     // All rate constants and other to 1 ?
-    for(int i = nb + parametersBase; i < params->parameterDefinitions.size();
+
+    // We can't use params->parameterDefinitions.size(), as this will
+    // fail miserably in combined fits
+    for(int i = nb + parametersBase; i < parametersNumber;
         i++)
       a[i] = 1;                 // Simple, heh ?
 
@@ -796,6 +806,8 @@ public:
   };
 
   virtual ArgumentList * fitArguments() const {
+    if(system)
+      return NULL;
     return new 
       ArgumentList(QList<Argument *>()
                    << new FileArgument("system", 

@@ -833,6 +833,52 @@ public:
                  effector(this, &KineticSystemFit::computeFit)
                  );
   };
+
+  KineticSystemFit(const QString & name, 
+                   KineticSystem * sys,
+                   const QString & file
+                   ) : 
+    PerDatasetFit(name.toLocal8Bit(), 
+                  QString("Kinetic system of %1").arg(file).toLocal8Bit(),
+                  "", 1, -1, false), system(sys), evolver(NULL)
+  {
+    system->prepareForTimeEvolution();
+    evolver = new KineticSystemEvolver(system);
+    makeCommands();
+  }
 };
 
 static KineticSystemFit fit_kinetic_system;
+
+//////////////////////////////////////////////////////////////////////
+
+static ArgumentList 
+dLWFArgs(QList<Argument *>() 
+         << new FileArgument("file", 
+                             "System",
+                              "System to load")
+         << new StringArgument("name", 
+                               "Name")
+         );
+
+
+static void defineKSFitCommand(const QString &, QString file, 
+                               QString name)
+{
+  /// @todo exception safe (ie guarded pointer detached in the end)
+  KineticSystem * ks = new KineticSystem;
+  ks->parseFile(file);
+
+  new KineticSystemFit(name, ks, file);
+}
+
+
+static Command 
+dlwf("define-kinetic-system-fit", // command name
+     optionLessEffector(defineKSFitCommand), // action
+     "fits",                                  // group name
+     &dLWFArgs,                              // arguments
+     NULL,                                   // options
+     "Define a fit based on a kinetic mode",
+     "Defines a new fit based on kinetic model",
+     "...");

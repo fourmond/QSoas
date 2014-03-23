@@ -99,6 +99,8 @@ static void applyFormulaCommand(const QString &, QString formula,
   updateFromOptions(opts, "extra-columns", extra);
   bool useStats = false;
   updateFromOptions(opts, "use-stats", useStats);
+  bool useMeta = true;
+  updateFromOptions(opts, "use-meta", useMeta);
 
   /// @question I'm using a global variable here since it is
   /// impossible for the time being to pass a plain Ruby object
@@ -117,6 +119,12 @@ static void applyFormulaCommand(const QString &, QString formula,
       rb_hash_aset(hsh, rb_float_new(i), v);
     }
     rb_gv_set("$stats", hsh);
+  }
+
+  VALUE oldMeta = Qnil;
+  if(useMeta) {
+    oldMeta = rb_gv_get("$meta");
+    rb_gv_set("$meta", ds->getMetaData().toRuby());
   }
 
   Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
@@ -146,6 +154,8 @@ static void applyFormulaCommand(const QString &, QString formula,
 
   if(useStats)
     rb_gv_set("$stats", oldStats);
+  if(useMeta)
+    rb_gv_set("$meta", oldMeta);
 
   DataSet * newDs = ds->derivedDataSet(newCols, "_mod.dat");
   soas().pushDataSet(newDs);
@@ -166,6 +176,10 @@ fO(QList<Argument *>()
                        "Use statistics",
                        "If on, a $stats hash is available that contains "
                        "statistics")
+   << new BoolArgument("use-meta", 
+                       "Use meta-data",
+                       "If on (by default), a meta hash is available that contains "
+                       "the dataset meta-data")
    );
 
 

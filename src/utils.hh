@@ -163,6 +163,10 @@ namespace Utils {
   /// there wasn't one in the first place).
   QString readTextLine(QIODevice * device, bool stripCR = false);
 
+
+  /// Reads all lines from a file
+  QStringList readAllLines(QIODevice * device, bool stripCR = false);
+
   /// @}
 
 

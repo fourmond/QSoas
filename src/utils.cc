@@ -270,6 +270,14 @@ void Utils::registerShortCut(const QKeySequence & seq, QObject * receiver,
 }
 
 
+QStringList Utils::readAllLines(QIODevice * source, bool keepCR)
+{
+  QStringList ret;
+  while(! source->atEnd()) {
+    ret << Utils::readTextLine(source, keepCR);
+  }
+  return ret;
+}
 
 QStringList Utils::parseConfigurationFile(QIODevice * source, 
                                           bool keepCR, QStringList * tComments,
@@ -500,8 +508,13 @@ QString Utils::readTextLine(QIODevice * device, bool keepCR)
 
   QString ret;
   while(device->getChar(&c)) {
-    if(c == '\r')
+    if(c == '\r') {
+      if(device->getChar(&c)) {
+        if(c != '\n')
+          device->ungetChar(c);
+      }
       break;
+    }
     if(c == '\n') {
       if(device->getChar(&c)) {
         if(c != '\r')

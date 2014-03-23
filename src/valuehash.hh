@@ -107,10 +107,12 @@ public:
   /// Appends the @a value to the list of strings stored in @a key.
   void appendToList(const QString & key, const QString & value);
 
+
+  /// Converts a QVariant into a Ruby object. Not all types are
+  /// supported for now. Qnil is returned on unsupported values
+  static VALUE variantToRuby(const QVariant & variant);
+
   /// Converts to a Ruby Hash.
-  ///
-  /// Only converts strings and doubles. (the rest will follow as
-  /// needed...)
   VALUE toRuby() const;
 
 

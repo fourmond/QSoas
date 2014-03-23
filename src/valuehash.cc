@@ -153,6 +153,40 @@ void ValueHash::appendToList(const QString & key, const QString & val)
   (*this)[key] = newval;
 }
 
+VALUE ValueHash::variantToRuby(const QVariant & variant)
+{
+  VALUE val = Qnil;
+  switch(variant.type()) {      // the documentation of QVariant::type()
+                                // is rather confusing...
+  case QMetaType::Double:
+    val = rb_float_new(variant.toDouble());
+    break;
+  case QMetaType::Int:          // No support of large numbers
+  case QMetaType::UInt:
+    val = LONG2NUM(variant.toInt());
+    break;
+  case QMetaType::QString:
+    val = Ruby::fromQString(variant.toString());
+    break;
+  case QMetaType::QTime:
+  case QMetaType::QDateTime:
+  case QMetaType::QDate: {
+    QDateTime t = variant.toDateTime();
+    val = rb_time_new(t.toTime_t(), t.time().msec() * 1000);
+    break;
+  }
+  case QMetaType::QVariantList: {
+    val = rb_ary_new();
+    QList<QVariant> lst = variant.toList();
+    for(int i = 0; i < lst.size(); i++)
+      rb_ary_push(val, variantToRuby(lst[i]));
+  }
+  default:
+    break;
+  }
+  return val;
+}
+
 
 VALUE ValueHash::toRuby() const
 {
@@ -161,17 +195,7 @@ VALUE ValueHash::toRuby() const
     // Hmmm, QVariant says type() is QVariant::Type, but the
     // documentation says is really is QMetaType::Type.
     VALUE key = Ruby::fromQString(it.key());
-    VALUE val = Qnil;
-    switch(it.value().type()) {
-    case QMetaType::Double:
-      val = rb_float_new(it.value().toDouble());
-      break;
-    case QMetaType::QString:
-      val = Ruby::fromQString(it.value().toString());
-      break;
-    default:
-      ;
-    }
+    VALUE val = variantToRuby(it.value());
     rb_hash_aset(ret, key, val);
   }
   return ret;

@@ -250,7 +250,8 @@ SOURCES += src/qmain.cc \
         src/gslintegrator.cc \
         src/distrib-fits.cc \
         src/metadataprovider.cc \
-        src/conditionsprovider.cc
+        src/conditionsprovider.cc \
+        src/gpesprovider.cc
 
 
 HEADERS += src/headers.hh \

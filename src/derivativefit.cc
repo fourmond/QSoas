@@ -216,6 +216,10 @@ static void defineDerivedFit(const QString &, QString fitName,
     mode = DerivativeFit::DerivativeOnly;
   else if(testOption(opts, "mode", QString("combined")))
     mode = DerivativeFit::Combined;
+
+  ArgumentList * lst = fit->fitArguments();
+  if(lst && lst->size())
+    throw RuntimeError("Cannot make derivatives of fits that take arguments -- use one of the define-*-fit commands, or custom-fit");
   new DerivativeFit(fit, mode);
 }
 

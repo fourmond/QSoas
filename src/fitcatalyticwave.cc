@@ -159,6 +159,8 @@ public:
   };
 
   virtual ArgumentList * fitArguments() const {
+    if(system)
+      return NULL;
     ArgumentList * al = new 
       ArgumentList(QList<Argument *>()
                    << new FileArgument("system", 
@@ -191,6 +193,51 @@ public:
                  effector(this, &CatalyticWaveFit::runFit, true),
                  NULL);
   };
+
+  CatalyticWaveFit(const QString & name, 
+                   KineticSystem * sys,
+                   const QString & file
+                   ) : 
+    PerDatasetFit(name.toLocal8Bit(), 
+                  QString("Catalytic wave of %1").arg(file).toLocal8Bit(),
+                  "", 1, -1, false), system(sys)
+  {
+    makeCommands();
+  }
+
 };
 
 static CatalyticWaveFit fit_catalytic_wave;
+
+//////////////////////////////////////////////////////////////////////
+
+static ArgumentList 
+dLWFArgs(QList<Argument *>() 
+         << new FileArgument("file", 
+                             "System",
+                              "System to load")
+         << new StringArgument("name", 
+                               "Name")
+         );
+
+
+static void defineCWFitCommand(const QString &, QString file, 
+                               QString name)
+{
+  /// @todo exception safe (ie guarded pointer detached in the end)
+  KineticSystem * ks = new KineticSystem;
+  ks->parseFile(file);
+
+  new CatalyticWaveFit(name, ks, file);
+}
+
+
+static Command 
+dlwf("define-catalytic-wave-fit", // command name
+     optionLessEffector(defineCWFitCommand), // action
+     "fits",                                  // group name
+     &dLWFArgs,                              // arguments
+     NULL,                                   // options
+     "Define a fit based on a kinetic mode",
+     "Defines a new fit based on kinetic model",
+     "...");

@@ -621,8 +621,16 @@ DataSet *  FitDialog::simulatedData(int i, bool residuals)
   Vector ny = Vector::fromGSLVector(&v.vector);
   if(residuals)
     ny = base->y() - ny;
-  return base->derivedDataSet(ny, (residuals ? "_delta_" : "_fit_")
-                              + data->fit->fitName(false) + ".dat");
+  DataSet * ds = base->derivedDataSet(ny, (residuals ? "_delta_" : "_fit_")
+                                      + data->fit->fitName(false) + ".dat");
+  
+  ds->setMetaData("fit", data->fit->fitName());
+  QHash<QString, double> params = parameters.parametersForDataset(i);
+  for(QHash<QString, double>::iterator i = params.begin(); 
+      i != params.end(); i++)
+    ds->setMetaData(i.key(), i.value());
+
+  return ds;
 }
 
 void FitDialog::pushSubFunctions()

@@ -229,6 +229,18 @@ void FitParameters::recompute()
   computeResiduals();
 }
 
+QHash<QString, double> FitParameters::parametersForDataset(int ds) const
+{
+  if(ds < 0 || ds >= datasets)
+    throw InternalError("Asking for invalid dataset %1").arg(ds);
+  
+  QHash<QString, double> ret;
+  for(int i = 0; i < nbParameters; i++)
+    ret[fitData->parameterDefinitions[i].name] = 
+      values[ds * nbParameters + i];
+  return ret;
+}
+
 void FitParameters::computeResiduals()
 {
   double tw = 0;                // weights

@@ -185,6 +185,10 @@ public:
     return fitData;
   };
 
+
+  /// Returns the parameters for the numbered dataset
+  QHash<QString, double> parametersForDataset(int ds) const;
+
   /// Various utility functions:
 
 

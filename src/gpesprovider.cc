@@ -78,10 +78,10 @@ public:
       double t = 0;
       QList<QVariant> pots, times, dts;
       for(int i = 0; i < nbsteps; i++) {
-        double pot = lines[142 + i].toDouble();
+        double pot = lines[141 + i].toDouble();
         ret[QString("E_%1").arg(i)] = pot;
         pots << pot;
-        double dt = lines[101 + i].toDouble();
+        double dt = lines[100 + i].toDouble();
         dts << dt;
         ret[QString("delta_t_%1").arg(i)] = dt;
         ret[QString("t_%1").arg(i)] = t;

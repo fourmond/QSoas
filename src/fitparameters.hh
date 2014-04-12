@@ -90,7 +90,7 @@ class FitParameters {
   QString parameterName(int idx) const;
 
   void prepareExport(QStringList & headers, QString & lines, 
-                     bool exportErrors = false);
+                     bool exportErrors = false, bool exportMeta = true);
 
   /// Loads parameters from a parsed parameters file.
   ///

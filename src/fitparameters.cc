@@ -308,7 +308,7 @@ QString FitParameters::parameterName(int idx) const
 }
 
 void FitParameters::prepareExport(QStringList & lst, QString & lines, 
-                                  bool exportErrors)
+                                  bool exportErrors, bool exportMeta)
 {
   updateParameterValues();
   double conf = fitData->confidenceLimitFactor(0.975);
@@ -323,6 +323,16 @@ void FitParameters::prepareExport(QStringList & lst, QString & lines,
   lst << "xstart" << "xend" << "residuals" << "rel_residuals" 
       << "overall_res" << "overall_rel_res"
       << "buffer_weight";
+
+  QStringList meta;
+  if(exportMeta) {
+    QSet<QString> names = fitData->datasets[0]->getMetaData().extractDoubles().keys().toSet();
+    for(int i = 1; i < datasets; i++)
+      names.intersect(fitData->datasets[i]->getMetaData().extractDoubles().keys().toSet());
+    meta = names.toList();
+    qSort(meta);
+    lst << meta;
+  }
 
   const gsl_matrix * cov = (exportErrors ? fitData->covarianceMatrix() : NULL);
 
@@ -346,6 +356,12 @@ void FitParameters::prepareExport(QStringList & lst, QString & lines,
     ls2 << QString::number(overallPointResiduals) 
         << QString::number(overallRelativeResiduals);
     ls2 << QString::number(fitData->weightsPerBuffer[i]);
+
+    if(meta.size() > 0) {
+      QHash<QString, double> vls = fitData->datasets[i]->getMetaData().extractDoubles();
+      for(int j = 0; j < meta.size(); j++)
+        ls2 << QString::number(vls[meta[j]]);
+    }
     lines += ls2.join("\t") + "\n";
   }
 }

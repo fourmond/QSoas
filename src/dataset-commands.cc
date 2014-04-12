@@ -1126,6 +1126,40 @@ gDS("generate-buffer", // command name
 //////////////////////////////////////////////////////////////////////
 
 
+static void setMetaCommand(const QString &, QString meta, QString value, 
+                           const CommandOptions & opts)
+{
+  DataSet * ds = soas().currentDataSet();
+  ds->setMetaData(meta, value);
+}
+
+static ArgumentList 
+sMA(QList<Argument *>() 
+    << new StringArgument("name", 
+                          "Name",
+                          "The name of the meta-data")
+    << new StringArgument("value", 
+                          "Value",
+                          "The meta-data value")
+   );
+
+// static ArgumentList 
+// sMO(QList<Argument *>() 
+//     );
+
+
+static Command 
+sM("set-meta", // command name
+   effector(setMetaCommand), // action
+   "buffer",  // group name
+   &sMA, // arguments
+   NULL, // options
+   "Set meta-data",
+   "Set meta-data", "...");
+
+//////////////////////////////////////////////////////////////////////
+
+
 static void editCommand(const QString &)
 {
   const DataSet * ds = soas().currentDataSet();

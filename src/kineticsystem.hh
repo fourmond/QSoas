@@ -2,7 +2,7 @@
    \file kineticsystem.hh 
    Handling of arbitrary kinetic systems
 
-   Copyright 2012, 2013 by Vincent Fourmond
+   Copyright 2012, 2013, 2014 by Vincent Fourmond
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -37,6 +37,13 @@ class Expression;
 ///
 /// @todo Add reporters, ie expressions that make up something
 class KineticSystem {
+
+  /// Whether the system is linear or not
+  bool linear;
+
+  /// Check linearity
+  void checkLinearity();
+
 public:
 
   typedef enum {
@@ -93,7 +100,14 @@ public:
     /// the number of electrons (counted negatively if on the left)
     int electrons;
 
-
+    /// Returns true when:
+    /// * the stoechiometry is one for each reactant
+    /// * the rate constants are constants
+    ///
+    /// @todo In time, this will have to include the case when a rate
+    /// constant is not a constant, but does not depend on the
+    /// concentrations.
+    virtual bool isLinear() const;
 
     Reaction(const QString & fd, const QString & bd = "" );
 
@@ -114,6 +128,8 @@ public:
 
 
     /// Computes both the forward and backward rates
+    ///
+    /// In fact, these are rate CONSTANTS !
     virtual void computeRates(const double * vals, 
                               double * forward, double * backward) const;
 

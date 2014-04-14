@@ -75,6 +75,11 @@ void Expression::buildArgs()
   }
 }
 
+bool Expression::isAVariable() const
+{
+  return singleVariableIndex >= 0;
+}
+
 /// @bug This function raises exceptions while being called from the
 /// constructor, which may lead to memory leaks.
 void Expression::buildCode()

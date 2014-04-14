@@ -100,6 +100,9 @@ public:
   /// Frees up all associated storage
   ~Expression();
 
+  /// Returns true if the expression reduces to only
+  bool isAVariable() const;
+
   /// Evaluate the expression with the given values for the variables
   double evaluate(const double * variables) const;
 

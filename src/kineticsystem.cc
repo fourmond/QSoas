@@ -1,6 +1,6 @@
 /*
   kineticsystem.cc: implementation of KineticSystem
-  Copyright 2012, 2013 by Vincent Fourmond
+  Copyright 2012, 2013, 2014 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -111,6 +111,20 @@ QString KineticSystem::Reaction::exchangeRate() const
   return QString();
 }
 
+bool KineticSystem::Reaction::isLinear() const
+{
+  if(speciesIndices.size() != 2)
+    return false;
+  if(abs(speciesStoechiometry[0]) != 1 || 
+     abs(speciesStoechiometry[1]) != 1)
+    return false;
+  
+  if(!forward->isAVariable())
+    return false;
+  if(! backward)
+    return true;
+  return backward->isAVariable();
+}
 
 //////////////////////////////////////////////////////////////////////
 
@@ -170,10 +184,12 @@ QString KineticSystem::RedoxReaction::exchangeRate() const
   return backwardRate;
 }
 
+
+
 //////////////////////////////////////////////////////////////////////
 
 KineticSystem::KineticSystem() : 
-  redoxReactionScaling(1), reporterExpression(NULL)
+  redoxReactionScaling(1), reporterExpression(NULL), linear(false)
 {
 }
 
@@ -257,6 +273,20 @@ void KineticSystem::ensureReady(const QStringList & add)
     reactions[i]->setParameters(parameters);
   if(reporterExpression)
     reporterExpression->setVariables(parameters);
+
+  checkLinearity();
+}
+
+void KineticSystem::checkLinearity()
+{
+  // Is this a linear system ?
+  linear = true;
+  for(int i = 0; i < reactions.size(); i++) {
+    if(! reactions[i]->isLinear()) {
+      linear = false;
+      break;
+    }
+  }
 }
 
 void KineticSystem::prepareForTimeEvolution()
@@ -316,6 +346,8 @@ double KineticSystem::computeDerivatives(double * target,
   return computeDerivatives(&tg.vector, &conc.vector, params);
 }
 
+/// @todo Write a function that computes linear JACOBIANS.
+/// Will be dead useful in the case of linear systems.
 double KineticSystem::computeDerivatives(gsl_vector * target, 
                                        const gsl_vector * concentrations,
                                        const double * params) const
@@ -405,6 +437,8 @@ static void parseReactants(const QString & reactants,
 
 void KineticSystem::parseFile(QIODevice * device)
 {
+
+  
   QTextStream in(device);
 
   QRegExp blankRE("^\\s*(#|$)");
@@ -499,6 +533,7 @@ void KineticSystem::parseFile(QIODevice * device)
       throw RuntimeError(QString("Line %1: '%2' not valid").
                          arg(number).arg(orig));
   }
+
 }
 
 void KineticSystem::dump(QTextStream & o) const
@@ -510,6 +545,8 @@ void KineticSystem::dump(QTextStream & o) const
   o << "Reactions: \n";
   for(int i = 0; i < reactions.size(); i++)
     o << " * " << reactions[i]->toString(species) << "\n";
+
+  o << "System is " << (linear ? "linear" : "non-linear") << "\n";
 }
 
 QString KineticSystem::toString() const

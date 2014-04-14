@@ -346,6 +346,36 @@ double KineticSystem::computeDerivatives(double * target,
   return computeDerivatives(&tg.vector, &conc.vector, params);
 }
 
+void KineticSystem::computeLinearJacobian(gsl_matrix * target,
+                                          const double * params) const
+{
+  if(! linear)
+    throw InternalError("Using a function for linear systems on non-linear ones !");
+  // Now starts the real fun: evaluating all the derivatives !
+  QVarLengthArray<double, 800> vals(parameters.size());
+
+  // We put all the eggs in the same basket.
+  for(int i = 0; i < species.size(); i++)
+    vals[i] = 0;
+  for(int i = species.size(); i < parameters.size(); i++)
+    vals[i] = params[i - species.size()];
+  gsl_matrix_set_zero(target);
+
+  // Now, we compute the forward and reverse rates of all reactions
+  for(int i = 0; i < reactions.size(); i++) {
+    const Reaction * rc = reactions[i];
+    double forwardRate, backwardRate;
+    rc->computeRates(vals.data(), &forwardRate, &backwardRate);
+    int l = (rc->speciesStoechiometry[0] == 1 ? rc->speciesIndices[0] : rc->speciesIndices[1]);
+    int r = (rc->speciesStoechiometry[0] == 1 ? rc->speciesIndices[1] : rc->speciesIndices[0]);
+    gsl_matrix_set(target, l, l, gsl_matrix_get(target, l, l) - forwardRate);
+    gsl_matrix_set(target, r, l, gsl_matrix_get(target, r, l) + forwardRate);
+    gsl_matrix_set(target, r, r, gsl_matrix_get(target, r, r) - backwardRate);
+    gsl_matrix_set(target, l, r, gsl_matrix_get(target, l, r) + backwardRate);
+  }
+}
+
+
 /// @todo Write a function that computes linear JACOBIANS.
 /// Will be dead useful in the case of linear systems.
 double KineticSystem::computeDerivatives(gsl_vector * target, 

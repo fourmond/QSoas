@@ -262,6 +262,11 @@ public:
                             const gsl_vector * concentrations,
                             const double * parameters) const;
 
+  /// Computes the jacobian of a linear system (ie J so that dC/dt = J
+  /// C). Will abort if used on non-linear systems.
+  void computeLinearJacobian(gsl_matrix * target,
+                             const double * parameters) const;
+
 
   /// Reads reactions from a file, and add them to the current system.
   void parseFile(QIODevice * stream);

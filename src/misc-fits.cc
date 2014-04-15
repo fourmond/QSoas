@@ -1146,6 +1146,7 @@ protected:
   {
     order = 10;
     updateFromOptions(opts, "order", order);
+    processSoftOptions(opts);
   }
 
   

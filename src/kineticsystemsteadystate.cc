@@ -27,7 +27,7 @@
 #include <integrator.hh>
 
 KineticSystemSteadyState::KineticSystemSteadyState(KineticSystem * sys) : 
-  system(sys)
+  system(sys), forceNonLinear(false)
 {
 
   parameterNames = sys->allParameters();
@@ -101,6 +101,33 @@ int KineticSystemSteadyState::f(const gsl_vector * x,
   return GSL_SUCCESS;
 }
 
+void KineticSystemSteadyState::linearSolve(gsl_vector * tg) const
+{
+  if(! system->isLinear()) 
+    throw InternalError("Using linear solver on non-linear system");
+
+  int sz = dimension();
+
+  QVarLengthArray<double, 800> rhs(sz);
+  QVarLengthArray<double, 800> mt(sz*sz);
+  gsl_vector_view vv = gsl_vector_view_array(rhs.data(), sz);
+  gsl_matrix_view mv = gsl_matrix_view_array(mt.data(), sz, sz);
+
+  gsl_vector_set_zero(&vv.vector);
+  system->computeLinearJacobian(&mv.matrix, parameters);
+
+  
+  // Add the total concentration constraint
+  for(int i = 0; i < sz; i++)
+    gsl_matrix_set(&mv.matrix, 0, i, 1);
+  rhs[0] = parameters[tcIndex];
+
+  gsl_permutation * p = gsl_permutation_alloc(sz);
+  int sgn;
+  gsl_linalg_LU_decomp(&mv.matrix, p, &sgn);
+  gsl_linalg_LU_solve(&mv.matrix, p, &vv.vector, tg);
+}
+
 void KineticSystemSteadyState::computeVoltammogram(const Vector & potentials,
                                                    Vector * current,
                                                    QList<Vector> * concs)
@@ -137,8 +164,15 @@ void KineticSystemSteadyState::computeVoltammogram(const Vector & potentials,
   
   std::function<double (double)> fnc = [this, &a] (double bd) -> double {
     system->redoxReactionScaling = exp(-bd);
-    reset(&a.vector);
-    const gsl_vector * conc = solve();
+    const gsl_vector * conc;
+    if(system->isLinear() && (! forceNonLinear)) {
+      linearSolve(&a.vector);
+      conc = &a.vector;
+    }
+    else {
+      reset(&a.vector);
+      conc = solve();
+    }
     return system->computeDerivatives(NULL, conc,
                                       parameters);
   };
@@ -152,9 +186,14 @@ void KineticSystemSteadyState::computeVoltammogram(const Vector & potentials,
         gsl_vector_set(current, j, c);
     }
     else {
-      reset(&a.vector);
-      const gsl_vector * conc = solve();
-      gsl_vector_memcpy(&a.vector, conc);
+      if(system->isLinear() && (! forceNonLinear)) {
+        linearSolve(&a.vector);
+      }
+      else {
+        reset(&a.vector);
+        const gsl_vector * conc = solve();
+        gsl_vector_memcpy(&a.vector, conc);
+      }
       if(current)
         gsl_vector_set(current, j, system->computeDerivatives(NULL, &a.vector,
                                                               parameters));

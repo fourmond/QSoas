@@ -55,6 +55,13 @@ class CatalyticWaveFit : public PerDatasetFit {
 
 protected:
 
+  virtual void processSoftOptions(const CommandOptions & opts) {
+    solver->forceNonLinear = true;
+    updateFromOptions(opts, "force-nonlinear", solver->forceNonLinear);
+
+    // @todo Add integration options
+  }
+
   virtual void processOptions(const CommandOptions & opts)
   {
     dispersion = false;
@@ -68,6 +75,7 @@ protected:
     
     solver = new KineticSystemSteadyState(system);
 
+    processSoftOptions(opts);
   }
 
   void runFit(const QString & name, QString fileName, 
@@ -176,6 +184,16 @@ public:
                    << new BoolArgument("dispersion", 
                                        "Dispersion",
                                        "If on, handles the dispersion of k_0 values")
+                   );
+    return opts;
+  };
+
+  virtual ArgumentList * fitSoftOptions() const {
+    ArgumentList * opts = new 
+      ArgumentList(QList<Argument *>()
+                   << new BoolArgument("force-nonlinear", 
+                                       "Force non-linear",
+                                       "Force the use of the non-linear solver, even for a linear system")
                    );
     return opts;
   };

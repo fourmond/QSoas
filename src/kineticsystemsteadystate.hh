@@ -51,6 +51,9 @@ class KineticSystemSteadyState : public MSolver {
   /// have dispersion of k0 values;
   int bd0Index;
 
+  /// Solves the problem using linear algebra
+  void linearSolve(gsl_vector * tg) const;
+
 public:
   /// This doesn't take ownership of the kinetic system !
   KineticSystemSteadyState(KineticSystem * sys);
@@ -59,6 +62,9 @@ public:
   virtual int dimension() const;
   virtual int f(const gsl_vector * x,
                 gsl_vector * tg);
+
+  /// Force the use of the non-linear solver even when the system is linear
+  bool forceNonLinear;
 
   /// Sets the parameters.
   void setParameters(const QString & str, bool overwrite = true);

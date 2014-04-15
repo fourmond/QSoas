@@ -202,6 +202,11 @@ public:
   KineticSystem();
   ~KineticSystem();
 
+  /// Whether or not the system is linear
+  bool isLinear() const {
+    return linear;
+  };
+
   /// Adds a reaction to the system
   void addReaction(QList<QString> species, QList<int> stoechiometry, 
                    int els,

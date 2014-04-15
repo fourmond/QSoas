@@ -366,8 +366,8 @@ void KineticSystem::computeLinearJacobian(gsl_matrix * target,
     const Reaction * rc = reactions[i];
     double forwardRate, backwardRate;
     rc->computeRates(vals.data(), &forwardRate, &backwardRate);
-    int l = (rc->speciesStoechiometry[0] == 1 ? rc->speciesIndices[0] : rc->speciesIndices[1]);
-    int r = (rc->speciesStoechiometry[0] == 1 ? rc->speciesIndices[1] : rc->speciesIndices[0]);
+    int l = (rc->speciesStoechiometry[0] == -1 ? rc->speciesIndices[0] : rc->speciesIndices[1]);
+    int r = (rc->speciesStoechiometry[0] == -1 ? rc->speciesIndices[1] : rc->speciesIndices[0]);
     gsl_matrix_set(target, l, l, gsl_matrix_get(target, l, l) - forwardRate);
     gsl_matrix_set(target, r, l, gsl_matrix_get(target, r, l) + forwardRate);
     gsl_matrix_set(target, r, r, gsl_matrix_get(target, r, r) - backwardRate);

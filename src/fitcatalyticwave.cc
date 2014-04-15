@@ -56,7 +56,7 @@ class CatalyticWaveFit : public PerDatasetFit {
 protected:
 
   virtual void processSoftOptions(const CommandOptions & opts) {
-    solver->forceNonLinear = true;
+    solver->forceNonLinear = false;
     updateFromOptions(opts, "force-nonlinear", solver->forceNonLinear);
 
     // @todo Add integration options

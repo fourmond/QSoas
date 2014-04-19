@@ -12,8 +12,12 @@ when "libdir"
   puts RbConfig::CONFIG['libdir']
 when "includedir"
   if RbConfig::CONFIG.key? 'rubyhdrdir'
-    puts "#{RbConfig::CONFIG['rubyhdrdir']} "+
-      "#{RbConfig::CONFIG['rubyhdrdir']}/#{RbConfig::CONFIG['arch']}"
+    puts "#{RbConfig::CONFIG['rubyhdrdir']} " + 
+      if RbConfig::CONFIG['rubyarchhdrdir']
+        RbConfig::CONFIG['rubyarchhdrdir']
+      else
+        "#{RbConfig::CONFIG['rubyhdrdir']}/#{RbConfig::CONFIG['arch']}"
+      end
   else
     puts RbConfig::CONFIG['archdir']
   end

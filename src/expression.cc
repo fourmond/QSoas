@@ -201,6 +201,8 @@ const QStringList & Expression::naturalVariables() const
   return minimalVariables;
 }
 
+#define RFLOAT_LVALUE(x) (RFLOAT(x)->float_value) 
+
 VALUE Expression::rubyEvaluation(const double * values) const
 {
   // Greatly simplified code in case the expression reduces to only
@@ -209,7 +211,7 @@ VALUE Expression::rubyEvaluation(const double * values) const
     return rb_float_new(values[singleVariableIndex]);
   int size = variables.size();
   for(int i = 0; i < size; i++)
-    RFLOAT_VALUE(args[i]) = values[i];
+    RFLOAT_LVALUE(args[i]) = values[i];
   VALUE ret = Ruby::run(&rb_funcall2, code, 
                         callID(), size, (const VALUE *) args);
   return ret;

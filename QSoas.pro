@@ -251,7 +251,8 @@ SOURCES += src/qmain.cc \
         src/distrib-fits.cc \
         src/metadataprovider.cc \
         src/conditionsprovider.cc \
-        src/gpesprovider.cc
+        src/gpesprovider.cc \
+        src/abdmatrix.cc
 
 
 HEADERS += src/headers.hh \
@@ -349,7 +350,8 @@ HEADERS += src/headers.hh \
         src/namedinstance.hh \
         src/factory.hh \
         src/factoryargument.hh \
-        src/metadataprovider.hh
+        src/metadataprovider.hh \
+        src/abdmatrix.hh
 
 # We link with the converted ODRPACK library
 message("Using odrpack")

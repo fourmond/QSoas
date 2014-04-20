@@ -20,6 +20,9 @@
 #include <abdmatrix.hh>
 #include <exceptions.hh>
 
+
+#include <utils.hh>
+
 ABDMatrix::ABDMatrix(const QList<int> & sz) : sizes(sz)
 {
   diag = new gsl_matrix *[sizes.size()];
@@ -71,9 +74,9 @@ void ABDMatrix::expandToFullMatrix(gsl_matrix * tg) const
     gsl_matrix_view m = gsl_matrix_submatrix(tg, cur, cur, sz, sz);
     gsl_matrix_memcpy(&m.matrix, diag[i]);
     if(i > 0) {
-      m = gsl_matrix_submatrix(tg, cur, 0, sz, firstSize);
-      gsl_matrix_memcpy(&m.matrix, top[i-1]);
       m = gsl_matrix_submatrix(tg, 0, cur, firstSize, sz);
+      gsl_matrix_memcpy(&m.matrix, top[i-1]);
+      m = gsl_matrix_submatrix(tg, cur, 0, sz, firstSize);
       gsl_matrix_memcpy(&m.matrix, left[i-1]);
     }
     cur += sz;
@@ -127,8 +130,64 @@ void ABDMatrix::setFromProduct(const gsl_matrix * src)
           gsl_matrix_set(m, j, k, val);
         }
       }
-      gsl_matrix_transpose_memcpy(left[i], m);
+      gsl_matrix_transpose_memcpy(left[i-1], m);
     }
     cur += sz;
   }
+}
+
+
+class TestStuff {
+public:
+  TestStuff();
+};
+
+// TestStuff a;
+
+TestStuff::TestStuff() {
+  QList<int> sizes;
+  sizes << 3 << 2 << 4;
+  QList<int> ps;
+  ps << 50 << 100 << 50;
+
+  int h = 0, w = 0;
+  for(int i = 0; i < sizes.size(); i++) {
+    h += sizes[i];
+    w += ps[i];
+  }
+
+  gsl_matrix * m = gsl_matrix_alloc(w, h);
+
+  // Now, initialize the matrix:
+  gsl_matrix_set_zero(m);
+  int curr = 0, curc = 0;
+  for(int i = 0; i < sizes.size(); i++) {
+    int max = (i == 0 ? w : curr + ps[i]);
+    for(int j = 0; j < sizes[i]; j++) {
+      for(int k = curr; k < max; k++)
+        gsl_matrix_set(m, k, curc + j, drand48());
+    }
+    curc += sizes[i];
+    curr += ps[i];
+  }
+
+  gsl_matrix * t1 = gsl_matrix_alloc(h, h);
+  gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1, 
+                 m, m, 0, t1);
+  gsl_matrix * t2 = gsl_matrix_alloc(h, h);
+  ABDMatrix mt(sizes);
+  mt.setFromProduct(m);
+  mt.expandToFullMatrix(t2);
+  QString str; // = Utils::matrixString(m);
+  // fprintf(stderr, "Orig:\n%s\n", str.toLocal8Bit().data());
+  str = Utils::matrixString(t1);
+  fprintf(stderr, "Direct:\n%s\n", str.toLocal8Bit().data());
+  str = Utils::matrixString(t2);
+  fprintf(stderr, "ABD:\n%s\n", str.toLocal8Bit().data());
+
+  gsl_matrix_sub(t2, t1);
+
+  str = Utils::matrixString(t2);
+  fprintf(stderr, "Diff:\n%s\n", str.toLocal8Bit().data());
+  exit(0);
 }

@@ -212,8 +212,10 @@ QString Utils::matrixString(const gsl_matrix * matrix)
   QString ret;
   for(size_t i = 0; i < matrix->size1; i++) {
     QStringList lst;
-    for(size_t j = 0; j < matrix->size2; j++)
-      lst << QString::number(gsl_matrix_get(matrix, i, j));
+    for(size_t j = 0; j < matrix->size2; j++) {
+      QString s("%1");
+      lst << s.arg(gsl_matrix_get(matrix, i, j), 10);
+    }
     ret += lst.join("\t") + "\n";
   }
   return ret;

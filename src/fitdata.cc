@@ -261,58 +261,54 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
   /// possible. The downside is of course that it would be a real pain
   /// to program ;-)... It would require fits to enable a flag saying
   /// their function is thread-safe (which is almost always the case)
-  for(int i = 0; i < parameters.size(); i++) {
-    FreeParameter * param = dynamic_cast<FreeParameter*>(parameters[i]);
-    if(! param)
-      continue;
-    volatile double value = gslParams[param->fitIndex];
 
-    /// @todo It is crucial to come up with a much better way to
-    /// handle the choice of the step. Look at
-    /// http://en.wikipedia.org/wiki/Numerical_differentiation
+  for(int i = 0; i < parametersByDefinition.size(); i++) {
+    if(i > 0)
+      gsl_vector_memcpy(&v.vector, x); // reset...
+    const QList<FreeParameter *> lst = parametersByDefinition[i];
+    if(lst.size() == 0)
+      continue;                 // Happens: when all parameters are fixed.
+    
+    int tg = lst[0]->fitIndex;
+    gsl_vector_view col = gsl_matrix_column(df, tg);
 
-    double step = (value == 0 ? 1e-6 : param->derivationStep(value));
+    // Now, modify all parameters:
+    for(int j = 0; j < lst.size(); j++) {
+      double value = gslParams[lst[j]->fitIndex];
+      double step = (value == 0 ? 1e-6 : lst[j]->derivationStep(value));
+      gslParams[lst[j]->fitIndex] += step;
+    }
 
-
-    gslParams[param->fitIndex] += step;
-    step = gslParams[param->fitIndex] - value;
     unpackParameters(&v.vector, unpackedParams.data());
 
     if(debug) {
       dumpGSLParameters(&v.vector);
       dumpFitParameters(unpackedParams.data());
     }
-    
-    gsl_vector_view col = gsl_matrix_column(df, param->fitIndex);
 
-    /// @todo turn back on the optimization with functionForDataSet if
-    /// I find the time and motivation (though improvement isn't that
-    /// great)
-
-    try {
-      fit->function(unpackedParams.data(), this, &col.vector);
-      evaluationNumber++;
-    }
-    catch (const RuntimeError & e) {
-      // If forward step fails, we try backwards...
-      step = -step;
-      gslParams[param->fitIndex] = value + step;
-      unpackParameters(&v.vector, unpackedParams.data());
-
-      if(debug) {
-        dumpGSLParameters(&v.vector);
-        dumpFitParameters(unpackedParams.data());
-      }
-      fit->function(unpackedParams.data(), this, &col.vector);
-      evaluationNumber++;
-    }
+    fit->function(unpackedParams.data(), this, &col.vector);
+    evaluationNumber++;
 
     gsl_vector_sub(&col.vector, storage);
-    // Improve precision again:
-    step = gslParams[param->fitIndex] - value;
-    gsl_vector_scale(&col.vector, 1/step);
     weightVector(&col.vector);
-    gslParams[param->fitIndex] = value;
+
+    // Splicing the buffer-specific stuff back into place
+    for(int j = 1; j < lst.size(); j++) {
+      const FreeParameter * p = lst[j];
+      gsl_vector_view col2 = gsl_matrix_column(df, p->fitIndex);
+      gsl_vector_set_zero(&col2.vector);
+      gsl_vector_view c1 = viewForDataset(p->dsIndex, &col.vector);
+      gsl_vector_view c2 = viewForDataset(p->dsIndex, &col2.vector);
+      gsl_vector_memcpy(&c2.vector, &c1.vector);
+      gsl_vector_set_zero(&c1.vector);
+    }
+    
+    for(int j = 0; j < lst.size(); j++) {
+      const FreeParameter * p = lst[j];
+      double step = gslParams[p->fitIndex] - gsl_vector_get(x, p->fitIndex);
+      col = gsl_matrix_column(df, p->fitIndex);
+      gsl_vector_scale(&col.vector, 1/step);
+    }
   }
   if(debug)
     dumpString("Finished df computation");

@@ -29,6 +29,7 @@
 
 class Fit;  
 class FitParameter;
+class FreeParameter;
 class DataSet;
 class ParameterDefinition;
 
@@ -79,7 +80,6 @@ private:
   friend class FitEngine;
   /// The fit engine in use
   FitEngine * engine;
-
   /// Extra parameters
   QStringList extra;
 
@@ -139,6 +139,12 @@ public:
 
   /// All parameters
   PossessiveList<FitParameter> parameters;
+
+  /// The free parameters, indexed by datasets.
+  QHash<int, QList<FreeParameter *> > parametersByDataset;
+
+  /// The free parameters, indexed by parameter number
+  QList< QList<FreeParameter *> > parametersByDefinition;
 
   /// A cache for the parameters description. It \b must be the same
   /// as what Fit::parameters() return.

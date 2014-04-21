@@ -105,6 +105,13 @@ public:
     return false;
   };
 
+  /// Compares the two parameters, so that parameters are sorted by:
+  /// * dataset number first (ie global parameters first)
+  /// * index second
+  ///
+  /// Two
+  static bool parameterIsLower(const FitParameter * a, const FitParameter * b);
+
 protected:
 
   /// This returns extra parameters information that must be

@@ -37,6 +37,14 @@ void FitParameter::copyToPacked(gsl_vector * /*fit*/,
   // Nothing to do !
 }
 
+bool FitParameter::parameterIsLower(const FitParameter * a, const FitParameter * b)
+{
+  if(a->dsIndex == b->dsIndex)
+    return a->paramIndex < b->paramIndex;
+  return a->dsIndex < b->dsIndex;
+}
+
+
 
 QString FitParameter::saveExtraInfo() const
 {

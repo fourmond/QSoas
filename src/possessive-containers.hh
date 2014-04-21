@@ -57,6 +57,14 @@ public:
     return *this;
   };
 
+  typename QList<T*>::iterator begin() {
+    return values.begin();
+  };
+
+  typename QList<T*>::iterator end() {
+    return values.end();
+  };
+
   int size() const {
     return values.size();
   };

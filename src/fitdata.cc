@@ -395,15 +395,31 @@ void FitData::subtractData(gsl_vector * target)
   }
 }
 
+
 void FitData::initializeParameters()
 {
   gslParameters = 0;
 
+  // We make sure the parameters are in the right order
+  qSort(parameters.begin(), parameters.end(), FitParameter::parameterIsLower);
+
+  parametersByDataset.clear();
+  parametersByDefinition.clear();
+  for(int i = 0; i < parameterDefinitions.size(); i++)
+    parametersByDefinition << QList<FreeParameter *>();
+
   // Update the free parameters index
   for(int i = 0; i < parameters.size(); i++) {
     FitParameter * param = parameters[i];
-    if(! param->fixed())
+    if(! param->fixed()) {
       param->fitIndex = gslParameters++;
+      FreeParameter * fp = dynamic_cast<FreeParameter*>(param);
+      if(! fp)
+        throw InternalError("Free parameter, but not free parameter ?");
+      // Do cross-linking
+      parametersByDataset[param->dsIndex] << fp;
+      parametersByDefinition[param->paramIndex] << fp;
+    }
     else
       param->fitIndex = -1;     // Should already be the case
     if(param->needsInit())

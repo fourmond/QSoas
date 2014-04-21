@@ -216,6 +216,34 @@ void ABDMatrix::solve(gsl_vector * sol)
   }
 
   // Now, we do back-substitution
+  base = 0;
+  for(int i = 0; i < sizes.size(); i++) {
+    int sz = sizes[i];
+    for(int j = 0; j < sz; j++) {
+      double val = gsl_vector_get(sol, base+j);
+      
+      // Back subs on the matrix:
+      for(int k = j+1; k < sz; k++) {
+        double coeff = gsl_matrix_get(diag[i], k, j);
+        gsl_vector_set(sol, base + k, 
+                       gsl_vector_get(sol, base + k) - coeff * val);
+      }
+      if(i == 0) {
+        // This is the special case where we have to go through the
+        // whole left to perform back substitution
+        int c2 = firstSize;
+        for(int i2 = 1; i2 < sizes.size(); i2++) {
+          int sz2 = sizes[i2];
+          for(int k = 0; k < sz2; k++, c2++) {
+            double coeff = gsl_matrix_get(left[i2-1], k, j);
+            gsl_vector_set(sol, c2, 
+                           gsl_vector_get(sol, c2) - coeff * val);
+          }
+        }
+      }  
+    }
+    base += sz;
+  }
 
 }
 
@@ -225,7 +253,7 @@ public:
   TestStuff();
 };
 
-TestStuff a;
+// TestStuff a;
 
 TestStuff::TestStuff() {
   QList<int> sizes;
@@ -280,11 +308,28 @@ TestStuff::TestStuff() {
   for(int i = 0; i < h; i++)
     gsl_vector_set(v1, i, drand48());
 
+  gsl_vector_memcpy(v2, v1);
+  str = Utils::vectorString(v1);
+  fprintf(stderr, "Orig:\n%s\n", str.toLocal8Bit().data());
   mt.solve(v1);
   mt.expandToFullMatrix(t2);
   str = Utils::matrixString(t2);
   fprintf(stderr, "Half inverted:\n%s\n", str.toLocal8Bit().data());
-  
+
+  gsl_permutation * p = gsl_permutation_alloc(h);
+  int sgn;
+
+  str = Utils::vectorString(v2);
+  fprintf(stderr, "Orig:\n%s\n", str.toLocal8Bit().data());
+
+  gsl_linalg_LU_decomp(t1, p, &sgn);
+  gsl_linalg_LU_svx(t1, p, v2);
+
+  str = Utils::vectorString(v1);
+  fprintf(stderr, "ABD sol:\n%s\n", str.toLocal8Bit().data());
+
+  str = Utils::vectorString(v2);
+  fprintf(stderr, "LU sol:\n%s\n", str.toLocal8Bit().data());
 
   exit(0);
 }

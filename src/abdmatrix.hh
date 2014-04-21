@@ -77,6 +77,13 @@ public:
   ///
   /// This is a Gram matrix !
   void setFromProduct(const gsl_matrix * src);
+
+  /// Solves the A x = B problem. Efficiently, one hopes.
+  ///
+  /// Stores the solution in place and DESTROYS the matrix.
+  ///
+  /// Uses a standard Gauss-Jordan elimination.
+  void solve(gsl_vector * sol);
 };
 
 

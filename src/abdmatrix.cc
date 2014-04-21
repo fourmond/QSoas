@@ -136,13 +136,96 @@ void ABDMatrix::setFromProduct(const gsl_matrix * src)
   }
 }
 
+void ABDMatrix::solve(gsl_vector * sol)
+{
+  // To keep the structure of the matrix, we HAVE to go from the
+  // bottom to top (i.e., the inverse of the standard gauss-jordan way
+  // ?)
+
+  // The index of the first row of the diag matrix we're interested in
+  // for now.
+  int base = total;
+  int cur = total-1;
+  // current diag, current left, other diag, other left
+  gsl_vector_view cd, cl, od, ol;
+  gsl_vector * cdv, * clv, * odv, * olv;
+  for(int i = sizes.size() - 1; i >= 0; i--) {
+    int sz = sizes[i];
+    base -= sz;
+    for(int j = sz-1; j >= 0; j--) {
+      // @todo: swapping rows
+      double val = gsl_matrix_get(diag[i], j, j);
+      cd = gsl_matrix_row(diag[i], j);
+      cdv = &cd.vector;
+      if(i > 0) {
+        cl = gsl_matrix_row(left[i-1], j);
+        clv = &cl.vector;
+      }
+      else
+        clv = NULL;
+
+      if(val == 0.0)
+        throw RuntimeError("Singular matrix -- or simply one needed permutations...");
+      val = 1/val;
+
+      // First, scale the line we're dealing with:
+      gsl_vector_scale(cdv, val);
+      if(clv)
+        gsl_vector_scale(clv, val);
+      gsl_vector_set(sol, cur, val * gsl_vector_get(sol, cur));
+
+      double rhs = gsl_vector_get(sol, cur);
+
+      // Then, subtract to all lines above in the same matrix:
+      for(int k = j-1; k >= 0; k--) {
+        od = gsl_matrix_row(diag[i], k);
+        odv = &od.vector;
+        if(i > 0) {
+          ol = gsl_matrix_row(left[i-1], k);
+          olv = &ol.vector;
+        }
+        else
+          olv = NULL;
+        double fact = gsl_vector_get(odv, j);
+        gsl_blas_daxpy(-fact, cdv, odv);
+        if(olv)
+          gsl_blas_daxpy(-fact, clv, olv);
+        // And in the RHS
+        gsl_vector_set(sol, base + k, 
+                       gsl_vector_get(sol, base + k) - fact * rhs);
+      }
+
+      // Now, we do the same thing at the top
+      if(i > 0) {
+        for(int k = 0; k < firstSize; k++) {
+          od = gsl_matrix_row(top[i-1], k);
+          odv = &od.vector;
+          ol = gsl_matrix_row(diag[0], k);
+          olv = &ol.vector;
+
+          double fact = gsl_vector_get(odv, j);
+          gsl_blas_daxpy(-fact, cdv, odv);
+          gsl_blas_daxpy(-fact, clv, olv);
+          // And in the RHS
+          gsl_vector_set(sol, k, 
+                         gsl_vector_get(sol, k) - fact * rhs);
+        }
+      }
+      cur -= 1;
+    }
+  }
+
+  // Now, we do back-substitution
+
+}
+
 
 class TestStuff {
 public:
   TestStuff();
 };
 
-// TestStuff a;
+TestStuff a;
 
 TestStuff::TestStuff() {
   QList<int> sizes;
@@ -157,6 +240,9 @@ TestStuff::TestStuff() {
   }
 
   gsl_matrix * m = gsl_matrix_alloc(w, h);
+
+  gsl_vector * v1 = gsl_vector_alloc(h);
+  gsl_vector * v2 = gsl_vector_alloc(h);
 
   // Now, initialize the matrix:
   gsl_matrix_set_zero(m);
@@ -189,5 +275,16 @@ TestStuff::TestStuff() {
 
   str = Utils::matrixString(t2);
   fprintf(stderr, "Diff:\n%s\n", str.toLocal8Bit().data());
+
+  // Initialize the RHS vector:
+  for(int i = 0; i < h; i++)
+    gsl_vector_set(v1, i, drand48());
+
+  mt.solve(v1);
+  mt.expandToFullMatrix(t2);
+  str = Utils::matrixString(t2);
+  fprintf(stderr, "Half inverted:\n%s\n", str.toLocal8Bit().data());
+  
+
   exit(0);
 }

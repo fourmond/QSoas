@@ -252,7 +252,8 @@ SOURCES += src/qmain.cc \
         src/metadataprovider.cc \
         src/conditionsprovider.cc \
         src/gpesprovider.cc \
-        src/abdmatrix.cc
+        src/abdmatrix.cc \
+        src/multifitengine.cc
 
 
 HEADERS += src/headers.hh \

@@ -247,6 +247,19 @@ void ABDMatrix::solve(gsl_vector * sol)
 
 }
 
+void ABDMatrix::copyFrom(const ABDMatrix & src)
+{
+  if(sizes != src.sizes)
+    throw InternalError("Mismatched sizes while copying");
+  for(int i = 0; i < sizes.size(); i++) {
+    gsl_matrix_memcpy(diag[i], src.diag[i]);
+    if(i > 0) {
+      gsl_matrix_memcpy(left[i-1], src.left[i-1]);
+      gsl_matrix_memcpy(top[i-1], src.top[i-1]);
+    }
+  }
+}
+
 
 class TestStuff {
 public:

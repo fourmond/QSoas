@@ -78,6 +78,9 @@ public:
   /// This is a Gram matrix !
   void setFromProduct(const gsl_matrix * src);
 
+  /// Copy from the \a src matrix. Will fail if sizes don't match.
+  void copyFrom(const ABDMatrix & src);
+
   /// Solves the A x = B problem. Efficiently, one hopes.
   ///
   /// Stores the solution in place and DESTROYS the matrix.

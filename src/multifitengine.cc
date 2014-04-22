@@ -223,19 +223,11 @@ void MultiFitEngine::computeCovarianceMatrix(gsl_matrix * target) const
 void MultiFitEngine::trialStep(double l, gsl_vector * params, 
                                gsl_vector * func, double * res)
 {
-  // First, with current lambda
-  // We prepare the A + lambda I matrix
-  gsl_matrix_memcpy(cur, jTj);
-  for(int i = 0; i < n; i++)
-    gsl_matrix_set(cur, i, i, gsl_matrix_get(cur, i, i) + l);
+  cur->copyFrom(*jTj);
+  cur->addToDiagonal(l);
 
-  int sign = 0;
-
-  /// @todo error checking !
-  gsl_linalg_LU_decomp(cur, perm, &sign);
-
-  // First compute the delta^r:
-  gsl_linalg_LU_solve(cur, perm, gradient, deltap);
+  gsl_vector_memcpy(deltap, gradient);
+  cur->solve(deltap);
 
   // The the step:
   gsl_vector_memcpy(params, parameters);
@@ -270,15 +262,13 @@ int MultiFitEngine::iterate()
   gsl_blas_dgemv(CblasTrans, -1, 
                  jacobian, function, 0, gradient);
 
-  // Then, compute the P^TP matrix:
-  gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1, 
-                 jacobian, jacobian, 0, jTj);
+  jTj->setFromProduct(jacobian);
 
   if(fitData->debug) {
     // Dump the jTj matrix:
     QTextStream o(stdout);
-    o << "jTj matrix: \n"
-      << Utils::matrixString(jTj) << endl;
+    // o << "jTj matrix: \n"
+    //   << Utils::matrixString(jTj) << endl;
   }
 
   // OK, so now we go through various tries.

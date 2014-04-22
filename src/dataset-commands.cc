@@ -796,19 +796,23 @@ static void contractCommand(const QString &, QList<const DataSet *> a,
 
   QString pc;
   updateFromOptions(opts, "perp-meta", pc);
+  QList<int> useCols;
+  updateFromOptions(opts, "use-cols", useCols);
+  
+
+  if(a.size() < 2)
+    throw RuntimeError("You need more than one buffer to run contract");
   
   DataSet * cur = new DataSet(*a[0]);
   if(pc.size() > 0)
     cur->setPerpendicularCoordinates(cur->getMetaData(pc).toDouble());
   
-  if(a.size() < 2)
-    throw RuntimeError("You need more than one buffer to run contract");
   for(int i = 1; i < a.size(); i++) {
     DataSet * ds = new DataSet(*a[i]);
     if(pc.size() > 0)
       ds->setPerpendicularCoordinates(ds->getMetaData(pc).toDouble());
 
-    DataSet * n = cur->contract(ds, naive, useSteps);
+    DataSet * n = cur->contract(ds, naive, useSteps, useCols);
     delete cur;
     delete ds;
     cur = n;
@@ -832,7 +836,10 @@ static ArgumentList
 contractOpts(QList<Argument *>(operationOpts) 
              << new StringArgument("perp-meta", 
                                    "Perpendicular coordinate",
-                                   "Define the perpendicular coordinate from meta-data"));
+                                   "Define the perpendicular coordinate from meta-data")
+             << new SeveralIntegersArgument("use-cols", 
+                                            "The columns to use",
+                                            "If specified, use only the given columns for the contraction"));
 
 static Command 
 contractc("contract", // command name

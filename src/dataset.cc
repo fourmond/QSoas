@@ -334,10 +334,13 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
                                         const DataSet * b,
                                         double (*op)(double, double),
                                         const QString & cat, 
-                                        bool naive, bool useSteps)
+                                        bool naive, bool useSteps,
+                                        int useACol)
 {
   // only deal with the common columns
-  int nbcols = std::min(a->nbColumns(), b->nbColumns());
+  int nbcols = useACol >= 0 ? b->nbColumns() : 
+    std::min(a->nbColumns(), b->nbColumns());
+  
   if(nbcols < 2)
     throw RuntimeError("Need at least a Y column for both datasets");
 
@@ -362,7 +365,7 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
     for(int i = 0; i < ads.size(); i++) {
       ads[i]->x() -= ads[i]->x()[0];
       bds[i]->x() -= bds[i]->x()[0];
-      DataSet * nds = applyBinaryOperation(ads[i], bds[i], op, cat, naive, false);
+      DataSet * nds = applyBinaryOperation(ads[i], bds[i], op, cat, naive, false, useACol);
 
       for(int j = 0; j < nbcols-1; j++)
         vects[j] << nds->columns[j+1];
@@ -389,7 +392,7 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
         if(i >= size_b)
           si = size_b - 1;        // Pad with last value
         for(int k = 1; k < nbcols; k++)
-          vects[k] << op(a->columns[k][i], b->columns[k][si]);
+          vects[k] << op(a->columns[useACol >= 0 ? useACol : k][i], b->columns[k][si]);
       }
     }
     else {
@@ -412,7 +415,7 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
 
         vects[0] << xa[i];        // a is the master dataset
         for(int k = 1; k < nbcols; k++)
-          vects[k] << op(a->columns[k][i], b->columns[k][found]);
+          vects[k] << op(a->columns[useACol >= 0 ? useACol : k][i], b->columns[k][found]);
       }
     }
   }
@@ -473,14 +476,31 @@ DataSet * DataSet::merge(const DataSet * ds, bool naive,
 }
 
 DataSet * DataSet::contract(const DataSet * ds, bool naive, 
-                            bool useSteps) const
+                            bool useSteps, const QList<int> & useColumns) const
 {
   DataSet * nd = applyBinaryOperation(this, ds, keep_second, 
-                                      "_cont_", naive, useSteps);
+                                      "_cont_", naive, useSteps, 0);
+ 
+  Vector pc;
+  if(useColumns.size() > 0) {
+    QList<Vector> lst;
+    lst << nd->columns[0];
+    for(int i = 0; i < useColumns.size(); i++) {
+      int idx = useColumns[i];
+      if(idx < nd->columns.size()) {
+        lst << nd->columns[idx];
+        pc << ds->perpCoords.value(idx-1, 0.0/0.0);
+      }
+    }
+    nd->columns = lst;
+  }
+  else
+    pc = ds->perpCoords;
+
   for(int i = 1; i < columns.size(); i++)
     nd->columns.insert(i, columns[i]);
 
-  nd->perpCoords << ds->perpCoords;
+  nd->perpCoords << pc;
   return nd;
 }
 

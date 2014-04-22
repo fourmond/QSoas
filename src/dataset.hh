@@ -95,18 +95,25 @@ class DataSet : public Guardable {
   /// side is compared to each on the other. For that to work, there
   /// must be at least as many steps in \a b than in \a a.
   ///
+  /// By default, operations are applied between matching Y columns,
+  /// ie Y1 of a with Y1 of b, Y2 of a with Y2 of b and so
+  /// on. However, if useACol is non-negative, operations are applied
+  /// to all Y columns of b with the correspond Y column of a.
+  ///
   /// 
   ///
   /// The operation takes quadratic time, as all X of a are matched
   /// against all X of b for each value (which is bad,
   /// admittedly). There are probably ways to be much more clever than
   /// that.
+  ///
   static DataSet * applyBinaryOperation(const DataSet * a,
                                         const DataSet * b,
                                         double (*op)(double, double),
                                         const QString & cat = "_op_",
                                         bool naive = false, 
-                                        bool useSteps = false);
+                                        bool useSteps = false,
+                                        int useACol = -1);
 
 
   friend QDataStream & operator<<(QDataStream & out, const DataSet & ds);
@@ -446,8 +453,12 @@ public:
                   bool useSteps = false) const;
 
   /// Does the reverse of expand
+  ///
+  /// If \a useColumns is present, only the given columns are
+  /// contracted. Careful, columns are 0-based !
   DataSet * contract(const DataSet * dataset, bool naive = false, 
-                     bool useSteps = false) const;
+                     bool useSteps = false, const QList<int> & useColumns = 
+                     QList<int>() ) const;
 
   /// Returns the subset of the dataset contained either within the
   /// indices or outside of them

@@ -193,7 +193,8 @@ sort("sort", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void expandCommand(const QString &)
+static void expandCommand(const QString &,
+                          const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();
   if(ds->nbColumns() <= 2) {
@@ -201,29 +202,50 @@ static void expandCommand(const QString &)
                   << "', nothing to do" << endl;
     return;
   }
+  QString pc;
+  updateFromOptions(opts, "perp-meta", pc);
+
+  Vector ppcd = ds->perpendicularCoordinates();
   for(int i = 1; i < ds->nbColumns(); i++) {
     QList<Vector> cols;
     cols << ds->x();
     cols << ds->column(i);
     DataSet * s = ds->derivedDataSet(cols, QString("_col_%1.dat").arg(i+1));
+    if(ppcd.size() >= i) {
+      s->setPerpendicularCoordinates(ppcd[i-1]);
+      if(!pc.isEmpty())
+        s->setMetaData(pc, ppcd[i-1]);
+    }
+    
     soas().stack().pushDataSet(s, true);
     if(i > 1)
       soas().view().addDataSet(s);
     else
       soas().view().showDataSet(s);
   }
+  Terminal::out << "Expanded '" << ds->name 
+                << "' into " << ds->nbColumns() - 1 << " buffers" << endl;
 }
+
+static ArgumentList 
+expandOpts(QList<Argument *>() 
+             << new StringArgument("perp-meta", 
+                                   "Perpendicular coordinate",
+                                   "Define meta-data from perpendicular coordinate")
+);
 
 
 static Command 
 expand("expand", // command name
-     optionLessEffector(expandCommand), // action
+     effector(expandCommand), // action
      "buffer",  // group name
      NULL, // arguments
-     NULL, // options
+     &expandOpts, // options
      "Expand",
-     "??",
-     "??");
+     "Expands a multi-Y dataset",
+     "Expands a dataset with many Y columns into as many datasets with one Y column");
+
+
 
 //////////////////////////////////////////////////////////////////////
 

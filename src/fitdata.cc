@@ -36,7 +36,8 @@
 
 FitData::FitData(Fit * f, const QList<const DataSet *> & ds, bool d, 
                  const QStringList & ex) : 
-  totalSize(0), covarStorage(NULL), engine(NULL), extra(ex),
+  totalSize(0), covarStorage(NULL), covarIsOK(false),
+  engine(NULL), extra(ex),
   evaluationNumber(0), 
   fit(f), debug(d), datasets(ds),
   standardYErrors(NULL), pointWeights(NULL),
@@ -395,6 +396,7 @@ void FitData::subtractData(gsl_vector * target)
 void FitData::initializeParameters()
 {
   gslParameters = 0;
+  covarIsOK = false;
 
   // We make sure the parameters are in the right order
   qSort(parameters.begin(), parameters.end(), FitParameter::parameterIsLower);
@@ -479,6 +481,7 @@ void FitData::unpackCurrentParameters(double * target)
 int FitData::iterate()
 {
   nbIterations++;
+  covarIsOK = false;
   if(debug) {
     dumpString(QString("Fit iteration: #%1").arg(nbIterations));
     dumpFitParameterStructure();
@@ -533,11 +536,14 @@ bool FitData::independentDataSets() const
 
 void FitData::recomputeJacobian()
 {
+  covarIsOK = false;
   engine->recomputeJacobian();
 }
 
 const gsl_matrix * FitData::covarianceMatrix()
 {
+  if(covarIsOK)
+    return covarStorage;
   /// @todo provide a function with a gsl_matrix target as argument.
   if(! covarStorage) {
     int sz = fullParameterNumber();
@@ -605,6 +611,7 @@ const gsl_matrix * FitData::covarianceMatrix()
                                       // has been setup yet.
   }
   
+  covarIsOK = true;
   return covarStorage;
 }
 

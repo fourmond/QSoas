@@ -63,6 +63,9 @@ private:
   /// A storage space for the covariance matrix
   gsl_matrix * covarStorage;
 
+  /// Wether the covarStorage matrix is up-to-date
+  bool covarIsOK;
+
   /// Dumps the given string if debug is on
   void dumpString(const QString & str) const;
 

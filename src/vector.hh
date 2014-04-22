@@ -182,6 +182,10 @@ public:
   
   /// @}
 
+  /// Returns the list of formatted texts.
+  QStringList asText(int fieldWidth = 0, char format = 'g',
+                     int precision = -1, const QChar & fillChar = QLatin1Char( ' ' ))const;
+
   /// Reads textual data from a file.
   /// \li separator is specified by the regular expression
   /// \li comment lines are those that match \p commentRE. They are stored

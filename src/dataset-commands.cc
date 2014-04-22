@@ -813,6 +813,12 @@ static void contractCommand(const QString &, QList<const DataSet *> a,
     delete ds;
     cur = n;
   }
+  if(! pc.isEmpty()) {
+    QList<QVariant> lst;
+    for(int i = 0; i < cur->perpendicularCoordinates().size(); i++)
+      lst << cur->perpendicularCoordinates()[i];
+    cur->setMetaData(pc, lst);
+  }
   soas().pushDataSet(cur);
 }
 

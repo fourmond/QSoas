@@ -524,6 +524,9 @@ public:
   /// Returns all the meta-data
   const ValueHash & getMetaData() const;
 
+  /// Clears the given meta-data
+  void clearMetaData(const QString & name);
+
   /// Returns the given metadata
   QVariant getMetaData(const QString & val) const;
 

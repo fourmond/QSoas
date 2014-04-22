@@ -627,3 +627,13 @@ QList<Vector> Vector::bin(int boxes, bool lg) const
   ret << mid << bin;
   return ret;
 }
+
+QStringList Vector::asText(int fieldWidth, char format, int precision,
+                           const QChar & fillChar) const
+{
+  QString fmt("%1");
+  QStringList ret;
+  for(int i = 0; i < size(); i++)
+    ret << fmt.arg(value(i), fieldWidth, format, precision, fillChar);
+  return ret;
+}

@@ -69,6 +69,9 @@ QString DataSet::stringDescription(bool longDesc) const
     val += QString("Flags: %1\n").arg(flgs.join(", "));
     val += "Meta-data:";
     val += metaData.prettyPrint(3, "\t");
+    if(perpCoords.size() > 0) {
+      val += "Perpendicular coordinates: " + perpCoords.asText().join(", ") + "\n";
+    }
     return val;
   }
   else
@@ -1150,6 +1153,11 @@ QStringList DataSet::columnNames() const
 void DataSet::setMetaData(const QString & name, const QVariant & val)
 {
   metaData[name] = val;
+}
+
+void DataSet::clearMetaData(const QString & name)
+{
+  metaData.remove(name);
 }
 
 const ValueHash & DataSet::getMetaData() const

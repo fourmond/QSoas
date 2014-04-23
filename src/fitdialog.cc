@@ -47,7 +47,7 @@
 
 static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
 
-FitDialog::FitDialog(FitData * d, bool displayWeights) : 
+FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) : 
   data(d),
   stackedViews(NULL), 
   parameters(d),
@@ -55,6 +55,7 @@ FitDialog::FitDialog(FitData * d, bool displayWeights) :
   settingEditors(false), 
   displaySubFunctions(false),
   errorInconsistencyShown(false),
+  perpendicularMeta(pm),
   progressReport(NULL),
   residualsDisplay(NULL),
   trajectoryDisplay(NULL),
@@ -252,6 +253,11 @@ void FitDialog::setupFrame()
   ac->addAction("Push current to stack", this, SLOT(pushCurrentCurve()));
   ac->addAction("Save all", this, SLOT(saveSimulatedCurves()));
   ac->addAction("Push all residuals to stack", this, SLOT(pushResiduals()));
+
+  if(!perpendicularMeta.isEmpty())
+    ac->addAction("Show transposed data", this, SLOT(showTransposed()));
+
+
   if(data->fit->hasSubFunctions()) {
     ac->addAction("Toggle subfunctions display", this, 
                   SLOT(toggleSubFunctions()));
@@ -386,11 +392,20 @@ void FitDialog::dataSetChanged(int newds)
   currentIndex = newds;
   emit(currentDataSetChanged(currentIndex));
   updateEditors();
-  /// @todo annotation !
-  bufferNumber->setText(QString("%1/%2 %3 %4").
-                        arg(newds + 1).arg(data->datasets.size()).
-                        arg(data->fit->annotateDataSet(newds)).
-                        arg(bufferWeightEditor ? " weight: " : ""));
+  QString txt = QString("%1/%2 %3 %4").
+    arg(newds + 1).arg(data->datasets.size()).
+    arg(data->fit->annotateDataSet(newds)).
+    arg(bufferWeightEditor ? " weight: " : "");
+  if(! perpendicularMeta.isEmpty()) {
+    QString str = QString(" %1 = %2").arg(perpendicularMeta);
+    if(data->datasets[newds]->getMetaData().contains(perpendicularMeta))
+      str = str.arg(data->datasets[newds]->getMetaData(perpendicularMeta).toDouble());
+    else
+      str = str.arg("??");
+    txt += str;
+  }
+  bufferNumber->setText(txt);
+
   updateResidualsDisplay();
 }
 
@@ -1043,4 +1058,9 @@ void FitDialog::setSoftOptions()
 
 
   
+}
+
+void FitDialog::showTransposed()
+{
+  /// Here, 
 }

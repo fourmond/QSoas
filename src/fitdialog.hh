@@ -93,6 +93,10 @@ class FitDialog : public QDialog {
   /// curves.
   QList<CurveData*> subFunctionCurves;
 
+
+  /// The name of the perpendicular coordinate from meta-data.
+  QString perpendicularMeta;
+
   /// Setup the clearing and display of the subfunction curves. Does
   /// nothing when the subfunction display is off.
   void setupSubFunctionCurves();
@@ -153,7 +157,8 @@ protected:
 
 
 public:
-  FitDialog(FitData * data, bool displayWeights = false);
+  FitDialog(FitData * data, bool displayWeights = false, 
+            const QString & perpMeta = QString());
   ~FitDialog();
 
   /// Sets the fit engine to the named one
@@ -299,6 +304,9 @@ protected slots:
   /// Upon change in the FitEngine combo box...
   void engineSelected(int id);
 
+
+  /// Shows the transposed data.
+  void showTransposed();
 
 
 };

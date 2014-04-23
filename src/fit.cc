@@ -166,6 +166,10 @@ void Fit::makeCommands(ArgumentList * args,
                                "Weight buffers",
                                "Whether or not to weight buffers (off by default)");
 
+  *options << new StringArgument("perp-meta", 
+                                 "Perpendicular coordinate",
+                                 "If specified, it is the name of a meta-data that holds the perpendicular coordinates");
+
   
   ArgumentList * al = NULL;
   if(args) {
@@ -274,8 +278,11 @@ void Fit::runFit(const QString &, QList<const DataSet *> datasets,
   updateFromOptions(opts, "parameters", loadParameters);
   updateFromOptions(opts, "weight-buffers", showWeights);
 
+  QString perpMeta;
+  updateFromOptions(opts, "perp-meta", perpMeta);
 
-  FitDialog dlg(&data, showWeights);
+
+  FitDialog dlg(&data, showWeights, perpMeta);
 
   if(! loadParameters.isEmpty())
     dlg.loadParametersFile(loadParameters);

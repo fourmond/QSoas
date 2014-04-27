@@ -44,6 +44,7 @@
 
 #include <utils.hh>
 #include <fittrajectorydisplay.hh>
+#include <parametersviewer.hh>
 
 static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
 
@@ -282,6 +283,9 @@ void FitDialog::setupFrame()
   ac->addAction("Export (for drawing/manipulating)", 
                 this, SLOT(exportParameters()),
                 QKeySequence(tr("Ctrl+X")));
+  if(data->datasets.size() > 1)
+    ac->addAction("Show parameters", 
+                  this, SLOT(showParameters()));
   ac->addAction("Export to output file", this, 
                 SLOT(exportToOutFile()),
                 QKeySequence(tr("Ctrl+O")));
@@ -1063,4 +1067,10 @@ void FitDialog::setSoftOptions()
 void FitDialog::showTransposed()
 {
   /// Here, 
+}
+
+void FitDialog::showParameters()
+{
+  ParametersViewer dlg(&parameters);
+  dlg.exec();
 }

@@ -1195,6 +1195,37 @@ sM("set-meta", // command name
 //////////////////////////////////////////////////////////////////////
 
 
+static void setPerpCommand(const QString &, QList<double> coords,
+                           const CommandOptions & opts)
+{
+  DataSet * ds = soas().currentDataSet();
+  ds->setPerpendicularCoordinates(coords.toVector());
+}
+
+static ArgumentList 
+sPA(QList<Argument *>() 
+    << new SeveralNumbersArgument("coords", 
+                                  "Coordinates",
+                                  "The values of the coordinates (one for each Y column)")
+   );
+
+// static ArgumentList 
+// sMO(QList<Argument *>() 
+//     );
+
+
+static Command 
+sP("set-perp", // command name
+   effector(setPerpCommand), // action
+   "buffer",  // group name
+   &sPA, // arguments
+   NULL, // options
+   "Set perpendicular",
+   "Set perpendicular coordinates", "...");
+
+//////////////////////////////////////////////////////////////////////
+
+
 static void editCommand(const QString &)
 {
   const DataSet * ds = soas().currentDataSet();

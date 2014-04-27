@@ -77,6 +77,34 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
     softOptions = NULL;
   }
 
+  // Here, setup the perpendicular coordinates
+  if(data->datasets.size() > 1) {
+    if(!perpendicularMeta.isEmpty()) {
+      for(int i = 0; i < data->datasets.size(); i++) {
+        const DataSet * ds = data->datasets[i];
+        if(ds->getMetaData().contains(perpendicularMeta)) {
+          parameters.perpendicularCoordinates << ds->getMetaData(perpendicularMeta).toDouble();
+        }
+      }
+    }
+    else {
+      // Gather from datasets
+      for(int i = 0; i < data->datasets.size(); i++) {
+        const DataSet * ds = data->datasets[i];
+        if(ds->perpendicularCoordinates().size() > 0)
+          parameters.perpendicularCoordinates << ds->perpendicularCoordinates()[0];
+      }
+    }
+    if(parameters.perpendicularCoordinates.size() > 0 && 
+       parameters.perpendicularCoordinates.size() != data->datasets.size()) {
+      Terminal::out << "Did get only " << parameters.perpendicularCoordinates.size() 
+                    << " perpendicular coordinates, but I need " 
+                    <<  data->datasets.size() << ", ignoring them" << endl;
+      parameters.perpendicularCoordinates.clear();
+    }
+  }
+
+
 
   setupFrame();
   setFitEngineFactory(FitEngine::defaultFactoryItem());
@@ -255,7 +283,7 @@ void FitDialog::setupFrame()
   ac->addAction("Save all", this, SLOT(saveSimulatedCurves()));
   ac->addAction("Push all residuals to stack", this, SLOT(pushResiduals()));
 
-  if(!perpendicularMeta.isEmpty())
+  if(parameters.perpendicularCoordinates.size() > 1)
     ac->addAction("Show transposed data", this, SLOT(showTransposed()));
 
 
@@ -400,12 +428,10 @@ void FitDialog::dataSetChanged(int newds)
     arg(newds + 1).arg(data->datasets.size()).
     arg(data->fit->annotateDataSet(newds)).
     arg(bufferWeightEditor ? " weight: " : "");
-  if(! perpendicularMeta.isEmpty()) {
-    QString str = QString(" %1 = %2").arg(perpendicularMeta);
-    if(data->datasets[newds]->getMetaData().contains(perpendicularMeta))
-      str = str.arg(data->datasets[newds]->getMetaData(perpendicularMeta).toDouble());
-    else
-      str = str.arg("??");
+  if(parameters.perpendicularCoordinates.size() > 0) {
+    QString str = QString(" %1 = %2").arg(perpendicularMeta.isEmpty() ? 
+                                          "Z" : perpendicularMeta).
+      arg(parameters.perpendicularCoordinates[newds]);
     txt += str;
   }
   bufferNumber->setText(txt);

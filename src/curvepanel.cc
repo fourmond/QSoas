@@ -98,7 +98,7 @@ void CurvePanel::updateBB()
     CurveItem * item = displayedItems[i];
     if(item && item->countBB && ! item->hidden) {
       QRectF itemBB = item->boundingRect();
-      if(itemBB.isValid())
+      if(! itemBB.isNull())     // This is what should count ?
         boundingBox = boundingBox.united(itemBB);
     }
   }

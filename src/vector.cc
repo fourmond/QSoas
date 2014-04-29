@@ -125,9 +125,13 @@ QList<QList<Vector> > Vector::readFromStream(QIODevice * source,
 double Vector::min() const
 {
   int sz = size();
+  const double * d = (sz > 0 ? data() : NULL);
+  while(sz > 0 && std::isnan(*d)) {
+    sz--;
+    d++;
+  }
   if(! sz)
     return 0.0/0.0;
-  const double * d = data();
   double m = d[0];
   for(int i = 1; i < sz; i++)
     if(d[i] < m)
@@ -155,9 +159,13 @@ int Vector::whereMin() const
 double Vector::max() const
 {
   int sz = size();
+  const double * d = (sz > 0 ? data() : NULL);
+  while(sz > 0 && std::isnan(*d)) {
+    sz--;
+    d++;
+  }
   if(! sz)
     return 0.0/0.0;
-  const double * d = data();
   double m = d[0];
   for(int i = 1; i < sz; i++)
     if(d[i] > m)

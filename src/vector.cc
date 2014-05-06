@@ -24,6 +24,8 @@
 
 #include <gsl/gsl_histogram.h>
 
+#include <cmath>
+
 QList<QList<Vector> > Vector::readFromStream(QIODevice * source,
                                              const QRegExp & separatorREt,
                                              const QRegExp & commentREt,
@@ -119,8 +121,6 @@ QList<QList<Vector> > Vector::readFromStream(QIODevice * source,
                         QRegExp(blankRE),
                         comments);
 }
-
-
 
 double Vector::min() const
 {

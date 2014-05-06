@@ -12,6 +12,7 @@ description         QSoas
 long_description    QSoas
 homepage            http://qsoas.org
 master_sites        http://10.234.32.140/soas/ \
+    http://10.234.32.144/soas/ \
 
 depends_lib         port:qt4-mac \
                     port:ruby19 \

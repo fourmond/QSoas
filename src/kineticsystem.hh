@@ -215,7 +215,7 @@ public:
 
   /// Prepares the system for time evolution, ie using initial
   /// concentrations as additional parameters.
-  void prepareForTimeEvolution();
+  void prepareForTimeEvolution(const QStringList & extra = QStringList());
 
   /// Prepares the system for steady-state, using:
   /// @li the potential

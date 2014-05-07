@@ -433,6 +433,8 @@ class KineticSystemFit : public PerDatasetFit {
   mutable int temperatureIndex;
 
   mutable int parametersNumber;
+
+  bool hasOrigTime;
   
 
   /// These two parameters are needed for the proper computation of
@@ -473,6 +475,9 @@ protected:
 
     voltammogram = false;
     updateFromOptions(opts, "voltammogram", voltammogram);
+
+    hasOrigTime = false;
+    updateFromOptions(opts, "choose-t0", hasOrigTime);
 
     potentialIndex = -1;
     temperatureIndex = -1;
@@ -625,6 +630,8 @@ public:
         defs << ParameterDefinition(QString("y_%1").
                                     arg(species[i]), i != 0);
     }
+    if(hasOrigTime)
+        defs << ParameterDefinition("t0", true);
     
     parametersBase = defs.size();
 
@@ -705,7 +712,8 @@ public:
 
     evolver->setupCallback(KineticSystemFit::timeDependentRates, this);
     const Vector & xv = ds->x();
-    evolver->initialize(voltammogram ? 0 : xv[0]);
+    double ini = voltammogram ? 0 : xv[0];
+    evolver->initialize(hasOrigTime ? *(a + parametersBase - 1) : ini);
     params = a + tdBase;
 
     if(data->debug)
@@ -783,6 +791,8 @@ public:
     }
 
     double * b = a + parametersBase;
+    if(hasOrigTime)
+      b[-1] = x[0] - 20;
 
     // All initial concentrations to 0 but the first
     for(int i = 0; i < nb; i++)
@@ -830,6 +840,8 @@ public:
                    << new BoolArgument("voltammogram", 
                                        "If on, x is not taken to be time, but "
                                        "potential in a voltammetric experiment")
+                   << new BoolArgument("choose-t0", 
+                                       "If on, one can choose the initial time")
                    );
   };
 

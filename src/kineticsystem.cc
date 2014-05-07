@@ -289,12 +289,13 @@ void KineticSystem::checkLinearity()
   }
 }
 
-void KineticSystem::prepareForTimeEvolution()
+void KineticSystem::prepareForTimeEvolution(const QStringList & extra)
 {
   // initial concentrations
   QStringList conc0;
   for(int i = 0; i < species.size(); i++)
     conc0.append(QString("c0_%1").arg(species[i].name));
+  conc0 << extra;
 
   ensureReady(conc0);
 }

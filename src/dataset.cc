@@ -63,8 +63,7 @@ QString DataSet::stringDescription(bool longDesc) const
   if(longDesc) {
     QString val = QString("%1: %2 cols, %3 rows, %4 segments\n").
       arg(name).arg(nbColumns()).arg(nbRows()).arg(segments.size() + 1);
-    QStringList flgs;
-    flgs.fromSet(flags);
+    QStringList flgs = QStringList::fromSet(flags);
     qSort(flgs);
     val += QString("Flags: %1\n").arg(flgs.join(", "));
     val += "Meta-data:";
@@ -75,7 +74,7 @@ QString DataSet::stringDescription(bool longDesc) const
     return val;
   }
   else
-    return QObject::tr("%6 %2\t%3\t%5\t'%1'").
+    return QString("%6 %2\t%3\t%5\t'%1'").
       arg(name).arg(nbColumns()).arg(nbRows()).arg(segments.size() + 1).
       arg(flagged() ? "(*)" : "   ");
 }

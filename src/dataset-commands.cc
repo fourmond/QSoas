@@ -205,6 +205,9 @@ static void expandCommand(const QString &,
   QString pc;
   updateFromOptions(opts, "perp-meta", pc);
 
+  QStringList flags;
+  updateFromOptions(opts, "flags", flags);
+
   Vector ppcd = ds->perpendicularCoordinates();
   for(int i = 1; i < ds->nbColumns(); i++) {
     QList<Vector> cols;
@@ -216,6 +219,10 @@ static void expandCommand(const QString &,
       if(!pc.isEmpty())
         s->setMetaData(pc, ppcd[i-1]);
     }
+
+    if(flags.size() > 0)
+      s->setFlags(flags);
+
     
     soas().stack().pushDataSet(s, true);
     if(i > 1)
@@ -229,10 +236,13 @@ static void expandCommand(const QString &,
 
 static ArgumentList 
 expandOpts(QList<Argument *>() 
-             << new StringArgument("perp-meta", 
-                                   "Perpendicular coordinate",
-                                   "Define meta-data from perpendicular coordinate")
-);
+           << new StringArgument("perp-meta", 
+                                 "Perpendicular coordinate",
+                                 "Define meta-data from perpendicular coordinate")
+           << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                         "flags", 
+                                         "Buffers",
+                                         "Buffers to flag/unflag"));
 
 
 static Command 

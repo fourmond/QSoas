@@ -237,6 +237,9 @@ public:
   DataSet(const Vector & x, const Vector & y) {
     columns << x << y;
   };
+  DataSet(const Vector & x, const Vector & y, const Vector & z) {
+    columns << x << y << z;
+  };
 
   /// Returns a version of name without the extension, that can be
   /// used for making up new buffer names from the old ones.

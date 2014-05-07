@@ -183,7 +183,7 @@ public:
       return values[dataset * nbParameters + (index % nbParameters)];
   };
 
-  /// Returns the value of the relative error for the given parameter:
+  /// Returns the value of the \b relative error for the given parameter:
   double getParameterError(int index, int dataset, 
                            double confidenceThreshold = 0.975) const;
 

@@ -70,9 +70,14 @@ void ParametersViewer::makeDatasets()
   int nbparams = parameters->data()->parametersPerDataset();
   for(int i = 0; i < nbparams; i++) {
     Vector y;
-    for(int j = 0; j < nbds; j++)
-      y << parameters->getValue(i, j);
-    DataSet * ds = new DataSet(coords, y);
+    Vector errs;
+    for(int j = 0; j < nbds; j++) {
+      double val = parameters->getValue(i, j);
+      y << val;
+      errs << parameters->getParameterError(i, j) * val;
+    }
+    DataSet * ds = new DataSet(coords, y, errs);
+    ds->options.setYErrors(2);
     ds->name = parameters->data()->parameterDefinitions[i].name;
     datasets << ds;
   }

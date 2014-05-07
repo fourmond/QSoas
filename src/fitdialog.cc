@@ -46,6 +46,8 @@
 #include <fittrajectorydisplay.hh>
 #include <parametersviewer.hh>
 
+#include <curvebrowser.hh>
+
 static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
 
 FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) : 
@@ -1092,7 +1094,65 @@ void FitDialog::setSoftOptions()
 
 void FitDialog::showTransposed()
 {
-  /// Here, 
+  // First, check that all the X values are the same. Else, we don't
+  // show transposed data.
+
+  const Vector & x = data->datasets[0]->x();
+  for(int i = 1; i < data->datasets.size(); i++) {
+    if(data->datasets[i]->x() != x) {
+      // Will wreak havoc is X is NaN, but you shouldn't really have
+      // that in fits anyway.
+      QMessageBox::warning(this, "Operation impossible",
+                           "Cannot show transposed data if X "
+                           "values are not identical");
+      return;
+    }
+  }
+  
+  CurveBrowser dlg(x.size());
+
+  const Vector & nx = parameters.perpendicularCoordinates;
+  
+  for(int i = 0; i < x.size(); i++) {
+    CurveData * dat = new CurveData(nx, nx); // Transposed data
+    CurveData * fit = new CurveData(nx, nx); // Transposed fit
+    CurveData * diff = new CurveData(nx, nx); // Transposed diff
+
+    for(int j = 0; j < data->datasets.size(); j++) {
+      double yval = data->datasets[j]->y()[i];
+      dat->yvalues[j] = yval;
+
+      gsl_vector_view v = data->viewForDataset(j, data->storage);
+      double yfit = gsl_vector_get(&v.vector, i);
+      fit->yvalues[j] = yfit;
+
+      diff->yvalues[j] = yval - yfit;
+    }
+    dat->countBB = true;
+    dat->pen.setColor("#F00");
+
+    fit->pen.setStyle(Qt::DashLine);
+    fit->pen.setColor("#080");
+
+    dlg.view(i)->addItem(dat);
+    dlg.view(i)->addItem(fit);
+
+    diff->pen.setStyle(Qt::DashLine);
+    diff->pen.setColor("#080");
+    diff->countBB = true;
+
+    CurvePanel * bottomPanel = new CurvePanel(); // Leaks memory !
+    bottomPanel->stretch = 30;
+    bottomPanel->drawingXTicks = false;
+    bottomPanel->drawingLegend = false;
+
+    bottomPanel->addItem(diff);
+    dlg.view(i)->addPanel(bottomPanel);
+
+    dlg.setLabel(i, QString("Original X: %1").arg(x[i]));
+  }
+  dlg.setPage(0);
+  dlg.exec();
 }
 
 void FitDialog::showParameters()

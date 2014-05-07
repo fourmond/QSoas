@@ -254,7 +254,8 @@ SOURCES += src/qmain.cc \
         src/gpesprovider.cc \
         src/abdmatrix.cc \
         src/multifitengine.cc \
-        src/parametersviewer.cc
+        src/parametersviewer.cc \
+        src/curvebrowser.cc
 
 
 HEADERS += src/headers.hh \
@@ -354,7 +355,8 @@ HEADERS += src/headers.hh \
         src/factoryargument.hh \
         src/metadataprovider.hh \
         src/abdmatrix.hh \
-        src/parametersviewer.hh
+        src/parametersviewer.hh \
+        src/curvebrowser.hh
 
 
 # We link with the converted ODRPACK library

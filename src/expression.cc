@@ -69,7 +69,13 @@ void Expression::buildArgs()
   rb_hash_aset(argsSafeKeepingHash(), hashKey(), ary);
 
   for(int i = 0; i < variables.size(); i++) {
-    VALUE db = rb_float_new(0);
+    VALUE db = 
+      // Force allocation of a real double for Ruby 2.0 and after
+#ifdef USE_FLONUM
+      rb_float_new_in_heap(0.0);
+#else
+      rb_float_new(0.0);
+#endif
     rb_ary_push(ary, db);
     args[i] = db;
   }

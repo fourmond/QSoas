@@ -67,6 +67,10 @@ public:
   /// Sets the columns for Y errors
   void setYErrors(int col);
 
+  /// Sets the error value for the given dataset. Will throw if not
+  /// possible.
+  void setYError(DataSet * ds, int idx, double value) const;
+
 
   /// If on, the dataset should be shown as histograms.
   bool histogram;

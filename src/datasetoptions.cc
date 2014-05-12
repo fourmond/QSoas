@@ -55,6 +55,13 @@ void DatasetOptions::setYErrors(int col)
   yErrors = col;
 }
 
+void DatasetOptions::setYError(DataSet * ds, int idx, double val) const
+{
+  if(! hasYErrors(ds))
+    return;                     // but should throw ?
+  ds->column(yErrors)[idx] = val;
+}
+
 ArgumentList * DatasetOptions::optionList() 
 {
   return 

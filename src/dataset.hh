@@ -245,14 +245,16 @@ public:
   /// used for making up new buffer names from the old ones.
   QString cleanedName() const;
 
-  /// Adds a new column to the data set.
-  DataSet & operator<<(const Vector & column);
-
   /// Inserts a column at the given position.
   void insertColumn(int idx, const Vector & col) {
     invalidateCache();
     columns.insert(idx, col);
   };
+
+  /// Inserts a columns at the end
+  void appendColumn(const Vector & col) {
+    insertColumn(columns.size(), col);
+  }
 
   /// Inserts a column at the given position.
   Vector takeColumn(int idx) {

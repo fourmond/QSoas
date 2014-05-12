@@ -486,9 +486,10 @@ cu("cursor", // command name
    "Displays cursors on the curve",
    "cu");
 };
+
 //////////////////////////////////////////////////////////////////////
 
-namespace Cut {
+namespace __cut {
   typedef enum {
     LeftPick,
     RightPick,
@@ -583,6 +584,123 @@ namespace Cut {
       "Cuts the current curve",
       "Cuts bits from the current curve",
       "c");
+};
+
+//////////////////////////////////////////////////////////////////////
+
+namespace __ee {
+  typedef enum {
+    LeftPick,
+    RightPick,
+    SetInside,
+    SetOutside,
+    Accept,
+    Abort
+  } EEActions;
+
+  static EventHandler eeHandler = EventHandler("edit-errors").
+    addClick(Qt::LeftButton, LeftPick, "pick left bound").
+    addClick(Qt::RightButton, RightPick, "pick right bound").
+    addKey('i', SetInside, "set error inside").
+    alsoKey('I').
+    addKey('o', SetOutside, "set error outside").
+    alsoKey('O').
+    conventionalAccept(Accept, "done editing").
+    addKey(Qt::Key_Escape, Abort, "cancel");
+
+  static void eeCommand(CurveEventLoop &loop, const QString &)
+  {
+    const DataSet * origDs = soas().currentDataSet();
+    DataSet * ds = origDs->derivedDataSet(origDs->allColumns(), "_edit.dat");
+    const GraphicsSettings & gs = soas().graphicsSettings();
+
+    CurveHorizontalRegion r;
+    CurveView & view = soas().view();
+
+    /// We remove the current display
+    view.clear();
+    CurveDataSet d(ds);
+    d.pen = gs.dataSetPen(0);
+    view.addItem(&r);
+    view.addItem(&d);
+
+    view.mainPanel()->xLabel = "Index";
+
+    loop.setHelpString("Edit errors:\n" + eeHandler.buildHelpString());
+
+    { 
+      Vector & x = ds->x();
+      for(int i = 0; i < x.size(); i++)
+        x[i] = i;
+      r.xleft = 0;
+      r.xright = x.size()-1;
+    }
+
+    if(! ds->options.hasYErrors()) {
+      Vector ne = ds->y();
+      double a,b;
+      ne.stats(&a, &b);
+      b = sqrt(b);
+      Terminal::out << "Deducing error from standard deviation: " << b << endl;
+      for(int i = 0; i < ne.size(); i++)
+        ne[i] = b;
+      ds->appendColumn(ne);
+      ds->options.setYErrors(ds->nbColumns() - 1);
+    }
+
+    while(! loop.finished()) {
+      int act = eeHandler.nextAction(loop);
+      switch(act) {
+      case LeftPick:
+      case RightPick:
+        r.setX(round(loop.position().x()), loop.button());
+        break;
+      case Abort:
+        delete ds;
+        view.addDataSet(origDs);  // To turn its display back on
+        return;
+      case SetInside:
+      case SetOutside: {
+        bool ok = false;
+        QString str = loop.promptForString("Set the error value:", &ok);
+        if(! ok)
+          break;
+        double val = str.toDouble(&ok);
+        if(! ok)
+          break;
+
+        int left = r.xleft;
+        int right = r.xright;
+        if(act == SetInside) {
+          for(int i = left; i < right; i++)
+            ds->options.setYError(ds, i, val);
+        }
+        else {
+          for(int i = 0; i < left; i++)
+            ds->options.setYError(ds, i, val);
+          for(int i = right; i < ds->nbRows(); i++)
+            ds->options.setYError(ds, i, val);
+        }
+        break;
+      }
+      case Accept:
+        ds->x() = origDs->x();
+        soas().pushDataSet(ds);
+        return;
+      default:
+        ;
+      }
+    }
+  }
+
+  static Command 
+  ee("edit-errors", // command name
+     optionLessEffector(eeCommand), // action
+     "buffer",  // group name
+     NULL, // arguments
+     NULL, // options
+     "Edit errors",
+     "Manually edit errors", "...");
 };
 
 //////////////////////////////////////////////////////////////////////

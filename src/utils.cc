@@ -154,6 +154,27 @@ QRectF Utils::scaledAround(const QRectF & rect, const QPointF & point,
   return nr;
 }
 
+
+QRectF Utils::sanitizeRectangle(const QRectF & rect)
+{
+  // See later about NaN
+  QRectF ret(rect);
+  if(ret.width() == 0) {
+    double x = ret.left();
+    ret.setLeft(0.9 * x);
+    ret.setRight(1.1 * x);
+  }
+
+  if(ret.height() == 0) {
+    double y = ret.top();
+    ret.setTop(0.9 * y);
+    ret.setBottom(1.1 * y);
+  }
+  return ret;
+}
+
+
+
 QString Utils::deltaStr(const QString & w)
 {
   QString ret = QChar(0x0394);

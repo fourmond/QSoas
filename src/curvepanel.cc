@@ -53,7 +53,7 @@ QRectF CurvePanel::currentZoom() const
     bbox.setLeft(trackedX.left());
     bbox.setRight(trackedX.right());
   }
-  return bbox;
+  return Utils::sanitizeRectangle(bbox);
 }
 
 void CurvePanel::invalidateTicks()

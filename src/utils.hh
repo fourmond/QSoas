@@ -107,6 +107,12 @@ namespace Utils {
 
   /// @}
 
+  /// @name Geometrical functions
+  ///
+  /// A series of geometry-related utility functions
+  /// 
+  /// @{
+
   /// Dumps the contents of a rectangle to the target stream
   template<typename T, typename Rect> void dumpRectangle(T & stream, 
                                                          Rect & r) {
@@ -121,17 +127,25 @@ namespace Utils {
     return r.adjusted(m.left(), m.top(), -m.right(), -m.bottom());
   };
 
+  /// Returns a new version of the rectangle scaled around the given
+  /// point by the given quantities. The idea is that \p point should
+  /// stay at the same relative position.
+  QRectF scaledAround(const QRectF & rect, const QPointF & point,
+                      double xscale, double yscale);
+
+
+  /// Sanitize a rectangle, i.e. make sure it has a non-zero with and
+  /// height and it does not have NaNs.
+  QRectF sanitizeRectangle(const QRectF & rect);
+
+  /// @}
+
   /// Prompts the user for confirmation for something. For now,
   /// through the use of a dialog box, but that may change some time
   /// later.
   bool askConfirmation(const QString & what, 
                        const QString & title = QString());
 
-  /// Returns a new version of the rectangle scaled around the given
-  /// point by the given quantities. The idea is that \p point should
-  /// stay at the same relative position.
-  QRectF scaledAround(const QRectF & rect, const QPointF & point,
-                      double xscale, double yscale);
 
 
   /// @name File-related functions

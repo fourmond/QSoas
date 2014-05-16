@@ -617,6 +617,7 @@ namespace __ee {
     RightPick,
     SetInside,
     SetOutside,
+    ToggleXValues,
     Accept,
     Abort
   } EEActions;
@@ -628,6 +629,8 @@ namespace __ee {
     alsoKey('I').
     addKey('o', SetOutside, "set error outside").
     alsoKey('O').
+    addKey('x', ToggleXValues, "toggles the use of real X values").
+    addKey('X', ToggleXValues).
     conventionalAccept(Accept, "done editing").
     addKey(Qt::Key_Escape, Abort, "cancel");
 
@@ -659,6 +662,9 @@ namespace __ee {
       r.xright = x.size()-1;
     }
 
+    bool showIndices = true;
+    Vector indices = ds->x();
+
     if(! ds->options.hasYErrors()) {
       Vector ne = ds->y();
       double a,b;
@@ -676,12 +682,16 @@ namespace __ee {
       switch(act) {
       case LeftPick:
       case RightPick:
-        r.setX(round(loop.position().x()), loop.button());
+        r.setX(loop.position().x(), loop.button());
         break;
       case Abort:
         delete ds;
         view.addDataSet(origDs);  // To turn its display back on
         return;
+      case ToggleXValues:
+        ds->x() = showIndices ? origDs->x() : indices;
+        showIndices = ! showIndices;
+        break;
       case SetInside:
       case SetOutside: {
         bool ok = false;
@@ -692,8 +702,9 @@ namespace __ee {
         if(! ok)
           break;
 
-        int left = r.xleft;
-        int right = r.xright;
+        
+        int left, right;
+        r.getClosestIndices(ds->x(), &left, &right, true);
         if(act == SetInside) {
           for(int i = left; i < right; i++)
             ds->options.setYError(ds, i, val);

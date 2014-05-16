@@ -21,6 +21,8 @@
 #include <fittrajectorydisplay.hh>
 #include <exceptions.hh>
 
+#include <utils.hh>
+
 #include <widgets.hh>
 
 class MonteCarloExplorator : public ParameterSpaceExplorator {
@@ -61,7 +63,7 @@ public:
       ParameterRangeEditor * ed = (*editors)[i];
       if(! ed->isVariable())
         continue;
-      double x = random();
+      double x = Utils::random();
 
       x = ed->value(x);
       ed->chosenValue = x;

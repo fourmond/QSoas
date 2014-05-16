@@ -551,3 +551,10 @@ QString Utils::readTextLine(QIODevice * device, bool keepCR)
     ret.append('\n');
   return ret;
 }
+
+double Utils::random()
+{
+  double x = ::rand() * 1.0/RAND_MAX;
+  /// @todo add more entropy ?
+  return x;
+}

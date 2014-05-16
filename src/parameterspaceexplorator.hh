@@ -72,13 +72,6 @@ protected:
   /// a storage space for the editors
   QList<ParameterRangeEditor*> * editors;
 
-  /// Random number generation.
-  ///
-  /// @todo This may eventually provide access to GSL's random number
-  /// generators ? (maybe we should wrap random number generators into
-  /// general purpose C++ classes ?)
-  double random();
-
 public:
 
   /// Creates the parameter space exploration

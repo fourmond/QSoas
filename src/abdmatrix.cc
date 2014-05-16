@@ -292,7 +292,7 @@ TestStuff::TestStuff() {
     int max = (i == 0 ? w : curr + ps[i]);
     for(int j = 0; j < sizes[i]; j++) {
       for(int k = curr; k < max; k++)
-        gsl_matrix_set(m, k, curc + j, drand48());
+        gsl_matrix_set(m, k, curc + j, Utils::random());
     }
     curc += sizes[i];
     curr += ps[i];
@@ -319,7 +319,7 @@ TestStuff::TestStuff() {
 
   // Initialize the RHS vector:
   for(int i = 0; i < h; i++)
-    gsl_vector_set(v1, i, drand48());
+    gsl_vector_set(v1, i, Utils::random());
 
   gsl_vector_memcpy(v2, v1);
   str = Utils::vectorString(v1);

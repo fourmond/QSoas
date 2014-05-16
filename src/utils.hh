@@ -183,6 +183,9 @@ namespace Utils {
 
   /// @}
 
+  /// Returns a random number between 0.0 and 1.0
+  double random();
+
 
   /// @name GSL-related functions
   ///

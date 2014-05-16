@@ -85,8 +85,3 @@ void ParameterSpaceExplorator::resultingTrajectory(const FitTrajectory & )
   // no-op
 }
 
-double ParameterSpaceExplorator::random()
-{
-  double x = ::rand() * 1.0/RAND_MAX;
-  return x;
-}

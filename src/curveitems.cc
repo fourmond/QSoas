@@ -38,6 +38,8 @@ void CurveLine::paint(QPainter * painter, const QRectF &,
   painter->restore();
 }
 
+//////////////////////////////////////////////////////////////////////
+
 void CurveVerticalLine::paint(QPainter * painter, const QRectF & bbox,
                               const QTransform & ctw)
 {
@@ -60,6 +62,8 @@ void CurveVerticalLines::paint(QPainter * painter, const QRectF & bbox,
   }
   painter->restore();
 }
+
+//////////////////////////////////////////////////////////////////////
 
 CurveHorizontalRegion::CurveHorizontalRegion() :
   autoSwap(false)
@@ -99,6 +103,14 @@ double CurveHorizontalRegion::xmax() const
   return xleft;
 }
 
+void CurveHorizontalRegion::getClosestIndices(const Vector & xvalues, int * left, int * right, bool ensureGrowing) const
+{
+  *left = xvalues.closestPoint(xleft);
+  *right = xvalues.closestPoint(xright);
+  if(ensureGrowing && (*left > *right))
+    std::swap(*left, *right);
+}
+
 
 void CurveHorizontalRegion::paint(QPainter * painter, const QRectF & bbox,
                                   const QTransform & ctw)
@@ -112,6 +124,8 @@ void CurveHorizontalRegion::paint(QPainter * painter, const QRectF & bbox,
                                    xright, bbox.bottom())));
   painter->restore();
 }
+
+//////////////////////////////////////////////////////////////////////
 
 void CurveRectangle::paint(QPainter * painter, const QRectF &,
                            const QTransform & ctw)
@@ -131,6 +145,8 @@ void CurveRectangle::setRect(const QRectF & r)
   p1 = r.topLeft();
   p2 = r.bottomRight();
 }
+
+//////////////////////////////////////////////////////////////////////
 
 QRectF CurveData::boundingRect() const
 {

@@ -86,6 +86,12 @@ public:
 
   virtual void paint(QPainter * painter, const QRectF & bbox,
                      const QTransform & curveToWidget);
+
+  /// Finds the indices of the points closest to the current values.
+  ///
+  /// @todo In due time, use caching ? (but that's in Vector)
+  void getClosestIndices(const Vector & xvalues, int * left, int * right, 
+                         bool ensureGrowing = false) const;
 };
 
 /// A rectangle

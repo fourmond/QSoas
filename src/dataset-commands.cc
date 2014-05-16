@@ -494,6 +494,7 @@ namespace __cut {
     LeftPick,
     RightPick,
     SelectInside,
+    ToggleXValues,
     SelectOutside,
     RemoveInside,
     Abort
@@ -507,6 +508,8 @@ namespace __cut {
     addKey('U', SelectOutside).
     addKey('r', RemoveInside, "remove inside and go on").
     addKey('R', RemoveInside).
+    addKey('x', ToggleXValues, "toggles the use of real X values").
+    addKey('X', ToggleXValues).
     addKey(Qt::Key_Escape, Abort, "cancel");
 
   static void cutCommand(CurveEventLoop &loop, const QString &)
@@ -521,6 +524,7 @@ namespace __cut {
     /// We remove the current display
     view.clear();
     CurveData d;
+    Vector indices;
     view.addItem(&r);
     view.addItem(&d);
 
@@ -532,20 +536,30 @@ namespace __cut {
 
     d.countBB = true;
     d.yvalues = ds->y();
-    d.xvalues = d.yvalues;
-    for(int i = 0; i < d.xvalues.size(); i++)
-      d.xvalues[i] = i;
+    indices = d.yvalues;
+    for(int i = 0; i < indices.size(); i++)
+      indices[i] = i;
+    d.xvalues = indices;
     r.xleft = 0;
     r.xright = d.xvalues.size()-1;
+
+    bool showIndices = true;
+    bool hasChanged = false;    // whether the selection changed or not
+
+    int left;
+    int right;
 
     while(! loop.finished()) {
       switch(cutHandler.nextAction(loop)) {
       case SelectInside: 
-        soas().pushDataSet(ds->subset(r.xleft, r.xright, true));
+        r.getClosestIndices(showIndices ? indices : ds->x(), &left, &right);
+        soas().pushDataSet(hasChanged ? ds->subset(left, right, true) : 
+                           new DataSet(*ds));
         return;
       case LeftPick:
       case RightPick:
-        r.setX(round(loop.position().x()), loop.button());
+        hasChanged = true;
+        r.setX(loop.position().x(), loop.button());
         break;
       case Abort:
         if(ds != origDs)
@@ -553,20 +567,29 @@ namespace __cut {
         view.addDataSet(origDs);  // To turn its display back on
         return;
       case SelectOutside:
-        soas().pushDataSet(ds->subset(r.xleft, r.xright, false));
+        r.getClosestIndices(showIndices ? indices : ds->x(), &left, &right);
+        soas().pushDataSet(ds->subset(left, right, false));
         return;
+      case ToggleXValues:
+        d.xvalues = showIndices ? ds->x() : indices;
+        showIndices = ! showIndices;
+        break;
       case RemoveInside: {
-        DataSet * nds = ds->subset(r.xleft, r.xright, false);
+        r.getClosestIndices(showIndices ? indices : ds->x(), &left, &right);
+        DataSet * nds = ds->subset(left, right, false);
         nds->name = origDs->cleanedName() + "_perf.dat";
         if(ds != origDs)
           delete ds;
         ds = nds;
         d.yvalues = ds->y();
-        d.xvalues = d.yvalues;
-        for(int i = 0; i < d.xvalues.size(); i++)
-          d.xvalues[i] = i;
-        r.xleft = 0;
-        r.xright = d.xvalues.size()-1;
+        indices = d.yvalues;
+        for(int i = 0; i < indices.size(); i++)
+          indices[i] = i;
+        d.xvalues = showIndices ? indices : ds->x();
+        r.xleft = d.xvalues[0];
+        r.xright = d.xvalues.last();
+        hasChanged = false;
+        break;
       }
       default:
         ;

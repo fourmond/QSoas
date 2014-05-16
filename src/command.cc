@@ -541,12 +541,15 @@ QString Command::commandSpec() const
       ret += " - " + arg->argumentName() + 
         (arg->greedy ? "..." : "") + "\n";
     }
-  if(options)
-    for(int i = 0; i < options->size(); i++) {
-      Argument * arg = (*options)[i];
+  if(options) {
+    QStringList an = options->argumentNames();
+    qSort(an);
+    for(int i = 0; i < an.size(); i++) {
+      Argument * arg = options->namedArgument(an[i]);
       ret += " - /" + arg->argumentName() + 
         (arg->defaultOption ? "*" : "") + "\n";
-    } 
+    }
+  }
   return ret;
 }
 

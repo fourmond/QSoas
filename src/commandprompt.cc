@@ -27,9 +27,9 @@
 
 #include <terminal.hh>
 
-CommandPrompt::CommandPrompt() : nbSuccessiveTabs(0), lastTab(false), 
-                                 historyItem(-1)
+CommandPrompt::CommandPrompt() : nbSuccessiveTabs(0), lastTab(false)
 {
+  autoSaveHistory = false;
 }
 
 CommandPrompt::~CommandPrompt()
@@ -97,25 +97,6 @@ void CommandPrompt::keyPressEvent(QKeyEvent * event)
     doHistoryExpansion();       // Dead useful
     doCompletion();
     break;
-  case Qt::Key_Up: 
-    event->accept();
-    if(historyItem < 0)
-      savedLine = text();
-    if(historyItem + 1 < savedHistory.size()) {
-      historyItem++;
-      setText(savedHistory[historyItem]);
-    }
-    break;
-  case Qt::Key_Down:
-    event->accept();
-    if(historyItem < 0)
-      break;
-    historyItem--;
-    if(historyItem >= 0)
-      setText(savedHistory[historyItem]);
-    else
-      setText(savedLine);
-    break;
   case Qt::Key_PageUp:
     event->accept();
     emit(scrollRequested(event->modifiers() & Qt::ControlModifier ? -8 : -1));
@@ -124,36 +105,11 @@ void CommandPrompt::keyPressEvent(QKeyEvent * event)
     event->accept();
     emit(scrollRequested(event->modifiers() & Qt::ControlModifier ? 8 : 1));
     break;
-  case Qt::Key_Enter:
-  case Qt::Key_Return:
-    historyItem = -1;         // Reset history.
-    doHistoryExpansion();
   default:
-    QLineEdit::keyPressEvent(event);
+    LineEdit::keyPressEvent(event);
   }
   lastTab = (event->key() == Qt::Key_Tab);
 }
-
-void CommandPrompt::addHistoryItem(const QString & str)
-{
-  savedHistory.prepend(str);
-}
-
-QStringList CommandPrompt::historyMatching(const QString & str) const
-{
-  return Utils::stringsStartingWith(savedHistory, str);
-}
-
-void CommandPrompt::doHistoryExpansion()
-{
-  QString curText = text();
-  if(curText[0] == QChar('!')) {
-    QStringList matching = historyMatching(curText.mid(1));
-    if(matching.size() >= 1) 
-      setText(matching.first());
-  }
-}
-
 
 CommandPrompt::CompletionContext CommandPrompt::getCompletionContext() const
 {

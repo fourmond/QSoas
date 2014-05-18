@@ -21,10 +21,12 @@
 #ifndef __COMMANDPROMPT_HH
 #define __COMMANDPROMPT_HH
 
+#include <lineedit.hh>
+
 /// A QLineEdit with automatic completion and history facilities.
 ///
 /// Think of it as a Qt version of readline...
-class CommandPrompt : public QLineEdit {
+class CommandPrompt : public LineEdit {
 
   Q_OBJECT;
 
@@ -37,15 +39,6 @@ class CommandPrompt : public QLineEdit {
 
   /// The current completions
   QStringList completions;
-
-  /// Saved history, by reverse order of age (0 = most recent)
-  QStringList savedHistory;
-
-  /// The last history item used.
-  int historyItem;
-
-  /// Saving the currently edited line when recalling history
-  QString savedLine;
 
   /// Internal class to represent the current completion context
   class CompletionContext {
@@ -84,9 +77,6 @@ class CommandPrompt : public QLineEdit {
   void replaceWord(const CompletionContext & c, const QString & str, 
                    bool full = true);
 
-  /// Perform history substitution
-  void doHistoryExpansion();
-
   /// Performs automatic completion.
   void doCompletion();
 
@@ -95,18 +85,6 @@ public:
   CommandPrompt();
   virtual ~CommandPrompt();
 
-  /// Returns the list of history elements starting with the given
-  /// string.
-  QStringList historyMatching(const QString & str) const;
-
-  /// Returns the whole history.
-  QStringList history() const {
-    return savedHistory;
-  };
-
-
-public slots:
-  void addHistoryItem(const QString & str);
 
 protected:
   virtual void keyPressEvent(QKeyEvent * event);

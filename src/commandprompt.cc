@@ -29,7 +29,6 @@
 
 CommandPrompt::CommandPrompt() : nbSuccessiveTabs(0), lastTab(false)
 {
-  autoSaveHistory = false;
 }
 
 CommandPrompt::~CommandPrompt()

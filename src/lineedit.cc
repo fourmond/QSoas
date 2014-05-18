@@ -28,9 +28,8 @@
 
 #include <terminal.hh>
 
-LineEdit::LineEdit() : historyItem(-1), autoSaveHistory(true)
+LineEdit::LineEdit() : historyItem(-1)
 {
-  connect(this, SIGNAL(returnPressed()), SLOT(recordHistory()));
 }
 
 LineEdit::~LineEdit()
@@ -40,7 +39,6 @@ LineEdit::~LineEdit()
 
 void LineEdit::keyPressEvent(QKeyEvent * event)
 {
-
   switch(event->key()) {
   case Qt::Key_Up: 
     event->accept();
@@ -72,8 +70,8 @@ void LineEdit::keyPressEvent(QKeyEvent * event)
 
 void LineEdit::recordHistory()
 {
-  if(autoSaveHistory)
-    addHistoryItem(text());
+  addHistoryItem(text());
+  historyItem = -1;
 }
 
 void LineEdit::addHistoryItem(const QString & str)

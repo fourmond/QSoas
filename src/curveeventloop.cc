@@ -21,6 +21,7 @@
 #include <curveview.hh>
 #include <soas.hh>
 #include <commandwidget.hh>
+#include <lineedit.hh>
 #include <dataset.hh>
 
 #include <terminal.hh>
@@ -189,6 +190,7 @@ bool CurveEventLoop::eventFilter(QObject *, QEvent * event)
         case Qt::Key_Return:
         case Qt::Key_Enter:
           promptOK = true;
+          prompt->recordHistory(); // has to be done manually...
         case Qt::Key_Escape:
           inputText = prompt->text();
           prompt = NULL;

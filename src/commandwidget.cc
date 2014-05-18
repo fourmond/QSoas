@@ -104,7 +104,7 @@ CommandWidget::CommandWidget() :
           SLOT(scrollTerminal(int)));
   h1->addWidget(commandLine);
 
-  restrictedPrompt = new QLineEdit;
+  restrictedPrompt = new LineEdit;
   h1->addWidget(restrictedPrompt);
   
 
@@ -230,7 +230,7 @@ void CommandWidget::setSideBarLabel(const QString & str)
   sideBarLabel->setText(str);
 }
 
-QLineEdit * CommandWidget::enterPromptMode(const QString & prompt, 
+LineEdit * CommandWidget::enterPromptMode(const QString & prompt, 
                                            const QString & init)
 {
   commandLine->setVisible(false);

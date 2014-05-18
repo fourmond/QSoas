@@ -24,6 +24,7 @@
 class CurveView;
 class DataSet;
 class CurvePanel;
+class LineEdit;
 #include <command.hh>
 
 /// Inner event loop for use with CurveView
@@ -78,7 +79,7 @@ class CurveEventLoop : public QObject {
 
   bool done;
 
-  QLineEdit * prompt;
+  LineEdit * prompt;
 
   bool promptOK;
   QString inputText;

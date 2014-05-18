@@ -37,10 +37,6 @@ protected:
   /// Saving the currently edited line when recalling history
   QString savedLine;
 
-  /// Wether we save history automatically.
-  bool autoSaveHistory;
-
-
   /// Perform history substitution
   void doHistoryExpansion();
 
@@ -64,12 +60,10 @@ public:
 
 public slots:
   void addHistoryItem(const QString & str);
+  void recordHistory();
 
 protected:
   virtual void keyPressEvent(QKeyEvent * event);
-
-protected slots:
-  void recordHistory();
 
 };
 

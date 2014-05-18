@@ -22,6 +22,7 @@
 #define __COMMANDWIDGET_HH
 
 class CommandPrompt;
+class LineEdit;
 
 /// A widget that accepts commands, and display their result, a
 /// successor for the terminal in the old Soas.
@@ -57,7 +58,7 @@ class CommandWidget : public QWidget {
   QLabel * promptLabel;
 
   /// The restricted prompt:
-  QLineEdit * restrictedPrompt;
+  LineEdit * restrictedPrompt;
 
   /// The CommandWidget that will receive log (Terminal) messages, ie
   /// the first one to be created.
@@ -101,8 +102,8 @@ public:
   void setSideBarLabel(const QString & str);
 
   /// Enter the inner prompting mode
-  QLineEdit * enterPromptMode(const QString & prompt, 
-                              const QString & init = "");
+  LineEdit * enterPromptMode(const QString & prompt, 
+                             const QString & init = "");
 
   /// Leave the inner prompting mode
   void leavePromptMode();

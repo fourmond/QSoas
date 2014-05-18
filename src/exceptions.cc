@@ -42,6 +42,8 @@ QString Exception::message() const throw()
 }
 
 
+// for now, we brutally remove message handling in Qt5
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 static void qtMessageHandler(QtMsgType type, const char *msg)
 {
   switch (type) {
@@ -59,10 +61,13 @@ static void qtMessageHandler(QtMsgType type, const char *msg)
     throw InternalError(QString("Fatal error: %1").arg(msg));
   }
 }
+#endif
 
 void Exception::setupQtMessageHandler()
 {
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
   qInstallMsgHandler(&qtMessageHandler);
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////

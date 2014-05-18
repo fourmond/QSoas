@@ -103,6 +103,16 @@ QStringList Utils::stringsStartingWith(const QStringList & strings,
   return ret;
 }
 
+QString Utils::escapeHTML(const QString & str)
+{
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
+  return Qt::escape(str);
+#else
+  return str.toHtmlEscaped();
+#endif
+}
+
+
 QString Utils::commonBeginning(const QStringList & strings)
 {
   if(! strings.size())

@@ -20,6 +20,7 @@
 #include <headers.hh>
 #include <formattedstring.hh>
 
+#include <utils.hh>
 
 /// Represents plain text
 class FSPlainText : public FormattedString {
@@ -35,7 +36,7 @@ public:
   };
 
   virtual QString toHTML() const {
-    return Qt::escape(text);
+    return Utils::escapeHTML(text);
   };
 
   virtual QString toLaTeX() const {
@@ -68,7 +69,7 @@ public:
   };
 
   virtual QString toHTML() const {
-    return Qt::escape(text);    /// @todo Quote + markup
+    return Utils::escapeHTML(text);    /// @todo Quote + markup
   };
 
   virtual QString toLaTeX() const {

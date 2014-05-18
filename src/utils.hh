@@ -46,7 +46,7 @@ namespace Utils {
                    bool trim = true, bool isDir = false);
 
 
-  /// @name String-related functiosn
+  /// @name String-related functions
   ///
   /// A series of functions dealing with strings
   ///
@@ -105,6 +105,9 @@ namespace Utils {
                              int group = 0);
 
 
+  /// Escapes HTML special codes from within the string
+  QString escapeHTML(const QString & str);
+  
   /// @}
 
   /// @name Geometrical functions

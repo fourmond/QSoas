@@ -69,6 +69,11 @@ public:
   /// Returns a name suitable to describe the current spline type
   static QString typeName(Type type);
 
+  /// Returns all interpolation types in a format suitable for
+  /// TemplateChoiceArgument
+  static QHash<QString, Type> interpolationTypes();
+
+
   /// Computes the values for the given X vector.
   ///
   /// Returns an empty vector if there wasn't enough points to compute

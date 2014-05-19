@@ -154,6 +154,19 @@ Spline::Type Spline::nextType(Spline::Type type)
   return (Type) t;
 }
 
+
+
+QHash<QString, Spline::Type> Spline::interpolationTypes()
+{
+  Type t = Linear;
+  QHash<QString, Spline::Type> ret;
+  do {
+    ret[typeName(t)] = t;
+    t = nextType(t);
+  } while(t != Linear);
+  return ret;
+}
+
 QString Spline::typeName(Spline::Type type)
 {
   switch(type) {

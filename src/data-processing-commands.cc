@@ -23,6 +23,7 @@
 #include <group.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
+#include <argument-templates.hh>
 #include <terminal.hh>
 
 #include <dataset.hh>
@@ -619,6 +620,7 @@ static void interpolateCommand(const QString &,
     s.insert(nodes->pointAt(i));
 
   Spline::Type type = Spline::CSpline;
+  updateFromOptions(opts, "type", type);
   
   Vector ny = s.evaluate(ds->x(), type);
 
@@ -635,12 +637,19 @@ intArgs(QList<Argument *>()
                                      "Nodes",
                                      "Interpolation nodes X/Y values"));
 
+static ArgumentList 
+intOpts(QList<Argument *>() 
+        << new TemplateChoiceArgument<Spline::Type>
+        (Spline::interpolationTypes(),"type", 
+         "Type",
+         "Interpolation type"));
+
 static Command 
 interpolate("interpolate", // command name
             effector(interpolateCommand), // action
             "buffer",  // group name
             &intArgs, // arguments
-            NULL, // options
+            &intOpts, // options
             "Interpolate",
             "Recompute interpolation with given nodes",
             "...");

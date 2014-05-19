@@ -49,3 +49,17 @@
 ## Others
 * flip all columns in one go with [cmd: tweak-columns]'s `flip` option
 * various bug fixes
+
+# November/December 2013
+
+## Fits
+
+* [cmd: fit-gaussian] and [cmd: fit-lorentzian] peak fits
+* change the name of the linear combination parameters for 
+  [cmd: fit-kinetic-system] from i_A to y_A
+
+## Others
+
+* a [cmd: run-for-datasets] command to run scripts on datasets already
+  present in the stack
+* many bug fixes

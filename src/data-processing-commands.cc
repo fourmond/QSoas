@@ -34,6 +34,7 @@
 #include <curveitems.hh>
 #include <curvepanel.hh>
 #include <math.h>
+#include <datastack.hh>
 
 #include <utils.hh>
 #include <outfile.hh>
@@ -429,7 +430,9 @@ typedef enum {
   Add10Left,
   Add10Right,
   Add20Everywhere,
-  ClearAll,
+  QuitSavingPoints,
+  LoadExact,
+  LoadXValues,
   Abort
 } BaselineActions;
 
@@ -443,6 +446,10 @@ static EventHandler baselineHandler = EventHandler("baseline").
   addKey('0', Add20Everywhere, "add 20 regularly spaced").
   addKey('t', CycleSplineType, "cycle interpolation types").
   alsoKey('T').
+  addKey('l', LoadXValues, "load X values from buffer").
+  addKey('L', LoadExact, "load X/Y values from buffer").
+  addKey('p', QuitSavingPoints, "quit saving interpolation points").
+  alsoKey('P').
   addKey(Qt::Key_Escape, Abort, "abort");
   
 
@@ -504,6 +511,29 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
       case Abort:
         chrg.cancel = true;
         return;
+      case QuitSavingPoints: {
+        DataSet * nds = ds->derivedDataSet(m.points, "_bl_points.dat");
+        soas().pushDataSet(nds);
+        return;
+      }
+      case LoadExact: {
+        bool ok;
+        QString str = loop.promptForString("Load from buffer number: ", &ok);
+        if(ok) {
+          int nb = str.toInt(&ok);
+          if(!ok)
+            break;
+          const DataSet * base = soas().stack().numberedDataSet(nb);
+          if(! base) {
+            Terminal::out << "Invalid buffer number: " << nb << endl;
+            break;
+          }
+          s.clear();
+          for(int i = 0; i < base->nbRows(); i++)
+            s.insert(base->pointAt(i));
+          needCompute = true;
+        }
+      }
       case CycleSplineType:
         type = Spline::nextType(type);
         Terminal::out << "Now using interpolation: " 

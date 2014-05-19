@@ -139,6 +139,11 @@ public:
   DataSet * derivedDataSet(const QList<Vector> &newCols, 
                            const QString & suffix) const;
 
+  
+  /// Creates a derived dataset based on a list of Qt points.
+  DataSet * derivedDataSet(const QList<QPointF> &newCols, 
+                           const QString & suffix) const;
+
   /// The name of the dataset, usually the name of the file.
   QString name;
 

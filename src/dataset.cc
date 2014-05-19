@@ -912,6 +912,22 @@ DataSet * DataSet::derivedDataSet(const Vector &newy,
   return derivedDataSet(newCols, suffix);
 }
 
+DataSet * DataSet::derivedDataSet(const QList<QPointF> &points, 
+                                  const QString & suffix) const
+{
+  Vector nx;
+  Vector ny;
+  for(int i = 0; i < points.size(); i++) {
+    const QPointF & pt = points[i];
+    nx << pt.x();
+    ny << pt.y();
+  }
+  QList<Vector> nc;
+  nc << nx << ny;
+  return derivedDataSet(nc, suffix);
+}
+
+
 void DataSet::firstDerivative(const double *x, int xstride, 
                               const double *y, int ystride, 
                               double * target, int tstride,

@@ -109,7 +109,7 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
 
 
   setupFrame();
-  setFitEngineFactory(FitEngine::defaultFactoryItem());
+  setFitEngineFactory(FitEngine::defaultFactoryItem(data->datasets.size()));
 
   if(data->fit->hasSubFunctions())
     displaySubFunctions = data->fit->displaySubFunctions();

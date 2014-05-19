@@ -49,13 +49,15 @@ FitEngineFactoryItem * FitEngine::namedFactoryItem(const QString & name)
   return FitEngineFactoryItem::namedItem(name);
 }
 
-FitEngineFactoryItem * FitEngine::defaultFactoryItem()
+FitEngineFactoryItem * FitEngine::defaultFactoryItem(int nb)
 {
   // For now, it fails on mac, so we don't use it.
-  FitEngineFactoryItem * it = namedFactoryItem("odrpack");
-  if(it)
-    return it;
-  return namedFactoryItem("lmsder"); // For now
+  if(nb < 4) {
+    FitEngineFactoryItem * it = namedFactoryItem("odrpack");
+    if(it)
+      return it;
+  }
+  return namedFactoryItem("qsoas"); 
 }
 
 bool FitEngine::handlesWeights() const

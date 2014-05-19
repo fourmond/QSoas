@@ -95,8 +95,9 @@ public:
   /// Returns the named factory item - or NULL if there isn't.
   static FitEngineFactoryItem * namedFactoryItem(const QString & name);
 
-  /// Returns the default factory item.
-  static FitEngineFactoryItem * defaultFactoryItem();
+  /// Returns the default factory item for the given number of
+  /// buffers.
+  static FitEngineFactoryItem * defaultFactoryItem(int nb = 1);
 
   /// Initialize the fit engine and set the initial parameters
   virtual void initialize(const double * initialGuess) = 0;

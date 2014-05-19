@@ -607,6 +607,47 @@ bsl("baseline", // command name
     "b");
 }
 
+
+//////////////////////////////////////////////////////////////////////
+
+static void interpolateCommand(const QString &, 
+                               DataSet * ds,
+                               DataSet * nodes, const CommandOptions & opts)
+{
+  Spline s;
+  for(int i = 0; i < nodes->nbRows(); i++)
+    s.insert(nodes->pointAt(i));
+
+  Spline::Type type = Spline::CSpline;
+  
+  Vector ny = s.evaluate(ds->x(), type);
+
+  DataSet * nds = ds->derivedDataSet(ny, "_int.dat");
+  soas().pushDataSet(nds);
+}
+
+static ArgumentList 
+intArgs(QList<Argument *>() 
+              << new DataSetArgument("xvalues", 
+                                     "X values",
+                                     "Base for X values")
+              << new DataSetArgument("nodes", 
+                                     "Nodes",
+                                     "Interpolation nodes X/Y values"));
+
+static Command 
+interpolate("interpolate", // command name
+            effector(interpolateCommand), // action
+            "buffer",  // group name
+            &intArgs, // arguments
+            NULL, // options
+            "Interpolate",
+            "Recompute interpolation with given nodes",
+            "...");
+
+
+
+
 //////////////////////////////////////////////////////////////////////
 
 

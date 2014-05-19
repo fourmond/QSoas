@@ -58,6 +58,19 @@ public:
     catch(const RuntimeError & re) {
       return ret;
     }
+    // Common stuff, date:
+    
+    // Try to parse dates...
+    //QDate date = QDate::fromString(lines[202]);
+    QTime time = QTime::fromString(lines[203]);
+    // QDateTime dt(date, time);
+    // ret["exp-date"] = dt;
+    ret["exp-time"] = time;
+    ret["title"] = lines[210];
+    ret["comments"] = lines[211] + lines[212];
+    ret["gpes_file"] = lines[224];
+    
+    
     
     switch(mf[mf.size()-2].toLatin1()) {
     case 'c': {                 // staircase voltammetry

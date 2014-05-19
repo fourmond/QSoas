@@ -58,6 +58,30 @@ void PointPicker::addToHandler(EventHandler & handler)
     alsoKey('S');
 }
 
+void PointPicker::pickAt(int idx)
+{
+  if(method == Off) {
+    lastPos = QPointF();
+    lastIndex = -1;
+  } else {
+    if(trackedDataSet) {
+      lastIndex = idx;
+      if(method == Exact)
+        lastPos = trackedDataSet->pointAt(lastIndex);
+      else if(method == Smooth)
+        lastPos = trackedDataSet->smoothPick(lastIndex);
+    }
+  }
+}
+
+void PointPicker::pickAtX(double x)
+{
+  if(! trackedDataSet)
+    return;
+  int idx = trackedDataSet->x().closestPoint(x);
+  pickAt(idx);
+}
+
 void PointPicker::pickPoint()
 {
   switch(method) {
@@ -68,20 +92,9 @@ void PointPicker::pickPoint()
   case Exact:
   case Smooth:
     if(trackedDataSet) {
-      /// @todo distance checking ?
-      ///
       /// @todo handle the case of multiple datasets.
       QPair<double, int> dst = loop->distanceToDataSet(trackedDataSet);
-      if(0 <= dst.second) { 
-        if(method == Exact) {
-          lastIndex = dst.second;
-          lastPos = trackedDataSet->pointAt(lastIndex);
-        }
-        else {
-          lastIndex = dst.second;
-          lastPos = trackedDataSet->smoothPick(lastIndex);
-        }
-      }
+      pickAt(dst.second);
       break;
     }
   }

@@ -121,6 +121,12 @@ public:
   /// values of point() and pointIndex().
   void pickPoint();
 
+  /// Picks the point at the given index, using the current method.
+  void pickAt(int idx);
+
+  /// Picks the point closest to the given value of X
+  void pickAtX(double x);
+
   /// Picks a number of points between the given indices.
   QList<QPointF> pickBetween(int firstIndex, int lastIndex, int number);
   

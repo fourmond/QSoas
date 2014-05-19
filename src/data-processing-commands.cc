@@ -516,7 +516,8 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
         soas().pushDataSet(nds);
         return;
       }
-      case LoadExact: {
+      case LoadExact:
+      case LoadXValues: {
         bool ok;
         QString str = loop.promptForString("Load from buffer number: ", &ok);
         if(ok) {
@@ -529,8 +530,14 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
             break;
           }
           s.clear();
-          for(int i = 0; i < base->nbRows(); i++)
-            s.insert(base->pointAt(i));
+          for(int i = 0; i < base->nbRows(); i++) {
+            if(action == LoadExact)
+              s.insert(base->pointAt(i));
+            else {
+              pick.pickAtX(base->x()[i]);
+              s.insert(pick.point());
+            }
+          }
           needCompute = true;
         }
       }

@@ -136,7 +136,8 @@ public:
 
   /// Returns the distance of the current position to the dataset, in
   /// screen units.
-  QPair<double, int> distanceToDataSet(const DataSet * ds);
+  QPair<double, int> distanceToDataSet(const DataSet * ds, 
+                                       const QPointF & scale = QPointF());
 
   /// Sets the help string for the loop (ie the text displayed at the
   /// right of the terminal)

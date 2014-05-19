@@ -225,10 +225,15 @@ QString CurveEventLoop::promptForString(const QString & pr, bool * ok,
   return (promptOK ? inputText : QString());
 }
 
-QPair<double, int> CurveEventLoop::distanceToDataSet(const DataSet * ds)
+QPair<double, int> CurveEventLoop::distanceToDataSet(const DataSet * ds, 
+                                                     const QPointF & scale)
 {
   /// @todo Be carefull when using several datasets ?
   QPointF scales = view->panel.scaleFactors();
+  if(! scale.isNull()) {
+    scales.setX(scales.x() * scale.x());
+    scales.setY(scales.y() * scale.y());
+  }
   return ds->distanceTo(position(), scales.x(), scales.y());
 }
 

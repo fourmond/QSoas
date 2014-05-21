@@ -14,6 +14,18 @@ src/build.hh
 
 # generated files
 qrc_*.cpp
+*.html
+*.tex
+*.aux
+*.pdf
+*.png
+*.ico
+*.new.c
+*.icns
+*.out
+*.ppd.kd
+*.log
 
 # soas logs:
 soas.log
+out.dat

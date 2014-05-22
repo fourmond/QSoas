@@ -204,6 +204,11 @@ bool CurveEventLoop::eventFilter(QObject *, QEvent * event)
         return true;
       }
     }
+
+    // Prevent close events in the loop, it's a mess.
+  case QEvent::Close:
+    event->ignore();
+    return true;
   default:
     return false;               // Propagate other events
   }

@@ -537,6 +537,8 @@ bool FitData::independentDataSets() const
 void FitData::recomputeJacobian()
 {
   covarIsOK = false;
+  if(! engine)
+    throw InternalError("Must have an engine for computing the errors");
   engine->recomputeJacobian();
 }
 

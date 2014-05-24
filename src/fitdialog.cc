@@ -310,12 +310,15 @@ void FitDialog::setupFrame()
   ac->addAction("Save to file (for reusing later)", 
                 this, SLOT(saveParameters()),
                 QKeySequence(tr("Ctrl+S")));
-  ac->addAction("Export (for drawing/manipulating)", 
-                this, SLOT(exportParameters()),
-                QKeySequence(tr("Ctrl+X")));
   if(data->datasets.size() > 1)
     ac->addAction("Show parameters", 
                   this, SLOT(showParameters()));
+  ac->addAction("Export (for drawing/manipulating)", 
+                this, SLOT(exportParameters()),
+                QKeySequence(tr("Ctrl+X")));
+  ac->addAction("Export with errors", 
+                this, SLOT(exportParametersWithErrors()),
+                QKeySequence(tr("Ctrl+Shift+X")));
   ac->addAction("Export to output file", this, 
                 SLOT(exportToOutFile()),
                 QKeySequence(tr("Ctrl+O")));
@@ -818,7 +821,8 @@ void FitDialog::setParameterValue(const QString & name, double value, int ds)
 
 
 
-void FitDialog::exportParameters()
+
+void FitDialog::promptExport(bool errors)
 {
   QString save = 
     QFileDialog::getSaveFileName(this, tr("Export parameters"));
@@ -830,8 +834,18 @@ void FitDialog::exportParameters()
   if(! f.open(QIODevice::WriteOnly))
     return;                     /// @todo Signal !
 
-  parameters.exportParameters(&f);
+  parameters.exportParameters(&f, errors);
   Terminal::out << "Exported fit parameters to file " << save << endl;
+}
+
+void FitDialog::exportParametersWithErrors()
+{
+  promptExport(true);
+}
+
+void FitDialog::exportParameters()
+{
+  promptExport(false);
 }
 
 void FitDialog::exportToOutFile()

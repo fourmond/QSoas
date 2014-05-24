@@ -155,6 +155,9 @@ protected:
   /// Appends the given text to the current message
   void appendToMessage(const QString & str, bool format = false);
 
+  /// Exports to a file after prompting for a name
+  void promptExport(bool withErrors);
+
 
 public:
   FitDialog(FitData * data, bool displayWeights = false, 
@@ -256,6 +259,10 @@ protected slots:
   /// Exports parameters to a file, losing information about their
   /// state (global and/or fixed)
   void exportParameters();
+
+  /// Exports parameters to a file, losing information about their
+  /// state (global and/or fixed)
+  void exportParametersWithErrors();
 
   /// Exports parameters to the current output file
   void exportToOutFile();

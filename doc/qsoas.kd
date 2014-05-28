@@ -1457,6 +1457,68 @@ several Y columns as a function of the same X, you should try
 [cmd: contract] instead.
 {::comment} description-end: cat {:/}
 
+## Buffer's meta-data 
+
+QSoas's buffers hold more than just columns of numbers. When a file is
+loaded, QSoas also gathers as much information as possible about that
+file, such as original file name, file date, and, for files supported
+by QSoas, details about the experimental conditions recorded in that
+file. These are known as "meta-data", and can be displayed using the
+[cmd: show] command.
+
+Here are some meta-data of particular signification available to all
+buffers loaded from files:
+
+  * `file-date` is the date of the file
+  * `age` is the how old the file was in **seconds** when the current
+    `QSoas` session was started.
+  * `commands` is the list of commands that have been applied to this
+    buffer since its load.
+
+Upon saving using [cmd: save] all of a buffer's meta-data are saved as
+comments in the text file.
+
+{::comment} synopsis-start: show {:/}
+
+### show - Show {#cmd-show}
+
+`show` _buffers..._{:title="Comma-separated lists of datasets in the stack"}
+
+  * _buffers..._{:title="Comma-separated lists of datasets in the stack"}: Buffers to show
+
+{::comment} synopsis-end: show {:/}
+{::comment} description-start: show {:/}
+This command gives detailed information about the buffers given as
+arguments, such as the number of rows, columns, segments, but also the
+flags the buffer may have, and all its meta-data:
+
+~~~
+QSoas> show 0
+Dataset 08.oxw: 2 cols, 4975 rows, 1 segments
+Flags: 
+Meta-data:	delta_t_0 = 950	gpes_file = D:\Vincent\140428\08	original-file = /home/vincent/Data/140428/08.oxw
+	age = 428907.581	steps = 1	title = 
+	file-date = 2014-05-23T21:23:38	exp-time = 14:03:08	comments = 
+	t_0 = 0	E_0 = -0.65	method = chronoamperometry
+~~~
+ 
+{::comment} description-end: show {:/}
+{::comment} synopsis-start: set-meta {:/}
+
+### set-meta - Set meta-data {#cmd-set-meta}
+
+`set-meta` _name_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _value_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}
+
+  * _name_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: The name of the meta-data
+  * _value_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: The meta-data value
+
+{::comment} synopsis-end: set-meta {:/}
+{::comment} description-start: set-meta {:/}
+Using `set-meta`, one can set the value of the named meta-data for the
+current buffer. _name_ can have any value, it does not have to
+preexist in the list of buffer's meta-data.
+{::comment} description-end: set-meta {:/}
+
 
 
 # Data filtering/processing
@@ -3848,16 +3910,6 @@ with an **uppercase** letter.
   * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
 
 {::comment} synopsis-end: mfit-polynomial {:/}
-{::comment} synopsis-start: set-meta {:/}
-
-### set-meta - Set meta-data {#cmd-set-meta}
-
-`set-meta` _name_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _value_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}
-
-  * _name_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: The name of the meta-data
-  * _value_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: The meta-data value
-
-{::comment} synopsis-end: set-meta {:/}
 {::comment} synopsis-start: set-perp {:/}
 
 ### set-perp - Set perpendicular {#cmd-set-perp}
@@ -3867,15 +3919,6 @@ with an **uppercase** letter.
   * _coords..._{:title="Several numbers, separated by ,"}: The values of the coordinates (one for each Y column)
 
 {::comment} synopsis-end: set-perp {:/}
-{::comment} synopsis-start: show {:/}
-
-### show - Show {#cmd-show}
-
-`show` _buffers..._{:title="Comma-separated lists of datasets in the stack"}
-
-  * _buffers..._{:title="Comma-separated lists of datasets in the stack"}: Buffers to show
-
-{::comment} synopsis-end: show {:/}
 {::comment} synopsis-start: sim-polynomial {:/}
 
 ### sim-polynomial - Fit: Fit to a polynomial function {#cmd-sim-polynomial}

@@ -22,6 +22,7 @@
 
 #include <gsl/gsl_sf.h>
 #include <gsl/gsl_const_mksa.h>
+#include <gsl/gsl_const_num.h>
 
 
 QList<GSLFunction *> * GSLFunction::functions = NULL;
@@ -255,7 +256,14 @@ QString GSLConstant::availableConstants()
 }
 
 
-GSLConstant f("F", "Faraday's constant, $$F$$", GSL_CONST_MKSA_FARADAY);
-GSLConstant pi(QStringList() << "Pi" << "PI", "$$\\pi$$", M_PI);
-GSLConstant r("R", "Molar gas constant, $$R$$", GSL_CONST_MKSA_MOLAR_GAS);
-//  rb_define_global_const("C", rb_float_new(GSL_CONST_MKSA_SPEED_OF_LIGHT));
+static GSLConstant f("F", "Faraday's constant, $$F$$", GSL_CONST_MKSA_FARADAY);
+static GSLConstant pi(QStringList() << "Pi" << "PI", "$$\\pi$$", M_PI);
+static GSLConstant r("R", "Molar gas constant, $$R$$", GSL_CONST_MKSA_MOLAR_GAS);
+static GSLConstant c("C", "The speed of light in vacuum, $$c$$", GSL_CONST_MKSA_SPEED_OF_LIGHT);
+static GSLConstant Na("Na", "The Avogadro number, $$N_A$$", GSL_CONST_NUM_AVOGADRO);
+static GSLConstant Eps0("Eps_0", "The permeability of vacuum, $$\\epsilon_0$$", GSL_CONST_MKSA_VACUUM_PERMEABILITY);
+static GSLConstant Mu0("Mu_0", "The permittivity of vacuum, $$\\mu_0$$", GSL_CONST_MKSA_VACUUM_PERMITTIVITY);
+static GSLConstant H("H", "The Planck constant, $$h$$", GSL_CONST_MKSA_PLANCKS_CONSTANT_H);
+static GSLConstant Hbar("Hbar", "$$\\hbar = h/2\\pi$$", GSL_CONST_MKSA_PLANCKS_CONSTANT_HBAR);
+static GSLConstant Kb("Kb", "Boltzmann's constant", GSL_CONST_MKSA_BOLTZMANN);
+static GSLConstant sigma("Sigma", "The Stefan-Boltzmann radiation constant", GSL_CONST_MKSA_STEFAN_BOLTZMANN_CONSTANT);

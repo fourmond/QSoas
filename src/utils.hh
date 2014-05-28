@@ -29,21 +29,6 @@
 /// Various generally useful functions.
 namespace Utils {
 
-  /// Returns a list of file names matching the given glob.
-  ///
-  /// If \p trim is true, returns an empty list if no file matches,
-  /// else returns the pattern.
-  ///
-  /// For now, it does not support recursive globs ("*/*", or even
-  /// "**/*"). It may, one day...
-  ///
-  /// @todo Support selecting only files, hiding hidden files, and so
-  /// on...
-  ///
-  /// @todo Support */ as a glob (not currently supported). That one
-  /// may come in nicely as a side effect of the above transformation.
-  QStringList glob(const QString & pattern, 
-                   bool trim = true, bool isDir = false);
 
 
   /// @name String-related functions
@@ -157,6 +142,23 @@ namespace Utils {
   ///
   /// @{
 
+  /// Returns a list of file names matching the given glob.
+  ///
+  /// If \p trim is true, returns an empty list if no file matches,
+  /// else returns the pattern.
+  ///
+  /// For now, it does not support recursive globs ("*/*", or even
+  /// "**/*"). It may, one day...
+  ///
+  /// @todo Support selecting only files, hiding hidden files, and so
+  /// on...
+  ///
+  /// @todo Support */ as a glob (not currently supported). That one
+  /// may come in nicely as a side effect of the above transformation.
+  QStringList glob(const QString & pattern, 
+                   bool trim = true, bool isDir = false);
+
+
   /// Opens the given file with the target mode, raising a
   /// RuntimeError if that couldn't happen for some reason.
   ///
@@ -164,6 +166,20 @@ namespace Utils {
   /// expanded.
   void open(QFile * file, QIODevice::OpenMode mode, 
             bool expandTilde = true);
+
+  /// If the path is relative, checks wether it is possible to write
+  /// in the target directory, or return a suitably modified path
+  /// (based on the home dir).
+  ///
+  /// If absolute, does not change a thing.
+  ///
+  /// Returns an absolute path.
+  QString getWritablePath(const QString & path);
+
+  /// Performs a rotation of given file, is if it is present, rename
+  /// it as file.1, renaming a file.1 as file.2 and so on up until the
+  /// max number, after which the files are simply deleted.
+  void rotateFile(const QString & file, int max);
 
   /// Asks confirmation before overwriting the target file if it exists.
   ///

@@ -388,6 +388,8 @@ namespace __cu {
     PickRef,
     QuitSubtracting,
     QuitDividing,
+    QuitSubtractingRespRef,
+    QuitDividingRespRef,
     WriteToOutput,
     Quit
   } CursorActions;
@@ -399,6 +401,8 @@ namespace __cu {
     alsoKey('V').
     addKey('u', QuitSubtracting, "quit subtracting Y value").
     alsoKey('U').
+    addKey(Qt::CTRL + 'u', QuitSubtractingRespRef, "subtract y - yref").
+    addKey(Qt::CTRL + 'v', QuitDividingRespRef, "divide by y/yref").
     addPointPicker().
     addKey(Qt::Key_Escape, Quit, "quit").
     alsoKey('q').alsoKey('Q').
@@ -459,7 +463,19 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
     case QuitDividing: {
       Vector ny = ds->y()/m.p.y();
       Terminal::out << "Dividing by Y value: " << m.p.y() << endl;
+      soas().pushDataSet(ds->derivedDataSet(ny, "_div.dat"));
+      return;
+    }
+    case QuitSubtractingRespRef: {
+      Vector ny = ds->y() - (m.p.y() - r.p.y());
+      Terminal::out << "Subtracting: " << m.p.y() - r.p.y() << endl;
       soas().pushDataSet(ds->derivedDataSet(ny, "_sub.dat"));
+      return;
+    }
+    case QuitDividingRespRef: {
+      Vector ny = ds->y()/(m.p.y()/r.p.y());
+      Terminal::out << "Dividing by: " << m.p.y()/r.p.y() << endl;
+      soas().pushDataSet(ds->derivedDataSet(ny, "_div.dat"));
       return;
     }
     case WriteToOutput:

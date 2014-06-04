@@ -515,6 +515,15 @@ int Vector::closestPoint(double v) const
   return idx;
 }
 
+bool Vector::hasOnlyNaN() const
+{
+  for(int i = 0; i < size(); i++) {
+    if(! std::isnan(value(i)))
+      return false;
+  }
+  return true;
+}
+
 Vector Vector::uniformlySpaced(double min, double max, int nb)
 {
   Vector r(nb, 0);

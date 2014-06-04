@@ -475,6 +475,7 @@ static void browseFilesCommand(const QString &, const CommandOptions & opts)
       QList<DataSet *> sets = DataBackend::loadFile(files[i]);
       for(int j = 0; j < sets.size(); j++) {
         DataSet * s = sets[j];
+        s->stripNaNColumns();
         if(s->nbColumns() > 1 && s->nbRows() > 1)
           dataSets << s;
         else {

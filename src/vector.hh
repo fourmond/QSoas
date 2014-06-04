@@ -113,6 +113,10 @@ public:
   /// Find the index of the value the closest to the one given here
   int closestPoint(double value) const;
 
+  /// Wether the data consists only of NaN (such as when one loads
+  /// text files)
+  bool hasOnlyNaN() const;
+
   /// @}
 
   /// @name Other operations

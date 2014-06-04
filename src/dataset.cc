@@ -106,6 +106,15 @@ QRectF DataSet::boundingBox() const
   return r;
 }
 
+void DataSet::stripNaNColumns()
+{
+  for(int i = 0; i < columns.size(); i++) {
+    if(columns[i].hasOnlyNaN()) {
+      columns.takeAt(i);
+      --i;
+    }
+  }
+}
 
 QPair<double, int> DataSet::distanceTo(double x, double y) const
 {

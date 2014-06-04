@@ -261,6 +261,9 @@ public:
     insertColumn(columns.size(), col);
   }
 
+  /// Strips all the columns that contain only NaNs
+  void stripNaNColumns();
+
   /// Inserts a column at the given position.
   Vector takeColumn(int idx) {
     invalidateCache();

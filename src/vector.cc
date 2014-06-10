@@ -401,6 +401,23 @@ Vector Vector::deltas() const
   return ret;
 }
 
+void Vector::deltaStats(double * pdmin, double * pdmax) const
+{
+  double dmin = fabs(value(1) - value(0));
+  double dmax = dmin;
+  for(int i = 1; i < size() - 1; i++) {
+    double d = fabs(value(i+1) - value(i));
+    if(d > dmax)
+      dmax = d;
+    else if(d < dmin)
+      dmin = d;
+  }
+  if(pdmin)
+    *pdmin = dmin;
+  if(pdmax)
+    *pdmax = dmax;
+}
+
 void Vector::stats(double * average, double * variance) const
 {
   *average = 0;

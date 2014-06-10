@@ -48,6 +48,8 @@ void Statistics::internalStats(ValueHash * overall,
     const Vector & c = source->column(i);
     double a,v;
     c.stats(&a, &v);
+    double dmin, dmax;
+    c.deltaStats(&dmin, &dmax);
 
     ValueHash stats;
     stats << QString("%1_first").arg(n) << c.first()
@@ -58,7 +60,10 @@ void Statistics::internalStats(ValueHash * overall,
           << QString("%1_med").arg(n) << c.median() /// @todo get rid
                                                     /// if too slow ?
           << QString("%1_var").arg(n) << v
-          << QString("%1_norm").arg(n) << c.norm();
+          << QString("%1_norm").arg(n) << c.norm()
+          << QString("%1_delta_min").arg(n) << dmin
+          << QString("%1_delta_max").arg(n) << dmax
+      ;
 
     if(i > 0)                   // Integrate
       stats << QString("%1_int").arg(n) 

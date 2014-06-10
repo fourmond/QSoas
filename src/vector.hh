@@ -101,6 +101,11 @@ public:
 
   /// Returns the median value. Uses a sorted copy, ie nlogn time.
   double median() const;
+
+  /// Fills deltamin and deltamax with respectively the smallest (in
+  /// absolute value) delta between successive points and the largest
+  /// one.
+  void deltaStats(double * deltamin, double * deltamax = NULL) const;
   
 
   /// Finds local extrema and returns:

@@ -241,6 +241,7 @@ static void kineticSystemCommand(const QString &, QString file,
     Terminal::out << " * " << p[i] << " = " << params[p[i]] << endl;
   
   evolver.initialize(ds->x()[0]);
+  evolver.autoSetHMin(ds->x());
   QList<Vector> concentrations = evolver.steps(ds->x(), annotate);
   concentrations.insert(0, ds->x());
   DataSet * nds = new DataSet(concentrations);
@@ -714,6 +715,7 @@ public:
     const Vector & xv = ds->x();
     double ini = voltammogram ? 0 : xv[0];
     evolver->initialize(hasOrigTime ? *(a + parametersBase - 1) : ini);
+    evolver->autoSetHMin(ds->x());
     params = a + tdBase;
 
     if(data->debug)

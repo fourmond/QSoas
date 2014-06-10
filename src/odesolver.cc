@@ -30,7 +30,8 @@
 ODEStepperOptions::ODEStepperOptions(const gsl_odeiv2_step_type * t,
                                      double hs, double ea, 
                                      double er, bool f) :
-  type(t), hStart(hs), hMin(0), epsAbs(ea), epsRel(er), fixed(f), nmax(100)
+  type(t), hStart(hs), hMin(0), epsAbs(ea), epsRel(er), fixed(f), nmax(100), 
+  substeps(1000)
 {
 }
 
@@ -60,6 +61,7 @@ CommandOptions ODEStepperOptions::asOptions() const
   opts["min-step-size"] = new ArgumentMarshallerChild<double>(hMin);
   opts["prec-relative"] = new ArgumentMarshallerChild<double>(epsRel);
   opts["prec-absolute"] = new ArgumentMarshallerChild<double>(epsAbs);
+  opts["sub-steps"] = new ArgumentMarshallerChild<int>(substeps);
   opts["stepper"] = new ArgumentMarshallerChild<const gsl_odeiv2_step_type *>(type);
 
   return opts;
@@ -79,8 +81,10 @@ QList<Argument*> ODEStepperOptions::commandOptions()
                              "Relative precision required")
        << new NumberArgument("prec-absolute", "Absolute precision",
                              "Absolute precision required")
-       << new IntegerArgument("max-iterations", "Maximum of iterations",
-                             "Maximum number of internal iterations for each step (0 to allow infinite number)")
+       << new IntegerArgument("sub-steps", "Maximum number of sub-steps",
+                             "If this is not 0, then the smallest step size is that number times less than the minimum delta t")
+       // << new IntegerArgument("max-iterations", "Maximum of iterations",
+       //                       "Maximum number of internal iterations for each step (0 to allow infinite number)")
        << new TemplateChoiceArgument<const gsl_odeiv2_step_type *>
     (stepperTypes(), "stepper", "Stepper algorithm",
      "Algorithm used for integration");
@@ -97,7 +101,8 @@ void ODEStepperOptions::parseOptions(const CommandOptions & opts)
   updateFromOptions(opts, "stepper", type);
   updateFromOptions(opts, "prec-relative", epsRel);
   updateFromOptions(opts, "prec-absolute", epsAbs);
-  updateFromOptions(opts, "max-iterations", nmax);
+  // updateFromOptions(opts, "max-iterations", nmax);
+  updateFromOptions(opts, "sub-steps", substeps);
 }
 
 QString ODEStepperOptions::description() const
@@ -110,7 +115,7 @@ QString ODEStepperOptions::description() const
       break;
     }
   }
-  return QString("%7 %1, with %2step size: %3 (minimum step size: %7) %4-- absolute precision: %5, relative precision: %6").
+  return QString("%7 %1, with %2step size: %3 (minimum step size: %8, maximum substeps %9) %4-- absolute precision: %5, relative precision: %6").
     arg(fixed ? "fixed" : "adaptative").
     arg(fixed ? "" : "initial ").
     arg(hStart).
@@ -118,7 +123,8 @@ QString ODEStepperOptions::description() const
     arg(epsAbs).
     arg(epsRel).
     arg(s).
-    arg(hMin);
+    arg(hMin).
+    arg(substeps);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -137,25 +143,39 @@ void ODEStepper::freeDriver()
   }
 }
 
+
+double ODEStepper::effectiveInitialStepSize() const
+{
+  double hs = options.hStart;
+  if(hs == 0)
+    hs = 0.01;                  // As good as anything ?
+  return hs;
+}
+
 /// @todo Make provisions for using several different control objects.
 void ODEStepper::initialize(gsl_odeiv2_system * system)
 {
   freeDriver();
-  double hs = options.hStart;
-  if(hs == 0)
-    hs = 0.01;                  // As good as anything ?
   driver = gsl_odeiv2_driver_alloc_y_new(system, options.type, 
-                                         hs,
+                                         effectiveInitialStepSize(),
                                          options.epsAbs,
                                          options.epsRel);
   gsl_odeiv2_driver_set_nmax(driver, options.nmax);
   gsl_odeiv2_driver_set_hmin(driver, options.hMin);
 }
 
+void ODEStepper::autoSetHMin(double deltamin)
+{
+  if(options.hMin == 0 && options.substeps > 0)
+    gsl_odeiv2_driver_set_hmin(driver, deltamin/options.substeps);
+}
+
 void ODEStepper::reset()
 {
-  if(driver)
+  if(driver) {
     gsl_odeiv2_driver_reset(driver);
+    driver->h = effectiveInitialStepSize();
+  }
 }
 
 int ODEStepper::apply(double * t, const double t1, double y[])
@@ -176,6 +196,8 @@ int ODEStepper::apply(double * t, const double t1, double y[])
     // QTextStream o(stdout);
     // o << "Trying from " << *t << " to " << t1  << endl;
     status = gsl_odeiv2_driver_apply(driver, t, t1, y);
+
+    /// @todo THis should be clarified and understood...
     if(status == GSL_FAILURE || status == GSL_EMAXITER) {
       // We try to reset the driver with the initial step where we are
       // now and proceeed
@@ -232,6 +254,18 @@ int ODESolver::function(double t, const double y[], double dydt[],
 void ODESolver::resetStepper()
 {
   stepper.reset();
+}
+
+void ODESolver::autoSetHMin(double deltamin)
+{
+  stepper.autoSetHMin(deltamin);
+}
+
+void ODESolver::autoSetHMin(const Vector & vect)
+{
+  double dm;
+  vect.deltaStats(&dm);
+  autoSetHMin(dm);
 }
 
 int ODESolver::jacobian(double t, const double y[], 

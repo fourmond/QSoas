@@ -49,10 +49,15 @@ public:
   bool fixed;
 
   /// The maximum number of internal steps for each "external step".
-  /// Defaults to 100.
-  ///
-  /// Does not seem to work ?
+  /// Defaults to 100. Unless it is the maximum number of funcalls for
+  /// each internal step ???? It looks like I have simply disabled
+  /// that, in the end...
   int nmax;
+
+  /// The maximum number of substeps. 0 means unlimited.
+  ///
+  /// This is used only by ODEStepper::autoSetHmin().
+  int substeps;
 
   ODEStepperOptions(const gsl_odeiv2_step_type * t = gsl_odeiv2_step_rkf45,
                     double hs = 0.01, double ea = 1e-16, 
@@ -88,6 +93,9 @@ class ODEStepper {
   /// The configuration options.
   ODEStepperOptions options;
 
+  /// Returns the effective step size
+  double effectiveInitialStepSize() const;
+
 public:
   ODEStepper();
   ~ODEStepper();
@@ -103,6 +111,10 @@ public:
 
   /// Configures the stepper
   void setOptions(const ODEStepperOptions & options);
+
+  /// Automatically sets hmin to be substeps times smaller than
+  /// deltamin, if hMin is not set.
+  void autoSetHMin(double deltamin);
 
   /// Returns the current options
   const ODEStepperOptions & getOptions() const { return options;};
@@ -165,6 +177,13 @@ public:
 
   /// Resets the stepper
   void resetStepper();
+
+  /// Sets the hmin parameter as in ODEStepper::autoSetHMin()
+  void autoSetHMin(double deltamin);
+
+  /// Same thing, but computes from the vector.
+  void autoSetHMin(const Vector & vect);
+
 
   /// Computes the derivatives at the given point, and store them in
   /// \a dydt

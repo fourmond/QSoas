@@ -386,6 +386,21 @@ ArgumentMarshaller * IntegerArgument::promptForValue(QWidget * base) const
   return fromString(str);
 }
 
+QWidget * IntegerArgument::createEditor(QWidget * parent) const
+{
+  return new QLineEdit(parent);
+}
+
+void IntegerArgument::setEditorValue(QWidget * editor, 
+                                     ArgumentMarshaller * value) const
+{
+  QLineEdit * le = dynamic_cast<QLineEdit*>(editor);
+  if(! le)
+    throw InternalError("Wrong editor given to setEditorValue");
+
+  le->setText(QString::number(value->value<int>()));
+}
+
 ////////////////////////////////////////////////////////////
 
 ArgumentMarshaller * SeveralIntegersArgument::fromString(const QString & str) const

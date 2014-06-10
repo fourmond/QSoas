@@ -323,6 +323,10 @@ public:
     return "An integer";
   };
 
+  virtual QWidget * createEditor(QWidget * parent = NULL) const;
+  virtual void setEditorValue(QWidget * editor, 
+                              ArgumentMarshaller * value) const;
+
 };
 
 /// Several integers

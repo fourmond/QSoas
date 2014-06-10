@@ -30,7 +30,7 @@
 ODEStepperOptions::ODEStepperOptions(const gsl_odeiv2_step_type * t,
                                      double hs, double ea, 
                                      double er, bool f) :
-  type(t), hStart(hs), epsAbs(ea), epsRel(er), fixed(f), nmax(100)
+  type(t), hStart(hs), hMin(0), epsAbs(ea), epsRel(er), fixed(f), nmax(100)
 {
 }
 
@@ -57,6 +57,7 @@ CommandOptions ODEStepperOptions::asOptions() const
 
   opts["adaptative"] = new ArgumentMarshallerChild<bool>(! fixed);
   opts["step-size"] = new ArgumentMarshallerChild<double>(hStart);
+  opts["min-step-size"] = new ArgumentMarshallerChild<double>(hMin);
   opts["prec-relative"] = new ArgumentMarshallerChild<double>(epsRel);
   opts["prec-absolute"] = new ArgumentMarshallerChild<double>(epsAbs);
   opts["stepper"] = new ArgumentMarshallerChild<const gsl_odeiv2_step_type *>(type);
@@ -72,6 +73,8 @@ QList<Argument*> ODEStepperOptions::commandOptions()
                            "Whether or not to use adaptative stepper")
        << new NumberArgument("step-size", "Step size",
                              "Initial step size for the stepper")
+       << new NumberArgument("min-step-size", "Minimum step size",
+                             "Minimum step size for the stepper")
        << new NumberArgument("prec-relative", "Relative precision",
                              "Relative precision required")
        << new NumberArgument("prec-absolute", "Absolute precision",
@@ -90,6 +93,7 @@ void ODEStepperOptions::parseOptions(const CommandOptions & opts)
   updateFromOptions(opts, "adaptative", adapt);
   fixed = ! adapt;
   updateFromOptions(opts, "step-size", hStart);
+  updateFromOptions(opts, "min-step-size", hMin);
   updateFromOptions(opts, "stepper", type);
   updateFromOptions(opts, "prec-relative", epsRel);
   updateFromOptions(opts, "prec-absolute", epsAbs);
@@ -106,14 +110,15 @@ QString ODEStepperOptions::description() const
       break;
     }
   }
-  return QString("%7 %1, with %2step size: %3 %4-- absolute precision: %5, relative precision: %6").
+  return QString("%7 %1, with %2step size: %3 (minimum step size: %7) %4-- absolute precision: %5, relative precision: %6").
     arg(fixed ? "fixed" : "adaptative").
     arg(fixed ? "" : "initial ").
     arg(hStart).
     arg(hStart == 0 && fixed ? "(step is data delta_t) " :"").
     arg(epsAbs).
     arg(epsRel).
-    arg(s);
+    arg(s).
+    arg(hMin);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -144,6 +149,7 @@ void ODEStepper::initialize(gsl_odeiv2_system * system)
                                          options.epsAbs,
                                          options.epsRel);
   gsl_odeiv2_driver_set_nmax(driver, options.nmax);
+  gsl_odeiv2_driver_set_hmin(driver, options.hMin);
 }
 
 void ODEStepper::reset()

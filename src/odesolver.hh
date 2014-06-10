@@ -36,6 +36,9 @@ public:
   /// Initial step size
   double hStart;
 
+  /// Minimum step size
+  double hMin;
+
   /// Absolute error
   double epsAbs;
 
@@ -47,6 +50,8 @@ public:
 
   /// The maximum number of internal steps for each "external step".
   /// Defaults to 100.
+  ///
+  /// Does not seem to work ?
   int nmax;
 
   ODEStepperOptions(const gsl_odeiv2_step_type * t = gsl_odeiv2_step_rkf45,

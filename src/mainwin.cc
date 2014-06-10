@@ -21,43 +21,17 @@
 
    \section requests Requests
 
-   \li find a way to display current directory on the printed stuff
-   @li find a way to plot some datasets against a second Y axis (this
-   could simply be an option to the overlay command) -- possibly a
-   second X axis too ?
-   \li add a whole bunch of functionalities to the stack/data browser
-   \li add arbitrary text to print ? (could this just be an annotate
-   command adding text to the current plot ? It would be nice to
-   choose its position, then ? -> no, just a waste of time)
-   \li use a third column for the fits (but an interface needs to be
-   clearly defined for that...); that also means to provide ways to
-   tweak the Z values...
-   \li make the fits formulas available (LaTeX ?) -> try to design a
-   clever way to do so... (embedded LaTeX would be cool, but hard to
-   handle => no: compile first, have a method produce the LaTeX
-   sources, and make a PDF from that -- and a CHTML file ? Look at the
-   help brower)
-   \li include (or not) some data when using multifit (weight globally
-   a buffer ?)
    @li manually tweak/set the baseline for FFT
-
-   \section bugs Known bugs
-   @li hard crashes on cut/deldp (index out of bounds)
-   @li fix bounding box calculation on infinite/NaN values.
 
    \section various-todo Various things to do
 
    Now, mainly, what I need to do, is to massage the functionalities
    of the old Soas back into this one
 
-   \li pwd
    \li finalize peak detection (along with a CurvePeak CurveItem child
    to display it neatly)
-   \li catalytic baseline
    \li convolution, that was quite useful
    \li step detection, dead useful too !
-   \li put back the temperature settings, and the values that depend
-   on it (such as values of n on linear regressions and so on)
 
    And other things too:
 
@@ -65,9 +39,6 @@
    \li dataset selection
    \li come up with a full dialog box to edit @b all arguments to a
    command. (including options !)
-   \li history save/restore upon exit => probably not...
-   \li resampling (two possibilities: first, as a side-effect of the
-   filtering, second as a distinct function)
    \li definition of new fits based on ruby subclasses of Fit,
    PerDatasetFit and FunctionFit (much less useful now that we have
    custom fit loading)
@@ -93,61 +64,9 @@
    @li maybe one day Utils::registerShortCut could be used to
    store/annotate the shortcuts available in a window ?
 
-   @li Probably it would be nice as well to get a way to document all
-   keys used in a CurveEventLoop stuff. A great way to do so would be
-   to implement real callbacks (with lambdas ?), but I'm not sure it
-   would be that readable. One neat thing though is that it would
-   allow automatic documentation, but that would be a pain to
-   write. \b Maybe only making the help text static ? Even that
-   doesn't feel so great... I shall have a look at lambdas, then.  @b
-   Maybe what is necessary is just a static (documented) conversion
-   between events and custom numbers (enums ?) That would allow to
-   greatly simplify some of the loops (removing the need for testing
-   for the nature of the event), while still using a switch-based
-   mechanism that reads nicer than callback-based stuff, and providing
-   automatic (static !) documentation along with accurate use of keys...
-
    @li I should come up with button-like widget containers that would
    help selection of datasets in DatasetBrowser, and use these
    selection for various operations...
-
-   @b Conditions @b files:
-   \li annotate the buffers with information gotten from the
-   conditions.dat files I use so often, ie tab-separated
-   (customizable) files with a ##-starting header line (customizable
-   too). Ideally the conditions metadata handling would be written in
-   pure Ruby, with a simple interface from C++ (but not the other way
-   around), so that conditions files would be parseable in Ruby.
-
-
-   I need to setup a neat data browser to replace the old browse
-   command, and something that could also be used to display datasets
-   we want to choose from. Ideas:
-   \li use a popup dialog like the fit dialog box
-   \li it would take a list of DataSet as input, (but not necessarily
-   DataSet which belong to the DataStack)
-   \li navigate through pages using arrows (make up a utility function
-   for creating arrows in Utils !)
-   \li use a given number of CurveView on each, possibly customizable
-   \li make provisions for checkboxes  (right
-   under the corresponding CurveView ?)
-   \li offer the possibility to add actions, most probably through
-   callbacks (that take the list of checked things and a pointer to
-   the current list as well, so that deletion of things from the stack
-   is a possibility for instance without closing the dialog box --
-   and the list of currently displayed CurveViews ? (that would allow 
-   printing)
-
-   Allow customization for load:
-   \li columns (X be 2, Y be 1 and so on)
-   \li comment chars
-   \li separator for text files ?
-   \li gracefully handling column with text ?
-
-   Actually, each instance of backend should register its own command
-   ('backend'-load) with a whole bunch of additional options (such as
-   the aforementioned), that would only be available when directly
-   using the appropriate command (and would bypass backend detection)
 
    Find a way to prompt for additional arguments for greedy parameters
    (using an additional button in the dialog box ?)

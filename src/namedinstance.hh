@@ -84,7 +84,8 @@ protected:
     (*instances)[n] = instance;
   };
 
-  
+
+public:  
   /// Returns the item in the namedinstance bearing the given name.
   static C * namedItem(const QString & n) {
     if(! instances)

@@ -372,3 +372,9 @@ SOURCES += odrpack/odrpackfitengine.cc \
         odrpack/d_odr.new.c \
         odrpack/d_mprec.new.c \
         odrpack/f2c_remains.c
+
+
+###################################################################
+# This is the private zone
+
+SOURCES += src/binary.cc

@@ -415,7 +415,12 @@ double Utils::stringToDouble(const QString & str)
 int Utils::stringToInt(const QString & str)
 {
   bool ok = false;
-  int v = str.toInt(&ok);
+  int v;
+  if(str.startsWith("0x") || str.startsWith("0x")) {
+    v = str.mid(2).toInt(&ok, 16);
+  }
+  else
+    v = str.toInt(&ok);
   if(! ok)
     throw RuntimeError(QObject::tr("Not an integer: '%1'").
                        arg(str));

@@ -113,14 +113,22 @@ static void binaryReadCommand(const QString &, QString fileName,
   
   int offset = 0;
   int skipped = 0;
-
-  // bool print = 0;
+  bool show = false;
 
   Vector nx, ny;
 
   int nbread = 0;
   int number = 0;
+  int delta = 0;
+
+  updateFromOptions(opts, "offset", offset);
+  updateFromOptions(opts, "skip", skipped);
+  updateFromOptions(opts, "delta", delta);
+  updateFromOptions(opts, "number", number);
+  updateFromOptions(opts, "show", show);
+
   int cur = offset;
+  
   int tot = data.size();
   const char * dt = data.constData();
   while(cur < tot) {
@@ -129,19 +137,26 @@ static void binaryReadCommand(const QString &, QString fileName,
       break;
     
     double val = type->parseAt(dt + cur);
-    cur += sz;
+    cur += sz + delta;
     if(skipped > 0) {
       skipped --;
       continue;
     }
     nx << nx.size();
     ny << val;
+    nbread++;
     if(number > 0 && nx.size() >= number)
       break;
   }
-  DataSet * nds = new DataSet(nx, ny);
-  nds->name = fileName;
-  soas().pushDataSet(nds);
+  if(show) {
+    for(int i = 0; i < ny.size(); i++)
+      Terminal::out << "value[" << i << "] = " << ny[i] << endl;
+  }
+  else {
+    DataSet * nds = new DataSet(nx, ny);
+    nds->name = fileName;
+    soas().pushDataSet(nds);
+  }
 }
 
 static ArgumentList 
@@ -154,10 +169,24 @@ brA(QList<Argument *>()
                                        "Type of the data to read")
     );
 
-// static ArgumentList 
-// brO(QList<Argument *>() 
-
-//     );
+static ArgumentList 
+brO(QList<Argument *>() 
+    << new IntegerArgument("offset", 
+                           "Offset",
+                           "Start to read from offset")
+    << new IntegerArgument("delta", 
+                           "Delta",
+                           "Skip that many bytes between each read")
+    << new IntegerArgument("skip", 
+                           "Skip",
+                           "Skip that many records before starting to read")
+    << new IntegerArgument("number", 
+                           "Number",
+                           "Read only that many records")
+    << new BoolArgument("show", 
+                        "Show only",
+                        "Show only the values, do not make a dataset")
+    );
 
 
 
@@ -166,7 +195,7 @@ sa("binary-read", // command name
    effector(binaryReadCommand), // action
    "buffer",  // group name
    &brA, // arguments
-   NULL, // options
+   &brO, // options
    "Binary read",
    "Reads and possibly load binary data",
    "...");

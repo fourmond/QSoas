@@ -259,7 +259,8 @@ SOURCES += src/qmain.cc \
         src/multifitengine.cc \
         src/parametersviewer.cc \
         src/curvebrowser.cc \
-        src/lineedit.cc
+        src/lineedit.cc \
+        src/linereader.cc
 
 
 HEADERS += src/headers.hh \
@@ -361,7 +362,8 @@ HEADERS += src/headers.hh \
         src/abdmatrix.hh \
         src/parametersviewer.hh \
         src/curvebrowser.hh \
-        src/lineedit.hh
+        src/lineedit.hh \
+        src/linereader.hh
 
 
 # We link with the converted ODRPACK library

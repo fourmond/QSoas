@@ -203,7 +203,7 @@ public:
   /// every time a blank line is found.
   ///
   /// @todo Quite a lot of things to improve here.
-  static QList<QList<Vector> > readFromStream(QIODevice * source,
+  static QList<QList<Vector> > readFromStream(QTextStream * source,
                                               const QRegExp & separatorRE,
                                               const QRegExp & commentRE,
                                               bool splitOnBlank = false,
@@ -213,7 +213,7 @@ public:
 
 
   /// Convenience overload
-  static QList<QList<Vector> > readFromStream(QIODevice * source,
+  static QList<QList<Vector> > readFromStream(QTextStream * source,
                                               const QString & separatorRE = "\\s+",
                                               const QString & commentRE = "^\\s*#",
                                               bool splitOnBlank = false,

@@ -99,6 +99,7 @@
 #include <QPointer>
 #include <QTemporaryFile>
 #include <QTimer>
+#include <QTextCodec>
 
 
 // Binary serialization

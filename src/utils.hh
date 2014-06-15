@@ -92,6 +92,10 @@ namespace Utils {
 
   /// Escapes HTML special codes from within the string
   QString escapeHTML(const QString & str);
+
+
+  /// Attemps to guess the codec of the given byte string.
+  QTextCodec * autoDetectCodec(const QByteArray & str);
   
   /// @}
 
@@ -189,16 +193,11 @@ namespace Utils {
   /// Expands a leading ~ into the home directory of the user.
   QString expandTilde(const QString & name);
 
-  /// Reads a text line from the next file, treating any of the
-  /// standard newline delimiters as such.
-  ///
-  /// Returns the line, terminated by a newline character (even if
-  /// there wasn't one in the first place).
-  QString readTextLine(QIODevice * device, bool stripCR = false);
-
-
-  /// Reads all lines from a file
+  /// Reads all lines from a file, using a LineReader
   QStringList readAllLines(QIODevice * device, bool stripCR = false);
+
+  /// Reads all lines from a file, using a LineReader
+  QStringList readAllLines(QTextStream * txt, bool stripCR = false);
 
   /// @}
 
@@ -264,6 +263,14 @@ namespace Utils {
   /// lines. If \a comments isn't NULL, comments are stored there. If
   /// \a lineNumbers isn't NULL, it is filled with the begin/end line
   /// numbers from the original file (for the corresponding line)
+  QStringList parseConfigurationFile(QTextStream * source, 
+                                     bool keepCR = false,
+                                     QStringList * comments = NULL,
+                                     QList< QPair<int, int> > * lineNumbers = NULL,
+                                     bool stripBlank = false);
+
+  /// Overloaded function that operates directly on a QIODevice (but
+  /// you cannot set the codec in that case).
   QStringList parseConfigurationFile(QIODevice * source, 
                                      bool keepCR = false,
                                      QStringList * comments = NULL,

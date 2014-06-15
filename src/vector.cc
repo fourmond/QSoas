@@ -24,9 +24,10 @@
 
 #include <gsl/gsl_histogram.h>
 
+#include <linereader.hh>
 #include <cmath>
 
-QList<QList<Vector> > Vector::readFromStream(QIODevice * source,
+QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
                                              const QRegExp & separatorREt,
                                              const QRegExp & commentREt,
                                              bool splitOnBlank,
@@ -46,10 +47,11 @@ QList<QList<Vector> > Vector::readFromStream(QIODevice * source,
 
   QLocale locale = QLocale::c(); /// @todo offer the possibility to customize.
 
+  LineReader s(source);
   int numberRead = 0;
-  while(! source->atEnd()) {
+  while(! s.atEnd()) {
     lineNumber++;
-    QString line = Utils::readTextLine(source);
+    QString line = s.readLine();
     if(commentRE.indexIn(line) >= 0) {
       if(comments)
         *comments << line;
@@ -109,7 +111,7 @@ QList<QList<Vector> > Vector::readFromStream(QIODevice * source,
   return retval;
 }
 
-QList<QList<Vector> > Vector::readFromStream(QIODevice * source,
+QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
                                              const QString & separatorREt,
                                              const QString & commentREt,
                                              bool soB,

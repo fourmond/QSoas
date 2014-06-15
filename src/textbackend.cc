@@ -25,6 +25,7 @@
 #include <argumentmarshaller.hh>
 #include <general-arguments.hh>
 
+#include <utils.hh>
 #include <regex.hh>
 #include <exceptions.hh>
 
@@ -60,7 +61,7 @@ TextBackend::TextBackend(const QString & sep,
 int TextBackend::couldBeMine(const QByteArray & peek, 
                              const QString & /*fileName*/) const
 {
-  int nbSpaces = 0, nbSpecials = 0, nbRet = 0;
+  int nbSpaces = 0, nbZeros = 0, nbSpecials = 0, nbRet = 0;
   bool lastRet = false;
   for(int i = 0; i < peek.size(); i++) {
     unsigned char c = peek[i];
@@ -80,6 +81,10 @@ int TextBackend::couldBeMine(const QByteArray & peek,
         nbRet++;
       lastRet = false;
       break;
+    case 0:
+      nbZeros++;
+      lastRet = false;
+      break;
     default:
       if(c < 32)
         nbSpecials++;
@@ -88,7 +93,8 @@ int TextBackend::couldBeMine(const QByteArray & peek,
   }
   if(nbSpecials > peek.size()/100)
     return 0;                   // Most probably not
-  QString str(peek);
+  QTextCodec * cd = Utils::autoDetectCodec(peek);
+  QString str = cd->toUnicode(peek);
 
   // We split into lines, el
   QStringList lines = str.split(QRegExp("[\n\r]"));
@@ -162,8 +168,13 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
   /// Vector::readFromStream could be more verbose about the nature of
   /// the comments (the exact line, for instance ?)
 
+  QByteArray bt = stream->peek(300);
+  QTextCodec * cd = Utils::autoDetectCodec(bt);
+  QTextStream s(stream);
+  s.setCodec(cd);
+
   QList<QList<Vector> > allColumns = 
-    Vector::readFromStream(stream, sep.toQRegExp(), 
+    Vector::readFromStream(&s, sep.toQRegExp(), 
                            cmt.toQRegExp(), autoSplit, dSep);
 
   QList<DataSet *> ret;

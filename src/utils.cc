@@ -22,6 +22,7 @@
 #include <exceptions.hh>
 
 #include <vector.hh>
+#include <linereader.hh>
 
 /// Helper function for globs
 static QStringList dirGlob(QString directory, QString str,
@@ -303,16 +304,32 @@ void Utils::registerShortCut(const QKeySequence & seq, QObject * receiver,
 }
 
 
-QStringList Utils::readAllLines(QIODevice * source, bool keepCR)
+QStringList Utils::readAllLines(QTextStream * source, bool keepCR)
 {
   QStringList ret;
-  while(! source->atEnd()) {
-    ret << Utils::readTextLine(source, keepCR);
-  }
+  LineReader s(source);
+  while(! s.atEnd())
+    ret << s.readLine(keepCR);
   return ret;
 }
 
+QStringList Utils::readAllLines(QIODevice * source, bool keepCR)
+{
+  QTextStream s(source);
+  return readAllLines(&s, keepCR);
+}
+
 QStringList Utils::parseConfigurationFile(QIODevice * source, 
+                                          bool keepCR, QStringList * tComments,
+                                          QList< QPair<int, int> > * 
+                                          lineNumbers, bool stripBlank)
+{
+  QTextStream s(source);
+  return Utils::parseConfigurationFile(&s, keepCR, tComments,
+                                       lineNumbers, stripBlank);
+}
+
+QStringList Utils::parseConfigurationFile(QTextStream * source, 
                                           bool keepCR, QStringList * tComments,
                                           QList< QPair<int, int> > * 
                                           lineNumbers, bool stripBlank)
@@ -327,8 +344,9 @@ QStringList Utils::parseConfigurationFile(QIODevice * source,
   QString contLine;
   int contFrom = -1;
 
-  while(! source->atEnd()) {
-    line = Utils::readTextLine(source, false); // More resistant to platform changes
+  LineReader s(source);
+  while(! s.atEnd()) {
+    line = s.readLine();
     
     ++ln;
     
@@ -386,6 +404,11 @@ bool Utils::updateWithin(QString & str, const QString & begin,
     nb = re.cap(0).size();
   str.replace(left, nb, begin + newText + end);
   return true;
+}
+
+QTextCodec * Utils::autoDetectCodec(const QByteArray & str)
+{
+  return QTextCodec::codecForUtfText(str);
 }
 
 
@@ -537,33 +560,6 @@ QStringList Utils::extractMatches(QString & str, const QRegExp & ore,
       ret << re.cap(group);
     str.replace(idx, re.matchedLength(), "");
   }
-  return ret;
-}
-
-QString Utils::readTextLine(QIODevice * device, bool keepCR)
-{
-  char c;
-
-  QString ret;
-  while(device->getChar(&c)) {
-    if(c == '\r') {
-      if(device->getChar(&c)) {
-        if(c != '\n')
-          device->ungetChar(c);
-      }
-      break;
-    }
-    if(c == '\n') {
-      if(device->getChar(&c)) {
-        if(c != '\r')
-          device->ungetChar(c);
-      }
-      break;
-    }
-    ret.append(c);
-  }
-  if(keepCR)
-    ret.append('\n');
   return ret;
 }
 

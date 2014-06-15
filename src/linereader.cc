@@ -37,6 +37,11 @@ LineReader::~LineReader()
     delete source;
 }
 
+class LREOF {
+public:
+  LREOF() {;};
+};
+
 QChar LineReader::getc()
 {
   if(hasPending) {
@@ -44,6 +49,8 @@ QChar LineReader::getc()
     return pending;
   }
   QChar ch;
+  if(source->atEnd())
+    throw LREOF();
   *source >> ch;
   return ch;
 }
@@ -66,21 +73,25 @@ bool LineReader::atEnd() const
 QString LineReader::readLine(bool keepCR)
 {
   QString ret;
-  while(! source->atEnd()) {
-    QChar c = getc();
-    if(c == '\r') {
-      c = peekc();
-      if(c == '\n')
-        getc();
-      break;
+  try {
+    while(! source->atEnd()) {
+      QChar c = getc();
+      if(c == '\r') {
+        c = peekc();
+        if(c == '\n')
+          getc();
+        break;
+      }
+      if(c == '\n') {
+        c = peekc();
+        if(c == '\r')
+          getc();
+        break;
+      }
+      ret.append(c);
     }
-    if(c == '\n') {
-      c = peekc();
-      if(c == '\r')
-        getc();
-      break;
-    }
-    ret.append(c);
+  }
+  catch(const LREOF & s) {
   }
   if(keepCR)
     ret.append('\n');

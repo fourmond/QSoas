@@ -61,7 +61,6 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
   perpendicularMeta(pm),
   progressReport(NULL),
   residualsDisplay(NULL),
-  trajectoryDisplay(NULL),
   fitEngineFactory(NULL)
 {
   setWindowModality(Qt::WindowModal);
@@ -333,9 +332,12 @@ void FitDialog::setupFrame()
   ac->addAction("Reset to backup", this, 
                 SLOT(resetParameters()),
                 QKeySequence(tr("Ctrl+Shift+R")));
+  /// INTERNAL
   ac->addAction("Show Trajectories", this, 
                 SLOT(displayTrajectories()),
                 QKeySequence(tr("Ctrl+Shift+T")));
+
+  /// END INTERNAL
   ac->addAction("Show covariance matrix", this, 
                 SLOT(showCovarianceMatrix()),
                 QKeySequence(tr("Ctrl+M")));
@@ -978,14 +980,6 @@ void FitDialog::resetParameters()
   message("Restored parameters");
 }
 
-void FitDialog::displayTrajectories()
-{
-  // if(! trajectoryDisplay)
-  //   trajectoryDisplay = new FitTrajectoryDisplay(this, data, &trajectories);
-  FitTrajectoryDisplay dlg(this, data, &trajectories);
-  dlg.update();
-  dlg.exec();
-}
 
 void FitDialog::setFitEngineFactory(const QString & name)
 {
@@ -1172,5 +1166,19 @@ void FitDialog::showTransposed()
 void FitDialog::showParameters()
 {
   ParametersViewer dlg(&parameters);
+  dlg.exec();
+}
+
+
+
+
+/// INTERNAL
+
+void FitDialog::displayTrajectories()
+{
+  // if(! trajectoryDisplay)
+  //   trajectoryDisplay = new FitTrajectoryDisplay(this, data, &trajectories);
+  FitTrajectoryDisplay dlg(this, data, &trajectories);
+  dlg.update();
   dlg.exec();
 }

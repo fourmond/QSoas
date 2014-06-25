@@ -30,16 +30,12 @@ class FitParameterEditor;
 class DataSet;
 
 class FitTrajectory;
-class FitTrajectoryDisplay;
 class ArgumentList;
 
 /// This class handles all the user interaction during fits.
 class FitDialog : public QDialog {
 
   Q_OBJECT;
-
-  /// We need that to access to the parameters
-  friend class FitTrajectoryDisplay;
 
   void setupFrame();
 
@@ -129,9 +125,6 @@ class FitDialog : public QDialog {
 
   /// The parameters as saved just before starting the fit
   Vector parametersBackup;
-
-  /// Dialog box to show fit trajectories...
-  FitTrajectoryDisplay * trajectoryDisplay;
 
   /// The fit engine factory in use
   FitEngineFactoryItem * fitEngineFactory;
@@ -308,8 +301,6 @@ protected slots:
   /// Resets the parameters to the original values (before the fit).
   void resetParameters();
 
-  /// Display the fit trajectories
-  void displayTrajectories();
 
   /// Upon change in the FitEngine combo box...
   void engineSelected(int id);
@@ -319,6 +310,16 @@ protected slots:
   void showTransposed();
 
 
+
+  /// INTERNAL
+
+  /// We need that to access to the parameters
+  friend class FitTrajectoryDisplay;
+
+  /// Display the fit trajectories
+  void displayTrajectories();
+
+  /// END INTERNAL
 };
 
 #endif

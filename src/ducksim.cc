@@ -26,6 +26,7 @@
 
 #include <soas.hh>
 #include <ducksim.hh>
+#include <hook.hh>
 #include <terminal.hh>
 
 #include <gsl/gsl_const_mksa.h>
@@ -249,3 +250,5 @@ void DuckSimFit::initialize()
   Terminal::out << "Found duck-sim at " << fullPath << endl;
   theInstance = new DuckSimFit();
 }
+
+static Hook duckSim(& DuckSimFit::initialize);

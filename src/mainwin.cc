@@ -1,6 +1,7 @@
 /*
   mainwin.cc: Main window for QSoas
-  Copyright 2011, 2012 by Vincent Fourmond
+  Copyright 2011
+  Copyright 2012-2014 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -194,7 +195,7 @@
 #include <settings-templates.hh>
 
 #include <build.hh>
-#include <ducksim.hh>
+#include <hook.hh>
 
 #include <ruby.hh>
 
@@ -242,7 +243,7 @@ MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
   else
     Terminal::out << "Not loading any startup file as requested" << endl;
  
-  DuckSimFit::initialize();
+  Hook::runHooks();
 }
 
 void MainWin::setupFrame()

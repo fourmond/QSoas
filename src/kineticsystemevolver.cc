@@ -475,9 +475,6 @@ protected:
     updateFromOptions(opts, "with", lst);
 
     voltammogram = false;
-    /// INTERNAL
-    updateFromOptions(opts, "voltammogram", voltammogram);
-    /// END INTERNAL
 
     hasOrigTime = false;
     updateFromOptions(opts, "choose-t0", hasOrigTime);
@@ -618,13 +615,6 @@ public:
     /// attributes).
     QList<ParameterDefinition> defs;
 
-    /// INTERNAL
-    if(voltammogram) {
-      // add temperature and scan rate at the beginning
-      defs << ParameterDefinition("temperature", true)
-           << ParameterDefinition("v", true);
-    }
-    /// END INTERNAL
 
     QStringList parameters = system->allParameters();
     timeIndex= -1;
@@ -654,23 +644,6 @@ public:
         continue;
       }
 
-      /// INTERNAL
-      if(voltammogram && parameters[i] == "temperature") {
-        temperatureIndex = i;
-        skippedIndices.insert(i);
-        continue;
-      }
-      if(voltammogram && parameters[i] == "e") {
-        potentialIndex = i;
-        skippedIndices.insert(i);
-        continue;
-      }
-      if(voltammogram && parameters[i] == "fara") {
-        faraIndex = i;
-        skippedIndices.insert(i);
-        continue;
-      }
-      /// END INTERNAL
 
       defs << ParameterDefinition(parameters[i], 
                                   i < system->speciesNumber()); 
@@ -692,12 +665,6 @@ public:
         i != fit->timeDependentParameters.end(); i++)
       params[i.key()] = i.value().computeValue(t, fit->params);
 
-    /// INTERNAL
-    if(fit->voltammogram && fit->potentialIndex >= 0) {
-      params[fit->potentialIndex] = fit->lastPot + 
-        fit->direction * (t - fit->lastTime);
-    }
-    /// END INTERNAL
 
   }
 
@@ -711,18 +678,6 @@ public:
     evolver->setParameters(a + parametersBase,
                            skippedIndices);
 
-    /// INTERNAL
-    if(voltammogram) {
-      double temp = a[0];
-      if(temperatureIndex >= 0)
-        evolver->setParameter(temperatureIndex, temp);
-      if(faraIndex >= 0)
-        evolver->setParameter(faraIndex, 
-                              GSL_CONST_MKSA_FARADAY/ 
-                              (a[0] * GSL_CONST_MKSA_MOLAR_GAS));
-      sr = a[1];
-    }
-    /// END INTERNAL
 
 
     evolver->setupCallback(KineticSystemFit::timeDependentRates, this);
@@ -751,15 +706,6 @@ public:
       // Here, we must be wary of the discontinuity points (ie those
       // of the time-evolving stuff)
 
-      /// INTERNAL
-      if(voltammogram && i > 0) {
-        double pot = xv[i];
-        if((pot - lastPot) * direction < 0) // at change of direction
-          direction = -direction;
-        lastTime += (pot - lastPot) / direction;
-        lastPot = pot;
-      }
-      /// END INTERNAL
 
       double tg = (voltammogram ? lastTime : xv[i]);
 
@@ -799,12 +745,6 @@ public:
     const Vector & x = ds->x();
     const Vector & y = ds->y();
 
-    /// INTERNAL
-    if(voltammogram) {
-      a[0] = soas().temperature();
-      a[1] = 0.02;
-    }
-    /// END INTERNAL
 
     int nb = system->speciesNumber();
     if(! system->reporterExpression) {
@@ -861,11 +801,6 @@ public:
                                                  "Time dependent parameters",
                                                  "Dependency upon time of "
                                                  "various parameters")
-                   /// INTERNAL
-                   << new BoolArgument("voltammogram", 
-                                       "If on, x is not taken to be time, but "
-                                       "potential in a voltammetric experiment")
-                   /// END INTERNAL
                    << new BoolArgument("choose-t0", 
                                        "If on, one can choose the initial time")
                    );

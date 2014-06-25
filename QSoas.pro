@@ -364,25 +364,3 @@ SOURCES += odrpack/odrpackfitengine.cc \
         odrpack/d_mprec.new.c \
         odrpack/f2c_remains.c
 
-## INTERNAL
-
-###################################################################
-# This is the private zone
-
-SOURCES += src/binary.cc \
-        src/ducksim.cc \
-        src/multifitengine.cc \
-        src/abdmatrix.cc \
-        src/fitcatalyticwave.cc \
-        src/kineticsystemsteadystate.cc \
-        src/fittrajectorydisplay.cc \
-        src/parameterspaceexplorator.cc \
-        src/explorators.cc \
-        src/experimental-commands.cc \
-        src/private-fits.cc
-
-HEADERS += src/ducksim.hh \
-        src/kineticsystemsteadystate.hh \
-        src/parameterspaceexplorator.hh  \
-        src/fittrajectorydisplay.hh \
-        src/abdmatrix.hh

@@ -332,12 +332,6 @@ void FitDialog::setupFrame()
   ac->addAction("Reset to backup", this, 
                 SLOT(resetParameters()),
                 QKeySequence(tr("Ctrl+Shift+R")));
-  /// INTERNAL
-  ac->addAction("Show Trajectories", this, 
-                SLOT(displayTrajectories()),
-                QKeySequence(tr("Ctrl+Shift+T")));
-
-  /// END INTERNAL
   ac->addAction("Show covariance matrix", this, 
                 SLOT(showCovarianceMatrix()),
                 QKeySequence(tr("Ctrl+M")));
@@ -1172,13 +1166,3 @@ void FitDialog::showParameters()
 
 
 
-/// INTERNAL
-
-void FitDialog::displayTrajectories()
-{
-  // if(! trajectoryDisplay)
-  //   trajectoryDisplay = new FitTrajectoryDisplay(this, data, &trajectories);
-  FitTrajectoryDisplay dlg(this, data, &trajectories);
-  dlg.update();
-  dlg.exec();
-}

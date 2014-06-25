@@ -311,15 +311,6 @@ protected slots:
 
 
 
-  /// INTERNAL
-
-  /// We need that to access to the parameters
-  friend class FitTrajectoryDisplay;
-
-  /// Display the fit trajectories
-  void displayTrajectories();
-
-  /// END INTERNAL
 };
 
 #endif

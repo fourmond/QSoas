@@ -1,0 +1,6 @@
+#! /bin/sh
+
+for f in QSoas.pro src/*.??; do 
+    mv $f $f.bak
+    ruby scripts/strip-internal-bits.rb < $f.bak > $f
+done

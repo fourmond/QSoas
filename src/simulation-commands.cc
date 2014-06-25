@@ -1,6 +1,6 @@
 /*
-  linearkineticsystem.cc: implementation of LinearKineticSystem
-  Copyright 2011 by Vincent Fourmond
+  simulation-commands.cc: commands to simulate stuff
+  Copyright 2013,2014 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,8 +35,6 @@
 #include <curveview.hh>
 
 #include <rubyodesolver.hh>
-#include <kineticsystem.hh>
-#include <kineticsystemsteadystate.hh>
 
 
 static Group simulations("simulations", 10,
@@ -64,7 +62,7 @@ kSOpts(QList<Argument *>()
                              "Duration of the simulation")
        );
 
-static void kineticSystemCommand(const QString &, int specs,
+static void linearKineticSystemCommand(const QString &, int specs,
                                  QList<double> consts,
                                  const CommandOptions & opts)
 {
@@ -145,7 +143,7 @@ static void kineticSystemCommand(const QString &, int specs,
 
 static Command 
 p("linear-kinetic-system", // command name
-  effector(kineticSystemCommand), // action
+  effector(linearKineticSystemCommand), // action
   "simulations",  // group name
   &kSArgs, // arguments
   &kSOpts, // options
@@ -236,69 +234,3 @@ ode("ode", // command name
     "ODE solver",
     "Solves the given set of ODE",
     "...");
-
-//////////////////////////////////////////////////////////////////////
-
-static void ksSteadyStateCommand(const QString &, QString file,
-                                 QString parameters,
-                                 const CommandOptions & opts)
-{
-  const DataSet * ds = soas().currentDataSet();
-
-  KineticSystem sys; 
-  sys.parseFile(file);
-  bool dispersion = false;
-  updateFromOptions(opts, "dispersion", dispersion);
-
-  QStringList extra;
-  if(dispersion)
-    extra << "bd0";
-
-  sys.prepareForSteadyState(extra);
-
-  KineticSystemSteadyState ss(&sys);
-
-  ss.setParameters(QString("temperature = %1").arg(soas().temperature()));
-
-  ss.setParameters(parameters, false);
-
-  QStringList params = sys.allParameters();
-  Terminal::out << "Computing with parameters: \n";
-  for(int i = 0; i < params.size(); i++)
-    Terminal::out << " * " << params[i] << " = " 
-                  << ss.getParameters()[i] << endl;
-
-  Vector cur;
-  QList<Vector> concs;
-  ss.computeVoltammogram(ds->x(), &cur, &concs);
-  concs.insert(0, ds->x());
-  concs.insert(1, cur);
-
-  DataSet * nds = ds->derivedDataSet(concs, "_ss_sim.dat");
-  soas().stack().pushDataSet(nds); 
-}
-
-static ArgumentList 
-ksSSArgs(QList<Argument *>() 
-         << new FileArgument("file", 
-                             "File",
-                             "File containing the kinetic system")
-         << new StringArgument("parameters", 
-                               "Parameter values",
-                               "Values of the extra parameters")
-         );
-
-static ArgumentList 
-ksSSOpts(QList<Argument *>() 
-         << new BoolArgument("dispersion", 
-                             "Dispersion",
-                             "If on, handles the dispersion of k_0 values"));
-
-static Command 
-kss("catalytic-wave", // command name
-    effector(ksSteadyStateCommand), // action
-    "simulations",  // group name
-    &ksSSArgs, // arguments
-    &ksSSOpts, // options
-    "Kinetic system steady-state",
-    "Kinetic system steady-state");

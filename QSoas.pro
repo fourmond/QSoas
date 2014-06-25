@@ -246,9 +246,7 @@ SOURCES += src/qmain.cc \
         src/solver.cc \
         src/rubysolver.cc \
         src/msolver.cc \
-        src/kineticsystemsteadystate.cc \
         src/integrator.cc \
-        src/fitcatalyticwave.cc \
         src/gslintegrator.cc \
         src/distrib-fits.cc \
         src/metadataprovider.cc \
@@ -350,7 +348,6 @@ HEADERS += src/headers.hh \
         src/solver.hh \
         src/rubysolver.hh \
         src/msolver.hh \
-        src/kineticsystemsteadystate.hh \
         src/integrator.hh \
         src/namedinstance.hh \
         src/factory.hh \
@@ -379,7 +376,12 @@ SOURCES += odrpack/odrpackfitengine.cc \
 SOURCES += src/binary.cc \
         src/ducksim.cc \
         src/multifitengine.cc \
-        src/abdmatrix.cc
+        src/abdmatrix.cc \
+        src/fitcatalyticwave.cc \
+        src/kineticsystemsteadystate.cc \
+        src/experimental-commands.cc \
+        src/private-fits.cc
 
 HEADERS += src/ducksim.hh \
+        src/kineticsystemsteadystate.hh \
         src/abdmatrix.hh

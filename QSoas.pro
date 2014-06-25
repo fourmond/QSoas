@@ -214,7 +214,6 @@ SOURCES += src/qmain.cc \
         src/expression.cc \
         src/fitparameter.cc \
         src/fitengine.cc \
-        src/fittrajectorydisplay.cc \
         src/gslfitengine.cc \
         src/combinedfit.cc \
         src/gslfunction.cc \
@@ -232,8 +231,6 @@ SOURCES += src/qmain.cc \
         src/curve-effectors.cc \
         src/simplexfitengine.cc \
         src/stylegenerator.cc \
-        src/parameterspaceexplorator.cc \
-        src/explorators.cc \
         src/widgets.cc \
         src/fittrajectory.cc \
         src/baselinehandler.cc \
@@ -319,7 +316,6 @@ HEADERS += src/headers.hh \
         src/expression.hh \
         src/fitparameter.hh \
         src/fitengine.hh \
-        src/fittrajectorydisplay.hh \
         src/combinedfit.hh \
         src/gslfunction.hh \
         src/odesolver.hh \
@@ -334,7 +330,6 @@ HEADERS += src/headers.hh \
         src/curve-effectors.hh \
         src/idioms.hh \
         src/stylegenerator.hh \
-        src/parameterspaceexplorator.hh  \
         src/widgets.hh \
         src/fittrajectory.hh \
         src/baselinehandler.hh \
@@ -380,9 +375,14 @@ SOURCES += src/binary.cc \
         src/abdmatrix.cc \
         src/fitcatalyticwave.cc \
         src/kineticsystemsteadystate.cc \
+        src/fittrajectorydisplay.cc \
+        src/parameterspaceexplorator.cc \
+        src/explorators.cc \
         src/experimental-commands.cc \
         src/private-fits.cc
 
 HEADERS += src/ducksim.hh \
         src/kineticsystemsteadystate.hh \
+        src/parameterspaceexplorator.hh  \
+        src/fittrajectorydisplay.hh \
         src/abdmatrix.hh

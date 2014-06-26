@@ -43,7 +43,6 @@
 #include <parametersdialog.hh>
 
 #include <utils.hh>
-#include <fittrajectorydisplay.hh>
 #include <parametersviewer.hh>
 
 #include <curvebrowser.hh>

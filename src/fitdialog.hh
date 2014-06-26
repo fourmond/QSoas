@@ -23,13 +23,14 @@
 
 #include <fitengine.hh>
 #include <fitparameters.hh>
+#include <fittrajectory.hh>
 
 class FitData;
 class CurveView;
 class FitParameterEditor;
 class DataSet;
 
-class FitTrajectory;
+
 class ArgumentList;
 
 /// This class handles all the user interaction during fits.

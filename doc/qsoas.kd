@@ -1457,7 +1457,7 @@ several Y columns as a function of the same X, you should try
 [cmd: contract] instead.
 {::comment} description-end: cat {:/}
 
-## Buffer's meta-data 
+## Buffer's meta-data and perpendicular coordinates
 
 QSoas's buffers hold more than just columns of numbers. When a file is
 loaded, QSoas also gathers as much information as possible about that
@@ -1473,10 +1473,24 @@ buffers loaded from files:
   * `age` is the how old the file was in **seconds** when the current
     `QSoas` session was started.
   * `commands` is the list of commands that have been applied to this
-    buffer since its load.
+    buffer since its load/creation.
 
 Upon saving using [cmd: save] all of a buffer's meta-data are saved as
 comments in the text file.
+
+Perpendicular coordinates make sense when a buffer has several Y
+columns. For instance, when data consists in spectra taken at
+different times after the beginning of an experiment (or at different
+solution potentials for a redox titration), then the X values will be
+the wavelength, and each Y column will correspond to a different
+time. Then the time is the _perpendicular coordinate_. One can set
+the perpendicular coordinate manually using [cmd: set-perp].
+
+Many commands make use of perpendicular, most notably [cmd: transpose]
+(that would convert columns of $$y = f(\lambda)$$ for different values
+of $$t$$ above into columns of $$y = f(t)$$ for different values
+of $$\lambda$$), and all the multi-fit commands that show parameters
+as a function of the perpendicular coordinates when applicable.
 
 {::comment} synopsis-start: show {:/}
 
@@ -1518,6 +1532,59 @@ Using `set-meta`, one can set the value of the named meta-data for the
 current buffer. _name_ can have any value, it does not have to
 preexist in the list of buffer's meta-data.
 {::comment} description-end: set-meta {:/}
+
+{::comment} synopsis-start: set-perp {:/}
+
+### set-perp - Set perpendicular {#cmd-set-perp}
+
+`set-perp` _coords..._{:title="Several numbers, separated by ,"}
+
+  * _coords..._{:title="Several numbers, separated by ,"}: The values of the coordinates (one for each Y column)
+
+{::comment} synopsis-end: set-perp {:/}
+{::comment} description-start: set-perp {:/}
+Sets the perpendicular coordinates for the Y columns, as
+comma-separated values. For it to be useful, there must be as many
+perpendicular coordinates as there are Y columns.
+{::comment} description-end: set-perp {:/}
+
+{::comment} synopsis-start: transpose {:/}
+
+### transpose - Transpose {#cmd-transpose}
+
+`transpose` 
+
+
+{::comment} synopsis-end: transpose {:/}
+{::comment} description-start: transpose {:/}
+This command transposes the matrix of the Y columns, while paying
+attention to the perpendicular coordinates. In short, if one starts
+from a series of Y columns representing spectra as a function of
+$$\lambda$$ (the X column) for different values of time (each column
+at at different value of $$t$$), then after [cmd: transpose], the new
+dataset contains columns describing the time evolution of the
+absorbance for different values of $$\lambda$$ (one for each column).
+
+{::comment} description-end: transpose {:/}
+
+{::comment} synopsis-start: tweak-columns {:/}
+
+### tweak-columns - Tweak columns {#cmd-tweak-columns}
+
+`tweak-columns` `/remove=`_integers_{:title="A comma-separated list of integers"} `/flip=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/flip-all=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+
+  * `/remove=`_integers_{:title="A comma-separated list of integers"}: The column numbers to remove (X = 1, Y = 2, etc...)
+  * `/flip=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If true, flips all the Y columns
+  * `/flip-all=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If true, flips all the columns, including the X column
+
+{::comment} synopsis-end: tweak-columns {:/}
+{::comment} description-start: tweak-columns {:/}
+[cmd: tweak-columns] provides basic modifications of columns. If a
+comma-separated list of column number is given to the `/remove`
+option, then the given columns are removed. If `/flip` is on, then all
+Y columns are reversed. If `/flip-all` is on, then all columns,
+including the X column, are reversed.
+{::comment} description-end: tweak-columns {:/}
 
 
 
@@ -1691,8 +1758,41 @@ Draw a baseline by placing markers on the curve using the mouse (or
 off the curve, after using key `o`). Baseline is computing using one
 of several interpolation algorithms: C-splines, linear or polynomial
 interpolation and Akima splines (the latter usually follows best the
-accidents on the curve). Cycle between the various schemes by hitting `t`.
+accidents on the curve). Cycle between the various schemes by hitting
+`t`.
+
+It is possible to leave saving not the interpolated data, but just the
+interpolation ``nodes'' (ie the big dots), by pushing the `p`
+key. This has two advantages: first, one can load nodes from a buffer
+by hitting the `L` key and providing the buffer number (or just their
+X value by hitting `l`). Second, if one has the nodes and just the X
+values, one can generate the interpolated data using [cmd: interpolate].
+
 {::comment} description-end: baseline {:/}
+
+
+{::comment} synopsis-start: interpolate {:/}
+
+### interpolate - Interpolate {#cmd-interpolate}
+
+`interpolate` _xvalues_{:title="The number of a buffer in the stack"} _nodes_{:title="The number of a buffer in the stack"} `/type=`_choice_{:title="One of: Akima spline, C-spline, linear, polynomial"}
+
+  * _xvalues_{:title="The number of a buffer in the stack"}: Base for X values
+  * _nodes_{:title="The number of a buffer in the stack"}: Interpolation nodes X/Y values
+  * `/type=`_choice_{:title="One of: Akima spline, C-spline, linear, polynomial"}: Interpolation type
+
+{::comment} synopsis-end: interpolate {:/}
+{::comment} description-start: interpolate {:/}
+Given _xvalues_ and the X/Y position of interpolation nodes saved using
+`p` from within [cmd: baseline], this command regenerates the
+interpolated values. 
+
+Through this approach, one can draw a baseline, save the points,
+generate the baseline-subtracted data using [cmd: interpolate] from
+within a script. This has the advantage that one can always have a
+close look at the quality of the baseline, and tweak it if need be.
+
+{::comment} description-end: interpolate {:/}
 
 {::comment} synopsis-start: catalytic-baseline {:/}
 
@@ -1834,7 +1934,7 @@ Applies stepwise film loss correction (in the spirit of the $$K_m$$
 experiments in [Fourmond _et al_, _Anal. Chem._,
 *2009*](http://dx.doi.org/10.1021/ac8025702). For that, the current
 buffer must be separated into segments, using
-[cmd: set-segments], for instance. QSoas then zooms on
+[cmd: set-segments], for instance. `QSoas` then zooms on
 the first segment. Right and left clicking around the final linear
 decay will set the value of the film loss rate constant for this
 step. Push space to switch to the next step, and when you have done
@@ -2796,17 +2896,17 @@ To define a new fit one could combine with others using
 
 ### fit-kinetic-system - Fit: Full kinetic system {#cmd-fit-kinetic-system}
 
-`fit-kinetic-system` _system_{:title="Path of a file (or a directory)"} `/with=`_texts_ `/voltammogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/max-iterations=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+`fit-kinetic-system` _system_{:title="Path of a file (or a directory)"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the system
   * `/with=`_texts_: Dependency upon time of various parameters
-  * `/voltammogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
   * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
   * `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptative stepper
   * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
+  * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
   * `/prec-relative=`_number_{:title="A floating-point number"}: Relative precision required
   * `/prec-absolute=`_number_{:title="A floating-point number"}: Absolute precision required
-  * `/max-iterations=`_integer_{:title="An integer"}: Maximum number of internal iterations for each step (0 to allow infinite number)
+  * `/sub-steps=`_integer_{:title="An integer"}: If this is not 0, then the smallest step size is that number times less than the minimum delta t
   * `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: Algorithm used for integration
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
@@ -2825,18 +2925,18 @@ of name `y_A` (for the coefficient for the concentration of species
 
 ### mfit-kinetic-system - Multi fit: Full kinetic system {#cmd-mfit-kinetic-system}
 
-`mfit-kinetic-system` _system_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_texts_ `/voltammogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/max-iterations=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-kinetic-system` _system_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the system
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/with=`_texts_: Dependency upon time of various parameters
-  * `/voltammogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
   * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
   * `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptative stepper
   * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
+  * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
   * `/prec-relative=`_number_{:title="A floating-point number"}: Relative precision required
   * `/prec-absolute=`_number_{:title="A floating-point number"}: Absolute precision required
-  * `/max-iterations=`_integer_{:title="An integer"}: Maximum number of internal iterations for each step (0 to allow infinite number)
+  * `/sub-steps=`_integer_{:title="An integer"}: If this is not 0, then the smallest step size is that number times less than the minimum delta t
   * `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: Algorithm used for integration
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
@@ -2855,19 +2955,19 @@ Multi-buffer variant of the
 
 ### sim-kinetic-system - Fit: Full kinetic system {#cmd-sim-kinetic-system}
 
-`sim-kinetic-system` _system_{:title="Path of a file (or a directory)"} _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_texts_ `/voltammogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/max-iterations=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`sim-kinetic-system` _system_{:title="Path of a file (or a directory)"} _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the system
   * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/with=`_texts_: Dependency upon time of various parameters
-  * `/voltammogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
   * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
   * `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptative stepper
   * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
+  * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
   * `/prec-relative=`_number_{:title="A floating-point number"}: Relative precision required
   * `/prec-absolute=`_number_{:title="A floating-point number"}: Absolute precision required
-  * `/max-iterations=`_integer_{:title="An integer"}: Maximum number of internal iterations for each step (0 to allow infinite number)
+  * `/sub-steps=`_integer_{:title="An integer"}: If this is not 0, then the smallest step size is that number times less than the minimum delta t
   * `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: Algorithm used for integration
   * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
@@ -3379,16 +3479,17 @@ QSoas> generate-buffer -10 10 sin(x)
 
 ### kinetic-system - Kinetic system evolver {#cmd-kinetic-system}
 
-`kinetic-system` _reaction-file_{:title="Path of a file (or a directory)"} _parameters_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/dump=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/max-iterations=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/annotate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`kinetic-system` _reaction-file_{:title="Path of a file (or a directory)"} _parameters_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/dump=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/annotate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _reaction-file_{:title="Path of a file (or a directory)"}: File describing the kinetic system
   * _parameters_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Parameters of the model
   * `/dump=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, dumps the system rather than solving
   * `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptative stepper
   * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
+  * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
   * `/prec-relative=`_number_{:title="A floating-point number"}: Relative precision required
   * `/prec-absolute=`_number_{:title="A floating-point number"}: Absolute precision required
-  * `/max-iterations=`_integer_{:title="An integer"}: Maximum number of internal iterations for each step (0 to allow infinite number)
+  * `/sub-steps=`_integer_{:title="An integer"}: If this is not 0, then the smallest step size is that number times less than the minimum delta t
   * `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: Algorithm used for integration
   * `/annotate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, a last column will contain the number of function evaluation for each step
 
@@ -3435,16 +3536,17 @@ complex formulas.
 
 ### ode - ODE solver {#cmd-ode}
 
-`ode` _file_{:title="Path of a file (or a directory)"} `/parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/annotate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/max-iterations=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}
+`ode` _file_{:title="Path of a file (or a directory)"} `/parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/annotate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}
 
   * _file_{:title="Path of a file (or a directory)"}: File containing the system
   * `/parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} (default): Values of the extra parameters
   * `/annotate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, a last column will contain the number of function evaluation for each step
   * `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptative stepper
   * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
+  * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
   * `/prec-relative=`_number_{:title="A floating-point number"}: Relative precision required
   * `/prec-absolute=`_number_{:title="A floating-point number"}: Absolute precision required
-  * `/max-iterations=`_integer_{:title="An integer"}: Maximum number of internal iterations for each step (0 to allow infinite number)
+  * `/sub-steps=`_integer_{:title="An integer"}: If this is not 0, then the smallest step size is that number times less than the minimum delta t
   * `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: Algorithm used for integration
 
 {::comment} synopsis-end: ode {:/}
@@ -3714,7 +3816,6 @@ listed here:
  * [`break`](#cmd-break)
  * [`browse`](#cmd-browse)
  * [`cat`](#cmd-cat)
- * [`catalytic-wave`](#cmd-catalytic-wave)
  * [`cd`](#cmd-cd)
  * [`chop`](#cmd-chop)
  * [`clear`](#cmd-clear)
@@ -3729,7 +3830,6 @@ listed here:
  * [`define-alias`](#cmd-define-alias)
  * [`define-derived-fit`](#cmd-define-derived-fit)
  * [`define-kinetic-system-fit`](#cmd-define-kinetic-system-fit)
- * [`define-lw-fit`](#cmd-define-lw-fit)
  * [`diff`](#cmd-diff)
  * [`diff2`](#cmd-diff2)
  * [`display-aliases`](#cmd-display-aliases)
@@ -3751,8 +3851,8 @@ listed here:
  * [`graphics-settings`](#cmd-graphics-settings)
  * [`help`](#cmd-help)
  * [`integrate`](#cmd-integrate)
+ * [`interpolate`](#cmd-interpolate)
  * [`kinetic-system`](#cmd-kinetic-system)
- * [`linear-kinetic-system`](#cmd-linear-kinetic-system)
  * [`load`](#cmd-load)
  * [`load-as-csv`](#cmd-load-as-csv)
  * [`load-as-text`](#cmd-load-as-text)
@@ -3788,24 +3888,20 @@ listed here:
  * [`shiftx`](#cmd-shiftx)
  * [`show`](#cmd-show)
  * [`show-stack`](#cmd-show-stack)
+ * [`sim-adsorbed`](#cmd-sim-adsorbed)
  * [`sim-ecr-wave`](#cmd-sim-ecr-wave)
- * [`sim-eec-transport`](#cmd-sim-eec-transport)
  * [`sim-eecr-relay-wave`](#cmd-sim-eecr-relay-wave)
  * [`sim-eecr-wave`](#cmd-sim-eecr-wave)
  * [`sim-exponential-decay`](#cmd-sim-exponential-decay)
- * [`sim-fefe-hp-inact`](#cmd-sim-fefe-hp-inact)
  * [`sim-gaussian`](#cmd-sim-gaussian)
- * [`sim-inact-react-amplitude-2phases`](#cmd-sim-inact-react-amplitude-2phases)
  * [`sim-kinetic-system`](#cmd-sim-kinetic-system)
- * [`sim-linear-kinetic-system`](#cmd-sim-linear-kinetic-system)
  * [`sim-lorentzian`](#cmd-sim-lorentzian)
- * [`sim-lw`](#cmd-sim-lw)
  * [`sim-multiexp-multistep`](#cmd-sim-multiexp-multistep)
  * [`sim-nernst`](#cmd-sim-nernst)
  * [`sim-polynomial`](#cmd-sim-polynomial)
- * [`sim-react-exp`](#cmd-sim-react-exp)
  * [`sim-slow-scan-hp`](#cmd-sim-slow-scan-hp)
  * [`sim-slow-scan-lp`](#cmd-sim-slow-scan-lp)
+ * [`sim-two-polynomials`](#cmd-sim-two-polynomials)
  * [`sort`](#cmd-sort)
  * [`split-monotonic`](#cmd-split-monotonic)
  * [`splita`](#cmd-splita)
@@ -3814,9 +3910,7 @@ listed here:
  * [`stats`](#cmd-stats)
  * [`strip-if`](#cmd-strip-if)
  * [`subtract`](#cmd-subtract)
- * [`sv-decomp`](#cmd-sv-decomp)
  * [`temperature`](#cmd-temperature)
- * [`test-lw`](#cmd-test-lw)
  * [`tex-commands`](#cmd-tex-commands)
  * [`transpose`](#cmd-transpose)
  * [`tweak-columns`](#cmd-tweak-columns)
@@ -3843,7 +3937,7 @@ evaluation programs (it is quite close to the one from
    an uppercase letter is assumed to be a constant.
  * Don't abbreviate floating points: `2.` and `.4` are invalid, use
    `2.0` and `0.4` instead.
- * Dase matters: `Pi` is $$\pi$$, while `pi` is nothing defined.
+ * Case matters: `Pi` is $$\pi$$, while `pi` is nothing defined.
 
 In addition to standard mathematical functions from the [Math][math]
 module, the following special functions are available:
@@ -3866,9 +3960,17 @@ with an **uppercase** letter.
 
 {::comment} constants-start {:/}
 
+ * `C`: The speed of light in vacuum, $$c$$ -- 2.99792e+08
+ * `Eps_0`: The permeability of vacuum, $$\epsilon_0$$ -- 1.25664e-06
  * `F`: Faraday's constant, $$F$$ -- 96485.3
+ * `H`: The Planck constant, $$h$$ -- 6.62607e-34
+ * `Hbar`: $$\hbar = h/2\pi$$ -- 1.05457e-34
+ * `Kb`: Boltzmann's constant -- 1.38065e-23
+ * `Mu_0`: The permittivity of vacuum, $$\mu_0$$ -- 8.85419e-12
+ * `Na`: The Avogadro number, $$N_A$$ -- 6.02214e+23
  * `Pi`, `PI`: $$\pi$$ -- 3.14159
  * `R`: Molar gas constant, $$R$$ -- 8.31447
+ * `Sigma`: The Stefan-Boltzmann radiation constant -- 5.6704e-08
 
 {::comment} constants-end {:/}
 
@@ -3877,80 +3979,3 @@ with an **uppercase** letter.
 [math]:http://www.ruby-doc.org/core-1.9.3/Math.html "Documentation of the Math module"
 [gnuplot]:http://www.gnuplot.info/ "Gnuplot, the plotting program"
 
-{::comment} synopsis-start: fit-polynomial {:/}
-
-### fit-polynomial - Fit: Fit to a polynomial function {#cmd-fit-polynomial}
-
-`fit-polynomial` `/order=`_integer_{:title="An integer"} `/monotonic=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/without-inflexions=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
-
-  * `/order=`_integer_{:title="An integer"}: Order of the polynomial function
-  * `/monotonic=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: With this on, only monotonic functions are solutions
-  * `/without-inflexions=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If this is on, there are no inflexion points
-  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
-  * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
-  * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
-  * `/set-from-meta=`_texts_: Set parameter values from meta-data
-
-{::comment} synopsis-end: fit-polynomial {:/}
-{::comment} synopsis-start: mfit-polynomial {:/}
-
-### mfit-polynomial - Multi fit: Fit to a polynomial function {#cmd-mfit-polynomial}
-
-`mfit-polynomial` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/order=`_integer_{:title="An integer"} `/monotonic=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/without-inflexions=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
-
-  * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
-  * `/order=`_integer_{:title="An integer"}: Order of the polynomial function
-  * `/monotonic=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: With this on, only monotonic functions are solutions
-  * `/without-inflexions=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If this is on, there are no inflexion points
-  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
-  * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
-  * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
-  * `/set-from-meta=`_texts_: Set parameter values from meta-data
-  * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
-  * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
-
-{::comment} synopsis-end: mfit-polynomial {:/}
-{::comment} synopsis-start: set-perp {:/}
-
-### set-perp - Set perpendicular {#cmd-set-perp}
-
-`set-perp` _coords..._{:title="Several numbers, separated by ,"}
-
-  * _coords..._{:title="Several numbers, separated by ,"}: The values of the coordinates (one for each Y column)
-
-{::comment} synopsis-end: set-perp {:/}
-{::comment} synopsis-start: sim-polynomial {:/}
-
-### sim-polynomial - Fit: Fit to a polynomial function {#cmd-sim-polynomial}
-
-`sim-polynomial` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/order=`_integer_{:title="An integer"} `/monotonic=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/without-inflexions=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
-
-  * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
-  * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
-  * `/order=`_integer_{:title="An integer"}: Order of the polynomial function
-  * `/monotonic=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: With this on, only monotonic functions are solutions
-  * `/without-inflexions=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If this is on, there are no inflexion points
-  * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
-  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
-  * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
-
-{::comment} synopsis-end: sim-polynomial {:/}
-{::comment} synopsis-start: transpose {:/}
-
-### transpose - Transpose {#cmd-transpose}
-
-`transpose` 
-
-
-{::comment} synopsis-end: transpose {:/}
-{::comment} synopsis-start: tweak-columns {:/}
-
-### tweak-columns - Tweak columns {#cmd-tweak-columns}
-
-`tweak-columns` `/remove=`_integers_{:title="A comma-separated list of integers"} `/flip=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/flip-all=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
-
-  * `/remove=`_integers_{:title="A comma-separated list of integers"}: The column numbers to remove (X = 1, Y = 2, etc...)
-  * `/flip=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If true, flips all the Y columns
-  * `/flip-all=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If true, flips all the columns, including the X column
-
-{::comment} synopsis-end: tweak-columns {:/}

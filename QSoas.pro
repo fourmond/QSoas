@@ -190,10 +190,8 @@ SOURCES += src/qmain.cc \
         src/flowinggridlayout.cc \
         src/fitparameters.cc \
         src/fitdata.cc \
-        src/inactivation-fits.cc \
         src/exceptions.cc \
         src/file-arguments.cc \
-        src/linearkineticsystem.cc \
         src/simulation-commands.cc \
         src/fitparametereditor.cc \
         src/bijection.cc \
@@ -209,8 +207,6 @@ SOURCES += src/qmain.cc \
         src/custom-fits.cc \
         src/derivativefit.cc \
         src/formattedstring.cc \
-        src/linearwave.cc \
-        src/linearwavefit.cc \
         src/expression.cc \
         src/fitparameter.cc \
         src/fitengine.cc \
@@ -301,7 +297,6 @@ HEADERS += src/headers.hh \
         src/fitdata.hh \
         src/exceptions.hh \
         src/file-arguments.hh \
-        src/linearkineticsystem.hh \
         src/fitparametereditor.hh  \
         src/bijection.hh \
         src/parametersdialog.hh \
@@ -312,7 +307,6 @@ HEADERS += src/headers.hh \
         src/pointtracker.hh \
         src/derivativefit.hh \
         src/formattedstring.hh \
-        src/linearwave.hh \
         src/expression.hh \
         src/fitparameter.hh \
         src/fitengine.hh \

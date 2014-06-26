@@ -30,7 +30,6 @@
 #include <dataset.hh>
 #include <databackend.hh>
 
-#include <curveeventloop.hh>
 #include <curveitems.hh>
 #include <curvemarker.hh>
 #include <curveview.hh>
@@ -230,75 +229,6 @@ p("print", // command name
   "Prints the current main panel of the current view",
   "p"
   );
-
-//////////////////////////////////////////////////////////////////////
-
-static void testELoopCommand(CurveEventLoop & loop, const QString &)
-{
-  // Debug::dumpCurrentFocus("Focus before creation: ");
-  // CurveEventLoop loop;
-  Debug::dumpCurrentFocus("Focus after creation: ");
-  CurveLine l;
-  CurveMarker m;
-  CurvePanel p;
-  CurveView & view = soas().view();
-  l.pen = QPen("black");
-  view.addItem(&l);
-  view.addItem(&m);
-  view.addPanel(&p);
-  QTextStream o(stdout);
-  int i = 0;
-  m.size = 5;
-  m.pen = QPen(QColor("red"), 2);
-  m.brush = QBrush("blue");
-  Debug::dumpCurrentFocus("Focus before loop: ");
-  while(! loop.finished()) {
-    // Debug::dumpCurrentFocus("Current focus: ");
-    // o << "Event: " << loop.type()
-    //   << ", key " << QString("0x%1").arg(loop.key(), 8, 16, 
-    //                                      QChar('0')) << endl;
-    if(loop.key() == Qt::Key_Escape)
-      return;
-
-    if(loop.type() == QEvent::MouseButtonPress) {
-      QPointF p = loop.position();
-      Terminal::out << "Focus window: " << qApp->focusWidget() << endl;
-      Terminal::out << "Press event at " << p.x() << "," << p.y() 
-                    << " -- " << loop.button() << " #" << i << endl;
-      
-      if(i % 2)
-        l.p2 = p;
-      else
-        l.p1 = p;
-      m.p = p;
-      i++;
-      if(loop.button() == Qt::MiddleButton)
-        return;                 // As a escape route in mac
-      if(i >= 10)
-        return;                 // As a escape route in mac (too)
-    }
-    else if(loop.type() == QEvent::KeyPress) {
-      Terminal::out << "Key press: " << loop.key() 
-                    << " -- " << QChar(loop.key()) << endl;
-      if(loop.key() == 's') {
-        Terminal::out << "Prompting: " << endl;
-        QString str = loop.promptForString("what ?");
-        Terminal::out << "Got string: " << str << endl;
-      }
-    }
-  }
-  Debug::dumpCurrentFocus("Focus after loop: ");
-}
-
-static Command 
-tel("test-event-loop", // command name
-    optionLessEffector(testELoopCommand), // action
-    "file",  // group name
-    NULL, // arguments
-    NULL, // options
-    "Test event loop",
-    "Test event loop",
-    "Exits QSoas, losing all the current session");
 
 //////////////////////////////////////////////////////////////////////
   
@@ -705,54 +635,6 @@ pwd("pwd", // command name
    "Print working directory");
   
 
-
-//////////////////////////////////////////////////////////////////////
-  
-static ArgumentList 
-dummyArgs(QList<Argument *>() 
-          << new FileSaveArgument("file", 
-                                  "File",
-                                  "Files to load !",
-                                  "bidule.dat"));
-
-
-static ArgumentList 
-dummyOptions(QList<Argument *>() 
-             << new FileArgument("file", 
-                                 "File",
-                                 "Files to load !")
-             << new StringArgument("fiddle",
-                                   "File",
-                                   "Files to load !")
-             << new StringArgument("stuff",
-                                   "File",
-                                   "Files to load !")
-             );
-                             
-
-static void dummyCommand(const QString & , QString arg, 
-                         const CommandOptions & opts)
-{
-  // for(int i = 0; i < args.size(); i++)
-  //   Terminal::out << "Arg #" << i << ": '" << args[i] << "'" << endl;
-  Terminal::out << "Arg is: " << arg << endl;
-  for(CommandOptions::const_iterator i = opts.begin();
-      i != opts.end(); i++)
-    Terminal::out << "Option: " << i.key() << ": '" 
-                  << i.value()->value<QString>() << "'" << endl;
-  
-}
-
-
-static Command 
-dummy("dummy", // command name
-      effector(dummyCommand), // action
-      "file",  // group name
-      &dummyArgs, // arguments
-      &dummyOptions, // options
-      "Dummy",
-      "Dummy test command",
-      "Dummy command for testing purposes");
 
 //////////////////////////////////////////////////////////////////////
 

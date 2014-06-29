@@ -1188,6 +1188,12 @@ namespace __fft {
   bool recomputeForward = true;
   FFT orig(ds->x(), ds->y());
 
+  double dmin, dmax;
+  ds->x().deltaStats(&dmin, &dmax);
+
+  bool unevenDX = (fabs(dmin) * 1.05 > fabs(dmax) ? false : true);
+
+
 
   d.pen = gs.getPen(GraphicsSettings::ResultPen);
   d.xvalues = ds->x();
@@ -1277,6 +1283,9 @@ namespace __fft {
     Terminal::out << "Mixed-radix: " << ds->x().size() << " factorized as "
                   << lst.join(" * ") << endl;
   }
+
+  if(unevenDX)
+    Terminal::out << "X values are not evenly spaced. This may be OK for filtering, but will give false results for deriving" << endl;
 
   for(int i = 0; i < spec1.yvalues.size(); i++)
     spec1.yvalues[i] = log(orig.magnitude(i+1));
@@ -1490,6 +1499,18 @@ static void autoFilterFFTCommand(const QString &, const CommandOptions & opts)
 
   updateFromOptions(opts, "cutoff", cutoff);
   updateFromOptions(opts, "derive", derivatives);
+
+  double dmin, dmax;
+  ds->x().deltaStats(&dmin, &dmax);
+
+  bool unevenDX = (fabs(dmin) * 1.05 > fabs(dmax) ? false : true);
+  if(unevenDX) {
+    if(derivatives > 0)
+      Terminal::out << "WARNING: dx are not even, the derivatives WILL BE WRONG !" << endl;
+    else
+      Terminal::out << "Warning: dx are not even, but that should be OK for filtering" << endl;
+  }
+
 
   FFT orig(ds->x(), ds->y());
   orig.forward();

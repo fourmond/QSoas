@@ -26,8 +26,6 @@ class CurveItem;
 
 /// Hides everything currently displayed in a panel, until the
 /// effector goes out of scope.
-///
-/// If
 class CEHideAll {
   /// The list of objects that are initially visible
   QList< QPointer<CurveItem> > initiallyVisibleItems;
@@ -37,6 +35,18 @@ class CEHideAll {
 public:
   CEHideAll(CurvePanel * tg, bool doHide = true);
   ~CEHideAll();
+};
+
+
+/// Disables (or enables) the updates on the target widget. Restores the
+/// previous state when the object goes out of scope.
+class WDisableUpdates {
+  QWidget * target;
+
+  bool initial;
+public:
+  WDisableUpdates(QWidget * tg, bool disable = true);
+  ~WDisableUpdates();
 };
 
 #endif

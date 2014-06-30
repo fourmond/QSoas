@@ -45,3 +45,19 @@ CEHideAll::~CEHideAll()
   }
   /// @todo How to make sure the view is updated ?
 }
+
+//////////////////////////////////////////////////////////////////////
+
+WDisableUpdates::WDisableUpdates(QWidget * tg, bool disable) : 
+  target(tg)
+{
+  initial = tg->updatesEnabled();
+  if(disable)
+    target->setUpdatesEnabled(false);
+}
+
+WDisableUpdates::~WDisableUpdates()
+{
+  target->setUpdatesEnabled(initial);
+}
+

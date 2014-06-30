@@ -25,6 +25,7 @@
 #include <file-arguments.hh>
 #include <terminal.hh>
 #include <exceptions.hh>
+#include <curve-effectors.hh>
 
 #include <vector.hh>
 #include <dataset.hh>
@@ -300,17 +301,10 @@ static void runCommand(const QString &, QStringList args,
   updateFromOptions(opts, "add-to-history", addToHistory);
   bool silent = false;
   updateFromOptions(opts, "silent", silent);
+  WDisableUpdates eff(& soas().view(), silent);
 
-  if(silent) {
-    QTextStream o(stdout);
-    o << "Running in silent mode" << endl;
-    soas().view().disableUpdates();
-  }
   QString cmdfile = args.takeFirst();
-
   soas().prompt().runCommandFile(cmdfile, args, addToHistory);
-  if(silent)
-    soas().view().enableUpdates();
 }
 
 static ArgumentList
@@ -389,10 +383,16 @@ static void runForDatasetsCommand(const QString &, QString script,
   for(int i = 0; i < dss.size(); i++)
     datasets << new DataSet(*dss[i]);
 
+  bool addToHistory = false;
+  updateFromOptions(opts, "add-to-history", addToHistory);
+  bool silent = false;
+  updateFromOptions(opts, "silent", silent);
+  WDisableUpdates eff(& soas().view(), silent);
+
   while(datasets.size() > 0) {
     QStringList a;
     soas().pushDataSet(new DataSet(*datasets.takeLast()));
-    soas().prompt().runCommandFile(script, a, false);
+    soas().prompt().runCommandFile(script, a, addToHistory);
   }
 }
 
@@ -408,12 +408,14 @@ rfdArgs(QList<Argument *>()
 
 
 
+
+
 static Command 
 rfd("run-for-datasets", // command name
     effector(runForDatasetsCommand), // action
     "file",  // group name
     &rfdArgs, // arguments
-    NULL, 
+    &runOpts, 
     "Runs a script for several datasets",
     "Runs a script file repetitively with the given buffers",
     "...");
@@ -428,6 +430,11 @@ static void runForEachCommand(const QString &, QString script,
 {
   bool addToHistory = false;
   updateFromOptions(opts, "add-to-history", addToHistory);
+
+  bool silent = false;
+  updateFromOptions(opts, "silent", silent);
+  WDisableUpdates eff(& soas().view(), silent);
+
   int nb = 1;
 
   QStringList additionalArgs;
@@ -517,6 +524,10 @@ rfeOpts(QList<Argument *>()
                             "Add commands to history",
                             "Whether the commands run are added to the "
                             "history (defaults to false)")
+        << new BoolArgument("silent", 
+                            "Silent processing",
+                            "Whether or not display is updated "
+                            "during the load")
         );
 
 

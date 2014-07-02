@@ -48,9 +48,9 @@ QList<Argument *> Integrator::integratorOptions()
     ("integrator", 
      "Integrator",
      "The algorithm used for integration")
-       << new NumberArgument("relative-int", "Relative integration precision",
+       << new NumberArgument("prec-relative", "Relative integration precision",
                              "Relative precision required for integration")
-       << new NumberArgument("absolute-int", "Absolute integration precision",
+       << new NumberArgument("prec-absolute", "Absolute integration precision",
                              "Absolute precision required for integration");
   return args;
 }
@@ -63,9 +63,9 @@ Integrator * Integrator::fromOptions(const CommandOptions & opts,
   updateFromOptions(opts, "integrator", c);
 
   double relPrec = 1e-4;
-  updateFromOptions(opts, "relative-int", relPrec);
+  updateFromOptions(opts, "prec-relative", relPrec);
   double absPrec = 0;
-  updateFromOptions(opts, "absolute-int", absPrec);
+  updateFromOptions(opts, "prec-absolute", absPrec);
   
   return c->creator(maxnum, relPrec, absPrec);
 }

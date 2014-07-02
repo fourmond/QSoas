@@ -1243,7 +1243,7 @@ static void statsCommand(const QString &, const CommandOptions & opts)
   DataSet * ds = soas().currentDataSet();
   bool output = false;
   updateFromOptions(opts, "buffer", ds);
-  updateFromOptions(opts, "to-file", output);
+  updateFromOptions(opts, "output", output);
   bool bySegments = false;
   updateFromOptions(opts, "use-segments", bySegments);
 
@@ -1264,8 +1264,8 @@ statsO(QList<Argument *>()
                               "Buffer",
                               "An alternative buffer to get information on",
                               true)
-       << new BoolArgument("to-file", 
-                           "To file",
+       << new BoolArgument("output", 
+                           "To output file",
                            "Also write stats to output file")
        << new BoolArgument("use-segments", 
                            "Use segments",

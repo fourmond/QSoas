@@ -108,21 +108,39 @@ sb("splitb", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void splitMonotonicCommand(const QString &)
+static void splitMonotonicCommand(const QString &, 
+                                  const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();
   QList<DataSet *> nds = ds->splitIntoMonotonic();
-  for(int i = 0; i < nds.size(); i++)
+
+  QStringList flags;
+  updateFromOptions(opts, "flags", flags);
+
+  for(int i = 0; i < nds.size(); i++) {
+    if(flags.size() > 0)
+      nds[i]->setFlags(flags);
+
     soas().pushDataSet(nds[i]);
+  }
 }
         
 
+
+static ArgumentList 
+smOpts(QList<Argument *>() 
+           << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                         "flags", 
+                                         "Buffers",
+                                         "Buffers to flag/unflag"));
+
+
 static Command 
 sm("split-monotonic", // command name
-   optionLessEffector(splitMonotonicCommand), // action
+   effector(splitMonotonicCommand), // action
    "buffer",  // group name
    NULL, // arguments
-   NULL, // options
+   &smOpts, // options
    "Split into monotonic parts",
    "Splits a buffer into subparts where the change in X are monotonic");
 
@@ -298,6 +316,9 @@ static void chopCommand(const QString &, QList<double> values,
   updateFromOptions(opts, "set-segments", setSegs);
   if(setSegs)
     indices = new QList<int>(ds->segments);
+
+  QStringList flags;
+  updateFromOptions(opts, "flags", flags);
   
   if(testOption<QString>(opts, "mode", "index") ||
      testOption<QString>(opts, "mode", "indices")) {
@@ -317,11 +338,16 @@ static void chopCommand(const QString &, QList<double> values,
     DataSet * nds = new DataSet(*ds);
     nds->segments = *indices;
     soas().pushDataSet(nds);
+    for(int i = 0; i < splitted.size(); i++)
+      delete splitted[i];
     delete indices;
   }
   else
-    for(int i = splitted.size() - 1; i >= 0; i--)
+    for(int i = splitted.size() - 1; i >= 0; i--) {
+      if(flags.size() > 0)
+        splitted[i]->setFlags(flags);
       soas().pushDataSet(splitted[i]);
+    }
 }
 
 static ArgumentList 
@@ -340,6 +366,10 @@ chopO(QList<Argument *>()
                             "mode", 
                             "Mode",
                             "Whether to cut on index or x values (default)")
+      << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                    "flags", 
+                                    "Buffers",
+                                    "Buffers to flag/unflag")      
       << new BoolArgument("set-segments", 
                           "Set segments",
                           "Whether to actually cut the dataset, or just "

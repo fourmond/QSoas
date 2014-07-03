@@ -1,7 +1,7 @@
 /**
    \file peaks.hh
-   The PEAKS class, providing GSL-based fourier transforms
-   Copyright 2011 by Vincent Fourmond
+   Peak detection
+   Copyright 2012, 2014 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -73,6 +73,10 @@ public:
 
   /// Sorts the peaks by magnitude
   static void sortByMagnitude(QList<PeakInfo> & peaks);
+
+  /// Removes either maxs (if second argument is true) or mins from
+  /// the given list.
+  static void removeMinMax(QList<PeakInfo> & peaks, bool removeMax);
 };
 
 /// A pair of forward and backward peaks, in particular in a

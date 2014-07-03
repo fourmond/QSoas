@@ -1,6 +1,6 @@
 /*
-  peaks.cc: implementation of the Peaks class
-  Copyright 2011 by Vincent Fourmond
+  peaks.cc: peak detection
+  Copyright 2012, 2014 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,6 +31,16 @@ bool PeakInfo::comparePeakMagnitude(const PeakInfo &a, const PeakInfo & b)
 void PeakInfo::sortByMagnitude(QList<PeakInfo> & peaks)
 {
   qSort(peaks.begin(), peaks.end(), &PeakInfo::comparePeakMagnitude);
+}
+
+void PeakInfo::removeMinMax(QList<PeakInfo> & peaks, bool removeMax)
+{
+  for(int i = 0; i < peaks.size(); i++) {
+    if(!removeMax != !peaks[i].isMin) {
+      peaks.takeAt(i);
+      i--;
+    }
+  }
 }
 
 

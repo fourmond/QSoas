@@ -1,7 +1,8 @@
 /**
    \file data-processing-commands.cc
    Commands to extract information from datasets
-   Copyright 2011, 2013 by Vincent Fourmond
+   Copyright 2011 by Vincent Fourmond
+             2011,2013, 2014 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -1905,19 +1906,40 @@ static void findPeaksCommand(const QString &name, const CommandOptions & opts)
 
   bool includeBorders = false;
 
+  bool trim = false;
+  bool max = false;
+  QString which;
+  
+
   updateFromOptions(opts, "window", window);
   updateFromOptions(opts, "peaks", nb);
   updateFromOptions(opts, "include-borders", includeBorders);
   updateFromOptions(opts, "output", write);
 
+  updateFromOptions(opts, "which", which);
+  if(which == "min") {
+    trim = true;
+    max = false;
+  }
+  else if(which == "max") {
+    trim = true;
+    max = true;
+  }
+  else
+    trim = false;
+
+
   const DataSet * ds = soas().currentDataSet();
   Peaks pk(ds, window);
 
   QList<PeakInfo> peaks = pk.findPeaks(includeBorders);
+  if(trim)
+    PeakInfo::removeMinMax(peaks, !max);
   if(nb >= 0)
     PeakInfo::sortByMagnitude(peaks);
   displayPeaks(peaks, ds, nb, write);
 }
+
 
 static ArgumentList 
 fpBaseOps(QList<Argument *>() 
@@ -1927,6 +1949,11 @@ fpBaseOps(QList<Argument *>()
           << new BoolArgument("include-borders",
                               "Whether or not to include borders",
                               "...")
+          << new ChoiceArgument(QStringList() 
+                                << "min" << "max" << "both",
+                                "which",
+                                "",
+                                "...")
           << new BoolArgument("output", 
                               "Write to output file",
                               "Whether peak information should be written to output file by default")

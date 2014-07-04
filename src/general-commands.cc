@@ -373,6 +373,24 @@ noop("noop", // command name
 //////////////////////////////////////////////////////////////////////
   
 
+static ArgumentList 
+argList(QList<Argument *>() 
+        << new FileArgument("arg2", 
+                            "Second argument",
+                            "Second argument to the script")
+        << new FileArgument("arg3", 
+                            "Third argument",
+                            "Third argument to the script")
+        << new FileArgument("arg4", 
+                            "Fourth argument",
+                            "Fourth argument to the script")
+        << new FileArgument("arg5", 
+                            "Fifth argument",
+                            "Fifth argument to the script")
+        << new FileArgument("arg6",
+                            "Sixth argument",
+                            "Sixth argument to the script"));
+
 static void runForDatasetsCommand(const QString &, QString script,
                                   QList<const DataSet*> dss, 
                                   const CommandOptions & opts)
@@ -389,15 +407,25 @@ static void runForDatasetsCommand(const QString &, QString script,
   updateFromOptions(opts, "silent", silent);
   WDisableUpdates eff(& soas().view(), silent);
 
+  QStringList a;
+  for(int i = 1; i <= argList.size()+1; i++) {
+    QString on = QString("arg%1").arg(i);
+    if(opts.contains(on))
+      a << opts[on]->value<QString>();
+    else
+      break;
+  }  
+
   while(datasets.size() > 0) {
-    QStringList a;
     soas().pushDataSet(new DataSet(*datasets.takeLast()));
     soas().prompt().runCommandFile(script, a, addToHistory);
   }
 }
 
+
+
 static ArgumentList 
-rfdArgs(QList<Argument *>() 
+rfdArgs(QList<Argument *>()
         << new FileArgument("script", 
                             "Script",
                             "The script file")
@@ -408,14 +436,19 @@ rfdArgs(QList<Argument *>()
 
 
 
-
+static ArgumentList 
+rfdOpts(QList<Argument *>(runOpts)
+        << new FileArgument("arg1", 
+                            "First argument",
+                            "First argument to the script")
+        << QList<Argument *>(argList));
 
 static Command 
 rfd("run-for-datasets", // command name
     effector(runForDatasetsCommand), // action
     "file",  // group name
     &rfdArgs, // arguments
-    &runOpts, 
+    &rfdOpts, 
     "Runs a script for several datasets",
     "Runs a script file repetitively with the given buffers",
     "...");
@@ -439,7 +472,7 @@ static void runForEachCommand(const QString &, QString script,
 
   QStringList additionalArgs;
 
-  for(int i = 2; i <= 6; i++) {
+  for(int i = 2; i <= argList.size()+1; i++) {
     QString on = QString("arg%1").arg(i);
     if(opts.contains(on))
       additionalArgs << opts[on]->value<QString>();
@@ -500,34 +533,12 @@ rfeArgs(QList<Argument *>()
                                     "to loop on", true));
 
 static ArgumentList 
-rfeOpts(QList<Argument *>() 
-        << new FileArgument("arg2", 
-                            "Second argument",
-                            "Second argument to the script")
-        << new FileArgument("arg3", 
-                            "Third argument",
-                            "Third argument to the script")
-        << new FileArgument("arg4", 
-                            "Fourth argument",
-                            "Fourth argument to the script")
-        << new FileArgument("arg5", 
-                            "Fifth argument",
-                            "Fifth argument to the script")
-        << new FileArgument("arg6",
-                            "Sixth argument",
-                            "Sixth argument to the script")
+rfeOpts(QList<Argument *>(argList)
         << new ChoiceArgument(QStringList() << "lin" << "log",
                               "range-type",
                               "Numerical range type",
                               "If one, transform arguments into ranged numbers")
-        << new BoolArgument("add-to-history", 
-                            "Add commands to history",
-                            "Whether the commands run are added to the "
-                            "history (defaults to false)")
-        << new BoolArgument("silent", 
-                            "Silent processing",
-                            "Whether or not display is updated "
-                            "during the load")
+        << runOpts
         );
 
 

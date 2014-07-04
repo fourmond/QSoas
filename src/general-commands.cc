@@ -101,7 +101,7 @@ static void outputCommand(const QString &, QString file,
   OutFile::out.setFileName(file);
 
   OutFile::out.truncate = false;
-  updateFromOptions(opts, "truncate", OutFile::out.truncate);
+  updateFromOptions(opts, "overwrite", OutFile::out.truncate);
 }
 
 ArgumentList oArgs(QList<Argument*>() 
@@ -111,9 +111,9 @@ ArgumentList oArgs(QList<Argument*>()
                    );
 
 ArgumentList oOpts(QList<Argument*>() 
-                   << new BoolArgument("truncate", 
-                                       "Truncate",
-                                       "If on, removes all the contents of the target before opening")
+                   << new BoolArgument("overwrite", 
+                                       "Overwrite",
+                                       "If on, overwrite the file instead of appending")
                    );
 
 

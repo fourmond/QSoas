@@ -43,6 +43,7 @@
 
 QList<DataBackend*> * DataBackend::availableBackends = NULL;
 
+ArgumentList * DataBackend::allBackendsOptions = NULL;
 
 class CachedDataSets {
   
@@ -122,6 +123,11 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName,
   bool ignoreCache = false;
   updateFromOptions(opts, "ignore-cache", ignoreCache);
 
+  for(CommandOptions::const_iterator i = opts.begin(); i != opts.end(); i++) {
+    if(! nonBackendOptions.contains(i.key()))
+       ignoreCache = true;
+  }
+
   QFileInfo info(fn);
   QString key = info.canonicalFilePath();
   QDateTime lastModified = info.lastModified();
@@ -146,7 +152,8 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName,
       Terminal::out << "using backend " << b->name << endl;
 
     // Now we update the cache
-    cachedDatasets.insert(key, new CachedDataSets(datasets));
+    if(! ignoreCache)
+      cachedDatasets.insert(key, new CachedDataSets(datasets));
   }
   else {
     datasets = cached->cachedDataSets();
@@ -269,6 +276,8 @@ static void overlayFilesCommand(const QString &, QStringList files,
 
 
 
+QSet<QString> DataBackend::nonBackendOptions;
+
 void DataBackend::registerBackendCommands()
 {
   ArgumentList * lst = 
@@ -294,13 +303,21 @@ void DataBackend::registerBackendCommands()
 
   ArgumentList * oo = DatasetOptions::optionList();
   overallOptions->mergeOptions(*oo);
+  nonBackendOptions = QSet<QString>::fromList(overallOptions->argumentNames());
+
+  if(allBackendsOptions)
+    throw InternalError("Registering backends commands several times");
+  allBackendsOptions = new ArgumentList;
 
 
   for(int i = 0; i < availableBackends->size(); i++) {
     DataBackend * b = availableBackends->value(i);
     ArgumentList * opts = b->loadOptions();
-    if(opts)
-      overallOptions->mergeOptions(*opts);
+    if(opts) {
+      allBackendsOptions->mergeOptions(*opts);
+    }
+    else
+      opts = new ArgumentList;
     /// @todo Try to find a way to share that with options for the
     /// load and overlay commands.
     *opts << new StyleGeneratorArgument("style", 
@@ -329,6 +346,8 @@ void DataBackend::registerBackendCommands()
                 (const char*) d1.toLocal8Bit(), 
                 (const char*) d2.toLocal8Bit());
   }
+
+  overallOptions->mergeOptions(*allBackendsOptions);
 
   // Now, we create the load and overlay commands.
 

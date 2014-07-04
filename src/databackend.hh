@@ -54,6 +54,12 @@ class DataBackend {
   ///
   /// @todo Should be a pointer ?
   static QCache<QString, CachedDataSets> cachedDatasets;
+
+  /// A cache for the merged options of all backends
+  static ArgumentList * allBackendsOptions;
+
+  /// A cache for the list of options that are not backend-related
+  static QSet<QString> nonBackendOptions;
   
 
 protected:

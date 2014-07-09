@@ -1,6 +1,7 @@
 /*
   curvedataset.cc: implementation of the CurveDataSet class
   Copyright 2011 by Vincent Fourmond
+            2012, 2013, 2014 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -63,15 +64,17 @@ void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
     it.addToPath(pp, ctw);
     painter->fillPath(pp, QBrush(c));
   }
-  {
-    painter->setPen(pen); 
+
+  painter->setPen(pen); 
+  if(dataSet->options.shouldDrawLines(dataSet)) {
     QPainterPath pp;
     PointIterator it(dataSet, dataSet->options.histogram ? 
                      PointIterator::Steps : PointIterator::Normal);
     it.addToPath(pp, ctw);
     painter->drawPath(pp);
   }
-  if(paintMarkers) {
+
+  if(paintMarkers || dataSet->options.shouldDrawMarkers(dataSet)) {
     PointIterator it(dataSet);
     while(it.hasNext())
       CurveMarker::paintMarker(painter, it.next(ctw),

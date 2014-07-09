@@ -1,6 +1,7 @@
 /*
   vector.cc: implementation of the Vector class
-  Copyright 2011, 2013 by Vincent Fourmond
+  Copyright 2011 by Vincent Fourmond
+            2012, 2013, 2014 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -514,6 +515,14 @@ QList<int> Vector::extrema(int window) const
 
   return ret;
   
+}
+
+double Vector::deltaSum() const
+{
+  double s = 0.0;
+  for(int i = 1; i < size(); i++)
+    s += fabs(value(i) - value(i-1));
+  return s;
 }
 
 int Vector::closestPoint(double v) const

@@ -1,7 +1,8 @@
 /**
    \file vector.hh
    The Vector class, representing one data column
-   Copyright 2011, 2013 by Vincent Fourmond
+   Copyright 2011 by Vincent Fourmond
+             2012, 2013, 2014 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -76,6 +77,11 @@ public:
 
   /// @name Data inspection facilities
   ///
+  /// Various functions returning information about the vector.
+  ///
+  /// @todo Maybe some cacheing would be nice ? OTOH, I doubt we're
+  /// losing a lot of processing power here.
+  ///  
   /// @{
 
   /// The minimum value
@@ -106,6 +112,9 @@ public:
   /// absolute value) delta between successive points and the largest
   /// one.
   void deltaStats(double * deltamin, double * deltamax = NULL) const;
+
+  /// Returns the total distance (ie sum of absolute value of deltas).
+  double deltaSum() const;
   
 
   /// Finds local extrema and returns:

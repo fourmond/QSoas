@@ -1,7 +1,7 @@
 /**
    \file datasetoptions.hh
    A class holding display options for datasets
-   Copyright 2013 by Vincent Fourmond
+   Copyright 2013, 2014 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -75,8 +75,22 @@ public:
   /// If on, the dataset should be shown as histograms.
   bool histogram;
 
+  /// If strictly positive, it is used to determine if one should draw
+  /// lines or just markers: if the averaged abs delta is larger than
+  /// that many times the predicted one, then one disables the drawing
+  /// of lines, unless specifically requested.
+  int jagThreshold;
+
 
   DatasetOptions();
+
+  bool isJaggy(const DataSet * ds) const;
+
+  /// Whether one should draw markers or not.
+  bool shouldDrawMarkers(const DataSet * ds) const;
+
+  /// Whether one should draw lines or not
+  bool shouldDrawLines(const DataSet * ds) const;
 
 
   /// Returns an option list whose parsing can be fed to

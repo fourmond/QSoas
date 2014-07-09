@@ -1,6 +1,6 @@
 /*
   datasetoptions.cc: implementation of DatasetOptions
-  Copyright 2013 by Vincent Fourmond
+  Copyright 2013, 2014 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include <datastack.hh>
 
 DatasetOptions::DatasetOptions() :
-  yErrors(-1), histogram(false)
+  yErrors(-1), histogram(false), jagThreshold(100)
 {
 }
 
@@ -86,6 +86,32 @@ void DatasetOptions::setDatasetOptions(DataSet * ds,
   }
   updateFromOptions(opts, "histogram", ds->options.histogram);
 }
+
+bool DatasetOptions::isJaggy(const DataSet * ds) const
+{
+  if(jagThreshold <= 0)
+    return false;
+  QTextStream o(stdout);
+  double dx = ds->x().deltaSum()/(ds->x().max() - ds->x().min());
+  if(dx > jagThreshold)
+    return true;
+  dx = ds->y().deltaSum()/(ds->y().max() - ds->y().min());
+  if(dx > jagThreshold)
+    return true;
+  return false;
+
+}
+
+bool DatasetOptions::shouldDrawMarkers(const DataSet * ds) const
+{
+  return isJaggy(ds);
+}
+
+bool DatasetOptions::shouldDrawLines(const DataSet * ds) const
+{
+  return ! isJaggy(ds);
+}
+
 
 
 

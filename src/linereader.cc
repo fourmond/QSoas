@@ -74,7 +74,7 @@ QString LineReader::readLine(bool keepCR)
 {
   QString ret;
   try {
-    while(! source->atEnd()) {
+    while(! atEnd()) {
       QChar c = getc();
       if(c == '\r') {
         c = peekc();

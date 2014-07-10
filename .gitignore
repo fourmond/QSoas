@@ -26,6 +26,8 @@ qrc_*.cpp
 *.ppd.kd
 *.log
 
+tests/data/*.dat
+
 # soas logs:
 soas.log
 out.dat

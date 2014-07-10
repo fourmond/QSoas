@@ -69,6 +69,11 @@ public:
     ret["title"] = lines[210];
     ret["comments"] = lines[211] + lines[212];
     ret["gpes_file"] = lines[224];
+
+    ret["t_cond"] = lines[11].toDouble();
+    ret["t_eq"] = lines[10].toDouble();
+    ret["E_cond"] = lines[12].toDouble();
+    ret["E_stby"] = lines[20].toDouble();
     
     
     

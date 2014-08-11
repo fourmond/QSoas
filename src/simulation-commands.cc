@@ -68,6 +68,7 @@ static void odeComputationCommand(const QString &, QString file,
   Terminal::out << "Solving the ODE for variables " 
                 << solver.variables().join(", ") << endl;
 
+  op = solver.getStepperOptions();
   Terminal::out << "Using integrator parameters: " 
                 << op.description() << endl;
 

@@ -95,10 +95,20 @@ sv("save", // command name
 //////////////////////////////////////////////////////////////////////
 
 static void saveBuffersCommand(const QString &, 
-                               QList<const DataSet *> datasets)
+                               QList<const DataSet *> datasets, 
+                               const CommandOptions & opts)
 {
-  for(int i = 0; i < datasets.size(); i++)
-    datasets[i]->write(datasets[i]->name);
+  QString fmt;
+  updateFromOptions(opts, "format", fmt);
+  for(int i = 0; i < datasets.size(); i++) {
+    QString nm = datasets[i]->name;
+    if(! fmt.isEmpty()) {
+      char buffer[fmt.size()*2 + 100];
+      snprintf(buffer, sizeof(buffer), fmt.toUtf8(), i);
+      nm = QString::fromUtf8(buffer);
+    }
+    datasets[i]->write(nm);
+  }
 }
 
 static ArgumentList 
@@ -107,13 +117,19 @@ sBArgs(QList<Argument *>()
                                        "Buffers to save",
                                        "Buffers to save"));
 
+static ArgumentList 
+sBOpts(QList<Argument *>() 
+       << new StringArgument("format", 
+                             "File name format",
+                             "Overrides buffer names if present"));
+
 
 static Command 
 saveBuffers("save-buffers", // command name
-            optionLessEffector(saveBuffersCommand), // action
+            effector(saveBuffersCommand), // action
             "stack",  // group name
             &sBArgs, // arguments
-            NULL, // options
+            &sBOpts, // options
             "Save",
             "Saves specified buffers",
             "Saves the designated buffers to file");

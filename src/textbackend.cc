@@ -173,9 +173,30 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
   QTextStream s(stream);
   s.setCodec(cd);
 
+  QStringList comments;
+
   QList<QList<Vector> > allColumns = 
     Vector::readFromStream(&s, sep.toQRegExp(), 
-                           cmt.toQRegExp(), autoSplit, dSep);
+                           cmt.toQRegExp(), autoSplit, dSep,
+                           QRegExp("^\\s*$"), &comments);
+
+  ValueHash meta;
+
+  // Parse comments for a = b stuff
+  QRegExp cmtval("([\\w-]+)\\s*=\\s*(.*)");
+  for(int i = 0; i < comments.size(); i++) {
+    const QString & s = comments[i];
+    if(cmtval.indexIn(s) >= 0) {
+      QString key = cmtval.cap(1);
+      QString value = cmtval.cap(2);
+      bool ok;
+      double v = value.toDouble(&ok);
+      if(ok)
+        meta[key] = v;
+      else
+        meta[key] = value;
+    }
+  }
 
   QList<DataSet *> ret;
 
@@ -209,6 +230,7 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
     if(total > 1) {
       ds->name += QString("#%1").arg(j);
     }
+    ds->addMetaData(meta);
     setMetaDataForFile(ds, fileName);
     ret << ds;
   }

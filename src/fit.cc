@@ -362,7 +362,7 @@ void Fit::computeFit(const QString &, QString file,
   if(reexport)
     dlg.setFitEngineFactory("odrpack"); // The only one supporting that !
 
-  dlg.loadParametersFile(file);
+  dlg.loadParametersFile(file, -1, false);
 
 
 
@@ -386,6 +386,7 @@ void Fit::computeFit(const QString &, QString file,
       dlg.overrideParameter(spec[0], value);
     }
   }
+  dlg.compute();
   if(reexport) {
     dlg.recomputeErrors();
     dlg.exportToOutFileWithErrors();

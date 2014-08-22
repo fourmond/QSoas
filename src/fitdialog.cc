@@ -775,7 +775,8 @@ void FitDialog::loadParametersForCurrent()
     loadParametersFile(load, currentIndex);
 }
 
-void FitDialog::loadParametersFile(const QString & file, int targetDS)
+void FitDialog::loadParametersFile(const QString & file, int targetDS, 
+                                   bool recompute)
 {
   QFile f(file);
   if(! f.open(QIODevice::ReadOnly))
@@ -785,7 +786,8 @@ void FitDialog::loadParametersFile(const QString & file, int targetDS)
     message(QString("Loading from file %1...").arg(file));
     parameters.loadParameters(&f, targetDS);
     updateEditors();
-    internalCompute();
+    if(recompute)
+      internalCompute();
     msg = QString("Loaded fit parameters from file %1").arg(file);
   }
   catch (const Exception & e) {

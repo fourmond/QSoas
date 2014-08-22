@@ -107,7 +107,7 @@ public:
   void reset();
 
   /// Steps from *t to t1
-  int apply(double * t, const double t1, double y[]);
+  int apply(double * t, const double t1, double y[], bool retry = true);
 
   /// Configures the stepper
   void setOptions(const ODEStepperOptions & options);
@@ -118,6 +118,11 @@ public:
 
   /// Returns the current options
   const ODEStepperOptions & getOptions() const { return options;};
+
+  /// Dumps the current state of the stepper to the target stream.
+  ///
+  /// This is mostly for debugging purposes.
+  void dumpStepperState(FILE * target = stderr);
 };
 
 /// This is the base class for all the ODE solver problems. To use it,

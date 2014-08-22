@@ -178,7 +178,7 @@ void ODEStepper::reset()
   }
 }
 
-int ODEStepper::apply(double * t, const double t1, double y[])
+int ODEStepper::apply(double * t, const double t1, double y[], bool retry)
 {
   int status = GSL_FAILURE;
   double orig = *t;
@@ -197,8 +197,7 @@ int ODEStepper::apply(double * t, const double t1, double y[])
     // o << "Trying from " << *t << " to " << t1  << endl;
     status = gsl_odeiv2_driver_apply(driver, t, t1, y);
 
-    /// @todo THis should be clarified and understood...
-    if(status == GSL_FAILURE || status == GSL_EMAXITER) {
+    if(retry && (status == GSL_FAILURE || status == GSL_EMAXITER)) {
       // We try to reset the driver with the initial step where we are
       // now and proceeed
       double hs = options.hStart;
@@ -213,7 +212,7 @@ int ODEStepper::apply(double * t, const double t1, double y[])
         return GSL_SUCCESS;     // Just a small glitch ;-)...
       }
       else
-        return apply(t, t1, y);
+        return apply(t, t1, y, false);
     }
   }
 
@@ -236,6 +235,28 @@ ODEStepper::~ODEStepper()
   freeDriver();
 }
 
+#define DUMP(x)   fprintf(target, #x ": %.5g\n", driver->x)
+#define DUMP_INT(x)   fprintf(target, #x ": %lu\n", driver->x)
+
+void ODEStepper::dumpStepperState(FILE * target)
+{
+  fprintf(target, "Driver: %p\n", driver);
+  if(! driver)
+    return;
+  DUMP(h);
+  DUMP(hmin);
+  DUMP(hmax);
+  DUMP_INT(n);
+  DUMP_INT(nmax);
+
+  DUMP(e->last_step);
+  DUMP_INT(e->count);
+  DUMP_INT(e->failed_steps);
+
+  fprintf(target, "\n");
+}
+
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -254,6 +275,7 @@ int ODESolver::function(double t, const double y[], double dydt[],
 void ODESolver::resetStepper()
 {
   stepper.reset();
+  // stepper.dumpStepperState();
 }
 
 void ODESolver::autoSetHMin(double deltamin)
@@ -309,6 +331,8 @@ void ODESolver::initializeDriver()
   system.params = this;
   
   stepper.initialize(&system);
+
+  // stepper.dumpStepperState();
 }
 
 void ODESolver::freeDriver()
@@ -353,7 +377,7 @@ void ODESolver::stepTo(double to)
   int status = stepper.apply(&t, to, yValues);
   if(status != GSL_SUCCESS) {
     throw RuntimeError("Integration failed to give the desired "
-                       "precision stepping from %1 to %2 (last delta= %4): %3 (%5)").
+                       "precision stepping from %1 to %2 (last delta= %4): %3 (%5). You may want to try another stepper (such as implicit ones)").
       arg(org).arg(to).arg(gsl_strerror(status)).arg(to-t).arg(status);
   }
 }

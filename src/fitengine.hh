@@ -1,7 +1,7 @@
 /**
    \file fitengine.hh
    Base class for engine driving the fits
-   Copyright 2012 by Vincent Fourmond
+   Copyright 2012, 2013, 2014 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by

@@ -1,7 +1,7 @@
 /*
   mainwin.cc: Main window for QSoas
-  Copyright 2011
-  Copyright 2012-2014 by CNRS/AMU
+  Copyright 2011 by Vincent Fourmond
+            2012, 2013, 2014 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -223,7 +223,8 @@ MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
   Terminal::out << "This is QSoas version " << SOAS_VERSION 
                 << " running with " << Ruby::versionString() 
                 << "\n" << SOAS_BUILD_INFO 
-                << "Copyright 2011-2012 by Vincent Fourmond\n"
+                << "Copyright 2011 by Vincent Fourmond\n"
+                << "          2012-2014 by CNRS/AMU\n\n"
                 << "Based on Christophe Leger's original Soas\n\n"
                 << "This program is free software, released under the terms of \n"
                 << "the GNU general public license (see http://www.gnu.org/copyleft/gpl.html)\n\n" 

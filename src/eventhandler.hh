@@ -1,7 +1,7 @@
 /**
    \file eventhandler.hh
    The EventHandler, a helper to use CurveEventLoop
-   Copyright 2011 by Vincent Fourmond
+   Copyright 2013 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by

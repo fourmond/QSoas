@@ -1,7 +1,7 @@
 /**
    \file pointtacker.hh
    The PointTracker class, to have the mouse follow points from a DataSet
-   Copyright 2012 by Vincent Fourmond
+   Copyright 2012 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by

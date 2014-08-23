@@ -1,7 +1,7 @@
 /**
    \file simplexfitengine.cc
    A Nelder-Mead 'fit' engine for QSoas
-   Copyright 2013 by Vincent Fourmond
+   Copyright 2013 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by

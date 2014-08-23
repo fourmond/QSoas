@@ -1,6 +1,7 @@
 /*
   simulation-commands.cc: commands to simulate stuff
-  Copyright 2013,2014 by CNRS/AMU
+  Copyright 2011 by Vincent Fourmond
+            2012, 2013, 2014 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by

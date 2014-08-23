@@ -2,6 +2,7 @@
    \file ruby-templates.hh
    Templates to be used to catch exceptions within calls to Ruby
    Copyright 2010, 2011 by Vincent Fourmond
+             2012 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by

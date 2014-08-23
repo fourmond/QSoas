@@ -1,7 +1,8 @@
 /**
    \file pointpicker.hh
-   The PointPicker class, representing a data set (most of the time one data file)
+   The PointPicker class, to pick points from a dataset
    Copyright 2011 by Vincent Fourmond
+             2013, 2014 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by

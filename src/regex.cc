@@ -1,6 +1,6 @@
 /*
-  regex.cc: keeping track of who to thank really
-  Copyright 2013 by Vincent Fourmond
+  regex.cc: implementation of the Regex class
+  Copyright 2014 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by

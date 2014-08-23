@@ -1,7 +1,8 @@
 /**
    \file curvepanel.hh
-   The widget handling all "terminal" interaction
+   The subwidget display a set of curves (in a given "box")
    Copyright 2011 by Vincent Fourmond
+             2012 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by

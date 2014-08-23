@@ -1,6 +1,6 @@
 /*
   conditionsprovider.cc: meta-data provider based on "condition files"
-  Copyright 2014 by Vincent Fourmond
+  Copyright 2014 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by

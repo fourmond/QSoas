@@ -1,7 +1,8 @@
 /**
    \file fft.hh
    The FFT class, providing GSL-based fourier transforms
-   Copyright 2012 by Vincent Fourmond
+   Copyright 2011 by Vincent Fourmond
+             2012, 2013, 2014 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by

@@ -1,0 +1,9 @@
+# A kinetic system with discontinuities in the derivatives
+# Initial conditions
+c_A = 1
+c_I = 0
+
+# Derivatives
+d_c_A = - c_A * ki * exp(-(t-c_t_1)/c_tau_1) * (t >= c_t_1 ? 1 : 0) + ka * c_I
+d_c_I = - d_c_A
+

@@ -1,0 +1,10 @@
+# Runs simulations with the following arguments
+# * ki 
+# * c_t_1
+# * c_tau_1
+# * ka
+# * stepper
+# * samples
+# * xmax
+
+@ run-one-internal.cmds ${1:-0} ${2:-5} ${3:-20} ${4:-0} ${7:-20} ${6:-1000} ${5:-rkf45}

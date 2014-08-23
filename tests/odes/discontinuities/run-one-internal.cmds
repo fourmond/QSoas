@@ -1,0 +1,13 @@
+# Runs simulations with the following arguments
+# * ki 
+# * c_t_1
+# * c_tau_1
+# * ka
+# * xmax
+# * samples
+# * stepper
+
+generate-buffer 0 ${5} /samples=${6}
+ode discontinuities.ode "ki = ${1}; c_t_1 = ${2}; c_tau_1 = ${3}; ka = ${4}" /stepper=${7}
+sim-kinetic-system discontinuities.sys discontinuities.params 1 /stepper=${7} /override="ki = ${1}, c_t_1 = ${2}, c_tau_1 = ${3}, ka = ${4}" /with=c:1,exp
+S 1 0

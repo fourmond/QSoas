@@ -395,6 +395,7 @@ static void loadFits(QIODevice * source, bool verbose = true,
   QRegExp sep("^\\s*([a-z0-9A-Z-]+):(.*)");
   int init = customFits.size();
 
+  QStringList loadedFits;
 
   for(int i = 0; i < lines.size(); i++) {
     QString line = lines[i];
@@ -408,6 +409,7 @@ static void loadFits(QIODevice * source, bool verbose = true,
       QString formula = sep.cap(2);
       try {
         createCustomFit(name, formula, overwrite);
+        loadedFits << name;
       }
       catch(Exception & er) {
         Terminal::out << "Error loading fit " << name << " on " 
@@ -419,7 +421,7 @@ static void loadFits(QIODevice * source, bool verbose = true,
       Terminal::out << "Error: " << lnNb <<  " not understood" << endl;
   }
   Terminal::out << "Loaded " << customFits.size() - init 
-                << " fits" << endl;
+                << " fits: " << loadedFits.join(", ") << endl;
 }
 
 //////////////////////////////////////////////////////////////////////

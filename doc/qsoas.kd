@@ -426,10 +426,10 @@ providing its name to the [cmd: output] command.
 
 ### output - Change output file {#cmd-output}
 
-`output` _file_{:title="Path of a file (or a directory)"} `/truncate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`output` _file_{:title="Path of a file (or a directory)"} `/overwrite=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _file_{:title="Path of a file (or a directory)"}: Name of the new output file
-  * `/truncate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, removes all the contents of the target before opening
+  * `/overwrite=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, overwrite the file instead of appending
 
 {::comment} synopsis-end: output {:/}
 {::comment} description-start: output {:/}
@@ -681,9 +681,10 @@ Saves the current buffer to a file.
 
 ### save-buffers - Save {#cmd-save-buffers}
 
-`save-buffers` _buffers..._{:title="Comma-separated lists of datasets in the stack"}
+`save-buffers` _buffers..._{:title="Comma-separated lists of datasets in the stack"} `/format=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}
 
   * _buffers..._{:title="Comma-separated lists of datasets in the stack"}: Buffers to save
+  * `/format=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Overrides buffer names if present
 
 {::comment} synopsis-end: save-buffers {:/}
 {::comment} description-start: save-buffers {:/}
@@ -1348,10 +1349,11 @@ part. Hit escape to cancel.
 
 ### chop - Chop Buffer {#cmd-chop}
 
-`chop` _lengths..._{:title="Several numbers, separated by ,"} `/mode=`_choice_{:title="One of: deltax, index, indices, xvalues"} `/set-segments=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`chop` _lengths..._{:title="Several numbers, separated by ,"} `/mode=`_choice_{:title="One of: deltax, index, indices, xvalues"} `/flags=`_texts_ `/set-segments=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _lengths..._{:title="Several numbers, separated by ,"}: Lengths of the subsets
   * `/mode=`_choice_{:title="One of: deltax, index, indices, xvalues"}: Whether to cut on index or x values (default)
+  * `/flags=`_texts_: Buffers to flag/unflag
   * `/set-segments=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to actually cut the dataset, or just to set segments where the cuts would have been
 
 {::comment} synopsis-end: chop {:/}
@@ -1407,8 +1409,9 @@ Useful to get the backward scan of a cyclic voltammogram.
 
 ### split-monotonic - Split into monotonic parts {#cmd-split-monotonic}
 
-`split-monotonic` 
+`split-monotonic` `/flags=`_texts_
 
+  * `/flags=`_texts_: Buffers to flag/unflag
 
 {::comment} synopsis-end: split-monotonic {:/}
 {::comment} description-start: split-monotonic {:/}
@@ -2083,10 +2086,11 @@ operations such as [cmd: div] or  [cmd: subtract].
 
 ### find-peaks - Find peaks {#cmd-find-peaks}
 
-`find-peaks` `/window=`_integer_{:title="An integer"} `/include-borders=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/peaks=`_integer_{:title="An integer"}
+`find-peaks` `/window=`_integer_{:title="An integer"} `/include-borders=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/which=`_choice_{:title="One of: both, max, min"} `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/peaks=`_integer_{:title="An integer"}
 
   * `/window=`_integer_{:title="An integer"}: ...
   * `/include-borders=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: ...
+  * `/which=`_choice_{:title="One of: both, max, min"}: ...
   * `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether peak information should be written to output file by default
   * `/peaks=`_integer_{:title="An integer"}: Display only that many peaks (by order of intensity)
 
@@ -2119,10 +2123,11 @@ about those.
 
 ### 1 - Find peak {#cmd-1}
 
-`1` `/window=`_integer_{:title="An integer"} `/include-borders=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`1` `/window=`_integer_{:title="An integer"} `/include-borders=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/which=`_choice_{:title="One of: both, max, min"} `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * `/window=`_integer_{:title="An integer"}: ...
   * `/include-borders=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: ...
+  * `/which=`_choice_{:title="One of: both, max, min"}: ...
   * `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether peak information should be written to output file by default
 
 {::comment} synopsis-end: 1 {:/}
@@ -2138,10 +2143,11 @@ QSoas> find-peaks /peaks=1 /output=true
 
 ### 2 - Find two peaks {#cmd-2}
 
-`2` `/window=`_integer_{:title="An integer"} `/include-borders=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`2` `/window=`_integer_{:title="An integer"} `/include-borders=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/which=`_choice_{:title="One of: both, max, min"} `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * `/window=`_integer_{:title="An integer"}: ...
   * `/include-borders=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: ...
+  * `/which=`_choice_{:title="One of: both, max, min"}: ...
   * `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether peak information should be written to output file by default
 
 {::comment} synopsis-end: 2 {:/}
@@ -2158,10 +2164,10 @@ QSoas> find-peaks /peaks=2 /output=true
 
 ### stats - Statistics {#cmd-stats}
 
-`stats` `/buffer=`_buffer_{:title="The number of a buffer in the stack"} `/to-file=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-segments=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`stats` `/buffer=`_buffer_{:title="The number of a buffer in the stack"} `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-segments=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * `/buffer=`_buffer_{:title="The number of a buffer in the stack"} (default): An alternative buffer to get information on
-  * `/to-file=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Also write stats to output file
+  * `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Also write stats to output file
   * `/use-segments=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Make statistics segments by segment
 
 {::comment} synopsis-end: stats {:/}
@@ -2834,6 +2840,122 @@ Simulation command for [cmd: fit-nernst]
 {::comment} description-end: sim-nernst {:/}
 
 
+## Adsorbed ideal redox species
+
+
+{::comment} synopsis-start: fit-adsorbed {:/}
+
+### fit-adsorbed - Fit: Adsorbed species {#cmd-fit-adsorbed}
+
+`fit-adsorbed` `/species=`_integer_{:title="An integer"} `/2el=`_integer_{:title="An integer"} `/distinct=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+
+  * `/species=`_integer_{:title="An integer"}: Number of 1-electron species
+  * `/2el=`_integer_{:title="An integer"}: Number of true 2-electron species
+  * `/distinct=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If true (default) then all species have their own surface concentrations
+  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
+  * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/set-from-meta=`_texts_: Set parameter values from meta-data
+
+{::comment} synopsis-end: fit-adsorbed {:/}
+{::comment} description-start: fit-adsorbed {:/}
+Fits a series of "ideal adsorbed peaks" to the current buffer. The
+actual formula is the following:
+
+$$ i = \frac{F^2 \nu }{R\,T} 
+   \left( \sum_{k} i^{1~el}_k + \sum_{k'} i^{2~el}_{k'}\right) 
+$$
+
+The number of 1-electron peaks is given by the `/species` option
+(defaults to 1) and that of the 2-electrons peaks is given by the
+`/2el` option (defaults to 0).
+
+The current for 1-electron peaks is given by:
+
+$$ 
+i^{1~el}_k = \frac{\Gamma_k n_k\,e_k}{1 + {e_k}^2}
+$$ 
+
+with $$e_k = \exp \frac{F\,n_k (E - E^0_k)}{R\,T}$$, with $$E^0_k$$
+the potential of the couple and $$n_k$$ the apparent number of
+electrons. The latter only affects the width of the peaks, the
+stoechiometry is always 1 electron.
+
+The current for the 2-electron peaks is given by:
+
+$$ 
+i^{2~el}_{k'} = \Gamma_{k'} \kappa_{k'}
+\frac{\epsilon_{k'} + 4/\kappa_{k'} + 1/\epsilon_{k'}}
+{\left(\epsilon_{k'} + \kappa_{k'} + 1/\epsilon_{k'}\right)^2}
+$$
+
+With $$\epsilon_{k'} = \exp \frac{F\,(E - E^0_{k'})}{R\,T}$$,
+$$E^0_{k'}$$ being the 2-electrons reduction potential (i.e. the
+average of those of the 1-electron couples) and 
+$$\kappa_{k'} = \exp \frac{F\,\Delta E^0_{k'}}{R\,T}$$, 
+$$\Delta E^0_{k'}$$ being the
+difference in the reduction potentials of the 1-electron couples (it
+is positive if the intermediate species is thermodynamically stable).
+
+The $$\Gamma$$ parameters are the number of moles of the molecules
+adsorbed on the electrode (there is no explicit surface). If the
+option `/distinct=false` is used, the same value of $$\Gamma$$ is used
+for all couples, while in the other case (the default), each couple
+has its own value of $$\Gamma$$ (which corresponds to unrelated
+species). $$\nu$$ is the voltammetric scan rate.
+
+
+
+
+
+
+
+{::comment} description-end: fit-adsorbed {:/}
+
+{::comment} synopsis-start: mfit-adsorbed {:/}
+
+### mfit-adsorbed - Multi fit: Adsorbed species {#cmd-mfit-adsorbed}
+
+`mfit-adsorbed` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/species=`_integer_{:title="An integer"} `/2el=`_integer_{:title="An integer"} `/distinct=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+
+  * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
+  * `/species=`_integer_{:title="An integer"}: Number of 1-electron species
+  * `/2el=`_integer_{:title="An integer"}: Number of true 2-electron species
+  * `/distinct=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If true (default) then all species have their own surface concentrations
+  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
+  * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/set-from-meta=`_texts_: Set parameter values from meta-data
+  * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
+  * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
+
+{::comment} synopsis-end: mfit-adsorbed {:/}
+{::comment} description-start: mfit-adsorbed {:/}
+Multi-buffer version of the [fit: adsorbed] fit.
+{::comment} description-end: mfit-adsorbed {:/}
+
+
+{::comment} synopsis-start: sim-adsorbed {:/}
+
+### sim-adsorbed - Fit: Adsorbed species {#cmd-sim-adsorbed}
+
+`sim-adsorbed` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/species=`_integer_{:title="An integer"} `/2el=`_integer_{:title="An integer"} `/distinct=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+
+  * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
+  * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
+  * `/species=`_integer_{:title="An integer"}: Number of 1-electron species
+  * `/2el=`_integer_{:title="An integer"}: Number of true 2-electron species
+  * `/distinct=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If true (default) then all species have their own surface concentrations
+  * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
+  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
+
+{::comment} synopsis-end: sim-adsorbed {:/}
+{::comment} description-start: sim-adsorbed {:/}
+Simulation command for the [fit: adsorbed] fit.
+{::comment} description-end: sim-adsorbed {:/}
+
+
 ## Kinetic systems {#kinetic-systems}
 
 It is possible with QSoas to fit kinetic traces that follow the
@@ -3425,14 +3547,14 @@ expression equates 0.
 
 ### integrate - Integrate expression {#cmd-integrate}
 
-`integrate` _formula_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _a_{:title="A floating-point number"} _b_{:title="A floating-point number"} `/integrator=`_choice_{:title="One of: gauss15, gauss21, gauss31, gauss41, gauss51, gauss61, qng"} `/relative-int=`_number_{:title="A floating-point number"} `/absolute-int=`_number_{:title="A floating-point number"}
+`integrate` _formula_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _a_{:title="A floating-point number"} _b_{:title="A floating-point number"} `/integrator=`_choice_{:title="One of: gauss15, gauss21, gauss31, gauss41, gauss51, gauss61, qng"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"}
 
   * _formula_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: An expression of 1 variable (not an equation !)
   * _a_{:title="A floating-point number"}: Left bound of the segment
   * _b_{:title="A floating-point number"}: Right bound of the segment
   * `/integrator=`_choice_{:title="One of: gauss15, gauss21, gauss31, gauss41, gauss51, gauss61, qng"}: The algorithm used for integration
-  * `/relative-int=`_number_{:title="A floating-point number"}: Relative precision required for integration
-  * `/absolute-int=`_number_{:title="A floating-point number"}: Absolute precision required for integration
+  * `/prec-relative=`_number_{:title="A floating-point number"}: Relative precision required for integration
+  * `/prec-absolute=`_number_{:title="A floating-point number"}: Absolute precision required for integration
 
 {::comment} synopsis-end: integrate {:/}
 {::comment} description-start: integrate {:/}
@@ -3721,7 +3843,7 @@ QSoas> startup-files /run=true
 
 ### run-for-each - Runs a script for several arguments {#cmd-run-for-each}
 
-`run-for-each` _script_{:title="Path of a file (or a directory)"} _arguments..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/arg2=`_file_{:title="Path of a file (or a directory)"} `/arg3=`_file_{:title="Path of a file (or a directory)"} `/arg4=`_file_{:title="Path of a file (or a directory)"} `/arg5=`_file_{:title="Path of a file (or a directory)"} `/arg6=`_file_{:title="Path of a file (or a directory)"} `/range-type=`_choice_{:title="One of: lin, log"} `/add-to-history=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`run-for-each` _script_{:title="Path of a file (or a directory)"} _arguments..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/arg2=`_file_{:title="Path of a file (or a directory)"} `/arg3=`_file_{:title="Path of a file (or a directory)"} `/arg4=`_file_{:title="Path of a file (or a directory)"} `/arg5=`_file_{:title="Path of a file (or a directory)"} `/arg6=`_file_{:title="Path of a file (or a directory)"} `/range-type=`_choice_{:title="One of: lin, log"} `/silent=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/add-to-history=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _script_{:title="Path of a file (or a directory)"}: The script file
   * _arguments..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."}: All the arguments for the script file to loop on
@@ -3731,6 +3853,7 @@ QSoas> startup-files /run=true
   * `/arg5=`_file_{:title="Path of a file (or a directory)"}: Fifth argument to the script
   * `/arg6=`_file_{:title="Path of a file (or a directory)"}: Sixth argument to the script
   * `/range-type=`_choice_{:title="One of: lin, log"}: If one, transform arguments into ranged numbers
+  * `/silent=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not display is updated during the load
   * `/add-to-history=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether the commands run are added to the history (defaults to false)
 
 {::comment} synopsis-end: run-for-each {:/}
@@ -3771,10 +3894,18 @@ QSoas> @ process-my-file.cmds file2 other
 
 ### run-for-datasets - Runs a script for several datasets {#cmd-run-for-datasets}
 
-`run-for-datasets` _script_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"}
+`run-for-datasets` _script_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/silent=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/add-to-history=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/arg1=`_file_{:title="Path of a file (or a directory)"} `/arg2=`_file_{:title="Path of a file (or a directory)"} `/arg3=`_file_{:title="Path of a file (or a directory)"} `/arg4=`_file_{:title="Path of a file (or a directory)"} `/arg5=`_file_{:title="Path of a file (or a directory)"} `/arg6=`_file_{:title="Path of a file (or a directory)"}
 
   * _script_{:title="Path of a file (or a directory)"}: The script file
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: All the arguments for the script file to loop on
+  * `/silent=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not display is updated during the load
+  * `/add-to-history=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether the commands run are added to the history (defaults to false)
+  * `/arg1=`_file_{:title="Path of a file (or a directory)"}: First argument to the script
+  * `/arg2=`_file_{:title="Path of a file (or a directory)"}: Second argument to the script
+  * `/arg3=`_file_{:title="Path of a file (or a directory)"}: Third argument to the script
+  * `/arg4=`_file_{:title="Path of a file (or a directory)"}: Fourth argument to the script
+  * `/arg5=`_file_{:title="Path of a file (or a directory)"}: Fifth argument to the script
+  * `/arg6=`_file_{:title="Path of a file (or a directory)"}: Sixth argument to the script
 
 {::comment} synopsis-end: run-for-datasets {:/}
 {::comment} description-start: run-for-datasets {:/}

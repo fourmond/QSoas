@@ -2881,10 +2881,10 @@ the potential of the couple and $$n_k$$ the apparent number of
 electrons. The latter only affects the width of the peaks, the
 stoechiometry is always 1 electron.
 
-The current for the 2-electron peaks is given by:
+The current for the 2-electrons peaks is given by:
 
 $$ 
-i^{2~el}_{k'} = \Gamma_{k'} \kappa_{k'}
+i^{2~el}_{k'} = 2\times\Gamma_{k'} \kappa_{k'}
 \frac{\epsilon_{k'} + 4/\kappa_{k'} + 1/\epsilon_{k'}}
 {\left(\epsilon_{k'} + \kappa_{k'} + 1/\epsilon_{k'}\right)^2}
 $$
@@ -2902,13 +2902,7 @@ adsorbed on the electrode (there is no explicit surface). If the
 option `/distinct=false` is used, the same value of $$\Gamma$$ is used
 for all couples, while in the other case (the default), each couple
 has its own value of $$\Gamma$$ (which corresponds to unrelated
-species). $$\nu$$ is the voltammetric scan rate.
-
-
-
-
-
-
+species). $$\nu$$ is the voltammetric scan rate (in volts per second).
 
 {::comment} description-end: fit-adsorbed {:/}
 

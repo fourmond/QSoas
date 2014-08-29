@@ -168,13 +168,23 @@ class AdsorbedFit : public PerDatasetFit {
   /// The number of species
   int number;
 
+  /// The number of 2-el species
+  int twoElectrons;
+
+  /// Whether or not the species are distinct
+  bool distinct;
+
 protected:
 
   virtual void processOptions(const CommandOptions & opts)
   {
     number = 1;
-    updateFromOptions(opts, "species", number);
+    twoElectrons = 0;
+    distinct = true;
 
+    updateFromOptions(opts, "species", number);
+    updateFromOptions(opts, "2el", twoElectrons);
+    updateFromOptions(opts, "distinct", distinct);
   }
 
   
@@ -200,18 +210,40 @@ protected:
 
     for(int i = 0; i < xv.size(); i++) {
       double cur = 0;
+
+      
+      int idx = (distinct ? 2 : 3);
+
+      // These are always considered 1-el peaks :
       for(int j = 0; j < number; j++) {
         // Assignments for readability, I hope they're optimized out.
-        const double & gamma = a[j*3 + 2];
-        const double & e0 = a[j*3 + 3];
-        const double & n = a[j*3 + 4];
+        const double & gamma = a[distinct ? idx++ : 2];
+        const double & e0 = a[idx++];
+        const double & n = a[idx++];
         double e = exp(fara * n * (xv[i] - e0));
-        double spec = scan_rate * n * n * GSL_CONST_MKSA_FARADAY * 
+        double spec = scan_rate * n * 1 * GSL_CONST_MKSA_FARADAY * 
           fara * gamma * e/(1 + e*e) * sign;
         if(annotations)
           (*annotations)[j][i] = spec;
         cur += spec;
       }
+
+      for(int j = number; j < number + twoElectrons; j++) {
+        const double & gamma = a[distinct ? idx++ : 2];
+        const double & e0 = a[idx++];
+        const double & deltae = a[idx++];
+
+        double sqrt_k = exp(fara * 0.5 * deltae);
+        double sqrt_eps = exp(fara * (xv[i] - e0));
+        double denom = sqrt_eps + sqrt_k + 1/sqrt_eps;
+        double spec = scan_rate * 2 * GSL_CONST_MKSA_FARADAY * 
+          fara * gamma * sqrt_k * (sqrt_eps + 4/sqrt_k + 1/sqrt_eps)/
+          (denom * denom);
+        if(annotations)
+          (*annotations)[j][i] = spec;
+        cur += spec;
+      }
+
       if(target)
         gsl_vector_set(target, i, cur);
     }
@@ -227,14 +259,27 @@ public:
 
     // We use the scan rate to determine the electroactive coverage
     defs << ParameterDefinition("nu", true);
+    if(! distinct)
+      defs << ParameterDefinition(QString("Gamma"));
     
     // amplitudes
     for(int i = 0; i < number; i++) {
       // We use electroactive coverage, that's what we want !
-      defs << ParameterDefinition(QString("Gamma_%1").arg(i));
+      if(distinct)
+        defs << ParameterDefinition(QString("Gamma_%1").arg(i));
       defs << ParameterDefinition(QString("E_%1").arg(i));
       defs << ParameterDefinition(QString("n_%1").arg(i), true);
     }
+
+    for(int i = 0; i < twoElectrons; i++) {
+      // We use electroactive coverage, that's what we want !
+      if(distinct)
+        defs << ParameterDefinition(QString("Gamma_%1").arg(i + number));
+      defs << ParameterDefinition(QString("E_%1").arg(i + number));
+      defs << ParameterDefinition(QString("Delta_E_%1").arg(i + number));
+    }
+
+
     return defs;
   };
 
@@ -264,7 +309,7 @@ public:
     targetAnnotations->clear();
 
     int sz = ds->x().size();
-    for(int i = 0; i < number; i++) {
+    for(int i = 0; i < number + twoElectrons; i++) {
       (*targetData) << Vector(sz, 0);
       *targetAnnotations << QString("Species %1").arg(i+1);
     }
@@ -285,10 +330,20 @@ public:
     const double xmin = ds->x().min();
     const double xmax = ds->x().max();
 
-    for(int i = 0; i < number; i++) {
+    if(! distinct)
       *(++t) = 1e-11;           // gamma
-      *(++t) = xmin + (i+0.5) *(xmax - xmin)/(number);
+
+    for(int i = 0; i < number; i++) {
+      if(distinct)
+        *(++t) = 1e-11;           // gamma
+      *(++t) = xmin + (i+0.5) *(xmax - xmin)/(number + twoElectrons);
       *(++t) = 1;
+    }
+    for(int i = 0; i < twoElectrons; i++) {
+      if(distinct)
+        *(++t) = 1e-11;           // gamma
+      *(++t) = xmin + (i+number+0.5) *(xmax - xmin)/(number + twoElectrons);
+      *(++t) = 0.1;             // DeltaE of 100 mV ?
     }
   };
   
@@ -296,15 +351,23 @@ public:
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new IntegerArgument("species", 
-                                          "Number of species",
-                                          "Overall number of species")
+                                          "Number of 1-electron species",
+                                          "Number of 1-electron species")
+                   << new IntegerArgument("2el", 
+                                          "Number of 2-electron species",
+                                          "Number of true 2-electron species")
+                   << new BoolArgument("distinct", 
+                                       "Whether the species are distinct",
+                                       "If true (default) then all species have their own surface concentrations")
                    );
     return opts;
   };
   
   AdsorbedFit() : PerDatasetFit("adsorbed", 
-                                "Ideal adsorbed species",
-                                "Ideal adsorbed species", 1, -1, false) 
+                                "Adsorbed species",
+                                "Electrochemical response of ideal adsorbed "
+                                "species",
+                                1, -1, false) 
   { 
     number = 1;
     makeCommands();

@@ -2873,7 +2873,7 @@ The number of 1-electron peaks is given by the `/species` option
 The current for 1-electron peaks is given by:
 
 $$ 
-i^{1~el}_k = \frac{\Gamma_k n_k\,e_k}{1 + {e_k}^2}
+i^{1~el}_k = \frac{\Gamma_k n_k\,e_k}{\left(1 + {e_k}\right)^2}
 $$ 
 
 with $$e_k = \exp \frac{F\,n_k (E - E^0_k)}{R\,T}$$, with $$E^0_k$$
@@ -2881,10 +2881,12 @@ the potential of the couple and $$n_k$$ the apparent number of
 electrons. The latter only affects the width of the peaks, the
 stoechiometry is always 1 electron.
 
-The current for the 2-electrons peaks is given by:
+The current for the 2-electrons peaks is given by[Pilchon and Laviron,
+_J. Electronanal. Chem._,
+*1976*](http://dx.doi.org/10.1016/S0022-0728(76)80030-7):
 
 $$ 
-i^{2~el}_{k'} = 2\times\Gamma_{k'} \kappa_{k'}
+i^{2~el}_{k'} = \Gamma_{k'} \kappa_{k'}
 \frac{\epsilon_{k'} + 4/\kappa_{k'} + 1/\epsilon_{k'}}
 {\left(\epsilon_{k'} + \kappa_{k'} + 1/\epsilon_{k'}\right)^2}
 $$

@@ -222,7 +222,7 @@ protected:
         const double & n = a[idx++];
         double e = exp(fara * n * (xv[i] - e0));
         double spec = scan_rate * n * 1 * GSL_CONST_MKSA_FARADAY * 
-          fara * gamma * e/(1 + e*e) * sign;
+          fara * gamma * e/((1 + e)*(1 + e)) * sign;
         if(annotations)
           (*annotations)[j][i] = spec;
         cur += spec;
@@ -236,7 +236,7 @@ protected:
         double sqrt_k = exp(fara * 0.5 * deltae);
         double sqrt_eps = exp(fara * (xv[i] - e0));
         double denom = sqrt_eps + sqrt_k + 1/sqrt_eps;
-        double spec = scan_rate * 2 * GSL_CONST_MKSA_FARADAY * 
+        double spec = scan_rate * GSL_CONST_MKSA_FARADAY * 
           fara * gamma * sqrt_k * (sqrt_eps + 4/sqrt_k + 1/sqrt_eps)/
           (denom * denom);
         if(annotations)

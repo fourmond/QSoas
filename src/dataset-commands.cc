@@ -1028,7 +1028,7 @@ static void contractCommand(const QString &, QList<const DataSet *> a,
   QString pc;
   updateFromOptions(opts, "perp-meta", pc);
   QList<int> useCols;
-  updateFromOptions(opts, "use-cols", useCols);
+  updateFromOptions(opts, "use-columns", useCols);
   
 
   if(a.size() < 2)
@@ -1068,9 +1068,9 @@ contractOpts(QList<Argument *>(operationOpts)
              << new StringArgument("perp-meta", 
                                    "Perpendicular coordinate",
                                    "Define the perpendicular coordinate from meta-data")
-             << new SeveralIntegersArgument("use-cols", 
-                                            "The columns to use",
-                                            "If specified, use only the given columns for the contraction"));
+             << new SeveralColumnsArgument("use-columns", 
+                                           "The columns to use",
+                                           "If specified, use only the given columns for the contraction"));
 
 static Command 
 contractc("contract", // command name
@@ -1495,7 +1495,7 @@ static void tweakColumnsCommand(const QString &,
   if(toRemove.size()) {
     qSort(toRemove);
     for(int i = toRemove.size() - 1; i >= 0; i--)
-      cols.removeAt(toRemove[i] - 1);
+      cols.removeAt(toRemove[i]);
   }
 
   DataSet * nds = ds->derivedDataSet(cols, "_tweaked.dat");
@@ -1507,11 +1507,10 @@ tcA;
 
 static ArgumentList 
 tcO(QList<Argument *>() 
-    /// @todo a 1..4 syntax for 
-    << new SeveralIntegersArgument("remove", 
-                                   "Columns to remove",
-                                   "The column numbers to remove "
-                                   "(X = 1, Y = 2, etc...)", true)
+    << new SeveralColumnsArgument("remove", 
+                                  "Columns to remove",
+                                  "The column numbers to remove "
+                                  "(X = 1, Y = 2, etc...)", true)
     << new BoolArgument("flip", 
                         "Flip Y columns",
                         "If true, flips all the Y columns")

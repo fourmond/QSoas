@@ -518,3 +518,35 @@ ArgumentMarshaller * ColumnArgument::fromString(const QString & str) const
 {
   return new ArgumentMarshallerChild<int>(parseFromText(str));
 }
+
+//////////////////////////////////////////////////////////////////////
+
+ArgumentMarshaller * SeveralColumnsArgument::fromString(const QString & str) const
+{
+  QStringList elems = str.split(",");
+
+  QRegExp range("(.*)\\.\\.(.*)");
+
+  QList<int> ret;
+  for(int i = 0; i < elems.size(); i++) {
+    const QString & s = elems[i];
+    if(range.indexIn(s, 0) >= 0) {
+      int fst = ColumnArgument::parseFromText(range.cap(1));
+      int lst = ColumnArgument::parseFromText(range.cap(2));
+      int dx = (fst > lst ? -1 : 1);
+      for(int j = fst; j != lst; j+= dx)
+        ret << j;
+    }
+    else
+      ret << ColumnArgument::parseFromText(s);
+  }
+
+  return new ArgumentMarshallerChild<QList<int> >(ret);
+}
+
+void SeveralColumnsArgument::concatenateArguments(ArgumentMarshaller * a, 
+                                                  const ArgumentMarshaller * b) const
+{
+  a->value<QList<int> >() += 
+    b->value<QList<int> >();
+}

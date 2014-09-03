@@ -472,4 +472,30 @@ public:
 
 };
 
+/// Several integers
+class SeveralColumnsArgument : public Argument {
+public:
+
+  SeveralColumnsArgument(const char * cn, const char * pn,
+                          const char * d = "", bool sl = true, 
+                          bool def = false) : 
+    Argument(cn, pn, d, sl, def) {
+  }; 
+  
+  /// Returns a wrapped QList<int>
+  virtual ArgumentMarshaller * fromString(const QString & str) const;
+
+  virtual void concatenateArguments(ArgumentMarshaller * a, 
+                                    const ArgumentMarshaller * b) const;
+
+  virtual QString typeName() const {
+    return "columns";
+  };
+
+  virtual QString typeDescription() const {
+    return "A comma-separated list of columns";
+  };
+
+};
+
 #endif

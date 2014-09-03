@@ -443,4 +443,33 @@ public:
 };
 
 
+/// The column of a dataset
+class ColumnArgument : public Argument {
+public:
+
+  /// Parses a column specification. Known formats:
+  ///
+  /// * just a number: 1-based index (1 = X, 2 = Y, etc...)
+  /// * #number: 0-based index
+  /// * X, Y, Z, Y2...YN
+  static int parseFromText(const QString & str);
+
+  ColumnArgument(const char * cn, const char * pn,
+                 const char * d = "", bool def = false) : 
+    Argument(cn, pn, d, false, def) {
+  }; 
+  
+  /// Returns a wrapped int
+  virtual ArgumentMarshaller * fromString(const QString & str) const;
+
+  virtual QString typeName() const {
+    return "column";
+  };
+
+  virtual QString typeDescription() const {
+    return "The number/name of a column in a buffer";
+  };
+
+};
+
 #endif

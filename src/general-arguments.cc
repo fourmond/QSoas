@@ -482,3 +482,39 @@ ArgumentMarshaller * RegexArgument::fromString(const QString & str) const
 {
   return new ArgumentMarshallerChild<Regex>(str);
 }
+
+//////////////////////////////////////////////////////////////////////
+
+int ColumnArgument::parseFromText(const QString & str)
+{
+  QRegExp num1("^\\s*\\d+\\s*$");
+  QRegExp num2("^\\s*#(\\d+)\\s*$");
+
+  QRegExp name("^\\s*((x)|(y)|(z)|(y(\\d+)))\\s*$", Qt::CaseInsensitive);
+  
+  if(num1.indexIn(str, 0) >= 0) {
+    int nb = str.toInt() - 1;
+    if(nb >= 0)
+      return nb;
+  }
+  if(num2.indexIn(str, 0) >= 0) {
+    return num2.cap(1).toInt();
+  }
+
+  if(name.indexIn(str, 0) >= 0) {
+    if(! name.cap(2).isEmpty())
+      return 0;                 // X
+    else if(! name.cap(3).isEmpty())
+      return 1;                 // Y
+    else if(! name.cap(4).isEmpty())
+      return 2;                 // Z
+    else if(! name.cap(5).isEmpty())
+      return name.cap(6).toInt();                 // Yn
+  }
+  throw RuntimeError("Invalid buffer column specification '%1'").arg(str);
+}
+
+ArgumentMarshaller * ColumnArgument::fromString(const QString & str) const
+{
+  return new ArgumentMarshallerChild<int>(parseFromText(str));
+}

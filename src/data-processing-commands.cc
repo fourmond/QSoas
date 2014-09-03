@@ -967,7 +967,7 @@ namespace __bs {
 
     {
       int weights = -1;
-      updateFromOptions(opts, "weight-col", weights);
+      updateFromOptions(opts, "weight-column", weights);
       if(weights >= 0) 
         splines.setWeights(ds->column(weights));
     }
@@ -1117,9 +1117,9 @@ namespace __bs {
 
   static ArgumentList 
   bsOpts(QList<Argument *>() 
-      << new IntegerArgument("weight-col", 
-                             "Weights",
-                             "Use the weights in the given column")
+      << new ColumnArgument("weight-column", 
+                            "Weights",
+                            "Use the weights in the given column")
         );
 
   static Command 
@@ -1442,7 +1442,7 @@ static void autoFilterBSCommand(const QString &, const CommandOptions & opts)
   updateFromOptions(opts, "number", nb);
   updateFromOptions(opts, "order", order);
   updateFromOptions(opts, "derivatives", derivatives);
-  updateFromOptions(opts, "weight-col", weights);
+  updateFromOptions(opts, "weight-column", weights);
 
   BSplines splines(ds, order, derivatives);
   splines.autoBreakPoints(nb);
@@ -1467,9 +1467,9 @@ afbsOps(QList<Argument *>()
       << new IntegerArgument("order", 
                              "Order",
                              "Order of the splines")
-      << new IntegerArgument("weight-col", 
-                             "Weights",
-                             "Use the weights in the given column")
+      << new ColumnArgument("weight-column", 
+                            "Weights",
+                            "Use the weights in the given column")
       << new IntegerArgument("derivatives", 
                              "Derivative order",
                              "Compute derivatives up to the given ")
@@ -2290,7 +2290,7 @@ binOpts(QList<Argument *>()
         << new IntegerArgument("boxes", 
                               "Boxes"
                               "Number of bin boxes")
-        << new IntegerArgument("column", 
+        << new ColumnArgument("column", 
                               "Column"
                               "Which column to bin")
         << new BoolArgument("log", 

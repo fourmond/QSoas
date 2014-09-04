@@ -536,6 +536,7 @@ ArgumentMarshaller * SeveralColumnsArgument::fromString(const QString & str) con
       int dx = (fst > lst ? -1 : 1);
       for(int j = fst; j != lst; j+= dx)
         ret << j;
+      ret << lst;
     }
     else
       ret << ColumnArgument::parseFromText(s);

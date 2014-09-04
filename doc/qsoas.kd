@@ -98,6 +98,21 @@ It is also possible to make use of buffer flags set by [cmd: flag]:
  * and the variants `flagged-:`_flagname_ and `unflagged-:`_flagname_
    for the reversed order.
 
+## Buffer columns {#column-names}
+
+Some commands such as [cmd: bin] take as arguments or options buffer
+column names. There are three way to designate those:
+
+ * using a number: `1` is the $$x$$ column, `2` is the $$y$$ column,
+   and so on
+ * using a number prefixed by `#`: this is a 0-based index, `#0` is
+   then the $$x$$ column
+ * by its name: `x`, `y`, `z`, `y2`, `y3` and so on. `y2` is
+   equivalent to `z`
+
+Some commands (like [cmd: contract]) take column lists, which are
+comma-separated lists of columns (just like above), with the addition
+of range: `2..6` are columns 2 to 6 inclusive.
 
 # General
 
@@ -1574,18 +1589,18 @@ absorbance for different values of $$\lambda$$ (one for each column).
 
 ### tweak-columns - Tweak columns {#cmd-tweak-columns}
 
-`tweak-columns` `/remove=`_integers_{:title="A comma-separated list of integers"} `/flip=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/flip-all=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`tweak-columns` `/remove=`_columns_{:title="A comma-separated list of columns"} `/flip=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/flip-all=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
-  * `/remove=`_integers_{:title="A comma-separated list of integers"}: The column numbers to remove (X = 1, Y = 2, etc...)
+  * `/remove=`_columns_{:title="A comma-separated list of columns"}: The column numbers to remove (X = 1, Y = 2, etc...)
   * `/flip=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If true, flips all the Y columns
   * `/flip-all=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If true, flips all the columns, including the X column
 
 {::comment} synopsis-end: tweak-columns {:/}
 {::comment} description-start: tweak-columns {:/}
 [cmd: tweak-columns] provides basic modifications of columns. If a
-comma-separated list of column number is given to the `/remove`
-option, then the given columns are removed. If `/flip` is on, then all
-Y columns are reversed. If `/flip-all` is on, then all columns,
+[list of columns](#column-names) is given to the `/remove` option,
+then the given columns are removed. If `/flip` is on, then all Y
+columns are reversed. If `/flip-all` is on, then all columns,
 including the X column, are reversed.
 {::comment} description-end: tweak-columns {:/}
 
@@ -1643,9 +1658,9 @@ small heuristic. You can display it using the `b` key.
 
 ### filter-bsplines - Filter {#cmd-filter-bsplines}
 
-`filter-bsplines` `/weight-col=`_integer_{:title="An integer"} **(interactive)**
+`filter-bsplines` `/weight-column=`_column_{:title="The number/name of a column in a buffer"} **(interactive)**
 
-  * `/weight-col=`_integer_{:title="An integer"}: Use the weights in the given column
+  * `/weight-column=`_column_{:title="The number/name of a column in a buffer"}: Use the weights in the given column
 
 {::comment} synopsis-end: filter-bsplines {:/}
 {::comment} description-start: filter-bsplines {:/}
@@ -1678,13 +1693,13 @@ approximation. (be careful as this function may fail at times).
 
 ### auto-filter-bs - Filter {#cmd-auto-filter-bs}
 
-`auto-filter-bs` `/number=`_integer_{:title="An integer"} `/order=`_integer_{:title="An integer"} `/weight-col=`_integer_{:title="An integer"} `/derivatives=`_integer_{:title="An integer"}
+`auto-filter-bs` `/number=`_integer_{:title="An integer"} `/order=`_integer_{:title="An integer"} `/weight-column=`_column_{:title="The number/name of a column in a buffer"} `/derivatives=`_integer_{:title="An integer"}
 
 Alias: `afbs`
 
   * `/number=`_integer_{:title="An integer"}: Number of segments
   * `/order=`_integer_{:title="An integer"}: Order of the splines
-  * `/weight-col=`_integer_{:title="An integer"}: Use the weights in the given column
+  * `/weight-column=`_column_{:title="The number/name of a column in a buffer"}: Use the weights in the given column
   * `/derivatives=`_integer_{:title="An integer"}: Compute derivatives up to the given 
 
 {::comment} synopsis-end: auto-filter-bs {:/}
@@ -1842,16 +1857,16 @@ Computes the auto-correlation function of the data, using FFT.
 
 ### bin - Bin {#cmd-bin}
 
-`bin` `/boxes=`_integer_{:title="An integer"} `/column=`_integer_{:title="An integer"} `/log=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`bin` `/boxes=`_integer_{:title="An integer"} `/column=`_column_{:title="The number/name of a column in a buffer"} `/log=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * `/boxes=`_integer_{:title="An integer"}: 
-  * `/column=`_integer_{:title="An integer"}: 
+  * `/column=`_column_{:title="The number/name of a column in a buffer"}: 
   * `/log=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
 
 {::comment} synopsis-end: bin {:/}
 {::comment} description-start: bin {:/}
 Creates an histogram by binning the Y values (or the values of the
-column given by the `/column` option, 0 for X, 1 for Y, 2 for Y2...)
+column given by the `/column` option, see [above](#column-names))
 into various boxes (whose number can be controlled using the `/boxes`
 option). The new buffer has for X values the center of the boxes and
 as Y values the number of data points that were in the boxes.
@@ -2062,13 +2077,13 @@ each of those before.
 
 ### contract - Group buffers on X values {#cmd-contract}
 
-`contract` _buffers..._{:title="Comma-separated lists of datasets in the stack"} `/mode=`_choice_{:title="One of: indices, xvalues"} `/use-segments=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/use-cols=`_integers_{:title="A comma-separated list of integers"}
+`contract` _buffers..._{:title="Comma-separated lists of datasets in the stack"} `/mode=`_choice_{:title="One of: indices, xvalues"} `/use-segments=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/use-columns=`_columns_{:title="A comma-separated list of columns"}
 
   * _buffers..._{:title="Comma-separated lists of datasets in the stack"}: Buffers to contract
   * `/mode=`_choice_{:title="One of: indices, xvalues"}: Whether operations try to match x values or indices
   * `/use-segments=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, operations are performed segment-by-segment
   * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define the perpendicular coordinate from meta-data
-  * `/use-cols=`_integers_{:title="A comma-separated list of integers"}: If specified, use only the given columns for the contraction
+  * `/use-columns=`_columns_{:title="A comma-separated list of columns"}: If specified, use only the given columns for the contraction
 
 {::comment} synopsis-end: contract {:/}
 {::comment} description-start: contract {:/}
@@ -2078,6 +2093,10 @@ of Y that run against the same values of X. The result is a buffer
 that contains as many Y columns as the total of Y columns of all the
 arguments. X matching between the buffers is done as for the other
 operations such as [cmd: div] or  [cmd: subtract].
+
+You can specify a column list using `/use-columns` (see
+[above](#column-names) for more information about column lists), in
+which case the other columns from the buffers are ignored.
 {::comment} description-end: contract {:/}
 
 # Data inspection facilities

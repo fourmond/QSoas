@@ -353,8 +353,8 @@ HEADERS += src/headers.hh \
 message("Using odrpack")
 
 SOURCES += odrpack/odrpackfitengine.cc \        
-        odrpack/d_lpkbls.new.c \
-        odrpack/d_odr.new.c \
-        odrpack/d_mprec.new.c \
+        odrpack/d_lpkbls.c \
+        odrpack/d_odr.c \
+        odrpack/d_mprec.c \
         odrpack/f2c_remains.c
 

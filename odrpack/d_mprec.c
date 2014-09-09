@@ -10,22 +10,34 @@
 		http://www.netlib.org/f2c/libf2c.zip
 */
 
-#include "f2c.h"
+/* This file was heavily modified to allow complete removal of 
+  dependencies on f2c library and others */
+typedef int /* Unknown procedure type */ (*U_fp)();
+typedef /* Subroutine */ int (*S_fp)();
+
+#define TRUE_ 1
+#define FALSE_ 0
+#define abs(x) ((x) >= 0 ? (x) : -(x))
+#define dabs(x) (doublereal)abs(x)
+#define min(a,b) ((a) <= (b) ? (a) : (b))
+#define max(a,b) ((a) >= (b) ? (a) : (b))
+#define dmin(a,b) (doublereal)min(a,b)
+#define dmax(a,b) (doublereal)max(a,b)
 
 /* DMPREC */
-doublereal dmprec_(void)
+double dmprec_(void)
 {
     /* Initialized data */
 
-    static doublereal b = 2.;
-    static integer td = 53;
+    static double b = 2.;
+    static int td = 53;
 
     /* System generated locals */
-    integer i__1;
-    doublereal ret_val;
+    int i__1;
+    double ret_val;
 
     /* Builtin functions */
-    double pow_di(doublereal *, integer *);
+    double pow_di(double *, int *);
 
 /* ***BEGIN PROLOGUE  DPREC */
 /* ***REFER TO  DODR,DODRC */

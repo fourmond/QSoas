@@ -29,4 +29,4 @@ if [ -z "$NOTWEAK" ]; then
     # And now it picks the wrong 
     perl -pi.bak -e 's#/Developer## if(/CC|CXX|LINK/);' Makefile
 fi
-cd odrpack; ./full-conversion d_lpkbls.c d_mprec.c d_odr.c
+# cd odrpack; ./full-conversion d_lpkbls.c d_mprec.c d_odr.c

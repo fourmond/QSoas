@@ -10,55 +10,67 @@
 		http://www.netlib.org/f2c/libf2c.zip
 */
 
-#include "f2c.h"
+/* This file was heavily modified to allow complete removal of 
+  dependencies on f2c library and others */
+typedef int /* Unknown procedure type */ (*U_fp)();
+typedef /* Subroutine */ int (*S_fp)();
+
+#define TRUE_ 1
+#define FALSE_ 0
+#define abs(x) ((x) >= 0 ? (x) : -(x))
+#define dabs(x) (doublereal)abs(x)
+#define min(a,b) ((a) <= (b) ? (a) : (b))
+#define max(a,b) ((a) >= (b) ? (a) : (b))
+#define dmin(a,b) (doublereal)min(a,b)
+#define dmax(a,b) (doublereal)max(a,b)
 
 /* Table of constant values */
 
-static integer c__1 = 1;
-static integer c__3 = 3;
-static logical c_true = TRUE_;
-static logical c_false = FALSE_;
-static integer c__0 = 0;
-static doublereal c_b150 = .25;
-static integer c__2 = 2;
-static doublereal c_b666 = .975;
-static integer c__4 = 4;
-static integer c__1000 = 1000;
+static int c__1 = 1;
+static int c__3 = 3;
+static int c_true = TRUE_;
+static int c_false = FALSE_;
+static int c__0 = 0;
+static double c_b150 = .25;
+static int c__2 = 2;
+static double c_b666 = .975;
+static int c__4 = 4;
+static int c__1000 = 1000;
 
 /* DODR */
-/* Subroutine */ int dodr_(U_fp fcn, integer *n, integer *m, integer *np, 
-	integer *nq, doublereal *beta, doublereal *y, integer *ldy, 
-	doublereal *x, integer *ldx, doublereal *we, integer *ldwe, integer *
-	ld2we, doublereal *wd, integer *ldwd, integer *ld2wd, integer *job, 
-	integer *iprint, integer *lunerr, integer *lunrpt, doublereal *work, 
-	integer *lwork, integer *iwork, integer *liwork, integer *info)
+/* Subroutine */ int dodr_(U_fp fcn, int *n, int *m, int *np, 
+	int *nq, double *beta, double *y, int *ldy, 
+	double *x, int *ldx, double *we, int *ldwe, int *
+	ld2we, double *wd, int *ldwd, int *ld2wd, int *job, 
+	int *iprint, int *lunerr, int *lunrpt, double *work, 
+	int *lwork, int *iwork, int *liwork, int *info)
 {
     /* Initialized data */
 
-    static doublereal negone = -1.;
-    static doublereal zero = 0.;
+    static double negone = -1.;
+    static double zero = 0.;
 
     /* System generated locals */
-    integer wd_dim1, wd_dim2, wd_offset, we_dim1, we_dim2, we_offset, x_dim1, 
+    int wd_dim1, wd_dim2, wd_offset, we_dim1, we_dim2, we_offset, x_dim1, 
 	    x_offset, y_dim1, y_offset;
 
     /* Local variables */
-    static doublereal wd1[1]	/* was [1][1][1] */, sclb[1], scld[1]	/* 
+    static double wd1[1]	/* was [1][1][1] */, sclb[1], scld[1]	/* 
 	    was [1][1] */, stpb[1], stpd[1]	/* was [1][1] */;
-    static integer ifixb[1], ldifx, maxit, ifixx[1]	/* was [1][1] */;
-    static logical short__;
-    static doublereal sstol, taufac;
-    static integer ldscld;
-    extern /* Subroutine */ int dodcnt_(logical *, U_fp, integer *, integer *,
-	     integer *, integer *, doublereal *, doublereal *, integer *, 
-	    doublereal *, integer *, doublereal *, integer *, integer *, 
-	    doublereal *, integer *, integer *, integer *, integer *, integer 
-	    *, integer *, integer *, doublereal *, doublereal *, doublereal *,
-	     integer *, integer *, integer *, integer *, doublereal *, 
-	    doublereal *, integer *, doublereal *, doublereal *, integer *, 
-	    doublereal *, integer *, integer *, integer *, integer *);
-    static integer ndigit, ldstpd;
-    static doublereal partol;
+    static int ifixb[1], ldifx, maxit, ifixx[1]	/* was [1][1] */;
+    static int short__;
+    static double sstol, taufac;
+    static int ldscld;
+    extern /* Subroutine */ int dodcnt_(int *, U_fp, int *, int *,
+	     int *, int *, double *, double *, int *, 
+	    double *, int *, double *, int *, int *, 
+	    double *, int *, int *, int *, int *, int 
+	    *, int *, int *, double *, double *, double *,
+	     int *, int *, int *, int *, double *, 
+	    double *, int *, double *, double *, int *, 
+	    double *, int *, int *, int *, int *);
+    static int ndigit, ldstpd;
+    static double partol;
 
 /* ***BEGIN PROLOGUE  DODR */
 /* ***DATE WRITTEN   860529   (YYMMDD) */
@@ -226,38 +238,38 @@ static integer c__1000 = 1000;
 } /* dodr_ */
 
 /* DODRC */
-/* Subroutine */ int dodrc_(U_fp fcn, integer *n, integer *m, integer *np, 
-	integer *nq, doublereal *beta, doublereal *y, integer *ldy, 
-	doublereal *x, integer *ldx, doublereal *we, integer *ldwe, integer *
-	ld2we, doublereal *wd, integer *ldwd, integer *ld2wd, integer *ifixb, 
-	integer *ifixx, integer *ldifx, integer *job, integer *ndigit, 
-	doublereal *taufac, doublereal *sstol, doublereal *partol, integer *
-	maxit, integer *iprint, integer *lunerr, integer *lunrpt, doublereal *
-	stpb, doublereal *stpd, integer *ldstpd, doublereal *sclb, doublereal 
-	*scld, integer *ldscld, doublereal *work, integer *lwork, integer *
-	iwork, integer *liwork, integer *info)
+/* Subroutine */ int dodrc_(U_fp fcn, int *n, int *m, int *np, 
+	int *nq, double *beta, double *y, int *ldy, 
+	double *x, int *ldx, double *we, int *ldwe, int *
+	ld2we, double *wd, int *ldwd, int *ld2wd, int *ifixb, 
+	int *ifixx, int *ldifx, int *job, int *ndigit, 
+	double *taufac, double *sstol, double *partol, int *
+	maxit, int *iprint, int *lunerr, int *lunrpt, double *
+	stpb, double *stpd, int *ldstpd, double *sclb, double 
+	*scld, int *ldscld, double *work, int *lwork, int *
+	iwork, int *liwork, int *info)
 {
     /* Initialized data */
 
-    static doublereal negone = -1.;
-    static doublereal zero = 0.;
+    static double negone = -1.;
+    static double zero = 0.;
 
     /* System generated locals */
-    integer scld_dim1, scld_offset, stpd_dim1, stpd_offset, wd_dim1, wd_dim2, 
+    int scld_dim1, scld_offset, stpd_dim1, stpd_offset, wd_dim1, wd_dim2, 
 	    wd_offset, we_dim1, we_dim2, we_offset, x_dim1, x_offset, y_dim1, 
 	    y_offset, ifixx_dim1, ifixx_offset;
 
     /* Local variables */
-    static doublereal wd1[1]	/* was [1][1][1] */;
-    static logical short__;
-    extern /* Subroutine */ int dodcnt_(logical *, U_fp, integer *, integer *,
-	     integer *, integer *, doublereal *, doublereal *, integer *, 
-	    doublereal *, integer *, doublereal *, integer *, integer *, 
-	    doublereal *, integer *, integer *, integer *, integer *, integer 
-	    *, integer *, integer *, doublereal *, doublereal *, doublereal *,
-	     integer *, integer *, integer *, integer *, doublereal *, 
-	    doublereal *, integer *, doublereal *, doublereal *, integer *, 
-	    doublereal *, integer *, integer *, integer *, integer *);
+    static double wd1[1]	/* was [1][1][1] */;
+    static int short__;
+    extern /* Subroutine */ int dodcnt_(int *, U_fp, int *, int *,
+	     int *, int *, double *, double *, int *, 
+	    double *, int *, double *, int *, int *, 
+	    double *, int *, int *, int *, int *, int 
+	    *, int *, int *, double *, double *, double *,
+	     int *, int *, int *, int *, double *, 
+	    double *, int *, double *, double *, int *, 
+	    double *, int *, int *, int *, int *);
 
 /* ***BEGIN PROLOGUE  DODRC */
 /* ***DATE WRITTEN   860529   (YYMMDD) */
@@ -423,44 +435,44 @@ static integer c__1000 = 1000;
 } /* dodrc_ */
 
 /* DACCES */
-/* Subroutine */ int dacces_(integer *n, integer *m, integer *np, integer *nq,
-	 integer *ldwe, integer *ld2we, doublereal *work, integer *lwork, 
-	integer *iwork, integer *liwork, logical *access, logical *isodr, 
-	integer *jpvt, integer *omega, integer *u, integer *qraux, integer *
-	sd, integer *vcv, integer *wrk1, integer *wrk2, integer *wrk3, 
-	integer *wrk4, integer *wrk5, integer *wrk6, integer *nnzw, integer *
-	npp, integer *job, doublereal *partol, doublereal *sstol, integer *
-	maxit, doublereal *taufac, doublereal *eta, integer *neta, integer *
-	lunrpt, integer *ipr1, integer *ipr2, integer *ipr2f, integer *ipr3, 
-	doublereal *wss, doublereal *rvar, integer *idf, doublereal *tau, 
-	doublereal *alpha, integer *niter, integer *nfev, integer *njev, 
-	integer *int2, doublereal *olmavg, doublereal *rcond, integer *irank, 
-	doublereal *actrs, doublereal *pnorm, doublereal *prers, doublereal *
-	rnorms, integer *istop)
+/* Subroutine */ int dacces_(int *n, int *m, int *np, int *nq,
+	 int *ldwe, int *ld2we, double *work, int *lwork, 
+	int *iwork, int *liwork, int *access, int *isodr, 
+	int *jpvt, int *omega, int *u, int *qraux, int *
+	sd, int *vcv, int *wrk1, int *wrk2, int *wrk3, 
+	int *wrk4, int *wrk5, int *wrk6, int *nnzw, int *
+	npp, int *job, double *partol, double *sstol, int *
+	maxit, double *taufac, double *eta, int *neta, int *
+	lunrpt, int *ipr1, int *ipr2, int *ipr2f, int *ipr3, 
+	double *wss, double *rvar, int *idf, double *tau, 
+	double *alpha, int *niter, int *nfev, int *njev, 
+	int *int2, double *olmavg, double *rcond, int *irank, 
+	double *actrs, double *pnorm, double *prers, double *
+	rnorms, int *istop)
 {
-    static integer si, ti, ui, fni, sdi, fsi, ssi, tti, we1i, idfi, etai, 
+    static int si, ti, ui, fni, sdi, fsi, ssi, tti, we1i, idfi, etai, 
 	    jobi, msgb, msgd, epsi, taui, ssfi, nppi, vcvi, wssi, int2i, 
 	    wrk1i, wrk2i, wrk3i, wrk4i, wrk5i, wrk6i, wrk7i, diffi, netai, 
 	    nfevi;
-    extern /* Subroutine */ int dwinf_(integer *, integer *, integer *, 
-	    integer *, integer *, integer *, logical *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *);
-    static integer njevi, ldtti, rvari, ntoli, lwkmn, jpvti, nrowi, beta0i, 
+    extern /* Subroutine */ int dwinf_(int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *);
+    static int njevi, ldtti, rvari, ntoli, lwkmn, jpvti, nrowi, beta0i, 
 	    nnzwi, fjacbi, fjacdi, betaci, alphai, betani, deltai, omegai, 
 	    betasi, taufci, iranki, epsmai, deltni, rcondi;
-    extern /* Subroutine */ int diwinf_(integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *);
-    static integer deltsi, actrsi, olmavi, iprini, maxiti, niteri, partli, 
+    extern /* Subroutine */ int diwinf_(int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *);
+    static int deltsi, actrsi, olmavi, iprini, maxiti, niteri, partli, 
 	    luneri, wssdei, liwkmn, pnormi, iprint, prersi, istopi, lunrpi, 
 	    qrauxi, wssepi, rnorsi, sstoli, xplusi;
 
@@ -723,23 +735,23 @@ static integer c__1000 = 1000;
 } /* dacces_ */
 
 /* DESUBI */
-/* Subroutine */ int desubi_(integer *n, integer *m, doublereal *wd, integer *
-	ldwd, integer *ld2wd, doublereal *alpha, doublereal *tt, integer *
-	ldtt, integer *i__, doublereal *e)
+/* Subroutine */ int desubi_(int *n, int *m, double *wd, int *
+	ldwd, int *ld2wd, double *alpha, double *tt, int *
+	ldtt, int *i__, double *e)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
+    static double zero = 0.;
 
     /* System generated locals */
-    integer e_dim1, e_offset, tt_dim1, tt_offset, wd_dim1, wd_dim2, wd_offset,
+    int e_dim1, e_offset, tt_dim1, tt_offset, wd_dim1, wd_dim2, wd_offset,
 	     i__1, i__2;
-    doublereal d__1, d__2;
+    double d__1, d__2;
 
     /* Local variables */
-    static integer j, j1, j2;
-    extern /* Subroutine */ int dzero_(integer *, integer *, doublereal *, 
-	    integer *);
+    static int j, j1, j2;
+    extern /* Subroutine */ int dzero_(int *, int *, double *, 
+	    int *);
 
 /* ***BEGIN PROLOGUE  DESUBI */
 /* ***REFER TO  DODR,DODRC */
@@ -929,36 +941,36 @@ static integer c__1000 = 1000;
 } /* desubi_ */
 
 /* DETAF */
-/* Subroutine */ int detaf_(S_fp fcn, integer *n, integer *m, integer *np, 
-	integer *nq, doublereal *xplusd, doublereal *beta, doublereal *epsmac,
-	 integer *nrow, doublereal *partmp, doublereal *pv0, integer *ifixb, 
-	integer *ifixx, integer *ldifx, integer *istop, integer *nfev, 
-	doublereal *eta, integer *neta, doublereal *wrk1, doublereal *wrk2, 
-	doublereal *wrk6, doublereal *wrk7)
+/* Subroutine */ int detaf_(S_fp fcn, int *n, int *m, int *np, 
+	int *nq, double *xplusd, double *beta, double *epsmac,
+	 int *nrow, double *partmp, double *pv0, int *ifixb, 
+	int *ifixx, int *ldifx, int *istop, int *nfev, 
+	double *eta, int *neta, double *wrk1, double *wrk2, 
+	double *wrk6, double *wrk7)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
-    static doublereal p1 = .1;
-    static doublereal p2 = .2;
-    static doublereal p5 = .5;
-    static doublereal one = 1.;
-    static doublereal two = 2.;
-    static doublereal hundrd = 100.;
+    static double zero = 0.;
+    static double p1 = .1;
+    static double p2 = .2;
+    static double p5 = .5;
+    static double one = 1.;
+    static double two = 2.;
+    static double hundrd = 100.;
 
     /* System generated locals */
-    integer pv0_dim1, pv0_offset, wrk1_dim1, wrk1_dim2, wrk1_offset, 
+    int pv0_dim1, pv0_offset, wrk1_dim1, wrk1_dim2, wrk1_offset, 
 	    wrk2_dim1, wrk2_offset, wrk6_dim1, wrk6_dim2, wrk6_offset, 
 	    xplusd_dim1, xplusd_offset, ifixx_dim1, ifixx_offset, i__1;
-    doublereal d__1, d__2;
+    double d__1, d__2;
 
     /* Builtin functions */
-    double d_lg10(doublereal *);
+    double d_lg10(double *);
 
     /* Local variables */
-    static doublereal a, b;
-    static integer j, k, l;
-    static doublereal fac, stp;
+    static double a, b;
+    static int j, k, l;
+    static double fac, stp;
 
 /* ***BEGIN PROLOGUE  DETAF */
 /* ***REFER TO  DODR,DODRC */
@@ -1110,28 +1122,28 @@ static integer c__1000 = 1000;
     }
 /* Computing MAX */
     d__1 = two, d__2 = p5 - d_lg10(eta);
-    *neta = (integer) max(d__1,d__2);
+    *neta = (int) max(d__1,d__2);
     return 0;
 } /* detaf_ */
 
 /* DEVJAC */
-/* Subroutine */ int devjac_(S_fp fcn, logical *anajac, logical *cdjac, 
-	integer *n, integer *m, integer *np, integer *nq, doublereal *betac, 
-	doublereal *beta, doublereal *stpb, integer *ifixb, integer *ifixx, 
-	integer *ldifx, doublereal *x, integer *ldx, doublereal *delta, 
-	doublereal *xplusd, doublereal *stpd, integer *ldstpd, doublereal *
-	ssf, doublereal *tt, integer *ldtt, integer *neta, doublereal *fn, 
-	doublereal *stp, doublereal *wrk1, doublereal *wrk2, doublereal *wrk3,
-	 doublereal *wrk6, doublereal *fjacb, logical *isodr, doublereal *
-	fjacd, doublereal *we1, integer *ldwe, integer *ld2we, integer *njev, 
-	integer *nfev, integer *istop, integer *info)
+/* Subroutine */ int devjac_(S_fp fcn, int *anajac, int *cdjac, 
+	int *n, int *m, int *np, int *nq, double *betac, 
+	double *beta, double *stpb, int *ifixb, int *ifixx, 
+	int *ldifx, double *x, int *ldx, double *delta, 
+	double *xplusd, double *stpd, int *ldstpd, double *
+	ssf, double *tt, int *ldtt, int *neta, double *fn, 
+	double *stp, double *wrk1, double *wrk2, double *wrk3,
+	 double *wrk6, double *fjacb, int *isodr, double *
+	fjacd, double *we1, int *ldwe, int *ld2we, int *njev, 
+	int *nfev, int *istop, int *info)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
+    static double zero = 0.;
 
     /* System generated locals */
-    integer delta_dim1, delta_offset, fjacb_dim1, fjacb_dim2, fjacb_offset, 
+    int delta_dim1, delta_offset, fjacb_dim1, fjacb_dim2, fjacb_offset, 
 	    fjacd_dim1, fjacd_dim2, fjacd_offset, fn_dim1, fn_offset, 
 	    stpd_dim1, stpd_offset, tt_dim1, tt_offset, we1_dim1, we1_dim2, 
 	    we1_offset, wrk1_dim1, wrk1_dim2, wrk1_offset, wrk2_dim1, 
@@ -1140,32 +1152,32 @@ static integer c__1000 = 1000;
 	    i__3;
 
     /* Local variables */
-    static integer j, k, l, k1;
-    extern doublereal ddot_(integer *, doublereal *, integer *, doublereal *, 
-	    integer *);
-    extern /* Subroutine */ int dxpy_(integer *, integer *, doublereal *, 
-	    integer *, doublereal *, integer *, doublereal *, integer *), 
-	    difix_(integer *, integer *, integer *, integer *, doublereal *, 
-	    integer *, doublereal *, integer *), dwght_(integer *, integer *, 
-	    doublereal *, integer *, integer *, doublereal *, integer *, 
-	    doublereal *, integer *);
-    static logical error;
-    extern /* Subroutine */ int djaccd_(S_fp, integer *, integer *, integer *,
-	     integer *, doublereal *, doublereal *, integer *, doublereal *, 
-	    doublereal *, integer *, integer *, integer *, doublereal *, 
-	    doublereal *, integer *, doublereal *, doublereal *, integer *, 
-	    integer *, doublereal *, doublereal *, doublereal *, doublereal *,
-	     doublereal *, doublereal *, logical *, doublereal *, integer *, 
-	    integer *), djacfd_(S_fp, integer *, integer *, integer *, 
-	    integer *, doublereal *, doublereal *, integer *, doublereal *, 
-	    doublereal *, integer *, integer *, integer *, doublereal *, 
-	    doublereal *, integer *, doublereal *, doublereal *, integer *, 
-	    integer *, doublereal *, doublereal *, doublereal *, doublereal *,
-	     doublereal *, doublereal *, doublereal *, logical *, doublereal *
-	    , integer *, integer *);
-    static integer ideval;
-    extern /* Subroutine */ int dunpac_(integer *, doublereal *, doublereal *,
-	     integer *);
+    static int j, k, l, k1;
+    extern double ddot_(int *, double *, int *, double *, 
+	    int *);
+    extern /* Subroutine */ int dxpy_(int *, int *, double *, 
+	    int *, double *, int *, double *, int *), 
+	    difix_(int *, int *, int *, int *, double *, 
+	    int *, double *, int *), dwght_(int *, int *, 
+	    double *, int *, int *, double *, int *, 
+	    double *, int *);
+    static int error;
+    extern /* Subroutine */ int djaccd_(S_fp, int *, int *, int *,
+	     int *, double *, double *, int *, double *, 
+	    double *, int *, int *, int *, double *, 
+	    double *, int *, double *, double *, int *, 
+	    int *, double *, double *, double *, double *,
+	     double *, double *, int *, double *, int *, 
+	    int *), djacfd_(S_fp, int *, int *, int *, 
+	    int *, double *, double *, int *, double *, 
+	    double *, int *, int *, int *, double *, 
+	    double *, int *, double *, double *, int *, 
+	    int *, double *, double *, double *, double *,
+	     double *, double *, double *, int *, double *
+	    , int *, int *);
+    static int ideval;
+    extern /* Subroutine */ int dunpac_(int *, double *, double *,
+	     int *);
 
 /* ***BEGIN PROLOGUE  DEVJAC */
 /* ***REFER TO  DODR,DODRC */
@@ -1404,26 +1416,26 @@ static integer c__1000 = 1000;
 } /* devjac_ */
 
 /* DFCTR */
-/* Subroutine */ int dfctr_(logical *oksemi, doublereal *a, integer *lda, 
-	integer *n, integer *info)
+/* Subroutine */ int dfctr_(int *oksemi, double *a, int *lda, 
+	int *n, int *info)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
-    static doublereal ten = 10.;
+    static double zero = 0.;
+    static double ten = 10.;
 
     /* System generated locals */
-    integer a_dim1, a_offset, i__1, i__2, i__3;
-    doublereal d__1;
+    int a_dim1, a_offset, i__1, i__2, i__3;
+    double d__1;
 
     /* Builtin functions */
-    double sqrt(doublereal);
+    double sqrt(double);
 
     /* Local variables */
-    static integer j, k;
-    static doublereal s, t, xi;
-    extern doublereal ddot_(integer *, doublereal *, integer *, doublereal *, 
-	    integer *), dmprec_(void);
+    static int j, k;
+    static double s, t, xi;
+    extern double ddot_(int *, double *, int *, double *, 
+	    int *), dmprec_(void);
 
 /* ***BEGIN PROLOGUE  DFCTR */
 /* ***REFER TO  DODR,DODRC */
@@ -1518,29 +1530,29 @@ static integer c__1000 = 1000;
 } /* dfctr_ */
 
 /* DFCTRW */
-/* Subroutine */ int dfctrw_(integer *n, integer *m, integer *nq, integer *
-	npp, logical *isodr, doublereal *we, integer *ldwe, integer *ld2we, 
-	doublereal *wd, integer *ldwd, integer *ld2wd, doublereal *wrk0, 
-	doublereal *wrk4, doublereal *we1, integer *nnzw, integer *info)
+/* Subroutine */ int dfctrw_(int *n, int *m, int *nq, int *
+	npp, int *isodr, double *we, int *ldwe, int *ld2we, 
+	double *wd, int *ldwd, int *ld2wd, double *wrk0, 
+	double *wrk4, double *we1, int *nnzw, int *info)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
+    static double zero = 0.;
 
     /* System generated locals */
-    integer we_dim1, we_dim2, we_offset, we1_dim1, we1_dim2, we1_offset, 
+    int we_dim1, we_dim2, we_offset, we1_dim1, we1_dim2, we1_offset, 
 	    wd_dim1, wd_dim2, wd_offset, wrk0_dim1, wrk0_offset, wrk4_dim1, 
 	    wrk4_offset, i__1, i__2, i__3, i__4;
-    doublereal d__1;
+    double d__1;
 
     /* Builtin functions */
-    double sqrt(doublereal);
+    double sqrt(double);
 
     /* Local variables */
-    static integer i__, j, l, j1, j2, l1, l2, inf;
-    extern /* Subroutine */ int dfctr_(logical *, doublereal *, integer *, 
-	    integer *, integer *);
-    static logical notzro;
+    static int i__, j, l, j1, j2, l1, l2, inf;
+    extern /* Subroutine */ int dfctr_(int *, double *, int *, 
+	    int *, int *);
+    static int notzro;
 
 /* ***BEGIN PROLOGUE  DFCTRW */
 /* ***REFER TO  DODR,DODRC */
@@ -1821,11 +1833,11 @@ L300:
 } /* dfctrw_ */
 
 /* DFLAGS */
-/* Subroutine */ int dflags_(integer *job, logical *restrt, logical *initd, 
-	logical *dovcv, logical *redoj, logical *anajac, logical *cdjac, 
-	logical *chkjac, logical *isodr, logical *implct)
+/* Subroutine */ int dflags_(int *job, int *restrt, int *initd, 
+	int *dovcv, int *redoj, int *anajac, int *cdjac, 
+	int *chkjac, int *isodr, int *implct)
 {
-    static integer j;
+    static int j;
 
 /* ***BEGIN PROLOGUE  DFLAGS */
 /* ***REFER TO  DODR,DODRC */
@@ -1922,22 +1934,22 @@ L300:
 } /* dflags_ */
 
 /* DHSTEP */
-doublereal dhstep_(integer *itype, integer *neta, integer *i__, integer *j, 
-	doublereal *stp, integer *ldstp)
+double dhstep_(int *itype, int *neta, int *i__, int *j, 
+	double *stp, int *ldstp)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
-    static doublereal two = 2.;
-    static doublereal three = 3.;
-    static doublereal ten = 10.;
+    static double zero = 0.;
+    static double two = 2.;
+    static double three = 3.;
+    static double ten = 10.;
 
     /* System generated locals */
-    integer stp_dim1, stp_offset;
-    doublereal ret_val, d__1;
+    int stp_dim1, stp_offset;
+    double ret_val, d__1;
 
     /* Builtin functions */
-    double pow_dd(doublereal *, doublereal *);
+    double pow_dd(double *, double *);
 
 /* ***BEGIN PROLOGUE  DHSTEP */
 /* ***REFER TO  DODR,DODRC */
@@ -1990,20 +2002,20 @@ doublereal dhstep_(integer *itype, integer *neta, integer *i__, integer *j,
 } /* dhstep_ */
 
 /* DIFIX */
-/* Subroutine */ int difix_(integer *n, integer *m, integer *ifix, integer *
-	ldifix, doublereal *t, integer *ldt, doublereal *tfix, integer *
+/* Subroutine */ int difix_(int *n, int *m, int *ifix, int *
+	ldifix, double *t, int *ldt, double *tfix, int *
 	ldtfix)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
+    static double zero = 0.;
 
     /* System generated locals */
-    integer t_dim1, t_offset, tfix_dim1, tfix_offset, ifix_dim1, ifix_offset, 
+    int t_dim1, t_offset, tfix_dim1, tfix_offset, ifix_dim1, ifix_offset, 
 	    i__1, i__2;
 
     /* Local variables */
-    static integer i__, j;
+    static int i__, j;
 
 /* ***BEGIN PROLOGUE  DIFIX */
 /* ***REFER TO  DODR,DODRC */
@@ -2047,7 +2059,7 @@ doublereal dhstep_(integer *itype, integer *neta, integer *i__, integer *j,
     if (*n == 0 || *m == 0) {
 	return 0;
     }
-    if ((doublereal) ifix[ifix_dim1 + 1] >= zero) {
+    if ((double) ifix[ifix_dim1 + 1] >= zero) {
 	if (*ldifix >= *n) {
 	    i__1 = *m;
 	    for (j = 1; j <= i__1; ++j) {
@@ -2086,50 +2098,50 @@ doublereal dhstep_(integer *itype, integer *neta, integer *i__, integer *j,
 } /* difix_ */
 
 /* DINIWK */
-/* Subroutine */ int diniwk_(integer *n, integer *m, integer *np, doublereal *
-	work, integer *lwork, integer *iwork, integer *liwork, doublereal *x, 
-	integer *ldx, integer *ifixx, integer *ldifx, doublereal *scld, 
-	integer *ldscld, doublereal *beta, doublereal *sclb, doublereal *
-	sstol, doublereal *partol, integer *maxit, doublereal *taufac, 
-	integer *job, integer *iprint, integer *lunerr, integer *lunrpt, 
-	integer *epsmai, integer *sstoli, integer *partli, integer *maxiti, 
-	integer *taufci, integer *jobi, integer *iprini, integer *luneri, 
-	integer *lunrpi, integer *ssfi, integer *tti, integer *ldtti, integer 
+/* Subroutine */ int diniwk_(int *n, int *m, int *np, double *
+	work, int *lwork, int *iwork, int *liwork, double *x, 
+	int *ldx, int *ifixx, int *ldifx, double *scld, 
+	int *ldscld, double *beta, double *sclb, double *
+	sstol, double *partol, int *maxit, double *taufac, 
+	int *job, int *iprint, int *lunerr, int *lunrpt, 
+	int *epsmai, int *sstoli, int *partli, int *maxiti, 
+	int *taufci, int *jobi, int *iprini, int *luneri, 
+	int *lunrpi, int *ssfi, int *tti, int *ldtti, int 
 	*deltai)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
-    static doublereal one = 1.;
-    static doublereal two = 2.;
-    static doublereal three = 3.;
+    static double zero = 0.;
+    static double one = 1.;
+    static double two = 2.;
+    static double three = 3.;
 
     /* System generated locals */
-    integer scld_dim1, scld_offset, x_dim1, x_offset, ifixx_dim1, 
+    int scld_dim1, scld_offset, x_dim1, x_offset, ifixx_dim1, 
 	    ifixx_offset, i__1, i__2;
-    doublereal d__1;
+    double d__1;
 
     /* Builtin functions */
-    double pow_dd(doublereal *, doublereal *), sqrt(doublereal);
+    double pow_dd(double *, double *), sqrt(double);
 
     /* Local variables */
-    static integer i__, j;
-    static logical cdjac;
-    extern /* Subroutine */ int dsclb_(integer *, doublereal *, doublereal *),
-	     dscld_(integer *, integer *, doublereal *, integer *, doublereal 
-	    *, integer *);
-    static logical redoj, initd;
-    extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *, 
-	    doublereal *, integer *);
-    static logical dovcv, isodr;
-    extern /* Subroutine */ int dzero_(integer *, integer *, doublereal *, 
-	    integer *);
-    static logical anajac, chkjac;
-    extern /* Subroutine */ int dflags_(integer *, logical *, logical *, 
-	    logical *, logical *, logical *, logical *, logical *, logical *, 
-	    logical *);
-    extern doublereal dmprec_(void);
-    static logical implct, restrt;
+    static int i__, j;
+    static int cdjac;
+    extern /* Subroutine */ int dsclb_(int *, double *, double *),
+	     dscld_(int *, int *, double *, int *, double 
+	    *, int *);
+    static int redoj, initd;
+    extern /* Subroutine */ int dcopy_(int *, double *, int *, 
+	    double *, int *);
+    static int dovcv, isodr;
+    extern /* Subroutine */ int dzero_(int *, int *, double *, 
+	    int *);
+    static int anajac, chkjac;
+    extern /* Subroutine */ int dflags_(int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *);
+    extern double dmprec_(void);
+    static int implct, restrt;
 
 /* ***BEGIN PROLOGUE  DINIWK */
 /* ***REFER TO  DODR,DODRC */
@@ -2349,13 +2361,13 @@ doublereal dhstep_(integer *itype, integer *neta, integer *i__, integer *j,
 } /* diniwk_ */
 
 /* DIWINF */
-/* Subroutine */ int diwinf_(integer *m, integer *np, integer *nq, integer *
-	msgbi, integer *msgdi, integer *ifix2i, integer *istopi, integer *
-	nnzwi, integer *nppi, integer *idfi, integer *jobi, integer *iprini, 
-	integer *luneri, integer *lunrpi, integer *nrowi, integer *ntoli, 
-	integer *netai, integer *maxiti, integer *niteri, integer *nfevi, 
-	integer *njevi, integer *int2i, integer *iranki, integer *ldtti, 
-	integer *liwkmn)
+/* Subroutine */ int diwinf_(int *m, int *np, int *nq, int *
+	msgbi, int *msgdi, int *ifix2i, int *istopi, int *
+	nnzwi, int *nppi, int *idfi, int *jobi, int *iprini, 
+	int *luneri, int *lunrpi, int *nrowi, int *ntoli, 
+	int *netai, int *maxiti, int *niteri, int *nfevi, 
+	int *njevi, int *int2i, int *iranki, int *ldtti, 
+	int *liwkmn)
 {
 /* ***BEGIN PROLOGUE  DIWINF */
 /* ***REFER TO  DODR,DODRC */
@@ -2443,41 +2455,41 @@ doublereal dhstep_(integer *itype, integer *neta, integer *i__, integer *j,
 } /* diwinf_ */
 
 /* DJACCD */
-/* Subroutine */ int djaccd_(S_fp fcn, integer *n, integer *m, integer *np, 
-	integer *nq, doublereal *beta, doublereal *x, integer *ldx, 
-	doublereal *delta, doublereal *xplusd, integer *ifixb, integer *ifixx,
-	 integer *ldifx, doublereal *stpb, doublereal *stpd, integer *ldstpd, 
-	doublereal *ssf, doublereal *tt, integer *ldtt, integer *neta, 
-	doublereal *stp, doublereal *wrk1, doublereal *wrk2, doublereal *wrk3,
-	 doublereal *wrk6, doublereal *fjacb, logical *isodr, doublereal *
-	fjacd, integer *nfev, integer *istop)
+/* Subroutine */ int djaccd_(S_fp fcn, int *n, int *m, int *np, 
+	int *nq, double *beta, double *x, int *ldx, 
+	double *delta, double *xplusd, int *ifixb, int *ifixx,
+	 int *ldifx, double *stpb, double *stpd, int *ldstpd, 
+	double *ssf, double *tt, int *ldtt, int *neta, 
+	double *stp, double *wrk1, double *wrk2, double *wrk3,
+	 double *wrk6, double *fjacb, int *isodr, double *
+	fjacd, int *nfev, int *istop)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
-    static doublereal one = 1.;
+    static double zero = 0.;
+    static double one = 1.;
 
     /* System generated locals */
-    integer delta_dim1, delta_offset, fjacb_dim1, fjacb_dim2, fjacb_offset, 
+    int delta_dim1, delta_offset, fjacb_dim1, fjacb_dim2, fjacb_offset, 
 	    fjacd_dim1, fjacd_dim2, fjacd_offset, stpd_dim1, stpd_offset, 
 	    tt_dim1, tt_offset, wrk1_dim1, wrk1_dim2, wrk1_offset, wrk2_dim1, 
 	    wrk2_offset, wrk6_dim1, wrk6_dim2, wrk6_offset, x_dim1, x_offset, 
 	    xplusd_dim1, xplusd_offset, ifixx_dim1, ifixx_offset, i__1, i__2, 
 	    i__3;
-    doublereal d__1;
+    double d__1;
 
     /* Builtin functions */
-    double d_sign(doublereal *, doublereal *);
+    double d_sign(double *, double *);
 
     /* Local variables */
-    static integer i__, j, k, l;
-    static logical doit;
-    static doublereal typj, betak;
-    extern /* Subroutine */ int dzero_(integer *, integer *, doublereal *, 
-	    integer *);
-    extern doublereal dhstep_(integer *, integer *, integer *, integer *, 
-	    doublereal *, integer *);
-    static logical setzro;
+    static int i__, j, k, l;
+    static int doit;
+    static double typj, betak;
+    extern /* Subroutine */ int dzero_(int *, int *, double *, 
+	    int *);
+    extern double dhstep_(int *, int *, int *, int *, 
+	    double *, int *);
+    static int setzro;
 
 /* ***BEGIN PROLOGUE  DJACCD */
 /* ***REFER TO  DODR,DODRC */
@@ -2816,41 +2828,41 @@ doublereal dhstep_(integer *itype, integer *neta, integer *i__, integer *j,
 } /* djaccd_ */
 
 /* DJACFD */
-/* Subroutine */ int djacfd_(S_fp fcn, integer *n, integer *m, integer *np, 
-	integer *nq, doublereal *beta, doublereal *x, integer *ldx, 
-	doublereal *delta, doublereal *xplusd, integer *ifixb, integer *ifixx,
-	 integer *ldifx, doublereal *stpb, doublereal *stpd, integer *ldstpd, 
-	doublereal *ssf, doublereal *tt, integer *ldtt, integer *neta, 
-	doublereal *fn, doublereal *stp, doublereal *wrk1, doublereal *wrk2, 
-	doublereal *wrk3, doublereal *wrk6, doublereal *fjacb, logical *isodr,
-	 doublereal *fjacd, integer *nfev, integer *istop)
+/* Subroutine */ int djacfd_(S_fp fcn, int *n, int *m, int *np, 
+	int *nq, double *beta, double *x, int *ldx, 
+	double *delta, double *xplusd, int *ifixb, int *ifixx,
+	 int *ldifx, double *stpb, double *stpd, int *ldstpd, 
+	double *ssf, double *tt, int *ldtt, int *neta, 
+	double *fn, double *stp, double *wrk1, double *wrk2, 
+	double *wrk3, double *wrk6, double *fjacb, int *isodr,
+	 double *fjacd, int *nfev, int *istop)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
-    static doublereal one = 1.;
+    static double zero = 0.;
+    static double one = 1.;
 
     /* System generated locals */
-    integer delta_dim1, delta_offset, fjacb_dim1, fjacb_dim2, fjacb_offset, 
+    int delta_dim1, delta_offset, fjacb_dim1, fjacb_dim2, fjacb_offset, 
 	    fjacd_dim1, fjacd_dim2, fjacd_offset, fn_dim1, fn_offset, 
 	    stpd_dim1, stpd_offset, tt_dim1, tt_offset, wrk1_dim1, wrk1_dim2, 
 	    wrk1_offset, wrk2_dim1, wrk2_offset, wrk6_dim1, wrk6_dim2, 
 	    wrk6_offset, x_dim1, x_offset, xplusd_dim1, xplusd_offset, 
 	    ifixx_dim1, ifixx_offset, i__1, i__2, i__3;
-    doublereal d__1;
+    double d__1;
 
     /* Builtin functions */
-    double d_sign(doublereal *, doublereal *);
+    double d_sign(double *, double *);
 
     /* Local variables */
-    static integer i__, j, k, l;
-    static logical doit;
-    static doublereal typj, betak;
-    extern /* Subroutine */ int dzero_(integer *, integer *, doublereal *, 
-	    integer *);
-    extern doublereal dhstep_(integer *, integer *, integer *, integer *, 
-	    doublereal *, integer *);
-    static logical setzro;
+    static int i__, j, k, l;
+    static int doit;
+    static double typj, betak;
+    extern /* Subroutine */ int dzero_(int *, int *, double *, 
+	    int *);
+    extern double dhstep_(int *, int *, int *, int *, 
+	    double *, int *);
+    static int setzro;
 
 /* ***BEGIN PROLOGUE  DJACFD */
 /* ***REFER TO  DODR,DODRC */
@@ -3156,53 +3168,53 @@ doublereal dhstep_(integer *itype, integer *neta, integer *i__, integer *j,
 } /* djacfd_ */
 
 /* DJCK */
-/* Subroutine */ int djck_(S_fp fcn, integer *n, integer *m, integer *np, 
-	integer *nq, doublereal *beta, doublereal *xplusd, integer *ifixb, 
-	integer *ifixx, integer *ldifx, doublereal *stpb, doublereal *stpd, 
-	integer *ldstpd, doublereal *ssf, doublereal *tt, integer *ldtt, 
-	doublereal *eta, integer *neta, integer *ntol, integer *nrow, logical 
-	*isodr, doublereal *epsmac, doublereal *pv0, doublereal *fjacb, 
-	doublereal *fjacd, integer *msgb, integer *msgd, doublereal *diff, 
-	integer *istop, integer *nfev, integer *njev, doublereal *wrk1, 
-	doublereal *wrk2, doublereal *wrk6)
+/* Subroutine */ int djck_(S_fp fcn, int *n, int *m, int *np, 
+	int *nq, double *beta, double *xplusd, int *ifixb, 
+	int *ifixx, int *ldifx, double *stpb, double *stpd, 
+	int *ldstpd, double *ssf, double *tt, int *ldtt, 
+	double *eta, int *neta, int *ntol, int *nrow, int 
+	*isodr, double *epsmac, double *pv0, double *fjacb, 
+	double *fjacd, int *msgb, int *msgd, double *diff, 
+	int *istop, int *nfev, int *njev, double *wrk1, 
+	double *wrk2, double *wrk6)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
-    static doublereal p5 = .5;
-    static doublereal one = 1.;
+    static double zero = 0.;
+    static double p5 = .5;
+    static double one = 1.;
 
     /* System generated locals */
-    integer diff_dim1, diff_offset, fjacb_dim1, fjacb_dim2, fjacb_offset, 
+    int diff_dim1, diff_offset, fjacb_dim1, fjacb_dim2, fjacb_offset, 
 	    fjacd_dim1, fjacd_dim2, fjacd_offset, pv0_dim1, pv0_offset, 
 	    stpd_dim1, stpd_offset, tt_dim1, tt_offset, wrk1_dim1, wrk1_dim2, 
 	    wrk1_offset, wrk2_dim1, wrk2_offset, wrk6_dim1, wrk6_dim2, 
 	    wrk6_offset, xplusd_dim1, xplusd_offset, ifixx_dim1, ifixx_offset,
 	     i__1, i__2;
-    doublereal d__1, d__2;
+    double d__1, d__2;
 
     /* Builtin functions */
-    double pow_dd(doublereal *, doublereal *), d_lg10(doublereal *);
+    double pow_dd(double *, double *), d_lg10(double *);
 
     /* Local variables */
-    static integer j;
-    static doublereal h0;
-    static integer lq;
-    static doublereal pv, hc0, tol, typj;
-    static integer msgb1, msgd1;
-    static doublereal diffj;
-    extern /* Subroutine */ int djckm_(S_fp, integer *, integer *, integer *, 
-	    integer *, doublereal *, doublereal *, integer *, integer *, 
-	    integer *, doublereal *, doublereal *, integer *, doublereal *, 
-	    integer *, integer *, doublereal *, doublereal *, doublereal *, 
-	    logical *, doublereal *, doublereal *, doublereal *, integer *, 
-	    integer *, integer *, integer *, doublereal *, doublereal *, 
-	    doublereal *);
-    static integer ideval;
-    static logical isfixd;
-    extern doublereal dhstep_(integer *, integer *, integer *, integer *, 
-	    doublereal *, integer *);
-    static logical iswrtb;
+    static int j;
+    static double h0;
+    static int lq;
+    static double pv, hc0, tol, typj;
+    static int msgb1, msgd1;
+    static double diffj;
+    extern /* Subroutine */ int djckm_(S_fp, int *, int *, int *, 
+	    int *, double *, double *, int *, int *, 
+	    int *, double *, double *, int *, double *, 
+	    int *, int *, double *, double *, double *, 
+	    int *, double *, double *, double *, int *, 
+	    int *, int *, int *, double *, double *, 
+	    double *);
+    static int ideval;
+    static int isfixd;
+    extern double dhstep_(int *, int *, int *, int *, 
+	    double *, int *);
+    static int iswrtb;
 
 /* ***BEGIN PROLOGUE  DJCK */
 /* ***REFER TO  DODR,DODRC */
@@ -3337,7 +3349,7 @@ doublereal dhstep_(integer *itype, integer *neta, integer *i__, integer *j,
     tol = pow_dd(eta, &c_b150);
 /* Computing MAX */
     d__1 = one, d__2 = p5 - d_lg10(&tol);
-    *ntol = (integer) max(d__1,d__2);
+    *ntol = (int) max(d__1,d__2);
 /*  COMPUTE USER SUPPLIED DERIVATIVE VALUES */
     *istop = 0;
     if (*isodr) {
@@ -3462,49 +3474,49 @@ doublereal dhstep_(integer *itype, integer *neta, integer *i__, integer *j,
 } /* djck_ */
 
 /* DJCKC */
-/* Subroutine */ int djckc_(U_fp fcn, integer *n, integer *m, integer *np, 
-	integer *nq, doublereal *beta, doublereal *xplusd, integer *ifixb, 
-	integer *ifixx, integer *ldifx, doublereal *eta, doublereal *tol, 
-	integer *nrow, doublereal *epsmac, integer *j, integer *lq, 
-	doublereal *hc, logical *iswrtb, doublereal *fd, doublereal *typj, 
-	doublereal *pvpstp, doublereal *stp0, doublereal *pv, doublereal *d__,
-	 doublereal *diffj, integer *msg, integer *istop, integer *nfev, 
-	doublereal *wrk1, doublereal *wrk2, doublereal *wrk6)
+/* Subroutine */ int djckc_(U_fp fcn, int *n, int *m, int *np, 
+	int *nq, double *beta, double *xplusd, int *ifixb, 
+	int *ifixx, int *ldifx, double *eta, double *tol, 
+	int *nrow, double *epsmac, int *j, int *lq, 
+	double *hc, int *iswrtb, double *fd, double *typj, 
+	double *pvpstp, double *stp0, double *pv, double *d__,
+	 double *diffj, int *msg, int *istop, int *nfev, 
+	double *wrk1, double *wrk2, double *wrk6)
 {
     /* Initialized data */
 
-    static doublereal p01 = .01;
-    static doublereal one = 1.;
-    static doublereal two = 2.;
-    static doublereal ten = 10.;
+    static double p01 = .01;
+    static double one = 1.;
+    static double two = 2.;
+    static double ten = 10.;
 
     /* System generated locals */
-    integer wrk1_dim1, wrk1_dim2, wrk1_offset, wrk2_dim1, wrk2_offset, 
+    int wrk1_dim1, wrk1_dim2, wrk1_offset, wrk2_dim1, wrk2_offset, 
 	    wrk6_dim1, wrk6_dim2, wrk6_offset, xplusd_dim1, xplusd_offset, 
 	    ifixx_dim1, ifixx_offset, msg_dim1, msg_offset;
-    doublereal d__1, d__2, d__3;
+    double d__1, d__2, d__3;
 
     /* Builtin functions */
-    double d_sign(doublereal *, doublereal *);
+    double d_sign(double *, double *);
 
     /* Local variables */
-    static doublereal stp;
-    extern /* Subroutine */ int dpvb_(U_fp, integer *, integer *, integer *, 
-	    integer *, doublereal *, doublereal *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, doublereal *, integer 
-	    *, integer *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *), dpvd_(U_fp, integer *, integer *, integer *, 
-	    integer *, doublereal *, doublereal *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, doublereal *, integer 
-	    *, integer *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *), djckf_(U_fp, integer *, integer *, integer *, 
-	    integer *, doublereal *, doublereal *, integer *, integer *, 
-	    integer *, doublereal *, doublereal *, integer *, integer *, 
-	    integer *, logical *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *, integer *, integer *, integer *, doublereal *, 
-	    doublereal *, doublereal *);
-    static doublereal curve, pvmcrv, pvpcrv, stpcrv;
+    static double stp;
+    extern /* Subroutine */ int dpvb_(U_fp, int *, int *, int *, 
+	    int *, double *, double *, int *, int *, 
+	    int *, int *, int *, int *, double *, int 
+	    *, int *, double *, double *, double *, 
+	    double *), dpvd_(U_fp, int *, int *, int *, 
+	    int *, double *, double *, int *, int *, 
+	    int *, int *, int *, int *, double *, int 
+	    *, int *, double *, double *, double *, 
+	    double *), djckf_(U_fp, int *, int *, int *, 
+	    int *, double *, double *, int *, int *, 
+	    int *, double *, double *, int *, int *, 
+	    int *, int *, double *, double *, double *, 
+	    double *, double *, double *, double *, 
+	    double *, int *, int *, int *, double *, 
+	    double *, double *);
+    static double curve, pvmcrv, pvpcrv, stpcrv;
 
 /* ***BEGIN PROLOGUE  DJCKC */
 /* ***REFER TO  DODR,DODRC */
@@ -3713,43 +3725,43 @@ doublereal dhstep_(integer *itype, integer *neta, integer *i__, integer *j,
 } /* djckc_ */
 
 /* DJCKF */
-/* Subroutine */ int djckf_(U_fp fcn, integer *n, integer *m, integer *np, 
-	integer *nq, doublereal *beta, doublereal *xplusd, integer *ifixb, 
-	integer *ifixx, integer *ldifx, doublereal *eta, doublereal *tol, 
-	integer *nrow, integer *j, integer *lq, logical *iswrtb, doublereal *
-	fd, doublereal *typj, doublereal *pvpstp, doublereal *stp0, 
-	doublereal *curve, doublereal *pv, doublereal *d__, doublereal *diffj,
-	 integer *msg, integer *istop, integer *nfev, doublereal *wrk1, 
-	doublereal *wrk2, doublereal *wrk6)
+/* Subroutine */ int djckf_(U_fp fcn, int *n, int *m, int *np, 
+	int *nq, double *beta, double *xplusd, int *ifixb, 
+	int *ifixx, int *ldifx, double *eta, double *tol, 
+	int *nrow, int *j, int *lq, int *iswrtb, double *
+	fd, double *typj, double *pvpstp, double *stp0, 
+	double *curve, double *pv, double *d__, double *diffj,
+	 int *msg, int *istop, int *nfev, double *wrk1, 
+	double *wrk2, double *wrk6)
 {
     /* Initialized data */
 
-    static doublereal p1 = .1;
-    static doublereal one = 1.;
-    static doublereal two = 2.;
-    static doublereal hundrd = 100.;
+    static double p1 = .1;
+    static double one = 1.;
+    static double two = 2.;
+    static double hundrd = 100.;
 
     /* System generated locals */
-    integer wrk1_dim1, wrk1_dim2, wrk1_offset, wrk2_dim1, wrk2_offset, 
+    int wrk1_dim1, wrk1_dim2, wrk1_offset, wrk2_dim1, wrk2_offset, 
 	    wrk6_dim1, wrk6_dim2, wrk6_offset, xplusd_dim1, xplusd_offset, 
 	    ifixx_dim1, ifixx_offset, msg_dim1, msg_offset;
-    doublereal d__1, d__2, d__3;
+    double d__1, d__2, d__3;
 
     /* Builtin functions */
-    double d_sign(doublereal *, doublereal *);
+    double d_sign(double *, double *);
 
     /* Local variables */
-    static doublereal stp;
-    extern /* Subroutine */ int dpvb_(U_fp, integer *, integer *, integer *, 
-	    integer *, doublereal *, doublereal *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, doublereal *, integer 
-	    *, integer *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *), dpvd_(U_fp, integer *, integer *, integer *, 
-	    integer *, doublereal *, doublereal *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, doublereal *, integer 
-	    *, integer *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *);
-    static logical large;
+    static double stp;
+    extern /* Subroutine */ int dpvb_(U_fp, int *, int *, int *, 
+	    int *, double *, double *, int *, int *, 
+	    int *, int *, int *, int *, double *, int 
+	    *, int *, double *, double *, double *, 
+	    double *), dpvd_(U_fp, int *, int *, int *, 
+	    int *, double *, double *, int *, int *, 
+	    int *, int *, int *, int *, double *, int 
+	    *, int *, double *, double *, double *, 
+	    double *);
+    static int large;
 
 /* ***BEGIN PROLOGUE  DJCKF */
 /* ***REFER TO  DODR,DODRC */
@@ -3894,64 +3906,64 @@ doublereal dhstep_(integer *itype, integer *neta, integer *i__, integer *j,
 } /* djckf_ */
 
 /* DJCKM */
-/* Subroutine */ int djckm_(S_fp fcn, integer *n, integer *m, integer *np, 
-	integer *nq, doublereal *beta, doublereal *xplusd, integer *ifixb, 
-	integer *ifixx, integer *ldifx, doublereal *eta, doublereal *tol, 
-	integer *nrow, doublereal *epsmac, integer *j, integer *lq, 
-	doublereal *typj, doublereal *h0, doublereal *hc0, logical *iswrtb, 
-	doublereal *pv, doublereal *d__, doublereal *diffj, integer *msg1, 
-	integer *msg, integer *istop, integer *nfev, doublereal *wrk1, 
-	doublereal *wrk2, doublereal *wrk6)
+/* Subroutine */ int djckm_(S_fp fcn, int *n, int *m, int *np, 
+	int *nq, double *beta, double *xplusd, int *ifixb, 
+	int *ifixx, int *ldifx, double *eta, double *tol, 
+	int *nrow, double *epsmac, int *j, int *lq, 
+	double *typj, double *h0, double *hc0, int *iswrtb, 
+	double *pv, double *d__, double *diffj, int *msg1, 
+	int *msg, int *istop, int *nfev, double *wrk1, 
+	double *wrk2, double *wrk6)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
-    static doublereal p01 = .01;
-    static doublereal p1 = .1;
-    static doublereal one = 1.;
-    static doublereal two = 2.;
-    static doublereal three = 3.;
-    static doublereal ten = 10.;
-    static doublereal hundrd = 100.;
-    static doublereal big = 1e19;
-    static doublereal tol2 = .05;
+    static double zero = 0.;
+    static double p01 = .01;
+    static double p1 = .1;
+    static double one = 1.;
+    static double two = 2.;
+    static double three = 3.;
+    static double ten = 10.;
+    static double hundrd = 100.;
+    static double big = 1e19;
+    static double tol2 = .05;
 
     /* System generated locals */
-    integer wrk1_dim1, wrk1_dim2, wrk1_offset, wrk2_dim1, wrk2_offset, 
+    int wrk1_dim1, wrk1_dim2, wrk1_offset, wrk2_dim1, wrk2_offset, 
 	    wrk6_dim1, wrk6_dim2, wrk6_offset, xplusd_dim1, xplusd_offset, 
 	    ifixx_dim1, ifixx_offset, msg_dim1, msg_offset;
-    doublereal d__1, d__2, d__3, d__4;
+    double d__1, d__2, d__3, d__4;
 
     /* Builtin functions */
-    double sqrt(doublereal), pow_dd(doublereal *, doublereal *), d_sign(
-	    doublereal *, doublereal *);
+    double sqrt(double), pow_dd(double *, double *), d_sign(
+	    double *, double *);
 
     /* Local variables */
-    static doublereal h__;
-    static integer i__;
-    static doublereal h1, fd, hc, hc1, stp0;
-    extern /* Subroutine */ int dpvb_(S_fp, integer *, integer *, integer *, 
-	    integer *, doublereal *, doublereal *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, doublereal *, integer 
-	    *, integer *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *), dpvd_(S_fp, integer *, integer *, integer *, 
-	    integer *, doublereal *, doublereal *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, doublereal *, integer 
-	    *, integer *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *), djckc_(S_fp, integer *, integer *, integer *, 
-	    integer *, doublereal *, doublereal *, integer *, integer *, 
-	    integer *, doublereal *, doublereal *, integer *, doublereal *, 
-	    integer *, integer *, doublereal *, logical *, doublereal *, 
-	    doublereal *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *, doublereal *, integer *, integer *, integer *, 
-	    doublereal *, doublereal *, doublereal *), djckz_(S_fp, integer *,
-	     integer *, integer *, integer *, doublereal *, doublereal *, 
-	    integer *, integer *, integer *, integer *, doublereal *, integer 
-	    *, integer *, logical *, doublereal *, doublereal *, doublereal *,
-	     doublereal *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *, integer *, integer *, integer *, doublereal *, 
-	    doublereal *, doublereal *);
-    static doublereal pvpstp;
+    static double h__;
+    static int i__;
+    static double h1, fd, hc, hc1, stp0;
+    extern /* Subroutine */ int dpvb_(S_fp, int *, int *, int *, 
+	    int *, double *, double *, int *, int *, 
+	    int *, int *, int *, int *, double *, int 
+	    *, int *, double *, double *, double *, 
+	    double *), dpvd_(S_fp, int *, int *, int *, 
+	    int *, double *, double *, int *, int *, 
+	    int *, int *, int *, int *, double *, int 
+	    *, int *, double *, double *, double *, 
+	    double *), djckc_(S_fp, int *, int *, int *, 
+	    int *, double *, double *, int *, int *, 
+	    int *, double *, double *, int *, double *, 
+	    int *, int *, double *, int *, double *, 
+	    double *, double *, double *, double *, 
+	    double *, double *, int *, int *, int *, 
+	    double *, double *, double *), djckz_(S_fp, int *,
+	     int *, int *, int *, double *, double *, 
+	    int *, int *, int *, int *, double *, int 
+	    *, int *, int *, double *, double *, double *,
+	     double *, double *, double *, double *, 
+	    double *, int *, int *, int *, double *, 
+	    double *, double *);
+    static double pvpstp;
 
 /* ***BEGIN PROLOGUE  DJCKM */
 /* ***REFER TO  DODR,DODRC */
@@ -4166,43 +4178,43 @@ L20:
 } /* djckm_ */
 
 /* DJCKZ */
-/* Subroutine */ int djckz_(S_fp fcn, integer *n, integer *m, integer *np, 
-	integer *nq, doublereal *beta, doublereal *xplusd, integer *ifixb, 
-	integer *ifixx, integer *ldifx, integer *nrow, doublereal *epsmac, 
-	integer *j, integer *lq, logical *iswrtb, doublereal *tol, doublereal 
-	*d__, doublereal *fd, doublereal *typj, doublereal *pvpstp, 
-	doublereal *stp0, doublereal *pv, doublereal *diffj, integer *msg, 
-	integer *istop, integer *nfev, doublereal *wrk1, doublereal *wrk2, 
-	doublereal *wrk6)
+/* Subroutine */ int djckz_(S_fp fcn, int *n, int *m, int *np, 
+	int *nq, double *beta, double *xplusd, int *ifixb, 
+	int *ifixx, int *ldifx, int *nrow, double *epsmac, 
+	int *j, int *lq, int *iswrtb, double *tol, double 
+	*d__, double *fd, double *typj, double *pvpstp, 
+	double *stp0, double *pv, double *diffj, int *msg, 
+	int *istop, int *nfev, double *wrk1, double *wrk2, 
+	double *wrk6)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
-    static doublereal one = 1.;
-    static doublereal two = 2.;
-    static doublereal three = 3.;
+    static double zero = 0.;
+    static double one = 1.;
+    static double two = 2.;
+    static double three = 3.;
 
     /* System generated locals */
-    integer wrk1_dim1, wrk1_dim2, wrk1_offset, wrk2_dim1, wrk2_offset, 
+    int wrk1_dim1, wrk1_dim2, wrk1_offset, wrk2_dim1, wrk2_offset, 
 	    wrk6_dim1, wrk6_dim2, wrk6_offset, xplusd_dim1, xplusd_offset, 
 	    ifixx_dim1, ifixx_offset, msg_dim1, msg_offset;
-    doublereal d__1, d__2, d__3, d__4;
+    double d__1, d__2, d__3, d__4;
 
     /* Builtin functions */
-    double pow_dd(doublereal *, doublereal *);
+    double pow_dd(double *, double *);
 
     /* Local variables */
-    static doublereal cd;
-    extern /* Subroutine */ int dpvb_(S_fp, integer *, integer *, integer *, 
-	    integer *, doublereal *, doublereal *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, doublereal *, integer 
-	    *, integer *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *), dpvd_(S_fp, integer *, integer *, integer *, 
-	    integer *, doublereal *, doublereal *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, doublereal *, integer 
-	    *, integer *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *);
-    static doublereal pvmstp;
+    static double cd;
+    extern /* Subroutine */ int dpvb_(S_fp, int *, int *, int *, 
+	    int *, double *, double *, int *, int *, 
+	    int *, int *, int *, int *, double *, int 
+	    *, int *, double *, double *, double *, 
+	    double *), dpvd_(S_fp, int *, int *, int *, 
+	    int *, double *, double *, int *, int *, 
+	    int *, int *, int *, int *, double *, int 
+	    *, int *, double *, double *, double *, 
+	    double *);
+    static double pvmstp;
 
 /* ***BEGIN PROLOGUE  DJCKZ */
 /* ***REFER TO  DODR,DODRC */
@@ -4343,19 +4355,19 @@ L20:
 } /* djckz_ */
 
 /* DODCHK */
-/* Subroutine */ int dodchk_(integer *n, integer *m, integer *np, integer *nq,
-	 logical *isodr, logical *anajac, logical *implct, integer *ifixb, 
-	integer *ldx, integer *ldifx, integer *ldscld, integer *ldstpd, 
-	integer *ldwe, integer *ld2we, integer *ldwd, integer *ld2wd, integer 
-	*ldy, integer *lwork, integer *lwkmn, integer *liwork, integer *
-	liwkmn, doublereal *sclb, doublereal *scld, doublereal *stpb, 
-	doublereal *stpd, integer *info)
+/* Subroutine */ int dodchk_(int *n, int *m, int *np, int *nq,
+	 int *isodr, int *anajac, int *implct, int *ifixb, 
+	int *ldx, int *ldifx, int *ldscld, int *ldstpd, 
+	int *ldwe, int *ld2we, int *ldwd, int *ld2wd, int 
+	*ldy, int *lwork, int *lwkmn, int *liwork, int *
+	liwkmn, double *sclb, double *scld, double *stpb, 
+	double *stpd, int *info)
 {
     /* System generated locals */
-    integer scld_dim1, scld_offset, stpd_dim1, stpd_offset, i__1, i__2;
+    int scld_dim1, scld_offset, stpd_dim1, stpd_offset, i__1, i__2;
 
     /* Local variables */
-    static integer i__, j, k, npp, last;
+    static int i__, j, k, npp, last;
 
 /* ***BEGIN PROLOGUE  DODCHK */
 /* ***REFER TO  DODR,DODRC */
@@ -4568,59 +4580,59 @@ L420:
 } /* dodchk_ */
 
 /* DODCNT */
-/* Subroutine */ int dodcnt_(logical *short__, U_fp fcn, integer *n, integer *
-	m, integer *np, integer *nq, doublereal *beta, doublereal *y, integer 
-	*ldy, doublereal *x, integer *ldx, doublereal *we, integer *ldwe, 
-	integer *ld2we, doublereal *wd, integer *ldwd, integer *ld2wd, 
-	integer *ifixb, integer *ifixx, integer *ldifx, integer *job, integer 
-	*ndigit, doublereal *taufac, doublereal *sstol, doublereal *partol, 
-	integer *maxit, integer *iprint, integer *lunerr, integer *lunrpt, 
-	doublereal *stpb, doublereal *stpd, integer *ldstpd, doublereal *sclb,
-	 doublereal *scld, integer *ldscld, doublereal *work, integer *lwork, 
-	integer *iwork, integer *liwork, integer *info)
+/* Subroutine */ int dodcnt_(int *short__, U_fp fcn, int *n, int *
+	m, int *np, int *nq, double *beta, double *y, int 
+	*ldy, double *x, int *ldx, double *we, int *ldwe, 
+	int *ld2we, double *wd, int *ldwd, int *ld2wd, 
+	int *ifixb, int *ifixx, int *ldifx, int *job, int 
+	*ndigit, double *taufac, double *sstol, double *partol, 
+	int *maxit, int *iprint, int *lunerr, int *lunrpt, 
+	double *stpb, double *stpd, int *ldstpd, double *sclb,
+	 double *scld, int *ldscld, double *work, int *lwork, 
+	int *iwork, int *liwork, int *info)
 {
     /* Initialized data */
 
-    static doublereal pcheck = 1e3;
-    static doublereal pstart = 10.;
-    static doublereal pfac = 10.;
-    static doublereal zero = 0.;
-    static doublereal one = 1.;
-    static doublereal three = 3.;
+    static double pcheck = 1e3;
+    static double pstart = 10.;
+    static double pfac = 10.;
+    static double zero = 0.;
+    static double one = 1.;
+    static double three = 3.;
 
     /* System generated locals */
-    integer scld_dim1, scld_offset, stpd_dim1, stpd_offset, wd_dim1, wd_dim2, 
+    int scld_dim1, scld_offset, stpd_dim1, stpd_offset, wd_dim1, wd_dim2, 
 	    wd_offset, we_dim1, we_dim2, we_offset, x_dim1, x_offset, y_dim1, 
 	    y_offset, ifixx_dim1, ifixx_offset;
-    doublereal d__1, d__2;
+    double d__1, d__2;
 
     /* Builtin functions */
-    double pow_dd(doublereal *, doublereal *);
+    double pow_dd(double *, double *);
 
     /* Local variables */
-    static integer job1, job2, job3, job4, job5, ipr1, ipr2, ipr3;
-    static logical head;
-    static integer jobi;
-    static logical done;
-    static integer ipr2f;
-    static doublereal pnlty[1]	/* was [1][1][1] */;
-    static integer maxit1;
-    extern doublereal dmprec_(void);
-    extern /* Subroutine */ int doddrv_(logical *, logical *, logical *, 
-	    logical *, U_fp, integer *, integer *, integer *, integer *, 
-	    doublereal *, doublereal *, integer *, doublereal *, integer *, 
-	    doublereal *, integer *, integer *, doublereal *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    doublereal *, doublereal *, doublereal *, integer *, integer *, 
-	    integer *, integer *, doublereal *, doublereal *, integer *, 
-	    doublereal *, doublereal *, integer *, doublereal *, integer *, 
-	    integer *, integer *, integer *, doublereal *, integer *);
-    static logical implct;
-    static integer maxiti;
-    static doublereal cnvtol;
-    static integer iprnti;
-    static logical prtpen, fstitr;
-    static doublereal tstimp;
+    static int job1, job2, job3, job4, job5, ipr1, ipr2, ipr3;
+    static int head;
+    static int jobi;
+    static int done;
+    static int ipr2f;
+    static double pnlty[1]	/* was [1][1][1] */;
+    static int maxit1;
+    extern double dmprec_(void);
+    extern /* Subroutine */ int doddrv_(int *, int *, int *, 
+	    int *, U_fp, int *, int *, int *, int *, 
+	    double *, double *, int *, double *, int *, 
+	    double *, int *, int *, double *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    double *, double *, double *, int *, int *, 
+	    int *, int *, double *, double *, int *, 
+	    double *, double *, int *, double *, int *, 
+	    int *, int *, int *, double *, int *);
+    static int implct;
+    static int maxiti;
+    static double cnvtol;
+    static int iprnti;
+    static int prtpen, fstitr;
+    static double tstimp;
 
 /* ***BEGIN PROLOGUE  DODCNT */
 /* ***REFER TO   DODR,DODRC */
@@ -4853,152 +4865,152 @@ L10:
 } /* dodcnt_ */
 
 /* DODDRV */
-/* Subroutine */ int doddrv_(logical *short__, logical *head, logical *fstitr,
-	 logical *prtpen, S_fp fcn, integer *n, integer *m, integer *np, 
-	integer *nq, doublereal *beta, doublereal *y, integer *ldy, 
-	doublereal *x, integer *ldx, doublereal *we, integer *ldwe, integer *
-	ld2we, doublereal *wd, integer *ldwd, integer *ld2wd, integer *ifixb, 
-	integer *ifixx, integer *ldifx, integer *job, integer *ndigit, 
-	doublereal *taufac, doublereal *sstol, doublereal *partol, integer *
-	maxit, integer *iprint, integer *lunerr, integer *lunrpt, doublereal *
-	stpb, doublereal *stpd, integer *ldstpd, doublereal *sclb, doublereal 
-	*scld, integer *ldscld, doublereal *work, integer *lwork, integer *
-	iwork, integer *liwork, integer *maxit1, doublereal *tstimp, integer *
+/* Subroutine */ int doddrv_(int *short__, int *head, int *fstitr,
+	 int *prtpen, S_fp fcn, int *n, int *m, int *np, 
+	int *nq, double *beta, double *y, int *ldy, 
+	double *x, int *ldx, double *we, int *ldwe, int *
+	ld2we, double *wd, int *ldwd, int *ld2wd, int *ifixb, 
+	int *ifixx, int *ldifx, int *job, int *ndigit, 
+	double *taufac, double *sstol, double *partol, int *
+	maxit, int *iprint, int *lunerr, int *lunrpt, double *
+	stpb, double *stpd, int *ldstpd, double *sclb, double 
+	*scld, int *ldscld, double *work, int *lwork, int *
+	iwork, int *liwork, int *maxit1, double *tstimp, int *
 	info)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
-    static doublereal p5 = .5;
-    static doublereal one = 1.;
-    static doublereal ten = 10.;
+    static double zero = 0.;
+    static double p5 = .5;
+    static double one = 1.;
+    static double ten = 10.;
 
     /* System generated locals */
-    integer scld_dim1, scld_offset, stpd_dim1, stpd_offset, we_dim1, we_dim2, 
+    int scld_dim1, scld_offset, stpd_dim1, stpd_offset, we_dim1, we_dim2, 
 	    we_offset, wd_dim1, wd_dim2, wd_offset, x_dim1, x_offset, y_dim1, 
 	    y_offset, ifixx_dim1, ifixx_offset, i__1, i__2;
-    doublereal d__1, d__2, d__3, d__4;
+    double d__1, d__2, d__3, d__4;
 
     /* Builtin functions */
-    double sqrt(doublereal), d_lg10(doublereal *), pow_di(doublereal *, 
-	    integer *);
+    double sqrt(double), d_lg10(double *), pow_di(double *, 
+	    int *);
 
     /* Local variables */
-    static integer i__, k, fi, si, ti, ui;
-    static doublereal eta;
-    static integer fni, sdi, fsi, npp, ssi, tti, wrk, we1i, idfi;
-    extern /* Subroutine */ int djck_(S_fp, integer *, integer *, integer *, 
-	    integer *, doublereal *, doublereal *, integer *, integer *, 
-	    integer *, doublereal *, doublereal *, integer *, doublereal *, 
-	    doublereal *, integer *, doublereal *, integer *, integer *, 
-	    integer *, logical *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *, integer *, integer *, doublereal *, integer *, 
-	    integer *, integer *, doublereal *, doublereal *, doublereal *);
-    static integer etai, jobi, neta, msgb, msgd, nfev;
-    extern doublereal ddot_(integer *, doublereal *, integer *, doublereal *, 
-	    integer *);
-    static integer njev, taui, ssfi, nppi, ldtt, vcvi, ntol, lwrk;
-    extern /* Subroutine */ int dxmy_(integer *, integer *, doublereal *, 
-	    integer *, doublereal *, integer *, doublereal *, integer *), 
-	    dxpy_(integer *, integer *, doublereal *, integer *, doublereal *,
-	     integer *, doublereal *, integer *);
-    static integer nrow, wssi, nnzw;
-    extern doublereal dnrm2_(integer *, doublereal *, integer *);
-    static integer int2i, wrk1i, wrk2i, wrk3i, wrk4i, wrk5i, wrk6i, wrk7i;
-    static logical cdjac;
-    static integer diffi;
-    extern /* Subroutine */ int dpack_(integer *, integer *, doublereal *, 
-	    doublereal *, integer *), detaf_(S_fp, integer *, integer *, 
-	    integer *, integer *, doublereal *, doublereal *, doublereal *, 
-	    integer *, doublereal *, doublereal *, integer *, integer *, 
-	    integer *, integer *, integer *, doublereal *, integer *, 
-	    doublereal *, doublereal *, doublereal *, doublereal *);
-    static integer netai;
-    extern /* Subroutine */ int dodmn_(logical *, logical *, logical *, S_fp, 
-	    integer *, integer *, integer *, integer *, integer *, doublereal 
-	    *, doublereal *, integer *, doublereal *, integer *, doublereal *,
-	     doublereal *, integer *, integer *, doublereal *, integer *, 
-	    integer *, integer *, integer *, integer *, doublereal *, 
-	    doublereal *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *, doublereal *, doublereal *, integer *, doublereal *,
-	     integer *, doublereal *, doublereal *, doublereal *, integer *, 
-	    doublereal *, doublereal *, integer *, doublereal *, doublereal *,
-	     integer *, doublereal *, integer *, integer *, integer *, 
-	    integer *);
-    static logical redoj;
-    static integer nfevi;
-    static logical initd;
-    extern /* Subroutine */ int dwinf_(integer *, integer *, integer *, 
-	    integer *, integer *, integer *, logical *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *);
-    static integer njevi;
-    extern /* Subroutine */ int dsetn_(integer *, integer *, doublereal *, 
-	    integer *, integer *), dcopy_(integer *, doublereal *, integer *, 
-	    doublereal *, integer *), dwght_(integer *, integer *, doublereal 
-	    *, integer *, integer *, doublereal *, integer *, doublereal *, 
-	    integer *);
-    static integer ldtti;
-    static logical dovcv;
-    static integer rvari;
-    static logical isodr;
-    static integer ntoli, lwkmn, jpvti, istop, nrowi, beta0i, nnzwi;
-    static logical anajac;
-    static integer fjacbi, fjacdi;
-    static logical chkjac;
-    static integer betaci;
-    extern /* Subroutine */ int dodchk_(integer *, integer *, integer *, 
-	    integer *, logical *, logical *, logical *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    doublereal *, doublereal *, doublereal *, doublereal *, integer *)
+    static int i__, k, fi, si, ti, ui;
+    static double eta;
+    static int fni, sdi, fsi, npp, ssi, tti, wrk, we1i, idfi;
+    extern /* Subroutine */ int djck_(S_fp, int *, int *, int *, 
+	    int *, double *, double *, int *, int *, 
+	    int *, double *, double *, int *, double *, 
+	    double *, int *, double *, int *, int *, 
+	    int *, int *, double *, double *, double *, 
+	    double *, int *, int *, double *, int *, 
+	    int *, int *, double *, double *, double *);
+    static int etai, jobi, neta, msgb, msgd, nfev;
+    extern double ddot_(int *, double *, int *, double *, 
+	    int *);
+    static int njev, taui, ssfi, nppi, ldtt, vcvi, ntol, lwrk;
+    extern /* Subroutine */ int dxmy_(int *, int *, double *, 
+	    int *, double *, int *, double *, int *), 
+	    dxpy_(int *, int *, double *, int *, double *,
+	     int *, double *, int *);
+    static int nrow, wssi, nnzw;
+    extern double dnrm2_(int *, double *, int *);
+    static int int2i, wrk1i, wrk2i, wrk3i, wrk4i, wrk5i, wrk6i, wrk7i;
+    static int cdjac;
+    static int diffi;
+    extern /* Subroutine */ int dpack_(int *, int *, double *, 
+	    double *, int *), detaf_(S_fp, int *, int *, 
+	    int *, int *, double *, double *, double *, 
+	    int *, double *, double *, int *, int *, 
+	    int *, int *, int *, double *, int *, 
+	    double *, double *, double *, double *);
+    static int netai;
+    extern /* Subroutine */ int dodmn_(int *, int *, int *, S_fp, 
+	    int *, int *, int *, int *, int *, double 
+	    *, double *, int *, double *, int *, double *,
+	     double *, int *, int *, double *, int *, 
+	    int *, int *, int *, int *, double *, 
+	    double *, double *, double *, double *, 
+	    double *, double *, double *, double *, 
+	    double *, double *, double *, int *, double *,
+	     int *, double *, double *, double *, int *, 
+	    double *, double *, int *, double *, double *,
+	     int *, double *, int *, int *, int *, 
+	    int *);
+    static int redoj;
+    static int nfevi;
+    static int initd;
+    extern /* Subroutine */ int dwinf_(int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *);
+    static int njevi;
+    extern /* Subroutine */ int dsetn_(int *, int *, double *, 
+	    int *, int *), dcopy_(int *, double *, int *, 
+	    double *, int *), dwght_(int *, int *, double 
+	    *, int *, int *, double *, int *, double *, 
+	    int *);
+    static int ldtti;
+    static int dovcv;
+    static int rvari;
+    static int isodr;
+    static int ntoli, lwkmn, jpvti, istop, nrowi, beta0i, nnzwi;
+    static int anajac;
+    static int fjacbi, fjacdi;
+    static int chkjac;
+    static int betaci;
+    extern /* Subroutine */ int dodchk_(int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    double *, double *, double *, double *, int *)
 	    ;
-    static integer alphai;
-    extern /* Subroutine */ int dflags_(integer *, logical *, logical *, 
-	    logical *, logical *, logical *, logical *, logical *, logical *, 
-	    logical *);
-    static integer omegai, betani, deltai, betasi;
-    static doublereal epsmac;
-    extern /* Subroutine */ int dunpac_(integer *, doublereal *, doublereal *,
-	     integer *);
-    static integer taufci, iranki, deltni, epsmai, rcondi;
-    extern /* Subroutine */ int diwinf_(integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *);
-    static integer deltsi, actrsi;
-    extern /* Subroutine */ int diniwk_(integer *, integer *, integer *, 
-	    doublereal *, integer *, integer *, integer *, doublereal *, 
-	    integer *, integer *, integer *, doublereal *, integer *, 
-	    doublereal *, doublereal *, doublereal *, doublereal *, integer *,
-	     doublereal *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *);
-    static integer olmavi;
-    static logical implct;
-    extern /* Subroutine */ int dfctrw_(integer *, integer *, integer *, 
-	    integer *, logical *, doublereal *, integer *, integer *, 
-	    doublereal *, integer *, integer *, doublereal *, doublereal *, 
-	    doublereal *, integer *, integer *);
-    static integer iprini, maxiti, niteri, luneri, partli, wssdei, liwkmn;
-    extern /* Subroutine */ int dodper_(integer *, integer *, logical *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    doublereal *, doublereal *, doublereal *, integer *, logical *, 
-	    integer *, doublereal *, integer *, integer *, integer *);
-    static integer pnormi, prersi, istopi, lunrpi, qrauxi, rnorsi, sstoli, 
+    static int alphai;
+    extern /* Subroutine */ int dflags_(int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *);
+    static int omegai, betani, deltai, betasi;
+    static double epsmac;
+    extern /* Subroutine */ int dunpac_(int *, double *, double *,
+	     int *);
+    static int taufci, iranki, deltni, epsmai, rcondi;
+    extern /* Subroutine */ int diwinf_(int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *);
+    static int deltsi, actrsi;
+    extern /* Subroutine */ int diniwk_(int *, int *, int *, 
+	    double *, int *, int *, int *, double *, 
+	    int *, int *, int *, double *, int *, 
+	    double *, double *, double *, double *, int *,
+	     double *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *);
+    static int olmavi;
+    static int implct;
+    extern /* Subroutine */ int dfctrw_(int *, int *, int *, 
+	    int *, int *, double *, int *, int *, 
+	    double *, int *, int *, double *, double *, 
+	    double *, int *, int *);
+    static int iprini, maxiti, niteri, luneri, partli, wssdei, liwkmn;
+    extern /* Subroutine */ int dodper_(int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    double *, double *, double *, int *, int *, 
+	    int *, double *, int *, int *, int *);
+    static int pnormi, prersi, istopi, lunrpi, qrauxi, rnorsi, sstoli, 
 	    wssepi;
-    static logical restrt;
-    static integer xplusi;
+    static int restrt;
+    static int xplusi;
 
 /* ***BEGIN PROLOGUE  DODDRV */
 /* ***REFER TO DODR,DODRC */
@@ -5417,7 +5429,7 @@ L10:
 	    }
 	} else {
 /* Computing MIN */
-	    i__1 = *ndigit, i__2 = (integer) (p5 - d_lg10(&epsmac));
+	    i__1 = *ndigit, i__2 = (int) (p5 - d_lg10(&epsmac));
 	    iwork[netai] = min(i__1,i__2);
 /* Computing MAX */
 	    i__1 = -(*ndigit);
@@ -5518,58 +5530,58 @@ L50:
 } /* doddrv_ */
 
 /* DODLM */
-/* Subroutine */ int dodlm_(integer *n, integer *m, integer *np, integer *nq, 
-	integer *npp, doublereal *f, doublereal *fjacb, doublereal *fjacd, 
-	doublereal *wd, integer *ldwd, integer *ld2wd, doublereal *ss, 
-	doublereal *tt, integer *ldtt, doublereal *delta, doublereal *alpha2, 
-	doublereal *tau, doublereal *epsfcn, logical *isodr, doublereal *
-	tfjacb, doublereal *omega, doublereal *u, doublereal *qraux, integer *
-	jpvt, doublereal *s, doublereal *t, integer *nlms, doublereal *rcond, 
-	integer *irank, doublereal *wrk1, doublereal *wrk2, doublereal *wrk3, 
-	doublereal *wrk4, doublereal *wrk5, doublereal *wrk, integer *lwrk, 
-	integer *istopc)
+/* Subroutine */ int dodlm_(int *n, int *m, int *np, int *nq, 
+	int *npp, double *f, double *fjacb, double *fjacd, 
+	double *wd, int *ldwd, int *ld2wd, double *ss, 
+	double *tt, int *ldtt, double *delta, double *alpha2, 
+	double *tau, double *epsfcn, int *isodr, double *
+	tfjacb, double *omega, double *u, double *qraux, int *
+	jpvt, double *s, double *t, int *nlms, double *rcond, 
+	int *irank, double *wrk1, double *wrk2, double *wrk3, 
+	double *wrk4, double *wrk5, double *wrk, int *lwrk, 
+	int *istopc)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
-    static doublereal p001 = .001;
-    static doublereal p1 = .1;
+    static double zero = 0.;
+    static double p001 = .001;
+    static double p1 = .1;
 
     /* System generated locals */
-    integer delta_dim1, delta_offset, f_dim1, f_offset, fjacb_dim1, 
+    int delta_dim1, delta_offset, f_dim1, f_offset, fjacb_dim1, 
 	    fjacb_dim2, fjacb_offset, fjacd_dim1, fjacd_dim2, fjacd_offset, 
 	    omega_dim1, omega_offset, t_dim1, t_offset, tfjacb_dim1, 
 	    tfjacb_dim2, tfjacb_offset, tt_dim1, tt_offset, wd_dim1, wd_dim2, 
 	    wd_offset, wrk1_dim1, wrk1_dim2, wrk1_offset, wrk2_dim1, 
 	    wrk2_offset, wrk4_dim1, wrk4_offset, i__1, i__2, i__3;
-    doublereal d__1, d__2;
+    double d__1, d__2;
 
     /* Builtin functions */
-    double sqrt(doublereal);
+    double sqrt(double);
 
     /* Local variables */
-    static integer i__, j, k, l;
-    static doublereal sa, bot, top, phi1, phi2;
-    extern doublereal ddot_(integer *, doublereal *, integer *, doublereal *, 
-	    integer *);
-    static integer iwrk;
-    extern doublereal dnrm2_(integer *, doublereal *, integer *);
-    extern /* Subroutine */ int dwght_(integer *, integer *, doublereal *, 
-	    integer *, integer *, doublereal *, integer *, doublereal *, 
-	    integer *);
-    static doublereal alpha1;
-    extern /* Subroutine */ int dscale_(integer *, integer *, doublereal *, 
-	    integer *, doublereal *, integer *, doublereal *, integer *);
-    static doublereal alphan;
-    extern /* Subroutine */ int dodstp_(integer *, integer *, integer *, 
-	    integer *, integer *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *, integer *, integer *, doublereal *, doublereal *, 
-	    integer *, doublereal *, doublereal *, doublereal *, logical *, 
-	    doublereal *, doublereal *, doublereal *, doublereal *, integer *,
-	     doublereal *, doublereal *, doublereal *, integer *, doublereal *
-	    , logical *, doublereal *, doublereal *, doublereal *, doublereal 
-	    *, doublereal *, doublereal *, integer *, integer *);
-    static logical forvcv;
+    static int i__, j, k, l;
+    static double sa, bot, top, phi1, phi2;
+    extern double ddot_(int *, double *, int *, double *, 
+	    int *);
+    static int iwrk;
+    extern double dnrm2_(int *, double *, int *);
+    extern /* Subroutine */ int dwght_(int *, int *, double *, 
+	    int *, int *, double *, int *, double *, 
+	    int *);
+    static double alpha1;
+    extern /* Subroutine */ int dscale_(int *, int *, double *, 
+	    int *, double *, int *, double *, int *);
+    static double alphan;
+    extern /* Subroutine */ int dodstp_(int *, int *, int *, 
+	    int *, int *, double *, double *, double *, 
+	    double *, int *, int *, double *, double *, 
+	    int *, double *, double *, double *, int *, 
+	    double *, double *, double *, double *, int *,
+	     double *, double *, double *, int *, double *
+	    , int *, double *, double *, double *, double 
+	    *, double *, double *, int *, int *);
+    static int forvcv;
 
 /* ***BEGIN PROLOGUE  DODLM */
 /* ***REFER TO  DODR,DODRC */
@@ -5836,33 +5848,33 @@ L50:
 } /* dodlm_ */
 
 /* DODMN */
-/* Subroutine */ int dodmn_(logical *head, logical *fstitr, logical *prtpen, 
-	S_fp fcn, integer *n, integer *m, integer *np, integer *nq, integer *
-	job, doublereal *beta, doublereal *y, integer *ldy, doublereal *x, 
-	integer *ldx, doublereal *we, doublereal *we1, integer *ldwe, integer 
-	*ld2we, doublereal *wd, integer *ldwd, integer *ld2wd, integer *ifixb,
-	 integer *ifixx, integer *ldifx, doublereal *betac, doublereal *betan,
-	 doublereal *betas, doublereal *s, doublereal *delta, doublereal *
-	deltan, doublereal *deltas, doublereal *t, doublereal *f, doublereal *
-	fn, doublereal *fs, doublereal *fjacb, integer *msgb, doublereal *
-	fjacd, integer *msgd, doublereal *ssf, doublereal *ss, doublereal *tt,
-	 integer *ldtt, doublereal *stpb, doublereal *stpd, integer *ldstpd, 
-	doublereal *xplusd, doublereal *wrk, integer *lwrk, doublereal *work, 
-	integer *lwork, integer *iwork, integer *liwork, integer *info)
+/* Subroutine */ int dodmn_(int *head, int *fstitr, int *prtpen, 
+	S_fp fcn, int *n, int *m, int *np, int *nq, int *
+	job, double *beta, double *y, int *ldy, double *x, 
+	int *ldx, double *we, double *we1, int *ldwe, int 
+	*ld2we, double *wd, int *ldwd, int *ld2wd, int *ifixb,
+	 int *ifixx, int *ldifx, double *betac, double *betan,
+	 double *betas, double *s, double *delta, double *
+	deltan, double *deltas, double *t, double *f, double *
+	fn, double *fs, double *fjacb, int *msgb, double *
+	fjacd, int *msgd, double *ssf, double *ss, double *tt,
+	 int *ldtt, double *stpb, double *stpd, int *ldstpd, 
+	double *xplusd, double *wrk, int *lwrk, double *work, 
+	int *lwork, int *iwork, int *liwork, int *info)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
-    static doublereal p0001 = 1e-4;
-    static doublereal p1 = .1;
-    static doublereal p25 = .25;
-    static doublereal p5 = .5;
-    static doublereal p75 = .75;
-    static doublereal one = 1.;
-    static integer ludflt = 6;
+    static double zero = 0.;
+    static double p0001 = 1e-4;
+    static double p1 = .1;
+    static double p25 = .25;
+    static double p5 = .5;
+    static double p75 = .75;
+    static double one = 1.;
+    static int ludflt = 6;
 
     /* System generated locals */
-    integer delta_dim1, delta_offset, deltan_dim1, deltan_offset, deltas_dim1,
+    int delta_dim1, delta_offset, deltan_dim1, deltan_offset, deltas_dim1,
 	     deltas_offset, f_dim1, f_offset, fjacb_dim1, fjacb_dim2, 
 	    fjacb_offset, fjacd_dim1, fjacd_dim2, fjacd_offset, fn_dim1, 
 	    fn_offset, fs_dim1, fs_offset, stpd_dim1, stpd_offset, t_dim1, 
@@ -5870,119 +5882,119 @@ L50:
 	    we_dim1, we_dim2, we_offset, we1_dim1, we1_dim2, we1_offset, 
 	    x_dim1, x_offset, xplusd_dim1, xplusd_offset, y_dim1, y_offset, 
 	    ifixx_dim1, ifixx_offset, i__1, i__2;
-    doublereal d__1, d__2;
+    double d__1, d__2;
 
     /* Builtin functions */
-    double sqrt(doublereal);
+    double sqrt(double);
 
     /* Local variables */
-    static integer i__, j, l, u, sd, idf;
-    static doublereal eta, tau;
-    static integer ipr, npp, vcv, npr;
-    static doublereal rss, wss[3];
-    static integer ipr1, int2, ipr2, ipr3, wrk1, wrk2, wrk3, wrk4, wrk5, wrk6,
+    static int i__, j, l, u, sd, idf;
+    static double eta, tau;
+    static int ipr, npp, vcv, npr;
+    static double rss, wss[3];
+    static int ipr1, int2, ipr2, ipr3, wrk1, wrk2, wrk3, wrk4, wrk5, wrk6,
 	     neta, nfev;
-    extern doublereal ddot_(integer *, doublereal *, integer *, doublereal *, 
-	    integer *);
-    static integer njev;
-    static doublereal temp;
-    static integer nlms;
-    static doublereal rvar;
-    static integer iwrk, lunr, jpvt;
-    extern /* Subroutine */ int dxmy_(integer *, integer *, doublereal *, 
-	    integer *, doublereal *, integer *, doublereal *, integer *), 
-	    dxpy_(integer *, integer *, doublereal *, integer *, doublereal *,
-	     integer *, doublereal *, integer *);
-    static integer nnzw, ipr2f;
-    extern doublereal dnrm2_(integer *, doublereal *, integer *);
-    static doublereal temp1, temp2;
-    static logical cdjac;
-    static integer iflag;
-    static doublereal alpha;
-    static integer omega;
-    extern /* Subroutine */ int dodlm_(integer *, integer *, integer *, 
-	    integer *, integer *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *, integer *, integer *, doublereal *, doublereal *, 
-	    integer *, doublereal *, doublereal *, doublereal *, doublereal *,
-	     logical *, doublereal *, doublereal *, doublereal *, doublereal *
-	    , integer *, doublereal *, doublereal *, integer *, doublereal *, 
-	    integer *, doublereal *, doublereal *, doublereal *, doublereal *,
-	     doublereal *, doublereal *, integer *, integer *);
-    static logical redoj;
-    static integer irank;
-    static doublereal rcond;
-    static logical initd;
-    static doublereal actrs;
-    extern /* Subroutine */ int dwght_(integer *, integer *, doublereal *, 
-	    integer *, integer *, doublereal *, integer *, doublereal *, 
-	    integer *);
-    static doublereal ratio;
-    extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *, 
-	    doublereal *, integer *);
-    static logical isodr;
-    static integer niter, maxit;
-    static logical dovcv, lstep;
-    static doublereal pnorm, prers, rnorm;
-    static integer istop, qraux;
-    static logical cnvss;
-    static doublereal sstol;
-    static logical anajac;
-    extern /* Subroutine */ int dacces_(integer *, integer *, integer *, 
-	    integer *, integer *, integer *, doublereal *, integer *, integer 
-	    *, integer *, logical *, logical *, integer *, integer *, integer 
-	    *, integer *, integer *, integer *, integer *, integer *, integer 
-	    *, integer *, integer *, integer *, integer *, integer *, integer 
-	    *, doublereal *, doublereal *, integer *, doublereal *, 
-	    doublereal *, integer *, integer *, integer *, integer *, integer 
-	    *, integer *, doublereal *, doublereal *, integer *, doublereal *,
-	     doublereal *, integer *, integer *, integer *, integer *, 
-	    doublereal *, doublereal *, integer *, doublereal *, doublereal *,
-	     doublereal *, doublereal *, integer *);
-    static logical chkjac;
-    extern /* Subroutine */ int devjac_(S_fp, logical *, logical *, integer *,
-	     integer *, integer *, integer *, doublereal *, doublereal *, 
-	    doublereal *, integer *, integer *, integer *, doublereal *, 
-	    integer *, doublereal *, doublereal *, doublereal *, integer *, 
-	    doublereal *, doublereal *, integer *, integer *, doublereal *, 
-	    doublereal *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *, doublereal *, logical *, doublereal *, doublereal *,
-	     integer *, integer *, integer *, integer *, integer *, integer *)
-	    , dflags_(integer *, logical *, logical *, logical *, logical *, 
-	    logical *, logical *, logical *, logical *, logical *);
-    static logical access;
-    static doublereal actred, taufac, dirder;
-    extern /* Subroutine */ int dunpac_(integer *, doublereal *, doublereal *,
-	     integer *), dodpcr_(integer *, integer *, logical *, logical *, 
-	    logical *, logical *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, doublereal 
-	    *, doublereal *, integer *, doublereal *, integer *, doublereal *,
-	     doublereal *, integer *, integer *, doublereal *, integer *, 
-	    integer *, integer *, integer *, integer *, doublereal *, 
-	    doublereal *, integer *, doublereal *, doublereal *, integer *, 
-	    integer *, integer *, doublereal *, doublereal *, doublereal *, 
-	    integer *, doublereal *, doublereal *, integer *, doublereal *, 
-	    integer *, integer *, integer *, doublereal *, doublereal *, 
-	    doublereal *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *, integer *, integer *, integer *);
-    static logical intdbl, didvcv;
-    static doublereal prered;
-    static integer looped;
-    static doublereal olmavg;
-    extern /* Subroutine */ int dodvcv_(integer *, integer *, integer *, 
-	    integer *, integer *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *, integer *, integer *, doublereal *, doublereal *, 
-	    doublereal *, integer *, doublereal *, doublereal *, logical *, 
-	    doublereal *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *, doublereal *, integer *, doublereal *, doublereal *,
-	     integer *, doublereal *, doublereal *, integer *, doublereal *, 
-	    integer *, doublereal *, doublereal *, doublereal *, doublereal *,
-	     doublereal *, doublereal *, integer *, integer *);
-    static logical implct, cnvpar;
-    static doublereal partol;
-    static integer istopc;
-    static doublereal rnormn, rnorms, tsnorm;
-    static logical restrt;
-    static integer lunrpt;
+    extern double ddot_(int *, double *, int *, double *, 
+	    int *);
+    static int njev;
+    static double temp;
+    static int nlms;
+    static double rvar;
+    static int iwrk, lunr, jpvt;
+    extern /* Subroutine */ int dxmy_(int *, int *, double *, 
+	    int *, double *, int *, double *, int *), 
+	    dxpy_(int *, int *, double *, int *, double *,
+	     int *, double *, int *);
+    static int nnzw, ipr2f;
+    extern double dnrm2_(int *, double *, int *);
+    static double temp1, temp2;
+    static int cdjac;
+    static int iflag;
+    static double alpha;
+    static int omega;
+    extern /* Subroutine */ int dodlm_(int *, int *, int *, 
+	    int *, int *, double *, double *, double *, 
+	    double *, int *, int *, double *, double *, 
+	    int *, double *, double *, double *, double *,
+	     int *, double *, double *, double *, double *
+	    , int *, double *, double *, int *, double *, 
+	    int *, double *, double *, double *, double *,
+	     double *, double *, int *, int *);
+    static int redoj;
+    static int irank;
+    static double rcond;
+    static int initd;
+    static double actrs;
+    extern /* Subroutine */ int dwght_(int *, int *, double *, 
+	    int *, int *, double *, int *, double *, 
+	    int *);
+    static double ratio;
+    extern /* Subroutine */ int dcopy_(int *, double *, int *, 
+	    double *, int *);
+    static int isodr;
+    static int niter, maxit;
+    static int dovcv, lstep;
+    static double pnorm, prers, rnorm;
+    static int istop, qraux;
+    static int cnvss;
+    static double sstol;
+    static int anajac;
+    extern /* Subroutine */ int dacces_(int *, int *, int *, 
+	    int *, int *, int *, double *, int *, int 
+	    *, int *, int *, int *, int *, int *, int 
+	    *, int *, int *, int *, int *, int *, int 
+	    *, int *, int *, int *, int *, int *, int 
+	    *, double *, double *, int *, double *, 
+	    double *, int *, int *, int *, int *, int 
+	    *, int *, double *, double *, int *, double *,
+	     double *, int *, int *, int *, int *, 
+	    double *, double *, int *, double *, double *,
+	     double *, double *, int *);
+    static int chkjac;
+    extern /* Subroutine */ int devjac_(S_fp, int *, int *, int *,
+	     int *, int *, int *, double *, double *, 
+	    double *, int *, int *, int *, double *, 
+	    int *, double *, double *, double *, int *, 
+	    double *, double *, int *, int *, double *, 
+	    double *, double *, double *, double *, 
+	    double *, double *, int *, double *, double *,
+	     int *, int *, int *, int *, int *, int *)
+	    , dflags_(int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *);
+    static int access;
+    static double actred, taufac, dirder;
+    extern /* Subroutine */ int dunpac_(int *, double *, double *,
+	     int *), dodpcr_(int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, double 
+	    *, double *, int *, double *, int *, double *,
+	     double *, int *, int *, double *, int *, 
+	    int *, int *, int *, int *, double *, 
+	    double *, int *, double *, double *, int *, 
+	    int *, int *, double *, double *, double *, 
+	    int *, double *, double *, int *, double *, 
+	    int *, int *, int *, double *, double *, 
+	    double *, double *, double *, double *, 
+	    double *, int *, int *, int *);
+    static int intdbl, didvcv;
+    static double prered;
+    static int looped;
+    static double olmavg;
+    extern /* Subroutine */ int dodvcv_(int *, int *, int *, 
+	    int *, int *, double *, double *, double *, 
+	    double *, int *, int *, double *, double *, 
+	    double *, int *, double *, double *, int *, 
+	    double *, double *, double *, double *, 
+	    double *, double *, int *, double *, double *,
+	     int *, double *, double *, int *, double *, 
+	    int *, double *, double *, double *, double *,
+	     double *, double *, int *, int *);
+    static int implct, cnvpar;
+    static double partol;
+    static int istopc;
+    static double rnormn, rnorms, tsnorm;
+    static int restrt;
+    static int lunrpt;
 
 /* ***BEGIN PROLOGUE  DODMN */
 /* ***REFER TO  DODR,DODRC */
@@ -6713,14 +6725,14 @@ L150:
 L200:
     i__1 = *np - 1;
     for (i__ = 0; i__ <= i__1; ++i__) {
-	work[wrk3 + i__] = (doublereal) iwork[jpvt + i__];
+	work[wrk3 + i__] = (double) iwork[jpvt + i__];
 	iwork[jpvt + i__] = -2;
 /* L210: */
     }
     if (redoj || niter >= 1) {
 	i__1 = npp - 1;
 	for (i__ = 0; i__ <= i__1; ++i__) {
-	    j = (integer) (work[wrk3 + i__] - 1);
+	    j = (int) (work[wrk3 + i__] - 1);
 	    if (i__ <= npp - irank - 1) {
 		iwork[jpvt + j] = 1;
 	    } else {
@@ -6824,215 +6836,43 @@ L200:
 } /* dodmn_ */
 
 /* DODPC1 */
-/* Subroutine */ int dodpc1_(integer *ipr, integer *lunrpt, logical *anajac, 
-	logical *cdjac, logical *chkjac, logical *initd, logical *restrt, 
-	logical *isodr, logical *implct, logical *dovcv, logical *redoj, 
-	integer *msgb1, integer *msgb, integer *msgd1, integer *msgd, integer 
-	*n, integer *m, integer *np, integer *nq, integer *npp, integer *nnzw,
-	 doublereal *x, integer *ldx, integer *ifixx, integer *ldifx, 
-	doublereal *delta, doublereal *wd, integer *ldwd, integer *ld2wd, 
-	doublereal *tt, integer *ldtt, doublereal *stpd, integer *ldstpd, 
-	doublereal *y, integer *ldy, doublereal *we, integer *ldwe, integer *
-	ld2we, doublereal *pnlty, doublereal *beta, integer *ifixb, 
-	doublereal *ssf, doublereal *stpb, integer *job, integer *neta, 
-	doublereal *taufac, doublereal *sstol, doublereal *partol, integer *
-	maxit, doublereal *wss, doublereal *wssdel, doublereal *wsseps)
+/* Subroutine */ int dodpc1_(int *ipr, int *lunrpt, int *anajac, 
+	int *cdjac, int *chkjac, int *initd, int *restrt, 
+	int *isodr, int *implct, int *dovcv, int *redoj, 
+	int *msgb1, int *msgb, int *msgd1, int *msgd, int 
+	*n, int *m, int *np, int *nq, int *npp, int *nnzw,
+	 double *x, int *ldx, int *ifixx, int *ldifx, 
+	double *delta, double *wd, int *ldwd, int *ld2wd, 
+	double *tt, int *ldtt, double *stpd, int *ldstpd, 
+	double *y, int *ldy, double *we, int *ldwe, int *
+	ld2we, double *pnlty, double *beta, int *ifixb, 
+	double *ssf, double *stpb, int *job, int *neta, 
+	double *taufac, double *sstol, double *partol, int *
+	maxit, double *wss, double *wssdel, double *wsseps)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
-
-    /* Format strings */
-    static char fmt_1000[] = "(/\002 --- PROBLEM SIZE:\002/\002            N"
-	    " = \002,i5,\002          (NUMBER WITH NONZERO WEIGHT = \002,i5"
-	    ",\002)\002/\002           NQ = \002,i5/\002            M = \002,"
-	    "i5/\002           NP = \002,i5,\002          (NUMBER UNFIXED ="
-	    " \002,i5,\002)\002)";
-    static char fmt_1100[] = "(/\002 --- CONTROL VALUES:\002/\002          J"
-	    "OB = \002,i5.5/\002              = ABCDE, WHERE\002)";
-    static char fmt_1110[] = "(\002                       A=\002,i1,\002 ==>"
-	    " FIT IS A RESTART.\002)";
-    static char fmt_1111[] = "(\002                       A=\002,i1,\002 ==>"
-	    " FIT IS NOT A RESTART.\002)";
-    static char fmt_1120[] = "(\002                       B=\002,i1,\002 ==>"
-	    " DELTAS ARE INITIALIZED\002,\002 TO ZERO.\002)";
-    static char fmt_1121[] = "(\002                       B=\002,i1,\002 ==>"
-	    " DELTAS ARE INITIALIZED\002,\002 BY USER.\002)";
-    static char fmt_1122[] = "(\002                       B=\002,i1,\002 ==>"
-	    " DELTAS ARE FIXED AT\002,\002 ZERO SINCE E=\002,i1,\002.\002)";
-    static char fmt_1130[] = "(\002                       C=\002,i1,\002 ==>"
-	    " COVARIANCE MATRIX WILL\002,\002 BE COMPUTED USING\002)";
-    static char fmt_1131[] = "(\002                               DERIVATIVE"
-	    "S RE-\002,\002EVALUATED AT THE SOLUTION.\002)";
-    static char fmt_1132[] = "(\002                               DERIVATIVE"
-	    "S FROM THE\002,\002 LAST ITERATION.\002)";
-    static char fmt_1133[] = "(\002                       C=\002,i1,\002 ==>"
-	    " COVARIANCE MATRIX WILL\002,\002 NOT BE COMPUTED.\002)";
-    static char fmt_1140[] = "(\002                       D=\002,i1,\002 ==>"
-	    " DERIVATIVES ARE\002,\002 SUPPLIED BY USER.\002)";
-    static char fmt_1141[] = "(\002                               DERIVATIVE"
-	    "S WERE CHECKED.\002/\002                               RESULTS A"
-	    "PPEAR QUESTIONABLE.\002)";
-    static char fmt_1142[] = "(\002                               DERIVATIVE"
-	    "S WERE CHECKED.\002/\002                               RESULTS A"
-	    "PPEAR CORRECT.\002)";
-    static char fmt_1143[] = "(\002                               DERIVATIVE"
-	    "S WERE NOT\002,\002 CHECKED.\002)";
-    static char fmt_1144[] = "(\002                       D=\002,i1,\002 ==>"
-	    " DERIVATIVES ARE\002,\002 ESTIMATED BY CENTRAL\002,\002 DIFFEREN"
-	    "CES.\002)";
-    static char fmt_1145[] = "(\002                       D=\002,i1,\002 ==>"
-	    " DERIVATIVES ARE\002,\002 ESTIMATED BY FORWARD\002,\002 DIFFEREN"
-	    "CES.\002)";
-    static char fmt_1150[] = "(\002                       E=\002,i1,\002 ==>"
-	    " METHOD IS IMPLICIT ODR.\002)";
-    static char fmt_1151[] = "(\002                       E=\002,i1,\002 ==>"
-	    " METHOD IS EXPLICIT ODR.\002)";
-    static char fmt_1152[] = "(\002                       E=\002,i1,\002 ==>"
-	    " METHOD IS EXPLICIT OLS.\002)";
-    static char fmt_1200[] = "(\002       NDIGIT = \002,i5,\002          (ES"
-	    "TIMATED BY ODRPACK)\002)";
-    static char fmt_1210[] = "(\002       NDIGIT = \002,i5,\002          (SU"
-	    "PPLIED BY USER)\002)";
-    static char fmt_1300[] = "(\002       TAUFAC = \002,1p,d12.2)";
-    static char fmt_1400[] = "(/\002 --- STOPPING CRITERIA:\002/\002        "
-	    "SSTOL = \002,1p,d12.2,\002   (SUM OF SQUARES STOPPING TOLERANCE"
-	    ")\002/\002       PARTOL = \002,1p,d12.2,\002   (PARAMETER STOPPI"
-	    "NG TOLERANCE)\002/\002        MAXIT = \002,i5,\002          (MAX"
-	    "IMUM NUMBER OF ITERATIONS)\002)";
-    static char fmt_1500[] = "(/\002 --- INITIAL SUM OF SQUARED WEIGHTED DEL"
-	    "TAS =\002,17x,1p,d17.8)";
-    static char fmt_1510[] = "(\002         INITIAL PENALTY FUNCTION VALUE  "
-	    "   =\002,1p,d17.8/\002                 PENALTY TERM             "
-	    "  =\002,1p,d17.8/\002                 PENALTY PARAMETER         "
-	    " =\002,1p,d10.1)";
-    static char fmt_1600[] = "(/\002 --- INITIAL WEIGHTED SUM OF SQUARES    "
-	    "    =\002,17x,1p,d17.8)";
-    static char fmt_1610[] = "(\002         SUM OF SQUARED WEIGHTED DELTAS  "
-	    "   =\002,1p,d17.8/\002         SUM OF SQUARED WEIGHTED EPSILONS "
-	    "  =\002,1p,d17.8)";
-    static char fmt_4000[] = "(/\002 --- FUNCTION PARAMETER SUMMARY:\002)";
-    static char fmt_4110[] = "(/\002       INDEX         BETA(K)    FIXED   "
-	    "        SCALE\002,\002    DERIVATIVE\002/\002                   "
-	    "                                  \002,\002    ASSESSMENT\002/"
-	    ",\002         (K)                  (IFIXB)          (SCLB)\002"
-	    ",\002              \002/)";
-    static char fmt_4120[] = "(/\002       INDEX         BETA(K)    FIXED   "
-	    "        SCALE\002,\002              \002/\002                   "
-	    "                                  \002,\002              \002/"
-	    ",\002         (K)                  (IFIXB)          (SCLB)\002"
-	    ",\002              \002/)";
-    static char fmt_4200[] = "(/\002       INDEX         BETA(K)    FIXED   "
-	    "        SCALE\002,\002    DERIVATIVE\002/\002                   "
-	    "                                  \002,\002     STEP SIZE\002/"
-	    ",\002         (K)                  (IFIXB)          (SCLB)\002"
-	    ",\002        (STPB)\002/)";
-    static char fmt_4310[] = "(7x,i5,1p,d16.8,4x,a5,d16.8,1x,a13)";
-    static char fmt_4320[] = "(7x,i5,1p,d16.8,4x,a5,d16.8,1x,d13.5)";
-    static char fmt_2010[] = "(/\002 --- EXPLANATORY VARIABLE AND DELTA WEIG"
-	    "HT SUMMARY:\002)";
-    static char fmt_2110[] = "(/\002       INDEX      X(I,J)  DELTA(I,J)    "
-	    "FIXED\002,\002     SCALE    WEIGHT    DERIVATIVE\002/\002       "
-	    "                                      \002,\002                 "
-	    "       ASSESSMENT\002/,\002       (I,J)                         "
-	    " (IFIXX)\002,\002    (SCLD)      (WD)              \002/)";
-    static char fmt_2120[] = "(/\002       INDEX      X(I,J)  DELTA(I,J)    "
-	    "FIXED\002,\002     SCALE    WEIGHT              \002/\002       "
-	    "                                      \002,\002                 "
-	    "                 \002/,\002       (I,J)                         "
-	    " (IFIXX)\002,\002    (SCLD)      (WD)              \002/)";
-    static char fmt_2130[] = "(/\002       INDEX      X(I,J)  DELTA(I,J)    "
-	    "FIXED\002,\002     SCALE    WEIGHT    DERIVATIVE\002/\002       "
-	    "                                      \002,\002                 "
-	    "        STEP SIZE\002/,\002       (I,J)                         "
-	    " (IFIXX)\002,\002    (SCLD)      (WD)        (STPD)\002/)";
-    static char fmt_2020[] = "(/\002 --- EXPLANATORY VARIABLE SUMMARY:\002)";
-    static char fmt_2140[] = "(/\002       INDEX      X(I,J)\002/\002       "
-	    "(I,J)            \002/)";
-    static char fmt_5110[] = "(9x,a2,i1,1p,2d12.3,4x,a5,2d10.2,1x,a13)";
-    static char fmt_5120[] = "(8x,a2,i2,1p,2d12.3,4x,a5,2d10.2,1x,a13)";
-    static char fmt_5210[] = "(9x,a2,i1,1p,2d12.3,4x,a5,2d10.2,1x,d13.5)";
-    static char fmt_5220[] = "(8x,a2,i2,1p,2d12.3,4x,a5,2d10.2,1x,d13.5)";
-    static char fmt_6000[] = "(\002 \002)";
-    static char fmt_3000[] = "(/\002 --- RESPONSE VARIABLE AND EPSILON ERROR"
-	    " WEIGHT\002,\002 SUMMARY:\002)";
-    static char fmt_3100[] = "(/\002       INDEX      Y(I,L)      WEIGH"
-	    "T\002/\002       (I,L)                    (WE)\002/)";
+    static double zero = 0.;
 
     /* System generated locals */
-    integer delta_dim1, delta_offset, stpd_dim1, stpd_offset, tt_dim1, 
+    int delta_dim1, delta_offset, stpd_dim1, stpd_offset, tt_dim1, 
 	    tt_offset, wd_dim1, wd_dim2, wd_offset, we_dim1, we_dim2, 
 	    we_offset, x_dim1, x_offset, y_dim1, y_offset, ifixx_dim1, 
 	    ifixx_offset, msgb_dim1, msgb_offset, msgd_dim1, msgd_offset, 
 	    i__1, i__2, i__3, i__4, i__5, i__6;
-    doublereal d__1;
+    double d__1;
 
     /* Builtin functions */
-    integer s_wsfe(cilist *), do_fio(integer *, char *, ftnlen), e_wsfe(void);
-    /* Subroutine */ int s_copy(char *, char *, ftnlen, ftnlen);
 
     /* Local variables */
-    static integer i__, j, l, job1, job2, job3, job4, job5;
-    static doublereal temp1, temp2, temp3;
-    static integer itemp;
+    static int i__, j, l, job1, job2, job3, job4, job5;
+    static double temp1, temp2, temp3;
+    static int itemp;
     static char tempc0[2], tempc1[5], tempc2[13];
-    extern doublereal dhstep_(integer *, integer *, integer *, integer *, 
-	    doublereal *, integer *);
+    extern double dhstep_(int *, int *, int *, int *, 
+	    double *, int *);
 
     /* Fortran I/O blocks */
-    static cilist io___472 = { 0, 0, 0, fmt_1000, 0 };
-    static cilist io___478 = { 0, 0, 0, fmt_1100, 0 };
-    static cilist io___479 = { 0, 0, 0, fmt_1110, 0 };
-    static cilist io___480 = { 0, 0, 0, fmt_1111, 0 };
-    static cilist io___481 = { 0, 0, 0, fmt_1120, 0 };
-    static cilist io___482 = { 0, 0, 0, fmt_1121, 0 };
-    static cilist io___483 = { 0, 0, 0, fmt_1122, 0 };
-    static cilist io___484 = { 0, 0, 0, fmt_1130, 0 };
-    static cilist io___485 = { 0, 0, 0, fmt_1131, 0 };
-    static cilist io___486 = { 0, 0, 0, fmt_1132, 0 };
-    static cilist io___487 = { 0, 0, 0, fmt_1133, 0 };
-    static cilist io___488 = { 0, 0, 0, fmt_1140, 0 };
-    static cilist io___489 = { 0, 0, 0, fmt_1141, 0 };
-    static cilist io___490 = { 0, 0, 0, fmt_1142, 0 };
-    static cilist io___491 = { 0, 0, 0, fmt_1143, 0 };
-    static cilist io___492 = { 0, 0, 0, fmt_1144, 0 };
-    static cilist io___493 = { 0, 0, 0, fmt_1145, 0 };
-    static cilist io___494 = { 0, 0, 0, fmt_1150, 0 };
-    static cilist io___495 = { 0, 0, 0, fmt_1151, 0 };
-    static cilist io___496 = { 0, 0, 0, fmt_1152, 0 };
-    static cilist io___497 = { 0, 0, 0, fmt_1200, 0 };
-    static cilist io___498 = { 0, 0, 0, fmt_1210, 0 };
-    static cilist io___499 = { 0, 0, 0, fmt_1300, 0 };
-    static cilist io___500 = { 0, 0, 0, fmt_1400, 0 };
-    static cilist io___501 = { 0, 0, 0, fmt_1500, 0 };
-    static cilist io___502 = { 0, 0, 0, fmt_1510, 0 };
-    static cilist io___503 = { 0, 0, 0, fmt_1600, 0 };
-    static cilist io___504 = { 0, 0, 0, fmt_1610, 0 };
-    static cilist io___505 = { 0, 0, 0, fmt_4000, 0 };
-    static cilist io___506 = { 0, 0, 0, fmt_4110, 0 };
-    static cilist io___507 = { 0, 0, 0, fmt_4120, 0 };
-    static cilist io___508 = { 0, 0, 0, fmt_4200, 0 };
-    static cilist io___515 = { 0, 0, 0, fmt_4310, 0 };
-    static cilist io___517 = { 0, 0, 0, fmt_4320, 0 };
-    static cilist io___518 = { 0, 0, 0, fmt_2010, 0 };
-    static cilist io___519 = { 0, 0, 0, fmt_2110, 0 };
-    static cilist io___520 = { 0, 0, 0, fmt_2120, 0 };
-    static cilist io___521 = { 0, 0, 0, fmt_2130, 0 };
-    static cilist io___522 = { 0, 0, 0, fmt_2020, 0 };
-    static cilist io___523 = { 0, 0, 0, fmt_2140, 0 };
-    static cilist io___526 = { 0, 0, 0, fmt_5110, 0 };
-    static cilist io___527 = { 0, 0, 0, fmt_5120, 0 };
-    static cilist io___529 = { 0, 0, 0, fmt_5210, 0 };
-    static cilist io___530 = { 0, 0, 0, fmt_5220, 0 };
-    static cilist io___531 = { 0, 0, 0, fmt_6000, 0 };
-    static cilist io___532 = { 0, 0, 0, fmt_5110, 0 };
-    static cilist io___533 = { 0, 0, 0, fmt_5120, 0 };
-    static cilist io___534 = { 0, 0, 0, fmt_6000, 0 };
-    static cilist io___535 = { 0, 0, 0, fmt_3000, 0 };
-    static cilist io___536 = { 0, 0, 0, fmt_3100, 0 };
-    static cilist io___537 = { 0, 0, 0, fmt_5110, 0 };
-    static cilist io___538 = { 0, 0, 0, fmt_5120, 0 };
-    static cilist io___539 = { 0, 0, 0, fmt_6000, 0 };
 
 
 /* ***BEGIN PROLOGUE  DODPC1 */
@@ -7180,201 +7020,68 @@ L200:
 /*   ZERO:    THE VALUE 0.0D0. */
 /* ***FIRST EXECUTABLE STATEMENT  DODPC1 */
 /*  PRINT PROBLEM SIZE SPECIFICATION */
-    io___472.ciunit = *lunrpt;
-    s_wsfe(&io___472);
-    do_fio(&c__1, (char *)&(*n), (ftnlen)sizeof(integer));
-    do_fio(&c__1, (char *)&(*nnzw), (ftnlen)sizeof(integer));
-    do_fio(&c__1, (char *)&(*nq), (ftnlen)sizeof(integer));
-    do_fio(&c__1, (char *)&(*m), (ftnlen)sizeof(integer));
-    do_fio(&c__1, (char *)&(*np), (ftnlen)sizeof(integer));
-    do_fio(&c__1, (char *)&(*npp), (ftnlen)sizeof(integer));
-    e_wsfe();
 /*  PRINT CONTROL VALUES */
     job1 = *job / 10000;
     job2 = *job % 10000 / 1000;
     job3 = *job % 1000 / 100;
     job4 = *job % 100 / 10;
     job5 = *job % 10;
-    io___478.ciunit = *lunrpt;
-    s_wsfe(&io___478);
-    do_fio(&c__1, (char *)&(*job), (ftnlen)sizeof(integer));
-    e_wsfe();
     if (*restrt) {
-	io___479.ciunit = *lunrpt;
-	s_wsfe(&io___479);
-	do_fio(&c__1, (char *)&job1, (ftnlen)sizeof(integer));
-	e_wsfe();
     } else {
-	io___480.ciunit = *lunrpt;
-	s_wsfe(&io___480);
-	do_fio(&c__1, (char *)&job1, (ftnlen)sizeof(integer));
-	e_wsfe();
     }
     if (*isodr) {
 	if (*initd) {
-	    io___481.ciunit = *lunrpt;
-	    s_wsfe(&io___481);
-	    do_fio(&c__1, (char *)&job2, (ftnlen)sizeof(integer));
-	    e_wsfe();
 	} else {
-	    io___482.ciunit = *lunrpt;
-	    s_wsfe(&io___482);
-	    do_fio(&c__1, (char *)&job2, (ftnlen)sizeof(integer));
-	    e_wsfe();
 	}
     } else {
-	io___483.ciunit = *lunrpt;
-	s_wsfe(&io___483);
-	do_fio(&c__1, (char *)&job2, (ftnlen)sizeof(integer));
-	do_fio(&c__1, (char *)&job5, (ftnlen)sizeof(integer));
-	e_wsfe();
     }
     if (*dovcv) {
-	io___484.ciunit = *lunrpt;
-	s_wsfe(&io___484);
-	do_fio(&c__1, (char *)&job3, (ftnlen)sizeof(integer));
-	e_wsfe();
 	if (*redoj) {
-	    io___485.ciunit = *lunrpt;
-	    s_wsfe(&io___485);
-	    e_wsfe();
 	} else {
-	    io___486.ciunit = *lunrpt;
-	    s_wsfe(&io___486);
-	    e_wsfe();
 	}
     } else {
-	io___487.ciunit = *lunrpt;
-	s_wsfe(&io___487);
-	do_fio(&c__1, (char *)&job3, (ftnlen)sizeof(integer));
-	e_wsfe();
     }
     if (*anajac) {
-	io___488.ciunit = *lunrpt;
-	s_wsfe(&io___488);
-	do_fio(&c__1, (char *)&job4, (ftnlen)sizeof(integer));
-	e_wsfe();
 	if (*chkjac) {
 	    if (*msgb1 >= 1 || *msgd1 >= 1) {
-		io___489.ciunit = *lunrpt;
-		s_wsfe(&io___489);
-		e_wsfe();
 	    } else {
-		io___490.ciunit = *lunrpt;
-		s_wsfe(&io___490);
-		e_wsfe();
 	    }
 	} else {
-	    io___491.ciunit = *lunrpt;
-	    s_wsfe(&io___491);
-	    e_wsfe();
 	}
     } else if (*cdjac) {
-	io___492.ciunit = *lunrpt;
-	s_wsfe(&io___492);
-	do_fio(&c__1, (char *)&job4, (ftnlen)sizeof(integer));
-	e_wsfe();
     } else {
-	io___493.ciunit = *lunrpt;
-	s_wsfe(&io___493);
-	do_fio(&c__1, (char *)&job4, (ftnlen)sizeof(integer));
-	e_wsfe();
     }
     if (*isodr) {
 	if (*implct) {
-	    io___494.ciunit = *lunrpt;
-	    s_wsfe(&io___494);
-	    do_fio(&c__1, (char *)&job5, (ftnlen)sizeof(integer));
-	    e_wsfe();
 	} else {
-	    io___495.ciunit = *lunrpt;
-	    s_wsfe(&io___495);
-	    do_fio(&c__1, (char *)&job5, (ftnlen)sizeof(integer));
-	    e_wsfe();
 	}
     } else {
-	io___496.ciunit = *lunrpt;
-	s_wsfe(&io___496);
-	do_fio(&c__1, (char *)&job5, (ftnlen)sizeof(integer));
-	e_wsfe();
     }
     if (*neta < 0) {
-	io___497.ciunit = *lunrpt;
-	s_wsfe(&io___497);
 	i__1 = -(*neta);
-	do_fio(&c__1, (char *)&i__1, (ftnlen)sizeof(integer));
-	e_wsfe();
     } else {
-	io___498.ciunit = *lunrpt;
-	s_wsfe(&io___498);
-	do_fio(&c__1, (char *)&(*neta), (ftnlen)sizeof(integer));
-	e_wsfe();
     }
-    io___499.ciunit = *lunrpt;
-    s_wsfe(&io___499);
-    do_fio(&c__1, (char *)&(*taufac), (ftnlen)sizeof(doublereal));
-    e_wsfe();
 /*  PRINT STOPPING CRITERIA */
-    io___500.ciunit = *lunrpt;
-    s_wsfe(&io___500);
-    do_fio(&c__1, (char *)&(*sstol), (ftnlen)sizeof(doublereal));
-    do_fio(&c__1, (char *)&(*partol), (ftnlen)sizeof(doublereal));
-    do_fio(&c__1, (char *)&(*maxit), (ftnlen)sizeof(integer));
-    e_wsfe();
 /*  PRINT INITIAL SUM OF SQUARES */
     if (*implct) {
-	io___501.ciunit = *lunrpt;
-	s_wsfe(&io___501);
-	do_fio(&c__1, (char *)&(*wssdel), (ftnlen)sizeof(doublereal));
-	e_wsfe();
 	if (*isodr) {
-	    io___502.ciunit = *lunrpt;
-	    s_wsfe(&io___502);
-	    do_fio(&c__1, (char *)&(*wss), (ftnlen)sizeof(doublereal));
-	    do_fio(&c__1, (char *)&(*wsseps), (ftnlen)sizeof(doublereal));
-	    do_fio(&c__1, (char *)&(*pnlty), (ftnlen)sizeof(doublereal));
-	    e_wsfe();
 	}
     } else {
-	io___503.ciunit = *lunrpt;
-	s_wsfe(&io___503);
-	do_fio(&c__1, (char *)&(*wss), (ftnlen)sizeof(doublereal));
-	e_wsfe();
 	if (*isodr) {
-	    io___504.ciunit = *lunrpt;
-	    s_wsfe(&io___504);
-	    do_fio(&c__1, (char *)&(*wssdel), (ftnlen)sizeof(doublereal));
-	    do_fio(&c__1, (char *)&(*wsseps), (ftnlen)sizeof(doublereal));
-	    e_wsfe();
 	}
     }
     if (*ipr >= 2) {
 /*  PRINT FUNCTION PARAMETER DATA */
-	io___505.ciunit = *lunrpt;
-	s_wsfe(&io___505);
-	e_wsfe();
 	if (*chkjac && (*msgb1 >= 1 || *msgd1 >= 1)) {
-	    io___506.ciunit = *lunrpt;
-	    s_wsfe(&io___506);
-	    e_wsfe();
 	} else if (*anajac) {
-	    io___507.ciunit = *lunrpt;
-	    s_wsfe(&io___507);
-	    e_wsfe();
 	} else {
-	    io___508.ciunit = *lunrpt;
-	    s_wsfe(&io___508);
-	    e_wsfe();
 	}
 	i__1 = *np;
 	for (j = 1; j <= i__1; ++j) {
 	    if (ifixb[1] < 0) {
-		s_copy(tempc1, "   NO", (ftnlen)5, (ftnlen)5);
 	    } else {
 		if (ifixb[j] != 0) {
-		    s_copy(tempc1, "   NO", (ftnlen)5, (ftnlen)5);
 		} else {
-		    s_copy(tempc1, "  YES", (ftnlen)5, (ftnlen)5);
 		}
 	    }
 	    if (*anajac) {
@@ -7388,20 +7095,12 @@ L200:
 /* L110: */
 		    }
 		    if (itemp <= -1) {
-			s_copy(tempc2, "    UNCHECKED", (ftnlen)13, (ftnlen)
-				13);
 		    } else if (itemp == 0) {
-			s_copy(tempc2, "     VERIFIED", (ftnlen)13, (ftnlen)
-				13);
 		    } else if (itemp >= 1) {
-			s_copy(tempc2, " QUESTIONABLE", (ftnlen)13, (ftnlen)
-				13);
 		    }
 		} else {
-		    s_copy(tempc2, "             ", (ftnlen)13, (ftnlen)13);
 		}
 	    } else {
-		s_copy(tempc2, "             ", (ftnlen)13, (ftnlen)13);
 	    }
 	    if (ssf[1] < zero) {
 		temp1 = abs(ssf[1]);
@@ -7409,79 +7108,39 @@ L200:
 		temp1 = ssf[j];
 	    }
 	    if (*anajac) {
-		io___515.ciunit = *lunrpt;
-		s_wsfe(&io___515);
-		do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
-		do_fio(&c__1, (char *)&beta[j], (ftnlen)sizeof(doublereal));
-		do_fio(&c__1, tempc1, (ftnlen)5);
-		do_fio(&c__1, (char *)&temp1, (ftnlen)sizeof(doublereal));
-		do_fio(&c__1, tempc2, (ftnlen)13);
-		e_wsfe();
 	    } else {
 		if (*cdjac) {
 		    temp2 = dhstep_(&c__1, neta, &c__1, &j, &stpb[1], &c__1);
 		} else {
 		    temp2 = dhstep_(&c__0, neta, &c__1, &j, &stpb[1], &c__1);
 		}
-		io___517.ciunit = *lunrpt;
-		s_wsfe(&io___517);
-		do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
-		do_fio(&c__1, (char *)&beta[j], (ftnlen)sizeof(doublereal));
-		do_fio(&c__1, tempc1, (ftnlen)5);
-		do_fio(&c__1, (char *)&temp1, (ftnlen)sizeof(doublereal));
-		do_fio(&c__1, (char *)&temp2, (ftnlen)sizeof(doublereal));
-		e_wsfe();
 	    }
 /* L130: */
 	}
 /*  PRINT EXPLANATORY VARIABLE DATA */
 	if (*isodr) {
-	    io___518.ciunit = *lunrpt;
-	    s_wsfe(&io___518);
-	    e_wsfe();
 	    if (*chkjac && (*msgb1 >= 1 || *msgd1 >= 1)) {
-		io___519.ciunit = *lunrpt;
-		s_wsfe(&io___519);
-		e_wsfe();
 	    } else if (*anajac) {
-		io___520.ciunit = *lunrpt;
-		s_wsfe(&io___520);
-		e_wsfe();
 	    } else {
-		io___521.ciunit = *lunrpt;
-		s_wsfe(&io___521);
-		e_wsfe();
 	    }
 	} else {
-	    io___522.ciunit = *lunrpt;
-	    s_wsfe(&io___522);
-	    e_wsfe();
-	    io___523.ciunit = *lunrpt;
-	    s_wsfe(&io___523);
-	    e_wsfe();
 	}
 	if (*isodr) {
 	    i__1 = *m;
 	    for (j = 1; j <= i__1; ++j) {
-		s_copy(tempc0, "1,", (ftnlen)2, (ftnlen)2);
 		i__2 = *n;
 		i__3 = *n - 1;
 		for (i__ = 1; i__3 < 0 ? i__ >= i__2 : i__ <= i__2; i__ += 
 			i__3) {
 		    if (ifixx[ifixx_dim1 + 1] < 0) {
-			s_copy(tempc1, "   NO", (ftnlen)5, (ftnlen)5);
 		    } else {
 			if (*ldifx == 1) {
 			    if (ifixx[j * ifixx_dim1 + 1] == 0) {
-				s_copy(tempc1, "  YES", (ftnlen)5, (ftnlen)5);
 			    } else {
-				s_copy(tempc1, "   NO", (ftnlen)5, (ftnlen)5);
 			    }
 			} else {
 			    if (ifixx[i__ + j * ifixx_dim1] == 0) {
-				s_copy(tempc1, "  YES", (ftnlen)5, (ftnlen)5);
 			    } else {
-				s_copy(tempc1, "   NO", (ftnlen)5, (ftnlen)5);
 			    }
 			}
 		    }
@@ -7524,57 +7183,17 @@ L200:
 /* L210: */
 			    }
 			    if (itemp <= -1) {
-				s_copy(tempc2, "    UNCHECKED", (ftnlen)13, (
-					ftnlen)13);
 			    } else if (itemp == 0) {
-				s_copy(tempc2, "     VERIFIED", (ftnlen)13, (
-					ftnlen)13);
 			    } else if (itemp >= 1) {
-				s_copy(tempc2, " QUESTIONABLE", (ftnlen)13, (
-					ftnlen)13);
 			    }
 			} else {
-			    s_copy(tempc2, "             ", (ftnlen)13, (
-				    ftnlen)13);
 			}
 			if (*m <= 9) {
-			    io___526.ciunit = *lunrpt;
-			    s_wsfe(&io___526);
-			    do_fio(&c__1, tempc0, (ftnlen)2);
-			    do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer))
 				    ;
-			    do_fio(&c__1, (char *)&x[i__ + j * x_dim1], (
-				    ftnlen)sizeof(doublereal));
-			    do_fio(&c__1, (char *)&delta[i__ + j * delta_dim1]
-				    , (ftnlen)sizeof(doublereal));
-			    do_fio(&c__1, tempc1, (ftnlen)5);
-			    do_fio(&c__1, (char *)&temp1, (ftnlen)sizeof(
-				    doublereal));
-			    do_fio(&c__1, (char *)&temp2, (ftnlen)sizeof(
-				    doublereal));
-			    do_fio(&c__1, tempc2, (ftnlen)13);
-			    e_wsfe();
 			} else {
-			    io___527.ciunit = *lunrpt;
-			    s_wsfe(&io___527);
-			    do_fio(&c__1, tempc0, (ftnlen)2);
-			    do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer))
 				    ;
-			    do_fio(&c__1, (char *)&x[i__ + j * x_dim1], (
-				    ftnlen)sizeof(doublereal));
-			    do_fio(&c__1, (char *)&delta[i__ + j * delta_dim1]
-				    , (ftnlen)sizeof(doublereal));
-			    do_fio(&c__1, tempc1, (ftnlen)5);
-			    do_fio(&c__1, (char *)&temp1, (ftnlen)sizeof(
-				    doublereal));
-			    do_fio(&c__1, (char *)&temp2, (ftnlen)sizeof(
-				    doublereal));
-			    do_fio(&c__1, tempc2, (ftnlen)13);
-			    e_wsfe();
 			}
 		    } else {
-			s_copy(tempc2, "             ", (ftnlen)13, (ftnlen)
-				13);
 			if (*cdjac) {
 			    temp3 = dhstep_(&c__1, neta, &i__, &j, &stpd[
 				    stpd_offset], ldstpd);
@@ -7583,100 +7202,38 @@ L200:
 				    stpd_offset], ldstpd);
 			}
 			if (*m <= 9) {
-			    io___529.ciunit = *lunrpt;
-			    s_wsfe(&io___529);
-			    do_fio(&c__1, tempc0, (ftnlen)2);
-			    do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer))
 				    ;
-			    do_fio(&c__1, (char *)&x[i__ + j * x_dim1], (
-				    ftnlen)sizeof(doublereal));
-			    do_fio(&c__1, (char *)&delta[i__ + j * delta_dim1]
-				    , (ftnlen)sizeof(doublereal));
-			    do_fio(&c__1, tempc1, (ftnlen)5);
-			    do_fio(&c__1, (char *)&temp1, (ftnlen)sizeof(
-				    doublereal));
-			    do_fio(&c__1, (char *)&temp2, (ftnlen)sizeof(
-				    doublereal));
-			    do_fio(&c__1, (char *)&temp3, (ftnlen)sizeof(
-				    doublereal));
-			    e_wsfe();
 			} else {
-			    io___530.ciunit = *lunrpt;
-			    s_wsfe(&io___530);
-			    do_fio(&c__1, tempc0, (ftnlen)2);
-			    do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer))
 				    ;
-			    do_fio(&c__1, (char *)&x[i__ + j * x_dim1], (
-				    ftnlen)sizeof(doublereal));
-			    do_fio(&c__1, (char *)&delta[i__ + j * delta_dim1]
-				    , (ftnlen)sizeof(doublereal));
-			    do_fio(&c__1, tempc1, (ftnlen)5);
-			    do_fio(&c__1, (char *)&temp1, (ftnlen)sizeof(
-				    doublereal));
-			    do_fio(&c__1, (char *)&temp2, (ftnlen)sizeof(
-				    doublereal));
-			    do_fio(&c__1, (char *)&temp3, (ftnlen)sizeof(
-				    doublereal));
-			    e_wsfe();
 			}
 		    }
-		    s_copy(tempc0, "N,", (ftnlen)2, (ftnlen)2);
 /* L230: */
 		}
 		if (j < *m) {
-		    io___531.ciunit = *lunrpt;
-		    s_wsfe(&io___531);
-		    e_wsfe();
 		}
 /* L240: */
 	    }
 	} else {
 	    i__1 = *m;
 	    for (j = 1; j <= i__1; ++j) {
-		s_copy(tempc0, "1,", (ftnlen)2, (ftnlen)2);
 		i__3 = *n;
 		i__2 = *n - 1;
 		for (i__ = 1; i__2 < 0 ? i__ >= i__3 : i__ <= i__3; i__ += 
 			i__2) {
 		    if (*m <= 9) {
-			io___532.ciunit = *lunrpt;
-			s_wsfe(&io___532);
-			do_fio(&c__1, tempc0, (ftnlen)2);
-			do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
-			do_fio(&c__1, (char *)&x[i__ + j * x_dim1], (ftnlen)
-				sizeof(doublereal));
-			e_wsfe();
 		    } else {
-			io___533.ciunit = *lunrpt;
-			s_wsfe(&io___533);
-			do_fio(&c__1, tempc0, (ftnlen)2);
-			do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
-			do_fio(&c__1, (char *)&x[i__ + j * x_dim1], (ftnlen)
-				sizeof(doublereal));
-			e_wsfe();
 		    }
-		    s_copy(tempc0, "N,", (ftnlen)2, (ftnlen)2);
 /* L250: */
 		}
 		if (j < *m) {
-		    io___534.ciunit = *lunrpt;
-		    s_wsfe(&io___534);
-		    e_wsfe();
 		}
 /* L260: */
 	    }
 	}
 /*  PRINT RESPONSE VARIABLE DATA AND OBSERVATION ERROR WEIGHTS */
 	if (! (*implct)) {
-	    io___535.ciunit = *lunrpt;
-	    s_wsfe(&io___535);
-	    e_wsfe();
-	    io___536.ciunit = *lunrpt;
-	    s_wsfe(&io___536);
-	    e_wsfe();
 	    i__1 = *nq;
 	    for (l = 1; l <= i__1; ++l) {
-		s_copy(tempc0, "1,", (ftnlen)2, (ftnlen)2);
 		i__2 = *n;
 		i__3 = *n - 1;
 		for (i__ = 1; i__3 < 0 ? i__ >= i__2 : i__ <= i__2; i__ += 
@@ -7698,33 +7255,11 @@ L200:
 			}
 		    }
 		    if (*nq <= 9) {
-			io___537.ciunit = *lunrpt;
-			s_wsfe(&io___537);
-			do_fio(&c__1, tempc0, (ftnlen)2);
-			do_fio(&c__1, (char *)&l, (ftnlen)sizeof(integer));
-			do_fio(&c__1, (char *)&y[i__ + l * y_dim1], (ftnlen)
-				sizeof(doublereal));
-			do_fio(&c__1, (char *)&temp1, (ftnlen)sizeof(
-				doublereal));
-			e_wsfe();
 		    } else {
-			io___538.ciunit = *lunrpt;
-			s_wsfe(&io___538);
-			do_fio(&c__1, tempc0, (ftnlen)2);
-			do_fio(&c__1, (char *)&l, (ftnlen)sizeof(integer));
-			do_fio(&c__1, (char *)&y[i__ + l * y_dim1], (ftnlen)
-				sizeof(doublereal));
-			do_fio(&c__1, (char *)&temp1, (ftnlen)sizeof(
-				doublereal));
-			e_wsfe();
 		    }
-		    s_copy(tempc0, "N,", (ftnlen)2, (ftnlen)2);
 /* L300: */
 		}
 		if (l < *nq) {
-		    io___539.ciunit = *lunrpt;
-		    s_wsfe(&io___539);
-		    e_wsfe();
 		}
 /* L310: */
 	    }
@@ -7735,75 +7270,27 @@ L200:
 } /* dodpc1_ */
 
 /* DODPC2 */
-/* Subroutine */ int dodpc2_(integer *ipr, integer *lunrpt, logical *fstitr, 
-	logical *implct, logical *prtpen, doublereal *pnlty, integer *niter, 
-	integer *nfev, doublereal *wss, doublereal *actred, doublereal *
-	prered, doublereal *alpha, doublereal *tau, doublereal *pnorm, 
-	integer *np, doublereal *beta)
+/* Subroutine */ int dodpc2_(int *ipr, int *lunrpt, int *fstitr, 
+	int *implct, int *prtpen, double *pnlty, int *niter, 
+	int *nfev, double *wss, double *actred, double *
+	prered, double *alpha, double *tau, double *pnorm, 
+	int *np, double *beta)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
-
-    /* Format strings */
-    static char fmt_1121[] = "(//\002         CUM.      PENALTY    ACT. REL."
-	    "   PRED. REL.\002/\002  IT.  NO. FN     FUNCTION   SUM-OF-SQS   "
-	    "SUM-OF-SQS\002,\002              G-N\002/\002 NUM.   EVALS      "
-	    "  VALUE    REDUCTION    REDUCTION\002,\002  TAU/PNORM  STEP\002"
-	    "/\002 ----  ------  -----------  -----------  -----------\002"
-	    ",\002  ---------  ----\002)";
-    static char fmt_1122[] = "(//\002         CUM.                 ACT. REL."
-	    "   PRED. REL.\002/\002  IT.  NO. FN     WEIGHTED   SUM-OF-SQS   "
-	    "SUM-OF-SQS\002,\002              G-N\002/\002 NUM.   EVALS   SUM"
-	    "-OF-SQS    REDUCTION    REDUCTION\002,\002  TAU/PNORM  STEP\002"
-	    "/\002 ----  ------  -----------  -----------  -----------\002"
-	    ",\002  ---------  ----\002/)";
-    static char fmt_1131[] = "(//\002         CUM.      PENALTY    ACT. REL."
-	    "   PRED. REL.\002/\002  IT.  NO. FN     FUNCTION   SUM-OF-SQS   "
-	    "SUM-OF-SQS\002,\002              G-N      BETA --------------"
-	    ">\002/\002 NUM.   EVALS        VALUE    REDUCTION    REDUCTIO"
-	    "N\002,\002  TAU/PNORM  STEP     INDEX           VALUE\002/\002 -"
-	    "---  ------  -----------  -----------  -----------\002,\002  ---"
-	    "------  ----     -----           -----\002)";
-    static char fmt_1132[] = "(//\002         CUM.                 ACT. REL."
-	    "   PRED. REL.\002/\002  IT.  NO. FN     WEIGHTED   SUM-OF-SQS   "
-	    "SUM-OF-SQS\002,\002              G-N      BETA --------------"
-	    ">\002/\002 NUM.   EVALS   SUM-OF-SQS    REDUCTION    REDUCTIO"
-	    "N\002,\002  TAU/PNORM  STEP     INDEX           VALUE\002/\002 -"
-	    "---  ------  -----------  -----------  -----------\002,\002  ---"
-	    "------  ----     -----           -----\002/)";
-    static char fmt_1133[] = "(/\002 PENALTY PARAMETER VALUE = \002,1p,e10.1)"
-	    ;
-    static char fmt_1141[] = "(1x,i4,i8,1x,1p,d12.5,2d13.4,d11.3,3x,a3,7x,i3"
-	    ",3d16.8)";
-    static char fmt_1142[] = "(1x,i4,i8,1x,1p,d12.5,2d13.4,d11.3,3x,a3,1x,"
-	    "i3,\002 TO\002,i3,3d16.8)";
-    static char fmt_1151[] = "(76x,i3,1p,d16.8)";
-    static char fmt_1152[] = "(70x,i3,\002 TO\002,i3,1p,3d16.8)";
+    static double zero = 0.;
 
     /* System generated locals */
-    integer i__1, i__2;
+    int i__1, i__2;
 
     /* Builtin functions */
-    integer s_wsfe(cilist *), e_wsfe(void), do_fio(integer *, char *, ftnlen);
-    /* Subroutine */ int s_copy(char *, char *, ftnlen, ftnlen);
 
     /* Local variables */
-    static integer j, k, l;
+    static int j, k, l;
     static char gn[3];
-    static doublereal ratio;
+    static double ratio;
 
     /* Fortran I/O blocks */
-    static cilist io___541 = { 0, 0, 0, fmt_1121, 0 };
-    static cilist io___542 = { 0, 0, 0, fmt_1122, 0 };
-    static cilist io___543 = { 0, 0, 0, fmt_1131, 0 };
-    static cilist io___544 = { 0, 0, 0, fmt_1132, 0 };
-    static cilist io___545 = { 0, 0, 0, fmt_1133, 0 };
-    static cilist io___548 = { 0, 0, 0, fmt_1141, 0 };
-    static cilist io___551 = { 0, 0, 0, fmt_1141, 0 };
-    static cilist io___552 = { 0, 0, 0, fmt_1142, 0 };
-    static cilist io___554 = { 0, 0, 0, fmt_1151, 0 };
-    static cilist io___555 = { 0, 0, 0, fmt_1152, 0 };
 
 
 /* ***BEGIN PROLOGUE  DODPC2 */
@@ -7854,36 +7341,18 @@ L200:
     if (*fstitr) {
 	if (*ipr == 1) {
 	    if (*implct) {
-		io___541.ciunit = *lunrpt;
-		s_wsfe(&io___541);
-		e_wsfe();
 	    } else {
-		io___542.ciunit = *lunrpt;
-		s_wsfe(&io___542);
-		e_wsfe();
 	    }
 	} else {
 	    if (*implct) {
-		io___543.ciunit = *lunrpt;
-		s_wsfe(&io___543);
-		e_wsfe();
 	    } else {
-		io___544.ciunit = *lunrpt;
-		s_wsfe(&io___544);
-		e_wsfe();
 	    }
 	}
     }
     if (*prtpen) {
-	io___545.ciunit = *lunrpt;
-	s_wsfe(&io___545);
-	do_fio(&c__1, (char *)&(*pnlty), (ftnlen)sizeof(doublereal));
-	e_wsfe();
     }
     if (*alpha == zero) {
-	s_copy(gn, "YES", (ftnlen)3, (ftnlen)3);
     } else {
-	s_copy(gn, " NO", (ftnlen)3, (ftnlen)3);
     }
     if (*pnorm != zero) {
 	ratio = *tau / *pnorm;
@@ -7891,49 +7360,14 @@ L200:
 	ratio = zero;
     }
     if (*ipr == 1) {
-	io___548.ciunit = *lunrpt;
-	s_wsfe(&io___548);
-	do_fio(&c__1, (char *)&(*niter), (ftnlen)sizeof(integer));
-	do_fio(&c__1, (char *)&(*nfev), (ftnlen)sizeof(integer));
-	do_fio(&c__1, (char *)&(*wss), (ftnlen)sizeof(doublereal));
-	do_fio(&c__1, (char *)&(*actred), (ftnlen)sizeof(doublereal));
-	do_fio(&c__1, (char *)&(*prered), (ftnlen)sizeof(doublereal));
-	do_fio(&c__1, (char *)&ratio, (ftnlen)sizeof(doublereal));
-	do_fio(&c__1, gn, (ftnlen)3);
-	e_wsfe();
     } else {
 	j = 1;
 	k = min(3,*np);
 	if (j == k) {
-	    io___551.ciunit = *lunrpt;
-	    s_wsfe(&io___551);
-	    do_fio(&c__1, (char *)&(*niter), (ftnlen)sizeof(integer));
-	    do_fio(&c__1, (char *)&(*nfev), (ftnlen)sizeof(integer));
-	    do_fio(&c__1, (char *)&(*wss), (ftnlen)sizeof(doublereal));
-	    do_fio(&c__1, (char *)&(*actred), (ftnlen)sizeof(doublereal));
-	    do_fio(&c__1, (char *)&(*prered), (ftnlen)sizeof(doublereal));
-	    do_fio(&c__1, (char *)&ratio, (ftnlen)sizeof(doublereal));
-	    do_fio(&c__1, gn, (ftnlen)3);
-	    do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
-	    do_fio(&c__1, (char *)&beta[j], (ftnlen)sizeof(doublereal));
-	    e_wsfe();
 	} else {
-	    io___552.ciunit = *lunrpt;
-	    s_wsfe(&io___552);
-	    do_fio(&c__1, (char *)&(*niter), (ftnlen)sizeof(integer));
-	    do_fio(&c__1, (char *)&(*nfev), (ftnlen)sizeof(integer));
-	    do_fio(&c__1, (char *)&(*wss), (ftnlen)sizeof(doublereal));
-	    do_fio(&c__1, (char *)&(*actred), (ftnlen)sizeof(doublereal));
-	    do_fio(&c__1, (char *)&(*prered), (ftnlen)sizeof(doublereal));
-	    do_fio(&c__1, (char *)&ratio, (ftnlen)sizeof(doublereal));
-	    do_fio(&c__1, gn, (ftnlen)3);
-	    do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
-	    do_fio(&c__1, (char *)&k, (ftnlen)sizeof(integer));
 	    i__1 = k;
 	    for (l = j; l <= i__1; ++l) {
-		do_fio(&c__1, (char *)&beta[l], (ftnlen)sizeof(doublereal));
 	    }
-	    e_wsfe();
 	}
 	if (*np > 3) {
 	    i__1 = *np;
@@ -7942,23 +7376,10 @@ L200:
 		i__2 = j + 2;
 		k = min(i__2,*np);
 		if (j == k) {
-		    io___554.ciunit = *lunrpt;
-		    s_wsfe(&io___554);
-		    do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
-		    do_fio(&c__1, (char *)&beta[j], (ftnlen)sizeof(doublereal)
-			    );
-		    e_wsfe();
 		} else {
-		    io___555.ciunit = *lunrpt;
-		    s_wsfe(&io___555);
-		    do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
-		    do_fio(&c__1, (char *)&k, (ftnlen)sizeof(integer));
 		    i__2 = k;
 		    for (l = j; l <= i__2; ++l) {
-			do_fio(&c__1, (char *)&beta[l], (ftnlen)sizeof(
-				doublereal));
 		    }
-		    e_wsfe();
 		}
 /* L10: */
 	    }
@@ -7969,256 +7390,31 @@ L200:
 } /* dodpc2_ */
 
 /* DODPC3 */
-/* Subroutine */ int dodpc3_(integer *ipr, integer *lunrpt, logical *isodr, 
-	logical *implct, logical *didvcv, logical *dovcv, logical *redoj, 
-	logical *anajac, integer *n, integer *m, integer *np, integer *nq, 
-	integer *npp, integer *info, integer *niter, integer *nfev, integer *
-	njev, integer *irank, doublereal *rcond, integer *istop, doublereal *
-	wss, doublereal *wssdel, doublereal *wsseps, doublereal *pnlty, 
-	doublereal *rvar, integer *idf, doublereal *beta, doublereal *sdbeta, 
-	integer *ifixb2, doublereal *f, doublereal *delta)
+/* Subroutine */ int dodpc3_(int *ipr, int *lunrpt, int *isodr, 
+	int *implct, int *didvcv, int *dovcv, int *redoj, 
+	int *anajac, int *n, int *m, int *np, int *nq, 
+	int *npp, int *info, int *niter, int *nfev, int *
+	njev, int *irank, double *rcond, int *istop, double *
+	wss, double *wssdel, double *wsseps, double *pnlty, 
+	double *rvar, int *idf, double *beta, double *sdbeta, 
+	int *ifixb2, double *f, double *delta)
 {
-    /* Format strings */
-    static char fmt_1000[] = "(/\002 --- STOPPING CONDITIONS:\002)";
-    static char fmt_1011[] = "(\002         INFO = \002,i5,\002 ==> SUM OF S"
-	    "QUARES CONVERGENCE.\002)";
-    static char fmt_1012[] = "(\002         INFO = \002,i5,\002 ==> PARAMETE"
-	    "R CONVERGENCE.\002)";
-    static char fmt_1013[] = "(\002         INFO = \002,i5,\002 ==> SUM OF S"
-	    "QUARES CONVERGENCE AND\002,\002 PARAMETER CONVERGENCE.\002)";
-    static char fmt_1014[] = "(\002         INFO = \002,i5,\002 ==> ITERATIO"
-	    "N LIMIT REACHED.\002)";
-    static char fmt_1015[] = "(\002         INFO = \002,i5,\002 ==> UNEXPECT"
-	    "ED VALUE,\002,\002 PROBABLY INDICATING\002/\002                 "
-	    "          INCORRECTLY SPECIFIED\002,\002 USER INPUT.\002)";
-    static char fmt_1020[] = "(\002         INFO = \002,i5.4/\002           "
-	    "   =  ABCD, WHERE A NONZERO VALUE FOR DIGIT A,\002,\002 B, OR C "
-	    "INDICATES WHY\002/\002                       THE RESULTS MIGHT B"
-	    "E QUESTIONABLE,\002,\002 AND DIGIT D INDICATES\002/\002         "
-	    "              THE ACTUAL STOPPING CONDITION.\002)";
-    static char fmt_1021[] = "(\002                       A=1 ==> DERIVATIVE"
-	    "S ARE\002,\002 QUESTIONABLE.\002)";
-    static char fmt_1022[] = "(\002                       B=1 ==> USER SET I"
-	    "STOP TO\002,\002 NONZERO VALUE DURING LAST\002/\002             "
-	    "                  CALL TO SUBROUTINE FCN.\002)";
-    static char fmt_1023[] = "(\002                       C=1 ==> DERIVATIVE"
-	    "S ARE NOT\002,\002 FULL RANK AT THE SOLUTION.\002)";
-    static char fmt_1024[] = "(\002                       C=2 ==> DERIVATIVE"
-	    "S ARE ZERO\002,\002 RANK AT THE SOLUTION.\002)";
-    static char fmt_1031[] = "(\002                       D=1 ==> SUM OF SQU"
-	    "ARES CONVERGENCE.\002)";
-    static char fmt_1032[] = "(\002                       D=2 ==> PARAMETER "
-	    "CONVERGENCE.\002)";
-    static char fmt_1033[] = "(\002                       D=3 ==> SUM OF SQU"
-	    "ARES CONVERGENCE\002,\002 AND PARAMETER CONVERGENCE.\002)";
-    static char fmt_1034[] = "(\002                       D=4 ==> ITERATION "
-	    "LIMIT REACHED.\002)";
-    static char fmt_1035[] = "(\002                       D=\002,i1,\002 ==>"
-	    " UNEXPECTED VALUE,\002,\002 PROBABLY INDICATING\002/\002        "
-	    "                       INCORRECTLY SPECIFIED\002,\002 USER INPUT."
-	    "\002)";
-    static char fmt_1040[] = "(\002         INFO = \002,i5.5/\002           "
-	    "   = ABCDE, WHERE A NONZERO VALUE FOR A GIVEN\002,\002 DIGIT IND"
-	    "ICATES AN\002/\002                       ABNORMAL STOPPING CONDI"
-	    "TION.\002)";
-    static char fmt_1042[] = "(\002                       A=5 ==> USER STOPP"
-	    "ED COMPUTATIONS\002,\002 IN SUBROUTINE FCN.\002)";
-    static char fmt_1043[] = "(\002                       B=\002,i1,\002 ==>"
-	    " COMPUTATIONS WERE\002,\002 STOPPED DURING THE\002/\002         "
-	    "                           FUNCTION EVALUATION.\002)";
-    static char fmt_1044[] = "(\002                       C=\002,i1,\002 ==>"
-	    " COMPUTATIONS WERE\002,\002 STOPPED BECAUSE\002/\002            "
-	    "                        DERIVATIVES WITH\002,\002 RESPECT TO DEL"
-	    "TA WERE\002/\002                                    COMPUTED B"
-	    "Y\002,\002 SUBROUTINE FCN WHEN\002/\002                         "
-	    "           FIT IS OLS.\002)";
-    static char fmt_1045[] = "(\002                       C=\002,i1,\002 ==>"
-	    " COMPUTATIONS WERE\002,\002 STOPPED DURING THE\002/\002         "
-	    "                           JACOBIAN EVALUATION.\002)";
-    static char fmt_1050[] = "(\002                       A=6 ==> NUMERICAL "
-	    "INSTABILITIES\002,\002 HAVE BEEN DETECTED,\002/\002             "
-	    "                  POSSIBLY INDICATING\002,\002 A DISCONTINUITY I"
-	    "N THE\002/\002                               DERIVATIVES OR A PO"
-	    "OR\002,\002 POOR CHOICE OF PROBLEM\002/\002                     "
-	    "          SCALE OR WEIGHTS.\002)";
-    static char fmt_1060[] = "(\002                       A=\002,i1,\002 ==>"
-	    " UNEXPECTED VALUE,\002,\002 PROBABLY INDICATING\002/\002        "
-	    "                       INCORRECTLY SPECIFIED\002,\002 USER INPUT."
-	    "\002)";
-    static char fmt_1300[] = "(\002        NITER = \002,i5,\002          (NU"
-	    "MBER OF ITERATIONS)\002)";
-    static char fmt_1310[] = "(\002         NFEV = \002,i5,\002          (NU"
-	    "MBER OF FUNCTION EVALUATIONS)\002)";
-    static char fmt_1320[] = "(\002         NJEV = \002,i5,\002          (NU"
-	    "MBER OF JACOBIAN EVALUATIONS)\002)";
-    static char fmt_1330[] = "(\002        IRANK = \002,i5,\002          (RA"
-	    "NK DEFICIENCY)\002)";
-    static char fmt_1340[] = "(\002        RCOND = \002,1p,d12.2,\002   (INV"
-	    "ERSE CONDITION NUMBER)\002)";
-    static char fmt_1350[] = "(\002        ISTOP = \002,i5,\002          (RE"
-	    "TURNED BY USER FROM\002,\002 SUBROUTINE FCN)\002)";
-    static char fmt_2000[] = "(/\002 --- FINAL SUM OF SQUARED WEIGHTED DELTA"
-	    "S = \002,17x,1p,d17.8)";
-    static char fmt_2010[] = "(\002         FINAL PENALTY FUNCTION VALUE    "
-	    " = \002,1p,d17.8/\002               PENALTY TERM               = "
-	    "\002,1p,d17.8/\002               PENALTY PARAMETER          ="
-	    " \002,1p,d10.1)";
-    static char fmt_2100[] = "(/\002 --- FINAL WEIGHTED SUMS OF SQUARES     "
-	    "  = \002,17x,1p,d17.8)";
-    static char fmt_2110[] = "(\002         SUM OF SQUARED WEIGHTED DELTAS  "
-	    " = \002,1p,d17.8/\002         SUM OF SQUARED WEIGHTED EPSILONS = "
-	    "\002,1p,d17.8)";
-    static char fmt_2200[] = "(/\002 --- RESIDUAL STANDARD DEVIATION        "
-	    "  = \002,17x,1p,d17.8/\002         DEGREES OF FREEDOM           "
-	    "    =\002,i5)";
-    static char fmt_3000[] = "(/\002 --- ESTIMATED BETA(J), J = 1, ..., NP"
-	    ":\002)";
-    static char fmt_7300[] = "(/\002                     BETA      S.D. BET"
-	    "A\002,\002    ---- 95%  CONFIDENCE INTERVAL ----\002/)";
-    static char fmt_8400[] = "(3x,i5,1x,1p,d16.8,3x,d12.4,3x,d16.8,1x,\002T"
-	    "O\002,d16.8)";
-    static char fmt_8600[] = "(3x,i5,1x,1p,d16.8,6x,\002    FIXED\002)";
-    static char fmt_8700[] = "(3x,i5,1x,1p,d16.8,6x,\002  DROPPED\002)";
-    static char fmt_7310[] = "(/\002     N.B. STANDARD ERRORS AND CONFIDENCE"
-	    " INTERVALS ARE\002,\002 COMPUTED USING\002/\002          DERIVAT"
-	    "IVES CALCULATED AT THE BEGINNING\002,\002 OF THE LAST ITERATION"
-	    ",\002/\002          AND NOT USING DERIVATIVES RE-EVALUATED AT THE"
-	    "\002,\002 FINAL SOLUTION.\002)";
-    static char fmt_7410[] = "(/\002     N.B. THE STANDARD ERRORS OF THE EST"
-	    "IMATED BETAS WERE\002,\002 NOT COMPUTED BECAUSE\002/\002        "
-	    "  THE DERIVATIVES WERE NOT AVAILABLE.  EITHER MAXIT\002,\002 IS "
-	    "0 AND THE THIRD\002/\002          DIGIT OF JOB IS GREATER THAN 1"
-	    ", OR THE MOST\002,\002 RECENTLY TRIED VALUES OF\002/\002        "
-	    "  BETA AND/OR X+DELTA WERE IDENTIFIED AS\002,\002 UNACCEPTABLE B"
-	    "Y USER SUPPLIED\002/\002          SUBROUTINE FCN.\002)";
-    static char fmt_7420[] = "(/\002     N.B. THE STANDARD ERRORS OF THE EST"
-	    "IMATED BETAS WERE\002,\002 NOT COMPUTED.\002/\002          (SEE "
-	    "INFO ABOVE.)\002)";
-    static char fmt_7100[] = "(/\002           INDEX           VALUE\002/)";
-    static char fmt_7200[] = "(/\002           INDEX           VALUE -------"
-	    "------->\002/)";
-    static char fmt_8100[] = "(11x,i5,1p,d16.8)";
-    static char fmt_8200[] = "(3x,i5,\002 TO\002,i5,1p,7d16.8)";
-    static char fmt_8800[] = "(/\002     N.B. NO PARAMETERS WERE FIXED BY TH"
-	    "E USER OR\002,\002 DROPPED AT THE LAST\002/\002          ITERATI"
-	    "ON BECAUSE THEY CAUSED THE MODEL TO BE\002,\002 RANK DEFICIENT"
-	    ".\002)";
-    static char fmt_8900[] = "(/\002     N.B. NO CHANGE WAS MADE TO THE USER"
-	    " SUPPLIED PARAMETER\002,\002 VALUES BECAUSE\002/\002          MA"
-	    "XIT=0.\002)";
-    static char fmt_7500[] = "(/\002                     BETA         STATU"
-	    "S\002)";
-    static char fmt_8500[] = "(3x,i5,1x,1p,d16.8,6x,\002ESTIMATED\002)";
-    static char fmt_4100[] = "(/\002 --- ESTIMATED DELTA(I,*), I = 1, ...,"
-	    " N:\002)";
-    static char fmt_9110[] = "(\002(/'         I',\002,i2,\002('      DELTA("
-	    "I,',I1,')')/)\002)";
-    static char fmt_4130[] = "(5x,i5,1p,5d16.8)";
-    static char fmt_4110[] = "(/\002 --- ESTIMATED EPSILON(I) AND DELTA(I,*)"
-	    ", I = 1, ..., N:\002)";
-    static char fmt_9120[] = "(\002(/'         I',\002,i2,\002('    EPSILON("
-	    "I,',I1,')'),\002,i2,\002('      DELTA(I,',I1,')')/)\002)";
-    static char fmt_4120[] = "(/\002 --- ESTIMATED EPSILON(I), I = 1, ...,"
-	    " N:\002)";
-    static char fmt_9130[] = "(\002(/'         I',\002,i2,\002('    EPSILON("
-	    "I,',I1,')')/)\002)";
-    static char fmt_4200[] = "(/\002 --- ESTIMATED EPSILON(I,\002,i3,\002), "
-	    "I = 1, ..., N:\002)";
-    static char fmt_4300[] = "(/\002 --- ESTIMATED DELTA(I,\002,i3,\002), I "
-	    "= 1, ..., N:\002)";
-
     /* System generated locals */
-    integer delta_dim1, delta_offset, f_dim1, f_offset, i__1, i__2, i__3, 
+    int delta_dim1, delta_offset, f_dim1, f_offset, i__1, i__2, i__3, 
 	    i__4;
-    doublereal d__1, d__2;
+    double d__1, d__2;
 
     /* Builtin functions */
-    integer s_wsfe(cilist *), e_wsfe(void), do_fio(integer *, char *, ftnlen);
-    double sqrt(doublereal);
-    integer s_wsfi(icilist *), e_wsfi(void);
+    double sqrt(double);
 
     /* Local variables */
-    static integer i__, j, k, l, d1, d2, d3, d4, d5;
+    static int i__, j, k, l, d1, d2, d3, d4, d5;
     static char fmt1[90];
-    static doublereal tval;
-    extern doublereal dppt_(doublereal *, integer *);
-    static integer nplm1;
+    static double tval;
+    extern double dppt_(double *, int *);
+    static int nplm1;
 
     /* Fortran I/O blocks */
-    static cilist io___561 = { 0, 0, 0, fmt_1000, 0 };
-    static cilist io___562 = { 0, 0, 0, fmt_1011, 0 };
-    static cilist io___563 = { 0, 0, 0, fmt_1012, 0 };
-    static cilist io___564 = { 0, 0, 0, fmt_1013, 0 };
-    static cilist io___565 = { 0, 0, 0, fmt_1014, 0 };
-    static cilist io___566 = { 0, 0, 0, fmt_1015, 0 };
-    static cilist io___567 = { 0, 0, 0, fmt_1020, 0 };
-    static cilist io___568 = { 0, 0, 0, fmt_1021, 0 };
-    static cilist io___569 = { 0, 0, 0, fmt_1022, 0 };
-    static cilist io___570 = { 0, 0, 0, fmt_1023, 0 };
-    static cilist io___571 = { 0, 0, 0, fmt_1024, 0 };
-    static cilist io___572 = { 0, 0, 0, fmt_1031, 0 };
-    static cilist io___573 = { 0, 0, 0, fmt_1032, 0 };
-    static cilist io___574 = { 0, 0, 0, fmt_1033, 0 };
-    static cilist io___575 = { 0, 0, 0, fmt_1034, 0 };
-    static cilist io___576 = { 0, 0, 0, fmt_1035, 0 };
-    static cilist io___577 = { 0, 0, 0, fmt_1040, 0 };
-    static cilist io___578 = { 0, 0, 0, fmt_1042, 0 };
-    static cilist io___579 = { 0, 0, 0, fmt_1043, 0 };
-    static cilist io___580 = { 0, 0, 0, fmt_1044, 0 };
-    static cilist io___581 = { 0, 0, 0, fmt_1045, 0 };
-    static cilist io___582 = { 0, 0, 0, fmt_1050, 0 };
-    static cilist io___583 = { 0, 0, 0, fmt_1060, 0 };
-    static cilist io___584 = { 0, 0, 0, fmt_1300, 0 };
-    static cilist io___585 = { 0, 0, 0, fmt_1310, 0 };
-    static cilist io___586 = { 0, 0, 0, fmt_1320, 0 };
-    static cilist io___587 = { 0, 0, 0, fmt_1330, 0 };
-    static cilist io___588 = { 0, 0, 0, fmt_1340, 0 };
-    static cilist io___589 = { 0, 0, 0, fmt_1350, 0 };
-    static cilist io___590 = { 0, 0, 0, fmt_2000, 0 };
-    static cilist io___591 = { 0, 0, 0, fmt_2010, 0 };
-    static cilist io___592 = { 0, 0, 0, fmt_2100, 0 };
-    static cilist io___593 = { 0, 0, 0, fmt_2110, 0 };
-    static cilist io___594 = { 0, 0, 0, fmt_2200, 0 };
-    static cilist io___596 = { 0, 0, 0, fmt_3000, 0 };
-    static cilist io___597 = { 0, 0, 0, fmt_7300, 0 };
-    static cilist io___600 = { 0, 0, 0, fmt_8400, 0 };
-    static cilist io___601 = { 0, 0, 0, fmt_8600, 0 };
-    static cilist io___602 = { 0, 0, 0, fmt_8700, 0 };
-    static cilist io___603 = { 0, 0, 0, fmt_7310, 0 };
-    static cilist io___604 = { 0, 0, 0, fmt_7410, 0 };
-    static cilist io___605 = { 0, 0, 0, fmt_7420, 0 };
-    static cilist io___606 = { 0, 0, 0, fmt_7100, 0 };
-    static cilist io___607 = { 0, 0, 0, fmt_7200, 0 };
-    static cilist io___609 = { 0, 0, 0, fmt_8100, 0 };
-    static cilist io___610 = { 0, 0, 0, fmt_8200, 0 };
-    static cilist io___612 = { 0, 0, 0, fmt_8800, 0 };
-    static cilist io___613 = { 0, 0, 0, fmt_8900, 0 };
-    static cilist io___614 = { 0, 0, 0, fmt_7500, 0 };
-    static cilist io___615 = { 0, 0, 0, fmt_8500, 0 };
-    static cilist io___616 = { 0, 0, 0, fmt_8600, 0 };
-    static cilist io___617 = { 0, 0, 0, fmt_8700, 0 };
-    static cilist io___618 = { 0, 0, 0, fmt_4100, 0 };
-    static icilist io___620 = { 0, fmt1, 0, fmt_9110, 90, 1 };
-    static cilist io___621 = { 0, 0, 0, fmt1, 0 };
-    static cilist io___623 = { 0, 0, 0, fmt_4130, 0 };
-    static cilist io___624 = { 0, 0, 0, fmt_4110, 0 };
-    static icilist io___625 = { 0, fmt1, 0, fmt_9120, 90, 1 };
-    static cilist io___626 = { 0, 0, 0, fmt1, 0 };
-    static cilist io___627 = { 0, 0, 0, fmt_4130, 0 };
-    static cilist io___628 = { 0, 0, 0, fmt_4120, 0 };
-    static icilist io___629 = { 0, fmt1, 0, fmt_9130, 90, 1 };
-    static cilist io___630 = { 0, 0, 0, fmt1, 0 };
-    static cilist io___631 = { 0, 0, 0, fmt_4130, 0 };
-    static cilist io___632 = { 0, 0, 0, fmt_4200, 0 };
-    static cilist io___633 = { 0, 0, 0, fmt_7100, 0 };
-    static cilist io___634 = { 0, 0, 0, fmt_7200, 0 };
-    static cilist io___635 = { 0, 0, 0, fmt_8100, 0 };
-    static cilist io___636 = { 0, 0, 0, fmt_8200, 0 };
-    static cilist io___637 = { 0, 0, 0, fmt_4300, 0 };
-    static cilist io___638 = { 0, 0, 0, fmt_7100, 0 };
-    static cilist io___639 = { 0, 0, 0, fmt_7200, 0 };
-    static cilist io___640 = { 0, 0, 0, fmt_8100, 0 };
-    static cilist io___641 = { 0, 0, 0, fmt_8200, 0 };
 
 
 /* ***BEGIN PROLOGUE  DODPC3 */
@@ -8311,249 +7507,81 @@ L200:
     d4 = *info % 100 / 10;
     d5 = *info % 10;
 /*  PRINT STOPPING CONDITIONS */
-    io___561.ciunit = *lunrpt;
-    s_wsfe(&io___561);
-    e_wsfe();
     if (*info <= 9) {
 	if (*info == 1) {
-	    io___562.ciunit = *lunrpt;
-	    s_wsfe(&io___562);
-	    do_fio(&c__1, (char *)&(*info), (ftnlen)sizeof(integer));
-	    e_wsfe();
 	} else if (*info == 2) {
-	    io___563.ciunit = *lunrpt;
-	    s_wsfe(&io___563);
-	    do_fio(&c__1, (char *)&(*info), (ftnlen)sizeof(integer));
-	    e_wsfe();
 	} else if (*info == 3) {
-	    io___564.ciunit = *lunrpt;
-	    s_wsfe(&io___564);
-	    do_fio(&c__1, (char *)&(*info), (ftnlen)sizeof(integer));
-	    e_wsfe();
 	} else if (*info == 4) {
-	    io___565.ciunit = *lunrpt;
-	    s_wsfe(&io___565);
-	    do_fio(&c__1, (char *)&(*info), (ftnlen)sizeof(integer));
-	    e_wsfe();
 	} else if (*info <= 9) {
-	    io___566.ciunit = *lunrpt;
-	    s_wsfe(&io___566);
-	    do_fio(&c__1, (char *)&(*info), (ftnlen)sizeof(integer));
-	    e_wsfe();
 	}
     } else if (*info <= 9999) {
 /*  PRINT WARNING DIAGNOSTICS */
-	io___567.ciunit = *lunrpt;
-	s_wsfe(&io___567);
-	do_fio(&c__1, (char *)&(*info), (ftnlen)sizeof(integer));
-	e_wsfe();
 	if (d2 == 1) {
-	    io___568.ciunit = *lunrpt;
-	    s_wsfe(&io___568);
-	    e_wsfe();
 	}
 	if (d3 == 1) {
-	    io___569.ciunit = *lunrpt;
-	    s_wsfe(&io___569);
-	    e_wsfe();
 	}
 	if (d4 == 1) {
-	    io___570.ciunit = *lunrpt;
-	    s_wsfe(&io___570);
-	    e_wsfe();
 	}
 	if (d4 == 2) {
-	    io___571.ciunit = *lunrpt;
-	    s_wsfe(&io___571);
-	    e_wsfe();
 	}
 	if (d5 == 1) {
-	    io___572.ciunit = *lunrpt;
-	    s_wsfe(&io___572);
-	    e_wsfe();
 	} else if (d5 == 2) {
-	    io___573.ciunit = *lunrpt;
-	    s_wsfe(&io___573);
-	    e_wsfe();
 	} else if (d5 == 3) {
-	    io___574.ciunit = *lunrpt;
-	    s_wsfe(&io___574);
-	    e_wsfe();
 	} else if (d5 == 4) {
-	    io___575.ciunit = *lunrpt;
-	    s_wsfe(&io___575);
-	    e_wsfe();
 	} else if (d5 <= 9) {
-	    io___576.ciunit = *lunrpt;
-	    s_wsfe(&io___576);
-	    do_fio(&c__1, (char *)&d5, (ftnlen)sizeof(integer));
-	    e_wsfe();
 	}
     } else {
 /*  PRINT ERROR MESSAGES */
-	io___577.ciunit = *lunrpt;
-	s_wsfe(&io___577);
-	do_fio(&c__1, (char *)&(*info), (ftnlen)sizeof(integer));
-	e_wsfe();
 	if (d1 == 5) {
-	    io___578.ciunit = *lunrpt;
-	    s_wsfe(&io___578);
-	    e_wsfe();
 	    if (d2 != 0) {
-		io___579.ciunit = *lunrpt;
-		s_wsfe(&io___579);
-		do_fio(&c__1, (char *)&d2, (ftnlen)sizeof(integer));
-		e_wsfe();
 	    }
 	    if (d3 == 3) {
-		io___580.ciunit = *lunrpt;
-		s_wsfe(&io___580);
-		do_fio(&c__1, (char *)&d3, (ftnlen)sizeof(integer));
-		e_wsfe();
 	    } else if (d3 != 0) {
-		io___581.ciunit = *lunrpt;
-		s_wsfe(&io___581);
-		do_fio(&c__1, (char *)&d3, (ftnlen)sizeof(integer));
-		e_wsfe();
 	    }
 	} else if (d1 == 6) {
-	    io___582.ciunit = *lunrpt;
-	    s_wsfe(&io___582);
-	    e_wsfe();
 	} else {
-	    io___583.ciunit = *lunrpt;
-	    s_wsfe(&io___583);
-	    do_fio(&c__1, (char *)&d1, (ftnlen)sizeof(integer));
-	    e_wsfe();
 	}
     }
 /*  PRINT MISC. STOPPING INFO */
-    io___584.ciunit = *lunrpt;
-    s_wsfe(&io___584);
-    do_fio(&c__1, (char *)&(*niter), (ftnlen)sizeof(integer));
-    e_wsfe();
-    io___585.ciunit = *lunrpt;
-    s_wsfe(&io___585);
-    do_fio(&c__1, (char *)&(*nfev), (ftnlen)sizeof(integer));
-    e_wsfe();
     if (*anajac) {
-	io___586.ciunit = *lunrpt;
-	s_wsfe(&io___586);
-	do_fio(&c__1, (char *)&(*njev), (ftnlen)sizeof(integer));
-	e_wsfe();
     }
-    io___587.ciunit = *lunrpt;
-    s_wsfe(&io___587);
-    do_fio(&c__1, (char *)&(*irank), (ftnlen)sizeof(integer));
-    e_wsfe();
-    io___588.ciunit = *lunrpt;
-    s_wsfe(&io___588);
-    do_fio(&c__1, (char *)&(*rcond), (ftnlen)sizeof(doublereal));
-    e_wsfe();
-    io___589.ciunit = *lunrpt;
-    s_wsfe(&io___589);
-    do_fio(&c__1, (char *)&(*istop), (ftnlen)sizeof(integer));
-    e_wsfe();
 /*  PRINT FINAL SUM OF SQUARES */
     if (*implct) {
-	io___590.ciunit = *lunrpt;
-	s_wsfe(&io___590);
-	do_fio(&c__1, (char *)&(*wssdel), (ftnlen)sizeof(doublereal));
-	e_wsfe();
 	if (*isodr) {
-	    io___591.ciunit = *lunrpt;
-	    s_wsfe(&io___591);
-	    do_fio(&c__1, (char *)&(*wss), (ftnlen)sizeof(doublereal));
-	    do_fio(&c__1, (char *)&(*wsseps), (ftnlen)sizeof(doublereal));
-	    do_fio(&c__1, (char *)&(*pnlty), (ftnlen)sizeof(doublereal));
-	    e_wsfe();
 	}
     } else {
-	io___592.ciunit = *lunrpt;
-	s_wsfe(&io___592);
-	do_fio(&c__1, (char *)&(*wss), (ftnlen)sizeof(doublereal));
-	e_wsfe();
 	if (*isodr) {
-	    io___593.ciunit = *lunrpt;
-	    s_wsfe(&io___593);
-	    do_fio(&c__1, (char *)&(*wssdel), (ftnlen)sizeof(doublereal));
-	    do_fio(&c__1, (char *)&(*wsseps), (ftnlen)sizeof(doublereal));
-	    e_wsfe();
 	}
     }
     if (*didvcv) {
-	io___594.ciunit = *lunrpt;
-	s_wsfe(&io___594);
 	d__1 = sqrt(*rvar);
-	do_fio(&c__1, (char *)&d__1, (ftnlen)sizeof(doublereal));
-	do_fio(&c__1, (char *)&(*idf), (ftnlen)sizeof(integer));
-	e_wsfe();
     }
     nplm1 = 3;
 /*  PRINT ESTIMATED BETA'S, AND, */
 /*  IF, FULL RANK, THEIR STANDARD ERRORS */
-    io___596.ciunit = *lunrpt;
-    s_wsfe(&io___596);
-    e_wsfe();
     if (*didvcv) {
-	io___597.ciunit = *lunrpt;
-	s_wsfe(&io___597);
-	e_wsfe();
 	tval = dppt_(&c_b666, idf);
 	i__1 = *np;
 	for (j = 1; j <= i__1; ++j) {
 	    if (ifixb2[j] >= 1) {
-		io___600.ciunit = *lunrpt;
-		s_wsfe(&io___600);
-		do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
-		do_fio(&c__1, (char *)&beta[j], (ftnlen)sizeof(doublereal));
-		do_fio(&c__1, (char *)&sdbeta[j], (ftnlen)sizeof(doublereal));
 		d__1 = beta[j] - tval * sdbeta[j];
-		do_fio(&c__1, (char *)&d__1, (ftnlen)sizeof(doublereal));
 		d__2 = beta[j] + tval * sdbeta[j];
-		do_fio(&c__1, (char *)&d__2, (ftnlen)sizeof(doublereal));
-		e_wsfe();
 	    } else if (ifixb2[j] == 0) {
-		io___601.ciunit = *lunrpt;
-		s_wsfe(&io___601);
-		do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
-		do_fio(&c__1, (char *)&beta[j], (ftnlen)sizeof(doublereal));
-		e_wsfe();
 	    } else {
-		io___602.ciunit = *lunrpt;
-		s_wsfe(&io___602);
-		do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
-		do_fio(&c__1, (char *)&beta[j], (ftnlen)sizeof(doublereal));
-		e_wsfe();
 	    }
 /* L10: */
 	}
 	if (! (*redoj)) {
-	    io___603.ciunit = *lunrpt;
-	    s_wsfe(&io___603);
-	    e_wsfe();
 	}
     } else {
 	if (*dovcv) {
 	    if (d1 <= 5) {
-		io___604.ciunit = *lunrpt;
-		s_wsfe(&io___604);
-		e_wsfe();
 	    } else {
-		io___605.ciunit = *lunrpt;
-		s_wsfe(&io___605);
-		e_wsfe();
 	    }
 	}
 	if (*irank == 0 && *npp == *np || *niter == 0) {
 	    if (*np == 1) {
-		io___606.ciunit = *lunrpt;
-		s_wsfe(&io___606);
-		e_wsfe();
 	    } else {
-		io___607.ciunit = *lunrpt;
-		s_wsfe(&io___607);
-		e_wsfe();
 	    }
 	    i__1 = *np;
 	    i__2 = nplm1 + 1;
@@ -8562,62 +7590,22 @@ L200:
 		i__3 = j + nplm1;
 		k = min(i__3,*np);
 		if (k == j) {
-		    io___609.ciunit = *lunrpt;
-		    s_wsfe(&io___609);
-		    do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
-		    do_fio(&c__1, (char *)&beta[j], (ftnlen)sizeof(doublereal)
-			    );
-		    e_wsfe();
 		} else {
-		    io___610.ciunit = *lunrpt;
-		    s_wsfe(&io___610);
-		    do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
-		    do_fio(&c__1, (char *)&k, (ftnlen)sizeof(integer));
 		    i__3 = k;
 		    for (l = j; l <= i__3; ++l) {
-			do_fio(&c__1, (char *)&beta[l], (ftnlen)sizeof(
-				doublereal));
 		    }
-		    e_wsfe();
 		}
 /* L20: */
 	    }
 	    if (*niter >= 1) {
-		io___612.ciunit = *lunrpt;
-		s_wsfe(&io___612);
-		e_wsfe();
 	    } else {
-		io___613.ciunit = *lunrpt;
-		s_wsfe(&io___613);
-		e_wsfe();
 	    }
 	} else {
-	    io___614.ciunit = *lunrpt;
-	    s_wsfe(&io___614);
-	    e_wsfe();
 	    i__2 = *np;
 	    for (j = 1; j <= i__2; ++j) {
 		if (ifixb2[j] >= 1) {
-		    io___615.ciunit = *lunrpt;
-		    s_wsfe(&io___615);
-		    do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
-		    do_fio(&c__1, (char *)&beta[j], (ftnlen)sizeof(doublereal)
-			    );
-		    e_wsfe();
 		} else if (ifixb2[j] == 0) {
-		    io___616.ciunit = *lunrpt;
-		    s_wsfe(&io___616);
-		    do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
-		    do_fio(&c__1, (char *)&beta[j], (ftnlen)sizeof(doublereal)
-			    );
-		    e_wsfe();
 		} else {
-		    io___617.ciunit = *lunrpt;
-		    s_wsfe(&io___617);
-		    do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
-		    do_fio(&c__1, (char *)&beta[j], (ftnlen)sizeof(doublereal)
-			    );
-		    e_wsfe();
 		}
 /* L30: */
 	    }
@@ -8629,94 +7617,42 @@ L200:
 /*  PRINT EPSILON'S AND DELTA'S TOGETHER IN A COLUMN IF THE NUMBER OF */
 /*  COLUMNS OF DATA IN EPSILON AND DELTA IS LESS THAN OR EQUAL TO THREE. */
     if (*implct && *m <= 4) {
-	io___618.ciunit = *lunrpt;
-	s_wsfe(&io___618);
-	e_wsfe();
-	s_wsfi(&io___620);
-	do_fio(&c__1, (char *)&(*m), (ftnlen)sizeof(integer));
-	e_wsfi();
-	io___621.ciunit = *lunrpt;
-	s_wsfe(&io___621);
 	i__2 = *m;
 	for (j = 1; j <= i__2; ++j) {
-	    do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
 	}
-	e_wsfe();
 	i__2 = *n;
 	for (i__ = 1; i__ <= i__2; ++i__) {
-	    io___623.ciunit = *lunrpt;
-	    s_wsfe(&io___623);
-	    do_fio(&c__1, (char *)&i__, (ftnlen)sizeof(integer));
 	    i__1 = *m;
 	    for (j = 1; j <= i__1; ++j) {
-		do_fio(&c__1, (char *)&delta[i__ + j * delta_dim1], (ftnlen)
-			sizeof(doublereal));
 	    }
-	    e_wsfe();
 /* L40: */
 	}
     } else if (*isodr && *nq + *m <= 4) {
-	io___624.ciunit = *lunrpt;
-	s_wsfe(&io___624);
-	e_wsfe();
-	s_wsfi(&io___625);
-	do_fio(&c__1, (char *)&(*nq), (ftnlen)sizeof(integer));
-	do_fio(&c__1, (char *)&(*m), (ftnlen)sizeof(integer));
-	e_wsfi();
-	io___626.ciunit = *lunrpt;
-	s_wsfe(&io___626);
 	i__2 = *nq;
 	for (l = 1; l <= i__2; ++l) {
-	    do_fio(&c__1, (char *)&l, (ftnlen)sizeof(integer));
 	}
 	i__1 = *m;
 	for (j = 1; j <= i__1; ++j) {
-	    do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
 	}
-	e_wsfe();
 	i__2 = *n;
 	for (i__ = 1; i__ <= i__2; ++i__) {
-	    io___627.ciunit = *lunrpt;
-	    s_wsfe(&io___627);
-	    do_fio(&c__1, (char *)&i__, (ftnlen)sizeof(integer));
 	    i__1 = *nq;
 	    for (l = 1; l <= i__1; ++l) {
-		do_fio(&c__1, (char *)&f[i__ + l * f_dim1], (ftnlen)sizeof(
-			doublereal));
 	    }
 	    i__3 = *m;
 	    for (j = 1; j <= i__3; ++j) {
-		do_fio(&c__1, (char *)&delta[i__ + j * delta_dim1], (ftnlen)
-			sizeof(doublereal));
 	    }
-	    e_wsfe();
 /* L50: */
 	}
     } else if (! (*isodr) && (*nq >= 2 && *nq <= 4)) {
-	io___628.ciunit = *lunrpt;
-	s_wsfe(&io___628);
-	e_wsfe();
-	s_wsfi(&io___629);
-	do_fio(&c__1, (char *)&(*nq), (ftnlen)sizeof(integer));
-	e_wsfi();
-	io___630.ciunit = *lunrpt;
-	s_wsfe(&io___630);
 	i__2 = *nq;
 	for (l = 1; l <= i__2; ++l) {
-	    do_fio(&c__1, (char *)&l, (ftnlen)sizeof(integer));
 	}
-	e_wsfe();
 	i__2 = *n;
 	for (i__ = 1; i__ <= i__2; ++i__) {
-	    io___631.ciunit = *lunrpt;
-	    s_wsfe(&io___631);
-	    do_fio(&c__1, (char *)&i__, (ftnlen)sizeof(integer));
 	    i__1 = *nq;
 	    for (l = 1; l <= i__1; ++l) {
-		do_fio(&c__1, (char *)&f[i__ + l * f_dim1], (ftnlen)sizeof(
-			doublereal));
 	    }
-	    e_wsfe();
 /* L60: */
 	}
     } else {
@@ -8725,18 +7661,8 @@ L200:
 /*  PRINT EPSILON'S */
 	    i__2 = *nq;
 	    for (j = 1; j <= i__2; ++j) {
-		io___632.ciunit = *lunrpt;
-		s_wsfe(&io___632);
-		do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
-		e_wsfe();
 		if (*n == 1) {
-		    io___633.ciunit = *lunrpt;
-		    s_wsfe(&io___633);
-		    e_wsfe();
 		} else {
-		    io___634.ciunit = *lunrpt;
-		    s_wsfe(&io___634);
-		    e_wsfe();
 		}
 		i__1 = *n;
 		i__3 = nplm1 + 1;
@@ -8746,23 +7672,10 @@ L200:
 		    i__4 = i__ + nplm1;
 		    k = min(i__4,*n);
 		    if (i__ == k) {
-			io___635.ciunit = *lunrpt;
-			s_wsfe(&io___635);
-			do_fio(&c__1, (char *)&i__, (ftnlen)sizeof(integer));
-			do_fio(&c__1, (char *)&f[i__ + j * f_dim1], (ftnlen)
-				sizeof(doublereal));
-			e_wsfe();
 		    } else {
-			io___636.ciunit = *lunrpt;
-			s_wsfe(&io___636);
-			do_fio(&c__1, (char *)&i__, (ftnlen)sizeof(integer));
-			do_fio(&c__1, (char *)&k, (ftnlen)sizeof(integer));
 			i__4 = k;
 			for (l = i__; l <= i__4; ++l) {
-			    do_fio(&c__1, (char *)&f[l + j * f_dim1], (ftnlen)
-				    sizeof(doublereal));
 			}
-			e_wsfe();
 		    }
 /* L70: */
 		}
@@ -8773,18 +7686,8 @@ L200:
 	if (*isodr) {
 	    i__2 = *m;
 	    for (j = 1; j <= i__2; ++j) {
-		io___637.ciunit = *lunrpt;
-		s_wsfe(&io___637);
-		do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
-		e_wsfe();
 		if (*n == 1) {
-		    io___638.ciunit = *lunrpt;
-		    s_wsfe(&io___638);
-		    e_wsfe();
 		} else {
-		    io___639.ciunit = *lunrpt;
-		    s_wsfe(&io___639);
-		    e_wsfe();
 		}
 		i__3 = *n;
 		i__1 = nplm1 + 1;
@@ -8794,23 +7697,10 @@ L200:
 		    i__4 = i__ + nplm1;
 		    k = min(i__4,*n);
 		    if (i__ == k) {
-			io___640.ciunit = *lunrpt;
-			s_wsfe(&io___640);
-			do_fio(&c__1, (char *)&i__, (ftnlen)sizeof(integer));
-			do_fio(&c__1, (char *)&delta[i__ + j * delta_dim1], (
-				ftnlen)sizeof(doublereal));
-			e_wsfe();
 		    } else {
-			io___641.ciunit = *lunrpt;
-			s_wsfe(&io___641);
-			do_fio(&c__1, (char *)&i__, (ftnlen)sizeof(integer));
-			do_fio(&c__1, (char *)&k, (ftnlen)sizeof(integer));
 			i__4 = k;
 			for (l = i__; l <= i__4; ++l) {
-			    do_fio(&c__1, (char *)&delta[l + j * delta_dim1], 
-				    (ftnlen)sizeof(doublereal));
 			}
-			e_wsfe();
 		    }
 /* L90: */
 		}
@@ -8828,75 +7718,62 @@ L200:
 } /* dodpc3_ */
 
 /* DODPCR */
-/* Subroutine */ int dodpcr_(integer *ipr, integer *lunrpt, logical *head, 
-	logical *prtpen, logical *fstitr, logical *didvcv, integer *iflag, 
-	integer *n, integer *m, integer *np, integer *nq, integer *npp, 
-	integer *nnzw, integer *msgb, integer *msgd, doublereal *beta, 
-	doublereal *y, integer *ldy, doublereal *x, integer *ldx, doublereal *
-	delta, doublereal *we, integer *ldwe, integer *ld2we, doublereal *wd, 
-	integer *ldwd, integer *ld2wd, integer *ifixb, integer *ifixx, 
-	integer *ldifx, doublereal *ssf, doublereal *tt, integer *ldtt, 
-	doublereal *stpb, doublereal *stpd, integer *ldstpd, integer *job, 
-	integer *neta, doublereal *taufac, doublereal *sstol, doublereal *
-	partol, integer *maxit, doublereal *wss, doublereal *rvar, integer *
-	idf, doublereal *sdbeta, integer *niter, integer *nfev, integer *njev,
-	 doublereal *actred, doublereal *prered, doublereal *tau, doublereal *
-	pnorm, doublereal *alpha, doublereal *f, doublereal *rcond, integer *
-	irank, integer *info, integer *istop)
+/* Subroutine */ int dodpcr_(int *ipr, int *lunrpt, int *head, 
+	int *prtpen, int *fstitr, int *didvcv, int *iflag, 
+	int *n, int *m, int *np, int *nq, int *npp, 
+	int *nnzw, int *msgb, int *msgd, double *beta, 
+	double *y, int *ldy, double *x, int *ldx, double *
+	delta, double *we, int *ldwe, int *ld2we, double *wd, 
+	int *ldwd, int *ld2wd, int *ifixb, int *ifixx, 
+	int *ldifx, double *ssf, double *tt, int *ldtt, 
+	double *stpb, double *stpd, int *ldstpd, int *job, 
+	int *neta, double *taufac, double *sstol, double *
+	partol, int *maxit, double *wss, double *rvar, int *
+	idf, double *sdbeta, int *niter, int *nfev, int *njev,
+	 double *actred, double *prered, double *tau, double *
+	pnorm, double *alpha, double *f, double *rcond, int *
+	irank, int *info, int *istop)
 {
-    /* Format strings */
-    static char fmt_1200[] = "(/\002 *** INITIAL SUMMARY FOR FIT BY METHOD O"
-	    "F \002,a3,\002 ***\002)";
-    static char fmt_1300[] = "(/\002 *** ITERATION REPORTS FOR FIT BY METHOD"
-	    " OF \002,a3,\002 ***\002)";
-    static char fmt_1400[] = "(/\002 *** FINAL SUMMARY FOR FIT BY METHOD OF"
-	    " \002,a3,\002 ***\002)";
-
     /* System generated locals */
-    integer delta_dim1, delta_offset, f_dim1, f_offset, stpd_dim1, 
+    int delta_dim1, delta_offset, f_dim1, f_offset, stpd_dim1, 
 	    stpd_offset, tt_dim1, tt_offset, wd_dim1, wd_dim2, wd_offset, 
 	    we_dim1, we_dim2, we_offset, x_dim1, x_offset, y_dim1, y_offset, 
 	    ifixx_dim1, ifixx_offset;
-    doublereal d__1;
+    double d__1;
 
     /* Builtin functions */
-    /* Subroutine */ int s_copy(char *, char *, ftnlen, ftnlen);
-    integer s_wsfe(cilist *), do_fio(integer *, char *, ftnlen), e_wsfe(void);
 
     /* Local variables */
     static char typ[3];
-    static logical cdjac, redoj, initd, isodr, dovcv;
-    static doublereal pnlty;
-    extern /* Subroutine */ int dodpc1_(integer *, integer *, logical *, 
-	    logical *, logical *, logical *, logical *, logical *, logical *, 
-	    logical *, logical *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    doublereal *, integer *, integer *, integer *, doublereal *, 
-	    doublereal *, integer *, integer *, doublereal *, integer *, 
-	    doublereal *, integer *, doublereal *, integer *, doublereal *, 
-	    integer *, integer *, doublereal *, doublereal *, integer *, 
-	    doublereal *, doublereal *, integer *, integer *, doublereal *, 
-	    doublereal *, doublereal *, integer *, doublereal *, doublereal *,
-	     doublereal *), dodpc2_(integer *, integer *, logical *, logical *
-	    , logical *, doublereal *, integer *, integer *, doublereal *, 
-	    doublereal *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *, integer *, doublereal *), dodpc3_(integer *, 
-	    integer *, logical *, logical *, logical *, logical *, logical *, 
-	    logical *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, doublereal 
-	    *, integer *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *, doublereal *, integer *, doublereal *, doublereal *,
-	     integer *, doublereal *, doublereal *);
-    static logical anajac, chkjac;
-    extern /* Subroutine */ int dflags_(integer *, logical *, logical *, 
-	    logical *, logical *, logical *, logical *, logical *, logical *, 
-	    logical *), dodphd_(logical *, integer *);
-    static logical implct, restrt;
+    static int cdjac, redoj, initd, isodr, dovcv;
+    static double pnlty;
+    extern /* Subroutine */ int dodpc1_(int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    double *, int *, int *, int *, double *, 
+	    double *, int *, int *, double *, int *, 
+	    double *, int *, double *, int *, double *, 
+	    int *, int *, double *, double *, int *, 
+	    double *, double *, int *, int *, double *, 
+	    double *, double *, int *, double *, double *,
+	     double *), dodpc2_(int *, int *, int *, int *
+	    , int *, double *, int *, int *, double *, 
+	    double *, double *, double *, double *, 
+	    double *, int *, double *), dodpc3_(int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, double 
+	    *, int *, double *, double *, double *, 
+	    double *, double *, int *, double *, double *,
+	     int *, double *, double *);
+    static int anajac, chkjac;
+    extern /* Subroutine */ int dflags_(int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *), dodphd_(int *, int *);
+    static int implct, restrt;
 
     /* Fortran I/O blocks */
-    static cilist io___653 = { 0, 0, 0, fmt_1200, 0 };
-    static cilist io___654 = { 0, 0, 0, fmt_1300, 0 };
-    static cilist io___655 = { 0, 0, 0, fmt_1400, 0 };
 
 
 /* ***BEGIN PROLOGUE  DODPCR */
@@ -9058,16 +7935,10 @@ L200:
 	dodphd_(head, lunrpt);
     }
     if (isodr) {
-	s_copy(typ, "ODR", (ftnlen)3, (ftnlen)3);
     } else {
-	s_copy(typ, "OLS", (ftnlen)3, (ftnlen)3);
     }
 /*  PRINT INITIAL SUMMARY */
     if (*iflag == 1) {
-	io___653.ciunit = *lunrpt;
-	s_wsfe(&io___653);
-	do_fio(&c__1, typ, (ftnlen)3);
-	e_wsfe();
 	dodpc1_(ipr, lunrpt, &anajac, &cdjac, &chkjac, &initd, &restrt, &
 		isodr, &implct, &dovcv, &redoj, &msgb[1], &msgb[2], &msgd[1], 
 		&msgd[2], n, m, np, nq, npp, nnzw, &x[x_offset], ldx, &ifixx[
@@ -9079,19 +7950,11 @@ L200:
 /*  PRINT ITERATION REPORTS */
     } else if (*iflag == 2) {
 	if (*fstitr) {
-	    io___654.ciunit = *lunrpt;
-	    s_wsfe(&io___654);
-	    do_fio(&c__1, typ, (ftnlen)3);
-	    e_wsfe();
 	}
 	dodpc2_(ipr, lunrpt, fstitr, &implct, prtpen, &pnlty, niter, nfev, &
 		wss[1], actred, prered, alpha, tau, pnorm, np, &beta[1]);
 /*  PRINT FINAL SUMMARY */
     } else if (*iflag == 3) {
-	io___655.ciunit = *lunrpt;
-	s_wsfe(&io___655);
-	do_fio(&c__1, typ, (ftnlen)3);
-	e_wsfe();
 	dodpc3_(ipr, lunrpt, &isodr, &implct, didvcv, &dovcv, &redoj, &anajac,
 		 n, m, np, nq, npp, info, niter, nfev, njev, irank, rcond, 
 		istop, &wss[1], &wss[2], &wss[3], &pnlty, rvar, idf, &beta[1],
@@ -9102,157 +7965,14 @@ L200:
 } /* dodpcr_ */
 
 /* DODPE1 */
-/* Subroutine */ int dodpe1_(integer *unit, integer *d1, integer *d2, integer 
-	*d3, integer *d4, integer *d5, integer *n, integer *m, integer *nq, 
-	integer *ldscld, integer *ldstpd, integer *ldwe, integer *ld2we, 
-	integer *ldwd, integer *ld2wd, integer *lwkmn, integer *liwkmn)
+/* Subroutine */ int dodpe1_(int *unit, int *d1, int *d2, int 
+	*d3, int *d4, int *d5, int *n, int *m, int *nq, 
+	int *ldscld, int *ldstpd, int *ldwe, int *ld2we, 
+	int *ldwd, int *ld2wd, int *lwkmn, int *liwkmn)
 {
-    /* Format strings */
-    static char fmt_1100[] = "(/\002 ERROR :  N IS LESS THAN ONE.\002)";
-    static char fmt_1200[] = "(/\002 ERROR :  M IS LESS THAN ONE.\002)";
-    static char fmt_1300[] = "(/\002 ERROR :  NP IS LESS THAN ONE\002/\002  "
-	    "        OR NP IS GREATER THAN N.\002)";
-    static char fmt_1400[] = "(/\002 ERROR :  NQ IS LESS THAN ONE.\002)";
-    static char fmt_2110[] = "(/\002 ERROR :  LDX IS LESS THAN N.\002)";
-    static char fmt_2120[] = "(/\002 ERROR :  LDY IS LESS THAN N.\002)";
-    static char fmt_2210[] = "(/\002 ERROR :  LDIFX IS LESS THAN N\002/\002 "
-	    "         AND LDIFX IS NOT EQUAL TO ONE.\002)";
-    static char fmt_2220[] = "(/\002 ERROR :  LDSCLD IS LESS THAN N\002/\002"
-	    "          AND LDSCLD IS NOT EQUAL TO ONE.\002)";
-    static char fmt_2230[] = "(/\002 ERROR :  LDSTPD IS LESS THAN N\002/\002"
-	    "          AND LDSTPD IS NOT EQUAL TO ONE.\002)";
-    static char fmt_2310[] = "(/\002 ERROR :  LDWE IS LESS THAN N\002/\002  "
-	    "        AND LDWE IS NOT EQUAL TO ONE OR\002/\002          OR\002/"
-	    "\002          LD2WE IS LESS THAN NQ\002/\002          AND LD2WE "
-	    "IS NOT EQUAL TO ONE.\002)";
-    static char fmt_2320[] = "(/\002 ERROR :  LDWD IS LESS THAN N\002/\002  "
-	    "        AND LDWD IS NOT EQUAL TO ONE.\002)";
-    static char fmt_2410[] = "(/\002 ERROR :  LWORK IS LESS THAN \002,i7,"
-	    "\002,\002/\002          THE SMALLEST ACCEPTABLE DIMENSION OF ARR"
-	    "AY WORK.\002)";
-    static char fmt_2420[] = "(/\002 ERROR :  LIWORK IS LESS THAN \002,i7"
-	    ",\002,\002/\002          THE SMALLEST ACCEPTABLE DIMENSION OF AR"
-	    "RAY\002,\002 IWORK.\002)";
-    static char fmt_3110[] = "(/\002 ERROR :  SCLD(I,J) IS LESS THAN OR EQUA"
-	    "L TO ZERO\002/\002          FOR SOME I = 1, ..., N AND J = 1, .."
-	    "., M.\002//\002          WHEN SCLD(1,1) IS GREATER THAN ZERO\002/"
-	    "\002          AND LDSCLD IS GREATER THAN OR EQUAL TO N THEN\002"
-	    "/\002          EACH OF THE N BY M ELEMENTS OF\002/\002          "
-	    "SCLD MUST BE GREATER THAN ZERO.\002)";
-    static char fmt_3120[] = "(/\002 ERROR :  SCLD(1,J) IS LESS THAN OR EQUA"
-	    "L TO ZERO\002/\002          FOR SOME J = 1, ..., M.\002//\002   "
-	    "       WHEN SCLD(1,1) IS GREATER THAN ZERO\002/\002          AND"
-	    " LDSCLD IS EQUAL TO ONE THEN\002/\002          EACH OF THE 1 BY "
-	    "M ELEMENTS OF\002/\002          SCLD MUST BE GREATER THAN ZERO"
-	    ".\002)";
-    static char fmt_3130[] = "(/\002 ERROR :  SCLB(K) IS LESS THAN OR EQUAL "
-	    "TO ZERO\002/\002          FOR SOME K = 1, ..., NP.\002//\002    "
-	    "      ALL NP ELEMENTS OF\002,\002 SCLB MUST BE GREATER THAN ZERO."
-	    "\002)";
-    static char fmt_3210[] = "(/\002 ERROR :  STPD(I,J) IS LESS THAN OR EQUA"
-	    "L TO ZERO\002/\002          FOR SOME I = 1, ..., N AND J = 1, .."
-	    "., M.\002//\002          WHEN STPD(1,1) IS GREATER THAN ZERO\002/"
-	    "\002          AND LDSTPD IS GREATER THAN OR EQUAL TO N THEN\002"
-	    "/\002          EACH OF THE N BY M ELEMENTS OF\002/\002          "
-	    "STPD MUST BE GREATER THAN ZERO.\002)";
-    static char fmt_3220[] = "(/\002 ERROR :  STPD(1,J) IS LESS THAN OR EQUA"
-	    "L TO ZERO\002/\002          FOR SOME J = 1, ..., M.\002//\002   "
-	    "       WHEN STPD(1,1) IS GREATER THAN ZERO\002/\002          AND"
-	    " LDSTPD IS EQUAL TO ONE THEN\002/\002          EACH OF THE 1 BY "
-	    "M ELEMENTS OF\002/\002          STPD MUST BE GREATER THAN ZERO"
-	    ".\002)";
-    static char fmt_3230[] = "(/\002 ERROR :  STPB(K) IS LESS THAN OR EQUAL "
-	    "TO ZERO\002/\002          FOR SOME K = 1, ..., NP.\002//\002    "
-	    "      ALL NP ELEMENTS OF\002,\002 STPB MUST BE GREATER THAN ZERO."
-	    "\002)";
-    static char fmt_3310[] = "(/\002 ERROR :  AT LEAST ONE OF THE (NQ BY NQ)"
-	    " ARRAYS STARTING\002/\002          IN WE(I,1,1), I = 1, ..., N, "
-	    "IS NOT POSITIVE\002/\002          SEMIDEFINITE.  WHEN WE(1,1,1) "
-	    "IS GREATER THAN\002/\002          OR EQUAL TO ZERO, AND LDWE IS "
-	    "GREATER THAN OR\002/\002          EQUAL TO N, AND LD2WE IS GREAT"
-	    "ER THAN OR EQUAL\002/\002          TO NQ, THEN EACH OF THE (NQ B"
-	    "Y NQ) ARRAYS IN WE\002/\002          MUST BE POSITIVE SEMIDEFINI"
-	    "TE.\002)";
-    static char fmt_3320[] = "(/\002 ERROR :  AT LEAST ONE OF THE (1 BY NQ) "
-	    "ARRAYS STARTING\002/\002          IN WE(I,1,1), I = 1, ..., N, H"
-	    "AS A NEGATIVE\002/\002          ELEMENT.  WHEN WE(1,1,1) IS GREA"
-	    "TER THAN OR\002/\002          EQUAL TO ZERO, AND LDWE IS GREATER"
-	    " THAN OR EQUAL\002/\002          TO N, AND LD2WE IS EQUAL TO 1, "
-	    "THEN EACH OF THE\002/\002          (1 BY NQ) ARRAYS IN WE MUST H"
-	    "AVE ONLY NON-\002/\002          NEGATIVE ELEMENTS.\002)";
-    static char fmt_3410[] = "(/\002 ERROR :  THE (NQ BY NQ) ARRAY STARTING "
-	    "IN WE(1,1,1) IS\002/\002          NOT POSITIVE SEMIDEFINITE.  WH"
-	    "EN WE(1,1,1) IS\002/\002          GREATER THAN OR EQUAL TO ZERO,"
-	    " AND LDWE IS EQUAL\002/\002          TO 1, AND LD2WE IS GREATER "
-	    "THAN OR EQUAL TO NQ,\002/\002          THEN THE (NQ BY NQ) ARRAY"
-	    " IN WE MUST BE POSITIVE\002/\002          SEMIDEFINITE.\002)";
-    static char fmt_3420[] = "(/\002 ERROR :  THE (1 BY NQ) ARRAY STARTING I"
-	    "N WE(1,1,1) HAS\002/\002          A NEGATIVE ELEMENT.  WHEN WE(1"
-	    ",1,1) IS GREATER\002/\002          THAN OR EQUAL TO ZERO, AND LD"
-	    "WE IS EQUAL TO 1,\002/\002          AND LD2WE IS EQUAL TO 1, THE"
-	    "N THE (1 BY NQ)\002/\002          ARRAY IN WE MUST HAVE ONLY NON"
-	    "NEGATIVE ELEMENTS.\002)";
-    static char fmt_3500[] = "(/\002 ERROR :  THE NUMBER OF NONZERO ARRAYS I"
-	    "N ARRAY WE IS\002/\002          LESS THAN NP.\002)";
-    static char fmt_4310[] = "(/\002 ERROR :  AT LEAST ONE OF THE (M BY M) A"
-	    "RRAYS STARTING\002/\002          IN WD(I,1,1), I = 1, ..., N, IS"
-	    " NOT POSITIVE\002/\002          DEFINITE.  WHEN WD(1,1,1) IS GRE"
-	    "ATER THAN ZERO,\002/\002          AND LDWD IS GREATER THAN OR EQ"
-	    "UAL TO N, AND\002/\002          LD2WD IS GREATER THAN OR EQUAL T"
-	    "O M, THEN EACH\002/\002          OF THE (M BY M) ARRAYS IN WD MU"
-	    "ST BE POSITIVE\002/\002          DEFINITE.\002)";
-    static char fmt_4320[] = "(/\002 ERROR :  AT LEAST ONE OF THE (1 BY M) A"
-	    "RRAYS STARTING\002/\002          IN WD(I,1,1), I = 1, ..., N, HA"
-	    "S A NONPOSITIVE\002/\002          ELEMENT.  WHEN WD(1,1,1) IS GR"
-	    "EATER THAN ZERO,\002/\002          AND LDWD IS GREATER THAN OR E"
-	    "QUAL TO N, AND\002/\002          LD2WD IS EQUAL TO 1, THEN EACH "
-	    "OF THE (1 BY M)\002/\002          ARRAYS IN WD MUST HAVE ONLY PO"
-	    "SITIVE ELEMENTS.\002)";
-    static char fmt_4410[] = "(/\002 ERROR :  THE (M BY M) ARRAY STARTING IN"
-	    " WD(1,1,1) IS\002/\002          NOT POSITIVE DEFINITE.  WHEN WD("
-	    "1,1,1) IS\002/\002          GREATER THAN ZERO, AND LDWD IS EQUAL"
-	    " TO 1, AND\002/\002          LD2WD IS GREATER THAN OR EQUAL TO M"
-	    ", THEN THE\002/\002          (M BY M) ARRAY IN WD MUST BE POSITI"
-	    "VE DEFINITE.\002)";
-    static char fmt_4420[] = "(/\002 ERROR :  THE (1 BY M) ARRAY STARTING IN"
-	    " WD(1,1,1) HAS A\002/\002          NONPOSITIVE ELEMENT.  WHEN WD"
-	    "(1,1,1) IS GREATER\002/\002          THAN ZERO, AND LDWD IS EQUA"
-	    "L TO 1, AND LD2WD IS\002/\002          EQUAL TO 1, THEN THE (1 B"
-	    "Y M) ARRAY IN WD MUST\002/\002          HAVE ONLY POSITIVE ELEME"
-	    "NTS.\002)";
-
     /* Builtin functions */
-    integer s_wsfe(cilist *), e_wsfe(void), do_fio(integer *, char *, ftnlen);
 
     /* Fortran I/O blocks */
-    static cilist io___656 = { 0, 0, 0, fmt_1100, 0 };
-    static cilist io___657 = { 0, 0, 0, fmt_1200, 0 };
-    static cilist io___658 = { 0, 0, 0, fmt_1300, 0 };
-    static cilist io___659 = { 0, 0, 0, fmt_1400, 0 };
-    static cilist io___660 = { 0, 0, 0, fmt_2110, 0 };
-    static cilist io___661 = { 0, 0, 0, fmt_2120, 0 };
-    static cilist io___662 = { 0, 0, 0, fmt_2210, 0 };
-    static cilist io___663 = { 0, 0, 0, fmt_2220, 0 };
-    static cilist io___664 = { 0, 0, 0, fmt_2230, 0 };
-    static cilist io___665 = { 0, 0, 0, fmt_2310, 0 };
-    static cilist io___666 = { 0, 0, 0, fmt_2320, 0 };
-    static cilist io___667 = { 0, 0, 0, fmt_2410, 0 };
-    static cilist io___668 = { 0, 0, 0, fmt_2420, 0 };
-    static cilist io___669 = { 0, 0, 0, fmt_3110, 0 };
-    static cilist io___670 = { 0, 0, 0, fmt_3120, 0 };
-    static cilist io___671 = { 0, 0, 0, fmt_3130, 0 };
-    static cilist io___672 = { 0, 0, 0, fmt_3210, 0 };
-    static cilist io___673 = { 0, 0, 0, fmt_3220, 0 };
-    static cilist io___674 = { 0, 0, 0, fmt_3230, 0 };
-    static cilist io___675 = { 0, 0, 0, fmt_3310, 0 };
-    static cilist io___676 = { 0, 0, 0, fmt_3320, 0 };
-    static cilist io___677 = { 0, 0, 0, fmt_3410, 0 };
-    static cilist io___678 = { 0, 0, 0, fmt_3420, 0 };
-    static cilist io___679 = { 0, 0, 0, fmt_3500, 0 };
-    static cilist io___680 = { 0, 0, 0, fmt_4310, 0 };
-    static cilist io___681 = { 0, 0, 0, fmt_4320, 0 };
-    static cilist io___682 = { 0, 0, 0, fmt_4410, 0 };
-    static cilist io___683 = { 0, 0, 0, fmt_4420, 0 };
 
 
 /* ***BEGIN PROLOGUE  DODPE1 */
@@ -9286,81 +8006,40 @@ L200:
 /*  PARAMETERS */
     if (*d1 == 1) {
 	if (*d2 != 0) {
-	    io___656.ciunit = *unit;
-	    s_wsfe(&io___656);
-	    e_wsfe();
 	}
 	if (*d3 != 0) {
-	    io___657.ciunit = *unit;
-	    s_wsfe(&io___657);
-	    e_wsfe();
 	}
 	if (*d4 != 0) {
-	    io___658.ciunit = *unit;
-	    s_wsfe(&io___658);
-	    e_wsfe();
 	}
 	if (*d5 != 0) {
-	    io___659.ciunit = *unit;
-	    s_wsfe(&io___659);
-	    e_wsfe();
 	}
 /*  PRINT APPROPRIATE MESSAGES FOR ERRORS IN DIMENSION SPECIFICATION */
 /*  PARAMETERS */
     } else if (*d1 == 2) {
 	if (*d2 != 0) {
 	    if (*d2 == 1 || *d2 == 3) {
-		io___660.ciunit = *unit;
-		s_wsfe(&io___660);
-		e_wsfe();
 	    }
 	    if (*d2 == 2 || *d2 == 3) {
-		io___661.ciunit = *unit;
-		s_wsfe(&io___661);
-		e_wsfe();
 	    }
 	}
 	if (*d3 != 0) {
 	    if (*d3 == 1 || *d3 == 3 || *d3 == 5 || *d3 == 7) {
-		io___662.ciunit = *unit;
-		s_wsfe(&io___662);
-		e_wsfe();
 	    }
 	    if (*d3 == 2 || *d3 == 3 || *d3 == 6 || *d3 == 7) {
-		io___663.ciunit = *unit;
-		s_wsfe(&io___663);
-		e_wsfe();
 	    }
 	    if (*d3 == 4 || *d3 == 5 || *d3 == 6 || *d3 == 7) {
-		io___664.ciunit = *unit;
-		s_wsfe(&io___664);
-		e_wsfe();
 	    }
 	}
 	if (*d4 != 0) {
 	    if (*d4 == 1 || *d4 == 3) {
-		io___665.ciunit = *unit;
-		s_wsfe(&io___665);
-		e_wsfe();
 	    }
 	    if (*d4 == 2 || *d4 == 3) {
-		io___666.ciunit = *unit;
-		s_wsfe(&io___666);
-		e_wsfe();
 	    }
 	}
 	if (*d5 != 0) {
 	    if (*d5 == 1 || *d5 == 3) {
-		io___667.ciunit = *unit;
-		s_wsfe(&io___667);
-		do_fio(&c__1, (char *)&(*lwkmn), (ftnlen)sizeof(integer));
-		e_wsfe();
 	    }
 	    if (*d5 == 2 || *d5 == 3) {
-		io___668.ciunit = *unit;
-		s_wsfe(&io___668);
-		do_fio(&c__1, (char *)&(*liwkmn), (ftnlen)sizeof(integer));
-		e_wsfe();
 	    }
 	}
     } else if (*d1 == 3) {
@@ -9368,38 +8047,20 @@ L200:
 	if (*d2 != 0) {
 	    if (*d2 == 1 || *d2 == 3) {
 		if (*ldscld >= *n) {
-		    io___669.ciunit = *unit;
-		    s_wsfe(&io___669);
-		    e_wsfe();
 		} else {
-		    io___670.ciunit = *unit;
-		    s_wsfe(&io___670);
-		    e_wsfe();
 		}
 	    }
 	    if (*d2 == 2 || *d2 == 3) {
-		io___671.ciunit = *unit;
-		s_wsfe(&io___671);
-		e_wsfe();
 	    }
 	}
 /*  PRINT APPROPRIATE MESSAGES FOR ERRORS IN DERIVATIVE STEP VALUES */
 	if (*d3 != 0) {
 	    if (*d3 == 1 || *d3 == 3) {
 		if (*ldstpd >= *n) {
-		    io___672.ciunit = *unit;
-		    s_wsfe(&io___672);
-		    e_wsfe();
 		} else {
-		    io___673.ciunit = *unit;
-		    s_wsfe(&io___673);
-		    e_wsfe();
 		}
 	    }
 	    if (*d3 == 2 || *d3 == 3) {
-		io___674.ciunit = *unit;
-		s_wsfe(&io___674);
-		e_wsfe();
 	    }
 	}
 /*  PRINT APPROPRIATE MESSAGES FOR ERRORS IN OBSERVATIONAL ERROR WEIGHTS */
@@ -9407,53 +8068,26 @@ L200:
 	    if (*d4 == 1) {
 		if (*ldwe >= *n) {
 		    if (*ld2we >= *nq) {
-			io___675.ciunit = *unit;
-			s_wsfe(&io___675);
-			e_wsfe();
 		    } else {
-			io___676.ciunit = *unit;
-			s_wsfe(&io___676);
-			e_wsfe();
 		    }
 		} else {
 		    if (*ld2we >= *nq) {
-			io___677.ciunit = *unit;
-			s_wsfe(&io___677);
-			e_wsfe();
 		    } else {
-			io___678.ciunit = *unit;
-			s_wsfe(&io___678);
-			e_wsfe();
 		    }
 		}
 	    }
 	    if (*d4 == 2) {
-		io___679.ciunit = *unit;
-		s_wsfe(&io___679);
-		e_wsfe();
 	    }
 	}
 /*  PRINT APPROPRIATE MESSAGES FOR ERRORS IN DELTA WEIGHTS */
 	if (*d5 != 0) {
 	    if (*ldwd >= *n) {
 		if (*ld2wd >= *m) {
-		    io___680.ciunit = *unit;
-		    s_wsfe(&io___680);
-		    e_wsfe();
 		} else {
-		    io___681.ciunit = *unit;
-		    s_wsfe(&io___681);
-		    e_wsfe();
 		}
 	    } else {
 		if (*ld2wd >= *m) {
-		    io___682.ciunit = *unit;
-		    s_wsfe(&io___682);
-		    e_wsfe();
 		} else {
-		    io___683.ciunit = *unit;
-		    s_wsfe(&io___683);
-		    e_wsfe();
 		}
 	    }
 	}
@@ -9463,118 +8097,25 @@ L200:
 } /* dodpe1_ */
 
 /* DODPE2 */
-/* Subroutine */ int dodpe2_(integer *unit, integer *n, integer *m, integer *
-	np, integer *nq, doublereal *fjacb, doublereal *fjacd, doublereal *
-	diff, integer *msgb1, integer *msgb, logical *isodr, integer *msgd1, 
-	integer *msgd, doublereal *xplusd, integer *nrow, integer *neta, 
-	integer *ntol)
+/* Subroutine */ int dodpe2_(int *unit, int *n, int *m, int *
+	np, int *nq, double *fjacb, double *fjacd, double *
+	diff, int *msgb1, int *msgb, int *isodr, int *msgd1, 
+	int *msgd, double *xplusd, int *nrow, int *neta, 
+	int *ntol)
 {
-    /* Format strings */
-    static char fmt_1000[] = "(//\002 *** DERIVATIVE CHECKING REPORT FOR FIT"
-	    " BY METHOD OF \002,a3,\002 ***\002/)";
-    static char fmt_2100[] = "(/\002     FOR RESPONSE \002,i2,\002 OF OBSERV"
-	    "ATION \002,i5/)";
-    static char fmt_2200[] = "(\002                      \002,\002         U"
-	    "SER\002,\002               \002,\002                \002/\002   "
-	    "                   \002,\002     SUPPLIED\002,\002     RELATIV"
-	    "E\002,\002    DERIVATIVE \002/\002        DERIVATIVE WRT\002,"
-	    "\002        VALUE\002,\002   DIFFERENCE\002,\002    ASSESSMENT"
-	    " \002/)";
-    static char fmt_3100[] = "(\002             BETA(\002,i3,\002)\002,\002 "
-	    "      ---   \002,\002       ---   \002,\002    UNCHECKED\002)";
-    static char fmt_3200[] = "(\002             BETA(\002,i3,\002)\002,1p,2d"
-	    "13.2,3x,a1,\002VERIFIED\002)";
-    static char fmt_3300[] = "(\002             BETA(\002,i3,\002)\002,1p,2d"
-	    "13.2,3x,a1,\002QUESTIONABLE (SEE NOTE \002,i1,\002)\002)";
-    static char fmt_4100[] = "(\002          DELTA(\002,i2,\002,\002,i2"
-	    ",\002)\002,\002       ---   \002,\002       ---   \002,\002    U"
-	    "NCHECKED\002)";
-    static char fmt_4200[] = "(\002          DELTA(\002,i2,\002,\002,i2"
-	    ",\002)\002,1p,2d13.2,3x,a1,\002VERIFIED\002)";
-    static char fmt_4300[] = "(\002          DELTA(\002,i2,\002,\002,i2"
-	    ",\002)\002,1p,2d13.2,3x,a1,\002QUESTIONABLE (SEE NOTE \002,i1"
-	    ",\002)\002)";
-    static char fmt_5000[] = "(/\002     NOTES:\002)";
-    static char fmt_5100[] = "(/\002      (1) USER SUPPLIED AND FINITE DIFFE"
-	    "RENCE DERIVATIVES\002,\002 AGREE, BUT\002/\002          RESULTS "
-	    "ARE QUESTIONABLE BECAUSE BOTH ARE ZERO.\002)";
-    static char fmt_5200[] = "(/\002      (2) USER SUPPLIED AND FINITE DIFFE"
-	    "RENCE DERIVATIVES\002,\002 AGREE, BUT\002/\002          RESULTS "
-	    "ARE QUESTIONABLE BECAUSE ONE IS\002,\002 IDENTICALLY ZERO\002"
-	    "/\002          AND THE OTHER IS ONLY APPROXIMATELY ZERO.\002)";
-    static char fmt_5300[] = "(/\002      (3) USER SUPPLIED AND FINITE DIFFE"
-	    "RENCE DERIVATIVES\002,\002 DISAGREE, BUT\002/\002          RESUL"
-	    "TS ARE QUESTIONABLE BECAUSE ONE IS\002,\002 IDENTICALLY ZERO\002/"
-	    "\002          AND THE OTHER IS NOT.\002)";
-    static char fmt_5400[] = "(/\002      (4) USER SUPPLIED AND FINITE DIFFE"
-	    "RENCE DERIVATIVES\002,\002 DISAGREE, BUT\002/\002          FINIT"
-	    "E DIFFERENCE DERIVATIVE IS QUESTIONABLE\002,\002 BECAUSE EITHE"
-	    "R\002/\002          THE RATIO OF RELATIVE CURVATURE TO RELATIV"
-	    "E\002,\002 SLOPE IS TOO HIGH\002/\002          OR THE SCALE IS W"
-	    "RONG.\002)";
-    static char fmt_5500[] = "(/\002      (5) USER SUPPLIED AND FINITE DIFFE"
-	    "RENCE DERIVATIVES\002,\002 DISAGREE, BUT\002/\002          FINIT"
-	    "E DIFFERENCE DERIVATIVE IS QUESTIONABLE\002,\002 BECAUSE THE\002/"
-	    "\002          RATIO OF RELATIVE CURVATURE TO RELATIVE SLOPE I"
-	    "S\002,\002 TOO HIGH.\002)";
-    static char fmt_5600[] = "(/\002      (6) USER SUPPLIED AND FINITE DIFFE"
-	    "RENCE DERIVATIVES\002,\002 DISAGREE, BUT\002/\002          HAVE "
-	    "AT LEAST 2 DIGITS IN COMMON.\002)";
-    static char fmt_5700[] = "(/\002      (7) USER SUPPLIED AND FINITE DIFFE"
-	    "RENCE DERIVATIVES\002,\002 DISAGREE, AND\002/\002          HAVE "
-	    "FEWER THAN 2 DIGITS IN COMMON.  DERIVATIVE\002,\002 CHECKING MUST"
-	    "\002/\002          BE TURNED OFF IN ORDER TO PROCEED.\002)";
-    static char fmt_6000[] = "(/\002     NUMBER OF RELIABLE DIGITS IN FUNCTI"
-	    "ON RESULTS       \002,i5/\002        (ESTIMATED BY ODRPACK)\002)";
-    static char fmt_6100[] = "(/\002     NUMBER OF RELIABLE DIGITS IN FUNCTI"
-	    "ON RESULTS       \002,i5/\002        (SUPPLIED BY USER)\002)";
-    static char fmt_7000[] = "(/\002     NUMBER OF DIGITS OF AGREEMENT REQUI"
-	    "RED BETWEEN      \002/\002     USER SUPPLIED AND FINITE DIFFEREN"
-	    "CE DERIVATIVE FOR  \002/\002     USER SUPPLIED DERIVATIVE TO BE "
-	    "CONSIDERED VERIFIED  \002,i5)";
-    static char fmt_8100[] = "(/\002     ROW NUMBER AT WHICH DERIVATIVES WER"
-	    "E CHECKED        \002,i5//\002       -VALUES OF THE EXPLANATORY "
-	    "VARIABLES AT THIS ROW\002/)";
-    static char fmt_8110[] = "(10x,\002X(\002,i2,\002,\002,i2,\002)\002,1x,1"
-	    "p,3d16.8)";
-
     /* System generated locals */
-    integer diff_dim1, diff_offset, fjacb_dim1, fjacb_dim2, fjacb_offset, 
+    int diff_dim1, diff_offset, fjacb_dim1, fjacb_dim2, fjacb_offset, 
 	    fjacd_dim1, fjacd_dim2, fjacd_offset, xplusd_dim1, xplusd_offset, 
 	    msgb_dim1, msgb_offset, msgd_dim1, msgd_offset, i__1, i__2;
 
     /* Builtin functions */
-    /* Subroutine */ int s_copy(char *, char *, ftnlen, ftnlen);
-    integer s_wsfe(cilist *), do_fio(integer *, char *, ftnlen), e_wsfe(void);
 
     /* Local variables */
-    static integer i__, j, k, l;
+    static int i__, j, k, l;
     static char typ[3], flag__[1];
-    static logical ftnote[8];
+    static int ftnote[8];
 
     /* Fortran I/O blocks */
-    static cilist io___688 = { 0, 0, 0, fmt_1000, 0 };
-    static cilist io___689 = { 0, 0, 0, fmt_2100, 0 };
-    static cilist io___690 = { 0, 0, 0, fmt_2200, 0 };
-    static cilist io___693 = { 0, 0, 0, fmt_3100, 0 };
-    static cilist io___694 = { 0, 0, 0, fmt_3200, 0 };
-    static cilist io___695 = { 0, 0, 0, fmt_3300, 0 };
-    static cilist io___696 = { 0, 0, 0, fmt_4100, 0 };
-    static cilist io___697 = { 0, 0, 0, fmt_4200, 0 };
-    static cilist io___698 = { 0, 0, 0, fmt_4300, 0 };
-    static cilist io___699 = { 0, 0, 0, fmt_5000, 0 };
-    static cilist io___700 = { 0, 0, 0, fmt_5100, 0 };
-    static cilist io___701 = { 0, 0, 0, fmt_5200, 0 };
-    static cilist io___702 = { 0, 0, 0, fmt_5300, 0 };
-    static cilist io___703 = { 0, 0, 0, fmt_5400, 0 };
-    static cilist io___704 = { 0, 0, 0, fmt_5500, 0 };
-    static cilist io___705 = { 0, 0, 0, fmt_5600, 0 };
-    static cilist io___706 = { 0, 0, 0, fmt_5700, 0 };
-    static cilist io___707 = { 0, 0, 0, fmt_6000, 0 };
-    static cilist io___708 = { 0, 0, 0, fmt_6100, 0 };
-    static cilist io___709 = { 0, 0, 0, fmt_7000, 0 };
-    static cilist io___710 = { 0, 0, 0, fmt_8100, 0 };
-    static cilist io___712 = { 0, 0, 0, fmt_8110, 0 };
 
 
 /* ***BEGIN PROLOGUE  DODPE2 */
@@ -9672,24 +8213,10 @@ L200:
     }
 /*     PRINT REPORT */
     if (*isodr) {
-	s_copy(typ, "ODR", (ftnlen)3, (ftnlen)3);
     } else {
-	s_copy(typ, "OLS", (ftnlen)3, (ftnlen)3);
     }
-    io___688.ciunit = *unit;
-    s_wsfe(&io___688);
-    do_fio(&c__1, typ, (ftnlen)3);
-    e_wsfe();
     i__1 = *nq;
     for (l = 1; l <= i__1; ++l) {
-	io___689.ciunit = *unit;
-	s_wsfe(&io___689);
-	do_fio(&c__1, (char *)&l, (ftnlen)sizeof(integer));
-	do_fio(&c__1, (char *)&(*nrow), (ftnlen)sizeof(integer));
-	e_wsfe();
-	io___690.ciunit = *unit;
-	s_wsfe(&io___690);
-	e_wsfe();
 	i__2 = *np;
 	for (i__ = 1; i__ <= i__2; ++i__) {
 	    k = msgb[l + i__ * msgb_dim1];
@@ -9699,31 +8226,8 @@ L200:
 		*(unsigned char *)flag__ = ' ';
 	    }
 	    if (k <= -1) {
-		io___693.ciunit = *unit;
-		s_wsfe(&io___693);
-		do_fio(&c__1, (char *)&i__, (ftnlen)sizeof(integer));
-		e_wsfe();
 	    } else if (k == 0) {
-		io___694.ciunit = *unit;
-		s_wsfe(&io___694);
-		do_fio(&c__1, (char *)&i__, (ftnlen)sizeof(integer));
-		do_fio(&c__1, (char *)&fjacb[*nrow + (i__ + l * fjacb_dim2) * 
-			fjacb_dim1], (ftnlen)sizeof(doublereal));
-		do_fio(&c__1, (char *)&diff[l + i__ * diff_dim1], (ftnlen)
-			sizeof(doublereal));
-		do_fio(&c__1, flag__, (ftnlen)1);
-		e_wsfe();
 	    } else if (k >= 1) {
-		io___695.ciunit = *unit;
-		s_wsfe(&io___695);
-		do_fio(&c__1, (char *)&i__, (ftnlen)sizeof(integer));
-		do_fio(&c__1, (char *)&fjacb[*nrow + (i__ + l * fjacb_dim2) * 
-			fjacb_dim1], (ftnlen)sizeof(doublereal));
-		do_fio(&c__1, (char *)&diff[l + i__ * diff_dim1], (ftnlen)
-			sizeof(doublereal));
-		do_fio(&c__1, flag__, (ftnlen)1);
-		do_fio(&c__1, (char *)&k, (ftnlen)sizeof(integer));
-		e_wsfe();
 	    }
 /* L50: */
 	}
@@ -9737,36 +8241,8 @@ L200:
 		    *(unsigned char *)flag__ = ' ';
 		}
 		if (k <= -1) {
-		    io___696.ciunit = *unit;
-		    s_wsfe(&io___696);
-		    do_fio(&c__1, (char *)&(*nrow), (ftnlen)sizeof(integer));
-		    do_fio(&c__1, (char *)&i__, (ftnlen)sizeof(integer));
-		    e_wsfe();
 		} else if (k == 0) {
-		    io___697.ciunit = *unit;
-		    s_wsfe(&io___697);
-		    do_fio(&c__1, (char *)&(*nrow), (ftnlen)sizeof(integer));
-		    do_fio(&c__1, (char *)&i__, (ftnlen)sizeof(integer));
-		    do_fio(&c__1, (char *)&fjacd[*nrow + (i__ + l * 
-			    fjacd_dim2) * fjacd_dim1], (ftnlen)sizeof(
-			    doublereal));
-		    do_fio(&c__1, (char *)&diff[l + (*np + i__) * diff_dim1], 
-			    (ftnlen)sizeof(doublereal));
-		    do_fio(&c__1, flag__, (ftnlen)1);
-		    e_wsfe();
 		} else if (k >= 1) {
-		    io___698.ciunit = *unit;
-		    s_wsfe(&io___698);
-		    do_fio(&c__1, (char *)&(*nrow), (ftnlen)sizeof(integer));
-		    do_fio(&c__1, (char *)&i__, (ftnlen)sizeof(integer));
-		    do_fio(&c__1, (char *)&fjacd[*nrow + (i__ + l * 
-			    fjacd_dim2) * fjacd_dim1], (ftnlen)sizeof(
-			    doublereal));
-		    do_fio(&c__1, (char *)&diff[l + (*np + i__) * diff_dim1], 
-			    (ftnlen)sizeof(doublereal));
-		    do_fio(&c__1, flag__, (ftnlen)1);
-		    do_fio(&c__1, (char *)&k, (ftnlen)sizeof(integer));
-		    e_wsfe();
 		}
 /* L60: */
 	    }
@@ -9775,75 +8251,28 @@ L200:
     }
 /*     PRINT FOOTNOTES */
     if (ftnote[0]) {
-	io___699.ciunit = *unit;
-	s_wsfe(&io___699);
-	e_wsfe();
 	if (ftnote[1]) {
-	    io___700.ciunit = *unit;
-	    s_wsfe(&io___700);
-	    e_wsfe();
 	}
 	if (ftnote[2]) {
-	    io___701.ciunit = *unit;
-	    s_wsfe(&io___701);
-	    e_wsfe();
 	}
 	if (ftnote[3]) {
-	    io___702.ciunit = *unit;
-	    s_wsfe(&io___702);
-	    e_wsfe();
 	}
 	if (ftnote[4]) {
-	    io___703.ciunit = *unit;
-	    s_wsfe(&io___703);
-	    e_wsfe();
 	}
 	if (ftnote[5]) {
-	    io___704.ciunit = *unit;
-	    s_wsfe(&io___704);
-	    e_wsfe();
 	}
 	if (ftnote[6]) {
-	    io___705.ciunit = *unit;
-	    s_wsfe(&io___705);
-	    e_wsfe();
 	}
 	if (ftnote[7]) {
-	    io___706.ciunit = *unit;
-	    s_wsfe(&io___706);
-	    e_wsfe();
 	}
     }
     if (*neta < 0) {
-	io___707.ciunit = *unit;
-	s_wsfe(&io___707);
 	i__1 = -(*neta);
-	do_fio(&c__1, (char *)&i__1, (ftnlen)sizeof(integer));
-	e_wsfe();
     } else {
-	io___708.ciunit = *unit;
-	s_wsfe(&io___708);
-	do_fio(&c__1, (char *)&(*neta), (ftnlen)sizeof(integer));
-	e_wsfe();
     }
-    io___709.ciunit = *unit;
-    s_wsfe(&io___709);
-    do_fio(&c__1, (char *)&(*ntol), (ftnlen)sizeof(integer));
-    e_wsfe();
 /*  PRINT OUT ROW OF EXPLANATORY VARIABLE WHICH WAS CHECKED. */
-    io___710.ciunit = *unit;
-    s_wsfe(&io___710);
-    do_fio(&c__1, (char *)&(*nrow), (ftnlen)sizeof(integer));
-    e_wsfe();
     i__1 = *m;
     for (j = 1; j <= i__1; ++j) {
-	io___712.ciunit = *unit;
-	s_wsfe(&io___712);
-	do_fio(&c__1, (char *)&(*nrow), (ftnlen)sizeof(integer));
-	do_fio(&c__1, (char *)&j, (ftnlen)sizeof(integer));
-	do_fio(&c__1, (char *)&xplusd[*nrow + j * xplusd_dim1], (ftnlen)
-		sizeof(doublereal));
-	e_wsfe();
 /* L80: */
     }
     return 0;
@@ -9851,59 +8280,11 @@ L200:
 } /* dodpe2_ */
 
 /* DODPE3 */
-/* Subroutine */ int dodpe3_(integer *unit, integer *d2, integer *d3)
+/* Subroutine */ int dodpe3_(int *unit, int *d2, int *d3)
 {
-    /* Format strings */
-    static char fmt_1100[] = "(//\002 VARIABLE ISTOP HAS BEEN RETURNED WITH "
-	    "A NONZERO VALUE  \002/\002 FROM USER SUPPLIED SUBROUTINE FCN WHE"
-	    "N INVOKED USING THE\002/\002 INITIAL ESTIMATES OF BETA AND DELTA"
-	    " SUPPLIED BY THE     \002/\002 USER.  THE INITIAL ESTIMATES MUST"
-	    " BE ADJUSTED TO ALLOW  \002/\002 PROPER EVALUATION OF SUBROUTINE"
-	    " FCN BEFORE THE          \002/\002 REGRESSION PROCEDURE CAN CONT"
-	    "INUE.\002)";
-    static char fmt_1200[] = "(//\002 VARIABLE ISTOP HAS BEEN RETURNED WITH "
-	    "A NONZERO VALUE  \002/\002 FROM USER SUPPLIED SUBROUTINE FCN.  T"
-	    "HIS OCCURRED DURING\002/\002 THE COMPUTATION OF THE NUMBER OF RE"
-	    "LIABLE DIGITS IN THE \002/\002 PREDICTED VALUES (F) RETURNED FRO"
-	    "M SUBROUTINE FCN, INDI-\002/\002 CATING THAT CHANGES IN THE INIT"
-	    "IAL ESTIMATES OF BETA(K),\002/\002 K=1,NP, AS SMALL AS 2*BETA(K)"
-	    "*SQRT(MACHINE PRECISION),  \002/\002 WHERE MACHINE PRECISION IS "
-	    "DEFINED AS THE SMALLEST VALUE\002/\002 E SUCH THAT 1+E>1 ON THE "
-	    "COMPUTER BEING USED, PREVENT   \002/\002 SUBROUTINE FCN FROM BEI"
-	    "NG PROPERLY EVALUATED.  THE      \002/\002 INITIAL ESTIMATES MUS"
-	    "T BE ADJUSTED TO ALLOW PROPER      \002/\002 EVALUATION OF SUBRO"
-	    "UTINE FCN DURING THESE COMPUTATIONS  \002/\002 BEFORE THE REGRES"
-	    "SION PROCEDURE CAN CONTINUE.\002)";
-    static char fmt_1300[] = "(//\002 VARIABLE ISTOP HAS BEEN RETURNED WITH "
-	    "A NONZERO VALUE  \002/\002 FROM USER SUPPLIED SUBROUTINE FCN.  T"
-	    "HIS OCCURRED DURING\002/\002 THE DERIVATIVE CHECKING PROCEDURE, "
-	    "INDICATING THAT      \002/\002 CHANGES IN THE INITIAL ESTIMATES "
-	    "OF BETA(K), K=1,NP, AS \002/\002 SMALL AS MAX[BETA(K),1/SCLB(K)]"
-	    "*10**(-NETA/2), AND/OR   \002/\002 OF DELTA(I,J), I=1,N AND J=1,"
-	    "M, AS SMALL AS             \002/\002 MAX[DELTA(I,J),1/SCLD(I,J)]"
-	    "*10**(-NETA/2), WHERE NETA   \002/\002 IS DEFINED TO BE THE NUMB"
-	    "ER OF RELIABLE DIGITS IN       \002/\002 PREDICTED VALUES (F) RE"
-	    "TURNED FROM SUBROUTINE FCN,      \002/\002 PREVENT SUBROUTINE FC"
-	    "N FROM BEING PROPERLY EVALUATED.   \002/\002 THE INITIAL ESTIMAT"
-	    "ES MUST BE ADJUSTED TO ALLOW PROPER  \002/\002 EVALUATION OF SUB"
-	    "ROUTINE FCN DURING THESE COMPUTATIONS  \002/\002 BEFORE THE REGR"
-	    "ESSION PROCEDURE CAN CONTINUE.\002)";
-    static char fmt_1400[] = "(//\002 VARIABLE ISTOP HAS BEEN RETURNED WITH "
-	    "A NONZERO VALUE  \002/\002 FROM USER SUPPLIED SUBROUTINE FCN WHE"
-	    "N INVOKED FOR \002/\002 DERIVATIVE EVALUATIONS USING THE INITIAL"
-	    " ESTIMATES OF \002/\002 BETA AND DELTA SUPPLIED BY THE USER.  TH"
-	    "E INITIAL \002/\002 ESTIMATES MUST BE ADJUSTED TO ALLOW PROPER E"
-	    "VALUATION \002/\002 OF SUBROUTINE FCN BEFORE THE REGRESSION PROC"
-	    "EDURE CAN \002/\002 CONTINUE.\002)";
-
     /* Builtin functions */
-    integer s_wsfe(cilist *), e_wsfe(void);
 
     /* Fortran I/O blocks */
-    static cilist io___713 = { 0, 0, 0, fmt_1100, 0 };
-    static cilist io___714 = { 0, 0, 0, fmt_1200, 0 };
-    static cilist io___715 = { 0, 0, 0, fmt_1300, 0 };
-    static cilist io___716 = { 0, 0, 0, fmt_1400, 0 };
 
 
 /* ***BEGIN PROLOGUE  DODPE3 */
@@ -9923,78 +8304,44 @@ L200:
 /*  PRINT APPROPRIATE MESSAGES TO INDICATE WHERE COMPUTATIONS WERE */
 /*  STOPPED */
     if (*d2 == 2) {
-	io___713.ciunit = *unit;
-	s_wsfe(&io___713);
-	e_wsfe();
     } else if (*d2 == 3) {
-	io___714.ciunit = *unit;
-	s_wsfe(&io___714);
-	e_wsfe();
     } else if (*d2 == 4) {
-	io___715.ciunit = *unit;
-	s_wsfe(&io___715);
-	e_wsfe();
     }
     if (*d3 == 2) {
-	io___716.ciunit = *unit;
-	s_wsfe(&io___716);
-	e_wsfe();
     }
 /*  FORMAT STATEMENTS */
     return 0;
 } /* dodpe3_ */
 
 /* DODPER */
-/* Subroutine */ int dodper_(integer *info, integer *lunerr, logical *short__,
-	 integer *n, integer *m, integer *np, integer *nq, integer *ldscld, 
-	integer *ldstpd, integer *ldwe, integer *ld2we, integer *ldwd, 
-	integer *ld2wd, integer *lwkmn, integer *liwkmn, doublereal *fjacb, 
-	doublereal *fjacd, doublereal *diff, integer *msgb, logical *isodr, 
-	integer *msgd, doublereal *xplusd, integer *nrow, integer *neta, 
-	integer *ntol)
+/* Subroutine */ int dodper_(int *info, int *lunerr, int *short__,
+	 int *n, int *m, int *np, int *nq, int *ldscld, 
+	int *ldstpd, int *ldwe, int *ld2we, int *ldwd, 
+	int *ld2wd, int *lwkmn, int *liwkmn, double *fjacb, 
+	double *fjacd, double *diff, int *msgb, int *isodr, 
+	int *msgd, double *xplusd, int *nrow, int *neta, 
+	int *ntol)
 {
-    /* Format strings */
-    static char fmt_1100[] = "(//\002 THE CORRECT FORM OF THE CALL STATEMENT"
-	    " IS \002//\002       CALL DODR\002/\002      +     (FCN,\002/"
-	    "\002      +     N,M,NP,NQ,\002/\002      +     BETA,\002/\002   "
-	    "   +     Y,LDY,X,LDX,\002/\002      +     WE,LDWE,LD2WE,WD,LDWD,"
-	    "LD2WD,\002/\002      +     JOB,\002/\002      +     IPRINT,LUNER"
-	    "R,LUNRPT,\002/\002      +     WORK,LWORK,IWORK,LIWORK,\002/\002 "
-	    "     +     INFO)\002)";
-    static char fmt_1200[] = "(//\002 THE CORRECT FORM OF THE CALL STATEMENT"
-	    " IS \002//\002       CALL DODRC\002/\002      +     (FCN,\002"
-	    "/\002      +     N,M,NP,NQ,\002/\002      +     BETA,\002/\002  "
-	    "    +     Y,LDY,X,LDX,\002/\002      +     WE,LDWE,LD2WE,WD,LDWD"
-	    ",LD2WD,\002/\002      +     IFIXB,IFIXX,LDIFX,\002/\002      +  "
-	    "   JOB,NDIGIT,TAUFAC,\002/\002      +     SSTOL,PARTOL,MAXIT,"
-	    "\002/\002      +     IPRINT,LUNERR,LUNRPT,\002/\002      +     S"
-	    "TPB,STPD,LDSTPD,\002/\002      +     SCLB,SCLD,LDSCLD,\002/\002 "
-	    "     +     WORK,LWORK,IWORK,LIWORK,\002/\002      +     INFO)"
-	    "\002)";
-
     /* System generated locals */
-    integer diff_dim1, diff_offset, fjacb_dim1, fjacb_dim2, fjacb_offset, 
+    int diff_dim1, diff_offset, fjacb_dim1, fjacb_dim2, fjacb_offset, 
 	    fjacd_dim1, fjacd_dim2, fjacd_offset, xplusd_dim1, xplusd_offset;
 
     /* Builtin functions */
-    integer s_wsfe(cilist *), e_wsfe(void);
 
     /* Local variables */
-    static integer d1, d2, d3, d4, d5;
-    static logical head;
-    static integer unit;
-    extern /* Subroutine */ int dodpe1_(integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *, integer *, integer *, integer *, integer *, 
-	    integer *, integer *), dodpe2_(integer *, integer *, integer *, 
-	    integer *, integer *, doublereal *, doublereal *, doublereal *, 
-	    integer *, integer *, logical *, integer *, integer *, doublereal 
-	    *, integer *, integer *, integer *), dodpe3_(integer *, integer *,
-	     integer *), dodphd_(logical *, integer *);
+    static int d1, d2, d3, d4, d5;
+    static int head;
+    static int unit;
+    extern /* Subroutine */ int dodpe1_(int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *, int *, int *, int *, int *, 
+	    int *, int *), dodpe2_(int *, int *, int *, 
+	    int *, int *, double *, double *, double *, 
+	    int *, int *, int *, int *, int *, double 
+	    *, int *, int *, int *), dodpe3_(int *, int *,
+	     int *), dodphd_(int *, int *);
 
     /* Fortran I/O blocks */
-    static cilist io___724 = { 0, 0, 0, fmt_1100, 0 };
-    static cilist io___725 = { 0, 0, 0, fmt_1200, 0 };
 
 
 /* ***BEGIN PROLOGUE  DODPER */
@@ -10107,13 +8454,7 @@ L200:
 /*  PRINT CORRECT FORM OF CALL STATEMENT */
     if (d1 >= 1 && d1 <= 3 || d1 == 4 && (d2 == 2 || d3 == 2) || d1 == 5) {
 	if (*short__) {
-	    io___724.ciunit = unit;
-	    s_wsfe(&io___724);
-	    e_wsfe();
 	} else {
-	    io___725.ciunit = unit;
-	    s_wsfe(&io___725);
-	    e_wsfe();
 	}
     }
     return 0;
@@ -10121,19 +8462,11 @@ L200:
 } /* dodper_ */
 
 /* DODPHD */
-/* Subroutine */ int dodphd_(logical *head, integer *unit)
+/* Subroutine */ int dodphd_(int *head, int *unit)
 {
-    /* Format strings */
-    static char fmt_1000[] = "(\002 ****************************************"
-	    "*************** \002/\002 * ODRPACK VERSION 2.01 OF 06-19-92 (DO"
-	    "UBLE PRECISION) * \002/\002 ************************************"
-	    "******************* \002/)";
-
     /* Builtin functions */
-    integer s_wsfe(cilist *), e_wsfe(void);
 
     /* Fortran I/O blocks */
-    static cilist io___726 = { 0, 0, 0, fmt_1000, 0 };
 
 
 /* ***BEGIN PROLOGUE  DODPHD */
@@ -10150,9 +8483,6 @@ L200:
 /*   UNIT:    THE LOGICAL UNIT NUMBER TO WHICH THE HEADING IS WRITTEN. */
 /* ***FIRST EXECUTABLE STATEMENT  DODPHD */
     if (*head) {
-	io___726.ciunit = *unit;
-	s_wsfe(&io___726);
-	e_wsfe();
 	*head = FALSE_;
     }
     return 0;
@@ -10160,24 +8490,24 @@ L200:
 } /* dodphd_ */
 
 /* DODSTP */
-/* Subroutine */ int dodstp_(integer *n, integer *m, integer *np, integer *nq,
-	 integer *npp, doublereal *f, doublereal *fjacb, doublereal *fjacd, 
-	doublereal *wd, integer *ldwd, integer *ld2wd, doublereal *ss, 
-	doublereal *tt, integer *ldtt, doublereal *delta, doublereal *alpha, 
-	doublereal *epsfcn, logical *isodr, doublereal *tfjacb, doublereal *
-	omega, doublereal *u, doublereal *qraux, integer *kpvt, doublereal *s,
-	 doublereal *t, doublereal *phi, integer *irank, doublereal *rcond, 
-	logical *forvcv, doublereal *wrk1, doublereal *wrk2, doublereal *wrk3,
-	 doublereal *wrk4, doublereal *wrk5, doublereal *wrk, integer *lwrk, 
-	integer *istopc)
+/* Subroutine */ int dodstp_(int *n, int *m, int *np, int *nq,
+	 int *npp, double *f, double *fjacb, double *fjacd, 
+	double *wd, int *ldwd, int *ld2wd, double *ss, 
+	double *tt, int *ldtt, double *delta, double *alpha, 
+	double *epsfcn, int *isodr, double *tfjacb, double *
+	omega, double *u, double *qraux, int *kpvt, double *s,
+	 double *t, double *phi, int *irank, double *rcond, 
+	int *forvcv, double *wrk1, double *wrk2, double *wrk3,
+	 double *wrk4, double *wrk5, double *wrk, int *lwrk, 
+	int *istopc)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
-    static doublereal one = 1.;
+    static double zero = 0.;
+    static double one = 1.;
 
     /* System generated locals */
-    integer delta_dim1, delta_offset, f_dim1, f_offset, fjacb_dim1, 
+    int delta_dim1, delta_offset, f_dim1, f_offset, fjacb_dim1, 
 	    fjacb_dim2, fjacb_offset, fjacd_dim1, fjacd_dim2, fjacd_offset, 
 	    omega_dim1, omega_offset, t_dim1, t_offset, tfjacb_dim1, 
 	    tfjacb_dim2, tfjacb_offset, tt_dim1, tt_offset, wd_dim1, wd_dim2, 
@@ -10185,43 +8515,43 @@ L200:
 	    wrk2_offset, wrk4_dim1, wrk4_offset, i__1, i__2, i__3, i__4;
 
     /* Builtin functions */
-    double sqrt(doublereal);
+    double sqrt(double);
 
     /* Local variables */
-    static integer i__, j, k, l, k1, k2;
-    static doublereal co, si;
-    static integer kp, inf;
-    static doublereal dum[2];
-    static logical elim;
-    static integer imax;
-    static doublereal temp;
-    extern /* Subroutine */ int drot_(integer *, doublereal *, integer *, 
-	    doublereal *, integer *, doublereal *, doublereal *);
-    static integer ipvt;
-    extern doublereal dnrm2_(integer *, doublereal *, integer *);
-    extern /* Subroutine */ int dchex_(doublereal *, integer *, integer *, 
-	    integer *, integer *, doublereal *, integer *, integer *, 
-	    doublereal *, doublereal *, integer *), dqrdc_(doublereal *, 
-	    integer *, integer *, integer *, doublereal *, integer *, 
-	    doublereal *, integer *), dfctr_(logical *, doublereal *, integer 
-	    *, integer *, integer *), dtrco_(doublereal *, integer *, integer 
-	    *, doublereal *, doublereal *, integer *), dwght_(integer *, 
-	    integer *, doublereal *, integer *, integer *, doublereal *, 
-	    integer *, doublereal *, integer *), drotg_(doublereal *, 
-	    doublereal *, doublereal *, doublereal *), dzero_(integer *, 
-	    integer *, doublereal *, integer *), dqrsl_(doublereal *, integer 
-	    *, integer *, integer *, doublereal *, doublereal *, doublereal *,
-	     doublereal *, doublereal *, doublereal *, doublereal *, integer *
-	    , integer *), dtrsl_(doublereal *, integer *, integer *, 
-	    doublereal *, integer *, integer *);
-    extern integer idamax_(integer *, doublereal *, integer *);
-    extern /* Subroutine */ int desubi_(integer *, integer *, doublereal *, 
-	    integer *, integer *, doublereal *, doublereal *, integer *, 
-	    integer *, doublereal *), dsolve_(integer *, doublereal *, 
-	    integer *, doublereal *, integer *, integer *), dvevtr_(integer *,
-	     integer *, integer *, doublereal *, integer *, integer *, 
-	    doublereal *, integer *, doublereal *, integer *, integer *, 
-	    doublereal *, integer *, doublereal *);
+    static int i__, j, k, l, k1, k2;
+    static double co, si;
+    static int kp, inf;
+    static double dum[2];
+    static int elim;
+    static int imax;
+    static double temp;
+    extern /* Subroutine */ int drot_(int *, double *, int *, 
+	    double *, int *, double *, double *);
+    static int ipvt;
+    extern double dnrm2_(int *, double *, int *);
+    extern /* Subroutine */ int dchex_(double *, int *, int *, 
+	    int *, int *, double *, int *, int *, 
+	    double *, double *, int *), dqrdc_(double *, 
+	    int *, int *, int *, double *, int *, 
+	    double *, int *), dfctr_(int *, double *, int 
+	    *, int *, int *), dtrco_(double *, int *, int 
+	    *, double *, double *, int *), dwght_(int *, 
+	    int *, double *, int *, int *, double *, 
+	    int *, double *, int *), drotg_(double *, 
+	    double *, double *, double *), dzero_(int *, 
+	    int *, double *, int *), dqrsl_(double *, int 
+	    *, int *, int *, double *, double *, double *,
+	     double *, double *, double *, double *, int *
+	    , int *), dtrsl_(double *, int *, int *, 
+	    double *, int *, int *);
+    extern int idamax_(int *, double *, int *);
+    extern /* Subroutine */ int desubi_(int *, int *, double *, 
+	    int *, int *, double *, double *, int *, 
+	    int *, double *), dsolve_(int *, double *, 
+	    int *, double *, int *, int *), dvevtr_(int *,
+	     int *, int *, double *, int *, int *, 
+	    double *, int *, double *, int *, int *, 
+	    double *, int *, double *);
 
 /* ***BEGIN PROLOGUE  DODSTP */
 /* ***REFER TO  DODR,DODRC */
@@ -10685,24 +9015,24 @@ L440:
 } /* dodstp_ */
 
 /* DODVCV */
-/* Subroutine */ int dodvcv_(integer *n, integer *m, integer *np, integer *nq,
-	 integer *npp, doublereal *f, doublereal *fjacb, doublereal *fjacd, 
-	doublereal *wd, integer *ldwd, integer *ld2wd, doublereal *ssf, 
-	doublereal *ss, doublereal *tt, integer *ldtt, doublereal *delta, 
-	doublereal *epsfcn, logical *isodr, doublereal *vcv, doublereal *sd, 
-	doublereal *wrk6, doublereal *omega, doublereal *u, doublereal *qraux,
-	 integer *jpvt, doublereal *s, doublereal *t, integer *irank, 
-	doublereal *rcond, doublereal *rss, integer *idf, doublereal *rvar, 
-	integer *ifixb, doublereal *wrk1, doublereal *wrk2, doublereal *wrk3, 
-	doublereal *wrk4, doublereal *wrk5, doublereal *wrk, integer *lwrk, 
-	integer *istopc)
+/* Subroutine */ int dodvcv_(int *n, int *m, int *np, int *nq,
+	 int *npp, double *f, double *fjacb, double *fjacd, 
+	double *wd, int *ldwd, int *ld2wd, double *ssf, 
+	double *ss, double *tt, int *ldtt, double *delta, 
+	double *epsfcn, int *isodr, double *vcv, double *sd, 
+	double *wrk6, double *omega, double *u, double *qraux,
+	 int *jpvt, double *s, double *t, int *irank, 
+	double *rcond, double *rss, int *idf, double *rvar, 
+	int *ifixb, double *wrk1, double *wrk2, double *wrk3, 
+	double *wrk4, double *wrk5, double *wrk, int *lwrk, 
+	int *istopc)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
+    static double zero = 0.;
 
     /* System generated locals */
-    integer delta_dim1, delta_offset, f_dim1, f_offset, fjacb_dim1, 
+    int delta_dim1, delta_offset, f_dim1, f_offset, fjacb_dim1, 
 	    fjacb_dim2, fjacb_offset, fjacd_dim1, fjacd_dim2, fjacd_offset, 
 	    omega_dim1, omega_offset, t_dim1, t_offset, tt_dim1, tt_offset, 
 	    vcv_dim1, vcv_offset, wd_dim1, wd_dim2, wd_offset, wrk1_dim1, 
@@ -10710,22 +9040,22 @@ L440:
 	    wrk4_offset, wrk6_dim1, wrk6_offset, i__1, i__2, i__3;
 
     /* Builtin functions */
-    double sqrt(doublereal);
+    double sqrt(double);
 
     /* Local variables */
-    static integer i__, j, l, kp;
-    static doublereal temp;
-    extern /* Subroutine */ int dpodi_(doublereal *, integer *, integer *, 
-	    doublereal *, integer *), dodstp_(integer *, integer *, integer *,
-	     integer *, integer *, doublereal *, doublereal *, doublereal *, 
-	    doublereal *, integer *, integer *, doublereal *, doublereal *, 
-	    integer *, doublereal *, doublereal *, doublereal *, logical *, 
-	    doublereal *, doublereal *, doublereal *, doublereal *, integer *,
-	     doublereal *, doublereal *, doublereal *, integer *, doublereal *
-	    , logical *, doublereal *, doublereal *, doublereal *, doublereal 
-	    *, doublereal *, doublereal *, integer *, integer *);
-    static integer iunfix, junfix;
-    static logical forvcv;
+    static int i__, j, l, kp;
+    static double temp;
+    extern /* Subroutine */ int dpodi_(double *, int *, int *, 
+	    double *, int *), dodstp_(int *, int *, int *,
+	     int *, int *, double *, double *, double *, 
+	    double *, int *, int *, double *, double *, 
+	    int *, double *, double *, double *, int *, 
+	    double *, double *, double *, double *, int *,
+	     double *, double *, double *, int *, double *
+	    , int *, double *, double *, double *, double 
+	    *, double *, double *, int *, int *);
+    static int iunfix, junfix;
+    static int forvcv;
 
 /* ***BEGIN PROLOGUE  DODVCV */
 /* ***REFER TO  DODR,DODRC */
@@ -11026,16 +9356,16 @@ L150:
 } /* dodvcv_ */
 
 /* DPACK */
-/* Subroutine */ int dpack_(integer *n2, integer *n1, doublereal *v1, 
-	doublereal *v2, integer *ifix)
+/* Subroutine */ int dpack_(int *n2, int *n1, double *v1, 
+	double *v2, int *ifix)
 {
     /* System generated locals */
-    integer i__1;
+    int i__1;
 
     /* Local variables */
-    static integer i__;
-    extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *, 
-	    doublereal *, integer *);
+    static int i__;
+    extern /* Subroutine */ int dcopy_(int *, double *, int *, 
+	    double *, int *);
 
 /* ***BEGIN PROLOGUE  DPACK */
 /* ***REFER TO  DODR,DODRC */
@@ -11082,33 +9412,33 @@ L150:
 } /* dpack_ */
 
 /* DPPNML */
-doublereal dppnml_(doublereal *p)
+double dppnml_(double *p)
 {
     /* Initialized data */
 
-    static doublereal p0 = -.322232431088;
-    static doublereal p1 = -1.;
-    static doublereal p2 = -.342242088547;
-    static doublereal p3 = -.0204231210245;
-    static doublereal p4 = -4.53642210148e-5;
-    static doublereal q0 = .099348462606;
-    static doublereal q1 = .588581570495;
-    static doublereal q2 = .531103462366;
-    static doublereal q3 = .10353775285;
-    static doublereal q4 = .0038560700634;
-    static doublereal zero = 0.;
-    static doublereal half = .5;
-    static doublereal one = 1.;
-    static doublereal two = 2.;
+    static double p0 = -.322232431088;
+    static double p1 = -1.;
+    static double p2 = -.342242088547;
+    static double p3 = -.0204231210245;
+    static double p4 = -4.53642210148e-5;
+    static double q0 = .099348462606;
+    static double q1 = .588581570495;
+    static double q2 = .531103462366;
+    static double q3 = .10353775285;
+    static double q4 = .0038560700634;
+    static double zero = 0.;
+    static double half = .5;
+    static double one = 1.;
+    static double two = 2.;
 
     /* System generated locals */
-    doublereal ret_val;
+    double ret_val;
 
     /* Builtin functions */
-    double log(doublereal), sqrt(doublereal);
+    double log(double), sqrt(double);
 
     /* Local variables */
-    static doublereal r__, t, aden, anum;
+    static double r__, t, aden, anum;
 
 /* ***BEGIN PROLOGUE  DPPNML */
 /* ***REFER TO  DODR,DODRC */
@@ -11207,47 +9537,47 @@ doublereal dppnml_(doublereal *p)
 } /* dppnml_ */
 
 /* DPPT */
-doublereal dppt_(doublereal *p, integer *idf)
+double dppt_(double *p, int *idf)
 {
     /* Initialized data */
 
-    static doublereal b21 = 4.;
-    static doublereal b31 = 96.;
-    static doublereal b32 = 5.;
-    static doublereal b33 = 16.;
-    static doublereal b34 = 3.;
-    static doublereal b41 = 384.;
-    static doublereal b42 = 3.;
-    static doublereal b43 = 19.;
-    static doublereal b44 = 17.;
-    static doublereal b45 = -15.;
-    static doublereal b51 = 9216.;
-    static doublereal b52 = 79.;
-    static doublereal b53 = 776.;
-    static doublereal b54 = 1482.;
-    static doublereal b55 = -1920.;
-    static doublereal b56 = -945.;
-    static doublereal zero = 0.;
-    static doublereal half = .5;
-    static doublereal one = 1.;
-    static doublereal two = 2.;
-    static doublereal three = 3.;
-    static doublereal eight = 8.;
-    static doublereal fiftn = 15.;
+    static double b21 = 4.;
+    static double b31 = 96.;
+    static double b32 = 5.;
+    static double b33 = 16.;
+    static double b34 = 3.;
+    static double b41 = 384.;
+    static double b42 = 3.;
+    static double b43 = 19.;
+    static double b44 = 17.;
+    static double b45 = -15.;
+    static double b51 = 9216.;
+    static double b52 = 79.;
+    static double b53 = 776.;
+    static double b54 = 1482.;
+    static double b55 = -1920.;
+    static double b56 = -945.;
+    static double zero = 0.;
+    static double half = .5;
+    static double one = 1.;
+    static double two = 2.;
+    static double three = 3.;
+    static double eight = 8.;
+    static double fiftn = 15.;
 
     /* System generated locals */
-    integer i__1;
-    doublereal ret_val, d__1, d__2, d__3, d__4;
+    int i__1;
+    double ret_val, d__1, d__2, d__3, d__4;
 
     /* Builtin functions */
-    double cos(doublereal), sin(doublereal), sqrt(doublereal), atan(
-	    doublereal);
+    double cos(double), sin(double), sqrt(double), atan(
+	    double);
 
     /* Local variables */
-    static doublereal c__, s, z__, d1, d3, d5, d7, d9, df, pi, arg, con, ppfn,
+    static double c__, s, z__, d1, d3, d5, d7, d9, df, pi, arg, con, ppfn,
 	     term1, term2, term3, term4, term5;
-    static integer ipass, maxit;
-    extern doublereal dppnml_(doublereal *);
+    static int ipass, maxit;
+    extern double dppnml_(double *);
 
 /* ***BEGIN PROLOGUE  DPPT */
 /* ***REFER TO  DODR,DODRC */
@@ -11336,7 +9666,7 @@ doublereal dppt_(doublereal *p, integer *idf)
 /*   ZERO:   THE VALUE 0.0D0. */
 /* ***FIRST EXECUTABLE STATEMENT  DPPT */
     pi = 3.141592653589793238462643383279;
-    df = (doublereal) (*idf);
+    df = (double) (*idf);
     maxit = 5;
     if (*idf <= 0) {
 /*  TREAT THE IDF < 1 CASE */
@@ -11459,19 +9789,19 @@ doublereal dppt_(doublereal *p, integer *idf)
 } /* dppt_ */
 
 /* DPVB */
-/* Subroutine */ int dpvb_(S_fp fcn, integer *n, integer *m, integer *np, 
-	integer *nq, doublereal *beta, doublereal *xplusd, integer *ifixb, 
-	integer *ifixx, integer *ldifx, integer *nrow, integer *j, integer *
-	lq, doublereal *stp, integer *istop, integer *nfev, doublereal *pvb, 
-	doublereal *wrk1, doublereal *wrk2, doublereal *wrk6)
+/* Subroutine */ int dpvb_(S_fp fcn, int *n, int *m, int *np, 
+	int *nq, double *beta, double *xplusd, int *ifixb, 
+	int *ifixx, int *ldifx, int *nrow, int *j, int *
+	lq, double *stp, int *istop, int *nfev, double *pvb, 
+	double *wrk1, double *wrk2, double *wrk6)
 {
     /* System generated locals */
-    integer wrk1_dim1, wrk1_dim2, wrk1_offset, wrk2_dim1, wrk2_offset, 
+    int wrk1_dim1, wrk1_dim2, wrk1_offset, wrk2_dim1, wrk2_offset, 
 	    wrk6_dim1, wrk6_dim2, wrk6_offset, xplusd_dim1, xplusd_offset, 
 	    ifixx_dim1, ifixx_offset;
 
     /* Local variables */
-    static doublereal betaj;
+    static double betaj;
 
 /* ***BEGIN PROLOGUE  DPVB */
 /* ***REFER TO  DODR,DODRC */
@@ -11549,19 +9879,19 @@ doublereal dppt_(doublereal *p, integer *idf)
 } /* dpvb_ */
 
 /* DPVD */
-/* Subroutine */ int dpvd_(S_fp fcn, integer *n, integer *m, integer *np, 
-	integer *nq, doublereal *beta, doublereal *xplusd, integer *ifixb, 
-	integer *ifixx, integer *ldifx, integer *nrow, integer *j, integer *
-	lq, doublereal *stp, integer *istop, integer *nfev, doublereal *pvd, 
-	doublereal *wrk1, doublereal *wrk2, doublereal *wrk6)
+/* Subroutine */ int dpvd_(S_fp fcn, int *n, int *m, int *np, 
+	int *nq, double *beta, double *xplusd, int *ifixb, 
+	int *ifixx, int *ldifx, int *nrow, int *j, int *
+	lq, double *stp, int *istop, int *nfev, double *pvd, 
+	double *wrk1, double *wrk2, double *wrk6)
 {
     /* System generated locals */
-    integer wrk1_dim1, wrk1_dim2, wrk1_offset, wrk2_dim1, wrk2_offset, 
+    int wrk1_dim1, wrk1_dim2, wrk1_offset, wrk2_dim1, wrk2_offset, 
 	    wrk6_dim1, wrk6_dim2, wrk6_offset, xplusd_dim1, xplusd_offset, 
 	    ifixx_dim1, ifixx_offset;
 
     /* Local variables */
-    static doublereal xpdj;
+    static double xpdj;
 
 /* ***BEGIN PROLOGUE  DPVD */
 /* ***REFER TO  DODR,DODRC */
@@ -11640,23 +9970,23 @@ doublereal dppt_(doublereal *p, integer *idf)
 } /* dpvd_ */
 
 /* DSCALE */
-/* Subroutine */ int dscale_(integer *n, integer *m, doublereal *scl, integer 
-	*ldscl, doublereal *t, integer *ldt, doublereal *sclt, integer *
+/* Subroutine */ int dscale_(int *n, int *m, double *scl, int 
+	*ldscl, double *t, int *ldt, double *sclt, int *
 	ldsclt)
 {
     /* Initialized data */
 
-    static doublereal one = 1.;
-    static doublereal zero = 0.;
+    static double one = 1.;
+    static double zero = 0.;
 
     /* System generated locals */
-    integer t_dim1, t_offset, scl_dim1, scl_offset, sclt_dim1, sclt_offset, 
+    int t_dim1, t_offset, scl_dim1, scl_offset, sclt_dim1, sclt_offset, 
 	    i__1, i__2;
-    doublereal d__1;
+    double d__1;
 
     /* Local variables */
-    static integer i__, j;
-    static doublereal temp;
+    static int i__, j;
+    static double temp;
 
 /* ***BEGIN PROLOGUE  DSCALE */
 /* ***REFER TO  DODR,DODRC */
@@ -11740,25 +10070,25 @@ doublereal dppt_(doublereal *p, integer *idf)
 } /* dscale_ */
 
 /* DSCLB */
-/* Subroutine */ int dsclb_(integer *np, doublereal *beta, doublereal *ssf)
+/* Subroutine */ int dsclb_(int *np, double *beta, double *ssf)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
-    static doublereal one = 1.;
-    static doublereal ten = 10.;
+    static double zero = 0.;
+    static double one = 1.;
+    static double ten = 10.;
 
     /* System generated locals */
-    integer i__1;
-    doublereal d__1, d__2, d__3;
+    int i__1;
+    double d__1, d__2, d__3;
 
     /* Builtin functions */
-    double d_lg10(doublereal *);
+    double d_lg10(double *);
 
     /* Local variables */
-    static integer k;
-    static doublereal bmin, bmax;
-    static logical bigdif;
+    static int k;
+    static double bmin, bmax;
+    static int bigdif;
 
 /* ***BEGIN PROLOGUE  DSCLB */
 /* ***REFER TO  DODR,DODRC */
@@ -11838,26 +10168,26 @@ doublereal dppt_(doublereal *p, integer *idf)
 } /* dsclb_ */
 
 /* DSCLD */
-/* Subroutine */ int dscld_(integer *n, integer *m, doublereal *x, integer *
-	ldx, doublereal *tt, integer *ldtt)
+/* Subroutine */ int dscld_(int *n, int *m, double *x, int *
+	ldx, double *tt, int *ldtt)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
-    static doublereal one = 1.;
-    static doublereal ten = 10.;
+    static double zero = 0.;
+    static double one = 1.;
+    static double ten = 10.;
 
     /* System generated locals */
-    integer tt_dim1, tt_offset, x_dim1, x_offset, i__1, i__2;
-    doublereal d__1, d__2, d__3;
+    int tt_dim1, tt_offset, x_dim1, x_offset, i__1, i__2;
+    double d__1, d__2, d__3;
 
     /* Builtin functions */
-    double d_lg10(doublereal *);
+    double d_lg10(double *);
 
     /* Local variables */
-    static integer i__, j;
-    static doublereal xmin, xmax;
-    static logical bigdif;
+    static int i__, j;
+    static double xmin, xmax;
+    static int bigdif;
 
 /* ***BEGIN PROLOGUE  DSCLD */
 /* ***REFER TO  DODR,DODRC */
@@ -11950,14 +10280,14 @@ doublereal dppt_(doublereal *p, integer *idf)
 } /* dscld_ */
 
 /* DSETN */
-/* Subroutine */ int dsetn_(integer *n, integer *m, doublereal *x, integer *
-	ldx, integer *nrow)
+/* Subroutine */ int dsetn_(int *n, int *m, double *x, int *
+	ldx, int *nrow)
 {
     /* System generated locals */
-    integer x_dim1, x_offset, i__1, i__2;
+    int x_dim1, x_offset, i__1, i__2;
 
     /* Local variables */
-    static integer i__, j;
+    static int i__, j;
 
 /* ***BEGIN PROLOGUE  DSETN */
 /* ***REFER TO  DODR,DODRC */
@@ -12008,23 +10338,23 @@ L20:
 } /* dsetn_ */
 
 /* DSOLVE */
-/* Subroutine */ int dsolve_(integer *n, doublereal *t, integer *ldt, 
-	doublereal *b, integer *ldb, integer *job)
+/* Subroutine */ int dsolve_(int *n, double *t, int *ldt, 
+	double *b, int *ldb, int *job)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
+    static double zero = 0.;
 
     /* System generated locals */
-    integer b_dim1, b_offset, t_dim1, t_offset, i__1, i__2;
+    int b_dim1, b_offset, t_dim1, t_offset, i__1, i__2;
 
     /* Local variables */
-    static integer j, j1, jn;
-    extern doublereal ddot_(integer *, doublereal *, integer *, doublereal *, 
-	    integer *);
-    static doublereal temp;
-    extern /* Subroutine */ int daxpy_(integer *, doublereal *, doublereal *, 
-	    integer *, doublereal *, integer *);
+    static int j, j1, jn;
+    extern double ddot_(int *, double *, int *, double *, 
+	    int *);
+    static double temp;
+    extern /* Subroutine */ int daxpy_(int *, double *, double *, 
+	    int *, double *, int *);
 
 /* ***BEGIN PROLOGUE  DSOLVE */
 /* ***REFER TO DODR,DODRC */
@@ -12161,16 +10491,16 @@ L20:
 } /* dsolve_ */
 
 /* DUNPAC */
-/* Subroutine */ int dunpac_(integer *n2, doublereal *v1, doublereal *v2, 
-	integer *ifix)
+/* Subroutine */ int dunpac_(int *n2, double *v1, double *v2, 
+	int *ifix)
 {
     /* System generated locals */
-    integer i__1;
+    int i__1;
 
     /* Local variables */
-    static integer i__, n1;
-    extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *, 
-	    doublereal *, integer *);
+    static int i__, n1;
+    extern /* Subroutine */ int dcopy_(int *, double *, int *, 
+	    double *, int *);
 
 /* ***BEGIN PROLOGUE  DUNPAC */
 /* ***REFER TO  DODR,DODRC */
@@ -12219,23 +10549,23 @@ L20:
 } /* dunpac_ */
 
 /* DVEVTR */
-/* Subroutine */ int dvevtr_(integer *m, integer *nq, integer *indx, 
-	doublereal *v, integer *ldv, integer *ld2v, doublereal *e, integer *
-	lde, doublereal *ve, integer *ldve, integer *ld2ve, doublereal *vev, 
-	integer *ldvev, doublereal *wrk5)
+/* Subroutine */ int dvevtr_(int *m, int *nq, int *indx, 
+	double *v, int *ldv, int *ld2v, double *e, int *
+	lde, double *ve, int *ldve, int *ld2ve, double *vev, 
+	int *ldvev, double *wrk5)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
+    static double zero = 0.;
 
     /* System generated locals */
-    integer e_dim1, e_offset, v_dim1, v_dim2, v_offset, ve_dim1, ve_dim2, 
+    int e_dim1, e_offset, v_dim1, v_dim2, v_offset, ve_dim1, ve_dim2, 
 	    ve_offset, vev_dim1, vev_offset, i__1, i__2, i__3;
 
     /* Local variables */
-    static integer j, l1, l2;
-    extern /* Subroutine */ int dsolve_(integer *, doublereal *, integer *, 
-	    doublereal *, integer *, integer *);
+    static int j, l1, l2;
+    extern /* Subroutine */ int dsolve_(int *, double *, int *, 
+	    double *, int *, int *);
 
 /* ***BEGIN PROLOGUE  DVEVTR */
 /* ***REFER TO  DODR,DODRC */
@@ -12324,22 +10654,22 @@ L20:
 } /* dvevtr_ */
 
 /* DWGHT */
-/* Subroutine */ int dwght_(integer *n, integer *m, doublereal *wt, integer *
-	ldwt, integer *ld2wt, doublereal *t, integer *ldt, doublereal *wtt, 
-	integer *ldwtt)
+/* Subroutine */ int dwght_(int *n, int *m, double *wt, int *
+	ldwt, int *ld2wt, double *t, int *ldt, double *wtt, 
+	int *ldwtt)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
+    static double zero = 0.;
 
     /* System generated locals */
-    integer t_dim1, t_offset, wt_dim1, wt_dim2, wt_offset, wtt_dim1, 
+    int t_dim1, t_offset, wt_dim1, wt_dim2, wt_offset, wtt_dim1, 
 	    wtt_offset, i__1, i__2, i__3;
-    doublereal d__1;
+    double d__1;
 
     /* Local variables */
-    static integer i__, j, k;
-    static doublereal temp;
+    static int i__, j, k;
+    static double temp;
 
 /* ***BEGIN PROLOGUE  DWGHT */
 /* ***REFER TO  DODR,DODRC */
@@ -12470,22 +10800,22 @@ L20:
 } /* dwght_ */
 
 /* DWINF */
-/* Subroutine */ int dwinf_(integer *n, integer *m, integer *np, integer *nq, 
-	integer *ldwe, integer *ld2we, logical *isodr, integer *deltai, 
-	integer *epsi, integer *xplusi, integer *fni, integer *sdi, integer *
-	vcvi, integer *rvari, integer *wssi, integer *wssdei, integer *wssepi,
-	 integer *rcondi, integer *etai, integer *olmavi, integer *taui, 
-	integer *alphai, integer *actrsi, integer *pnormi, integer *rnorsi, 
-	integer *prersi, integer *partli, integer *sstoli, integer *taufci, 
-	integer *epsmai, integer *beta0i, integer *betaci, integer *betasi, 
-	integer *betani, integer *si, integer *ssi, integer *ssfi, integer *
-	qrauxi, integer *ui, integer *fsi, integer *fjacbi, integer *we1i, 
-	integer *diffi, integer *deltsi, integer *deltni, integer *ti, 
-	integer *tti, integer *omegai, integer *fjacdi, integer *wrk1i, 
-	integer *wrk2i, integer *wrk3i, integer *wrk4i, integer *wrk5i, 
-	integer *wrk6i, integer *wrk7i, integer *lwkmn)
+/* Subroutine */ int dwinf_(int *n, int *m, int *np, int *nq, 
+	int *ldwe, int *ld2we, int *isodr, int *deltai, 
+	int *epsi, int *xplusi, int *fni, int *sdi, int *
+	vcvi, int *rvari, int *wssi, int *wssdei, int *wssepi,
+	 int *rcondi, int *etai, int *olmavi, int *taui, 
+	int *alphai, int *actrsi, int *pnormi, int *rnorsi, 
+	int *prersi, int *partli, int *sstoli, int *taufci, 
+	int *epsmai, int *beta0i, int *betaci, int *betasi, 
+	int *betani, int *si, int *ssi, int *ssfi, int *
+	qrauxi, int *ui, int *fsi, int *fjacbi, int *we1i, 
+	int *diffi, int *deltsi, int *deltni, int *ti, 
+	int *tti, int *omegai, int *fjacdi, int *wrk1i, 
+	int *wrk2i, int *wrk3i, int *wrk4i, int *wrk5i, 
+	int *wrk6i, int *wrk7i, int *lwkmn)
 {
-    static integer next;
+    static int next;
 
 /* ***BEGIN PROLOGUE  DWINF */
 /* ***REFER TO  DODR,DODRC */
@@ -12678,15 +11008,15 @@ L20:
 } /* dwinf_ */
 
 /* DXMY */
-/* Subroutine */ int dxmy_(integer *n, integer *m, doublereal *x, integer *
-	ldx, doublereal *y, integer *ldy, doublereal *xmy, integer *ldxmy)
+/* Subroutine */ int dxmy_(int *n, int *m, double *x, int *
+	ldx, double *y, int *ldy, double *xmy, int *ldxmy)
 {
     /* System generated locals */
-    integer x_dim1, x_offset, xmy_dim1, xmy_offset, y_dim1, y_offset, i__1, 
+    int x_dim1, x_offset, xmy_dim1, xmy_offset, y_dim1, y_offset, i__1, 
 	    i__2;
 
     /* Local variables */
-    static integer i__, j;
+    static int i__, j;
 
 /* ***BEGIN PROLOGUE  DXMY */
 /* ***REFER TO  DODR,DODRC */
@@ -12736,15 +11066,15 @@ L20:
 } /* dxmy_ */
 
 /* DXPY */
-/* Subroutine */ int dxpy_(integer *n, integer *m, doublereal *x, integer *
-	ldx, doublereal *y, integer *ldy, doublereal *xpy, integer *ldxpy)
+/* Subroutine */ int dxpy_(int *n, int *m, double *x, int *
+	ldx, double *y, int *ldy, double *xpy, int *ldxpy)
 {
     /* System generated locals */
-    integer x_dim1, x_offset, xpy_dim1, xpy_offset, y_dim1, y_offset, i__1, 
+    int x_dim1, x_offset, xpy_dim1, xpy_offset, y_dim1, y_offset, i__1, 
 	    i__2;
 
     /* Local variables */
-    static integer i__, j;
+    static int i__, j;
 
 /* ***BEGIN PROLOGUE  DXPY */
 /* ***REFER TO  DODR,DODRC */
@@ -12794,18 +11124,18 @@ L20:
 } /* dxpy_ */
 
 /* DZERO */
-/* Subroutine */ int dzero_(integer *n, integer *m, doublereal *a, integer *
+/* Subroutine */ int dzero_(int *n, int *m, double *a, int *
 	lda)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
+    static double zero = 0.;
 
     /* System generated locals */
-    integer a_dim1, a_offset, i__1, i__2;
+    int a_dim1, a_offset, i__1, i__2;
 
     /* Local variables */
-    static integer i__, j;
+    static int i__, j;
 
 /* ***BEGIN PROLOGUE  DZERO */
 /* ***REFER TO  DODR,DODRC */

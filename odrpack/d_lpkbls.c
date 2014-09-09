@@ -10,21 +10,33 @@
 		http://www.netlib.org/f2c/libf2c.zip
 */
 
-#include "f2c.h"
+/* This file was heavily modified to allow complete removal of 
+  dependencies on f2c library and others */
+typedef int /* Unknown procedure type */ (*U_fp)();
+typedef /* Subroutine */ int (*S_fp)();
+
+#define TRUE_ 1
+#define FALSE_ 0
+#define abs(x) ((x) >= 0 ? (x) : -(x))
+#define dabs(x) (doublereal)abs(x)
+#define min(a,b) ((a) <= (b) ? (a) : (b))
+#define max(a,b) ((a) >= (b) ? (a) : (b))
+#define dmin(a,b) (doublereal)min(a,b)
+#define dmax(a,b) (doublereal)max(a,b)
 
 /* Table of constant values */
 
-static integer c__1 = 1;
+static int c__1 = 1;
 
 /* DASUM */
-doublereal dasum_(integer *n, doublereal *dx, integer *incx)
+double dasum_(int *n, double *dx, int *incx)
 {
     /* System generated locals */
-    integer i__1, i__2;
-    doublereal ret_val, d__1, d__2, d__3, d__4, d__5, d__6;
+    int i__1, i__2;
+    double ret_val, d__1, d__2, d__3, d__4, d__5, d__6;
 
     /* Local variables */
-    static integer i__, m, ns, mp1;
+    static int i__, m, ns, mp1;
 
 /* ***BEGIN PROLOGUE  DASUM */
 /* ***DATE WRITTEN   791001   (YYMMDD) */
@@ -108,14 +120,14 @@ L40:
 } /* dasum_ */
 
 /* DAXPY */
-/* Subroutine */ int daxpy_(integer *n, doublereal *da, doublereal *dx, 
-	integer *incx, doublereal *dy, integer *incy)
+/* Subroutine */ int daxpy_(int *n, double *da, double *dx, 
+	int *incx, double *dy, int *incy)
 {
     /* System generated locals */
-    integer i__1, i__2;
+    int i__1, i__2;
 
     /* Local variables */
-    static integer i__, m, ix, iy, ns, mp1;
+    static int i__, m, ix, iy, ns, mp1;
 
 /* ***BEGIN PROLOGUE  DAXPY */
 /* ***DATE WRITTEN   791001   (YYMMDD) */
@@ -228,19 +240,19 @@ L60:
 } /* daxpy_ */
 
 /* DCHEX */
-/* Subroutine */ int dchex_(doublereal *r__, integer *ldr, integer *p, 
-	integer *k, integer *l, doublereal *z__, integer *ldz, integer *nz, 
-	doublereal *c__, doublereal *s, integer *job)
+/* Subroutine */ int dchex_(double *r__, int *ldr, int *p, 
+	int *k, int *l, double *z__, int *ldz, int *nz, 
+	double *c__, double *s, int *job)
 {
     /* System generated locals */
-    integer r_dim1, r_offset, z_dim1, z_offset, i__1, i__2, i__3;
+    int r_dim1, r_offset, z_dim1, z_offset, i__1, i__2, i__3;
 
     /* Local variables */
-    static integer i__, j;
-    static doublereal t, t1;
-    static integer ii, jj, il, iu, km1, lm1, kp1, lmk;
-    extern /* Subroutine */ int drotg_(doublereal *, doublereal *, doublereal 
-	    *, doublereal *);
+    static int i__, j;
+    static double t, t1;
+    static int ii, jj, il, iu, km1, lm1, kp1, lmk;
+    extern /* Subroutine */ int drotg_(double *, double *, double 
+	    *, double *);
 
 /* ***BEGIN PROLOGUE  DCHEX */
 /* ***DATE WRITTEN   780814   (YYMMDD) */
@@ -519,14 +531,14 @@ L260:
 } /* dchex_ */
 
 /* DCOPY */
-/* Subroutine */ int dcopy_(integer *n, doublereal *dx, integer *incx, 
-	doublereal *dy, integer *incy)
+/* Subroutine */ int dcopy_(int *n, double *dx, int *incx, 
+	double *dy, int *incy)
 {
     /* System generated locals */
-    integer i__1, i__2;
+    int i__1, i__2;
 
     /* Local variables */
-    static integer i__, m, ix, iy, ns, mp1;
+    static int i__, m, ix, iy, ns, mp1;
 
 /* ***BEGIN PROLOGUE  DCOPY */
 /* ***DATE WRITTEN   791001   (YYMMDD) */
@@ -641,15 +653,15 @@ L60:
 } /* dcopy_ */
 
 /* DDOT */
-doublereal ddot_(integer *n, doublereal *dx, integer *incx, doublereal *dy, 
-	integer *incy)
+double ddot_(int *n, double *dx, int *incx, double *dy, 
+	int *incy)
 {
     /* System generated locals */
-    integer i__1, i__2;
-    doublereal ret_val;
+    int i__1, i__2;
+    double ret_val;
 
     /* Local variables */
-    static integer i__, m, ix, iy, ns, mp1;
+    static int i__, m, ix, iy, ns, mp1;
 
 /* ***BEGIN PROLOGUE  DDOT */
 /* ***DATE WRITTEN   791001   (YYMMDD) */
@@ -761,14 +773,14 @@ L60:
 } /* ddot_ */
 
 /* DNRM2 */
-doublereal dnrm2_(integer *n, doublereal *dx, integer *incx)
+double dnrm2_(int *n, double *dx, int *incx)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
-    static doublereal one = 1.;
-    static doublereal cutlo = 8.232e-11;
-    static doublereal cuthi = 1.304e19;
+    static double zero = 0.;
+    static double one = 1.;
+    static double cutlo = 8.232e-11;
+    static double cuthi = 1.304e19;
 
     /* Format strings */
     static char fmt_30[] = "";
@@ -777,17 +789,17 @@ doublereal dnrm2_(integer *n, doublereal *dx, integer *incx)
     static char fmt_110[] = "";
 
     /* System generated locals */
-    integer i__1, i__2;
-    doublereal ret_val, d__1;
+    int i__1, i__2;
+    double ret_val, d__1;
 
     /* Builtin functions */
-    double sqrt(doublereal);
+    double sqrt(double);
 
     /* Local variables */
-    static integer i__, j, nn;
-    static doublereal sum, xmax;
-    static integer next;
-    static doublereal hitest;
+    static int i__, j, nn;
+    static double sum, xmax;
+    static int next;
+    static double hitest;
 
     /* Assigned format variables */
     static char *next_fmt;
@@ -937,7 +949,7 @@ L75:
 /*     FOR REAL OR D.P. SET HITEST = CUTHI/N */
 /*     FOR COMPLEX      SET HITEST = CUTHI/(2*N) */
 L85:
-    hitest = cuthi / (real) (*n);
+    hitest = cuthi / (double) (*n);
 /*                   PHASE 3.  SUM IS MID-RANGE.  NO SCALING. */
     i__1 = nn;
     i__2 = *incx;
@@ -965,20 +977,20 @@ L300:
 } /* dnrm2_ */
 
 /* DPODI */
-/* Subroutine */ int dpodi_(doublereal *a, integer *lda, integer *n, 
-	doublereal *det, integer *job)
+/* Subroutine */ int dpodi_(double *a, int *lda, int *n, 
+	double *det, int *job)
 {
     /* System generated locals */
-    integer a_dim1, a_offset, i__1, i__2;
-    doublereal d__1;
+    int a_dim1, a_offset, i__1, i__2;
+    double d__1;
 
     /* Local variables */
-    static integer i__, j, k;
-    static doublereal s, t;
-    static integer jm1, kp1;
-    extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *, 
-	    integer *), daxpy_(integer *, doublereal *, doublereal *, integer 
-	    *, doublereal *, integer *);
+    static int i__, j, k;
+    static double s, t;
+    static int jm1, kp1;
+    extern /* Subroutine */ int dscal_(int *, double *, double *, 
+	    int *), daxpy_(int *, double *, double *, int 
+	    *, double *, int *);
 
 /* ***BEGIN PROLOGUE  DPODI */
 /* ***DATE WRITTEN   780814   (YYMMDD) */
@@ -1130,34 +1142,34 @@ L140:
 } /* dpodi_ */
 
 /* DQRDC */
-/* Subroutine */ int dqrdc_(doublereal *x, integer *ldx, integer *n, integer *
-	p, doublereal *qraux, integer *jpvt, doublereal *work, integer *job)
+/* Subroutine */ int dqrdc_(double *x, int *ldx, int *n, int *
+	p, double *qraux, int *jpvt, double *work, int *job)
 {
     /* System generated locals */
-    integer x_dim1, x_offset, i__1, i__2, i__3;
-    doublereal d__1, d__2;
+    int x_dim1, x_offset, i__1, i__2, i__3;
+    double d__1, d__2;
 
     /* Builtin functions */
-    double d_sign(doublereal *, doublereal *), sqrt(doublereal);
+    double d_sign(double *, double *), sqrt(double);
 
     /* Local variables */
-    static integer j, l;
-    static doublereal t;
-    static integer jj, jp, pl, pu;
-    static doublereal tt;
-    static integer lp1, lup;
-    static logical negj;
-    extern doublereal ddot_(integer *, doublereal *, integer *, doublereal *, 
-	    integer *);
-    static integer maxj;
-    extern doublereal dnrm2_(integer *, doublereal *, integer *);
-    extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *, 
-	    integer *), dswap_(integer *, doublereal *, integer *, doublereal 
-	    *, integer *);
-    static logical swapj;
-    extern /* Subroutine */ int daxpy_(integer *, doublereal *, doublereal *, 
-	    integer *, doublereal *, integer *);
-    static doublereal nrmxl, maxnrm;
+    static int j, l;
+    static double t;
+    static int jj, jp, pl, pu;
+    static double tt;
+    static int lp1, lup;
+    static int negj;
+    extern double ddot_(int *, double *, int *, double *, 
+	    int *);
+    static int maxj;
+    extern double dnrm2_(int *, double *, int *);
+    extern /* Subroutine */ int dscal_(int *, double *, double *, 
+	    int *), dswap_(int *, double *, int *, double 
+	    *, int *);
+    static int swapj;
+    extern /* Subroutine */ int daxpy_(int *, double *, double *, 
+	    int *, double *, int *);
+    static double nrmxl, maxnrm;
 
 /* ***BEGIN PROLOGUE  DQRDC */
 /* ***DATE WRITTEN   780814   (YYMMDD) */
@@ -1411,29 +1423,29 @@ L190:
 } /* dqrdc_ */
 
 /* DQRSL */
-/* Subroutine */ int dqrsl_(doublereal *x, integer *ldx, integer *n, integer *
-	k, doublereal *qraux, doublereal *y, doublereal *qy, doublereal *qty, 
-	doublereal *b, doublereal *rsd, doublereal *xb, integer *job, integer 
+/* Subroutine */ int dqrsl_(double *x, int *ldx, int *n, int *
+	k, double *qraux, double *y, double *qy, double *qty, 
+	double *b, double *rsd, double *xb, int *job, int 
 	*info)
 {
     /* System generated locals */
-    integer x_dim1, x_offset, i__1, i__2;
+    int x_dim1, x_offset, i__1, i__2;
 
     /* Local variables */
-    static integer i__, j;
-    static doublereal t;
-    static logical cb;
-    static integer jj;
-    static logical cr;
-    static integer ju, kp1;
-    static logical cxb, cqy;
-    extern doublereal ddot_(integer *, doublereal *, integer *, doublereal *, 
-	    integer *);
-    static doublereal temp;
-    static logical cqty;
-    extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *, 
-	    doublereal *, integer *), daxpy_(integer *, doublereal *, 
-	    doublereal *, integer *, doublereal *, integer *);
+    static int i__, j;
+    static double t;
+    static int cb;
+    static int jj;
+    static int cr;
+    static int ju, kp1;
+    static int cxb, cqy;
+    extern double ddot_(int *, double *, int *, double *, 
+	    int *);
+    static double temp;
+    static int cqty;
+    extern /* Subroutine */ int dcopy_(int *, double *, int *, 
+	    double *, int *), daxpy_(int *, double *, 
+	    double *, int *, double *, int *);
 
 /* ***BEGIN PROLOGUE  DQRSL */
 /* ***DATE WRITTEN   780814   (YYMMDD) */
@@ -1757,21 +1769,21 @@ L250:
 } /* dqrsl_ */
 
 /* DROT */
-/* Subroutine */ int drot_(integer *n, doublereal *dx, integer *incx, 
-	doublereal *dy, integer *incy, doublereal *dc, doublereal *ds)
+/* Subroutine */ int drot_(int *n, double *dx, int *incx, 
+	double *dy, int *incy, double *dc, double *ds)
 {
     /* Initialized data */
 
-    static doublereal zero = 0.;
-    static doublereal one = 1.;
+    static double zero = 0.;
+    static double one = 1.;
 
     /* System generated locals */
-    integer i__1, i__2;
+    int i__1, i__2;
 
     /* Local variables */
-    static integer i__;
-    static doublereal w, z__;
-    static integer kx, ky, nsteps;
+    static int i__;
+    static double w, z__;
+    static int kx, ky, nsteps;
 
 /* ***BEGIN PROLOGUE  DROT */
 /* ***DATE WRITTEN   791001   (YYMMDD) */
@@ -1859,17 +1871,17 @@ L40:
 } /* drot_ */
 
 /* DROTG */
-/* Subroutine */ int drotg_(doublereal *da, doublereal *db, doublereal *dc, 
-	doublereal *ds)
+/* Subroutine */ int drotg_(double *da, double *db, double *dc, 
+	double *ds)
 {
     /* System generated locals */
-    doublereal d__1;
+    double d__1;
 
     /* Builtin functions */
-    double sqrt(doublereal);
+    double sqrt(double);
 
     /* Local variables */
-    static doublereal r__, u, v;
+    static double r__, u, v;
 
 /* ***BEGIN PROLOGUE  DROTG */
 /* ***DATE WRITTEN   791001   (YYMMDD) */
@@ -1963,14 +1975,14 @@ L20:
 } /* drotg_ */
 
 /* DSCAL */
-/* Subroutine */ int dscal_(integer *n, doublereal *da, doublereal *dx, 
-	integer *incx)
+/* Subroutine */ int dscal_(int *n, double *da, double *dx, 
+	int *incx)
 {
     /* System generated locals */
-    integer i__1, i__2;
+    int i__1, i__2;
 
     /* Local variables */
-    static integer i__, m, ns, mp1;
+    static int i__, m, ns, mp1;
 
 /* ***BEGIN PROLOGUE  DSCAL */
 /* ***DATE WRITTEN   791001   (YYMMDD) */
@@ -2054,15 +2066,15 @@ L40:
 } /* dscal_ */
 
 /* DSWAP */
-/* Subroutine */ int dswap_(integer *n, doublereal *dx, integer *incx, 
-	doublereal *dy, integer *incy)
+/* Subroutine */ int dswap_(int *n, double *dx, int *incx, 
+	double *dy, int *incy)
 {
     /* System generated locals */
-    integer i__1, i__2;
+    int i__1, i__2;
 
     /* Local variables */
-    static integer i__, m, ix, iy, ns, mp1;
-    static doublereal dtemp1, dtemp2, dtemp3;
+    static int i__, m, ix, iy, ns, mp1;
+    static double dtemp1, dtemp2, dtemp3;
 
 /* ***BEGIN PROLOGUE  DSWAP */
 /* ***DATE WRITTEN   791001   (YYMMDD) */
@@ -2186,30 +2198,30 @@ L60:
 } /* dswap_ */
 
 /* DTRCO */
-/* Subroutine */ int dtrco_(doublereal *t, integer *ldt, integer *n, 
-	doublereal *rcond, doublereal *z__, integer *job)
+/* Subroutine */ int dtrco_(double *t, int *ldt, int *n, 
+	double *rcond, double *z__, int *job)
 {
     /* System generated locals */
-    integer t_dim1, t_offset, i__1, i__2;
-    doublereal d__1, d__2;
+    int t_dim1, t_offset, i__1, i__2;
+    double d__1, d__2;
 
     /* Builtin functions */
-    double d_sign(doublereal *, doublereal *);
+    double d_sign(double *, double *);
 
     /* Local variables */
-    static integer j, k, l;
-    static doublereal s, w;
-    static integer i1, j1, j2;
-    static doublereal ek;
-    static integer kk;
-    static doublereal sm, wk, wkm;
-    extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *, 
-	    integer *);
-    extern doublereal dasum_(integer *, doublereal *, integer *);
-    extern /* Subroutine */ int daxpy_(integer *, doublereal *, doublereal *, 
-	    integer *, doublereal *, integer *);
-    static logical lower;
-    static doublereal tnorm, ynorm;
+    static int j, k, l;
+    static double s, w;
+    static int i1, j1, j2;
+    static double ek;
+    static int kk;
+    static double sm, wk, wkm;
+    extern /* Subroutine */ int dscal_(int *, double *, double *, 
+	    int *);
+    extern double dasum_(int *, double *, int *);
+    extern /* Subroutine */ int daxpy_(int *, double *, double *, 
+	    int *, double *, int *);
+    static int lower;
+    static double tnorm, ynorm;
 
 /* ***BEGIN PROLOGUE  DTRCO */
 /* ***DATE WRITTEN   780814   (YYMMDD) */
@@ -2423,19 +2435,19 @@ L120:
 } /* dtrco_ */
 
 /* DTRSL */
-/* Subroutine */ int dtrsl_(doublereal *t, integer *ldt, integer *n, 
-	doublereal *b, integer *job, integer *info)
+/* Subroutine */ int dtrsl_(double *t, int *ldt, int *n, 
+	double *b, int *job, int *info)
 {
     /* System generated locals */
-    integer t_dim1, t_offset, i__1, i__2;
+    int t_dim1, t_offset, i__1, i__2;
 
     /* Local variables */
-    static integer j, jj, case__;
-    extern doublereal ddot_(integer *, doublereal *, integer *, doublereal *, 
-	    integer *);
-    static doublereal temp;
-    extern /* Subroutine */ int daxpy_(integer *, doublereal *, doublereal *, 
-	    integer *, doublereal *, integer *);
+    static int j, jj, case__;
+    extern double ddot_(int *, double *, int *, double *, 
+	    int *);
+    static double temp;
+    extern /* Subroutine */ int daxpy_(int *, double *, double *, 
+	    int *, double *, int *);
 
 /* ***BEGIN PROLOGUE  DTRSL */
 /* ***DATE WRITTEN   780814   (YYMMDD) */
@@ -2592,15 +2604,15 @@ L150:
 } /* dtrsl_ */
 
 /* IDAMAX */
-integer idamax_(integer *n, doublereal *dx, integer *incx)
+int idamax_(int *n, double *dx, int *incx)
 {
     /* System generated locals */
-    integer ret_val, i__1, i__2;
-    doublereal d__1;
+    int ret_val, i__1, i__2;
+    double d__1;
 
     /* Local variables */
-    static integer i__, ii, ns;
-    static doublereal dmax__, xmag;
+    static int i__, ii, ns;
+    static double dmax__, xmag;
 
 /* ***BEGIN PROLOGUE  IDAMAX */
 /* ***DATE WRITTEN   791001   (YYMMDD) */

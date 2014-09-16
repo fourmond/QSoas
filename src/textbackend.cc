@@ -130,6 +130,9 @@ textLoadOptions(QList<Argument *>()
                 << new StringArgument("decimal", 
                                       "Decimal separator",
                                       "Decimal separator")
+                << new IntegerArgument("skip", 
+                                       "Skip lines",
+                                       "Skip that many lines at beginning")
                 << new RegexArgument("comments", 
                                      "Comments",
                                      "Comment lines")
@@ -162,6 +165,9 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
   QList<int> cols;
   updateFromOptions(opts, "columns", cols);
 
+  int skip = 0;
+  updateFromOptions(opts, "skip", skip);
+
   bool autoSplit = false;
   updateFromOptions(opts, "auto-split", autoSplit);
 
@@ -179,7 +185,7 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
   QList<QList<Vector> > allColumns = 
     Vector::readFromStream(&s, sep.toQRegExp(), 
                            cmt.toQRegExp(), autoSplit, dSep,
-                           QRegExp("^\\s*$"), &comments);
+                           QRegExp("^\\s*$"), &comments, skip);
 
   ValueHash meta;
 

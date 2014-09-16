@@ -34,7 +34,8 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
                                              bool splitOnBlank,
                                              const QString & decimalSep,
                                              const QRegExp & blankREt,
-                                             QStringList * comments)
+                                             QStringList * comments,
+                                             int skip)
 {
 
   QList<QList<Vector> > retval;
@@ -53,6 +54,8 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
   while(! s.atEnd()) {
     lineNumber++;
     QString line = s.readLine();
+    if(skip >= lineNumber)
+      continue;
     if(commentRE.indexIn(line) >= 0) {
       if(comments)
         *comments << line;

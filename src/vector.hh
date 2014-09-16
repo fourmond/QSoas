@@ -218,7 +218,8 @@ public:
                                               bool splitOnBlank = false,
                                               const QString & decimalSep = QString(),
                                               const QRegExp & blankRE = QRegExp("^\\s*$"),
-                                              QStringList * comments = NULL);
+                                              QStringList * comments = NULL,
+                                              int skip = 0);
 
 
   /// Convenience overload

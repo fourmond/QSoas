@@ -1251,7 +1251,7 @@ shiftx("shiftx", // command name
 //////////////////////////////////////////////////////////////////////
 
 
-static void statsOn(const DataSet * ds, bool output)
+static void statsOn(const DataSet * ds, bool output, const ValueHash & meta)
 {
   Statistics stats(ds);
 
@@ -1264,6 +1264,7 @@ static void statsOn(const DataSet * ds, bool output)
 
   Terminal::out << endl;
   if(output) {
+    os.merge(meta);
     Terminal::out << "Writing stats to output file" << endl;
     OutFile::out.writeValueHash(os);
   }
@@ -1277,16 +1278,31 @@ static void statsCommand(const QString &, const CommandOptions & opts)
   updateFromOptions(opts, "output", output);
   bool bySegments = false;
   updateFromOptions(opts, "use-segments", bySegments);
+  QStringList metaNames;
+  updateFromOptions(opts, "meta", metaNames);
+
+  ValueHash meta;
+  if(metaNames.size() > 0) {
+    const ValueHash & origMeta = ds->getMetaData();
+    for(int i = 0; i < metaNames.size(); i++) {
+      const QString & n = metaNames[i];
+      if(origMeta.contains(n))
+        meta << n << origMeta[n];
+      else 
+        Terminal::out << "Requested meta '" << n 
+                      << "' but it is missing from buffer" << endl;
+    }
+  }
 
   if(bySegments) {
     QList<DataSet * > segs = ds->chopIntoSegments();
     for(int i = 0; i < segs.size(); i++) {
-      statsOn(segs[i], output);
+      statsOn(segs[i], output, meta);
       delete segs[i];
     }
   }
   else
-    statsOn(ds, output);
+    statsOn(ds, output, meta);
 }
 
 static ArgumentList 
@@ -1301,6 +1317,9 @@ statsO(QList<Argument *>()
        << new BoolArgument("use-segments", 
                            "Use segments",
                            "Make statistics segments by segment")
+       << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "meta", 
+                                     "Meta-data",
+                                     "When writing to output file, also print the listed meta-data")
        );
 
 

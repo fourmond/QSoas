@@ -1,0 +1,7 @@
+sin = 0
+cos = 1
+
+d_sin = cos
+d_cos = -sin
+
+[sin, cos, sin**2 + cos**2]

@@ -47,13 +47,24 @@ static Group simulations("simulations", 10,
 static void odeComputationCommand(const QString &, QString file,
                                   const CommandOptions & opts)
 {
-  const DataSet * ds = soas().currentDataSet();
   RubyODESolver solver;
 
   QFile f(file);
   Utils::open(&f, QIODevice::ReadOnly);
 
   solver.parseFromFile(&f);
+
+  {
+    bool dump = false;
+    updateFromOptions(opts, "dump", dump);
+    if(dump) {
+      Terminal::out << solver.dump() << endl;
+      return;
+    }
+  }
+
+  const DataSet * ds = soas().currentDataSet();
+
 
   ODEStepperOptions op = solver.getStepperOptions();
   op.parseOptions(opts);
@@ -85,6 +96,8 @@ static void odeComputationCommand(const QString &, QString file,
   
   QList<Vector> cols;
 
+
+  // Hmmm...
   const Vector & xs = ds->x();
   solver.initialize(xs[0]);
 
@@ -115,6 +128,9 @@ odeOpts(QList<Argument *>()
         << new BoolArgument("annotate", 
                             "Annotate",
                             "If on, a last column will contain the number of function evaluation for each step")
+        << new BoolArgument("dump", 
+                            "Dump",
+                            "If on, do not integrate, just dumps the parse contents of the ODE file")
         << ODEStepperOptions::commandOptions()
         );
 

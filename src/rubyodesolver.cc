@@ -179,3 +179,22 @@ void RubyODESolver::initialize(double t)
   ODESolver::initialize(tg, t);
 }
 
+void RubyODESolver::dump(QTextStream & target) const
+{
+  target << "Variables: " << vars.join(", ") << "\n"
+         << "Extra parameters: " << extraParams.join(", ") << "\n\n"
+         << "Initial conditions: \n" << initialization->formula() << "\n\n"
+         << "Derivatives: \n" << derivatives->formula() << "\n\n";
+  if(reporters)
+    target << "Reporters: \n" << reporters->formula() << endl;
+  else
+    target << "No reporters" << endl;
+}
+
+QString RubyODESolver::dump() const
+{
+  QString tg;
+  QTextStream s(&tg);
+  dump(s);
+  return tg;
+}

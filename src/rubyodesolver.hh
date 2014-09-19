@@ -26,9 +26,6 @@
 #include <vector.hh>
 
 /// An ODE solver that uses expressions.
-///
-/// @todo Add "reporters", ie results of the differential equation
-/// that are not one of the variables
 class RubyODESolver : public ODESolver {
 
   /// Expression called at startup
@@ -70,10 +67,15 @@ public:
   /// initial conditions from the derivatives.
   void parseFromFile(QIODevice * device);
 
+  
+  virtual bool hasReporters() const {
+    return reporters != 0;
+  };
+
   /// Returns the set of values defined by the reporters expression --
   /// or the values of the variables should there not be any
   /// expression.
-  Vector reporterValues() const;
+  virtual Vector reporterValues() const;
 
   virtual ~RubyODESolver();
 
@@ -106,6 +108,13 @@ public:
   const Vector & parameterValues() const {
     return extraParamsValues;
   };
+
+  
+  /// Dumps the contents of the object to the target stream
+  void dump(QTextStream & target) const;
+
+  /// Returns explanative text as QString
+  QString dump() const;
 };
 
 #endif

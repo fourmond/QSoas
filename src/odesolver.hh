@@ -213,12 +213,25 @@ public:
   /// This function probably should raise an exception upon GSL error
   void stepTo(double t);
 
+  /// Whether or not the ODE has reporters, that is, the result we are
+  /// interested in is not the variables, but one or several functions
+  /// thereof
+  virtual bool hasReporters() const {
+    return false;
+  };
+
+  /// This returns the values of the reporters in the current state.
+  virtual Vector reporterValues() const;
+
   /// Performs several steps to all the t values, and returns all the
   /// concentrations.
   ///
   /// If @a annotate is true, then a last column is added that will
   /// contain the number of function evaluations needed for each
   /// point. (may prove really useful for debugging !)
+  ///
+  /// The function will return the values of the reporters if
+  /// hasReporters() returns true.
   QList<Vector> steps(const Vector & tvalues, bool annotate = false);
 
   /// The overall number of function evaluations since the beginning.

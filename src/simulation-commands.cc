@@ -85,12 +85,15 @@ static void odeComputationCommand(const QString &, QString file,
                 << op.description() << endl;
 
   QStringList params = solver.extraParameters();
+  ValueHash meta;
   if(params.size() > 0) {
     QStringList desc;
     const Vector &v = solver.parameterValues();
-    for(int i = 0; i < params.size(); i++)
+    for(int i = 0; i < params.size(); i++) {
       desc << QString("%1 = %2").
         arg(params[i]).arg(v[i]);
+      meta[params[i]] = v[i];
+    }
     Terminal::out << "With parameters " << desc.join(", ") << endl;
   }
   
@@ -101,12 +104,14 @@ static void odeComputationCommand(const QString &, QString file,
   const Vector & xs = ds->x();
   solver.initialize(xs[0]);
 
+  meta["ode-system"] = file;
   cols << xs;
 
   cols << solver.steps(xs, annotate);
   
   DataSet * nds = new DataSet(cols);
   nds->name = "ode.dat";
+  nds->addMetaData(meta);
   Terminal::out << "Total number of function evaluations: " 
                 << solver.evaluations << endl;
   soas().stack().pushDataSet(nds);

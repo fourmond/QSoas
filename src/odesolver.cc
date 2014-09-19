@@ -396,7 +396,7 @@ QList<Vector> ODESolver::steps(const Vector &tValues, bool annotate)
     Vector v = reporterValues();
     dim = v.size();
   }
-  for(int i = 0; i < dimension(); i++)
+  for(int i = 0; i < dim; i++)
     ret += tValues;
   if(annotate)
     ret += tValues;

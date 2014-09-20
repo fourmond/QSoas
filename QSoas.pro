@@ -249,7 +249,8 @@ SOURCES += src/qmain.cc \
         src/curvebrowser.cc \
         src/lineedit.cc \
         src/linereader.cc \
-        src/hook.cc
+        src/hook.cc \
+        src/nupwidget.cc
 
 
 HEADERS += src/headers.hh \
@@ -346,7 +347,8 @@ HEADERS += src/headers.hh \
         src/curvebrowser.hh \
         src/lineedit.hh \
         src/linereader.hh \
-        src/hook.hh
+        src/hook.hh \
+        src/nupwidget.hh
 
 
 # We link with the converted ODRPACK library

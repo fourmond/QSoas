@@ -25,7 +25,7 @@
 #include <curveview.hh>
 
 class CheckableWidget;
-
+class NupWidget;
 
 /// This class handles all the user interaction during fits.
 class DatasetBrowser : public QDialog {
@@ -34,32 +34,14 @@ class DatasetBrowser : public QDialog {
 
 private:
 
-  /// Widgets embedding all datasets for a given page
-  QList<QWidget *> pages;
-
-  /// Distribute all the datasets into pages...
-  void setupPages();
+  /// The widget holding the whole nup stuff
+  NupWidget * nup;
 
   /// The dataset views
   QList<CheckableWidget *> views;
 
-  /// Stacked layout for the pages
-  QStackedLayout * pageStackLayout;
-
-  /// The current index
-  int currentPage;
-
   /// The currently displayed datasets
   QList<const DataSet *> datasets;
-
-  /// Current number of columns
-  int width;
-
-  /// Current number of rows
-  int height;
-
-  /// Base index
-  int index;
 
   /// Display of the current buffers
   QLabel * bufferDisplay;
@@ -94,19 +76,10 @@ public:
 protected slots:
 
   void pageChanged(int newpage);
-  void nextPage();
-  void previousPage();
 
   /// Runs the numbered hook
   void runHook(int hook);
   
-  /// Changes the nup of the window.
-  void changeNup(int width, int height);
-
-
-  /// Changes the nup based on some wxh specification.
-  void changeNup(const QString & str);
-
 public:
   /// @name Actions
   ///

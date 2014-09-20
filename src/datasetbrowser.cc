@@ -22,6 +22,7 @@
 #include <settings-templates.hh>
 
 #include <checkablewidget.hh>
+#include <nupwidget.hh>
 
 
 //////////////////////////////////////////////////////////////////////
@@ -29,8 +30,7 @@
 static SettingsValue<QSize> browserSize("browser/size", QSize(700,500));
 
 
-DatasetBrowser::DatasetBrowser() : width(4), height(4), 
-                                   extendedSelection(false)
+DatasetBrowser::DatasetBrowser() : extendedSelection(false)
 {
   resize(browserSize);
   setupFrame();
@@ -45,35 +45,6 @@ DatasetBrowser::~DatasetBrowser()
   cleanupViews();
 }
 
-void DatasetBrowser::setupPages()
-{
-  int nbPerPage = width * height;
-  int pgs = (views.size() - 1)/nbPerPage + 1;
-
-  QList<QWidget * > oldpages = pages;
-  pages.clear();
-
-  
-  for(int i = 0; i < pgs; i++) {
-    int base = i * nbPerPage;
-    QWidget * page = new QWidget(this);
-    QGridLayout * layout = new QGridLayout(page);
-    for(int j = 0; j < nbPerPage; j++) {
-      QWidget * w = views.value(base + j, NULL);
-      if(w)
-        layout->addWidget(w, j/width, j % width);
-      else 
-        layout->addWidget(new CurveView, j/width, j % width);
-    }
-    pageStackLayout->addWidget(page);
-    pages << page;
-  }
-
-  // we delete later so that the child widgets have already changed parents.
-  while(oldpages.size() > 0)
-    delete oldpages.takeAt(0);
-}
-
 void DatasetBrowser::cleanupViews()
 {
   for(int i = 0; i < views.size(); i++)
@@ -86,13 +57,16 @@ void DatasetBrowser::setupFrame()
 {
   QVBoxLayout * layout = new QVBoxLayout(this);
 
-  pageStackLayout = new QStackedLayout();
-  layout->addLayout(pageStackLayout);
+  nup = new NupWidget;
+  layout->addWidget(nup);
+  nup->setNup(4,4);
+
+  connect(nup, SIGNAL(pageChanged(int)), SLOT(pageChanged(int)));
 
 
   bottomLayout = new QHBoxLayout;
   QPushButton * bt = new QPushButton(tr("<-"));
-  connect(bt, SIGNAL(clicked()), SLOT(previousPage()));
+  nup->connect(bt, SIGNAL(clicked()), SLOT(previousPage()));
   bottomLayout->addWidget(bt);
 
   bufferDisplay = new QLabel("");
@@ -110,12 +84,12 @@ void DatasetBrowser::setupFrame()
   cb->addItem("2 x 2");
   cb->addItem("6 x 6");
   cb->addItem("3 x 2");
-  connect(cb, SIGNAL(activated(const QString&)), 
-          SLOT(changeNup(const QString &)));
+  nup->connect(cb, SIGNAL(activated(const QString&)), 
+               SLOT(setNup(const QString &)));
   bottomLayout->addWidget(cb);
 
   bt = new QPushButton(tr("->"));
-  connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
+  nup->connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
   bottomLayout->addWidget(bt);
 
   layout->addLayout(bottomLayout);
@@ -124,23 +98,19 @@ void DatasetBrowser::setupFrame()
 
 void DatasetBrowser::pageChanged(int newpage)
 {
-  currentPage = newpage;
-  if(currentPage >= pages.size())
-    currentPage = pages.size() - 1;
-  if(currentPage < 0)
-    currentPage = 0;
-
-  pageStackLayout->setCurrentIndex(currentPage);
-
   bufferDisplay->setText(QString("%1/%2").
-                         arg(currentPage+1).
-                         arg(pages.size()));
+                         arg(newpage).
+                         arg(nup->totalPages()));
 }
 
 void DatasetBrowser::displayDataSets(const QList<const DataSet *> &ds,
                                      bool es)
 {
   extendedSelection = es;
+  nup->clear();
+  int wd = nup->nupWidth();
+  int ht = nup->nupHeight();
+  nup->setNup(0,0);
   cleanupViews();
   datasets = ds;
   for(int i = 0; i < datasets.size(); i++) {
@@ -148,10 +118,10 @@ void DatasetBrowser::displayDataSets(const QList<const DataSet *> &ds,
       new CheckableWidget(new CurveView(this), this);
     cw->subWidget<CurveView>()->showDataSet(datasets[i]);
     views << cw;
+    nup->addWidget(cw);
   }
-  setupPages();
-
-  pageChanged(0);
+  nup->setNup(wd, ht);
+  nup->showPage(0);
 }
 
 void DatasetBrowser::displayDataSets(const QList<DataSet *> &ds, 
@@ -161,36 +131,6 @@ void DatasetBrowser::displayDataSets(const QList<DataSet *> &ds,
   for(int i = 0; i < ds.size(); i++)
     ds2 << ds[i];
   displayDataSets(ds2, es);
-}
-
-
-void DatasetBrowser::nextPage()
-{
-  pageChanged(currentPage + 1);
-}
-
-void DatasetBrowser::previousPage()
-{
-  pageChanged(currentPage - 1);
-}
-
-void DatasetBrowser::changeNup(int w, int h)
-{
-  int curDS = currentPage * width * height;
-  width = w;
-  height = h;
-  setupPages();
-  pageChanged(curDS/(width * height));
-}
-
-void DatasetBrowser::changeNup(const QString & nup)
-{
-  QRegExp re("^\\s*(\\d+)\\s*x\\s*(\\d+)");
-  if(re.indexIn(nup, 0) == 0) {
-    int w = re.cap(1).toInt();
-    int h = re.cap(2).toInt();
-    changeNup(w, h);
-  }
 }
 
 

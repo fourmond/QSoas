@@ -73,6 +73,19 @@ void NupWidget::setupPages()
     delete oldpages.takeAt(0);
 }
 
+int NupWidget::widgetIndex() const
+{
+  int w = width * height;
+  if(w <= 0)
+    w = 1;
+  return index * w;
+}
+
+bool NupWidget::isNup() const
+{
+  return (width != 1) || (height != 1);
+}
+
 
 void NupWidget::showPage(int newpage)
 {
@@ -86,6 +99,12 @@ void NupWidget::showPage(int newpage)
   emit(pageChanged(currentPage));
 }
 
+void NupWidget::showWidget(int idx)
+{
+  if(width <= 0 || height <= 0)
+    return;
+  showPage(idx/(width*height));
+}
 
 void NupWidget::nextPage()
 {
@@ -105,6 +124,7 @@ void NupWidget::setNup(int w, int h)
   setupPages();
   if(width > 0 && height > 0)
     showPage(cur/(width * height));
+  nupChanged(width, height);
 }
 
 void NupWidget::setNup(const QString & nup)

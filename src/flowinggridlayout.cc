@@ -89,7 +89,8 @@ int FlowingGridLayout::computeLayout(const QRect & geom, bool doPlacement) const
 
   // Now, we decide the number of columns:
   QSize widgetSize = itemsMinimumSize();
-  int nbCols = inner.width()/widgetSize.width();
+  int wd = widgetSize.width();
+  int nbCols = inner.width()/(wd > 0 ? wd : 1);
   int colWidth = inner.width()/nbCols;
   if(nbCols < 1)
     nbCols = 1;

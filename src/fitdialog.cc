@@ -46,13 +46,15 @@
 #include <utils.hh>
 #include <parametersviewer.hh>
 
+#include <nupwidget.hh>
+
 #include <curvebrowser.hh>
 
 static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
 
 FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) : 
   data(d),
-  stackedViews(NULL), 
+  nup(NULL),
   parameters(d),
   currentIndex(0),
   settingEditors(false), 
@@ -147,7 +149,7 @@ void FitDialog::appendToMessage(const QString & str, bool format)
 void FitDialog::setupFrame()
 {
   QVBoxLayout * layout = new QVBoxLayout(this);
-  stackedViews = new QStackedWidget;
+  nup = new NupWidget;
   bufferSelection = new QComboBox;
   for(int i = 0; i < data->datasets.size(); i++) {
     const DataSet * ds = data->datasets[i];
@@ -173,21 +175,25 @@ void FitDialog::setupFrame()
     /// @todo Colors !
     view->addPanel(bottomPanel);
     
-    stackedViews->addWidget(view);
+    nup->addWidget(view);
     views << view;
     bufferSelection->addItem(Utils::shortenString(ds->name));
   }
-  layout->addWidget(stackedViews, 1);
+  nup->setNup(1,1);
+  connect(nup, SIGNAL(pageChanged(int)), SLOT(dataSetChanged(int)));
+  connect(nup, SIGNAL(nupChanged(int,int)), SLOT(nupChanged()));
+
+  layout->addWidget(nup, 1);
 
   //////////////////////////////////////////////////////////////////////
   // First line
   QHBoxLayout * hb = new QHBoxLayout;
   QPushButton * bt = new QPushButton(tr("<-"));
-  connect(bt, SIGNAL(clicked()), SLOT(previousDataset()));
+  nup->connect(bt, SIGNAL(clicked()), SLOT(previousPage()));
   hb->addWidget(bt);
 
   bt = new QPushButton(tr("->"));
-  connect(bt, SIGNAL(clicked()), SLOT(nextDataset()));
+  nup->connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
   hb->addWidget(bt);
 
 
@@ -197,11 +203,26 @@ void FitDialog::setupFrame()
   hb->addWidget(label, 1);
 
   hb->addWidget(bufferSelection);
-  connect(bufferSelection, SIGNAL(currentIndexChanged(int)),
-          SLOT(dataSetChanged(int)));
+  nup->connect(bufferSelection, SIGNAL(currentIndexChanged(int)),
+               SLOT(showWidget(int)));
+
+
   
   bufferNumber = new QLabel();
   hb->addWidget(bufferNumber);
+
+  QComboBox * cb = new QComboBox;
+  cb->setEditable(true);
+  cb->addItem("1 x 1");
+  cb->addItem("4 x 4");
+  cb->addItem("3 x 3");
+  cb->addItem("2 x 2");
+  cb->addItem("6 x 6");
+  cb->addItem("3 x 2");
+  nup->connect(cb, SIGNAL(activated(const QString&)), 
+               SLOT(setNup(const QString &)));
+  hb->addWidget(cb);
+
 
   if(bufferWeightEditor) {
     hb->addWidget(bufferWeightEditor);
@@ -218,11 +239,11 @@ void FitDialog::setupFrame()
   }
 
   bt = new QPushButton(tr("<-"));
-  connect(bt, SIGNAL(clicked()), SLOT(previousDataset()));
+  nup->connect(bt, SIGNAL(clicked()), SLOT(previousPage()));
   hb->addWidget(bt);
   
   bt = new QPushButton(tr("->"));
-  connect(bt, SIGNAL(clicked()), SLOT(nextDataset()));
+  nup->connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
   hb->addWidget(bt);
 
   layout->addLayout(hb);
@@ -402,9 +423,9 @@ void FitDialog::setupFrame()
 
   // Ctr + PgUp/PgDown to navigate the buffers
   Utils::registerShortCut(QKeySequence(tr("Ctrl+PgUp")), 
-                          this, SLOT(previousDataset()));
+                          nup, SLOT(previousPage()));
   Utils::registerShortCut(QKeySequence(tr("Ctrl+PgDown")), 
-                          this, SLOT(nextDataset()));
+                          nup, SLOT(nextPage()));
 
   
 
@@ -421,18 +442,19 @@ void FitDialog::closeEvent(QCloseEvent * event)
 
 void FitDialog::dataSetChanged(int newds)
 {
-  stackedViews->setCurrentIndex(newds);
-  currentIndex = newds;
+  // stackedViews->setCurrentIndex(newds);
+  currentIndex = nup->widgetIndex();
   emit(currentDataSetChanged(currentIndex));
-  updateEditors();
+  if(! nup->isNup())
+    updateEditors();
   QString txt = QString("%1/%2 %3 %4").
     arg(newds + 1).arg(data->datasets.size()).
-    arg(data->fit->annotateDataSet(newds)).
+    arg(data->fit->annotateDataSet(currentIndex)).
     arg(bufferWeightEditor ? " weight: " : "");
   if(parameters.perpendicularCoordinates.size() > 0) {
     QString str = QString(" %1 = %2").arg(perpendicularMeta.isEmpty() ? 
                                           "Z" : perpendicularMeta).
-      arg(parameters.perpendicularCoordinates[newds]);
+      arg(parameters.perpendicularCoordinates[currentIndex]);
     txt += str;
   }
   bufferNumber->setText(txt);
@@ -480,8 +502,8 @@ void FitDialog::internalCompute()
   updateResidualsDisplay();
 
   // Update here ?
-  if(stackedViews && stackedViews->currentWidget())
-    stackedViews->currentWidget()->repaint();
+  // if(stackedViews && stackedViews->currentWidget())
+  //   stackedViews->currentWidget()->repaint();
 }
 
 void FitDialog::compute()
@@ -497,6 +519,18 @@ void FitDialog::compute()
     message(s);
     Terminal::out << s << endl;
   }
+}
+
+void FitDialog::showEditors(bool show)
+{
+  int sz = editors.size();
+  for(int i = 0; i < sz; i++)
+    editors[i]->setVisible(show);
+}
+
+void FitDialog::nupChanged()
+{
+  showEditors(! nup->isNup());
 }
 
 
@@ -646,18 +680,6 @@ void FitDialog::startFit()
 void FitDialog::cancelFit()
 {
   shouldCancelFit = true;
-}
-
-void FitDialog::nextDataset()
-{
-  if(currentIndex + 1 < data->datasets.size())
-    bufferSelection->setCurrentIndex(currentIndex + 1);
-}
-
-void FitDialog::previousDataset()
-{
-  if(currentIndex > 0)
-    bufferSelection->setCurrentIndex(currentIndex - 1);
 }
 
 DataSet *  FitDialog::simulatedData(int i, bool residuals)
@@ -1019,13 +1041,17 @@ void FitDialog::updateResidualsDisplay()
   if(! residualsDisplay)
     return;
   QString s("Point: %1 (overall: %2)  Relative: %3 (overall: %4)");
-  if(! parameters.pointResiduals.size())
-    s = "(impossible to compute residuals)";
-  else
-    s = s.arg(parameters.pointResiduals[currentIndex], 0, 'g', 2).
-      arg(parameters.overallPointResiduals, 0, 'g', 2).
-      arg(parameters.relativeResiduals[currentIndex], 0, 'g', 2).
-      arg(parameters.overallRelativeResiduals, 0, 'g', 2);
+  if(nup->isNup())
+    s = "";
+  else {
+    if(! parameters.pointResiduals.size())
+      s = "(impossible to compute residuals)";
+    else
+      s = s.arg(parameters.pointResiduals[currentIndex], 0, 'g', 2).
+        arg(parameters.overallPointResiduals, 0, 'g', 2).
+        arg(parameters.relativeResiduals[currentIndex], 0, 'g', 2).
+        arg(parameters.overallRelativeResiduals, 0, 'g', 2);
+  }
   residualsDisplay->setText(s);
 }
 

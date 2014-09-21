@@ -31,6 +31,7 @@ class CurveView;
 class FitParameterEditor;
 class DataSet;
 
+class NupWidget;
 
 class ArgumentList;
 
@@ -44,8 +45,8 @@ class FitDialog : public QDialog {
   /// The FitData object we'll populate and run
   FitData * data;
 
-  /// The stacked widgets holding the buffer view;
-  QStackedWidget * stackedViews;
+  /// The widget holding all the views
+  NupWidget * nup;
 
   /// The dataset views
   QList<CurveView *> views;
@@ -211,6 +212,13 @@ protected slots:
   /// Updates the display of residuals.
   void updateResidualsDisplay();
 
+
+  /// Hides/shows all the parameter editors
+  void showEditors(bool show = true);
+
+  /// Called whenever the nup is changed
+  void nupChanged();
+
   /// Pops up a dialog box to set soft options.
   void setSoftOptions();
 
@@ -226,12 +234,6 @@ protected slots:
 
   /// Cancels the current fit !
   void cancelFit();
-
-  /// Jumps to previous dataset
-  void previousDataset();
-
-  /// Jumps to next dataset
-  void nextDataset();
 
   /// Adds current simulated datset to the data stack
   void pushCurrentCurve();

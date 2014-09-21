@@ -93,6 +93,9 @@ public:
     return height;
   };
 
+  /// The index of the first visible
+  int widgetIndex() const;
+
 public slots:
 
   /// Changes the nup of the window.
@@ -110,8 +113,13 @@ public slots:
   /// Shows the numbered page
   void showPage(int nb);
 
+  /// Ensures the numbered widget is visible
+  void showWidget(int idx);
+
 signals:
   void pageChanged(int nb);
+
+  void nupChanged(int w, int h);
 
 };
 

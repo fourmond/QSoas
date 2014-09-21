@@ -99,7 +99,7 @@ void DatasetBrowser::setupFrame()
 void DatasetBrowser::pageChanged(int newpage)
 {
   bufferDisplay->setText(QString("%1/%2").
-                         arg(newpage).
+                         arg(newpage+1).
                          arg(nup->totalPages()));
 }
 

@@ -59,6 +59,11 @@ void NupWidget::setupPages()
       else 
         layout->addWidget(new QWidget, j/width, j % width);
     }
+    /// @todo Customize the possibility not to have that ?
+    for(int k = 0; k < width; k++)
+      layout->setColumnStretch(k, 1);
+    for(int k = 0; k < height; k++)
+      layout->setRowStretch(k, 1);
     pageStackLayout->addWidget(page);
     pages << page;
   }

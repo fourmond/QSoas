@@ -429,7 +429,7 @@ void FitDialog::setupFrame()
 
   
 
-  dataSetChanged(0);
+  nup->showWidget(0);
 }
 
 
@@ -444,6 +444,7 @@ void FitDialog::dataSetChanged(int newds)
 {
   // stackedViews->setCurrentIndex(newds);
   currentIndex = nup->widgetIndex();
+  
   emit(currentDataSetChanged(currentIndex));
   if(! nup->isNup())
     updateEditors();
@@ -782,8 +783,15 @@ void FitDialog::loadParameters()
     QFileDialog::getOpenFileName(this, tr("Load parameters"));
   if(load.isEmpty())
     return;
-  else 
-    loadParametersFile(load);
+  else {
+    try {
+      loadParametersFile(load);
+    }
+    catch (const Exception & e) {
+      message(QString("Could not load parameters from '%1':").
+              arg(load) + e.message());
+    }
+  }
 }
 
 void FitDialog::loadParametersForCurrent()
@@ -794,16 +802,25 @@ void FitDialog::loadParametersForCurrent()
                                  arg(currentIndex));
   if(load.isEmpty())
     return;
-  else 
-    loadParametersFile(load, currentIndex);
+  else {
+    try {
+      loadParametersFile(load, currentIndex);
+    }
+    catch (const Exception & e) {
+      message(QString("Could not load parameters from '%1':").
+              arg(load) + e.message());
+    }
+  }
 }
 
 void FitDialog::loadParametersFile(const QString & file, int targetDS, 
                                    bool recompute)
 {
+  /// @todo When splitting this, the exceptions handling should be a
+  /// lot better than just that.
   QFile f(file);
-  if(! f.open(QIODevice::ReadOnly))
-    return;                     /// @todo Signal !
+  Utils::open(&f,QIODevice::ReadOnly);
+
   QString msg;
   try {
     message(QString("Loading from file %1...").arg(file));

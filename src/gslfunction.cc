@@ -117,6 +117,16 @@ GSLSimpleFunction<gsl_sf_expint_E2>
 expint_E2("expint_e2", "Exponential integral $$E_2(x) = "
           "\\int_{x}^{\\infty} \\frac{\\exp -t}{t^2} \\mathrm{d} t$$");
 
+// Lambert W function(s)
+GSLSimpleFunction<gsl_sf_lambert_W0> 
+lambert_W0("lambert_W", "Principal branch of the Lambert function "
+           "$$W_0(x)$$");
+
+GSLSimpleFunction<gsl_sf_lambert_Wm1> 
+lambert_Wm1("lambert_Wm1", "Secondary branch of the Lambert function "
+           "$$W_{-1}(x)$$");
+
+
 //////////////////////////////////////////////////////////////////////
 
 // Now, the implementation of the various special functions we need

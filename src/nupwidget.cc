@@ -26,7 +26,7 @@
 
 
 NupWidget::NupWidget(QWidget * parent) : 
-  QWidget(parent), width(-1), height(-1)
+  QWidget(parent), width(-1), height(-1), currentPage(0)
 {
   pageStackLayout = new QStackedLayout(this);
 }

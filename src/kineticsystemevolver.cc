@@ -708,7 +708,8 @@ public:
 
 
       double tg = (voltammogram ? lastTime : xv[i]);
-      while(discontinuities[0] < evolver->currentTime())
+      while(discontinuities.size() > 0 && 
+            discontinuities[0] < evolver->currentTime())
         discontinuities.remove(0);
 
       if(discontinuities.size() > 0) {

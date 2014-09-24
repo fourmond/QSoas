@@ -78,7 +78,7 @@ int NupWidget::widgetIndex() const
   int w = width * height;
   if(w <= 0)
     w = 1;
-  return index * w;
+  return currentPage * w;
 }
 
 bool NupWidget::isNup() const

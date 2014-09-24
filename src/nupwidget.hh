@@ -58,12 +58,6 @@ private:
   /// Current number of rows
   int height;
 
-  /// Base index
-  int index;
-
-  /// Whether or not to use extended selection capacities
-  bool extendedSelection;
-
 public:
   NupWidget(QWidget * parent = 0);
   ~NupWidget();

@@ -502,9 +502,7 @@ void FitDialog::internalCompute()
   setupSubFunctionCurves();
   updateResidualsDisplay();
 
-  // Update here ?
-  // if(stackedViews && stackedViews->currentWidget())
-  //   stackedViews->currentWidget()->repaint();
+  nup->repaint();
 }
 
 void FitDialog::compute()

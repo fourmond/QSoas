@@ -169,22 +169,17 @@ namespace __reg {
         return;
       case Subtract: {
         // Subtracting, the data is already computed in d
-        DataSet * newds = new 
-          DataSet(QList<Vector>() << d.xvalues << d.yvalues);
-        newds->name = ds->cleanedName() + "_linsub.dat";
+        DataSet * newds = ds->derivedDataSet(d.yvalues, "_linsub.dat");
         soas().pushDataSet(newds);
         return;
       }
       case Write: {
-        OutFile::out.setHeader(QString("# Dataset: %1\n"
-                                       "## a\tb\tkeff\txleft\txright").
-                               arg(ds->name));
-        /// @todo add other fields ? This should be done through an
-        /// appropriate class, as far as I can tell.
-        OutFile::out << reg.first << "\t" << reg.second 
-                     << "\t" << decay_rate
-                     << "\t" << r.xleft << "\t" << r.xright 
-                     << "\n" << flush;
+        ValueHash e;
+        e << "a" << reg.first << "b" << reg.second 
+          << "keff" << decay_rate << "xleft" << r.xleft 
+          << "xright" << r.xright;
+        OutFile::out.writeValueHash(e, ds, QString("Dataset: %1\n").
+                                    arg(ds->name));
         Terminal::out << "Writing to output file " << OutFile::out.fileName()
                       << endl;
         break;
@@ -194,9 +189,7 @@ namespace __reg {
         Vector newy = ds->y();
         for(int i = 0; i < newy.size(); i++)
           newy[i] /= (d.xvalues[i] * reg.first + reg.second);
-        DataSet * newds = new 
-          DataSet(QList<Vector>() << d.xvalues << newy);
-        newds->name = ds->cleanedName() + "_lindiv.dat";
+        DataSet * newds = ds->derivedDataSet(newy, "_lindiv.dat");
         soas().pushDataSet(newds);
         return;
       }
@@ -207,9 +200,7 @@ namespace __reg {
         double rate = reg.first/(reg.second - reg.first*d.xvalues[0]);
         for(int i = 1; i < newy.size(); i++)
           newy[i] /= exp(rate * (d.xvalues[i] - d.xvalues[0]));
-        DataSet * newds = new 
-          DataSet(QList<Vector>() << d.xvalues << newy);
-        newds->name = ds->cleanedName() + "_expdiv.dat";
+        DataSet * newds = ds->derivedDataSet(newy, "_expdiv.dat");
         soas().pushDataSet(newds);
         return;
       }
@@ -1871,17 +1862,18 @@ static void displayPeaks(QList<PeakInfo> peaks, const DataSet * ds,
   if(write) {
     Terminal::out << "Writing to output file " 
                   << OutFile::out.fileName() << endl;
-    OutFile::out.setHeader("## buffer\twhat\tx\ty\tindex");
   }
-  if(maxnb < 0)
+  if(maxnb < 0 || maxnb > peaks.size())
     maxnb = peaks.size();
   for(int i = 0; i < maxnb; i++) {
-    QString str = QString("%1\t%2\t%3\t%4\t%5").
-      arg(ds->name).arg((peaks[i].isMin ? "min" : "max" )).
-      arg(peaks[i].x).arg(peaks[i].y).arg(peaks[i].index);
+    ValueHash hsh;
+    hsh << "buffer" << ds->name 
+        << "what" << (peaks[i].isMin ? "min" : "max" )
+        << "x" << peaks[i].x << "y" << peaks[i].y 
+        << "index" << peaks[i].index;
     if(write)
-      OutFile::out << str << "\n" <<  flush;
-    Terminal::out << str << endl;
+      OutFile::out.writeValueHash(hsh, ds);
+    Terminal::out << hsh.toString() << endl;
     CurveLine * v= new CurveLine;
     
     v->p1 = QPointF(peaks[i].x, 0);

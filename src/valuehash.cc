@@ -58,6 +58,24 @@ QHash<QString, QDateTime> ValueHash::extractDates() const
   return extract<QDateTime>(QVariant::DateTime);
 }
 
+void ValueHash::clear()
+{
+  QHash<QString, QVariant>::clear();
+  keyOrder.clear();
+}
+
+void ValueHash::append(const QString & key, const QVariant & value)
+{
+  keyOrder << key;
+  operator[](key) = value;
+}
+
+void ValueHash::prepend(const QString & key, const QVariant & value)
+{
+  keyOrder.prepend(key);
+  operator[](key) = value;
+}
+
 QString ValueHash::toString(const QString & sep, 
                             const QString & missing,
                             bool skip) const

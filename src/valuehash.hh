@@ -65,7 +65,16 @@ public:
   /// at the end (in a random order !).
   QStringList keyOrder;
   
-  
+
+  /// Clears the hash and the list of keys
+  void clear();
+
+  /// Appends a key and its value to the hash
+  void append(const QString & key, const QVariant & value);
+
+  /// Prepends a key and its value to the hash
+  void prepend(const QString & key, const QVariant & value);
+
   /// Returns the values of the elements in the order specified by
   /// keyOrder (or unspecified else !) separated by "\t" (or \a
   /// sep). Missing elements specified in keyOrder will be replaced by

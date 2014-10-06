@@ -465,19 +465,23 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
 
   Terminal::out << "Point positions:\nx\ty\tindex\tx-xr\ty-yr\tx/xr\ty/yr" << endl;
   QString cur;
+  ValueHash e;
   while(! loop.finished()) {
 
     int action = cursorHandler.nextAction(loop);
     pick.processEvent(action);
     switch(action) {
     case PickPoint:
-        m.p = pick.point();
-        cur = QString("%1\t%2\t%3\t%4\t%5\t%6\t%7").
-          arg(m.p.x()).arg(m.p.y()).arg(pick.pointIndex()).
-          arg(m.p.x() - r.p.x()).arg(m.p.y() - r.p.y()).
-          arg(m.p.x()/r.p.x()).arg(m.p.y()/r.p.y());
-        Terminal::out << cur << endl;
-        break;
+      m.p = pick.point();
+      e.clear();
+      e << "x" << m.p.x() << "y" << m.p.y()
+        << "index" << pick.pointIndex() 
+        << "x-xr" << m.p.x() - r.p.x() 
+        << "y-yr" << m.p.y() - r.p.y() 
+        << "x/xr" << m.p.x()/r.p.x()
+        << "y/yr" << m.p.y()/r.p.y();
+      Terminal::out << e.toString() << endl;
+      break;
     case PickRef:
       r.p = pick.point();
       Terminal::out << "Reference:\t"  << r.p.x() << "\t" 
@@ -510,12 +514,11 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
       return;
     }
     case WriteToOutput:
-      OutFile::out.setHeader("# Point positions:\n"
-                             "## buffer\tX\tY\t\tidx\tx-xr\ty-yr\tx/xr\ty/yr");
+      e.prepend("buffer", ds->name);
       Terminal::out << "Writing position to output file: '" 
                     << OutFile::out.fileName() << "'" << endl;
       
-      OutFile::out << ds->name << "\t" << cur << "\n" << flush;
+      OutFile::out.writeValueHash(e, ds);
     default:
       ;
     }

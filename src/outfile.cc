@@ -22,6 +22,7 @@
 #include <terminal.hh>
 
 #include <utils.hh>
+#include <dataset.hh>
 #include <valuehash.hh>
 
 OutFile OutFile::out("out.dat");
@@ -72,9 +73,20 @@ OutFile::~OutFile()
   delete output;
 }
 
-void OutFile::writeValueHash(const ValueHash & hsh)
+void OutFile::writeValueHash(const ValueHash & h, const DataSet * ds,
+                             const QString & comment)
 {
-  setHeader(QString("## %1").arg(hsh.keyOrder.join("\t")));
+  ValueHash hsh(h);
+  hsh.keyOrder += desiredMeta;
+  if(ds) {
+    ValueHash meta = ds->getMetaData();
+    meta.keyOrder.clear();
+    hsh.merge(meta, false);
+  }
+  QString hd = QString("## %1").arg(hsh.keyOrder.join("\t"));
+  if(! comment.isEmpty())
+    hd = QString("# %1\n").arg(comment) + hd;
+  setHeader(hd);
   (*this) << hsh.toString("\t", "x", true) << "\n" << flush;
 }
 

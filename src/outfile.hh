@@ -24,6 +24,7 @@
 #define __OUTFILE_HH
 
 class ValueHash;
+class DataSet;
 
 /// A very thin wrapper around a text file stream to handle various
 /// details, such as:
@@ -48,10 +49,14 @@ class OutFile {
 
   /// The current header.
   QString currentHeader;
+
 public:
 
   /// If this flag is on, output file is truncated
   bool truncate;
+
+  /// The list of meta-data we're writing at the moment...
+  QStringList desiredMeta;
 
   OutFile(const QString & name);
 
@@ -92,8 +97,18 @@ public:
   /// Writes a full ValueHash to the output file, making sure the
   /// headers are set correctly.
   ///
-  /// @warning The only headers we're interested in are the ones in
-  void writeValueHash(const ValueHash & hsh);
+  /// This function also writes meta-data whose name is in the
+  /// desiredMeta list.
+  ///
+  /// This function really should be the preferred way to send data to
+  /// the output file, since it makes it possible to add hooks and
+  /// such (such as the automatic output of meta-data, and possible
+  /// combination with other stuff ?).
+  ///
+  /// @a comment gets prepended to the header.
+  void writeValueHash(const ValueHash & hsh, 
+                      const DataSet * underlying = NULL,
+                      const QString & comment = "");
 
 
 };

@@ -107,7 +107,7 @@ public:
   ///
   /// @a comment gets prepended to the header.
   void writeValueHash(const ValueHash & hsh, 
-                      const DataSet * underlying = NULL,
+                      const DataSet * underlying,
                       const QString & comment = "");
 
 

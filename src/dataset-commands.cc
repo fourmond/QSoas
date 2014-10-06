@@ -1269,7 +1269,7 @@ static void statsOn(const DataSet * ds, bool output, const ValueHash & meta)
   if(output) {
     os.merge(meta);
     Terminal::out << "Writing stats to output file" << endl;
-    OutFile::out.writeValueHash(os);
+    OutFile::out.writeValueHash(os, ds);
   }
 }
 

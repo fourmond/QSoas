@@ -178,7 +178,7 @@ namespace __reg {
         e << "a" << reg.first << "b" << reg.second 
           << "keff" << decay_rate << "xleft" << r.xleft 
           << "xright" << r.xright;
-        OutFile::out.writeValueHash(e, ds, QString("Dataset: %1\n").
+        OutFile::out.writeValueHash(e, ds, QString("Dataset: %1").
                                     arg(ds->name));
         Terminal::out << "Writing to output file " << OutFile::out.fileName()
                       << endl;

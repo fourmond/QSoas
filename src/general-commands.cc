@@ -96,25 +96,42 @@ breakc("break", // command name
 
 
 // Changes the output file to the named one.
-static void outputCommand(const QString &, QString file, 
+static void outputCommand(const QString &, 
                           const CommandOptions & opts)
 {
-  OutFile::out.setFileName(file);
+  QString file;
+  updateFromOptions(opts, "file", file);
+  if(! file.isEmpty()) {
+    OutFile::out.setFileName(file);
 
-  OutFile::out.truncate = false;
-  updateFromOptions(opts, "overwrite", OutFile::out.truncate);
+    OutFile::out.truncate = false;
+    updateFromOptions(opts, "overwrite", OutFile::out.truncate);
+  }
+  
+  // Now, we process meta-data
+  QStringList metaNames;
+  if(opts.contains("meta")) {
+    updateFromOptions(opts, "meta", OutFile::out.desiredMeta);
+    if(OutFile::out.desiredMeta.size() == 1 && OutFile::out.desiredMeta[0].isEmpty())
+      OutFile::out.desiredMeta.clear();
+    Terminal::out << "Now systematically writing meta-data to output file: '" 
+                  << OutFile::out.desiredMeta.join("', '") << "'" << endl;
+  }
+
 }
 
-ArgumentList oArgs(QList<Argument*>() 
+ArgumentList oOpts(QList<Argument*>() 
                    << new FileArgument("file", 
                                        "New output file",
-                                       "Name of the new output file")
-                   );
-
-ArgumentList oOpts(QList<Argument*>() 
+                                       "Name of the new output file", false, 
+                                       true)
                    << new BoolArgument("overwrite", 
                                        "Overwrite",
                                        "If on, overwrite the file instead of appending")
+                   << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "meta", 
+                                                 "Meta-data",
+                                                 "When writing to output file, also print the listed meta-data")
+
                    );
 
 
@@ -122,7 +139,7 @@ static Command
 output("output", // command name
        effector(outputCommand), // action
        "file",  // group name
-       &oArgs, // arguments
+       NULL, // arguments
        &oOpts, // options
        "Change output file",
        "Change the name of the current output file",

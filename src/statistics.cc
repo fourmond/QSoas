@@ -65,9 +65,14 @@ void Statistics::internalStats(ValueHash * overall,
           << QString("%1_delta_max").arg(n) << dmax
       ;
 
-    if(i > 0)                   // Integrate
+    if(i > 0) {                   // Integrate
       stats << QString("%1_int").arg(n) 
             << Vector::integrate(source->x(), c);
+      stats << QString("%1_min_pos").arg(n)
+            << source->x()[c.whereMin()]
+            << QString("%1_max_pos").arg(n)
+            << source->x()[c.whereMax()];
+    }
     if(byColumn)
       *byColumn << stats;
     if(overall)

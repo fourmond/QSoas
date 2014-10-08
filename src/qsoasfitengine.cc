@@ -33,6 +33,10 @@ protected:
   /// The number of parameters
   int n;
 
+  /// The number of successive iterations in which we lowered
+  /// lambda. This is used to lower lambda faster -- to some extent.
+  int successfulIterations;
+
   /// Various m vectors.
   gsl_vector * fv[3];
 
@@ -171,7 +175,7 @@ void QSoasFitEngine::initialize(const double * initialGuess)
 
   lambda = 1e-2;
   scale = 2;
-
+  successfulIterations = 0;
   lastResiduals = -1;
 }
 
@@ -291,12 +295,19 @@ int QSoasFitEngine::iterate()
       ns = 2 * cur_squares;
       if(! didFirst)
         lambda *= scale;
+      successfulIterations = 0;
     }
 
     // Heh !
     if(ns2 < cur_squares) {
       // Iteration went fine
-      lambda /= scale;
+
+      /// @todo Customize all this
+      double fact = 1 + successfulIterations * 0.5;
+      if(fact > 10)
+        fact = 10;
+      lambda /= pow(scale, fact);
+      successfulIterations += 1;
       gsl_vector_memcpy(testp, testp2);
       ns = ns2;
     }
@@ -307,6 +318,7 @@ int QSoasFitEngine::iterate()
         throw RuntimeError("Failed to find a suitable step after %1 tries").
           arg(nbtries);
       lambda *= scale;
+      successfulIterations = 0;
       continue;                 // Try again !
       /// @todo Avoid computing two times the thing at lambda by
       /// reusing the current values for the testp2 things.

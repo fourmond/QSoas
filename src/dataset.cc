@@ -40,6 +40,24 @@
 
 #include <datastack.hh>
 
+
+OrderedList & OrderedList::operator=(const QList<int> & lst)
+{
+  QList<int>::operator=(lst);
+  qSort(*this);
+  return *this;
+}
+
+void OrderedList::insert(int idx)
+{
+  // The lazy-but-actually-smart-thing-to-do
+  QList<int>::append(idx);
+  qSort(*this);
+}
+
+
+//////////////////////////////////////////////////////////////////////
+
 void DataSet::dump() const
 {
   QTextStream o(stdout);

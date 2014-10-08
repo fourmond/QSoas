@@ -1713,13 +1713,7 @@ static void setSegmentsCommand(CurveEventLoop &loop, const QString &,
         }
       }
       else if(action == AddSegment) { // Add
-        int target = 0;
-        for(int i = 0; i <= ds->segments.size(); i++) {
-          target = i;
-          if(i < ds->segments.size() && ds->segments[i] > idx)
-            break;
-        }
-        ds->segments.insert(target, idx);
+        ds->segments.insert(idx);
       }
       
       Terminal::out << "Current segments: " << endl;

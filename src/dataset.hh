@@ -27,6 +27,23 @@
 #include <valuehash.hh>
 #include <datasetoptions.hh>
 
+/// A small helper class that maintains an ordered list of integers
+/// (duplicates being possible)
+///
+/// @todo This should include ways to find the current segment
+class OrderedList : public QList<int> {
+public:
+  /// Inserts the given index into the list
+  void insert(int idx);
+
+  OrderedList & operator=(const QList<int> & lst);
+
+private:
+  // Here, we disable a few detrimental operations
+  OrderedList & operator<<(int);
+  void append(int idx);
+};
+
 /// A class representing a data set (formerly Soas buffers).
 ///
 /// A DataSet represents a single data set, ie most of the time the
@@ -227,7 +244,7 @@ public:
   /// @li segment-by-segment dataset operations
   /// @li segment-by-segment film loss correction
   /// @li other ideas ?
-  QList<int> segments;
+  OrderedList segments;
 
   /// Returns the X positions of the changes in segments.
   Vector segmentPositions() const;

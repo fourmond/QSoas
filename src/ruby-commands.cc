@@ -409,7 +409,7 @@ iO(QList<Argument *>()
 
 
 static Command 
-in("integrate", // command name
+in("integrate-formula", // command name
    effector(integrate), // action
    "file",  // group name
    &iA, // arguments

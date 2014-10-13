@@ -3558,11 +3558,11 @@ Found root at: 1.73205
 Do not use a equal sign. The returned value is that for which the
 expression equates 0.
 {::comment} description-end: find-root {:/}
-{::comment} synopsis-start: integrate {:/}
+{::comment} synopsis-start: integrate-formula {:/}
 
-### integrate - Integrate expression {#cmd-integrate}
+### integrate-formula - Integrate expression {#cmd-integrate-formula}
 
-`integrate` _formula_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _a_{:title="A floating-point number"} _b_{:title="A floating-point number"} `/integrator=`_choice_{:title="One of: gauss15, gauss21, gauss31, gauss41, gauss51, gauss61, qng"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"}
+`integrate-formula` _formula_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _a_{:title="A floating-point number"} _b_{:title="A floating-point number"} `/integrator=`_choice_{:title="One of: gauss15, gauss21, gauss31, gauss41, gauss51, gauss61, qng"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"}
 
   * _formula_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: An expression of 1 variable (not an equation !)
   * _a_{:title="A floating-point number"}: Left bound of the segment
@@ -3571,17 +3571,17 @@ expression equates 0.
   * `/prec-relative=`_number_{:title="A floating-point number"}: Relative precision required for integration
   * `/prec-absolute=`_number_{:title="A floating-point number"}: Absolute precision required for integration
 
-{::comment} synopsis-end: integrate {:/}
-{::comment} description-start: integrate {:/}
+{::comment} synopsis-end: integrate-formula {:/}
+{::comment} description-start: integrate-formula {:/}
 Computes the integral of the given expression of `x` between bounds
 _a_ and _b_:
 
 ~~~~
-QSoas> integrate x**2 10 22
+QSoas> integrate-formula x**2 10 22
 Integral value: 3216	estimated error: 3.57048e-11	 in 31 evaluations over 1 intervals 
 ~~~~
 
-{::comment} description-end: integrate {:/}
+{::comment} description-end: integrate-formula {:/}
 
 {::comment} synopsis-start: generate-buffer {:/}
 

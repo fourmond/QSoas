@@ -1807,6 +1807,35 @@ rs("remove-spikes", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void intCommand(const QString &, const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+
+  int idx = -1;
+  updateFromOptions(opts, "index", idx);
+  Vector in = Vector::integrateVector(ds->x(), ds->y(), idx > 0 ? idx : 0);
+  soas().pushDataSet(ds->derivedDataSet(in, "_int.dat"));
+}
+
+
+static ArgumentList 
+intOps(QList<Argument *>() 
+      << new IntegerArgument("index", 
+                             "Index",
+                             "Index of the point that should be used as y = 0")
+      );
+
+static Command 
+integ("integrate", // command name
+     effector(intCommand), // action
+     "buffer",  // group name
+     NULL, // arguments
+     &intOps, // options
+     "Integrate",
+     "Integrate the buffer");
+
+//////////////////////////////////////////////////////////////////////
+
 static void diffCommand(const QString &)
 {
   const DataSet * ds = soas().currentDataSet();

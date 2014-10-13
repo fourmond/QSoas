@@ -627,6 +627,32 @@ double Vector::integrate(const Vector & x, const Vector & y)
   return sum;
 }
 
+Vector Vector::integrateVector(const Vector & x, const Vector & y, int idx)
+{
+  int sz = y.size();
+  if(x.size() != sz)
+    throw RuntimeError("X and Y vectors must have same size (%1 vs %2)").
+      arg(x.size()).arg(sz);
+  
+  if(idx < 0 || idx >= sz)
+    idx = 0;
+  double sum = 0;
+  Vector re = x;
+  re[idx] = 0;
+  for(int j = idx + 1; j < sz; j++) {
+    sum += (x[j] - x[j-1]) * 0.5 * (y[j] + y[j-1]);
+    re[j] = sum;
+  }
+  sum = 0;
+  for(int j = idx - 1; j >= 0; j--) {
+    sum += (x[j] - x[j+1]) * 0.5 * (y[j] + y[j+1]);
+    re[j] = sum;
+  }
+  return re;
+}
+
+
+
 
 QList<Vector> Vector::bin(int boxes, bool lg) const
 {

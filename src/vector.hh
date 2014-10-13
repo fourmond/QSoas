@@ -240,6 +240,12 @@ public:
 
   /// Integrates the given X,Y data into a single sum.
   static double integrate(const Vector & x, const Vector & y);
+
+  /// Integrates the given vectors from the given index, and returns
+  /// the corresponding y vector.
+  static Vector integrateVector(const Vector & x, const Vector & y, int idx = 0);
+
+  
 };
 
 #endif

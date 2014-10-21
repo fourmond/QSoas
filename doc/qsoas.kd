@@ -66,8 +66,9 @@ simply contain unformatted text. These are for instance:
 
 On windows, use Notepad to edit them. On Linux, `pico`, `nano`, `vi`
 or `emacs` are pretty good choices. On MacOS, TextEdit, but make sure
-you hit Cmd+Shift+T to switch to "plain text" format (the default is
-rich text in the RTF format, and `QSoas` does not understand RTF).
+you hit Cmd+Shift+T to switch to "plain text" format; the default is
+rich text (i.e. text with formatting informations) in the RTF format,
+and `QSoas` does not understand RTF.
 
 
 ## Buffer list arguments {#buffer-lists}
@@ -441,16 +442,24 @@ providing its name to the [cmd: output] command.
 
 ### output - Change output file {#cmd-output}
 
-`output` _file_{:title="Path of a file (or a directory)"} `/overwrite=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`output` `/file=`_file_{:title="Path of a file (or a directory)"} `/overwrite=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/meta=`_texts_
 
-  * _file_{:title="Path of a file (or a directory)"}: Name of the new output file
+  * `/file=`_file_{:title="Path of a file (or a directory)"} (default): Name of the new output file
   * `/overwrite=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, overwrite the file instead of appending
+  * `/meta=`_texts_: When writing to output file, also print the listed meta-data
 
 {::comment} synopsis-end: output {:/}
 {::comment} description-start: output {:/}
-Opens _file_ as the new output file. By default, if the file exists,
-new data are appended, and the old data are left untouched. You can
-force overwriting by specifiying `/truncate=true`.
+This command has several modes of operations. If _file_ is provided
+(it is the default option, so you can omit `/file=`), then it opens
+_file_ as the new output file. By default, if the file exists, new
+data are appended, and the old data are left untouched. You can force
+overwriting by specifiying `/truncate=true`.
+
+In the other mode, when only the `/meta` option is provided, it sets
+the list of meta-data that will automatically be added to the output
+file when outputting any data there. It is a comma-separated list of
+meta names. See more about meta-data [there](#meta-data).
 {::comment} description-end: output {:/}
 
 {::comment} synopsis-start: comment {:/}
@@ -477,7 +486,7 @@ The main command for loading data is [cmd: load]
 
 ### load - Load {#cmd-load}
 
-`load` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/ignore-cache=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`load` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/ignore-cache=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="An integer"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
 Alias: `l`
 
@@ -489,6 +498,7 @@ Alias: `l`
   * `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Show as a histogram
   * `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"}: Separator between columns
   * `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Decimal separator
+  * `/skip=`_integer_{:title="An integer"}: Skip that many lines at beginning
   * `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"}: Comment lines
   * `/columns=`_integers_{:title="A comma-separated list of integers"}: Order of the columns
   * `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Split on blank lines
@@ -563,11 +573,12 @@ option on loaded datasets.
 
 ### load-as-text - Load files with backend 'text' {#cmd-load-as-text}
 
-`load-as-text` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_
+`load-as-text` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="An integer"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_
 
   * _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."}: Files to load !
   * `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"}: Separator between columns
   * `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Decimal separator
+  * `/skip=`_integer_{:title="An integer"}: Skip that many lines at beginning
   * `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"}: Comment lines
   * `/columns=`_integers_{:title="A comma-separated list of integers"}: Order of the columns
   * `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Split on blank lines
@@ -601,6 +612,8 @@ options controlling the way the text files are interpreted:
   * `/comments` is a regular expression describing comment lines (ie
     lines that get ignored). By default, any line that doesn't start
     by a number is ignored.
+  * Give to `/skip` a number of text lines that should be ignored at
+    the beginning of the text file.
   * If `/auto-split` is `true`, then `QSoas` will create a new dataset
     everytime it hits a series of blank lines in the file.
   * `/columns` is a series of numbers saying in which order the file
@@ -615,11 +628,12 @@ options controlling the way the text files are interpreted:
 
 ### load-as-csv - Load files with backend 'csv' {#cmd-load-as-csv}
 
-`load-as-csv` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_
+`load-as-csv` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="An integer"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_
 
   * _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."}: Files to load !
   * `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"}: Separator between columns
   * `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Decimal separator
+  * `/skip=`_integer_{:title="An integer"}: Skip that many lines at beginning
   * `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"}: Comment lines
   * `/columns=`_integers_{:title="A comma-separated list of integers"}: Order of the columns
   * `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Split on blank lines
@@ -753,7 +767,7 @@ See [cmd: load] for the description of the `/style` option.
 
 ### overlay - Overlay {#cmd-overlay}
 
-`overlay` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/ignore-cache=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`overlay` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/ignore-cache=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="An integer"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
 Alias: `v`
 
@@ -765,6 +779,7 @@ Alias: `v`
   * `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Show as a histogram
   * `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"}: Separator between columns
   * `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Decimal separator
+  * `/skip=`_integer_{:title="An integer"}: Skip that many lines at beginning
   * `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"}: Comment lines
   * `/columns=`_integers_{:title="A comma-separated list of integers"}: Order of the columns
   * `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Split on blank lines
@@ -1272,6 +1287,22 @@ QSoas> strip-if '(x != x) || (y != y)'
 
 {::comment} description-end: strip-if {:/}
 
+{::comment} synopsis-start: integrate {:/}
+
+### integrate - Integrate {#cmd-integrate}
+
+`integrate` `/index=`_integer_{:title="An integer"}
+
+  * `/index=`_integer_{:title="An integer"}: Index of the point that should be used as y = 0
+
+{::comment} synopsis-end: integrate {:/}
+{::comment} description-start: integrate {:/}
+Integrate just does the reverse of [cmd: diff] and integrates the
+current buffer. First data point is the one for which Y=0, unless an
+index is specified to the `/index` option, in which case the numbered
+point ends up being at 0.
+{::comment} description-end: integrate {:/}
+
 {::comment} synopsis-start: diff {:/}
 
 ### diff - Derive {#cmd-diff}
@@ -1475,7 +1506,7 @@ several Y columns as a function of the same X, you should try
 [cmd: contract] instead.
 {::comment} description-end: cat {:/}
 
-## Buffer's meta-data and perpendicular coordinates
+## Buffer's meta-data and perpendicular coordinates {#meta-data}
 
 QSoas's buffers hold more than just columns of numbers. When a file is
 loaded, QSoas also gathers as much information as possible about that
@@ -2183,11 +2214,12 @@ QSoas> find-peaks /peaks=2 /output=true
 
 ### stats - Statistics {#cmd-stats}
 
-`stats` `/buffer=`_buffer_{:title="The number of a buffer in the stack"} `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-segments=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`stats` `/buffer=`_buffer_{:title="The number of a buffer in the stack"} `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-segments=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/meta=`_texts_
 
   * `/buffer=`_buffer_{:title="The number of a buffer in the stack"} (default): An alternative buffer to get information on
   * `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Also write stats to output file
   * `/use-segments=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Make statistics segments by segment
+  * `/meta=`_texts_: When writing to output file, also print the listed meta-data
 
 {::comment} synopsis-end: stats {:/}
 {::comment} description-start: stats {:/}
@@ -2205,7 +2237,11 @@ column:
 
 Statistics can be written to the output file with `/to-file=true`. If
 you specify `/use-segments=true`, the statistics are also displayed
-segment-by-segment (and written out to the output file if asked for).
+segment-by-segment (and written out to the output file if asked
+for). If you want some meta-data to be written to the output file
+together with the statistics, provide them as a comma-separated list
+to the `/meta` option, or, alternatively, use the `/meta` option of
+the [cmd: output] command.
 
 {::comment} description-end: stats {:/}
 
@@ -3673,11 +3709,12 @@ complex formulas.
 
 ### ode - ODE solver {#cmd-ode}
 
-`ode` _file_{:title="Path of a file (or a directory)"} `/parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/annotate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}
+`ode` _file_{:title="Path of a file (or a directory)"} `/parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/annotate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/dump=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}
 
   * _file_{:title="Path of a file (or a directory)"}: File containing the system
   * `/parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} (default): Values of the extra parameters
   * `/annotate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, a last column will contain the number of function evaluation for each step
+  * `/dump=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, do not integrate, just dumps the parse contents of the ODE file
   * `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptative stepper
   * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
   * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
@@ -3997,6 +4034,7 @@ listed here:
  * [`graphics-settings`](#cmd-graphics-settings)
  * [`help`](#cmd-help)
  * [`integrate`](#cmd-integrate)
+ * [`integrate-formula`](#cmd-integrate-formula)
  * [`interpolate`](#cmd-interpolate)
  * [`kinetic-system`](#cmd-kinetic-system)
  * [`load`](#cmd-load)
@@ -4098,6 +4136,8 @@ module, the following special functions are available:
  * `expint_e1`: Exponential integral $$E_1(x) = \int_{x}^{\infty} \frac{\exp -t}{t} \mathrm{d} t$$
  * `expint_e2`: Exponential integral $$E_2(x) = \int_{x}^{\infty} \frac{\exp -t}{t^2} \mathrm{d} t$$
  * `expint_en`: Exponential integral $$E_n(x) = \int_{x}^{\infty} \frac{\exp -t}{t^n} \mathrm{d} t$$
+ * `lambert_W`: Principal branch of the Lambert function $$W_0(x)$$
+ * `lambert_Wm1`: Secondary branch of the Lambert function $$W_{-1}(x)$$
 
 {::comment} special-functions-end {:/}
 

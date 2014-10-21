@@ -395,7 +395,7 @@ void FitDialog::setupFrame()
 
   startButton = new QPushButton(tr("Fit (Ctrl+F)"));
   connect(startButton, SIGNAL(clicked()), SLOT(startFit()));
-  startButton->setDefault(true);
+  startButton->setAutoDefault(true);
   hb->addWidget(startButton);
 
   cancelButton = new QPushButton(tr("Abort (Ctrl+B)"));
@@ -429,6 +429,7 @@ void FitDialog::setupFrame()
 
   
 
+  startButton->setFocus();
   nup->showWidget(0);
 }
 
@@ -613,6 +614,7 @@ void FitDialog::startFit()
     } while(true);
     cancelButton->setVisible(false);
     startButton->setVisible(true);
+    startButton->setFocus();
 
     QString mention;
     if(shouldCancelFit) {

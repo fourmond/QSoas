@@ -183,7 +183,7 @@ public:
 
   virtual void registerFunction(VALUE module) {
     rb_define_method(module, name.toLocal8Bit(), 
-                     (VALUE (*)(...)) rubyFunction, 1);
+                     (VALUE (*)(...)) rubyFunction, 2);
     rb_define_singleton_method(module, name.toLocal8Bit(), 
                                (VALUE (*)(...)) rubyFunction, 2);
   };
@@ -196,6 +196,62 @@ bessel_Jn("bessel_jn", "Regular cylindrical Bessel function of "
 GSLIndexedFunction<gsl_sf_expint_En> 
 expint_En("expint_en", "Exponential integral $$E_n(x) = "
           "\\int_{x}^{\\infty} \\frac{\\exp -t}{t^n} \\mathrm{d} t$$");
+
+
+//////////////////////////////////////////////////////////////////////
+
+/// For functions that have several "modes" of computation (precision)
+template < double (*func)(double, gsl_mode_t) > class GSLModalFunction : 
+  public GSLFunction {
+
+  static VALUE rubyFS(VALUE /*mod*/, VALUE x) {
+    return rb_float_new(func(NUM2DBL(x), GSL_PREC_SINGLE));
+  };
+
+  static VALUE rubyFD(VALUE /*mod*/, VALUE x) {
+    return rb_float_new(func(NUM2DBL(x), GSL_PREC_DOUBLE));
+  };
+
+  static VALUE rubyFF(VALUE /*mod*/, VALUE x) {
+    return rb_float_new(func(NUM2DBL(x), GSL_PREC_APPROX));
+  };
+
+public:
+  GSLModalFunction(const QString & n, const QString & d) : 
+    GSLFunction(n,d) {
+  };
+
+  /// @todo Find a way to mark these functions as having three
+  /// evaluation modes.
+  virtual void registerFunction(VALUE module) {
+    rb_define_method(module, name.toLocal8Bit(), 
+                     (VALUE (*)(...)) rubyFS, 1);
+    rb_define_singleton_method(module, name.toLocal8Bit(), 
+                               (VALUE (*)(...)) rubyFS, 1);
+
+    rb_define_method(module, (name + "_double").toLocal8Bit(), 
+                     (VALUE (*)(...)) rubyFD, 1);
+    rb_define_singleton_method(module, (name + "_double").toLocal8Bit(), 
+                               (VALUE (*)(...)) rubyFD, 1);
+
+    rb_define_method(module, (name + "_fast").toLocal8Bit(), 
+                     (VALUE (*)(...)) rubyFF, 1);
+    rb_define_singleton_method(module, (name + "_fast").toLocal8Bit(), 
+                               (VALUE (*)(...)) rubyFF, 1);
+  };
+
+};
+
+
+static GSLModalFunction<gsl_sf_airy_Ai> 
+airy_ai("airy_ai", "Airy Ai function (three modes) $$AiryAi(x)$$");
+static GSLModalFunction<gsl_sf_airy_Bi> 
+airy_bi("airy_bi", "Airy Bi function (three modes) $$AiryBi(x)$$");
+static GSLModalFunction<gsl_sf_airy_Ai_deriv> 
+airy_aid("airy_ai_deriv", "First derivative of Airy Ai function (three modes) $$\\mathrm{d}AiryAi(x)/\\mathrm{d}x$$");
+static GSLModalFunction<gsl_sf_airy_Bi_deriv> 
+airy_bid("airy_bi_deriv", "First derivative of Airy Bi function (three modes) $$$$\\mathrm{d}AiryBi(x)/\\mathrm{d}x$$");
+
 
 //////////////////////////////////////////////////////////////////////
 

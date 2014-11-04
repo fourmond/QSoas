@@ -187,7 +187,15 @@ VALUE ValueHash::variantToRuby(const QVariant & variant)
   case QMetaType::QString:
     val = Ruby::fromQString(variant.toString());
     break;
-  case QMetaType::QTime:
+  case QMetaType::QTime: {
+    QTime t = variant.toTime();
+    // We use an epoch-based time: the time will be on the 1st of
+    // January 1970
+    QTime ref(0,0);
+    val = Ruby::run<time_t, long>(rb_time_new, ref.secsTo(t), 
+                                  t.msec() * 1000);
+    break;
+  }
   case QMetaType::QDateTime:
   case QMetaType::QDate: {
     QDateTime t = variant.toDateTime();

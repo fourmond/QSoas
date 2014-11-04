@@ -21,6 +21,7 @@
 #include <valuehash.hh>
 
 #include <ruby.hh>
+#include <ruby-templates.hh>
 #include <exceptions.hh>
 
 template<class T> QHash<QString, T> ValueHash::extract(QVariant::Type t) const
@@ -190,7 +191,9 @@ VALUE ValueHash::variantToRuby(const QVariant & variant)
   case QMetaType::QDateTime:
   case QMetaType::QDate: {
     QDateTime t = variant.toDateTime();
-    val = rb_time_new(t.toTime_t(), t.time().msec() * 1000);
+    // in some cases, this call fails...
+    val = Ruby::run<time_t, long>(rb_time_new, t.toTime_t(), 
+                                  t.time().msec() * 1000);
     break;
   }
   case QMetaType::QVariantList: {
@@ -212,9 +215,18 @@ VALUE ValueHash::toRuby() const
   for(const_iterator it = begin(); it != end(); it++) {
     // Hmmm, QVariant says type() is QVariant::Type, but the
     // documentation says is really is QMetaType::Type.
-    VALUE key = Ruby::fromQString(it.key());
-    VALUE val = variantToRuby(it.value());
-    rb_hash_aset(ret, key, val);
+    try {
+      VALUE key = Ruby::fromQString(it.key());
+      VALUE val = variantToRuby(it.value());
+      rb_hash_aset(ret, key, val);
+    }
+    catch(RuntimeError & er) {
+      QTextStream o(stdout);
+      o << "Error converting key '" << it.key() << "' (=" 
+        << it.value().toString() << "):"
+        << er.message() << "\n\t"
+        << er.exceptionBacktrace().join("\n\t") << endl;
+    }
   }
   return ret;
 }

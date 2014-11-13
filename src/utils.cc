@@ -471,6 +471,39 @@ QString Utils::shortenString(const QString & str, int len, int last)
   return s;
 }
 
+/// @todo error handling
+void Utils::rotateFile(const QString & file, int max)
+{
+  QFileInfo f(file);
+  if(! f.exists()) {
+    /// @todo Delete dangling symlink ?
+    return;
+  }
+  int cur = 1;
+  while(true) {
+    QString cf = QString("%2.%1").arg(cur).arg(file);
+    QFileInfo f(cf);
+    if(! f.exists())
+      break;
+    cur++;
+    if(max >= 0 && cur >= max)
+      break;
+  }
+
+  // Now move the files, cur is the first target file
+  while(cur > 1) {
+    QString src = QString("%2.%1").arg(cur-1).arg(file);
+    QString target = QString("%2.%1").arg(cur).arg(file);
+    QFileInfo f(target);
+    if(f.exists())
+      QFile::remove(target);
+    QFile::rename(src, target);
+    cur--;
+  }
+  QString first = QString("%1.1").arg(file);
+  QFile::rename(file, first);
+}
+
 void Utils::invertMatrix(gsl_matrix  * mat, gsl_matrix * target,
                          double threshold)
 {

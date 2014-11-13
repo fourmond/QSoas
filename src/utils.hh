@@ -184,6 +184,9 @@ namespace Utils {
   /// Performs a rotation of given file, is if it is present, rename
   /// it as file.1, renaming a file.1 as file.2 and so on up until the
   /// max number, after which the files are simply deleted.
+  ///
+  /// If max is negative, there is no maximum file (but this isn't
+  /// probably a great idea).
   void rotateFile(const QString & file, int max);
 
   /// Asks confirmation before overwriting the target file if it exists.

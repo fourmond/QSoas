@@ -41,6 +41,10 @@ QPointer<CommandWidget> CommandWidget::theCommandWidget(NULL);
 static SettingsValue<QString> logFileName("command/logfile", 
                                           QString("soas.log"));
 
+// If 0, do not rotate. If positive, rotate only that many files, if
+// negative, rotate forever.
+static SettingsValue<int> logRotateNumber("command/logrotate", 5);
+
 
 static SettingsValue<QStringList> startupFiles("command/startup-files",
                                                QStringList());
@@ -63,6 +67,13 @@ CommandWidget::CommandWidget() :
   QVBoxLayout * layout = new QVBoxLayout(this);
 
   if(! ((QString)logFileName).isEmpty()) {
+    /// @todo Find a writable place
+    int rotation = logRotateNumber;
+    if(rotation != 0) {
+      QTextStream o(stdout);
+      o << "Rotating file " << logFileName << endl;
+      Utils::rotateFile(logFileName, rotation);
+    }
     watcherDevice = new QFile(logFileName);
     watcherDevice->open(QIODevice::Append);
   }

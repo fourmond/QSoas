@@ -136,6 +136,9 @@ public:
   /// Paints to the given painter
   void paint(QPainter * painter);
 
+  /// Returns the bounding box of all the elements
+  QRectF overallBB() const;
+
 
   bool drawingXTicks;
   bool drawingYTicks;

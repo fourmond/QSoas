@@ -242,11 +242,13 @@ public:
 
 /// A number
 class NumberArgument : public Argument {
+  bool special;
 public:
 
   NumberArgument(const char * cn, const char * pn,
-                 const char * d = "", bool def = false) : 
-    Argument(cn, pn, d, false, def) {
+                 const char * d = "", bool def = false,
+                 bool spec = false) : 
+    Argument(cn, pn, d, false, def), special(spec) {
   }; 
   
   /// Returns a wrapped double

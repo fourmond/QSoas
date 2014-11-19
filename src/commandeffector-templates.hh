@@ -260,6 +260,43 @@ effector(void (*f)(const QString &, A1, A2, A3,
   return new CommandEffectorCallback3<A1, A2, A3>(f, i);
 };
 
+/// Callback to a static function with four argument + options.
+///
+/// Rather than using this class directly, use
+/// effector().
+template <class A1, class A2, class A3, class A4>
+class CommandEffectorCallback4 : public CommandEffector {
+
+  typedef void (*Callback)(const QString &, A1, A2, A3, A4, 
+                           const CommandOptions &);
+  Callback callback;
+
+public:
+
+  CommandEffectorCallback4(Callback c, bool i = false) : 
+    CommandEffector(i), callback(c) {;};
+
+  inline virtual void runCommand(const QString & commandName, 
+                                 const CommandArguments & args,
+                                 const CommandOptions & options) {
+    if(args.size() != 4)
+      throw InternalError(QString("4 arguments expected, but got %2").
+                          arg(args.size()));
+    A1 a1 = args[0]->value<A1>();
+    A2 a2 = args[1]->value<A2>();
+    A3 a3 = args[2]->value<A3>();
+    A4 a4 = args[3]->value<A4>();
+    callback(commandName, a1, a2, a3, a4, options);
+  };
+
+};
+
+template<class A1, class A2, class A3, class A4> CommandEffector * 
+effector(void (*f)(const QString &, A1, A2, A3, A4,
+                   const CommandOptions &), bool i = false) {
+  return new CommandEffectorCallback4<A1, A2, A3, A4>(f, i);
+};
+
 
 //////////////////////////////////////////////////////////////////////
 // Now, callback to members

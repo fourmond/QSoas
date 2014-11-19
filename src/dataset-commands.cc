@@ -789,7 +789,56 @@ namespace __ee {
 
 //////////////////////////////////////////////////////////////////////
 
+// ohhhh, an ugly macro !
+#define limits_do(lcn, cn)                \
+  if(std::isnan(lcn)) { lcn = bb.lcn();}; \
+  if(std::isinf(lcn)) { lcn = cz.lcn();}; \
+  cz.set##cn(lcn)
 
+  // o << " -> " << lcn << endl;             \
+  // o << #lcn  " = " << lcn;                \
+
+#include <debug.hh>
+
+/// @todo Pass that to BaselineHandler
+static void limitsCommand(const QString &, double left, double right, double bottom, double top, const CommandOptions &)
+{
+  soas().currentDataSet(); // to ensure datasets are loaded
+  CurveView & view = soas().view();
+  CurvePanel * panel = view.mainPanel();
+  QRectF cz = panel->currentZoom();
+  QRectF bb = panel->overallBB(); 
+  // QTextStream o(stdout);
+  limits_do(left, Left);
+  limits_do(right, Right);
+  limits_do(top, Top);
+  limits_do(bottom, Bottom);
+  panel->zoomIn(cz);
+  view.update();
+}
+
+static ArgumentList 
+lA(QList<Argument *>() 
+   << new NumberArgument("left", "Left", "Left limit", false, true)
+   << new NumberArgument("right", "Right", "Right limit", false, true)
+   << new NumberArgument("bottom", "Bottom", "Bottom limit", false, true)
+   << new NumberArgument("top", "Top", "Top limit", false, true)
+   );
+
+
+static Command 
+li("limits", // command name
+   effector(limitsCommand), // action
+   "buffer",  // group name
+   &lA, // arguments
+   NULL, // options
+   "Set limits",
+   "Set limits for the display");
+
+//////////////////////////////////////////////////////////////////////
+
+
+/// @todo Pass that to BaselineHandler
 static void zoomCommand(CurveEventLoop &loop, const QString &)
 {
   soas().currentDataSet(); // to ensure datasets are loaded

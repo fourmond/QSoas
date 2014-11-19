@@ -23,6 +23,8 @@
 #include <argumentmarshaller.hh>
 #include <utils.hh>
 
+#include <cmath>
+
 #include <soas.hh>
 #include <datastack.hh>
 #include <terminal.hh>
@@ -321,7 +323,14 @@ void SeveralDataSetArgument::concatenateArguments(ArgumentMarshaller * a,
 
 ArgumentMarshaller * NumberArgument::fromString(const QString & str) const
 {
-  return new ArgumentMarshallerChild<double>(Utils::stringToDouble(str));
+  double v;
+  if(special && str == "*")
+    v = NAN;
+  else if(special && str == "x")
+    v = INFINITY;
+  else
+    v = Utils::stringToDouble(str);
+  return new ArgumentMarshallerChild<double>(v);
 }
 
 ArgumentMarshaller * NumberArgument::promptForValue(QWidget * base) const

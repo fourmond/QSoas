@@ -92,6 +92,11 @@ void CurvePanel::computeTransform()
   computeTransform(r, z);
 }
 
+QRectF CurvePanel::overallBB() const
+{
+  return boundingBox;
+}
+
 void CurvePanel::updateBB()
 {
   boundingBox = QRectF();

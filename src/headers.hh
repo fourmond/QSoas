@@ -126,6 +126,8 @@
 #include <stdexcept>
 #include <functional>
 
+#include <cmath>
+
 #endif
 
 // Now, C inclues

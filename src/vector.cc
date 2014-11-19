@@ -26,7 +26,6 @@
 #include <gsl/gsl_histogram.h>
 
 #include <linereader.hh>
-#include <cmath>
 
 QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
                                              const QRegExp & separatorREt,

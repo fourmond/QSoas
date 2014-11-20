@@ -315,6 +315,8 @@ void FitParameters::prepareExport(QStringList & lst, QString & lines,
   double conf = fitData->confidenceLimitFactor(0.975);
   lst.clear();
   lst << "Buffer";
+  if(perpendicularCoordinates.size() == datasets)
+    lst << "Z";
   for(int i = 0; i < nbParameters; i++) {
     QString name = fitData->parameterDefinitions[i].name;
     lst << name;
@@ -342,6 +344,9 @@ void FitParameters::prepareExport(QStringList & lst, QString & lines,
   for(int i = 0; i < datasets; i++) {
     ls2.clear();
     ls2 << fitData->datasets[i]->name;
+    if(perpendicularCoordinates.size() == datasets)
+      ls2 << QString::number(perpendicularCoordinates[i]);
+
     for(int j = 0; j < nbParameters; j++) {
       // We don't use getValue here because it can be misleading ? 
       ls2 << QString::number(values[i * nbParameters + j]);

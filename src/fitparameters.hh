@@ -149,8 +149,6 @@ public:
   /// The perpendicular coordinates. FitDialog should make them up
   /// when appropriate. There are as many elements as the number of
   /// datasets.
-  ///
-  /// Should this really be here ?
   Vector perpendicularCoordinates;
 
 

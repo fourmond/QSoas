@@ -101,12 +101,19 @@ static void saveBuffersCommand(const QString &,
 {
   QString fmt;
   updateFromOptions(opts, "format", fmt);
+  bool rename = true;
+  updateFromOptions(opts, "rename", rename);
   for(int i = 0; i < datasets.size(); i++) {
     QString nm = datasets[i]->name;
     if(! fmt.isEmpty()) {
       char buffer[fmt.size()*2 + 100];
       snprintf(buffer, sizeof(buffer), fmt.toUtf8(), i);
       nm = QString::fromUtf8(buffer);
+      if(rename) {
+        /// @hack And a nice const-cast...
+        DataSet * ds = const_cast<DataSet * >(datasets[i]);
+        ds->name = nm;
+      }
     }
     datasets[i]->write(nm);
   }
@@ -122,7 +129,11 @@ static ArgumentList
 sBOpts(QList<Argument *>() 
        << new StringArgument("format", 
                              "File name format",
-                             "Overrides buffer names if present"));
+                             "Overrides buffer names if present")
+       << new BoolArgument("rename", 
+                           "Rename buffers",
+                           "If using format, whether or not to rename buffers")
+       );
 
 
 static Command 

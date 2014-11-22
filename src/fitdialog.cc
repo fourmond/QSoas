@@ -722,10 +722,13 @@ void FitDialog::pushSubFunctions()
 }
 
                 
-void FitDialog::pushSimulatedCurves()
+void FitDialog::pushSimulatedCurves(const QStringList & flags)
 {
-  for(int i = 0; i < views.size(); i++)
+  for(int i = 0; i < views.size(); i++) {
     soas().pushDataSet(simulatedData(i));
+    if(flags.size() > 0)
+      soas().currentDataSet()->setFlags(flags);
+  }
 }
 
 void FitDialog::pushResiduals()

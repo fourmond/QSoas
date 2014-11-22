@@ -178,7 +178,7 @@ public slots:
   void loadParametersFile(const QString & fileName, int targetDS = -1, bool recompute = true);
 
   /// Add all simulated datasets to the data stack
-  void pushSimulatedCurves();
+  void pushSimulatedCurves(const QStringList & flags = QStringList());
 
   /// Adds all the residuals to the data stack
   void pushResiduals();

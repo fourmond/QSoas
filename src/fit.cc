@@ -225,6 +225,10 @@ void Fit::makeCommands(ArgumentList * args,
            << new StringArgument("extra-parameters", 
                                  "Extra parameters",
                                  "Define supplementary parameters")
+           << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                         "flags", 
+                                         "Flags",
+                                         "Flags to set on the results")
            << new BoolArgument("reexport", 
                                "Re export",
                                "Do not compute data, just re-export fit parameters and errors");
@@ -363,6 +367,9 @@ void Fit::computeFit(const QString &, QString file,
   if(reexport)
     dlg.setFitEngineFactory("odrpack"); // The only one supporting that !
 
+  QStringList flags;
+  updateFromOptions(opts, "flags", flags);
+
   dlg.loadParametersFile(file, -1, false);
 
 
@@ -393,7 +400,7 @@ void Fit::computeFit(const QString &, QString file,
     dlg.exportToOutFileWithErrors();
   }
   else
-    dlg.pushSimulatedCurves();
+    dlg.pushSimulatedCurves(flags);
 }
 
 

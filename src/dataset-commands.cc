@@ -132,8 +132,8 @@ static ArgumentList
 smOpts(QList<Argument *>() 
            << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                          "flags", 
-                                         "Buffers",
-                                         "Buffers to flag/unflag"));
+                                         "Flags",
+                                         "Flags to set on the results"));
 
 
 static Command 

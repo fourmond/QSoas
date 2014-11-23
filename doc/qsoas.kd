@@ -710,10 +710,11 @@ Saves the current buffer to a file.
 
 ### save-buffers - Save {#cmd-save-buffers}
 
-`save-buffers` _buffers..._{:title="Comma-separated lists of datasets in the stack"} `/format=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}
+`save-buffers` _buffers..._{:title="Comma-separated lists of datasets in the stack"} `/format=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/rename=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _buffers..._{:title="Comma-separated lists of datasets in the stack"}: Buffers to save
   * `/format=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Overrides buffer names if present
+  * `/rename=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If using format, whether or not to rename buffers
 
 {::comment} synopsis-end: save-buffers {:/}
 {::comment} description-start: save-buffers {:/}
@@ -842,6 +843,27 @@ this command one draws a rectangle with the mouse around the region of
 interest.
 
 {::comment} description-end: zoom {:/}
+{::comment} synopsis-start: limits {:/}
+
+### limits - Set limits {#cmd-limits}
+
+`limits` _left_{:title="A floating-point number"} _right_{:title="A floating-point number"} _bottom_{:title="A floating-point number"} _top_{:title="A floating-point number"}
+
+  * _left_{:title="A floating-point number"}: Left limit
+  * _right_{:title="A floating-point number"}: Right limit
+  * _bottom_{:title="A floating-point number"}: Bottom limit
+  * _top_{:title="A floating-point number"}: Top limit
+
+{::comment} synopsis-end: limits {:/}
+{::comment} description-start: limits {:/}
+This is the non-interactive version of [cmd: zoom]. You specify the
+left, right, bottom and top values of the currently displayed window
+directly on the command-line. There are two special values:
+
+  * `*` means "auto", or in other words the maximum needed to see all
+  the curves for that specific side (left, right, bottom or top)
+  * `=` means "don't change"
+{::comment} description-end: limits {:/}
 
 
 
@@ -1457,7 +1479,7 @@ Useful to get the backward scan of a cyclic voltammogram.
 
 `split-monotonic` `/flags=`_texts_
 
-  * `/flags=`_texts_: Buffers to flag/unflag
+  * `/flags=`_texts_: Flags to set on the results
 
 {::comment} synopsis-end: split-monotonic {:/}
 {::comment} description-start: split-monotonic {:/}
@@ -2458,7 +2480,7 @@ Multi-buffer version of the
 
 ### sim-exponential-decay - Fit: Multi-exponential fits {#cmd-sim-exponential-decay}
 
-`sim-exponential-decay` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/exponentials=`_integer_{:title="An integer"} `/absolute=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/loss=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/slow=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`sim-exponential-decay` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/exponentials=`_integer_{:title="An integer"} `/absolute=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/loss=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/slow=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
@@ -2468,6 +2490,7 @@ Multi-buffer version of the
   * `/slow=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Is there a very slow phase (that shows up as a linear change in Y against time) ?
   * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/flags=`_texts_: Flags to set on the results
   * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-exponential-decay {:/}
@@ -2525,7 +2548,7 @@ Fits of exponentials on several steps with film loss bookkeeping
 
 ### sim-multiexp-multistep - Fit: Multi-step and multi-exponential {#cmd-sim-multiexp-multistep}
 
-`sim-multiexp-multistep` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/exponentials=`_integer_{:title="An integer"} `/steps=`_integers_{:title="A comma-separated list of integers"} `/independent=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`sim-multiexp-multistep` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/exponentials=`_integer_{:title="An integer"} `/steps=`_integers_{:title="A comma-separated list of integers"} `/independent=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
@@ -2534,6 +2557,7 @@ Fits of exponentials on several steps with film loss bookkeeping
   * `/independent=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether irreversible loss is independent on each step
   * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/flags=`_texts_: Flags to set on the results
   * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-multiexp-multistep {:/}
@@ -2740,7 +2764,7 @@ Multi-buffer variant of the [cmd: fit-gaussian] fit.
 
 ### sim-gaussian - Fit: One or several gaussians {#cmd-sim-gaussian}
 
-`sim-gaussian` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`sim-gaussian` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
@@ -2748,6 +2772,7 @@ Multi-buffer variant of the [cmd: fit-gaussian] fit.
   * `/number=`_integer_{:title="An integer"}: Number of distinct peaks
   * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/flags=`_texts_: Flags to set on the results
   * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-gaussian {:/}
@@ -2806,7 +2831,7 @@ Multi-buffer variant of the [cmd: fit-lorentzian] fit.
 
 ### sim-lorentzian - Fit: A Lorentzian (also named Cauchy distribution) {#cmd-sim-lorentzian}
 
-`sim-lorentzian` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`sim-lorentzian` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
@@ -2814,6 +2839,7 @@ Multi-buffer variant of the [cmd: fit-lorentzian] fit.
   * `/number=`_integer_{:title="An integer"}: Number of distinct peaks
   * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/flags=`_texts_: Flags to set on the results
   * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-lorentzian {:/}
@@ -2880,13 +2906,14 @@ for fitting multi-wavelength redox titrations.
 
 ### sim-nernst - Fit: Nerstian behaviour {#cmd-sim-nernst}
 
-`sim-nernst` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/states=`_integer_{:title="An integer"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`sim-nernst` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/states=`_integer_{:title="An integer"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/states=`_integer_{:title="An integer"}: Number of redox states
   * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/flags=`_texts_: Flags to set on the results
   * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-nernst {:/}
@@ -2990,7 +3017,7 @@ Multi-buffer version of the [fit: adsorbed] fit.
 
 ### sim-adsorbed - Fit: Adsorbed species {#cmd-sim-adsorbed}
 
-`sim-adsorbed` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/species=`_integer_{:title="An integer"} `/2el=`_integer_{:title="An integer"} `/distinct=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`sim-adsorbed` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/species=`_integer_{:title="An integer"} `/2el=`_integer_{:title="An integer"} `/distinct=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
@@ -2999,6 +3026,7 @@ Multi-buffer version of the [fit: adsorbed] fit.
   * `/distinct=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If true (default) then all species have their own surface concentrations
   * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/flags=`_texts_: Flags to set on the results
   * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-adsorbed {:/}
@@ -3128,7 +3156,7 @@ Multi-buffer variant of the
 
 ### sim-kinetic-system - Fit: Full kinetic system {#cmd-sim-kinetic-system}
 
-`sim-kinetic-system` _system_{:title="Path of a file (or a directory)"} _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`sim-kinetic-system` _system_{:title="Path of a file (or a directory)"} _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the system
   * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
@@ -3144,6 +3172,7 @@ Multi-buffer variant of the
   * `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: Algorithm used for integration
   * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/flags=`_texts_: Flags to set on the results
   * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-kinetic-system {:/}
@@ -3295,13 +3324,14 @@ Multi-buffer variant of the
 
 ### sim-slow-scan-lp - Fit: Slow scan test {#cmd-sim-slow-scan-lp}
 
-`sim-slow-scan-lp` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/explicit-rate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`sim-slow-scan-lp` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/explicit-rate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/explicit-rate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether the scan rate is an explicit parameter of the fit
   * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/flags=`_texts_: Flags to set on the results
   * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-slow-scan-lp {:/}
@@ -3314,7 +3344,7 @@ Computation for the
 
 ### sim-slow-scan-hp - Fit: Slow scan test {#cmd-sim-slow-scan-hp}
 
-`sim-slow-scan-hp` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/bi-exp=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/scaling=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`sim-slow-scan-hp` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/bi-exp=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/scaling=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
@@ -3322,6 +3352,7 @@ Computation for the
   * `/scaling=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Use an additional scaling factor
   * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/flags=`_texts_: Flags to set on the results
   * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-slow-scan-hp {:/}
@@ -3403,7 +3434,7 @@ Multi-buffer variant of [cmd: fit-eecr-wave].
 
 ### sim-eecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-sim-eecr-wave}
 
-`sim-eecr-wave` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`sim-eecr-wave` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
@@ -3412,6 +3443,7 @@ Multi-buffer variant of [cmd: fit-eecr-wave].
   * `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use explicitly the bias or compute it using the open circuit potential
   * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/flags=`_texts_: Flags to set on the results
   * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-eecr-wave {:/}
@@ -3459,12 +3491,13 @@ Multi-buffer version of the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
 
 ### sim-eecr-relay-wave - Fit: Fit of an EECR+relay catalytic wave {#cmd-sim-eecr-relay-wave}
 
-`sim-eecr-relay-wave` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`sim-eecr-relay-wave` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/flags=`_texts_: Flags to set on the results
   * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-eecr-relay-wave {:/}
@@ -3516,7 +3549,7 @@ Multi-buffer version of the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
 
 ### sim-ecr-wave - Fit: Fit of an ECR catalytic wave {#cmd-sim-ecr-wave}
 
-`sim-ecr-wave` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`sim-ecr-wave` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
@@ -3525,6 +3558,7 @@ Multi-buffer version of the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
   * `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use explicitly the bias or compute it using the open circuit potential
   * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/flags=`_texts_: Flags to set on the results
   * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
 
 {::comment} synopsis-end: sim-ecr-wave {:/}
@@ -4037,6 +4071,7 @@ listed here:
  * [`integrate-formula`](#cmd-integrate-formula)
  * [`interpolate`](#cmd-interpolate)
  * [`kinetic-system`](#cmd-kinetic-system)
+ * [`limits`](#cmd-limits)
  * [`load`](#cmd-load)
  * [`load-as-csv`](#cmd-load-as-csv)
  * [`load-as-text`](#cmd-load-as-text)
@@ -4128,6 +4163,10 @@ module, the following special functions are available:
 
 {::comment} special-functions-start {:/}
 
+ * `airy_ai`: Airy Ai function (three modes) $$AiryAi(x)$$
+ * `airy_ai_deriv`: First derivative of Airy Ai function (three modes) $$\mathrm{d}AiryAi(x)/\mathrm{d}x$$
+ * `airy_bi`: Airy Bi function (three modes) $$AiryBi(x)$$
+ * `airy_bi_deriv`: First derivative of Airy Bi function (three modes) $$$$\mathrm{d}AiryBi(x)/\mathrm{d}x$$
  * `atanc`: $$\frac{\tan^{-1} x}{x}$$
  * `atanhc`: $$\frac{\tanh^{-1} x}{x}$$
  * `bessel_j0`: Regular cylindrical Bessel function of 0th order, $$J_0(x)$$

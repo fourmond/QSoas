@@ -326,7 +326,7 @@ ArgumentMarshaller * NumberArgument::fromString(const QString & str) const
   double v;
   if(special && str == "*")
     v = NAN;
-  else if(special && str == "x")
+  else if(special && str == "=")
     v = INFINITY;
   else
     v = Utils::stringToDouble(str);

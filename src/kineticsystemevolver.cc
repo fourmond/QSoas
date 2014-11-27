@@ -38,6 +38,8 @@
 #include <perdatasetfit.hh>
 #include <fitdata.hh>
 
+#include <timedependentparameter.hh>
+
 #include <gsl/gsl_const_mksa.h>
 
 
@@ -266,148 +268,6 @@ kineticSystem("kinetic-system", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-/// This small represents a dependence on time of a parameter. It is
-/// for now very basic. It is made of several bits that add up to
-/// one. All bits have independent amplitude, but when they have other
-/// accessory parameters (time constant ?), those can either be shared
-/// or independent.
-///
-/// @questions Maybe this has to be turned into a general virtual
-/// hierarchy ?
-class TimeDependentParameter {
-public:
-
-  typedef enum {
-    Exponential,
-  } Type;
-
-  /// What kind of funtion is that ?
-  Type type;
-  
-  /// The number of bits
-  int number;
-
-  /// Whether the bits have independent accessory parameters or not
-  bool independentBits;
-
-  /// The base index of the parameters. @hack Mutable so that it can
-  /// be updated from the const functions.
-  int baseIndex;
-
-
-  /// The number of parameters
-  int parameterNumber() {
-    switch(type) {
-    case Exponential:
-      return number*2 + (independentBits ? number : 1);
-    default:
-      return 0;
-    };
-    return 0;                   // Not needed in principle.
-  };
-
-  /// Parameter definitions
-  QList<ParameterDefinition> parameters(const QString & prefix) {
-    QList<ParameterDefinition> ret;
-    switch(type) {
-    case Exponential:
-      if(! independentBits)
-        ret << ParameterDefinition(prefix + "_tau");
-      for(int i = 0; i < number; i++) { 
-        ret << ParameterDefinition(QString("%2_%1").
-                                   arg(i+1).arg(prefix), true);
-        ret << ParameterDefinition(QString("%2_t_%1").
-                                   arg(i+1).arg(prefix), true);
-        if(independentBits)
-          ret << ParameterDefinition(QString("%2_tau_%1").
-                                     arg(i+1).arg(prefix));
-      }
-      break;
-    default:
-      ;
-    };
-    return ret;
-  };
-
-  /// Returns the value at the given time...
-  double computeValue(double t, const double * parameters) const {
-    double value = 0;
-    switch(type) {
-    case Exponential:
-      for(int i = 0; i < number; i++) {
-        double t0   = parameters[baseIndex + (independentBits ? i*3+1 : 2*i+2)];
-        double conc = parameters[baseIndex + (independentBits ? i*3   : 2*i+1)];
-        double tau  = parameters[baseIndex + (independentBits ? i*3+2 : 0)];
-        if(tau < 0)             // Well, the check happens a lot, but
-                                // is less expensive than an
-                                // exponential anyway
-          throw RangeError("Negative tau value");
-        if(t >= t0)
-          value += conc * exp(-(t - t0)/tau);
-      }
-      break;
-    default:
-      ;
-    }
-    return value;
-  };
-
-  /// Sets a reasonable initial guess for these parameters
-  void setInitialGuess(double * parameters, const DataSet * ds) const {
-    double dx = ds->x().max() - ds->x().min();
-    switch(type) {
-    case Exponential:
-      for(int i = 0; i < number; i++) {
-        double & t0   = parameters[baseIndex + (independentBits ? i*3+1 : 2*i+2)];
-        double & conc = parameters[baseIndex + (independentBits ? i*3   : 2*i+1)];
-        double & tau  = parameters[baseIndex + (independentBits ? i*3+2 : 0)];
-        tau = 20;
-        conc = 1;
-        t0 = ds->x().min() + (i+1) * dx/(number+1);
-      }
-      break;
-    default:
-      ;
-    }
-  };
-
-  /// Returns the time at which there are potential discontinuities
-  Vector discontinuities(const double * parameters) const {
-    Vector ret;
-    switch(type) {
-    case Exponential:
-      for(int i = 0; i < number; i++)
-        ret << parameters[baseIndex + (independentBits ? i*3+1 : 2*i+2)];
-      break;
-    default:
-      ;
-    }
-    return ret;
-  };
-
-  /// Parses a spec for the time-based stuff. Takes a string of the
-  /// form number, type, common
-  void parseFromString(const QString & str) {
-    
-    QRegExp parse("^\\s*(\\d+)\\s*,\\s*(\\w+)\\s*(,\\s*common)?\\s*$");
-    if(parse.indexIn(str) != 0)
-      throw RuntimeError(QString("Invalid specification for time "
-                                 "dependence: '%1'").arg(str));
-    if(parse.cap(2) != "exp")
-      throw RuntimeError(QString("Invalid type of time "
-                                 "dependence: '%1'").arg(parse.cap(2)));
-    
-    type = Exponential;
-    number = parse.cap(1).toInt();
-    
-    independentBits = parse.cap(3).isEmpty();
-    
-  };
-  
-  
-};
-
-
 /// Fits a full kinetic system.
 class KineticSystemFit : public PerDatasetFit {
 
@@ -446,7 +306,7 @@ class KineticSystemFit : public PerDatasetFit {
 
   /// Time-dependent parameters !
   /// A hash parameter index -> its time dependence
-  QHash<int, TimeDependentParameter> timeDependentParameters;
+  QHash<int, TimeDependentParameter*> timeDependentParameters;
 
   /// For now, a rather hackish substitute for callbacks with
   /// parameters
@@ -466,6 +326,15 @@ class KineticSystemFit : public PerDatasetFit {
   QHash<QString, int> tdParameterNames;
 
 protected:
+
+  /// Clears the time-dependent parameters
+  void clearTDP() {
+    for(QHash<int, TimeDependentParameter*>::iterator i = timeDependentParameters.begin(); i != timeDependentParameters.end(); i++)
+      delete i.value();
+    tdParameters.clear();
+    tdParameterNames.clear();
+    timeDependentParameters.clear();
+  }
 
   virtual void processOptions(const CommandOptions & opts)
   {
@@ -488,9 +357,7 @@ protected:
 
 
     // Get rid of all time-dependent parameters first.
-    tdParameters.clear();
-    tdParameterNames.clear();
-    timeDependentParameters.clear();
+    clearTDP();
 
     for(int i = 0; i < lst.size(); i++) {
       Terminal::out << "Parsing spec: " << lst[i] << endl;
@@ -502,11 +369,10 @@ protected:
       int idx = evolver->getParameterIndex(s2[0]);
       if(idx < 0)
         throw RuntimeError("Unknown parameter: %1").arg(s2[0]);
-      timeDependentParameters[idx] = TimeDependentParameter();
-      TimeDependentParameter & param = timeDependentParameters[idx];
-      param.parseFromString(s2[1]);
-      param.baseIndex = baseIndex;
-      QList<ParameterDefinition> defs = param.parameters(s2[0]);
+      timeDependentParameters[idx] = TimeDependentParameter::parseFromString(s2[1]);
+      TimeDependentParameter * param = timeDependentParameters[idx];
+      param->baseIndex = baseIndex;
+      QList<ParameterDefinition> defs = param->parameters(s2[0]);
       baseIndex += defs.size();
       tdParameters += defs;
       tdParameterNames[s2[0]] = idx;
@@ -660,10 +526,10 @@ public:
     if(fit->timeIndex >= 0)
       params[fit->timeIndex] = t;
 
-    for(QHash<int, TimeDependentParameter>::const_iterator i = 
+    for(QHash<int, TimeDependentParameter*>::const_iterator i = 
           fit->timeDependentParameters.begin(); 
         i != fit->timeDependentParameters.end(); i++)
-      params[i.key()] = i.value().computeValue(t, fit->params);
+      params[i.key()] = i.value()->computeValue(t, fit->params);
 
 
   }
@@ -693,10 +559,10 @@ public:
       dumpAllParameters();
 
     Vector discontinuities;
-    for(QHash<int, TimeDependentParameter>::const_iterator i = 
+    for(QHash<int, TimeDependentParameter*>::const_iterator i = 
           timeDependentParameters.begin(); 
         i != timeDependentParameters.end(); i++)
-      discontinuities << i.value().discontinuities(params);
+      discontinuities << i.value()->discontinuities(params);
     qSort(discontinuities);
 
     direction = xv[1] > xv[0] ? sr : -sr;
@@ -775,10 +641,10 @@ public:
 
 
     // And have the parameters handle themselves:
-    for(QHash<int, TimeDependentParameter>::const_iterator i = 
+    for(QHash<int, TimeDependentParameter*>::const_iterator i = 
           timeDependentParameters.begin(); 
         i != timeDependentParameters.end(); i++)
-      i.value().setInitialGuess(a + tdBase, ds);
+      i.value()->setInitialGuess(a + tdBase, ds);
 
   };
 

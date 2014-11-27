@@ -515,13 +515,7 @@ static void browseFilesCommand(const QString &, const CommandOptions & opts)
         s->stripNaNColumns();
         if(s->nbColumns() > 1 && s->nbRows() > 1) {
           if(! frm.isEmpty()) {
-            bool ok = false;
-            try {
-              ok = s->matches(frm);
-            }
-            catch (const RuntimeError &) {
-            }
-            if(!ok) {
+            if(! s->matches(frm)) {
               Terminal::out << files[i] << " [" << j 
                             << "] does not match the selection rule" 
                             << endl;
@@ -589,8 +583,15 @@ static void flagUnFlag(const CommandOptions & opts,
   if(flagged && flags.isEmpty()) 
     flags << "default";
 
+  QString forWhich;
+  updateFromOptions(opts, "for-which", forWhich);
+
   for(int i = 0; i < buffers.size(); i++) {
     DataSet * ds = const_cast<DataSet *>(buffers[i]);
+    if(! forWhich.isEmpty()) {
+      if(! ds->matches(forWhich))
+        continue;               // Not flagging
+    }
     if(flagged) {
       ds->setFlags(flags);
     }
@@ -613,6 +614,9 @@ muOps(QList<Argument *>()
       << new SeveralDataSetArgument("buffers", 
                                     "Buffers",
                                     "Buffers to flag/unflag", true, true)
+      << new StringArgument("for-which", 
+                            "For which",
+                            "Select on formula")
       << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                     "flags", 
                                     "Buffers",

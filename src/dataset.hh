@@ -577,7 +577,9 @@ public:
 
 
   /// Runs the given expression feeding it the values of the meta-data
-  /// and the statistics, and returns wether the expression is true or false
+  /// and the statistics, and returns wether the expression is true or
+  /// false. It returns false also if the expression fails for some
+  /// reason.
   bool matches(const QString & expression) const;
 
   /// @}

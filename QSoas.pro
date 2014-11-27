@@ -250,7 +250,8 @@ SOURCES += src/qmain.cc \
         src/lineedit.cc \
         src/linereader.cc \
         src/hook.cc \
-        src/nupwidget.cc
+        src/nupwidget.cc \
+        src/timedependentparameter.cc
 
 
 HEADERS += src/headers.hh \
@@ -348,7 +349,8 @@ HEADERS += src/headers.hh \
         src/lineedit.hh \
         src/linereader.hh \
         src/hook.hh \
-        src/nupwidget.hh
+        src/nupwidget.hh \
+        src/timedependentparameter.hh
 
 
 # We link with the converted ODRPACK library

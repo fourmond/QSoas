@@ -1,7 +1,7 @@
 /**
    \file idoms.hh
-   A few template classes for things that come in quite useful
-   Copyright 2013 by CNRS/AMU
+   A few template (and not templates) classes for things that come in quite useful
+   Copyright 2013, 2014 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -63,8 +63,28 @@ public:
   ~TemporaryChange() {
     target = initialValue;
   };
-  
-  
+};
+
+/// Save a global Ruby variable
+class SaveGlobal {
+  VALUE old;
+
+  const char * name;
+public:
+
+  /// Has to be a real const char ? For now.
+  SaveGlobal(const char * n) : name(n) {
+    old = rb_gv_get(name);
+  };
+
+  SaveGlobal(const char * n, VALUE nv) : name(n) {
+    old = rb_gv_get(name);
+    rb_gv_set(name, nv);
+  };
+
+  ~SaveGlobal() {
+    rb_gv_set(name, old);
+  };
 };
 
 

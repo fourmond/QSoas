@@ -110,3 +110,17 @@ QList<ValueHash> Statistics::statsBySegments(ValueHash * overall)
   }
   return ret;
 }
+
+VALUE Statistics::toRuby()
+{
+  ValueHash s;
+  QList<ValueHash> sstats = statsBySegments(&s);
+  VALUE hsh = s.toRuby();
+  for(int i = 0; i < sstats.size(); i++) {
+    VALUE v = sstats[i].toRuby();
+    rb_hash_aset(hsh, INT2FIX(i), v);
+    rb_hash_aset(hsh, rb_float_new(i), v);
+  }
+  rb_gv_set("$stats", hsh);
+  return hsh;
+}

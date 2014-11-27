@@ -55,6 +55,11 @@ public:
   /// Returns segment-by-segments statistics, and the overall
   /// statistics in the target value hash if not NULL.
   QList<ValueHash> statsBySegments(ValueHash * overall = NULL);
+
+
+  /// Returns a Ruby hash containing the statistics (including
+  /// sub-hashes containing stats by segments when applicable)
+  VALUE toRuby();
   
 };
 

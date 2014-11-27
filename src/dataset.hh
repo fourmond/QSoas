@@ -575,6 +575,11 @@ public:
   /// Add a whole new set of meta-data
   void addMetaData(const ValueHash & val, bool override = true);
 
+
+  /// Runs the given expression feeding it the values of the meta-data
+  /// and the statistics, and returns wether the expression is true or false
+  bool matches(const QString & expression) const;
+
   /// @}
   
 };

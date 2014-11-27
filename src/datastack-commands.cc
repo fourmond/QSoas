@@ -503,11 +503,6 @@ static void browseFilesCommand(const QString &, const CommandOptions & opts)
 
 
   
-  // The extra argument is needed, as if $stats or $meta is nil,
-  // evaluation will fail.
-  SaveGlobal _a("$stats", rb_hash_new());
-  SaveGlobal _b("$meta", rb_hash_new());
-
   QString frm;
   updateFromOptions(opts, "for-which", frm);
 
@@ -522,10 +517,7 @@ static void browseFilesCommand(const QString &, const CommandOptions & opts)
           if(! frm.isEmpty()) {
             bool ok = false;
             try {
-              Statistics st(s);
-              rb_gv_set("$stats", st.toRuby());
-              rb_gv_set("$meta", s->getMetaData().toRuby());
-              ok = RTEST(Ruby::eval(frm.toLocal8Bit()));
+              ok = s->matches(frm);
             }
             catch (const RuntimeError &) {
             }

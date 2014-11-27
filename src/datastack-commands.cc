@@ -35,6 +35,10 @@
 #include <datasetbrowser.hh>
 #include <stylegenerator.hh>
 
+#include <statistics.hh>
+#include <ruby.hh>
+#include <idioms.hh>
+
 static Group stack("stack", 1,
                    "Data Stack",
                    "Data stack manipulation");
@@ -497,6 +501,16 @@ static void browseFilesCommand(const QString &, const CommandOptions & opts)
   updateFromOptions(opts, "pattern", pattern);
   QStringList files = Utils::glob(pattern);
 
+
+  
+  // The extra argument is needed, as if $stats or $meta is nil,
+  // evaluation will fail.
+  SaveGlobal _a("$stats", rb_hash_new());
+  SaveGlobal _b("$meta", rb_hash_new());
+
+  QString frm;
+  updateFromOptions(opts, "for-which", frm);
+
   QList<DataSet *> dataSets;
   for(int i = 0; i < files.size(); i++) {
     try {
@@ -504,8 +518,26 @@ static void browseFilesCommand(const QString &, const CommandOptions & opts)
       for(int j = 0; j < sets.size(); j++) {
         DataSet * s = sets[j];
         s->stripNaNColumns();
-        if(s->nbColumns() > 1 && s->nbRows() > 1)
+        if(s->nbColumns() > 1 && s->nbRows() > 1) {
+          if(! frm.isEmpty()) {
+            bool ok = false;
+            try {
+              Statistics st(s);
+              rb_gv_set("$stats", st.toRuby());
+              rb_gv_set("$meta", s->getMetaData().toRuby());
+              ok = RTEST(Ruby::eval(frm.toLocal8Bit()));
+            }
+            catch (const RuntimeError &) {
+            }
+            if(!ok) {
+              Terminal::out << files[i] << " [" << j 
+                            << "] does not match the selection rule" 
+                            << endl;
+              continue;
+            }
+          }
           dataSets << s;
+        }
         else {
           Terminal::out << files[i] << " doesn't contain enough rows and/or columns, skipping" << endl;
           delete s;
@@ -531,8 +563,11 @@ static ArgumentList
 bfOpts(QList<Argument *>() 
        << new StringArgument("pattern", 
                              "Pattern",
-                             "Files to browse", true
-                             ));
+                             "Files to browse", true)
+       << new StringArgument("for-which", 
+                             "For which",
+                             "Select on formula")
+);
                              
 
 static Command 

@@ -40,6 +40,7 @@
 #include <rubysolver.hh>
 #include <integrator.hh>
 
+#include <idioms.hh>
 
 //////////////////////////////////////////////////////////////////////
 
@@ -107,26 +108,16 @@ static void applyFormulaCommand(const QString &, QString formula,
   /// impossible for the time being to pass a plain Ruby object
   /// through Expression.
 
-  VALUE oldStats = Qnil;
+  SaveGlobal a("$stats");
   if(useStats) {
-    oldStats = rb_gv_get("$stats");
     Statistics st(ds);
-    ValueHash s;
-    QList<ValueHash> sstats = st.statsBySegments(&s);
-    VALUE hsh = s.toRuby();
-    for(int i = 0; i < sstats.size(); i++) {
-      VALUE v = sstats[i].toRuby();
-      rb_hash_aset(hsh, INT2FIX(i), v);
-      rb_hash_aset(hsh, rb_float_new(i), v);
-    }
-    rb_gv_set("$stats", hsh);
+    rb_gv_set("$stats", st.toRuby());
   }
 
-  VALUE oldMeta = Qnil;
-  if(useMeta) {
-    oldMeta = rb_gv_get("$meta");
+  SaveGlobal b("$meta");
+  if(useMeta)
     rb_gv_set("$meta", ds->getMetaData().toRuby());
-  }
+
 
   Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
     arg(formula).arg(ds->name) << endl;
@@ -152,11 +143,6 @@ static void applyFormulaCommand(const QString &, QString formula,
       for(int j = 0; j < ret.size(); j++)
         newCols[j].append(ret[j]);
     }, extra);
-
-  if(useStats)
-    rb_gv_set("$stats", oldStats);
-  if(useMeta)
-    rb_gv_set("$meta", oldMeta);
 
   DataSet * newDs = ds->derivedDataSet(newCols, "_mod.dat");
   soas().pushDataSet(newDs);

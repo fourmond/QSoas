@@ -173,14 +173,26 @@ QRectF Utils::sanitizeRectangle(const QRectF & rect)
   QRectF ret(rect);
   if(ret.width() == 0) {
     double x = ret.left();
-    ret.setLeft(0.9 * x);
-    ret.setRight(1.1 * x);
+    if(x != 0.0) {
+      ret.setLeft(0.9 * x);
+      ret.setRight(1.1 * x);
+    }
+    else {
+      ret.setLeft(-0.1);
+      ret.setRight(0.1);
+    }
   }
 
   if(ret.height() == 0) {
     double y = ret.top();
-    ret.setTop(0.9 * y);
-    ret.setBottom(1.1 * y);
+    if(y != 0.0) {
+      ret.setTop(0.9 * y);
+      ret.setBottom(1.1 * y);
+    }
+    else {
+      ret.setTop(0.1);
+      ret.setBottom(-0.1);
+    }
   }
   return ret;
 }

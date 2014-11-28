@@ -91,30 +91,31 @@ QPointF PointIterator::peek() const
   return QPointF(x[index], y[index]);
 }
 
+
 void PointIterator::advance()
 {
   switch(type) {
   case Steps:
     if(sub) {
       sub = 0;
-      index++;
+      advanceIndex();
     }
     else
       sub = 1;
     break;
   case Errors:
     if(sub == 0) {
-      index++;
+      advanceIndex();
       if(index >= total) {
         sub = 1;
         index = total - 1;
       }
     }
     else
-      index--;
+      advanceIndex(-1);
     break;
   default:
-    index++;
+    advanceIndex();
   }
 }
 
@@ -136,3 +137,15 @@ void PointIterator::addToPath(QPainterPath & path, const QTransform & trans)
   }
 }
 
+
+void  PointIterator::advanceIndex(int di)
+{
+  while(true) {
+    index += di;
+    if(index < 0 || index >= total)
+      break;
+    if(std::isfinite(x[index]) && std::isfinite(y[index])) {
+      break;
+    }
+  }
+}

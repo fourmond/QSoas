@@ -47,7 +47,7 @@ double DatasetOptions::yError(const DataSet * ds, int idx) const
 {
   if(! hasYErrors(ds))
     return 0;
-  return ds->column(yErrors).value(idx, 0);
+  return fabs(ds->column(yErrors).value(idx, 0));
 }
 
 void DatasetOptions::setYErrors(int col)

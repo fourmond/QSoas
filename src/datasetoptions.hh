@@ -61,7 +61,8 @@ public:
   bool hasYErrors(const DataSet * ds) const;
 
   /// Returns the error on the given Y point, or 0 if there isn't any
-  /// error. Errors are assumed to be symmetric.
+  /// error. Errors are assumed to be symmetric. This value is always
+  /// positive.
   double yError(const DataSet * ds, int idx) const;
 
   /// Sets the columns for Y errors

@@ -74,9 +74,14 @@ void CurvePanel::computeTransform(const QRect & wR2,
   QRect wR = wR2.normalized();
 
   double m11 = wR.width()/sR.width();
+  if(! std::isfinite(m11))      // Shouldn't happen ?
+    m11 = 1;
   double dx = wR.x() - sR.x() * m11;
 
   double m22 = -wR.height()/sR.height();
+  if(! std::isfinite(m22))      // Shouldn't happen too...
+    m22 = 1;
+
   double dy = -sR.bottom() * m22 + wR.top();
 
   transform = QTransform(m11, 0, 0, m22, dx, dy);

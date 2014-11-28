@@ -64,6 +64,9 @@ private:
 
   /// Advance to next point
   void advance();
+
+  /// Advances only the index, but makes sure there 
+  void advanceIndex(int di = 1);
 public:
 
   PointIterator(const Vector & x, const Vector & y, Type t = Normal);

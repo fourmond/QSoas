@@ -322,6 +322,7 @@ QString GSLConstant::availableConstants()
 }
 
 
+// General constants
 static GSLConstant f("F", "Faraday's constant, $$F$$", GSL_CONST_MKSA_FARADAY);
 static GSLConstant pi(QStringList() << "Pi" << "PI", "$$\\pi$$", M_PI);
 static GSLConstant r("R", "Molar gas constant, $$R$$", GSL_CONST_MKSA_MOLAR_GAS);
@@ -333,3 +334,13 @@ static GSLConstant H("H", "The Planck constant, $$h$$", GSL_CONST_MKSA_PLANCKS_C
 static GSLConstant Hbar("Hbar", "$$\\hbar = h/2\\pi$$", GSL_CONST_MKSA_PLANCKS_CONSTANT_HBAR);
 static GSLConstant Kb("Kb", "Boltzmann's constant", GSL_CONST_MKSA_BOLTZMANN);
 static GSLConstant sigma("Sigma", "The Stefan-Boltzmann radiation constant", GSL_CONST_MKSA_STEFAN_BOLTZMANN_CONSTANT);
+
+// Nuclear physics constants
+static GSLConstant qe("Q_e", "The absolute value of the charge of the electron, $$e$$", GSL_CONST_MKSA_ELECTRON_CHARGE);
+static GSLConstant me("M_e", "The mass of the electron, $$m_e$$", GSL_CONST_MKSA_MASS_ELECTRON);
+static GSLConstant mp("M_p", "The mass of the proton, $$m_p$$", GSL_CONST_MKSA_MASS_PROTON);
+static GSLConstant mn("M_n", "The mass of the neutron, $$m_n$$", GSL_CONST_MKSA_MASS_NEUTRON);
+static GSLConstant mmu("M_mu", "The mass of the mu, $$m_\\mu$$", GSL_CONST_MKSA_MASS_MUON);
+static GSLConstant alpha("Alpha", "The fine structure constant, $$\\alpha$$", GSL_CONST_NUM_FINE_STRUCTURE);
+static GSLConstant mub("Mu_B", "The Bohr Magneton, $$\\mu_B$$", GSL_CONST_MKSA_BOHR_MAGNETON);
+static GSLConstant ryd("Ry", "The Rydberg constant, $$Ry$$", GSL_CONST_MKSA_RYDBERG);

@@ -2305,7 +2305,8 @@ Alias: `reg`
 {::comment} description-start: reglin {:/}
 Linear regression. Using the left and right mouse buttons, select a
 region whose slope is of interest. The terminal shows the $$a$$ and $$b$$
-parameters, and also the effective first order rate constant, ie the
+parameters (the equation is $$ax + b$$),
+and also the effective first order rate constant, ie the
 $$k_{eff}$$ parameter of the equation
 
 $$ f_0 \exp \left[-k_{eff} \, (x - x_0) \right] $$

@@ -116,10 +116,11 @@ namespace __reg {
     double decay_rate = 0;
 
 
-    loop.setHelpString(QString("Linear regression:\n")
+    loop.setHelpString(QString("Linear regression: \n")
                        + reglinHandler.buildHelpString());
 
-    Terminal::out << "Linear regression:\na\tb\tkeff\txleft\txright" 
+    Terminal::out << "Linear regression:"
+      "a*x + b ~ c exp(-keff(x - xleft))\na\tb\tkeff\txleft\txright" 
                   << endl;
 
     /// @todo selection mode ? (do we need that ?)

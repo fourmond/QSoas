@@ -169,29 +169,34 @@ QRectF Utils::scaledAround(const QRectF & rect, const QPointF & point,
 
 QRectF Utils::sanitizeRectangle(const QRectF & rect)
 {
-  // See later about NaN
   QRectF ret(rect);
-  if(ret.width() == 0) {
+  double d = ret.width();
+  if(d == 0 || std::isnan(d)) {
     double x = ret.left();
-    if(x != 0.0) {
-      ret.setLeft(0.9 * x);
-      ret.setRight(1.1 * x);
-    }
-    else {
+    if(std::isnan(d) || x == 0.0) {
+      ret.moveLeft(-0.1);
+      ret.setRight(0.1);
       ret.setLeft(-0.1);
       ret.setRight(0.1);
     }
+    else {
+      ret.setLeft(0.9 * x);
+      ret.setRight(1.1 * x);
+    }
   }
 
-  if(ret.height() == 0) {
+  d = ret.height();
+  if(d == 0 || std::isnan(d)) {
     double y = ret.top();
-    if(y != 0.0) {
-      ret.setTop(0.9 * y);
-      ret.setBottom(1.1 * y);
-    }
-    else {
+    if(std::isnan(d) || y == 0.0) {
+      ret.moveTop(0.1);
+      ret.setBottom(-0.1);
       ret.setTop(0.1);
       ret.setBottom(-0.1);
+    }
+    else {
+      ret.setTop(0.9 * y);
+      ret.setBottom(1.1 * y);
     }
   }
   return ret;

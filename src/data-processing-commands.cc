@@ -1894,7 +1894,10 @@ static void displayPeaks(QList<PeakInfo> peaks, const DataSet * ds,
     hsh << "buffer" << ds->name 
         << "what" << (peaks[i].isMin ? "min" : "max" )
         << "x" << peaks[i].x << "y" << peaks[i].y 
-        << "index" << peaks[i].index;
+        << "index" << peaks[i].index
+        << "width" << peaks[i].width()
+        << "left_width" << peaks[i].leftHHWidth
+        << "right_width" << peaks[i].rightHHWidth;
     if(write)
       OutFile::out.writeValueHash(hsh, ds);
     Terminal::out << hsh.toString() << endl;
@@ -1902,6 +1905,12 @@ static void displayPeaks(QList<PeakInfo> peaks, const DataSet * ds,
     
     v->p1 = QPointF(peaks[i].x, 0);
     v->p2 = QPointF(peaks[i].x, peaks[i].y);
+    v->pen = gs.getPen(GraphicsSettings::PeaksPen);
+    view.addItem(v);
+
+    v = new CurveLine;
+    v->p1 = QPointF(peaks[i].x - peaks[i].leftHHWidth, peaks[i].y/2);
+    v->p2 = QPointF(peaks[i].x + peaks[i].rightHHWidth, peaks[i].y/2);
     v->pen = gs.getPen(GraphicsSettings::PeaksPen);
     view.addItem(v);
   }

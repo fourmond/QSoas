@@ -63,6 +63,17 @@ public:
   /// of reference.
   double magnitude;
 
+  /// Naive width at half height, left extent
+  double leftHHWidth;
+
+  /// Naive width at half height, right extent
+  double rightHHWidth;
+
+  double width() const {
+    return rightHHWidth + leftHHWidth;
+  }
+
+
   /// @todo More to come later here, such as witdh and assymetry (but
   /// this will have to be based on fits -- to the extent possible),
   /// surface, half-height width (or the other way around...)

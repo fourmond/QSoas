@@ -388,6 +388,35 @@ const gsl_vector * Vector::toGSLVector() const
 
 
 
+int Vector::findCrossing(int seed, double y, int di, bool * found) const
+{
+  bool fnd = false;
+  if(di > 0)
+    di = 1;
+  else
+    di = -1;
+  int sz = size();
+  if(seed >= sz)
+    throw RuntimeError("Seed outside of the vector");
+
+  const double * vals = data();
+
+  double sgn = (vals[seed] > y ? 1.0 : -1.0);
+  int idx = seed;
+  while(idx >= 0 && idx < sz) {
+    double yv = vals[idx];
+    if(sgn * (yv - y) <= 0.0) {
+      fnd = true;
+      break;
+    }
+    idx += di;
+  }
+  if(found)
+    *found = fnd;
+  return idx;
+}
+
+
 Vector Vector::fromGSLVector(const gsl_vector * vect)
 {
   Vector ret;

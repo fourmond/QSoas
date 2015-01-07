@@ -115,6 +115,14 @@ public:
 
   /// Returns the total distance (ie sum of absolute value of deltas).
   double deltaSum() const;
+
+  /// Looks for the indice of the first point crossing the given
+  /// value, starting from the given index and going in the direction
+  /// given by di (only the sign matters). It returns the index of the
+  /// first point after the crossing, or the last point taken into
+  /// consideration if not found.
+  int findCrossing(int seed, double thresh, int di = 1, bool * found = NULL) const;
+
   
 
   /// Finds local extrema and returns:

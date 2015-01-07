@@ -73,6 +73,13 @@ QList<PeakInfo> Peaks::findPeaks(bool includeBorders)
     info.x = x[idx];
     info.y = y[idx];
     info.magnitude = fabs(avg - info.y);
+
+    int j = y.findCrossing(idx, y[idx]/2, -1);
+    info.leftHHWidth = info.x - x[j];
+    j = y.findCrossing(idx, y[idx]/2, 1);
+    info.rightHHWidth = x[j] - info.x;
+
+    // Now, we look for the right and left half widths
     peaks << info;
   }
   return peaks;

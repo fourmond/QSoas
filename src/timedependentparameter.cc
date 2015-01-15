@@ -113,3 +113,7 @@ TimeDependentParameter * TimeDependentParameter::parseFromString(const QString &
                              "dependence: '%1'").arg(parse.cap(2)));
   return NULL;
 };
+
+TimeDependentParameter::~TimeDependentParameter()
+{
+}

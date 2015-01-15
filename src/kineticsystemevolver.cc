@@ -39,6 +39,7 @@
 #include <fitdata.hh>
 
 #include <timedependentparameter.hh>
+#include <timedependentparameters.hh>
 
 #include <gsl/gsl_const_mksa.h>
 
@@ -306,7 +307,7 @@ class KineticSystemFit : public PerDatasetFit {
 
   /// Time-dependent parameters !
   /// A hash parameter index -> its time dependence
-  QHash<int, TimeDependentParameter*> timeDependentParameters;
+  TimeDependentParameters timeDependentParameters;
 
   /// For now, a rather hackish substitute for callbacks with
   /// parameters
@@ -318,23 +319,7 @@ class KineticSystemFit : public PerDatasetFit {
   /// Base index for the time-dependent stuff. 
   mutable int tdBase;
 
-  /// Parameter lists for the time-dependent stuff
-  QList<ParameterDefinition> tdParameters;
-
-  /// A hash time dependent parameter name -> index in 
-  /// timeDependentParameter 
-  QHash<QString, int> tdParameterNames;
-
 protected:
-
-  /// Clears the time-dependent parameters
-  void clearTDP() {
-    for(QHash<int, TimeDependentParameter*>::iterator i = timeDependentParameters.begin(); i != timeDependentParameters.end(); i++)
-      delete i.value();
-    tdParameters.clear();
-    tdParameterNames.clear();
-    timeDependentParameters.clear();
-  }
 
   virtual void processOptions(const CommandOptions & opts)
   {
@@ -352,31 +337,14 @@ protected:
     temperatureIndex = -1;
     faraIndex = -1;
 
-    int baseIndex = 0;
     processSoftOptions(opts);
 
 
     // Get rid of all time-dependent parameters first.
-    clearTDP();
-
-    for(int i = 0; i < lst.size(); i++) {
-      Terminal::out << "Parsing spec: " << lst[i] << endl;
-      QStringList s2 = lst[i].split(":");
-      if(s2.size() != 2)
-        throw RuntimeError("Time-dependent parameter '%1' "
-                           "should contain a single :").
-          arg(lst[i]);
-      int idx = evolver->getParameterIndex(s2[0]);
-      if(idx < 0)
-        throw RuntimeError("Unknown parameter: %1").arg(s2[0]);
-      timeDependentParameters[idx] = TimeDependentParameter::parseFromString(s2[1]);
-      TimeDependentParameter * param = timeDependentParameters[idx];
-      param->baseIndex = baseIndex;
-      QList<ParameterDefinition> defs = param->parameters(s2[0]);
-      baseIndex += defs.size();
-      tdParameters += defs;
-      tdParameterNames[s2[0]] = idx;
-    }
+    timeDependentParameters.clear();
+    timeDependentParameters.parseFromStrings(lst, [this](const QString & n) {
+        return evolver->getParameterIndex(n);
+      });
   }
 
   void prepareFit(const QString & fileName)
@@ -505,17 +473,17 @@ public:
         skippedIndices.insert(i);
         continue;
       }
-      if(tdParameterNames.contains(parameters[i])) {
+      
+      if(timeDependentParameters.contains(parameters[i])) {
         skippedIndices.insert(i);
         continue;
       }
-
 
       defs << ParameterDefinition(parameters[i], 
                                   i < system->speciesNumber()); 
     }
     tdBase = defs.size();
-    defs += tdParameters;
+    defs += timeDependentParameters.fitParameters();
     parametersNumber = defs.size();
     return defs;
   };
@@ -526,12 +494,7 @@ public:
     if(fit->timeIndex >= 0)
       params[fit->timeIndex] = t;
 
-    for(QHash<int, TimeDependentParameter*>::const_iterator i = 
-          fit->timeDependentParameters.begin(); 
-        i != fit->timeDependentParameters.end(); i++)
-      params[i.key()] = i.value()->computeValue(t, fit->params);
-
-
+    fit->timeDependentParameters.computeValues(t, params, fit->params);
   }
 
   virtual void function(const double * a, FitData * data, 
@@ -558,12 +521,7 @@ public:
     if(data->debug)
       dumpAllParameters();
 
-    Vector discontinuities;
-    for(QHash<int, TimeDependentParameter*>::const_iterator i = 
-          timeDependentParameters.begin(); 
-        i != timeDependentParameters.end(); i++)
-      discontinuities << i.value()->discontinuities(params);
-    qSort(discontinuities);
+    Vector discontinuities = timeDependentParameters.discontinuities(params);
 
     direction = xv[1] > xv[0] ? sr : -sr;
     lastTime = 0;
@@ -607,7 +565,7 @@ public:
 
   };
 
-  virtual void initialGuess(FitData * params, 
+  virtual void initialGuess(FitData * /*params*/, 
                             const DataSet *ds,
                             double * a)
   {
@@ -639,12 +597,8 @@ public:
         i++)
       a[i] = 1;                 // Simple, heh ?
 
-
     // And have the parameters handle themselves:
-    for(QHash<int, TimeDependentParameter*>::const_iterator i = 
-          timeDependentParameters.begin(); 
-        i != timeDependentParameters.end(); i++)
-      i.value()->setInitialGuess(a + tdBase, ds);
+    timeDependentParameters.setInitialGuesses(a + tdBase, ds);
 
   };
 
@@ -666,7 +620,8 @@ public:
   virtual ArgumentList * fitHardOptions() const {
     return new 
       ArgumentList(QList<Argument *>()
-                   << new SeveralStringsArgument("with", 
+                   << new SeveralStringsArgument(QRegExp(";"),
+                                                 "with", 
                                                  "Time dependent parameters",
                                                  "Dependency upon time of "
                                                  "various parameters")

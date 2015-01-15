@@ -53,7 +53,8 @@ public:
   /// form number, type, common
   static TimeDependentParameter * parseFromString(const QString & str);
   
-  
+
+  virtual ~TimeDependentParameter();
 };
 
 

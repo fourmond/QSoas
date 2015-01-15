@@ -1,7 +1,7 @@
 /**
   \file timedependentparameter.hh
   Hierarchy for flexible time-dependent "parameters"
-  Copyright 2012, 2013, 2014 by CNRS/AMU
+  Copyright 2012, 2013, 2014, 2015 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -17,11 +17,15 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <headers.hh>
+#ifndef __TIMEDEPENDENTPARAMETER_HH
+#define __TIMEDEPENDENTPARAMETER_HH
+
 class ParameterDefinition;
 class DataSet;
 class Vector;
 
-/// This small represents a dependence on time of a parameter. It is
+/// This class represents a dependence on time of a parameter. It is
 /// the base class of a whole hierarchy
 class TimeDependentParameter {
 public:
@@ -53,3 +57,4 @@ public:
 };
 
 
+#endif

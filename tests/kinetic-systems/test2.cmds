@@ -1,0 +1,7 @@
+cd . /from-script=true
+generate-buffer 0 100 1
+sim-kinetic-system test2.sys test2.params 0
+sim-kinetic-system test2.sys test2.params 0 /with=co:1,exp;o2:1,exp
+V 1
+limits * * 0 1
+cd -

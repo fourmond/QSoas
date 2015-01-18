@@ -1,0 +1,31 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: kinetic-system
+# Buffer #0 : generated.dat
+y_A	1	!	1
+y_B	0	!	0
+c0_A	1	!	0
+c0_B	0	!	0
+k1	1	!	1
+k2	1	!	1
+co_1	1	!	0
+co_t_1	20	!	0
+co_tau_1	2	!	1
+o2_1	1	!	0
+o2_t_1	60	!	0
+o2_tau_1	20	!	1
+# The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
+# Buffer-local parameters: 
+# 
+# Buffer: generated.dat (weight: 1)
+# y_A	=	1	+- 0	+- 0%
+# y_B	=	0	(fixed)
+# c0_A	=	1	(fixed)
+# c0_B	=	0	(fixed)
+# k1	=	1	+- 0	+- 0%
+# k2	=	1	+- 0	+- 0%
+# co_1	=	1	(fixed)
+# co_t_1	=	20	(fixed)
+# co_tau_1	=	2	+- 0	+- 0%
+# o2_1	=	1	(fixed)
+# o2_t_1	=	60	(fixed)
+# o2_tau_1	=	20	+- 0	+- 0%

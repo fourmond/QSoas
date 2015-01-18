@@ -29,5 +29,5 @@ qrc_*.cpp
 tests/data/*.dat
 
 # soas logs:
-soas.log
+soas.log*
 out.dat

@@ -20,7 +20,15 @@
 #include <headers.hh>
 #include <rubyodesolver.hh>
 
+#include <odefit.hh>
+
+
 #include <utils.hh>
+#include <soas.hh>
+#include <dataset.hh>
+
+#include <commandeffector-templates.hh>
+#include <file-arguments.hh>
 
 RubyODESolver::RubyODESolver(const QString & init, const QString & der) :
   initialization(NULL), derivatives(NULL), reporters(NULL)
@@ -38,6 +46,13 @@ void RubyODESolver::setParameterValues(const QString & formula)
 {
   Expression::setParametersFromExpression(extraParams, formula, 
                                           extraParamsValues.data());
+}
+
+void RubyODESolver::parseFromFile(const QString & file)
+{
+  QFile f(file);
+  Utils::open(&f, QIODevice::ReadOnly);
+  parseFromFile(&f);
 }
 
 
@@ -148,6 +163,10 @@ int RubyODESolver::dimension() const
 int RubyODESolver::computeDerivatives(double t, const double * y, 
                                       double * dydt)
 {
+  if(callback != NULL)          // Tweak the time-dependent parameters
+                                // when applicable
+    callback(t, extraParamsValues.data());
+
   double v[vars.size() + extraParams.size() + 1];
   int j = 0;
   v[j++] = t;
@@ -198,3 +217,182 @@ QString RubyODESolver::dump() const
   dump(s);
   return tg;
 }
+
+void RubyODESolver::setParameterValues(const double * source, 
+                                       const QSet<int> & skipped)
+{
+  int j = 0;
+  for(int i = 0; i < extraParamsValues.size(); i++)
+    if(! skipped.contains(i))
+      extraParamsValues[i] = source[j++];
+}
+
+void RubyODESolver::setupCallback(const std::function <void (double, double *)> & cb)
+{
+  callback = cb;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+
+// Now, the implementation of Ruby-based ODE fits
+
+/// Fits a full kinetic system.
+class RubyODEFit : public ODEFit {
+protected:
+
+  /// The ODE system
+  RubyODESolver * system;
+
+  virtual ODESolver * solver() const {
+    return system;
+  };
+
+  virtual int getParameterIndex(const QString & name) const  {
+    QStringList lst = system->extraParameters();
+    return lst.indexOf(name);
+  };
+
+  virtual QStringList systemParameters() const {
+    return system->extraParameters();
+  };
+
+  virtual QStringList variableNames() const {
+    return system->variables();
+  };
+
+  virtual void initialize(double t0, const double * params) {
+    system->setParameterValues(params + parametersBase, skippedIndices);
+    system->initialize(t0);
+  };
+
+  virtual bool hasReporters() const {
+    return system->hasReporters();
+  };
+
+  virtual double reporterValue() const {
+    Vector v = system->reporterValues();
+    // Only returns the first reporter.
+    return v[0];
+  };
+  
+  virtual void setupCallback(const std::function<void (double, double * )> & cb) {
+    system->setupCallback(cb);
+  };
+
+
+
+protected:
+
+
+  void prepareFit(const QString & fileName)
+  {
+    delete system;
+    system = new RubyODESolver;
+    system->parseFromFile(fileName);
+    if(system->extraParameters().size() == 0)
+      throw RuntimeError("There are no extra parameters in file '%1', nothing to fit !").arg(fileName);
+  }
+
+  void runFit(const QString & name, QString fileName, 
+              QList<const DataSet *> datasets,
+              const CommandOptions & opts)
+  {
+    prepareFit(fileName);
+    Fit::runFit(name, datasets, opts);
+  }
+
+  void runFitCurrentDataSet(const QString & n, 
+                            QString fileName, const CommandOptions & opts)
+  {
+    QList<const DataSet *> ds;
+    ds << soas().currentDataSet();
+    runFit(n, fileName, ds, opts);
+  }
+
+  void computeFit(const QString & name, QString fileName,
+                  QString params,
+                  QList<const DataSet *> datasets,
+                  const CommandOptions & opts)
+  {
+    prepareFit(fileName);
+    Fit::computeFit(name, params, datasets, opts);
+  }
+
+
+  
+public:
+
+  virtual void initialGuess(FitData * /*params*/, 
+                            const DataSet *ds,
+                            double * a)
+  {
+    const Vector & x = ds->x();
+    const Vector & y = ds->y();
+
+
+    int nb = system->variables().size();
+    if(! system->hasReporters()) {
+      // All currents to 0 but the first
+      for(int i = 0; i < nb; i++)
+        a[i + (voltammogram ? 2 : 0)] = (i == 0 ? y.max() : 0);
+    }
+
+    double * b = a + parametersBase;
+    if(hasOrigTime)
+      b[-1] = x[0] - 20;
+
+    // All initial concentrations to 0 but the first
+    for(int i = 0; i < nb; i++)
+      b[i] = (i == 0 ? 1 : 0);
+    
+    // All rate constants and other to 1 ?
+
+    // We can't use params->parameterDefinitions.size(), as this will
+    // fail miserably in combined fits
+    for(int i = nb + parametersBase; i < parametersNumber; i++)
+      a[i] = 1;                 // Simple, heh ?
+
+    // And have the parameters handle themselves:
+    timeDependentParameters.setInitialGuesses(a + tdBase, ds);
+  };
+
+  virtual ArgumentList * fitArguments() const {
+    if(system)
+      return NULL;
+    return new 
+      ArgumentList(QList<Argument *>()
+                   << new FileArgument("system", 
+                                       "System",
+                                       "Path to the file describing the "
+                                       "ODE system"));
+  };
+
+  RubyODEFit() :
+    ODEFit("ode", 
+           "Fit an ODE system",
+           "", 1, -1, false), system(NULL)
+  { 
+    makeCommands(NULL, 
+                 effector(this, &RubyODEFit::runFitCurrentDataSet, true),
+                 effector(this, &RubyODEFit::runFit, true),
+                 NULL,
+                 effector(this, &RubyODEFit::computeFit)
+                 );
+  };
+
+  RubyODEFit(const QString & name, 
+             RubyODESolver * sys,
+             const QString & file
+             ) : 
+    ODEFit(name.toLocal8Bit(), 
+           QString("Kinetic system of %1").arg(file).toLocal8Bit(),
+           "", 1, -1, false), system(sys)
+  {
+    makeCommands();
+  }
+};
+
+static RubyODEFit fit_ruby_ode;
+
+//////////////////////////////////////////////////////////////////////

@@ -49,6 +49,10 @@ class RubyODESolver : public ODESolver {
 
   /// Values for the extra parameters
   Vector extraParamsValues;
+
+  /// A callback called for every time step.
+  std::function <void (double, double *)> callback;
+
 public:
 
   /// Builds a solver object.
@@ -66,6 +70,12 @@ public:
   /// Parses the system from a file. A blank line separates the
   /// initial conditions from the derivatives.
   void parseFromFile(QIODevice * device);
+
+  /// Overridden version that takes a file name.
+  void parseFromFile(const QString & file);
+
+  /// Sets up a callback
+  void setupCallback(const std::function <void (double, double *)> & cb);
 
   
   virtual bool hasReporters() const {
@@ -103,6 +113,11 @@ public:
   /// doesn't involve anything but the parameters themselves and
   /// constants).
   void setParameterValues(const QString & formula);
+
+  
+  /// Sets extra parameters from the given array. The elements of the
+  /// \a skippedIndices set are skipped from the target.
+  void setParameterValues(const double * source, const QSet<int> & skipped);
 
   /// Returns the values of the extra parameters
   const Vector & parameterValues() const {

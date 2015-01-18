@@ -252,7 +252,8 @@ SOURCES += src/qmain.cc \
         src/hook.cc \
         src/nupwidget.cc \
         src/timedependentparameter.cc \
-        src/timedependentparameters.cc
+        src/timedependentparameters.cc \
+        src/odefit.cc
 
 
 HEADERS += src/headers.hh \
@@ -352,7 +353,8 @@ HEADERS += src/headers.hh \
         src/hook.hh \
         src/nupwidget.hh \
         src/timedependentparameter.hh \
-        src/timedependentparameters.hh
+        src/timedependentparameters.hh \
+        src/odefit.hh
 
 
 # We link with the converted ODRPACK library

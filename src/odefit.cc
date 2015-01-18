@@ -132,11 +132,17 @@ void ODEFit::updateParameters()
   }
   tdBase = defs.size();
   defs += timeDependentParameters.fitParameters();
+  parametersNumber = defs.size();
 }
 
 QList<ParameterDefinition> ODEFit::parameters() const
 {
   return parametersCache;
+}
+
+ODEFit::~ODEFit()
+{
+  // Anything to do here ?
 }
 
 void ODEFit::function(const double * a, FitData * data, 
@@ -150,7 +156,7 @@ void ODEFit::function(const double * a, FitData * data,
   setupCallback([this, a](double t, double * params) {
       if(timeIndex >= 0)
         params[timeIndex] = t;
-      timeDependentParameters.computeValues(t, params, a);
+      timeDependentParameters.computeValues(t, params, a + tdBase);
     });
 
   const Vector & xv = ds->x();

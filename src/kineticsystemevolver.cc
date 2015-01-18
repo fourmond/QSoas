@@ -35,11 +35,8 @@
 #include <expression.hh>
 
 // Here come fits !
-#include <perdatasetfit.hh>
+#include <odefit.hh>
 #include <fitdata.hh>
-
-#include <timedependentparameter.hh>
-#include <timedependentparameters.hh>
 
 #include <gsl/gsl_const_mksa.h>
 
@@ -70,9 +67,9 @@ int KineticSystemEvolver::dimension() const
 int KineticSystemEvolver::computeDerivatives(double t, const double * y, 
                                              double * dydt)
 {
-  if(callback)                  // Tweak the time-dependent parameters
+  if(callback != NULL)          // Tweak the time-dependent parameters
                                 // when applicable
-    callback(parameters, t, callbackParameter);
+    callback(t, parameters);
   system->computeDerivatives(dydt, y, parameters);
   if(false) {                /// @todo Add real debugging facilities ?
     // Debugging information
@@ -144,11 +141,9 @@ QHash<QString, double> KineticSystemEvolver::parameterValues() const
 }
 
 
-void KineticSystemEvolver::setupCallback(void (*cb)(double *, double, void *), 
-                                         void * params)
+void KineticSystemEvolver::setupCallback(const std::function <void (double, double *)> & cb)
 {
   callback = cb;
-  callbackParameter = params;
 }
 
 
@@ -191,13 +186,6 @@ ksOpts (QList<Argument *>()
                             "If on, a last column will contain the number of function evaluation for each step")
         );
 
-/// Just replace the time in the expression by its value !
-static void setTime(double * params, double t, void * p)
-{
-  int idx = *((int*)p);
-  params[idx] = t;
-}
-
 static void kineticSystemCommand(const QString &, QString file,
                                  QString parameters,
                                  const CommandOptions & opts)
@@ -234,7 +222,9 @@ static void kineticSystemCommand(const QString &, QString file,
   if(params.contains("t")) {
     params.remove("t");
     timeIndex = evolver.getParameterIndex("t");
-    evolver.setupCallback(::setTime, &timeIndex);
+    evolver.setupCallback([timeIndex](double t, double * params) {
+        params[timeIndex] = t;
+      });
   }
   QStringList p = params.keys();
   qSort(p);
@@ -270,82 +260,51 @@ kineticSystem("kinetic-system", // command name
 //////////////////////////////////////////////////////////////////////
 
 /// Fits a full kinetic system.
-class KineticSystemFit : public PerDatasetFit {
-
+class KineticSystemFit : public ODEFit {
+protected:
   /// System we're working on - deleted and recreated for each fit.
   KineticSystem * system;
 
   /// The evolver... Created and delete at the same time as each fit.
   KineticSystemEvolver * evolver;
 
-  /// Index of the current's system index for the time. @hack Drop the
-  /// mutable by moving parameter computation somewhere else.
-  mutable int timeIndex;
+  virtual ODESolver * solver() const {
+    return evolver;
+  };
 
-  mutable QSet<int> skippedIndices;
+  virtual int getParameterIndex(const QString & name) const  {
+    return evolver->getParameterIndex(name);
+  };
 
+  virtual QStringList systemParameters() const {
+    return system->allParameters();
+  };
 
-  /// Wether or not this is fitting a voltammogram
-  bool voltammogram;
+  virtual QStringList variableNames() const {
+    return system->allSpecies();
+  };
+
+  virtual void initialize(double t0, const double * params) {
+    evolver->setParameters(params + parametersBase, skippedIndices);
+    evolver->initialize(t0);
+  };
+
+  virtual bool hasReporters() const {
+    return system->reporterExpression;
+  };
+
+  virtual double reporterValue() const {
+    return evolver->reporterValue();
+  };
   
-  mutable int potentialIndex;
+  virtual void setupCallback(const std::function<void (double, double * )> & cb) {
+    evolver->setupCallback(cb);
+  };
 
-  mutable int faraIndex;
 
-  mutable int temperatureIndex;
-
-  mutable int parametersNumber;
-
-  bool hasOrigTime;
-  
-
-  /// These two parameters are needed for the proper computation of
-  /// potentials in intermediate steps:
-  double lastTime;
-  double lastPot;
-  double direction;             // ie algrebrized scan rate.
-
-  /// Time-dependent parameters !
-  /// A hash parameter index -> its time dependence
-  TimeDependentParameters timeDependentParameters;
-
-  /// For now, a rather hackish substitute for callbacks with
-  /// parameters
-  const double * params;
-
-  /// the base of the kinetic systems parameters;
-  mutable int parametersBase;
-
-  /// Base index for the time-dependent stuff. 
-  mutable int tdBase;
 
 protected:
 
-  virtual void processOptions(const CommandOptions & opts)
-  {
-    // Options get processed when everything else is done.
-
-    QStringList lst;
-    updateFromOptions(opts, "with", lst);
-
-    voltammogram = false;
-
-    hasOrigTime = false;
-    updateFromOptions(opts, "choose-t0", hasOrigTime);
-
-    potentialIndex = -1;
-    temperatureIndex = -1;
-    faraIndex = -1;
-
-    processSoftOptions(opts);
-
-
-    // Get rid of all time-dependent parameters first.
-    timeDependentParameters.clear();
-    timeDependentParameters.parseFromStrings(lst, [this](const QString & n) {
-        return evolver->getParameterIndex(n);
-      });
-  }
 
   void prepareFit(const QString & fileName)
   {
@@ -388,6 +347,7 @@ protected:
   }
 
 
+  
   void dumpAllParameters()
   {
     // Dumps all the parameters to standard out
@@ -411,159 +371,6 @@ protected:
   }
 
 public:
-
-  virtual CommandOptions currentSoftOptions() const {
-    return evolver->getStepperOptions().asOptions();
-  };
-
-  virtual void processSoftOptions(const CommandOptions & opts) {
-    // Parse ODEStepperOptions
-    ODEStepperOptions op = evolver->getStepperOptions();
-    op.fixed = false;           // Drop non-adaptative steps !
-    op.parseOptions(opts);
-
-    if(op.fixed) {
-      // Decrease drastically the precision !
-      op.epsAbs = 1e-2;
-      op.epsRel = 1e-2;
-
-      // By default, set the step size to 0 in that case 
-      // (meaning make one step by data point)
-      op.hStart = 0;
-      op.parseOptions(opts);    // Parse again in case the step was
-                                // set in the options
-    }
-
-    evolver->setStepperOptions(op);
-    evolver->resetStepper();
-
-    // Dump the options on the terminal ?
-    Terminal::out << "Using integrator parameters: " 
-                  << op.description() << endl;
-  };
-
-  virtual QList<ParameterDefinition> parameters() const {
-
-    /// @todo all this code should move in a specific function called
-    /// at fit setup time (which would remove the need for mutable
-    /// attributes).
-    QList<ParameterDefinition> defs;
-
-
-    QStringList parameters = system->allParameters();
-    timeIndex= -1;
-
-    if(! system->reporterExpression) {
-      QStringList species = system->allSpecies();
-      for(int i = 0; i < species.size(); i++)
-        defs << ParameterDefinition(QString("y_%1").
-                                    arg(species[i]), i != 0);
-    }
-    if(hasOrigTime)
-        defs << ParameterDefinition("t0", true);
-    
-    parametersBase = defs.size();
-
-    skippedIndices.clear();
-    for(int i = 0; i < parameters.size(); i++) {
-      if(parameters[i] == "t") {
-        timeIndex = i; /// @hack modifying a mutable stuff. Move the
-                       /// preparation of the parameter list in its
-                       /// own function after options processing.
-        skippedIndices.insert(i);
-        continue;
-      }
-      
-      if(timeDependentParameters.contains(parameters[i])) {
-        skippedIndices.insert(i);
-        continue;
-      }
-
-      defs << ParameterDefinition(parameters[i], 
-                                  i < system->speciesNumber()); 
-    }
-    tdBase = defs.size();
-    defs += timeDependentParameters.fitParameters();
-    parametersNumber = defs.size();
-    return defs;
-  };
-
-  static void timeDependentRates(double * params, double t, void * p)
-  {
-    KineticSystemFit * fit = reinterpret_cast<KineticSystemFit *>(p);
-    if(fit->timeIndex >= 0)
-      params[fit->timeIndex] = t;
-
-    fit->timeDependentParameters.computeValues(t, params, fit->params);
-  }
-
-  virtual void function(const double * a, FitData * data, 
-                        const DataSet * ds , gsl_vector * target)
-  {
-    evolver->resetStepper();
-
-    double sr = 0;
-
-    evolver->setParameters(a + parametersBase,
-                           skippedIndices);
-
-
-
-    evolver->setupCallback(KineticSystemFit::timeDependentRates, this);
-    const Vector & xv = ds->x();
-
-    double ini = voltammogram ? 0 : xv[0];
-
-    evolver->initialize(hasOrigTime ? *(a + parametersBase - 1) : ini);
-    // evolver->autoSetHMin(ds->x());
-    params = a + tdBase;
-
-    if(data->debug)
-      dumpAllParameters();
-
-    Vector discontinuities = timeDependentParameters.discontinuities(params);
-
-    direction = xv[1] > xv[0] ? sr : -sr;
-    lastTime = 0;
-    lastPot = xv[0];
-    for(int i = 0; i < xv.size(); i++) {
-      // Here, we must be wary of the discontinuity points (ie those
-      // of the time-evolving stuff)
-
-
-      double tg = (voltammogram ? lastTime : xv[i]);
-      while(discontinuities.size() > 0 && 
-            discontinuities[0] < evolver->currentTime())
-        discontinuities.remove(0);
-
-      if(discontinuities.size() > 0) {
-        double td = discontinuities[0];
-        if(evolver->currentTime() < td && tg > td) {
-          // Make a first step to the discontinuity
-          evolver->stepTo(td);
-          discontinuities.remove(0);
-        }
-      }
-
-      evolver->stepTo(tg);
-      double val = 0;
-      const double * cv = evolver->currentValues();
-      if(system->reporterExpression)
-        val = evolver->reporterValue();
-      else {
-        for(int j = 0; j < system->speciesNumber(); j++)
-          val += cv[j] * a[j + (voltammogram ? 2 : 0)];
-      }
-      gsl_vector_set(target, i, val);
-    }
-
-    if(data->debug) {
-      QTextStream o(stdout);
-      o << "Number of evaluations: " << evolver->evaluations << endl;
-    }
-      
-
-  };
 
   virtual void initialGuess(FitData * /*params*/, 
                             const DataSet *ds,
@@ -593,8 +400,7 @@ public:
 
     // We can't use params->parameterDefinitions.size(), as this will
     // fail miserably in combined fits
-    for(int i = nb + parametersBase; i < parametersNumber;
-        i++)
+    for(int i = nb + parametersBase; i < parametersNumber; i++)
       a[i] = 1;                 // Simple, heh ?
 
     // And have the parameters handle themselves:
@@ -613,25 +419,8 @@ public:
                                        "system"));
   };
 
-  virtual ArgumentList * fitSoftOptions() const {
-    return new ArgumentList(ODEStepperOptions::commandOptions());
-  };
-
-  virtual ArgumentList * fitHardOptions() const {
-    return new 
-      ArgumentList(QList<Argument *>()
-                   << new SeveralStringsArgument(QRegExp(";"),
-                                                 "with", 
-                                                 "Time dependent parameters",
-                                                 "Dependency upon time of "
-                                                 "various parameters")
-                   << new BoolArgument("choose-t0", 
-                                       "If on, one can choose the initial time")
-                   );
-  };
-
   KineticSystemFit() :
-    PerDatasetFit("kinetic-system", 
+    ODEFit("kinetic-system", 
                   "Full kinetic system",
                   "", 1, -1, false), system(NULL), evolver(NULL)
   { 
@@ -647,7 +436,7 @@ public:
                    KineticSystem * sys,
                    const QString & file
                    ) : 
-    PerDatasetFit(name.toLocal8Bit(), 
+    ODEFit(name.toLocal8Bit(), 
                   QString("Kinetic system of %1").arg(file).toLocal8Bit(),
                   "", 1, -1, false), system(sys), evolver(NULL)
   {

@@ -136,6 +136,12 @@ public:
   virtual ArgumentList * fitHardOptions() const;
 
 
+  ODEFit(const QString & n, const QString & sd, const QString & desc,
+         int min = 1, int max = -1, bool mkCmds = true) :
+    PerDatasetFit(n, sd, desc, min, max, mkCmds) {
+  };
+
+  virtual ~ODEFit();
 };
 
 

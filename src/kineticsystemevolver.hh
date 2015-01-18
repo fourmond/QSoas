@@ -39,11 +39,9 @@ class KineticSystemEvolver : public ODESolver {
   /// Indices of the parameters
   QHash<QString, int> parameterIndex;
 
-  /// Parameter to the callback
-  void * callbackParameter;
 
   /// A callback called for every time step.
-  void (*callback)(double * parameters, double t, void * param);
+  std::function <void (double, double *)> callback;
   
 public:
   /// This doesn't take ownership of the kinetic system !
@@ -79,8 +77,7 @@ public:
   void initialize(double tstart);
 
   /// Sets up a callback, or cancel it, if called with a NULL value.
-  void setupCallback(void (*callback)(double *, double, void *), 
-                     void * params);
+  void setupCallback(const std::function <void (double, double *)> & cb);
 
   /// Returns the index of the parameter
   int getParameterIndex(const QString & str) const {

@@ -1,7 +1,7 @@
 /*
   mainwin.cc: Main window for QSoas
   Copyright 2011 by Vincent Fourmond
-            2012, 2013, 2014 by CNRS/AMU
+            2012, 2013, 2014, 2015 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -262,6 +262,28 @@ void MainWin::setupFrame()
   mainSplitter->addWidget(commandWidget);
   curveView->setFocusProxy(commandWidget);
   mainSplitter->setFocusProxy(commandWidget);
+
+  // This is not so nice, but the splitters are invisible with many
+  // themes.
+  //
+  // Adapted from http://stackoverflow.com/questions/2545577/qsplitter-becoming-undistinguishable-between-qwidget-and-qtabwidget
+  {
+    QSplitterHandle *handle = mainSplitter->handle(1);
+    QVBoxLayout *layout = new QVBoxLayout(handle);
+    layout->setSpacing(0);
+    layout->setMargin(0);
+    
+    QFrame *line = new QFrame(handle);
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Sunken);
+    layout->addWidget(line);
+    layout->addStretch(1);
+    line = new QFrame(handle);
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Sunken);
+    layout->addWidget(line);
+  }
+  
 
   // We use a queued connection to avoid that a command that displays
   // something and pushes something to the datastack at the end

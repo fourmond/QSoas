@@ -2,7 +2,7 @@
    @file echem-fits.cc
    Fits related to electrochemistry
    Copyright 2011 by Vincent Fourmond
-             2012, 2013 by CNRS/AMU
+             2012, 2013, 2015 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -28,6 +28,8 @@
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
 
+#include <terminal.hh>
+
 #include <soas.hh>
 
 #include <gsl/gsl_const_mksa.h>
@@ -41,34 +43,32 @@
 class NernstFit : public FunctionFit {
 
   /// The number of species
-  int number;
-
-  /// The species which should be considered "unstable"
-  ///
-  /// @todo I should come up with a simple for handling boolean values
-  /// indexed on a small number of integers - using bit fields; that
-  /// would most probably be faster and definitely much more compact
-  /// than a set !
-  QSet<int> unstableSpecies;
+  QList<int> number;
 
 protected:
 
   virtual void processOptions(const CommandOptions & opts)
   {
-    number = 2;
-    updateFromOptions(opts, "states", number);
-
-    QList<int> unstable;
-    /// @todo Implement unstable species !
-    updateFromOptions(opts, "unstable", unstable);
-    unstableSpecies = QSet<int>::fromList(unstable);
-
+    int species = -1;
+    number.clear();
+    number << 2;
+    if(opts.contains("states"))
+      updateFromOptions(opts, "states", number);
+    updateFromOptions(opts, "species", species);
+    if(species > 1) {
+      if(number.size() != 1)
+        Terminal::out << "/species specified, but /states already gives several species, ignoring" << endl;
+      else {
+        while(--species > 0)
+          number << number[0];
+      }
+    }
   }
 
   
   virtual QString optionsString() const {
-    return QString("%1 species").
-      arg(number);
+    return QString("%1 species: %2").
+      arg(number.size()).arg("??");
   }
 
 
@@ -79,41 +79,54 @@ public:
     QList<ParameterDefinition> defs;
 
     defs << ParameterDefinition("temperature", true);
+
+    for(int i = 0; i < number.size(); i++) {
+      int nb = number[i];
+      QChar id('a' + i);
+
+      // Absorbances
+      for(int j = 0; j < nb; j++)
+        defs << ParameterDefinition(QString("A_%1_%2").arg(id).arg(j));
     
-    // Absorbances
-    for(int i = 0; i < number; i++)
-      defs << ParameterDefinition(QString("A_%1").arg(i));
-    
-    for(int i = 0; i < number-1; i++) {
-      defs << ParameterDefinition(QString("E_%1/%2").arg(i+1).arg(i));
-      defs << ParameterDefinition(QString("n_%1/%2").arg(i+1).arg(i), true);
+      for(int j = 0; j < nb-1; j++) {
+        defs << ParameterDefinition(QString("E_%1_%2/%3").arg(id).arg(j+1).arg(j));
+        defs << ParameterDefinition(QString("n_%1_%2/%3").arg(id).arg(j+1).arg(j), true);
+      }
     }
     return defs;
   };
 
   virtual double function(const double * a, 
                           FitData * , double x) {
-    double rel = 1;             // Relative amount of species
-    double numer = 0;           // Sum for the numerator
-    double denom = 0;           // Sum for the denominator
 
 
     double fara = GSL_CONST_MKSA_FARADAY /
       (a[0] * GSL_CONST_MKSA_MOLAR_GAS);
 
-    const double * ampl = a+1;
-    const double * couples = ampl + number;
 
-    for(int i = 0; i < number; i++) {
-      if(i > 0) {
-        rel *= exp( fara * couples[1] * (x - couples[0]));
-        couples += 2;
+    double rv = 0;
+    int offset = 1;
+    for(int j = 0; j < number.size(); j++) {
+      int nb = number[j];
+      const double * ampl = a+offset;
+      const double * couples = ampl + nb;
+      offset += 3*nb - 2;
+
+      double rel = 1;
+      double numer = 0;
+      double denom = 0;
+      for(int i = 0; i < nb; i++) {
+        if(i > 0) {
+          rel *= exp( fara * couples[1] * (x - couples[0]));
+          couples += 2;
+        }
+        denom += rel;
+        numer += *ampl * rel;
+        ++ampl;
       }
-      denom += rel;
-      numer += *ampl * rel;
-      ++ampl;
+      rv += numer/denom;
     }
-    return numer/denom;
+    return rv;
   };
 
   virtual void initialGuess(FitData * /*data*/, 
@@ -124,24 +137,32 @@ public:
     *(++t) = soas().temperature();
     const double ymin = ds->y().min();
     const double ymax = ds->y().max();
-    for(int i = 0; i < number; i++)
-      *(++t) = ymin + i *(ymax - ymin)/(number-1);
+
+    for(int j = 0; j < number.size(); j++) {
+      int nb = number[j];
+      for(int i = 0; i < nb; i++)
+        *(++t) = ymin + i *(ymax - ymin)/(nb-1);
     
-    // Now transitions
-    const double xmin = ds->x().min();
-    const double xmax = ds->x().max();
-    for(int i = 0; i < number-1; i++) {
-      *(++t) = xmin + (i+0.5) *(xmax - xmin)/(number-1);
-      *(++t) = 1;
+      // Now transitions
+      const double xmin = ds->x().min();
+      const double xmax = ds->x().max();
+      for(int i = 0; i < nb-1; i++) {
+        *(++t) = xmin + (i+0.5) *(xmax - xmin)/(nb-1);
+        *(++t) = 1;
+      }
     }
   };
   
   virtual ArgumentList * fitHardOptions() const {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
-                   << new IntegerArgument("states", 
-                                          "Number of states",
-                                          "Number of redox states")
+                   << new SeveralIntegersArgument("states", 
+                                                  "Number of states",
+                                                  "Number of redox states for each species")
+                   << new IntegerArgument("species", 
+                                          "Number of distinct species",
+                                          "Number of distinct species (regardless of their redox state)")
+                   
                    );
     return opts;
   };

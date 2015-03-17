@@ -1173,10 +1173,8 @@ static void avgCommand(const QString &, QList<const DataSet *> all,
   // Now, we modify all the datasets to add a column filled with 1 as
   // the third column (we'll shift that as last later on).
 
-  if(count) {
-    for(int i = 0; i < data.size(); i++)
-      data[i]->insertColumn(2, Vector(data[i]->nbRows(), 1));
-  }
+  for(int i = 0; i < data.size(); i++)
+    data[i]->insertColumn(2, Vector(data[i]->nbRows(), 1));
 
   // Now, perform all the additions
   DataSet * ret = data.takeFirst();
@@ -1187,15 +1185,14 @@ static void avgCommand(const QString &, QList<const DataSet *> all,
     ret = nr;
   }
 
-  if(count) {
-    Vector avg = ret->takeColumn(2);   // The number column
-    for(int i = 0; i < ret->nbRows(); i++) {
-      for(int j = 1; j < ret->nbColumns(); j++)
-        ret->column(j)[i] /= avg[i];
-    }
-    
-    ret->insertColumn(ret->nbColumns(), avg);        // For memory
+  Vector avg = ret->takeColumn(2);   // The number column
+  for(int i = 0; i < ret->nbRows(); i++) {
+    for(int j = 1; j < ret->nbColumns(); j++)
+      ret->column(j)[i] /= avg[i];
   }
+
+  if(count)
+    ret->insertColumn(ret->nbColumns(), avg);        // For memory
 
   QStringList names;
   for(int i = 0; i < all.size(); i++)

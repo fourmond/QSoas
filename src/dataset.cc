@@ -59,6 +59,17 @@ void OrderedList::insert(int idx)
   qSort(*this);
 }
 
+void OrderedList::shiftAbove(int idx, int delta)
+{
+  int i = size();
+  while(--i >= 0) {
+    int v = value(i);
+    if(v > idx)
+      operator[](i) += delta;
+    else
+      break;
+  }
+}
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1187,6 +1198,8 @@ void DataSet::removePoint(int index)
 {
   for(int i = 0; i < columns.size(); i++)
     columns[i].remove(index);
+  segments.shiftAbove(index);
+  
   invalidateCache();            // important.
 }
 

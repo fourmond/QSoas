@@ -36,6 +36,9 @@ public:
   /// Inserts the given index into the list
   void insert(int idx);
 
+  /// Shifts all the indices above the given value.
+  void shiftAbove(int idx, int delta = -1); 
+
   OrderedList & operator=(const QList<int> & lst);
 
 private:

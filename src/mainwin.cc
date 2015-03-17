@@ -201,6 +201,8 @@
 
 #include <graphicssettings.hh>
 
+#include <credits.hh>
+
 static SettingsValue<QSize> mainWinSize("mainwin/size", QSize(700,500));
 
 static SettingsValue<QByteArray> splitterState("mainwin/splitter", 
@@ -222,13 +224,9 @@ MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
 
   Terminal::out << "This is QSoas version " << SOAS_VERSION 
                 << " running with " << Ruby::versionString() 
-                << "\n" << SOAS_BUILD_INFO 
-                << "Copyright 2011 by Vincent Fourmond\n"
-                << "          2012-2014 by CNRS/AMU\n\n"
-                << "Based on Christophe Leger's original Soas\n\n"
-                << "This program is free software, released under the terms of \n"
-                << "the GNU general public license (see http://www.gnu.org/copyleft/gpl.html)\n\n" 
-                << "Starting at " << soasInstance->startupTime().toString()
+                << "\n" << SOAS_BUILD_INFO << endl;
+  Credits::displayStartupMessage();
+  Terminal::out << "Starting at " << soasInstance->startupTime().toString()
                 << "\nCurrent directory is: " << QDir::currentPath() 
                 << "\nCurrent temperature is: " << soasInstance->temperature() 
                 << " K\n";

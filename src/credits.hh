@@ -30,6 +30,12 @@ public:
 
   static QList<Credits *> * currentCredits;
 
+
+  typedef enum {
+    QSoas,
+    Projects
+  } Kind;
+
   /// Name of the credits
   QString name;
 
@@ -42,16 +48,29 @@ public:
   /// A free text notice
   QString notice;
 
+  /// The kind of the credits
+  Kind kind;
 
-  Credits(const QString & n, const QString & a, 
-          const QString & u, const QString & d);
+  /// A file name (for a resource)
+  QString fileName;
 
-  Credits(const QString & n, const QStringList & a, 
-          const QStringList & u, 
-          const QString & d);
+
+
+  Credits(const QString & name,
+          const QStringList & authors, 
+          const QStringList & urls, 
+          const QString & notice,
+          Kind k,
+          const QString & full = "");
+
+  /// Text of the credits 
+  QString text(bool full = false) const;
 
   /// Display the credits in the terminal
-  static void displayCredits();
+  static void displayCredits(bool full = false);
+
+  /// Displays the startup message
+  static void displayStartupMessage();
 
 };
 

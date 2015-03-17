@@ -197,10 +197,8 @@ namespace __reg {
       case Exponential: {
         // Dividing by exponential decay
         Vector newy = ds->y();
-        /// @bug Wrong here !
-        double rate = reg.first/(reg.second - reg.first*d.xvalues[0]);
         for(int i = 1; i < newy.size(); i++)
-          newy[i] /= exp(rate * (d.xvalues[i] - d.xvalues[0]));
+          newy[i] *= exp(decay_rate * (d.xvalues[i] - d.xvalues[0]));
         DataSet * newds = ds->derivedDataSet(newy, "_expdiv.dat");
         soas().pushDataSet(newds);
         return;

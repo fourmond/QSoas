@@ -34,12 +34,7 @@
 
 #include <gsl/gsl_const_mksa.h>
 
-/// Fit for a full nerstian single system.
-///
-/// @todo Extend that fit -- or write another one -- for the
-/// superposition of various independant species ?
-///
-/// I actually need to really think about that...
+/// A fit of a sum of nersnt equations.
 class NernstFit : public FunctionFit {
 
   /// The number of species
@@ -71,6 +66,16 @@ protected:
       arg(number.size()).arg("??");
   }
 
+  /// Returns a name suitable for the given redox state of the numbered state
+  static QString stateName(int st, int nb) {
+    if(nb > 3)
+      return QString::number(st);
+    if(st == 0)
+      return "red";
+    if(st == 1 && nb == 3)
+      return "int";
+    return "ox";
+  };
 
 public:
 
@@ -86,11 +91,17 @@ public:
 
       // Absorbances
       for(int j = 0; j < nb; j++)
-        defs << ParameterDefinition(QString("A_%1_%2").arg(id).arg(j));
+        defs << ParameterDefinition(QString("A_%1_%2").arg(id).
+                                    arg(stateName(j, nb)),
+                                    (j == 0 && i > 0));
     
       for(int j = 0; j < nb-1; j++) {
-        defs << ParameterDefinition(QString("E_%1_%2/%3").arg(id).arg(j+1).arg(j));
-        defs << ParameterDefinition(QString("n_%1_%2/%3").arg(id).arg(j+1).arg(j), true);
+        defs << ParameterDefinition(QString("E_%1_%2/%3").arg(id).
+                                    arg(stateName(j+1, nb)).
+                                    arg(stateName(j, nb)));
+        defs << ParameterDefinition(QString("n_%1_%2/%3").arg(id).
+                                    arg(stateName(j+1, nb)).
+                                    arg(stateName(j, nb)), true);
       }
     }
     return defs;

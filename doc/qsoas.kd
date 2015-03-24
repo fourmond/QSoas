@@ -143,14 +143,16 @@ the very beginning in the terminal.
 
 ### credits - Credits {#cmd-credits}
 
-`credits` 
+`credits` `/full=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
+  * `/full=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Full text of the licenses
 
 {::comment} synopsis-end: credits {:/}
 {::comment} description-start: credits {:/}
 
 This command displays credits, copyright and license information of 
-QSoas and all the dependencies linked to or built in your version.
+QSoas and all the dependencies linked to or built in your
+version. You'll get the full license text with `/full=true`.
 
 It also lists publications whose findings/equations/algorithms were
 directly used in QSoas.
@@ -729,11 +731,12 @@ probably a good idea to use [cmd: rename] first.
 
 ### browse - Browse files {#cmd-browse}
 
-`browse` `/pattern=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}
+`browse` `/pattern=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/for-which=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}
 
 Alias: `W`
 
   * `/pattern=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} (default): Files to browse
+  * `/for-which=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Select on formula
 
 {::comment} synopsis-end: browse {:/}
 {::comment} description-start: browse {:/}
@@ -741,6 +744,10 @@ Browse all datafiles in the current directory (or those matching the
 wildcard pattern given to `/pattern`, see [cmd: load] for more
 information about wildcards). Very useful to find quickly the file
 you're looking for.
+
+Using the  `/for-which` option, one can display only a certain set of
+files based on their meta-data and/or statistics. See the
+[dedicated section](#for-which) for more details.
 {::comment} description-end: browse {:/}
 
 
@@ -1038,9 +1045,10 @@ buffers you're sure you won't need again (such as computation intermediates).
 
 ### flag - Flag datasets {#cmd-flag}
 
-`flag` `/buffers=`_buffers_{:title="Comma-separated lists of datasets in the stack"} `/flags=`_texts_
+`flag` `/buffers=`_buffers_{:title="Comma-separated lists of datasets in the stack"} `/for-which=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_
 
   * `/buffers=`_buffers_{:title="Comma-separated lists of datasets in the stack"} (default): Buffers to flag/unflag
+  * `/for-which=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Select on formula
   * `/flags=`_texts_: Buffers to flag/unflag
 
 {::comment} synopsis-end: flag {:/}
@@ -1061,20 +1069,27 @@ QSoas> flag 0..5 /flags=exp1,fit
 flags buffers 0 to 5 with the flags `exp1` and `fit`. Buffers are
 flagged 'in-place': the current buffer is not changed.
 
+If the `/for-which` option is present, the flags are only applied to
+the datasets that match the specifications given. See more about that
+[there](#for-which).
+
 {::comment} description-end: flag {:/}
 {::comment} synopsis-start: unflag {:/}
 
 ### unflag - Unflag datasets {#cmd-unflag}
 
-`unflag` `/buffers=`_buffers_{:title="Comma-separated lists of datasets in the stack"} `/flags=`_texts_
+`unflag` `/buffers=`_buffers_{:title="Comma-separated lists of datasets in the stack"} `/for-which=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_
 
   * `/buffers=`_buffers_{:title="Comma-separated lists of datasets in the stack"} (default): Buffers to flag/unflag
+  * `/for-which=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Select on formula
   * `/flags=`_texts_: Buffers to flag/unflag
 
 {::comment} synopsis-end: unflag {:/}
 {::comment} description-start: unflag {:/}
-Removes all flags on the given datasets, or only those specified by
-the `/flags` option if the latter is present.
+Does the reverse of [cmd: flag], that is removes all flags on the
+given datasets, or only those specified by the `/flags` option if the
+latter is present. The `/for-which` option words exactly in the same
+way as for [cmd: flag].
 {::comment} description-end: unflag {:/}
 
 
@@ -1128,8 +1143,8 @@ the Y column.
 
 If `/use-stats=true` is used, a global variable `$stats` can be used
 within the Ruby expression that contains all the statistics displayed
-by [cmd: stats]. For
-instance, to normalize the Y values by dividing by the median, one would use:
+by [cmd: stats]. For instance, to normalize the Y values by dividing
+by the median, one would use:
 
 ~~~ 
 QSoas> apply-formula /use-stats=true 'y = y/$stats["y_med"]'
@@ -1142,6 +1157,12 @@ of the first segment, you could do
 ~~~ 
 QSoas> apply-formula /use-stats=true 'y = y/$stats[0]["y_med"]'
 ~~~
+
+If `/use-meta` is `true` (the default), then a global variable `$meta`
+is defined that contains the value of the [meta-data](#meta-data)
+(what is shown by [cmd: show]). What you make of this will greatly
+depend of the meta-data QSoas has gathered from your file (and the
+ones you may have set manually using [cmd: set-meta]).
 
 {::comment} description-end: apply-formula {:/}
 
@@ -1562,6 +1583,15 @@ Many commands make use of perpendicular, most notably [cmd: transpose]
 of $$t$$ above into columns of $$y = f(t)$$ for different values
 of $$\lambda$$), and all the multi-fit commands that show parameters
 as a function of the perpendicular coordinates when applicable.
+
+## Selecting datasets and files based on meta-data {#for-which}
+
+Some commands, namely [cmd: flag], [cmd: unflag] and [cmd: browse]
+accept a `/for-which` option to select the datasets (or files) they
+work on based on their properties. The value of the `/for-which` is a
+[ruby](#ruby) formula that uses the global variables `$meta` and
+`$stats` variables.
+
 
 {::comment} synopsis-start: show {:/}
 
@@ -2855,9 +2885,10 @@ Simulation command for the  [cmd: fit-lorentzian] fit.
 
 ### fit-nernst - Fit: Nerstian behaviour {#cmd-fit-nernst}
 
-`fit-nernst` `/states=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+`fit-nernst` `/states=`_integers_{:title="A comma-separated list of integers"} `/species=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
-  * `/states=`_integer_{:title="An integer"}: Number of redox states
+  * `/states=`_integers_{:title="A comma-separated list of integers"}: Number of redox states for each species
+  * `/species=`_integer_{:title="An integer"}: Number of distinct species (regardless of their redox state)
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
@@ -2886,10 +2917,11 @@ buffer-local.
 
 ### mfit-nernst - Multi fit: Nerstian behaviour {#cmd-mfit-nernst}
 
-`mfit-nernst` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/states=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-nernst` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/states=`_integers_{:title="A comma-separated list of integers"} `/species=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
-  * `/states=`_integer_{:title="An integer"}: Number of redox states
+  * `/states=`_integers_{:title="A comma-separated list of integers"}: Number of redox states for each species
+  * `/species=`_integer_{:title="An integer"}: Number of distinct species (regardless of their redox state)
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
@@ -2907,11 +2939,12 @@ for fitting multi-wavelength redox titrations.
 
 ### sim-nernst - Fit: Nerstian behaviour {#cmd-sim-nernst}
 
-`sim-nernst` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/states=`_integer_{:title="An integer"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`sim-nernst` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/states=`_integers_{:title="A comma-separated list of integers"} `/species=`_integer_{:title="An integer"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
-  * `/states=`_integer_{:title="An integer"}: Number of redox states
+  * `/states=`_integers_{:title="A comma-separated list of integers"}: Number of redox states for each species
+  * `/species=`_integer_{:title="An integer"}: Number of distinct species (regardless of their redox state)
   * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/flags=`_texts_: Flags to set on the results
@@ -4118,6 +4151,7 @@ listed here:
  * [`sim-lorentzian`](#cmd-sim-lorentzian)
  * [`sim-multiexp-multistep`](#cmd-sim-multiexp-multistep)
  * [`sim-nernst`](#cmd-sim-nernst)
+ * [`sim-ode`](#cmd-sim-ode)
  * [`sim-polynomial`](#cmd-sim-polynomial)
  * [`sim-slow-scan-hp`](#cmd-sim-slow-scan-hp)
  * [`sim-slow-scan-lp`](#cmd-sim-slow-scan-lp)
@@ -4186,16 +4220,24 @@ with an **uppercase** letter.
 
 {::comment} constants-start {:/}
 
+ * `Alpha`: The fine structure constant, $$\alpha$$ -- 0.00729735
  * `C`: The speed of light in vacuum, $$c$$ -- 2.99792e+08
  * `Eps_0`: The permeability of vacuum, $$\epsilon_0$$ -- 1.25664e-06
  * `F`: Faraday's constant, $$F$$ -- 96485.3
  * `H`: The Planck constant, $$h$$ -- 6.62607e-34
  * `Hbar`: $$\hbar = h/2\pi$$ -- 1.05457e-34
  * `Kb`: Boltzmann's constant -- 1.38065e-23
+ * `M_e`: The mass of the electron, $$m_e$$ -- 9.10938e-31
+ * `M_mu`: The mass of the mu, $$m_\mu$$ -- 1.88353e-28
+ * `M_n`: The mass of the neutron, $$m_n$$ -- 1.67493e-27
+ * `M_p`: The mass of the proton, $$m_p$$ -- 1.67262e-27
  * `Mu_0`: The permittivity of vacuum, $$\mu_0$$ -- 8.85419e-12
+ * `Mu_B`: The Bohr Magneton, $$\mu_B$$ -- 9.27401e-24
  * `Na`: The Avogadro number, $$N_A$$ -- 6.02214e+23
  * `Pi`, `PI`: $$\pi$$ -- 3.14159
+ * `Q_e`: The absolute value of the charge of the electron, $$e$$ -- 1.60218e-19
  * `R`: Molar gas constant, $$R$$ -- 8.31447
+ * `Ry`: The Rydberg constant, $$Ry$$ -- 2.17987e-18
  * `Sigma`: The Stefan-Boltzmann radiation constant -- 5.6704e-08
 
 {::comment} constants-end {:/}
@@ -4204,4 +4246,76 @@ with an **uppercase** letter.
 [ruby]:http://www.ruby-lang.org/ "Ruby, the programming language"
 [math]:http://www.ruby-doc.org/core-1.9.3/Math.html "Documentation of the Math module"
 [gnuplot]:http://www.gnuplot.info/ "Gnuplot, the plotting program"
+
+{::comment} synopsis-start: fit-ode {:/}
+
+### fit-ode - Fit: Fit an ODE system {#cmd-fit-ode}
+
+`fit-ode` _system_{:title="Path of a file (or a directory)"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+
+  * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the ODE system
+  * `/with=`_texts_: Dependency upon time of various parameters
+  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
+  * `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptative stepper
+  * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
+  * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
+  * `/prec-relative=`_number_{:title="A floating-point number"}: Relative precision required
+  * `/prec-absolute=`_number_{:title="A floating-point number"}: Absolute precision required
+  * `/sub-steps=`_integer_{:title="An integer"}: If this is not 0, then the smallest step size is that number times less than the minimum delta t
+  * `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: Algorithm used for integration
+  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
+  * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/set-from-meta=`_texts_: Set parameter values from meta-data
+
+{::comment} synopsis-end: fit-ode {:/}
+{::comment} synopsis-start: mfit-ode {:/}
+
+### mfit-ode - Multi fit: Fit an ODE system {#cmd-mfit-ode}
+
+`mfit-ode` _system_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+
+  * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the ODE system
+  * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
+  * `/with=`_texts_: Dependency upon time of various parameters
+  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
+  * `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptative stepper
+  * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
+  * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
+  * `/prec-relative=`_number_{:title="A floating-point number"}: Relative precision required
+  * `/prec-absolute=`_number_{:title="A floating-point number"}: Absolute precision required
+  * `/sub-steps=`_integer_{:title="An integer"}: If this is not 0, then the smallest step size is that number times less than the minimum delta t
+  * `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: Algorithm used for integration
+  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
+  * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/set-from-meta=`_texts_: Set parameter values from meta-data
+  * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
+  * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
+
+{::comment} synopsis-end: mfit-ode {:/}
+{::comment} synopsis-start: sim-ode {:/}
+
+### sim-ode - Fit: Fit an ODE system {#cmd-sim-ode}
+
+`sim-ode` _system_{:title="Path of a file (or a directory)"} _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+
+  * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the ODE system
+  * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
+  * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
+  * `/with=`_texts_: Dependency upon time of various parameters
+  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
+  * `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptative stepper
+  * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
+  * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
+  * `/prec-relative=`_number_{:title="A floating-point number"}: Relative precision required
+  * `/prec-absolute=`_number_{:title="A floating-point number"}: Absolute precision required
+  * `/sub-steps=`_integer_{:title="An integer"}: If this is not 0, then the smallest step size is that number times less than the minimum delta t
+  * `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: Algorithm used for integration
+  * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
+  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/flags=`_texts_: Flags to set on the results
+  * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
+
+{::comment} synopsis-end: sim-ode {:/}
 

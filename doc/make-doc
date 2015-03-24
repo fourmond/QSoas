@@ -5,6 +5,8 @@
 
 cat head.html <(echo 'Last updated on <b>'; date; echo '</b></p>') <(./preprocess-doc qsoas.kd | kramdown -o html) tail.html > qsoas.html
 cat head.tex <(./preprocess-doc qsoas.kd | kramdown -o latex) tail.tex > qsoas.tex
-cat head.html <(./preprocess-doc changes.kd qsoas.html | kramdown -o html) tail.html > changes.html
+if [ -r changes.kd ]; then
+    cat head.html <(./preprocess-doc changes.kd qsoas.html | kramdown -o html) tail.html > changes.html
+fi
 
 

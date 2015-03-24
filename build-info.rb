@@ -4,7 +4,11 @@ require 'socket'
 
 f = File.open("src/build.hh", "w")
 
-build_info = "Built #{Time.now} on '#{Socket.gethostname}'\\n"
+host = Socket.gethostname
+if host =~ /ccal/
+  host = "mac-build-daemon"
+end
+build_info = "Built #{Time.now} on '#{host}'\\n"
 
 f.puts "#define SOAS_BUILD_INFO \"#{build_info}\""
 

@@ -1,0 +1,19 @@
+Compilation requires the following packages:
+
+  * a Ruby interpreter, from http://ruby-lang.org
+  * Qt4 libraries (DO NOT USE QT5, there are subtle differences,
+    and some features won't work), from http://qt-project.org/
+  * the GSL libraries, from http://www.gnu.org/software/gsl/
+
+On mac and linux computers, just running
+
+  ./configure
+
+and
+
+  make
+
+should do the trick.
+
+On windows, that should do the trick too, provided the GSL, Qt and
+Ruby libraries are in a place where the linker can find it.

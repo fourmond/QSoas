@@ -1590,7 +1590,18 @@ Some commands, namely [cmd: flag], [cmd: unflag] and [cmd: browse]
 accept a `/for-which` option to select the datasets (or files) they
 work on based on their properties. The value of the `/for-which` is a
 [ruby](#ruby) formula that uses the global variables `$meta` and
-`$stats` variables.
+`$stats` variables. For instance, the following command flags all the
+datasets in the stack that have a maximum value above `1e-4`:
+
+~~~
+QSoas> flag all /for-which '$stats["y_max"] >= 1e-4'
+~~~
+
+Be mindful of the quotes: the outer `'` quotes are meant to protect
+the `$stats["y_max"] >= 1e-4` bit that is passed on to ruby. The
+quotes around `y_max` are necessary, as `$stats` is a
+[dictionnary](http://ruby-doc.org/core-1.9.3/Hash.html) whose keys are
+ruby strings, hence the double quotes. 
 
 
 {::comment} synopsis-start: show {:/}

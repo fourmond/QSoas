@@ -515,9 +515,17 @@ static void browseFilesCommand(const QString &, const CommandOptions & opts)
         s->stripNaNColumns();
         if(s->nbColumns() > 1 && s->nbRows() > 1) {
           if(! frm.isEmpty()) {
-            if(! s->matches(frm)) {
-              Terminal::out << files[i] << " [" << j 
-                            << "] does not match the selection rule" 
+            try {
+              if(! s->matches(frm)) {
+                Terminal::out << files[i] << " [" << j 
+                              << "] does not match the selection rule" 
+                              << endl;
+                continue;
+              }
+            }
+            catch(const RuntimeError & re) {
+              Terminal::out << "Error evaluating expression with " << files[i] << " [" << j 
+                            << "]:" << re.message()
                             << endl;
               continue;
             }
@@ -589,8 +597,15 @@ static void flagUnFlag(const CommandOptions & opts,
   for(int i = 0; i < buffers.size(); i++) {
     DataSet * ds = const_cast<DataSet *>(buffers[i]);
     if(! forWhich.isEmpty()) {
-      if(! ds->matches(forWhich))
-        continue;               // Not flagging
+      try {
+        if(! ds->matches(forWhich))
+          continue;               // Not flagging
+      }
+      catch(const RuntimeError & re) {
+        Terminal::out << "Error evaluating expression with dataset #" << i
+                      << ": " << re.message() << endl;
+        continue;
+      }
     }
     if(flagged) {
       ds->setFlags(flags);

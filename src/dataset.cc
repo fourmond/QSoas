@@ -1353,13 +1353,8 @@ bool DataSet::matches(const QString & expression) const
   Statistics st(this);
   rb_gv_set("$stats", st.toRuby());
   rb_gv_set("$meta", getMetaData().toRuby());
-  try {
-    VALUE v = Ruby::eval(expression.toLocal8Bit());
-    return RTEST(v);
-  }
-  catch(const RuntimeError &) {
-  }
-  return false;
+  VALUE v = Ruby::run(Ruby::eval, expression.toLocal8Bit());
+  return RTEST(v);
 }
 
 

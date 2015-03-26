@@ -358,7 +358,8 @@ HEADERS += src/headers.hh \
 
                 
 # Sources of file-format specific code
-SOURCES += src/formats/gpesprovider.cc
+SOURCES += src/formats/gpesprovider.cc \
+        src/formats/chi.cc
 
 
 # We link with the converted ODRPACK library

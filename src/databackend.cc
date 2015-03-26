@@ -95,7 +95,7 @@ DataBackend * DataBackend::backendForStream(QIODevice * stream,
                                         // past most headers ?
   DataBackend * backend = NULL;
   int priority = 0;
-  QTextStream o(stdout);
+  // QTextStream o(stdout);
   if(! availableBackends)
     return NULL;
   for(int i = 0; i < availableBackends->size(); i++) {

@@ -92,9 +92,9 @@ int TextBackend::couldBeMine(const QByteArray & peek,
 
   if(nbSeps > nbLines) {
     if(sep.indexIn(" \t") >= 0)
-      return 2*nbSeps - (5 * nbLines)/3;
+      return (2*nbSeps - (5 * nbLines)/3)*200/peek.size();
     else
-      return 5*(2*nbSeps - nbLines)/3;
+      return (5*(2*nbSeps - nbLines)/3)*200/peek.size();
   }
   return 0;
 }
@@ -124,6 +124,30 @@ textLoadOptions(QList<Argument *>()
 ArgumentList * TextBackend::loadOptions() const
 {
   return &textLoadOptions;
+}
+
+ValueHash TextBackend::parseComments(const QStringList & comments) const
+{
+  ValueHash meta;
+  
+  // Parse comments for a = b stuff
+  QRegExp cmtval("([\\w-]+)\\s*=\\s*(.*)");
+  for(int i = 0; i < comments.size(); i++) {
+    const QString & s = comments[i];
+    if(cmtval.indexIn(s) >= 0) {
+      QString key = cmtval.cap(1);
+      QString value = cmtval.cap(2);
+      bool ok;
+      double v = value.toDouble(&ok);
+      if(ok)
+        meta[key] = v;
+      else
+        meta[key] = value;
+    }
+  }
+  if(meta.contains("Scan Rate (V/s)"))
+    meta["sr"] = meta["Scan Rate (V/s)"];
+  return meta;
 }
 
 QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
@@ -164,23 +188,7 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
                            cmt.toQRegExp(), autoSplit, dSep,
                            QRegExp("^\\s*$"), &comments, skip);
 
-  ValueHash meta;
-
-  // Parse comments for a = b stuff
-  QRegExp cmtval("([\\w-]+)\\s*=\\s*(.*)");
-  for(int i = 0; i < comments.size(); i++) {
-    const QString & s = comments[i];
-    if(cmtval.indexIn(s) >= 0) {
-      QString key = cmtval.cap(1);
-      QString value = cmtval.cap(2);
-      bool ok;
-      double v = value.toDouble(&ok);
-      if(ok)
-        meta[key] = v;
-      else
-        meta[key] = value;
-    }
-  }
+  ValueHash meta = parseComments(comments);
 
   QList<DataSet *> ret;
 

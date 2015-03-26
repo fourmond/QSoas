@@ -22,6 +22,8 @@
 #include <headers.hh>
 #include <databackend.hh>
 #include <regex.hh>
+#include <valuehash.hh>
+
 
 /// A general-purpose text files reader.
 class TextBackend : public DataBackend {
@@ -41,6 +43,7 @@ protected:
                                    const QString & fileName,
                                    const CommandOptions & opts) const;
 
+  virtual ValueHash parseComments(const QStringList & cmts) const;
 public:
   TextBackend(const QString & sep,
               const char * n, const char * pn, const char * d = "");

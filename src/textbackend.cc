@@ -19,7 +19,7 @@
 
 
 #include <headers.hh>
-#include <databackend.hh>
+#include <textbackend.hh>
 #include <dataset.hh>
 
 #include <argumentlist.hh>
@@ -29,29 +29,6 @@
 #include <utils.hh>
 #include <regex.hh>
 #include <exceptions.hh>
-
-/// A general-purpose text files reader.
-class TextBackend : public DataBackend {
-protected:
-
-  /// The column separator
-  Regex separator;
-
-  /// The comments lines
-  Regex comments;
-  virtual int couldBeMine(const QByteArray & peek, 
-                          const QString & fileName) const;
-
-  virtual ArgumentList * loadOptions() const;
-
-  virtual QList<DataSet *> readFromStream(QIODevice * stream,
-                                   const QString & fileName,
-                                   const CommandOptions & opts) const;
-
-public:
-  TextBackend(const QString & sep,
-              const char * n, const char * pn, const char * d = "");
-};
 
 
 TextBackend::TextBackend(const QString & sep,
@@ -249,7 +226,7 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
 
 
 /// @todo This is not a real CSV backend, as it will not parse
-/// properly files with quoted text that contains delimitedrs.
+/// properly files with quoted text that contains delimiters.
 TextBackend csv("/\\s*[;,]\\s*/",
                 "csv",
                 "CSV files",

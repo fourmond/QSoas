@@ -244,7 +244,6 @@ SOURCES += src/qmain.cc \
         src/distrib-fits.cc \
         src/metadataprovider.cc \
         src/conditionsprovider.cc \
-        src/gpesprovider.cc \
         src/parametersviewer.cc \
         src/curvebrowser.cc \
         src/lineedit.cc \
@@ -354,7 +353,12 @@ HEADERS += src/headers.hh \
         src/nupwidget.hh \
         src/timedependentparameter.hh \
         src/timedependentparameters.hh \
-        src/odefit.hh
+        src/odefit.hh \
+        src/textbackend.hh
+
+                
+# Sources of file-format specific code
+SOURCES += src/formats/gpesprovider.cc
 
 
 # We link with the converted ODRPACK library

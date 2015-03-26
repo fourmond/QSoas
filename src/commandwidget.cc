@@ -93,6 +93,10 @@ CommandWidget::CommandWidget() :
   QTextStream o(stdout);
   o << "Font used for terminal display: " << m.family() << endl;
   terminalDisplay->setFont(mono);
+  QFontMetrics mt(terminalDisplay->font());
+  QSize sz = mt.size(0, "1.771771771766");
+  terminalDisplay->setTabStopWidth(sz.width());
+  
   // terminalDisplay->document()-> 
   //   setDefaultStyleSheet("p { white-space: pre; }");
   // Doesn't seem to have any effect...

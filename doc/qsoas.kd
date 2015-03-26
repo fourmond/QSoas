@@ -2907,14 +2907,28 @@ Simulation command for the  [cmd: fit-lorentzian] fit.
 
 {::comment} synopsis-end: fit-nernst {:/}
 {::comment} description-start: fit-nernst {:/}
-Fits the absorbance (or anything else) of a single chemical species
+Fits the absorbance (or anything else) of a number of chemical species
 present under several redox states as a function of the potential,
-using the Nernst equation.
+using the Nernst equation. The number of species is given to the
+`/species` option, while the number of redox states for each species
+is given to the `/states` option. Alternatively, if you need distinct
+species with a different number of redox states, you can specify a
+comma-separated list of number of states to `/states`, in which case
+`/species` is ignored. For instance, to fit two species, one presentin
+4 redox states and the other in two redox states, one can use:
 
-The number of redox states is given to the option `/states` (defaults
-to 2). The states are numbered from 0, which is the most reduced
-state. $$A_i$$ is the absorbance (or whatever else) of the state
-numbered $$i$$.
+~~~
+QSoas> fit-nernst /states=4,2
+~~~
+
+The species are designated using a lowercase letter suffix, while the
+redox state is designated using `red`, `int` or `ox` when there are 3
+states or less, or with a number for more than three states.
+
+**Note**: be aware that if there is more than one species, the system
+is intrinsically overdetermined, which is why `QSoas` automatically
+fixs the absorbance of the reduced species of all but the first one to
+0 (but you can change that).
 
 This fit is useful to fit the results of a the redox titration at a
 single wavelength. If several wavelength are available, separate them
@@ -2999,8 +3013,7 @@ The number of 1-electron peaks is given by the `/species` option
 
 The current for 1-electron peaks is given by:
 
-$$ 
-i^{1~el}_k = \frac{\Gamma_k n_k\,e_k}{\left(1 + {e_k}\right)^2}
+$$ i^{1~el}_k = \frac{\Gamma_k n_k\,e_k}{\left(1 + {e_k}\right)^2}
 $$ 
 
 with $$e_k = \exp \frac{F\,n_k (E - E^0_k)}{R\,T}$$, with $$E^0_k$$
@@ -3008,12 +3021,11 @@ the potential of the couple and $$n_k$$ the apparent number of
 electrons. The latter only affects the width of the peaks, the
 stoechiometry is always 1 electron.
 
-The current for the 2-electrons peaks is given by[Pilchon and Laviron,
-_J. Electronanal. Chem._,
+The current for the 2-electrons peaks is given by [Pilchon and
+Laviron, _J. Electronanal. Chem._,
 *1976*](http://dx.doi.org/10.1016/S0022-0728(76)80030-7):
 
-$$ 
-i^{2~el}_{k'} = \Gamma_{k'} \kappa_{k'}
+$$ i^{2~el}_{k'} = \Gamma_{k'} \kappa_{k'}
 \frac{\epsilon_{k'} + 4/\kappa_{k'} + 1/\epsilon_{k'}}
 {\left(\epsilon_{k'} + \kappa_{k'} + 1/\epsilon_{k'}\right)^2}
 $$
@@ -3078,6 +3090,100 @@ Multi-buffer version of the [fit: adsorbed] fit.
 {::comment} description-start: sim-adsorbed {:/}
 Simulation command for the [fit: adsorbed] fit.
 {::comment} description-end: sim-adsorbed {:/}
+
+## Differential equations fits
+
+{::comment} synopsis-start: fit-ode {:/}
+
+### fit-ode - Fit: Fit an ODE system {#cmd-fit-ode}
+
+`fit-ode` _system_{:title="Path of a file (or a directory)"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+
+  * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the ODE system
+  * `/with=`_texts_: Dependency upon time of various parameters
+  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
+  * `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptative stepper
+  * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
+  * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
+  * `/prec-relative=`_number_{:title="A floating-point number"}: Relative precision required
+  * `/prec-absolute=`_number_{:title="A floating-point number"}: Absolute precision required
+  * `/sub-steps=`_integer_{:title="An integer"}: If this is not 0, then the smallest step size is that number times less than the minimum delta t
+  * `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: Algorithm used for integration
+  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
+  * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/set-from-meta=`_texts_: Set parameter values from meta-data
+
+{::comment} synopsis-end: fit-ode {:/}
+{::comment} description-start: fit-ode {:/}
+Using this command, one can fit the results of integrating a system of
+differential equations (as with the command [cmd: ode]) to a
+dataset. The system is a file given as the _system_ argument. For more
+details, please refer to the documentation of the [cmd: ode]
+command. The parameters whose values are not defined in the _system_
+file become the fit parameters. If there is no optional third section
+in the _system_ file, the $$y$$ value of the function is by default
+a linear combination of the variables of the system.
+{::comment} description-end: fit-ode {:/}
+
+{::comment} synopsis-start: mfit-ode {:/}
+
+### mfit-ode - Multi fit: Fit an ODE system {#cmd-mfit-ode}
+
+`mfit-ode` _system_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+
+  * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the ODE system
+  * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
+  * `/with=`_texts_: Dependency upon time of various parameters
+  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
+  * `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptative stepper
+  * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
+  * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
+  * `/prec-relative=`_number_{:title="A floating-point number"}: Relative precision required
+  * `/prec-absolute=`_number_{:title="A floating-point number"}: Absolute precision required
+  * `/sub-steps=`_integer_{:title="An integer"}: If this is not 0, then the smallest step size is that number times less than the minimum delta t
+  * `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: Algorithm used for integration
+  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
+  * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/set-from-meta=`_texts_: Set parameter values from meta-data
+  * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
+  * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
+
+{::comment} synopsis-end: mfit-ode {:/}
+{::comment} description-start: mfit-ode {:/}
+Multibuffer version of the [fit: ode] fit.
+{::comment} description-end: mfit-ode {:/}
+{::comment} synopsis-start: sim-ode {:/}
+
+### sim-ode - Fit: Fit an ODE system {#cmd-sim-ode}
+
+`sim-ode` _system_{:title="Path of a file (or a directory)"} _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+
+  * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the ODE system
+  * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
+  * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
+  * `/with=`_texts_: Dependency upon time of various parameters
+  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
+  * `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptative stepper
+  * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
+  * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
+  * `/prec-relative=`_number_{:title="A floating-point number"}: Relative precision required
+  * `/prec-absolute=`_number_{:title="A floating-point number"}: Absolute precision required
+  * `/sub-steps=`_integer_{:title="An integer"}: If this is not 0, then the smallest step size is that number times less than the minimum delta t
+  * `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: Algorithm used for integration
+  * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
+  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
+  * `/flags=`_texts_: Flags to set on the results
+  * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
+
+{::comment} synopsis-end: sim-ode {:/}
+{::comment} description-start: sim-ode {:/}
+Simulation command for the  [fit: ode] fit.
+{::comment} description-end: sim-ode {:/}
+
+
+
 
 
 ## Kinetic systems {#kinetic-systems}
@@ -4212,7 +4318,7 @@ module, the following special functions are available:
  * `airy_ai`: Airy Ai function (three modes) $$AiryAi(x)$$
  * `airy_ai_deriv`: First derivative of Airy Ai function (three modes) $$\mathrm{d}AiryAi(x)/\mathrm{d}x$$
  * `airy_bi`: Airy Bi function (three modes) $$AiryBi(x)$$
- * `airy_bi_deriv`: First derivative of Airy Bi function (three modes) $$$$\mathrm{d}AiryBi(x)/\mathrm{d}x$$
+ * `airy_bi_deriv`: First derivative of Airy Bi function (three modes) $$\mathrm{d}AiryBi(x)/\mathrm{d}x$$
  * `atanc`: $$\frac{\tan^{-1} x}{x}$$
  * `atanhc`: $$\frac{\tanh^{-1} x}{x}$$
  * `bessel_j0`: Regular cylindrical Bessel function of 0th order, $$J_0(x)$$
@@ -4257,76 +4363,3 @@ with an **uppercase** letter.
 [ruby]:http://www.ruby-lang.org/ "Ruby, the programming language"
 [math]:http://www.ruby-doc.org/core-1.9.3/Math.html "Documentation of the Math module"
 [gnuplot]:http://www.gnuplot.info/ "Gnuplot, the plotting program"
-
-{::comment} synopsis-start: fit-ode {:/}
-
-### fit-ode - Fit: Fit an ODE system {#cmd-fit-ode}
-
-`fit-ode` _system_{:title="Path of a file (or a directory)"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
-
-  * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the ODE system
-  * `/with=`_texts_: Dependency upon time of various parameters
-  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
-  * `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptative stepper
-  * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
-  * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
-  * `/prec-relative=`_number_{:title="A floating-point number"}: Relative precision required
-  * `/prec-absolute=`_number_{:title="A floating-point number"}: Absolute precision required
-  * `/sub-steps=`_integer_{:title="An integer"}: If this is not 0, then the smallest step size is that number times less than the minimum delta t
-  * `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: Algorithm used for integration
-  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
-  * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
-  * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
-  * `/set-from-meta=`_texts_: Set parameter values from meta-data
-
-{::comment} synopsis-end: fit-ode {:/}
-{::comment} synopsis-start: mfit-ode {:/}
-
-### mfit-ode - Multi fit: Fit an ODE system {#cmd-mfit-ode}
-
-`mfit-ode` _system_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
-
-  * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the ODE system
-  * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
-  * `/with=`_texts_: Dependency upon time of various parameters
-  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
-  * `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptative stepper
-  * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
-  * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
-  * `/prec-relative=`_number_{:title="A floating-point number"}: Relative precision required
-  * `/prec-absolute=`_number_{:title="A floating-point number"}: Absolute precision required
-  * `/sub-steps=`_integer_{:title="An integer"}: If this is not 0, then the smallest step size is that number times less than the minimum delta t
-  * `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: Algorithm used for integration
-  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
-  * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
-  * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
-  * `/set-from-meta=`_texts_: Set parameter values from meta-data
-  * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
-  * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
-
-{::comment} synopsis-end: mfit-ode {:/}
-{::comment} synopsis-start: sim-ode {:/}
-
-### sim-ode - Fit: Fit an ODE system {#cmd-sim-ode}
-
-`sim-ode` _system_{:title="Path of a file (or a directory)"} _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
-
-  * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the ODE system
-  * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
-  * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
-  * `/with=`_texts_: Dependency upon time of various parameters
-  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
-  * `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptative stepper
-  * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
-  * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
-  * `/prec-relative=`_number_{:title="A floating-point number"}: Relative precision required
-  * `/prec-absolute=`_number_{:title="A floating-point number"}: Absolute precision required
-  * `/sub-steps=`_integer_{:title="An integer"}: If this is not 0, then the smallest step size is that number times less than the minimum delta t
-  * `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: Algorithm used for integration
-  * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
-  * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
-  * `/flags=`_texts_: Flags to set on the results
-  * `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Do not compute data, just re-export fit parameters and errors
-
-{::comment} synopsis-end: sim-ode {:/}
-

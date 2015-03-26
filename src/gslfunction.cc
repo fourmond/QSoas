@@ -250,7 +250,7 @@ airy_bi("airy_bi", "Airy Bi function (three modes) $$AiryBi(x)$$");
 static GSLModalFunction<gsl_sf_airy_Ai_deriv> 
 airy_aid("airy_ai_deriv", "First derivative of Airy Ai function (three modes) $$\\mathrm{d}AiryAi(x)/\\mathrm{d}x$$");
 static GSLModalFunction<gsl_sf_airy_Bi_deriv> 
-airy_bid("airy_bi_deriv", "First derivative of Airy Bi function (three modes) $$$$\\mathrm{d}AiryBi(x)/\\mathrm{d}x$$");
+airy_bid("airy_bi_deriv", "First derivative of Airy Bi function (three modes) $$\\mathrm{d}AiryBi(x)/\\mathrm{d}x$$");
 
 
 //////////////////////////////////////////////////////////////////////

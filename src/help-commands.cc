@@ -91,12 +91,7 @@ tcmd("tex-commands", // command name
 //////////////////////////////////////////////////////////////////////
 
 
-/// @todo This will have to be customizable later on (and probably
-/// even version-dependent !)
-///
-/// @todo Maybe this will make it obsolete to have embedded
-/// documentation ?
-QString docUrl("http://10.234.32.140/cnrs/qsoas/manual.html");
+QString docUrl("http://www.qsoas.org/manual.html");
 
 
 static void helpCommand(const QString &, Command * cmd, 

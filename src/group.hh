@@ -35,16 +35,16 @@ protected:
 
   const char * shortDesc;
   
-  const char * longDesc;
-
   /// A global hash holding a correspondance name->group
-  ///
-  /// @todo This could be turned into (or coupled with) a trie to have
-  /// automatic completion ?
   static QHash<QString, Group*> * availableGroups;
 
   /// Registers the given group to the static registry
   static void registerGroup(Group * grp);
+
+  QList<Group *> subGroups;
+
+  /// The parent group (for submenu classification)
+  Group * parent;
 
 public:
 
@@ -57,12 +57,15 @@ public:
   /// strings, which should therefore point to locations that will not
   /// move, ideally constant strings.
   Group(const char * cn, int p, const char * pn,
-        const char * sd = "", const char * ld = "", 
-        bool autoRegister = true) : 
+        const char * sd, 
+        Group * prt = NULL, bool autoRegister = true) : 
     grpName(cn), pubName(pn), 
-    shortDesc(sd), longDesc(ld), priority(p) {
+    shortDesc(sd), parent(prt), priority(p) {
     if(autoRegister)
       registerGroup(this);
+    if(parent) {
+      parent->subGroups.append(this);
+    }
   }; 
   
 
@@ -90,11 +93,6 @@ public:
     return QObject::tr(shortDesc);
   };
 
-  /// A long informative description, such as a full help text,
-  /// possibly with examples too.
-  virtual QString longDescription() const {
-    return QObject::tr(longDesc);
-  };
 
   /// The commands that belong to this group.
   QList<Command*> commands;

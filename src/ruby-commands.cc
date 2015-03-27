@@ -173,7 +173,7 @@ fO(QList<Argument *>()
 static Command 
 load("apply-formula", // command name
      effector(applyFormulaCommand), // action
-     "buffer",  // group name
+     "math",  // group name
      &fA, // arguments
      &fO, // options
      "Apply formula",

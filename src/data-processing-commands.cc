@@ -1115,10 +1115,10 @@ namespace __bs {
   static Command 
   bspl("filter-bsplines", // command name
        effector(bsplinesCommand), // action
-       "buffer",  // group name
+       "filters",  // group name
        NULL, // arguments
        &bsOpts, // options
-       "Filter",
+       "B-Splines filter",
        "Filter using bsplines",
        "...");
 };
@@ -1408,10 +1408,10 @@ fftOps(QList<Argument *>()
 static Command 
 fft("filter-fft", // command name
     effector(fftCommand), // action
-    "buffer",  // group name
+    "filters",  // group name
     NULL, // arguments
     &fftOps, // options
-    "Filter",
+    "FFT filter",
     "Filter using FFT",
     "...");
 
@@ -1469,10 +1469,10 @@ afbsOps(QList<Argument *>()
 static Command 
 afbs("auto-filter-bs", // command name
      effector(autoFilterBSCommand), // action
-     "buffer",  // group name
+     "filters",  // group name
      NULL, // arguments
      &afbsOps, // options
-     "Filter",
+     "Auto B-splines",
      "Filter using bsplines",
      "...",
      "afbs");
@@ -1533,11 +1533,11 @@ afftOps(QList<Argument *>()
 static Command 
 afft("auto-filter-fft", // command name
      effector(autoFilterFFTCommand), // action
-     "buffer",  // group name
+     "filters",  // group name
      NULL, // arguments
      &afftOps, // options
-     "Filter",
-     "Filter using bsplines",
+     "Auto FFT",
+     "Filter using FFT",
      "...",
      "afft");
 
@@ -1595,7 +1595,7 @@ fsOps(QList<Argument *>()
 static Command 
 fsc("find-steps", // command name
      effector(findStepsCommand), // action
-     "buffer",  // group name
+     "segments",  // group name
      NULL, // arguments
      &fsOps, // options
      "Find steps",
@@ -1749,7 +1749,7 @@ static void setSegmentsCommand(CurveEventLoop &loop, const QString &,
 static Command 
 ssc("set-segments", // command name
     effector(setSegmentsCommand), // action
-    "buffer",  // group name
+    "segments",  // group name
     NULL, // arguments
     NULL, // options
     "Set segments",
@@ -1827,7 +1827,7 @@ intOps(QList<Argument *>()
 static Command 
 integ("integrate", // command name
      effector(intCommand), // action
-     "buffer",  // group name
+     "math",  // group name
      NULL, // arguments
      &intOps, // options
      "Integrate",
@@ -1844,7 +1844,7 @@ static void diffCommand(const QString &)
 static Command 
 diff("diff", // command name
      optionLessEffector(diffCommand), // action
-     "buffer",  // group name
+     "math",  // group name
      NULL, // arguments
      NULL, // options
      "Derive",
@@ -1863,10 +1863,10 @@ static void diff2Command(const QString &)
 static Command 
 dif2("diff2", // command name
      optionLessEffector(diff2Command), // action
-     "buffer",  // group name
+     "math",  // group name
      NULL, // arguments
      NULL, // options
-     "Derive",
+     "Derive twice",
      "4th order accurate second derivative",
      "Computes the 4th order accurate second derivative of the buffer\n"
      "Do not use this on noisy data !");
@@ -1992,7 +1992,7 @@ fpOps(QList<Argument *>(fpBaseOps)
 static Command 
 fp("find-peaks", // command name
    effector(findPeaksCommand), // action
-   "buffer",  // group name
+   "peaks",  // group name
    NULL, // arguments
    &fpOps, // options
    "Find peaks",
@@ -2002,7 +2002,7 @@ fp("find-peaks", // command name
 static Command 
 fp1("1", // command name
    effector(findPeaksCommand), // action
-   "buffer",  // group name
+   "peaks",  // group name
     NULL, // arguments
     &fpBaseOps, // options
     "Find peak",
@@ -2012,7 +2012,7 @@ fp1("1", // command name
 static Command 
 fp2("2", // command name
    effector(findPeaksCommand), // action
-   "buffer",  // group name
+   "peaks",  // group name
     NULL, // arguments
     &fpBaseOps, // options
     "Find two peaks",
@@ -2076,7 +2076,7 @@ static void echemPeaksCommand(const QString &, const CommandOptions &)
 static Command 
 ep("echem-peaks", // command name
    effector(echemPeaksCommand), // action
-   "buffer",  // group name
+   "peaks",  // group name
    NULL, // arguments
    //&fpOps
    NULL, // options
@@ -2187,7 +2187,7 @@ normOps(QList<Argument *>()
 static Command 
 norm("norm", // command name
      effector(normCommand), // action
-     "buffer",  // group name
+     "norm",  // group name
      NULL, // arguments
      &normOps, // options
      "Normalize",
@@ -2236,7 +2236,7 @@ zeroOps(QList<Argument *>()
 static Command 
 zerp("zero", // command name
      effector(zeroCommand), // action
-     "buffer",  // group name
+     "norm",  // group name
      &zeroArgs, // arguments
      &zeroOps, // options
      "Makes 0",
@@ -2386,7 +2386,7 @@ static void dxCommand(const QString &,
 static Command 
 dx("dx", // command name
     effector(dxCommand), // action
-    "buffer",  // group name
+    "math",  // group name
     NULL, // arguments
     NULL, // options
     "DX",
@@ -2415,7 +2415,7 @@ static void dyCommand(const QString &,
 static Command 
 dy("dy", // command name
     effector(dyCommand), // action
-    "buffer",  // group name
+    "math",  // group name
     NULL, // arguments
     NULL, // options
     "DY",

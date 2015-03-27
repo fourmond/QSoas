@@ -49,6 +49,13 @@ static bool compareCommands(const Command * a, const Command * b)
   return a->commandName() < b->commandName();
 }
 
+static bool compareGroups(const Group * a, const Group * b)
+{
+  if(a->priority != b->priority)
+    return a->priority < b->priority;
+  return a->groupName() < b->groupName();
+}
+
 QAction * Group::actionForGroup(QObject * parent) const
 {
   QList<Command *> cmds = commands;
@@ -58,6 +65,16 @@ QAction * Group::actionForGroup(QObject * parent) const
   action->setStatusTip(shortDescription());
   action->setToolTip(shortDescription()); // probably useless.
   QMenu * menu = new QMenu();             // Leaks ? Isn't that a Qt bug ?
+
+  QList<Group *> grps = subGroups;
+  qSort(grps.begin(), grps.end(), compareGroups);
+
+
+  for(int i = 0; i < grps.size(); i++)
+    menu->addAction(grps[i]->actionForGroup(parent));
+  if(grps.size() > 0)
+    menu->addSeparator();
+
   for(int i = 0; i < cmds.size(); i++)
     menu->addAction(cmds[i]->actionForCommand(parent));
 
@@ -65,12 +82,6 @@ QAction * Group::actionForGroup(QObject * parent) const
   return action;
 }
 
-static bool compareGroups(const Group * a, const Group * b)
-{
-  if(a->priority != b->priority)
-    return a->priority < b->priority;
-  return a->groupName() < b->groupName();
-}
 
 void Group::fillMenuBar(QMenuBar * menu)
 {
@@ -79,11 +90,14 @@ void Group::fillMenuBar(QMenuBar * menu)
   QList<Group *> groups = availableGroups->values();
   qSort(groups.begin(), groups.end(), compareGroups);
   for(int i = 0; i < groups.size(); i++) {
+    if(groups[i]->parent)
+      continue;
     QAction * action = groups[i]->actionForGroup(menu->parent());
     menu->addAction(action);
 #ifdef Q_WS_MACX
     QMenu * sub = action->menu();
     // This is a workaround for bug https://bugreports.qt.nokia.com/browse/QTBUG-19920
+    // Hmm, now https://bugreports.qt.io/browse/QTBUG-19920
     menu->connect(sub, SIGNAL(triggered(QAction*)), 
                   SIGNAL(triggered(QAction*)));
 #endif

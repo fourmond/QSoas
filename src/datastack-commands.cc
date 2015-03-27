@@ -39,9 +39,9 @@
 #include <ruby.hh>
 #include <idioms.hh>
 
-static Group stack("stack", 1,
-                   "Data Stack",
-                   "Data stack manipulation");
+static Group stack("view", 1,
+                   "View",
+                   "Control viewing options");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -89,7 +89,7 @@ saveOpts(QList<Argument *>()
 static Command 
 sv("save", // command name
    effector(saveCommand), // action
-   "stack",  // group name
+   "save",  // group name
    &saveArgs, // arguments
    &saveOpts, // options
    "Save",
@@ -143,7 +143,7 @@ sBOpts(QList<Argument *>()
 static Command 
 saveBuffers("save-buffers", // command name
             effector(saveBuffersCommand), // action
-            "stack",  // group name
+            "save",  // group name
             &sBArgs, // arguments
             &sBOpts, // options
             "Save",
@@ -170,7 +170,7 @@ showSOpts(QList<Argument *>()
 static Command 
 showStack("show-stack", // command name
           effector(showStackCommand), // action
-          "stack",  // group name
+          "view",  // group name
           NULL, // arguments
           &showSOpts, // options
           "Show stack",
@@ -309,7 +309,7 @@ saveStackArgs(QList<Argument *>()
 static Command 
 saveStack("save-stack", // command name
           optionLessEffector(saveStackCommand), // action
-          "stack",  // group name
+          "save",  // group name
           &saveStackArgs, // arguments
           NULL, // options
           "Save stack",
@@ -338,7 +338,7 @@ loadStackArgs(QList<Argument *>()
 static Command 
 loadStack("load-stack", // command name
           optionLessEffector(loadStackCommand), // action
-          "stack",  // group name
+          "load",  // group name
           &loadStackArgs, // arguments
           NULL, // options
           "Load stack",
@@ -377,7 +377,7 @@ styleOpts(QList<Argument *>()
 static Command 
 ovlb("overlay-buffer", // command name
      effector(ovCommand), // action
-     "stack",  // group name
+     "view",  // group name
      &ovArgs, // arguments
      &styleOpts, // options
      "Overlay buffers",
@@ -397,7 +397,7 @@ static void clearCommand(const QString &)
 static Command 
 clear("clear", // command name
       optionLessEffector(clearCommand), // action
-      "stack",  // group name
+      "view",  // group name
       NULL, // arguments
       NULL, // options
       "Clear view",
@@ -422,7 +422,7 @@ static void toggleMarkersCommand(const QString &)
 static Command 
 poiCmd("points", // command name
        optionLessEffector(toggleMarkersCommand), // action
-       "stack",  // group name
+       "view",  // group name
        NULL, // arguments
        NULL, // options
        "Show points",
@@ -444,7 +444,7 @@ static void browseStackCommand(const QString &)
 static Command 
 browseStack("browse-stack",     // command name
             optionLessEffector(browseStackCommand, true), // action
-            "stack",            // group name
+            "view",            // group name
             NULL,               // arguments
             NULL,               // options
             "Browse stack",
@@ -567,7 +567,7 @@ bfOpts(QList<Argument *>()
 static Command 
 browseFiles("browse", // command name
             effector(browseFilesCommand), // action
-            "stack",  // group name
+            "view",  // group name
             NULL, // args
             &bfOpts, // options
             "Browse files",
@@ -641,7 +641,7 @@ muOps(QList<Argument *>()
 static Command 
 flag("flag", // command name
      effector(flagDataSetsCommand), // action
-     "stack",  // group name
+     "flags",  // group name
      NULL, // arguments
      &muOps, // options
      "Flag datasets",
@@ -656,7 +656,7 @@ static void unflagDataSetsCommand(const QString &, const CommandOptions & opts)
 static Command 
 unflag("unflag", // command name
      effector(unflagDataSetsCommand), // action
-     "stack",  // group name
+     "flags",  // group name
      NULL, // arguments
      &muOps, // options
      "Unflag datasets",
@@ -681,9 +681,8 @@ ssBArgs(QList<Argument *>()
 static Command 
 showBuffers("show", // command name
             optionLessEffector(showBuffersCommand), // action
-            "stack",  // group name
+            "buffer",  // group name
             &ssBArgs, // arguments
             NULL, // options
-            "Show",
-            "Show the given",
-            "Show details about the given buffers");
+            "Show information",
+            "Show details (meta-data and such) about the given buffers", "");

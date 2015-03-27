@@ -343,7 +343,7 @@ void DataBackend::registerBackendCommands()
 
     new Command(name.toLocal8Bit(),
                 effector(b, &DataBackend::loadDatasetCommand),
-                "stack", lst, opts, (const char*) d1.toLocal8Bit(), 
+                "load", lst, opts, (const char*) d1.toLocal8Bit(), 
                 (const char*) d1.toLocal8Bit(), 
                 (const char*) d2.toLocal8Bit());
   }
@@ -355,7 +355,7 @@ void DataBackend::registerBackendCommands()
   Command * cmd = 
     new Command("load", // command name
                 effector(loadCommand), // action
-                "stack",  // group name
+                "load",  // group name
                 lst, // arguments
                 overallOptions, // options
                 "Load",

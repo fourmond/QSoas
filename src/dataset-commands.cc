@@ -55,6 +55,46 @@ static Group grp("buffer", 2,
                  "Buffer",
                  "Buffer manipulations");
 
+static Group g1("split", 3,
+                 "Split...",
+                "Cut buffers into bits", &grp);
+
+static Group g2("peaks", 5,
+                 "Peaks...",
+                 "Find peaks", &grp);
+
+static Group g0("filters", 6,
+                "Filters...",
+                "Filter data", &grp);
+
+
+
+static Group g3("math", 7,
+                 "Mathematical operations...",
+                 "Mathematical operrations on buffers", &grp);
+
+static Group g4("mbuf", 7,
+                 "Multi-buffer...",
+                 "Operations involving several buffers", &grp);
+
+static Group g5("segments", 10,
+                 "Segments...",
+                 "Handling and use of segments", &grp);
+
+static Group ga("norm", 11,
+                "Normalize...",
+                "Normalize data", &grp);
+
+static Group gb("stack", 11,
+                "Stack...",
+                "Manipulate the stack", &grp);
+
+static Group gc("flags", 11,
+                "Flags...",
+                "Sets and clear flags", &grp);
+
+
+
 //////////////////////////////////////////////////////////////////////
 
 /// Splits the given data at dx sign change
@@ -81,7 +121,7 @@ static void splitaCommand(const QString &)
 static Command 
 sa("splita", // command name
    optionLessEffector(splitaCommand), // action
-   "buffer",  // group name
+   "split",  // group name
    NULL, // arguments
    NULL, // options
    "Split first",
@@ -99,7 +139,7 @@ static void splitbCommand(const QString &)
 static Command 
 sb("splitb", // command name
    optionLessEffector(splitbCommand), // action
-   "buffer",  // group name
+   "split",  // group name
    NULL, // arguments
    NULL, // options
    "Split second",
@@ -139,7 +179,7 @@ smOpts(QList<Argument *>()
 static Command 
 sm("split-monotonic", // command name
    effector(splitMonotonicCommand), // action
-   "buffer",  // group name
+   "split",  // group name
    NULL, // arguments
    &smOpts, // options
    "Split into monotonic parts",
@@ -381,7 +421,7 @@ chopO(QList<Argument *>()
 static Command 
 chopC("chop", // command name
       effector(chopCommand), // action
-      "buffer",  // group name
+      "split",  // group name
       &chopA, // arguments
       &chopO, // options
       "Chop Buffer",
@@ -402,7 +442,7 @@ static void chopIntoSegmentsCommand(const QString &)
 static Command 
 chopS("segments-chop", // command name
       optionLessEffector(chopIntoSegmentsCommand), // action
-      "buffer",  // group name
+      "segments",  // group name
       NULL, // arguments
       NULL, // options
       "Chop into segments",
@@ -650,7 +690,7 @@ namespace __cut {
   static Command 
   cut("cut", // command name
       optionLessEffector(cutCommand), // action
-      "buffer",  // group name
+      "split",  // group name
       NULL, // arguments
       NULL, // options
       "Cut",
@@ -997,7 +1037,7 @@ operationOpts(QList<Argument *>()
 static Command 
 sub("subtract", // command name
     effector(subCommand), // action
-    "buffer",  // group name
+    "mbuf",  // group name
     &operationArgs, // arguments
     &operationOpts, // options
     "Subtract",
@@ -1029,7 +1069,7 @@ static void divCommand(const QString &, QList<const DataSet *> a,
 static Command 
 divc("div", // command name
      effector(divCommand), // action
-     "buffer",  // group name
+     "mbuf",  // group name
      &operationArgs, // arguments
      &operationOpts, // options
      "Divide",
@@ -1059,7 +1099,7 @@ static void mergeCommand(const QString &, QList<const DataSet *> a,
 static Command 
 mergec("merge", // command name
        effector(mergeCommand), // action
-       "buffer",  // group name
+       "mbuf",  // group name
        &operationArgs, // arguments
        &operationOpts, // options
        "Merge buffers on X values",
@@ -1127,7 +1167,7 @@ contractOpts(QList<Argument *>(operationOpts)
 static Command 
 contractc("contract", // command name
           effector(contractCommand), // action
-          "buffer",  // group name
+          "mbuf",  // group name
           &contractArgs, // arguments
           &contractOpts, // options
           "Group buffers on X values",
@@ -1224,7 +1264,7 @@ aveOpts(QList<Argument *>(operationOpts)
 static Command 
 ave("average", // command name
     effector(avgCommand), // action
-    "buffer",  // group name
+    "mbuf",  // group name
     &aveArgs, // arguments
     &aveOpts, // options
     "Average",
@@ -1265,7 +1305,7 @@ catOpts(QList<Argument *>()
 static Command 
 cat("cat", // command name
     effector(catCommand), // action
-    "buffer",  // group name
+    "mbuf",  // group name
     &catArgs, // arguments
     &catOpts, // options
     "Concatenate",
@@ -1290,7 +1330,7 @@ static void shiftxCommand(const QString &)
 static Command 
 shiftx("shiftx", // command name
        optionLessEffector(shiftxCommand), // action
-       "buffer",  // group name
+       "norm",  // group name
        NULL, // arguments
        NULL, // options
        "Shift X values",
@@ -1440,7 +1480,7 @@ gDSO(QList<Argument *>()
 static Command 
 gDS("generate-buffer", // command name
     effector(generateDSCommand), // action
-    "buffer",  // group name
+    "math",  // group name
     &gDSA, // arguments
     &gDSO, // options
     "Generate buffer",

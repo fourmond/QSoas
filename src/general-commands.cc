@@ -50,6 +50,14 @@ static Group file("file", 0,
                   "File",
                   "General purpose commands");
 
+static Group load("load", 0,
+                  "Load...",
+                  "Loading data", &file);
+
+static Group save("save", 0,
+                  "Save...",
+                  "Save data", &file);
+
 static void quitCommand(const QString & name)
 {
   if( name != "quit") {

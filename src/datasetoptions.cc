@@ -149,7 +149,7 @@ static void optionsCommand(const QString &, const CommandOptions & opts)
 static Command 
 opts("dataset-options",            // command name
      effector(optionsCommand),     // action
-     "stack",                      // group name
+     "buffer",                     // group name
      NULL,                         // arguments
      DatasetOptions::optionList(), // options
      "Options",

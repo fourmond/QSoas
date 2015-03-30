@@ -47,6 +47,9 @@ public:
   /// Returns the data points currently in.
   QList<QPointF> pointList() const;
 
+  /// Returns the number of data points
+  int size() const;
+
   /// Inserts the given point.
   void insert(const QPointF & point);
 

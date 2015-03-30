@@ -567,7 +567,10 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
     }
 
     if(needCompute) {
-      h.modified.yvalues = s.evaluate(h.diff.xvalues, type);
+      if(s.size() > 0)
+        h.modified.yvalues = s.evaluate(h.diff.xvalues, type);
+      else
+        h.modified.yvalues.fill(0.0);
       if(computeDerivative)
         h.derivative.yvalues = s.derivative(h.diff.xvalues, type);
 

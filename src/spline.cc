@@ -36,6 +36,11 @@ QList<QPointF> Spline::pointList() const
   return points;
 }
 
+int Spline::size() const
+{
+  return values.size();
+}
+
 void Spline::remove(double x)
 {
   if(values.size() == 0)

@@ -392,6 +392,8 @@ QPointF CurvePanel::scaleFactors() const
 
 void CurvePanel::setZoom(const QRectF & recti)
 {
+  // Force an update of the bounding box
+  updateBB();
   QRectF rect = recti;
   if(boundingBox.isValid() && !anyZoom) {
     // 10% around

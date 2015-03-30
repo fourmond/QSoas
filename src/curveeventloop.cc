@@ -173,18 +173,38 @@ QPointF CurveEventLoop::position(CurvePanel * panel)
   return panel->fromWidget(pos);
 }
 
-bool CurveEventLoop::eventFilter(QObject *, QEvent * event)
+bool CurveEventLoop::eventFilter(QObject * obj, QEvent * event)
 {
   /// This function is only called during the event loop
+
+  // QTextStream o(stdout);
+  // o << "Event on " << obj 
+  //   << "(" <<  obj->metaObject()->className()
+  //   << ")\t" << event->type()
+  //   << " -- widget with focus: " << QApplication::focusWidget()
+  //   << "(" << QApplication::focusWidget()->metaObject()->className()
+  //   << ")" << endl;
+
+  QWidget * w = QApplication::focusWidget();
+  if(prompt) {
+    if(w != prompt)
+      prompt->setFocus();
+  }
+  else {                        // Brutal !
+    if(w != view)
+      view->setFocus();
+  }
 
   switch(event->type()) {
   case QEvent::MouseButtonPress:
   case QEvent::MouseButtonRelease:
   case QEvent::MouseMove:
+    // o << "Mouse stuff " << endl;
     receiveMouseEvent(static_cast<QMouseEvent*>(event));
     return true;
   case QEvent::KeyPress:
     {
+      // o << "Key press " << endl;
       QKeyEvent * ev = static_cast<QKeyEvent*>(event);
       if(prompt) {
         switch(ev->key()) {
@@ -205,7 +225,7 @@ bool CurveEventLoop::eventFilter(QObject *, QEvent * event)
         return true;
       }
     }
-
+    
     // Prevent close events in the loop, it's a mess.
   case QEvent::Close:
     event->ignore();

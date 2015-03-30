@@ -25,6 +25,9 @@
 class CommandPrompt;
 class LineEdit;
 
+// A private class to display the label
+class SideBarLabel;
+
 /// A widget that accepts commands, and display their result, a
 /// successor for the terminal in the old Soas.
 ///
@@ -50,7 +53,7 @@ class CommandWidget : public QWidget {
   QIODevice * watcherDevice;
 
   /// The label on the right of the terminal
-  QLabel * sideBarLabel;
+  SideBarLabel * sideBarLabel;
 
   /// The line prompt
   CommandPrompt * commandLine;

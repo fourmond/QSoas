@@ -34,6 +34,41 @@
 
 using namespace Terminal;
 
+class SideBarLabel : public QScrollArea {
+protected:
+
+  QLabel * lbl;
+public:
+  SideBarLabel(QWidget * parent = NULL) : QScrollArea(parent)
+  {
+    lbl = new QLabel;
+    setWidget(lbl);
+    // Align the label on top, nicer.
+    lbl->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    lbl->setMargin(4);
+    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+  }
+
+  void setText(const QString & s) {
+    lbl->setText(s);
+    lbl->resize(lbl->sizeHint());
+    updateGeometry();
+  }
+
+  virtual QSize sizeHint() const {
+    QSize sz = QScrollArea::sizeHint();
+    QSize sz2 = lbl->sizeHint();
+    QSize sz3 = verticalScrollBar()->sizeHint();
+    sz2.setWidth(sz.width() + sz2.width() + sz3.width());
+    return sz2;
+  }
+  
+
+  
+};
+
+//////////////////////////////////////////////////////////////////////
+
 /// @todo Replace with a QPointer to avoid sending stuff once it's
 /// destroyed ?
 
@@ -102,9 +137,7 @@ CommandWidget::CommandWidget() :
   // Doesn't seem to have any effect...
   h1->addWidget(terminalDisplay);
 
-  sideBarLabel = new QLabel();
-  // Align the label on top, nicer.
-  sideBarLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+  sideBarLabel = new SideBarLabel();
   h1->addWidget(sideBarLabel);
 
   layout->addLayout(h1);

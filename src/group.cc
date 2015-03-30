@@ -70,8 +70,18 @@ QAction * Group::actionForGroup(QObject * parent) const
   qSort(grps.begin(), grps.end(), compareGroups);
 
 
-  for(int i = 0; i < grps.size(); i++)
-    menu->addAction(grps[i]->actionForGroup(parent));
+  for(int i = 0; i < grps.size(); i++) {
+    QAction * ac = grps[i]->actionForGroup(parent);
+    menu->addAction(ac);
+#ifdef Q_WS_MACX
+    QMenu * sub = ac->menu();
+    // This is a workaround for bug https://bugreports.qt.nokia.com/browse/QTBUG-19920
+    // Hmm, now https://bugreports.qt.io/browse/QTBUG-19920
+    menu->connect(sub, SIGNAL(triggered(QAction*)), 
+                  SIGNAL(triggered(QAction*)));
+#endif
+
+  }
   if(grps.size() > 0)
     menu->addSeparator();
 

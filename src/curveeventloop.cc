@@ -200,8 +200,17 @@ bool CurveEventLoop::eventFilter(QObject * obj, QEvent * event)
   case QEvent::MouseButtonRelease:
   case QEvent::MouseMove:
     // o << "Mouse stuff " << endl;
-    receiveMouseEvent(static_cast<QMouseEvent*>(event));
-    return true;
+    {
+      QMouseEvent * me = static_cast<QMouseEvent*>(event);
+      QPoint gp = view->mapFromGlobal(me->globalPos());
+      if(view->rect().contains(gp)) {
+        receiveMouseEvent(me);
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
   case QEvent::KeyPress:
     {
       // o << "Key press " << endl;

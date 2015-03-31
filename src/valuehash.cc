@@ -116,7 +116,7 @@ QString ValueHash::toString(const QString & sep,
     if(! (done % nbCols))
       output += prefix;
     if(it != strings.end()) {
-      output += QString("%1 = %2").arg(k).arg(*it);
+      output += QString("%1 =\t %2").arg(k).arg(*it);
       done++;
       if(done % nbCols)
         output += "\t";
@@ -129,7 +129,7 @@ QString ValueHash::toString(const QString & sep,
   for(it = strings.begin(); it != strings.end(); it++) {
     if(! (done % nbCols))
       output += prefix;
-    output += QString("%1 = %2").arg(it.key()).arg(*it);
+    output += QString("%1 =\t %2").arg(it.key()).arg(*it);
     done++;
     if(done % nbCols)
       output += "\t";

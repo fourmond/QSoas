@@ -1,0 +1,59 @@
+# Fits
+
+## Can QSoas be used to fit a model that is calculated with an external program? Like EasySpin or Matlab?
+
+This is not possible at the moment, but we are currently designing a
+generic interface for using external programs to compute
+datasets. This would make it possible to fit using results of
+computations done within Matlab for instance, such as Easyspin.
+
+# Copyright
+
+## I have just bought QSoas, can I give it to my friends? How do you expect to make money if the program is not protected? 
+
+QSoas is distributed under the [GNU General Public license version
+2.0][gpl], which means among other things that you can redistribute
+the binaries so long as you can provide the source code for them.
+
+While you can get the binaries legally for free from a friend, think
+about it. Buying the fairly inexpensive binaries help the development
+of QSoas, and hence is a gift from you to the whole community of users
+of QSoas.
+
+
+# Bugs, updates
+
+## I believe I found a bug, can I report it? Can I get my money back?
+
+The best way to report a bug is to signal it on the
+[sourceforge bug page][bugs]. Before reporting, first check the
+[documentation][doc] and the [FAQ][faq] if the behaviour really is a
+problem, and then check if it has not been reported before in the
+[bugs page][bugs].
+
+Please include all information necessary to reproduce the bug, such as
+what you exactly did, what you got, what you expected to get, the
+exact version of QSoas and the output on the terminal when
+applicable. If data confidentialily is not a problem, consider sending
+a binary stack saved using [cmd: save-stack].
+
+We don't offer refunds -- the license explicitly states that:
+
+> This program is distributed in the hope that it will be useful, but
+> WITHOUT ANY WARRANTY; without even the implied warranty of
+> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
+
+However, if the information you provide us helps us identify and fix
+the bug, we'll try to provide you with an updated version.
+
+## I have bought QSoas 1.0, will I need to pay again each time a new version is released?
+
+You purchased a single binary. Later versions are not included in the
+price. 
+
+
+[gpl]:gpl
+[bugs]:https://sourceforge.net/p/qsoas/tickets/
+[doc]:doc
+[faq]:faqs
+

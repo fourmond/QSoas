@@ -8,6 +8,6 @@ cat head.tex <(./preprocess-doc qsoas.kd | kramdown -o latex) tail.tex > qsoas.t
 if [ -r changes.kd ]; then
     cat head.html <(./preprocess-doc changes.kd qsoas.html | kramdown -o html) tail.html > changes.html
 fi
-cat head.html  <(./preprocess-doc faq.kd | kramdown -o html) tail.html > faq.html
+cat head.html  <(./preprocess-doc faq.kd qsoas.html | kramdown -o html) tail.html > faq.html
 
 

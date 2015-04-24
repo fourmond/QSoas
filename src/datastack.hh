@@ -92,6 +92,17 @@ public:
   QList<DataSet *> flaggedDataSets(bool flagged = true, 
                                    const QString &  flag = QString());
 
+  /// Hmmm...
+  QList<const DataSet *> flaggedDataSets(bool flagged = true, 
+                                   const QString &  flag = QString()) const;
+
+  /// Returns the list of flags defined.
+  QSet<QString> definedFlags() const;
+
+  /// Parses a series of datasets, including flags and numbered lists,
+  /// and returns the corresponding datasets.
+  QList<const DataSet *> datasetsFromSpec(const QString & spec) const;
+
 
   /// Returns the numbered data set.
   /// \li 0 is the most recent

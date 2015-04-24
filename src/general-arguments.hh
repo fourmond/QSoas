@@ -237,6 +237,8 @@ public:
   virtual QString typeDescription() const {
     return "Comma-separated lists of datasets in the stack";
   };
+
+  virtual QStringList proposeCompletion(const QString & starter) const;
 };
 
 

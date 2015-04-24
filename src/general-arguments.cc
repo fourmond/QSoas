@@ -233,83 +233,11 @@ ArgumentMarshaller * DataSetArgument::fromString(const QString & str) const
 
 ////////////////////////////////////////////////////////////
 
-/// @todo This function belongs in DataStack and not here !
 ArgumentMarshaller * SeveralDataSetArgument::fromString(const QString & s) const
 {
-  QStringList splitted = s.split(QRegExp("\\s*,\\s*"));
-  QList<const DataSet *> dsets;
-  QRegExp multi("^\\s*(-?[0-9]+)\\s*..\\s*(-?[0-9]+|end)\\s*(?::(\\d+)\\s*)?");
-
-  QRegExp flgs("^\\s*(un)?flagged(-)?(:(.*))?\\s*$");
-  flgs.setMinimal(true);        // to catch the last - if applicable
-
-  for(int i = 0; i < splitted.size(); i++) {
-    const QString & str = splitted[i];
-    
-    if(multi.indexIn(str) == 0 || str == "all") {
-      int first;
-      int last;
-      if(str == "all") {
-        first = -soas().stack().redoStackSize();
-        last = soas().stack().stackSize()-1;
-      }
-      else {
-        first = multi.cap(1).toInt();
-        last = (multi.cap(2) == "end" ? soas().stack().stackSize()-1 : 
-                multi.cap(2).toInt());
-      }
-      int sign = (first < last ? 1 : -1);
-      int delta = 1;
-      if(! multi.cap(3).isEmpty())
-        delta = multi.cap(3).toInt();
-      do {
-        DataSet * ds = soas().stack().numberedDataSet(first);
-        if(! ds)
-          Terminal::out << "No such buffer number : " << first << endl;
-        else
-          dsets << ds;
-        first += delta * sign;
-      }
-      while((first - last) * sign <= 0);
-
-      if(dsets.size() == 0)
-        throw 
-          RuntimeError(QObject::tr("Buffer range '%1' corresponds "
-                                   "to no buffers").
-                       arg(str)) ;
-    }
-    else if(flgs.indexIn(str) == 0) {
-      bool flg = (flgs.cap(1).size() == 0);
-      bool dec = (flgs.cap(2).size() > 0); // the - sign at the end
-      
-      QString flagName = flgs.cap(4);
-      QList<DataSet *> mkd;
-      if(flagName.isEmpty())
-        mkd = soas().stack().flaggedDataSets(flg);
-      else
-        mkd = soas().stack().flaggedDataSets(flg, flagName);
-
-      if(dec)
-        Utils::reverseList(mkd);
-
-      for(int i = 0; i < mkd.size(); i++)
-        dsets << mkd[i];
-    }
-      
-    else if(str == "displayed")  {
-      QList<DataSet *> mkd = soas().view().displayedDataSets();
-      for(int i = 0; i < mkd.size(); i++)
-        dsets << mkd[i];
-    }
-    else {
-      DataSet * ds = soas().stack().fromText(str);
-      if(! ds)
-        throw RuntimeError(QObject::tr("Not a buffer: '%1'").
-                           arg(str));
-      dsets << ds;
-    }
-  }
-  return new ArgumentMarshallerChild<QList<const DataSet *> >(dsets);
+  return new
+    ArgumentMarshallerChild<QList<const DataSet *> >
+    (soas().stack().datasetsFromSpec(s));
 }
 
 void SeveralDataSetArgument::concatenateArguments(ArgumentMarshaller * a, 
@@ -317,6 +245,21 @@ void SeveralDataSetArgument::concatenateArguments(ArgumentMarshaller * a,
 {
   a->value<QList<const DataSet *> >() += 
     b->value<QList<const DataSet *> >();
+}
+
+QStringList SeveralDataSetArgument::proposeCompletion(const QString & starter) const
+{
+  QStringList all;
+  all << "displayed" << "all";
+  QSet<QString> st = soas().stack().definedFlags();
+  for(auto i = st.begin(); i != st.end(); i++) {
+    const QString &s = *i;
+    all << QString("flagged:%1").arg(s)
+        << QString("unflagged:%1").arg(s)
+        << QString("flagged-:%1").arg(s)
+        << QString("unflagged-:%1").arg(s);
+  }
+  return Utils::stringsStartingWith(all, starter);
 }
 
 ////////////////////////////////////////////////////////////

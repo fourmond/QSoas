@@ -557,7 +557,7 @@ void FitDialog::startFit()
   int iterationLimit = 150;
 
   int status = -1;
-  double residuals = 0.0/0.0, relres = 0.0/0.0;
+  double residuals = 0.0/0.0;
 
   if(! errorInconsistencyShown) {
     errorInconsistencyShown = true;
@@ -568,7 +568,6 @@ void FitDialog::startFit()
     }
   }
   QDateTime startTime = QDateTime::currentDateTime();
-
   try {
     parameters.prepareFit(fitEngineFactory);
     parametersBackup = parameters.saveParameterValues();
@@ -655,7 +654,8 @@ void FitDialog::startFit()
   trajectories << 
     FitTrajectory(parametersBackup, parameters.saveParameterValues(),
                   parameters.saveParameterErrors(),
-                  residuals, relres, fitEngineFactory->name,
+                  parameters.overallPointResiduals,
+                  parameters.overallRelativeResiduals, fitEngineFactory->name,
                   startTime);
   if(shouldCancelFit)
     trajectories.last().ending = FitTrajectory::Cancelled;

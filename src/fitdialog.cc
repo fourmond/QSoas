@@ -567,6 +567,7 @@ void FitDialog::startFit()
       return;
     }
   }
+  QDateTime startTime = QDateTime::currentDateTime();
 
   try {
     parameters.prepareFit(fitEngineFactory);
@@ -654,7 +655,8 @@ void FitDialog::startFit()
   trajectories << 
     FitTrajectory(parametersBackup, parameters.saveParameterValues(),
                   parameters.saveParameterErrors(),
-                  residuals, relres, fitEngineFactory->name);
+                  residuals, relres, fitEngineFactory->name,
+                  startTime);
   if(shouldCancelFit)
     trajectories.last().ending = FitTrajectory::Cancelled;
   else if(data->nbIterations >= iterationLimit)

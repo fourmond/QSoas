@@ -59,17 +59,28 @@ public:
   /// The fit engine
   QString engine;
 
+  /// Starting date/time
+  QDateTime startTime;
+
+  /// Ending date/time
+  QDateTime endTime;
+
   FitTrajectory() {
   };
 
   FitTrajectory(const Vector & init, const Vector & final,
                 const Vector & errors, 
                 double res, double rr,
-                const QString & eng) :
+                const QString & eng, const QDateTime & start,
+                const QDateTime & end = QDateTime()) :
     initialParameters(init), finalParameters(final), 
     parameterErrors(errors),
     ending(Converged), residuals(res), relativeResiduals(rr),
-    engine(eng) {
+    engine(eng), startTime(start) {
+    if(end.isValid())
+      endTime = end;
+    else
+      endTime = QDateTime::currentDateTime();
   };
 
   /// Comparison by residuals.

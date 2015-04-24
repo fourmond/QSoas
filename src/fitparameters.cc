@@ -507,6 +507,22 @@ void FitParameters::clear()
   }
 }
 
+void FitParameters::setValue(int index, int dataset, double val)
+{
+  if(index < 0 || index >= nbParameters)
+    throw InternalError("Incorrect index: %1/%2").
+      arg(index).arg(nbParameters);
+  if(dataset >= datasets)
+    throw InternalError("Incorrect dataset: %1/%2").
+      arg(dataset).arg(datasets);
+  if(dataset < 0 || isGlobal(index)) {
+    for(int i = 0; i < datasets; i++)
+      values[index % nbParameters + i*nbParameters] = val;
+  }
+  else
+    values[dataset * nbParameters + (index % nbParameters)] = val;
+}
+
 void FitParameters::setValue(const QString & name, double value, int dsi)
 {
   QRegExp specRE("([^[]+)\\[#(\\d+)\\]");

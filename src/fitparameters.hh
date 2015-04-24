@@ -162,15 +162,8 @@ public:
   bool isFixed(int index, int ds) const;
   
   /// Setting a global parameter effectively sets all the parameters !
-  void setValue(int index, int dataset, double val) {
-    if(isGlobal(index)) {
-      for(int i = 0; i < datasets; i++)
-        values[index % nbParameters + i*nbParameters] = val;
-    }
-    else
-      values[dataset * nbParameters + (index % nbParameters)] = val;
-  };
-
+  void setValue(int index, int dataset, double val);
+  
   /// Sets the value by name. 
   void setValue(const QString & name, double value, int ds = -1);
 

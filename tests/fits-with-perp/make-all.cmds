@@ -1,0 +1,10 @@
+ruby-run spectra.rb
+run-for-each /range-type=lin make-one.cmds -0.5..0.5:25
+contract flagged:raw-spectra
+flag /flags=cr
+transpose
+expand /flags=tr
+fetch flagged:cr
+downsample /factor=10
+transpose
+expand /flags=tr-ds

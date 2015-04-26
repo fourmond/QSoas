@@ -1,0 +1,3 @@
+generate-buffer 400 800 "spec_all(x,${1})"
+set-perp ${1}
+flag /flags=raw-spectra

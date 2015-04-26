@@ -23,6 +23,19 @@ a buffer with the desired range of $$x$$ values using
 [cmd: generate-buffer], respawn the fit window, load the parameters
 and then export as before ("Data..."/"Push current to stack").
 
+## My multi-fit is way too slow...
+
+Fitting many datasets with parameters in common is quite an expensive
+task. At the beginning of the fit, QSoas says the number of free
+parameters for the fit. The time taken by the Levenberg-Marquardt
+algorithm used by most of the fit engines scales as the cube of the
+number of parameters. This is a limitation that cannot be overcome
+easily.
+
+If you are fitting kinetics or redox titrations at many wavelengths,
+try reducing the number of wavelengths by applying [cmd: downsample]
+before running [cmd: transpose].
+
 # File formats
 
 ## Can QSoas read any file ?
@@ -49,6 +62,29 @@ may change if the format specs are published). If you want to process
 the data with QSoas (or any other software than NOVA !), you have to
 export the data to ASCII, either after the experiment, or even by
 including an "Export to ASCII" command in the experiment setup.
+
+## Help, QSoas doesn’t read my files !
+
+What if load a file and you don't see anything at all, or data that
+really don't look like yours ? QSoas tries to be smart and find under
+which format are stored data files, but it does not always guess
+right.
+
+First, make sure the file data is a text file, i.e. open it with a
+text editor. If you see numbers that look like your data, it is a text
+file, if all you see is nonsensical symbols, what you have is a binary
+file. Go back to the software that produced it, reload it, and look
+for ``Export as Text/ASCII'' functions.
+
+If you see the numbers, guess the structures: what is the decimal
+separator ? What is the column separator ? What are the columns you're
+actually interested in ? The decimal separator can be set using the
+`/decimal=` option to [cmd: load], the column separator using the
+`/separator=` option. You can specify the columns using the
+`/columns=` option. By default, [cmd: load] ignores lines that look
+like text -- that don't start with a number. You can turn that off by
+setting `/comment=#` (to only ignore lines that start with a `#`).
+
 
 # Using QSoas
 

@@ -148,8 +148,11 @@ public:
 
   /// The perpendicular coordinates. FitDialog should make them up
   /// when appropriate. There are as many elements as the number of
-  /// datasets.
+  /// datasets, or 0 elements if there are no relevant perpendicular
+  /// coordinates.
   Vector perpendicularCoordinates;
+
+  bool hasPerpendicularCoordinates() const;
 
 
   FitParameters(FitData * data);

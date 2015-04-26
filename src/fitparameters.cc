@@ -170,6 +170,11 @@ FitParameters::FitParameters(FitData * d) :
   }
 }
 
+bool FitParameters::hasPerpendicularCoordinates() const
+{
+  return perpendicularCoordinates.size() == datasets;
+}
+
 void FitParameters::freeMatrices()
 {
   if(rawCVMatrix) {
@@ -315,7 +320,7 @@ void FitParameters::prepareExport(QStringList & lst, QString & lines,
   double conf = fitData->confidenceLimitFactor(0.975);
   lst.clear();
   lst << "Buffer";
-  if(perpendicularCoordinates.size() == datasets)
+  if(hasPerpendicularCoordinates())
     lst << "Z";
   for(int i = 0; i < nbParameters; i++) {
     QString name = fitData->parameterDefinitions[i].name;
@@ -344,7 +349,7 @@ void FitParameters::prepareExport(QStringList & lst, QString & lines,
   for(int i = 0; i < datasets; i++) {
     ls2.clear();
     ls2 << fitData->datasets[i]->name;
-    if(perpendicularCoordinates.size() == datasets)
+    if(hasPerpendicularCoordinates())
       ls2 << QString::number(perpendicularCoordinates[i]);
 
     for(int j = 0; j < nbParameters; j++) {
@@ -483,6 +488,10 @@ void FitParameters::saveParameters(QIODevice * stream) const
     for(int j = 0; j < datasets; j++) {
       out << "buffer_weight[#" << j << "]\t" << fitData->weightsPerBuffer[j] 
           << endl;
+      if(hasPerpendicularCoordinates())
+      out << "Z[#" << j << "]\t" << perpendicularCoordinates[j] 
+          << endl;
+        
       for(int i = 0; i < nbParameters; i++) {
         if(isGlobal(i))
           continue;
@@ -592,8 +601,10 @@ void FitParameters::loadParameters(FitParametersFile & params,
     else {
       int idx = parameterIndices.value(param.name, -1);
       if(idx < 0) {
-        Terminal::out << "Found unkown parameter: '" << param.name
-                      << "', ignoring" << endl;
+        if(param.name != "Z")   // Just silently ignore Z parameters
+                                // (if there aren't any)
+          Terminal::out << "Found unkown parameter: '" << param.name
+                        << "', ignoring" << endl;
         continue;
       }
       if(ds >= 0) {

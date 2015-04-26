@@ -99,6 +99,13 @@ class FitParameters {
   /// the given targetDS.
   void loadParameters(FitParametersFile & params, int targetDS = -1, 
                       int sourceDS = 0);
+  
+  /// Loads the parameter VALUES from a parsed parameters file, taking
+  /// into account Z values and interpolating if needed.
+  ///
+  /// It won't load other things such the fixed and global statuses,
+  /// and the formulas...
+  void loadParametersValues(FitParametersFile & params);
 
 
   /// This updates the parameters values, by packing from values and
@@ -245,6 +252,10 @@ public:
 
   /// Load from the given stream
   void loadParameters(QIODevice * out, int targetDS = -1, int sourceDS = 0);
+
+  /// Loads the parameter values, taking into account the
+  /// perpendicular coordinates when applicable.
+  void loadParametersValues(QIODevice * out);
 
 
   /// Fill up a QTableWidget with the contents of the covariance

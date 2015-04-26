@@ -327,6 +327,8 @@ void FitDialog::setupFrame()
   ac->addAction("Load for this buffer only", this, 
                 SLOT(loadParametersForCurrent()),
                 QKeySequence(tr("Ctrl+Shift+L")));
+  if(parameters.perpendicularCoordinates.size() > 1)
+    ac->addAction("Load using Z values", this, SLOT(loadUsingZValues()));
   ac->addAction("Save to file (for reusing later)", 
                 this, SLOT(saveParameters()),
                 QKeySequence(tr("Ctrl+S")));
@@ -799,6 +801,23 @@ void FitDialog::loadParameters()
   }
 }
 
+void FitDialog::loadUsingZValues()
+{
+  QString load = 
+    QFileDialog::getOpenFileName(this, tr("Load parameter values"));
+  if(load.isEmpty())
+    return;
+  else {
+    try {
+      loadParametersFile(load, -1, true, true);
+    }
+    catch (const Exception & e) {
+      message(QString("Could not load parameters from '%1':").
+              arg(load) + e.message());
+    }
+  }
+}
+
 void FitDialog::loadParametersForCurrent()
 {
   QString load = 
@@ -819,7 +838,7 @@ void FitDialog::loadParametersForCurrent()
 }
 
 void FitDialog::loadParametersFile(const QString & file, int targetDS, 
-                                   bool recompute)
+                                   bool recompute, bool onlyVals)
 {
   /// @todo When splitting this, the exceptions handling should be a
   /// lot better than just that.
@@ -829,11 +848,15 @@ void FitDialog::loadParametersFile(const QString & file, int targetDS,
   QString msg;
   try {
     message(QString("Loading from file %1...").arg(file));
-    parameters.loadParameters(&f, targetDS);
+    if(onlyVals)
+      parameters.loadParametersValues(&f);
+    else
+      parameters.loadParameters(&f, targetDS);
     updateEditors();
     if(recompute)
       internalCompute();
-    msg = QString("Loaded fit parameters from file %1").arg(file);
+    msg = QString("Loaded fit parameters %2from file %1").
+      arg(file).arg(onlyVals ? "values " : "");
   }
   catch (const Exception & e) {
     msg = QString("Could not load parameters from '%1':").

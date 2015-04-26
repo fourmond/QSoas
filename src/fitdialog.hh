@@ -175,7 +175,8 @@ signals:
 public slots:
 
   /// Loads parameters from the given file.
-  void loadParametersFile(const QString & fileName, int targetDS = -1, bool recompute = true);
+  void loadParametersFile(const QString & fileName, int targetDS = -1,
+                          bool recompute = true, bool onlyVals = false);
 
   /// Add all simulated datasets to the data stack
   void pushSimulatedCurves(const QStringList & flags = QStringList());
@@ -246,6 +247,9 @@ protected slots:
 
   /// Loads parameters for the current dataset
   void loadParametersForCurrent();
+
+  /// Loads parameters values making use of perpendicular coordinates
+  void loadUsingZValues();
 
   /// Saves parameters to a file
   void saveParameters();

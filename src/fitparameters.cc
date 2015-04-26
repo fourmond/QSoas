@@ -61,8 +61,9 @@ public:
     Parameter(const QString & n, int ds, const QString & v) :
       name(n), datasetIndex(ds), value(v) {;};
 
+    /// Returns the double value of the first '!'-separated part
     double toDouble(bool * ok = NULL) const {
-      return value.toDouble(ok);
+      return value.split('!').first().toDouble(ok);
     };
 
     void replaceParameter(FitParameter * & parameter, double * tg, 
@@ -72,6 +73,14 @@ public:
       delete parameter;
       parameter = npm;
     };
+  };
+
+  /// Parameters (or pseudo-parameters) defined in the file
+  QSet<QString> definedParameters;
+
+
+  bool hasPerpendicularCoordinates() const {
+    return definedParameters.contains("Z");
   };
 
   /// All the parameters read from the file.
@@ -101,6 +110,7 @@ public:
         if(! paramRE.cap(2).isEmpty())
           ds = paramRE.cap(2).toInt();
         parameters << Parameter(paramRE.cap(1), ds, paramRE.cap(3));
+        definedParameters += paramRE.cap(1);
       }
       else if(commentRE.indexIn(line) == 0) {
         QString cmt = commentRE.cap(1);
@@ -131,6 +141,53 @@ public:
     // }
   };
 
+  /// Returns the values of the parameters as a function of Z.
+  ///
+  /// @todo That's quite high-level, and not very optimized, but it
+  /// shouldn't really matter so much.
+  QHash<QString,DataSet> parameterValuesAsfZ() const {
+    // First, preprocess the parameters as hashes index -> value
+    QHash<QString, DataSet> rv;
+    if(! hasPerpendicularCoordinates())
+      return rv;
+
+    QHash<QString, QHash<int, double> > values;
+    for(int i = 0; i < parameters.size(); i++) {
+      const Parameter & p = parameters[i];
+      bool ok = false;
+      double val = p.toDouble(&ok);
+      if(ok)
+        values[p.name][p.datasetIndex] = val;
+    }
+
+    QHash<int, double> perp = values["Z"];
+    QSet<int> zidx = perp.keys().toSet();
+    zidx -= -1;
+    values.take("Z");
+    values.take("buffer_weight");
+    QStringList names = values.keys();
+    for(int i = 0; i < names.size(); i++) {
+      const QHash<int, double> & v = values[names[i]];
+      QSet<int> vv = v.keys().toSet();
+      QSet<int> vls;
+      if(vv.contains(-1))
+        vls = zidx;
+      else
+        vls = vv.intersect(zidx);
+      QList<int> vls2 = vls.toList();
+      qSort(vls2);
+      Vector xv, yv;
+      double def = v.value(-1, 0); // the 0 should never be needed.
+      for(int j = 0; j < vls2.size(); j++) {
+        int idx = vls2[j];
+        xv << perp[idx];
+        yv << v.value(idx, def);
+      }
+      rv[names[i]] = DataSet(xv,yv);
+    }
+
+    return rv;
+  };
   
 };
 
@@ -635,6 +692,36 @@ void FitParameters::loadParameters(FitParametersFile & params,
   }
 }
 
+void FitParameters::loadParametersValues(FitParametersFile & params)
+{
+  if(! hasPerpendicularCoordinates())
+    throw InternalError("Cannot load parameter values without perpendicular coordinates");
+
+  QHash<QString, DataSet> vals = params.parameterValuesAsfZ();
+  for(auto i = vals.begin(); i != vals.end(); i++) {
+    int idx = parameterIndices.value(i.key(), -1);
+    if(idx == -1)
+      Terminal::out << "Ignoring parameters '" << i.key() << "'" << endl;
+    const DataSet & ds = i.value();
+    for(int j = 0; j < datasets; j++) {
+      double val = ds.yValueAt(perpendicularCoordinates[j], true);
+      setValue(idx, j, val);
+    }
+  }
+}
+
+void FitParameters::loadParametersValues(QIODevice * source)
+{
+  QTextStream in(source);
+  FitParametersFile params;
+
+  params.readFromStream(in);
+  if(! params.hasPerpendicularCoordinates())
+    throw RuntimeError("File does not have perpendicular coordinates information");
+    
+
+  loadParametersValues(params);
+}
 
 void FitParameters::resetAllToInitialGuess()
 {

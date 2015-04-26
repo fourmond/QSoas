@@ -762,7 +762,7 @@ QPointF DataSet::smoothPick(int idx, int range) const
   return ret;
 }
 
-double DataSet::yValueAt(double x) const
+double DataSet::yValueAt(double x, bool interpolate) const
 {
   const double * xvals = columns[0].data();
   const double * yvals = columns[1].data();
@@ -774,15 +774,21 @@ double DataSet::yValueAt(double x) const
   for(int i = 1; i < nb; i++) {
     double dx = xvals[i] - x;
     if(dx*lastdx <= 0) {        // sign change, we passed it !
-      /// @todo we may want to use linear interpolation here.
-      if(fabs(dx) < fabs(lastdx))
-        return yvals[i];
-      else
-        return yvals[i-1];
+      if(interpolate) {
+        return (lastdx * yvals[i] - dx * yvals[i-1])/(lastdx - dx);
+      }
+      else {
+        if(fabs(dx) < fabs(lastdx))
+          return yvals[i];
+        else
+          return yvals[i-1];
+      }
     }
     lastdx = dx;
   }
-  return yvals[nb-1];
+  if(fabs(x-xvals[0]) > fabs(x - xvals[nb-1]))
+    return yvals[nb-1];
+  return yvals[0];
 }
 
 void DataSet::write(QIODevice * target) const

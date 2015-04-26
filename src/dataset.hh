@@ -419,8 +419,11 @@ public:
   /// given range of points.
   QPointF smoothPick(int idx, int range = -1) const;
 
-  /// Returns the Y value the closest to the given X value
-  double yValueAt(double x) const;
+  /// Returns the Y value the closest to the given X value.
+  ///
+  /// If interpolate is true, interpolates linearly (of course when it
+  /// is located between two points)
+  double yValueAt(double x, bool interpolate = false) const;
 
   /// Finds steps in the Y data, based on the following heuristic: at
   /// each point, estimate the projection of the Y value between point

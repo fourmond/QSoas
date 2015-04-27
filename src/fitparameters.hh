@@ -127,6 +127,9 @@ class FitParameters {
                                         bool writeMatrix = false,
                                         const QString & prefix = "") const;
 
+  /// Makes sure the index and datasets are within boundaries. Dataset
+  /// can be negative, it will mean "all datasets".
+  void checkIndex(int index, int ds) const;
 public:
 
   /// @name Residuals
@@ -170,6 +173,10 @@ public:
 
   /// Whether or not the given parameter is fixed
   bool isFixed(int index, int ds) const;
+
+  /// Sets the fixed status of the given parameter. If ds is negative,
+  /// changes for all datasets.
+  void setFixed(int index, int ds, bool fixed = true);
   
   /// Setting a global parameter effectively sets all the parameters !
   void setValue(int index, int dataset, double val);

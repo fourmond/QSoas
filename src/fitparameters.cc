@@ -573,7 +573,7 @@ void FitParameters::clear()
   }
 }
 
-void FitParameters::setValue(int index, int dataset, double val)
+void FitParameters::checkIndex(int index, int dataset) const
 {
   if(index < 0 || index >= nbParameters)
     throw InternalError("Incorrect index: %1/%2").
@@ -581,6 +581,40 @@ void FitParameters::setValue(int index, int dataset, double val)
   if(dataset >= datasets)
     throw InternalError("Incorrect dataset: %1/%2").
       arg(dataset).arg(datasets);
+}
+
+
+void FitParameters::setFixed(int index, int ds, bool fixed)
+{
+  checkIndex(index, ds);
+  bool cur = isFixed(index, ds);
+  if((fixed && cur) || (! fixed && !cur)) {
+    return;                     // not touching anything.
+  }
+
+  if(ds < 0) {
+    // Run for all
+    for(int i = 0; i < datasets; i++)
+      setFixed(index, i, fixed);
+    return;
+  }
+
+  FitParameter *& target = parameter(index, ds);
+  //   int ds = target->dsIndex;
+
+  delete target;
+  if(fixed) {
+    FixedParameter * param = new FixedParameter(index, ds,  0);
+    target = param;
+  }
+  else {
+    target = new FreeParameter(index, ds);
+  }
+}
+
+void FitParameters::setValue(int index, int dataset, double val)
+{
+  checkIndex(index, dataset);
   if(dataset < 0 || isGlobal(index)) {
     for(int i = 0; i < datasets; i++)
       values[index % nbParameters + i*nbParameters] = val;

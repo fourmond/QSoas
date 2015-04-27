@@ -106,6 +106,40 @@ FitParameterEditor::FitParameterEditor(const ParameterDefinition * d,
 
     updateBijectionEditors();
   }
+  else {
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(contextMenu(const QPoint &)));
+  }
+}
+
+void FitParameterEditor::contextMenu(const QPoint & pos)
+{
+  typedef enum {
+    FixAll,
+    UnfixAll,
+    Noop
+  } En;
+  QMenu menu;
+  QHash<QAction *, int> actions;
+  actions[menu.addAction("Fix for all datasets")] = FixAll;
+  actions[menu.addAction("Unfix for all datasets")] = UnfixAll;
+
+  int ac = actions.value(menu.exec(mapToGlobal(pos)), Noop);
+  QString oldText = editor->text();
+  switch(ac) {
+  case FixAll:
+  case UnfixAll:
+    parameters->setFixed(index, -1, (ac == FixAll));
+    updateBijectionEditors();
+    onValueChanged(oldText);
+    updatingEditor = true;
+    fixed->setChecked(ac == FixAll);
+    updatingEditor = false;
+    break;
+  case Noop:
+  default:
+    break;
+  };
 }
 
 
@@ -216,22 +250,13 @@ void FitParameterEditor::onFixedClicked()
 {
   if(updatingEditor)
     return;
-  FitParameter *& target = targetParameter();
-  int ds = target->dsIndex;
 
   QString oldText = editor->text();
-  delete target;
-  if(fixed->isChecked()) {
-    FixedParameter * param = new FixedParameter(index, ds,  0);
-    target = param;
-  }
-  else {
-    target = new FreeParameter(index, ds);
-    if(oldText.size() > 0 && oldText[0] == '=') {
-      oldText = QString::number(parameters->valueFor(index, dataset));
-      editor->setText(oldText);
-    }
-
+  parameters->setFixed(index, dataset, fixed->isChecked());
+  // Replace with value...
+  if(! fixed->isChecked() && oldText.size() > 0 && oldText[0] == '=') {
+    oldText = QString::number(parameters->valueFor(index, dataset));
+    editor->setText(oldText);   // Or not ?
   }
   updateBijectionEditors();
   onValueChanged(oldText);

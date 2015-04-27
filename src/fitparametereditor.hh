@@ -138,6 +138,7 @@ protected slots:
   void onBijectionParameterChanged();
   void onBijectionChanged(int idx);
 
+  void contextMenu(const QPoint &pos);
 signals:
   /// This signal is emitted whenever the global status is changing.
   void globalChanged(int index, bool global);

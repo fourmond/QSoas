@@ -31,6 +31,10 @@ static QStringList dirGlob(QString directory, QString str,
 {
   QDir dir(directory);
   QStringList rets;
+  if(isDir && str == ".") {
+    rets << dir.filePath(".");
+    return rets;
+  }
   QDir::Filters filters = QDir::Dirs | QDir::CaseSensitive | QDir::NoDot;
   if(! isDir)
     filters |= QDir::Files;

@@ -152,7 +152,7 @@ public:
     for(int j = 0; j < number.size(); j++) {
       int nb = number[j];
       for(int i = 0; i < nb; i++)
-        *(++t) = ymin + i *(ymax - ymin)/(nb-1);
+        *(++t) = (j == 0 || i != 0 ? ymin + i *(ymax - ymin)/(nb-1) : 0);
     
       // Now transitions
       const double xmin = ds->x().min();

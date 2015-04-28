@@ -598,9 +598,15 @@ void FitParameters::setFixed(int index, int ds, bool fixed)
       setFixed(index, i, fixed);
     return;
   }
+  // Global parameters
+  if(isGlobal(index))
+    ds = 0;
 
   FitParameter *& target = parameter(index, ds);
-  //   int ds = target->dsIndex;
+
+  // Get the real dataset in case we are redirecting to other
+  // parameters.
+  ds = target->dsIndex;
 
   delete target;
   if(fixed) {

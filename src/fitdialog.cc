@@ -600,8 +600,9 @@ void FitDialog::startFit()
     do {
       status = data->iterate();
       residuals = data->residuals();
-      QString str = QString("Iteration #%1, current internal residuals: %2\n").
-        arg(data->nbIterations).arg(residuals);
+      double tm = startTime.msecsTo(QDateTime::currentDateTime()) * 1e-3;
+      QString str = QString("Iteration #%1, current internal residuals: %2, %3 s elapsed\n").
+        arg(data->nbIterations).arg(residuals).arg(tm);
       Terminal::out << str << endl;
 
       message(str);

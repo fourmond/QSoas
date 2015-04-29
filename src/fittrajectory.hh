@@ -56,6 +56,9 @@ public:
   /// The (relative) residuals
   double relativeResiduals;
 
+  /// The internal residuals
+  double internalResiduals;
+
   /// The fit engine
   QString engine;
 
@@ -70,12 +73,13 @@ public:
 
   FitTrajectory(const Vector & init, const Vector & final,
                 const Vector & errors, 
-                double res, double rr,
+                double res, double rr, double intr,
                 const QString & eng, const QDateTime & start,
                 const QDateTime & end = QDateTime()) :
     initialParameters(init), finalParameters(final), 
     parameterErrors(errors),
     ending(Converged), residuals(res), relativeResiduals(rr),
+    internalResiduals(intr),
     engine(eng), startTime(start) {
     if(end.isValid())
       endTime = end;

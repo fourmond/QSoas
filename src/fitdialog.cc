@@ -671,7 +671,9 @@ void FitDialog::startFit()
     FitTrajectory(parametersBackup, parameters.saveParameterValues(),
                   parameters.saveParameterErrors(),
                   parameters.overallPointResiduals,
-                  parameters.overallRelativeResiduals, fitEngineFactory->name,
+                  parameters.overallRelativeResiduals,
+                  residuals,
+                  fitEngineFactory->name,
                   startTime);
   if(shouldCancelFit)
     trajectories.last().ending = FitTrajectory::Cancelled;

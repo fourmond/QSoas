@@ -7,4 +7,8 @@ expand /flags=tr
 fetch flagged:cr
 downsample /factor=10
 transpose
-expand /flags=tr-ds
+expand /flags=tr-ds-10
+fetch flagged:cr
+downsample /factor=4
+transpose
+expand /flags=tr-ds-4

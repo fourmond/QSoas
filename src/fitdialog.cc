@@ -653,6 +653,20 @@ void FitDialog::startFit()
     o << "Backtrace:\n\t" << re.exceptionBacktrace().join("\n\t") << endl;
   }
 
+    
+  Terminal::out << "Fitting took an overall " << timer.elapsed() * 1e-3
+                << " seconds, with " << data->evaluationNumber 
+                << " evaluations" << endl;
+
+  parameters.writeToTerminal();
+  try {
+    internalCompute();
+  }
+  catch (const Exception & e) {
+    appendToMessage(QString("Error while computing: ") + e.message());
+    status = GSL_SUCCESS + 1;
+  }
+
   trajectories << 
     FitTrajectory(parametersBackup, parameters.saveParameterValues(),
                   parameters.saveParameterErrors(),
@@ -665,18 +679,7 @@ void FitDialog::startFit()
     trajectories.last().ending = FitTrajectory::TimeOut;
   else if(status != GSL_SUCCESS)
     trajectories.last().ending = FitTrajectory::Error;
-    
-  Terminal::out << "Fitting took an overall " << timer.elapsed() * 1e-3
-                << " seconds, with " << data->evaluationNumber 
-                << " evaluations" << endl;
 
-  parameters.writeToTerminal();
-  try {
-    internalCompute();
-  }
-  catch (const Exception & e) {
-    appendToMessage(QString("Error while computing: ") + e.message());
-  }
   emit(finishedFitting());
 }
 

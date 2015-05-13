@@ -621,6 +621,19 @@ QPair<double, double> DataSet::reglin(double xmin, double xmax) const
                                  (sxx * sy - sx * sxy)/det);
 }
 
+void DataSet::reverse()
+{
+  invalidateCache();
+  for(int i = 0; i < columns.size(); i++)
+    columns[i].reverse();
+
+  // Update segments:
+  int sz = nbRows();
+  for(int j = 0; j < segments.size(); j++)
+    segments[j] = sz - segments[j];
+  qSort(segments);
+}
+
 
 DataSet * DataSet::subset(int beg, int end, bool within) const
 {
@@ -974,6 +987,11 @@ DataSet * DataSet::derivedDataSet(const QList<QPointF> &points,
   QList<Vector> nc;
   nc << nx << ny;
   return derivedDataSet(nc, suffix);
+}
+
+DataSet * DataSet::derivedDataSet(const QString & suffix) const
+{
+  return derivedDataSet(columns, suffix);
 }
 
 

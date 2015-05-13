@@ -679,7 +679,15 @@ Vector Vector::integrateVector(const Vector & x, const Vector & y, int idx)
   return re;
 }
 
-
+void Vector::reverse()
+{
+  int sz = size();
+  for(int i = 0; i < sz/2; i++) {
+    double s = value(i);
+    (*this)[i] = value(sz - i - 1);
+    (*this)[sz - i - 1] = s;
+  }
+}
 
 
 QList<Vector> Vector::bin(int boxes, bool lg) const

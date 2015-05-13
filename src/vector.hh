@@ -173,6 +173,9 @@ public:
   /// ranges, the other with the numbers.
   QList<Vector> bin(int boxes, bool log = false) const;
 
+  /// Flips the contents of the vector from back to front
+  void reverse();
+
 
   /// @}
 

@@ -151,6 +151,10 @@ public:
   DataSet * derivedDataSet(const Vector &y, const QString & suffix,
                            const Vector &x = Vector()) const;
 
+  /// A derived dataset with no modification. You can alway modify it
+  /// later...
+  DataSet * derivedDataSet(const QString & suffix) const;
+
   /// A small helper function for creating new datasets that keep as
   /// much information as possible from the old dataset while changing
   /// all the columns.
@@ -160,7 +164,6 @@ public:
   DataSet * derivedDataSet(const QList<Vector> &newCols, 
                            const QString & suffix) const;
 
-  
   /// Creates a derived dataset based on a list of Qt points.
   DataSet * derivedDataSet(const QList<QPointF> &newCols, 
                            const QString & suffix) const;
@@ -284,6 +287,10 @@ public:
 
   /// Strips all the columns that contain only NaNs
   void stripNaNColumns();
+
+  /// Flip all columns back to front, so that the first
+  /// X,Y1,Y2... become the last one and vice versa.
+  void reverse();
 
   /// Inserts a column at the given position.
   Vector takeColumn(int idx) {

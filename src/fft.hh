@@ -117,11 +117,9 @@ public:
 
   /// Returns a reference to the real part of the i-th frequency element
   double & real(int i);
-  // double real(int i) const;
 
   /// Returns a reference to the imaginary part of the i-th frequency element
   double & imag(int i);
-  // double imag(int i) const;
 
 
   /// @}

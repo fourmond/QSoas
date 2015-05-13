@@ -1136,6 +1136,7 @@ namespace __fft {
     ToggleDerivative,
     ToggleBaseline,
     TogglePowerSpectrum,
+    QuitPushingTransform,
     ChangeAlpha,
     Replace,
     Abort
@@ -1151,6 +1152,7 @@ namespace __fft {
     addKey('b', ToggleBaseline, "toggle display of baseline").
     addKey('a', ChangeAlpha, "change alpha").
     alsoKey('A').
+    addKey('T', QuitPushingTransform, "replace with transform").
     addKey('p', TogglePowerSpectrum, "display power spectrum").
     alsoKey('P');
 
@@ -1314,6 +1316,23 @@ namespace __fft {
       break;
     case Abort:
       return;
+    case QuitPushingTransform: {
+
+      QList<Vector> cols;
+      // fequ, magnitude, real, imaginary
+      cols << Vector() << Vector() << Vector() << Vector();
+      int nb = orig.frequencies();
+      // Seems to be the right scaling factor...
+      double scale = 1.0/ds->nbRows();
+      for(int i = 0; i < nb; i++) {
+        cols[0] << i * 0.5/((nb - 1)*orig.deltaX);
+        cols[1] << scale * orig.magnitude(i);
+        cols[2] << scale * orig.real(i);
+        cols[3] << scale * orig.imag(i);
+      }
+      soas().pushDataSet(ds->derivedDataSet(cols, "_fft.dat"));
+      return;
+    }
     case ToggleBaseline:
       baseline.hidden = ! baseline.hidden;
       break;

@@ -56,12 +56,12 @@ static Group grp("buffer", 2,
                  "Buffer manipulations");
 
 static Group g1("split", 3,
-                 "Split...",
+                "Split...",
                 "Cut buffers into bits", &grp);
 
 static Group g2("peaks", 5,
-                 "Peaks...",
-                 "Find peaks", &grp);
+                "Peaks...",
+                "Find peaks", &grp);
 
 static Group g0("filters", 6,
                 "Filters...",
@@ -70,16 +70,16 @@ static Group g0("filters", 6,
 
 
 static Group g3("math", 7,
-                 "Mathematical operations...",
-                 "Mathematical operrations on buffers", &grp);
+                "Mathematical operations...",
+                "Mathematical operrations on buffers", &grp);
 
 static Group g4("mbuf", 7,
-                 "Multi-buffer...",
-                 "Operations involving several buffers", &grp);
+                "Multi-buffer...",
+                "Operations involving several buffers", &grp);
 
 static Group g5("segments", 10,
-                 "Segments...",
-                 "Handling and use of segments", &grp);
+                "Segments...",
+                "Handling and use of segments", &grp);
 
 static Group ga("norm", 11,
                 "Normalize...",
@@ -228,6 +228,26 @@ uw("unwrap", // command name
    NULL, // options
    "Unwrap",
    "Unwrap the buffer so that X is always increasing");
+
+//////////////////////////////////////////////////////////////////////
+
+static void reverseCommand(const QString &)
+{
+  const DataSet * ds = soas().currentDataSet();
+  DataSet * nds = ds->derivedDataSet("_rev.dat");
+  nds->reverse();
+  soas().pushDataSet(nds);
+}
+        
+
+static Command 
+rv("reverse", // command name
+   optionLessEffector(reverseCommand), // action
+   "buffer",  // group name
+   NULL, // arguments
+   NULL, // options
+   "Reverse",
+   "Reverse the order of all points (changes nothing but the indices)");
 
 
 

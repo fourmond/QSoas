@@ -127,6 +127,7 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
                         comments);
 }
 
+/// @todo A lot of code duplication here.
 double Vector::min() const
 {
   int sz = size();
@@ -141,6 +142,26 @@ double Vector::min() const
   for(int i = 1; i < sz; i++)
     if(d[i] < m)
       m = d[i];
+  return m;
+}
+
+double Vector::finiteMin() const
+{
+  int sz = size();
+  const double * d = (sz > 0 ? data() : NULL);
+  while(sz > 0 && ! std::isfinite(*d)) {
+    sz--;
+    d++;
+  }
+  if(! sz)
+    return 0.0/0.0;
+  double m = d[0];
+  for(int i = 1; i < sz; i++) {
+    if(! std::isfinite(d[i]))
+       continue;
+    if(d[i] < m)
+      m = d[i];
+  }
   return m;
 }
 
@@ -175,6 +196,26 @@ double Vector::max() const
   for(int i = 1; i < sz; i++)
     if(d[i] > m)
       m = d[i];
+  return m;
+}
+
+double Vector::finiteMax() const
+{
+  int sz = size();
+  const double * d = (sz > 0 ? data() : NULL);
+  while(sz > 0 && !std::isfinite(*d)) {
+    sz--;
+    d++;
+  }
+  if(! sz)
+    return 0.0/0.0;
+  double m = d[0];
+  for(int i = 1; i < sz; i++) {
+    if(! std::isfinite(d[i]))
+       continue;
+    if(d[i] > m)
+      m = d[i];
+  }
   return m;
 }
 

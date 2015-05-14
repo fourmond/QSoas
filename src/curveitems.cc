@@ -153,10 +153,10 @@ QRectF CurveData::boundingRect() const
 {
   if(xvalues.size() == 0)
     return QRectF();
-  double xmin = xvalues.min();
-  double xmax = xvalues.max();
-  double ymin = yvalues.min();
-  double ymax = yvalues.max();
+  double xmin = xvalues.finiteMin();
+  double xmax = xvalues.finiteMax();
+  double ymin = yvalues.finiteMin();
+  double ymax = yvalues.finiteMax();
 
   return QRectF(QPointF(xmin, ymin), QPointF(xmax, ymax));
 }

@@ -1407,7 +1407,7 @@ namespace __fft {
 
       if(showSpectrum) {
         QRectF r = spec1.boundingRect();
-        r.setTop(spec1.yvalues.min()-5);
+        r.setTop(spec1.yvalues.finiteMin()-5);
         spectrum.zoomIn(r);
       }
       else

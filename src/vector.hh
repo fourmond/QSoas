@@ -87,14 +87,21 @@ public:
   /// The minimum value
   double min() const;
 
+
   /// The index of the last minimum value
   int whereMin() const;
 
+  /// The minimum value, excluding all funny numbers
+  double finiteMin() const;
+
   /// The maximum value
   double max() const;
-
+  
   /// The index of the last maximum value
   int whereMax() const;
+
+  /// The maximum  value, excluding all funny numbers
+  double finiteMax() const;
 
   /// The value most distant from 0
   double magnitude() const;

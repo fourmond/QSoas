@@ -1235,7 +1235,7 @@ namespace __fft {
   // We don't display the 0th frequency !
   spec1.xvalues = Vector(orig.frequencies() - 1,0);
   for(int i = 0; i < spec1.xvalues.size(); i++)
-    spec1.xvalues[i] = log((i+1)/(1.0*spec1.xvalues.size()));
+    spec1.xvalues[i] = log10((i+1)*0.5/(spec1.xvalues.size() * orig.deltaX));
   spec1.yvalues = spec1.xvalues;
   spec1.countBB = true;
   spec1.histogram = true;
@@ -1283,8 +1283,8 @@ namespace __fft {
   if(unevenDX)
     Terminal::out << "X values are not evenly spaced. This may be OK for filtering, but will give false results for deriving" << endl;
 
-  for(int i = 0; i < spec1.yvalues.size(); i++)
-    spec1.yvalues[i] = log(orig.magnitude(i+1));
+  // for(int i = 0; i < spec1.yvalues.size(); i++)
+  //   spec1.yvalues[i] = log10(orig.magnitude(i+1));
 
   loop.setHelpString("FFT filtering:\n"
                        + fftHandler.buildHelpString());
@@ -1297,21 +1297,23 @@ namespace __fft {
     case IncreaseSetCutoff:
       if(loop.currentPanel() == &spectrum) {
         double x = loop.position(&spectrum).x();
-        cutoff = exp(-x);
+        cutoff = 0.5/(pow10(x) * orig.deltaX);
       }
       else {                                 // +/- decrease.
         cutoff++;
         if(cutoff > ds->x().size()/2 - 2)
           cutoff = ds->x().size()/2 - 2;
       }
-      Terminal::out << "Now using a cutoff of " << cutoff << endl;
+      Terminal::out << "Now using a cutoff of " << cutoff << " points ("
+                    << cutoff * orig.deltaX << " in X values)" << endl;
       needCompute = true;
       break;
     case DecreaseCutoff:
       cutoff--;
       if(cutoff < 2)
         cutoff = 2;
-      Terminal::out << "Now using a cutoff of " << cutoff << endl;
+      Terminal::out << "Now using a cutoff of " << cutoff << " points ("
+                    << cutoff * orig.deltaX << " in X values)" << endl;
       needCompute = true;
       break;
     case Abort:
@@ -1382,9 +1384,12 @@ namespace __fft {
         orig.initialize(ds->x(), ds->y(), true, ap);
         orig.forward();
         recomputeForward = false;
+
+        for(int i = 0; i < spec1.yvalues.size(); i++)
+          spec1.yvalues[i] = 2*log10(orig.magnitude(i+1));
       }
       FFT trans = orig;
-      lim.x = -log(cutoff);
+      lim.x = log10(0.5/(cutoff*orig.deltaX));
       trans.applyGaussianFilter(cutoff);
 
       if(order > 0)             /// @todo and the second derivative ?
@@ -1392,7 +1397,7 @@ namespace __fft {
 
       if(showSpectrum) {        // We need to update the values
         for(int i = 0; i < spec2.yvalues.size(); i++)
-          spec2.yvalues[i] = log(trans.magnitude(i+1));
+          spec2.yvalues[i] = 2*log10(trans.magnitude(i+1));
       }
         
       trans.reverse();  // Don't use baseline on derivatives (for now)

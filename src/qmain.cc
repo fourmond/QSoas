@@ -32,6 +32,8 @@
 #include <soas.hh>
 #include <exceptions.hh>
 
+#include <commandlineparser.hh>
+
 extern void loadDocumentationFile(const QString &, QString file, 
                                   const CommandOptions & opts = CommandOptions());
 extern void updateDocumentationFile(const QString &, QString file);
@@ -75,33 +77,21 @@ int main(int argc, char ** argv)
   
   // We convert GSL's hard errors into C++ exceptions
   GSLError::setupGSLHandler();
-
-
-  QString arg1;
-  if(argc > 1)
-    arg1 = argv[1];
-
-  // And we do the same for Qt's hard errors, but only if no --debug
-  // flag is given
-  if(arg1 != "--debug")
-    Exception::setupQtMessageHandler();
-
-  /// @todo This is a rudimentary command-line parsing, but it does
-  /// the job -- for the time being ;-)...
-  if(arg1 == "--tex-help") {
-    QTextStream o(stdout);
-    o << Group::latexDocumentationAllGroups() << endl;
-    return 0;
-  }
-
-  if(arg1 == "--update-documentation") {
-    updateDocumentationFile("ud", argv[2]);
-    return 0;
-  }
+  Exception::setupQtMessageHandler();
 
   bool startup = true;
-  if(arg1 == "--no-startup-files")
-    startup = false;
+  CommandLineOption hlp("--no-startup-files", [&startup](const QStringList & /*args*/) {
+      startup = false;
+    }, 0, "disable the load of startup files");
+
+  try {
+    CommandLineParser::parseCommandLine();
+  }
+  catch (const RuntimeError & e) {
+    QTextStream o(stderr);
+    o << "Failed processing the command-line: " << e.message() << endl;
+    return 1;
+  }
 
   int retval;
 

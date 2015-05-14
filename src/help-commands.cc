@@ -30,6 +30,8 @@
 #include <exceptions.hh>
 #include <gslfunction.hh>
 
+#include <commandlineparser.hh>
+
 static Group help("help", 1000,
                   "Help",
                   "Help");
@@ -244,6 +246,13 @@ udCmd("update-documentation", // command name
      "Update documentation",
      "Update documentation file",
      "...");
+
+//////////////////////////////////////////////////////////////////////
+
+static CommandLineOption hlp("--update-documentation", [](const QStringList & args) {
+    updateDocumentationFile("ud", args[0]);
+    ::exit(0);
+  }, 1, "updates the given documentation file");
 
 //////////////////////////////////////////////////////////////////////
 

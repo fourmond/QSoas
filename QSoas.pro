@@ -252,7 +252,8 @@ SOURCES += src/qmain.cc \
         src/nupwidget.cc \
         src/timedependentparameter.cc \
         src/timedependentparameters.cc \
-        src/odefit.cc
+        src/odefit.cc \
+        src/commandlineparser.cc
 
 
 HEADERS += src/headers.hh \
@@ -354,7 +355,8 @@ HEADERS += src/headers.hh \
         src/timedependentparameter.hh \
         src/timedependentparameters.hh \
         src/odefit.hh \
-        src/textbackend.hh
+        src/textbackend.hh \
+        src/commandlineparser.hh
 
                 
 # Sources of file-format specific code

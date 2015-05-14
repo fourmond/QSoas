@@ -22,6 +22,7 @@
 #include <group.hh>
 #include <command.hh>
 
+#include <commandlineparser.hh>
 
 QHash<QString, Group*> * Group::availableGroups = NULL;
 
@@ -138,3 +139,11 @@ QString Group::latexDocumentationAllGroups()
     ret += groups[i]->latexDocumentation();
   return ret;
 }
+
+//////////////////////////////////////////////////////////////////////
+
+static CommandLineOption hlp("--tex-help", [](const QStringList & /*args*/) {
+    QTextStream o(stdout);
+    o << Group::latexDocumentationAllGroups() << endl;
+    ::exit(0);
+  }, 0, "write tex documentation to standard output");

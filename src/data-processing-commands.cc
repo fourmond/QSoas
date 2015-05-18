@@ -1297,7 +1297,7 @@ namespace __fft {
     case IncreaseSetCutoff:
       if(loop.currentPanel() == &spectrum) {
         double x = loop.position(&spectrum).x();
-        cutoff = 0.5/(pow10(x) * orig.deltaX);
+        cutoff = 0.5/(pow(10.0, x) * orig.deltaX);
       }
       else {                                 // +/- decrease.
         cutoff++;

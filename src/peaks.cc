@@ -60,7 +60,6 @@ QList<PeakInfo> Peaks::findPeaks(bool includeBorders)
   double avg, var;
   y.stats(&avg, &var);
 
-
   for(int i = 0; i < extrema.size(); i++) {
     /// @todo Thresholding could come in here.
     int idx = extrema[i];
@@ -75,9 +74,9 @@ QList<PeakInfo> Peaks::findPeaks(bool includeBorders)
     info.magnitude = fabs(avg - info.y);
 
     int j = y.findCrossing(idx, y[idx]/2, -1);
-    info.leftHHWidth = info.x - x[j];
+    info.leftHHWidth = info.x - x.value(j, 0.0/0.0);
     j = y.findCrossing(idx, y[idx]/2, 1);
-    info.rightHHWidth = x[j] - info.x;
+    info.rightHHWidth = x.value(j, 0.0/0.0) - info.x;
 
     // Now, we look for the right and left half widths
     peaks << info;

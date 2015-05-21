@@ -1925,6 +1925,8 @@ static void displayPeaks(QList<PeakInfo> peaks, const DataSet * ds,
         << "right_width" << peaks[i].rightHHWidth;
     if(write)
       OutFile::out.writeValueHash(hsh, ds);
+    if(! i)
+      Terminal::out << hsh.keyOrder.join("\t") << endl;
     Terminal::out << hsh.toString() << endl;
     CurveLine * v= new CurveLine;
     

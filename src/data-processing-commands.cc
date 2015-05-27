@@ -2,7 +2,7 @@
    \file data-processing-commands.cc
    Commands to extract information from datasets
    Copyright 2011 by Vincent Fourmond
-             2011,2013, 2014 by CNRS/AMU
+             2011,2013,2014,2015 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -220,6 +220,59 @@ namespace __reg {
       "...",
       "reg");
 };
+
+//////////////////////////////////////////////////////////////////////
+
+static void autoRegCommand(const QString &, const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+  int window = 7;
+
+  updateFromOptions(opts, "window", window);
+  window = abs(window);
+
+  const Vector & x = ds->x();
+  Vector sl = ds->y();
+  Vector ny = ds->y();
+
+  int sz = sl.size();
+
+  /// @todo This could be greatly optimized
+  for(int i = 0; i < sz; i++) {
+    int lx = i - window;
+    if(lx < 0)
+      lx = 0;
+    int rx = i + window;
+    if(rx >= sz)
+      rx = sz-1;
+    QPair<double, double> ab = ds->reglin(lx, rx);
+    sl[i] = ab.first;
+    ny[i] = ab.first * x[i] + ab.second;
+  }
+  QList<Vector> cols;
+  cols << x << sl << ny;
+  soas().pushDataSet(ds->derivedDataSet(cols,"_reg.dat"));
+}
+
+static ArgumentList 
+arOps(QList<Argument *>() 
+      << new IntegerArgument("window", 
+                             "Number of points",
+                             "Number of points (after and before) over which to perform regression")
+      );
+
+
+static Command 
+areg("auto-reglin", // command name
+     effector(autoRegCommand), // action
+     "filters",  // group name
+     NULL, // arguments
+     &arOps, // options
+     "Automatic linear regression",
+     "Automatic linear regression",
+     "...");
+
+
 
 //////////////////////////////////////////////////////////////////////
 

@@ -30,6 +30,7 @@
 #include <curveeventloop.hh>
 
 #include <eventhandler.hh>
+#include <commandlineparser.hh>
 
 
 QHash<QString, Command*> * Command::availableCommands = NULL;
@@ -576,3 +577,10 @@ void Command::writeSpecFile(QTextStream & out)
     out << lst[i]->commandSpec();
 
 }
+
+//////////////////////////////////////////////////////////////////////
+CommandLineOption sp("--spec", [](const QStringList & /*args*/) {
+    QTextStream o(stdout);
+    Command::writeSpecFile(o);
+    ::exit(0);
+  }, 0, "write command specs");

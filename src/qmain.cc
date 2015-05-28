@@ -64,11 +64,6 @@ int main(int argc, char ** argv)
 {
   DataBackend::registerBackendCommands();
   Command::crosslinkCommands();
-  if(QString(argv[1]) == "--spec") {
-    QTextStream o(stdout);
-    Command::writeSpecFile(o);
-    return 0;
-  }
 
   QSoasApplication main(argc, argv);
   main.setApplicationName("QSoas");

@@ -21,6 +21,7 @@
 #define __DATASETEDITOR_HH
 
 class DataSet;
+class ValueHashEditor;
 
 /// A dialog box displaying/editing the contents of the dataset in
 /// table form.
@@ -45,6 +46,9 @@ private:
 
   /// The table widget
   QTableWidget * table;
+
+  /// An editor for meta-data
+  ValueHashEditor * metaEditor;
 
 
 public:

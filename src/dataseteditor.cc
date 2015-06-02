@@ -22,6 +22,8 @@
 #include <dataset.hh>
 #include <settings-templates.hh>
 
+#include <valuehasheditor.hh>
+
 #include <soas.hh>
 
 
@@ -67,8 +69,13 @@ void DatasetEditor::setupFrame()
 {
   QVBoxLayout * layout = new QVBoxLayout(this);
 
+  metaEditor = new ValueHashEditor();
+  layout->addWidget(metaEditor);
+  
+  metaEditor->setFromHash(source->getMetaData());
+
   table = new QTableWidget;
-  layout->addWidget(table);
+  layout->addWidget(table, 1);
 
   setupTable(table, source);
   connect(table, SIGNAL(itemChanged(QTableWidgetItem *)), 

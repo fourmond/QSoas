@@ -580,7 +580,9 @@ void Command::writeSpecFile(QTextStream & out)
 
 //////////////////////////////////////////////////////////////////////
 CommandLineOption sp("--spec", [](const QStringList & /*args*/) {
-    QTextStream o(stdout);
-    Command::writeSpecFile(o);
+    {
+      QTextStream o(stdout);
+      Command::writeSpecFile(o);
+    }
     ::exit(0);
   }, 0, "write command specs");

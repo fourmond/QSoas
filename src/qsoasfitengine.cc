@@ -23,6 +23,8 @@
 #include <exceptions.hh>
 #include <utils.hh>
 
+#include <valuehash.hh>
+
 /// QSoas's own fit engine
 class QSoasFitEngine : public FitEngine {
 protected:
@@ -85,15 +87,27 @@ protected:
   /// Second test parameters
   gsl_vector *& testp2;
 
+
+  /// The last residuals !
+  double lastResiduals;
+
+  /// @name Internal parameters
+  ///
+  /// @{
+  
   /// The lambda parameter
   double lambda;
 
   /// The scaling factor (called nu in the original paper)
   double scale;
 
-  /// The last residuals !
-  double lastResiduals;
+  /// The threshold difference between two steps that trigger a stop
+  double endThreshold;
 
+  /// The minimum value for relative difference
+  double relativeMin;
+
+  /// @}
   
   /// Makes a trial step at the given value of lambda, and store the
   /// results in:
@@ -119,6 +133,10 @@ public:
   virtual int iterate();
   virtual double residuals() const;
   virtual void recomputeJacobian();
+
+  virtual ValueHash getParameters() const;
+  virtual void setParameters(const ValueHash & parameters);
+
 };
 
 QSoasFitEngine::QSoasFitEngine(FitData * data) :
@@ -173,10 +191,34 @@ void QSoasFitEngine::initialize(const double * initialGuess)
   fitData->packParameters(initialGuess, parameters);
   iterations = 0;
 
+  // Yeah, but this overwrites the stuff that could be set ?
   lambda = 1e-2;
   scale = 2;
+  endThreshold = 1e-5;
+  relativeMin = 1e-3;
+  
   successfulIterations = 0;
   lastResiduals = -1;
+}
+
+ValueHash QSoasFitEngine::getParameters() const
+{
+  ValueHash rv;
+  rv["lambda"] = lambda;
+  rv["scale"] = scale;
+  rv["end-threshold"] = endThreshold;
+  rv["relative-min"] = relativeMin;
+
+  return rv;
+}
+
+
+void QSoasFitEngine::setParameters(const ValueHash & val)
+{
+  lambda = val["lambda"].toDouble();
+  scale = val["scale"].toDouble();
+  endThreshold = val["end-threshold"].toDouble();
+  relativeMin = val["relative-min"].toDouble();
 }
 
 const gsl_vector * QSoasFitEngine::currentParameters() const
@@ -338,7 +380,7 @@ int QSoasFitEngine::iterate()
     for(int i = 0; i < n; i++) {
       double dp = gsl_vector_get(deltap, i);
       double p = gsl_vector_get(parameters, i);
-      if(fabs(dp)/(1e-3 + fabs(p)) > 1e-5)
+      if(fabs(dp)/(relativeMin + fabs(p)) > endThreshold)
         return GSL_CONTINUE;
     }
     return GSL_SUCCESS;

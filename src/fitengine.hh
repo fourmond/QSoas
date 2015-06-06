@@ -27,6 +27,7 @@
 
 class Fit;  
 class FitData;
+class ValueHash;
 /// A simple wrapper class around parameters found after an iteration.
 class StoredParameters {
 
@@ -136,6 +137,11 @@ public:
   ///
   /// @warning This is almost never implemented ;-)...
   virtual void recomputeJacobian();
+
+  /// Retrieve the current fit engine parameters as a ValueHash
+  virtual ValueHash getParameters() const;
+
+  virtual void setParameters(const ValueHash & parameters);
 
 };
 

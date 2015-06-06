@@ -21,6 +21,8 @@
 #include <fitdata.hh>
 #include <exceptions.hh>
 
+#include <valuehash.hh>
+
 #include <factory.hh>
 
 
@@ -105,4 +107,13 @@ void FitEngine::pushCurrentParameters()
 void FitEngine::recomputeJacobian()
 {
   throw InternalError("Impossible to recompute the jacobian with this fit engine");
+}
+
+ValueHash FitEngine::getParameters() const
+{
+  return ValueHash();
+}
+
+void FitEngine::setParameters(const ValueHash & parameters)
+{
 }

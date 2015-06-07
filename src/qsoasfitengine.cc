@@ -135,6 +135,7 @@ public:
   virtual void recomputeJacobian();
 
   virtual ValueHash getParameters() const;
+  virtual void resetParameters();
   virtual void setParameters(const ValueHash & parameters);
 
 };
@@ -167,6 +168,8 @@ QSoasFitEngine::QSoasFitEngine(FitData * data) :
 
   for(size_t i = 0; i < sizeof(matrices)/sizeof(gsl_matrix *); i++)
     matrices[i] = gsl_matrix_alloc(n,n);
+
+  resetParameters();
 }
 
 
@@ -190,35 +193,37 @@ void QSoasFitEngine::initialize(const double * initialGuess)
 {
   fitData->packParameters(initialGuess, parameters);
   iterations = 0;
-
-  // Yeah, but this overwrites the stuff that could be set ?
-  lambda = 1e-2;
-  scale = 2;
-  endThreshold = 1e-5;
-  relativeMin = 1e-3;
-  
   successfulIterations = 0;
   lastResiduals = -1;
 }
 
+
+void QSoasFitEngine::resetParameters()
+{
+  lambda = 1e-2;
+  scale = 2;
+  endThreshold = 1e-5;
+  relativeMin = 1e-3;
+}
+
 ValueHash QSoasFitEngine::getParameters() const
 {
-  ValueHash rv;
-  rv["lambda"] = lambda;
-  rv["scale"] = scale;
-  rv["end-threshold"] = endThreshold;
-  rv["relative-min"] = relativeMin;
+  ValueHash val;
+  val.setValue("lambda", lambda);
+  val.setValue("scale", scale);
+  val.setValue("end-threshold", endThreshold);
+  val.setValue("relative-min", relativeMin);
 
-  return rv;
+  return val;
 }
 
 
 void QSoasFitEngine::setParameters(const ValueHash & val)
 {
-  lambda = val["lambda"].toDouble();
-  scale = val["scale"].toDouble();
-  endThreshold = val["end-threshold"].toDouble();
-  relativeMin = val["relative-min"].toDouble();
+  val.getValue("lambda", lambda);
+  val.getValue("scale", scale);
+  val.getValue("end-threshold", endThreshold);
+  val.getValue("relative-min", relativeMin);
 }
 
 const gsl_vector * QSoasFitEngine::currentParameters() const

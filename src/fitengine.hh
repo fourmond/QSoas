@@ -138,11 +138,20 @@ public:
   /// @warning This is almost never implemented ;-)...
   virtual void recomputeJacobian();
 
+  /// @name Fit engine parameters manipulations
+  ///
+  /// @{
+
+  /// Resets the parameters to their defaults.
+  virtual void resetParameters();
+
   /// Retrieve the current fit engine parameters as a ValueHash
   virtual ValueHash getParameters() const;
 
+  /// Sets the parameters from a ValueHash
   virtual void setParameters(const ValueHash & parameters);
 
+  /// @}
 };
 
 

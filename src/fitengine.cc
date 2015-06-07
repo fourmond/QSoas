@@ -109,6 +109,10 @@ void FitEngine::recomputeJacobian()
   throw InternalError("Impossible to recompute the jacobian with this fit engine");
 }
 
+void FitEngine::resetParameters()
+{
+}
+
 ValueHash FitEngine::getParameters() const
 {
   return ValueHash();

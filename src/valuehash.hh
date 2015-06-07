@@ -140,7 +140,31 @@ public:
   /// Builds a new ValueHash from a Ruby hsh
   static ValueHash fromRuby(VALUE hsh);
 
+
+  /// @name Accessor-like function
+  /// 
+  /// A series of functions to help store/retrieve 
+  /// @{
+
+  /// Sets the value of the given key
+  void setValue(const QString & key, const QVariant& value);
+
+  /// Sets the target value from the hash, if the key exists and it
+  /// can be converted to the desired type.
+  template<class T> void getValue(const QString & key, T & dest) const;
+  ///@}
+  
+
 };
 
+template<class T> void ValueHash::getValue(const QString & key, T & dest) const
+{
+  if(! contains(key))
+    return;
+  const QVariant & v = value(key);
+  if(! v.canConvert<T>())
+    return;
+  dest = v.value<T>();
+}
 
 #endif

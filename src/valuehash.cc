@@ -294,3 +294,8 @@ double ValueHash::doubleValue(const QString & key, bool * ok) const
   }
   return n;
 } 
+
+void ValueHash::setValue(const QString & key, const QVariant& value)
+{
+  (*this)[key] = value;
+}

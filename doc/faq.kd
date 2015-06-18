@@ -63,6 +63,27 @@ the data with QSoas (or any other software than NOVA !), you have to
 export the data to ASCII, either after the experiment, or even by
 including an "Export to ASCII" command in the experiment setup.
 
+## How can I load EC-Lab ASCII files
+
+EC-Lab ASCII files are essentially semicolon-delimited CSV files. Look
+for a line in the spirit of
+
+~~~~
+mode;error;time/s;Ewe/V
+~~~~
+
+This shows that it is a $$E = f(t)$$ data file, that $$t$$ is the
+3rd column, and $$E$$ the 4th one, and that the separator is indeed
+`;`. Try to load it using
+
+~~~~
+l ocp_C02.csv /separator=; /columns=3,4
+~~~~
+
+Don't forget the `/decimal=,` option if you are using French decimal
+separator.
+
+
 ## Help, QSoas doesn’t read my files !
 
 What if load a file and you don't see anything at all, or data that
@@ -84,6 +105,9 @@ actually interested in ? The decimal separator can be set using the
 `/columns=` option. By default, [cmd: load] ignores lines that look
 like text -- that don't start with a number. You can turn that off by
 setting `/comment=#` (to only ignore lines that start with a `#`).
+
+You can get an idea of how `QSoas` read the file by launching the
+[cmd: edit] command.
 
 
 # Using QSoas

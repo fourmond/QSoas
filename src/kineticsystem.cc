@@ -195,8 +195,8 @@ KineticSystem::KineticSystem() :
 
 KineticSystem::~KineticSystem()
 {
-  while(reactions.size() > 0)
-    delete reactions.takeFirst();
+  for(int i = 0; i < reactions.size(); i++)
+    delete reactions[i];
   delete reporterExpression;
 }
 
@@ -383,22 +383,25 @@ double KineticSystem::computeDerivatives(gsl_vector * target,
                                        const gsl_vector * concentrations,
                                        const double * params) const
 {
+  int nbParams = parameters.size();
+  int nbSpecies = species.size();
+  int nbReactions = reactions.size();
   // Now starts the real fun: evaluating all the derivatives !
-  QVarLengthArray<double, 800> vals(parameters.size());
+  QVarLengthArray<double, 800> vals(nbParams);
 
   // We put all the eggs in the same basket.
-  for(int i = 0; i < species.size(); i++) {
+  for(int i = 0; i < nbSpecies; i++) {
     vals[i] = gsl_vector_get(concentrations, i);
     if(target)
       gsl_vector_set(target, i, 0);
   }
-  for(int i = species.size(); i < parameters.size(); i++)
-    vals[i] = params[i - species.size()];
+  for(int i = nbSpecies; i < nbParams; i++)
+    vals[i] = params[i - nbSpecies];
 
   double current = 0;
 
   // Now, we compute the forward and reverse rates of all reactions
-  for(int i = 0; i < reactions.size(); i++) {
+  for(int i = 0; i < nbReactions; i++) {
     const Reaction * r = reactions[i];
     double forwardRate, backwardRate;
 
@@ -408,14 +411,19 @@ double KineticSystem::computeDerivatives(gsl_vector * target,
 
     r->computeRates(vals.data(), &forwardRate, &backwardRate);
 
-    for(int j = 0; j < r->speciesStoechiometry.size(); j++) {
-      int s = r->speciesStoechiometry[j];
+    int sts = r->speciesStoechiometry.size();
+    const int * stoech = r->speciesStoechiometry.data();
+    const int * indices = r->speciesIndices.data();
+
+    
+    for(int j = 0; j < sts; j++) {
+      int s = stoech[j];
       if(s < 0)
         forwardRate *= 
-          gsl_pow_int(gsl_vector_get(concentrations, r->speciesIndices[j]), -s);
+          gsl_pow_int(gsl_vector_get(concentrations, indices[j]), -s);
       else
         backwardRate *= 
-          gsl_pow_int(gsl_vector_get(concentrations, r->speciesIndices[j]), s);
+          gsl_pow_int(gsl_vector_get(concentrations, indices[j]), s);
     }
     double rate = forwardRate - backwardRate;
     // We scale the rate of redox reactions
@@ -424,11 +432,11 @@ double KineticSystem::computeDerivatives(gsl_vector * target,
     current += r->electrons * rate;
 
     if(target) {
-      for(int j = 0; j < r->speciesStoechiometry.size(); j++) {
-        int idx = r->speciesIndices[j];
+      for(int j = 0; j < sts; j++) {
+        int idx = indices[j];
         gsl_vector_set(target, idx,
                        gsl_vector_get(target, idx) +
-                       + r->speciesStoechiometry[j] * rate);
+                       + stoech[j] * rate);
       }
     }
   }

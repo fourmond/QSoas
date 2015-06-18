@@ -60,7 +60,7 @@ public:
     QString name;
 
     /// The indices of the reactions the species takes part in
-    QList<int> reactions;
+    QVector<int> reactions;
 
     /// The type of diffusion.
     Diffusion diffusion;
@@ -90,12 +90,12 @@ public:
 
   public:
     /// List of indices of the reactants or products
-    QList<int> speciesIndices;
+    QVector<int> speciesIndices;
 
     /// Their stoechiometry (negative if on the reactants side,
     /// positive if on the products size). In the same order as
     /// speciesIndices.
-    QList<int> speciesStoechiometry;
+    QVector<int> speciesStoechiometry;
 
     /// the number of electrons (counted negatively if on the left)
     int electrons;
@@ -172,7 +172,7 @@ protected:
   QList<Species> species;
 
   /// List of reactions
-  QList<Reaction *> reactions;
+  QVector<Reaction *> reactions;
 
   /// A hash species name -> species index
   QHash<QString, int> speciesLookup;

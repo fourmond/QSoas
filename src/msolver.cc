@@ -19,10 +19,12 @@
 #include <headers.hh>
 #include <msolver.hh>
 
+#include <utils.hh>
+
 #include <exceptions.hh>
 
 MSolver::MSolver(const gsl_multiroot_fdfsolver_type * t) :
-  solver(NULL), type(t), absolutePrec(0), 
+  solver(NULL), type(t), absolutePrec(1e-20), 
   relativePrec(1e-5), maxIterations(40)
 {
 }
@@ -94,6 +96,10 @@ int MSolver::fdf(const gsl_vector * x, void * params,
     
     tmp[i] = old;
   }
+  // if(true) {
+  //   QTextStream o(stdout);
+  //   o << "Matrix: " << Utils::matrixString(J) << endl;
+  // }
 
   return GSL_SUCCESS;
 }
@@ -127,19 +133,27 @@ const gsl_vector * MSolver::solve()
     throw InternalError("Trying to use solve() "
                         "on an uninitialized solver");
   int nb = 0;
+  //  QTextStream o(stdout);
   while(true) {
     nb++;
     if(nb > maxIterations)
-      throw RuntimeError("Maximum number of iterations reached, giving up !");
-    iterate();
+      throw RuntimeError("non-linear solver: maximum number of iterations reached, giving up !");
+    int st = iterate();
     if(iterateHook(gsl_multiroot_fdfsolver_dx(solver)))
        continue;
+    
     int status = 
       gsl_multiroot_test_delta(gsl_multiroot_fdfsolver_dx(solver), 
                                gsl_multiroot_fdfsolver_root(solver), 
                                absolutePrec, relativePrec);
 
-    if (status == GSL_SUCCESS)
+    // o << "Iteration: " << nb << " -> st1: " << st << " -> st2 " << status
+    //   << " -- " << GSL_CONTINUE 
+    //   << "\nVect: "
+    //   << Utils::vectorString(currentValue()) 
+    //   << "\nDx: "
+    //   << Utils::vectorString(gsl_multiroot_fdfsolver_dx(solver)) << endl;
+    if(status == GSL_SUCCESS)
       return currentValue();
   }
   return currentValue();

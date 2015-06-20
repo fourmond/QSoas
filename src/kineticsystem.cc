@@ -350,7 +350,8 @@ double KineticSystem::computeDerivatives(double * target,
 }
 
 void KineticSystem::computeLinearJacobian(gsl_matrix * target,
-                                          const double * params) const
+                                          const double * params,
+                                          gsl_vector * coeffs) const
 {
   if(! linear)
     throw InternalError("Using a function for linear systems on non-linear ones !");
@@ -366,6 +367,8 @@ void KineticSystem::computeLinearJacobian(gsl_matrix * target,
   params -= nbs;
   
   gsl_matrix_set_zero(target);
+  if(coeffs)
+    gsl_vector_set_zero(coeffs);
 
   // Now, we compute the forward and reverse rates of all reactions
   for(int i = 0; i < nbr; i++) {
@@ -373,14 +376,19 @@ void KineticSystem::computeLinearJacobian(gsl_matrix * target,
     double forwardRate, backwardRate;
     rc->computeRateConstants(params, &forwardRate, &backwardRate);
 
+    int l = (rc->speciesStoechiometry[0] == -1 ? rc->speciesIndices[0] : rc->speciesIndices[1]);
+    int r = (rc->speciesStoechiometry[0] == -1 ? rc->speciesIndices[1] : rc->speciesIndices[0]);
+
     // DO NOT FORGET SCALING !
     if(rc->electrons) {
       forwardRate *= redoxReactionScaling;
       backwardRate *= redoxReactionScaling;
+      if(coeffs) {
+        *gsl_vector_ptr(coeffs, l) -= forwardRate;
+        *gsl_vector_ptr(coeffs, r) += backwardRate;
+      }
     }
 
-    int l = (rc->speciesStoechiometry[0] == -1 ? rc->speciesIndices[0] : rc->speciesIndices[1]);
-    int r = (rc->speciesStoechiometry[0] == -1 ? rc->speciesIndices[1] : rc->speciesIndices[0]);
 
     *gsl_matrix_ptr(target, l, l) -= forwardRate;
     *gsl_matrix_ptr(target, r, l) += forwardRate;

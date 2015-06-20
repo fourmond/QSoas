@@ -269,8 +269,13 @@ public:
 
   /// Computes the jacobian of a linear system (ie J so that dC/dt = J
   /// C). Will abort if used on non-linear systems.
+  ///
+  /// If the vector \a coeffs isn't NULL, then is it filled with the
+  /// coefficient needed to compute the current (by multiplying with
+  /// the concentrations).
   void computeLinearJacobian(gsl_matrix * target,
-                             const double * parameters) const;
+                             const double * parameters,
+                             gsl_vector * coeffs = NULL) const;
 
 
   /// Reads reactions from a file, and add them to the current system.

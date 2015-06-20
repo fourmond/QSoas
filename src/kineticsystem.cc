@@ -361,7 +361,8 @@ void KineticSystem::computeLinearJacobian(gsl_matrix * target,
   int nbp = parameters.size();
   int nbr = reactions.size();
 
-
+  // We send pointers with uncontrolled data, but by assumption, this
+  // data cannot be used, so that it does not matter so much.
   params -= nbs;
   
   gsl_matrix_set_zero(target);
@@ -371,12 +372,20 @@ void KineticSystem::computeLinearJacobian(gsl_matrix * target,
     const Reaction * rc = reactions[i];
     double forwardRate, backwardRate;
     rc->computeRateConstants(params, &forwardRate, &backwardRate);
+
+    // DO NOT FORGET SCALING !
+    if(rc->electrons) {
+      forwardRate *= redoxReactionScaling;
+      backwardRate *= redoxReactionScaling;
+    }
+
     int l = (rc->speciesStoechiometry[0] == -1 ? rc->speciesIndices[0] : rc->speciesIndices[1]);
     int r = (rc->speciesStoechiometry[0] == -1 ? rc->speciesIndices[1] : rc->speciesIndices[0]);
-    gsl_matrix_set(target, l, l, gsl_matrix_get(target, l, l) - forwardRate);
-    gsl_matrix_set(target, r, l, gsl_matrix_get(target, r, l) + forwardRate);
-    gsl_matrix_set(target, r, r, gsl_matrix_get(target, r, r) - backwardRate);
-    gsl_matrix_set(target, l, r, gsl_matrix_get(target, l, r) + backwardRate);
+
+    *gsl_matrix_ptr(target, l, l) -= forwardRate;
+    *gsl_matrix_ptr(target, r, l) += forwardRate;
+    *gsl_matrix_ptr(target, r, r) -= backwardRate;
+    *gsl_matrix_ptr(target, l, r) += backwardRate;
   }
 }
 

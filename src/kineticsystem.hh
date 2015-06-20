@@ -2,7 +2,7 @@
    \file kineticsystem.hh 
    Handling of arbitrary kinetic systems
 
-   Copyright 2012, 2013, 2014 by CNRS/AMU
+   Copyright 2012, 2013, 2014, 2015 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -130,7 +130,7 @@ public:
     /// Computes both the forward and backward rates
     ///
     /// In fact, these are rate CONSTANTS !
-    virtual void computeRates(const double * vals, 
+    virtual void computeRateConstants(const double * vals, 
                               double * forward, double * backward) const;
 
     /// String depiction of the equation (along with the rates)
@@ -161,8 +161,8 @@ public:
 
     virtual QSet<QString> parameters() const;
 
-    virtual void computeRates(const double * vals, 
-                              double * forward, double * backward) const;
+    virtual void computeRateConstants(const double * vals, 
+                                      double * forward, double * backward) const;
     virtual QString exchangeRate() const;
   };
 

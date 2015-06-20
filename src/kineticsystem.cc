@@ -1,6 +1,6 @@
 /*
   kineticsystem.cc: implementation of KineticSystem
-  Copyright 2012, 2013, 2014 by CNRS/AMU
+  Copyright 2012, 2013, 2014, 2015 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -75,7 +75,7 @@ void KineticSystem::Reaction::setParameters(const QStringList & parameters)
   backward->setVariables(parameters);
 }
 
-void KineticSystem::Reaction::computeRates(const double * vals, 
+void KineticSystem::Reaction::computeRateConstants(const double * vals, 
                                            double * fd, 
                                            double * bd) const
 {
@@ -165,18 +165,20 @@ void KineticSystem::RedoxReaction::setParameters(const QStringList & parameters)
                         "for a redox reaction");
 }
 
-void KineticSystem::RedoxReaction::computeRates(const double * vals, 
+void KineticSystem::RedoxReaction::computeRateConstants(const double * vals, 
                                                 double * fd, 
                                                 double * bd) const
 {
   double e0, k0;                // e0 is forward, k0 is backward
-  Reaction::computeRates(vals, &e0, &k0);
+  Reaction::computeRateConstants(vals, &e0, &k0);
   double e = vals[potentialIndex];
   double fara = GSL_CONST_MKSA_FARADAY /
     (vals[temperatureIndex] * GSL_CONST_MKSA_MOLAR_GAS);
 
-  *fd = k0 * exp(fara * 0.5 * electrons * (e - e0));
-  *bd = k0 * exp(fara * 0.5 * electrons * (e0 - e));
+  double ex = exp(fara * 0.5 * electrons * (e - e0));
+
+  *fd = k0 * ex;
+  *bd = k0 / ex;
 }
 
 QString KineticSystem::RedoxReaction::exchangeRate() const
@@ -353,20 +355,22 @@ void KineticSystem::computeLinearJacobian(gsl_matrix * target,
   if(! linear)
     throw InternalError("Using a function for linear systems on non-linear ones !");
   // Now starts the real fun: evaluating all the derivatives !
-  QVarLengthArray<double, 800> vals(parameters.size());
+  // QVarLengthArray<double, 800> vals(parameters.size());
 
-  // We put all the eggs in the same basket.
-  for(int i = 0; i < species.size(); i++)
-    vals[i] = 0;
-  for(int i = species.size(); i < parameters.size(); i++)
-    vals[i] = params[i - species.size()];
+  int nbs = species.size();
+  int nbp = parameters.size();
+  int nbr = reactions.size();
+
+
+  params -= nbs;
+  
   gsl_matrix_set_zero(target);
 
   // Now, we compute the forward and reverse rates of all reactions
-  for(int i = 0; i < reactions.size(); i++) {
+  for(int i = 0; i < nbr; i++) {
     const Reaction * rc = reactions[i];
     double forwardRate, backwardRate;
-    rc->computeRates(vals.data(), &forwardRate, &backwardRate);
+    rc->computeRateConstants(params, &forwardRate, &backwardRate);
     int l = (rc->speciesStoechiometry[0] == -1 ? rc->speciesIndices[0] : rc->speciesIndices[1]);
     int r = (rc->speciesStoechiometry[0] == -1 ? rc->speciesIndices[1] : rc->speciesIndices[0]);
     gsl_matrix_set(target, l, l, gsl_matrix_get(target, l, l) - forwardRate);
@@ -377,8 +381,6 @@ void KineticSystem::computeLinearJacobian(gsl_matrix * target,
 }
 
 
-/// @todo Write a function that computes linear JACOBIANS.
-/// Will be dead useful in the case of linear systems.
 double KineticSystem::computeDerivatives(gsl_vector * target, 
                                        const gsl_vector * concentrations,
                                        const double * params) const
@@ -409,7 +411,7 @@ double KineticSystem::computeDerivatives(gsl_vector * target,
     if(! target && r->electrons == 0)
       continue;
 
-    r->computeRates(vals.data(), &forwardRate, &backwardRate);
+    r->computeRateConstants(vals.data(), &forwardRate, &backwardRate);
 
     int sts = r->speciesStoechiometry.size();
     const int * stoech = r->speciesStoechiometry.data();
@@ -427,9 +429,10 @@ double KineticSystem::computeDerivatives(gsl_vector * target,
     }
     double rate = forwardRate - backwardRate;
     // We scale the rate of redox reactions
-    if(r->electrons)
+    if(r->electrons) {
       rate *= redoxReactionScaling;
-    current += r->electrons * rate;
+      current += r->electrons * rate;
+    }
 
     if(target) {
       for(int j = 0; j < sts; j++) {

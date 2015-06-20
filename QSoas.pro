@@ -33,6 +33,10 @@ isEmpty(UNIVERSAL) {
   CONFIG += x86_64 x86
 }                
 
+# Let's optimize !
+QMAKE_CXXFLAGS += -O2
+
+
 # We want icons
 
 macx:ICON = QSoas.icns

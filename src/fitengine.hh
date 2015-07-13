@@ -1,7 +1,7 @@
 /**
    \file fitengine.hh
    Base class for engine driving the fits
-   Copyright 2012, 2013, 2014 by CNRS/AMU
+   Copyright 2012, 2013, 2014, 2015 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -24,10 +24,12 @@
 
 #include <vector.hh>
 #include <factory.hh>
+#include <argumentmarshaller.hh>
 
 class Fit;  
 class FitData;
-class ValueHash;
+class ArgumentList;
+
 /// A simple wrapper class around parameters found after an iteration.
 class StoredParameters {
 
@@ -143,13 +145,22 @@ public:
   /// @{
 
   /// Resets the parameters to their defaults.
+  ///
+  /// Essentially useless with the current implementation, but... 
   virtual void resetParameters();
 
+  /// Returns the option list for the engine.
+  ///
+  /// Better make that a static list.
+  ///
+  /// Can be NULL.
+  virtual ArgumentList * engineOptions() const;
+
   /// Retrieve the current fit engine parameters as a ValueHash
-  virtual ValueHash getParameters() const;
+  virtual CommandOptions getParameters() const;
 
   /// Sets the parameters from a ValueHash
-  virtual void setParameters(const ValueHash & parameters);
+  virtual void setParameters(const CommandOptions & params);
 
   /// @}
 };

@@ -1,6 +1,6 @@
 /*
   fitengine.cc: implementation of FitEngine and derived classes
-  Copyright 2012, 2013, 2014 by CNRS/AMU
+  Copyright 2012, 2013, 2014, 2015 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -95,6 +95,7 @@ FitEngine::~FitEngine()
 {
 }
 
+
 void FitEngine::pushCurrentParameters()
 {
   Vector v;
@@ -113,11 +114,16 @@ void FitEngine::resetParameters()
 {
 }
 
-ValueHash FitEngine::getParameters() const
+ArgumentList * FitEngine::engineOptions() const
 {
-  return ValueHash();
+  return NULL;
 }
 
-void FitEngine::setParameters(const ValueHash & parameters)
+CommandOptions FitEngine::getParameters() const
+{
+  return CommandOptions();
+}
+
+void FitEngine::setParameters(const CommandOptions & parameters)
 {
 }

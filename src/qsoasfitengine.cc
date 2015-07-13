@@ -23,7 +23,9 @@
 #include <exceptions.hh>
 #include <utils.hh>
 
-#include <valuehash.hh>
+#include <argumentlist.hh>
+#include <general-arguments.hh>
+
 
 /// QSoas's own fit engine
 class QSoasFitEngine : public FitEngine {
@@ -120,6 +122,9 @@ protected:
   void trialStep(double l, gsl_vector * params, 
                  gsl_vector * func, double * res);
 
+
+  /// Static options
+  static ArgumentList * options;
   
 public:
 
@@ -134,9 +139,10 @@ public:
   virtual double residuals() const;
   virtual void recomputeJacobian();
 
-  virtual ValueHash getParameters() const;
+  virtual CommandOptions getParameters() const;
+  virtual ArgumentList * engineOptions() const;
   virtual void resetParameters();
-  virtual void setParameters(const ValueHash & parameters);
+  virtual void setParameters(const CommandOptions & params);
 
 };
 
@@ -206,24 +212,39 @@ void QSoasFitEngine::resetParameters()
   relativeMin = 1e-3;
 }
 
-ValueHash QSoasFitEngine::getParameters() const
+ArgumentList * QSoasFitEngine::options = NULL;
+
+ArgumentList * QSoasFitEngine::engineOptions() const
 {
-  ValueHash val;
-  val.setValue("lambda", lambda);
-  val.setValue("scale", scale);
-  val.setValue("end-threshold", endThreshold);
-  val.setValue("relative-min", relativeMin);
+  if(! options) {
+    options = new ArgumentList;
+    *options << new NumberArgument("lambda", "Lambda")
+             << new NumberArgument("scale", "Scale")
+             << new NumberArgument("end-threshold", "When to call that a day")
+             << new NumberArgument("relative-min", "Min value for relative differences");
+  }
+  return options;
+}
+
+
+CommandOptions QSoasFitEngine::getParameters() const
+{
+  CommandOptions val;
+  updateOptions(val, "lambda", lambda);
+  updateOptions(val, "scale", scale);
+  updateOptions(val, "end-threshold", endThreshold);
+  updateOptions(val, "relative-min", relativeMin);
 
   return val;
 }
 
 
-void QSoasFitEngine::setParameters(const ValueHash & val)
+void QSoasFitEngine::setParameters(const CommandOptions & val)
 {
-  val.getValue("lambda", lambda);
-  val.getValue("scale", scale);
-  val.getValue("end-threshold", endThreshold);
-  val.getValue("relative-min", relativeMin);
+  updateFromOptions(val, "lambda", lambda);
+  updateFromOptions(val, "scale", scale);
+  updateFromOptions(val, "end-threshold", endThreshold);
+  updateFromOptions(val, "relative-min", relativeMin);
 }
 
 const gsl_vector * QSoasFitEngine::currentParameters() const

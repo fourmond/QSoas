@@ -132,6 +132,14 @@ class FitDialog : public QDialog {
   /// The fit engine factory in use
   FitEngineFactoryItem * fitEngineFactory;
 
+  /// Fit engine parameters
+  ///
+  /// @todo A way to reset the parameter to default
+  QHash<FitEngineFactoryItem *, CommandOptions * > fitEngineParameterValues;
+
+  /// Same thing, but
+  QHash<FitEngineFactoryItem *, ArgumentList * > fitEngineParameters;
+
   /// Selection of the fit engines...
   QComboBox * fitEngineSelection;
 

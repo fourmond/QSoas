@@ -1112,6 +1112,26 @@ void FitDialog::recomputeErrors()
   parameters.recomputeJacobian();
 }
 
+static void fillGridWithOptions(const ArgumentList * args,
+                                const CommandOptions & co,
+                                QHash<QString, QWidget *> & widgets,
+                                QGridLayout * gd,
+                                int base)
+{
+  for(int i = 0; i < args->size(); i++) {
+    Argument * ag = args->value(i);
+    gd->addWidget(new QLabel(ag->publicName()), i+base, 0);
+    QWidget * w = ag->createEditor(NULL);
+    gd->addWidget(w, i+base, 1);
+    widgets[ag->argumentName()] = w;
+
+    if(co.contains(ag->argumentName())) {
+      ag->setEditorValue(w, co[ag->argumentName()]);
+    }
+  }
+
+}
+
 void FitDialog::setSoftOptions()
 {
   QDialog dlg;
@@ -1137,24 +1157,59 @@ void FitDialog::setSoftOptions()
 
   CommandOptions co = data->fit->currentSoftOptions();
 
+  if(! fitEngineParameters.contains(fitEngineFactory)) {
+    FitEngine * f = fitEngineFactory->creator(data);
+    fitEngineParameters[fitEngineFactory] = f->engineOptions();
+    fitEngineParameterValues[fitEngineFactory] = new CommandOptions(f->getParameters());
+
+    // There's no need to free, as it gets registered with data, and
+    // will be freed upon starting the fit or closing the dialog box.
+  }
+  CommandOptions * engineOptionValues = fitEngineParameterValues[fitEngineFactory];
+  ArgumentList * engineOptions = fitEngineParameters[fitEngineFactory];
+
   QHash<QString, QWidget *> widgets;
 
-  for(int i = 0; i < softOptions->size(); i++) {
-    Argument * ag = softOptions->value(i);
-    gd->addWidget(new QLabel(ag->publicName()), i, 0);
-    QWidget * w = ag->createEditor(&dlg);
-    gd->addWidget(w, i, 1);
-    widgets[ag->argumentName()] = w;
+  /// @todo Turn that into a correct idiom.
+  fillGridWithOptions(softOptions, co, widgets, gd, 0);
+  
+  // for(int i = 0; i < softOptions->size(); i++) {
+  //   Argument * ag = softOptions->value(i);
+  //   gd->addWidget(new QLabel(ag->publicName()), i, 0);
+  //   QWidget * w = ag->createEditor(&dlg);
+  //   gd->addWidget(w, i, 1);
+  //   widgets[ag->argumentName()] = w;
 
-    if(co.contains(ag->argumentName())) {
-      ag->setEditorValue(w, co[ag->argumentName()]);
-    }
-  }
+  //   if(co.contains(ag->argumentName())) {
+  //     ag->setEditorValue(w, co[ag->argumentName()]);
+  //   }
+  // }
 
   for(auto i = co.begin(); i != co.end(); i++)
     delete i.value();
 
   co.clear();
+
+  if(engineOptions && engineOptions->size() > 0) {
+    int base = softOptions->size() + 1;
+    gd->addWidget(new QLabel("Fit engine options"), base-1, 0);
+
+    fillGridWithOptions(engineOptions, *engineOptionValues, widgets, gd, base);
+
+    // CommandOptions & co = *engineOptionValues;
+    
+    // for(int i = 0; i < engineOptions->size(); i++) {
+    //   Argument * ag = engineOptions->value(i);
+    //   gd->addWidget(new QLabel(ag->publicName()), i + base, 0);
+    //   QWidget * w = ag->createEditor(&dlg);
+    //   gd->addWidget(w, i + base, 1);
+    //   widgets[ag->argumentName()] = w;
+
+    //   if(co.contains(ag->argumentName())) {
+    //     ag->setEditorValue(w, co[ag->argumentName()]);
+    //   }
+    // }
+  }
 
   if(dlg.exec()) {
     for(int i = 0; i < softOptions->size(); i++) {

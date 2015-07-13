@@ -63,7 +63,10 @@ QWidget * Argument::createEditor(QWidget * parent) const
 void Argument::setEditorValue(QWidget * editor, 
                               ArgumentMarshaller * value) const
 {
-  // nothing !
+  /// @todo Have a real debug stream ?
+  QTextStream o(stdout);
+  o << "Warning: missing setEditorValue implementation for type "
+    << typeName() << endl;
 }
 
 ArgumentMarshaller * Argument::getEditorValue(QWidget * editor) const

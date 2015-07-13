@@ -56,13 +56,14 @@ CommandOptions ODEStepperOptions::asOptions() const
 {
   CommandOptions opts;
 
-  opts["adaptative"] = new ArgumentMarshallerChild<bool>(! fixed);
-  opts["step-size"] = new ArgumentMarshallerChild<double>(hStart);
-  opts["min-step-size"] = new ArgumentMarshallerChild<double>(hMin);
-  opts["prec-relative"] = new ArgumentMarshallerChild<double>(epsRel);
-  opts["prec-absolute"] = new ArgumentMarshallerChild<double>(epsAbs);
-  opts["sub-steps"] = new ArgumentMarshallerChild<int>(substeps);
-  opts["stepper"] = new ArgumentMarshallerChild<const gsl_odeiv2_step_type *>(type);
+  bool adapt = ! fixed;
+  updateOptions(opts, "adaptative", adapt);
+  updateOptions(opts, "step-size", hStart);
+  updateOptions(opts, "min-step-size", hMin);
+  updateOptions(opts, "stepper", type);
+  updateOptions(opts, "prec-relative", epsRel);
+  updateOptions(opts, "prec-absolute", epsAbs);
+  updateOptions(opts, "sub-steps", substeps);
 
   return opts;
 }

@@ -70,6 +70,14 @@ template<typename T> void updateFromOptions(const CommandOptions & opts,
     value = opts[option]->value<T>();
 };
 
+template<typename T> void updateOptions(CommandOptions & opts,
+                                        const QString & option,
+                                        const T & value) {
+  if(opts.contains(option))
+    delete opts[option];
+  opts[option] = new ArgumentMarshallerChild<T>(value);
+};
+
 template<typename T> void updateFromOptions(const CommandOptions & opts,
                                             const QString & option,
                                             SettingsValue<T> & value) {

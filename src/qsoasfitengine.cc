@@ -220,7 +220,7 @@ ArgumentList * QSoasFitEngine::engineOptions() const
     options = new ArgumentList;
     *options << new NumberArgument("lambda", "Lambda")
              << new NumberArgument("scale", "Scale")
-             << new NumberArgument("end-threshold", "When to call that a day")
+             << new NumberArgument("end-threshold", "Threshold for ending")
              << new NumberArgument("relative-min", "Min value for relative differences");
   }
   return options;

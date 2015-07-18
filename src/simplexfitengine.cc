@@ -23,6 +23,8 @@
 #include <exceptions.hh>
 
 #include <utils.hh>
+#include <argumentlist.hh>
+#include <general-arguments.hh>
 
 /// A Nelder-Mead fit engine.
 ///
@@ -47,6 +49,9 @@ protected:
 
   /// Shrink factor
   double delta;
+
+  /// Final threshold
+  double threshold;
 
   /// A vector for the function evaluation
   gsl_vector * func;
@@ -74,7 +79,10 @@ protected:
 
   /// Computes the fits/residuals at the given location.
   StoredParameters computeVertex(const gsl_vector * pos);
-  
+
+  /// Static options
+  static ArgumentList * options;
+
   
 public:
 
@@ -88,19 +96,72 @@ public:
   virtual int iterate();
   virtual double residuals() const;
 
+  virtual CommandOptions getEngineParameters() const;
+  virtual ArgumentList * engineOptions() const;
+  virtual void resetEngineParameters();
+  virtual void setEngineParameters(const CommandOptions & params);
+
 };
 
 SimplexFitEngine::SimplexFitEngine(FitData * data) :
-  FitEngine(data), alpha(1), beta(2), gamma(0.5), delta(0.5)
+  FitEngine(data)
 {
   func = gsl_vector_alloc(fitData->dataPoints());
+  resetEngineParameters();
 }
 
 SimplexFitEngine::~SimplexFitEngine()
 {
   gsl_vector_free(func);
 }
-  
+
+void SimplexFitEngine::resetEngineParameters()
+{
+  alpha = 1;
+  beta = 2;
+  gamma = 0.5;
+  delta = 0.5;
+  threshold = 1e-4;
+}
+
+ArgumentList * SimplexFitEngine::options = NULL;
+
+ArgumentList * SimplexFitEngine::engineOptions() const
+{
+  if(! options) {
+    options = new ArgumentList;
+    *options << new NumberArgument("alpha", "Reflection factor")
+             << new NumberArgument("beta", "Expansion factor")
+             << new NumberArgument("gamma", "Contraction factor")
+             << new NumberArgument("delta", "Shrink factor")
+             << new NumberArgument("end-threshold", "Threshold for ending");
+  }
+  return options;
+}
+
+
+CommandOptions SimplexFitEngine::getEngineParameters() const
+{
+  CommandOptions val;
+  updateOptions(val, "alpha", alpha);
+  updateOptions(val, "beta", beta);
+  updateOptions(val, "gamma", gamma);
+  updateOptions(val, "delta", delta);
+  updateOptions(val, "end-threshold", threshold);
+
+  return val;
+}
+
+
+void SimplexFitEngine::setEngineParameters(const CommandOptions & val)
+{
+  updateFromOptions(val, "alpha", alpha);
+  updateFromOptions(val, "beta", beta);
+  updateFromOptions(val, "gamma", gamma);
+  updateFromOptions(val, "delta", delta);
+  updateFromOptions(val, "end-threshold", threshold);
+}
+
 
 void SimplexFitEngine::initialize(const double * initialGuess)
 {
@@ -255,7 +316,7 @@ int SimplexFitEngine::iterate()
 
   for(int i = 0; i < nb; i++)
     if(fabs((vertices[0].parameters[i] - initialPosition[i])/
-            initialPosition[i]) > 1e-4)
+            initialPosition[i]) > threshold)
       return GSL_CONTINUE;
 
   return GSL_SUCCESS;

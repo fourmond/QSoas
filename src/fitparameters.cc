@@ -353,10 +353,11 @@ void FitParameters::sendDataParameters()
   }
 }
 
-void FitParameters::prepareFit(FitEngineFactoryItem * it)
+void FitParameters::prepareFit(FitEngineFactoryItem * it,
+                               CommandOptions * opts)
 {
   sendDataParameters();
-  fitData->initializeSolver(values, it);
+  fitData->initializeSolver(values, it, opts);
 }
 
 void FitParameters::retrieveParameters()

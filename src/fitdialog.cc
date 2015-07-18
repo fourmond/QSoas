@@ -389,11 +389,9 @@ void FitDialog::setupFrame()
 
   hb->addWidget(bt);
 
-  if(softOptions) {
-    bt = new QPushButton(tr("Fit options"));
-    connect(bt, SIGNAL(clicked()), SLOT(setSoftOptions()));
-    hb->addWidget(bt);
-  }
+  bt = new QPushButton(tr("Fit options"));
+  connect(bt, SIGNAL(clicked()), SLOT(setSoftOptions()));
+  hb->addWidget(bt);
 
   startButton = new QPushButton(tr("Fit (Ctrl+F)"));
   connect(startButton, SIGNAL(clicked()), SLOT(startFit()));
@@ -571,7 +569,7 @@ void FitDialog::startFit()
   }
   QDateTime startTime = QDateTime::currentDateTime();
   try {
-    parameters.prepareFit(fitEngineFactory);
+    parameters.prepareFit(fitEngineFactory, fitEngineParameterValues.value(fitEngineFactory, NULL));
     parametersBackup = parameters.saveParameterValues();
     shouldCancelFit = false;
   
@@ -1154,8 +1152,10 @@ void FitDialog::setSoftOptions()
   l->addLayout(bot);
 
   // Now, we populate the grid with editors;
+  CommandOptions co;
 
-  CommandOptions co = data->fit->currentSoftOptions();
+  QHash<QString, QWidget *> fitWidgets;
+  QHash<QString, QWidget *> engineWidgets;
 
   if(! fitEngineParameters.contains(fitEngineFactory)) {
     FitEngine * f = fitEngineFactory->creator(data);
@@ -1165,67 +1165,52 @@ void FitDialog::setSoftOptions()
     // There's no need to free, as it gets registered with data, and
     // will be freed upon starting the fit or closing the dialog box.
   }
+
+  if(softOptions) {
+    co = data->fit->currentSoftOptions();
+    gd->addWidget(new QLabel("<b>Fit options:<b>"), 0, 0);
+    fillGridWithOptions(softOptions, co, fitWidgets, gd, 1);
+    for(auto i = co.begin(); i != co.end(); i++)
+      delete i.value();
+
+    co.clear();
+  }
+
+
   CommandOptions * engineOptionValues = fitEngineParameterValues[fitEngineFactory];
   ArgumentList * engineOptions = fitEngineParameters[fitEngineFactory];
-
-  QHash<QString, QWidget *> widgets;
-
-  /// @todo Turn that into a correct idiom.
-  fillGridWithOptions(softOptions, co, widgets, gd, 0);
   
-  // for(int i = 0; i < softOptions->size(); i++) {
-  //   Argument * ag = softOptions->value(i);
-  //   gd->addWidget(new QLabel(ag->publicName()), i, 0);
-  //   QWidget * w = ag->createEditor(&dlg);
-  //   gd->addWidget(w, i, 1);
-  //   widgets[ag->argumentName()] = w;
-
-  //   if(co.contains(ag->argumentName())) {
-  //     ag->setEditorValue(w, co[ag->argumentName()]);
-  //   }
-  // }
-
-  for(auto i = co.begin(); i != co.end(); i++)
-    delete i.value();
-
-  co.clear();
-
   if(engineOptions && engineOptions->size() > 0) {
-    int base = softOptions->size() + 1;
-    gd->addWidget(new QLabel("Fit engine options"), base-1, 0);
+    int base = (softOptions ? softOptions->size() + 2 : 1);
+    gd->addWidget(new QLabel("<b>Fit engine options:<b>"), base-1, 0);
 
-    fillGridWithOptions(engineOptions, *engineOptionValues, widgets, gd, base);
-
-    // CommandOptions & co = *engineOptionValues;
-    
-    // for(int i = 0; i < engineOptions->size(); i++) {
-    //   Argument * ag = engineOptions->value(i);
-    //   gd->addWidget(new QLabel(ag->publicName()), i + base, 0);
-    //   QWidget * w = ag->createEditor(&dlg);
-    //   gd->addWidget(w, i + base, 1);
-    //   widgets[ag->argumentName()] = w;
-
-    //   if(co.contains(ag->argumentName())) {
-    //     ag->setEditorValue(w, co[ag->argumentName()]);
-    //   }
-    // }
+    fillGridWithOptions(engineOptions, *engineOptionValues, engineWidgets,
+                        gd, base);
   }
 
   if(dlg.exec()) {
-    for(int i = 0; i < softOptions->size(); i++) {
-      Argument * ag = softOptions->value(i);
-      QWidget * w = widgets[ag->argumentName()];
-      ArgumentMarshaller * val = ag->getEditorValue(w);
-      if(val)
-        co[ag->argumentName()] = val;
+    if(softOptions) {
+      for(int i = 0; i < softOptions->size(); i++) {
+        Argument * ag = softOptions->value(i);
+        QWidget * w = fitWidgets[ag->argumentName()];
+        ArgumentMarshaller * val = ag->getEditorValue(w);
+        if(val)
+          co[ag->argumentName()] = val;
+      }
+      data->fit->processSoftOptions(co);
+      for(auto i = co.begin(); i != co.end(); i++)
+        delete i.value();
     }
-    data->fit->processSoftOptions(co);
-    for(auto i = co.begin(); i != co.end(); i++)
-      delete i.value();
+
+    if(engineOptions) {
+      for(int i = 0; i < engineOptions->size(); i++) {
+        Argument * ag = engineOptions->value(i);
+        QWidget * w = engineWidgets[ag->argumentName()];
+        delete (*engineOptionValues)[ag->argumentName()];
+        (*engineOptionValues)[ag->argumentName()] = ag->getEditorValue(w);
+      }
+    }
   }
-
-
-  
 }
 
 void FitDialog::showTransposed()

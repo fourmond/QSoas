@@ -428,7 +428,8 @@ void FitData::initializeParameters()
 
 
 void FitData::initializeSolver(const double * initialGuess, 
-                               FitEngineFactoryItem * feit)
+                               FitEngineFactoryItem * feit,
+                               CommandOptions * opts)
 {
   nbIterations = 0;
   evaluationNumber = 0;
@@ -456,13 +457,15 @@ void FitData::initializeSolver(const double * initialGuess,
       }
 
       d->initializeSolver(initialGuess + 
-                          (i * parameterDefinitions.size()));
+                          (i * parameterDefinitions.size()), feit, opts);
     }
   }
   else {
     if(! feit)
       feit = FitEngine::defaultFactoryItem();
     engine = feit->creator(this);
+    if(opts)
+      engine->setParameters(*opts);
     engine->initialize(initialGuess);
   }
   // And this should be fine.

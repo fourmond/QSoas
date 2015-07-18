@@ -223,7 +223,8 @@ public:
   void sendDataParameters();
 
   /// Prepare fit
-  void prepareFit(FitEngineFactoryItem * fitEngine = NULL);
+  void prepareFit(FitEngineFactoryItem * fitEngine = NULL,
+                  CommandOptions * opts = NULL);
 
   /// Retrieve parameters from the fit
   void retrieveParameters();

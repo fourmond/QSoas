@@ -87,6 +87,7 @@ public:
   virtual void computeCovarianceMatrix(gsl_matrix * target) const;
   virtual int iterate();
   virtual double residuals() const;
+
 };
 
 SimplexFitEngine::SimplexFitEngine(FitData * data) :

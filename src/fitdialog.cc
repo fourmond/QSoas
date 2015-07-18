@@ -1160,7 +1160,7 @@ void FitDialog::setSoftOptions()
   if(! fitEngineParameters.contains(fitEngineFactory)) {
     FitEngine * f = fitEngineFactory->creator(data);
     fitEngineParameters[fitEngineFactory] = f->engineOptions();
-    fitEngineParameterValues[fitEngineFactory] = new CommandOptions(f->getParameters());
+    fitEngineParameterValues[fitEngineFactory] = new CommandOptions(f->getEngineParameters());
 
     // There's no need to free, as it gets registered with data, and
     // will be freed upon starting the fit or closing the dialog box.

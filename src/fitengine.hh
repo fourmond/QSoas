@@ -147,7 +147,7 @@ public:
   /// Resets the parameters to their defaults.
   ///
   /// Essentially useless with the current implementation, but... 
-  virtual void resetParameters();
+  virtual void resetEngineParameters();
 
   /// Returns the option list for the engine.
   ///
@@ -157,10 +157,10 @@ public:
   virtual ArgumentList * engineOptions() const;
 
   /// Retrieve the current fit engine parameters as a ValueHash
-  virtual CommandOptions getParameters() const;
+  virtual CommandOptions getEngineParameters() const;
 
   /// Sets the parameters from a ValueHash
-  virtual void setParameters(const CommandOptions & params);
+  virtual void setEngineParameters(const CommandOptions & params);
 
   /// @}
 };

@@ -465,7 +465,7 @@ void FitData::initializeSolver(const double * initialGuess,
       feit = FitEngine::defaultFactoryItem();
     engine = feit->creator(this);
     if(opts)
-      engine->setParameters(*opts);
+      engine->setEngineParameters(*opts);
     engine->initialize(initialGuess);
   }
   // And this should be fine.

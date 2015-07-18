@@ -110,7 +110,7 @@ void FitEngine::recomputeJacobian()
   throw InternalError("Impossible to recompute the jacobian with this fit engine");
 }
 
-void FitEngine::resetParameters()
+void FitEngine::resetEngineParameters()
 {
 }
 
@@ -119,11 +119,11 @@ ArgumentList * FitEngine::engineOptions() const
   return NULL;
 }
 
-CommandOptions FitEngine::getParameters() const
+CommandOptions FitEngine::getEngineParameters() const
 {
   return CommandOptions();
 }
 
-void FitEngine::setParameters(const CommandOptions & parameters)
+void FitEngine::setEngineParameters(const CommandOptions & parameters)
 {
 }

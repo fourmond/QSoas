@@ -139,10 +139,10 @@ public:
   virtual double residuals() const;
   virtual void recomputeJacobian();
 
-  virtual CommandOptions getParameters() const;
+  virtual CommandOptions getEngineParameters() const;
   virtual ArgumentList * engineOptions() const;
-  virtual void resetParameters();
-  virtual void setParameters(const CommandOptions & params);
+  virtual void resetEngineParameters();
+  virtual void setEngineParameters(const CommandOptions & params);
 
 };
 
@@ -175,7 +175,7 @@ QSoasFitEngine::QSoasFitEngine(FitData * data) :
   for(size_t i = 0; i < sizeof(matrices)/sizeof(gsl_matrix *); i++)
     matrices[i] = gsl_matrix_alloc(n,n);
 
-  resetParameters();
+  resetEngineParameters();
 }
 
 
@@ -204,7 +204,7 @@ void QSoasFitEngine::initialize(const double * initialGuess)
 }
 
 
-void QSoasFitEngine::resetParameters()
+void QSoasFitEngine::resetEngineParameters()
 {
   lambda = 1e-2;
   scale = 2;
@@ -227,7 +227,7 @@ ArgumentList * QSoasFitEngine::engineOptions() const
 }
 
 
-CommandOptions QSoasFitEngine::getParameters() const
+CommandOptions QSoasFitEngine::getEngineParameters() const
 {
   CommandOptions val;
   updateOptions(val, "lambda", lambda);
@@ -239,7 +239,7 @@ CommandOptions QSoasFitEngine::getParameters() const
 }
 
 
-void QSoasFitEngine::setParameters(const CommandOptions & val)
+void QSoasFitEngine::setEngineParameters(const CommandOptions & val)
 {
   updateFromOptions(val, "lambda", lambda);
   updateFromOptions(val, "scale", scale);

@@ -84,7 +84,7 @@ Don't forget the `/decimal=,` option if you are using French decimal
 separator.
 
 
-## Help, QSoas doesn’t read my files !
+## Help, QSoas doesn't read my files !
 
 What if load a file and you don't see anything at all, or data that
 really don't look like yours ? QSoas tries to be smart and find under

@@ -560,7 +560,10 @@ public:
 
   /// Splits into a series of disconnected buffers whose X values (or
   /// the values of the given column) are monotonic.
-  QList<DataSet * > splitIntoMonotonic(int col = 0) const;
+  ///
+  /// If group is more than one, it is the number of monotonic
+  /// segments pushed in each of the datasets.
+  QList<DataSet * > splitIntoMonotonic(int col = 0, int group = 1) const;
 
 
   /// Returns the names of the columns.

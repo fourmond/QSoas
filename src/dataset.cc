@@ -335,8 +335,7 @@ int DataSet::deltaSignChange(int col) const
 }
 
 
-/// @bug Doesn't work for now.
-QList<DataSet *> DataSet::splitIntoMonotonic(int col) const
+QList<DataSet *> DataSet::splitIntoMonotonic(int col, int group) const
 {
   QList<DataSet *> ret;
   
@@ -344,19 +343,23 @@ QList<DataSet *> DataSet::splitIntoMonotonic(int col) const
   const double *val = getValues(col, &size);
   int idx = 1;
   int curStart = 0;
+  int nbcrossed = 0;
   if(size >= 3) {
     double dv0 = val[1] - val[0];
     for(idx = 1; idx < size - 1; idx++) {
       double dv = val[idx+1] - val[idx];
       if(dv * dv0 < 0) {
-        // We spit out
-        QList<Vector> cols;
-        for(int j = 0; j < columns.size(); j++)
-          cols << columns[j].mid(curStart, idx - curStart + 1);
-        ret << derivedDataSet(cols,
-                              QString("_part%1.dat").arg(ret.size()));
-        curStart = idx+1;
-        idx = curStart + 1;
+        nbcrossed += 1;
+        if(nbcrossed % group == 0) {
+          QList<Vector> cols;
+          for(int j = 0; j < columns.size(); j++)
+            cols << columns[j].mid(curStart, idx - curStart + 1);
+          ret << derivedDataSet(cols,
+                                QString("_part%1.dat").arg(ret.size()));
+          curStart = idx+1;
+        }
+
+        idx += 2;
         if(idx < size)
           dv0 = val[idx] - val[idx-1];
       }

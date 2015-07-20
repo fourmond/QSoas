@@ -153,10 +153,13 @@ static void splitMonotonicCommand(const QString &,
                                   const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();
-  QList<DataSet *> nds = ds->splitIntoMonotonic();
-
   QStringList flags;
+  int group = 1;
   updateFromOptions(opts, "flags", flags);
+  updateFromOptions(opts, "group", group);
+
+  QList<DataSet *> nds = ds->splitIntoMonotonic(0, group);
+
 
   for(int i = 0; i < nds.size(); i++) {
     if(flags.size() > 0)
@@ -173,7 +176,11 @@ smOpts(QList<Argument *>()
            << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                          "flags", 
                                          "Flags",
-                                         "Flags to set on the results"));
+                                         "Flags to set on the results")
+           << new IntegerArgument("group", 
+                                  "Group segments",
+                                  "Group that many segments into one dataset")
+       );
 
 
 static Command 

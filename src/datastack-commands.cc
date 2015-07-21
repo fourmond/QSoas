@@ -593,6 +593,7 @@ static void flagUnFlag(const CommandOptions & opts,
 
   QString forWhich;
   updateFromOptions(opts, "for-which", forWhich);
+  int matched = 0;
 
   for(int i = 0; i < buffers.size(); i++) {
     DataSet * ds = const_cast<DataSet *>(buffers[i]);
@@ -600,6 +601,7 @@ static void flagUnFlag(const CommandOptions & opts,
       try {
         if(! ds->matches(forWhich))
           continue;               // Not flagging
+        matched += 1;
       }
       catch(const RuntimeError & re) {
         Terminal::out << "Error evaluating expression with dataset #" << i
@@ -617,6 +619,14 @@ static void flagUnFlag(const CommandOptions & opts,
         ds->clearFlags(flags);
     }
   }
+
+  Terminal::out << (flagged ? "Flagged ": "Unflagged ");
+  if(! forWhich.isEmpty())
+    Terminal::out << matched << " buffers (out of "
+                  << buffers.size() << ")" << endl;
+  else
+    Terminal::out << buffers.size() << " buffers" << endl;
+
 }
 
 static void flagDataSetsCommand(const QString &, const CommandOptions & opts)

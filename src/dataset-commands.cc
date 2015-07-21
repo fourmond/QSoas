@@ -1521,7 +1521,13 @@ static void setMetaCommand(const QString &, QString meta, QString value,
                            const CommandOptions & opts)
 {
   DataSet * ds = soas().currentDataSet();
-  ds->setMetaData(meta, value);
+  // Attempt to convert to double
+  bool ok;
+  double val = value.toDouble(&ok);
+  if(ok)
+    ds->setMetaData(meta, val);
+  else
+    ds->setMetaData(meta, value);
 }
 
 static ArgumentList 

@@ -358,7 +358,7 @@ void Fit::computeFit(const QString &, QString file,
   updateFromOptions(opts, "extra-parameters", extraParams);
   QStringList ep = extraParams.split(",", QString::SkipEmptyParts);
 
-  bool reexport;
+  bool reexport = false;
   updateFromOptions(opts, "reexport", reexport);
 
   FitData data(this, datasets, false, ep); // In case we do need them !

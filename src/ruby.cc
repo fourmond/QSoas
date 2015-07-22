@@ -63,7 +63,7 @@ VALUE Ruby::globalRescueFunction(VALUE /*dummy*/, VALUE exception)
 
 VALUE Ruby::exceptionSafeCall(VALUE (*function)(...), void * args)
 {
-  int error;
+  int error = 0;
   VALUE ret = rb_protect((VALUE (*)(VALUE)) function, 
                          (VALUE) args, &error);
   if(error) {

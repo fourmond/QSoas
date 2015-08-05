@@ -274,7 +274,7 @@ void QSoasFitEngine::computeCovarianceMatrix(gsl_matrix * target) const
   gsl_matrix_memcpy(cur, jTj);
 
   // Tolerance of 1e-7 for the singular values.
-  Utils::invertMatrix(cur, target, 1e-7);
+  Utils::invertMatrix(cur, target, 1e-14);
 }
 
 void QSoasFitEngine::trialStep(double l, gsl_vector * params, 

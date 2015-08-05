@@ -284,6 +284,10 @@ protected:
     return system->allSpecies();
   };
 
+  virtual bool isFixed(const QString & n) const {
+    return n.startsWith("c0_");
+  };
+
   virtual void initialize(double t0, const double * params) {
     evolver->setParameters(params + parametersBase, skippedIndices);
     evolver->initialize(t0);

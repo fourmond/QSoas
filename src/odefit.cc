@@ -117,22 +117,28 @@ void ODEFit::updateParameters()
   
   skippedIndices.clear();
   for(int i = 0; i < parameters.size(); i++) {
-    if(parameters[i] == "t") {
+    const QString & name = parameters[i];
+    if(name == "t") {
       timeIndex = i;
       skippedIndices.insert(i);
       continue;
     }
       
-    if(timeDependentParameters.contains(parameters[i])) {
+    if(timeDependentParameters.contains(name)) {
       skippedIndices.insert(i);
       continue;
     }
 
-    defs << ParameterDefinition(parameters[i]); 
+    defs << ParameterDefinition(name, isFixed(name)); 
   }
   tdBase = defs.size();
   defs += timeDependentParameters.fitParameters();
   parametersNumber = defs.size();
+}
+
+bool ODEFit::isFixed(const QString & ) const
+{
+  return false;
 }
 
 QList<ParameterDefinition> ODEFit::parameters() const

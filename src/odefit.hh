@@ -52,6 +52,9 @@ protected:
   /// dependence over time the solver() is computing)
   virtual QStringList variableNames() const = 0;
 
+  /// Whether the named parameter should be fixed by default
+  virtual bool isFixed(const QString & name) const;
+
 
   /// Initializes the system at the given time t and using the given
   /// parameters.

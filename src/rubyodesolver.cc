@@ -244,6 +244,9 @@ protected:
   /// The ODE system
   RubyODESolver * system;
 
+  /// The file name (unsure that's the best place)
+  QString fileName;
+
   virtual ODESolver * solver() const {
     return system;
   };
@@ -285,10 +288,11 @@ protected:
 protected:
 
 
-  void prepareFit(const QString & fileName)
+  void prepareFit(const QString & fn)
   {
     delete system;
     system = new RubyODESolver;
+    fileName = fn;
     system->parseFromFile(fileName);
     if(system->extraParameters().size() == 0)
       throw RuntimeError("There are no extra parameters in file '%1', nothing to fit !").arg(fileName);
@@ -318,6 +322,10 @@ protected:
     prepareFit(fileName);
     Fit::computeFit(name, params, datasets, opts);
   }
+
+  virtual QString optionsString() const {
+    return QString("(system: %1)").arg(fileName);
+  };
 
 
   

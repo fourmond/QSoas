@@ -36,11 +36,11 @@
 
 
 FitData::FitData(Fit * f, const QList<const DataSet *> & ds, bool d, 
-                 const QStringList & ex) : 
+                 const QStringList & ex, bool d2) : 
   totalSize(0), covarStorage(NULL), covarIsOK(false),
   engine(NULL), extra(ex),
   evaluationNumber(0), 
-  fit(f), debug(d), datasets(ds),
+  fit(f), debug(d), debug2(d2), datasets(ds),
   standardYErrors(NULL), pointWeights(NULL),
   nbIterations(0), parameterDefinitions(f->parameters()), storage(0)
 {
@@ -276,9 +276,13 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
 
     // Now, modify all parameters:
     for(int j = 0; j < lst.size(); j++) {
-      double value = gslParams[lst[j]->fitIndex];
-      double step = (value == 0 ? 1e-6 : lst[j]->derivationStep(value));
-      gslParams[lst[j]->fitIndex] += step;
+      FreeParameter * param = lst[j];
+      double value = gslParams[param->fitIndex];
+      double step = (value == 0 ? 1e-6 : param->derivationStep(value));
+      if(debug)
+        dumpString(QString("Step %1 for param %2 (value: %3)").
+                   arg(step).arg(param->fitIndex).arg(value));
+      gslParams[param->fitIndex] += step;
     }
 
     unpackParameters(&v.vector, unpackedParams.data());
@@ -291,8 +295,22 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
     fit->function(unpackedParams.data(), this, &col.vector);
     evaluationNumber++;
 
+    if(debug2) {
+      dumpString(QString("Independent parameters %1").arg(i));
+      dumpString(QString("f:   ") + Utils::vectorString(&col.vector));
+    }
+
     gsl_vector_sub(&col.vector, storage);
+
+    if(debug2) {
+      dumpString(QString("df:  ") + Utils::vectorString(&col.vector));
+    }
+    
     weightVector(&col.vector);
+
+    if(debug2) {
+      dumpString(QString("wdf: ") + Utils::vectorString(&col.vector));
+    }
 
     // Splicing the buffer-specific stuff back into place
     for(int j = 1; j < lst.size(); j++) {
@@ -308,12 +326,19 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
     for(int j = 0; j < lst.size(); j++) {
       const FreeParameter * p = lst[j];
       double step = gslParams[p->fitIndex] - gsl_vector_get(x, p->fitIndex);
+      if(debug)
+        dumpString(QString(" -> actual step: %1").
+                   arg(step));
       col = gsl_matrix_column(df, p->fitIndex);
       gsl_vector_scale(&col.vector, 1/step);
     }
   }
   if(debug)
     dumpString("Finished df computation");
+  if(debug2) {
+    dumpString("Computed jacobian:");
+    dumpString(Utils::matrixString(df));
+  }
   return GSL_SUCCESS;
 }
 
@@ -444,7 +469,7 @@ void FitData::initializeSolver(const double * initialGuess,
     for(int i = 0; i < datasets.size(); i++) {
       QList<const DataSet * > dss;
       dss << datasets[i];
-      FitData * d = new FitData(fit, dss, debug, extra);
+      FitData * d = new FitData(fit, dss, debug, extra, debug2);
       subordinates.append(d);
 
       for(int j = 0; j < parameters.size(); j++) {

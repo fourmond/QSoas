@@ -106,6 +106,9 @@ public:
   /// functions.
   bool debug;
 
+  /// A second debug flag. Used for very very very verbose dumping.
+  bool debug2;
+
   /// The datasets holding the data.
   QList<const DataSet *> datasets;
 
@@ -173,7 +176,8 @@ public:
 
   
   FitData(Fit * f, const QList<const DataSet *> & ds, 
-          bool d = false, const QStringList & extra = QStringList());
+          bool d = false, const QStringList & extra = QStringList(),
+          bool d2 = false);
 
   /// Creates the solver, and initializes it with the correct
   /// parameters, based one the contents of parameterDefinitions and

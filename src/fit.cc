@@ -146,6 +146,9 @@ void Fit::makeCommands(ArgumentList * args,
   *options << new BoolArgument("debug", 
                                "Debug",
                                "Turn on debugging (for QSoas developers only)");
+  *options << new BoolArgument("debug2", 
+                               "Debug2",
+                               "Extremely verbose debugging");
 
   *options << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                          "set-from-meta", 
@@ -272,11 +275,13 @@ void Fit::runFit(const QString &, QList<const DataSet *> datasets,
   processOptions(opts);
   bool debug = false;
   updateFromOptions(opts, "debug", debug);
+  bool debug2 = false;
+  updateFromOptions(opts, "debug2", debug2);
   QString extraParams;
   updateFromOptions(opts, "extra-parameters", extraParams);
   QStringList ep = extraParams.split(",", QString::SkipEmptyParts);
   
-  FitData data(this, datasets, debug, ep);
+  FitData data(this, datasets, debug, ep, debug2);
   checkDatasets(&data);
 
   QString loadParameters;

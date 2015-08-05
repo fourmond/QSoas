@@ -34,6 +34,7 @@ class OutFile;
 class FitParametersFile;
 
 class CurveData;
+class DataSet;
 
 /// Holds parameters of a fit (possibly multi-buffer), the way the
 /// user edits them.
@@ -42,6 +43,8 @@ class CurveData;
 /// for exporting (and importing ?) them and so on.
 ///
 /// @todo Handle import (which is quite different from load).
+///
+/// @todo This should be renamed FitWorkspace
 class FitParameters {
 
   /// The underlying FitData object.
@@ -168,6 +171,12 @@ public:
   FitParameters(FitData * data);
   ~FitParameters();
 
+  /// @name Parameter edition
+  ///
+  /// Set of functions to set/retrieve parameter values. 
+  /// 
+  /// @{
+  
   /// Whether or not the given parameter is global
   bool isGlobal(int index) const;
 
@@ -196,16 +205,22 @@ public:
   double getParameterError(int index, int dataset, 
                            double confidenceThreshold = 0.975) const;
 
+  /// Returns the parameters for the numbered dataset
+  QHash<QString, double> parametersForDataset(int ds) const;
+
+  /// @}
+
   /// Returns the underlying data
   const FitData * data() const {
     return fitData;
   };
 
-
-  /// Returns the parameters for the numbered dataset
-  QHash<QString, double> parametersForDataset(int ds) const;
-
-  /// Various utility functions:
+  /// @name Computed functions handling
+  ///
+  /// A set of functions to retrieve the values of the computed
+  /// functions (and recompute them)
+  ///
+  /// @{
 
 
   /// Recompute data stored in the storage vector of fitData. Also
@@ -218,6 +233,18 @@ public:
 
   /// Returns the computed subfunctions
   QList<Vector> computeSubFunctions();
+
+  /// The data computed from the fit function.
+  ///
+  /// This function does not trigger a computation, you should use
+  /// recompute() for that.
+  DataSet * computedData(int i, bool residuals = false);
+
+  /// Push computed datasets onto the stack
+  void pushComputedData(const QStringList & flags, bool res = false);
+
+
+  /// @}
 
   /// Translates the current state into FitData parameters.
   void sendDataParameters();
@@ -236,6 +263,13 @@ public:
   /// guess.
   void resetToInitialGuess(int ds);
 
+
+  /// @name IO functions
+  ///
+  /// Functions to read/write parameter files
+  ///
+  /// @{
+  
   /// Export to the target stream. This essentially exports raw
   /// values, thereby losing information about what was fixed and what
   /// wasn't.
@@ -259,13 +293,21 @@ public:
   void saveParameters(QIODevice * out) const;
 
   /// Load from the given stream
-  void loadParameters(QIODevice * out, int targetDS = -1, int sourceDS = 0);
+  void loadParameters(QIODevice * in, int targetDS = -1, int sourceDS = 0);
+
+  /// Load from the file
+  void loadParameters(const QString & fn, int targetDS = -1, int sourceDS = 0);
 
   /// Loads the parameter values, taking into account the
   /// perpendicular coordinates when applicable.
-  void loadParametersValues(QIODevice * out);
+  void loadParametersValues(QIODevice * in);
+
+  /// Overridden version 
+  void loadParametersValues(const QString & fn);
 
 
+  /// @}
+  
   /// Fill up a QTableWidget with the contents of the covariance
   /// matrix. If not in raw mode, display the correlation coefficients
   /// and the square root of the diagonal parameters.

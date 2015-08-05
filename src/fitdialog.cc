@@ -691,25 +691,6 @@ void FitDialog::cancelFit()
   shouldCancelFit = true;
 }
 
-DataSet *  FitDialog::simulatedData(int i, bool residuals)
-{
-  const DataSet * base = data->datasets[i];
-  gsl_vector_view v =  data->viewForDataset(i, data->storage);
-  Vector ny = Vector::fromGSLVector(&v.vector);
-  if(residuals)
-    ny = base->y() - ny;
-  DataSet * ds = base->derivedDataSet(ny, (residuals ? "_delta_" : "_fit_")
-                                      + data->fit->fitName(false) + ".dat");
-  
-  ds->setMetaData("fit", data->fit->fitName());
-  QHash<QString, double> params = parameters.parametersForDataset(i);
-  for(QHash<QString, double>::iterator i = params.begin(); 
-      i != params.end(); i++)
-    ds->setMetaData(i.key(), i.value());
-
-  return ds;
-}
-
 void FitDialog::pushSubFunctions()
 {
   int base = 0;
@@ -732,23 +713,18 @@ void FitDialog::pushSubFunctions()
                 
 void FitDialog::pushSimulatedCurves(const QStringList & flags)
 {
-  for(int i = 0; i < views.size(); i++) {
-    soas().pushDataSet(simulatedData(i));
-    if(flags.size() > 0)
-      soas().currentDataSet()->setFlags(flags);
-  }
+  parameters.pushComputedData(flags);
 }
 
 void FitDialog::pushResiduals()
 {
-  for(int i = 0; i < views.size(); i++)
-    soas().pushDataSet(simulatedData(i, true));
+  parameters.pushComputedData(QStringList(), true);
 }
 
 void FitDialog::pushCurrentCurve()
 {
   if(currentIndex >= 0)
-    soas().pushDataSet(simulatedData(currentIndex));
+    soas().pushDataSet(parameters.computedData(currentIndex));
 }
 
 void FitDialog::saveSimulatedCurves()
@@ -756,7 +732,7 @@ void FitDialog::saveSimulatedCurves()
   QList<DataSet *> newDs;
   QStringList fileNames;
   for(int i = 0; i < views.size(); i++) {
-    DataSet * ds = simulatedData(i);
+    DataSet * ds = parameters.computedData(i);
     newDs << ds;
     fileNames << ds->name;
   }
@@ -775,7 +751,7 @@ void FitDialog::saveSimulatedCurves()
 void FitDialog::saveParameters()
 {
   QString save = 
-    QFileDialog::getSaveFileName(this, tr("Save parameters"));
+     QFileDialog::getSaveFileName(this, tr("Save parameters"));
   if(save.isEmpty())
     return;
            
@@ -844,18 +820,13 @@ void FitDialog::loadParametersForCurrent()
 void FitDialog::loadParametersFile(const QString & file, int targetDS, 
                                    bool recompute, bool onlyVals)
 {
-  /// @todo When splitting this, the exceptions handling should be a
-  /// lot better than just that.
-  QFile f(file);
-  Utils::open(&f,QIODevice::ReadOnly);
-
   QString msg;
   try {
     message(QString("Loading from file %1...").arg(file));
     if(onlyVals)
-      parameters.loadParametersValues(&f);
+      parameters.loadParametersValues(file);
     else
-      parameters.loadParameters(&f, targetDS);
+      parameters.loadParameters(file, targetDS);
     updateEditors();
     if(recompute)
       internalCompute();
@@ -870,25 +841,11 @@ void FitDialog::loadParametersFile(const QString & file, int targetDS,
   message(msg);
 }
 
-void FitDialog::overrideParameter(const QString & name, double value)
-{
-  try {
-    parameters.setValue(name, value);
-    updateEditors();
-    compute();
-  }
-  catch (const Exception & e) {
-  }
-}
-
 void FitDialog::setParameterValue(const QString & name, double value, int ds)
 {
   parameters.setValue(name, value, ds);
   updateEditors();
 }
-
-
-
 
 
 void FitDialog::promptExport(bool errors)

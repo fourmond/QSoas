@@ -32,6 +32,7 @@
 
 #include <fitdata.hh>
 #include <fitdialog.hh>
+#include <fitparameters.hh>
 
 #include <terminal.hh>
 
@@ -361,16 +362,21 @@ void Fit::computeFit(const QString &, QString file,
   bool reexport = false;
   updateFromOptions(opts, "reexport", reexport);
 
-  FitData data(this, datasets, false, ep); // In case we do need them !
+  FitData data(this, datasets, false, ep); 
   checkDatasets(&data);
-  FitDialog dlg(&data);
+
+  FitParameters ws(&data);
+
+  // FitDialog dlg(&data);
+  // if(reexport)
+  //   dlg.setFitEngineFactory("odrpack"); // The only one supporting that !
   if(reexport)
-    dlg.setFitEngineFactory("odrpack"); // The only one supporting that !
+    throw RuntimeError("Reexporting not supported anymore");
 
   QStringList flags;
   updateFromOptions(opts, "flags", flags);
 
-  dlg.loadParametersFile(file, -1, false);
+  ws.loadParameters(file, -1, false);
 
 
 
@@ -391,16 +397,17 @@ void Fit::computeFit(const QString &, QString file,
                       << "'" << endl;
         continue;
       }
-      dlg.overrideParameter(spec[0], value);
+      ws.setValue(spec[0], value);
     }
   }
-  dlg.compute();
+  
+  ws.recompute();
   if(reexport) {
-    dlg.recomputeErrors();
-    dlg.exportToOutFileWithErrors();
+    // dlg.recomputeErrors();
+    // dlg.exportToOutFileWithErrors();
   }
   else
-    dlg.pushSimulatedCurves(flags);
+    ws.pushComputedData(flags);
 }
 
 

@@ -341,6 +341,36 @@ QList<Vector> FitParameters::computeSubFunctions()
   return ret;
 }
 
+DataSet *  FitParameters::computedData(int i, bool residuals)
+{
+  const DataSet * base = fitData->datasets[i];
+  gsl_vector_view v =  fitData->viewForDataset(i, fitData->storage);
+  Vector ny = Vector::fromGSLVector(&v.vector);
+  if(residuals)
+    ny = base->y() - ny;
+  DataSet * ds = base->derivedDataSet(ny, (residuals ? "_delta_" : "_fit_")
+                                      + fitData->fit->fitName(false) + ".dat");
+  
+  ds->setMetaData("fit", fitData->fit->fitName());
+  QHash<QString, double> params = parametersForDataset(i);
+  for(QHash<QString, double>::iterator i = params.begin(); 
+      i != params.end(); i++)
+    ds->setMetaData(i.key(), i.value());
+
+  return ds;
+}
+
+void FitParameters::pushComputedData(const QStringList & flags, bool res)
+{
+  for(int i = 0; i < datasets; i++) {
+    DataSet * ds = computedData(i, res);
+    if(flags.size() > 0)
+      ds->setFlags(flags);
+    soas().pushDataSet(ds);
+  }
+}
+
+
 void FitParameters::sendDataParameters()
 {
   fitData->parameters.clear();
@@ -652,6 +682,14 @@ void FitParameters::setValue(const QString & name, double value, int dsi)
       setValue(idx, i, value);
 }
 
+void FitParameters::loadParameters(const QString & file, 
+                                   int targetDS, int sourceDS)
+{
+  QFile f(file);
+  Utils::open(&f,QIODevice::ReadOnly);
+  loadParameters(&f, targetDS, sourceDS);
+}
+
 void FitParameters::loadParameters(QIODevice * source, 
                                    int targetDS, int sourceDS)
 {
@@ -764,6 +802,13 @@ void FitParameters::loadParametersValues(QIODevice * source)
   loadParametersValues(params);
 }
 
+void FitParameters::loadParametersValues(const QString & file)
+{
+  QFile f(file);
+  Utils::open(&f,QIODevice::ReadOnly);
+  loadParametersValues(&f);
+}
+  
 void FitParameters::resetAllToInitialGuess()
 {
   fitData->fit->initialGuess(fitData, values);

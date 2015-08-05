@@ -300,6 +300,10 @@ void QSoasFitEngine::trialStep(double l, gsl_vector * params,
 
   fitData->f(params, func);
   gsl_blas_ddot(func, func, res);
+
+  // If the residuals are NaN, throw an exception
+  if(std::isnan(*res))
+    throw RuntimeError("NaN in residuals");
 }
 
 int QSoasFitEngine::iterate() 

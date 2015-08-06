@@ -26,7 +26,7 @@
 
 
 void PerDatasetFit::function(const double * parameters,
-                             FitData * data, gsl_vector * target)
+                             FitData * data, gsl_vector * target) const
 {
   int nb_ds_params = data->parametersPerDataset();
   for(int i = 0; i < data->datasets.size(); i++) {
@@ -38,7 +38,7 @@ void PerDatasetFit::function(const double * parameters,
 
 void PerDatasetFit::functionForDataset(const double * parameters,
                                        FitData * data, gsl_vector * target,
-                                       int i)
+                                       int i) const
 {
   int nb_ds_params = data->parametersPerDataset();
   gsl_vector_view dsView = data->viewForDataset(i, target);
@@ -46,7 +46,7 @@ void PerDatasetFit::functionForDataset(const double * parameters,
            data->datasets[i], &dsView.vector);
 }
 
-void PerDatasetFit::initialGuess(FitData * data, double * guess)
+void PerDatasetFit::initialGuess(FitData * data, double * guess) const
 {
   int nb_ds_params = data->parametersPerDataset();
   for(int i = 0; i < data->datasets.size(); i++)
@@ -59,31 +59,11 @@ PerDatasetFit::~PerDatasetFit()
 {
 }
 
-int PerDatasetFit::parametersCheck(const double * parameters,
-                                   FitData * data)
-{
-  int nb_ds_params = data->parametersPerDataset();
-  for(int i = 0; i < data->datasets.size(); i++) {
-    int status = parametersCheck(parameters + nb_ds_params * i,
-                                 data, data->datasets[i]);
-    if(status)
-      return status;
-  }
-  return GSL_SUCCESS;
-}
-
-int PerDatasetFit::parametersCheck(const double * /*parameters*/,
-                                   FitData * /*data*/,
-                                   const DataSet * /*ds*/)
-{
-  return GSL_SUCCESS;
-}
-
 
 void PerDatasetFit::computeSubFunctions(const double * parameters,
                                    FitData * data, 
                                    QList<Vector> * targetData,
-                                   QStringList * targetAnnotations)
+                                   QStringList * targetAnnotations) const
 {
   int nb_ds_params = data->parametersPerDataset();
   targetData->clear();
@@ -110,7 +90,7 @@ void PerDatasetFit::computeSubFunctions(const double * /*parameters*/,
                                         FitData * /*data*/, 
                                         const DataSet * /*ds*/,
                                         QList<Vector> * /*targetData*/,
-                                        QStringList * /*targetAnnotations*/)
+                                        QStringList * /*targetAnnotations*/) const
 {
   throw InternalError("subfunctions not implemented");
 }
@@ -122,7 +102,7 @@ void PerDatasetFit::computeSubFunctions(const double * /*parameters*/,
 void FunctionFit::function(const double * parameters,
                            FitData * data, 
                            const DataSet * ds,
-                           gsl_vector * target)
+                           gsl_vector * target) const
 {
   const Vector & xvalues = ds->x();
   prepare(parameters, data, ds);
@@ -133,7 +113,7 @@ void FunctionFit::function(const double * parameters,
 
 void FunctionFit::prepare(const double * /*parameters*/, 
                           FitData * /*data*/, 
-                          const DataSet * /*ds*/)
+                          const DataSet * /*ds*/) const
 {
 }
 

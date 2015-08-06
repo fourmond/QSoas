@@ -31,39 +31,47 @@
 #include <terminal.hh>
 
 #include <soas.hh>
+#include <fitdata.hh>
 
 #include <gsl/gsl_const_mksa.h>
 
 /// A fit of a sum of nersnt equations.
 class NernstFit : public FunctionFit {
-
-  /// The number of species
-  QList<int> number;
-
 protected:
 
-  virtual void processOptions(const CommandOptions & opts)
+  class Storage : public FitInternalStorage {
+  public:
+    /// The number of species
+    QList<int> number;
+
+  };
+
+
+
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const
   {
     int species = -1;
-    number.clear();
-    number << 2;
+    Storage * s = static_cast<Storage*>(data->fitStorage);
+    s->number.clear();
+    s->number << 2;
     if(opts.contains("states"))
-      updateFromOptions(opts, "states", number);
+      updateFromOptions(opts, "states", s->number);
     updateFromOptions(opts, "species", species);
     if(species > 1) {
-      if(number.size() != 1)
+      if(s->number.size() != 1)
         Terminal::out << "/species specified, but /states already gives several species, ignoring" << endl;
       else {
         while(--species > 0)
-          number << number[0];
+          s->number << s->number[0];
       }
     }
   }
 
   
-  virtual QString optionsString() const {
+  virtual QString optionsString(FitData * data) const {
+    Storage * s = static_cast<Storage*>(data->fitStorage);
     return QString("%1 species: %2").
-      arg(number.size()).arg("??");
+      arg(s->number.size()).arg("??");
   }
 
   /// Returns a name suitable for the given redox state of the numbered state
@@ -78,15 +86,25 @@ protected:
   };
 
 public:
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    return new Storage;
+  };
+
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int ds = -1) const {
+    return deepCopy<Storage>(source);
+  };
+
+
 
   /// Numbering: 0 is the most reduced species.
-  virtual QList<ParameterDefinition> parameters() const {
+  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+    Storage * s = static_cast<Storage*>(data->fitStorage);
     QList<ParameterDefinition> defs;
 
     defs << ParameterDefinition("temperature", true);
 
-    for(int i = 0; i < number.size(); i++) {
-      int nb = number[i];
+    for(int i = 0; i < s->number.size(); i++) {
+      int nb = s->number[i];
       QChar id('a' + i);
 
       // Absorbances
@@ -108,7 +126,8 @@ public:
   };
 
   virtual double function(const double * a, 
-                          FitData * , double x) {
+                          FitData * data, double x) {
+    Storage * s = static_cast<Storage*>(data->fitStorage);
 
 
     double fara = GSL_CONST_MKSA_FARADAY /
@@ -117,8 +136,9 @@ public:
 
     double rv = 0;
     int offset = 1;
-    for(int j = 0; j < number.size(); j++) {
-      int nb = number[j];
+    int nbs = s->number.size();
+    for(int j = 0; j < nbs; j++) {
+      int nb = s->number[j];
       const double * ampl = a+offset;
       const double * couples = ampl + nb;
       offset += 3*nb - 2;
@@ -140,17 +160,18 @@ public:
     return rv;
   };
 
-  virtual void initialGuess(FitData * /*data*/, 
+  virtual void initialGuess(FitData * data, 
                             const DataSet *ds,
                             double * a)
   {
+    Storage * s = static_cast<Storage*>(data->fitStorage);
     double *t = a-1;
     *(++t) = soas().temperature();
     const double ymin = ds->y().min();
     const double ymax = ds->y().max();
 
-    for(int j = 0; j < number.size(); j++) {
-      int nb = number[j];
+    for(int j = 0; j < s->number.size(); j++) {
+      int nb = s->number[j];
       for(int i = 0; i < nb; i++)
         *(++t) = (j == 0 || i != 0 ? ymin + i *(ymax - ymin)/(nb-1) : 0);
     

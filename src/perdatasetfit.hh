@@ -33,15 +33,15 @@ class PerDatasetFit : public Fit {
 public:
   /// Redefined to wrap to a call to the per-dataset function
   virtual void function(const double * parameters,
-                        FitData * data, gsl_vector * target);
+                        FitData * data, gsl_vector * target) const;
 
   /// Reimplemented for performance :
   virtual void functionForDataset(const double * parameters,
                                   FitData * data, gsl_vector * target, 
-                                  int dataset);
+                                  int dataset) const;
 
   /// Redefined to wrap to a call to the per-dataset function
-  virtual void initialGuess(FitData * data, double * guess);
+  virtual void initialGuess(FitData * data, double * guess) const;
 
   /// Computes the function for a single data set.
   ///
@@ -50,23 +50,13 @@ public:
   virtual void function(const double * parameters,
                         FitData * data, 
                         const DataSet * ds,
-                        gsl_vector * target) = 0;
+                        gsl_vector * target) const = 0;
 
 
   /// Provides an initial guess for the given dataset:
   virtual void initialGuess(FitData * data, 
                             const DataSet * ds,
-                            double * guess) = 0;
-
-  /// The global reimplemented version
-  virtual int parametersCheck(const double * parameters,
-                              FitData * data);
-
-  /// The local one to be reimplemented if that matters.
-  virtual int parametersCheck(const double * parameters,
-                              FitData * data,
-                              const DataSet * ds);
-
+                            double * guess) const = 0;
 
   PerDatasetFit(const QString & n, const QString & sd, const QString & desc,
       int min = 1, int max = -1, bool mkCmds = true) :
@@ -80,13 +70,13 @@ public:
   virtual void computeSubFunctions(const double * parameters,
                                    FitData * data, 
                                    QList<Vector> * targetData,
-                                   QStringList * targetAnnotations);
+                                   QStringList * targetAnnotations) const;
 
   virtual void computeSubFunctions(const double * parameters,
                                    FitData * data, 
                                    const DataSet * ds,
                                    QList<Vector> * targetData,
-                                   QStringList * targetAnnotations);
+                                   QStringList * targetAnnotations) const;
 
 };
 
@@ -98,16 +88,16 @@ public:
   virtual void function(const double * parameters,
                         FitData * data, 
                         const DataSet * ds,
-                        gsl_vector * target);
+                        gsl_vector * target) const;
 
   /// Computes the Y value for the given \a x.
   virtual double function(const double * parameters, 
-                          FitData * data, double x) = 0;
+                          FitData * data, double x) const = 0;
 
   /// Prepare internal parameters for a given dataset. Called at the
   /// beginning of each evaluation over a given dataset.
   virtual void prepare(const double * parameters, FitData * data, 
-                       const DataSet * ds);
+                       const DataSet * ds) const;
 
   FunctionFit(const QString &n, const QString &sd, const QString &desc,
       int min = 1, int max = -1, bool mkCmds = true) :

@@ -69,27 +69,48 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
       }
       continue;
     }
-    /// @todo A manual split would be much much faster (no memory
-    /// allocation). I think DVector::fast_fancy_read greatly
-    /// outperforms this, but well...
-    QStringList elements = line.trimmed().split(separatorRE);
-    /// @todo customize trimming.
-    while(curCols->size() < elements.size()) {
-      *curCols << Vector(numberRead, 0.0/0.0);
-      curCols->last().reserve(10000); // Most files won't be as large
-    }
+
+    // Index in string
+    int idx = 0;
+    int sx = line.size();
+
+    // destination index
+    int di = 0;
+
+    /// First strip white space. @todo make that optional
+    while(idx < sx && line[idx].isSpace())
+      idx++;
+    while(sx >= idx && line[sx-1].isSpace())
+      sx--;
+
+    QString s;
     int nbNans = 0;
-    for(int i = 0; i < curCols->size(); i++) {
+    while(true) {
+      int nd = separatorRE.indexIn(line, idx);
+      if(nd < 0 || nd > sx)
+        nd = sx;
+      s = line.mid(idx, nd-idx);
+
+      if(curCols->size() <= di) {
+        *curCols << Vector(numberRead, 0.0/0.0);
+        curCols->last().reserve(10000); // Most files won't be as large
+      }
       bool ok = false;
-      QString s = elements.value(i, "");
       if(! decimalSep.isEmpty())
         s.replace(decimalSep, ".");
       double value = locale.toDouble(s, &ok);
+      // about 2 times slower than QString.toDouble(), which is weird.
+      // double value = s.toDouble(&ok);
       if(! ok)
         value = 0.0/0.0; /// @todo customize
       if(value != value)
         nbNans++;
-      (*curCols)[i] << value;
+      (*curCols)[di] << value;
+      di++;
+      if(nd >= sx)
+        break;
+      else
+        idx = nd + separatorRE.matchedLength();
     }
     // We remove lines fully made of NaNs
     if(nbNans == curCols->size()) {

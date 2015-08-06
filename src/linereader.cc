@@ -19,7 +19,7 @@
 #include <headers.hh>
 #include <linereader.hh>
 
-LineReader::LineReader(QIODevice * dev) : hasPending(false)
+LineReader::LineReader(QIODevice * dev) : hasPending(false), longestLine(100)
 {
   source = new QTextStream(dev);
   ownSource = true;
@@ -73,18 +73,21 @@ bool LineReader::atEnd() const
 QString LineReader::readLine(bool keepCR)
 {
   QString ret;
+  ret.reserve(longestLine);
+  static QChar _cr('\r');
+  static QChar _lf('\n');
   try {
     while(! atEnd()) {
       QChar c = getc();
-      if(c == '\r') {
+      if(c == _cr) {
         c = peekc();
-        if(c == '\n')
+        if(c == _lf)
           getc();
         break;
       }
-      if(c == '\n') {
+      if(c == _lf) {
         c = peekc();
-        if(c == '\r')
+        if(c == _cr)
           getc();
         break;
       }
@@ -94,6 +97,9 @@ QString LineReader::readLine(bool keepCR)
   catch(const LREOF & s) {
   }
   if(keepCR)
-    ret.append('\n');
+    ret.append(_lf);
+  int sz = ret.size();
+  if(sz > longestLine)
+    longestLine = sz;
   return ret;
 }

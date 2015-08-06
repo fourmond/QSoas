@@ -48,6 +48,11 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
 
   QLocale locale = QLocale::c(); /// @todo offer the possibility to customize.
 
+  // A reasonable size estimate
+  int size_estimate = source->device()->size() / 15;
+  if(size_estimate < 100)
+    size_estimate = 100;
+
   LineReader s(source);
   int numberRead = 0;
   while(! s.atEnd()) {
@@ -93,7 +98,7 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
 
       if(curCols->size() <= di) {
         *curCols << Vector(numberRead, 0.0/0.0);
-        curCols->last().reserve(10000); // Most files won't be as large
+        curCols->last().reserve(size_estimate); // Most files won't be as large
       }
       bool ok = false;
       if(! decimalSep.isEmpty())

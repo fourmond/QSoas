@@ -60,7 +60,7 @@ static Group save("save", 0,
 
 static void quitCommand(const QString & name)
 {
-  if( name != "quit") {
+  if(name != "quit") {
     if(! Utils::askConfirmation(QObject::tr("Are you sure you "
                                             "want to quit ?"))) {
       Terminal::out << "Great !" << endl;
@@ -748,5 +748,34 @@ sf("startup-files", // command name
    &sfO, // options
    "Startup files",
    "Handle startup files");
+
+//////////////////////////////////////////////////////////////////////
+
+// A rudimentary timer
+
+void timerCommand(const QString &, const CommandOptions & )
+{
+  static QDateTime time;
+  if(time.isValid()) {
+    qint64 dt = time.msecsTo(QDateTime::currentDateTime());
+    time = QDateTime();
+    Terminal::out << dt*0.001 << " seconds elapsed since timer start" << endl;
+  }
+  else {
+    time = QDateTime::currentDateTime();
+    Terminal::out << "Starting timer" << endl;
+  }
+}
+
+
+static Command 
+tm("timer", // command name
+   effector(timerCommand), // action
+   "file",  // group name
+   NULL, // arguments
+   NULL, // options
+   "Timer",
+   "Start/stop timer");
+
 
 

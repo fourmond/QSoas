@@ -68,7 +68,7 @@ Fit * Fit::namedFit(const QString & name)
 
 void Fit::functionForDataset(const double * parameters,
                              FitData * data, gsl_vector * target, 
-                             int /*dataset*/)
+                             int /*dataset*/) const
 {
   /// Defaults to all datasets at once
   function(parameters, data, target);
@@ -90,14 +90,31 @@ ArgumentList * Fit::fitSoftOptions() const
   return NULL;
 }
 
-CommandOptions Fit::currentSoftOptions() const
+CommandOptions Fit::currentSoftOptions(FitData * /*data*/) const
 {
   return CommandOptions();
 }
 
-void Fit::processSoftOptions(const CommandOptions & opts)
+void Fit::processSoftOptions(const CommandOptions &, FitData * ) const
 {
 }
+
+void Fit::processOptions(const CommandOptions & /*opts*/, FitData * /*data*/) const
+{
+  // No specific option to process by default.
+}
+
+FitInternalStorage * Fit::allocateStorage(FitData * ) const
+{
+  return NULL;
+}
+
+FitInternalStorage * Fit::copyStorage(FitData *, FitInternalStorage *, int) const
+{
+  return NULL;
+}
+
+
 
 
 /// @todo This function probably needs to be rewritten (with completely
@@ -242,10 +259,6 @@ void Fit::makeCommands(ArgumentList * args,
   }
 }
 
-void Fit::processOptions(const CommandOptions & /*opts*/)
-{
-  // No specific option to process by default.
-}
 
 
 void Fit::checkDatasets(const FitData * data) const
@@ -272,7 +285,6 @@ void Fit::runFitCurrentDataSet(const QString & n, const CommandOptions & opts)
 void Fit::runFit(const QString &, QList<const DataSet *> datasets,
                  const CommandOptions & opts)
 {
-  processOptions(opts);
   bool debug = false;
   updateFromOptions(opts, "debug", debug);
   bool debug2 = false;
@@ -282,6 +294,7 @@ void Fit::runFit(const QString &, QList<const DataSet *> datasets,
   QStringList ep = extraParams.split(",", QString::SkipEmptyParts);
   
   FitData data(this, datasets, debug, ep, debug2);
+  processOptions(opts, &data);
   checkDatasets(&data);
 
   QString loadParameters;
@@ -352,7 +365,6 @@ void Fit::computeFit(const QString &, QString file,
                      QList<const DataSet *> datasets,
                      const CommandOptions & opts)
 {
-  processOptions(opts);
 
   // Additional option: overrides
 
@@ -368,6 +380,7 @@ void Fit::computeFit(const QString &, QString file,
   updateFromOptions(opts, "reexport", reexport);
 
   FitData data(this, datasets, false, ep); 
+  processOptions(opts, &data);
   checkDatasets(&data);
 
   FitParameters ws(&data);
@@ -421,18 +434,18 @@ Fit::~Fit()
 }
 
 
-QString Fit::annotateDataSet(int /*idx*/) const
+QString Fit::annotateDataSet(int /*idx*/, FitData * /*data*/) const
 {
   return QString();
 }
 
 
-bool Fit::hasSubFunctions() const
+bool Fit::hasSubFunctions(FitData * /*data*/) const
 {
   return false;
 }
 
-bool Fit::displaySubFunctions() const
+bool Fit::displaySubFunctions(FitData * /*data*/) const
 {
   return true;
 }
@@ -440,7 +453,7 @@ bool Fit::displaySubFunctions() const
 void Fit::computeSubFunctions(const double * /*parameters*/,
                               FitData * /*data*/, 
                               QList<Vector> * /*targetData*/,
-                              QStringList * /*targetAnnotations*/)
+                              QStringList * /*targetAnnotations*/) const
 {
   throw InternalError("subfunctions are not implemented");
 }

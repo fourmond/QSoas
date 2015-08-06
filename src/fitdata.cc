@@ -55,6 +55,8 @@ FitData::FitData(Fit * f, const QList<const DataSet *> & ds, bool d,
   parametersStorage = gsl_vector_alloc(fullParameterNumber());
 
   computeWeights();
+
+  fitStorage = f->allocateStorage(this);
 }
 
 bool FitData::checkWeightsConsistency() const
@@ -125,6 +127,7 @@ FitData::~FitData()
     gsl_vector_free(pointWeights);
   }
   freeSolver();
+  delete fitStorage;
 }
 
 void FitData::weightVector(gsl_vector * tg)
@@ -480,6 +483,8 @@ void FitData::initializeSolver(const double * initialGuess,
           d->parameters << p2;
         }
       }
+      delete d->fitStorage;
+      d->fitStorage = fit->copyStorage(this, fitStorage, i);
 
       d->initializeSolver(initialGuess + 
                           (i * parameterDefinitions.size()), feit, opts);

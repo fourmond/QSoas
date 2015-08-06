@@ -33,6 +33,9 @@ class FitParameter;
 class FreeParameter;
 class DataSet;
 class ParameterDefinition;
+class FitInternalStorage;
+
+                     
 
 /// Fit data. This data will be carried around using the void *
 /// argument to the function calls.
@@ -76,7 +79,7 @@ private:
   /// Dump the fit parameters if debug is on
   void dumpFitParameters(const double * params) const;
 
-  /// Dumpts the structure of the parameters, ie what parameters are
+  /// Dumps the structure of the parameters, ie what parameters are
   /// fixed, how they unpack and so on...
   void dumpFitParameterStructure() const;
 
@@ -109,6 +112,9 @@ public:
   /// A second debug flag. Used for very very very verbose dumping.
   bool debug2;
 
+  /// A storage space allocated by the fit for storing fit options, 
+  FitInternalStorage * fitStorage;
+
   /// The datasets holding the data.
   QList<const DataSet *> datasets;
 
@@ -139,10 +145,6 @@ public:
   /// The residuals, as reported by the FitEngine.
   double residuals();
 
-
-  /// Push parameters -- why not ?
-  FitData & operator<<(const FitParameter & param) __attribute__ ((deprecated));
-  FitData & operator<<(FitParameter * param) __attribute__ ((deprecated));
 
   /// All parameters
   PossessiveList<FitParameter> parameters;

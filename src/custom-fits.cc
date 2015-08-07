@@ -47,7 +47,6 @@ public:
   static QStringList splitFormulas(const QString & fms) {
     return fms.split("|");
   };
-protected:
 
   /// The last formula used.
   ///
@@ -105,7 +104,7 @@ protected:
   }
 
   void initialGuessForDataset(const DataSet * ds,
-                              double * a)
+                              double * a) const
   {
     for(int i = 0; i < params.size(); i++)
       a[i] = paramGuess(params[i], ds);
@@ -125,7 +124,7 @@ protected:
                       const DataSet * ds,
                       FitData *data, 
                       gsl_vector *target,
-                      int formulaIndex = 0) {
+                      int formulaIndex = 0) const {
     int k = 0;
     int nbparams = data->parametersPerDataset();
 
@@ -167,7 +166,34 @@ protected:
 ///
 /// @todo In addition to x as function parameter, provide i (or
 /// anything else) as the index ?
-class MultiBufferArbitraryFit : public Fit, public  FormulaBasedFit {
+class MultiBufferArbitraryFit : public Fit {
+
+  class Storage : public FitInternalStorage {
+  public:
+    FormulaBasedFit fbf;
+  };
+
+
+  /// The static formula, for custom fits. If NULL, then 
+  FormulaBasedFit * fbf;
+
+  FormulaBasedFit * getFbf(FitData * data) const {
+    if(fbf)
+      return fbf;
+    else
+      return &storage<Storage>(data)->fbf;
+  };
+  
+protected:
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    return new Storage;
+  };
+
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int ds = -1) const {
+    return deepCopy<Storage>(source);
+  };
+  
+  
 private:
 
 
@@ -175,12 +201,15 @@ private:
               QList<const DataSet *> datasets,
               const CommandOptions & opts)
   {
-    Terminal::out << "Fitting using formula '" << formula << "'" << endl;
-    parseFormulas(formula);
-    lastFormula = formula;
-    Terminal::out << " -> detected parameters:  " << params.join(", ") 
-                  << endl;
-    Fit::runFit(name, datasets, opts);
+
+    Fit::runFit([this, &formula] (FitData * data) {
+        FormulaBasedFit * f = getFbf(data);
+        Terminal::out << "Fitting using formula '" << formula << "'" << endl;
+        f->parseFormulas(formula);
+        f->lastFormula = formula;
+        Terminal::out << " -> detected parameters:  " << f->params.join(", ") 
+                      << endl;
+      }, name, datasets, opts);
   }
 
   void runFitCurrentDataSet(const QString & n, 
@@ -197,12 +226,14 @@ private:
 
 protected:
 
-  virtual QString optionsString() const {
-    return "formula: " + lastFormula;
+  virtual QString optionsString(FitData * data) const {
+    FormulaBasedFit * f = getFbf(data);
+    return "formula: " + f->lastFormula;
   };
 
-  virtual void processOptions(const CommandOptions & ) {
-    parseFormulas(lastFormula);
+  virtual void processOptions(const CommandOptions &, FitData * data ) const {
+    FormulaBasedFit * f = getFbf(data);
+    f->parseFormulas(f->lastFormula);
   };
 
 
@@ -210,25 +241,27 @@ protected:
 public:
 
   virtual void function(const double *a, 
-                        FitData *data, gsl_vector *target) {
+                        FitData *data, gsl_vector *target) const {
+    FormulaBasedFit * f = getFbf(data);
     int nbparams = data->parametersPerDataset();
 
     for(int i = 0; i < data->datasets.size(); i++) {
       gsl_vector_view v = data->viewForDataset(i, target);
 
-      computeDataSet(a + i * nbparams, 
+      f->computeDataSet(a + i * nbparams, 
                      data->datasets[i],
                      data, &v.vector,
-                     i % formulas.size());
+                     i % f->formulas.size());
     }
   };
 
   virtual void initialGuess(FitData * data, 
-                            double * a)
+                            double * a) const
   {
+    FormulaBasedFit * f = getFbf(data);
     int nbparams = data->parametersPerDataset();
     for(int j = 0; j < data->datasets.size(); j++)
-      initialGuessForDataset(data->datasets[j], a + j*nbparams);
+      f->initialGuessForDataset(data->datasets[j], a + j*nbparams);
   };
 
   MultiBufferArbitraryFit() : 
@@ -239,7 +272,8 @@ public:
         "Special parameters: x_0, y_0, temperature, fara.\n"
         "Already defined constants: f, pi",
         1, -1, false)
-  { 
+  {
+    fbf = NULL;
     ArgumentList * al = new 
       ArgumentList(QList<Argument *>()
                    << new StringArgument("formulas", 
@@ -256,35 +290,41 @@ public:
     Fit(name.toLocal8Bit(), 
         QString("Fit: %1").arg(formula).toLocal8Bit(),
         QString("Fit of the formula %1").arg(formula).toLocal8Bit(), 1, -1)
-  { 
+  {
+    fbf = new FormulaBasedFit;
     /// @todo make sure that the fit- command isn't generated for
     /// intrinsically multi-buffer fits.
-    lastFormula = formula;
+    fbf->lastFormula = formula;
   };
 
   virtual void checkDatasets(const FitData * data) const {
-    if(formulas.size() > 1 && formulas.size() != data->datasets.size()) {
+    FormulaBasedFit * f = getFbf(const_cast<FitData*>(data));
+    if(f->formulas.size() > 1 && f->formulas.size() != data->datasets.size()) {
       throw RuntimeError(QString("Fit %1 needs %2 datasets, "
                                  "but got %3").
-                         arg(name).arg(formulas.size()).
+                         arg(name).arg(f->formulas.size()).
                          arg(data->datasets.size()));
     }
       
   };
 
-  virtual QString annotateDataSet(int index) const {
-    if(formulas.size() > 1)
-      return QString("(%1)").arg(formulas[index]);
+  virtual QString annotateDataSet(int index, FitData * data) const {
+    FormulaBasedFit * f = getFbf(data);
+    if(f->formulas.size() > 1)
+      return QString("(%1)").arg(f->formulas[index]);
     else
       return QString();
   };	
 
   const QString & formula() const {
-    return lastFormula;
+    if(! fbf)
+      throw InternalError("Should not get here");
+    return fbf->lastFormula;
   };
 
-  QList<ParameterDefinition> parameters() const {
-    return FormulaBasedFit::parameters();
+  QList<ParameterDefinition> parameters(FitData * data) const {
+    FormulaBasedFit * f = getFbf(data);
+    return f->parameters();
   };
 
 };
@@ -301,12 +341,11 @@ class SingleBufferArbitraryFit : public PerDatasetFit,
 
 protected:
 
-  virtual QString optionsString() const {
+  virtual QString optionsString(FitData * ) const {
     return "formula: " + lastFormula;
   };
 
-  virtual void processOptions(const CommandOptions & ) {
-    parseFormulas(lastFormula);
+  virtual void processOptions(const CommandOptions &, FitData * ) {
     if(formulas.size() > 1)
       throw InternalError("Somehow got to define a single buffer fit "
                           "with several formulas");
@@ -317,13 +356,13 @@ protected:
 public:
 
   virtual void function(const double *parameters, FitData *data, 
-                        const DataSet *ds, gsl_vector *target) {
+                        const DataSet *ds, gsl_vector *target) const {
     computeDataSet(parameters, ds, data, target);
   };
 
   virtual void initialGuess(FitData * /*data*/, 
                             const DataSet * ds,
-                            double * a)
+                            double * a) const
   {
     initialGuessForDataset(ds, a);
   };
@@ -336,9 +375,8 @@ public:
         QString("Fit: %1").arg(formula).toLocal8Bit(),
         QString("Fit of the formula %1").arg(formula).toLocal8Bit(), 1, -1)
   { 
-    /// @todo make sure that the fit- command isn't generated for
-    /// intrinsically multi-buffer fits.
     lastFormula = formula;
+    parseFormulas(lastFormula);
   };
 
 
@@ -346,7 +384,7 @@ public:
     return lastFormula;
   };
 
-  QList<ParameterDefinition> parameters() const {
+  QList<ParameterDefinition> parameters(FitData * ) const {
     return FormulaBasedFit::parameters();
   };
 
@@ -357,9 +395,9 @@ public:
 
 //////////////////////////////////////////////////////////////////////
 
-static QHash<QString, FormulaBasedFit *> customFits;
+static QHash<QString, Fit *> customFits;
 
-static FormulaBasedFit * createCustomFit(const QString & name,
+static Fit * createCustomFit(const QString & name,
                                          const QString & formula,
                                          bool overwrite = false)
 {
@@ -375,7 +413,7 @@ static FormulaBasedFit * createCustomFit(const QString & name,
   }
 
   int nb = FormulaBasedFit::splitFormulas(formula).size();
-  FormulaBasedFit * fit;
+  Fit * fit;
   if(nb > 1)
     fit = new MultiBufferArbitraryFit(name, formula);
   else

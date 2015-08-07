@@ -277,13 +277,10 @@ void loadDocumentationFile(const QString &,
   Terminal::out << "Loading documentation from file " << file << endl;
 
   // Now perform updates
-  QStringList cmds = Command::allCommands();
-
-  for(int i = 0; i < cmds.size(); i++) {
-    Command * cmd = Command::namedCommand(cmds[i]);
-    bool load = cmd->loadDocumentation(str);
-    if(!silent && !load)
-      Terminal::out << "Documentation missing for " << cmds[i] << endl;
+  QStringList missing = Command::loadDocumentation(str);
+  if(!silent) {
+    qSort(missing);
+    Terminal::out << "Documentation missing for commands: " << missing.join(", ") << endl;
   }
 }
 

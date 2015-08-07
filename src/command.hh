@@ -285,11 +285,12 @@ public:
   /// The headings says which level of nesting is used for commands.
   QString & updateDocumentation(QString & str, int headings = 3) const;
 
-  /// Loads the long description from the documentation string
-  ///
-  /// Returns true if documentation was effectively loaded.
-  bool loadDocumentation(const QString & str);
+  /// Sets the long description
+  void setDocumentation(const QString & str);
 
+  /// Loads the documentation from the given string, and returns a
+  /// list of commands for which the documentation was missing.
+  static QStringList loadDocumentation(const QString & str);
 
   /// Returns a simple string describing the command, all its
   /// arguments and options and if it is interactive or not, in a

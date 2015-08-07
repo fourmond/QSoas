@@ -506,19 +506,40 @@ QString & Command::updateDocumentation(QString & str, int level) const
   return str;
 }
 
-bool Command::loadDocumentation(const QString & str)
+QStringList Command::loadDocumentation(const QString & str)
 {
-  QString ret = "\\{::comment\\} description-start: " + cmdName + 
-    " \\{:/\\}\\s*(.*)" + 
-    "\\{::comment\\} description-end: " + cmdName + " \\{:/\\}\\s*";
+  QRegExp re("\\{::comment\\} description-(start|end):\\s*([0-9a-z-]+)\\s*\\{:/\\}\\s*");
 
-  QRegExp re(ret);
-  if(re.indexIn(str, 0) >= 0) {
-    longDesc = re.cap(1);
-    return true;
+  QHash<QString, Command *> cmds = *availableCommands;
+
+  QTextStream o(stdout);
+
+  int idx = 0;
+  int nx = 0;
+
+  int beg = -1;
+  QString cur;
+  while(nx = re.indexIn(str, idx), nx >= 0) {
+    if(re.cap(1) == "start") {
+      beg = nx + re.matchedLength();
+      cur = re.cap(2);
+    } else {
+      if(beg >= 0 && cmds.contains(cur)) {
+        cmds[cur]->longDesc = str.mid(beg, nx - beg);
+        cmds.remove(cmds[cur]->shortCommandName());
+        cmds.remove(cur);
+      }
+    }
+    idx = nx + re.matchedLength();
   }
-  return false;
+  return cmds.keys();
 }
+
+void Command::setDocumentation(const QString & str)
+{
+  longDesc = str;
+}
+
 
 bool Command::isInteractive() const
 {

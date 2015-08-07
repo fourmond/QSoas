@@ -46,6 +46,11 @@ void PerDatasetFit::functionForDataset(const double * parameters,
            data->datasets[i], &dsView.vector);
 }
 
+QString PerDatasetFit::annotateDataSet(int /*idx*/, FitData * /*data*/) const
+{
+  return "";
+}
+
 void PerDatasetFit::initialGuess(FitData * data, double * guess) const
 {
   int nb_ds_params = data->parametersPerDataset();

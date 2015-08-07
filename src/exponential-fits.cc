@@ -56,7 +56,7 @@ protected:
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int ds = -1) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds*/) const {
     return deepCopy<Storage>(source);
   };
 
@@ -329,7 +329,7 @@ protected:
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int ds = -1) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds*/) const {
     return deepCopy<Storage>(source);
   };
 
@@ -393,6 +393,12 @@ public:
     }
     
     return defs;
+  };
+
+  virtual QString optionsString(FitData * data) const {
+    Storage * s = storage<Storage>(data);
+    return QString("%1 steps, %2 exponentials, %3 loss").
+      arg(s->steps.size()).arg(s->exponentials).arg(s->independentLoss ? "independent" : "common");
   };
 
   virtual void function(const double * a, FitData * data, 

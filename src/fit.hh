@@ -205,7 +205,7 @@ public:
   ///
   /// Of course, this function only make sense for fits that treat
   /// buffers differently.
-  virtual QString annotateDataSet(int idx, FitData * data) const;
+  virtual QString annotateDataSet(int idx, FitData * data) const = 0;
 
   /// Prepares an initial guess for all parameters. The \a guess array
   /// is a fully expanded version of the parameters.

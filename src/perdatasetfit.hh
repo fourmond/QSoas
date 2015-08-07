@@ -52,6 +52,10 @@ public:
                         const DataSet * ds,
                         gsl_vector * target) const = 0;
 
+  /// Defined to give nothing by default, as it doesn't make any sense
+  /// for these kinds of fits.
+  virtual QString annotateDataSet(int idx, FitData * data) const;
+
 
   /// Provides an initial guess for the given dataset:
   virtual void initialGuess(FitData * data, 

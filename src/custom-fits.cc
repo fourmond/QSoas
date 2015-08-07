@@ -189,7 +189,7 @@ protected:
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int ds = -1) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds*/) const {
     return deepCopy<Storage>(source);
   };
   
@@ -345,7 +345,7 @@ protected:
     return "formula: " + lastFormula;
   };
 
-  virtual void processOptions(const CommandOptions &, FitData * ) {
+  virtual void processOptions(const CommandOptions &, FitData * ) const {
     if(formulas.size() > 1)
       throw InternalError("Somehow got to define a single buffer fit "
                           "with several formulas");

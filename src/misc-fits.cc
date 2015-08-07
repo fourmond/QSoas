@@ -848,6 +848,14 @@ public:
     updateFromOptions(opts, "first-monotonic", s->firstMonotonic);
   }
 
+  CommandOptions currentSoftOptions(FitData * data) const {
+    Storage * s = storage<Storage>(data);
+    CommandOptions opts;
+    updateOptions(opts, "monotonic", s->monotonic);
+    updateOptions(opts, "first-monotonic", s->firstMonotonic);
+    return opts;
+  }
+
   /// Formula:
   virtual void function(const double * params, FitData * data, 
                         const DataSet * ds , gsl_vector * target) const {

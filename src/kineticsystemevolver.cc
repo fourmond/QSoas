@@ -307,6 +307,13 @@ protected:
     return s;
   };
 
+
+
+  virtual QString optionsString(FitData * data) const {
+    Storage * s = storage<Storage>(data);
+    return QString("system: %1").arg(s->fileName);
+  };
+
   KineticSystem * getSystem(FitData * data) const {
     if(mySystem)
       return mySystem;

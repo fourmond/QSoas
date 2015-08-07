@@ -71,7 +71,7 @@ protected:
   /// Setups a callback that should be called at each time, and will be given
   /// * the time
   /// * the system parameters (to be modified)
-  virtual void setupCallback(const std::function<void (double, double * )> & cb) const = 0;
+  virtual void setupCallback(const std::function<void (double, double * )> & cb, FitData * data) const = 0;
 
   /// @}
 

@@ -218,8 +218,8 @@ SOURCES += src/qmain.cc \
 #        src/combinedfit.cc \
         src/gslfunction.cc \
         src/odesolver.cc \
-        # src/rubyodesolver.cc \
-        # src/kineticsystem.cc \
+        src/rubyodesolver.cc \
+        src/kineticsystem.cc \
         # src/kineticsystemevolver.cc \
         src/graphicssettings.cc \
         src/backtrace.cc \

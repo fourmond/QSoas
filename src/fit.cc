@@ -368,14 +368,19 @@ void Fit::runFit(std::function<void (FitData *)> hook,
       dlg.compute();
   }
 
-  // We now spl
-  
-
-
   dlg.exec();
 }
 
-void Fit::computeFit(const QString &, QString file,
+void Fit::computeFit(const QString &n, QString file,
+                     QList<const DataSet *> datasets,
+                     const CommandOptions & opts)
+{
+  computeFit([](FitData *) {}, n, file, datasets, opts);
+}
+
+
+void Fit::computeFit(std::function<void (FitData *)> hook,
+                     const QString &, QString file,
                      QList<const DataSet *> datasets,
                      const CommandOptions & opts)
 {
@@ -394,6 +399,7 @@ void Fit::computeFit(const QString &, QString file,
   updateFromOptions(opts, "reexport", reexport);
 
   FitData data(this, datasets, false, ep); 
+  hook(&data);
   processOptions(opts, &data);
   data.finishInitialization();
   checkDatasets(&data);

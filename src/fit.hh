@@ -135,7 +135,7 @@ protected:
 
 
   /// A small helper for copying FitInternalStorage
-  template <class T> static FitInternalStorage * deepCopy(FitInternalStorage * src) {
+  template <class T> static T * deepCopy(FitInternalStorage * src) {
     return new T(*static_cast<T*>(src));
   };
 
@@ -300,6 +300,14 @@ public:
   void computeFit(const QString & name, QString file,
                   QList<const DataSet *> datasets,
                   const CommandOptions & opts);
+
+protected:
+  /// Is to the other computeFit like runFit()'s hooks @sa runFit
+  void computeFit(std::function<void (FitData *)> hook, const QString & name,
+                  QString file, QList<const DataSet *> datasets,
+                  const CommandOptions & opts);
+public:
+  
 
   /// @name Subfunctions-related functions
   ///

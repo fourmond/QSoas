@@ -168,7 +168,7 @@ void ODEFit::function(const double * a, FitData * data,
       if(s->timeIndex >= 0)
         params[s->timeIndex] = t;
       s->timeDependentParameters.computeValues(t, params, a + s->tdBase);
-    });
+    }, data);
 
   const Vector & xv = ds->x();
 

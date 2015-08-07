@@ -245,7 +245,7 @@ SOURCES += src/qmain.cc \
         src/msolver.cc \
         src/integrator.cc \
         src/gslintegrator.cc \
-        # src/distrib-fits.cc \
+        src/distrib-fits.cc \
         src/metadataprovider.cc \
         src/conditionsprovider.cc \
         src/parametersviewer.cc \

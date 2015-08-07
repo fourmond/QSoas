@@ -39,46 +39,64 @@
 template <double f(double, double)>
 class DistribFit : public PerDatasetFit {
 
-  /// The number of different distributions
-  int number;
+  class Storage : public FitInternalStorage {
+  public:
+    /// The number of different distributions
+    int number;
 
-  /// Whether the amplitude or the surface is used for each 'peak'.
-  ///
-  /// Keep in mind that it is 
-  bool useSurface;
+    /// Whether the amplitude or the surface is used for each 'peak'.
+    ///
+    /// Keep in mind that it is 
+    bool useSurface;
+
+  };
 
   /// Name of the accessory parameter
   QString accessoryName;
 
 protected:
-  virtual void processOptions(const CommandOptions & opts)
+
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    return new Storage;
+  };
+
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+    return deepCopy<Storage>(source);
+  };
+
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const
   {
-    useSurface = false;
-    number = 1;
-    updateFromOptions(opts, "use-surface", useSurface);
-    updateFromOptions(opts, "number", number);
+    Storage * s = storage<Storage>(data);
+
+    s->useSurface = false;
+    s->number = 1;
+    updateFromOptions(opts, "use-surface", s->useSurface);
+    updateFromOptions(opts, "number", s->number);
   }
 
   
-  virtual QString optionsString() const {
-    return QString("%1 species, %2").arg(number).
-      arg(useSurface ? "surface" : "amplitude");
+  virtual QString optionsString(FitData * data) const {
+    Storage * s = storage<Storage>(data);
+    return QString("%1 species, %2").arg(s->number).
+      arg(s->useSurface ? "surface" : "amplitude");
   }
 
-  void annotatedFunction(const double * a, FitData * /*data*/, 
+  void annotatedFunction(const double * a, FitData * data, 
                          const DataSet * ds , gsl_vector * target,
-                         QList<Vector> * annotations = NULL)
+                         QList<Vector> * annotations = NULL) const
   {
+    Storage * s = storage<Storage>(data);
+        
     const Vector & xv = ds->x();
 
-    double prefactors[number];
-    for(int j = 0; j < number; j++)
-      prefactors[j] = a[3*j+2] / (useSurface ? 1 : f(0, a[3*j+3]));
+    double prefactors[s->number];
+    for(int j = 0; j < s->number; j++)
+      prefactors[j] = a[3*j+2] / (s->useSurface ? 1 : f(0, a[3*j+3]));
 
     for(int i = 0; i < xv.size(); i++) {
       double cur = a[0];
       const double & x = xv[i];
-      for(int j = 0; j < number; j++) {
+      for(int j = 0; j < s->number; j++) {
         // Assignments for readability, I hope they're optimized out.
         const double & x0 = a[3*j+1];
         const double & pref = prefactors[j];
@@ -98,11 +116,13 @@ protected:
 
 public:
 
-  virtual bool hasSubFunctions () const {
-    return number > 1;
+  virtual bool hasSubFunctions(FitData * data) const {
+    Storage * s = storage<Storage>(data);
+
+    return s->number > 1;
   };
 
-  virtual bool displaySubFunctions () const {
+  virtual bool displaySubFunctions(FitData * ) const {
     return true;               
   };
 
@@ -110,13 +130,14 @@ public:
                                    FitData * data, 
                                    const DataSet * ds,
                                    QList<Vector> * targetData,
-                                   QStringList * targetAnnotations)
+                                   QStringList * targetAnnotations) const
   {
+    Storage * s = storage<Storage>(data);
     targetData->clear();
     targetAnnotations->clear();
 
     int sz = ds->x().size();
-    for(int i = 0; i < number; i++) {
+    for(int i = 0; i < s->number; i++) {
       (*targetData) << Vector(sz, 0);
       *targetAnnotations << QString("Peak %1").arg(i+1);
     }
@@ -128,14 +149,16 @@ public:
 
   /// Formula:
   virtual void function(const double * a, FitData * data, 
-                        const DataSet * ds , gsl_vector * target) {
+                        const DataSet * ds , gsl_vector * target) const {
     annotatedFunction(a, data, ds, target);
   };
 
-  virtual void initialGuess(FitData * /*data*/, 
+  virtual void initialGuess(FitData * data, 
                             const DataSet *ds,
-                            double * a)
+                            double * a) const
   {
+    Storage * s = storage<Storage>(data);
+
     // For now, equally distributed ?
 
     /// @todo Use peak info ?
@@ -147,21 +170,23 @@ public:
 
     double *t = a;
     *t = ymin;
-    double param = (xmax - xmin)/(number * 4);
-    for(int i = 0; i < number; i++) {
-      *(++t) = xmin + (i+0.5) * (xmax - xmin)/number; // position
-      *(++t) = (ymax - ymin) / (useSurface ? f(0,param) : 1); // amplitude
+    double param = (xmax - xmin)/(s->number * 4);
+    for(int i = 0; i < s->number; i++) {
+      *(++t) = xmin + (i+0.5) * (xmax - xmin)/s->number; // position
+      *(++t) = (ymax - ymin) / (s->useSurface ? f(0,param) : 1); // amplitude
       *(++t) = param;
     }
   };
 
-  virtual QList<ParameterDefinition> parameters() const {
+  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+    Storage * s = storage<Storage>(data);
+
     QList<ParameterDefinition> params;
     params << ParameterDefinition("Y0"); // base line
-    for(int j = 0; j < number; j++)
+    for(int j = 0; j < s->number; j++)
       params << ParameterDefinition(QString("x_%1").arg(j+1))
              << ParameterDefinition(QString("%2_%1").arg(j+1).
-                                    arg(useSurface ? "S" : "A"))
+                                    arg(s->useSurface ? "S" : "A"))
              << ParameterDefinition(QString("%2_%1").arg(j+1).
                                     arg(accessoryName));
 
@@ -189,8 +214,6 @@ public:
     PerDatasetFit(name, desc, desc, 1, -1, false),
     accessoryName(param)
   { 
-    number = 1;
-    useSurface = false;
     makeCommands();
   };
 };

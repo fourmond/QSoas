@@ -262,46 +262,108 @@ kineticSystem("kinetic-system", // command name
 /// Fits a full kinetic system.
 class KineticSystemFit : public ODEFit {
 protected:
-  /// System we're working on - deleted and recreated for each fit.
-  KineticSystem * system;
+    /// The system, for defined fits
+  KineticSystem * mySystem = NULL;
 
   /// The evolver... Created and delete at the same time as each fit.
-  KineticSystemEvolver * evolver;
+  KineticSystemEvolver * myEvolver = NULL;
 
-  virtual ODESolver * solver() const {
-    return evolver;
+
+  class Storage : public ODEFit::Storage {
+  public:
+    /// The system
+    KineticSystem * system = NULL;
+
+    /// The evolver... Created and delete at the same time as each fit.
+    KineticSystemEvolver * evolver = NULL;
+
+    /// whether this object owns the system
+    bool ownSystem = true;
+    
+    /// The file name (unsure that's the best place)
+    QString fileName = "??";
+    
+    virtual ~Storage() {
+      if(ownSystem) {
+        delete system;
+        delete evolver;
+      }
+    };
+    
+
   };
 
-  virtual int getParameterIndex(const QString & name) const  {
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    return new Storage;
+  };
+
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+    Storage * s = deepCopy<Storage>(source);
+
+    // We copy the POINTER, so the target should not free the system
+    // upon deletion.
+    s->ownSystem = false;
+    
+    return s;
+  };
+
+  KineticSystem * getSystem(FitData * data) const {
+    if(mySystem)
+      return mySystem;
+    Storage * s = storage<Storage>(data);
+    return s->system;
+  };
+
+  KineticSystemEvolver * getEvolver(FitData * data) const {
+    if(myEvolver)
+      return myEvolver;
+    Storage * s = storage<Storage>(data);
+    return s->evolver;
+  };
+
+  virtual ODESolver * solver(FitData * data) const {
+    return getEvolver(data);
+  };
+
+  virtual int getParameterIndex(const QString & name, FitData * data) const  {
+    KineticSystemEvolver * evolver = getEvolver(data);
     return evolver->getParameterIndex(name);
   };
 
-  virtual QStringList systemParameters() const {
+  virtual QStringList systemParameters(FitData * data) const {
+    KineticSystem * system = getSystem(data);
     return system->allParameters();
   };
 
-  virtual QStringList variableNames() const {
+  virtual QStringList variableNames(FitData * data) const {
+    KineticSystem * system = getSystem(data);
     return system->allSpecies();
   };
 
-  virtual bool isFixed(const QString & n) const {
+  virtual bool isFixed(const QString & n, FitData * ) const {
     return n.startsWith("c0_");
   };
 
-  virtual void initialize(double t0, const double * params) {
-    evolver->setParameters(params + parametersBase, skippedIndices);
+  virtual void initialize(double t0, const double * params, FitData * data) const {
+    Storage * s = storage<Storage>(data);
+    KineticSystemEvolver * evolver = getEvolver(data);
+
+    evolver->setParameters(params + s->parametersBase, s->skippedIndices);
     evolver->initialize(t0);
   };
 
-  virtual bool hasReporters() const {
+  virtual bool hasReporters(FitData * data) const {
+    KineticSystem * system = getSystem(data);
     return system->reporterExpression;
   };
 
-  virtual double reporterValue() const {
+  virtual double reporterValue(FitData * data) const {
+    KineticSystemEvolver * evolver = getEvolver(data);
     return evolver->reporterValue();
   };
   
-  virtual void setupCallback(const std::function<void (double, double * )> & cb) {
+  virtual void setupCallback(const std::function<void (double, double * )> & cb, FitData * data) const{
+    KineticSystemEvolver * evolver = getEvolver(data);
     evolver->setupCallback(cb);
   };
 
@@ -310,27 +372,29 @@ protected:
 protected:
 
 
-  void prepareFit(const QString & fileName)
+  void prepareFit(const QString & fileName, FitData * data)
   {
-    delete system;
-    system = NULL;
-    delete evolver;
-    evolver = NULL;             // Prevent segfault upon destruction
+    Storage * s = storage<Storage>(data);
+    delete s->system;
+    s->system = NULL;
+    delete s->evolver;
+    s->evolver = NULL;             // Prevent segfault upon destruction
                                 // if next step fails
-    system = new KineticSystem;
-    system->parseFile(fileName);
+    s->system = new KineticSystem;
+    s->system->parseFile(fileName);
 
     /// @todo That should join KineticSystemEvolver ?
-    system->prepareForTimeEvolution();
-    evolver = new KineticSystemEvolver(system);
+    s->system->prepareForTimeEvolution();
+    s->evolver = new KineticSystemEvolver(s->system);
   }
 
   void runFit(const QString & name, QString fileName, 
               QList<const DataSet *> datasets,
               const CommandOptions & opts)
   {
-    prepareFit(fileName);
-    Fit::runFit(name, datasets, opts);
+    Fit::runFit([this, fileName](FitData * data) {
+        prepareFit(fileName, data);
+      }, name, datasets, opts);
   }
 
   void runFitCurrentDataSet(const QString & n, 
@@ -346,29 +410,34 @@ protected:
                   QList<const DataSet *> datasets,
                   const CommandOptions & opts)
   {
-    prepareFit(fileName);
-    Fit::computeFit(name, params, datasets, opts);
+    Fit::computeFit([this, fileName](FitData * data) {
+        prepareFit(fileName, data);
+      }, name, params, datasets, opts);
   }
 
 
   
-  void dumpAllParameters()
+  void dumpAllParameters(FitData * data) const
   {
+    Storage * s = storage<Storage>(data);
+    KineticSystemEvolver * evolver = getEvolver(data);
+    KineticSystem * system = getSystem(data);
+
     // Dumps all the parameters to standard out
     QTextStream o(stdout);
 
     QHash<QString, double> vals = evolver->parameterValues();
 
-    QStringList s = vals.keys();
-    qSort(s);
+    QStringList ps = vals.keys();
+    qSort(ps);
 
-    for(int i = 0; i < s.size(); i++)
-      o << s[i] << " = " << vals[s[i]] << endl;
+    for(int i = 0; i < ps.size(); i++)
+      o << ps[i] << " = " << vals[ps[i]] << endl;
 
     QStringList p = system->allParameters();
 
-    o << "There are " << timeDependentParameters.size() << " td-parameters" << endl;
-    for(auto i = timeDependentParameters.begin(); i != timeDependentParameters.end(); i++) {
+    o << "There are " << s->timeDependentParameters.size() << " td-parameters" << endl;
+    for(auto i = s->timeDependentParameters.begin(); i != s->timeDependentParameters.end(); i++) {
       o << "TD parameter for parameter index " << i.key()
         << " -> " << p[i.key()] << endl;
     }
@@ -376,10 +445,13 @@ protected:
 
 public:
 
-  virtual void initialGuess(FitData * /*params*/, 
+  virtual void initialGuess(FitData * data, 
                             const DataSet *ds,
-                            double * a)
+                            double * a) const
   {
+    Storage * s = storage<Storage>(data);
+    KineticSystem * system = getSystem(data);
+
     const Vector & x = ds->x();
     const Vector & y = ds->y();
 
@@ -389,11 +461,11 @@ public:
       // All currents to 0 but the first
 
       for(int i = 0; i < nb; i++)
-        a[i + (voltammogram ? 2 : 0)] = (i == 0 ? y.max() : 0);
+        a[i + (s->voltammogram ? 2 : 0)] = (i == 0 ? y.max() : 0);
     }
 
-    double * b = a + parametersBase;
-    if(hasOrigTime)
+    double * b = a + s->parametersBase;
+    if(s->hasOrigTime)
       b[-1] = x[0] - 20;
 
     // All initial concentrations to 0 but the first
@@ -404,16 +476,16 @@ public:
 
     // We can't use params->parameterDefinitions.size(), as this will
     // fail miserably in combined fits
-    for(int i = nb + parametersBase; i < parametersNumber; i++)
+    for(int i = nb + s->parametersBase; i < s->parametersNumber; i++)
       a[i] = 1;                 // Simple, heh ?
 
     // And have the parameters handle themselves:
-    timeDependentParameters.setInitialGuesses(a + tdBase, ds);
+    s->timeDependentParameters.setInitialGuesses(a + s->tdBase, ds);
 
   };
 
   virtual ArgumentList * fitArguments() const {
-    if(system)
+    if(mySystem)
       return NULL;
     return new 
       ArgumentList(QList<Argument *>()
@@ -426,7 +498,7 @@ public:
   KineticSystemFit() :
     ODEFit("kinetic-system", 
                   "Full kinetic system",
-                  "", 1, -1, false), system(NULL), evolver(NULL)
+                  "", 1, -1, false)
   { 
     makeCommands(NULL, 
                  effector(this, &KineticSystemFit::runFitCurrentDataSet, true),
@@ -442,10 +514,11 @@ public:
                    ) : 
     ODEFit(name.toLocal8Bit(), 
                   QString("Kinetic system of %1").arg(file).toLocal8Bit(),
-                  "", 1, -1, false), system(sys), evolver(NULL)
+                  "", 1, -1, false)
   {
-    system->prepareForTimeEvolution();
-    evolver = new KineticSystemEvolver(system);
+    mySystem = sys;
+    mySystem->prepareForTimeEvolution();
+    myEvolver = new KineticSystemEvolver(mySystem);
     makeCommands();
   }
 };

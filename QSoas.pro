@@ -220,7 +220,7 @@ SOURCES += src/qmain.cc \
         src/odesolver.cc \
         src/rubyodesolver.cc \
         src/kineticsystem.cc \
-        # src/kineticsystemevolver.cc \
+        src/kineticsystemevolver.cc \
         src/graphicssettings.cc \
         src/backtrace.cc \
         src/alias.cc \

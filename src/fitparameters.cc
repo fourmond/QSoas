@@ -255,6 +255,11 @@ void FitParameters::processSoftOptions(const CommandOptions & opts) const
   return fitData->fit->processSoftOptions(opts, fitData);
 }
 
+QString FitParameters::fitName(bool includeOptions) const
+{
+  return fitData->fit->fitName(includeOptions, fitData);
+}
+
 bool FitParameters::hasPerpendicularCoordinates() const
 {
   return perpendicularCoordinates.size() == datasets;
@@ -377,9 +382,9 @@ DataSet *  FitParameters::computedData(int i, bool residuals)
   if(residuals)
     ny = base->y() - ny;
   DataSet * ds = base->derivedDataSet(ny, (residuals ? "_delta_" : "_fit_")
-                                      + fitData->fit->fitName(false) + ".dat");
+                                      + fitName(false) + ".dat");
   
-  ds->setMetaData("fit", fitData->fit->fitName());
+  ds->setMetaData("fit", fitName());
   QHash<QString, double> params = parametersForDataset(i);
   for(QHash<QString, double>::iterator i = params.begin(); 
       i != params.end(); i++)
@@ -503,7 +508,7 @@ void FitParameters::exportToOutFile(bool exportErrors, OutFile * out)
   prepareExport(lst, lines, exportErrors);
 
   out->setHeader(QString("# Fit: %1\n## %2").
-                 arg(fitData->fit->fitName()).
+                 arg(fitName()).
                  arg(lst.join("\t")));
   (*out) << lines << flush;
 }
@@ -513,7 +518,7 @@ void FitParameters::exportParameters(QIODevice * stream,
 {
   QTextStream out(stream);
   QStringList lst;
-  out << "# Fit used: " << fitData->fit->fitName() 
+  out << "# Fit used: " << fitName() 
       << ", residuals: " << overallPointResiduals << endl;
 
   QString lines;
@@ -586,7 +591,7 @@ void FitParameters::saveParameters(QIODevice * stream) const
   out << "# The following information are comments, " 
     "but Soas may make use of those if they are present" << endl;
 
-  out << "# Fit used: " << fitData->fit->fitName() << endl;
+  out << "# Fit used: " << fitName() << endl;
   for(int i = 0; i < datasets; i++)
     out << "# Buffer #" << i << " : " 
         << fitData->datasets[i]->name << endl;

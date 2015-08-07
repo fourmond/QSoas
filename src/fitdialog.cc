@@ -198,7 +198,7 @@ void FitDialog::setupFrame()
 
 
   // Here, we try to be clever a little about the size of that...
-  QLabel * label = new QLabel("<b>Fit:</b> " + data->fit->fitName());
+  QLabel * label = new QLabel("<b>Fit:</b> " + parameters.fitName());
   label->setWordWrap(true);
   hb->addWidget(label, 1);
 
@@ -582,7 +582,7 @@ void FitDialog::startFit()
     else
       params = QString::number(freeParams);
   
-    Terminal::out << "Starting fit '" << data->fit->fitName() << "' with "
+    Terminal::out << "Starting fit '" << parameters.fitName() << "' with "
                   << params << " free parameters"
                   << endl;
 
@@ -704,7 +704,7 @@ void FitDialog::pushSubFunctions()
         pushDataSet(ds->
                     derivedDataSet(subY,
                                    QString("_fit_%1_sub%2.dat").
-                                   arg(data->fit->fitName(false)).arg(j+1)));
+                                   arg(parameters.fitName(false)).arg(j+1)));
     }
     base += sz;
   }

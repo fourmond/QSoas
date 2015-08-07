@@ -35,7 +35,7 @@
 #include <fitengine.hh>
 
 
-FitData::FitData(Fit * f, const QList<const DataSet *> & ds, bool d, 
+FitData::FitData(const Fit * f, const QList<const DataSet *> & ds, bool d, 
                  const QStringList & ex, bool d2) : 
   totalSize(0), covarStorage(NULL), covarIsOK(false),
   engine(NULL), extra(ex),

@@ -62,8 +62,14 @@ void Command::crosslinkCommands()
       i != availableCommands->end(); i++) {
     if(! i.value()->group) {
       Group * grp = Group::namedGroup(i.value()->groupName);
-      i.value()->group = grp;
-      grp->commands.append(i.value());
+      if(! grp) {
+        QTextStream o(stdout);
+        o << "Missing group: " << i.value()->groupName << endl;
+      }
+      else {
+        i.value()->group = grp;
+        grp->commands.append(i.value());
+      }
     }
   }
 }

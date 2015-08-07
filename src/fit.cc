@@ -300,6 +300,7 @@ void Fit::runFit(const QString &, QList<const DataSet *> datasets,
   
   FitData data(this, datasets, debug, ep, debug2);
   processOptions(opts, &data);
+  data.finishInitialization();
   checkDatasets(&data);
 
   QString loadParameters;
@@ -386,6 +387,7 @@ void Fit::computeFit(const QString &, QString file,
 
   FitData data(this, datasets, false, ep); 
   processOptions(opts, &data);
+  data.finishInitialization();
   checkDatasets(&data);
 
   FitParameters ws(&data);

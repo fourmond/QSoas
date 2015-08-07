@@ -102,7 +102,7 @@ public:
   };
 
   /// The fit in use
-  Fit * fit;
+  const Fit * fit;
 
   /// A debug flag. If that flag is on, all calls to the functions are
   /// instrumented. For debugging the fit engine and/or the fit
@@ -177,7 +177,7 @@ public:
   void recomputeJacobian();
 
   
-  FitData(Fit * f, const QList<const DataSet *> & ds, 
+  FitData(const Fit * f, const QList<const DataSet *> & ds, 
           bool d = false, const QStringList & extra = QStringList(),
           bool d2 = false);
 

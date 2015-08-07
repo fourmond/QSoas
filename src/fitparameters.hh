@@ -231,7 +231,10 @@ public:
 
   CommandOptions currentSoftOptions() const;
 
+
   void processSoftOptions(const CommandOptions & opts) const;
+
+  QString fitName(bool includeOptions = true) const;
 
   /// @}
 

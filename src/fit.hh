@@ -140,6 +140,15 @@ protected:
   };
 
 
+  /// This is the way to get the internal storage space from a given
+  /// FitData.
+  FitInternalStorage * getStorage(FitData * d) const;
+
+  /// A helper function to get the right class of storage
+  template <class T> T * storage(FitData * d) const {
+    return static_cast<T*>(getStorage(d));
+  };
+
 public:
 
   /// Returns the name of all the available fits.

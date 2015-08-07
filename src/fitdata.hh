@@ -181,6 +181,11 @@ public:
           bool d = false, const QStringList & extra = QStringList(),
           bool d2 = false);
 
+  /// Finishes the last steps of initialization.
+  ///
+  /// This should be called when the parameter list is known.
+  void finishInitialization();
+
   /// Creates the solver, and initializes it with the correct
   /// parameters, based one the contents of parameterDefinitions and
   /// parameters.

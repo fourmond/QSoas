@@ -112,8 +112,8 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
   setupFrame();
   setFitEngineFactory(FitEngine::defaultFactoryItem(data->datasets.size()));
 
-  if(data->fit->hasSubFunctions())
-    displaySubFunctions = data->fit->displaySubFunctions();
+  if(parameters.hasSubFunctions())
+    displaySubFunctions = parameters.displaySubFunctions();
   compute();
 
   
@@ -309,7 +309,7 @@ void FitDialog::setupFrame()
     ac->addAction("Show transposed data", this, SLOT(showTransposed()));
 
 
-  if(data->fit->hasSubFunctions()) {
+  if(parameters.hasSubFunctions()) {
     ac->addAction("Toggle subfunctions display", this, 
                   SLOT(toggleSubFunctions()));
     ac->addAction("Push all subfunctions", this, 
@@ -451,7 +451,7 @@ void FitDialog::dataSetChanged(int newds)
     updateEditors();
   QString txt = QString("%1/%2 %3 %4").
     arg(newds + 1).arg(data->datasets.size()).
-    arg(data->fit->annotateDataSet(currentIndex)).
+    arg(parameters.annotateDataSet(currentIndex)).
     arg(bufferWeightEditor ? " weight: " : "");
   if(parameters.perpendicularCoordinates.size() > 0) {
     QString str = QString(" %1 = %2").arg(perpendicularMeta.isEmpty() ? 
@@ -1028,7 +1028,7 @@ void FitDialog::engineSelected(int id)
 
 void FitDialog::toggleSubFunctions()
 {
-  if(data->fit->hasSubFunctions()) {
+  if(parameters.hasSubFunctions()) {
     displaySubFunctions = ! displaySubFunctions;
     compute();                  // update display
   }
@@ -1124,7 +1124,7 @@ void FitDialog::setSoftOptions()
   }
 
   if(softOptions) {
-    co = data->fit->currentSoftOptions();
+    co = parameters.currentSoftOptions();
     gd->addWidget(new QLabel("<b>Fit options:<b>"), 0, 0);
     fillGridWithOptions(softOptions, co, fitWidgets, gd, 1);
     for(auto i = co.begin(); i != co.end(); i++)
@@ -1154,7 +1154,7 @@ void FitDialog::setSoftOptions()
         if(val)
           co[ag->argumentName()] = val;
       }
-      data->fit->processSoftOptions(co);
+      parameters.processSoftOptions(co);
       for(auto i = co.begin(); i != co.end(); i++)
         delete i.value();
     }

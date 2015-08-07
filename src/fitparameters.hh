@@ -215,6 +215,26 @@ public:
     return fitData;
   };
 
+
+  /// @name Commodity accessors
+  ///
+  /// A few functions that wrap around Fit's function, providing them
+  /// the correct FitData.
+  /// 
+  /// @{
+
+  bool hasSubFunctions() const;
+
+  bool displaySubFunctions() const;
+
+  QString annotateDataSet(int idx) const;
+
+  CommandOptions currentSoftOptions() const;
+
+  void processSoftOptions(const CommandOptions & opts) const;
+
+  /// @}
+
   /// @name Computed functions handling
   ///
   /// A set of functions to retrieve the values of the computed

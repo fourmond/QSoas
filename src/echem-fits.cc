@@ -51,7 +51,7 @@ protected:
   virtual void processOptions(const CommandOptions & opts, FitData * data) const
   {
     int species = -1;
-    Storage * s = static_cast<Storage*>(data->fitStorage);
+    Storage * s = storage<Storage>(data);
     s->number.clear();
     s->number << 2;
     if(opts.contains("states"))
@@ -69,7 +69,7 @@ protected:
 
   
   virtual QString optionsString(FitData * data) const {
-    Storage * s = static_cast<Storage*>(data->fitStorage);
+    Storage * s = storage<Storage>(data);
     return QString("%1 species: %2").
       arg(s->number.size()).arg("??");
   }
@@ -98,7 +98,7 @@ public:
 
   /// Numbering: 0 is the most reduced species.
   virtual QList<ParameterDefinition> parameters(FitData * data) const {
-    Storage * s = static_cast<Storage*>(data->fitStorage);
+    Storage * s = storage<Storage>(data);
     QList<ParameterDefinition> defs;
 
     defs << ParameterDefinition("temperature", true);
@@ -126,8 +126,8 @@ public:
   };
 
   virtual double function(const double * a, 
-                          FitData * data, double x) {
-    Storage * s = static_cast<Storage*>(data->fitStorage);
+                          FitData * data, double x) const {
+    Storage * s = storage<Storage>(data);
 
 
     double fara = GSL_CONST_MKSA_FARADAY /
@@ -162,9 +162,9 @@ public:
 
   virtual void initialGuess(FitData * data, 
                             const DataSet *ds,
-                            double * a)
+                            double * a) const
   {
-    Storage * s = static_cast<Storage*>(data->fitStorage);
+    Storage * s = storage<Storage>(data);
     double *t = a-1;
     *(++t) = soas().temperature();
     const double ymin = ds->y().min();
@@ -218,40 +218,59 @@ NernstFit fit_nernst;
 /// Fit to any number of 'ideal' adsorbed species.
 class AdsorbedFit : public PerDatasetFit {
 
-  /// The number of species
-  int number;
+  class Storage : public FitInternalStorage {
+  public:
+    /// The number of species
+    int number = 1;
 
-  /// The number of 2-el species
-  int twoElectrons;
+    /// The number of 2-el species
+    int twoElectrons = 0;
 
-  /// Whether or not the species are distinct
-  bool distinct;
+    /// Whether or not the species are distinct
+    bool distinct = true;
+  };
 
+public:
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    return new Storage;
+  };
+
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int ds = -1) const {
+    return deepCopy<Storage>(source);
+  };
+
+  
 protected:
 
-  virtual void processOptions(const CommandOptions & opts)
+ 
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const
   {
-    number = 1;
-    twoElectrons = 0;
-    distinct = true;
+    Storage * s = storage<Storage>(data);
 
-    updateFromOptions(opts, "species", number);
-    updateFromOptions(opts, "2el", twoElectrons);
-    updateFromOptions(opts, "distinct", distinct);
+    s->number = 1;
+    s->twoElectrons = 0;
+    s->distinct = true;
+
+    updateFromOptions(opts, "species", s->number);
+    updateFromOptions(opts, "2el", s->twoElectrons);
+    updateFromOptions(opts, "distinct", s->distinct);
   }
 
   
-  virtual QString optionsString() const {
+  virtual QString optionsString(FitData * data) const {
+    Storage * s = storage<Storage>(data);
     return QString("%1 species").
-      arg(number);
+      arg(s->number);
   }
 
   /// This computes the same thing as function but in addition
   /// computes the annotations should the annotations pointer be NULL.
-  void annotatedFunction(const double * a, FitData * /*data*/, 
+  void annotatedFunction(const double * a, FitData * data, 
                          const DataSet * ds , gsl_vector * target,
-                         QList<Vector> * annotations = NULL)
+                         QList<Vector> * annotations = NULL) const
   {
+    Storage * s = storage<Storage>(data);
+
     const Vector & xv = ds->x();
 
     // We look at the sign of the first
@@ -265,12 +284,12 @@ protected:
       double cur = 0;
 
       
-      int idx = (distinct ? 2 : 3);
+      int idx = (s->distinct ? 2 : 3);
 
       // These are always considered 1-el peaks :
-      for(int j = 0; j < number; j++) {
+      for(int j = 0; j < s->number; j++) {
         // Assignments for readability, I hope they're optimized out.
-        const double & gamma = a[distinct ? idx++ : 2];
+        const double & gamma = a[s->distinct ? idx++ : 2];
         const double & e0 = a[idx++];
         const double & n = a[idx++];
         double e = exp(fara * n * (xv[i] - e0));
@@ -281,8 +300,8 @@ protected:
         cur += spec;
       }
 
-      for(int j = number; j < number + twoElectrons; j++) {
-        const double & gamma = a[distinct ? idx++ : 2];
+      for(int j = s->number; j < s->number + s->twoElectrons; j++) {
+        const double & gamma = a[s->distinct ? idx++ : 2];
         const double & e0 = a[idx++];
         const double & deltae = a[idx++];
 
@@ -305,49 +324,51 @@ protected:
 public:
 
   /// Numbering: 0 is the most reduced species.
-  virtual QList<ParameterDefinition> parameters() const {
+  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+    Storage * s = storage<Storage>(data);
     QList<ParameterDefinition> defs;
 
     defs << ParameterDefinition("temperature", true);
 
     // We use the scan rate to determine the electroactive coverage
     defs << ParameterDefinition("nu", true);
-    if(! distinct)
+    if(! s->distinct)
       defs << ParameterDefinition(QString("Gamma"));
     
     // amplitudes
-    for(int i = 0; i < number; i++) {
+    for(int i = 0; i < s->number; i++) {
       // We use electroactive coverage, that's what we want !
-      if(distinct)
+      if(s->distinct)
         defs << ParameterDefinition(QString("Gamma_%1").arg(i));
       defs << ParameterDefinition(QString("E_%1").arg(i));
       defs << ParameterDefinition(QString("n_%1").arg(i), true);
     }
 
-    for(int i = 0; i < twoElectrons; i++) {
+    for(int i = 0; i < s->twoElectrons; i++) {
       // We use electroactive coverage, that's what we want !
-      if(distinct)
-        defs << ParameterDefinition(QString("Gamma_%1").arg(i + number));
-      defs << ParameterDefinition(QString("E_%1").arg(i + number));
-      defs << ParameterDefinition(QString("Delta_E_%1").arg(i + number));
+      if(s->distinct)
+        defs << ParameterDefinition(QString("Gamma_%1").arg(i + s->number));
+      defs << ParameterDefinition(QString("E_%1").arg(i + s->number));
+      defs << ParameterDefinition(QString("Delta_E_%1").arg(i + s->number));
     }
 
 
     return defs;
   };
 
-  virtual bool hasSubFunctions () const {
-    return number > 1;
+  virtual bool hasSubFunctions (FitData * data) const {
+    Storage * s = storage<Storage>(data);
+    return s->number > 1;
   };
 
-  virtual bool displaySubFunctions () const {
+  virtual bool displaySubFunctions (FitData *) const {
     return true;               
   };
 
   
 
   virtual void function(const double * a, FitData * data, 
-                        const DataSet * ds , gsl_vector * target)
+                        const DataSet * ds , gsl_vector * target) const
   {
     annotatedFunction(a, data, ds, target);
   };
@@ -356,13 +377,15 @@ public:
                                    FitData * data, 
                                    const DataSet * ds,
                                    QList<Vector> * targetData,
-                                   QStringList * targetAnnotations)
+                                   QStringList * targetAnnotations) const
   {
+    Storage * s = storage<Storage>(data);
+
     targetData->clear();
     targetAnnotations->clear();
 
     int sz = ds->x().size();
-    for(int i = 0; i < number + twoElectrons; i++) {
+    for(int i = 0; i < s->number + s->twoElectrons; i++) {
       (*targetData) << Vector(sz, 0);
       *targetAnnotations << QString("Species %1").arg(i+1);
     }
@@ -372,10 +395,12 @@ public:
   };
 
 
-  virtual void initialGuess(FitData * /*data*/, 
+  virtual void initialGuess(FitData * data, 
                             const DataSet *ds,
-                            double * a)
+                            double * a) const
   {
+    Storage * s = storage<Storage>(data);
+
     double *t = a-1;
     *(++t) = soas().temperature();
     *(++t) = 0.1;               // default scan rate
@@ -383,19 +408,19 @@ public:
     const double xmin = ds->x().min();
     const double xmax = ds->x().max();
 
-    if(! distinct)
+    if(! s->distinct)
       *(++t) = 1e-11;           // gamma
 
-    for(int i = 0; i < number; i++) {
-      if(distinct)
+    for(int i = 0; i < s->number; i++) {
+      if(s->distinct)
         *(++t) = 1e-11;           // gamma
-      *(++t) = xmin + (i+0.5) *(xmax - xmin)/(number + twoElectrons);
+      *(++t) = xmin + (i+0.5) *(xmax - xmin)/(s->number + s->twoElectrons);
       *(++t) = 1;
     }
-    for(int i = 0; i < twoElectrons; i++) {
-      if(distinct)
+    for(int i = 0; i < s->twoElectrons; i++) {
+      if(s->distinct)
         *(++t) = 1e-11;           // gamma
-      *(++t) = xmin + (i+number+0.5) *(xmax - xmin)/(number + twoElectrons);
+      *(++t) = xmin + (i+s->number+0.5) *(xmax - xmin)/(s->number + s->twoElectrons);
       *(++t) = 0.1;             // DeltaE of 100 mV ?
     }
   };
@@ -422,7 +447,6 @@ public:
                                 "species",
                                 1, -1, false) 
   { 
-    number = 1;
     makeCommands();
 
   };

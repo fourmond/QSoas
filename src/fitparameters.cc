@@ -199,6 +199,9 @@ FitParameters::FitParameters(FitData * d) :
                          d->parametersPerDataset()),
   rawCVMatrix(NULL), cookedCVMatrix(NULL)
 {
+  if(! d->parametersStorage)
+    throw InternalError("Trying to use an uninitialized FitData");
+  
   datasets = d->datasets.size();
   nbParameters = d->parametersPerDataset();
   values = new double[nbParameters * datasets];
@@ -225,6 +228,31 @@ FitParameters::FitParameters(FitData * d) :
         parameter(i,0) = new FreeParameter(i, -1);
     }
   }
+}
+
+bool FitParameters::hasSubFunctions() const
+{
+  return fitData->fit->hasSubFunctions(fitData);
+}
+
+bool FitParameters::displaySubFunctions() const
+{
+  return fitData->fit->displaySubFunctions(fitData);
+}
+
+QString FitParameters::annotateDataSet(int idx) const
+{
+  return fitData->fit->annotateDataSet(idx, fitData);
+}
+
+CommandOptions FitParameters::currentSoftOptions() const
+{
+  return fitData->fit->currentSoftOptions(fitData);
+}
+
+void FitParameters::processSoftOptions(const CommandOptions & opts) const
+{
+  return fitData->fit->processSoftOptions(opts, fitData);
 }
 
 bool FitParameters::hasPerpendicularCoordinates() const
@@ -332,7 +360,7 @@ void FitParameters::computeResiduals()
 QList<Vector> FitParameters::computeSubFunctions()
 {
   QList<Vector> ret;
-  if(! fitData->fit->hasSubFunctions())
+  if(! fitData->fit->hasSubFunctions(fitData))
     return ret;
   updateParameterValues();
   QStringList str;

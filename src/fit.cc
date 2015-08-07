@@ -114,6 +114,11 @@ FitInternalStorage * Fit::copyStorage(FitData *, FitInternalStorage *, int) cons
   return NULL;
 }
 
+FitInternalStorage * Fit::getStorage(FitData * d) const
+{
+  return d->fitStorage;
+}
+
 
 
 

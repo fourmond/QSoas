@@ -184,7 +184,7 @@ SOURCES += src/qmain.cc \
         src/ruby-commands.cc \
         src/fit.cc \
         src/perdatasetfit.cc \
-        src/exponential-fits.cc \
+#        src/exponential-fits.cc \
         src/fitdialog.cc \
         src/curvevector.cc \
         src/settings.cc \
@@ -196,7 +196,7 @@ SOURCES += src/qmain.cc \
         src/fitdata.cc \
         src/exceptions.cc \
         src/file-arguments.cc \
-        src/simulation-commands.cc \
+        # src/simulation-commands.cc \
         src/fitparametereditor.cc \
         src/bijection.cc \
         src/bijections.cc \
@@ -207,20 +207,20 @@ SOURCES += src/qmain.cc \
         src/peaks.cc \
         src/datasetbrowser.cc \
         src/pointtracker.cc \
-        src/misc-fits.cc \
-        src/custom-fits.cc \
-        src/derivativefit.cc \
+#        src/misc-fits.cc \
+#        src/custom-fits.cc \
+#        src/derivativefit.cc \
         src/formattedstring.cc \
         src/expression.cc \
         src/fitparameter.cc \
         src/fitengine.cc \
         src/gslfitengine.cc \
-        src/combinedfit.cc \
+#        src/combinedfit.cc \
         src/gslfunction.cc \
         src/odesolver.cc \
-        src/rubyodesolver.cc \
-        src/kineticsystem.cc \
-        src/kineticsystemevolver.cc \
+        # src/rubyodesolver.cc \
+        # src/kineticsystem.cc \
+        # src/kineticsystemevolver.cc \
         src/graphicssettings.cc \
         src/backtrace.cc \
         src/alias.cc \
@@ -245,7 +245,7 @@ SOURCES += src/qmain.cc \
         src/msolver.cc \
         src/integrator.cc \
         src/gslintegrator.cc \
-        src/distrib-fits.cc \
+        # src/distrib-fits.cc \
         src/metadataprovider.cc \
         src/conditionsprovider.cc \
         src/parametersviewer.cc \
@@ -256,7 +256,7 @@ SOURCES += src/qmain.cc \
         src/nupwidget.cc \
         src/timedependentparameter.cc \
         src/timedependentparameters.cc \
-        src/odefit.cc \
+#        src/odefit.cc \
         src/commandlineparser.cc \
         src/valuehasheditor.cc
 

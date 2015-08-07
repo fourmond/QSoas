@@ -42,22 +42,28 @@ FitData::FitData(Fit * f, const QList<const DataSet *> & ds, bool d,
   evaluationNumber(0), 
   fit(f), debug(d), debug2(d2), datasets(ds),
   standardYErrors(NULL), pointWeights(NULL),
-  nbIterations(0), parameterDefinitions(f->parameters()), storage(0)
+  nbIterations(0), storage(0), parametersStorage(0)
 {
-  for(int i = 0; i < extra.size(); i++)
-    parameterDefinitions << ParameterDefinition(extra[i]);
   for(int i = 0; i < datasets.size(); i++) {
     totalSize += datasets[i]->nbRows();
     weightsPerBuffer << 1;      // By default 1
   }
 
   storage = gsl_vector_alloc(totalSize);
-  parametersStorage = gsl_vector_alloc(fullParameterNumber());
 
   computeWeights();
 
   fitStorage = f->allocateStorage(this);
 }
+
+void FitData::finishInitialization()
+{
+  parameterDefinitions = fit->parameters(this);
+  for(int i = 0; i < extra.size(); i++)
+    parameterDefinitions << ParameterDefinition(extra[i]);
+  parametersStorage = gsl_vector_alloc(fullParameterNumber());
+}
+
 
 bool FitData::checkWeightsConsistency() const
 {

@@ -27,54 +27,107 @@
 #include <general-arguments.hh>
 #include <commandeffector-templates.hh>
 
-void CombinedFit::processOptions(const CommandOptions & opts)
+#include <idioms.hh>
+
+CombinedFit::Storage::~Storage()
 {
-  for(int i = 0; i < underlyingFits.size(); i++)
-    Fit::processOptions(underlyingFits[i], opts);
+  int sz = subs.size();
+  for(int i = 0; i < sz; i++)
+    delete subs[i];
+}
+
+
+FitInternalStorage * CombinedFit::allocateStorage(FitData * data) const
+{
+  Storage * s = new Storage;
+  int sz = underlyingFits.size();
+  for(int i = 0; i < sz; i++)
+    s->subs << underlyingFits[i]->allocateStorage(data);
+  return s;
+}
+
+FitInternalStorage * CombinedFit::copyStorage(FitData * data,
+                                              FitInternalStorage * source,
+                                              int ds) const
+{
+  Storage * s = static_cast<Storage *>(source);
+  Storage * s2 = new Storage;
+  int sz = underlyingFits.size();
+  for(int i = 0; i < sz; i++) {
+    TemporaryChange<FitInternalStorage*> d(data->fitStorage,
+                                           s->subs[i]);
+    s2->subs << underlyingFits[i]->copyStorage(data, s->subs[i], ds);
+  }
+  return s2;
+}
+
+
+void CombinedFit::processOptions(const CommandOptions & opts, FitData * data) const
+{
+  Storage * s = storage<Storage>(data);
+
+  for(int i = 0; i < underlyingFits.size(); i++) {
+    TemporaryChange<FitInternalStorage*> d(data->fitStorage,
+                                           s->subs[i]);
+    Fit::processOptions(underlyingFits[i], opts, data);
+  }
 
   /// @todo any own options ?
 
-  overallParameters.clear();
-  firstParameterIndex.clear();
+  s->overallParameters.clear();
+  s->firstParameterIndex.clear();
   // Now, handle the parameters
   for(int i = 0; i < ownParameters.size(); i++)
-    overallParameters << ParameterDefinition(ownParameters[i]);
+    s->overallParameters << ParameterDefinition(ownParameters[i]);
   
   for(int i = 0; i < underlyingFits.size(); i++) {
     PerDatasetFit * f = underlyingFits[i];
-    QList<ParameterDefinition> params = f->parameters();
-    firstParameterIndex << overallParameters.size();
+    TemporaryChange<FitInternalStorage*> d(data->fitStorage,
+                                           s->subs[i]);
+    QList<ParameterDefinition> params = f->parameters(data);
+    s->firstParameterIndex << s->overallParameters.size();
     for(int j = 0; j < params.size(); j++) {
       ParameterDefinition def = params[j];
       def.name = QString("%1_f#%2").arg(def.name).arg(i+1);
-      overallParameters << def;
+      s->overallParameters << def;
     }
   }
 }
 
 void CombinedFit::initialGuess(FitData * data, 
                                const DataSet * ds,
-                               double * guess)
+                               double * guess) const
 {
-  for(int i = 0; i < underlyingFits.size(); i++)
+  Storage * s = storage<Storage>(data);
+  for(int i = 0; i < ownParameters.size(); i++)
+    guess[i] = 1;               // safe guess ?
+  for(int i = 0; i < underlyingFits.size(); i++) {
+    TemporaryChange<FitInternalStorage*> d(data->fitStorage,
+                                           s->subs[i]);
     underlyingFits[i]->initialGuess(data, ds, 
-                                    guess + firstParameterIndex[i]);
+                                    guess + s->firstParameterIndex[i]);
+  }
 }
 
 
-QString CombinedFit::optionsString() const
+QString CombinedFit::optionsString(FitData * data) const
 {
   QStringList strs;
-  for(int i = 0; i < underlyingFits.size(); i++)
+  Storage * s = storage<Storage>(data);
+  for(int i = 0; i < underlyingFits.size(); i++) {
+    TemporaryChange<FitInternalStorage*> d(data->fitStorage,
+                                           s->subs[i]);
     strs << QString("y%1: %2").arg(i+1).
-      arg(underlyingFits[i]->fitName(true));
+      arg(underlyingFits[i]->fitName(true, data));
+  }
   return QString("%1 with %2").arg(formula.formula()).
     arg(strs.join(", "));
 }
 
-QList<ParameterDefinition> CombinedFit::parameters() const
+QList<ParameterDefinition> CombinedFit::parameters(FitData * data) const
 {
-  return overallParameters;
+  Storage * s = storage<Storage>(data);
+  return s->overallParameters;
 }
 
 
@@ -83,41 +136,42 @@ CombinedFit::~CombinedFit()
   
 }
 
-void CombinedFit::reserveBuffers(const DataSet * ds)
+void CombinedFit::reserveBuffers(const DataSet * ds, FitData * data) const
 {
+  Storage * s = storage<Storage>(data);
   for(int i = 0; i < underlyingFits.size(); i++) {
-    if(i >= buffers.size())
-      buffers << Vector();
-    buffers[i].resize(ds->x().size());
+    if(i >= s->buffers.size())
+      s->buffers << Vector();
+    s->buffers[i].resize(ds->x().size());
   }
-  /// @todo Potentially, this is a limited memory leak.
-  
 }
 
 void CombinedFit::function(const double * parameters,
                            FitData * data, 
                            const DataSet * ds,
-                           gsl_vector * target)
+                           gsl_vector * target) const
 {
-  reserveBuffers(ds);
+  Storage * s = storage<Storage>(data);
+  reserveBuffers(ds, data);
 
   for(int i = 0; i < underlyingFits.size(); i++) {
+    TemporaryChange<FitInternalStorage*> d(data->fitStorage,
+                                           s->subs[i]);
     gsl_vector_view v = 
-      gsl_vector_view_array(buffers[i].data(), ds->x().size());
-    underlyingFits[i]->function(parameters + firstParameterIndex[i], data, 
+      gsl_vector_view_array(s->buffers[i].data(), ds->x().size());
+    underlyingFits[i]->function(parameters + s->firstParameterIndex[i], data, 
                                 ds, &v.vector);
   }
 
   // Now, combine everything...
-
   QVarLengthArray<double, 100> args(1 + underlyingFits.size() + 
-                                    overallParameters.size());
+                                    s->overallParameters.size());
   for(int i = 0; i < ds->x().size(); i++) {
     args[0] = ds->x()[i];
     int base = 1;
     for(int j = 0; j < underlyingFits.size(); j++, base++)
-      args[base] = buffers[j][i];
-    for(int j = 0; j < firstParameterIndex[0]; j++, base++)
+      args[base] = s->buffers[j][i];
+    for(int j = 0; j < s->firstParameterIndex[0]; j++, base++)
       args[base] = parameters[j];
     gsl_vector_set(target, i, formula.evaluate(args.data()));
   }
@@ -163,41 +217,41 @@ CombinedFit::CombinedFit(const QString & name, const QString & f,
 //   return firstParameterIndex[fit] * data->datasets.size();
 // }
 
-void CombinedFit::spliceParameters(FitData * data, double * target, 
-                                   const double * source)
-{
-  int nbds = data->datasets.size();
-  int tparams = overallParameters.size();
+// void CombinedFit::spliceParameters(FitData * data, double * target, 
+//                                    const double * source)
+// {
+//   int nbds = data->datasets.size();
+//   int tparams = overallParameters.size();
 
-  for(int i = 0; i < underlyingFits.size(); i++) {
-    int base = firstParameterIndex[i];
-    int nbparams = firstParameterIndex.value(i+1, tparams) - base;
-    for(int j = 0; j < nbds; j++) {
-      for(int k = 0; k < nbparams; k++)
-        target[base * nbds + nbparams * j + k] = 
-          source[tparams * j + base + k];
-    }
-  }
+//   for(int i = 0; i < underlyingFits.size(); i++) {
+//     int base = firstParameterIndex[i];
+//     int nbparams = firstParameterIndex.value(i+1, tparams) - base;
+//     for(int j = 0; j < nbds; j++) {
+//       for(int k = 0; k < nbparams; k++)
+//         target[base * nbds + nbparams * j + k] = 
+//           source[tparams * j + base + k];
+//     }
+//   }
 
-}
+// }
 
-void CombinedFit::unspliceParameters(FitData * data, double * target, 
-                                     const double * source)
-{
-  int nbds = data->datasets.size();
-  int tparams = overallParameters.size();
+// void CombinedFit::unspliceParameters(FitData * data, double * target, 
+//                                      const double * source)
+// {
+//   int nbds = data->datasets.size();
+//   int tparams = overallParameters.size();
 
-  /// @todo rewrite both functions using lambdas !
-  for(int i = 0; i < underlyingFits.size(); i++) {
-    int base = firstParameterIndex[i];
-    int nbparams = firstParameterIndex.value(i+1, tparams) - base;
-    for(int j = 0; j < nbds; j++) {
-      for(int k = 0; k < nbparams; k++)
-        target[tparams * j + base + k] = 
-          source[base * nbds + nbparams * j + k];
-    }
-  }
-}
+//   /// @todo rewrite both functions using lambdas !
+//   for(int i = 0; i < underlyingFits.size(); i++) {
+//     int base = firstParameterIndex[i];
+//     int nbparams = firstParameterIndex.value(i+1, tparams) - base;
+//     for(int j = 0; j < nbds; j++) {
+//       for(int k = 0; k < nbparams; k++)
+//         target[tparams * j + base + k] = 
+//           source[base * nbds + nbparams * j + k];
+//     }
+//   }
+// }
 
 //////////////////////////////////////////////////////////////////////
 // Now, the command !
@@ -209,6 +263,8 @@ static void combineFits(const QString &, QString newName,
 {
   
   QList<PerDatasetFit *> fts;
+  if(Fit::namedFit(newName))
+    throw RuntimeError("Fit '%1' already exists").arg(newName);
   for(int i = 0; i < fits.size(); i++) {
       QString fitName = fits[i];
       PerDatasetFit * fit = 

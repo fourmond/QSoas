@@ -196,7 +196,7 @@ SOURCES += src/qmain.cc \
         src/fitdata.cc \
         src/exceptions.cc \
         src/file-arguments.cc \
-        # src/simulation-commands.cc \
+        src/simulation-commands.cc \
         src/fitparametereditor.cc \
         src/bijection.cc \
         src/bijections.cc \
@@ -215,7 +215,7 @@ SOURCES += src/qmain.cc \
         src/fitparameter.cc \
         src/fitengine.cc \
         src/gslfitengine.cc \
-#        src/combinedfit.cc \
+        src/combinedfit.cc \
         src/gslfunction.cc \
         src/odesolver.cc \
         src/rubyodesolver.cc \

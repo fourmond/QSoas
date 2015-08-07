@@ -39,23 +39,40 @@ class Vector;
 /// fits. Also incorporates the same variables as custom fits...
 class CombinedFit : public PerDatasetFit {
 protected:
-  virtual void processOptions(const CommandOptions & opts);
-  virtual QString optionsString() const;
+
+  class Storage : public FitInternalStorage {
+  public:
+    /// Storage space for all underlying fits
+    QList<FitInternalStorage *> subs;
+
+    /// Various buffers for use with the computation of the derivatives
+    QList<Vector> buffers;
+    
+    /// An array of the same size as underlyingFits containing the index
+    /// of the first parameter of each fit with respect to the overall
+    /// parameters.
+    QList<int> firstParameterIndex;
+
+    /// Internal storage for the twisted parameters (they are renamed in
+    /// order to avoid clashes between fits)
+    QList<ParameterDefinition> overallParameters;
+
+    ~Storage();    
+  };
+
+  virtual FitInternalStorage * allocateStorage(FitData * data) const;
+  virtual FitInternalStorage * copyStorage(FitData * data, FitInternalStorage * source, int ds = -1) const;
+
+  
+  
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const;
+  virtual QString optionsString(FitData * data) const;
 
   /// The underlying fits
   QList<PerDatasetFit *> underlyingFits;
 
-  /// Various buffers for use with the computation of the derivatives
-  QList<Vector> buffers;
 
-  /// Internal storage for the twisted parameters (they are renamed in
-  /// order to avoid clashes between fits)
-  QList<ParameterDefinition> overallParameters;
 
-  /// An array of the same size as underlyingFits containing the index
-  /// of the first parameter of each fit with respect to the overall
-  /// parameters.
-  QList<int> firstParameterIndex;
 
   /// The expression used to combine the fits. It incorporates y1,
   /// y2... and so on to designate each of the fits.
@@ -65,7 +82,7 @@ protected:
   QStringList ownParameters;
 
   /// Make sure the buffers are the right size.
-  void reserveBuffers(const DataSet * ds);
+  void reserveBuffers(const DataSet * ds, FitData * data) const;
 
 
   /// @name Parameter splicing
@@ -86,29 +103,29 @@ protected:
   // /// for the "all parameters for one fit consecutive" representation.
   // int splicedIndex(FitData * data, int fit) const;
 
-  /// Splice the external parameters into the internal representation.
-  void spliceParameters(FitData * data, double * target, 
-                        const double * source);
+  // /// Splice the external parameters into the internal representation.
+  // void spliceParameters(FitData * data, double * target, 
+  //                       const double * source);
 
 
-  /// Unsplice the internal representation back into external
-  /// representation.
-  void unspliceParameters(FitData * data, double * target, 
-                          const double * source);
+  // /// Unsplice the internal representation back into external
+  // /// representation.
+  // void unspliceParameters(FitData * data, double * target, 
+  //                         const double * source);
 
   /// @}
 
 public:
 
-  virtual QList<ParameterDefinition> parameters() const;
+  virtual QList<ParameterDefinition> parameters(FitData * data) const;
   virtual void function(const double * parameters,
                         FitData * data, 
                         const DataSet * ds,
-                        gsl_vector * target);
+                        gsl_vector * target) const;
 
   virtual void initialGuess(FitData * data, 
                             const DataSet * ds,
-                            double * guess);
+                            double * guess) const;
 
 
 

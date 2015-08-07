@@ -256,7 +256,7 @@ SOURCES += src/qmain.cc \
         src/nupwidget.cc \
         src/timedependentparameter.cc \
         src/timedependentparameters.cc \
-#        src/odefit.cc \
+        src/odefit.cc \
         src/commandlineparser.cc \
         src/valuehasheditor.cc
 

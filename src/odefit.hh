@@ -38,101 +38,112 @@ protected:
   
   /// The function to be reimplemented by the children giving the base
   /// class access to the solver object.
-  virtual ODESolver * solver() const = 0;
+  virtual ODESolver * solver(FitData * data) const = 0;
 
   /// A function returning the index of a named "parameter" (formula
   /// parameter and not fit parameter), for use with
   /// TimeDependentParameters.
-  virtual int getParameterIndex(const QString & name) const = 0;
+  virtual int getParameterIndex(const QString & name, FitData * data) const = 0;
 
   /// Returns the list of all the system parameters.
-  virtual QStringList systemParameters() const = 0;
+  virtual QStringList systemParameters(FitData * data) const = 0;
 
   /// Returns the name of the variables (ie the things whose
   /// dependence over time the solver() is computing)
-  virtual QStringList variableNames() const = 0;
+  virtual QStringList variableNames(FitData * data) const = 0;
 
   /// Whether the named parameter should be fixed by default
-  virtual bool isFixed(const QString & name) const;
+  virtual bool isFixed(const QString & name, FitData * data) const;
 
 
   /// Initializes the system at the given time t and using the given
   /// parameters.
   ///
   /// This should call the solver.
-  virtual void initialize(double t0, const double * params) = 0;
+  virtual void initialize(double t0, const double * params, FitData * data) const = 0;
 
   /// Whether the solver has reporters or not
-  virtual bool hasReporters() const;
+  virtual bool hasReporters(FitData * data) const;
 
   /// Returns the value of reporters
-  virtual double reporterValue() const;
+  virtual double reporterValue(FitData * data) const;
 
   /// Setups a callback that should be called at each time, and will be given
   /// * the time
   /// * the system parameters (to be modified)
-  virtual void setupCallback(const std::function<void (double, double * )> & cb) = 0;
+  virtual void setupCallback(const std::function<void (double, double * )> & cb) const = 0;
 
   /// @}
+
+  class Storage : public FitInternalStorage {
+  public:
   
+    /// The time dependent parameters of the fit.
+    TimeDependentParameters timeDependentParameters;
+
+
+    bool voltammogram;
+    double lastTime;
+    double lastPot;
+    double direction;
+
+    /// Whether or not a different time origin has been specified.
+    bool hasOrigTime;
+
+    /// The variables related to the position of solver's paremeters
+    /// within the fit paratemers
+
+    /// The index of the first parameter
+    int parametersBase;
+
+    /// The set of indices which should be skipped while reading from
+    /// the fit parameters + parametersBase to fill the target system
+    /// parameters.
+    QSet<int> skippedIndices;
+
+    /// The base index for the TimeDependentParameters
+    int tdBase;
+
+    int timeIndex;
+
   
-  /// The time dependent parameters of the fit.
-  TimeDependentParameters timeDependentParameters;
+    int potentialIndex;
+    int faraIndex;
+    int temperatureIndex;
+    int parametersNumber;
 
+    /// A cache for parameters
+    QList<ParameterDefinition> parametersCache;
+  };
 
-  bool voltammogram;
-  double lastTime;
-  double lastPot;
-  double direction;
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const;
 
-  /// Whether or not a different time origin has been specified.
-  bool hasOrigTime;
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    return new Storage;
+  };
 
-  /// The variables related to the position of solver's paremeters
-  /// within the fit paratemers
-
-  /// The index of the first parameter
-  int parametersBase;
-
-  /// The set of indices which should be skipped while reading from
-  /// the fit parameters + parametersBase to fill the target system
-  /// parameters.
-  QSet<int> skippedIndices;
-
-  /// The base index for the TimeDependentParameters
-  int tdBase;
-
-  int timeIndex;
-
-  
-  int potentialIndex;
-  int faraIndex;
-  int temperatureIndex;
-  int parametersNumber;
-
-  virtual void processOptions(const CommandOptions & opts);
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+    return deepCopy<Storage>(source);
+  };
 
 
 
-
-  /// A cache for parameters
-  QList<ParameterDefinition> parametersCache;
 
   /// Updates the parameters cache.
-  void updateParameters();
+  void updateParameters(FitData * data) const;
   
 
 public:
 
-  virtual CommandOptions currentSoftOptions() const;
+  virtual CommandOptions currentSoftOptions(FitData * data) const;
   
   /// Process the soft options, i.e. the stepper options
-  virtual void processSoftOptions(const CommandOptions & opts);
+  virtual void processSoftOptions(const CommandOptions & opts, FitData * data) const;
 
-  virtual QList<ParameterDefinition> parameters() const;
+  virtual QList<ParameterDefinition> parameters(FitData * data) const;
   
   virtual void function(const double * a, FitData * data, 
-                        const DataSet * ds , gsl_vector * target);
+                        const DataSet * ds , gsl_vector * target) const;
 
   virtual ArgumentList * fitSoftOptions() const;
 

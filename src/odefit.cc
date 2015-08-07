@@ -25,50 +25,51 @@
 
 #include <general-arguments.hh>
 
-void ODEFit::processOptions(const CommandOptions & opts)
+void ODEFit::processOptions(const CommandOptions & opts, FitData * data) const
 {
   // Options get processed when everything else is done.
+  Storage * s = storage<Storage>(data);
 
   QStringList lst;
   updateFromOptions(opts, "with", lst);
 
-  voltammogram = false;
+  s->voltammogram = false;
 
-  hasOrigTime = false;
-  updateFromOptions(opts, "choose-t0", hasOrigTime);
+  s->hasOrigTime = false;
+  updateFromOptions(opts, "choose-t0", s->hasOrigTime);
 
-  processSoftOptions(opts);
+  processSoftOptions(opts, data);
 
   // Get rid of all time-dependent parameters first.
-  timeDependentParameters.clear();
-  timeDependentParameters.parseFromStrings(lst, [this](const QString & n) {
-      return getParameterIndex(n);
+  s->timeDependentParameters.clear();
+  s->timeDependentParameters.parseFromStrings(lst, [this, data](const QString & n) {
+      return getParameterIndex(n, data);
     });
 
   // Recompute the parameters and all the indices ne
-  updateParameters();
+  updateParameters(data);
 }
 
-bool ODEFit::hasReporters() const
+bool ODEFit::hasReporters(FitData * ) const
 {
   return false;
 }
 
-double ODEFit::reporterValue() const
+double ODEFit::reporterValue(FitData * ) const
 {
   throw InternalError("Reporters unimplemented but requested");
   return 0.0;
 }
 
-CommandOptions ODEFit::currentSoftOptions() const
+CommandOptions ODEFit::currentSoftOptions(FitData * data) const
 {
-  return solver()->getStepperOptions().asOptions();
+  return solver(data)->getStepperOptions().asOptions();
 }
 
-void ODEFit::processSoftOptions(const CommandOptions & opts)
+void ODEFit::processSoftOptions(const CommandOptions & opts, FitData * data) const
 {
   // Parse ODEStepperOptions
-  ODESolver * slv = solver();
+  ODESolver * slv = solver(data);
   ODEStepperOptions op = slv->getStepperOptions();
   op.fixed = false;           // Drop non-adaptative steps !
   op.parseOptions(opts);
@@ -93,57 +94,60 @@ void ODEFit::processSoftOptions(const CommandOptions & opts)
                 << op.description() << endl;
 }
 
-void ODEFit::updateParameters()
+void ODEFit::updateParameters(FitData * data) const
 {
-  parametersCache.clear();
-  QList<ParameterDefinition> & defs = parametersCache;
-  
-  
-  QStringList parameters = systemParameters();
-  timeIndex= -1;
+  Storage * s = storage<Storage>(data);
 
-  if(! hasReporters()) {
-    QStringList names = variableNames();
+  s->parametersCache.clear();
+  QList<ParameterDefinition> & defs = s->parametersCache;
+  
+  
+  QStringList parameters = systemParameters(data);
+  s->timeIndex= -1;
+
+  if(! hasReporters(data)) {
+    QStringList names = variableNames(data);
     for(int i = 0; i < names.size(); i++)
       defs << ParameterDefinition(QString("y_%1").
                                   arg(names[i]), i != 0);
   }
   // If there are reporters, then the underlying parameters are
   // already taken care of by the systemParameters()
-  if(hasOrigTime)
+  if(s->hasOrigTime)
     defs << ParameterDefinition("t0", true);
     
-  parametersBase = defs.size();
+  s->parametersBase = defs.size();
   
-  skippedIndices.clear();
+  s->skippedIndices.clear();
   for(int i = 0; i < parameters.size(); i++) {
     const QString & name = parameters[i];
     if(name == "t") {
-      timeIndex = i;
-      skippedIndices.insert(i);
+      s->timeIndex = i;
+      s->skippedIndices.insert(i);
       continue;
     }
       
-    if(timeDependentParameters.contains(name)) {
-      skippedIndices.insert(i);
+    if(s->timeDependentParameters.contains(name)) {
+      s->skippedIndices.insert(i);
       continue;
     }
 
-    defs << ParameterDefinition(name, isFixed(name)); 
+    defs << ParameterDefinition(name, isFixed(name, data)); 
   }
-  tdBase = defs.size();
-  defs += timeDependentParameters.fitParameters();
-  parametersNumber = defs.size();
+  s->tdBase = defs.size();
+  defs += s->timeDependentParameters.fitParameters();
+  s->parametersNumber = defs.size();
 }
 
-bool ODEFit::isFixed(const QString & ) const
+bool ODEFit::isFixed(const QString &, FitData * ) const
 {
   return false;
 }
 
-QList<ParameterDefinition> ODEFit::parameters() const
+QList<ParameterDefinition> ODEFit::parameters(FitData * data) const
 {
-  return parametersCache;
+  Storage * s = storage<Storage>(data);
+  return s->parametersCache;
 }
 
 ODEFit::~ODEFit()
@@ -152,41 +156,43 @@ ODEFit::~ODEFit()
 }
 
 void ODEFit::function(const double * a, FitData * data, 
-                      const DataSet * ds , gsl_vector * target)
+                      const DataSet * ds , gsl_vector * target) const
 {
-  ODESolver * slv = solver();
+  Storage * s = storage<Storage>(data);
+  ODESolver * slv = solver(data);
   slv->resetStepper();
 
   double sr = 0;
 
-  setupCallback([this, a](double t, double * params) {
-      if(timeIndex >= 0)
-        params[timeIndex] = t;
-      timeDependentParameters.computeValues(t, params, a + tdBase);
+  setupCallback([this, a, s](double t, double * params) {
+      if(s->timeIndex >= 0)
+        params[s->timeIndex] = t;
+      s->timeDependentParameters.computeValues(t, params, a + s->tdBase);
     });
 
   const Vector & xv = ds->x();
 
-  double ini = voltammogram ? 0 : xv[0];
-  initialize(hasOrigTime ? *(a + parametersBase - 1) : ini, a);
+  double ini = s->voltammogram ? 0 : xv[0];
+  initialize(s->hasOrigTime ? *(a + s->parametersBase - 1) : ini, a, data);
 
   
   // if(data->debug)
   //   dumpAllParameters();
 
-  Vector discontinuities = timeDependentParameters.discontinuities(a + tdBase);
+  Vector discontinuities = s->timeDependentParameters.
+    discontinuities(a + s->tdBase);
 
-  direction = xv[1] > xv[0] ? sr : -sr;
-  lastTime = 0;
-  lastPot = xv[0];
+  s->direction = xv[1] > xv[0] ? sr : -sr;
+  s->lastTime = 0;
+  s->lastPot = xv[0];
 
-  bool reporters = hasReporters();
+  bool reporters = hasReporters(data);
   for(int i = 0; i < xv.size(); i++) {
     // Here, we must be wary of the discontinuity points (ie those
     // of the time-evolving stuff)
 
 
-    double tg = (voltammogram ? lastTime : xv[i]);
+    double tg = (s->voltammogram ? s->lastTime : xv[i]);
     while(discontinuities.size() > 0 && 
           discontinuities[0] < slv->currentTime())
       discontinuities.remove(0);
@@ -204,11 +210,11 @@ void ODEFit::function(const double * a, FitData * data,
     double val = 0;
     const double * cv = slv->currentValues();
     if(reporters)
-      val = reporterValue();
+      val = reporterValue(data);
     else {
       int sz = slv->dimension();
       for(int j = 0; j < sz; j++)
-        val += cv[j] * a[j + (voltammogram ? 2 : 0)];
+        val += cv[j] * a[j + (s->voltammogram ? 2 : 0)];
     }
     gsl_vector_set(target, i, val);
   }
@@ -220,53 +226,6 @@ void ODEFit::function(const double * a, FitData * data,
       
 }
 
-//   virtual void initialGuess(FitData * /*params*/, 
-//                             const DataSet *ds,
-//                             double * a)
-//   {
-//     const Vector & x = ds->x();
-//     const Vector & y = ds->y();
-
-
-//     int nb = system->speciesNumber();
-//     if(! system->reporterExpression) {
-//       // All currents to 0 but the first
-
-//       for(int i = 0; i < nb; i++)
-//         a[i + (voltammogram ? 2 : 0)] = (i == 0 ? y.max() : 0);
-//     }
-
-//     double * b = a + parametersBase;
-//     if(hasOrigTime)
-//       b[-1] = x[0] - 20;
-
-//     // All initial concentrations to 0 but the first
-//     for(int i = 0; i < nb; i++)
-//       b[i] = (i == 0 ? 1 : 0);
-    
-//     // All rate constants and other to 1 ?
-
-//     // We can't use params->parameterDefinitions.size(), as this will
-//     // fail miserably in combined fits
-//     for(int i = nb + parametersBase; i < parametersNumber;
-//         i++)
-//       a[i] = 1;                 // Simple, heh ?
-
-//     // And have the parameters handle themselves:
-//     timeDependentParameters.setInitialGuesses(a + tdBase, ds);
-
-//   };
-
-//   virtual ArgumentList * fitArguments() const {
-//     if(system)
-//       return NULL;
-//     return new 
-//       ArgumentList(QList<Argument *>()
-//                    << new FileArgument("system", 
-//                                        "System",
-//                                        "Path to the file describing the "
-//                                        "system"));
-//   };
 
 ArgumentList * ODEFit::fitSoftOptions() const
 {
@@ -286,31 +245,3 @@ ArgumentList * ODEFit::fitHardOptions() const
                                      "If on, one can choose the initial time")
                  );
 }
-
-
-//   KineticSystemFit() :
-//     PerDatasetFit("kinetic-system", 
-//                   "Full kinetic system",
-//                   "", 1, -1, false), system(NULL), evolver(NULL)
-//   { 
-//     makeCommands(NULL, 
-//                  effector(this, &KineticSystemFit::runFitCurrentDataSet, true),
-//                  effector(this, &KineticSystemFit::runFit, true),
-//                  NULL,
-//                  effector(this, &KineticSystemFit::computeFit)
-//                  );
-//   };
-
-//   KineticSystemFit(const QString & name, 
-//                    KineticSystem * sys,
-//                    const QString & file
-//                    ) : 
-//     PerDatasetFit(name.toLocal8Bit(), 
-//                   QString("Kinetic system of %1").arg(file).toLocal8Bit(),
-//                   "", 1, -1, false), system(sys), evolver(NULL)
-//   {
-//     system->prepareForTimeEvolution();
-//     evolver = new KineticSystemEvolver(system);
-//     makeCommands();
-//   }
-// };

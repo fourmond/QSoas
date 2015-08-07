@@ -177,3 +177,15 @@ double Ruby::toDouble(VALUE val)
   return v;
 }
 
+static VALUE ruby2CHelper(QString str)
+{
+  VALUE s = Ruby::fromQString(str);
+  return rb_funcall2(Ruby::main, rb_intern("soas_ruby2c"), 1, &s);
+}
+
+QString Ruby::ruby2C(const QString & str)
+{
+  VALUE ret = Ruby::run(ruby2CHelper, str);
+  return toQString(ret);
+}
+

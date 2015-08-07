@@ -89,3 +89,14 @@ def soas_find_vars(__code)
   end while ! __done
   return __vars
 end
+
+# This code converts ruby code into C code.
+#
+# This is by no means a real conversion, it assumes that the C code is
+# simplistic, but this will work for most of the simple arithmetic
+# formulas.
+#
+# @todo One day, use Ripper to do that properly
+def soas_ruby2c(code)
+  return code.gsub("\n", ";\n")
+end

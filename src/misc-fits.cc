@@ -37,31 +37,46 @@
 
 
 class SlowScanLowPotFit : public PerDatasetFit {
-  bool explicitRate;
+  class Storage : public FitInternalStorage {
+  public:
+    bool explicitRate = false;
+  };
 
 protected:
-  virtual void processOptions(const CommandOptions & opts)
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    return new Storage;
+  };
+
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+    return deepCopy<Storage>(source);
+  };
+
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const
   {
-    explicitRate = false;
-    updateFromOptions(opts, "explicit-rate", explicitRate);
+    Storage * s = storage<Storage>(data);
+
+    s->explicitRate = false;
+    updateFromOptions(opts, "explicit-rate", s->explicitRate);
   }
 
   
-  virtual QString optionsString() const {
-    return explicitRate ? "explicit rate" : "implicit rate";
+  virtual QString optionsString(FitData * data) const {
+    Storage * s = storage<Storage>(data);
+    return s->explicitRate ? "explicit rate" : "implicit rate";
   }
 
 public:
 
 
   /// Formula:
-  virtual void function(const double * a, FitData * , 
-                        const DataSet * ds , gsl_vector * target) {
-    
-    double fara = GSL_CONST_MKSA_FARADAY /(a[0] * GSL_CONST_MKSA_MOLAR_GAS);
-    double alpha = (explicitRate ? a[6] : a[5]);
+  virtual void function(const double * a, FitData * data, 
+                        const DataSet * ds , gsl_vector * target) const {
+    Storage * s = storage<Storage>(data);
 
-    double D = (explicitRate ? pow(10, a[5])/(alpha * fara * a[4])
+    double fara = GSL_CONST_MKSA_FARADAY /(a[0] * GSL_CONST_MKSA_MOLAR_GAS);
+    double alpha = (s->explicitRate ? a[6] : a[5]);
+
+    double D = (s->explicitRate ? pow(10, a[5])/(alpha * fara * a[4])
                 : pow(10, a[4]));
 
     const Vector & xv = ds->x();
@@ -74,13 +89,15 @@ public:
     }
   };
 
-  virtual void initialGuess(FitData * , 
+  virtual void initialGuess(FitData * data, 
                             const DataSet * ,
-                            double * a)
+                            double * a) const
   {
+    Storage * s = storage<Storage>(data);
+
     a[0] = soas().temperature();
     a[1] = 1; a[2] = 1; 
-    if(explicitRate) {
+    if(s->explicitRate) {
       a[4] = 5e-4;
       a[5] = 1;
       a[6] = 1;
@@ -93,13 +110,15 @@ public:
     a[3] = 0.5;
   };
 
-  virtual QList<ParameterDefinition> parameters() const {
+  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+    Storage * s = storage<Storage>(data);
+
     QList<ParameterDefinition> params;
     params << ParameterDefinition("temperature", true)
            << ParameterDefinition("a")
            << ParameterDefinition("b")
            << ParameterDefinition("c");
-    if(explicitRate)
+    if(s->explicitRate)
       params << ParameterDefinition("nu", true)
              << ParameterDefinition("log(k)");
     else
@@ -126,7 +145,6 @@ public:
   SlowScanLowPotFit() : PerDatasetFit("slow-scan-lp", 
                                       "Slow scan test",
                                       "Slow scan", 1, -1, false)  { 
-    explicitRate = false;
     makeCommands();
 
   };
@@ -139,34 +157,49 @@ SlowScanLowPotFit fit_slow_scan_low_pot;
 
 class SlowScanHighPotFit : public PerDatasetFit {
 
-  /// Whether we have a bi-exponential decay or not.
-  bool biExp;
+  class Storage : public FitInternalStorage {
+  public:
+    /// Whether we have a bi-exponential decay or not.
+    bool biExp;
 
-  /// Whether or not we add an additional constant factor
-  bool scaling;
+    /// Whether or not we add an additional constant factor
+    bool scaling;
+  };
 
 protected:
 
-  virtual void processOptions(const CommandOptions & opts)
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    return new Storage;
+  };
+
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+    return deepCopy<Storage>(source);
+  };
+
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const
   {
-    biExp = false;
-    updateFromOptions(opts, "bi-exp", biExp);
-    scaling = false;
-    updateFromOptions(opts, "scaling", scaling);
+    Storage * s = storage<Storage>(data);
+
+    s->biExp = false;
+    updateFromOptions(opts, "bi-exp", s->biExp);
+    s->scaling = false;
+    updateFromOptions(opts, "scaling", s->scaling);
   }
 
   
-  virtual QString optionsString() const {
-    return QString(biExp ? "bi-exponential" : "mono-exponential") + 
-      QString(scaling ? " with " : " without ") + "scaling";
+  virtual QString optionsString(FitData * data) const {
+    Storage * s = storage<Storage>(data);
+    return QString(s->biExp ? "bi-exponential" : "mono-exponential") + 
+      QString(s->scaling ? " with " : " without ") + "scaling";
   }
 
 public:
 
 
   /// Formula:
-  virtual void function(const double * a, FitData * , 
-                        const DataSet * ds , gsl_vector * target) {
+  virtual void function(const double * a, FitData * data, 
+                        const DataSet * ds , gsl_vector * target) const {
+    Storage * s = storage<Storage>(data);
 
     const Vector & xv = ds->x();
 
@@ -174,8 +207,8 @@ public:
     double delta_E = xv[1] - xv[0];
     double E_vertex = 0;
     double scale = 1;
-    if(scaling)
-      scale = a[biExp ? 9 : 7];
+    if(s->scaling)
+      scale = a[s->biExp ? 9 : 7];
     for(int i = 0; i < xv.size(); i++) {
       double x = xv[i];
       double t;
@@ -184,7 +217,7 @@ public:
       else
         t = (2*E_vertex - a[0] - x)/a[1];
       
-      double dec = (biExp ? 
+      double dec = (s->biExp ? 
                     (1 - a[8]) * exp(-t/a[6]) + 
                     a[8] * exp(-t/a[7])
                     : exp(-t/a[6]));
@@ -202,10 +235,12 @@ public:
 
   };
 
-  virtual void initialGuess(FitData * , 
+  virtual void initialGuess(FitData * data, 
                             const DataSet * ds,
-                            double * a)
+                            double * a) const
   {
+    Storage * s = storage<Storage>(data);
+
     a[0] = ds->x()[0];
     a[1] = 5e-4; 
     a[2] = 1e-6; 
@@ -214,16 +249,17 @@ public:
     a[5] = 1;
     a[6] = 300;
     int base = 7;
-    if(biExp) {
+    if(s->biExp) {
       a[7] = 800;
       a[8] = 0.3;
       base = 9;
     }
-    if(scaling)
+    if(s->scaling)
       a[base] = 1;
   };
 
-  virtual QList<ParameterDefinition> parameters() const {
+  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+    Storage * s = storage<Storage>(data);
     QList<ParameterDefinition> ret;
     ret << ParameterDefinition("E1", true) // Potentiel initial
         << ParameterDefinition("nu", true) // vitesse de balayage
@@ -233,12 +269,12 @@ public:
         << ParameterDefinition("alpha_0") //5
         << ParameterDefinition("tau");
     
-    if(biExp)
+    if(s->biExp)
       ret << ParameterDefinition("tau_slow")
           << ParameterDefinition("frac_slow");
     // Fraction of the slow phase with respect to the total
     // inactivation.
-    if(scaling)
+    if(s->scaling)
       ret << ParameterDefinition("fact"); // prefactor
     
     return ret;
@@ -263,7 +299,7 @@ public:
   SlowScanHighPotFit() : 
     PerDatasetFit("slow-scan-hp", 
                   "Slow scan test",
-                  "Slow scan", 1, -1, false), biExp(false) { 
+                  "Slow scan", 1, -1, false) { 
     makeCommands();
   };
 };
@@ -276,42 +312,56 @@ SlowScanHighPotFit fit_slow_scan_high_pot;
 
 /// Fits to the ECR model of electrochemical waves
 class ECRFit : public PerDatasetFit {
-  /// Whether or not the current plateaus off at extreme potentials.
-  bool plateau;
+  class Storage : public FitInternalStorage {
+  public:
+    /// Whether or not the current plateaus off at extreme potentials.
+    bool plateau;
 
-  /// Whether we use Eoc or k2/k_m2
-  bool useEoc;
+    /// Whether we use Eoc or k2/k_m2
+    bool useEoc;
 
-  /// Whether the current is a reduction current (default) or an
-  /// oxidation current
-  bool isOxidation;
-
+    /// Whether the current is a reduction current (default) or an
+    /// oxidation current
+    bool isOxidation;
+  };
+    
 protected:
+    virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    return new Storage;
+  };
 
-  virtual void processOptions(const CommandOptions & opts)
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+    return deepCopy<Storage>(source);
+  };
+
+
+  virtual void processOptions(const CommandOptions & opts, FitData * data)
   {
-    plateau = false;
-    useEoc = false;
-    isOxidation = false;
-    updateFromOptions(opts, "plateau", plateau);
+    Storage * s = storage<Storage>(data);
+    s->plateau = false;
+    s->useEoc = false;
+    s->isOxidation = false;
+    updateFromOptions(opts, "plateau", s->plateau);
     // updateFromOptions(opts, "use-eoc", useEoc);
     // updateFromOptions(opts, "oxidation", isOxidation);
   }
 
   
-  virtual QString optionsString() const {
+  virtual QString optionsString(FitData * data) const {
+    Storage * s = storage<Storage>(data);
     return QString("%1, %2, %3").
-      arg(plateau ? "reaching plateau" : "not reaching plateau").
-      arg(useEoc ? "eoc" : "bias").
-      arg(isOxidation ? "oxidation" : "reduction");
+      arg(s->plateau ? "reaching plateau" : "not reaching plateau").
+      arg(s->useEoc ? "eoc" : "bias").
+      arg(s->isOxidation ? "oxidation" : "reduction");
   }
 
 public:
 
 
   /// Formula:
-  virtual void function(const double * params, FitData * , 
-                        const DataSet * ds , gsl_vector * target) {
+  virtual void function(const double * params, FitData * data, 
+                        const DataSet * ds , gsl_vector * target) const {
+    Storage * s = storage<Storage>(data);
 
     const Vector & xv = ds->x();
     double f = GSL_CONST_MKSA_FARADAY /(params[0] * GSL_CONST_MKSA_MOLAR_GAS);
@@ -335,7 +385,7 @@ public:
       double ap = eone/bias;
       
       double v;
-      if(plateau)
+      if(s->plateau)
         v = cur * (1 - ap)/a * 
           (1 + log((bias * a + b)/
                    (bias * a + b * exp(params[5])))/params[5]);
@@ -345,26 +395,28 @@ public:
     }
   };
 
-  virtual void initialGuess(FitData * , 
-                            const DataSet * ds,
-                            double * a)
+  virtual void initialGuess(FitData * data, 
+                            const DataSet * /*ds*/,
+                            double * a) const
   {
+    Storage * s = storage<Storage>(data);
     a[0] = soas().temperature();
     a[1] = -0.6; 
     a[2] = 1; 
     a[3] = 2; 
     a[4] = -1e-5;
-    if(plateau)
+    if(s->plateau)
       a[5] = 1;
   };
 
-  virtual QList<ParameterDefinition> parameters() const {
+  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+    Storage * s = storage<Storage>(data);
     QList<ParameterDefinition> defs;
     defs << ParameterDefinition("temperature", true)
          << ParameterDefinition("E0")
          << ParameterDefinition("k2/k0");
     defs << ParameterDefinition("k2/k-2"); 
-    if(plateau)
+    if(s->plateau)
       defs << ParameterDefinition("ilim")
            << ParameterDefinition("betad0");
     else
@@ -409,57 +461,73 @@ ECRFit fit_ecr;
 
 /// Fits to the EECR model of electrochemical waves
 class EECRFit : public PerDatasetFit {
-  /// Whether or not the current plateaus off at extreme potentials.
-  bool plateau;
 
-  /// Whether we use Eoc or k2/k_m2
-  bool useEoc;
+  class Storage : public FitInternalStorage {
+  public:
+    /// Whether or not the current plateaus off at extreme potentials.
+    bool plateau;
 
-  /// Whether the current is a reduction current (default) or an
-  /// oxidation current
-  bool isOxidation;
+    /// Whether we use Eoc or k2/k_m2
+    bool useEoc;
 
+    /// Whether the current is a reduction current (default) or an
+    /// oxidation current
+    bool isOxidation;
+  };
+  
 protected:
 
-  virtual void processOptions(const CommandOptions & opts)
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    return new Storage;
+  };
+
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+    return deepCopy<Storage>(source);
+  };
+
+
+  virtual void processOptions(const CommandOptions & opts, FitData *data) const
   {
-    plateau = false;
-    useEoc = false;
-    isOxidation = false;
-    updateFromOptions(opts, "plateau", plateau);
-    updateFromOptions(opts, "use-eoc", useEoc);
-    updateFromOptions(opts, "oxidation", isOxidation);
+    Storage * s = storage<Storage>(data);
+    s->plateau = false;
+    s->useEoc = false;
+    s->isOxidation = false;
+    updateFromOptions(opts, "plateau", s->plateau);
+    updateFromOptions(opts, "use-eoc", s->useEoc);
+    updateFromOptions(opts, "oxidation", s->isOxidation);
   }
 
   
-  virtual QString optionsString() const {
+  virtual QString optionsString(FitData * data) const {
+    Storage * s = storage<Storage>(data);
     return QString("%1, %2, %3").
-      arg(plateau ? "reaching plateau" : "not reaching plateau").
-      arg(useEoc ? "eoc" : "bias").
-      arg(isOxidation ? "oxidation" : "reduction");
+      arg(s->plateau ? "reaching plateau" : "not reaching plateau").
+      arg(s->useEoc ? "eoc" : "bias").
+      arg(s->isOxidation ? "oxidation" : "reduction");
   }
 
 public:
 
 
   /// Formula:
-  virtual void function(const double * params, FitData * , 
-                        const DataSet * ds , gsl_vector * target) {
+  virtual void function(const double * params, FitData * data, 
+                        const DataSet * ds , gsl_vector * target) const {
+    Storage * s = storage<Storage>(data);
 
     const Vector & xv = ds->x();
     double f = GSL_CONST_MKSA_FARADAY /(params[0] * GSL_CONST_MKSA_MOLAR_GAS);
 
-    for(int i = 3; i <= (useEoc ? 4 : 5); i++)
+    for(int i = 3; i <= (s->useEoc ? 4 : 5); i++)
       if(params[i] < 0)
         throw RangeError(QString("Negative rate constant ratio: #%1").arg(i));
 
     double cur = params[6];
     double bias = params[5];
-    if(useEoc)
+    if(s->useEoc)
       bias = exp(f * (params[5] - params[1])) * 
         exp(f * (params[5] - params[2]));
     
-    if(isOxidation)
+    if(s->isOxidation)
       cur = -cur * bias;
 
     if(cur > 0)
@@ -477,7 +545,7 @@ public:
       double ap = e1*e2/bias;
       
       double v;
-      if(plateau)
+      if(s->plateau)
         v = cur * (1 - ap)/a * 
           (1 + log((bias * a + b)/
                    (bias * a + b * exp(params[7])))/params[7]);
@@ -487,33 +555,37 @@ public:
     }
   };
 
-  virtual void initialGuess(FitData * , 
-                            const DataSet * ds,
-                            double * a)
+  virtual void initialGuess(FitData * data, 
+                            const DataSet * /*ds*/,
+                            double * a) const
   {
+    Storage * s = storage<Storage>(data);
+
     a[0] = soas().temperature();
     a[1] = -0.6; 
     a[2] = -0.3; 
     a[3] = 1; 
     a[4] = 10; 
-    a[5] = (useEoc ? -0.66 : 2);
-    a[6] = (isOxidation ? 1e-5 : -1e-5);
-    if(plateau)
+    a[5] = (s->useEoc ? -0.66 : 2);
+    a[6] = (s->isOxidation ? 1e-5 : -1e-5);
+    if(s->plateau)
       a[7] = 1;
   };
 
-  virtual QList<ParameterDefinition> parameters() const {
+  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+    Storage * s = storage<Storage>(data);
+
     QList<ParameterDefinition> defs;
     defs << ParameterDefinition("temperature", true)
          << ParameterDefinition("E1")
          << ParameterDefinition("E2")
          << ParameterDefinition("k02/k01")
          << ParameterDefinition("k2/k0");
-    if(useEoc)
+    if(s->useEoc)
       defs << ParameterDefinition("Eoc"); // parameter 5
     else
       defs << ParameterDefinition("k2/k-2"); 
-    if(plateau)
+    if(s->plateau)
       defs << ParameterDefinition("ilim")
            << ParameterDefinition("betad0");
     else
@@ -560,24 +632,12 @@ EECRFit fit_eecr;
 
 /// Fits to the EECR + relay model of electrochemical waves
 class EECRRelayFit : public PerDatasetFit {
-
-protected:
-
-  virtual void processOptions(const CommandOptions & opts)
-  {
-  }
-
-  
-  virtual QString optionsString() const {
-    return "";
-  }
-
 public:
 
 
   /// Formula:
   virtual void function(const double * params, FitData * , 
-                        const DataSet * ds , gsl_vector * target) {
+                        const DataSet * ds , gsl_vector * target) const {
 
     const Vector & xv = ds->x();
     const double f = GSL_CONST_MKSA_FARADAY 
@@ -683,8 +743,8 @@ public:
   };
 
   virtual void initialGuess(FitData * , 
-                            const DataSet * ds,
-                            double * a)
+                            const DataSet * /*ds*/,
+                            double * a) const
   {
     a[0] = soas().temperature();
     a[1] = -0.6; 
@@ -698,7 +758,7 @@ public:
     a[9] = 1;
   };
 
-  virtual QList<ParameterDefinition> parameters() const {
+  virtual QList<ParameterDefinition> parameters(FitData * ) const {
     QList<ParameterDefinition> defs;
     defs << ParameterDefinition("temperature", true)
          << ParameterDefinition("Er")
@@ -735,44 +795,63 @@ EECRRelayFit fit_ececr_relay;
 /// Fits to a polynomial (with various constaints). The polynomial 0
 /// is given by x_0.
 class PolynomialFit : public PerDatasetFit {
-  /// Whether or not the function should be monotonic
-  bool monotonic;
+  class Storage : public FitInternalStorage {
+  public:
+    /// Whether or not the function should be monotonic
+    bool monotonic;
 
-  /// Whether or not the first derivative should be monotonic
-  bool firstMonotonic;
+    /// Whether or not the first derivative should be monotonic
+    bool firstMonotonic;
 
-  /// The order of the polynomials
-  int order;
-
+    /// The order of the polynomials
+    int order;
+  };
+  
 protected:
 
-  virtual void processOptions(const CommandOptions & opts)
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    return new Storage;
+  };
+
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+    return deepCopy<Storage>(source);
+  };
+
+
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const
   {
-    order = 10;
-    updateFromOptions(opts, "order", order);
-    processSoftOptions(opts);
+    Storage * s = storage<Storage>(data);
+
+    s->order = 10;
+    updateFromOptions(opts, "order", s->order);
+    processSoftOptions(opts, data);
   }
 
   
-  virtual QString optionsString() const {
+  virtual QString optionsString(FitData * data) const {
+    Storage * s = storage<Storage>(data);
+
     return QString("order %1").
-      arg(order);
+      arg(s->order);
   }
 
 public:
 
-  virtual void processSoftOptions(const CommandOptions & opts)
+  virtual void processSoftOptions(const CommandOptions & opts, FitData * data) const
   {
-    monotonic = false;
-    firstMonotonic = false;
+    Storage * s = storage<Storage>(data);
 
-    updateFromOptions(opts, "monotonic", monotonic);
-    updateFromOptions(opts, "first-monotonic", firstMonotonic);
+    s->monotonic = false;
+    s->firstMonotonic = false;
+
+    updateFromOptions(opts, "monotonic", s->monotonic);
+    updateFromOptions(opts, "first-monotonic", s->firstMonotonic);
   }
 
   /// Formula:
-  virtual void function(const double * params, FitData * , 
-                        const DataSet * ds , gsl_vector * target) {
+  virtual void function(const double * params, FitData * data, 
+                        const DataSet * ds , gsl_vector * target) const {
+    Storage * s = storage<Storage>(data);
 
     const Vector & xv = ds->x();
 
@@ -785,9 +864,9 @@ public:
 
     for(int i = 0; i < xv.size(); i++) {
       double x = xv[i] - x0;
-      gsl_poly_eval_derivs(params + 1, order + 1, x, values, 3);
+      gsl_poly_eval_derivs(params + 1, s->order + 1, x, values, 3);
       gsl_vector_set(target, i, values[0]);
-      if(monotonic) {
+      if(s->monotonic) {
         if(d1 != 0) {
           if(d1 * values[1] < 0)
             throw RangeError("Non-monotonic");
@@ -797,7 +876,7 @@ public:
         }
       }
 
-      if(firstMonotonic) {
+      if(s->firstMonotonic) {
         if(d2 != 0) {
           if(d2 * values[2] < 0)
             throw RangeError("Inflexion points");
@@ -811,24 +890,28 @@ public:
     }
   }
 
-  virtual void initialGuess(FitData * , 
+  virtual void initialGuess(FitData * data, 
                             const DataSet * ds,
-                            double * a)
+                            double * a) const
   {
+    Storage * s = storage<Storage>(data);
+
     a[0] = ds->x().min();
     double ymin = ds->y().min();
     double ymax = ds->y().max();
     double dx = ds->x().max() - a[0];
     a[1] = ymin;
-    for(int i = 0; i < order; i++) {
+    for(int i = 0; i < s->order; i++) {
       a[2 + i] = (ymax - ymin)/pow(dx, i);
     }
   };
 
-  virtual QList<ParameterDefinition> parameters() const {
+  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+    Storage * s = storage<Storage>(data);
+
     QList<ParameterDefinition> defs;
     defs << ParameterDefinition("x_0", true);
-    for(int i = 0; i <= order; i++)
+    for(int i = 0; i <= s->order; i++)
       defs << ParameterDefinition(QString("A_%1").arg(i));
     return defs;
   };
@@ -878,28 +961,43 @@ PolynomialFit fit_polynomial;
 
 /// Fits to two polynomials connected by a linear segment, of class C1
 class TwoPolynomialFit : public PerDatasetFit {
-  /// The order of the polynomials
-  int order;
+
+  class Storage : public FitInternalStorage {
+  public:
+    /// The order of the polynomials
+    int order = 5;
+  };
 
 protected:
 
-  virtual void processOptions(const CommandOptions & opts)
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    return new Storage;
+  };
+
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+    return deepCopy<Storage>(source);
+  };
+
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const
   {
-    order = 5;
-    updateFromOptions(opts, "order", order);
+    Storage * s = storage<Storage>(data);
+    s->order = 5;
+    updateFromOptions(opts, "order", s->order);
   }
 
   
-  virtual QString optionsString() const {
+  virtual QString optionsString(FitData * data) const {
+    Storage * s = storage<Storage>(data);
     return QString("order %1").
-      arg(order);
+      arg(s->order);
   }
 
 public:
 
   /// Formula:
-  virtual void function(const double * params, FitData * , 
-                        const DataSet * ds , gsl_vector * target) {
+  virtual void function(const double * params, FitData * data, 
+                        const DataSet * ds , gsl_vector * target) const {
+    Storage * s = storage<Storage>(data);
 
     const Vector & xv = ds->x();
     const double & xl = params[0];
@@ -909,8 +1007,8 @@ public:
     const double & b = params[3];
 
     
-    double lbase[order+1];
-    double rbase[order+1];
+    double lbase[s->order+1];
+    double rbase[s->order+1];
 
     // Prepare coefficients:
     lbase[0] = xl * a + b;
@@ -919,9 +1017,9 @@ public:
     rbase[0] = xr * a + b;
     rbase[1] = a;
 
-    for(int i = 0; i < order - 1; i++) {
+    for(int i = 0; i < s->order - 1; i++) {
       lbase[i+2] = params[4+i];
-      rbase[i+2] = params[4+i + order - 1];
+      rbase[i+2] = params[4+i + s->order - 1];
     }
 
     if(xl > xr)
@@ -933,11 +1031,11 @@ public:
       double v;
       if(x < xl) {
         double dx = x - xl;
-        v = gsl_poly_eval(lbase, order + 1, dx);
+        v = gsl_poly_eval(lbase, s->order + 1, dx);
       }
       else if(x > xr) {
         double dx = x - xr;
-        v = gsl_poly_eval(rbase, order + 1, dx);
+        v = gsl_poly_eval(rbase, s->order + 1, dx);
       }
       else {
         v = a*x + b;
@@ -946,10 +1044,12 @@ public:
     }
   }
 
-  virtual void initialGuess(FitData * , 
+  virtual void initialGuess(FitData * data, 
                             const DataSet * ds,
-                            double * a)
+                            double * a) const
   {
+    Storage * s = storage<Storage>(data);
+
     double xmin = ds->x().min();
     double xmax = ds->x().max();
 
@@ -968,22 +1068,24 @@ public:
     double yrex = ymax - (a[2] *xmax + a[3]);
     double dxl = xmin - a[0];
     double dxr = xmax - a[1];
-    for(int i = 0; i < order - 1; i++) {
-      a[4 + i] = ylex/(order * pow(dxl, i));
-      a[4 + i + order - 1] = yrex/(order * pow(dxr, i));
+    for(int i = 0; i < s->order - 1; i++) {
+      a[4 + i] = ylex/(s->order * pow(dxl, i));
+      a[4 + i + s->order - 1] = yrex/(s->order * pow(dxr, i));
     }
   };
 
-  virtual QList<ParameterDefinition> parameters() const {
+  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+    Storage * s = storage<Storage>(data);
+
     QList<ParameterDefinition> defs;
     defs << ParameterDefinition("x_l");
     defs << ParameterDefinition("x_r");
     defs << ParameterDefinition("a");
     defs << ParameterDefinition("b");
 
-    for(int i = 2; i <= order; i++)
+    for(int i = 2; i <= s->order; i++)
       defs << ParameterDefinition(QString("Al_%1").arg(i));
-    for(int i = 2; i <= order; i++)
+    for(int i = 2; i <= s->order; i++)
       defs << ParameterDefinition(QString("Ar_%1").arg(i));
     return defs;
   };

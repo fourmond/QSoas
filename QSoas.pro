@@ -207,8 +207,8 @@ SOURCES += src/qmain.cc \
         src/peaks.cc \
         src/datasetbrowser.cc \
         src/pointtracker.cc \
-#        src/misc-fits.cc \
-#        src/custom-fits.cc \
+        src/misc-fits.cc \
+        src/custom-fits.cc \
 #        src/derivativefit.cc \
         src/formattedstring.cc \
         src/expression.cc \

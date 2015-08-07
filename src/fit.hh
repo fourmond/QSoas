@@ -286,7 +286,15 @@ public:
   void runFit(const QString & name, QList<const DataSet *> datasets,
               const CommandOptions & opts);
 
+protected:
+  /// This is the actual function running the fit. It gives the
+  /// control to a hook that is called when the FitData has been setup
+  /// but the fit options have not been processed yet. This hook can
+  /// be used to process fit arguments.
+  void runFit(std::function<void (FitData *)> hook, const QString & name, QList<const DataSet *> datasets,
+              const CommandOptions & opts);
 
+public:
   /// Use the given data file to compute the simulated data, without
   /// prompting
   void computeFit(const QString & name, QString file,

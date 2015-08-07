@@ -287,7 +287,14 @@ void Fit::runFitCurrentDataSet(const QString & n, const CommandOptions & opts)
   runFit(n, ds, opts);
 }
 
-void Fit::runFit(const QString &, QList<const DataSet *> datasets,
+void Fit::runFit(const QString &n, QList<const DataSet *> datasets,
+                 const CommandOptions & opts)
+{
+  runFit([](FitData *) {}, n, datasets, opts);
+}
+
+void Fit::runFit(std::function<void (FitData *)> hook,
+                 const QString &, QList<const DataSet *> datasets,
                  const CommandOptions & opts)
 {
   bool debug = false;
@@ -299,6 +306,7 @@ void Fit::runFit(const QString &, QList<const DataSet *> datasets,
   QStringList ep = extraParams.split(",", QString::SkipEmptyParts);
   
   FitData data(this, datasets, debug, ep, debug2);
+  hook(&data);
   processOptions(opts, &data);
   data.finishInitialization();
   checkDatasets(&data);

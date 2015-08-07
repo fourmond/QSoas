@@ -42,7 +42,7 @@ public:
 ///
 /// This \b cannot be a child of DelayedAssign, because it involves
 /// referencing to an object living in the child that has therefore
-/// already been destroyed before the based class uses its value...
+/// already been destroyed before the base class uses its value...
 template<typename T> class TemporaryChange {
 protected:
   T & target;

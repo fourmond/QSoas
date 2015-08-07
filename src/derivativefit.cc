@@ -28,13 +28,20 @@
 #include <commandeffector-templates.hh>
 #include <possessive-containers.hh>
 
-void DerivativeFit::processOptions(const CommandOptions & opts)
+#include <idioms.hh>
+
+
+
+void DerivativeFit::processOptions(const CommandOptions & opts,
+                                     FitData * data) const
 {
-  Fit::processOptions(underlyingFit, opts);
+  Storage * s = storage<Storage>(data);
+  TemporaryChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+  Fit::processOptions(underlyingFit, opts, data);
 }
 
 
-QString DerivativeFit::optionsString() const
+QString DerivativeFit::optionsString(FitData *  data) const
 {
   QString n;
   switch(mode) {
@@ -47,7 +54,9 @@ QString DerivativeFit::optionsString() const
   default:
     ;
   }
-  return Fit::optionsString(underlyingFit) + " -- derivative" + n;
+  Storage * s = storage<Storage>(data);
+  TemporaryChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+  return Fit::optionsString(underlyingFit, data) + " -- derivative" + n;
 }
 
 void DerivativeFit::checkDatasets(const FitData * data) const
@@ -59,11 +68,15 @@ void DerivativeFit::checkDatasets(const FitData * data) const
   // No restriction in the other cases
 }
 
-QList<ParameterDefinition> DerivativeFit::parameters() const
+QList<ParameterDefinition> DerivativeFit::parameters(FitData * data) const
 {
-  QList<ParameterDefinition> params = underlyingFit->parameters(); 
-  originalParameters = params.size();
-  for(int i = 0; i < originalParameters; i++)
+  Storage * s = storage<Storage>(data);
+  
+  TemporaryChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+  QList<ParameterDefinition> params = underlyingFit->parameters(data);
+
+  s->originalParameters = params.size();
+  for(int i = 0; i < s->originalParameters; i++)
     params[i].canBeBufferSpecific = (mode != Separated);
   if(mode == Combined)
     params << ParameterDefinition("deriv_scale", true); 
@@ -71,20 +84,22 @@ QList<ParameterDefinition> DerivativeFit::parameters() const
   return params;
 }
 
-void DerivativeFit::initialGuess(FitData * data, double * guess)
+void DerivativeFit::initialGuess(FitData * data, double * guess) const
 {
+  Storage * s = storage<Storage>(data);
   // Now, that won't work !
-  int tp = originalParameters;
+  int tp = s->originalParameters;
   if(mode == Combined)
     ++tp;
+  TemporaryChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
   for(int i = 0; i < data->datasets.size(); i++) {
     underlyingFit->initialGuess(data, data->datasets[i], guess + i*tp);
     if(mode == Combined)
-      guess[i*tp + originalParameters] = 1; // Makes a good default scale !
+      guess[i*tp + s->originalParameters] = 1; // Makes a good default scale !
   }
 }
 
-QString DerivativeFit::annotateDataSet(int idx) const
+QString DerivativeFit::annotateDataSet(int idx, FitData *) const
 {
   if(mode != Separated)
     return QString();
@@ -97,21 +112,24 @@ DerivativeFit::~DerivativeFit()
 {
 }
 
-void DerivativeFit::reserveBuffers(const FitData * data)
+void DerivativeFit::reserveBuffers(FitData * data) const
 {
+  Storage * s = storage<Storage>(data);
   for(int i = 0; i < data->datasets.size(); i++) {
-    if(i >= buffers.size())
-      buffers << Vector();
-    buffers[i].resize(data->datasets[i]->x().size());
+    if(i >= s->buffers.size())
+      s->buffers << Vector();
+    s->buffers[i].resize(data->datasets[i]->x().size());
   }
-  /// @todo Potentially, this is a limited memory leak.
-  
 }
 
 void DerivativeFit::function(const double * parameters,
-                             FitData * data, gsl_vector * target)
+                             FitData * data, gsl_vector * target) const
 {
   reserveBuffers(data);
+  Storage * s = storage<Storage>(data);
+
+  TemporaryChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+
   int i = 0;
   if(mode == Separated) {
     gsl_vector_view fnView = data->viewForDataset(0, target);
@@ -123,7 +141,7 @@ void DerivativeFit::function(const double * parameters,
   }                      
   for(; i < data->datasets.size(); ++i) {
     gsl_vector_view derView = data->viewForDataset(i, target);
-    gsl_vector_view bufView = buffers[i].vectorView(); 
+    gsl_vector_view bufView = s->buffers[i].vectorView(); 
 
     const DataSet * derDS = data->datasets[i];
 
@@ -161,7 +179,7 @@ void DerivativeFit::function(const double * parameters,
 
       // Do scaling of the derivative !
       gsl_vector_scale(&sDerView.vector, 
-                       parameters[pbase + originalParameters]);
+                       parameters[pbase + s->originalParameters]);
     }
     else {
       underlyingFit->function(parameters + i * 
@@ -196,6 +214,28 @@ DerivativeFit::DerivativeFit(PerDatasetFit * source, DerivativeFit::Mode m) :
   /// @todo Add own options.
 
   makeCommands(NULL, NULL, NULL, opts);
+}
+
+FitInternalStorage * DerivativeFit::allocateStorage(FitData * data) const
+{
+  Storage * s = new Storage;
+  s->originalStorage = underlyingFit->allocateStorage(data);
+  return s;
+}
+
+FitInternalStorage * DerivativeFit::copyStorage(FitData * data,
+                                                FitInternalStorage * source,
+                                                int ds) const
+{
+  Storage * s = static_cast<Storage *>(source);
+  Storage * s2 = new Storage(*s);
+  
+  {
+    TemporaryChange<FitInternalStorage*> d(data->fitStorage,
+                                           s->originalStorage);
+    s2->originalStorage = underlyingFit->copyStorage(data, s->originalStorage, ds);
+  }
+  return s2;
 }
 
 

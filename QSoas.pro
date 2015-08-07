@@ -209,7 +209,7 @@ SOURCES += src/qmain.cc \
         src/pointtracker.cc \
         src/misc-fits.cc \
         src/custom-fits.cc \
-#        src/derivativefit.cc \
+        src/derivativefit.cc \
         src/formattedstring.cc \
         src/expression.cc \
         src/fitparameter.cc \

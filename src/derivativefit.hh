@@ -29,11 +29,6 @@ class Vector;
 
 /// This class handles the simultaneous fitting of a single buffer
 /// along with its derivative.
-///
-/// @todo Unfortunately, this class simply won't work with arbitrary
-/// fits (unless one is using predefined fits), as the current
-/// framekwork makes it impossible to pass arguments around. (handling
-/// of options is hackish enough already)
 class DerivativeFit : public Fit {
 public: 
   typedef enum {
@@ -43,8 +38,8 @@ public:
   } Mode;
 
 protected:
-  virtual void processOptions(const CommandOptions & opts);
-  virtual QString optionsString() const;
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const;
+  virtual QString optionsString(FitData * data) const;
   virtual void checkDatasets(const FitData * data) const;
 
 
@@ -57,22 +52,32 @@ protected:
   /// into one ?
   Mode mode;
 
-  /// Various buffers for use with the computation of the derivatives
-  QList<Vector> buffers;
 
   /// Make sure the buffers are the right size.
-  void reserveBuffers(const FitData * data);
+  void reserveBuffers(FitData * data) const;
 
-  /// Number of parameters in the original fit
-  mutable int originalParameters;
+  class Storage : public FitInternalStorage {
+  public:
+    /// Number of parameters in the original fit
+    int originalParameters;
+
+    /// Various buffers for use with the computation of the derivatives
+    QList<Vector> buffers;
+
+    /// Storage space of the original fit
+    FitInternalStorage * originalStorage;
+  };
+
+  virtual FitInternalStorage * allocateStorage(FitData * data) const;
+  virtual FitInternalStorage * copyStorage(FitData * data, FitInternalStorage * source, int ds = -1) const;
 
 public:
 
-  virtual QList<ParameterDefinition> parameters() const;
+  virtual QList<ParameterDefinition> parameters(FitData * data) const;
   virtual void function(const double * parameters,
-                        FitData * data, gsl_vector * target);
-  virtual QString annotateDataSet(int idx) const;
-  virtual void initialGuess(FitData * data, double * guess);
+                        FitData * data, gsl_vector * target) const;
+  virtual QString annotateDataSet(int idx, FitData * data) const;
+  virtual void initialGuess(FitData * data, double * guess) const;
 
 
 

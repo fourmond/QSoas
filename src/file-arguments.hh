@@ -100,11 +100,12 @@ public:
 /// An argument representing a unique file name.
 /// @todo Provide filters for the dialog
 class SeveralFilesArgument : public Argument {
+  bool expandGlobs;
 public:
 
   SeveralFilesArgument(const char * cn, const char * pn,
-                       const char * d = "", bool g = true) : 
-    Argument(cn, pn, d, g) {
+                       const char * d = "", bool g = true, bool glob = true) : 
+    Argument(cn, pn, d, g), expandGlobs(glob) {
   }; 
   
   /// Returns a wrapped QStringList

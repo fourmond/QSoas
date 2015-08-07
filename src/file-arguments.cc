@@ -104,9 +104,15 @@ ArgumentMarshaller * FileSaveArgument::promptForValue(QWidget * base) const
 
 ArgumentMarshaller * SeveralFilesArgument::fromString(const QString & str) const
 {
-  QStringList rv = Utils::glob(str, false);
-  for(int i = 0; i < rv.size(); i++)
-    rv[i] = QDir::cleanPath(rv[i]);
+  
+  QStringList rv;
+  if(expandGlobs) {
+    rv = Utils::glob(str, false);
+    for(int i = 0; i < rv.size(); i++)
+      rv[i] = QDir::cleanPath(rv[i]);
+  }
+  else
+    rv << str;
   
   return new ArgumentMarshallerChild<QStringList>(rv);
 }

@@ -777,5 +777,76 @@ tm("timer", // command name
    "Timer",
    "Start/stop timer");
 
+//////////////////////////////////////////////////////////////////////
+
+// Shell execution !
+
+void systemCommand(const QString &, QStringList args, const CommandOptions & opts)
+{
+  bool useShell =
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+    true;
+#else
+  false;
+#endif
+  updateFromOptions(opts, "shell", useShell);
+
+  int timeout = -1;
+  updateFromOptions(opts, "timeout", timeout);
+  
+
+  QString prog = useShell ? "sh" : args.takeFirst();
+  QStringList a;
+  if(useShell)
+    a << "-c" << args.join(" ");
+  else
+    a = args;
+
+  QProcess prc;
+  prc.setProcessChannelMode(QProcess::QProcess::MergedChannels);
+  Terminal::out << "Running " << prog << " '" << a.join("' '") << "'" << endl;
+  prc.start(prog, a, QIODevice::ReadOnly);
+  prc.closeWriteChannel();
+  bool killed = false;
+  if(! prc.waitForFinished(timeout)) {
+    prc.terminate();
+    if(! prc.waitForFinished(timeout/10))
+      prc.kill();
+    killed = true;
+  }
+  Terminal::out << prc.readAll() << endl;
+  if(killed)
+    Terminal::out << "Process killed (timeout)" << endl;  
+}
+
+static ArgumentList 
+syA(QList<Argument *>() 
+    << new SeveralFilesArgument("command", 
+                                "Command",
+                                "Arguments of the command ", true, 
+                                false)
+    );
+
+static ArgumentList 
+syO(QList<Argument *>() 
+    << new BoolArgument("shell", 
+                        "Shell",
+                        "Use shell")
+    << new IntegerArgument("timeout", 
+                           "Timeout",
+                           "Timeout (in milliseconds)")
+    );
+
+
+static Command 
+sy("system", // command name
+   effector(systemCommand), // action
+   "file",  // group name
+   &syA, // arguments
+   &syO, // options
+   "System",
+   "Execute system commands");
+
+
 
 

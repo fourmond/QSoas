@@ -177,15 +177,28 @@ double Ruby::toDouble(VALUE val)
   return v;
 }
 
-static VALUE ruby2CHelper(QString str)
+static VALUE ruby2CHelper(QString str, QStringList * tgt)
 {
-  VALUE s = Ruby::fromQString(str);
-  return rb_funcall2(Ruby::main, rb_intern("soas_ruby2c"), 1, &s);
+  VALUE args[2];
+  args[0] = Ruby::fromQString(str);
+  args[1] = rb_ary_new();
+  
+  VALUE ret = rb_funcall2(Ruby::main, rb_intern("soas_ruby2c"), 2, args);
+
+  if(tgt) {
+    int max = RARRAY_LEN(args[1]);
+    for(int i = 0; i < max; i++) {
+      VALUE v = rb_ary_entry(args[1], i);
+      *tgt << StringValueCStr(v);
+    }
+  }
+
+  return ret;
 }
 
-QString Ruby::ruby2C(const QString & str)
+QString Ruby::ruby2C(const QString & str, QStringList * vars)
 {
-  VALUE ret = Ruby::run(ruby2CHelper, str);
+  VALUE ret = Ruby::run(ruby2CHelper, str, vars);
   return toQString(ret);
 }
 

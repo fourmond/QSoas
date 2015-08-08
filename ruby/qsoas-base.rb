@@ -97,6 +97,14 @@ end
 # formulas.
 #
 # @todo One day, use Ripper to do that properly
-def soas_ruby2c(code)
-  return code.gsub("\n", ";\n")
+def soas_ruby2c(code, vars)
+  s = code.gsub("\n", ";\n")
+
+  vars.clear
+  # A very rudimentary but mostly OK way to find defined variables
+  s.gsub(/(?:^|;)\s*(\w+)\s*=/) do |x|
+    vars << $1
+  end
+
+  return s
 end

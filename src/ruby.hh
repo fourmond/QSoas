@@ -74,7 +74,10 @@ namespace Ruby {
 
   /// Attempts to convert the given Ruby code into C code. Will not
   /// work unless the code is very simple.
-  QString ruby2C(const QString & code);
+  ///
+  /// The vars array contains the list of variables that are defined
+  /// in the code.
+  QString ruby2C(const QString & code, QStringList * vars = NULL);
 
   /// The main object.
   extern VALUE main;

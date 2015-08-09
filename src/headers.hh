@@ -122,6 +122,10 @@
 #include <QLocale>
 #include <QKeyEvent>
 
+
+// Plugins
+#include <QLibrary>
+
 // We do C++ sometimes
 #include <stdexcept>
 #include <functional>

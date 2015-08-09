@@ -36,6 +36,12 @@ class DataStack : public QObject {
   /// The DataSet objects
   QList<DataSet *> dataSets;
 
+  /// The datasets produced by the last command -- currently acquiring
+  QList<GuardedPointer<DataSet> > latest;
+
+  /// The datasets produced by the last command -- saved 
+  QList<GuardedPointer<DataSet> > latestSaved;
+
   /// The redo stack.
   QList<DataSet *> redoStack;
 
@@ -82,6 +88,10 @@ public:
   /// currentBufferChanged() signal (useful for the functions that
   /// already take care of the display)
   void pushDataSet(DataSet * dataset, bool silent = false);
+
+
+  /// This hook is called at the start of each new command.
+  void startNewCommand();
 
   /// Displays to terminal a small text description of the contents of
   /// the stack.

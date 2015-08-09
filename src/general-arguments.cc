@@ -250,7 +250,7 @@ void SeveralDataSetArgument::concatenateArguments(ArgumentMarshaller * a,
 QStringList SeveralDataSetArgument::proposeCompletion(const QString & starter) const
 {
   QStringList all;
-  all << "displayed" << "all";
+  all << "displayed" << "all" << "latest";
   QSet<QString> st = soas().stack().definedFlags();
   for(auto i = st.begin(); i != st.end(); i++) {
     const QString &s = *i;

@@ -73,6 +73,11 @@ protected:
     if(_target)
       _target->removeWatcher(this);
   };
+
+public:
+  bool isValid() const {
+    return _target != NULL;
+  };
 };
 
 inline Guardable::~Guardable()

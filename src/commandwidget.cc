@@ -191,6 +191,7 @@ bool CommandWidget::runCommand(const QStringList & raw)
   soas().showMessage(tr("Running: %1").arg(cmd));
   try {
     TemporaryChange<QString> ch(curCmdline, raw.join(" "));
+    soas().stack().startNewCommand();
     Command::runCommand(raw, this);
   }
   catch(const RuntimeError & error) {

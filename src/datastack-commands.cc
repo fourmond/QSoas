@@ -105,21 +105,38 @@ static void saveBuffersCommand(const QString &,
 {
   QString fmt;
   updateFromOptions(opts, "format", fmt);
-  bool rename = true;
-  updateFromOptions(opts, "rename", rename);
+  QString expr;
+  updateFromOptions(opts, "expression", expr);
+  QString mode;
+  updateFromOptions(opts, "mode", mode);
+
+  bool rename = false;
+  bool save = true;
+  if(mode == "both")
+    rename = true;
+  if(mode == "rename") {
+    save = false;
+    rename = true;
+  }
+    
+  
   for(int i = 0; i < datasets.size(); i++) {
     QString nm = datasets[i]->name;
     if(! fmt.isEmpty()) {
       char buffer[fmt.size()*2 + 100];
       snprintf(buffer, sizeof(buffer), fmt.toUtf8(), i);
       nm = QString::fromUtf8(buffer);
-      if(rename) {
-        /// @hack And a nice const-cast...
-        DataSet * ds = const_cast<DataSet * >(datasets[i]);
-        ds->name = nm;
-      }
     }
-    datasets[i]->write(nm);
+    else if(! expr.isEmpty()) {
+      nm = Ruby::toQString(datasets[i]->evaluateWithMeta(expr));
+    }
+    if(rename) {
+      /// @hack And a nice const-cast...
+      DataSet * ds = const_cast<DataSet * >(datasets[i]);
+      ds->name = nm;
+    }
+    if(save)
+      datasets[i]->write(nm);
   }
 }
 
@@ -134,9 +151,13 @@ sBOpts(QList<Argument *>()
        << new StringArgument("format", 
                              "File name format",
                              "Overrides buffer names if present")
-       << new BoolArgument("rename", 
-                           "Rename buffers",
-                           "If using format, whether or not to rename buffers")
+       << new StringArgument("expression", 
+                             "A full Ruby expression",
+                             "A full Ruby expression ")
+       << new ChoiceArgument(QStringList() << "save" << "both" << "rename", 
+                             "mode", 
+                             "How to rename buffers",
+                             "If using format or expression, whether or not to rename buffers ")
        );
 
 

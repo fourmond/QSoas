@@ -37,10 +37,7 @@ class DataStack : public QObject {
   QList<DataSet *> dataSets;
 
   /// The datasets produced by the last command -- currently acquiring
-  QList<GuardedPointer<DataSet> > latest;
-
-  /// The datasets produced by the last command -- saved 
-  QList<GuardedPointer<DataSet> > latestSaved;
+  QList< QList<GuardedPointer<DataSet> > > latest;
 
   /// The redo stack.
   QList<DataSet *> redoStack;

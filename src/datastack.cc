@@ -123,10 +123,17 @@ QList<const DataSet *> DataStack::datasetsFromSpec(const QString & spec) const
       for(int i = 0; i < mkd.size(); i++)
         dsets << mkd[i];
     }
-    else if(str == "latest")  {
-      for(int i = 0; i < latestSaved.size(); i++) {
-        if(latestSaved[i].isValid())
-          dsets << latestSaved[i];
+    else if(str == "latest" || str.startsWith("latest:"))  {
+      int idx = 1;
+      int d = str.indexOf(':');
+      if(d > 0)
+        idx = str.mid(d+1).toInt();
+      QTextStream o(stdout);
+      o << "Latest: " << idx << endl;
+      const QList<GuardedPointer<DataSet> > & src = latest[idx];
+      for(int i = 0; i < src.size(); i++) {
+        if(src[i].isValid())
+          dsets << src[i];
       }
     }
     else {
@@ -142,14 +149,13 @@ QList<const DataSet *> DataStack::datasetsFromSpec(const QString & spec) const
 
 void DataStack::startNewCommand()
 {
-  latestSaved = latest;
-  latest.clear();
+  latest.insert(0, QList<GuardedPointer<DataSet> >());
 }
 
 void DataStack::pushDataSet(DataSet * dataset, bool silent)
 {
   dataSets << dataset;
-  latest << dataset;
+  latest.first() << dataset;
   dataSetByName[dataset->name] = dataset;
   cachedByteSize += dataset->byteSize();
   if(! silent)

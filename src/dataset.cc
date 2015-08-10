@@ -1373,17 +1373,25 @@ QSet<QString> DataSet::allFlags() const
   return flags;
 }
 
-bool DataSet::matches(const QString & expression) const
+VALUE DataSet::evaluateWithMeta(const QString & expression, bool useStats) const
 {
   SaveGlobal _a("$stats");
   SaveGlobal _b("$meta");
-  Statistics st(this);
-  rb_gv_set("$stats", st.toRuby());
-  rb_gv_set("$meta", getMetaData().toRuby());
-  VALUE v = Ruby::run(Ruby::eval, expression.toLocal8Bit());
-  return RTEST(v);
+  if(useStats) {
+    Statistics st(this);
+    rb_gv_set("$stats", st.toRuby());
+  }
+  ValueHash vl = getMetaData();
+  vl["name"] = name;
+  rb_gv_set("$meta", vl.toRuby());
+  return Ruby::run(Ruby::eval, expression.toLocal8Bit());
 }
 
+bool DataSet::matches(const QString & expression) const
+{
+  VALUE v = evaluateWithMeta(expression, true);
+  return RTEST(v);
+}
 
 
 

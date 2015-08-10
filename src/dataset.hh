@@ -592,6 +592,10 @@ public:
   void addMetaData(const ValueHash & val, bool override = true);
 
 
+  /// Evaluates the given expression, setting the $stats and $meta
+  /// variables as necessary
+  VALUE evaluateWithMeta(const QString & expression, bool useStats = false) const;
+
   /// Runs the given expression feeding it the values of the meta-data
   /// and the statistics, and returns wether the expression is true or
   /// false. It returns false also if the expression fails for some

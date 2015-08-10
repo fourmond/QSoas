@@ -128,8 +128,6 @@ QList<const DataSet *> DataStack::datasetsFromSpec(const QString & spec) const
       int d = str.indexOf(':');
       if(d > 0)
         idx = str.mid(d+1).toInt();
-      QTextStream o(stdout);
-      o << "Latest: " << idx << endl;
       const QList<GuardedPointer<DataSet> > & src = latest[idx];
       for(int i = 0; i < src.size(); i++) {
         if(src[i].isValid())

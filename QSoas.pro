@@ -192,7 +192,7 @@ SOURCES += src/qmain.cc \
         src/spline.cc \
         src/actioncombo.cc \
         src/flowinggridlayout.cc \
-        src/fitparameters.cc \
+        src/fitworkspace.cc \
         src/fitdata.cc \
         src/exceptions.cc \
         src/file-arguments.cc \
@@ -302,7 +302,7 @@ HEADERS += src/headers.hh \
         src/spline.hh \
         src/actioncombo.hh \
         src/flowinggridlayout.hh \
-        src/fitparameters.hh \
+        src/fitworkspace.hh \
         src/fitdata.hh \
         src/exceptions.hh \
         src/file-arguments.hh \

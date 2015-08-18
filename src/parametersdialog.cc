@@ -22,7 +22,7 @@
 #include <fit.hh>
 #include <fitdata.hh>
 #include <dataset.hh>
-#include <fitparameters.hh>
+#include <fitworkspace.hh>
 #include <fitparametereditor.hh>
 #include <parametersdialog.hh>
 
@@ -32,7 +32,7 @@
 static SettingsValue<QSize> parametersDialogSize("parametersdialog/size", 
                                                  QSize(700,500));
 
-ParametersDialog::ParametersDialog(FitParameters * params) :
+ParametersDialog::ParametersDialog(FitWorkspace * params) :
   parameters(params)
 {
   resize(parametersDialogSize);

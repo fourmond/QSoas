@@ -32,7 +32,7 @@
 
 #include <fitdata.hh>
 #include <fitdialog.hh>
-#include <fitparameters.hh>
+#include <fitworkspace.hh>
 
 #include <terminal.hh>
 
@@ -404,7 +404,7 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
   data.finishInitialization();
   checkDatasets(&data);
 
-  FitParameters ws(&data);
+  FitWorkspace ws(&data);
 
   // FitDialog dlg(&data);
   // if(reexport)

@@ -98,7 +98,7 @@
 
    Some useability improvements:
 
-   @li It should be possible to build a "stack" of FitParameters
+   @li It should be possible to build a "stack" of FitWorkspace
    without interference between them, and choose at the right time.
    @li display the (scaled !) covariance matrix in terms of colors
    (white uncorrelated, red positively correlated and blue negatively

@@ -30,7 +30,7 @@
 
 #include <flowinggridlayout.hh>
 #include <fitdata.hh>
-#include <fitparameters.hh>
+#include <fitworkspace.hh>
 #include <fit.hh>
 
 #include <terminal.hh>
@@ -39,7 +39,7 @@
 
 static SettingsValue<QSize> viewerSize("parametersviewer/size", QSize(700,500));
 
-ParametersViewer::ParametersViewer(FitParameters * params) :
+ParametersViewer::ParametersViewer(FitWorkspace * params) :
   parameters(params)
 {
   resize(viewerSize);

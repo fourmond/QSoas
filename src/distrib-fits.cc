@@ -28,7 +28,6 @@
 #include <soas.hh>
 
 #include <fitdata.hh>
-#include <fitdialog.hh>
 
 #include <gsl/gsl_randist.h>
 

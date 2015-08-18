@@ -21,7 +21,7 @@
 #ifndef __PARAMETERSDIALOG_HH
 #define __PARAMETERSDIALOG_HH
 
-class FitParameters;
+class FitWorkspace;
 class FitParameterEditor;
 
 /// This class provides a dialog to fine-tune the exact nature of all
@@ -33,7 +33,7 @@ class ParametersDialog : public QDialog {
   void setupFrame();
 
   /// The parameters we'll be editing
-  FitParameters * parameters;
+  FitWorkspace * parameters;
 
   /// The editors needed for that:
   QList<FitParameterEditor *> editors;
@@ -45,7 +45,7 @@ class ParametersDialog : public QDialog {
   int nbDatasets;
 
 public:
-  ParametersDialog(FitParameters * params);
+  ParametersDialog(FitWorkspace * params);
 
   virtual ~ParametersDialog();
 

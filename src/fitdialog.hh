@@ -23,7 +23,7 @@
 #define __FITDIALOG_HH
 
 #include <fitengine.hh>
-#include <fitparameters.hh>
+#include <fitworkspace.hh>
 #include <fittrajectory.hh>
 
 class FitData;
@@ -72,7 +72,7 @@ class FitDialog : public QDialog {
   QList<Vector> subFunctions;
 
   /// The parameters
-  FitParameters parameters;
+  FitWorkspace parameters;
 
   /// The current index
   int currentIndex;

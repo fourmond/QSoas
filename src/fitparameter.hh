@@ -87,10 +87,10 @@ public:
   };
 
   /// Saves the parameter as a string. It is the second part of the
-  /// output of FitParameters::saveParameters().
+  /// output of FitWorkspace::saveParameters().
   ///
   /// Its goal isn't to save context information (indices) but raw
-  /// FitParameter information. FitParameters::saveParameters takes
+  /// FitParameter information. FitWorkspace::saveParameters takes
   /// care of the context.
   virtual QString saveAsString(double value) const;
 

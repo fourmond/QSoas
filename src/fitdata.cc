@@ -31,7 +31,6 @@
 
 #include <gsl/gsl_cdf.h>
 
-#include <fitdialog.hh>
 #include <fitengine.hh>
 
 

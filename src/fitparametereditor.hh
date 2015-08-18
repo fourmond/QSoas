@@ -22,7 +22,7 @@
 #ifndef __FITPARAMETEREDITOR_HH
 #define __FITPARAMETEREDITOR_HH
 
-#include <fitparameters.hh>
+#include <fitworkspace.hh>
 
 class FitData;
 class CurveView;
@@ -58,8 +58,8 @@ class FitParameterEditor : public QWidget {
   /// The fixed checkbox
   QCheckBox * fixed;
 
-  /// A pointer to the FitParameters object
-  FitParameters * parameters;
+  /// A pointer to the FitWorkspace object
+  FitWorkspace * parameters;
 
   /// Set to true during updates to avoid infinite recursion
   bool updatingEditor;
@@ -111,7 +111,7 @@ class FitParameterEditor : public QWidget {
 public:
   /// Creates a widget to edit the given definition
   FitParameterEditor(const ParameterDefinition * d, int idx,
-                     FitParameters * params, bool extended = false,
+                     FitWorkspace * params, bool extended = false,
                      bool checkTight = true, 
                      int ds = 0);
 

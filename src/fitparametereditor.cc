@@ -35,7 +35,7 @@
 
 
 FitParameterEditor::FitParameterEditor(const ParameterDefinition * d, 
-                                       int idx, FitParameters * p, 
+                                       int idx, FitWorkspace * p, 
                                        bool ext, bool checkTight, int ds) : 
   index(idx), dataset(ds), def(d), parameters(p), updatingEditor(false), 
   extended(ext)
@@ -321,7 +321,7 @@ void FitParameterEditor::onValueChanged(const QString & str)
 
   if(isGlobal()) {
     /// @todo This whole loop may not be necessary anymore now that we
-    /// have a pack/unpack cycle in FitParameters::recompute()
+    /// have a pack/unpack cycle in FitWorkspace::recompute()
     for(int i = 0; i < parameters->datasets; i++)
       parameters->parameter(index, 0)->
         setValue(&parameters->valueFor(index, i), str);

@@ -1,6 +1,6 @@
 /**
-   \file fitparameters.hh
-   The FitParameters class, handling fit parameters as the user sees them
+   \file fitworkspace.hh
+   The FitWorkspace class, handling fit parameters as the user sees them
    Copyright 2011 by Vincent Fourmond
              2012, 2013, 2014 by CNRS/AMU
 
@@ -45,7 +45,7 @@ class DataSet;
 /// @todo Handle import (which is quite different from load).
 ///
 /// @todo This should be renamed FitWorkspace
-class FitParameters {
+class FitWorkspace {
 
   /// The underlying FitData object.
   FitData * fitData;
@@ -168,8 +168,8 @@ public:
   bool hasPerpendicularCoordinates() const;
 
 
-  FitParameters(FitData * data);
-  ~FitParameters();
+  FitWorkspace(FitData * data);
+  ~FitWorkspace();
 
   /// @name Parameter edition
   ///
@@ -371,13 +371,13 @@ public:
 class CovarianceMatrixDisplay : public QDialog {
   Q_OBJECT;
 
-  FitParameters * parameters;
+  FitWorkspace * parameters;
   
   QTableWidget * widget;
 
   void setupFrame();
 public:
-  CovarianceMatrixDisplay(FitParameters * params, QWidget * parent = 0);
+  CovarianceMatrixDisplay(FitWorkspace * params, QWidget * parent = 0);
 
 public slots:
 

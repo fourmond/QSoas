@@ -1,5 +1,5 @@
 /*
-  fitparameters.cc: implementation of the FitParameters class
+  fitparameters.cc: implementation of the FitWorkspace class
   Copyright 2011 by Vincent Fourmond
             2012, 2013, 2014 by CNRS/AMU
 
@@ -19,7 +19,7 @@
 
 #include <headers.hh>
 #include <fitengine.hh>
-#include <fitparameters.hh>
+#include <fitworkspace.hh>
 #include <fit.hh>
 #include <fitdata.hh>
 #include <fitparameter.hh>
@@ -194,7 +194,7 @@ public:
 
 //////////////////////////////////////////////////////////////////////
 
-FitParameters::FitParameters(FitData * d) :
+FitWorkspace::FitWorkspace(FitData * d) :
   fitData(d), parameters(d->datasets.size() * 
                          d->parametersPerDataset()),
   rawCVMatrix(NULL), cookedCVMatrix(NULL)
@@ -230,42 +230,42 @@ FitParameters::FitParameters(FitData * d) :
   }
 }
 
-bool FitParameters::hasSubFunctions() const
+bool FitWorkspace::hasSubFunctions() const
 {
   return fitData->fit->hasSubFunctions(fitData);
 }
 
-bool FitParameters::displaySubFunctions() const
+bool FitWorkspace::displaySubFunctions() const
 {
   return fitData->fit->displaySubFunctions(fitData);
 }
 
-QString FitParameters::annotateDataSet(int idx) const
+QString FitWorkspace::annotateDataSet(int idx) const
 {
   return fitData->fit->annotateDataSet(idx, fitData);
 }
 
-CommandOptions FitParameters::currentSoftOptions() const
+CommandOptions FitWorkspace::currentSoftOptions() const
 {
   return fitData->fit->currentSoftOptions(fitData);
 }
 
-void FitParameters::processSoftOptions(const CommandOptions & opts) const
+void FitWorkspace::processSoftOptions(const CommandOptions & opts) const
 {
   return fitData->fit->processSoftOptions(opts, fitData);
 }
 
-QString FitParameters::fitName(bool includeOptions) const
+QString FitWorkspace::fitName(bool includeOptions) const
 {
   return fitData->fit->fitName(includeOptions, fitData);
 }
 
-bool FitParameters::hasPerpendicularCoordinates() const
+bool FitWorkspace::hasPerpendicularCoordinates() const
 {
   return perpendicularCoordinates.size() == datasets;
 }
 
-void FitParameters::freeMatrices()
+void FitWorkspace::freeMatrices()
 {
   if(rawCVMatrix) {
     gsl_matrix_free(rawCVMatrix);
@@ -275,18 +275,18 @@ void FitParameters::freeMatrices()
   }
 }
 
-FitParameters::~FitParameters()
+FitWorkspace::~FitWorkspace()
 {
   delete[] values;
   freeMatrices();
 }
 
-bool FitParameters::isGlobal(int index) const
+bool FitWorkspace::isGlobal(int index) const
 {
   return parameter(index, 0)->global();
 }
 
-bool FitParameters::isFixed(int index, int ds) const
+bool FitWorkspace::isFixed(int index, int ds) const
 {
   // Make sure the correct dataset is used.
   if(ds < 0 || isGlobal(index))
@@ -294,7 +294,7 @@ bool FitParameters::isFixed(int index, int ds) const
   return parameter(index, ds)->fixed();
 }
 
-void FitParameters::updateParameterValues()
+void FitWorkspace::updateParameterValues()
 {
   // These steps are necessary to ensure the correct initialization of
   // formula-based stuff.
@@ -318,14 +318,14 @@ void FitParameters::updateParameterValues()
   fitData->unpackParameters(&v.vector, values);
 }
 
-void FitParameters::recompute()
+void FitWorkspace::recompute()
 {
   updateParameterValues();
   fitData->fit->function(values, fitData, fitData->storage);
   computeResiduals();
 }
 
-QHash<QString, double> FitParameters::parametersForDataset(int ds) const
+QHash<QString, double> FitWorkspace::parametersForDataset(int ds) const
 {
   if(ds < 0 || ds >= datasets)
     throw InternalError("Asking for invalid dataset %1").arg(ds);
@@ -337,7 +337,7 @@ QHash<QString, double> FitParameters::parametersForDataset(int ds) const
   return ret;
 }
 
-void FitParameters::computeResiduals()
+void FitWorkspace::computeResiduals()
 {
   double tw = 0;                // weights
   double tr = 0;                // residuals
@@ -362,7 +362,7 @@ void FitParameters::computeResiduals()
   overallRelativeResiduals = sqrt(tr/td);
 }
 
-QList<Vector> FitParameters::computeSubFunctions()
+QList<Vector> FitWorkspace::computeSubFunctions()
 {
   QList<Vector> ret;
   if(! fitData->fit->hasSubFunctions(fitData))
@@ -374,7 +374,7 @@ QList<Vector> FitParameters::computeSubFunctions()
   return ret;
 }
 
-DataSet *  FitParameters::computedData(int i, bool residuals)
+DataSet *  FitWorkspace::computedData(int i, bool residuals)
 {
   const DataSet * base = fitData->datasets[i];
   gsl_vector_view v =  fitData->viewForDataset(i, fitData->storage);
@@ -393,7 +393,7 @@ DataSet *  FitParameters::computedData(int i, bool residuals)
   return ds;
 }
 
-void FitParameters::pushComputedData(const QStringList & flags, bool res)
+void FitWorkspace::pushComputedData(const QStringList & flags, bool res)
 {
   for(int i = 0; i < datasets; i++) {
     DataSet * ds = computedData(i, res);
@@ -404,7 +404,7 @@ void FitParameters::pushComputedData(const QStringList & flags, bool res)
 }
 
 
-void FitParameters::sendDataParameters()
+void FitWorkspace::sendDataParameters()
 {
   fitData->parameters.clear();
   
@@ -416,25 +416,25 @@ void FitParameters::sendDataParameters()
   }
 }
 
-void FitParameters::prepareFit(FitEngineFactoryItem * it,
+void FitWorkspace::prepareFit(FitEngineFactoryItem * it,
                                CommandOptions * opts)
 {
   sendDataParameters();
   fitData->initializeSolver(values, it, opts);
 }
 
-void FitParameters::retrieveParameters()
+void FitWorkspace::retrieveParameters()
 {
   fitData->unpackCurrentParameters(values);
 }
 
 
-QString FitParameters::parameterName(int idx) const
+QString FitWorkspace::parameterName(int idx) const
 {
   return fitData->parameterDefinitions[idx].name;
 }
 
-void FitParameters::prepareExport(QStringList & lst, QString & lines, 
+void FitWorkspace::prepareExport(QStringList & lst, QString & lines, 
                                   bool exportErrors, bool exportMeta)
 {
   updateParameterValues();
@@ -498,7 +498,7 @@ void FitParameters::prepareExport(QStringList & lst, QString & lines,
   }
 }
 
-void FitParameters::exportToOutFile(bool exportErrors, OutFile * out)
+void FitWorkspace::exportToOutFile(bool exportErrors, OutFile * out)
 {
   if( ! out)
     out = &OutFile::out;
@@ -513,7 +513,7 @@ void FitParameters::exportToOutFile(bool exportErrors, OutFile * out)
   (*out) << lines << flush;
 }
 
-void FitParameters::exportParameters(QIODevice * stream, 
+void FitWorkspace::exportParameters(QIODevice * stream, 
                                      bool exportErrors)
 {
   QTextStream out(stream);
@@ -527,7 +527,7 @@ void FitParameters::exportParameters(QIODevice * stream,
   out << lines << flush;
 }
 
-template <typename T> void FitParameters::writeText(T & target, 
+template <typename T> void FitWorkspace::writeText(T & target, 
                                                     bool /*writeMatrix*/,
                                                     const QString & prefix) const
 {
@@ -579,12 +579,12 @@ template <typename T> void FitParameters::writeText(T & target,
   }
 }
 
-void FitParameters::writeToTerminal(bool writeMatrix)
+void FitWorkspace::writeToTerminal(bool writeMatrix)
 {
   writeText(Terminal::out, writeMatrix);
 }
 
-void FitParameters::saveParameters(QIODevice * stream) const
+void FitWorkspace::saveParameters(QIODevice * stream) const
 {
   QTextStream out(stream);
   
@@ -629,7 +629,7 @@ void FitParameters::saveParameters(QIODevice * stream) const
   writeText(out, false, "# ");
 }
 
-void FitParameters::clear()
+void FitWorkspace::clear()
 {
   for(int i = 0; i < parameters.size(); i++) {
     delete parameters[i];
@@ -637,7 +637,7 @@ void FitParameters::clear()
   }
 }
 
-void FitParameters::checkIndex(int index, int dataset) const
+void FitWorkspace::checkIndex(int index, int dataset) const
 {
   if(index < 0 || index >= nbParameters)
     throw InternalError("Incorrect index: %1/%2").
@@ -648,7 +648,7 @@ void FitParameters::checkIndex(int index, int dataset) const
 }
 
 
-void FitParameters::setFixed(int index, int ds, bool fixed)
+void FitWorkspace::setFixed(int index, int ds, bool fixed)
 {
   checkIndex(index, ds);
   bool cur = isFixed(index, ds);
@@ -682,7 +682,7 @@ void FitParameters::setFixed(int index, int ds, bool fixed)
   }
 }
 
-void FitParameters::setValue(int index, int dataset, double val)
+void FitWorkspace::setValue(int index, int dataset, double val)
 {
   checkIndex(index, dataset);
   if(dataset < 0 || isGlobal(index)) {
@@ -693,7 +693,7 @@ void FitParameters::setValue(int index, int dataset, double val)
     values[dataset * nbParameters + (index % nbParameters)] = val;
 }
 
-void FitParameters::setValue(const QString & name, double value, int dsi)
+void FitWorkspace::setValue(const QString & name, double value, int dsi)
 {
   QRegExp specRE("([^[]+)\\[#(\\d+)\\]");
   QString p = name;
@@ -715,7 +715,7 @@ void FitParameters::setValue(const QString & name, double value, int dsi)
       setValue(idx, i, value);
 }
 
-void FitParameters::loadParameters(const QString & file, 
+void FitWorkspace::loadParameters(const QString & file, 
                                    int targetDS, int sourceDS)
 {
   QFile f(file);
@@ -723,7 +723,7 @@ void FitParameters::loadParameters(const QString & file,
   loadParameters(&f, targetDS, sourceDS);
 }
 
-void FitParameters::loadParameters(QIODevice * source, 
+void FitWorkspace::loadParameters(QIODevice * source, 
                                    int targetDS, int sourceDS)
 {
   QTextStream in(source);
@@ -735,7 +735,7 @@ void FitParameters::loadParameters(QIODevice * source,
 }
 
 
-void FitParameters::loadParameters(FitParametersFile & params, 
+void FitWorkspace::loadParameters(FitParametersFile & params, 
                                    int targetDS, int sourceDS)
 {
   for(int k = 0; k < params.parameters.size(); k++) {
@@ -804,7 +804,7 @@ void FitParameters::loadParameters(FitParametersFile & params,
   }
 }
 
-void FitParameters::loadParametersValues(FitParametersFile & params)
+void FitWorkspace::loadParametersValues(FitParametersFile & params)
 {
   if(! hasPerpendicularCoordinates())
     throw InternalError("Cannot load parameter values without perpendicular coordinates");
@@ -822,7 +822,7 @@ void FitParameters::loadParametersValues(FitParametersFile & params)
   }
 }
 
-void FitParameters::loadParametersValues(QIODevice * source)
+void FitWorkspace::loadParametersValues(QIODevice * source)
 {
   QTextStream in(source);
   FitParametersFile params;
@@ -835,19 +835,19 @@ void FitParameters::loadParametersValues(QIODevice * source)
   loadParametersValues(params);
 }
 
-void FitParameters::loadParametersValues(const QString & file)
+void FitWorkspace::loadParametersValues(const QString & file)
 {
   QFile f(file);
   Utils::open(&f,QIODevice::ReadOnly);
   loadParametersValues(&f);
 }
   
-void FitParameters::resetAllToInitialGuess()
+void FitWorkspace::resetAllToInitialGuess()
 {
   fitData->fit->initialGuess(fitData, values);
 }
 
-void FitParameters::resetToInitialGuess(int ds)
+void FitWorkspace::resetToInitialGuess(int ds)
 {
   QVarLengthArray<double, 1024> params(nbParameters * datasets);
   fitData->fit->initialGuess(fitData, params.data());
@@ -855,7 +855,7 @@ void FitParameters::resetToInitialGuess(int ds)
     values[i + ds * nbParameters] = params[i + ds * nbParameters];
 }
 
-void FitParameters::dump() const 
+void FitWorkspace::dump() const 
 {
   QTextStream o(stdout);
   for(int i = 0; i < parameters.size(); i++) {
@@ -869,7 +869,7 @@ void FitParameters::dump() const
   o << endl;
 }
 
-void FitParameters::computeMatrices()
+void FitWorkspace::computeMatrices()
 {
   const gsl_matrix * mat = fitData->covarianceMatrix();
   freeMatrices();
@@ -892,7 +892,7 @@ void FitParameters::computeMatrices()
     }
 }
 
-void FitParameters::setupWithCovarianceMatrix(QTableWidget * widget, 
+void FitWorkspace::setupWithCovarianceMatrix(QTableWidget * widget, 
                                               bool raw)
 {
   computeMatrices();
@@ -934,7 +934,7 @@ void FitParameters::setupWithCovarianceMatrix(QTableWidget * widget,
     }
 }
 
-void FitParameters::writeCovarianceMatrix(QTextStream & out,  bool raw)
+void FitWorkspace::writeCovarianceMatrix(QTextStream & out,  bool raw)
 {
   computeMatrices();            // Makes double work, but that isn't a
                                 // problem ?
@@ -942,7 +942,7 @@ void FitParameters::writeCovarianceMatrix(QTextStream & out,  bool raw)
   out << Utils::matrixString(mat);
 }
 
-Vector FitParameters::saveParameterValues()
+Vector FitWorkspace::saveParameterValues()
 {
   updateParameterValues();
   Vector ret;
@@ -952,7 +952,7 @@ Vector FitParameters::saveParameterValues()
   return ret;
 }
 
-void FitParameters::restoreParameterValues(const Vector & vect)
+void FitWorkspace::restoreParameterValues(const Vector & vect)
 {
   int size = nbParameters * datasets;
   for(int i = 0; (i < size && i < vect.size()); i++)
@@ -961,7 +961,7 @@ void FitParameters::restoreParameterValues(const Vector & vect)
 }
 
 
-Vector FitParameters::saveParameterErrors(double th)
+Vector FitWorkspace::saveParameterErrors(double th)
 {
   Vector ret;
   for(int i = 0; i < datasets; i++)
@@ -970,7 +970,7 @@ Vector FitParameters::saveParameterErrors(double th)
   return ret;
 }
 
-void FitParameters::writeCovarianceMatrixLatex(QTextStream & out,  bool raw)
+void FitWorkspace::writeCovarianceMatrixLatex(QTextStream & out,  bool raw)
 {
   computeMatrices();            // Makes double work, but that isn't a
                                 // problem ?
@@ -993,7 +993,7 @@ void FitParameters::writeCovarianceMatrixLatex(QTextStream & out,  bool raw)
   }
 }
 
-double FitParameters::getParameterError(int i, int ds, double th) const
+double FitWorkspace::getParameterError(int i, int ds, double th) const
 {
   const gsl_matrix * mat = fitData->covarianceMatrix();
   double conf = fitData->confidenceLimitFactor(th);
@@ -1013,7 +1013,7 @@ double FitParameters::getParameterError(int i, int ds, double th) const
   return conf*fabs(error/value);
 }
 
-void FitParameters::recomputeJacobian()
+void FitWorkspace::recomputeJacobian()
 {
   fitData->recomputeJacobian();
 }
@@ -1021,7 +1021,7 @@ void FitParameters::recomputeJacobian()
 
 //////////////////////////////////////////////////////////////////////
 
-CovarianceMatrixDisplay::CovarianceMatrixDisplay(FitParameters * params, 
+CovarianceMatrixDisplay::CovarianceMatrixDisplay(FitWorkspace * params, 
                                                  QWidget * parent) :
   QDialog(parent), parameters(params)
 {

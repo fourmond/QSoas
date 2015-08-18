@@ -25,7 +25,7 @@
 #include <curveview.hh>
 
 class DataSet;
-class FitParameters;
+class FitWorkspace;
 class CurveView;
 class CurveDataSet;
 
@@ -55,13 +55,13 @@ private:
   QList<CurveDataSet *> curveDatasets;
 
   /// The fit parameters
-  FitParameters * parameters;
+  FitWorkspace * parameters;
 
   void makeDatasets();
   void setupFrame();
 
 public:
-  ParametersViewer(FitParameters * params);
+  ParametersViewer(FitWorkspace * params);
   ~ParametersViewer();
 
 protected slots:

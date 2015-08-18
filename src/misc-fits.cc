@@ -29,7 +29,6 @@
 #include <soas.hh>
 
 #include <fitdata.hh>
-#include <fitdialog.hh>
 
 #include <gsl/gsl_const_mksa.h>
 

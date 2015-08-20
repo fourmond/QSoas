@@ -1,5 +1,5 @@
 /*
-  fitparameters.cc: implementation of the FitWorkspace class
+  fitworkspace.cc: implementation of the FitWorkspace class
   Copyright 2011 by Vincent Fourmond
             2012, 2013, 2014 by CNRS/AMU
 
@@ -30,6 +30,42 @@
 #include <outfile.hh>
 
 #include <utils.hh>
+
+
+/// @todo Implement a command-line interface to handle fits.
+/// 
+/// @li this means implementing @b contexts for commands, most
+/// probably a class name (probably through a class hierarchy
+/// ?). Then, one would need to track the current context, and enable
+/// only the appropriate commands.
+///
+/// @li commands with context would get another extra parameter
+/// (i.e. the context, in our case the fit workspace ?).
+///
+/// @li in some case, one would want to only CREATE the commands at
+/// the moment one enters the context ? (and this would make it far
+/// easier to pass around the pointer to FitWorkspace) Possibly using
+/// some lambda tricks ?
+///
+/// @li Write out everything to the Terminal, and display a copy of
+/// the terminal on the fit window (although smaller)
+///
+/// @li Current actions drop-down would be replace by a decent menu bar.
+///
+/// @li one-by-one iteration should be possible, with fine control on
+/// the convergence conditions
+///
+/// @li Loading of parameters with fine control on the parameter names
+/// (define replacements, either by hand or using regexps)
+///
+/// @li pushing buffers, saving/loading parameters, exporting
+/// parameters, and so on, everything gets simpler this way...
+///
+/// @li the delicate thing will be to find a way to have keyboard
+/// shortcuts ? Although in principle, just loading them onto the menu
+/// should be enough
+///
+/// @li Adding keyboard shortcuts to normal commands too...
 
 /// A storage class for parameters as read from a file
 ///

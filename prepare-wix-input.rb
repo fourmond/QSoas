@@ -37,7 +37,7 @@ files << rb
 
 # And now, we look for g++ libraries:
 path = ENV['PATH'].split(/\s*;\s*/)
-for f in %w[libgcc_s_dw2-1.dll libstdc++-6.dll mingwm10.dll]
+for f in %w[libgcc_s_dw2-1.dll libstdc++-6.dll mingwm10.dll libwinpthread-1.dll]
   for d in path
     t = File::join(d,f)
     if File.exists?(t)

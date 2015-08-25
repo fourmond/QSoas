@@ -22,6 +22,36 @@
 /// @todo There are probably a great number of useless headers
 /// here. Sort them out.
 
+// C includes
+
+// This is a glorious dirty hack to get QSoas to compile with Ruby on
+// windows
+#ifdef _WIN32 
+#  include <winsock2.h>
+
+#  ifdef __cplusplus
+extern "C"
+#  endif
+_CRTIMP unsigned int __cdecl __MINGW_NOTHROW _controlfp (unsigned int unNew, unsigned int
+unMask) __MINGW_ATTRIB_DEPRECATED_SEC_WARN;
+
+#  ifndef _PC_64
+#  define _PC_64 0x00000000
+#  endif
+
+#  ifndef _MCW_PC
+#  define _MCW_PC 0x00030000
+#  endif
+// ... and Ruby !
+#  include <ruby.h>
+
+// Ruby pollutes the name space, which is quite a pain
+#  undef truncate
+#endif
+
+
+
+
 #if defined __cplusplus
 #include <QApplication>
 #include <QClipboard>
@@ -134,13 +164,12 @@
 
 #endif
 
-// Now, C inclues
-
-// ... and Ruby !
-#include <ruby.h>
+#ifndef _WIN32
+#  include <ruby.h>
 
 // Ruby pollutes the name space, which is quite a pain
-#undef truncate
+#  undef truncate
+#endif
 
 
 // The gsl

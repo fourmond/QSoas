@@ -223,8 +223,10 @@ MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
   setWindowIcon(appIcon);
 
   Terminal::out << "This is QSoas version " << SOAS_VERSION 
-                << " running with " << Ruby::versionString() 
-                << "\n" << SOAS_BUILD_INFO << endl;
+                << " running with " << Ruby::versionString()
+                << " and Qt " << qVersion() 
+                << "\n" << SOAS_BUILD_INFO << " with Qt "
+                << QT_VERSION_STR << endl;
   Credits::displayStartupMessage();
   Terminal::out << "Starting at " << soasInstance->startupTime().toString()
                 << "\nCurrent directory is: " << QDir::currentPath() 

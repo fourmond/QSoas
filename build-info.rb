@@ -8,7 +8,7 @@ host = Socket.gethostname
 if host =~ /ccal/
   host = "mac-build-daemon"
 end
-build_info = "Built #{Time.now} on '#{host}'\\n"
+build_info = "Built #{Time.now} on '#{host}'"
 
 f.puts "#define SOAS_BUILD_INFO \"#{build_info}\""
 

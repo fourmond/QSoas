@@ -255,7 +255,7 @@ protected:
     /// The file name (unsure that's the best place)
     QString fileName;
 
-    Storage() : fileName("??") {
+    Storage() : system(NULL), fileName("??") {
       ownSystem = true;
     };
     

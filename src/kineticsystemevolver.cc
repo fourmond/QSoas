@@ -283,7 +283,7 @@ protected:
     /// The file name (unsure that's the best place)
     QString fileName;
 
-    Storage() {
+    Storage() : system(NULL), evolver(NULL) {
       ownSystem = true;
       fileName = "??";
     };

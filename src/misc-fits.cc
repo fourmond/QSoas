@@ -38,7 +38,7 @@
 class SlowScanLowPotFit : public PerDatasetFit {
   class Storage : public FitInternalStorage {
   public:
-    bool explicitRate = false;
+    bool explicitRate;
   };
 
 protected:
@@ -972,7 +972,7 @@ class TwoPolynomialFit : public PerDatasetFit {
   class Storage : public FitInternalStorage {
   public:
     /// The order of the polynomials
-    int order = 5;
+    int order;
   };
 
 protected:

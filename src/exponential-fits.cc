@@ -38,16 +38,16 @@ class ExponentialFit : public PerDatasetFit {
   class Storage : public FitInternalStorage {
   public:
     /// The number of exponentials
-    int exponentials = 1;
+    int exponentials;
     
     /// Whether there is an overall film loss
-    bool filmLoss = false;
+    bool filmLoss;
 
     /// Whether the amplitudes are relative or absolute
-    bool absolute = true;
+    bool absolute;
 
     /// Whether or not there is a slow linear phase
-    bool slowPhase = false;
+    bool slowPhase;
   };
 
 protected:
@@ -66,16 +66,14 @@ protected:
     Storage * s = storage<Storage>(data);
 
     s->exponentials = 1;
-    updateFromOptions(opts, "exponentials", s->exponentials);
-
     s->filmLoss = false;
-    updateFromOptions(opts, "loss", s->filmLoss);
-
     s->absolute = true;
-    updateFromOptions(opts, "absolute", s->absolute);
-
     s->slowPhase = false;
+
     updateFromOptions(opts, "slow", s->slowPhase);
+    updateFromOptions(opts, "exponentials", s->exponentials);
+    updateFromOptions(opts, "loss", s->filmLoss);
+    updateFromOptions(opts, "absolute", s->absolute);
   }
 
   

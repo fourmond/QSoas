@@ -242,18 +242,22 @@ class RubyODEFit : public ODEFit {
 protected:
 
   /// The system, for defined fits
-  RubyODESolver * mySystem = NULL;
+  RubyODESolver * mySystem;
 
   class Storage : public ODEFit::Storage {
   public:
     /// The ODE system
-    RubyODESolver * system = NULL;
+    RubyODESolver * system;
 
     /// whether this object owns the system
-    bool ownSystem = true;
+    bool ownSystem;
     
     /// The file name (unsure that's the best place)
-    QString fileName = "??";
+    QString fileName;
+
+    Storage() : fileName("??") {
+      ownSystem = true;
+    };
     
     virtual ~Storage() {
       if(ownSystem) {
@@ -431,7 +435,7 @@ public:
   RubyODEFit() :
     ODEFit("ode", 
            "Fit an ODE system",
-           "", 1, -1, false)
+           "", 1, -1, false), mySystem(NULL)
   { 
     makeCommands(NULL, 
                  effector(this, &RubyODEFit::runFitCurrentDataSet, true),

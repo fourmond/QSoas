@@ -263,25 +263,30 @@ kineticSystem("kinetic-system", // command name
 class KineticSystemFit : public ODEFit {
 protected:
     /// The system, for defined fits
-  KineticSystem * mySystem = NULL;
+  KineticSystem * mySystem;
 
   /// The evolver... Created and delete at the same time as each fit.
-  KineticSystemEvolver * myEvolver = NULL;
+  KineticSystemEvolver * myEvolver;
 
 
   class Storage : public ODEFit::Storage {
   public:
     /// The system
-    KineticSystem * system = NULL;
+    KineticSystem * system;
 
     /// The evolver... Created and delete at the same time as each fit.
-    KineticSystemEvolver * evolver = NULL;
+    KineticSystemEvolver * evolver;
 
     /// whether this object owns the system
-    bool ownSystem = true;
+    bool ownSystem;
     
     /// The file name (unsure that's the best place)
-    QString fileName = "??";
+    QString fileName;
+
+    Storage() {
+      ownSystem = true;
+      fileName = "??";
+    };
     
     virtual ~Storage() {
       if(ownSystem) {
@@ -505,7 +510,7 @@ public:
   KineticSystemFit() :
     ODEFit("kinetic-system", 
                   "Full kinetic system",
-                  "", 1, -1, false)
+           "", 1, -1, false), mySystem(NULL), myEvolver(NULL)
   { 
     makeCommands(NULL, 
                  effector(this, &KineticSystemFit::runFitCurrentDataSet, true),

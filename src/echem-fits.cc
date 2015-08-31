@@ -221,13 +221,13 @@ class AdsorbedFit : public PerDatasetFit {
   class Storage : public FitInternalStorage {
   public:
     /// The number of species
-    int number = 1;
+    int number;
 
     /// The number of 2-el species
-    int twoElectrons = 0;
+    int twoElectrons;
 
     /// Whether or not the species are distinct
-    bool distinct = true;
+    bool distinct;
   };
 
 public:

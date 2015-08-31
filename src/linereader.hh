@@ -40,9 +40,6 @@ protected:
   bool hasPending;
   QChar pending;
 
-  /// Size of the longest line so far
-  int longestLine;
-
 public:
   LineReader(QIODevice * dev);
   LineReader(QTextStream * src);

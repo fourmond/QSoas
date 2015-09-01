@@ -468,6 +468,9 @@ void FitData::initializeSolver(const double * initialGuess,
   evaluationNumber = 0;
   freeSolver();
 
+  if(! parametersStorage)
+    throw InternalError("Using a FitData for which finishInitialization() was not called");
+
   initializeParameters();
 
   if(debug)
@@ -490,6 +493,10 @@ void FitData::initializeSolver(const double * initialGuess,
       }
       delete d->fitStorage;
       d->fitStorage = fit->copyStorage(this, fitStorage, i);
+
+      // Make sure the initialization is finished and done after
+      // copying the internal storage
+      d->finishInitialization();
 
       d->initializeSolver(initialGuess + 
                           (i * parameterDefinitions.size()), feit, opts);

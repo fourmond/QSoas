@@ -80,6 +80,11 @@ void OutFile::writeValueHash(const ValueHash & h, const DataSet * ds,
   hsh.keyOrder += desiredMeta;
   if(ds) {
     ValueHash meta = ds->getMetaData();
+    if(desiredMeta.contains("Z") && ds->perpendicularCoordinates().size() > 0) {
+      // Z always means perpendicular coordinate
+      meta["Z"] = ds->perpendicularCoordinates()[0]; // That of the
+                                                     // first Y column
+    }
     meta.keyOrder.clear();
     hsh.merge(meta, false);
   }

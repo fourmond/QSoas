@@ -164,7 +164,7 @@ static void splitMonotonicCommand(const QString &,
   for(int i = 0; i < nds.size(); i++) {
     if(flags.size() > 0)
       nds[i]->setFlags(flags);
-
+    nds[i]->setMetaData("segment-number", i);
     soas().pushDataSet(nds[i]);
   }
 }

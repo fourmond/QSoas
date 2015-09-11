@@ -616,6 +616,9 @@ static void flagUnFlag(const CommandOptions & opts,
   updateFromOptions(opts, "for-which", forWhich);
   int matched = 0;
 
+  bool set = false;
+  updateFromOptions(opts, "set", set);
+
   for(int i = 0; i < buffers.size(); i++) {
     DataSet * ds = const_cast<DataSet *>(buffers[i]);
     if(! forWhich.isEmpty()) {
@@ -631,6 +634,8 @@ static void flagUnFlag(const CommandOptions & opts,
       }
     }
     if(flagged) {
+      if(set)
+        ds->clearFlags();
       ds->setFlags(flags);
     }
     else {
@@ -669,12 +674,21 @@ muOps(QList<Argument *>()
                                     "Buffers to flag/unflag"));
 
 
+static ArgumentList 
+flOps(QList<Argument *>(muOps)
+      << new BoolArgument("set", 
+                          "Set flags",
+                          "If on, clears all the previous flags"));
+      
+
+
+
 static Command 
 flag("flag", // command name
      effector(flagDataSetsCommand), // action
      "flags",  // group name
      NULL, // arguments
-     &muOps, // options
+     &flOps, // options
      "Flag datasets",
      "Flag datasets", "M");
 

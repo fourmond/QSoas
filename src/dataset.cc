@@ -1348,7 +1348,11 @@ void DataSet::setFlag(const QString & str)
 
 void DataSet::setFlags(const QStringList & lst)
 {
-  QSet<QString> s = QSet<QString>::fromList(lst);
+  setFlags(QSet<QString>::fromList(lst));
+}
+
+void DataSet::setFlags(const QSet<QString> & s)
+{
   flags.unite(s);
 }
 

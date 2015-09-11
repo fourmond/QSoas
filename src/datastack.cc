@@ -150,10 +150,16 @@ void DataStack::startNewCommand()
   latest.insert(0, QList<GuardedPointer<DataSet> >());
 }
 
+void DataStack::setAutoFlags(const QSet<QString> & flags)
+{
+  autoFlags = flags;
+}
+
 void DataStack::pushDataSet(DataSet * dataset, bool silent)
 {
   dataSets << dataset;
   latest.first() << dataset;
+  dataset->setFlags(autoFlags);
   dataSetByName[dataset->name] = dataset;
   cachedByteSize += dataset->byteSize();
   if(! silent)

@@ -709,6 +709,31 @@ unflag("unflag", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void autoFlagCommand(const QString &, const CommandOptions & opts)
+{
+  QStringList flags;
+  updateFromOptions(opts, "flags", flags);
+  soas().stack().setAutoFlags(QSet<QString>::fromList(flags));
+}
+
+static ArgumentList 
+afOps(QList<Argument *>() 
+      << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                    "flags", 
+                                    "Flags",
+                                    "Flags", false, true));
+
+static Command 
+autoFlag("auto-flag", // command name
+         effector(autoFlagCommand), // action
+         "flags",  // group name
+         NULL, // arguments
+         &afOps, // options
+         "Auto flag",
+         "Auto flag datasets");
+
+//////////////////////////////////////////////////////////////////////
+
 static void showBuffersCommand(const QString &, 
                                QList<const DataSet *> datasets)
 {

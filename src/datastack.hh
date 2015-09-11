@@ -68,6 +68,10 @@ class DataStack : public QObject {
   /// Total size of the stack.
   quint64 cachedByteSize;
 
+  /// Auto-flags. When this set isn't empty, the corresponding flags
+  /// are added automatically to each dataset pushed onto the stack.
+  QSet<QString> autoFlags;
+
 public:
 
   /// Constructs a DataStack object.
@@ -105,6 +109,9 @@ public:
 
   /// Returns the list of flags defined.
   QSet<QString> definedFlags() const;
+
+  /// Sets the auto-flags.
+  void setAutoFlags(const QSet<QString> & flags);
 
   /// Parses a series of datasets, including flags and numbered lists,
   /// and returns the corresponding datasets.

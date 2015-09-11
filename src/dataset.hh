@@ -193,6 +193,9 @@ public:
   /// Sets the given flags
   void setFlags(const QStringList & lst);
 
+  /// Sets the given flags
+  void setFlags(const QSet<QString> & lst);
+
   /// Removes the given flag
   void clearFlag(const QString & str);
 

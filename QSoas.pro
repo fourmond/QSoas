@@ -258,7 +258,9 @@ SOURCES += src/qmain.cc \
         src/timedependentparameters.cc \
         src/odefit.cc \
         src/commandlineparser.cc \
-        src/valuehasheditor.cc
+        src/valuehasheditor.cc \
+        src/multiintegrator.cc \
+        src/multiintegrators.cc
 
 
 HEADERS += src/headers.hh \
@@ -362,7 +364,8 @@ HEADERS += src/headers.hh \
         src/odefit.hh \
         src/textbackend.hh \
         src/commandlineparser.hh \
-        src/valuehasheditor.hh
+        src/valuehasheditor.hh \
+        src/multiintegrator.hh
 
                 
 # Sources of file-format specific code

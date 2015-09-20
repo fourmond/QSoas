@@ -100,8 +100,8 @@ public:
   /// integrators.
   static QList<Argument *> integratorOptions();
 
-  // /// Creates an Integrator subclass based on the given options.
-  // static MultiIntegrator * fromOptions(const CommandOptions & opts, int maxc = 30);
+  /// Creates an Integrator subclass based on the given options.
+  static MultiIntegrator * fromOptions(const CommandOptions & opts, Function fcn, int dimension);
 
   /// Returns the number of evaluations thus far.
   int evaluationNumbers() const {

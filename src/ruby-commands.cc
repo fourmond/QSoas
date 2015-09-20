@@ -426,7 +426,7 @@ static void mintegrate(const QString &, QString formula,
     }
   };
   
-  QScopedPointer<MultiIntegrator> in(MultiIntegrator::createNamedIntegrator("naive", fn, xvals.size()));
+  QScopedPointer<MultiIntegrator> in(MultiIntegrator::fromOptions(opts, fn, xvals.size()));
   Vector tg = xvals;
   gsl_vector * gl = tg.toGSLVector();
   double err = in->integrate(gl, a, b);
@@ -452,7 +452,7 @@ miA(QList<Argument *>()
 
 static ArgumentList 
 miO(QList<Argument *>()
-   << Integrator::integratorOptions()
+   << MultiIntegrator::integratorOptions()
    );
 
 

@@ -62,3 +62,33 @@ gsl_vector * MultiIntegrator::functionForValue(double value)
   }
   return evaluations[idx];
 }
+
+QList<Argument *> MultiIntegrator::integratorOptions()
+{
+  QList<Argument *> args;
+  args << new FactoryArgument<MultiIntegratorFactory>
+    ("integrator", 
+     "Integrator",
+     "The algorithm used for integration")
+       << new NumberArgument("prec-relative", "Relative integration precision",
+                             "Relative precision required for integration")
+       << new NumberArgument("prec-absolute", "Absolute integration precision",
+                             "Absolute precision required for integration");
+  return args;
+}
+
+MultiIntegrator * MultiIntegrator::fromOptions(const CommandOptions & opts,
+                                               MultiIntegrator::Function fcn, int dimension)
+{
+  MultiIntegratorFactory * c = MultiIntegratorFactory::namedItem("naive");
+  
+  updateFromOptions(opts, "integrator", c);
+
+  double relPrec = 1e-4;
+  updateFromOptions(opts, "prec-relative", relPrec);
+  double absPrec = 0;
+  updateFromOptions(opts, "prec-absolute", absPrec);
+  int maxc = 0;
+  
+  return c->creator(fcn, dimension, relPrec, absPrec, maxc);
+}

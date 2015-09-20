@@ -103,6 +103,11 @@ public:
   // /// Creates an Integrator subclass based on the given options.
   // static MultiIntegrator * fromOptions(const CommandOptions & opts, int maxc = 30);
 
+  /// Returns the number of evaluations thus far.
+  int evaluationNumbers() const {
+    return funcalls;
+  };
+
 
   virtual ~MultiIntegrator();
 

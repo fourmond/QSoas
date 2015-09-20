@@ -56,6 +56,8 @@ public:
 
     int nbnodes = 6;
 
+    // QTextStream o(stdout);
+
     // Prepare the nodes
     double delta = b-a;
 
@@ -80,6 +82,10 @@ public:
         normSubNodes << 0;
         errSubNodes << 0;
       }
+
+      // o << "Nodes: " << nodes.asText().join(", ") << endl;
+      // o << "Subnodes: " << subNodes.asText().join(", ") << endl;
+
 
       for(int i = 0; i < dimension; i++) {
         prepareInterpolation(nodes, i);
@@ -110,8 +116,10 @@ public:
           ns << subNodes[i];
         }
       }
+      // o << "Errors: " << errSubNodes.asText().join(", ") << endl;
+      // o << "Values: " << normSubNodes.asText().join(", ") << endl;
+      // o << "Relative: " << (errSubNodes/normSubNodes).asText().join(", ") << endl;
       err /= errSubNodes.size();
-
 
       if(nbdiv == 0 || (maxfuncalls > 0 && funcalls > maxfuncalls))
         break;
@@ -123,16 +131,15 @@ public:
     }
 
     // Now compute the integral proper
-    nodes += subNodes;
+    nodes << subNodes;
     qSort(nodes);
 
     for(int i = 0; i < dimension; i++) {
       prepareIntegration(nodes, i);
       gsl_vector_set(res, i, integrate());
     }
-    
-    
-    return err;
+
+    return err/dimension;
   };
 
 };

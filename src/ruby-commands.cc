@@ -39,6 +39,7 @@
 #include <statistics.hh>
 #include <rubysolver.hh>
 #include <integrator.hh>
+#include <multiintegrator.hh>
 
 #include <idioms.hh>
 
@@ -400,5 +401,67 @@ in("integrate-formula", // command name
    "file",  // group name
    &iA, // arguments
    &iO, // options
+   "Integrate expression",
+   "Integrate the given expression");
+
+//////////////////////////////////////////////////////////////////////
+
+static void mintegrate(const QString &, QString formula,
+                       double a, double b,
+                       const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+  QStringList nargs;
+  nargs << "x" << "z";
+
+  Expression ex(formula, nargs);
+  const Vector &xvals = ds->x();
+  
+  std::function<void (double, gsl_vector *)> fn = [&ex, xvals](double x, gsl_vector * tg) -> void {
+    double args[2];
+    args[1] = x;
+    for(int i = 0; i < xvals.size(); i++) {
+      args[0] = xvals[i];
+      gsl_vector_set(tg, i, ex.evaluate(args));
+    }
+  };
+  
+  QScopedPointer<MultiIntegrator> in(MultiIntegrator::createNamedIntegrator("naive", fn, xvals.size()));
+  Vector tg = xvals;
+  gsl_vector * gl = tg.toGSLVector();
+  double err = in->integrate(gl, a, b);
+  DataSet *nv = new DataSet(xvals, tg);
+  nv->name = "integrated.dat";
+  soas().pushDataSet(nv);
+
+  Terminal::out << "Integration used " << in->evaluationNumbers()
+                << " function calls.\n The error estimation is " << err << endl;
+}
+
+static ArgumentList 
+miA(QList<Argument *>() 
+   << new StringArgument("formula", 
+                         "Formula",
+                         "An expression of x and z")
+   << new NumberArgument("a", "a", 
+                         "Lower Z value")
+   << new NumberArgument("b", "b", 
+                         "Upper Z value")
+   );
+
+
+static ArgumentList 
+miO(QList<Argument *>()
+   << Integrator::integratorOptions()
+   );
+
+
+
+static Command 
+min("mintegrate-formula", // command name
+   effector(mintegrate), // action
+   "file",  // group name
+   &miA, // arguments
+   &miO, // options
    "Integrate expression",
    "Integrate the given expression");

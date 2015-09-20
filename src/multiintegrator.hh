@@ -57,15 +57,19 @@ protected:
   ///
   /// No limits if 0.
   int maxfuncalls;
+public:
 
   typedef std::function<void (double, gsl_vector * tgt)> Function;
-
-  /// The underlying function
-  Function function;
 
   /// The factory, with parameters number, relative precision, absolute
   /// precision.
   typedef Factory<MultiIntegrator, Function, int, double, double, int> MultiIntegratorFactory;
+
+protected:
+
+  /// The underlying function
+  Function function;
+
 
   /// The dimension of the problem (ie the number of functions we're
   /// integrating)

@@ -80,7 +80,7 @@ QList<Argument *> MultiIntegrator::integratorOptions()
 MultiIntegrator * MultiIntegrator::fromOptions(const CommandOptions & opts,
                                                MultiIntegrator::Function fcn, int dimension)
 {
-  MultiIntegratorFactory * c = MultiIntegratorFactory::namedItem("naive");
+  MultiIntegratorFactory * c = MultiIntegratorFactory::namedItem("csplines");
   
   updateFromOptions(opts, "integrator", c);
 

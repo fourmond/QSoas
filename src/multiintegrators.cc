@@ -92,6 +92,7 @@ public:
         for(int j = 0; j < sn; j++) {
           double val = gsl_vector_get(subValues[j], i);
           double inter = interpolatedValue(subNodes[j]);
+          // o << "Idx: #" << i << " -> " << val << " <=> " << inter << endl;
           normSubNodes[j] += fabs(inter);
           errSubNodes[j] += fabs(inter - val);
         }
@@ -119,6 +120,7 @@ public:
       // o << "Errors: " << errSubNodes.asText().join(", ") << endl;
       // o << "Values: " << normSubNodes.asText().join(", ") << endl;
       // o << "Relative: " << (errSubNodes/normSubNodes).asText().join(", ") << endl;
+
       err /= errSubNodes.size();
 
       if(nbdiv == 0 || (maxfuncalls > 0 && funcalls > maxfuncalls))
@@ -143,6 +145,8 @@ public:
   };
 
 };
+
+//////////////////////////////////////////////////////////////////////
 
 class NaiveMultiIntegrator : public InterpolationBasedMultiIntegrator {
 protected:
@@ -176,8 +180,73 @@ public:
 
 };
 
-MultiIntegrator::MultiIntegratorFactory naive("naive",
-                                              "Naive trapezoidal integrator",
-                                              [](MultiIntegrator::Function fnc, int dim, double rel, double abs, int maxc) -> MultiIntegrator * {
-                                                return new NaiveMultiIntegrator(fnc, dim, rel, abs, maxc);
-                                              });
+static MultiIntegrator::MultiIntegratorFactory
+naive("naive",
+      "Naive trapezoidal integrator",
+      [](MultiIntegrator::Function fnc, int dim, double rel, double abs, int maxc) -> MultiIntegrator * {
+        return new NaiveMultiIntegrator(fnc, dim, rel, abs, maxc);
+      });
+
+//////////////////////////////////////////////////////////////////////
+
+
+class SplinesMultiIntegrator : public InterpolationBasedMultiIntegrator {
+protected:
+  gsl_interp * ws;
+  const gsl_interp_type * type;
+  gsl_interp_accel * accel;
+  Vector n,v;
+  int idx;
+
+  virtual void prepareInterpolation(Vector nodes, int idx) {
+    n = nodes;
+    v.clear();
+    if(ws && ws->size != nodes.size()) {
+      gsl_interp_free(ws);
+      ws = NULL;
+      gsl_interp_accel_reset(accel);
+    }
+    if(! ws) {
+      ws = gsl_interp_alloc(type, n.size());
+    }
+
+    for(int i = 0; i < nodes.size(); i++) {
+      gsl_vector * vx = functionForValue(nodes[i]);
+      v << gsl_vector_get(vx, idx);
+    }
+    gsl_interp_init(ws, n.data(), v.data(), n.size());
+  }
+
+  virtual double interpolatedValue(double x) {
+    return gsl_interp_eval(ws, n.data(), v.data(), x, accel);
+  }
+
+  virtual void prepareIntegration(Vector nodes, int idx) {
+    prepareInterpolation(nodes, idx);
+  }
+
+  virtual double integrate() {
+    return gsl_interp_eval_integ(ws, n.data(), v.data(), n.first(), n.last(), accel);
+  };
+  
+public:
+  SplinesMultiIntegrator(Function fnc, int dim, double rel = 1e-4, double abs = 0, int maxc = 0, const gsl_interp_type * t = gsl_interp_cspline) :
+    InterpolationBasedMultiIntegrator(fnc, dim, rel, abs, maxc), ws(NULL), type(t) {
+    accel = gsl_interp_accel_alloc();
+  };
+
+};
+
+static MultiIntegrator::MultiIntegratorFactory
+csplines("csplines",
+         "Integration based on csplines interpolation",
+         [](MultiIntegrator::Function fnc, int dim, double rel, double abs, int maxc) -> MultiIntegrator * {
+           return new SplinesMultiIntegrator(fnc, dim, rel, abs, maxc);
+         });
+
+static MultiIntegrator::MultiIntegratorFactory
+akima("akima",
+      "Integration based on Akima interpolation",
+      [](MultiIntegrator::Function fnc, int dim, double rel, double abs, int maxc) -> MultiIntegrator * {
+        return new SplinesMultiIntegrator(fnc, dim, rel, abs, maxc, gsl_interp_akima);
+      });

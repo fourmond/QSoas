@@ -36,7 +36,7 @@
 /// @todo make it possible to use a common "sigma" parameter ?
 /// @todo use peak information for initial values.
 template <double f(double, double)>
-class DistribFit : public PerDatasetFit {
+class DistributionFit : public PerDatasetFit {
 
   class Storage : public FitInternalStorage {
   public:
@@ -207,7 +207,7 @@ public:
     return opts;
   };
 
-  DistribFit(const char * name,
+  DistributionFit(const char * name,
              const char * desc,
              const QString & param) : 
     PerDatasetFit(name, desc, desc, 1, -1, false),
@@ -218,8 +218,8 @@ public:
 };
 
 
-static DistribFit<gsl_ran_gaussian_pdf> gaussian("gaussian", 
+static DistributionFit<gsl_ran_gaussian_pdf> gaussian("gaussian", 
                                           "One or several gaussians", "sigma");
 
-static DistribFit<gsl_ran_cauchy_pdf> lorentzian("lorentzian", 
+static DistributionFit<gsl_ran_cauchy_pdf> lorentzian("lorentzian", 
                                                  "A Lorentzian (also named Cauchy distribution)", "gamma");

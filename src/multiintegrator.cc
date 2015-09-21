@@ -48,6 +48,20 @@ MultiIntegrator::~MultiIntegrator()
     gsl_vector_free(evaluations[i]);
 }
 
+void MultiIntegrator::internalReset()
+{
+}
+
+void MultiIntegrator::reset(MultiIntegrator::Function fnc, int dim)
+{
+  for(int i = 0; i < evaluations.size(); i++)
+    gsl_vector_free(evaluations[i]);
+  evaluationsAt.clear();
+  function = fnc;
+  dimension = dim;
+  funcalls = 0;
+}
+
 
 gsl_vector * MultiIntegrator::functionForValue(double value)
 {

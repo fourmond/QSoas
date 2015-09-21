@@ -57,6 +57,10 @@ protected:
   ///
   /// No limits if 0.
   int maxfuncalls;
+
+  /// Called by reset() to handle whatever it is that sub-classes must
+  /// handle upon reset.
+  virtual void internalReset();
 public:
 
   typedef std::function<void (double, gsl_vector * tgt)> Function;
@@ -64,6 +68,8 @@ public:
   /// The factory, with parameters number, relative precision, absolute
   /// precision.
   typedef Factory<MultiIntegrator, Function, int, double, double, int> MultiIntegratorFactory;
+
+  void reset(Function fcn, int dim);
 
 protected:
 
@@ -108,6 +114,7 @@ public:
     return funcalls;
   };
 
+  /// @todo Duplication.
 
   virtual ~MultiIntegrator();
 

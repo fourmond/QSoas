@@ -245,7 +245,7 @@ SOURCES += src/qmain.cc \
         src/msolver.cc \
         src/integrator.cc \
         src/gslintegrator.cc \
-        src/distrib-fits.cc \
+        src/distribution-fits.cc \
         src/metadataprovider.cc \
         src/conditionsprovider.cc \
         src/parametersviewer.cc \
@@ -260,7 +260,8 @@ SOURCES += src/qmain.cc \
         src/commandlineparser.cc \
         src/valuehasheditor.cc \
         src/multiintegrator.cc \
-        src/multiintegrators.cc
+        src/multiintegrators.cc \
+        src/distribfit.cc
 
 
 HEADERS += src/headers.hh \
@@ -365,7 +366,8 @@ HEADERS += src/headers.hh \
         src/textbackend.hh \
         src/commandlineparser.hh \
         src/valuehasheditor.hh \
-        src/multiintegrator.hh
+        src/multiintegrator.hh \
+        src/distribfit.hh
 
                 
 # Sources of file-format specific code

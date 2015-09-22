@@ -57,6 +57,7 @@ void MultiIntegrator::reset(MultiIntegrator::Function fnc, int dim)
   for(int i = 0; i < evaluations.size(); i++)
     gsl_vector_free(evaluations[i]);
   evaluationsAt.clear();
+  evaluations.clear();
   function = fnc;
   dimension = dim;
   funcalls = 0;

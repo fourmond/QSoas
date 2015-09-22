@@ -32,7 +32,7 @@ class MultiIntegrator;
 
 /// One of the distributions to be used for the fits.
 class Distribution {
-  static QHash<QString, Distribution *> distributions;
+  static QHash<QString, Distribution *> * distributions;
 public:
   QString name;
 
@@ -51,13 +51,21 @@ public:
   virtual double weight(const double * parameters, double x) const = 0;
 
   /// Returns the weight of the range (probably quite close to 1) over
-  /// the interval described by the range
-  virtual double rangeWeight(double first, double last) const = 0;
+  /// the interval described by the parameters.
+  virtual double rangeWeight(const double * parameters) const = 0;
 
 
   /// Fills the target parameters (starting at the distrib parameters)
   /// with initial guesses, given the value of the central parameter.
   virtual void initialGuess(double * parameters, double value) const = 0;
+
+  Distribution(const QString & n);
+
+  /// Returns the list of available distributions
+  static QStringList availableDistributions();
+
+  /// Returns the named Distribution
+  static const Distribution * namedDistribution(const QString & n);
 };
 
 

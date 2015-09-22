@@ -31,6 +31,87 @@
 
 #include <idioms.hh>
 
+#include <gsl/gsl_randist.h>
+#include <gsl/gsl_cdf.h>
+
+QHash<QString, Distribution *> * Distribution::distributions = NULL;
+
+Distribution::Distribution(const QString & n) : name(n)
+{
+  if(! distributions)
+    distributions = new QHash<QString, Distribution *>;
+  (*distributions)[n] = this;
+}
+
+QStringList Distribution::availableDistributions()
+{
+  if(distributions)
+    return distributions->keys();
+  return QStringList();
+}
+
+const Distribution * Distribution::namedDistribution(const QString & n)
+{
+  if(! distributions)
+    return NULL;
+  return distributions->value(n, NULL);
+}
+
+//////////////////////////////////////////////////////////////////////
+// Now, several distributions
+
+class GaussianDistribution : public Distribution {
+public:
+  virtual QList<ParameterDefinition> parameters(const QString & param) const {
+    QList<ParameterDefinition> ret;
+    ret << ParameterDefinition(QString("%1_avg").arg(name))
+        << ParameterDefinition(QString("%1_sigma").arg(name))
+        << ParameterDefinition(QString("%1_extent").arg(name), true);
+    return ret;
+  };
+  
+  void range(const double * parameters, double * first,
+             double * last) const {
+    double center = parameters[0];
+    double sigm = parameters[1];
+    double ext = parameters[2];
+    *first = center - fabs(sigm * ext);
+    *last = center + fabs(sigm * ext);
+  };
+  
+  virtual double weight(const double * parameters, double x) const {
+    double center = parameters[0];
+    double sigm = parameters[1];
+    return gsl_ran_gaussian_pdf(x - center, sigm);
+  };
+  
+  virtual double rangeWeight(const double * parameters) const {
+    double ext = parameters[2];
+    return 2 * gsl_cdf_gaussian_P(ext, 1) - 1;
+  }
+  
+  virtual void initialGuess(double * parameters, double value) const {
+    parameters[0] = value;
+    parameters[1] = fabs(value * 0.1);
+    if(parameters[1] == 0)
+      parameters[1] = 0.5;      // as good as anything
+    parameters[2] = 5;
+  };
+
+
+  GaussianDistribution() : Distribution("gaussian") {
+  };
+};
+
+static GaussianDistribution gaussianDistribution;
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////
+
+
 DistribFit::Storage::~Storage()
 {
   delete sub;
@@ -60,6 +141,8 @@ FitInternalStorage * DistribFit::copyStorage(FitData * data,
   return s2;
 }
 
+
+//////////////////////////////////////////////////////////////////////
 
 void DistribFit::processOptions(const CommandOptions & opts, FitData * data) const
 {
@@ -128,6 +211,8 @@ void DistribFit::initialGuess(FitData * data,
 ArgumentList * DistribFit::fitHardOptions() const
 {
   ArgumentList * rv = new ArgumentList(*underlyingFit->fitHardOptions());
+  *rv << new ChoiceArgument(Distribution::availableDistributions, "distribution",
+                            "Distribution", "Distribution for the argument");
   return rv;
 }
 
@@ -182,7 +267,7 @@ void DistribFit::function(const double * parameters,
   double left, right;
   s->dist->range(distParams, &left, &right);
   s->integrator->integrate(target, left, right);
-  gsl_vector_scale(target, 1/s->dist->rangeWeight(left, right));
+  gsl_vector_scale(target, 1/s->dist->rangeWeight(distParams));
 }
 
 
@@ -197,77 +282,47 @@ DistribFit::DistribFit(const QString & name, const QString & param,
                        PerDatasetFit *fit) :
   PerDatasetFit(name.toLocal8Bit(), 
                 "Distrib fit",
-                "Distrib fit", 1, -1, false), 
-  underlyingFit(fit)
-
+                "Distrib fit", 1, -1, false),
+  parameterName(param), defaultDistribution(&gaussianDistribution), underlyingFit(fit)
 {
-
-  // QStringList params;
-  // params << "x";
-  // for(int i = 0; i < fits.size(); i++)
-  //   params << QString("y%1").arg(i+1);
-
-  // params << formula.naturalVariables();
-  // Utils::makeUnique(params);
-
-  // formula.setVariables(params);
-  // ownParameters = params.mid(1 + fits.size());
-
-  // ArgumentList * opts = new ArgumentList();
-
-  // for(int i = 0; i < underlyingFits.size(); i++) {
-  //   PerDatasetFit *f = underlyingFits[i];
-  //   Command * cmd = Command::namedCommand("fit-" + f->fitName(false));
-  //   *opts << *cmd->commandOptions();
-  // }
-
-  // /// @todo Global register of options for fits...
-
-  // makeCommands(NULL, NULL, NULL, opts);
+  makeCommands();
 }
 
-// //////////////////////////////////////////////////////////////////////
-// // Now, the command !
+//////////////////////////////////////////////////////////////////////
+// Now, the command !
 
-// static void combineFits(const QString &, QString newName,
-//                         QString formula,
-//                         QStringList fits,
-//                         const CommandOptions & opts)
-// {
+static void defineDistribFit(const QString &, QString newName,
+                             QString fitName,
+                             QString parameter,
+                             const CommandOptions & opts)
+{
   
-//   QList<PerDatasetFit *> fts;
-//   if(Fit::namedFit(newName))
-//     throw RuntimeError("Fit '%1' already exists").arg(newName);
-//   for(int i = 0; i < fits.size(); i++) {
-//       QString fitName = fits[i];
-//       PerDatasetFit * fit = 
-//         dynamic_cast<PerDatasetFit *>(Fit::namedFit(fitName));
-      
-//       if(! fit)
-//         throw RuntimeError("The fit " + fitName + " isn't working "
-//                            "buffer-by-buffer: impossible to combine "
-//                            "it with others");
-//       fts << fit;
-//       }
-//   new DistribFit(newName, formula, fts);
-// }
+  if(Fit::namedFit(newName))
+    throw RuntimeError("Fit '%1' already exists").arg(newName);
+  PerDatasetFit * fit = 
+    dynamic_cast<PerDatasetFit *>(Fit::namedFit(fitName));
+  
+  if(! fit)
+    throw RuntimeError("The fit " + fitName + " isn't working "
+                       "buffer-by-buffer: not possible to use for distribution fits");
+  new DistribFit(newName, parameter, fit);
+}
 
-// static ArgumentList 
-// cfA(QList<Argument *>() 
-//     << new StringArgument("name", "Name",
-//                           "The name of the new fit")
-//     << new StringArgument("formula", "Formula",
-//                           "How to combine the various fits")
-//     << new SeveralChoicesArgument(&Fit::availableFits,
-//                                   "fits", "Fits",
-//                                   "The fit to combine together"));
+static ArgumentList 
+dfA(QList<Argument *>() 
+    << new StringArgument("name", "Name",
+                          "The name of the new fit")
+    << new ChoiceArgument(&Fit::availableFits,
+                          "fit", "Fit",
+                          "The fit to make a derived fit from")
+    << new StringArgument("parameter", "Parameter",
+                          "The parameter over which to integrate"));
 
-// static Command 
-// cf("combine-fits", // command name
-//     effector(combineFits), // action
-//     "fits",  // group name
-//     &cfA, // arguments
-//     NULL, // options
-//     "Combine fits",
-//     "Combine different fits together",
-//     "(...)");
+static Command 
+df("define-distribution-fit", // command name
+    effector(defineDistribFit), // action
+    "fits",  // group name
+    &dfA, // arguments
+    NULL, // options
+    "Define fit with distribution",
+    "Defines a fit with a distribution of values");

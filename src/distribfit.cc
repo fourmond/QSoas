@@ -251,13 +251,14 @@ void DistribFit::function(const double * parameters,
                                           s->sub);
 
   // Splice parameters
-  double d[s->distribIndex + 1];
+  double ddd[s->distribIndex + 1];
+  double * d = ddd;
   const double * distParams = parameters + s->distribIndex;
   for(int i = 0; i < s->parameterIndex; i++)
     d[i] = parameters[i];
   for(int i = s->parameterIndex; i < s->distribIndex; i++)
     d[i+1] = parameters[i];
-  MultiIntegrator::Function fcn = [data, s, &d, ds, distParams, this](double x, gsl_vector * tgt) {
+  MultiIntegrator::Function fcn = [data, s, d, ds, distParams, this](double x, gsl_vector * tgt) {
     d[s->parameterIndex] = x;
     underlyingFit->function(d, data, ds, tgt);
     gsl_vector_scale(tgt, s->dist->weight(distParams, x));

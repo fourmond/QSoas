@@ -204,6 +204,49 @@ public:
 
 static K0Distribution k0Distribution;
 
+// Uniform distribution between two values
+class UniformDistribution : public Distribution {
+public:
+  virtual QList<ParameterDefinition> parameters(const QString & param) const {
+    QList<ParameterDefinition> ret;
+    ret << ParameterDefinition(QString("%1_min").arg(param))
+        << ParameterDefinition(QString("%1_max").arg(param));
+    return ret;
+  };
+  
+  void range(const double * parameters, double * first,
+             double * last) const {
+    *first = parameters[0]; 
+    *last = parameters[1];
+  };
+  
+  virtual double weight(const double * parameters, double ) const {
+    return 1/(parameters[1] - parameters[0]);
+  };
+  
+  virtual double rangeWeight(const double * parameters) const {
+    return 1;
+  }
+  
+  virtual void initialGuess(double * parameters, double value) const {
+    if(value == 0) {
+      parameters[0] = -0.1;
+      parameters[1] = 0.1;
+    }
+    else {
+      parameters[0] = value * 0.8;
+      parameters[1] = value * 1.2;
+      if(value < 0)
+        std::swap(parameters[0], parameters[1]);
+    }
+  };
+
+  UniformDistribution() : Distribution("uniform") {
+  };
+};
+
+static UniformDistribution uniformDistribution;
+
 
 
 

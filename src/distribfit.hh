@@ -59,6 +59,10 @@ public:
   /// with initial guesses, given the value of the central parameter.
   virtual void initialGuess(double * parameters, double value) const = 0;
 
+  /// Offers the possibility to convert the integration parameter into
+  /// the one actually used by the fit
+  virtual double convertParameter(const double * parameters, double value) const;
+
   Distribution(const QString & n);
 
   /// Returns the list of available distributions

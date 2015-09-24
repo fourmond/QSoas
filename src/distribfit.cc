@@ -57,6 +57,11 @@ const Distribution * Distribution::namedDistribution(const QString & n)
   return distributions->value(n, NULL);
 }
 
+double Distribution::convertParameter(const double *, double value) const
+{
+  return value;
+}
+
 //////////////////////////////////////////////////////////////////////
 // Now, several distributions
 
@@ -151,6 +156,53 @@ public:
 };
 
 static LorentzianDistribution lorentzianDistribution;
+
+// so called k0 distribution from Leger's 2002 J Phys Chem B paper,
+// doi: 10.1021/jp0265687
+//
+// In short, the integrated parameter follows the depency:
+// k0 = k0m * exp(-beta * d)
+//
+// Integrated between d = 0 and dmax (uniform distribution).
+class K0Distribution : public Distribution {
+public:
+  virtual QList<ParameterDefinition> parameters(const QString & param) const {
+    QList<ParameterDefinition> ret;
+    ret << ParameterDefinition(QString("%1_max").arg(param))
+        << ParameterDefinition(QString("%1_betadmax").arg(param));
+    return ret;
+  };
+  
+  void range(const double * parameters, double * first,
+             double * last) const {
+    *first = 0; 
+    *last = parameters[1];
+  };
+  
+  virtual double weight(const double * parameters, double ) const {
+    return 1/parameters[1];
+  };
+  
+  virtual double rangeWeight(const double * parameters) const {
+    return 1;
+  }
+  
+  virtual void initialGuess(double * parameters, double value) const {
+    parameters[0] = value;
+    parameters[1] = 10;
+  };
+
+  virtual double convertParameter(const double * parameters, double value) const {
+    double k0 = parameters[0];
+    return k0 * exp(-value);
+  };
+
+
+  K0Distribution() : Distribution("k0") {
+  };
+};
+
+static K0Distribution k0Distribution;
 
 
 
@@ -262,7 +314,12 @@ void DistribFit::initialGuess(FitData * data,
 
 ArgumentList * DistribFit::fitHardOptions() const
 {
-  ArgumentList * rv = new ArgumentList(*underlyingFit->fitHardOptions());
+  ArgumentList * org = underlyingFit->fitHardOptions();
+  ArgumentList * rv;
+  if(org)
+    rv = new ArgumentList(*org);
+  else
+    rv = new ArgumentList;
   *rv << new ChoiceArgument(Distribution::availableDistributions, "distribution",
                             "Distribution", "Distribution for the argument");
   return rv;
@@ -312,7 +369,7 @@ void DistribFit::function(const double * parameters,
   for(int i = s->parameterIndex; i < s->distribIndex; i++)
     d[i+1] = parameters[i];
   MultiIntegrator::Function fcn = [data, s, d, ds, distParams, this](double x, gsl_vector * tgt) {
-    d[s->parameterIndex] = x;
+    d[s->parameterIndex] = s->dist->convertParameter(distParams, x);
     underlyingFit->function(d, data, ds, tgt);
     gsl_vector_scale(tgt, s->dist->weight(distParams, x));
   };
@@ -327,7 +384,12 @@ void DistribFit::function(const double * parameters,
 
 ArgumentList * DistribFit::fitSoftOptions() const
 {
-  ArgumentList * rv = new ArgumentList(*underlyingFit->fitHardOptions());
+  ArgumentList * org = underlyingFit->fitSoftOptions();
+  ArgumentList * rv;
+  if(org)
+    rv = new ArgumentList(*org);
+  else
+    rv = new ArgumentList;
   (*rv) << MultiIntegrator::integratorOptions();
   return rv;
 }

@@ -64,9 +64,9 @@ class GaussianDistribution : public Distribution {
 public:
   virtual QList<ParameterDefinition> parameters(const QString & param) const {
     QList<ParameterDefinition> ret;
-    ret << ParameterDefinition(QString("%1_avg").arg(name))
-        << ParameterDefinition(QString("%1_sigma").arg(name))
-        << ParameterDefinition(QString("%1_extent").arg(name), true);
+    ret << ParameterDefinition(QString("%1_avg").arg(param))
+        << ParameterDefinition(QString("%1_sigma").arg(param))
+        << ParameterDefinition(QString("%1_extent").arg(param), true);
     return ret;
   };
   

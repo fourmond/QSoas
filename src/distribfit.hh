@@ -136,7 +136,7 @@ public:
 
 
   DistribFit(const QString & name, const QString & param, 
-              PerDatasetFit * fit);
+             PerDatasetFit * fit, const Distribution * defdist = NULL);
   virtual ~DistribFit();
 
 };

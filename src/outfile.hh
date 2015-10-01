@@ -94,6 +94,9 @@ public:
   /// Whether the output file currently is opened or not.
   bool isOpened() const;
 
+  /// Forces a reopening of the file at the next use
+  void forceReopen();
+
   /// Writes a full ValueHash to the output file, making sure the
   /// headers are set correctly.
   ///

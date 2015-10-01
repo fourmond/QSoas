@@ -32,6 +32,12 @@ OutFile::OutFile(const QString &n) :
 {
 }
 
+void OutFile::forceReopen()
+{
+  delete output;
+  output = NULL;
+}
+
 void OutFile::ensureOpened()
 {
   if(! output) {

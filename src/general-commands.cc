@@ -115,6 +115,11 @@ static void outputCommand(const QString &,
     OutFile::out.truncate = false;
     updateFromOptions(opts, "overwrite", OutFile::out.truncate);
   }
+
+  bool reopen = false;
+  updateFromOptions(opts, "reopen", reopen);
+  if(reopen)
+    OutFile::out.forceReopen();
   
   // Now, we process meta-data
   QStringList metaNames;
@@ -136,6 +141,9 @@ ArgumentList oOpts(QList<Argument*>()
                    << new BoolArgument("overwrite", 
                                        "Overwrite",
                                        "If on, overwrite the file instead of appending")
+                   << new BoolArgument("reopen", 
+                                       "Reopen",
+                                       "If on, forces reopening the file")
                    << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "meta", 
                                                  "Meta-data",
                                                  "When writing to output file, also print the listed meta-data")

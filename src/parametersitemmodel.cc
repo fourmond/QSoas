@@ -123,3 +123,15 @@ QVariant ParametersItemModel::headerData(int section,
   }
   return QVariant();
 }
+
+void ParametersItemModel::setFixed(const QList<QModelIndex> items, bool fixed)
+{
+  if(items.size() > 0)
+    modified = true;
+
+  for(int i = 0; i < items.size(); i++) {
+    workspace->setFixed(items[i].column(), items[i].row(), fixed);
+    emit(dataChanged(items[i], items[i]));
+  }
+
+}

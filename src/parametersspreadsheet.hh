@@ -57,6 +57,9 @@ public:
 
 protected slots:
 
+  /// Shows a context menu to modify a few things...
+  void spawnContextMenu(const QPoint & pos);
+
 };
 
 #endif

@@ -52,6 +52,10 @@ void ParametersSpreadsheet::setupFrame()
   layout->addWidget(view, 1);
 
 
+  view->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(view, SIGNAL(customContextMenuRequested(const QPoint &)),
+          SLOT(spawnContextMenu(const QPoint &)));
+
   // Then, bottom line with buttons...
   QHBoxLayout * bl = new QHBoxLayout;
   layout->addLayout(bl);
@@ -75,4 +79,30 @@ void ParametersSpreadsheet::setupFrame()
 bool ParametersSpreadsheet::dataChanged() const
 {
   return model->dataChanged();
+}
+
+
+void ParametersSpreadsheet::spawnContextMenu(const QPoint & pos)
+{
+  typedef enum {
+    FixSelected,
+    UnfixSelected,
+    Noop
+  } En;
+  QMenu menu;
+  QHash<QAction *, int> actions;
+  actions[menu.addAction("Fix parameters")] = FixSelected;
+  actions[menu.addAction("Unfix parameters")] = UnfixSelected;
+
+  int ac = actions.value(menu.exec(view->viewport()->mapToGlobal(pos)), Noop);
+  switch(ac) {
+  case FixSelected:
+  case UnfixSelected:
+    model->setFixed(view->selectionModel()->selectedIndexes(),
+                    ac == FixSelected);
+    break;
+  case Noop:
+  default:
+    break;
+  }
 }

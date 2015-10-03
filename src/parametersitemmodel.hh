@@ -51,6 +51,13 @@ public:
   /// Do not hide the base class...
   using QAbstractItemModel::dataChanged;
 
+  /// @name Various accessors
+  ///
+  /// @{
+
+  void setFixed(const QList<QModelIndex> items, bool fixed = true);
+
+  /// @}
 
 
   /// @name Reimplemented interface

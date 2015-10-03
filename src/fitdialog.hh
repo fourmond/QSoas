@@ -320,6 +320,8 @@ protected slots:
   /// Shows the transposed data.
   void showTransposed();
 
+  /// Display a spreadsheet to edit the parameters
+  void parametersSpreadsheet();
 
 
 };

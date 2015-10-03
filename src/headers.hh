@@ -123,6 +123,10 @@
 #include <QKeyEvent>
 
 
+// MVC classes
+#include <QAbstractTableModel>
+
+
 // Plugins
 #include <QLibrary>
 

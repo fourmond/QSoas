@@ -261,7 +261,9 @@ SOURCES += src/qmain.cc \
         src/valuehasheditor.cc \
         src/multiintegrator.cc \
         src/multiintegrators.cc \
-        src/distribfit.cc
+        src/distribfit.cc \
+        src/parametersitemmodel.cc \
+        src/parametersspreadsheet.cc
 
 
 HEADERS += src/headers.hh \
@@ -367,7 +369,9 @@ HEADERS += src/headers.hh \
         src/commandlineparser.hh \
         src/valuehasheditor.hh \
         src/multiintegrator.hh \
-        src/distribfit.hh
+        src/distribfit.hh \
+        src/parametersitemmodel.hh \
+        src/parametersspreadsheet.hh
 
                 
 # Sources of file-format specific code

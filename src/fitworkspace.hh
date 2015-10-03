@@ -19,8 +19,8 @@
 */
 
 #include <headers.hh>
-#ifndef __FITPARAMETERS_HH
-#define __FITPARAMETERS_HH
+#ifndef __FITWORKSPACE_HH
+#define __FITWORKSPACE_HH
 
 
 #include <fitengine.hh>
@@ -37,14 +37,13 @@ class CurveData;
 class DataSet;
 
 /// Holds parameters of a fit (possibly multi-buffer), the way the
-/// user edits them.
+/// user edits them. In fact, it holds essentially all that is
+/// necessary to run a fit, from the user's perspective.
 ///
 /// This class is also responsible for saving/loading the parameters,
 /// for exporting (and importing ?) them and so on.
 ///
 /// @todo Handle import (which is quite different from load).
-///
-/// @todo This should be renamed FitWorkspace
 class FitWorkspace {
 
   /// The underlying FitData object.

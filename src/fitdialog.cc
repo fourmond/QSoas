@@ -45,6 +45,8 @@
 
 #include <utils.hh>
 #include <parametersviewer.hh>
+#include <parametersspreadsheet.hh>
+
 
 #include <nupwidget.hh>
 
@@ -321,6 +323,9 @@ void FitDialog::setupFrame()
   ac->addAction("Edit", this, 
                 SLOT(editParameters()),
                 QKeySequence(tr("Ctrl+E")));
+  ac->addAction("Spreadsheet", this, 
+                SLOT(parametersSpreadsheet()),
+                QKeySequence(tr("Ctrl+Shift+E")));
   ac->addAction("Load from file", this, 
                 SLOT(loadParameters()),
                 QKeySequence(tr("Ctrl+L")));
@@ -1239,6 +1244,9 @@ void FitDialog::showParameters()
   dlg.exec();
 }
 
-
-
+void FitDialog::parametersSpreadsheet()
+{
+  ParametersSpreadsheet dlg(&parameters);
+  dlg.exec();
+}
 

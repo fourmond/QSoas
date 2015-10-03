@@ -55,7 +55,12 @@ public:
   ///
   /// @{
 
+  /// Sets/clears the "fixed" property for the targets 
   void setFixed(const QList<QModelIndex> items, bool fixed = true);
+
+  /// Resets the target indices to the initial guess
+  void resetValuesToInitialGuess(const QList<QModelIndex> items);
+  
 
   /// @}
 

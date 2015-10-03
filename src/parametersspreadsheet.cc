@@ -87,12 +87,14 @@ void ParametersSpreadsheet::spawnContextMenu(const QPoint & pos)
   typedef enum {
     FixSelected,
     UnfixSelected,
+    ResetToInitialGuess,
     Noop
   } En;
   QMenu menu;
   QHash<QAction *, int> actions;
   actions[menu.addAction("Fix parameters")] = FixSelected;
   actions[menu.addAction("Unfix parameters")] = UnfixSelected;
+  actions[menu.addAction("Reset to initial guess")] = ResetToInitialGuess;
 
   int ac = actions.value(menu.exec(view->viewport()->mapToGlobal(pos)), Noop);
   switch(ac) {
@@ -100,6 +102,9 @@ void ParametersSpreadsheet::spawnContextMenu(const QPoint & pos)
   case UnfixSelected:
     model->setFixed(view->selectionModel()->selectedIndexes(),
                     ac == FixSelected);
+    break;
+  case ResetToInitialGuess:
+    model->resetValuesToInitialGuess(view->selectionModel()->selectedIndexes());
     break;
   case Noop:
   default:

@@ -135,3 +135,19 @@ void ParametersItemModel::setFixed(const QList<QModelIndex> items, bool fixed)
   }
 
 }
+
+void ParametersItemModel::resetValuesToInitialGuess(const QList<QModelIndex> items)
+{
+  const FitData * d = workspace->data();
+  int nbParameters = d->parameterDefinitions.size();
+  double values[nbParameters * d->datasets.size()];
+  /// @todo That's an ugly const_cast.
+  d->fit->initialGuess(const_cast<FitData*>(d), values);
+
+  for(int i = 0; i < items.size(); i++) {
+    int ds = items[i].row();
+    int idx = items[i].column();
+    workspace->setValue(idx, ds, values[idx + nbParameters * ds]);
+    emit(dataChanged(items[i], items[i]));
+  }
+}

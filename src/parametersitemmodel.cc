@@ -41,6 +41,11 @@ ParametersItemModel::ParametersItemModel(FitWorkspace * ws, QObject * parent) :
 
 }
 
+bool ParametersItemModel::dataChanged() const
+{
+  return modified;
+}
+
 int ParametersItemModel::rowCount(const QModelIndex & parent) const
 {
   return workspace->data()->datasets.size();
@@ -56,8 +61,8 @@ QVariant ParametersItemModel::data(const QModelIndex & index, int role) const
   ///
   switch(role) {
   case Qt::DisplayRole:
-    // Write formula...
-    return workspace->getValue(index.column(), index.row());
+  case Qt::EditRole:
+    return workspace->getTextValue(index.column(), index.row());
   case Qt::DecorationRole:
     return (workspace->isFixed(index.column(), index.row()) ?
             fixedIcon : freeIcon);
@@ -67,6 +72,22 @@ QVariant ParametersItemModel::data(const QModelIndex & index, int role) const
   }
   
   return QVariant();
+}
+
+bool ParametersItemModel::setData(const QModelIndex & index,
+                                      const QVariant & value, int role)
+{
+  if(role != Qt::EditRole)
+    return false;
+  QString s = value.toString();
+  int idx = index.column();
+  workspace->setValue(idx, index.row(), s);
+  if(workspace->isGlobal(idx))
+    emit(dataChanged(index.sibling(0, idx), index.sibling(rowCount() - 1, idx)));
+  else
+    emit(dataChanged(index, index));
+  modified = true;
+  return true;
 }
 
 Qt::ItemFlags ParametersItemModel::flags(const QModelIndex & index) const

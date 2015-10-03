@@ -45,6 +45,13 @@ public:
   /// Constructs the model
   ParametersItemModel(FitWorkspace * ws, QObject * parent = NULL);
 
+  /// True if the model was used to change the underlying data.
+  bool dataChanged() const; 
+
+  /// Do not hide the base class...
+  using QAbstractItemModel::dataChanged;
+
+
 
   /// @name Reimplemented interface
   ///
@@ -55,7 +62,10 @@ public:
 
   virtual QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
 
-  
+
+  virtual bool setData(const QModelIndex & index,
+                       const QVariant & value, int role);
+
   virtual QVariant headerData(int section, Qt::Orientation orientation,
                               int role) const;
   

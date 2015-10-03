@@ -1081,6 +1081,8 @@ void FitWorkspace::setGlobal(int index, bool global)
 
 void FitWorkspace::setValue(int index, int dataset, const QString & str)
 {
+  if(isGlobal(index) || dataset < 0)
+    dataset = 0;
   if(isFixed(index,dataset) && str.size() > 0) {
     // We need to detect if we are changing the category (ie normal
     // fixed vs other) of the parameter.
@@ -1107,6 +1109,13 @@ void FitWorkspace::setValue(int index, int dataset, const QString & str)
   }
   else
     parameter(index, dataset)->setValue(&valueFor(index, dataset), str);
+}
+
+QString FitWorkspace::getTextValue(int index, int dataset) const
+{
+  if(dataset < 0 || isGlobal(index))
+    dataset = 0;                // global;
+  return parameter(index, dataset)->textValue(valueFor(index, dataset));
 }
 
 

@@ -71,3 +71,8 @@ void ParametersSpreadsheet::setupFrame()
   bl->addWidget(bt);
   connect(bt, SIGNAL(clicked()), SLOT(accept()));
 }
+
+bool ParametersSpreadsheet::dataChanged() const
+{
+  return model->dataChanged();
+}

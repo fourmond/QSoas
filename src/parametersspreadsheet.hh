@@ -50,6 +50,11 @@ public:
   ParametersSpreadsheet(FitWorkspace * params);
   ~ParametersSpreadsheet();
 
+
+  /// This is true if during the course of the edition, the data
+  /// changed. Then one updates the editors...
+  bool dataChanged() const;
+
 protected slots:
 
 };

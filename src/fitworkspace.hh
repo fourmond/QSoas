@@ -221,6 +221,11 @@ public:
   /// ones can happen.
   void setValue(int index, int dataset, const QString & val);
 
+  /// Returns the text value associated with the given parameter. In
+  /// principle, passing that value to setValue() should be a no-op --
+  /// barring floating-point conversion problems, of course.
+  QString getTextValue(int index, int dataset) const;
+  
   /// @}
 
   /// Returns the underlying data

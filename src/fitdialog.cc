@@ -1248,5 +1248,7 @@ void FitDialog::parametersSpreadsheet()
 {
   ParametersSpreadsheet dlg(&parameters);
   dlg.exec();
+  if(dlg.dataChanged())
+    updateEditors();
 }
 

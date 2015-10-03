@@ -267,24 +267,9 @@ void FitParameterEditor::onGlobalClicked()
 {
   if(updatingEditor)
     return;
-  FitParameter *& target = parameters->parameter(index, 0);
-  if(global->isChecked()) {
-    target->dsIndex = -1;
-    emit(globalChanged(index,true));
-    for(int i = 1; i < parameters->datasets; i++) {
-      delete parameters->parameter(index, i);
-      parameters->parameter(index, i) = NULL;
-    }
-  }
-  else {
-    target->dsIndex = 0;
-    for(int i = 1; i < parameters->datasets; i++) {
-      FitParameter * p = target->dup();
-      p->dsIndex = i;
-      parameters->parameter(index, i) = p;
-    }
-    emit(globalChanged(index,false));
-  }
+  bool nv = global->isChecked();
+  parameters->setGlobal(index, nv);
+  emit(globalChanged(index, nv));
   onValueChanged(editor->text());
 }
 
@@ -299,39 +284,7 @@ void FitParameterEditor::onValueChanged(const QString & str)
     return;
 
   setRelativeError(-1);         // Errors are meaningless if we edit !
-
-  if(isFixed() && str.size() > 0) {
-    // We need to detect if we are changing the category (ie normal
-    // fixed vs other) of the parameter.
-    FitParameter *& target = targetParameter();
-    int ds = target->dsIndex;
-    if(dynamic_cast<FormulaParameter *>(target) != NULL && str[0] != '=') {
-      // Replace
-      FixedParameter * param = new FixedParameter(index, ds,  0);
-      delete target;
-      target = param;
-    }
-    else if(dynamic_cast<FormulaParameter *>(target) == NULL 
-            && str[0] == '=') {
-      FormulaParameter * param = new FormulaParameter(index, ds, "0");
-      delete target;
-      target = param;
-    }
-  }
-
-  if(isGlobal()) {
-    /// @todo This whole loop may not be necessary anymore now that we
-    /// have a pack/unpack cycle in FitWorkspace::recompute()
-    for(int i = 0; i < parameters->datasets; i++)
-      parameters->parameter(index, 0)->
-        setValue(&parameters->valueFor(index, i), str);
-  }
-  else
-    parameters->parameter(index, dataset)->
-      setValue(&parameters->valueFor(index, dataset), str);
-  
-  // not necessary... for now !
-  // parameters->dump();
+  parameters->setValue(index, dataset, str);
 }
 
 void FitParameterEditor::selectDataSet(int dsIndex)

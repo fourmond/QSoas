@@ -1,7 +1,7 @@
 /*
   fitworkspace.cc: implementation of the FitWorkspace class
   Copyright 2011 by Vincent Fourmond
-            2012, 2013, 2014 by CNRS/AMU
+            2012, 2013, 2014, 2015 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -251,17 +251,17 @@ FitWorkspace::FitWorkspace(FitData * d) :
     if(def->canBeBufferSpecific) {
       for(int j = 0; j < datasets; j++) {
         if(def->defaultsToFixed)
-          parameter(i,j) = new FixedParameter(i, j, valueFor(i, j));
+          parameterRef(i,j) = new FixedParameter(i, j, valueFor(i, j));
         else 
-          parameter(i,j) = new FreeParameter(i, j);
+          parameterRef(i,j) = new FreeParameter(i, j);
       }
     }
     else {
       // Keep in mind that all the rest has been initialized to 0
       if(def->defaultsToFixed)
-        parameter(i,0) = new FixedParameter(i, -1, getValue(i, 0));
+        parameterRef(i,0) = new FixedParameter(i, -1, getValue(i, 0));
       else
-        parameter(i,0) = new FreeParameter(i, -1);
+        parameterRef(i,0) = new FreeParameter(i, -1);
     }
   }
 }
@@ -702,7 +702,7 @@ void FitWorkspace::setFixed(int index, int ds, bool fixed)
   if(isGlobal(index))
     ds = 0;
 
-  FitParameter *& target = parameter(index, ds);
+  FitParameter *& target = parameterRef(index, ds);
 
   // Get the real dataset in case we are redirecting to other
   // parameters.
@@ -824,16 +824,16 @@ void FitWorkspace::loadParameters(FitParametersFile & params,
           Terminal::out << "Not replacing global parameter by a local one: " 
                         << param.name << endl;
         else
-          param.replaceParameter(parameter(idx, ds), &valueFor(idx, ds),
+          param.replaceParameter(parameterRef(idx, ds), &valueFor(idx, ds),
                                  idx, ds);
       }
       else {
-        param.replaceParameter(parameter(idx, 0), &valueFor(idx, 0),
+        param.replaceParameter(parameterRef(idx, 0), &valueFor(idx, 0),
                                idx, -1);
         for(int i = 1; i < datasets; i++) {
           values[idx + i * nbParameters] = values[idx];
           delete parameter(idx, i);
-          parameter(idx, i) = NULL;
+          parameterRef(idx, i) = NULL;
         }
       }
     }
@@ -1054,6 +1054,61 @@ void FitWorkspace::recomputeJacobian()
   fitData->recomputeJacobian();
 }
 
+void FitWorkspace::setGlobal(int index, bool global)
+{
+  bool cur = isGlobal(index);
+  if((global && cur) || (!global && !cur))
+    return;                     // Nothing to do !
+
+  FitParameter * target = parameter(index, 0);
+  if(global) {
+    target->dsIndex = -1;
+    for(int i = 1; i < datasets; i++) {
+      delete parameterRef(index, i);
+      parameterRef(index, i) = NULL;
+    }
+  }
+  else {
+    target->dsIndex = 0;
+    for(int i = 1; i < datasets; i++) {
+      FitParameter * p = target->dup();
+      p->dsIndex = i;
+      parameterRef(index, i) = p;
+    }
+  }
+}
+
+
+void FitWorkspace::setValue(int index, int dataset, const QString & str)
+{
+  if(isFixed(index,dataset) && str.size() > 0) {
+    // We need to detect if we are changing the category (ie normal
+    // fixed vs other) of the parameter.
+    FitParameter *& target = parameterRef(index, dataset);
+    int ds = target->dsIndex;
+    if(dynamic_cast<FormulaParameter *>(target) != NULL && str[0] != '=') {
+      // Replace
+      FixedParameter * param = new FixedParameter(index, ds,  0);
+      delete target;
+      target = param;
+    }
+    else if(dynamic_cast<FormulaParameter *>(target) == NULL 
+            && str[0] == '=') {
+      FormulaParameter * param = new FormulaParameter(index, ds, "0");
+      delete target;
+      target = param;
+    }
+  }
+
+  // We ask the parameters to set themselves...
+  if(isGlobal(index)) {
+    for(int i = 0; i < datasets; i++)
+      parameter(index, 0)->setValue(&valueFor(index, i), str);
+  }
+  else
+    parameter(index, dataset)->setValue(&valueFor(index, dataset), str);
+}
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1113,4 +1168,5 @@ void CovarianceMatrixDisplay::exportAsLatex()
   QClipboard * clipboard = QApplication::clipboard();
   clipboard->setText(data);
 }
+
 

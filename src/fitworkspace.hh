@@ -72,7 +72,12 @@ class FitWorkspace {
   };
 
   /// Returns the given parameter
-  FitParameter * &parameter(int idx, int ds) {
+  FitParameter * parameter(int idx, int ds) {
+    return parameters[idx + nbParameters * ds];
+  };
+
+  /// Returns a reference to the given parameter
+  FitParameter *& parameterRef(int idx, int ds) {
     return parameters[idx + nbParameters * ds];
   };
 
@@ -206,6 +211,15 @@ public:
 
   /// Returns the parameters for the numbered dataset
   QHash<QString, double> parametersForDataset(int ds) const;
+
+
+  /// Sets the given parameter to global or not.
+  void setGlobal(int index, bool global = true);
+
+  /// Sets the value, using a QString, which means that the parameter
+  /// conversion between standard Fixed parameters and formula-based
+  /// ones can happen.
+  void setValue(int index, int dataset, const QString & val);
 
   /// @}
 

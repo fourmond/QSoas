@@ -68,7 +68,7 @@ class FitParameterEditor : public QWidget {
   bool isGlobal() const;
 
   /// Returns the target for the current conditions
-  FitParameter *& targetParameter() {
+  FitParameter *targetParameter() {
     if(isGlobal())
       return parameters->parameter(index, 0);
     else

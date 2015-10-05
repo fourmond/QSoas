@@ -178,6 +178,12 @@ public:
     InterpolationBasedMultiIntegrator(fnc, dim, rel, abs, maxc) {
   };
 
+  MultiIntegrator * dup() const {
+    NaiveMultiIntegrator * i =
+      new NaiveMultiIntegrator(function, dimension, relativePrec,
+                               absolutePrec, maxfuncalls);
+    return i;
+  };
 };
 
 static MultiIntegrator::MultiIntegratorFactory
@@ -235,6 +241,12 @@ public:
     accel = gsl_interp_accel_alloc();
   };
 
+  MultiIntegrator * dup() const {
+    SplinesMultiIntegrator * i =
+      new SplinesMultiIntegrator(function, dimension, relativePrec,
+                                 absolutePrec, maxfuncalls, type);
+    return i;
+  };
 };
 
 static MultiIntegrator::MultiIntegratorFactory

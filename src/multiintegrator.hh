@@ -114,7 +114,9 @@ public:
     return funcalls;
   };
 
-  /// @todo Duplication.
+  /// Duplicates the integrator - returns a newly allocated integrator
+  /// with the same stuff...
+  virtual MultiIntegrator * dup() const = 0;
 
   virtual ~MultiIntegrator();
 

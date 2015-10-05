@@ -279,7 +279,9 @@ FitInternalStorage * DistribFit::copyStorage(FitData * data,
                                            s->sub);
     s2->sub = underlyingFit->copyStorage(data, s->sub, ds);
   }
-  throw InternalError("Cannot copy integrators");
+  
+  if(s->integrator)
+    s2->integrator = s->integrator->dup();
   return s2;
 }
 

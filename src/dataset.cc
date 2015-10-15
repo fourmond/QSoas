@@ -347,6 +347,10 @@ QList<DataSet *> DataSet::splitIntoMonotonic(int col, int group) const
   if(size >= 3) {
     double dv0 = val[1] - val[0];
     for(idx = 1; idx < size - 1; idx++) {
+      if(dv0 == 0) {
+        dv0 = val[idx+1] - val[idx];
+        continue;
+      }
       double dv = val[idx+1] - val[idx];
       if(dv * dv0 < 0) {
         nbcrossed += 1;

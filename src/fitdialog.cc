@@ -589,6 +589,7 @@ void FitDialog::startFit()
   
     Terminal::out << "Starting fit '" << parameters.fitName() << "' with "
                   << params << " free parameters"
+                  << " using the '" << fitEngineFactory->name << "' fit engine"
                   << endl;
 
     cancelButton->setVisible(true);
@@ -604,7 +605,7 @@ void FitDialog::startFit()
       status = data->iterate();
       residuals = data->residuals();
       double tm = startTime.msecsTo(QDateTime::currentDateTime()) * 1e-3;
-      QString str = QString("Iteration #%1, current internal residuals: %2, %3 s elapsed\n").
+      QString str = QString("Iteration #%1, current internal residuals: %2, %3 s elapsed").
         arg(data->nbIterations).arg(residuals).arg(tm);
       Terminal::out << str << endl;
 

@@ -91,6 +91,18 @@ public:
     return startup;
   };
 
+  /// @name Flags
+  ///
+  /// These are flags that are used to implement "external"
+  /// interruptions.  I'm unsure that's the best way to implement
+  /// them.
+  ///
+  /// @{
+
+  /// If the flag is on, the fit engine should stop.
+  bool shouldStopFit;
+
+  /// @}
 
 };
 

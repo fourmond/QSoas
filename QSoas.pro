@@ -381,6 +381,10 @@ HEADERS += src/headers.hh \
 SOURCES += src/formats/gpesprovider.cc \
         src/formats/chi.cc
 
+# Using signals on platforms that support them
+unix|macx {
+  SOURCES += src/signals.cc
+}
 
 # We link with the converted ODRPACK library
 message("Using odrpack")

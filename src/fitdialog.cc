@@ -574,6 +574,7 @@ void FitDialog::startFit()
   }
   QDateTime startTime = QDateTime::currentDateTime();
   try {
+    soas().shouldStopFit = false;
     parameters.prepareFit(fitEngineFactory, fitEngineParameterValues.value(fitEngineFactory, NULL));
     parametersBackup = parameters.saveParameterValues();
     shouldCancelFit = false;
@@ -615,7 +616,7 @@ void FitDialog::startFit()
 
       QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
       if(shouldCancelFit || status != GSL_CONTINUE || 
-         data->nbIterations >= iterationLimit)
+         data->nbIterations >= iterationLimit || soas().shouldStopFit)
         break;
 
     } while(true);
@@ -624,7 +625,7 @@ void FitDialog::startFit()
     startButton->setFocus();
 
     QString mention;
-    if(shouldCancelFit) {
+    if(shouldCancelFit || soas().shouldStopFit) {
       Terminal::out << "Fit cancelled" << endl;
       mention = " <font color=#d00>(cancelled)</font>";
     }
@@ -680,7 +681,7 @@ void FitDialog::startFit()
                   residuals,
                   fitEngineFactory->name,
                   startTime);
-  if(shouldCancelFit)
+  if(shouldCancelFit || soas().shouldStopFit)
     trajectories.last().ending = FitTrajectory::Cancelled;
   else if(data->nbIterations >= iterationLimit)
     trajectories.last().ending = FitTrajectory::TimeOut;

@@ -1,7 +1,7 @@
 /*
   soas.cc: implementation of the Soas class
   Copyright 2011 by Vincent Fourmond
-            2012, 2013, 2014 by CNRS/AMU
+            2012, 2013, 2014, 2015 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ Soas * Soas::theSoasInstance = NULL;
 static SettingsValue<double> temperature("soas/temperature", 298);
 
 Soas::Soas() : 
-  mw(NULL)
+  mw(NULL), shouldStopFit(false)
 {
   startup = QDateTime::currentDateTime();
   theSoasInstance = this;

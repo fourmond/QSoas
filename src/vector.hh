@@ -109,6 +109,9 @@ public:
   /// The square root of the sum of the squares
   double norm() const;
 
+  /// Returns true if all elements are finite
+  bool allFinite() const;
+
   /// Fills the target values with the average and variance of the set
   void stats(double * average, double * variance) const;
 

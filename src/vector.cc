@@ -165,6 +165,16 @@ double Vector::finiteMin() const
   return m;
 }
 
+bool Vector::allFinite() const
+{
+  int sz = size();
+  const double * v = data();
+  for(int i = 0; i < sz; i++)
+    if(! std::isfinite(v[i]))
+      return false;
+  return true;
+}
+
 int Vector::whereMin() const
 {
   int sz = size();

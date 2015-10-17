@@ -59,6 +59,11 @@ FitEngineFactoryItem * FitEngine::defaultFactoryItem(int nb)
     if(it)
       return it;
   }
+  if(nb > 20) {
+    FitEngineFactoryItem * it = namedFactoryItem("multi");
+    if(it)
+      return it;
+  }
   return namedFactoryItem("qsoas"); 
 }
 

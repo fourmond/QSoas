@@ -44,6 +44,7 @@ public:
     Converged,
     Cancelled,
     TimeOut,
+    NonFinite,
     Error
   } Ending;
 
@@ -85,6 +86,9 @@ public:
       endTime = end;
     else
       endTime = QDateTime::currentDateTime();
+    if(! final.allFinite())
+      ending = NonFinite;
+
   };
 
   /// Comparison by residuals.

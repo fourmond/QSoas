@@ -100,6 +100,24 @@ namespace Utils {
   
   /// @}
 
+
+  /// @name Number-related functions
+  ///
+  /// @{
+
+  /// Returns a random number between 0.0 and 1.0
+  double random();
+
+  /// Rounds \a value as if it had only \a ranks digits before the
+  /// decimal point.
+  double roundValue(double value, int ranks = 1);
+
+  /// Returns the lower (or higher, if \a below is false) power of ten
+  /// closest to the number.
+  double magnitude(double value, bool below = true);
+
+  /// @}
+
   /// @name Geometrical functions
   ///
   /// A series of geometry-related utility functions
@@ -205,9 +223,6 @@ namespace Utils {
 
   /// @}
 
-  /// Returns a random number between 0.0 and 1.0
-  double random();
-
 
   /// @name GSL-related functions
   ///
@@ -233,9 +248,6 @@ namespace Utils {
 
   /// @}
 
-  /// Rounds \a value as if it had only \a ranks digits before the
-  /// decimal point.
-  double roundValue(double value, int ranks = 1);
 
 
   /// Connects the given shortcut to the given receiver. If parent is

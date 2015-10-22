@@ -630,5 +630,5 @@ double Utils::magnitude(double value, bool below)
   double sgn = (value < 0 ? -1.0 : 1.0);
   double lg = log10(sgn * value);
   lg = (below ? floor(lg) : ceil(lg));
-  return sgn * pow10(lg);
+  return sgn * pow(10, lg);
 }

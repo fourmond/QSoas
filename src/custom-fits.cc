@@ -33,6 +33,8 @@
 #include <dataset.hh>
 #include <vector.hh>
 #include <fitdata.hh>
+#include <timedependentparameters.hh>
+
 
 #include <expression.hh>
 
@@ -60,11 +62,31 @@ public:
   /// The expressions being used !
   QList<Expression> expressions;
 
-  /// The parameters
+  /// The parameters (the final ones)
   QStringList params;
 
   /// Whether or not the fit has a temperature-related parameter.
   bool hasTemperature;
+
+  /// The time dependent parameters of the fit.
+  TimeDependentParameters timeDependentParameters;
+
+  /// The set of indices which should be skipped while reading from
+  /// the fit parameters + parametersBase to fill the target system
+  /// parameters.
+  QSet<int> skippedIndices;
+
+  static ArgumentList * hardOptions() {
+    return new
+      ArgumentList(QList<Argument *>()
+                   << new SeveralStringsArgument(QRegExp(";"),
+                                                 "with", 
+                                                 "Time dependent parameters",
+                                                 "Dependency upon time of "
+                                                 "various parameters")
+                   );
+    
+  };
 
   void parseFormulas(const QString &formula)
   {
@@ -100,6 +122,25 @@ public:
       params.takeFirst();  
   }
 
+  /// Compute the time-dependent stuff...
+  void processOptions(const CommandOptions & opts)
+  {
+    QStringList lst;
+    updateFromOptions(opts, "with", lst);
+
+    // Get rid of all time-dependent parameters first.
+    timeDependentParameters.clear();
+    timeDependentParameters.parseFromStrings(lst, [this](const QString & n) {
+        return params.indexOf(n);
+      });
+    skippedIndices = timeDependentParameters.keys().toSet();
+
+    // And now, remove them from the parameters !
+    for(int i = params.size()-1; i >=0; i--)
+      if(skippedIndices.contains(i))
+        params.takeAt(i);
+  }
+
   /// Returns the initial guess for the named parameter
   double paramGuess(const QString & name, const DataSet * ds) const {
     if(name == "temperature")
@@ -123,6 +164,7 @@ public:
   {
     for(int i = 0; i < params.size(); i++)
       a[i] = paramGuess(params[i], ds);
+    timeDependentParameters.setInitialGuesses(a + params.size(), ds);
   };
 
   QList<ParameterDefinition> parameters() const {
@@ -130,6 +172,7 @@ public:
     for(int i = 0; i < params.size(); i++)
       p << ParameterDefinition(params[i], paramFixed(params[i]), 
                                formulas.size() == 1);
+    p += timeDependentParameters.fitParameters();
     return p;
   };
 
@@ -141,7 +184,8 @@ public:
                       gsl_vector *target,
                       int formulaIndex = 0) const {
     int k = 0;
-    int nbparams = data->parametersPerDataset();
+    int nbparams = data->parametersPerDataset() +
+      skippedIndices.size();
 
     int seg = 0;
     int base = (hasTemperature ? 4 : 3);
@@ -154,7 +198,7 @@ public:
         (a[0] * GSL_CONST_MKSA_MOLAR_GAS);
 
     for(int i = 0; i < nbparams; i++)
-      args[i + base] = a[i];
+      Utils::skippingCopy(a, args.data()+base, nbparams, skippedIndices);
 
     const Vector &xv = ds->x();
 
@@ -166,6 +210,10 @@ public:
       args[0] = xv[j]; // x
       args[1] = j;     // i !
       args[2] = seg;
+      
+      timeDependentParameters.computeValues(args[0], args.data()+base,
+                                            a + params.size());
+
       gsl_vector_set(target, k++, expr->evaluate(args.data()));
     }
   };
@@ -248,14 +296,22 @@ protected:
     return "formula: " + f->lastFormula;
   };
 
-  virtual void processOptions(const CommandOptions &, FitData * data ) const {
+  virtual void processOptions(const CommandOptions &opts,
+                              FitData * data ) const {
     FormulaBasedFit * f = getFbf(data);
     f->parseFormulas(f->lastFormula);
+    f->processOptions(opts);
   };
+
 
 
     
 public:
+
+  ArgumentList * fitHardOptions() const {
+    return FormulaBasedFit::hardOptions();
+  };
+
 
   virtual void function(const double *a, 
                         FitData *data, gsl_vector *target) const {
@@ -362,15 +418,20 @@ protected:
     return "formula: " + lastFormula;
   };
 
-  virtual void processOptions(const CommandOptions &, FitData * ) const {
+  virtual void processOptions(const CommandOptions &opts, FitData * ) {
     if(formulas.size() > 1)
       throw InternalError("Somehow got to define a single buffer fit "
                           "with several formulas");
+    FormulaBasedFit::processOptions(opts);
   };
 
 
     
 public:
+  
+  ArgumentList * fitHardOptions() const {
+    return FormulaBasedFit::hardOptions();
+  };
 
   virtual void function(const double *parameters, FitData *data, 
                         const DataSet *ds, gsl_vector *target) const {

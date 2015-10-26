@@ -632,3 +632,13 @@ double Utils::magnitude(double value, bool below)
   lg = (below ? floor(lg) : ceil(lg));
   return sgn * pow(10, lg);
 }
+
+
+void Utils::skippingCopy(const double * source, double * target,
+                         int nb, const QSet<int> skipped)
+{
+  int j = 0;
+  for(int i = 0; i < nb; i++)
+    if(! skipped.contains(i))
+      target[i] = source[j++];
+}

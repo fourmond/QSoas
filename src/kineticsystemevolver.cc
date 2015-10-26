@@ -118,10 +118,7 @@ void KineticSystemEvolver::setParameters(const double * source, int skip)
 void KineticSystemEvolver::setParameters(const double * source, 
                                          const QSet<int> & skipped)
 {
-  int j = 0;
-  for(int i = 0; i < parameterIndex.size(); i++)
-    if(! skipped.contains(i))
-      parameters[i] = source[j++];
+  Utils::skippingCopy(source, parameters, parameterIndex.size(), skipped);
 }
 
 void KineticSystemEvolver::initialize(double tstart)

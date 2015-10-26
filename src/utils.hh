@@ -116,6 +116,13 @@ namespace Utils {
   /// closest to the number.
   double magnitude(double value, bool below = true);
 
+
+  /// Copies the source to the target, skipping in the target the
+  /// indices contained in the set. The total number is the one in the
+  /// TARGET (i.e. the number in source + the size of skipped)
+  void skippingCopy(const double * source, double * target,
+                    int nb, const QSet<int> skipped);
+
   /// @}
 
   /// @name Geometrical functions

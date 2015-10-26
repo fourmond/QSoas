@@ -63,17 +63,32 @@ public:
   /// The parameters
   QStringList params;
 
+  /// Whether or not the fit has a temperature-related parameter.
+  bool hasTemperature;
+
   void parseFormulas(const QString &formula)
   {
     lastFormula = formula;
     params.clear();
-    params << "x" << "i" << "seg" << "fara" << "temperature";
+
+    QStringList naturalParameters;
+    
     formulas = splitFormulas(formula); 
 
     for(int i = 0; i < formulas.size(); i++) {
       Expression s(formulas[i]);
-      params << s.naturalVariables();
+      naturalParameters << s.naturalVariables();
     }
+
+    params << "x" << "i" << "seg";
+    if(naturalParameters.contains("fara") ||
+       naturalParameters.contains("temperature")) {
+      hasTemperature = true;
+      params << "fara" << "temperature";
+    }
+    else
+      hasTemperature = false;
+    params += naturalParameters;
 
     Utils::makeUnique(params);
 
@@ -81,7 +96,7 @@ public:
     for(int i = 0; i < formulas.size(); i++)
       expressions << Expression(formulas[i], params);
 
-    for(int i = 0; i < 4; i++)
+    for(int i = 0; i < (hasTemperature ? 4 : 3); i++)
       params.takeFirst();  
   }
 
@@ -129,15 +144,17 @@ public:
     int nbparams = data->parametersPerDataset();
 
     int seg = 0;
-    QVarLengthArray<double, 100> args(4 + nbparams);
+    int base = (hasTemperature ? 4 : 3);
+    QVarLengthArray<double, 100> args(base + nbparams);
     args[0] = 0; // x
     args[1] = 0; // i
     args[2] = 0; // seg
-    args[3] = GSL_CONST_MKSA_FARADAY/ 
-      (a[0] * GSL_CONST_MKSA_MOLAR_GAS);
+    if(hasTemperature)
+      args[3] = GSL_CONST_MKSA_FARADAY/ 
+        (a[0] * GSL_CONST_MKSA_MOLAR_GAS);
 
     for(int i = 0; i < nbparams; i++)
-      args[i + 4] = a[i];
+      args[i + base] = a[i];
 
     const Vector &xv = ds->x();
 

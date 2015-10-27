@@ -61,6 +61,7 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
   currentIndex(0),
   settingEditors(false), 
   displaySubFunctions(false),
+  alreadyChangingPage(false),
   errorInconsistencyShown(false),
   perpendicularMeta(pm),
   progressReport(NULL),
@@ -448,6 +449,9 @@ void FitDialog::closeEvent(QCloseEvent * event)
 
 void FitDialog::dataSetChanged(int newds)
 {
+  if(alreadyChangingPage)
+    return;
+  alreadyChangingPage = true;
   // stackedViews->setCurrentIndex(newds);
   currentIndex = nup->widgetIndex();
   
@@ -465,8 +469,11 @@ void FitDialog::dataSetChanged(int newds)
     txt += str;
   }
   bufferNumber->setText(txt);
+  bufferSelection->setCurrentIndex(currentIndex);
+  
 
   updateResidualsDisplay();
+  alreadyChangingPage = false;
 }
 
 void FitDialog::setupSubFunctionCurves()

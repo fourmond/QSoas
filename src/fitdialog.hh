@@ -86,6 +86,9 @@ class FitDialog : public QDialog {
   /// Whether or not we've already shown inconsistency warning
   bool errorInconsistencyShown;
 
+  /// Whether or not we are currently updating the page
+  bool alreadyChangingPage;
+
   /// A list of the curve data objects in current use.
   ///
   /// These should be cleared basically every time we setup the

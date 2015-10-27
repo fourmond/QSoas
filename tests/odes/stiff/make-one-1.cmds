@@ -1,0 +1,3 @@
+generate-buffer 0 100 
+sim-ode /stepper=rk4imp stiff-1.ode stiff-1.params 0 /override='y0=${1};alpha=${2}'
+drop 1

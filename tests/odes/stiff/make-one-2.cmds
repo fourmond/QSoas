@@ -1,0 +1,3 @@
+generate-buffer 0 2 
+sim-ode /stepper=bsimp stiff-2.ode stiff-2.params 0 /override='k_0=${1}'
+drop 1

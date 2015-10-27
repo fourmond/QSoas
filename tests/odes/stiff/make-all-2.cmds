@@ -1,0 +1,2 @@
+run-for-each /range-type=log make-one-2.cmds 1e-3..1e3:${1:-100}
+save-buffers /mode=rename /format=ode-%02d.dat all

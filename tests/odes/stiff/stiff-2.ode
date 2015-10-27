@@ -1,0 +1,13 @@
+c_ox = 0
+c_red = 1
+
+pot = (t < 1 ? t : 2 - t) - 0.5
+k_f = k_0 * exp(fara * 0.5 * pot)
+k_b = k_0**2/k_f
+d_c_ox = k_f * c_red - k_b * c_ox
+d_c_red = - d_c_ox
+
+pot = (t < 1 ? t : 2 - t) - 0.5
+k_f = k_0 * exp(fara * 0.5 * pot)
+k_b = k_0**2/k_f
+k_f * c_red - k_b * c_ox

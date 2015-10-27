@@ -1,0 +1,2 @@
+run-for-each /range-type=lin make-one-1.cmds /arg2=${1:-0.00145} 0.01..0.1:100
+save-buffers /mode=rename /format=ode-%02d.dat all

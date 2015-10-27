@@ -1,0 +1,11 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: ode ((system: stiff-2.ode))
+# Buffer #0 : generated.dat
+k_0	1	!	1
+fara	40	!	1
+# The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
+# Buffer-local parameters: 
+# 
+# Buffer: generated.dat (weight: 1)
+# k_0	=	1	+- 0	+- 0%
+# fara	=	40	+- 0	+- 0%

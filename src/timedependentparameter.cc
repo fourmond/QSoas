@@ -94,6 +94,14 @@ public:
 
 };
 
+static TimeDependentParameter::TDPFactory ex("exp", [](int nb, const QStringList & extra) -> TimeDependentParameter * {
+    ExponentialTDP * tdp = new ExponentialTDP;
+    tdp->number = nb;
+    tdp->independentBits = extra.contains("common");
+    return tdp;
+  }
+);
+
 //////////////////////////////////////////////////////////////////////
 
 class StepsTDP : public TimeDependentParameter {
@@ -113,7 +121,7 @@ public:
     for(int i = 0; i < number; i++) { 
       if(i > 0)
         ret << ParameterDefinition(QString("%2_t_%1").
-                                   arg(QChar(i)).arg(prefix), true);
+                                   arg(i).arg(prefix), true);
 
       ret << ParameterDefinition(QString("%2_%1").
                                  arg(i).arg(prefix), true);
@@ -156,6 +164,13 @@ public:
   };
 
 };
+
+static TimeDependentParameter::TDPFactory steps("steps", [](int nb, const QStringList & extra) -> TimeDependentParameter * {
+    StepsTDP * tdp = new StepsTDP;
+    tdp->number = nb+1;
+    return tdp;
+  }
+);
 
 
 
@@ -248,35 +263,36 @@ public:
 
 };
 
+
+static TimeDependentParameter::TDPFactory rex("rexp", [](int nb, const QStringList & extra) -> TimeDependentParameter * {
+    ExponentialRelaxationTDP * tdp = new ExponentialRelaxationTDP;
+    tdp->number = nb;
+    tdp->independentBits = extra.contains("common");
+    return tdp;
+  }
+);
+
+
 //////////////////////////////////////////////////////////////////////
 
 TimeDependentParameter * TimeDependentParameter::parseFromString(const QString & str) {
     
-  QRegExp parse("^\\s*(\\d+)\\s*,\\s*(\\w+)\\s*(,\\s*common)?\\s*$");
+  QRegExp parse("^\\s*(\\d+)\\s*,\\s*(\\w+)\\s*(,.*)?\\s*$");
   if(parse.indexIn(str) != 0)
     throw RuntimeError(QString("Invalid specification for time "
                                "dependence: '%1'").arg(str));
-  if(parse.cap(2) == "exp") {
-    ExponentialTDP * tdp = new ExponentialTDP;
-    tdp->number = parse.cap(1).toInt();
-    tdp->independentBits = parse.cap(3).isEmpty();
-    return tdp;
-  }
-  if(parse.cap(2) == "rexp") {
-    ExponentialRelaxationTDP * tdp = new ExponentialRelaxationTDP;
-    tdp->number = parse.cap(1).toInt();
-    tdp->independentBits = parse.cap(3).isEmpty();
-    return tdp;
-  }
-  if(parse.cap(2) == "steps") {
-    StepsTDP * tdp = new StepsTDP;
-    tdp->number = parse.cap(1).toInt()+1;
-    return tdp;
-  }
 
-  throw RuntimeError(QString("Invalid type of time "
-                             "dependence: '%1'").arg(parse.cap(2)));
-  return NULL;
+  int nb = parse.cap(1).toInt();
+  QString type = parse.cap(2);
+  QStringList args = parse.cap(3).split("\\s*,\\s*");
+  if(args.size() > 0)
+    args.takeFirst();           // Remove the first comma
+
+  return TDPFactory::createObject(type, nb, args);
+
+  // throw RuntimeError(QString("Invalid type of time "
+  //                            "dependence: '%1'").arg(parse.cap(2)));
+  // return NULL;
 };
 
 TimeDependentParameter::~TimeDependentParameter()

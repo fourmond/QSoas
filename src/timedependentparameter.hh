@@ -21,6 +21,8 @@
 #ifndef __TIMEDEPENDENTPARAMETER_HH
 #define __TIMEDEPENDENTPARAMETER_HH
 
+#include <factory.hh>
+
 class ParameterDefinition;
 class DataSet;
 class Vector;
@@ -29,9 +31,10 @@ class Vector;
 /// the base class of a whole hierarchy
 class TimeDependentParameter {
 public:
-  /// The base index of the parameters. @hack Mutable so that it can
-  /// be updated from the const functions.
+  /// The base index of the parameters.
   int baseIndex;
+
+  typedef Factory<TimeDependentParameter, int, const QStringList&> TDPFactory;
 
 
   /// The number of parameters
@@ -49,8 +52,8 @@ public:
   /// Returns the time at which there are potential discontinuities
   virtual Vector discontinuities(const double * parameters) const = 0;
 
-  /// Parses a spec for the time-based stuff. Takes a string of the
-  /// form number, type, common
+  /// Parses a spec for the time-based stuff. Takes a string of the form:
+  /// x,type(,....), where x is a number and type 
   static TimeDependentParameter * parseFromString(const QString & str);
   
 

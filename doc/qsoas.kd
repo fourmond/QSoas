@@ -390,7 +390,7 @@ benefit from that.
 
 {::comment} synopsis-end: ruby-run {:/}
 {::comment} description-start: ruby-run {:/}
-This command loads and executes a Ruby file. For the time being, the
+This command loads and executes a [Ruby][#ruby] file. For the time being, the
 main interest of this command is to define complex functions in a
 separate file. 
 
@@ -429,6 +429,36 @@ Exits from the current script.
 Has no effect if not within a script.
 {::comment} description-end: break {:/}
 
+{::comment} synopsis-start: system {:/}
+
+### system - System {#cmd-system}
+
+`system` _command..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/shell=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/timeout=`_integer_{:title="An integer"}
+
+  * _command..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."}: Arguments of the command 
+  * `/shell=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Use shell
+  * `/timeout=`_integer_{:title="An integer"}: Timeout (in milliseconds)
+
+{::comment} synopsis-end: system {:/}
+{::comment} description-start: system {:/}
+The `system` command can be used to run external commands from
+QSoas. The output of the commands will be displayed in the terminal.
+{::comment} description-end: system {:/}
+
+{::comment} synopsis-start: timer {:/}
+
+### timer - Timer {#cmd-timer}
+
+`timer` 
+
+
+{::comment} synopsis-end: timer {:/}
+{::comment} description-start: timer {:/}
+The first call starts a timer, and the second one stops it, showing
+the amount of time that has elapsed since the previous call to
+[cmd: timer]. This can be used to benchmark costly computations, for
+instance.
+{::comment} description-end: timer {:/}
 
 
 ## Output file manipulation
@@ -444,10 +474,11 @@ providing its name to the [cmd: output] command.
 
 ### output - Change output file {#cmd-output}
 
-`output` `/file=`_file_{:title="Path of a file (or a directory)"} `/overwrite=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/meta=`_texts_
+`output` `/file=`_file_{:title="Path of a file (or a directory)"} `/overwrite=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/reopen=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/meta=`_texts_
 
   * `/file=`_file_{:title="Path of a file (or a directory)"} (default): Name of the new output file
   * `/overwrite=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, overwrite the file instead of appending
+  * `/reopen=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, forces reopening the file
   * `/meta=`_texts_: When writing to output file, also print the listed meta-data
 
 {::comment} synopsis-end: output {:/}
@@ -575,7 +606,7 @@ option on loaded datasets.
 
 ### load-as-text - Load files with backend 'text' {#cmd-load-as-text}
 
-`load-as-text` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="An integer"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_
+`load-as-text` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="An integer"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_
 
   * _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."}: Files to load !
   * `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"}: Separator between columns
@@ -588,6 +619,8 @@ option on loaded datasets.
   * `/flags=`_texts_: Flags for the newly created buffers
   * `/yerrors=`_integer_{:title="An integer"}: Column containing y errors
   * `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Show as a histogram
+  * `/style=`_style_{:title="One of: red-blue"}: Style for curves display
+  * `/flags=`_texts_: Flags for the newly created buffers
   * `/style=`_style_{:title="One of: red-blue"}: Style for curves display
   * `/flags=`_texts_: Flags for the newly created buffers
 
@@ -630,7 +663,7 @@ options controlling the way the text files are interpreted:
 
 ### load-as-csv - Load files with backend 'csv' {#cmd-load-as-csv}
 
-`load-as-csv` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="An integer"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_
+`load-as-csv` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="An integer"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_
 
   * _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."}: Files to load !
   * `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"}: Separator between columns
@@ -643,6 +676,8 @@ options controlling the way the text files are interpreted:
   * `/flags=`_texts_: Flags for the newly created buffers
   * `/yerrors=`_integer_{:title="An integer"}: Column containing y errors
   * `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Show as a histogram
+  * `/style=`_style_{:title="One of: red-blue"}: Style for curves display
+  * `/flags=`_texts_: Flags for the newly created buffers
   * `/style=`_style_{:title="One of: red-blue"}: Style for curves display
   * `/flags=`_texts_: Flags for the newly created buffers
 
@@ -712,11 +747,12 @@ Saves the current buffer to a file.
 
 ### save-buffers - Save {#cmd-save-buffers}
 
-`save-buffers` _buffers..._{:title="Comma-separated lists of datasets in the stack"} `/format=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/rename=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`save-buffers` _buffers..._{:title="Comma-separated lists of datasets in the stack"} `/format=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/expression=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/mode=`_choice_{:title="One of: both, rename, save"}
 
   * _buffers..._{:title="Comma-separated lists of datasets in the stack"}: Buffers to save
   * `/format=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Overrides buffer names if present
-  * `/rename=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If using format, whether or not to rename buffers
+  * `/expression=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A full Ruby expression 
+  * `/mode=`_choice_{:title="One of: both, rename, save"}: If using format or expression, whether or not to rename buffers 
 
 {::comment} synopsis-end: save-buffers {:/}
 {::comment} description-start: save-buffers {:/}
@@ -725,6 +761,26 @@ Saves the designated buffers to file.
 Unlike the [cmd: save] command, this saves the buffers using
 their current name, and does not prompt for a file name. It is
 probably a good idea to use [cmd: rename] first.
+
+Alternatively, this command can rename the buffers before saving them,
+by using a `printf`-like format, such as in the following case,
+which renames the first 101 buffers to `Buffer-000.dat`,
+`Buffer-001.dat`, and so on:
+
+~~~
+QSoas> save-buffers /format=Buffer-%03d.dat 0..100
+~~~
+
+It is also possible to use a full-blown [Ruby](#ruby) expression that
+will be aware of the buffer's statistics and meta-data:
+
+TODO
+
+
+See more information about the informations available from the ruby
+code  [there](#for-which).
+
+
 {::comment} description-end: save-buffers {:/}
 
 {::comment} synopsis-start: browse {:/}
@@ -1045,11 +1101,12 @@ buffers you're sure you won't need again (such as computation intermediates).
 
 ### flag - Flag datasets {#cmd-flag}
 
-`flag` `/buffers=`_buffers_{:title="Comma-separated lists of datasets in the stack"} `/for-which=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_
+`flag` `/buffers=`_buffers_{:title="Comma-separated lists of datasets in the stack"} `/for-which=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/set=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * `/buffers=`_buffers_{:title="Comma-separated lists of datasets in the stack"} (default): Buffers to flag/unflag
   * `/for-which=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Select on formula
   * `/flags=`_texts_: Buffers to flag/unflag
+  * `/set=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, clears all the previous flags
 
 {::comment} synopsis-end: flag {:/}
 {::comment} description-start: flag {:/}
@@ -1365,7 +1422,7 @@ for derivation, prefer [cmd: filter-fft] or
 
 {::comment} synopsis-start: diff2 {:/}
 
-### diff2 - Derive {#cmd-diff2}
+### diff2 - Derive twice {#cmd-diff2}
 
 `diff2` 
 
@@ -1498,9 +1555,10 @@ Useful to get the backward scan of a cyclic voltammogram.
 
 ### split-monotonic - Split into monotonic parts {#cmd-split-monotonic}
 
-`split-monotonic` `/flags=`_texts_
+`split-monotonic` `/flags=`_texts_ `/group=`_integer_{:title="An integer"}
 
   * `/flags=`_texts_: Flags to set on the results
+  * `/group=`_integer_{:title="An integer"}: Group that many segments into one dataset
 
 {::comment} synopsis-end: split-monotonic {:/}
 {::comment} description-start: split-monotonic {:/}
@@ -1606,7 +1664,7 @@ ruby strings, hence the double quotes.
 
 {::comment} synopsis-start: show {:/}
 
-### show - Show {#cmd-show}
+### show - Show information {#cmd-show}
 
 `show` _buffers..._{:title="Comma-separated lists of datasets in the stack"}
 
@@ -1724,7 +1782,7 @@ In addition, QSoas provides ways to remove calculated "baselines":
 
 {::comment} synopsis-start: filter-fft {:/}
 
-### filter-fft - Filter {#cmd-filter-fft}
+### filter-fft - FFT filter {#cmd-filter-fft}
 
 `filter-fft` `/derive=`_integer_{:title="An integer"} **(interactive)**
 
@@ -1750,7 +1808,7 @@ small heuristic. You can display it using the `b` key.
 
 {::comment} synopsis-start: filter-bsplines {:/}
 
-### filter-bsplines - Filter {#cmd-filter-bsplines}
+### filter-bsplines - B-Splines filter {#cmd-filter-bsplines}
 
 `filter-bsplines` `/weight-column=`_column_{:title="The number/name of a column in a buffer"} **(interactive)**
 
@@ -1785,7 +1843,7 @@ approximation. (be careful as this function may fail at times).
 
 {::comment} synopsis-start: auto-filter-bs {:/}
 
-### auto-filter-bs - Filter {#cmd-auto-filter-bs}
+### auto-filter-bs - Auto B-splines {#cmd-auto-filter-bs}
 
 `auto-filter-bs` `/number=`_integer_{:title="An integer"} `/order=`_integer_{:title="An integer"} `/weight-column=`_column_{:title="The number/name of a column in a buffer"} `/derivatives=`_integer_{:title="An integer"}
 
@@ -1807,7 +1865,7 @@ This is mostly useful in scripts.
 
 {::comment} synopsis-start: auto-filter-fft {:/}
 
-### auto-filter-fft - Filter {#cmd-auto-filter-fft}
+### auto-filter-fft - Auto FFT {#cmd-auto-filter-fft}
 
 `auto-filter-fft` `/cutoff=`_integer_{:title="An integer"} `/derive=`_integer_{:title="An integer"}
 
@@ -2467,7 +2525,7 @@ fits a decay with an arbitrary number of exponentials to the data.
 
 ### fit-exponential-decay - Fit: Multi-exponential fits {#cmd-fit-exponential-decay}
 
-`fit-exponential-decay` `/exponentials=`_integer_{:title="An integer"} `/absolute=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/loss=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/slow=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+`fit-exponential-decay` `/exponentials=`_integer_{:title="An integer"} `/absolute=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/loss=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/slow=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * `/exponentials=`_integer_{:title="An integer"}: Number of exponentials
   * `/absolute=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Amplitude is absolute or relative to the asymptote ?
@@ -2476,6 +2534,7 @@ fits a decay with an arbitrary number of exponentials to the data.
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
 
 {::comment} synopsis-end: fit-exponential-decay {:/}
@@ -2497,7 +2556,7 @@ This should not be used to fit data that tend to 0.
 
 ### mfit-exponential-decay - Multi fit: Multi-exponential fits {#cmd-mfit-exponential-decay}
 
-`mfit-exponential-decay` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/exponentials=`_integer_{:title="An integer"} `/absolute=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/loss=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/slow=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-exponential-decay` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/exponentials=`_integer_{:title="An integer"} `/absolute=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/loss=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/slow=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/exponentials=`_integer_{:title="An integer"}: Number of exponentials
@@ -2507,6 +2566,7 @@ This should not be used to fit data that tend to 0.
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
   * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
   * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
@@ -2546,7 +2606,7 @@ Simulation command for the
 
 ### fit-multiexp-multistep - Fit: Multi-step and multi-exponential {#cmd-fit-multiexp-multistep}
 
-`fit-multiexp-multistep` `/exponentials=`_integer_{:title="An integer"} `/steps=`_integers_{:title="A comma-separated list of integers"} `/independent=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+`fit-multiexp-multistep` `/exponentials=`_integer_{:title="An integer"} `/steps=`_integers_{:title="A comma-separated list of integers"} `/independent=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * `/exponentials=`_integer_{:title="An integer"}: Number of exponentials
   * `/steps=`_integers_{:title="A comma-separated list of integers"}: Step list with numbered conditions
@@ -2554,6 +2614,7 @@ Simulation command for the
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
 
 {::comment} synopsis-end: fit-multiexp-multistep {:/}
@@ -2567,7 +2628,7 @@ Fits of exponentials on several steps with film loss bookkeeping
 
 ### mfit-multiexp-multistep - Multi fit: Multi-step and multi-exponential {#cmd-mfit-multiexp-multistep}
 
-`mfit-multiexp-multistep` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/exponentials=`_integer_{:title="An integer"} `/steps=`_integers_{:title="A comma-separated list of integers"} `/independent=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-multiexp-multistep` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/exponentials=`_integer_{:title="An integer"} `/steps=`_integers_{:title="A comma-separated list of integers"} `/independent=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/exponentials=`_integer_{:title="An integer"}: Number of exponentials
@@ -2576,6 +2637,7 @@ Fits of exponentials on several steps with film loss bookkeeping
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
   * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
   * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
@@ -2623,12 +2685,14 @@ Arbitrary fits don't have a corresponding `sim-` command
 
 ### fit-arb - Fit: Arbitrary fit {#cmd-fit-arb}
 
-`fit-arb` _formulas_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+`fit-arb` _formulas_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/with=`_texts_ `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * _formulas_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: \|-separated formulas for the fit
+  * `/with=`_texts_: Dependency upon time of various parameters
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
 
 {::comment} synopsis-end: fit-arb {:/}
@@ -2655,13 +2719,15 @@ loading that file with [cmd: load-fits].
 
 ### mfit-arb - Multi fit: Arbitrary fit {#cmd-mfit-arb}
 
-`mfit-arb` _formulas_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-arb` _formulas_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_texts_ `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _formulas_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: \|-separated formulas for the fit
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
+  * `/with=`_texts_: Dependency upon time of various parameters
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
   * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
   * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
@@ -2759,13 +2825,14 @@ parameter into a surface one.
 
 ### fit-gaussian - Fit: One or several gaussians {#cmd-fit-gaussian}
 
-`fit-gaussian` `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+`fit-gaussian` `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use a surface or an amplitude parameter
   * `/number=`_integer_{:title="An integer"}: Number of distinct peaks
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
 
 {::comment} synopsis-end: fit-gaussian {:/}
@@ -2786,7 +2853,7 @@ amplitude.
 
 ### mfit-gaussian - Multi fit: One or several gaussians {#cmd-mfit-gaussian}
 
-`mfit-gaussian` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-gaussian` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use a surface or an amplitude parameter
@@ -2794,6 +2861,7 @@ amplitude.
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
   * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
   * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
@@ -2825,13 +2893,14 @@ Simulation command for the  [cmd: fit-gaussian] fit.
 
 ### fit-lorentzian - Fit: A Lorentzian (also named Cauchy distribution) {#cmd-fit-lorentzian}
 
-`fit-lorentzian` `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+`fit-lorentzian` `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use a surface or an amplitude parameter
   * `/number=`_integer_{:title="An integer"}: Number of distinct peaks
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
 
 {::comment} synopsis-end: fit-lorentzian {:/}
@@ -2853,7 +2922,7 @@ amplitude.
 
 ### mfit-lorentzian - Multi fit: A Lorentzian (also named Cauchy distribution) {#cmd-mfit-lorentzian}
 
-`mfit-lorentzian` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-lorentzian` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use a surface or an amplitude parameter
@@ -2861,6 +2930,7 @@ amplitude.
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
   * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
   * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
@@ -2896,13 +2966,14 @@ Simulation command for the  [cmd: fit-lorentzian] fit.
 
 ### fit-nernst - Fit: Nerstian behaviour {#cmd-fit-nernst}
 
-`fit-nernst` `/states=`_integers_{:title="A comma-separated list of integers"} `/species=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+`fit-nernst` `/states=`_integers_{:title="A comma-separated list of integers"} `/species=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * `/states=`_integers_{:title="A comma-separated list of integers"}: Number of redox states for each species
   * `/species=`_integer_{:title="An integer"}: Number of distinct species (regardless of their redox state)
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
 
 {::comment} synopsis-end: fit-nernst {:/}
@@ -2942,7 +3013,7 @@ buffer-local.
 
 ### mfit-nernst - Multi fit: Nerstian behaviour {#cmd-mfit-nernst}
 
-`mfit-nernst` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/states=`_integers_{:title="A comma-separated list of integers"} `/species=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-nernst` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/states=`_integers_{:title="A comma-separated list of integers"} `/species=`_integer_{:title="An integer"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/states=`_integers_{:title="A comma-separated list of integers"}: Number of redox states for each species
@@ -2950,6 +3021,7 @@ buffer-local.
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
   * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
   * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
@@ -2988,7 +3060,7 @@ Simulation command for [cmd: fit-nernst]
 
 ### fit-adsorbed - Fit: Adsorbed species {#cmd-fit-adsorbed}
 
-`fit-adsorbed` `/species=`_integer_{:title="An integer"} `/2el=`_integer_{:title="An integer"} `/distinct=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+`fit-adsorbed` `/species=`_integer_{:title="An integer"} `/2el=`_integer_{:title="An integer"} `/distinct=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * `/species=`_integer_{:title="An integer"}: Number of 1-electron species
   * `/2el=`_integer_{:title="An integer"}: Number of true 2-electron species
@@ -2996,6 +3068,7 @@ Simulation command for [cmd: fit-nernst]
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
 
 {::comment} synopsis-end: fit-adsorbed {:/}
@@ -3051,7 +3124,7 @@ species). $$\nu$$ is the voltammetric scan rate (in volts per second).
 
 ### mfit-adsorbed - Multi fit: Adsorbed species {#cmd-mfit-adsorbed}
 
-`mfit-adsorbed` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/species=`_integer_{:title="An integer"} `/2el=`_integer_{:title="An integer"} `/distinct=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-adsorbed` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/species=`_integer_{:title="An integer"} `/2el=`_integer_{:title="An integer"} `/distinct=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/species=`_integer_{:title="An integer"}: Number of 1-electron species
@@ -3060,6 +3133,7 @@ species). $$\nu$$ is the voltammetric scan rate (in volts per second).
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
   * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
   * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
@@ -3097,7 +3171,7 @@ Simulation command for the [fit: adsorbed] fit.
 
 ### fit-ode - Fit: Fit an ODE system {#cmd-fit-ode}
 
-`fit-ode` _system_{:title="Path of a file (or a directory)"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+`fit-ode` _system_{:title="Path of a file (or a directory)"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the ODE system
   * `/with=`_texts_: Dependency upon time of various parameters
@@ -3112,6 +3186,7 @@ Simulation command for the [fit: adsorbed] fit.
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
 
 {::comment} synopsis-end: fit-ode {:/}
@@ -3130,7 +3205,7 @@ a linear combination of the variables of the system.
 
 ### mfit-ode - Multi fit: Fit an ODE system {#cmd-mfit-ode}
 
-`mfit-ode` _system_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-ode` _system_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the ODE system
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
@@ -3146,6 +3221,7 @@ a linear combination of the variables of the system.
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
   * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
   * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
@@ -3248,7 +3324,7 @@ To define a new fit one could combine with others using
 
 ### fit-kinetic-system - Fit: Full kinetic system {#cmd-fit-kinetic-system}
 
-`fit-kinetic-system` _system_{:title="Path of a file (or a directory)"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+`fit-kinetic-system` _system_{:title="Path of a file (or a directory)"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the system
   * `/with=`_texts_: Dependency upon time of various parameters
@@ -3263,6 +3339,7 @@ To define a new fit one could combine with others using
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
 
 {::comment} synopsis-end: fit-kinetic-system {:/}
@@ -3277,7 +3354,7 @@ of name `y_A` (for the coefficient for the concentration of species
 
 ### mfit-kinetic-system - Multi fit: Full kinetic system {#cmd-mfit-kinetic-system}
 
-`mfit-kinetic-system` _system_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-kinetic-system` _system_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_texts_ `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptative=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the system
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
@@ -3293,6 +3370,7 @@ of name `y_A` (for the coefficient for the concentration of species
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
   * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
   * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
@@ -3368,13 +3446,14 @@ to [Abou-Hamdam _et al_, __PNAS__ 2012](http://dx.doi.org/10.1073/pnas.121225810
 
 ### fit-slow-scan-hp - Fit: Slow scan test {#cmd-fit-slow-scan-hp}
 
-`fit-slow-scan-hp` `/bi-exp=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/scaling=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+`fit-slow-scan-hp` `/bi-exp=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/scaling=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * `/bi-exp=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether we have a bi-exponential or a mono-exponential
   * `/scaling=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Use an additional scaling factor
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
 
 {::comment} synopsis-end: fit-slow-scan-hp {:/}
@@ -3401,12 +3480,13 @@ and $\nu$ the scan rate.
 
 ### fit-slow-scan-lp - Fit: Slow scan test {#cmd-fit-slow-scan-lp}
 
-`fit-slow-scan-lp` `/explicit-rate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+`fit-slow-scan-lp` `/explicit-rate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * `/explicit-rate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether the scan rate is an explicit parameter of the fit
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
 
 {::comment} synopsis-end: fit-slow-scan-lp {:/}
@@ -3432,7 +3512,7 @@ $$E_1$$ is the initial potential, $$\nu$$ the scan rate
 
 ### mfit-slow-scan-hp - Multi fit: Slow scan test {#cmd-mfit-slow-scan-hp}
 
-`mfit-slow-scan-hp` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/bi-exp=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/scaling=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-slow-scan-hp` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/bi-exp=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/scaling=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/bi-exp=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether we have a bi-exponential or a mono-exponential
@@ -3440,6 +3520,7 @@ $$E_1$$ is the initial potential, $$\nu$$ the scan rate
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
   * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
   * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
@@ -3454,13 +3535,14 @@ Multi-buffer variant of the
 
 ### mfit-slow-scan-lp - Multi fit: Slow scan test {#cmd-mfit-slow-scan-lp}
 
-`mfit-slow-scan-lp` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/explicit-rate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-slow-scan-lp` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/explicit-rate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/explicit-rate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether the scan rate is an explicit parameter of the fit
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
   * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
   * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
@@ -3531,7 +3613,7 @@ Please refer to that paper for more information.
 
 ### fit-eecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-fit-eecr-wave}
 
-`fit-eecr-wave` `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+`fit-eecr-wave` `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use the general expression or only that valid when plateaus are not reached
   * `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: ???
@@ -3539,6 +3621,7 @@ Please refer to that paper for more information.
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
 
 {::comment} synopsis-end: fit-eecr-wave {:/}
@@ -3563,7 +3646,7 @@ parameter rather than the ratio $$k_2/k_{-2}$$.
 
 ### mfit-eecr-wave - Multi fit: Fit of an EECR catalytic wave {#cmd-mfit-eecr-wave}
 
-`mfit-eecr-wave` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-eecr-wave` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use the general expression or only that valid when plateaus are not reached
@@ -3572,6 +3655,7 @@ parameter rather than the ratio $$k_2/k_{-2}$$.
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
   * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
   * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
@@ -3607,11 +3691,12 @@ Simulation for the [`eecr-wave`](#cmd-fit-eecr-wave) fit.
 
 ### fit-eecr-relay-wave - Fit: Fit of an EECR+relay catalytic wave {#cmd-fit-eecr-relay-wave}
 
-`fit-eecr-relay-wave` `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+`fit-eecr-relay-wave` `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
 
 {::comment} synopsis-end: fit-eecr-relay-wave {:/}
@@ -3624,12 +3709,13 @@ Fits the so-called EEC with relay model in [Fourmond _et al_,
 
 ### mfit-eecr-relay-wave - Multi fit: Fit of an EECR+relay catalytic wave {#cmd-mfit-eecr-relay-wave}
 
-`mfit-eecr-relay-wave` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-eecr-relay-wave` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
   * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
   * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
@@ -3660,7 +3746,7 @@ Simulation command for the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
 
 ### fit-ecr-wave - Fit: Fit of an ECR catalytic wave {#cmd-fit-ecr-wave}
 
-`fit-ecr-wave` `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+`fit-ecr-wave` `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use the general expression or only that valid when plateaus are not reached
   * `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: ???
@@ -3668,6 +3754,7 @@ Simulation command for the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
 
 {::comment} synopsis-end: fit-ecr-wave {:/}
@@ -3679,7 +3766,7 @@ Fits the so-called EC model in [Fourmond _et al_,
 
 ### mfit-ecr-wave - Multi fit: Fit of an ECR catalytic wave {#cmd-mfit-ecr-wave}
 
-`mfit-ecr-wave` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-ecr-wave` _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use the general expression or only that valid when plateaus are not reached
@@ -3688,6 +3775,7 @@ Fits the so-called EC model in [Fourmond _et al_,
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
+  * `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Extremely verbose debugging
   * `/set-from-meta=`_texts_: Set parameter values from meta-data
   * `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to weight buffers (off by default)
   * `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: If specified, it is the name of a meta-data that holds the perpendicular coordinates
@@ -4179,6 +4267,8 @@ listed here:
  * [`auto-correlation`](#cmd-auto-correlation)
  * [`auto-filter-bs`](#cmd-auto-filter-bs)
  * [`auto-filter-fft`](#cmd-auto-filter-fft)
+ * [`auto-flag`](#cmd-auto-flag)
+ * [`auto-reglin`](#cmd-auto-reglin)
  * [`average`](#cmd-average)
  * [`bin`](#cmd-bin)
  * [`break`](#cmd-break)
@@ -4197,6 +4287,7 @@ listed here:
  * [`dataset-options`](#cmd-dataset-options)
  * [`define-alias`](#cmd-define-alias)
  * [`define-derived-fit`](#cmd-define-derived-fit)
+ * [`define-distribution-fit`](#cmd-define-distribution-fit)
  * [`define-kinetic-system-fit`](#cmd-define-kinetic-system-fit)
  * [`diff`](#cmd-diff)
  * [`diff2`](#cmd-diff2)
@@ -4224,12 +4315,14 @@ listed here:
  * [`kinetic-system`](#cmd-kinetic-system)
  * [`limits`](#cmd-limits)
  * [`load`](#cmd-load)
+ * [`load-as-chi-txt`](#cmd-load-as-chi-txt)
  * [`load-as-csv`](#cmd-load-as-csv)
  * [`load-as-text`](#cmd-load-as-text)
  * [`load-documentation`](#cmd-load-documentation)
  * [`load-fits`](#cmd-load-fits)
  * [`load-stack`](#cmd-load-stack)
  * [`merge`](#cmd-merge)
+ * [`mintegrate-formula`](#cmd-mintegrate-formula)
  * [`noop`](#cmd-noop)
  * [`norm`](#cmd-norm)
  * [`ode`](#cmd-ode)
@@ -4243,6 +4336,7 @@ listed here:
  * [`redo`](#cmd-redo)
  * [`remove-spikes`](#cmd-remove-spikes)
  * [`rename`](#cmd-rename)
+ * [`reverse`](#cmd-reverse)
  * [`ruby-run`](#cmd-ruby-run)
  * [`run`](#cmd-run)
  * [`run-for-datasets`](#cmd-run-for-datasets)
@@ -4281,8 +4375,10 @@ listed here:
  * [`stats`](#cmd-stats)
  * [`strip-if`](#cmd-strip-if)
  * [`subtract`](#cmd-subtract)
+ * [`system`](#cmd-system)
  * [`temperature`](#cmd-temperature)
  * [`tex-commands`](#cmd-tex-commands)
+ * [`timer`](#cmd-timer)
  * [`transpose`](#cmd-transpose)
  * [`tweak-columns`](#cmd-tweak-columns)
  * [`undo`](#cmd-undo)
@@ -4311,7 +4407,11 @@ evaluation programs (it is quite close to the one from
  * Case matters: `Pi` is $$\pi$$, while `pi` is nothing defined.
 
 In addition to standard mathematical functions from the [Math][math]
-module, the following special functions are available:
+module (that contains, among others, the error function
+[`erf`][http://www.ruby-doc.org/core-1.9.3/Math.html#method-c-erf] and
+the
+[`gamma`][http://www.ruby-doc.org/core-1.9.3/Math.html#method-c-gamma]
+function), the following special functions are available:
 
 {::comment} special-functions-start {:/}
 
@@ -4324,6 +4424,14 @@ module, the following special functions are available:
  * `bessel_j0`: Regular cylindrical Bessel function of 0th order, $$J_0(x)$$
  * `bessel_j1`: Regular cylindrical Bessel function of first order, $$J_1(x)$$
  * `bessel_jn`: Regular cylindrical Bessel function of n-th order, $$J_n(x)$$
+ * `dawson`: Dawson integral, $$\exp(-x^2)\int_{0}^{x}\exp(t^2)\mathrm{d} t$$
+ * `debye_1`: Debye function of order 1, $$D_n = (n/x^n) \int_0^x \mathrm{d}t (t^n/(e^t - 1))$$
+ * `debye_2`: Debye function of order 2, $$D_n = (n/x^n) \int_0^x \mathrm{d}t (t^n/(e^t - 1))$$
+ * `debye_3`: Debye function of order 3, $$D_n = (n/x^n) \int_0^x \mathrm{d}t (t^n/(e^t - 1))$$
+ * `debye_4`: Debye function of order 4, $$D_n = (n/x^n) \int_0^x \mathrm{d}t (t^n/(e^t - 1))$$
+ * `debye_5`: Debye function of order 5, $$D_n = (n/x^n) \int_0^x \mathrm{d}t (t^n/(e^t - 1))$$
+ * `debye_6`: Debye function of order 6, $$D_n = (n/x^n) \int_0^x \mathrm{d}t (t^n/(e^t - 1))$$
+ * `dilog`: The dilogarithm, $$Li_2(x) = - \Re \int_0^x \mathrm{d}s \log(1-s) / s$$
  * `expint_e1`: Exponential integral $$E_1(x) = \int_{x}^{\infty} \frac{\exp -t}{t} \mathrm{d} t$$
  * `expint_e2`: Exponential integral $$E_2(x) = \int_{x}^{\infty} \frac{\exp -t}{t^2} \mathrm{d} t$$
  * `expint_en`: Exponential integral $$E_n(x) = \int_{x}^{\infty} \frac{\exp -t}{t^n} \mathrm{d} t$$

@@ -113,10 +113,10 @@ public:
     for(int i = 0; i < number; i++) { 
       if(i > 0)
         ret << ParameterDefinition(QString("%2_t_%1").
-                                   arg(QChar('a'+i-1)).arg(prefix), true);
+                                   arg(QChar(i)).arg(prefix), true);
 
       ret << ParameterDefinition(QString("%2_%1").
-                                 arg(i+1).arg(prefix), true);
+                                 arg(i).arg(prefix), true);
     }
     return ret;
   };
@@ -162,7 +162,94 @@ public:
 
 //////////////////////////////////////////////////////////////////////
 
-  
+
+/// Like the steps, but with an exponential relaxation at each step.
+class ExponentialRelaxationTDP : public TimeDependentParameter {
+public:
+
+  /// The number of changes
+  int number;
+
+  /// Whether the bits have independent time constants or not
+  bool independentBits;
+
+  /// The number of parameters
+  int parameterNumber() const {
+    return 1 + number*2 + (independentBits ? number : 1);
+  };
+
+  /// Parameter definitions
+  QList<ParameterDefinition> parameters(const QString & prefix) const {
+    QList<ParameterDefinition> ret;
+    if(! independentBits)
+      ret << ParameterDefinition(prefix + "_tau");
+    ret << ParameterDefinition(prefix + "_0");
+    for(int i = 0; i < number; i++) { 
+      ret << ParameterDefinition(QString("%2_t_%1").
+                                 arg(i+1).arg(prefix), true);
+      ret << ParameterDefinition(QString("%2_%1").
+                                 arg(i+1).arg(prefix), true);
+      if(independentBits)
+        ret << ParameterDefinition(QString("%2_tau_%1").
+                                   arg(i+1).arg(prefix));
+    }
+    return ret;
+  };
+
+  /// Returns the value at the given time...
+  double computeValue(double t, const double * parameters) const {
+    int which = -1;
+    for(int i = 0; i < number; i++) {
+      if(t < parameters[baseIndex + (independentBits ? i*3+1 : 2*i+2)])
+        break;
+      else
+        which = i;
+    }
+    if(which == -1)
+      return parameters[baseIndex + (independentBits ? 0 : 1)];
+    double t0   = parameters[baseIndex + (independentBits ? which*3+1 : 2*which+2)];
+    double conc = parameters[baseIndex + (independentBits ? which*3+2 : 2*which+3)];
+    double tau  = parameters[baseIndex + (independentBits ? which*3+3 : 0)];
+    double prev;                /// @todo Compute prev the way it should be, i.e. based on all the relaxations ?
+    if(which == 0)
+      prev = parameters[baseIndex + (independentBits ? 0 : 1)];
+    else
+      prev = parameters[baseIndex + (independentBits ? (which-1)*3+2 : 2*(which-1)+3)];
+
+    if(tau < 0)             // Well, the check happens a lot, but
+      // is less expensive than an
+      // exponential anyway
+      throw RangeError("Negative tau value");
+
+    return (prev - conc) * exp(-(t - t0)/tau) + conc;
+  };
+
+  /// Sets a reasonable initial guess for these parameters
+  void setInitialGuess(double * parameters, const DataSet * ds) const {
+    double dx = ds->x().max() - ds->x().min();
+    for(int i = 0; i < number; i++) {
+      double & t0   = parameters[baseIndex + 1 + (independentBits ? i*3 : 2*i+1)];
+      double & conc = parameters[baseIndex + 1 + (independentBits ? i*3+1   : 2*i+2)];
+      double & tau  = parameters[baseIndex + 1 + (independentBits ? i*3+2 : -1)];
+      tau = dx/(3*number);
+      conc = i+2;
+      t0 = ds->x().min() + (i+1) * dx/(number+1);
+    }
+    parameters[baseIndex + (independentBits ? 0 : 1)] = 1;
+  };
+
+  /// Returns the time at which there are potential discontinuities
+  Vector discontinuities(const double * parameters) const {
+    Vector ret;
+    for(int i = 0; i < number; i++)
+      ret << parameters[baseIndex + (independentBits ? i*3+1 : 2*i+2)];
+    return ret;
+  };
+
+};
+
+//////////////////////////////////////////////////////////////////////
+
 TimeDependentParameter * TimeDependentParameter::parseFromString(const QString & str) {
     
   QRegExp parse("^\\s*(\\d+)\\s*,\\s*(\\w+)\\s*(,\\s*common)?\\s*$");
@@ -171,6 +258,12 @@ TimeDependentParameter * TimeDependentParameter::parseFromString(const QString &
                                "dependence: '%1'").arg(str));
   if(parse.cap(2) == "exp") {
     ExponentialTDP * tdp = new ExponentialTDP;
+    tdp->number = parse.cap(1).toInt();
+    tdp->independentBits = parse.cap(3).isEmpty();
+    return tdp;
+  }
+  if(parse.cap(2) == "rexp") {
+    ExponentialRelaxationTDP * tdp = new ExponentialRelaxationTDP;
     tdp->number = parse.cap(1).toInt();
     tdp->independentBits = parse.cap(3).isEmpty();
     return tdp;

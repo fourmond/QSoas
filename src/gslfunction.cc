@@ -24,7 +24,6 @@
 #include <gsl/gsl_const_mksa.h>
 #include <gsl/gsl_const_num.h>
 
-
 QList<GSLFunction *> * GSLFunction::functions = NULL;
 
 void GSLFunction::registerSelf()
@@ -102,29 +101,65 @@ public:
 
 };
 
-GSLSimpleFunction<gsl_sf_bessel_J0> 
+static GSLSimpleFunction<gsl_sf_bessel_J0> 
 bessel_J0("bessel_j0", "Regular cylindrical Bessel function of "
           "0th order, $$J_0(x)$$");
 
-GSLSimpleFunction<gsl_sf_bessel_J1> 
+static GSLSimpleFunction<gsl_sf_bessel_J1> 
 bessel_J1("bessel_j1", "Regular cylindrical Bessel function of "
           "first order, $$J_1(x)$$");
 
-GSLSimpleFunction<gsl_sf_expint_E1> 
+static GSLSimpleFunction<gsl_sf_expint_E1> 
 expint_E1("expint_e1", "Exponential integral $$E_1(x) = "
           "\\int_{x}^{\\infty} \\frac{\\exp -t}{t} \\mathrm{d} t$$");
-GSLSimpleFunction<gsl_sf_expint_E2> 
+static GSLSimpleFunction<gsl_sf_expint_E2> 
 expint_E2("expint_e2", "Exponential integral $$E_2(x) = "
           "\\int_{x}^{\\infty} \\frac{\\exp -t}{t^2} \\mathrm{d} t$$");
 
 // Lambert W function(s)
-GSLSimpleFunction<gsl_sf_lambert_W0> 
+static GSLSimpleFunction<gsl_sf_lambert_W0> 
 lambert_W0("lambert_W", "Principal branch of the Lambert function "
            "$$W_0(x)$$");
 
-GSLSimpleFunction<gsl_sf_lambert_Wm1> 
+static GSLSimpleFunction<gsl_sf_lambert_Wm1> 
 lambert_Wm1("lambert_Wm1", "Secondary branch of the Lambert function "
            "$$W_{-1}(x)$$");
+
+// Dawson function
+static GSLSimpleFunction<gsl_sf_dawson> 
+dawson("dawson", "Dawson integral, "
+       "$$\\exp(-x^2)\\int_{0}^{x}\\exp(t^2)\\mathrm{d} t$$");
+
+static GSLSimpleFunction<gsl_sf_debye_1> 
+debye1("debye_1", "Debye function of order 1, "
+       "$$D_n = (n/x^n) \\int_0^x \\mathrm{d}t (t^n/(e^t - 1))$$");
+
+static GSLSimpleFunction<gsl_sf_debye_2> 
+debye2("debye_2", "Debye function of order 2, "
+       "$$D_n = (n/x^n) \\int_0^x \\mathrm{d}t (t^n/(e^t - 1))$$");
+
+static GSLSimpleFunction<gsl_sf_debye_3> 
+debye3("debye_3", "Debye function of order 3, "
+       "$$D_n = (n/x^n) \\int_0^x \\mathrm{d}t (t^n/(e^t - 1))$$");
+
+static GSLSimpleFunction<gsl_sf_debye_4> 
+debye4("debye_4", "Debye function of order 4, "
+       "$$D_n = (n/x^n) \\int_0^x \\mathrm{d}t (t^n/(e^t - 1))$$");
+
+static GSLSimpleFunction<gsl_sf_debye_5> 
+debye5("debye_5", "Debye function of order 5, "
+       "$$D_n = (n/x^n) \\int_0^x \\mathrm{d}t (t^n/(e^t - 1))$$");
+
+static GSLSimpleFunction<gsl_sf_debye_6> 
+debye6("debye_6", "Debye function of order 6, "
+       "$$D_n = (n/x^n) \\int_0^x \\mathrm{d}t (t^n/(e^t - 1))$$");
+
+static GSLSimpleFunction<gsl_sf_dilog> 
+dilog("dilog", "The dilogarithm, "
+      "$$Li_2(x) = - \\Re \\int_0^x \\mathrm{d}s \\log(1-s) / s$$");
+
+
+
 
 
 //////////////////////////////////////////////////////////////////////

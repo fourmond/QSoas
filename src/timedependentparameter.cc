@@ -94,6 +94,73 @@ public:
 
 };
 
+//////////////////////////////////////////////////////////////////////
+
+class StepsTDP : public TimeDependentParameter {
+public:
+
+  /// The number of values (i.e. the number of steps + 1);
+  int number;
+
+  /// The number of parameters
+  int parameterNumber() const {
+    return number * 2 - 1;
+  };
+
+  /// Parameter definitions
+  QList<ParameterDefinition> parameters(const QString & prefix) const {
+    QList<ParameterDefinition> ret;
+    for(int i = 0; i < number; i++) { 
+      if(i > 0)
+        ret << ParameterDefinition(QString("%2_t_%1").
+                                   arg(QChar('a'+i-1)).arg(prefix), true);
+
+      ret << ParameterDefinition(QString("%2_%1").
+                                 arg(i+1).arg(prefix), true);
+    }
+    return ret;
+  };
+
+  /// Returns the value at the given time...
+  ///
+  /// Assumes the values are increasing.
+  double computeValue(double t, const double * parameters) const {
+    double value = parameters[baseIndex];
+    for(int i = 1; i < number; i++) {
+      if(t < parameters[baseIndex + 2*i-1])
+        break;
+      else
+        value = parameters[baseIndex + 2*i];
+    }
+    return value;
+  };
+
+  /// Sets a reasonable initial guess for these parameters
+  void setInitialGuess(double * parameters, const DataSet * ds) const {
+    double dx = ds->x().max() - ds->x().min();
+    for(int i = 0; i < number; i++) {
+      double & t0   = parameters[baseIndex + 2*i - 1];
+      double & conc = parameters[baseIndex + 2*i];
+      conc = 1+i;
+      if(i > 0)
+        t0 = ds->x().min() + i * dx/(number);
+    }
+  };
+
+  /// Returns the time at which there are potential discontinuities
+  Vector discontinuities(const double * parameters) const {
+    Vector ret;
+    for(int i = 1; i < number; i++)
+      ret << parameters[baseIndex + 2*i - 1];
+    return ret;
+  };
+
+};
+
+
+
+
+//////////////////////////////////////////////////////////////////////
 
   
 TimeDependentParameter * TimeDependentParameter::parseFromString(const QString & str) {
@@ -106,6 +173,11 @@ TimeDependentParameter * TimeDependentParameter::parseFromString(const QString &
     ExponentialTDP * tdp = new ExponentialTDP;
     tdp->number = parse.cap(1).toInt();
     tdp->independentBits = parse.cap(3).isEmpty();
+    return tdp;
+  }
+  if(parse.cap(2) == "steps") {
+    StepsTDP * tdp = new StepsTDP;
+    tdp->number = parse.cap(1).toInt()+1;
     return tdp;
   }
 

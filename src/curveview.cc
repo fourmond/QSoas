@@ -155,6 +155,25 @@ void CurveView::addDataSet(const DataSet * ds, StyleGenerator * gen)
     currentDataSet = item;
 }
 
+void CurveView::removeDataSet(const DataSet * ds)
+{
+  if(! ds)
+    return;
+
+  QList<CurveItem *> its;
+  QList<CurvePanel*> pnls = allPanels();
+  for(int i = 0; i < pnls.size(); i++)
+    its += pnls[i]->items();
+
+  for(int i = 0; i < its.size(); i++) {
+    CurveDataSet * st = dynamic_cast<CurveDataSet *>(its[i]);
+    if(st && st->displayedDataSet() == ds) {
+      delete its[i];
+      update();
+    }
+  }
+}
+
 void CurveView::clear()
 {
   nbStyled = 0;

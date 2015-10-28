@@ -388,8 +388,6 @@ ovArgs(QList<Argument *>()
                                      "Buffers",
                                      "Buffers to overlay"));
 
-//////////////////////////////////////////////////////////////////////
-
 static ArgumentList 
 styleOpts(QList<Argument *>() 
           << new StyleGeneratorArgument("style", 
@@ -406,6 +404,30 @@ ovlb("overlay-buffer", // command name
      "Overlay buffers that are already in memory "
      "on top of the current one",
      "V");
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void hideCommand(const QString &, QList<const DataSet *> ds,
+                        const CommandOptions & )
+{
+  soas().view().disableUpdates();
+  for(int i = 0; i < ds.size(); i++)
+    soas().view().removeDataSet(ds[i]);
+  soas().view().enableUpdates();
+}
+
+static Command 
+hide("hide-buffer", // command name
+     effector(hideCommand), // action
+     "view",  // group name
+     &ovArgs, // arguments
+     NULL, // options
+     "Hide buffers",
+     "Hide buffers from the view",
+     "",
+     "H");
+
 
 //////////////////////////////////////////////////////////////////////
 

@@ -166,6 +166,9 @@ public slots:
   /// Adds a DataSet to the display.
   void addDataSet(const DataSet * ds, StyleGenerator * generator = NULL);
 
+  /// Removes the given dataset
+  void removeDataSet(const DataSet * ds);
+
   /// Shows the given DataSet (and forget about the other things)
   void showDataSet(const DataSet * ds, StyleGenerator * generator = NULL);
 

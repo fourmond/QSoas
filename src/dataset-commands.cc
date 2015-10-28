@@ -46,6 +46,7 @@
 #include <valuehash.hh>
 
 #include <datastack.hh>
+#include <box.hh>
 
 #include <dataseteditor.hh>
 #include <statistics.hh>
@@ -860,10 +861,7 @@ namespace __ee {
 #define limits_do(lcn, cn)                \
   if(std::isnan(lcn)) { lcn = bb.lcn();}; \
   if(std::isinf(lcn)) { lcn = cz.lcn();}; \
-  cz.set##cn(lcn)
-
-  // o << " -> " << lcn << endl;             \
-  // o << #lcn  " = " << lcn;                \
+  fnl.set##cn(lcn)
 
 #include <debug.hh>
 
@@ -873,14 +871,16 @@ static void limitsCommand(const QString &, double left, double right, double bot
   soas().currentDataSet(); // to ensure datasets are loaded
   CurveView & view = soas().view();
   CurvePanel * panel = view.mainPanel();
-  QRectF cz = panel->currentZoom();
-  QRectF bb = panel->overallBB(); 
-  // QTextStream o(stdout);
+  Box cz = panel->currentZoom();
+  Box fnl = cz;
+  Box bb = panel->overallBB();
+
   limits_do(left, Left);
   limits_do(right, Right);
   limits_do(top, Top);
   limits_do(bottom, Bottom);
-  panel->zoomIn(cz);
+
+  panel->zoomIn(fnl.toRectF(), true);
   view.update();
 }
 

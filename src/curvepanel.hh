@@ -111,7 +111,7 @@ class CurvePanel : public QObject {
 
   /// Sets the zoom in such a way that the information is
   /// forwarded to panels we track.
-  void setZoom(const QRectF & newBB);
+  void setZoom(const QRectF & newBB, bool force = false);
   
 public:
 
@@ -199,7 +199,7 @@ public:
 
   /// Zooms in on the given rectangle (or cancel current zoom on empty
   /// \a rect).
-  void zoomIn(const QRectF & rect);
+  void zoomIn(const QRectF & rect, bool force = false);
 
   /// Resets zoom to the actual bounding box.
   void resetZoom();

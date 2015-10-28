@@ -390,12 +390,12 @@ QPointF CurvePanel::scaleFactors() const
   return QPointF(transform.m11(), transform.m22());
 }
 
-void CurvePanel::setZoom(const QRectF & recti)
+void CurvePanel::setZoom(const QRectF & recti, bool force)
 {
   // Force an update of the bounding box
   updateBB();
   QRectF rect = recti;
-  if(boundingBox.isValid() && !anyZoom) {
+  if(boundingBox.isValid() && !(anyZoom || force)) {
     // 10% around
     double dx = fabs(rect.width() * 0.05);
     double dy = fabs(rect.height() * 0.05);
@@ -451,9 +451,9 @@ void CurvePanel::resetZoom()
   setZoom(QRectF());
 }
 
-void CurvePanel::zoomIn(const QRectF & rect)
+void CurvePanel::zoomIn(const QRectF & rect, bool force)
 {
-  setZoom(rect);
+  setZoom(rect, force);
 }
 
 void CurvePanel::setYRange(double ymin, double ymax, 

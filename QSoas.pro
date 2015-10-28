@@ -265,7 +265,8 @@ SOURCES += src/qmain.cc \
         src/parametersitemmodel.cc \
         src/parametersspreadsheet.cc \
         src/abdmatrix.cc \
-        src/multifitengine.cc
+        src/multifitengine.cc \
+        src/box.cc
 
 
 HEADERS += src/headers.hh \
@@ -374,7 +375,8 @@ HEADERS += src/headers.hh \
         src/distribfit.hh \
         src/parametersitemmodel.hh \
         src/parametersspreadsheet.hh \
-        src/abdmatrix.hh
+        src/abdmatrix.hh \
+        src/box.hh
 
                 
 # Sources of file-format specific code

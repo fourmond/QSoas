@@ -238,15 +238,10 @@ class MultiBufferArbitraryFit : public Fit {
     FormulaBasedFit fbf;
   };
 
-
-  /// The static formula, for custom fits. If NULL, then 
-  FormulaBasedFit * fbf;
+  QString formulaString;
 
   FormulaBasedFit * getFbf(FitData * data) const {
-    if(fbf)
-      return fbf;
-    else
-      return &storage<Storage>(data)->fbf;
+    return &storage<Storage>(data)->fbf;
   };
   
 protected:
@@ -299,6 +294,8 @@ protected:
   virtual void processOptions(const CommandOptions &opts,
                               FitData * data ) const {
     FormulaBasedFit * f = getFbf(data);
+    if(! formulaString.isEmpty())
+      f->lastFormula = formulaString;
     f->parseFormulas(f->lastFormula);
     f->processOptions(opts);
   };
@@ -346,7 +343,6 @@ public:
         "Already defined constants: f, pi",
         1, -1, false)
   {
-    fbf = NULL;
     ArgumentList * al = new 
       ArgumentList(QList<Argument *>()
                    << new StringArgument("formulas", 
@@ -364,10 +360,7 @@ public:
         QString("Fit: %1").arg(formula).toLocal8Bit(),
         QString("Fit of the formula %1").arg(formula).toLocal8Bit(), 1, -1)
   {
-    fbf = new FormulaBasedFit;
-    /// @todo make sure that the fit- command isn't generated for
-    /// intrinsically multi-buffer fits.
-    fbf->lastFormula = formula;
+    formulaString = formula;
   };
 
   virtual void checkDatasets(const FitData * data) const {
@@ -390,9 +383,9 @@ public:
   };	
 
   const QString & formula() const {
-    if(! fbf)
+    if(formulaString.isEmpty())
       throw InternalError("Should not get here");
-    return fbf->lastFormula;
+    return formulaString;
   };
 
   QList<ParameterDefinition> parameters(FitData * data) const {
@@ -409,20 +402,45 @@ static MultiBufferArbitraryFit mBarbFit;
 
 /// This class holds a fit using a single formula, that hence applies
 /// naturally to several datasets. There is no 'arb' fit from that
-class SingleBufferArbitraryFit : public PerDatasetFit, 
-                                 public FormulaBasedFit {
+class SingleBufferArbitraryFit : public PerDatasetFit {
+
+  class Storage : public FitInternalStorage {
+  public:
+    FormulaBasedFit fbf;
+  };
+
+  QString formulaString;
+
+  FormulaBasedFit * getFbf(FitData * data) const {
+    return &storage<Storage>(data)->fbf;
+  };
+
+protected:
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    return new Storage;
+  };
+
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds*/) const {
+    return deepCopy<Storage>(source);
+  };
 
 protected:
 
-  virtual QString optionsString(FitData * ) const {
-    return "formula: " + lastFormula;
+  virtual QString optionsString(FitData * data) const {
+    FormulaBasedFit * f = getFbf(data);
+     return "formula: " + f->lastFormula;
   };
 
-  virtual void processOptions(const CommandOptions &opts, FitData * ) {
-    if(formulas.size() > 1)
+  /// @hack get rid of the const-cast, this isn't very clean
+  virtual void processOptions(const CommandOptions &opts,
+                              FitData * data) const {
+    FormulaBasedFit * f = getFbf(data);
+    f->lastFormula = formulaString;
+    f->parseFormulas(f->lastFormula);
+    if(f->formulas.size() > 1)
       throw InternalError("Somehow got to define a single buffer fit "
                           "with several formulas");
-    FormulaBasedFit::processOptions(opts);
+    f->processOptions(opts);
   };
 
 
@@ -435,14 +453,16 @@ public:
 
   virtual void function(const double *parameters, FitData *data, 
                         const DataSet *ds, gsl_vector *target) const {
-    computeDataSet(parameters, ds, data, target);
+    FormulaBasedFit * f = getFbf(data);
+    f->computeDataSet(parameters, ds, data, target);
   };
 
-  virtual void initialGuess(FitData * /*data*/, 
+  virtual void initialGuess(FitData * data, 
                             const DataSet * ds,
                             double * a) const
   {
-    initialGuessForDataset(ds, a);
+    FormulaBasedFit * f = getFbf(data);
+    f->initialGuessForDataset(ds, a);
   };
 
 
@@ -451,19 +471,20 @@ public:
   SingleBufferArbitraryFit(const QString & name, const QString & formula) : 
     PerDatasetFit(name.toLocal8Bit(), 
         QString("Fit: %1").arg(formula).toLocal8Bit(),
-        QString("Fit of the formula %1").arg(formula).toLocal8Bit(), 1, -1)
+                  QString("Fit of the formula %1").arg(formula).toLocal8Bit(), 1, -1, false)
   { 
-    lastFormula = formula;
-    parseFormulas(lastFormula);
+    formulaString = formula;
+    makeCommands();
   };
 
 
   const QString & formula() const {
-    return lastFormula;
+    return formulaString;
   };
 
-  QList<ParameterDefinition> parameters(FitData * ) const {
-    return FormulaBasedFit::parameters();
+  QList<ParameterDefinition> parameters(FitData * data) const {
+    FormulaBasedFit * f = getFbf(data);
+    return f->parameters();
   };
 
 };

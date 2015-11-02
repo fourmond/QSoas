@@ -1,0 +1,17 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: arb (formula: a)
+# Buffer #0 : generated.dat
+a_0	1	!	0
+a_t_1	3.33333	!	0
+a_1	2	!	0
+a_t_2	6.66667	!	0
+a_2	-1	!	0
+# The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
+# Buffer-local parameters: 
+# 
+# Buffer: generated.dat (weight: 1)
+# a_0	=	1	(fixed)
+# a_t_1	=	3.33333	(fixed)
+# a_1	=	2	(fixed)
+# a_t_2	=	6.66667	(fixed)
+# a_2	=	-1	(fixed)

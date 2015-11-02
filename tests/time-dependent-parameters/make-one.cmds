@@ -1,0 +1,4 @@
+generate-buffer 0 10
+sim-tdp ${1} 0 /with=a:${1%%.params}
+a ${1%%.params}.dat
+drop 1

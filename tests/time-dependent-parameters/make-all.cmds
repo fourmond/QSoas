@@ -1,0 +1,2 @@
+custom-fit tdp a
+run-for-each make-one.cmds *.params

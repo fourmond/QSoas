@@ -96,6 +96,9 @@ public:
 
 static TimeDependentParameter::TDPFactory ex("exp", [](int nb, const QStringList & extra) -> TimeDependentParameter * {
     ExponentialTDP * tdp = new ExponentialTDP;
+    if(nb <= 0)
+      throw RuntimeError("exp parameter needs a strictly positive number, got %1").
+        arg(nb);
     tdp->number = nb;
     tdp->independentBits = ! extra.contains("common");
     return tdp;
@@ -167,6 +170,9 @@ public:
 
 static TimeDependentParameter::TDPFactory steps("steps", [](int nb, const QStringList & extra) -> TimeDependentParameter * {
     StepsTDP * tdp = new StepsTDP;
+    if(nb < 0)
+      throw RuntimeError("steps parameter needs a positive number, got %1").
+        arg(nb);
     tdp->number = nb+1;
     return tdp;
   }
@@ -266,6 +272,9 @@ public:
 
 static TimeDependentParameter::TDPFactory rex("rexp", [](int nb, const QStringList & extra) -> TimeDependentParameter * {
     ExponentialRelaxationTDP * tdp = new ExponentialRelaxationTDP;
+    if(nb <= 0)
+      throw RuntimeError("exp parameter needs a strictly positive number, got %1").
+        arg(nb);
     tdp->number = nb;
     tdp->independentBits = ! extra.contains("common");
     return tdp;
@@ -276,24 +285,17 @@ static TimeDependentParameter::TDPFactory rex("rexp", [](int nb, const QStringLi
 //////////////////////////////////////////////////////////////////////
 
 TimeDependentParameter * TimeDependentParameter::parseFromString(const QString & str) {
-    
-  QRegExp parse("^\\s*(\\d+)\\s*,\\s*(\\w+)\\s*(,.*)?\\s*$");
-  if(parse.indexIn(str) != 0)
-    throw RuntimeError(QString("Invalid specification for time "
-                               "dependence: '%1'").arg(str));
+  QStringList elems = str.split(QRegExp("\\s*,\\s*"));
+  bool ok;
+  int nb = elems[0].toInt(&ok);
+  if(ok)
+    elems.takeFirst();
+  else
+    nb = -1;
 
-  int nb = parse.cap(1).toInt();
-  QString type = parse.cap(2);
-  QStringList args = parse.cap(3).split("\\s*,\\s*");
-  if(args.size() > 0)
-    args.takeFirst();           // Remove the first comma
-
-  return TDPFactory::createObject(type, nb, args);
-
-  // throw RuntimeError(QString("Invalid type of time "
-  //                            "dependence: '%1'").arg(parse.cap(2)));
-  // return NULL;
-};
+  QString type = elems.takeFirst();
+  return TDPFactory::createObject(type, nb, elems);
+} 
 
 TimeDependentParameter::~TimeDependentParameter()
 {

@@ -80,6 +80,28 @@ public:
   };
 };
 
+/// Time-dependent parameters
+class TDPArgument : public SeveralStringsArgument {
+public:
+
+  TDPArgument(const char * cn, const char * pn,
+              const char * d = "", bool g = true, 
+              bool def = false) : 
+    SeveralStringsArgument(QRegExp("\\s*;\\s*"), cn, pn, d, g, def) {
+  }; 
+
+
+
+  virtual QString typeName() const  {
+    return "time-dependent parameters";
+  };
+
+  virtual QString typeDescription() const {
+    return "Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'";
+  };
+
+};
+
 
 /// A boolean argument
 class BoolArgument : public Argument {

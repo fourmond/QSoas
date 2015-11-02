@@ -79,11 +79,10 @@ public:
   static ArgumentList * hardOptions() {
     return new
       ArgumentList(QList<Argument *>()
-                   << new SeveralStringsArgument(QRegExp(";"),
-                                                 "with", 
-                                                 "Time dependent parameters",
-                                                 "Dependency upon time of "
-                                                 "various parameters")
+                   << new TDPArgument("with", 
+                                      "Time dependent parameters",
+                                      "Dependency upon time of "
+                                      "various parameters")
                    );
     
   };

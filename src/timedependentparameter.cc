@@ -97,7 +97,7 @@ public:
 static TimeDependentParameter::TDPFactory ex("exp", [](int nb, const QStringList & extra) -> TimeDependentParameter * {
     ExponentialTDP * tdp = new ExponentialTDP;
     tdp->number = nb;
-    tdp->independentBits = extra.contains("common");
+    tdp->independentBits = ! extra.contains("common");
     return tdp;
   }
 );
@@ -267,7 +267,7 @@ public:
 static TimeDependentParameter::TDPFactory rex("rexp", [](int nb, const QStringList & extra) -> TimeDependentParameter * {
     ExponentialRelaxationTDP * tdp = new ExponentialRelaxationTDP;
     tdp->number = nb;
-    tdp->independentBits = extra.contains("common");
+    tdp->independentBits = ! extra.contains("common");
     return tdp;
   }
 );

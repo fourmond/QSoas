@@ -414,7 +414,7 @@ public:
 
     // We can't use params->parameterDefinitions.size(), as this will
     // fail miserably in combined fits
-    for(int i = nb + s->parametersBase; i < s->parametersNumber; i++)
+    for(int i = s->parametersBase; i < s->parametersNumber; i++)
       a[i] = 1;                 // Simple, heh ?
 
     // And have the parameters handle themselves:

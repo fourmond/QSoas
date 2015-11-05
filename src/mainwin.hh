@@ -61,6 +61,10 @@ protected slots:
 protected:
   virtual void focusInEvent(QFocusEvent * evn);
 
+signals:
+  /// Dummy signal emitted upon startup if the window should close
+  /// immediately...
+  void wantToQuit();
 };
 
 #endif

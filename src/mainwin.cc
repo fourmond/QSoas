@@ -203,11 +203,28 @@
 
 #include <credits.hh>
 
+#include <commandlineparser.hh>
+
+
+
 static SettingsValue<QSize> mainWinSize("mainwin/size", QSize(700,500));
 
 static SettingsValue<QByteArray> splitterState("mainwin/splitter", 
                                                QByteArray());
 
+/// an array of commands provided on the command line
+/// @todo not very object-oriented, but, well, for 
+static QStringList cmdlineCommands;
+
+static CommandLineOption cmd("--run", [](const QStringList & args) {
+    cmdlineCommands << args.first();
+  }, 1, "runs the command after QSoas has started up");
+
+static bool exitAfterRunning = false;
+
+static CommandLineOption ext("--exit-after-running", [](const QStringList &) {
+    exitAfterRunning = true;
+  }, 0, "exits QSoas after running the commands");
 
 MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
 {
@@ -243,8 +260,18 @@ MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
     CommandWidget::runStartupFiles();
   else
     Terminal::out << "Not loading any startup file as requested" << endl;
- 
+
   Hook::runHooks();
+
+  for(int i = 0; i < cmdlineCommands.size(); i++)
+    commandWidget->runCommand(cmdlineCommands[i]);
+
+  if(cmdlineCommands.size() > 0 && exitAfterRunning) {
+    connect(this, SIGNAL(wantToQuit()),
+            qApp,SLOT(quit()), Qt::QueuedConnection);
+    emit(wantToQuit());
+  }
+  
 }
 
 void MainWin::setupFrame()

@@ -23,6 +23,7 @@
 #include <vector.hh>
 #include <dataset.hh>
 
+
 class ExponentialTDP : public TimeDependentParameter {
 public:
 
@@ -194,6 +195,10 @@ public:
   /// Whether the bits have independent time constants or not
   bool independentBits;
 
+  /// The initial values of each step. Computed at initialization
+  Vector initialValues;
+
+
   /// The number of parameters
   int parameterNumber() const {
     return 1 + number*2 + (independentBits ? number : 1);
@@ -217,25 +222,48 @@ public:
     return ret;
   };
 
+  inline double t0(const double * parameters, int which) const {
+    return parameters[baseIndex + (independentBits ? which*3+1 : 2*which+2)];
+  }
+
+  inline double asympt(const double * parameters, int which) const {
+    return parameters[baseIndex + (independentBits ? which*3+2 : 2*which+3)];
+  }
+  
+  inline double tau(const double * parameters, int which) const {
+    return parameters[baseIndex + (independentBits ? which*3+3 : 0)];
+
+  }
+
+  void initialize(const double * params) {
+    initialValues.resize(number);
+    double val = params[baseIndex + (independentBits ? 0 : 1)];
+    for(int i = 0; i < number; i++) {
+      initialValues[i] = val;
+      if(i < number - 1) {
+        val = (val - asympt(params, i)) *
+          exp((t0(params, i) - t0(params, i+1))/tau(params, i))
+          + asympt(params, i);
+      }
+    }
+  }
+
   /// Returns the value at the given time...
   double computeValue(double t, const double * parameters) const {
     int which = -1;
     for(int i = 0; i < number; i++) {
-      if(t < parameters[baseIndex + (independentBits ? i*3+1 : 2*i+2)])
+      if(t < t0(parameters, i))
         break;
       else
         which = i;
     }
     if(which == -1)
       return parameters[baseIndex + (independentBits ? 0 : 1)];
-    double t0   = parameters[baseIndex + (independentBits ? which*3+1 : 2*which+2)];
-    double conc = parameters[baseIndex + (independentBits ? which*3+2 : 2*which+3)];
-    double tau  = parameters[baseIndex + (independentBits ? which*3+3 : 0)];
-    double prev;                /// @todo Compute prev the way it should be, i.e. based on all the relaxations ?
-    if(which == 0)
-      prev = parameters[baseIndex + (independentBits ? 0 : 1)];
-    else
-      prev = parameters[baseIndex + (independentBits ? (which-1)*3+2 : 2*(which-1)+3)];
+    
+    double t0 = this->t0(parameters, which);
+    double conc = asympt(parameters, which);
+    double tau  = this->tau(parameters, which);
+    double prev = initialValues[which];
 
     if(tau < 0)             // Well, the check happens a lot, but
       // is less expensive than an
@@ -244,6 +272,7 @@ public:
 
     return (prev - conc) * exp(-(t - t0)/tau) + conc;
   };
+
 
   /// Sets a reasonable initial guess for these parameters
   void setInitialGuess(double * parameters, const DataSet * ds) const {

@@ -469,7 +469,7 @@ QString Command::synopsis(bool markup) const
       descs += QString("  * %1%3: %2\n").
         arg(b).
         arg(args[i]->description()).
-        arg(args[i]->defaultOption ? " (default)" : "");
+        arg(args[i]->defaultOption ? " (default option)" : "");
 
     }
   }

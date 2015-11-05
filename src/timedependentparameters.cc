@@ -23,6 +23,7 @@
 #include <exceptions.hh>
 #include <fit.hh>
 
+#include <general-arguments.hh>
 
 TimeDependentParameters::TimeDependentParameters() :
   initialized(false)
@@ -108,3 +109,12 @@ void TimeDependentParameters::parseFromStrings(const QStringList & specs, const 
 }
 
 
+//////////////////////////////////////////////////////////////////////
+
+// a bit out of place, but not that much
+
+QString TDPArgument::typeDescription() const
+{
+  return QString("Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'. Available types: %1").
+    arg(TimeDependentParameter::TDPFactory::availableItems().join(", "));;
+}

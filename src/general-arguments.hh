@@ -96,9 +96,7 @@ public:
     return "time-dependent parameters";
   };
 
-  virtual QString typeDescription() const {
-    return "Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'";
-  };
+  virtual QString typeDescription() const;
 
 };
 

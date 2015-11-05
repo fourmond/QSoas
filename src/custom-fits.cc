@@ -181,7 +181,7 @@ public:
                       const DataSet * ds,
                       FitData *data, 
                       gsl_vector *target,
-                      int formulaIndex = 0) const {
+                      int formulaIndex = 0) {
     int k = 0;
     int nbparams = data->parametersPerDataset() +
       skippedIndices.size();
@@ -198,6 +198,8 @@ public:
 
     for(int i = 0; i < nbparams; i++)
       Utils::skippingCopy(a, args.data()+base, nbparams, skippedIndices);
+
+    timeDependentParameters.initialize(a + params.size());
 
     const Vector &xv = ds->x();
 

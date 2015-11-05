@@ -300,3 +300,7 @@ TimeDependentParameter * TimeDependentParameter::parseFromString(const QString &
 TimeDependentParameter::~TimeDependentParameter()
 {
 }
+
+void TimeDependentParameter::initialize(const double * )
+{
+}

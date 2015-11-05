@@ -38,12 +38,22 @@ class TimeDependentParameters : public QHash<int, TimeDependentParameter*> {
 
   /// This is a correspondance parameter name -> index.
   QHash<QString, int> parameterNames;
+
+  /// Set at initialization, to make sure computeValues() is never
+  /// called upon an initialized TDPs
+  bool initialized;
 public:
+
+  TimeDependentParameters();
+  
   /// Clears
   void clear();
 
   /// Returns the parameters to be added to the fit parameters
   QList<ParameterDefinition> fitParameters() const;
+
+  /// Initializes all the parameters
+  void initialize(const double * params);
 
   /// Evaluate all the functions into the target array.
   void computeValues(double t, double * target, const double * params) const;

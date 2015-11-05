@@ -24,6 +24,10 @@
 #include <fit.hh>
 
 
+TimeDependentParameters::TimeDependentParameters() :
+  initialized(false)
+{
+}
 
 void TimeDependentParameters::clear()
 {
@@ -36,6 +40,8 @@ void TimeDependentParameters::clear()
 
 void TimeDependentParameters::computeValues(double t, double * target, const double * params) const
 {
+  if(! initialized)
+    throw InternalError("Calling computeValues on uninitialized TimeDependentParameters");
   for(const_iterator i = begin(); i != end(); i++)
     target[i.key()] = i.value()->computeValue(t, params);
 }
@@ -68,6 +74,12 @@ Vector TimeDependentParameters::discontinuities(const double * params) const
 }
 
 
+void TimeDependentParameters::initialize(const double * params)
+{
+  for(const_iterator i = begin(); i != end(); i++)
+    i.value()->initialize(params);
+  initialized = true;
+}
 
 void TimeDependentParameters::parseFromStrings(const QStringList & specs, const std::function<int (const QString &)> & indices)
 {

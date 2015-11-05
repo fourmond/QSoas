@@ -162,7 +162,10 @@ void ODEFit::function(const double * a, FitData * data,
   ODESolver * slv = solver(data);
   slv->resetStepper();
 
+  s->timeDependentParameters.initialize(a + s->tdBase);
+
   double sr = 0;
+
 
   setupCallback([this, a, s](double t, double * params) {
       if(s->timeIndex >= 0)

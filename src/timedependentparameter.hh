@@ -36,6 +36,9 @@ public:
 
   typedef Factory<TimeDependentParameter, int, const QStringList&> TDPFactory;
 
+  /// Called once before any series of calls to computeValue()
+  virtual void initialize(const double * parameters);
+
 
   /// The number of parameters
   virtual int parameterNumber() const = 0;
@@ -56,7 +59,6 @@ public:
   /// x,type(,....), where x is a number and type 
   static TimeDependentParameter * parseFromString(const QString & str);
   
-
   virtual ~TimeDependentParameter();
 };
 

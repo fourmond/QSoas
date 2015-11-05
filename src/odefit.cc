@@ -71,7 +71,7 @@ void ODEFit::processSoftOptions(const CommandOptions & opts, FitData * data) con
   // Parse ODEStepperOptions
   ODESolver * slv = solver(data);
   ODEStepperOptions op = slv->getStepperOptions();
-  op.fixed = false;           // Drop non-adaptative steps !
+  op.fixed = false;           // Drop non-adaptive steps !
   op.parseOptions(opts);
 
   if(op.fixed) {

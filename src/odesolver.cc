@@ -57,7 +57,7 @@ CommandOptions ODEStepperOptions::asOptions() const
   CommandOptions opts;
 
   bool adapt = ! fixed;
-  updateOptions(opts, "adaptative", adapt);
+  updateOptions(opts, "adaptive", adapt);
   updateOptions(opts, "step-size", hStart);
   updateOptions(opts, "min-step-size", hMin);
   updateOptions(opts, "stepper", type);
@@ -72,8 +72,8 @@ CommandOptions ODEStepperOptions::asOptions() const
 QList<Argument*> ODEStepperOptions::commandOptions()
 {
   QList<Argument*> args;
-  args << new BoolArgument("adaptative", "Adaptative step",
-                           "Whether or not to use adaptative stepper")
+  args << new BoolArgument("adaptive", "Adaptative step",
+                           "Whether or not to use adaptive stepper")
        << new NumberArgument("step-size", "Step size",
                              "Initial step size for the stepper")
        << new NumberArgument("min-step-size", "Minimum step size",
@@ -95,7 +95,7 @@ QList<Argument*> ODEStepperOptions::commandOptions()
 void ODEStepperOptions::parseOptions(const CommandOptions & opts)
 {
   bool adapt = ! fixed;
-  updateFromOptions(opts, "adaptative", adapt);
+  updateFromOptions(opts, "adaptive", adapt);
   fixed = ! adapt;
   updateFromOptions(opts, "step-size", hStart);
   updateFromOptions(opts, "min-step-size", hMin);
@@ -117,7 +117,7 @@ QString ODEStepperOptions::description() const
     }
   }
   return QString("%7 %1, with %2step size: %3 (minimum step size: %8, maximum substeps %9) %4-- absolute precision: %5, relative precision: %6").
-    arg(fixed ? "fixed" : "adaptative").
+    arg(fixed ? "fixed" : "adaptive").
     arg(fixed ? "" : "initial ").
     arg(hStart).
     arg(hStart == 0 && fixed ? "(step is data delta_t) " :"").

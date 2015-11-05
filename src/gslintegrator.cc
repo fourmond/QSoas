@@ -187,7 +187,7 @@ double GSLQNGIntegrator::integrateSegment(const std::function<double (double)> &
   return res;
 }
 
-IntegratorFactory qng("qng", "Non-adaptative Gauss-Kronrod",
+IntegratorFactory qng("qng", "Non-adaptive Gauss-Kronrod",
                       [](int /*segs*/, double rel, double abs) -> Integrator * {
                         return new GSLQNGIntegrator(rel, abs);
                       });

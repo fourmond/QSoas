@@ -5,6 +5,7 @@
 \usepackage[T1]{fontenc}
 
 \usepackage{amsmath}
+\usepackage{times}
 
 \usepackage{longtable}
 
@@ -13,6 +14,21 @@
 linkcolor=blue]{hyperref}
 
 \usepackage[a4paper,landscape=false,showframe=false,
-margin=2cm]{geometry}
+margin=1.3cm]{geometry}
+
+\usepackage{multicol}
+
+
+\usepackage{xpatch}
+
+\xpatchcmd{\itemize}
+{\def\makelabel}
+{\setlength{\itemsep}{0pt}\def\makelabel}
+{}
+{}
+
+\setcounter{secnumdepth}{0}
 
 \begin{document}
+\small
+\begin{multicols}{2}

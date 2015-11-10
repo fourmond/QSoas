@@ -542,7 +542,8 @@ dLWFArgs(QList<Argument *>()
                              "System",
                               "System to load")
          << new StringArgument("name", 
-                               "Name")
+                               "Name",
+                               "Name of the newly created fit")
          );
 
 

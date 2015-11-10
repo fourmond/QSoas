@@ -128,7 +128,7 @@ static ArgumentList
 odeOpts(QList<Argument *>() 
         << new StringArgument("parameters", 
                               "Parameter values",
-                              "Values of the extra parameters",
+                              "Values of the parameters",
                               true)
         << new BoolArgument("annotate", 
                             "Annotate",

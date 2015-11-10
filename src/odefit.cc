@@ -241,9 +241,10 @@ ArgumentList * ODEFit::fitHardOptions() const
     ArgumentList(QList<Argument *>()
                  << new TDPArgument("with", 
                                     "Time dependent parameters",
-                                    "Dependency upon time of "
-                                    "various parameters")
-                 << new BoolArgument("choose-t0", 
+                                    "Make certain parameters depend "
+                                    "upon time")
+                 << new BoolArgument("choose-t0",
+                                     "Choose initial time",
                                      "If on, one can choose the initial time")
                  );
 }

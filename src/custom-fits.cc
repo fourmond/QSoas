@@ -81,8 +81,8 @@ public:
       ArgumentList(QList<Argument *>()
                    << new TDPArgument("with", 
                                       "Time dependent parameters",
-                                      "Dependency upon time of "
-                                      "various parameters")
+                                      "Make certain parameters depend "
+                                      "upon time")
                    );
     
   };

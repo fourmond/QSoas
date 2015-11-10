@@ -341,8 +341,8 @@ protected:
     s->useEoc = false;
     s->isOxidation = false;
     updateFromOptions(opts, "plateau", s->plateau);
-    // updateFromOptions(opts, "use-eoc", useEoc);
-    // updateFromOptions(opts, "oxidation", isOxidation);
+    updateFromOptions(opts, "use-eoc", s->useEoc);
+    updateFromOptions(opts, "oxidation", s->isOxidation);
   }
 
   
@@ -433,8 +433,8 @@ public:
                                 "only that valid when plateaus are not reached")
                    << new 
                    BoolArgument("oxidation", 
-                                "...",
-                                "???")
+                                "Reference is oxidation",
+                                "If on, use the oxidation current as reference")
                    << new 
                    BoolArgument("use-eoc", 
                                 "Use open circuit",
@@ -602,8 +602,8 @@ public:
                                 "only that valid when plateaus are not reached")
                    << new 
                    BoolArgument("oxidation", 
-                                "...",
-                                "???")
+                                "Reference is oxidation",
+                                "If on, use the oxidation current as reference")
                    << new 
                    BoolArgument("use-eoc", 
                                 "Use open circuit",

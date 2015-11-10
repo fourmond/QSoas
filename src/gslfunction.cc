@@ -132,31 +132,31 @@ dawson("dawson", "Dawson integral, "
 
 static GSLSimpleFunction<gsl_sf_debye_1> 
 debye1("debye_1", "Debye function of order 1, "
-       "$$D_n = (n/x^n) \\int_0^x \\mathrm{d}t (t^n/(e^t - 1))$$");
+       "$$D_1 = (1/x) \\int_0^x \\mathrm{d}t (t/(e^t - 1))$$");
 
 static GSLSimpleFunction<gsl_sf_debye_2> 
 debye2("debye_2", "Debye function of order 2, "
-       "$$D_n = (n/x^n) \\int_0^x \\mathrm{d}t (t^n/(e^t - 1))$$");
+       "$$D_2 = (2/x^2) \\int_0^x \\mathrm{d}t (t^2/(e^t - 1))$$");
 
 static GSLSimpleFunction<gsl_sf_debye_3> 
 debye3("debye_3", "Debye function of order 3, "
-       "$$D_n = (n/x^n) \\int_0^x \\mathrm{d}t (t^n/(e^t - 1))$$");
+       "$$D_3 = (3/x^3) \\int_0^x \\mathrm{d}t (t^3/(e^t - 1))$$");
 
 static GSLSimpleFunction<gsl_sf_debye_4> 
 debye4("debye_4", "Debye function of order 4, "
-       "$$D_n = (n/x^n) \\int_0^x \\mathrm{d}t (t^n/(e^t - 1))$$");
+       "$$D_4 = (4/x^4) \\int_0^x \\mathrm{d}t (t^4/(e^t - 1))$$");
 
 static GSLSimpleFunction<gsl_sf_debye_5> 
 debye5("debye_5", "Debye function of order 5, "
-       "$$D_n = (n/x^n) \\int_0^x \\mathrm{d}t (t^n/(e^t - 1))$$");
+       "$$D_5 = (5/x^5) \\int_0^x \\mathrm{d}t (t^5/(e^t - 1))$$");
 
 static GSLSimpleFunction<gsl_sf_debye_6> 
 debye6("debye_6", "Debye function of order 6, "
-       "$$D_n = (n/x^n) \\int_0^x \\mathrm{d}t (t^n/(e^t - 1))$$");
+       "$$D_6 = (6/x^6) \\int_0^x \\mathrm{d}t (t^6/(e^t - 1))$$");
 
 static GSLSimpleFunction<gsl_sf_dilog> 
 dilog("dilog", "The dilogarithm, "
-      "$$Li_2(x) = - \\Re \\int_0^x \\mathrm{d}s \\log(1-s) / s$$");
+      "$$Li_2(x) = - \\Re \\left(\\int_0^x \\mathrm{d}s \\log(1-s) / s\\right)$$");
 
 
 

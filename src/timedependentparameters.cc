@@ -115,6 +115,6 @@ void TimeDependentParameters::parseFromStrings(const QStringList & specs, const 
 
 QString TDPArgument::typeDescription() const
 {
-  return QString("Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'. Available types: %1").
+  return QString("Several specifications of time dependent parameters (like co:2,exp), seperated by ';'. Available types: %1").
     arg(TimeDependentParameter::TDPFactory::availableItems().join(", "));;
 }

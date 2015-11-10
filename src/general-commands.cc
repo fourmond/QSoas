@@ -571,7 +571,7 @@ rfeOpts(QList<Argument *>(argList)
         << new ChoiceArgument(QStringList() << "lin" << "log",
                               "range-type",
                               "Numerical range type",
-                              "If one, transform arguments into ranged numbers")
+                              "If on, transform arguments into ranged numbers")
         << runOpts
         );
 

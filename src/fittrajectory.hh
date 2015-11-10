@@ -1,7 +1,7 @@
 /**
    \file fittrajectory.hh
    Definition of fit trajectories.
-   Copyright 2013 by CNRS/AMU
+   Copyright 2013, 2015 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -45,7 +45,8 @@ public:
     Cancelled,
     TimeOut,
     NonFinite,
-    Error
+    Error,
+    Invalid
   } Ending;
 
   /// How the fit ended.
@@ -93,6 +94,10 @@ public:
 
   /// Comparison by residuals.
   bool operator<(const FitTrajectory & o) const {
+    if(std::isfinite(relativeResiduals) && ! std::isfinite(o.relativeResiduals))
+      return true;
+    if(! std::isfinite(relativeResiduals) && std::isfinite(o.relativeResiduals))
+      return false;
     return relativeResiduals < o.relativeResiduals;
   };
 
@@ -101,6 +106,21 @@ public:
   /// one (that does not necessarily mean that the reverse is true).
   bool isWithinErrorRange(const FitTrajectory & o) const;
 
+  /// Returns a list of strings suitable for export.
+  ///
+  /// Format is: initial parameters, status, final parameters together
+  /// with errors, then... The full order is that given by
+  /// exportHeaders.
+  QStringList exportColumns() const;
+
+  /// Does the reverse of exportColumns().
+  void loadFromColumns(const QStringList & cols, int nb);
+
+  static QStringList exportHeaders(const QStringList & paramNames, int nb);
+
+  static QString endingName(Ending end);
+
+  static Ending endingFromName(const QString & n);
 };
 
 

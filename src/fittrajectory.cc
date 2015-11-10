@@ -40,6 +40,106 @@ bool FitTrajectory::isWithinErrorRange(const FitTrajectory & o) const
   return true;
 }
 
+QStringList FitTrajectory::exportColumns() const
+{
+  QStringList ret;
+  
+  for(int i = 0; i < initialParameters.size(); i++)
+    ret << QString::number(initialParameters[i]);
+
+  ret << endingName(ending);
+
+  for(int i = 0; i < finalParameters.size(); i++)
+    ret << QString::number(finalParameters[i])
+        << QString::number(parameterErrors[i]);
+
+  ret << QString::number(residuals)
+      << QString::number(relativeResiduals)
+      << QString::number(internalResiduals)
+      << engine;
+
+  return ret;
+}
+
+void FitTrajectory::loadFromColumns(const QStringList & cls, int nb)
+{
+  QStringList cols(cls);
+
+  initialParameters.resize(nb);
+  for(int i = 0; i < initialParameters.size(); i++)
+    initialParameters[i] = cols.takeFirst().toDouble(); // No validation ?
+
+  ending = endingFromName(cols.takeFirst());
+
+
+  finalParameters.resize(nb);
+  parameterErrors.resize(nb);
+  for(int i = 0; i < finalParameters.size(); i++) {
+    finalParameters[i] = cols.takeFirst().toDouble();
+    parameterErrors[i] = cols.takeFirst().toDouble();
+  }
+
+  residuals = cols.takeFirst().toDouble();
+  relativeResiduals = cols.takeFirst().toDouble();
+  internalResiduals = cols.takeFirst().toDouble();
+  engine = cols.takeFirst();
+}
+
+QStringList FitTrajectory::exportHeaders(const QStringList & s, int ds)
+{
+  QStringList ret;
+
+  for(int i = 0; i < ds; i++)
+    for(int j = 0; j < s.size(); j++)
+      ret << QString("%1[%2]_i").arg(s[j]).arg(i);
+
+  ret << "status";
+  for(int i = 0; i < ds; i++)
+    for(int j = 0; j < s.size(); j++)
+      ret << QString("%1[%2]_f").arg(s[j]).arg(i)
+          << QString("%1[%2]_err").arg(s[j]).arg(i);
+  ret << "residuals" << "relative_res" << "internal_res" << "engine";
+  return ret;
+}
+
+QString FitTrajectory::endingName(FitTrajectory::Ending end)
+{
+  switch(end) {
+  case Converged:
+    return "ok";
+  case Cancelled:
+    return "(cancelled)";
+  case TimeOut:
+    return "(time out)";
+  case Error:
+    return "(fail)";
+  case NonFinite:
+    return "(non finite)";
+  default:
+    ;
+  }
+  return "ARGH!";
+}
+
+FitTrajectory::Ending FitTrajectory::endingFromName(const QString & n)
+{
+  if(n == "ok")
+    return Converged;
+  if(n == "(cancelled)")
+    return Cancelled;
+  if(n == "(time out)")
+    return TimeOut;
+  if(n == "(fail)")
+    return Error;
+  if(n == "(non finite)")
+    return NonFinite;
+  return Invalid;
+}
+
+
+
+//////////////////////////////////////////////////////////////////////
+
 FitTrajectoryCluster::FitTrajectoryCluster(const FitTrajectory & trj)
 {
   trajectories << trj;

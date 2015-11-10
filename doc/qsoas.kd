@@ -138,7 +138,7 @@ of range: `2..6` are columns 2 to 6 inclusive.
 
 `quit` 
 
-Alias: `q`
+Short name: `q`
 
 
 {::comment} synopsis-end: quit {:/}
@@ -198,7 +198,7 @@ repetitively as a [script](#scripting).
 
 `cd` _directory_{:title="Path of a file (or a directory)"} `/from-home=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/from-script=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
-Alias: `G`
+Short name: `G`
 
   * _directory_{:title="Path of a file (or a directory)"}: New directory
   * `/from-home=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, relative from the home directory
@@ -232,7 +232,7 @@ It is also indicated in the title of the QSoas window.
 
 `temperature` `/set=`_number_{:title="A floating-point number"}
 
-Alias: `T`
+Short name: `T`
 
   * `/set=`_number_{:title="A floating-point number"} (default option): Sets the temperature
 
@@ -268,7 +268,7 @@ file and aliases.
 
 `help` _command_{:title="The name of one of QSoas's commands"} `/online=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
-Alias: `?`
+Short name: `?`
 
   * _command_{:title="The name of one of QSoas's commands"}: The command on which to give help
   * `/online=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} (default option): Show the online documentation in a browser
@@ -301,7 +301,7 @@ text editor.
 
 `print` `/file=`_file_{:title="Path of a file (or a directory)"} `/title=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}
 
-Alias: `p`
+Short name: `p`
 
   * `/file=`_file_{:title="Path of a file (or a directory)"}: Save as file
   * `/title=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Sets the title of the page as printed
@@ -328,7 +328,7 @@ capacities don't go far...
 
   * _alias_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: The name to give to the new alias
   * _command_{:title="The name of one of QSoas's commands"}: The command to give an alias for
-  * `/*=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} (default option): All options
+  * `/*=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: All options
 
 {::comment} synopsis-end: define-alias {:/}
 {::comment} description-start: define-alias {:/}
@@ -544,15 +544,15 @@ The main command for loading data is [cmd: load]
 
 ### load - Load {#cmd-load}
 
-`load` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/ignore-cache=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="An integer"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`load` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/ignore-cache=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/yerrors=`_column_{:title="The number/name of a column in a buffer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="An integer"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
-Alias: `l`
+Short name: `l`
 
   * _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."}: Files to load !
   * `/style=`_style_{:title="One of: red-blue"}: Style for curves display
   * `/flags=`_texts_: Flags for the newly created buffers
   * `/ignore-cache=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, ignores what is in the cache
-  * `/yerrors=`_integer_{:title="An integer"}: Column containing y errors
+  * `/yerrors=`_column_{:title="The number/name of a column in a buffer"}: Column containing y errors
   * `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Show as a histogram
   * `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"}: Separator between columns
   * `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Decimal separator
@@ -632,7 +632,7 @@ option on loaded datasets.
 
 ### load-as-text - Load files with backend 'text' {#cmd-load-as-text}
 
-`load-as-text` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="An integer"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_
+`load-as-text` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="An integer"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/yerrors=`_column_{:title="The number/name of a column in a buffer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_
 
   * _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."}: Files to load !
   * `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"}: Separator between columns
@@ -643,7 +643,7 @@ option on loaded datasets.
   * `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Split on blank lines
   * `/style=`_style_{:title="One of: red-blue"}: Style for curves display
   * `/flags=`_texts_: Flags for the newly created buffers
-  * `/yerrors=`_integer_{:title="An integer"}: Column containing y errors
+  * `/yerrors=`_column_{:title="The number/name of a column in a buffer"}: Column containing y errors
   * `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Show as a histogram
   * `/style=`_style_{:title="One of: red-blue"}: Style for curves display
   * `/flags=`_texts_: Flags for the newly created buffers
@@ -691,7 +691,7 @@ options controlling the way the text files are interpreted:
 
 ### load-as-csv - Load files with backend 'csv' {#cmd-load-as-csv}
 
-`load-as-csv` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="An integer"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_
+`load-as-csv` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="An integer"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/yerrors=`_column_{:title="The number/name of a column in a buffer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_
 
   * _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."}: Files to load !
   * `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"}: Separator between columns
@@ -702,7 +702,7 @@ options controlling the way the text files are interpreted:
   * `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Split on blank lines
   * `/style=`_style_{:title="One of: red-blue"}: Style for curves display
   * `/flags=`_texts_: Flags for the newly created buffers
-  * `/yerrors=`_integer_{:title="An integer"}: Column containing y errors
+  * `/yerrors=`_column_{:title="The number/name of a column in a buffer"}: Column containing y errors
   * `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Show as a histogram
   * `/style=`_style_{:title="One of: red-blue"}: Style for curves display
   * `/flags=`_texts_: Flags for the newly created buffers
@@ -721,7 +721,7 @@ meaning as for [cmd: load-as-text].
 
 ### load-as-chi-txt - Load files with backend 'chi-txt' {#cmd-load-as-chi-txt}
 
-`load-as-chi-txt` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="An integer"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_
+`load-as-chi-txt` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="An integer"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/yerrors=`_column_{:title="The number/name of a column in a buffer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_
 
   * _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."}: Files to load !
   * `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"}: Separator between columns
@@ -732,7 +732,7 @@ meaning as for [cmd: load-as-text].
   * `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Split on blank lines
   * `/style=`_style_{:title="One of: red-blue"}: Style for curves display
   * `/flags=`_texts_: Flags for the newly created buffers
-  * `/yerrors=`_integer_{:title="An integer"}: Column containing y errors
+  * `/yerrors=`_column_{:title="The number/name of a column in a buffer"}: Column containing y errors
   * `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Show as a histogram
   * `/style=`_style_{:title="One of: red-blue"}: Style for curves display
   * `/flags=`_texts_: Flags for the newly created buffers
@@ -775,7 +775,7 @@ perpendicular coordinates are kept.
 
 `rename` _new-name_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}
 
-Alias: `a`
+Short name: `a`
 
   * _new-name_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: New name 
 
@@ -793,7 +793,7 @@ that to give it a more meaningful (and less long) name .
 
 `save` _file_{:title="Path of a file (or a directory)"} `/overwrite=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/mkpath=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
-Alias: `s`
+Short name: `s`
 
   * _file_{:title="Path of a file (or a directory)"}: File name for saving
   * `/overwrite=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If true, overwrite without prompting
@@ -855,7 +855,7 @@ If you only need to rename the buffers without saving them, use
 
 `browse` `/pattern=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/for-which=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}
 
-Alias: `W`
+Short name: `W`
 
   * `/pattern=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} (default option): Files to browse
   * `/for-which=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Select on formula
@@ -881,7 +881,7 @@ files based on their meta-data and/or statistics. See the
 
 `overlay-buffer` _buffers..._{:title="Comma-separated lists of datasets in the stack"} `/style=`_style_{:title="One of: red-blue"}
 
-Alias: `V`
+Short name: `V`
 
   * _buffers..._{:title="Comma-separated lists of datasets in the stack"}: Buffers to overlay
   * `/style=`_style_{:title="One of: red-blue"}: Style for curves display
@@ -899,7 +899,7 @@ See [cmd: load] for the description of the `/style` option.
 
 `hide-buffer` _buffers..._{:title="Comma-separated lists of datasets in the stack"}
 
-Alias: `H`
+Short name: `H`
 
   * _buffers..._{:title="Comma-separated lists of datasets in the stack"}: Buffers to overlay
 
@@ -915,15 +915,15 @@ of passing it non-visible datasets, QSoas won't shout at you if you do.
 
 ### overlay - Overlay {#cmd-overlay}
 
-`overlay` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/ignore-cache=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="An integer"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`overlay` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/style=`_style_{:title="One of: red-blue"} `/flags=`_texts_ `/ignore-cache=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/yerrors=`_column_{:title="The number/name of a column in a buffer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="An integer"} `/comments=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"} `/columns=`_integers_{:title="A comma-separated list of integers"} `/auto-split=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
-Alias: `v`
+Short name: `v`
 
   * _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."}: Files to load !
   * `/style=`_style_{:title="One of: red-blue"}: Style for curves display
   * `/flags=`_texts_: Flags for the newly created buffers
   * `/ignore-cache=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, ignores what is in the cache
-  * `/yerrors=`_integer_{:title="An integer"}: Column containing y errors
+  * `/yerrors=`_column_{:title="The number/name of a column in a buffer"}: Column containing y errors
   * `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Show as a histogram
   * `/separator=`_pattern_{:title="Text, or Qt regular expression enclosed within / / delimiters"}: Separator between columns
   * `/decimal=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Decimal separator
@@ -960,7 +960,7 @@ that really should not happen anyway).
 
 `points` 
 
-Alias: `poi`
+Short name: `poi`
 
 
 {::comment} synopsis-end: points {:/}
@@ -976,7 +976,7 @@ have a large number of data points.
 
 `zoom` **(interactive)**
 
-Alias: `z`
+Short name: `z`
 
 
 {::comment} synopsis-end: zoom {:/}
@@ -1047,7 +1047,7 @@ ways:
 
 `browse-stack` **(interactive)**
 
-Alias: `K`
+Short name: `K`
 
 
 {::comment} synopsis-end: browse-stack {:/}
@@ -1062,9 +1062,9 @@ for [cmd: browse].
 
 `show-stack` `/number=`_integer_{:title="An integer"}
 
-Alias: `k`
+Short name: `k`
 
-  * `/number=`_integer_{:title="An integer"} (default option): Limit the display to a given number
+  * `/number=`_integer_{:title="An integer"} (default option): Display only that many buffers around 0
 
 {::comment} synopsis-end: show-stack {:/}
 {::comment} description-start: show-stack {:/}
@@ -1080,7 +1080,7 @@ for instance (that will only show buffers `-9` to `9`).
 
 `undo` `/number=`_integer_{:title="An integer"}
 
-Alias: `u`
+Short name: `u`
 
   * `/number=`_integer_{:title="An integer"} (default option): Number of operations to undo
 
@@ -1097,9 +1097,9 @@ stack. If `/number=` is specified, repeat that many times.
 
 `redo` `/number=`_integer_{:title="An integer"}
 
-Alias: `r`
+Short name: `r`
 
-  * `/number=`_integer_{:title="An integer"} (default option): Number of operations to undo
+  * `/number=`_integer_{:title="An integer"} (default option): Number of operations to redo
 
 {::comment} synopsis-end: redo {:/}
 {::comment} description-start: redo {:/}
@@ -1142,7 +1142,7 @@ Loads a saved stack, from a file that was created using [cmd: save-stack].
 
 `clear-stack` 
 
-Alias: `delstack`
+Short name: `delstack`
 
 
 {::comment} synopsis-end: clear-stack {:/}
@@ -1276,7 +1276,7 @@ script, for instance.
 
 `apply-formula` _formula_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-columns=`_integer_{:title="An integer"} `/use-stats=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-meta=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
-Alias: `F`
+Short name: `F`
 
   * _formula_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Formula (valid Ruby code)
   * `/extra-columns=`_integer_{:title="An integer"}: Number of extra columns to create
@@ -1571,9 +1571,9 @@ The same warnings apply as for [cmd: diff].
 
 ### dataset-options - Options {#cmd-dataset-options}
 
-`dataset-options` `/yerrors=`_integer_{:title="An integer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`dataset-options` `/yerrors=`_column_{:title="The number/name of a column in a buffer"} `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
-  * `/yerrors=`_integer_{:title="An integer"}: Column containing y errors
+  * `/yerrors=`_column_{:title="The number/name of a column in a buffer"}: Column containing y errors
   * `/histogram=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Show as a histogram
 
 {::comment} synopsis-end: dataset-options {:/}
@@ -1613,7 +1613,7 @@ Pick left and right bounds and set the errors within the bounds with
 
 `cut` **(interactive)**
 
-Alias: `c`
+Short name: `c`
 
 
 {::comment} synopsis-end: cut {:/}
@@ -1723,7 +1723,7 @@ $$i = f(E)$$ to $$i = f(t)$$, after dividing by the scan rate.
 
 `cat` _first_{:title="The number of a buffer in the stack"} _second..._{:title="Comma-separated lists of datasets in the stack"} `/add-segments=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
-Alias: `i`
+Short name: `i`
 
   * _first_{:title="The number of a buffer in the stack"}: First buffer
   * _second..._{:title="Comma-separated lists of datasets in the stack"}: Second buffer(s)
@@ -1981,7 +1981,7 @@ approximation. (be careful as this function may fail at times).
 
 `auto-filter-bs` `/number=`_integer_{:title="An integer"} `/order=`_integer_{:title="An integer"} `/weight-column=`_column_{:title="The number/name of a column in a buffer"} `/derivatives=`_integer_{:title="An integer"}
 
-Alias: `afbs`
+Short name: `afbs`
 
   * `/number=`_integer_{:title="An integer"}: Number of segments
   * `/order=`_integer_{:title="An integer"}: Order of the splines
@@ -2003,7 +2003,7 @@ This is mostly useful in scripts.
 
 `auto-filter-fft` `/cutoff=`_integer_{:title="An integer"} `/derive=`_integer_{:title="An integer"}
 
-Alias: `afft`
+Short name: `afft`
 
   * `/cutoff=`_integer_{:title="An integer"}: Number of segments
   * `/derive=`_integer_{:title="An integer"}: Differentiate to the given order
@@ -2037,7 +2037,7 @@ filtering with FFT (using [cmd: filter-fft]) and taking the derivative.
 
 `remove-spikes` `/number=`_integer_{:title="An integer"} `/factor=`_number_{:title="A floating-point number"} `/force-new=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
-Alias: `R`
+Short name: `R`
 
   * `/number=`_integer_{:title="An integer"}: Number of points to look at
   * `/factor=`_number_{:title="A floating-point number"}: ...
@@ -2073,7 +2073,7 @@ columns too.
 
 `baseline` **(interactive)**
 
-Alias: `b`
+Short name: `b`
 
 
 {::comment} synopsis-end: baseline {:/}
@@ -2101,8 +2101,8 @@ values, one can generate the interpolated data using [cmd: interpolate].
 
 `interpolate` _xvalues_{:title="The number of a buffer in the stack"} _nodes_{:title="The number of a buffer in the stack"} `/type=`_choice_{:title="One of: Akima spline, C-spline, linear, polynomial"}
 
-  * _xvalues_{:title="The number of a buffer in the stack"}: Base for X values
-  * _nodes_{:title="The number of a buffer in the stack"}: Interpolation nodes X/Y values
+  * _xvalues_{:title="The number of a buffer in the stack"}: Buffer serving as base for X values
+  * _nodes_{:title="The number of a buffer in the stack"}: Buffer containing the nodes X/Y values
   * `/type=`_choice_{:title="One of: Akima spline, C-spline, linear, polynomial"}: Interpolation type
 
 {::comment} synopsis-end: interpolate {:/}
@@ -2124,7 +2124,7 @@ close look at the quality of the baseline, and tweak it if need be.
 
 `catalytic-baseline` **(interactive)**
 
-Alias: `B`
+Short name: `B`
 
 
 {::comment} synopsis-end: catalytic-baseline {:/}
@@ -2152,7 +2152,7 @@ There are two baselines implemented for now:
 
 `auto-correlation` 
 
-Alias: `ac`
+Short name: `ac`
 
 
 {::comment} synopsis-end: auto-correlation {:/}
@@ -2318,7 +2318,7 @@ for more information.
 
 `subtract` _first..._{:title="Comma-separated lists of datasets in the stack"} _second_{:title="The number of a buffer in the stack"} `/mode=`_choice_{:title="One of: indices, xvalues"} `/use-segments=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
-Alias: `S`
+Short name: `S`
 
   * _first..._{:title="Comma-separated lists of datasets in the stack"}: First buffer(s)
   * _second_{:title="The number of a buffer in the stack"}: Second buffer
@@ -2412,10 +2412,10 @@ which case the other columns from the buffers are ignored.
 
 `find-peaks` `/window=`_integer_{:title="An integer"} `/include-borders=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/which=`_choice_{:title="One of: both, max, min"} `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/peaks=`_integer_{:title="An integer"}
 
-  * `/window=`_integer_{:title="An integer"}: ...
-  * `/include-borders=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: ...
-  * `/which=`_choice_{:title="One of: both, max, min"}: ...
-  * `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether peak information should be written to output file by default
+  * `/window=`_integer_{:title="An integer"}: Width of the window
+  * `/include-borders=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to include borders
+  * `/which=`_choice_{:title="One of: both, max, min"}: Selects which of minima and/or maxima to display
+  * `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether peak information should be written to output file
   * `/peaks=`_integer_{:title="An integer"}: Display only that many peaks (by order of intensity)
 
 {::comment} synopsis-end: find-peaks {:/}
@@ -2454,10 +2454,10 @@ about those.
 
 `1` `/window=`_integer_{:title="An integer"} `/include-borders=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/which=`_choice_{:title="One of: both, max, min"} `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
-  * `/window=`_integer_{:title="An integer"}: ...
-  * `/include-borders=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: ...
-  * `/which=`_choice_{:title="One of: both, max, min"}: ...
-  * `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether peak information should be written to output file by default
+  * `/window=`_integer_{:title="An integer"}: Width of the window
+  * `/include-borders=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to include borders
+  * `/which=`_choice_{:title="One of: both, max, min"}: Selects which of minima and/or maxima to display
+  * `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether peak information should be written to output file
 
 {::comment} synopsis-end: 1 {:/}
 {::comment} description-start: 1 {:/}
@@ -2474,10 +2474,10 @@ QSoas> find-peaks /peaks=1 /output=true
 
 `2` `/window=`_integer_{:title="An integer"} `/include-borders=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/which=`_choice_{:title="One of: both, max, min"} `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
-  * `/window=`_integer_{:title="An integer"}: ...
-  * `/include-borders=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: ...
-  * `/which=`_choice_{:title="One of: both, max, min"}: ...
-  * `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether peak information should be written to output file by default
+  * `/window=`_integer_{:title="An integer"}: Width of the window
+  * `/include-borders=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to include borders
+  * `/which=`_choice_{:title="One of: both, max, min"}: Selects which of minima and/or maxima to display
+  * `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether peak information should be written to output file
 
 {::comment} synopsis-end: 2 {:/}
 {::comment} description-start: 2 {:/}
@@ -2497,7 +2497,7 @@ QSoas> find-peaks /peaks=2 /output=true
 
   * `/buffer=`_buffer_{:title="The number of a buffer in the stack"} (default option): An alternative buffer to get information on
   * `/output=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Also write stats to output file
-  * `/use-segments=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Make statistics segments by segment
+  * `/use-segments=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Make statistics segment by segment
   * `/meta=`_texts_: When writing to output file, also print the listed meta-data
 
 {::comment} synopsis-end: stats {:/}
@@ -2530,7 +2530,7 @@ the [cmd: output] command.
 
 `cursor` **(interactive)**
 
-Alias: `cu`
+Short name: `cu`
 
 
 {::comment} synopsis-end: cursor {:/}
@@ -2555,7 +2555,7 @@ of the buffer and returns. Hitting `v` divides by the current Y value.
 
 `reglin` **(interactive)**
 
-Alias: `reg`
+Short name: `reg`
 
 
 {::comment} synopsis-end: reglin {:/}
@@ -2708,7 +2708,7 @@ option (also available to the created fit), and is one of:
  * `lorentzian`: lorentzian distribution of the parameters
  * `k0`: "dispersion of interfacial rate distribution", defined by a
    uniform probability between two values for the logarithm of the
-   parameter, see [Léger, _et al_, **J. Phys. Chem. B**
+   parameter, see [LÃ©ger, _et al_, **J. Phys. Chem. B**
    2002](http://dx.doi.org/10.1021/jp0265687) for more details
  * `uniform`: for a uniform probability between two values
 
@@ -2788,7 +2788,7 @@ Multi-buffer version of the
 
 {::comment} synopsis-start: sim-exponential-decay {:/}
 
-### sim-exponential-decay - Fit: Multi-exponential fits {#cmd-sim-exponential-decay}
+### sim-exponential-decay - Simulation: Multi-exponential fits {#cmd-sim-exponential-decay}
 
 `sim-exponential-decay` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/exponentials=`_integer_{:title="An integer"} `/absolute=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/loss=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/slow=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
@@ -2879,7 +2879,7 @@ This is the multibuffer version of the [fit: multiexp-multistep] fit.
 
 {::comment} synopsis-start: sim-multiexp-multistep {:/}
 
-### sim-multiexp-multistep - Fit: Multi-step and multi-exponential {#cmd-sim-multiexp-multistep}
+### sim-multiexp-multistep - Simulation: Multi-step and multi-exponential {#cmd-sim-multiexp-multistep}
 
 `sim-multiexp-multistep` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/exponentials=`_integer_{:title="An integer"} `/steps=`_integers_{:title="A comma-separated list of integers"} `/independent=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
@@ -2910,10 +2910,10 @@ possible to store formulas in a plain text file and load them using
 
 ### fit-arb - Fit: Arbitrary fit {#cmd-fit-arb}
 
-`fit-arb` _formulas_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'. Available types: steps, exp, rexp"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+`fit-arb` _formulas_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp), seperated by ';'. Available types: steps, exp, rexp"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * _formulas_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: \|-separated formulas for the fit
-  * `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'. Available types: steps, exp, rexp"}: Dependency upon time of various parameters
+  * `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
@@ -2949,11 +2949,11 @@ below for more information.
 
 ### mfit-arb - Multi fit: Arbitrary fit {#cmd-mfit-arb}
 
-`mfit-arb` _formulas_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'. Available types: steps, exp, rexp"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-arb` _formulas_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp), seperated by ';'. Available types: steps, exp, rexp"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _formulas_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: \|-separated formulas for the fit
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
-  * `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'. Available types: steps, exp, rexp"}: Dependency upon time of various parameters
+  * `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
   * `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Turn on debugging (for QSoas developers only)
@@ -3110,7 +3110,7 @@ Multi-buffer variant of the [cmd: fit-gaussian] fit.
 {::comment} decription-end: mfit-gaussian {:/}
 {::comment} synopsis-start: sim-gaussian {:/}
 
-### sim-gaussian - Fit: One or several gaussians {#cmd-sim-gaussian}
+### sim-gaussian - Simulation: One or several gaussians {#cmd-sim-gaussian}
 
 `sim-gaussian` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
@@ -3179,7 +3179,7 @@ Multi-buffer variant of the [cmd: fit-lorentzian] fit.
 {::comment} description-end: mfit-lorentzian {:/}
 {::comment} synopsis-start: sim-lorentzian {:/}
 
-### sim-lorentzian - Fit: A Lorentzian (also named Cauchy distribution) {#cmd-sim-lorentzian}
+### sim-lorentzian - Simulation: A Lorentzian (also named Cauchy distribution) {#cmd-sim-lorentzian}
 
 `sim-lorentzian` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/use-surface=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/number=`_integer_{:title="An integer"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
@@ -3272,7 +3272,7 @@ for fitting multi-wavelength redox titrations.
 
 {::comment} synopsis-start: sim-nernst {:/}
 
-### sim-nernst - Fit: Nerstian behaviour {#cmd-sim-nernst}
+### sim-nernst - Simulation: Nerstian behaviour {#cmd-sim-nernst}
 
 `sim-nernst` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/states=`_integers_{:title="A comma-separated list of integers"} `/species=`_integer_{:title="An integer"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
@@ -3384,7 +3384,7 @@ Multi-buffer version of the [fit: adsorbed] fit.
 
 {::comment} synopsis-start: sim-adsorbed {:/}
 
-### sim-adsorbed - Fit: Adsorbed species {#cmd-sim-adsorbed}
+### sim-adsorbed - Simulation: Adsorbed species {#cmd-sim-adsorbed}
 
 `sim-adsorbed` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/species=`_integer_{:title="An integer"} `/2el=`_integer_{:title="An integer"} `/distinct=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
@@ -3409,11 +3409,11 @@ Simulation command for the [fit: adsorbed] fit.
 
 ### fit-ode - Fit: Fit an ODE system {#cmd-fit-ode}
 
-`fit-ode` _system_{:title="Path of a file (or a directory)"} `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+`fit-ode` _system_{:title="Path of a file (or a directory)"} `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the ODE system
-  * `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'. Available types: steps, exp, rexp"}: Dependency upon time of various parameters
-  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
+  * `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time
+  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, one can choose the initial time
   * `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptive stepper
   * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
   * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
@@ -3448,12 +3448,12 @@ parameters](#time-dependent-parameters) below for more information.
 
 ### mfit-ode - Multi fit: Fit an ODE system {#cmd-mfit-ode}
 
-`mfit-ode` _system_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-ode` _system_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the ODE system
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
-  * `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'. Available types: steps, exp, rexp"}: Dependency upon time of various parameters
-  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
+  * `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time
+  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, one can choose the initial time
   * `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptive stepper
   * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
   * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
@@ -3475,15 +3475,15 @@ Multibuffer version of the [fit: ode] fit.
 {::comment} description-end: mfit-ode {:/}
 {::comment} synopsis-start: sim-ode {:/}
 
-### sim-ode - Fit: Fit an ODE system {#cmd-sim-ode}
+### sim-ode - Simulation: Fit an ODE system {#cmd-sim-ode}
 
-`sim-ode` _system_{:title="Path of a file (or a directory)"} _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`sim-ode` _system_{:title="Path of a file (or a directory)"} _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the ODE system
   * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
-  * `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'. Available types: steps, exp, rexp"}: Dependency upon time of various parameters
-  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
+  * `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time
+  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, one can choose the initial time
   * `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptive stepper
   * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
   * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
@@ -3548,11 +3548,11 @@ To define a new fit one could combine with others using
 
 ### fit-kinetic-system - Fit: Full kinetic system {#cmd-fit-kinetic-system}
 
-`fit-kinetic-system` _system_{:title="Path of a file (or a directory)"} `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
+`fit-kinetic-system` _system_{:title="Path of a file (or a directory)"} `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the system
-  * `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'. Available types: steps, exp, rexp"}: Dependency upon time of various parameters
-  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
+  * `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time
+  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, one can choose the initial time
   * `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptive stepper
   * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
   * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
@@ -3578,12 +3578,12 @@ of name `y_A` (for the coefficient for the concentration of species
 
 ### mfit-kinetic-system - Multi fit: Full kinetic system {#cmd-mfit-kinetic-system}
 
-`mfit-kinetic-system` _system_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-kinetic-system` _system_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ `/weight-buffers=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/perp-meta=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the system
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
-  * `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'. Available types: steps, exp, rexp"}: Dependency upon time of various parameters
-  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
+  * `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time
+  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, one can choose the initial time
   * `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptive stepper
   * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
   * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
@@ -3607,15 +3607,15 @@ Multi-buffer variant of the
 
 {::comment} synopsis-start: sim-kinetic-system {:/}
 
-### sim-kinetic-system - Fit: Full kinetic system {#cmd-sim-kinetic-system}
+### sim-kinetic-system - Simulation: Full kinetic system {#cmd-sim-kinetic-system}
 
-`sim-kinetic-system` _system_{:title="Path of a file (or a directory)"} _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
+`sim-kinetic-system` _system_{:title="Path of a file (or a directory)"} _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _system_{:title="Path of a file (or a directory)"}: Path to the file describing the system
   * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
-  * `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp) , seperated by ';'. Available types: steps, exp, rexp"}: Dependency upon time of various parameters
-  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: 
+  * `/with=`_time-dependent parameters_{:title="Several specifications of time dependent parameters (like co:2,exp), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time
+  * `/choose-t0=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, one can choose the initial time
   * `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptive stepper
   * `/step-size=`_number_{:title="A floating-point number"}: Initial step size for the stepper
   * `/min-step-size=`_number_{:title="A floating-point number"}: Minimum step size for the stepper
@@ -3641,7 +3641,7 @@ Computation for the
 `define-kinetic-system-fit` _file_{:title="Path of a file (or a directory)"} _name_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}
 
   * _file_{:title="Path of a file (or a directory)"}: System to load
-  * _name_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: 
+  * _name_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Name of the newly created fit
 
 {::comment} synopsis-end: define-kinetic-system-fit {:/}
 {::comment} description-start: define-kinetic-system-fit {:/}
@@ -3840,7 +3840,7 @@ Multi-buffer variant of the
 
 {::comment} synopsis-start: sim-slow-scan-lp {:/}
 
-### sim-slow-scan-lp - Fit: Slow scan test {#cmd-sim-slow-scan-lp}
+### sim-slow-scan-lp - Simulation: Slow scan test {#cmd-sim-slow-scan-lp}
 
 `sim-slow-scan-lp` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/explicit-rate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
@@ -3860,7 +3860,7 @@ Computation for the
 
 {::comment} synopsis-start: sim-slow-scan-hp {:/}
 
-### sim-slow-scan-hp - Fit: Slow scan test {#cmd-sim-slow-scan-hp}
+### sim-slow-scan-hp - Simulation: Slow scan test {#cmd-sim-slow-scan-hp}
 
 `sim-slow-scan-hp` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/bi-exp=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/scaling=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
@@ -3901,7 +3901,7 @@ Please refer to that paper for more information.
 `fit-eecr-wave` `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use the general expression or only that valid when plateaus are not reached
-  * `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: ???
+  * `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, use the oxidation current as reference
   * `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use explicitly the bias or compute it using the open circuit potential
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
@@ -3935,7 +3935,7 @@ parameter rather than the ratio $$k_2/k_{-2}$$.
 
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use the general expression or only that valid when plateaus are not reached
-  * `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: ???
+  * `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, use the oxidation current as reference
   * `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use explicitly the bias or compute it using the open circuit potential
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
@@ -3952,14 +3952,14 @@ Multi-buffer variant of [cmd: fit-eecr-wave].
 
 {::comment} synopsis-start: sim-eecr-wave {:/}
 
-### sim-eecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-sim-eecr-wave}
+### sim-eecr-wave - Simulation: Fit of an EECR catalytic wave {#cmd-sim-eecr-wave}
 
 `sim-eecr-wave` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use the general expression or only that valid when plateaus are not reached
-  * `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: ???
+  * `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, use the oxidation current as reference
   * `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use explicitly the bias or compute it using the open circuit potential
   * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
@@ -4011,7 +4011,7 @@ Multi-buffer version of the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
 {::comment} description-end: mfit-eecr-relay-wave {:/}
 {::comment} synopsis-start: sim-eecr-relay-wave {:/}
 
-### sim-eecr-relay-wave - Fit: Fit of an EECR+relay catalytic wave {#cmd-sim-eecr-relay-wave}
+### sim-eecr-relay-wave - Simulation: Fit of an EECR+relay catalytic wave {#cmd-sim-eecr-relay-wave}
 
 `sim-eecr-relay-wave` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
@@ -4034,7 +4034,7 @@ Simulation command for the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
 `fit-ecr-wave` `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="Path of a file (or a directory)"} `/debug=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/debug2=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/set-from-meta=`_texts_ **(interactive)**
 
   * `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use the general expression or only that valid when plateaus are not reached
-  * `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: ???
+  * `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, use the oxidation current as reference
   * `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use explicitly the bias or compute it using the open circuit potential
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
@@ -4058,7 +4058,7 @@ See the [fit: eecr-wave] fit for a description of the `/oxidation`,
 
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use the general expression or only that valid when plateaus are not reached
-  * `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: ???
+  * `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, use the oxidation current as reference
   * `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use explicitly the bias or compute it using the open circuit potential
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
   * `/parameters=`_file_{:title="Path of a file (or a directory)"}: Pre-loads parameters
@@ -4074,14 +4074,14 @@ Multi-buffer version of the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
 {::comment} description-end: mfit-ecr-wave {:/}
 {::comment} synopsis-start: sim-ecr-wave {:/}
 
-### sim-ecr-wave - Fit: Fit of an ECR catalytic wave {#cmd-sim-ecr-wave}
+### sim-ecr-wave - Simulation: Fit of an ECR catalytic wave {#cmd-sim-ecr-wave}
 
 `sim-ecr-wave` _parameters_{:title="Path of a file (or a directory)"} _datasets..._{:title="Comma-separated lists of datasets in the stack"} `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_texts_ `/reexport=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
   * _parameters_{:title="Path of a file (or a directory)"}: File to load parameters from
   * _datasets..._{:title="Comma-separated lists of datasets in the stack"}: Datasets to fit
   * `/plateau=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use the general expression or only that valid when plateaus are not reached
-  * `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: ???
+  * `/oxidation=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, use the oxidation current as reference
   * `/use-eoc=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether to use explicitly the bias or compute it using the open circuit potential
   * `/override=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override
   * `/extra-parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters
@@ -4274,7 +4274,7 @@ complex formulas.
 `ode` _file_{:title="Path of a file (or a directory)"} `/parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/annotate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/dump=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/step-size=`_number_{:title="A floating-point number"} `/min-step-size=`_number_{:title="A floating-point number"} `/prec-relative=`_number_{:title="A floating-point number"} `/prec-absolute=`_number_{:title="A floating-point number"} `/sub-steps=`_integer_{:title="An integer"} `/stepper=`_choice_{:title="One of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}
 
   * _file_{:title="Path of a file (or a directory)"}: File containing the system
-  * `/parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} (default option): Values of the extra parameters
+  * `/parameters=`_text_{:title="Arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} (default option): Values of the parameters
   * `/annotate=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, a last column will contain the number of function evaluation for each step
   * `/dump=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: If on, do not integrate, just dumps the parse contents of the ODE file
   * `/adaptive=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not to use adaptive stepper
@@ -4387,7 +4387,7 @@ context, such as the following
 
 `run` _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."} `/silent=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"} `/add-to-history=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}
 
-Alias: `@`
+Short name: `@`
 
   * _file..._{:title="One or more files. Can include wildcards such as *, [0-4], etc..."}: First is the command files, following are arguments
   * `/silent=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not display is updated during the load
@@ -4466,7 +4466,7 @@ QSoas> startup-files /run=true
   * `/arg4=`_file_{:title="Path of a file (or a directory)"}: Fourth argument to the script
   * `/arg5=`_file_{:title="Path of a file (or a directory)"}: Fifth argument to the script
   * `/arg6=`_file_{:title="Path of a file (or a directory)"}: Sixth argument to the script
-  * `/range-type=`_choice_{:title="One of: lin, log"}: If one, transform arguments into ranged numbers
+  * `/range-type=`_choice_{:title="One of: lin, log"}: If on, transform arguments into ranged numbers
   * `/silent=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether or not display is updated during the load
   * `/add-to-history=`_yes-no_{:title="A boolean: yes, on, true or no, off, false"}: Whether the commands run are added to the history (defaults to false)
 
@@ -4715,13 +4715,13 @@ function), the following special functions are available:
  * `bessel_j1`: Regular cylindrical Bessel function of first order, $$J_1(x)$$
  * `bessel_jn`: Regular cylindrical Bessel function of n-th order, $$J_n(x)$$
  * `dawson`: Dawson integral, $$\exp(-x^2)\int_{0}^{x}\exp(t^2)\mathrm{d} t$$
- * `debye_1`: Debye function of order 1, $$D_n = (n/x^n) \int_0^x \mathrm{d}t (t^n/(e^t - 1))$$
- * `debye_2`: Debye function of order 2, $$D_n = (n/x^n) \int_0^x \mathrm{d}t (t^n/(e^t - 1))$$
- * `debye_3`: Debye function of order 3, $$D_n = (n/x^n) \int_0^x \mathrm{d}t (t^n/(e^t - 1))$$
- * `debye_4`: Debye function of order 4, $$D_n = (n/x^n) \int_0^x \mathrm{d}t (t^n/(e^t - 1))$$
- * `debye_5`: Debye function of order 5, $$D_n = (n/x^n) \int_0^x \mathrm{d}t (t^n/(e^t - 1))$$
- * `debye_6`: Debye function of order 6, $$D_n = (n/x^n) \int_0^x \mathrm{d}t (t^n/(e^t - 1))$$
- * `dilog`: The dilogarithm, $$Li_2(x) = - \Re \int_0^x \mathrm{d}s \log(1-s) / s$$
+ * `debye_1`: Debye function of order 1, $$D_1 = (1/x) \int_0^x \mathrm{d}t (t/(e^t - 1))$$
+ * `debye_2`: Debye function of order 2, $$D_2 = (2/x^2) \int_0^x \mathrm{d}t (t^2/(e^t - 1))$$
+ * `debye_3`: Debye function of order 3, $$D_3 = (3/x^3) \int_0^x \mathrm{d}t (t^3/(e^t - 1))$$
+ * `debye_4`: Debye function of order 4, $$D_4 = (4/x^4) \int_0^x \mathrm{d}t (t^4/(e^t - 1))$$
+ * `debye_5`: Debye function of order 5, $$D_5 = (5/x^5) \int_0^x \mathrm{d}t (t^5/(e^t - 1))$$
+ * `debye_6`: Debye function of order 6, $$D_6 = (6/x^6) \int_0^x \mathrm{d}t (t^6/(e^t - 1))$$
+ * `dilog`: The dilogarithm, $$Li_2(x) = - \Re \left(\int_0^x \mathrm{d}s \log(1-s) / s\right)$$
  * `expint_e1`: Exponential integral $$E_1(x) = \int_{x}^{\infty} \frac{\exp -t}{t} \mathrm{d} t$$
  * `expint_e2`: Exponential integral $$E_2(x) = \int_{x}^{\infty} \frac{\exp -t}{t^2} \mathrm{d} t$$
  * `expint_en`: Exponential integral $$E_n(x) = \int_{x}^{\infty} \frac{\exp -t}{t^n} \mathrm{d} t$$

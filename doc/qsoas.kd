@@ -1,9 +1,9 @@
 **Important warning**
 Some commands of `QSoas` may not be documented here. It means they are
-supported in no way: their syntax may change without notice, they may
-disappear, they may turn out to do completely different things in the
-end. In short, **use them at your own risks** (and it would be a good
-idea to check out the code, in that case).
+not supported in any way: their syntax may change without notice, they
+may disappear, they may turn out to do completely different things in
+the end. In short, **use them at your own risks** (and it would be a
+good idea to check out the code, in that case).
 
 
 # Commands, arguments and options (how to read this document)
@@ -49,6 +49,9 @@ QSoas> temperature 300
 In this documentation, all options and arguments have mouseover texts
 that give a short explanation of what kind of values are expected.
 
+Some commands can be used through a short name (like `q` for
+[cmd: quit]), indicated as such in the present documentation.
+
 Some commands are marked as *(interactive)*. This means that their use
 requires user interaction, which in particular makes them not
 desirable for using inside [scripts](#scripting), even if it actually
@@ -67,7 +70,7 @@ simply contain unformatted text. These are for instance:
  * even saved fit parameters are plain text files
 
 On windows, use Notepad to edit them. On Linux, `pico`, `nano`, `vi`
-or `emacs` are pretty good choices. On MacOS, TextEdit, but make sure
+or `emacs` are pretty good choices. On MacOS, use TextEdit, but make sure
 you hit Cmd+Shift+T to switch to "plain text" format; the default is
 rich text (i.e. text with formatting informations) in the RTF format,
 and `QSoas` does not understand RTF.
@@ -82,12 +85,14 @@ several forms:
  * A comma-separated of buffer numbers (the ones given by 
    [cmd: show-stack]), such as: `1,4,7` (0 is the current buffer, 1,
    the one just before, which you can reach using [cmd: undo], etc.).
+ * Negative numbers refer to the "redo" stack: `-1` is the buffer you
+   would get by running [cmd: redo]
  * A number range, such as `1..7`, meaning all buffers from 1 to 7
    included.
  * A number range with a step, such as `1..7:3`, meaning `1,4,7`.
  * `all` for all buffers on the stack.
  * `displayed` for the currently displayed buffers.
- * `latest` are the datasets produced by the last command (running a
+ * `latest` for the datasets produced by the last command (running a
    script count as many commands)
  * `latest:1` is the same as `latest`, `latest:2` represents the
    datasets produced by the command before the last one, etc...
@@ -116,15 +121,15 @@ column names. There are three way to designate those:
    then the $$x$$ column
  * by its name: `x`, `y`, `z`, `y2`, `y3` and so on. `y2` is
    equivalent to `z`
+ * `no` or `none` when you don't want to specify a number at all, such
+   as for disabling the display of error bars with
+   [cmd: dataset-options].
 
 Some commands (like [cmd: contract]) take column lists, which are
 comma-separated lists of columns (just like above), with the addition
 of range: `2..6` are columns 2 to 6 inclusive.
 
-# General
-
-Here are the commands to interact with QSoas in the most general way:
-exit, change directory, change various global parameters.
+# General purpose commands
 
 
 {::comment} synopsis-start: quit {:/}
@@ -138,10 +143,14 @@ Alias: `q`
 
 {::comment} synopsis-end: quit {:/}
 {::comment} description-start: quit {:/}
-Exits QSoas, losing all the current session. Keep in mind, though,
+Exits QSoas, losing all of the current session. Keep in mind, though,
 that the full log of the session is always available in the
 `soas.log` file created in the initial directory, which is indicated in
 the very beginning in the terminal.
+
+To avoid accumulating very large log files, the log file gets renamed
+as `soas.log.1` when you start QSoas (and the older one as
+`soas.log.2`, and so on until `soas.log.5`).
 {::comment} description-end: quit {:/}
 
 
@@ -202,11 +211,6 @@ the directory is assumed to be relative to the user's home directory.
 If `/from-script` is specified, the directory is assumed to be
 relative to that of the command file currently being executed by a 
 [cmd: run] command (or in a [startup script](#cmd-startup-files)).
-
-
-
-As of now, it doesn't change the output files and the log files, but
-it eventually will.
 {::comment} description-end: cd {:/}
 {::comment} synopsis-start: pwd {:/}
 
@@ -219,7 +223,7 @@ it eventually will.
 {::comment} description-start: pwd {:/}
 Prints the full path of the current directory.
 
-It is also the one indicated in the title of the QSoas window.
+It is also indicated in the title of the QSoas window.
 {::comment} description-end: pwd {:/}
 
 {::comment} synopsis-start: temperature {:/}
@@ -234,10 +238,10 @@ Alias: `T`
 
 {::comment} synopsis-end: temperature {:/}
 {::comment} description-start: temperature {:/}
-Shows or sets the current temperature. The temperature is used in many
-places, mostly in fits to serve as the initial value for the
-temperature parameter. To set the temperature, pass its new value as
-the `/set` option (the `/set=` part is optional):
+Shows or sets the current temperature, in Kelvins. The temperature is
+used in many places, mostly in fits to serve as the initial value for
+the temperature parameter. To set the temperature, pass its new value
+as the `/set` option (the `/set=` part is optional):
 
 ~~~
 QSoas> temperature 310
@@ -255,7 +259,8 @@ QSoas> temperature 310
 {::comment} synopsis-end: commands {:/}
 {::comment} description-start: commands {:/}
 List all available commands, with a short help text. This also
-includes used-defined commands, such as custom fits loaded from a fit file.
+includes used-defined commands, such as custom fits loaded from a fit
+file and aliases.
 {::comment} description-end: commands {:/}
 {::comment} synopsis-start: help {:/}
 
@@ -270,7 +275,7 @@ Alias: `?`
 
 {::comment} synopsis-end: help {:/}
 {::comment} description-start: help {:/}
-Gives all help available on the given command. By default, it fires up
+Gives all help available on the given command. By default, it spawns
 a browser to show the online help, unless you use `/online=false`.
 {::comment} description-end: help {:/}
 
@@ -284,10 +289,9 @@ a browser to show the online help, unless you use `/online=false`.
 
 {::comment} synopsis-end: save-output {:/}
 {::comment} description-start: save-output {:/}
-Save all text in the terminal to a plain text file.
-
-Equivalent to copy-pasting the contents of the terminal to a plain
-text file using a text editor.
+Save all text in the terminal to a plain text file. Equivalent to
+copy-pasting the contents of the terminal to a plain text file using a
+text editor.
 {::comment} description-end: save-output {:/}
 
 
@@ -310,7 +314,7 @@ want a PDF or PostScript file, just provide the file name as the
 
 An optional title can be added using the `/title` option.
 
-**Important note** please keep in mind that QSoas is not designed to
+**Important note:** please keep in mind that QSoas is not designed to
 be a data plotting system, it is a data analysis system. So plotting
 capacities don't go far...
 {::comment} description-end: print {:/}
@@ -336,12 +340,13 @@ QSoas> define-alias fit-2exp fit-exponential-decay /exponentials=2 /loss=true
 ~~~~
 
 creates a `fit-2exp` command that is equivalent to starting 
-[cmd: fit-exponential-decay] with two
-exponentials by default and film loss on. 
+[cmd: fit-exponential-decay] with two exponentials by default
+and film loss on. 
 
-While it is possible to define "default options" for aliased commands
-this way, there is no way to add arguments: you must still go on
-specifying all the arguments to the alias.
+The `/*` option above means "any option".
+
+Alias can only be used to provide default values for options. It
+cannot provide default values for arguments.
 {::comment} description-end: define-alias {:/}
 
 {::comment} synopsis-start: display-aliases {:/}
@@ -368,21 +373,23 @@ Shows a list of all the currently defined aliases.
 
 {::comment} synopsis-end: graphics-settings {:/}
 {::comment} description-start: graphics-settings {:/}
-Gives the possibility to tweak a few settings concerning display.
+Gives the possibility to tweak a few settings concerning display. The
+settings are persistent and kept from one QSoas session until the next
+one.
 
-The settings are persistent and kept from one QSoas session until the
-next one.
-
-Turning on antialias will make QSoas use antialiased drawings, which
-looks admittedly nicer, but requires much more computational
-time. Printing or exporting to PDF files through [cmd: print]
-always produces antialiased graphics, regardless of this option.
+Turning on antialias (with `/antialias=true`) will make QSoas use
+antialiased drawings, which looks admittedly nicer, but requires much
+more computation time, to the point that drawing jagged curves may
+become particularly slow. Printing or exporting to PDF files through
+[cmd: print] always produces antialiased graphics, regardless of this
+option.
 
 If you experience performance problems for displaying curves, use
 `/opengl=true`, as this will instruct QSoas to use hardware
 acceleration to display curves, which should greatly enhance the
 display speed. It is off by default as some setups do not really
-benefit from that.
+benefit from that, and moreover OpenGL support is sometimes buggy and
+may result in crashes.
 {::comment} description-end: graphics-settings {:/}
 
 
@@ -403,8 +410,8 @@ separate file.
 Imagine you have a file `function.rb` containing the text:
 
 ~~~~
-def function(x,a)
-  return x**(a**x)
+def mm(x,vmax,km)
+  return vmax/(1 + km/x)
 end
 ~~~~
 
@@ -414,10 +421,10 @@ After running
 QSoas> ruby-run function.rb
 ~~~~
 
-You can use `function` like any normal function for fitting:
+You can use `mm` like any normal function for fitting:
 
 ~~~~
-QSoas> fit-arb 'function(x,a)'
+QSoas> fit-arb mm(x,vmax,km)
 ~~~~
 {::comment} description-end: ruby-run {:/}
 
@@ -430,9 +437,7 @@ QSoas> fit-arb 'function(x,a)'
 
 {::comment} synopsis-end: break {:/}
 {::comment} description-start: break {:/}
-Exits from the current script. 
-
-Has no effect if not within a script.
+Exits from the current script. Has no effect if not inside a script.
 {::comment} description-end: break {:/}
 
 {::comment} synopsis-start: system {:/}
@@ -467,7 +472,7 @@ instance.
 {::comment} description-end: timer {:/}
 
 
-## Output file manipulation
+## Output file manipulation {#output-file}
 
 Several commands (e.g.  various data analysis commands and the fit
 commands) write data to the output file.
@@ -493,12 +498,21 @@ This command has several modes of operations. If _file_ is provided
 (it is the default option, so you can omit `/file=`), then it opens
 _file_ as the new output file. By default, if the file exists, new
 data are appended, and the old data are left untouched. You can force
-overwriting by specifiying `/truncate=true`.
+overwriting by specifiying `/overwrite=true`.
 
 In the other mode, when only the `/meta` option is provided, it sets
 the list of meta-data that will automatically be added to the output
 file when outputting any data there. It is a comma-separated list of
 meta names. See more about meta-data [there](#meta-data).
+
+It is a bad idea to modify the output file while QSoas is still using
+it, as it messes up what QSoas think is in the output file. If that
+happens, use
+
+~~~~
+QSoas> output /reopen=true
+~~~~
+
 {::comment} description-end: output {:/}
 
 {::comment} synopsis-start: comment {:/}
@@ -511,7 +525,12 @@ meta names. See more about meta-data [there](#meta-data).
 
 {::comment} synopsis-end: comment {:/}
 {::comment} description-start: comment {:/}
-Writes the given line _comment_ to the output file.
+Writes the given line _comment_ to the output file. Don't forget to
+quote if you need to include spaces:
+
+~~~~
+QSoas> comment 'Switching to sample 2'
+~~~~
 {::comment} description-end: comment {:/}
 
 
@@ -587,8 +606,8 @@ QSoas> load [0-4]*.dat
 This loads only those that start with a digit from 0 to 4, etc.
 
 The `load` command and the corresponding `load-as-` command makes it
-possible to set dataset options just as with the 
-[cmd: dataset-options].
+possible to set dataset options just as with 
+[cmd: dataset-options], see that command for more informations.
 
 The style option sets the color style when loading several curves:
 
@@ -636,10 +655,12 @@ option on loaded datasets.
 
 Load any number of files using the backend `text`, bypassing cache and
 automatic backend detection. `text` recognises space-separated data
-(which includes tab-separated data). Most "plain text" files will give
-good results. By default, it loads all the columns of the file, but
-only displays the second as a function of the first. If you want to
-work on other columns, have a look at [cmd: expand].
+(which includes tab-separated data). Most "plain text" files will be
+recognized by this backend. By default, it loads all the columns of
+the file, but only displays the second as a function of the first. If
+you want to work on other columns, have a look at [cmd: expand].
+Alternatively, you can specify the columns to load using the
+`/columns` option, see below.
 
 Apart from the options of [cmd: dataset-options] and the `/style` and
 `/flags` options documented above, the `text` backend accepts several
@@ -652,8 +673,8 @@ options controlling the way the text files are interpreted:
     or commas.
   * `/decimal` is the decimal separator (default is the dot).
   * `/comments` is a regular expression describing comment lines (ie
-    lines that get ignored). By default, any line that doesn't start
-    by a number is ignored.
+    lines that get ignored). By default, line that don't start
+    by a number are ignored.
   * Give to `/skip` a number of text lines that should be ignored at
     the beginning of the text file.
   * If `/auto-split` is `true`, then `QSoas` will create a new dataset
@@ -738,9 +759,14 @@ able to detect at least some of their meta-data).
 {::comment} synopsis-end: expand {:/}
 {::comment} description-start: expand {:/}
 If a buffer contains several columns, QSoas only displays the second as a
-function of the first.  expand splits the current buffer into as many
-buffers as there are Y columns, ie a X, Y1, Y2, Y3 buffer will be split
-into three buffers: X, Y1;   X, Y2 and  X, Y3.
+function of the first. [cmd: expand] splits the current buffer into as
+many buffers as there are Y columns, ie a X, Y1, Y2, Y3 buffer will be
+split into three buffers: X, Y1;   X, Y2 and  X, Y3.
+
+If `/perp-meta` is specified, then the given [meta-data](#meta-data)
+will be defined for each buffer, based on the value of the
+[perpendicular coordinates](#meta-data). In any case, the
+perpendicular coordinates are kept.
 {::comment} description-end: expand {:/}
 
 {::comment} synopsis-start: rename {:/}
@@ -775,7 +801,8 @@ Alias: `s`
 
 {::comment} synopsis-end: save {:/}
 {::comment} description-start: save {:/}
-Saves the current buffer to a file.
+Saves the current buffer to a file. This command will ask you before
+overwriting an existing file, unless `/overwrite=true` was specified.
 {::comment} description-end: save {:/}
 
 {::comment} synopsis-start: save-buffers {:/}
@@ -795,9 +822,10 @@ Saves the designated buffers to file.
 
 Unlike the [cmd: save] command, this saves the buffers using
 their current name, and does not prompt for a file name. It is
-probably a good idea to use [cmd: rename] first.
+probably a good idea to use [cmd: rename] first, or use the
+possibilities below.
 
-Alternatively, this command can rename the buffers before saving them,
+This command can rename the buffers before saving them,
 by using a `printf`-like format, such as in the following case,
 which renames the first 101 buffers to `Buffer-000.dat`,
 `Buffer-001.dat`, and so on:
@@ -807,15 +835,18 @@ QSoas> save-buffers /format=Buffer-%03d.dat 0..100
 ~~~
 
 It is also possible to use a full-blown [Ruby](#ruby) expression that
-will be aware of the buffer's statistics and meta-data:
+will be aware of the buffer's meta-data:
 
-TODO
+~~~
+QSoas> save-buffers '/expression="File-#{$meta["sr"]}.dat"'
+~~~
 
+This requires careful quoting: outer single quotes (`'`) for QSoas and
+inner double quotes for [Ruby](#ruby). See more information about the
+informations available from the ruby code [there](#for-which).
 
-See more information about the informations available from the ruby
-code  [there](#for-which).
-
-
+If you only need to rename the buffers without saving them, use
+`/mode=rename`.
 {::comment} description-end: save-buffers {:/}
 
 {::comment} synopsis-start: browse {:/}
@@ -905,7 +936,7 @@ Alias: `v`
 {::comment} description-start: overlay {:/}
 This command combines [cmd: overlay-buffer] and 
 [cmd: load] in one go: loads the files given as arguments and
-adds them to the current plot.
+adds them to the current plot; it has the same options as those commands.
 {::comment} description-end: overlay {:/}
 
 {::comment} synopsis-start: clear {:/}
@@ -935,10 +966,8 @@ Alias: `poi`
 {::comment} synopsis-end: points {:/}
 {::comment} description-start: points {:/}
 Shows datapoints (by default, datasets are plotted by connecting
-datapoints with a line).
-
-Use this with parcimony, as for large datasets, it can significantly
-slow down the display.
+datapoints with a line). Beware that it may slow down display if you
+have a large number of data points.
 {::comment} description-end: points {:/}
 
 {::comment} synopsis-start: zoom {:/}
@@ -1023,7 +1052,8 @@ Alias: `K`
 
 {::comment} synopsis-end: browse-stack {:/}
 {::comment} description-start: browse-stack {:/}
-Displays a dialog box to show the current contents of the stack.
+Displays a dialog box to show the current contents of the stack, like
+for [cmd: browse].
 {::comment} description-end: browse-stack {:/}
 
 {::comment} synopsis-start: show-stack {:/}
@@ -1038,8 +1068,27 @@ Alias: `k`
 
 {::comment} synopsis-end: show-stack {:/}
 {::comment} description-start: show-stack {:/}
-Shows a small summary of what the stack is made of
+Shows a small text summary of what the stack is made of. If your stack
+is large and you just need to look at a few buffers, use `/number=10`
+for instance (that will only show buffers `-9` to `9`).
 {::comment} description-end: show-stack {:/}
+
+
+{::comment} synopsis-start: undo {:/}
+
+### undo - Undo {#cmd-undo}
+
+`undo` `/number=`_integer_{:title="An integer"}
+
+Alias: `u`
+
+  * `/number=`_integer_{:title="An integer"} (default option): Number of operations to undo
+
+{::comment} synopsis-end: undo {:/}
+{::comment} description-start: undo {:/}
+Returns to the previous buffer, and push the current to the redo
+stack. If `/number=` is specified, repeat that many times.
+{::comment} description-end: undo {:/}
 
 
 {::comment} synopsis-start: redo {:/}
@@ -1054,36 +1103,9 @@ Alias: `r`
 
 {::comment} synopsis-end: redo {:/}
 {::comment} description-start: redo {:/}
-Pops the last buffer from the redo stack and set it as the current buffer
+Pops the last buffer from the redo stack and set it as the current
+buffer. `/number` has the same meaning as for [cmd: undo].
 {::comment} description-end: redo {:/}
-
-{::comment} synopsis-start: undo {:/}
-
-### undo - Undo {#cmd-undo}
-
-`undo` `/number=`_integer_{:title="An integer"}
-
-Alias: `u`
-
-  * `/number=`_integer_{:title="An integer"} (default option): Number of operations to undo
-
-{::comment} synopsis-end: undo {:/}
-{::comment} description-start: undo {:/}
-Returns to the previous buffer, and push the current to the redo stack
-{::comment} description-end: undo {:/}
-
-{::comment} synopsis-start: load-stack {:/}
-
-### load-stack - Load stack {#cmd-load-stack}
-
-`load-stack` _file_{:title="Path of a file (or a directory)"}
-
-  * _file_{:title="Path of a file (or a directory)"}: File name for saving stack
-
-{::comment} synopsis-end: load-stack {:/}
-{::comment} description-start: load-stack {:/}
-Loads the stack as saved using save-stack
-{::comment} description-end: load-stack {:/}
 
 {::comment} synopsis-start: save-stack {:/}
 
@@ -1095,8 +1117,23 @@ Loads the stack as saved using save-stack
 
 {::comment} synopsis-end: save-stack {:/}
 {::comment} description-start: save-stack {:/}
-Saves the contents of the stack for later use, in a private binary format
+Saves the contents of the stack for later use, in a private binary
+format.
 {::comment} description-end: save-stack {:/}
+
+{::comment} synopsis-start: load-stack {:/}
+
+### load-stack - Load stack {#cmd-load-stack}
+
+`load-stack` _file_{:title="Path of a file (or a directory)"}
+
+  * _file_{:title="Path of a file (or a directory)"}: File name for saving stack
+
+{::comment} synopsis-end: load-stack {:/}
+{::comment} description-start: load-stack {:/}
+Loads a saved stack, from a file that was created using [cmd: save-stack].
+{::comment} description-end: load-stack {:/}
+
 
 
 {::comment} synopsis-start: clear-stack {:/}
@@ -1213,8 +1250,8 @@ way as for [cmd: flag].
 {::comment} synopsis-end: auto-flag {:/}
 {::comment} description-start: auto-flag {:/}
 This command can be used to automatically flag the datasets produced
-by any command afterwards, until a call to [cmd: auto-flag] (without
-options):
+by any command afterwards, until a call to [cmd: auto-flag] without
+options:
 
 ~~~~
 QSoas> auto-flag /flags=stuff
@@ -1257,16 +1294,17 @@ QSoas> apply-formula 'y = sin(x**2)'
 QSoas> apply-formula 'x,y = y,x'
 ~~~~
 
-The last bit swaps the X and Y values of the buffer. The formula must
-be valid [ruby](#ruby) code.
+The last bit swaps the $$x$$ and $$y$$ values of the buffer. The
+formula must be valid [ruby](#ruby) code.
 
 In addition to `x` and `y` (note the lowercase !), the formula can
 refer to: 
 
-  * `i` (the index of the data point)
+  * `i`, the index of the data point
+  * `seg`, the number of the current segment (starting from 0)
   * `y2`, `y3`, etc when there are more than 2 columns in the dataset
 
-`i` cannot be modified, but `y2` and so on can.
+`i` and `seg` cannot be modified, but `y2` and so on can.
 
 Extra columns initially filled with 0 can be created by using the
 `/extra-columns` option:
@@ -1314,9 +1352,8 @@ ones you may have set manually using [cmd: set-meta]).
 {::comment} synopsis-end: dx {:/}
 {::comment} description-start: dx {:/}
 Replaces the Y values by the values of delta X, i.e, 
-`y[i] = x[i+1] - x[i]`
-
-This is useful to see if the X values are equally spaced.
+`y[i] = x[i+1] - x[i]`. This is useful to see if the X values are
+equally spaced.
 {::comment} description-end: dx {:/}
 {::comment} synopsis-start: dy {:/}
 
@@ -1510,10 +1547,11 @@ point ends up being at 0.
 {::comment} description-start: diff {:/}
 Computes the 4th order accurate derivative of the buffer.
 
-This is efficient to compute the derivative of a very smooth
-function, but it gives very poor results on noisy data. In general,
-for derivation, prefer [cmd: filter-fft] or 
-[cmd: filter-bsplines].
+This is efficient to compute the derivative of smooth data,
+but it gives very poor results on noisy data. In general,
+for derivation, prefer [cmd: filter-fft], 
+[cmd: filter-bsplines] or [cmd: auto-reglin] that will give much
+better results.
 {::comment} description-end: diff {:/}
 
 {::comment} synopsis-start: diff2 {:/}
@@ -1540,14 +1578,13 @@ The same warnings apply as for [cmd: diff].
 
 {::comment} synopsis-end: dataset-options {:/}
 {::comment} description-start: dataset-options {:/}
-Sets options for the current dataset, such as:
+Sets options for the current dataset:
 
- * the display of errors on Y values (you must specify the 0-based
-   number of the column in the data: 0 is the X column, 1, the first Y
-   column, 2 the 2nd Y column, and so on) {::comment} description-end:
-   dataset-options {:/}
- * wether or not the dataset should be displayed looking like a
-   histogram
+ * with `/yerrors`, sets the display of errors on Y values, see
+   [there](#column-names) for more information on how to specify the
+   columns;
+ * with `/histogram`, sets wether or not the dataset should be
+   displayed as a histogram.
 {::comment} description-end: dataset-options {:/}
 
 {::comment} synopsis-start: edit-errors {:/}
@@ -1726,17 +1763,19 @@ comments in the text file.
 
 Perpendicular coordinates make sense when a buffer has several Y
 columns. For instance, when data consists in spectra taken at
-different times after the beginning of an experiment (or at different
+different times after the beginning of an experiment, like in the
+[tutorial](tutorial.html#tuto-joliot)  (or at different
 solution potentials for a redox titration), then the X values will be
 the wavelength, and each Y column will correspond to a different
 time. Then the time is the _perpendicular coordinate_. One can set
 the perpendicular coordinate manually using [cmd: set-perp].
 
-Many commands make use of perpendicular, most notably [cmd: transpose]
-(that would convert columns of $$y = f(\lambda)$$ for different values
-of $$t$$ above into columns of $$y = f(t)$$ for different values
-of $$\lambda$$), and all the multi-fit commands that show parameters
-as a function of the perpendicular coordinates when applicable.
+Many commands make use of perpendicular coordinates, most notably
+[cmd: transpose] (that would convert columns of $$y = f(\lambda)$$ for
+different values of $$t$$ above into columns of $$y = f(t)$$ for
+different values of $$\lambda$$), and all the multi-fit commands that
+show parameters as a function of the perpendicular coordinates when
+applicable.
 
 ## Selecting datasets and files based on meta-data {#for-which}
 
@@ -1796,7 +1835,7 @@ Meta-data:	delta_t_0 = 950	gpes_file = D:\Vincent\140428\08	original-file = /hom
 {::comment} description-start: set-meta {:/}
 Using `set-meta`, one can set the value of the named meta-data for the
 current buffer. _name_ can have any value, it does not have to
-preexist in the list of buffer's meta-data.
+exist in the list of buffer's meta-data.
 {::comment} description-end: set-meta {:/}
 
 {::comment} synopsis-start: set-perp {:/}
@@ -1864,8 +1903,7 @@ noise:
  * Data approximation using basis splines via 
    [cmd: filter-bsplines] or 
    [cmd: auto-filter-bs].
- * Splike removals using [cmd: remove-spikes] or 
-   which case the [cmd: deldp].
+ * Splike removals using [cmd: remove-spikes] or even [cmd: deldp].
 
 In addition, QSoas provides ways to remove calculated "baselines":
 
@@ -2007,7 +2045,9 @@ Alias: `R`
 
 {::comment} synopsis-end: remove-spikes {:/}
 {::comment} description-start: remove-spikes {:/}
-Remove spikes using a simple heuristics
+Remove spikes using a simple heuristic. This command will not create a
+new buffer if not spikes were removed, unless you specify
+`/force-new=true`.
 {::comment} description-end: remove-spikes {:/}
 
 {::comment} synopsis-start: downsample {:/}
@@ -2022,7 +2062,8 @@ Remove spikes using a simple heuristics
 {::comment} description-start: downsample {:/}
 Creates a buffer with about _factor_ times less points than the
 original buffer (default 10 times less) by averaging the original X
-and Y values in groups of _factor_.
+and Y values in groups of _factor_. This command averages the other
+columns too. 
 {::comment} description-end: downsample {:/}
 
 
@@ -2066,15 +2107,15 @@ values, one can generate the interpolated data using [cmd: interpolate].
 
 {::comment} synopsis-end: interpolate {:/}
 {::comment} description-start: interpolate {:/}
-Given _xvalues_ and the X/Y position of interpolation nodes saved using
-`p` from within [cmd: baseline], this command regenerates the
-interpolated values. 
+Given a buffer containing _xvalues_ and another one containing the X/Y
+position of interpolation nodes saved using `p` from within [cmd:
+baseline], this command regenerates the interpolated values, for the
+given X values.
 
 Through this approach, one can draw a baseline, save the points,
 generate the baseline-subtracted data using [cmd: interpolate] from
 within a script. This has the advantage that one can always have a
 close look at the quality of the baseline, and tweak it if need be.
-
 {::comment} description-end: interpolate {:/}
 
 {::comment} synopsis-start: catalytic-baseline {:/}
@@ -2140,7 +2181,7 @@ as Y values the number of data points that were in the boxes.
 
 # Segments {#segments}
 
-It if possible to split a buffer into logical segments without changing
+It is possible to split a buffer into logical segments without changing
 the contents of the buffer, but the position of the segment
 boundaries are marked by a vertical line. They can be used for
 different purposes: for 
@@ -2150,7 +2191,7 @@ step-by-step film loss correction
 (using [cmd: segments-chop]).
 
 Segments can be detected using
-[cmd: find-steps], set manually using
+[cmd: find-steps], or set manually using
 [cmd: set-segments] or [cmd: chop].
 
 {::comment} synopsis-start: find-steps {:/}
@@ -2215,7 +2256,7 @@ current buffer. This way, the effect of a [cmd: chop]
 {::comment} description-start: film-loss {:/}
 Applies stepwise film loss correction (in the spirit of the $$K_m$$
 experiments in [Fourmond _et al_, _Anal. Chem._,
-*2009*](http://dx.doi.org/10.1021/ac8025702). For that, the current
+*2009*](http://dx.doi.org/10.1021/ac8025702)). For that, the current
 buffer must be separated into segments, using
 [cmd: set-segments], for instance. `QSoas` then zooms on
 the first segment. Right and left clicking around the final linear
@@ -2238,8 +2279,7 @@ in another buffer. There are two ways to do that, chosen by the
  * with `/mode=xvalues`, the default, uses the values of X (ie the
    closest X value is picked). **Warning** this doesn't give the
    expected result for buffers with several times the same X values,
-   such as full cyclic voltammograms.
-
+   like cyclic voltammograms.
  * with `/mode=indices`, points are matched on a one-to-one basis, ie
    point 1 of buffer 1 to point 1 of buffer 2, irrespective of the X
    values.
@@ -2380,10 +2420,15 @@ which case the other columns from the buffers are ignored.
 
 {::comment} synopsis-end: find-peaks {:/}
 {::comment} description-start: find-peaks {:/}
-Find all the peaks of the current dataset. If `/output` is on, then
-the peak data is written to the output file. This function will find
-many peaks on noisy data, you can limit to the first _n_ ones by using 
-`/peaks=`_n_ (peaks are ranked by amplitude).
+Find all the peaks of the current dataset. Peaks are local extrema
+over a window of a number of points given by `/window` (8 by default).
+If `/output` is on, then the peak data is written to the output
+file. This function will find many peaks on noisy data, you can limit
+to the first _n_ ones by using `/peaks=`_n_ (peaks are ranked by
+amplitude).
+
+By default, if a point at either end of the dataset is an extremum, it
+is not included, unless you use `/include-borders=true`.
 
 Peaks are indicated on the buffer using lines, and their position is
 written to the terminal, if `/output` is on (off by default).
@@ -2494,7 +2539,7 @@ Position a cursor on the curve to know its exact X and Y positions.
 
 Using the right mouse button, it is also possible to position a
 reference point. After that the difference in X,Y coordinates between
-the cursor and the reference point is also displayed.
+the cursor and the reference point is also displayed (and the ratios).
 
 Cursor positions can be saved to the output file by pressing the space
 bar.
@@ -2528,7 +2573,7 @@ whose first-order expansion gives the same linear approximation, ie:
 $$ f_0 \times \left[1 - k_{eff} (x - x_0))\right] = a x + b$$
 
 Using the space bar it is possible to save the values displayed in the
-terminal to the output file.
+terminal to the [output file](#output-file).
 {::comment} description-end: reglin {:/}
 
 
@@ -2559,7 +2604,8 @@ there is a `fit-`_fit_ in addition.
    values are not used).
 
 In addition to these commands, QSoas provides commands to combine fits
-together and to fit derivatives of the signals.
+together, to fit derivatives of the signals, and to define fits with
+distributions of parameters.
 
 All fits commands share several common options, which are detailed
 here:
@@ -2569,6 +2615,13 @@ here:
    formulas
  * Passing the name of a saved parameters file to the `/parameters`
    option preloads the given parameters at the beginning of the fit.
+ * The `/set-from-meta` option makes it possible to set a value of
+   parameters from meta-data. For instance, running a fit with
+   `/set-from-meta=v=sr` will set the value of the parameter `v` to
+   the value of the meta-data `sr` (if present). Specify more of those
+   by separating them with commas.
+ * The `/debug` and `/debug2` options are essentially for debugging
+   the fits and the fit engines, you should not need them.
 
 
 {::comment} synopsis-start: combine-fits {:/}
@@ -2597,7 +2650,11 @@ This creates a new fit, `lg`, and hence three new commands, `fit-lg`,
 `mfit-lg` and `sim-lg`. The fit is a sum of a
 [lorentzian](#cmd-fit-lorentzian) fit (`y1`) and a
 [gaussian](#cmd-fit-gaussian) fit (`y2`). The new fit shares the
-options of all the original fits.  
+options of all the original fits.
+
+The newly-defined fit only lasts for the current session, if you need
+something more persistent, consider setting up a startup file
+using [cmd: startup-files].
 {::comment} description-end: combine-fits {:/}
 
 {::comment} synopsis-start: define-derived-fit {:/}
@@ -2624,7 +2681,8 @@ name, that is without the `fit-` prefix) that will fit:
     discontinuity in the X values) if `/mode=combined`, in which case
     the new fit is named `fit-deriv-combined-`_fit_;
 
-This function is explained in more details in the [tutorial](tutorial.html).  
+This function is explained in more details in the
+[tutorial](tutorial.html#tuto-define-derived-fit).  
 {::comment} description-end: define-derived-fit {:/}
 {::comment} synopsis-start: define-distribution-fit {:/}
 
@@ -2657,11 +2715,11 @@ option (also available to the created fit), and is one of:
 Of course, even for theoretically infinite distributions (`gaussian`
 and `lorentzian` distributions above), `QSoas` does not integrate over
 the whole real axis, which is why these distributions get an extra
-parameter that indicates the extent of the integration interval in
-dimensionless units (independent of the value of the parameter). In
-principle, these values are chosen as a good compromise between
-accuracy and computing time, but they can be tuned should you need it.
-
+parameter, fixed by default, that indicates the extent of the
+integration interval in dimensionless units (independent of the value
+of the parameter). In principle, these values are chosen as a good
+compromise between accuracy and computing time, but they can be tuned
+should you need it.
 {::comment} description-end: define-distribution-fit {:/}
 
 
@@ -2695,10 +2753,10 @@ $$ \left(A_\infty + \sum_{i=1}^n A_i \exp(-(x - x_0)/\tau_i) + b\,
 x\right) \exp (- k_{loss}(x - x_0))$$
 
 $$b\,x$$ is only present if the `/slow` option is on, and $$k_{loss}$$
-is not 0 only if `/loss` is on. 
-If `/relative` is on, the parameter of the fit is $$\alpha_i$$ 
-(defined by $$A_i = \alpha_i A_\infty$$) rather than $$A_i$$.  
-This should not be used to fit data that tend to 0.
+is not 0 only if `/loss` is on.  If `/relative` is on, the parameter
+of the fit is $$\alpha_i$$ (defined by $$A_i = \alpha_i A_\infty$$)
+rather than $$A_i$$. `/relative=true` should not be used to fit data
+that tend to 0.
 
 {::comment} description-end: fit-exponential-decay {:/}
 
@@ -2769,8 +2827,9 @@ Simulation command for the
 
 {::comment} synopsis-end: fit-multiexp-multistep {:/}
 {::comment} description-start: fit-multiexp-multistep {:/}
-Single buffer fit:
-Fits of exponentials on several steps with film loss bookkeeping
+
+TODO !!!!
+
 {::comment} description-end: fit-multiexp-multistep {:/}
 
 

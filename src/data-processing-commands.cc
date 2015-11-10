@@ -679,10 +679,10 @@ static ArgumentList
 intArgs(QList<Argument *>() 
               << new DataSetArgument("xvalues", 
                                      "X values",
-                                     "Base for X values")
+                                     "Buffer serving as base for X values")
               << new DataSetArgument("nodes", 
                                      "Nodes",
-                                     "Interpolation nodes X/Y values"));
+                                     "Buffer containing the nodes X/Y values"));
 
 static ArgumentList 
 intOpts(QList<Argument *>() 
@@ -2051,18 +2051,19 @@ static ArgumentList
 fpBaseOps(QList<Argument *>() 
           << new IntegerArgument("window", 
                                  "Peak window",
-                                 "...")
+                                 "Width of the window")
           << new BoolArgument("include-borders",
-                              "Whether or not to include borders",
-                              "...")
+                              "Include borders",
+                              "Whether or not to include borders")
           << new ChoiceArgument(QStringList() 
                                 << "min" << "max" << "both",
                                 "which",
-                                "",
-                                "...")
+                                "Min or max",
+                                "Selects which of minima and/or maxima "
+                                "to display")
           << new BoolArgument("output", 
                               "Write to output file",
-                              "Whether peak information should be written to output file by default")
+                              "Whether peak information should be written to output file")
        );
 
 static ArgumentList 

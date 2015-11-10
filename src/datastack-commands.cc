@@ -184,7 +184,7 @@ static ArgumentList
 showSOpts(QList<Argument *>() 
           << new IntegerArgument("number", 
                                  "Limit display",
-                                 "Limit the display to a given number",
+                                 "Display only that many buffers around 0",
                                  true));
 
 
@@ -240,7 +240,7 @@ drop("drop", // command name
 //////////////////////////////////////////////////////////////////////
 
 static ArgumentList 
-unredoOps(QList<Argument *>() 
+undoOps(QList<Argument *>() 
         << new IntegerArgument("number", 
                               "Number",
                               "Number of operations to undo", true));
@@ -259,7 +259,7 @@ undo("undo", // command name
      effector(undoCommand), // action
      "stack",  // group name
      NULL, // arguments
-     &unredoOps, // options
+     &undoOps, // options
      "Undo",
      "Return to the previous buffer",
      "Returns to the previous buffer, and push the "
@@ -276,17 +276,23 @@ static void redoCommand(const QString &, const CommandOptions & opts)
     soas().stack().redo();
 }
 
+static ArgumentList 
+redoOps(QList<Argument *>() 
+        << new IntegerArgument("number", 
+                              "Number",
+                              "Number of operations to redo", true));
+
 
 static Command 
 redo("redo", // command name
      effector(redoCommand), // action
      "stack",  // group name
      NULL, // arguments
-     &unredoOps, // options
+     &redoOps, // options
      "Redo",
      "Retrieves the last undone buffer",
-     QT_TR_NOOP("Pops the last buffer from the redo stack and set it "
-                "as the current buffer"),
+     "Pops the last buffer from the redo stack and set it "
+     "as the current buffer",
      "r");
 
 //////////////////////////////////////////////////////////////////////

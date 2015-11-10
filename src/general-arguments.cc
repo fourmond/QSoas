@@ -442,7 +442,7 @@ int ColumnArgument::parseFromText(const QString & str)
   QRegExp num1("^\\s*\\d+\\s*$");
   QRegExp num2("^\\s*#(\\d+)\\s*$");
 
-  QRegExp name("^\\s*((x)|(y)|(z)|(y(\\d+)))\\s*$", Qt::CaseInsensitive);
+  QRegExp name("^\\s*((x)|(y)|(z)|(y(\\d+))|(non?e?))\\s*$", Qt::CaseInsensitive);
   
   if(num1.indexIn(str, 0) >= 0) {
     int nb = str.toInt() - 1;
@@ -462,6 +462,8 @@ int ColumnArgument::parseFromText(const QString & str)
       return 2;                 // Z
     else if(! name.cap(5).isEmpty())
       return name.cap(6).toInt();                 // Yn
+    else if(! name.cap(7).isEmpty())
+      return -1;                // None
   }
   throw RuntimeError("Invalid buffer column specification '%1'").arg(str);
 }

@@ -1432,7 +1432,7 @@ statsO(QList<Argument *>()
                            "Also write stats to output file")
        << new BoolArgument("use-segments", 
                            "Use segments",
-                           "Make statistics segments by segment")
+                           "Make statistics segment by segment")
        << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "meta", 
                                      "Meta-data",
                                      "When writing to output file, also print the listed meta-data")

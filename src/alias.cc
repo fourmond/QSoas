@@ -151,8 +151,7 @@ daA(QList<Argument *>()
 static ArgumentList 
 daO(QList<Argument *>() 
       << new StringArgument("*", "Options",
-                            "All options",
-                            true));
+                            "All options"));
 
 
 static Command 

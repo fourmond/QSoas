@@ -227,7 +227,7 @@ void Fit::makeCommands(ArgumentList * args,
 
   if(! multiFit || sim) {
     /// @todo handle the case when there is a fit-specified effector.
-    pn = "Fit: ";
+    pn = "Simulation: ";
     pn += shortDesc;;
     sd = "fit simulation: ";
     sd += shortDesc;

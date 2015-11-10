@@ -2108,8 +2108,8 @@ values, one can generate the interpolated data using [cmd: interpolate].
 {::comment} synopsis-end: interpolate {:/}
 {::comment} description-start: interpolate {:/}
 Given a buffer containing _xvalues_ and another one containing the X/Y
-position of interpolation nodes saved using `p` from within [cmd:
-baseline], this command regenerates the interpolated values, for the
+position of interpolation nodes saved using `p` from within
+[cmd: baseline], this command regenerates the interpolated values, for the
 given X values.
 
 Through this approach, one can draw a baseline, save the points,
@@ -2255,7 +2255,7 @@ current buffer. This way, the effect of a [cmd: chop]
 {::comment} synopsis-end: film-loss {:/}
 {::comment} description-start: film-loss {:/}
 Applies stepwise film loss correction (in the spirit of the $$K_m$$
-experiments in [Fourmond _et al_, _Anal. Chem._,
+experiments in [Fourmond _et al_, **Anal. Chem.**,
 *2009*](http://dx.doi.org/10.1021/ac8025702)). For that, the current
 buffer must be separated into segments, using
 [cmd: set-segments], for instance. `QSoas` then zooms on
@@ -2308,7 +2308,7 @@ intervals.
 {::comment} description-start: div {:/}
 Divides all buffers by the last one. This is useful to get rid of film
 loss when one has an independent measure of film loss, see
-[Fourmond _et al_, Anal. Chem. 2009](http://dx.doi.org/10.1021/ac8025702)
+[Fourmond _et al_, **Anal. Chem.** 2009](http://dx.doi.org/10.1021/ac8025702)
 for more information.
 {::comment} description-end: div {:/}
 
@@ -2708,7 +2708,7 @@ option (also available to the created fit), and is one of:
  * `lorentzian`: lorentzian distribution of the parameters
  * `k0`: "dispersion of interfacial rate distribution", defined by a
    uniform probability between two values for the logarithm of the
-   parameter, see [Léger, _et al_, J. Phys. Chem. B
+   parameter, see [Léger, _et al_, **J. Phys. Chem. B**
    2002](http://dx.doi.org/10.1021/jp0265687) for more details
  * `uniform`: for a uniform probability between two values
 
@@ -2828,8 +2828,29 @@ Simulation command for the
 {::comment} synopsis-end: fit-multiexp-multistep {:/}
 {::comment} description-start: fit-multiexp-multistep {:/}
 
-TODO !!!!
+This fit is an extension of the [fit: exponential-decay] fit when the
+experiment consists in several steps in which the time constants are
+expected to change, but some may be common to different steps. The
+steps are specified using the `/steps` option. Specifying
+`/steps=0,1,0` means that there are three steps, but there are only
+two distinct sets of time constants, a first one (`0`, used for step 1
+and 3), and a second one (`1`, used only for step 2).
 
+
+In each of the steps, the formula fitted to the data is:
+
+$$ y(t) = I^{k(j)}\left(1 - \sum_{i=1}^n \alpha^j_i \exp(-(t -
+t^j_0)/\tau^{k(j)}_i) \right)\exp (- k^{k(j)}_{loss}(t - t^j_0)) \times
+\alpha_j$$
+
+Where $$j$$ is the step number, $$k(j)$$ is the number of the
+corresponding time constants, $$t^j_0$$ is the beginning of the step
+$$j$$, the $$\alpha^j_i$$ are the relative amplitudes of the
+exponential phases, the $$I^{k(j)}$$ are the asymptotic values of
+$$y(t)$$ on each step (in the absence of film loss) and $$\alpha_j$$
+is defined recursively by $$\alpha_0 = 1$$ and $$\alpha_j =
+\alpha_{j-1} \exp (- k^{k(j-1)}_{loss}(t^j_0 - t^{j-1}_0))$$. This is
+done so as to keep track of the film loss over the whole.
 {::comment} description-end: fit-multiexp-multistep {:/}
 
 
@@ -2853,8 +2874,7 @@ TODO !!!!
 
 {::comment} synopsis-end: mfit-multiexp-multistep {:/}
 {::comment} description-start: mfit-multiexp-multistep {:/}
-multi buffer fit:
-Fits of exponentials on several steps with film loss bookkeeping
+This is the multibuffer version of the [fit: multiexp-multistep] fit.
 {::comment} description-end: mfit-multiexp-multistep {:/}
 
 {::comment} synopsis-start: sim-multiexp-multistep {:/}
@@ -2875,8 +2895,7 @@ Fits of exponentials on several steps with film loss bookkeeping
 
 {::comment} synopsis-end: sim-multiexp-multistep {:/}
 {::comment} description-start: sim-multiexp-multistep {:/}
-fit simulation:
-Fits of exponentials on several steps with film loss bookkeeping
+This is the computation command for the [fit: multiexp-multistep] fit.
 {::comment} description-end: sim-multiexp-multistep {:/}
 
 ## Arbitrary fits
@@ -2885,10 +2904,7 @@ QSoas provides ways to fit arbitrary formulas (written in
 [Ruby](#ruby)) to data. While it is possible to do that on a
 case-by-case basis using [cmd: fit-arb], it is also
 possible to store formulas in a plain text file and load them using 
-[cmd: load-fits]. 
-
-Arbitrary fits don't have a corresponding `sim-` command 
-(use [cmd: apply-formula] instead).
+[cmd: load-fits] or define a new one using [cmd: custom-fit].
 
 {::comment} synopsis-start: fit-arb {:/}
 
@@ -2951,7 +2967,7 @@ below for more information.
 Same as [cmd: fit-arb], but for multiple buffers.
 
 Using `mfit-arb`, it is possible to specify several formulas,
-separated by a `\|`. 
+separated by `|`. 
 
 If only one formula is specified, the same formula is applied to all
 buffers (with, as usual, the possibility to select which parameters
@@ -2967,6 +2983,14 @@ QSoas> mfit-arb a*x+b|a*x+c|a*x+d 0 1 2
 ~~~~
 
 Buffer 0 get fits with `a*x+b`, 1 with `a*x+c` and 2 with `a*x+d`.
+
+In this specific case, though, you could also have run
+
+~~~~
+QSoas> mfit-arb a*x+b 0 1 2
+~~~~
+
+and have `a` common to all buffer, but `b` buffer-specific.
 
 {::comment} description-end: mfit-arb {:/}
 
@@ -3309,7 +3333,7 @@ electrons. The latter only affects the width of the peaks, the
 stoechiometry is always 1 electron.
 
 The current for the 2-electrons peaks is given by [Pilchon and
-Laviron, _J. Electronanal. Chem._,
+Laviron, __J. Electronanal. Chem.__,
 *1976*](http://dx.doi.org/10.1016/S0022-0728(76)80030-7):
 
 $$ i^{2~el}_{k'} = \Gamma_{k'} \kappa_{k'}
@@ -3672,7 +3696,7 @@ QSoas> fit-kinetic-system /with=o2:3,exp,common kinetic-file.txt
 
   This kind of functions were used to analyse the inhibition of NiFe
   hydrogenase by CO and O2, see for instance [Liebgott _et al_,
-  _Nat. Chem. Biol._, 2010](http://dx.doi.org/10.1038/nchembio.276).
+  __Nat. Chem. Biol.__, 2010](http://dx.doi.org/10.1038/nchembio.276).
 
   * `steps`, where the given parameter, takes a series of values (1
   more than the _number_ given) at the given times.
@@ -3700,7 +3724,7 @@ of the [source code archive][code].
 These specific fits were used in the context of the interpretation of
 cyclic voltammograms of adorbed nickel-iron hydrogenase that undergo
 inactivations under oxidizing conditions. For more information, refer
-to [Abou-Hamdam _et al_, __PNAS__ 2012](http://dx.doi.org/10.1073/pnas.1212258109)
+to [Abou-Hamdam _et al_, **PNAS** 2012](http://dx.doi.org/10.1073/pnas.1212258109)
 (which you probably should cite anyway if you use them).
 
 {::comment} synopsis-start: fit-slow-scan-hp {:/}
@@ -3860,7 +3884,7 @@ Computation for the
 ## Wave shape fits
 
 These fits correspond to the various models described in 
-[Fourmond _et al_, *JACS*2013](http://dx.doi.org/10.1021/ja311607s):
+[Fourmond _et al_, **JACS** 2013](http://dx.doi.org/10.1021/ja311607s):
 
  * [cmd: fit-eecr-wave] is the *EEC* model
  * [cmd: fit-ecr-wave] is the *EC* model
@@ -3887,7 +3911,7 @@ Please refer to that paper for more information.
 
 {::comment} synopsis-end: fit-eecr-wave {:/}
 {::comment} description-start: fit-eecr-wave {:/}
-Fits the so-called EEC model in [Fourmond _et al_, *JACS*2013](http://dx.doi.org/10.1021/ja311607s) 
+Fits the so-called EEC model in [Fourmond _et al_, **JACS** 2013](http://dx.doi.org/10.1021/ja311607s) 
 to the data.
 
 If `/plateau` is off (default), then the equation used is that for the
@@ -3963,7 +3987,7 @@ Simulation for the [`eecr-wave`](#cmd-fit-eecr-wave) fit.
 {::comment} synopsis-end: fit-eecr-relay-wave {:/}
 {::comment} description-start: fit-eecr-relay-wave {:/}
 Fits the so-called EEC with relay model in [Fourmond _et al_,
-*JACS*2013](http://dx.doi.org/10.1021/ja311607s) to the data.
+**JACS** 2013](http://dx.doi.org/10.1021/ja311607s) to the data.
 {::comment} description-end: fit-eecr-relay-wave {:/}
 
 {::comment} synopsis-start: mfit-eecr-relay-wave {:/}
@@ -4021,7 +4045,10 @@ Simulation command for the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
 {::comment} synopsis-end: fit-ecr-wave {:/}
 {::comment} description-start: fit-ecr-wave {:/}
 Fits the so-called EC model in [Fourmond _et al_,
-*JACS*2013](http://dx.doi.org/10.1021/ja311607s) to the data.
+**JACS** 2013](http://dx.doi.org/10.1021/ja311607s) to the data.
+
+See the [fit: eecr-wave] fit for a description of the `/oxidation`,
+`/plateau` and `/use-eoc` options.
 {::comment} description-end: fit-ecr-wave {:/}
 {::comment} synopsis-start: mfit-ecr-wave {:/}
 
@@ -4099,7 +4126,7 @@ It runs in the same environment as the
 [cmd: apply-formula] and the custom fits (excepted,
 of course, that there are no `x` and `y` variables). It can be useful
 to check that a function has been correctly defined in a file loaded
-by [cmd: ruby-run].
+by [cmd: ruby-run]. You can also use that as a calculator.
 {::comment} description-end: eval {:/}
 
 {::comment} synopsis-start: find-root {:/}
@@ -4214,7 +4241,8 @@ all the species in the different columns.
 
 _parameters_ is a list of assignments evaluated at the beginning of the
 time evolution to set the parameters of the system. (all parameters
-not set this way default to 0).
+not set this way default to 0). This list is evaluated as
+[Ruby](#ruby) code, so you should separate the assignments with `;`.
 
 For instance, if the reaction file (`system.sys`) contains:
 
@@ -4371,7 +4399,7 @@ Run commands saved in a file. If a compulsory argument is missing,
 QSoas will prompt the user.
 
 Arguments following the name of the script are passed to the script as
-"special variables" ${1}, and ${2} etc.
+"special variables" `${1}`, and `${2}` etc.
 
 Imagine you are often doing the same processing a given type of data
 files, say, simply filtering them. You just have to write a script
@@ -4475,6 +4503,11 @@ QSoas> @ process-my-file.cmds file1 other
 QSoas> @ process-my-file.cmds file2 other
 ~~~
 
+If you specify either `/range-type=lin` or `/range-type=log`, the
+parameters are interpreted differently, and are expected to be of the
+type `1..10:20`, which means 20 numbers between 1 and 10 (inclusive),
+that are spaced either linearly or logarithmically, depending on the
+value of the option.
 {::comment} description-end: run-for-each {:/}
 {::comment} synopsis-start: run-for-datasets {:/}
 
@@ -4659,7 +4692,7 @@ evaluation programs (it is quite close to the one from
  * Parameter names **cannot start with an uppercase letter**, as those have a
    special meaning to the Ruby interpreter: anything that starts with
    an uppercase letter is assumed to be a constant.
- * Don't abbreviate floating points: `2.` and `.4` are invalid, use
+ * Don't abbreviate floating point numbers: `2.` and `.4` are invalid, use
    `2.0` and `0.4` instead.
  * **Case matters**: `Pi` is $$\pi$$, while `pi` is nothing defined.
 

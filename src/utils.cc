@@ -447,6 +447,22 @@ QString Utils::abbreviateString(const QString & str, int nb)
   return  s + "...";
 }
 
+QString Utils::capitalize(const QString & str)
+{
+  QString ret = str;
+  if(! ret.isEmpty())
+    ret[0] = ret[0].toUpper();
+  return ret;
+}
+
+QString Utils::uncapitalize(const QString & str)
+{
+  QString ret = str;
+  if(! ret.isEmpty())
+    ret[0] = ret[0].toLower();
+  return ret;
+}
+
 double Utils::stringToDouble(const QString & str)
 {
   bool ok = false;

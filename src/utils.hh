@@ -43,9 +43,17 @@ namespace Utils {
   QStringList stringsStartingWith(const QStringList & strings, 
                                   const QString & start); 
 
-  /// Returns the common part at the beginning of the given string
+  /// Returns the common part at the beginning of the strings
   QString commonBeginning(const QStringList & strings);
 
+  /// Returns the common part at the end of the strings
+  QString commonEnding(const QStringList & strings);
+
+  /// Capitalize the string
+  QString capitalize(const QString & str);
+
+  /// Returns the string, but not starting with an uppercase
+  QString uncapitalize(const QString & str);
 
   /// Returns the string Delta something. Pityful, isn't it ;-) ?
   QString deltaStr(const QString & w);

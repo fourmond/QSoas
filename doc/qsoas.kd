@@ -576,7 +576,7 @@ available backends:
 
  * [`text`](#cmd-load-as-text) for plain space-separated text
  * [`csv`](#cmd-load-as-csv) for CSV data
- * [`chi`](#cmd-load-as-chi) for file from CH Instruments potentiostats
+ * [`chi-txt`](#cmd-load-as-chi-txt) for file from CH Instruments potentiostats
 
 Look in their documentation for more information. QSoas tells you
 which backend it used for loading a given file:
@@ -2346,7 +2346,7 @@ than one _first_ buffer). Useful for standard baseline removal.
 {::comment} synopsis-end: average {:/}
 {::comment} description-start: average {:/}
 In a manner similar to [cmd: subtract] and
-[cmd: divide], the `average` command averages all the
+[cmd: div], the `average` command averages all the
 buffers given into one, with the same segment-by-segment capacities.
 
 An additional feature of `average`, though is its ability to first
@@ -4616,7 +4616,6 @@ listed here:
  * [`load-fits`](#cmd-load-fits)
  * [`load-stack`](#cmd-load-stack)
  * [`merge`](#cmd-merge)
- * [`mintegrate-formula`](#cmd-mintegrate-formula)
  * [`noop`](#cmd-noop)
  * [`norm`](#cmd-norm)
  * [`ode`](#cmd-ode)

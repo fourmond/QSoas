@@ -24,6 +24,9 @@
 
 #include <argument.hh>
 
+
+/// Strings
+
 /// A simple string argument
 class StringArgument : public Argument {
 public:
@@ -45,6 +48,7 @@ public:
   virtual QString typeName() const {
     return "text";
   };
+
   virtual QString typeDescription() const {
     return "Arbitrary text. If you need spaces, do not forget to quote them with ', for instance";
   };
@@ -78,7 +82,11 @@ public:
   virtual QString typeName() const  {
     return "texts";
   };
+
+  virtual QString typeDescription() const;
 };
+
+//////////////////////////////////////////////////////////////////////
 
 /// Time-dependent parameters
 class TDPArgument : public SeveralStringsArgument {
@@ -99,6 +107,8 @@ public:
   virtual QString typeDescription() const;
 
 };
+
+//////////////////////////////////////////////////////////////////////
 
 
 /// A boolean argument
@@ -127,9 +137,7 @@ public:
     return "yes-no";
   };
 
-  virtual QString typeDescription() const {
-    return "A boolean: yes, on, true or no, off, false";
-  };
+  virtual QString typeDescription() const;
 };
 
 /// A choice between several fixed strings
@@ -209,6 +217,20 @@ public:
 };
 
 
+/// A choice between several fixed strings
+class FitNameArgument : public ChoiceArgument {
+public:
+
+  FitNameArgument(const char * cn, const char * pn,
+                  const char * d = "", bool def = false,
+                  const char * chN = "");
+
+  virtual QString typeDescription() const;
+
+};
+
+//////////////////////////////////////////////////////////////////////
+
 /// A dataset from the stack
 ///
 /// @todo Add prompting, but that will be fun.
@@ -255,7 +277,8 @@ public:
   };
 
   virtual QString typeDescription() const {
-    return "Comma-separated lists of datasets in the stack";
+    return "Comma-separated lists of datasets in the stack, "
+      "see [buffers lists](#buffer-lists)";
   };
 
   virtual QStringList proposeCompletion(const QString & starter) const;
@@ -320,7 +343,7 @@ public:
   };
 
   virtual QString typeDescription() const {
-    return QString("Several numbers, separated by %1").arg(delim);
+    return QString("Several floating-point numbers, separated by %1").arg(delim);
   };
 
 };
@@ -380,6 +403,7 @@ public:
 
 };
 
+//////////////////////////////////////////////////////////////////////
 
 /// A parameters hash (QString -> double)
 ///

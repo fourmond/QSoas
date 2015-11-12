@@ -68,6 +68,14 @@ QStringList FileArgument::proposeCompletion(const QString & starter) const
   return proposeFileCompletion(starter, isDir);
 }
 
+
+QString FileArgument::typeDescription() const {
+  if(isDir)
+    return "Path of a directory";
+  else
+    return "Path of a file";
+}
+
 ////////////////////////////////////////////////////////////
 
 ArgumentMarshaller * FileSaveArgument::fromString(const QString & str) const

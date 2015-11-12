@@ -444,15 +444,16 @@ QString Command::synopsis(bool markup) const
       if(args[i]->greedy)
         n += "...";
       QString a = wrapIf(n, "_", markup);
+      QString td = Utils::uncapitalize(args[i]->typeDescription());
       if(markup) {
-        QString td = args[i]->typeDescription();
         if(! td.isEmpty())
           a += QString("{:title=\"%1\"}").arg(td);
       }
       synopsis << a;
-      descs += QString("  * %1: %2\n").
+      descs += QString("  * %1: %2 -- values: %3\n").
         arg(a).
-        arg(args[i]->description());
+        arg(args[i]->description()).
+        arg(td);
     }
   }
 
@@ -460,16 +461,17 @@ QString Command::synopsis(bool markup) const
     const ArgumentList & args = *commandOptions();
     for(int i = 0; i < args.size(); i++) {
       QString a = args[i]->argumentName();
-      QString td = args[i]->typeDescription();
+      QString td = Utils::uncapitalize(args[i]->typeDescription());
       QString b = wrapIf("/" + a + "=", "`", markup) + 
         wrapIf(args[i]->typeName(), "_", markup) + 
         ((markup && !(td.isEmpty())) ? 
          QString("{:title=\"%1\"}").arg(td) : "");
       synopsis << b;
-      descs += QString("  * %1%3: %2\n").
+      descs += QString("  * %1%3: %2 -- values: %4\n").
         arg(b).
         arg(args[i]->description()).
-        arg(args[i]->defaultOption ? " (default option)" : "");
+        arg(args[i]->defaultOption ? " (default option)" : "").
+        arg(td);
 
     }
   }

@@ -265,9 +265,8 @@ static void defineDerivedFit(const QString &, QString fitName,
 
 static ArgumentList 
 ddfA(QList<Argument *>() 
-      << new ChoiceArgument(&Fit::availableFits,
-                            "fit", "Fit",
-                            "The fit to make a derived fit of"));
+      << new FitNameArgument("fit", "Fit",
+                             "The fit to make a derived fit of"));
 
 static ArgumentList 
 ddfO(QList<Argument *>() 

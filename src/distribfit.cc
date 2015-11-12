@@ -477,9 +477,8 @@ static ArgumentList
 dfA(QList<Argument *>() 
     << new StringArgument("name", "Name",
                           "The name of the new fit")
-    << new ChoiceArgument(&Fit::availableFits,
-                          "fit", "Fit",
-                          "The fit to make a derived fit from")
+    << new FitNameArgument("fit", "Fit",
+                           "The fit to make a derived fit from")
     << new StringArgument("parameter", "Parameter",
                           "The parameter over which to integrate"));
 

@@ -180,7 +180,8 @@ void updateDocumentationFile(const QString &, QString file)
   try {
     QFile f(file);
     Utils::open(&f, QIODevice::ReadOnly|QIODevice::Text);
-    str = f.readAll();
+    QTextStream t(&f);
+    str = t.readAll();
     f.close();
     QFile::remove(file + ".old");
     QFile::rename(file, file + ".old");

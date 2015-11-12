@@ -49,12 +49,10 @@ public:
   virtual QStringList proposeCompletion(const QString & starter) const;
 
   virtual QString typeName() const {
-    return "file";
+    return isDir ? "directory" : "file";
   };
 
-  virtual QString typeDescription() const {
-    return "Path of a file (or a directory)";
-  };
+  virtual QString typeDescription() const;
 
 };
 
@@ -121,7 +119,7 @@ public:
   };
 
   virtual QString typeDescription() const {
-     return "One or more files. Can include wildcards such as *, [0-4], etc...";
+     return "One or more files. Can include wildcards such as *, `[0-4]`, etc...";
   };
 };
 

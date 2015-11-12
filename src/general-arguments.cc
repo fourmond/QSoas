@@ -36,6 +36,8 @@
 #include <stylegenerator.hh>
 #include <regex.hh>
 
+#include <fit.hh>
+
 ArgumentMarshaller * StringArgument::fromString(const QString & str) const
 {
   return new ArgumentMarshallerChild<QString>(str);
@@ -75,6 +77,18 @@ void SeveralStringsArgument::concatenateArguments(ArgumentMarshaller * a,
     b->value<QStringList>();
 }
 
+QString SeveralStringsArgument::typeDescription() const
+{
+  QString sep;
+  if(separator.pattern() == " " || separator.pattern() == "\\s+")
+    sep = "spaces";
+  else {
+    sep = separator.pattern();
+    sep.replace("\\s*", "");
+    sep = QString("'%1'").arg(sep);
+  }
+  return QString("Several texts, separated by %1").arg(sep);
+}
 
 ////////////////////////////////////////////////////////////
 
@@ -129,6 +143,10 @@ QStringList BoolArgument::proposeCompletion(const QString & starter) const
   return Utils::stringsStartingWith(yesno, starter);
 }
 
+QString BoolArgument::typeDescription() const
+{
+  return "A boolean: `yes`, `on`, `true` or `no`, `off`, `false`";
+}
 
 ////////////////////////////////////////////////////////////
 
@@ -177,9 +195,23 @@ QString ChoiceArgument::typeName() const
 QString ChoiceArgument::typeDescription() const
 {
   QStringList cs = choices();
-  if(cs.size() > 7)
-    return "";
-  return QString("One of: %1").arg(cs.join(", "));
+  if(cs.size() > 12)
+    return "(list too long)";
+  return QString("One of: `%1`").arg(cs.join("`, `"));
+}
+
+////////////////////////////////////////////////////////////
+
+FitNameArgument::FitNameArgument(const char * cn, const char * pn,
+                                 const char * d, bool def,
+                                 const char * chN) :
+  ChoiceArgument(&Fit::availableFits, cn, pn, d, def, chN)
+{
+}
+
+QString FitNameArgument::typeDescription() const
+{
+  return "The name of a fit (without the fit- prefix)";
 }
 
 

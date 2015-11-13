@@ -118,6 +118,14 @@ QString Utils::escapeHTML(const QString & str)
 #endif
 }
 
+QString Utils::reverseString(const QString & str)
+{
+  QString ret;
+  ret.reserve(str.size());
+  for(int i = str.size() - 1; i >= 0; i--)
+    ret.append(str[i]);
+  return ret;
+}
 
 QString Utils::commonBeginning(const QStringList & strings)
 {
@@ -147,6 +155,31 @@ QString Utils::commonBeginning(const QStringList & strings)
   }
   return ret;
 }
+
+QString Utils::commonEnding(const QStringList & strings)
+{
+  QStringList revd;
+  for(int i = 0; i < strings.size(); i++)
+    revd << Utils::reverseString(strings[i]);
+  return Utils::reverseString(Utils::commonBeginning(revd));
+}
+
+QString Utils::smartConcatenate(const QStringList & strings,
+                                const QString & join,
+                                const QString & bef,
+                                const QString & aft)
+{
+  QString pref = commonBeginning(strings);
+  QString suff = commonEnding(strings);
+  QStringList mids;
+  for(int i = 0; i < strings.size(); i++) {
+    const QString & s = strings[i];
+    int sz = s.size() - pref.size() - suff.size();
+    mids << s.mid(pref.size(), sz);
+  }
+  return pref + bef + mids.join(join) + aft + suff;
+}
+
 
 bool Utils::askConfirmation(const QString & what, 
                             const QString & title)

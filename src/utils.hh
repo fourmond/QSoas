@@ -49,6 +49,18 @@ namespace Utils {
   /// Returns the common part at the end of the strings
   QString commonEnding(const QStringList & strings);
 
+  /// Returns a string in which the changing parts of the each string
+  /// are concatenated, and surrounded by the original common parts:
+  ///
+  ///    a_1_b, a_2_b... -> a_[bef]1[join]2[aft]_b
+  QString smartConcatenate(const QStringList & strings,
+                           const QString & join,
+                           const QString & bef = "",
+                           const QString & aft = "");
+
+  /// Returns the same string in the reverse direction
+  QString reverseString(const QString & str);
+
   /// Capitalize the string
   QString capitalize(const QString & str);
 
@@ -61,6 +73,7 @@ namespace Utils {
   /// Abbreviates the string so that it fits within the given
   /// number. It should also sanitize the string to some extent.
   QString abbreviateString(const QString & str, int nb = 50);
+
 
   /// Shortens the string so that it has at most \a len characters,
   /// out of which @a last are from the end.

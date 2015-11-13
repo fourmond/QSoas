@@ -1152,13 +1152,16 @@ static void contractCommand(const QString &, QList<const DataSet *> a,
 
   if(a.size() < 2)
     throw RuntimeError("You need more than one buffer to run contract");
-  
+
+  QStringList names;
+  names << a[0]->name;
   DataSet * cur = new DataSet(*a[0]);
   if(pc.size() > 0)
     cur->setPerpendicularCoordinates(cur->getMetaData(pc).toDouble());
   
   for(int i = 1; i < a.size(); i++) {
     DataSet * ds = new DataSet(*a[i]);
+    names << a[i]->name;
     if(pc.size() > 0)
       ds->setPerpendicularCoordinates(ds->getMetaData(pc).toDouble());
 
@@ -1173,6 +1176,7 @@ static void contractCommand(const QString &, QList<const DataSet *> a,
       lst << cur->perpendicularCoordinates()[i];
     cur->setMetaData(pc, lst);
   }
+  cur->name = Utils::smartConcatenate(names, "+", "(", ")");
   soas().pushDataSet(cur);
 }
 

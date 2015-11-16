@@ -245,7 +245,8 @@ MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
                 << "\n" << SOAS_BUILD_INFO << " with Qt "
                 << QT_VERSION_STR << endl;
   Credits::displayStartupMessage();
-  Terminal::out << "Starting at " << soasInstance->startupTime().toString()
+  Terminal::out << "PID " << QCoreApplication::applicationPid()
+                << " starting on " << soasInstance->startupTime().toString()
                 << "\nCurrent directory is: " << QDir::currentPath() 
                 << "\nCurrent temperature is: " << soasInstance->temperature() 
                 << " K\n";

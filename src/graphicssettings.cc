@@ -92,6 +92,8 @@ QPen GraphicsSettings::getPen(PenRoles role) const
     return QPen(QColor("blue"), baseLineWidth, Qt::DotLine);
   case ResultPen:
     return QPen(QColor(200,0,200), baseLineWidth);
+  case FitsPen:
+    return QPen(QColor("darkGreen"), baseLineWidth, Qt::DashLine);
   default:
     return QPen();
   };

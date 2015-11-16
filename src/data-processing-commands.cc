@@ -1244,7 +1244,7 @@ namespace __fft {
 
 
 
-  d.pen = gs.getPen(GraphicsSettings::ResultPen);
+  d.pen = gs.getPen(GraphicsSettings::ReglinPen);
   d.xvalues = ds->x();
   d.yvalues = QVector<double>(d.xvalues.size(), 0);
   d.countBB = true;
@@ -1294,7 +1294,7 @@ namespace __fft {
   spec1.histogram = true;
   spectrum.addItem(&spec1);
 
-  spec2.pen = gs.getPen(GraphicsSettings::ResultPen);
+  spec2.pen = gs.getPen(GraphicsSettings::ReglinPen);
   spec2.xvalues = spec1.xvalues;
   spec2.yvalues = spec1.yvalues;
   spec2.histogram = true;

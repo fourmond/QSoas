@@ -154,6 +154,8 @@ void FitDialog::setupFrame()
   QVBoxLayout * layout = new QVBoxLayout(this);
   nup = new NupWidget;
   bufferSelection = new QComboBox;
+
+  const GraphicsSettings & gs = soas().graphicsSettings();
   for(int i = 0; i < data->datasets.size(); i++) {
     const DataSet * ds = data->datasets[i];
     CurveView * view = new CurveView;
@@ -161,8 +163,7 @@ void FitDialog::setupFrame()
     view->showDataSet(ds);
 
     CurveVector * vec = new CurveVector(ds, v);
-    vec->pen.setStyle(Qt::DashLine);
-    vec->pen.setColor("#080");
+    vec->pen = gs.getPen(GraphicsSettings::FitsPen);
     view->addItem(vec);
 
     CurvePanel * bottomPanel = new CurvePanel(); // Leaks memory !
@@ -171,8 +172,7 @@ void FitDialog::setupFrame()
     bottomPanel->drawingLegend = false;
 
     vec = new CurveVector(ds, v, true);
-    vec->pen.setStyle(Qt::DashLine);
-    vec->pen.setColor("#080");
+    vec->pen = gs.getPen(GraphicsSettings::FitsPen);
     bottomPanel->addItem(vec);
     /// @todo add X tracking for the bottom panel.
     /// @todo Colors !
@@ -1221,16 +1221,16 @@ void FitDialog::showTransposed()
       diff->yvalues[j] = yval - yfit;
     }
     dat->countBB = true;
-    dat->pen.setColor("#F00");
 
-    fit->pen.setStyle(Qt::DashLine);
-    fit->pen.setColor("#080");
+    const GraphicsSettings & gs = soas().graphicsSettings();
+
+    dat->pen = gs.dataSetPen(0);
+    fit->pen = gs.getPen(GraphicsSettings::FitsPen);
 
     dlg.view(i)->addItem(dat);
     dlg.view(i)->addItem(fit);
 
-    diff->pen.setStyle(Qt::DashLine);
-    diff->pen.setColor("#080");
+    diff->pen = gs.getPen(GraphicsSettings::FitsPen);
     diff->countBB = true;
 
     CurvePanel * bottomPanel = new CurvePanel(); // Leaks memory !

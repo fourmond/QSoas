@@ -18,6 +18,9 @@ fi
 # Here, we try using ruby1.9 on mac if it is present ?
 if [ -r /opt/local/bin/ruby1.9 ]; then
     extra="RUBY=/opt/local/bin/ruby1.9"
+elif [ -r /usr/bin/ruby2.1 ]; then
+    # We need to stick to ruby 2.1 for now on linux, 2.2 breaks.
+    extra="RUBY=/usr/bin/ruby2.1"
 fi
 
 $QMAKE $extra $v $univ

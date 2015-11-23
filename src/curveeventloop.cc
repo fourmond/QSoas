@@ -179,10 +179,10 @@ bool CurveEventLoop::eventFilter(QObject * obj, QEvent * event)
 
   // QTextStream o(stdout);
   // o << "Event on " << obj 
-  //   << "(" <<  obj->metaObject()->className()
+  //   << " (" <<  obj->metaObject()->className()
   //   << ")\t" << event->type()
   //   << " -- widget with focus: " << QApplication::focusWidget()
-  //   << "(" << QApplication::focusWidget()->metaObject()->className()
+  //   << " (" << QApplication::focusWidget()->metaObject()->className()
   //   << ")" << endl;
 
   QWidget * w = QApplication::focusWidget();
@@ -205,9 +205,11 @@ bool CurveEventLoop::eventFilter(QObject * obj, QEvent * event)
       QPoint gp = view->mapFromGlobal(me->globalPos());
       if(view->rect().contains(gp)) {
         receiveMouseEvent(me);
+        // o << "within view " << endl;
         return true;
       }
       else {
+        // o << "without view " << endl;
         return false;
       }
     }
@@ -236,9 +238,12 @@ bool CurveEventLoop::eventFilter(QObject * obj, QEvent * event)
     }
     
     // Prevent close events in the loop, it's a mess.
+    // .. but only if it's the main window...
   case QEvent::Close:
-    event->ignore();
-    return true;
+    if(obj && QString(obj->metaObject()->className()) == "MainWin") {
+      event->ignore();
+      return true;
+    }
   default:
     return false;               // Propagate other events
   }

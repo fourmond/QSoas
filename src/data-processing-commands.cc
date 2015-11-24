@@ -2226,7 +2226,7 @@ ddp("deldp", // command name
     NULL, // arguments
     NULL, // options
     "Deldp",
-    "...",
+    "Manually remove points",
     "...");
 
 //////////////////////////////////////////////////////////////////////

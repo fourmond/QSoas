@@ -32,6 +32,9 @@
 #include <eventhandler.hh>
 #include <commandlineparser.hh>
 
+#include <general-arguments.hh>
+#include <commandeffector-templates.hh>
+
 
 QHash<QString, Command*> * Command::availableCommands = NULL;
 
@@ -52,6 +55,18 @@ void Command::registerCommand(Command * cmd)
     throw InternalError(QObject::tr("Duplicate short command name : %1").
                         arg(cmd->shortCommandName()));
   (*availableCommands)[cmd->shortCommandName()] = cmd;
+}
+
+void Command::unregisterCommand(Command * cmd)
+{
+  if(! availableCommands)
+    availableCommands = new QHash<QString, Command*>;
+
+  availableCommands->remove(cmd->commandName());
+  if(! cmd->shortCommandName().isEmpty())
+    availableCommands->remove(cmd->shortCommandName());
+
+  // Is that all ?
 }
 
 void Command::crosslinkCommands()
@@ -615,3 +630,5 @@ CommandLineOption sp("--spec", [](const QStringList & /*args*/) {
     }
     ::exit(0);
   }, 0, "write command specs");
+
+

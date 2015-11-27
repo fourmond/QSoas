@@ -59,6 +59,7 @@ protected:
   /// Registers the given command to the static registry
   static void registerCommand(Command * cmd);
 
+
   /// The arguments list. Can be NULL if no arguments are expected.
   ArgumentList * arguments;
 
@@ -302,6 +303,9 @@ public:
   /// order.
   static void writeSpecFile(QTextStream & out);
 
+
+  /// Unregisters a given command. This does not delete it.
+  static void unregisterCommand(Command * cmd);
 };
 
 #endif

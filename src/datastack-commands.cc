@@ -50,8 +50,8 @@ static void saveCommand(const QString &, QString file,
                         const CommandOptions & opts)
 {
   bool overwrite = false;
-  bool mkpath = false;
   updateFromOptions(opts, "overwrite", overwrite);
+  bool mkpath = false;
   updateFromOptions(opts, "mkpath", mkpath);
   file = Utils::expandTilde(file);
   if(! overwrite)
@@ -109,6 +109,8 @@ static void saveBuffersCommand(const QString &,
   updateFromOptions(opts, "expression", expr);
   QString mode;
   updateFromOptions(opts, "mode", mode);
+  bool mkpath = false;
+  updateFromOptions(opts, "mkpath", mkpath);
 
   bool rename = false;
   bool save = true;
@@ -135,8 +137,11 @@ static void saveBuffersCommand(const QString &,
       DataSet * ds = const_cast<DataSet * >(datasets[i]);
       ds->name = nm;
     }
-    if(save)
+    if(save) {
+      if(mkpath)
+        QDir::current().mkpath(QFileInfo(nm).dir().path());
       datasets[i]->write(nm);
+    }
   }
 }
 
@@ -158,6 +163,9 @@ sBOpts(QList<Argument *>()
                              "mode", 
                              "How to rename buffers",
                              "If using format or expression, whether or not to rename buffers ")
+       << new BoolArgument("mkpath",
+                           "Make path",
+                           "If true, creates all necessary directories")
        );
 
 

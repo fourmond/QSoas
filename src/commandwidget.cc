@@ -380,8 +380,9 @@ void CommandWidget::runCommandFile(QIODevice * source,
         if(type != DefaultValue && type != AlternateValue && 
            type != TernaryValue && argn >= args.size()) {
           throw RuntimeError("Script was given %1 parameters, "
-                             "but it needs at least %2").
-            arg(args.size()).arg(argn+1);
+                             "but it needs at least %2, while parsing line '%3'").
+            arg(args.size()).arg(argn+1).
+            arg(line);
         }
         switch(type) {
         case RemoveSuffix:

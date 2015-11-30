@@ -26,10 +26,10 @@
 
 /// Argumentless callback
 class RubyCallback0  {
-  typedef VALUE (*Callback)();
+  typedef RUBY_VALUE (*Callback)();
   Callback callback;
 
-  static VALUE wrapper(VALUE v) {
+  static RUBY_VALUE wrapper(RUBY_VALUE v) {
     RubyCallback0 * arg = (RubyCallback0 *) v;
     return arg->callback();
   };
@@ -38,13 +38,13 @@ public:
   RubyCallback0(Callback c) : callback(c) {;};
 
   /// Runs the code wrapping it into a rb_rescue code
-  VALUE run() {
-    return Ruby::exceptionSafeCall((VALUE (*)(...)) &wrapper, this);
+  RUBY_VALUE run() {
+    return Ruby::exceptionSafeCall((RUBY_VALUE (*)(...)) &wrapper, this);
   };
 
 };
 
-inline VALUE Ruby::run(VALUE (*f)())
+inline RUBY_VALUE Ruby::run(RUBY_VALUE (*f)())
 {
   RubyCallback0 cb(f);
   return cb.run();
@@ -52,11 +52,11 @@ inline VALUE Ruby::run(VALUE (*f)())
 
 /// Callback with one argument
 template <typename A1> class RubyCallback1  {
-  typedef VALUE (*Callback)(A1);
+  typedef RUBY_VALUE (*Callback)(A1);
   Callback callback;
   A1 a1;
 
-  static VALUE wrapper(VALUE v) {
+  static RUBY_VALUE wrapper(RUBY_VALUE v) {
     RubyCallback1 * arg = (RubyCallback1 *) v;
     return arg->callback(arg->a1);
   };
@@ -65,13 +65,13 @@ public:
   RubyCallback1(Callback c, A1 arg1) : callback(c), a1(arg1) {;};
 
   /// Runs the code wrapping it into a rb_rescue code
-  VALUE run() {
-    return Ruby::exceptionSafeCall((VALUE (*)(...)) &wrapper, this);
+  RUBY_VALUE run() {
+    return Ruby::exceptionSafeCall((RUBY_VALUE (*)(...)) &wrapper, this);
   };
 
 };
 
-template<typename A1> VALUE Ruby::run(VALUE (*f)(A1), A1 a1)
+template<typename A1> RUBY_VALUE Ruby::run(RUBY_VALUE (*f)(A1), A1 a1)
 {
   RubyCallback1<A1> cb(f, a1);
   return cb.run();
@@ -79,12 +79,12 @@ template<typename A1> VALUE Ruby::run(VALUE (*f)(A1), A1 a1)
 
 /// Callback with one argument
 template <typename A1, typename A2> class RubyCallback2  {
-  typedef VALUE (*Callback)(A1, A2);
+  typedef RUBY_VALUE (*Callback)(A1, A2);
   Callback callback;
   A1 a1;
   A2 a2;
 
-  static VALUE wrapper(VALUE v) {
+  static RUBY_VALUE wrapper(RUBY_VALUE v) {
     RubyCallback2 * arg = (RubyCallback2 *) v;
     return arg->callback(arg->a1, arg->a2);
   };
@@ -94,13 +94,13 @@ public:
     callback(c), a1(arg1), a2(arg2) {;};
 
   /// Runs the code wrapping it into a rb_rescue code
-  VALUE run() {
-    return Ruby::exceptionSafeCall((VALUE (*)(...)) &wrapper, this);
+  RUBY_VALUE run() {
+    return Ruby::exceptionSafeCall((RUBY_VALUE (*)(...)) &wrapper, this);
   };
 
 };
 
-template<typename A1, typename A2> VALUE Ruby::run(VALUE (*f)(A1, A2), 
+template<typename A1, typename A2> RUBY_VALUE Ruby::run(RUBY_VALUE (*f)(A1, A2), 
                                                    A1 a1, A2 a2)
 {
   RubyCallback2<A1, A2> cb(f, a1, a2);
@@ -111,13 +111,13 @@ template<typename A1, typename A2> VALUE Ruby::run(VALUE (*f)(A1, A2),
 /// Callback with four arguments
 template <typename A1, typename A2, typename A3> 
 class RubyCallback3  {
-  typedef VALUE (*Callback)(A1, A2, A3);
+  typedef RUBY_VALUE (*Callback)(A1, A2, A3);
   Callback callback;
   A1 a1;
   A2 a2;
   A3 a3;
 
-  static VALUE wrapper(VALUE v) {
+  static RUBY_VALUE wrapper(RUBY_VALUE v) {
     RubyCallback3 * arg = (RubyCallback3 *) v;
     return arg->callback(arg->a1, arg->a2, arg->a3);
   };
@@ -128,14 +128,14 @@ public:
     callback(c), a1(arg1), a2(arg2), a3(arg3) {;};
 
   /// Runs the code wrapping it into a rb_rescue code
-  VALUE run() {
-    return Ruby::exceptionSafeCall((VALUE (*)(...)) &wrapper, this);
+  RUBY_VALUE run() {
+    return Ruby::exceptionSafeCall((RUBY_VALUE (*)(...)) &wrapper, this);
   };
 
 };
 
 template <typename A1, typename A2, typename A3> 
-VALUE Ruby::run(VALUE (*f)(A1, A2, A3), A1 a1, A2 a2, A3 a3)
+RUBY_VALUE Ruby::run(RUBY_VALUE (*f)(A1, A2, A3), A1 a1, A2 a2, A3 a3)
 {
   RubyCallback3<A1, A2, A3> cb(f, a1, a2, a3);
   return cb.run();
@@ -145,14 +145,14 @@ VALUE Ruby::run(VALUE (*f)(A1, A2, A3), A1 a1, A2 a2, A3 a3)
 /// Callback with four arguments
 template <typename A1, typename A2, typename A3, typename A4> 
 class RubyCallback4  {
-  typedef VALUE (*Callback)(A1, A2, A3, A4);
+  typedef RUBY_VALUE (*Callback)(A1, A2, A3, A4);
   Callback callback;
   A1 a1;
   A2 a2;
   A3 a3;
   A4 a4;
 
-  static VALUE wrapper(VALUE v) {
+  static RUBY_VALUE wrapper(RUBY_VALUE v) {
     RubyCallback4 * arg = (RubyCallback4 *) v;
     return arg->callback(arg->a1, arg->a2, arg->a3, arg->a4);
   };
@@ -163,14 +163,14 @@ public:
     callback(c), a1(arg1), a2(arg2), a3(arg3), a4(arg4) {;};
 
   /// Runs the code wrapping it into a rb_rescue code
-  VALUE run() {
-    return Ruby::exceptionSafeCall((VALUE (*)(...)) &wrapper, this);
+  RUBY_VALUE run() {
+    return Ruby::exceptionSafeCall((RUBY_VALUE (*)(...)) &wrapper, this);
   };
 
 };
 
 template <typename A1, typename A2, typename A3, typename A4> 
-VALUE Ruby::run(VALUE (*f)(A1, A2, A3, A4), A1 a1, A2 a2, A3 a3, A4 a4)
+RUBY_VALUE Ruby::run(RUBY_VALUE (*f)(A1, A2, A3, A4), A1 a1, A2 a2, A3 a3, A4 a4)
 {
   RubyCallback4<A1, A2, A3, A4> cb(f, a1, a2, a3, a4);
   return cb.run();

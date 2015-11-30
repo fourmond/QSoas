@@ -22,6 +22,8 @@
 #ifndef __VALUEHASH_HH
 #define __VALUEHASH_HH
 
+#include <ruby-wrappers.h>
+
 /// This class embeds a series of related information, such as dataset
 /// meta-data, that can be represented as key/value pairs.
 ///
@@ -119,10 +121,10 @@ public:
 
   /// Converts a QVariant into a Ruby object. Not all types are
   /// supported for now. Qnil is returned on unsupported values
-  static VALUE variantToRuby(const QVariant & variant);
+  static RUBY_VALUE variantToRuby(const QVariant & variant);
 
   /// Converts to a Ruby Hash.
-  VALUE toRuby() const;
+  RUBY_VALUE toRuby() const;
 
 
   /// Returns the value of the meta-data as a double.
@@ -135,10 +137,10 @@ public:
   double doubleValue(const QString & param) const;
 
   /// Sets data from a Ruby hash
-  void setFromRuby(VALUE hsh);
+  void setFromRuby(RUBY_VALUE hsh);
   
   /// Builds a new ValueHash from a Ruby hsh
-  static ValueHash fromRuby(VALUE hsh);
+  static ValueHash fromRuby(RUBY_VALUE hsh);
 
 
   /// @name Accessor-like function

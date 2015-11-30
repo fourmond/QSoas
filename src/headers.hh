@@ -22,7 +22,7 @@
 /// @todo There are probably a great number of useless headers
 /// here. Sort them out.
 
-#if defined __cplusplus
+#if defined __cplusplus 
 #include <QApplication>
 #include <QClipboard>
 #include <QThread>
@@ -136,16 +136,15 @@
 
 #include <cmath>
 
-#endif
+#else
 
-// Now, C inclues
-
-// ... and Ruby !
+// We only include Ruby includes in C mode
 #include <ruby.h>
 
-// Ruby pollutes the name space, which is quite a pain
+// Ruby pollutes the namespace, which is quite a pain
 #undef truncate
 
+#endif
 
 // The gsl
 #ifndef Q_WS_WIN

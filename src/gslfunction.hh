@@ -21,6 +21,8 @@
 #ifndef __GSLFUNCTION_HH
 #define __GSLFUNCTION_HH
 
+#include <ruby-wrappers.h>
+
 /// Base class for all the functions
 ///
 /// @todo Rename as "special functions"
@@ -39,11 +41,11 @@ public:
 
   /// Registers the function to the Ruby interpreter, under the given
   /// module
-  virtual void registerFunction(VALUE module) = 0;
+  virtual void registerFunction(RUBY_VALUE module) = 0;
 
   /// Register all functions to the Ruby interpreter. Returns the
   /// "Special" module
-  static VALUE registerAllFunctions();
+  static RUBY_VALUE registerAllFunctions();
 
   /// Creates and registers the given object.
   GSLFunction(const QString & n, const QString & d, bool autoreg = true);

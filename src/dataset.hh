@@ -27,6 +27,8 @@
 #include <valuehash.hh>
 #include <datasetoptions.hh>
 
+#include <ruby-wrappers.h>
+
 /// A small helper class that maintains an ordered list of integers
 /// (duplicates being possible)
 ///
@@ -597,7 +599,7 @@ public:
 
   /// Evaluates the given expression, setting the $stats and $meta
   /// variables as necessary
-  VALUE evaluateWithMeta(const QString & expression, bool useStats = false) const;
+  RUBY_VALUE evaluateWithMeta(const QString & expression, bool useStats = false) const;
 
   /// Runs the given expression feeding it the values of the meta-data
   /// and the statistics, and returns wether the expression is true or

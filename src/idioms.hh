@@ -22,6 +22,8 @@
 #ifndef __IDIOMS_HH
 #define __IDIOMS_HH
 
+#include <ruby-wrappers.h>
+
 /// Assigns the current value of source to dest when the object goes
 /// out of scope.
 template <class T> class DelayedAssign {
@@ -67,23 +69,23 @@ public:
 
 /// Save a global Ruby variable
 class SaveGlobal {
-  VALUE old;
+  RUBY_VALUE old;
 
   const char * name;
 public:
 
   /// Has to be a real const char ? For now.
   SaveGlobal(const char * n) : name(n) {
-    old = rb_gv_get(name);
+    old = rbw_gv_get(name);
   };
 
-  SaveGlobal(const char * n, VALUE nv) : name(n) {
-    old = rb_gv_get(name);
-    rb_gv_set(name, nv);
+  SaveGlobal(const char * n, RUBY_VALUE nv) : name(n) {
+    old = rbw_gv_get(name);
+    rbw_gv_set(name, nv);
   };
 
   ~SaveGlobal() {
-    rb_gv_set(name, old);
+    rbw_gv_set(name, old);
   };
 };
 

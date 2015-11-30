@@ -59,7 +59,7 @@ public:
 
   /// Returns a Ruby hash containing the statistics (including
   /// sub-hashes containing stats by segments when applicable)
-  VALUE toRuby();
+  RUBY_VALUE toRuby();
   
 };
 

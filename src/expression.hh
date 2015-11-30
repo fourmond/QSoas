@@ -21,6 +21,7 @@
 #ifndef __EXPRESSION_HH
 #define __EXPRESSION_HH
 
+#include <ruby-wrappers.h>
 #include <vector.hh>
 
 /// This class represents a mathematical expression, internally
@@ -33,10 +34,10 @@ class Expression {
   QString expression;
 
   /// The current Ruby code for this expression.
-  VALUE code;
+  RUBY_VALUE code;
 
   /// The list of doubles used as cache for argument passing.
-  VALUE * args;
+  RUBY_VALUE * args;
 
   /// The list of variables naturally present in the expression, in
   /// the order in which they are found by the Ruby code.
@@ -52,24 +53,24 @@ class Expression {
 
 
   /// The ID of the function call !
-  static ID callIDCache;
+  static RUBY_ID callIDCache;
 
   /// And the way to access it
-  static ID callID();
+  static RUBY_ID callID();
 
   /// Returns the hash for safe-keeping of the Ruby procs, ie to avoid
   /// Ruby GC to treat them as unreferenced
-  static VALUE codeSafeKeepingHash();
+  static RUBY_VALUE codeSafeKeepingHash();
 
   /// Returns the hash for safe-keeping of the Ruby arrays of doubles,
   /// ie to avoid Ruby GC to treat them as unreferenced
-  static VALUE argsSafeKeepingHash();
+  static RUBY_VALUE argsSafeKeepingHash();
 
   /// "frees" the code associated with the expression.
   void freeCode();
 
   /// Returns a unique key for the current hash.
-  VALUE hashKey();
+  RUBY_VALUE hashKey();
 
   /// Builds the code, using the current variable list.
   void buildCode();
@@ -78,7 +79,7 @@ class Expression {
   void buildArgs();
 
   /// Evaluate as a Ruby VALUE
-  VALUE rubyEvaluation(const double * values) const;
+  RUBY_VALUE rubyEvaluation(const double * values) const;
 
 public:
 

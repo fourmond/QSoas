@@ -24,44 +24,44 @@ class ConditionsFilesProvider : public MetaDataProvider {
 protected:
 
   /// ID for conditions_for
-  mutable ID conditionsForID;
+  mutable RUBY_ID conditionsForID;
 
   /// The ConditionsFile class
-  mutable VALUE cConditionsFile;
+  mutable RUBY_VALUE cConditionsFile;
 
   void ensureRubyFine() const {
-    if(RTEST(cConditionsFile))
+    if(rbw_test(cConditionsFile))
       return;
-    conditionsForID = rb_intern("conditions_for");
+    conditionsForID = rbw_intern("conditions_for");
     cConditionsFile = Ruby::eval("ConditionsFile");
   };
 
-  VALUE metaDataFor(const QString & fileName) const {
-    VALUE str = Ruby::fromQString(fileName);
+  RUBY_VALUE metaDataFor(const QString & fileName) const {
+    RUBY_VALUE str = Ruby::fromQString(fileName);
     ensureRubyFine();
     
-    return rb_funcall(cConditionsFile, conditionsForID, 1, str);
+    return rbw_funcall(cConditionsFile, conditionsForID, 1, str);
   };
 
 public:
 
   /// Whether or not the provider has meta-data for the give file.
   virtual bool handlesFile(const QString & fileName) const {
-    VALUE md = metaDataFor(fileName);
-    return RTEST(md);
+    RUBY_VALUE md = metaDataFor(fileName);
+    return rbw_test(md);
   };
 
   /// Returns the meta-data for the given file
   virtual ValueHash metaDataForFile(const QString & fileName) const {
-    VALUE md = metaDataFor(fileName);
-    if(RTEST(md))
+    RUBY_VALUE md = metaDataFor(fileName);
+    if(rbw_test(md))
       return ValueHash::fromRuby(md);
     return ValueHash();
   };
 
   ConditionsFilesProvider() : MetaDataProvider("conditions.rb"),
                               conditionsForID(0),
-                              cConditionsFile(Qnil)
+                              cConditionsFile(rbw_nil)
   {
   };
 

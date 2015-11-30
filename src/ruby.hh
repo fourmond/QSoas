@@ -23,6 +23,8 @@
 #ifndef __RUBY_HH
 #define __RUBY_HH
 
+#include <ruby-wrappers.h>
+
 /// Namespace holding various utility functions to run embedded Ruby
 namespace Ruby {
 
@@ -31,43 +33,43 @@ namespace Ruby {
 
   /// Calls the given C \a function with the given args in an
   /// exception-safe way, ie with proper handling of the exceptions...
-  VALUE exceptionSafeCall(VALUE (*function)(...), void * args);
+  RUBY_VALUE exceptionSafeCall(RUBY_VALUE (*function)(...), void * args);
 
   /// The global rescue function, whose role is to convert Ruby
   /// exceptions into proper C++ exceptions.
-  VALUE globalRescueFunction(VALUE, VALUE exception);
+  RUBY_VALUE globalRescueFunction(RUBY_VALUE, RUBY_VALUE exception);
 
   /// Evaluates the given string, while trying to avoid segfaults.
-  VALUE eval(QByteArray code);
+  RUBY_VALUE eval(QByteArray code);
 
   /// Makes a block from this code using the given variables.
   ///
   /// The \a variables gets updated with the actual variables that
   /// were necessary to compile the block
-  VALUE makeBlock(QStringList * variables, const QByteArray & code);
+  RUBY_VALUE makeBlock(QStringList * variables, const QByteArray & code);
 
   /// Read a file and execute it
-  VALUE loadFile(const QString & file);
+  RUBY_VALUE loadFile(const QString & file);
 
   /// Converts to a double in a Ruby-exception safe way: Ruby
   /// exceptions will result in proper C++ exceptions.
   ///
   /// Don't use NUM2DBL directly, unless you know it's is a Float.
-  double toDouble(VALUE val);
+  double toDouble(RUBY_VALUE val);
 
 
   /// Makes a textual representation of any Ruby object (kinda rp_p)
   ///
   /// This function is already ruby-exception safe, ie no need to wrap
   /// it in a Ruby::run() call.
-  QString inspect(VALUE val);
+  QString inspect(RUBY_VALUE val);
 
   /// Creates a Ruby string from a QString. No exception handling, but
   /// it should never fail !
-  VALUE fromQString(const QString & str);
+  RUBY_VALUE fromQString(const QString & str);
 
   /// Transforms the Ruby value into a string
-  QString toQString(VALUE val);
+  QString toQString(RUBY_VALUE val);
 
   /// Returns the version string of Ruby
   QString versionString();
@@ -80,7 +82,7 @@ namespace Ruby {
   QString ruby2C(const QString & code, QStringList * vars = NULL);
 
   /// The main object.
-  extern VALUE main;
+  extern RUBY_VALUE main;
 
   /// @name Exception-catching routines
   ///
@@ -88,16 +90,16 @@ namespace Ruby {
   /// exceptions are caught.
   ///  
   /// @{
-  VALUE run(VALUE (*f)());
-  template<typename A1> VALUE run(VALUE (*f)(A1), A1); 
-  template<typename A1, typename A2> VALUE run(VALUE (*f)(A1, A2), A1, A2); 
+  RUBY_VALUE run(RUBY_VALUE (*f)());
+  template<typename A1> RUBY_VALUE run(RUBY_VALUE (*f)(A1), A1); 
+  template<typename A1, typename A2> RUBY_VALUE run(RUBY_VALUE (*f)(A1, A2), A1, A2); 
 
   template<typename A1, typename A2, 
-           typename A3> VALUE run(VALUE (*f)(A1, A2, A3), 
+           typename A3> RUBY_VALUE run(RUBY_VALUE (*f)(A1, A2, A3), 
                                   A1, A2, A3); 
 
   template<typename A1, typename A2, 
-           typename A3, typename A4> VALUE run(VALUE (*f)(A1, A2, A3, A4), 
+           typename A3, typename A4> RUBY_VALUE run(RUBY_VALUE (*f)(A1, A2, A3, A4), 
                                                A1, A2, A3, A4); 
 
   /// @}

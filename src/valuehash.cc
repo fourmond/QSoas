@@ -172,17 +172,17 @@ void ValueHash::appendToList(const QString & key, const QString & val)
   (*this)[key] = newval;
 }
 
-VALUE ValueHash::variantToRuby(const QVariant & variant)
+RUBY_VALUE ValueHash::variantToRuby(const QVariant & variant)
 {
-  VALUE val = Qnil;
+  RUBY_VALUE val = rbw_nil;
   switch(variant.type()) {      // the documentation of QVariant::type()
                                 // is rather confusing...
   case QMetaType::Double:
-    val = rb_float_new(variant.toDouble());
+    val = rbw_float_new(variant.toDouble());
     break;
   case QMetaType::Int:          // No support of large numbers
   case QMetaType::UInt:
-    val = LONG2NUM(variant.toInt());
+    val = rbw_long2num(variant.toInt());
     break;
   case QMetaType::QString:
     val = Ruby::fromQString(variant.toString());
@@ -192,7 +192,7 @@ VALUE ValueHash::variantToRuby(const QVariant & variant)
     // We use an epoch-based time: the time will be on the 1st of
     // January 1970
     QTime ref(0,0);
-    val = Ruby::run<time_t, long>(rb_time_new, ref.secsTo(t), 
+    val = Ruby::run<time_t, long>(rbw_time_new, ref.secsTo(t), 
                                   t.msec() * 1000);
     break;
   }
@@ -200,15 +200,15 @@ VALUE ValueHash::variantToRuby(const QVariant & variant)
   case QMetaType::QDate: {
     QDateTime t = variant.toDateTime();
     // in some cases, this call fails...
-    val = Ruby::run<time_t, long>(rb_time_new, t.toTime_t(), 
+    val = Ruby::run<time_t, long>(rbw_time_new, t.toTime_t(), 
                                   t.time().msec() * 1000);
     break;
   }
   case QMetaType::QVariantList: {
-    val = rb_ary_new();
+    val = rbw_ary_new();
     QList<QVariant> lst = variant.toList();
     for(int i = 0; i < lst.size(); i++)
-      rb_ary_push(val, variantToRuby(lst[i]));
+      rbw_ary_push(val, variantToRuby(lst[i]));
   }
   default:
     break;
@@ -217,16 +217,16 @@ VALUE ValueHash::variantToRuby(const QVariant & variant)
 }
 
 
-VALUE ValueHash::toRuby() const
+RUBY_VALUE ValueHash::toRuby() const
 {
-  VALUE ret = rb_hash_new();
+  RUBY_VALUE ret = rbw_hash_new();
   for(const_iterator it = begin(); it != end(); it++) {
     // Hmmm, QVariant says type() is QVariant::Type, but the
     // documentation says is really is QMetaType::Type.
     try {
-      VALUE key = Ruby::fromQString(it.key());
-      VALUE val = variantToRuby(it.value());
-      rb_hash_aset(ret, key, val);
+      RUBY_VALUE key = Ruby::fromQString(it.key());
+      RUBY_VALUE val = variantToRuby(it.value());
+      rbw_hash_aset(ret, key, val);
     }
     catch(RuntimeError & er) {
       QTextStream o(stdout);
@@ -239,26 +239,28 @@ VALUE ValueHash::toRuby() const
   return ret;
 }
 
-static int setFromRubyInternalHelper(VALUE key, VALUE val, void * arg)
+static int setFromRubyInternalHelper(RUBY_VALUE key, RUBY_VALUE val, void * arg)
 {
   ValueHash * target = static_cast<ValueHash *>(arg);
   QString k = Ruby::toQString(key);
 
   // For now, very naive conversion...
   target->operator[](k) = Ruby::toQString(val);
-  return ST_CONTINUE;
+
+  //return ST_CONTINUE;
+  return 1;
 }
 
-void ValueHash::setFromRuby(VALUE hsh)
+void ValueHash::setFromRuby(RUBY_VALUE hsh)
 {
-  if(! RTEST(rb_obj_is_instance_of(hsh, rb_cHash)))
+  if(rbw_is_hash(hsh))
     throw RuntimeError("Trying to set a hash from a ruby value "
                        "that isn't a hash");
-  rb_hash_foreach(hsh, (int (*)(...))
-                  ::setFromRubyInternalHelper, (VALUE)this);
+  rbw_hash_foreach(hsh, (int (*)())
+                  ::setFromRubyInternalHelper, (RUBY_VALUE)this);
 }
 
-ValueHash ValueHash::fromRuby(VALUE hsh)
+ValueHash ValueHash::fromRuby(RUBY_VALUE hsh)
 {
   ValueHash h;
   h.setFromRuby(hsh);

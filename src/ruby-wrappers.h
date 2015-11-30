@@ -78,7 +78,46 @@ extern "C" {
   RUBY_VALUE rbw_time_new(time_t, long);
 
   RUBY_VALUE rbw_inspect(RUBY_VALUE);
+
+  RUBY_VALUE rbw_class_of(RUBY_VALUE obj);
+
+
+  double rbw_num2dbl(RUBY_VALUE);
+
+  double rbw_num2int(RUBY_VALUE);
+
+
+  const char * rbw_string_value_cstr(RUBY_VALUE obj);
+
+  void ruby_wrappers_init();
+
+
   
+  /**********************************************************************/
+  /* these are not strict wrappers */
+
+
+  /** The Math module */
+  RUBY_VALUE rbw_mMath();
+
+  
+  /** Test if the given Ruby object is true. The equivalent of RTEST */
+  int rbw_test(RUBY_VALUE);
+
+  long rbw_array_length(RUBY_VALUE);
+
+  /** Sets the target to the given float value */
+  void rbw_set_float(RUBY_VALUE *hsh, double value);
+
+  /** Returns the int value */
+  RUBY_VALUE rbw_int(int);
+
+  /** Strict type checking: class is the class (not children) ! */
+  int rbw_is_array(RUBY_VALUE);
+  int rbw_is_hash(RUBY_VALUE);
+
+  RUBY_VALUE rbw_long2num(long);
+
    /* egrep -ho rb_'[a-zA-Z0-9_]+' * | sort | uniq */
 
   /* rb_cArray */
@@ -86,6 +125,9 @@ extern "C" {
   /* rb_class_of */
   /* rb_inspect */
   /* rb_mMath */
+
+  /* Constants */
+  #define rbw_nil 0
 
 
 #if defined __cplusplus

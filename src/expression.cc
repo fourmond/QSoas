@@ -23,60 +23,60 @@
 #include <ruby.hh>
 #include <ruby-templates.hh>
 
-ID Expression::callIDCache = 0;
+RUBY_ID Expression::callIDCache = 0;
 
-ID Expression::callID()
+RUBY_ID Expression::callID()
 {
   if(callIDCache == 0)
-    callIDCache = rb_intern("call");
+    callIDCache = rbw_intern("call");
   return callIDCache;
 }
 
-VALUE Expression::codeSafeKeepingHash()
+RUBY_VALUE Expression::codeSafeKeepingHash()
 {
-  VALUE hsh = rb_gv_get("$expression_codes");
-  if(! RTEST(hsh)) {
-    hsh = rb_hash_new();
-    rb_gv_set("$expression_codes", hsh);
+  RUBY_VALUE hsh = rbw_gv_get("$expression_codes");
+  if(! rbw_test(hsh)) {
+    hsh = rbw_hash_new();
+    rbw_gv_set("$expression_codes", hsh);
   }
   return hsh;
 }
 
-VALUE Expression::argsSafeKeepingHash()
+RUBY_VALUE Expression::argsSafeKeepingHash()
 {
-  VALUE hsh = rb_gv_get("$expression_args");
-  if(! RTEST(hsh)) {
-    hsh = rb_hash_new();
-    rb_gv_set("$expression_args", hsh);
+  RUBY_VALUE hsh = rbw_gv_get("$expression_args");
+  if(! rbw_test(hsh)) {
+    hsh = rbw_hash_new();
+    rbw_gv_set("$expression_args", hsh);
   }
   return hsh;
 }
 
 
-VALUE Expression::hashKey()
+RUBY_VALUE Expression::hashKey()
 {
   long val = reinterpret_cast<long>(this);
   val >>= 1;
-  return INT2FIX(val);
+  return rbw_int(val);
 }
 
 void Expression::buildArgs()
 {
   delete[] args;
-  args = new VALUE[variables.size()];
+  args = new RUBY_VALUE[variables.size()];
 
-  VALUE ary = rb_ary_new();
-  rb_hash_aset(argsSafeKeepingHash(), hashKey(), ary);
+  RUBY_VALUE ary = rbw_ary_new();
+  rbw_hash_aset(argsSafeKeepingHash(), hashKey(), ary);
 
   for(int i = 0; i < variables.size(); i++) {
-    VALUE db = 
+    RUBY_VALUE db = 
       // Force allocation of a real double for Ruby 2.0 and after
 #ifdef USE_FLONUM
-      rb_float_new_in_heap(0.0);
+      rbw_float_new_in_heap(0.0);
 #else
-      rb_float_new(0.0);
+      rbw_float_new(0.0);
 #endif
-    rb_ary_push(ary, db);
+    rbw_ary_push(ary, db);
     args[i] = db;
   }
 }
@@ -104,7 +104,7 @@ void Expression::buildCode()
   else if(vars.size() > variables.size())
     throw RuntimeError(QString("Not all the variables needed: %1 vs %2").
                        arg(vars.join(", ")).arg(variables.join(", ")));
-  rb_hash_aset(codeSafeKeepingHash(), hashKey(), code);
+  rbw_hash_aset(codeSafeKeepingHash(), hashKey(), code);
 
 
   //////////////////////////////////////////////////
@@ -130,9 +130,9 @@ void Expression::buildCode()
 
 void Expression::freeCode()
 {
-  rb_hash_delete(codeSafeKeepingHash(), hashKey());
-  rb_hash_delete(argsSafeKeepingHash(), hashKey());
-  code = Qnil;
+  rbw_hash_delete(codeSafeKeepingHash(), hashKey());
+  rbw_hash_delete(argsSafeKeepingHash(), hashKey());
+  code = rbw_nil;
   delete[] args;
   args = NULL;
 }
@@ -207,19 +207,18 @@ const QStringList & Expression::naturalVariables() const
   return minimalVariables;
 }
 
-#define RFLOAT_LVALUE(x) (RFLOAT(x)->float_value) 
-
-VALUE Expression::rubyEvaluation(const double * values) const
+RUBY_VALUE Expression::rubyEvaluation(const double * values) const
 {
   // Greatly simplified code in case the expression reduces to only
   // one variable !
   if(singleVariableIndex >=  0)
-    return rb_float_new(values[singleVariableIndex]);
+    return rbw_float_new(values[singleVariableIndex]);
   int size = variables.size();
   for(int i = 0; i < size; i++)
-    RFLOAT_LVALUE(args[i]) = values[i];
-  VALUE ret = Ruby::run(&rb_funcall2, code, 
-                        callID(), size, (const VALUE *) args);
+    rbw_set_float(&args[i],values[i]);
+  
+  RUBY_VALUE ret = Ruby::run(&rbw_funcall2, code, 
+                        callID(), size, (const RUBY_VALUE *) args);
   return ret;
 }
 
@@ -232,23 +231,23 @@ double Expression::evaluate(const double * values) const
 
 bool Expression::evaluateAsBoolean(const double * values) const
 {
-  return RTEST(rubyEvaluation(values));
+  return rbw_test(rubyEvaluation(values));
 }
 
 int Expression::evaluateIntoArray(const double * values, 
                                   double * target, int ts) const
 {
-  VALUE ret = rubyEvaluation(values);
+  RUBY_VALUE ret = rubyEvaluation(values);
 
   // Now, we parse the return value
-  if(rb_obj_class(ret) != rb_cArray) {
+  if(rbw_is_array(ret)) {
     if(ts >= 1)
       *target = Ruby::toDouble(ret);
     return 1;
   }
-  int sz = RARRAY_LEN(ret);
+  int sz = rbw_array_length(ret);
   for(int i = 0; i < ts && i < sz ; i++)
-    target[i] = Ruby::toDouble(rb_ary_entry(ret, i));
+    target[i] = Ruby::toDouble(rbw_ary_entry(ret, i));
 
   return sz;
 }
@@ -256,16 +255,16 @@ int Expression::evaluateIntoArray(const double * values,
 
 Vector Expression::evaluateAsArray(const double * values) const
 {
-  VALUE ret = rubyEvaluation(values);
+  RUBY_VALUE ret = rubyEvaluation(values);
 
   Vector tg;
   // Now, we parse the return value
-  if(rb_obj_class(ret) != rb_cArray)
+  if(rbw_is_array(ret))
     tg << Ruby::toDouble(ret);
   else {
-    int sz = RARRAY_LEN(ret);
+    int sz = rbw_array_length(ret);
     for(int i = 0; i < sz ; i++)
-      tg << Ruby::toDouble(rb_ary_entry(ret, i));
+      tg << Ruby::toDouble(rbw_ary_entry(ret, i));
   }
   return tg;
 }
@@ -275,7 +274,7 @@ QStringList Expression::variablesNeeded(const QString & expression,
 {
   QStringList vars = variables;
   QByteArray bta = expression.toLocal8Bit();
-  // VALUE code = 
+  // RUBY_VALUE code = 
   Ruby::run<QStringList *, const QByteArray &>(&Ruby::makeBlock, &vars, bta);
   for(int i = 0; i < variables.size(); i++)
     vars.takeAt(0);

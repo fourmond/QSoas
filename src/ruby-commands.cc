@@ -112,12 +112,12 @@ static void applyFormulaCommand(const QString &, QString formula,
   SaveGlobal a("$stats");
   if(useStats) {
     Statistics st(ds);
-    rb_gv_set("$stats", st.toRuby());
+    rbw_gv_set("$stats", st.toRuby());
   }
 
   SaveGlobal b("$meta");
   if(useMeta)
-    rb_gv_set("$meta", ds->getMetaData().toRuby());
+    rbw_gv_set("$meta", ds->getMetaData().toRuby());
 
 
   Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
@@ -446,7 +446,7 @@ static void eval(const QString &, QString code, const CommandOptions & opts)
   updateFromOptions(opts, "use-dataset", useDs);
   
   DataSet * ds = (useDs ? soas().currentDataSet(true) : NULL);
-  VALUE value;
+  RUBY_VALUE value;
   if(ds)
     value = ds->evaluateWithMeta(code, true);
   else {
@@ -568,7 +568,7 @@ static void assertCmd(const QString &, QString code,
     return;
   }
 
-  VALUE value;
+  RUBY_VALUE value;
   Assertions * cur = &assertResults[assertContext];
   cur->total += 1;
   try {
@@ -578,7 +578,7 @@ static void assertCmd(const QString &, QString code,
       QByteArray bt = code.toLocal8Bit();
       value = Ruby::run(Ruby::eval, bt);
     }
-    bool check = (useTol ? fabs(NUM2DBL(value)) <= tolerance : RTEST(value));
+    bool check = (useTol ? fabs(rbw_num2dbl(value)) <= tolerance : rbw_test(value));
     if(check) {
       Terminal::out << "assertion success" << endl;
       o << ".";
@@ -588,10 +588,10 @@ static void assertCmd(const QString &, QString code,
       if(useTol) {
         Terminal::out << "assertion failed: " << code
                       << " (should be below: " << tolerance
-                      << " but is: " << NUM2DBL(value) << ")" << endl;
+                      << " but is: " << rbw_num2dbl(value) << ")" << endl;
         o << "F: " << code
           << " (should be below: " << tolerance
-          << " but is: " << NUM2DBL(value) << ")\n";
+          << " but is: " << rbw_num2dbl(value) << ")\n";
       }
       else {
         Terminal::out << "assertion failed: " << code  << endl;

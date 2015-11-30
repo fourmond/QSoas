@@ -29,167 +29,167 @@
 /// A global toogle. @todo Make that configurable at runtime
 static SettingsValue<bool> debugRuby("ruby/debug", false);
 
-VALUE Ruby::globalRescueFunction(VALUE /*dummy*/, VALUE exception)
+RUBY_VALUE Ruby::globalRescueFunction(RUBY_VALUE /*dummy*/, RUBY_VALUE exception)
 {
-  static VALUE cQSoasException = Qnil;
-  if(cQSoasException == Qnil)
-    cQSoasException = rb_eval_string("QSoasException");
+  static RUBY_VALUE cQSoasException = rbw_nil;
+  if(cQSoasException == rbw_nil)
+    cQSoasException = rbw_eval_string("QSoasException");
 
   bool isQSoasException = false;
-  if(rb_class_of(exception) == cQSoasException)
+  if(rbw_class_of(exception) == cQSoasException)
     isQSoasException = true;
 
   QString str = (isQSoasException ? "" : "Ruby exception: ");
 
-  VALUE in = rb_inspect(exception);  // Probably shouldn't throw an exception ?
-  str += StringValueCStr(in); // Or in ? See call stack too ?
+  RUBY_VALUE in = rbw_inspect(exception);  // Probably shouldn't throw an exception ?
+  str += rbw_string_value_cstr(in); // Or in ? See call stack too ?
 
 
 
   // We add the call stack
   if(debugRuby && (! isQSoasException) ) {
-    VALUE ct = rb_funcall2(exception, rb_intern("backtrace"), 0, NULL);
-    VALUE s = rb_str_new2("\n");
-    VALUE s2 = rb_funcall2(ct, rb_intern("join"), 1, &s);
+    RUBY_VALUE ct = rbw_funcall2(exception, rbw_intern("backtrace"), 0, NULL);
+    RUBY_VALUE s = rbw_str_new2("\n");
+    RUBY_VALUE s2 = rbw_funcall2(ct, rbw_intern("join"), 1, &s);
     str += "\n";
-    str += StringValueCStr(s2);
+    str += rbw_string_value_cstr(s2);
   }
   QTextStream o(stderr);
   o << "Caught Ruby exception: " << str << endl;
   throw RuntimeError(str);
-  return Qnil;
+  return rbw_nil;
 }
 
 
-VALUE Ruby::exceptionSafeCall(VALUE (*function)(...), void * args)
+RUBY_VALUE Ruby::exceptionSafeCall(RUBY_VALUE (*function)(...), void * args)
 {
   int error = 0;
-  VALUE ret = rb_protect((VALUE (*)(VALUE)) function, 
-                         (VALUE) args, &error);
+  RUBY_VALUE ret = rbw_protect((RUBY_VALUE (*)(RUBY_VALUE)) function, 
+                         (RUBY_VALUE) args, &error);
   if(error) {
     // An exception occurred, we need to handle it.
-    VALUE exception = rb_gv_get("$!");
-    return Ruby::globalRescueFunction(Qnil, exception);
+    RUBY_VALUE exception = rbw_gv_get("$!");
+    return Ruby::globalRescueFunction(rbw_nil, exception);
   }
   return ret;
 }
 
 
 
-VALUE Ruby::main;
+RUBY_VALUE Ruby::main;
 
 void Ruby::initRuby()
 {
-  ruby_init();
-  main = rb_eval_string("self");
-  rb_extend_object(main, rb_mMath);
+  ruby_wrappers_init();
+  main = rbw_eval_string("self");
+  rbw_extend_object(main, rbw_mMath());
 
   // Here, we define a whole bunch of constants that can be useful !
 
-  VALUE mSpecial = GSLFunction::registerAllFunctions();
+  RUBY_VALUE mSpecial = GSLFunction::registerAllFunctions();
   GSLConstant::registerAllConstants();
-  rb_extend_object(main, mSpecial);
+  rbw_extend_object(main, mSpecial);
 
   // Has to come last ?
   Ruby::loadFile(":/ruby/qsoas-base.rb");
   Ruby::loadFile(":/ruby/conditions.rb");
 }
 
-VALUE Ruby::loadFile(const QString & file)
+RUBY_VALUE Ruby::loadFile(const QString & file)
 {
   QFile f(file);
   if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
-    return Qnil;  
+    return rbw_nil;  
   QByteArray bt = f.readAll();
-  return rb_eval_string(bt);
+  return rbw_eval_string(bt);
 }
 
 
-VALUE Ruby::eval(QByteArray code)
+RUBY_VALUE Ruby::eval(QByteArray code)
 {
-  VALUE s = rb_str_new2(code.constData());
-  return rb_funcall2(main, rb_intern("soas_eval"), 1, &s);
+  RUBY_VALUE s = rbw_str_new2(code.constData());
+  return rbw_funcall2(main, rbw_intern("soas_eval"), 1, &s);
 }
 
-VALUE Ruby::makeBlock(QStringList * variables, const QByteArray & code)
+RUBY_VALUE Ruby::makeBlock(QStringList * variables, const QByteArray & code)
 {
-  VALUE args[2];
-  args[0] = rb_ary_new();
+  RUBY_VALUE args[2];
+  args[0] = rbw_ary_new();
   for(int i = 0; i < variables->size(); i++)
-    rb_ary_push(args[0], rb_str_new2(variables->value(i).toLocal8Bit().
+    rbw_ary_push(args[0], rbw_str_new2(variables->value(i).toLocal8Bit().
                                  constData()));
-  args[1] = rb_str_new2(code.constData());
-  VALUE ret = rb_funcall2(main, rb_intern("soas_make_block"), 2, args);
+  args[1] = rbw_str_new2(code.constData());
+  RUBY_VALUE ret = rbw_funcall2(main, rbw_intern("soas_make_block"), 2, args);
   
   // Now get back the string values:
   variables->clear();
-  int max = RARRAY_LEN(args[0]);
+  int max = rbw_array_length(args[0]);
   for(int i = 0; i < max; i++) {
-    VALUE v = rb_ary_entry(args[0], i);
-    *variables << StringValueCStr(v);
+    RUBY_VALUE v = rbw_ary_entry(args[0], i);
+    *variables << rbw_string_value_cstr(v);
   }
   return ret;
 }
 
-static VALUE toStringHelper(VALUE val, QString * target)
+static RUBY_VALUE toStringHelper(RUBY_VALUE val, QString * target)
 {
-  VALUE strval = rb_obj_as_string(val);
-  *target = StringValueCStr(strval);
-  return Qnil;
+  RUBY_VALUE strval = rbw_obj_as_string(val);
+  *target = rbw_string_value_cstr(strval);
+  return rbw_nil;
 }
 
-QString Ruby::toQString(VALUE val)
+QString Ruby::toQString(RUBY_VALUE val)
 {
   QString ret;
   Ruby::run(toStringHelper, val, &ret);
   return ret;
 }
 
-QString Ruby::inspect(VALUE val)
+QString Ruby::inspect(RUBY_VALUE val)
 {
   QString ret;
-  VALUE v = Ruby::run(rb_inspect, val);
+  RUBY_VALUE v = Ruby::run(rbw_inspect, val);
   Ruby::run(toStringHelper, v, &ret);
   return ret;
 }
 
-VALUE Ruby::fromQString(const QString & str)
+RUBY_VALUE Ruby::fromQString(const QString & str)
 {
-  return rb_str_new2(str.toLocal8Bit().constData());
+  return rbw_str_new2(str.toLocal8Bit().constData());
 }
 
 QString Ruby::versionString()
 {
-  VALUE v = eval("RUBY_DESCRIPTION");
-  return StringValueCStr(v);
+  RUBY_VALUE v = eval("RUBY_DESCRIPTION");
+  return rbw_string_value_cstr(v);
 }
 
-static VALUE conv(VALUE val, double * tg)
+static RUBY_VALUE conv(RUBY_VALUE val, double * tg)
 {
-  *tg = NUM2DBL(val);
-  return Qnil;
+  *tg = rbw_num2dbl(val);
+  return rbw_nil;
 }
 
-double Ruby::toDouble(VALUE val)
+double Ruby::toDouble(RUBY_VALUE val)
 {
   double v;
   Ruby::run(&conv, val, &v);
   return v;
 }
 
-static VALUE ruby2CHelper(QString str, QStringList * tgt)
+static RUBY_VALUE ruby2CHelper(QString str, QStringList * tgt)
 {
-  VALUE args[2];
+  RUBY_VALUE args[2];
   args[0] = Ruby::fromQString(str);
-  args[1] = rb_ary_new();
+  args[1] = rbw_ary_new();
   
-  VALUE ret = rb_funcall2(Ruby::main, rb_intern("soas_ruby2c"), 2, args);
+  RUBY_VALUE ret = rbw_funcall2(Ruby::main, rbw_intern("soas_ruby2c"), 2, args);
 
   if(tgt) {
-    int max = RARRAY_LEN(args[1]);
+    int max = rbw_array_length(args[1]);
     for(int i = 0; i < max; i++) {
-      VALUE v = rb_ary_entry(args[1], i);
-      *tgt << StringValueCStr(v);
+      RUBY_VALUE v = rbw_ary_entry(args[1], i);
+      *tgt << rbw_string_value_cstr(v);
     }
   }
 
@@ -198,7 +198,7 @@ static VALUE ruby2CHelper(QString str, QStringList * tgt)
 
 QString Ruby::ruby2C(const QString & str, QStringList * vars)
 {
-  VALUE ret = Ruby::run(ruby2CHelper, str, vars);
+  RUBY_VALUE ret = Ruby::run(ruby2CHelper, str, vars);
   return toQString(ret);
 }
 

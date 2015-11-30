@@ -378,6 +378,12 @@ HEADERS += src/headers.hh \
         src/abdmatrix.hh \
         src/box.hh
 
+
+# Pure-C wrappers around Ruby's code
+HEADERS += src/ruby-wrappers.h
+
+SOURCES += src/ruby-wrappers.c
+
                 
 # Sources of file-format specific code
 SOURCES += src/formats/gpesprovider.cc \

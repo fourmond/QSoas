@@ -27,18 +27,19 @@
 extern "C" {
 #endif
 
+  typedef long __rbw_internal_int;
+
   /* This is what Ruby calls VALUE */
-  typedef void * RUBY_VALUE;
+  typedef __rbw_internal_int RUBY_VALUE;
 
   /* This is what Ruby calls ID */
-  typedef void * RUBY_ID;
+  typedef __rbw_internal_int RUBY_ID;
 
   /* Essentially, all the wrappers keep their name, with a rb -> rbw change */
 
 
   RUBY_ID rbw_intern(const char*);
 
-  RUBY_VALUE rbw_funcall(RUBY_VALUE, RUBY_ID, int, ...);
   RUBY_VALUE rbw_funcall2(RUBY_VALUE, RUBY_ID, int, const RUBY_VALUE*);
   
   RUBY_VALUE rbw_gv_set(const char*, RUBY_VALUE);
@@ -47,8 +48,9 @@ extern "C" {
   RUBY_VALUE rbw_hash_new(void);
   RUBY_VALUE rbw_hash_aset(RUBY_VALUE, RUBY_VALUE, RUBY_VALUE);
   RUBY_VALUE rbw_hash_delete(RUBY_VALUE, RUBY_VALUE);
-  RUBY_VALUE rbw_hash_foreach(RUBY_VALUE, int (*)(), RUBY_VALUE);
+  void rbw_hash_foreach(RUBY_VALUE, int (*)(), RUBY_VALUE);
 
+  /** This forces allocation on the heap ? */
   RUBY_VALUE rbw_float_new(double);
 
   RUBY_VALUE rbw_define_module(const char*);
@@ -65,7 +67,7 @@ extern "C" {
   RUBY_VALUE rbw_protect(RUBY_VALUE (*)(RUBY_VALUE), RUBY_VALUE, int*);
 
   RUBY_VALUE rbw_obj_as_string(RUBY_VALUE);
-  RUBY_VALUE rbw_obj_class(RUBY_VALUE);
+  /*RUBY_VALUE rbw_obj_class(RUBY_VALUE);*/
   /*VALUE rb_obj_is_instance_of(VALUE, VALUE);*/
 
   RUBY_VALUE rbw_eval_string(const char*);
@@ -84,7 +86,7 @@ extern "C" {
 
   double rbw_num2dbl(RUBY_VALUE);
 
-  double rbw_num2int(RUBY_VALUE);
+  long rbw_num2int(RUBY_VALUE);
 
 
   const char * rbw_string_value_cstr(RUBY_VALUE obj);
@@ -129,6 +131,7 @@ extern "C" {
   /* Constants */
   #define rbw_nil 0
 
+  #define RBW_ST_CONTINUE 0
 
 #if defined __cplusplus
 }

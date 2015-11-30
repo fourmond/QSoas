@@ -69,13 +69,7 @@ void Expression::buildArgs()
   rbw_hash_aset(argsSafeKeepingHash(), hashKey(), ary);
 
   for(int i = 0; i < variables.size(); i++) {
-    RUBY_VALUE db = 
-      // Force allocation of a real double for Ruby 2.0 and after
-#ifdef USE_FLONUM
-      rbw_float_new_in_heap(0.0);
-#else
-      rbw_float_new(0.0);
-#endif
+    RUBY_VALUE db = rbw_float_new(0.0);
     rbw_ary_push(ary, db);
     args[i] = db;
   }
@@ -240,7 +234,7 @@ int Expression::evaluateIntoArray(const double * values,
   RUBY_VALUE ret = rubyEvaluation(values);
 
   // Now, we parse the return value
-  if(rbw_is_array(ret)) {
+  if(! rbw_is_array(ret)) {
     if(ts >= 1)
       *target = Ruby::toDouble(ret);
     return 1;
@@ -259,7 +253,7 @@ Vector Expression::evaluateAsArray(const double * values) const
 
   Vector tg;
   // Now, we parse the return value
-  if(rbw_is_array(ret))
+  if(! rbw_is_array(ret))
     tg << Ruby::toDouble(ret);
   else {
     int sz = rbw_array_length(ret);

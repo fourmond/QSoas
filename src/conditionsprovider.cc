@@ -39,8 +39,8 @@ protected:
   RUBY_VALUE metaDataFor(const QString & fileName) const {
     RUBY_VALUE str = Ruby::fromQString(fileName);
     ensureRubyFine();
-    
-    return rbw_funcall(cConditionsFile, conditionsForID, 1, str);
+
+    return rbw_funcall2(cConditionsFile, conditionsForID, 1, &str);
   };
 
 public:

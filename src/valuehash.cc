@@ -247,8 +247,7 @@ static int setFromRubyInternalHelper(RUBY_VALUE key, RUBY_VALUE val, void * arg)
   // For now, very naive conversion...
   target->operator[](k) = Ruby::toQString(val);
 
-  //return ST_CONTINUE;
-  return 1;
+  return RBW_ST_CONTINUE;
 }
 
 void ValueHash::setFromRuby(RUBY_VALUE hsh)

@@ -520,6 +520,13 @@ static void assertCmd(const QString &, QString code,
   bool dump = false;
   updateFromOptions(opts, "dump", dump);
   QTextStream o(stdout);
+
+  bool useTol = false;
+  double tolerance = 0.0;
+  if(opts.contains("tolerance")) {
+    updateFromOptions(opts, "tolerance", tolerance);
+    useTol = true;
+  }
   
   if(sc) {
     assertContext = code;
@@ -571,21 +578,32 @@ static void assertCmd(const QString &, QString code,
       QByteArray bt = code.toLocal8Bit();
       value = Ruby::run(Ruby::eval, bt);
     }
-    if(RTEST(value)) {
+    bool check = (useTol ? fabs(NUM2DBL(value)) <= tolerance : RTEST(value));
+    if(check) {
       Terminal::out << "assertion success" << endl;
       o << ".";
     }
     else {
       cur->failed++;
-      Terminal::out << "assertion failed: " << code  << "\n";
-      o << "F: " << code  << "\n";
+      if(useTol) {
+        Terminal::out << "assertion failed: " << code
+                      << " (should be below: " << tolerance
+                      << " but is: " << NUM2DBL(value) << ")" << endl;
+        o << "F: " << code
+          << " (should be below: " << tolerance
+          << " but is: " << NUM2DBL(value) << ")\n";
+      }
+      else {
+        Terminal::out << "assertion failed: " << code  << endl;
+        o << "F: " << code  << "\n";
+      }
     }
   }
   catch(const Exception & e) {
     cur->exceptions++;
     Terminal::out << "assertion failed with exception: " << code  << ":\n";
     Terminal::out << e.message() << endl;
-    o << "E: " << code  << "\n";
+    o << "E: " << code  << " -- " << e.message() << "\n";
   }
 }
 
@@ -603,6 +621,9 @@ aO(QList<Argument *>()
    << new BoolArgument("dump", 
                        "Dump results",
                        "If on, dumps all the results of the test suite")
+   << new NumberArgument("tolerance", 
+                         "Tolerance",
+                         "If given, does not check that the value is true or false, just that its magnitude is smaller than the tolerance", true)
 );
 
 

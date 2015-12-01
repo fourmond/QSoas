@@ -87,5 +87,26 @@ public:
   };
 };
 
+/// Temporarily changes the current directory for the scope of this
+/// variable.
+class TemporarilyChangeDirectory {
+  QString prev;
+public:
+  TemporarilyChangeDirectory(const QString & str = "") {
+    if(! str.isEmpty()) {
+      prev = QDir::currentPath();
+      if(! QDir::setCurrent(str))
+        throw RuntimeError("Could not cd to '%1'").arg(str);
+    }
+  };
+
+  ~TemporarilyChangeDirectory() {
+    if(! prev.isEmpty()) {
+      if(! QDir::setCurrent(prev))
+        throw RuntimeError("Could not cd back to '%1'").arg(prev);
+    }
+  };
+};
+
 
 #endif

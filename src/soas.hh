@@ -62,7 +62,7 @@ public:
   void showMessage(const QString &str, int ms = 3000);
 
   /// Returns the current data set.
-  DataSet * currentDataSet();
+  DataSet * currentDataSet(bool silent = false);
 
   /// Pushes a new dataset onto the stack
   void pushDataSet(DataSet * ds, bool silent = false);

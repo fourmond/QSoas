@@ -282,36 +282,6 @@ lf("ruby-run", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-/// @todo This function could make many information available (stats
-/// about the current buffer and so on).
-///
-/// @todo There should also be a way to store the result somehow
-/// (although using global variables is always possible !)
-static void eval(const QString &, QString code)
-{
-  QByteArray bt = code.toLocal8Bit();
-  VALUE value = Ruby::run(Ruby::eval, bt);
-  Terminal::out << " => " << Ruby::inspect(value) << endl;
-}
-
-static ArgumentList 
-eA(QList<Argument *>() 
-   << new StringArgument("code", 
-                         "Code",
-                         "Any ruby code"));
-
-
-static Command 
-ev("eval", // command name
-   optionLessEffector(eval), // action
-   "file",  // group name
-   &eA, // arguments
-   NULL, // options
-   "Ruby eval",
-   "Evaluates a Ruby expression and prints the result", "");
-
-//////////////////////////////////////////////////////////////////////
-
 static void solve(const QString &, QString formula, double seed, 
                   const CommandOptions & opts)
 {
@@ -465,3 +435,47 @@ min("mintegrate-formula", // command name
    &miO, // options
    "Integrate expression",
    "Integrate the given expression");
+
+//////////////////////////////////////////////////////////////////////
+
+/// @todo There should also be a way to store the result somehow
+/// (although using global variables is always possible !)
+static void eval(const QString &, QString code, const CommandOptions & opts)
+{
+  bool useDs = true;
+  updateFromOptions(opts, "use-dataset", useDs);
+  
+  DataSet * ds = (useDs ? soas().currentDataSet(true) : NULL);
+  VALUE value;
+  if(ds)
+    value = ds->evaluateWithMeta(code, true);
+  else {
+    QByteArray bt = code.toLocal8Bit();
+    value = Ruby::run(Ruby::eval, bt);
+  }
+
+  Terminal::out << " => " << Ruby::inspect(value) << endl;
+}
+
+static ArgumentList 
+eA(QList<Argument *>() 
+   << new StringArgument("code", 
+                         "Code",
+                         "Any ruby code"));
+
+static ArgumentList 
+eO(QList<Argument *>() 
+   << new BoolArgument("use-dataset", 
+                       "Use current dataset",
+                       "If on (the default) and if there is a current dataset, the $meta and $stats hashes are available")
+);
+
+
+static Command 
+ev("eval", // command name
+   effector(eval), // action
+   "file",  // group name
+   &eA, // arguments
+   &eO,
+   "Ruby eval",
+   "Evaluates a Ruby expression and prints the result", "");

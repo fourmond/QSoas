@@ -1,0 +1,3 @@
+# Gets the name of a tests.cmds within a subdirectory, and runs it
+assert /set-context=true ${1%%/tests.cmds}
+@ ${1} /cd-to-script=true

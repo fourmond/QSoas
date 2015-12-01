@@ -538,6 +538,7 @@ static void assertCmd(const QString &, QString code,
     else
       keys = code.split(QRegExp("\\s+"));
 
+    o << "\nTest suite summary:\n";
     for(int i = 0; i < keys.size(); i++) {
       const QString & key = keys[i];
       const Assertions & as = assertResults[key];

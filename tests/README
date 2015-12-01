@@ -1,0 +1,6 @@
+This is a real test suite.
+
+The best way to run this is to run the run-all-tests.cmds file,
+possibly this way:
+
+QSoas --run '@ run-all-tests.cmds' --exit-after-running

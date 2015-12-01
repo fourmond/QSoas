@@ -1,0 +1,5 @@
+ruby-run helpers.rb
+timer
+run-for-each run-directory-tests.cmds */tests.cmds
+timer
+assert /dump=true all

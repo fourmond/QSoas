@@ -1,0 +1,9 @@
+generate-buffer -1 1
+
+# very basic stuff
+assert '$stats["y_max"] == 1'
+assert '$stats["y_min"] == -1'
+assert '$stats["x_min"] == -1'
+assert '$stats["x_max"] == 1'
+
+assert '$stats["y_int"].negligible?'

@@ -1,7 +1,0 @@
-#! /bin/sh
-
-for f in QSoas.pro src/*.??; do 
-    echo "Dealing with file $f"
-    mv $f $f.bak
-    ruby scripts/strip-internal-bits.rb < $f.bak > $f
-done

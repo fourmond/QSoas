@@ -1,0 +1,31 @@
+#! /bin/sh
+
+# Runs the test suite of QSoas, in
+
+checks=memcheck
+pref=
+case $1 in
+    --memcheck)
+        pref="valgrind --tool=memcheck --track-origins=yes --leak-check=full"
+        if [ "$2" ]; then
+            pref="$pref --xml=yes --xml-file=../$2"
+        fi
+        ;;
+    --xml)
+        for a in $checks; do
+            echo "Running check $a:"
+            $0 --$a $a".xml"
+        done
+        exit 0
+        ;;
+    --all)
+        for a in $checks; do
+            echo "Running check $a:"
+            $0 --$a | tee $a.log 2>&1 
+        done
+        exit 0
+        ;;
+esac
+
+cd tests
+xvfb-run $pref QSoas --run '@ run-all-tests.cmds' --exit-after-running

@@ -7,3 +7,11 @@ assert '$stats["x_min"] == -1'
 assert '$stats["x_max"] == 1'
 
 assert '$stats["y_int"].negligible?'
+assert '$stats["y_average"].negligible?'
+
+generate-buffer /samples=10001 -10 10 sin(PI*x)
+assert '($stats["x_delta_max"]-2e-3).smaller_than?(1e-7)'
+assert '($stats["x_delta_min"]-2e-3).smaller_than?(1e-7)'
+assert '$stats["y_int"].smaller_than?(4e-15)'
+assert '$stats["y_average"].negligible?'
+

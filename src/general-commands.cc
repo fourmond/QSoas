@@ -45,6 +45,8 @@
 
 #include <outfile.hh>
 
+#include <idioms.hh>
+
 
 static Group file("file", 0,
                   "File",
@@ -335,9 +337,20 @@ static void runCommand(const QString &, QStringList args,
   updateFromOptions(opts, "add-to-history", addToHistory);
   bool silent = false;
   updateFromOptions(opts, "silent", silent);
+  bool cd = false;
+  updateFromOptions(opts, "cd-to-script", cd);
+  
   WDisableUpdates eff(& soas().view(), silent);
 
   QString cmdfile = args.takeFirst();
+
+  QString nd;
+  if(cd) {
+    QFileInfo info(cmdfile);
+    nd = info.path();
+    cmdfile = info.fileName();
+  }
+  TemporarilyChangeDirectory c(nd);
   soas().prompt().runCommandFile(cmdfile, args, addToHistory);
 }
 
@@ -353,6 +366,13 @@ runOpts(QList<Argument *>()
                             "history (defaults to false)")
         );
 
+static ArgumentList
+rcO(QList<Argument *>(runOpts) 
+        << new BoolArgument("cd-to-script", 
+                            "cd to script",
+                            "If on, automatically change the directory to that oof the script")
+        );
+
 static ArgumentList 
 runArgs(QList<Argument *>() 
         << new SeveralFilesArgument("file", 
@@ -366,7 +386,7 @@ run("run", // command name
     effector(runCommand), // action
     "file",  // group name
     &runArgs, // arguments
-    &runOpts, // options doesn't seem to work anyway...
+    &rcO, 
     "Run commands",
     "Run commands from a file",
     "Run commands saved in a file",

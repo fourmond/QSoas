@@ -479,3 +479,137 @@ ev("eval", // command name
    &eO,
    "Ruby eval",
    "Evaluates a Ruby expression and prints the result", "");
+
+//////////////////////////////////////////////////////////////////////
+
+/// The current context for assertions
+static QString assertContext = "general";
+
+/// small class
+class Assertions {
+public:
+
+  /// total number
+  int total;
+
+  /// number failed (not true)
+  int failed;
+
+  /// number for which there was an exception raised
+  int exceptions;
+
+  Assertions() : total(0), failed(0), exceptions(0) {;};
+
+  void add(const Assertions & o) {
+    total += o.total;
+    failed += o.failed;
+    exceptions += o.exceptions;
+  };
+};
+
+static QHash<QString, Assertions> assertResults;
+
+
+
+static void assertCmd(const QString &, QString code,
+                      const CommandOptions & opts)
+{
+  DataSet * ds = soas().currentDataSet(true);
+  bool sc = false;
+  updateFromOptions(opts, "set-context", sc);
+  bool dump = false;
+  updateFromOptions(opts, "dump", dump);
+  QTextStream o(stdout);
+  
+  if(sc) {
+    assertContext = code;
+    o << "\n" << code << ": "; 
+    return;
+  }
+
+  if(dump) {
+    // Ignore code ?
+    QStringList keys;
+    Assertions totl;
+    if(code == "all") {
+      keys = assertResults.keys();
+      qSort(keys);
+    }
+    else
+      keys = code.split(QRegExp("\\s+"));
+
+    for(int i = 0; i < keys.size(); i++) {
+      const QString & key = keys[i];
+      const Assertions & as = assertResults[key];
+      Terminal::out << key << ": " << as.total << " total, "
+                    << as.failed << " failed, " 
+                    << as.exceptions << " exceptions." << endl;
+      o << key << ": " << as.total << " total, "
+        << as.failed << " failed, " 
+        << as.exceptions << " exceptions." << endl;
+      totl.add(as);
+    }
+    if(keys.size() > 0) {
+      Terminal::out << "Overall: " << totl.total << " total, "
+                    << totl.failed << " failed, " 
+                    << totl.exceptions << " exceptions." << endl;
+      o << "Overall: " << totl.total << " total, "
+        << totl.failed << " failed, " 
+        << totl.exceptions << " exceptions." << endl;
+    }
+    return;
+  }
+
+  VALUE value;
+  Assertions * cur = &assertResults[assertContext];
+  cur->total += 1;
+  try {
+    if(ds)
+      value = ds->evaluateWithMeta(code, true);
+    else {
+      QByteArray bt = code.toLocal8Bit();
+      value = Ruby::run(Ruby::eval, bt);
+    }
+    if(RTEST(value)) {
+      Terminal::out << "assertion success" << endl;
+      o << ".";
+    }
+    else {
+      cur->failed++;
+      Terminal::out << "assertion failed: " << code  << "\n";
+      o << "F: " << code  << "\n";
+    }
+  }
+  catch(const Exception & e) {
+    cur->exceptions++;
+    Terminal::out << "assertion failed with exception: " << code  << ":\n";
+    Terminal::out << e.message() << endl;
+    o << "E: " << code  << "\n";
+  }
+}
+
+static ArgumentList 
+aA(QList<Argument *>() 
+   << new StringArgument("code", 
+                         "Code",
+                         "Any ruby code"));
+
+static ArgumentList 
+aO(QList<Argument *>() 
+   << new BoolArgument("set-context", 
+                       "Set assertion context",
+                       "If on, does not check anything but changes the current assertion context")
+   << new BoolArgument("dump", 
+                       "Dump results",
+                       "If on, dumps all the results of the test suite")
+);
+
+
+static Command 
+as("assert", // command name
+   effector(assertCmd), // action
+   "file",  // group name
+   &aA, // arguments
+   &aO,
+   "Assert",
+   "Runs an assertion in a test suite");

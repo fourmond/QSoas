@@ -6,9 +6,10 @@ assert '$stats["y_var"] == 0'
 drop
 diff
 apply-formula y=y-2*x
-assert '($stats["y_var"]**0.5).smaller_than? 5e-13'
+assert '$stats["y_var"]**0.5'  5e-13
 
 # Is erf really what is should be ?
 generate-buffer -1 1 erf(x)
 diff
 apply-formula y=y-2/sqrt(PI)*exp(-x**2)
+assert '$stats["y_var"]**0.5'  1e-11

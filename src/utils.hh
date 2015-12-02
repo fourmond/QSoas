@@ -144,6 +144,13 @@ namespace Utils {
   void skippingCopy(const double * source, double * target,
                     int nb, const QSet<int> skipped);
 
+  /// Compares the two numbers, and returns true if they are "equal", meaning:
+  /// @li both NaN
+  /// @li equal
+  /// @li they difference is smaller than tolerance (if tolerance is
+  /// strictly positive)
+  bool fuzzyCompare(double a, double b, double tolerance = 0);
+
   /// @}
 
   /// @name Geometrical functions

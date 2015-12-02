@@ -347,6 +347,24 @@ double Utils::roundValue(double value, int rank)
   return round(v) * pow(10, rk-rank);
 }
 
+
+bool Utils::fuzzyCompare(double a, double b, double tolerance)
+{
+  if(std::isnan(a)) {
+    if(std::isnan(b))
+      return true;
+    else
+      return false;
+  }
+  if(std::isnan(b))
+    return false;
+  if(a == b)
+    return true;
+  if(tolerance > 0 && fabs(a - b) <= tolerance)
+    return true;
+  return false;
+}
+
 void Utils::registerShortCut(const QKeySequence & seq, QObject * receiver, 
                              const char * fn, QWidget * parent,
                              Qt::ShortcutContext context)

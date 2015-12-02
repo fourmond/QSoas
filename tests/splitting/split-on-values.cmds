@@ -1,0 +1,35 @@
+generate-buffer /samples=10000 -1 1 sin(x**3)
+apply-formula /extra-columns=2 'y2=i%7; y3=i%13'
+split-on-values a,b y2,y3 /flags=splt1
+
+# crude way to check that the number of buffers split is correct
+assert '$stats["buffer"] =~ /_(\d+).dat/; $1.to_i == 90'
+assert '$meta["subset-index"] == 90'
+
+# remove the ones created, and check we're back to the orignal one
+drop flagged:splt1
+assert '$stats["rows"] == 10000'
+
+# Same thing, but with a massive amount of possibilities, just to
+# check we are not exhausting the memory
+
+generate-buffer /samples=10000 -1 1 sin(x**3)
+apply-formula /extra-columns=5 'y2=i%7; y3=i%13; y4=y2*y3; y5=y2+y3; y6=y3**y2'
+split-on-values a,b,c,d,e y2,y3,y4,y5,y6 /flags=splt2
+assert '$meta["subset-index"] == 90'
+
+drop flagged:splt2
+
+# Now, check that we have spliced correctly:
+generate-buffer /samples=10000 -1 1
+apply-formula /extra-columns=1 'y2=(sin(i**5) > 0 ? 1 : -1); y=sin((10*x)**(2+y2))'
+
+split-on-values a y2
+apply-formula 'y -= sin((10*x)**(2+$meta["a"]))'
+assert '$stats["y_var"] = 0'
+drop 0,1
+
+apply-formula 'y -= sin((10*x)**(2+$meta["a"]))'
+assert '$stats["y_var"] = 0'
+
+

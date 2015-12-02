@@ -165,7 +165,7 @@ static void splitMonotonicCommand(const QString &,
   for(int i = 0; i < nds.size(); i++) {
     if(flags.size() > 0)
       nds[i]->setFlags(flags);
-    nds[i]->setMetaData("segment-number", i);
+    nds[i]->setMetaData("segment-index", i);
     soas().pushDataSet(nds[i]);
   }
 }
@@ -192,6 +192,67 @@ sm("split-monotonic", // command name
    &smOpts, // options
    "Split into monotonic parts",
    "Splits a buffer into subparts where the change in X are monotonic");
+
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void splitOnValues(const QString &,
+                          QStringList meta,
+                          QList<int> cols,
+                          const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+  if(meta.size() != cols.size())
+    throw RuntimeError("The list of meta and columns must be matched");
+
+  QStringList flags;
+  updateFromOptions(opts, "flags", flags);
+
+  QHash<int, QString> cls;
+  for(int i = 0; i < meta.size(); i++)
+    cls[cols[i]] = meta[i];
+
+  QList<DataSet*> nds = ds->autoSplit(cls);
+
+  for(int i = 0; i < nds.size(); i++) {
+    if(flags.size() > 0)
+      nds[i]->setFlags(flags);
+    nds[i]->setMetaData("subset-index", i);
+    soas().pushDataSet(nds[i]);
+  }
+}
+
+static ArgumentList 
+spvArgs(QList<Argument *>() 
+        << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                      "meta", 
+                                      "Meta",
+                                      "Names of the meta to be created")
+        << new SeveralColumnsArgument("columns", 
+                                      "Columns",
+                                      "Columns whose values one should split on")
+        );
+
+
+
+static ArgumentList 
+spvOpts(QList<Argument *>() 
+        << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                      "flags", 
+                                      "Flags",
+                                      "Flags to set on the results")
+       );
+
+
+static Command 
+spv("split-on-values", // command name
+    effector(splitOnValues), // action
+    "split",  // group name
+    &spvArgs, // arguments
+    &spvOpts, // options
+    "Split on column values",
+    "Splits a buffer into subsets that share common values in certain columns");
 
 //////////////////////////////////////////////////////////////////////
 

@@ -1402,6 +1402,99 @@ bool DataSet::matches(const QString & expression) const
 }
 
 
+// looks dirty, but should be OK:
+static uint qHash(const QVector<int> & v)
+{
+  uint rv = qHash(v.size());
+  for(int i = 0; i < v.size(); i++)
+    rv ^= qHash(v[i]);
+  return rv;
+}
+
+static bool cmpVectors(const QVector<int> & a, const QVector<int> & b)
+{
+  if(a.size() != b.size())
+    throw InternalError("Comparing vectors of different sizes: %1 vs %2").
+      arg(a.size()).arg(b.size());
+  for(int i = 0; i < a.size(); i++) {
+    if(a[i] < b[i])
+      return true;
+    if(a[i] > b[i])
+      return false;
+  }
+  return false;
+}
+
+QList<DataSet *> DataSet::autoSplit(const QHash<int, QString> & cols,
+                                    double tolerance) const
+{
+  QList<DataSet *> d;
+  QHash<int, Vector> uniqueValues;
+  for(auto i = cols.begin(); i != cols.end(); i++) {
+    if(i.key() >= columns.size())
+      throw RuntimeError("Dataset does not have %1 columns").arg(i.value()+1);
+    const Vector & v = columns[i.key()];
+    uniqueValues[i.key()] = v.values(tolerance);
+  }
+
+  QHash<QVector<int>, DataSet *> rvs;
+
+  QVector<int> cls = uniqueValues.keys().toVector();
+  qSort(cls);
+
+  // A template for columns
+  QList<Vector> tmplt;
+  for(int i = 0; i < columns.size() - cols.size(); i++)
+    tmplt << Vector();
+
+  int sz = x().size();
+  int nbc = cls.size(); 
+  QVector<int> idx = cls;       // just for initialization
+
+  
+  for(int i = 0; i < sz; i++) {
+    for(int j = 0; j < nbc; j++) {
+      int cur_col = cls[j];
+      double val = columns[cur_col][i];
+      int uidx = uniqueValues[cur_col].bfind(val);
+      if(uidx > 0 && Utils::fuzzyCompare(val, uniqueValues[cur_col][uidx-1],
+                                         tolerance))
+        uidx --;
+      idx[j] = uidx;
+    }
+
+    DataSet * ds = rvs.value(idx, NULL);
+    if(! ds) {
+      ds = derivedDataSet(tmplt, ".tmp");
+
+      // set the meta-data
+      for(auto k = cols.begin(); k != cols.end(); k++)
+        // We use the original data as base
+        ds->setMetaData(k.value(), columns[k.key()][i]);
+      rvs[idx] = ds;
+    }
+    int tgi = 0;
+    for(int j = 0; j < columns.size(); j++) {
+      if(uniqueValues.contains(j))
+        continue;
+      ds->columns[tgi] << columns[j][i];
+      tgi += 1;
+    }
+  }
+
+  QList<QVector<int> > keys = rvs.keys();
+  qSort(keys.begin(), keys.end(), &cmpVectors);
+
+  for(int i = 0; i < keys.size(); i++) {
+    DataSet * ds = rvs[keys[i]];
+    ds->name = ds->cleanedName() + QString("_subset_%1.dat").arg(i);
+    d << ds;
+  }
+  return d;
+}
+
+
+
 
 //////////////////////////////////////////////////////////////////////
 

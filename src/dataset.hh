@@ -605,6 +605,13 @@ public:
   /// reason.
   bool matches(const QString & expression) const;
 
+
+  /// This function splits the dataset into a series of datasets based
+  /// on the values of the given columns: each dataset in the final
+  /// set corresponds to a unique set of values. They are added as
+  /// meta-data to the final datasets.
+  QList<DataSet *> autoSplit(const QHash<int, QString> & cols, double tolerance = 0) const;
+
   /// @}
   
 };

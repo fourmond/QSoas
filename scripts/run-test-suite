@@ -1,9 +1,14 @@
 #! /bin/sh
 
+
 # Runs the test suite of QSoas, in
 
 checks=memcheck
 pref=
+qsoas=$QSOAS
+if [ -z "$qsoas" ]; then
+    qsoas=QSoas
+fi
 case $1 in
     --memcheck)
         pref="valgrind --tool=memcheck --track-origins=yes --leak-check=full"
@@ -28,4 +33,4 @@ case $1 in
 esac
 
 cd tests
-xvfb-run $pref QSoas --run '@ run-all-tests.cmds' --exit-after-running
+xvfb-run -a $pref $qsoas --run '@ run-all-tests.cmds' --exit-after-running

@@ -9,6 +9,7 @@ qsoas=$QSOAS
 if [ -z "$qsoas" ]; then
     qsoas=QSoas
 fi
+xvfb="xvfb-run -a"
 case $1 in
     --memcheck)
         pref="valgrind --tool=memcheck --track-origins=yes --leak-check=full"
@@ -30,7 +31,10 @@ case $1 in
         done
         exit 0
         ;;
+    --no-xvfb)
+        xvfb=""
+        ;;
 esac
 
 cd tests
-xvfb-run -a $pref $qsoas --run '@ run-all-tests.cmds' --exit-after-running
+$xvfb $pref $qsoas --run '@ run-all-tests.cmds' --exit-after-running

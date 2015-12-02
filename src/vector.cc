@@ -798,3 +798,56 @@ QStringList Vector::asText(int fieldWidth, char format, int precision,
     ret << fmt.arg(value(i), fieldWidth, format, precision, fillChar);
   return ret;
 }
+
+int Vector::bfind(double value) const
+{
+  int left = 0, right = size() -1;
+  if(right < 0)
+    return 0;
+  const double *d = data();
+  if(value < d[left])
+    return 0;
+  if(std::isnan(value)) {
+    if(std::isnan(d[right]))
+      return right;
+    else
+      return right+1;
+  }
+  if(std::isnan(d[right]))
+    right--;
+  if(right < 0)
+    return 0;
+  if(value > d[right])
+    return right+1;
+
+  while(right - left > 1) {
+    if(value == d[left])
+      return left;
+    if(value == d[right])
+      return right;
+    int nd = (left+right)/2;
+    if(value <= d[nd])
+      right = nd;
+    else
+      left = nd;
+  }
+  return right;
+}
+
+Vector Vector::values(double tolerance) const
+{
+  Vector rv;
+
+  int sz = size();
+  const double *d = data();
+  for(int i = 0; i < sz; i++) {
+    if(rv.size() == 0) {
+      rv << d[i];
+      continue;
+    }
+    int idx = rv.bfind(d[i]);
+    if(idx >= rv.size() || (! Utils::fuzzyCompare(d[i], rv[idx], tolerance)))
+      rv.insert(idx, d[i]);
+  }
+  return rv;
+}

@@ -149,6 +149,21 @@ public:
   /// text files)
   bool hasOnlyNaN() const;
 
+
+  /// Returns a vector containing all the values of the vector, sorted
+  /// and all distinct, within the given tolerance.
+  Vector values(double tolerance = 0) const;
+
+  /// Performs a binary search for @a value. It returns the index at
+  /// which the value is <b>or where it should be</b>. In particular,
+  /// if the number is higher than the highest, the index returned
+  /// will be size().
+  ///
+  /// @warning The vector needs to be @b sorted !
+  ///
+  /// It can handle NaNs -- they will be stored at the end.
+  int bfind(double value) const;
+
   /// @}
 
   /// @name Other operations

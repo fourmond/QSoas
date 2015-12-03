@@ -166,7 +166,11 @@ static void splitMonotonicCommand(const QString &,
     if(flags.size() > 0)
       nds[i]->setFlags(flags);
     nds[i]->setMetaData("segment-index", i);
-    soas().pushDataSet(nds[i]);
+    soas().pushDataSet(nds[i], true);
+    if(i > 1)
+      soas().view().addDataSet(nds[i]);
+    else
+      soas().view().showDataSet(nds[i]);
   }
 }
         
@@ -1526,46 +1530,74 @@ static void generateDSCommand(const QString &, double beg, double end,
   QString formula;
   updateFromOptions(opts, "formula", formula);
 
-  Vector x = Vector::uniformlySpaced(beg, end, samples);
-  Vector y = x;
-  if(! formula.isEmpty()) {
-    QStringList vars;
-    vars << "x" << "i";
-    Expression expr(formula, vars);
-    /// @todo have a global way to incorporate all "constants"
-    /// (temperature and fara) into that.
-    double v[2];
-    for(int i = 0; i < x.size(); i++) {
-      v[0] = x[i];
-      v[1] = i;
-      y[i] = expr.evaluate(v);
-    }
-  }
+  int nb = 1;
+  updateFromOptions(opts, "number", nb);
 
-  DataSet * newDs = new DataSet(x,y);
-  newDs->name = "generated.dat";
-  soas().pushDataSet(newDs);
+  QStringList flags;
+  updateFromOptions(opts, "flags", flags);
+
+  for(int k = 0; k < nb; k++) {
+    Vector x = Vector::uniformlySpaced(beg, end, samples);
+    Vector y = x;
+    if(! formula.isEmpty()) {
+      QStringList vars;
+      vars << "x" << "i" << "number";
+      Expression expr(formula, vars);
+      /// @todo have a global way to incorporate all "constants"
+      /// (temperature and fara) into that.
+      double v[3];
+      for(int i = 0; i < x.size(); i++) {
+        v[0] = x[i];
+        v[1] = i;
+        v[2] = k;
+        y[i] = expr.evaluate(v);
+      }
+    }
+
+    DataSet * newDs = new DataSet(x,y);
+    if(nb > 1) {
+      newDs->name = QString("generated_%1.dat").arg(k);
+      newDs->setMetaData("generated-number", k);
+    }
+    else
+      newDs->name = "generated.dat";
+    if(flags.size() > 0)
+      newDs->setFlags(flags);
+    soas().pushDataSet(newDs, true);
+    if(k > 1)
+      soas().view().addDataSet(newDs);
+    else
+      soas().view().showDataSet(newDs);
+
+  }
 }
 
 static ArgumentList 
 gDSA(QList<Argument *>() 
-       << new NumberArgument("start", 
-                             "Start",
-                             "The first X value")
-       << new NumberArgument("end", 
-                             "End",
-                             "The last X value")
-       );
+     << new NumberArgument("start",
+                           "Start",
+                           "The first X value")
+     << new NumberArgument("end",
+                           "End",
+                           "The last X value")
+     );
 
 static ArgumentList 
 gDSO(QList<Argument *>() 
-       << new IntegerArgument("samples", 
-                              "Number of samples",
-                              "The number of samples")
-       << new StringArgument("formula", 
-                             "The Y values",
-                             "Formula to generate the Y values",
-                             true)
+     << new IntegerArgument("samples",
+                            "Number of samples",
+                            "The number of samples")
+     << new IntegerArgument("number",
+                            "Number of generated datasets",
+                            "Generates that many datasets")
+     << new StringArgument("formula",
+                           "The Y values",
+                           "Formula to generate the Y values",
+                           true)
+     << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                   "flags",
+                                   "Flags",
+                                   "Flags to set on the results")
      );
 
 

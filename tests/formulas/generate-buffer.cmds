@@ -1,0 +1,15 @@
+generate-buffer -1 1 x**2
+apply-formula y-=x**2
+assert '$stats["y_var"]==0'
+
+generate-buffer -2 2 x**(1+number) /number=7
+apply-formula y-=x**7
+assert '$stats["y_var"]==0'
+
+drop 0..1
+apply-formula y-=x**6
+assert '$stats["y_var"]==0'
+
+drop 0..3
+apply-formula y-=x**3
+assert '$stats["y_var"]==0'

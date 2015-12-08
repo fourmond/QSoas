@@ -150,7 +150,7 @@ double rbw_num2dbl(RUBY_VALUE a)
 
 long rbw_num2int(RUBY_VALUE a)
 {
-  return rb_num2int((VALUE) a);
+  return NUM2INT((VALUE) a);
 }
 
 int rbw_test(RUBY_VALUE a)

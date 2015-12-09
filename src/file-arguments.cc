@@ -71,9 +71,9 @@ QStringList FileArgument::proposeCompletion(const QString & starter) const
 
 QString FileArgument::typeDescription() const {
   if(isDir)
-    return "Path of a directory";
+    return "name of a directory";
   else
-    return "Path of a file";
+    return "name of a file";
 }
 
 ////////////////////////////////////////////////////////////

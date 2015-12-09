@@ -167,15 +167,15 @@ void Fit::makeCommands(ArgumentList * args,
                                "Pre-loads parameters");
   *options << new BoolArgument("debug", 
                                "Debug",
-                               "Turn on debugging (for QSoas developers only)");
+                               "turn on debugging (for QSoas developers only, default: false)");
   *options << new BoolArgument("debug2", 
                                "Debug2",
-                               "Extremely verbose debugging");
+                               "extremely verbose debugging (default: false)");
 
   *options << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                          "set-from-meta", 
                                          "Set from meta-data",
-                                         "Set parameter values from meta-data");
+                                         "sets parameter values from meta-data");
 
 
 
@@ -191,11 +191,11 @@ void Fit::makeCommands(ArgumentList * args,
   }
   *options << new BoolArgument("weight-buffers", 
                                "Weight buffers",
-                               "Whether or not to weight buffers (off by default)");
+                               "whether or not to weight buffers (off by default)");
 
   *options << new StringArgument("perp-meta", 
                                  "Perpendicular coordinate",
-                                 "If specified, it is the name of a meta-data that holds the perpendicular coordinates");
+                                 "if specified, it is the name of a meta-data that holds the perpendicular coordinates");
 
   
   ArgumentList * al = NULL;
@@ -203,7 +203,7 @@ void Fit::makeCommands(ArgumentList * args,
     al = args;
     (*al) << new SeveralDataSetArgument("datasets", 
                                         "Dataset",
-                                        "Datasets to fit",
+                                        "datasets that will be fitted to",
                                         true);
   }
   else
@@ -211,7 +211,7 @@ void Fit::makeCommands(ArgumentList * args,
       ArgumentList(QList<Argument *>()
                    << new SeveralDataSetArgument("datasets", 
                                                  "Dataset",
-                                                 "Datasets to fit",
+                                                 "datasets that will be fitted to",
                                                  true));
 
   pn = "Multi fit: ";
@@ -238,6 +238,7 @@ void Fit::makeCommands(ArgumentList * args,
                 new FileArgument("parameters", 
                                  "Parameters",
                                  "File to load parameters from"));
+    al2->setArgumentDescription("datasets", "the buffers whose X values will be used for simulations");
 
     ArgumentList * nopts = 
       (originalOptions ? new ArgumentList(*originalOptions) : 

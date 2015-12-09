@@ -476,11 +476,11 @@ static void defineDistribFit(const QString &, QString newName,
 static ArgumentList 
 dfA(QList<Argument *>() 
     << new StringArgument("name", "Name",
-                          "The name of the new fit")
-    << new FitNameArgument("fit", "Fit",
-                           "The fit to make a derived fit from")
+                          "name of the new fit")
+    << new FitNameArgument("existing-fit", "Fit",
+                           "name of fit to make a derived fit from")
     << new StringArgument("parameter", "Parameter",
-                          "The parameter over which to integrate"));
+                          "the parameter over which to integrate"));
 
 static ArgumentList 
 dfO(QList<Argument *>() 

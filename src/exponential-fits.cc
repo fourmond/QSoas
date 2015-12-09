@@ -237,16 +237,16 @@ public:
                    << new 
                    BoolArgument("absolute", 
                                 "Absolute",
-                                "Amplitude is absolute or relative to "
-                                "the asymptote ?")
+                                "whether the amplitude is absolute or relative to "
+                                "the asymptote (defaults to true)")
                    << new 
                    BoolArgument("loss", 
                                 "Loss",
-                                "Wether the sum of exponentials should be multiplied by an exp(-kt) function")
+                                "wether the sum of exponentials should be multiplied by an exp(-kt) function (default: false)")
                    << new 
                    BoolArgument("slow", 
                                 "Slow phase",
-                                "Is there a very slow phase (that shows up as a linear change in Y against time) ?")
+                                "whether there is a very slow phase (that shows up as a linear change in Y against time, defaults: false)")
                    );
     return opts;
   };

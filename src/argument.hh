@@ -38,11 +38,11 @@ class Command;
 class Argument {
 protected:
 
-  const char * name;
+  QString name;
 
-  const char * pubName;
+  QString pubName;
 
-  const char * desc;
+  QString desc;
 
 public:
 
@@ -74,13 +74,16 @@ public:
 
   /// The public name, the one to be used in the menus. 
   virtual QString publicName() const {
-    return QObject::tr(pubName);
+    return pubName;
   };
 
   /// A description, used for tool tips
   virtual QString description() const {
-    return QObject::tr(desc);
+    return desc;
   };
+
+  /// Sets the description for the argument
+  void setDescription(const QString & s);
 
 
   /// The type name is single word (ie no spaces) used to describe the

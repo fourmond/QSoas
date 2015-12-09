@@ -149,23 +149,23 @@ static ArgumentList
 sBArgs(QList<Argument *>() 
          << new SeveralDataSetArgument("buffers", 
                                        "Buffers to save",
-                                       "Buffers to save"));
+                                       "buffers to save"));
 
 static ArgumentList 
 sBOpts(QList<Argument *>() 
        << new StringArgument("format", 
                              "File name format",
-                             "Overrides buffer names if present")
+                             "overrides buffer names if present")
        << new StringArgument("expression", 
                              "A full Ruby expression",
-                             "A full Ruby expression ")
+                             "a Ruby expression to make file names")
        << new ChoiceArgument(QStringList() << "save" << "both" << "rename", 
                              "mode", 
-                             "How to rename buffers",
-                             "If using format or expression, whether or not to rename buffers ")
+                             "How to rename/save buffers",
+                             "if using `/format` or `/expression`, whether to just `save`, to just `rename` or `both` (defaults to 'both')")
        << new BoolArgument("mkpath",
                            "Make path",
-                           "If true, creates all necessary directories")
+                           "if true, creates all necessary directories (defaults to false)")
        );
 
 
@@ -431,14 +431,20 @@ static void hideCommand(const QString &, QList<const DataSet *> ds,
   soas().view().enableUpdates();
 }
 
+static ArgumentList 
+hdArgs(QList<Argument *>() 
+       << new SeveralDataSetArgument("buffers", 
+                                     "Buffers",
+                                     "buffers to hide"));
+
 static Command 
 hide("hide-buffer", // command name
      effector(hideCommand), // action
      "view",  // group name
-     &ovArgs, // arguments
+     &hdArgs, // arguments
      NULL, // options
      "Hide buffers",
-     "Hide buffers from the view",
+     "hide buffers from the view",
      "",
      "H");
 

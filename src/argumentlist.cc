@@ -65,6 +65,15 @@ Argument * ArgumentList::namedArgument(const QString & name) const
   return arg;                   
 }
 
+void ArgumentList::setArgumentDescription(const QString & name, const QString & desc)
+{
+  Argument * arg = namedArgument(name);
+  if(! arg)
+    throw InternalError("Trying to modify unexisting argument: %1").arg(name);
+  arg->setDescription(desc);
+}
+
+
 QStringList ArgumentList::argumentNames() const
 {
   if(cache.size() != size())

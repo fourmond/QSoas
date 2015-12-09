@@ -49,9 +49,7 @@ public:
     return "text";
   };
 
-  virtual QString typeDescription() const {
-    return "Arbitrary text. If you need spaces, do not forget to quote them with ', for instance";
-  };
+  virtual QString typeDescription() const;
 };
 
 /// Several strings
@@ -79,9 +77,7 @@ public:
   virtual void concatenateArguments(ArgumentMarshaller * a, 
                                     const ArgumentMarshaller * b) const;
 
-  virtual QString typeName() const  {
-    return "texts";
-  };
+  virtual QString typeName() const;
 
   virtual QString typeDescription() const;
 };
@@ -277,7 +273,7 @@ public:
   };
 
   virtual QString typeDescription() const {
-    return "Comma-separated lists of datasets in the stack, "
+    return "comma-separated lists of buffers in the stack, "
       "see [buffers lists](#buffer-lists)";
   };
 
@@ -480,13 +476,8 @@ public:
   /// Returns a wrapped Regex
   virtual ArgumentMarshaller * fromString(const QString & str) const;
 
-  virtual QString typeName() const {
-    return "pattern";
-  };
-
-  virtual QString typeDescription() const {
-    return "Text, or Qt regular expression enclosed within / / delimiters";
-  };
+  virtual QString typeName() const;
+  virtual QString typeDescription() const;
 
 };
 

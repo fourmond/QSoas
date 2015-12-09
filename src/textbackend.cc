@@ -103,22 +103,22 @@ static ArgumentList
 textLoadOptions(QList<Argument *>() 
                 << new RegexArgument("separator", 
                                      "Separator",
-                                     "Separator between columns")
+                                     "separator between columns")
                 << new StringArgument("decimal", 
                                       "Decimal separator",
-                                      "Decimal separator")
+                                      "decimal separator")
                 << new IntegerArgument("skip", 
-                                       "Skip lines",
-                                       "Skip that many lines at beginning")
+                                       "skip lines",
+                                       "skip that many lines at beginning")
                 << new RegexArgument("comments", 
                                      "Comments",
-                                     "Comment lines")
+                                     "pattern for comment lines")
                 << new SeveralIntegersArgument("columns", 
                                                "Columns",
                                                "Order of the columns")
                 << new BoolArgument("auto-split", 
-                                    "Auto split",
-                                    "Split on blank lines")
+                                    "auto split",
+                                    "if on, create a new dataset at every fully blank line (off by default)")
                 );
 
 ArgumentList * TextBackend::loadOptions() const

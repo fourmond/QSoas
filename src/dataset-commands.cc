@@ -390,22 +390,22 @@ static ArgumentList
 expandOpts(QList<Argument *>() 
            << new StringArgument("perp-meta", 
                                  "Perpendicular coordinate",
-                                 "Define meta-data from perpendicular coordinate")
+                                 "defines meta-data from perpendicular coordinate")
            << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                          "flags", 
-                                         "Buffers",
-                                         "Buffers to flag/unflag"));
+                                         "Flags",
+                                         "flags for the new buffers"));
 
 
 static Command 
 expand("expand", // command name
-     effector(expandCommand), // action
-     "buffer",  // group name
-     NULL, // arguments
-     &expandOpts, // options
-     "Expand",
-     "Expands a multi-Y dataset",
-     "Expands a dataset with many Y columns into as many datasets with one Y column");
+       effector(expandCommand), // action
+       "buffer",  // group name
+       NULL, // arguments
+       &expandOpts, // options
+       "Expand",
+       "Expands a multi-Y dataset",
+       "Expands a dataset with many Y columns into as many datasets with one Y column");
 
 
 
@@ -1498,10 +1498,10 @@ statsO(QList<Argument *>()
                               true)
        << new BoolArgument("output", 
                            "To output file",
-                           "Also write stats to output file")
+                           "whether to write stats to output file (defaults to false)")
        << new BoolArgument("use-segments", 
                            "Use segments",
-                           "Make statistics segment by segment")
+                           "Makes statistics segment by segment (defaults to false)")
        << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "meta", 
                                      "Meta-data",
                                      "When writing to output file, also print the listed meta-data")
@@ -1586,10 +1586,10 @@ static ArgumentList
 gDSO(QList<Argument *>() 
      << new IntegerArgument("samples",
                             "Number of samples",
-                            "The number of samples")
+                            "number of data points")
      << new IntegerArgument("number",
                             "Number of generated datasets",
-                            "Generates that many datasets")
+                            "generates that many datasets")
      << new StringArgument("formula",
                            "The Y values",
                            "Formula to generate the Y values",

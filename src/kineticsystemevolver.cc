@@ -176,11 +176,11 @@ static ArgumentList
 ksOpts (QList<Argument *>() 
         << new BoolArgument("dump", 
                             "Dump system",
-                            "If on, dumps the system rather than solving")
+                            "if on, prints a description of the system rather than solving (default: false)")
         << ODEStepperOptions::commandOptions()
         << new BoolArgument("annotate", 
                             "Annotate",
-                            "If on, a last column will contain the number of function evaluation for each step")
+                            "If on, a last column will contain the number of function evaluation for each step (default false)")
         );
 
 static void kineticSystemCommand(const QString &, QString file,

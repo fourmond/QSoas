@@ -284,22 +284,22 @@ void DataBackend::registerBackendCommands()
   ArgumentList * lst = 
     new ArgumentList(QList<Argument *>() 
                      << new SeveralFilesArgument("file", 
-                                                 "File",
-                                                 "Files to load !", true
+                                                 "Files",
+                                                 "the files to load", true
                                                  ));
 
   ArgumentList * overallOptions = 
     new ArgumentList(QList<Argument *>() 
                      << new StyleGeneratorArgument("style", 
                                                    "Style",
-                                                   "Style for curves display")
+                                                   "style for curves display")
                      << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                                    "flags", 
                                                    "Flags",
-                                                   "Flags for the newly created buffers")
+                                                   "flags for the newly created buffers")
                      << new BoolArgument("ignore-cache", 
                                          "Ignores cache",
-                                         "If on, ignores what is in the cache")
+                                         "if on, ignores cache (default off)")
                      );
 
   ArgumentList * oo = DatasetOptions::optionList();
@@ -316,6 +316,7 @@ void DataBackend::registerBackendCommands()
     ArgumentList * opts = b->loadOptions();
     if(opts) {
       allBackendsOptions->mergeOptions(*opts);
+      opts = new ArgumentList(*opts);
     }
     else
       opts = new ArgumentList;
@@ -323,11 +324,11 @@ void DataBackend::registerBackendCommands()
     /// load and overlay commands.
     *opts << new StyleGeneratorArgument("style", 
                                         "Style",
-                                        "Style for curves display")
-    << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
-                                  "flags", 
-                                  "Flags",
-                                  "Flags for the newly created buffers");
+                                        "style for curves display")
+          << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                        "flags", 
+                                        "Flags",
+                                        "flags for the newly created buffers");
     
     opts->mergeOptions(*oo);
       

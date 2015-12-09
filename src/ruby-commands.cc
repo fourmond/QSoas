@@ -153,20 +153,19 @@ static ArgumentList
 fA(QList<Argument *>() 
    << new StringArgument("formula", 
                          "Formula",
-                         "Formula (valid Ruby code)"));
+                         "formula"));
 
 static ArgumentList 
 fO(QList<Argument *>() 
    << new IntegerArgument("extra-columns", 
                           "Extra columns",
-                          "Number of extra columns to create")
+                          "number of extra columns to create")
    << new BoolArgument("use-stats", 
                        "Use statistics",
-                       "If on, a $stats hash is available that contains "
-                       "statistics")
+                       "if on, the formula can use `$stats` to refer to statistics (off by default)")
    << new BoolArgument("use-meta", 
                        "Use meta-data",
-                       "If on (by default), a meta hash is available that contains "
+                       "if on (by default), a `$meta` hash is available that contains "
                        "the dataset meta-data")
    );
 

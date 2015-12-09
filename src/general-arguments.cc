@@ -58,6 +58,11 @@ void StringArgument::setEditorValue(QWidget * editor,
   le->setText(value->value<QString>());
 }
 
+QString StringArgument::typeDescription() const {
+  return "Arbitrary text. If you need spaces, do not forget to quote them with ', for instance";
+}
+
+
 ////////////////////////////////////////////////////////////
 
 ArgumentMarshaller * SeveralStringsArgument::fromString(const QString & str) const
@@ -77,6 +82,10 @@ void SeveralStringsArgument::concatenateArguments(ArgumentMarshaller * a,
     b->value<QStringList>();
 }
 
+QString SeveralStringsArgument::typeName() const {
+  return "words";
+}
+
 QString SeveralStringsArgument::typeDescription() const
 {
   QString sep;
@@ -87,7 +96,7 @@ QString SeveralStringsArgument::typeDescription() const
     sep.replace("\\s*", "");
     sep = QString("'%1'").arg(sep);
   }
-  return QString("Several texts, separated by %1").arg(sep);
+  return QString("several words, separated by %1").arg(sep);
 }
 
 ////////////////////////////////////////////////////////////
@@ -466,6 +475,17 @@ ArgumentMarshaller * RegexArgument::fromString(const QString & str) const
 {
   return new ArgumentMarshallerChild<Regex>(str);
 }
+
+QString RegexArgument::typeName() const
+{
+  return "pattern";
+}
+
+QString RegexArgument::typeDescription() const
+{
+  return "plain text, or [regular expressions](#regexps) enclosed within / / delimiters";
+}
+
 
 //////////////////////////////////////////////////////////////////////
 

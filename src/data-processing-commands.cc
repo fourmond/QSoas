@@ -1603,11 +1603,11 @@ static void autoFilterFFTCommand(const QString &, const CommandOptions & opts)
 static ArgumentList 
 afftOps(QList<Argument *>() 
         << new IntegerArgument("cutoff", 
-                               "Number",
-                               "Number of segments")
+                               "Cutoff",
+                               "value of the cutoff")
         << new IntegerArgument("derive", 
                                "Derive",
-                               "Differentiate to the given order")
+                               "differentiate to the given order")
       );
 
 
@@ -1864,13 +1864,13 @@ static ArgumentList
 rsOps(QList<Argument *>() 
       << new IntegerArgument("number", 
                              "Number",
-                             "Number of points to look at")
+                             "looks at that many points")
       << new NumberArgument("factor", 
                             "Factor",
-                            "...")
+                            "threshold factor")
       << new BoolArgument("force-new", 
                           "Force new buffer",
-                          "Adds a new buffer even if no spikes were removed")
+                          "creates a new buffer even if no spikes were removed (default: false)")
       );
 
 
@@ -2061,16 +2061,23 @@ fpBaseOps(QList<Argument *>()
                                 "Min or max",
                                 "Selects which of minima and/or maxima "
                                 "to display")
-          << new BoolArgument("output", 
-                              "Write to output file",
-                              "Whether peak information should be written to output file")
        );
 
 static ArgumentList 
 fpOps(QList<Argument *>(fpBaseOps) 
+      << new BoolArgument("output", 
+                          "Write to output file",
+                          "Whether peak information should be written to the output file (defaults to false)")
       << new IntegerArgument("peaks", 
-                            "Number of peaks",
-                            "Display only that many peaks (by order of intensity)")
+                             "Number of peaks",
+                             "Display only that many peaks (by order of intensity)")
+      );
+
+static ArgumentList 
+fpbOps(QList<Argument *>(fpBaseOps) 
+      << new BoolArgument("output", 
+                          "Write to output file",
+                          "Whether peak information should be written to the output file (defaults to true)")
       );
       
 static Command 
@@ -2261,8 +2268,8 @@ static void normCommand(const QString &, const CommandOptions & opts)
 static ArgumentList 
 normOps(QList<Argument *>() 
         << new BoolArgument("positive", "Positive",
-                            "Whether we normalize on positive "
-                            "or negative values")
+                            "whether to normalize on positive "
+                            "or negative values (default true)")
         << new SeveralNumbersArgument("map-to", "Map to segment",
                                       "Normalizes by mapping to the given "
                                       "segment", true, true, ":")
@@ -2307,14 +2314,15 @@ static ArgumentList
 zeroArgs(QList<Argument *>() 
          << new NumberArgument("value", 
                                "Value"
-                               "Value at which the other axis should be 0")
+                               "value at which the other axis should be 0")
          );
 
 static ArgumentList 
 zeroOps(QList<Argument *>() 
         << new ChoiceArgument(QStringList() << "x" << "y",
                               "axis", "Axis", 
-                              "Which axis is zero-ed", false, "axis")
+                              "which axis is zero-ed (default y)",
+                              false, "axis")
         );
 
 static Command 

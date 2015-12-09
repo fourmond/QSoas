@@ -50,6 +50,11 @@ void Argument::concatenateArguments(ArgumentMarshaller *,
                       "a type that does not support it");
 }
 
+void Argument::setDescription(const QString & s)
+{
+  desc = s;
+}
+
 QStringList Argument::allChoices() const
 {
   return QStringList();

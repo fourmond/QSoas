@@ -72,23 +72,23 @@ CommandOptions ODEStepperOptions::asOptions() const
 QList<Argument*> ODEStepperOptions::commandOptions()
 {
   QList<Argument*> args;
-  args << new BoolArgument("adaptive", "Adaptative step",
-                           "Whether or not to use adaptive stepper")
+  args << new BoolArgument("adaptive", "Adaptive stepper",
+                           "whether or not to use an adaptive stepper (on by default)")
        << new NumberArgument("step-size", "Step size",
-                             "Initial step size for the stepper")
+                             "initial step size for the stepper")
        << new NumberArgument("min-step-size", "Minimum step size",
-                             "Minimum step size for the stepper")
+                             "minimum step size for the stepper")
        << new NumberArgument("prec-relative", "Relative precision",
-                             "Relative precision required")
+                             "relative precision required")
        << new NumberArgument("prec-absolute", "Absolute precision",
-                             "Absolute precision required")
+                             "absolute precision required")
        << new IntegerArgument("sub-steps", "Maximum number of sub-steps",
-                             "If this is not 0, then the smallest step size is that number times less than the minimum delta t")
+                              "If this is not 0, then the smallest step size is that many times smaller than the minimum delta t")
        // << new IntegerArgument("max-iterations", "Maximum of iterations",
        //                       "Maximum number of internal iterations for each step (0 to allow infinite number)")
        << new TemplateChoiceArgument<const gsl_odeiv2_step_type *>
     (stepperTypes(), "stepper", "Stepper algorithm",
-     "Algorithm used for integration");
+     "algorithm used for integration (default: rkf45)");
   return args;
 }
 

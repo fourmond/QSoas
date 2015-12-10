@@ -5,6 +5,10 @@ may disappear, they may turn out to do completely different things in
 the end. In short, **use them at your own risks** (and it would be a
 good idea to check out the code, in that case).
 
+The most recent HTML version of this document can always be found
+[there][manual-html], together with the corresponding [PDF
+version][manual-pdf].
+
 
 # Commands, arguments and options (how to read this document)
 
@@ -20,8 +24,9 @@ QSoas> command argument1 argument2 "argument 3" /option=option /option2="with sp
 If you need to pass arguments or option values that have spaces, make
 sure you quote them using `"` or `'`, like in the above example.
 
-Arguments are indicated like _that_ in the documentation below. You
-need to provide all the arguments for a command to work. Some
+Arguments are  _italicized_ in the documentation below. You
+need to provide all the arguments for a command to work, and if you
+don't, QSoas will prompt for them. Some
 arguments are followed by _..._, which means that you can pass several
 space-separated arguments. This is the case for [cmd: load],
 for instance:
@@ -53,10 +58,8 @@ Some commands can be used through a short name (like `q` for
 [cmd: quit]), indicated as such in the present documentation.
 
 Some commands are marked as *(interactive)*. This means that their use
-requires user interaction, which in particular makes them not
-desirable for using inside [scripts](#scripting), even if it actually
-is possible (but then, the script has to pause for user interaction to
-happen).
+requires user input. If they are used in a [script](#scripting), the
+script pauses for user interaction.
 
 ## Note about text files {#text-files}
 
@@ -67,7 +70,7 @@ simply contain unformatted text. These are for instance:
  * scripts to be run with [cmd: run]
  * definitions of kinetic systems for
   [cmd: fit-kinetic-system]
- * even saved fit parameters are plain text files
+ * saved fit parameters
 
 On windows, use Notepad to edit them. On Linux, `pico`, `nano`, `vi`
 or `emacs` are pretty good choices. On MacOS, use TextEdit, but make sure
@@ -76,13 +79,13 @@ rich text (i.e. text with formatting informations) in the RTF format,
 and `QSoas` does not understand RTF.
 
 
-## Buffer list arguments {#buffer-lists}
+## Buffer list (or dataset lists) arguments {#buffer-lists}
 
-Many commands, such as [cmd: flag], [cmd: contract] and so on take
+Many commands, such as [cmd: flag], [cmd: contract] and others take
 lists of buffers (or datasets) as arguments. This list can take
 several forms:
 
- * A comma-separated of buffer numbers (the ones given by 
+ * A comma-separated list of buffer numbers (the ones given by 
    [cmd: show-stack]), such as: `1,4,7` (0 is the current buffer, 1,
    the one just before, which you can reach using [cmd: undo], etc.).
  * Negative numbers refer to the "redo" stack: `-1` is the buffer you
@@ -93,15 +96,16 @@ several forms:
  * `all` for all buffers on the stack.
  * `displayed` for the currently displayed buffers.
  * `latest` for the datasets produced by the last command (running a
-   script count as many commands)
+   script counts as many commands); this can be different from `0` if
+   the last command produced more than one dataset, or none.
  * `latest:1` is the same as `latest`, `latest:2` represents the
-   datasets produced by the command before the last one, etc...
+   datasets produced by the command before the last one, etc... 
 
 It is also possible to make use of buffer flags set by [cmd: flag]:
 
  * `flagged` stands for all flagged buffers (regardless of the name of
    the flag);
- * `unflagged` for all buffers that don't have a flag;
+ * `unflagged` for all buffers that don't have any flag;
  * `flagged-` and `unflagged-` do the same, but with the buffers in
    the reverse order;
  * `flagged:`_flagname_ for all buffers that have the flag _flagname_;
@@ -110,10 +114,14 @@ It is also possible to make use of buffer flags set by [cmd: flag]:
  * and the variants `flagged-:`_flagname_ and `unflagged-:`_flagname_
    for the reversed order.
 
+**Note** in this documentation, the terms "buffer" and
+"dataset" are synonyms.
+
 ## Buffer columns {#column-names}
 
-Some commands such as [cmd: bin] take as arguments or options buffer
-column names. There are three way to designate those:
+Some commands such as [cmd: bin] or [cmd: dataset-options] take buffer
+column names (or numbers) as arguments or options. There are three way
+to designate those:
 
  * using a number: `1` is the $$x$$ column, `2` is the $$y$$ column,
    and so on
@@ -129,6 +137,26 @@ Some commands (like [cmd: contract]) take column lists, which are
 comma-separated lists of columns (just like above), with the addition
 of range: `2..6` are columns 2 to 6 inclusive.
 
+## Regular expressions {#regexps}
+
+Some commands, notably [cmd: load] and the related commands, make use
+of "regular expressions". Regular expressions are a way to describe
+how a text looks like, such as "numbers", "white spaces", "anything
+that looks like a date", etc. Here is how it works:
+
+ * A simple text just matches itself. For instance, using
+   `/separator=,`  for [cmd: load-as-text] means that the columns are
+   separated by commas.
+ * `{blank-line}` matches a fully blank line.
+ * `{blank}` matches a series of blanks. This is the default
+   separator for [cmd: load-as-text].
+ * `{text-line}` matches a line that does not start by numbers
+   (ignoring spaces).
+ * `/`_regex_`/`, which is taken as a [Qt regular
+   expression][qt-regexps]. For instance, `/[;,]/` means "either `;`
+   or `,`".  Please see [the Qt documentation][qt-regexps] for more
+   information.
+
 # General purpose commands
 
 
@@ -143,14 +171,16 @@ Short name: `q`
 
 {::comment} synopsis-end: quit {:/}
 {::comment} description-start: quit {:/}
-Exits QSoas, losing all of the current session. Keep in mind, though,
-that the full log of the session is always available in the
-`soas.log` file created in the initial directory, which is indicated in
-the very beginning in the terminal.
+Exits QSoas, losing the current session. The full log of the session
+is always available in the `soas.log` file created in the initial
+directory. This is indicated at startup in the terminal.
 
 To avoid accumulating very large log files, the log file gets renamed
 as `soas.log.1` when you start QSoas (and the older one as
 `soas.log.2`, and so on until `soas.log.5`).
+
+If you want to save the entire state of QSoas before quitting so you
+can restart exactly from where you left, use [cmd: save-stack].
 {::comment} description-end: quit {:/}
 
 
@@ -184,9 +214,8 @@ directly used in QSoas.
 
 {::comment} synopsis-end: save-history {:/}
 {::comment} description-start: save-history {:/}
-Saves all the commands contained in the history, that is all the
-commands that were launched from the beginning of the session, to the
-given (text) file.
+Saves all the commands that were launched since the beginning of the
+session, to the given (text) file.
 
 This can be used for saving a series of command that should be applied
 repetitively as a [script](#scripting).
@@ -241,7 +270,7 @@ Short name: `T`
 Shows or sets the current temperature, in Kelvins. The temperature is
 used in many places, mostly in fits to serve as the initial value for
 the temperature parameter. To set the temperature, pass its new value
-as the `/set` option (the `/set=` part is optional):
+using the `/set` option (the `/set=` part is optional):
 
 ~~~
 QSoas> temperature 310
@@ -271,7 +300,7 @@ file and aliases.
 Short name: `?`
 
   * _command_{:title="the name of one of QSoas's commands"}: The command on which to give help -- values: the name of one of QSoas's commands
-  * `/online=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} (default option): Show the online documentation in a browser -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/online=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Show the online documentation in a browser -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: help {:/}
 {::comment} description-start: help {:/}
@@ -314,9 +343,9 @@ want a PDF or PostScript file, just provide the file name as the
 
 An optional title can be added using the `/title` option.
 
-**Important note:** please keep in mind that QSoas is not designed to
-be a data plotting system, it is a data analysis system. So plotting
-capacities don't go far...
+**Important note:** QSoas is not a data plotting system, it is a data
+analysis program. Don't expect miraculous plots !
+
 {::comment} description-end: print {:/}
 
 
@@ -342,8 +371,6 @@ QSoas> define-alias fit-2exp fit-exponential-decay /exponentials=2 /loss=true
 creates a `fit-2exp` command that is equivalent to starting 
 [cmd: fit-exponential-decay] with two exponentials by default
 and film loss on. 
-
-The `/*` option above means "any option".
 
 Alias can only be used to provide default values for options. It
 cannot provide default values for arguments.
@@ -374,8 +401,7 @@ Shows a list of all the currently defined aliases.
 {::comment} synopsis-end: graphics-settings {:/}
 {::comment} description-start: graphics-settings {:/}
 Gives the possibility to tweak a few settings concerning display. The
-settings are persistent and kept from one QSoas session until the next
-one.
+settings are kept from one QSoas session to the next.
 
 Turning on antialias (with `/antialias=true`) will make QSoas use
 antialiased drawings, which looks admittedly nicer, but requires much
@@ -386,10 +412,9 @@ option.
 
 If you experience performance problems for displaying curves, use
 `/opengl=true`, as this will instruct QSoas to use hardware
-acceleration to display curves, which should greatly enhance the
-display speed. It is off by default as some setups do not really
-benefit from that, and moreover OpenGL support is sometimes buggy and
-may result in crashes.
+acceleration to display curves. It is off by default as some setups do
+not really benefit from that, and the OpenGL support is sometimes
+buggy and may result in crashes.
 {::comment} description-end: graphics-settings {:/}
 
 
@@ -426,6 +451,13 @@ You can use `mm` like any normal function for fitting:
 ~~~~
 QSoas> fit-arb mm(x,vmax,km)
 ~~~~
+
+or use it in [cmd: eval]:
+~~~~
+QSoas> eval mm(1.0,2.0,3.0)
+ => 0.5
+~~~~
+
 {::comment} description-end: ruby-run {:/}
 
 {::comment} synopsis-start: break {:/}
@@ -447,13 +479,22 @@ Exits from the current script. Has no effect if not inside a script.
 `system` _command..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/shell=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/timeout=`_integer_{:title="an integer"}
 
   * _command..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: Arguments of the command  -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
-  * `/shell=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Use shell -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/timeout=`_integer_{:title="an integer"}: Timeout (in milliseconds) -- values: an integer
+  * `/shell=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: use shell (on by default on Linux/Mac, off in windows) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/timeout=`_integer_{:title="an integer"}: timeout (in milliseconds) -- values: an integer
 
 {::comment} synopsis-end: system {:/}
 {::comment} description-start: system {:/}
 The `system` command can be used to run external commands from
 QSoas. The output of the commands will be displayed in the terminal.
+
+For the duration of the external command, QSoas will not respond to
+keyboard and mouse.
+
+If `/use-shell` is on (the default on Linux and Mac, but off in
+Windows), the command will be processed by the shell before being run.
+
+If a strictly positive `/timeout` is specified, the command will be
+killed if it takes longer than the timeout to execute.
 {::comment} description-end: system {:/}
 
 {::comment} synopsis-start: timer {:/}
@@ -487,10 +528,10 @@ providing its name to the [cmd: output] command.
 
 `output` `/file=`_file_{:title="name of a file"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reopen=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_words_{:title="several words, separated by ','"}
 
-  * `/file=`_file_{:title="name of a file"} (default option): Name of the new output file -- values: name of a file
-  * `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, overwrite the file instead of appending -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/reopen=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, forces reopening the file -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/meta=`_words_{:title="several words, separated by ','"}: When writing to output file, also print the listed meta-data -- values: several words, separated by ','
+  * `/file=`_file_{:title="name of a file"} (default option): name of the new output file -- values: name of a file
+  * `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, overwrites the file instead of appending (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/reopen=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, forces reopening the file (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/meta=`_words_{:title="several words, separated by ','"}: when writing to output file, also prints the listed meta-data -- values: several words, separated by ','
 
 {::comment} synopsis-end: output {:/}
 {::comment} description-start: output {:/}
@@ -506,8 +547,9 @@ file when outputting any data there. It is a comma-separated list of
 meta names. See more about meta-data [there](#meta-data).
 
 It is a bad idea to modify the output file while QSoas is still using
-it, as it messes up what QSoas think is in the output file. If that
-happens, use
+it, as it messes up what QSoas think is in the output file. If you
+forgot you were using the output file and modified it, you can avoid
+problems by running:
 
 ~~~~
 QSoas> output /reopen=true
@@ -534,11 +576,9 @@ QSoas> comment 'Switching to sample 2'
 {::comment} description-end: comment {:/}
 
 
-
-
 # Data loading/saving
 
-The main command for loading data is [cmd: load]
+The main command for loading data is [cmd: load]. 
 
 {::comment} synopsis-start: load {:/}
 
@@ -552,34 +592,38 @@ Short name: `l`
   * `/style=`_style_{:title="one of: `red-blue`"}: style for curves display -- values: one of: `red-blue`
   * `/flags=`_words_{:title="several words, separated by ','"}: flags for the newly created buffers -- values: several words, separated by ','
   * `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, ignores cache (default off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/yerrors=`_column_{:title="the number/name of a column in a buffer"}: column containing y errors -- values: the number/name of a column in a buffer
+  * `/yerrors=`_column_{:title="the number/name of a column in a buffer"}: name of the column containing y errors -- values: the number/name of a column in a buffer
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: decimal separator -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: pattern for comment lines -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
-  * `/columns=`_integers_{:title="a comma-separated list of integers"}: Order of the columns -- values: a comma-separated list of integers
+  * `/columns=`_integers_{:title="a comma-separated list of integers"}: columns loaded from the file -- values: a comma-separated list of integers
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: load {:/}
 {::comment} description-start: load {:/}
 
-Loads the given files and push them onto the data stack. QSoas
-features several backends for loading files (``backends'' are roughly
-equivalent to ``file formats''). In principle, QSoas is
-smart enough to figure out which one is the correct one, but you can
-force a given backend by using the appropriate `load-as-`
-command. Using a backend directly also provides more control on the
-way files are loaded (this can also be done via the numerous options
-to `load`, which are forwarded to the appropriate backend). Currently
-available backends:
+Loads the given files and pushes them onto the data stack. QSoas
+features several backends for loading files ("backends" are roughly
+equivalent to "file formats"). In principle, QSoas is smart enough to
+figure out which one is correct, but you can force the use of a given
+backend by using the appropriate `load-as-` command. Using a backend
+directly also provides more control on the way files are loaded (this
+can also be done via the numerous options to `load`, which are
+forwarded to the appropriate backend). Currently available backends:
 
  * [`text`](#cmd-load-as-text) for plain space-separated text
  * [`csv`](#cmd-load-as-csv) for CSV data
  * [`chi-txt`](#cmd-load-as-chi-txt) for file from CH Instruments potentiostats
 
-Look in their documentation for more information. QSoas tells you
-which backend it used for loading a given file:
+Look in their documentation for more information. In particular, the
+options `/separator=`, `/decimal=`, `/skip=`, `/comments=`,
+`/columns=` and `/auto-split` are documented in the
+[cmd: load-as-text] command.
+
+
+QSoas tells you which backend it used for loading a given file:
 
 ~~~~
 QSoas> load 03.dat
@@ -590,14 +634,15 @@ The command `load` caches the loaded file. If for some reason, the
 cache gets in the way, use the direct `load-as-` commands, or
 alternatively use `/ignore-cache=true`.
 
-`load`, together with all the other commands that take several files
-as arguments understand unix-like wildcards:
+`load`, like all the other commands that take several files as
+arguments, understand unix-like wildcards:
 
 ~~~~
 QSoas> load *.dat
 ~~~~
 
-This command loads all the `.dat` files from the current directory.
+This command loads all the files ending by `.dat` files from the
+current directory.
 
 ~~~~
 QSoas> load [0-4]*.dat
@@ -605,11 +650,13 @@ QSoas> load [0-4]*.dat
 
 This loads only those that start with a digit from 0 to 4, etc.
 
-The `load` command and the corresponding `load-as-` command makes it
-possible to set dataset options just as with 
-[cmd: dataset-options], see that command for more informations.
 
-The style option sets the color style when loading several curves:
+One can also set various dataset options while loading with `load`
+(and the `load-as-` commands), using the options `/yerrors=` and
+`/histogram=`. See the [cmd: dataset-options], command for more
+information
+
+The `/style=` option sets the color style when loading several curves:
 
 ~~~~
 QSoas> load *.dat /style=red-blue
@@ -617,12 +664,11 @@ QSoas> load *.dat /style=red-blue
 
 This loads all the `.dat` files in the current directory, and displays
 them with a color gradient from red (for the first loaded file) to
-blue (for the last loaded file). This makes it very easy to follow
-subtle modifications from one data file to the next.
+blue (for the last loaded file).
 
-The `/flags=` option makes it possible to flag buffers as they get
-loaded. It has the same effect as running [cmd: flag] with the same
-option on loaded datasets.
+With the `/flags=` option, on can flag buffers as they get
+loaded. Using it has the same effect as running [cmd: flag] with the
+same option on loaded datasets.
 
 
 {::comment} description-end: load {:/}
@@ -639,36 +685,35 @@ option on loaded datasets.
   * `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: decimal separator -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: pattern for comment lines -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
-  * `/columns=`_integers_{:title="a comma-separated list of integers"}: Order of the columns -- values: a comma-separated list of integers
+  * `/columns=`_integers_{:title="a comma-separated list of integers"}: columns loaded from the file -- values: a comma-separated list of integers
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/style=`_style_{:title="one of: `red-blue`"}: style for curves display -- values: one of: `red-blue`
   * `/flags=`_words_{:title="several words, separated by ','"}: flags for the newly created buffers -- values: several words, separated by ','
-  * `/yerrors=`_column_{:title="the number/name of a column in a buffer"}: column containing y errors -- values: the number/name of a column in a buffer
+  * `/yerrors=`_column_{:title="the number/name of a column in a buffer"}: name of the column containing y errors -- values: the number/name of a column in a buffer
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: load-as-text {:/}
 {::comment} description-start: load-as-text {:/}
 
-Load any number of files using the backend `text`, bypassing cache and
-automatic backend detection. `text` recognises space-separated data
-(which includes tab-separated data). Most "plain text" files will be
-recognized by this backend. By default, it loads all the columns of
-the file, but only displays the second as a function of the first. If
-you want to work on other columns, have a look at [cmd: expand].
+Loads files using the backend `text`, bypassing cache and automatic
+backend detection. `text` recognizes space-separated data (which
+includes tab-separated data). Most "plain text" files will be read
+correctly by this backend. By default, it loads all the columns of the
+file, but only displays the second as a function of the first. If you
+want to work on other columns, have a look at [cmd: expand].
 Alternatively, you can specify the columns to load using the
 `/columns` option, see below.
 
 Apart from the options of [cmd: dataset-options] and the `/style` and
-`/flags` options documented above, the `text` backend accepts several
-options controlling the way the text files are interpreted:
+`/flags` options documented in the [cmd: load] command, the `text`
+backend accepts several options controlling the way the text files are
+interpreted:
 
-  * `/separator` is the text that separate the columns (blank space by
-    default. You can use [Qt regular
-    expressions](http://qt-project.org/doc/qt-4.8/qregexp.html#introduction)
-    enclosed by `/`, such as: `/[;,]/` to split columns on semicolon
-    or commas.
-  * `/decimal` is the decimal separator (default is the dot).
-  * `/comments` is a regular expression describing comment lines (ie
+  * `/separator` specifies the text that separates the columns (blank spaces by
+    default). You can use [regular expressions](#regexps).
+  * `/decimal` specifies the decimal separator for loading
+    (default is the dot). This is for loading only.
+  * `/comments` specifies a regular expression describing comment lines (ie
     lines that get ignored). By default, line that don't start
     by a number are ignored.
   * Give to `/skip` a number of text lines that should be ignored at
@@ -694,11 +739,11 @@ options controlling the way the text files are interpreted:
   * `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: decimal separator -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: pattern for comment lines -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
-  * `/columns=`_integers_{:title="a comma-separated list of integers"}: Order of the columns -- values: a comma-separated list of integers
+  * `/columns=`_integers_{:title="a comma-separated list of integers"}: columns loaded from the file -- values: a comma-separated list of integers
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/style=`_style_{:title="one of: `red-blue`"}: style for curves display -- values: one of: `red-blue`
   * `/flags=`_words_{:title="several words, separated by ','"}: flags for the newly created buffers -- values: several words, separated by ','
-  * `/yerrors=`_column_{:title="the number/name of a column in a buffer"}: column containing y errors -- values: the number/name of a column in a buffer
+  * `/yerrors=`_column_{:title="the number/name of a column in a buffer"}: name of the column containing y errors -- values: the number/name of a column in a buffer
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: load-as-csv {:/}
@@ -706,8 +751,7 @@ options controlling the way the text files are interpreted:
 The `csv` backend is essentially the same backend as the
 [`text`](#cmd-load-as-text) one, but with the separators set by
 default to commas and semicolons, to parse CSV files. 
-Hence, the options have the same
-meaning as for [cmd: load-as-text].
+Hence, the options have the same meaning as for [cmd: load-as-text].
 {::comment} description-end: load-as-csv {:/}
 {::comment} synopsis-start: load-as-chi-txt {:/}
 
@@ -720,17 +764,17 @@ meaning as for [cmd: load-as-text].
   * `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: decimal separator -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: pattern for comment lines -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
-  * `/columns=`_integers_{:title="a comma-separated list of integers"}: Order of the columns -- values: a comma-separated list of integers
+  * `/columns=`_integers_{:title="a comma-separated list of integers"}: columns loaded from the file -- values: a comma-separated list of integers
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/style=`_style_{:title="one of: `red-blue`"}: style for curves display -- values: one of: `red-blue`
   * `/flags=`_words_{:title="several words, separated by ','"}: flags for the newly created buffers -- values: several words, separated by ','
-  * `/yerrors=`_column_{:title="the number/name of a column in a buffer"}: column containing y errors -- values: the number/name of a column in a buffer
+  * `/yerrors=`_column_{:title="the number/name of a column in a buffer"}: name of the column containing y errors -- values: the number/name of a column in a buffer
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: load-as-chi-txt {:/}
 {::comment} description-start: load-as-chi-txt {:/}
 This is a slightly modified version of [cmd: load-as-text] that
-handles better the files from CH Instruments (and is in particular
+handles better text files from CH Instruments (and is in particular
 able to detect at least some of their meta-data).
 {::comment} description-end: load-as-chi-txt {:/}
 
@@ -753,8 +797,7 @@ split into three buffers: X, Y1;   X, Y2 and  X, Y3.
 
 If `/perp-meta` is specified, then the given [meta-data](#meta-data)
 will be defined for each buffer, based on the value of the
-[perpendicular coordinates](#meta-data). In any case, the
-perpendicular coordinates are kept.
+[perpendicular coordinates](#meta-data).
 {::comment} description-end: expand {:/}
 
 {::comment} synopsis-start: rename {:/}
@@ -769,10 +812,13 @@ Short name: `a`
 
 {::comment} synopsis-end: rename {:/}
 {::comment} description-start: rename {:/}
-Changes the current name of the buffer. To help track the
-operations applied to a buffer, its name is modified and gets
-longer after each modification. `rename` can be used to change
-that to give it a more meaningful (and less long) name .
+Changes the name of the current buffer. To help track the operations
+applied to a buffer, its name is modified and gets longer after each
+modification. Use `rename` to give it a more meaningful (and shorter)
+name.
+
+If you need to rename a large number of buffers, you probably want to
+try [cmd: save-buffers] with `/mode=rename`.
 {::comment} description-end: rename {:/}
 
 {::comment} synopsis-start: save {:/}
@@ -791,6 +837,8 @@ Short name: `s`
 {::comment} description-start: save {:/}
 Saves the current buffer to a file. This command will ask you before
 overwriting an existing file, unless `/overwrite=true` was specified.
+
+It will also change the name of the file.
 {::comment} description-end: save {:/}
 
 {::comment} synopsis-start: save-buffers {:/}
@@ -807,15 +855,17 @@ overwriting an existing file, unless `/overwrite=true` was specified.
 
 {::comment} synopsis-end: save-buffers {:/}
 {::comment} description-start: save-buffers {:/}
-Saves the designated buffers to file.
+Saves the designated buffers to files.
 
 Unlike the [cmd: save] command, this saves the buffers using
-their current name, and does not prompt for a file name. It is
+their current names, and does not prompt for a file name. It is
 probably a good idea to use [cmd: rename] first, or use the
 possibilities below.
 
 This command can rename the buffers before saving them,
-by using a `printf`-like format, such as in the following case,
+by using a
+`[printf](http://www.cplusplus.com/reference/cstdio/printf/)`-like
+format, as in the following case,
 which renames the first 101 buffers to `Buffer-000.dat`,
 `Buffer-001.dat`, and so on:
 
@@ -912,13 +962,13 @@ Short name: `v`
   * `/style=`_style_{:title="one of: `red-blue`"}: style for curves display -- values: one of: `red-blue`
   * `/flags=`_words_{:title="several words, separated by ','"}: flags for the newly created buffers -- values: several words, separated by ','
   * `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, ignores cache (default off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/yerrors=`_column_{:title="the number/name of a column in a buffer"}: column containing y errors -- values: the number/name of a column in a buffer
+  * `/yerrors=`_column_{:title="the number/name of a column in a buffer"}: name of the column containing y errors -- values: the number/name of a column in a buffer
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: decimal separator -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: pattern for comment lines -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
-  * `/columns=`_integers_{:title="a comma-separated list of integers"}: Order of the columns -- values: a comma-separated list of integers
+  * `/columns=`_integers_{:title="a comma-separated list of integers"}: columns loaded from the file -- values: a comma-separated list of integers
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: overlay {:/}
@@ -940,7 +990,7 @@ adds them to the current plot; it has the same options as those commands.
 Removes all datasets except the current buffer from the display. Use to
 revert the effect of a previous overlay command, or can be useful if
 for some reason a command failed while not restoring the display (but
-that really should not happen anyway).
+that should not happen anyway).
 {::comment} description-end: clear {:/}
 
 {::comment} synopsis-start: points {:/}
@@ -970,11 +1020,22 @@ Short name: `z`
 
 {::comment} synopsis-end: zoom {:/}
 {::comment} description-start: zoom {:/}
-Zooms on the current curve. 
+Zooms on the current curve.
 
-While zooming is already possible to zoom using the mouse wheel, with
-this command one draws a rectangle with the mouse around the region of
-interest.
+Click to delimit a region. Hit `x` to zoom in on the X axis, `X` to
+zoom out, `y` and `Y` for the Y axis, and `z`/`Z` for both at the same
+time. Hit `c` to reset the zoom.
+
+Indepently of this function, you can use the mouse wheel **at any
+moment** to zoom in and out:
+ * mouse wheel: zoom in and out vertically
+ * Shift+mouse wheel: zoom in and out horizontally
+ * Ctrl (or Cmd) + mouse wheel: zoom in and out (horizontally and
+ vertically)
+ * Shift+Ctrl + mouse wheel: reset zoom.
+
+If you know the coordinates around which you'd like to zoom, you may
+want to use [cmd: limits] instead.
 
 {::comment} description-end: zoom {:/}
 {::comment} synopsis-start: limits {:/}
@@ -1562,7 +1623,7 @@ The same warnings apply as for [cmd: diff].
 
 `dataset-options` `/yerrors=`_column_{:title="the number/name of a column in a buffer"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * `/yerrors=`_column_{:title="the number/name of a column in a buffer"}: column containing y errors -- values: the number/name of a column in a buffer
+  * `/yerrors=`_column_{:title="the number/name of a column in a buffer"}: name of the column containing y errors -- values: the number/name of a column in a buffer
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: dataset-options {:/}
@@ -4755,3 +4816,7 @@ with an **uppercase** letter.
 [math]:http://www.ruby-doc.org/core-1.9.3/Math.html "Documentation of the Math module"
 [gnuplot]:http://www.gnuplot.info/ "Gnuplot, the plotting program"
 [code]:downloads/qsoas-1.0.tar.gz "The source code for QSoas"
+[manual-html]:http://www.qsoas.org/manual.html "The online manual for QSoas"
+[manual-pdf]:http://www.qsoas.org/manual.pdf "The PDF version of the manual for QSoas"
+[qt-regexps]:http://qt-project.org/doc/qt-4.8/qregexp.html#introduction
+"Documentation for Qt regular expressions"

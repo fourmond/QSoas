@@ -69,10 +69,10 @@ void DatasetEditor::setupFrame()
 {
   QVBoxLayout * layout = new QVBoxLayout(this);
 
-  metaEditor = new ValueHashEditor();
-  layout->addWidget(metaEditor);
+  // metaEditor = new ValueHashEditor();
+  // layout->addWidget(metaEditor);
   
-  metaEditor->setFromHash(source->getMetaData());
+  // metaEditor->setFromHash(source->getMetaData());
 
   table = new QTableWidget;
   layout->addWidget(table, 1);

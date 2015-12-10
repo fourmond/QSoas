@@ -22,6 +22,8 @@
 #include <graphicssettings.hh>
 #include <soas.hh>
 
+#include <exceptions.hh>
+
 QHash<QString, StyleGeneratorFactoryItem*> * StyleGenerator::factory = NULL;
 
 
@@ -77,6 +79,14 @@ QStringList StyleGenerator::availableGenerators()
 
 // First elements: gradients
 
+/// @todo Maybe move to Utils ?
+static Vector colorToVector(const QColor & color)
+{
+  Vector rv;
+  rv << color.red() << color.green() << color.blue();
+  return rv;
+}
+
 /// A gradient, ie something whose "coordinates" vary linearly from
 /// beginning to the end.
 ///
@@ -92,8 +102,8 @@ public:
 
   SimpleGradient(const QColor & b, const QColor & e, int nb) : 
     StyleGenerator(nb), idx(0) {
-    beg = Vector() << b.red() << b.green() << b.blue();
-    end = Vector() << e.red() << e.green() << e.blue();
+    beg = ::colorToVector(b);
+    end = ::colorToVector(e);
   };
 
   virtual QPen nextStyle() {
@@ -114,9 +124,90 @@ public:
 };
 
 static StyleGeneratorFactoryItem 
-st("red-blue", "Red-blue gradient",
-   [](int n, const QString &) -> StyleGenerator *{
-     return new SimpleGradient(QColor("red"),
-                               QColor("blue"),
-                               n);
-   });
+grd1("red-blue", "Red-blue gradient",
+     [](int n, const QString &) -> StyleGenerator *{
+       return new SimpleGradient(QColor("red"),
+                                 QColor("blue"),
+                                 n);
+     });
+
+static StyleGeneratorFactoryItem 
+grd2("red-green", "Red-green gradient",
+     [](int n, const QString &) -> StyleGenerator *{
+       return new SimpleGradient(QColor("red"),
+                                 QColor("green"),
+                                 n);
+     });
+
+
+//////////////////////////////////////////////////////////////////////
+
+/// Same as SimpleGradient, but with as many as one wants...
+class MultiGradient : public StyleGenerator {
+  QList<Vector> colors;
+
+  int idx;
+
+public:
+
+  MultiGradient(const QStringList & cols, int nb) : 
+    StyleGenerator(nb), idx(0) {
+    for(int i = 0; i < cols.size(); i++)
+      colors << ::colorToVector(QColor(cols[i]));
+    if(colors.size() < 2)
+      throw InternalError("Need 2 colors or more to make a gradient");
+  };
+
+  virtual QPen nextStyle() {
+    // Assume RGB color space:
+    double d = (totalNumber > 1 ? totalNumber - 1 : 100);
+    double alpha = idx++ / d * (colors.size() - 1);
+    if(alpha > colors.size() - 1)
+      alpha = colors.size() - 1.1;
+    int base = floor(alpha);
+    Vector s = colors[base];
+    if(base < colors.size() - 1) {
+      alpha = alpha - base;
+      s *= 1.0 - alpha;
+      Vector s2 = colors[base+1];
+      s2 *= alpha;
+      s += s2;
+    }
+
+    QColor c(s[0], s[1], s[2]);
+    QPen pen = soas().graphicsSettings().dataSetPen(0);
+    pen.setColor(c);
+    return pen;
+  };
+};
+
+// Some of the colors here come from http://colorbrewer2.org/
+
+static StyleGeneratorFactoryItem 
+grd3("red-to-blue", "More advanced red-to-blue gradient",
+     [](int n, const QString &) -> StyleGenerator *{
+       QStringList cls;
+       cls << "#b2182b" << "#ef8a62"
+           << "#fddbc7" << "#d1e5f0"
+           << "#67a9cf" << "#2166ac";
+       return new MultiGradient(cls, n);
+     });
+
+static StyleGeneratorFactoryItem 
+grd4("red-yellow-green", "Red-to-yellow-to-green",
+     [](int n, const QString &) -> StyleGenerator *{
+       QStringList cls;
+       cls << "#d7191c" << "#fdae61"
+           << "#ffffbf" << "#a6d96a" << "#1a9641";
+       return new MultiGradient(cls, n);
+     });
+
+static StyleGeneratorFactoryItem 
+grd5("brown-green", "Brown to dark green",
+     [](int n, const QString &) -> StyleGenerator *{
+       QStringList cls;
+       cls << "#a6611a" << "#dfc27d"
+           << "#80cdc1" << "#018571";
+       return new MultiGradient(cls, n);
+     });
+

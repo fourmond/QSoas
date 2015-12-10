@@ -115,7 +115,7 @@ textLoadOptions(QList<Argument *>()
                                      "pattern for comment lines")
                 << new SeveralIntegersArgument("columns", 
                                                "Columns",
-                                               "Order of the columns")
+                                               "columns loaded from the file")
                 << new BoolArgument("auto-split", 
                                     "auto split",
                                     "if on, create a new dataset at every fully blank line (off by default)")

@@ -74,25 +74,6 @@ cmds("commands", // command name
 //////////////////////////////////////////////////////////////////////
 
 
-static void texCommands(const QString &)
-{
-  QTextStream o(stdout);
-  o << Group::latexDocumentationAllGroups() << endl;
-}
-
-static Command 
-tcmd("tex-commands", // command name
-     optionLessEffector(texCommands), // action
-     "help",  // group name
-     NULL, // arguments
-     NULL, // options
-     "TeX",
-     "List commands",
-     "List all available commands, along with a little help");
-
-//////////////////////////////////////////////////////////////////////
-
-
 QString docUrl("http://www.qsoas.org/manual.html");
 
 
@@ -155,8 +136,7 @@ helpA(QList<Argument *>()
 static ArgumentList 
 helpO(QList<Argument *>() 
       << new BoolArgument("online", "Online version",
-                          "Show the online documentation in a browser",
-                          true));
+                          "Show the online documentation in a browser"));
 
 
 static Command 

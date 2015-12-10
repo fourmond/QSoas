@@ -138,18 +138,17 @@ static void outputCommand(const QString &,
 ArgumentList oOpts(QList<Argument*>() 
                    << new FileArgument("file", 
                                        "New output file",
-                                       "Name of the new output file", false, 
+                                       "name of the new output file", false, 
                                        true)
                    << new BoolArgument("overwrite", 
                                        "Overwrite",
-                                       "If on, overwrite the file instead of appending")
+                                       "if on, overwrites the file instead of appending (default: false)")
                    << new BoolArgument("reopen", 
                                        "Reopen",
-                                       "If on, forces reopening the file")
+                                       "if on, forces reopening the file (default: false)")
                    << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "meta", 
                                                  "Meta-data",
-                                                 "When writing to output file, also print the listed meta-data")
-
+                                                 "when writing to output file, also prints the listed meta-data")
                    );
 
 
@@ -859,10 +858,10 @@ static ArgumentList
 syO(QList<Argument *>() 
     << new BoolArgument("shell", 
                         "Shell",
-                        "Use shell")
+                        "use shell (on by default on Linux/Mac, off in windows)")
     << new IntegerArgument("timeout", 
                            "Timeout",
-                           "Timeout (in milliseconds)")
+                           "timeout (in milliseconds)")
     );
 
 

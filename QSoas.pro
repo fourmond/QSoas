@@ -71,16 +71,8 @@ OBJECTS_DIR = build
 # best case (excepted when a function only exits via an exception)
 QMAKE_CXXFLAGS += -Werror=return-type 
 
-# Let's try building C++11 (or almost, with lambdas at least !)
-# compiler_version = $$system($$QMAKE_CXX -v)
-# @todo Try detecting the mingw version properly !
-win32|exists(/usr/bin/gcc-4.6) {
-  message("Old compiler, using the -std=c++0x flag for C++ 11")
-  QMAKE_CXXFLAGS += -std=c++0x  #We use an old version of gcc on win !
-} else {
-  message("Using the -std=c++11 flag")
-  QMAKE_CXXFLAGS += -std=c++11
-}
+# Use C++11 everywhere !
+QMAKE_CXXFLAGS += -std=c++11
 
 # We need to use libc++ on macos to have the correct C++ 11 header
 # files

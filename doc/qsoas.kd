@@ -453,6 +453,7 @@ QSoas> fit-arb mm(x,vmax,km)
 ~~~~
 
 or use it in [cmd: eval]:
+
 ~~~~
 QSoas> eval mm(1.0,2.0,3.0)
  => 0.5

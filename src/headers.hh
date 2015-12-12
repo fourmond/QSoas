@@ -138,6 +138,9 @@
 
 #else
 
+// hacks...
+#define HAVE_STRUCT_TIMESPEC
+#define HAVE_STRUCT_TIMEZONE
 // We only include Ruby includes in C mode
 #include <ruby.h>
 

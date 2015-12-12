@@ -61,7 +61,7 @@ RUBY_VALUE rbw_float_new(double val)
 #ifdef USE_FLONUM
   return (RUBY_VALUE) rb_float_new_in_heap(val);
 #else
-  return (RUBY_VALUE) rbw_float_new(val);
+  return (RUBY_VALUE) rb_float_new(val);
 #endif
 }
 

@@ -56,7 +56,7 @@ else {
 }
 
 # We use a precompiled header everywhere but on macosX (it fails !)
-! macx {
+linux {
   CONFIG += precompile_header
   PRECOMPILED_HEADER = src/headers.hh
 }
@@ -134,7 +134,6 @@ win32 {
 # Simplify the version scheme for win32, that doesn't like it so much...
   VERSION=$$system($$RUBY strip-win-version.rb $$VERSION)
   message("Mangled version to $$VERSION")
-  system($$RUBY prepare-nsis-include.rb)
   system($$RUBY prepare-wix-input.rb $$FULL_VERSION $$VERSION)
 }
                  

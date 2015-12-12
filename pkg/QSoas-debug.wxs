@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+  <Product Name='QSoas #VERSION#' 
+           Id='*' 
+           UpgradeCode='#UpgradeID#'
+           Language='1033' Codepage='1252' 
+           Version='#WIN_VERSION#' 
+           Manufacturer='BIP CNRS'>
+
+    <Package Id='*' Keywords='Installer' 
+             Description="QSoas #VERSION#'s Installer"
+             Manufacturer='BIP CNRS'
+             InstallerVersion='100' Languages='1033' 
+             Compressed='yes' SummaryCodepage='1252' />
+
+    <Media Id='1' Cabinet='QSoas-debug.cab' EmbedCab='yes' DiskPrompt="CD-ROM #1" />
+    <Property Id='DiskPrompt' Value="QSoas's Installation Media" />
+
+    <Directory Id='TARGETDIR' Name='SourceDir'>
+      <Directory Id='ProgramFilesFolder' Name='PFiles'>
+        <Directory Id='INSTALLDIR' Name='QSoas'>
+          <Component Id='MainExecutable' 
+                     Guid='#QSoasID#'>
+            <File Id='QSoasEXE' 
+                  Name='QSoas.exe' 
+                  DiskId='1' Source='debug\QSoas.exe' 
+                  KeyPath='yes'>
+              <Shortcut Id="startmenuQSoas"
+                        Directory="ProgramMenuDir"
+                        Name="QSoas" WorkingDirectory='INSTALLDIR'
+                        Icon="QSoas.ico" IconIndex="0" Advertise="yes" />
+              <Shortcut Id="desktopQSoas" Directory="DesktopFolder" 
+                        Name="QSoas" WorkingDirectory='INSTALLDIR' 
+                        Icon="QSoas.ico" IconIndex="0" Advertise="yes" />
+            </File>
+            </Component>
+
+            #DEBUG_DLLS#
+
+        </Directory>
+      </Directory>
+
+      <Directory Id="ProgramMenuFolder" Name="Programs">
+        <Directory Id="ProgramMenuDir" Name="QSoas">
+          <Component Id="ProgramMenuDir" Guid="#StartMenuID#">
+            <RemoveFolder Id='ProgramMenuDir' On='uninstall' />
+            <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Type='string' Value='' KeyPath='yes' />
+          </Component>
+        </Directory>
+      </Directory>
+
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+
+    <Feature Id='Complete' Level='1' Title='QSoas' 
+             Description='QSoas installation' 
+             ConfigurableDirectory='INSTALLDIR' 
+             Display='expand' >
+      <ComponentRef Id='MainExecutable' />
+      <ComponentRef Id='ProgramMenuDir' />
+      #DEBUG_DLL_REFS#
+    </Feature>
+
+    <!-- 
+         We perform what we call major upgrades systematically as they
+         are much less painful for the users (no need to run manually
+         msiexec...)
+    -->
+    <Upgrade Id='#UpgradeID#'>
+      <UpgradeVersion OnlyDetect='no' Property='SELFFOUND'
+                      Minimum='0.0' IncludeMinimum='yes'
+                      Maximum='#WIN_VERSION#' IncludeMaximum='yes' />
+    </Upgrade>
+
+    <!-- Maybe there's something I should have a closer look at ? -->
+    <MajorUpgrade AllowSameVersionUpgrades='yes' 
+                  DowngradeErrorMessage='Not allowing to downgrade ?'/>
+
+    <!-- <InstallExecuteSequence> -->
+    <!--   <RemoveExistingProducts Before="InstallInitialize" /> -->
+    <!-- </InstallExecuteSequence> -->
+
+    <Icon Id="QSoas.ico" SourceFile="QSoas.ico" />
+
+  </Product>
+</Wix>

@@ -119,7 +119,7 @@ substs['WIN_VERSION'] = win_version
 
 # OK, now the generation of the XML source file, in the current directory ?
 
-for src in ["pkg/QSoas.wxs", "pkg/QSoas-debug.wxs"]
+for src in ["pkg/QSoas.wxs", "pkg/QSoas-nint.wxs", "pkg/QSoas-debug.wxs"]
   tgt = File::basename(src)
   File.open(src, "r") do |f|
     File.open(tgt, "w") do |o|

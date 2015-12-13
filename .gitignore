@@ -8,6 +8,8 @@ QSoas
 Makefile
 build/
 dox/
+xml/
+doxyg*
 
 # Generated headers:
 src/build.hh
@@ -26,7 +28,7 @@ qrc_*.cpp
 *.ppd.kd
 *.log
 
-tests/data/*.dat
+*.dat
 
 # soas logs:
 soas.log*

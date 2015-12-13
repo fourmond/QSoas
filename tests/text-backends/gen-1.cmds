@@ -1,0 +1,7 @@
+load ${1}
+assert /set-context=fine ${1}
+assert '$stats["columns"] == 4'
+apply-formula 'y -= sin(x); y2-= i; y3 -= cos(x)'
+assert '$stats["y_var"]' 4e-18
+assert '$stats["y2_var"]' 4e-18
+assert '$stats["y3_var"]' 4e-18

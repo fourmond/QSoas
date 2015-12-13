@@ -1,0 +1,3 @@
+# The test suite for data-splitting functions
+system ruby generate-data.rb
+run-for-each gen-1.cmds gen*.dat

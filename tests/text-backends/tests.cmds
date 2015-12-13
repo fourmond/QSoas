@@ -1,3 +1,6 @@
 # The test suite for data-splitting functions
+ruby-run generate-data.rb
+# If there is a proper Ruby command, it's likely to be able to deal with
+# more encodings, hence running also the system ruby
 system ruby generate-data.rb
 run-for-each gen-1.cmds gen*.dat

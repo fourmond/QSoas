@@ -9,6 +9,11 @@ class Fmt
     mode = "w"
     if self.encoding
       mode << ":#{self.encoding}"
+      begin
+        Encoding::find(self.encoding)
+      rescue
+        return
+      end
     end
     File::open(file, mode) do |f|
       # Write byte-order mark when applicable

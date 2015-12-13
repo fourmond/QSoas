@@ -484,6 +484,9 @@ ev("eval", // command name
 /// The current context for assertions
 static QString assertContext = "general";
 
+/// The current fine context for assertions
+static QString assertFineContext;
+
 /// small class
 class Assertions {
 public:
@@ -514,7 +517,7 @@ static void assertCmd(const QString &, QString code,
                       const CommandOptions & opts)
 {
   DataSet * ds = soas().currentDataSet(true);
-  bool sc = false;
+  QString sc ;
   updateFromOptions(opts, "set-context", sc);
   bool dump = false;
   updateFromOptions(opts, "dump", dump);
@@ -527,9 +530,14 @@ static void assertCmd(const QString &, QString code,
     useTol = true;
   }
   
-  if(sc) {
+  if(sc == "global") {
     assertContext = code;
+    assertFineContext = "";
     o << "\n" << code << ": "; 
+    return;
+  }
+  if(sc == "fine") {
+    assertFineContext = code;
     return;
   }
 
@@ -570,6 +578,9 @@ static void assertCmd(const QString &, QString code,
   RUBY_VALUE value;
   Assertions * cur = &assertResults[assertContext];
   cur->total += 1;
+  QString context = "";
+  if(! assertFineContext.isEmpty())
+    context = QString(" (%1)").arg(assertFineContext);
   try {
     if(ds)
       value = ds->evaluateWithMeta(code, true);
@@ -590,11 +601,11 @@ static void assertCmd(const QString &, QString code,
                       << " but is: " << rbw_num2dbl(value) << ")" << endl;
         o << "F: " << code
           << " (should be below: " << tolerance
-          << " but is: " << rbw_num2dbl(value) << ")\n";
+          << " but is: " << rbw_num2dbl(value) << ")" << context << "\n";
       }
       else {
         Terminal::out << "assertion failed: " << code  << endl;
-        o << "F: " << code  << "\n";
+        o << "F: " << code  << context << "\n";
       }
     }
   }
@@ -602,7 +613,7 @@ static void assertCmd(const QString &, QString code,
     cur->exceptions++;
     Terminal::out << "assertion failed with exception: " << code  << ":\n";
     Terminal::out << e.message() << endl;
-    o << "E: " << code  << " -- " << e.message() << "\n";
+    o << "E: " << code  << " -- " << e.message() << context << "\n";
   }
 }
 
@@ -614,12 +625,15 @@ aA(QList<Argument *>()
 
 static ArgumentList 
 aO(QList<Argument *>() 
-   << new BoolArgument("set-context", 
-                       "Set assertion context",
-                       "If on, does not check anything but changes the current assertion context")
+   << new ChoiceArgument(QStringList() << "no"
+                         << "global"
+                         << "fine",
+                         "set-context", 
+                         "Set assertion context",
+                         "If either global or fine, instead of running an assertion, sets the assertion global or fine context")
    << new BoolArgument("dump", 
-                       "Dump results",
-                       "If on, dumps all the results of the test suite")
+                       "Print results",
+                       "If on, prints all the results of the test suite")
    << new NumberArgument("tolerance", 
                          "Tolerance",
                          "If given, does not check that the value is true or false, just that its magnitude is smaller than the tolerance", true)

@@ -22,7 +22,7 @@ echo "Preparing an archive and a portfile for version $version"
 echo " -> saving in $outdir"
 
 # copying directory
-rsync -a --exclude build --exclude dox --exclude pkg --exclude '*~' --exclude .git ./ $outdir/qsoas-$version
+rsync -a --exclude build --exclude dox --exclude xml --exclude '*~' --exclude .git ./ $outdir/qsoas-$version
 rm -f $outdir/qsoas-$version/QSoas
 (
     cd $outdir

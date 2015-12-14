@@ -8,10 +8,18 @@ class Fmt
   def write_data(file, rows)
     mode = "w"
     if self.encoding
-      mode << ":#{self.encoding}"
+      found = false
       begin
-        Encoding::find(self.encoding)
+        for e in Encoding.list
+          if e.name == self.encoding && (not e.dummy?)
+            mode << ":#{self.encoding}"
+            found = true
+          end
+        end
       rescue
+        return
+      end
+      if ! found
         return
       end
     end

@@ -505,9 +505,7 @@ public:
     return "column";
   };
 
-  virtual QString typeDescription() const {
-    return "The number/name of a column in a buffer";
-  };
+  virtual QString typeDescription() const;
 
 };
 
@@ -531,10 +529,7 @@ public:
     return "columns";
   };
 
-  virtual QString typeDescription() const {
-    return "A comma-separated list of columns";
-  };
-
+  virtual QString typeDescription() const;
 };
 
 #endif

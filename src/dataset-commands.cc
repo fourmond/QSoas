@@ -1631,10 +1631,10 @@ static ArgumentList
 sMA(QList<Argument *>() 
     << new StringArgument("name", 
                           "Name",
-                          "The name of the meta-data")
+                          "name of the meta-data")
     << new StringArgument("value", 
                           "Value",
-                          "The meta-data value")
+                          "value of the meta-data")
    );
 
 // static ArgumentList 
@@ -1747,8 +1747,7 @@ static ArgumentList
 tcO(QList<Argument *>() 
     << new SeveralColumnsArgument("remove", 
                                   "Columns to remove",
-                                  "The column numbers to remove "
-                                  "(X = 1, Y = 2, etc...)", true)
+                                  "the columns to remove ", true)
     << new BoolArgument("flip", 
                         "Flip Y columns",
                         "If true, flips all the Y columns")

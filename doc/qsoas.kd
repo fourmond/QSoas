@@ -585,15 +585,15 @@ The main command for loading data is [cmd: load].
 
 ### load - Load {#cmd-load}
 
-`load` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/style=`_style_{:title="one of: `red-blue`"} `/flags=`_words_{:title="several words, separated by ','"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/yerrors=`_column_{:title="the number/name of a column in a buffer"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="an integer"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`load` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/flags=`_words_{:title="several words, separated by ','"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="an integer"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
 Short name: `l`
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
-  * `/style=`_style_{:title="one of: `red-blue`"}: style for curves display -- values: one of: `red-blue`
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: style for curves display -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/flags=`_words_{:title="several words, separated by ','"}: flags for the newly created buffers -- values: several words, separated by ','
   * `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, ignores cache (default off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/yerrors=`_column_{:title="the number/name of a column in a buffer"}: name of the column containing y errors -- values: the number/name of a column in a buffer
+  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a buffer
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: decimal separator -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
@@ -679,7 +679,7 @@ same option on loaded datasets.
 
 ### load-as-text - Load files with backend 'text' {#cmd-load-as-text}
 
-`load-as-text` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="an integer"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/style=`_style_{:title="one of: `red-blue`"} `/flags=`_words_{:title="several words, separated by ','"} `/yerrors=`_column_{:title="the number/name of a column in a buffer"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`load-as-text` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="an integer"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/flags=`_words_{:title="several words, separated by ','"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
@@ -688,9 +688,9 @@ same option on loaded datasets.
   * `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: pattern for comment lines -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/columns=`_integers_{:title="a comma-separated list of integers"}: columns loaded from the file -- values: a comma-separated list of integers
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/style=`_style_{:title="one of: `red-blue`"}: style for curves display -- values: one of: `red-blue`
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: style for curves display -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/flags=`_words_{:title="several words, separated by ','"}: flags for the newly created buffers -- values: several words, separated by ','
-  * `/yerrors=`_column_{:title="the number/name of a column in a buffer"}: name of the column containing y errors -- values: the number/name of a column in a buffer
+  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a buffer
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: load-as-text {:/}
@@ -733,7 +733,7 @@ interpreted:
 
 ### load-as-csv - Load files with backend 'csv' {#cmd-load-as-csv}
 
-`load-as-csv` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="an integer"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/style=`_style_{:title="one of: `red-blue`"} `/flags=`_words_{:title="several words, separated by ','"} `/yerrors=`_column_{:title="the number/name of a column in a buffer"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`load-as-csv` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="an integer"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/flags=`_words_{:title="several words, separated by ','"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
@@ -742,9 +742,9 @@ interpreted:
   * `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: pattern for comment lines -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/columns=`_integers_{:title="a comma-separated list of integers"}: columns loaded from the file -- values: a comma-separated list of integers
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/style=`_style_{:title="one of: `red-blue`"}: style for curves display -- values: one of: `red-blue`
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: style for curves display -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/flags=`_words_{:title="several words, separated by ','"}: flags for the newly created buffers -- values: several words, separated by ','
-  * `/yerrors=`_column_{:title="the number/name of a column in a buffer"}: name of the column containing y errors -- values: the number/name of a column in a buffer
+  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a buffer
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: load-as-csv {:/}
@@ -758,7 +758,7 @@ Hence, the options have the same meaning as for [cmd: load-as-text].
 
 ### load-as-chi-txt - Load files with backend 'chi-txt' {#cmd-load-as-chi-txt}
 
-`load-as-chi-txt` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="an integer"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/style=`_style_{:title="one of: `red-blue`"} `/flags=`_words_{:title="several words, separated by ','"} `/yerrors=`_column_{:title="the number/name of a column in a buffer"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`load-as-chi-txt` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="an integer"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/flags=`_words_{:title="several words, separated by ','"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
@@ -767,9 +767,9 @@ Hence, the options have the same meaning as for [cmd: load-as-text].
   * `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: pattern for comment lines -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/columns=`_integers_{:title="a comma-separated list of integers"}: columns loaded from the file -- values: a comma-separated list of integers
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/style=`_style_{:title="one of: `red-blue`"}: style for curves display -- values: one of: `red-blue`
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: style for curves display -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/flags=`_words_{:title="several words, separated by ','"}: flags for the newly created buffers -- values: several words, separated by ','
-  * `/yerrors=`_column_{:title="the number/name of a column in a buffer"}: name of the column containing y errors -- values: the number/name of a column in a buffer
+  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a buffer
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: load-as-chi-txt {:/}
@@ -919,12 +919,12 @@ files based on their meta-data and/or statistics. See the
 
 ### overlay-buffer - Overlay buffers {#cmd-overlay-buffer}
 
-`overlay-buffer` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/style=`_style_{:title="one of: `red-blue`"}
+`overlay-buffer` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
 Short name: `V`
 
   * _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: Buffers to overlay -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * `/style=`_style_{:title="one of: `red-blue`"}: Style for curves display -- values: one of: `red-blue`
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for curves display -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: overlay-buffer {:/}
 {::comment} description-start: overlay-buffer {:/}
@@ -955,15 +955,15 @@ of passing it non-visible datasets, QSoas won't shout at you if you do.
 
 ### overlay - Overlay {#cmd-overlay}
 
-`overlay` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/style=`_style_{:title="one of: `red-blue`"} `/flags=`_words_{:title="several words, separated by ','"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/yerrors=`_column_{:title="the number/name of a column in a buffer"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="an integer"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`overlay` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/flags=`_words_{:title="several words, separated by ','"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/skip=`_integer_{:title="an integer"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
 Short name: `v`
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
-  * `/style=`_style_{:title="one of: `red-blue`"}: style for curves display -- values: one of: `red-blue`
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: style for curves display -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/flags=`_words_{:title="several words, separated by ','"}: flags for the newly created buffers -- values: several words, separated by ','
   * `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, ignores cache (default off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/yerrors=`_column_{:title="the number/name of a column in a buffer"}: name of the column containing y errors -- values: the number/name of a column in a buffer
+  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a buffer
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: decimal separator -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
@@ -1103,8 +1103,8 @@ Short name: `K`
 
 {::comment} synopsis-end: browse-stack {:/}
 {::comment} description-start: browse-stack {:/}
-Displays a dialog box to show the current contents of the stack, like
-for [cmd: browse].
+Displays the contents of the stack using a dialog box that
+works similarly to the one of the [cmd: browse] command.
 {::comment} description-end: browse-stack {:/}
 
 {::comment} synopsis-start: show-stack {:/}
@@ -1137,8 +1137,8 @@ Short name: `u`
 
 {::comment} synopsis-end: undo {:/}
 {::comment} description-start: undo {:/}
-Returns to the previous buffer, and push the current to the redo
-stack. If `/number=` is specified, repeat that many times.
+Returns to the previous buffer, and pushes the current to the redo
+stack. If `/number=` is specified, repeats that many times.
 {::comment} description-end: undo {:/}
 
 
@@ -1154,7 +1154,7 @@ Short name: `r`
 
 {::comment} synopsis-end: redo {:/}
 {::comment} description-start: redo {:/}
-Pops the last buffer from the redo stack and set it as the current
+Pops the last buffer from the redo stack and sets it as the current
 buffer. `/number` has the same meaning as for [cmd: undo].
 {::comment} description-end: redo {:/}
 
@@ -1168,8 +1168,14 @@ buffer. `/number` has the same meaning as for [cmd: undo].
 
 {::comment} synopsis-end: save-stack {:/}
 {::comment} description-start: save-stack {:/}
-Saves the contents of the stack for later use, in a private binary
-format.
+Saves the entire contents of the stack (all the buffers, their flags
+and their meta-data) for later use, in binary form. This file is only
+meant to be used with [cmd: load-stack]. If you'd rather save every
+file separately as a text file, use
+
+~~~~
+QSoas> save-buffers all
+~~~~
 {::comment} description-end: save-stack {:/}
 
 {::comment} synopsis-start: load-stack {:/}
@@ -1235,8 +1241,7 @@ QSoas> drop 3..16
 drops all the buffers from 3 to 16 included. 
 
 *Important:* it is *not* possible to recover a buffer once it has been
-dropped from the stack. [cmd: undo] won't work. Use it only on
-buffers you're sure you won't need again (such as computation intermediates). 
+dropped from the stack. [cmd: undo] won't work.
 {::comment} description-end: drop {:/}
 {::comment} synopsis-start: flag {:/}
 
@@ -1300,9 +1305,8 @@ way as for [cmd: flag].
 
 {::comment} synopsis-end: auto-flag {:/}
 {::comment} description-start: auto-flag {:/}
-This command can be used to automatically flag the datasets produced
-by any command afterwards, until a call to [cmd: auto-flag] without
-options:
+Flags the datasets produced by all commands afterwards, until a call
+to [cmd: auto-flag] without options:
 
 ~~~~
 QSoas> auto-flag /flags=stuff
@@ -1311,8 +1315,8 @@ QSoas> auto-flag /flags=stuff
 QSoas> auto-flag
 ~~~~
 
-This can be used to flag automatically all the datasets produced by a
-script, for instance.
+This can be used to flag all the datasets produced by a script, for
+instance.
 
 
 {::comment} description-end: auto-flag {:/}
@@ -1331,8 +1335,8 @@ Short name: `F`
 
   * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: formula -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/extra-columns=`_integer_{:title="an integer"}: number of extra columns to create -- values: an integer
-  * `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, the formula can use `$stats` to refer to statistics (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on (by default), a `$meta` hash is available that contains the dataset meta-data -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, you can use `$stats` to refer to statistics (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on (by default), you can use `$meta` to refer to the dataset meta-data -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: apply-formula {:/}
 {::comment} description-start: apply-formula {:/}
@@ -1355,7 +1359,27 @@ refer to:
   * `seg`, the number of the current segment (starting from 0)
   * `y2`, `y3`, etc when there are more than 2 columns in the dataset
 
-`i` and `seg` cannot be modified, but `y2` and so on can.
+`i` and `seg` cannot be modified, but `y2` and so on can. Here is how
+you can use `i` to have even points draw a sine wave and odd points a
+cosine:
+
+~~~~
+QSoas> apply-formula 'y = (i % 2 == 0 ? sin(x) : cos(x))'
+~~~~
+
+`%` is the modulo operator. The construction with `?` and `:` (called
+the [ternary operator](https://en.wikipedia.org/wiki/%3F:) means:
+if `i % 2 == 0` is true, then the value is `sin(x)`, else `cos(x)`.
+
+You can use several instructions by separating them with `;`:
+
+~~~~
+QSoas> apply-formula 'x = x**2; y = x**2'
+~~~~
+
+This results in `x` values that are the squares of the old values, and
+`y` values that are the square of the new `x` values.
+
 
 Extra columns initially filled with 0 can be created by using the
 `/extra-columns` option:
@@ -1364,17 +1388,22 @@ Extra columns initially filled with 0 can be created by using the
 QSoas> apply-formula /extra-columns=1 'y2 = y**2'
 ~~~~
 
-This creates a second column containing the square of the values of
-the Y column.
+This creates a third column (a second `y` column) containing the
+square of the values of the Y column.
 
 If `/use-stats=true` is used, a global variable `$stats` can be used
-within the Ruby expression that contains all the statistics displayed
+in the [Ruby expression](#ruby). It contains all the statistics displayed
 by [cmd: stats]. For instance, to normalize the Y values by dividing
 by the median, one would use:
 
 ~~~ 
 QSoas> apply-formula /use-stats=true 'y = y/$stats["y_med"]'
 ~~~
+
+Beware of the quotes: the outer quotes `'` are meant to make QSoas
+understand that the `y = y/$stats["y_med"]` is only one argument,
+while the inner quotes `"` are required because the keys to the
+statistics dictionnary are ruby strings, delimited by `"`.
 
 Statistics by segments (see more about segments [there](#segments))
 are available too, which means if you want to normalize by the medians
@@ -1387,8 +1416,8 @@ QSoas> apply-formula /use-stats=true 'y = y/$stats[0]["y_med"]'
 If `/use-meta` is `true` (the default), then a global variable `$meta`
 is defined that contains the value of the [meta-data](#meta-data)
 (what is shown by [cmd: show]). What you make of this will greatly
-depend of the meta-data QSoas has gathered from your file (and the
-ones you may have set manually using [cmd: set-meta]).
+depend of the meta-data QSoas has gathered from your file (and those
+you have set manually using [cmd: set-meta]).
 
 {::comment} description-end: apply-formula {:/}
 
@@ -1459,11 +1488,11 @@ Shift X values so that the first point has a X value of 0.
 
 {::comment} synopsis-end: norm {:/}
 {::comment} description-start: norm {:/}
-Normalize the current buffer by its maximum value (or by the absolute
-value of its most negative value if `/positive` is `false`).
+Normalizes the current buffer by dividing by its maximum value, or, if
+`/positive=false` by the absolute value of its most negative value. 
 
 If the `/map-to` option is specified, the original dataset is mapped
-linearly to the given segment: 
+linearly to the given interval: 
 
 ~~~~ 
 norm /map-to=2:4
@@ -1498,7 +1527,7 @@ to accept the modifications, hit escape to cancel them.
 
 {::comment} synopsis-end: edit {:/}
 {::comment} description-start: edit {:/}
-Pops up a spreadsheet-like window where you can view and edit the
+Opens a spreadsheet-like window where you can view and edit the
 individual values of the current dataset. If you want to save your
 modification, press the "push new" button.
 {::comment} description-end: edit {:/}
@@ -1524,11 +1553,11 @@ Sorts the buffer in increasing X values.
 
 {::comment} synopsis-end: reverse {:/}
 {::comment} description-start: reverse {:/}
-Reverse the order of all the data points: the last one now becomes the
-first one, and so on. Though this has no effect on the look of the
-data, this will impact commands that work with indices, such as the
-display of [cmd: cut] and the multi-buffer processing commands (such
-as [cmd: subtract], [cmd: div] and so on) with `/mode=indices`.
+Reverses the order of all the data points: the last one now becomes
+the first one, and so on. Though this has no effect on the look of the
+data, this will impact commands that work with indices, such as
+[cmd: cut] and the multi-buffer processing commands (such as
+[cmd: subtract], [cmd: div]) with `/mode=indices`.
 {::comment} description-end: reverse {:/}
 
 
@@ -1549,14 +1578,14 @@ can be used for quite advanced data selection:
 QSoas> strip-if 'x > 2'
 ~~~~ 
 
-This removes all points whose X value is over 2.
+This removes all points whose X value is greater than 2.
 
 ~~~~
 QSoas> strip-if 'x * y < 10 && x > 2'
 ~~~~
 
-This removes all the points for which both the X value is over 2 and
-the product of X and Y is below 10.
+This removes all the points for which both the X value is greater than 2 and
+the product of X and Y is lower than 10.
 
 When reading data files that contain spurious data points (such as
 text lines containing no data within a file read with
@@ -1577,7 +1606,7 @@ QSoas> strip-if '(x != x) || (y != y)'
 
 `integrate` `/index=`_integer_{:title="an integer"}
 
-  * `/index=`_integer_{:title="an integer"}: Index of the point that should be used as y = 0 -- values: an integer
+  * `/index=`_integer_{:title="an integer"}: index of the point that should be used as y = 0 -- values: an integer
 
 {::comment} synopsis-end: integrate {:/}
 {::comment} description-start: integrate {:/}
@@ -1598,11 +1627,10 @@ point ends up being at 0.
 {::comment} description-start: diff {:/}
 Computes the 4th order accurate derivative of the buffer.
 
-This is efficient to compute the derivative of smooth data,
-but it gives very poor results on noisy data. In general,
-for derivation, prefer [cmd: filter-fft], 
-[cmd: filter-bsplines] or [cmd: auto-reglin] that will give much
-better results.
+This is efficient to compute the derivative of smooth data, but it
+gives very poor results on noisy data. In general, for derivation,
+prefer [cmd: filter-fft], [cmd: filter-bsplines] or [cmd: auto-reglin],
+which will give much better results.
 {::comment} description-end: diff {:/}
 
 {::comment} synopsis-start: diff2 {:/}
@@ -1622,19 +1650,19 @@ The same warnings apply as for [cmd: diff].
 
 ### dataset-options - Options {#cmd-dataset-options}
 
-`dataset-options` `/yerrors=`_column_{:title="the number/name of a column in a buffer"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`dataset-options` `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * `/yerrors=`_column_{:title="the number/name of a column in a buffer"}: name of the column containing y errors -- values: the number/name of a column in a buffer
+  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a buffer
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: dataset-options {:/}
 {::comment} description-start: dataset-options {:/}
 Sets options for the current dataset:
 
- * with `/yerrors`, sets the display of errors on Y values, see
+ * `/yerrors` sets the display of errors on Y values, see
    [there](#column-names) for more information on how to specify the
    columns;
- * with `/histogram`, sets wether or not the dataset should be
+ * `/histogram` sets wether or not the dataset should be
    displayed as a histogram.
 {::comment} description-end: dataset-options {:/}
 
@@ -1649,10 +1677,12 @@ Sets options for the current dataset:
 {::comment} description-start: edit-errors {:/}
 Provides an interface for editing manually the errors attached to each
 point of the current buffer. This function will create a column
-containing errors if there is not one yet.
+containing errors if there is none yet.
 
-Pick left and right bounds and set the errors within the bounds with
-`i` and outside with `o`.
+Pick left and right bounds with the left and right mouse buttons and
+set the errors within the bounds with `i` and outside with `o`. This
+is typically used to crudely exclude some bits of the dataset from
+fitting, by setting much larger errors for the bits than for the rest.
 {::comment} description-end: edit-errors {:/}
 
 
@@ -1670,9 +1700,13 @@ Short name: `c`
 {::comment} synopsis-end: cut {:/}
 {::comment} description-start: cut {:/}
 Interactively cuts bits out of the buffer. Left and right mouse clicks
-set the left and right limits. Middle click or q quits leaving only the
-part that is within the region, while u leaves only the outer
-part. Hit escape to cancel.
+set the left and right limits. Middle click or `q` quits leaving only the
+part that is within the region, while `u` leaves only the outer
+part. `r` remove the part inside the region, but lets you keep on
+editing the buffer. Hit escape to cancel.
+
+By default, the Y values are displayed as a function of the index; you
+can switch back to display Y values as a function of X by hitting `x`.
 {::comment} description-end: cut {:/}
 
 {::comment} synopsis-start: chop {:/}
@@ -1699,8 +1733,8 @@ buffers. The intepretation of the numbers depends on the value of the
   * `index` (or `indices`): the numbers are the indices of the points
     at which to split
 
-If `/set-segments` is on, the X values not used to create independent
-buffers but rather to set the position of the  [segments](#segments).
+If `/set-segments` is on, the X values are not used to create independent
+buffers but rather to set the position of the [segments](#segments).
 
 {::comment} description-end: chop {:/}
 
@@ -1761,10 +1795,11 @@ increase or decrease monotonically.
 
 This command makes the X values of the current buffer monotonic by
 ensuring that the value of $$\Delta x$$ always have the same sign,
-changing it if needs be.
+changing it if needed.
 
-This is useful for instance to convert a cyclic voltammogram from 
-$$i = f(E)$$ to $$i = f(t)$$, after dividing by the scan rate.
+This is useful for instance to convert a cyclic voltammogram from $$i
+= f(E)$$ to $$i = f(t)$$, after dividing the X values by the scan
+rate.
 
 {::comment} description-end: unwrap {:/}
 
@@ -1786,19 +1821,19 @@ Concatenates the buffers given as arguments, adding segment stops
 inbetween (unless `/add-segments=false` is used). This can be used to
 reverse the effect of the previous commands.
 
-This does not change the number of columns. If you're trying to gather
-several Y columns as a function of the same X, you should try
+This does not change the number of columns. If you want to gather
+several Y columns as a function of the same X, use 
 [cmd: contract] instead.
 {::comment} description-end: cat {:/}
 
 ## Buffer's meta-data and perpendicular coordinates {#meta-data}
 
-QSoas's buffers hold more than just columns of numbers. When a file is
-loaded, QSoas also gathers as much information as possible about that
-file, such as original file name, file date, and, for files supported
-by QSoas, details about the experimental conditions recorded in that
-file. These are known as "meta-data", and can be displayed using the
-[cmd: show] command.
+QSoas' buffers (or datasets) hold more than just columns of
+numbers. When a file is loaded, QSoas also gathers as much information
+as possible about that file, such as original file name, file date,
+and, for file formats supported by QSoas, details about the
+experimental conditions recorded in that file. These are known as
+"meta-data", and can be displayed using the [cmd: show] command.
 
 Here are some meta-data of particular signification available to all
 buffers loaded from files:
@@ -1809,22 +1844,22 @@ buffers loaded from files:
   * `commands` is the list of commands that have been applied to this
     buffer since its load/creation.
 
-Upon saving using [cmd: save] all of a buffer's meta-data are saved as
+Upon saving using [cmd: save] all meta-data are saved as
 comments in the text file.
 
 Perpendicular coordinates make sense when a buffer has several Y
-columns. For instance, when data consists in spectra taken at
-different times after the beginning of an experiment, like in the
+columns. For instance, when the dataset consists in spectra taken at
+different times, like in the
 [tutorial](tutorial.html#tuto-joliot)  (or at different
 solution potentials for a redox titration), then the X values will be
 the wavelength, and each Y column will correspond to a different
 time. Then the time is the _perpendicular coordinate_. One can set
 the perpendicular coordinate manually using [cmd: set-perp].
 
-Many commands make use of perpendicular coordinates, most notably
+Many commands use perpendicular coordinates, most notably
 [cmd: transpose] (that would convert columns of $$y = f(\lambda)$$ for
 different values of $$t$$ above into columns of $$y = f(t)$$ for
-different values of $$\lambda$$), and all the multi-fit commands that
+different values of $$\lambda$$), and all the multi-fit commands, which
 show parameters as a function of the perpendicular coordinates when
 applicable.
 
@@ -1835,7 +1870,7 @@ accept a `/for-which` option to select the datasets (or files) they
 work on based on their properties. The value of the `/for-which` is a
 [ruby](#ruby) formula that uses the global variables `$meta` and
 `$stats` variables. For instance, the following command flags all the
-datasets in the stack that have a maximum value above `1e-4`:
+datasets that have a maximum value greater than `1e-4`:
 
 ~~~
 QSoas> flag all /for-which '$stats["y_max"] >= 1e-4'
@@ -1879,8 +1914,8 @@ Meta-data:	delta_t_0 = 950	gpes_file = D:\Vincent\140428\08	original-file = /hom
 
 `set-meta` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}
 
-  * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: The name of the meta-data -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: The meta-data value -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: name of the meta-data -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: value of the meta-data -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
 
 {::comment} synopsis-end: set-meta {:/}
 {::comment} description-start: set-meta {:/}
@@ -1900,8 +1935,8 @@ exist in the list of buffer's meta-data.
 {::comment} synopsis-end: set-perp {:/}
 {::comment} description-start: set-perp {:/}
 Sets the perpendicular coordinates for the Y columns, as
-comma-separated values. For it to be useful, there must be as many
-perpendicular coordinates as there are Y columns.
+comma-separated values. There must be as many perpendicular
+coordinates as there are Y columns.
 {::comment} description-end: set-perp {:/}
 
 {::comment} synopsis-start: transpose {:/}
@@ -1927,9 +1962,9 @@ absorbance for different values of $$\lambda$$ (one for each column).
 
 ### tweak-columns - Tweak columns {#cmd-tweak-columns}
 
-`tweak-columns` `/remove=`_columns_{:title="a comma-separated list of columns"} `/flip=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/flip-all=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`tweak-columns` `/remove=`_columns_{:title="a comma-separated list of [columns names](#column-names)"} `/flip=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/flip-all=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * `/remove=`_columns_{:title="a comma-separated list of columns"}: The column numbers to remove (X = 1, Y = 2, etc...) -- values: a comma-separated list of columns
+  * `/remove=`_columns_{:title="a comma-separated list of [columns names](#column-names)"}: the columns to remove  -- values: a comma-separated list of [columns names](#column-names)
   * `/flip=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, flips all the Y columns -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/flip-all=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, flips all the columns, including the X column -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
@@ -1995,9 +2030,9 @@ small heuristic. You can display it using the `b` key.
 
 ### filter-bsplines - B-Splines filter {#cmd-filter-bsplines}
 
-`filter-bsplines` `/weight-column=`_column_{:title="the number/name of a column in a buffer"} **(interactive)**
+`filter-bsplines` `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a buffer"} **(interactive)**
 
-  * `/weight-column=`_column_{:title="the number/name of a column in a buffer"}: Use the weights in the given column -- values: the number/name of a column in a buffer
+  * `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: Use the weights in the given column -- values: the [number/name of a column](#column-names) in a buffer
 
 {::comment} synopsis-end: filter-bsplines {:/}
 {::comment} description-start: filter-bsplines {:/}
@@ -2030,13 +2065,13 @@ approximation. (be careful as this function may fail at times).
 
 ### auto-filter-bs - Auto B-splines {#cmd-auto-filter-bs}
 
-`auto-filter-bs` `/number=`_integer_{:title="an integer"} `/order=`_integer_{:title="an integer"} `/weight-column=`_column_{:title="the number/name of a column in a buffer"} `/derivatives=`_integer_{:title="an integer"}
+`auto-filter-bs` `/number=`_integer_{:title="an integer"} `/order=`_integer_{:title="an integer"} `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a buffer"} `/derivatives=`_integer_{:title="an integer"}
 
 Short name: `afbs`
 
   * `/number=`_integer_{:title="an integer"}: Number of segments -- values: an integer
   * `/order=`_integer_{:title="an integer"}: Order of the splines -- values: an integer
-  * `/weight-column=`_column_{:title="the number/name of a column in a buffer"}: Use the weights in the given column -- values: the number/name of a column in a buffer
+  * `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: Use the weights in the given column -- values: the [number/name of a column](#column-names) in a buffer
   * `/derivatives=`_integer_{:title="an integer"}: Compute derivatives up to the given  -- values: an integer
 
 {::comment} synopsis-end: auto-filter-bs {:/}
@@ -2214,10 +2249,10 @@ Computes the auto-correlation function of the data, using FFT.
 
 ### bin - Bin {#cmd-bin}
 
-`bin` `/boxes=`_integer_{:title="an integer"} `/column=`_column_{:title="the number/name of a column in a buffer"} `/log=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`bin` `/boxes=`_integer_{:title="an integer"} `/column=`_column_{:title="the [number/name of a column](#column-names) in a buffer"} `/log=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * `/boxes=`_integer_{:title="an integer"}:  -- values: an integer
-  * `/column=`_column_{:title="the number/name of a column in a buffer"}:  -- values: the number/name of a column in a buffer
+  * `/column=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}:  -- values: the [number/name of a column](#column-names) in a buffer
   * `/log=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}:  -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: bin {:/}
@@ -2433,13 +2468,13 @@ each of those before.
 
 ### contract - Group buffers on X values {#cmd-contract}
 
-`contract` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/mode=`_choice_{:title="one of: `indices`, `xvalues`"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/use-columns=`_columns_{:title="a comma-separated list of columns"}
+`contract` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/mode=`_choice_{:title="one of: `indices`, `xvalues`"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/use-columns=`_columns_{:title="a comma-separated list of [columns names](#column-names)"}
 
   * _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: Buffers to contract -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/mode=`_choice_{:title="one of: `indices`, `xvalues`"}: Whether operations try to match x values or indices -- values: one of: `indices`, `xvalues`
   * `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, operations are performed segment-by-segment -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define the perpendicular coordinate from meta-data -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/use-columns=`_columns_{:title="a comma-separated list of columns"}: If specified, use only the given columns for the contraction -- values: a comma-separated list of columns
+  * `/use-columns=`_columns_{:title="a comma-separated list of [columns names](#column-names)"}: If specified, use only the given columns for the contraction -- values: a comma-separated list of [columns names](#column-names)
 
 {::comment} synopsis-end: contract {:/}
 {::comment} description-start: contract {:/}

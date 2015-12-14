@@ -162,10 +162,10 @@ fO(QList<Argument *>()
                           "number of extra columns to create")
    << new BoolArgument("use-stats", 
                        "Use statistics",
-                       "if on, the formula can use `$stats` to refer to statistics (off by default)")
+                       "if on, you can use `$stats` to refer to statistics (off by default)")
    << new BoolArgument("use-meta", 
                        "Use meta-data",
-                       "if on (by default), a `$meta` hash is available that contains "
+                       "if on (by default), you can use `$meta` to refer to "
                        "the dataset meta-data")
    );
 

@@ -525,6 +525,11 @@ ArgumentMarshaller * ColumnArgument::fromString(const QString & str) const
   return new ArgumentMarshallerChild<int>(parseFromText(str));
 }
 
+QString ColumnArgument::typeDescription() const
+{
+  return "The [number/name of a column](#column-names) in a buffer";
+}
+
 //////////////////////////////////////////////////////////////////////
 
 ArgumentMarshaller * SeveralColumnsArgument::fromString(const QString & str) const
@@ -556,4 +561,9 @@ void SeveralColumnsArgument::concatenateArguments(ArgumentMarshaller * a,
 {
   a->value<QList<int> >() += 
     b->value<QList<int> >();
+}
+
+QString SeveralColumnsArgument::typeDescription() const
+{
+  return "A comma-separated list of [columns names](#column-names)";
 }

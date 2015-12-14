@@ -1902,7 +1902,7 @@ static ArgumentList
 intOps(QList<Argument *>() 
       << new IntegerArgument("index", 
                              "Index",
-                             "Index of the point that should be used as y = 0")
+                             "index of the point that should be used as y = 0")
       );
 
 static Command 

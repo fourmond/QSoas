@@ -282,12 +282,11 @@ static void combineFits(const QString &, QString newName,
 static ArgumentList 
 cfA(QList<Argument *>() 
     << new StringArgument("name", "Name",
-                          "The name of the new fit")
+                          "name of the new fit")
     << new StringArgument("formula", "Formula",
-                          "How to combine the various fits")
-    << new SeveralChoicesArgument(&Fit::availableFits,
-                                  "fits", "Fits",
-                                  "The fit to combine together"));
+                          "how to combine the various fits")
+    << new SeveralFitNamesArgument("fits", "Fits",
+                                   "the fits to combine together"));
 
 static Command 
 cf("combine-fits", // command name

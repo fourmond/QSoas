@@ -225,6 +225,19 @@ public:
 
 };
 
+/// A choice between several fixed strings
+class SeveralFitNamesArgument : public SeveralChoicesArgument {
+public:
+
+  SeveralFitNamesArgument(const char * cn, const char * pn,
+                          const char * d = "", bool g = true,
+                          bool def = false,
+                          const char * chN = "");
+
+  virtual QString typeDescription() const;
+
+};
+
 //////////////////////////////////////////////////////////////////////
 
 /// A dataset from the stack

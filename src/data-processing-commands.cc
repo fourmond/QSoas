@@ -1534,16 +1534,16 @@ static ArgumentList
 afbsOps(QList<Argument *>() 
       << new IntegerArgument("number", 
                              "Number",
-                             "Number of segments")
+                             "number of segments")
       << new IntegerArgument("order", 
                              "Order",
-                             "Order of the splines")
+                             "order of the splines")
       << new ColumnArgument("weight-column", 
                             "Weights",
-                            "Use the weights in the given column")
+                            "uses the weights in the given column")
       << new IntegerArgument("derivatives", 
                              "Derivative order",
-                             "Compute derivatives up to the given ")
+                             "computes derivatives up to this number")
       );
 
 
@@ -2051,16 +2051,16 @@ static ArgumentList
 fpBaseOps(QList<Argument *>() 
           << new IntegerArgument("window", 
                                  "Peak window",
-                                 "Width of the window")
+                                 "width of the window")
           << new BoolArgument("include-borders",
                               "Include borders",
-                              "Whether or not to include borders")
+                              "whether or not to include borders")
           << new ChoiceArgument(QStringList() 
                                 << "min" << "max" << "both",
                                 "which",
                                 "Min or max",
-                                "Selects which of minima and/or maxima "
-                                "to display")
+                                "selects which of minima and/or maxima "
+                                "to find")
        );
 
 static ArgumentList 

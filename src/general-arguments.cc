@@ -223,6 +223,22 @@ QString FitNameArgument::typeDescription() const
   return "The name of a fit (without the fit- prefix)";
 }
 
+////////////////////////////////////////////////////////////
+
+SeveralFitNamesArgument::SeveralFitNamesArgument(const char * cn,
+                                                 const char * pn,
+                                                 const char * d, bool g,
+                                                 bool def,
+                                                 const char * chN) :
+  SeveralChoicesArgument(&Fit::availableFits, cn, pn, d, g, def)
+{
+}
+
+QString SeveralFitNamesArgument::typeDescription() const
+{
+  return "A series of names of a fit (without the fit- prefix), separated by spaces";
+}
+
 
 ////////////////////////////////////////////////////////////
 

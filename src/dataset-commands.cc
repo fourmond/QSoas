@@ -1255,10 +1255,10 @@ static ArgumentList
 contractOpts(QList<Argument *>(operationOpts) 
              << new StringArgument("perp-meta", 
                                    "Perpendicular coordinate",
-                                   "Define the perpendicular coordinate from meta-data")
+                                   "defines the perpendicular coordinate from meta-data")
              << new SeveralColumnsArgument("use-columns", 
                                            "The columns to use",
-                                           "If specified, use only the given columns for the contraction"));
+                                           "if specified, uses only the given columns for the contraction"));
 
 static Command 
 contractc("contract", // command name
@@ -1494,17 +1494,17 @@ static ArgumentList
 statsO(QList<Argument *>() 
        << new DataSetArgument("buffer", 
                               "Buffer",
-                              "An alternative buffer to get information on",
+                              "an alternative buffer to work on",
                               true)
        << new BoolArgument("output", 
                            "To output file",
                            "whether to write stats to output file (defaults to false)")
        << new BoolArgument("use-segments", 
                            "Use segments",
-                           "Makes statistics segment by segment (defaults to false)")
+                           "makes statistics segment by segment (defaults to false)")
        << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "meta", 
                                      "Meta-data",
-                                     "When writing to output file, also print the listed meta-data")
+                                     "when writing to output file, also prints the listed meta-data")
        );
 
 

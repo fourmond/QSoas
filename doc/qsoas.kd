@@ -2010,7 +2010,7 @@ In addition, QSoas provides ways to remove calculated "baselines":
 
 {::comment} synopsis-end: filter-fft {:/}
 {::comment} description-start: filter-fft {:/}
-Filter data using FFT, ie the data is Fourier transformed, then a
+Filters data using FFT, ie the data is Fourier transformed, then a
 filter function is applied in the frequency domain and the result is
 backward transformed.
 
@@ -2039,7 +2039,7 @@ small heuristic. You can display it using the `b` key.
 
 Filters the data using B-splines: B-splines are polynomial functions
 of a given order defined over segments. The filtering process finds
-the linear combination of these splines functions that is the closest
+the linear combination of these spline functions that is the closest
 to the original data.
 
 This approach amounts to taking the projection of the original data
@@ -2069,15 +2069,16 @@ approximation. (be careful as this function may fail at times).
 
 Short name: `afbs`
 
-  * `/number=`_integer_{:title="an integer"}: Number of segments -- values: an integer
-  * `/order=`_integer_{:title="an integer"}: Order of the splines -- values: an integer
-  * `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: Use the weights in the given column -- values: the [number/name of a column](#column-names) in a buffer
-  * `/derivatives=`_integer_{:title="an integer"}: Compute derivatives up to the given  -- values: an integer
+  * `/number=`_integer_{:title="an integer"}: number of segments -- values: an integer
+  * `/order=`_integer_{:title="an integer"}: order of the splines -- values: an integer
+  * `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: uses the weights in the given column -- values: the [number/name of a column](#column-names) in a buffer
+  * `/derivatives=`_integer_{:title="an integer"}: computes derivatives up to this number -- values: an integer
 
 {::comment} synopsis-end: auto-filter-bs {:/}
 {::comment} description-start: auto-filter-bs {:/}
 Filters the data using B-splines in a non-interactive fashion.
-Performs automatically an optimization step. 
+Performs automatically an optimization step, like hitting `o` in
+[cmd: filter-bsplines].
 
 This is mostly useful in scripts.
 {::comment} description-end: auto-filter-bs {:/}
@@ -2131,9 +2132,15 @@ Short name: `R`
 
 {::comment} synopsis-end: remove-spikes {:/}
 {::comment} description-start: remove-spikes {:/}
-Remove spikes using a simple heuristic. This command will not create a
-new buffer if not spikes were removed, unless you specify
-`/force-new=true`.
+
+Removes spikes using a simple heuristic: a point is considered a
+"spike" if over the `/number` points, the difference between this
+point and the ones next to it are larger than `/factor` times the
+other differences in the interval. This command will not create a new
+buffer if not spikes were removed, unless you specify
+`/force-new=true`, in which case the buffer is duplicated; this is
+useful for scripting, when you need a reproducible number of created
+buffers, regardless of whether spikes are present or not.
 {::comment} description-end: remove-spikes {:/}
 
 {::comment} synopsis-start: downsample {:/}
@@ -2268,7 +2275,7 @@ as Y values the number of data points that were in the boxes.
 # Segments {#segments}
 
 It is possible to split a buffer into logical segments without changing
-the contents of the buffer, but the position of the segment
+the contents of the buffer. The position of the segment
 boundaries are marked by a vertical line. They can be used for
 different purposes: for 
 [segment-by-segment operations](#buffer-operations), 
@@ -2292,7 +2299,7 @@ Segments can be detected using
 
 {::comment} synopsis-end: find-steps {:/}
 {::comment} description-start: find-steps {:/}
-This function detects ``jumps'' in the data (such as potential changes
+This function detects "jumps" in the data (such as potential changes
 in a chronoamperometry experiment, for instance), and display them
 both to the terminal output and on the data display. 
 
@@ -2357,14 +2364,14 @@ everything, push `q` to obtain the corrected data.
 
 It is possible to combine several buffers into one by applying
 mathematical operations (subtraction, division and the like). Each of
-these processes involve matching a point in a given buffer to a point
-in another buffer. There are two ways to do that, chosen by the
+these processes involve matching a data point of a buffer to a data point
+of another one. There are two ways to do that, chosen by the
 `/mode` option:
 
 
  * with `/mode=xvalues`, the default, uses the values of X (ie the
-   closest X value is picked). **Warning** this doesn't give the
-   expected result for buffers with several times the same X values,
+   closest X value is picked). **Warning** this will work properly
+   for buffers with several times the same X values,
    like cyclic voltammograms.
  * with `/mode=indices`, points are matched on a one-to-one basis, ie
    point 1 of buffer 1 to point 1 of buffer 2, irrespective of the X
@@ -2375,28 +2382,12 @@ defined on each buffer (see [cmd: find-steps] and
 [cmd: set-segments]). If segments are defined and
 `/use-segments=true`, then the operations are applied
 segment-by-segment, with the first point of each segment matching the
-corresponding point in the other buffer. This mode is particularly
-useful to manipulate series of potential steps with different time
-intervals.
+corresponding point in the other buffer. This mode is suited to
+combine two buffers that are divided into logical bits (such as
+chronoamperograms with steps at different potentials) whose exact
+details (beginnings and duration of the steps) vary a a little.
 
-{::comment} synopsis-start: div {:/}
 
-### div - Divide {#cmd-div}
-
-`div` _first..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} _second_{:title="the number of a buffer in the stack"} `/mode=`_choice_{:title="one of: `indices`, `xvalues`"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
-
-  * _first..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: First buffer(s) -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * _second_{:title="the number of a buffer in the stack"}: Second buffer -- values: the number of a buffer in the stack
-  * `/mode=`_choice_{:title="one of: `indices`, `xvalues`"}: Whether operations try to match x values or indices -- values: one of: `indices`, `xvalues`
-  * `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, operations are performed segment-by-segment -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-
-{::comment} synopsis-end: div {:/}
-{::comment} description-start: div {:/}
-Divides all buffers by the last one. This is useful to get rid of film
-loss when one has an independent measure of film loss, see
-[Fourmond _et al_, **Anal. Chem.** 2009](http://dx.doi.org/10.1021/ac8025702)
-for more information.
-{::comment} description-end: div {:/}
 
 {::comment} synopsis-start: subtract {:/}
 
@@ -2417,6 +2408,27 @@ Subtracts the last buffer from all the other ones (there can be more
 than one _first_ buffer). Useful for standard baseline removal.
 {::comment} description-end: subtract {:/}
 
+{::comment} synopsis-start: div {:/}
+
+### div - Divide {#cmd-div}
+
+`div` _first..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} _second_{:title="the number of a buffer in the stack"} `/mode=`_choice_{:title="one of: `indices`, `xvalues`"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+
+  * _first..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: First buffer(s) -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
+  * _second_{:title="the number of a buffer in the stack"}: Second buffer -- values: the number of a buffer in the stack
+  * `/mode=`_choice_{:title="one of: `indices`, `xvalues`"}: Whether operations try to match x values or indices -- values: one of: `indices`, `xvalues`
+  * `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, operations are performed segment-by-segment -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: div {:/}
+{::comment} description-start: div {:/}
+Divides all buffers by the last one. Just as [cmd: subtract] is useful
+to remove one of a multicomponent response when they are *additive*,
+[cmd: div] can be used to remove one of the components when they are
+*multiplicative*, like film loss in protein film voltammetry experiments, see
+[Fourmond _et al_, **Anal. Chem.** 2009](http://dx.doi.org/10.1021/ac8025702)
+for more information.
+{::comment} description-end: div {:/}
+
 {::comment} synopsis-start: average {:/}
 
 ### average - Average {#cmd-average}
@@ -2435,9 +2447,9 @@ In a manner similar to [cmd: subtract] and
 [cmd: div], the `average` command averages all the
 buffers given into one, with the same segment-by-segment capacities.
 
-An additional feature of `average`, though is its ability to first
+An additional feature of `average` is its ability to first
 split the buffers into monotonic parts before averaging (when `/split`
-is on). That is even the default in the case when only one buffer is
+is on). That is the default when only one buffer is
 provided. This proves useful for averaging the forward and return scan
 in a cyclic voltammogram.
 {::comment} description-end: average {:/}
@@ -2455,10 +2467,11 @@ in a cyclic voltammogram.
 
 {::comment} synopsis-end: merge {:/}
 {::comment} description-start: merge {:/}
-Merge the second buffer with the first one, and keep Y of the second
+Merges the second buffer with the first one, and keep Y of the second
 as a function of Y of the first. The algorithm for finding which point
 in the second corresponds to a given one in the first is the same as
-that of the other buffers. 
+that of the other commands in this section ([cmd: subtract],
+[cmd: div]...). 
 
 If more than two buffers are specified, the last one gets merged with
 each of those before.
@@ -2473,17 +2486,17 @@ each of those before.
   * _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: Buffers to contract -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/mode=`_choice_{:title="one of: `indices`, `xvalues`"}: Whether operations try to match x values or indices -- values: one of: `indices`, `xvalues`
   * `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, operations are performed segment-by-segment -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define the perpendicular coordinate from meta-data -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/use-columns=`_columns_{:title="a comma-separated list of [columns names](#column-names)"}: If specified, use only the given columns for the contraction -- values: a comma-separated list of [columns names](#column-names)
+  * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines the perpendicular coordinate from meta-data -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/use-columns=`_columns_{:title="a comma-separated list of [columns names](#column-names)"}: if specified, uses only the given columns for the contraction -- values: a comma-separated list of [columns names](#column-names)
 
 {::comment} synopsis-end: contract {:/}
 {::comment} description-start: contract {:/}
-As may be anticipated from the name, `contract` does the reverse of 
-[cmd: expand], ie it regroups in one buffer several values
-of Y that run against the same values of X. The result is a buffer
-that contains as many Y columns as the total of Y columns of all the
-arguments. X matching between the buffers is done as for the other
-operations such as [cmd: div] or  [cmd: subtract].
+[cmd: contract] does the reverse of [cmd: expand], ie it regroups in
+one buffer several values of Y that run against the same values of
+X. The result is a buffer that contains as many Y columns as the total
+of Y columns of all the arguments. X matching between the buffers is
+done as for the other commands in this section ([cmd: div] or
+[cmd: subtract]).
 
 You can specify a column list using `/use-columns` (see
 [above](#column-names) for more information about column lists), in
@@ -2498,9 +2511,9 @@ which case the other columns from the buffers are ignored.
 
 `find-peaks` `/window=`_integer_{:title="an integer"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/peaks=`_integer_{:title="an integer"}
 
-  * `/window=`_integer_{:title="an integer"}: Width of the window -- values: an integer
-  * `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether or not to include borders -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/which=`_choice_{:title="one of: `both`, `max`, `min`"}: Selects which of minima and/or maxima to display -- values: one of: `both`, `max`, `min`
+  * `/window=`_integer_{:title="an integer"}: width of the window -- values: an integer
+  * `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to include borders -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/which=`_choice_{:title="one of: `both`, `max`, `min`"}: selects which of minima and/or maxima to find -- values: one of: `both`, `max`, `min`
   * `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether peak information should be written to the output file (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/peaks=`_integer_{:title="an integer"}: Display only that many peaks (by order of intensity) -- values: an integer
 
@@ -2511,13 +2524,14 @@ over a window of a number of points given by `/window` (8 by default).
 If `/output` is on, then the peak data is written to the output
 file. This function will find many peaks on noisy data, you can limit
 to the first _n_ ones by using `/peaks=`_n_ (peaks are ranked by
-amplitude).
+amplitude with respect to the average of the buffer).
 
 By default, if a point at either end of the dataset is an extremum, it
 is not included, unless you use `/include-borders=true`.
 
 Peaks are indicated on the buffer using lines, and their position is
-written to the terminal, if `/output` is on (off by default).
+written to the terminal. In addition, if `/output` is on (off by
+default), they are also written to the [output file](#output-file).
 {::comment} description-end: find-peaks {:/}
 
 {::comment} synopsis-start: echem-peaks {:/}
@@ -2540,13 +2554,13 @@ about those.
 
 `1` `/window=`_integer_{:title="an integer"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"}
 
-  * `/window=`_integer_{:title="an integer"}: Width of the window -- values: an integer
-  * `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether or not to include borders -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/which=`_choice_{:title="one of: `both`, `max`, `min`"}: Selects which of minima and/or maxima to display -- values: one of: `both`, `max`, `min`
+  * `/window=`_integer_{:title="an integer"}: width of the window -- values: an integer
+  * `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to include borders -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/which=`_choice_{:title="one of: `both`, `max`, `min`"}: selects which of minima and/or maxima to find -- values: one of: `both`, `max`, `min`
 
 {::comment} synopsis-end: 1 {:/}
 {::comment} description-start: 1 {:/}
-Essentially equivalent to 
+Equivalent to 
 
 ~~~~
 QSoas> find-peaks /peaks=1 /output=true
@@ -2559,13 +2573,13 @@ QSoas> find-peaks /peaks=1 /output=true
 
 `2` `/window=`_integer_{:title="an integer"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"}
 
-  * `/window=`_integer_{:title="an integer"}: Width of the window -- values: an integer
-  * `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether or not to include borders -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/which=`_choice_{:title="one of: `both`, `max`, `min`"}: Selects which of minima and/or maxima to display -- values: one of: `both`, `max`, `min`
+  * `/window=`_integer_{:title="an integer"}: width of the window -- values: an integer
+  * `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to include borders -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/which=`_choice_{:title="one of: `both`, `max`, `min`"}: selects which of minima and/or maxima to find -- values: one of: `both`, `max`, `min`
 
 {::comment} synopsis-end: 2 {:/}
 {::comment} description-start: 2 {:/}
-Essentially equivalent to 
+Equivalent to 
 
 ~~~~
 QSoas> find-peaks /peaks=2 /output=true
@@ -2579,17 +2593,16 @@ QSoas> find-peaks /peaks=2 /output=true
 
 `stats` `/buffer=`_buffer_{:title="the number of a buffer in the stack"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_words_{:title="several words, separated by ','"}
 
-  * `/buffer=`_buffer_{:title="the number of a buffer in the stack"} (default option): An alternative buffer to get information on -- values: the number of a buffer in the stack
+  * `/buffer=`_buffer_{:title="the number of a buffer in the stack"} (default option): an alternative buffer to work on -- values: the number of a buffer in the stack
   * `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to write stats to output file (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Makes statistics segment by segment (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/meta=`_words_{:title="several words, separated by ','"}: When writing to output file, also print the listed meta-data -- values: several words, separated by ','
+  * `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: makes statistics segment by segment (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/meta=`_words_{:title="several words, separated by ','"}: when writing to output file, also prints the listed meta-data -- values: several words, separated by ','
 
 {::comment} synopsis-end: stats {:/}
 {::comment} description-start: stats {:/}
 `stats` displays various statistics about the current buffer (or the one
-specified as the `/buffer` option). The exact list of statistics
-displayed grows slowly with time and needs. It is currently, for each
-column:
+specified by the `/buffer` option). The exact list of displayed statistics
+grows slowly with time and needs. It is currently, for each column:
 
  * the first and last values (displayed with the index)
  * the `_min` and `_max` values
@@ -2598,13 +2611,13 @@ column:
  * the `_norm`, ie the square root of the sum of the squares
  * for Y columns, the integral is also displayed, indexed by `_int`.
 
-Statistics can be written to the output file with `/to-file=true`. If
+Statistics can be written to the output file with `/output=true`. If
 you specify `/use-segments=true`, the statistics are also displayed
-segment-by-segment (and written out to the output file if asked
-for). If you want some meta-data to be written to the output file
-together with the statistics, provide them as a comma-separated list
-to the `/meta` option, or, alternatively, use the `/meta` option of
-the [cmd: output] command.
+segment-by-segment (and written to the output file if
+`/output=true`). If you want some meta-data to be written to the
+output file together with the statistics, provide them as a
+comma-separated list to the `/meta` option, or, alternatively, use the
+`/meta` option of the [cmd: output] command.
 
 {::comment} description-end: stats {:/}
 
@@ -2619,11 +2632,14 @@ Short name: `cu`
 
 {::comment} synopsis-end: cursor {:/}
 {::comment} description-start: cursor {:/}
-Position a cursor on the curve to know its exact X and Y positions. 
+Starts an interative mode (which you can end by pression `q` or
+Escape), in which you can position a cursor by left-clicking on the
+curve, to know its exact X and Y positions.
 
 Using the right mouse button, it is also possible to position a
-reference point. After that the difference in X,Y coordinates between
-the cursor and the reference point is also displayed (and the ratios).
+reference point. After that, the command also shows the difference and
+the ratios in X,Y coordinates between the cursor and the reference
+point.
 
 Cursor positions can be saved to the output file by pressing the space
 bar.
@@ -2678,7 +2694,7 @@ Fits can be used through several commands: for all fits there are a
 `mfit-`_fit_ and a `sim-`_fit_ command, and for mono-buffer fits,
 there is a `fit-`_fit_ in addition.
 
- * The `fit` command fits a single buffer, when the fits allows
+ * The `fit` command fits a single buffer, when the fit allows
    that. It takes no argument
  * The `mfit` command fits several buffers at the same time. It takes
    the numbers of the buffers it will work on.
@@ -2687,12 +2703,7 @@ there is a `fit-`_fit_ in addition.
    stack using the X values of the buffers given as arguments (their Y
    values are not used).
 
-In addition to these commands, QSoas provides commands to combine fits
-together, to fit derivatives of the signals, and to define fits with
-distributions of parameters.
-
-All fits commands share several common options, which are detailed
-here:
+All fits commands share the following options:
 
  * With the `/extra-parameters` option, on defines additional
    parameters to the fit, that can be used to define parameters by
@@ -2708,15 +2719,19 @@ here:
    the fits and the fit engines, you should not need them.
 
 
+In addition to these commands, QSoas provides commands to combine fits
+together, to fit derivatives of the signals, and to define fits with
+distributions of parameters.
+
 {::comment} synopsis-start: combine-fits {:/}
 
 ### combine-fits - Combine fits {#cmd-combine-fits}
 
-`combine-fits` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _fits..._
+`combine-fits` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _fits..._{:title="a series of names of a fit (without the fit- prefix), separated by spaces"}
 
-  * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: The name of the new fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: How to combine the various fits -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * _fits..._: The fit to combine together -- values: 
+  * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: name of the new fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: how to combine the various fits -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * _fits..._{:title="a series of names of a fit (without the fit- prefix), separated by spaces"}: the fits to combine together -- values: a series of names of a fit (without the fit- prefix), separated by spaces
 
 {::comment} synopsis-end: combine-fits {:/}
 {::comment} description-start: combine-fits {:/}

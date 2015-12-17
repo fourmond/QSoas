@@ -2767,18 +2767,18 @@ using [cmd: startup-files].
 
 {::comment} synopsis-end: define-derived-fit {:/}
 {::comment} description-start: define-derived-fit {:/}
-Defines a new fit based on the already defined _fit_ (just the fit
-name, that is without the `fit-` prefix) that will fit:
+Defines new fit commands based on _existing-fit_ (without the `fit-`
+prefix). It fits:
 
   * only the derivative if `/mode=deriv-only`, in which case is is
-    named `fit-deriv-only-`_fit_;
+    named `fit-deriv-only-`_existing-fit_;
   * a multibuffer fit for the original function in one buffer 
     and the derivative in the second if `/mode=separated` (the default
-    mode), in which case the fit is named `mfit-deriv-`_fit_;
+    mode), in which case the fit is named `mfit-deriv-`_existing-fit_;
   * both the original function and the derivative in a single buffer
     (the derivative is assumed to be the data after the first
     discontinuity in the X values) if `/mode=combined`, in which case
-    the new fit is named `fit-deriv-combined-`_fit_;
+    the new fit is named `fit-deriv-combined-`_existing-fit_;
 
 This function is explained in more details in the
 [tutorial](tutorial.html#tuto-define-derived-fit).  
@@ -2800,11 +2800,11 @@ Defines a new fit called _name_ based on the fit _fit_ in which the
 data is the result of the integration of the original fit over a
 distribution of _parameter_.
 
-The choice for the distribution is given through the `/distribution=`
-option (also available to the created fit), and is one of:
+You can choose the default distribution with the  `/distribution=`
+option. It is one of:
 
- * `gaussian`: gaussian distribution of the parameters
- * `lorentzian`: lorentzian distribution of the parameters
+ * `gaussian`: gaussian distribution of the parameter
+ * `lorentzian`: lorentzian distribution of the parameter
  * `k0`: "dispersion of interfacial rate distribution", defined by a
    uniform probability between two values for the logarithm of the
    parameter, see [Léger, _et al_, **J. Phys. Chem. B**
@@ -2814,19 +2814,21 @@ option (also available to the created fit), and is one of:
 Of course, even for theoretically infinite distributions (`gaussian`
 and `lorentzian` distributions above), `QSoas` does not integrate over
 the whole real axis, which is why these distributions get an extra
-parameter, fixed by default, that indicates the extent of the
+parameter, fixed by default, which indicates the extent of the
 integration interval in dimensionless units (independent of the value
 of the parameter). In principle, these values are chosen as a good
 compromise between accuracy and computing time, but they can be tuned
 should you need it.
+
+The created fit commands also take a `/distribution` option with the
+same meaning.
 {::comment} description-end: define-distribution-fit {:/}
 
 
 ## Exponential fits
 
-There are several ways to fit exponentials to data. The simplest is by
-far the [cmd: fit-exponential-decay] that
-fits a decay with an arbitrary number of exponentials to the data.
+There are several ways to fit exponentials to data. The simplest is 
+[cmd: fit-exponential-decay], which fits a decay with an arbitrary number of exponentials to the data.
 
 {::comment} synopsis-start: fit-exponential-decay {:/}
 
@@ -2838,15 +2840,15 @@ fits a decay with an arbitrary number of exponentials to the data.
   * `/absolute=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the amplitude is absolute or relative to the asymptote (defaults to true) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: wether the sum of exponentials should be multiplied by an exp(-kt) function (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether there is a very slow phase (that shows up as a linear change in Y against time, defaults: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
 
 {::comment} synopsis-end: fit-exponential-decay {:/}
 {::comment} description-start: fit-exponential-decay {:/}
-Fits to the formula:
+Fits the formula below to the current dataset:
 
 $$ \left(A_\infty + \sum_{i=1}^n A_i \exp(-(x - x_0)/\tau_i) + b\,
 x\right) \exp (- k_{loss}(x - x_0))$$
@@ -2870,9 +2872,9 @@ that tend to 0.
   * `/absolute=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the amplitude is absolute or relative to the asymptote (defaults to true) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: wether the sum of exponentials should be multiplied by an exp(-kt) function (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether there is a very slow phase (that shows up as a linear change in Y against time, defaults: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -2891,16 +2893,16 @@ Multi-buffer version of the
 
 `sim-exponential-decay` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/exponentials=`_integer_{:title="an integer"} `/absolute=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * _parameters_{:title="name of a file"}: File to load parameters from -- values: name of a file
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/exponentials=`_integer_{:title="an integer"}: Number of exponentials -- values: an integer
   * `/absolute=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the amplitude is absolute or relative to the asymptote (defaults to true) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: wether the sum of exponentials should be multiplied by an exp(-kt) function (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether there is a very slow phase (that shows up as a linear change in Y against time, defaults: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the results -- values: several words, separated by ','
-  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-exponential-decay {:/}
 {::comment} description-start: sim-exponential-decay {:/}
@@ -2918,9 +2920,9 @@ Simulation command for the
   * `/exponentials=`_integer_{:title="an integer"}: Number of exponentials -- values: an integer
   * `/steps=`_integers_{:title="a comma-separated list of integers"}: Step list with numbered conditions -- values: a comma-separated list of integers
   * `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether irreversible loss is independent on each step -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
 
@@ -2949,7 +2951,7 @@ exponential phases, the $$I^{k(j)}$$ are the asymptotic values of
 $$y(t)$$ on each step (in the absence of film loss) and $$\alpha_j$$
 is defined recursively by $$\alpha_0 = 1$$ and $$\alpha_j =
 \alpha_{j-1} \exp (- k^{k(j-1)}_{loss}(t^j_0 - t^{j-1}_0))$$. This is
-done so as to keep track of the film loss over the whole.
+done so as to keep track of film loss over the whole experiment.
 {::comment} description-end: fit-multiexp-multistep {:/}
 
 
@@ -2963,9 +2965,9 @@ done so as to keep track of the film loss over the whole.
   * `/exponentials=`_integer_{:title="an integer"}: Number of exponentials -- values: an integer
   * `/steps=`_integers_{:title="a comma-separated list of integers"}: Step list with numbered conditions -- values: a comma-separated list of integers
   * `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether irreversible loss is independent on each step -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -2982,22 +2984,22 @@ This is the multibuffer version of the [fit: multiexp-multistep] fit.
 
 `sim-multiexp-multistep` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/exponentials=`_integer_{:title="an integer"} `/steps=`_integers_{:title="a comma-separated list of integers"} `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * _parameters_{:title="name of a file"}: File to load parameters from -- values: name of a file
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/exponentials=`_integer_{:title="an integer"}: Number of exponentials -- values: an integer
   * `/steps=`_integers_{:title="a comma-separated list of integers"}: Step list with numbered conditions -- values: a comma-separated list of integers
   * `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether irreversible loss is independent on each step -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the results -- values: several words, separated by ','
-  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-multiexp-multistep {:/}
 {::comment} description-start: sim-multiexp-multistep {:/}
-This is the computation command for the [fit: multiexp-multistep] fit.
+This is the simulation ommand for the [fit: multiexp-multistep] fit.
 {::comment} description-end: sim-multiexp-multistep {:/}
 
-## Arbitrary fits
+## Arbitrary fits 
 
 QSoas provides ways to fit arbitrary formulas (written in
 [Ruby](#ruby)) to data. While it is possible to do that on a
@@ -3013,9 +3015,9 @@ possible to store formulas in a plain text file and load them using
 
   * _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: \|-separated formulas for the fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
 
@@ -3053,9 +3055,9 @@ below for more information.
   * _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: \|-separated formulas for the fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: datasets that will be fitted to -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -3081,7 +3083,8 @@ instance, if you run:
 QSoas> mfit-arb a*x+b|a*x+c|a*x+d 0 1 2
 ~~~~
 
-Buffer 0 get fits with `a*x+b`, 1 with `a*x+c` and 2 with `a*x+d`.
+This command fits `a*x+b` to buffer `0`, `a*x+c` to buffer `1` and
+`a*x+d` to buffer `2`.
 
 In this specific case, though, you could also have run
 
@@ -3164,11 +3167,11 @@ parameter into a surface one.
 
 `fit-gaussian` `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
-  * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to use a surface or an amplitude parameter -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/number=`_integer_{:title="an integer"}: Number of distinct peaks -- values: an integer
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use a surface or an amplitude parameter (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
 
@@ -3193,11 +3196,11 @@ amplitude.
 `mfit-gaussian` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to use a surface or an amplitude parameter -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/number=`_integer_{:title="an integer"}: Number of distinct peaks -- values: an integer
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use a surface or an amplitude parameter (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -3213,14 +3216,14 @@ Multi-buffer variant of the [cmd: fit-gaussian] fit.
 
 `sim-gaussian` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * _parameters_{:title="name of a file"}: File to load parameters from -- values: name of a file
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to use a surface or an amplitude parameter -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/number=`_integer_{:title="an integer"}: Number of distinct peaks -- values: an integer
-  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the results -- values: several words, separated by ','
-  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use a surface or an amplitude parameter (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
+  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-gaussian {:/}
 {::comment} decription-start: sim-gaussian {:/}
@@ -3232,11 +3235,11 @@ Simulation command for the  [cmd: fit-gaussian] fit.
 
 `fit-lorentzian` `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
-  * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to use a surface or an amplitude parameter -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/number=`_integer_{:title="an integer"}: Number of distinct peaks -- values: an integer
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use a surface or an amplitude parameter (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
 
@@ -3262,11 +3265,11 @@ amplitude.
 `mfit-lorentzian` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to use a surface or an amplitude parameter -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/number=`_integer_{:title="an integer"}: Number of distinct peaks -- values: an integer
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use a surface or an amplitude parameter (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -3282,14 +3285,14 @@ Multi-buffer variant of the [cmd: fit-lorentzian] fit.
 
 `sim-lorentzian` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * _parameters_{:title="name of a file"}: File to load parameters from -- values: name of a file
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to use a surface or an amplitude parameter -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/number=`_integer_{:title="an integer"}: Number of distinct peaks -- values: an integer
-  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the results -- values: several words, separated by ','
-  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use a surface or an amplitude parameter (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
+  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-lorentzian {:/}
 {::comment} description-start: sim-lorentzian {:/}
@@ -3307,23 +3310,24 @@ Simulation command for the  [cmd: fit-lorentzian] fit.
 
   * `/states=`_integers_{:title="a comma-separated list of integers"}: Number of redox states for each species -- values: a comma-separated list of integers
   * `/species=`_integer_{:title="an integer"}: Number of distinct species (regardless of their redox state) -- values: an integer
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
 
 {::comment} synopsis-end: fit-nernst {:/}
 {::comment} description-start: fit-nernst {:/}
-Fits the absorbance (or anything else) of a number of chemical species
-present under several redox states as a function of the potential,
-using the Nernst equation. The number of species is given to the
-`/species` option, while the number of redox states for each species
-is given to the `/states` option. Alternatively, if you need distinct
-species with a different number of redox states, you can specify a
-comma-separated list of number of states to `/states`, in which case
-`/species` is ignored. For instance, to fit two species, one presentin
-4 redox states and the other in two redox states, one can use:
+Fits the Nernst equation for a number of chemical species present
+under several redox states to the buffer, that represents absorbance
+(or something else) as a function of potential. The number of species
+is given to the `/species` option, while the number of redox states
+for each species is given to the `/states` option. Alternatively, if
+you need distinct species with a different number of redox states, you
+can specify a comma-separated list of number of states to `/states`,
+in which case `/species` is ignored. For instance, to fit the Nersnt
+equation for two species, one present in 4 redox states and the other
+in two redox states, one can use:
 
 ~~~
 QSoas> fit-nernst /states=4,2
@@ -3335,7 +3339,7 @@ states or less, or with a number for more than three states.
 
 **Note**: be aware that if there is more than one species, the system
 is intrinsically overdetermined, which is why `QSoas` automatically
-fixs the absorbance of the reduced species of all but the first one to
+fixes the absorbance of the reduced species of all but the first one to
 0 (but you can change that).
 
 This fit is useful to fit the results of a the redox titration at a
@@ -3355,9 +3359,9 @@ buffer-local.
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/states=`_integers_{:title="a comma-separated list of integers"}: Number of redox states for each species -- values: a comma-separated list of integers
   * `/species=`_integer_{:title="an integer"}: Number of distinct species (regardless of their redox state) -- values: an integer
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -3375,14 +3379,14 @@ for fitting multi-wavelength redox titrations.
 
 `sim-nernst` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/states=`_integers_{:title="a comma-separated list of integers"} `/species=`_integer_{:title="an integer"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * _parameters_{:title="name of a file"}: File to load parameters from -- values: name of a file
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/states=`_integers_{:title="a comma-separated list of integers"}: Number of redox states for each species -- values: a comma-separated list of integers
   * `/species=`_integer_{:title="an integer"}: Number of distinct species (regardless of their redox state) -- values: an integer
-  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the results -- values: several words, separated by ','
-  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-nernst {:/}
 {::comment} description-start: sim-nernst {:/}
@@ -3390,7 +3394,7 @@ Simulation command for [cmd: fit-nernst]
 {::comment} description-end: sim-nernst {:/}
 
 
-## Adsorbed ideal redox species
+## Adsorbed redox species
 
 
 {::comment} synopsis-start: fit-adsorbed {:/}
@@ -3402,16 +3406,18 @@ Simulation command for [cmd: fit-nernst]
   * `/species=`_integer_{:title="an integer"}: Number of 1-electron species -- values: an integer
   * `/2el=`_integer_{:title="an integer"}: Number of true 2-electron species -- values: an integer
   * `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true (default) then all species have their own surface concentrations -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
 
 {::comment} synopsis-end: fit-adsorbed {:/}
 {::comment} description-start: fit-adsorbed {:/}
-Fits a series of "ideal adsorbed peaks" to the current buffer. The
-actual formula is the following:
+Fits the theoretical current given by a series of species adsorbed to
+an electrode in electrochemically reversible conditions to the current
+buffer (see for instance [Laviron, __J. Electroanal. Chem.__,
+1979](http://dx.doi.org/10.1016/S0022-0728(79)80075-3) for more details). The actual formula is the following:
 
 $$ i = \frac{F^2 \nu }{R\,T} 
    \left( \sum_{k} i^{1~el}_k + \sum_{k'} i^{2~el}_{k'}\right) 
@@ -3449,10 +3455,10 @@ difference in the reduction potentials of the 1-electron couples (it
 is positive if the intermediate species is thermodynamically stable).
 
 The $$\Gamma$$ parameters are the number of moles of the molecules
-adsorbed on the electrode (there is no explicit surface). If the
+adsorbed on the electrode. If the
 option `/distinct=false` is used, the same value of $$\Gamma$$ is used
 for all couples, while in the other case (the default), each couple
-has its own value of $$\Gamma$$ (which corresponds to unrelated
+has its own value of $$\Gamma$$ (this situation corresponds to unrelated
 species). $$\nu$$ is the voltammetric scan rate (in volts per second).
 
 {::comment} description-end: fit-adsorbed {:/}
@@ -3467,9 +3473,9 @@ species). $$\nu$$ is the voltammetric scan rate (in volts per second).
   * `/species=`_integer_{:title="an integer"}: Number of 1-electron species -- values: an integer
   * `/2el=`_integer_{:title="an integer"}: Number of true 2-electron species -- values: an integer
   * `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true (default) then all species have their own surface concentrations -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -3487,15 +3493,15 @@ Multi-buffer version of the [fit: adsorbed] fit.
 
 `sim-adsorbed` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/species=`_integer_{:title="an integer"} `/2el=`_integer_{:title="an integer"} `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * _parameters_{:title="name of a file"}: File to load parameters from -- values: name of a file
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/species=`_integer_{:title="an integer"}: Number of 1-electron species -- values: an integer
   * `/2el=`_integer_{:title="an integer"}: Number of true 2-electron species -- values: an integer
   * `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true (default) then all species have their own surface concentrations -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the results -- values: several words, separated by ','
-  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-adsorbed {:/}
 {::comment} description-start: sim-adsorbed {:/}
@@ -3520,22 +3526,22 @@ Simulation command for the [fit: adsorbed] fit.
   * `/prec-absolute=`_number_{:title="a floating-point number"}: absolute precision required -- values: a floating-point number
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
   * `/stepper=`_choice_{:title="one of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: algorithm used for integration (default: rkf45) -- values: one of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
 
 {::comment} synopsis-end: fit-ode {:/}
 {::comment} description-start: fit-ode {:/}
 Using this command, one can fit the results of integrating a system of
-differential equations (as with the command [cmd: ode]) to a
-dataset. The system is a file given as the _system_ argument. For more
-details, please refer to the documentation of the [cmd: ode]
+differential equations to a dataset. The system is a file given as the
+_system_ argument. For more details about how to specify the system of
+equations, please refer to the documentation of the [cmd: ode]
 command. The parameters whose values are not defined in the _system_
 file become the fit parameters. If there is no optional third section
-in the _system_ file, the $$y$$ value of the function is by default
-a linear combination of the variables of the system.
+in the _system_ file, the $$y$$ value of the function is by default a
+linear combination of the variables of the system.
 
 As with the [fit: kinetic-system] fit, some of the parameters of the
 system can be varied automatically as a function of time, using the
@@ -3560,9 +3566,9 @@ parameters](#time-dependent-parameters) below for more information.
   * `/prec-absolute=`_number_{:title="a floating-point number"}: absolute precision required -- values: a floating-point number
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
   * `/stepper=`_choice_{:title="one of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: algorithm used for integration (default: rkf45) -- values: one of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -3579,7 +3585,7 @@ Multibuffer version of the [fit: ode] fit.
 `sim-ode` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/step-size=`_number_{:title="a floating-point number"} `/min-step-size=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/prec-absolute=`_number_{:title="a floating-point number"} `/sub-steps=`_integer_{:title="an integer"} `/stepper=`_choice_{:title="one of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _system_{:title="name of a file"}: Path to the file describing the ODE system -- values: name of a file
-  * _parameters_{:title="name of a file"}: File to load parameters from -- values: name of a file
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp
   * `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, one can choose the initial time -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -3590,10 +3596,10 @@ Multibuffer version of the [fit: ode] fit.
   * `/prec-absolute=`_number_{:title="a floating-point number"}: absolute precision required -- values: a floating-point number
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
   * `/stepper=`_choice_{:title="one of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: algorithm used for integration (default: rkf45) -- values: one of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45
-  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the results -- values: several words, separated by ','
-  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-ode {:/}
 {::comment} description-start: sim-ode {:/}
@@ -3619,14 +3625,34 @@ I1 ->[k_i2 * o2] I2
 This describes a kinetic system with three species, `A`, `I1` and
 `I2`, with a reversible reaction from `A` to `I1` with a forward
 rate of `k_i` and a backward rate of `k_a`, and an irreversible
-reaction from `I1` to `I2` with a rate of `k_i2 * o2`. 
+reaction from `I1` to `I2` with a rate of `k_i2 * o2`.
+
+QSoas automatically detects the parameters from the fit, here `k_i`,
+`k_a`, `k_i2` and `o2`, and the initial concentrations of `A`, `I1`
+and `I2`, namely `c0_A`, `c0_I1` and `c0_I2`. As for arbitrary fits
+([cmd: fit-arb]), do not use parameters that start with a capital
+letter. There is no such restriction on the name of species.
+
+
+It is also possible to specify bimolecular reactions (or any molecularity):
+
+~~~~
+A + B <=>[k_1][km_1] C
+~~~~
+
+The rate is deduced from the rate constants as if it were an
+elementary reaction, but you can use arbitrary functions of the
+concentrations as rate constants (by prefixing the species name with
+`c_`). For Michaelis-Menten kinetics, use for instance:
+
+~~~~
+S ->[k/(1 + km/c_S)] P
+~~~~
+
 
 The files can contain comment lines starting with a `#`, and can
 contain an arbitrary large number of reactions.
 
-QSoas automatically detects the parameters from the fit, here `k_i`,
-`k_a`, `k_i2` and `o2`, and the initial concentrations of `A`, `I1`
-and  `I2`, namely `c0_A`, `c0_I1` and `c0_I2`.
 
 It is possible to assign special time dependence to any of the
 parameters by using the `/with` option: 
@@ -3649,7 +3675,7 @@ To define a new fit one could combine with others using
 
 `fit-kinetic-system` _system_{:title="name of a file"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/step-size=`_number_{:title="a floating-point number"} `/min-step-size=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/prec-absolute=`_number_{:title="a floating-point number"} `/sub-steps=`_integer_{:title="an integer"} `/stepper=`_choice_{:title="one of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
-  * _system_{:title="name of a file"}: Path to the file describing the system -- values: name of a file
+  * _system_{:title="name of a file"}: file describing the system -- values: name of a file
   * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp
   * `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, one can choose the initial time -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to use an adaptive stepper (on by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -3659,9 +3685,9 @@ To define a new fit one could combine with others using
   * `/prec-absolute=`_number_{:title="a floating-point number"}: absolute precision required -- values: a floating-point number
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
   * `/stepper=`_choice_{:title="one of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: algorithm used for integration (default: rkf45) -- values: one of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
 
@@ -3679,7 +3705,7 @@ of name `y_A` (for the coefficient for the concentration of species
 
 `mfit-kinetic-system` _system_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/step-size=`_number_{:title="a floating-point number"} `/min-step-size=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/prec-absolute=`_number_{:title="a floating-point number"} `/sub-steps=`_integer_{:title="an integer"} `/stepper=`_choice_{:title="one of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
-  * _system_{:title="name of a file"}: Path to the file describing the system -- values: name of a file
+  * _system_{:title="name of a file"}: file describing the system -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp
   * `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, one can choose the initial time -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -3690,9 +3716,9 @@ of name `y_A` (for the coefficient for the concentration of species
   * `/prec-absolute=`_number_{:title="a floating-point number"}: absolute precision required -- values: a floating-point number
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
   * `/stepper=`_choice_{:title="one of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: algorithm used for integration (default: rkf45) -- values: one of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -3710,8 +3736,8 @@ Multi-buffer variant of the
 
 `sim-kinetic-system` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/step-size=`_number_{:title="a floating-point number"} `/min-step-size=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/prec-absolute=`_number_{:title="a floating-point number"} `/sub-steps=`_integer_{:title="an integer"} `/stepper=`_choice_{:title="one of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * _system_{:title="name of a file"}: Path to the file describing the system -- values: name of a file
-  * _parameters_{:title="name of a file"}: File to load parameters from -- values: name of a file
+  * _system_{:title="name of a file"}: file describing the system -- values: name of a file
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp
   * `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, one can choose the initial time -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -3722,14 +3748,14 @@ Multi-buffer variant of the
   * `/prec-absolute=`_number_{:title="a floating-point number"}: absolute precision required -- values: a floating-point number
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
   * `/stepper=`_choice_{:title="one of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45"}: algorithm used for integration (default: rkf45) -- values: one of: bsimp, msadams, msbdf, rk1imp, rk2, rk2imp, rk4, rk4imp, rk8pd, rkck, rkf45
-  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the results -- values: several words, separated by ','
-  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-kinetic-system {:/}
 {::comment} description-start: sim-kinetic-system {:/}
-Computation for the 
+Simulation command for the 
 [`kinetic-system`](#cmd-fit-kinetic-system) fit.
 {::comment} description-end: sim-kinetic-system {:/}
 
@@ -3744,28 +3770,30 @@ Computation for the
 
 {::comment} synopsis-end: define-kinetic-system-fit {:/}
 {::comment} description-start: define-kinetic-system-fit {:/}
+
 In the [cmd: fit-kinetic-system] fit, one has to provide
 systematically the name of the file that contains the kinetic system.
-This can be annoying at times, and it makes it impossible to use these
-fits with [cmd: combine-fits] or [cmd: define-derived-fit].
+This prevents the use of kinetic system fits with [cmd: combine-fits]
+or [cmd: define-derived-fit].
 
-This command makes it possible to define a new fit for the kinetic
-system contained in _file_. The kinetic system is read once: further
-changes in the file will **not** be taken into account.
+The `define-kinetic-system-fit` command defines a new fit for the
+kinetic system contained in _file_. The kinetic system is read only
+once, if you make modifications to the kinetic system file, they will
+not be taken into account.
 {::comment} description-end: define-kinetic-system-fit {:/}
 
 
 ## Time-dependent parameters {#time-dependent-parameters}
 
 Some fits, namely [fit: arb], [fit: ode] and [fit: kinetic-system]
-(and all the custom fits defined using [cmd: custom-fit] or 
-[cmd: define-kinetic-system-fit]) have a built-in possibility to have
-some parameters depend on time (instead of being constant). For
-instance, this possibility can be used in kinetic systems to impose an
-external dependence on various parameters: maybe a rate constant will
-only have a non-zero value during a given period of time, in the case
-of a light-dependent process, or another parameter is modulated
-sinusoidally...
+(and all the custom fits defined using [cmd: custom-fit] or
+[cmd: define-kinetic-system-fit]) have a built-in possibility to
+have some parameters depend on time (instead of being constant). This
+can be used in kinetic systems to impose an external dependence on
+various parameters. It makes it possible to separate the chemistry of
+the system (defined in the kinetic system file), and the experimental
+procedure by which you vary the conditions (governed by the
+time-dependent parameters).
 
 The time-dependent parameters are defined using the `/with=` option to
 the fits. This option takes a `;`-separated list of specifications of
@@ -3781,7 +3809,7 @@ _options_ can additionnally be used for some types.
   * `exp`, where the given parameter, $$p$$ is given by:
 
   $$ p = \sum_{i=1}^n p_i \exp \left( - \frac{t -
-  t^p_i}{\tau^p_i}\right) \times H(t - t^p_i)$$
+  t_i}{\tau_i}\right) \times H(t - t_i)$$
 
   where $$H$$ is the heavyside step function (1 for positive argument,
   0 else) and $$n$$ is the number given just after `:` (in command
@@ -3823,8 +3851,8 @@ of the [source code archive][code].
 These specific fits were used in the context of the interpretation of
 cyclic voltammograms of adorbed nickel-iron hydrogenase that undergo
 inactivations under oxidizing conditions. For more information, refer
-to [Abou-Hamdam _et al_, **PNAS** 2012](http://dx.doi.org/10.1073/pnas.1212258109)
-(which you probably should cite anyway if you use them).
+to [Abou-Hamdam _et al_, **PNAS**
+2012](http://dx.doi.org/10.1073/pnas.1212258109).
 
 {::comment} synopsis-start: fit-slow-scan-hp {:/}
 
@@ -3832,11 +3860,11 @@ to [Abou-Hamdam _et al_, **PNAS** 2012](http://dx.doi.org/10.1073/pnas.121225810
 
 `fit-slow-scan-hp` `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
-  * `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether we have a bi-exponential or a mono-exponential -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Use an additional scaling factor -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the relaxation is bi-exponential or mono-exponential (false by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use an additional scaling factor (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
 
@@ -3845,7 +3873,7 @@ to [Abou-Hamdam _et al_, **PNAS** 2012](http://dx.doi.org/10.1073/pnas.121225810
 Fit for the "high-potential" part of a slow voltammetric scan where
 inactivation occurs with rate constants that do not depend on
 time. The current for the active form is assumed to depend linearly on
-the potential.
+potential.
 
 Formula:
 
@@ -3856,7 +3884,7 @@ $$ i_{backward} = (a + b \times E) \left[\left(A_1 - A_e\right) \times \exp\left
 where $$E_v$$ is the vertex potential, $$E_1$$ is the initial potential,
 $$\tau$$ the rate constant of decrease, $$A_1$$ the amount of initially
 active enzyme, $$A_e$$ the equilibrium concentration of active species
-and $\nu$ the scan rate.
+and $$\nu$$ the scan rate.
 
 {::comment} description-end: fit-slow-scan-hp {:/}
 
@@ -3866,10 +3894,10 @@ and $\nu$ the scan rate.
 
 `fit-slow-scan-lp` `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
-  * `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether the scan rate is an explicit parameter of the fit -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the scan rate is an explicit parameter of the fit (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
 
@@ -3899,11 +3927,11 @@ $$E_1$$ is the initial potential, $$\nu$$ the scan rate
 `mfit-slow-scan-hp` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether we have a bi-exponential or a mono-exponential -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Use an additional scaling factor -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the relaxation is bi-exponential or mono-exponential (false by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use an additional scaling factor (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -3922,10 +3950,10 @@ Multi-buffer variant of the
 `mfit-slow-scan-lp` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether the scan rate is an explicit parameter of the fit -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the scan rate is an explicit parameter of the fit (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -3943,17 +3971,17 @@ Multi-buffer variant of the
 
 `sim-slow-scan-lp` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * _parameters_{:title="name of a file"}: File to load parameters from -- values: name of a file
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether the scan rate is an explicit parameter of the fit -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the results -- values: several words, separated by ','
-  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the scan rate is an explicit parameter of the fit (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-slow-scan-lp {:/}
 {::comment} description-start: sim-slow-scan-lp {:/}
-Computation for the 
+Simulation command for the 
 [`slow-scan-lp`](#cmd-fit-slow-scan-lp) fit.
 {::comment} description-end: sim-slow-scan-lp {:/}
 
@@ -3963,18 +3991,18 @@ Computation for the
 
 `sim-slow-scan-hp` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * _parameters_{:title="name of a file"}: File to load parameters from -- values: name of a file
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether we have a bi-exponential or a mono-exponential -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Use an additional scaling factor -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the results -- values: several words, separated by ','
-  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the relaxation is bi-exponential or mono-exponential (false by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use an additional scaling factor (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-slow-scan-hp {:/}
 {::comment} description-start: sim-slow-scan-hp {:/}
-Computation for the 
+Simulation command for the 
 [`slow-scan-hp`](#cmd-fit-slow-scan-hp) fit.
 {::comment} description-end: sim-slow-scan-hp {:/}
 
@@ -3999,12 +4027,12 @@ Please refer to that paper for more information.
 
 `fit-eecr-wave` `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
-  * `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to use the general expression or only that valid when plateaus are not reached -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, use the oxidation current as reference -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to use explicitly the bias or compute it using the open circuit potential -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use the general expression or only that valid when plateaus are not reached (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the oxidation current as reference (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use explicitly the bias or compute it using the open circuit potential (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
 
@@ -4014,9 +4042,8 @@ Fits the so-called EEC model in [Fourmond _et al_, **JACS** 2013](http://dx.doi.
 to the data.
 
 If `/plateau` is off (default), then the equation used is that for the
-limit where the dispersion of values of $$k_0$$ 
-large $$\beta d_0 \to \infty$$, while the full expression is used in
-the other case.
+limit where the dispersion of values of $$k_0$$ is large ($$\beta d_0
+\to \infty$$), while the full expression is used in the other case.
 
 If `/oxidation` is true, the reference current is the oxidation current
 (and not the reduction current as is the default).
@@ -4033,12 +4060,12 @@ parameter rather than the ratio $$k_2/k_{-2}$$.
 `mfit-eecr-wave` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to use the general expression or only that valid when plateaus are not reached -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, use the oxidation current as reference -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to use explicitly the bias or compute it using the open circuit potential -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use the general expression or only that valid when plateaus are not reached (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the oxidation current as reference (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use explicitly the bias or compute it using the open circuit potential (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -4055,15 +4082,15 @@ Multi-buffer variant of [cmd: fit-eecr-wave].
 
 `sim-eecr-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * _parameters_{:title="name of a file"}: File to load parameters from -- values: name of a file
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to use the general expression or only that valid when plateaus are not reached -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, use the oxidation current as reference -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to use explicitly the bias or compute it using the open circuit potential -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the results -- values: several words, separated by ','
-  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use the general expression or only that valid when plateaus are not reached (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the oxidation current as reference (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use explicitly the bias or compute it using the open circuit potential (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-eecr-wave {:/}
 {::comment} description-start: sim-eecr-wave {:/}
@@ -4077,9 +4104,9 @@ Simulation for the [`eecr-wave`](#cmd-fit-eecr-wave) fit.
 
 `fit-eecr-relay-wave` `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
 
@@ -4096,9 +4123,9 @@ Fits the so-called EEC with relay model in [Fourmond _et al_,
 `mfit-eecr-relay-wave` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -4114,12 +4141,12 @@ Multi-buffer version of the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
 
 `sim-eecr-relay-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * _parameters_{:title="name of a file"}: File to load parameters from -- values: name of a file
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the results -- values: several words, separated by ','
-  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-eecr-relay-wave {:/}
 {::comment} description-start: sim-eecr-relay-wave {:/}
@@ -4132,12 +4159,12 @@ Simulation command for the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
 
 `fit-ecr-wave` `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
-  * `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to use the general expression or only that valid when plateaus are not reached -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, use the oxidation current as reference -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to use explicitly the bias or compute it using the open circuit potential -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use the general expression or only that valid when plateaus are not reached (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the oxidation current as reference (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use explicitly the bias or compute it using the open circuit potential (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
 
@@ -4156,12 +4183,12 @@ See the [fit: eecr-wave] fit for a description of the `/oxidation`,
 `mfit-ecr-wave` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to use the general expression or only that valid when plateaus are not reached -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, use the oxidation current as reference -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to use explicitly the bias or compute it using the open circuit potential -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: Pre-loads parameters -- values: name of a file
-  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turn on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use the general expression or only that valid when plateaus are not reached (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the oxidation current as reference (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use explicitly the bias or compute it using the open circuit potential (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/debug=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: turns on debugging (for QSoas developers only, default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug2=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: extremely verbose debugging (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -4177,15 +4204,15 @@ Multi-buffer version of the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
 
 `sim-ecr-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * _parameters_{:title="name of a file"}: File to load parameters from -- values: name of a file
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to use the general expression or only that valid when plateaus are not reached -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, use the oxidation current as reference -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to use explicitly the bias or compute it using the open circuit potential -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: A comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Define supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the results -- values: several words, separated by ','
-  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use the general expression or only that valid when plateaus are not reached (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the oxidation current as reference (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use explicitly the bias or compute it using the open circuit potential (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/reexport=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: do not compute data, just re-export fit parameters and errors -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-ecr-wave {:/}
 {::comment} description-start: mfit-ecr-wave {:/}
@@ -4194,15 +4221,15 @@ Simulation command for the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
 
 # Computation/simulations functions
 
-The commands in this section generate data "from scracth", though most
-require a buffer to work on, to act as a model for the X values. You
+The commands in this section generate data "from scratch", though most
+require a buffer to provide X values. You
 can create a buffer for those commands using
 [cmd: generate-buffer]. 
 
 ## Evaluation functions
 
-While it is not its primary purpose, QSoas provides various functions
-to evaluate the result of mathematical operations.
+QSoas provides various functions to evaluate the result of
+mathematical operations.
 
 {::comment} synopsis-start: eval {:/}
 
@@ -4226,7 +4253,19 @@ It runs in the same environment as the
 [cmd: apply-formula] and the custom fits (excepted,
 of course, that there are no `x` and `y` variables). It can be useful
 to check that a function has been correctly defined in a file loaded
-by [cmd: ruby-run]. You can also use that as a calculator.
+by [cmd: ruby-run].
+
+Moreover, if `/use-dataset` is true (the default), it can also access
+the meta-data and statistics of the (as [cmd: apply-formula] with
+`/use-meta=true` and `/use-stats=true`) of the buffer:
+
+~~~~
+QSoas> generate-buffer 0 10 x**3
+QSoas> eval '$stats["y_int"]'
+ => 2500.002505007509
+~~~~
+
+You can also use this command as a calculator.
 {::comment} description-end: eval {:/}
 
 {::comment} synopsis-start: find-root {:/}
@@ -4277,6 +4316,13 @@ _a_ and _b_:
 QSoas> integrate-formula x**2 10 22
 Integral value: 3216	estimated error: 3.57048e-11	 in 31 evaluations over 1 intervals 
 ~~~~
+
+The available integrators are `gauss`_i_ (with _i_ ranging from 15 to
+61), which correspond to adaptive Gauss-Kronrod integrators (starting
+with _i_ evaluations), and `qng`, which is a non-adaptive
+Gauss-Kronrod integrator. See the [documentation of the GNU Scientific
+Library](http://www.gnu.org/software/gsl/manual/html_node/Numerical-Integration.html)
+for more information.
 
 {::comment} description-end: integrate-formula {:/}
 
@@ -4362,10 +4408,6 @@ QSoas> generate-buffer 0 10
 QSoas> kinetic-system system.sys 'c0_A = 1;ka = 1; ki = 1'
 ~~~
 
-The _parameters_ argument is actually a [Ruby](#ruby) expression that
-is evaluated once before the computations start, so you can use more
-complex formulas.
-
 {::comment} description-end: kinetic-system {:/}
 
 
@@ -4390,15 +4432,17 @@ complex formulas.
 {::comment} synopsis-end: ode {:/}
 {::comment} description-start: ode {:/}
 `ode` solves ordinary differential equations. The equation definition
-file is structure in three parts, separated by at least one fully
+file is structured in three parts, separated by at least one fully
 blank line, the last one being optional. 
 
 The first section defines the "initial conditions"; there are as many
 integrated variables as there are lines in this section. This section
-is only evaluated at the beginning of the system.
+is only evaluated once at the beginning of the integration.
 
 The second section defines the derivatives; they are evaluated several
-times for each time step. 
+times for each time step.
+
+The third is optional and is described further below.
 
 Here is the contents of the file (say `sine.ode`) one would use to
 obtain $$\sin t$$ and $$\cos t$$ as solutions.
@@ -4442,14 +4486,21 @@ Details of the integrations procedures can be tweaked using the
 parameters:
 
  * `/stepper`: the ODE stepper algorithm. You can find more about them
-   in the [GSL documentation](http://www.gnu.org/software/gsl/manual/html_node/Stepping-Functions.html)
+   in the [GSL
+   documentation](http://www.gnu.org/software/gsl/manual/html_node/Stepping-Functions.html).
+   `rkf45` is the standard Runge-Kutta-Feldberg integrator, and is the
+   default choice. If QSoas complains that it has difficulties to
+   integrate and that you should try implicit solvers (because your
+   system is too
+   [stiff](https://en.wikipedia.org/wiki/Stiff_equation), then try
+   `rk4imp`, `bsimp`, `msadams` or `msbdf`.
  * `/prec-relative` and `/prec-absolute` control the precision. A step
-   will be deemed precise enough if the error estimate is **either**
-   smaller than the relative precision or than the absolute precision
- * `/adaptive` controls whether an adaptative step size is used (the
+   will be deemed precise enough if the error estimate is smaller than
+   **either** the relative precision or the absolute precision
+ * `/adaptive` controls whether an adaptive step size is used (the
    values of $$t$$ in the resulting buffer are always those asked, but
    there may be more intermediate steps). You should seldom need to
-   turn it off
+   turn it off.
 
 If `/annotate` is on, a last column is added that contains the number
 of the evaluations of derivatives for each step (useful for
@@ -4477,8 +4528,8 @@ QSoas> ode sine.ode /parameters="omega = 3"
 
 QSoas provides facilities for scripting, ie running commands
 unattended, for instance for preparing series of data files for
-fitting or further use. There are a few commands useful only in this
-context, such as the following
+fitting or further use. The following commands are useful only in this
+context.
 
 
 ## Scripting commands
@@ -4492,8 +4543,8 @@ context, such as the following
 Short name: `@`
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: First is the command files, following are arguments -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
-  * `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether or not display is updated during the load -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether the commands run are added to the history (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to switch off display updates during the script (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the commands run are added to the history (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/cd-to-script=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, automatically change the directory to that oof the script -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: run {:/}
@@ -4516,6 +4567,12 @@ auto-filter-fft
 And run it this way:
 
 ~~~~
+QSoas> run process.cmd data_file.dat
+~~~~
+
+or
+
+~~~~
 QSoas> @ process.cmd data_file.dat
 ~~~~
 
@@ -4524,7 +4581,25 @@ other scripting commands, such as [cmd: run-for-each],
 [cmd: run-for-datasets] and
 [cmd: startup-files]
 
+If you want to manipulate the arguments or provide defaut values for
+some of them, you can use the following syntax:
+
+ * `${2%%suffix}` will be replaced by parameter 2 with the suffix "`suffix`"
+   removed, or simply parameter 2 if it does not end with "`suffix`".
+ * `${2##prefix}` will be replaced by parameter 2 with the prefix "`prefix`"
+   removed, or simply parameter 2 if it does not start with "`prefix`".
+ * `${2:-value}`: this will be replaced by parameter 2 if it has been
+   provided to the script, or by "`value`" if it has not been provided.
+ * `${2:+value}`: this will be replaced by "`value`" if parameter 2 has been
+   provided to the script, or by nothing if that is not the case (the
+   value of parameter 2 is not used).
+ * `${2?yes:no}`: this will be replaced by "`yes`" if parameter 2 has been
+   provided to the script, or by "`no`" if that is not the case.
+
+
 {::comment} description-end: run {:/}
+
+
 
 
 {::comment} synopsis-start: startup-files {:/}
@@ -4533,20 +4608,20 @@ other scripting commands, such as [cmd: run-for-each],
 
 `startup-files` `/add=`_file_{:title="name of a file"} `/rm=`_integer_{:title="an integer"} `/run=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * `/add=`_file_{:title="name of a file"} (default option): Adds the given startup file -- values: name of a file
-  * `/rm=`_integer_{:title="an integer"}: Removes the numbered file -- values: an integer
-  * `/run=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, runs all the startup files right now -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/add=`_file_{:title="name of a file"} (default option): adds the given startup file -- values: name of a file
+  * `/rm=`_integer_{:title="an integer"}: removes the numbered file -- values: an integer
+  * `/run=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, runs all the startup files right now (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: startup-files {:/}
 {::comment} description-start: startup-files {:/}
-Using this command, you can instruct `QSoas` to execute command files
-at startup. Without options, this command displays the list of command
+This command instructs `QSoas` to execute command files
+at startup. Without options, it displays the list of command
 files that `QSoas` will read at the next startup.
 
 Files given to the `/add` options are added at the end of the list.
 
-To remove a fil from the list, obtain its number by running
-startup-fileswithout any option, then use
+To remove a file from the list, obtain its number by running
+startup-files without any option, then use
 startup-files again with the option /rm=.
 
 You can re-run all startup files by running:
@@ -4570,8 +4645,8 @@ QSoas> startup-files /run=true
   * `/arg5=`_file_{:title="name of a file"}: Fifth argument to the script -- values: name of a file
   * `/arg6=`_file_{:title="name of a file"}: Sixth argument to the script -- values: name of a file
   * `/range-type=`_choice_{:title="one of: `lin`, `log`"}: If on, transform arguments into ranged numbers -- values: one of: `lin`, `log`
-  * `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether or not display is updated during the load -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether the commands run are added to the history (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to switch off display updates during the script (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the commands run are added to the history (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: run-for-each {:/}
 {::comment} description-start: run-for-each {:/}
@@ -4620,8 +4695,8 @@ value of the option.
 
   * _script_{:title="name of a file"}: The script file -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: All the arguments for the script file to loop on -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether or not display is updated during the load -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether the commands run are added to the history (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to switch off display updates during the script (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the commands run are added to the history (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/arg1=`_file_{:title="name of a file"}: First argument to the script -- values: name of a file
   * `/arg2=`_file_{:title="name of a file"}: Second argument to the script -- values: name of a file
   * `/arg3=`_file_{:title="name of a file"}: Third argument to the script -- values: name of a file
@@ -4646,7 +4721,10 @@ stack, as if by [cmd: fetch].
 
 {::comment} synopsis-end: noop {:/}
 {::comment} description-start: noop {:/}
-Does not do anything, but slurps all arguments and options given.
+Does nothing.
+
+This command can be combined with the advanced argument
+uses described in [cmd: run] to conditionally execute some commands.
 {::comment} description-end: noop {:/}
 
 

@@ -500,7 +500,7 @@ public:
       ArgumentList(QList<Argument *>()
                    << new FileArgument("system", 
                                        "System",
-                                       "Path to the file describing the "
+                                       "file describing the "
                                        "system"));
   };
 

@@ -173,8 +173,8 @@ ArgumentMarshaller * ChoiceArgument::fromString(const QString & str) const
   QStringList c = choices();
   if(! c.contains(str))
     throw 
-      RuntimeError(QObject::tr("Invalid argument: '%1'\nValid choices: %2").
-                   arg(str).arg(c.join(", ")));
+      RuntimeError(QObject::tr("Invalid argument: '%1'\nValid choices: `%2`").
+                   arg(str).arg(c.join("`, `")));
   return new ArgumentMarshallerChild<QString>(str);
 }
 

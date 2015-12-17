@@ -357,11 +357,11 @@ static ArgumentList
 runOpts(QList<Argument *>() 
         << new BoolArgument("silent", 
                             "Silent processing",
-                            "Whether or not display is updated "
-                            "during the load")
+                            "whether or not to switch off display updates "
+                            "during the script (off by default)")
         << new BoolArgument("add-to-history", 
                             "Add commands to history",
-                            "Whether the commands run are added to the "
+                            "whether the commands run are added to the "
                             "history (defaults to false)")
         );
 
@@ -757,14 +757,14 @@ static ArgumentList
 sfO(QList<Argument *>() 
     << new FileArgument("add", 
                         "Startup file",
-                        "Adds the given startup file", false, 
+                        "adds the given startup file", false, 
                         true)
     << new IntegerArgument("rm",
                            "Remove",
-                           "Removes the numbered file")
+                           "removes the numbered file")
     << new BoolArgument("run",
                         "Run",
-                        "If on, runs all the startup files right now")
+                        "if on, runs all the startup files right now (off by default)")
     );
 
 static Command 

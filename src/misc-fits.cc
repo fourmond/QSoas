@@ -135,8 +135,8 @@ public:
                    << new 
                    BoolArgument("explicit-rate", 
                                 "Explicit rate",
-                                "Whether the scan rate is an explicit "
-                                "parameter of the fit")
+                                "whether the scan rate is an explicit "
+                                "parameter of the fit (default false)")
                    );
     return opts;
   };
@@ -285,12 +285,13 @@ public:
                    << new 
                    BoolArgument("bi-exp", 
                                 "Bi exp",
-                                "Whether we have a bi-exponential or a "
-                                "mono-exponential")
+                                "whether the relaxation is bi-exponential or "
+                                "mono-exponential (false by default)")
                    << new 
                    BoolArgument("scaling", 
                                 "Scaling",
-                                "Use an additional scaling factor")
+                                "if on, use an additional scaling factor "
+                                "(off by default)")
                    );
     return opts;
   };
@@ -429,17 +430,17 @@ public:
                    << new 
                    BoolArgument("plateau", 
                                 "Plateau",
-                                "Whether to use the general expression or "
-                                "only that valid when plateaus are not reached")
+                                "whether to use the general expression or "
+                                "only that valid when plateaus are not reached (default: off)")
                    << new 
                    BoolArgument("oxidation", 
                                 "Reference is oxidation",
-                                "If on, use the oxidation current as reference")
+                                "if on, use the oxidation current as reference (default: off)")
                    << new 
                    BoolArgument("use-eoc", 
                                 "Use open circuit",
-                                "Whether to use explicitly the bias or compute "
-                                "it using the open circuit potential")
+                                "whether to use explicitly the bias or compute "
+                                "it using the open circuit potential (default: false)")
                    );
     return opts;
   };
@@ -598,17 +599,17 @@ public:
                    << new 
                    BoolArgument("plateau", 
                                 "Plateau",
-                                "Whether to use the general expression or "
-                                "only that valid when plateaus are not reached")
+                                "whether to use the general expression or "
+                                "only that valid when plateaus are not reached (default: off)")
                    << new 
                    BoolArgument("oxidation", 
                                 "Reference is oxidation",
-                                "If on, use the oxidation current as reference")
+                                "if on, use the oxidation current as reference (default: off)")
                    << new 
                    BoolArgument("use-eoc", 
                                 "Use open circuit",
-                                "Whether to use explicitly the bias or compute "
-                                "it using the open circuit potential")
+                                "whether to use explicitly the bias or compute "
+                                "it using the open circuit potential (default: false)")
                    );
     return opts;
   };

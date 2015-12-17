@@ -197,11 +197,11 @@ public:
       ArgumentList(QList<Argument *>()
                    << new BoolArgument("use-surface", 
                                        "Use Surface",
-                                       "Whether to use a surface or an "
-                                       "amplitude parameter")
+                                       "whether to use a surface or an "
+                                       "amplitude parameter (default false)")
                    << new IntegerArgument("number", 
                                           "Number of peaks",
-                                          "Number of distinct peaks")
+                                          "number of distinct peaks (default 1)")
 
                    );
     return opts;
@@ -219,7 +219,7 @@ public:
 
 
 static DistributionFit<gsl_ran_gaussian_pdf> gaussian("gaussian", 
-                                          "One or several gaussians", "sigma");
+                                                      "One or several gaussians", "sigma");
 
 static DistributionFit<gsl_ran_cauchy_pdf> lorentzian("lorentzian", 
-                                                 "A Lorentzian (also named Cauchy distribution)", "gamma");
+                                                      "A Lorentzian (also named Cauchy distribution)", "gamma");

@@ -160,14 +160,14 @@ void Fit::makeCommands(ArgumentList * args,
 
   *options << new StringArgument("extra-parameters", 
                                  "Extra parameters",
-                                 "Define supplementary parameters");
+                                 "defines supplementary parameters");
 
   *options << new FileArgument("parameters", 
                                "Parameters",
-                               "Pre-loads parameters");
+                               "pre-loads parameters");
   *options << new BoolArgument("debug", 
                                "Debug",
-                               "turn on debugging (for QSoas developers only, default: false)");
+                               "turns on debugging (for QSoas developers only, default: false)");
   *options << new BoolArgument("debug2", 
                                "Debug2",
                                "extremely verbose debugging (default: false)");
@@ -237,7 +237,7 @@ void Fit::makeCommands(ArgumentList * args,
     al2->insert(al2->size()-1, 
                 new FileArgument("parameters", 
                                  "Parameters",
-                                 "File to load parameters from"));
+                                 "file to load parameters from"));
     al2->setArgumentDescription("datasets", "the buffers whose X values will be used for simulations");
 
     ArgumentList * nopts = 
@@ -247,18 +247,18 @@ void Fit::makeCommands(ArgumentList * args,
 
     *nopts << new StringArgument("override",
                                  "Override parameters",
-                                 "A comma-separated list of parameters "
+                                 "a comma-separated list of parameters "
                                  "to override")
            << new StringArgument("extra-parameters", 
                                  "Extra parameters",
-                                 "Define supplementary parameters")
+                                 "defines supplementary parameters")
            << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                          "flags", 
                                          "Flags",
-                                         "Flags to set on the results")
+                                         "Flags to set on the created buffers")
            << new BoolArgument("reexport", 
                                "Re export",
-                               "Do not compute data, just re-export fit parameters and errors");
+                               "do not compute data, just re-export fit parameters and errors");
     new Command((const char*)(QString("sim-") + name).toLocal8Bit(),
                 (sim ? sim : effector(this, &Fit::computeFit)),
                 "simulations", al2, nopts, pn, sd, ld);

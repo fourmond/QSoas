@@ -49,7 +49,7 @@ public:
   virtual QString typeDescription() const {
     QStringList cs = fixedChoices.keys();
     qSort(cs);
-    return QString("One of: %1").arg(cs.join(", "));
+    return QString("One of: `%1`").arg(cs.join("`, `"));
   };
 
   /// Returns a wrapped T

@@ -61,7 +61,7 @@ public:
   virtual QString typeDescription() const {
     QStringList cs = F::availableItems();
     qSort(cs);
-    return QString("One of: %1").arg(cs.join(", "));
+    return QString("One of: `%1`").arg(cs.join("`, `"));
   };
 
 

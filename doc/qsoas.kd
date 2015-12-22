@@ -1977,6 +1977,28 @@ columns are reversed. If `/flip-all` is on, then all columns,
 including the X column, are reversed.
 {::comment} description-end: tweak-columns {:/}
 
+{::comment} synopsis-start: split-on-values {:/}
+
+### split-on-values - Split on column values {#cmd-split-on-values}
+
+`split-on-values` _meta..._{:title="several words, separated by ','"} _columns..._{:title="a comma-separated list of [columns names](#column-names)"} `/flags=`_words_{:title="several words, separated by ','"}
+
+  * _meta..._{:title="several words, separated by ','"}: Names of the meta to be created -- values: several words, separated by ','
+  * _columns..._{:title="a comma-separated list of [columns names](#column-names)"}: Columns whose values one should split on -- values: a comma-separated list of [columns names](#column-names)
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the results -- values: several words, separated by ','
+
+{::comment} synopsis-end: split-on-values {:/}
+{::comment} description-start: split-on-values {:/}
+This command splits the current dataset into a number of datasets,
+based on the contents of the columns _columns_. Each newly created
+dataset correspond to points in the original dataset that had exactly
+the same values in the designated columns. These columns are remove
+from the newly created datasets and the values are used to set the
+meta-data _meta_. There must be as many comma-separated names in
+_meta_ as there are colunm names in _columns_. 
+{::comment} description-end: split-on-values {:/}
+
+
 
 
 # Data filtering/processing
@@ -2552,11 +2574,12 @@ about those.
 
 ### 1 - Find peak {#cmd-1}
 
-`1` `/window=`_integer_{:title="an integer"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"}
+`1` `/window=`_integer_{:title="an integer"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * `/window=`_integer_{:title="an integer"}: width of the window -- values: an integer
   * `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to include borders -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/which=`_choice_{:title="one of: `both`, `max`, `min`"}: selects which of minima and/or maxima to find -- values: one of: `both`, `max`, `min`
+  * `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether peak information should be written to the output file (defaults to true) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: 1 {:/}
 {::comment} description-start: 1 {:/}
@@ -2571,11 +2594,12 @@ QSoas> find-peaks /peaks=1 /output=true
 
 ### 2 - Find two peaks {#cmd-2}
 
-`2` `/window=`_integer_{:title="an integer"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"}
+`2` `/window=`_integer_{:title="an integer"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * `/window=`_integer_{:title="an integer"}: width of the window -- values: an integer
   * `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to include borders -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/which=`_choice_{:title="one of: `both`, `max`, `min`"}: selects which of minima and/or maxima to find -- values: one of: `both`, `max`, `min`
+  * `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether peak information should be written to the output file (defaults to true) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: 2 {:/}
 {::comment} description-start: 2 {:/}
@@ -4325,6 +4349,30 @@ Library](http://www.gnu.org/software/gsl/manual/html_node/Numerical-Integration.
 for more information.
 
 {::comment} description-end: integrate-formula {:/}
+{::comment} synopsis-start: mintegrate-formula {:/}
+
+### mintegrate-formula - Integrate expression {#cmd-mintegrate-formula}
+
+`mintegrate-formula` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _a_{:title="a floating-point number"} _b_{:title="a floating-point number"} `/integrator=`_choice_{:title="one of: `akima`, `csplines`, `naive`"} `/prec-relative=`_number_{:title="a floating-point number"} `/prec-absolute=`_number_{:title="a floating-point number"}
+
+  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: An expression of x and z -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * _a_{:title="a floating-point number"}: Lower Z value -- values: a floating-point number
+  * _b_{:title="a floating-point number"}: Upper Z value -- values: a floating-point number
+  * `/integrator=`_choice_{:title="one of: `akima`, `csplines`, `naive`"}: The algorithm used for integration -- values: one of: `akima`, `csplines`, `naive`
+  * `/prec-relative=`_number_{:title="a floating-point number"}: Relative precision required for integration -- values: a floating-point number
+  * `/prec-absolute=`_number_{:title="a floating-point number"}: Absolute precision required for integration -- values: a floating-point number
+
+{::comment} synopsis-end: mintegrate-formula {:/}
+{::comment} description-start: mintegrate-formula {:/}
+This command takes a function of $$x$$ and $$z$$, two numbers, $$a$$
+and $$b$$, and computes, for each value of $$x$$ of the current
+buffer, the integral:
+
+$$ g(x) = \int_{z = a}^{b} f(x,z) \mathrm{d}z $$
+
+This command uses the same algorithms for integration as the fits
+created by [cmd: define-distribution-fit].
+{::comment} description-end: mintegrate-formula {:/}
 
 {::comment} synopsis-start: generate-buffer {:/}
 
@@ -4797,6 +4845,7 @@ listed here:
  * [`load-fits`](#cmd-load-fits)
  * [`load-stack`](#cmd-load-stack)
  * [`merge`](#cmd-merge)
+ * [`mintegrate-formula`](#cmd-mintegrate-formula)
  * [`noop`](#cmd-noop)
  * [`norm`](#cmd-norm)
  * [`ode`](#cmd-ode)
@@ -4841,6 +4890,7 @@ listed here:
  * [`sim-slow-scan-lp`](#cmd-sim-slow-scan-lp)
  * [`sort`](#cmd-sort)
  * [`split-monotonic`](#cmd-split-monotonic)
+ * [`split-on-values`](#cmd-split-on-values)
  * [`splita`](#cmd-splita)
  * [`splitb`](#cmd-splitb)
  * [`startup-files`](#cmd-startup-files)

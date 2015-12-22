@@ -2095,9 +2095,9 @@ fp1("1", // command name
    effector(findPeaksCommand), // action
    "peaks",  // group name
     NULL, // arguments
-    &fpBaseOps, // options
+    &fpbOps, // options
     "Find peak",
-    "Find the biggest peak",
+    "Find the largest peak",
     "...");
 
 static Command 
@@ -2105,9 +2105,9 @@ fp2("2", // command name
    effector(findPeaksCommand), // action
    "peaks",  // group name
     NULL, // arguments
-    &fpBaseOps, // options
+    &fpbOps, // options
     "Find two peaks",
-    "Find the two biggest peaks",
+    "Find the two largest peaks",
     "...");
 
 //////////////////////////////////////////////////////////////////////

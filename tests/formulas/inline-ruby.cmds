@@ -1,0 +1,9 @@
+ruby
+def f(x)
+  return x**2
+end
+ruby end
+
+generate-buffer 0 10 f(x)
+apply-formula y-=x**2
+assert '$stats["y_norm"] == 0'

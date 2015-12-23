@@ -1,3 +1,4 @@
 # The test suite for apply-formula (and stats, to some extent)
 @ stats.cmds
 @ formulas.cmds
+@ inline-ruby.cmds

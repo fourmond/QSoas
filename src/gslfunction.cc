@@ -35,7 +35,8 @@ void GSLFunction::registerSelf()
 
 
 GSLFunction::GSLFunction(const QString & n, const QString & d,
-                         bool autoreg) : name(n), description(d)
+                         const QString &u,
+                         bool autoreg) : name(n), desc(d), url(u)
 {
   if(autoreg)
     registerSelf();
@@ -68,11 +69,21 @@ QString GSLFunction::availableFunctions()
   qSort(sorted.begin(), sorted.end(),  &cmpFunctions);
 
   QString retval;
-  for(int i = 0; i < sorted.size(); i++)
-    retval += QString(" * `%1`: %2\n").
-      arg(sorted[i]->name).arg(sorted[i]->description);
+  for(int i = 0; i < sorted.size(); i++) {
+    QString lnk;
+    if(! sorted[i]->url.isEmpty())
+      lnk = QString(" (more information [there](%1))").arg(sorted[i]->url);
+    retval += QString(" * `%1`: %2%3\n").
+      arg(sorted[i]->name).arg(sorted[i]->description()).
+      arg(lnk);
+  }
 
   return retval;
+}
+
+QString GSLFunction::description() const
+{
+  return desc;
 }
 
 
@@ -87,8 +98,9 @@ template < double (*func)(double) > class GSLSimpleFunction :
   };
 
 public:
-  GSLSimpleFunction(const QString & n, const QString & d) : 
-    GSLFunction(n, d) {
+  GSLSimpleFunction(const QString & n, const QString & d,
+                    const QString & url = "") : 
+    GSLFunction(n, d, url) {
   };
 
   virtual void registerFunction(RUBY_VALUE module) {
@@ -102,19 +114,19 @@ public:
 
 static GSLSimpleFunction<gsl_sf_bessel_J0> 
 bessel_J0("bessel_j0", "Regular cylindrical Bessel function of "
-          "0th order, $$J_0(x)$$");
+          "0th order, $$J_0(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Regular-Cylindrical-Bessel-Functions.html");
 
 static GSLSimpleFunction<gsl_sf_bessel_J1> 
 bessel_J1("bessel_j1", "Regular cylindrical Bessel function of "
-          "first order, $$J_1(x)$$");
+          "first order, $$J_1(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Regular-Cylindrical-Bessel-Functions.html");
 
 static GSLSimpleFunction<gsl_sf_bessel_Y0> 
 bessel_Y0("bessel_y0", "Irregular cylindrical Bessel function of "
-          "0th order, $$Y_0(x)$$");
+          "0th order, $$Y_0(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Irregular-Cylindrical-Bessel-Functions.html");
 
 static GSLSimpleFunction<gsl_sf_bessel_Y1> 
 bessel_Y1("bessel_y1", "Irregular cylindrical Bessel function of "
-          "first order, $$Y_1(x)$$");
+          "first order, $$Y_1(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Irregular-Cylindrical-Bessel-Functions.html");
 
 static GSLSimpleFunction<gsl_sf_expint_E1> 
 expint_E1("expint_e1", "Exponential integral $$E_1(x) = "
@@ -126,11 +138,11 @@ expint_E2("expint_e2", "Exponential integral $$E_2(x) = "
 // Lambert W function(s)
 static GSLSimpleFunction<gsl_sf_lambert_W0> 
 lambert_W0("lambert_W", "Principal branch of the Lambert function "
-           "$$W_0(x)$$");
+           "$$W_0(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Lambert-W-Functions.html");
 
 static GSLSimpleFunction<gsl_sf_lambert_Wm1> 
 lambert_Wm1("lambert_Wm1", "Secondary branch of the Lambert function "
-           "$$W_{-1}(x)$$");
+            "$$W_{-1}(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Lambert-W-Functions.html");
 
 // Dawson function
 static GSLSimpleFunction<gsl_sf_dawson> 
@@ -219,8 +231,8 @@ template < double (*func)(int, double) > class GSLIndexedFunction :
   };
 
 public:
-  GSLIndexedFunction(const QString & n, const QString & d) : 
-    GSLFunction(n,d) {
+  GSLIndexedFunction(const QString & n, const QString & d, const QString & u = "") : 
+    GSLFunction(n,d,u) {
   };
 
   virtual void registerFunction(RUBY_VALUE module) {
@@ -234,11 +246,11 @@ public:
 
 GSLIndexedFunction<gsl_sf_bessel_Jn> 
 bessel_Jn("bessel_jn", "Regular cylindrical Bessel function of "
-          "n-th order, $$J_n(x)$$");
+          "n-th order, $$J_n(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Regular-Cylindrical-Bessel-Functions.html");
 
 GSLIndexedFunction<gsl_sf_bessel_Yn> 
 bessel_Yn("bessel_yn", "Irregular cylindrical Bessel function of "
-          "n-th order, $$Y_n(x)$$");
+          "n-th order, $$Y_n(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Irregular-Cylindrical-Bessel-Functions.html");
 
 GSLIndexedFunction<gsl_sf_expint_En> 
 expint_En("expint_en", "Exponential integral $$E_n(x) = "
@@ -264,8 +276,8 @@ template < double (*func)(double, gsl_mode_t) > class GSLModalFunction :
   };
 
 public:
-  GSLModalFunction(const QString & n, const QString & d) : 
-    GSLFunction(n,d) {
+  GSLModalFunction(const QString & n, const QString & d, const QString & u = "") : 
+    GSLFunction(n,d,u) {
   };
 
   /// @todo Find a way to mark these functions as having three
@@ -287,17 +299,24 @@ public:
                                (RUBY_VALUE (*)()) rubyFF, 1);
   };
 
+  virtual QString description() const {
+    return QString("%1. Precision to about $$10^{-7}$$. `%2_fast` is faster, "
+                   "precision $$5\\times10^{-4}$$ and `%2_double` slower, "
+                   "precision $$2\\times10^{-16}$$. ").arg(desc).
+      arg(name);
+  };
+
 };
 
 
 static GSLModalFunction<gsl_sf_airy_Ai> 
-airy_ai("airy_ai", "Airy Ai function (three modes) $$AiryAi(x)$$");
+airy_ai("airy_ai", "Airy Ai function (three modes) $$AiryAi(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Airy-Functions.html");
 static GSLModalFunction<gsl_sf_airy_Bi> 
-airy_bi("airy_bi", "Airy Bi function (three modes) $$AiryBi(x)$$");
+airy_bi("airy_bi", "Airy Bi function (three modes) $$AiryBi(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Airy-Functions.html");
 static GSLModalFunction<gsl_sf_airy_Ai_deriv> 
-airy_aid("airy_ai_deriv", "First derivative of Airy Ai function (three modes) $$\\mathrm{d}AiryAi(x)/\\mathrm{d}x$$");
+airy_aid("airy_ai_deriv", "First derivative of Airy Ai function (three modes) $$\\mathrm{d}AiryAi(x)/\\mathrm{d}x$$", "http://www.gnu.org/software/gsl/manual/html_node/Derivatives-of-Airy-Functions.html");
 static GSLModalFunction<gsl_sf_airy_Bi_deriv> 
-airy_bid("airy_bi_deriv", "First derivative of Airy Bi function (three modes) $$\\mathrm{d}AiryBi(x)/\\mathrm{d}x$$");
+airy_bid("airy_bi_deriv", "First derivative of Airy Bi function (three modes) $$\\mathrm{d}AiryBi(x)/\\mathrm{d}x$$", "http://www.gnu.org/software/gsl/manual/html_node/Derivatives-of-Airy-Functions.html");
 
 
 //////////////////////////////////////////////////////////////////////

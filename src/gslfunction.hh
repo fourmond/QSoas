@@ -36,7 +36,13 @@ public:
   QString name;
 
   /// A short description
-  QString description;
+  QString desc;
+
+  /// An optional URL
+  QString url;
+
+  /// Returns a description (generally desc, but may be more complex)
+  virtual QString description() const;
   
 
   /// Registers the function to the Ruby interpreter, under the given
@@ -48,7 +54,8 @@ public:
   static RUBY_VALUE registerAllFunctions();
 
   /// Creates and registers the given object.
-  GSLFunction(const QString & n, const QString & d, bool autoreg = true);
+  GSLFunction(const QString & n, const QString & d, const QString &u,
+              bool autoreg = true);
 
   /// Returns a markup-friendly list of all available functions
   static QString availableFunctions();

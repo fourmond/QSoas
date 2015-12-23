@@ -4935,18 +4935,18 @@ function), the following special functions are available:
 
 {::comment} special-functions-start {:/}
 
- * `airy_ai`: Airy Ai function (three modes) $$AiryAi(x)$$
- * `airy_ai_deriv`: First derivative of Airy Ai function (three modes) $$\mathrm{d}AiryAi(x)/\mathrm{d}x$$
- * `airy_bi`: Airy Bi function (three modes) $$AiryBi(x)$$
- * `airy_bi_deriv`: First derivative of Airy Bi function (three modes) $$\mathrm{d}AiryBi(x)/\mathrm{d}x$$
+ * `airy_ai`: Airy Ai function (three modes) $$AiryAi(x)$$. Precision to about $$10^{-7}$$. `airy_ai_fast` is faster, precision $$5\times10^{-4}$$ and `airy_ai_double` slower, precision $$2\times10^{-16}$$.  (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Airy-Functions.html))
+ * `airy_ai_deriv`: First derivative of Airy Ai function (three modes) $$\mathrm{d}AiryAi(x)/\mathrm{d}x$$. Precision to about $$10^{-7}$$. `airy_ai_deriv_fast` is faster, precision $$5\times10^{-4}$$ and `airy_ai_deriv_double` slower, precision $$2\times10^{-16}$$.  (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Derivatives-of-Airy-Functions.html))
+ * `airy_bi`: Airy Bi function (three modes) $$AiryBi(x)$$. Precision to about $$10^{-7}$$. `airy_bi_fast` is faster, precision $$5\times10^{-4}$$ and `airy_bi_double` slower, precision $$2\times10^{-16}$$.  (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Airy-Functions.html))
+ * `airy_bi_deriv`: First derivative of Airy Bi function (three modes) $$\mathrm{d}AiryBi(x)/\mathrm{d}x$$. Precision to about $$10^{-7}$$. `airy_bi_deriv_fast` is faster, precision $$5\times10^{-4}$$ and `airy_bi_deriv_double` slower, precision $$2\times10^{-16}$$.  (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Derivatives-of-Airy-Functions.html))
  * `atanc`: $$\frac{\tan^{-1} x}{x}$$
  * `atanhc`: $$\frac{\tanh^{-1} x}{x}$$
- * `bessel_j0`: Regular cylindrical Bessel function of 0th order, $$J_0(x)$$
- * `bessel_j1`: Regular cylindrical Bessel function of first order, $$J_1(x)$$
- * `bessel_jn`: Regular cylindrical Bessel function of n-th order, $$J_n(x)$$
- * `bessel_y0`: Irregular cylindrical Bessel function of 0th order, $$Y_0(x)$$
- * `bessel_y1`: Irregular cylindrical Bessel function of first order, $$Y_1(x)$$
- * `bessel_yn`: Irregular cylindrical Bessel function of n-th order, $$Y_n(x)$$
+ * `bessel_j0`: Regular cylindrical Bessel function of 0th order, $$J_0(x)$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Regular-Cylindrical-Bessel-Functions.html))
+ * `bessel_j1`: Regular cylindrical Bessel function of first order, $$J_1(x)$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Regular-Cylindrical-Bessel-Functions.html))
+ * `bessel_jn`: Regular cylindrical Bessel function of n-th order, $$J_n(x)$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Regular-Cylindrical-Bessel-Functions.html))
+ * `bessel_y0`: Irregular cylindrical Bessel function of 0th order, $$Y_0(x)$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Irregular-Cylindrical-Bessel-Functions.html))
+ * `bessel_y1`: Irregular cylindrical Bessel function of first order, $$Y_1(x)$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Irregular-Cylindrical-Bessel-Functions.html))
+ * `bessel_yn`: Irregular cylindrical Bessel function of n-th order, $$Y_n(x)$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Irregular-Cylindrical-Bessel-Functions.html))
  * `dawson`: Dawson integral, $$\exp(-x^2)\int_{0}^{x}\exp(t^2)\mathrm{d} t$$
  * `debye_1`: Debye function of order 1, $$D_1 = (1/x) \int_0^x \mathrm{d}t (t/(e^t - 1))$$
  * `debye_2`: Debye function of order 2, $$D_2 = (2/x^2) \int_0^x \mathrm{d}t (t^2/(e^t - 1))$$
@@ -4958,8 +4958,8 @@ function), the following special functions are available:
  * `expint_e1`: Exponential integral $$E_1(x) = \int_{x}^{\infty} \frac{\exp -t}{t} \mathrm{d} t$$
  * `expint_e2`: Exponential integral $$E_2(x) = \int_{x}^{\infty} \frac{\exp -t}{t^2} \mathrm{d} t$$
  * `expint_en`: Exponential integral $$E_n(x) = \int_{x}^{\infty} \frac{\exp -t}{t^n} \mathrm{d} t$$
- * `lambert_W`: Principal branch of the Lambert function $$W_0(x)$$
- * `lambert_Wm1`: Secondary branch of the Lambert function $$W_{-1}(x)$$
+ * `lambert_W`: Principal branch of the Lambert function $$W_0(x)$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Lambert-W-Functions.html))
+ * `lambert_Wm1`: Secondary branch of the Lambert function $$W_{-1}(x)$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Lambert-W-Functions.html))
 
 {::comment} special-functions-end {:/}
 

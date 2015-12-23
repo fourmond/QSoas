@@ -32,8 +32,11 @@ class GSLFunction {
   void registerSelf();
 public:
 
-  /// The (ruby) name of the function
+  /// The name of the function (with the arguments)
   QString name;
+
+  /// The name of the function, deduced from the name
+  QString rubyName;
 
   /// A short description
   QString desc;

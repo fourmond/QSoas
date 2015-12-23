@@ -38,6 +38,7 @@ GSLFunction::GSLFunction(const QString & n, const QString & d,
                          const QString &u,
                          bool autoreg) : name(n), desc(d), url(u)
 {
+  rubyName = n.left(n.indexOf('('));
   if(autoreg)
     registerSelf();
 }
@@ -104,77 +105,77 @@ public:
   };
 
   virtual void registerFunction(RUBY_VALUE module) {
-    rbw_define_method(module, name.toLocal8Bit(), 
+    rbw_define_method(module, rubyName.toLocal8Bit(), 
                                (RUBY_VALUE (*)()) rubyFunction, 1);
-    rbw_define_singleton_method(module, name.toLocal8Bit(), 
+    rbw_define_singleton_method(module, rubyName.toLocal8Bit(), 
                                (RUBY_VALUE (*)()) rubyFunction, 1);
   };
 
 };
 
 static GSLSimpleFunction<gsl_sf_bessel_J0> 
-bessel_J0("bessel_j0", "Regular cylindrical Bessel function of "
+bessel_J0("bessel_j0(x)", "Regular cylindrical Bessel function of "
           "0th order, $$J_0(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Regular-Cylindrical-Bessel-Functions.html");
 
 static GSLSimpleFunction<gsl_sf_bessel_J1> 
-bessel_J1("bessel_j1", "Regular cylindrical Bessel function of "
+bessel_J1("bessel_j1(x)", "Regular cylindrical Bessel function of "
           "first order, $$J_1(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Regular-Cylindrical-Bessel-Functions.html");
 
 static GSLSimpleFunction<gsl_sf_bessel_Y0> 
-bessel_Y0("bessel_y0", "Irregular cylindrical Bessel function of "
+bessel_Y0("bessel_y0(x)", "Irregular cylindrical Bessel function of "
           "0th order, $$Y_0(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Irregular-Cylindrical-Bessel-Functions.html");
 
 static GSLSimpleFunction<gsl_sf_bessel_Y1> 
-bessel_Y1("bessel_y1", "Irregular cylindrical Bessel function of "
+bessel_Y1("bessel_y1(x)", "Irregular cylindrical Bessel function of "
           "first order, $$Y_1(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Irregular-Cylindrical-Bessel-Functions.html");
 
 static GSLSimpleFunction<gsl_sf_expint_E1> 
-expint_E1("expint_e1", "Exponential integral $$E_1(x) = "
+expint_E1("expint_e1(x)", "Exponential integral $$E_1(x) = "
           "\\int_{x}^{\\infty} \\frac{\\exp -t}{t} \\mathrm{d} t$$");
 static GSLSimpleFunction<gsl_sf_expint_E2> 
-expint_E2("expint_e2", "Exponential integral $$E_2(x) = "
+expint_E2("expint_e2(x)", "Exponential integral $$E_2(x) = "
           "\\int_{x}^{\\infty} \\frac{\\exp -t}{t^2} \\mathrm{d} t$$");
 
 // Lambert W function(s)
 static GSLSimpleFunction<gsl_sf_lambert_W0> 
-lambert_W0("lambert_W", "Principal branch of the Lambert function "
+lambert_W0("lambert_W(x)", "Principal branch of the Lambert function "
            "$$W_0(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Lambert-W-Functions.html");
 
 static GSLSimpleFunction<gsl_sf_lambert_Wm1> 
-lambert_Wm1("lambert_Wm1", "Secondary branch of the Lambert function "
+lambert_Wm1("lambert_Wm1(x)", "Secondary branch of the Lambert function "
             "$$W_{-1}(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Lambert-W-Functions.html");
 
 // Dawson function
 static GSLSimpleFunction<gsl_sf_dawson> 
-dawson("dawson", "Dawson integral, "
+dawson("dawson(x)", "Dawson integral, "
        "$$\\exp(-x^2)\\int_{0}^{x}\\exp(t^2)\\mathrm{d} t$$");
 
 static GSLSimpleFunction<gsl_sf_debye_1> 
-debye1("debye_1", "Debye function of order 1, "
+debye1("debye_1(x)", "Debye function of order 1, "
        "$$D_1 = (1/x) \\int_0^x \\mathrm{d}t (t/(e^t - 1))$$");
 
 static GSLSimpleFunction<gsl_sf_debye_2> 
-debye2("debye_2", "Debye function of order 2, "
+debye2("debye_2(x)", "Debye function of order 2, "
        "$$D_2 = (2/x^2) \\int_0^x \\mathrm{d}t (t^2/(e^t - 1))$$");
 
 static GSLSimpleFunction<gsl_sf_debye_3> 
-debye3("debye_3", "Debye function of order 3, "
+debye3("debye_3(x)", "Debye function of order 3, "
        "$$D_3 = (3/x^3) \\int_0^x \\mathrm{d}t (t^3/(e^t - 1))$$");
 
 static GSLSimpleFunction<gsl_sf_debye_4> 
-debye4("debye_4", "Debye function of order 4, "
+debye4("debye_4(x)", "Debye function of order 4, "
        "$$D_4 = (4/x^4) \\int_0^x \\mathrm{d}t (t^4/(e^t - 1))$$");
 
 static GSLSimpleFunction<gsl_sf_debye_5> 
-debye5("debye_5", "Debye function of order 5, "
+debye5("debye_5(x)", "Debye function of order 5, "
        "$$D_5 = (5/x^5) \\int_0^x \\mathrm{d}t (t^5/(e^t - 1))$$");
 
 static GSLSimpleFunction<gsl_sf_debye_6> 
-debye6("debye_6", "Debye function of order 6, "
+debye6("debye_6(x)", "Debye function of order 6, "
        "$$D_6 = (6/x^6) \\int_0^x \\mathrm{d}t (t^6/(e^t - 1))$$");
 
 static GSLSimpleFunction<gsl_sf_dilog> 
-dilog("dilog", "The dilogarithm, "
+dilog("dilog(x)", "The dilogarithm, "
       "$$Li_2(x) = - \\Re \\left(\\int_0^x \\mathrm{d}s \\log(1-s) / s\\right)$$");
 
 
@@ -200,7 +201,7 @@ double qsoas_atanc(double x)
 }
 
 static GSLSimpleFunction<qsoas_atanc> 
-atanc("atanc", "$$\\frac{\\tan^{-1} x}{x}$$");
+atanc("atanc(x)", "$$\\frac{\\tan^{-1} x}{x}$$");
 
 
 //
@@ -217,7 +218,7 @@ double qsoas_atanhc(double x)
 }
 
 static GSLSimpleFunction<qsoas_atanhc> 
-atanhc("atanhc", "$$\\frac{\\tanh^{-1} x}{x}$$");
+atanhc("atanhc(x)", "$$\\frac{\\tanh^{-1} x}{x}$$");
 
 
 
@@ -236,24 +237,24 @@ public:
   };
 
   virtual void registerFunction(RUBY_VALUE module) {
-    rbw_define_method(module, name.toLocal8Bit(), 
+    rbw_define_method(module, rubyName.toLocal8Bit(), 
                      (RUBY_VALUE (*)()) rubyFunction, 2);
-    rbw_define_singleton_method(module, name.toLocal8Bit(), 
+    rbw_define_singleton_method(module, rubyName.toLocal8Bit(), 
                                (RUBY_VALUE (*)()) rubyFunction, 2);
   };
 
 };
 
 GSLIndexedFunction<gsl_sf_bessel_Jn> 
-bessel_Jn("bessel_jn", "Regular cylindrical Bessel function of "
+bessel_Jn("bessel_jn(x,n)", "Regular cylindrical Bessel function of "
           "n-th order, $$J_n(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Regular-Cylindrical-Bessel-Functions.html");
 
 GSLIndexedFunction<gsl_sf_bessel_Yn> 
-bessel_Yn("bessel_yn", "Irregular cylindrical Bessel function of "
+bessel_Yn("bessel_yn(x,n)", "Irregular cylindrical Bessel function of "
           "n-th order, $$Y_n(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Irregular-Cylindrical-Bessel-Functions.html");
 
 GSLIndexedFunction<gsl_sf_expint_En> 
-expint_En("expint_en", "Exponential integral $$E_n(x) = "
+expint_En("expint_en(x,n)", "Exponential integral $$E_n(x) = "
           "\\int_{x}^{\\infty} \\frac{\\exp -t}{t^n} \\mathrm{d} t$$");
 
 
@@ -283,19 +284,19 @@ public:
   /// @todo Find a way to mark these functions as having three
   /// evaluation modes.
   virtual void registerFunction(RUBY_VALUE module) {
-    rbw_define_method(module, name.toLocal8Bit(), 
+    rbw_define_method(module, rubyName.toLocal8Bit(), 
                      (RUBY_VALUE (*)()) rubyFS, 1);
-    rbw_define_singleton_method(module, name.toLocal8Bit(), 
+    rbw_define_singleton_method(module, rubyName.toLocal8Bit(), 
                                (RUBY_VALUE (*)()) rubyFS, 1);
 
-    rbw_define_method(module, (name + "_double").toLocal8Bit(), 
+    rbw_define_method(module, (rubyName + "_double").toLocal8Bit(), 
                      (RUBY_VALUE (*)()) rubyFD, 1);
-    rbw_define_singleton_method(module, (name + "_double").toLocal8Bit(), 
+    rbw_define_singleton_method(module, (rubyName + "_double").toLocal8Bit(), 
                                (RUBY_VALUE (*)()) rubyFD, 1);
 
-    rbw_define_method(module, (name + "_fast").toLocal8Bit(), 
+    rbw_define_method(module, (rubyName + "_fast").toLocal8Bit(), 
                      (RUBY_VALUE (*)()) rubyFF, 1);
-    rbw_define_singleton_method(module, (name + "_fast").toLocal8Bit(), 
+    rbw_define_singleton_method(module, (rubyName + "_fast").toLocal8Bit(), 
                                (RUBY_VALUE (*)()) rubyFF, 1);
   };
 
@@ -303,20 +304,20 @@ public:
     return QString("%1. Precision to about $$10^{-7}$$. `%2_fast` is faster, "
                    "precision $$5\\times10^{-4}$$ and `%2_double` slower, "
                    "precision $$2\\times10^{-16}$$. ").arg(desc).
-      arg(name);
+      arg(rubyName);
   };
 
 };
 
 
 static GSLModalFunction<gsl_sf_airy_Ai> 
-airy_ai("airy_ai", "Airy Ai function (three modes) $$AiryAi(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Airy-Functions.html");
+airy_ai("airy_ai(x)", "Airy Ai function $$AiryAi(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Airy-Functions.html");
 static GSLModalFunction<gsl_sf_airy_Bi> 
-airy_bi("airy_bi", "Airy Bi function (three modes) $$AiryBi(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Airy-Functions.html");
+airy_bi("airy_bi(x)", "Airy Bi function $$AiryBi(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Airy-Functions.html");
 static GSLModalFunction<gsl_sf_airy_Ai_deriv> 
-airy_aid("airy_ai_deriv", "First derivative of Airy Ai function (three modes) $$\\mathrm{d}AiryAi(x)/\\mathrm{d}x$$", "http://www.gnu.org/software/gsl/manual/html_node/Derivatives-of-Airy-Functions.html");
+airy_aid("airy_ai_deriv(x)", "First derivative of Airy Ai function $$\\mathrm{d}AiryAi(x)/\\mathrm{d}x$$", "http://www.gnu.org/software/gsl/manual/html_node/Derivatives-of-Airy-Functions.html");
 static GSLModalFunction<gsl_sf_airy_Bi_deriv> 
-airy_bid("airy_bi_deriv", "First derivative of Airy Bi function (three modes) $$\\mathrm{d}AiryBi(x)/\\mathrm{d}x$$", "http://www.gnu.org/software/gsl/manual/html_node/Derivatives-of-Airy-Functions.html");
+airy_bid("airy_bi_deriv(x)", "First derivative of Airy Bi function $$\\mathrm{d}AiryBi(x)/\\mathrm{d}x$$", "http://www.gnu.org/software/gsl/manual/html_node/Derivatives-of-Airy-Functions.html");
 
 
 //////////////////////////////////////////////////////////////////////

@@ -1,0 +1,4 @@
+@ mi1.cmds exp(-x*z) (1-exp(-x*10))/x 0 10 1e-7 1e-4 csplines 0.1 10
+@ mi1.cmds exp(-x*z) (1-exp(-x*10))/x 0 10 1e-7 1e-4 akima 0.1 10
+@ mi1.cmds exp(-x*z) (1-exp(-x*10))/x 0 10 1e-5 1e-4 naive 0.1 10
+@ mi1.cmds exp(-x*z) (1-exp(-x*10))/x 0 10 1e-6 1e-5 naive 0.1 10

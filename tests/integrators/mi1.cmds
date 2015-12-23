@@ -1,0 +1,14 @@
+# Tries the integrator. Arguments:
+# * ${1}: formula
+# * ${2}: integrated formula
+# * ${3}: lower integration bound
+# * ${4}: upper integration bound
+# * ${5}: tolerance
+# * ${6}: precision
+# * ${7}: integrator
+# * ${8}: lower x (default 0)
+# * ${9}: upper x (default 10)
+generate-buffer ${8:-0} ${9:-10}
+mintegrate-formula "${1}" ${3} ${4} /prec-relative=${6} /integrator=${7}
+apply-formula  "y-=${2}"
+assert "$stats['y_norm']/$stats['rows']**0.5" ${5}

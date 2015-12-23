@@ -1372,20 +1372,7 @@ namespace __fft {
     case Abort:
       return;
     case QuitPushingTransform: {
-
-      QList<Vector> cols;
-      // fequ, magnitude, real, imaginary
-      cols << Vector() << Vector() << Vector() << Vector();
-      int nb = orig.frequencies();
-      // Seems to be the right scaling factor...
-      double scale = 1.0/ds->nbRows();
-      for(int i = 0; i < nb; i++) {
-        cols[0] << i * 0.5/((nb - 1)*orig.deltaX);
-        cols[1] << scale * orig.magnitude(i);
-        cols[2] << scale * orig.real(i);
-        cols[3] << scale * orig.imag(i);
-      }
-      soas().pushDataSet(ds->derivedDataSet(cols, "_fft.dat"));
+      soas().pushDataSet(ds->derivedDataSet(orig.transform(), "_fft.dat"));
       return;
     }
     case ToggleBaseline:
@@ -1568,9 +1555,11 @@ static void autoFilterFFTCommand(const QString &, const CommandOptions & opts)
   const DataSet * ds = soas().currentDataSet();
   int cutoff = 20;
   int derivatives = 0;
+  bool transform = false;
 
   updateFromOptions(opts, "cutoff", cutoff);
   updateFromOptions(opts, "derive", derivatives);
+  updateFromOptions(opts, "transform", transform);
 
   double dmin, dmax;
   ds->x().deltaStats(&dmin, &dmax);
@@ -1586,6 +1575,12 @@ static void autoFilterFFTCommand(const QString &, const CommandOptions & opts)
 
   FFT orig(ds->x(), ds->y());
   orig.forward();
+  if(transform) {
+    soas().
+      pushDataSet(ds->derivedDataSet(orig.transform(),
+                                     "_fft.dat"));
+    return;
+  }
   orig.applyGaussianFilter(cutoff);
   
   for(int i = 0; i < derivatives; i++)
@@ -1605,6 +1600,9 @@ afftOps(QList<Argument *>()
         << new IntegerArgument("cutoff", 
                                "Cutoff",
                                "value of the cutoff")
+        << new BoolArgument("transform", 
+                            "Transform",
+                            "if on, pushes the transform (off by default)")
         << new IntegerArgument("derive", 
                                "Derive",
                                "differentiate to the given order")

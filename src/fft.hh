@@ -121,6 +121,10 @@ public:
   /// Returns a reference to the imaginary part of the i-th frequency element
   double & imag(int i);
 
+  /// Returns the transform, i.e. the frequency, the magnitude, the
+  /// real, and the imaginary parts.
+  QList<Vector> transform() const;
+
 
   /// @}
 

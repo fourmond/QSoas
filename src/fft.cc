@@ -146,6 +146,25 @@ void FFT::reverse(bool useBaseline)
   
 }
 
+QList<Vector> FFT::transform() const
+{
+  QList<Vector> cols;
+  // fequ, magnitude, real, imaginary
+  cols << Vector() << Vector() << Vector() << Vector();
+  int nb = frequencies();
+  // Seems to be the right scaling factor...
+  double scale = 1.0/data.size();
+  // This is just plain lazyness...
+  FFT * ths = const_cast<FFT *> (this);
+  for(int i = 0; i < nb; i++) {
+    cols[0] << i * 0.5/((nb - 1)*deltaX);
+    cols[1] << scale * ths->magnitude(i);
+    cols[2] << scale * ths->real(i);
+    cols[3] << scale * ths->imag(i);
+  }
+  return cols;
+}
+
 void FFT::baseline(Vector * y) const
 {
   /// @todo will crash if used with a vector smaller ?

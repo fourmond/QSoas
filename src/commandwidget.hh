@@ -84,6 +84,12 @@ class CommandWidget : public QWidget {
                       const QStringList & args = QStringList(),
                       bool addToHist = false);
 
+
+  /// Current Ruby string to be executed. Not in ruby mode if the
+  /// string is empty. This is handled at the runCommand(const QString
+  /// &) level.
+  QString rubyCode;
+  
 public:
 
   CommandWidget();
@@ -139,6 +145,12 @@ public:
 public slots:
 
 
+  /// Runs the given command-line.
+  /// 
+  /// This command also handles inline Ruby code between
+  /// ruby and ruby end lines.
+  ///
+  /// Launching a command from the menu bypasses this.
   bool runCommand(const QString & str);
 
   /// Runs the given command (already split into words). Returns true

@@ -42,6 +42,9 @@ namespace Ruby {
   /// Evaluates the given string, while trying to avoid segfaults.
   RUBY_VALUE eval(QByteArray code);
 
+  /// Evaluates the given code, with appropriate code error handling.
+  RUBY_VALUE safeEval(const QString & s);
+
   /// Makes a block from this code using the given variables.
   ///
   /// The \a variables gets updated with the actual variables that

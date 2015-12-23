@@ -31,6 +31,7 @@
 
 #include <settings-templates.hh>
 #include <idioms.hh>
+#include <ruby.hh>
 
 using namespace Terminal;
 
@@ -218,8 +219,47 @@ bool CommandWidget::runCommand(const QStringList & raw)
 
 bool CommandWidget::runCommand(const QString & str)
 {
-  QStringList split = Command::wordSplit(str);
-  return runCommand(split);
+  QRegExp res("^\\s*ruby\\s*$");
+  QRegExp ree("^\\s*ruby\\s+end\\s*$");
+
+  if(rubyCode.isEmpty()) {
+    if(res.exactMatch(str)) {
+      rubyCode = "\n";          /// @todo Insert here init code !
+      setPrompt("Ruby> ");
+      return true;
+    }
+    else {
+      QStringList split = Command::wordSplit(str);
+      return runCommand(split);
+    }
+  }
+  else {
+    if(ree.exactMatch(str)) {
+      bool status = true;
+      /// @todo Try to share some code with runCommand(const QStringList &) ?
+      try {
+        Ruby::safeEval(rubyCode);
+      }
+      catch(const RuntimeError & error) {
+        out << bold("Error: ") << error.message() << endl;
+        status = false;
+      }
+      catch(const InternalError & error) {
+        out << bold("Internal error: ") 
+            << error.message() << endl
+            << "This is a bug in Soas and may be worth reporting !" << endl;
+        status = false;
+      }
+      rubyCode = "";
+      setPrompt("QSoas> ");
+      return status;
+    }
+    else {
+      out << "Ruby> " << str << endl;
+      rubyCode += str + "\n";
+    }
+  }
+  return true;
 }
 
 void CommandWidget::commandEntered()
@@ -280,6 +320,11 @@ void CommandWidget::setSideBarLabel(const QString & str)
   sideBarLabel->setText(str);
 }
 
+void CommandWidget::setPrompt(const QString & str)
+{
+  promptLabel->setText(str);
+}
+
 LineEdit * CommandWidget::enterPromptMode(const QString & prompt, 
                                            const QString & init)
 {
@@ -287,7 +332,7 @@ LineEdit * CommandWidget::enterPromptMode(const QString & prompt,
   restrictedPrompt->setText(init);
   restrictedPrompt->setVisible(true);
   
-  promptLabel->setText(prompt);
+  setPrompt(prompt);
 
   
   restrictedPrompt->setFocus(); // ? 
@@ -299,7 +344,7 @@ void CommandWidget::leavePromptMode()
   commandLine->setVisible(true);
   restrictedPrompt->setVisible(false);
   restrictedPrompt->clearFocus();
-  promptLabel->setText("Soas> ");
+  setPrompt("QSoas> ");
 }
 
 void CommandWidget::scrollTerminal(int nb)

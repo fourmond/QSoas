@@ -111,6 +111,12 @@ RUBY_VALUE Ruby::eval(QByteArray code)
   return rbw_funcall2(main, rbw_intern("soas_eval"), 1, &s);
 }
 
+RUBY_VALUE Ruby::safeEval(const QString & code)
+{
+  QByteArray bt = code.toLocal8Bit();
+  return Ruby::run(Ruby::eval, bt);
+}
+
 RUBY_VALUE Ruby::makeBlock(QStringList * variables, const QByteArray & code)
 {
   RUBY_VALUE args[2];

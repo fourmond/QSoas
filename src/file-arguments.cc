@@ -151,3 +151,7 @@ QStringList SeveralFilesArgument::proposeCompletion(const QString & starter) con
   return proposeFileCompletion(starter, false);
 }
 
+ArgumentMarshaller * SeveralFilesArgument::fromRuby(RUBY_VALUE value) const
+{
+  return convertRubyArray(value);
+}

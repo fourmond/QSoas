@@ -108,6 +108,17 @@ namespace Ruby {
                                                A1, A2, A3, A4); 
 
   /// @}
+
+
+  /// Conversion of array to QList
+  template <typename A> RUBY_VALUE ary2ListHelper(RUBY_VALUE v,
+                                                  QList<A> * rv,
+                                                  std::function<A (RUBY_VALUE)> fn);
+    
+  template <typename A> QList<A> rubyArrayToList(RUBY_VALUE v,
+                                                 std::function<A (RUBY_VALUE)> converter);
+
+
 };
 
 

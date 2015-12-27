@@ -421,6 +421,12 @@ void SeveralNumbersArgument::concatenateArguments(ArgumentMarshaller * a,
     b->value<QList<double> >();
 }
 
+ArgumentMarshaller * SeveralNumbersArgument::fromRuby(RUBY_VALUE value) const
+{
+  QList<double> lst = Ruby::rubyArrayToList<double>(value, &Ruby::toDouble);
+  return new ArgumentMarshallerChild< QList<double> >(lst);
+}
+
 ////////////////////////////////////////////////////////////
 
 
@@ -479,6 +485,17 @@ void SeveralIntegersArgument::concatenateArguments(ArgumentMarshaller * a,
     b->value<QList<int> >();
 }
 
+static int cnv(RUBY_VALUE s)
+{
+  return Ruby::toInt(s);
+}
+
+ArgumentMarshaller * SeveralIntegersArgument::fromRuby(RUBY_VALUE value) const
+{
+  QList<int> lst = Ruby::rubyArrayToList<int>(value, &::cnv);
+  return new ArgumentMarshallerChild< QList<int> >(lst);
+}
+
 //////////////////////////////////////////////////////////////////////
 
 ArgumentMarshaller * ParametersHashArgument::fromString(const QString & str) const
@@ -504,6 +521,11 @@ void ParametersHashArgument::concatenateArguments(ArgumentMarshaller * a,
 {
   a->value< QHash<QString, double> >().
     unite(b->value<QHash<QString, double> >());
+}
+
+ArgumentMarshaller * ParametersHashArgument::fromRuby(RUBY_VALUE value) const
+{
+  return Argument::convertRubyArray(value);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -600,6 +622,11 @@ QString ColumnArgument::typeDescription() const
   return "The [number/name of a column](#column-names) in a buffer";
 }
 
+ArgumentMarshaller * ColumnArgument::fromRuby(RUBY_VALUE value) const
+{
+  return Argument::convertRubyString(value);
+}
+
 //////////////////////////////////////////////////////////////////////
 
 ArgumentMarshaller * SeveralColumnsArgument::fromString(const QString & str) const
@@ -636,4 +663,9 @@ void SeveralColumnsArgument::concatenateArguments(ArgumentMarshaller * a,
 QString SeveralColumnsArgument::typeDescription() const
 {
   return "A comma-separated list of [columns names](#column-names)";
+}
+
+ArgumentMarshaller * SeveralColumnsArgument::fromRuby(RUBY_VALUE value) const
+{
+  return Argument::convertRubyArray(value);
 }

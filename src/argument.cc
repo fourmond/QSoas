@@ -21,6 +21,7 @@
 #include <argument.hh>
 
 #include <ruby.hh>
+#include <ruby-templates.hh>
 
 ArgumentMarshaller * Argument::convertRubyString(RUBY_VALUE value) const
 {
@@ -29,27 +30,9 @@ ArgumentMarshaller * Argument::convertRubyString(RUBY_VALUE value) const
 
 
 
-/// @todo This should probably join the Ruby namespace, possibly as a
-/// template ?
-static RUBY_VALUE rubyStringList(RUBY_VALUE v, QStringList * rv)
-{
-  if(rbw_is_array(v)) {
-    int l = rbw_array_length(v);
-    for(int i = 0; i < l; i++) {
-      RUBY_VALUE v2 = rbw_ary_entry(v, i);
-      *rv << Ruby::toQString(v2);
-    }
-  }
-  else {
-    *rv << Ruby::toQString(v);
-  }
-  return rbw_nil;
-}
-
 ArgumentMarshaller * Argument::convertRubyArray(RUBY_VALUE value) const
 {
-  QStringList rv;
-  Ruby::run(&rubyStringList, value, &rv);
+  QStringList rv = Ruby::rubyArrayToList<QString>(value, &Ruby::toQString);
   ArgumentMarshaller * ret = NULL;
   for(int i = 0; i < rv.size(); i++) {
     ArgumentMarshaller * cur = fromString(rv[i]);

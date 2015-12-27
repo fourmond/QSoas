@@ -102,7 +102,9 @@ public:
     }
   };
 
-  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const {
+    return Argument::convertRubyString(value);
+  };
 
 };
 

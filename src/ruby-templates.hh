@@ -178,4 +178,35 @@ RUBY_VALUE Ruby::run(RUBY_VALUE (*f)(A1, A2, A3, A4), A1 a1, A2 a2, A3 a3, A4 a4
 
 // Now, we'll have to do the same thing with member functions
 
+
+//////////////////////////////////////////////////////////////////////
+
+/// A series of functions to convert from a ruby array to a QList
+
+template <typename A> RUBY_VALUE Ruby::ary2ListHelper(RUBY_VALUE v,
+                                                      QList<A> * rv,
+                                                      std::function<A (RUBY_VALUE)> fn)
+{
+  if(rbw_is_array(v)) {
+    int l = rbw_array_length(v);
+    for(int i = 0; i < l; i++) {
+      RUBY_VALUE v2 = rbw_ary_entry(v, i);
+      *rv << fn(v2);
+    }
+  }
+  else {
+    *rv << fn(v);
+  }
+  return rbw_nil;
+}
+
+template <typename A> QList<A> Ruby::rubyArrayToList(RUBY_VALUE v,
+                                                     std::function<A (RUBY_VALUE)> converter)
+{
+  QList<A> rv;
+  Ruby::run(&Ruby::ary2ListHelper<A>, v, &rv, converter);
+  return rv;
+}
+
+
 #endif

@@ -50,6 +50,9 @@ public:
   };
 
   virtual QString typeDescription() const;
+
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
+
 };
 
 /// Several strings
@@ -80,6 +83,8 @@ public:
   virtual QString typeName() const;
 
   virtual QString typeDescription() const;
+
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -126,6 +131,7 @@ public:
   virtual void setEditorValue(QWidget * editor, 
                               ArgumentMarshaller * value) const;
 
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
 
   virtual QStringList proposeCompletion(const QString & starter) const;
 
@@ -168,6 +174,8 @@ public:
   /// Prompting uses QInputDialog.
   virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
 
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
+
   /// a rather easy one.
   virtual QStringList proposeCompletion(const QString & starter) const;
 
@@ -203,6 +211,8 @@ public:
   
   /// Returns a wrapped QString
   virtual ArgumentMarshaller * fromString(const QString & str) const;
+
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
 
   /// a rather easy one.
   virtual QStringList proposeCompletion(const QString & starter) const;
@@ -261,6 +271,8 @@ public:
   virtual QString typeDescription() const {
     return "The number of a buffer in the stack";
   };
+
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
 };
 
 /// Several datasets from the stack
@@ -291,6 +303,8 @@ public:
   };
 
   virtual QStringList proposeCompletion(const QString & starter) const;
+
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
 };
 
 
@@ -325,6 +339,7 @@ public:
     return "A floating-point number";
   };
 
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
 };
 
 /// Several numbers
@@ -355,6 +370,7 @@ public:
     return QString("Several floating-point numbers, separated by %1").arg(delim);
   };
 
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
 };
 
 /// A integer
@@ -384,6 +400,8 @@ public:
   virtual void setEditorValue(QWidget * editor, 
                               ArgumentMarshaller * value) const;
 
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
+
 };
 
 /// Several integers
@@ -410,6 +428,8 @@ public:
     return "A comma-separated list of integers";
   };
 
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
+
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -435,7 +455,9 @@ public:
 
   virtual void concatenateArguments(ArgumentMarshaller * a, 
                                     const ArgumentMarshaller * b) const;
-  
+
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
+
 };
 
 /// A command.
@@ -492,6 +514,8 @@ public:
   virtual QString typeName() const;
   virtual QString typeDescription() const;
 
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
+
 };
 
 
@@ -520,6 +544,8 @@ public:
 
   virtual QString typeDescription() const;
 
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
+
 };
 
 /// Several integers
@@ -543,6 +569,8 @@ public:
   };
 
   virtual QString typeDescription() const;
+
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
 };
 
 #endif

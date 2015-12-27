@@ -20,6 +20,56 @@
 #include <headers.hh>
 #include <argument.hh>
 
+#include <ruby.hh>
+
+ArgumentMarshaller * Argument::convertRubyString(RUBY_VALUE value) const
+{
+  return fromString(Ruby::toQString(value));
+}
+
+
+
+/// @todo This should probably join the Ruby namespace, possibly as a
+/// template ?
+static RUBY_VALUE rubyStringList(RUBY_VALUE v, QStringList * rv)
+{
+  if(rbw_is_array(v)) {
+    int l = rbw_array_length(v);
+    for(int i = 0; i < l; i++) {
+      RUBY_VALUE v2 = rbw_ary_entry(v, i);
+      *rv << Ruby::toQString(v2);
+    }
+  }
+  else {
+    *rv << Ruby::toQString(v);
+  }
+  return rbw_nil;
+}
+
+ArgumentMarshaller * Argument::convertRubyArray(RUBY_VALUE value) const
+{
+  QStringList rv;
+  Ruby::run(&rubyStringList, value, &rv);
+  ArgumentMarshaller * ret = NULL;
+  for(int i = 0; i < rv.size(); i++) {
+    ArgumentMarshaller * cur = fromString(rv[i]);
+    if(ret) {
+      concatenateArguments(ret, cur);
+      delete cur;
+    }
+    else
+      ret = cur;
+  }
+  return ret;
+}
+
+ArgumentMarshaller * Argument::fromRuby(RUBY_VALUE value) const
+{
+  QString c = Ruby::toQString(value);
+  return fromString(c);
+}
+
+
 ArgumentMarshaller * Argument::promptForValue(QWidget * base) const
 {
   bool ok = false;

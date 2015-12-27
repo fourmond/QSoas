@@ -64,6 +64,10 @@ public:
     return QString("One of: `%1`").arg(cs.join("`, `"));
   };
 
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const {
+    return convertRubyString(value);
+  };
+
 
 };
 

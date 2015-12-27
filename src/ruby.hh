@@ -56,9 +56,11 @@ namespace Ruby {
 
   /// Converts to a double in a Ruby-exception safe way: Ruby
   /// exceptions will result in proper C++ exceptions.
-  ///
-  /// Don't use NUM2DBL directly, unless you know it's is a Float.
   double toDouble(RUBY_VALUE val);
+
+  /// Converts to an int in a Ruby-exception safe way: Ruby
+  /// exceptions will result in proper C++ exceptions.
+  long toInt(RUBY_VALUE val);
 
 
   /// Makes a textual representation of any Ruby object (kinda rp_p)

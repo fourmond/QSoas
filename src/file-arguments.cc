@@ -76,6 +76,11 @@ QString FileArgument::typeDescription() const {
     return "name of a file";
 }
 
+ArgumentMarshaller * FileArgument::fromRuby(RUBY_VALUE value) const
+{
+  return Argument::convertRubyString(value);
+}
+
 ////////////////////////////////////////////////////////////
 
 ArgumentMarshaller * FileSaveArgument::fromString(const QString & str) const

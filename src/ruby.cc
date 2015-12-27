@@ -170,7 +170,7 @@ QString Ruby::versionString()
   return rbw_string_value_cstr(v);
 }
 
-static RUBY_VALUE conv(RUBY_VALUE val, double * tg)
+static RUBY_VALUE conv_f(RUBY_VALUE val, double * tg)
 {
   *tg = rbw_num2dbl(val);
   return rbw_nil;
@@ -179,7 +179,20 @@ static RUBY_VALUE conv(RUBY_VALUE val, double * tg)
 double Ruby::toDouble(RUBY_VALUE val)
 {
   double v;
-  Ruby::run(&conv, val, &v);
+  Ruby::run(&conv_f, val, &v);
+  return v;
+}
+
+static RUBY_VALUE conv_i(RUBY_VALUE val, long * tg)
+{
+  *tg = rbw_num2int(val);
+  return rbw_nil;
+}
+
+long Ruby::toInt(RUBY_VALUE val)
+{
+  long v;
+  Ruby::run(&conv_i, val, &v);
   return v;
 }
 

@@ -37,6 +37,9 @@
 #include <regex.hh>
 
 #include <fit.hh>
+#include <ruby.hh>
+#include <ruby-templates.hh>
+
 
 ArgumentMarshaller * StringArgument::fromString(const QString & str) const
 {
@@ -58,8 +61,14 @@ void StringArgument::setEditorValue(QWidget * editor,
   le->setText(value->value<QString>());
 }
 
-QString StringArgument::typeDescription() const {
+QString StringArgument::typeDescription() const
+{
   return "Arbitrary text. If you need spaces, do not forget to quote them with ', for instance";
+}
+
+ArgumentMarshaller * StringArgument::fromRuby(RUBY_VALUE value) const
+{
+  return Argument::convertRubyString(value);
 }
 
 
@@ -97,6 +106,11 @@ QString SeveralStringsArgument::typeDescription() const
     sep = QString("'%1'").arg(sep);
   }
   return QString("several words, separated by %1").arg(sep);
+}
+
+ArgumentMarshaller * SeveralStringsArgument::fromRuby(RUBY_VALUE value) const
+{
+  return convertRubyArray(value);
 }
 
 ////////////////////////////////////////////////////////////
@@ -157,6 +171,11 @@ QString BoolArgument::typeDescription() const
   return "A boolean: `yes`, `on`, `true` or `no`, `off`, `false`";
 }
 
+ArgumentMarshaller * BoolArgument::fromRuby(RUBY_VALUE value) const
+{
+  return new ArgumentMarshallerChild<bool>(rbw_test(value));
+}
+
 ////////////////////////////////////////////////////////////
 
 QStringList ChoiceArgument::choices() const
@@ -209,36 +228,10 @@ QString ChoiceArgument::typeDescription() const
   return QString("One of: `%1`").arg(cs.join("`, `"));
 }
 
-////////////////////////////////////////////////////////////
-
-FitNameArgument::FitNameArgument(const char * cn, const char * pn,
-                                 const char * d, bool def,
-                                 const char * chN) :
-  ChoiceArgument(&Fit::availableFits, cn, pn, d, def, chN)
+ArgumentMarshaller * ChoiceArgument::fromRuby(RUBY_VALUE value) const
 {
+  return Argument::convertRubyString(value);
 }
-
-QString FitNameArgument::typeDescription() const
-{
-  return "The name of a fit (without the fit- prefix)";
-}
-
-////////////////////////////////////////////////////////////
-
-SeveralFitNamesArgument::SeveralFitNamesArgument(const char * cn,
-                                                 const char * pn,
-                                                 const char * d, bool g,
-                                                 bool def,
-                                                 const char * chN) :
-  SeveralChoicesArgument(&Fit::availableFits, cn, pn, d, g, def)
-{
-}
-
-QString SeveralFitNamesArgument::typeDescription() const
-{
-  return "A series of names of a fit (without the fit- prefix), separated by spaces";
-}
-
 
 ////////////////////////////////////////////////////////////
 
@@ -276,6 +269,41 @@ void SeveralChoicesArgument::concatenateArguments(ArgumentMarshaller * a,
   
 }
 
+ArgumentMarshaller * SeveralChoicesArgument::fromRuby(RUBY_VALUE value) const
+{
+  return Argument::convertRubyArray(value);
+}
+
+////////////////////////////////////////////////////////////
+
+FitNameArgument::FitNameArgument(const char * cn, const char * pn,
+                                 const char * d, bool def,
+                                 const char * chN) :
+  ChoiceArgument(&Fit::availableFits, cn, pn, d, def, chN)
+{
+}
+
+QString FitNameArgument::typeDescription() const
+{
+  return "The name of a fit (without the fit- prefix)";
+}
+
+////////////////////////////////////////////////////////////
+
+SeveralFitNamesArgument::SeveralFitNamesArgument(const char * cn,
+                                                 const char * pn,
+                                                 const char * d, bool g,
+                                                 bool def,
+                                                 const char * chN) :
+  SeveralChoicesArgument(&Fit::availableFits, cn, pn, d, g, def)
+{
+}
+
+QString SeveralFitNamesArgument::typeDescription() const
+{
+  return "A series of names of a fit (without the fit- prefix), separated by spaces";
+}
+
 ////////////////////////////////////////////////////////////
 
 ArgumentMarshaller * DataSetArgument::fromString(const QString & str) const
@@ -286,6 +314,12 @@ ArgumentMarshaller * DataSetArgument::fromString(const QString & str) const
     throw RuntimeError(QObject::tr("Not a buffer: '%1'").
                        arg(str));
   return new ArgumentMarshallerChild<DataSet *>(ds);
+}
+
+/// @todo integrate with ruby values...
+ArgumentMarshaller * DataSetArgument::fromRuby(RUBY_VALUE value) const
+{
+  return Argument::convertRubyString(value);
 }
 
 ////////////////////////////////////////////////////////////
@@ -317,6 +351,11 @@ QStringList SeveralDataSetArgument::proposeCompletion(const QString & starter) c
         << QString("unflagged-:%1").arg(s);
   }
   return Utils::stringsStartingWith(all, starter);
+}
+
+ArgumentMarshaller * SeveralDataSetArgument::fromRuby(RUBY_VALUE value) const
+{
+  return Argument::convertRubyArray(value);
 }
 
 ////////////////////////////////////////////////////////////
@@ -357,6 +396,11 @@ void NumberArgument::setEditorValue(QWidget * editor,
     throw InternalError("Wrong editor given to setEditorValue");
 
   le->setText(QString::number(value->value<double>()));
+}
+
+ArgumentMarshaller * NumberArgument::fromRuby(RUBY_VALUE value) const
+{
+  return new ArgumentMarshallerChild<double>(Ruby::toDouble(value));
 }
 
 ////////////////////////////////////////////////////////////
@@ -409,6 +453,11 @@ void IntegerArgument::setEditorValue(QWidget * editor,
     throw InternalError("Wrong editor given to setEditorValue");
 
   le->setText(QString::number(value->value<int>()));
+}
+
+ArgumentMarshaller * IntegerArgument::fromRuby(RUBY_VALUE value) const
+{
+  return new ArgumentMarshallerChild<int>((int)Ruby::toInt(value));
 }
 
 ////////////////////////////////////////////////////////////
@@ -500,6 +549,11 @@ QString RegexArgument::typeName() const
 QString RegexArgument::typeDescription() const
 {
   return "plain text, or [regular expressions](#regexps) enclosed within / / delimiters";
+}
+
+ArgumentMarshaller * RegexArgument::fromRuby(RUBY_VALUE value) const
+{
+  return convertRubyString(value);
 }
 
 

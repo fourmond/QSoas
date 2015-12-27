@@ -54,6 +54,8 @@ public:
 
   virtual QString typeDescription() const;
 
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
+
 };
 
 /// An argument representing a unique file name, for saving.
@@ -121,6 +123,8 @@ public:
   virtual QString typeDescription() const {
      return "One or more files. Can include wildcards such as *, `[0-4]`, etc...";
   };
+
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
 };
 
 #endif

@@ -23,6 +23,7 @@
 #define __ARGUMENT_HH
 
 #include <argumentmarshaller.hh>
+#include <ruby-wrappers.h>
 class Command;
 
 /// An argument. This is an abstract base class that must be reimplemented.
@@ -43,6 +44,13 @@ protected:
   QString pubName;
 
   QString desc;
+
+  /// Converts a plain Ruby string using the type's fromString() method.
+  ArgumentMarshaller * convertRubyString(RUBY_VALUE value) const;
+
+  /// Converts from a Ruby Array using fromString() and
+  /// concatenateArguments() 
+  ArgumentMarshaller * convertRubyArray(RUBY_VALUE value) const;
 
 public:
 
@@ -97,6 +105,9 @@ public:
 
   /// Converts from string to the argument with the correct type.
   virtual ArgumentMarshaller * fromString(const QString & str) const = 0;
+
+  /// Converts a from a Ruby object
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const = 0;
 
   /// Prompts for a value for the argument, using something of a
   /// dialog box or the like. Default implementation prompts for a

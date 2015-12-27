@@ -102,6 +102,8 @@ public:
     }
   };
 
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
+
 };
 
 #endif

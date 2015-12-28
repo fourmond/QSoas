@@ -22,6 +22,7 @@
 #ifndef __ARGUMENTLIST_HH
 #define __ARGUMENTLIST_HH
 #include <argument.hh>
+#include <ruby-wrappers.h>
 
 class Command;
 
@@ -65,6 +66,12 @@ public:
 
   /// Returns the names of all the arguments.
   QStringList argumentNames() const;
+
+  /// Parses a ruby hash into command options
+  CommandOptions parseRubyOptions(RUBY_VALUE hash) const;
+
+  /// Parses a series of Ruby values into command arguments
+  CommandArguments parseRubyArguments(int nb, RUBY_VALUE * values) const;
 
   /// Returns the number of the Argument object used for taking care
   /// of the numbered argument string, taking into account greedy

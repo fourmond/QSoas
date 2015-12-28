@@ -35,6 +35,8 @@
 #include <general-arguments.hh>
 #include <commandeffector-templates.hh>
 
+#include <ruby.hh>
+
 
 QHash<QString, Command*> * Command::availableCommands = NULL;
 
@@ -164,6 +166,13 @@ void Command::runCommand(const QString & commandName,
     options(parseOptions(split.second, (hasDefault ? &def : NULL)));
   // Then the call !
 
+  runCommand(commandName, args, options);
+}
+
+void Command::runCommand(const QString & commandName,
+                         const CommandArguments & args,
+                         const CommandOptions & options)
+{
   if(effector->needsLoop()) {
     CurveEventLoop loop; /// @todo Find a way to provide context ?
     effector->runWithLoop(loop, commandName, args, options);
@@ -172,11 +181,15 @@ void Command::runCommand(const QString & commandName,
     effector->runCommand(commandName, args, options);
 }
 
-Command * Command::namedCommand(const QString & cmd)
+
+Command * Command::namedCommand(const QString & cmd, bool convert)
 {
   if(! availableCommands)
     return NULL;
-  return availableCommands->value(cmd, NULL);
+  QString cnv = cmd;
+  if(convert)
+    cnv.replace('_', '-');
+  return availableCommands->value(cnv, NULL);
 }
 
 void Command::runCommand(const QStringList & cmd,
@@ -621,6 +634,29 @@ void Command::writeSpecFile(QTextStream & out)
     out << lst[i]->commandSpec();
 
 }
+
+
+// Ruby interface commands:
+void Command::runCommand(int nb, RUBY_VALUE * args)
+{
+  /// @todo Use possessive stuff???
+  /// Or pass around possessive stuff...
+  CommandOptions o;
+  if(rbw_is_hash(args[nb-1])) { // There are options, we parse them
+    RUBY_VALUE hsh = args[nb-1];
+    nb--;
+    if(commandOptions())
+      o = commandOptions()->parseRubyOptions(hsh);
+  }
+
+  
+  // Now, parse arguments. No prompting.
+  CommandArguments a;
+  if(arguments)
+    a = arguments->parseRubyArguments(nb, args);
+  runCommand(cmdName, a, o);
+}
+
 
 //////////////////////////////////////////////////////////////////////
 CommandLineOption sp("--spec", [](const QStringList & /*args*/) {

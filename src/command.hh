@@ -23,6 +23,7 @@
 #define __COMMAND_HH
 
 #include <argumentmarshaller.hh>
+#include <ruby-wrappers.h>
 
 class Group;
 class CommandEffector;
@@ -81,7 +82,6 @@ public:
   /// Parse the options. Doesn't prompt.
   CommandOptions parseOptions(const QMultiHash<QString, QString> & opts, 
                               QString * defaultOption = NULL) const;
-
 
   /// The effector, ie the code that will actually run the command.
   CommandEffector * effector;
@@ -186,8 +186,9 @@ public:
   /// called at the beginning of main.
   static void crosslinkCommands();
 
-  /// Returns the named command.
-  static Command * namedCommand(const QString & cmd);
+  /// Returns the named command. If rubyConversion is true, then
+  /// underscores are converted to dashes.
+  static Command * namedCommand(const QString & cmd, bool rubyConversion = false);
 
   /// Runs the command with the given arguments.
   ///
@@ -197,10 +198,18 @@ public:
                           const QStringList & arguments,
                           QWidget * base = NULL);
 
+  /// Runs the command with parsed arguments and options
+  virtual void runCommand(const QString & commandName,
+                          const CommandArguments & arguments,
+                          const CommandOptions & options);
+
   /// Runs a command from the command prompt, already split into
   /// words. The first word is therefore the command name.
   static void runCommand(const QStringList & args, 
                          QWidget * base = NULL);
+
+  /// Runs the command from a Ruby command-line
+  void runCommand(int nb, RUBY_VALUE * args);
 
   /// Returns an action for this Command parented by the given parent.
   virtual QAction * actionForCommand(QObject * parent) const;

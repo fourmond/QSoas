@@ -24,6 +24,7 @@
 #include <argumentlist.hh>
 
 #include <terminal.hh>
+#include <ruby.hh>
 
 
 ArgumentList::ArgumentList(const QList<Argument *> & lst)
@@ -151,6 +152,42 @@ CommandArguments ArgumentList::parseArguments(const QStringList & args,
       ret << value;
   }
   return ret;
+}
+
+CommandOptions ArgumentList::parseRubyOptions(RUBY_VALUE hsh) const
+{
+  CommandOptions o;
+  for(int i = 0; i < size(); i++) {
+    RUBY_VALUE v = rbw_hash_aref(hsh, Ruby::fromQString(value(i)->argumentName()));
+    if(v != rbw_nil)
+      o[value(i)->argumentName()] = value(i)->fromRuby(v);
+  }
+  return o;
+}
+
+
+CommandArguments ArgumentList::parseRubyArguments(int nb, RUBY_VALUE * values) const
+{
+  CommandArguments rv;
+  if(nb < size())
+    throw RuntimeError("Not enough arguments: %1 for %2").arg(nb).arg(size());
+
+  for(int i = 0; i < nb; i++) {
+    int idx = assignArg(i, nb);
+    if(idx >= size())
+      throw RuntimeError("Too many arguments: %1 for %2").arg(nb).arg(size());
+    const Argument * arg = value(idx, NULL);
+    if(! arg)
+      throw InternalError("Missing argument description");
+    ArgumentMarshaller * value = arg->fromRuby(values[i]);
+    if(idx == greedyArg && idx != i) {
+      arg->concatenateArguments(rv.last(), value);
+      delete value;
+    }
+    else
+      rv << value;
+  }
+  return rv;
 }
 
 bool ArgumentList::hasDefaultOption() const

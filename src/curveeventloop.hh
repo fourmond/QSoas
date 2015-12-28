@@ -92,10 +92,9 @@ private:
   /// event loop...)
   CurveEventLoop(CurveView * v = NULL);
 
-  /// Command is the only 
-  friend void Command::runCommand(const QString & commandName, 
-                                  const QStringList & arguments,
-                                  QWidget * base);
+  friend void Command::runCommand(const QString & commandName,
+                                  const CommandArguments & arguments,
+                                  const CommandOptions & options);
 
 public:
 

@@ -257,7 +257,8 @@ SOURCES += src/qmain.cc \
         src/parametersspreadsheet.cc \
         src/abdmatrix.cc \
         src/multifitengine.cc \
-        src/box.cc
+        src/box.cc \
+        src/ruby-interface.cc
 
 
 HEADERS += src/headers.hh \

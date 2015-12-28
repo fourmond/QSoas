@@ -75,6 +75,7 @@ int main(int argc, char ** argv)
   main.setApplicationName("QSoas");
 
   Ruby::initRuby();
+  Ruby::initInterface();
   
   // We convert GSL's hard errors into C++ exceptions
   GSLError::setupGSLHandler();

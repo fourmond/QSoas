@@ -31,6 +31,11 @@ namespace Ruby {
   /// Inits the Ruby interpreter. Must be called <b>only once ! </b>
   void initRuby();
 
+  /// Prepares the interface between Ruby and QSoas.
+  ///
+  /// The interface implementation sits in another file.
+  void initInterface();
+
   /// Calls the given C \a function with the given args in an
   /// exception-safe way, ie with proper handling of the exceptions...
   RUBY_VALUE exceptionSafeCall(RUBY_VALUE (*function)(...), void * args);

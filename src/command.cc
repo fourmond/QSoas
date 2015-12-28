@@ -641,12 +641,16 @@ void Command::runCommand(int nb, RUBY_VALUE * args)
 {
   /// @todo Use possessive stuff???
   /// Or pass around possessive stuff...
-  CommandOptions o;
+  // QTextStream o(stdout);
+  // o << "Entering " << nb << endl;
+  CommandOptions op;
   if(rbw_is_hash(args[nb-1])) { // There are options, we parse them
     RUBY_VALUE hsh = args[nb-1];
+    // o << "-> hash " << endl;
+    // rbw_p(hsh);
     nb--;
     if(commandOptions())
-      o = commandOptions()->parseRubyOptions(hsh);
+      op = commandOptions()->parseRubyOptions(hsh);
   }
 
   
@@ -654,7 +658,7 @@ void Command::runCommand(int nb, RUBY_VALUE * args)
   CommandArguments a;
   if(arguments)
     a = arguments->parseRubyArguments(nb, args);
-  runCommand(cmdName, a, o);
+  runCommand(cmdName, a, op);
 }
 
 

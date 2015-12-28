@@ -68,7 +68,15 @@ static RUBY_VALUE qs_method_missing(int argc, RUBY_VALUE * argv, RUBY_VALUE obj)
     rbw_raise(rbw_eArgError(), arg.toLatin1().data());
   }
 
-  command->runCommand(argc-1, argv+1);
+  try {
+    command->runCommand(argc-1, argv+1);
+  }
+  catch(const RuntimeError & er) {
+    rbw_raise(rbw_eRuntimeError(), er.message().toLatin1().data());
+  }
+  catch(const Exception & er) {
+    rbw_raise(rbw_eException(), er.message().toLatin1().data());
+  }
 
   return obj;
 }

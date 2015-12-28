@@ -156,13 +156,17 @@ CommandArguments ArgumentList::parseArguments(const QStringList & args,
 
 CommandOptions ArgumentList::parseRubyOptions(RUBY_VALUE hsh) const
 {
-  CommandOptions o;
+  CommandOptions opts;
+  // QTextStream o(stdout);
+    
   for(int i = 0; i < size(); i++) {
     RUBY_VALUE v = rbw_hash_aref(hsh, Ruby::fromQString(value(i)->argumentName()));
+    // o << "Trying key: " << value(i)->argumentName() << endl;
+    // rbw_p(v);
     if(v != rbw_nil)
-      o[value(i)->argumentName()] = value(i)->fromRuby(v);
+      opts[value(i)->argumentName()] = value(i)->fromRuby(v);
   }
-  return o;
+  return opts;
 }
 
 

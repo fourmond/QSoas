@@ -23,6 +23,8 @@
 #define CNV2(fn) (RUBY_VALUE) fn((VALUE) a, (VALUE) b);
 #define CNV3(fn) (RUBY_VALUE) fn((VALUE) a, (VALUE) b, (VALUE) c);
 
+const RUBY_VALUE rbw_nil = (RUBY_VALUE)Qnil;
+
 RUBY_VALUE rbw_gv_set(const char* cnst, RUBY_VALUE val)
 {
   return (RUBY_VALUE) rb_gv_set(cnst, (VALUE) val);
@@ -239,6 +241,21 @@ RUBY_VALUE rbw_cObject()
 RUBY_VALUE rbw_eArgError()
 {
   return (RUBY_VALUE) rb_eArgError;
+}
+
+RUBY_VALUE rbw_eRuntimeError()
+{
+  return (RUBY_VALUE) rb_eRuntimeError;
+}
+
+void rbw_p(RUBY_VALUE a)
+{
+  rb_p((VALUE)a);
+}
+
+RUBY_VALUE rbw_eException()
+{
+  return (RUBY_VALUE) rb_eException;
 }
 
 

@@ -102,6 +102,8 @@ extern "C" {
 
   RUBY_VALUE rbw_protect(RUBY_VALUE (*)(RUBY_VALUE), RUBY_VALUE, int*);
 
+  void rbw_p(RUBY_VALUE obj);
+
   RUBY_VALUE rbw_obj_as_string(RUBY_VALUE);
   /*RUBY_VALUE rbw_obj_class(RUBY_VALUE);*/
   /*VALUE rb_obj_is_instance_of(VALUE, VALUE);*/
@@ -145,6 +147,9 @@ extern "C" {
 
   RUBY_VALUE rbw_eArgError();
 
+  RUBY_VALUE rbw_eRuntimeError();
+
+  RUBY_VALUE rbw_eException();
   /** 
       @}
   */
@@ -192,7 +197,7 @@ extern "C" {
   /* rb_mMath */
 
   /* Constants */
-  #define rbw_nil 0
+  extern const RUBY_VALUE rbw_nil;
 
   #define RBW_ST_CONTINUE 0
 

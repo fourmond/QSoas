@@ -44,6 +44,11 @@ RUBY_VALUE rbw_hash_aset(RUBY_VALUE a, RUBY_VALUE b, RUBY_VALUE c)
   return CNV3(rb_hash_aset);
 }
 
+RUBY_VALUE rbw_hash_aref(RUBY_VALUE a, RUBY_VALUE b)
+{
+  return CNV2(rb_hash_aref);
+}
+
 
 
 RUBY_VALUE rbw_hash_delete(RUBY_VALUE a, RUBY_VALUE b)
@@ -85,6 +90,31 @@ void rbw_define_singleton_method(RUBY_VALUE slf, const char* name,
                                  RUBY_VALUE(*fn)(), int nb)
 {
   rb_define_singleton_method((VALUE) slf, name, fn, nb);
+}
+
+RUBY_VALUE rbw_define_class(const char * name, RUBY_VALUE parent)
+{
+  return (RUBY_VALUE) rb_define_class(name, (VALUE) parent);
+}
+
+RUBY_VALUE rbw_data_object_alloc(RUBY_VALUE klass, void * data,
+                                 void (*mark_fn)(void *),
+                                 void (*free_fn)(void *))
+{
+  return (RUBY_VALUE) rb_data_object_alloc((VALUE) klass, data,
+                                           mark_fn, free_fn);
+}
+
+void * rbw_data_get_struct(RUBY_VALUE obj)
+{
+  void * d;
+  Data_Get_Struct(obj, void, d);
+  return d;
+}
+
+void rbw_raise(RUBY_VALUE klass, const char * msg)
+{
+  rb_raise(klass, "%s", msg);
 }
 
 RUBY_VALUE rbw_ary_new(void)
@@ -200,6 +230,17 @@ RUBY_VALUE rbw_mMath()
 {
   return (RUBY_VALUE) rb_mMath;
 }
+
+RUBY_VALUE rbw_cObject()
+{
+  return (RUBY_VALUE) rb_cObject;
+}
+
+RUBY_VALUE rbw_eArgError()
+{
+  return (RUBY_VALUE) rb_eArgError;
+}
+
 
 int rbw_is_hash(RUBY_VALUE ret)
 {

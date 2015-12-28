@@ -45,24 +45,60 @@ extern "C" {
   RUBY_VALUE rbw_gv_set(const char*, RUBY_VALUE);
   RUBY_VALUE rbw_gv_get(const char*);
 
-  RUBY_VALUE rbw_hash_new(void);
-  RUBY_VALUE rbw_hash_aset(RUBY_VALUE, RUBY_VALUE, RUBY_VALUE);
-  RUBY_VALUE rbw_hash_delete(RUBY_VALUE, RUBY_VALUE);
-  void rbw_hash_foreach(RUBY_VALUE, int (*)(), RUBY_VALUE);
-
   /** This forces allocation on the heap ? */
   RUBY_VALUE rbw_float_new(double);
 
-  RUBY_VALUE rbw_define_module(const char*);
-  void rbw_define_global_const(const char*, RUBY_VALUE);
-  void rbw_define_method(RUBY_VALUE,const char*,
-                        RUBY_VALUE(*)(), int);
-  void rbw_define_singleton_method(RUBY_VALUE, const char*,
-                                  RUBY_VALUE(*)(), int);
+  /** 
+      @name Class and module-related functions
+      
+      @{
+  */
 
+  typedef RUBY_VALUE (*rbw_function)();
+  
+  RUBY_VALUE rbw_define_module(const char*);
+  void rbw_define_method(RUBY_VALUE obj,const char* name,
+                         rbw_function func, int nbargs);
+  void rbw_define_singleton_method(RUBY_VALUE obj, const char* name,
+                                   rbw_function func, int nbargs);
+
+
+  RUBY_VALUE rbw_define_class(const char * name, RUBY_VALUE parent);
+
+  /* RUBY_VALUE rb_define_class_under(RUBY_VALUE mod, const char* name, */
+  /*                                  RUBY_VALUE parent); */
+  
+  /* RUBY_VALUE rb_define_module_under(RUBY_VALUE mod, const char* name); */
+
+  RUBY_VALUE rbw_data_object_alloc(RUBY_VALUE klass, void * data,
+                                   void (*mark)(void *),
+                                   void (*free)(void *));
+
+  void * rbw_data_get_struct(RUBY_VALUE obj);
+
+  /** 
+      @}
+  */
+
+  void rbw_define_global_const(const char*, RUBY_VALUE);
+
+  /** 
+      @name Array-related functions
+
+      @{
+  */
   RUBY_VALUE rbw_ary_new(void);
   RUBY_VALUE rbw_ary_push(RUBY_VALUE, RUBY_VALUE);
   RUBY_VALUE rbw_ary_entry(RUBY_VALUE, long);
+
+  long rbw_array_length(RUBY_VALUE);
+
+  /** Strict type checking: class is the class (not children) ! */
+  int rbw_is_array(RUBY_VALUE);
+
+  /** 
+      @}
+  */
 
   RUBY_VALUE rbw_protect(RUBY_VALUE (*)(RUBY_VALUE), RUBY_VALUE, int*);
 
@@ -83,6 +119,7 @@ extern "C" {
 
   RUBY_VALUE rbw_class_of(RUBY_VALUE obj);
 
+  void rbw_raise(RUBY_VALUE klass, const char * message);
 
   double rbw_num2dbl(RUBY_VALUE);
 
@@ -93,20 +130,49 @@ extern "C" {
 
   void ruby_wrappers_init();
 
+  /** 
+      @name Class/modules constants
+
+      @{
+  */
+
 
   
-  /**********************************************************************/
-  /* these are not strict wrappers */
-
-
-  /** The Math module */
+  /** The module Math */
   RUBY_VALUE rbw_mMath();
+
+  RUBY_VALUE rbw_cObject();
+
+  RUBY_VALUE rbw_eArgError();
+
+  /** 
+      @}
+  */
+
+  /** 
+      @name Hash-related functions
+      
+      @{
+  */
+
+  /** Strict type checking: class is the class (not children) ! */
+  int rbw_is_hash(RUBY_VALUE);
+
+  RUBY_VALUE rbw_hash_new(void);
+  RUBY_VALUE rbw_hash_aset(RUBY_VALUE, RUBY_VALUE, RUBY_VALUE);
+  RUBY_VALUE rbw_hash_aref(RUBY_VALUE hsh, RUBY_VALUE key);
+  RUBY_VALUE rbw_hash_delete(RUBY_VALUE, RUBY_VALUE);
+  void rbw_hash_foreach(RUBY_VALUE, int (*)(), RUBY_VALUE);
+
+
+  /** 
+      @}
+  */
 
   
   /** Test if the given Ruby object is true. The equivalent of RTEST */
   int rbw_test(RUBY_VALUE);
 
-  long rbw_array_length(RUBY_VALUE);
 
   /** Sets the target to the given float value */
   void rbw_set_float(RUBY_VALUE *hsh, double value);
@@ -114,9 +180,6 @@ extern "C" {
   /** Returns the int value */
   RUBY_VALUE rbw_int(int);
 
-  /** Strict type checking: class is the class (not children) ! */
-  int rbw_is_array(RUBY_VALUE);
-  int rbw_is_hash(RUBY_VALUE);
 
   RUBY_VALUE rbw_long2num(long);
 

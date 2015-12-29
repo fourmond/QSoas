@@ -200,6 +200,48 @@ landau("landau(x)", "Probability density of the Landau distribution, "
       "$$p(x) = 1/\\pi \\int_0^x \\mathrm{d}t \\exp(-t\\log(t) - xt)\\sin(\\pi t)$$");
 
 
+static GSLSimpleFunction<gsl_sf_clausen> 
+clausen("clausen(x)", "Clausen integral, "
+        "$$Cl_2(x) = -\\int_0^x \\mathrm{d}t \\log(2\\sin(t/2))$$");
+
+
+static GSLSimpleFunction<gsl_sf_fermi_dirac_m1> 
+fermi_dirac_m1("fermi_dirac_m1(x)", "Complete Fermi-Dirac integral (index -1), "
+               "$$F_{-1}(x) = e^x / (1 + e^x)$$");
+
+static GSLSimpleFunction<gsl_sf_fermi_dirac_0> 
+fermi_dirac_0("fermi_dirac_0(x)", "Complete Fermi-Dirac integral (index 0), "
+              "$$F_0(x) = \\ln(1 + e^x)$$");
+
+static GSLSimpleFunction<gsl_sf_fermi_dirac_1> 
+fermi_dirac_1("fermi_dirac_1(x)", "Complete Fermi-Dirac integral (index 1), "
+              "$$F_1(x) = \\int_0^\\infty \\mathrm{d}t (t /(\\exp(t-x)+1))$$");
+
+static GSLSimpleFunction<gsl_sf_fermi_dirac_2> 
+fermi_dirac_2("fermi_dirac_2(x)", "Complete Fermi-Dirac integral (index 2), "
+              "$$F_2(x) = (1/2) \\int_0^\\infty \\mathrm{d}t (t^2 /(\\exp(t-x)+1))$$");
+
+static GSLSimpleFunction<gsl_sf_fermi_dirac_mhalf> 
+fermi_dirac_mhalf("fermi_dirac_mhalf(x)", "Complete Fermi-Dirac integral (index -1/2)",
+                  "http://www.gnu.org/software/gsl/manual/html_node/Complete-Fermi_002dDirac-Integrals.html");
+
+static GSLSimpleFunction<gsl_sf_fermi_dirac_half> 
+fermi_dirac_half("fermi_dirac_half(x)", "Complete Fermi-Dirac integral (index 1/2)",
+                 "http://www.gnu.org/software/gsl/manual/html_node/Complete-Fermi_002dDirac-Integrals.html");
+
+static GSLSimpleFunction<gsl_sf_fermi_dirac_3half> 
+fermi_dirac_3half("fermi_dirac_3half(x)", "Complete Fermi-Dirac integral (index 3/2)",
+                  "http://www.gnu.org/software/gsl/manual/html_node/Complete-Fermi_002dDirac-Integrals.html");
+
+static GSLSimpleFunction<gsl_sf_psi> 
+psi("psi(x)", "Digamma function: $$\\psi(x) = \\Gamma'(x)/\\Gamma(x)$$",
+    "http://www.gnu.org/software/gsl/manual/html_node/Digamma-Function.html");
+
+static GSLSimpleFunction<gsl_sf_psi_1> 
+psi_1("psi_1(x)", "Trigamma function: $$\\psi^{(1)} = \\frac{\\mathrm d \\Gamma'(x)/\\Gamma(x)}{\\mathrm d x}$$",
+      "http://www.gnu.org/software/gsl/manual/html_node/Digamma-Function.html");
+
+
 
 
 
@@ -236,18 +278,26 @@ public:
 
 };
 
-GSLIndexedFunction<gsl_sf_bessel_Jn> 
+static GSLIndexedFunction<gsl_sf_bessel_Jn> 
 bessel_Jn("bessel_jn(x,n)", "Regular cylindrical Bessel function of "
           "n-th order, $$J_n(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Regular-Cylindrical-Bessel-Functions.html");
 
-GSLIndexedFunction<gsl_sf_bessel_Yn> 
+static GSLIndexedFunction<gsl_sf_bessel_Yn> 
 bessel_Yn("bessel_yn(x,n)", "Irregular cylindrical Bessel function of "
           "n-th order, $$Y_n(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Irregular-Cylindrical-Bessel-Functions.html");
 
-GSLIndexedFunction<gsl_sf_expint_En> 
+static GSLIndexedFunction<gsl_sf_expint_En> 
 expint_En("expint_en(x,n)", "Exponential integral $$E_n(x) = "
           "\\int_{x}^{\\infty} \\frac{\\exp -t}{t^n} \\mathrm{d} t$$");
 
+static GSLIndexedFunction<gsl_sf_fermi_dirac_int> 
+fermi_dirac_n("fermi_dirac_n(x,n)", "Complete Fermi-Dirac integral of index $$n$$, "
+              "$$F_n(x) = \\frac{1}{\\Gamma(n+1)} \\int_0^\\infty \\mathrm{d} t \\frac{t^n}{\\exp(t-x) + 1}$$",
+              "http://www.gnu.org/software/gsl/manual/html_node/Complete-Fermi_002dDirac-Integrals.html");
+
+static GSLIndexedFunction<gsl_sf_psi_n> 
+psi_n("psi_n(x, n)", "Polygamma function: $$\\psi^{(n)} = \\frac{\\mathrm d^n \\Gamma'(x)/\\Gamma(x)}{\\mathrm d x\n}$$",
+      "http://www.gnu.org/software/gsl/manual/html_node/Digamma-Function.html");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -337,11 +387,15 @@ public:
 
 static GSLDoubleFunction<gsl_ran_gaussian_pdf> 
 gaussian("gaussian(x,sigma)", "Normalized gaussian: "
-         "$$p(x,\\sigma) = {\\frac{1}{\\sqrt{2 \\pi \\sigma^2}} \\exp (-x^2 / 2\\sigma^2)$$");
+         "$$p(x,\\sigma) = \\frac{1}{\\sqrt{2 \\pi \\sigma^2}} \\exp (-x^2 / 2\\sigma^2)$$");
 
 static GSLDoubleFunction<gsl_ran_cauchy_pdf> 
 lorentzian("lorentzian(x,gamma)", "Normalized gaussian: "
-           "$$p(x,\\gamma) = {\\frac{1}{ \\gamma \\pi (1 + (x/\\gamma)^2) }$$");
+           "$$p(x,\\gamma) = \\frac{1}{ \\gamma \\pi (1 + (x/\\gamma)^2) }$$");
+
+static GSLDoubleFunction<gsl_sf_hyperg_0F1> 
+hyperg_0F1("hyperg_0F1(c,x)", "Hypergeometric function $${}_0F_1$$",
+           "http://www.gnu.org/software/gsl/manual/html_node/Hypergeometric-Functions.html");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -366,6 +420,18 @@ public:
   };
 
 };
+
+static GSLTripleFunction<gsl_sf_hyperg_1F1> 
+hyperg_1F1("hyperg_1F1(a,b,x)", "Hypergeometric function $${}_1F_1(a,b,x)$$",
+           "http://www.gnu.org/software/gsl/manual/html_node/Hypergeometric-Functions.html");
+
+static GSLTripleFunction<gsl_sf_hyperg_U> 
+hyperg_U("hyperg_U(a,b,x)", "Hypergeometric function $$U(a,b,x)$$",
+         "http://www.gnu.org/software/gsl/manual/html_node/Hypergeometric-Functions.html");
+
+static GSLTripleFunction<Functions::pseudoVoigt> 
+pseudo_voigt("pseudo_voigt(x, w, mu)", "Pseudo-Voigt function, defined by: "
+             "$$\\frac{1-\\mu}{\\sqrt{2 \\pi w^2}} \\exp (-x^2 / 2w^2) + \\frac{\\mu}{ w \\pi (1 + (x/w)^2) }$$");
 
 
 //////////////////////////////////////////////////////////////////////

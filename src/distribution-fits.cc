@@ -31,11 +31,10 @@
 
 #include <gsl/gsl_randist.h>
 
-
 /// Base class for all distribution-based fits
 /// @todo make it possible to use a common "sigma" parameter ?
 /// @todo use peak information for initial values.
-template <double f(double, double)>
+template <class... Args>
 class DistributionFit : public PerDatasetFit {
 
   class Storage : public FitInternalStorage {
@@ -44,14 +43,18 @@ class DistributionFit : public PerDatasetFit {
     int number;
 
     /// Whether the amplitude or the surface is used for each 'peak'.
-    ///
-    /// Keep in mind that it is 
     bool useSurface;
 
   };
 
-  /// Name of the accessory parameter
-  QString accessoryName;
+  /// Names of the accessory parameters
+  QStringList accessoryNames;
+
+  typedef double (*Function)(Args...);
+
+  Function func;
+  
+  
 
 protected:
 
@@ -80,6 +83,29 @@ protected:
       arg(s->useSurface ? "surface" : "amplitude");
   }
 
+  /// Returns the parameters base for the nth peak
+  int paramBase(int idx) const {
+    return 1 + (sizeof...(Args)+1) * idx;
+  }
+
+  /// Runs the function using the given position, the given params and
+  /// the given index. The position is RELATIVE TO THE PEAK CENTER
+  double fn(double x, const double * a, int idx) const;
+  double fn(double x, const double * a) const;
+
+
+  
+  // /// Override for 3 args
+  // double fn(double x, const double * a, int idx) {
+  //   const double & p1 = a[paramBase(idx) + 2];
+  //   const double & p2 = a[paramBase(idx) + 3];
+  //   return func(x, p1, p2);
+  // }
+
+  // double fn(double x, const double * a) {
+  //   return func(x, a[0], a[1]);
+  // }
+
   void annotatedFunction(const double * a, FitData * data, 
                          const DataSet * ds , gsl_vector * target,
                          QList<Vector> * annotations = NULL) const
@@ -90,17 +116,17 @@ protected:
 
     double prefactors[s->number];
     for(int j = 0; j < s->number; j++)
-      prefactors[j] = a[3*j+2] / (s->useSurface ? 1 : f(0, a[3*j+3]));
+      prefactors[j] = a[paramBase(j) + 1] /
+        (s->useSurface ? 1 : fn(0, a, j));
 
     for(int i = 0; i < xv.size(); i++) {
       double cur = a[0];
       const double & x = xv[i];
       for(int j = 0; j < s->number; j++) {
         // Assignments for readability, I hope they're optimized out.
-        const double & x0 = a[3*j+1];
+        const double & x0 = a[paramBase(j)];
         const double & pref = prefactors[j];
-        const double & param = a[3*j + 3];
-        double val = pref * f(x - x0, param);
+        double val = pref * fn(x - x0, a, j);
         if(annotations)
           (*annotations)[j][i] = a[0] + val;
         cur += val;
@@ -169,11 +195,15 @@ public:
 
     double *t = a;
     *t = ymin;
-    double param = (xmax - xmin)/(s->number * 4);
+    double params[sizeof...(Args) - 1];
+    params[0] = (xmax - xmin)/(s->number * 4);
+    for(int k = 1; k < sizeof(params); k++)
+      params[k] = 0.5;
     for(int i = 0; i < s->number; i++) {
       *(++t) = xmin + (i+0.5) * (xmax - xmin)/s->number; // position
-      *(++t) = (ymax - ymin) / (s->useSurface ? f(0,param) : 1); // amplitude
-      *(++t) = param;
+      *(++t) = (ymax - ymin) / (s->useSurface ? fn(0,params) : 1); // amplitude
+      for(int k = 0; k < sizeof(params)/sizeof(double); k++)
+        *(++t) = params[k];
     }
   };
 
@@ -182,12 +212,15 @@ public:
 
     QList<ParameterDefinition> params;
     params << ParameterDefinition("Y0"); // base line
-    for(int j = 0; j < s->number; j++)
+    for(int j = 0; j < s->number; j++) {
       params << ParameterDefinition(QString("x_%1").arg(j+1))
              << ParameterDefinition(QString("%2_%1").arg(j+1).
-                                    arg(s->useSurface ? "S" : "A"))
-             << ParameterDefinition(QString("%2_%1").arg(j+1).
-                                    arg(accessoryName));
+                                    arg(s->useSurface ? "S" : "A"));
+      for(int k = 0; k < accessoryNames.size(); k++) {
+        params << ParameterDefinition(QString("%2_%1").arg(j+1).
+                                      arg(accessoryNames[k]));
+      }
+    }
 
     return params;
   };
@@ -207,19 +240,48 @@ public:
     return opts;
   };
 
-  DistributionFit(const char * name,
-             const char * desc,
-             const QString & param) : 
+  DistributionFit(Function f,
+                  const char * name,
+                  const char * desc,
+                  const QStringList & paramNames) : 
     PerDatasetFit(name, desc, desc, 1, -1, false),
-    accessoryName(param)
-  { 
+    accessoryNames(paramNames), func(f)
+  {
+    if(accessoryNames.size() != (sizeof...(Args) - 1))
+      throw InternalError("Wrong argument size");
     makeCommands();
   };
 };
 
+template<> double DistributionFit<double, double>::fn(double x, const double * a, int idx) const {
+  const double & param = a[paramBase(idx) + 2];
+  return func(x, param);
+}
 
-static DistributionFit<gsl_ran_gaussian_pdf> gaussian("gaussian", 
-                                                      "One or several gaussians", "sigma");
+template<> double DistributionFit<double, double>::fn(double x, const double * a) const {
+  return func(x, a[0]);
+}
 
-static DistributionFit<gsl_ran_cauchy_pdf> lorentzian("lorentzian", 
-                                                      "A Lorentzian (also named Cauchy distribution)", "gamma");
+template<> double DistributionFit<double, double, double>::fn(double x, const double * a, int idx) const {
+  const double & p1 = a[paramBase(idx) + 2];
+  const double & p2 = a[paramBase(idx) + 3];
+  return func(x, p1, p2);
+}
+
+template<> double DistributionFit<double, double, double>::fn(double x, const double * a) const {
+  return func(x, a[0], a[1]);
+}
+
+
+
+
+
+static DistributionFit<double, double> gaussian(&::gsl_ran_gaussian_pdf,
+                                                "gaussian", 
+                                                "One or several gaussians",
+                                                QStringList() << "sigma");
+
+static DistributionFit<double, double> lorentzian(&::gsl_ran_cauchy_pdf,
+                                                  "lorentzian", 
+                                                  "A Lorentzian (also named Cauchy distribution)",
+                                                  QStringList() << "gamma");

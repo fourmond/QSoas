@@ -30,18 +30,20 @@
 #include <settings-templates.hh>
 #include <gslfunction.hh>
 
-#include <command.hh>
 
 #include <commandlineparser.hh>
 #include <commandeffector-templates.hh>
 
-#include <timedependentparameter.hh>
 
+// All this is for writing the specs
+#include <command.hh>
+#include <timedependentparameter.hh>
 #include <odesolver.hh>
 #include <integrator.hh>
 #include <multiintegrator.hh>
 #include <fitengine.hh>
 #include <stylegenerator.hh>
+#include <distribfit.hh>
 
 CurveView & Soas::view()
 {
@@ -128,6 +130,11 @@ void Soas::writeSpecFile(QTextStream & out)
   tdp = StyleGenerator::availableGenerators();
   qSort(tdp);
   out << "Styles:" << endl;
+  out << " - " << tdp.join("\n - ") << endl;
+
+  tdp = Distribution::availableDistributions();
+  qSort(tdp);
+  out << "Distribution:" << endl;
   out << " - " << tdp.join("\n - ") << endl;
 
   

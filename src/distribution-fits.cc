@@ -197,12 +197,12 @@ public:
     *t = ymin;
     double params[sizeof...(Args) - 1];
     params[0] = (xmax - xmin)/(s->number * 4);
-    for(int k = 1; k < sizeof(params); k++)
+    for(int k = 1; k < sizeof...(Args) - 1; k++)
       params[k] = 0.5;
     for(int i = 0; i < s->number; i++) {
       *(++t) = xmin + (i+0.5) * (xmax - xmin)/s->number; // position
       *(++t) = (ymax - ymin) / (s->useSurface ? fn(0,params) : 1); // amplitude
-      for(int k = 0; k < sizeof(params)/sizeof(double); k++)
+      for(int k = 0; k < sizeof...(Args) - 1; k++)
         *(++t) = params[k];
     }
   };
@@ -285,3 +285,15 @@ static DistributionFit<double, double> lorentzian(&::gsl_ran_cauchy_pdf,
                                                   "lorentzian", 
                                                   "A Lorentzian (also named Cauchy distribution)",
                                                   QStringList() << "gamma");
+
+static double pseudoVoigt(double x, double w, double mu)
+{
+  return (1 - mu) * gsl_ran_gaussian_pdf(x, w) + mu *
+    gsl_ran_cauchy_pdf(x, w);
+}
+
+static DistributionFit<double, double, double>
+psvgt(&::pseudoVoigt,
+      "pseudo-voigt", 
+      "A pseudo-voigt distribution (linear combination of a gaussian and a lorentzian)",
+      QStringList() << "w" << "mu");

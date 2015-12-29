@@ -61,7 +61,10 @@ public:
               bool autoreg = true);
 
   /// Returns a markup-friendly list of all available functions
-  static QString availableFunctions();
+  static QString functionDocumentation();
+
+  /// Return the list of available functions
+  static QStringList availableFunctions();
 };
 
 
@@ -93,7 +96,10 @@ public:
   static void registerAllConstants();
 
   /// Returns a markup-friendly list of available constants
-  static QString availableConstants();
+  static QString constantsDocumentation();
+
+  /// Returns the list of available constants
+  static QStringList availableConstants();
 
   GSLConstant(const QString & n, const QString & d, 
               double value, bool autoreg = true);

@@ -28,6 +28,20 @@
 #include <graphicssettings.hh>
 
 #include <settings-templates.hh>
+#include <gslfunction.hh>
+
+#include <command.hh>
+
+#include <commandlineparser.hh>
+#include <commandeffector-templates.hh>
+
+#include <timedependentparameter.hh>
+
+#include <odesolver.hh>
+#include <integrator.hh>
+#include <multiintegrator.hh>
+#include <fitengine.hh>
+#include <stylegenerator.hh>
 
 CurveView & Soas::view()
 {
@@ -74,3 +88,56 @@ void Soas::pushDataSet(DataSet * d, bool silent)
 {
   return ds->pushDataSet(d, silent);
 }
+
+void Soas::writeSpecFile(QTextStream & out)
+{
+  out << "Commands:" << endl;
+  Command::writeSpecFile(out);
+
+  out << "Functions:" << endl;
+  out << " - " << GSLFunction::availableFunctions().join("\n - ") << endl;
+
+  out << "Constants:" << endl;
+  out << " - " << GSLConstant::availableConstants().join("\n - ") << endl;
+
+  QStringList tdp = TimeDependentParameter::TDPFactory::availableItems();
+  qSort(tdp);
+  out << "Time-dependent parameters:" << endl;
+  out << " - " << tdp.join("\n - ") << endl;
+
+  tdp = ODEStepperOptions::stepperTypes().keys();
+  qSort(tdp);
+  out << "ODE steppers:" << endl;
+  out << " - " << tdp.join("\n - ") << endl;
+
+  tdp = IntegratorFactory::availableItems();
+  qSort(tdp);
+  out << "Standard integrators:" << endl;
+  out << " - " << tdp.join("\n - ") << endl;
+
+  tdp = MultiIntegrator::MultiIntegratorFactory::availableItems();
+  qSort(tdp);
+  out << "Multi integrators:" << endl;
+  out << " - " << tdp.join("\n - ") << endl;
+
+  tdp = FitEngineFactoryItem::availableItems();
+  qSort(tdp);
+  out << "Fit engines:" << endl;
+  out << " - " << tdp.join("\n - ") << endl;
+
+  tdp = StyleGenerator::availableGenerators();
+  qSort(tdp);
+  out << "Styles:" << endl;
+  out << " - " << tdp.join("\n - ") << endl;
+
+  
+}
+
+//////////////////////////////////////////////////////////////////////
+CommandLineOption sp("--spec", [](const QStringList & /*args*/) {
+    {
+      QTextStream o(stdout);
+      Soas::writeSpecFile(o);
+    }
+    ::exit(0);
+  }, 0, "write command specs");

@@ -26,6 +26,7 @@
 
 class StyleGenerator;
 
+/// @todo Use Factory for that...
 class StyleGeneratorFactoryItem {
 public:
   /// A generator function, taking the overall number of styles to

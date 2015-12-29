@@ -76,6 +76,9 @@ public:
 
   /// Describes the options
   QString description() const;
+
+  /// Available stepper types
+  static QHash<QString, const gsl_odeiv2_step_type *> stepperTypes();
 };
 
 /// This class embeds a driver object

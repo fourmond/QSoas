@@ -35,7 +35,7 @@ ODEStepperOptions::ODEStepperOptions(const gsl_odeiv2_step_type * t,
 {
 }
 
-QHash<QString, const gsl_odeiv2_step_type *> stepperTypes()
+QHash<QString, const gsl_odeiv2_step_type *> ODEStepperOptions::stepperTypes()
 {
   QHash<QString, const gsl_odeiv2_step_type *> types;
   types["rk2"] = gsl_odeiv2_step_rk2;

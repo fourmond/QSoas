@@ -66,7 +66,19 @@ static bool cmpFunctions(GSLFunction * a, GSLFunction * b)
   return a->name < b->name;
 }
 
-QString GSLFunction::availableFunctions()
+QStringList GSLFunction::availableFunctions()
+{
+  QList<GSLFunction *> sorted = *functions;
+  qSort(sorted.begin(), sorted.end(),  &cmpFunctions);
+
+  QStringList rv;
+  for(int i = 0; i < sorted.size(); i++)
+    rv << sorted[i]->name;
+  return rv;
+}
+
+
+QString GSLFunction::functionDocumentation()
 {
   if(! functions)
     return QString();
@@ -403,7 +415,21 @@ static bool cmpConstants(GSLConstant * a, GSLConstant * b)
   return a->names.first() < b->names.first();
 }
 
-QString GSLConstant::availableConstants()
+QStringList GSLConstant::availableConstants()
+{
+  if(! constants)
+    return QStringList();
+  QList<GSLConstant *> sorted = *constants;
+  qSort(sorted.begin(), sorted.end(),  &cmpConstants);
+
+  QStringList retval;
+  
+  for(int i = 0; i < sorted.size(); i++)
+    retval += sorted[i]->names;
+  return retval;
+}
+
+QString GSLConstant::constantsDocumentation()
 {
   if(! constants)
     return QString();

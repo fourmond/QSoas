@@ -187,11 +187,11 @@ void updateDocumentationFile(const QString &, QString file)
   {                             // Then functions
     Utils::updateWithin(str, "{::comment} special-functions-start {:/}",
                         "{::comment} special-functions-end {:/}\n",
-                        "\n\n" + GSLFunction::availableFunctions() + "\n");
+                        "\n\n" + GSLFunction::functionDocumentation() + "\n");
 
     Utils::updateWithin(str, "{::comment} constants-start {:/}",
                         "{::comment} constants-end {:/}\n",
-                        "\n\n" + GSLConstant::availableConstants() + "\n");
+                        "\n\n" + GSLConstant::constantsDocumentation() + "\n");
 
     QStringList nonInt = Command::nonInteractiveCommands();
     qSort(nonInt);

@@ -30,10 +30,8 @@
 #include <curveeventloop.hh>
 
 #include <eventhandler.hh>
-#include <commandlineparser.hh>
 
 #include <general-arguments.hh>
-#include <commandeffector-templates.hh>
 
 #include <ruby.hh>
 
@@ -660,15 +658,4 @@ void Command::runCommand(int nb, RUBY_VALUE * args)
     a = arguments->parseRubyArguments(nb, args);
   runCommand(cmdName, a, op);
 }
-
-
-//////////////////////////////////////////////////////////////////////
-CommandLineOption sp("--spec", [](const QStringList & /*args*/) {
-    {
-      QTextStream o(stdout);
-      Command::writeSpecFile(o);
-    }
-    ::exit(0);
-  }, 0, "write command specs");
-
 

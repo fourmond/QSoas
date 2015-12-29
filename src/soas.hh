@@ -104,6 +104,8 @@ public:
 
   /// @}
 
+  /// Write overall specs
+  static void writeSpecFile(QTextStream & out);
 };
 
 /// Returns the application-wide Soas instance

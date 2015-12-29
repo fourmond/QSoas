@@ -28,6 +28,7 @@
 #include <soas.hh>
 
 #include <fitdata.hh>
+#include <functions.hh>
 
 #include <gsl/gsl_randist.h>
 
@@ -285,15 +286,8 @@ static DistributionFit<double, double> lorentzian(&::gsl_ran_cauchy_pdf,
                                                   "lorentzian", 
                                                   "A Lorentzian (also named Cauchy distribution)",
                                                   QStringList() << "gamma");
-
-static double pseudoVoigt(double x, double w, double mu)
-{
-  return (1 - mu) * gsl_ran_gaussian_pdf(x, w) + mu *
-    gsl_ran_cauchy_pdf(x, w);
-}
-
 static DistributionFit<double, double, double>
-psvgt(&::pseudoVoigt,
+psvgt(&Functions::pseudoVoigt,
       "pseudo-voigt", 
       "A pseudo-voigt distribution (linear combination of a gaussian and a lorentzian)",
       QStringList() << "w" << "mu");

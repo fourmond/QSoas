@@ -1,6 +1,6 @@
 /*
   gslfunction.cc: implementation of the GSLFunction classes
-  Copyright 2012, 2014 by CNRS/AMU
+  Copyright 2012, 2014, 2015 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,9 +20,13 @@
 #include <headers.hh>
 #include <gslfunction.hh>
 
+#include <functions.hh>
+
 #include <gsl/gsl_sf.h>
 #include <gsl/gsl_const_mksa.h>
 #include <gsl/gsl_const_num.h>
+
+#include <gsl/gsl_randist.h>
 
 QList<GSLFunction *> * GSLFunction::functions = NULL;
 
@@ -179,45 +183,20 @@ dilog("dilog(x)", "The dilogarithm, "
       "$$Li_2(x) = - \\Re \\left(\\int_0^x \\mathrm{d}s \\log(1-s) / s\\right)$$");
 
 
+static GSLSimpleFunction<gsl_ran_landau_pdf> 
+landau("landau(x)", "Probability density of the Landau distribution, "
+      "$$p(x) = 1/\\pi \\int_0^x \\mathrm{d}t \\exp(-t\\log(t) - xt)\\sin(\\pi t)$$");
+
+
 
 
 
 //////////////////////////////////////////////////////////////////////
-
-// Now, the implementation of the various special functions we need
-// internally
-//
-// atan:
-//
-//             3        5        7        9      10
-//    x - 1/3 x  + 1/5 x  - 1/7 x  + 1/9 x  + O(x  )
-
-double qsoas_atanc(double x)
-{
-  if(x < 0.01 && x > -0.01)
-    return 1 - x*x/3 + gsl_pow_4(x)/5 - gsl_pow_6(x)/7 + gsl_pow_8(x)/9;
-  else
-    return atan(x)/x;
-}
-
-static GSLSimpleFunction<qsoas_atanc> 
+static GSLSimpleFunction<Functions::atanc> 
 atanc("atanc(x)", "$$\\frac{\\tan^{-1} x}{x}$$");
 
 
-//
-// atanh:    
-//             3        5        7        9      10
-//    x + 1/3 x  + 1/5 x  + 1/7 x  + 1/9 x  + O(x  )
-
-double qsoas_atanhc(double x)
-{
-  if(x < 0.01 && x > -0.01)
-    return 1 + x*x/3 + gsl_pow_4(x)/5 + gsl_pow_6(x)/7 + gsl_pow_8(x)/9;
-  else
-    return atanh(x)/x;
-}
-
-static GSLSimpleFunction<qsoas_atanhc> 
+static GSLSimpleFunction<Functions::atanhc> 
 atanhc("atanhc(x)", "$$\\frac{\\tanh^{-1} x}{x}$$");
 
 
@@ -318,6 +297,63 @@ static GSLModalFunction<gsl_sf_airy_Ai_deriv>
 airy_aid("airy_ai_deriv(x)", "First derivative of Airy Ai function $$\\mathrm{d}AiryAi(x)/\\mathrm{d}x$$", "http://www.gnu.org/software/gsl/manual/html_node/Derivatives-of-Airy-Functions.html");
 static GSLModalFunction<gsl_sf_airy_Bi_deriv> 
 airy_bid("airy_bi_deriv(x)", "First derivative of Airy Bi function $$\\mathrm{d}AiryBi(x)/\\mathrm{d}x$$", "http://www.gnu.org/software/gsl/manual/html_node/Derivatives-of-Airy-Functions.html");
+
+
+//////////////////////////////////////////////////////////////////////
+
+template < double (*func)(double, double) > class GSLDoubleFunction : 
+  public GSLFunction {
+
+  static RUBY_VALUE rubyFunction(RUBY_VALUE /*mod*/, RUBY_VALUE x, RUBY_VALUE y) {
+    return rbw_float_new(func(rbw_num2dbl(x), rbw_num2dbl(y)));
+  };
+
+public:
+  GSLDoubleFunction(const QString & n, const QString & d,
+                    const QString & url = "") : 
+    GSLFunction(n, d, url) {
+  };
+
+  virtual void registerFunction(RUBY_VALUE module) {
+    rbw_define_method(module, rubyName.toLocal8Bit(), 
+                               (RUBY_VALUE (*)()) rubyFunction, 2);
+    rbw_define_singleton_method(module, rubyName.toLocal8Bit(), 
+                               (RUBY_VALUE (*)()) rubyFunction, 2);
+  };
+
+};
+
+static GSLDoubleFunction<gsl_ran_gaussian_pdf> 
+gaussian("gaussian(x,sigma)", "Normalized gaussian: "
+         "$$p(x,\\sigma) = {\\frac{1}{\\sqrt{2 \\pi \\sigma^2}} \\exp (-x^2 / 2\\sigma^2)$$");
+
+static GSLDoubleFunction<gsl_ran_cauchy_pdf> 
+lorentzian("lorentzian(x,gamma)", "Normalized gaussian: "
+           "$$p(x,\\gamma) = {\\frac{1}{ \\gamma \\pi (1 + (x/\\gamma)^2) }$$");
+
+//////////////////////////////////////////////////////////////////////
+
+template < double (*func)(double, double, double) > class GSLTripleFunction : 
+  public GSLFunction {
+
+  static RUBY_VALUE rubyFunction(RUBY_VALUE /*mod*/, RUBY_VALUE x, RUBY_VALUE y, RUBY_VALUE z) {
+    return rbw_float_new(func(rbw_num2dbl(x), rbw_num2dbl(y), rbw_num2dbl(z)));
+  };
+
+public:
+  GSLTripleFunction(const QString & n, const QString & d,
+                    const QString & url = "") : 
+    GSLFunction(n, d, url) {
+  };
+
+  virtual void registerFunction(RUBY_VALUE module) {
+    rbw_define_method(module, rubyName.toLocal8Bit(), 
+                               (RUBY_VALUE (*)()) rubyFunction, 3);
+    rbw_define_singleton_method(module, rubyName.toLocal8Bit(), 
+                               (RUBY_VALUE (*)()) rubyFunction, 3);
+  };
+
+};
 
 
 //////////////////////////////////////////////////////////////////////

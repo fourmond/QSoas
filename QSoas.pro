@@ -258,7 +258,8 @@ SOURCES += src/qmain.cc \
         src/abdmatrix.cc \
         src/multifitengine.cc \
         src/box.cc \
-        src/ruby-interface.cc
+        src/ruby-interface.cc \
+        src/functions.cc
 
 
 HEADERS += src/headers.hh \
@@ -368,7 +369,8 @@ HEADERS += src/headers.hh \
         src/parametersitemmodel.hh \
         src/parametersspreadsheet.hh \
         src/abdmatrix.hh \
-        src/box.hh
+        src/box.hh \
+        src/functions.hh
 
 
 # Pure-C wrappers around Ruby's code

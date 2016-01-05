@@ -156,21 +156,34 @@ static void splitMonotonicCommand(const QString &,
   const DataSet * ds = soas().currentDataSet();
   QStringList flags;
   int group = 1;
+  int keepFirst = -1;
+  int keepLast = -1;
   updateFromOptions(opts, "flags", flags);
   updateFromOptions(opts, "group", group);
+  updateFromOptions(opts, "keep-first", keepFirst);
+  updateFromOptions(opts, "keep-last", keepLast);
 
   QList<DataSet *> nds = ds->splitIntoMonotonic(0, group);
 
 
-  for(int i = 0; i < nds.size(); i++) {
+  int tot = 0;
+  int sz = nds.size();
+  for(int i = 0; i < sz; i++) {
     if(flags.size() > 0)
       nds[i]->setFlags(flags);
-    nds[i]->setMetaData("segment-index", i);
-    soas().pushDataSet(nds[i], true);
-    if(i > 1)
-      soas().view().addDataSet(nds[i]);
+    nds[i]->setMetaData("segment_index", i);
+
+    if((keepFirst < 0 && keepLast < 0)
+       || (i < keepFirst) || (sz -i <= keepLast)) {
+       
+      soas().pushDataSet(nds[i], true);
+      if(i > 1)
+        soas().view().addDataSet(nds[i]);
+      else
+        soas().view().showDataSet(nds[i]);
+    }
     else
-      soas().view().showDataSet(nds[i]);
+      delete nds[i];
   }
 }
         
@@ -185,6 +198,12 @@ smOpts(QList<Argument *>()
            << new IntegerArgument("group", 
                                   "Group segments",
                                   "Group that many segments into one dataset")
+           << new IntegerArgument("keep-first", 
+                                  "Keep only first",
+                                  "Keep only the first n elements of the results")
+           << new IntegerArgument("keep-last", 
+                                  "Keep only last",
+                                  "Keep only the last n elements of the results")
        );
 
 

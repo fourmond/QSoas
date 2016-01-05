@@ -39,6 +39,7 @@ void Statistics::internalStats(ValueHash * overall,
     (*overall) << "buffer" << source->name;
     (*overall) << "rows" << source->nbRows();
     (*overall) << "columns" << source->nbColumns();
+    (*overall) << "segments" << source->segments.size();
   }
 
 

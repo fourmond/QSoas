@@ -1,0 +1,21 @@
+unflag flagged:gbf flagged:gbf-cat
+generate-buffer -1 1 number /number=7 /flags=gbf
+cat flagged:gbf
+flag /flags=gbf-cat
+assert '$stats["y_max"] == 6'
+
+split-monotonic
+assert '$stats["y_max"] == 0'
+assert '$meta["segment_index"] == 6'
+fetch 5
+assert '$stats["y_max"] == 5'
+assert '$meta["segment_index"] == 1'
+
+fetch flagged:gbf-cat
+unflag
+split-monotonic /keep-first=2
+assert '$stats["y_max"] == 5'
+assert '$meta["segment_index"] == 1'
+drop
+assert '$stats["y_max"] == 6'
+assert '$meta["segment_index"] == 0'

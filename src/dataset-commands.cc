@@ -1372,10 +1372,8 @@ ave("average", // command name
 
 
 
-static void catCommand(const QString &, DataSet * a, 
-                       QList<const DataSet *> b, const CommandOptions & opts)
+static void catCommand(const QString &, QList<const DataSet *> b, const CommandOptions & opts)
 {
-  b.prepend(a);
   bool setSegs = true;
   updateFromOptions(opts, "add-segments", setSegs);
   soas().pushDataSet(DataSet::concatenateDataSets(b, setSegs));
@@ -1383,12 +1381,9 @@ static void catCommand(const QString &, DataSet * a,
 
 static ArgumentList 
 catArgs(QList<Argument *>() 
-        << new DataSetArgument("first", 
-                               "Buffer",
-                               "First buffer")
-        << new SeveralDataSetArgument("second", 
-                                      "Buffer",
-                                      "Second buffer(s)"));
+        << new SeveralDataSetArgument("buffers",
+                                      "Buffers",
+                                      "Buffers to concatenate"));
 
 
 static ArgumentList 

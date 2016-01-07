@@ -1221,7 +1221,7 @@ DataSet * DataSet::concatenateDataSets(QList<const DataSet *> datasets,
   /// @question hmmm, what do we do HERE about meta-data ?
   DataSet * newDs = datasets.first()->derivedDataSet(vects, "");
   newDs->segments = segs;
-  newDs->name = names.join("_") + ".dat";
+  newDs->name = Utils::smartConcatenate(names, "+", "(", ")") + ".dat";
   return newDs;
 }
 

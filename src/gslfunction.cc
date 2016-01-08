@@ -242,6 +242,13 @@ psi_1("psi_1(x)", "Trigamma function: $$\\psi^{(1)} = \\frac{\\mathrm d \\Gamma'
       "http://www.gnu.org/software/gsl/manual/html_node/Digamma-Function.html");
 
 
+static GSLSimpleFunction<gsl_sf_erf> 
+gsl_erf("gsl_erf(x)", "Error function $$\\mathrm{erf}(x) = \\frac{2}{\\sqrt{\\pi}}  \\int_0^x \\mathrm{d}t \\exp(-t^2)$$  -- GSL version", "http://www.gnu.org/software/gsl/manual/html_node/Error-Function.html");
+
+static GSLSimpleFunction<gsl_sf_erfc> 
+gsl_erfc("gsl_erfc(x)", "Complementary error function $$\\mathrm{erfc}(x) = 1 - \\mathrm{erf}(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Complementary-Error-Function.html");
+
+
 
 
 
@@ -396,6 +403,14 @@ lorentzian("lorentzian(x,gamma)", "Normalized gaussian: "
 static GSLDoubleFunction<gsl_sf_hyperg_0F1> 
 hyperg_0F1("hyperg_0F1(c,x)", "Hypergeometric function $${}_0F_1$$",
            "http://www.gnu.org/software/gsl/manual/html_node/Hypergeometric-Functions.html");
+
+static GSLDoubleFunction<Functions::marcusHushChidseyZeng> 
+k_mhc_z("k_mhc_z(lambda, eta)", "Approximation to the Marcus-Hush-Chidsey "
+       "integral described in Zeng et al, JEAC 2014, $$k(\\lambda, \\eta) "
+       "\\approx \\int_{-\\infty}^{\\infty} "
+        "\\exp\\left(\\frac{ - (x - \\lambda + \\eta)^2}"
+        "{4\\lambda}\\right) \\times "
+        "\\frac{1}{1 + \\exp x}\\,\\mathrm{d}x$$", "http://dx.doi.org/10.1016/j.jelechem.2014.09.038");
 
 //////////////////////////////////////////////////////////////////////
 

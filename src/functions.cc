@@ -21,6 +21,7 @@
 #include <functions.hh>
 
 #include <gsl/gsl_randist.h>
+#include <gsl/gsl_sf.h>
 
 // atan:
 //
@@ -50,4 +51,10 @@ double Functions::pseudoVoigt(double x, double w, double mu)
 {
   return (1 - mu) * gsl_ran_gaussian_pdf(x, w) + mu *
     gsl_ran_cauchy_pdf(x, w);
+}
+
+double Functions::marcusHushChidseyZeng(double lambda, double eta)
+{
+  double a = 1 + sqrt(lambda);
+  return sqrt(M_PI * lambda)/(1 + exp(- eta)) * gsl_sf_erfc((lambda - sqrt(a + eta*eta))/(2 * sqrt(lambda)));
 }

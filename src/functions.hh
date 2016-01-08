@@ -36,6 +36,9 @@ namespace Functions {
   /// Pseudo-voigt function
   double pseudoVoigt(double x, double w, double mu);
 
+  /// Approximation to the Marcus-Hush-Chidsey kinetics described in Zeng et al, 2014 (doi: 10.1016/j.jelechem.2014.09.038)
+  double marcusHushChidseyZeng(double lambda, double eta);
+
 };
 
 #endif

@@ -349,9 +349,10 @@ public:
   };
 
   virtual QString description() const {
-    return QString("%1. Precision to about $$10^{-7}$$. `%2_fast` is faster, "
-                   "precision $$5\\times10^{-4}$$ and `%2_double` slower, "
-                   "precision $$2\\times10^{-16}$$. ").arg(desc).
+    return QString("%1. Precision to about $$10^{-7}$$. Other variants "
+                   "available: `%2_fast` is faster, "
+                   "(precision $$5\\times10^{-4}$$) and `%2_double` slower, "
+                   "(precision $$2\\times10^{-16}$$). ").arg(desc).
       arg(rubyName);
   };
 

@@ -42,6 +42,10 @@ QString Exception::message() const throw()
   return msg;
 }
 
+void Exception::appendMessage(const QString & s)
+{
+  msg += s;
+}
 
 // for now, we brutally remove message handling in Qt5
 #if QT_VERSION < QT_VERSION_CHECK(5,0,0)

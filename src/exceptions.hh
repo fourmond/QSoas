@@ -34,6 +34,9 @@ public:
   virtual QString message() const throw();
   virtual ~Exception() throw() {;};
 
+  /// Adds a message to the current message
+  virtual void appendMessage(const QString & msg);
+
   /// Setup the qt message handler to catch problems
   static void setupQtMessageHandler();
 

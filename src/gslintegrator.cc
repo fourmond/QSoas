@@ -38,7 +38,11 @@ protected:
   /// The algorithm 'key'
   int key;
  
-  
+
+  virtual int subdivisions() const {
+    return max;
+  };
+
 public:
 
   GSLIntegrator(int intervals = 30, 

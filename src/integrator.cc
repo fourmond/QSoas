@@ -34,7 +34,10 @@ Integrator * Integrator::createNamedIntegrator(const QString & name,
                                                double relative,
                                                double abs)
 {
-  return IntegratorFactory::createObject(name, intervals, relative, abs);
+  Integrator * it =
+    IntegratorFactory::createObject(name, intervals, relative, abs);
+  it->factoryName = name;
+  return it;
 }
 
 Integrator::~Integrator()
@@ -51,7 +54,10 @@ QList<Argument *> Integrator::integratorOptions()
        << new NumberArgument("prec-relative", "Relative integration precision",
                              "Relative precision required for integration")
        << new NumberArgument("prec-absolute", "Absolute integration precision",
-                             "Absolute precision required for integration");
+                             "Absolute precision required for integration")
+       << new IntegerArgument("subdivisions", "Maximum number of subdivision",
+                              "Maximum number of subdivisions in the "
+                              "integration algorithm");
   return args;
 }
 
@@ -66,6 +72,24 @@ Integrator * Integrator::fromOptions(const CommandOptions & opts,
   updateFromOptions(opts, "prec-relative", relPrec);
   double absPrec = 0;
   updateFromOptions(opts, "prec-absolute", absPrec);
+  updateFromOptions(opts, "subdivisions", maxnum);
+  
   
   return c->creator(maxnum, relPrec, absPrec);
+}
+
+CommandOptions Integrator::currentOptions() const
+{
+  CommandOptions opts;
+  updateOptions(opts, "prec-relative", relativePrec);
+  updateOptions(opts, "prec-absolute", absolutePrec);
+
+  
+  IntegratorFactory * c = IntegratorFactory::namedItem(factoryName);
+  updateOptions(opts, "integrator", c);
+
+  int sd = subdivisions();
+  updateOptions(opts, "subdivisions", sd);
+
+  return opts;
 }

@@ -51,6 +51,13 @@ protected:
   /// The underlying function, set upon 
   std::function<double (double)> fnc;
 
+  /// Name of the algorithm, set by createNamedIntegrator
+  QString factoryName;
+
+  
+  virtual int subdivisions() const {
+    return 30;                  // -1 ?
+  };
 public:
 
   static Integrator * createNamedIntegrator(const QString & name = "gauss31",
@@ -82,6 +89,10 @@ public:
 
   /// Creates an Integrator subclass based on the given options.
   static Integrator * fromOptions(const CommandOptions & opts, int maxnum = 30);
+
+  /// Returns the options corresponding to the integrator.
+  CommandOptions currentOptions() const;
+
 };
 
 #endif

@@ -34,12 +34,12 @@
 #include <fitengine.hh>
 
 
-FitData::FitData(const Fit * f, const QList<const DataSet *> & ds, bool d, 
-                 const QStringList & ex, bool d2) : 
+FitData::FitData(const Fit * f, const QList<const DataSet *> & ds, int d, 
+                 const QStringList & ex) : 
   totalSize(0), covarStorage(NULL), covarIsOK(false),
   engine(NULL), extra(ex),
   evaluationNumber(0), 
-  fit(f), debug(d), debug2(d2), datasets(ds),
+  fit(f), debug(d), datasets(ds),
   standardYErrors(NULL), pointWeights(NULL),
   nbIterations(0), storage(0), parametersStorage(0)
 {
@@ -206,7 +206,7 @@ int FitData::f(const gsl_vector * x, gsl_vector * f, bool doSubtract)
   /// @question It may be desirable to add range checking simply here
   /// by checking all parameters.
 
-  if(debug) {
+  if(debug > 0) {
     dumpString("Entering f computation");
     dumpGSLParameters(x);
     dumpFitParameters(params.data());
@@ -236,7 +236,7 @@ int FitData::f(const gsl_vector * x, gsl_vector * f, bool doSubtract)
   weightVector(f);
   /// @todo Data weighting ?
 
-  if(debug)
+  if(debug > 0)
     dumpString("Finished f computation");
 
   return GSL_SUCCESS;
@@ -258,7 +258,7 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
   gsl_vector_memcpy(&v.vector, x);
   unpackParameters(&v.vector, unpackedParams.data());
 
-  if(debug)
+  if(debug > 0)
     dumpString("Entering df computation");
 
   
@@ -287,7 +287,7 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
       FreeParameter * param = lst[j];
       double value = gslParams[param->fitIndex];
       double step = (value == 0 ? 1e-6 : param->derivationStep(value));
-      if(debug)
+      if(debug > 0)
         dumpString(QString("Step %1 for param %2 (value: %3)").
                    arg(step).arg(param->fitIndex).arg(value));
       gslParams[param->fitIndex] += step;
@@ -295,7 +295,7 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
 
     unpackParameters(&v.vector, unpackedParams.data());
 
-    if(debug) {
+    if(debug > 0) {
       dumpGSLParameters(&v.vector);
       dumpFitParameters(unpackedParams.data());
     }
@@ -303,20 +303,20 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
     fit->function(unpackedParams.data(), this, &col.vector);
     evaluationNumber++;
 
-    if(debug2) {
+    if(debug > 1) {
       dumpString(QString("Independent parameters %1").arg(i));
       dumpString(QString("f:   ") + Utils::vectorString(&col.vector));
     }
 
     gsl_vector_sub(&col.vector, storage);
 
-    if(debug2) {
+    if(debug > 1) {
       dumpString(QString("df:  ") + Utils::vectorString(&col.vector));
     }
     
     weightVector(&col.vector);
 
-    if(debug2) {
+    if(debug > 1) {
       dumpString(QString("wdf: ") + Utils::vectorString(&col.vector));
     }
 
@@ -334,16 +334,16 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
     for(int j = 0; j < lst.size(); j++) {
       const FreeParameter * p = lst[j];
       double step = gslParams[p->fitIndex] - gsl_vector_get(x, p->fitIndex);
-      if(debug)
+      if(debug > 0)
         dumpString(QString(" -> actual step: %1").
                    arg(step));
       col = gsl_matrix_column(df, p->fitIndex);
       gsl_vector_scale(&col.vector, 1/step);
     }
   }
-  if(debug)
+  if(debug > 0)
     dumpString("Finished df computation");
-  if(debug2) {
+  if(debug > 1) {
     dumpString("Computed jacobian:");
     dumpString(Utils::matrixString(df));
   }
@@ -473,14 +473,16 @@ void FitData::initializeSolver(const double * initialGuess,
 
   initializeParameters();
 
-  if(debug)
+  if(debug > 0)
     dumpFitParameterStructure();
 
   if(independentDataSets()) {
     for(int i = 0; i < datasets.size(); i++) {
+      if(debug > 0)
+        dumpString(QString("Preparing sub-fit %1").arg(i));
       QList<const DataSet * > dss;
       dss << datasets[i];
-      FitData * d = new FitData(fit, dss, debug, extra, debug2);
+      FitData * d = new FitData(fit, dss, debug, extra);
       subordinates.append(d);
 
       for(int j = 0; j < parameters.size(); j++) {
@@ -528,29 +530,44 @@ int FitData::iterate()
 {
   nbIterations++;
   covarIsOK = false;
-  if(debug) {
+  if(debug > 0) {
     dumpString(QString("Fit iteration: #%1").arg(nbIterations));
     dumpFitParameterStructure();
   }
   if(subordinates.size() > 0) {
     int nbGoingOn = 0;
     for(int i = 0; i < subordinates.size(); i++) {
+
       if(subordinates[i]->nbIterations >= 0) {
+        if(debug > 0)
+          dumpString(QString("Passing to subordinate %1").arg(i));
         int status = subordinates[i]->iterate();
+        if(debug > 0)
+          dumpString(QString(" -> subordinate %1 return code %2").
+                     arg(i).arg(status));
         if(status != GSL_CONTINUE) 
           subordinates[i]->nbIterations = -1; // Special sign to
                                               // finish iterations
-          else
-            nbGoingOn++;
+        else
+          nbGoingOn++;
       }
+      else
+        if(debug > 0)
+          dumpString(QString("skipping subordinate %1 (finished)").arg(i));
+
     }
     if(nbGoingOn)
       return GSL_CONTINUE;
     else
       return GSL_SUCCESS;
   }
-  else
-    return engine->iterate();
+  else {
+    int status = engine->iterate();
+    if(debug > 0)
+      dumpString(QString("engine 0x%1 returned status %2").
+                 arg((long)engine,0,16).arg(status));
+    return status;
+  }
 }
 
 double FitData::residuals()

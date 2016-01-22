@@ -104,13 +104,9 @@ public:
   /// The fit in use
   const Fit * fit;
 
-  /// A debug flag. If that flag is on, all calls to the functions are
-  /// instrumented. For debugging the fit engine and/or the fit
-  /// functions.
-  bool debug;
-
-  /// A second debug flag. Used for very very very verbose dumping.
-  bool debug2;
+  /// The debug level. 0 means no debug output to stdout, the details
+  /// go increasing with the value.
+  int debug;
 
   /// A storage space allocated by the fit for storing fit options, 
   FitInternalStorage * fitStorage;
@@ -178,8 +174,7 @@ public:
 
   
   FitData(const Fit * f, const QList<const DataSet *> & ds, 
-          bool d = false, const QStringList & extra = QStringList(),
-          bool d2 = false);
+          int d = 0, const QStringList & extra = QStringList());
 
   /// Finishes the last steps of initialization.
   ///

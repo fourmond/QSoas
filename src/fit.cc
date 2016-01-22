@@ -165,12 +165,9 @@ void Fit::makeCommands(ArgumentList * args,
   *options << new FileArgument("parameters", 
                                "Parameters",
                                "pre-loads parameters");
-  *options << new BoolArgument("debug", 
-                               "Debug",
-                               "turns on debugging (for QSoas developers only, default: false)");
-  *options << new BoolArgument("debug2", 
-                               "Debug2",
-                               "extremely verbose debugging (default: false)");
+  *options << new IntegerArgument("debug", 
+                                  "Debug level",
+                                  "Debug level: 0 means no debug output, increasing values mean increasing details");
 
   *options << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                          "set-from-meta", 
@@ -298,15 +295,13 @@ void Fit::runFit(std::function<void (FitData *)> hook,
                  const QString &, QList<const DataSet *> datasets,
                  const CommandOptions & opts)
 {
-  bool debug = false;
+  int debug = 0;
   updateFromOptions(opts, "debug", debug);
-  bool debug2 = false;
-  updateFromOptions(opts, "debug2", debug2);
   QString extraParams;
   updateFromOptions(opts, "extra-parameters", extraParams);
   QStringList ep = extraParams.split(",", QString::SkipEmptyParts);
   
-  FitData data(this, datasets, debug, ep, debug2);
+  FitData data(this, datasets, debug, ep);
   hook(&data);
   processOptions(opts, &data);
   data.finishInitialization();

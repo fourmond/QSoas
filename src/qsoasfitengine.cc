@@ -109,6 +109,13 @@ protected:
   /// The minimum value for relative difference
   double relativeMin;
 
+  /// The relative threshold of residuals variation that triggers a
+  /// continue response
+  double residualsThreshold;
+
+  /// The maximum number of tries
+  int maxTries;
+
   /// @}
   
   /// Makes a trial step at the given value of lambda, and store the
@@ -206,10 +213,12 @@ void QSoasFitEngine::initialize(const double * initialGuess)
 
 void QSoasFitEngine::resetEngineParameters()
 {
-  lambda = 1e-2;
+  lambda = 1e-4;
   scale = 2;
   endThreshold = 1e-5;
   relativeMin = 1e-3;
+  residualsThreshold = 1e-5;
+  maxTries = 30;
 }
 
 ArgumentList * QSoasFitEngine::options = NULL;
@@ -221,7 +230,9 @@ ArgumentList * QSoasFitEngine::engineOptions() const
     *options << new NumberArgument("lambda", "Lambda")
              << new NumberArgument("scale", "Scale")
              << new NumberArgument("end-threshold", "Threshold for ending")
-             << new NumberArgument("relative-min", "Min value for relative differences");
+             << new NumberArgument("relative-min", "Min value for relative differences")
+             << new IntegerArgument("trial-steps", "Maximum number of trial steps")
+             << new NumberArgument("residuals-threshold", "Threshold for relative changes to residuals");
   }
   return options;
 }
@@ -234,6 +245,8 @@ CommandOptions QSoasFitEngine::getEngineParameters() const
   updateOptions(val, "scale", scale);
   updateOptions(val, "end-threshold", endThreshold);
   updateOptions(val, "relative-min", relativeMin);
+  updateOptions(val, "trial-steps", maxTries);
+  updateOptions(val, "residuals-threshold", residualsThreshold);
 
   return val;
 }
@@ -245,6 +258,8 @@ void QSoasFitEngine::setEngineParameters(const CommandOptions & val)
   updateFromOptions(val, "scale", scale);
   updateFromOptions(val, "end-threshold", endThreshold);
   updateFromOptions(val, "relative-min", relativeMin);
+  updateFromOptions(val, "trial-steps", maxTries);
+  updateFromOptions(val, "residuals-threshold", residualsThreshold);
 }
 
 const gsl_vector * QSoasFitEngine::currentParameters() const
@@ -294,12 +309,26 @@ void QSoasFitEngine::trialStep(double l, gsl_vector * params,
   // First compute the delta^r:
   gsl_linalg_LU_solve(cur, perm, gradient, deltap);
 
+  if(fitData->debug > 0) {
+    // Dump the jTj matrix:
+    QTextStream o(stdout);
+    o << "Trial step at lambda = " << l
+      << "\ncurrent: \t" << Utils::vectorString(parameters)
+      << "\ngradient:\t" << Utils::vectorString(gradient)
+      << "\nstep:    \t" << Utils::vectorString(deltap) << endl;
+  }
+
   // The the step:
   gsl_vector_memcpy(params, parameters);
   gsl_vector_add(params, deltap);
 
   fitData->f(params, func);
   gsl_blas_ddot(func, func, res);
+  if(fitData->debug > 0) {
+    // Dump the jTj matrix:
+    QTextStream o(stdout);
+    o << " -> residuals = " << *res << endl;
+  }
 
   // If the residuals are NaN, throw an exception
   if(std::isnan(*res))
@@ -335,7 +364,7 @@ int QSoasFitEngine::iterate()
   gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1, 
                  jacobian, jacobian, 0, jTj);
 
-  if(fitData->debug) {
+  if(fitData->debug > 0) {
     // Dump the jTj matrix:
     QTextStream o(stdout);
     o << "jTj matrix: \n"
@@ -352,6 +381,11 @@ int QSoasFitEngine::iterate()
     double ns2 = 0;
     bool didFirst = false;
     try {
+      if(fitData->debug > 0) {
+        QTextStream o(stdout);
+        o << "Current residuals: " << cur_squares << endl;
+      }
+      
       trialStep(lambda, testp, testf, &ns);
       didFirst = true;
       /// @todo Compute that step only if it hasn't been computed
@@ -376,8 +410,8 @@ int QSoasFitEngine::iterate()
 
       /// @todo Customize all this
       double fact = 1 + successfulIterations * 0.5;
-      if(fact > 10)
-        fact = 10;
+      if(fact > 8)
+        fact = 8;
       lambda /= pow(scale, fact);
       successfulIterations += 1;
       gsl_vector_memcpy(testp, testp2);
@@ -386,7 +420,8 @@ int QSoasFitEngine::iterate()
     else if(ns > cur_squares) {
       // Here, it goes bad:
       nbtries ++;
-      if(nbtries > 30) 
+      int mt = (iterations == 1 ? maxTries + 10 : maxTries);
+      if(nbtries > mt) 
         throw RuntimeError("Failed to find a suitable step after %1 tries").
           arg(nbtries);
       lambda *= scale;
@@ -406,12 +441,32 @@ int QSoasFitEngine::iterate()
 
     // ANd we finally switch to the new parameters !
     gsl_vector_memcpy(parameters, testp);
+
+    /// Continue because the residuals have changed too much
+    if((cur_squares - ns)/(cur_squares) >= residualsThreshold ) {
+      if(fitData->debug > 0) {
+        QTextStream o(stdout);
+        o << "Continuing because residuals variation too large: "
+          << (cur_squares - ns)/(cur_squares) << " (real delta: "
+          << (cur_squares - ns) << ")" << endl; 
+
+      }
+      return GSL_CONTINUE;
+    }
+
     
     for(int i = 0; i < n; i++) {
       double dp = gsl_vector_get(deltap, i);
       double p = gsl_vector_get(parameters, i);
-      if(fabs(dp)/(relativeMin + fabs(p)) > endThreshold)
+      if(fabs(dp)/(relativeMin + fabs(p)) > endThreshold) {
+        if(fitData->debug > 0) {
+          QTextStream o(stdout);
+          o << "Continuing because variation of param #" << i <<" too large: "
+            << fabs(dp)/(relativeMin + fabs(p)) << " (real delta: "
+            << dp << ")" << endl; 
+        }
         return GSL_CONTINUE;
+      }
     }
     return GSL_SUCCESS;
     

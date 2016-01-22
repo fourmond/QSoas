@@ -410,8 +410,8 @@ int QSoasFitEngine::iterate()
 
       /// @todo Customize all this
       double fact = 1 + successfulIterations * 0.5;
-      if(fact > 8)
-        fact = 8;
+      if(fact > 10)
+        fact = 10;
       lambda /= pow(scale, fact);
       successfulIterations += 1;
       gsl_vector_memcpy(testp, testp2);

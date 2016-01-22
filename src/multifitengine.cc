@@ -46,6 +46,10 @@ protected:
   /// The number of parameters
   int n;
 
+  /// The number of successive iterations in which we lowered
+  /// lambda. This is used to lower lambda faster -- to some extent.
+  int successfulIterations;
+
   /// Various m vectors.
   gsl_vector * fv[3];
 
@@ -264,7 +268,7 @@ void MultiFitEngine::initialize(const double * initialGuess)
 {
   fitData->packParameters(initialGuess, parameters);
   iterations = 0;
-
+  successfulIterations = 0;
   lastResiduals = -1;
 }
 
@@ -402,8 +406,12 @@ int MultiFitEngine::iterate()
 
     // Heh !
     if(ns2 < cur_squares) {
-      // Iteration went fine
-      lambda /= scale;
+      /// @todo Customize all this
+      double fact = 1 + successfulIterations * 0.5;
+      if(fact > 10)
+        fact = 10;
+      lambda /= pow(scale, fact);
+      successfulIterations += 1;
       gsl_vector_memcpy(testp, testp2);
       ns = ns2;
     }

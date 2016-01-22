@@ -79,6 +79,12 @@ public:
   };
   virtual ~RangeError() throw() {;};
 
+  // we need a redefition to avoid throwing Exception rather than
+  template<typename T> RangeError & arg(T a) {
+    msg = msg.arg(a);
+    return *this;
+  }; 
+
 };
 
 class InternalError : public Exception {

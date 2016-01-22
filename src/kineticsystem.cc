@@ -191,7 +191,8 @@ QString KineticSystem::RedoxReaction::exchangeRate() const
 //////////////////////////////////////////////////////////////////////
 
 KineticSystem::KineticSystem() : 
-  redoxReactionScaling(1), reporterExpression(NULL), linear(false)
+  redoxReactionScaling(1), reporterExpression(NULL), linear(false),
+  checkRange(true)
 {
 }
 
@@ -389,6 +390,9 @@ void KineticSystem::computeLinearJacobian(gsl_matrix * target,
       }
     }
 
+    if(checkRange && (forwardRate < 0 || backwardRate < 0))
+      throw RangeError("Negative rate constant for reaction #%1").
+        arg(i);
 
     *gsl_matrix_ptr(target, l, l) -= forwardRate;
     *gsl_matrix_ptr(target, r, l) += forwardRate;

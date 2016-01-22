@@ -198,6 +198,12 @@ protected:
 
 public:
 
+  /// If this is on, then computeLinearJacobian checks that the rate
+  /// constants are not negative, and raise an exception if they are.
+  ///
+  /// On by default.
+  bool checkRange;
+
   /// Builds an empty KineticSystem
   KineticSystem();
   ~KineticSystem();

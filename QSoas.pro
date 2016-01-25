@@ -42,6 +42,8 @@ QMAKE_CXXFLAGS += -O2
 macx:ICON = QSoas.icns
 win32:RC_FILE = QSoas-icon.rc
 
+# Compile with static libgcc in win32
+win32:QMAKE_LFLAGS += -static-libgcc
 
 DEFINES += SOAS_VERSION=\'\"$$VERSION\"\'
 

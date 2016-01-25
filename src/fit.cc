@@ -153,6 +153,9 @@ void Fit::makeCommands(ArgumentList * args,
     tmp = fitSoftOptions();
     if(tmp)
       (*originalOptions) << *tmp;
+    *originalOptions << new IntegerArgument("debug", 
+                                  "Debug level",
+                                  "Debug level: 0 means no debug output, increasing values mean increasing details");
     options = new ArgumentList(*originalOptions);
   }
   else 
@@ -165,9 +168,6 @@ void Fit::makeCommands(ArgumentList * args,
   *options << new FileArgument("parameters", 
                                "Parameters",
                                "pre-loads parameters");
-  *options << new IntegerArgument("debug", 
-                                  "Debug level",
-                                  "Debug level: 0 means no debug output, increasing values mean increasing details");
 
   *options << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                          "set-from-meta", 
@@ -394,19 +394,16 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
   bool reexport = false;
   updateFromOptions(opts, "reexport", reexport);
 
-  FitData data(this, datasets, false, ep); 
+  int debug = 0;
+  updateFromOptions(opts, "debug", debug);
+
+  FitData data(this, datasets, debug, ep); 
   hook(&data);
   processOptions(opts, &data);
   data.finishInitialization();
   checkDatasets(&data);
 
   FitWorkspace ws(&data);
-
-  // FitDialog dlg(&data);
-  // if(reexport)
-  //   dlg.setFitEngineFactory("odrpack"); // The only one supporting that !
-  if(reexport)
-    throw RuntimeError("Reexporting not supported anymore");
 
   QStringList flags;
   updateFromOptions(opts, "flags", flags);
@@ -438,8 +435,11 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
   
   ws.recompute();
   if(reexport) {
-    // dlg.recomputeErrors();
-    // dlg.exportToOutFileWithErrors();
+    Terminal::out << "Reexporting parameters with errors" << endl;
+    FitEngineFactoryItem * it = FitEngine::namedFactoryItem("odrpack");
+    ws.prepareFit(it);
+    ws.recomputeJacobian();
+    ws.exportToOutFile(true);
   }
   else
     ws.pushComputedData(flags);

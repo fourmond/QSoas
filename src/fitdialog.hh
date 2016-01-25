@@ -208,9 +208,6 @@ public slots:
   /// hand-modified versions)
   void compute();
 
-  /// Recompute errors
-  void recomputeErrors();
-
   /// Exports parameters to the current output file (with errors)
   void exportToOutFileWithErrors();
 

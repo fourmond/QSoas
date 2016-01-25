@@ -31,7 +31,6 @@
 
 #include <utils.hh>
 
-
 /// @todo Implement a command-line interface to handle fits.
 /// 
 /// @li this means implementing @b contexts for commands, most

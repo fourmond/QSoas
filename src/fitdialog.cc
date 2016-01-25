@@ -1075,12 +1075,6 @@ void FitDialog::updateResidualsDisplay()
   residualsDisplay->setText(s);
 }
 
-void FitDialog::recomputeErrors()
-{
-  parameters.prepareFit(fitEngineFactory);
-  parameters.recomputeJacobian();
-}
-
 static void fillGridWithOptions(const ArgumentList * args,
                                 const CommandOptions & co,
                                 QHash<QString, QWidget *> & widgets,

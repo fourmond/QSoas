@@ -447,7 +447,7 @@ void FitData::initializeParameters()
       param->fitIndex = gslParameters++;
       FreeParameter * fp = dynamic_cast<FreeParameter*>(param);
       if(! fp)
-        throw InternalError("Free parameter, but not free parameter ?");
+        throw InternalError("Free parameter, but not FreeParameter ?");
       // Do cross-linking
       parametersByDataset[param->dsIndex] << fp;
       parametersByDefinition[param->paramIndex] << fp;
@@ -508,6 +508,11 @@ void FitData::initializeSolver(const double * initialGuess,
     if(! feit)
       feit = FitEngine::defaultFactoryItem();
     engine = feit->creator(this);
+    if(debug > 0) {
+      QTextStream o(stdout);
+      o << "Initialized data " << this << " with engine " << engine
+        << " (" << feit->name << ")" << endl;
+    }
     if(opts)
       engine->setEngineParameters(*opts);
     engine->initialize(initialGuess);
@@ -600,9 +605,20 @@ bool FitData::independentDataSets() const
 void FitData::recomputeJacobian()
 {
   covarIsOK = false;
-  if(! engine)
-    throw InternalError("Must have an engine for computing the errors");
-  engine->recomputeJacobian();
+  if(subordinates.size() > 0) {
+    for(int i = 0; i < subordinates.size(); i++)
+      subordinates[i]->recomputeJacobian();
+  }
+  else {
+    if(debug > 0) {
+      QTextStream o(stdout);
+      o << "Recomputing errors in data " <<  this
+        << " with engine: " <<  engine << endl;
+    }
+    if(! engine)
+      throw InternalError("Must have an engine for computing the errors");
+    engine->recomputeJacobian();
+  }
 }
 
 const gsl_matrix * FitData::covarianceMatrix()

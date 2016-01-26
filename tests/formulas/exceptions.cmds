@@ -1,0 +1,7 @@
+# This file only creates situations in which QSoas will throw/catch
+# exceptions if it crashes, we'll know it soon enough
+@ ex-1.cmds
+generate-buffer 0 1
+assert 'true'
+@ ex-2.cmds
+assert 'true'

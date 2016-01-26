@@ -33,6 +33,8 @@
 #include <idioms.hh>
 #include <ruby.hh>
 
+#include <debug.hh>
+
 using namespace Terminal;
 
 class SideBarLabel : public QScrollArea {
@@ -177,6 +179,7 @@ bool CommandWidget::runCommand(const QStringList & raw)
 {
   /// @todo use a different prompt whether the call is internal or
   /// external ?
+  Debug::debug().startCommand(raw);
 
   bool status = true;
   if(raw.isEmpty())
@@ -212,6 +215,7 @@ bool CommandWidget::runCommand(const QStringList & raw)
     commandLine->setFocus();
     throw;                      // rethrow
   }
+  Debug::debug().endCommand(raw);
   commandLine->setEnabled(true);
   commandLine->setFocus();
   return status;

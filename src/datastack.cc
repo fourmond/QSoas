@@ -26,6 +26,7 @@
 #include <utils.hh>
 #include <soas.hh>
 #include <curveview.hh>
+#include <debug.hh>
 
 DataStack::DataStack() : 
   cachedByteSize(0)
@@ -162,8 +163,10 @@ void DataStack::pushDataSet(DataSet * dataset, bool silent)
   dataset->setFlags(autoFlags);
   dataSetByName[dataset->name] = dataset;
   cachedByteSize += dataset->byteSize();
-  if(! silent)
+  if(! silent) {
+    Debug::debug().saveStack();
     emit(currentDataSetChanged());
+  }
 }
 
 void DataStack::showStackContents(int nb, bool /*unused*/) const

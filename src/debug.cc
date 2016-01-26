@@ -35,8 +35,10 @@ void Debug::dumpCurrentFocus(const QString & str)
 }
 
 Debug::Debug() :
-  level(0), directory(NULL), outputDevice(NULL), output(NULL)
+  level(0), directory(NULL), outputDevice(NULL), output(NULL),
+  out(stdout)
 {
+  
 }
 
 Debug * Debug::theDebug = NULL;
@@ -102,9 +104,10 @@ void Debug::openDirectory(const QString & dir)
   }
 
   outputDevice = new QFile(directory->absoluteFilePath("debug.log"));
-  Utils::open(outputDevice, QIODevice::ReadOnly);
+  Utils::open(outputDevice, QIODevice::WriteOnly);
   /// @bug leaks memory
   output = new QTextStream(outputDevice);
+  level = 1;
 }
 
 

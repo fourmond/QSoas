@@ -1,7 +1,7 @@
 /**
    \file general-commands.cc various general purpose commands and groups
    Copyright 2011 by Vincent Fourmond
-             2012, 2013, 2014 by CNRS/AMU
+             2012, 2013, 2014, 2016 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -875,5 +875,41 @@ sy("system", // command name
    "Execute system commands");
 
 
+//////////////////////////////////////////////////////////////////////
 
+// A command to setup debug output
+
+void debugCommand(const QString &, const CommandOptions & opts)
+{
+  if(opts.isEmpty()) {
+    Terminal::out << "Closing all debug outputs" << endl;
+    Debug::debug().closeDirectory();
+    return;
+  }
+  QString str;
+  updateFromOptions(opts, "directory", str);
+  if(! str.isEmpty()) {
+    Terminal::out << "Setting up debug output in " << str << endl;
+    Debug::debug().openDirectory(str);
+  }
+}
+
+
+static ArgumentList 
+dbgO(QList<Argument *>() 
+     << new FileArgument("directory",
+                         "Debug directory",
+                         "Directory in which the debug output is saved",
+                         true, true)
+    );
+
+
+static Command 
+dbg("debug", // command name
+    effector(debugCommand), // action
+    "file",  // group name
+    NULL, // arguments
+    &dbgO, // options
+    "Debug",
+    "Setup debug output");
 

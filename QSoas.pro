@@ -43,7 +43,9 @@ macx:ICON = QSoas.icns
 win32:RC_FILE = QSoas-icon.rc
 
 # Compile with static libgcc in win32
-win32:QMAKE_LFLAGS += -static-libgcc
+# -> just static libgcc results in not catching exceptions...
+# -> one needs to also link stdc++ statically.
+win32:QMAKE_LFLAGS += -static-libgcc -static-libstdc++
 
 DEFINES += SOAS_VERSION=\'\"$$VERSION\"\'
 

@@ -194,7 +194,6 @@ int ODEStepper::apply(double * t, const double t1, double y[], bool retry)
     status = gsl_odeiv2_driver_apply_fixed_step(driver, t, step, nb, y);
   }
   else {
-    // QTextStream o(stdout);
     // o << "Trying from " << *t << " to " << t1  << endl;
     status = gsl_odeiv2_driver_apply(driver, t, t1, y);
 
@@ -217,7 +216,7 @@ int ODEStepper::apply(double * t, const double t1, double y[], bool retry)
     }
   }
 
-  // QTextStream o(stdout);
+  // QTextStream o(stdout
   // o << "Step from " << orig << " to " << t1  << "(dt= " << t1 - *t << ")"
   //   << ":\t h=" << driver->h << " -> " << status <<  "\t" 
   //   << "last_step: " << driver->e->last_step <<  "\tfailed:" 

@@ -108,8 +108,8 @@ CommandWidget::CommandWidget() :
     /// @todo Find a writable place
     int rotation = logRotateNumber;
     if(rotation != 0) {
-      QTextStream o(stdout);
-      o << "Rotating file " << logFileName << endl;
+      Debug::debug()
+        << "Rotating file " << logFileName << endl;
       Utils::rotateFile(logFileName, rotation);
     }
     watcherDevice = new QFile(logFileName);
@@ -128,8 +128,8 @@ CommandWidget::CommandWidget() :
   // We use a monospace font !
   QFont mono(terminalFont);
   QFontInfo m(mono);
-  QTextStream o(stdout);
-  o << "Font used for terminal display: " << m.family() << endl;
+  Debug::debug()
+    << "Font used for terminal display: " << m.family() << endl;
   terminalDisplay->setFont(mono);
   QFontMetrics mt(terminalDisplay->font());
   QSize sz = mt.size(0, "1.771771771766");

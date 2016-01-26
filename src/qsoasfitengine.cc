@@ -25,7 +25,7 @@
 
 #include <argumentlist.hh>
 #include <general-arguments.hh>
-
+#include <debug.hh>
 
 /// QSoas's own fit engine
 class QSoasFitEngine : public FitEngine {
@@ -311,11 +311,10 @@ void QSoasFitEngine::trialStep(double l, gsl_vector * params,
 
   if(fitData->debug > 0) {
     // Dump the jTj matrix:
-    QTextStream o(stdout);
-    o << "Trial step at lambda = " << l
-      << "\ncurrent: \t" << Utils::vectorString(parameters)
-      << "\ngradient:\t" << Utils::vectorString(gradient)
-      << "\nstep:    \t" << Utils::vectorString(deltap) << endl;
+    Debug::debug()  << "Trial step at lambda = " << l
+                    << "\ncurrent: \t" << Utils::vectorString(parameters)
+                    << "\ngradient:\t" << Utils::vectorString(gradient)
+                    << "\nstep:    \t" << Utils::vectorString(deltap) << endl;
   }
 
   // The the step:
@@ -326,8 +325,7 @@ void QSoasFitEngine::trialStep(double l, gsl_vector * params,
   gsl_blas_ddot(func, func, res);
   if(fitData->debug > 0) {
     // Dump the jTj matrix:
-    QTextStream o(stdout);
-    o << " -> residuals = " << *res << endl;
+    Debug::debug() << " -> residuals = " << *res << endl;
   }
 
   // If the residuals are NaN, throw an exception
@@ -366,9 +364,8 @@ int QSoasFitEngine::iterate()
 
   if(fitData->debug > 0) {
     // Dump the jTj matrix:
-    QTextStream o(stdout);
-    o << "jTj matrix: \n"
-      << Utils::matrixString(jTj) << endl;
+    Debug::debug() << "jTj matrix: \n"
+                   << Utils::matrixString(jTj) << endl;
   }
 
   // OK, so now we go through various tries.
@@ -382,8 +379,7 @@ int QSoasFitEngine::iterate()
     bool didFirst = false;
     try {
       if(fitData->debug > 0) {
-        QTextStream o(stdout);
-        o << "Current residuals: " << cur_squares << endl;
+        Debug::debug() << "Current residuals: " << cur_squares << endl;
       }
       
       trialStep(lambda, testp, testf, &ns);
@@ -445,10 +441,9 @@ int QSoasFitEngine::iterate()
     /// Continue because the residuals have changed too much
     if((cur_squares - ns)/(cur_squares) >= residualsThreshold ) {
       if(fitData->debug > 0) {
-        QTextStream o(stdout);
-        o << "Continuing because residuals variation too large: "
-          << (cur_squares - ns)/(cur_squares) << " (real delta: "
-          << (cur_squares - ns) << ")" << endl; 
+        Debug::debug() << "Continuing because residuals variation too large: "
+                       << (cur_squares - ns)/(cur_squares) << " (real delta: "
+                       << (cur_squares - ns) << ")" << endl; 
 
       }
       return GSL_CONTINUE;
@@ -460,10 +455,10 @@ int QSoasFitEngine::iterate()
       double p = gsl_vector_get(parameters, i);
       if(fabs(dp)/(relativeMin + fabs(p)) > endThreshold) {
         if(fitData->debug > 0) {
-          QTextStream o(stdout);
-          o << "Continuing because variation of param #" << i <<" too large: "
-            << fabs(dp)/(relativeMin + fabs(p)) << " (real delta: "
-            << dp << ")" << endl; 
+          Debug::debug() << "Continuing because variation of param #"
+                         << i <<" too large: "
+                         << fabs(dp)/(relativeMin + fabs(p)) << " (real delta: "
+                         << dp << ")" << endl; 
         }
         return GSL_CONTINUE;
       }

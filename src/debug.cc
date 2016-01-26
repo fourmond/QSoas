@@ -28,10 +28,9 @@
 
 void Debug::dumpCurrentFocus(const QString & str)
 {
-  QTextStream o(stdout);
   QWidget * w = QApplication::focusWidget();
-  o << str << w << "(" 
-    << (w ? w->metaObject()->className() : "-none-") << ")" << endl;
+  debug() << str << w << "(" 
+           << (w ? w->metaObject()->className() : "-none-") << ")" << endl;
 }
 
 Debug::Debug() :
@@ -139,8 +138,8 @@ void Debug::saveStack()
     (*this) << "Saving stack" << endl;
     QFile file(directory->absoluteFilePath("stack.bin"));
     Utils::open(&file, QIODevice::WriteOnly);
-    QDataStream out(&file);
-    out << soas().stack();
+    QDataStream o(&file);
+    o << soas().stack();
   }
 }
 

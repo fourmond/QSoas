@@ -32,6 +32,7 @@
 #include <gsl/gsl_cdf.h>
 
 #include <fitengine.hh>
+#include <debug.hh>
 
 
 FitData::FitData(const Fit * f, const QList<const DataSet *> & ds, int d, 
@@ -611,8 +612,8 @@ void FitData::recomputeJacobian()
   }
   else {
     if(debug > 0) {
-      QTextStream o(stdout);
-      o << "Recomputing errors in data " <<  this
+      Debug::debug()
+        << "Recomputing errors in data " <<  this
         << " with engine: " <<  engine << endl;
     }
     if(! engine)
@@ -710,8 +711,8 @@ double FitData::confidenceLimitFactor(double conf) const
 // Debug-related functions
 void FitData::dumpString(const QString & str) const
 {
-  QTextStream o(stdout);
-  o << str << endl;
+  Debug::debug()
+    << str << endl;
 }
 
 void FitData::dumpGSLParameters(const gsl_vector * params) const

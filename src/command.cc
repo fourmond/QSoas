@@ -540,8 +540,6 @@ QStringList Command::loadDocumentation(const QString & str)
 
   QHash<QString, Command *> cmds = *availableCommands;
 
-  QTextStream o(stdout);
-
   int idx = 0;
   int nx = 0;
 

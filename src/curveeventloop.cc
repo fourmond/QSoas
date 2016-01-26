@@ -177,7 +177,6 @@ bool CurveEventLoop::eventFilter(QObject * obj, QEvent * event)
 {
   /// This function is only called during the event loop
 
-  // QTextStream o(stdout);
   // o << "Event on " << obj 
   //   << " (" <<  obj->metaObject()->className()
   //   << ")\t" << event->type()

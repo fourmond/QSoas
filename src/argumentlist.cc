@@ -157,7 +157,6 @@ CommandArguments ArgumentList::parseArguments(const QStringList & args,
 CommandOptions ArgumentList::parseRubyOptions(RUBY_VALUE hsh) const
 {
   CommandOptions opts;
-  // QTextStream o(stdout);
     
   for(int i = 0; i < size(); i++) {
     RUBY_VALUE v = rbw_hash_aref(hsh, Ruby::fromQString(value(i)->argumentName()));

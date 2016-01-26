@@ -56,7 +56,6 @@ public:
 
     int nbnodes = 6;
 
-    // QTextStream o(stdout);
 
     // Prepare the nodes
     double delta = b-a;

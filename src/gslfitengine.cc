@@ -24,6 +24,8 @@
 #include <fitengine.hh>
 #include <exceptions.hh>
 
+#include <debug.hh>
+
 class GSLFitEngine : public FitEngine {
   
   /// The solver in use
@@ -138,7 +140,6 @@ int GSLFitEngine::iterate()
   while(1) {
     try {
       int status = gsl_multifit_fdfsolver_iterate(solver);
-      // QTextStream o(stdout);
       // o << "Iteration: " << status << " -- " << jacobianScalingFactor << endl;
       pushCurrentParameters();
 
@@ -192,9 +193,9 @@ int GSLFitEngine::iterate()
       nbTries++;
       if(nbTries >= 19)          // That's quite enough
         throw;
-      QTextStream o(stdout);
-      o << "Scaling problem:" << e.message() << 
-        "\n -> scaling the jacobian by : " 
+      Debug::debug()
+        << "Scaling problem:" << e.message()
+        << "\n -> scaling the jacobian by : " 
         << jacobianScalingFactor << endl;
 
       // We apparently need to reinitialize the solver...

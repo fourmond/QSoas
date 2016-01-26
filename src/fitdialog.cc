@@ -51,6 +51,7 @@
 #include <nupwidget.hh>
 
 #include <curvebrowser.hh>
+#include <debug.hh>
 
 static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
 
@@ -662,8 +663,8 @@ void FitDialog::startFit()
     }
     message(QString("An error occurred while fitting: ") +
             re.message());
-    QTextStream o(stdout);
-    o << "Backtrace:\n\t" << re.exceptionBacktrace().join("\n\t") << endl;
+    Debug::debug()
+      << "Backtrace:\n\t" << re.exceptionBacktrace().join("\n\t") << endl;
   }
 
     

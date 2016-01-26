@@ -38,6 +38,8 @@
 #include <odefit.hh>
 #include <fitdata.hh>
 
+#include <debug.hh>
+
 #include <gsl/gsl_const_mksa.h>
 
 
@@ -73,10 +75,11 @@ int KineticSystemEvolver::computeDerivatives(double t, const double * y,
   system->computeDerivatives(dydt, y, parameters);
   if(false) {                /// @todo Add real debugging facilities ?
     // Debugging information
-    QTextStream o(stdout);
-    o << "Time t = " << t << "\n";
+    Debug::debug()
+      << "Time t = " << t << "\n";
     for(int i = 0; i < system->speciesNumber(); i++)
-      o << "y[" << i << "] = " << y[i] << "\t dy[" << i << "] = " 
+      Debug::debug()
+        << "y[" << i << "] = " << y[i] << "\t dy[" << i << "] = " 
         << dydt[i] << endl;
   }
   return GSL_SUCCESS;
@@ -432,22 +435,22 @@ protected:
     KineticSystemEvolver * evolver = getEvolver(data);
     KineticSystem * system = getSystem(data);
 
-    // Dumps all the parameters to standard out
-    QTextStream o(stdout);
-
     QHash<QString, double> vals = evolver->parameterValues();
 
     QStringList ps = vals.keys();
     qSort(ps);
 
     for(int i = 0; i < ps.size(); i++)
-      o << ps[i] << " = " << vals[ps[i]] << endl;
+      Debug::debug()
+        << ps[i] << " = " << vals[ps[i]] << endl;
 
     QStringList p = system->allParameters();
 
-    o << "There are " << s->timeDependentParameters.size() << " td-parameters" << endl;
+    Debug::debug()
+      << "There are " << s->timeDependentParameters.size() << " td-parameters" << endl;
     for(auto i = s->timeDependentParameters.begin(); i != s->timeDependentParameters.end(); i++) {
-      o << "TD parameter for parameter index " << i.key()
+      Debug::debug()
+        << "TD parameter for parameter index " << i.key()
         << " -> " << p[i.key()] << endl;
     }
   }

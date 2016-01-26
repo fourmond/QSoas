@@ -24,6 +24,7 @@
 #include <fitdata.hh>
 
 #include <general-arguments.hh>
+#include <debug.hh>
 
 void ODEFit::processOptions(const CommandOptions & opts, FitData * data) const
 {
@@ -223,8 +224,7 @@ void ODEFit::function(const double * a, FitData * data,
   }
 
   if(data->debug) {
-    QTextStream o(stdout);
-    o << "Number of evaluations: " << slv->evaluations << endl;
+    Debug::debug() << "Number of evaluations: " << slv->evaluations << endl;
   }
       
 }

@@ -123,7 +123,7 @@ public:
   /// @}
 };
 
-template<class T> inline  Debug& Debug::operator<<(T t) {
+template<class T> inline Debug& Debug::operator<<(T t) {
   out << t;
   if(output)
     *output << t;

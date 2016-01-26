@@ -23,6 +23,7 @@
 #include <ruby.hh>
 #include <ruby-templates.hh>
 #include <exceptions.hh>
+#include <debug.hh>
 
 template<class T> QHash<QString, T> ValueHash::extract(QVariant::Type t) const
 {
@@ -229,11 +230,10 @@ RUBY_VALUE ValueHash::toRuby() const
       rbw_hash_aset(ret, key, val);
     }
     catch(RuntimeError & er) {
-      QTextStream o(stdout);
-      o << "Error converting key '" << it.key() << "' (=" 
-        << it.value().toString() << "):"
-        << er.message() << "\n\t"
-        << er.exceptionBacktrace().join("\n\t") << endl;
+      Debug::debug() << "Error converting key '" << it.key() << "' (=" 
+                     << it.value().toString() << "):"
+                     << er.message() << "\n\t"
+                     << er.exceptionBacktrace().join("\n\t") << endl;
     }
   }
   return ret;

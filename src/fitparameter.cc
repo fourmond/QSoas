@@ -23,7 +23,7 @@
 #include <fitdata.hh>
 #include <utils.hh>
 #include <bijection.hh>
-
+#include <debug.hh>
 
 void FitParameter::initialize(FitData * /*data*/)
 {
@@ -213,8 +213,8 @@ void FormulaParameter::initialize(FitData * data)
     parameters << data->parameterDefinitions[i].name;
 
   QString exp2 = Expression::rubyIzeExpression(formula, parameters);
-  QTextStream o(stdout);
-  o << "Tweaked expression: '" << formula << "' -> '" << exp2 << endl;
+  Debug::debug()
+    << "Tweaked expression: '" << formula << "' -> '" << exp2 << endl;
 
   delete expression;
   expression = new Expression(exp2);

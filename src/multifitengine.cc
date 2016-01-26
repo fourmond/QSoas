@@ -27,6 +27,8 @@
 #include <argumentlist.hh>
 #include <general-arguments.hh>
 
+#include <debug.hh>
+
 /// A fit engine with an emphasis on fast fitting for massively multi
 /// stuff.
 class MultiFitEngine : public FitEngine {
@@ -183,7 +185,6 @@ MultiFitEngine::MultiFitEngine(FitData * data) :
     matrices[i] = gsl_matrix_alloc(n,n);
 
   QList<int> sizes;
-  // QTextStream o(stdout);
   for(int i = -1; i < fitData->datasets.size(); i++) {
     int sz = fitData->parametersByDataset[i].size();
     if(sz > 0)
@@ -315,8 +316,8 @@ void MultiFitEngine::trialStep(double l, gsl_vector * params,
 
   if(fitData->debug > 0) {
     // Dump the jTj matrix:
-    QTextStream o(stdout);
-    o << "Trial step at lambda = " << l
+    Debug::debug()
+      << "Trial step at lambda = " << l
       << "\ncurrent: \t" << Utils::vectorString(parameters)
       << "\ngradient:\t" << Utils::vectorString(gradient)
       << "\nstep:    \t" << Utils::vectorString(deltap) << endl;
@@ -333,8 +334,8 @@ void MultiFitEngine::trialStep(double l, gsl_vector * params,
 
   if(fitData->debug > 0) {
     // Dump the jTj matrix:
-    QTextStream o(stdout);
-    o << " -> residuals = " << *res << endl;
+    Debug::debug()
+      << " -> residuals = " << *res << endl;
   }
 }
 
@@ -367,7 +368,6 @@ int MultiFitEngine::iterate()
 
   if(fitData->debug > 0) {
     // Dump the jTj matrix:
-    QTextStream o(stdout);
     // o << "jTj matrix: \n"
     //   << Utils::matrixString(jTj) << endl;
   }
@@ -383,8 +383,8 @@ int MultiFitEngine::iterate()
     bool didFirst = false;
     try {
       if(fitData->debug > 0) {
-        QTextStream o(stdout);
-        o << "Current residuals: " << cur_squares << endl;
+        Debug::debug()
+          << "Current residuals: " << cur_squares << endl;
       }
       
       trialStep(lambda, testp, testf, &ns);
@@ -442,8 +442,8 @@ int MultiFitEngine::iterate()
     /// Continue because the residuals have changed too much
     if((cur_squares - ns)/(cur_squares) >= residualsThreshold ) {
       if(fitData->debug > 0) {
-        QTextStream o(stdout);
-        o << "Continuing because residuals variation too large: "
+        Debug::debug()
+          << "Continuing because residuals variation too large: "
           << (cur_squares - ns)/(cur_squares) << " (real delta: "
           << (cur_squares - ns) << ")" << endl; 
 
@@ -457,8 +457,8 @@ int MultiFitEngine::iterate()
       double p = gsl_vector_get(parameters, i);
       if(fabs(dp)/(relativeMin + fabs(p)) > endThreshold) {
         if(fitData->debug > 0) {
-          QTextStream o(stdout);
-          o << "Continuing because variation of param #" << i <<" too large: "
+          Debug::debug()
+            << "Continuing because variation of param #" << i <<" too large: "
             << fabs(dp)/(relativeMin + fabs(p)) << " (real delta: "
             << dp << ")" << endl; 
         }

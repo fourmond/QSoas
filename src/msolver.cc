@@ -97,7 +97,6 @@ int MSolver::fdf(const gsl_vector * x, void * params,
     tmp[i] = old;
   }
   // if(true) {
-  //   QTextStream o(stdout);
   //   o << "Matrix: " << Utils::matrixString(J) << endl;
   // }
 

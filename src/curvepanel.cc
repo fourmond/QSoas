@@ -430,7 +430,6 @@ void CurvePanel::setZoom(const QRectF & recti, bool force)
 
 void CurvePanel::zoomIn(const QPointF & point, double by)
 {
-  QTextStream o(stdout);
   double factor = pow(1.3, - by);
   setZoom(Utils::scaledAround(currentZoom(), point, factor, factor));
 }
@@ -439,7 +438,6 @@ void CurvePanel::zoomIn(const QPointF & point,
                         Qt::Orientation orient,
                         double by)
 {
-  QTextStream o(stdout);
   double factor = pow(1.3, - by);
   setZoom(Utils::scaledAround(currentZoom(), point, 
                               (orient == Qt::Horizontal ? factor : 1),

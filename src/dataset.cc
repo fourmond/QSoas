@@ -44,6 +44,7 @@
 #include <idioms.hh>
 #include <statistics.hh>
 
+#include <debug.hh>
 
 OrderedList & OrderedList::operator=(const QList<int> & lst)
 {
@@ -75,10 +76,10 @@ void OrderedList::shiftAbove(int idx, int delta)
 
 void DataSet::dump() const
 {
-  QTextStream o(stdout);
   for(int i = 0; i < x().size(); i++)
     for(int j = 0; j < columns.size(); j++)
-      o << columns[j][i] << (j == columns.size() - 1 ? "\n" : "\t");      
+      Debug::debug()
+        << columns[j][i] << (j == columns.size() - 1 ? "\n" : "\t");      
 }
 
 int DataSet::byteSize() const

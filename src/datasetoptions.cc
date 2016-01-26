@@ -91,7 +91,6 @@ bool DatasetOptions::isJaggy(const DataSet * ds) const
 {
   if(jagThreshold <= 0)
     return false;
-  QTextStream o(stdout);
   double dx = ds->x().deltaSum()/(ds->x().max() - ds->x().min());
   if(dx > jagThreshold)
     return true;

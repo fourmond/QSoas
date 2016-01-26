@@ -30,6 +30,7 @@
 #include <outfile.hh>
 
 #include <utils.hh>
+#include <debug.hh>
 
 /// @todo Implement a command-line interface to handle fits.
 /// 
@@ -169,7 +170,6 @@ public:
 
     // Now we output the list of files we detected:
     // QList<int> lst = datasetNames.keys();
-    // QTextStream o(stdout);
     // for(int i = 0; i < lst.size(); i++) {
     //   int idx = lst[i];
     //   o << "Buffer #" << idx << " was " << datasetNames[idx] << endl;
@@ -892,16 +892,19 @@ void FitWorkspace::resetToInitialGuess(int ds)
 
 void FitWorkspace::dump() const 
 {
-  QTextStream o(stdout);
   for(int i = 0; i < parameters.size(); i++) {
     const FitParameter * pm = parameters[i];
-    o << "Param #" << i << "\t" << pm << " = " << values[i] << "\t";
+    Debug::debug()
+      << "Param #" << i << "\t" << pm << " = " << values[i] << "\t";
     if(pm)
-      o << "fixed: " << pm->fixed() << "\tglobal:" << pm->global()
+      Debug::debug()
+        << "fixed: " << pm->fixed() << "\tglobal:" << pm->global()
         << "\t" << pm->paramIndex << "," << pm->dsIndex;
-    o << endl;
+    Debug::debug()
+      << endl;
   }
-  o << endl;
+  Debug::debug()
+    << endl;
 }
 
 void FitWorkspace::computeMatrices()

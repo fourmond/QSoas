@@ -32,6 +32,7 @@
 #include <dataset.hh>
 #include <vector.hh>
 
+#include <debug.hh>
 #include <ruby.hh>
 #include <ruby-templates.hh>
 
@@ -521,7 +522,6 @@ static void assertCmd(const QString &, QString code,
   updateFromOptions(opts, "set-context", sc);
   bool dump = false;
   updateFromOptions(opts, "dump", dump);
-  QTextStream o(stdout);
 
   bool useTol = false;
   double tolerance = 0.0;
@@ -533,7 +533,7 @@ static void assertCmd(const QString &, QString code,
   if(sc == "global") {
     assertContext = code;
     assertFineContext = "";
-    o << "\n" << code << ": "; 
+    Debug::debug() << "\n" << code << ": "; 
     return;
   }
   if(sc == "fine") {
@@ -552,25 +552,25 @@ static void assertCmd(const QString &, QString code,
     else
       keys = code.split(QRegExp("\\s+"));
 
-    o << "\nTest suite summary:\n";
+    Debug::debug() << "\nTest suite summary:\n";
     for(int i = 0; i < keys.size(); i++) {
       const QString & key = keys[i];
       const Assertions & as = assertResults[key];
       Terminal::out << key << ": " << as.total << " total, "
                     << as.failed << " failed, " 
                     << as.exceptions << " exceptions." << endl;
-      o << key << ": " << as.total << " total, "
-        << as.failed << " failed, " 
-        << as.exceptions << " exceptions." << endl;
+      Debug::debug() << key << ": " << as.total << " total, "
+                     << as.failed << " failed, " 
+                     << as.exceptions << " exceptions." << endl;
       totl.add(as);
     }
     if(keys.size() > 0) {
       Terminal::out << "Overall: " << totl.total << " total, "
                     << totl.failed << " failed, " 
                     << totl.exceptions << " exceptions." << endl;
-      o << "Overall: " << totl.total << " total, "
-        << totl.failed << " failed, " 
-        << totl.exceptions << " exceptions." << endl;
+      Debug::debug() << "Overall: " << totl.total << " total, "
+                     << totl.failed << " failed, " 
+                     << totl.exceptions << " exceptions." << endl;
     }
     return;
   }
@@ -591,7 +591,7 @@ static void assertCmd(const QString &, QString code,
     bool check = (useTol ? fabs(rbw_num2dbl(value)) <= tolerance : rbw_test(value));
     if(check) {
       Terminal::out << "assertion success" << endl;
-      o << ".";
+      Debug::debug() << "." << flush;
     }
     else {
       cur->failed++;
@@ -599,13 +599,14 @@ static void assertCmd(const QString &, QString code,
         Terminal::out << "assertion failed: " << code
                       << " (should be below: " << tolerance
                       << " but is: " << rbw_num2dbl(value) << ")" << endl;
-        o << "F: " << code
-          << " (should be below: " << tolerance
-          << " but is: " << rbw_num2dbl(value) << ")" << context << "\n";
+        Debug::debug() << "F: " << code
+                       << " (should be below: " << tolerance
+                       << " but is: " << rbw_num2dbl(value) << ")"
+                       << context << endl;
       }
       else {
         Terminal::out << "assertion failed: " << code  << endl;
-        o << "F: " << code  << context << "\n";
+        Debug::debug() << "F: " << code  << context << endl;
       }
     }
   }
@@ -613,7 +614,8 @@ static void assertCmd(const QString &, QString code,
     cur->exceptions++;
     Terminal::out << "assertion failed with exception: " << code  << ":\n";
     Terminal::out << e.message() << endl;
-    o << "E: " << code  << " -- " << e.message() << context << "\n";
+    Debug::debug() << "E: " << code  << " -- "
+                   << e.message() << context << endl;
   }
 }
 

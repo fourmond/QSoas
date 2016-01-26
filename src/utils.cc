@@ -43,7 +43,6 @@ static QStringList dirGlob(QString directory, QString str,
   if(str.size() == 0)
     str = "*";
   QStringList entries = dir.entryList(QStringList() << str, filters);
-  QTextStream o(stdout);
   for(int j = 0; j < entries.size(); j++)
     rets << dir.filePath(entries[j]);
   
@@ -54,7 +53,6 @@ QStringList Utils::glob(const QString & pattern, bool trim, bool isDir)
 {
   
   QStringList pats = QDir::fromNativeSeparators(pattern).split("/");
-  QTextStream o(stdout);
   bool rewriteHome = false;
   QString hp;
   if(pats[0].size() == 0) {

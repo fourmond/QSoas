@@ -23,6 +23,8 @@
 #include <ruby.hh>
 #include <ruby-templates.hh>
 
+#include <debug.hh>
+
 ArgumentMarshaller * Argument::convertRubyString(RUBY_VALUE value) const
 {
   return fromString(Ruby::toQString(value));
@@ -101,9 +103,8 @@ QWidget * Argument::createEditor(QWidget * parent) const
 void Argument::setEditorValue(QWidget * editor, 
                               ArgumentMarshaller * value) const
 {
-  /// @todo Have a real debug stream ?
-  QTextStream o(stdout);
-  o << "Warning: missing setEditorValue implementation for type "
+  Debug::debug()
+    << "Warning: missing setEditorValue implementation for type "
     << typeName() << endl;
 }
 

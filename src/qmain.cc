@@ -27,6 +27,7 @@
 #include <databackend.hh>
 
 #include <ruby.hh>
+#include <debug.hh>
 
 #include <settings.hh>
 #include <soas.hh>
@@ -44,7 +45,6 @@ public:
   bool notify(QObject * receiver, QEvent * event) 
   {
     // debug !
-    // QTextStream o(stdout);
     // o << "notify: " << receiver << " -- "
     //   << receiver->metaObject()->className()
     //   << " -> event :" << event->type() << endl;
@@ -53,8 +53,8 @@ public:
       return QApplication::notify(receiver, event);
     } 
     catch(Exception & e) {
-      QTextStream o(stdout);
-      o << "Exception thrown from an event handler:" << e.message() 
+      Debug::debug()
+        << "Exception thrown from an event handler:" << e.message() 
         << "\nBacktrace: " << e.exceptionBacktrace().join("\n\t") 
         << endl;
     }

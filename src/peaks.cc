@@ -22,6 +22,7 @@
 #include <exceptions.hh>
 
 #include <dataset.hh>
+#include <debug.hh>
 
 bool PeakInfo::comparePeakMagnitude(const PeakInfo &a, const PeakInfo & b)
 {
@@ -86,7 +87,6 @@ QList<PeakInfo> Peaks::findPeaks(bool includeBorders)
 
 QList<EchemPeakPair> Peaks::findPeakPairs()
 {
-  QTextStream o(stdout);
   QList<EchemPeakPair> pairs;
   // First, look at the first sign change
   int delta = dataset->deltaSignChange(0);
@@ -122,7 +122,7 @@ QList<EchemPeakPair> Peaks::findPeakPairs()
 
     double x = pair.forward.x;
 
-    o << "Looking for reverse peak: " << endl;
+    // o << "Looking for reverse peak: " << endl;
     // Now, we look for the matching pair on the reverse scan, ie the
     // first peak of the opposite direction right after this one.
     for(int j = 0; j < backward.size(); j++) {

@@ -1981,7 +1981,7 @@ static void displayPeaks(QList<PeakInfo> peaks, const DataSet * ds,
       Terminal::out << hsh.keyOrder.join("\t") << endl;
     Terminal::out << hsh.toString() << endl;
     CurveLine * v= new CurveLine;
-    
+
     v->p1 = QPointF(peaks[i].x, 0);
     v->p2 = QPointF(peaks[i].x, peaks[i].y);
     v->pen = gs.getPen(GraphicsSettings::PeaksPen);

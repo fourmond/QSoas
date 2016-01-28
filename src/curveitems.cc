@@ -24,6 +24,7 @@
 #include <soas.hh>
 
 #include <pointiterator.hh>
+#include <utils.hh>
 
 QRectF CurveLine::boundingRect() const
 {
@@ -33,10 +34,12 @@ QRectF CurveLine::boundingRect() const
 void CurveLine::paint(QPainter * painter, const QRectF &,
                       const QTransform & ctw)
 {
-  painter->save();
-  painter->setPen(pen);
-  painter->drawLine(ctw.map(QLineF(p1, p2)));
-  painter->restore();
+  if(Utils::isPointFinite(p1) && Utils::isPointFinite(p2)) {
+    painter->save();
+    painter->setPen(pen);
+    painter->drawLine(ctw.map(QLineF(p1, p2)));
+    painter->restore();
+  }
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -44,10 +47,12 @@ void CurveLine::paint(QPainter * painter, const QRectF &,
 void CurveVerticalLine::paint(QPainter * painter, const QRectF & bbox,
                               const QTransform & ctw)
 {
-  painter->save();
-  painter->setPen(pen);
-  painter->drawLine(ctw.map(QLineF(x, bbox.top(), x, bbox.bottom())));
-  painter->restore();
+  if(std::isfinite(x)) {
+    painter->save();
+    painter->setPen(pen);
+    painter->drawLine(ctw.map(QLineF(x, bbox.top(), x, bbox.bottom())));
+    painter->restore();
+  }
 }
 
 void CurveVerticalLines::paint(QPainter * painter, const QRectF & bbox,
@@ -59,7 +64,8 @@ void CurveVerticalLines::paint(QPainter * painter, const QRectF & bbox,
   painter->setPen(pen);
   for(int i = 0; i < xValues->size(); i++) {
     double x = xValues->value(i);
-    painter->drawLine(ctw.map(QLineF(x, bbox.top(), x, bbox.bottom())));
+    if(std::isfinite(x))
+      painter->drawLine(ctw.map(QLineF(x, bbox.top(), x, bbox.bottom())));
   }
   painter->restore();
 }

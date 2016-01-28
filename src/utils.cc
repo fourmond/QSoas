@@ -246,6 +246,10 @@ QString Utils::deltaStr(const QString & w)
   return ret;
 }
 
+bool Utils::isPointFinite(const QPointF & p)
+{
+  return std::isfinite(p.x()) && std::isfinite(p.y());
+}
 
 void Utils::open(QFile * file, QIODevice::OpenMode mode, bool expand)
 {

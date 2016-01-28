@@ -184,6 +184,10 @@ namespace Utils {
   /// height and it does not have NaNs.
   QRectF sanitizeRectangle(const QRectF & rect);
 
+
+  /// Checks that the given point only has finite coordinates
+  bool isPointFinite(const QPointF & point);
+
   /// @}
 
   /// Prompts the user for confirmation for something. For now,

@@ -102,7 +102,7 @@ public:
 
   /// Writes some information about the widget currently holding the
   /// focus to standard output.
-  void dumpCurrentFocus(const QString & str = "Current focus");
+  static void dumpCurrentFocus(const QString & str = "Current focus");
 
 
   /// Returns a string used to represent a QPointF

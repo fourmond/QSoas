@@ -1,0 +1,23 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: polynomial (order 4)
+# Buffer #0 : generated_fit_polynomial_mod_fit_polynomial_mod.dat
+x_0	0	!	0
+A_0	2	!	1
+A_1	=A_4*10	!	0
+A_2	=A_3*2	!	0
+A_3	=3*A_1/10	!	0
+A_4	=A_0/2	!	0
+# The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
+# Global parameters: 
+
+# x_0	=	0	(fixed)
+# A_0	=	1	+- 0	+-0%
+# A_1	=	2	+- 0	+-0%
+# A_2	=	3	+- 0	+-0%
+# A_3	=	-2	+- 0	+-0%
+# A_4	=	0.2	(fixed)
+# 
+# 
+# Buffer-local parameters: 
+# 
+# Buffer: generated_fit_polynomial_mod_fit_polynomial_mod.dat (weight: 1)

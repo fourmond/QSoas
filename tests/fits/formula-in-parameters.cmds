@@ -14,7 +14,7 @@ assert '$stats["y_max"]-$stats["y_min"] < 2e-12'
 # Second test: chain dependency (ascending)
 sim-polynomial /order=4 parameters/poly-4-3.params 0
 apply-formula y-=1+1*x+2*x**2-2*x**3+2*x**4
-assert '$stats["y_max"]-$stats["y_min"] < 5e-12'
+assert '$stats["y_max"]-$stats["y_min"] < 8e-12'
 
 # Third test: chain dependency (descending)
 sim-polynomial /order=4 parameters/poly-4-4.params 0
@@ -23,5 +23,5 @@ assert '$stats["y_max"]-$stats["y_min"] < 2e-12'
 
 # Fourth test: long (linear) chain of dependencies
 sim-polynomial /order=4 parameters/poly-4-5.params 0
-apply-formula y-=1+10*x+6*x**2+3*x**3+1*x**4
-assert '$stats["y_max"]-$stats["y_min"] < 2e-12'
+apply-formula y-=2+10*x+6*x**2+3*x**3+1*x**4
+assert '$stats["y_max"]-$stats["y_min"] < 6e-12'

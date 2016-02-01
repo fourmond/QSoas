@@ -20,3 +20,6 @@ should do the trick.
 
 On windows, that should do the trick too, provided the GSL, Qt and
 Ruby libraries are in a place where the linker can find it.
+
+
+As of version 2.0, on Windows, ruby 1.9 is no longer supported

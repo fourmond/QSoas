@@ -149,6 +149,18 @@ protected:
     return static_cast<T*>(getStorage(d));
   };
 
+  friend class FitData;
+
+  /// Computes the function (ie in the absence of the residuals)
+  ///
+  /// \a parameters are given in the fully expanded form, ie
+  /// parameters().size() times number of datasets
+  ///
+  /// Keep in mind that in multidataset mode, \a target contains \b
+  /// all datasets !
+  virtual void function(const double * parameters,
+                        FitData * data, gsl_vector * target) const = 0;
+
 public:
 
   /// Returns the name of all the available fits.
@@ -178,16 +190,6 @@ public:
   /// The parameters
   virtual QList<ParameterDefinition> parameters(FitData * data) const = 0;
   
-
-  /// Computes the function (ie in the absence of the residuals)
-  ///
-  /// \a parameters are given in the fully expanded form, ie
-  /// parameters().size() times number of datasets
-  ///
-  /// Keep in mind that in multidataset mode, \a target contains \b
-  /// all datasets !
-  virtual void function(const double * parameters,
-                        FitData * data, gsl_vector * target) const = 0;
 
   /// Does the same thing as function, but only updates the part
   /// corresponding to the given dataset.

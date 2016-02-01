@@ -356,7 +356,8 @@ void FitWorkspace::updateParameterValues()
 void FitWorkspace::recompute()
 {
   updateParameterValues();
-  fitData->fit->function(values, fitData, fitData->storage);
+  
+  fitData->computeFunction(values, fitData->storage);
   computeResiduals();
 }
 

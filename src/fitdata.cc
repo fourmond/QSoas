@@ -199,6 +199,17 @@ bool FitData::usesPointWeights() const
   return standardYErrors != NULL;
 }
 
+int FitData::computeFunction(const double * params, gsl_vector * f,
+                             bool doSubtract)
+{
+  int nb = freeParameters();
+  QVarLengthArray<double, 1024> dt(nb);
+  gsl_vector_view v = gsl_vector_view_array(dt.data(), nb);
+  packParameters(params, &v.vector);
+
+  return this->f(&v.vector, f, doSubtract);
+}
+
 int FitData::f(const gsl_vector * x, gsl_vector * f, bool doSubtract)
 {
   QVarLengthArray<double, 1024> params(fullParameterNumber());
@@ -725,8 +736,7 @@ double FitData::confidenceLimitFactor(double conf) const
 // Debug-related functions
 void FitData::dumpString(const QString & str) const
 {
-  Debug::debug()
-    << str << endl;
+  Debug::debug() << str << endl;
 }
 
 void FitData::dumpGSLParameters(const gsl_vector * params) const

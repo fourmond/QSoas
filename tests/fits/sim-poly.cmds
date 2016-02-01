@@ -1,0 +1,10 @@
+# Takes:
+# - parameter file
+# - coefficients A_0 to A_4
+# - tolerance
+# - an extra parameter fed to sim
+
+generate-buffer 0 10
+sim-polynomial ${8:+/extra-parameters=}${8:-} /order=4 ${1} 0
+apply-formula y-=${2}+${3}*x+${4}*x**2+${5}*x**3+${6}*x**4
+assert '$stats["y_max"]-$stats["y_min"] < ${7}'

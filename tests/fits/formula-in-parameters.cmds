@@ -2,26 +2,19 @@
 generate-buffer 0 10
 
 # Check that a simple polynomial is going to work
-sim-polynomial /order=4 parameters/poly-4-1.params 0
-apply-formula y-=1+2*x+3*x**2-2*x**3+0.2*x**4
-assert '$stats["y_max"]-$stats["y_min"] < 1e-12'
+@ sim-poly.cmds parameters/poly-4-1.params 1 2 3 -2 0.2 1e-12
 
 # First test: simple interdependency
-sim-polynomial /order=4 parameters/poly-4-2.params 0
-apply-formula y-=2+2*x+3*x**2-2*x**3+0.1*x**4
-assert '$stats["y_max"]-$stats["y_min"] < 2e-12'
+@ sim-poly.cmds parameters/poly-4-2.params 2 2 3 -2 0.1 2e-12
 
 # Second test: chain dependency (ascending)
-sim-polynomial /order=4 parameters/poly-4-3.params 0
-apply-formula y-=1+1*x+2*x**2-2*x**3+2*x**4
-assert '$stats["y_max"]-$stats["y_min"] < 8e-12'
+@ sim-poly.cmds parameters/poly-4-3.params 1 1 2 -2 2 8e-12
 
 # Third test: chain dependency (descending)
-sim-polynomial /order=4 parameters/poly-4-4.params 0
-apply-formula y-=1+5*x+5*x**2-2*x**3+0.5*x**4
-assert '$stats["y_max"]-$stats["y_min"] < 2e-12'
+@ sim-poly.cmds parameters/poly-4-4.params 1 5 5 -2 0.5 2e-12
 
 # Fourth test: long (linear) chain of dependencies
-sim-polynomial /order=4 parameters/poly-4-5.params 0
-apply-formula y-=2+10*x+6*x**2+3*x**3+1*x**4
-assert '$stats["y_max"]-$stats["y_min"] < 6e-12'
+@ sim-poly.cmds parameters/poly-4-5.params 2 10 6 3 1 6e-12
+
+# Fifth test: use of extra parameters
+@ sim-poly.cmds parameters/poly-4-6.params 2 4 2 1 0 1e-12 s

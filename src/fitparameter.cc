@@ -213,8 +213,11 @@ void FormulaParameter::initialize(FitData * data)
     parameters << data->parameterDefinitions[i].name;
 
   QString exp2 = Expression::rubyIzeExpression(formula, parameters);
-  Debug::debug()
-    << "Tweaked expression: '" << formula << "' -> '" << exp2 << endl;
+
+  // Write that only if we're debugging QSoas
+  if(Debug::debugLevel() > 0)
+    Debug::debug()
+      << "Tweaked expression: '" << formula << "' -> '" << exp2 << endl;
 
   delete expression;
   expression = new Expression(exp2);

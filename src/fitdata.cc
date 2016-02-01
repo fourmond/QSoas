@@ -383,17 +383,31 @@ void FitData::unpackParameters(const gsl_vector * packed,
   int nb_ds_params = parameterDefinitions.size();
   int nb_datasets = datasets.size();
 
+  int nb_second_pass = 0;
 
-  for(int i = 0; i < parameters.size(); i++)
+  for(int i = 0; i < parameters.size(); i++) {
     parameters[i]->copyToUnpacked(unpacked, packed, 
                                  nb_datasets, nb_ds_params);
-
-  /// @todo Make that much more subtle to handle interdependence ?
-  /// Lets say that for now, interdependence isn't an option !
-  for(int i = 0; i < parameters.size(); i++)
     if(parameters[i]->needSecondPass())
-      parameters[i]->copyToUnpacked(unpacked, packed, 
-                                    nb_datasets, nb_ds_params);
+      nb_second_pass++;
+  }
+
+
+  // We make as many second passes as there are parameters needing it,
+  // so that if there is a linear chain of parameters, the whole
+  // dependency chain is complete
+
+  /// @todo Smarter interdependency detection, to compute the right
+  /// parameters in the right order only once. Only the order in which
+  /// the parameters have to be evaluated should be stored
+
+  while(nb_second_pass > 0) {
+    for(int i = 0; i < parameters.size(); i++)
+      if(parameters[i]->needSecondPass())
+        parameters[i]->copyToUnpacked(unpacked, packed, 
+                                      nb_datasets, nb_ds_params);
+    --nb_second_pass;
+  }
 
 }
 

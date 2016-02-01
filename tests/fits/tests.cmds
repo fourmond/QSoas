@@ -1,3 +1,5 @@
 # The test suite for the fit infrastructure, at least that bit which
 # can be tested
 @ formula-in-parameters.cmds
+@ formula-in-parameters-multi.cmds
+@ derivatives.cmds

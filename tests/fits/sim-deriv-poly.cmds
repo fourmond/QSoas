@@ -1,0 +1,11 @@
+# Takes:
+# - parameter file
+# - coefficients A_0 to A_4
+# - tolerance
+# - an optional
+# - an extra parameter fed to sim
+
+generate-buffer 0 10
+sim-deriv-only-polynomial ${9:+/extra-parameters=}${9:-} /order=4 ${1} ${8:-0}
+apply-formula y-=${3}+2*${4}*x+3*${5}*x**2+4*${6}*x**3
+assert '$stats["y_max"]-$stats["y_min"]' ${7}

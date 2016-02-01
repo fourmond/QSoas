@@ -1,0 +1,24 @@
+# Checks the parsing and use of formulas in parameters
+generate-buffer 0 10
+generate-buffer 0 10
+
+
+# define-derived-fit /mode=deriv-only polynomial
+
+
+@ sim-deriv-poly.cmds parameters/poly-4-1.params 1 2 3 -2 0.2 1e-10
+
+# Same with an extra parameter
+@ sim-deriv-poly.cmds parameters/poly-4-2.params 2 2 3 -2 0.1 2e-10 0 s
+
+# Two buffers
+@ sim-deriv-poly.cmds parameters/poly2-4-1.params 1 2 3 -1 -2 3e-9 0,1
+
+# Same, but with extra parameters
+@ sim-deriv-poly.cmds parameters/poly2-4-2.params 2 3 4 -2 -1 2e-9 0,1 s
+
+# One formula
+@ sim-deriv-poly.cmds parameters/poly2-4-3.params 2 3 4 -2 0.5 2e-10 0,1 s
+
+
+

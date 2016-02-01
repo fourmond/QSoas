@@ -1,0 +1,16 @@
+# Checks the parsing and use of formulas in parameters
+generate-buffer 0 10
+generate-buffer 0 10
+
+# We just check the second
+@ sim-poly.cmds parameters/poly2-4-1.params 1 2 3 -1 -2 1e-11 0,1
+
+# Same, but with extra parameters
+@ sim-poly.cmds parameters/poly2-4-2.params 2 3 4 -2 -1 1e-11 0,1 s
+
+# One formula
+@ sim-poly.cmds parameters/poly2-4-3.params 2 3 4 -2 0.5 1e-11 0,1 s
+
+
+
+

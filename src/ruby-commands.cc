@@ -50,7 +50,8 @@ static QStringList prepareArgs(const DataSet * ds, int extra = 0,
                                QStringList * cn = NULL)
 {
   QStringList vars;
-  vars << "i" << "seg";
+  // 
+  vars << "i" << "seg" << "x_0" << "i_0";
 
   QStringList colNames;
   colNames << "x" << "y";
@@ -73,20 +74,26 @@ static void loopOverDataset(const DataSet * ds,
   int seg = 0;
   int origCols = ds->nbColumns();
   int columns = origCols + extra;
-  QVarLengthArray<double, 50> args(columns + 2);
+  QVarLengthArray<double, 50> args(columns + 4);
   for(int i = 0; i < size; i++) {
-    while(seg < ds->segments.size() && i >= ds->segments[seg])
+    while(seg < ds->segments.size() && i >= ds->segments[seg]) {
       seg++;
+    }
     args[0] = i;                // the index !
     args[1] = seg;
+    if(seg >= 0) {
+      int ib = ds->segments.value(seg-1, 0);
+      args[2] = ds->x().value(ib);
+      args[3] = ib;
+    }
 
     for(int j = 0; j < columns; j++) {
       if(j >= origCols)
-        args[j+2] = 0;
+        args[j+4] = 0;
       else
-        args[j+2] = ds->column(j)[i];
+        args[j+4] = ds->column(j)[i];
     }
-    loop(args.data(), args.data() + 2);
+    loop(args.data(), args.data() + 4);
   }
 }
 

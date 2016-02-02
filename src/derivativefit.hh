@@ -38,10 +38,21 @@ public:
   } Mode;
 
 protected:
+
+  /// @name Redirectors
+  ///
+  /// The functions here just redirect to the wrapped fit
+  /// 
+  /// @{
   virtual void processOptions(const CommandOptions & opts, FitData * data) const;
   virtual QString optionsString(FitData * data) const;
-  virtual void checkDatasets(const FitData * data) const;
+  virtual ArgumentList * fitHardOptions() const;
+  virtual ArgumentList * fitSoftOptions() const;
+  virtual CommandOptions currentSoftOptions(FitData * data) const;
+  virtual void processSoftOptions(const CommandOptions & opts, FitData * data) const;
+  /// @}
 
+  virtual void checkDatasets(const FitData * data) const;
 
   /// The underlying fit
   PerDatasetFit * underlyingFit;

@@ -31,6 +31,7 @@
 #include <idioms.hh>
 
 
+/// Redirectors
 
 void DerivativeFit::processOptions(const CommandOptions & opts,
                                      FitData * data) const
@@ -58,6 +59,30 @@ QString DerivativeFit::optionsString(FitData *  data) const
   TemporaryChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
   return Fit::optionsString(underlyingFit, data) + " -- derivative" + n;
 }
+
+ArgumentList * DerivativeFit::fitHardOptions() const
+{
+  return Fit::fitHardOptions(underlyingFit);
+}
+
+ArgumentList * DerivativeFit::fitSoftOptions() const
+{
+  return Fit::fitSoftOptions(underlyingFit);
+}
+
+CommandOptions DerivativeFit::currentSoftOptions(FitData * data) const
+{
+  Storage * s = storage<Storage>(data);
+  TemporaryChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+  return Fit::currentSoftOptions(underlyingFit, data);
+}
+
+void DerivativeFit::processSoftOptions(const CommandOptions & opts, FitData * data) const
+{
+  Storage * s = storage<Storage>(data);
+  TemporaryChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+  Fit::processSoftOptions(underlyingFit, opts, data);
+}  
 
 void DerivativeFit::checkDatasets(const FitData * data) const
 {

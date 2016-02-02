@@ -3,7 +3,7 @@ generate-buffer 0 10
 generate-buffer 0 10
 
 
-# define-derived-fit /mode=deriv-only polynomial
+define-derived-fit /mode=deriv-only polynomial
 
 
 @ sim-deriv-poly.cmds parameters/poly-4-1.params 1 2 3 -2 0.2 1e-10

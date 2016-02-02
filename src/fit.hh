@@ -1,6 +1,6 @@
 /**
    \file fit.hh
-   Implementation of fits.
+   Implementation of derivative fits.
    Copyright 2011 by Vincent Fourmond
              2012, 2013, 2014 by CNRS/AMU
 
@@ -104,20 +104,50 @@ protected:
   /// even if you don't care about options.
   virtual void processOptions(const CommandOptions & opts, FitData * data) const;
 
-  /// Very cumbersome, but it seems to be necessary anyway...
-  static void processOptions(const Fit * f, const CommandOptions & opts, FitData * data) {
-    f->processOptions(opts, data);
-  };
-
   /// Returns a string describing the options used, when applicable
   virtual QString optionsString(FitData * /*data*/) const {
     return QString();
   };
 
+  /// @name Static redirectors
+  ///
+  /// This comes from the fact that one cannot call protected members
+  /// of the base from derived classes excepted via a pointer through
+  /// derived.
+  ///
+  /// http://stackoverflow.com/questions/11631777/accessing-a-protected-member-of-a-base-class-in-another-subclass
+  ///
+  /// @{
+  
   /// Same cumbersome hack as for processOptions()
   static QString optionsString(const Fit * f, FitData * data) {
     return f->optionsString(data);
   };
+
+
+  /// Very cumbersome, but it seems to be necessary anyway...
+  static void processOptions(const Fit * f, const CommandOptions & opts, FitData * data) {
+    f->processOptions(opts, data);
+  };
+
+  static ArgumentList * fitHardOptions(const Fit * f) {
+    return f->fitHardOptions();
+  };
+
+  static ArgumentList * fitSoftOptions(const Fit * f) {
+    return f->fitSoftOptions();
+  };
+
+  static CommandOptions currentSoftOptions(const Fit * f, FitData * data) {
+    return f->currentSoftOptions(data);
+  };
+
+  static void processSoftOptions(const Fit * f, const CommandOptions & opts, FitData * data) {
+    f->processSoftOptions(opts, data);
+  };
+
+
+  /// @}
 
   /// Checks that the datasets provided to the fits are correct. Raise
   /// an appropriate runtime exception if that isn't the case.

@@ -226,6 +226,14 @@ static CommandLineOption ext("--exit-after-running", [](const QStringList &) {
     exitAfterRunning = true;
   }, 0, "exits QSoas after running the commands");
 
+QString MainWin::versionString()
+{
+  return QString("This is QSoas version " SOAS_VERSION
+                 " running with %1 and Qt %2\n" SOAS_BUILD_INFO
+                 " with Qt " QT_VERSION_STR).
+    arg(Ruby::versionString()).arg(qVersion());
+}
+
 MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
 {
   soasInstance = theSoas;
@@ -239,11 +247,7 @@ MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
   QIcon appIcon(":QSoas-logo.png");
   setWindowIcon(appIcon);
 
-  Terminal::out << "This is QSoas version " << SOAS_VERSION 
-                << " running with " << Ruby::versionString()
-                << " and Qt " << qVersion() 
-                << "\n" << SOAS_BUILD_INFO << " with Qt "
-                << QT_VERSION_STR << endl;
+  Terminal::out << versionString()<< endl;
   Credits::displayStartupMessage();
   Terminal::out << "PID " << QCoreApplication::applicationPid()
                 << " starting on " << soasInstance->startupTime().toString()
@@ -380,3 +384,4 @@ void MainWin::focusInEvent(QFocusEvent * ev)
   commandWidget->setFocus();    // This doesn't seem to work
                                 // systematically.
 }
+

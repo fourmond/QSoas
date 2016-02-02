@@ -913,3 +913,23 @@ dbg("debug", // command name
     "Debug",
     "Setup debug output");
 
+//////////////////////////////////////////////////////////////////////
+
+// A version command
+
+void versionCommand(const QString &, const CommandOptions & /*opts*/)
+{
+  Terminal::out << MainWin::versionString() << endl;
+  Debug::debug() << MainWin::versionString() << endl;
+}
+
+
+static Command 
+ver("version", // command name
+    effector(versionCommand), // action
+    "file",  // group name
+    NULL, // arguments
+    NULL, // options
+    "Version",
+    "Show version number");
+

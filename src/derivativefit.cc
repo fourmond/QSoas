@@ -112,10 +112,7 @@ QList<ParameterDefinition> DerivativeFit::parameters(FitData * data) const
 void DerivativeFit::initialGuess(FitData * data, double * guess) const
 {
   Storage * s = storage<Storage>(data);
-  // Now, that won't work !
-  int tp = s->originalParameters;
-  if(mode == Combined)
-    ++tp;
+  int tp = data->parametersPerDataset();
   TemporaryChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
   for(int i = 0; i < data->datasets.size(); i++) {
     underlyingFit->initialGuess(data, data->datasets[i], guess + i*tp);

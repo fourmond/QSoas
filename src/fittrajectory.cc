@@ -21,6 +21,30 @@
 #include <fittrajectory.hh>
 #include <exceptions.hh>
 
+#include <fitdata.hh>
+
+FitTrajectory::FitTrajectory(const Vector & init, const Vector & final,
+                             const Vector & errors, 
+                             double res, double rr, double intr,
+                             const QString & eng,
+                             const QDateTime & start,
+                             const FitData * data,
+                             const QDateTime & end) :
+    initialParameters(init), finalParameters(final), 
+    parameterErrors(errors),
+    ending(Converged), residuals(res), relativeResiduals(rr),
+    internalResiduals(intr),
+    engine(eng), startTime(start) {
+    if(end.isValid())
+      endTime = end;
+    else
+      endTime = QDateTime::currentDateTime();
+    if(! final.allFinite())
+      ending = NonFinite;
+    iterations = data->nbIterations;
+    evaluations = data->evaluationNumber;
+  };
+
 
 bool FitTrajectory::isWithinErrorRange(const FitTrajectory & o) const
 {

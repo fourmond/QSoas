@@ -23,6 +23,8 @@
 
 #include <vector.hh>
 
+class FitData;
+
 /// This class represents a "fit operation", ie what happens every
 /// time the user clicks on the fit button.
 ///
@@ -70,27 +72,22 @@ public:
   /// Ending date/time
   QDateTime endTime;
 
+  /// The number of iterations
+  int iterations;
+
+  /// The number of function evaluations
+  int evaluations;
+
   FitTrajectory() {
   };
 
   FitTrajectory(const Vector & init, const Vector & final,
                 const Vector & errors, 
                 double res, double rr, double intr,
-                const QString & eng, const QDateTime & start,
-                const QDateTime & end = QDateTime()) :
-    initialParameters(init), finalParameters(final), 
-    parameterErrors(errors),
-    ending(Converged), residuals(res), relativeResiduals(rr),
-    internalResiduals(intr),
-    engine(eng), startTime(start) {
-    if(end.isValid())
-      endTime = end;
-    else
-      endTime = QDateTime::currentDateTime();
-    if(! final.allFinite())
-      ending = NonFinite;
-
-  };
+                const QString & eng,
+                const QDateTime & start,
+                const FitData * data,
+                const QDateTime & end = QDateTime());
 
   /// Comparison by residuals.
   bool operator<(const FitTrajectory & o) const {

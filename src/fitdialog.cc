@@ -688,7 +688,7 @@ void FitDialog::startFit()
                   parameters.overallRelativeResiduals,
                   residuals,
                   fitEngineFactory->name,
-                  startTime);
+                  startTime, data);
   if(shouldCancelFit || soas().shouldStopFit)
     trajectories.last().ending = FitTrajectory::Cancelled;
   else if(data->nbIterations >= iterationLimit)

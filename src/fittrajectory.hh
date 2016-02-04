@@ -42,6 +42,8 @@ public:
   /// The errors on the final parameters
   Vector parameterErrors;
 
+  QVector<bool> fixed;
+
   typedef enum {
     Converged,
     Cancelled,
@@ -63,6 +65,9 @@ public:
   /// The internal residuals
   double internalResiduals;
 
+  /// The delta between the residuals of the last two iterations
+  double residualsDelta;
+
   /// The fit engine
   QString engine;
 
@@ -83,7 +88,7 @@ public:
 
   FitTrajectory(const Vector & init, const Vector & final,
                 const Vector & errors, 
-                double res, double rr, double intr,
+                double res, double rr, double intr, double delta,
                 const QString & eng,
                 const QDateTime & start,
                 const FitData * data,

@@ -118,7 +118,18 @@ namespace Utils {
 
   /// Attemps to guess the codec of the given byte string.
   QTextCodec * autoDetectCodec(const QByteArray & str);
-  
+
+
+  /// Converts a list of booleans into a simple two-letter string.
+  QString writeBooleans(const QList<bool> & bools,
+                        const QChar & tru = 'X',
+                        const QChar & fals = 'x');
+
+  /// Converts back from writeBoolean(). All the characters that do
+  /// not correspond to true correspond to false.
+  QList<bool> readBooleans(const QString& str,
+                       const QChar & tru = 'X');
+
   /// @}
 
 

@@ -147,6 +147,11 @@ public:
   /// The residuals, as reported by the FitEngine.
   double residuals();
 
+  /// Whether the given parameter (id, dataset) is fixed or not.
+  ///
+  /// @a ds has to be positive.
+  bool isFixed(int id, int ds) const;
+
 
   /// All parameters
   PossessiveList<FitParameter> parameters;

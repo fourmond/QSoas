@@ -486,6 +486,17 @@ void FitData::initializeParameters()
 }
 
 
+bool FitData::isFixed(int id, int ds) const
+{
+  const QList<FreeParameter *> & lst = parametersByDefinition[id];
+  for(int i = 0; i < lst.size(); i++)
+    if(lst[i]->dsIndex == -1 ||
+       lst[i]->dsIndex == ds)
+      return false;
+  return true;
+}
+
+
 void FitData::initializeSolver(const double * initialGuess, 
                                FitEngineFactoryItem * feit,
                                CommandOptions * opts)

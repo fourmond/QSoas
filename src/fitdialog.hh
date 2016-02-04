@@ -77,6 +77,7 @@ class FitDialog : public QDialog {
   /// The current index
   int currentIndex;
 
+
   /// A flag to avoid updating twice...
   bool settingEditors;
 
@@ -174,6 +175,9 @@ public:
 
   /// Idem, directly with the factory item
   void setFitEngineFactory(FitEngineFactoryItem * factory);
+
+  /// The maximum number of iterations
+  int iterationLimit;
 
 
 signals:

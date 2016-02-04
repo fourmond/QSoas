@@ -72,6 +72,8 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
   setWindowModality(Qt::WindowModal);
   resize(fitDialogSize);
 
+  iterationLimit = 150;
+
 
   if(displayWeights && d->datasets.size() > 1)
     bufferWeightEditor = new QLineEdit;
@@ -567,10 +569,9 @@ void FitDialog::startFit()
   QTime timer;
   timer.start();
   
-  int iterationLimit = 150;
-
   int status = -1;
   double residuals = 0.0/0.0;
+  double lastResiduals = 0.0/0.0;
 
   if(! errorInconsistencyShown) {
     errorInconsistencyShown = true;
@@ -626,6 +627,7 @@ void FitDialog::startFit()
       if(shouldCancelFit || status != GSL_CONTINUE || 
          data->nbIterations >= iterationLimit || soas().shouldStopFit)
         break;
+      lastResiduals = residuals;
 
     } while(true);
     cancelButton->setVisible(false);
@@ -687,6 +689,7 @@ void FitDialog::startFit()
                   parameters.overallPointResiduals,
                   parameters.overallRelativeResiduals,
                   residuals,
+                  lastResiduals-residuals,
                   fitEngineFactory->name,
                   startTime, data);
   if(shouldCancelFit || soas().shouldStopFit)

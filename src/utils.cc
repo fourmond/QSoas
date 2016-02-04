@@ -154,6 +154,7 @@ QString Utils::commonBeginning(const QStringList & strings)
   return ret;
 }
 
+/// @todo Reversing twice, but, well...
 QString Utils::commonEnding(const QStringList & strings)
 {
   QStringList revd;
@@ -161,6 +162,29 @@ QString Utils::commonEnding(const QStringList & strings)
     revd << Utils::reverseString(strings[i]);
   return Utils::reverseString(Utils::commonBeginning(revd));
 }
+
+QString Utils::writeBooleans(const QList<bool> & bools,
+                             const QChar & tru,
+                             const QChar & fals)
+{
+  QString s;
+  for(int i = 0; i < bools.size(); i++)
+    s.append(bools[i] ? tru : fals);
+  return s;
+}
+
+QList<bool> Utils::readBooleans(const QString & bools,
+                                const QChar & tru)
+{
+  QList<bool> rv;
+  for(int i = 0; i < bools.size(); i++)
+    rv << (bools[i] == tru );
+  return rv;
+}
+
+
+
+
 
 QString Utils::smartConcatenate(const QStringList & strings,
                                 const QString & join,

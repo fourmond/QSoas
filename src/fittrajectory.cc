@@ -22,10 +22,12 @@
 #include <exceptions.hh>
 
 #include <fitdata.hh>
+#include <utils.hh>
 
 FitTrajectory::FitTrajectory(const Vector & init, const Vector & final,
                              const Vector & errors, 
-                             double res, double rr, double intr,
+                             double res, double rr,
+                             double intr, double d,
                              const QString & eng,
                              const QDateTime & start,
                              const FitData * data,
@@ -33,7 +35,7 @@ FitTrajectory::FitTrajectory(const Vector & init, const Vector & final,
     initialParameters(init), finalParameters(final), 
     parameterErrors(errors),
     ending(Converged), residuals(res), relativeResiduals(rr),
-    internalResiduals(intr),
+    internalResiduals(intr), residualsDelta(d),
     engine(eng), startTime(start) {
     if(end.isValid())
       endTime = end;
@@ -43,6 +45,11 @@ FitTrajectory::FitTrajectory(const Vector & init, const Vector & final,
       ending = NonFinite;
     iterations = data->nbIterations;
     evaluations = data->evaluationNumber;
+
+    int total = data->fullParameterNumber();
+    int nbp = data->parametersPerDataset();
+    for(int i = 0; i < total; i++)
+      fixed << data->isFixed(i % nbp, i/nbp);
   };
 
 
@@ -80,7 +87,13 @@ QStringList FitTrajectory::exportColumns() const
   ret << QString::number(residuals)
       << QString::number(relativeResiduals)
       << QString::number(internalResiduals)
-      << engine;
+      << engine
+      << QString::number(startTime.toMSecsSinceEpoch())
+      << QString::number(endTime.toMSecsSinceEpoch())
+      << QString::number(iterations)
+      << QString::number(evaluations)
+      << QString::number(residualsDelta)
+      << Utils::writeBooleans(fixed.toList());
 
   return ret;
 }
@@ -107,6 +120,24 @@ void FitTrajectory::loadFromColumns(const QStringList & cls, int nb)
   relativeResiduals = cols.takeFirst().toDouble();
   internalResiduals = cols.takeFirst().toDouble();
   engine = cols.takeFirst();
+  if(cols.size() == 0)
+    return;
+      
+  qint64 t = cols.takeFirst().toLongLong();
+  startTime = QDateTime::fromMSecsSinceEpoch(t);
+  t = cols.takeFirst().toLongLong();
+  endTime = QDateTime::fromMSecsSinceEpoch(t);
+    
+  if(cols.size() == 0)
+    return;
+
+  iterations = cols.takeFirst().toInt();
+  evaluations = cols.takeFirst().toInt();
+
+  if(cols.size() == 0)
+    return;
+  residualsDelta = cols.takeFirst().toDouble();
+  fixed =  Utils::readBooleans(cols.takeFirst()).toVector();
 }
 
 QStringList FitTrajectory::exportHeaders(const QStringList & s, int ds)

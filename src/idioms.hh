@@ -1,7 +1,7 @@
 /**
    \file idoms.hh
-   A few template (and not templates) classes for things that come in quite useful
-   Copyright 2013, 2014 by CNRS/AMU
+   A few template (and not templates) classes for things that come in quite useful to do things in the C++ way
+   Copyright 2013, 2014, 2016 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -109,6 +109,23 @@ public:
     }
   };
 };
+
+class TemporarilyDisableWidget {
+  QWidget * target;
+
+  bool initialState;
+public:
+  TemporarilyDisableWidget(QWidget * tg, bool enable = false) :
+    target(tg) {
+    initialState = target->isEnabled();
+    target->setEnabled(enable);
+  };
+
+  ~TemporarilyDisableWidget() {
+    target->setEnabled(initialState);
+  };
+};
+                              
 
 
 #endif

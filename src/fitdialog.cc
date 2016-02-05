@@ -53,7 +53,11 @@
 #include <curvebrowser.hh>
 #include <debug.hh>
 
+#include <idioms.hh>
+
 static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
+
+static SettingsValue<int> fitIterationLimit("fitdialog/iteration-limit", 100);
 
 FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) : 
   data(d),
@@ -72,7 +76,6 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
   setWindowModality(Qt::WindowModal);
   resize(fitDialogSize);
 
-  iterationLimit = 150;
 
 
   if(displayWeights && d->datasets.size() > 1)
@@ -121,6 +124,8 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
   if(parameters.hasSubFunctions())
     displaySubFunctions = parameters.displaySubFunctions();
   compute();
+
+  setIterationLimit(::fitIterationLimit);
 
   
 
@@ -284,6 +289,10 @@ void FitDialog::setupFrame()
 
   residualsDisplay = new QLabel(" ");
   hb->addWidget(residualsDisplay);
+
+  hb->addWidget(new QLabel("Max iterations:"));
+  iterationLimitEditor = new QLineEdit();
+  hb->addWidget(iterationLimitEditor);
 
   hb->addWidget(new QLabel("Fit engine:"));
 
@@ -449,6 +458,17 @@ void FitDialog::closeEvent(QCloseEvent * event)
   QDialog::closeEvent(event);
 }
 
+void FitDialog::setIterationLimit(int lim)
+{
+  iterationLimit = lim;
+  iterationLimitEditor->setText(QString::number(lim));
+}
+
+int FitDialog::getIterationLimit() const
+{
+  return iterationLimitEditor->text().toInt();
+}
+
 
 void FitDialog::dataSetChanged(int newds)
 {
@@ -568,10 +588,14 @@ void FitDialog::startFit()
 {
   QTime timer;
   timer.start();
+
+  TemporarilyDisableWidget d(iterationLimitEditor);
   
   int status = -1;
   double residuals = 0.0/0.0;
   double lastResiduals = 0.0/0.0;
+
+  iterationLimit = getIterationLimit();
 
   if(! errorInconsistencyShown) {
     errorInconsistencyShown = true;

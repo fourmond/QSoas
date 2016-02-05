@@ -131,6 +131,9 @@ class FitDialog : public QDialog {
   /// The parameters as saved just before starting the fit
   Vector parametersBackup;
 
+  /// The editor for the maximum number of iterations
+  QLineEdit * iterationLimitEditor;
+
   /// The fit engine factory in use
   FitEngineFactoryItem * fitEngineFactory;
 
@@ -164,6 +167,9 @@ protected:
   /// Exports to a file after prompting for a name
   void promptExport(bool withErrors);
 
+  /// The maximum number of iterations
+  int iterationLimit;
+
 
 public:
   FitDialog(FitData * data, bool displayWeights = false, 
@@ -176,8 +182,11 @@ public:
   /// Idem, directly with the factory item
   void setFitEngineFactory(FitEngineFactoryItem * factory);
 
-  /// The maximum number of iterations
-  int iterationLimit;
+  /// Sets the maximal number of iterations
+  void setIterationLimit(int nb);
+
+  /// returns the maximal number of iterations
+  int getIterationLimit() const;
 
 
 signals:
@@ -219,7 +228,6 @@ protected slots:
 
   /// Updates the display of residuals.
   void updateResidualsDisplay();
-
 
   /// Hides/shows all the parameter editors
   void showEditors(bool show = true);

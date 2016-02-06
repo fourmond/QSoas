@@ -100,6 +100,10 @@ public:
     /// the number of electrons (counted negatively if on the left)
     int electrons;
 
+    /// A storage space for caching stuff -- this is hanlded at the
+    /// KineticSystem level.
+    double cache[2];
+
     /// Returns true when:
     /// * the stoechiometry is one for each reactant
     /// * the rate constants are constants
@@ -141,11 +145,13 @@ public:
     /// rate.
     virtual QString exchangeRate() const;
 
+    /// Stores useful values in the cache. Not used as of now.
+    virtual void computeCache(const double * vals);
   };
 
 
   class RedoxReaction : public Reaction {
-  protected:
+  public:
     /// Index of the potential in the parameters
     int potentialIndex;
 
@@ -154,7 +160,6 @@ public:
 
     // We reuse the forward/backward stuff but with a different
     // meaning.
-  public:
     RedoxReaction(int els, const QString & e0, const QString & k0);
 
     virtual void setParameters(const QStringList & parameters);
@@ -164,6 +169,11 @@ public:
     virtual void computeRateConstants(const double * vals, 
                                       double * forward, double * backward) const;
     virtual QString exchangeRate() const;
+
+    /// Stores useful values in the cache. Stores:
+    /// * exp(fara * 0.5 * electrons * (- e0));
+    /// * k0
+    virtual void computeCache(const double * vals);
   };
 
 protected:
@@ -173,6 +183,20 @@ protected:
 
   /// List of reactions
   QVector<Reaction *> reactions;
+
+  /// @name Cache
+  ///
+  /// These attributes are used to setting up and maintaining the cache 
+  ///  
+  /// @{
+
+  /// The only reactions not handled by the 
+  QVector<RedoxReaction *> redoxReactions;
+
+  /// The cached part of the jacobian, set up by setupCache()
+  gsl_matrix * cachedJacobian;
+
+  /// @}
 
   /// A hash species name -> species index
   QHash<QString, int> speciesLookup;
@@ -233,6 +257,11 @@ public:
   /// Takes also an extra list of parameters
   void prepareForSteadyState(const QStringList & extra = QStringList());
 
+
+  /// Sets up the cache for the linear jacobian. Returns false, if,
+  /// for any reason, the cache could not be setup.
+  bool setupCache(const double * params);
+
   /// Returns all the parameters
   QStringList allParameters() const;
 
@@ -282,6 +311,12 @@ public:
   void computeLinearJacobian(gsl_matrix * target,
                              const double * parameters,
                              gsl_vector * coeffs = NULL) const;
+
+
+  /// Same thing as computeLinearJacobian, but uses the cache.
+  void computeCachedLinearJacobian(gsl_matrix * target,
+                                   const double * parameters,
+                                   gsl_vector * coeffs = NULL) const;
 
 
   /// Reads reactions from a file, and add them to the current system.

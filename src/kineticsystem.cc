@@ -23,12 +23,20 @@
 #include <exceptions.hh>
 #include <utils.hh>
 
+#include <idioms.hh>
+#include <debug.hh>
 #include <gsl/gsl_const_mksa.h>
 
 KineticSystem::Reaction::Reaction(const QString & fd, const QString & bd) :
   forwardRate(fd), backwardRate(bd), forward(NULL), backward(NULL), 
   electrons(0)
 {
+  
+}
+
+void KineticSystem::Reaction::computeCache(const double * /*vals*/)
+{
+  // Nothing to do here.
 }
 
 
@@ -181,6 +189,19 @@ void KineticSystem::RedoxReaction::computeRateConstants(const double * vals,
   *bd = k0 / ex;
 }
 
+void KineticSystem::RedoxReaction::computeCache(const double * vals)
+{
+  double e0, k0;                // e0 is forward, k0 is backward
+  Reaction::computeRateConstants(vals, &e0, &k0);
+  // Debug::debug() << "Cache: " << k0 << " - " << e0 << endl;
+  cache[1] = k0;
+  double fara = GSL_CONST_MKSA_FARADAY /
+    (vals[temperatureIndex] * GSL_CONST_MKSA_MOLAR_GAS);
+
+  double ex = exp(-fara * 0.5 * electrons * e0);
+  cache[0] = ex;
+}
+
 QString KineticSystem::RedoxReaction::exchangeRate() const
 {
   return backwardRate;
@@ -191,9 +212,11 @@ QString KineticSystem::RedoxReaction::exchangeRate() const
 //////////////////////////////////////////////////////////////////////
 
 KineticSystem::KineticSystem() : 
-  redoxReactionScaling(1), reporterExpression(NULL), linear(false),
-  checkRange(true)
+  linear(false), checkRange(true), redoxReactionScaling(1),
+  reporterExpression(NULL)
+  
 {
+  cachedJacobian = NULL;
 }
 
 KineticSystem::~KineticSystem()
@@ -201,6 +224,8 @@ KineticSystem::~KineticSystem()
   for(int i = 0; i < reactions.size(); i++)
     delete reactions[i];
   delete reporterExpression;
+  if(cachedJacobian)
+    gsl_matrix_free(cachedJacobian);
 }
 
 int KineticSystem::speciesNumber() const
@@ -388,6 +413,104 @@ void KineticSystem::computeLinearJacobian(gsl_matrix * target,
         *gsl_vector_ptr(coeffs, l) -= forwardRate;
         *gsl_vector_ptr(coeffs, r) += backwardRate;
       }
+    }
+    // Debug::debug() << "Reaction #" << i << 
+    //   ": " << forwardRate << " -- " << backwardRate << endl;
+
+    if(checkRange && (forwardRate < 0 || backwardRate < 0))
+      throw RangeError("Negative rate constant for reaction #%1").
+        arg(i);
+
+    *gsl_matrix_ptr(target, l, l) -= forwardRate;
+    *gsl_matrix_ptr(target, r, l) += forwardRate;
+    *gsl_matrix_ptr(target, r, r) -= backwardRate;
+    *gsl_matrix_ptr(target, l, r) += backwardRate;
+  }
+}
+
+
+/// The cache is setup assuming that ALL the non-redox reactions have
+/// constant rates. This is true as of now if the isLinear() returns
+/// true.
+bool KineticSystem::setupCache(const double * params)
+{
+  if(! isLinear())
+    return false;
+
+  if(! cachedJacobian)
+    cachedJacobian = gsl_matrix_alloc(species.size(), species.size());
+
+  // Debug::debug() << "Trying to set up cache" <<  endl;
+
+  { 
+    TemporaryChange<double> t(redoxReactionScaling, 0);
+    computeLinearJacobian(cachedJacobian, params, NULL);
+  }
+  // Debug::debug() << "Setting up cache" <<  endl;
+
+  // We send pointers with uncontrolled data, but by assumption, this
+  // data cannot be used, so that it does not matter so much.
+  int nbs = species.size();
+  params -= nbs;
+
+  // Now, we look at all the redox reactions, store
+  redoxReactions.clear();
+  int nbr = reactions.size();
+  for(int i = 0; i < nbr; i++) {
+    Reaction * rc = reactions[i];
+    if(rc->electrons) {
+      // Debug::debug() << "Computing cache for reaction " << i << endl;
+      redoxReactions.append(static_cast<RedoxReaction*>(rc));
+      rc->computeCache(params);
+    }
+  }
+
+  return true;
+}
+
+void KineticSystem::computeCachedLinearJacobian(gsl_matrix * target,
+                                                const double * params,
+                                                gsl_vector * coeffs) const
+{
+  if(! cachedJacobian)
+    throw InternalError("Using a cache that was not setup");
+
+  int nbs = species.size();
+
+  // We send pointers with uncontrolled data, but by assumption, this
+  // data cannot be used, so that it does not matter so much.
+  params -= nbs;
+  
+  gsl_matrix_memcpy(target, cachedJacobian);
+  if(coeffs)
+    gsl_vector_set_zero(coeffs);
+
+  int nbr = redoxReactions.size();
+  double ex; 
+
+  // Now, we compute the forward and reverse rates of all reactions
+  for(int i = 0; i < nbr; i++) {
+    const RedoxReaction * rc = redoxReactions[i];
+    if(! i) {
+      // Compute ex the first time
+      double e = params[rc->potentialIndex];
+      double fara = GSL_CONST_MKSA_FARADAY /
+        (params[rc->temperatureIndex] * GSL_CONST_MKSA_MOLAR_GAS);
+      ex = exp(fara * 0.5 * e);
+    }
+
+    double tmp = pow(ex, rc->electrons) * rc->cache[0];
+    double tmp2 = rc->cache[1] * redoxReactionScaling;
+    double forwardRate, backwardRate;
+    forwardRate = tmp2 * tmp;
+    backwardRate = tmp2/ tmp;
+
+    int l = (rc->speciesStoechiometry[0] == -1 ? rc->speciesIndices[0] : rc->speciesIndices[1]);
+    int r = (rc->speciesStoechiometry[0] == -1 ? rc->speciesIndices[1] : rc->speciesIndices[0]);
+
+    if(coeffs) {
+      *gsl_vector_ptr(coeffs, l) -= forwardRate;
+      *gsl_vector_ptr(coeffs, r) += backwardRate;
     }
 
     if(checkRange && (forwardRate < 0 || backwardRate < 0))

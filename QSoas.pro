@@ -263,7 +263,8 @@ SOURCES += src/qmain.cc \
         src/multifitengine.cc \
         src/box.cc \
         src/ruby-interface.cc \
-        src/functions.cc
+        src/functions.cc \
+        src/cachedfunction.cc
 
 
 HEADERS += src/headers.hh \
@@ -374,7 +375,8 @@ HEADERS += src/headers.hh \
         src/parametersspreadsheet.hh \
         src/abdmatrix.hh \
         src/box.hh \
-        src/functions.hh
+        src/functions.hh \
+        src/cachedfunction.hh
 
 
 # Pure-C wrappers around Ruby's code

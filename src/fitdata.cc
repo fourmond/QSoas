@@ -35,6 +35,99 @@
 #include <debug.hh>
 
 
+// first, the implementation of the queue
+
+DFComputationQueue::DFComputationQueue() :
+  terminate(false), runningComputations(0)
+{
+}
+
+DFComputationQueue::~DFComputationQueue()
+{
+}
+
+void DFComputationQueue::enqueue(const DerivativeJob & job)
+{
+  QMutexLocker l(&mutex);
+  queue.enqueue(job);
+  condition.wakeAll();
+}
+
+void DFComputationQueue::enqueue(int i, const gsl_vector * parameters,
+                                 gsl_matrix * target,
+                                 const gsl_vector * current)
+{
+  enqueue(DerivativeJob(i, parameters, target, current));
+}
+
+void DFComputationQueue::signalTermination()
+{
+  terminate = true;
+  condition.wakeAll();
+}
+
+DFComputationQueue::DerivativeJob DFComputationQueue::nextJob()
+{
+  while(true) {
+    QMutexLocker l(&mutex);
+    condition.wait(&mutex);
+    if(queue.size() > 0) {
+      DerivativeJob nxt = queue.dequeue();
+      runningComputations++;
+      return nxt;
+    }
+    if(terminate)
+      throw TerminateException();
+  }
+  // This should never happen, but the compiler doesn't know it.
+  return DerivativeJob(0, 0, 0, 0);
+}
+
+void DFComputationQueue::doneJob()
+{
+  QMutexLocker l(&mutex);
+  runningComputations--;        // Should be positive
+  condition.wakeAll();
+}
+
+void DFComputationQueue::waitForJobsDone()
+{
+  while(true) {
+    QMutexLocker l(&mutex);
+    condition.wait(&mutex);
+    int nb = queue.size() + runningComputations;
+    if(nb == 0)
+      return;
+  }
+}
+
+//////////////////////////////////////////////////////////////////////
+
+class DerivativeComputationThread : public QThread {
+protected:
+  FitData * data;
+public:
+  DerivativeComputationThread(FitData * d) : data(d) {
+    
+  };
+  
+  void run() {
+    try {
+      while(true) {
+        DFComputationQueue::DerivativeJob job = data->workersQueue->nextJob();
+        data->deriveParameter(job.idx, job.params, job.target, job.current);
+        data->workersQueue->doneJob();
+      }
+    }
+    catch(const DFComputationQueue::TerminateException) {
+    }
+  }
+};
+
+
+
+//////////////////////////////////////////////////////////////////////
+
 FitData::FitData(const Fit * f, const QList<const DataSet *> & ds, int d, 
                  const QStringList & ex) : 
   totalSize(0), covarStorage(NULL), covarIsOK(false),
@@ -298,7 +391,10 @@ void FitData::deriveParameter(int i, const gsl_vector * params,
   }
 
   fit->function(unpackedParams.data(), this, &col.vector);
-  evaluationNumber++;
+  {
+    QMutexLocker m(&evaluationsMutex);
+    evaluationNumber++;
+  }
 
   if(debug > 1) {
     dumpString(QString("Independent parameters %1").arg(i));
@@ -358,13 +454,17 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
   fit->function(unpackedParams.data(), this, storage);
   evaluationNumber++;
 
-  /// @todo This would greatly benefit from using multiple threads, if
-  /// possible. The downside is of course that it would be a real pain
-  /// to program ;-)... It would require fits to enable a flag saying
-  /// their function is thread-safe (which is almost always the case)
+  if(workersQueue) {
+    for(int i = 0; i < parametersByDefinition.size(); i++)
+      workersQueue->enqueue(i, x, df, storage);
+    workersQueue->waitForJobsDone();
+  }
+  else {
+    for(int i = 0; i < parametersByDefinition.size(); i++)
+      deriveParameter(i, x, df, storage);
+  }
 
-  for(int i = 0; i < parametersByDefinition.size(); i++)
-    deriveParameter(i, x, df, storage);
+  
   if(debug > 0)
     dumpString("Finished df computation");
   if(debug > 1) {

@@ -35,6 +35,81 @@ class DataSet;
 class ParameterDefinition;
 class FitInternalStorage;
 
+
+/// A queue for derivation computations
+class DFComputationQueue {
+public:
+  /// These are the arguments to FitData::deriveParameter
+  class DerivativeJob {
+  public:
+    /// the index
+    int idx;
+
+    /// the parameters
+    const gsl_vector * params;
+
+    /// the target matrix
+    gsl_matrix * target;
+
+    /// The base for parameters
+    const gsl_vector * current;
+
+    DerivativeJob(int i, const gsl_vector * parameters,
+                  gsl_matrix * tgt, const gsl_vector * cur) :
+      idx(i), params(parameters), target(tgt), current(cur)
+    {
+      ;
+    };
+  };
+
+  /// The exception raised upon termination
+  class TerminateException {
+  };
+private:
+  QQueue<DerivativeJob> queue;
+
+  /// A mutex used for synchronisation
+  QMutex mutex;
+
+  /// The wait condition (based on the mutex)
+  QWaitCondition condition;
+
+  /// A flag used to indicate that all the threads should terminate.
+  bool terminate;
+
+  /// A number of running computations
+  int runningComputations;
+public:
+
+  DFComputationQueue();
+  ~DFComputationQueue();
+
+
+  /// Enqueues the job.
+  void enqueue(const DerivativeJob & job);
+
+  /// Enqueues a given job
+  void enqueue(int i, const gsl_vector * parameters,
+               gsl_matrix * target, const gsl_vector * current);
+
+
+  /// Signals to the waiting threads that they should kindly finish
+  /// (through the shouldTerminate() flag)
+  void signalTermination();
+
+  /// pops a job from the list and returns it. Blocks. It will raise
+  /// an exception to signal that the thread should be terminated.
+  DerivativeJob nextJob();
+
+
+  /// Should be called at the end of a computation to be sure all the
+  /// computations are done.
+  void doneJob();
+
+  /// Run by the overall thread to wait until all the computations
+  /// have been performed.
+  void waitForJobsDone();
+};
                      
 
 /// Fit data. This data will be carried around using the void *
@@ -112,12 +187,30 @@ private:
   friend class CombinedFit;
   friend class DistribFit;
 
+  /// @name Thread-related things
+  ///
+  /// @{
+  
   /// A storage space allocated by the fit for storing fit options,
   QThreadStorage<FitInternalStorage *> fitStorage;
 
+  /// The computation queue.
+  DFComputationQueue * workersQueue;
+
+  /// The worker threads
+  QList<QThread * > workers;
+
+  friend class DerivativeComputationThread;
+
+  /// Basic synchronization for updating evaluationNumer
+  QMutex evaluationsMutex;
+
+  /// @}
 
 
 public:
+
+  
   /// The number of function evaluations since the last change of fit
   /// engine.
   int evaluationNumber;

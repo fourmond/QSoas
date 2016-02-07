@@ -119,6 +119,7 @@
 #include <QList>
 #include <QVarLengthArray>
 #include <QCache>
+#include <QQueue>
 
 // Explicit sharing
 #include <QSharedData>

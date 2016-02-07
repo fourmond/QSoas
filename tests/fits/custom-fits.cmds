@@ -1,0 +1,5 @@
+custom-fit line a*x+b
+generate-buffer 0 10
+sim-line parameters/custom-line.params 0
+apply-formula y-=2*x+3
+assert '$stats["y_norm"]' 0

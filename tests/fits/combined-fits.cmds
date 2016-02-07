@@ -1,0 +1,21 @@
+# This file has to assume that fit-line has been defined before, so that
+# the custom-fits has to be run before
+
+combine-fits sum 'y1+y2' line line
+generate-buffer 0 10
+sim-sum parameters/combined-sum.params 0
+apply-formula y-=3*x+6
+assert '$stats["y_norm"]' 1e-13
+
+combine-fits product 'y1*y2' line line
+generate-buffer 0 10
+sim-product parameters/combined-sum.params 0
+apply-formula y-=(2*x+3)*(x+3)
+assert '$stats["y_norm"]' 1e-13
+
+combine-fits extra 'cc*y1*y2' line line
+generate-buffer 0 10
+sim-extra parameters/combined-extra.params 0
+apply-formula y-=2*(2*x+3)*(x+3)
+assert '$stats["y_norm"]' 1e-13
+

@@ -1,0 +1,16 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: sum (y1+y2 with y1: line (formula: a*x+b), y2: line (formula: a*x+b))
+# Buffer #0 : generated_fit_line_mod.dat
+a_f#1	2	!	1
+b_f#1	3	!	1
+a_f#2	1	!	1
+b_f#2	3	!	1
+cc	2	!	1
+# The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
+# Buffer-local parameters: 
+# 
+# Buffer: generated_fit_line_mod.dat (weight: 1)
+# a_f#1	=	1	+- 0	+- 0%
+# b_f#1	=	1	+- 0	+- 0%
+# a_f#2	=	1	+- 0	+- 0%
+# b_f#2	=	1	+- 0	+- 0%

@@ -8,4 +8,4 @@
 generate-buffer 0 10
 sim-polynomial ${9:+/extra-parameters=}${9:-} /order=4 ${1} ${8:-0}
 apply-formula y-=${2}+${3}*x+${4}*x**2+${5}*x**3+${6}*x**4
-assert '$stats["y_max"]-$stats["y_min"] < ${7}'
+assert '$stats["y_max"]-$stats["y_min"]' ${7}

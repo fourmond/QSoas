@@ -97,6 +97,15 @@ private:
   QStringList extra;
 
 
+  // These friend classes have access to the internal storage...
+  friend class DerivativeFit;
+  friend class CombinedFit;
+  friend class DistribFit;
+
+  /// A storage space allocated by the fit for storing fit options,
+  QThreadStorage<FitInternalStorage *> fitStorage;
+
+
 
 public:
   /// The number of function evaluations since the last change of fit
@@ -114,8 +123,8 @@ public:
   /// go increasing with the value.
   int debug;
 
-  /// A storage space allocated by the fit for storing fit options, 
-  FitInternalStorage * fitStorage;
+  /// Returns the internal storage for the current thread.
+  FitInternalStorage * getStorage();
 
   /// The datasets holding the data.
   QList<const DataSet *> datasets;

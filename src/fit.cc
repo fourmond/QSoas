@@ -42,6 +42,10 @@ static Group fits("fits", 0,
 
 QHash<QString, Fit*> * Fit::fitsByName = NULL;
 
+bool Fit::threadSafe() const {
+  return false;
+}
+
 void Fit::registerFit(Fit * fit)
 {
   if(! fit)
@@ -116,7 +120,7 @@ FitInternalStorage * Fit::copyStorage(FitData *, FitInternalStorage *, int) cons
 
 FitInternalStorage * Fit::getStorage(FitData * d) const
 {
-  return d->fitStorage;
+  return d->getStorage();
 }
 
 

@@ -53,8 +53,14 @@ FitData::FitData(const Fit * f, const QList<const DataSet *> & ds, int d,
 
   computeWeights();
 
-  fitStorage = f->allocateStorage(this);
+  fitStorage.setLocalData(f->allocateStorage(this));
 }
+
+FitInternalStorage * FitData::getStorage()
+{
+  return fitStorage.localData();
+}
+
 
 void FitData::finishInitialization()
 {
@@ -133,7 +139,9 @@ FitData::~FitData()
     gsl_vector_free(pointWeights);
   }
   freeSolver();
-  delete fitStorage;
+
+  // This calls apparently deletes the 
+  fitStorage.setLocalData(NULL);
 }
 
 void FitData::weightVector(gsl_vector * tg)
@@ -530,8 +538,8 @@ void FitData::initializeSolver(const double * initialGuess,
           d->parameters << p2;
         }
       }
-      delete d->fitStorage;
-      d->fitStorage = fit->copyStorage(this, fitStorage, i);
+      delete d->fitStorage.localData();
+      d->fitStorage.setLocalData(fit->copyStorage(this, getStorage(), i));
 
       // Make sure the initialization is finished and done after
       // copying the internal storage

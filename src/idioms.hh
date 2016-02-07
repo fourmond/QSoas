@@ -67,6 +67,34 @@ public:
   };
 };
 
+
+/// Same thing as TemporaryChange, but for an instance of QThreadStorage
+template<typename T> class TemporaryThreadLocalChange {
+protected:
+  QThreadStorage<T> & target;
+  
+  T initialValue;
+
+public:
+  
+  TemporaryThreadLocalChange(QThreadStorage<T> & t, const T & newval) : 
+    target(t) {
+    initialValue = target.localData();
+    target.localData() = newval;
+  };
+  
+  // TemporaryThreadLocalChange(QThreadStorage<T> & t) : 
+  //   target(t) {
+  //   initialValue = target.localData();
+  // };
+
+  ~TemporaryThreadLocalChange() {
+    target.localData() = initialValue;
+  };
+};
+
+
+
 /// Save a global Ruby variable
 class SaveGlobal {
   RUBY_VALUE old;

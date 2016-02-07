@@ -25,8 +25,15 @@
 #if defined __cplusplus 
 #include <QApplication>
 #include <QClipboard>
-#include <QThread>
 #include <QSettings>
+
+// Thread-related headers
+#include <QThread>
+#include <QThreadStorage>
+#include <QWaitCondition>
+#include <QMutex>
+#include <QMutexLocker>
+#include <QReadWriteLock>
 
 // Main GUI Classse
 #include <QMainWindow>
@@ -125,7 +132,7 @@
 
 // MVC classes
 #include <QAbstractTableModel>
-
+#include <QHeaderView>
 
 // Plugins
 #include <QLibrary>

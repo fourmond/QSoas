@@ -37,7 +37,7 @@ void DerivativeFit::processOptions(const CommandOptions & opts,
                                      FitData * data) const
 {
   Storage * s = storage<Storage>(data);
-  TemporaryChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+  TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
   Fit::processOptions(underlyingFit, opts, data);
 }
 
@@ -56,7 +56,7 @@ QString DerivativeFit::optionsString(FitData *  data) const
     ;
   }
   Storage * s = storage<Storage>(data);
-  TemporaryChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+  TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
   return Fit::optionsString(underlyingFit, data) + " -- derivative" + n;
 }
 
@@ -73,14 +73,14 @@ ArgumentList * DerivativeFit::fitSoftOptions() const
 CommandOptions DerivativeFit::currentSoftOptions(FitData * data) const
 {
   Storage * s = storage<Storage>(data);
-  TemporaryChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+  TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
   return Fit::currentSoftOptions(underlyingFit, data);
 }
 
 void DerivativeFit::processSoftOptions(const CommandOptions & opts, FitData * data) const
 {
   Storage * s = storage<Storage>(data);
-  TemporaryChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+  TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
   Fit::processSoftOptions(underlyingFit, opts, data);
 }  
 
@@ -97,7 +97,7 @@ QList<ParameterDefinition> DerivativeFit::parameters(FitData * data) const
 {
   Storage * s = storage<Storage>(data);
   
-  TemporaryChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+  TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
   QList<ParameterDefinition> params = underlyingFit->parameters(data);
 
   s->originalParameters = params.size();
@@ -113,7 +113,7 @@ void DerivativeFit::initialGuess(FitData * data, double * guess) const
 {
   Storage * s = storage<Storage>(data);
   int tp = data->parametersPerDataset();
-  TemporaryChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+  TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
   for(int i = 0; i < data->datasets.size(); i++) {
     underlyingFit->initialGuess(data, data->datasets[i], guess + i*tp);
     if(mode == Combined)
@@ -150,7 +150,7 @@ void DerivativeFit::function(const double * parameters,
   reserveBuffers(data);
   Storage * s = storage<Storage>(data);
 
-  TemporaryChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+  TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
 
   int i = 0;
   if(mode == Separated) {
@@ -253,7 +253,7 @@ FitInternalStorage * DerivativeFit::copyStorage(FitData * data,
   Storage * s2 = new Storage(*s);
   
   {
-    TemporaryChange<FitInternalStorage*> d(data->fitStorage,
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
                                            s->originalStorage);
     s2->originalStorage = underlyingFit->copyStorage(data, s->originalStorage, ds);
   }

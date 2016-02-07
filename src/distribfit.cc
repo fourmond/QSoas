@@ -275,7 +275,7 @@ FitInternalStorage * DistribFit::copyStorage(FitData * data,
   Storage * s2 = new Storage(*s);
   s2->sub = NULL;
   {
-    TemporaryChange<FitInternalStorage*> d(data->fitStorage,
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
                                            s->sub);
     s2->sub = underlyingFit->copyStorage(data, s->sub, ds);
   }
@@ -293,7 +293,7 @@ void DistribFit::processOptions(const CommandOptions & opts, FitData * data) con
   Storage * s = storage<Storage>(data);
   
   {
-    TemporaryChange<FitInternalStorage*> d(data->fitStorage,
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
                                            s->sub);
     Fit::processOptions(underlyingFit, opts, data);
     s->parametersCache = underlyingFit->parameters(data);
@@ -331,7 +331,7 @@ void DistribFit::processSoftOptions(const CommandOptions & opts, FitData * data)
 {
   Storage * s = storage<Storage>(data);
   {
-    TemporaryChange<FitInternalStorage*> d(data->fitStorage,
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
                                            s->sub);
     Fit::processOptions(underlyingFit, opts, data);
   }
@@ -347,7 +347,7 @@ void DistribFit::initialGuess(FitData * data,
 {
   Storage * s = storage<Storage>(data);
   {
-    TemporaryChange<FitInternalStorage*> d(data->fitStorage,
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
                                            s->sub);
     underlyingFit->initialGuess(data, ds, guess);
   }
@@ -376,7 +376,7 @@ QString DistribFit::optionsString(FitData * data) const
   Storage * s = storage<Storage>(data);
   QString sub;
   {
-    TemporaryChange<FitInternalStorage*> d(data->fitStorage, s->sub);
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->sub);
     sub = underlyingFit->fitName(true, data);
   }
   return QString("%1 with %2 %3").arg(sub).arg(s->dist->name).
@@ -402,7 +402,7 @@ void DistribFit::function(const double * parameters,
                             gsl_vector * target) const
 {
   Storage * s = storage<Storage>(data);
-  TemporaryChange<FitInternalStorage*> dd(data->fitStorage,
+  TemporaryThreadLocalChange<FitInternalStorage*> dd(data->fitStorage,
                                           s->sub);
 
   // Splice parameters

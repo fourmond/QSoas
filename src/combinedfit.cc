@@ -54,8 +54,8 @@ FitInternalStorage * CombinedFit::copyStorage(FitData * data,
   Storage * s2 = new Storage;
   int sz = underlyingFits.size();
   for(int i = 0; i < sz; i++) {
-    TemporaryChange<FitInternalStorage*> d(data->fitStorage,
-                                           s->subs[i]);
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                      s->subs[i]);
     s2->subs << underlyingFits[i]->copyStorage(data, s->subs[i], ds);
   }
   return s2;
@@ -67,8 +67,8 @@ void CombinedFit::processOptions(const CommandOptions & opts, FitData * data) co
   Storage * s = storage<Storage>(data);
 
   for(int i = 0; i < underlyingFits.size(); i++) {
-    TemporaryChange<FitInternalStorage*> d(data->fitStorage,
-                                           s->subs[i]);
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                      s->subs[i]);
     Fit::processOptions(underlyingFits[i], opts, data);
   }
 
@@ -82,8 +82,8 @@ void CombinedFit::processOptions(const CommandOptions & opts, FitData * data) co
   
   for(int i = 0; i < underlyingFits.size(); i++) {
     PerDatasetFit * f = underlyingFits[i];
-    TemporaryChange<FitInternalStorage*> d(data->fitStorage,
-                                           s->subs[i]);
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                      s->subs[i]);
     QList<ParameterDefinition> params = f->parameters(data);
     s->firstParameterIndex << s->overallParameters.size();
     for(int j = 0; j < params.size(); j++) {
@@ -102,8 +102,8 @@ void CombinedFit::initialGuess(FitData * data,
   for(int i = 0; i < ownParameters.size(); i++)
     guess[i] = 1;               // safe guess ?
   for(int i = 0; i < underlyingFits.size(); i++) {
-    TemporaryChange<FitInternalStorage*> d(data->fitStorage,
-                                           s->subs[i]);
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                      s->subs[i]);
     underlyingFits[i]->initialGuess(data, ds, 
                                     guess + s->firstParameterIndex[i]);
   }
@@ -115,8 +115,8 @@ QString CombinedFit::optionsString(FitData * data) const
   QStringList strs;
   Storage * s = storage<Storage>(data);
   for(int i = 0; i < underlyingFits.size(); i++) {
-    TemporaryChange<FitInternalStorage*> d(data->fitStorage,
-                                           s->subs[i]);
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                      s->subs[i]);
     strs << QString("y%1: %2").arg(i+1).
       arg(underlyingFits[i]->fitName(true, data));
   }
@@ -155,7 +155,7 @@ void CombinedFit::function(const double * parameters,
   reserveBuffers(ds, data);
 
   for(int i = 0; i < underlyingFits.size(); i++) {
-    TemporaryChange<FitInternalStorage*> d(data->fitStorage,
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
                                            s->subs[i]);
     gsl_vector_view v = 
       gsl_vector_view_array(s->buffers[i].data(), ds->x().size());

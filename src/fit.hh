@@ -199,6 +199,12 @@ public:
   /// Returns the named fit. (or null)
   static Fit * namedFit(const QString & name);
 
+  /// Whether the fit functions are thread-safe or not.  Thread-safe
+  /// means that several function() can run concurrently, provided
+  /// they are attached to different fitStorage.
+  ///
+  /// Defaults to false...
+  virtual bool threadSafe() const;
 
 
   /// The fit name

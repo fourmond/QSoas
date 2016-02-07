@@ -60,6 +60,10 @@ protected:
     return deepCopy<Storage>(source);
   };
 
+  virtual bool threadSafe() const {
+    return true;
+  };
+
 
   virtual void processOptions(const CommandOptions & opts, FitData * data) const
   {

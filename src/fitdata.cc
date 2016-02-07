@@ -106,15 +106,29 @@ void DFComputationQueue::waitForJobsDone()
 class DerivativeComputationThread : public QThread {
 protected:
   FitData * data;
+
+  FitInternalStorage * stg;
+
+  QMutex storageMutex;
 public:
-  DerivativeComputationThread(FitData * d) : data(d) {
-    
+  DerivativeComputationThread(FitData * d) :
+    data(d), stg(NULL) {
   };
+
+  void setStorage(FitInternalStorage * local) {
+    QMutexLocker l(&storageMutex);
+    stg = local;
+  }
   
   void run() {
     try {
       while(true) {
         DFComputationQueue::DerivativeJob job = data->workersQueue->nextJob();
+        if(stg) {
+          QMutexLocker l(&storageMutex);
+          data->fitStorage.setLocalData(stg);
+          stg = NULL;
+        }
         data->deriveParameter(job.idx, job.params, job.target, job.current);
         data->workersQueue->doneJob();
       }
@@ -154,6 +168,22 @@ FitInternalStorage * FitData::getStorage()
   return fitStorage.localData();
 }
 
+void FitData::setupThreads(int nb)
+{
+  if((! fit->threadSafe()) || nb == 1)         // Nothing to do !
+    return;
+  if(nb <= 0)
+    nb += QThread::idealThreadCount();
+  if(nb <= 0)
+    return;                     // Still no threads ?
+
+  workersQueue = new DFComputationQueue;
+  for(int i = 0; i < nb; i++) {
+    workers << new DerivativeComputationThread(this);
+    workers.last()->start();
+  }
+  
+}
 
 void FitData::finishInitialization()
 {
@@ -233,8 +263,20 @@ FitData::~FitData()
   }
   freeSolver();
 
-  // This calls apparently deletes the 
+  if(workersQueue) {
+    workersQueue->signalTermination();
+    for(int i = 0; i < workers.size(); i++) {
+      DerivativeComputationThread * d = workers[i];
+      d->wait();
+      d->setStorage(NULL);    
+      delete d;
+    }
+    delete workersQueue;
+  }
+      
+  // This calls apparently deletes the data !
   fitStorage.setLocalData(NULL);
+
 }
 
 void FitData::weightVector(gsl_vector * tg)
@@ -642,12 +684,14 @@ void FitData::initializeSolver(const double * initialGuess,
           d->parameters << p2;
         }
       }
-      delete d->fitStorage.localData();
+      // delete d->fitStorage.localData();
       d->fitStorage.setLocalData(fit->copyStorage(this, getStorage(), i));
 
       // Make sure the initialization is finished and done after
       // copying the internal storage
       d->finishInitialization();
+      if(workers.size() > 0)
+        d->setupThreads(workers.size());
 
       d->initializeSolver(initialGuess + 
                           (i * parameterDefinitions.size()), feit, opts);
@@ -657,6 +701,13 @@ void FitData::initializeSolver(const double * initialGuess,
     if(! feit)
       feit = FitEngine::defaultFactoryItem();
     engine = feit->creator(this);
+
+    FitInternalStorage * master = getStorage();
+    for(int i = 0; i < workers.size(); i++) {
+      FitInternalStorage * c = fit->copyStorage(this, master);
+      workers[i]->setStorage(c);
+    }
+    
     if(debug > 0) {
       QTextStream o(stdout);
       o << "Initialized data " << this << " with engine " << engine

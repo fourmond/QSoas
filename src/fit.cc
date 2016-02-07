@@ -160,6 +160,11 @@ void Fit::makeCommands(ArgumentList * args,
     *originalOptions << new IntegerArgument("debug", 
                                   "Debug level",
                                   "Debug level: 0 means no debug output, increasing values mean increasing details");
+    if(threadSafe())
+      *originalOptions << new IntegerArgument("threads", 
+                                              "Threads",
+                                              "Number of threads for computing the jacobian");
+      
     options = new ArgumentList(*originalOptions);
   }
   else 
@@ -309,6 +314,11 @@ void Fit::runFit(std::function<void (FitData *)> hook,
   hook(&data);
   processOptions(opts, &data);
   data.finishInitialization();
+
+  int threads = 1;
+  updateFromOptions(opts, "threads", threads);
+  if(threads != 1)
+    data.setupThreads(threads);
   checkDatasets(&data);
 
   QString loadParameters;

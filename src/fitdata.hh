@@ -110,7 +110,8 @@ public:
   /// have been performed.
   void waitForJobsDone();
 };
-                     
+
+class DerivativeComputationThread;
 
 /// Fit data. This data will be carried around using the void *
 /// argument to the function calls.
@@ -198,7 +199,7 @@ private:
   DFComputationQueue * workersQueue;
 
   /// The worker threads
-  QList<QThread * > workers;
+  QList<DerivativeComputationThread * > workers;
 
   friend class DerivativeComputationThread;
 
@@ -214,6 +215,14 @@ public:
   /// The number of function evaluations since the last change of fit
   /// engine.
   int evaluationNumber;
+
+  /// Setup the object to handle that many threads (if the fit is
+  /// thread-safe !)
+  ///
+  /// A strictly positive number indicates the number of threads
+  /// (i.e. 1 disables threading), a zero or negative number indicates
+  /// the number of processor cores that should be left free.
+  void setupThreads(int nb);
 
   bool hasEngine() const {
     return engine;

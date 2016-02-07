@@ -45,6 +45,16 @@ class FitInternalStorage;
 /// point of view (ie ParameterDefinition).
 class FitData {
 
+protected:
+
+  /// Computes the derivatives of the overall parameter i (for all
+  /// datasets, when appliable).
+  ///
+  /// @a target is the target vector
+  /// @a current is an already-computed evaluation at @a parameters.
+  void deriveParameter(int i, const gsl_vector * parameters,
+                       gsl_matrix * target, const gsl_vector * current);
+
 public:
 
   /// These functions compute the fit values using internal parameters

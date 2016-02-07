@@ -262,6 +262,83 @@ int FitData::f(const gsl_vector * x, gsl_vector * f, bool doSubtract)
   return GSL_SUCCESS;
 }
 
+void FitData::deriveParameter(int i, const gsl_vector * params,
+                              gsl_matrix * target, const gsl_vector * current)
+{
+  QVarLengthArray<double, 1024> gslParams(gslParameters);
+  QVarLengthArray<double, 1024> unpackedParams(fullParameterNumber());
+
+  gsl_vector_view v = gsl_vector_view_array(gslParams.data(), gslParameters);
+
+
+  gsl_vector_memcpy(&v.vector, params); // reset...
+  const QList<FreeParameter *> lst = parametersByDefinition[i];
+  if(lst.size() == 0)
+    return;                 // Happens: when all parameters are fixed.
+    
+  int tg = lst[0]->fitIndex;
+  gsl_vector_view col = gsl_matrix_column(target, tg);
+
+  // Now, modify all parameters:
+  for(int j = 0; j < lst.size(); j++) {
+    FreeParameter * param = lst[j];
+    double value = gslParams[param->fitIndex];
+    double step = (value == 0 ? 1e-6 : param->derivationStep(value));
+    if(debug > 0)
+      dumpString(QString("Step %1 for param %2 (value: %3)").
+                 arg(step).arg(param->fitIndex).arg(value));
+    gslParams[param->fitIndex] += step;
+  }
+
+  unpackParameters(&v.vector, unpackedParams.data());
+
+  if(debug > 0) {
+    dumpGSLParameters(&v.vector);
+    dumpFitParameters(unpackedParams.data());
+  }
+
+  fit->function(unpackedParams.data(), this, &col.vector);
+  evaluationNumber++;
+
+  if(debug > 1) {
+    dumpString(QString("Independent parameters %1").arg(i));
+    dumpString(QString("f:   ") + Utils::vectorString(&col.vector));
+  }
+
+  gsl_vector_sub(&col.vector, current);
+
+  if(debug > 1) {
+    dumpString(QString("df:  ") + Utils::vectorString(&col.vector));
+  }
+    
+  weightVector(&col.vector);
+
+  if(debug > 1) {
+    dumpString(QString("wdf: ") + Utils::vectorString(&col.vector));
+  }
+
+  // Splicing the buffer-specific stuff back into place
+  for(int j = 1; j < lst.size(); j++) {
+    const FreeParameter * p = lst[j];
+    gsl_vector_view col2 = gsl_matrix_column(target, p->fitIndex);
+    gsl_vector_set_zero(&col2.vector);
+    gsl_vector_view c1 = viewForDataset(p->dsIndex, &col.vector);
+    gsl_vector_view c2 = viewForDataset(p->dsIndex, &col2.vector);
+    gsl_vector_memcpy(&c2.vector, &c1.vector);
+    gsl_vector_set_zero(&c1.vector);
+  }
+    
+  for(int j = 0; j < lst.size(); j++) {
+    const FreeParameter * p = lst[j];
+    double step = gslParams[p->fitIndex] - gsl_vector_get(params, p->fitIndex);
+    if(debug > 0)
+      dumpString(QString(" -> actual step: %1").
+                 arg(step));
+    col = gsl_matrix_column(target, p->fitIndex);
+    gsl_vector_scale(&col.vector, 1/step);
+  }
+}
+
 
 int FitData::df(const gsl_vector * x, gsl_matrix * df)
 {
@@ -269,14 +346,8 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
     throw InternalError("Size mismatch between GSL parameters "
                         "and FitData data");
 
-  QVarLengthArray<double, 1024> gslParams(gslParameters);
   QVarLengthArray<double, 1024> unpackedParams(fullParameterNumber());
-
-  gsl_vector_view v = gsl_vector_view_array(gslParams.data(), gslParameters);
-
-
-  gsl_vector_memcpy(&v.vector, x);
-  unpackParameters(&v.vector, unpackedParams.data());
+  unpackParameters(x, unpackedParams.data());
 
   if(debug > 0)
     dumpString("Entering df computation");
@@ -292,75 +363,8 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
   /// to program ;-)... It would require fits to enable a flag saying
   /// their function is thread-safe (which is almost always the case)
 
-  for(int i = 0; i < parametersByDefinition.size(); i++) {
-    if(i > 0)
-      gsl_vector_memcpy(&v.vector, x); // reset...
-    const QList<FreeParameter *> lst = parametersByDefinition[i];
-    if(lst.size() == 0)
-      continue;                 // Happens: when all parameters are fixed.
-    
-    int tg = lst[0]->fitIndex;
-    gsl_vector_view col = gsl_matrix_column(df, tg);
-
-    // Now, modify all parameters:
-    for(int j = 0; j < lst.size(); j++) {
-      FreeParameter * param = lst[j];
-      double value = gslParams[param->fitIndex];
-      double step = (value == 0 ? 1e-6 : param->derivationStep(value));
-      if(debug > 0)
-        dumpString(QString("Step %1 for param %2 (value: %3)").
-                   arg(step).arg(param->fitIndex).arg(value));
-      gslParams[param->fitIndex] += step;
-    }
-
-    unpackParameters(&v.vector, unpackedParams.data());
-
-    if(debug > 0) {
-      dumpGSLParameters(&v.vector);
-      dumpFitParameters(unpackedParams.data());
-    }
-
-    fit->function(unpackedParams.data(), this, &col.vector);
-    evaluationNumber++;
-
-    if(debug > 1) {
-      dumpString(QString("Independent parameters %1").arg(i));
-      dumpString(QString("f:   ") + Utils::vectorString(&col.vector));
-    }
-
-    gsl_vector_sub(&col.vector, storage);
-
-    if(debug > 1) {
-      dumpString(QString("df:  ") + Utils::vectorString(&col.vector));
-    }
-    
-    weightVector(&col.vector);
-
-    if(debug > 1) {
-      dumpString(QString("wdf: ") + Utils::vectorString(&col.vector));
-    }
-
-    // Splicing the buffer-specific stuff back into place
-    for(int j = 1; j < lst.size(); j++) {
-      const FreeParameter * p = lst[j];
-      gsl_vector_view col2 = gsl_matrix_column(df, p->fitIndex);
-      gsl_vector_set_zero(&col2.vector);
-      gsl_vector_view c1 = viewForDataset(p->dsIndex, &col.vector);
-      gsl_vector_view c2 = viewForDataset(p->dsIndex, &col2.vector);
-      gsl_vector_memcpy(&c2.vector, &c1.vector);
-      gsl_vector_set_zero(&c1.vector);
-    }
-    
-    for(int j = 0; j < lst.size(); j++) {
-      const FreeParameter * p = lst[j];
-      double step = gslParams[p->fitIndex] - gsl_vector_get(x, p->fitIndex);
-      if(debug > 0)
-        dumpString(QString(" -> actual step: %1").
-                   arg(step));
-      col = gsl_matrix_column(df, p->fitIndex);
-      gsl_vector_scale(&col.vector, 1/step);
-    }
-  }
+  for(int i = 0; i < parametersByDefinition.size(); i++)
+    deriveParameter(i, x, df, storage);
   if(debug > 0)
     dumpString("Finished df computation");
   if(debug > 1) {

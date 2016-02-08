@@ -134,9 +134,6 @@ class FitDialog : public QDialog {
   /// The editor for the maximum number of iterations
   QLineEdit * iterationLimitEditor;
 
-  /// The fit engine factory in use
-  FitEngineFactoryItem * fitEngineFactory;
-
   /// Fit engine parameters
   ///
   /// @todo A way to reset the parameter to default

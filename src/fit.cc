@@ -34,6 +34,9 @@
 #include <fitdialog.hh>
 #include <fitworkspace.hh>
 
+#include <fitengine.hh>
+#include <factoryargument.hh>
+
 #include <terminal.hh>
 
 static Group fits("fits", 0,
@@ -164,7 +167,12 @@ void Fit::makeCommands(ArgumentList * args,
       *originalOptions << new IntegerArgument("threads", 
                                               "Threads",
                                               "Number of threads for computing the jacobian");
-      
+
+    *originalOptions << new FactoryArgument<FitEngineFactoryItem>
+      ("engine", 
+       "Fit engine",
+       "The startup fit engine");
+
     options = new ArgumentList(*originalOptions);
   }
   else 
@@ -300,6 +308,14 @@ void Fit::runFit(const QString &n, QList<const DataSet *> datasets,
   runFit([](FitData *) {}, n, datasets, opts);
 }
 
+// static FitEngineFactoryItem * getEngine(const CommandOptions & opts,
+//                                         const QString & n = "engine")
+// {
+//   FitEngineFactoryItem * it = NULL;
+//   updateFromOptions(opts, n, it);
+//   return it;
+// }
+
 void Fit::runFit(std::function<void (FitData *)> hook,
                  const QString &, QList<const DataSet *> datasets,
                  const CommandOptions & opts)
@@ -309,8 +325,10 @@ void Fit::runFit(std::function<void (FitData *)> hook,
   QString extraParams;
   updateFromOptions(opts, "extra-parameters", extraParams);
   QStringList ep = extraParams.split(",", QString::SkipEmptyParts);
-  
+
   FitData data(this, datasets, debug, ep);
+  updateFromOptions(opts, "engine", data.engineFactory);
+  
   hook(&data);
   processOptions(opts, &data);
   data.finishInitialization();
@@ -411,7 +429,9 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
   int debug = 0;
   updateFromOptions(opts, "debug", debug);
 
-  FitData data(this, datasets, debug, ep); 
+  FitData data(this, datasets, debug, ep);
+  data.engineFactory = NULL;
+  updateFromOptions(opts, "engine", data.engineFactory);
   hook(&data);
   processOptions(opts, &data);
   data.finishInitialization();
@@ -450,8 +470,9 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
   ws.recompute();
   if(reexport) {
     Terminal::out << "Reexporting parameters with errors" << endl;
-    FitEngineFactoryItem * it = FitEngine::namedFactoryItem("odrpack");
-    ws.prepareFit(it);
+    if(! data.engineFactory)
+      data.engineFactory = FitEngine::namedFactoryItem("odrpack");
+    ws.prepareFit();
     ws.recomputeJacobian();
     ws.exportToOutFile(true);
   }

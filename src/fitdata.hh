@@ -177,10 +177,14 @@ private:
 
 
   friend class FitEngine;
+
   /// The fit engine in use
   FitEngine * engine;
+
   /// Extra parameters
   QStringList extra;
+
+  
 
 
   // These friend classes have access to the internal storage...
@@ -230,6 +234,9 @@ public:
 
   /// The fit in use
   const Fit * fit;
+
+  /// The fit engine to be used upon creation.
+  FitEngineFactoryItem * engineFactory;
 
   /// The debug level. 0 means no debug output to stdout, the details
   /// go increasing with the value.
@@ -316,8 +323,7 @@ public:
   /// Creates the solver, and initializes it with the correct
   /// parameters, based one the contents of parameterDefinitions and
   /// parameters.
-  void initializeSolver(const double * initialGuess, 
-                        FitEngineFactoryItem * engine = NULL,
+  void initializeSolver(const double * initialGuess,
                         CommandOptions * opts = NULL);
 
 

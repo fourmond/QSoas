@@ -291,8 +291,7 @@ public:
   void sendDataParameters();
 
   /// Prepare fit
-  void prepareFit(FitEngineFactoryItem * fitEngine = NULL,
-                  CommandOptions * opts = NULL);
+  void prepareFit(CommandOptions * opts = NULL);
 
   /// Retrieve parameters from the fit
   void retrieveParameters();

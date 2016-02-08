@@ -452,11 +452,10 @@ void FitWorkspace::sendDataParameters()
   }
 }
 
-void FitWorkspace::prepareFit(FitEngineFactoryItem * it,
-                               CommandOptions * opts)
+void FitWorkspace::prepareFit(CommandOptions * opts)
 {
   sendDataParameters();
-  fitData->initializeSolver(values, it, opts);
+  fitData->initializeSolver(values, opts);
 }
 
 void FitWorkspace::retrieveParameters()

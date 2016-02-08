@@ -70,8 +70,7 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
   errorInconsistencyShown(false),
   perpendicularMeta(pm),
   progressReport(NULL),
-  residualsDisplay(NULL),
-  fitEngineFactory(NULL)
+  residualsDisplay(NULL)
 {
   setWindowModality(Qt::WindowModal);
   resize(fitDialogSize);
@@ -119,7 +118,7 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
 
 
   setupFrame();
-  setFitEngineFactory(FitEngine::defaultFactoryItem(data->datasets.size()));
+  setFitEngineFactory(data->engineFactory);
 
   if(parameters.hasSubFunctions())
     displaySubFunctions = parameters.displaySubFunctions();
@@ -608,7 +607,7 @@ void FitDialog::startFit()
   QDateTime startTime = QDateTime::currentDateTime();
   try {
     soas().shouldStopFit = false;
-    parameters.prepareFit(fitEngineFactory, fitEngineParameterValues.value(fitEngineFactory, NULL));
+    parameters.prepareFit(fitEngineParameterValues.value(data->engineFactory, NULL));
     parametersBackup = parameters.saveParameterValues();
     shouldCancelFit = false;
   
@@ -623,7 +622,8 @@ void FitDialog::startFit()
   
     Terminal::out << "Starting fit '" << parameters.fitName() << "' with "
                   << params << " free parameters"
-                  << " using the '" << fitEngineFactory->name << "' fit engine"
+                  << " using the '" << data->engineFactory->name
+                  << "' fit engine"
                   << endl;
 
     cancelButton->setVisible(true);
@@ -714,7 +714,7 @@ void FitDialog::startFit()
                   parameters.overallRelativeResiduals,
                   residuals,
                   lastResiduals-residuals,
-                  fitEngineFactory->name,
+                  data->engineFactory->name,
                   startTime, data);
   if(shouldCancelFit || soas().shouldStopFit)
     trajectories.last().ending = FitTrajectory::Cancelled;
@@ -1056,7 +1056,7 @@ void FitDialog::setFitEngineFactory(const QString & name)
 
 void FitDialog::setFitEngineFactory(FitEngineFactoryItem * fact)
 {
-  fitEngineFactory = fact; 
+  data->engineFactory = fact; 
 
   // Now update the combo box...
   int idx = fitEngineSelection->findData(fact->name);
@@ -1150,10 +1150,10 @@ void FitDialog::setSoftOptions()
   QHash<QString, QWidget *> fitWidgets;
   QHash<QString, QWidget *> engineWidgets;
 
-  if(! fitEngineParameters.contains(fitEngineFactory)) {
-    FitEngine * f = fitEngineFactory->creator(data);
-    fitEngineParameters[fitEngineFactory] = f->engineOptions();
-    fitEngineParameterValues[fitEngineFactory] = new CommandOptions(f->getEngineParameters());
+  if(! fitEngineParameters.contains(data->engineFactory)) {
+    FitEngine * f = data->engineFactory->creator(data);
+    fitEngineParameters[data->engineFactory] = f->engineOptions();
+    fitEngineParameterValues[data->engineFactory] = new CommandOptions(f->getEngineParameters());
 
     // There's no need to free, as it gets registered with data, and
     // will be freed upon starting the fit or closing the dialog box.
@@ -1170,8 +1170,8 @@ void FitDialog::setSoftOptions()
   }
 
 
-  CommandOptions * engineOptionValues = fitEngineParameterValues[fitEngineFactory];
-  ArgumentList * engineOptions = fitEngineParameters[fitEngineFactory];
+  CommandOptions * engineOptionValues = fitEngineParameterValues[data->engineFactory];
+  ArgumentList * engineOptions = fitEngineParameters[data->engineFactory];
   
   if(engineOptions && engineOptions->size() > 0) {
     int base = (softOptions ? softOptions->size() + 2 : 1);

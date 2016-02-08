@@ -161,6 +161,8 @@ FitData::FitData(const Fit * f, const QList<const DataSet *> & ds, int d,
   computeWeights();
 
   fitStorage.setLocalData(f->allocateStorage(this));
+
+  engineFactory = FitEngine::defaultFactoryItem(datasets.size());
 }
 
 FitInternalStorage * FitData::getStorage()
@@ -651,8 +653,7 @@ bool FitData::isFixed(int id, int ds) const
 }
 
 
-void FitData::initializeSolver(const double * initialGuess, 
-                               FitEngineFactoryItem * feit,
+void FitData::initializeSolver(const double * initialGuess,
                                CommandOptions * opts)
 {
   nbIterations = 0;
@@ -693,14 +694,15 @@ void FitData::initializeSolver(const double * initialGuess,
       if(workers.size() > 0)
         d->setupThreads(workers.size());
 
+      d->engineFactory = engineFactory;
       d->initializeSolver(initialGuess + 
-                          (i * parameterDefinitions.size()), feit, opts);
+                          (i * parameterDefinitions.size()), opts);
     }
   }
   else {
-    if(! feit)
-      feit = FitEngine::defaultFactoryItem();
-    engine = feit->creator(this);
+    if(! engineFactory)
+      engineFactory = FitEngine::defaultFactoryItem();
+    engine = engineFactory->creator(this);
 
     FitInternalStorage * master = getStorage();
     for(int i = 0; i < workers.size(); i++) {
@@ -711,7 +713,7 @@ void FitData::initializeSolver(const double * initialGuess,
     if(debug > 0) {
       QTextStream o(stdout);
       o << "Initialized data " << this << " with engine " << engine
-        << " (" << feit->name << ")" << endl;
+        << " (" << engineFactory->name << ")" << endl;
     }
     if(opts)
       engine->setEngineParameters(*opts);

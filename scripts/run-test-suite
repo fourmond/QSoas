@@ -12,7 +12,7 @@ fi
 xvfb="xvfb-run -a"
 case $1 in
     --memcheck)
-        pref="valgrind --tool=memcheck --track-origins=yes --leak-check=full"
+        pref="valgrind --tool=memcheck --track-origins=yes --leak-check=full --suppressions=../misc/valgrind.suppr "
         if [ "$2" ]; then
             pref="$pref --xml=yes --xml-file=../$2"
         fi

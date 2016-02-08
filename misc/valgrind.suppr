@@ -1,0 +1,67 @@
+# -*- mode: conf -*-
+# Suppression file for valgrind, that removes quite a few false positives
+
+# Format of this file is:
+# {
+#     name_of_suppression
+#     tool_name:supp_kind
+#     (optional extra info for some suppression types)
+#     caller0 name, or /name/of/so/file.so
+#     caller1 name, or ditto
+#     (optionally: caller2 name)
+#     (optionally: caller3 name)
+#  }
+# For Memcheck, the supp_kinds are:
+#
+#     Param Value1 Value2 Value4 Value8 Value16 Jump
+#     Free Addr1 Addr2 Addr4 Addr8 Addr16
+#     Cond (previously known as Value0)
+#
+# and the optional extra info is:
+#     if Param: name of system call param
+
+{
+   RubyInit
+   Memcheck:Cond
+   ...
+   obj:/usr/lib/x86_64-linux-gnu/libruby-2.1.so.*
+   fun:ruby_setup
+   fun:ruby_init
+}
+
+   # obj: *libruby*.so*
+   # fun:ruby_setup
+   # fun:ruby_init
+
+{
+   RubyArrays
+   Memcheck:Cond
+   ...
+   obj:/usr/lib/x86_64-linux-gnu/libruby-2.1.so.*
+   fun:rb_ary_new_from_values
+   obj:/usr/lib/x86_64-linux-gnu/libruby-2.1.so.*
+}
+
+{
+   RubyArrays2
+   Memcheck:Value8
+   ...
+   obj:/usr/lib/x86_64-linux-gnu/libruby-2.1.so.*
+   fun:rb_ary_new_from_values
+   obj:/usr/lib/x86_64-linux-gnu/libruby-2.1.so.*
+}
+
+{
+   gdobject
+   Memcheck:Leak
+   ...
+   fun:g_type_register_fundamental
+}
+
+{
+   FontConfig
+   Memcheck:Leak
+   ...
+   obj:/usr/lib/x86_64-linux-gnu/libfontconfig.so.*
+   fun:FcDefaultSubstitute
+}

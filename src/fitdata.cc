@@ -160,6 +160,7 @@ FitData::FitData(const Fit * f, const QList<const DataSet *> & ds, int d,
 
   computeWeights();
 
+  workersQueue = NULL;
   fitStorage.setLocalData(f->allocateStorage(this));
 
   engineFactory = FitEngine::defaultFactoryItem(datasets.size());

@@ -787,10 +787,12 @@ void timerCommand(const QString &, const CommandOptions & )
     qint64 dt = time.msecsTo(QDateTime::currentDateTime());
     time = QDateTime();
     Terminal::out << dt*0.001 << " seconds elapsed since timer start" << endl;
+    Debug::debug() << dt*0.001 << " seconds elapsed since timer start" << endl;
   }
   else {
     time = QDateTime::currentDateTime();
     Terminal::out << "Starting timer" << endl;
+    Debug::debug() << "Starting timer" << endl;
   }
 }
 

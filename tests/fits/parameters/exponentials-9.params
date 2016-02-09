@@ -1,0 +1,47 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: exponential-decay (9 exp, absolute, no loss, no slow phase)
+# Buffer #0 : generated.dat
+x0	0	!	0
+A_inf	20	!	1
+tau_1	0.0101611	!	1
+A_1	-2.22222	!	1
+tau_2	0.0204832	!	1
+A_2	-2.22222	!	1
+tau_3	0.0314495	!	1
+A_3	-2.22222	!	1
+tau_4	0.0574348	!	1
+A_4	-2.22222	!	1
+tau_5	0.0823045	!	1
+A_5	-2.22222	!	1
+tau_6	0.246914	!	1
+A_6	-2.22222	!	1
+tau_7	0.740741	!	1
+A_7	-2.22222	!	1
+tau_8	2.22222	!	1
+A_8	-2.22222	!	1
+tau_9	6.66667	!	1
+A_9	-2.22222	!	1
+# The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
+# Buffer-local parameters: 
+# 
+# Buffer: generated.dat (weight: 1)
+# x0	=	0	(fixed)
+# A_inf	=	20	+- 0	+- 0%
+# tau_1	=	0.00101611	+- 0	+- 0%
+# A_1	=	-2.22222	+- 0	+- 0%
+# tau_2	=	0.00304832	+- 0	+- 0%
+# A_2	=	-2.22222	+- 0	+- 0%
+# tau_3	=	0.00914495	+- 0	+- 0%
+# A_3	=	-2.22222	+- 0	+- 0%
+# tau_4	=	0.0274348	+- 0	+- 0%
+# A_4	=	-2.22222	+- 0	+- 0%
+# tau_5	=	0.0823045	+- 0	+- 0%
+# A_5	=	-2.22222	+- 0	+- 0%
+# tau_6	=	0.246914	+- 0	+- 0%
+# A_6	=	-2.22222	+- 0	+- 0%
+# tau_7	=	0.740741	+- 0	+- 0%
+# A_7	=	-2.22222	+- 0	+- 0%
+# tau_8	=	2.22222	+- 0	+- 0%
+# A_8	=	-2.22222	+- 0	+- 0%
+# tau_9	=	6.66667	+- 0	+- 0%
+# A_9	=	-2.22222	+- 0	+- 0%

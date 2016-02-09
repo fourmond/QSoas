@@ -6,3 +6,6 @@
 
 @ custom-fits.cmds
 @ combined-fits.cmds
+
+@ jacobians.cmds
+@ threads.cmds

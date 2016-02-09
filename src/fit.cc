@@ -435,6 +435,12 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
   hook(&data);
   processOptions(opts, &data);
   data.finishInitialization();
+
+  int threads = 1;
+  updateFromOptions(opts, "threads", threads);
+  if(threads != 1)
+    data.setupThreads(threads);
+
   checkDatasets(&data);
 
   FitWorkspace ws(&data);

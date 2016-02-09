@@ -17,6 +17,12 @@ case $1 in
             pref="$pref --xml=yes --xml-file=../$2"
         fi
         ;;
+    --helgrind)
+        pref="valgrind --tool=helgrind "
+        if [ "$2" ]; then
+            pref="$pref --xml=yes --xml-file=../$2"
+        fi
+        ;;
     --xml)
         for a in $checks; do
             echo "Running check $a:"

@@ -112,7 +112,7 @@ void FitEngine::pushCurrentParameters()
 
 void FitEngine::recomputeJacobian()
 {
-  throw InternalError("Impossible to recompute the jacobian with this fit engine");
+  throw RuntimeError("The fit engine does not support recomputing the jacobian separately");
 }
 
 void FitEngine::resetEngineParameters()

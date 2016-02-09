@@ -146,13 +146,17 @@ static void applyFormulaCommand(const QString &, QString formula,
   for(int i = 0; i < ds->nbColumns() + extra; i++)
     newCols << Vector();
 
-  QVarLengthArray<double, 50> ret(newCols.size());
-  loopOverDataset(ds, [&newCols, &exp, &ret](double *args, double *) {
-      exp.evaluateIntoArray(args, ret.data(), ret.size());
-      for(int j = 0; j < ret.size(); j++)
-        newCols[j].append(ret[j]);
-    }, extra);
+  {
+    QMutexLocker m(&Ruby::rubyGlobalLock);
+    QVarLengthArray<double, 100> ret(newCols.size());
+    loopOverDataset(ds, [&newCols, &exp, &ret](double *args, double *) {
+        exp.evaluateIntoArrayNoLock(args, ret.data(), ret.size());
+        for(int j = 0; j < ret.size(); j++)
+          newCols[j].append(ret[j]);
+      }, extra);
 
+  }
+  
   DataSet * newDs = ds->derivedDataSet(newCols, "_mod.dat");
   soas().pushDataSet(newDs);
 }

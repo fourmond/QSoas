@@ -94,6 +94,13 @@ namespace Ruby {
   /// The main object.
   extern RUBY_VALUE main;
 
+  /// I don't think Ruby is too reentrant, so every call to ruby
+  /// functions should be synchronized using this.
+  ///
+  /// For performance reasons, this is not done systematically in all
+  /// the functions of the interface.
+  extern QMutex rubyGlobalLock;
+
   /// @name Exception-catching routines
   ///
   /// A series of functions to wrap calls to ruby functions and ensure

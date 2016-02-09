@@ -34,6 +34,7 @@ RUBY_ID Expression::callID()
 
 RUBY_VALUE Expression::codeSafeKeepingHash()
 {
+  QMutexLocker m(&Ruby::rubyGlobalLock);
   RUBY_VALUE hsh = rbw_gv_get("$expression_codes");
   if(! rbw_test(hsh)) {
     hsh = rbw_hash_new();
@@ -44,6 +45,7 @@ RUBY_VALUE Expression::codeSafeKeepingHash()
 
 RUBY_VALUE Expression::argsSafeKeepingHash()
 {
+  QMutexLocker m(&Ruby::rubyGlobalLock);
   RUBY_VALUE hsh = rbw_gv_get("$expression_args");
   if(! rbw_test(hsh)) {
     hsh = rbw_hash_new();
@@ -84,6 +86,7 @@ bool Expression::isAVariable() const
 /// constructor, which may lead to memory leaks.
 void Expression::buildCode()
 {
+  QMutexLocker m(&Ruby::rubyGlobalLock);
   singleVariableIndex = -1;
 
   QStringList vars = variables;
@@ -218,6 +221,12 @@ RUBY_VALUE Expression::rubyEvaluation(const double * values) const
 
 double Expression::evaluate(const double * values) const
 {
+  QMutexLocker m(&Ruby::rubyGlobalLock);
+  return evaluateNoLock(values);
+}
+
+double Expression::evaluateNoLock(const double * values) const
+{
   if(singleVariableIndex >=  0)
     return values[singleVariableIndex];
   return Ruby::toDouble(rubyEvaluation(values));
@@ -229,6 +238,13 @@ bool Expression::evaluateAsBoolean(const double * values) const
 }
 
 int Expression::evaluateIntoArray(const double * values, 
+                                  double * target, int ts) const
+{
+  QMutexLocker m(&Ruby::rubyGlobalLock);
+  return evaluateIntoArrayNoLock(values, target, ts);
+}
+
+int Expression::evaluateIntoArrayNoLock(const double * values, 
                                   double * target, int ts) const
 {
   RUBY_VALUE ret = rubyEvaluation(values);
@@ -246,8 +262,14 @@ int Expression::evaluateIntoArray(const double * values,
   return sz;
 }
 
-
 Vector Expression::evaluateAsArray(const double * values) const
+{
+  QMutexLocker m(&Ruby::rubyGlobalLock);
+  return evaluateAsArrayNoLock(values);
+}
+
+
+Vector Expression::evaluateAsArrayNoLock(const double * values) const
 {
   RUBY_VALUE ret = rubyEvaluation(values);
 

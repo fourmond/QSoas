@@ -25,6 +25,7 @@
 
 #include <exceptions.hh>
 
+QMutex Ruby::rubyGlobalLock(QMutex::Recursive);
 
 /// A global toogle. @todo Make that configurable at runtime
 static SettingsValue<bool> debugRuby("ruby/debug", false);

@@ -104,8 +104,18 @@ public:
   /// Returns true if the expression reduces to only
   bool isAVariable() const;
 
+  /// @name Evalution functions
+  ///
+  /// All the functions in here use the Ruby global lock excepted
+  /// those whose name ends in NoLock
+  ///
+  /// @{
+
   /// Evaluate the expression with the given values for the variables
   double evaluate(const double * variables) const;
+
+  /// Non-locking version of evaluate()
+  double evaluateNoLock(const double * variables) const;
 
   
   /// Evaluate the expression as a boolean
@@ -115,6 +125,32 @@ public:
   /// not very efficient, but does not require to know in advance how
   /// many numbers are expected.
   Vector evaluateAsArray(const double * variables) const;
+
+
+  /// Non-locking version of evaluateAsArray()
+  Vector evaluateAsArrayNoLock(const double * variables) const;
+
+  /// Evaluate into an array. This can be used when an expression
+  /// isn't expected to return a single value, but rather an array of
+  /// values (think applyFormula), and we know more or less how many
+  /// there will be in advance. If that's not the case, it is better
+  /// to use evaluateAsArray().
+  ///
+  /// \a target is the storage space meant to receive the variables,
+  /// \a size its size
+  ///
+  /// The return value is the number of values that resulted from the
+  /// expression. It can be greater than \a size (but in that case,
+  /// some values are simply lost).
+  int evaluateIntoArray(const double * variables, double * target, 
+                        int size) const;
+
+  /// Non-locking version of evaluateIntoArray()
+  int evaluateIntoArrayNoLock(const double * variables, double * target, 
+                        int size) const;
+
+  /// @}
+  
 
 
   /// This takes:
@@ -133,20 +169,6 @@ public:
                                           double defaultValue = 0);
   
 
-  /// Evaluate into an array. This can be used when an expression
-  /// isn't expected to return a single value, but rather an array of
-  /// values (think applyFormula), and we know more or less how many
-  /// there will be in advance. If that's not the case, it is better
-  /// to use evaluateAsArray().
-  ///
-  /// \a target is the storage space meant to receive the variables,
-  /// \a size its size
-  ///
-  /// The return value is the number of values that resulted from the
-  /// expression. It can be greater than \a size (but in that case,
-  /// some values are simply lost).
-  int evaluateIntoArray(const double * variables, double * target, 
-                        int size) const;
 
   /// Change the list of variables we're evaluating against. It has to
   /// contain all the natural variables, but can be larger than that,

@@ -115,6 +115,9 @@ public:
 
     Reaction(const QString & fd, const QString & bd = "" );
 
+    /// A copy constructor
+    Reaction(const Reaction & other);
+
     void clearExpressions();
 
     virtual ~Reaction() {
@@ -147,6 +150,10 @@ public:
 
     /// Stores useful values in the cache. Not used as of now.
     virtual void computeCache(const double * vals);
+
+    /// Returns a true duplicate of the object pointed to by
+    /// Reaction. It also works for subclasses
+    virtual Reaction * dup() const;
   };
 
 
@@ -162,6 +169,9 @@ public:
     // meaning.
     RedoxReaction(int els, const QString & e0, const QString & k0);
 
+    /// A copy constructor
+    RedoxReaction(const RedoxReaction & other);
+
     virtual void setParameters(const QStringList & parameters);
 
     virtual QSet<QString> parameters() const;
@@ -169,6 +179,8 @@ public:
     virtual void computeRateConstants(const double * vals, 
                                       double * forward, double * backward) const;
     virtual QString exchangeRate() const;
+
+    virtual Reaction * dup() const;
 
     /// Stores useful values in the cache. Stores:
     /// * exp(fara * 0.5 * electrons * (- e0));
@@ -190,7 +202,7 @@ protected:
   ///  
   /// @{
 
-  /// The only reactions not handled by the 
+  /// The only reactions not handled by the cache
   QVector<RedoxReaction *> redoxReactions;
 
   /// The cached part of the jacobian, set up by setupCache()
@@ -231,6 +243,8 @@ public:
   /// Builds an empty KineticSystem
   KineticSystem();
   ~KineticSystem();
+
+  KineticSystem(const KineticSystem & other);
 
   /// Whether or not the system is linear
   bool isLinear() const {

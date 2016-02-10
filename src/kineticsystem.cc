@@ -134,6 +134,24 @@ bool KineticSystem::Reaction::isLinear() const
   return backward->isAVariable();
 }
 
+KineticSystem::Reaction::Reaction(const KineticSystem::Reaction & o) :
+  forwardRate(o.forwardRate), backwardRate(o.backwardRate),
+  speciesIndices(o.speciesIndices),
+  speciesStoechiometry(o.speciesStoechiometry),
+  electrons(o.electrons)
+{
+  forward = o.forward ? new Expression(*o.forward) : NULL;
+  backward = o.backward ? new Expression(*o.backward) : NULL;
+
+  memcpy(cache, o.cache, sizeof(o.cache));
+}
+
+
+KineticSystem::Reaction * KineticSystem::Reaction::dup() const
+{
+  return new Reaction(*this);
+}
+
 //////////////////////////////////////////////////////////////////////
 
 
@@ -207,9 +225,22 @@ QString KineticSystem::RedoxReaction::exchangeRate() const
   return backwardRate;
 }
 
+KineticSystem::Reaction * KineticSystem::RedoxReaction::dup() const
+{
+  return new RedoxReaction(*this);
+}
+
+KineticSystem::RedoxReaction::RedoxReaction(const KineticSystem::RedoxReaction & o) :
+  KineticSystem::Reaction(o), potentialIndex(o.potentialIndex),
+  temperatureIndex(o.temperatureIndex)
+{
+  ;
+}
+
 
 
 //////////////////////////////////////////////////////////////////////
+
 
 KineticSystem::KineticSystem() : 
   linear(false), checkRange(true), redoxReactionScaling(1),
@@ -219,6 +250,29 @@ KineticSystem::KineticSystem() :
   cachedJacobian = NULL;
 }
 
+KineticSystem::KineticSystem(const KineticSystem & o) : 
+  linear(o.linear), species(o.species),
+  speciesLookup(o.speciesLookup),
+  parameters(o.parameters),
+  checkRange(o.checkRange),
+  redoxReactionScaling(o.redoxReactionScaling)
+{
+  cachedJacobian = NULL;
+  if(o.cachedJacobian) {
+    cachedJacobian = gsl_matrix_alloc(o.cachedJacobian->size1, o.cachedJacobian->size2);
+    gsl_matrix_memcpy(cachedJacobian, o.cachedJacobian);
+  }
+  reporterExpression = o.reporterExpression ?
+    new Expression(*o.reporterExpression) : NULL;
+  for(int i = 0; i < o.reactions.size(); i++)
+    reactions << o.reactions[i]->dup();
+
+  for(int i = 0; i < o.redoxReactions.size(); i++)
+    redoxReactions << new RedoxReaction(*o.redoxReactions[i]);
+
+}
+
+  
 KineticSystem::~KineticSystem()
 {
   for(int i = 0; i < reactions.size(); i++)

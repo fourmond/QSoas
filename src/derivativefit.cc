@@ -58,7 +58,12 @@ DerivativeFit::Storage::Storage(const DerivativeFit::Storage & o) :
     splittedDatasets << new DataSet(*o.splittedDatasets[i]);
 }
 
+//////////////////////////////////////////////////////////////////////
 
+bool DerivativeFit::threadSafe() const
+{
+  return true;                  // YES
+}
 
 
 
@@ -189,6 +194,10 @@ void DerivativeFit::reserveBuffers(FitData * data) const
   }
 }
 
+/// @bug There is a potential bug here, since we don't change the
+/// datasets from FitData, so any PerDatasetFit that needs
+/// FitData->datasets will fail. This has been here for a while,
+/// though.
 void DerivativeFit::function(const double * parameters,
                              FitData * data, gsl_vector * target) const
 {

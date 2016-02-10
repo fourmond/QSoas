@@ -103,6 +103,7 @@ public:
   virtual QString annotateDataSet(int idx, FitData * data) const;
   virtual void initialGuess(FitData * data, double * guess) const;
 
+  bool threadSafe() const;
 
 
   /// Creates (and registers) the derivative fit based on the given

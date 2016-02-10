@@ -58,6 +58,7 @@ int Debug::debugLevel()
 
 void Debug::closeDirectory()
 {
+  QMutexLocker m(&lock);
   if(output) {
     delete output;
     output = NULL;
@@ -76,6 +77,7 @@ void Debug::closeDirectory()
 void Debug::openDirectory(const QString & dir)
 {
   closeDirectory();
+  QMutexLocker m(&lock);
   if(! dir.isEmpty()) {
     directory = new QDir(dir);
     if(! directory->makeAbsolute()) {

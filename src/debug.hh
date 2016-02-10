@@ -53,6 +53,9 @@ class Debug {
   /// The instance of debug.
   static Debug * theDebug;
 
+  /// Now we're multithread, we'll have to lock...
+  QMutex lock;
+
 protected:
   void timeStamp();
   
@@ -124,6 +127,7 @@ public:
 };
 
 template<class T> inline Debug& Debug::operator<<(T t) {
+  QMutexLocker m(&lock);
   out << t;
   if(output)
     *output << t;

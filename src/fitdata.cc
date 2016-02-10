@@ -110,9 +110,11 @@ protected:
   FitInternalStorage * stg;
 
   QMutex storageMutex;
+
+  int idx;
 public:
-  DerivativeComputationThread(FitData * d) :
-    data(d), stg(NULL) {
+  DerivativeComputationThread(FitData * d, int id) :
+    data(d), stg(NULL), idx(id) {
   };
 
   void setStorage(FitInternalStorage * local) {
@@ -129,10 +131,17 @@ public:
           data->fitStorage.setLocalData(stg);
           if(data->debug > 0)
             Debug::debug() << "Setting up thread " << this
-                           << " to work with storage " << stg << endl;
+                           << " (#" << idx << ") to work with storage "
+                           << stg << endl;
           stg = NULL;
         }
+        if(data->debug > 0)
+          Debug::debug() << QString("Thread #%1 derives parameter %2").
+            arg(idx).arg(job.idx) << endl;
         data->deriveParameter(job.idx, job.params, job.target, job.current);
+        if(data->debug > 0)
+          Debug::debug() << QString("Thread #%1 done deriving parameter %2").
+            arg(idx).arg(job.idx) << endl;
         data->workersQueue->doneJob();
       }
     }
@@ -189,7 +198,7 @@ void FitData::setupThreads(int nb)
 
   workersQueue = new DFComputationQueue;
   for(int i = 0; i < nb; i++) {
-    workers << new DerivativeComputationThread(this);
+    workers << new DerivativeComputationThread(this, i+1);
     workers.last()->start();
   }
   

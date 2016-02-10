@@ -68,14 +68,20 @@ Integrator * Integrator::fromOptions(const CommandOptions & opts,
   
   updateFromOptions(opts, "integrator", c);
 
+  if(! c) 
+    throw RuntimeError("For some reason, could not find an integrator");
+
+
   double relPrec = 1e-4;
   updateFromOptions(opts, "prec-relative", relPrec);
   double absPrec = 0;
   updateFromOptions(opts, "prec-absolute", absPrec);
   updateFromOptions(opts, "subdivisions", maxnum);
+
+  Integrator * rv = c->creator(maxnum, relPrec, absPrec);
+  rv->factoryName = c->name;
   
-  
-  return c->creator(maxnum, relPrec, absPrec);
+  return rv;
 }
 
 CommandOptions Integrator::currentOptions() const

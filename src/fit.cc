@@ -38,6 +38,7 @@
 #include <factoryargument.hh>
 
 #include <terminal.hh>
+#include <debug.hh>
 
 static Group fits("fits", 0,
                   "Fits",
@@ -320,6 +321,9 @@ void Fit::runFit(std::function<void (FitData *)> hook,
                  const QString &, QList<const DataSet *> datasets,
                  const CommandOptions & opts)
 {
+  if(debug > 0)                 // Looks nice...
+    Debug::debug() << "Starting fit with instance of "
+                   << typeid(*this).name() << endl;
   int debug = 0;
   updateFromOptions(opts, "debug", debug);
   QString extraParams;
@@ -335,6 +339,9 @@ void Fit::runFit(std::function<void (FitData *)> hook,
 
   int threads = 1;
   updateFromOptions(opts, "threads", threads);
+  if(debug > 0)
+    Debug::debug() << "Asking for " << threads << " threads (ts: "
+                   << threadSafe() << ")" << endl;
   if(threads != 1)
     data.setupThreads(threads);
   checkDatasets(&data);

@@ -127,6 +127,9 @@ public:
         if(stg) {
           QMutexLocker l(&storageMutex);
           data->fitStorage.setLocalData(stg);
+          if(data->debug > 0)
+            Debug::debug() << "Setting up thread " << this
+                           << " to work with storage " << stg << endl;
           stg = NULL;
         }
         data->deriveParameter(job.idx, job.params, job.target, job.current);
@@ -179,6 +182,10 @@ void FitData::setupThreads(int nb)
     nb += QThread::idealThreadCount();
   if(nb <= 0)
     return;                     // Still no threads ?
+
+  if(debug > 0)
+    Debug::debug() << "Setting up fit data " << this
+                   << " for working with " << nb << " threads" << endl;
 
   workersQueue = new DFComputationQueue;
   for(int i = 0; i < nb; i++) {

@@ -1,6 +1,6 @@
 /*
   derivativefit.cc: fit with automatic fitting of the derivative
-  Copyright 2012, 2013, 2014 by CNRS/AMU
+  Copyright 2012, 2013, 2014, 2016 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,12 +31,57 @@
 #include <idioms.hh>
 
 
+DerivativeFit::Storage::~Storage()
+{
+  delete originalStorage;
+  if(sameX)
+    delete[] sameX;
+  for(int i = 0; i < splittedDatasets.size(); i++)
+    delete splittedDatasets[i];
+}
+
+DerivativeFit::Storage::Storage() :
+  sameX(NULL), originalStorage(NULL)
+{
+}
+
+DerivativeFit::Storage::Storage(const DerivativeFit::Storage & o) :
+  originalParameters(o.originalParameters), buffers(o.buffers),
+  sameX(NULL), originalStorage(NULL)
+  // The copy constructor cannot copy the originalStorage !
+{
+  if(o.sameX) {
+    sameX = new bool[buffers.size()];
+    memcpy(sameX, o.sameX, buffers.size()*sizeof(bool));
+  }
+  for(int i = 0; i < o.splittedDatasets.size(); i++)
+    splittedDatasets << new DataSet(*o.splittedDatasets[i]);
+}
+
+
+
+
+
 /// Redirectors
 
 void DerivativeFit::processOptions(const CommandOptions & opts,
-                                     FitData * data) const
+                                   FitData * data) const
 {
   Storage * s = storage<Storage>(data);
+  if(mode == Combined) {
+    s->sameX = new bool[data->datasets.size()];
+    for(int i = 0; i < data->datasets.size(); i++) {
+      const DataSet * ds = data->datasets[i];
+      PossessiveList<DataSet> sub(ds->splitIntoMonotonic());
+      if(sub.size() != 2)
+        throw RuntimeError(QString("Dataset '%1' should be made of two "
+                                   "monotonic parts !").arg(ds->name));
+      sub.detach();
+      s->splittedDatasets << sub[0] << sub[1];
+      s->sameX[i] = sub[0]->x() == sub[1]->x();
+    }
+  }
+
   TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
   Fit::processOptions(underlyingFit, opts, data);
 }
@@ -170,34 +215,39 @@ void DerivativeFit::function(const double * parameters,
     int pbase = i * data->parametersPerDataset();
 
     if(mode == Combined) {
-      // We split the dataset and feed that information to the function
-      /// @todo This is very memory/speed inefficient.
-      PossessiveList<DataSet> sub(derDS->splitIntoMonotonic());
-      if(sub.size() != 2)
-        throw RuntimeError(QString("Dataset '%1' should be made of two "
-                                   "monotonic parts !").arg(derDS->name));
-
-      int idx = sub[0]->x().size();
+      const DataSet * main = s->splittedDatasets[2*i];
+      const DataSet * sub = s->splittedDatasets[2*i+1];
 
       // We create sub-views of the original view...
+      int idx = main->x().size();
       gsl_vector_view sFnView = gsl_vector_subvector(&derView.vector, 0, idx);
       underlyingFit->function(parameters + pbase, 
-                              data, sub[0], &sFnView.vector);
-
-      underlyingFit->function(parameters + pbase, 
-                              data, sub[1], &bufView.vector);
-      // Now copying back 
-      DataSet::firstDerivative(sub[1]->x().data(), 1, 
-                               bufView.vector.data, 
-                               bufView.vector.stride,
-                               derView.vector.data + 
-                               derView.vector.stride * idx, 
-                               derView.vector.stride,
-                               sub[1]->x().size());
-
+                              data, main, &sFnView.vector);
+      if(s->sameX[i]) {
+        // Reuse the same data -- factor-of-two win...
+        DataSet::firstDerivative(main->x().data(), 1, 
+                                 sFnView.vector.data, 
+                                 sFnView.vector.stride,
+                                 derView.vector.data + 
+                                 derView.vector.stride * idx, 
+                                 derView.vector.stride,
+                                 main->x().size());
+      }
+      else {
+        underlyingFit->function(parameters + pbase, 
+                                data, sub, &bufView.vector);
+        // Now copying back 
+        DataSet::firstDerivative(sub->x().data(), 1, 
+                                 bufView.vector.data, 
+                                 bufView.vector.stride,
+                                 derView.vector.data + 
+                                 derView.vector.stride * idx, 
+                                 derView.vector.stride,
+                                 sub->x().size());
+      }
       // And scaling...
       gsl_vector_view sDerView = 
-        gsl_vector_subvector(&derView.vector, idx, sub[1]->x().size());
+        gsl_vector_subvector(&derView.vector, idx, sub->x().size());
 
       // Do scaling of the derivative !
       gsl_vector_scale(&sDerView.vector, 

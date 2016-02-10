@@ -24,15 +24,23 @@
 
 /// This class is a thin wrapper around a QList of pointers taking the
 /// ownership of the pointers (ie destroying them upon destruction).
+///
+/// If detach() is called, the class no longer assumes ownership of
+/// the pointers and will not destroy them.
 template <class T> class PossessiveList {
+
+  bool shouldDelete;
+
   void deleteValues() {
-    for(int i = 0; i < values.size(); i++)
-      delete values[i];
+    if(shouldDelete)
+      for(int i = 0; i < values.size(); i++)
+        delete values[i];
   };
+
 public:
   QList<T*> values;
 
-  PossessiveList() {;};
+  PossessiveList() : shouldDelete(true) {;};
   explicit PossessiveList(const QList<T*> & v) : values(v) {;};
   PossessiveList(int nb) {
     values.reserve(nb);
@@ -42,6 +50,10 @@ public:
 
   ~PossessiveList() {
     deleteValues();
+  };
+
+  void detach() {
+    shouldDelete = false;
   };
 
   void clear() {

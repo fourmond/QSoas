@@ -1,7 +1,7 @@
 /**
    \file derivativefit.hh
    Automatic fits with derivatives...
-   Copyright 2012 by CNRS/AMU
+   Copyright 2012, 2016 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -75,8 +75,21 @@ protected:
     /// Various buffers for use with the computation of the derivatives
     QList<Vector> buffers;
 
+    /// Subdatasets used for the combined-fits:
+    /// -even numbered ones are the original functions
+    /// -odd numbered ones are the derivatives
+    QList<DataSet*> splittedDatasets;
+
+    /// In combined mode, whether a given dataset has the same X
+    /// values for the derivative and the original data.
+    bool * sameX;
+
     /// Storage space of the original fit
     FitInternalStorage * originalStorage;
+
+    Storage();
+    Storage(const Storage & o);
+    ~Storage();
   };
 
   virtual FitInternalStorage * allocateStorage(FitData * data) const;

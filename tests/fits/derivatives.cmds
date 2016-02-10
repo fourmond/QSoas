@@ -20,5 +20,9 @@ define-derived-fit /mode=deriv-only polynomial
 # One formula
 @ sim-deriv-poly.cmds parameters/poly2-4-3.params 2 3 4 -2 0.5 2e-10 0,1 s
 
+define-derived-fit /mode=combined polynomial
+
+@ sim-deriv-combined.cmds parameters/poly-4-1.params 1 2 3 -2 0.2 1e-10
+
 
 

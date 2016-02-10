@@ -321,11 +321,13 @@ void Fit::runFit(std::function<void (FitData *)> hook,
                  const QString &, QList<const DataSet *> datasets,
                  const CommandOptions & opts)
 {
+  int debug = 0;
+  updateFromOptions(opts, "debug", debug);
+
   if(debug > 0)                 // Looks nice...
     Debug::debug() << "Starting fit with instance of "
                    << typeid(*this).name() << endl;
-  int debug = 0;
-  updateFromOptions(opts, "debug", debug);
+
   QString extraParams;
   updateFromOptions(opts, "extra-parameters", extraParams);
   QStringList ep = extraParams.split(",", QString::SkipEmptyParts);

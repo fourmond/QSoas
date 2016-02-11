@@ -52,6 +52,34 @@
 }
 
 {
+   RubyCompile2
+   Memcheck:Value8
+   ...
+   obj:/usr/lib/x86_64-linux-gnu/libruby-2.1.so.*
+   fun:rb_node_newnode
+   obj:/usr/lib/x86_64-linux-gnu/libruby-2.1.so.*
+}
+
+{
+   RubyCompile3
+   Memcheck:Cond
+   ...
+   fun:rb_iseq_new_with_opt
+   fun:rb_iseq_compile_with_option
+}
+
+
+{
+   RubyCompile4
+   Memcheck:Value8
+   ...
+   obj:/usr/lib/x86_64-linux-gnu/libruby-2.1.so.*
+   fun:rb_iseq_compile_with_option
+   obj:/usr/lib/x86_64-linux-gnu/libruby-2.1.so.*
+}
+
+
+{
    RubyArrays2
    Memcheck:Value8
    ...

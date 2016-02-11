@@ -66,6 +66,12 @@ linux {
 }
 
 
+# Do not use compressed debug symbols, more complicated than anything else
+linux {
+  QMAKE_CXXFLAGS += -gz=none
+  QMAKE_CFLAGS += -gz=none
+}
+
 # Use a build/ directory for building
 
 MOC_DIR = build

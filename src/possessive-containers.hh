@@ -41,8 +41,9 @@ public:
   QList<T*> values;
 
   PossessiveList() : shouldDelete(true) {;};
-  explicit PossessiveList(const QList<T*> & v) : values(v) {;};
-  PossessiveList(int nb) {
+  explicit PossessiveList(const QList<T*> & v) : shouldDelete(true),
+                                                 values(v) {;};
+  PossessiveList(int nb) : shouldDelete(true) {
     values.reserve(nb);
     for(int i = 0; i < nb; i++)
       values.append(NULL);

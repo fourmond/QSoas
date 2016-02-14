@@ -75,7 +75,7 @@ private:
   QWaitCondition condition;
 
   /// A flag used to indicate that all the threads should terminate.
-  bool terminate;
+  volatile bool terminate;
 
   /// A number of running computations
   int runningComputations;

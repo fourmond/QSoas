@@ -62,6 +62,7 @@ void DFComputationQueue::enqueue(int i, const gsl_vector * parameters,
 
 void DFComputationQueue::signalTermination()
 {
+  QMutexLocker l(&mutex);
   terminate = true;
   condition.wakeAll();
 }
@@ -187,10 +188,10 @@ void FitData::setupThreads(int nb)
 {
   if((! fit->threadSafe()) || nb == 1)         // Nothing to do !
     return;
-#ifndef Q_OS_LINUX
-  Debug::debug() << "Threads are disabled on platforms other than Linux as of now" << endl;
-  return;
-#endif
+  // #ifndef Q_OS_LINUX
+  // Debug::debug() << "Threads are disabled on platforms other than Linux as of now" << endl;
+  // return;
+  // #endif
   if(nb <= 0)
     nb += QThread::idealThreadCount();
   if(nb <= 0)

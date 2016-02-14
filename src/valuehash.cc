@@ -220,6 +220,7 @@ RUBY_VALUE ValueHash::variantToRuby(const QVariant & variant)
 
 RUBY_VALUE ValueHash::toRuby() const
 {
+  QMutexLocker l(&Ruby::rubyGlobalLock);
   RUBY_VALUE ret = rbw_hash_new();
   for(const_iterator it = begin(); it != end(); it++) {
     // Hmmm, QVariant says type() is QVariant::Type, but the

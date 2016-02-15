@@ -62,8 +62,10 @@ void DFComputationQueue::enqueue(int i, const gsl_vector * parameters,
 
 void DFComputationQueue::signalTermination()
 {
-  QMutexLocker l(&mutex);
-  terminate = true;
+  { 
+    QMutexLocker l(&mutex);
+    terminate = true;
+  }
   condition.wakeAll();
 }
 
@@ -71,7 +73,9 @@ DFComputationQueue::DerivativeJob DFComputationQueue::nextJob()
 {
   while(true) {
     QMutexLocker l(&mutex);
-    condition.wait(&mutex);
+    // We wake up every half second, to avoid threads just waiting
+    // forever. Shouldn't be too long in the end.
+    condition.wait(&mutex, 500);
     if(queue.size() > 0) {
       DerivativeJob nxt = queue.dequeue();
       runningComputations++;
@@ -290,6 +294,8 @@ FitData::~FitData()
   if(workersQueue) {
     workersQueue->signalTermination();
     for(int i = 0; i < workers.size(); i++) {
+      // try that ?
+      workersQueue->signalTermination();
       DerivativeComputationThread * d = workers[i];
       d->wait();
       d->setStorage(NULL);    

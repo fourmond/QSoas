@@ -28,6 +28,17 @@ class LineEdit;
 // A private class to display the label
 class SideBarLabel;
 
+/// This class embeds the context in which a command was run (which
+/// command file, which location in the file)
+class CommandContext {
+public:
+  /// The name of the script file (empty for no script)
+  QString scriptFile;
+
+  /// The line number (or command number)
+  int lineNumber = 0;
+};
+
 /// A widget that accepts commands, and display their result, a
 /// successor for the terminal in the old Soas.
 ///
@@ -89,11 +100,37 @@ class CommandWidget : public QWidget {
   /// string is empty. This is handled at the runCommand(const QString
   /// &) level.
   QString rubyCode;
+
+  /// The stack of contexts, gaining a level every time one enters
+  /// inside a script
+  QList<CommandContext> contexts;
   
 public:
 
   CommandWidget();
   virtual ~CommandWidget();
+
+
+  /// @name Context-related functions
+  ///
+  /// @{
+
+
+  /// Enters a new context file
+  void enterContext(const QString & file);
+
+  /// Leaves the current context
+  void leaveContext();
+
+  /// Advances the current context
+  void advanceContext();
+
+  /// Returns the current context
+  CommandContext currentContext() const;
+  
+
+  /// @}
+  
 
   /// Logs the given string to the application-wide CommandWidget
   /// terminal, or to standard output in the case we don't have one of
@@ -106,6 +143,12 @@ public:
 
   /// Sets the text of the prompt
   void setPrompt(const QString & str);
+
+  /// Returns the text of the current prompt
+  QString currentPrompt() const;
+
+  /// Resets the prompt according to the current context
+  void resetPrompt();
 
   /// Sets the text of the side bar label (but doesn't show it if it
   /// is hidden)

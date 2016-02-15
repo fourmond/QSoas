@@ -72,6 +72,24 @@ public:
 
 //////////////////////////////////////////////////////////////////////
 
+
+/// A class to handle the changes 
+class ContextChange {
+  CommandWidget * target;
+public:
+  ContextChange(CommandWidget * tg, const QString & fn) : target(tg) {
+    target->enterContext(fn);
+  };
+  
+  ~ContextChange() {
+    target->leaveContext();
+  };
+  
+};
+
+
+//////////////////////////////////////////////////////////////////////
+
 /// @todo Replace with a QPointer to avoid sending stuff once it's
 /// destroyed ?
 
@@ -175,6 +193,7 @@ CommandWidget::~CommandWidget()
   delete watcherDevice;
 }
 
+
 bool CommandWidget::runCommand(const QStringList & raw)
 {
   /// @todo use a different prompt whether the call is internal or
@@ -186,7 +205,7 @@ bool CommandWidget::runCommand(const QStringList & raw)
     return true;                     // Nothing to do here.
   
   QString cmd = Command::unsplitWords(raw);
-  out << bold("QSoas> ") << cmd << endl;
+  out << bold(currentPrompt()) << cmd << endl;
   
   if(addToHistory)
     commandLine->addHistoryItem(cmd);
@@ -226,6 +245,8 @@ bool CommandWidget::runCommand(const QString & str)
   QRegExp res("^\\s*ruby\\s*$");
   QRegExp ree("^\\s*ruby\\s+end\\s*$");
 
+  advanceContext();
+
   if(rubyCode.isEmpty()) {
     if(res.exactMatch(str)) {
       rubyCode = "qsoas = QSoas::the_instance\n";
@@ -255,7 +276,7 @@ bool CommandWidget::runCommand(const QString & str)
         status = false;
       }
       rubyCode = "";
-      setPrompt("QSoas> ");
+      resetPrompt();
       return status;
     }
     else {
@@ -329,6 +350,47 @@ void CommandWidget::setPrompt(const QString & str)
   promptLabel->setText(str);
 }
 
+QString CommandWidget::currentPrompt() const
+{
+  return promptLabel->text();
+}
+
+void CommandWidget::resetPrompt()
+{
+  QString prompt = "QSoas> ";
+  if(contexts.size() > 0 && (! contexts.last().scriptFile.isEmpty()))
+    prompt = QString("QSoas (%1)> ").arg(contexts.last().scriptFile);
+  setPrompt(prompt);
+}
+
+void CommandWidget::enterContext(const QString & file)
+{
+  contexts.append(CommandContext());
+  contexts.last().scriptFile = file;
+  resetPrompt();
+}
+
+void CommandWidget::leaveContext()
+{
+  contexts.takeLast();
+  resetPrompt();
+}
+
+void CommandWidget::advanceContext()
+{
+  if(contexts.size() == 0)
+    contexts.append(CommandContext());
+  contexts.last().lineNumber++;
+}
+
+CommandContext CommandWidget::currentContext() const
+{
+  if(contexts.size() == 0)
+    return CommandContext();
+  return contexts.last();
+}
+
+
 LineEdit * CommandWidget::enterPromptMode(const QString & prompt, 
                                            const QString & init)
 {
@@ -388,8 +450,10 @@ void CommandWidget::runCommandFile(QIODevice * source,
       QString line = in.readLine();
       if(line.isNull())
         break;
-      if(commentRE.indexIn(line) == 0)
+      if(commentRE.indexIn(line) == 0) {
+        advanceContext();
         continue;
+      }
 
       // Argument substitution
 
@@ -504,6 +568,7 @@ void CommandWidget::runCommandFile(const QString & fileName,
   QFile file(fileName);
   Utils::open(&file, QIODevice::ReadOnly);
   TemporaryChange<QString> ch(scriptFile, fileName);
+  ContextChange ch2(this, fileName);
   runCommandFile(&file, args, addToHist);
 }
 

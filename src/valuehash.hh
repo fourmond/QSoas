@@ -91,9 +91,16 @@ public:
   /// Formats the elements as "key = value" in tab-separated columns
   ///
   /// @todo Customization.
+  ///
+  /// If @a sort is true, then the keys that are not specifically
+  /// ordered are sorted alphabetically.
+  ///
+  /// If @a overrideorder, then keys that are specifically ordered are
+  /// not treated differently.
   QString prettyPrint(int nbCols = 3,
                       const QString & prefix = "",
-                      const QString & joinStringLists = QString()) const;
+                      const QString & joinStringLists = QString(),
+                      bool sort = true, bool overrideorder = false) const;
 
   /// Depending on the number of times used so far:
   /// @li if even, sets the key for the next addition

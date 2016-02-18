@@ -104,33 +104,40 @@ QString ValueHash::toString(const QString & sep,
 
  QString ValueHash::prettyPrint(int nbCols, 
                                 const QString & prefix, 
-                                const QString & joinStringLists) const
+                                const QString & joinStringLists, bool sort,
+                                bool overrideorder) const
 {
   QString output;
   QHash<QString, QString> strings = extractStrings(joinStringLists);
   QHash<QString, QString>::iterator it;
   int done = 0;
 
-  for(int i = 0; i < keyOrder.size(); i++) {
-    const QString & k = keyOrder[i];
-    it = strings.find(k);
-    if(! (done % nbCols))
-      output += prefix;
-    if(it != strings.end()) {
-      output += QString("%1 =\t %2").arg(k).arg(*it);
-      done++;
-      if(done % nbCols)
-        output += "\t";
-      else
-        output += "\n";
-      strings.erase(it);
+  if(! overrideorder) {
+    for(int i = 0; i < keyOrder.size(); i++) {
+      const QString & k = keyOrder[i];
+      it = strings.find(k);
+      if(! (done % nbCols))
+        output += prefix;
+      if(it != strings.end()) {
+        output += QString("%1 =\t %2").arg(k).arg(*it);
+        done++;
+        if(done % nbCols)
+          output += "\t";
+        else
+          output += "\n";
+        strings.erase(it);
+      }
     }
   }
   
-  for(it = strings.begin(); it != strings.end(); it++) {
+  QStringList keys = strings.keys();
+  if(sort)
+    qSort(keys);
+  
+  for(int i = 0; i < keys.size(); i++) {
     if(! (done % nbCols))
       output += prefix;
-    output += QString("%1 =\t %2").arg(it.key()).arg(*it);
+    output += QString("%1 =\t %2").arg(keys[i]).arg(strings[keys[i]]);
     done++;
     if(done % nbCols)
       output += "\t";

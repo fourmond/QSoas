@@ -34,6 +34,7 @@ class FreeParameter;
 class DataSet;
 class ParameterDefinition;
 class FitInternalStorage;
+class FitData;
 
 
 /// A queue for derivation computations
@@ -78,10 +79,13 @@ private:
   volatile bool terminate;
 
   /// A number of running computations
-  int runningComputations;
+  volatile int runningComputations;
+
+  /// Used only for debug info.
+  FitData * data;
 public:
 
-  DFComputationQueue();
+  DFComputationQueue(FitData * d);
   ~DFComputationQueue();
 
 

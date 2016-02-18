@@ -37,8 +37,8 @@
 
 // first, the implementation of the queue
 
-DFComputationQueue::DFComputationQueue() :
-  terminate(false), runningComputations(0)
+DFComputationQueue::DFComputationQueue(FitData * d) :
+  terminate(false), runningComputations(0), data(d)
 {
 }
 
@@ -62,10 +62,8 @@ void DFComputationQueue::enqueue(int i, const gsl_vector * parameters,
 
 void DFComputationQueue::signalTermination()
 {
-  { 
-    QMutexLocker l(&mutex);
-    terminate = true;
-  }
+  QMutexLocker l(&mutex);
+  terminate = true;
   condition.wakeAll();
 }
 
@@ -75,14 +73,35 @@ DFComputationQueue::DerivativeJob DFComputationQueue::nextJob()
     QMutexLocker l(&mutex);
     // We wake up every half second, to avoid threads just waiting
     // forever. Shouldn't be too long in the end.
+    if(data->debug > 0) {
+      QMutexLocker l(Debug::debug().mutex());
+      Debug::debug() << "Thread " << QThread::currentThread()
+                     << " about to wait for a job" << endl;
+    }
     condition.wait(&mutex, 500);
     if(queue.size() > 0) {
+      if(data->debug > 0) {
+        QMutexLocker l(Debug::debug().mutex());
+        Debug::debug() << "Thread " << QThread::currentThread()
+                       << " got a job" << endl;
+      }
       DerivativeJob nxt = queue.dequeue();
       runningComputations++;
       return nxt;
     }
-    if(terminate)
+    if(terminate) {
+      if(data->debug > 0) {
+        QMutexLocker l(Debug::debug().mutex());
+        Debug::debug() << "Thread " << QThread::currentThread()
+                       << " got signaled for termination" << endl;
+      }
       throw TerminateException();
+    }
+    if(data->debug > 0) {
+      QMutexLocker l(Debug::debug().mutex());
+      Debug::debug() << "Thread " << QThread::currentThread()
+                     << " did not get a job" << endl;
+    }
   }
   // This should never happen, but the compiler doesn't know it.
   return DerivativeJob(0, 0, 0, 0);
@@ -134,10 +153,12 @@ public:
         if(stg) {
           QMutexLocker l(&storageMutex);
           data->fitStorage.setLocalData(stg);
-          if(data->debug > 0)
+          if(data->debug > 0) {
+            QMutexLocker l(Debug::debug().mutex());
             Debug::debug() << "Setting up thread " << this
                            << " (#" << idx << ") to work with storage "
                            << stg << endl;
+          }
           stg = NULL;
         }
         if(data->debug > 0)
@@ -205,7 +226,7 @@ void FitData::setupThreads(int nb)
     Debug::debug() << "Setting up fit data " << this
                    << " for working with " << nb << " threads" << endl;
 
-  workersQueue = new DFComputationQueue;
+  workersQueue = new DFComputationQueue(this);
   for(int i = 0; i < nb; i++) {
     workers << new DerivativeComputationThread(this, i+1);
     workers.last()->start();
@@ -458,6 +479,7 @@ void FitData::deriveParameter(int i, const gsl_vector * params,
   unpackParameters(&v.vector, unpackedParams.data());
 
   if(debug > 0) {
+    QMutexLocker l(Debug::debug().mutex());
     dumpGSLParameters(&v.vector);
     dumpFitParameters(unpackedParams.data());
   }
@@ -469,6 +491,7 @@ void FitData::deriveParameter(int i, const gsl_vector * params,
   }
 
   if(debug > 1) {
+    QMutexLocker l(Debug::debug().mutex());
     dumpString(QString("Independent parameters %1").arg(i));
     dumpString(QString("f:   ") + Utils::vectorString(&col.vector));
   }
@@ -500,7 +523,8 @@ void FitData::deriveParameter(int i, const gsl_vector * params,
     const FreeParameter * p = lst[j];
     double step = gslParams[p->fitIndex] - gsl_vector_get(params, p->fitIndex);
     if(debug > 0)
-      dumpString(QString(" -> actual step: %1").
+      dumpString(QString(" -> actual step for parameter %1: %2").
+                 arg(p->fitIndex).
                  arg(step));
     col = gsl_matrix_column(target, p->fitIndex);
     gsl_vector_scale(&col.vector, 1/step);
@@ -940,6 +964,7 @@ double FitData::confidenceLimitFactor(double conf) const
 // Debug-related functions
 void FitData::dumpString(const QString & str) const
 {
+  QMutexLocker l(Debug::debug().mutex());
   Debug::debug() << str << endl;
 }
 

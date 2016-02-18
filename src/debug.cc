@@ -35,7 +35,7 @@ void Debug::dumpCurrentFocus(const QString & str)
 
 Debug::Debug() :
   level(0), directory(NULL), outputDevice(NULL), output(NULL),
-  out(stdout)
+  out(stdout), lock(QMutex::Recursive)
 {
   
 }

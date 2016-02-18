@@ -94,6 +94,11 @@ public:
   /// target directory.
   void saveStack();
 
+  /// Returns the underlying mutex, to be used
+  QMutex * mutex() {
+    return &lock;
+  };
+
 
   template<class T> Debug& operator<<(T t);
   

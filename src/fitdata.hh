@@ -113,6 +113,9 @@ public:
   /// Run by the overall thread to wait until all the computations
   /// have been performed.
   void waitForJobsDone();
+
+  /// Returns the number of jobs remaining
+  int remainingJobs();
 };
 
 class DerivativeComputationThread;

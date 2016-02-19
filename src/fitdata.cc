@@ -118,11 +118,22 @@ void DFComputationQueue::waitForJobsDone()
 {
   while(true) {
     QMutexLocker l(&mutex);
-    condition.wait(&mutex);
+    condition.wait(&mutex, 100);
     int nb = queue.size() + runningComputations;
+    if(data->debug > 0) {
+      QMutexLocker l(Debug::debug().mutex());
+      Debug::debug() << "Waiting for " << nb 
+                     << " jobs to finish" << endl;
+    }
     if(nb == 0)
       return;
   }
+}
+
+int DFComputationQueue::remainingJobs()
+{
+  QMutexLocker l(&mutex);
+  return queue.size() + runningComputations;
 }
 
 //////////////////////////////////////////////////////////////////////

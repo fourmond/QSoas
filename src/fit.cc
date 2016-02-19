@@ -271,6 +271,16 @@ void Fit::makeCommands(ArgumentList * args,
                                          "flags", 
                                          "Flags",
                                          "Flags to set on the created buffers")
+           << new ChoiceArgument(QStringList() 
+                                 << "compute"
+                                 << "jacobian"
+                                 << "reexport",
+                                 "operation", 
+                                 "What to do",
+                                 "Whether to just compute the function, "
+                                 "the full jacobian or reexport parameters "
+                                 "with errors")
+
            << new BoolArgument("reexport", 
                                "Re export",
                                "do not compute data, just re-export fit parameters and errors");
@@ -432,8 +442,8 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
   updateFromOptions(opts, "extra-parameters", extraParams);
   QStringList ep = extraParams.split(",", QString::SkipEmptyParts);
 
-  bool reexport = false;
-  updateFromOptions(opts, "reexport", reexport);
+  QString what;
+  updateFromOptions(opts, "operation", what);
 
   int debug = 0;
   updateFromOptions(opts, "debug", debug);
@@ -483,7 +493,7 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
   }
   
   ws.recompute();
-  if(reexport) {
+  if(what == "reexport") {
     Terminal::out << "Reexporting parameters with errors" << endl;
     if(! data.engineFactory)
       data.engineFactory = FitEngine::namedFactoryItem("odrpack");
@@ -491,7 +501,16 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
     ws.recomputeJacobian();
     ws.exportToOutFile(true);
   }
-  else
+  else if(what == "jacobian") {
+    Terminal::out << "Computing and exporting the jacobian " << endl;
+
+    /// @todo It shouldn't be necessary to do that !
+    if(! data.engineFactory)
+      data.engineFactory = FitEngine::namedFactoryItem("qsoas");
+    ws.prepareFit();
+    ws.computeAndPushJacobian();
+  }
+  else    
     ws.pushComputedData(flags);
 }
 

@@ -161,13 +161,17 @@ public:
           }
           stg = NULL;
         }
-        if(data->debug > 0)
+        if(data->debug > 0) {
+          QMutexLocker l(Debug::debug().mutex());
           Debug::debug() << QString("Thread #%1 derives parameter %2").
             arg(idx).arg(job.idx) << endl;
+        }
         data->deriveParameter(job.idx, job.params, job.target, job.current);
-        if(data->debug > 0)
+        if(data->debug > 0) {
+          QMutexLocker l(Debug::debug().mutex());
           Debug::debug() << QString("Thread #%1 done deriving parameter %2").
             arg(idx).arg(job.idx) << endl;
+        }
         data->workersQueue->doneJob();
       }
     }

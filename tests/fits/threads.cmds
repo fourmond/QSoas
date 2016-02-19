@@ -2,8 +2,8 @@ generate-buffer 0 20 /samples=100000
 sim-exponential-decay /exponentials=9 parameters/exponentials-9.params 0
 apply-formula y+=0.2*sin((x+10)**4)
 output mexp.dat /overwrite=true
-sim-exponential-decay /engine=qsoas /reexport=true /exponentials=9 parameters/exponentials-9.params 0
-sim-exponential-decay /engine=qsoas /reexport=true /exponentials=9 parameters/exponentials-9.params 0 /threads=7
+sim-exponential-decay /engine=qsoas /operation=reexport /exponentials=9 parameters/exponentials-9.params 0
+sim-exponential-decay /engine=qsoas /operation=reexport /exponentials=9 parameters/exponentials-9.params 0 /threads=7
 load-as-text /comments=# mexp.dat
 tweak-columns /remove=#0
 transpose
@@ -19,8 +19,8 @@ i 1 0
 sim-deriv-combined-exponential-decay /exponentials=9 parameters/exponentials-9.params 0
 apply-formula y+=0.2*sin((x+10)**4)
 output mderexp.dat /overwrite=true
-sim-deriv-combined-exponential-decay /engine=qsoas /reexport=true /exponentials=9 parameters/exponentials-9.params 0
-sim-deriv-combined-exponential-decay /engine=qsoas /reexport=true /exponentials=9 parameters/exponentials-9.params 0 /threads=7
+sim-deriv-combined-exponential-decay /engine=qsoas /operation=reexport /exponentials=9 parameters/exponentials-9.params 0
+sim-deriv-combined-exponential-decay /engine=qsoas /operation=reexport /exponentials=9 parameters/exponentials-9.params 0 /threads=7
 load-as-text /comments=# mderexp.dat
 tweak-columns /remove=#0
 transpose

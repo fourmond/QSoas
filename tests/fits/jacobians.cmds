@@ -2,8 +2,8 @@ generate-buffer 0 20 /samples=10000
 sim-exponential-decay /exponentials=9 parameters/exponentials-9.params 0
 apply-formula y+=0.2*sin((x+10)**4)
 output mexp.dat /overwrite=true
-sim-exponential-decay /engine=qsoas /reexport=true /exponentials=9 parameters/exponentials-9.params 0
-sim-exponential-decay /engine=odrpack /reexport=true /exponentials=9 parameters/exponentials-9.params 0
+sim-exponential-decay /engine=qsoas /operation=reexport /exponentials=9 parameters/exponentials-9.params 0
+sim-exponential-decay /engine=odrpack /operation=reexport /exponentials=9 parameters/exponentials-9.params 0
 load-as-text /comments=# mexp.dat
 tweak-columns /remove=#0
 transpose

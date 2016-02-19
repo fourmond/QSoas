@@ -1,0 +1,5 @@
+run-for-each /arg2=1000 threads-stress-test-sub.cmds  2 3 4 5 6 7
+run-for-each /arg2=100 threads-stress-test-sub.cmds  2 3 4 5 6 7
+run-for-each /arg2=10000 threads-stress-test-sub.cmds  2 3 4 5 6 7
+run-for-each /arg2=300 threads-stress-test-sub.cmds  2 3 4 5 6 7
+run-for-each /arg2=3000 threads-stress-test-sub.cmds  2 3 4 5 6 7

@@ -1,0 +1,7 @@
+generate-buffer 0 10 /samples=${2:-1000}
+sim-exponential-decay parameters/exponentials-9.params 0 /exponentials=9 /operation=jacobian /threads=${1} /debug=1
+sim-exponential-decay parameters/exponentials-9.params 0 /exponentials=9 /operation=jacobian
+S 1 0
+stats
+expand
+

@@ -1121,6 +1121,43 @@ QString FitWorkspace::getTextValue(int index, int dataset) const
 }
 
 
+void FitWorkspace::computeAndPushJacobian()
+{
+  QVarLengthArray<double, 1000> params(fitData->freeParameters());
+  int sz = fitData->freeParameters();
+  if(sz == 0)
+    return;                     
+
+
+  gsl_vector_view v = gsl_vector_view_array(params.data(), sz);
+  fitData->packParameters(values, &v.vector);
+
+
+  gsl_matrix * mt = gsl_matrix_alloc(fitData->dataPoints(), sz);
+  gsl_vector * cl = gsl_vector_alloc(fitData->dataPoints());
+  fitData->f(&v.vector, cl, false);
+  fitData->df(&v.vector, mt);
+
+  int nbds = fitData->datasets.size();
+  for(int i = 0; i < nbds; i++) {
+    QList<Vector> cols;
+    cols << fitData->datasets[i]->x();
+    gsl_vector_view v2 = fitData->viewForDataset(i, cl);
+    cols << Vector::fromGSLVector(&v2.vector);
+    for(int j = 0; j < sz; j++) {
+      gsl_vector_view v3 = gsl_matrix_column(mt, j);
+      v2 = fitData->viewForDataset(i, &v3.vector);
+      cols << Vector::fromGSLVector(&v2.vector);
+    }
+    soas().pushDataSet(fitData->datasets[i]->
+                       derivedDataSet(cols, "_jacobian.dat"));
+  }
+
+  gsl_matrix_free(mt);
+  gsl_vector_free(cl);
+}
+
+
 //////////////////////////////////////////////////////////////////////
 
 CovarianceMatrixDisplay::CovarianceMatrixDisplay(FitWorkspace * params, 

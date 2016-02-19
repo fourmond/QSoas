@@ -284,6 +284,8 @@ public:
   /// Push computed datasets onto the stack
   void pushComputedData(const QStringList & flags, bool res = false);
 
+  /// Computes and push the jacobian matrix to the stack
+  void computeAndPushJacobian();
 
   /// @}
 

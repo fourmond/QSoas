@@ -104,11 +104,6 @@ protected:
   /// even if you don't care about options.
   virtual void processOptions(const CommandOptions & opts, FitData * data) const;
 
-  /// Returns a string describing the options used, when applicable
-  virtual QString optionsString(FitData * /*data*/) const {
-    return QString();
-  };
-
   /// @name Static redirectors
   ///
   /// This comes from the fact that one cannot call protected members
@@ -192,6 +187,11 @@ protected:
                         FitData * data, gsl_vector * target) const = 0;
 
 public:
+
+  /// Returns a string describing the options used, when applicable
+  virtual QString optionsString(FitData * /*data*/) const {
+    return QString();
+  };
 
   /// Returns the name of all the available fits.
   static QStringList availableFits();

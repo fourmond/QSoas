@@ -163,8 +163,11 @@ public:
         }
         if(data->debug > 0) {
           QMutexLocker l(Debug::debug().mutex());
-          Debug::debug() << QString("Thread #%1 derives parameter %2").
-            arg(idx).arg(job.idx) << endl;
+          Debug::debug()
+            << QString("Thread #%1 derives parameter %2").arg(idx).
+            arg(job.idx)
+            << " -- current options: " << data->fit->optionsString(data)
+            << endl;
         }
         data->deriveParameter(job.idx, job.params, job.target, job.current);
         if(data->debug > 0) {

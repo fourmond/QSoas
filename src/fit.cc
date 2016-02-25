@@ -164,7 +164,7 @@ void Fit::makeCommands(ArgumentList * args,
     *originalOptions << new IntegerArgument("debug", 
                                   "Debug level",
                                   "Debug level: 0 means no debug output, increasing values mean increasing details");
-    if(threadSafe())
+    if(false/* threadSafe()*/)
       *originalOptions << new IntegerArgument("threads", 
                                               "Threads",
                                               "Number of threads for computing the jacobian");

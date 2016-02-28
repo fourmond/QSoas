@@ -281,9 +281,7 @@ void Fit::makeCommands(ArgumentList * args,
                                  "the full jacobian or reexport parameters "
                                  "with errors")
 
-           << new BoolArgument("reexport", 
-                               "Re export",
-                               "do not compute data, just re-export fit parameters and errors");
+      ;
     new Command((const char*)(QString("sim-") + name).toLocal8Bit(),
                 (sim ? sim : effector(this, &Fit::computeFit)),
                 "simulations", al2, nopts, pn, sd, ld);

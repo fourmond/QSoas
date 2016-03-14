@@ -19,6 +19,9 @@
 #include <headers.hh>
 #include <metadataprovider.hh>
 
+#include <terminal.hh>
+#include <exceptions.hh>
+
 MetaDataProvider::~MetaDataProvider()
 {
 }
@@ -36,8 +39,19 @@ ValueHash MetaDataProvider::allMetaDataForFile(const QString & fileName)
   for(it = NamedInstance<MetaDataProvider>::begin(); 
       it != NamedInstance<MetaDataProvider>::end(); it++) {
     MetaDataProvider * prov = it.value();
-    if(prov->enabled && prov->handlesFile(fileName))
-      ret.merge(prov->metaDataForFile(fileName));
+    if(prov->enabled && prov->handlesFile(fileName)) {
+      try {
+        ret.merge(prov->metaDataForFile(fileName));
+      }
+      catch(const RuntimeError & err) {
+        Terminal::out << "Error with meta-data provider '"
+                      << it.key() << "': " << err.message() << endl;
+      }
+      catch(const InternalError & err) {
+        Terminal::out << "Internal error with meta-data provider '"
+                      << it.key() << "': " << err.message() << endl;
+      }
+    }
   }
   return ret;
 }

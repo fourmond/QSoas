@@ -1,0 +1,11 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: line (formula: a*x+b)
+# Buffer #0 : generated.dat
+m	2	!	1
+b	3	!	1
+# The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
+# Buffer-local parameters: 
+# 
+# Buffer: generated.dat (weight: 1)
+# a	=	2	+- 0	+- 0%
+# b	=	3	+- 0	+- 0%

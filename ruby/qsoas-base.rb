@@ -57,9 +57,9 @@ def soas_find_vars(__code)
   __sandbox = Object.new
 
   # First, fill in with dummy methods
-  for m in (Math.methods - Object.methods) do
+  for __m in (Math.methods - Object.methods) do
     ## @todo handle proper arity ?
-    __sandbox.send(:eval, "def self.#{m}(*a)\nreturn 1.0\nend")
+    __sandbox.send(:eval, "def self.#{__m}(*a)\nreturn 1.0\nend")
   end
 
   __vars = []

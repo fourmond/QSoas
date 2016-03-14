@@ -3,3 +3,11 @@ generate-buffer 0 10
 sim-line parameters/custom-line.params 0
 apply-formula y-=2*x+3
 assert '$stats["y_norm"]' 0
+
+# Check that it works with the m parameter, a special case linked to a bug
+# in the ruby code
+custom-fit line2 m*x+b
+generate-buffer 0 10
+sim-line2 parameters/custom-line2.params 0
+apply-formula y-=2*x+3
+assert '$stats["y_norm"]' 0

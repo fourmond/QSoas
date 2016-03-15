@@ -68,6 +68,13 @@ protected:
   /// options.
   ArgumentList * options;
 
+  /// Whether the command is custom (i.e. created after the or not.
+  bool custom;
+
+  /// A static flag to tell whether we have finished the initial load
+  /// or not. Set during the call to crosslinkCommands().
+  static bool finishedLoading;
+
 public:
 
   /// Parse the arguments, possibly prompting for them if the given
@@ -89,6 +96,10 @@ public:
   /// The group to which this command belongs.
   Group * group;
 
+  /// Whether the command is custom or built-in
+  bool isCustom() const { return custom; };
+  
+
 
   /// Specifies the various elements linked to the Command.
   Command(const char * cn, 
@@ -103,7 +114,7 @@ public:
           bool autoRegister = true) : 
     cmdName(cn), shortCmdName(sc), pubName(pn), 
     shortDesc(sd), longDesc(ld), groupName(gn), 
-    arguments(ar), options(op), 
+    arguments(ar), options(op), custom(finishedLoading),
     effector(eff), 
     group(NULL) {
     if(autoRegister)
@@ -122,7 +133,7 @@ public:
           bool autoRegister = true) : 
     cmdName(cn), shortCmdName(sc), pubName(pn), 
     shortDesc(sd), longDesc(ld), groupName(gn), 
-    arguments(ar), options(op), 
+    arguments(ar), options(op), custom(finishedLoading),
     effector(eff), 
     group(NULL) {
     if(autoRegister)

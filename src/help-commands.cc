@@ -178,9 +178,14 @@ void updateDocumentationFile(const QString &, QString file)
     QStringList cmds = Command::allCommands();
     qSort(cmds);
 
+    QTextStream o(stdout);
+
     for(int i = 0; i < cmds.size(); i++) {
       Command * cmd = Command::namedCommand(cmds[i]);
-      cmd->updateDocumentation(str);
+      if(! cmd->isCustom())
+        cmd->updateDocumentation(str);
+      else
+        o << "Skipping custom command: " << cmd->commandName() << endl;
     }
   }
 
@@ -196,9 +201,16 @@ void updateDocumentationFile(const QString &, QString file)
     QStringList nonInt = Command::nonInteractiveCommands();
     qSort(nonInt);
     Utils::makeUnique(nonInt);
-    for(int i = 0; i < nonInt.size(); i++)
-      nonInt[i] = QString(" * [`%1`](#cmd-%2)").arg(nonInt[i]).
-        arg(nonInt[i]);
+    for(int i = 0; i < nonInt.size(); i++) {
+      Command * cmd = Command::namedCommand(nonInt[i]);
+      if(cmd->isCustom()) {
+        nonInt.takeAt(i);
+        i--;
+      }
+      else
+        nonInt[i] = QString(" * [`%1`](#cmd-%2)").arg(nonInt[i]).
+          arg(nonInt[i]);
+    }
 
     Utils::updateWithin(str, "{::comment} non-interactive-start {:/}",
                         "{::comment} non-interacive-end {:/}\n",

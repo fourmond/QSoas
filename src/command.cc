@@ -38,6 +38,8 @@
 
 QHash<QString, Command*> * Command::availableCommands = NULL;
 
+bool Command::finishedLoading = false;
+
 void Command::registerCommand(Command * cmd)
 {
   if(! availableCommands)
@@ -71,6 +73,7 @@ void Command::unregisterCommand(Command * cmd)
 
 void Command::crosslinkCommands()
 {
+  Command::finishedLoading = true;
   if(! availableCommands)
     return;
   for(QHash<QString, Command *>::iterator i = availableCommands->begin();

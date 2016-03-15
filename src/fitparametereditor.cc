@@ -22,6 +22,7 @@
 #include <fitparametereditor.hh>
 #include <fitparameter.hh>
 #include <fit.hh>
+#include <fitdata.hh>
 #include <dataset.hh>
 
 #include <terminal.hh>
@@ -116,13 +117,17 @@ void FitParameterEditor::contextMenu(const QPoint & pos)
 {
   typedef enum {
     FixAll,
+    FixAllButThis,
     UnfixAll,
+    UnfixAllButThis,
     Noop
   } En;
   QMenu menu;
   QHash<QAction *, int> actions;
   actions[menu.addAction("Fix for all datasets")] = FixAll;
+  actions[menu.addAction("Fix for all datasets but this one")] = FixAllButThis;
   actions[menu.addAction("Unfix for all datasets")] = UnfixAll;
+  actions[menu.addAction("Unfix for all datasets but this one")] = UnfixAllButThis;
 
   int ac = actions.value(menu.exec(mapToGlobal(pos)), Noop);
   QString oldText = editor->text();
@@ -135,6 +140,19 @@ void FitParameterEditor::contextMenu(const QPoint & pos)
     updatingEditor = true;
     fixed->setChecked(ac == FixAll);
     updatingEditor = false;
+    break;
+  case FixAllButThis:
+  case UnfixAllButThis: {
+    bool fxd = ac == FixAllButThis;
+    for(int i = 0; i < parameters->data()->datasets.size(); i++) {
+      parameters->setFixed(index, i, dataset == i ? !fxd : fxd);
+    }
+    updateBijectionEditors();
+    onValueChanged(oldText);
+    updatingEditor = true;
+    fixed->setChecked(!fxd);
+    updatingEditor = false;
+  }
     break;
   case Noop:
   default:

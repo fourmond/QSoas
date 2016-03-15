@@ -253,7 +253,7 @@ static int setFromRubyInternalHelper(RUBY_VALUE key, RUBY_VALUE val, void * arg)
   QString k = Ruby::toQString(key);
 
   // For now, very naive conversion...
-  target->operator[](k) = Ruby::toQString(val);
+  target->operator[](k) = Ruby::toQVariant(val);
 
   return RBW_ST_CONTINUE;
 }

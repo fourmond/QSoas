@@ -86,6 +86,7 @@ class ConditionsFile
         ret[@column_names[i]] = a[i]
       end
     end
+    p ret
     return ret
   end
 
@@ -132,15 +133,15 @@ class ConditionsFile
 
 
 
-  # # Parse the data, ie make a float out of something that looks like a
-  # # float
-  # def self.parse_data(txt)
-  #   begin
-  #     return Float(txt)
-  #   rescue
-  #     return txt
-  #   end
-  # end
+  # Parse the data, ie make a float out of something that looks like a
+  # float
+  def self.parse_data(txt)
+    begin
+      return Float(txt)
+    rescue 
+      return txt
+    end
+  end
 
   # Creates a DataFile, potentially with an index column
   def initialize
@@ -160,10 +161,11 @@ class ConditionsFile
     # Normalize file names !
     fn = ConditionsFile.normalize_file_name(data[0])
     nd = [fn, *data[1..-1]]
+    nd = [fn]
 
-    # nd += data[1..-1].map {|field| 
-    #   parse_data(field)
-    # }
+    nd += data[1..-1].map {|field| 
+      ConditionsFile::parse_data(field)
+    }
 
     @data << nd
     @index[fn] = nd

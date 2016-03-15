@@ -275,3 +275,11 @@ void rbw_set_float(RUBY_VALUE *x, double value)
 {
   RFLOAT_LVALUE(*x) = value;
 }
+
+int rbw_is_numeric(RUBY_VALUE value)
+{
+  return RTEST(rb_obj_is_kind_of(value, rb_cFixnum)) ||
+    RTEST(rb_obj_is_kind_of(value, rb_cBignum)) ||
+    RTEST(rb_obj_is_kind_of(value, rb_cFloat));
+}
+

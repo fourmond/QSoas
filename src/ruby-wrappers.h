@@ -174,6 +174,12 @@ extern "C" {
       @}
   */
 
+
+  /** 
+      Returns true if the object is a numeric type, i.e. something it
+      makes sense to convert to a double 
+  */
+  int rbw_is_numeric(RUBY_VALUE obj);
   
   /** Test if the given Ruby object is true. The equivalent of RTEST */
   int rbw_test(RUBY_VALUE);

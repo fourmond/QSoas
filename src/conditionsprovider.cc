@@ -20,6 +20,8 @@
 #include <metadataprovider.hh>
 #include <ruby.hh>
 
+#include <ruby-templates.hh>
+
 class ConditionsFilesProvider : public MetaDataProvider {
 protected:
 
@@ -40,7 +42,7 @@ protected:
     RUBY_VALUE str = Ruby::fromQString(fileName);
     ensureRubyFine();
 
-    return rbw_funcall2(cConditionsFile, conditionsForID, 1, &str);
+    return Ruby::run<RUBY_VALUE, RUBY_ID, int, const RUBY_VALUE*>(rbw_funcall2, cConditionsFile, conditionsForID, 1, &str);
   };
 
 public:

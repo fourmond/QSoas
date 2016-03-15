@@ -176,6 +176,41 @@ RUBY_VALUE Ruby::run(RUBY_VALUE (*f)(A1, A2, A3, A4), A1 a1, A2 a2, A3 a3, A4 a4
   return cb.run();
 }
 
+/// Callback with four arguments
+template <typename A1, typename A2, typename A3, typename A4, typename A5> 
+class RubyCallback5  {
+  typedef RUBY_VALUE (*Callback)(A1, A2, A3, A4, A5);
+  Callback callback;
+  A1 a1;
+  A2 a2;
+  A3 a3;
+  A4 a4;
+  A5 a5;
+
+  static RUBY_VALUE wrapper(RUBY_VALUE v) {
+    RubyCallback5 * arg = (RubyCallback5 *) v;
+    return arg->callback(arg->a1, arg->a2, arg->a3, arg->a4, arg->a5);
+  };
+public:
+
+  RubyCallback5(Callback c, A1 arg1, 
+                A2 arg2, A3 arg3, A4 arg4, A5 arg5) : 
+    callback(c), a1(arg1), a2(arg2), a3(arg3), a4(arg4), a5(arg5) {;};
+
+  /// Runs the code wrapping it into a rb_rescue code
+  RUBY_VALUE run() {
+    return Ruby::exceptionSafeCall((RUBY_VALUE (*)(...)) &wrapper, this);
+  };
+
+};
+
+template <typename A1, typename A2, typename A3, typename A4, typename A5> 
+RUBY_VALUE Ruby::run(RUBY_VALUE (*f)(A1, A2, A3, A4, A5), A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
+{
+  RubyCallback5<A1, A2, A3, A4, A5> cb(f, a1, a2, a3, a4, a5);
+  return cb.run();
+}
+
 // Now, we'll have to do the same thing with member functions
 
 

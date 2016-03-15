@@ -152,6 +152,24 @@ QString Ruby::toQString(RUBY_VALUE val)
   return ret;
 }
 
+static RUBY_VALUE toDoubleHelper(RUBY_VALUE val, double * target)
+{
+  *target = rbw_num2dbl(val);
+  return rbw_nil;
+}
+
+QVariant Ruby::toQVariant(RUBY_VALUE val)
+{
+  if(rbw_is_numeric(val)) {
+    double v;
+    Ruby::run(toDoubleHelper, val, &v);
+    return v;
+  }
+  QString ret;
+  Ruby::run(toStringHelper, val, &ret);
+  return ret;
+}
+
 QString Ruby::inspect(RUBY_VALUE val)
 {
   QString ret;

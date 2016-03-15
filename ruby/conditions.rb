@@ -86,7 +86,6 @@ class ConditionsFile
         ret[@column_names[i]] = a[i]
       end
     end
-    p ret
     return ret
   end
 

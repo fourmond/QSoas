@@ -260,7 +260,7 @@ static int setFromRubyInternalHelper(RUBY_VALUE key, RUBY_VALUE val, void * arg)
 
 void ValueHash::setFromRuby(RUBY_VALUE hsh)
 {
-  if(rbw_is_hash(hsh))
+  if(! rbw_is_hash(hsh))
     throw RuntimeError("Trying to set a hash from a ruby value "
                        "that isn't a hash");
   rbw_hash_foreach(hsh, (int (*)())

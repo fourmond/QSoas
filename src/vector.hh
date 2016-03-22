@@ -149,6 +149,8 @@ public:
   /// text files)
   bool hasOnlyNaN() const;
 
+  /// Returns true if there is one ore more NaNs or Inf
+  bool hasNotFinite() const;
 
   /// Returns a vector containing all the values of the vector, sorted
   /// and all distinct, within the given tolerance.

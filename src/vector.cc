@@ -634,6 +634,15 @@ bool Vector::hasOnlyNaN() const
   return true;
 }
 
+bool Vector::hasNotFinite() const
+{
+  for(int i = 0; i < size(); i++) {
+    if(! std::isfinite(value(i)))
+      return true;
+  }
+  return false;
+}
+
 Vector Vector::uniformlySpaced(double min, double max, int nb)
 {
   Vector r(nb, 0);

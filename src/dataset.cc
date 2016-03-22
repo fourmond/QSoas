@@ -151,6 +151,24 @@ void DataSet::stripNaNColumns()
   }
 }
 
+bool DataSet::hasNotFinite() const
+{
+  return x().hasNotFinite() || y().hasNotFinite();
+}
+
+void DataSet::stripNotFinite()
+{
+  for(int i = 0; i < x().size(); i++) {
+    double xv = x()[i];
+    double yv = y()[i];
+    if(!std::isfinite(xv) || !std::isfinite(yv))
+      removePoint(i--);
+  }
+}
+
+
+
+
 QPair<double, int> DataSet::distanceTo(double x, double y) const
 {
   const double * xvals = columns[0].data();

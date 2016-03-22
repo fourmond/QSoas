@@ -293,6 +293,12 @@ public:
   /// Strips all the columns that contain only NaNs
   void stripNaNColumns();
 
+  /// Whether there are any NaNs or Infs in the x() or y() columns
+  bool hasNotFinite() const;
+
+  /// Strip rows containing NaNs or Infs in the x() or y() column
+  void stripNotFinite();
+  
   /// Flip all columns back to front, so that the first
   /// X,Y1,Y2... become the last one and vice versa.
   void reverse();

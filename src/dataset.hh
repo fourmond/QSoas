@@ -492,6 +492,13 @@ public:
   DataSet * add(const DataSet * dataset, bool naive = false, 
                      bool useSteps = false) const;
 
+  /// Multiplies this DataSet by \a dataset and returns the result.
+  ///
+  /// If \a naive is true, only indices are matched, while a more
+  /// complex algorithm is used to match X values in the other case.
+  DataSet * multiply(const DataSet * dataset, bool naive = false, 
+                     bool useSteps = false) const;
+
   /// Divides by \a dataset and returns the result. \sa subtract.
   DataSet * divide(const DataSet * dataset, bool naive = false, 
                    bool useSteps = false) const;

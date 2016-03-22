@@ -1160,11 +1160,12 @@ sub("subtract", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-/// @todo Maybe most of the code shared between this and divide should
-/// be shared ?
-/// (and some with average ?)
-static void addCommand(const QString &, QList<const DataSet *> a,
-                       const CommandOptions & opts)
+static void mopCommand(const QString &, QList<const DataSet *> a,
+                       const CommandOptions & opts,
+                       const QString & pref, const QString & cat,
+                       DataSet * (DataSet::*ope)(const DataSet * dataset,
+                                                 bool naive, 
+                                                 bool useSteps) const )
 {
   bool naive = testOption<QString>(opts, "mode", "indices");
   bool useSteps = false;
@@ -1181,14 +1182,23 @@ static void addCommand(const QString &, QList<const DataSet *> a,
   for(int i = 1; i < a.size(); i++) {
     const DataSet * ds = a[i];
     names << "'" + ds->name + "'";
-    DataSet * nn = op->add(ds, naive, useSteps);
+    DataSet * nn = (op->*ope)(ds, naive, useSteps);
     if(n)
       delete n;
     n = nn;
     op = n;
   }
-  Terminal::out << "Adding buffers: " << names.join(" + ") << endl;
+  Terminal::out << pref << names.join(cat) << endl;
   soas().pushDataSet(n);
+}
+
+//////////////////////////////////////////////////////////////////////
+
+static void addCommand(const QString &n, QList<const DataSet *> a,
+                       const CommandOptions & opts)
+{
+  mopCommand(n, a, opts, "Adding buffers: ", " + ",
+             &DataSet::add);
 }
 
 static ArgumentList 
@@ -1205,6 +1215,24 @@ add("add", // command name
     "Add",
     "Add buffers");
 
+
+//////////////////////////////////////////////////////////////////////
+
+static void mulCommand(const QString &n, QList<const DataSet *> a,
+                       const CommandOptions & opts)
+{
+  mopCommand(n, a, opts, "Multiplying buffers: ", " + ",
+             &DataSet::multiply);
+}
+
+static Command 
+mul("multiply", // command name
+    effector(mulCommand), // action
+    "mbuf",  // group name
+    &aArgs, // arguments
+    &operationOpts, // options
+    "Add",
+    "Add buffers", "", "mul");
 
 
 //////////////////////////////////////////////////////////////////////

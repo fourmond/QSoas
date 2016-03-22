@@ -500,6 +500,16 @@ DataSet * DataSet::add(const DataSet * ds, bool naive, bool useSteps) const
   return applyBinaryOperation(this, ds, ::add, "+", naive, useSteps);
 }
 
+static inline double mul(double a, double b)
+{
+  return a * b;
+}
+
+DataSet * DataSet::multiply(const DataSet * ds, bool naive, bool useSteps) const
+{
+  return applyBinaryOperation(this, ds, ::mul, "*", naive, useSteps);
+}
+
 static inline double div(double a, double b)
 {
   return a/b;

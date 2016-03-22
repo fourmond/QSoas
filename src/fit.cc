@@ -343,21 +343,26 @@ void Fit::runFit(std::function<void (FitData *)> hook,
 
   {
     QStringList pbs;
-    QList<const DataSet *> nds;
+    QList<int> idx;
     for(int i = 0; i < datasets.size(); i++) {
       const DataSet * ds = datasets[i];
       if(ds->hasNotFinite()) {
         pbs << "'" + ds->name + "'";
-        nds << ds;
+        idx << i;
       }
     }
     
     if(pbs.size() > 0) {
-      QString s = "The datasets " + pbs.join(", ") + " contains either NaNs, numbers that either result from incorrect parsing of text lines or from operations giving undefined results (such as 0.0/0.0) or infinite values.\n" +
-        "You cannot fit these datasets.\nDo you want to remove the problematic points (in place) and proceed ?";
+      QString s = "The datasets " + pbs.join(", ") + " contains NaNs or infinite numbers. <br>\n"
+        "NaNs either result from incorrect parsing of text lines or from operations giving undefined results (such as 0.0/0.0).<p>\n" +
+        "You cannot fit these datasets.<p>Do you want to remove the problematic points and proceed ?";
       if(Utils::askConfirmation(s, "Strip NaNs and infinite numbers")) {
-        for(int i = 0; i < nds.size(); i++)
-          const_cast<DataSet*>(nds[i])->stripNotFinite();
+        for(int i = 0; i < idx.size(); i++) {
+          DataSet * nds = datasets[idx[i]]->derivedDataSet("_stripped.dat");
+          nds->stripNotFinite();
+          datasets[idx[i]] = nds;
+          soas().pushDataSet(nds);
+        }
       }
       else
         throw RuntimeError("Stopping because of the presence of NaNs and/or infinite numbers in the datasets");

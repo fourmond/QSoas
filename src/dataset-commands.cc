@@ -1152,10 +1152,60 @@ sub("subtract", // command name
     &operationArgs, // arguments
     &operationOpts, // options
     "Subtract",
-    "Subtract on buffer from another",
+    "Subtract one buffer from another",
     "Subtract the second buffer from the first. "
     "Works with several 'first' buffers.",
     "S");
+
+
+//////////////////////////////////////////////////////////////////////
+
+/// @todo Maybe most of the code shared between this and divide should
+/// be shared ?
+/// (and some with average ?)
+static void addCommand(const QString &, QList<const DataSet *> a,
+                       const CommandOptions & opts)
+{
+  bool naive = testOption<QString>(opts, "mode", "indices");
+  bool useSteps = false;
+  if(a.size() < 2)
+    throw RuntimeError("You need to specify more than one dataset");
+  
+  updateFromOptions(opts, "use-segments", useSteps);
+
+  const DataSet * op = a[0];
+  DataSet * n = NULL;
+
+  QStringList names;
+  names << "'" + op->name + "'";
+  for(int i = 1; i < a.size(); i++) {
+    const DataSet * ds = a[i];
+    names << "'" + ds->name + "'";
+    DataSet * nn = op->add(ds, naive, useSteps);
+    if(n)
+      delete n;
+    n = nn;
+    op = n;
+  }
+  Terminal::out << "Adding buffers: " << names.join(" + ") << endl;
+  soas().pushDataSet(n);
+}
+
+static ArgumentList 
+aArgs(QList<Argument *>() 
+              << new SeveralDataSetArgument("buffers", 
+                                            "Buffer",
+                                            "Buffers"));
+static Command 
+add("add", // command name
+    effector(addCommand), // action
+    "mbuf",  // group name
+    &aArgs, // arguments
+    &operationOpts, // options
+    "Add",
+    "Add buffers");
+
+
 
 //////////////////////////////////////////////////////////////////////
 

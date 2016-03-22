@@ -1,0 +1,16 @@
+generate-buffer 0 10 x
+generate-buffer 0 10 x**2
+
+# Checks that it just works !
+add 0..1
+apply-formula 'y-=(x+x**2)'
+assert '$stats["y_norm"]' 0
+
+generate-buffer 0 10 x
+generate-buffer 0 10 x**2
+generate-buffer 0 10 sin(x)
+generate-buffer 0 10 cos(x)
+
+add 0..3
+apply-formula 'y-=(x+x**2+sin(x)+cos(x))'
+assert '$stats["y_norm"]' 1e-12

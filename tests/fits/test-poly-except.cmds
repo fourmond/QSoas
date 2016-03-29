@@ -1,0 +1,5 @@
+# Runs a polynomial simulation, after generating a null buffer. The
+# caller should check for 0
+
+generate-buffer 0 10 ${2:-0}
+sim-polynomial ${1} 0

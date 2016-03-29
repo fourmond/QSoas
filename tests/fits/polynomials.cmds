@@ -11,3 +11,18 @@ sim-polynomial /order=3,3,3 parameters/poly3-1.params 0 /prefactor=false
 apply-formula y-=4+7*x+10*x**2+5*x**3
 assert '$stats["y_max"]-$stats["y_min"]' 5e-12
 
+# 
+@ test-poly-except.cmds parameters/poly3-2.params
+@ test-poly-except.cmds "parameters/poly3-2.params /monotonic=true"
+S 2 0
+assert '$stats["y_norm"]' 0
+
+@ test-poly-except.cmds "parameters/poly3-3.params /monotonic=true" 2
+assert '$stats["y_max"]' 2
+assert '$stats["y_min"]' 2
+
+@ test-poly-except.cmds "parameters/poly3-4.params /order=2,2" 1
+@ test-poly-except.cmds "parameters/poly3-4.params /order=2,2 /monotonic=true"
+S 2 0
+assert '$stats["y_norm"]' 0
+

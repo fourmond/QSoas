@@ -886,8 +886,6 @@ public:
     double values[3];
 
     const double & x0 = params[0];
-    double d1 = 0;
-    double d2 = 0;
 
 
     int idx = 1;
@@ -895,6 +893,8 @@ public:
       if(s->prefactor)
         idx++;
       int od = s->orders[j];
+      double d1 = 0;
+      double d2 = 0;
       for(int i = 0; i < xv.size(); i++) {
         double x = xv[i] - x0;
         double tg = (j == 0 ? 0 : gsl_vector_get(target, i));

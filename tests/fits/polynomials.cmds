@@ -1,0 +1,13 @@
+generate-buffer 0 10
+sim-polynomial /order=3,3 parameters/poly3-1.params 0
+apply-formula y-=3+5*x+7*x**2+3*x**3
+assert '$stats["y_max"]-$stats["y_min"]' 5e-12
+
+sim-polynomial /order=3,3,3 parameters/poly3-1.params 0
+apply-formula y-=2+3*x+4*x**2+1*x**3
+assert '$stats["y_max"]-$stats["y_min"]' 5e-12
+
+sim-polynomial /order=3,3,3 parameters/poly3-1.params 0 /prefactor=false
+apply-formula y-=4+7*x+10*x**2+5*x**3
+assert '$stats["y_max"]-$stats["y_min"]' 5e-12
+

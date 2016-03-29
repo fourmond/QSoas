@@ -1,0 +1,39 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: polynomial (orders: 3,3,3)
+# Buffer #0 : generated.dat
+x_0	0	!	0
+A_p	1	!	0
+A_0	1	!	1
+A_1	2	!	1
+A_2	3	!	1
+A_3	1	!	1
+B_p	1	!	0
+B_0	2	!	1
+B_1	3	!	1
+B_2	4	!	1
+B_3	2	!	1
+C_p	-1	!	0
+C_0	1	!	1
+C_1	2	!	1
+C_2	3	!	1
+C_3	2	!	1
+# The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
+# Buffer-local parameters: 
+# 
+# Buffer: generated.dat (weight: 1)
+# x_0	=	0	(fixed)
+# A_p	=	1	(fixed)
+# A_0	=	0	+- 0	+- nan%
+# A_1	=	10	+- 0	+- 0%
+# A_2	=	1	+- 0	+- 0%
+# A_3	=	0.1	+- 0	+- 0%
+# B_p	=	1	(fixed)
+# B_0	=	0	+- 0	+- nan%
+# B_1	=	10	+- 0	+- 0%
+# B_2	=	1	+- 0	+- 0%
+# B_3	=	0.1	+- 0	+- 0%
+# C_p	=	1	(fixed)
+# C_0	=	0	+- 0	+- nan%
+# C_1	=	10	+- 0	+- 0%
+# C_2	=	1	+- 0	+- 0%
+# C_3	=	0.1	+- 0	+- 0%

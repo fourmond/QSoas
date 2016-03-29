@@ -4,8 +4,11 @@
 @ formula-in-parameters-multi.cmds
 @ derivatives.cmds
 
+@ polynomials.cmds
+
 @ custom-fits.cmds
 @ combined-fits.cmds
 
 @ jacobians.cmds
 # @ threads.cmds
+

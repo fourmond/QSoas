@@ -2,7 +2,7 @@
    @file misc-fits.cc
    Various fits...
    Copyright 2011 by Vincent Fourmond
-             2012, 2013, 2014 by CNRS/AMU
+             2012, 2013, 2014, 2015, 2016 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -792,8 +792,8 @@ EECRRelayFit fit_ececr_relay;
 
 //////////////////////////////////////////////////////////////////////
 
-/// Fits to a polynomial (with various constaints). The polynomial 0
-/// is given by x_0.
+/// Fits a sum of polynomials with prefactors (with various
+/// constaints). The polynomial 0 is given by x_0.
 class PolynomialFit : public PerDatasetFit {
   class Storage : public FitInternalStorage {
   public:
@@ -803,8 +803,12 @@ class PolynomialFit : public PerDatasetFit {
     /// Whether or not the first derivative should be monotonic
     bool firstMonotonic;
 
-    /// The order of the polynomials
-    int order;
+    /// Whether there are prefactors. On by default for multiple
+    /// polynomials.
+    bool prefactor;
+
+    /// The orders of the polynomials
+    QList<int> orders;
   };
   
 protected:
@@ -822,8 +826,20 @@ protected:
   {
     Storage * s = storage<Storage>(data);
 
-    s->order = 10;
-    updateFromOptions(opts, "order", s->order);
+    int nb = -1;
+    s->orders.clear();
+
+    updateFromOptions(opts, "order", s->orders);
+    updateFromOptions(opts, "number", nb);
+    if(s->orders.size() == 0)
+      s->orders << 10;
+    if(s->orders.size() == 1 && nb > 0) {
+      for(int i = 1; i < nb; i++)
+        s->orders << s->orders.first();
+    }
+    s->prefactor = s->orders.size() > 1;
+    updateFromOptions(opts, "prefactor", s->prefactor);
+       
     processSoftOptions(opts, data);
   }
 
@@ -831,8 +847,12 @@ protected:
   virtual QString optionsString(FitData * data) const {
     Storage * s = storage<Storage>(data);
 
-    return QString("order %1").
-      arg(s->order);
+    QStringList lst;
+    for(int i = 0; i < s->orders.size(); i++)
+      lst << QString::number(s->orders[i]);
+
+    return QString("orders: %1").
+      arg(lst.join("," ));
   }
 
 public:
@@ -845,14 +865,14 @@ public:
     s->firstMonotonic = false;
 
     updateFromOptions(opts, "monotonic", s->monotonic);
-    updateFromOptions(opts, "first-monotonic", s->firstMonotonic);
+    updateFromOptions(opts, "without-inflexions", s->firstMonotonic);
   }
 
   CommandOptions currentSoftOptions(FitData * data) const {
     Storage * s = storage<Storage>(data);
     CommandOptions opts;
     updateOptions(opts, "monotonic", s->monotonic);
-    updateOptions(opts, "first-monotonic", s->firstMonotonic);
+    updateOptions(opts, "without-inflexions", s->firstMonotonic);
     return opts;
   }
 
@@ -872,29 +892,39 @@ public:
 
     for(int i = 0; i < xv.size(); i++) {
       double x = xv[i] - x0;
-      gsl_poly_eval_derivs(params + 1, s->order + 1, x, values, 3);
-      gsl_vector_set(target, i, values[0]);
-      if(s->monotonic) {
-        if(d1 != 0) {
-          if(d1 * values[1] < 0)
-            throw RangeError("Non-monotonic");
+      double tg = 0;
+      int idx = 1;
+      for(int j = 0; j < s->orders.size(); j++) {
+        if(s->prefactor)
+          idx++;
+        int od = s->orders[j];
+        gsl_poly_eval_derivs(params + idx, od+1, x, values, 3);
+        if(s->prefactor)
+          values[0] *= params[idx-1];
+        idx += od+1;
+        tg += values[0];
+        if(s->monotonic) {
+          if(d1 != 0) {
+            if(d1 * values[1] < 0)
+              throw RangeError("Non-monotonic");
+          }
+          else {
+            d1 = values[1];
+          }
         }
-        else {
-          d1 = values[1];
+
+        if(s->firstMonotonic) {
+          if(d2 != 0) {
+            if(d2 * values[2] < 0)
+              throw RangeError("Inflexion points");
+          }
+          else {
+            d2 = values[2];
+          }
         }
+
       }
-
-      if(s->firstMonotonic) {
-        if(d2 != 0) {
-          if(d2 * values[2] < 0)
-            throw RangeError("Inflexion points");
-        }
-        else {
-          d2 = values[2];
-        }
-      }
-
-
+      gsl_vector_set(target, i, tg);
     }
   }
 
@@ -908,9 +938,18 @@ public:
     double ymin = ds->y().min();
     double ymax = ds->y().max();
     double dx = ds->x().max() - a[0];
-    a[1] = ymin;
-    for(int i = 0; i < s->order; i++) {
-      a[2 + i] = (ymax - ymin)/pow(dx, i);
+
+    a++;
+    for(int j = 0; j < s->orders.size(); j++) {
+      if(s->prefactor) {
+        *a = 1;
+        a++;
+      }
+      a[0] = ymin;
+      for(int i = 0; i < s->orders[j]; i++) {
+        a[1 + i] = (ymax - ymin)/pow(dx, i);
+      }
+      a+= s->orders[j] + 1;
     }
   };
 
@@ -919,8 +958,13 @@ public:
 
     QList<ParameterDefinition> defs;
     defs << ParameterDefinition("x_0", true);
-    for(int i = 0; i <= s->order; i++)
-      defs << ParameterDefinition(QString("A_%1").arg(i));
+    for(int j = 0; j < s->orders.size(); j++) {
+      QChar base = 'A' + j;
+      if(s->prefactor)
+        defs << ParameterDefinition(QString("%1_p").arg(base), true);
+      for(int i = 0; i <= s->orders[j]; i++)
+        defs << ParameterDefinition(QString("%1_%2").arg(base).arg(i));
+    }
     return defs;
   };
 
@@ -928,9 +972,17 @@ public:
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new 
-                   IntegerArgument("order", 
-                                   "Order",
-                                   "Order of the polynomial function")
+                   SeveralIntegersArgument("order", 
+                                           "Order",
+                                           "Order of the polynomial functions")
+                   << new 
+                   IntegerArgument("number", 
+                                   "Number",
+                                   "Number of distinct polynomial functions")
+                   << new 
+                   BoolArgument("prefactor", 
+                                "Prefactor",
+                                "Whether there is a prefactor for each polynomial (on by default for multiple polynomials)")
                    );
     return opts;
   };
@@ -941,12 +993,13 @@ public:
                    << new 
                    BoolArgument("monotonic", 
                                 "Monotonic",
-                                "With this on, only monotonic functions "
+                                "With this on, only monotonic polynomials "
                                 "are solutions")
                    << new 
                    BoolArgument("without-inflexions", 
                                 "Without inflexion points",
-                                "If this is on, there are no inflexion points")
+                                "If this is on, there are no inflexion "
+                                "points in the polynomials")
                    );
     return opts;
   };

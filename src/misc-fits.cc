@@ -886,22 +886,22 @@ public:
     double values[3];
 
     const double & x0 = params[0];
-
     double d1 = 0;
     double d2 = 0;
 
-    for(int i = 0; i < xv.size(); i++) {
-      double x = xv[i] - x0;
-      double tg = 0;
-      int idx = 1;
-      for(int j = 0; j < s->orders.size(); j++) {
-        if(s->prefactor)
-          idx++;
-        int od = s->orders[j];
+
+    int idx = 1;
+    for(int j = 0; j < s->orders.size(); j++) {
+      if(s->prefactor)
+        idx++;
+      int od = s->orders[j];
+      for(int i = 0; i < xv.size(); i++) {
+        double x = xv[i] - x0;
+        double tg = (j == 0 ? 0 : gsl_vector_get(target, i));
         gsl_poly_eval_derivs(params + idx, od+1, x, values, 3);
+        
         if(s->prefactor)
           values[0] *= params[idx-1];
-        idx += od+1;
         tg += values[0];
         if(s->monotonic) {
           if(d1 != 0) {
@@ -922,9 +922,9 @@ public:
             d2 = values[2];
           }
         }
-
+        gsl_vector_set(target, i, tg);
       }
-      gsl_vector_set(target, i, tg);
+      idx += od+1;
     }
   }
 

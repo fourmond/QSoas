@@ -77,14 +77,14 @@ cmds("commands", // command name
 QString docUrl("http://www.qsoas.org/manual.html");
 
 
-static void helpCommand(const QString &, Command * cmd, 
+static void helpCommand(const QString & name, Command * cmd, 
                         const CommandOptions & opts)
 {
   QStringList synopsis;
   QString descs;
 
   
-  bool online = true; /// @todo Have that customizable ?
+  bool online = name == "help"; 
 
   updateFromOptions(opts, "online", online);
   if(online) {

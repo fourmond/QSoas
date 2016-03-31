@@ -88,12 +88,14 @@ void ParametersSpreadsheet::spawnContextMenu(const QPoint & pos)
     FixSelected,
     UnfixSelected,
     ResetToInitialGuess,
+    EditSelected,
     Noop
   } En;
   QMenu menu;
   QHash<QAction *, int> actions;
   actions[menu.addAction("Fix parameters")] = FixSelected;
   actions[menu.addAction("Unfix parameters")] = UnfixSelected;
+  actions[menu.addAction("Set parameters")] = EditSelected;
   actions[menu.addAction("Reset to initial guess")] = ResetToInitialGuess;
 
   int ac = actions.value(menu.exec(view->viewport()->mapToGlobal(pos)), Noop);
@@ -106,8 +108,26 @@ void ParametersSpreadsheet::spawnContextMenu(const QPoint & pos)
   case ResetToInitialGuess:
     model->resetValuesToInitialGuess(view->selectionModel()->selectedIndexes());
     break;
+  case EditSelected:
+    editSelected();
+    break;
   case Noop:
   default:
     break;
+  }
+}
+
+void ParametersSpreadsheet::editSelected()
+{
+  QModelIndexList indexes = view->selectionModel()->selectedIndexes();
+  if(indexes.size() > 0) {
+    bool ok = false;
+    QString txt = QInputDialog::getText(this, "edit", "change item",
+                                        QLineEdit::Normal, QString(), &ok);
+    if(ok) {
+      for(int i = 0; i < indexes.size(); i++) {
+        model->setData(indexes[i], txt,  Qt::EditRole);
+      }
+    }
   }
 }

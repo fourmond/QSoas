@@ -60,6 +60,10 @@ protected slots:
   /// Shows a context menu to modify a few things...
   void spawnContextMenu(const QPoint & pos);
 
+  /// Spawns a local editor for the closest? item and use the
+  /// resulting to set 
+  void editSelected();
+
 };
 
 #endif

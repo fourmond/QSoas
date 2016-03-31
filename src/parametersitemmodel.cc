@@ -75,7 +75,7 @@ QVariant ParametersItemModel::data(const QModelIndex & index, int role) const
 }
 
 bool ParametersItemModel::setData(const QModelIndex & index,
-                                      const QVariant & value, int role)
+                                  const QVariant & value, int role)
 {
   if(role != Qt::EditRole)
     return false;

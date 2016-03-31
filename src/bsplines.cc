@@ -25,6 +25,7 @@
 #include <terminal.hh>
 
 #include <gsl/gsl_blas.h>
+#include <gsl/gsl_version.h>
 
 BSplines::BSplines(const Vector & xvalues, 
                    const Vector & yvalues, int o, int mo) :
@@ -114,8 +115,13 @@ void BSplines::setBreakPoints(const Vector & bps)
   const double * xvals = x.data();
 
   for(int i = 0; i < nb; i++) {
+#if GSL_MAJOR_VERSION >= 2
+    gsl_bspline_deriv_eval(xvals[i], maxOrder, storage, 
+                           splinesWS);
+#else
     gsl_bspline_deriv_eval(xvals[i], maxOrder, storage, 
                            splinesWS, derivWS);
+#endif
     for(int j = 0; j <= maxOrder; j++) {
       gsl_vector_view s = gsl_matrix_column(storage, j);
       gsl_vector_view v = gsl_matrix_row(splines[j], i);
@@ -192,9 +198,14 @@ Vector BSplines::computeValues(const Vector & x, int order) const
     gsl_matrix_set_zero(&m.matrix);
     // I need those const casts here... (probably better than mark the
     // workspaces as mutable)
+#if GSL_MAJOR_VERSION >= 2
+    gsl_bspline_deriv_eval(x[i], order, &m.matrix, 
+                           const_cast<gsl_bspline_workspace *>(splinesWS));
+#else
     gsl_bspline_deriv_eval(x[i], order, &m.matrix, 
                            const_cast<gsl_bspline_workspace *>(splinesWS), 
                            const_cast<gsl_bspline_deriv_workspace*>(derivWS));
+#endif
     gsl_vector_view v = gsl_matrix_column(&m.matrix, order);
     gsl_blas_ddot(&v.vector, coeffs, &y[i]);
   }

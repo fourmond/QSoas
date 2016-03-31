@@ -26,6 +26,8 @@
 
 #include <debug.hh>
 
+#include <gsl/gsl_version.h>
+
 class GSLFitEngine : public FitEngine {
   
   /// The solver in use
@@ -130,7 +132,15 @@ const gsl_vector * GSLFitEngine::currentParameters() const
 
 void GSLFitEngine::computeCovarianceMatrix(gsl_matrix * target) const
 {
-  gsl_multifit_covar(solver->J, 0, target);
+#if GSL_MAJOR_VERSION >= 2
+  // suboptimal: allocate and then free
+  gsl_matrix * m = gsl_matrix_alloc(function.n, function.p);
+  gsl_multifit_fdfsolver_jac(solver, m);
+  gsl_multifit_covar(m, 1e-8, target);
+  gsl_matrix_free(m);
+#else
+  gsl_multifit_covar(solver->J, 1e-8, target);
+#endif
 }
 
 int GSLFitEngine::iterate() 
@@ -218,11 +228,22 @@ static FitEngine * lmsderFE(FitData * d)
   return new GSLFitEngine(d, gsl_multifit_fdfsolver_lmsder);
 }
 
-static FitEngineFactoryItem lmsder("lmsder", "GSL scaled LM", &lmsderFE);
+static FitEngineFactoryItem lmsder("lmsder", "GSL scaled Levenberg-Marquardt", &lmsderFE);
 
 static FitEngine * lmderFE(FitData * d)
 {
   return new GSLFitEngine(d, gsl_multifit_fdfsolver_lmder);
 }
 
-static FitEngineFactoryItem lmder("lmder", "GSL unscaled LM", &lmderFE);
+static FitEngineFactoryItem lmder("lmder", "GSL unscaled Levenberg-Marquardt", &lmderFE);
+
+#if GSL_MAJOR_VERSION >= 2
+
+static FitEngine * lmNiel(FitData * d)
+{
+  return new GSLFitEngine(d, gsl_multifit_fdfsolver_lmniel);
+}
+
+static FitEngineFactoryItem lmniel("lmniel", "GSL Levenberg-Marquardt Nielsen", &lmNiel);
+
+#endif

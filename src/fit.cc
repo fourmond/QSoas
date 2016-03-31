@@ -60,6 +60,26 @@ void Fit::registerFit(Fit * fit)
   (*fitsByName)[fit->name] = fit;
 }
 
+
+void Fit::unregisterFit(Fit * fit, bool deleteCommands)
+{
+  if(! fitsByName)
+    return;
+  fitsByName->remove(fit->name);
+
+  QStringList cmds;
+  cmds << "fit-" << "mfit-" << "sim-";
+  for(int i = 0; i < cmds.size(); i++) {
+    Command * cmd = Command::namedCommand(cmds[i] + fit->name);
+    if(cmd) {
+      Command::unregisterCommand(cmd);
+      if(deleteCommands)
+        delete cmd;
+    }
+  }
+}
+
+
 QStringList Fit::availableFits()
 {
   if(! fitsByName)

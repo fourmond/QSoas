@@ -385,6 +385,13 @@ public:
                                    QStringList * targetAnnotations) const;
 
   /// @}
+
+  /// Unregisters the given fit, and unregisters all the corresponding
+  /// commands.
+  ///
+  /// Does not delete the fit, but can delete the commands if
+  /// \a deleteCommands is true.
+  static void unregisterFit(Fit * fit, bool deleteCommands = false);
 };
 
 

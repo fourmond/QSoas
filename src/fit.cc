@@ -79,6 +79,30 @@ void Fit::unregisterFit(Fit * fit, bool deleteCommands)
   }
 }
 
+void Fit::safelyRedefineFit(const QString & name, bool overwrite)
+{
+  Fit * oldFit = namedFit(name);
+  if(oldFit) {
+    Command * cmd = Command::namedCommand("mfit-" + name);
+    if(! cmd)
+      throw InternalError("Found fit %1 but not command mfit-%2").
+        arg(name).arg(name);
+    if(! cmd->isCustom())
+      throw RuntimeError("Fit '%1' is a standard QSoas fit, you cannot redefine it").
+        arg(name);
+    if(overwrite) {
+      Terminal::out << "Replacing fit '" << name  
+                    << "' with a new definition" << endl;
+      Fit::unregisterFit(oldFit, true);
+      delete oldFit;
+    }
+    else
+      throw RuntimeError("Fit '%1' is already defined - if you want to "
+                         "redefine it, use the /redefine=true option").
+        arg(name);
+  }
+}
+
 
 QStringList Fit::availableFits()
 {

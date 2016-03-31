@@ -458,9 +458,8 @@ static void defineDistribFit(const QString &, QString newName,
                              QString parameter,
                              const CommandOptions & opts)
 {
-  
-  if(Fit::namedFit(newName))
-    throw RuntimeError("Fit '%1' already exists").arg(newName);
+
+
   PerDatasetFit * fit = 
     dynamic_cast<PerDatasetFit *>(Fit::namedFit(fitName));
   QString n;
@@ -470,6 +469,10 @@ static void defineDistribFit(const QString &, QString newName,
   if(! fit)
     throw RuntimeError("The fit " + fitName + " isn't working "
                        "buffer-by-buffer: not possible to use for distribution fits");
+  bool overwrite  = false;
+  updateFromOptions(opts, "redefine", overwrite);
+  Fit::safelyRedefineFit(newName, overwrite);
+
   new DistribFit(newName, parameter, fit, dist);
 }
 
@@ -484,6 +487,9 @@ dfA(QList<Argument *>()
 
 static ArgumentList 
 dfO(QList<Argument *>() 
+    << new BoolArgument("redefine", 
+                        "Redefine",
+                        "If the new fit already exists, redefines it")
     << new ChoiceArgument(&Distribution::availableDistributions,
                           "distribution", "Distribution",
                           "The default distribution"));

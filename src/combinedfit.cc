@@ -263,8 +263,10 @@ static void combineFits(const QString &, QString newName,
 {
   
   QList<PerDatasetFit *> fts;
-  if(Fit::namedFit(newName))
-    throw RuntimeError("Fit '%1' already exists").arg(newName);
+  bool overwrite  = false;
+  updateFromOptions(opts, "redefine", overwrite);
+  Fit::safelyRedefineFit(newName, overwrite);
+
   for(int i = 0; i < fits.size(); i++) {
       QString fitName = fits[i];
       PerDatasetFit * fit = 
@@ -279,6 +281,7 @@ static void combineFits(const QString &, QString newName,
   new CombinedFit(newName, formula, fts);
 }
 
+
 static ArgumentList 
 cfA(QList<Argument *>() 
     << new StringArgument("name", "Name",
@@ -288,12 +291,18 @@ cfA(QList<Argument *>()
     << new SeveralFitNamesArgument("fits", "Fits",
                                    "the fits to combine together"));
 
+static ArgumentList 
+cfO(QList<Argument *>() 
+    << new BoolArgument("redefine", 
+                        "Redefine",
+                        "If the new fit already exists, redefines it")
+    );
+
 static Command 
-cf("combine-fits", // command name
-    effector(combineFits), // action
-    "fits",  // group name
-    &cfA, // arguments
-    NULL, // options
+cf("combine-fits",              // command name
+    effector(combineFits),      // action
+    "fits",                     // group name
+    &cfA,                       // arguments
+    &cfO,                       // options
     "Combine fits",
-    "Combine different fits together",
-    "(...)");
+    "Combine multiple fits together");

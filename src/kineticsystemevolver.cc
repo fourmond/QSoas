@@ -550,9 +550,20 @@ dLWFArgs(QList<Argument *>()
          );
 
 
+static ArgumentList 
+dkfsOpts(QList<Argument *>() 
+         << new BoolArgument("redefine", 
+                             "Redefine",
+                             "If the fit already exists, redefines it")
+       );
+
 static void defineKSFitCommand(const QString &, QString file, 
-                               QString name)
+                               QString name, const CommandOptions & opts)
 {
+  bool overwrite = false;
+  updateFromOptions(opts, "redefine", overwrite);
+  Fit::safelyRedefineFit(name, overwrite);
+
   /// @todo exception safe (ie guarded pointer detached in the end)
   KineticSystem * ks = new KineticSystem;
   ks->parseFile(file);
@@ -562,11 +573,11 @@ static void defineKSFitCommand(const QString &, QString file,
 
 
 static Command 
-dlwf("define-kinetic-system-fit", // command name
-     optionLessEffector(defineKSFitCommand), // action
-     "fits",                                  // group name
-     &dLWFArgs,                              // arguments
-     NULL,                                   // options
+dlwf("define-kinetic-system-fit",  // command name
+     effector(defineKSFitCommand), // action
+     "fits",                       // group name
+     &dLWFArgs,                    // arguments
+     &dkfsOpts,                    // options
      "Define a fit based on a kinetic mode",
      "Defines a new fit based on kinetic model",
      "...");

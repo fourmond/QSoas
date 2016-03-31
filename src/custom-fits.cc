@@ -501,20 +501,8 @@ static Fit * createCustomFit(const QString & name,
                              const QString & formula,
                              bool overwrite = false)
 {
-  if(customFits.contains(name)) {
-    if(overwrite) {
-      Terminal::out << "Replacing fit '" << name  
-                    << "' with a new definition" << endl;
-      Fit * oldFit = customFits[name];
-      customFits.remove(name);
-      Fit::unregisterFit(oldFit, true);
-      delete oldFit;
-    }
-    else
-      throw RuntimeError("Fit '%1' is already defined - if you want to "
-                         "redefine it, use the /redefine=true option").
-        arg(name);
-  }
+  Fit::safelyRedefineFit(name, overwrite);
+  customFits.remove(name);
 
   int nb = FormulaBasedFit::splitFormulas(formula).size();
   Fit * fit;

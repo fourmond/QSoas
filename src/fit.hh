@@ -392,6 +392,12 @@ public:
   /// Does not delete the fit, but can delete the commands if
   /// \a deleteCommands is true.
   static void unregisterFit(Fit * fit, bool deleteCommands = false);
+
+  /// This command wraps around unregisterFit and safely removes a fit
+  /// if \a overwrite is true (unless it is a standard fit), or throws
+  /// an exception if that isn't the case (mentioning the /redefine
+  /// option of the command in use).
+  static void safelyRedefineFit(const QString & name, bool overwrite);
 };
 
 

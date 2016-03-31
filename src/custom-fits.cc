@@ -498,18 +498,22 @@ public:
 static QHash<QString, Fit *> customFits;
 
 static Fit * createCustomFit(const QString & name,
-                                         const QString & formula,
-                                         bool overwrite = false)
+                             const QString & formula,
+                             bool overwrite = false)
 {
   if(customFits.contains(name)) {
     if(overwrite) {
       Terminal::out << "Replacing fit '" << name  
                     << "' with a new definition" << endl;
-      /// @todo Implement safe deletion ! (because for now, in
-      /// terms of commands, that won't work so well...
+      Fit * oldFit = customFits[name];
+      customFits.remove(name);
+      Fit::unregisterFit(oldFit, true);
+      delete oldFit;
     }
     else
-      throw RuntimeError("Fit '%1' is already defined").arg(name);
+      throw RuntimeError("Fit '%1' is already defined - if you want to "
+                         "redefine it, use the /redefine=true option").
+        arg(name);
   }
 
   int nb = FormulaBasedFit::splitFormulas(formula).size();
@@ -571,19 +575,29 @@ lfArgs(QList<Argument *>()
                             "File containing the fits to load"));
 
 
-static void loadFitsCommand(const QString &, QString fitsFile)
+static void loadFitsCommand(const QString &, QString fitsFile,
+                            const CommandOptions & opts)
 {
   QFile file(fitsFile);
+  bool overwrite  = false;
+  updateFromOptions(opts, "redefine", overwrite);
   Utils::open(&file, QIODevice::ReadOnly);
-  loadFits(&file);
+  loadFits(&file, true, overwrite);
 }
+
+static ArgumentList 
+lfOpts(QList<Argument *>() 
+        << new BoolArgument("redefine", 
+                            "Redefine",
+                            "If a fit already exists, redefines it")
+       );
 
 static Command 
 loadFitsC("load-fits", // command name
-         optionLessEffector(loadFitsCommand), // action
+         effector(loadFitsCommand), // action
          "fits",  // group name
          &lfArgs, // arguments
-         NULL, 
+         &lfOpts, 
          "Load fits",
          "Load fits from a file",
          "Load fits from a file");
@@ -593,10 +607,11 @@ loadFitsC("load-fits", // command name
 
 
 static void defineCustomFitCommand(const QString &, 
-                                   QString name, QString formula)
+                                   QString name, QString formula,
+                                   const CommandOptions & opts)
 {
-  /// @todo overwrite ?
   bool overwrite  = false;
+  updateFromOptions(opts, "redefine", overwrite);
   createCustomFit(name, formula, overwrite);
 }
 
@@ -610,11 +625,18 @@ cfArgs(QList<Argument *>()
                               "Mathematical expression for the fit")
        );
 
+static ArgumentList 
+cfOpts(QList<Argument *>() 
+        << new BoolArgument("redefine", 
+                            "Redefine",
+                            "If the fit already exists, redefines it")
+       );
+
 static Command 
 defineCustom("custom-fit", // command name
-             optionLessEffector(defineCustomFitCommand), // action
+             effector(defineCustomFitCommand), // action
              "fits",  // group name
              &cfArgs, // arguments
-             NULL, 
+             &cfOpts, // options
              "Define fit",
              "Define custom fit from a formula");

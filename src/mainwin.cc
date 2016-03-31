@@ -205,6 +205,7 @@
 
 #include <commandlineparser.hh>
 
+#include <gsl/gsl_version.h>
 
 
 static SettingsValue<QSize> mainWinSize("mainwin/size", QSize(700,500));
@@ -230,7 +231,7 @@ QString MainWin::versionString()
 {
   return QString("This is QSoas version " SOAS_VERSION
                  " running with %1 and Qt %2\n" SOAS_BUILD_INFO
-                 " with Qt " QT_VERSION_STR).
+                 " with Qt " QT_VERSION_STR " and GSL version " GSL_VERSION).
     arg(Ruby::versionString()).arg(qVersion());
 }
 

@@ -42,6 +42,9 @@ void MSolver::reset(const gsl_vector * init)
 
 void MSolver::prepareSolver()
 {
+  if(solver)
+    gsl_multiroot_fdfsolver_free(solver);
+    
   solver = gsl_multiroot_fdfsolver_alloc(type, dimension());
   function.f = &MSolver::f;
   function.df = &MSolver::df;

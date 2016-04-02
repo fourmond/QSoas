@@ -122,8 +122,9 @@ void ParametersSpreadsheet::editSelected()
   QModelIndexList indexes = view->selectionModel()->selectedIndexes();
   if(indexes.size() > 0) {
     bool ok = false;
+    QVariant s = model->data(indexes[0], Qt::DisplayRole);
     QString txt = QInputDialog::getText(this, "edit", "change item",
-                                        QLineEdit::Normal, QString(), &ok);
+                                        QLineEdit::Normal, s.toString(), &ok);
     if(ok) {
       for(int i = 0; i < indexes.size(); i++) {
         model->setData(indexes[i], txt,  Qt::EditRole);

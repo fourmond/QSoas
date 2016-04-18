@@ -270,7 +270,8 @@ SOURCES += src/qmain.cc \
         src/box.cc \
         src/ruby-interface.cc \
         src/functions.cc \
-        src/cachedfunction.cc
+        src/cachedfunction.cc \
+        src/datasetexpression.cc
 
 
 HEADERS += src/headers.hh \
@@ -382,7 +383,9 @@ HEADERS += src/headers.hh \
         src/abdmatrix.hh \
         src/box.hh \
         src/functions.hh \
-        src/cachedfunction.hh
+        src/cachedfunction.hh \
+        src/datasetexpression.hh
+
 
 
 # Pure-C wrappers around Ruby's code

@@ -69,9 +69,14 @@ void DataSetExpression::prepareExpression(const DataSet * ds,
 
 
 
+QStringList DataSetExpression::dataSetParameters(int extra, QStringList * cn)
+{
+  return dataSetParameters(dataset, extra, cn);
+}
+
 
 QStringList DataSetExpression::dataSetParameters(const DataSet * ds,
-                                                 int extra)
+                                                 int extra, QStringList * cn)
 {
   QStringList vars;
   vars << "i" << "seg" << "x_0" << "i_0";
@@ -80,6 +85,8 @@ QStringList DataSetExpression::dataSetParameters(const DataSet * ds,
   for(int i = 2; i < ds->nbColumns() + extra; i++)
     colNames << QString("y%1").arg(i);
   vars += colNames;
+  if(cn)
+    *cn = colNames;
   return vars;
 }
 

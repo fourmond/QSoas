@@ -69,11 +69,14 @@ public:
   /// order.
   ///
   /// Fails if prepareExpression has not been called before.
-  QStringList dataSetParameters(int extracols = 0);
+  QStringList dataSetParameters(int extracols = 0,
+                                QStringList * colNames = NULL);
 
   /// Static version informing on the parameters available for the
   /// given DataSet.
-  static QStringList dataSetParameters(const DataSet * ds, int extracols = 0);
+  static QStringList dataSetParameters(const DataSet * ds,
+                                       int extracols = 0,
+                                       QStringList * colNames = NULL);
 
   /// Prepares the given argument storage space for the evaluation of
   /// the next step. If returns false, then there is no next step.

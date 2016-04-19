@@ -40,9 +40,8 @@ def soas_eval(__str)
 end
 
 def soas_make_block(__vars, __code)
-  __vars2 = soas_find_vars(__code)
-  __vars.concat(__vars2)
-  __vars.uniq!
+  __code2 = "#{__vars.join("\n")}\n#{__code}"
+  __vars = soas_find_vars(__code2)
   begin
     __blk = eval("proc do |#{__vars.join(',')}|\n#{__code}\nend")
   rescue SyntaxError => __e
@@ -67,8 +66,16 @@ def soas_find_vars(__code)
   __done = false
 
   begin
-    __blk = __sandbox.send(:eval,
-                           "proc do |#{__vars.join(',')}|\n#{__code}\nend")
+    # For parameters detection, we initialize all uninitialized local
+    # variables to
+    __blk = __sandbox.send(:eval, <<"EOM")
+proc do |#{__vars.join(',')}|
+  for f in local_variables
+    eval "\#{f} ||= 1.0"
+  end
+  #{__code}
+end
+EOM
     __tmp = [1.0] * __vars.size
     __blk.call(*__tmp)
     __done = true
@@ -107,4 +114,16 @@ def soas_ruby2c(code, vars)
   end
 
   return s
+end
+
+
+# We run a (rudimentary) test suite for the parameters detection if
+# the file is run like that.
+if $0 == __FILE__
+  # Run with:
+  # for r in ruby{1.9.1,2.0,2.1,2.2,2.3}; do echo $r; $r ruby/qsoas-base.rb; done
+  # Should always print true !
+  p soas_find_vars("x*y") == %w(x y)
+  p soas_find_vars("y+=x") == %w(x)
+  p soas_find_vars("y+=cos(x)") == %w(x)
 end

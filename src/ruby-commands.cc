@@ -135,7 +135,8 @@ static void applyFormulaCommand(const QString &, QString formula,
   QStringList vars = prepareArgs(ds, extra, &colNames);
 
   formula = QString("%1\n%3\n[%2]").
-    arg(vars.join("\n")).
+    // arg(vars.join("\n")).
+    arg("").
     arg(colNames.join(",")).
     arg(formula);
 

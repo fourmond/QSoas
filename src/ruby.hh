@@ -78,6 +78,9 @@ namespace Ruby {
   /// it should never fail !
   RUBY_VALUE fromQString(const QString & str);
 
+  /// Creates a symbol from a QString
+  RUBY_VALUE symbolFromQString(const QString & str);
+
   /// Transforms the Ruby value into a string
   QString toQString(RUBY_VALUE val);
 

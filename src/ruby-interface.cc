@@ -25,7 +25,7 @@
 #include <argument.hh>
 
 
-static RUBY_VALUE cQSoas = rbw_nil;
+static RUBY_VALUE cQSoasInterface = rbw_nil;
 
 static void qsoas_mark(void *)
 {
@@ -37,7 +37,8 @@ static void qsoas_free(void *)
 
 static RUBY_VALUE wrap_qsoas_instance(Soas * instance)
 {
-  return rbw_data_object_alloc(cQSoas, instance, &qsoas_mark, &qsoas_free);
+  return rbw_data_object_alloc(cQSoasInterface, instance,
+                               &qsoas_mark, &qsoas_free);
 }
 
 static Soas * get_qsoas_instance(RUBY_VALUE obj)
@@ -83,11 +84,16 @@ static RUBY_VALUE qs_method_missing(int argc, RUBY_VALUE * argv, RUBY_VALUE obj)
 
 void Ruby::initInterface()
 {
-  cQSoas = rbw_define_class("QSoas", rbw_cObject());
+  if(! Soas::soasInstance())
+    throw InternalError("Initializing the Ruby interface without "
+                        "a Soas object");
+  cQSoasInterface = rbw_define_class("QSoasInterface", rbw_cObject());
 
-  rbw_define_singleton_method(cQSoas, "the_instance", (rbw_function) &::qs_get_instance, 0);
+  rbw_define_singleton_method(cQSoasInterface, "the_instance", (rbw_function) &::qs_get_instance, 0);
 
-  rbw_define_method(cQSoas, "method_missing", (rbw_function) &::qs_method_missing, -1);
+  rbw_define_method(cQSoasInterface, "method_missing", (rbw_function) &::qs_method_missing, -1);
 
-  
+  RUBY_VALUE soas_instance = qs_get_instance(rbw_nil);
+  rbw_define_global_const("Soas", soas_instance);
+  rbw_define_global_const("QSoas", soas_instance);
 }

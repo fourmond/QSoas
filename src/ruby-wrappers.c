@@ -282,4 +282,3 @@ int rbw_is_numeric(RUBY_VALUE value)
     RTEST(rb_obj_is_kind_of(value, rb_cBignum)) ||
     RTEST(rb_obj_is_kind_of(value, rb_cFloat));
 }
-

@@ -183,6 +183,15 @@ RUBY_VALUE Ruby::fromQString(const QString & str)
   return rbw_str_new2(str.toLocal8Bit().constData());
 }
 
+RUBY_VALUE Ruby::symbolFromQString(const QString & str)
+{
+  static RUBY_ID toSymID = 0;
+  if(! toSymID)
+    toSymID = rbw_intern("to_sym");
+  RUBY_VALUE v = fromQString(str);
+  return rbw_funcall2(v, toSymID, 0, &v);
+}
+
 QString Ruby::versionString()
 {
   RUBY_VALUE v = eval("RUBY_DESCRIPTION");

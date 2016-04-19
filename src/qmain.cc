@@ -75,7 +75,6 @@ int main(int argc, char ** argv)
   main.setApplicationName("QSoas");
 
   Ruby::initRuby();
-  Ruby::initInterface();
   
   // We convert GSL's hard errors into C++ exceptions
   GSLError::setupGSLHandler();
@@ -100,6 +99,8 @@ int main(int argc, char ** argv)
   loadDocumentationFile("load-documentation", ":/doc/qsoas.kd");
 
   Soas theSoas;
+  /// Has to be called
+  Ruby::initInterface();
 
   Settings::loadSettings("bip.cnrs-mrs.fr", "Soas");
   

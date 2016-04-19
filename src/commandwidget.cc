@@ -249,7 +249,9 @@ bool CommandWidget::runCommand(const QString & str)
 
   if(rubyCode.isEmpty()) {
     if(res.exactMatch(str)) {
-      rubyCode = "qsoas = QSoas::the_instance\n";
+      // rubyCode = "qsoas = QSoas::the_instance\n";
+      
+      rubyCode = "\n";
       setPrompt("Ruby> ");
       return true;
     }

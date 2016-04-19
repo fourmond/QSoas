@@ -1,0 +1,29 @@
+# In this file, we test various aspects of running commands from
+# within ruby code
+
+ruby
+QSoasInterface::the_instance.generate_buffer(0,20,"formula" => "x**2")
+ruby end
+
+apply-formula y-=x**2
+assert '$stats["y_norm"]' 0
+assert '$stats["x_max"]' 20
+
+ruby
+Soas.generate_buffer(0,20, :formula =>  "x**2")
+ruby end
+
+apply-formula y-=x**2
+assert '$stats["y_norm"]' 0
+assert '$stats["x_max"]' 20
+
+
+ruby
+for x in 0..10
+  Soas.generate_buffer(0,x,:formula =>  "x**2")
+  QSoas.apply_formula "y-=x**2"
+  QSoas.assert '$stats["y_norm"]', :tolerance => 0
+end
+ruby end
+
+

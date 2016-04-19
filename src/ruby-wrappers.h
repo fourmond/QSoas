@@ -80,7 +80,8 @@ extern "C" {
       @}
   */
 
-  void rbw_define_global_const(const char*, RUBY_VALUE);
+  /** Defines the named global constant */
+  void rbw_define_global_const(const char* name, RUBY_VALUE value);
 
   /** 
       @name Array-related functions
@@ -193,6 +194,7 @@ extern "C" {
 
 
   RUBY_VALUE rbw_long2num(long);
+
 
    /* egrep -ho rb_'[a-zA-Z0-9_]+' * | sort | uniq */
 

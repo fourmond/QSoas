@@ -159,7 +159,10 @@ CommandOptions ArgumentList::parseRubyOptions(RUBY_VALUE hsh) const
   CommandOptions opts;
     
   for(int i = 0; i < size(); i++) {
-    RUBY_VALUE v = rbw_hash_aref(hsh, Ruby::fromQString(value(i)->argumentName()));
+    RUBY_VALUE v = rbw_hash_aref(hsh, Ruby::symbolFromQString(value(i)->argumentName()));
+    if(v == rbw_nil)
+      v = rbw_hash_aref(hsh, Ruby::fromQString(value(i)->argumentName()));
+
     // o << "Trying key: " << value(i)->argumentName() << endl;
     // rbw_p(v);
     if(v != rbw_nil)

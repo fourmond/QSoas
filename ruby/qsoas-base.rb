@@ -41,7 +41,8 @@ end
 
 def soas_make_block(__vars, __code)
   __code2 = "#{__vars.join("\n")}\n#{__code}"
-  __vars = soas_find_vars(__code2)
+  __vars.concat( soas_find_vars(__code2))
+  __vars.uniq!
   begin
     __blk = eval("proc do |#{__vars.join(',')}|\n#{__code}\nend")
   rescue SyntaxError => __e
@@ -125,5 +126,6 @@ if $0 == __FILE__
   # Should always print true !
   p soas_find_vars("x*y") == %w(x y)
   p soas_find_vars("y+=x") == %w(x)
+  p soas_find_vars("imax/(1+km/(x+s0))")
   p soas_find_vars("y+=cos(x)") == %w(x)
 end

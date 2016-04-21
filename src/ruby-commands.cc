@@ -195,65 +195,69 @@ tA(QList<Argument *>()
                          "Formula",
                          "Ruby boolean expression"));
 
-/// This function is called from other places, but this is just a
-/// workaround before a decent dataset-formula-looping class is
-/// written.
-DataSet * stripDataset(const DataSet * ds, const QString & formula, 
-                       int * nbDropped)
+/// @todo Large number of columns must be handled !
+static void stripIfCommand(const QString &, QString formula,
+                           const CommandOptions & opts)
 {
-  QStringList vars = prepareArgs(ds);
+  const DataSet * ds = soas().currentDataSet();
+  Terminal::out << QString("Stripping buffer %2 where the data points match '%1' ").
+    arg(formula).arg(ds->name) << endl;
 
-  Expression exp(formula, vars);
+  DataSetExpression ex(ds);
+  ex.useStats = false;
+  updateFromOptions(opts, "use-stats", ex.useStats);
+  ex.useMeta = true;
+  updateFromOptions(opts, "use-meta", ex.useMeta);
+
+  int argSize = ex.dataSetParameters().size();
+
+  ex.prepareExpression(formula);
 
   QList<Vector> newcols;
   for(int i = 0; i < ds->nbColumns(); i++)
     newcols << Vector();
   int dropped = 0;
 
-  /// @todo Fix segments !
-  QList<int> segs;
-  int lastSeg = 0;
-  loopOverDataset(ds, [&, ds] (double * args, 
-                               double * data){
-      if( (int) args[1] > lastSeg) {
-        segs << ds->segments[lastSeg] - dropped;
-        lastSeg = args[1];
-      }
-      if(! exp.evaluateAsBoolean(args)) {
-        for(int j = 0; j < ds->nbColumns(); j++)
-          newcols[j] << data[j];
-      }
-      else
-        ++dropped;
-    });
+  QVarLengthArray<double, 100> args(argSize);
+  int idx = 0;
+  OrderedList segs = ds->segments;
+  
+  while(ex.nextValues(args.data(), &idx)) {
+    if(! ex.expression().evaluateAsBoolean(args.data())) {
+      for(int j = 0; j < ds->nbColumns(); j++)
+        newcols[j] << ds->column(j)[idx];
+    }
+    else {
+      segs.shiftAbove(newcols[0].size());
+      ++dropped;
+    }
+  }
+
   DataSet * nds = ds->derivedDataSet(newcols, "_trimmed.dat");
   nds->segments = segs;
-  if(nbDropped)
-    *nbDropped = dropped;
-  return nds;
-}
-
-/// @todo Large number of columns must be handled !
-static void stripIfCommand(const QString &, QString formula)
-{
-  const DataSet * ds = soas().currentDataSet();
-  Terminal::out << QObject::tr("Stripping buffer %2 where the data points match '%1' ").
-    arg(formula).arg(ds->name) << endl;
-
-  int dropped = 0;
-  DataSet * nds = stripDataset(ds, formula, &dropped);
 
   Terminal::out << "Removed " << dropped << " points" << endl;
   soas().pushDataSet(nds);
 }
 
+static ArgumentList 
+siO(QList<Argument *>() 
+    << new BoolArgument("use-stats", 
+                        "Use statistics",
+                        "if on, you can use `$stats` to refer to statistics (off by default)")
+    << new BoolArgument("use-meta", 
+                        "Use meta-data",
+                        "if on (by default), you can use `$meta` to refer to "
+                        "the dataset meta-data")
+    );
+
 
 static Command 
 stripIf("strip-if", // command name
-       optionLessEffector(stripIfCommand), // action
+       effector(stripIfCommand), // action
        "buffer",  // group name
        &tA, // arguments
-       NULL, // options
+       &siO, // options
        "Strip points",
        "Remove points for which the formula is true", "");
 

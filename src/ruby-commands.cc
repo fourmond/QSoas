@@ -47,59 +47,6 @@
 #include <idioms.hh>
 
 //////////////////////////////////////////////////////////////////////
-
-static QStringList prepareArgs(const DataSet * ds, int extra = 0,
-                               QStringList * cn = NULL)
-{
-  QStringList vars;
-  // 
-  vars << "i" << "seg" << "x_0" << "i_0";
-
-  QStringList colNames;
-  colNames << "x" << "y";
-  for(int i = 2; i < ds->nbColumns() + extra; i++)
-    colNames << QString("y%1").arg(i);
-
-  vars += colNames;
-  if(cn)
-    *cn = colNames;
-
-  return vars;
-}
-
-static void loopOverDataset(const DataSet * ds, 
-                            std::function<void (double * args, 
-                                                double * cols)> loop, 
-                            int extra = 0)
-{
-  int size = ds->x().size();
-  int seg = 0;
-  int origCols = ds->nbColumns();
-  int columns = origCols + extra;
-  QVarLengthArray<double, 50> args(columns + 4);
-  for(int i = 0; i < size; i++) {
-    while(seg < ds->segments.size() && i >= ds->segments[seg]) {
-      seg++;
-    }
-    args[0] = i;                // the index !
-    args[1] = seg;
-    if(seg >= 0) {
-      int ib = ds->segments.value(seg-1, 0);
-      args[2] = ds->x().value(ib);
-      args[3] = ib;
-    }
-
-    for(int j = 0; j < columns; j++) {
-      if(j >= origCols)
-        args[j+4] = 0;
-      else
-        args[j+4] = ds->column(j)[i];
-    }
-    loop(args.data(), args.data() + 4);
-  }
-}
-
-
 // Paradoxally, this command isn't really anymore related to Ruby --
 // or much less than before
 
@@ -333,6 +280,76 @@ sv("find-root", // command name
    &sO, // options
    "Finds a root",
    "Finds a root for the given expression");
+
+//////////////////////////////////////////////////////////////////////
+
+/// Solves an equation for the whole buffer !
+static void solveDs(const QString &, QString formula, 
+                    const CommandOptions & opts)
+{
+
+  // We use the current value of y as the seed !
+  const DataSet * ds = soas().currentDataSet();
+
+  DataSetExpression ex(ds);
+
+  QStringList an = ex.dataSetParameters();
+  int argSize = an.size();
+
+  // The index of the value of the y point.
+  int y_idx = an.indexOf("y");
+
+  Terminal::out << QObject::tr("Solving formula '%1' for buffer %2").
+    arg(formula).arg(ds->name) << endl;
+
+  ex.prepareExpression(formula);
+
+  Vector newY;
+
+  Debug::debug() << "Index: " << y_idx << endl;
+
+  {
+    QVarLengthArray<double, 100> argsb(argSize);
+    double * args = argsb.data();
+    int idx = 0;
+    while(ex.nextValues(args, &idx)) {
+      LambdaSolver slv([=, &ex](double nv) -> double {
+          args[y_idx] = nv;
+          double v = ex.expression().evaluate(args);
+          Debug::debug() << "I:" << idx << " -- " << nv
+                         << " -- " << v << endl;
+          
+          return v;
+        });
+      newY << slv.solve(args[y_idx]);   // use the current value of Y
+                                        // as seed
+    }
+  }
+  
+  DataSet * newDs = ds->derivedDataSet(newY, "_slv.dat");
+  soas().pushDataSet(newDs);
+}
+
+static ArgumentList 
+sdA(QList<Argument *>() 
+   << new StringArgument("formula", 
+                         "Formula",
+                         "An expression of the y variable")
+   );
+
+
+static ArgumentList 
+sdO;
+
+
+static Command 
+sdv("solve", // command name
+   effector(solveDs), // action
+   "math",  // group name
+   &sdA, // arguments
+   &sdO, // options
+   "Solves an equation",
+   "Solves the given equation at each point of the current dataset");
 
 //////////////////////////////////////////////////////////////////////
 

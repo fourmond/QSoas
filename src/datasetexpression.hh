@@ -28,7 +28,7 @@ class DataSet;
 class SaveGlobal;
 
 /// This class represents an expression meant to act on a DataSet
-class DataSetExpression : public Expression {
+class DataSetExpression  {
 
 private:
 
@@ -44,6 +44,9 @@ private:
   SaveGlobal * sStats;
   SaveGlobal * sMeta;
 
+  /// The internal expression object !
+  Expression * expr;
+
 
 public:
 
@@ -54,21 +57,22 @@ public:
   bool useMeta;
 
   /// Creates an expression object
-  DataSetExpression(const QString & expression);
+  DataSetExpression(const DataSet * ds);
 
   /// Prepares the expression for use with the given dataset, possibly
   /// adding the additional parameters.
-  void prepareExpression(const DataSet * ds,
+  void prepareExpression(const QString & formula,
                          const QStringList & extraParameters = QStringList(),
                          int extraCols = 0);
+
+  /// Returns the expression
+  Expression & expression();
 
   /// Frees up all associated storage
   ~DataSetExpression();
 
   /// Returns the list of the available parameters, in the correct
   /// order.
-  ///
-  /// Fails if prepareExpression has not been called before.
   QStringList dataSetParameters(int extracols = 0,
                                 QStringList * colNames = NULL);
 

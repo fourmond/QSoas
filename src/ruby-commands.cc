@@ -42,6 +42,8 @@
 #include <integrator.hh>
 #include <multiintegrator.hh>
 
+#include <datasetexpression.hh>
+
 #include <idioms.hh>
 
 //////////////////////////////////////////////////////////////////////
@@ -106,42 +108,31 @@ static void applyFormulaCommand(const QString &, QString formula,
 {
   const DataSet * ds = soas().currentDataSet();
 
+
   int extra = 0;
   updateFromOptions(opts, "extra-columns", extra);
-  bool useStats = false;
-  updateFromOptions(opts, "use-stats", useStats);
-  bool useMeta = true;
-  updateFromOptions(opts, "use-meta", useMeta);
 
-  /// @question I'm using a global variable here since it is
-  /// impossible for the time being to pass a plain Ruby object
-  /// through Expression.
+  DataSetExpression ex(ds);
+  ex.useStats = false;
+  updateFromOptions(opts, "use-stats", ex.useStats);
+  ex.useMeta = true;
+  updateFromOptions(opts, "use-meta", ex.useMeta);
 
-  SaveGlobal a("$stats");
-  if(useStats) {
-    Statistics st(ds);
-    rbw_gv_set("$stats", st.toRuby());
-  }
-
-  SaveGlobal b("$meta");
-  if(useMeta)
-    rbw_gv_set("$meta", ds->getMetaData().toRuby());
-
+  QStringList colNames;
+  int argSize = ex.dataSetParameters(extra, &colNames).size();
 
   Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
     arg(formula).arg(ds->name) << endl;
 
-  QStringList colNames;
-  QStringList vars = prepareArgs(ds, extra, &colNames);
-
-  formula = QString("%1\n%3\n[%2]").
-    // arg(vars.join("\n")).
-    arg("").
+  formula = QString("%2\n[%1]").
     arg(colNames.join(",")).
     arg(formula);
 
+  
 
-  Expression exp(formula, vars);
+  ex.prepareExpression(formula, QStringList(), extra);
+
+
 
   QList<Vector> newCols;
   for(int i = 0; i < ds->nbColumns() + extra; i++)
@@ -150,12 +141,14 @@ static void applyFormulaCommand(const QString &, QString formula,
   {
     QMutexLocker m(&Ruby::rubyGlobalLock);
     QVarLengthArray<double, 100> ret(newCols.size());
-    loopOverDataset(ds, [&newCols, &exp, &ret](double *args, double *) {
-        exp.evaluateIntoArrayNoLock(args, ret.data(), ret.size());
-        for(int j = 0; j < ret.size(); j++)
-          newCols[j].append(ret[j]);
-      }, extra);
-
+    QVarLengthArray<double, 100> args(argSize);
+    int idx = 0;
+    while(ex.nextValues(args.data(), &idx)) {
+      ex.expression().
+        evaluateIntoArrayNoLock(args.data(), ret.data(), ret.size());
+      for(int j = 0; j < ret.size(); j++)
+        newCols[j].append(ret[j]);
+    }
   }
   
   DataSet * newDs = ds->derivedDataSet(newCols, "_mod.dat");

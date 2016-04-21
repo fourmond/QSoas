@@ -25,9 +25,11 @@
 #include <statistics.hh>
 #include <idioms.hh>
 
-DataSetExpression::DataSetExpression(const QString & expression) :
-  Expression(expression), dataset(NULL), index(-1), sStats(NULL),
-  sMeta(NULL), useStats(false),
+#include <debug.hh>
+
+DataSetExpression::DataSetExpression(const DataSet * ds) :
+  dataset(ds), index(-1), sStats(NULL),
+  sMeta(NULL), expr(NULL), useStats(false),
   useMeta(false)
 {
 }
@@ -39,32 +41,44 @@ DataSetExpression::~DataSetExpression()
 {
   delete sStats;
   delete sMeta;
+  delete expr;
 }
 
-void DataSetExpression::prepareExpression(const DataSet * ds,
+void DataSetExpression::prepareExpression(const QString & formula,
                                           const QStringList & extraParameters,
                                           int extraCols)
 {
-  if(dataset)
+  if(expr)
     throw InternalError("prepareExpression() on an already prepared object");
-  dataset = ds;
-  QStringList vars = dataSetParameters(ds, extraCols);
-  vars += extraParameters;
-  setVariables(vars);
 
+  QStringList vars = dataSetParameters(dataset, extraCols);
+  vars += extraParameters;
+
+  // Setting the global vars ahead may help...
+
+  
   /// @todo Save the value somehow ?
   if(useStats) {
     sStats = new SaveGlobal("$stats");
   
-    Statistics st(ds);
+    Statistics st(dataset);
     rbw_gv_set("$stats", st.toRuby());
   }
 
   if(useMeta) {
     sMeta = new SaveGlobal("$meta");
-    rbw_gv_set("$meta", ds->getMetaData().toRuby());
+    rbw_gv_set("$meta", dataset->getMetaData().toRuby());
   }
 
+  expr = new Expression(formula, vars);
+
+}
+
+Expression & DataSetExpression::expression()
+{
+  if(! expr)
+    throw InternalError("expression() on an unprepared object");
+  return *expr;
 }
 
 

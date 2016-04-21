@@ -299,14 +299,12 @@ static void solveDs(const QString &, QString formula,
   // The index of the value of the y point.
   int y_idx = an.indexOf("y");
 
-  Terminal::out << QObject::tr("Solving formula '%1' for buffer %2").
+  Terminal::out << QString("Solving formula '%1' for buffer %2").
     arg(formula).arg(ds->name) << endl;
 
   ex.prepareExpression(formula);
 
   Vector newY;
-
-  Debug::debug() << "Index: " << y_idx << endl;
 
   {
     QVarLengthArray<double, 100> argsb(argSize);
@@ -316,9 +314,6 @@ static void solveDs(const QString &, QString formula,
       LambdaSolver slv([=, &ex](double nv) -> double {
           args[y_idx] = nv;
           double v = ex.expression().evaluate(args);
-          Debug::debug() << "I:" << idx << " -- " << nv
-                         << " -- " << v << endl;
-          
           return v;
         });
       newY << slv.solve(args[y_idx]);   // use the current value of Y

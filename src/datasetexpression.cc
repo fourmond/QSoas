@@ -24,6 +24,7 @@
 
 #include <statistics.hh>
 #include <idioms.hh>
+#include <utils.hh>
 
 #include <debug.hh>
 
@@ -45,14 +46,14 @@ DataSetExpression::~DataSetExpression()
 }
 
 void DataSetExpression::prepareExpression(const QString & formula,
-                                          const QStringList & extraParameters,
-                                          int extraCols)
+                                          int extraCols,
+                                          QStringList * extraParams)
 {
   if(expr)
     throw InternalError("prepareExpression() on an already prepared object");
 
   QStringList vars = dataSetParameters(dataset, extraCols);
-  vars += extraParameters;
+  // vars += extraParameters;
 
   // Setting the global vars ahead may help...
 
@@ -70,7 +71,15 @@ void DataSetExpression::prepareExpression(const QString & formula,
     rbw_gv_set("$meta", dataset->getMetaData().toRuby());
   }
 
-  expr = new Expression(formula, vars);
+  if(extraParams) {
+    expr = new Expression(formula);
+    QStringList prs = vars + expr->naturalVariables();
+    Utils::makeUnique(prs);
+    *extraParams = prs.mid(vars.size());
+    expr->setVariables(prs);
+  }
+  else
+    expr = new Expression(formula, vars);
 
 }
 

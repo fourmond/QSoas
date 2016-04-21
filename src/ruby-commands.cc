@@ -130,7 +130,7 @@ static void applyFormulaCommand(const QString &, QString formula,
 
   
 
-  ex.prepareExpression(formula, QStringList(), extra);
+  ex.prepareExpression(formula, extra);
 
 
 

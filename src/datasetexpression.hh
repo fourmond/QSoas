@@ -62,8 +62,8 @@ public:
   /// Prepares the expression for use with the given dataset, possibly
   /// adding the additional parameters.
   void prepareExpression(const QString & formula,
-                         const QStringList & extraParameters = QStringList(),
-                         int extraCols = 0);
+                         int extraCols = 0,
+                         QStringList * extraParams = NULL);
 
   /// Returns the expression
   Expression & expression();

@@ -4,3 +4,4 @@
 @ inline-ruby.cmds
 @ exceptions.cmds
 @ strip-if.cmds
+@ solve.cmds

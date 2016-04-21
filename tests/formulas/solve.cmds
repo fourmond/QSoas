@@ -1,0 +1,17 @@
+# A few tests to make sure the solver works OK
+
+generate-buffer 0 1
+solve y**2-x
+apply-formula y=y**2-x
+
+# Not very good, but...
+assert "$stats['y_norm']" 1e-5
+
+
+generate-buffer -0.99 0.99
+solve sin(y)-x
+apply-formula y-=asin(x)
+
+# Not very good, but...
+assert "$stats['y_norm']" 5e-6
+

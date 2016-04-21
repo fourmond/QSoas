@@ -1,0 +1,10 @@
+# A series of test for strip-if
+
+generate-buffer 0 10 /samples=1001
+strip-if "x > 9"
+assert "$stats['rows']==901"
+assert "$stats['x_max']==9"
+
+generate-buffer 0 10 /samples=3000
+strip-if "i % 3 == 0"
+assert "$stats['rows']==2000"

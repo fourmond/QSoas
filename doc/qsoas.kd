@@ -69,7 +69,7 @@ simply contain unformatted text. These are for instance:
  * files for defining fits with [cmd: load-fits]
  * scripts to be run with [cmd: run]
  * definitions of kinetic systems for
-  [cmd: fit-kinetic-system]
+   [cmd: fit-kinetic-system]
  * saved fit parameters
 
 On windows, use Notepad to edit them. On Linux, `pico`, `nano`, `vi`
@@ -2845,6 +2845,25 @@ In addition to these commands, QSoas provides commands to combine fits
 together, to fit derivatives of the signals, and to define fits with
 distributions of parameters.
 
+## Subfunctions
+
+Some fits support displaying "sub-functions": for instance, "peak
+fits" like [cmd: fit-gaussian] display each individual component in
+color if there are more than one. They are documented in each
+individual fitting function when applicable. They are not always
+displayed by default, as in some cases, such as
+[cmd: fit-exponential-decay ], it generally makes the display
+less clear.
+
+To show/hide subfunctions, use "Toggle subfunction display" from
+within the "Data..." submenu in the fit dialog. If that item is
+absent, then the fit does not support subfunctions.
+
+You can also push the individual components to the stack for further
+manipulation using "Data..."/"Push all subfunctions".
+
+
+
 {::comment} synopsis-start: combine-fits {:/}
 
 ### combine-fits - Combine fits {#cmd-combine-fits}
@@ -2989,6 +3008,12 @@ is not 0 only if `/loss` is on.  If `/relative` is on, the parameter
 of the fit is $$\alpha_i$$ (defined by $$A_i = \alpha_i A_\infty$$)
 rather than $$A_i$$. `/relative=true` should not be used to fit data
 that tend to 0.
+
+#### Subfunctions
+
+Each individual exponential, with $$A_\infty$$ as asymptotic
+value. The subfunctions are not displayed by default.
+
 
 {::comment} description-end: fit-exponential-decay {:/}
 
@@ -3322,10 +3347,10 @@ parameter into a surface one.
 
 {::comment} synopsis-end: fit-gaussian {:/}
 {::comment} description-start: fit-gaussian {:/}
-Fits a number of gaussians, given by:
+Fits a number of gaussians (and an offset), given by:
 
 $$\sum_i \frac{A_i}{\sqrt{2 \pi {\sigma_i}^2}} 
-\exp \left[-\frac{(x-x_i)^2}{2{\sigma_i}^2}\right]$$
+\exp \left[-\frac{(x-x_i)^2}{2{\sigma_i}^2}\right] + Y_0$$
 
 More information in the [GSL
 documentation](http://www.gnu.org/software/gsl/manual/html_node/The-Gaussian-Distribution.html).
@@ -3333,6 +3358,11 @@ documentation](http://www.gnu.org/software/gsl/manual/html_node/The-Gaussian-Dis
 The `/number` option controls the number of different peaks, while
 using `/use-surface=true` fits the surface of the peak instead of the
 amplitude.
+
+#### Subfunctions
+Each individual peak, with the offset $$Y_0$$. Displayed
+by default.
+
 {::comment} description-end: fit-gaussian {:/}
 {::comment} synopsis-start: mfit-gaussian {:/}
 
@@ -3392,10 +3422,10 @@ Simulation command for the  [cmd: fit-gaussian] fit.
 
 {::comment} synopsis-end: fit-lorentzian {:/}
 {::comment} description-start: fit-lorentzian {:/}
-Fits a number of lorentzians, given by:
+Fits a number of lorentzians (and an offset), given by:
 
 $$\sum_i 
-\frac{A_i}{a_i\pi \left(1 + \left[(x-x_i)/a_i\right]^2\right) }
+\frac{A_i}{a_i\pi \left(1 + \left[(x-x_i)/a_i\right]^2\right) } + Y_0
 $$
 
 More information in the [GSL
@@ -3404,6 +3434,11 @@ documentation](http://www.gnu.org/software/gsl/manual/html_node/The-Cauchy-Distr
 The `/number` option controls the number of different peaks, while
 using `/use-surface=true` fits the surface of the peak instead of the
 amplitude.
+
+#### Subfunctions
+Each individual peak, with the offset $$Y_0$$. Displayed
+by default.
+
 {::comment} description-end: fit-lorentzian {:/}
 {::comment} synopsis-start: mfit-lorentzian {:/}
 
@@ -3467,9 +3502,13 @@ Simulation command for the  [cmd: fit-lorentzian] fit.
 Fits a number of pseudo-Voigt peaks, according to the following
 formula:
 
-$$ f(x) = Y_0 + \Sum_i \frac{1-\mu_i}{\sqrt{2 \pi w_i^2}}
+$$ f(x) = Y_0 + \sum_i A_i \left[\frac{1-\mu_i}{\sqrt{2 \pi w_i^2}}
 \exp (-(x-x_i)^2 / 2{w_i}^2) + \frac{\mu_i}{ w_i
-\pi (1 + ((x-x_i)/w_i)^2) }$$
+\pi (1 + ((x-x_i)/w_i)^2) }\right]$$
+
+#### Subfunctions
+Each individual peak, with the offset $$Y_0$$. Displayed
+by default.
 
 {::comment} description-end: fit-pseudo-voigt {:/}
 {::comment} synopsis-start: mfit-pseudo-voigt {:/}

@@ -15,3 +15,16 @@ apply-formula y-=asin(x)
 # Not very good, but...
 assert "$stats['y_norm']" 5e-6
 
+
+generate-buffer 1 2
+solve y**2-5*x /min=0 /max=3*x
+apply-formula y=y**2-5*x
+
+# Not very good, but...
+assert "$stats['y_norm']" 3e-5
+
+solve y**2-5*x /min=0 /max=3*x /prec-relative=0 /prec-absolute=1e-8 /iterations=100
+apply-formula y=y**2-5*x
+
+assert "$stats['y_norm']" 1e-13
+

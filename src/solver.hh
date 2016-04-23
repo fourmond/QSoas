@@ -1,7 +1,7 @@
 /**
    \file solver.hh
    The Solver class, a one dimensional root finder
-   Copyright 2013 by CNRS/AMU
+   Copyright 2013, 2016 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -20,6 +20,10 @@
 #include <headers.hh>
 #ifndef __SOLVER_HH
 #define __SOLVER_HH
+
+#include <argumentmarshaller.hh>
+
+class Argument;
 
 /// Solves a 1-dimensional equation. This is a virtual base class.
 ///
@@ -71,6 +75,22 @@ public:
 
   /// Initializes the solver for a bisection-type approach
   void initialize(double min, double max);
+
+
+  /// @name Options-related functions
+  ///
+  /// @{
+
+  /// Sets the precision and suchlike
+  void parseOptions(const CommandOptions & opts);
+  
+  /// options suitable for addition 
+  static QList<Argument*> commandOptions();
+
+  /// Converts the ODEStepperOptions into plain CommandOptions.
+  CommandOptions currentOptions() const;
+
+  /// @}
 
   /// Returns the value of the function whose root we should find !
   virtual double f(double x) = 0;

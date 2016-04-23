@@ -1,6 +1,6 @@
 /*
   solver.cc: implementation of the Solver class
-  Copyright 2013 by CNRS/AMU
+  Copyright 2013, 2016 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 #include <solver.hh>
 
 #include <exceptions.hh>
+
+#include <general-arguments.hh>
 
 Solver::Solver(const gsl_root_fdfsolver_type * t) :
   fdfsolver(NULL), fsolver(NULL),
@@ -54,8 +56,12 @@ double Solver::df(double x, void * params)
   double step = 1e-7 * x;
   if(fabs(step) < 1e-13)
     step = 1e-13;
+  double xr = x + step;
+  step = xr - x;
+  double fr = s->f(xr);
+  double fl = s->f(x);
 
-  return (s->f(x + step) - s->f(x))/step;
+  return (fr - fl)/step;
 }
 
 void Solver::fdf(double x, void * params, double * f, double * df)
@@ -64,8 +70,12 @@ void Solver::fdf(double x, void * params, double * f, double * df)
   double step = 1e-7 * x;
   if(fabs(step) < 1e-13)
     step = 1e-13;
-  *f = s->f(x);
-  *df = (s->f(x + step) - *f)/step;
+  double xr = x + step;
+  step = xr - x;
+  double fr = s->f(xr);
+  double fl = s->f(x);
+  *f = fl;
+  *df = (fr - fl)/step;
 }
 
 double Solver::currentValue() const
@@ -148,6 +158,37 @@ double Solver::solve()
   return xp;
 }
 
+
+
+QList<Argument*> Solver::commandOptions()
+{
+  QList<Argument*> args;
+  args << new NumberArgument("prec-relative", "Relative precision",
+                             "relative precision required")
+       << new NumberArgument("prec-absolute", "Absolute precision",
+                             "absolute precision required")
+       << new IntegerArgument("iterations", "Maximum number of iterations",
+                              "Maximum number of iterations before giving up")
+    ;
+  return args;
+}
+
+void Solver::parseOptions(const CommandOptions & opts)
+{
+  updateFromOptions(opts, "prec-relative", absolutePrec);
+  updateFromOptions(opts, "prec-absolute", relativePrec);
+  updateFromOptions(opts, "iterations", maxIterations);
+}
+
+    CommandOptions Solver::currentOptions() const
+{
+  CommandOptions opts;
+  updateOptions(opts, "prec-relative", absolutePrec);
+  updateOptions(opts, "prec-absolute", relativePrec);
+  updateOptions(opts, "iterations", maxIterations);
+
+  return opts;
+}
 
 //////////////////////////////////////////////////////////////////////
 

@@ -293,6 +293,27 @@ static void solveDs(const QString &, QString formula,
 
   DataSetExpression ex(ds);
 
+  DataSetExpression * minEx = NULL;
+  DataSetExpression * maxEx = NULL;
+
+  QString minF;
+  QString maxF;
+  updateFromOptions(opts,"min", minF);
+  updateFromOptions(opts,"max", maxF);
+
+  if( (! minF.isEmpty()) || (! maxF.isEmpty())) {
+    if(minF.isEmpty() || maxF.isEmpty())
+      throw RuntimeError("One of min or max specified, but not the other: "
+                         "cannot use bisection");
+    
+    minEx = new DataSetExpression(ds);
+    minEx->prepareExpression(minF);
+    maxEx = new DataSetExpression(ds);
+    maxEx->prepareExpression(maxF);
+    
+  }
+  
+
   QStringList an = ex.dataSetParameters();
   int argSize = an.size();
 
@@ -310,16 +331,29 @@ static void solveDs(const QString &, QString formula,
     QVarLengthArray<double, 100> argsb(argSize);
     double * args = argsb.data();
     int idx = 0;
+    LambdaSolver slv([=, &ex](double nv) -> double {
+        args[y_idx] = nv;
+        double v = ex.expression().evaluate(args);
+        return v;
+      });
+    slv.parseOptions(opts);
     while(ex.nextValues(args, &idx)) {
-      LambdaSolver slv([=, &ex](double nv) -> double {
-          args[y_idx] = nv;
-          double v = ex.expression().evaluate(args);
-          return v;
-        });
-      newY << slv.solve(args[y_idx]);   // use the current value of Y
+      double nv;
+      if(minEx)
+        nv = slv.solve(minEx->expression().evaluate(args),
+                       maxEx->expression().evaluate(args));
+      else
+        nv = slv.solve(args[y_idx]);   // use the current value of Y
                                         // as seed
+      newY << nv;
     }
   }
+
+  if(minEx) {
+    delete minEx;
+    delete maxEx;
+  }
+            
   
   DataSet * newDs = ds->derivedDataSet(newY, "_slv.dat");
   soas().pushDataSet(newDs);
@@ -334,7 +368,18 @@ sdA(QList<Argument *>()
 
 
 static ArgumentList 
-sdO;
+sdO(QList<Argument *>() 
+    << Solver::commandOptions()
+    << new StringArgument("min", 
+                          "Minimum",
+                          "An expression giving the lower boundary for "
+                          "dichotomy approaches")
+    << new StringArgument("max", 
+                          "Maximum",
+                          "An expression giving the upper boundary for "
+                          "dichotomy approaches")
+    );
+
 
 
 static Command 

@@ -1600,9 +1600,11 @@ data, this will impact commands that work with indices, such as
 
 ### strip-if - Strip points {#cmd-strip-if}
 
-`strip-if` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}
+`strip-if` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Ruby boolean expression -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, you can use `$stats` to refer to statistics (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on (by default), you can use `$meta` to refer to the dataset meta-data -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: strip-if {:/}
 {::comment} description-start: strip-if {:/}
@@ -1631,6 +1633,10 @@ times, but mess up statistics and fits. To remove them, use:
 ~~~~
 QSoas> strip-if '(x != x) || (y != y)'
 ~~~~
+
+Like in [cmd: apply-formula], you can use the statistics and the
+meta-data of the buffers if you use the options `/use-meta` (on by
+default) and `/use-stats`.
 
 
 {::comment} description-end: strip-if {:/}
@@ -2502,6 +2508,38 @@ to remove one of a multicomponent response when they are *additive*,
 for more information.
 {::comment} description-end: div {:/}
 
+{::comment} synopsis-start: add {:/}
+
+### add - Add {#cmd-add}
+
+`add` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/mode=`_choice_{:title="one of: `indices`, `xvalues`"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+
+  * _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: Buffers -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
+  * `/mode=`_choice_{:title="one of: `indices`, `xvalues`"}: Whether operations try to match x values or indices -- values: one of: `indices`, `xvalues`
+  * `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, operations are performed segment-by-segment -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: add {:/}
+{::comment} description-start: add {:/}
+Adds all the given _buffers_ and pushes the result (a single dataset).
+{::comment} description-end: add {:/}
+
+{::comment} synopsis-start: multiply {:/}
+
+### multiply - Add {#cmd-multiply}
+
+`multiply` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/mode=`_choice_{:title="one of: `indices`, `xvalues`"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+
+Short name: `mul`
+
+  * _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: Buffers -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
+  * `/mode=`_choice_{:title="one of: `indices`, `xvalues`"}: Whether operations try to match x values or indices -- values: one of: `indices`, `xvalues`
+  * `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, operations are performed segment-by-segment -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: multiply {:/}
+{::comment} description-start: multiply {:/}
+Multiplies all the given _buffers_ and pushes the result (a single dataset).
+{::comment} description-end: multiply {:/}
+
 {::comment} synopsis-start: average {:/}
 
 ### average - Average {#cmd-average}
@@ -2811,11 +2849,12 @@ distributions of parameters.
 
 ### combine-fits - Combine fits {#cmd-combine-fits}
 
-`combine-fits` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _fits..._{:title="a series of names of a fit (without the fit- prefix), separated by spaces"}
+`combine-fits` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _fits..._{:title="a series of names of a fit (without the fit- prefix), separated by spaces"} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: name of the new fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: how to combine the various fits -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * _fits..._{:title="a series of names of a fit (without the fit- prefix), separated by spaces"}: the fits to combine together -- values: a series of names of a fit (without the fit- prefix), separated by spaces
+  * `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If the new fit already exists, redefines it -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: combine-fits {:/}
 {::comment} description-start: combine-fits {:/}
@@ -2838,6 +2877,10 @@ options of all the original fits.
 The newly-defined fit only lasts for the current session, if you need
 something more persistent, consider setting up a startup file
 using [cmd: startup-files].
+
+If you try to redefine an existing fit, the command will stop, unless
+you use `/redefine=true` (not by default), in which case existing
+(custom) fits are silently redefined. You cannot redefine built-in fits.
 {::comment} description-end: combine-fits {:/}
 
 {::comment} synopsis-start: define-derived-fit {:/}
@@ -2871,11 +2914,12 @@ This function is explained in more details in the
 
 ### define-distribution-fit - Define fit with distribution {#cmd-define-distribution-fit}
 
-`define-distribution-fit` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _existing-fit_{:title="the name of a fit (without the fit- prefix)"} _parameter_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/distribution=`_choice_{:title="one of: `gaussian`, `k0`, `lorentzian`, `uniform`"}
+`define-distribution-fit` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _existing-fit_{:title="the name of a fit (without the fit- prefix)"} _parameter_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/distribution=`_choice_{:title="one of: `gaussian`, `k0`, `lorentzian`, `uniform`"}
 
   * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: name of the new fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * _existing-fit_{:title="the name of a fit (without the fit- prefix)"}: name of fit to make a derived fit from -- values: the name of a fit (without the fit- prefix)
   * _parameter_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: the parameter over which to integrate -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If the new fit already exists, redefines it -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/distribution=`_choice_{:title="one of: `gaussian`, `k0`, `lorentzian`, `uniform`"}: The default distribution -- values: one of: `gaussian`, `k0`, `lorentzian`, `uniform`
 
 {::comment} synopsis-end: define-distribution-fit {:/}
@@ -2906,6 +2950,11 @@ should you need it.
 
 The created fit commands also take a `/distribution` option with the
 same meaning.
+
+Like for [cmd: combine-fits], you cannot redefine existing fits with
+this command unless `/redefine=true` is specified.
+
+
 {::comment} description-end: define-distribution-fit {:/}
 
 
@@ -2918,14 +2967,14 @@ There are several ways to fit exponentials to data. The simplest is
 
 ### fit-exponential-decay - Fit: Multi-exponential fits {#cmd-fit-exponential-decay}
 
-`fit-exponential-decay` `/exponentials=`_integer_{:title="an integer"} `/absolute=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
+`fit-exponential-decay` `/exponentials=`_integer_{:title="an integer"} `/absolute=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
   * `/exponentials=`_integer_{:title="an integer"}: Number of exponentials -- values: an integer
   * `/absolute=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the amplitude is absolute or relative to the asymptote (defaults to true) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: wether the sum of exponentials should be multiplied by an exp(-kt) function (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether there is a very slow phase (that shows up as a linear change in Y against time, defaults: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -2949,7 +2998,7 @@ that tend to 0.
 
 ### mfit-exponential-decay - Multi fit: Multi-exponential fits {#cmd-mfit-exponential-decay}
 
-`mfit-exponential-decay` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/exponentials=`_integer_{:title="an integer"} `/absolute=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-exponential-decay` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/exponentials=`_integer_{:title="an integer"} `/absolute=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/exponentials=`_integer_{:title="an integer"}: Number of exponentials -- values: an integer
@@ -2957,7 +3006,7 @@ that tend to 0.
   * `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: wether the sum of exponentials should be multiplied by an exp(-kt) function (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether there is a very slow phase (that shows up as a linear change in Y against time, defaults: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -2975,7 +3024,7 @@ Multi-buffer version of the
 
 ### sim-exponential-decay - Simulation: Multi-exponential fits {#cmd-sim-exponential-decay}
 
-`sim-exponential-decay` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/exponentials=`_integer_{:title="an integer"} `/absolute=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
+`sim-exponential-decay` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/exponentials=`_integer_{:title="an integer"} `/absolute=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -2984,7 +3033,7 @@ Multi-buffer version of the
   * `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: wether the sum of exponentials should be multiplied by an exp(-kt) function (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether there is a very slow phase (that shows up as a linear change in Y against time, defaults: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
@@ -3001,13 +3050,13 @@ Simulation command for the
 
 ### fit-multiexp-multistep - Fit: Multi-step and multi-exponential {#cmd-fit-multiexp-multistep}
 
-`fit-multiexp-multistep` `/exponentials=`_integer_{:title="an integer"} `/steps=`_integers_{:title="a comma-separated list of integers"} `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
+`fit-multiexp-multistep` `/exponentials=`_integer_{:title="an integer"} `/steps=`_integers_{:title="a comma-separated list of integers"} `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
   * `/exponentials=`_integer_{:title="an integer"}: Number of exponentials -- values: an integer
   * `/steps=`_integers_{:title="a comma-separated list of integers"}: Step list with numbered conditions -- values: a comma-separated list of integers
   * `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether irreversible loss is independent on each step -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -3045,14 +3094,14 @@ done so as to keep track of film loss over the whole experiment.
 
 ### mfit-multiexp-multistep - Multi fit: Multi-step and multi-exponential {#cmd-mfit-multiexp-multistep}
 
-`mfit-multiexp-multistep` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/exponentials=`_integer_{:title="an integer"} `/steps=`_integers_{:title="a comma-separated list of integers"} `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-multiexp-multistep` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/exponentials=`_integer_{:title="an integer"} `/steps=`_integers_{:title="a comma-separated list of integers"} `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/exponentials=`_integer_{:title="an integer"}: Number of exponentials -- values: an integer
   * `/steps=`_integers_{:title="a comma-separated list of integers"}: Step list with numbered conditions -- values: a comma-separated list of integers
   * `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether irreversible loss is independent on each step -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -3068,7 +3117,7 @@ This is the multibuffer version of the [fit: multiexp-multistep] fit.
 
 ### sim-multiexp-multistep - Simulation: Multi-step and multi-exponential {#cmd-sim-multiexp-multistep}
 
-`sim-multiexp-multistep` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/exponentials=`_integer_{:title="an integer"} `/steps=`_integers_{:title="a comma-separated list of integers"} `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
+`sim-multiexp-multistep` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/exponentials=`_integer_{:title="an integer"} `/steps=`_integers_{:title="a comma-separated list of integers"} `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -3076,7 +3125,7 @@ This is the multibuffer version of the [fit: multiexp-multistep] fit.
   * `/steps=`_integers_{:title="a comma-separated list of integers"}: Step list with numbered conditions -- values: a comma-separated list of integers
   * `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether irreversible loss is independent on each step -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
@@ -3099,12 +3148,12 @@ possible to store formulas in a plain text file and load them using
 
 ### fit-arb - Fit: Arbitrary fit {#cmd-fit-arb}
 
-`fit-arb` _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
+`fit-arb` _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
   * _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: \|-separated formulas for the fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -3138,13 +3187,13 @@ below for more information.
 
 ### mfit-arb - Multi fit: Arbitrary fit {#cmd-mfit-arb}
 
-`mfit-arb` _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-arb` _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: \|-separated formulas for the fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: datasets that will be fitted to -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -3188,9 +3237,10 @@ and have `a` common to all buffer, but `b` buffer-specific.
 
 ### load-fits - Load fits {#cmd-load-fits}
 
-`load-fits` _file_{:title="name of a file"}
+`load-fits` _file_{:title="name of a file"} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _file_{:title="name of a file"}: File containing the fits to load -- values: name of a file
+  * `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If a fit already exists, redefines it -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: load-fits {:/}
 {::comment} description-start: load-fits {:/}
@@ -3210,6 +3260,9 @@ sigm-log: log((exp(a_red*log(10.0)) +exp(a_ox*log(10.0)) * \
 
 Comments are allowed, as are line continuations with `\`.
 
+Like for [cmd: combine-fits], you cannot redefine existing fits with
+this command unless `/redefine=true` is specified.
+
 
 {::comment} description-end: load-fits {:/}
 
@@ -3217,10 +3270,11 @@ Comments are allowed, as are line continuations with `\`.
 
 ### custom-fit - Define fit {#cmd-custom-fit}
 
-`custom-fit` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}
+`custom-fit` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Name for the new fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Mathematical expression for the fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If the fit already exists, redefines it -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: custom-fit {:/}
 {::comment} description-start: custom-fit {:/}
@@ -3232,6 +3286,10 @@ _formula_. Equivalent to having a line
 </pre>
 
 in a file loaded by [cmd: load-fits].
+
+Like for [cmd: combine-fits], you cannot redefine existing fits with
+this command unless `/redefine=true` is specified.
+
 {::comment} description-end: custom-fit {:/}
 
 ## Peak fits
@@ -3254,12 +3312,12 @@ parameter into a surface one.
 
 ### fit-gaussian - Fit: One or several gaussians {#cmd-fit-gaussian}
 
-`fit-gaussian` `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
+`fit-gaussian` `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
   * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use a surface or an amplitude parameter (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -3282,13 +3340,13 @@ amplitude.
 
 ### mfit-gaussian - Multi fit: One or several gaussians {#cmd-mfit-gaussian}
 
-`mfit-gaussian` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-gaussian` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use a surface or an amplitude parameter (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -3303,14 +3361,14 @@ Multi-buffer variant of the [cmd: fit-gaussian] fit.
 
 ### sim-gaussian - Simulation: One or several gaussians {#cmd-sim-gaussian}
 
-`sim-gaussian` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
+`sim-gaussian` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use a surface or an amplitude parameter (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
@@ -3324,12 +3382,12 @@ Simulation command for the  [cmd: fit-gaussian] fit.
 
 ### fit-lorentzian - Fit: A Lorentzian (also named Cauchy distribution) {#cmd-fit-lorentzian}
 
-`fit-lorentzian` `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
+`fit-lorentzian` `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
   * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use a surface or an amplitude parameter (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -3353,13 +3411,13 @@ amplitude.
 
 ### mfit-lorentzian - Multi fit: A Lorentzian (also named Cauchy distribution) {#cmd-mfit-lorentzian}
 
-`mfit-lorentzian` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-lorentzian` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use a surface or an amplitude parameter (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -3374,14 +3432,14 @@ Multi-buffer variant of the [cmd: fit-lorentzian] fit.
 
 ### sim-lorentzian - Simulation: A Lorentzian (also named Cauchy distribution) {#cmd-sim-lorentzian}
 
-`sim-lorentzian` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
+`sim-lorentzian` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use a surface or an amplitude parameter (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
@@ -3396,12 +3454,12 @@ Simulation command for the  [cmd: fit-lorentzian] fit.
 
 ### fit-pseudo-voigt - Fit: A pseudo-voigt distribution (linear combination of a gaussian and a lorentzian) {#cmd-fit-pseudo-voigt}
 
-`fit-pseudo-voigt` `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
+`fit-pseudo-voigt` `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
   * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use a surface or an amplitude parameter (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -3420,13 +3478,13 @@ $$ f(x) = Y_0 + \Sum_i \frac{1-\mu_i}{\sqrt{2 \pi w_i^2}}
 
 ### mfit-pseudo-voigt - Multi fit: A pseudo-voigt distribution (linear combination of a gaussian and a lorentzian) {#cmd-mfit-pseudo-voigt}
 
-`mfit-pseudo-voigt` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-pseudo-voigt` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use a surface or an amplitude parameter (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -3441,14 +3499,14 @@ Multi-buffer variant of the [cmd: fit-pseudo-voigt] fit.
 
 ### sim-pseudo-voigt - Simulation: A pseudo-voigt distribution (linear combination of a gaussian and a lorentzian) {#cmd-sim-pseudo-voigt}
 
-`sim-pseudo-voigt` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
+`sim-pseudo-voigt` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use a surface or an amplitude parameter (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
@@ -3466,12 +3524,12 @@ Simulation command for the [cmd: fit-pseudo-voigt] fit.
 
 ### fit-nernst - Fit: Nerstian behaviour {#cmd-fit-nernst}
 
-`fit-nernst` `/states=`_integers_{:title="a comma-separated list of integers"} `/species=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
+`fit-nernst` `/states=`_integers_{:title="a comma-separated list of integers"} `/species=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
   * `/states=`_integers_{:title="a comma-separated list of integers"}: Number of redox states for each species -- values: a comma-separated list of integers
   * `/species=`_integer_{:title="an integer"}: Number of distinct species (regardless of their redox state) -- values: an integer
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -3514,13 +3572,13 @@ buffer-local.
 
 ### mfit-nernst - Multi fit: Nerstian behaviour {#cmd-mfit-nernst}
 
-`mfit-nernst` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/states=`_integers_{:title="a comma-separated list of integers"} `/species=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-nernst` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/states=`_integers_{:title="a comma-separated list of integers"} `/species=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/states=`_integers_{:title="a comma-separated list of integers"}: Number of redox states for each species -- values: a comma-separated list of integers
   * `/species=`_integer_{:title="an integer"}: Number of distinct species (regardless of their redox state) -- values: an integer
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -3537,14 +3595,14 @@ for fitting multi-wavelength redox titrations.
 
 ### sim-nernst - Simulation: Nerstian behaviour {#cmd-sim-nernst}
 
-`sim-nernst` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/states=`_integers_{:title="a comma-separated list of integers"} `/species=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
+`sim-nernst` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/states=`_integers_{:title="a comma-separated list of integers"} `/species=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/states=`_integers_{:title="a comma-separated list of integers"}: Number of redox states for each species -- values: a comma-separated list of integers
   * `/species=`_integer_{:title="an integer"}: Number of distinct species (regardless of their redox state) -- values: an integer
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
@@ -3563,13 +3621,13 @@ Simulation command for [cmd: fit-nernst]
 
 ### fit-adsorbed - Fit: Adsorbed species {#cmd-fit-adsorbed}
 
-`fit-adsorbed` `/species=`_integer_{:title="an integer"} `/2el=`_integer_{:title="an integer"} `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
+`fit-adsorbed` `/species=`_integer_{:title="an integer"} `/2el=`_integer_{:title="an integer"} `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
   * `/species=`_integer_{:title="an integer"}: Number of 1-electron species -- values: an integer
   * `/2el=`_integer_{:title="an integer"}: Number of true 2-electron species -- values: an integer
   * `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true (default) then all species have their own surface concentrations -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -3629,14 +3687,14 @@ species). $$\nu$$ is the voltammetric scan rate (in volts per second).
 
 ### mfit-adsorbed - Multi fit: Adsorbed species {#cmd-mfit-adsorbed}
 
-`mfit-adsorbed` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/species=`_integer_{:title="an integer"} `/2el=`_integer_{:title="an integer"} `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-adsorbed` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/species=`_integer_{:title="an integer"} `/2el=`_integer_{:title="an integer"} `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/species=`_integer_{:title="an integer"}: Number of 1-electron species -- values: an integer
   * `/2el=`_integer_{:title="an integer"}: Number of true 2-electron species -- values: an integer
   * `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true (default) then all species have their own surface concentrations -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -3653,7 +3711,7 @@ Multi-buffer version of the [fit: adsorbed] fit.
 
 ### sim-adsorbed - Simulation: Adsorbed species {#cmd-sim-adsorbed}
 
-`sim-adsorbed` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/species=`_integer_{:title="an integer"} `/2el=`_integer_{:title="an integer"} `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
+`sim-adsorbed` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/species=`_integer_{:title="an integer"} `/2el=`_integer_{:title="an integer"} `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -3661,7 +3719,7 @@ Multi-buffer version of the [fit: adsorbed] fit.
   * `/2el=`_integer_{:title="an integer"}: Number of true 2-electron species -- values: an integer
   * `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true (default) then all species have their own surface concentrations -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
@@ -3678,7 +3736,7 @@ Simulation command for the [fit: adsorbed] fit.
 
 ### fit-ode - Fit: Fit an ODE system {#cmd-fit-ode}
 
-`fit-ode` _system_{:title="name of a file"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/step-size=`_number_{:title="a floating-point number"} `/min-step-size=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/prec-absolute=`_number_{:title="a floating-point number"} `/sub-steps=`_integer_{:title="an integer"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
+`fit-ode` _system_{:title="name of a file"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/step-size=`_number_{:title="a floating-point number"} `/min-step-size=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/prec-absolute=`_number_{:title="a floating-point number"} `/sub-steps=`_integer_{:title="an integer"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
   * _system_{:title="name of a file"}: Path to the file describing the ODE system -- values: name of a file
   * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp
@@ -3691,7 +3749,7 @@ Simulation command for the [fit: adsorbed] fit.
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
   * `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"}: algorithm used for integration (default: rkf45) -- values: one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -3717,7 +3775,7 @@ parameters](#time-dependent-parameters) below for more information.
 
 ### mfit-ode - Multi fit: Fit an ODE system {#cmd-mfit-ode}
 
-`mfit-ode` _system_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/step-size=`_number_{:title="a floating-point number"} `/min-step-size=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/prec-absolute=`_number_{:title="a floating-point number"} `/sub-steps=`_integer_{:title="an integer"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-ode` _system_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/step-size=`_number_{:title="a floating-point number"} `/min-step-size=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/prec-absolute=`_number_{:title="a floating-point number"} `/sub-steps=`_integer_{:title="an integer"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _system_{:title="name of a file"}: Path to the file describing the ODE system -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -3731,7 +3789,7 @@ parameters](#time-dependent-parameters) below for more information.
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
   * `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"}: algorithm used for integration (default: rkf45) -- values: one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -3746,7 +3804,7 @@ Multibuffer version of the [fit: ode] fit.
 
 ### sim-ode - Simulation: Fit an ODE system {#cmd-sim-ode}
 
-`sim-ode` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/step-size=`_number_{:title="a floating-point number"} `/min-step-size=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/prec-absolute=`_number_{:title="a floating-point number"} `/sub-steps=`_integer_{:title="an integer"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
+`sim-ode` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/step-size=`_number_{:title="a floating-point number"} `/min-step-size=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/prec-absolute=`_number_{:title="a floating-point number"} `/sub-steps=`_integer_{:title="an integer"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
 
   * _system_{:title="name of a file"}: Path to the file describing the ODE system -- values: name of a file
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
@@ -3761,7 +3819,7 @@ Multibuffer version of the [fit: ode] fit.
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
   * `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"}: algorithm used for integration (default: rkf45) -- values: one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
@@ -3839,7 +3897,7 @@ To define a new fit one could combine with others using
 
 ### fit-kinetic-system - Fit: Full kinetic system {#cmd-fit-kinetic-system}
 
-`fit-kinetic-system` _system_{:title="name of a file"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/step-size=`_number_{:title="a floating-point number"} `/min-step-size=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/prec-absolute=`_number_{:title="a floating-point number"} `/sub-steps=`_integer_{:title="an integer"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
+`fit-kinetic-system` _system_{:title="name of a file"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/step-size=`_number_{:title="a floating-point number"} `/min-step-size=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/prec-absolute=`_number_{:title="a floating-point number"} `/sub-steps=`_integer_{:title="an integer"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
   * _system_{:title="name of a file"}: file describing the system -- values: name of a file
   * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp
@@ -3852,7 +3910,7 @@ To define a new fit one could combine with others using
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
   * `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"}: algorithm used for integration (default: rkf45) -- values: one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -3869,7 +3927,7 @@ of name `y_A` (for the coefficient for the concentration of species
 
 ### mfit-kinetic-system - Multi fit: Full kinetic system {#cmd-mfit-kinetic-system}
 
-`mfit-kinetic-system` _system_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/step-size=`_number_{:title="a floating-point number"} `/min-step-size=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/prec-absolute=`_number_{:title="a floating-point number"} `/sub-steps=`_integer_{:title="an integer"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-kinetic-system` _system_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/step-size=`_number_{:title="a floating-point number"} `/min-step-size=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/prec-absolute=`_number_{:title="a floating-point number"} `/sub-steps=`_integer_{:title="an integer"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _system_{:title="name of a file"}: file describing the system -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -3883,7 +3941,7 @@ of name `y_A` (for the coefficient for the concentration of species
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
   * `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"}: algorithm used for integration (default: rkf45) -- values: one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -3900,7 +3958,7 @@ Multi-buffer variant of the
 
 ### sim-kinetic-system - Simulation: Full kinetic system {#cmd-sim-kinetic-system}
 
-`sim-kinetic-system` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/step-size=`_number_{:title="a floating-point number"} `/min-step-size=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/prec-absolute=`_number_{:title="a floating-point number"} `/sub-steps=`_integer_{:title="an integer"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
+`sim-kinetic-system` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/step-size=`_number_{:title="a floating-point number"} `/min-step-size=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/prec-absolute=`_number_{:title="a floating-point number"} `/sub-steps=`_integer_{:title="an integer"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
 
   * _system_{:title="name of a file"}: file describing the system -- values: name of a file
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
@@ -3915,7 +3973,7 @@ Multi-buffer variant of the
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
   * `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"}: algorithm used for integration (default: rkf45) -- values: one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
@@ -3931,10 +3989,11 @@ Simulation command for the
 
 ### define-kinetic-system-fit - Define a fit based on a kinetic mode {#cmd-define-kinetic-system-fit}
 
-`define-kinetic-system-fit` _file_{:title="name of a file"} _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}
+`define-kinetic-system-fit` _file_{:title="name of a file"} _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _file_{:title="name of a file"}: System to load -- values: name of a file
   * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: Name of the newly created fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If the fit already exists, redefines it -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: define-kinetic-system-fit {:/}
 {::comment} description-start: define-kinetic-system-fit {:/}
@@ -3948,6 +4007,9 @@ The `define-kinetic-system-fit` command defines a new fit for the
 kinetic system contained in _file_. The kinetic system is read only
 once, if you make modifications to the kinetic system file, they will
 not be taken into account.
+
+Like for [cmd: combine-fits], you cannot redefine existing fits with
+this command unless `/redefine=true` is specified.
 {::comment} description-end: define-kinetic-system-fit {:/}
 
 
@@ -4026,12 +4088,12 @@ to [Abou-Hamdam _et al_, **PNAS**
 
 ### fit-slow-scan-hp - Fit: Slow scan test {#cmd-fit-slow-scan-hp}
 
-`fit-slow-scan-hp` `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
+`fit-slow-scan-hp` `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
   * `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the relaxation is bi-exponential or mono-exponential (false by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use an additional scaling factor (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -4060,11 +4122,11 @@ and $$\nu$$ the scan rate.
 
 ### fit-slow-scan-lp - Fit: Slow scan test {#cmd-fit-slow-scan-lp}
 
-`fit-slow-scan-lp` `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
+`fit-slow-scan-lp` `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
   * `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the scan rate is an explicit parameter of the fit (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -4092,13 +4154,13 @@ $$E_1$$ is the initial potential, $$\nu$$ the scan rate
 
 ### mfit-slow-scan-hp - Multi fit: Slow scan test {#cmd-mfit-slow-scan-hp}
 
-`mfit-slow-scan-hp` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-slow-scan-hp` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the relaxation is bi-exponential or mono-exponential (false by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use an additional scaling factor (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -4115,12 +4177,12 @@ Multi-buffer variant of the
 
 ### mfit-slow-scan-lp - Multi fit: Slow scan test {#cmd-mfit-slow-scan-lp}
 
-`mfit-slow-scan-lp` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-slow-scan-lp` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the scan rate is an explicit parameter of the fit (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -4137,13 +4199,13 @@ Multi-buffer variant of the
 
 ### sim-slow-scan-lp - Simulation: Slow scan test {#cmd-sim-slow-scan-lp}
 
-`sim-slow-scan-lp` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
+`sim-slow-scan-lp` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the scan rate is an explicit parameter of the fit (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
@@ -4159,14 +4221,14 @@ Simulation command for the
 
 ### sim-slow-scan-hp - Simulation: Slow scan test {#cmd-sim-slow-scan-hp}
 
-`sim-slow-scan-hp` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
+`sim-slow-scan-hp` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the relaxation is bi-exponential or mono-exponential (false by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use an additional scaling factor (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
@@ -4197,13 +4259,13 @@ Please refer to that paper for more information.
 
 ### fit-eecr-wave - Fit: Fit of an EECR catalytic wave {#cmd-fit-eecr-wave}
 
-`fit-eecr-wave` `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
+`fit-eecr-wave` `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
   * `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use the general expression or only that valid when plateaus are not reached (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the oxidation current as reference (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use explicitly the bias or compute it using the open circuit potential (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -4229,14 +4291,14 @@ parameter rather than the ratio $$k_2/k_{-2}$$.
 
 ### mfit-eecr-wave - Multi fit: Fit of an EECR catalytic wave {#cmd-mfit-eecr-wave}
 
-`mfit-eecr-wave` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-eecr-wave` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use the general expression or only that valid when plateaus are not reached (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the oxidation current as reference (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use explicitly the bias or compute it using the open circuit potential (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -4252,7 +4314,7 @@ Multi-buffer variant of [cmd: fit-eecr-wave].
 
 ### sim-eecr-wave - Simulation: Fit of an EECR catalytic wave {#cmd-sim-eecr-wave}
 
-`sim-eecr-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
+`sim-eecr-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -4260,7 +4322,7 @@ Multi-buffer variant of [cmd: fit-eecr-wave].
   * `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the oxidation current as reference (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use explicitly the bias or compute it using the open circuit potential (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
@@ -4276,10 +4338,10 @@ Simulation for the [`eecr-wave`](#cmd-fit-eecr-wave) fit.
 
 ### fit-eecr-relay-wave - Fit: Fit of an EECR+relay catalytic wave {#cmd-fit-eecr-relay-wave}
 
-`fit-eecr-relay-wave` `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
+`fit-eecr-relay-wave` `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -4294,11 +4356,11 @@ Fits the so-called EEC with relay model in [Fourmond _et al_,
 
 ### mfit-eecr-relay-wave - Multi fit: Fit of an EECR+relay catalytic wave {#cmd-mfit-eecr-relay-wave}
 
-`mfit-eecr-relay-wave` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-eecr-relay-wave` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -4313,12 +4375,12 @@ Multi-buffer version of the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
 
 ### sim-eecr-relay-wave - Simulation: Fit of an EECR+relay catalytic wave {#cmd-sim-eecr-relay-wave}
 
-`sim-eecr-relay-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
+`sim-eecr-relay-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
@@ -4333,13 +4395,13 @@ Simulation command for the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
 
 ### fit-ecr-wave - Fit: Fit of an ECR catalytic wave {#cmd-fit-ecr-wave}
 
-`fit-ecr-wave` `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
+`fit-ecr-wave` `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
 
   * `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use the general expression or only that valid when plateaus are not reached (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the oxidation current as reference (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use explicitly the bias or compute it using the open circuit potential (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -4356,14 +4418,14 @@ See the [fit: eecr-wave] fit for a description of the `/oxidation`,
 
 ### mfit-ecr-wave - Multi fit: Fit of an ECR catalytic wave {#cmd-mfit-ecr-wave}
 
-`mfit-ecr-wave` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+`mfit-ecr-wave` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use the general expression or only that valid when plateaus are not reached (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the oxidation current as reference (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use explicitly the bias or compute it using the open circuit potential (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
@@ -4378,7 +4440,7 @@ Multi-buffer version of the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
 
 ### sim-ecr-wave - Simulation: Fit of an ECR catalytic wave {#cmd-sim-ecr-wave}
 
-`sim-ecr-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
+`sim-ecr-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/plateau=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -4386,7 +4448,7 @@ Multi-buffer version of the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
   * `/oxidation=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the oxidation current as reference (default: off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use explicitly the bias or compute it using the open circuit potential (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
@@ -4941,6 +5003,7 @@ listed here:
 
  * [`1`](#cmd-1)
  * [`2`](#cmd-2)
+ * [`add`](#cmd-add)
  * [`apply-formula`](#cmd-apply-formula)
  * [`auto-correlation`](#cmd-auto-correlation)
  * [`auto-filter-bs`](#cmd-auto-filter-bs)
@@ -5002,6 +5065,7 @@ listed here:
  * [`load-stack`](#cmd-load-stack)
  * [`merge`](#cmd-merge)
  * [`mintegrate-formula`](#cmd-mintegrate-formula)
+ * [`multiply`](#cmd-multiply)
  * [`noop`](#cmd-noop)
  * [`norm`](#cmd-norm)
  * [`ode`](#cmd-ode)
@@ -5042,6 +5106,7 @@ listed here:
  * [`sim-multiexp-multistep`](#cmd-sim-multiexp-multistep)
  * [`sim-nernst`](#cmd-sim-nernst)
  * [`sim-ode`](#cmd-sim-ode)
+ * [`sim-polynomial`](#cmd-sim-polynomial)
  * [`sim-pseudo-voigt`](#cmd-sim-pseudo-voigt)
  * [`sim-slow-scan-hp`](#cmd-sim-slow-scan-hp)
  * [`sim-slow-scan-lp`](#cmd-sim-slow-scan-lp)
@@ -5180,3 +5245,63 @@ with an **uppercase** letter.
 [manual-pdf]:http://www.qsoas.org/manual.pdf "The PDF version of the manual for QSoas"
 [qt-regexps]:http://qt-project.org/doc/qt-4.8/qregexp.html#introduction
 "Documentation for Qt regular expressions"
+{::comment} synopsis-start: fit-polynomial {:/}
+
+### fit-polynomial - Fit: Fit to a polynomial function {#cmd-fit-polynomial}
+
+`fit-polynomial` `/order=`_integers_{:title="a comma-separated list of integers"} `/number=`_integer_{:title="an integer"} `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
+
+  * `/order=`_integers_{:title="a comma-separated list of integers"}: Order of the polynomial functions -- values: a comma-separated list of integers
+  * `/number=`_integer_{:title="an integer"}: Number of distinct polynomial functions -- values: an integer
+  * `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether there is a prefactor for each polynomial (on by default for multiple polynomials) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: With this on, only monotonic polynomials are solutions -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If this is on, there are no inflexion points in the polynomials -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
+
+{::comment} synopsis-end: fit-polynomial {:/}
+{::comment} synopsis-start: mfit-polynomial {:/}
+
+### mfit-polynomial - Multi fit: Fit to a polynomial function {#cmd-mfit-polynomial}
+
+`mfit-polynomial` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/order=`_integers_{:title="a comma-separated list of integers"} `/number=`_integer_{:title="an integer"} `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+
+  * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
+  * `/order=`_integers_{:title="a comma-separated list of integers"}: Order of the polynomial functions -- values: a comma-separated list of integers
+  * `/number=`_integer_{:title="an integer"}: Number of distinct polynomial functions -- values: an integer
+  * `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether there is a prefactor for each polynomial (on by default for multiple polynomials) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: With this on, only monotonic polynomials are solutions -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If this is on, there are no inflexion points in the polynomials -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
+  * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: if specified, it is the name of a meta-data that holds the perpendicular coordinates -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+
+{::comment} synopsis-end: mfit-polynomial {:/}
+{::comment} synopsis-start: sim-polynomial {:/}
+
+### sim-polynomial - Simulation: Fit to a polynomial function {#cmd-sim-polynomial}
+
+`sim-polynomial` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/order=`_integers_{:title="a comma-separated list of integers"} `/number=`_integer_{:title="an integer"} `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
+
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
+  * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
+  * `/order=`_integers_{:title="a comma-separated list of integers"}: Order of the polynomial functions -- values: a comma-separated list of integers
+  * `/number=`_integer_{:title="an integer"}: Number of distinct polynomial functions -- values: an integer
+  * `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether there is a prefactor for each polynomial (on by default for multiple polynomials) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: With this on, only monotonic polynomials are solutions -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If this is on, there are no inflexion points in the polynomials -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
+
+{::comment} synopsis-end: sim-polynomial {:/}

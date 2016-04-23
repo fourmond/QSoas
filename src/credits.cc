@@ -90,7 +90,10 @@ void Credits::displayStartupMessage()
                 << "the GNU general public license (see http://www.gnu.org/copyleft/gpl.html)\n\n"
                 << "QSoas includes or links to code from the following projects: "
                 << prjs.join(", ")
-                << "\nFor more information, run the command 'credits'\n" << endl;
+                << "\nFor more information, run the command 'credits'\n\n"
+                << "Thanks for thanking !\nPlease refer to Fourmond, Anal Chem, "
+                << "2016, DOI: 10.1021/acs.analchem.6b00224\n"
+                << endl;
 }
 
 Credits qsoas("QSoas itself", 

@@ -198,7 +198,7 @@ public:
   };
 
 
-  K0Distribution() : Distribution("k0") {
+  K0Distribution() : Distribution("log-uniform") {
   };
 };
 

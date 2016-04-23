@@ -2914,13 +2914,13 @@ This function is explained in more details in the
 
 ### define-distribution-fit - Define fit with distribution {#cmd-define-distribution-fit}
 
-`define-distribution-fit` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _existing-fit_{:title="the name of a fit (without the fit- prefix)"} _parameter_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/distribution=`_choice_{:title="one of: `gaussian`, `k0`, `lorentzian`, `uniform`"}
+`define-distribution-fit` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} _existing-fit_{:title="the name of a fit (without the fit- prefix)"} _parameter_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/distribution=`_choice_{:title="one of: `gaussian`, `log-uniform`, `lorentzian`, `uniform`"}
 
   * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: name of the new fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * _existing-fit_{:title="the name of a fit (without the fit- prefix)"}: name of fit to make a derived fit from -- values: the name of a fit (without the fit- prefix)
   * _parameter_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: the parameter over which to integrate -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
   * `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If the new fit already exists, redefines it -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/distribution=`_choice_{:title="one of: `gaussian`, `k0`, `lorentzian`, `uniform`"}: The default distribution -- values: one of: `gaussian`, `k0`, `lorentzian`, `uniform`
+  * `/distribution=`_choice_{:title="one of: `gaussian`, `log-uniform`, `lorentzian`, `uniform`"}: The default distribution -- values: one of: `gaussian`, `log-uniform`, `lorentzian`, `uniform`
 
 {::comment} synopsis-end: define-distribution-fit {:/}
 {::comment} description-start: define-distribution-fit {:/}
@@ -2933,10 +2933,8 @@ option. It is one of:
 
  * `gaussian`: gaussian distribution of the parameter
  * `lorentzian`: lorentzian distribution of the parameter
- * `k0`: "dispersion of interfacial rate distribution", defined by a
-   uniform probability between two values for the logarithm of the
-   parameter, see [Léger, _et al_, **J. Phys. Chem. B**
-   2002](http://dx.doi.org/10.1021/jp0265687) for more details
+ * `log-uniform`: uniform probability between two values for the
+   logarithm of the parameter
  * `uniform`: for a uniform probability between two values
 
 Of course, even for theoretically infinite distributions (`gaussian`

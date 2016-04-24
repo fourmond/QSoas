@@ -1392,6 +1392,10 @@ refer to:
 
   * `i`, the index of the data point
   * `seg`, the number of the current segment (starting from 0)
+  * `x_0`, the value of $$x$$ of the first point of the current
+    [segment](#segments)
+  * `i_0`, the index of the first point in the current
+    [segment](#segments)
   * `y2`, `y3`, etc when there are more than 2 columns in the dataset
 
 `i` and `seg` cannot be modified, but `y2` and so on can. Here is how
@@ -3502,9 +3506,9 @@ by default.
   * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: if specified, it is the name of a meta-data that holds the perpendicular coordinates -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
 
 {::comment} synopsis-end: mfit-gaussian {:/}
-{::comment} decription-start: mfit-gaussian {:/}
+{::comment} description-start: mfit-gaussian {:/}
 Multi-buffer variant of the [cmd: fit-gaussian] fit.
-{::comment} decription-end: mfit-gaussian {:/}
+{::comment} description-end: mfit-gaussian {:/}
 {::comment} synopsis-start: sim-gaussian {:/}
 
 ### sim-gaussian - Simulation: One or several gaussians {#cmd-sim-gaussian}
@@ -3523,9 +3527,9 @@ Multi-buffer variant of the [cmd: fit-gaussian] fit.
   * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
 
 {::comment} synopsis-end: sim-gaussian {:/}
-{::comment} decription-start: sim-gaussian {:/}
+{::comment} description-start: sim-gaussian {:/}
 Simulation command for the  [cmd: fit-gaussian] fit.
-{::comment} decription-end: sim-gaussian {:/}
+{::comment} description-end: sim-gaussian {:/}
 {::comment} synopsis-start: fit-lorentzian {:/}
 
 ### fit-lorentzian - Fit: A Lorentzian (also named Cauchy distribution) {#cmd-fit-lorentzian}
@@ -4617,9 +4621,9 @@ Multi-buffer version of the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
   * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
 
 {::comment} synopsis-end: sim-ecr-wave {:/}
-{::comment} description-start: mfit-ecr-wave {:/}
+{::comment} description-start: sim-ecr-wave {:/}
 Simulation command for the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
-{::comment} description-end: mfit-ecr-wave {:/}
+{::comment} description-end: sim-ecr-wave {:/}
 
 # Computation/simulations functions
 

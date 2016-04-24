@@ -1,4 +1,4 @@
-# Changes in version 1.98
+# Changes in version 1.100
 
 ## New commands
 
@@ -15,22 +15,35 @@
    colunms
  * [cmd: system], to run external commands
  * [cmd: timer], that measures the time between two calls
+ * [cmd: add] and [cmd: multiply] commands
+ * a [cmd: debug] function to save debug information in a directory,
+   helpful for debugging (reproducible) crashes
 
 ## Fits
 
  * Load parameters using interpolation on Z values
  * Shortcut to fix/unfix a parameter for all datasets (right-clicking)
- * Spreadsheet to edit parameters
+ * Spreadsheet mode edit parameters
  * A "Multi" fit engine that performs very well for large number of
    buffers
  * Can now cancel the current fit using the shell command
    `killall QSoas -SIGUSR1` on Linux and MacOS
+ * better convergence for the QSoas and Multi fit engines
  * Generalize the use of "time-dependent parameters" (the
    `/with=co:2,exp` options to [cmd: fit-kinetic-system]) to
    [cmd: fit-ode] and [cmd: fit-arb]
  * New types of time dependent parameters: `rexp` (exponential
    relaxation)  and `steps` (discrete steps)
- * a new pseudo-voigt fit
+ * The `sim-` commands can now compute the jacobian and reexport
+   parameters (to the output file)
+ * Now, the fit dialog detects when there are NaNs in the data, which
+   avoid hard-to-see fitting problems
+ * a new [fit: pseudo-voigt] fit
+ * a new [fit: polynomial] fit
+ * Now, the commands that define fits can redefine
+   existing (custom) fits if given the `/redefine=true` option
+ * One can now specify the fit engine from the command-line 
+
 
 ## Improvements of previous commands
 
@@ -50,6 +63,11 @@
    when using the `/number` option
  * more control in [cmd: split-monotonic]: can now keep only the first
    and/or last parts
+ * In [cmd: apply-formula] and [cmd: strip-if], one can now use `i_0`
+   and `x_0` to refer to the index and value of x of the first point
+   of the segment
+ * [cmd: strip-if] is now aware of the metadata and stats, like
+   [cmd: apply-formula]
  
 
 ## Other improvements
@@ -66,3 +84,5 @@
  * bug fixes
  * possibility to run "inline" Ruby code from within scripts and from
    QSoas itself
+ * Now supports GSL 2.0, which includes a new
+   Levenberg-Marquartd-Nielsen fit engine 

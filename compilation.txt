@@ -2,10 +2,11 @@ Compilation requires the following packages:
 
   * a Ruby interpreter, from http://ruby-lang.org.
     All versions from ruby 1.9 to 2.1 are known to work, but as of
-    now, ruby 2.2 is not supported
+    now, ruby 2.2 and ruby 2.3 are not supported
   * Qt4 libraries (DO NOT USE QT5, there are subtle differences,
-    and some features jsut won't work), from http://qt-project.org/
-  * the GSL libraries, from http://www.gnu.org/software/gsl/
+    and some features just won't work), from http://qt-project.org/
+  * the GSL libraries, from http://www.gnu.org/software/gsl/,  both
+    versions 1.16 and 2.1 are supported
   
 
 On mac and linux computers, just running
@@ -21,5 +22,3 @@ should do the trick.
 On windows, that should do the trick too, provided the GSL, Qt and
 Ruby libraries are in a place where the linker can find it.
 
-
-As of version 2.0, on Windows, ruby 1.9 is no longer supported

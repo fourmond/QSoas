@@ -73,6 +73,7 @@ void DerivativeFit::processOptions(const CommandOptions & opts,
                                    FitData * data) const
 {
   Storage * s = storage<Storage>(data);
+
   if(mode == Combined) {
     s->sameX = new bool[data->datasets.size()];
     for(int i = 0; i < data->datasets.size(); i++) {
@@ -88,7 +89,7 @@ void DerivativeFit::processOptions(const CommandOptions & opts,
   }
 
   TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
-  Fit::processOptions(underlyingFit, opts, data);
+  Fit::processOptions(s->underlyingFit, opts, data);
 }
 
 
@@ -107,31 +108,37 @@ QString DerivativeFit::optionsString(FitData *  data) const
   }
   Storage * s = storage<Storage>(data);
   TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
-  return Fit::optionsString(underlyingFit, data) + " -- derivative" + n;
+  return Fit::optionsString(s->underlyingFit, data) + " -- derivative" + n;
 }
 
 ArgumentList * DerivativeFit::fitHardOptions() const
 {
-  return Fit::fitHardOptions(underlyingFit);
+  PerDatasetFit * fit = dynamic_cast<PerDatasetFit *>(Fit::namedFit(underlyingFitName));
+  if(fit)
+    return Fit::fitHardOptions(fit);
+  return NULL;
 }
 
 ArgumentList * DerivativeFit::fitSoftOptions() const
 {
-  return Fit::fitSoftOptions(underlyingFit);
+  PerDatasetFit * fit = dynamic_cast<PerDatasetFit *>(Fit::namedFit(underlyingFitName));
+  if(fit)
+    return Fit::fitSoftOptions(fit);
+  return NULL;
 }
 
 CommandOptions DerivativeFit::currentSoftOptions(FitData * data) const
 {
   Storage * s = storage<Storage>(data);
   TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
-  return Fit::currentSoftOptions(underlyingFit, data);
+  return Fit::currentSoftOptions(s->underlyingFit, data);
 }
 
 void DerivativeFit::processSoftOptions(const CommandOptions & opts, FitData * data) const
 {
   Storage * s = storage<Storage>(data);
   TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
-  Fit::processSoftOptions(underlyingFit, opts, data);
+  Fit::processSoftOptions(s->underlyingFit, opts, data);
 }  
 
 void DerivativeFit::checkDatasets(const FitData * data) const
@@ -148,7 +155,7 @@ QList<ParameterDefinition> DerivativeFit::parameters(FitData * data) const
   Storage * s = storage<Storage>(data);
   
   TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
-  QList<ParameterDefinition> params = underlyingFit->parameters(data);
+  QList<ParameterDefinition> params = s->underlyingFit->parameters(data);
 
   s->originalParameters = params.size();
   for(int i = 0; i < s->originalParameters; i++)
@@ -165,7 +172,7 @@ void DerivativeFit::initialGuess(FitData * data, double * guess) const
   int tp = data->parametersPerDataset();
   TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
   for(int i = 0; i < data->datasets.size(); i++) {
-    underlyingFit->initialGuess(data, data->datasets[i], guess + i*tp);
+    s->underlyingFit->initialGuess(data, data->datasets[i], guess + i*tp);
     if(mode == Combined)
       guess[i*tp + s->originalParameters] = 1; // Makes a good default scale !
   }
@@ -211,7 +218,7 @@ void DerivativeFit::function(const double * parameters,
     gsl_vector_view fnView = data->viewForDataset(0, target);
     const DataSet * baseDS = data->datasets[0];
 
-    underlyingFit->function(parameters, data,
+    s->underlyingFit->function(parameters, data,
                             baseDS, &fnView.vector);
     ++i;
   }                      
@@ -230,7 +237,7 @@ void DerivativeFit::function(const double * parameters,
       // We create sub-views of the original view...
       int idx = main->x().size();
       gsl_vector_view sFnView = gsl_vector_subvector(&derView.vector, 0, idx);
-      underlyingFit->function(parameters + pbase, 
+      s->underlyingFit->function(parameters + pbase, 
                               data, main, &sFnView.vector);
       if(s->sameX[i]) {
         // Reuse the same data -- factor-of-two win...
@@ -243,8 +250,8 @@ void DerivativeFit::function(const double * parameters,
                                  main->x().size());
       }
       else {
-        underlyingFit->function(parameters + pbase, 
-                                data, sub, &bufView.vector);
+        s->underlyingFit->function(parameters + pbase, 
+                                   data, sub, &bufView.vector);
         // Now copying back 
         DataSet::firstDerivative(sub->x().data(), 1, 
                                  bufView.vector.data, 
@@ -263,7 +270,7 @@ void DerivativeFit::function(const double * parameters,
                        parameters[pbase + s->originalParameters]);
     }
     else {
-      underlyingFit->function(parameters + i * 
+      s->underlyingFit->function(parameters + i * 
                               data->parametersPerDataset(), 
                               data, derDS, &bufView.vector);
       DataSet::firstDerivative(derDS->x().data(), 1, 
@@ -285,11 +292,12 @@ DerivativeFit::DerivativeFit(PerDatasetFit * source, DerivativeFit::Mode m) :
       "(derived fit)",
       (m == DerivativeFit::Separated ? 2: 1) , 
       (m == DerivativeFit::Separated ? 2: -1) , false), 
-  underlyingFit(source), mode(m)
+  mode(m)
 
 {
+  underlyingFitName = source->fitName(false);
   // How to remove the "parameters" argument ?
-  Command * cmd = Command::namedCommand("fit-" + source->fitName(false));
+  Command * cmd = Command::namedCommand("fit-" + underlyingFitName );
   ArgumentList * opts = new ArgumentList(*cmd->commandOptions());
 
   /// @todo Add own options.
@@ -300,7 +308,11 @@ DerivativeFit::DerivativeFit(PerDatasetFit * source, DerivativeFit::Mode m) :
 FitInternalStorage * DerivativeFit::allocateStorage(FitData * data) const
 {
   Storage * s = new Storage;
-  s->originalStorage = underlyingFit->allocateStorage(data);
+  s->underlyingFit = dynamic_cast<PerDatasetFit *>(Fit::namedFit(underlyingFitName));
+  if(! s->underlyingFit)
+    throw RuntimeError("The fit " + underlyingFitName + " either does not exist or it isn't working buffer-by-buffer: impossible to make a derived fit");
+  
+  s->originalStorage = s->underlyingFit->allocateStorage(data);
   return s;
 }
 
@@ -314,7 +326,7 @@ FitInternalStorage * DerivativeFit::copyStorage(FitData * data,
   {
     TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
                                            s->originalStorage);
-    s2->originalStorage = underlyingFit->copyStorage(data, s->originalStorage, ds);
+    s2->originalStorage = s->underlyingFit->copyStorage(data, s->originalStorage, ds);
   }
   return s2;
 }

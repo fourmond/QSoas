@@ -54,8 +54,9 @@ protected:
 
   virtual void checkDatasets(const FitData * data) const;
 
-  /// The underlying fit
-  PerDatasetFit * underlyingFit;
+
+  /// Name of the underlying fit.
+  QString underlyingFitName;
 
 
   /// The mode of the fit, ie do we fit the derivative only, the
@@ -86,6 +87,10 @@ protected:
 
     /// Storage space of the original fit
     FitInternalStorage * originalStorage;
+
+    /// The underlying fit
+    PerDatasetFit * underlyingFit;
+
 
     Storage();
     Storage(const Storage & o);

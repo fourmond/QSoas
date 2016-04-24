@@ -25,4 +25,26 @@ define-derived-fit /mode=combined polynomial
 @ sim-deriv-combined.cmds parameters/poly-4-1.params 1 2 3 -2 0.2 1e-10
 
 
+# Testing redifinition of underlying fit...
+
+custom-fit tst-deriv 0.5*a*x**2+b*x
+generate-buffer 0 10
+sim-tst-deriv parameters/custom-line.params 0
+apply-formula y-=x**2+3*x
+assert '$stats["y_norm"]' 0
+
+define-derived-fit /mode=deriv-only tst-deriv
+sim-deriv-only-tst-deriv parameters/custom-line.params 0
+apply-formula y-=2*x+3
+assert '$stats["y_norm"]' 4e-11
+
+custom-fit tst-deriv a*x**2+b*x /redefine=true
+sim-tst-deriv parameters/custom-line.params 0
+apply-formula y-=2*x**2+3*x
+assert '$stats["y_norm"]' 0
+
+sim-deriv-only-tst-deriv parameters/custom-line.params 0
+apply-formula y-=4*x+3
+assert '$stats["y_norm"]' 4e-11
+
 

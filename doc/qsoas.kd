@@ -2862,6 +2862,16 @@ absent, then the fit does not support subfunctions.
 You can also push the individual components to the stack for further
 manipulation using "Data..."/"Push all subfunctions".
 
+## Parameters restrictions
+
+Some fits implement restrictions on the values that can be taken by
+parameters. For instance, the time constants for the
+[fit: exponential-decay] cannot be negative, neither for the starting
+parameters, nor for any intermediate (iteration, computation of
+derivatives).
+
+This is done so that the fit algorithm does not go into directions
+which are assured not to give relevant parameters.
 
 
 {::comment} synopsis-start: combine-fits {:/}
@@ -3014,6 +3024,10 @@ that tend to 0.
 Each individual exponential, with $$A_\infty$$ as asymptotic
 value. The subfunctions are not displayed by default.
 
+#### Parameters restrictions
+
+The values of $$\tau_i$$ cannot be negative, nor can $$k_{loss}$$.
+
 
 {::comment} description-end: fit-exponential-decay {:/}
 
@@ -3110,6 +3124,12 @@ $$y(t)$$ on each step (in the absence of film loss) and $$\alpha_j$$
 is defined recursively by $$\alpha_0 = 1$$ and $$\alpha_j =
 \alpha_{j-1} \exp (- k^{k(j-1)}_{loss}(t^j_0 - t^{j-1}_0))$$. This is
 done so as to keep track of film loss over the whole experiment.
+
+#### Parameters restrictions
+
+Like in the [fit: exponential-decay] fit, the values of $$\tau_i$$
+cannot be negative, nor can the values of $$k_{loss}$$.
+
 {::comment} description-end: fit-multiexp-multistep {:/}
 
 
@@ -3156,8 +3176,108 @@ This is the multibuffer version of the [fit: multiexp-multistep] fit.
 
 {::comment} synopsis-end: sim-multiexp-multistep {:/}
 {::comment} description-start: sim-multiexp-multistep {:/}
-This is the simulation ommand for the [fit: multiexp-multistep] fit.
+This is the simulation command for the [fit: multiexp-multistep] fit.
 {::comment} description-end: sim-multiexp-multistep {:/}
+
+## Polynomial fits
+
+{::comment} synopsis-start: fit-polynomial {:/}
+
+### fit-polynomial - Fit: Fit to a polynomial function {#cmd-fit-polynomial}
+
+`fit-polynomial` `/order=`_integers_{:title="a comma-separated list of integers"} `/number=`_integer_{:title="an integer"} `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
+
+  * `/order=`_integers_{:title="a comma-separated list of integers"}: Order of the polynomial functions -- values: a comma-separated list of integers
+  * `/number=`_integer_{:title="an integer"}: Number of distinct polynomial functions -- values: an integer
+  * `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether there is a prefactor for each polynomial (on by default for multiple polynomials) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: With this on, only monotonic polynomials are solutions -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If this is on, there are no inflexion points in the polynomials -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
+
+{::comment} synopsis-end: fit-polynomial {:/}
+{::comment} description-start: fit-polynomial {:/}
+Fits a sum of polynomials to the data:
+
+$$
+y(x) = A_p \times \left(\sum_{i=0}^n A_i x^i\right) +
+B_p \times \left(\sum_{i=0}^{n'} B_i x^i\right) + ...
+$$
+
+The number of polynomial functions is given by the `/number=` option
+(defaults to 1), and the order $$n$$ of the polynomials is chosen
+using the `/order=` option. By default, the order is the same for all
+polynomials, to specify different ones, give a comma-separated list of
+orders, one for each polynomial, and don't use `/number=`.
+
+The prefactors $$A_p$$, $$B_p$$ are present by default when there are
+more than one polynomial, and off if not. You can override that using
+the `/prefactor` option.
+
+#### Parameters restrictions
+
+By default, there are no restrictions on parameters, but using
+`/monotonic=true` will discard parameter combinations that give
+non-monotonic polynomials (each of the $$\sum_{i=0}^n A_i x^i$$,
+not the sum), and with `/without-inflexions=true`, it will discard
+parameter combinations that give inflexion points.
+
+
+{::comment} description-end: fit-polynomial {:/}
+
+
+{::comment} synopsis-start: mfit-polynomial {:/}
+
+### mfit-polynomial - Multi fit: Fit to a polynomial function {#cmd-mfit-polynomial}
+
+`mfit-polynomial` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/order=`_integers_{:title="a comma-separated list of integers"} `/number=`_integer_{:title="an integer"} `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
+
+  * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
+  * `/order=`_integers_{:title="a comma-separated list of integers"}: Order of the polynomial functions -- values: a comma-separated list of integers
+  * `/number=`_integer_{:title="an integer"}: Number of distinct polynomial functions -- values: an integer
+  * `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether there is a prefactor for each polynomial (on by default for multiple polynomials) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: With this on, only monotonic polynomials are solutions -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If this is on, there are no inflexion points in the polynomials -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
+  * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: if specified, it is the name of a meta-data that holds the perpendicular coordinates -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+
+{::comment} synopsis-end: mfit-polynomial {:/}
+{::comment} description-start: mfit-polynomial {:/}
+This is the multibuffer version of the [fit: polynomial] fit.
+{::comment} description-end: mfit-polynomial {:/}
+{::comment} synopsis-start: sim-polynomial {:/}
+
+### sim-polynomial - Simulation: Fit to a polynomial function {#cmd-sim-polynomial}
+
+`sim-polynomial` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/order=`_integers_{:title="a comma-separated list of integers"} `/number=`_integer_{:title="an integer"} `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
+
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
+  * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
+  * `/order=`_integers_{:title="a comma-separated list of integers"}: Order of the polynomial functions -- values: a comma-separated list of integers
+  * `/number=`_integer_{:title="an integer"}: Number of distinct polynomial functions -- values: an integer
+  * `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether there is a prefactor for each polynomial (on by default for multiple polynomials) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: With this on, only monotonic polynomials are solutions -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If this is on, there are no inflexion points in the polynomials -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
+
+{::comment} synopsis-end: sim-polynomial {:/}
+{::comment} description-start: sim-polynomial {:/}
+This is the simulation command for the [fit: polynomial] fit.
+{::comment} description-end: sim-polynomial {:/}
+
 
 ## Arbitrary fits 
 
@@ -3958,6 +4078,11 @@ Fits a full kinetic system. The fitted value is a linear combination
 of all the concentrations, with the coefficients given by parameters
 of name `y_A` (for the coefficient for the concentration of species
 `A`, for instance).
+
+#### Parameters restrictions
+
+A rate constant cannot be negative.
+
 {::comment} description-end: fit-kinetic-system {:/}
 
 {::comment} synopsis-start: mfit-kinetic-system {:/}
@@ -5282,63 +5407,3 @@ with an **uppercase** letter.
 [manual-pdf]:http://www.qsoas.org/manual.pdf "The PDF version of the manual for QSoas"
 [qt-regexps]:http://qt-project.org/doc/qt-4.8/qregexp.html#introduction
 "Documentation for Qt regular expressions"
-{::comment} synopsis-start: fit-polynomial {:/}
-
-### fit-polynomial - Fit: Fit to a polynomial function {#cmd-fit-polynomial}
-
-`fit-polynomial` `/order=`_integers_{:title="a comma-separated list of integers"} `/number=`_integer_{:title="an integer"} `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
-
-  * `/order=`_integers_{:title="a comma-separated list of integers"}: Order of the polynomial functions -- values: a comma-separated list of integers
-  * `/number=`_integer_{:title="an integer"}: Number of distinct polynomial functions -- values: an integer
-  * `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether there is a prefactor for each polynomial (on by default for multiple polynomials) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: With this on, only monotonic polynomials are solutions -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If this is on, there are no inflexion points in the polynomials -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
-  * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
-
-{::comment} synopsis-end: fit-polynomial {:/}
-{::comment} synopsis-start: mfit-polynomial {:/}
-
-### mfit-polynomial - Multi fit: Fit to a polynomial function {#cmd-mfit-polynomial}
-
-`mfit-polynomial` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/order=`_integers_{:title="a comma-separated list of integers"} `/number=`_integer_{:title="an integer"} `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} **(interactive)**
-
-  * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * `/order=`_integers_{:title="a comma-separated list of integers"}: Order of the polynomial functions -- values: a comma-separated list of integers
-  * `/number=`_integer_{:title="an integer"}: Number of distinct polynomial functions -- values: an integer
-  * `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether there is a prefactor for each polynomial (on by default for multiple polynomials) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: With this on, only monotonic polynomials are solutions -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If this is on, there are no inflexion points in the polynomials -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
-  * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
-  * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: if specified, it is the name of a meta-data that holds the perpendicular coordinates -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-
-{::comment} synopsis-end: mfit-polynomial {:/}
-{::comment} synopsis-start: sim-polynomial {:/}
-
-### sim-polynomial - Simulation: Fit to a polynomial function {#cmd-sim-polynomial}
-
-`sim-polynomial` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/order=`_integers_{:title="a comma-separated list of integers"} `/number=`_integer_{:title="an integer"} `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}
-
-  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
-  * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * `/order=`_integers_{:title="a comma-separated list of integers"}: Order of the polynomial functions -- values: a comma-separated list of integers
-  * `/number=`_integer_{:title="an integer"}: Number of distinct polynomial functions -- values: an integer
-  * `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether there is a prefactor for each polynomial (on by default for multiple polynomials) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: With this on, only monotonic polynomials are solutions -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If this is on, there are no inflexion points in the polynomials -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
-  * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
-  * `/override=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: a comma-separated list of parameters to override -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ', for instance"}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ', for instance
-  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
-  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
-
-{::comment} synopsis-end: sim-polynomial {:/}

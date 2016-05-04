@@ -141,14 +141,15 @@ protected:
 public:
 
   /// These functions compute the fit values using internal parameters
-  int f(const gsl_vector * x, gsl_vector * f, bool doSubtract = true);
+  int f(const gsl_vector * x, gsl_vector * f,
+        bool doSubtract = true, bool doWeights = true);
   int df(const gsl_vector * x, gsl_matrix * df);
   int fdf(const gsl_vector * x, gsl_vector * f, gsl_matrix * df);
 
 
   /// Computes the function
   int computeFunction(const double * params, gsl_vector * f,
-                      bool doSubtract = false);
+                      bool doSubtract = false, bool doWeights = false);
 private:
 
   int totalSize;

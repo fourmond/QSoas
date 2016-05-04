@@ -412,17 +412,18 @@ bool FitData::usesPointWeights() const
 }
 
 int FitData::computeFunction(const double * params, gsl_vector * f,
-                             bool doSubtract)
+                             bool doSubtract, bool doWeight)
 {
   int nb = freeParameters();
   QVarLengthArray<double, 1024> dt(nb);
   gsl_vector_view v = gsl_vector_view_array(dt.data(), nb);
   packParameters(params, &v.vector);
 
-  return this->f(&v.vector, f, doSubtract);
+  return this->f(&v.vector, f, doSubtract, doWeight);
 }
 
-int FitData::f(const gsl_vector * x, gsl_vector * f, bool doSubtract)
+int FitData::f(const gsl_vector * x, gsl_vector * f,
+               bool doSubtract, bool doWeights)
 {
   QVarLengthArray<double, 1024> params(fullParameterNumber());
   unpackParameters(x, params.data());
@@ -457,7 +458,8 @@ int FitData::f(const gsl_vector * x, gsl_vector * f, bool doSubtract)
   // Then, subtract data.
   if(doSubtract)
     subtractData(f);
-  weightVector(f);
+  if(doWeights)
+    weightVector(f);
   /// @todo Data weighting ?
 
   if(debug > 0)

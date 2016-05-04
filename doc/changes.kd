@@ -84,5 +84,6 @@
  * bug fixes
  * possibility to run "inline" Ruby code from within scripts and from
    QSoas itself
- * Now supports GSL 2.0, which includes a new
-   Levenberg-Marquartd-Nielsen fit engine 
+ * Can now run QSoas commands from within Ruby code, for instance
+   `QSoas::load("file")`. This is still experimental.
+ * Now supports GSL 2.0

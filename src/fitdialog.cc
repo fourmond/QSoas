@@ -351,7 +351,8 @@ void FitDialog::setupFrame()
                 QKeySequence(tr("Ctrl+S")));
   if(data->datasets.size() > 1)
     ac->addAction("Show parameters", 
-                  this, SLOT(showParameters()));
+                  this, SLOT(showParameters()),
+                  QKeySequence(tr("Ctrl+Shift+P")));
   ac->addAction("Export (for drawing/manipulating)", 
                 this, SLOT(exportParameters()),
                 QKeySequence(tr("Ctrl+X")));

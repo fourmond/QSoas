@@ -56,6 +56,8 @@ DerivativeFit::Storage::Storage(const DerivativeFit::Storage & o) :
   }
   for(int i = 0; i < o.splittedDatasets.size(); i++)
     splittedDatasets << new DataSet(*o.splittedDatasets[i]);
+
+  underlyingFit = o.underlyingFit;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -322,7 +324,6 @@ FitInternalStorage * DerivativeFit::copyStorage(FitData * data,
 {
   Storage * s = static_cast<Storage *>(source);
   Storage * s2 = new Storage(*s);
-  
   {
     TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
                                            s->originalStorage);

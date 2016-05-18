@@ -6,6 +6,11 @@ TEMPLATE = app
 CONFIG += debug warn_on thread exception
 
 
+! contains(QT_MAJOR_VERSION, 4) {
+  error("QSoas only works with Qt version 4 at the moment")
+}
+
+
 INCLUDEPATH += . src
 TARGET = QSoas
 
@@ -24,7 +29,7 @@ win32:CONFIG += console
 
 # The version should be provided on the command-line.
 isEmpty(VERSION) {
-  VERSION = 1.99
+  VERSION = 2.0
 }
 
 # We attempt to make a universal binary on mac
@@ -113,6 +118,15 @@ RUBY_LIB_DIR = $$system($$RUBY ./get-ruby-config.rb libdir)
 isEmpty(RUBY_LIB_ARG) {
   error("Could not find ruby, make sure $$RUBY is in the PATH !")
 }
+
+RUBY_VERSION = $$system($$RUBY ./get-ruby-config.rb version)
+RUBY_COMPATIBILITY = $$system($$RUBY ./get-ruby-config.rb compatible)
+
+isEmpty(RUBY_COMPATIBILITY) {
+  error("$$RUBY (version $$RUBY_VERSION) is not compatible with QSoas, try building with version between 1.9.3 and the 2.2 series. This is possible by running, for instance, qmake RUBY=ruby2.1")
+}
+
+
 
 message("Ruby: using $$RUBY, found library: $$RUBY_LIB_ARG and includes at $$RUBY_INCLUDE_DIRS")
 

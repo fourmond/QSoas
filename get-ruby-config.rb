@@ -6,6 +6,15 @@
 require 'rbconfig'
 
 case ARGV[0]
+when "compatible"
+  rv = RbConfig::CONFIG["MAJOR"].to_i*100 + RbConfig::CONFIG["MINOR"].to_i
+  if rv < 203
+    puts "OK"
+  else
+    puts ""
+  end
+when "version"
+  puts RUBY_VERSION
 when "libarg"
   puts RbConfig::CONFIG['LIBRUBYARG']
 when "libdir"

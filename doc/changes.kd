@@ -2,7 +2,8 @@
 
 ## New commands
 
- * [cmd: auto-flag], to add flags to all newly created datasets
+ * [cmd: auto-flag], to automatically add flags to all newly
+   created datasets
  * [cmd: auto-reglin], another way to compute the derivative of a
    signal
  * [cmd: define-distribution-fit], to define fits with distribution of
@@ -23,7 +24,7 @@
 
  * Load parameters using interpolation on Z values
  * Shortcut to fix/unfix a parameter for all datasets (right-clicking)
- * Spreadsheet mode edit parameters
+ * Spreadsheet mode for editing parameters
  * A "Multi" fit engine that performs very well for large number of
    buffers
  * Can now cancel the current fit using the shell command
@@ -37,21 +38,18 @@
  * The `sim-` commands can now compute the jacobian and reexport
    parameters (to the output file)
  * Now, the fit dialog detects when there are NaNs in the data, which
-   avoid hard-to-see fitting problems
+   avoid hard-to-understand problems of convergence of fits
  * a new [fit: pseudo-voigt] fit
  * a new [fit: polynomial] fit
- * Now, the commands that define fits can redefine
-   existing (custom) fits if given the `/redefine=true` option
+ * Now, the commands that define fits can redefine existing (custom)
+   fits if given the `/redefine=true` option
  * One can now specify the fit engine from the command-line 
-
 
 ## Improvements of previous commands
 
- * [cmd: eval] can now use statistics and meta-data
+ * [cmd: eval] can now use statistics and meta-data of the current buffer
  * Can now push the transform using uppercase T in [cmd: filter-fft], and
-   using the /transform option in [cmd: auto-filter-fft]
- * Can now group several segments in one dataset in
-   [cmd: split-monotonic]
+   using the `/transform` option in [cmd: auto-filter-fft]
  * [cmd: save-buffers] can now be used to name files (or buffers)
    based on meta-data; it can also simply rename without saving, and
    create directories if necessary (using `/mkpath=true`)
@@ -61,8 +59,8 @@
    (with `/set=true`)
  * [cmd: generate-buffers] can now generate several buffers at once
    when using the `/number` option
- * more control in [cmd: split-monotonic]: can now keep only the first
-   and/or last parts
+ * More control in [cmd: split-monotonic]: can now keep only the first
+   and/or last parts, and group several segments into datasets
  * In [cmd: apply-formula] and [cmd: strip-if], one can now use `i_0`
    and `x_0` to refer to the index and value of x of the first point
    of the segment
@@ -81,9 +79,9 @@
    Marcus-Hush-Chidsey kinetics
  * One can now use the `--run` and `--exit-after-running` command-line
    options to QSoas to run scripts from the command-line
- * bug fixes
  * possibility to run "inline" Ruby code from within scripts and from
    QSoas itself
  * Can now run QSoas commands from within Ruby code, for instance
    `QSoas::load("file")`. This is still experimental.
  * Now supports GSL 2.0
+ * Quite a few bug fixes

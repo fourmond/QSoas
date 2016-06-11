@@ -135,6 +135,8 @@ public:
     QString line;
 
     int nb = 0;
+
+    int nbFailed = 0;
     
     while(true) {
       line = in.readLine();
@@ -163,8 +165,10 @@ public:
         continue;
       }
       else {
-        Terminal::out << "Line #" << nb << "not understood: '" 
+        Terminal::out << "Line #" << nb << " not understood: '" 
                       << line.trimmed() << "'" << endl;
+        if(++nbFailed > 500)
+          throw RuntimeError("Too many errors trying to read the parameters file, aborting");
       }
     }
 

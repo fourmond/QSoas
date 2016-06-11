@@ -2268,6 +2268,10 @@ by hitting the `L` key and providing the buffer number (or just their
 X value by hitting `l`). Second, if one has the nodes and just the X
 values, one can generate the interpolated data using [cmd: interpolate].
 
+The area between the baseline and the curve is displayed in the
+terminal. If the dataset has a meta-data named `sr`, it is taken as a
+scan rate (as in cyclic voltammetry), and the charge is displayed too.
+
 {::comment} description-end: baseline {:/}
 
 

@@ -2127,9 +2127,12 @@ fp2("2", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void echemPeaksCommand(const QString &, const CommandOptions &)
+static void echemPeaksCommand(const QString &, const CommandOptions & opts)
 {
   int window = 8;
+
+  bool write = true;
+  updateFromOptions(opts, "output", write);
 
   const DataSet * ds = soas().currentDataSet();
   const GraphicsSettings & gs = soas().graphicsSettings();
@@ -2142,8 +2145,11 @@ static void echemPeaksCommand(const QString &, const CommandOptions &)
     Terminal::out << "Found " << pairs.size() << " peaks pairs" << endl;
 
     for(int i = 0; i < pairs.size(); i++) {
-      QString str = QString("%1\t%2\t%3").
-        arg(ds->name).arg(pairs[i].forward.x).arg(pairs[i].forward.y);
+      ValueHash hsh;
+      hsh << "buffer" << ds->name 
+          << "forw_x" << pairs[i].forward.x
+          << "forw_y" << pairs[i].forward.y;
+
       CurveLine * v = new CurveLine;
     
       v->p1 = QPointF(pairs[i].forward.x, 0);
@@ -2152,12 +2158,13 @@ static void echemPeaksCommand(const QString &, const CommandOptions &)
       view.addItem(v);
 
       if(pairs[i].isReversible()) {
-        str += QString("\t%1\t%2\t%3\t%4\t%5").
-          arg(pairs[i].backward.x).arg(pairs[i].backward.y).
-          arg(pairs[i].deltaX()).
-          arg(pairs[i].deltaY()).
-          arg(pairs[i].midX());
-
+        hsh << "buffer" << ds->name 
+            << "back_x" << pairs[i].backward.x
+            << "back_y" << pairs[i].backward.y
+            << "delta_x" << pairs[i].deltaX()
+            << "delta_y" << pairs[i].deltaY()
+            << "avg_x" << pairs[i].midX();
+          
         v = new CurveLine;
         v->p1 = QPointF(pairs[i].forward.x, 0);
         v->p2 = QPointF(pairs[i].backward.x, 0);
@@ -2171,8 +2178,10 @@ static void echemPeaksCommand(const QString &, const CommandOptions &)
         view.addItem(v);
       }
 
-      Terminal::out << str << endl;
-
+      Terminal::out << hsh.keyOrder.join("\t") << endl;
+      Terminal::out << hsh.toString() << endl;
+      if(write)
+        OutFile::out.writeValueHash(hsh, ds);
     }
     view.enableUpdates();
   }

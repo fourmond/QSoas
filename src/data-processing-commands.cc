@@ -503,12 +503,20 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
   const DataSet * ds = soas().currentDataSet();
   // const GraphicsSettings & gs = soas().graphicsSettings();
 
-  /// The charge computed in the previous call
+  /// The area computed in the previous call
   /// @todo Make that more flexible ?
+  static double oldArea = 0;
+  double area = 0;
   static double oldCharge = 0;
   double charge = 0;
-  // Make sure the charge is updated whenever we go out of scope ?
+  // Make sure the area is updated whenever we go out of scope ?
+  DelayedAssign<double> arr(oldArea, area);
   DelayedAssign<double> chrg(oldCharge, charge);
+
+  double sr = -1;
+  if(ds->getMetaData().contains("sr")) {
+    sr = ds->getMetaData("sr").toDouble();
+  }
   
 
   CurveView & view = soas().view();
@@ -628,9 +636,18 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
         h.derivative.yvalues = s.derivative(h.diff.xvalues, type);
 
       h.updateBottom();
-      charge = Vector::integrate(ds->x(), h.diff.yvalues);
-      Terminal::out << "Charge: " << charge << " (old: " 
-                    << oldCharge << ")" << endl;
+      area = Vector::integrate(ds->x(), h.diff.yvalues);
+      if(sr > 0) {
+        charge = area/sr;
+        Terminal::out << "Area: " << area
+                      << " (charge: " << charge << " with scan rate: " << sr 
+                      << ") -- old area: " 
+                      << oldArea
+                      << " (old charge: " <<  oldCharge << ")" << endl;
+      }
+      else
+        Terminal::out << "Area: " << area << " -- old area: " 
+                      << oldArea << endl;
 
       
       m.points = s.pointList();

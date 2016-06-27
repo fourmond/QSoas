@@ -40,9 +40,8 @@ namespace Ruby {
   /// exception-safe way, ie with proper handling of the exceptions...
   RUBY_VALUE exceptionSafeCall(RUBY_VALUE (*function)(...), void * args);
 
-  /// The global rescue function, whose role is to convert Ruby
-  /// exceptions into proper C++ exceptions.
-  RUBY_VALUE globalRescueFunction(RUBY_VALUE, RUBY_VALUE exception);
+  /// This function converts the given exception into a throwable QString
+  QString exceptionString(RUBY_VALUE exception);
 
   /// Evaluates the given string, while trying to avoid segfaults.
   RUBY_VALUE eval(QByteArray code);

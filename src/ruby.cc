@@ -30,7 +30,7 @@ QMutex Ruby::rubyGlobalLock(QMutex::Recursive);
 /// A global toogle. @todo Make that configurable at runtime
 static SettingsValue<bool> debugRuby("ruby/debug", false);
 
-RUBY_VALUE Ruby::globalRescueFunction(RUBY_VALUE /*dummy*/, RUBY_VALUE exception)
+QString Ruby::exceptionString(RUBY_VALUE exception)
 {
   static RUBY_VALUE cQSoasException = rbw_nil;
   if(cQSoasException == rbw_nil)
@@ -55,10 +55,7 @@ RUBY_VALUE Ruby::globalRescueFunction(RUBY_VALUE /*dummy*/, RUBY_VALUE exception
     str += "\n";
     str += rbw_string_value_cstr(s2);
   }
-  QTextStream o(stderr);
-  o << "Caught Ruby exception: " << str << endl;
-  throw RuntimeError(str);
-  return rbw_nil;
+  return str;
 }
 
 
@@ -66,11 +63,15 @@ RUBY_VALUE Ruby::exceptionSafeCall(RUBY_VALUE (*function)(...), void * args)
 {
   int error = 0;
   RUBY_VALUE ret = rbw_protect((RUBY_VALUE (*)(RUBY_VALUE)) function, 
-                         (RUBY_VALUE) args, &error);
+                               (RUBY_VALUE) args, &error);
   if(error) {
     // An exception occurred, we need to handle it.
     RUBY_VALUE exception = rbw_gv_get("$!");
-    return Ruby::globalRescueFunction(rbw_nil, exception);
+
+    QString str = Ruby::exceptionString(exception);
+    QTextStream o(stderr);
+    o << "Caught Ruby exception: " << str << endl;
+    throw RuntimeError(str);
   }
   return ret;
 }

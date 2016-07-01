@@ -131,7 +131,7 @@ double CurveDataSet::distanceTo(const QPointF & point,
                                 double xscale,
                                 double yscale)
 {
-  if(! dataSet)
+  if(! dataSet || dataSet->nbColumns() < 2)
     return -1;
   QPair<double, int> pair = dataSet->distanceTo(point, xscale, yscale);
   lastPoint = point;

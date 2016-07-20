@@ -270,11 +270,25 @@ int rbw_is_array(RUBY_VALUE ret)
 }
 
 /* For now, the LVALUE stuff: */
+#ifdef RFLOAT
 #define RFLOAT_LVALUE(x) (RFLOAT((x))->float_value)
 void rbw_set_float(RUBY_VALUE *x, double value)
 {
   RFLOAT_LVALUE(*x) = value;
 }
+#else
+
+/* This is what is commonly called a DIRTY HACK */
+struct RFloat {
+    struct RBasic basic;
+    double float_value;
+};
+
+void rbw_set_float(RUBY_VALUE *x, double value)
+{
+  ((struct RFloat*)*x)->float_value = value;
+}
+#endif
 
 int rbw_is_numeric(RUBY_VALUE value)
 {

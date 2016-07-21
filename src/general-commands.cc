@@ -667,15 +667,17 @@ static void cdCommand(const QString &, QString dir,
   soas().mainWin().updateWindowName();
 
 
-  // Change the output file, if it is opened already
-  if(OutFile::out.isOpened()) {
-    QFileInfo inf(OutFile::out.fileName());
-    QString f = inf.fileName();
-    // Relative to current dir.
-    OutFile::out.setFileName(f);
-    Terminal::out << "Closing the previous output file at: '" << 
-      OutFile::out.filePath() << "'" << endl;
-  }
+  // DO NOT CHANGE THE OUTPUT FILE !
+  
+  // // Change the output file, if it is opened already
+  // if(OutFile::out.isOpened()) {
+  //   QFileInfo inf(OutFile::out.fileName());
+  //   QString f = inf.fileName();
+  //   // Relative to current dir.
+  //   OutFile::out.setFileName(f);
+  //   Terminal::out << "Closing the previous output file at: '" << 
+  //     OutFile::out.filePath() << "'" << endl;
+  // }
 
   Terminal::out << "Current directory now is: " << QDir::currentPath() 
                 << endl;

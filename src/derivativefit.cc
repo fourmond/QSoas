@@ -285,11 +285,26 @@ void DerivativeFit::function(const double * parameters,
   }
 }
 
+QString DerivativeFit::derivativeFitName(PerDatasetFit * source,
+                                         DerivativeFit::Mode mode)
+{
+  QString pref;
+  switch(mode) {
+  case Separated:
+    pref = "deriv-";
+    break;
+  case DerivativeOnly:
+    pref = "deriv-only-";
+    break;
+  default:
+    pref = "deriv-combined-";
+  }
+  return pref + source->fitName(false);
+}
+
+
 DerivativeFit::DerivativeFit(PerDatasetFit * source, DerivativeFit::Mode m) :
-  Fit((QString((m == DerivativeFit::Separated ? "deriv-" : 
-                (m == DerivativeFit::DerivativeOnly ? "deriv-only-" : 
-                 "deriv-combined-"))) +
-       source->fitName(false)).toLocal8Bit(), 
+  Fit(DerivativeFit::derivativeFitName(source, m).toLocal8Bit(), 
       "Derived fit",
       "(derived fit)",
       (m == DerivativeFit::Separated ? 2: 1) , 
@@ -351,10 +366,21 @@ static void defineDerivedFit(const QString &, QString fitName,
   else if(testOption(opts, "mode", QString("combined")))
     mode = DerivativeFit::Combined;
 
+  bool overwrite = false;
+  updateFromOptions(opts, "redefine", overwrite);
+
   ArgumentList * lst = fit->fitArguments();
   if(lst && lst->size())
     throw RuntimeError("Cannot make derivatives of fits that take arguments -- use one of the define-*-fit commands, or custom-fit");
-  new DerivativeFit(fit, mode);
+
+  QString tn = DerivativeFit::derivativeFitName(fit, mode);
+  if(Fit::namedFit(tn)) {
+    if(! overwrite)
+      throw RuntimeError("Attempting to redefine fit '%1', use /redefine=true to ignore").arg(tn);
+    return;
+  }
+  else
+    new DerivativeFit(fit, mode);
 }
 
 static ArgumentList 
@@ -371,7 +397,11 @@ ddfO(QList<Argument *>()
                            "mode", "Derivative mode",
                            "Whether one fits only the derivative, both the "
                            "derivative and the original data together or "
-                           "separated"));
+                           "separated")
+    << new BoolArgument("redefine", 
+                        "Redefine",
+                        "Does not error out if the fit already exists")
+     );
 
 
 static Command 

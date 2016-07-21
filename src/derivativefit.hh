@@ -116,6 +116,9 @@ public:
   DerivativeFit(PerDatasetFit * fit, Mode m = Separated);
   virtual ~DerivativeFit();
 
+  static QString derivativeFitName(PerDatasetFit * source,
+                                   DerivativeFit::Mode mode);
+
 };
 
 

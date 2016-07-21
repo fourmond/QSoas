@@ -126,6 +126,15 @@ setting `/comment=#` (to only ignore lines that start with a `#`).
 You can get an idea of how `QSoas` read the file by launching the
 [cmd: edit] command.
 
+## Help, I only see points in my data files !
+
+Sometimes, QSoas only draws data points, and does not draw lines
+between them. This happens for very "jaggy" curves, for which drawing
+the lines can be very computationally expensive and slow down
+significantly the display. At the moment, this cannot be controlled,
+and happens when QSoas thinks the curve is too jaggy.
+
+
 # Fits
 
 ## Can QSoas be used to fit a model that is calculated with an external program? Like EasySpin or Matlab?
@@ -213,7 +222,7 @@ We don't offer refunds -- the license explicitly states that:
 However, if the information you provide us helps us identify and fix
 the bug, we'll try to provide you with an updated version.
 
-## I have bought QSoas 1.0, will I need to pay again each time a new version is released?
+## I have bought QSoas 1.0, will I need to pay again each time a new version is released? {#upgrades}
 
 You purchased a single binary. Later versions are not included in the
 price. Consider the price of QSoas: most of the softwares that are

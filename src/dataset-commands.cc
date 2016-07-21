@@ -615,7 +615,8 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
   loop.setHelpString("Cursor:\n" +
                      cursorHandler.buildHelpString());
 
-  Terminal::out << "Point positions:\nx\ty\tindex\tx-xr\ty-yr\tx/xr\ty/yr" << endl;
+  bool first = true;
+  Terminal::out << "Point positions:" << endl;
   QString cur;
   ValueHash e;
   while(! loop.finished()) {
@@ -623,17 +624,25 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
     int action = cursorHandler.nextAction(loop);
     pick.processEvent(action);
     switch(action) {
-    case PickPoint:
+    case PickPoint: {
       m.p = pick.point();
       e.clear();
+      int idx = pick.pointIndex();
       e << "x" << m.p.x() << "y" << m.p.y()
-        << "index" << pick.pointIndex() 
+        << "index" <<  idx
         << "x-xr" << m.p.x() - r.p.x() 
         << "y-yr" << m.p.y() - r.p.y() 
         << "x/xr" << m.p.x()/r.p.x()
         << "y/yr" << m.p.y()/r.p.y();
+      for(int j = 2; j < ds->nbColumns(); j++)
+        e << QString("y%1").arg(j) << ds->column(j)[idx];
+      if(first) {
+        first = false;
+        Terminal::out << e.keyOrder.join("\t") << endl;
+      }
       Terminal::out << e.toString() << endl;
       break;
+    }
     case PickRef:
       r.p = pick.point();
       Terminal::out << "Reference:\t"  << r.p.x() << "\t" 

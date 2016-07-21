@@ -53,21 +53,59 @@ int ParametersItemModel::rowCount(const QModelIndex & parent) const
 
 int ParametersItemModel::columnCount(const QModelIndex & parent) const
 {
-  return workspace->data()->parameterDefinitions.size();
+  return workspace->data()->parameterDefinitions.size() + 2;
+}
+
+int ParametersItemModel::parameterIndex(int idx) const
+{
+  int defs = workspace->data()->parameterDefinitions.size();
+  idx--;
+  if(idx >= defs)
+    idx = defs - idx - 2;
+  return idx;
+}
+
+int ParametersItemModel::parameterIndex(const QModelIndex & idx) const
+{
+  return parameterIndex(idx.column());
 }
 
 QVariant ParametersItemModel::data(const QModelIndex & index, int role) const
 {
-  ///
+  int idx = parameterIndex(index);
+  int row = index.row();
+  // QTextStream o(stdout);
+  // o << "Info: " << idx << ", " << row << " -- " << role << endl;;
+  if(idx == -1) {
+    const QList<const DataSet * > & ds =
+      workspace->data()->datasets;
+    switch(role) {
+    case Qt::DisplayRole:
+    case Qt::EditRole:
+      /// @todo Get the dataset index in the stack
+      return ds[row]->name;
+    }
+    return QVariant();
+  }
+  if(idx == -2) {
+    switch(role) {
+    case Qt::DisplayRole:
+    case Qt::EditRole:
+      /// @todo Get the dataset index in the stack
+      if(workspace->perpendicularCoordinates.size() > row)
+        return workspace->perpendicularCoordinates[row];
+    }
+    return QVariant();
+  }
   switch(role) {
   case Qt::DisplayRole:
   case Qt::EditRole:
-    return workspace->getTextValue(index.column(), index.row());
+    return workspace->getTextValue(idx, row);
   case Qt::DecorationRole:
-    return (workspace->isFixed(index.column(), index.row()) ?
+    return (workspace->isFixed(idx, row) ?
             fixedIcon : freeIcon);
   case Qt::ForegroundRole:
-    if(workspace->isGlobal(index.column()))
+    if(workspace->isGlobal(idx))
       return QColor(128,128,128);
   }
   
@@ -80,10 +118,13 @@ bool ParametersItemModel::setData(const QModelIndex & index,
   if(role != Qt::EditRole)
     return false;
   QString s = value.toString();
-  int idx = index.column();
+  int idx = parameterIndex(index.column());
+  if(idx < 0)
+    return false;
   workspace->setValue(idx, index.row(), s);
   if(workspace->isGlobal(idx))
-    emit(dataChanged(index.sibling(0, idx), index.sibling(rowCount() - 1, idx)));
+    emit(dataChanged(index.sibling(0, index.column()),
+                     index.sibling(rowCount() - 1, index.column())));
   else
     emit(dataChanged(index, index));
   modified = true;
@@ -92,8 +133,10 @@ bool ParametersItemModel::setData(const QModelIndex & index,
 
 Qt::ItemFlags ParametersItemModel::flags(const QModelIndex & index) const
 {
-  return Qt::ItemIsSelectable|Qt::ItemIsEditable|Qt::ItemIsEnabled;
-
+  int idx = parameterIndex(index);
+  if(idx >= 0)
+    return Qt::ItemIsSelectable|Qt::ItemIsEditable|Qt::ItemIsEnabled;
+  return Qt::ItemIsEnabled;
 }
 
 QVariant ParametersItemModel::headerData(int section,
@@ -101,6 +144,11 @@ QVariant ParametersItemModel::headerData(int section,
                                          int role) const
 {
   if(orientation == Qt::Horizontal) {
+    section = parameterIndex(section);
+    if(section == -1)
+      return QVariant("Buffer");
+    if(section == -2)
+      return QVariant("Z");
     const QList<ParameterDefinition> & defs =
       workspace->data()->parameterDefinitions;
     if(section >= defs.size())
@@ -110,16 +158,9 @@ QVariant ParametersItemModel::headerData(int section,
     }
   }
   else {
-    const QList<const DataSet * > & ds =
-      workspace->data()->datasets;
-    if(section >= ds.size())
-      return QVariant();
     if(role == Qt::DisplayRole) {
-      /// @todo Get the dataset index in the stack
-      return Utils::abbreviateString(ds[section]->name, 30);
+      return QString("#%1").arg(section+1);
     }
-    if(role == Qt::ToolTipRole)
-      return ds[section]->name;
   }
   return QVariant();
 }
@@ -130,8 +171,11 @@ void ParametersItemModel::setFixed(const QList<QModelIndex> items, bool fixed)
     modified = true;
 
   for(int i = 0; i < items.size(); i++) {
-    workspace->setFixed(items[i].column(), items[i].row(), fixed);
-    emit(dataChanged(items[i], items[i]));
+    int idx = parameterIndex(items[i]);
+    if(idx >= 0) {
+      workspace->setFixed(idx, items[i].row(), fixed);
+      emit(dataChanged(items[i], items[i]));
+    }
   }
 
 }
@@ -146,8 +190,10 @@ void ParametersItemModel::resetValuesToInitialGuess(const QList<QModelIndex> ite
 
   for(int i = 0; i < items.size(); i++) {
     int ds = items[i].row();
-    int idx = items[i].column();
-    workspace->setValue(idx, ds, values[idx + nbParameters * ds]);
-    emit(dataChanged(items[i], items[i]));
+    int idx = parameterIndex(items[i]);
+    if(idx >= 0) {
+      workspace->setValue(idx, ds, values[idx + nbParameters * ds]);
+      emit(dataChanged(items[i], items[i]));
+    }
   }
 }

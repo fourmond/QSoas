@@ -40,6 +40,22 @@ class ParametersItemModel : public QAbstractTableModel {
   /// Whether some modifications have occurred
   bool modified;
 
+  /// @name Helpers for the public interface
+  ///
+  /// @{
+
+
+  /// Returns the parameter index, or a negative number if this is not
+  /// a parameter:
+  /// -1: buffer name
+  /// -2: Z values
+  int parameterIndex(int idx) const;
+
+  int parameterIndex(const QModelIndex & idx) const;
+
+
+  /// @}
+
 public:
 
   /// Constructs the model

@@ -25,6 +25,9 @@
 
 #include <utils.hh>
 
+// Seems necessary:
+#include <gsl/gsl_permute_vector_double.h>
+
 ABDMatrix::ABDMatrix(const QList<int> & sz) : sizes(sz)
 {
   diag = new gsl_matrix *[sizes.size()];
@@ -43,6 +46,8 @@ ABDMatrix::ABDMatrix(const QList<int> & sz) : sizes(sz)
       left[i-1] = gsl_matrix_alloc(s, firstSize);
     }
   }
+
+  permutation = gsl_permutation_alloc(total);
 }
 
 int ABDMatrix::totalSize() const
@@ -62,6 +67,7 @@ ABDMatrix::~ABDMatrix()
   delete[] diag;
   delete[] top;
   delete[] left;
+  gsl_permutation_free(permutation);
 }
 
 void ABDMatrix::expandToFullMatrix(gsl_matrix * tg) const
@@ -134,6 +140,58 @@ void ABDMatrix::setFromProduct(const gsl_matrix * src)
   }
 }
 
+void ABDMatrix::whereIndex(int overallIdx, int & mId, int & idx) const
+{
+  if(overallIdx >= 0) {
+    mId = 0;
+    idx = overallIdx;
+    while(mId < sizes.size()) {
+      if(idx < sizes[mId])
+        return;
+      idx -= sizes[mId];
+      mId++;
+    }
+  }
+  throw RuntimeError("Index out of bounds for ABDMatrix: %1").
+    arg(overallIdx);
+}
+
+void ABDMatrix::permuteVariables(int i, int j)
+{
+  int mi, mj, li, lj;
+  whereIndex(i, mi, li);
+  whereIndex(j, mj, lj);
+  if(mj != mi)
+    throw RuntimeError("Permutation does not keep ABDMatrix structure: %1 <-> %2").arg(i).arg(j);
+
+  // First, swap both the rows and colums of the diagonal matrix
+  gsl_matrix * m = diag[mi];
+  gsl_matrix_swap_rows(m, i, j);
+  gsl_matrix_swap_columns(m, i, j);
+
+  if(mi > 0) {
+    // Swapping the rows of the corresponding top matrices and columns
+    // of left matrices.
+    m = top[mi-1];
+    gsl_matrix_swap_columns(m, i, j);
+
+    m = left[mi-1];
+    gsl_matrix_swap_rows(m, i, j);
+  }
+  else {
+    // Swapping rows of all the top matrices and the columns of all
+    // the left matrices !
+    for(int k = 0; k < sizes.size() - 1; k++) {
+      m = left[k-1];
+      gsl_matrix_swap_columns(m, i, j);
+      
+      m = top[k-1];
+      gsl_matrix_swap_rows(m, i, j);
+    }
+  }
+  
+}
+
 void ABDMatrix::solve(gsl_vector * sol)
 {
   // To keep the structure of the matrix, we HAVE to go from the
@@ -147,12 +205,30 @@ void ABDMatrix::solve(gsl_vector * sol)
   // current diag, current left, other diag, other left
   gsl_vector_view cd, cl, od, ol;
   gsl_vector * cdv, * clv, * odv, * olv;
+
+  gsl_permutation_init(permutation);
+  
   for(int i = sizes.size() - 1; i >= 0; i--) {
     int sz = sizes[i];
     base -= sz;
     for(int j = sz-1; j >= 0; j--) {
       // @todo: swapping rows
-      double val = gsl_matrix_get(diag[i], j, j);
+      double val;
+      int k = j+1;
+      do {
+        k--;
+        val = gsl_matrix_get(diag[i], k, k);
+      } while(val == 0 && k > 0);
+      
+      if(val == 0)
+        throw RuntimeError("(most probably) singular matrix");
+      
+      if(k != j) {
+        // Permute the elements first:
+        permuteVariables(j+base, k+base);
+        gsl_vector_swap_elements (sol, j+base, k+base);
+        gsl_permutation_swap(permutation, j+base, k+base);
+      }
       cd = gsl_matrix_row(diag[i], j);
       cdv = &cd.vector;
       if(i > 0) {
@@ -162,8 +238,6 @@ void ABDMatrix::solve(gsl_vector * sol)
       else
         clv = NULL;
 
-      if(val == 0.0)
-        throw RuntimeError("Singular matrix -- or simply one needed permutations...");
       val = 1/val;
 
       // First, scale the line we're dealing with:
@@ -242,6 +316,8 @@ void ABDMatrix::solve(gsl_vector * sol)
     }
     base += sz;
   }
+
+  gsl_permute_vector_inverse(permutation, sol);  
 
 }
 

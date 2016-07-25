@@ -51,11 +51,18 @@ class ABDMatrix {
   /// The B matrices
   gsl_matrix ** left;
 
+  /// A temporary permutation for inversion.
+  gsl_permutation * permutation;
+
   /// The total size of the matrix
   int total;
 
   /// The size of the first block
   int firstSize;
+
+  /// Returns the index of the matrix and the index within the matrix
+  /// in which the given overall index lies
+  void whereIndex(int overallIdx, int & mId, int & idx) const;
 public:
   ABDMatrix(const QList<int> & sizes);
   ~ABDMatrix();
@@ -68,6 +75,12 @@ public:
 
   /// Adds the given number to the diagonal
   void addToDiagonal(double value);
+
+  /// Permutes the given variables (i.e. as in Gauss Pivot).
+  ///
+  /// Will raise an exception if the permutation leads to changing the
+  /// structure of the matrix (i.e. not within a block).
+  void permuteVariables(int i, int j);
 
   /// Sets the contents of the matrix from the product tJ times J. All
   /// the elements that don't fall on the correct place are SILENTLY

@@ -548,7 +548,7 @@ void FitDialog::compute()
     internalCompute();
     appendToMessage(" done");
   }
-  catch (const RuntimeError & re) {
+  catch (const Exception & re) {
     QString s = QString("An error occurred while computing: ") +
       re.message();
     message(s);
@@ -680,7 +680,7 @@ void FitDialog::startFit()
     appendToMessage(mention);
       
   }
-  catch (const RuntimeError & re) {
+  catch (const Exception & re) {
     cancelButton->setVisible(false);
     startButton->setVisible(true);
     // We only take back the parameters if the fit really started !
@@ -724,6 +724,7 @@ void FitDialog::startFit()
   else if(status != GSL_SUCCESS)
     trajectories.last().ending = FitTrajectory::Error;
 
+  
   emit(finishedFitting());
 }
 

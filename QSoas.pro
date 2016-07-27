@@ -285,7 +285,8 @@ SOURCES += src/qmain.cc \
         src/ruby-interface.cc \
         src/functions.cc \
         src/cachedfunction.cc \
-        src/datasetexpression.cc
+        src/datasetexpression.cc \
+        src/modifiedfit.cc
 
 
 HEADERS += src/headers.hh \

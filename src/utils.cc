@@ -728,10 +728,14 @@ double Utils::magnitude(double value, bool below)
 
 
 void Utils::skippingCopy(const double * source, double * target,
-                         int nb, const QSet<int> skipped)
+                         int nb, const QSet<int> skipped, bool skipInSource)
 {
   int j = 0;
   for(int i = 0; i < nb; i++)
-    if(! skipped.contains(i))
-      target[i] = source[j++];
+    if(! skipped.contains(i)) {
+      if(skipInSource)
+        target[j++] = source[i];
+      else
+        target[i] = source[j++];
+    }
 }

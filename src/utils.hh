@@ -152,8 +152,11 @@ namespace Utils {
   /// Copies the source to the target, skipping in the target the
   /// indices contained in the set. The total number is the one in the
   /// TARGET (i.e. the number in source + the size of skipped)
+  ///
+  /// If skipInSource is true, then the holes are in the source rather
+  /// than in the target.
   void skippingCopy(const double * source, double * target,
-                    int nb, const QSet<int> skipped);
+                    int nb, const QSet<int> skipped, bool skipInSource = false);
 
   /// Compares the two numbers, and returns true if they are "equal", meaning:
   /// @li both NaN

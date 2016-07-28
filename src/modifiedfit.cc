@@ -100,11 +100,13 @@ protected:
     };
   };
   
-  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
-    return new Storage;
+  virtual FitInternalStorage * allocateStorage(FitData * data) const override {
+    Storage * s = new Storage;
+    s->underlyingStorage = underlyingFit->allocateStorage(data);
+    return s;
   };
   
-  virtual FitInternalStorage * copyStorage(FitData * data, FitInternalStorage * source, int ds) const {
+  virtual FitInternalStorage * copyStorage(FitData * data, FitInternalStorage * source, int ds) const override {
     Storage * s = static_cast<Storage *>(source);
     Storage * ns = deepCopy<Storage>(s);
 
@@ -152,6 +154,8 @@ protected:
       s->finalParameters << ParameterDefinition(n);  
     }
 
+    s->totalSize = fullP.size();
+
     QList<int> strippedIndices;
     // OK, so far, so good.
     for(QHash<QString, QString>::const_iterator i = redefinitions.begin();
@@ -179,7 +183,7 @@ protected:
     
   }
 
-  virtual void processOptions(const CommandOptions & opts, FitData * data) const
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const override
   {
     Storage * s = storage<Storage>(data);
 
@@ -193,7 +197,61 @@ protected:
     prepareExpressions(data);
   }
 
-  virtual QString optionsString(FitData * data) const {
+  ArgumentList * fitSoftOptions() const override
+  {
+    return Fit::fitSoftOptions(underlyingFit);
+  }
+
+  ArgumentList * fitHardOptions() const override
+  {
+    return Fit::fitHardOptions(underlyingFit);
+  }
+
+  CommandOptions currentSoftOptions(FitData * data) const override
+  {
+    Storage * s = storage<Storage>(data);
+    {
+      TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                        s->underlyingStorage);
+      return Fit::currentSoftOptions(underlyingFit, data);
+    }
+  }
+
+  void processSoftOptions(const CommandOptions & opts, FitData * data) const override
+  {
+    Storage * s = storage<Storage>(data);
+    {
+      TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                        s->underlyingStorage);
+      Fit::processSoftOptions(underlyingFit, opts, data);
+    }
+  }
+
+  /// computes the parameters of the fit for the given buffer
+  void computeParameters(FitData * data, 
+                         const DataSet * ds,
+                         const double * src,
+                         double * dest) const
+  {
+    Storage * s = storage<Storage>(data);
+    double buffer[s->totalSize];
+    
+    Utils::skippingCopy(src, buffer, s->totalSize, s->skippedIndices);
+
+    // As many evaluations as formulas to ensure that all depths are
+    // resolved.
+    for(int j = 0; j < s->expressions.size(); j++) {
+      for(QHash<int, Expression *>::const_iterator i = s->expressions.begin();
+          i != s->expressions.end(); i++)
+        buffer[i.key()] = i.value()->evaluate(buffer);
+    }
+    memcpy(dest, buffer, sizeof(double) * s->originalParameters.size());
+  }
+  
+public:
+
+  virtual QString optionsString(FitData * data) const override
+  {
     Storage * s = storage<Storage>(data);
 
     QString so;
@@ -212,7 +270,131 @@ protected:
     return QString("fit: %1%2, with %3 redefined").
       arg(underlyingFit->fitName(false)).arg(so).arg(defs.join(", "));
   };
-  
-public:
+
+  virtual QList<ParameterDefinition> parameters(FitData * data) const override
+  {
+    Storage * s = storage<Storage>(data);
+    return s->finalParameters;
+  };
+
+  virtual void initialGuess(FitData * data, 
+                            const DataSet * ds,
+                            double * a) const override
+  {
+    Storage * s = storage<Storage>(data);
+    double ii[s->totalSize];
+
+    for(int i = 0; i < s->totalSize; i++)
+      ii[i] = 1;                // As good as can be
+    {
+      TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                        s->underlyingStorage);
+      underlyingFit->initialGuess(data, ds, ii);
+    }
+    Utils::skippingCopy(ii, a, s->totalSize, s->skippedIndices, true);
+  }
+
+  virtual void function(const double * parameters,
+                        FitData * data, 
+                        const DataSet * ds,
+                        gsl_vector * target) const override
+  {
+    Storage * s = storage<Storage>(data);
+    double buf[s->originalParameters.size()];
+
+    computeParameters(data, ds, parameters, buf);
+    {
+      TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                        s->underlyingStorage);
+      underlyingFit->function(buf, data, ds, target);
+    }
+  };
+
+
+  ModifiedFit(const QString & name,
+              const QStringList & newParams,
+              const QHash<QString, QString> & redefs,
+              PerDatasetFit * under) :
+  PerDatasetFit(name.toLocal8Bit(), 
+                "Modified fit",
+                "Modified fit", 1, -1, false),
+  newParameters(newParams),
+  redefinitions(redefs),
+  underlyingFit(under)
+{
+
+  ArgumentList * opts = new ArgumentList(*underlyingFit->fitHardOptions());
+  ArgumentList * o2 = underlyingFit->fitSoftOptions();
+  if(o2)
+    (*opts) += *o2;
+  makeCommands(NULL, NULL, NULL, opts);
+}
+
   
 };
+
+//////////////////////////////////////////////////////////////////////
+// Now, the command !
+
+static void modifyFit(const QString &, QString newName,
+                      QString fitN,
+                      QString extra,
+                      QStringList redefs,
+                      const CommandOptions & opts)
+{
+  
+  QList<PerDatasetFit *> fts;
+  bool overwrite  = false;
+  updateFromOptions(opts, "redefine", overwrite);
+  Fit::safelyRedefineFit(newName, overwrite);
+
+  PerDatasetFit * fit = dynamic_cast<PerDatasetFit *>(Fit::namedFit(fitN));
+  if(! fit)
+    throw RuntimeError("Cannot find fit %1").arg(fitN);
+
+  QStringList newParams = extra.split(QRegExp("\\s*,\\s*"));
+
+  QHash<QString, QString> redefinitions;
+  for(int i = 0; i < redefs.size(); i++) {
+    QStringList el = redefs[i].split(QRegExp("\\s*=\\s*"));
+    if(el.size() < 2)
+      throw RuntimeError("Argument '%1' is not a parameter redefinition").
+        arg(redefs[i]);
+    QString a = el.takeAt(0);
+    redefinitions[a] = el.join("=");
+  }
+
+  new ModifiedFit(newName, newParams, redefinitions, fit);
+}
+
+
+static ArgumentList 
+mfA(QList<Argument *>() 
+    << new StringArgument("name", "Name",
+                          "name of the new fit")
+    << new FitNameArgument("fit", "Fit",
+                           "the fit to modify")
+    << new StringArgument("new-parameters", "New parameters",
+                          "Comma-separated list of new parameters")
+    << new SeveralStringsArgument(QRegExp("\\s*#\\s*"),
+                                  "redefinitions", 
+                                  "Redefinitions",
+                                  "a list of redefinitions, separated by `#`"));
+
+
+
+static ArgumentList 
+mfO(QList<Argument *>() 
+    << new BoolArgument("redefine", 
+                        "Redefine",
+                        "If the new fit already exists, redefines it")
+    );
+
+static Command 
+mf("modify-fit",              // command name
+    effector(modifyFit),      // action
+   "fits",                     // group name
+   &mfA,                       // arguments
+   &mfO,                       // options
+   "Modify fit",
+   "Reparametrize a fit");

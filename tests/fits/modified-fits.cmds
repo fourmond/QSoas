@@ -1,0 +1,38 @@
+modify-fit ex exponential-decay t1,t2 tau_1=t1*t2 /redefine=true
+generate-buffer 0 10
+sim-ex parameters/ex-1.params 0
+apply-formula y-=10-10*exp(-x/2)
+assert '$stats["y_norm"]' 0
+
+
+generate-buffer 0 10
+generate-buffer 0 10
+generate-buffer 0 10
+
+sim-ex parameters/ex-2.params 0,1,2
+apply-formula y-=10-10*exp(-x/5)
+assert '$stats["y_norm"]' 0
+drop 0,1
+apply-formula y-=10-10*exp(-x/2)
+assert '$stats["y_norm"]' 0
+drop 0,1
+apply-formula y-=10-10*exp(-x/1)
+assert '$stats["y_norm"]' 0
+drop 0,1
+
+
+modify-fit ex exponential-decay k1 tau_1=1/k1 /redefine=true
+generate-buffer 0 10
+sim-ex parameters/ex-3.params 0
+apply-formula y-=10-10*exp(-2*x)
+assert '$stats["y_norm"]' 0
+
+sim-ex parameters/ex-3.params 0 /override=k1=10
+apply-formula y-=10-10*exp(-10*x)
+assert '$stats["y_norm"]' 0
+
+# Now getting wild !
+# define-derived-fit /mode=deriv-only ex /redefine=true
+# sim-ex parameters/ex-3.params 0
+# apply-formula y-=10-10*exp(-2*x)
+# assert '$stats["y_norm"]' 0

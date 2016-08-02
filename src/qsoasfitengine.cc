@@ -44,6 +44,13 @@ protected:
   /// Various m vectors.
   gsl_vector * fv[3];
 
+
+  /// Whether we use scaling or not.
+  bool useScaling;
+  
+  /// The scaling factors for the jacobian and the steps
+  gsl_vector * scalingFactors;
+
   /// The current evaluation of the function (ie length m)
   gsl_vector *& function;
 
@@ -54,6 +61,10 @@ protected:
   gsl_vector *& testf2;
 
   /// The m x n jacobian
+  ///
+  /// If scaling is on, this matrix is always scaled.
+  ///
+  ///  (is it ?)
   gsl_matrix * jacobian;
 
   /// Various temporary n x n matrices
@@ -129,6 +140,12 @@ protected:
   void trialStep(double l, gsl_vector * params, 
                  gsl_vector * func, double * res);
 
+  /// If \a useScaling is on, determines the scaling factor and
+  /// applies them to the jacobian.
+  ///
+  /// No-op if the \a useScaling is false.
+  void scaleJacobian();
+
 
   /// Static options
   static ArgumentList * options;
@@ -179,6 +196,9 @@ QSoasFitEngine::QSoasFitEngine(FitData * data) :
   for(size_t i = 0; i < sizeof(vectors)/sizeof(gsl_vector *); i++)
     vectors[i] = gsl_vector_alloc(n);
 
+  /// The scaling factors
+  scalingFactors = gsl_vector_alloc(n);
+
   for(size_t i = 0; i < sizeof(matrices)/sizeof(gsl_matrix *); i++)
     matrices[i] = gsl_matrix_alloc(n,n);
 
@@ -196,6 +216,8 @@ QSoasFitEngine::~QSoasFitEngine()
 
   for(size_t i = 0; i < sizeof(fv)/sizeof(gsl_vector *); i++)
     gsl_vector_free(fv[i]);
+
+  gsl_vector_free(scalingFactors);
 
   for(size_t i = 0; i < sizeof(matrices)/sizeof(gsl_matrix *); i++)
     gsl_matrix_free(matrices[i]);
@@ -219,6 +241,7 @@ void QSoasFitEngine::resetEngineParameters()
   relativeMin = 1e-3;
   residualsThreshold = 1e-5;
   maxTries = 30;
+  useScaling = false;
 }
 
 ArgumentList * QSoasFitEngine::options = NULL;
@@ -232,6 +255,7 @@ ArgumentList * QSoasFitEngine::engineOptions() const
              << new NumberArgument("end-threshold", "Threshold for ending")
              << new NumberArgument("relative-min", "Min value for relative differences")
              << new IntegerArgument("trial-steps", "Maximum number of trial steps")
+             << new BoolArgument("scaling", "Jacobian scaling")
              << new NumberArgument("residuals-threshold", "Threshold for relative changes to residuals");
   }
   return options;
@@ -246,6 +270,7 @@ CommandOptions QSoasFitEngine::getEngineParameters() const
   updateOptions(val, "end-threshold", endThreshold);
   updateOptions(val, "relative-min", relativeMin);
   updateOptions(val, "trial-steps", maxTries);
+  updateOptions(val, "scaling", useScaling);
   updateOptions(val, "residuals-threshold", residualsThreshold);
 
   return val;
@@ -259,6 +284,7 @@ void QSoasFitEngine::setEngineParameters(const CommandOptions & val)
   updateFromOptions(val, "end-threshold", endThreshold);
   updateFromOptions(val, "relative-min", relativeMin);
   updateFromOptions(val, "trial-steps", maxTries);
+  updateFromOptions(val, "scaling", useScaling);
   updateFromOptions(val, "residuals-threshold", residualsThreshold);
 }
 
@@ -267,9 +293,32 @@ const gsl_vector * QSoasFitEngine::currentParameters() const
   return parameters;
 }
 
+void QSoasFitEngine::scaleJacobian()
+{
+  if(! useScaling)
+    return;
+  for(int i = 0; i < n; i++) {
+    gsl_vector_view v = gsl_matrix_column(jacobian, i);
+    double nrm = gsl_blas_dnrm2(&v.vector);
+    if(nrm == 0)
+      nrm = 1;
+    nrm = 1/nrm;
+    gsl_vector_scale(&v.vector, nrm);
+    gsl_vector_set(scalingFactors, i, nrm);
+  }
+  if(fitData->debug > 0) {
+    // Dump the scaling factors
+    Debug::debug() << "Using scaling factors:"
+                   << Utils::vectorString(scalingFactors) << endl;
+  }
+}
+
+
+
 void QSoasFitEngine::recomputeJacobian()
 {
   fitData->fdf(parameters, function, jacobian);
+  scaleJacobian();              // Do scaling all the times
   gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1, 
                  jacobian, jacobian, 0, jTj);
   double cur_squares = 0;
@@ -287,6 +336,17 @@ void QSoasFitEngine::computeCovarianceMatrix(gsl_matrix * target) const
   //                jacobian, jacobian, 0, jTj);
 
   gsl_matrix_memcpy(cur, jTj);
+
+  // Unscale if applicable
+  if(useScaling) {
+    for(int i = 0; i < n; i++) {
+      double sf = 1/gsl_vector_get(scalingFactors, i);
+      gsl_vector_view v = gsl_matrix_column(cur, i);
+      gsl_vector_scale(&v.vector, sf);
+      v = gsl_matrix_row(cur, i);
+      gsl_vector_scale(&v.vector, sf);
+    }
+  }
 
   // Tolerance of 1e-7 for the singular values.
   Utils::invertMatrix(cur, target, 1e-14);
@@ -309,6 +369,10 @@ void QSoasFitEngine::trialStep(double l, gsl_vector * params,
   // First compute the delta^r:
   gsl_linalg_LU_solve(cur, perm, gradient, deltap);
 
+  // Now, scale the result
+  if(useScaling)
+    gsl_vector_mul(deltap, scalingFactors);
+      
   if(fitData->debug > 0) {
     // Dump the jTj matrix:
     Debug::debug()  << "Trial step at lambda = " << l
@@ -343,6 +407,10 @@ int QSoasFitEngine::iterate()
   /// @todo It is crucial that the derivatives are computed correctly !
   ///
   fitData->fdf(parameters, function, jacobian);
+  scaleJacobian();
+
+  /// If scaling is on, all the following applies to the scaled
+  /// jacobian.
 
   double cur_squares = 0;
   gsl_blas_ddot(function, function, &cur_squares);

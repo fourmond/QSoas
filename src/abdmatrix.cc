@@ -182,10 +182,10 @@ void ABDMatrix::permuteVariables(int i, int j)
     // Swapping rows of all the top matrices and the columns of all
     // the left matrices !
     for(int k = 0; k < sizes.size() - 1; k++) {
-      m = left[k-1];
+      m = left[k];
       gsl_matrix_swap_columns(m, i, j);
       
-      m = top[k-1];
+      m = top[k];
       gsl_matrix_swap_rows(m, i, j);
     }
   }

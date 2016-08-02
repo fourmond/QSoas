@@ -1142,6 +1142,25 @@ void FitWorkspace::computeAndPushJacobian()
   fitData->f(&v.vector, cl, false);
   fitData->df(&v.vector, mt);
 
+  // Write out the name of the parameters:
+  QList<const FitParameter *> ps;
+  for(int i = 0; i < fitData->freeParameters(); i++)
+    ps << NULL;
+  
+  for(int i = 0; i < fitData->parameters.size(); i++) {
+    const FitParameter * fp = fitData->parameters[i];
+    if(fp->fitIndex >= 0)
+      ps[fp->fitIndex] = fp;
+  }
+
+  for(int i = 0; i < ps.size(); i++) {
+    const FitParameter * fp = ps[i];
+    QString n = fitData->parameterDefinitions[fp->paramIndex].name;
+    if(fp->dsIndex >= 0)
+      n += QString("[#%1]").arg(fp->dsIndex);
+    Terminal::out << "#" << i << " (y" << i+2 << ") - " << n << endl;
+  }
+    
   int nbds = fitData->datasets.size();
   for(int i = 0; i < nbds; i++) {
     QList<Vector> cols;

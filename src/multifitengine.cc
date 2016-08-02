@@ -55,6 +55,13 @@ protected:
   /// Various m vectors.
   gsl_vector * fv[3];
 
+  /// Whether we use scaling or not.
+  bool useScaling;
+  
+  /// The scaling factors for the jacobian and the steps
+  gsl_vector * scalingFactors;
+
+
   /// The current evaluation of the function (ie length m)
   gsl_vector *& function;
 
@@ -135,6 +142,13 @@ protected:
                  gsl_vector * func, double * res);
 
 
+  /// If \a useScaling is on, determines the scaling factor and
+  /// applies them to the jacobian.
+  ///
+  /// No-op if the \a useScaling is false.
+  void scaleJacobian();
+
+
   /// Static options
   static ArgumentList * options;
 
@@ -184,6 +198,9 @@ MultiFitEngine::MultiFitEngine(FitData * data) :
   for(size_t i = 0; i < sizeof(matrices)/sizeof(gsl_matrix *); i++)
     matrices[i] = gsl_matrix_alloc(n,n);
 
+  /// The scaling factors
+  scalingFactors = gsl_vector_alloc(n);
+
   QList<int> sizes;
   for(int i = -1; i < fitData->datasets.size(); i++) {
     int sz = fitData->parametersByDataset[i].size();
@@ -223,6 +240,7 @@ void MultiFitEngine::resetEngineParameters()
   relativeMin = 1e-3;
   residualsThreshold = 1e-5;
   maxTries = 30;
+  useScaling = false;
 }
 
 ArgumentList * MultiFitEngine::options = NULL;
@@ -236,6 +254,7 @@ ArgumentList * MultiFitEngine::engineOptions() const
              << new NumberArgument("end-threshold", "Threshold for ending")
              << new NumberArgument("relative-min", "Min value for relative differences")
              << new IntegerArgument("trial-steps", "Maximum number of trial steps")
+             << new BoolArgument("scaling", "Jacobian scaling")
              << new NumberArgument("residuals-threshold", "Threshold for relative changes to residuals");
   }
   return options;
@@ -249,6 +268,7 @@ CommandOptions MultiFitEngine::getEngineParameters() const
   updateOptions(val, "end-threshold", endThreshold);
   updateOptions(val, "relative-min", relativeMin);
   updateOptions(val, "trial-steps", maxTries);
+  updateOptions(val, "scaling", useScaling);
   updateOptions(val, "residuals-threshold", residualsThreshold);
 
   return val;
@@ -261,6 +281,7 @@ void MultiFitEngine::setEngineParameters(const CommandOptions & val)
   updateFromOptions(val, "end-threshold", endThreshold);
   updateFromOptions(val, "relative-min", relativeMin);
   updateFromOptions(val, "trial-steps", maxTries);
+  updateFromOptions(val, "scaling", useScaling);
   updateFromOptions(val, "residuals-threshold", residualsThreshold);
 }
 
@@ -278,9 +299,31 @@ const gsl_vector * MultiFitEngine::currentParameters() const
   return parameters;
 }
 
+void MultiFitEngine::scaleJacobian()
+{
+  if(! useScaling)
+    return;
+  for(int i = 0; i < n; i++) {
+    gsl_vector_view v = gsl_matrix_column(jacobian, i);
+    double nrm = gsl_blas_dnrm2(&v.vector);
+    if(nrm == 0)
+      nrm = 1;
+    nrm = 1/nrm;
+    gsl_vector_scale(&v.vector, nrm);
+    gsl_vector_set(scalingFactors, i, nrm);
+  }
+  if(fitData->debug > 0) {
+    // Dump the scaling factors
+    Debug::debug() << "Using scaling factors:"
+                   << Utils::vectorString(scalingFactors) << endl;
+  }
+}
+
 void MultiFitEngine::recomputeJacobian()
 {
   fitData->fdf(parameters, function, jacobian);
+  scaleJacobian();              // Do scaling all the times
+
   jTj->setFromProduct(jacobian);
 
   double cur_squares = 0;
@@ -301,8 +344,18 @@ void MultiFitEngine::computeCovarianceMatrix(gsl_matrix * target) const
 
   jTj->invert(target);
 
-  // // Tolerance of 1e-7 for the singular values.
-  // Utils::invertMatrix(matrices[0], target, 1e-7);
+  // Unscale if applicable (after inversion)
+  if(useScaling) {
+    for(int i = 0; i < n; i++) {
+      double sf = gsl_vector_get(scalingFactors, i);
+      gsl_vector_view v = gsl_matrix_column(target, i);
+      gsl_vector_scale(&v.vector, sf);
+      v = gsl_matrix_row(target, i);
+      gsl_vector_scale(&v.vector, sf);
+    }
+  }
+
+
 }
 
 void MultiFitEngine::trialStep(double l, gsl_vector * params, 
@@ -313,6 +366,11 @@ void MultiFitEngine::trialStep(double l, gsl_vector * params,
 
   gsl_vector_memcpy(deltap, gradient);
   cur->solve(deltap);
+
+  // Now, scale the result
+  if(useScaling)
+    gsl_vector_mul(deltap, scalingFactors);
+
 
   if(fitData->debug > 0) {
     // Dump the jTj matrix:
@@ -349,6 +407,7 @@ int MultiFitEngine::iterate()
   /// @todo It is crucial that the derivatives are computed correctly !
   ///
   fitData->fdf(parameters, function, jacobian);
+  scaleJacobian();
 
   double cur_squares = 0;
   gsl_blas_ddot(function, function, &cur_squares);

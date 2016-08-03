@@ -53,6 +53,9 @@ protected:
   /// A hash old parameter -> formula
   QHash<QString, QString> redefinitions;
 
+  /// A list of extra conditions
+  QStringList conditions;
+
   /// The underlying fit
   PerDatasetFit * underlyingFit;
 
@@ -71,6 +74,9 @@ protected:
     /// The expressions, indexed on the full parameters list.
     QHash<int, Expression *> expressions;
 
+    /// The conditions
+    QList<Expression *> conditions;
+
     /// Storage for the underlying fit
     FitInternalStorage * underlyingStorage;
 
@@ -81,6 +87,9 @@ protected:
     {
       for(QHash<int, Expression *>::iterator i = expressions.begin(); i != expressions.end(); i++)
         delete i.value();
+
+      for(int i = 0; i < conditions.size(); i++)
+        delete conditions[i];
       delete underlyingStorage;
     };
 
@@ -97,6 +106,8 @@ protected:
           i != o.expressions.end(); i++) {
         expressions[i.key()] = new Expression(*i.value());
       }
+      for(int i = 0; i < o.conditions.size(); i++)
+        conditions << new Expression(*o.conditions[i]);
     };
   };
   
@@ -176,6 +187,13 @@ protected:
       s->expressions[idx] = new Expression(nex, varNames);
     }
 
+    // Now prepare the condition expressions
+    for(int i = 0; i < conditions.size(); i++) {
+      QStringList varNames = fullP;
+      QString nex = Expression::rubyIzeExpression(conditions[i], varNames);
+      s->conditions << new Expression(nex, varNames);
+    }
+
     // Now, prepare the parameters list
     qSort(strippedIndices);
     for(int i = strippedIndices.size() - 1; i >= 0; i--)
@@ -231,7 +249,7 @@ protected:
   void computeParameters(FitData * data, 
                          const DataSet * ds,
                          const double * src,
-                         double * dest) const
+                         double * dest, bool skipChecks = false) const
   {
     Storage * s = storage<Storage>(data);
     double buffer[s->totalSize];
@@ -246,6 +264,15 @@ protected:
         buffer[i.key()] = i.value()->evaluate(buffer);
     }
     memcpy(dest, buffer, sizeof(double) * s->originalParameters.size());
+
+    // Now, run the checks
+    if(! skipChecks)
+      for(int i = 0; i < s->conditions.size(); i++) {
+        if(! s->conditions[i]->evaluateAsBoolean(buffer))
+          throw RangeError("Condition #%1 -- %2 is not fulfilled").
+            arg(i).arg(conditions[i]);
+      }
+
   }
   
 public:
@@ -303,6 +330,7 @@ public:
     double buf[s->originalParameters.size()];
 
     computeParameters(data, ds, parameters, buf);
+    
     {
       TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
                                                         s->underlyingStorage);
@@ -314,13 +342,14 @@ public:
   ModifiedFit(const QString & name,
               const QStringList & newParams,
               const QHash<QString, QString> & redefs,
-              PerDatasetFit * under) :
+              PerDatasetFit * under, const QStringList & conds) :
   PerDatasetFit(name.toLocal8Bit(), 
                 "Modified fit",
                 "Modified fit", 1, -1, false),
   newParameters(newParams),
   redefinitions(redefs),
-  underlyingFit(under)
+  underlyingFit(under),
+  conditions(conds)
 {
 
   ArgumentList * opts = new ArgumentList(*underlyingFit->fitHardOptions());
@@ -348,6 +377,9 @@ static void modifyFit(const QString &, QString newName,
   updateFromOptions(opts, "redefine", overwrite);
   Fit::safelyRedefineFit(newName, overwrite);
 
+  QStringList  conds;
+  updateFromOptions(opts, "conditions", conds);
+
   PerDatasetFit * fit = dynamic_cast<PerDatasetFit *>(Fit::namedFit(fitN));
   if(! fit)
     throw RuntimeError("Cannot find fit %1").arg(fitN);
@@ -364,7 +396,7 @@ static void modifyFit(const QString &, QString newName,
     redefinitions[a] = el.join("=");
   }
 
-  new ModifiedFit(newName, newParams, redefinitions, fit);
+  new ModifiedFit(newName, newParams, redefinitions, fit, conds);
 }
 
 
@@ -388,6 +420,9 @@ mfO(QList<Argument *>()
     << new BoolArgument("redefine", 
                         "Redefine",
                         "If the new fit already exists, redefines it")
+    << new SeveralStringsArgument("conditions", 
+                                  "Conditions",
+                                  "Additional conditions that must be fullfilled by the parameters (Ruby code)")
     );
 
 static Command 

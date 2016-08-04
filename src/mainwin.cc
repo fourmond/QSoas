@@ -361,10 +361,12 @@ void MainWin::menuActionTriggered(QAction * action)
 
 void MainWin::updateWindowName()
 {
-  setWindowTitle(QString("QSoas: %1 (%2 buffers, %3 kB)").
+  setWindowTitle(QString("QSoas (%4): %1 (%2 buffers, %3 kB)").
                  arg(QDir::currentPath()).
                  arg(soasInstance->stack().totalSize()).
-                 arg(soasInstance->stack().byteSize() >> 10));
+                 arg(soasInstance->stack().byteSize() >> 10).
+                 arg(SOAS_VERSION)
+                 );
 }
 
 

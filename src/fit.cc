@@ -197,35 +197,43 @@ void Fit::makeCommands(ArgumentList * args,
     fal = new ArgumentList(*args);
 
   ArgumentList * options;
+  ArgumentList * baseOptions;
   if(! originalOptions) {
-    originalOptions = new ArgumentList;
+    baseOptions = new ArgumentList;
     ArgumentList * tmp = fitHardOptions();
     if(tmp)
-      (*originalOptions) << *tmp;
+      (*baseOptions) << *tmp;
     tmp = fitSoftOptions();
     if(tmp)
-      (*originalOptions) << *tmp;
-    *originalOptions << new IntegerArgument("debug", 
-                                  "Debug level",
-                                  "Debug level: 0 means no debug output, increasing values mean increasing details");
-    if(false/* threadSafe()*/)
-      *originalOptions << new IntegerArgument("threads", 
-                                              "Threads",
-                                              "Number of threads for computing the jacobian");
-
-    *originalOptions << new FactoryArgument<FitEngineFactoryItem>
-      ("engine", 
-       "Fit engine",
-       "The startup fit engine");
-
-    options = new ArgumentList(*originalOptions);
+      (*baseOptions) << *tmp;
   }
   else 
-    options = new ArgumentList(*originalOptions);
+    baseOptions = new ArgumentList(*originalOptions);
 
-  *options << new StringArgument("extra-parameters", 
+  
+
+  // Bits common to all commands
+  *baseOptions << new IntegerArgument("debug", 
+                                          "Debug level",
+                                  "Debug level: 0 means no debug output, increasing values mean increasing details");
+  if(false/* threadSafe()*/)
+    *baseOptions << new IntegerArgument("threads", 
+                                    "Threads",
+                                    "Number of threads for computing the jacobian");
+  
+  *baseOptions << new FactoryArgument<FitEngineFactoryItem>
+    ("engine", 
+     "Fit engine",
+     "The startup fit engine");
+
+
+  *baseOptions << new StringArgument("extra-parameters", 
                                  "Extra parameters",
                                  "defines supplementary parameters");
+
+  /// Now things specific to some commands
+  options = new ArgumentList(*baseOptions);
+
 
   *options << new FileArgument("parameters", 
                                "Parameters",
@@ -299,18 +307,13 @@ void Fit::makeCommands(ArgumentList * args,
                                  "file to load parameters from"));
     al2->setArgumentDescription("datasets", "the buffers whose X values will be used for simulations");
 
-    ArgumentList * nopts = 
-      (originalOptions ? new ArgumentList(*originalOptions) : 
-       new ArgumentList());
+    ArgumentList * nopts = new ArgumentList(*baseOptions);
 
 
     *nopts << new StringArgument("override",
                                  "Override parameters",
                                  "a comma-separated list of parameters "
                                  "to override")
-           << new StringArgument("extra-parameters", 
-                                 "Extra parameters",
-                                 "defines supplementary parameters")
            << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                          "flags", 
                                          "Flags",

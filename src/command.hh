@@ -29,13 +29,7 @@ class Group;
 class CommandEffector;
 class ArgumentList;
 
-/// An abstract class representing a command. All commands will be
-/// instances of children of this class, either instances of generic
-/// classes or derived classes written explicitly.
-///
-/// @todo Maybe there should be a way to enable/disable the actions,
-/// using proper virtual functions ? The question is: when should
-/// their status be requested again ?
+/// The class representing a command.
 class Command {
 protected:
 
@@ -149,7 +143,7 @@ public:
   /// \warning If you reimplement this function, you should set the
   /// the autoRegister parameter to false and do the registration
   /// yourself.
-  virtual QString commandName() const {
+  /*virtual*/ QString commandName() const {
     return cmdName;
   };
 
@@ -160,7 +154,7 @@ public:
   /// \warning If you reimplement this function, you should set the
   /// the autoRegister parameter to false and do the registration
   /// yourself.
-  virtual QString shortCommandName() const {
+  /*virtual*/ QString shortCommandName() const {
     return shortCmdName;
   };
 
@@ -168,18 +162,18 @@ public:
   /// The public name, the one to be used in the menus. This one gets
   /// translated, which means that one should use QT_TRANSLATE_NOOP
   /// macro for setting it.
-  virtual QString publicName() const {
+  /*virtual*/ QString publicName() const {
     return pubName;
   };
 
   /// A short description, typically to be used for the status bar.
-  virtual QString shortDescription() const {
+  /*virtual*/ QString shortDescription() const {
     return shortDesc;
   };
 
   /// A long informative description, such as a full help text,
   /// possibly with examples too.
-  virtual QString longDescription() const {
+  /*virtual*/ QString longDescription() const {
     return longDesc;
   };
 
@@ -205,12 +199,12 @@ public:
   ///
   /// This function possibly can prompt for missing arguments, if base
   /// isn't NULL.
-  virtual void runCommand(const QString & commandName, 
+  /*virtual*/ void runCommand(const QString & commandName, 
                           const QStringList & arguments,
                           QWidget * base = NULL);
 
   /// Runs the command with parsed arguments and options
-  virtual void runCommand(const QString & commandName,
+  /*virtual*/ void runCommand(const QString & commandName,
                           const CommandArguments & arguments,
                           const CommandOptions & options);
 
@@ -223,7 +217,7 @@ public:
   void runCommand(int nb, RUBY_VALUE * args);
 
   /// Returns an action for this Command parented by the given parent.
-  virtual QAction * actionForCommand(QObject * parent) const;
+  /*virtual*/ QAction * actionForCommand(QObject * parent) const;
 
   /// This function takes a list of word-splitted command-line
   /// arguments, and splits them into arguments and options,

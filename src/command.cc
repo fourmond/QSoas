@@ -575,7 +575,7 @@ bool Command::isInteractive() const
   return effector->isInteractive();
 }
 
-QString Command::commandSpec() const
+QString Command::commandSpec(bool full) const
 {
   QString ret;
   ret = cmdName;
@@ -597,7 +597,10 @@ QString Command::commandSpec() const
     for(int i = 0; i < arguments->size(); i++) {
       Argument * arg = (*arguments)[i];
       ret += " - " + arg->argumentName() + 
-        (arg->greedy ? "..." : "") + "\n";
+        (arg->greedy ? "..." : "");
+      if(full)
+        ret += " (" + arg->typeName() + ")"; 
+      ret += "\n";
     }
   if(options) {
     QStringList an = options->argumentNames();
@@ -605,7 +608,10 @@ QString Command::commandSpec() const
     for(int i = 0; i < an.size(); i++) {
       Argument * arg = options->namedArgument(an[i]);
       ret += " - /" + arg->argumentName() + 
-        (arg->defaultOption ? "*" : "") + "\n";
+        (arg->defaultOption ? "*" : "");
+      if(full)
+        ret += " (" + arg->typeName() + ")"; 
+      ret += "\n";
     }
   }
   return ret;
@@ -624,13 +630,13 @@ static bool cmpCommands(const Command * a, const Command * b)
   return a->commandName() < b->commandName();
 }
 
-void Command::writeSpecFile(QTextStream & out)
+void Command::writeSpecFile(QTextStream & out, bool full)
 {
   QList<Command *> lst = uniqueCommands().toList();
   qSort(lst.begin(), lst.end(), ::cmpCommands);
 
   for(int i = 0; i < lst.size(); i++)
-    out << lst[i]->commandSpec();
+    out << lst[i]->commandSpec(full);
 
 }
 

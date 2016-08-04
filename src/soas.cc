@@ -91,10 +91,10 @@ void Soas::pushDataSet(DataSet * d, bool silent)
   return ds->pushDataSet(d, silent);
 }
 
-void Soas::writeSpecFile(QTextStream & out)
+void Soas::writeSpecFile(QTextStream & out, bool full)
 {
   out << "Commands:" << endl;
-  Command::writeSpecFile(out);
+  Command::writeSpecFile(out, full);
 
   out << "Functions:" << endl;
   out << " - " << GSLFunction::availableFunctions().join("\n - ") << endl;
@@ -144,7 +144,15 @@ void Soas::writeSpecFile(QTextStream & out)
 CommandLineOption sp("--spec", [](const QStringList & /*args*/) {
     {
       QTextStream o(stdout);
-      Soas::writeSpecFile(o);
+      Soas::writeSpecFile(o, false);
     }
     ::exit(0);
   }, 0, "write command specs");
+
+CommandLineOption fsp("--full-spec", [](const QStringList & /*args*/) {
+    {
+      QTextStream o(stdout);
+      Soas::writeSpecFile(o, true);
+    }
+    ::exit(0);
+  }, 0, "write command specs, with more details");

@@ -317,11 +317,11 @@ public:
   /// arguments and options and if it is interactive or not, in a
   /// specification-like fashion (ie, things that can be
   /// compared). Not for use for a help string. Should be \b stable.
-  QString commandSpec() const;
+  QString commandSpec(bool full) const;
 
   /// Writes out a specification for all commands, in the alphabetic
   /// order.
-  static void writeSpecFile(QTextStream & out);
+  static void writeSpecFile(QTextStream & out, bool full);
 
 
   /// Unregisters a given command. This does not delete it.

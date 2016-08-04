@@ -215,6 +215,7 @@ long rbw_array_length(RUBY_VALUE ary)
 
 void ruby_wrappers_init()
 {
+  RUBY_INIT_STACK;
   ruby_init();
 }
 

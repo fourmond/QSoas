@@ -46,6 +46,14 @@ private:
 
   void setupFrame();
 
+  QList<QAction *> contextActions;
+
+  void addCMAction(const QString & name, QObject * receiver, 
+                 const char * slot, 
+                 const QKeySequence & shortCut = QKeySequence());
+
+
+
 public:
   ParametersSpreadsheet(FitWorkspace * params);
   ~ParametersSpreadsheet();
@@ -63,6 +71,18 @@ protected slots:
   /// Spawns a local editor for the closest? item and use the
   /// resulting to set 
   void editSelected();
+
+  /// Propagates the values of the parameters at the top down
+  void propagateDown();
+
+  /// Fix selected parameters
+  void fixParameters(bool fix = true);
+
+  /// Unfix parameters
+  void unfixParameters();
+
+  /// Reset parameter values to initial guess
+  void resetParameters();
 
 };
 

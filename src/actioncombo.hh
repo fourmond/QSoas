@@ -41,6 +41,8 @@ public:
 
   /// A helper function that creates actions. Used by ActionCombo, but
   /// can be used by others too...
+  ///
+  /// @todo Should this function make its way into Utils ?
   static QAction * createAction(const QString & name, 
                                 QObject * receiver, 
                                 const char * slot, 

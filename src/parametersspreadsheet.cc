@@ -24,6 +24,9 @@
 #include <fitworkspace.hh>
 #include <parametersitemmodel.hh>
 
+// For the static function
+#include <actioncombo.hh>
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -41,6 +44,20 @@ ParametersSpreadsheet::~ParametersSpreadsheet()
 {
   spreadsheetSize = size();
   delete model;
+}
+
+void ParametersSpreadsheet::addCMAction(const QString & name,
+                                        QObject * receiver, 
+                                        const char * slot,
+                                        const QKeySequence & shortCut)
+{
+  QString str = name;
+  if(! shortCut.isEmpty())
+    str += "   (" + shortCut.toString() + ")";
+  QAction * ac = ActionCombo::createAction(name, receiver,
+                                           slot, shortCut, this);
+  contextActions << ac;
+  QWidget::addAction(ac);
 }
 
 
@@ -74,12 +91,24 @@ void ParametersSpreadsheet::setupFrame()
   bt = new QPushButton("Close");
   bl->addWidget(bt);
   connect(bt, SIGNAL(clicked()), SLOT(accept()));
+
+
+  addCMAction("Fix parameters", this, SLOT(fixParameters()),
+              QKeySequence(QString("Ctrl+F")));
+  addCMAction("Unfix parameters", this, SLOT(unfixParameters()),
+              QKeySequence(QString("Ctrl+Shift+F")));
+  addCMAction("Set parameters", this, SLOT(editSelected()),
+              QKeySequence(QString("Ctrl+E")));
+  addCMAction("Propagate parameters", this, SLOT(propagateDown()),
+              QKeySequence(QString("Ctrl+P")));
+  addCMAction("Reset to initial guess", this, SLOT(resetParameters()));
 }
 
 bool ParametersSpreadsheet::dataChanged() const
 {
   return model->dataChanged();
 }
+
 
 
 void ParametersSpreadsheet::spawnContextMenu(const QPoint & pos)
@@ -92,29 +121,12 @@ void ParametersSpreadsheet::spawnContextMenu(const QPoint & pos)
     Noop
   } En;
   QMenu menu;
-  QHash<QAction *, int> actions;
-  actions[menu.addAction("Fix parameters")] = FixSelected;
-  actions[menu.addAction("Unfix parameters")] = UnfixSelected;
-  actions[menu.addAction("Set parameters")] = EditSelected;
-  actions[menu.addAction("Reset to initial guess")] = ResetToInitialGuess;
+  for(int i = 0; i < contextActions.size(); i++)
+    menu.addAction(contextActions[i]);
 
-  int ac = actions.value(menu.exec(view->viewport()->mapToGlobal(pos)), Noop);
-  switch(ac) {
-  case FixSelected:
-  case UnfixSelected:
-    model->setFixed(view->selectionModel()->selectedIndexes(),
-                    ac == FixSelected);
-    break;
-  case ResetToInitialGuess:
-    model->resetValuesToInitialGuess(view->selectionModel()->selectedIndexes());
-    break;
-  case EditSelected:
-    editSelected();
-    break;
-  case Noop:
-  default:
-    break;
-  }
+  QAction * ac = menu.exec(view->viewport()->mapToGlobal(pos));
+  if(ac)
+    ac->trigger();
 }
 
 void ParametersSpreadsheet::editSelected()
@@ -131,4 +143,51 @@ void ParametersSpreadsheet::editSelected()
       }
     }
   }
+}
+
+static bool lower(const QModelIndex & a, const QModelIndex & b)
+{
+  if(a.column() < b.column())
+    return true;
+  if(a.column() > b.column())
+    return false;
+  return a.row() < b.row();
+}
+
+
+void ParametersSpreadsheet::propagateDown()
+{
+  QModelIndexList indexes = view->selectionModel()->selectedIndexes();
+
+  // We first sort, and then we just have to propagate the values
+  qSort(indexes.begin(), indexes.end(), &::lower);
+
+  int curCol = -1;
+  QVariant curVal;
+
+  for(int i = 0; i < indexes.size(); i++) {
+    int col = indexes[i].column();
+    if(col != curCol) {
+      curVal = model->data(indexes[i], Qt::DisplayRole);
+      curCol = col;
+    }
+    else 
+      model->setData(indexes[i], curVal,  Qt::EditRole);
+  }
+}
+
+void ParametersSpreadsheet::fixParameters(bool fix)
+{
+    model->setFixed(view->selectionModel()->selectedIndexes(),
+                    fix);
+}
+
+void ParametersSpreadsheet::unfixParameters()
+{
+  fixParameters(false);
+}
+
+void ParametersSpreadsheet::resetParameters()
+{
+  model->resetValuesToInitialGuess(view->selectionModel()->selectedIndexes());
 }

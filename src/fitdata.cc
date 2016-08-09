@@ -607,6 +607,7 @@ int FitData::df(const gsl_vector * x, SparseJacobian * df)
     dumpString(QString("Entering f computation -- local storage 0x%1").
                arg((long)getStorage(), 0, 16));
 
+  volatile bool & exc = soas().throwFitExcept;
   
   // First, compute the common value, and store it in... the storage
   // place.
@@ -619,8 +620,18 @@ int FitData::df(const gsl_vector * x, SparseJacobian * df)
     workersQueue->waitForJobsDone();
   }
   else {
-    for(int i = 0; i < parametersByDefinition.size(); i++)
+    for(int i = 0; i < parametersByDefinition.size(); i++) {
+      if(exc) {
+        exc = false;
+        throw RuntimeError("Exception raised manually");
+      }
       deriveParameter(i, x, df, storage);
+    }
+  }
+
+  if(exc) {
+    exc = false;
+    throw RuntimeError("Exception raised manually");
   }
 
   

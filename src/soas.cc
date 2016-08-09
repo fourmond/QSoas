@@ -64,7 +64,7 @@ Soas * Soas::theSoasInstance = NULL;
 static SettingsValue<double> temperature("soas/temperature", 298);
 
 Soas::Soas() : 
-  mw(NULL), shouldStopFit(false)
+  mw(NULL), shouldStopFit(false), throwFitExcept(false)
 {
   startup = QDateTime::currentDateTime();
   theSoasInstance = this;

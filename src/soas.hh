@@ -120,6 +120,9 @@ public:
   /// If the flag is on, the fit engine should stop.
   bool shouldStopFit;
 
+
+  /// Raise exception during fit jacobian computation
+  bool throwFitExcept;
   /// @}
 
   /// Write overall specs

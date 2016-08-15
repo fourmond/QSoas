@@ -1,7 +1,7 @@
 /**
    \file statistics.hh
    The Statistics class, providing statistics (hey, that's true !)
-   Copyright 2013 by CNRS/AMU
+   Copyright 2013, 2016 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -25,6 +25,43 @@
 #include <valuehash.hh>
 
 class DataSet;
+
+/// One or several statistics values applying to one buffer.
+/// 
+class StatisticsValue {
+protected:
+  static QList<StatisticsValue *> * allStats;
+
+  void registerSelf();
+
+  friend class Statistics;
+public:
+
+  StatisticsValue();
+  
+  virtual ~StatisticsValue() {
+  };
+  /// Whether the statistics are available for the given dataset and column.
+  ///
+  /// The column is ignored for global stats.
+  virtual bool available(const DataSet * ds, int col) const = 0;
+
+  /// Whether the stat is global or pertaining to a column.
+  virtual bool global() const = 0;
+
+  /// The suffixes of the stats, or the name of the stats for global
+  /// stats.
+  virtual QStringList suffixes() const = 0; 
+
+  /// Returns the statistics for the given column, in the order in
+  /// which they are returned in the suffixes() function.
+  virtual QList<QVariant> values(const DataSet * ds, int col) const = 0;
+
+  /// Returns all the statistics available for the given dataset.
+  ///
+  /// @warning Not necessarily in the same order as 
+  static QStringList statsAvailable(const DataSet * ds);
+};
 
 /// Provides various statistics about a dataset.
 class Statistics {

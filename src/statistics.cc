@@ -21,6 +21,92 @@
 
 #include <dataset.hh>
 
+// First, implementation of the StatisticsValue class and subclasses.
+
+QList<StatisticsValue *> * StatisticsValue::allStats = NULL;
+
+void StatisticsValue::registerSelf()
+{
+  if(! allStats)
+    allStats = new QList<StatisticsValue *>;
+  *allStats << this;
+}
+
+QStringList StatisticsValue::statsAvailable(const DataSet * ds)
+{
+  QStringList ret;
+  if(! allStats)
+    return ret;
+  QStringList colnames = ds->columnNames();
+  for(int i = 0; i < allStats->size(); i++) {
+    const StatisticsValue * s = allStats->value(i);
+    if(s->global() && s->available(ds, -1))
+      ret += s->suffixes();
+    else {
+      QStringList cls = colnames;
+      for(int i = cls.size()-1; i >= 0; i--) {
+        if(! s->available(ds, i))
+          cls.takeAt(i);
+      }
+      QStringList vrs = s->suffixes();
+      for(int j = 0; j < cls.size(); j++) {
+        for(int k = 0; k < vrs.size(); k++)
+          ret << QString("%1_%2").arg(cls[j]).arg(vrs[k]);
+      }
+    }
+  }
+  return ret;
+}
+
+//////////////////////////////////////////////////////////////////////
+
+/// A class representing a single stat, with a lambda
+class SingleLambdaStat : public StatisticsValue {
+protected:
+  /// The name
+  QString name;
+
+  /// Global
+  bool isGlobal;
+
+  /// Whether it needs an X column (i.e. only for Y columns)
+  bool needX;
+
+  typedef std::function<QVariant (const DataSet *, int) > Lambda;
+
+  Lambda function;
+  
+public:
+  SingleLambdaStat(const QString & n,
+                   bool glb, bool nx, Lambda fn) :
+    name(n), isGlobal(glb), needX(nx), function(fn)
+  {
+  }
+
+  virtual bool available(const DataSet * /*ds*/, int col) const override {
+    return isGlobal || col > 0 || (col == 0 && (!needX));
+  };
+
+  virtual QStringList suffixes() const override {
+    QStringList re;
+    re << name;
+    return re;
+  };
+
+  virtual bool global() const override {
+    return isGlobal;
+  };
+
+  virtual QList<QVariant> values(const DataSet * ds, int col) const override {
+    QList<QVariant> var;
+    var << function(ds, col);
+    return var;
+  };
+};
+
+
+//////////////////////////////////////////////////////////////////////
+
 Statistics::Statistics(const DataSet * ds) : source(ds)
 {
 }

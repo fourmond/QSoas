@@ -115,6 +115,11 @@ public:
   /// \endcode
   ValueHash& operator <<(const QVariant & var);
 
+
+  /// Adds several keys and values to the hash, keeping the order in
+  /// keys.
+  void multiAdd(const QStringList & keys, const QList<QVariant> & values);
+
   /// Merges another ValueHash in this one, while keeping the current
   /// order of the keys and appending the new ones.
   ///

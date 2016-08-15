@@ -25,6 +25,11 @@
 
 QList<StatisticsValue *> * StatisticsValue::allStats = NULL;
 
+StatisticsValue::StatisticsValue()
+{
+  registerSelf();
+}
+
 void StatisticsValue::registerSelf()
 {
   if(! allStats)
@@ -55,6 +60,15 @@ QStringList StatisticsValue::statsAvailable(const DataSet * ds)
       }
     }
   }
+  return ret;
+}
+
+QStringList StatisticsValue::allSuffixes()
+{
+  QStringList ret;
+  if(allStats)
+    for(int i = 0; i < allStats->size(); i++)
+      ret += allStats->value(i)->suffixes();
   return ret;
 }
 
@@ -104,6 +118,145 @@ public:
   };
 };
 
+//////////////////////////////////////////////////////////////////////
+
+/// A class representing a series of stats, with a lambda
+class MultiLambdaStat : public StatisticsValue {
+protected:
+  /// The names
+  QStringList names;
+
+  /// Global
+  bool isGlobal;
+
+  /// Whether it needs an X column (i.e. only for Y columns)
+  bool needX;
+
+  typedef std::function<QList<QVariant> (const DataSet *, int) > Lambda;
+
+  Lambda function;
+  
+public:
+  MultiLambdaStat(const QStringList & n,
+                   bool glb, bool nx, Lambda fn) :
+    names(n), isGlobal(glb), needX(nx), function(fn)
+  {
+  }
+
+  virtual bool available(const DataSet * /*ds*/, int col) const override {
+    return isGlobal || col > 0 || (col == 0 && (!needX));
+  };
+
+  virtual QStringList suffixes() const override {
+    return names;
+  };
+
+  virtual bool global() const override {
+    return isGlobal;
+  };
+
+  virtual QList<QVariant> values(const DataSet * ds, int col) const override {
+    return function(ds, col);
+  };
+};
+
+
+//////////////////////////////////////////////////////////////////////
+
+static MultiLambdaStat gen(QStringList()
+                           << "buffer"
+                           << "rows"
+                           << "columns"
+                           << "segments", true, false,
+                           [](const DataSet * ds, int /*c*/) -> QList<QVariant>
+                           {
+                             QList<QVariant> rv;
+                             rv << ds->name
+                                << ds->nbRows()
+                                << ds->nbColumns()
+                                << ds->segments.size();
+                             return rv;
+                           });
+
+static MultiLambdaStat avg(QStringList()
+                           << "average"
+                           << "var", false, false,
+                           [](const DataSet * ds, int c) -> QList<QVariant>
+                           {
+                             QList<QVariant> rv;
+                             double a,v;
+                             ds->column(c).stats(&a, &v);
+                             rv << a
+                                << v;
+                             return rv;
+                           });
+
+
+
+
+    //   stats << QString("%1_min_pos").arg(n)
+    //         << source->x()[c.whereMin()]
+    //         << QString("%1_max_pos").arg(n)
+    //         << source->x()[c.whereMax()];
+    // }
+
+static SingleLambdaStat fst("first", false, false,
+                            [](const DataSet * ds, int c) -> QVariant
+                            {
+                              return ds->column(c).first();
+                            });
+
+static SingleLambdaStat lst("last", false, false,
+                            [](const DataSet * ds, int c) -> QVariant
+                            {
+                              return ds->column(c).last();
+                            });
+
+static SingleLambdaStat mn("min", false, false,
+                            [](const DataSet * ds, int c) -> QVariant
+                            {
+                              return ds->column(c).min();
+                            });
+
+static SingleLambdaStat mx("max", false, false,
+                           [](const DataSet * ds, int c) -> QVariant
+                           {
+                             return ds->column(c).max();
+                           });
+
+static SingleLambdaStat med("med", false, false,
+                            [](const DataSet * ds, int c) -> QVariant
+                            {
+                              return ds->column(c).median();
+                            });
+
+static SingleLambdaStat nrm("norm", false, false,
+                            [](const DataSet * ds, int c) -> QVariant
+                            {
+                              return ds->column(c).norm();
+                            });
+
+
+static SingleLambdaStat inte("int", false, true,
+                             [](const DataSet * ds, int c) -> QVariant
+                               {
+                                 return Vector::integrate(ds->x(), ds->column(c));
+                               });
+
+static MultiLambdaStat delta(QStringList()
+                             << "delta_min"
+                             << "delta_max", false, false,
+                             [](const DataSet * ds, int c) -> QList<QVariant>
+                             {
+                               QList<QVariant> rv;
+                               double dmin, dmax;
+                               ds->column(c).deltaStats(&dmin, &dmax);
+                               rv << dmin
+                                  << dmax;
+                               return rv;
+                             });
+
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -120,46 +273,42 @@ Statistics::~Statistics()
 void Statistics::internalStats(ValueHash * overall, 
                                QList<ValueHash> * byColumn)
 {
+  // We first sort the stats between global and not
+  if(! StatisticsValue::allStats)
+    return;
+  QList<StatisticsValue*> globalStats;
+  QList<StatisticsValue*> localStats;
+  for(int i = 0; i < StatisticsValue::allStats->size(); i++) {
+    StatisticsValue * v = StatisticsValue::allStats->value(i);
+    if(v->global())
+      globalStats << v;
+    else
+      localStats << v;
+  }
+  
   // This is the real job.
   if(overall) {
-    (*overall) << "buffer" << source->name;
-    (*overall) << "rows" << source->nbRows();
-    (*overall) << "columns" << source->nbColumns();
-    (*overall) << "segments" << source->segments.size();
+    for(int i = 0; i < globalStats.size(); i++) {
+      StatisticsValue * v = globalStats[i];
+      if(v->available(source, -1))
+        overall->multiAdd(v->suffixes(), v->values(source, -1));
+    }
   }
-
 
   QStringList names = source->columnNames();
   for(int i = 0; i < source->nbColumns(); i++) {
     const QString & n = names[i];
-    const Vector & c = source->column(i);
-    double a,v;
-    c.stats(&a, &v);
-    double dmin, dmax;
-    c.deltaStats(&dmin, &dmax);
-
     ValueHash stats;
-    stats << QString("%1_first").arg(n) << c.first()
-          << QString("%1_last").arg(n) << c.last()
-          << QString("%1_min").arg(n) << c.min()
-          << QString("%1_max").arg(n) << c.max()
-          << QString("%1_average").arg(n) << a
-          << QString("%1_med").arg(n) << c.median() /// @todo get rid
-                                                    /// if too slow ?
-          << QString("%1_var").arg(n) << v
-          << QString("%1_norm").arg(n) << c.norm()
-          << QString("%1_delta_min").arg(n) << dmin
-          << QString("%1_delta_max").arg(n) << dmax
-      ;
 
-    if(i > 0) {                   // Integrate
-      stats << QString("%1_int").arg(n) 
-            << Vector::integrate(source->x(), c);
-      stats << QString("%1_min_pos").arg(n)
-            << source->x()[c.whereMin()]
-            << QString("%1_max_pos").arg(n)
-            << source->x()[c.whereMax()];
+    for(int j = 0; j < localStats.size(); j++) {
+      StatisticsValue * v = localStats[j];
+      if(v->available(source, i)) {
+        QStringList ns = v->suffixes();
+        ns.replaceInStrings(QRegExp("^"), n + "_");
+        stats.multiAdd(ns, v->values(source, i));
+      }
     }
+
     if(byColumn)
       *byColumn << stats;
     if(overall)

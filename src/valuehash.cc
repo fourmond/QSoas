@@ -72,6 +72,16 @@ void ValueHash::append(const QString & key, const QVariant & value)
   operator[](key) = value;
 }
 
+void ValueHash::multiAdd(const QStringList & keys,
+                         const QList<QVariant> & values)
+{
+  if(keys.size() != values.size())
+    throw InternalError("Size mismatch in multiAdd: %1 vs %2").
+      arg(keys.size()).arg(values.size());
+  for(int i = 0; i < keys.size(); i++)
+    append(keys[i], values[i]);
+}
+
 void ValueHash::prepend(const QString & key, const QVariant & value)
 {
   keyOrder.prepend(key);

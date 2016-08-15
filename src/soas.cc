@@ -44,6 +44,7 @@
 #include <fitengine.hh>
 #include <stylegenerator.hh>
 #include <distribfit.hh>
+#include <statistics.hh>
 
 CurveView & Soas::view()
 {
@@ -135,6 +136,10 @@ void Soas::writeSpecFile(QTextStream & out, bool full)
   tdp = Distribution::availableDistributions();
   qSort(tdp);
   out << "Distribution:" << endl;
+  out << " - " << tdp.join("\n - ") << endl;
+
+  tdp = StatisticsValue::allSuffixes();
+  out << "Statistics:" << endl;
   out << " - " << tdp.join("\n - ") << endl;
 
   

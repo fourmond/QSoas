@@ -71,6 +71,11 @@ public:
   /// Clears the hash and the list of keys
   void clear();
 
+  /// Keeps only the given keys, in that order.
+  ///
+  /// @todo Signal when a key is missing ?
+  ValueHash select(const QStringList & keys) const;
+
   /// Appends a key and its value to the hash
   void append(const QString & key, const QVariant & value);
 

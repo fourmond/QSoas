@@ -112,10 +112,21 @@ QString ValueHash::toString(const QString & sep,
   return output.join(sep);
 }
 
- QString ValueHash::prettyPrint(int nbCols, 
-                                const QString & prefix, 
-                                const QString & joinStringLists, bool sort,
-                                bool overrideorder) const
+
+ValueHash ValueHash::select(const QStringList & ks) const
+{
+  ValueHash rv;
+  for(int i = 0; i < ks.size(); i++) {
+    if(contains(ks[i]))
+      rv << ks[i] << value(ks[i]);
+  }
+  return rv;
+}
+
+QString ValueHash::prettyPrint(int nbCols, 
+                               const QString & prefix, 
+                               const QString & joinStringLists, bool sort,
+                               bool overrideorder) const
 {
   QString output;
   QHash<QString, QString> strings = extractStrings(joinStringLists);

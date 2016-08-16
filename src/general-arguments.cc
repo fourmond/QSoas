@@ -240,25 +240,33 @@ QStringList SeveralChoicesArgument::choices() const
   QStringList c = fixedChoices;
   if(provider)
     c = provider();
-  qSort(c);
+  qSort(c); // smart ?
   return c;
 }
 
 ArgumentMarshaller * SeveralChoicesArgument::fromString(const QString & str) const
 {
   QStringList c = choices();
-  if(! c.contains(str))
-    throw 
-      RuntimeError(QObject::tr("Invalid argument: '%1'\nValid choices: %2").
-                   arg(str).arg(c.join(", ")));
-  QStringList r;
-  r << str;
-  return new ArgumentMarshallerChild<QStringList>(r);
+
+  QStringList els = str.split(sep);
+  for(int i = 0; i < els.size(); i++) {
+    const QString & s = els[i];
+    if(! c.contains(s))
+      throw 
+        RuntimeError(QObject::tr("Invalid argument: '%1'\nValid choices: %2").
+                     arg(s).arg(c.join(", ")));
+  }
+  return new ArgumentMarshallerChild<QStringList>(els);
 }
 
 QStringList SeveralChoicesArgument::proposeCompletion(const QString & starter) const
 {
-  return Utils::stringsStartingWith(choices(), starter);
+  int idx = starter.lastIndexOf(sep);
+  QString lft = starter.left(idx> 0 ? idx+1 : 0);
+  QString cur = starter.mid(idx+1);
+  QStringList inter = Utils::stringsStartingWith(choices(), cur);
+  inter.replaceInStrings(QRegExp("^"), lft);
+  return inter;
 }
 
 void SeveralChoicesArgument::concatenateArguments(ArgumentMarshaller * a, 
@@ -295,7 +303,7 @@ SeveralFitNamesArgument::SeveralFitNamesArgument(const char * cn,
                                                  const char * d, bool g,
                                                  bool def,
                                                  const char * chN) :
-  SeveralChoicesArgument(&Fit::availableFits, cn, pn, d, g, def)
+  SeveralChoicesArgument(&Fit::availableFits, ' ', cn, pn, d, g, def)
 {
 }
 

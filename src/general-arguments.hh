@@ -192,29 +192,33 @@ class SeveralChoicesArgument : public Argument {
   QStringList (*provider)();
 
   QStringList choices() const;
+
+  /// The separator, one char for now
+  QChar sep;
 public:
 
   SeveralChoicesArgument(const QStringList & c,
+                         QChar s,
                          const char * cn, const char * pn,
                          const char * d = "", bool g = true, 
                          bool def = false) : 
     Argument(cn, pn, d, g, def), 
-    fixedChoices(c), provider(NULL) {
+    fixedChoices(c), provider(NULL), sep(s) {
   }; 
 
   SeveralChoicesArgument(QStringList (*p)(),
+                         QChar s,
                          const char * cn, const char * pn,
                          const char * d = "", bool g = true, 
                          bool def = false) : 
-    Argument(cn, pn, d, g, def), provider(p) {
+    Argument(cn, pn, d, g, def), provider(p), sep(s) {
   }; 
   
-  /// Returns a wrapped QString
+  /// Returns a wrapped QStringList
   virtual ArgumentMarshaller * fromString(const QString & str) const;
 
   virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
 
-  /// a rather easy one.
   virtual QStringList proposeCompletion(const QString & starter) const;
 
   virtual void concatenateArguments(ArgumentMarshaller * a, 

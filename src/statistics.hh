@@ -59,7 +59,7 @@ public:
 
   /// Returns all the statistics available for the given dataset.
   ///
-  /// @warning Not necessarily in the same order as 
+  /// @warning Not necessarily in the same order as the stats
   static QStringList statsAvailable(const DataSet * ds);
 
   /// Returns the suffixes of all the available stats.

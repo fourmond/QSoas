@@ -1536,8 +1536,16 @@ shiftx("shiftx", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static QStringList allStatsNames()
+{
+  const DataSet * ds = soas().currentDataSet(true);
+  if(!ds)
+    return QStringList();
+  return StatisticsValue::statsAvailable(ds);
+}
 
-static void statsOn(const DataSet * ds, bool output, const ValueHash & meta)
+static void statsOn(const DataSet * ds, bool output,
+                    const ValueHash & meta, const QStringList & sns)
 {
   Statistics stats(ds);
 
@@ -1545,8 +1553,14 @@ static void statsOn(const DataSet * ds, bool output, const ValueHash & meta)
   QList<ValueHash> byCols = stats.statsByColumns(&os);
 
   Terminal::out << "Statistics on buffer: " << ds->name << ":";
-  for(int i = 0; i < ds->nbColumns(); i++)
-    Terminal::out << "\n" << byCols[i].prettyPrint();
+  if(sns.isEmpty()) {
+    for(int i = 0; i < ds->nbColumns(); i++)
+      Terminal::out << "\n" << byCols[i].prettyPrint();
+  }
+  else {
+    os = os.select(sns);
+    Terminal::out << "\n" << os.prettyPrint();
+  }
 
   Terminal::out << endl;
   if(output) {
@@ -1566,6 +1580,8 @@ static void statsCommand(const QString &, const CommandOptions & opts)
   updateFromOptions(opts, "use-segments", bySegments);
   QStringList metaNames;
   updateFromOptions(opts, "meta", metaNames);
+  QStringList statsNames;
+  updateFromOptions(opts, "stats", statsNames);
 
   ValueHash meta;
   if(metaNames.size() > 0) {
@@ -1583,12 +1599,12 @@ static void statsCommand(const QString &, const CommandOptions & opts)
   if(bySegments) {
     QList<DataSet * > segs = ds->chopIntoSegments();
     for(int i = 0; i < segs.size(); i++) {
-      statsOn(segs[i], output, meta);
+      statsOn(segs[i], output, meta, statsNames);
       delete segs[i];
     }
   }
   else
-    statsOn(ds, output, meta);
+    statsOn(ds, output, meta, statsNames);
 }
 
 static ArgumentList 
@@ -1600,6 +1616,11 @@ statsO(QList<Argument *>()
        << new BoolArgument("output", 
                            "To output file",
                            "whether to write stats to output file (defaults to false)")
+       /// @todo Validation will be a pain when buffer is specified
+       /// and it has more columns than the current one
+       << new SeveralChoicesArgument(::allStatsNames, ',', "stats",
+                                     "Select stats",
+                                     "writes only the given stats")
        << new BoolArgument("use-segments", 
                            "Use segments",
                            "makes statistics segment by segment (defaults to false)")

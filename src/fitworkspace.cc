@@ -245,6 +245,12 @@ FitWorkspace::FitWorkspace(FitData * d) :
   nbParameters = d->parametersPerDataset();
   values = new double[nbParameters * datasets];
 
+  // First, initialize the values, to avoid having unitialized stuff
+  // showing up (in particular extra parameters, than don't get
+  // initialized by the fits).
+  for(int i = 0; i < nbParameters * datasets; i++)
+    values[i] = 0;
+
   // Now populate default values and fill the cache
   d->fit->initialGuess(d, values);
   for(int i = 0; i < nbParameters; i++) {

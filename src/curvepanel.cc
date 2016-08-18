@@ -22,6 +22,8 @@
 #include <vector.hh>
 #include <curvepanel.hh>
 #include <curveitem.hh>
+#include <curvedataset.hh>
+
 #include <soas.hh>
 
 #include <math.h>
@@ -502,6 +504,21 @@ QList<CurveItem *> CurvePanel::items()
     if(! it)
       continue;
     ret << it;
+  }
+  return ret;
+}
+
+QList<DataSet *> CurvePanel::displayedDataSets() const
+{
+  QList<DataSet *> ret;
+  for(int i = 0; i < displayedItems.size(); i++) {
+    CurveItem * it = displayedItems[i];
+    CurveDataSet * cds = dynamic_cast<CurveDataSet *>(it);
+    if(cds) {
+      const DataSet * ds = cds->displayedDataSet();
+      if(ds)
+        ret << const_cast<DataSet*>(ds);
+    }
   }
   return ret;
 }

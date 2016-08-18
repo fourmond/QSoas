@@ -24,6 +24,7 @@
 
 
 class CurveItem;
+class DataSet;
 #include <vector.hh>
 
 /// This object displays CurveItem (or children thereof). It is not a
@@ -176,6 +177,9 @@ public:
   CurveItem * closestItem(const QPointF &point, 
                           double * distance = NULL) const;
 
+
+  /// Returns the list of displayed datasets
+  QList<DataSet *> displayedDataSets() const;
 
   /// The stretching factor of this panel with respect to the others.
   /// Defaults to 100.

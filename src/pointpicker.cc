@@ -24,23 +24,29 @@
 #include <curvepanel.hh>
 #include <dataset.hh>
 #include <curvedataset.hh>
+#include <curveview.hh>
 
 #include <exceptions.hh>
 #include <eventhandler.hh>
 
 #include <soas.hh>
+#include <datastack.hh>
 
 /// Should this be a customization item ? NO
 PointPicker::Method PointPicker::lastMethodUsed = PointPicker::Exact;
 
 PointPicker::PointPicker(CurveEventLoop * l, const DataSet * ds, 
                          CurvePanel * p) :
-  loop(l), trackedDataSet(ds), panel(p), 
+  loop(l), panel(p), 
   method(lastMethodUsed),
   lastButton(Qt::NoButton),
   trackedButtons(Qt::LeftButton) 
 {
+  pickDataSet(ds);
   loop->ppMessage = pointPickerMessage();
+
+  if(! panel)
+    panel = l->getView()->mainPanel();
 }
 
 PointPicker::~PointPicker()
@@ -56,7 +62,9 @@ void PointPicker::addToHandler(EventHandler & handler)
     addKey('o', OffMethod, "...off").
     alsoKey('O').
     addKey('s', SmoothMethod, "...smooth").
-    alsoKey('S');
+    alsoKey('S').
+    addKey('n', NextDataset, "next dataset").
+    addKey('N', PrevDataset, "previous dataset");
 }
 
 void PointPicker::pickAt(int idx)
@@ -72,6 +80,18 @@ void PointPicker::pickAt(int idx)
       else if(method == Smooth)
         lastPos = trackedDataSet->smoothPick(lastIndex);
     }
+  }
+}
+
+void PointPicker::pickDataSet(const DataSet * ds)
+{
+  trackedDataSet = ds;
+  if(ds) {
+    int idx = 0;
+    if(soas().stack().indexOf(ds, &idx))
+      datasetIndex = (idx >= 0 ? idx + 1 : idx);
+    else
+      datasetIndex = 0;
   }
 }
 
@@ -110,16 +130,23 @@ bool PointPicker::processEvent(int action)
     pickPoint();
     return true;
   }
+  
   switch(action) {
   case ExactMethod:
-      method = Exact;
-      break;
+    method = Exact;
+    break;
   case OffMethod:
-      method = Off;
-      break;
+    method = Off;
+    break;
   case SmoothMethod:
-      method = Smooth;
-      break;
+    method = Smooth;
+    break;
+  case NextDataset:
+    nextDataSet();
+    break;
+  case PrevDataset:
+    nextDataSet(-1);
+    break;
   default:
     return false;
   }
@@ -128,17 +155,46 @@ bool PointPicker::processEvent(int action)
   return true;
 }
 
+void PointPicker::nextDataSet(int delta)
+{
+  if(! panel)
+    return;
+  QList<DataSet *> datasets = panel->displayedDataSets();
+
+  int curIdx = -1;
+  for(int i = 0; i < datasets.size(); i++) {
+    if(datasets[i] == trackedDataSet) {
+      curIdx = i;
+      break;
+    }
+  }
+
+  curIdx += delta;
+  if(curIdx < 0)
+    curIdx += datasets.size();
+  if(curIdx >= datasets.size())
+    curIdx = curIdx % datasets.size();
+  pickDataSet(datasets.value(curIdx));
+}
+
 QString PointPicker::pointPickerMessage() const
 {
+  QString mk, ds;
   switch(method) {
   case Exact: 
-    return "(marker: exact)";
+    mk = "exact";
+    break;
   case Smooth: 
-    return "(marker: smooth)";
+    mk ="smooth";
+    break;
   case Off: 
-    return "(marker: off)";
+    mk = "off";
   }
-  return QString();
+
+  if(datasetIndex != 0)
+    ds = QString(" #%1").
+      arg(datasetIndex > 0 ? datasetIndex - 1 : datasetIndex);
+  return QString("(%1%2)").arg(mk).arg(ds);
 }
 
 QString PointPicker::helpText() const 

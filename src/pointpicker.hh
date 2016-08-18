@@ -44,6 +44,11 @@ class PointPicker {
   /// The DataSet we're interested in, or NULL if we're interested in
   /// all.
   const DataSet * trackedDataSet;
+
+  /// The index in the stack of the tracked dataset.
+  ///
+  /// 0 means no dataset or not in stack, 1 is 0, 2 1 and so on...
+  int datasetIndex;
   
   /// The panel where the curve lies
   CurvePanel * panel;
@@ -59,6 +64,8 @@ class PointPicker {
     ExactMethod = 100,
     SmoothMethod = 101,
     OffMethod = 102,
+    NextDataset = 103,
+    PrevDataset = 104
   } Actions;
 
   /// The current method for point picking.
@@ -130,6 +137,13 @@ public:
 
   /// Picks a number of points between the given indices.
   QList<QPointF> pickBetween(int firstIndex, int lastIndex, int number);
+
+
+  /// Change the dataset tracked to the given one
+  void pickDataSet(const DataSet * ds);
+
+  /// Picks the next dataset from the panel
+  void nextDataSet(int delta = 1);
   
 };
 

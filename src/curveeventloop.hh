@@ -125,6 +125,10 @@ public:
     return bt;
   };
 
+  CurveView * getView() const {
+    return view;
+  };
+
   /// Whether the current action is 'q' 'Q' or middle click, ie the
   /// conventional "accept" event.
   bool isConventionalAccept() const;

@@ -727,6 +727,8 @@ void FitWorkspace::setFixed(int index, int ds, bool fixed)
   }
 }
 
+
+
 void FitWorkspace::setValue(int index, int dataset, double val)
 {
   checkIndex(index, dataset);
@@ -1184,6 +1186,26 @@ void FitWorkspace::computeAndPushJacobian()
 
   gsl_matrix_free(mt);
   gsl_vector_free(cl);
+}
+
+
+void FitWorkspace::setBufferWeight(int dataset, double val)
+{
+  if(dataset < 0) {
+    for(int i = 0; i < datasets; i++)
+      fitData->weightsPerBuffer[i] = val;
+  }
+  else {
+    if(dataset >= datasets)
+      throw InternalError("Out of bounds weight setting: %1 for %2").
+        arg(dataset).arg(datasets);
+    fitData->weightsPerBuffer[dataset] = val;
+  }
+}
+
+double FitWorkspace::getBufferWeight(int dataset) const
+{
+  return fitData->weightsPerBuffer[dataset];
 }
 
 

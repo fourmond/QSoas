@@ -225,7 +225,15 @@ public:
   /// principle, passing that value to setValue() should be a no-op --
   /// barring floating-point conversion problems, of course.
   QString getTextValue(int index, int dataset) const;
-  
+
+
+  /// Returns the weight of the given buffer
+  double getBufferWeight(int dataset) const;
+
+
+  /// Sets the buffer weight. Negative means set all buffer weights
+  void setBufferWeight(int dataset, double value);
+
   /// @}
 
   /// Returns the underlying data

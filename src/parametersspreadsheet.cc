@@ -124,9 +124,12 @@ void ParametersSpreadsheet::spawnContextMenu(const QPoint & pos)
   for(int i = 0; i < contextActions.size(); i++)
     menu.addAction(contextActions[i]);
 
-  QAction * ac = menu.exec(view->viewport()->mapToGlobal(pos));
-  if(ac)
-    ac->trigger();
+  // QAction * ac = menu.exec(view->viewport()->mapToGlobal(pos));
+  // if(ac)
+  //   ac->trigger();
+
+  // Triggered automatically, apparently...
+  menu.exec(view->viewport()->mapToGlobal(pos));
 }
 
 void ParametersSpreadsheet::editSelected()

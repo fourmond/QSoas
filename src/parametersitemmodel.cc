@@ -53,7 +53,7 @@ int ParametersItemModel::rowCount(const QModelIndex & parent) const
 
 int ParametersItemModel::columnCount(const QModelIndex & parent) const
 {
-  return workspace->data()->parameterDefinitions.size() + 2;
+  return workspace->data()->parameterDefinitions.size() + 3;
 }
 
 int ParametersItemModel::parameterIndex(int idx) const
@@ -97,6 +97,17 @@ QVariant ParametersItemModel::data(const QModelIndex & index, int role) const
     }
     return QVariant();
   }
+  if(idx == -3) {
+    switch(role) {
+    case Qt::DisplayRole:
+    case Qt::EditRole:
+      return workspace->getBufferWeight(row);
+    }
+    return QVariant();
+  }
+  // Fallover
+  if(idx < 0)
+    return QVariant();
   switch(role) {
   case Qt::DisplayRole:
   case Qt::EditRole:
@@ -119,6 +130,17 @@ bool ParametersItemModel::setData(const QModelIndex & index,
     return false;
   QString s = value.toString();
   int idx = parameterIndex(index.column());
+  if(idx == -3) {
+    bool ok = false;
+    double flv = s.toDouble(&ok);
+    if(ok) {
+      workspace->setBufferWeight(index.row(), flv);
+      emit(dataChanged(index, index));
+      modified = true;
+      return true;
+    }
+  }
+  
   if(idx < 0)
     return false;
   workspace->setValue(idx, index.row(), s);
@@ -134,7 +156,7 @@ bool ParametersItemModel::setData(const QModelIndex & index,
 Qt::ItemFlags ParametersItemModel::flags(const QModelIndex & index) const
 {
   int idx = parameterIndex(index);
-  if(idx >= 0)
+  if(idx >= 0 || idx == -3)
     return Qt::ItemIsSelectable|Qt::ItemIsEditable|Qt::ItemIsEnabled;
   return Qt::ItemIsEnabled;
 }
@@ -149,6 +171,8 @@ QVariant ParametersItemModel::headerData(int section,
       return QVariant("Buffer");
     if(section == -2)
       return QVariant("Z");
+    if(section == -3)
+      return QVariant("weight");
     const QList<ParameterDefinition> & defs =
       workspace->data()->parameterDefinitions;
     if(section >= defs.size())

@@ -546,7 +546,7 @@ void CommandWidget::runCommandFile(QIODevice * source,
 
       /// @todo escape ?
       for(QHash<QString, QString>::const_iterator i = substitutions.begin();
-          i != substitutions.end(); i++)
+          i != substitutions.end(); ++i)
         line.replace(i.key(), i.value());
 
       /// @todo Make that configurable

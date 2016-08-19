@@ -31,7 +31,7 @@ QList<QPointF> Spline::pointList() const
 {
   QList<QPointF> points;
   for(QMap<double, double>::const_iterator i = values.begin();
-      i != values.end(); i++)
+      i != values.end(); ++i)
     points << QPointF(i.key(), i.value());
   return points;
 }
@@ -48,8 +48,8 @@ void Spline::remove(double x)
   QMap<double, double>::const_iterator i = values.begin();
   double closest = i.key();
   double delta = fabs(x - i.key());
-  i++;
-  for(; i != values.end(); i++) {
+  ++i;
+  for(; i != values.end(); ++i) {
     double d = fabs(x - i.key());
     if(d < delta) {
       delta = d;
@@ -68,7 +68,7 @@ void Spline::preparePoints(Vector * xt,
   yv->clear();
 
   for(QMap<double, double>::const_iterator i = values.begin();
-      i != values.end(); i++) {
+      i != values.end(); ++i) {
     *xv << i.key();
     *yv << i.value();
   }

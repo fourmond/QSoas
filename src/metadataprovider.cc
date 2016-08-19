@@ -37,7 +37,7 @@ ValueHash MetaDataProvider::allMetaDataForFile(const QString & fileName)
   ValueHash ret;
   InstanceHash::iterator it;
   for(it = NamedInstance<MetaDataProvider>::begin(); 
-      it != NamedInstance<MetaDataProvider>::end(); it++) {
+      it != NamedInstance<MetaDataProvider>::end(); ++it) {
     MetaDataProvider * prov = it.value();
     if(prov->enabled && prov->handlesFile(fileName)) {
       try {

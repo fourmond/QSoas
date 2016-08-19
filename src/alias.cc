@@ -39,7 +39,7 @@ protected:
   {
     CommandOptions args2 = args;
     for(CommandOptions::const_iterator i 
-          = options.begin(); i != options.end(); i++) {
+          = options.begin(); i != options.end(); ++i) {
       if(args2.contains(i.key())) {
           Argument * arg = 
             targetCommand->commandOptions()->namedArgument(i.key());
@@ -123,7 +123,7 @@ static void defineAliasCommand(const QString &, QString alias,
 
   /// @todo Don't forget to remove alias-specific options first !
   for(CommandOptions::const_iterator i = opts.begin();
-      i != opts.end(); i++)
+      i != opts.end(); ++i)
     options.replace(i.key(), i.value()->value<QString>());
 
 
@@ -178,7 +178,7 @@ static void displayAliasesCommand(const QString &)
     QString optString;
     for(QMultiHash<QString, QString>::const_iterator i = 
           alias->defaultOptions.begin(); 
-        i != alias->defaultOptions.end(); i++)
+        i != alias->defaultOptions.end(); ++i)
       optString += QString("/%1=%2 ").arg(i.key()).arg(i.value());
     Terminal::out << " * " << name << ": " 
                   << alias->targetCommand->commandName()

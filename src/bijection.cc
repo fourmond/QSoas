@@ -71,7 +71,7 @@ QList<const BijectionFactoryItem *> Bijection::factoryItems()
     return ret;
 
   for(QHash<QString, BijectionFactoryItem*>::const_iterator i = 
-        factory->begin(); i != factory->end(); i++)
+        factory->begin(); i != factory->end(); ++i)
     ret << i.value();
   return ret;
 }

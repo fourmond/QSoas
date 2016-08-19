@@ -32,7 +32,7 @@ TimeDependentParameters::TimeDependentParameters() :
 
 void TimeDependentParameters::clear()
 {
-  for(iterator i = begin(); i != end(); i++)
+  for(iterator i = begin(); i != end(); ++i)
     delete i.value();
   QHash<int, TimeDependentParameter*>::clear();
   parameters.clear();
@@ -43,7 +43,7 @@ void TimeDependentParameters::computeValues(double t, double * target, const dou
 {
   if(! initialized)
     throw InternalError("Calling computeValues on uninitialized TimeDependentParameters");
-  for(const_iterator i = begin(); i != end(); i++)
+  for(const_iterator i = begin(); i != end(); ++i)
     target[i.key()] = i.value()->computeValue(t, params);
 }
 
@@ -55,7 +55,7 @@ QList<ParameterDefinition> TimeDependentParameters::fitParameters() const
 
 void TimeDependentParameters::setInitialGuesses(double * target, const DataSet * ds) const
 {
-  for(const_iterator i = begin(); i != end(); i++)
+  for(const_iterator i = begin(); i != end(); ++i)
     i.value()->setInitialGuess(target, ds);
 }
 
@@ -68,7 +68,7 @@ bool TimeDependentParameters::contains(const QString & name) const
 Vector TimeDependentParameters::discontinuities(const double * params) const
 {
   Vector ret;
-  for(const_iterator i = begin(); i != end(); i++)
+  for(const_iterator i = begin(); i != end(); ++i)
     ret << i.value()->discontinuities(params);
   qSort(ret);
   return ret;
@@ -77,7 +77,7 @@ Vector TimeDependentParameters::discontinuities(const double * params) const
 
 void TimeDependentParameters::initialize(const double * params)
 {
-  for(const_iterator i = begin(); i != end(); i++)
+  for(const_iterator i = begin(); i != end(); ++i)
     i.value()->initialize(params);
   initialized = true;
 }

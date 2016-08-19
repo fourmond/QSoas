@@ -28,7 +28,7 @@
 template<class T> QHash<QString, T> ValueHash::extract(QVariant::Type t) const
 {
   QHash<QString, T> ret;
-  for(const_iterator i = begin(); i != end(); i++) {
+  for(const_iterator i = begin(); i != end(); ++i) {
     QVariant v = i.value();
     if(v.canConvert<T>() && v.convert(t))
       ret[i.key()] = v.value<T>();
@@ -46,7 +46,7 @@ QHash<QString, QString> ValueHash::extractStrings(const QString & joinStringList
   QHash<QString, QString> ret = extract<QString>(QVariant::String);
   if(! joinStringLists.isNull()) {
     // We look for string lists that were not converted already:
-    for(const_iterator i = begin(); i != end(); i++) {
+    for(const_iterator i = begin(); i != end(); ++i) {
       QVariant v = i.value();
       if(! ret.contains(i.key()) && (v.type() == QVariant::StringList))
         ret[i.key()] = i.value().toStringList().join(joinStringLists);
@@ -107,7 +107,7 @@ QString ValueHash::toString(const QString & sep,
   }
 
   if(! skip)
-    for(it = strings.begin(); it != strings.end(); it++)
+    for(it = strings.begin(); it != strings.end(); ++it)
       output << *it;
   return output.join(sep);
 }
@@ -185,7 +185,7 @@ ValueHash & ValueHash::operator<<(const QVariant & v)
 
 void ValueHash::merge(const ValueHash & other, bool override)
 {
-  for(const_iterator it = other.begin(); it != other.end(); it++) {
+  for(const_iterator it = other.begin(); it != other.end(); ++it) {
     if(override || (! contains(it.key())))
       (*this)[it.key()] = it.value();
   }
@@ -250,7 +250,7 @@ RUBY_VALUE ValueHash::toRuby() const
 {
   QMutexLocker l(&Ruby::rubyGlobalLock);
   RUBY_VALUE ret = rbw_hash_new();
-  for(const_iterator it = begin(); it != end(); it++) {
+  for(const_iterator it = begin(); it != end(); ++it) {
     // Hmmm, QVariant says type() is QVariant::Type, but the
     // documentation says is really is QMetaType::Type.
     try {

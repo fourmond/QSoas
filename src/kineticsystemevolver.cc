@@ -94,7 +94,7 @@ QStringList KineticSystemEvolver::setParameters(const QHash<QString, double> & p
 {
   QSet<QString> params = QSet<QString>::fromList(parameterIndex.keys());
   for(QHash<QString, double>::const_iterator i = p.begin();
-      i != p.end(); i++) {
+      i != p.end(); ++i) {
     int idx = parameterIndex.value(i.key(), -1);
     if(idx >= 0) {
       parameters[idx] = i.value();
@@ -448,7 +448,7 @@ protected:
 
     Debug::debug()
       << "There are " << s->timeDependentParameters.size() << " td-parameters" << endl;
-    for(auto i = s->timeDependentParameters.begin(); i != s->timeDependentParameters.end(); i++) {
+    for(auto i = s->timeDependentParameters.begin(); i != s->timeDependentParameters.end(); ++i) {
       Debug::debug()
         << "TD parameter for parameter index " << i.key()
         << " -> " << p[i.key()] << endl;

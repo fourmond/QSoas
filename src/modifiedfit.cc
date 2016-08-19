@@ -85,7 +85,8 @@ protected:
     
     virtual ~Storage()
     {
-      for(QHash<int, Expression *>::iterator i = expressions.begin(); i != expressions.end(); i++)
+      for(QHash<int, Expression *>::iterator i = expressions.begin();
+          i != expressions.end(); ++i)
         delete i.value();
 
       for(int i = 0; i < conditions.size(); i++)
@@ -103,7 +104,7 @@ protected:
       underlyingStorage(NULL)
     {
       for(QHash<int, Expression *>::const_iterator i = o.expressions.begin();
-          i != o.expressions.end(); i++) {
+          i != o.expressions.end(); ++i) {
         expressions[i.key()] = new Expression(*i.value());
       }
       for(int i = 0; i < o.conditions.size(); i++)
@@ -170,7 +171,7 @@ protected:
     QList<int> strippedIndices;
     // OK, so far, so good.
     for(QHash<QString, QString>::const_iterator i = redefinitions.begin();
-        i != redefinitions.end(); i++) {
+        i != redefinitions.end(); ++i) {
       if(! indices.contains(i.key())) {
         throw RuntimeError("Trying to redefine parameter %1, which does not exist").
           arg(i.key());
@@ -260,7 +261,7 @@ protected:
     // resolved.
     for(int j = 0; j < s->expressions.size(); j++) {
       for(QHash<int, Expression *>::const_iterator i = s->expressions.begin();
-          i != s->expressions.end(); i++)
+          i != s->expressions.end(); ++i)
         buffer[i.key()] = i.value()->evaluate(buffer);
     }
     memcpy(dest, buffer, sizeof(double) * s->originalParameters.size());

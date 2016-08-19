@@ -77,7 +77,7 @@ void Command::crosslinkCommands()
   if(! availableCommands)
     return;
   for(QHash<QString, Command *>::iterator i = availableCommands->begin();
-      i != availableCommands->end(); i++) {
+      i != availableCommands->end(); ++i) {
     if(! i.value()->group) {
       Group * grp = Group::namedGroup(i.value()->groupName);
       if(! grp) {
@@ -121,11 +121,11 @@ CommandOptions Command::parseOptions(const QMultiHash<QString, QString> & opts,
   // inserted keys come in the right order !
   QMultiHash<QString, QString> newopts;
   for(QMultiHash<QString, QString>::const_iterator i = opts.begin();
-      i != opts.end(); i++)
+      i != opts.end(); ++i)
     newopts.insert(i.key(), i.value());
 
   for(QMultiHash<QString, QString>::const_iterator i = newopts.begin();
-      i != newopts.end(); i++) {
+      i != newopts.end(); ++i) {
     Argument * opt = options->namedArgument(i.key());
     if(! opt)
       throw RuntimeError(QObject::tr("Unknown option '%1' for command %2").
@@ -387,7 +387,7 @@ QStringList Command::interactiveCommands()
   QStringList ret;
   
   for(QHash<QString, Command*>::const_iterator i = availableCommands->begin();
-      i != availableCommands->end(); i++)
+      i != availableCommands->end(); ++i)
     if(i.value()->isInteractive())
       ret << i.value()->cmdName;
   return ret;
@@ -401,7 +401,7 @@ QStringList Command::nonInteractiveCommands()
   QStringList ret;
   
   for(QHash<QString, Command*>::const_iterator i = availableCommands->begin();
-      i != availableCommands->end(); i++)
+      i != availableCommands->end(); ++i)
     if(! i.value()->isInteractive())
       ret << i.value()->cmdName;
   return ret;

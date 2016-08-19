@@ -466,7 +466,7 @@ void Fit::runFit(std::function<void (FitData *)> hook,
     }
 
     int nb = 0;
-    for(QHash<QString, QString>::iterator i = fm.begin(); i != fm.end(); i++) {
+    for(QHash<QString, QString>::iterator i = fm.begin(); i != fm.end(); ++i) {
 
       const QString & param = i.key();
       const QString & meta = i.value();

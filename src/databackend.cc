@@ -123,7 +123,7 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName,
   bool ignoreCache = false;
   updateFromOptions(opts, "ignore-cache", ignoreCache);
 
-  for(CommandOptions::const_iterator i = opts.begin(); i != opts.end(); i++) {
+  for(CommandOptions::const_iterator i = opts.begin(); i != opts.end(); ++i) {
     if(! nonBackendOptions.contains(i.key()))
        ignoreCache = true;
   }

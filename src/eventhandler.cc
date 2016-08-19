@@ -168,12 +168,12 @@ QString EventHandler::buildHelpString(bool /*useHTML*/) const
     QStringList shortcuts;
     
     for(QHash<Qt::MouseButton, int>::const_iterator it = clickActions.begin();
-        it != clickActions.end(); it++)
+        it != clickActions.end(); ++it)
       if(it.value() == action)
         shortcuts << clickString(it.key());
 
     for(QHash<int, int>::const_iterator it = keyActions.begin();
-        it != keyActions.end(); it++)
+        it != keyActions.end(); ++it)
       if(it.value() == action)
         shortcuts << keyString(it.key());
     
@@ -197,12 +197,12 @@ QString EventHandler::buildSpec() const
     QStringList shortcuts;
     
     for(QHash<Qt::MouseButton, int>::const_iterator it = clickActions.begin();
-        it != clickActions.end(); it++)
+        it != clickActions.end(); ++it)
       if(it.value() == action)
         shortcuts << clickString(it.key());
 
     for(QHash<int, int>::const_iterator it = keyActions.begin();
-        it != keyActions.end(); it++)
+        it != keyActions.end(); ++it)
       if(it.value() == action)
         shortcuts << keyString(it.key());
     

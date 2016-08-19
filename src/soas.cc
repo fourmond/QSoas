@@ -146,7 +146,7 @@ void Soas::writeSpecFile(QTextStream & out, bool full)
 }
 
 //////////////////////////////////////////////////////////////////////
-CommandLineOption sp("--spec", [](const QStringList & /*args*/) {
+static CommandLineOption sp("--spec", [](const QStringList & /*args*/) {
     {
       QTextStream o(stdout);
       Soas::writeSpecFile(o, false);
@@ -154,7 +154,7 @@ CommandLineOption sp("--spec", [](const QStringList & /*args*/) {
     ::exit(0);
   }, 0, "write command specs");
 
-CommandLineOption fsp("--full-spec", [](const QStringList & /*args*/) {
+static CommandLineOption fsp("--full-spec", [](const QStringList & /*args*/) {
     {
       QTextStream o(stdout);
       Soas::writeSpecFile(o, true);

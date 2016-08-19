@@ -20,6 +20,8 @@
 #include <terminal.hh>
 #include <commandwidget.hh>
 
+#include <commandlineparser.hh>
+
 Terminal Terminal::out;
 
 Terminal::Terminal() :
@@ -36,7 +38,16 @@ void Terminal::flushToTerminal()
   // Convert line feeds to HTML
   // buffer.replace("\n", "<br/>\n");
   CommandWidget::logString(buffer);
+
+  for(int i = 0; i < spies.size(); i++)
+    (*spies[i]) << buffer << flush;
+  
   buffer.clear();
+}
+
+void Terminal::addSpy(QTextStream * spy)
+{
+  spies << spy;
 }
 
 Terminal & Terminal::operator<<(QTextStreamFunction t)
@@ -52,4 +63,10 @@ Terminal::~Terminal()
   if(! buffer.isEmpty())
     flushToTerminal();
   delete internalStream;
+  while(spies.size() > 0)
+    delete spies.takeAt(0);
 }
+
+static CommandLineOption sto("--stdout", [](const QStringList & /*args*/) {
+    Terminal::out.addSpy(new QTextStream(stdout));
+  }, 0, "write terminal output also to standard output");

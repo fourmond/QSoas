@@ -35,6 +35,11 @@ class Terminal {
 
   /// Flushes to the terminal.
   void flushToTerminal();
+
+  /// A list of spies, i.e. streams that get a copy of the text sent
+  /// to the terminal.
+  QList<QTextStream *>  spies;
+  
 public:
 
   Terminal();
@@ -46,6 +51,9 @@ public:
   };
 
   Terminal & operator<<(QTextStreamFunction t);
+
+  /// Add a spy to the stream. Terminal takes ownership of the spy.
+  void addSpy(QTextStream * spy);
 
   /// An alway open TextStream
   static Terminal out;

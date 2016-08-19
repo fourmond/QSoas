@@ -20,17 +20,15 @@
 #include <terminal.hh>
 #include <commandwidget.hh>
 
-using namespace Terminal;
+Terminal Terminal::out;
 
-TextStream Terminal::out;
-
-TextStream::TextStream() :
+Terminal::Terminal() :
   buffer("")
 {
   internalStream = new QTextStream(&buffer);
 }
 
-void TextStream::flushToTerminal()
+void Terminal::flushToTerminal()
 {
   /// @todo If I want to use formatting with that, I need to use
   /// QTextDocumentFragment straight from here.
@@ -41,7 +39,7 @@ void TextStream::flushToTerminal()
   buffer.clear();
 }
 
-TextStream & TextStream::operator<<(QTextStreamFunction t)
+Terminal & Terminal::operator<<(QTextStreamFunction t)
 {
   (*internalStream) << t;
   if(t == endl || t == flush)
@@ -49,7 +47,7 @@ TextStream & TextStream::operator<<(QTextStreamFunction t)
   return *this;
 }
 
-TextStream::~TextStream()
+Terminal::~Terminal()
 {
   if(! buffer.isEmpty())
     flushToTerminal();

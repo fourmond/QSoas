@@ -2,7 +2,7 @@
    \file terminal.hh
    A thin wrapper around QTextStream to write data to the terminal
    Copyright 2010, 2011 by Vincent Fourmond
-             2012 by CNRS/AMU
+             2012, 2016 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -23,43 +23,32 @@
 #ifndef __TERMINAL_HH
 #define __TERMINAL_HH
 
-/// This namespace contains all classes and utility functions
-/// necessary to interact with the terminal. All text should go to the
-/// terminal.
-///
-/// @todo I can think of two ways to do formatting:
-/// @li use the generic
-namespace Terminal {
+/// This class embeds all the interaction with the Terminal.
+class Terminal {
 
-  /// This class is a thin wrapper around a QTextStream that
-  /// automatically sends lines to the terminal.
-  class TextStream {
+  /// The internal stream used to build up the string to be forwarded
+  /// to Log.
+  QTextStream * internalStream;
 
-    /// The internal stream used to build up the string to be forwarded
-    /// to Log.
-    QTextStream * internalStream;
+  /// A temporary buffer string.
+  QString buffer;
 
-    /// A temporary buffer string.
-    QString buffer;
+  /// Flushes to the terminal.
+  void flushToTerminal();
+public:
 
-    /// Flushes to the terminal.
-    void flushToTerminal();
-  public:
+  Terminal();
+  ~Terminal();
 
-    TextStream();
-    ~TextStream();
-
-    template<typename T> TextStream & operator<<(const T& t) {
-      (*internalStream) << t;
-      return *this;
-    };
-
-    TextStream & operator<<(QTextStreamFunction t);
-
+  template<typename T> Terminal & operator<<(const T& t) {
+    (*internalStream) << t;
+    return *this;
   };
 
+  Terminal & operator<<(QTextStreamFunction t);
+
   /// An alway open TextStream
-  extern TextStream out;
+  static Terminal out;
 
   /// @name Formatting functions
   ///
@@ -71,7 +60,7 @@ namespace Terminal {
   ///
   /// @{
 
-  inline QString bold(const QString & str) {
+  static inline QString bold(const QString & str) {
     // return QString("<b>%1</b>").arg(str);
     return str;
   };

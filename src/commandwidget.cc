@@ -35,8 +35,6 @@
 
 #include <debug.hh>
 
-using namespace Terminal;
-
 class SideBarLabel : public QScrollArea {
 protected:
 
@@ -205,7 +203,7 @@ bool CommandWidget::runCommand(const QStringList & raw)
     return true;                     // Nothing to do here.
   
   QString cmd = Command::unsplitWords(raw);
-  out << bold(currentPrompt()) << cmd << endl;
+  Terminal::out << currentPrompt() << cmd << endl;
   
   if(addToHistory)
     commandLine->addHistoryItem(cmd);
@@ -218,13 +216,14 @@ bool CommandWidget::runCommand(const QStringList & raw)
     Command::runCommand(raw, this);
   }
   catch(const RuntimeError & error) {
-    out << bold("Error: ") << error.message() << endl;
+    Terminal::out << "Error: " << error.message() << endl;
     status = false;
   }
   catch(const InternalError & error) {
-    out << bold("Internal error: ") 
-        << error.message() << endl
-        << "This is a bug in Soas and may be worth reporting !" << endl;
+    Terminal::out << "Internal error: "
+                  << error.message() << endl
+                  << "This is a bug in Soas and may be worth reporting !"
+                  << endl;
     status = false;
   }
   catch(const ControlFlowException & flow) {
@@ -268,13 +267,14 @@ bool CommandWidget::runCommand(const QString & str)
         Ruby::safeEval(rubyCode);
       }
       catch(const RuntimeError & error) {
-        out << bold("Error: ") << error.message() << endl;
+        Terminal::out << "Error: " << error.message() << endl;
         status = false;
       }
       catch(const InternalError & error) {
-        out << bold("Internal error: ") 
-            << error.message() << endl
-            << "This is a bug in Soas and may be worth reporting !" << endl;
+        Terminal::out << "Internal error: "
+                      << error.message() << endl
+                      << "This is a bug in Soas and may be worth reporting !"
+                      << endl;
         status = false;
       }
       rubyCode = "";
@@ -282,7 +282,7 @@ bool CommandWidget::runCommand(const QString & str)
       return status;
     }
     else {
-      out << "Ruby> " << str << endl;
+      Terminal::out << "Ruby> " << str << endl;
       rubyCode += str + "\n";
     }
   }
@@ -299,8 +299,8 @@ void CommandWidget::commandEntered()
       runCommand(cmds[i]);
   }
   catch(const ControlFlowException & flow) {
-    out << bold("Error: ") << "control flow command " << flow.message()
-        << " cannot be used outside of a script" << endl;
+    Terminal::out << "Error: " << "control flow command " << flow.message()
+                  << " cannot be used outside of a script" << endl;
   }
 
 }

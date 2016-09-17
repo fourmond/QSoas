@@ -1544,8 +1544,8 @@ static QStringList allStatsNames()
   return StatisticsValue::statsAvailable(ds);
 }
 
-static void statsOn(const DataSet * ds, bool output,
-                    const ValueHash & meta, const QStringList & sns)
+static void statsOn(const DataSet * ds, const CommandOptions & opts,
+                    const QStringList & sns)
 {
   Statistics stats(ds);
 
@@ -1563,48 +1563,28 @@ static void statsOn(const DataSet * ds, bool output,
   }
 
   Terminal::out << endl;
-  if(output) {
-    os.merge(meta);
-    Terminal::out << "Writing stats to output file" << endl;
-    OutFile::out.writeValueHash(os, ds);
-  }
+  os.handleOutput(ds, opts);
 }
 
 static void statsCommand(const QString &, const CommandOptions & opts)
 {
   DataSet * ds = soas().currentDataSet();
-  bool output = false;
   updateFromOptions(opts, "buffer", ds);
-  updateFromOptions(opts, "output", output);
   bool bySegments = false;
   updateFromOptions(opts, "use-segments", bySegments);
-  QStringList metaNames;
-  updateFromOptions(opts, "meta", metaNames);
   QStringList statsNames;
   updateFromOptions(opts, "stats", statsNames);
 
-  ValueHash meta;
-  if(metaNames.size() > 0) {
-    const ValueHash & origMeta = ds->getMetaData();
-    for(int i = 0; i < metaNames.size(); i++) {
-      const QString & n = metaNames[i];
-      if(origMeta.contains(n))
-        meta << n << origMeta[n];
-      else 
-        Terminal::out << "Requested meta '" << n 
-                      << "' but it is missing from buffer" << endl;
-    }
-  }
 
   if(bySegments) {
     QList<DataSet * > segs = ds->chopIntoSegments();
     for(int i = 0; i < segs.size(); i++) {
-      statsOn(segs[i], output, meta, statsNames);
+      statsOn(segs[i], opts, statsNames);
       delete segs[i];
     }
   }
   else
-    statsOn(ds, output, meta, statsNames);
+    statsOn(ds, opts, statsNames);
 }
 
 static ArgumentList 
@@ -1613,9 +1593,6 @@ statsO(QList<Argument *>()
                               "Buffer",
                               "an alternative buffer to work on",
                               true)
-       << new BoolArgument("output", 
-                           "To output file",
-                           "whether to write stats to output file (defaults to false)")
        /// @todo Validation will be a pain when buffer is specified
        /// and it has more columns than the current one
        << new SeveralChoicesArgument(::allStatsNames, ',', "stats",
@@ -1624,9 +1601,7 @@ statsO(QList<Argument *>()
        << new BoolArgument("use-segments", 
                            "Use segments",
                            "makes statistics segment by segment (defaults to false)")
-       << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "meta", 
-                                     "Meta-data",
-                                     "when writing to output file, also prints the listed meta-data")
+       << ValueHash::outputOptions()
        );
 
 

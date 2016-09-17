@@ -25,6 +25,11 @@
 #include <exceptions.hh>
 #include <debug.hh>
 
+#include <general-arguments.hh>
+#include <outfile.hh>
+#include <dataset.hh>
+#include <terminal.hh>
+
 template<class T> QHash<QString, T> ValueHash::extract(QVariant::Type t) const
 {
   QHash<QString, T> ret;
@@ -328,4 +333,46 @@ double ValueHash::doubleValue(const QString & key, bool * ok) const
 void ValueHash::setValue(const QString & key, const QVariant& value)
 {
   (*this)[key] = value;
+}
+
+QList<Argument *> ValueHash::outputOptions()
+{
+  return 
+    QList<Argument *>() 
+       << new BoolArgument("output", 
+                           "To output file",
+                           "whether to write stats to output file (defaults to false)")
+       << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "meta", 
+                                     "Meta-data",
+                                     "when writing to output file, also prints the listed meta-data")
+    ;
+}
+
+void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts) const
+{
+  bool output = false;
+  updateFromOptions(opts, "output", output);
+  QStringList metaNames;
+  updateFromOptions(opts, "meta", metaNames);
+
+
+  ValueHash meta;
+  if(metaNames.size() > 0) {
+    const ValueHash & origMeta = ds->getMetaData();
+    for(int i = 0; i < metaNames.size(); i++) {
+      const QString & n = metaNames[i];
+      if(origMeta.contains(n))
+        meta << n << origMeta[n];
+      else 
+        Terminal::out << "Requested meta '" << n 
+                      << "' but it is missing from buffer" << endl;
+    }
+  }
+  
+  ValueHash ov = *this;
+  if(output) {
+    ov.merge(meta);
+    Terminal::out << "Writing to output file" << endl;
+    OutFile::out.writeValueHash(ov, ds);
+  }
 }

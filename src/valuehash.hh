@@ -23,6 +23,10 @@
 #define __VALUEHASH_HH
 
 #include <ruby-wrappers.h>
+#include <argumentmarshaller.hh>
+
+class DataSet;
+class Argument;
 
 /// This class embeds a series of related information, such as dataset
 /// meta-data, that can be represented as key/value pairs.
@@ -172,6 +176,19 @@ public:
   /// can be converted to the desired type.
   template<class T> void getValue(const QString & key, T & dest) const;
   ///@}
+
+  /// @name Output file and such related functions
+  ///
+  /// @{
+
+  /// The options for handling the output file
+  static QList<Argument *> outputOptions();
+
+  /// Process the output of the hash to the output file, or other
+  /// things like that.
+  void handleOutput(const DataSet * ds, const CommandOptions & opts) const;
+
+  /// @}
   
 
 };

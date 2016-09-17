@@ -1,0 +1,20 @@
+# This script verifies how one can select the stats and also write out
+# meta-data.
+
+output s.dat /overwrite=true
+generate-buffer -2 2 x**2
+stats /stats=y_int,x_last /output=true
+
+load s.dat
+assert '$stats["y_max"] == 2'
+assert '$stats["x_max"] - 2*2**3/(3.0)' 2e-5
+
+output s2.dat /overwrite=true
+generate-buffer -2 2 x**2
+set-meta xx 42
+stats /meta=xx /stats=y_int,x_last /output=true
+
+load s2.dat
+assert '$stats["y_max"] == 2'
+assert '$stats["x_max"] - 2*2**3/(3.0)' 2e-5
+assert '$stats["y2_max"] == 42'

@@ -1970,17 +1970,14 @@ dif2("diff2", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void displayPeaks(QList<PeakInfo> peaks, const DataSet * ds, 
+static void displayPeaks(QList<PeakInfo> peaks, const DataSet * ds,
+                         const CommandOptions & opts,
                          int maxnb = -1, bool write = true)
 {
   const GraphicsSettings & gs = soas().graphicsSettings();
   CurveView & view = soas().view();
   view.disableUpdates();
   Terminal::out << "Found " << peaks.size() << " peaks" << endl;
-  if(write) {
-    Terminal::out << "Writing to output file " 
-                  << OutFile::out.fileName() << endl;
-  }
   if(maxnb < 0 || maxnb > peaks.size())
     maxnb = peaks.size();
   for(int i = 0; i < maxnb; i++) {
@@ -1992,8 +1989,8 @@ static void displayPeaks(QList<PeakInfo> peaks, const DataSet * ds,
         << "width" << peaks[i].width()
         << "left_width" << peaks[i].leftHHWidth
         << "right_width" << peaks[i].rightHHWidth;
-    if(write)
-      OutFile::out.writeValueHash(hsh, ds);
+    hsh.handleOutput(ds, opts, write);
+
     if(! i)
       Terminal::out << hsh.keyOrder.join("\t") << endl;
     Terminal::out << hsh.toString() << endl;
@@ -2035,9 +2032,8 @@ static void findPeaksCommand(const QString &name, const CommandOptions & opts)
   updateFromOptions(opts, "window", window);
   updateFromOptions(opts, "peaks", nb);
   updateFromOptions(opts, "include-borders", includeBorders);
-  updateFromOptions(opts, "output", write);
-
   updateFromOptions(opts, "which", which);
+  
   if(which == "min") {
     trim = true;
     max = false;
@@ -2058,7 +2054,7 @@ static void findPeaksCommand(const QString &name, const CommandOptions & opts)
     PeakInfo::removeMinMax(peaks, !max);
   if(nb >= 0)
     PeakInfo::sortByMagnitude(peaks);
-  displayPeaks(peaks, ds, nb, write);
+  displayPeaks(peaks, ds, opts, nb, write);
 }
 
 
@@ -2080,19 +2076,15 @@ fpBaseOps(QList<Argument *>()
 
 static ArgumentList 
 fpOps(QList<Argument *>(fpBaseOps) 
-      << new BoolArgument("output", 
-                          "Write to output file",
-                          "Whether peak information should be written to the output file (defaults to false)")
       << new IntegerArgument("peaks", 
                              "Number of peaks",
                              "Display only that many peaks (by order of intensity)")
+      << ValueHash::outputOptions()
       );
 
 static ArgumentList 
 fpbOps(QList<Argument *>(fpBaseOps) 
-      << new BoolArgument("output", 
-                          "Write to output file",
-                          "Whether peak information should be written to the output file (defaults to true)")
+      << ValueHash::outputOptions(true)
       );
       
 static Command 

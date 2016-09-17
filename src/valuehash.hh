@@ -181,12 +181,15 @@ public:
   ///
   /// @{
 
-  /// The options for handling the output file
-  static QList<Argument *> outputOptions();
+  /// The options for handling the output file.  The optional argument
+  /// is the default value for output (need to be provided to
+  /// handleOutput too.
+  static QList<Argument *> outputOptions(bool deflt = false);
 
   /// Process the output of the hash to the output file, or other
   /// things like that.
-  void handleOutput(const DataSet * ds, const CommandOptions & opts) const;
+  void handleOutput(const DataSet * ds, const CommandOptions & opts,
+                    bool deflt = false) const;
 
   /// @}
   

@@ -335,22 +335,25 @@ void ValueHash::setValue(const QString & key, const QVariant& value)
   (*this)[key] = value;
 }
 
-QList<Argument *> ValueHash::outputOptions()
+QList<Argument *> ValueHash::outputOptions(bool deflt)
 {
   return 
     QList<Argument *>() 
        << new BoolArgument("output", 
                            "To output file",
-                           "whether to write stats to output file (defaults to false)")
+                           (deflt ?
+                            "whether to write data to output file (defaults to true)" : "whether to write data to output file (defaults to false)")
+                           )
        << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "meta", 
                                      "Meta-data",
                                      "when writing to output file, also prints the listed meta-data")
     ;
 }
 
-void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts) const
+void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts,
+                             bool deflt) const
 {
-  bool output = false;
+  bool output = deflt;
   updateFromOptions(opts, "output", output);
   QStringList metaNames;
   updateFromOptions(opts, "meta", metaNames);

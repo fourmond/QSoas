@@ -286,7 +286,8 @@ SOURCES += src/qmain.cc \
         src/functions.cc \
         src/cachedfunction.cc \
         src/datasetexpression.cc \
-        src/modifiedfit.cc
+        src/modifiedfit.cc \
+        src/wave-fits.cc
 
 
 HEADERS += src/headers.hh \

@@ -1,8 +1,7 @@
 /**
-   @file misc-fits.cc
-   Various fits...
-   Copyright 2011 by Vincent Fourmond
-             2012, 2013, 2014, 2015, 2016 by CNRS/AMU
+   @file wave-fits.cc
+   Fits for the "wave shape", based on the Fourmond JACS 2013 paper
+   Copyright 2013, 2014, 2015, 2016 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -25,6 +24,7 @@
 
 #include <terminal.hh>
 #include <commandeffector-templates.hh>
+#include <argument-templates.hh>
 #include <general-arguments.hh>
 #include <soas.hh>
 
@@ -32,9 +32,21 @@
 
 #include <gsl/gsl_const_mksa.h>
 
-#include <gsl/gsl_poly.h>
+typedef enum {
+  Nernst,
+  SlowET,
+  Dispersion,
+  Full
+} ShapeApproximation;
 
 
+QStringList approxNames = QStringList()
+  << "nernst"
+     << "slow-et"
+        << "dispersion"
+           << "full";
+
+QList<ShapeApproximation> approxValues({Nernst, SlowET, Dispersion, Full});
 
 
 
@@ -156,10 +168,11 @@ public:
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new 
-                   BoolArgument("plateau", 
-                                "Plateau",
-                                "whether to use the general expression or "
-                                "only that valid when plateaus are not reached (default: off)")
+                   TemplateChoiceArgument<ShapeApproximation>
+                   (approxNames, approxValues,
+                    "approximation",
+                    "Approximation", 
+                    "the kind of approximation used for the computation (default: dispersion)")
                    << new 
                    BoolArgument("oxidation", 
                                 "Reference is oxidation",

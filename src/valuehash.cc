@@ -347,16 +347,24 @@ QList<Argument *> ValueHash::outputOptions(bool deflt)
        << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "meta", 
                                      "Meta-data",
                                      "when writing to output file, also prints the listed meta-data")
+       << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "set-meta", 
+                                     "Set meta-data",
+                                     "sets meta-data to the results of the command")
     ;
 }
 
 void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts,
                              bool deflt) const
 {
+
+  /// @hack We'll have to const-cast, here. Is it a real problem ?
   bool output = deflt;
   updateFromOptions(opts, "output", output);
   QStringList metaNames;
   updateFromOptions(opts, "meta", metaNames);
+
+  QStringList setMeta;
+  updateFromOptions(opts, "set-meta", setMeta);
 
 
   ValueHash meta;
@@ -377,5 +385,44 @@ void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts,
     ov.merge(meta);
     Terminal::out << "Writing to output file" << endl;
     OutFile::out.writeValueHash(ov, ds);
+  }
+
+  if(setMeta.size() > 0) {
+    ValueHash cnv;
+    // Parsing set-meta:
+    // * '*' means "set all"
+    // * 'txt' means set the meta txt to the value txt
+    // * 'txt->txt2' means set the meta txt2 to the value txt
+    for(int i = 0; i < setMeta.size(); i++) {
+      const QString &sp = setMeta[i];
+      if(sp == "*") {
+        cnv.merge(*this);
+        continue;
+      }
+      int idx = sp.indexOf("->");
+      if(idx < 0) {
+        if(! contains(sp))
+          Terminal::out << "Cannot set meta to '" << sp
+                        << "', value missing" << endl;
+        else
+          cnv[sp] = (*this)[sp];
+      }
+      else {
+        QString org = sp.left(idx);
+        QString dest = sp.mid(idx+2);
+        if(! contains(org))
+          Terminal::out << "Cannot set meta '" << dest << "' to '" << org
+                        << "', value missing" << endl;
+        else
+          cnv[dest] = (*this)[org];
+      }
+    }
+
+    DataSet * d = const_cast<DataSet *>(ds);
+
+    Terminal::out << "Setting meta-data :'"
+                  << QStringList(cnv.keys()).join("', '")
+                  << "'" << endl;
+    d->addMetaData(cnv);
   }
 }

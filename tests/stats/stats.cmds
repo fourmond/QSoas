@@ -18,3 +18,15 @@ load s2.dat
 assert '$stats["y_max"] == 2'
 assert '$stats["x_max"] - 2*2**3/(3.0)' 2e-5
 assert '$stats["y2_max"] == 42'
+
+generate-buffer -10 10
+stats /set-meta=*
+assert '$meta["y_max"] == 10'
+drop
+
+generate-buffer -10 10
+stats /set-meta=y_min
+assert '$meta["y_min"] == -10'
+
+stats /set-meta=y_min->xxx
+assert '$meta["xxx"] == -10'

@@ -22,6 +22,7 @@
 #define __ARGUMENT_TEMPLATES_HH
 
 #include <argument.hh>
+#include <exceptions.hh>
 #include <utils.hh>
 
 
@@ -29,6 +30,8 @@
 template <class T> 
 class TemplateChoiceArgument : public Argument {
   QHash<QString, T> fixedChoices;
+
+  QStringList order;
 
   QString choiceName;
 public:
@@ -39,6 +42,25 @@ public:
                          const char * chN = "") : 
     Argument(cn, pn, d, false, def), 
     fixedChoices(c), choiceName(chN) {
+    order = fixedChoices.keys();
+    qSort(order);
+  }; 
+
+  TemplateChoiceArgument(const QList<QString> & c1,
+                         const QList<T> & c2,
+                         const char * cn, const char * pn,
+                         const char * d = "", bool def = false,
+                         const char * chN = "") : 
+    Argument(cn, pn, d, false, def), choiceName(chN) {
+    order = c1;
+    // Using exceptions in constructors, but constructors are called
+    // mostly statically, so that shouldn't be a problem.
+    if(c1.size() != c2.size())
+      throw InternalError("Mismatch in sizes: %1 vs %2").
+        arg(c1.size()).arg(c2.size());
+    for(int i = 0; i < c2.size(); i++) {
+      fixedChoices[c1[i]] = c2[i];
+    }
   }; 
 
   virtual QString typeName() const {
@@ -47,9 +69,7 @@ public:
     return choiceName;
   };
   virtual QString typeDescription() const {
-    QStringList cs = fixedChoices.keys();
-    qSort(cs);
-    return QString("One of: `%1`").arg(cs.join("`, `"));
+    return QString("One of: `%1`").arg(order.join("`, `"));
   };
 
   /// Returns a wrapped T
@@ -62,11 +82,9 @@ public:
   /// Prompting uses QInputDialog.
   virtual ArgumentMarshaller * promptForValue(QWidget * base) const {
     bool ok = false;
-    QStringList choices = fixedChoices.keys();
-    qSort(choices);
     QString str = 
       QInputDialog::getItem(base, argumentName(), description(),
-                            choices, 0, false, &ok);
+                            order, 0, false, &ok);
     if(! ok)
       throw RuntimeError("Aborted");
     return fromString(str);

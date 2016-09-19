@@ -47,7 +47,12 @@ QStringList approxNames =
         << "dispersion"
            << "full";
 
-QList<ShapeApproximation> approxValues({Nernst, SlowET, Dispersion, Full});
+QList<ShapeApproximation> approxValues =
+              QList<ShapeApproximation>()
+              << Nernst
+                 << SlowET
+                    << Dispersion
+                       << Full;
 
 /// Fits to the ECI model of electrochemical waves
 class ECIFit : public PerDatasetFit {

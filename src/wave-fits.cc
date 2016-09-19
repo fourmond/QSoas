@@ -109,13 +109,22 @@ public:
     if(s->approx == Full)
       bd0 = params[4];
     double ebd0 = exp(bd0);
-        
-    // if(cur > 0)
-    //   throw RangeError("Positive reduction current");
+
+    if(s->isOxidation) {
+      if(cur < 0)
+        throw RangeError("Negative oxidation current");
+    }
+    else
+      if(cur > 0)
+        throw RangeError("Positive reduction current");
 
     for(int i = 0; i < xv.size(); i++) {
       double x = xv[i];
-      double d1 = exp(0.5 * f * (x - params[1]));
+      x -= params[1];
+      if(s->isOxidation)
+        x = -x;
+      
+      double d1 = exp(0.5 * f * x);
       double e1 = d1 * d1;
       double a = 1 + e1;
       double v;
@@ -165,8 +174,7 @@ public:
   virtual QList<ParameterDefinition> parameters(FitData * data) const {
     Storage * s = storage<Storage>(data);
     QList<ParameterDefinition> defs;
-    QTextStream o(stdout);
-    o << "Approx: " << s->approx << endl;
+
     defs << ParameterDefinition("temperature", true)
          << ParameterDefinition("E1");
     switch(s->approx) {

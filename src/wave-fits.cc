@@ -40,13 +40,185 @@ typedef enum {
 } ShapeApproximation;
 
 
-QStringList approxNames = QStringList()
+QStringList approxNames =
+  QStringList()
   << "nernst"
      << "slow-et"
         << "dispersion"
            << "full";
 
 QList<ShapeApproximation> approxValues({Nernst, SlowET, Dispersion, Full});
+
+/// Fits to the ECI model of electrochemical waves
+class ECIFit : public PerDatasetFit {
+  class Storage : public FitInternalStorage {
+  public:
+    /// The approximation level to use
+    ShapeApproximation approx;
+    
+    /// Whether the current is a reduction current (default) or an
+    /// oxidation current
+    bool isOxidation;
+  };
+    
+protected:
+    virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    return new Storage;
+  };
+
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+    return deepCopy<Storage>(source);
+  };
+
+
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const override 
+  {
+    Storage * s = storage<Storage>(data);
+    s->approx = Dispersion;
+    s->isOxidation = false;
+    updateFromOptions(opts, "approximation", s->approx);
+    updateFromOptions(opts, "oxidation", s->isOxidation);
+  }
+
+  
+  virtual QString optionsString(FitData * data) const {
+    Storage * s = storage<Storage>(data);
+    return QString("%1, %3").
+      arg(s->approx).
+      arg(s->isOxidation ? "oxidation" : "reduction");
+  }
+
+public:
+
+
+  /// Formula:
+  virtual void function(const double * params, FitData * data, 
+                        const DataSet * ds , gsl_vector * target) const {
+    Storage * s = storage<Storage>(data);
+
+    const Vector & xv = ds->x();
+    double f = GSL_CONST_MKSA_FARADAY /(params[0] * GSL_CONST_MKSA_MOLAR_GAS);
+
+    double cur = params[2];
+
+    double k2_k0 = (s->approx == Nernst ? 0 : params[3]);
+    if(k2_k0 < 0)
+      throw RangeError("Negative k2/k0");
+
+    double bd0 = 0;
+    if(s->approx == Full)
+      bd0 = params[4];
+    double ebd0 = exp(bd0);
+        
+    // if(cur > 0)
+    //   throw RangeError("Positive reduction current");
+
+    for(int i = 0; i < xv.size(); i++) {
+      double x = xv[i];
+      double d1 = exp(0.5 * f * (x - params[1]));
+      double e1 = d1 * d1;
+      double a = 1 + e1;
+      double v;
+      if(s->approx == Nernst) {
+        v = cur/a;
+      }
+      else {
+        double b = d1;
+        switch(s->approx) {
+        case SlowET:
+          v = cur/(a + b * k2_k0);
+          break;
+        case Dispersion:
+          v = cur/a * log(1 + a/(b * k2_k0));
+          break;
+        case Full:
+          v = cur/a * (1 + (1/bd0) *
+                       log((a + b * k2_k0)/(a + b * k2_k0 * ebd0)));
+          break;
+        default:
+          ;
+        }
+      }
+      gsl_vector_set(target, i, v);
+    }
+  };
+
+  virtual void initialGuess(FitData * data, 
+                            const DataSet * ds,
+                            double * a) const
+  {
+    Storage * s = storage<Storage>(data);
+    a[0] = soas().temperature();
+    a[1] = 0.5 * (ds->x().max() + ds->x().min());
+    switch(s->approx) {
+    case Full:
+      a[4] = 10;
+    case Dispersion:
+    case SlowET:
+      a[3] = 2;
+    case Nernst:
+      a[2] = s->isOxidation ?
+        ds->y().max() : ds->y().min();                   // ilim/ilim/beta d0
+    };
+  };
+
+  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+    Storage * s = storage<Storage>(data);
+    QList<ParameterDefinition> defs;
+    QTextStream o(stdout);
+    o << "Approx: " << s->approx << endl;
+    defs << ParameterDefinition("temperature", true)
+         << ParameterDefinition("E1");
+    switch(s->approx) {
+    case Nernst:
+      defs << ParameterDefinition("ilim");
+      break;
+    case SlowET:
+    case Full:
+      defs << ParameterDefinition("ilim")
+           << ParameterDefinition("k2/k01");
+      if(s->approx == Full)
+        defs << ParameterDefinition("betad0");
+          break;
+    case Dispersion:
+      defs << ParameterDefinition("ilim/betad0")
+           << ParameterDefinition("k2/k01");
+      break;
+    }
+    
+    return defs;
+  };
+
+  virtual ArgumentList * fitHardOptions() const {
+    ArgumentList * opts = new 
+      ArgumentList(QList<Argument *>()
+                   << new 
+                   TemplateChoiceArgument<ShapeApproximation>
+                   (approxNames, approxValues,
+                    "approximation",
+                    "Approximation", 
+                    "the kind of approximation used for the computation (default: dispersion)")
+                   << new 
+                   BoolArgument("oxidation", 
+                                "Oxidative direction",
+                                "if on, models an oxidative wave (default: off, hence reductive wave)")
+                   );
+    return opts;
+  };
+
+  ECIFit() :
+    PerDatasetFit("eci-wave", 
+                  "Fit of an EC irreversible catalytic wave",
+                  "...", 1, -1, false) 
+  { 
+    makeCommands();
+  }
+};
+
+
+// DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
+// Its name doesn't matter.
+ECIFit fit_eci;
 
 
 
@@ -75,7 +247,7 @@ protected:
   };
 
 
-  virtual void processOptions(const CommandOptions & opts, FitData * data)
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const override 
   {
     Storage * s = storage<Storage>(data);
     s->plateau = false;
@@ -227,7 +399,7 @@ protected:
   };
 
 
-  virtual void processOptions(const CommandOptions & opts, FitData *data) const
+  virtual void processOptions(const CommandOptions & opts, FitData *data) const override 
   {
     Storage * s = storage<Storage>(data);
     s->plateau = false;

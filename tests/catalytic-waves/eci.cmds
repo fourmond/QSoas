@@ -1,0 +1,11 @@
+generate-buffer -0.8 -0.2
+sim-eci-wave /approximation=nernst parameters/eci-1.params 0
+apply-formula 'f=F/(R*298); y+= 2/(1 + exp(f*(x+0.5)))'
+assert '$stats["y_norm"]' 2e-15
+
+# Check that slow ET tends to nernst when
+sim-eci-wave /approximation=nernst parameters/eci-1.params 0
+sim-eci-wave /approximation=slow-et parameters/eci-1.params 0 /override='k2/k01=1e-7'
+S 1 0
+assert '$stats["y_norm"]' 1e-6
+

@@ -111,8 +111,11 @@ public:
       throw RangeError("Negative k2/k0");
 
     double bd0 = 0;
-    if(s->approx == Full)
+    if(s->approx == Full) {
       bd0 = params[4];
+      if(bd0 < 0)
+        throw RangeError("Negative bd0");
+    }
     double ebd0 = exp(bd0);
 
     if(s->isOxidation) {
@@ -235,8 +238,240 @@ ECIFit fit_eci;
 
 
 
+//////////////////////////////////////////////////////////////////////
+
 /// Fits to the ECR model of electrochemical waves
 class ECRFit : public PerDatasetFit {
+  class Storage : public FitInternalStorage {
+  public:
+    /// The approximation level to use
+    ShapeApproximation approx;
+    
+    /// Whether the current is a reduction current (default) or an
+    /// oxidation current
+    bool isOxidation;
+
+    /// Whether the bias parameter is a open circuit potential or a
+    /// ratio of rate constants.
+    bool useEoc;
+  };
+    
+protected:
+    virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    return new Storage;
+  };
+
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+    return deepCopy<Storage>(source);
+  };
+
+
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const override 
+  {
+    Storage * s = storage<Storage>(data);
+    s->approx = Dispersion;
+    s->isOxidation = false;
+    s->useEoc = false;
+    updateFromOptions(opts, "approximation", s->approx);
+    updateFromOptions(opts, "oxidation", s->isOxidation);
+    updateFromOptions(opts, "use-eoc", s->useEoc);
+  }
+
+  
+  virtual QString optionsString(FitData * data) const {
+    Storage * s = storage<Storage>(data);
+    return QString("%1, %2, %3").
+      arg(s->approx).
+      arg(s->useEoc ? "eoc" : "bias").
+      arg(s->isOxidation ? "oxidation" : "reduction");
+  }
+
+public:
+
+    virtual QList<ParameterDefinition> parameters(FitData * data) const override {
+    Storage * s = storage<Storage>(data);
+    QList<ParameterDefinition> defs;
+
+    defs << ParameterDefinition("temperature", true)
+         << ParameterDefinition("E1");
+    if(s->useEoc)
+      defs << ParameterDefinition("Eoc");
+    else
+      defs << ParameterDefinition("k-2/k2");
+    switch(s->approx) {
+    case Nernst:
+      defs << ParameterDefinition("ilim");
+      break;
+    case SlowET:
+    case Full:
+      defs << ParameterDefinition("ilim")
+           << ParameterDefinition("k2/k01");
+      if(s->approx == Full)
+        defs << ParameterDefinition("betad0");
+          break;
+    case Dispersion:
+      defs << ParameterDefinition("ilim/betad0")
+           << ParameterDefinition("k2/k01");
+      break;
+    }
+    
+    return defs;
+  };
+
+
+  virtual void initialGuess(FitData * data, const DataSet * ds,
+                            double * a) const override
+  {
+    Storage * s = storage<Storage>(data);
+    a[0] = soas().temperature();
+    a[1] = 0.5 * (ds->x().max() + ds->x().min());
+
+    double b = -ds->y().max()/ds->y().min();
+    if(b < 0.05)
+      b = 0.05;
+    if(b > 20)
+      b = 20;
+
+    if(s->useEoc) {
+      a[2] = - (a[0] * GSL_CONST_MKSA_MOLAR_GAS)/GSL_CONST_MKSA_FARADAY *
+        log(b) + a[1];
+    }
+    else
+      a[2] = b;
+      
+    switch(s->approx) {
+    case Full:
+      a[5] = 10;
+    case Dispersion:
+    case SlowET:
+      a[4] = 2;
+    case Nernst:
+      a[3] = s->isOxidation ?
+        ds->y().max() : ds->y().min();                   // ilim/ilim/beta d0
+    };
+  };
+
+
+  /// Formula:
+  virtual void function(const double * params, FitData * data, 
+                        const DataSet * ds , gsl_vector * target) const {
+    Storage * s = storage<Storage>(data);
+
+    const Vector & xv = ds->x();
+    double f = GSL_CONST_MKSA_FARADAY /(params[0] * GSL_CONST_MKSA_MOLAR_GAS);
+
+    const double E1 = params[1];
+    double k_m2_k2 = params[2];
+
+    if(s->useEoc)
+      k_m2_k2 = exp(f * (k_m2_k2 - E1));
+
+    if(k_m2_k2 < 0)
+      throw RangeError("Negative bias");
+
+    
+    double cur = params[3];
+        
+
+    double k2_k0 = (s->approx == Nernst ? 0 : params[4]);
+    if(k2_k0 < 0)
+      throw RangeError("Negative k2/k0");
+
+    double bd0 = 0;
+    if(s->approx == Full) {
+      bd0 = params[5];
+      if(bd0 < 0)
+        throw RangeError("Negative bd0");
+    }
+    double ebd0 = exp(bd0);
+
+    if(s->isOxidation) {
+      if(cur < 0)
+        throw RangeError("Negative oxidation current");
+    }
+    else
+      if(cur > 0)
+        throw RangeError("Positive reduction current");
+    if(s->isOxidation)
+      cur = -cur/k_m2_k2;
+
+
+    for(int i = 0; i < xv.size(); i++) {
+      double x = xv[i];
+      x -= E1;
+      
+      double d1 = exp(0.5 * f * x);
+      double e1 = d1 * d1;
+      double a = 1 + e1;
+      double ap = k_m2_k2 * e1;
+      double v;
+      if(s->approx == Nernst) {
+        v = cur * (1 - ap)/a;
+      }
+      else {
+        double b = d1 * (1 + k_m2_k2);
+        switch(s->approx) {
+        case SlowET:
+          v = cur * (1 - ap)/(a + b * k2_k0);
+          break;
+        case Dispersion:
+          v = cur * (1 - ap)/a * log(1 + a/(b * k2_k0));
+          break;
+        case Full:
+          v = cur * (1 - ap)/a * (1 + (1/bd0) *
+                       log((a + b * k2_k0)/(a + b * k2_k0 * ebd0)));
+          break;
+        default:
+          ;
+        }
+      }
+      gsl_vector_set(target, i, v);
+    }
+  };
+
+
+  virtual ArgumentList * fitHardOptions() const {
+    ArgumentList * opts = new 
+      ArgumentList(QList<Argument *>()
+                   << new 
+                   TemplateChoiceArgument<ShapeApproximation>
+                   (approxNames, approxValues,
+                    "approximation",
+                    "Approximation", 
+                    "the kind of approximation used for the computation (default: dispersion)")
+                   << new 
+                   BoolArgument("oxidation", 
+                                "Reference is oxidation",
+                                "if on, use the oxidation current as reference (default: off, reductive current as reference)")
+                   << new 
+                   BoolArgument("use-eoc", 
+                                "Use open circuit",
+                                "whether to use explicitly the bias or compute "
+                                "it using the open circuit potential (default: false)")
+                   );
+    return opts;
+  };
+
+  ECRFit() :
+    PerDatasetFit("ecr-wave", 
+                  "Fit of an EC reversible catalytic wave",
+                  "...", 1, -1, false) 
+  { 
+    makeCommands();
+  }
+};
+
+
+// DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
+// Its name doesn't matter.
+ECRFit fit_ecr;
+
+
+
+//////////////////////////////////////////////////////////////////////
+
+/// Fits to the ECR model of electrochemical waves
+class ECROldFit : public PerDatasetFit {
   class Storage : public FitInternalStorage {
   public:
     /// Whether or not the current plateaus off at extreme potentials.
@@ -371,9 +606,9 @@ public:
     return opts;
   };
 
-  ECRFit() :
-    PerDatasetFit("ecr-wave", 
-                  "Fit of an ECR catalytic wave",
+  ECROldFit() :
+    PerDatasetFit("ecro-wave", 
+                  "(old) fit of an ECR catalytic wave",
                   "...", 1, -1, false) 
   { 
     makeCommands();
@@ -383,7 +618,7 @@ public:
 
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
 // Its name doesn't matter.
-ECRFit fit_ecr;
+ECROldFit fit_ecro;
 
 /// Fits to the EECR model of electrochemical waves
 class EECRFit : public PerDatasetFit {

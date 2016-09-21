@@ -172,7 +172,7 @@ public:
       a[4] = 10;
     case Dispersion:
     case SlowET:
-      a[3] = 2;
+      a[3] = 0.2;
     case Nernst:
       a[2] = s->isOxidation ?
         ds->y().max() : ds->y().min();                   // ilim/ilim/beta d0
@@ -344,7 +344,7 @@ public:
       a[5] = 10;
     case Dispersion:
     case SlowET:
-      a[4] = 2;
+      a[4] = 0.2;
     case Nernst:
       a[3] = s->isOxidation ?
         ds->y().max() : ds->y().min();                   // ilim/ilim/beta d0
@@ -354,7 +354,8 @@ public:
 
   /// Formula:
   virtual void function(const double * params, FitData * data, 
-                        const DataSet * ds , gsl_vector * target) const {
+                        const DataSet * ds,
+                        gsl_vector * target) const override {
     Storage * s = storage<Storage>(data);
 
     const Vector & xv = ds->x();
@@ -392,14 +393,14 @@ public:
     else
       if(cur > 0)
         throw RangeError("Positive reduction current");
-    if(s->isOxidation)
-      cur = -cur/k_m2_k2;
-
 
     for(int i = 0; i < xv.size(); i++) {
       double x = xv[i];
       x -= E1;
-      
+
+      if(s->isOxidation)
+        x = -x;
+
       double d1 = exp(0.5 * f * x);
       double e1 = d1 * d1;
       double a = 1 + e1;

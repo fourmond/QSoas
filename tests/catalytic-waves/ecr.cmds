@@ -1,0 +1,31 @@
+generate-buffer -0.8 -0.2
+sim-ecr-wave /approximation=nernst parameters/ecr-1.params 0
+apply-formula 'f=F/(R*298); y+= 5/(1 + exp(f*(x+0.5)))-1'
+assert '$stats["y_norm"]' 1e-14
+
+# Check that slow ET tends to nernst when the electron transfer is fast
+sim-ecr-wave /approximation=nernst parameters/ecr-1.params 0
+sim-ecr-wave /approximation=slow-et parameters/ecr-1.params 0 /override='k2/k01=1e-9'
+S 1 0
+assert '$stats["y_norm"]' 1e-7
+
+# Check the equivalence of the two directions
+generate-buffer -0.8 -0.2
+sim-ecr-wave parameters/ecr-2.params 0
+# Both k-2/k2 and k2/k01 must change
+sim-ecr-wave parameters/ecr-2.params 0 /oxidation=true /override='k-2/k2=4;ilim/betad0=1;k2/k01=0.025'
+sim-ecr-wave parameters/ecr-2.params 0 /oxidation=true /override='k-2/k2=4' /override='ilim/betad0=1;k2/k01=0.025'
+S 1 0
+assert '$stats["y_norm"]' 1e-13
+
+
+# Check that the reversible wave tends to the reversible one
+sim-ecr-wave parameters/ecr-2.params 0 /override='k-2/k2=1e-10'
+sim-eci-wave parameters/ecr-2.params 0
+S 1 0
+assert '$stats["y_norm"]' 1e-7
+
+sim-ecr-wave parameters/ecr-2.params 0 /override='k-2/k2=1e-10;ilim/betad0=1' /oxidation=true
+sim-eci-wave parameters/ecr-2.params 0 /override='ilim/betad0=1' /oxidation=true
+S 1 0
+assert '$stats["y_norm"]' 1e-7

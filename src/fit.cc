@@ -310,10 +310,11 @@ void Fit::makeCommands(ArgumentList * args,
     ArgumentList * nopts = new ArgumentList(*baseOptions);
 
 
-    *nopts << new StringArgument("override",
-                                 "Override parameters",
-                                 "a comma-separated list of parameters "
-                                 "to override")
+    *nopts << new SeveralStringsArgument(QRegExp("\\s*[,;]\\s*"),
+                                         "override",
+                                         "Override parameters",
+                                         "a comma-separated list of parameters "
+                                         "to override")
            << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                          "flags", 
                                          "Flags",
@@ -510,9 +511,9 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
 
   // Additional option: overrides
 
-  QString overridesStr;
+  QStringList overrides;
 
-  updateFromOptions(opts, "override", overridesStr);
+  updateFromOptions(opts, "override", overrides);
 
   QString extraParams;
   updateFromOptions(opts, "extra-parameters", extraParams);
@@ -547,10 +548,6 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
 
 
 
-  /// @todo Use mutliple value strings/options when they are
-  /// available.
-  QStringList overrides = overridesStr.split(QRegExp("\\s*[,;]\\s*"), 
-                                             QString::SkipEmptyParts);
   for(int i = 0; i < overrides.size(); i++) {
     QStringList spec = overrides[i].split(QRegExp("\\s*=\\s*"));
     if(spec.size() != 2)

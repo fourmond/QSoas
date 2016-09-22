@@ -365,7 +365,7 @@ public:
     double k_m2_k2 = params[2];
 
     if(s->useEoc)
-      k_m2_k2 = exp(f * (k_m2_k2 - E1));
+      k_m2_k2 = exp(f * (E1 - k_m2_k2));
 
     if(k_m2_k2 < 0)
       throw RangeError("Negative bias");

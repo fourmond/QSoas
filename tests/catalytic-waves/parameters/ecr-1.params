@@ -2,7 +2,7 @@
 # Fit used: ecr-wave (0, bias, reduction)
 # Buffer #0 : generated_fit_eci-wave.dat
 temperature	298	!	0
-E1	-0.5	!	1
+Eor	-0.5	!	1
 k-2/k2	0.25	!	1
 ilim	-4	!	1
 # The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas

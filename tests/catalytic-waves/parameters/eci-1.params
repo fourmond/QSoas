@@ -2,7 +2,7 @@
 # Fit used: eci-wave (0, reduction)
 # Buffer #0 : generated.dat
 temperature	298	!	0
-E1	-0.5	!	1
+Eor	-0.5	!	1
 ilim	-2	!	1
 # The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
 # Buffer-local parameters: 

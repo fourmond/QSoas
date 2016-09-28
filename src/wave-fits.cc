@@ -96,6 +96,51 @@ protected:
 
 public:
 
+  virtual QList<ParameterDefinition> parameters(FitData * data) const override {
+    Storage * s = storage<Storage>(data);
+    QList<ParameterDefinition> defs;
+
+    defs << ParameterDefinition("temperature", true)
+         << ParameterDefinition("Eor");
+    switch(s->approx) {
+    case Nernst:
+      defs << ParameterDefinition("ilim");
+      break;
+    case SlowET:
+    case Full:
+      defs << ParameterDefinition("ilim")
+           << ParameterDefinition("k2/k0or");
+      if(s->approx == Full)
+        defs << ParameterDefinition("betad0");
+          break;
+    case Dispersion:
+      defs << ParameterDefinition("ilim/betad0")
+           << ParameterDefinition("k2/k0or");
+      break;
+    }
+    
+    return defs;
+  };
+
+  virtual void initialGuess(FitData * data, 
+                            const DataSet * ds,
+                            double * a) const override
+  {
+    Storage * s = storage<Storage>(data);
+    a[0] = soas().temperature();
+    a[1] = 0.5 * (ds->x().max() + ds->x().min());
+    switch(s->approx) {
+    case Full:
+      a[4] = 10;
+    case Dispersion:
+    case SlowET:
+      a[3] = 0.2;
+    case Nernst:
+      a[2] = s->isOxidation ?
+        ds->y().max() : ds->y().min();                   // ilim/ilim/beta d0
+    };
+  };
+
 
   /// Formula:
   virtual void function(const double * params, FitData * data, 
@@ -161,50 +206,6 @@ public:
     }
   };
 
-  virtual void initialGuess(FitData * data, 
-                            const DataSet * ds,
-                            double * a) const
-  {
-    Storage * s = storage<Storage>(data);
-    a[0] = soas().temperature();
-    a[1] = 0.5 * (ds->x().max() + ds->x().min());
-    switch(s->approx) {
-    case Full:
-      a[4] = 10;
-    case Dispersion:
-    case SlowET:
-      a[3] = 0.2;
-    case Nernst:
-      a[2] = s->isOxidation ?
-        ds->y().max() : ds->y().min();                   // ilim/ilim/beta d0
-    };
-  };
-
-  virtual QList<ParameterDefinition> parameters(FitData * data) const {
-    Storage * s = storage<Storage>(data);
-    QList<ParameterDefinition> defs;
-
-    defs << ParameterDefinition("temperature", true)
-         << ParameterDefinition("E1");
-    switch(s->approx) {
-    case Nernst:
-      defs << ParameterDefinition("ilim");
-      break;
-    case SlowET:
-    case Full:
-      defs << ParameterDefinition("ilim")
-           << ParameterDefinition("k2/k01");
-      if(s->approx == Full)
-        defs << ParameterDefinition("betad0");
-          break;
-    case Dispersion:
-      defs << ParameterDefinition("ilim/betad0")
-           << ParameterDefinition("k2/k01");
-      break;
-    }
-    
-    return defs;
-  };
 
   virtual ArgumentList * fitHardOptions() const {
     ArgumentList * opts = new 
@@ -294,7 +295,7 @@ public:
     QList<ParameterDefinition> defs;
 
     defs << ParameterDefinition("temperature", true)
-         << ParameterDefinition("E1");
+         << ParameterDefinition("Eor");
     if(s->useEoc)
       defs << ParameterDefinition("Eoc");
     else
@@ -306,13 +307,13 @@ public:
     case SlowET:
     case Full:
       defs << ParameterDefinition("ilim")
-           << ParameterDefinition("k2/k01");
+           << ParameterDefinition("k2/k0or");
       if(s->approx == Full)
         defs << ParameterDefinition("betad0");
           break;
     case Dispersion:
       defs << ParameterDefinition("ilim/betad0")
-           << ParameterDefinition("k2/k01");
+           << ParameterDefinition("k2/k0or");
       break;
     }
     

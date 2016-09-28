@@ -32,6 +32,7 @@
 
 #include <gsl/gsl_const_mksa.h>
 
+// These are the old names
 typedef enum {
   Nernst,
   SlowET,
@@ -44,8 +45,8 @@ QStringList approxNames =
   QStringList()
   << "nernst"
      << "slow-et"
-        << "dispersion"
-           << "full";
+        << "bd0-inf"
+           << "disp-k0";
 
 QList<ShapeApproximation> approxValues =
               QList<ShapeApproximation>()
@@ -81,7 +82,7 @@ protected:
     Storage * s = storage<Storage>(data);
     s->approx = Dispersion;
     s->isOxidation = false;
-    updateFromOptions(opts, "approximation", s->approx);
+    updateFromOptions(opts, "model", s->approx);
     updateFromOptions(opts, "oxidation", s->isOxidation);
   }
 
@@ -211,9 +212,9 @@ public:
                    << new 
                    TemplateChoiceArgument<ShapeApproximation>
                    (approxNames, approxValues,
-                    "approximation",
-                    "Approximation", 
-                    "the kind of approximation used for the computation (default: dispersion)")
+                    "model",
+                    "Model", 
+                    "the kind of model used for the computation (default: dispersion)")
                    << new 
                    BoolArgument("oxidation", 
                                 "Oxidative direction",
@@ -272,7 +273,7 @@ protected:
     s->approx = Dispersion;
     s->isOxidation = false;
     s->useEoc = false;
-    updateFromOptions(opts, "approximation", s->approx);
+    updateFromOptions(opts, "model", s->approx);
     updateFromOptions(opts, "oxidation", s->isOxidation);
     updateFromOptions(opts, "use-eoc", s->useEoc);
   }
@@ -437,9 +438,9 @@ public:
                    << new 
                    TemplateChoiceArgument<ShapeApproximation>
                    (approxNames, approxValues,
-                    "approximation",
-                    "Approximation", 
-                    "the kind of approximation used for the computation (default: dispersion)")
+                    "model",
+                    "Model", 
+                    "the kind of model used for the computation (default: dispersion)")
                    << new 
                    BoolArgument("oxidation", 
                                 "Reference is oxidation",
@@ -496,7 +497,7 @@ protected:
     Storage * s = storage<Storage>(data);
     s->approx = Dispersion;
     s->isOxidation = false;
-    updateFromOptions(opts, "approximation", s->approx);
+    updateFromOptions(opts, "model", s->approx);
     updateFromOptions(opts, "oxidation", s->isOxidation);
   }
 
@@ -646,9 +647,9 @@ public:
                    << new 
                    TemplateChoiceArgument<ShapeApproximation>
                    (approxNames, approxValues,
-                    "approximation",
-                    "Approximation", 
-                    "the kind of approximation used for the computation (default: dispersion)")
+                    "model",
+                    "Model", 
+                    "the kind of model used for the computation (default: dispersion)")
                    << new 
                    BoolArgument("oxidation", 
                                 "Oxidative direction",
@@ -705,7 +706,7 @@ protected:
     s->approx = Dispersion;
     s->isOxidation = false;
     s->useEoc = false;
-    updateFromOptions(opts, "approximation", s->approx);
+    updateFromOptions(opts, "model", s->approx);
     updateFromOptions(opts, "oxidation", s->isOxidation);
     updateFromOptions(opts, "use-eoc", s->useEoc);
   }
@@ -889,9 +890,9 @@ public:
                    << new 
                    TemplateChoiceArgument<ShapeApproximation>
                    (approxNames, approxValues,
-                    "approximation",
-                    "Approximation", 
-                    "the kind of approximation used for the computation (default: dispersion)")
+                    "model",
+                    "Model", 
+                    "the kind of model used for the computation (default: dispersion)")
                    << new 
                    BoolArgument("oxidation", 
                                 "Reference is oxidation",
@@ -1209,9 +1210,9 @@ public:
                    << new 
                    TemplateChoiceArgument<ShapeApproximation>
                    (approxNames, approxValues,
-                    "approximation",
-                    "Approximation", 
-                    "the kind of approximation used for the computation (default: dispersion)")
+                    "model",
+                    "Model", 
+                    "the kind of model used for the computation (default: dispersion)")
                    << new 
                    BoolArgument("oxidation", 
                                 "Reference is oxidation",

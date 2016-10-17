@@ -81,9 +81,10 @@ protected:
   {
     Storage * s = storage<Storage>(data);
     s->approx = Dispersion;
-    s->isOxidation = false;
+    bool reduction = false;
     updateFromOptions(opts, "model", s->approx);
-    updateFromOptions(opts, "oxidation", s->isOxidation);
+    updateFromOptions(opts, "reduction", reduction);
+    s->isOxidation = ! reduction;
   }
 
   
@@ -99,6 +100,8 @@ public:
   virtual QList<ParameterDefinition> parameters(FitData * data) const override {
     Storage * s = storage<Storage>(data);
     QList<ParameterDefinition> defs;
+    const char * knm = (s->isOxidation ? "kox/k0or" : "kred/k0or");
+    
 
     defs << ParameterDefinition("temperature", true)
          << ParameterDefinition("Eor");
@@ -109,13 +112,13 @@ public:
     case SlowET:
     case Full:
       defs << ParameterDefinition("ilim")
-           << ParameterDefinition("k2/k0or");
+           << ParameterDefinition(knm);
       if(s->approx == Full)
         defs << ParameterDefinition("betad0");
           break;
     case Dispersion:
       defs << ParameterDefinition("ilim/betad0")
-           << ParameterDefinition("k2/k0or");
+           << ParameterDefinition(knm);
       break;
     }
     
@@ -154,7 +157,7 @@ public:
 
     double k2_k0 = (s->approx == Nernst ? 0 : params[3]);
     if(k2_k0 < 0)
-      throw RangeError("Negative k2/k0");
+      throw RangeError("Negative kox/k0 or kred/k0");
 
     double bd0 = 0;
     if(s->approx == Full) {
@@ -217,9 +220,9 @@ public:
                     "Model", 
                     "the kind of model used for the computation (default: dispersion)")
                    << new 
-                   BoolArgument("oxidation", 
-                                "Oxidative direction",
-                                "if on, models an oxidative wave (default: off, hence reductive wave)")
+                   BoolArgument("reduction", 
+                                "Reductive direction",
+                                "if on, models a reductive wave (default: off, hence oxidative wave)")
                    );
     return opts;
   };
@@ -272,11 +275,13 @@ protected:
   {
     Storage * s = storage<Storage>(data);
     s->approx = Dispersion;
-    s->isOxidation = false;
     s->useEoc = false;
+
+    bool reduction = false;
     updateFromOptions(opts, "model", s->approx);
-    updateFromOptions(opts, "oxidation", s->isOxidation);
+    updateFromOptions(opts, "reduction", reduction);
     updateFromOptions(opts, "use-eoc", s->useEoc);
+    s->isOxidation = ! reduction;
   }
 
   
@@ -293,13 +298,15 @@ public:
     virtual QList<ParameterDefinition> parameters(FitData * data) const override {
     Storage * s = storage<Storage>(data);
     QList<ParameterDefinition> defs;
+    const char * knm1 = (s->isOxidation ? "kox/k0or" : "kred/k0or");
+    const char * knm2 = (s->isOxidation ? "kred/kox" : "kox/kred");
 
     defs << ParameterDefinition("temperature", true)
          << ParameterDefinition("Eor");
     if(s->useEoc)
       defs << ParameterDefinition("Eoc");
     else
-      defs << ParameterDefinition("k-2/k2");
+      defs << ParameterDefinition(knm2);
     switch(s->approx) {
     case Nernst:
       defs << ParameterDefinition("ilim");
@@ -307,13 +314,13 @@ public:
     case SlowET:
     case Full:
       defs << ParameterDefinition("ilim")
-           << ParameterDefinition("k2/k0or");
+           << ParameterDefinition(knm1);
       if(s->approx == Full)
         defs << ParameterDefinition("betad0");
           break;
     case Dispersion:
       defs << ParameterDefinition("ilim/betad0")
-           << ParameterDefinition("k2/k0or");
+           << ParameterDefinition(knm1);
       break;
     }
     
@@ -443,9 +450,9 @@ public:
                     "Model", 
                     "the kind of model used for the computation (default: dispersion)")
                    << new 
-                   BoolArgument("oxidation", 
-                                "Reference is oxidation",
-                                "if on, use the oxidation current as reference (default: off, reductive current as reference)")
+                   BoolArgument("reduction", 
+                                "Reference is reduction",
+                                "if on, use the reductive direction as reference (default: oxidative direction as reference)")
                    << new 
                    BoolArgument("use-eoc", 
                                 "Use open circuit",

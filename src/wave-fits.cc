@@ -504,9 +504,13 @@ protected:
   {
     Storage * s = storage<Storage>(data);
     s->approx = Dispersion;
-    s->isOxidation = false;
+
+    bool reduction = false;
+    updateFromOptions(opts, "model", s->approx);
+    updateFromOptions(opts, "reduction", reduction);
     updateFromOptions(opts, "model", s->approx);
     updateFromOptions(opts, "oxidation", s->isOxidation);
+    s->isOxidation = ! reduction;
   }
 
   
@@ -523,9 +527,11 @@ public:
     Storage * s = storage<Storage>(data);
     QList<ParameterDefinition> defs;
 
+    const char * knm1 = (s->isOxidation ? "kox/k0or" : "kred/k0or");
+
     defs << ParameterDefinition("temperature", true)
-         << ParameterDefinition("E1")
-         << ParameterDefinition("E2");
+         << ParameterDefinition("Eoi")
+         << ParameterDefinition("Eir");
     switch(s->approx) {
     case Nernst:
       defs << ParameterDefinition("ilim");
@@ -533,15 +539,15 @@ public:
     case SlowET:
     case Full:
       defs << ParameterDefinition("ilim")
-           << ParameterDefinition("k2/k01")
-           << ParameterDefinition("k01/k02");
+           << ParameterDefinition(knm1)
+           << ParameterDefinition("k0oi/k0ir");
       if(s->approx == Full)
         defs << ParameterDefinition("betad0");
           break;
     case Dispersion:
       defs << ParameterDefinition("ilim/betad0")
-           << ParameterDefinition("k2/k01")
-           << ParameterDefinition("k01/k02");
+           << ParameterDefinition(knm1)
+           << ParameterDefinition("k0oi/k0ir");
       break;
     }
     
@@ -588,9 +594,14 @@ public:
     if(k2_k0 < 0)
       throw RangeError("Negative k2/k0");
 
-    const double k01_k02 = (s->approx == Nernst ? 0 : params[5]);
-    if(k01_k02 < 0)
-      throw RangeError("Negative k01/k02");
+    double k0oi_k0ir_hlf;
+    {
+      const double k01_k02 = (s->approx == Nernst ? 0 : params[5]);
+      if(k01_k02 < 0)
+        throw RangeError("Negative k0oi/k0ir");
+      
+      k0oi_k0ir_hlf = sqrt(k01_k02);
+    }
 
     double bd0 = 0;
     if(s->approx == Full) {
@@ -629,7 +640,7 @@ public:
         v = cur/a;
       }
       else {
-        double b = d1 + k01_k02 * d2 * (1 + e1);
+        double b = d1/k0oi_k0ir_hlf + k0oi_k0ir_hlf * d2 * (1 + e1);
         switch(s->approx) {
         case SlowET:
           v = cur/(a + b * k2_k0);
@@ -659,9 +670,9 @@ public:
                     "Model", 
                     "the kind of model used for the computation (default: dispersion)")
                    << new 
-                   BoolArgument("oxidation", 
-                                "Oxidative direction",
-                                "if on, models an oxidative wave (default: off, hence reductive wave)")
+                   BoolArgument("reduction", 
+                                "Reductive direction",
+                                "if on, models a reductive wave (default: off, hence oxidative wave)")
                    );
     return opts;
   };

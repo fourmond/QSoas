@@ -80,9 +80,13 @@ RUBY_VALUE Ruby::exceptionSafeCall(RUBY_VALUE (*function)(...), void * args)
 
 RUBY_VALUE Ruby::main;
 
+static char* argv[]  = { "QSoas-internal", "-e", "true", "-E", "utf-8:utf-8"};
+static const int nbargs = sizeof(argv)/sizeof(argv[0]);
+
 void Ruby::initRuby()
 {
   ruby_wrappers_init();
+  ruby_wrappers_process_options(nbargs, argv);
   main = rbw_eval_string("self");
   rbw_extend_object(main, rbw_mMath());
 

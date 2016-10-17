@@ -132,6 +132,7 @@ extern "C" {
   const char * rbw_string_value_cstr(RUBY_VALUE obj);
 
   void ruby_wrappers_init();
+  void ruby_wrappers_process_options(int argn, char **argv);
 
   /** 
       @name Class/modules constants

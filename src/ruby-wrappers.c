@@ -219,6 +219,12 @@ void ruby_wrappers_init()
   ruby_init();
 }
 
+void ruby_wrappers_process_options(int argn, char **argv)
+{
+  ruby_process_options(argn, argv);
+}
+
+
 RUBY_VALUE rbw_int(int i)
 {
   return (RUBY_VALUE)INT2FIX(i);

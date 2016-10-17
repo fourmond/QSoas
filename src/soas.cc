@@ -154,6 +154,16 @@ static CommandLineOption sp("--spec", [](const QStringList & /*args*/) {
     ::exit(0);
   }, 0, "write command specs");
 
+static CommandLineOption lsc("--list-commands", [](const QStringList & /*args*/) {
+    {
+      QTextStream o(stdout);
+      QStringList cmds = Command::allCommands();
+      qSort(cmds);
+      o << cmds.join("\n") << endl;
+    }
+    ::exit(0);
+  }, 0, "write available commands");
+
 static CommandLineOption fsp("--full-spec", [](const QStringList & /*args*/) {
     {
       QTextStream o(stdout);

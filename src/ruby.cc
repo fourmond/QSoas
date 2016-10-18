@@ -86,7 +86,8 @@ static const int nbargs = sizeof(argv)/sizeof(argv[0]);
 void Ruby::initRuby()
 {
   ruby_wrappers_init();
-  ruby_wrappers_process_options(nbargs, argv);
+  // This segfaults on windows.
+  // ruby_wrappers_process_options(nbargs, argv);
   main = rbw_eval_string("self");
   rbw_extend_object(main, rbw_mMath());
 

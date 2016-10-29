@@ -621,26 +621,34 @@ public:
 
     for(int i = 0; i < xv.size(); i++) {
       double x = xv[i];
-      x -= E1;
+      x -= E1;                  // = E_OI
       if(s->isOxidation)
         x = -x;
       double d1 = exp(0.5 * f * x);
       double e1 = d1 * d1;
 
       x = xv[i];
-      x -= E2;
+      x -= E2;                  // = E_IR
       if(s->isOxidation)
         x = -x;
       double d2 = exp(0.5 * f * x);
       double e2 = d2 * d2;
+
+      // For the case of oxidation, e and d are already inverted
       
-      double a = 1 + e2*(1 + e1);
+      double a = s->isOxidation ?
+        1 + e1*(1 + e2)
+        : 1 + e2*(1 + e1)
+        ;
       double v;
       if(s->approx == Nernst) {
         v = cur/a;
       }
       else {
-        double b = d1/k0oi_k0ir_hlf + k0oi_k0ir_hlf * d2 * (1 + e1);
+        double b = s->isOxidation ?
+          d1/k0oi_k0ir_hlf * (1 + e2) + k0oi_k0ir_hlf * d2 
+          : 
+          d1/k0oi_k0ir_hlf + k0oi_k0ir_hlf * d2 * (1 + e1);
         switch(s->approx) {
         case SlowET:
           v = cur/(a + b * k2_k0);

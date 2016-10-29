@@ -4,8 +4,8 @@
 temperature	298	!	0
 Eoi	-0.3	!	1
 Eir	-0.5	!	1
-ilim	2	!	1
-kox/k0or	0.2	!	1
+ilim	-2	!	1
+kred/k0or	0.3	!	1
 k0oi/k0ir	3	!	1
 # The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
 # Global parameters: 

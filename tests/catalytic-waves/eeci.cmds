@@ -1,20 +1,45 @@
 generate-buffer -0.8 -0.2
 sim-eeci-wave /model=nernst parameters/eeci-1.params 0
-apply-formula 'f=F/(R*298); y+= 2/(1 + exp(f*(x+0.5))*(1 + exp(f*(x+0.3))))'
+apply-formula 'f=F/(R*298); eoi = exp(f*(x+0.3)); eir = exp(f*(x+0.5)); y-= 2/(1 + eoi**-1*(1 + eir**-1))'
 assert '$stats["y_norm"]' 2e-15
 
+sim-eeci-wave /model=slow-et parameters/eeci-2.params 0
+apply-formula 'f=F/(R*298); eoi = exp(f*(x+0.3)); eir = exp(f*(x+0.5)); k0oi_kir = 3; ko_k0 = 0.2;b=(k0oi_kir * eoi)**-0.5*(1+eir**-1) + (eir/k0oi_kir)**-0.5; a=1+eoi**-1*(1 + eir**-1); y-= 2/(a+ko_k0*b)'
+assert '$stats["y_norm"]' 2e-15
 
 # Check that when the potentials are far apart, eci and eeci give you
 # the same thing.
-generate-buffer -0.8 -0.2
-sim-eeci-wave parameters/eeci-2.params 0
-sim-eci-wave parameters/eeci-2.params 0 /override='E1=-0.6'
+generate-buffer -0.8 0
+# We need k0oi/k0ir=1 else there is a corrective factor for the actual
+# value of kor.
+sim-eeci-wave parameters/eeci-3.params 0 /model=slow-et /override='Eir=-0.7;k0oi/k0ir=1'
+sim-eci-wave parameters/eeci-3.params 0 /model=slow-et /override='Eor=-0.3'
 S 1 0
 assert '$stats["y_max"]' 1e-3
 assert '$stats["y_min"].abs' 1e-3
 
-# sim-eci-wave /model=nernst parameters/eci-1.params 0
-# sim-eci-wave /model=slow-et parameters/eci-1.params 0 /override='k2/k01=1e-7'
-# S 1 0
-# assert '$stats["y_norm"]' 1e-6
+generate-buffer -0.8 0
+sim-eeci-wave parameters/eeci-3.params 0 /model=nernst
+sim-eci-wave parameters/eeci-3.params 0 /model=nernst /override='Eor=-0.3'
+S 1 0
+assert '$stats["y_max"]' 1e-3
+assert '$stats["y_min"].abs' 1e-3
+
+######################################################################
+# Now testing the reductive direction
+
+sim-eeci-wave /model=slow-et parameters/eeci-4.params 0 /reduction=true
+apply-formula 'f=F/(R*298); eoi = exp(f*(x+0.3)); eir = exp(f*(x+0.5)); k0oi_kir = 3; kr_k0 = 0.3;b=(eoi/k0oi_kir)**0.5 + (eir*k0oi_kir)**0.5*(1+eoi); a=1+eir*(1 + eoi); y+= 2/(a+kr_k0*b)'
+assert '$stats["y_norm"]' 2e-15
+
+# Check that when the potentials are far apart, eci and eeci give you
+# the same thing.
+generate-buffer -0.8 0
+# We need k0oi/k0ir=1 else there is a corrective factor for the actual
+# value of kor.
+sim-eeci-wave parameters/eeci-4.params 0 /model=slow-et /override='Eoi=0;k0oi/k0ir=1' /reduction=true
+sim-eci-wave parameters/eeci-4.params 0 /model=slow-et /override='Eor=-0.5' /reduction=true
+S 1 0 
+assert '$stats["y_max"]' 1e-3
+assert '$stats["y_min"].abs' 1e-3
 

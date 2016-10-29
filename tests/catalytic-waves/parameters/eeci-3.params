@@ -3,7 +3,7 @@
 # Buffer #0 : generated.dat
 temperature	298	!	0
 Eoi	-0.3	!	1
-Eir	-0.5	!	1
+Eir	-0.8	!	1
 ilim	2	!	1
 kox/k0or	0.2	!	1
 k0oi/k0ir	3	!	1
@@ -12,12 +12,12 @@ k0oi/k0ir	3	!	1
 
 # temperature	=	298	(fixed)
 # Eoi	=	-0.3	+- 0	+-0%
-# Eir	=	-0.5	+- 0	+-0%
+# Eir	=	-0.8	+- 0	+-0%
 # ilim	=	2	+- 0	+-0%
+# kox/k0or	=	0.2	+- 0	+-0%
+# k0oi/k0ir	=	3	+- 0	+-0%
 # 
 # 
 # Buffer-local parameters: 
 # 
 # Buffer: generated.dat (weight: 1)
-# kox/k0or	=	0.2	+- 0	+- 0%
-# k0oi/k0ir	=	1	+- 0	+- 0%

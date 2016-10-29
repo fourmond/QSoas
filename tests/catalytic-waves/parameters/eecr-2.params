@@ -1,0 +1,24 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: eeci-wave (1, oxidation)
+# Buffer #0 : generated.dat
+temperature	298	!	0
+Eoi	-0.3	!	1
+Eir	-0.5	!	1
+ilim	2	!	1
+kox/k0or	0.2	!	1
+k0oi/k0ir	3	!	1
+kred/kox	0.2	!	1
+# The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
+# Global parameters: 
+
+# temperature	=	298	(fixed)
+# Eoi	=	-0.3	+- 0	+-0%
+# Eir	=	-0.5	+- 0	+-0%
+# ilim	=	2	+- 0	+-0%
+# 
+# 
+# Buffer-local parameters: 
+# 
+# Buffer: generated.dat (weight: 1)
+# kox/k0or	=	0.2	+- 0	+- 0%
+# k0oi/k0ir	=	1	+- 0	+- 0%

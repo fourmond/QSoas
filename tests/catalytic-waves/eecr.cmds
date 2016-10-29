@@ -1,0 +1,28 @@
+generate-buffer -0.8 -0.2
+sim-eecr-wave /model=nernst parameters/eecr-1.params 0
+apply-formula 'f=F/(R*298); kb=0.2; eoi = exp(f*(x+0.3)); eir = exp(f*(x+0.5)); a=1+eoi**-1*(1+eir**-1); ap=kb*(eoi*eir)**-1;y-= 2*(1 - ap)/a'
+assert '$stats["y_norm"]' 2e-15
+
+
+sim-eecr-wave /model=slow-et parameters/eecr-2.params 0
+apply-formula 'f=F/(R*298); kb=0.2; eoi = exp(f*(x+0.3)); eir = exp(f*(x+0.5)); k0oi_kir = 3; ko_k0 = 0.2; a=1+eoi**-1*(1+eir**-1); ap=kb*(eoi*eir)**-1;b=(k0oi_kir * eoi)**-0.5*(1+(1 + kb)*eir**-1) + (eir/k0oi_kir)**-0.5*(1 + kb * (1 + eoi**-1)); a=1+eoi**-1*(1 + eir**-1); y-= 2*(1 - ap)/(a+ko_k0*b)'
+assert '$stats["y_norm"]' 3e-15
+
+
+######################################################################
+# Now testing the reductive direction
+
+sim-eecr-wave /model=slow-et parameters/eecr-3.params 0 /reduction=true
+apply-formula 'f=F/(R*298); kb = 0.1; eoi = exp(f*(x+0.3)); eir = exp(f*(x+0.5)); k0oi_kir = 3; kr_k0 = 0.3; a=1+eir*(1 + eoi); ap=kb*eir*eoi; b=(eoi/k0oi_kir)**0.5*(1 + kb*(1 + eir)) + (eir*k0oi_kir)**0.5*(1+eoi*(1+kb)); y+= 3*(1 - ap)/(a+kr_k0*b)'
+assert '$stats["y_norm"]' 2e-15
+
+
+######################################################################
+# Check we get the same results whether we use the reductive direction
+# or oxidative direction.
+sim-eecr-wave /model=slow-et parameters/eecr-4.params 0 
+sim-eecr-wave /model=slow-et parameters/eecr-4.params 0 /override='ilim=-20' /reduction=true
+S 1 0
+assert '$stats["y_norm"]' 1e-13
+
+# TODO: we would need a way to check that the

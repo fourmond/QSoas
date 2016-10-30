@@ -177,6 +177,10 @@ public:
   /// Returns the total byte size of the stack
   quint64 byteSize() const;
 
+  /// Returns a textual summary of the stack: current dataset, total
+  /// size in kB, number of datasets
+  QString textSummary() const;
+
 signals:
   /// Emitted whenever the current dataset changed.
   void currentDataSetChanged();

@@ -331,6 +331,18 @@ void DataStack::dropDataSet(const DataSet * ds)
     dropDataSet(idx);
 }
 
+QString DataStack::textSummary() const
+{
+  QString s;
+  QTextStream o(&s);
+  DataSet * cds = currentDataSet();
+  o << dataSets.size() << " datasets, "
+    << redoStack.size() << " redo stack, "
+    << (cachedByteSize >> 10) << " kB, current buffer: "
+    << (cds ? QString("'%1'").arg(cds->name) : "(none)");
+  return s;
+}
+
 qint32 DataStack::serializationVersion = 0;
 
 //////////////////////////////////////////////////////////////////////

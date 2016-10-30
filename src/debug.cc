@@ -117,8 +117,12 @@ void Debug::startCommand(const QStringList & cmdline)
 {
   if(level > 0 && directory) {
     timeStamp();
-    (*this) << "Starting command: '" << cmdline.join("'")
-            << "'\nRotating stack file" << endl;
+    (*this) << "Starting command: '" << cmdline.join("' '")
+            << "'" << endl;
+    timeStamp();
+    (*this) << "Stack: " << soas().stack().textSummary() << endl;
+    timeStamp();
+    (*this) << "Rotating stack file" << endl;
     Utils::rotateFile(directory->absoluteFilePath("stack.bin"), 9);
   }
 }
@@ -127,8 +131,10 @@ void Debug::endCommand(const QStringList & cmdline)
 {
   if(level > 0 && directory) {
     timeStamp();
-    (*this) << "Finishing command: '" << cmdline.join("'")
+    (*this) << "Finishing command: '" << cmdline.join("' '")
             << "'" << endl;
+    timeStamp();
+    (*this) << "Stack: " << soas().stack().textSummary() << endl;
     saveStack();
   }
 }

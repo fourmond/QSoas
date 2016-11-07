@@ -52,7 +52,9 @@ void BSplines::allocateWS()
   
 
   splinesWS = gsl_bspline_alloc(order, breakPoints.size());
+#if GSL_MAJOR_VERSION <  2
   derivWS = gsl_bspline_deriv_alloc(order);
+#endif
   nbCoeffs = gsl_bspline_ncoeffs(splinesWS);
 
   nb = x.size();
@@ -85,7 +87,10 @@ void BSplines::freeWS()
   
   gsl_multifit_linear_free(fitWS);
   gsl_bspline_free(splinesWS);
+  
+#if GSL_MAJOR_VERSION < 2
   gsl_bspline_deriv_free(derivWS);
+#endif
 
 
   splinesWS = NULL;

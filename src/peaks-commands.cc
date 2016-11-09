@@ -207,8 +207,8 @@ static void echemPeaksCommand(const QString &, const CommandOptions & opts)
 {
   int window = 8;
 
-  bool write = true;
-  updateFromOptions(opts, "output", write);
+  int peaks = 10000000;
+  updateFromOptions(opts, "pairs", peaks);
 
   const DataSet * ds = soas().currentDataSet();
   const GraphicsSettings & gs = soas().graphicsSettings();
@@ -220,7 +220,8 @@ static void echemPeaksCommand(const QString &, const CommandOptions & opts)
     view.disableUpdates();
     Terminal::out << "Found " << pairs.size() << " peaks pairs" << endl;
 
-    for(int i = 0; i < pairs.size(); i++) {
+    int mx = std::min(pairs.size(), peaks);
+    for(int i = 0; i < mx; i++) {
       ValueHash hsh;
       hsh << "buffer" << ds->name 
           << "forw_x" << pairs[i].forward.x
@@ -234,8 +235,7 @@ static void echemPeaksCommand(const QString &, const CommandOptions & opts)
       view.addItem(v);
 
       if(pairs[i].isReversible()) {
-        hsh << "buffer" << ds->name 
-            << "back_x" << pairs[i].backward.x
+        hsh << "back_x" << pairs[i].backward.x
             << "back_y" << pairs[i].backward.y
             << "delta_x" << pairs[i].deltaX()
             << "delta_y" << pairs[i].deltaY()
@@ -256,21 +256,27 @@ static void echemPeaksCommand(const QString &, const CommandOptions & opts)
 
       Terminal::out << hsh.keyOrder.join("\t") << endl;
       Terminal::out << hsh.toString() << endl;
-      if(write)
-        OutFile::out.writeValueHash(hsh, ds);
+      hsh.handleOutput(ds, opts, true);
     }
     view.enableUpdates();
   }
 }
 
-      
+static ArgumentList 
+epOps(QList<Argument *>(fpBaseOps) 
+      << new IntegerArgument("pairs", 
+                             "Number of peak pairs",
+                             "Display (and output) only that many peak pairs (by order of intensity)")
+      << ValueHash::outputOptions()
+      );
+
+
 static Command 
 ep("echem-peaks", // command name
    effector(echemPeaksCommand), // action
    "peaks",  // group name
    NULL, // arguments
-   //&fpOps
-   NULL, // options
+   &epOps, // options
    "Find peaks pairs",
    "Find all peaks pairs",
    "...");

@@ -38,8 +38,18 @@ class DataSet;
 class PointIterator  {
 
   const Vector & x;
-  const Vector & y;
+  const Vector & yv;
   const DataSet * ds;
+
+  /// When working on a vector, whether the data is y the vector or
+  /// the difference.
+  bool residuals;
+  
+  const gsl_vector * y_vect;
+  
+
+  /// Returns the Y value for the given index
+  double y(int idx) const;
 
 public:
 
@@ -71,6 +81,8 @@ public:
 
   PointIterator(const Vector & x, const Vector & y, Type t = Normal);
   PointIterator(const DataSet * ds, Type t = Normal);
+  PointIterator(const gsl_vector * yvalues, const DataSet * ds,
+                bool residuals, Type t = Normal);
 
   /// If there is a next point.
   bool hasNext() const;

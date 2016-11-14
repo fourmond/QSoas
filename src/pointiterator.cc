@@ -24,17 +24,24 @@
 #include <exceptions.hh>
 
 PointIterator::PointIterator(const Vector & xv, 
-                             const Vector & yv,
+                             const Vector & yvo,
                              PointIterator::Type t) :
-  x(xv), y(yv), ds(NULL), type(t), index(0), sub(0)
+  x(xv), yv(yv), ds(NULL), y_vect(NULL), type(t), index(0), sub(0)
 {
-  total = std::min(x.size(), y.size());
+  total = std::min(x.size(), yv.size());
   if(type == Errors || type == ErrorsAbove || type == ErrorsBelow)
     throw InternalError("Wrong iterator type: errors need a dataset");
 }
 
 PointIterator::PointIterator(const DataSet *d, PointIterator::Type t) :
-  x(d->x()), y(d->y()), ds(d), type(t), index(0), sub(0)
+  x(d->x()), yv(d->y()), ds(d), y_vect(NULL), type(t), index(0), sub(0)
+{
+  total = ds->nbRows();
+}
+
+PointIterator::PointIterator(const gsl_vector * yvalues, const DataSet * d,
+                             bool res, PointIterator::Type t) :
+  x(d->x()), yv(d->y()), ds(d), y_vect(yvalues), residuals(res), type(t), index(0), sub(0)
 {
   total = ds->nbRows();
 }
@@ -57,38 +64,50 @@ QPointF PointIterator::next()
   return n;
 }
 
+double PointIterator::y(int index) const
+{
+  if(y_vect) {
+    if(residuals)
+      return yv[index] - gsl_vector_get(y_vect, index);
+    else
+      return gsl_vector_get(y_vect, index);
+  }
+  return yv[index];
+}
+ 
+
 QPointF PointIterator::peek() const
 {
   switch(type) {
   case ErrorsAbove: 
-    return QPointF(x[index], y[index] + ds->yError(index));
+    return QPointF(x[index], y(index) + ds->yError(index));
   case ErrorsBelow: 
-    return QPointF(x[index], y[index] - ds->yError(index));
+    return QPointF(x[index], y(index) - ds->yError(index));
   case Errors:
     if(sub == 1)                // backwards
-      return QPointF(x[index], y[index] - ds->yError(index));
+      return QPointF(x[index], y(index) - ds->yError(index));
     else
-      return QPointF(x[index], y[index] + ds->yError(index));
+      return QPointF(x[index], y(index) + ds->yError(index));
   case Steps: {
     // here is a little more complex...
     // sub == 0 -> left, sub == 1 -> right
     if(sub == 0) {              // left
       if(index > 0)
-        return QPointF(0.5 * (x[index-1] + x[index]), y[index]);
+        return QPointF(0.5 * (x[index-1] + x[index]), y(index));
       else
-        return QPointF(1.5 * x[index] - 0.5 * x[index+1], y[index]);
+        return QPointF(1.5 * x[index] - 0.5 * x[index+1], y(index));
     }
     else {                      // right
       if(index < total - 1)
-        return QPointF(0.5 * (x[index] + x[index+1]), y[index]);
+        return QPointF(0.5 * (x[index] + x[index+1]), y(index));
       else
-        return QPointF(1.5 * x[index] - 0.5 * x[index-1], y[index]);
+        return QPointF(1.5 * x[index] - 0.5 * x[index-1], y(index));
     }
   }
   default:
     ;
   }
-  return QPointF(x[index], y[index]);
+  return QPointF(x[index], y(index));
 }
 
 
@@ -105,7 +124,7 @@ void PointIterator::advance()
     break;
   case Errors:
     if(sub == 0) {
-      advanceIndex();
+      advanceIndex(); 
       if(index >= total) {
         sub = 1;
         index = total - 1;
@@ -138,13 +157,13 @@ void PointIterator::addToPath(QPainterPath & path, const QTransform & trans)
 }
 
 
-void  PointIterator::advanceIndex(int di)
+void PointIterator::advanceIndex(int di)
 {
   while(true) {
     index += di;
     if(index < 0 || index >= total)
       break;
-    if(std::isfinite(x[index]) && std::isfinite(y[index])) {
+    if(std::isfinite(x[index]) && std::isfinite(y(index))) {
       break;
     }
   }

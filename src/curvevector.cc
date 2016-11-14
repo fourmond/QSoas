@@ -22,6 +22,8 @@
 #include <dataset.hh>
 #include <vector.hh>
 
+#include <pointiterator.hh>
+
 CurveVector::~CurveVector()
 {
 }
@@ -72,11 +74,11 @@ void CurveVector::paint(QPainter * painter, const QRectF &,
   painter->save();
   painter->setPen(pen);
 
-  QPointF first = ctw.map(QPointF(x[0], yValue(0)));
-  for(int i = 1; i < nb; i++) {
-    QPointF second = ctw.map(QPointF(x[i], yValue(i)));
-    painter->drawLine(first, second);
-    first = second;
+  {
+    QPainterPath pp;
+    PointIterator it(&view.vector, dataSet, residuals);
+    it.addToPath(pp, ctw);
+    painter->drawPath(pp);
   }
   painter->restore();
 }

@@ -63,7 +63,7 @@ void StringArgument::setEditorValue(QWidget * editor,
 
 QString StringArgument::typeDescription() const
 {
-  return "Arbitrary text. If you need spaces, do not forget to quote them with ', for instance";
+  return "Arbitrary text. If you need spaces, do not forget to quote them with ' or \"";
 }
 
 ArgumentMarshaller * StringArgument::fromRuby(RUBY_VALUE value) const
@@ -103,7 +103,13 @@ QString SeveralStringsArgument::typeDescription() const
   else {
     sep = separator.pattern();
     sep.replace("\\s*", "");
-    sep = QString("'%1'").arg(sep);
+    QRegExp pt("^\\[(.*)\\]$");
+    if(pt.indexIn(sep) == 0) {
+      QStringList seps = pt.cap(1).split("", QString::SkipEmptyParts);
+      sep = QString("'%1'").arg(seps.join("' or '"));
+    }
+    else
+      sep = QString("'%1'").arg(sep);
   }
   return QString("several words, separated by %1").arg(sep);
 }

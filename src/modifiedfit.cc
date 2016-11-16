@@ -366,11 +366,11 @@ public:
 //////////////////////////////////////////////////////////////////////
 // Now, the command !
 
-static void modifyFit(const QString &, QString newName,
-                      QString fitN,
-                      QString extra,
-                      QStringList redefs,
-                      const CommandOptions & opts)
+static void reparametrizeFit(const QString &, QString newName,
+                             QString fitN,
+                             QString extra,
+                             QStringList redefs,
+                             const CommandOptions & opts)
 {
   
   QList<PerDatasetFit *> fts;
@@ -402,7 +402,7 @@ static void modifyFit(const QString &, QString newName,
 
 
 static ArgumentList 
-mfA(QList<Argument *>() 
+rfA(QList<Argument *>() 
     << new StringArgument("name", "Name",
                           "name of the new fit")
     << new FitNameArgument("fit", "Fit",
@@ -417,7 +417,7 @@ mfA(QList<Argument *>()
 
 
 static ArgumentList 
-mfO(QList<Argument *>() 
+rfO(QList<Argument *>() 
     << new BoolArgument("redefine", 
                         "Redefine",
                         "If the new fit already exists, redefines it")
@@ -427,10 +427,10 @@ mfO(QList<Argument *>()
     );
 
 static Command 
-mf("modify-fit",              // command name
-    effector(modifyFit),      // action
-   "fits",                     // group name
-   &mfA,                       // arguments
-   &mfO,                       // options
-   "Modify fit",
+rf("reparametrize-fit",         // command name
+   effector(reparametrizeFit),  // action
+   "fits",                      // group name
+   &rfA,                        // arguments
+   &rfO,                        // options
+   "Reparametrize fit",
    "Reparametrize a fit");

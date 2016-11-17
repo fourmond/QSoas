@@ -1,3 +1,40 @@
+# Changes in version 2.1
+
+## New commands
+
+ * [cmd: solve], to solve equations
+ * [cmd: reparametrize-fit], to manipulate the parameters of a fit
+
+## Fits
+
+ * Reparametrization of the wave shape fits for 1- and 2-electron
+   reversible catalysts [fit: ecr-wave] and [fit: eecr-wave]
+ * Implementation of the corresponding fits for irreversible
+   catalysts, [fit: eci-wave] and [fit: eeci-wave]
+ * The commands that define fits can now redefine existing fits with
+   the option `/redefine=true`/
+
+## Improvements of previous commands
+
+ * [cmd: echem-peaks] now offers all the options of the other
+   peak-finding commands, with the same meaning
+ * When several datasets are specified, commands that pick points
+   [cmd: cursor], [cmd: baseline], etc. can switch between all
+   displayed datasets (with the `n` and `N` keys)
+ * Commands that write to the output file can now also save the data
+   as meta-data through the use of the `/set-meta` option.
+ * It is now possible to select the statistics one wants to
+   display/save with the [cmd: stats] command
+
+
+## Other improvements
+
+ * Now compiles and runs with Ruby 2.3
+ * The `--stdout` command-line option writes the content of the
+   terminal to the standard output
+ * Sketch of an Emacs major mode, `misc/qsoas-mode.el` in the tarball
+
+
 # Changes in version 2.0
 
 ## New commands

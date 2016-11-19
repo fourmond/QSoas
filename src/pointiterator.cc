@@ -26,7 +26,7 @@
 PointIterator::PointIterator(const Vector & xv, 
                              const Vector & yvo,
                              PointIterator::Type t) :
-  x(xv), yv(yv), ds(NULL), y_vect(NULL), type(t), index(0), sub(0)
+  x(xv), yv(yvo), ds(NULL), y_vect(NULL), type(t), index(0), sub(0)
 {
   total = std::min(x.size(), yv.size());
   if(type == Errors || type == ErrorsAbove || type == ErrorsBelow)

@@ -85,6 +85,8 @@ OBJECTS_DIR = build
 # Really, this should be the default, since it means segfault in the
 # best case (excepted when a function only exits via an exception)
 QMAKE_CXXFLAGS += -Werror=return-type 
+QMAKE_CXXFLAGS += -Winit-self -Werror=init-self 
+
 
 # Use C++11 everywhere !
 QMAKE_CXXFLAGS += -std=c++11

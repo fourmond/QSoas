@@ -3061,7 +3061,7 @@ this command unless `/redefine=true` is specified.
 
 {::comment} synopsis-start: reparametrize-fit {:/}
 
-### reparametrize-fit - Modify fit {#cmd-reparametrize-fit}
+### reparametrize-fit - Reparametrize fit {#cmd-reparametrize-fit}
 
 `reparametrize-fit` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _fit_{:title="the name of a fit (without the fit- prefix)"} _new-parameters_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _redefinitions..._{:title="several words, separated by '#'"} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/conditions=`_words_{:title="several words, separated by ''"}
 
@@ -4519,7 +4519,8 @@ reversible. The equations for these models were initially described in
 [Fourmond _et al_, **JACS**
 2013](http://dx.doi.org/10.1021/ja311607s), and were reviewed and
 reparametrized in [Fourmond and Léger, **Curr Op Electrochemistry**
-2017](xxx). There are 5 different fits:
+2017](http://dx.doi.org/10.1016/j.coelec.2016.11.002).
+There are 5 different fits:
 
  * [cmd: fit-eci-wave] a 1-electron 1-way catalyst;
  * [cmd: fit-ecr-wave] a 1-electron 2-way (reversible) catalyst;

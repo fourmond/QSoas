@@ -11,8 +11,13 @@
    reversible catalysts [fit: ecr-wave] and [fit: eecr-wave]
  * Implementation of the corresponding fits for irreversible
    catalysts, [fit: eci-wave] and [fit: eeci-wave]
- * The commands that define fits can now redefine existing fits with
-   the option `/redefine=true`/
+ * The commands that define fits, [cmd: reparametrize-fit],
+   [cmd: combine-fits], [cmd: define-distribution-fit] and
+    [cmd: define-derived-fit] can now redefine existing fits with
+   the option `/redefine=true`.
+ * The `qsoas` and `multi` fit engines can now use scaling, see the
+   "Fit Options" dialog
+ * Improvements of the parameters spreadsheet
 
 ## Improvements of previous commands
 
@@ -29,10 +34,12 @@
 
 ## Other improvements
 
- * Now compiles and runs with Ruby 2.3
+ * Now compiles and runs with Ruby 2.3 and the most recent GSL
+   releases
  * The `--stdout` command-line option writes the content of the
    terminal to the standard output
  * Sketch of an Emacs major mode, `misc/qsoas-mode.el` in the tarball
+ * A series of bug fixes
 
 
 # Changes in version 2.0

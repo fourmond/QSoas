@@ -225,9 +225,12 @@ temperature("temperature", // command name
 
 static ArgumentList 
 pops(QList<Argument *>() 
+     << new BoolArgument("overwrite", 
+                         "Overwrite",
+                         "Overwrite the output file")
      << new FileSaveArgument("file", 
                              "Save as file",
-                             "Save as file", "biniou.ps")
+                             "Save as file", "soas.pdf", false, true)
      << new StringArgument("title", 
                            "Page title",
                            "Sets the title of the page as printed")
@@ -237,9 +240,18 @@ static void printCommand(const QString &,
                          const CommandOptions & opts)
 {
   QPrinter p;
+
   p.setOrientation(QPrinter::Landscape);
-  if(opts.contains("file"))
-    p.setOutputFileName(opts["file"]->value<QString>());
+
+  QString file;
+  bool overwrite = false;
+  updateFromOptions(opts, "overwrite", overwrite);
+  updateFromOptions(opts, "file", file);
+  if(! file.isEmpty()) {
+    if(! overwrite)
+      Utils::confirmOverwrite(file);
+    p.setOutputFileName(file);
+  }
   else {
     QPrintDialog printDialog(&p);
     if(printDialog.exec() != QDialog::Accepted)

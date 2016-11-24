@@ -74,16 +74,17 @@ public:
 
   FileSaveArgument(const char * cn, const char * pn,
                    const char * d = "", 
-                   const QString & def = QString(),
-                   bool asko = true) : 
-    FileArgument(cn, pn, d), defaultName(def),
+                   const QString & dn = QString(),
+                   bool asko = true, bool def = false) : 
+    FileArgument(cn, pn, d, false, def), defaultName(dn),
     provider(NULL),  askOverwrite(asko) {
   }; 
 
   FileSaveArgument(const char * cn, const char * pn,
                    const char * d, QString (*pr)(),
-                   bool asko = true) : FileArgument(cn, pn, d),
-                                       provider(pr), askOverwrite(asko) {
+                   bool asko = true, bool def = false) :
+    FileArgument(cn, pn, d, false, def),
+    provider(pr), askOverwrite(asko) {
   }; 
 
   /// Returns a wrapped QString. Check that the target file does not

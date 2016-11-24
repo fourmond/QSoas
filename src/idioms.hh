@@ -22,6 +22,7 @@
 #ifndef __IDIOMS_HH
 #define __IDIOMS_HH
 
+#include <terminal.hh>
 #include <ruby-wrappers.h>
 
 /// Assigns the current value of source to dest when the object goes
@@ -133,7 +134,8 @@ public:
   ~TemporarilyChangeDirectory() {
     if(! prev.isEmpty()) {
       if(! QDir::setCurrent(prev))
-        throw RuntimeError("Could not cd back to '%1'").arg(prev);
+        Terminal::out << QString("Could not cd back to '%1'").arg(prev);
+        // throw RuntimeError("Could not cd back to '%1'").arg(prev);
     }
   };
 };

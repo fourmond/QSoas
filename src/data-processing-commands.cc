@@ -1930,18 +1930,36 @@ integ("integrate", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void diffCommand(const QString &)
+static void diffCommand(const QString &, const CommandOptions &opts)
 {
   const DataSet * ds = soas().currentDataSet();
-  soas().pushDataSet(ds->firstDerivative());
+  int order = -1;
+  int deriv = 1;
+  updateFromOptions(opts, "order", order); 
+  updateFromOptions(opts, "derivative", deriv);
+  if(order < 0)
+    soas().pushDataSet(ds->firstDerivative());
+  else
+    soas().pushDataSet(ds->arbitraryDerivative(deriv, order));
 }
+
+static ArgumentList 
+diffOps(QList<Argument *>() 
+        << new IntegerArgument("order", 
+                               "Order",
+                               "total order of the computation")
+        << new IntegerArgument("derivative", 
+                               "Derivative order",
+                               "the number of the derivative to take, only valid together with the order option")
+        );
+
 
 static Command 
 diff("diff", // command name
-     optionLessEffector(diffCommand), // action
+     effector(diffCommand), // action
      "math",  // group name
      NULL, // arguments
-     NULL, // options
+     &diffOps, // options
      "Derive",
      "4th order accurate first derivative",
      "Computes the 4th order accurate derivative of the buffer\n"

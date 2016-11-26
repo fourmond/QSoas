@@ -545,6 +545,10 @@ public:
   /// points.
   DataSet * secondDerivative() const;
 
+
+  /// Computes an arbitrary order arbitrary derivative.
+  DataSet * arbitraryDerivative(int deriv, int order) const;
+
   /// Concatenates all datasets into a single one.
   ///
   /// If \a setSegments is true, then new segments are added at the

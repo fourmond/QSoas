@@ -763,7 +763,7 @@ static int signof(double x)
 double smooth_pick(const double *x, const double *y, 
 		   int nb, int idx, int range)
 {
-  int left, right,i,nb_same_sign;
+  int left, right,i,nb_same_sign = 0;
   double a,b;
   int last_sign;
   do {
@@ -1219,6 +1219,67 @@ DataSet * DataSet::secondDerivative() const
   }
   return derivedDataSet(deriv, "_diff2");
 }
+
+DataSet * DataSet::arbitraryDerivative(int deriv, int order) const
+{
+  int size = x().size();
+  if(size < order)
+    throw RuntimeError("Need at least %1 points for a derivate of order %2").
+      arg(order+1).arg(order);
+
+  if(deriv > order)
+    throw RuntimeError("Order must be at least as large as the derivative order").
+      arg(order+1).arg(order);
+
+  order += 1;
+
+  const double *x = this->x().data();
+  const double *y = this->y().data();
+
+  Vector res;
+
+  gsl_matrix * mat = gsl_matrix_alloc(order, order);
+  gsl_vector * rhs = gsl_vector_alloc(order);
+  gsl_vector * dervs = gsl_vector_alloc(order);
+  gsl_permutation * perm = gsl_permutation_alloc(order);
+
+  for(int i = 0; i < size; i++) {
+    int left = std::min(std::max(i-order/2, 0), size-order);
+    for(int j = left; j < left + order; ++j) {
+      double dx = x[j] - x[i];
+      double v = 1;
+      int row = j - left;
+      gsl_vector_set(rhs, row, y[j]);
+      for(int k = 0; k < order; k++) {
+        if(k > 0)
+          v /= k;
+        gsl_matrix_set(mat, row, k, v);
+        v *= dx;
+      }
+    }
+
+    // OK, now, we have a matrix of dx_i^k/k!, and a vector of the
+    // functions. We just need to invert the matrix, and well get the
+    // Taylor series
+
+    int sgn;
+    gsl_linalg_LU_decomp(mat, perm, &sgn);
+    gsl_linalg_LU_solve(mat, perm, rhs, dervs);
+    res << gsl_vector_get(dervs, deriv);
+  }
+
+  gsl_matrix_free(mat);
+  gsl_vector_free(rhs);
+  gsl_vector_free(dervs);
+  gsl_permutation_free(perm);
+
+
+  return derivedDataSet(res, QString("_diff%1o%2").arg(deriv).arg(order-1));
+}
+
+
+
+
 
 DataSet * DataSet::concatenateDataSets(QList<const DataSet *> datasets, 
                                        bool set)

@@ -30,6 +30,10 @@
    as meta-data through the use of the `/set-meta` option.
  * It is now possible to select the statistics one wants to
    display/save with the [cmd: stats] command
+ * [cmd: diff] can now compute an arbitrary derivative to an arbitrary
+   order
+ * [cmd: print] can now overwrite output PDF file without asking via
+   the `/overwrite=true` option
 
 
 ## Other improvements

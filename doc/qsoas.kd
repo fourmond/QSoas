@@ -341,11 +341,12 @@ text editor.
 
 ### print - Print {#cmd-print}
 
-`print` `/file=`_file_{:title="name of a file"} `/title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
+`print` `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/file=`_file_{:title="name of a file"} `/title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
 
 Short name: `p`
 
-  * `/file=`_file_{:title="name of a file"}: Save as file -- values: name of a file
+  * `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Overwrite the output file -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/file=`_file_{:title="name of a file"} (default option): Save as file -- values: name of a file
   * `/title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Sets the title of the page as printed -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
 
 {::comment} synopsis-end: print {:/}
@@ -1665,8 +1666,10 @@ point ends up being at 0.
 
 ### diff - Derive {#cmd-diff}
 
-`diff` 
+`diff` `/order=`_integer_{:title="an integer"} `/derivative=`_integer_{:title="an integer"}
 
+  * `/order=`_integer_{:title="an integer"}: total order of the computation -- values: an integer
+  * `/derivative=`_integer_{:title="an integer"}: the number of the derivative to take, only valid together with the order option -- values: an integer
 
 {::comment} synopsis-end: diff {:/}
 {::comment} description-start: diff {:/}
@@ -1676,6 +1679,17 @@ This is efficient to compute the derivative of smooth data, but it
 gives very poor results on noisy data. In general, for derivation,
 prefer [cmd: filter-fft], [cmd: filter-bsplines] or [cmd: auto-reglin],
 which will give much better results.
+
+Starting from QSoas version 2.1, a second mode is available, in which
+you can choose an arbitrary order for the derivation (has to be more
+than the number of points of the dataset), via the option `/order=`,
+and an optional derivative via the `/derivative` option. For instance,
+you can reproduce the effect of [cmd: diff2] using:
+
+~~~~
+QSoas> diff /order=4 /derivative=2
+~~~~
+
 {::comment} description-end: diff {:/}
 
 {::comment} synopsis-start: diff2 {:/}
@@ -1915,6 +1929,13 @@ different values of $$\lambda$$), and all the multi-fit commands, which
 show parameters as a function of the perpendicular coordinates when
 applicable.
 
+
+Some of the meta-data has special meaning for `QSoas`, which uses them
+for specific functions:
+
+  * `sr` is taken to be the *scan rate* of a voltammogram. This
+    information is used by [cmd: baseline]  and [cmd: fit-adsorbed].
+
 ## Selecting datasets and files based on meta-data {#for-which}
 
 Some commands, namely [cmd: flag], [cmd: unflag] and [cmd: browse]
@@ -1932,7 +1953,19 @@ Be mindful of the quotes: the outer `'` quotes are meant to protect
 the `$stats["y_max"] >= 1e-4` bit that is passed on to ruby. The
 quotes around `y_max` are necessary, as `$stats` is a
 [dictionnary](http://ruby-doc.org/core-1.9.3/Hash.html) whose keys are
-ruby strings, hence the double quotes. 
+ruby strings, which are delimited by double quotes.
+
+**How to test for equality:** in [ruby](#ruby), you need to use `==`
+to test whether two values are the same. For instance, to flag
+voltammograms in which the scan rate is 0.1 V/s, you have to use:
+
+~~~
+QSoas> flag all /for-which '$meta["sr"] == 0.1'
+~~~
+
+Replacing the `==` by `=` in the code above leads to selecting **all**
+the buffers, because `$meta["sr"] = 0.1` evaluates to `true` for
+[ruby](#ruby).
 
 
 {::comment} synopsis-start: show {:/}

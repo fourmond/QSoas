@@ -512,10 +512,8 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
   DelayedAssign<double> arr(oldArea, area);
   DelayedAssign<double> chrg(oldCharge, charge);
 
-  double sr = -1;
-  if(ds->getMetaData().contains("sr")) {
-    sr = ds->getMetaData("sr").toDouble();
-  }
+  bool hasSr = false;
+  double sr = ds->metaScanRate(&hasSr);
   
 
   CurveView & view = soas().view();
@@ -636,7 +634,7 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
 
       h.updateBottom();
       area = Vector::integrate(ds->x(), h.diff.yvalues);
-      if(sr > 0) {
+      if(hasSr > 0) {
         charge = area/sr;
         Terminal::out << "Area: " << area
                       << " (charge: " << charge << " with scan rate: " << sr 

@@ -403,7 +403,8 @@ public:
 
     double *t = a-1;
     *(++t) = soas().temperature();
-    *(++t) = 0.1;               // default scan rate
+    *(++t) = ds->metaScanRate(); // Initialize from meta or return
+                                 // default value
 
     const double xmin = ds->x().min();
     const double xmax = ds->x().max();

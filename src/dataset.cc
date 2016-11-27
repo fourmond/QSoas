@@ -1586,6 +1586,21 @@ QList<DataSet *> DataSet::autoSplit(const QHash<int, QString> & cols,
 
 
 
+double DataSet::metaScanRate(bool * ok) const
+{
+  if(! metaData.contains("sr")) {
+    if(ok)
+      *ok = false;
+    return 0.1;                 // Why not ?
+  }
+  if(ok)
+    *ok = true;
+  return getMetaData("sr").toDouble();
+}
+
+
+
+
 //////////////////////////////////////////////////////////////////////
 
 QDataStream & operator<<(QDataStream & out, const DataSet & ds)

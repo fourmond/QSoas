@@ -632,7 +632,19 @@ public:
   QList<DataSet *> autoSplit(const QHash<int, QString> & cols, double tolerance = 0) const;
 
   /// @}
-  
+
+  /// @name Special meta-data functions
+  ///
+  /// These functions provide special access to some of the meta-data
+  /// that come in useful in some contexts.
+  ///
+  /// @{
+
+  /// Returns the scan rate, setting ok to false if there isn't.
+  double metaScanRate(bool * ok = NULL) const;
+
+  /// @}
+
 };
 
 QDataStream & operator<<(QDataStream & out, const DataSet & ds);

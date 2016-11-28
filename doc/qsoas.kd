@@ -22,7 +22,13 @@ QSoas> command argument1 argument2 "argument 3" /option=option /option2="with sp
 ~~~
 
 If you need to pass arguments or option values that have spaces, make
-sure you quote them using `"` or `'`, like in the above example.
+sure you quote them using `"` or `'`, like in the above example. The
+`=` sign for the options can be replace by a space, so that the
+command above could have been run thus:
+
+~~~ 
+QSoas> command argument1 argument2 "argument 3" /option option /option2 "with spaces"
+~~~
 
 Arguments are  _italicized_ in the documentation below. You
 need to provide all the arguments for a command to work, and if you

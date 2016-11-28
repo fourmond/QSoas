@@ -107,6 +107,17 @@ void CommandLineParser::showHelpText(QTextStream & s)
   }
 }
 
+
+void CommandLineParser::writeSpecFile(QTextStream & s)
+{
+  QStringList lst = options.keys();
+  lst.sort();
+  for(int i = 0; i < lst.size(); i++) {
+    CommandLineOption * opt = options[lst[i]];
+    s << " " << opt->longKey << "/" << opt->numberNeeded << endl;
+  }
+}
+
 //////////////////////////////////////////////////////////////////////
 
 static CommandLineOption hlp("--help", [](const QStringList & /*args*/) {

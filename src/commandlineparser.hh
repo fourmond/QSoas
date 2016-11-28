@@ -92,6 +92,8 @@ public:
   /// Adds an option to the parser.
   void addOption(CommandLineOption * option);
 
+  /// Writes specs to the given file 
+  void writeSpecFile(QTextStream & s);
  
 };
 

@@ -142,6 +142,9 @@ void Soas::writeSpecFile(QTextStream & out, bool full)
   out << "Statistics:" << endl;
   out << " - " << tdp.join("\n - ") << endl;
 
+  out << "Command-line options:" << endl;
+  CommandLineParser::globalParser()->writeSpecFile(out);
+
   
 }
 

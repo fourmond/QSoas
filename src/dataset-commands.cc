@@ -45,7 +45,7 @@
 
 #include <valuehash.hh>
 
-#include <datastack.hh>
+#include <datastackhelper.hh>
 #include <box.hh>
 
 #include <dataseteditor.hh>
@@ -153,12 +153,12 @@ sb("splitb", // command name
 static void splitMonotonicCommand(const QString &, 
                                   const CommandOptions & opts)
 {
+  DataStackHelper pusher(opts);
+
   const DataSet * ds = soas().currentDataSet();
-  QStringList flags;
   int group = 1;
   int keepFirst = -1;
   int keepLast = -1;
-  updateFromOptions(opts, "flags", flags);
   updateFromOptions(opts, "group", group);
   updateFromOptions(opts, "keep-first", keepFirst);
   updateFromOptions(opts, "keep-last", keepLast);
@@ -169,18 +169,11 @@ static void splitMonotonicCommand(const QString &,
   int tot = 0;
   int sz = nds.size();
   for(int i = 0; i < sz; i++) {
-    if(flags.size() > 0)
-      nds[i]->setFlags(flags);
     nds[i]->setMetaData("segment_index", i);
-
+    
     if((keepFirst < 0 && keepLast < 0)
        || (i < keepFirst) || (sz -i <= keepLast)) {
-       
-      soas().pushDataSet(nds[i], true);
-      if(i > 1)
-        soas().view().addDataSet(nds[i]);
-      else
-        soas().view().showDataSet(nds[i]);
+      pusher << nds[i];
     }
     else
       delete nds[i];
@@ -191,10 +184,7 @@ static void splitMonotonicCommand(const QString &,
 
 static ArgumentList 
 smOpts(QList<Argument *>() 
-           << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
-                                         "flags", 
-                                         "Flags",
-                                         "Flags to set on the results")
+           << DataStackHelper::helperOptions()
            << new IntegerArgument("group", 
                                   "Group segments",
                                   "Group that many segments into one dataset")
@@ -225,12 +215,10 @@ static void splitOnValues(const QString &,
                           QList<int> cols,
                           const CommandOptions & opts)
 {
+  DataStackHelper pusher(opts);
   const DataSet * ds = soas().currentDataSet();
   if(meta.size() != cols.size())
     throw RuntimeError("The list of meta and columns must be matched");
-
-  QStringList flags;
-  updateFromOptions(opts, "flags", flags);
 
   QHash<int, QString> cls;
   for(int i = 0; i < meta.size(); i++)
@@ -239,10 +227,8 @@ static void splitOnValues(const QString &,
   QList<DataSet*> nds = ds->autoSplit(cls);
 
   for(int i = 0; i < nds.size(); i++) {
-    if(flags.size() > 0)
-      nds[i]->setFlags(flags);
     nds[i]->setMetaData("subset-index", i);
-    soas().pushDataSet(nds[i]);
+    pusher << nds[i];
   }
 }
 
@@ -261,10 +247,7 @@ spvArgs(QList<Argument *>()
 
 static ArgumentList 
 spvOpts(QList<Argument *>() 
-        << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
-                                      "flags", 
-                                      "Flags",
-                                      "Flags to set on the results")
+        << DataStackHelper::helperOptions()
        );
 
 
@@ -367,6 +350,7 @@ sort("sort", // command name
 static void expandCommand(const QString &,
                           const CommandOptions & opts)
 {
+  DataStackHelper pusher(opts);
   const DataSet * ds = soas().currentDataSet();
   if(ds->nbColumns() <= 2) {
     Terminal::out << "No more than 2 columns in '" << ds->name 
@@ -375,9 +359,6 @@ static void expandCommand(const QString &,
   }
   QString pc;
   updateFromOptions(opts, "perp-meta", pc);
-
-  QStringList flags;
-  updateFromOptions(opts, "flags", flags);
 
   Vector ppcd = ds->perpendicularCoordinates();
   for(int i = 1; i < ds->nbColumns(); i++) {
@@ -391,15 +372,7 @@ static void expandCommand(const QString &,
         s->setMetaData(pc, ppcd[i-1]);
     }
 
-    if(flags.size() > 0)
-      s->setFlags(flags);
-
-    
-    soas().stack().pushDataSet(s, true);
-    if(i > 1)
-      soas().view().addDataSet(s);
-    else
-      soas().view().showDataSet(s);
+    pusher.pushDataSet(s);
   }
   Terminal::out << "Expanded '" << ds->name 
                 << "' into " << ds->nbColumns() - 1 << " buffers" << endl;
@@ -410,10 +383,8 @@ expandOpts(QList<Argument *>()
            << new StringArgument("perp-meta", 
                                  "Perpendicular coordinate",
                                  "defines meta-data from perpendicular coordinate")
-           << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
-                                         "flags", 
-                                         "Flags",
-                                         "flags for the new buffers"));
+           << DataStackHelper::helperOptions()
+           );
 
 
 static Command 
@@ -460,6 +431,8 @@ renameCmd("rename", // command name
 static void chopCommand(const QString &, QList<double> values, 
                         const CommandOptions & opts)
 {
+  DataStackHelper pusher(opts);
+
   const DataSet * ds = soas().currentDataSet();
   QList<DataSet *> splitted;
   
@@ -470,9 +443,6 @@ static void chopCommand(const QString &, QList<double> values,
   if(setSegs)
     indices = new QList<int>(ds->segments);
 
-  QStringList flags;
-  updateFromOptions(opts, "flags", flags);
-  
   if(testOption<QString>(opts, "mode", "index") ||
      testOption<QString>(opts, "mode", "indices")) {
     QList<int> split;
@@ -490,17 +460,15 @@ static void chopCommand(const QString &, QList<double> values,
   if(indices) {
     DataSet * nds = new DataSet(*ds);
     nds->segments = *indices;
-    soas().pushDataSet(nds);
+    pusher << nds;
     for(int i = 0; i < splitted.size(); i++)
       delete splitted[i];
     delete indices;
   }
-  else
-    for(int i = splitted.size() - 1; i >= 0; i--) {
-      if(flags.size() > 0)
-        splitted[i]->setFlags(flags);
-      soas().pushDataSet(splitted[i]);
-    }
+  else {
+    for(int i = splitted.size() - 1; i >= 0; i--)
+      pusher << splitted[i];
+  }
 }
 
 static ArgumentList 
@@ -511,6 +479,7 @@ chopA(QList<Argument *>()
 
 static ArgumentList 
 chopO(QList<Argument *>() 
+      << DataStackHelper::helperOptions()
       << new ChoiceArgument(QStringList()
                             << "deltax"
                             << "xvalues"
@@ -519,10 +488,6 @@ chopO(QList<Argument *>()
                             "mode", 
                             "Mode",
                             "Whether to cut on index or x values (default)")
-      << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
-                                    "flags", 
-                                    "Buffers",
-                                    "Buffers to flag/unflag")      
       << new BoolArgument("set-segments", 
                           "Set segments",
                           "Whether to actually cut the dataset, or just "
@@ -1621,6 +1586,8 @@ stats("stats", // command name
 static void generateDSCommand(const QString &, double beg, double end, 
                               const CommandOptions & opts)
 {
+  DataStackHelper pusher(opts);
+
   int samples = 1000;
   updateFromOptions(opts, "samples", samples);
 
@@ -1629,9 +1596,6 @@ static void generateDSCommand(const QString &, double beg, double end,
 
   int nb = 1;
   updateFromOptions(opts, "number", nb);
-
-  QStringList flags;
-  updateFromOptions(opts, "flags", flags);
 
   for(int k = 0; k < nb; k++) {
     Vector x = Vector::uniformlySpaced(beg, end, samples);
@@ -1658,14 +1622,7 @@ static void generateDSCommand(const QString &, double beg, double end,
     }
     else
       newDs->name = "generated.dat";
-    if(flags.size() > 0)
-      newDs->setFlags(flags);
-    soas().pushDataSet(newDs, true);
-    if(k > 1)
-      soas().view().addDataSet(newDs);
-    else
-      soas().view().showDataSet(newDs);
-
+    pusher.pushDataSet(newDs);
   }
 }
 
@@ -1691,10 +1648,7 @@ gDSO(QList<Argument *>()
                            "The Y values",
                            "Formula to generate the Y values",
                            true)
-     << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
-                                   "flags",
-                                   "Flags",
-                                   "Flags to set on the results")
+     << DataStackHelper::helperOptions()
      );
 
 

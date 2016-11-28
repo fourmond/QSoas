@@ -386,6 +386,9 @@ loadStack("load-stack", // command name
 static void ovCommand(const QString &, QList<const DataSet *> ds,
                       const CommandOptions & opts)
 {
+  // This is probably the only command that should not use
+  // DataStackHelper, as the datasets handled are not created, but
+  // just displayed.
   QString style;
   updateFromOptions(opts, "style", style);
   QScopedPointer<StyleGenerator> 

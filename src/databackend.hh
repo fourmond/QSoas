@@ -170,9 +170,10 @@ public:
 
   /// Load files using the given backend (or with backend detection
   /// should the backend pointer be NULL) and display them.
-  static void loadFilesAndDisplay(int nb, QStringList files, 
+  static void loadFilesAndDisplay(bool update, QStringList files, 
                                   const CommandOptions & opts,
                                   DataBackend * backend = NULL);
+
 
 
 

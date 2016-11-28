@@ -38,7 +38,7 @@
 #include <curveview.hh>
 #include <datastack.hh>
 
-#include <stylegenerator.hh>
+#include <datastackhelper.hh>
 #include <datasetoptions.hh>
 #include <metadataprovider.hh>
 
@@ -179,7 +179,7 @@ QList<DataSet *> DataBackend::readFile(const QString & fileName,
 
 
 
-void DataBackend::loadFilesAndDisplay(int nb, QStringList files, 
+void DataBackend::loadFilesAndDisplay(bool update, QStringList files, 
                                       const CommandOptions & opts,
                                       DataBackend * backend)
 {
@@ -208,29 +208,12 @@ void DataBackend::loadFilesAndDisplay(int nb, QStringList files,
     QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
   }
 
-  // If applicable, we decorate the datasets with the flags given
-  QStringList flags;
-  updateFromOptions(opts, "flags", flags);
-  if(flags.size() > 0) {
-    for(int i = 0; i < datasets.size(); i++)
-      datasets[i]->setFlags(flags);
-  }
-
-  QScopedPointer<StyleGenerator> 
-    gen(StyleGenerator::fromText(style, datasets.size()));
-        
+  DataStackHelper pusher(opts, update);
   for(int i = 0; i < datasets.size(); i++) {
     DataSet * s = datasets[i];
     // Set the options:
     DatasetOptions::setDatasetOptions(s, opts);
-    soas().stack().pushDataSet(s, true); // use the silent version
-    // as we display ourselves
-    if(nb > 0)
-      soas().view().addDataSet(s, gen.data());
-    else
-      soas().view().showDataSet(s, gen.data());
-    nb++;
-    QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
+    pusher << s;
   }
 
   soas().view().enableUpdates();
@@ -240,7 +223,7 @@ void DataBackend::loadDatasetCommand(const QString & /*cmdname*/,
                                      QStringList files,
                                      const CommandOptions & opts)
 {
-  loadFilesAndDisplay(0, files, opts, this);
+  loadFilesAndDisplay(false, files, opts, this);
 }
 
 void DataBackend::setMetaDataForFile(DataSet * dataset, 
@@ -265,13 +248,13 @@ void DataBackend::setMetaDataForFile(DataSet * dataset,
 static void loadCommand(const QString &, QStringList files, 
                         const CommandOptions & opts)
 {
-  DataBackend::loadFilesAndDisplay(0, files, opts);
+  DataBackend::loadFilesAndDisplay(false, files, opts);
 }
 
 static void overlayFilesCommand(const QString &, QStringList files, 
                                 const CommandOptions & opts)
 {
-  DataBackend::loadFilesAndDisplay(1, files, opts);
+  DataBackend::loadFilesAndDisplay(true, files, opts);
 }
 
 
@@ -292,6 +275,7 @@ void DataBackend::registerBackendCommands()
                      << new StyleGeneratorArgument("style", 
                                                    "Style",
                                                    "style for curves display")
+                     << DataStackHelper::helperOptions()
                      << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                                    "flags", 
                                                    "Flags",

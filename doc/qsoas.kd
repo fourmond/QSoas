@@ -5842,6 +5842,18 @@ with an **uppercase** letter.
 
 {::comment} constants-end {:/}
 
+## Command-line options {#command-line-options}
+
+When starting QSoas from a terminal, you can use a number of
+command-line option to change its behaviour. Here are the most useful:
+
+ * `--run `_command_ will run the command _command_ after QSoas starts
+   up
+ * `--exit-after-running` will run the commands specified by `--run`,
+   and then exit the program. This can be used to run scripts to
+   automatically process data without user interaction.
+ * `--no-startup-files` disables the loading of
+   [startup scripts](#cmd-startup-files)
 
 [ruby]:http://www.ruby-lang.org/ "Ruby, the programming language"
 [math]:http://www.ruby-doc.org/core-1.9.3/Math.html "Documentation of the Math module"

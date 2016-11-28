@@ -290,7 +290,8 @@ SOURCES += src/qmain.cc \
         src/datasetexpression.cc \
         src/modifiedfit.cc \
         src/wave-fits.cc \
-        src/peaks-commands.cc
+        src/peaks-commands.cc \
+        src/datastackhelper.cc
 
 
 HEADERS += src/headers.hh \
@@ -403,7 +404,8 @@ HEADERS += src/headers.hh \
         src/box.hh \
         src/functions.hh \
         src/cachedfunction.hh \
-        src/datasetexpression.hh
+        src/datasetexpression.hh \
+        src/datastackhelper.hh
 
 
 

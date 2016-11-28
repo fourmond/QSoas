@@ -163,6 +163,25 @@ that looks like a date", etc. Here is how it works:
    or `,`".  Please see [the Qt documentation][qt-regexps] for more
    information.
 
+## Commands producing several buffers {#several-buffers}
+
+Many commands in QSoas will produce several buffers, for instance
+[cmd: load], that loads several files at the same time, or
+[cmd: split-monotonic], that splits a buffer into its monotonic
+parts. All these commands share a set of options:
+
+ * `/style` that can be used to display all the curves with gradual
+   changes in color;
+t * `/flags`, that can be used to set flags to the newly generated
+   buffers, see the [cmd: flag] command for more information.
+
+For instance, try out:
+
+~~~~
+QSoas> generate-buffer -1 1 /style=brown-green sin((10+number)*x) /number=11
+~~~~
+
+
 # General purpose commands
 
 
@@ -627,12 +646,14 @@ The main command for loading data is [cmd: load].
 
 ### load - Load {#cmd-load}
 
-`load` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/flags=`_words_{:title="several words, separated by ','"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/skip=`_integer_{:title="an integer"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`load` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/flags=`_words_{:title="several words, separated by ','"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/flags=`_words_{:title="several words, separated by ','"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/skip=`_integer_{:title="an integer"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
 Short name: `l`
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: style for curves display -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/flags=`_words_{:title="several words, separated by ','"}: flags for the newly created buffers -- values: several words, separated by ','
   * `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, ignores cache (default off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a buffer
@@ -826,10 +847,11 @@ able to detect at least some of their meta-data).
 
 ### expand - Expand {#cmd-expand}
 
-`expand` `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"}
+`expand` `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines meta-data from perpendicular coordinate -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
-  * `/flags=`_words_{:title="several words, separated by ','"}: flags for the new buffers -- values: several words, separated by ','
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: expand {:/}
 {::comment} description-start: expand {:/}
@@ -997,12 +1019,14 @@ of passing it non-visible datasets, QSoas won't shout at you if you do.
 
 ### overlay - Overlay {#cmd-overlay}
 
-`overlay` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/flags=`_words_{:title="several words, separated by ','"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/skip=`_integer_{:title="an integer"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`overlay` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/flags=`_words_{:title="several words, separated by ','"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/flags=`_words_{:title="several words, separated by ','"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/skip=`_integer_{:title="an integer"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
 Short name: `v`
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: style for curves display -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/flags=`_words_{:title="several words, separated by ','"}: flags for the newly created buffers -- values: several words, separated by ','
   * `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, ignores cache (default off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a buffer
@@ -1778,11 +1802,12 @@ can switch back to display Y values as a function of X by hitting `x`.
 
 ### chop - Chop Buffer {#cmd-chop}
 
-`chop` _lengths..._{:title="several floating-point numbers, separated by ,"} `/mode=`_choice_{:title="one of: `deltax`, `index`, `indices`, `xvalues`"} `/flags=`_words_{:title="several words, separated by ','"} `/set-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`chop` _lengths..._{:title="several floating-point numbers, separated by ,"} `/flags=`_words_{:title="several words, separated by ','"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/mode=`_choice_{:title="one of: `deltax`, `index`, `indices`, `xvalues`"} `/set-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _lengths..._{:title="several floating-point numbers, separated by ,"}: Lengths of the subsets -- values: several floating-point numbers, separated by ,
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/mode=`_choice_{:title="one of: `deltax`, `index`, `indices`, `xvalues`"}: Whether to cut on index or x values (default) -- values: one of: `deltax`, `index`, `indices`, `xvalues`
-  * `/flags=`_words_{:title="several words, separated by ','"}: Buffers to flag/unflag -- values: several words, separated by ','
   * `/set-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to actually cut the dataset, or just to set segments where the cuts would have been -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: chop {:/}
@@ -1838,9 +1863,10 @@ Useful to get the backward scan of a cyclic voltammogram.
 
 ### split-monotonic - Split into monotonic parts {#cmd-split-monotonic}
 
-`split-monotonic` `/flags=`_words_{:title="several words, separated by ','"} `/group=`_integer_{:title="an integer"} `/keep-first=`_integer_{:title="an integer"} `/keep-last=`_integer_{:title="an integer"}
+`split-monotonic` `/flags=`_words_{:title="several words, separated by ','"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/group=`_integer_{:title="an integer"} `/keep-first=`_integer_{:title="an integer"} `/keep-last=`_integer_{:title="an integer"}
 
-  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the results -- values: several words, separated by ','
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/group=`_integer_{:title="an integer"}: Group that many segments into one dataset -- values: an integer
   * `/keep-first=`_integer_{:title="an integer"}: Keep only the first n elements of the results -- values: an integer
   * `/keep-last=`_integer_{:title="an integer"}: Keep only the last n elements of the results -- values: an integer
@@ -2072,11 +2098,12 @@ including the X column, are reversed.
 
 ### split-on-values - Split on column values {#cmd-split-on-values}
 
-`split-on-values` _meta..._{:title="several words, separated by ','"} _columns..._{:title="a comma-separated list of [columns names](#column-names)"} `/flags=`_words_{:title="several words, separated by ','"}
+`split-on-values` _meta..._{:title="several words, separated by ','"} _columns..._{:title="a comma-separated list of [columns names](#column-names)"} `/flags=`_words_{:title="several words, separated by ','"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _meta..._{:title="several words, separated by ','"}: Names of the meta to be created -- values: several words, separated by ','
   * _columns..._{:title="a comma-separated list of [columns names](#column-names)"}: Columns whose values one should split on -- values: a comma-separated list of [columns names](#column-names)
-  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the results -- values: several words, separated by ','
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: split-on-values {:/}
 {::comment} description-start: split-on-values {:/}
@@ -5169,14 +5196,15 @@ created by [cmd: define-distribution-fit].
 
 ### generate-buffer - Generate buffer {#cmd-generate-buffer}
 
-`generate-buffer` _start_{:title="a floating-point number"} _end_{:title="a floating-point number"} `/samples=`_integer_{:title="an integer"} `/number=`_integer_{:title="an integer"} `/formula=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"}
+`generate-buffer` _start_{:title="a floating-point number"} _end_{:title="a floating-point number"} `/samples=`_integer_{:title="an integer"} `/number=`_integer_{:title="an integer"} `/formula=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _start_{:title="a floating-point number"}: The first X value -- values: a floating-point number
   * _end_{:title="a floating-point number"}: The last X value -- values: a floating-point number
   * `/samples=`_integer_{:title="an integer"}: number of data points -- values: an integer
   * `/number=`_integer_{:title="an integer"}: generates that many datasets -- values: an integer
   * `/formula=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} (default option): Formula to generate the Y values -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
-  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the results -- values: several words, separated by ','
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: generate-buffer {:/}
 {::comment} description-start: generate-buffer {:/}

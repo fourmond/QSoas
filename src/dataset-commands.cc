@@ -511,17 +511,24 @@ chopC("chop", // command name
 static void chopIntoSegmentsCommand(const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
+
+  DataStackHelper pusher(opts);
   QList<DataSet *> splitted = ds->chopIntoSegments();
   for(int i = splitted.size() - 1; i >= 0; i--)
-    soas().pushDataSet(splitted[i]);
+    pusher << splitted[i];
 }
+
+static ArgumentList 
+scO(QList<Argument *>() 
+    << DataStackHelper::helperOptions()
+    );
 
 static Command 
 chopS("segments-chop", // command name
       optionLessEffector(chopIntoSegmentsCommand), // action
       "segments",  // group name
       NULL, // arguments
-      NULL, // options
+      &scO, // options
       "Chop into segments",
       "Cuts buffer based on predefined segments",
       "Cuts the buffer into several ones based on the segments defined "

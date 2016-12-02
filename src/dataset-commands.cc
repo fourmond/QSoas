@@ -508,7 +508,7 @@ chopC("chop", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void chopIntoSegmentsCommand(const QString &)
+static void chopIntoSegmentsCommand(const QString &, const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();
 
@@ -525,7 +525,7 @@ scO(QList<Argument *>()
 
 static Command 
 chopS("segments-chop", // command name
-      optionLessEffector(chopIntoSegmentsCommand), // action
+      effector(chopIntoSegmentsCommand), // action
       "segments",  // group name
       NULL, // arguments
       &scO, // options

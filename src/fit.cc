@@ -388,6 +388,8 @@ void Fit::runFit(std::function<void (FitData *)> hook,
   updateFromOptions(opts, "extra-parameters", extraParams);
   QStringList ep = extraParams.split(",", QString::SkipEmptyParts);
 
+  if(datasets.size() == 0)
+    throw RuntimeError("No buffers to fit");
 
   {
     QStringList pbs;
@@ -508,6 +510,9 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
                      QList<const DataSet *> datasets,
                      const CommandOptions & opts)
 {
+
+  if(datasets.size() == 0)
+    throw RuntimeError("No buffers for computing");
 
   // Additional option: overrides
 

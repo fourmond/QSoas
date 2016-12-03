@@ -1382,6 +1382,9 @@ static void avgCommand(const QString &, QList<const DataSet *> all,
       data << new DataSet(*all[i]);
   }
 
+  if(data.size() == 0)
+    throw RuntimeError("No buffers to make the average of");
+
   Terminal::out << "Averaging over " << data.size() <<  " buffers" << endl;
 
   // Now, we modify all the datasets to add a column filled with 1 as
@@ -1454,7 +1457,10 @@ static void catCommand(const QString &, QList<const DataSet *> b, const CommandO
 {
   bool setSegs = true;
   updateFromOptions(opts, "add-segments", setSegs);
-  soas().pushDataSet(DataSet::concatenateDataSets(b, setSegs));
+  if(b.size() > 0)
+    soas().pushDataSet(DataSet::concatenateDataSets(b, setSegs));
+  else
+    throw RuntimeError("No buffers to concatenate");
 }
 
 static ArgumentList 

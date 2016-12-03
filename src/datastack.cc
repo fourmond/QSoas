@@ -73,6 +73,7 @@ QList<const DataSet *> DataStack::datasetsFromSpec(const QString & spec) const
     if(multi.indexIn(str) == 0 || str == "all") {
       int first;
       int last;
+      int sign = 1;
       if(str == "all") {
         first = -redoStackSize();
         last = stackSize()-1;
@@ -81,12 +82,12 @@ QList<const DataSet *> DataStack::datasetsFromSpec(const QString & spec) const
         first = multi.cap(1).toInt();
         last = (multi.cap(2) == "end" ? stackSize()-1 : 
                 multi.cap(2).toInt());
+        sign = (first < last ? 1 : -1);
       }
-      int sign = (first < last ? 1 : -1);
       int delta = 1;
       if(! multi.cap(3).isEmpty())
         delta = multi.cap(3).toInt();
-      do {
+      while((first - last) * sign <= 0) {
         DataSet * ds = numberedDataSet(first);
         if(! ds)
           Terminal::out << "No such buffer number : " << first << endl;
@@ -94,13 +95,6 @@ QList<const DataSet *> DataStack::datasetsFromSpec(const QString & spec) const
           dsets << ds;
         first += delta * sign;
       }
-      while((first - last) * sign <= 0);
-
-      if(dsets.size() == 0)
-        throw 
-          RuntimeError(QObject::tr("Buffer range '%1' corresponds "
-                                   "to no buffers").
-                       arg(str)) ;
     }
     else if(flgs.indexIn(str) == 0) {
       bool flg = (flgs.cap(1).size() == 0);

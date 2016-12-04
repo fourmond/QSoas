@@ -216,14 +216,21 @@ showStack("show-stack", // command name
 /// dataset selection ?)
 static void dropDataSetCommand(const QString &, const CommandOptions & opts)
 {
+  DataStack & stack = soas().stack();
   if(opts.contains("buffers")) {
     QList<const DataSet *> buffers = 
       opts["buffers"]->value<QList<const DataSet *> >();
     for(int i = 0; i < buffers.size(); i++)
-      soas().stack().dropDataSet(buffers[i]);
+      stack.dropDataSet(buffers[i]);
   }
   else {
-    soas().stack().dropDataSet(0);
+    stack.dropDataSet(0);
+  }
+  // Shift the redo stack into the normal stack if the latter is empty
+  if(stack.stackSize() == 0 && stack.redoStackSize() > 0) {
+    Terminal::out << "Normal stack is empty, shifting up the redo stack"
+                  << endl;
+    stack.redo();
   }
 }
 

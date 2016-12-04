@@ -4444,13 +4444,13 @@ potential.
 
 Formula:
 
-$$ i_{forward} = (a + b \times E) \left[\left(A_1 - A_e\right) \times \exp\left\{-(E E_1)/(\nu \tau)\right\} + A_e\right]  $$
+$$ i_{forward} = (a + b \times E) \left[\left(\alpha_0 - \alpha_e\right) \times \exp\left\{-(E -E_1)/(\nu \tau)\right\} + \alpha_e\right]  $$
 
-$$ i_{backward} = (a + b \times E) \left[\left(A_1 - A_e\right) \times \exp\left\{-(2E_v-E_1-E)/(\nu \tau)\right\} + A_e\right]  $$
+$$ i_{backward} = (a + b \times E) \left[\left(\alpha_0 - \alpha_e\right) \times \exp\left\{-(2E_v-E_1-E)/(\nu \tau)\right\} + \alpha_e\right]  $$
 
 where $$E_v$$ is the vertex potential, $$E_1$$ is the initial potential,
-$$\tau$$ the rate constant of decrease, $$A_1$$ the amount of initially
-active enzyme, $$A_e$$ the equilibrium concentration of active species
+$$\tau$$ the rate constant of decrease, $$\alpha_0$$ the amount of initially
+active enzyme, $$\alpha_e$$ the equilibrium concentration of active species
 and $$\nu$$ the scan rate.
 
 {::comment} description-end: fit-slow-scan-hp {:/}

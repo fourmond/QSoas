@@ -1302,7 +1302,7 @@ namespace __fft {
   // We don't display the 0th frequency !
   spec1.xvalues = Vector(orig.frequencies() - 1,0);
   for(int i = 0; i < spec1.xvalues.size(); i++)
-    spec1.xvalues[i] = log10((i+1)*0.5/(spec1.xvalues.size() * orig.deltaX));
+    spec1.xvalues[i] = log10((i+1)*0.5/(spec1.xvalues.size() * fabs(orig.deltaX)));
   spec1.yvalues = spec1.xvalues;
   spec1.countBB = true;
   spec1.histogram = true;

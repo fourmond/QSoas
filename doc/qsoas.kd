@@ -498,6 +498,21 @@ QSoas> eval mm(1.0,2.0,3.0)
  => 0.5
 ~~~~
 
+You can find out more about ruby code [below](#ruby), but here is how
+one can define a function `my_exp` that is 0 before `t0` and follows
+an exponential relaxation starting at `val` with a time constant `tau`
+afterwards:
+
+~~~~
+def my_exp(t,t0,tau,val)
+  if t < t0
+    return 0
+  else
+    return val*exp(-(t-t0)/tau)
+  end
+end
+~~~~
+
 {::comment} description-end: ruby-run {:/}
 
 {::comment} synopsis-start: break {:/}
@@ -4403,6 +4418,17 @@ QSoas> fit-kinetic-system /with=o2:3,exp,common kinetic-file.txt
 
   As for `exp`, the time constant can be chosen to be common to all
   the segments by adding `,common` after the spec.
+
+
+You can specify several independant parameters, if you separate their
+description by `;` 
+
+~~~~
+QSoas> fit-kinetic-system /with=o2:3,exp;o3:2,rexp kinetic-file.txt
+~~~~
+
+This defines the dependence over time of two parameters: `o2`, like
+above, and `o3`, that follows two exponentials relaxations.
 
 
 

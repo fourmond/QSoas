@@ -773,7 +773,9 @@ void KineticSystem::parseFile(QIODevice * device)
       throw RuntimeError(QString("Line %1: '%2' not valid").
                          arg(number).arg(orig));
   }
-
+  if(reaction == 0)
+    throw RuntimeError("Could not parse any reaction from file %1").
+      arg(Utils::fileName(device));
 }
 
 void KineticSystem::dump(QTextStream & o) const

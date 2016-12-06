@@ -274,6 +274,10 @@ namespace Utils {
   /// Reads all lines from a file, using a LineReader
   QStringList readAllLines(QTextStream * txt, bool stripCR = false);
 
+  /// Returns the name of a file based from a QIODevice pointer, or a
+  /// suitable other string describing the stream.
+  QString fileName(const QIODevice * device);
+
   /// @}
 
 

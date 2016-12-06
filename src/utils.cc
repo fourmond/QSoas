@@ -303,6 +303,15 @@ void Utils::open(QFile * file, QIODevice::OpenMode mode, bool expand)
   }
 }
 
+QString Utils::fileName(const QIODevice * device)
+{
+  const QFile * fl = dynamic_cast<const QFile *>(device);
+  if(fl)
+    return fl->fileName();
+  return "(device)";
+}
+
+
 bool Utils::confirmOverwrite(const QString & fileName, bool silent)
 {
   if(QFile::exists(fileName)) {

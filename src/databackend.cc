@@ -184,8 +184,6 @@ void DataBackend::loadFilesAndDisplay(bool update, QStringList files,
                                       DataBackend * backend)
 {
   soas().view().disableUpdates();
-  QString style;
-  updateFromOptions(opts, "style", style);
 
   // First load
   QList<DataSet *> datasets;
@@ -272,14 +270,7 @@ void DataBackend::registerBackendCommands()
 
   ArgumentList * overallOptions = 
     new ArgumentList(QList<Argument *>() 
-                     << new StyleGeneratorArgument("style", 
-                                                   "Style",
-                                                   "style for curves display")
                      << DataStackHelper::helperOptions()
-                     << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
-                                                   "flags", 
-                                                   "Flags",
-                                                   "flags for the newly created buffers")
                      << new BoolArgument("ignore-cache", 
                                          "Ignores cache",
                                          "if on, ignores cache (default off)")
@@ -305,13 +296,7 @@ void DataBackend::registerBackendCommands()
       opts = new ArgumentList;
     /// @todo Try to find a way to share that with options for the
     /// load and overlay commands.
-    *opts << new StyleGeneratorArgument("style", 
-                                        "Style",
-                                        "style for curves display")
-          << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
-                                        "flags", 
-                                        "Flags",
-                                        "flags for the newly created buffers");
+    *opts << DataStackHelper::helperOptions();
     
     opts->mergeOptions(*oo);
       

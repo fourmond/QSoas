@@ -34,6 +34,10 @@
    order
  * [cmd: print] can now overwrite output PDF file without asking via
    the `/overwrite=true` option
+ * most of the commands that can produce several datasets now take a
+   `/flag=` option and a `/style=`, the exception being the `sim-`
+   commands which still only support the `/flag=` option at this
+   stage.
 
 
 ## Other improvements

@@ -461,6 +461,11 @@ QString wrapIf(const QString & str, const QString & left, bool cond,
   return str;
 }
 
+static bool ltArgs(const Argument * a, const Argument * b)
+{
+  return a->argumentName() < b->argumentName();
+}
+
 QString Command::synopsis(bool markup) const 
 {
   QStringList synopsis;
@@ -487,7 +492,9 @@ QString Command::synopsis(bool markup) const
   }
 
   if(commandOptions()) {
-    const ArgumentList & args = *commandOptions();
+    ArgumentList args = *commandOptions();
+    qSort(args.begin(), args.end(), &ltArgs);
+    
     for(int i = 0; i < args.size(); i++) {
       QString a = args[i]->argumentName();
       QString td = Utils::uncapitalize(args[i]->typeDescription());

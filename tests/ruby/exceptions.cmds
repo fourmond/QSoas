@@ -1,2 +1,9 @@
+# Abort from script if running on windows
+ruby
+if RUBY_PLATFORM =~ /mingw/
+  Soas.break()
+end
+ruby end
+
 eval 1+1l
 assert true

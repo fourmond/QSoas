@@ -58,7 +58,13 @@ class Debug {
 
 protected:
   void timeStamp();
-  
+
+  /// Sets the object debug level
+  void setLevel(int level);
+
+  /// Gets the debug level
+  int getLevel();
+
 public:
 
   Debug();
@@ -68,6 +74,9 @@ public:
 
   /// Returns the current debug level
   static int debugLevel();
+
+  /// Sets the current debug level
+  static void setDebugLevel(int level);
 
   /// Sets up the debug object to work with the given directory.
   ///

@@ -52,7 +52,24 @@ Debug & Debug::debug()
 
 int Debug::debugLevel()
 {
-  return debug().level;
+  return debug().getLevel();
+}
+
+int Debug::getLevel()
+{
+  QMutexLocker m(&lock);
+  return level;
+}
+
+void Debug::setLevel(int l)
+{
+  QMutexLocker m(&lock);
+  level = l;
+}
+
+void Debug::setDebugLevel(int l)
+{
+  debug().setLevel(l);
 }
 
 

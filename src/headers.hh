@@ -138,6 +138,10 @@
 // Plugins
 #include <QLibrary>
 
+// Networking ?
+#include <QTcpSocket>
+#include <QTcpServer>
+
 // We do C++ sometimes
 #include <stdexcept>
 #include <functional>

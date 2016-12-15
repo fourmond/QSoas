@@ -908,6 +908,11 @@ void debugCommand(const QString &, const CommandOptions & opts)
     Terminal::out << "Setting up debug output in " << str << endl;
     Debug::debug().openDirectory(str);
   }
+  if(opts.contains("level")) {
+    int lvl;
+    updateFromOptions(opts, "level", lvl);
+    Debug::setDebugLevel(lvl);
+  }
 }
 
 
@@ -917,6 +922,9 @@ dbgO(QList<Argument *>()
                          "Debug directory",
                          "Directory in which the debug output is saved",
                          true, true)
+     << new IntegerArgument("level",
+                            "Debug level",
+                            "Sets the debug level")
     );
 
 

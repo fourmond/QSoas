@@ -20,6 +20,7 @@
 #include <headers.hh>
 #include <curvemarker.hh>
 
+#include <utils.hh>
 
 void CurveMarker::paintMarker(QPainter * painter, const QPointF & realPos,
                               MarkerType type, double size)
@@ -35,6 +36,7 @@ void CurveMarker::paintMarker(QPainter * painter, const QPointF & realPos,
     ;
   }
 }
+
 
 void CurveMarker::paintMarkerLabel(QPainter * painter, const QPointF & realPos,
                                    MarkerType /*type*/, double size, 
@@ -61,20 +63,52 @@ void CurveMarker::paint(QPainter * painter, const QRectF &,
   painter->save();
   painter->setPen(pen);
   painter->setBrush(brush);
-  if(points.size() == 0) {
+  if(points.size() == 0 && xvalues.size() == 0) {
     QPointF pos = ctw.map(p);
     paintMarker(painter, pos, type, size);
     if(! l.isEmpty())
       paintMarkerLabel(painter, pos, type, size, l);
   }
   else {
-    for(int i = 0; i < points.size(); i++) {
-      QPointF pos = ctw.map(points[i]);
-      paintMarker(painter, pos, type, size);
-      if(labels.size() > i && (! labels[i].isEmpty()))
-        paintMarkerLabel(painter, pos, type, size, 
-                         labels[i], textPen);
+    if(points.size() == 0) {
+      for(int i = 0; i < xvalues.size(); i++) {
+        QPointF np(xvalues[i], yvalues[i]);
+        QPointF pos = ctw.map(np);
+        paintMarker(painter, pos, type, size);
+        if(labels.size() > i && (! labels[i].isEmpty()))
+          paintMarkerLabel(painter, pos, type, size, 
+                           labels[i], textPen);
+      }
+    }
+    else {
+      for(int i = 0; i < points.size(); i++) {
+        QPointF pos = ctw.map(points[i]);
+        paintMarker(painter, pos, type, size);
+        if(labels.size() > i && (! labels[i].isEmpty()))
+          paintMarkerLabel(painter, pos, type, size, 
+                           labels[i], textPen);
+      }
     }
   }
   painter->restore();
+}
+
+QRectF CurveMarker::boundingRect() const
+{
+  QRectF rv;
+  if(points.size() == 0 && xvalues.size() == 0) {
+    rv = QRectF(p, QSizeF(0,0));
+  }
+  else {
+    if(points.size() == 0) {
+      rv = QRectF(QPointF(xvalues.min(), yvalues.min()),
+                  QPointF(xvalues.max(), yvalues.max()));
+    }
+    else {
+      rv = QRectF(points[0], points[0]);
+      for(int i = 1; i < points.size(); i++)
+        rv = rv.united(QRectF(points[i], points[i]));
+    }
+  }
+  return rv;
 }

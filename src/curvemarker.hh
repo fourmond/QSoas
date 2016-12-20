@@ -23,6 +23,7 @@
 #define __CURVEMARKER_HH
 
 #include <curveitem.hh>
+#include <vector.hh>
 
 
 /// A marker, centered on a point.
@@ -32,8 +33,15 @@ public:
   /// The point of the marker
   QPointF p;
 
-  /// Points. If empty, p is used.
+  /// Points. If this both this list and xvalues are empty, p is
+  /// used.
   QList<QPointF> points;
+
+  /// The X values of several points
+  Vector xvalues;
+
+  /// The Y values of several points
+  Vector yvalues;
 
   /// A label for the point \a p if applicable
   QString l;
@@ -53,7 +61,9 @@ public:
   MarkerType type;
 
   virtual void paint(QPainter * painter, const QRectF & bbox,
-                     const QTransform & curveToWidget);
+                     const QTransform & curveToWidget) override;
+
+  virtual QRectF boundingRect() const override;
 
   /// Paints the marker of the given \a type and the given size at the
   /// given position, using the current pen and brush.

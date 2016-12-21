@@ -323,7 +323,7 @@ static void saveHistoryCommand(const QString &, QString out)
 
   QStringList history = soas().prompt().history();
   QTextStream s(&o);
-  for(int i = history.size() - 1 ; i >= 0; i--)
+  for(int i = history.size() - 1 ; i > 0; i--)
     s << history[i] << "\n";
 }
 

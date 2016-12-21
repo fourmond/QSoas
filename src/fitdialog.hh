@@ -185,11 +185,32 @@ public:
   /// returns the maximal number of iterations
   int getIterationLimit() const;
 
+  /// Returns the list of trajectories.
+  const QList<FitTrajectory> & fitTrajectories() const;
+
+  /// Returns the underlying FitData object
+  FitData * getData() const;
+
+  /// Returns the underlying FitWorkspace
+  FitWorkspace * getWorkspace();
+  const FitWorkspace * getWorkspace() const;
+
+  
+
 
 signals:
   void currentDataSetChanged(int ds);
 
+  /// This signal is sent at the end of every iteration. Provides the
+  /// current iteration number and the parameters
+  void nextIteration(int iteration, double residuals,
+                     const Vector & parameters);
+
+  /// Sent when the fit is finished
   void finishedFitting();
+
+  /// Sent at the beginning of the fit
+  void startedFitting();
 
 public slots:
 
@@ -221,6 +242,12 @@ public slots:
   /// Exports parameters to the current output file (with errors)
   void exportToOutFileWithErrors();
 
+  /// Start the fit
+  void startFit();
+
+  /// Cancels the current fit
+  void cancelFit();
+
 protected slots:
 
   /// Updates the display of residuals.
@@ -242,11 +269,6 @@ protected slots:
   /// Update all the editors
   void updateEditors(bool updateErrors = false);
 
-  /// Starts the fit !
-  void startFit();
-
-  /// Cancels the current fit !
-  void cancelFit();
 
   /// Adds current simulated datset to the data stack
   void pushCurrentCurve();

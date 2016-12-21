@@ -451,6 +451,25 @@ void FitDialog::setupFrame()
   nup->showWidget(0);
 }
 
+const QList<FitTrajectory> & FitDialog::fitTrajectories() const
+{
+  return trajectories;
+}
+
+FitData * FitDialog::getData() const
+{
+  return data;
+}
+
+FitWorkspace * FitDialog::getWorkspace()
+{
+  return &parameters;
+}
+
+const FitWorkspace * FitDialog::getWorkspace() const
+{
+  return &parameters;
+}
 
 void FitDialog::closeEvent(QCloseEvent * event)
 {
@@ -611,6 +630,9 @@ void FitDialog::startFit()
     parameters.prepareFit(fitEngineParameterValues.value(data->engineFactory, NULL));
     parametersBackup = parameters.saveParameterValues();
     shouldCancelFit = false;
+    
+    /// sending the startedFitting signal
+    emit(startedFitting());
   
     QString params;
     int freeParams = data->freeParameters();
@@ -639,6 +661,13 @@ void FitDialog::startFit()
     do {
       status = data->iterate();
       residuals = data->residuals();
+
+      /// Signal at the end of each iteration
+      emit(nextIteration(data->nbIterations,
+                         residuals,
+                         parameters.saveParameterValues()
+                         ));
+
       double tm = startTime.msecsTo(QDateTime::currentDateTime()) * 1e-3;
       QString str = QString("Iteration #%1, current internal residuals: %2, %3 s elapsed").
         arg(data->nbIterations).arg(residuals).arg(tm);

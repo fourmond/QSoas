@@ -607,6 +607,14 @@ double Vector::deltaSum() const
   return s;
 }
 
+void Vector::applyFunction(const std::function<double (double)> & func)
+{
+  int sz = size();
+  double * d = data();
+  for(int i = 0; i < size(); ++i, ++d)
+    *d = func(*d);
+}
+
 int Vector::closestPoint(double v) const
 {
   const double * d = data();

@@ -203,6 +203,10 @@ public:
   /// Flips the contents of the vector from back to front
   void reverse();
 
+  /// Apply a function double to double to the vector and returns the
+  /// newly created values.
+  void applyFunction(const std::function<double (double)> & func);
+
 
   /// @}
 

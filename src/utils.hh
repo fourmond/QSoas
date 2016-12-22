@@ -198,6 +198,16 @@ namespace Utils {
   /// height and it does not have NaNs.
   QRectF sanitizeRectangle(const QRectF & rect);
 
+  /// Unite two rectangles, returning the rectangle that encompasses
+  /// both. It ignores non-finite values (unless both rectangles have
+  /// non-finite values).
+  QRectF uniteRectangles(const QRectF & r1, const QRectF & r2);
+
+  /// Unite several rectangles, returning the rectangle that
+  /// encompasses all. It ignores non-finite values. The target
+  /// rectangle will always be oriented the right way
+  QRectF uniteRectangles(const QList<QRectF> rects);
+
 
   /// Checks that the given point only has finite coordinates
   bool isPointFinite(const QPointF & point);

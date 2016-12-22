@@ -225,6 +225,36 @@ QRectF Utils::scaledAround(const QRectF & rect, const QPointF & point,
   return nr;
 }
 
+QRectF Utils::uniteRectangles(const QList<QRectF> rects)
+{
+  Vector xvals;
+  Vector yvals;
+
+  for(int i = 0; i < rects.size(); i++) {
+    const QRectF & r = rects[i];
+    if(! r.isValid())
+      continue;                 // Silently ignore invalid
+    QPointF p = r.topLeft();
+    xvals << p.x();
+    yvals << p.y();
+
+    p = r.bottomRight();
+    xvals << p.x();
+    yvals << p.y();
+  }
+  if(xvals.size() > 0) {
+    QPointF tl(xvals.finiteMin(), yvals.finiteMin());
+    QPointF br(xvals.finiteMax(), yvals.finiteMax());
+    return QRectF(tl, br);
+  }
+  return QRectF();
+}
+
+QRectF Utils::uniteRectangles(const QRectF & r1, const QRectF & r2)
+{
+  return uniteRectangles(QList<QRectF>() << r1 << r2);
+}
+
 
 QRectF Utils::sanitizeRectangle(const QRectF & rect)
 {

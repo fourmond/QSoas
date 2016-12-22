@@ -64,7 +64,7 @@ void ParametersDialog::setupFrame()
 
   int curRow = 0;
   for(int i = 0; i < datasets.size(); i++) {
-    if(datasets.size() > 1)
+    if(datasets.size() > 1) {
       gd->addWidget(new QLabel(datasets[i]->name), curRow, 0);
       for(int j = 0; j < nbParams; ++j, ++curRow) {
         FitParameterEditor * edit = 
@@ -75,6 +75,7 @@ void ParametersDialog::setupFrame()
         connect(edit, SIGNAL(globalChanged(int, bool)),
                 SLOT(onGlobalChanged(int, bool)));
       }
+    }
   }
 
   // Setup global stuff:

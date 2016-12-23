@@ -298,26 +298,6 @@ int KineticSystem::speciesIndex(const QString & str)
   return sz;
 }
 
-void KineticSystem::addReaction(QList<QString> species, 
-                                QList<int> stoechiometry,
-                                int els, 
-                                const QString & forward, 
-                                const QString & backward)
-{
-  parameters.clear();
-  int reactionIndex = reactions.size();
-  Reaction * reac = (els ? 
-                     new RedoxReaction(els, forward, backward) 
-                     :
-                     new Reaction(forward, backward));
-  for(int i = 0; i < species.size(); i++) {
-    int spi = speciesIndex(species[i]);
-    reac->speciesIndices.append(spi);
-    this->species[spi].reactions.append(reactionIndex);
-    reac->speciesStoechiometry.append(stoechiometry[i]);
-  }
-  reactions.append(reac);
-}
 
 void KineticSystem::ensureReady(const QStringList & add)
 {
@@ -682,7 +662,7 @@ void KineticSystem::parseFile(QIODevice * device)
   QTextStream in(device);
 
   QRegExp blankRE("^\\s*(#|$)");
-  QRegExp reactionRE("^\\s*(.*)(<=>|->)\\s*(.*)$");
+  QRegExp reactionRE("^\\s*(.*)(<=>|->)(\\([^)]+\\))?\\s*(.*)$");
 
   QRegExp reporterRE("^\\s*y\\s*=\\s*(.*)$");
 
@@ -729,8 +709,9 @@ void KineticSystem::parseFile(QIODevice * device)
     if(reactionRE.indexIn(line) ==  0) {
       ++reaction;
       QString left = reactionRE.cap(1);
-      QString right = reactionRE.cap(3);
-      bool reversible = (reactionRE.cap(2) == "<=>");
+      QString right = reactionRE.cap(4);
+      QString arrow = reactionRE.cap(2);
+      QString options = reactionRE.cap(3);
 
       QString fr;
       QString br;
@@ -756,18 +737,7 @@ void KineticSystem::parseFile(QIODevice * device)
         }
       }
 
-      if(literals.size() > 0)
-        fr = literals.takeFirst();
-      else 
-        fr = QString(els != 0 ? "e0_%1" : "k_%1").arg(reaction);
-      if(reversible) {
-        if(literals.size() > 0)
-          br = literals.takeFirst();
-        else 
-          br = QString(els != 0 ? "k0_%1" : "k_m%1").arg(reaction);
-      }
-
-      addReaction(reactants, stoechiometry, els, fr, br);
+      addReaction(reactants, stoechiometry, els, literals, arrow, options);
     }
     else
       throw RuntimeError(QString("Line %1: '%2' not valid").
@@ -776,6 +746,38 @@ void KineticSystem::parseFile(QIODevice * device)
   if(reaction == 0)
     throw RuntimeError("Could not parse any reaction from file %1").
       arg(Utils::fileName(device));
+}
+
+void KineticSystem::addReaction(QList<QString> species,
+                                QList<int> stoechiometry, 
+                                int els, 
+                                const QStringList & lits,
+                                const QString & arrow,
+                                const QString & opts)
+{
+  parameters.clear();
+  QStringList literals = lits;
+  int reactionIndex = reactions.size();
+  bool reversible = arrow == "<=>";
+
+  if(literals.size() < 1)
+    literals << QString(els != 0 ? "e0_%1" : "k_%1").arg(reactionIndex);
+  if(reversible && literals.size() < 2)
+    literals << QString(els != 0 ? "k0_%1" : "k_m%1").arg(reactionIndex);
+
+  Reaction * reac = (els ? 
+                     new RedoxReaction(els, literals.value(0),
+                                       literals.value(1)) 
+                     :
+                     new Reaction(literals.value(0),
+                                  literals.value(1)));
+  for(int i = 0; i < species.size(); i++) {
+    int spi = speciesIndex(species[i]);
+    reac->speciesIndices.append(spi);
+    this->species[spi].reactions.append(reactionIndex);
+    reac->speciesStoechiometry.append(stoechiometry[i]);
+  }
+  reactions.append(reac);
 }
 
 void KineticSystem::dump(QTextStream & o) const

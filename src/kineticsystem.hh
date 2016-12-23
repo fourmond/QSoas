@@ -157,6 +157,7 @@ public:
   };
 
 
+  /// This reaction is a simple butler-volmer reaction with alpha = 0.5
   class RedoxReaction : public Reaction {
   public:
     /// Index of the potential in the parameters
@@ -230,6 +231,13 @@ protected:
   /// for steady-state current) are given in order.
   void ensureReady(const QStringList & parameters);
 
+  /// Adds a reaction to the system
+  void addReaction(QList<QString> species, QList<int> stoechiometry, 
+                   int els, 
+                   const QStringList & literals,
+                   const QString & arrow,
+                   const QString & opts = "");
+
 
 
 public:
@@ -251,11 +259,6 @@ public:
     return linear;
   };
 
-  /// Adds a reaction to the system
-  void addReaction(QList<QString> species, QList<int> stoechiometry, 
-                   int els,
-                   const QString & forward, 
-                   const QString & backward = "");
 
   /// Prepares the system for time evolution, ie using initial
   /// concentrations as additional parameters.

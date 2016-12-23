@@ -25,6 +25,11 @@
 class Expression;
 
 
+/// These are private subclasses, only visible in the implementation.
+class Species;
+class Reaction;
+class RedoxReaction;
+
 
 /// The KineticSystem, a class that parses a chemical description of a
 /// full kinetic system, be it or not, and provide functions for
@@ -51,143 +56,6 @@ public:
                                 // adsorbed.
     Forced                      // forced convection, (ie RDE)
   } Diffusion;
-
-  /// A species involved in the reactions.
-  class Species {
-  public:
-    
-    /// Name
-    QString name;
-
-    /// The indices of the reactions the species takes part in
-    QVector<int> reactions;
-
-    /// The type of diffusion.
-    Diffusion diffusion;
-
-    Species(const QString & n) : name(n), diffusion(None) {;};
-    
-  };
-
-  /// A reaction. It is considered an elementary reaction, in the
-  /// sense that the rate constants are provided, which are mutiplied
-  /// by the concentration to the power of the stoechiometry. However,
-  /// it is still possible to cancel out some terms in that by using
-  /// the appropriate concentration factor in the rates.
-  class Reaction {
-  protected:
-
-    /// Expression for the forward rate
-    QString forwardRate;
-
-    /// Expression for the reverse rate (if empty, then the reaction
-    /// is irreversible)
-    QString backwardRate;
-
-    
-    Expression * forward;
-    Expression * backward;
-
-  public:
-    /// List of indices of the reactants or products
-    QVector<int> speciesIndices;
-
-    /// Their stoechiometry (negative if on the reactants side,
-    /// positive if on the products size). In the same order as
-    /// speciesIndices.
-    QVector<int> speciesStoechiometry;
-
-    /// the number of electrons (counted negatively if on the left)
-    int electrons;
-
-    /// A storage space for caching stuff -- this is hanlded at the
-    /// KineticSystem level.
-    double cache[2];
-
-    /// Returns true when:
-    /// * the stoechiometry is one for each reactant
-    /// * the rate constants are constants
-    ///
-    /// @todo In time, this will have to include the case when a rate
-    /// constant is not a constant, but does not depend on the
-    /// concentrations.
-    virtual bool isLinear() const;
-
-    Reaction(const QString & fd, const QString & bd = "" );
-
-    /// A copy constructor
-    Reaction(const Reaction & other);
-
-    void clearExpressions();
-
-    virtual ~Reaction() {
-      clearExpressions();
-    };
-
-    /// Computes the expressions
-    virtual void makeExpressions(const QStringList & vars = QStringList());
-
-    /// Sets the parameters of the expressions
-    virtual void setParameters(const QStringList & parameters);
-
-    /// Returns the parameters needed by the rates
-    virtual QSet<QString> parameters() const;
-
-
-    /// Computes both the forward and backward rates
-    ///
-    /// In fact, these are rate CONSTANTS !
-    virtual void computeRateConstants(const double * vals, 
-                              double * forward, double * backward) const;
-
-    /// String depiction of the equation (along with the rates)
-    virtual QString toString(const QList<Species> & species) const;
-
-    /// Returns the expression of the exchange rate for the
-    /// reaction. Returns an empty string if there isn't an exchange
-    /// rate.
-    virtual QString exchangeRate() const;
-
-    /// Stores useful values in the cache. Not used as of now.
-    virtual void computeCache(const double * vals);
-
-    /// Returns a true duplicate of the object pointed to by
-    /// Reaction. It also works for subclasses
-    virtual Reaction * dup() const;
-  };
-
-
-  /// This reaction is a simple butler-volmer reaction with alpha = 0.5
-  class RedoxReaction : public Reaction {
-  public:
-    /// Index of the potential in the parameters
-    int potentialIndex;
-
-    /// Index of the temperature in the parameters
-    int temperatureIndex;
-
-    // We reuse the forward/backward stuff but with a different
-    // meaning.
-    RedoxReaction(int els, const QString & e0, const QString & k0);
-
-    /// A copy constructor
-    RedoxReaction(const RedoxReaction & other);
-
-    virtual void setParameters(const QStringList & parameters);
-
-    virtual QSet<QString> parameters() const;
-
-    virtual void computeRateConstants(const double * vals, 
-                                      double * forward, double * backward) const;
-    virtual QString exchangeRate() const;
-
-    virtual Reaction * dup() const;
-
-    /// Stores useful values in the cache. Stores:
-    /// * exp(fara * 0.5 * electrons * (- e0));
-    /// * k0
-    virtual void computeCache(const double * vals);
-  };
 
 protected:
 

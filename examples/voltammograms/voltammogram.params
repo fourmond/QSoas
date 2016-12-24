@@ -1,0 +1,33 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: redox (system: ??)
+# Buffer #0 : generated.dat
+y_Ox	1	!	1
+y_Red	0	!	0
+c0_Ox	0	!	0
+c0_Red	1	!	0
+e0	0	!	1
+k0	1	!	1
+temperature	298	!	1
+e_t_0	-1	!	0
+e_0	-0.5	!	0
+e_t_1	0	!	0
+e_1	0.5	!	0
+e_t_2	1	!	0
+e_2	-0.5	!	0
+# The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
+# Buffer-local parameters: 
+# 
+# Buffer: generated.dat (weight: 1)
+# y_Ox	=	1	+- 0	+- 0%
+# y_Red	=	0	(fixed)
+# c0_Ox	=	0	(fixed)
+# c0_Red	=	1	(fixed)
+# e0	=	0	+- 0	+- nan%
+# k0	=	1	+- 0	+- 0%
+# temperature	=	298	+- 0	+- 0%
+# e_t_0	=	-1	(fixed)
+# e_0	=	-0.5	(fixed)
+# e_t_1	=	0	(fixed)
+# e_1	=	0.5	(fixed)
+# e_t_2	=	1	(fixed)
+# e_2	=	-0.5	(fixed)

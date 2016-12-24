@@ -1,0 +1,2 @@
+run-for-each /range-type=log voltammogram.cmds 1e-2..1e2:41
+V flagged:cv /style=red-blue

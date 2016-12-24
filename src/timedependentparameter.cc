@@ -179,6 +179,86 @@ static TimeDependentParameter::TDPFactory steps("steps", [](int nb, const QStrin
   }
 );
 
+//////////////////////////////////////////////////////////////////////
+
+class RampsTDP : public TimeDependentParameter {
+public:
+
+  /// The number of values (i.e. the number of steps + 1);
+  int number;
+
+  /// The number of parameters
+  int parameterNumber() const {
+    return number * 2;
+  };
+
+  /// Parameter definitions
+  QList<ParameterDefinition> parameters(const QString & prefix) const {
+    QList<ParameterDefinition> ret;
+    for(int i = 0; i < number; i++) { 
+      ret << ParameterDefinition(QString("%2_t_%1").
+                                   arg(i).arg(prefix), true);
+
+      ret << ParameterDefinition(QString("%2_%1").
+                                 arg(i).arg(prefix), true);
+    }
+    return ret;
+  };
+
+  /// Returns the value at the given time...
+  double computeValue(double t, const double * parameters) const {
+    double lx = parameters[baseIndex];
+    double ly = parameters[baseIndex+1];
+    double rx, ry;
+    if(t < lx)
+      return ly;                 // First y value before the first t
+    bool found = false;
+    int i = 1;
+    do {
+      lx = parameters[baseIndex+i*2-2];
+      ly = parameters[baseIndex+i*2-1];
+      rx = parameters[baseIndex+i*2];
+      ry = parameters[baseIndex+i*2+1];
+      if(t < rx) {
+        found = true;
+        break;
+      }
+      ++i;
+    } while(i < number);
+    if(! found)
+      return ry;                // Last y value after the last t
+    return ly + (ry-ly)/(rx-lx)*(t-lx);
+  };
+
+  /// Sets a reasonable initial guess for these parameters
+  void setInitialGuess(double * parameters, const DataSet * ds) const {
+    double dx = ds->x().max() - ds->x().min();
+    for(int i = 0; i < number; i++) {
+      double & t0   = parameters[baseIndex + 2*i];
+      double & conc = parameters[baseIndex + 2*i+1];
+      conc = i % 2 ? 1 : -1;
+      t0 = ds->x().min() + i * dx/(number-1);
+    }
+  };
+
+  /// Returns the time at which there are potential discontinuities
+  Vector discontinuities(const double * ) const {
+    Vector ret;
+    return ret;
+  };
+
+};
+
+static TimeDependentParameter::TDPFactory ramps("ramps", [](int nb, const QStringList & extra) -> TimeDependentParameter * {
+    RampsTDP * tdp = new RampsTDP;
+    if(nb <= 0)
+      throw RuntimeError("ramps parameter needs a strictly positive number, got %1").
+        arg(nb);
+    tdp->number = nb+1;
+    return tdp;
+  }
+);
+
 
 
 
@@ -309,6 +389,7 @@ static TimeDependentParameter::TDPFactory rex("rexp", [](int nb, const QStringLi
     return tdp;
   }
 );
+
 
 
 //////////////////////////////////////////////////////////////////////

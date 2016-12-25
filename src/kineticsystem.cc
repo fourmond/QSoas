@@ -509,6 +509,10 @@ public:
     double fara = GSL_CONST_MKSA_FARADAY /
       (vals[temperatureIndex] * GSL_CONST_MKSA_MOLAR_GAS);
 
+    // Normalizing factor so that k0 is always the exchange rate (at 0
+    // overpotential)
+    k0 /= Functions::marcusHushChidseyZeng(fara * lb, 0);
+
     *fd = k0 * Functions::marcusHushChidseyZeng(fara * lb, fara * electrons * (e-e0));
     *bd = k0 * Functions::marcusHushChidseyZeng(fara * lb, fara * electrons  * (e0-e));
   }

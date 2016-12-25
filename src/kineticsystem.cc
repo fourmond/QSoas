@@ -97,7 +97,7 @@ public:
   /// A copy constructor
   Reaction(const Reaction & other);
 
-  void clearExpressions();
+  virtual void clearExpressions();
 
   virtual ~Reaction() {
     clearExpressions();
@@ -135,38 +135,6 @@ public:
   virtual Reaction * dup() const;
 };
 
-
-/// This reaction is a simple butler-volmer reaction with alpha = 0.5
-class RedoxReaction : public Reaction {
-public:
-  /// Index of the potential in the parameters
-  int potentialIndex;
-
-  /// Index of the temperature in the parameters
-  int temperatureIndex;
-
-  // We reuse the forward/backward stuff but with a different
-  // meaning.
-  RedoxReaction(int els, const QString & e0, const QString & k0);
-
-  /// A copy constructor
-  RedoxReaction(const RedoxReaction & other);
-
-  virtual void setParameters(const QStringList & parameters);
-
-  virtual QSet<QString> parameters() const;
-
-  virtual void computeRateConstants(const double * vals, 
-                                    double * forward, double * backward) const;
-  virtual QString exchangeRate() const;
-
-  virtual Reaction * dup() const;
-
-  /// Stores useful values in the cache. Stores:
-  /// * exp(fara * 0.5 * electrons * (- e0));
-  /// * k0
-  virtual void computeCache(const double * vals);
-};
 
 
 
@@ -297,6 +265,39 @@ Reaction * Reaction::dup() const
 
 //////////////////////////////////////////////////////////////////////
 
+/// This reaction is a simple butler-volmer reaction with alpha = 0.5
+class RedoxReaction : public Reaction {
+public:
+  /// Index of the potential in the parameters
+  int potentialIndex;
+
+  /// Index of the temperature in the parameters
+  int temperatureIndex;
+
+  // We reuse the forward/backward stuff but with a different
+  // meaning.
+  RedoxReaction(int els, const QString & e0, const QString & k0);
+
+  /// A copy constructor
+  RedoxReaction(const RedoxReaction & other);
+
+  virtual void setParameters(const QStringList & parameters);
+
+  virtual QSet<QString> parameters() const;
+
+  virtual void computeRateConstants(const double * vals, 
+                                    double * forward, double * backward) const;
+  virtual QString exchangeRate() const;
+
+  virtual Reaction * dup() const;
+
+  /// Stores useful values in the cache. Stores:
+  /// * exp(fara * 0.5 * electrons * (- e0));
+  /// * k0
+  virtual void computeCache(const double * vals);
+};
+
+
 
 RedoxReaction::RedoxReaction(int els, const QString & e0, 
                                             const QString & k0) :
@@ -380,6 +381,79 @@ RedoxReaction::RedoxReaction(const RedoxReaction & o) :
   ;
 }
 
+//////////////////////////////////////////////////////////////////////
+
+/// This reaction is a full Butler-Volmer reaction, with values of alpha
+class BVRedoxReaction : public RedoxReaction {
+
+  /// Expression for the value of alpha
+  QString alphaValue;
+
+  /// and the corresponding Expression object
+  Expression * alpha;
+
+
+public:
+
+  // We reuse the forward/backward stuff but with a different
+  // meaning.
+  BVRedoxReaction(int els, const QString & e0, const QString & k0, const QString & alph) :
+    RedoxReaction(els, e0, k0), alphaValue(alph), alpha(NULL) {
+  };
+
+  /// A copy constructor
+  BVRedoxReaction(const BVRedoxReaction & o) :
+    RedoxReaction(o), alphaValue(o.alphaValue) {
+    alpha = o.alpha ? new Expression(*o.alpha) : NULL;
+  }
+
+  virtual void makeExpressions(const QStringList & vars) override {
+    Reaction::makeExpressions(vars);
+    alpha = new Expression(alphaValue);
+    if(! vars.isEmpty())
+      alpha->setVariables(vars);
+  }
+  
+  virtual void clearExpressions() {
+    Reaction::clearExpressions();
+    delete alpha;
+    alpha = NULL;
+  }
+
+
+  virtual void computeRateConstants(const double * vals, 
+                                    double * fd, double * bd) const
+  {
+    double e0, k0, al;
+    e0 = forward->evaluate(vals);
+    k0 = backward->evaluate(vals);
+    al = alpha->evaluate(vals);
+
+    double e = vals[potentialIndex];
+    double fara = GSL_CONST_MKSA_FARADAY /
+      (vals[temperatureIndex] * GSL_CONST_MKSA_MOLAR_GAS);
+
+    *fd = k0 * exp(fara * al * electrons * (e - e0));
+    *bd = k0 * exp(fara * (1 - al) * electrons * (e0 - e));
+  }
+
+  virtual Reaction * dup() const {
+    return new BVRedoxReaction(*this);
+  }
+
+  virtual QSet<QString> parameters() const {
+    QSet<QString> params = RedoxReaction::parameters();
+    params += QSet<QString>::fromList(alpha->naturalVariables());
+    return params;
+  };
+
+  void setParameters(const QStringList & parameters) override {
+    RedoxReaction::setParameters(parameters);
+    alpha->setVariables(parameters);
+  };
+
+};
+
 
 
 //////////////////////////////////////////////////////////////////////
@@ -411,7 +485,7 @@ KineticSystem::KineticSystem(const KineticSystem & o) :
     reactions << o.reactions[i]->dup();
 
   for(int i = 0; i < o.redoxReactions.size(); i++)
-    redoxReactions << new RedoxReaction(*o.redoxReactions[i]);
+    redoxReactions << static_cast<RedoxReaction*>(o.redoxReactions[i]->dup());
 
 }
 
@@ -817,6 +891,8 @@ void KineticSystem::parseFile(QIODevice * device)
   int number = 0;
 
   int reaction = 0;
+
+  QTextStream o(stdout);
   while(true) {
     QString line = in.readLine();
     QString orig = line;
@@ -842,11 +918,15 @@ void KineticSystem::parseFile(QIODevice * device)
     // [[ in the line, we only capture groups within [[ ]] (which are
     // not Ruby-specific idioms)
 
+    o << "Line: " << line << endl;
+
 
     if(line.contains("[["))
       literals = Utils::extractMatches(line, doubleBraceRE, 1);
     else 
       literals = Utils::extractMatches(line, singleBraceRE, 1);
+
+    o << "Literals: " << literals.join(", ") << endl;
 
     
     if(reactionRE.indexIn(line) ==  0) {
@@ -908,12 +988,41 @@ void KineticSystem::addReaction(QList<QString> species,
   if(reversible && literals.size() < 2)
     literals << QString(els != 0 ? "k0_%1" : "k_m%1").arg(reactionIndex);
 
-  Reaction * reac = (els ? 
-                     new RedoxReaction(els, literals.value(0),
-                                       literals.value(1)) 
-                     :
-                     new Reaction(literals.value(0),
-                                  literals.value(1)));
+  int type = 0;
+  if(els != 0) {
+    type = 1;
+    if(opts == "(BV)")
+      type = 2;
+    if(opts == "(M)")
+      type = 3;
+  }
+
+  Reaction * reac;
+  switch(type) {
+  case 0:                       // plain chemical reaction
+    reac = new Reaction(literals.value(0),
+                        literals.value(1));
+    break;
+  case 1:                       // plain electrochemical (BV, alpha = 1/2) reaction
+    reac = new RedoxReaction(els, literals.value(0),
+                             literals.value(1));
+    break;
+  case 2:
+    if(literals.size() < 3)
+      literals << QString("alpha_%1").arg(reactionIndex);
+    reac = new BVRedoxReaction(els, literals.value(0),
+                               literals.value(1), literals.value(2));
+    break;
+  case 3:
+    if(literals.size() < 3)
+      literals << QString("lambda_%1").arg(reactionIndex);
+    reac = NULL;
+    break;
+
+  default:
+    reac = NULL;
+  }
+                     
   for(int i = 0; i < species.size(); i++) {
     int spi = speciesIndex(species[i]);
     reac->speciesIndices.append(spi);

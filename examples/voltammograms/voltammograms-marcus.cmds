@@ -1,0 +1,2 @@
+run-for-each /range-type=log voltammogram-marcus.cmds 1e-2..1e2:21 /arg2=0.9
+V flagged:cv /style=brown-green

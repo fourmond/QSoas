@@ -1,0 +1,12 @@
+# One parameter:
+# - k0 (optional)
+# - alpha (optional)
+define-kinetic-system-fit redox-bv.sys redox /redefine=true
+custom-fit potential e*y_Ox /redefine=true
+generate-buffer -1 1
+sim-redox /with=e:2,ramps /stepper=bsimp /override=k0=${1:-1},alpha=${2:-0.5} voltammogram.params 0
+diff
+sim-potential /with=e:2,ramps voltammogram.params 0
+merge 0 1
+flag /flags=cv
+

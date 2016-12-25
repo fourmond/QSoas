@@ -27,6 +27,9 @@
 #include <debug.hh>
 #include <gsl/gsl_const_mksa.h>
 
+// for the Marcus-Hush-Chidsey equation
+#include <functions.hh>
+
 /// A species involved in the reactions.
 class Species {
 public:
@@ -450,6 +453,79 @@ public:
   void setParameters(const QStringList & parameters) override {
     RedoxReaction::setParameters(parameters);
     alpha->setVariables(parameters);
+  };
+
+};
+
+//////////////////////////////////////////////////////////////////////
+
+/// This reaction is a full Butler-Volmer reaction, with values of alpha
+class MarcusRedoxReaction : public RedoxReaction {
+
+  /// Expression for the value of alpha
+  QString lambdaValue;
+
+  /// and the corresponding Expression object
+  Expression * lambda;
+
+
+public:
+
+  // We reuse the forward/backward stuff but with a different
+  // meaning.
+  MarcusRedoxReaction(int els, const QString & e0, const QString & k0, const QString & lambd) :
+    RedoxReaction(els, e0, k0), lambdaValue(lambd), lambda(NULL) {
+  };
+
+  /// A copy constructor
+  MarcusRedoxReaction(const MarcusRedoxReaction & o) :
+    RedoxReaction(o), lambdaValue(o.lambdaValue) {
+    lambda = o.lambda ? new Expression(*o.lambda) : NULL;
+  }
+
+  virtual void makeExpressions(const QStringList & vars) override {
+    Reaction::makeExpressions(vars);
+    lambda = new Expression(lambdaValue);
+    if(! vars.isEmpty())
+      lambda->setVariables(vars);
+  }
+  
+  virtual void clearExpressions() {
+    Reaction::clearExpressions();
+    delete lambda;
+    lambda = NULL;
+  }
+
+
+  virtual void computeRateConstants(const double * vals, 
+                                    double * fd, double * bd) const
+  {
+    double e0, k0, lb;
+    e0 = forward->evaluate(vals);
+    k0 = backward->evaluate(vals);
+    lb = lambda->evaluate(vals);
+
+    double e = vals[potentialIndex];
+    double fara = GSL_CONST_MKSA_FARADAY /
+      (vals[temperatureIndex] * GSL_CONST_MKSA_MOLAR_GAS);
+
+    *fd = k0 * Functions::marcusHushChidseyZeng(fara * lb, fara * electrons * (e-e0));
+    *bd = k0 * Functions::marcusHushChidseyZeng(fara * lb, fara * electrons  * (e0-e));
+  }
+
+  virtual Reaction * dup() const {
+    return new MarcusRedoxReaction(*this);
+  }
+
+  virtual QSet<QString> parameters() const {
+    QSet<QString> params = RedoxReaction::parameters();
+    params += QSet<QString>::fromList(lambda->naturalVariables());
+    return params;
+  };
+
+  void setParameters(const QStringList & parameters) override {
+    RedoxReaction::setParameters(parameters);
+    lambda->setVariables(parameters);
   };
 
 };
@@ -1016,7 +1092,8 @@ void KineticSystem::addReaction(QList<QString> species,
   case 3:
     if(literals.size() < 3)
       literals << QString("lambda_%1").arg(reactionIndex);
-    reac = NULL;
+    reac = new MarcusRedoxReaction(els, literals.value(0),
+                                   literals.value(1), literals.value(2));
     break;
 
   default:

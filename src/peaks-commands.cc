@@ -214,7 +214,13 @@ static void echemPeaksCommand(const QString &, const CommandOptions & opts)
   const GraphicsSettings & gs = soas().graphicsSettings();
   Peaks pk(ds, window);
 
-  QList<EchemPeakPair> pairs = pk.findPeakPairs();
+  QList<EchemPeakPair> prs = pk.findPeakPairs();
+  QList<EchemPeakPair> pairs;
+  /// We select only reversible stuff.
+  for(int i = 0; i < prs.size(); i++)
+    if(prs[i].isReversible())
+      pairs << prs[i];
+  
   {
     CurveView & view = soas().view();
     view.disableUpdates();
@@ -227,6 +233,7 @@ static void echemPeaksCommand(const QString &, const CommandOptions & opts)
           << "forw_x" << pairs[i].forward.x
           << "forw_y" << pairs[i].forward.y;
 
+
       CurveLine * v = new CurveLine;
     
       v->p1 = QPointF(pairs[i].forward.x, 0);
@@ -234,25 +241,23 @@ static void echemPeaksCommand(const QString &, const CommandOptions & opts)
       v->pen = gs.getPen(GraphicsSettings::PeaksPen);
       view.addItem(v);
 
-      if(pairs[i].isReversible()) {
-        hsh << "back_x" << pairs[i].backward.x
-            << "back_y" << pairs[i].backward.y
-            << "delta_x" << pairs[i].deltaX()
-            << "delta_y" << pairs[i].deltaY()
-            << "avg_x" << pairs[i].midX();
+      hsh << "back_x" << pairs[i].backward.x
+          << "back_y" << pairs[i].backward.y
+          << "delta_x" << pairs[i].deltaX()
+          << "delta_y" << pairs[i].deltaY()
+          << "avg_x" << pairs[i].midX();
           
-        v = new CurveLine;
-        v->p1 = QPointF(pairs[i].forward.x, 0);
-        v->p2 = QPointF(pairs[i].backward.x, 0);
-        v->pen = gs.getPen(GraphicsSettings::PeaksPen);
-        view.addItem(v);
+      v = new CurveLine;
+      v->p1 = QPointF(pairs[i].forward.x, 0);
+      v->p2 = QPointF(pairs[i].backward.x, 0);
+      v->pen = gs.getPen(GraphicsSettings::PeaksPen);
+      view.addItem(v);
 
-        v = new CurveLine;
-        v->p1 = QPointF(pairs[i].backward.x, 0);
-        v->p2 = QPointF(pairs[i].backward.x, pairs[i].backward.y);
-        v->pen = gs.getPen(GraphicsSettings::PeaksPen);
-        view.addItem(v);
-      }
+      v = new CurveLine;
+      v->p1 = QPointF(pairs[i].backward.x, 0);
+      v->p2 = QPointF(pairs[i].backward.x, pairs[i].backward.y);
+      v->pen = gs.getPen(GraphicsSettings::PeaksPen);
+      view.addItem(v);
 
       Terminal::out << hsh.keyOrder.join("\t") << endl;
       Terminal::out << hsh.toString() << endl;

@@ -13,7 +13,7 @@
    catalysts, [fit: eci-wave] and [fit: eeci-wave]
  * The commands that define fits, [cmd: reparametrize-fit],
    [cmd: combine-fits], [cmd: define-distribution-fit] and
-    [cmd: define-derived-fit] can now redefine existing fits with
+   [cmd: define-derived-fit] can now redefine existing fits with
    the option `/redefine=true`.
  * The `qsoas` and `multi` fit engines can now use scaling, see the
    "Fit Options" dialog

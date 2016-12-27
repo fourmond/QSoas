@@ -172,6 +172,26 @@ If you are fitting kinetics or redox titrations at many wavelengths,
 try reducing the number of wavelengths by applying [cmd: downsample]
 before running [cmd: transpose].
 
+# Data analysis
+
+## How can I cut out data points from a buffer ?
+
+Depends what you want to do. If you want to manually remove a few
+points, try [cmd: deldp]. If you want to cut out a whole segment, try
+rather [cmd: cut], hitting the `u` key to keep what's outside of the
+region instead of what's inside. You can remove repeatedly segments
+with the `r` key in cut.
+
+Another completely different approach is the use of [cmd: strip-if],
+that removes data point that satisfy a condition. For instance, to
+remove all data points with negative values of `y` from a dataset,
+try:
+
+~~~
+QSoas> strip-if y<0
+~~~
+
+
 
 
 # Copyright
@@ -188,7 +208,7 @@ of QSoas, and hence is a gift from you to the whole community of users
 of QSoas.
 
 
-## Why on earth do I have to pay for a free program ?
+## Why on earth do I have to pay for a free program ? {#why-pay}
 
 Well, you don't have to pay. You can grab the source code from the
 [download page][downloads] and compile it from the source; actually
@@ -227,7 +247,8 @@ the bug, we'll try to provide you with an updated version.
 You purchased a single binary. Later versions are not included in the
 price. Consider the price of QSoas: most of the softwares that are
 orders of magnitudes more expensive than QSoas do not include updates
-either in the purchasing cost.
+either in the purchasing cost. If that isn't acceptable for you, you
+may consider [compiling QSoas from source](#why-pay).
 
 ## Why isn't there a win64 binary version ? Will there ever be one ?
 
@@ -242,21 +263,20 @@ layer](https://msdn.microsoft.com/en-us/library/windows/desktop/aa384249.aspx).
 The only drawback is that you cannot use more than 3GB or so of memory
 from QSoas, which really should not be a limitation.
 
-# Data analysis
+# Known problems
 
-## How can I cut out data points from a buffer ?
+Most bugs in QSoas are fixed as soon as they are found, but some
+difficult ones have evaded correction so far. They are listed here.
 
-Depends what you want to do. If you want to manually remove a few
-points, try [cmd: deldp]. If you want to cut out a whole segment, try
-rather [cmd: cut], hitting the `u` key to keep what's outside of the
-region instead of what's inside. You can remove repeatedly segments
-with the `r` key in cut. Another completely different approach is the
-use of [cmd: strip-if]: to remove all data points with negative values
-of `y`, try:
+## Ruby exception support is missing in Windows {#ruby-exceptions}
 
-~~~
-QSoas> strip-if y<0
-~~~
+As of now Ruby exception handling is faulty on Windows, which means
+that running code that raises an uncaught exception on Windows will
+crash. The problem is far deeper than it initially seemed, but it
+should not affect many users. Just be careful when entering Ruby
+formulas, as entering a formula with a syntax error will probably
+result in a hard crash.
+
 
 [gpl]:https://www.gnu.org/licenses/gpl-2.0.html
 [bugs]:https://sourceforge.net/p/qsoas/tickets/

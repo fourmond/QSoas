@@ -16,7 +16,10 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-unsigned qHash(double key) {
+#include <headers.hh>
+#include <cachedfunction.hh>
+
+unsigned qHash(const double &key) {
   union { double a;
     unsigned b;
   } c;
@@ -24,16 +27,13 @@ unsigned qHash(double key) {
   return c.b;
 }
 
-#include <headers.hh>
-#include <cachedfunction.hh>
-
 double CachedFunction::value(double v)
 {
-  QHash<double, double>::iterator it = cache.find(v);
-  if(it != cache.end())
-    return it.value();
+  // QHash<double, double>::iterator it = cache.find(v);
+  // if(it != cache.end())
+  //   return it.value();
   double rv = func(v);
-  cache[v] = rv;
+  //  cache[v] = rv;
   return rv;
 }
 

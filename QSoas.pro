@@ -5,7 +5,6 @@ TEMPLATE = app
 
 CONFIG += debug warn_on thread exception
 
-
 ! contains(QT_MAJOR_VERSION, 4) {
   error("QSoas only works with Qt version 4 at the moment")
 }
@@ -69,14 +68,14 @@ else {
 }
 
 # We use a precompiled header everywhere but on macosX (it fails !)
-linux {
+unix {
   CONFIG += precompile_header
   PRECOMPILED_HEADER = src/headers.hh
 }
 
 
 # Do not use compressed debug symbols, more complicated than anything else
-linux {
+unix {
   QMAKE_CXXFLAGS += -gz=none
   QMAKE_CFLAGS += -gz=none
 }
@@ -89,7 +88,10 @@ OBJECTS_DIR = build
 # Really, this should be the default, since it means segfault in the
 # best case (excepted when a function only exits via an exception)
 QMAKE_CXXFLAGS += -Werror=return-type 
-QMAKE_CXXFLAGS += -Winit-self -Werror=init-self -Werror=misleading-indentation
+
+unix {
+  QMAKE_CXXFLAGS += -Winit-self -Werror=init-self -Werror=misleading-indentation
+}
 
 
 # Use C++11 everywhere !

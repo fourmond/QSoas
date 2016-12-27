@@ -30,131 +30,26 @@
 // for the Marcus-Hush-Chidsey equation
 #include <functions.hh>
 
-/// A species involved in the reactions.
-class Species {
-public:
-    
-  /// Name
-  QString name;
-
-  /// The indices of the reactions the species takes part in
-  QVector<int> reactions;
-
-  /// The type of diffusion.
-  KineticSystem::Diffusion diffusion;
-
-  Species(const QString & n) : name(n), diffusion(KineticSystem::None) {;};
-    
-};
-
-
-/// A reaction. It is considered an elementary reaction, in the
-/// sense that the rate constants are provided, which are mutiplied
-/// by the concentration to the power of the stoechiometry. However,
-/// it is still possible to cancel out some terms in that by using
-/// the appropriate concentration factor in the rates.
-///
-/// @todo subclasses and possibly even the implementation should be
-/// private only in the .cc file
-class Reaction {
-protected:
-
-  /// Expression for the forward rate
-  QString forwardRate;
-
-  /// Expression for the reverse rate (if empty, then the reaction
-  /// is irreversible)
-  QString backwardRate;
-
-    
-  Expression * forward;
-  Expression * backward;
-
-public:
-  /// List of indices of the reactants or products
-  QVector<int> speciesIndices;
-
-  /// Their stoechiometry (negative if on the reactants side,
-  /// positive if on the products size). In the same order as
-  /// speciesIndices.
-  QVector<int> speciesStoechiometry;
-
-  /// the number of electrons (counted negatively if on the left)
-  int electrons;
-
-  /// A storage space for caching stuff -- this is hanlded at the
-  /// KineticSystem level.
-  double cache[2];
-
-  /// Returns true when:
-  /// * the stoechiometry is one for each reactant
-  /// * the rate constants are constants
-  ///
-  /// @todo In time, this will have to include the case when a rate
-  /// constant is not a constant, but does not depend on the
-  /// concentrations.
-  virtual bool isLinear() const;
-
-  Reaction(const QString & fd, const QString & bd = "" );
-
-  /// A copy constructor
-  Reaction(const Reaction & other);
-
-  virtual void clearExpressions();
-
-  virtual ~Reaction() {
-    clearExpressions();
-  };
-
-  /// Computes the expressions
-  virtual void makeExpressions(const QStringList & vars = QStringList());
-
-  /// Sets the parameters of the expressions
-  virtual void setParameters(const QStringList & parameters);
-
-  /// Returns the parameters needed by the rates
-  virtual QSet<QString> parameters() const;
-
-
-  /// Computes both the forward and backward rates
-  ///
-  /// In fact, these are rate CONSTANTS !
-  virtual void computeRateConstants(const double * vals, 
-                                    double * forward, double * backward) const;
-
-  /// String depiction of the equation (along with the rates)
-  virtual QString toString(const QList<Species> & species) const;
-
-  /// Returns the expression of the exchange rate for the
-  /// reaction. Returns an empty string if there isn't an exchange
-  /// rate.
-  virtual QString exchangeRate() const;
-
-  /// Stores useful values in the cache. Not used as of now.
-  virtual void computeCache(const double * vals);
-
-  /// Returns a true duplicate of the object pointed to by
-  /// Reaction. It also works for subclasses
-  virtual Reaction * dup() const;
-};
 
 
 
 
-Reaction::Reaction(const QString & fd, const QString & bd) :
+
+
+KineticSystem::Reaction::Reaction(const QString & fd, const QString & bd) :
   forwardRate(fd), backwardRate(bd), forward(NULL), backward(NULL), 
   electrons(0)
 {
   
 }
 
-void Reaction::computeCache(const double * /*vals*/)
+void KineticSystem::Reaction::computeCache(const double * /*vals*/)
 {
   // Nothing to do here.
 }
 
 
-void Reaction::makeExpressions(const QStringList & vars)
+void KineticSystem::Reaction::makeExpressions(const QStringList & vars)
 {
   clearExpressions();
   forward = new Expression(forwardRate);
@@ -167,7 +62,7 @@ void Reaction::makeExpressions(const QStringList & vars)
   }
 }
 
-QSet<QString> Reaction::parameters() const
+QSet<QString> KineticSystem::Reaction::parameters() const
 {
   
   if(! forward)
@@ -179,7 +74,7 @@ QSet<QString> Reaction::parameters() const
 }
 
 
-void Reaction::clearExpressions() 
+void KineticSystem::Reaction::clearExpressions() 
 {
   delete forward;
   forward = NULL;
@@ -187,7 +82,7 @@ void Reaction::clearExpressions()
   backward = NULL;
 }
 
-void Reaction::setParameters(const QStringList & parameters)
+void KineticSystem::Reaction::setParameters(const QStringList & parameters)
 {
   if(! forward)
     return;
@@ -197,7 +92,7 @@ void Reaction::setParameters(const QStringList & parameters)
   backward->setVariables(parameters);
 }
 
-void Reaction::computeRateConstants(const double * vals, 
+void KineticSystem::Reaction::computeRateConstants(const double * vals, 
                                            double * fd, 
                                            double * bd) const
 {
@@ -208,7 +103,7 @@ void Reaction::computeRateConstants(const double * vals,
     *bd = 0;
 }
 
-QString Reaction::toString(const QList<Species> & species) const
+QString KineticSystem::Reaction::toString(const QList<Species> & species) const
 {
   QString str;
   QStringList reactants;
@@ -228,12 +123,12 @@ QString Reaction::toString(const QList<Species> & species) const
     forwardRate + " -- backward: " + backwardRate;
 }
 
-QString Reaction::exchangeRate() const
+QString KineticSystem::Reaction::exchangeRate() const
 {
   return QString();
 }
 
-bool Reaction::isLinear() const
+bool KineticSystem::Reaction::isLinear() const
 {
   if(speciesIndices.size() != 2)
     return false;
@@ -248,7 +143,7 @@ bool Reaction::isLinear() const
   return backward->isAVariable();
 }
 
-Reaction::Reaction(const Reaction & o) :
+KineticSystem::Reaction::Reaction(const Reaction & o) :
   forwardRate(o.forwardRate), backwardRate(o.backwardRate),
   speciesIndices(o.speciesIndices),
   speciesStoechiometry(o.speciesStoechiometry),
@@ -261,55 +156,24 @@ Reaction::Reaction(const Reaction & o) :
 }
 
 
-Reaction * Reaction::dup() const
+KineticSystem::Reaction * KineticSystem::Reaction::dup() const
 {
   return new Reaction(*this);
 }
 
 //////////////////////////////////////////////////////////////////////
 
-/// This reaction is a simple butler-volmer reaction with alpha = 0.5
-class RedoxReaction : public Reaction {
-public:
-  /// Index of the potential in the parameters
-  int potentialIndex;
-
-  /// Index of the temperature in the parameters
-  int temperatureIndex;
-
-  // We reuse the forward/backward stuff but with a different
-  // meaning.
-  RedoxReaction(int els, const QString & e0, const QString & k0);
-
-  /// A copy constructor
-  RedoxReaction(const RedoxReaction & other);
-
-  virtual void setParameters(const QStringList & parameters);
-
-  virtual QSet<QString> parameters() const;
-
-  virtual void computeRateConstants(const double * vals, 
-                                    double * forward, double * backward) const;
-  virtual QString exchangeRate() const;
-
-  virtual Reaction * dup() const;
-
-  /// Stores useful values in the cache. Stores:
-  /// * exp(fara * 0.5 * electrons * (- e0));
-  /// * k0
-  virtual void computeCache(const double * vals);
-};
 
 
 
-RedoxReaction::RedoxReaction(int els, const QString & e0, 
+KineticSystem::RedoxReaction::RedoxReaction(int els, const QString & e0, 
                                             const QString & k0) :
   Reaction(e0, k0)
 {
   electrons = els;
 }
 
-QSet<QString> RedoxReaction::parameters() const
+QSet<QString> KineticSystem::RedoxReaction::parameters() const
 {
   QSet<QString> params = Reaction::parameters();
   params += "e";                // We always need the potential !
@@ -317,7 +181,7 @@ QSet<QString> RedoxReaction::parameters() const
   return params;
 }
 
-void RedoxReaction::setParameters(const QStringList & parameters)
+void KineticSystem::RedoxReaction::setParameters(const QStringList & parameters)
 {
   Reaction::setParameters(parameters);
   potentialIndex = -1;
@@ -338,7 +202,7 @@ void RedoxReaction::setParameters(const QStringList & parameters)
                         "for a redox reaction");
 }
 
-void RedoxReaction::computeRateConstants(const double * vals, 
+void KineticSystem::RedoxReaction::computeRateConstants(const double * vals, 
                                                 double * fd, 
                                                 double * bd) const
 {
@@ -354,7 +218,7 @@ void RedoxReaction::computeRateConstants(const double * vals,
   *bd = k0 / ex;
 }
 
-void RedoxReaction::computeCache(const double * vals)
+void KineticSystem::RedoxReaction::computeCache(const double * vals)
 {
   double e0, k0;                // e0 is forward, k0 is backward
   Reaction::computeRateConstants(vals, &e0, &k0);
@@ -367,17 +231,17 @@ void RedoxReaction::computeCache(const double * vals)
   cache[0] = ex;
 }
 
-QString RedoxReaction::exchangeRate() const
+QString KineticSystem::RedoxReaction::exchangeRate() const
 {
   return backwardRate;
 }
 
-Reaction * RedoxReaction::dup() const
+KineticSystem::Reaction * KineticSystem::RedoxReaction::dup() const
 {
   return new RedoxReaction(*this);
 }
 
-RedoxReaction::RedoxReaction(const RedoxReaction & o) :
+KineticSystem::RedoxReaction::RedoxReaction(const RedoxReaction & o) :
   Reaction(o), potentialIndex(o.potentialIndex),
   temperatureIndex(o.temperatureIndex)
 {
@@ -387,7 +251,7 @@ RedoxReaction::RedoxReaction(const RedoxReaction & o) :
 //////////////////////////////////////////////////////////////////////
 
 /// This reaction is a full Butler-Volmer reaction, with values of alpha
-class BVRedoxReaction : public RedoxReaction {
+class BVRedoxReaction : public KineticSystem::RedoxReaction {
 
   /// Expression for the value of alpha
   QString alphaValue;
@@ -445,13 +309,13 @@ public:
   }
 
   virtual QSet<QString> parameters() const {
-    QSet<QString> params = RedoxReaction::parameters();
+    QSet<QString> params = KineticSystem::RedoxReaction::parameters();
     params += QSet<QString>::fromList(alpha->naturalVariables());
     return params;
   };
 
   void setParameters(const QStringList & parameters) override {
-    RedoxReaction::setParameters(parameters);
+    KineticSystem::RedoxReaction::setParameters(parameters);
     alpha->setVariables(parameters);
   };
 
@@ -460,7 +324,7 @@ public:
 //////////////////////////////////////////////////////////////////////
 
 /// This reaction is a full Butler-Volmer reaction, with values of alpha
-class MarcusRedoxReaction : public RedoxReaction {
+class MarcusRedoxReaction : public KineticSystem::RedoxReaction {
 
   /// Expression for the value of alpha
   QString lambdaValue;
@@ -522,13 +386,13 @@ public:
   }
 
   virtual QSet<QString> parameters() const {
-    QSet<QString> params = RedoxReaction::parameters();
+    QSet<QString> params = KineticSystem::RedoxReaction::parameters();
     params += QSet<QString>::fromList(lambda->naturalVariables());
     return params;
   };
 
   void setParameters(const QStringList & parameters) override {
-    RedoxReaction::setParameters(parameters);
+    KineticSystem::RedoxReaction::setParameters(parameters);
     lambda->setVariables(parameters);
   };
 

@@ -40,6 +40,11 @@ extern "C" {
 
   RUBY_ID rbw_intern(const char*);
 
+
+  /* Converts a RUBY_ID to a proper Ruby symbol */
+  RUBY_VALUE rbw_id2sym(RUBY_ID);
+  
+
   RUBY_VALUE rbw_funcall2(RUBY_VALUE, RUBY_ID, int, const RUBY_VALUE*);
   
   RUBY_VALUE rbw_gv_set(const char*, RUBY_VALUE);

@@ -39,6 +39,19 @@ def soas_eval(__str)
   return __blk
 end
 
+# This function wraps a funcall and returns an array:
+# * [ true, retval ] in the absence of exception
+# * [ false, exception ] if there was an exception
+#
+# This function should never raise an exception
+def soas_wrap_funcall(__self, __sym, *__args)
+  begin
+    return [ true, __self.send(__sym, *__args) ]
+  rescue Exception => e
+    return [ false, e ]
+  end
+end
+
 def soas_make_block(__vars, __code)
   __code2 = "#{__vars.join("\n")}\n#{__code}"
   __vars.concat( soas_find_vars(__code2))

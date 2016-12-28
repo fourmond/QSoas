@@ -112,10 +112,33 @@ RUBY_VALUE Ruby::loadFile(const QString & file)
 }
 
 
+static RUBY_VALUE wrapFuncall(RUBY_VALUE self, RUBY_ID method, int nb, const RUBY_VALUE * args)
+{
+  RUBY_VALUE ar[nb+2];
+  ar[0] = self;
+  ar[1] = rbw_id2sym(method);
+  for(int i = 0; i < nb; i++)
+    ar[i+2] = args[i];
+  
+  RUBY_VALUE rv = rbw_funcall2(Ruby::main, rbw_intern("soas_wrap_funcall"),
+                               nb+2, ar);
+  // These two should never fail too
+  RUBY_VALUE r1 = rbw_ary_entry(rv, 0);
+  RUBY_VALUE r2 = rbw_ary_entry(rv, 1);
+  if(! rbw_test(r1)) {
+    QString str = Ruby::exceptionString(r2);
+    QTextStream o(stderr);
+    o << "Caught Ruby exception: " << str << endl;
+    throw RuntimeError(str);
+  }
+  return r2;
+}
+
+
 RUBY_VALUE Ruby::eval(QByteArray code)
 {
   RUBY_VALUE s = rbw_str_new2(code.constData());
-  return rbw_funcall2(main, rbw_intern("soas_eval"), 1, &s);
+  return wrapFuncall(main, rbw_intern("soas_eval"), 1, &s);
 }
 
 RUBY_VALUE Ruby::safeEval(const QString & code)

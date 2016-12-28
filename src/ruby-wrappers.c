@@ -83,7 +83,7 @@ void rbw_define_global_const(const char* nm, RUBY_VALUE a)
 }
 
 void rbw_define_method(RUBY_VALUE slf, const char* name,
-                        RUBY_VALUE(*fn)(), int nb)
+                       RUBY_VALUE(*fn)(), int nb)
 {
   rb_define_method((VALUE) slf, name, fn, nb);
 }
@@ -168,6 +168,11 @@ RUBY_VALUE rbw_time_new(time_t a, long b)
 RUBY_VALUE rbw_inspect(RUBY_VALUE a)
 {
   return CNV1(rb_inspect);
+}
+
+RUBY_VALUE rbw_id2sym(RUBY_ID id)
+{
+  return (RUBY_VALUE)ID2SYM((ID) id);
 }
 
 RUBY_VALUE rbw_class_of(RUBY_VALUE a)

@@ -75,7 +75,7 @@ unix {
 
 
 # Do not use compressed debug symbols, more complicated than anything else
-unix {
+never {
   QMAKE_CXXFLAGS += -gz=none
   QMAKE_CFLAGS += -gz=none
 }

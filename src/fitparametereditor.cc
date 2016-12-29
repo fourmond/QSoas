@@ -337,12 +337,12 @@ void FitParameterEditor::setRelativeError(double value)
 {
   relativeError = value;        // Doesn't seem to be necessary !
   QColor background;
-  if(relativeError <= 0) {
+  if(relativeError < 0) {
     background = QColor(255,255,255); // White !
     editor->setToolTip("");           // Clear tool tip
   }
   else {
-    double ra = log10(relativeError) + 0.5;
+    double ra = relativeError > 0 ? log10(relativeError) + 0.5 : -2.5;
     if(ra < -2.5)
       ra = -2.5;
     if(ra > 2.5)

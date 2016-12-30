@@ -836,7 +836,6 @@ void KineticSystem::parseFile(QIODevice * device)
 
   int reaction = 0;
 
-  QTextStream o(stdout);
   while(true) {
     QString line = in.readLine();
     QString orig = line;
@@ -862,16 +861,11 @@ void KineticSystem::parseFile(QIODevice * device)
     // [[ in the line, we only capture groups within [[ ]] (which are
     // not Ruby-specific idioms)
 
-    o << "Line: " << line << endl;
-
 
     if(line.contains("[["))
       literals = Utils::extractMatches(line, doubleBraceRE, 1);
     else 
       literals = Utils::extractMatches(line, singleBraceRE, 1);
-
-    o << "Literals: " << literals.join(", ") << endl;
-
     
     if(reactionRE.indexIn(line) ==  0) {
       ++reaction;

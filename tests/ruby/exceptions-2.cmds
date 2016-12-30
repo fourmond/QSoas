@@ -1,0 +1,5 @@
+# Now define a broken custom fit and test it
+custom-fit broken a*x+1l
+generate-buffer 0 10
+sim-broken file-never-read 0
+assert true

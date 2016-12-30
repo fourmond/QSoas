@@ -1,2 +1,5 @@
-eval 1+1l
+@ exceptions-1.cmds
+assert true
+
+@ exceptions-2.cmds
 assert true

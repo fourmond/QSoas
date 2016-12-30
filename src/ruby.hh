@@ -49,6 +49,10 @@ namespace Ruby {
   /// Evaluates the given code, with appropriate code error handling.
   RUBY_VALUE safeEval(const QString & s);
 
+  /// Runs the rbw_funcall2, but safely wrapping the code in a way
+  /// that exceptions are caught properly even on windows platforms.
+  RUBY_VALUE wrapFuncall(RUBY_VALUE self, RUBY_ID method, int nb, const RUBY_VALUE * args);
+
   /// Makes a block from this code using the given variables.
   ///
   /// The \a variables gets updated with the actual variables that

@@ -112,7 +112,7 @@ RUBY_VALUE Ruby::loadFile(const QString & file)
 }
 
 
-static RUBY_VALUE wrapFuncall(RUBY_VALUE self, RUBY_ID method, int nb, const RUBY_VALUE * args)
+RUBY_VALUE Ruby::wrapFuncall(RUBY_VALUE self, RUBY_ID method, int nb, const RUBY_VALUE * args)
 {
   RUBY_VALUE ar[nb+2];
   ar[0] = self;
@@ -128,7 +128,7 @@ static RUBY_VALUE wrapFuncall(RUBY_VALUE self, RUBY_ID method, int nb, const RUB
   if(! rbw_test(r1)) {
     QString str = Ruby::exceptionString(r2);
     QTextStream o(stderr);
-    o << "Caught Ruby exception: " << str << endl;
+    o << "wrapFuncall caught Ruby exception: " << str << endl;
     throw RuntimeError(str);
   }
   return r2;
@@ -155,7 +155,7 @@ RUBY_VALUE Ruby::makeBlock(QStringList * variables, const QByteArray & code)
     rbw_ary_push(args[0], rbw_str_new2(variables->value(i).toLocal8Bit().
                                  constData()));
   args[1] = rbw_str_new2(code.constData());
-  RUBY_VALUE ret = rbw_funcall2(main, rbw_intern("soas_make_block"), 2, args);
+  RUBY_VALUE ret = wrapFuncall(main, rbw_intern("soas_make_block"), 2, args);
   
   // Now get back the string values:
   variables->clear();

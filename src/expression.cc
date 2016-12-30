@@ -214,8 +214,8 @@ RUBY_VALUE Expression::rubyEvaluation(const double * values) const
   for(int i = 0; i < size; i++)
     rbw_set_float(&args[i],values[i]);
   
-  RUBY_VALUE ret = Ruby::run(&rbw_funcall2, code, 
-                        callID(), size, (const RUBY_VALUE *) args);
+  RUBY_VALUE ret =
+    Ruby::wrapFuncall(code, callID(), size, (const RUBY_VALUE *) args);
   return ret;
 }
 

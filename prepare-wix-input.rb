@@ -26,7 +26,7 @@ files = []
 debug_files = []
 
 # Qt libraries
-for f in %w[QtCore4 QtGui4 QtOpenGL4 QtTest4]
+for f in %w[QtCore4 QtGui4 QtOpenGL4 QtNetwork4]
   lib_file = "#{ENV['QTDIR']}\\bin\\#{f}.dll"
   files << lib_file
   debug_files << lib_file.gsub(/4.dll/, "d4.dll")

@@ -12,7 +12,7 @@ assert '$stats["y_norm"]' 1e-7
 # Check that the formula is correct
 sim-ecr-wave /model=slow-et parameters/ecr-1.params 0 /override='kox/k0or=5'
 apply-formula 'f=F/(R*298); eor = exp(f*(x+0.5)); krko = 0.25;kok0=5; a= 1+eor**-1;ap = krko * eor**-1;b=eor**-0.5*(1+krko);ilim=4; y-= ilim*(1 - ap)/(a +kok0*b)'
-assert '$stats["y_norm"]' 2e-15
+assert '$stats["y_norm"]' 3e-15
 
 
 # Check the equivalence of the two directions

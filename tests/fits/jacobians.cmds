@@ -27,6 +27,5 @@ load-as-text /comments=# mexp.dat
 tweak-columns /remove=#0
 transpose
 apply-formula 'if y != 0; y=(y-y2)/y; end'
-assert '$stats["y_var"]' 1e-11
-# No more than 2 % difference in the errors
-assert '$stats["y_max"]' 1e-5
+assert '$stats["y_var"]' 2e-11
+assert '$stats["y_max"]' 2e-5

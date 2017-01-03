@@ -75,6 +75,10 @@ protected slots:
   /// Propagates the values of the parameters at the top down
   void propagateDown();
 
+  /// Interpolate the parameters between beginning and end (using
+  /// column number values).
+  void interpolateParameters();
+
   /// Fix selected parameters
   void fixParameters(bool fix = true);
 

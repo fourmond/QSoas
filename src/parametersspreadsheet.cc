@@ -101,6 +101,8 @@ void ParametersSpreadsheet::setupFrame()
               QKeySequence(QString("Ctrl+E")));
   addCMAction("Propagate parameters", this, SLOT(propagateDown()),
               QKeySequence(QString("Ctrl+P")));
+  addCMAction("Interpolate", this, SLOT(interpolateParameters()),
+              QKeySequence(QString("Ctrl+I")));
   addCMAction("Reset to initial guess", this, SLOT(resetParameters()));
 }
 
@@ -113,20 +115,9 @@ bool ParametersSpreadsheet::dataChanged() const
 
 void ParametersSpreadsheet::spawnContextMenu(const QPoint & pos)
 {
-  typedef enum {
-    FixSelected,
-    UnfixSelected,
-    ResetToInitialGuess,
-    EditSelected,
-    Noop
-  } En;
   QMenu menu;
   for(int i = 0; i < contextActions.size(); i++)
     menu.addAction(contextActions[i]);
-
-  // QAction * ac = menu.exec(view->viewport()->mapToGlobal(pos));
-  // if(ac)
-  //   ac->trigger();
 
   // Triggered automatically, apparently...
   menu.exec(view->viewport()->mapToGlobal(pos));
@@ -178,6 +169,45 @@ void ParametersSpreadsheet::propagateDown()
       model->setData(indexes[i], curVal,  Qt::EditRole);
   }
 }
+
+
+void ParametersSpreadsheet::interpolateParameters()
+{
+  QModelIndexList indexes = view->selectionModel()->selectedIndexes();
+
+  // We first sort, and then we just have to propagate the values
+  qSort(indexes.begin(), indexes.end(), &::lower);
+
+  QList<QModelIndexList > columns;
+  QModelIndexList * cur = NULL;
+
+  int curCol = -1;
+  for(int i = 0; i < indexes.size(); i++) {
+    int col = indexes[i].column();
+    if(col != curCol) {
+      columns << QModelIndexList();
+      cur = &columns.last();
+      curCol = col;
+    }
+    *cur << indexes[i];
+  }
+
+  for(int i = 0; i < columns.size(); i++) {
+    QModelIndexList & col = columns[i];
+    int nb = col.size();
+    if(nb < 2)
+      continue;                 // Nothing to do
+    double tv = model->data(col.first(), Qt::DisplayRole).toDouble();
+    double bv = model->data(col.last(), Qt::DisplayRole).toDouble();
+    for(int j = 0; j < nb; j++) {
+      double v = tv + (bv - tv) * j / (nb-1.0);
+      model->setData(col[j], v,  Qt::EditRole);
+    }
+  }
+
+  
+}
+
 
 void ParametersSpreadsheet::fixParameters(bool fix)
 {

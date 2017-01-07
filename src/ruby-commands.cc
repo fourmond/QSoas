@@ -42,6 +42,8 @@
 #include <integrator.hh>
 #include <multiintegrator.hh>
 
+#include <commandwidget.hh>
+
 #include <datasetexpression.hh>
 
 #include <idioms.hh>
@@ -562,8 +564,8 @@ static QString assertContext = "general";
 /// The current fine context for assertions
 static QString assertFineContext;
 
-/// small class
-class Assertions {
+/// This class represents the coarse list of results of an assertion.
+class AssertionsList {
 public:
 
   /// total number
@@ -575,16 +577,91 @@ public:
   /// number for which there was an exception raised
   int exceptions;
 
-  Assertions() : total(0), failed(0), exceptions(0) {;};
+  AssertionsList() : total(0), failed(0), exceptions(0) {;};
 
-  void add(const Assertions & o) {
+  void add(const AssertionsList & o) {
     total += o.total;
     failed += o.failed;
     exceptions += o.exceptions;
   };
 };
 
-static QHash<QString, Assertions> assertResults;
+static QHash<QString, AssertionsList> assertResults;
+
+/// This class represents the result of a single assertion
+class SingleAssertion {
+public:
+
+  enum AssertionResult {
+    Pass,
+    Failed,
+    Exception
+  };
+
+  /// Whether or not a tolerance was specified
+  bool useTolerance;
+
+  /// The tolerance value
+  double tolerance;
+
+  /// The result value
+  double value;
+
+  /// The result of the assertion
+  AssertionResult result;
+
+  /// The text of the exception, if there was one
+  QString exceptionMessage;
+
+  /// The context of the command
+  CommandContext commandContext;
+
+  /// The current assertion context
+  QString context;
+
+  /// The current fine context
+  QString fineContext;
+
+  SingleAssertion(bool tol) :
+    useTolerance(tol), 
+    commandContext(soas().prompt().currentContext()),
+    context(assertContext), fineContext(assertFineContext)
+  {
+  };
+
+  /// Returns a YAML-like representation of the assertion. (but it's
+  /// not true YAML)
+  QString toString() const {
+    QString rv;
+    QTextStream o(&rv);
+    QString res;
+    switch(result) {
+    case Pass:
+      res = "pass";
+      break;
+    case Exception:
+      res = "exception";
+      break;
+    default:
+      res = "failed";
+    };
+    o << commandContext.scriptFile << ":" << commandContext.lineNumber
+      << ": " << res << "\n";
+    o << "\tcontext: " << context;
+    if(! fineContext.isEmpty())
+      o << "/" << fineContext;
+    o << "\n";
+    if(result == Exception)
+      o << "\t" << "message: " << exceptionMessage << "\n";
+    else {
+      if(useTolerance)
+        o << "\tvalue:" << value << " for " << tolerance << "\n";
+    }
+    return rv;
+  };
+};
+
+static QList<SingleAssertion> allAssertions;
 
 
 
@@ -594,7 +671,7 @@ static void assertCmd(const QString &, QString code,
   DataSet * ds = soas().currentDataSet(true);
   QString sc ;
   updateFromOptions(opts, "set-context", sc);
-  bool dump = false;
+  QString dump;
   updateFromOptions(opts, "dump", dump);
 
   bool useTol = false;
@@ -615,46 +692,56 @@ static void assertCmd(const QString &, QString code,
     return;
   }
 
-  if(dump) {
-    // Ignore code ?
-    QStringList keys;
-    Assertions totl;
-    if(code == "all") {
-      keys = assertResults.keys();
-      qSort(keys);
-    }
-    else
-      keys = code.split(QRegExp("\\s+"));
+  if(!dump.isEmpty()) {
 
-    Debug::debug() << "\nTest suite summary:\n";
-    for(int i = 0; i < keys.size(); i++) {
-      const QString & key = keys[i];
-      const Assertions & as = assertResults[key];
-      Terminal::out << key << ": " << as.total << " total, "
-                    << as.failed << " failed, " 
-                    << as.exceptions << " exceptions." << endl;
-      Debug::debug() << key << ": " << as.total << " total, "
-                     << as.failed << " failed, " 
-                     << as.exceptions << " exceptions." << endl;
-      totl.add(as);
+    if(dump == "summary") {
+      QStringList keys;
+      AssertionsList totl;
+      if(code == "all") {
+        keys = assertResults.keys();
+        qSort(keys);
+      }
+      else
+        keys = code.split(QRegExp("\\s+"));
+
+      Debug::debug() << "\nTest suite summary:\n";
+      for(int i = 0; i < keys.size(); i++) {
+        const QString & key = keys[i];
+        const AssertionsList & as = assertResults[key];
+        Terminal::out << key << ": " << as.total << " total, "
+                      << as.failed << " failed, " 
+                      << as.exceptions << " exceptions." << endl;
+        Debug::debug() << key << ": " << as.total << " total, "
+                       << as.failed << " failed, " 
+                       << as.exceptions << " exceptions." << endl;
+        totl.add(as);
+      }
+      if(keys.size() > 0) {
+        Terminal::out << "Overall: " << totl.total << " total, "
+                      << totl.failed << " failed, " 
+                      << totl.exceptions << " exceptions." << endl;
+        Debug::debug() << "Overall: " << totl.total << " total, "
+                       << totl.failed << " failed, " 
+                       << totl.exceptions << " exceptions." << endl;
+      }
     }
-    if(keys.size() > 0) {
-      Terminal::out << "Overall: " << totl.total << " total, "
-                    << totl.failed << " failed, " 
-                    << totl.exceptions << " exceptions." << endl;
-      Debug::debug() << "Overall: " << totl.total << " total, "
-                     << totl.failed << " failed, " 
-                     << totl.exceptions << " exceptions." << endl;
+    else {                      // fine details
+      QFile f(code);
+      Utils::open(&f, QIODevice::WriteOnly);
+      QTextStream o(&f);
+      for(int i = 0; i < allAssertions.size(); i++)
+        o << allAssertions[i].toString();
     }
     return;
   }
 
   RUBY_VALUE value;
-  Assertions * cur = &assertResults[assertContext];
+  AssertionsList * cur = &assertResults[assertContext];
   cur->total += 1;
   QString context = "";
   if(! assertFineContext.isEmpty())
     context = QString(" (%1)").arg(assertFineContext);
+  SingleAssertion as(useTol);
   try {
     if(ds)
       value = ds->evaluateWithMeta(code, true);
@@ -662,13 +749,24 @@ static void assertCmd(const QString &, QString code,
       QByteArray bt = code.toLocal8Bit();
       value = Ruby::run(Ruby::eval, bt);
     }
-    bool check = (useTol ? fabs(rbw_num2dbl(value)) <= tolerance : rbw_test(value));
+    bool check;
+    if(useTol) {
+      double v = rbw_num2dbl(value);
+      check = fabs(v) <= tolerance;
+      as.value = v;
+      as.tolerance = tolerance;
+    }
+    else
+      check = rbw_test(value);
+    
     if(check) {
       Terminal::out << "assertion success" << endl;
       Debug::debug() << "." << flush;
+      as.result = SingleAssertion::Pass;
     }
     else {
       cur->failed++;
+      as.result = SingleAssertion::Failed;
       if(useTol) {
         Terminal::out << "assertion failed: " << code
                       << " (should be below: " << tolerance
@@ -686,11 +784,14 @@ static void assertCmd(const QString &, QString code,
   }
   catch(const Exception & e) {
     cur->exceptions++;
+    as.result = SingleAssertion::Failed;
+    as.exceptionMessage = e.message();
     Terminal::out << "assertion failed with exception: " << code  << ":\n";
     Terminal::out << e.message() << endl;
     Debug::debug() << "E: " << code  << " -- "
                    << e.message() << context << endl;
   }
+  allAssertions << as;
 }
 
 static ArgumentList 
@@ -707,9 +808,12 @@ aO(QList<Argument *>()
                          "set-context", 
                          "Set assertion context",
                          "If either global or fine, instead of running an assertion, sets the assertion global or fine context")
-   << new BoolArgument("dump", 
-                       "Print results",
-                       "If on, prints all the results of the test suite")
+   << new ChoiceArgument(QStringList() << "no"
+                         << "summary"
+                         << "details",
+                         "dump", 
+                         "Print results",
+                         "If summary, prints the summary on the terminal. If details, write details to a file")
    << new NumberArgument("tolerance", 
                          "Tolerance",
                          "If given, does not check that the value is true or false, just that its magnitude is smaller than the tolerance", true)

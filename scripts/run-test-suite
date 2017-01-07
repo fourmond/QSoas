@@ -16,12 +16,14 @@ case $1 in
         if [ "$2" ]; then
             pref="$pref --xml=yes --xml-file=../$2"
         fi
+        shift
         ;;
     --helgrind)
         pref="valgrind --tool=helgrind "
         if [ "$2" ]; then
             pref="$pref --xml=yes --xml-file=../$2"
         fi
+        shift
         ;;
     --xml)
         for a in $checks; do
@@ -39,8 +41,9 @@ case $1 in
         ;;
     --no-xvfb)
         xvfb=""
+        shift
         ;;
 esac
 
 cd tests
-$xvfb $pref $qsoas --run '@ run-all-tests.cmds' --exit-after-running
+$xvfb $pref $qsoas --run '@ run-all-tests.cmds '$1 --exit-after-running

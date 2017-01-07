@@ -111,6 +111,8 @@ static void saveBuffersCommand(const QString &,
   updateFromOptions(opts, "mode", mode);
   bool mkpath = false;
   updateFromOptions(opts, "mkpath", mkpath);
+  bool overwrite = true;
+  updateFromOptions(opts, "overwrite", overwrite);
 
   bool rename = false;
   bool save = true;
@@ -140,6 +142,11 @@ static void saveBuffersCommand(const QString &,
     if(save) {
       if(mkpath)
         QDir::current().mkpath(QFileInfo(nm).dir().path());
+      if(! overwrite && QFile::exists(nm)) {
+        Terminal::out << "Not overwriting " << nm
+                      << " as requested" << endl;
+        continue;
+      }
       datasets[i]->write(nm);
     }
   }
@@ -166,6 +173,9 @@ sBOpts(QList<Argument *>()
        << new BoolArgument("mkpath",
                            "Make path",
                            "if true, creates all necessary directories (defaults to false)")
+       << new BoolArgument("overwrite",
+                           "Overwrite",
+                           "if false, will not overwrite existing files (default is true)")
        );
 
 

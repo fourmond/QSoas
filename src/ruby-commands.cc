@@ -318,6 +318,7 @@ static void solveDs(const QString &, QString formula,
   int argSize = an.size();
 
   // The index of the value of the y point.
+  int x_idx = an.indexOf("x");
   int y_idx = an.indexOf("y");
 
   Terminal::out << QString("Solving formula '%1' for buffer %2").
@@ -339,12 +340,19 @@ static void solveDs(const QString &, QString formula,
     slv.parseOptions(opts);
     while(ex.nextValues(args, &idx)) {
       double nv;
-      if(minEx)
-        nv = slv.solve(minEx->expression().evaluate(args),
-                       maxEx->expression().evaluate(args));
-      else
-        nv = slv.solve(args[y_idx]);   // use the current value of Y
+      try {
+        if(minEx)
+          nv = slv.solve(minEx->expression().evaluate(args),
+                         maxEx->expression().evaluate(args));
+        else
+          nv = slv.solve(args[y_idx]);   // use the current value of Y
                                         // as seed
+      }
+      catch(const RuntimeError & er) {
+        nv = 0.0/0.0;
+        Terminal::out << "Could not find a solution for X = "
+                      << args[x_idx] << ": " << er.message() << endl;
+      }
       newY << nv;
     }
   }

@@ -126,9 +126,13 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
 
   setIterationLimit(::fitIterationLimit);
 
-  
-
   updateEditors();
+
+  // Sets the window title
+  setWindowTitle(QString("QSoas fit: %1 -- %2 datasets%3").
+                 arg(parameters.fitName()).
+                 arg(data->datasets.size()).
+                 arg(extraTitleInfo));
 }
 
 FitDialog::~FitDialog()

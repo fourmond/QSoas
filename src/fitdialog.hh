@@ -195,6 +195,8 @@ public:
   FitWorkspace * getWorkspace();
   const FitWorkspace * getWorkspace() const;
 
+  /// This string gets written to the window title after the 
+  QString extraTitleInfo;
   
 
 

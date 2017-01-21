@@ -203,11 +203,11 @@ void FitDialog::setupFrame()
   //////////////////////////////////////////////////////////////////////
   // First line
   QHBoxLayout * hb = new QHBoxLayout;
-  QPushButton * bt = new QPushButton(Icons::namedIcon("go-previous"), "");
+  QPushButton * bt = new QPushButton("<-");
   nup->connect(bt, SIGNAL(clicked()), SLOT(previousPage()));
   hb->addWidget(bt);
 
-  bt = new QPushButton(Icons::namedIcon("go-next"), "");
+  bt = new QPushButton("->");
   nup->connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
   hb->addWidget(bt);
 

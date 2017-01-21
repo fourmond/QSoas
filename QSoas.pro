@@ -25,6 +25,9 @@ QT += printsupport
 # We sometimes need the network
 QT += network
 
+# We need SVG support for icons
+QT += svg
+
 # We want to build a console application on win32 as we don't have a
 # proper winmain for windows only applications.
 win32:CONFIG += console
@@ -297,7 +300,8 @@ SOURCES += src/qmain.cc \
         src/modifiedfit.cc \
         src/wave-fits.cc \
         src/peaks-commands.cc \
-        src/datastackhelper.cc
+        src/datastackhelper.cc \
+        src/icons.cc
 
 
 HEADERS += src/headers.hh \
@@ -411,7 +415,8 @@ HEADERS += src/headers.hh \
         src/functions.hh \
         src/cachedfunction.hh \
         src/datasetexpression.hh \
-        src/datastackhelper.hh
+        src/datastackhelper.hh \
+        src/icons.hh
 
 
 

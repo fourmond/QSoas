@@ -54,6 +54,7 @@
 #include <debug.hh>
 
 #include <idioms.hh>
+#include <icons.hh>
 
 static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
 
@@ -202,11 +203,11 @@ void FitDialog::setupFrame()
   //////////////////////////////////////////////////////////////////////
   // First line
   QHBoxLayout * hb = new QHBoxLayout;
-  QPushButton * bt = new QPushButton(tr("<-"));
+  QPushButton * bt = new QPushButton(Icons::namedIcon("go-previous"), "");
   nup->connect(bt, SIGNAL(clicked()), SLOT(previousPage()));
   hb->addWidget(bt);
 
-  bt = new QPushButton(tr("->"));
+  bt = new QPushButton(Icons::namedIcon("go-next"), "");
   nup->connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
   hb->addWidget(bt);
 

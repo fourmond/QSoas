@@ -232,8 +232,10 @@ QRectF Utils::uniteRectangles(const QList<QRectF> rects)
 
   for(int i = 0; i < rects.size(); i++) {
     const QRectF & r = rects[i];
-    if(! r.isValid())
-      continue;                 // Silently ignore invalid
+    if(r.isNull())
+      continue;                 // Ignore null rectangles, but not
+                                // invalid ones, since the latter are
+                                // empty but meaningful !
     QPointF p = r.topLeft();
     xvals << p.x();
     yvals << p.y();

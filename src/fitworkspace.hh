@@ -58,6 +58,10 @@ class FitWorkspace {
   /// Parameter values (same size as fixed)
   double * values;
 
+  /// A list of gsl_vector_view pointing to the values of a given
+  /// parameter as a function of the dataset index.
+  QList<gsl_vector_view> parameterView;
+
   /// This list has the same size as values.
   PossessiveList<FitParameter> parameters;
 
@@ -93,9 +97,6 @@ class FitWorkspace {
 
   /// Clears the parameter list
   void clear();
-
-  /// The name of the numbered parameter
-  QString parameterName(int idx) const;
 
   void prepareExport(QStringList & headers, QString & lines, 
                      bool exportErrors = false, bool exportMeta = true);
@@ -205,6 +206,12 @@ public:
       return values[dataset * nbParameters + (index % nbParameters)];
   };
 
+  /// returns a vector pointing to the values for all the datasets of
+  /// the numbered parameter.
+  gsl_vector * parameterVector(int index) {
+    return &parameterView[index].vector;
+  };
+
   /// Returns the value of the \b relative error for the given parameter:
   double getParameterError(int index, int dataset, 
                            double confidenceThreshold = 0.975) const;
@@ -246,7 +253,7 @@ public:
   ///
   /// A few functions that wrap around Fit's function, providing them
   /// the correct FitData.
-  /// 
+  ///
   /// @{
 
   bool hasSubFunctions() const;
@@ -261,6 +268,9 @@ public:
   void processSoftOptions(const CommandOptions & opts) const;
 
   QString fitName(bool includeOptions = true) const;
+
+  /// The name of the numbered parameter
+  QString parameterName(int idx) const;
 
   /// @}
 

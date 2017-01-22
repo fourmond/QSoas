@@ -251,6 +251,12 @@ FitWorkspace::FitWorkspace(FitData * d) :
   for(int i = 0; i < nbParameters * datasets; i++)
     values[i] = 0;
 
+  // We next initialize the vector view
+  for(int i = 0; i < nbParameters; i++)
+    parameterView << gsl_vector_view_array_with_stride(values + i,
+                                                       nbParameters, datasets);
+  
+
   // Now populate default values and fill the cache
   d->fit->initialGuess(d, values);
   for(int i = 0; i < nbParameters; i++) {

@@ -22,7 +22,7 @@
 #include <settings-templates.hh>
 #include <dataset.hh>
 #include <curveview.hh>
-#include <curvedataset.hh>
+#include <curvepoints.hh>
 #include <curvepanel.hh>
 
 #include <soas.hh>
@@ -50,36 +50,17 @@ ParametersViewer::ParametersViewer(FitWorkspace * params) :
 ParametersViewer::~ParametersViewer()
 {
   viewerSize = size();
-  for(int i = 0; i < datasets.size(); i++)
-    delete datasets[i];
 }
 
-void ParametersViewer::makeDatasets()
+void ParametersViewer::makeDatasets() // Not well named anymore
 {
-  Vector coords = parameters->perpendicularCoordinates;
+  perpendicularCoordinates = parameters->perpendicularCoordinates;
   int nbds = parameters->data()->datasets.size();
-  if(coords.size() != nbds) {
+  if(perpendicularCoordinates.size() != nbds) {
     Terminal::out << "Wrong number of perpendicular coordinates, making them up" << endl;
-    coords.clear();
+    perpendicularCoordinates .clear();
     for(int i = 0; i < nbds; i++)
-      coords << i;
-
-    // Add it in a message label ?
-  }
-
-  int nbparams = parameters->data()->parametersPerDataset();
-  for(int i = 0; i < nbparams; i++) {
-    Vector y;
-    Vector errs;
-    for(int j = 0; j < nbds; j++) {
-      double val = parameters->getValue(i, j);
-      y << val;
-      errs << parameters->getParameterError(i, j) * val;
-    }
-    DataSet * ds = new DataSet(coords, y, errs);
-    ds->options.setYErrors(2);
-    ds->name = parameters->data()->parameterDefinitions[i].name;
-    datasets << ds;
+      perpendicularCoordinates  << i;
   }
 }
 
@@ -96,12 +77,17 @@ void ParametersViewer::setupFrame()
                                 // sometimes means loads of unmanaged
                                 // widgets piling up temporarily on
                                 // the screen.
-  int nbparams = datasets.size();
+
+  int nbparams = parameters->data()->parametersPerDataset();
   for(int i = 0; i < nbparams; i++) {
-    CurveDataSet * cds = new CurveDataSet(datasets[i]);
-    curveDatasets << cds;
+    CurvePoints * cds = new
+      CurvePoints(perpendicularCoordinates.toGSLVector(),
+                  parameters->parameterVector(i));
+    finalDisplay << cds;
     cds->pen = soas().graphicsSettings().dataSetPen(i);
-    QCheckBox * cb = new QCheckBox(datasets[i]->name);
+    cds->brush = cds->pen.color();
+    cds->countBB = true;
+    QCheckBox * cb = new QCheckBox(parameters->parameterName(i));
     parametersBoxes << cb;
     checkBoxes->addButton(cb, i);
     ml->addWidget(cb);
@@ -135,20 +121,20 @@ void ParametersViewer::setupFrame()
 
 void ParametersViewer::parameterChecked(int idx)
 {
-  curveDatasets[idx]->hidden = !curveDatasets[idx]->hidden;
+  finalDisplay[idx]->hidden = !finalDisplay[idx]->hidden;
   view->mainPanel()->zoomIn(QRectF());
   view->repaint();
 }
 
 void ParametersViewer::pushVisible()
 {
-  for(int i = 0; i < datasets.size(); i++)
-    if(! curveDatasets[i]->hidden)
-      soas().pushDataSet(new DataSet(*datasets[i]));
+  // for(int i = 0; i < datasets.size(); i++)
+  //   if(! curveDatasets[i]->hidden)
+  //     soas().pushDataSet(new DataSet(*datasets[i]));
 }
 
 void ParametersViewer::pushAll()
 {
-  for(int i = 0; i < datasets.size(); i++)
-    soas().pushDataSet(new DataSet(*datasets[i]));
+  // for(int i = 0; i < datasets.size(); i++)
+  //   soas().pushDataSet(new DataSet(*datasets[i]));
 }

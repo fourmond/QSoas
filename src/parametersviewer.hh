@@ -27,7 +27,7 @@
 class DataSet;
 class FitWorkspace;
 class CurveView;
-class CurveDataSet;
+class CurvePoints;
 
 /// This class handles all the user interaction during fits.
 class ParametersViewer : public QDialog {
@@ -44,15 +44,15 @@ private:
   /// Could also be done using QSignalMapper
   QButtonGroup * checkBoxes;
 
-  /// A list of temporary datasets for each of the parameters (in the
-  /// same order as the checkboxes)
-  QList<DataSet * > datasets;
-
   /// The view !
   CurveView * view;
 
-  /// The list of displayed datasets
-  QList<CurveDataSet *> curveDatasets;
+  /// The perpendicular coordinates
+  Vector perpendicularCoordinates;
+
+  /// The CurvePoints objects used to display the parameters together
+  /// with the errors.
+  QList<CurvePoints *> finalDisplay;
 
   /// The fit parameters
   FitWorkspace * parameters;

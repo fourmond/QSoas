@@ -25,7 +25,7 @@
 CurvePoints::CurvePoints(gsl_vector * xv, gsl_vector * yv,
                          gsl_vector * err) :
   xvalues(xv), yvalues(yv), errors(err),
-  size(1.0), errorBarSize(4), type(CurveMarker::Circle) {
+  size(3.0), errorBarSize(6), type(CurveMarker::Circle) {
 }
 
 void CurvePoints::drawErrorBar(QPainter * painter, double x,
@@ -88,13 +88,20 @@ QRectF CurvePoints::boundingRect() const
   QRectF rv;
   if(xvalues->size < 1)
     return rv;
+
+  double xmin = gsl_vector_min(xvalues);
+  double xmax = gsl_vector_max(xvalues);
+
+  double ymin = gsl_vector_min(yvalues);
+  double ymax = gsl_vector_max(yvalues);
+
+  rv = QRectF(QPointF(xmin, ymin), QPointF(xmax, ymax));
+    
+  QTextStream o(stdout);
+  o << "Bounding rect: ";
+  Utils::dumpRectangle(o, rv);
+  o << "\nSize: " << xvalues->size << endl;
   
-  rv = QRectF(gsl_vector_get(xvalues, 0),
-              gsl_vector_get(yvalues, 0),
-              0, 0);
-  for(int i = 1; i < xvalues->size; i++)
-    rv = rv.united(QRectF(gsl_vector_get(xvalues, i),
-                          gsl_vector_get(yvalues, i),
-                          0, 0));
+
   return rv;
 }

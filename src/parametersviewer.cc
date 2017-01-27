@@ -82,7 +82,9 @@ void ParametersViewer::setupFrame()
   for(int i = 0; i < nbparams; i++) {
     CurvePoints * cds = new
       CurvePoints(perpendicularCoordinates.toGSLVector(),
-                  parameters->parameterVector(i));
+                  parameters->parameterVector(i),
+                  parameters->errorVector(i));
+    cds->relativeErrorBar = true;
     finalDisplay << cds;
     cds->pen = soas().graphicsSettings().dataSetPen(i);
     cds->brush = cds->pen.color();

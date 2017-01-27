@@ -54,6 +54,9 @@ public:
   /// Size in points of one half of the error bar.
   double errorBarSize;
 
+  /// Whether the error is relative or not
+  bool relativeErrorBar = false;
+
   CurveMarker::MarkerType type;
 
   virtual void paint(QPainter * painter, const QRectF & bbox,

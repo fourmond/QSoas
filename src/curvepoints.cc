@@ -32,6 +32,8 @@ void CurvePoints::drawErrorBar(QPainter * painter, double x,
                                double y, double err,
                                const QTransform & ctw) const
 {
+  if(relativeErrorBar)
+    err *= y;
   double yp = y + err;
   double ym = y - err;
 
@@ -47,7 +49,7 @@ void CurvePoints::drawErrorBar(QPainter * painter, double x,
   lft.setX(lft.x() - errorBarSize);
 
   QPointF rght = np;
-  rght.setX(lft.x() + errorBarSize);
+  rght.setX(rght.x() + errorBarSize);
 
   painter->drawLine(lft, rght);
 
@@ -55,7 +57,7 @@ void CurvePoints::drawErrorBar(QPainter * painter, double x,
   lft.setX(lft.x() - errorBarSize);
 
   rght = nm;
-  rght.setX(lft.x() + errorBarSize);
+  rght.setX(rght.x() + errorBarSize);
 
   painter->drawLine(lft, rght);
 }

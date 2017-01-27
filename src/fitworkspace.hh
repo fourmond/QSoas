@@ -62,6 +62,16 @@ class FitWorkspace {
   /// parameter as a function of the dataset index.
   QList<gsl_vector_view> parameterView;
 
+  /// Parameter errors. Set to zero whenever the parameters are
+  /// changed.
+  ///
+  /// Recomputed by calling explicitly 
+  double * errors;
+
+  /// A list of gsl_vector_view pointing to the values of a given
+  /// parameter as a function of the dataset index.
+  QList<gsl_vector_view> errorView;
+
   /// This list has the same size as values.
   PossessiveList<FitParameter> parameters;
 
@@ -211,6 +221,15 @@ public:
   gsl_vector * parameterVector(int index) {
     return &parameterView[index].vector;
   };
+
+  /// returns a vector pointing to the errors for all the datasets of
+  /// the numbered parameter.
+  gsl_vector * errorVector(int index) {
+    return &errorView[index].vector;
+  };
+
+  /// Recompute all the errors.
+  void recomputeErrors(double confidenceThreshold = 0.975);
 
   /// Returns the value of the \b relative error for the given parameter:
   double getParameterError(int index, int dataset, 

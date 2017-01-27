@@ -244,6 +244,7 @@ FitWorkspace::FitWorkspace(FitData * d) :
   datasets = d->datasets.size();
   nbParameters = d->parametersPerDataset();
   values = new double[nbParameters * datasets];
+  errors = new double[nbParameters * datasets];
 
   // First, initialize the values, to avoid having unitialized stuff
   // showing up (in particular extra parameters, than don't get
@@ -252,10 +253,12 @@ FitWorkspace::FitWorkspace(FitData * d) :
     values[i] = 0;
 
   // We next initialize the vector view
-  for(int i = 0; i < nbParameters; i++)
+  for(int i = 0; i < nbParameters; i++) {
     parameterView << gsl_vector_view_array_with_stride(values + i,
                                                        nbParameters, datasets);
-  
+    errorView << gsl_vector_view_array_with_stride(errors + i,
+                                                   nbParameters, datasets);
+  }
 
   // Now populate default values and fill the cache
   d->fit->initialGuess(d, values);
@@ -329,6 +332,7 @@ void FitWorkspace::freeMatrices()
 FitWorkspace::~FitWorkspace()
 {
   delete[] values;
+  delete[] errors;
   freeMatrices();
 }
 
@@ -1067,6 +1071,13 @@ double FitWorkspace::getParameterError(int i, int ds, double th) const
                                 ds*nbParameters + i));
   }
   return conf*fabs(error/value);
+}
+
+void FitWorkspace::recomputeErrors(double threshold)
+{
+  for(int i = 0; i < datasets; i++)
+    for(int j = 0; j < nbParameters; j++)
+      errors[i*nbParameters + j] = getParameterError(j, i, threshold);
 }
 
 void FitWorkspace::recomputeJacobian()

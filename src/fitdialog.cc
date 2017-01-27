@@ -742,6 +742,8 @@ void FitDialog::startFit()
     status = GSL_SUCCESS + 1;
   }
 
+  parameters.recomputeErrors();
+
   trajectories << 
     FitTrajectory(parametersBackup, parameters.saveParameterValues(),
                   parameters.saveParameterErrors(),

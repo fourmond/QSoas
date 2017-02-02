@@ -302,7 +302,8 @@ SOURCES += src/qmain.cc \
         src/peaks-commands.cc \
         src/datastackhelper.cc \
         src/icons.cc \
-        src/curvepoints.cc
+        src/curvepoints.cc \
+        src/xyiterable.cc
 
 
 HEADERS += src/headers.hh \
@@ -418,7 +419,8 @@ HEADERS += src/headers.hh \
         src/datasetexpression.hh \
         src/datastackhelper.hh \
         src/icons.hh \
-        src/curvepoints.hh
+        src/curvepoints.hh \
+        src/xyiterable.hh
 
 
 

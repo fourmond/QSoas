@@ -30,6 +30,14 @@ class Vector;
 ///
 /// They can be used to iterate over:
 /// @li DataSet, using the XYIDataset class
+/// @li series of gsl_vector pointers, using XYIGSLVectors
+///
+///
+/// XYIterable are iterated using either next() or nextWithErrors()
+///
+/// The data optionally has a display name, dataName().
+///
+/// Several utility inspection functions are available:
 class XYIterable {
 public:
 
@@ -55,13 +63,23 @@ public:
   /// Returns a name for the object we're iterating over.
   virtual QString dataName() const;
 
+  /// Returns the bounding box of the data (not including error bars).
+  /// 
+  /// Does a reset()
+  virtual QRectF boundingBox();
+
 };
 
 /// Iterates over a DataSet
+///
+/// @warning This class will not take into account changes in the
+/// number of columns after creation.
 class XYIDataSet : public XYIterable {
   const DataSet * dataset;
 
   int cur;
+
+  bool hasErrors;
 
 public:
 
@@ -70,6 +88,7 @@ public:
   virtual bool next(double * x, double * y) override;
   virtual void reset() override;
   virtual QString dataName() const override;
+  virtual bool nextWithErrors(double * x, double * y, double * err) override;
 };
 
 /// Iterates over a two GSL vectors
@@ -77,6 +96,7 @@ class XYIGSLVectors : public XYIterable {
 protected:
   const gsl_vector * xv;
   const gsl_vector * yv;
+  const gsl_vector * ev;
 
   int cur;
 
@@ -85,12 +105,15 @@ public:
   /// A simple enough to edit name
   QString name;
 
-  XYIGSLVectors(const gsl_vector * xv, const gsl_vector * yv);
+  XYIGSLVectors(const gsl_vector * xv, const gsl_vector * yv,
+                const gsl_vector * ev = NULL);
 
   virtual bool next(double * x, double * y) override;
   virtual void reset() override;
   virtual QString dataName() const override;
+  virtual bool nextWithErrors(double * x, double * y, double * err) override;
 };
+
 
 
 #endif

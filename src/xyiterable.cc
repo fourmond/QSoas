@@ -34,18 +34,39 @@ bool XYIterable::nextWithErrors(double * x, double * y, double * err)
   return v;
 }
 
+QRectF XYIterable::boundingBox()
+{
+  reset();
+  double xmin = 0, xmax = 0, ymin = 0, ymax = 0;
+  double x, y;
+  bool first = true;
+  while(next(&x, &y)) {
+    if(! (std::isfinite(x) && std::isfinite(y)))
+      continue;
+    if(first) {
+      xmin = xmax = x;
+      ymin = ymax = y;
+      first = false;
+    }
+    xmin = std::min(xmin, x);
+    xmax = std::max(xmax, x);
+    ymin = std::min(ymin, y);
+    ymax = std::max(ymax, y);
+  }
+  return QRectF(xmin, ymin, xmax - xmin, ymax - ymin);
+}
+
 //////////////////////////////////////////////////////////////////////
 
 XYIDataSet::XYIDataSet(const DataSet * ds) :
   dataset(ds), cur(0)
 {
+  hasErrors = dataset->options.hasYErrors();
 }
   
 bool XYIDataSet::next(double * x, double * y)
 {
   int sz = dataset->nbRows();
-
-  // Not handling errors for now
   if(cur < sz) {
     *x = dataset->x()[cur];
     *y = dataset->y()[cur];
@@ -65,10 +86,28 @@ QString XYIDataSet::dataName() const
   return dataset->name;
 }
 
+bool XYIDataSet::nextWithErrors(double * x, double * y, double * err)
+{
+  if(! hasErrors)
+    return XYIterable::nextWithErrors(x, y, err);
+
+  int sz = dataset->nbRows();
+  if(cur < sz) {
+    *x = dataset->x()[cur];
+    *y = dataset->y()[cur];
+    *err = dataset->yError(cur);
+    ++cur;
+    return true;
+  }
+  return false;
+}
+
 //////////////////////////////////////////////////////////////////////
 
-XYIGSLVectors::XYIGSLVectors(const gsl_vector * xvs, const gsl_vector * yvs) :
-  xv(xvs), yv(yvs), cur(0)
+XYIGSLVectors::XYIGSLVectors(const gsl_vector * xvs,
+                             const gsl_vector * yvs,
+                             const gsl_vector * evs) :
+  xv(xvs), yv(yvs), ev(evs), cur(0)
 {
 }
 
@@ -91,5 +130,20 @@ void XYIGSLVectors::reset()
 QString XYIGSLVectors::dataName() const
 {
   return name;
+}
+
+bool XYIGSLVectors::nextWithErrors(double * x, double * y, double * err)
+{
+  if(cur < xv->size) {
+    *x = gsl_vector_get(xv, cur);
+    *y = gsl_vector_get(yv, cur);
+    if(ev)
+      *err = gsl_vector_get(ev, cur);
+    else
+      *err = 0;
+    ++cur;
+    return true;
+  }
+  return false;
 }
 

@@ -23,23 +23,19 @@
 
 #include <curveitem.hh>
 #include <curvemarker.hh>
-#include <vector.hh>
+
+
+class XYIterable;
+
 
 
 /// A series of data points drawn as markers, optionally with error bars.
-/// Data is specified using a gsl_vector object.
 ///
-/// Maybe this restriction can be lif
+/// Data is specified using a XYIterable object.
 class CurvePoints : public CurveItem {
-  /// The gsl_vector holding the X points
-  gsl_vector * xvalues;
 
-  /// The gsl_vector holding the Y points
-  gsl_vector * yvalues;
-
-  /// The gsl_vector holding the errors.
-  /// If NULL, then no errors will be displayed
-  gsl_vector * errors;
+  /// The data source. Owned by the CurvePoints object.
+  XYIterable * source;
 
   /// Draws an error bar at the given position
   void drawErrorBar(QPainter * painter, double x, double y, double err,
@@ -64,8 +60,12 @@ public:
 
   virtual QRectF boundingRect() const override;
 
-  CurvePoints(gsl_vector * xvalues, gsl_vector * yvalues,
-              gsl_vector * errors = NULL);
+  /// Creates a CurvePoints object showing the given source.
+  ///
+  /// The CurvePoints take ownership of the @a source
+  CurvePoints(XYIterable * source);
+
+  ~CurvePoints();
 };
 
 

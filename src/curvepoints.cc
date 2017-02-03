@@ -19,19 +19,27 @@
 #include <headers.hh>
 #include <curvepoints.hh>
 
+#include <xyiterable.hh>
+
 #include <utils.hh>
 
 
-CurvePoints::CurvePoints(gsl_vector * xv, gsl_vector * yv,
-                         gsl_vector * err) :
-  xvalues(xv), yvalues(yv), errors(err),
+CurvePoints::CurvePoints(XYIterable * src) :
+  source(src),
   size(3.0), errorBarSize(6), type(CurveMarker::Circle) {
+}
+
+CurvePoints::~CurvePoints()
+{
+  delete source;
 }
 
 void CurvePoints::drawErrorBar(QPainter * painter, double x,
                                double y, double err,
                                const QTransform & ctw) const
 {
+  if(err == 0)
+    return;                     // not drawing absent error bars
   if(relativeErrorBar)
     err *= y;
   double yp = y + err;
@@ -70,14 +78,10 @@ void CurvePoints::paint(QPainter * painter, const QRectF &,
   painter->save();
   painter->setPen(pen);
   painter->setBrush(brush);
-  for(int i = 0; i < xvalues->size; i++) {
-    double x = gsl_vector_get(xvalues, i);
-    double y = gsl_vector_get(yvalues, i);
-
-    
-    // first draw the errors if applicable
-    if(errors)
-      drawErrorBar(painter, x, y, gsl_vector_get(errors, i), ctw);
+  double x,y,err;
+  source->reset();
+  while(source->nextWithErrors(&x, &y, &err)) {
+    drawErrorBar(painter, x, y, err, ctw);
 
     QPointF pt(x, y);
     CurveMarker::paintMarker(painter, ctw.map(pt), type, size);
@@ -87,23 +91,5 @@ void CurvePoints::paint(QPainter * painter, const QRectF &,
 
 QRectF CurvePoints::boundingRect() const
 {
-  QRectF rv;
-  if(xvalues->size < 1)
-    return rv;
-
-  double xmin = gsl_vector_min(xvalues);
-  double xmax = gsl_vector_max(xvalues);
-
-  double ymin = gsl_vector_min(yvalues);
-  double ymax = gsl_vector_max(yvalues);
-
-  rv = QRectF(QPointF(xmin, ymin), QPointF(xmax, ymax));
-    
-  QTextStream o(stdout);
-  o << "Bounding rect: ";
-  Utils::dumpRectangle(o, rv);
-  o << "\nSize: " << xvalues->size << endl;
-  
-
-  return rv;
+  return source->boundingBox();
 }

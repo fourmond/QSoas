@@ -463,8 +463,6 @@ void FitWorkspace::pushComputedData(const QStringList & flags, bool res)
 void FitWorkspace::sendDataParameters()
 {
   fitData->parameters.clear();
-  for(int i = 0; i < datasets * nbParameters; i++)
-    errors[i] = 0;
   
   for(int i = 0; i < parameters.size(); i++) {
     FitParameter * param = parameters[i];
@@ -478,6 +476,8 @@ void FitWorkspace::prepareFit(CommandOptions * opts)
 {
   sendDataParameters();
   fitData->initializeSolver(values, opts);
+  for(int i = 0; i < datasets * nbParameters; i++)
+    errors[i] = 0;
 }
 
 void FitWorkspace::retrieveParameters()

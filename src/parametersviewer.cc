@@ -25,6 +25,8 @@
 #include <curvepoints.hh>
 #include <curvepanel.hh>
 
+#include <xyiterable.hh>
+
 #include <soas.hh>
 #include <graphicssettings.hh>
 
@@ -81,9 +83,9 @@ void ParametersViewer::setupFrame()
   int nbparams = parameters->data()->parametersPerDataset();
   for(int i = 0; i < nbparams; i++) {
     CurvePoints * cds = new
-      CurvePoints(perpendicularCoordinates.toGSLVector(),
-                  parameters->parameterVector(i),
-                  parameters->errorVector(i));
+      CurvePoints(new XYIGSLVectors(perpendicularCoordinates.toGSLVector(),
+                                    parameters->parameterVector(i),
+                                    parameters->errorVector(i)));
     cds->relativeErrorBar = true;
     finalDisplay << cds;
     cds->pen = soas().graphicsSettings().dataSetPen(i);

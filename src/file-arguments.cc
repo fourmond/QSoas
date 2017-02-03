@@ -41,6 +41,16 @@ static QStringList proposeFileCompletion(const QString & str,
   return candidates;
 }
 
+static QString shortenFileName(const QString & f)
+{
+  QDir dir = QDir::current();
+  QString s = dir.relativeFilePath(f);
+  if(s.size() < f.size())
+    return s;
+  return f;
+}
+                              
+
 ArgumentMarshaller * FileArgument::fromString(const QString & str) const
 {
   return new ArgumentMarshallerChild<QString>(str);
@@ -57,9 +67,10 @@ ArgumentMarshaller * FileArgument::promptForValue(QWidget * base) const
     file = QFileDialog::getOpenFileName(base, publicName(),
                                         QDir::currentPath());
   if(file.isEmpty())
-    throw RuntimeError("Aborted"); 
+    throw RuntimeError("Aborted");
+
   /// @todo Maybe use a specific exception to signal abortion ?
-  return fromString(file);
+  return fromString(::shortenFileName(file));
 }
 
 
@@ -136,8 +147,12 @@ ArgumentMarshaller * SeveralFilesArgument::promptForValue(QWidget * base) const
     QFileDialog::getOpenFileNames(base, publicName(),
                                   QDir::currentPath());
   if(! files.size())
-    throw RuntimeError("Aborted"); 
-  return new ArgumentMarshallerChild<QStringList>(files);
+    throw RuntimeError("Aborted");
+
+  QStringList f2;
+  for(int i = 0; i < files.size(); i++)
+    f2 << ::shortenFileName(files[i]);
+  return new ArgumentMarshallerChild<QStringList>(f2);
 }
 
 void SeveralFilesArgument::concatenateArguments(ArgumentMarshaller * a, 

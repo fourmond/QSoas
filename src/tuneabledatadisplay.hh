@@ -44,8 +44,8 @@ private:
   /// The target CurveView
   CurveView * view;
 
-  /// The list of displays
-  QList<CurvePoints * > displays;
+  /// The list of items in control of the 
+  QList<CurvePoints * > items;
 
   /// The current color
   QColor color;
@@ -53,10 +53,8 @@ private:
   /// The color change button
   QAbstractButton * colorPickerButton;
 
-  /// update the color of the curves.
-  void updateCurveColors();
-
-  bool hidden;
+  /// Returns true if at least one of the items' bounding box counts.
+  bool bbCounts() const;
 
 public:
   TuneableDataDisplay(const QString & name,
@@ -66,7 +64,13 @@ public:
 
   /// Adds a source, returns the corresponding CurvePoints object to
   /// be tuned.
-  CurvePoints * addSource(XYIterable * source);
+  ///
+  /// Unless @autoadd is false, the created CurvePoints object is
+  /// added to the main panel of the CurveView.
+  CurvePoints * addSource(XYIterable * source, bool autoadd = true);
+
+  /// Returns the item of the given @a index, or NULL if none exist.
+  CurvePoints * item(int index) const;
 
   ~TuneableDataDisplay();
 public slots:
@@ -78,6 +82,10 @@ public slots:
   
   /// Change the color
   void changeColor(const QColor & color);
+
+  /// update the color of the curves.
+  void updateCurveColors();
+
 };
 
 

@@ -40,16 +40,10 @@ TuneableDataDisplay::TuneableDataDisplay(const QString & n,
                                          CurveView * v,
                                          bool h,
                                          const QColor & c,
-                                         QWidget * parent):
-  QWidget(parent), name(n), view(v), color(c), hidden(h)
+                                         QWidget * parent) :
+  QWidget(parent), name(n), view(v), color(c)
 {
   QHBoxLayout * layout = new QHBoxLayout(this);
-  checkBox = new QCheckBox(name);
-  layout->addWidget(checkBox, 1);
-
-  layout->setContentsMargins(0, 1, 0, 1);
-
-  connect(checkBox, SIGNAL(stateChanged(int)), SLOT(toggleDisplay(int)));
 
   QToolButton * bt = new QToolButton();
   bt->setAutoRaise(true);
@@ -57,41 +51,74 @@ TuneableDataDisplay::TuneableDataDisplay(const QString & n,
   // colorPickerButton->setFlat(true);
   layout->addWidget(colorPickerButton);
   connect(colorPickerButton, SIGNAL(clicked()), SLOT(promptChangeColor()));
+
+  checkBox = new QCheckBox(name);
+  layout->addWidget(checkBox, 1);
+
+  layout->setContentsMargins(0, 1, 0, 1);
+
+  connect(checkBox, SIGNAL(stateChanged(int)), SLOT(toggleDisplay(int)));
+
   
   changeColor(color);
+
+  Qt::CheckState state = h ? Qt::Unchecked : Qt::Checked;
+  checkBox->setCheckState(state);
+
 }
 
 TuneableDataDisplay::~TuneableDataDisplay()
 {
 }
 
+CurvePoints * TuneableDataDisplay::addSource(XYIterable * source,
+                                             bool autoadd)
+{
+  CurvePoints * cp = new CurvePoints(source);
+  items << cp;
+  if(autoadd)
+    view->addItem(cp);
+  cp->hidden = checkBox->checkState() == Qt::Unchecked;
+  updateCurveColors();
+  return cp;
+}
+
 void TuneableDataDisplay::updateCurveColors()
 {
-  // if(marker) {
-  //   marker->countBB = true;
-  //   marker->size = 6;              // ??
-  //   marker->brush = QBrush(color);
-  // }
-  // if(trajectoryMarker) {
-  //   trajectoryMarker->countBB = true;
-  //   trajectoryMarker->size = 6;              // ??
-  //   trajectoryMarker->pen = color;
-  //   trajectoryMarker->pen.setWidthF(2);
-  // }
+  // We update both the brush and the color
+  for(int i = 0; i < items.size(); i++) {
+    CurvePoints * cp = items[i];
+    cp->brush.setColor(color);
+    cp->pen.setColor(color);
+  }
+}
+
+bool TuneableDataDisplay::bbCounts() const
+{
+  // We update both the brush and the color
+  for(int i = 0; i < items.size(); i++) {
+    if(items[i]->countBB)
+      return true;
+  }
+  return false;
 }
 
 void TuneableDataDisplay::toggleDisplay(int display)
 {
-  if(display > 0) {
-  }
-  else {
-  }
+  bool hidden = display == 0;
+  for(int i = 0; i < items.size(); i++)
+    items[i]->hidden = hidden;
   
   /// Calls again this function by the generated signal, but no-op if
   /// already set.
-  Qt::CheckState state = display ? Qt::Checked : Qt::Unchecked;
+  Qt::CheckState state = hidden ? Qt::Unchecked : Qt::Checked;
   if(checkBox->checkState() != state)
     checkBox->setCheckState(state);
+  
+  // Schedule a repaint
+  if(bbCounts())            /// @todo Maybe this should be tunable ?
+    view->mainPanel()->zoomIn(QRectF());
+  view->repaint();
 }
 
 void TuneableDataDisplay::changeColor(const QColor & col)
@@ -99,7 +126,7 @@ void TuneableDataDisplay::changeColor(const QColor & col)
   color = col;
   colorPickerButton->setIcon(solidColor(12, color));
   updateCurveColors();
-  view->update();
+  view->repaint();
 }
 
 void TuneableDataDisplay::promptChangeColor()

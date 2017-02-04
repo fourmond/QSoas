@@ -1,7 +1,7 @@
 /**
    \file parametersviewer.hh
    Display of fit parameters along the perpendicular coordinate
-   Copyright 2014 by CNRS/AMU
+   Copyright 2014, 2017 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 class DataSet;
 class FitWorkspace;
 class CurveView;
+class TuneableDataDisplay;      // that's not a very nice name...
 class CurvePoints;
 
 /// This class handles all the user interaction during fits.
@@ -37,12 +38,7 @@ class ParametersViewer : public QDialog {
 private:
 
   /// The list of checkboxes for the parameters.
-  QList<QCheckBox *> parametersBoxes;
-
-  /// Grouping all the parameter checkboxes
-  ///
-  /// Could also be done using QSignalMapper
-  QButtonGroup * checkBoxes;
+  QList<TuneableDataDisplay *> parametersDisplays;
 
   /// The view !
   CurveView * view;
@@ -50,14 +46,10 @@ private:
   /// The perpendicular coordinates
   Vector perpendicularCoordinates;
 
-  /// The CurvePoints objects used to display the parameters together
-  /// with the errors.
-  QList<CurvePoints *> finalDisplay;
-
   /// The fit parameters
   FitWorkspace * parameters;
 
-  void makeDatasets();
+  void makePerpendicularCoordinates();
   void setupFrame();
 
 public:
@@ -65,8 +57,6 @@ public:
   ~ParametersViewer();
 
 protected slots:
-
-  void parameterChecked(int idx);
 
   void pushVisible();
 

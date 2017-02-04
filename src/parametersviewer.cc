@@ -1,6 +1,6 @@
 /*
   parametersviewer.cc: Implementation of the parameters viewer
-  Copyright 2014 by CNRS/AMU
+  Copyright 2014, 2017 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #include <curvepanel.hh>
 
 #include <xyiterable.hh>
+#include <tuneabledatadisplay.hh>
 
 #include <soas.hh>
 #include <graphicssettings.hh>
@@ -45,7 +46,7 @@ ParametersViewer::ParametersViewer(FitWorkspace * params) :
   parameters(params)
 {
   resize(viewerSize);
-  makeDatasets();
+  makePerpendicularCoordinates();
   setupFrame();
 }
 
@@ -54,7 +55,7 @@ ParametersViewer::~ParametersViewer()
   viewerSize = size();
 }
 
-void ParametersViewer::makeDatasets() // Not well named anymore
+void ParametersViewer::makePerpendicularCoordinates()
 {
   perpendicularCoordinates = parameters->perpendicularCoordinates;
   int nbds = parameters->data()->datasets.size();
@@ -72,8 +73,6 @@ void ParametersViewer::setupFrame()
   view = new CurveView;
   layout->addWidget(view, 1);
 
-  checkBoxes = new QButtonGroup(this);
-  checkBoxes->setExclusive(false);
   FlowingGridLayout * ml = new FlowingGridLayout;
   layout->addLayout(ml);        // I prefer to add afterwards, but it
                                 // sometimes means loads of unmanaged
@@ -82,26 +81,23 @@ void ParametersViewer::setupFrame()
 
   int nbparams = parameters->data()->parametersPerDataset();
   for(int i = 0; i < nbparams; i++) {
-    CurvePoints * cds = new
-      CurvePoints(new XYIGSLVectors(perpendicularCoordinates.toGSLVector(),
-                                    parameters->parameterVector(i),
-                                    parameters->errorVector(i)));
+    QColor color = soas().graphicsSettings().dataSetPen(i).color();
+    TuneableDataDisplay * tdd =
+      new TuneableDataDisplay(parameters->parameterName(i),
+                              view, i != nbparams-1, color);
+    
+    CurvePoints * cds =
+      tdd->addSource(new XYIGSLVectors(perpendicularCoordinates.toGSLVector(),
+                                       parameters->parameterVector(i),
+                                       parameters->errorVector(i)));
     cds->relativeErrorBar = true;
-    finalDisplay << cds;
-    cds->pen = soas().graphicsSettings().dataSetPen(i);
-    cds->brush = cds->pen.color();
+    cds->pen = color;
+    cds->brush = color;
+    cds->size = 5;              /// @todo make that customizable
     cds->countBB = true;
-    QCheckBox * cb = new QCheckBox(parameters->parameterName(i));
-    parametersBoxes << cb;
-    checkBoxes->addButton(cb, i);
-    ml->addWidget(cb);
-    view->addItem(cds);
-    bool on = (i == nbparams-1);
-    cds->hidden = !on;
-    cb->setChecked(on);
-  }
 
-  connect(checkBoxes, SIGNAL(buttonClicked(int)), SLOT(parameterChecked(int)));
+    ml->addWidget(tdd);
+  }
 
   // Then, bottom line with buttons...
   QHBoxLayout * bl = new QHBoxLayout;
@@ -121,13 +117,6 @@ void ParametersViewer::setupFrame()
   bt = new QPushButton("Close");
   bl->addWidget(bt);
   connect(bt, SIGNAL(clicked()), SLOT(accept()));
-}
-
-void ParametersViewer::parameterChecked(int idx)
-{
-  finalDisplay[idx]->hidden = !finalDisplay[idx]->hidden;
-  view->mainPanel()->zoomIn(QRectF());
-  view->repaint();
 }
 
 void ParametersViewer::pushVisible()

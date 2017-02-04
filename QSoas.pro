@@ -303,7 +303,8 @@ SOURCES += src/qmain.cc \
         src/datastackhelper.cc \
         src/icons.cc \
         src/curvepoints.cc \
-        src/xyiterable.cc
+        src/xyiterable.cc \
+        src/tuneabledatadisplay.cc
 
 
 HEADERS += src/headers.hh \
@@ -420,7 +421,8 @@ HEADERS += src/headers.hh \
         src/datastackhelper.hh \
         src/icons.hh \
         src/curvepoints.hh \
-        src/xyiterable.hh
+        src/xyiterable.hh \
+        src/tuneabledatadisplay.hh
 
 
 

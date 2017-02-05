@@ -139,6 +139,8 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
 FitDialog::~FitDialog()
 {
   fitDialogSize = size();
+  if(parametersViewer)
+    delete parametersViewer;
 }
 
 void FitDialog::message(const QString & str)
@@ -1309,8 +1311,9 @@ void FitDialog::showTransposed()
 
 void FitDialog::showParameters()
 {
-  ParametersViewer dlg(&parameters);
-  dlg.exec();
+  if(! parametersViewer)
+    parametersViewer = new ParametersViewer(&parameters);
+  parametersViewer->show();
 }
 
 void FitDialog::parametersSpreadsheet()

@@ -30,6 +30,7 @@ class FitData;
 class CurveView;
 class FitParameterEditor;
 class DataSet;
+class ParametersViewer;
 
 class NupWidget;
 
@@ -144,6 +145,10 @@ class FitDialog : public QDialog {
 
   /// Selection of the fit engines...
   QComboBox * fitEngineSelection;
+
+
+  /// A (guarded) pointer to the ParametersViewer
+  QPointer<ParametersViewer> parametersViewer;
 
 
 protected:

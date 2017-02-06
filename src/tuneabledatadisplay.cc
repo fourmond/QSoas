@@ -116,8 +116,8 @@ void TuneableDataDisplay::toggleDisplay(int display)
     checkBox->setCheckState(state);
   
   // Schedule a repaint
-  if(bbCounts())            /// @todo Maybe this should be tunable ?
-    view->mainPanel()->zoomIn(QRectF());
+  // if(bbCounts())            /// @todo Maybe this should be tunable ?
+  //   view->mainPanel()->zoomIn(QRectF());
   view->repaint();
 }
 

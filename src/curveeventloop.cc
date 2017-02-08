@@ -93,7 +93,7 @@ void CurveEventLoop::processInputEvent(QInputEvent * ie)
 
 void CurveEventLoop::processMouseEvent(QMouseEvent * event)
 {
-  pos = event->pos();
+  pos = view->mapFromGlobal(event->globalPos());
   bt = event->button();
   updateMessage();
 }

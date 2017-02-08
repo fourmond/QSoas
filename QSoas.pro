@@ -6,7 +6,7 @@ TEMPLATE = app
 CONFIG += debug warn_on thread exception
 
 ! contains(QT_MAJOR_VERSION, 4) {
-  error("QSoas only works with Qt version 4 at the moment")
+  warning("QSoas seems to work with Qt5, probably with quite a few glitches, though")
 }
 
 

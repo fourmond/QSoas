@@ -50,6 +50,13 @@ public:
     //   << " -> event :" << event->type() << endl;
     
     try {
+      // We override keyboard shortcuts within QLineEdit, those are
+      // rather painful.
+      if(event->type() == QEvent::ShortcutOverride &&
+         dynamic_cast<QLineEdit*>(receiver)) {
+        event->ignore();
+        return false;
+      }
       return QApplication::notify(receiver, event);
     } 
     catch(Exception & e) {

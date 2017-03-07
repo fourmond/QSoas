@@ -413,6 +413,23 @@ k_mhc_z("k_mhc_z(lambda, eta)", "Approximation to the Marcus-Hush-Chidsey "
         "{4\\lambda}\\right) \\times "
         "\\frac{1}{1 + \\exp x}\\,\\mathrm{d}x$$", "http://dx.doi.org/10.1016/j.jelechem.2014.09.038");
 
+
+
+// Incomplete gamma functions
+
+static GSLDoubleFunction<gsl_sf_gamma_inc> 
+gamma_inc("gamma_inc(a,x)", "Incomplete gamma function $$\\Gamma(a,x) = \\int_x^\\infty dt t^{a-1} \exp(-t)$$",
+           "https://www.gnu.org/software/gsl/manual/html_node/Incomplete-Gamma-Functions.html");
+
+static GSLDoubleFunction<gsl_sf_gamma_inc_Q> 
+gamma_inc_q("gamma_inc_q(a,x)", "Normalized incomplete gamma function $$\\Gamma_Q(a,x) = \\frac{1}{\\Gamma(a)}\\int_x^\\infty dt t^{a-1} \exp(-t)$$",
+           "https://www.gnu.org/software/gsl/manual/html_node/Incomplete-Gamma-Functions.html");
+
+static GSLDoubleFunction<gsl_sf_gamma_inc_P> 
+gamma_inc_p("gamma_inc_p(a,x)", "Complementary normalized incomplete gamma function $$\\Gamma_P(a,x) = 1 - \\Gamma_Q(a,x) = 1 - \\frac{1}{\\Gamma(a)}\\int_x^\\infty dt t^{a-1} \exp(-t)$$",
+           "https://www.gnu.org/software/gsl/manual/html_node/Incomplete-Gamma-Functions.html");
+
+
 //////////////////////////////////////////////////////////////////////
 
 template < double (*func)(double, double, double) > class GSLTripleFunction : 

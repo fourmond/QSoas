@@ -32,6 +32,8 @@
 #include <utils.hh>
 #include <debug.hh>
 
+#include <gsl/gsl_sf.h>
+
 /// @todo Implement a command-line interface to handle fits.
 /// 
 /// @li this means implementing @b contexts for commands, most
@@ -418,6 +420,16 @@ void FitWorkspace::computeResiduals()
   overallRelativeResiduals = sqrt(tr/td);
 }
 
+double FitWorkspace::goodnessOfFit() const
+{
+  if(! fitData->standardYErrors)
+    return -1;                  // No goodness-of-fit if no errors
+
+  double chi = fitData->weightedSquareSum(fitData->storage, true);
+  // Formula from Numerical Recipes, chapter 15
+  return gsl_sf_gamma_inc_Q(0.5 * fitData->doF(), 0.5 * chi);
+}
+
 QList<Vector> FitWorkspace::computeSubFunctions()
 {
   QList<Vector> ret;
@@ -592,6 +604,19 @@ template <typename T> void FitWorkspace::writeText(T & target,
   double conf = fitData->confidenceLimitFactor(0.975);
   // First, write out global parameters.
   bool hasGlobal = false;
+
+  // Writing down the goodness of fit
+
+  double chi = fitData->weightedSquareSum(fitData->storage, true);
+  target << prefix
+         << (fitData->standardYErrors ? "Chi-squared" : "Residuals: ")
+         << chi << endl;
+
+  
+  double gof = goodnessOfFit();
+  if(gof >= 0)
+    target << prefix << "Chi-squared goodness of fit: " << gof << endl;
+
   for(int i = 0; i < nbParameters; i++) {
     if(isGlobal(i)) {
       if(! hasGlobal) {

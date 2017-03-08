@@ -267,6 +267,12 @@ public:
     return fitData;
   };
 
+  /// This function returns the chi-squared goodness of fit.
+  ///
+  /// This function depends on error vectors, it will return 0 if they
+  /// are not available.
+  double goodnessOfFit() const;
+
 
   /// @name Commodity accessors
   ///

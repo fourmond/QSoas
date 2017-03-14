@@ -793,14 +793,14 @@ void FitDialog::pushSubFunctions()
 }
 
                 
-void FitDialog::pushSimulatedCurves(const QStringList & flags)
+void FitDialog::pushSimulatedCurves()
 {
-  parameters.pushComputedData(flags);
+  parameters.pushComputedData();
 }
 
 void FitDialog::pushResiduals()
 {
-  parameters.pushComputedData(QStringList(), true);
+  parameters.pushComputedData(true);
 }
 
 void FitDialog::pushCurrentCurve()

@@ -40,6 +40,8 @@
 #include <terminal.hh>
 #include <debug.hh>
 
+#include <datastackhelper.hh>
+
 static Group fits("fits", 0,
                   "Fits",
                   "Fitting of data");
@@ -319,15 +321,17 @@ void Fit::makeCommands(ArgumentList * args,
                                          "flags", 
                                          "Flags",
                                          "Flags to set on the created buffers")
+           << DataStackHelper::helperOptions()
            << new ChoiceArgument(QStringList() 
+                                 << "annotate"
                                  << "compute"
                                  << "jacobian"
                                  << "reexport",
                                  "operation", 
                                  "What to do",
                                  "Whether to just compute the function, "
-                                 "the full jacobian or reexport parameters "
-                                 "with errors")
+                                 "the full jacobian, reexport parameters "
+                                 "with errors or just annotate datasets")
 
       ;
     new Command((const char*)(QString("sim-") + name).toLocal8Bit(),
@@ -510,7 +514,8 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
                      QList<const DataSet *> datasets,
                      const CommandOptions & opts)
 {
-
+  DataStackHelper pusher(opts);
+  
   if(datasets.size() == 0)
     throw RuntimeError("No buffers for computing");
 
@@ -588,8 +593,12 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
     ws.prepareFit();
     ws.computeAndPushJacobian();
   }
-  else    
-    ws.pushComputedData(flags);
+  else if(what == "annotate") {
+    Terminal::out << "Computing and exporting the jacobian " << endl;
+  }
+  else {
+    ws.pushComputedData(false, &pusher);
+  }
 }
 
 

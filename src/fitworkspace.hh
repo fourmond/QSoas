@@ -35,6 +35,7 @@ class FitParametersFile;
 
 class CurveData;
 class DataSet;
+class DataStackHelper;
 
 /// Holds parameters of a fit (possibly multi-buffer), the way the
 /// user edits them. In fact, it holds essentially all that is
@@ -325,10 +326,17 @@ public:
   DataSet * computedData(int i, bool residuals = false);
 
   /// Push computed datasets onto the stack
-  void pushComputedData(const QStringList & flags, bool res = false);
+  ///
+  /// @todo This should be interfaced with DataStackHelper
+  void pushComputedData(bool residuals = false, DataStackHelper * help = NULL);
 
   /// Computes and push the jacobian matrix to the stack
   void computeAndPushJacobian();
+
+  /// Push computed the original datasets, annotated with parameters
+  ///
+  /// @todo This should be interfaced with DataStackHelper
+  void pushAnnotatedData(const QStringList & flags, bool res = false);
 
   /// @}
 

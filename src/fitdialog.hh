@@ -226,7 +226,7 @@ public slots:
                           bool recompute = true, bool onlyVals = false);
 
   /// Add all simulated datasets to the data stack
-  void pushSimulatedCurves(const QStringList & flags = QStringList());
+  void pushSimulatedCurves();
 
   /// Adds all the residuals to the data stack
   void pushResiduals();

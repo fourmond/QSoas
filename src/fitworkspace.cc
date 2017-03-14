@@ -32,6 +32,8 @@
 #include <utils.hh>
 #include <debug.hh>
 
+#include <datastackhelper.hh>
+
 #include <gsl/gsl_sf.h>
 
 /// @todo Implement a command-line interface to handle fits.
@@ -461,13 +463,14 @@ DataSet *  FitWorkspace::computedData(int i, bool residuals)
   return ds;
 }
 
-void FitWorkspace::pushComputedData(const QStringList & flags, bool res)
+void FitWorkspace::pushComputedData(bool residuals, DataStackHelper * help)
 {
   for(int i = 0; i < datasets; i++) {
-    DataSet * ds = computedData(i, res);
-    if(flags.size() > 0)
-      ds->setFlags(flags);
-    soas().pushDataSet(ds);
+    DataSet * ds = computedData(i, residuals);
+    if(help)
+      *help << ds;
+    else
+      soas().pushDataSet(ds);
   }
 }
 

@@ -594,7 +594,8 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
     ws.computeAndPushJacobian();
   }
   else if(what == "annotate") {
-    Terminal::out << "Computing and exporting the jacobian " << endl;
+    Terminal::out << "Annotating datasets " << endl;
+    ws.pushAnnotatedData(&pusher);
   }
   else {
     ws.pushComputedData(false, &pusher);

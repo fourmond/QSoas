@@ -228,6 +228,9 @@ public slots:
   /// Add all simulated datasets to the data stack
   void pushSimulatedCurves();
 
+  /// Add annotated datasets to the data stack
+  void pushAnnotatedData();
+
   /// Adds all the residuals to the data stack
   void pushResiduals();
 

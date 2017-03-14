@@ -323,6 +323,7 @@ void FitDialog::setupFrame()
   ActionCombo * ac = new ActionCombo(tr("Data..."));
   ac->addAction("Push all to stack", this, SLOT(pushSimulatedCurves()));
   ac->addAction("Push current to stack", this, SLOT(pushCurrentCurve()));
+  ac->addAction("Push annotated datasets", this, SLOT(pushAnnotatedData()));
   ac->addAction("Save all", this, SLOT(saveSimulatedCurves()));
   ac->addAction("Push all residuals to stack", this, SLOT(pushResiduals()));
 
@@ -796,6 +797,11 @@ void FitDialog::pushSubFunctions()
 void FitDialog::pushSimulatedCurves()
 {
   parameters.pushComputedData();
+}
+
+void FitDialog::pushAnnotatedData()
+{
+  parameters.pushAnnotatedData();
 }
 
 void FitDialog::pushResiduals()

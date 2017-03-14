@@ -444,7 +444,7 @@ QList<Vector> FitWorkspace::computeSubFunctions()
   return ret;
 }
 
-DataSet *  FitWorkspace::computedData(int i, bool residuals)
+DataSet * FitWorkspace::computedData(int i, bool residuals)
 {
   const DataSet * base = fitData->datasets[i];
   gsl_vector_view v =  fitData->viewForDataset(i, fitData->storage);
@@ -474,6 +474,26 @@ void FitWorkspace::pushComputedData(bool residuals, DataStackHelper * help)
   }
 }
 
+void FitWorkspace::pushAnnotatedData(DataStackHelper * help)
+{
+  for(int i = 0; i < datasets; i++) {
+    const DataSet * base = fitData->datasets[i];
+    DataSet * ds =
+      base->derivedDataSet(base->y(), "_fit_" + fitName(false) + ".dat");
+
+    ds->setMetaData("fit", fitName());
+    QHash<QString, double> params = parametersForDataset(i);
+    for(QHash<QString, double>::iterator i = params.begin(); 
+        i != params.end(); ++i)
+      ds->setMetaData(i.key(), i.value());
+    
+    
+    if(help)
+      *help << ds;
+    else
+      soas().pushDataSet(ds);
+  }
+}
 
 void FitWorkspace::sendDataParameters()
 {

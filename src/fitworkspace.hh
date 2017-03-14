@@ -336,7 +336,7 @@ public:
   /// Push computed the original datasets, annotated with parameters
   ///
   /// @todo This should be interfaced with DataStackHelper
-  void pushAnnotatedData(const QStringList & flags, bool res = false);
+  void pushAnnotatedData(DataStackHelper * help = NULL);
 
   /// @}
 

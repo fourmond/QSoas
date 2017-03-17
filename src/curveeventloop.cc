@@ -177,22 +177,25 @@ bool CurveEventLoop::eventFilter(QObject * obj, QEvent * event)
 {
   /// This function is only called during the event loop
 
+
+  QWidget * w = QApplication::focusWidget();
+
+  // QTextStream o(stdout);
   // o << "Event on " << obj 
   //   << " (" <<  obj->metaObject()->className()
   //   << ")\t" << event->type()
-  //   << " -- widget with focus: " << QApplication::focusWidget()
-  //   << " (" << QApplication::focusWidget()->metaObject()->className()
-  //   << ")" << endl;
+  //   << " -- widget with focus: " << w
+  //   << " (" << (w ? w->metaObject()->className() : "??")
+  //   << ")" << " -- pmpt: " << prompt << " -- view: " << view << endl;
 
-  QWidget * w = QApplication::focusWidget();
-  if(prompt) {
-    if(w != prompt)
-      prompt->setFocus();
-  }
-  else {                        // Brutal !
-    if(w != view)
-      view->setFocus();
-  }
+  // if(prompt) {
+  //   if(w != prompt)
+  //     prompt->setFocus();
+  // }
+  // else {                        // Brutal !
+  //   if(w != view)
+  //     view->setFocus();
+  // }
 
   switch(event->type()) {
   case QEvent::MouseButtonPress:

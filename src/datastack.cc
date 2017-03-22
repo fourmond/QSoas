@@ -356,6 +356,8 @@ qint32 DataStack::serializationVersion = 0;
 QDataStream & operator<<(QDataStream & out, const DataStack & stack)
 {
   qint32 v = -5;                // (negative) Current version
+  // We use Qt format 4.8 by default
+  out.setVersion(QDataStream::Qt_4_8);
   out << v;
   v = MAGIC;
   out << v;
@@ -375,6 +377,7 @@ QDataStream & operator<<(QDataStream & out, const DataStack & stack)
 QDataStream & operator>>(QDataStream & in, DataStack & stack)
 {
   qint32 nbDs;
+  in.setVersion(QDataStream::Qt_4_8);
   in >> nbDs;
 
   // Versioning !

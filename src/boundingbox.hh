@@ -41,12 +41,13 @@ public:
   BoundingBox();
   
   BoundingBox(const QPointF & bottomLeft, const QSizeF & size);
+
   BoundingBox(double x, double y, double width, double height);
   BoundingBox(const BoundingBox & bb);
 
   explicit BoundingBox(const QRectF & rect); // explicit to avoid troubles !
 
-  // operator QRectF() const;
+  operator QRectF() const;
 
   bool isNull() const;
   bool isPoint() const;

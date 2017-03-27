@@ -74,7 +74,7 @@ void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
     painter->drawPath(pp);
   }
 
-  if(paintMarkers || dataSet->options.shouldDrawMarkers(dataSet)) {
+  if(paintMarkers || dataSet->options.shouldDrawMarkers(dataSet) || dataSet->nbRows() <= 1) {
     PointIterator it(dataSet);
     while(it.hasNext())
       CurveMarker::paintMarker(painter, it.next(ctw),

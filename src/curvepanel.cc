@@ -30,6 +30,7 @@
 #include <utils.hh>
 #include <debug.hh>
 
+#include <boundingbox.hh>
 
 CurvePanel::CurvePanel() : 
   bgLinesPen(QColor("#DDD"), 1.5, Qt::DashLine),
@@ -50,13 +51,25 @@ CurvePanel::~CurvePanel()
 QRectF CurvePanel::currentZoom() const
 {
   // DO NOT USE isEmpty, as it will return false for NaN bounding boxes !
+  // QTextStream o(stdout);
   QRectF bbox = (zoom.isValid() ? zoom : boundingBox);
+  // o << "Zoom: ";
+  // Utils::dumpRectangle(o, zoom);
+  // o << "\nBB: ";
+  // Utils::dumpRectangle(o, boundingBox);
+  // o << "\nFinal: ";
+  // Utils::dumpRectangle(o, bbox);
+  // o << endl;
   if(xTracking) {
     QRectF trackedX = xTracking->currentZoom();
     bbox.setLeft(trackedX.left());
     bbox.setRight(trackedX.right());
   }
-  return Utils::sanitizeRectangle(bbox);
+  // o << "Final BB: ";
+  bbox = Utils::sanitizeRectangle(bbox);
+  // Utils::dumpRectangle(o, bbox);
+  // o << endl;                    
+  return bbox;
 }
 
 void CurvePanel::invalidateTicks()
@@ -106,15 +119,16 @@ QRectF CurvePanel::overallBB() const
 
 void CurvePanel::updateBB()
 {
-  boundingBox = QRectF();
+  BoundingBox bb;
   for(int i = 0; i < displayedItems.size(); i++) {
     CurveItem * item = displayedItems[i];
     if(item && item->countBB && ! item->hidden) {
-      QRectF itemBB = item->boundingRect();
+      BoundingBox itemBB = BoundingBox(item->boundingRect());
       if(! itemBB.isNull())     // This is what should count ?
-        boundingBox = Utils::uniteRectangles(boundingBox, itemBB);
+        bb.uniteWith(itemBB);
     }
   }
+  boundingBox = bb;
 }
 
 static double naturalDistances[] = { 1.0, 2.0, /*2.5,*/ 5.0, 10.0 };

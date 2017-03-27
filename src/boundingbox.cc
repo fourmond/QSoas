@@ -79,9 +79,23 @@ void BoundingBox::uniteWith(const BoundingBox & bbox)
 {
   if(bbox.isNull())
     return;                     // Nothing to do
-  lx = std::min(xMin(), bbox.xMin());
-  rx = std::max(xMax(), bbox.xMax());
 
-  by = std::min(yMin(), bbox.yMin());
-  ty = std::max(yMax(), bbox.yMax());
+  if(isNull()) {
+    lx = bbox.xMin();
+    rx = bbox.xMax();
+    by = bbox.yMin();
+    ty = bbox.yMax();
+  }
+  else {
+    lx = std::min(xMin(), bbox.xMin());
+    rx = std::max(xMax(), bbox.xMax());
+
+    by = std::min(yMin(), bbox.yMin());
+    ty = std::max(yMax(), bbox.yMax());
+  }
+}
+
+BoundingBox::operator QRectF() const
+{
+  return QRectF(lx, by, rx-lx, ty-by);
 }

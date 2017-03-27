@@ -178,6 +178,10 @@ namespace Utils {
                                                          Rect & r) {
     stream << r.x() << "," << r.y() << " to " 
            << r.x() + r.width() << "," << r.y() + r.height();
+    if(r.isNull())
+      stream << " (null)";
+    if(! r.isValid())
+      stream << " (invalid)";
   };
 
   /// Applies the margins \m to a rectangle \r (ie remove them),

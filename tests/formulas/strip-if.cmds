@@ -8,3 +8,11 @@ assert "$stats['x_max']==9"
 generate-buffer 0 10 /samples=3000
 strip-if "i % 3 == 0"
 assert "$stats['rows']==2000"
+
+generate-buffer 0 10 /samples=3000
+strip-if "i % 30 != 0" 
+assert "$stats['rows']<1000"
+
+generate-buffer 0 10 /samples=3000
+strip-if "i % 30 != 0" /threshold=1000
+assert "$stats['rows'] > 1000"

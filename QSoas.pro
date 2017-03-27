@@ -304,7 +304,8 @@ SOURCES += src/qmain.cc \
         src/icons.cc \
         src/curvepoints.cc \
         src/xyiterable.cc \
-        src/tuneabledatadisplay.cc
+        src/tuneabledatadisplay.cc \
+        src/boundingbox.cc
 
 
 HEADERS += src/headers.hh \
@@ -422,7 +423,8 @@ HEADERS += src/headers.hh \
         src/icons.hh \
         src/curvepoints.hh \
         src/xyiterable.hh \
-        src/tuneabledatadisplay.hh
+        src/tuneabledatadisplay.hh \
+        src/boundingbox.hh
 
 
 

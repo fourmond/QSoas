@@ -157,6 +157,8 @@ static void stripIfCommand(const QString &, QString formula,
   updateFromOptions(opts, "use-stats", ex.useStats);
   ex.useMeta = true;
   updateFromOptions(opts, "use-meta", ex.useMeta);
+  int threshold = 0;
+  updateFromOptions(opts, "threshold", threshold);
 
   int argSize = ex.dataSetParameters().size();
 
@@ -186,7 +188,12 @@ static void stripIfCommand(const QString &, QString formula,
   nds->segments = segs;
 
   Terminal::out << "Removed " << dropped << " points" << endl;
-  soas().pushDataSet(nds);
+  if(nds->nbRows() < threshold) {
+    Terminal::out << "-> only " << nds->nbRows() << " points left, not creating a new dataset" << endl;
+    delete nds;
+  }
+  else
+    soas().pushDataSet(nds);
 }
 
 static ArgumentList 
@@ -198,6 +205,10 @@ siO(QList<Argument *>()
                         "Use meta-data",
                         "if on (by default), you can use `$meta` to refer to "
                         "the dataset meta-data")
+    << new IntegerArgument("threshold",
+                           "Threshold for creating new datasets",
+                           "If the stripping operation leaves less than that many points, do not create a new dataset")
+                         
     );
 
 

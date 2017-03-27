@@ -4,5 +4,5 @@ timer
 run-for-each run-directory-tests.cmds */tests.cmds
 assert /dump=summary all
 # If there is an argument to the file, write down the summary to the file
-${1?assert:nop} /dump=details ${1:-xx}
+${1?assert:noop} /dump=details ${1:-xx}
 timer

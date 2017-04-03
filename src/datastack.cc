@@ -352,10 +352,11 @@ qint32 DataStack::serializationVersion = 0;
 
 
 #define MAGIC 0xFF342210
+#define CURRENT_STACK_VERSION 5
 
 QDataStream & operator<<(QDataStream & out, const DataStack & stack)
 {
-  qint32 v = -5;                // (negative) Current version
+  qint32 v = -CURRENT_STACK_VERSION; // (negative) Current version
   // We use Qt format 4.8 by default
   out.setVersion(QDataStream::Qt_4_8);
   out << v;
@@ -381,13 +382,16 @@ QDataStream & operator>>(QDataStream & in, DataStack & stack)
   in >> nbDs;
 
   // Versioning !
-  if(nbDs >= 0)
-    DataStack::serializationVersion = 0;
+  if(nbDs >= 0 || nbDs < -CURRENT_STACK_VERSION)
+    throw RuntimeError("Bad signature for stack file '%1', or "
+                       "very very very old stack file, aborting").
+      arg(Utils::fileName(in));
   else {
     DataStack::serializationVersion = -nbDs;
     in >> nbDs;
     if(nbDs != MAGIC)
-      throw RuntimeError("Bad signature for stack file, aborting");
+      throw RuntimeError("Bad signature for stack file '%1', aborting").
+      arg(Utils::fileName(in));
     in >> nbDs;
   }
 

@@ -292,6 +292,10 @@ namespace Utils {
   /// suitable other string describing the stream.
   QString fileName(const QIODevice * device);
 
+
+  /// Same thing, but with a QDataStream
+  QString fileName(const QDataStream & stream);
+
   /// @}
 
 

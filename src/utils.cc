@@ -343,6 +343,11 @@ QString Utils::fileName(const QIODevice * device)
   return "(device)";
 }
 
+QString Utils::fileName(const QDataStream & stream)
+{
+  return Utils::fileName(stream.device());
+}
+
 
 bool Utils::confirmOverwrite(const QString & fileName, bool silent)
 {

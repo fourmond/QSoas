@@ -25,6 +25,8 @@
 #include <valuehash.hh>
 
 
+class Vector;
+
 /// A general-purpose text files reader.
 class TextBackend : public DataBackend {
 protected:
@@ -44,6 +46,11 @@ protected:
                                    const CommandOptions & opts) const;
 
   virtual ValueHash parseComments(const QStringList & cmts) const;
+
+
+  virtual QList<QList<Vector> > readColumns(QTextStream & s,
+                                            const CommandOptions & opts,
+                                            QStringList * comments) const;
 public:
   TextBackend(const QString & sep,
               const char * n, const char * pn, const char * d = "");

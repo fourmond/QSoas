@@ -150,9 +150,10 @@ ValueHash TextBackend::parseComments(const QStringList & comments) const
   return meta;
 }
 
-QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
-                                             const QString & fileName,
-                                             const CommandOptions & opts) const
+
+QList<QList<Vector> > TextBackend::readColumns(QTextStream & s,
+                                               const CommandOptions & opts,
+                                               QStringList * cmts) const
 {
   Regex sep = separator;
   updateFromOptions(opts, "separator", sep);
@@ -163,14 +164,24 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
   QString dSep;
   updateFromOptions(opts, "decimal", dSep);
 
-  QList<int> cols;
-  updateFromOptions(opts, "columns", cols);
-
   int skip = 0;
   updateFromOptions(opts, "skip", skip);
 
   bool autoSplit = false;
   updateFromOptions(opts, "auto-split", autoSplit);
+
+  return Vector::readFromStream(&s, sep.toQRegExp(), 
+                                 cmt.toQRegExp(), autoSplit, dSep,
+                                 QRegExp("^\\s*$"), cmts, skip);
+}
+
+QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
+                                             const QString & fileName,
+                                             const CommandOptions & opts) const
+{
+
+  QList<int> cols;
+  updateFromOptions(opts, "columns", cols);
 
   /// @todo implement comments / header parsing... BTW, maybe
   /// Vector::readFromStream could be more verbose about the nature of
@@ -183,11 +194,7 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
 
   QStringList comments;
 
-  QList<QList<Vector> > allColumns = 
-    Vector::readFromStream(&s, sep.toQRegExp(), 
-                           cmt.toQRegExp(), autoSplit, dSep,
-                           QRegExp("^\\s*$"), &comments, skip);
-
+  QList<QList<Vector> > allColumns = readColumns(s, opts, &comments);
   ValueHash meta = parseComments(comments);
 
   QList<DataSet *> ret;
@@ -229,20 +236,71 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
   return ret;
 }
 
-
-
-
-
-/// @todo This is not a real CSV backend, as it will not parse
-/// properly files with quoted text that contains delimiters.
-TextBackend csv("/\\s*[;,]\\s*/",
-                "csv",
-                "CSV files",
-                "Backend to read CSV files");
-
-
 TextBackend text("/\\s+/",
                  "text",
                  "Text files",
                  "Backend to read plain text files");
+
+//////////////////////////////////////////////////////////////////////
+
+class CSVBackend : public TextBackend {
+protected:
+
+  static QStringList splitCSVLine(const QString &s,
+                                  QRegExp & re, QChar quote) {
+    return s.split(re);
+    // return QStringList();
+  };
+  
+  virtual QList<QList<Vector> > readColumns(QTextStream & s,
+                                            const CommandOptions & opts,
+                                            QStringList * cmts) const {
+
+    Regex sep = separator;
+    updateFromOptions(opts, "separator", sep);
+
+    Regex cmt = comments;
+    updateFromOptions(opts, "comments", cmt);
+
+    QString dSep;
+    updateFromOptions(opts, "decimal", dSep);
+
+    int skip = 0;
+    updateFromOptions(opts, "skip", skip);
+
+    bool autoSplit = false;
+    updateFromOptions(opts, "auto-split", autoSplit);
+
+    QRegExp sp = sep.toQRegExp();
+    QChar quote = '"';
+
+    return
+      Vector::readFromStream(&s,
+                             [&quote, &sp](const QString & str) -> QStringList {
+                               return splitCSVLine(str, sp, quote);
+                             }, 
+                             cmt.toQRegExp(), autoSplit, dSep,
+                             QRegExp("^\\s*$"), cmts, skip);
+  };
+  
+  virtual ArgumentList * loadOptions() const {
+    ArgumentList * al = new ArgumentList(*TextBackend::loadOptions());
+    return al;
+  };
+
+public:
+  CSVBackend(const QString & sep,
+             const char * n, const char * pn, const char * d = "") :
+    TextBackend(sep, n, pn, d)
+  {
+    comments = Regex("/^#/");  // We don't want to potentially comment out every single line that starts with a quote !
+  };
+  
+};
                 
+
+
+CSVBackend csv("/[;,]/",
+               "csv",
+               "CSV files",
+               "Backend to read CSV files");

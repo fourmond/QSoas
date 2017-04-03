@@ -28,7 +28,7 @@
 #include <linereader.hh>
 
 QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
-                                             const QRegExp & separatorREt,
+                                             std::function<QStringList (const QString &)> splitter,
                                              const QRegExp & commentREt,
                                              bool splitOnBlank,
                                              const QString & decimalSep,
@@ -42,7 +42,6 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
 
   QList<Vector> * curCols = &retval.first();
   int lineNumber = 0;
-  QRegExp separatorRE(separatorREt);
   QRegExp commentRE(commentREt);
   QRegExp blankLineRE(blankREt);
 
@@ -72,7 +71,7 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
     /// @todo A manual split would be much much faster (no memory
     /// allocation). I think DVector::fast_fancy_read greatly
     /// outperforms this, but well...
-    QStringList elements = line.trimmed().split(separatorRE);
+    QStringList elements = splitter(line.trimmed());
     /// @todo customize trimming.
     while(curCols->size() < elements.size()) {
       *curCols << Vector(numberRead, 0.0/0.0);
@@ -112,6 +111,23 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
   //   retVal[i].squeeze();
 
   return retval;
+}
+
+QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
+                                             const QRegExp & separatorREt,
+                                             const QRegExp & commentREt,
+                                             bool splitOnBlank,
+                                             const QString & decimalSep,
+                                             const QRegExp & blankREt,
+                                             QStringList * comments,
+                                             int skip)
+{
+  QRegExp separatorRE(separatorREt);
+  return Vector::readFromStream(source,
+                                [&separatorRE](const QString & str) -> QStringList {
+                                  return str.split(separatorRE);
+                                }, commentREt, splitOnBlank,
+                                decimalSep, blankREt, comments, skip);
 }
 
 QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
@@ -611,7 +627,7 @@ void Vector::applyFunction(const std::function<double (double)> & func)
 {
   int sz = size();
   double * d = data();
-  for(int i = 0; i < size(); ++i, ++d)
+  for(int i = 0; i < sz; ++i, ++d)
     *d = func(*d);
 }
 

@@ -247,13 +247,25 @@ public:
                      int precision = -1, const QChar & fillChar = QLatin1Char( ' ' ))const;
 
   /// Reads textual data from a file.
-  /// \li separator is specified by the regular expression
+  /// \li the splitting of each line into fields is done by the
+  /// splitter function
   /// \li comment lines are those that match \p commentRE. They are stored
   /// in \p comments when not NULL.
   /// \li if splitOnBlank is true, then a new list of vectors is built for
   /// every time a blank line is found.
   ///
   /// @todo Quite a lot of things to improve here.
+  static QList<QList<Vector> > readFromStream(QTextStream * source,
+                                              std::function<QStringList (const QString &)> splitter,
+                                              const QRegExp & commentRE,
+                                              bool splitOnBlank = false,
+                                              const QString & decimalSep = QString(),
+                                              const QRegExp & blankRE = QRegExp("^\\s*$"),
+                                              QStringList * comments = NULL,
+                                              int skip = 0);
+
+  /// Convenience overload in which the splitting is done by the
+  /// separator regexp
   static QList<QList<Vector> > readFromStream(QTextStream * source,
                                               const QRegExp & separatorRE,
                                               const QRegExp & commentRE,

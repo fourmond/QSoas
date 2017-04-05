@@ -31,15 +31,18 @@
 #include <exceptions.hh>
 
 
-TextBackend::TextBackend(const QString & sep,
-                         const char * n, const char * pn, const char * d) : 
-  DataBackend(n, pn, d), separator(sep), comments("{text-line}") {
-}
-
-int TextBackend::couldBeMine(const QByteArray & peek, 
-                             const QString & /*fileName*/) const
+static void countChars(const QByteArray & peek,
+                       int & nbSpaces,
+                       int & nbZeros,
+                       int & nbSpecials,
+                       int & nbRet,
+                       int & nbQuotes)
 {
-  int nbSpaces = 0, nbZeros = 0, nbSpecials = 0, nbRet = 0;
+  nbSpaces = 0;
+  nbZeros = 0;
+  nbSpecials = 0;
+  nbRet = 0;
+  nbQuotes = 0;
   bool lastRet = false;
   for(int i = 0; i < peek.size(); i++) {
     unsigned char c = peek[i];
@@ -52,6 +55,11 @@ int TextBackend::couldBeMine(const QByteArray & peek,
     case '\t':
       lastRet = false;
       nbSpaces++;
+      break;
+    case '"':
+    case '\'':
+      lastRet = false;
+      nbQuotes++;
       break;
     case '\r': // ignoring that guy, especially useful for things
                // coming from windows.
@@ -69,6 +77,18 @@ int TextBackend::couldBeMine(const QByteArray & peek,
       lastRet = false;
     }
   }
+}
+
+TextBackend::TextBackend(const QString & sep,
+                         const char * n, const char * pn, const char * d) : 
+  DataBackend(n, pn, d), separator(sep), comments("{text-line}") {
+}
+
+int TextBackend::couldBeMine(const QByteArray & peek, 
+                             const QString & /*fileName*/) const
+{
+  int nbSpaces = 0, nbZeros = 0, nbSpecials = 0, nbRet = 0, nbQuotes;
+  countChars(peek, nbSpaces, nbZeros, nbSpecials, nbRet, nbQuotes);
   if(nbSpecials > peek.size()/100)
     return 0;                   // Most probably not
   QTextCodec * cd = Utils::autoDetectCodec(peek);
@@ -248,8 +268,50 @@ protected:
 
   static QStringList splitCSVLine(const QString &s,
                                   QRegExp & re, QChar quote) {
-    return s.split(re);
-    // return QStringList();
+    QStringList fields;
+    int cur = 0;
+    int size = s.size();
+
+    while(cur < size) {
+      if(s[cur] == quote) {     // a quoted field
+        int ci = cur+1;         // just after the quote
+        QString field;
+        while(true) {
+          int nxt = s.indexOf(quote, ci);
+          if(nxt < 0) 
+            nxt = size;
+          field += s.mid(ci, nxt-ci);
+          ci = nxt+1;
+          if(ci >= size)
+            break;
+          if(s[ci] == quote) {
+            field += quote;
+            ++ci;
+          }
+          else
+            break;
+        }
+        if(ci < size) {
+          int idx = re.indexIn(s, ci);
+          if(idx < 0)
+            idx = size;
+          field += s.mid(ci, idx-ci);
+          ci = idx + re.matchedLength();
+        }
+        fields << field;
+        cur = ci;
+      }
+      else {
+        int idx = re.indexIn(s, cur);
+        if(idx < 0)
+          idx = size;
+        fields << s.mid(cur, idx - cur);
+        cur = idx + re.matchedLength();
+      }
+    }
+    // QTextStream o(stdout);
+    // o << "'" << fields.join("', '") << "'" << endl;
+    return fields;
   };
   
   virtual QList<QList<Vector> > readColumns(QTextStream & s,

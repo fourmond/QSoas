@@ -277,7 +277,7 @@ protected:
     return
       Vector::readFromStream(&s,
                              [&quote, &sp](const QString & str) -> QStringList {
-                               return splitCSVLine(str, sp, quote);
+                               return CSVBackend::splitCSVLine(str, sp, quote);
                              }, 
                              cmt.toQRegExp(), autoSplit, dSep,
                              QRegExp("^\\s*$"), cmts, skip);

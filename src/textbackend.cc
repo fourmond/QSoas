@@ -296,7 +296,7 @@ protected:
           if(idx < 0)
             idx = size;
           field += s.mid(ci, idx-ci);
-          ci = idx + re.matchedLength();
+          ci = idx + std::max(re.matchedLength(), 0);
         }
         fields << field;
         cur = ci;
@@ -306,7 +306,7 @@ protected:
         if(idx < 0)
           idx = size;
         fields << s.mid(cur, idx - cur);
-        cur = idx + re.matchedLength();
+        cur = idx + std::max(re.matchedLength(), 0);
       }
     }
     // QTextStream o(stdout);
@@ -338,7 +338,7 @@ protected:
 
     return
       Vector::readFromStream(&s,
-                             [&quote, &sp](const QString & str) -> QStringList {
+                             [&quote, &sp, this](const QString & str) -> QStringList {
                                return CSVBackend::splitCSVLine(str, sp, quote);
                              }, 
                              cmt.toQRegExp(), autoSplit, dSep,

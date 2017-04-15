@@ -54,17 +54,22 @@ FitEngineFactoryItem * FitEngine::namedFactoryItem(const QString & name)
 FitEngineFactoryItem * FitEngine::defaultFactoryItem(int nb)
 {
   // For now, it fails on mac, so we don't use it.
+  FitEngineFactoryItem * it;
   if(nb < 4) {
-    FitEngineFactoryItem * it = namedFactoryItem("odrpack");
+     it = namedFactoryItem("odrpack");
     if(it)
       return it;
   }
   if(nb > 20) {
-    FitEngineFactoryItem * it = namedFactoryItem("multi");
+    it = namedFactoryItem("multi");
     if(it)
       return it;
   }
-  return namedFactoryItem("qsoas"); 
+  it = namedFactoryItem("qsoas");
+  if(it)
+    return it;
+  // Default to the first one.
+  return namedFactoryItem(availableEngines()[0]); 
 }
 
 bool FitEngine::handlesWeights() const

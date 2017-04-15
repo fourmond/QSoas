@@ -240,7 +240,6 @@ SOURCES += src/qmain.cc \
         src/expression.cc \
         src/fitparameter.cc \
         src/fitengine.cc \
-        src/gslfitengine.cc \
         src/combinedfit.cc \
         src/gslfunction.cc \
         src/odesolver.cc \
@@ -253,9 +252,7 @@ SOURCES += src/qmain.cc \
         src/credits.cc \
         src/eventhandler.cc \
         src/valuehash.cc \
-        src/qsoasfitengine.cc \
         src/curve-effectors.cc \
-        src/simplexfitengine.cc \
         src/stylegenerator.cc \
         src/widgets.cc \
         src/fittrajectory.cc \
@@ -291,7 +288,6 @@ SOURCES += src/qmain.cc \
         src/parametersitemmodel.cc \
         src/parametersspreadsheet.cc \
         src/abdmatrix.cc \
-        src/multifitengine.cc \
         src/box.cc \
         src/ruby-interface.cc \
         src/functions.cc \
@@ -305,7 +301,16 @@ SOURCES += src/qmain.cc \
         src/curvepoints.cc \
         src/xyiterable.cc \
         src/tuneabledatadisplay.cc \
-        src/boundingbox.cc
+        src/boundingbox.cc \
+        src/sparsejacobian.cc
+
+# Fit engines, grouped in an easy way to disable them:
+# (its missing ODRPACK, though)
+
+SOURCES += src/gslfitengine.cc \
+        src/qsoasfitengine.cc \
+        src/simplexfitengine.cc \
+        src/multifitengine.cc
 
 
 HEADERS += src/headers.hh \
@@ -425,7 +430,9 @@ HEADERS += src/headers.hh \
         src/xyiterable.hh \
         src/tuneabledatadisplay.hh \
         src/boundingbox.hh \
-        src/gsl-types.hh
+        src/gsl-types.hh \
+        src/sparsejacobian.hh
+
 
 
 

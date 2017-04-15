@@ -357,8 +357,8 @@ public:
   void unpackParameters(const gsl_vector  * packed, 
                         double * unpacked) const;
 
-  gsl_vector_view viewForDataset(int ds, gsl_vector * vect);
-  gsl_vector_const_view viewForDataset(int ds, const gsl_vector * vect);
+  gsl_vector_view viewForDataset(int ds, gsl_vector * vect) const;
+  gsl_vector_const_view viewForDataset(int ds, const gsl_vector * vect) const;
 
   /// Returns the number of (unpacked) double parameters necessary for
   /// one dataset

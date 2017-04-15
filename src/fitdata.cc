@@ -654,7 +654,7 @@ void FitData::unpackParameters(const gsl_vector * packed,
 
 }
 
-gsl_vector_view FitData::viewForDataset(int ds, gsl_vector * vect)
+gsl_vector_view FitData::viewForDataset(int ds, gsl_vector * vect) const
 {
   int total = 0;
   for(int i = 0; i < ds; i++)
@@ -662,7 +662,7 @@ gsl_vector_view FitData::viewForDataset(int ds, gsl_vector * vect)
   return gsl_vector_subvector(vect, total, datasets[ds]->nbRows());
 }
 
-gsl_vector_const_view FitData::viewForDataset(int ds, const gsl_vector * vect)
+gsl_vector_const_view FitData::viewForDataset(int ds, const gsl_vector * vect) const
 {
   int total = 0;
   for(int i = 0; i < ds; i++)

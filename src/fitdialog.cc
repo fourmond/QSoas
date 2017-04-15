@@ -735,6 +735,7 @@ void FitDialog::startFit()
                 << " seconds, with " << data->evaluationNumber 
                 << " evaluations" << endl;
 
+  /// @todo Here: one computation of the covariance matrix;
   parameters.writeToTerminal();
   try {
     internalCompute();
@@ -744,6 +745,7 @@ void FitDialog::startFit()
     status = GSL_SUCCESS + 1;
   }
 
+  /// @todo Here: a second computation of the covariance matrix...
   parameters.recomputeErrors();
 
   trajectories << 

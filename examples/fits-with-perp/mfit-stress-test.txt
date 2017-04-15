@@ -19,3 +19,31 @@ Here are the results of the stress test:
  * @ mfit-stress-test.cmds 200 1000 under memory limitation:
    First run seems to not proceed the same way, but it really should !
    Multi: Segmentation fault 
+
+ * @ mfit-stress-test.cmds 100 50
+   QSoas fit engine
+   Iteration #1, current internal residuals: 1.23882, 0.146 s elapsed
+   Iteration #2, current internal residuals: 1.22102, 0.478 s elapsed
+
+   Multi fit engine
+   Iteration #1, current internal residuals: 1.23882, 0.136 s elapsed
+   Iteration #2, current internal residuals: 1.22102, 0.307 s elapsed
+
+ * @ mfit-stress-test.cmds 100 100
+   QSoas fit engine
+   Iteration #1, current internal residuals: 1.7643, 0.469 s elapsed
+   Iteration #2, current internal residuals: 1.75481, 2.373 s elapsed
+
+   Multi fit engine
+   Iteration #1, current internal residuals: 1.7643, 0.374 s elapsed
+   Iteration #2, current internal residuals: 1.75481, 0.83 s elapsed
+
+ * @ mfit-stress-test.cmds 100 200
+   QSoas fit engine
+   Iteration #1, current internal residuals: 2.50379, 2.061 s elapsed
+   Iteration #2, current internal residuals: 2.5017, 15.903 s elapsed
+   (too long already !)
+
+   Multi fit engine
+   Iteration #1, current internal residuals: 2.50379, 1.459 s elapsed
+   Iteration #2, current internal residuals: 2.5017, 3.035 s elapsed

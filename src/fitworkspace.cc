@@ -36,6 +36,9 @@
 
 #include <gsl/gsl_sf.h>
 
+// smart(er) memory management for GSL types
+#include <gsl-types.hh>
+
 /// @todo Implement a command-line interface to handle fits.
 /// 
 /// @li this means implementing @b contexts for commands, most
@@ -1212,8 +1215,8 @@ void FitWorkspace::computeAndPushJacobian()
   fitData->packParameters(values, &v.vector);
 
 
-  gsl_matrix * mt = gsl_matrix_alloc(fitData->dataPoints(), sz);
-  gsl_vector * cl = gsl_vector_alloc(fitData->dataPoints());
+  GSLMatrix mt(fitData->dataPoints(), sz);
+  GSLVector cl(fitData->dataPoints());
   fitData->f(&v.vector, cl, false);
   fitData->df(&v.vector, mt);
 
@@ -1251,8 +1254,6 @@ void FitWorkspace::computeAndPushJacobian()
                        derivedDataSet(cols, "_jacobian.dat"));
   }
 
-  gsl_matrix_free(mt);
-  gsl_vector_free(cl);
 }
 
 

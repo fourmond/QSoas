@@ -424,7 +424,8 @@ HEADERS += src/headers.hh \
         src/curvepoints.hh \
         src/xyiterable.hh \
         src/tuneabledatadisplay.hh \
-        src/boundingbox.hh
+        src/boundingbox.hh \
+        src/gsl-types.hh
 
 
 

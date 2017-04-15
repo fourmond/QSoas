@@ -189,6 +189,9 @@ private:
   /// The fit engine in use
   FitEngine * engine;
 
+  /// This flag is set to true at the end of the initialization
+  bool engineOK;
+
   /// Extra parameters
   QStringList extra;
 
@@ -238,7 +241,7 @@ public:
   void setupThreads(int nb);
 
   bool hasEngine() const {
-    return engine;
+    return engineOK;
   };
 
   /// The fit in use

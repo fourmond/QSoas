@@ -201,7 +201,7 @@ public:
 FitData::FitData(const Fit * f, const QList<const DataSet *> & ds, int d, 
                  const QStringList & ex) : 
   totalSize(0), covarStorage(NULL), covarIsOK(false),
-  engine(NULL), extra(ex),
+  engine(NULL), engineOK(false), extra(ex),
   evaluationNumber(0), 
   fit(f), debug(d), datasets(ds),
   standardYErrors(NULL), pointWeights(NULL),
@@ -310,8 +310,12 @@ void FitData::computeWeights()
 
 void FitData::freeSolver()
 {
-  delete engine;
+  if(engineOK)
+    delete engine;              /// @bug we lose memory upon failed
+                                /// engine creation.
+  engineOK = false;
   engine = NULL;
+  
   for(int i = 0; i < subordinates.size(); i++)
     delete subordinates[i];
   subordinates.clear();
@@ -790,6 +794,9 @@ void FitData::initializeSolver(const double * initialGuess,
     if(opts)
       engine->setEngineParameters(*opts);
     engine->initialize(initialGuess);
+    /// @todo Maybe the handling using engineOK should be transformed
+    /// into a try/catch block around the engine creation ?
+    engineOK = true;            // Now should be OK
   }
   // And this should be fine.
 }
@@ -929,7 +936,7 @@ const gsl_matrix * FitData::covarianceMatrix()
     /// @hack Work around the GSL limitation on having empty matrices
     gsl_matrix_view m = gsl_matrix_submatrix(covarStorage, 0, 0, 
                                              nbparams, nbparams);
-    if(engine) {
+    if(engine && engineOK) {
       engine->computeCovarianceMatrix(&m.matrix);
 
       // Now, we perform permutations to place all the elements where they

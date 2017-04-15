@@ -117,7 +117,6 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
   }
 
 
-
   setupFrame();
   setFitEngineFactory(data->engineFactory);
 

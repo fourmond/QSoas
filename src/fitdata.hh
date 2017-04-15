@@ -36,6 +36,7 @@ class ParameterDefinition;
 class FitInternalStorage;
 class FitData;
 
+class SparseJacobian;
 
 /// A queue for derivation computations
 class DFComputationQueue {
@@ -50,13 +51,13 @@ public:
     const gsl_vector * params;
 
     /// the target matrix
-    gsl_matrix * target;
+    SparseJacobian * target;
 
     /// The base for parameters
     const gsl_vector * current;
 
     DerivativeJob(int i, const gsl_vector * parameters,
-                  gsl_matrix * tgt, const gsl_vector * cur) :
+                  SparseJacobian * tgt, const gsl_vector * cur) :
       idx(i), params(parameters), target(tgt), current(cur)
     {
       ;
@@ -94,7 +95,7 @@ public:
 
   /// Enqueues a given job
   void enqueue(int i, const gsl_vector * parameters,
-               gsl_matrix * target, const gsl_vector * current);
+               SparseJacobian * target, const gsl_vector * current);
 
 
   /// Signals to the waiting threads that they should kindly finish
@@ -136,15 +137,15 @@ protected:
   /// @a target is the target vector
   /// @a current is an already-computed evaluation at @a parameters.
   void deriveParameter(int i, const gsl_vector * parameters,
-                       gsl_matrix * target, const gsl_vector * current);
+                       SparseJacobian * target, const gsl_vector * current);
 
 public:
 
   /// These functions compute the fit values using internal parameters
   int f(const gsl_vector * x, gsl_vector * f,
         bool doSubtract = true, bool doWeights = true);
-  int df(const gsl_vector * x, gsl_matrix * df);
-  int fdf(const gsl_vector * x, gsl_vector * f, gsl_matrix * df);
+  int df(const gsl_vector * x, SparseJacobian * df);
+  int fdf(const gsl_vector * x, gsl_vector * f, SparseJacobian * df);
 
 
   /// Computes the function
@@ -296,8 +297,12 @@ public:
   /// All parameters
   PossessiveList<FitParameter> parameters;
 
+  /// The free parameters, indexed by their fitIndex.
+  QList<FreeParameter *> allParameters;
+
   /// The free parameters, indexed by datasets.
   QHash<int, QList<FreeParameter *> > parametersByDataset;
+
 
   /// The free parameters, indexed by parameter number
   QList< QList<FreeParameter *> > parametersByDefinition;

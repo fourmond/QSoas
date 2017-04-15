@@ -307,10 +307,10 @@ SOURCES += src/qmain.cc \
 # Fit engines, grouped in an easy way to disable them:
 # (its missing ODRPACK, though)
 
-SOURCES += src/gslfitengine.cc \
-        src/qsoasfitengine.cc \
-        src/simplexfitengine.cc \
-        src/multifitengine.cc
+SOURCES += src/qsoasfitengine.cc \
+# src/gslfitengine.cc \
+#         src/simplexfitengine.cc \
+#         src/multifitengine.cc
 
 
 HEADERS += src/headers.hh \

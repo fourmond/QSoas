@@ -43,11 +43,11 @@ class FreeParameter;
 /// for the GSL-based fit engines that can't deal with sparse matrices
 class SparseJacobian {
 
-  /// Whether the matrix is truly sparse or not
-  bool sparse;
-
   /// The underlying fit data
   const FitData * fitData;
+
+  /// Whether the matrix is truly sparse or not
+  bool sparse;
 
   /// A double array with the parameters, as in
   /// FitData::parameterByDefinition.
@@ -69,7 +69,9 @@ class SparseJacobian {
   gsl_vector_view v1, v2;
   
 public:
-  /// Constructs a sparse jacobian from the given FitData 
+  /// Constructs a sparse jacobian from the given FitData
+  ///
+  /// @todo Possibility to provide external matrix already.
   SparseJacobian(const FitData * data,  bool sparse = true);
 
   ~SparseJacobian();
@@ -90,7 +92,13 @@ public:
   /// Splices the elements for the given parameter back into place if
   /// the matrix isn't sparse, or do nothing if the matrix is truly sparse
   void spliceParameter(int index);
-  
+
+  /// Computes the value of the J^T J matrix into target.
+  void computejTj(gsl_matrix * target);
+
+  /// Computes the value of J^T func.  Optionnally scaled with fact.
+  void computeGradient(gsl_vector * target, const gsl_vector * func,
+                       double fact = 1);
 };
 
 

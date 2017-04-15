@@ -29,6 +29,8 @@
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
 
+#include <sparsejacobian.hh>
+
 #include <gsl/gsl_cdf.h>
 
 #include <fitengine.hh>
@@ -54,7 +56,7 @@ void DFComputationQueue::enqueue(const DerivativeJob & job)
 }
 
 void DFComputationQueue::enqueue(int i, const gsl_vector * parameters,
-                                 gsl_matrix * target,
+                                 SparseJacobian * target,
                                  const gsl_vector * current)
 {
   enqueue(DerivativeJob(i, parameters, target, current));
@@ -473,7 +475,8 @@ int FitData::f(const gsl_vector * x, gsl_vector * f,
 }
 
 void FitData::deriveParameter(int i, const gsl_vector * params,
-                              gsl_matrix * target, const gsl_vector * current)
+                              SparseJacobian * target,
+                              const gsl_vector * current)
 {
   QVarLengthArray<double, 1024> gslParams(gslParameters);
   QVarLengthArray<double, 1024> unpackedParams(fullParameterNumber());
@@ -486,8 +489,7 @@ void FitData::deriveParameter(int i, const gsl_vector * params,
   if(lst.size() == 0)
     return;                 // Happens: when all parameters are fixed.
     
-  int tg = lst[0]->fitIndex;
-  gsl_vector_view col = gsl_matrix_column(target, tg);
+  gsl_vector *  col = target->parameterVector(i);
 
   // Now, modify all parameters:
   for(int j = 0; j < lst.size(); j++) {
@@ -508,7 +510,7 @@ void FitData::deriveParameter(int i, const gsl_vector * params,
     dumpFitParameters(unpackedParams.data());
   }
 
-  fit->function(unpackedParams.data(), this, &col.vector);
+  fit->function(unpackedParams.data(), this, col);
   {
     QMutexLocker m(&evaluationsMutex);
     evaluationNumber++;
@@ -517,32 +519,21 @@ void FitData::deriveParameter(int i, const gsl_vector * params,
   if(debug > 1) {
     QMutexLocker l(Debug::debug().mutex());
     dumpString(QString("Independent parameters %1").arg(i));
-    dumpString(QString("f:   ") + Utils::vectorString(&col.vector));
+    dumpString(QString("f:   ") + Utils::vectorString(col));
   }
 
-  gsl_vector_sub(&col.vector, current);
-
-  if(debug > 1) {
-    dumpString(QString("df:  ") + Utils::vectorString(&col.vector));
-  }
-    
-  weightVector(&col.vector);
+  gsl_vector_sub(col, current);
 
   if(debug > 1) {
-    dumpString(QString("wdf: ") + Utils::vectorString(&col.vector));
-  }
-
-  // Splicing the buffer-specific stuff back into place
-  for(int j = 1; j < lst.size(); j++) {
-    const FreeParameter * p = lst[j];
-    gsl_vector_view col2 = gsl_matrix_column(target, p->fitIndex);
-    gsl_vector_set_zero(&col2.vector);
-    gsl_vector_view c1 = viewForDataset(p->dsIndex, &col.vector);
-    gsl_vector_view c2 = viewForDataset(p->dsIndex, &col2.vector);
-    gsl_vector_memcpy(&c2.vector, &c1.vector);
-    gsl_vector_set_zero(&c1.vector);
+    dumpString(QString("df:  ") + Utils::vectorString(col));
   }
     
+  weightVector(col);
+
+  if(debug > 1) {
+    dumpString(QString("wdf: ") + Utils::vectorString(col));
+  }
+
   for(int j = 0; j < lst.size(); j++) {
     const FreeParameter * p = lst[j];
     double step = gslParams[p->fitIndex] - gsl_vector_get(params, p->fitIndex);
@@ -550,13 +541,15 @@ void FitData::deriveParameter(int i, const gsl_vector * params,
       dumpString(QString(" -> actual step for parameter %1: %2").
                  arg(p->fitIndex).
                  arg(step));
-    col = gsl_matrix_column(target, p->fitIndex);
-    gsl_vector_scale(&col.vector, 1/step);
+    col = target->parameterVector(i, p->dsIndex);
+    gsl_vector_scale(col, 1/step);
   }
+
+  target->spliceParameter(i);
 }
 
 
-int FitData::df(const gsl_vector * x, gsl_matrix * df)
+int FitData::df(const gsl_vector * x, SparseJacobian * df)
 {
   if(x->size != gslParameters)
     throw InternalError("Size mismatch between GSL parameters "
@@ -589,12 +582,13 @@ int FitData::df(const gsl_vector * x, gsl_matrix * df)
     dumpString("Finished df computation");
   if(debug > 1) {
     dumpString("Computed jacobian:");
-    dumpString(Utils::matrixString(df));
+    /// @todo Put this back !
+    // dumpString(Utils::matrixString(df));
   }
   return GSL_SUCCESS;
 }
 
-int FitData::fdf(const gsl_vector * x, gsl_vector * f, gsl_matrix * df)
+int FitData::fdf(const gsl_vector * x, gsl_vector * f, SparseJacobian * df)
 {
   this->f(x, f);
   this->df(x, df);
@@ -695,6 +689,7 @@ void FitData::initializeParameters()
 
   parametersByDataset.clear();
   parametersByDefinition.clear();
+  allParameters.clear();
   for(int i = 0; i < parameterDefinitions.size(); i++)
     parametersByDefinition << QList<FreeParameter *>();
 
@@ -706,7 +701,9 @@ void FitData::initializeParameters()
       FreeParameter * fp = dynamic_cast<FreeParameter*>(param);
       if(! fp)
         throw InternalError("Free parameter, but not FreeParameter ?");
+
       // Do cross-linking
+      allParameters << fp;
       parametersByDataset[param->dsIndex] << fp;
       parametersByDefinition[param->paramIndex] << fp;
     }

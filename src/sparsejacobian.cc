@@ -49,6 +49,11 @@ SparseJacobian::SparseJacobian(const FitData * data,  bool sp) :
   }
 }
 
+SparseJacobian::~SparseJacobian()
+{
+  gsl_matrix_free(matrix);
+}
+
 gsl_vector * SparseJacobian::parameterVector(int index)
 {
   int idx = matrixIndex.value(index, -1);
@@ -62,6 +67,8 @@ gsl_vector * SparseJacobian::parameterVector(int index)
 gsl_vector * SparseJacobian::parameterVector(int index, int dataset)
 {
   gsl_vector * v = parameterVector(index);
+  if(dataset < 0)
+    return v;
   if(v) {
     v2 = fitData->viewForDataset(dataset, v);
     return &v2.vector;
@@ -71,6 +78,8 @@ gsl_vector * SparseJacobian::parameterVector(int index, int dataset)
 
 void SparseJacobian::spliceParameter(int index)
 {
+  if(sparse)
+    return;
   int idx = matrixIndex.value(index, -1);
   if(idx < 0)
     return;

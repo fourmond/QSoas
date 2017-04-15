@@ -1218,7 +1218,8 @@ void FitWorkspace::computeAndPushJacobian()
   GSLMatrix mt(fitData->dataPoints(), sz);
   GSLVector cl(fitData->dataPoints());
   fitData->f(&v.vector, cl, false);
-  fitData->df(&v.vector, mt);
+  // fitData->df(&v.vector, mt);
+  throw InternalError("Not implemented anymore");
 
   // Write out the name of the parameters:
   QList<const FitParameter *> ps;

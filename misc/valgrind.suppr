@@ -20,6 +20,8 @@
 # and the optional extra info is:
 #     if Param: name of system call param
 
+######################################################################
+# Old ruby 2.1 suppressions
 {
    RubyInit
    Memcheck:Cond
@@ -88,6 +90,57 @@
    obj:/usr/lib/x86_64-linux-gnu/libruby-2.1.so.*
 }
 
+######################################################################
+# Ruby 2.3 suppressions (some of them)
+
+
+{
+   Ruby23Init
+   Memcheck:Addr1
+   obj:/usr/lib/x86_64-linux-gnu/libruby-2.3.so.*
+   fun:ruby_init_stack
+}
+
+{
+   Ruby23Node
+   Memcheck:Cond
+   ...
+   fun:rb_node_newnode
+   ...
+
+}
+
+{
+   Ruby23Node2
+   Memcheck:Value8
+   ...
+   fun:rb_node_newnode
+   ...
+
+}
+
+{
+   Ruby23Compile
+   Memcheck:Cond
+   ...
+   obj:/usr/lib/x86_64-linux-gnu/libruby-2.3.so*
+   fun:rb_iseq_compile_with_option
+}
+
+{
+   Ruby23Compile2
+   Memcheck:Value8
+   ...
+   obj:/usr/lib/x86_64-linux-gnu/libruby-2.3.so*
+   fun:rb_iseq_compile_with_option
+}
+
+
+
+
+######################################################################
+# Other suppressions
+
 {
    gdobject
    Memcheck:Leak
@@ -101,4 +154,11 @@
    ...
    obj:/usr/lib/x86_64-linux-gnu/libfontconfig.so.*
    fun:FcDefaultSubstitute
+}
+
+
+{
+   QtAccessible
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/qt4/plugins/accessiblebridge/libqspiaccessiblebridge.so
 }

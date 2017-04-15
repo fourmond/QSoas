@@ -1,0 +1,5 @@
+# Takes the same arguments as make-all.cmds, and runs the fits + the debug
+# level of the fits
+clear-stack
+@ make-all.cmds ${1:-50} ${2:-500} /silent=true
+mfit-nernst /species=5 /parameters=seed.params flagged:tr /debug=${3:-0}

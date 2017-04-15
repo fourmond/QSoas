@@ -1,0 +1,6 @@
+# Fit used: nernst (5 species: ??)
+E_a_ox/red	0.04	!	0
+E_b_ox/red	0.2	!	0
+E_c_ox/red	0.3	!	0
+E_d_ox/red	-0.2	!	0
+E_e_ox/red	-0.3	!	0

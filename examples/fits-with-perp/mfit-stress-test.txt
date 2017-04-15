@@ -1,0 +1,21 @@
+Here are the results of the stress test:
+
+
+== Commit 7ad384345c543ca46ba44d6ed43cdb8161123ed9
+
+ * @ mfit-stress-test.cmds 50 500
+   Multi (global, after local step):
+   Iteration #1, current internal residuals: 2.81518, 4.351 s elapsed
+   Iteration #2, current internal residuals: 2.74557, 8.936 s elapsed
+   [...]
+
+ * @ mfit-stress-test.cmds 50 1000
+   Multi (global, after local step):
+   Iteration #1, current internal residuals: 3.98401, 21.09 s elapsed
+   Iteration #2, current internal residuals: 3.88907, 42.631 s elapsed
+   [...]
+   (5GB memory footprint)
+
+ * @ mfit-stress-test.cmds 200 1000 under memory limitation:
+   First run seems to not proceed the same way, but it really should !
+   Multi: Segmentation fault 

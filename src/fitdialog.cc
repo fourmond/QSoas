@@ -148,6 +148,7 @@ void FitDialog::message(const QString & str)
     progressReport->setText(str);
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
+  Terminal::out << str << endl;
 }
 
 void FitDialog::appendToMessage(const QString & str, bool format)
@@ -160,6 +161,7 @@ void FitDialog::appendToMessage(const QString & str, bool format)
       txt += str;
     message(txt);
   }
+  Terminal::out << str << endl;
 }
 
 void FitDialog::setupFrame()

@@ -128,8 +128,11 @@ class FitWorkspace {
 
 
   /// This updates the parameters values, by packing from values and
-  /// unpacking back to values. This takes care of the
-  void updateParameterValues();
+  /// unpacking back to values.
+  ///
+  /// By default, this function updates the parameters list in the
+  /// FitData. If you don't want that, set @a dontSend to true.
+  void updateParameterValues(bool dontSend = false);
 
   /// Two temporary storage for the covariance matrix
   gsl_matrix * rawCVMatrix;
@@ -310,7 +313,7 @@ public:
 
   /// Recompute data stored in the storage vector of fitData. Also
   /// updates the residuals.
-  void recompute();
+  void recompute(bool dontSend = false);
 
   /// Force the recomputation of the jacobian, useful to ensure that
   /// the errors are up-to-date. Use with caution

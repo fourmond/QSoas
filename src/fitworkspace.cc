@@ -356,12 +356,15 @@ bool FitWorkspace::isFixed(int index, int ds) const
   return parameter(index, ds)->fixed();
 }
 
-void FitWorkspace::updateParameterValues()
+void FitWorkspace::updateParameterValues(bool dontSend)
 {
   // These steps are necessary to ensure the correct initialization of
   // formula-based stuff.
-  sendDataParameters();
-  fitData->initializeParameters();
+
+  if(! dontSend) {
+    sendDataParameters();
+    fitData->initializeParameters();
+  }
 
   QVarLengthArray<double, 1000> params(fitData->freeParameters());
 
@@ -380,9 +383,9 @@ void FitWorkspace::updateParameterValues()
   fitData->unpackParameters(&v.vector, values);
 }
 
-void FitWorkspace::recompute()
+void FitWorkspace::recompute(bool dontSend)
 {
-  updateParameterValues();
+  updateParameterValues(dontSend);
   
   fitData->computeFunction(values, fitData->storage);
   computeResiduals();

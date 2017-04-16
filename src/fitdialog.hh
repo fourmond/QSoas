@@ -156,7 +156,7 @@ protected:
   virtual void closeEvent(QCloseEvent * event);
 
   /// Same thing as compute, but raises an exception if something failed.
-  void internalCompute();
+  void internalCompute(bool dontSend = false);
 
 
   /// Writes a message, with immediate display

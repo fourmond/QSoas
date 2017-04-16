@@ -560,9 +560,9 @@ void FitDialog::setupSubFunctionCurves()
 }
 
 
-void FitDialog::internalCompute()
+void FitDialog::internalCompute(bool dontSend)
 {
-  parameters.recompute();
+  parameters.recompute(dontSend);
   setupSubFunctionCurves();
   updateResidualsDisplay();
 
@@ -740,7 +740,7 @@ void FitDialog::startFit()
   /// @todo Here: one computation of the covariance matrix;
   parameters.writeToTerminal();
   try {
-    internalCompute();
+    internalCompute(true);
   }
   catch (const Exception & e) {
     appendToMessage(QString("Error while computing: ") + e.message());

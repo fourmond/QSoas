@@ -308,9 +308,9 @@ SOURCES += src/qmain.cc \
 # (its missing ODRPACK, though)
 
 SOURCES += src/qsoasfitengine.cc \
-         src/simplexfitengine.cc \
-         src/multifitengine.cc
-# src/gslfitengine.cc \
+        src/gslfitengine.cc \
+        src/simplexfitengine.cc \
+        src/multifitengine.cc
 
 
 HEADERS += src/headers.hh \

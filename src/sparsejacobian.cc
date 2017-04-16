@@ -25,7 +25,8 @@
 
 #include <abdmatrix.hh>
 
-SparseJacobian::SparseJacobian(const FitData * data,  bool sp) :
+SparseJacobian::SparseJacobian(const FitData * data,  bool sp,
+                               gsl_matrix * mat) :
   fitData(data), sparse(sp)
 {
   // total size
@@ -58,18 +59,27 @@ SparseJacobian::SparseJacobian(const FitData * data,  bool sp) :
     }
   }
 
-  if(sparse)
-    matrix = gsl_matrix_alloc(sz, effectiveParameters);
-  else {
-    matrix = gsl_matrix_alloc(sz, fitData->freeParameters());
-    gsl_matrix_set_zero(matrix);    // We need to initialize to 0
+  if(mat) {
+    matrix = mat;
+    ownMatrix = false;
+    if(! sparse)
+      gsl_matrix_set_zero(matrix);
   }
-
+  else {
+    ownMatrix = true;
+    if(sparse)
+      matrix = gsl_matrix_alloc(sz, effectiveParameters);
+    else {
+      matrix = gsl_matrix_alloc(sz, fitData->freeParameters());
+      gsl_matrix_set_zero(matrix);    // We need to initialize to 0
+    }
+  }
 }
 
 SparseJacobian::~SparseJacobian()
 {
-  gsl_matrix_free(matrix);
+  if(ownMatrix)
+    gsl_matrix_free(matrix);
 }
 
 gsl_vector * SparseJacobian::parameterVector(int index)

@@ -46,6 +46,8 @@ class SparseJacobian {
   /// The underlying fit data
   const FitData * fitData;
 
+  bool ownMatrix;
+
   /// Whether the matrix is truly sparse or not
   bool sparse;
 
@@ -80,8 +82,9 @@ class SparseJacobian {
 public:
   /// Constructs a sparse jacobian from the given FitData
   ///
-  /// @todo Possibility to provide external matrix already.
-  SparseJacobian(const FitData * data,  bool sparse = true);
+  /// If @a matrix is provided the jacobian uses it directly.
+  SparseJacobian(const FitData * data,  bool sparse = true,
+                 gsl_matrix * matrix = NULL);
 
   ~SparseJacobian();
 

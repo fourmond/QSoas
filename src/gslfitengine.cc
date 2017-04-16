@@ -24,6 +24,7 @@
 #include <fitengine.hh>
 #include <exceptions.hh>
 
+#include <sparsejacobian.hh>
 #include <debug.hh>
 
 #include <gsl/gsl_version.h>
@@ -86,9 +87,11 @@ int GSLFitEngine::staticF(const gsl_vector * x, void * params, gsl_vector * f)
 int GSLFitEngine::staticDf(const gsl_vector * x, void * params, gsl_matrix * df)
 {
   GSLFitEngine * engine = reinterpret_cast<GSLFitEngine *>(params);
+  // build the jacobian every time ?
+  SparseJacobian sj(engine->fitData, false, df);
 
   // Here, scale the jacobian when necessary !
-  int status = engine->fitData->df(x, df);
+  int status = engine->fitData->df(x, &sj);
   if(engine->jacobianScalingFactor != 1)
     gsl_matrix_scale(df, engine->jacobianScalingFactor);
   return status;
@@ -98,7 +101,10 @@ int GSLFitEngine::staticFdf(const gsl_vector * x, void * params, gsl_vector * f,
                        gsl_matrix * df)
 {
   GSLFitEngine * engine = reinterpret_cast<GSLFitEngine *>(params);
-  int status = engine->fitData->fdf(x, f, df);
+  SparseJacobian sj(engine->fitData, false, df);
+
+  int status = engine->fitData->fdf(x, f, &sj);
+
   if(engine->jacobianScalingFactor != 1)
     gsl_matrix_scale(df, engine->jacobianScalingFactor);
   return status;

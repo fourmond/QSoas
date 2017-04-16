@@ -842,25 +842,31 @@ int FitData::iterate()
   }
   if(subordinates.size() > 0) {
     int nbGoingOn = 0;
-    for(int i = 0; i < subordinates.size(); i++) {
+    int i = 0;
+    try {
+      for(; i < subordinates.size(); i++) {
 
-      if(subordinates[i]->nbIterations >= 0) {
-        if(debug > 0)
-          dumpString(QString("Passing to subordinate %1").arg(i));
-        int status = subordinates[i]->iterate();
-        if(debug > 0)
-          dumpString(QString(" -> subordinate %1 return code %2").
-                     arg(i).arg(status));
-        if(status != GSL_CONTINUE) 
-          subordinates[i]->nbIterations = -1; // Special sign to
-                                              // finish iterations
+        if(subordinates[i]->nbIterations >= 0) {
+          if(debug > 0)
+            dumpString(QString("Passing to subordinate %1").arg(i));
+          int status = subordinates[i]->iterate();
+          if(debug > 0)
+            dumpString(QString(" -> subordinate %1 return code %2").
+                       arg(i).arg(status));
+          if(status != GSL_CONTINUE) 
+            subordinates[i]->nbIterations = -1; // Special sign to
+          // finish iterations
+          else
+            nbGoingOn++;
+        }
         else
-          nbGoingOn++;
+          if(debug > 0)
+            dumpString(QString("skipping subordinate %1 (finished)").arg(i));
       }
-      else
-        if(debug > 0)
-          dumpString(QString("skipping subordinate %1 (finished)").arg(i));
-
+    }
+    catch(Exception & ex) {
+      ex.appendMessage(QString(" (dataset: #%1)").arg(i));
+      throw;
     }
     if(nbGoingOn)
       return GSL_CONTINUE;

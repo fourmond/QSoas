@@ -148,7 +148,9 @@ void FitDialog::message(const QString & str)
     progressReport->setText(str);
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
-  Terminal::out << str << endl;
+  QString s = str;
+  s.replace(QRegExp("<[^>]+>"),"");
+  Terminal::out << s << endl;
 }
 
 void FitDialog::appendToMessage(const QString & str, bool format)
@@ -161,7 +163,11 @@ void FitDialog::appendToMessage(const QString & str, bool format)
       txt += str;
     message(txt);
   }
-  Terminal::out << str << endl;
+  else {
+    QString s = str;
+    s.replace(QRegExp("<[^>]+>"),"");
+    Terminal::out << s << endl;
+  }
 }
 
 void FitDialog::setupFrame()
@@ -680,7 +686,6 @@ void FitDialog::startFit()
       double tm = startTime.msecsTo(QDateTime::currentDateTime()) * 1e-3;
       QString str = QString("Iteration #%1, current internal residuals: %2, %3 s elapsed").
         arg(data->nbIterations).arg(residuals).arg(tm);
-      Terminal::out << str << endl;
 
       message(str);
       parameters.retrieveParameters();

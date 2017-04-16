@@ -47,3 +47,19 @@ Here are the results of the stress test:
    Multi fit engine
    Iteration #1, current internal residuals: 2.50379, 1.459 s elapsed
    Iteration #2, current internal residuals: 2.5017, 3.035 s elapsed
+
+== Commit 2ec4415d6e99b68f56548ca47165756a34c55e5c
+
+  Use of the sparse Jacobian for the qsoas fit engine
+
+ * @ mfit-stress-test.cmds 100 100
+   QSoas fit engine
+   Iteration #1, current internal residuals: 1.7643, 0.275 s elapsed
+   Iteration #2, current internal residuals: 1.75481, 1.929 s elapsed
+
+ * @ mfit-stress-test.cmds 100 200
+   QSoas fit engine
+   Iteration #1, current internal residuals: 2.50379, 1.309 s elapsed
+   Iteration #2, current internal residuals: 2.5017, 14.038 s elapsed
+   Iteration #3, current internal residuals: 1.1724, 15.307 s elapsed
+   (seems significantly faster afterwards, can't understand why)

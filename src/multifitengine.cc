@@ -23,6 +23,9 @@
 #include <exceptions.hh>
 #include <utils.hh>
 
+#include <sparsejacobian.hh>
+#include <fitparameter.hh>
+
 #include <abdmatrix.hh>
 #include <argumentlist.hh>
 #include <general-arguments.hh>
@@ -72,7 +75,7 @@ protected:
   gsl_vector *& testf2;
 
   /// The m x n jacobian
-  gsl_matrix * jacobian;
+  SparseJacobian * jacobian;
 
   /// Various temporary n x n matrices
   ///
@@ -186,7 +189,7 @@ MultiFitEngine::MultiFitEngine(FitData * data) :
   m = fitData->dataPoints();
   // Do a bit of allocation
 
-  jacobian = gsl_matrix_alloc(m, n);
+  jacobian = new SparseJacobian(fitData);
   perm = gsl_permutation_alloc(n);
 
   for(size_t i = 0; i < sizeof(fv)/sizeof(gsl_vector *); i++)
@@ -216,7 +219,7 @@ MultiFitEngine::MultiFitEngine(FitData * data) :
 
 MultiFitEngine::~MultiFitEngine()
 {
-  gsl_matrix_free(jacobian);
+  delete jacobian;
   gsl_permutation_free(perm);
 
   for(size_t i = 0; i < sizeof(vectors)/sizeof(gsl_vector *); i++)
@@ -304,12 +307,17 @@ void MultiFitEngine::scaleJacobian()
   if(! useScaling)
     return;
   for(int i = 0; i < n; i++) {
-    gsl_vector_view v = gsl_matrix_column(jacobian, i);
-    double nrm = gsl_blas_dnrm2(&v.vector);
+    const FreeParameter * fp = fitData->allParameters[i];
+    if(fp->fitIndex != i)
+      throw InternalError("Fit parameters numbering inconsistency: %1 vs %2").
+        arg(fp->fitIndex).arg(i);
+    int ds = fp->dsIndex, prm = fp->paramIndex;
+    gsl_vector * v = jacobian->parameterVector(prm, ds);
+    double nrm = gsl_blas_dnrm2(v);
     if(nrm == 0)
       nrm = 1;
     nrm = 1/nrm;
-    gsl_vector_scale(&v.vector, nrm);
+    gsl_vector_scale(v, nrm);
     gsl_vector_set(scalingFactors, i, nrm);
   }
   if(fitData->debug > 0) {
@@ -324,7 +332,7 @@ void MultiFitEngine::recomputeJacobian()
   fitData->fdf(parameters, function, jacobian);
   scaleJacobian();              // Do scaling all the times
 
-  jTj->setFromProduct(jacobian);
+  jacobian->computejTj(jTj);
 
   double cur_squares = 0;
   gsl_blas_ddot(function, function, &cur_squares);
@@ -420,10 +428,9 @@ int MultiFitEngine::iterate()
 
   /// @warning function is the negative of what is expected -
   /// therefore using a -1 sign here !
-  gsl_blas_dgemv(CblasTrans, -1, 
-                 jacobian, function, 0, gradient);
 
-  jTj->setFromProduct(jacobian);
+  jacobian->computeGradient(gradient, function, -1);
+  jacobian->computejTj(jTj);
 
   if(fitData->debug > 0) {
     // Dump the jTj matrix:

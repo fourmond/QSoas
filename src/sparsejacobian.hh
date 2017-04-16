@@ -24,7 +24,7 @@
 
 class FitData;
 class FreeParameter;
-
+class ABDMatrix;
 
 /// SparseJacobian is a sparse matrix for the handling of massive
 /// multifit derivatives.
@@ -73,7 +73,10 @@ class SparseJacobian {
 
   /// A correspondance col * datasets + dataset -> gsl_index
   QVector<int> fitIndices;
-  
+
+  /// The first index of each parameter
+  QVector<int> firstIndex;
+
 public:
   /// Constructs a sparse jacobian from the given FitData
   ///
@@ -101,6 +104,9 @@ public:
 
   /// Computes the value of the J^T J matrix into target.
   void computejTj(gsl_matrix * target);
+
+  /// Computes the value of the J^T J matrix into target.
+  void computejTj(ABDMatrix * target);
 
   /// Computes the value of J^T func.  Optionnally scaled with fact.
   void computeGradient(gsl_vector * target, const gsl_vector * func,

@@ -23,6 +23,8 @@
 #include <fitdata.hh>
 #include <fitparameter.hh>
 
+#include <abdmatrix.hh>
+
 SparseJacobian::SparseJacobian(const FitData * data,  bool sp) :
   fitData(data), sparse(sp)
 {
@@ -37,6 +39,7 @@ SparseJacobian::SparseJacobian(const FitData * data,  bool sp) :
   for(int i = 0; i < parameters.size(); i++) {
     const QList<FreeParameter *> lst = parameters[i];
     if(lst.size() > 0) {
+      firstIndex << lst[0]->fitIndex;
       matrixIndex << effectiveParameters;
       for(int j = 0; j < lst.size(); j++) {
         int ds = lst[j]->dsIndex;
@@ -49,8 +52,10 @@ SparseJacobian::SparseJacobian(const FitData * data,  bool sp) :
       }
       effectiveParameters++;
     }
-    else
+    else {
       matrixIndex << -1;      // not found
+      firstIndex << -1;
+    }
   }
 
   if(sparse)
@@ -69,7 +74,7 @@ SparseJacobian::~SparseJacobian()
 
 gsl_vector * SparseJacobian::parameterVector(int index)
 {
-  int idx = matrixIndex.value(index, -1);
+  int idx = sparse ? matrixIndex.value(index, -1) : firstIndex[index];
   if(idx >= 0) {
     v1 = gsl_matrix_column(matrix, idx);
     return &v1.vector;
@@ -93,14 +98,22 @@ void SparseJacobian::spliceParameter(int index)
 {
   if(sparse)
     return;
-  int idx = matrixIndex.value(index, -1);
+  QTextStream o(stdout);
+  int idx = firstIndex[index];
+  o << "Splicing parameters for index :" << index
+    << " -> " << idx << endl;
   if(idx < 0)
     return;
   gsl_vector_view source_1 = gsl_matrix_column(matrix, idx);
   const QList<FreeParameter *> pms = parameters[index];
-  for(int i = 0; i < pms.size(); i++) {
+  for(int i = 1; i < pms.size(); i++) {
     int id2 = pms[i]->fitIndex;
+    if(id2 < 0 || id2 == idx)
+      continue;                  // Nothing to do here
     int dsi = pms[i]->dsIndex;
+    o << "dsi:" << dsi << ", " << idx << ", " << id2 << endl;
+    if(dsi < 0)
+      continue;
     gsl_vector_view dest_1 = gsl_matrix_column(matrix, id2);
     gsl_vector_view source_2 = fitData->viewForDataset(dsi, &source_1.vector);
     gsl_vector_view dest_2 = fitData->viewForDataset(dsi, &dest_1.vector);
@@ -142,6 +155,39 @@ void SparseJacobian::computejTj(gsl_matrix * target)
       gsl_matrix_set(target, itgt, jtgt, val);
       if(itgt != jtgt)          // matrix is symmetric
         gsl_matrix_set(target, jtgt, itgt, val);
+    }
+  }
+}
+
+void SparseJacobian::computejTj(ABDMatrix * target)
+{
+  if(! sparse) {
+    target->setFromProduct(matrix);
+    return;
+  }
+
+  target->clear();
+  int ts = fitIndices.size();
+  for(int i = 0; i < ts; i++) {
+    int itgt = fitIndices[i];
+    if(itgt < 0)
+      continue;
+    int ip = i / datasets;
+    gsl_vector_view l1 = gsl_matrix_column(matrix, ip);
+    int ids = i % datasets;
+    gsl_vector_view l2 = fitData->viewForDataset(ids, &l1.vector);
+    for(int j = i; j < ts; j+= datasets) {
+      int jtgt = fitIndices[j];
+      if(jtgt < 0)
+        continue;
+      int jp = j / datasets;
+      gsl_vector_view r1 = gsl_matrix_column(matrix, jp);
+      // ids and jds are the same
+      gsl_vector_view r2 = fitData->viewForDataset(ids, &r1.vector);
+      double val;
+      gsl_blas_ddot(&l2.vector, &r2.vector, &val);
+      val += target->get(itgt, jtgt);
+      target->set(itgt, jtgt, val);
     }
   }
 }

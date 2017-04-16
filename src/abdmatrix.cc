@@ -333,3 +333,55 @@ void ABDMatrix::copyFrom(const ABDMatrix & src)
     }
   }
 }
+
+void ABDMatrix::clear()
+{
+  for(int i = 0; i < sizes.size(); i++) {
+    gsl_matrix_set_zero(diag[i]);
+    if(i > 0) {
+      gsl_matrix_set_zero(left[i-1]);
+      gsl_matrix_set_zero(top[i-1]);
+    }
+  }
+}
+
+double ABDMatrix::get(int i, int j) const
+{
+  if(i > j)
+    std::swap(i,j);
+  // OK, now i is the lowest.
+
+  int iblk, isub;
+  whereIndex(i, iblk, isub);
+  int jblk, jsub;
+  whereIndex(j, jblk, jsub);
+  if(iblk == jblk)
+    return gsl_matrix_get(diag[iblk], isub, jsub);
+  if(iblk == 0)
+    return gsl_matrix_get(top[jblk-1], isub, jsub);
+  return 0;                     // But should fail
+}
+
+void ABDMatrix::set(int i, int j, double v)
+{
+  if(i > j)
+    std::swap(i,j);
+  // OK, now i is the lowest.
+
+  int iblk, isub;
+  whereIndex(i, iblk, isub);
+  int jblk, jsub;
+  whereIndex(j, jblk, jsub);
+  if(iblk == jblk) {
+    gsl_matrix_set(diag[iblk], isub, jsub, v);
+    if(jsub != isub)
+      gsl_matrix_set(diag[iblk], jsub, isub, v);
+    return;
+  }
+  if(iblk == 0) {
+    gsl_matrix_set(top[jblk-1], isub, jsub, v);
+    gsl_matrix_set(left[jblk-1], jsub, isub, v);
+    return;
+  }
+  throw InternalError("Trying to set the %1,%2 element of an ABDMatrix, but this is a 0-only element").arg(i).arg(j);
+}

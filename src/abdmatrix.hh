@@ -103,6 +103,21 @@ public:
 
   /// Inverts the matrix into the given target
   void invert(gsl_matrix * invert) const;
+
+  /// Clears the matrix, i.e. set all matrices to 0
+
+  /// Gets the coefficient of the matrix
+  ///
+  /// Assumes that the matrix is symmetric.
+  double get(int i, int j) const;
+
+  /// sets the value of the matrix
+  ///
+  /// Maintain symmetry, so that if i != j both (i,j) and (j,i) are set
+  void set(int i, int j, double value);
+
+  /// Sets all the elements to 0
+  void clear();
 };
 
 

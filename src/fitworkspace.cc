@@ -1057,7 +1057,7 @@ void FitWorkspace::writeCovarianceMatrix(QTextStream & out,  bool raw)
 
 Vector FitWorkspace::saveParameterValues()
 {
-  updateParameterValues();
+  retrieveParameters();
   Vector ret;
   int size = nbParameters * datasets;
   for(int i = 0; i < size; i++)

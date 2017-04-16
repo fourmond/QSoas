@@ -63,3 +63,21 @@ Here are the results of the stress test:
    Iteration #2, current internal residuals: 2.5017, 14.038 s elapsed
    Iteration #3, current internal residuals: 1.1724, 15.307 s elapsed
    (seems significantly faster afterwards, can't understand why)
+
+== Commit e8ba3b077859937244c2f51c54e0c3062cbb3df9
+
+  Use of the sparse Jacobian for the multi fit engine
+
+ * @ mfit-stress-test.cmds 50 500
+   Multi (global, after local step):
+   Iteration #1, current internal residuals: 2.81518, 0.436 s elapsed
+   Iteration #2, current internal residuals: 2.74557, 1.166 s elapsed
+   [...]
+
+ * @ mfit-stress-test.cmds 50 1000
+   Iteration #1, current internal residuals: 3.98401, 2.305 s elapsed
+   Iteration #2, current internal residuals: 3.88907, 5.779 s elapsed
+
+ * @ mfit-stress-test.cmds 300 2000
+   This crashes because the jacobian has 60e3^2 elements, which is a
+   tidbit too big.

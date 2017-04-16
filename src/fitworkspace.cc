@@ -500,13 +500,13 @@ void FitWorkspace::pushAnnotatedData(DataStackHelper * help)
 
 void FitWorkspace::sendDataParameters()
 {
-  fitData->parameters.clear();
+  fitData->clearParameters();
   
   for(int i = 0; i < parameters.size(); i++) {
     FitParameter * param = parameters[i];
     if(! param)
       continue;
-    fitData->parameters << param->dup();
+    fitData->pushParameter(param->dup());
   }
 }
 
@@ -1226,8 +1226,8 @@ void FitWorkspace::computeAndPushJacobian()
   for(int i = 0; i < fitData->freeParameters(); i++)
     ps << NULL;
   
-  for(int i = 0; i < fitData->parameters.size(); i++) {
-    const FitParameter * fp = fitData->parameters[i];
+  for(int i = 0; i < fitData->currentParameters().size(); i++) {
+    const FitParameter * fp = fitData->currentParameters()[i];
     if(fp->fitIndex >= 0)
       ps[fp->fitIndex] = fp;
   }

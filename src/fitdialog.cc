@@ -748,6 +748,7 @@ void FitDialog::startFit()
   /// @todo Here: a second computation of the covariance matrix...
   parameters.recomputeErrors();
 
+
   trajectories << 
     FitTrajectory(parametersBackup, parameters.saveParameterValues(),
                   parameters.saveParameterErrors(),
@@ -764,7 +765,7 @@ void FitDialog::startFit()
   else if(status != GSL_SUCCESS)
     trajectories.last().ending = FitTrajectory::Error;
 
-  
+  data->doneFitting();
   emit(finishedFitting());
 }
 

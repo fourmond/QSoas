@@ -190,9 +190,6 @@ private:
   /// The fit engine in use
   FitEngine * engine;
 
-  /// This flag is set to true at the end of the initialization
-  bool engineOK;
-
   /// Extra parameters
   QStringList extra;
 
@@ -226,6 +223,9 @@ private:
   /// @}
 
 
+  /// All parameters
+  PossessiveList<FitParameter> parameters;
+
 public:
 
   
@@ -242,7 +242,7 @@ public:
   void setupThreads(int nb);
 
   bool hasEngine() const {
-    return engineOK;
+    return engine;
   };
 
   /// The fit in use
@@ -293,9 +293,22 @@ public:
   /// @a ds has to be positive.
   bool isFixed(int id, int ds) const;
 
+  /// @name Accessors to the current list of FitParameter
+  ///
+  /// The functions that modify the parameters list are disabled from
+  /// initializeSolver() until the moment the function doneFitting()
+  /// is called, i.e. for all the moments when engine isn't NULL.
+  ///
+  /// @{
 
-  /// All parameters
-  PossessiveList<FitParameter> parameters;
+  /// Clears the list of parameters
+  void clearParameters();
+
+  /// Pushes a new parameter, taking ownership of it
+  void pushParameter(FitParameter * parameter);
+
+  /// Returns the current parameters
+  const PossessiveList<FitParameter> & currentParameters() const;
 
   /// The free parameters, indexed by their fitIndex.
   QList<FreeParameter *> allParameters;
@@ -303,9 +316,11 @@ public:
   /// The free parameters, indexed by datasets.
   QHash<int, QList<FreeParameter *> > parametersByDataset;
 
-
   /// The free parameters, indexed by parameter number
   QList< QList<FreeParameter *> > parametersByDefinition;
+
+  /// @}
+  
 
   /// A cache for the parameters description. It \b must be the same
   /// as what Fit::parameters() return.
@@ -351,6 +366,9 @@ public:
 
   /// Iterates the solver, and returns the return code
   int iterate();
+
+  /// Finishes up the fit process, among others freeing the engine.
+  void doneFitting();
 
   /// Packs the full parameters specification into the actual
   /// parameter vector.

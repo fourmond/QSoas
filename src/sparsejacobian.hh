@@ -67,6 +67,12 @@ class SparseJacobian {
 
   /// buffers for the row/column view
   gsl_vector_view v1, v2;
+
+  /// The number of datasets
+  int datasets;
+
+  /// A correspondance col * datasets + dataset -> gsl_index
+  QVector<int> fitIndices;
   
 public:
   /// Constructs a sparse jacobian from the given FitData

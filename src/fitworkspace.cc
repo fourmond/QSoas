@@ -32,6 +32,7 @@
 #include <utils.hh>
 #include <debug.hh>
 
+#include <sparsejacobian.hh>
 #include <datastackhelper.hh>
 
 #include <gsl/gsl_sf.h>
@@ -1220,9 +1221,11 @@ void FitWorkspace::computeAndPushJacobian()
 
   GSLMatrix mt(fitData->dataPoints(), sz);
   GSLVector cl(fitData->dataPoints());
+
+  SparseJacobian jacobian(fitData, false, mt);
+  
   fitData->f(&v.vector, cl, false);
-  // fitData->df(&v.vector, mt);
-  throw InternalError("Not implemented anymore");
+  fitData->df(&v.vector, &jacobian);
 
   // Write out the name of the parameters:
   QList<const FitParameter *> ps;

@@ -325,6 +325,11 @@ void FitData::doneFitting()
   freeSolver();
 }
 
+const PossessiveList<FitParameter> & FitData::currentParameters() const
+{
+  return parameters;
+}
+
 void FitData::clearParameters()
 {
   if(engine)

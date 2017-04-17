@@ -535,7 +535,7 @@ QString FitWorkspace::parameterName(int idx) const
 void FitWorkspace::prepareExport(QStringList & lst, QString & lines, 
                                   bool exportErrors, bool exportMeta)
 {
-  updateParameterValues();
+  retrieveParameters();
   double conf = fitData->confidenceLimitFactor(0.975);
   lst.clear();
   lst << "Buffer";

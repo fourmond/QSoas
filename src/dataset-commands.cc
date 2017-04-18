@@ -1565,17 +1565,35 @@ static void statsCommand(const QString &, const CommandOptions & opts)
     statsOn(ds, opts, statsNames);
 }
 
+/// @todo Validation will be a pain when buffer is specified
+/// and it has more columns than the current one
+class StatsArgument : public SeveralChoicesArgument {
+public:
+  StatsArgument(const char * cn, const char * pn,
+                const char * d = "", bool g = true, 
+                bool def = false) : 
+    SeveralChoicesArgument(::allStatsNames, ',',
+                           cn, pn, d, g, def){
+  }; 
+
+  virtual QString typeName() const {
+    return "stats-names";
+  };
+  virtual QString typeDescription() const {
+    return "One or more name of statistics (as displayed by stats), separated by `,`.";
+  };
+
+};
+
 static ArgumentList 
 statsO(QList<Argument *>() 
        << new DataSetArgument("buffer", 
                               "Buffer",
                               "an alternative buffer to work on",
                               true)
-       /// @todo Validation will be a pain when buffer is specified
-       /// and it has more columns than the current one
-       << new SeveralChoicesArgument(::allStatsNames, ',', "stats",
-                                     "Select stats",
-                                     "writes only the given stats")
+       << new StatsArgument("stats",
+                            "Select stats",
+                            "writes only the given stats")
        << new BoolArgument("use-segments", 
                            "Use segments",
                            "makes statistics segment by segment (defaults to false)")

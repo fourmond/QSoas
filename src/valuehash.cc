@@ -349,7 +349,7 @@ QList<Argument *> ValueHash::outputOptions(bool deflt)
                                      "when writing to output file, also prints the listed meta-data")
        << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "set-meta", 
                                      "Set meta-data",
-                                     "sets meta-data to the results of the command")
+                                     "saves the results of the command as meta-data rather than/in addition to saving to the output file")
     ;
 }
 

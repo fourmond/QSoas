@@ -68,7 +68,6 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
   settingEditors(false), 
   displaySubFunctions(false),
   alreadyChangingPage(false),
-  errorInconsistencyShown(false),
   perpendicularMeta(pm),
   progressReport(NULL),
   residualsDisplay(NULL)
@@ -631,16 +630,32 @@ void FitDialog::startFit()
 
   iterationLimit = getIterationLimit();
 
-  if(! errorInconsistencyShown) {
-    errorInconsistencyShown = true;
-    if(! data->checkWeightsConsistency()) {
-      QMessageBox::warning(this, "Error bar inconsistency" ,
-                           "You are about to fit multiple buffers where some of the buffers have error bars and some others don't.\n\nErrors will NOT be taken into account !\nStart fit again to ignore");
+  if(! data->checkWeightsConsistency()) {
+    if(! warnings.warnOnce(this, "error-bars",
+                           "Error bar inconsistency" ,
+                           "You are about to fit multiple buffers where some of the buffers have error bars and some others don't.\n\nErrors will NOT be taken into account !\nStart fit again to ignore"))
       return;
-    }
+
+    
+  }
+
+  parameters.sendDataParameters();
+  int freeParams = data->freeParameters();
+  if(! data->independentDataSets() &&
+     freeParams > 80 &&
+     data->datasets.size() > 15 &&
+     data->engineFactory->name != "multi") {
+    if(! warnings.warnOnce(this, QString("massive-mfit-%1").
+                           arg(data->engineFactory->name),
+                           QString("Fit engine %1 not adapted").
+                           arg(data->engineFactory->description),
+                           QString("The fit engine %1 is not adapted to massive multifits, it is better to use the Multi fit engine").
+                           arg(data->engineFactory->description)))
+      return;
   }
   QDateTime startTime = QDateTime::currentDateTime();
   try {
+
     soas().shouldStopFit = false;
     parameters.prepareFit(fitEngineParameterValues.value(data->engineFactory, NULL));
     parametersBackup = parameters.saveParameterValues();

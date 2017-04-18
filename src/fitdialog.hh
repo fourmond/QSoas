@@ -25,6 +25,7 @@
 #include <fitengine.hh>
 #include <fitworkspace.hh>
 #include <fittrajectory.hh>
+#include <onetimewarnings.hh>
 
 class FitData;
 class CurveView;
@@ -40,6 +41,9 @@ class ArgumentList;
 class FitDialog : public QDialog {
 
   Q_OBJECT;
+
+  /// To display the error inconsistency or other warnings
+  OneTimeWarnings warnings;
 
   void setupFrame();
 
@@ -84,9 +88,6 @@ class FitDialog : public QDialog {
 
   /// Wheter we're showing subfunctions or not
   bool displaySubFunctions;
-
-  /// Whether or not we've already shown inconsistency warning
-  bool errorInconsistencyShown;
 
   /// Whether or not we are currently updating the page
   bool alreadyChangingPage;

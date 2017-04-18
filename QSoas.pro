@@ -302,7 +302,8 @@ SOURCES += src/qmain.cc \
         src/xyiterable.cc \
         src/tuneabledatadisplay.cc \
         src/boundingbox.cc \
-        src/sparsejacobian.cc
+        src/sparsejacobian.cc \
+        src/onetimewarnings.cc
 
 # Fit engines, grouped in an easy way to disable them:
 # (its missing ODRPACK, though)
@@ -431,14 +432,14 @@ HEADERS += src/headers.hh \
         src/tuneabledatadisplay.hh \
         src/boundingbox.hh \
         src/gsl-types.hh \
-        src/sparsejacobian.hh
+        src/sparsejacobian.hh \
+        src/onetimewarnings.hh
 
 
 
 
 # Pure-C wrappers around Ruby's code
 HEADERS += src/ruby-wrappers.h
-
 SOURCES += src/ruby-wrappers.c
 
                 

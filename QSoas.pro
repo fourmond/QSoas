@@ -303,6 +303,7 @@ SOURCES += src/qmain.cc \
         src/tuneabledatadisplay.cc \
         src/boundingbox.cc \
         src/sparsejacobian.cc \
+        src/sparsecovariance.cc \
         src/onetimewarnings.cc
 
 # Fit engines, grouped in an easy way to disable them:
@@ -433,6 +434,7 @@ HEADERS += src/headers.hh \
         src/boundingbox.hh \
         src/gsl-types.hh \
         src/sparsejacobian.hh \
+        src/sparsecovariance.hh \
         src/onetimewarnings.hh
 
 

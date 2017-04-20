@@ -166,7 +166,6 @@ static void splitMonotonicCommand(const QString &,
   QList<DataSet *> nds = ds->splitIntoMonotonic(0, group);
 
 
-  int tot = 0;
   int sz = nds.size();
   for(int i = 0; i < sz; i++) {
     nds[i]->setMetaData("segment_index", i);
@@ -1697,7 +1696,7 @@ gDS("generate-buffer", // command name
 
 
 static void setMetaCommand(const QString &, QString meta, QString value, 
-                           const CommandOptions & opts)
+                           const CommandOptions & /*opts*/)
 {
   DataSet * ds = soas().currentDataSet();
   // Attempt to convert to double
@@ -1737,7 +1736,7 @@ sM("set-meta", // command name
 
 
 static void setPerpCommand(const QString &, QList<double> coords,
-                           const CommandOptions & opts)
+                           const CommandOptions & /*opts*/)
 {
   DataSet * ds = soas().currentDataSet();
   ds->setPerpendicularCoordinates(coords.toVector());

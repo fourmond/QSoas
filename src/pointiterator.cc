@@ -41,7 +41,7 @@ PointIterator::PointIterator(const DataSet *d, PointIterator::Type t) :
 
 PointIterator::PointIterator(const gsl_vector * yvalues, const DataSet * d,
                              bool res, PointIterator::Type t) :
-  x(d->x()), yv(d->y()), ds(d), y_vect(yvalues), residuals(res), type(t), index(0), sub(0)
+  x(d->x()), yv(d->y()), ds(d), residuals(res), y_vect(yvalues), type(t), index(0), sub(0)
 {
   total = ds->nbRows();
 }

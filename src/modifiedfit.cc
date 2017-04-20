@@ -53,11 +53,11 @@ protected:
   /// A hash old parameter -> formula
   QHash<QString, QString> redefinitions;
 
-  /// A list of extra conditions
-  QStringList conditions;
-
   /// The underlying fit
   PerDatasetFit * underlyingFit;
+
+  /// A list of extra conditions
+  QStringList conditions;
 
   class Storage : public FitInternalStorage {
   public:
@@ -248,7 +248,7 @@ protected:
 
   /// computes the parameters of the fit for the given buffer
   void computeParameters(FitData * data, 
-                         const DataSet * ds,
+                         const DataSet * /*ds*/,
                          const double * src,
                          double * dest, bool skipChecks = false) const
   {

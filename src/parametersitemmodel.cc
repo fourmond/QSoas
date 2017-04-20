@@ -46,12 +46,12 @@ bool ParametersItemModel::dataChanged() const
   return modified;
 }
 
-int ParametersItemModel::rowCount(const QModelIndex & parent) const
+int ParametersItemModel::rowCount(const QModelIndex & /*parent*/) const
 {
   return workspace->data()->datasets.size();
 }
 
-int ParametersItemModel::columnCount(const QModelIndex & parent) const
+int ParametersItemModel::columnCount(const QModelIndex & /*parent*/) const
 {
   return workspace->data()->parameterDefinitions.size() + 3;
 }

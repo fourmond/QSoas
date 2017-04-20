@@ -169,7 +169,7 @@ public:
 
 };
 
-static TimeDependentParameter::TDPFactory steps("steps", [](int nb, const QStringList & extra) -> TimeDependentParameter * {
+static TimeDependentParameter::TDPFactory steps("steps", [](int nb, const QStringList & /*extra*/) -> TimeDependentParameter * {
     StepsTDP * tdp = new StepsTDP;
     if(nb < 0)
       throw RuntimeError("steps parameter needs a positive number, got %1").
@@ -249,7 +249,7 @@ public:
 
 };
 
-static TimeDependentParameter::TDPFactory ramps("ramps", [](int nb, const QStringList & extra) -> TimeDependentParameter * {
+static TimeDependentParameter::TDPFactory ramps("ramps", [](int nb, const QStringList & /*extra*/) -> TimeDependentParameter * {
     RampsTDP * tdp = new RampsTDP;
     if(nb <= 0)
       throw RuntimeError("ramps parameter needs a strictly positive number, got %1").

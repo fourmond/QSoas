@@ -98,7 +98,7 @@ protected:
   const gsl_vector * yv;
   const gsl_vector * ev;
 
-  int cur;
+  size_t cur;
 
 public:
 

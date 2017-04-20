@@ -41,10 +41,10 @@ static RUBY_VALUE wrap_qsoas_instance(Soas * instance)
                                &qsoas_mark, &qsoas_free);
 }
 
-static Soas * get_qsoas_instance(RUBY_VALUE obj)
-{
-  return static_cast<Soas*>(rbw_data_get_struct(obj));
-}
+// static Soas * get_qsoas_instance(RUBY_VALUE obj)
+// {
+//   return static_cast<Soas*>(rbw_data_get_struct(obj));
+// }
 
 static RUBY_VALUE qs_get_instance(RUBY_VALUE /*klass*/)
 {
@@ -53,7 +53,7 @@ static RUBY_VALUE qs_get_instance(RUBY_VALUE /*klass*/)
 
 static RUBY_VALUE qs_method_missing(int argc, RUBY_VALUE * argv, RUBY_VALUE obj)
 {
-  Soas * instance = get_qsoas_instance(obj);
+  // Soas * instance = get_qsoas_instance(obj);
 
   
   if(argc == 0)

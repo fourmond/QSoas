@@ -85,6 +85,9 @@
 #include <QPrinter>
 #include <QPrintDialog>
 
+// SVG export
+#include <QSvgGenerator>
+
 // Signals with sender !
 #include <QSignalMapper>
 
@@ -145,6 +148,7 @@
 // We do C++ sometimes
 #include <stdexcept>
 #include <functional>
+#include <memory>
 
 #include <cmath>
 

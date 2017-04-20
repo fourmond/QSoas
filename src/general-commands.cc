@@ -239,31 +239,47 @@ pops(QList<Argument *>()
 static void printCommand(const QString &, 
                          const CommandOptions & opts)
 {
-  QPrinter p;
-
-  p.setOrientation(QPrinter::Landscape);
+  std::unique_ptr<QPaintDevice> p;
+  int height = 500;
+  QRect rect;
 
   QString file;
   bool overwrite = false;
+
   updateFromOptions(opts, "overwrite", overwrite);
   updateFromOptions(opts, "file", file);
+
   if(! file.isEmpty()) {
     if(! overwrite)
       Utils::confirmOverwrite(file);
-    p.setOutputFileName(file);
+    if(file.endsWith("svg")) {
+      QSvgGenerator * gen = new QSvgGenerator;
+      p = std::unique_ptr<QPaintDevice>(gen);
+      rect = QRect(0, 0, 1000,1000);
+      gen->setFileName(file);
+    }
   }
-  else {
-    QPrintDialog printDialog(&p);
-    if(printDialog.exec() != QDialog::Accepted)
-      return;
+  if(! p) {
+    QPrinter * printer = new QPrinter;
+    p = std::unique_ptr<QPaintDevice>(printer);
+    if(! file.isEmpty())
+      printer->setOutputFileName(file);
+    else {
+      QPrintDialog printDialog(printer);
+      if(printDialog.exec() != QDialog::Accepted)
+        return;
+    }
+    printer->setOrientation(QPrinter::Landscape);
+    rect = printer->pageRect();
   }
+
+  
   QString title;
   updateFromOptions(opts, "title", title);
 
   QPainter painter;
-  painter.begin(&p);
-  soas().view().render(&painter, 500,
-                       p.pageRect(), title);
+  painter.begin(p.get());
+  soas().view().render(&painter, height, rect, title);
 }
 
 static Command 

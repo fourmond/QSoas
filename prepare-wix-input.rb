@@ -27,13 +27,13 @@ debug_files = []
 
 # Qt libraries
 if ENV["QTDIR"] =~ /Qt5/i       # Qt 5 !
-  for f in %w[Qt5Core  Qt5Gui  Qt5OpenGL  Qt5PrintSupport  Qt5Widgets]
+  for f in %w[Qt5Core  Qt5Gui  Qt5OpenGL  Qt5PrintSupport  Qt5Widgets Qt5Svg]
     lib_file = "#{ENV['QTDIR']}\\bin\\#{f}.dll"
     files << lib_file
     debug_files << lib_file.gsub(/.dll/, "d.dll")
   end  
 else
-  for f in %w[QtCore4 QtGui4 QtOpenGL4 QtNetwork4]
+  for f in %w[QtCore4 QtGui4 QtOpenGL4 QtNetwork4 QtSvg4]
     lib_file = "#{ENV['QTDIR']}\\bin\\#{f}.dll"
     files << lib_file
     debug_files << lib_file.gsub(/4.dll/, "d4.dll")

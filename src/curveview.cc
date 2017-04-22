@@ -46,7 +46,7 @@
 CurveView::CurveView(QWidget * parent) : 
   QAbstractScrollArea(parent),
   eventLoop(NULL), paintMarkers(false),
-  repaintDisabled(false)
+  repaintDisabled(false), sideGround(QPalette::Window)
                                             
 {
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -116,10 +116,12 @@ void CurveView::paintEvent(QPaintEvent * /*event*/)
   layOutPanels();
   
 
-  QRect r = rect();
-  const QPalette & pal= palette();
-  p.fillRect(r, pal.brush(QPalette::Window));
-
+  if(sideGround != QPalette::NoRole) {
+    QRect r = rect();
+    const QPalette & pal= palette();
+    p.fillRect(r, pal.brush(sideGround));
+  }
+  
   panel.paint(&p);
   for(int i = 0; i < additionalPanels.size(); i++) {
     additionalPanels[i]->paint(&p);

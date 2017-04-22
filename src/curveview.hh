@@ -155,7 +155,9 @@ public:
   /// Returns the list of datasets that are currently displayed in the
   /// main panel.
   QList<DataSet *> displayedDataSets();
-   
+
+  /// The color for the background of the outside of the graph
+  QPalette::ColorRole sideGround;
 
 
 public slots:

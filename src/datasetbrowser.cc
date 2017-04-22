@@ -58,10 +58,18 @@ void DatasetBrowser::setupFrame()
   QVBoxLayout * layout = new QVBoxLayout(this);
 
   nup = new NupWidget;
-  layout->addWidget(nup);
+  // layout->addWidget(nup);
   nup->setNup(4,4);
 
   connect(nup, SIGNAL(pageChanged(int)), SLOT(pageChanged(int)));
+
+  list = new QListWidget;
+  list->setGridSize(QSize(400,400));
+  // list->setFlow(QListView::LeftToRight);
+  // list->setWrapping(true);
+  list->setViewMode(QListView::IconMode);
+  list->setSelectionMode(QAbstractItemView::ExtendedSelection);
+  layout->addWidget(list);
 
 
   bottomLayout = new QHBoxLayout;
@@ -114,11 +122,17 @@ void DatasetBrowser::displayDataSets(const QList<const DataSet *> &ds,
   cleanupViews();
   datasets = ds;
   for(int i = 0; i < datasets.size(); i++) {
-    CheckableWidget * cw = 
-      new CheckableWidget(new CurveView(this), this);
-    cw->subWidget<CurveView>()->showDataSet(datasets[i]);
-    views << cw;
-    nup->addWidget(cw);
+    // CheckableWidget * cw = 
+    //   new CheckableWidget(new CurveView(this), this);
+    // cw->subWidget<CurveView>()->showDataSet(datasets[i]);
+    CurveView * view = new CurveView(this);
+    view->showDataSet(datasets[i]);
+    QListWidgetItem * item = new QListWidgetItem(datasets[i]->name);
+    list->addItem(item);
+    list->setItemWidget(item, view);
+    item->setSizeHint(QSize(390,390));
+    view->sideGround = QPalette::NoRole;
+
   }
   nup->setNup(wd, ht);
   nup->showPage(0);

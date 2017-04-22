@@ -49,6 +49,9 @@ private:
   /// THe horizontal bottom layout
   QHBoxLayout * bottomLayout;
 
+  /// A QListWidget displaying all the datasets
+  QListWidget * list;
+
   void setupFrame();
   void setupGrid();
 

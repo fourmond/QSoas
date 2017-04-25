@@ -287,6 +287,10 @@ void FitParameterEditor::onGlobalClicked()
     return;
   bool nv = global->isChecked();
   parameters->setGlobal(index, nv);
+  if(nv)
+    onFixedClicked();           // so that we update the perception of
+                                // the global parameter to that of the
+                                // editor that toggled global
   emit(globalChanged(index, nv));
   onValueChanged(editor->text());
 }

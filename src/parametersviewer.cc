@@ -133,6 +133,9 @@ void ParametersViewer::pushVisible()
 
 void ParametersViewer::pushAll()
 {
-  // for(int i = 0; i < datasets.size(); i++)
-  //   soas().pushDataSet(new DataSet(*datasets[i]));
+  CommandOptions opts;
+  DataStackHelper pusher(opts);
+  QList<DataSet> ndss;
+  for(int i = 0; i < parametersDisplays.size(); i++)
+    pusher.pushDataSets(parametersDisplays[i]->makeDataSets(false));
 }

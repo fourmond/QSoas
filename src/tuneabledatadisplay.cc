@@ -139,7 +139,7 @@ void TuneableDataDisplay::promptChangeColor()
 QList<DataSet*> TuneableDataDisplay::makeDataSets(bool onlyVisible)
 {
   QList<DataSet*> rv;
-  if( ! onlyVisible || checkBox->checkState() == Qt::Checked) {
+  if( (! onlyVisible) || checkBox->checkState() == Qt::Checked) {
     for(int i = 0; i < items.size(); i++)
       rv << items[i]->makeDataSet();
   }

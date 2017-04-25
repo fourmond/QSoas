@@ -56,6 +56,23 @@ QRectF XYIterable::boundingBox()
   return QRectF(xmin, ymin, xmax - xmin, ymax - ymin);
 }
 
+DataSet * XYIterable::makeDataSet(bool errors)
+{
+  reset();
+  Vector xv, yv, errs;
+  double x,y, err;
+  while(nextWithErrors(&x, &y, &err)) {
+    xv << x;
+    yv << y;
+    errs << err;
+  }
+  DataSet * nds = errors ? new DataSet(xv, yv, errs) : new DataSet(xv, yv);
+  nds->name = dataName();
+  if(errors)
+    nds->options.setYErrors(2);
+  return nds;
+}
+
 //////////////////////////////////////////////////////////////////////
 
 XYIDataSet::XYIDataSet(const DataSet * ds) :

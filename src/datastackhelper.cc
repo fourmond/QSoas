@@ -60,6 +60,13 @@ void DataStackHelper::pushDataSet(DataSet * ds)
     pushOne(ds, NULL);
 }
 
+
+void DataStackHelper::pushDataSets(const QList<DataSet *> & dss)
+{
+  for(int i = 0; i < dss.size(); i++)
+    pushDataSet(dss[i]);
+}
+
 DataStackHelper & DataStackHelper::operator <<(DataSet * ds)
 {
   pushDataSet(ds);

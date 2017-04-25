@@ -38,6 +38,8 @@
 
 #include <terminal.hh>
 
+#include <datastackhelper.hh>
+
 //////////////////////////////////////////////////////////////////////
 
 static SettingsValue<QSize> viewerSize("parametersviewer/size", QSize(700,500));
@@ -85,7 +87,7 @@ void ParametersViewer::setupFrame()
     TuneableDataDisplay * tdd =
       new TuneableDataDisplay(parameters->parameterName(i),
                               view, i != nbparams-1, color);
-    
+
     CurvePoints * cds =
       tdd->addSource(new XYIGSLVectors(perpendicularCoordinates.toGSLVector(),
                                        parameters->parameterVector(i),
@@ -97,6 +99,7 @@ void ParametersViewer::setupFrame()
     cds->countBB = true;
 
     ml->addWidget(tdd);
+    parametersDisplays << tdd;
   }
 
   // Then, bottom line with buttons...
@@ -121,9 +124,11 @@ void ParametersViewer::setupFrame()
 
 void ParametersViewer::pushVisible()
 {
-  // for(int i = 0; i < datasets.size(); i++)
-  //   if(! curveDatasets[i]->hidden)
-  //     soas().pushDataSet(new DataSet(*datasets[i]));
+  CommandOptions opts;
+  DataStackHelper pusher(opts);
+  QList<DataSet> ndss;
+  for(int i = 0; i < parametersDisplays.size(); i++)
+    pusher.pushDataSets(parametersDisplays[i]->makeDataSets(true));
 }
 
 void ParametersViewer::pushAll()

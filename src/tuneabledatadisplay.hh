@@ -24,6 +24,7 @@
 class CurvePoints;
 class XYIterable;
 class CurveView;
+class DataSet;
 
 /// This class handles a series of CurvePoints and a way to tune their
 /// display characteristic through a widget.
@@ -73,6 +74,9 @@ public:
   CurvePoints * item(int index) const;
 
   ~TuneableDataDisplay();
+
+  /// Returns the underlying datasets
+  QList<DataSet*> makeDataSets(bool onlyVisible = true);
 public slots:
   /// Switches on/off the display (if display != 0)
   void toggleDisplay(int display);
@@ -85,6 +89,7 @@ public slots:
 
   /// update the color of the curves.
   void updateCurveColors();
+
 
 };
 

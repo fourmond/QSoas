@@ -93,3 +93,8 @@ QRectF CurvePoints::boundingRect() const
 {
   return source->boundingBox();
 }
+
+DataSet * CurvePoints::makeDataSet()
+{
+  return source->makeDataSet();
+}

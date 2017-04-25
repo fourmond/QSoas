@@ -68,6 +68,9 @@ public:
   /// Does a reset()
   virtual QRectF boundingBox();
 
+  /// Returns a newly-created dataset populated with the X,Y values. 
+  DataSet * makeDataSet(bool errors = true);
+
 };
 
 /// Iterates over a DataSet

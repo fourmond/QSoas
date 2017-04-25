@@ -26,7 +26,7 @@
 
 
 class XYIterable;
-
+class DataSet;
 
 
 /// A series of data points drawn as markers, optionally with error bars.
@@ -66,6 +66,9 @@ public:
   CurvePoints(XYIterable * source);
 
   ~CurvePoints();
+
+  /// Makes a dataset from the source
+  DataSet * makeDataSet();
 };
 
 

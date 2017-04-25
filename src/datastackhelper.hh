@@ -76,6 +76,9 @@ public:
   /// to-do list for when DataStackHelper os destroyed.
   void pushDataSet(DataSet * ds);
 
+  /// Pushes several datasets.
+  void pushDataSets(const QList<DataSet *> & dss);
+
   /// Runs pushDataSet() on the given dataset. Can be chained.
   DataStackHelper & operator <<(DataSet * ds);
 

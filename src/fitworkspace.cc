@@ -322,6 +322,37 @@ QString FitWorkspace::fitName(bool includeOptions) const
   return fitData->fit->fitName(includeOptions, fitData);
 }
 
+
+void FitWorkspace::computePerpendicularCoordinates(const QString & perpendicularMeta)
+{
+  // Here, setup the perpendicular coordinates
+  if(fitData->datasets.size() > 1) {
+    if(!perpendicularMeta.isEmpty()) {
+      for(int i = 0; i < fitData->datasets.size(); i++) {
+        const DataSet * ds = fitData->datasets[i];
+        if(ds->getMetaData().contains(perpendicularMeta)) {
+          perpendicularCoordinates << ds->getMetaData(perpendicularMeta).toDouble();
+        }
+      }
+    }
+    else {
+      // Gather from datasets
+      for(int i = 0; i < fitData->datasets.size(); i++) {
+        const DataSet * ds = fitData->datasets[i];
+        if(ds->perpendicularCoordinates().size() > 0)
+          perpendicularCoordinates << ds->perpendicularCoordinates()[0];
+      }
+    }
+    if(perpendicularCoordinates.size() > 0 && 
+       perpendicularCoordinates.size() != fitData->datasets.size()) {
+      Terminal::out << "Did get only " << perpendicularCoordinates.size() 
+                    << " perpendicular coordinates, but I need " 
+                    <<  fitData->datasets.size() << ", ignoring them" << endl;
+      perpendicularCoordinates.clear();
+    }
+  }
+}
+
 bool FitWorkspace::hasPerpendicularCoordinates() const
 {
   return perpendicularCoordinates.size() == datasets;

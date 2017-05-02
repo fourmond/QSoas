@@ -554,6 +554,10 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
   QStringList flags;
   updateFromOptions(opts, "flags", flags);
 
+  QString perpMeta;
+  updateFromOptions(opts, "perp-meta", perpMeta);
+  ws.computePerpendicularCoordinates(perpMeta);
+
   ws.loadParameters(file, -1, false);
 
 

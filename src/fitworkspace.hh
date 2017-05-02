@@ -184,6 +184,8 @@ public:
   /// coordinates.
   Vector perpendicularCoordinates;
 
+  void computePerpendicularCoordinates(const QString & perpmeta = "");
+
   bool hasPerpendicularCoordinates() const;
 
 

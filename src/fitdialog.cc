@@ -88,32 +88,7 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
     softOptions = NULL;
   }
 
-  // Here, setup the perpendicular coordinates
-  if(data->datasets.size() > 1) {
-    if(!perpendicularMeta.isEmpty()) {
-      for(int i = 0; i < data->datasets.size(); i++) {
-        const DataSet * ds = data->datasets[i];
-        if(ds->getMetaData().contains(perpendicularMeta)) {
-          parameters.perpendicularCoordinates << ds->getMetaData(perpendicularMeta).toDouble();
-        }
-      }
-    }
-    else {
-      // Gather from datasets
-      for(int i = 0; i < data->datasets.size(); i++) {
-        const DataSet * ds = data->datasets[i];
-        if(ds->perpendicularCoordinates().size() > 0)
-          parameters.perpendicularCoordinates << ds->perpendicularCoordinates()[0];
-      }
-    }
-    if(parameters.perpendicularCoordinates.size() > 0 && 
-       parameters.perpendicularCoordinates.size() != data->datasets.size()) {
-      Terminal::out << "Did get only " << parameters.perpendicularCoordinates.size() 
-                    << " perpendicular coordinates, but I need " 
-                    <<  data->datasets.size() << ", ignoring them" << endl;
-      parameters.perpendicularCoordinates.clear();
-    }
-  }
+  parameters.computePerpendicularCoordinates(perpendicularMeta);
 
 
   setupFrame();

@@ -73,6 +73,7 @@
 #include <QColorDialog>
 #include <QMessageBox>
 #include <QToolTip>
+#include <QDialogButtonBox>
 
 #include <QScrollBar>
 #include <QSpinBox>

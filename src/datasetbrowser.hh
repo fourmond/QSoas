@@ -88,7 +88,7 @@ public:
   ///
   /// @{
 
-  typedef void (*ActOnSelected)(const QList<const DataSet*> &);
+  typedef std::function<void (const QList<const DataSet*> &)> ActOnSelected;
 
   /// Adds a button with the given hook.
   void addButton(QString name, ActOnSelected hook);

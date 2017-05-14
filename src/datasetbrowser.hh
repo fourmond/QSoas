@@ -34,17 +34,10 @@ class DatasetBrowser : public QDialog {
 
 private:
 
-  /// The widget holding the whole nup stuff
-  NupWidget * nup;
-
-  /// The dataset views
-  QList<CheckableWidget *> views;
-
   /// The currently displayed datasets
   QList<const DataSet *> datasets;
 
-  /// Display of the current buffers
-  QLabel * bufferDisplay;
+  QComboBox * sizeCombo;
 
   /// THe horizontal bottom layout
   QHBoxLayout * bottomLayout;
@@ -79,6 +72,10 @@ public:
 protected slots:
 
   void pageChanged(int newpage);
+
+  /// Called when the combo box changed size
+  void comboChangedSize(int idx);
+    
 
   /// Runs the numbered hook
   void runHook(int hook);

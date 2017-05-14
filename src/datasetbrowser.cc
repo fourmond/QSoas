@@ -47,9 +47,6 @@ DatasetBrowser::~DatasetBrowser()
 
 void DatasetBrowser::cleanupViews()
 {
-  for(int i = 0; i < views.size(); i++)
-    delete views[i];
-  views.clear();
   datasets.clear();
 }
 
@@ -57,48 +54,35 @@ void DatasetBrowser::setupFrame()
 {
   QVBoxLayout * layout = new QVBoxLayout(this);
 
-  nup = new NupWidget;
-  // layout->addWidget(nup);
-  nup->setNup(4,4);
-
-  connect(nup, SIGNAL(pageChanged(int)), SLOT(pageChanged(int)));
-
   list = new QListWidget;
-  list->setGridSize(QSize(400,400));
-  // list->setFlow(QListView::LeftToRight);
-  // list->setWrapping(true);
   list->setViewMode(QListView::IconMode);
+  list->setMovement(QListView::Static);
+  list->setResizeMode(QListView::Adjust);
+  list->setIconSize(QSize(300,300));
   list->setSelectionMode(QAbstractItemView::ExtendedSelection);
   layout->addWidget(list);
 
 
   bottomLayout = new QHBoxLayout;
-  QPushButton * bt = new QPushButton(tr("<-"));
-  nup->connect(bt, SIGNAL(clicked()), SLOT(previousPage()));
-  bottomLayout->addWidget(bt);
-
-  bufferDisplay = new QLabel("");
-  bottomLayout->addWidget(bufferDisplay);
 
 
-  bt = new QPushButton(tr("Close"));
-  connect(bt, SIGNAL(clicked()), SLOT(accept()));
-  bottomLayout->addWidget(bt);
+  sizeCombo = new QComboBox;
+  sizeCombo->addItem("Tiny", 100);
+  sizeCombo->addItem("Small", 200);
+  sizeCombo->addItem("Medium", 350);
+  sizeCombo->addItem("Large", 500);
+  sizeCombo->addItem("Huge", 800);
+  connect(sizeCombo, SIGNAL(activated(int)),
+          SLOT(comboChangedSize(int)));
+  sizeCombo->setCurrentIndex(2); // medium ?
 
-  QComboBox * cb = new QComboBox;
-  cb->setEditable(true);
-  cb->addItem("4 x 4");
-  cb->addItem("3 x 3");
-  cb->addItem("2 x 2");
-  cb->addItem("6 x 6");
-  cb->addItem("3 x 2");
-  nup->connect(cb, SIGNAL(activated(const QString&)), 
-               SLOT(setNup(const QString &)));
-  bottomLayout->addWidget(cb);
 
-  bt = new QPushButton(tr("->"));
-  nup->connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
-  bottomLayout->addWidget(bt);
+  bottomLayout->addWidget(sizeCombo);
+
+  QDialogButtonBox * buttons = new QDialogButtonBox(QDialogButtonBox::Close);
+  bottomLayout->addSpacing(1);
+  bottomLayout->addWidget(buttons);
+  connect(buttons, SIGNAL(rejected()), SLOT(reject()));
 
   layout->addLayout(bottomLayout);
 
@@ -106,36 +90,33 @@ void DatasetBrowser::setupFrame()
 
 void DatasetBrowser::pageChanged(int newpage)
 {
-  bufferDisplay->setText(QString("%1/%2").
-                         arg(newpage+1).
-                         arg(nup->totalPages()));
+}
+
+void DatasetBrowser::comboChangedSize(int idx)
+{
+  int sz = sizeCombo->itemData(idx).toInt();
+  if(sz > 0)
+    list->setIconSize(QSize(sz,sz));
 }
 
 void DatasetBrowser::displayDataSets(const QList<const DataSet *> &ds,
                                      bool es)
 {
   extendedSelection = es;
-  nup->clear();
-  int wd = nup->nupWidth();
-  int ht = nup->nupHeight();
-  nup->setNup(0,0);
+  list->clear();
   cleanupViews();
   datasets = ds;
   for(int i = 0; i < datasets.size(); i++) {
-    // CheckableWidget * cw = 
-    //   new CheckableWidget(new CurveView(this), this);
-    // cw->subWidget<CurveView>()->showDataSet(datasets[i]);
-    CurveView * view = new CurveView(this);
-    view->showDataSet(datasets[i]);
     QListWidgetItem * item = new QListWidgetItem(datasets[i]->name);
+    item->setData(Qt::UserRole, i);
+    QIcon icn;
+    icn.addPixmap(CurveView::renderDatasetAsPixmap(datasets[i], QSize(200,200)));
+    icn.addPixmap(CurveView::renderDatasetAsPixmap(datasets[i], QSize(400,400)));
+    icn.addPixmap(CurveView::renderDatasetAsPixmap(datasets[i], QSize(800,800)));
+    
+    item->setIcon(icn);
     list->addItem(item);
-    list->setItemWidget(item, view);
-    item->setSizeHint(QSize(390,390));
-    view->sideGround = QPalette::NoRole;
-
   }
-  nup->setNup(wd, ht);
-  nup->showPage(0);
 }
 
 void DatasetBrowser::displayDataSets(const QList<DataSet *> &ds, 
@@ -151,9 +132,9 @@ void DatasetBrowser::displayDataSets(const QList<DataSet *> &ds,
 QList<const DataSet*> DatasetBrowser::selectedDatasets() const
 {
   QList<const DataSet*> ret;
-  for(int i = 0; i < views.size(); i++)
-    if(views[i]->isChecked())
-      ret << datasets[i];
+  QList<QListWidgetItem *> sel = list->selectedItems();
+  for(int i = 0; i < sel.size(); i++)
+    ret << datasets[sel[i]->data(Qt::UserRole).toInt()];
   return ret;
 }
 
@@ -173,5 +154,5 @@ void DatasetBrowser::addButton(QString name, ActOnSelected hook)
                         SLOT(map()));
   actionsMapper->setMapping(button, actionHooks.size());
   actionHooks << hook;
-  bottomLayout->insertWidget(2, button);
+  bottomLayout->insertWidget(0, button);
 }

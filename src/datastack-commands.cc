@@ -520,6 +520,11 @@ static void browseStackCommand(const QString &)
 {
   DatasetBrowser dlg;
   dlg.displayDataSets(soas().stack().allDataSets());
+  dlg.addButton("Drop from stack", [](const QList<const DataSet*> & lst) {
+      DataStack & s = soas().stack();
+      for(int i = 0; i < lst.size(); i++)
+        s.dropDataSet(lst[i]);
+    });
   dlg.exec();
 }
 

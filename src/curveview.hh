@@ -131,6 +131,11 @@ public:
               int innerPanelHeight, const QRect & targetRectangle,
               const QString & title = "");
 
+  /// Creates a CurveView, add a dataset to display in it, and render
+  /// it as a QPixmap.
+  static QPixmap renderDatasetAsPixmap(const DataSet * dataset,
+                                       const QSize & size);
+
   /// Prints the list of CurveView
   ///
   /// @todo Add the possibility to add plain text (such as fit

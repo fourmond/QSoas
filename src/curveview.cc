@@ -44,7 +44,7 @@
 
 
 CurveView::CurveView(QWidget * parent) : 
-  QAbstractScrollArea(parent),
+  QAbstractScrollArea(parent), nbStyled(0),
   eventLoop(NULL), paintMarkers(false),
   repaintDisabled(false), sideGround(QPalette::Window)
                                             
@@ -360,6 +360,19 @@ void CurveView::render(QPainter * painter,
   
   layOutPanels();
   painter->restore();
+}
+
+
+QPixmap CurveView::renderDatasetAsPixmap(const DataSet * dataset,
+                                         const QSize & size)
+{
+  CurveView v;
+  v.setBackgroundRole(QPalette::NoRole);
+  v.sideGround = QPalette::NoRole;
+  v.addDataSet(dataset);
+  v.resize(size);
+  
+  return QPixmap::grabWidget(&v);
 }
 
 

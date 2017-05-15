@@ -833,8 +833,11 @@ void FitData::unpackCurrentParameters(double * target)
       subordinates[i]->
         unpackCurrentParameters(target + i * parameterDefinitions.size());
   }
-  else
+  else {
+    if(! engine)
+      throw InternalError("Retrieving current parameters of an engineless FitData");
     unpackParameters(engine->currentParameters(), target);
+  }
 }
 
 int FitData::iterate()

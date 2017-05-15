@@ -426,7 +426,8 @@ public:
   ///
   /// @{
 
-  /// Saves the current parameters as a Vector
+  /// Saves the current parameters as a Vector. If data has a engine,
+  /// retrieve it from the engine.
   Vector saveParameterValues();
 
   /// Returns the \b relative errors on the parameters as a Vector

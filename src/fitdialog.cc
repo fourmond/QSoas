@@ -30,6 +30,7 @@
 #include <curvevector.hh>
 #include <curvepanel.hh>
 #include <soas.hh>
+#include <datastack.hh>
 #include <terminal.hh>
 
 #include <curveitems.hh>
@@ -175,7 +176,11 @@ void FitDialog::setupFrame()
     
     nup->addWidget(view);
     views << view;
-    bufferSelection->addItem(Utils::shortenString(ds->name));
+    int idx = 0;
+    soas().stack().indexOf(ds, &idx);
+    bufferSelection->addItem(QString("#%1: %2").
+                             arg(idx).
+                             arg(Utils::shortenString(ds->name)));
   }
   nup->setNup(1,1);
   connect(nup, SIGNAL(pageChanged(int)), SLOT(dataSetChanged(int)));

@@ -205,6 +205,14 @@ void FitDialog::setupFrame()
   label->setWordWrap(true);
   hb->addWidget(label, 1);
 
+  bt = new QPushButton("Hide Fixed");
+  connect(bt, SIGNAL(clicked()), SLOT(hideFixedParameters()));
+  hb->addWidget(bt);
+
+  bt = new QPushButton("Show All");
+  connect(bt, SIGNAL(clicked()), SLOT(showAllParameters()));
+  hb->addWidget(bt);
+
   hb->addWidget(bufferSelection);
   nup->connect(bufferSelection, SIGNAL(currentIndexChanged(int)),
                SLOT(showWidget(int)));
@@ -1324,6 +1332,20 @@ void FitDialog::showParameters()
   if(! parametersViewer)
     parametersViewer = new ParametersViewer(&parameters);
   parametersViewer->show();
+}
+
+void FitDialog::showAllParameters()
+{
+  for(int i = 0; i < editors.size(); i++)
+    editors[i]->show();
+}
+
+void FitDialog::hideFixedParameters()
+{
+  for(int i = 0; i < editors.size(); i++) {
+    if(editors[i]->isFixed())
+      editors[i]->hide();
+  }
 }
 
 void FitDialog::parametersSpreadsheet()

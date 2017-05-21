@@ -29,6 +29,10 @@
 class FlowingGridLayout : public QLayout {
 
   QList<QLayoutItem *> managedItems;
+
+  /// Returns all the layout items that either are not a widget or are
+  /// a visible widget.
+  QList<QLayoutItem *> visibleItems() const;
 public:
   virtual void addItem(QLayoutItem * item);
   virtual QLayoutItem * itemAt(int idx) const;

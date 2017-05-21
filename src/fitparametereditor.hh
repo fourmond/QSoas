@@ -64,8 +64,6 @@ class FitParameterEditor : public QWidget {
   /// Set to true during updates to avoid infinite recursion
   bool updatingEditor;
 
-  /// Whether the parameter is global or not
-  bool isGlobal() const;
 
   /// Returns the target for the current conditions
   FitParameter *targetParameter() {
@@ -75,13 +73,6 @@ class FitParameterEditor : public QWidget {
       return parameters->parameter(index, dataset);
   };
 
-  /// Whether the parameter is global or not
-  bool isFixed() const {
-    if(isGlobal())
-      return parameters->isFixed(index, 0);
-    else
-      return parameters->isFixed(index, dataset);
-  };
 
   /// Whether the editor also propose the edition of the Bijection
   bool extended;
@@ -114,6 +105,18 @@ public:
                      FitWorkspace * params, bool extended = false,
                      bool checkTight = true, 
                      int ds = 0);
+
+  /// Whether the parameter is global or not
+  bool isGlobal() const;
+  
+  /// Whether the parameter is fixed or not
+  bool isFixed() const {
+    if(isGlobal())
+      return parameters->isFixed(index, 0);
+    else
+      return parameters->isFixed(index, dataset);
+  };
+
 
 public slots:
   /// If set error is false, all the errors are reset.

@@ -261,6 +261,12 @@ public slots:
 
 protected slots:
 
+  /// Shows all the parameters
+  void showAllParameters();
+
+  /// Hides fixed parameters
+  void hideFixedParameters();
+
   /// Updates the display of residuals.
   void updateResidualsDisplay();
 

@@ -49,11 +49,27 @@ FlowingGridLayout::~FlowingGridLayout()
     delete managedItems[i];
 }
 
+
+QList<QLayoutItem *> FlowingGridLayout::visibleItems() const
+{
+  QList<QLayoutItem *> rv;
+  for(int i = 0; i < managedItems.size(); i++) {
+    QLayoutItem * it = managedItems[i];
+    QWidget * w = it->widget();
+    if(! w || w->isVisible())
+      rv << it;
+  }
+
+  return rv;
+}
+
+
 QSize FlowingGridLayout::itemsMinimumSize() const
 {
   QSize size;
-  for(int i = 0; i < managedItems.size(); i++)
-    size = size.expandedTo(managedItems[i]->minimumSize());
+  QList<QLayoutItem *> vi = visibleItems();
+  for(int i = 0; i < vi.size(); i++)
+    size = size.expandedTo(vi[i]->minimumSize());
   return size;
 }
 
@@ -96,13 +112,14 @@ int FlowingGridLayout::computeLayout(const QRect & geom, bool doPlacement) const
     nbCols = 1;
   int curColHeight = 0;
   int curY = inner.top();
-  for(int i = 0; i < managedItems.size(); i++) {
+  QList<QLayoutItem *> vi = visibleItems();
+  for(int i = 0; i < vi.size(); i++) {
     if(! (i % nbCols)) {
       curY += curColHeight;
       curColHeight = 0;
     }
 
-    QLayoutItem * it = managedItems[i];
+    QLayoutItem * it = vi[i];
     QSize sz = it->minimumSize();
     sz.setWidth(colWidth);
     if(curColHeight < sz.height())

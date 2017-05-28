@@ -32,6 +32,7 @@ DataStackHelper::DataStackHelper(const CommandOptions & opts,
 {
   updateFromOptions(opts, "flags", flags);
   updateFromOptions(opts, "style", style);
+  updateFromOptions(opts, "set-meta", meta);
 }
 
 DataStackHelper::~DataStackHelper()
@@ -48,7 +49,10 @@ QList<Argument *> DataStackHelper::helperOptions()
                                      "Flags to set on the new buffers")
        << new StyleGeneratorArgument("style", 
                                      "Style",
-                                     "Style for the displayed curves");
+                                     "Style for the displayed curves")
+       << new MetaHashArgument("set-meta", 
+                               "Meta-data to add",
+                               "Meta-data to add to the newly created buffers");
   return args;
 }
 
@@ -77,6 +81,9 @@ void DataStackHelper::pushOne(DataSet * ds, StyleGenerator * gen)
 {
   if(flags.size() > 0)
     ds->setFlags(flags);
+
+  for(auto i = meta.begin(); i != meta.end(); i++)
+    ds->setMetaData(i.key(), i.value());
 
   soas().stack().pushDataSet(ds, true); // use the silent version
                                 // as we display ourselves

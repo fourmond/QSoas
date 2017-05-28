@@ -87,6 +87,34 @@ public:
   virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
 };
 
+/// A series of x=y strings converted to QHash<QString, QVariant>.
+///
+/// No separator, will cause more harm than good ? Speficying several
+/// times should work.
+class MetaHashArgument : public Argument {
+public:
+
+  MetaHashArgument(const char * cn, const char * pn,
+                         const char * d = "", bool g = true, 
+                         bool def = false) : 
+    Argument(cn, pn, d, g, def) {
+  }; 
+
+
+
+  /// Returns a wrapped QStringList
+  virtual ArgumentMarshaller * fromString(const QString & str) const;
+
+  virtual void concatenateArguments(ArgumentMarshaller * a, 
+                                    const ArgumentMarshaller * b) const;
+
+  virtual QString typeName() const;
+
+  virtual QString typeDescription() const;
+
+  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
+};
+
 //////////////////////////////////////////////////////////////////////
 
 /// Time-dependent parameters

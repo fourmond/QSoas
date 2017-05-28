@@ -66,6 +66,9 @@ class DataStackHelper {
   /// Push one dataset with the given style (can be NULL).
   void pushOne(DataSet * ds, StyleGenerator * style);
 
+  /// Meta-data values to be added to the 
+  QHash<QString, QVariant> meta;
+
   
 public:
   DataStackHelper(const CommandOptions & opts, bool update = false,

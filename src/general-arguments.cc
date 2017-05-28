@@ -121,6 +121,48 @@ ArgumentMarshaller * SeveralStringsArgument::fromRuby(RUBY_VALUE value) const
 
 ////////////////////////////////////////////////////////////
 
+ArgumentMarshaller * MetaHashArgument::fromString(const QString & str) const
+{
+  QHash<QString, QVariant> r;
+  int idx = str.indexOf('=');
+  if(idx < 0)
+    throw RuntimeError("Need an equal sign in '%1'").arg(str);
+  QString n = str.left(idx);
+  QString v = str.mid(idx+1);
+  bool ok;
+  double val = v.toDouble(&ok);
+  if(ok)
+    r[n] = val;
+  else
+    r[n] = v;
+
+  return new ArgumentMarshallerChild<QHash<QString, QVariant> >(r);
+}
+
+void MetaHashArgument::concatenateArguments(ArgumentMarshaller * a, 
+                                                  const ArgumentMarshaller * b) const
+{
+  a->value<QHash<QString, QVariant> >().
+    unite(b->value<QHash<QString, QVariant> >());
+}
+
+QString MetaHashArgument::typeName() const {
+  return "meta-data";
+}
+
+QString MetaHashArgument::typeDescription() const
+{
+  return QString("one or more meta=value assignements");
+}
+
+ArgumentMarshaller * MetaHashArgument::fromRuby(RUBY_VALUE value) const
+{
+  throw InternalError("Not implemented");
+  return NULL;
+}
+
+////////////////////////////////////////////////////////////
+
 ArgumentMarshaller * BoolArgument::fromString(const QString & str) const
 {
   QRegExp yesRE("y(es)?|true|on", Qt::CaseInsensitive);

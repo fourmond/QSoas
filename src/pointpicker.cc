@@ -26,8 +26,11 @@
 #include <curvedataset.hh>
 #include <curveview.hh>
 
+#include <curvemarker.hh>
+
 #include <exceptions.hh>
 #include <eventhandler.hh>
+#include <idioms.hh>
 
 #include <soas.hh>
 #include <datastack.hh>
@@ -37,21 +40,44 @@ PointPicker::Method PointPicker::lastMethodUsed = PointPicker::Exact;
 
 PointPicker::PointPicker(CurveEventLoop * l, const DataSet * ds, 
                          CurvePanel * p) :
-  loop(l), panel(p), 
+  loop(l), panel(p),
+  marker(NULL),
   method(lastMethodUsed),
   lastButton(Qt::NoButton),
-  trackedButtons(Qt::LeftButton) 
+  trackedButtons(Qt::LeftButton)
 {
-  pickDataSet(ds);
   loop->ppMessage = pointPickerMessage();
 
   if(! panel)
     panel = l->getView()->mainPanel();
+
+  marker = new CurveMarker;
+  marker->size = 4;
+  marker->pen = QPen(Qt::NoPen);
+
+  updateMarkerStyle();
+  
+  panel->addItem(marker);
+  pickDataSet(ds);
 }
 
 PointPicker::~PointPicker()
 {
   lastMethodUsed = method;
+  delete marker;
+}
+
+void PointPicker::updateMarkerStyle()
+{
+  QColor col(0,0,0);
+  if(method != Off) {
+    CurveDataSet * cds = panel->findDataSet(trackedDataSet);
+    if(cds) {
+      col = cds->pen.color();
+    }
+  }
+  col.setAlpha(100);
+  marker->brush = QBrush(col);
 }
 
 void PointPicker::addToHandler(EventHandler & handler)
@@ -64,7 +90,9 @@ void PointPicker::addToHandler(EventHandler & handler)
     addKey('s', SmoothMethod, "...smooth").
     alsoKey('S').
     addKey('n', NextDataset, "next dataset").
-    addKey('N', PrevDataset, "previous dataset");
+    addKey('N', PrevDataset, "previous dataset").
+    addKey(Qt::CTRL + 't', ToogleTracking, "toogle mouse tracking")
+;
 }
 
 void PointPicker::pickAt(int idx)
@@ -93,6 +121,8 @@ void PointPicker::pickDataSet(const DataSet * ds)
     else
       datasetIndex = 0;
   }
+  updateMarkerStyle();
+
 }
 
 void PointPicker::pickAtX(double x)
@@ -130,22 +160,34 @@ bool PointPicker::processEvent(int action)
     pickPoint();
     return true;
   }
+
+  if(marker && ! marker->hidden) {
+    TemporaryChange<QPointF> t(lastPos);
+    pickPoint();
+    marker->p = lastPos;
+  }
   
   switch(action) {
   case ExactMethod:
     method = Exact;
+    updateMarkerStyle();
     break;
   case OffMethod:
     method = Off;
+    updateMarkerStyle();
     break;
   case SmoothMethod:
     method = Smooth;
+    updateMarkerStyle();
     break;
   case NextDataset:
     nextDataSet();
     break;
   case PrevDataset:
     nextDataSet(-1);
+    break;
+  case ToogleTracking:
+    marker->hidden = ! marker->hidden;
     break;
   default:
     return false;
@@ -174,6 +216,7 @@ void PointPicker::nextDataSet(int delta)
     curIdx += datasets.size();
   if(curIdx >= datasets.size())
     curIdx = curIdx % datasets.size();
+
   pickDataSet(datasets.value(curIdx));
 }
 

@@ -24,6 +24,7 @@
 
 
 class CurveItem;
+class CurveDataSet;
 class DataSet;
 #include <vector.hh>
 
@@ -180,6 +181,10 @@ public:
 
   /// Returns the list of displayed datasets
   QList<DataSet *> displayedDataSets() const;
+
+  /// Returns the (last) CurveDataSet object displaying the given
+  /// dataset, or NULL if the dataset is NULL or not on display
+  CurveDataSet * findDataSet(const DataSet * dataset) const;
 
   /// The stretching factor of this panel with respect to the others.
   /// Defaults to 100.

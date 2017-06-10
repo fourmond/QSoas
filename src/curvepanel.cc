@@ -536,3 +536,19 @@ QList<DataSet *> CurvePanel::displayedDataSets() const
   }
   return ret;
 }
+
+CurveDataSet * CurvePanel::findDataSet(const DataSet * dataset) const
+{
+  if(! dataset)
+    return NULL;
+  for(int i = displayedItems.size() - 1; i >= 0; i--) {
+    CurveItem * it = displayedItems[i];
+    CurveDataSet * cds = dynamic_cast<CurveDataSet *>(it);
+    if(cds) {
+      const DataSet * ds = cds->displayedDataSet();
+      if(ds == dataset)
+        return cds;
+    }
+  }
+  return NULL;
+}

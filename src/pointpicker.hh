@@ -27,6 +27,7 @@ class CurvePanel;
 class DataSet;
 
 class EventHandler;
+class CurveMarker;
 
 
 /// A class for picking points from a dataset in a CurvePanel. It
@@ -53,6 +54,9 @@ class PointPicker {
   /// The panel where the curve lies
   CurvePanel * panel;
 
+  /// The tracker point
+  CurveMarker * marker;
+
 
   typedef enum {
     Off,
@@ -65,7 +69,8 @@ class PointPicker {
     SmoothMethod = 101,
     OffMethod = 102,
     NextDataset = 103,
-    PrevDataset = 104
+    PrevDataset = 104,
+    ToogleTracking = 105
   } Actions;
 
   /// The current method for point picking.
@@ -79,6 +84,9 @@ class PointPicker {
 
   /// Returns the message string appropriate to the current method.
   QString pointPickerMessage() const;
+
+  /// Sets the marker's style according to the tracked dataset style.
+  void updateMarkerStyle();
 
 public:
   PointPicker(CurveEventLoop * l, const DataSet * ds = NULL, 

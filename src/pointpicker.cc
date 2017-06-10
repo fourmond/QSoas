@@ -89,6 +89,8 @@ void PointPicker::addToHandler(EventHandler & handler)
     alsoKey('O').
     addKey('s', SmoothMethod, "...smooth").
     alsoKey('S').
+    addKey(Qt::CTRL + 'm', LocalMinMethod, "...min").
+    addKey(Qt::CTRL + Qt::SHIFT + 'm', LocalMaxMethod, "...max").
     addKey('n', NextDataset, "next dataset").
     addKey('N', PrevDataset, "previous dataset").
     addKey(Qt::CTRL + 't', ToogleTracking, "toogle mouse tracking")
@@ -103,10 +105,44 @@ void PointPicker::pickAt(int idx)
   } else {
     if(trackedDataSet) {
       lastIndex = idx;
-      if(method == Exact)
+      switch(method) {
+      case Exact:
         lastPos = trackedDataSet->pointAt(lastIndex);
-      else if(method == Smooth)
+        break;
+      case Smooth:
         lastPos = trackedDataSet->smoothPick(lastIndex);
+        break;
+      case Off:                 // shouldn't be here
+        break;
+      case LocalMin:
+      case LocalMax:
+        {
+          // Do by hand
+          int nb = 5;           // window
+          int lft = std::max(0, idx - nb);
+          int rght = std::min(trackedDataSet->nbRows()-1, idx + nb);
+          double val = trackedDataSet->y()[lft];
+          int cur = lft;
+          for(int i = lft+1; i < rght; i++) {
+            double v = trackedDataSet->y()[i];
+            if(method == LocalMin) {
+              if(v < val) {
+                val = v;
+                cur = i;
+              }
+            }
+            else {
+              if(v > val) {
+                val = v;
+                cur = i;
+              }
+            }
+          }
+          lastIndex = cur;
+          lastPos = trackedDataSet->pointAt(lastIndex);
+        }
+        break;
+      }
     }
   }
 }
@@ -142,6 +178,8 @@ void PointPicker::pickPoint()
     break;
   case Exact:
   case Smooth:
+  case LocalMin:
+  case LocalMax:
     if(trackedDataSet) {
       /// @todo handle the case of multiple datasets.
       QPair<double, int> dst = loop->distanceToDataSet(trackedDataSet);
@@ -178,6 +216,14 @@ bool PointPicker::processEvent(int action)
     break;
   case SmoothMethod:
     method = Smooth;
+    updateMarkerStyle();
+    break;
+  case LocalMinMethod:
+    method = LocalMin;
+    updateMarkerStyle();
+    break;
+  case LocalMaxMethod:
+    method = LocalMax;
     updateMarkerStyle();
     break;
   case NextDataset:
@@ -229,6 +275,12 @@ QString PointPicker::pointPickerMessage() const
     break;
   case Smooth: 
     mk ="smooth";
+    break;
+  case LocalMin: 
+    mk ="min";
+    break;
+  case LocalMax: 
+    mk ="max";
     break;
   case Off: 
     mk = "off";

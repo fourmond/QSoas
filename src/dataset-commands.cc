@@ -358,12 +358,21 @@ static void expandCommand(const QString &,
   }
   QString pc;
   updateFromOptions(opts, "perp-meta", pc);
+  int xevery = 0;
+  updateFromOptions(opts, "x-every-nth", xevery);
 
   Vector ppcd = ds->perpendicularCoordinates();
+  Vector xvs = ds->x();
+  int nb = 0;
   for(int i = 1; i < ds->nbColumns(); i++) {
+    if(xevery > 0 && ((i % xevery) == 0)) {
+      xvs = ds->column(i);
+      continue;
+    }
     QList<Vector> cols;
-    cols << ds->x();
+    cols << xvs;
     cols << ds->column(i);
+    nb += 1;
     DataSet * s = ds->derivedDataSet(cols, QString("_col_%1.dat").arg(i+1));
     if(ppcd.size() >= i) {
       s->setPerpendicularCoordinates(ppcd[i-1]);
@@ -374,7 +383,7 @@ static void expandCommand(const QString &,
     pusher.pushDataSet(s);
   }
   Terminal::out << "Expanded '" << ds->name 
-                << "' into " << ds->nbColumns() - 1 << " buffers" << endl;
+                << "' into " << nb << " buffers" << endl;
 }
 
 static ArgumentList 
@@ -382,6 +391,9 @@ expandOpts(QList<Argument *>()
            << new StringArgument("perp-meta", 
                                  "Perpendicular coordinate",
                                  "defines meta-data from perpendicular coordinate")
+           << new IntegerArgument("x-every-nth", 
+                                  "X column every nth column",
+                                  "specifies the number of columns between successive X values")
            << DataStackHelper::helperOptions()
            );
 

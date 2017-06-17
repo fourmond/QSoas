@@ -64,17 +64,17 @@ void ParametersDialog::setupFrame()
 
   int curRow = 0;
   for(int i = 0; i < datasets.size(); i++) {
-    if(datasets.size() > 1) {
+    if(datasets.size() > 1)
       gd->addWidget(new QLabel(datasets[i]->name), curRow, 0);
-      for(int j = 0; j < nbParams; ++j, ++curRow) {
-        FitParameterEditor * edit = 
-          new FitParameterEditor(&defs[j], j, parameters, true, false, i);
-        edit->updateFromParameters();
-        gd->addWidget(edit, curRow, 1);
-        editors << edit;
-        connect(edit, SIGNAL(globalChanged(int, bool)),
-                SLOT(onGlobalChanged(int, bool)));
-      }
+    
+    for(int j = 0; j < nbParams; ++j, ++curRow) {
+      FitParameterEditor * edit = 
+        new FitParameterEditor(&defs[j], j, parameters, true, false, i);
+      edit->updateFromParameters();
+      gd->addWidget(edit, curRow, 1);
+      editors << edit;
+      connect(edit, SIGNAL(globalChanged(int, bool)),
+              SLOT(onGlobalChanged(int, bool)));
     }
   }
 

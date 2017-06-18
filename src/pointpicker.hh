@@ -119,11 +119,11 @@ public:
   /// Qt::NoButton if the last point wasn't a tracked button pressed.
   Qt::MouseButton button() { return lastButton; };
 
-  // /// Returns the dataset corresponding to the last press (meaningful
-  // /// only if lastPress isn't Qt::MouseButton)
-  // ///
-  // /// Always NULL for off
-  // DataSet * dataset() { return ;
+  /// Returns the dataset corresponding to the last press (meaningful
+  /// only if lastPress isn't Qt::MouseButton)
+  ///
+  /// Always NULL for off
+  const DataSet * dataset() const;
 
   /// Returns the last point (according to the method currently in
   /// order)

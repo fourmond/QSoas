@@ -189,6 +189,13 @@ void PointPicker::pickPoint()
   }
 }
 
+const DataSet * PointPicker::dataset() const
+{
+  if(method == Off)
+    return NULL;
+  return trackedDataSet;
+}
+
 bool PointPicker::processEvent(int action)
 {
   lastButton = Qt::NoButton;

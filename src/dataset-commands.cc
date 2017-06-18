@@ -617,8 +617,11 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
         << "y-yr" << m.p.y() - r.p.y() 
         << "x/xr" << m.p.x()/r.p.x()
         << "y/yr" << m.p.y()/r.p.y();
-      for(int j = 2; j < ds->nbColumns(); j++)
-        e << QString("y%1").arg(j) << ds->column(j)[idx];
+      const DataSet * cds = pick.dataset();
+      if(cds) {
+        for(int j = 2; j < cds->nbColumns(); j++)
+          e << QString("y%1").arg(j) << cds->column(j)[idx];
+      }
       if(first) {
         first = false;
         Terminal::out << e.keyOrder.join("\t") << endl;

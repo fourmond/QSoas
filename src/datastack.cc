@@ -29,7 +29,7 @@
 #include <debug.hh>
 
 DataStack::DataStack() : 
-  cachedByteSize(0)
+  cachedByteSize(0), accumulator(NULL)
 {
 }
 
@@ -336,6 +336,41 @@ QString DataStack::textSummary() const
     << (cds ? QString("'%1'").arg(cds->name) : "(none)");
   return s;
 }
+
+
+void DataStack::accumulateValues(const ValueHash & data)
+{
+  if(! accumulator)
+    accumulator = new DataSet;
+  accumulator->setMetaData("keys", data.keyOrder);
+  int nbr = accumulator->nbRows();
+  for(int i = 0; i < data.keyOrder.size(); i++) {
+    const QString & k = data.keyOrder[i];
+    if(i >= accumulator->nbColumns()) {
+      Vector v;
+      if(nbr > 0)
+        v = Vector(0.0/0.0, nbr);
+      accumulator->appendColumn(v);
+    }
+    accumulator->column(i) << data[k].toDouble();
+  }
+  Terminal::out << "Accumulator now has " << accumulator->nbRows()
+                << " rows" << endl;
+}
+
+DataSet * DataStack::popAccumulator()
+{
+  DataSet * ds = accumulator;
+  accumulator = NULL;
+  return ds;
+}
+
+// DataSet * DataStack::getAccumulator()
+// {
+//   return accumulator;
+// }
+
+
 
 qint32 DataStack::serializationVersion = 0;
 

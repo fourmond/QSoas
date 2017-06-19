@@ -30,6 +30,9 @@
 #include <dataset.hh>
 #include <terminal.hh>
 
+#include <soas.hh>
+#include <datastack.hh>
+
 template<class T> QHash<QString, T> ValueHash::extract(QVariant::Type t) const
 {
   QHash<QString, T> ret;
@@ -350,8 +353,50 @@ QList<Argument *> ValueHash::outputOptions(bool deflt)
        << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "set-meta", 
                                      "Set meta-data",
                                      "saves the results of the command as meta-data rather than/in addition to saving to the output file")
+       << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "accumulate", 
+                                     "Accumulate",
+                                     "accumulate the given data into a dataset")
     ;
 }
+
+ValueHash ValueHash::copyFromSpec(const QStringList & spec, QStringList * missing) const
+{
+  ValueHash cnv;
+  for(int i = 0; i < spec.size(); i++) {
+    const QString &sp = spec[i];
+    if(sp == "*") {
+      cnv.merge(*this);
+      cnv.keyOrder += keyOrder;
+      continue;
+    }
+    int idx = sp.indexOf("->");
+    if(idx < 0) {
+      if(! contains(sp)){
+        if(missing)
+          *missing << sp;
+      }
+      else {
+        cnv[sp] = (*this)[sp];
+        cnv.keyOrder << sp;
+      }
+    }
+    else {
+      QString org = sp.left(idx);
+      QString dest = sp.mid(idx+2);
+      if(! contains(org)) {
+        if(missing)
+          *missing << org;
+      }
+      else {
+        cnv[dest] = (*this)[org];
+        cnv.keyOrder << dest;
+
+      }
+    }
+  }
+  return cnv;
+}
+
 
 void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts,
                              bool deflt) const
@@ -365,6 +410,9 @@ void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts,
 
   QStringList setMeta;
   updateFromOptions(opts, "set-meta", setMeta);
+
+  QStringList accumulate;
+  updateFromOptions(opts, "accumulate", accumulate);
 
 
   ValueHash meta;
@@ -388,41 +436,27 @@ void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts,
   }
 
   if(setMeta.size() > 0) {
-    ValueHash cnv;
-    // Parsing set-meta:
-    // * '*' means "set all"
-    // * 'txt' means set the meta txt to the value txt
-    // * 'txt->txt2' means set the meta txt2 to the value txt
-    for(int i = 0; i < setMeta.size(); i++) {
-      const QString &sp = setMeta[i];
-      if(sp == "*") {
-        cnv.merge(*this);
-        continue;
-      }
-      int idx = sp.indexOf("->");
-      if(idx < 0) {
-        if(! contains(sp))
-          Terminal::out << "Cannot set meta to '" << sp
-                        << "', value missing" << endl;
-        else
-          cnv[sp] = (*this)[sp];
-      }
-      else {
-        QString org = sp.left(idx);
-        QString dest = sp.mid(idx+2);
-        if(! contains(org))
-          Terminal::out << "Cannot set meta '" << dest << "' to '" << org
-                        << "', value missing" << endl;
-        else
-          cnv[dest] = (*this)[org];
-      }
-    }
-
+    QStringList missing;
+    ValueHash cnv = copyFromSpec(setMeta, &missing);
+    if(missing.size() > 0)
+      Terminal::out << "Missing the values for keys '" << missing.join("', '")
+                    << "'" << endl;
     DataSet * d = const_cast<DataSet *>(ds);
 
     Terminal::out << "Setting meta-data :'"
                   << QStringList(cnv.keys()).join("', '")
                   << "'" << endl;
     d->addMetaData(cnv);
+  }
+
+  if(accumulate.size() > 0) {
+    QStringList missing;
+    ValueHash cnv = copyFromSpec(accumulate, &missing);
+    cnv.merge(meta);
+
+    if(missing.size() > 0)
+      Terminal::out << "Missing the values for keys '" << missing.join("', '")
+                    << "'" << endl;
+    soas().stack().accumulateValues(cnv);
   }
 }

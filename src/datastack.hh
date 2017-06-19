@@ -72,6 +72,9 @@ class DataStack : public QObject {
   /// are added automatically to each dataset pushed onto the stack.
   QSet<QString> autoFlags;
 
+  /// The current accumulator
+  DataSet * accumulator;
+
 public:
 
   /// Constructs a DataStack object.
@@ -180,6 +183,15 @@ public:
   /// Returns a textual summary of the stack: current dataset, total
   /// size in kB, number of datasets
   QString textSummary() const;
+
+  /// Accumulate the given ValueHash to the accumulator
+  void accumulateValues(const ValueHash & data);
+
+  /// Returns the current accumulator and release its ownership
+  DataSet * popAccumulator();
+
+  // /// Returns the current accumulator without releasing ownership
+  // DataSet * getAccumulator();
 
 signals:
   /// Emitted whenever the current dataset changed.

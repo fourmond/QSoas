@@ -163,6 +163,12 @@ public:
   /// Builds a new ValueHash from a Ruby hsh
   static ValueHash fromRuby(RUBY_VALUE hsh);
 
+  /// Returns a copy of the hash selecting keys/values  from the spec:
+  /// @li '*' means "set all"
+  /// @li 'txt' means set the meta txt to the value txt
+  /// @li 'txt->txt2' means set the meta txt2 to the value txt
+  ///
+  ValueHash copyFromSpec(const QStringList & spec, QStringList * missing = NULL) const;
 
   /// @name Accessor-like function
   /// 

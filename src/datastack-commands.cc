@@ -264,6 +264,30 @@ drop("drop", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void popCommand(const QString &, const CommandOptions & opts)
+{
+  DataStack & stack = soas().stack();
+  DataSet * ds = stack.popAccumulator();
+  ds->name = "accumulator";
+  soas().pushDataSet(ds);
+}
+
+// static ArgumentList 
+// popOps(QList<Argument *>() );
+
+
+static Command 
+popCmd("pop", // command name
+       effector(popCommand), // action
+       "stack",  // group name
+       NULL, // arguments
+       NULL, // options
+       "Pop accumulator",
+       "Pops the contents of the accumulator",
+       "s");
+
+//////////////////////////////////////////////////////////////////////
+
 static ArgumentList 
 undoOps(QList<Argument *>() 
         << new IntegerArgument("number", 

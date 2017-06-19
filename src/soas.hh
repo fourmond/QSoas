@@ -45,6 +45,7 @@ class Soas {
 
   /// The date of QSoas's startup
   QDateTime startup;
+
   
 public:
 
@@ -66,7 +67,6 @@ public:
 
   /// Pushes a new dataset onto the stack
   void pushDataSet(DataSet * ds, bool silent = false);
-
 
   /// @name Element accessors
   ///

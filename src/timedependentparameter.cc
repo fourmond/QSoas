@@ -403,6 +403,10 @@ TimeDependentParameter * TimeDependentParameter::parseFromString(const QString &
   else
     nb = -1;
 
+  if(elems.size() < 1)
+    throw RuntimeError("Not a time-dependent-parameter spec: '%1'").
+      arg(str);
+
   QString type = elems.takeFirst();
   return TDPFactory::createObject(type, nb, elems);
 } 

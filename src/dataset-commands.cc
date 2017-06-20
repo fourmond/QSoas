@@ -557,6 +557,11 @@ namespace __cu {
     QuitSubtractingRespRef,
     QuitDividingRespRef,
     WriteToOutput,
+    ShiftX,
+    ScaleX,
+    ShiftY,
+    ScaleY,
+    Abort,
     Quit
   } CursorActions;
 
@@ -569,9 +574,14 @@ namespace __cu {
     alsoKey('U').
     addKey(Qt::CTRL + 'u', QuitSubtractingRespRef, "subtract y - yref").
     addKey(Qt::CTRL + 'v', QuitDividingRespRef, "divide by y/yref").
+    addKey(Qt::CTRL + 'x', ShiftX, "shift X by x-xref and keep going").
+    addKey(Qt::CTRL + Qt::SHIFT + 'x', ScaleX, "scale X by x/xref and keep going").
+    addKey(Qt::CTRL + 'y', ShiftY, "shift Y by y-yref and keep going").
+    addKey(Qt::CTRL + Qt::SHIFT + 'y', ScaleY, "scale Y by y/yref and keep going").
     addPointPicker().
-    addKey(Qt::Key_Escape, Quit, "quit").
-    alsoKey('q').alsoKey('Q').
+    addKey(Qt::Key_Escape, Abort, "abort").
+    addKey('q', Quit, "quit").
+    alsoKey('Q').
     addClick(Qt::MiddleButton, WriteToOutput, "write to output").
     alsoKey(' ');
 
@@ -580,6 +590,8 @@ namespace __cu {
 static void cursorCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
+  // std::unique_ptr<DataSet> nds = NULL;         // for in-place edition
+  DataSet *  nds = NULL;         // for in-place edition
   CurveMarker m;
   CurveMarker r;
   CurveView & view = soas().view();
@@ -602,6 +614,14 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
   Terminal::out << "Point positions:" << endl;
   QString cur;
   ValueHash e;
+
+  auto ensureEditableDS = [&nds, ds, &view] {
+    if(! nds) {
+      nds = ds->derivedDataSet("_cu_mod.dat");
+      view.addDataSet(nds);
+    }
+  };
+  
   while(! loop.finished()) {
 
     int action = cursorHandler.nextAction(loop);
@@ -635,7 +655,13 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
                     << r.p.y() << endl;
       break;
     case Quit:
-        return;
+      if(nds) {
+        Terminal::out << "Pushing modified dataset" << endl;
+        soas().pushDataSet(nds);
+      }
+    case Abort:
+      return;
+
     case QuitSubtracting: {
       Vector ny = ds->y() - m.p.y();
       Terminal::out << "Subtracting Y value: " << m.p.y() << endl;
@@ -666,6 +692,54 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
                     << OutFile::out.fileName() << "'" << endl;
       
       OutFile::out.writeValueHash(e, ds);
+    case ShiftX: {
+      double dx = m.p.x() - r.p.x();
+      if(! std::isfinite(dx)) {
+        Terminal::out << "Not doing anything as delta x, " << dx
+                      << ", is not finite" << endl;
+        break;
+      }
+      ensureEditableDS();
+      Terminal::out << "Shifting X by: " << dx << endl;
+      nds->x() = nds->x() - dx;
+      break;
+    }
+    case ScaleX: {
+      double xs = m.p.x()/r.p.x();
+      if(! std::isfinite(xs)) {
+        Terminal::out << "Not doing anything as x factor, " << xs
+                      << ", is not finite" << endl;
+        break;
+      }
+      ensureEditableDS();
+      Terminal::out << "Scaling X by: " << xs << endl;
+      nds->x() = nds->x()/xs;
+      break;
+    }
+    case ShiftY: {
+      double dy = m.p.y() - r.p.y();
+      if(! std::isfinite(dy)) {
+        Terminal::out << "Not doing anything as delta y, " << dy
+                      << ", is not finite" << endl;
+        break;
+      }
+      ensureEditableDS();
+      Terminal::out << "Shifting Y by: " << dy << endl;
+      nds->y() = nds->y() - dy;
+      break;
+    }
+    case ScaleY: {
+      double ys = m.p.y()/r.p.y();
+      if(! std::isfinite(ys)) {
+        Terminal::out << "Not doing anything as y factor, " << ys
+                      << ", is not finite" << endl;
+        break;
+      }
+      ensureEditableDS();
+      Terminal::out << "Scaling Y by: " << ys << endl;
+      nds->y() = nds->y()/ys;
+      break;
+    }
     default:
       ;
     }

@@ -710,6 +710,19 @@ static void flagUnFlag(const CommandOptions & opts,
   bool set = false;
   updateFromOptions(opts, "set", set);
 
+  bool exclusive = false;
+  updateFromOptions(opts, "exclusive", exclusive);
+
+  if(exclusive && flagged) {
+    // remove the given flags from all the bufers
+    QList<const DataSet *> ads = soas().stack().allDataSets();
+    for(int i = 0; i < ads.size(); i++) {
+      /// @hack const-cast
+      DataSet * ds = const_cast<DataSet*>(ads[i]);
+      ds->clearFlags(flags);
+    }
+  }
+
   for(int i = 0; i < buffers.size(); i++) {
     DataSet * ds = const_cast<DataSet *>(buffers[i]);
     if(! forWhich.isEmpty()) {
@@ -769,8 +782,11 @@ static ArgumentList
 flOps(QList<Argument *>(muOps)
       << new BoolArgument("set", 
                           "Set flags",
-                          "If on, clears all the previous flags"));
-      
+                          "If on, clears all the previous flags")
+      << new BoolArgument("exclusive", 
+                          "Set flags exclusively",
+                          "If on, clears the given flags on all the buffers but the ones specified"));
+
 
 
 

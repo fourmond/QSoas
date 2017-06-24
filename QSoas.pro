@@ -450,7 +450,8 @@ SOURCES += src/ruby-wrappers.c
                 
 # Sources of file-format specific code
 SOURCES += src/formats/gpesprovider.cc \
-        src/formats/chi.cc
+        src/formats/chi.cc \
+        src/formats/parametersbackend.cc
 
 # Using signals on platforms that support them
 unix|macx {

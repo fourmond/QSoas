@@ -304,7 +304,8 @@ SOURCES += src/qmain.cc \
         src/boundingbox.cc \
         src/sparsejacobian.cc \
         src/sparsecovariance.cc \
-        src/onetimewarnings.cc
+        src/onetimewarnings.cc \
+        src/fitparametersfile.cc
 
 # Fit engines, grouped in an easy way to disable them:
 # (its missing ODRPACK, though)
@@ -435,7 +436,9 @@ HEADERS += src/headers.hh \
         src/gsl-types.hh \
         src/sparsejacobian.hh \
         src/sparsecovariance.hh \
-        src/onetimewarnings.hh
+        src/onetimewarnings.hh \
+        src/fitparametersfile.hh
+
 
 
 

@@ -180,14 +180,16 @@ static MultiLambdaStat gen(QStringList()
 
 static MultiLambdaStat avg(QStringList()
                            << "average"
-                           << "var", false, false,
+                           << "var"
+                           << "stddev", false, false,
                            [](const DataSet * ds, int c) -> QList<QVariant>
                            {
                              QList<QVariant> rv;
                              double a,v;
                              ds->column(c).stats(&a, &v);
                              rv << a
-                                << v;
+                                << v
+                                << sqrt(v);
                              return rv;
                            });
 

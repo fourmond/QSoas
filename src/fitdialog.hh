@@ -173,6 +173,9 @@ protected:
   /// The maximum number of iterations
   int iterationLimit;
 
+  /// Check an engine is ready for the export
+  bool checkEngineForExport();
+
 
 public:
   FitDialog(FitData * data, bool displayWeights = false, 

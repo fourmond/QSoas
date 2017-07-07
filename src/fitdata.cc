@@ -203,7 +203,7 @@ public:
 FitData::FitData(const Fit * f, const QList<const DataSet *> & ds, int d, 
                  const QStringList & ex) : 
   totalSize(0), covarStorage(NULL), covarIsOK(false),
-  engine(NULL), extra(ex),
+  engine(NULL), inProgress(false), extra(ex),
   evaluationNumber(0), 
   fit(f), debug(d), datasets(ds),
   standardYErrors(NULL), pointWeights(NULL),
@@ -314,6 +314,7 @@ void FitData::freeSolver()
 {
   delete engine;
   engine = NULL;
+  inProgress = false;
   
   for(int i = 0; i < subordinates.size(); i++)
     delete subordinates[i];
@@ -322,7 +323,8 @@ void FitData::freeSolver()
 
 void FitData::doneFitting()
 {
-  freeSolver();
+  inProgress = false;
+  // freeSolver();
 }
 
 const PossessiveList<FitParameter> & FitData::currentParameters() const
@@ -332,7 +334,7 @@ const PossessiveList<FitParameter> & FitData::currentParameters() const
 
 void FitData::clearParameters()
 {
-  if(engine)
+  if(inProgress)
     throw InternalError("Trying to modify the parameters when the fit is running");
   parameters.clear();
   allParameters.clear();
@@ -342,7 +344,7 @@ void FitData::clearParameters()
 
 void FitData::pushParameter(FitParameter * parameter)
 {
-  if(engine)
+  if(inProgress)
     throw InternalError("Trying to modify the parameters when the fit is running");
   parameters << parameter;
 }
@@ -801,6 +803,7 @@ void FitData::initializeSolver(const double * initialGuess,
       engineFactory = FitEngine::defaultFactoryItem();
     try {
       engine = engineFactory->creator(this);
+      inProgress = true;
     }
     catch(const Exception & ex) {
       engine = NULL;            /// @bug Leaks memory, but we can't do

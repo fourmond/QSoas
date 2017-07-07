@@ -947,9 +947,21 @@ void FitDialog::setParameterValue(const QString & name, double value, int ds)
   updateEditors();
 }
 
+bool FitDialog::checkEngineForExport()
+{
+  if(! data->hasEngine()) {
+    QMessageBox::warning(this, "No fit engine for export",
+                         QString("There is no fit engine for exporting parameters. You must run a fit before exporting parameters (or try looking at the /operation=reexport option to the sim-%1 command)").arg(data->fit->fitName(false)));
+    return false;
+  }
+  return true;
+}
+
 
 void FitDialog::promptExport(bool errors)
 {
+  if(! checkEngineForExport())
+    return;
   QString save = 
     QFileDialog::getSaveFileName(this, tr("Export parameters"));
   if(save.isEmpty())
@@ -976,12 +988,16 @@ void FitDialog::exportParameters()
 
 void FitDialog::exportToOutFile()
 {
+  if(! checkEngineForExport())
+    return;
   parameters.exportToOutFile();
   Terminal::out << "Exported fit parameters to output file"  << endl;
 }
 
 void FitDialog::exportToOutFileWithErrors()
 {
+  if(! checkEngineForExport())
+    return;
   parameters.exportToOutFile(true);
   Terminal::out << "Exported fit parameters and errors to output file"  << endl;
 }

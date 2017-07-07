@@ -190,6 +190,9 @@ private:
   /// The fit engine in use
   FitEngine * engine;
 
+  /// Whether the fit is currently running
+  bool inProgress;
+
   /// Extra parameters
   QStringList extra;
 

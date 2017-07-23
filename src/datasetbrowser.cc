@@ -25,6 +25,80 @@
 #include <nupwidget.hh>
 
 
+
+//////////////////////////////////////////////////////////////////////
+
+class DataSetListModel : public QStringListModel {
+  QList<const DataSet*> datasets;
+
+  mutable QCache<int, QIcon> cachedIcons;
+
+  int curSize;
+  
+public:
+
+  /// @todo Make cache size customizable 
+  DataSetListModel() : cachedIcons(100 * 64) {
+    
+  }
+
+  void setDataSetList(const QList<const DataSet*> & lst) {
+    QStringList names;
+    datasets = lst;
+    for(int i = 0; i < datasets.size(); i++)
+      names << datasets[i]->name;
+    setStringList(names);
+  };
+
+  QVariant data(const QModelIndex & index, int role) const override {
+    if(! index.isValid())
+      return QVariant();
+    if(role == Qt::DecorationRole) {
+      int i = index.row();
+      if(cachedIcons.contains(i))
+        return *cachedIcons[i];
+      QIcon * icn = new QIcon;
+      icn->addPixmap(CurveView::renderDatasetAsPixmap(datasets[i], QSize(200,200)));
+      if(curSize > 200)
+        icn->addPixmap(CurveView::renderDatasetAsPixmap(datasets[i], QSize(400,400)));
+      if(curSize > 400)
+        icn->addPixmap(CurveView::renderDatasetAsPixmap(datasets[i], QSize(800,800)));
+      int cst = curSize/100;
+      cst *= cst;
+      cachedIcons.insert(i, icn, cst);
+      // QTextStream o(stdout);
+      // o << "Making icon for : " << datasets[i]->name << endl;
+      return *icn;
+    }
+    else
+      return QStringListModel::data(index, role);
+  };
+
+  void setCurSize(int sz) {
+    if(sz <= 200)
+      sz = 200;
+    else if(sz <= 400)
+      sz = 400;
+    else
+      sz = 800;
+    if(sz > curSize)
+      cachedIcons.clear();
+    curSize = sz;
+  };
+
+  QList<const DataSet * > indexedDatasets(const QModelIndexList & list) const {
+    QList<const DataSet * > sel;
+    for(auto i : list)
+      sel << datasets[i.row()];
+    return sel;
+  }
+};
+
+
+
+
+
+
 //////////////////////////////////////////////////////////////////////
 
 static SettingsValue<QSize> browserSize("browser/size", QSize(700,500));
@@ -54,13 +128,17 @@ void DatasetBrowser::setupFrame()
 {
   QVBoxLayout * layout = new QVBoxLayout(this);
 
-  list = new QListWidget;
+  list = new QListView;
   list->setViewMode(QListView::IconMode);
   list->setMovement(QListView::Static);
   list->setResizeMode(QListView::Adjust);
   list->setIconSize(QSize(300,300));
   list->setSelectionMode(QAbstractItemView::ExtendedSelection);
+  list->setUniformItemSizes(true);
   layout->addWidget(list);
+
+  model = new DataSetListModel;
+  list->setModel(model);
 
 
   bottomLayout = new QHBoxLayout;
@@ -95,28 +173,19 @@ void DatasetBrowser::pageChanged(int newpage)
 void DatasetBrowser::comboChangedSize(int idx)
 {
   int sz = sizeCombo->itemData(idx).toInt();
-  if(sz > 0)
+  if(sz > 0) {
+    model->setCurSize(sz);
     list->setIconSize(QSize(sz,sz));
+  }
 }
 
 void DatasetBrowser::displayDataSets(const QList<const DataSet *> &ds,
                                      bool es)
 {
   extendedSelection = es;
-  list->clear();
   cleanupViews();
   datasets = ds;
-  for(int i = 0; i < datasets.size(); i++) {
-    QListWidgetItem * item = new QListWidgetItem(datasets[i]->name);
-    item->setData(Qt::UserRole, i);
-    QIcon icn;
-    icn.addPixmap(CurveView::renderDatasetAsPixmap(datasets[i], QSize(200,200)));
-    icn.addPixmap(CurveView::renderDatasetAsPixmap(datasets[i], QSize(400,400)));
-    icn.addPixmap(CurveView::renderDatasetAsPixmap(datasets[i], QSize(800,800)));
-    
-    item->setIcon(icn);
-    list->addItem(item);
-  }
+  model->setDataSetList(ds);
 }
 
 void DatasetBrowser::displayDataSets(const QList<DataSet *> &ds, 
@@ -131,11 +200,7 @@ void DatasetBrowser::displayDataSets(const QList<DataSet *> &ds,
 
 QList<const DataSet*> DatasetBrowser::selectedDatasets() const
 {
-  QList<const DataSet*> ret;
-  QList<QListWidgetItem *> sel = list->selectedItems();
-  for(int i = 0; i < sel.size(); i++)
-    ret << datasets[sel[i]->data(Qt::UserRole).toInt()];
-  return ret;
+  return model->indexedDatasets(list->selectionModel()->selectedIndexes());
 }
 
 void DatasetBrowser::runHook(int id)

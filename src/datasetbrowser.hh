@@ -27,6 +27,8 @@
 class CheckableWidget;
 class NupWidget;
 
+class DataSetListModel;
+
 /// This class handles all the user interaction during fits.
 class DatasetBrowser : public QDialog {
 
@@ -43,7 +45,10 @@ private:
   QHBoxLayout * bottomLayout;
 
   /// A QListWidget displaying all the datasets
-  QListWidget * list;
+  QListView * list;
+
+  /// The stringlist model
+  DataSetListModel * model;
 
   void setupFrame();
   void setupGrid();

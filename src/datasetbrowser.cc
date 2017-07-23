@@ -38,7 +38,7 @@ class DataSetListModel : public QStringListModel {
 public:
 
   /// @todo Make cache size customizable 
-  DataSetListModel() : cachedIcons(100 * 64) {
+  DataSetListModel() : cachedIcons(100 * 64), curSize(200) {
     
   }
 
@@ -117,6 +117,7 @@ DatasetBrowser::~DatasetBrowser()
 {
   browserSize = size();
   cleanupViews();
+  delete model;
 }
 
 void DatasetBrowser::cleanupViews()

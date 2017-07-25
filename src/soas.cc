@@ -64,6 +64,14 @@ Soas::Soas() :
   gs = new GraphicsSettings;
 }
 
+
+Soas::~Soas()
+{
+  theSoasInstance = NULL;
+  delete ds;
+  delete gs;
+}
+
 double Soas::temperature() const {
   return ::temperature;
 }

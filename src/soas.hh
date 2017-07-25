@@ -50,6 +50,7 @@ class Soas {
 public:
 
   Soas();
+  ~Soas();
 
   void setMainWindow(MainWin * m) {
     mw = m;

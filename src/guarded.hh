@@ -32,10 +32,14 @@ class Guardable {
   friend class GuardedPointerBase;
 
   void addWatcher(GuardedPointerBase * watcher) {
+    // QTextStream o(stdout);
+    // o << "Watching: " << this << " from " << watcher << endl;
     watchers.insert(watcher);
   };
 
   void removeWatcher(GuardedPointerBase * watcher) {
+    // QTextStream o(stdout);
+    // o << "Stop watching: " << this << " from " << watcher << endl;
     watchers.remove(watcher);
   };
 
@@ -44,8 +48,13 @@ public:
   
   Guardable(const Guardable & /*tg*/) {;}; // we don't copy the watchers list !
 
-protected:
+  
   virtual ~Guardable();
+
+  Guardable & operator=(const Guardable &) {
+    // Don't copy anything
+    return *this;
+  };
 
 };
 
@@ -53,6 +62,10 @@ protected:
 /// storage.
 class GuardedPointerBase {
   friend class Guardable;
+
+  GuardedPointerBase & operator=(const GuardedPointerBase & a);//  {
+  // };
+
 
 protected:
   /// The target object
@@ -68,6 +81,13 @@ protected:
     if(_target)
       _target->addWatcher(this);
   };
+
+  GuardedPointerBase(const GuardedPointerBase & a) :
+    GuardedPointerBase(a._target) {
+  };
+
+
+
 
   virtual ~GuardedPointerBase() {
     if(_target)

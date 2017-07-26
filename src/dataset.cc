@@ -96,8 +96,14 @@ QString DataSet::stringDescription(bool longDesc) const
 {
   /// @todo Possibly clean that up ?
   if(longDesc) {
-    QString val = QString("%1: %2 cols, %3 rows, %4 segments\n").
-      arg(name).arg(nbColumns()).arg(nbRows()).arg(segments.size() + 1);
+    int idx;
+    QString index;
+    if(soas().stack().indexOf(this, &idx))
+      index = QString(", #%1").arg(idx);
+    
+    QString val = QString("%1: %2 cols, %3 rows, %4 segments%5\n").
+      arg(name).arg(nbColumns()).arg(nbRows()).
+      arg(segments.size() + 1).arg(index);
     QStringList flgs = QStringList::fromSet(flags);
     qSort(flgs);
     val += QString("Flags: %1\n").arg(flgs.join(", "));

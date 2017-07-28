@@ -493,12 +493,16 @@ Vector Vector::fromGSLVector(const gsl_vector * vect)
   return ret;
 }
 
-Vector Vector::deltas() const
+Vector Vector::deltas(bool centered) const
 {
   Vector ret;
-  ret.reserve(size()-1);
-  for(int i = 0; i < size() - 1; i++)
-    ret << value(i+1) - value(i);
+  if(centered)
+    throw InternalError("Not implemented");
+  else {
+    ret.reserve(size()-1);
+    for(int i = 0; i < size() - 1; i++)
+      ret << value(i+1) - value(i);
+  }
   return ret;
 }
 
@@ -774,7 +778,7 @@ void Vector::reverse()
 }
 
 
-QList<Vector> Vector::bin(int boxes, bool lg) const
+QList<Vector> Vector::bin(int boxes, bool lg, const Vector & weights) const
 {
   double mi = min();
   double ma = max();
@@ -800,7 +804,10 @@ QList<Vector> Vector::bin(int boxes, bool lg) const
     double v = value(i);
     if(lg)
       v = log10(v);
-    gsl_histogram_increment(hist, v);
+    if(weights.size() > 0)
+      gsl_histogram_accumulate(hist, v, weights[i]);
+    else
+      gsl_histogram_increment(hist, v);
   }
   
 

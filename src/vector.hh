@@ -172,9 +172,11 @@ public:
   ///
   /// @{
 
-  /// Returns a vector of length n-1 containing the deltas between
+  /// If @a centered is false, returns a vector of length n-1 containing the deltas between
   /// successive values (x[i+1]-x[i]).
-  Vector deltas() const;
+  ///
+  /// If @a centered is true, returns a vector of the same length with 0.5 *(x[i+1] - x[i-1]) (with provisions for borders).
+  Vector deltas(bool centered = false) const;
 
   /// Returns a new vector with spikes removed.
   ///
@@ -198,7 +200,8 @@ public:
   /// Bins the vector into the given number of boxes (or the log of
   /// the vector). Returns two vectors, one with the mid points of the
   /// ranges, the other with the numbers.
-  QList<Vector> bin(int boxes, bool log = false) const;
+  QList<Vector> bin(int boxes, bool log = false,
+                    const Vector & weight = Vector()) const;
 
   /// Flips the contents of the vector from back to front
   void reverse();

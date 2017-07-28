@@ -226,11 +226,11 @@ static SingleLambdaStat mx("max", false, false,
                              return ds->column(c).max();
                            });
 
-static SingleLambdaStat med("med", false, false,
-                            [](const DataSet * ds, int c) -> QVariant
-                            {
-                              return ds->column(c).median();
-                            });
+// static SingleLambdaStat med("med", false, false,
+//                             [](const DataSet * ds, int c) -> QVariant
+//                             {
+//                               return ds->column(c).median();
+//                             });
 
 static SingleLambdaStat nrm("norm", false, false,
                             [](const DataSet * ds, int c) -> QVariant
@@ -244,6 +244,26 @@ static SingleLambdaStat inte("int", false, true,
                                {
                                  return Vector::integrate(ds->x(), ds->column(c));
                                });
+
+static MultiLambdaStat med(QStringList()
+                           << "med"
+                           << "q10"
+                           << "q25"
+                           << "q75"
+                           << "q90", false, false,
+                           [](const DataSet * ds, int c)  -> QList<QVariant>
+                           {
+                             QList<QVariant> rv;
+                             Vector v = ds->column(c);
+                             qSort(v);
+                             int nb = v.size();
+                             rv << v[0.5 * nb]
+                                << v[0.1 * nb]
+                                << v[0.25 * nb]
+                                << v[0.75 * nb]
+                                << v[0.9 * nb];
+                             return rv;
+                           });
 
 static MultiLambdaStat delta(QStringList()
                              << "delta_min"

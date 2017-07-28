@@ -778,7 +778,8 @@ void Vector::reverse()
 }
 
 
-QList<Vector> Vector::bin(int boxes, bool lg, const Vector & weights) const
+QList<Vector> Vector::bin(int boxes, bool lg, const Vector & weights,
+                          bool norm) const
 {
   double mi = min();
   double ma = max();
@@ -800,14 +801,19 @@ QList<Vector> Vector::bin(int boxes, bool lg, const Vector & weights) const
     
   gsl_histogram_set_ranges_uniform(hist, mi, ma);
 
+  double total = 0;
   for(int i = 0; i < size(); i++) {
     double v = value(i);
     if(lg)
       v = log10(v);
+    double w;
     if(weights.size() > 0)
-      gsl_histogram_accumulate(hist, v, weights[i]);
+      w = weights[i];
     else
-      gsl_histogram_increment(hist, v);
+      w = 1;
+    
+    gsl_histogram_accumulate(hist, v, w);
+    total += w;
   }
   
 
@@ -818,7 +824,10 @@ QList<Vector> Vector::bin(int boxes, bool lg, const Vector & weights) const
     double lr, ur;
     gsl_histogram_get_range(hist, i, &lr, &ur);
     mid << 0.5 * (lr + ur);
-    bin << gsl_histogram_get(hist, i);
+    double v = gsl_histogram_get(hist, i);
+    if(norm)
+      v /= total;
+    bin << v;
   }
   
 

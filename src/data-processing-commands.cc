@@ -2203,12 +2203,14 @@ static void binCommand(const QString &,
   updateFromOptions(opts, "weight", weight);
   bool lg = false;
   updateFromOptions(opts, "log", lg);
+  bool nrm = false;
+  updateFromOptions(opts, "norm", nrm);
 
   Vector w;
   if(weight >= 0)
     w = ds->column(weight);
   
-  DataSet * nds = ds->derivedDataSet(ds->column(col).bin(boxes, lg, w), 
+  DataSet * nds = ds->derivedDataSet(ds->column(col).bin(boxes, lg, w, nrm), 
                                      "_binned.dat");
   nds->options.histogram = true;
   soas().pushDataSet(nds);
@@ -2225,6 +2227,9 @@ binOpts(QList<Argument *>()
         << new BoolArgument("log", 
                             "Log scale"
                             "Take the log10 before binning")
+        << new BoolArgument("norm", 
+                            "Normalize"
+                            "Normalizes the bins so that the overall sum is 1")
         << new ColumnArgument("weight", 
                               "Weight column"
                               "Use a column as weight")

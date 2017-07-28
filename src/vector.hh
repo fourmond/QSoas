@@ -201,7 +201,7 @@ public:
   /// the vector). Returns two vectors, one with the mid points of the
   /// ranges, the other with the numbers.
   QList<Vector> bin(int boxes, bool log = false,
-                    const Vector & weight = Vector()) const;
+                    const Vector & weight = Vector(), bool norm = false) const;
 
   /// Flips the contents of the vector from back to front
   void reverse();

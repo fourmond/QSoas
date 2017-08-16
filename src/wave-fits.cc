@@ -978,16 +978,76 @@ EECRFit fit_eecr;
 
 /// Fits to the EECR + relay model of electrochemical waves
 class EECRRelayFit : public PerDatasetFit {
+
+  class Storage : public FitInternalStorage {
+  public:
+    /// Whether the equilibrium constants (false) or the potentials
+    /// (true) are used
+    bool usePotentials;
+  };
+
+
+protected:
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
+    return new Storage;
+  };
+
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const override {
+    return deepCopy<Storage>(source);
+  };
+
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const override 
+  {
+    Storage * s = storage<Storage>(data);
+    s->usePotentials = false;
+
+    updateFromOptions(opts, "use-potentials", s->usePotentials);
+  }
+
+  virtual QString optionsString(FitData * data) const override {
+    Storage * s = storage<Storage>(data);
+    return QString("%1").
+      arg(s->usePotentials ? "potentials" : "equilibrium constants");
+  }
+
+  
+  
 public:
 
+  virtual ArgumentList * fitHardOptions() const override {
+    ArgumentList * opts = new 
+      ArgumentList(QList<Argument *>()
+                   << new 
+                   BoolArgument("use-potentials", 
+                                "Use potentials",
+                                "if on, use the potentials of the active site electronic transitions rather than the equilibrium constants")
+                   );
+    return opts;
+  };
+
+  
 
   /// Formula:
-  virtual void function(const double * params, FitData * , 
-                        const DataSet * ds , gsl_vector * target) const {
+  virtual void function(const double * p, FitData * data, 
+                        const DataSet * ds , gsl_vector * target) const override {
+
+    Storage * s = storage<Storage>(data);
+
+    double params[10];
+    for(int i = 0; i < sizeof(params)/sizeof(*params); i++)
+      params[i] = p[i];
+
 
     const Vector & xv = ds->x();
     const double f = GSL_CONST_MKSA_FARADAY 
       /(params[0] * GSL_CONST_MKSA_MOLAR_GAS);
+
+    // Now convert params if applicable
+    if(s->usePotentials) {
+      params[5] = exp(f * (params[5] - params[1]));
+      params[7] = exp(f * (params[7] - params[1]));
+    }
+
 
     for(int i = 2; i <= 7; i++)
       if(params[i] < 0)
@@ -1104,16 +1164,17 @@ public:
     a[9] = 1;
   };
 
-  virtual QList<ParameterDefinition> parameters(FitData * ) const {
+  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+    Storage * s = storage<Storage>(data);
     QList<ParameterDefinition> defs;
     defs << ParameterDefinition("temperature", true)
          << ParameterDefinition("Er")
          << ParameterDefinition("k0r/k2")
          << ParameterDefinition("km2/k2") // params[3]
          << ParameterDefinition("k1/k2") 
-         << ParameterDefinition("k1/km1") 
+         << ParameterDefinition(s->usePotentials ? "Eir" : "k1/km1") 
          << ParameterDefinition("kp1/k2") // params[6]
-         << ParameterDefinition("kp1/kpm1") 
+         << ParameterDefinition(s->usePotentials ? "Eoi" : "kp1/kpm1") 
          << ParameterDefinition("ilim")
          << ParameterDefinition("betad0");
     return defs;

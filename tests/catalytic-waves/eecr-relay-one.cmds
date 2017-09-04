@@ -1,0 +1,13 @@
+# Runs a test of eecr-relay with potentials, by comparing with eecr
+# (in the Nersntian case)
+# Takes 3 parameters:
+# * ${1} Eoi
+# * ${2} Eir
+# * ${3} kox/kred
+
+generate-buffer -0.5 0.5
+sim-eecr-wave parameters/eecr-1.params /reduction=true /model=nernst /override=ilim=-1;Eoi=${1};Eir=${2};kox/kred=${3} 0
+sim-eecr-relay-wave parameters/eecr-relay-1.params /use-potentials=true /override=Eoi=${1};Eir=${2};km2/k2=${3} 0
+S 1 0
+
+assert '$stats["y_norm"]' 5e-4

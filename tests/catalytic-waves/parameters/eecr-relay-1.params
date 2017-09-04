@@ -1,0 +1,32 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: eecr-relay-wave (potentials)
+# Buffer #0 : generated_fit_eecr-wave_fit_eecr-wave_fit_eecr-wave_fit_eecr-wave.dat
+temperature	298	!	0
+Er	0	!	0
+k0r/k2	1e+9	!	0
+km2/k2	1	!	1
+k1/k2	1e+9	!	0
+Eir	-0.1	!	0
+kp1/k2	1e+9	!	0
+Eoi	0.2	!	0
+ilim	-1e7	!	1
+betad0	1e-7	!	0
+# The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
+# Residuals: 0.00913772
+# Global parameters: 
+
+# temperature	=	298	(fixed)
+# Eir	=	-0.1	(fixed)
+# Eoi	=	0.2	(fixed)
+# ilim	=	-2.07013e+7	+- 3.4e+2	+-0.0016%
+# 
+# 
+# Buffer-local parameters: 
+# 
+# Buffer: generated_fit_eecr-wave_fit_eecr-wave_fit_eecr-wave_fit_eecr-wave.dat (weight: 1)
+# Er	=	0	(fixed)
+# k0r/k2	=	1e+6	(fixed)
+# km2/k2	=	0.498853	+- 1.3e-5	+- 0.0026%
+# k1/k2	=	1e+6	(fixed)
+# kp1/k2	=	1e+6	(fixed)
+# betad0	=	1e-6	(fixed)

@@ -1044,8 +1044,8 @@ public:
 
     // Now convert params if applicable
     if(s->usePotentials) {
-      params[5] = exp(f * (params[5] - params[1]));
-      params[7] = exp(f * (params[7] - params[1]));
+      params[5] = exp(f * (params[1] - params[5]));
+      params[7] = exp(f * (params[1] - params[7]));
     }
 
 
@@ -1062,10 +1062,10 @@ public:
     const double k_0M    = params[2];
     const double k_2     = 1;
     const double k_m2    = params[3];
-    const double k_1     = params[4];
-    const double k_m1    = params[4]/params[5];
-    const double kp_1    = params[6];
-    const double kp_m1   = params[6]/params[7];
+    const double k_1     = params[4];           // rate of IO to OR
+    const double k_m1    = params[4]/params[5]; // rate of OR to IO
+    const double kp_1    = params[6];           // rate of RO to IR
+    const double kp_m1   = params[6]/params[7]; // rate of IR to RO
     const double ilim    = params[8];
     const double beta_d0 = params[9];
     const double k_0m    = k_0M * exp(-beta_d0);
@@ -1148,18 +1148,21 @@ public:
     }
   };
 
-  virtual void initialGuess(FitData * , 
-                            const DataSet * /*ds*/,
+  virtual void initialGuess(FitData * data, 
+                            const DataSet * ds,
                             double * a) const
   {
+    Storage * s = storage<Storage>(data);
+    double xmin = ds->x().min();
+    double xmax = ds->x().max();
     a[0] = soas().temperature();
-    a[1] = -0.6; 
+    a[1] = 0.5 * (xmin + xmax) ; 
     a[2] = 1; 
     a[3] = 1; 
     a[4] = 10;
-    a[5] = 2;
+    a[5] = s->usePotentials ?  (0.7 * xmin + 0.3 * xmax) : 2;
     a[6] = 2;
-    a[7] = 1;
+    a[7] = s->usePotentials ?  (0.3 * xmin + 0.7 * xmax) : 1;
     a[8] = -1e-5;
     a[9] = 1;
   };
@@ -1171,10 +1174,10 @@ public:
          << ParameterDefinition("Er")
          << ParameterDefinition("k0r/k2")
          << ParameterDefinition("km2/k2") // params[3]
-         << ParameterDefinition("k1/k2") 
-         << ParameterDefinition(s->usePotentials ? "Eir" : "k1/km1") 
+         << ParameterDefinition("k1/k2")
+         << ParameterDefinition(s->usePotentials ? "Eoi" : "k1/km1") 
          << ParameterDefinition("kp1/k2") // params[6]
-         << ParameterDefinition(s->usePotentials ? "Eoi" : "kp1/kpm1") 
+         << ParameterDefinition(s->usePotentials ? "Eir" : "kp1/kpm1") 
          << ParameterDefinition("ilim")
          << ParameterDefinition("betad0");
     return defs;

@@ -572,6 +572,8 @@ void FitWorkspace::saveParameters(QIODevice * stream) const
     "but Soas may make use of those if they are present" << endl;
 
   out << "# Fit used: " << fitName() << endl;
+  out << "# Command-line: " << soas().currentCommandLine() << endl;
+
   for(int i = 0; i < datasets; i++)
     out << "# Buffer #" << i << " : " 
         << fitData->datasets[i]->name << endl;

@@ -66,6 +66,9 @@ public:
   /// Returns the current data set.
   DataSet * currentDataSet(bool silent = false);
 
+  /// Returns the properly quoted command-line
+  QString currentCommandLine() const;
+
   /// Pushes a new dataset onto the stack
   void pushDataSet(DataSet * ds, bool silent = false);
 

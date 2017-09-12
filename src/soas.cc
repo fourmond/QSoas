@@ -45,6 +45,7 @@
 #include <stylegenerator.hh>
 #include <distribfit.hh>
 #include <statistics.hh>
+#include <commandwidget.hh>
 
 CurveView & Soas::view()
 {
@@ -83,6 +84,11 @@ void Soas::setTemperature(double d) {
 CommandWidget & Soas::prompt() 
 {
   return *mw->commandWidget;
+}
+
+QString Soas::currentCommandLine() const
+{
+  return Command::unsplitWords(mw->commandWidget->currentCommandLine());
 }
 
 void Soas::showMessage(const QString & str, int ms)

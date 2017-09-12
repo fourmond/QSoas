@@ -211,7 +211,7 @@ bool CommandWidget::runCommand(const QStringList & raw)
 
   soas().showMessage(tr("Running: %1").arg(cmd));
   try {
-    TemporaryChange<QString> ch(curCmdline, raw.join(" "));
+    TemporaryChange<QStringList> ch(curCmdline, raw);
     soas().stack().startNewCommand();
     Command::runCommand(raw, this);
   }
@@ -594,7 +594,7 @@ const QString & CommandWidget::scriptFileName() const
   return scriptFile;
 }
 
-const QString & CommandWidget::currentCommandLine() const
+QStringList CommandWidget::currentCommandLine() const
 {
   return curCmdline;
 }

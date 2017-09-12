@@ -84,7 +84,7 @@ class CommandWidget : public QWidget {
   QString scriptFile;
 
   /// Within a command, this holds the full command-line
-  QString curCmdline;
+  QStringList curCmdline;
 
   /// Whether we add current commands to the history. Enabled
   /// everywhere but scripts.
@@ -179,7 +179,7 @@ public:
   const QString & scriptFileName() const;
 
   /// Returns the full command line being run
-  const QString & currentCommandLine() const;
+  QStringList currentCommandLine() const;
 
 
   /// Runs all the startup files

@@ -990,8 +990,7 @@ DataSet * DataSet::derivedDataSet(const QList<Vector> &newCols,
   ds->segments = segments;
 
   // We append the current command to the "commands" key
-  ds->metaData.appendToList("commands", 
-                            soas().prompt().currentCommandLine());
+  ds->metaData.appendToList("commands", soas().currentCommandLine());
 
   // We copy the options !
   ds->options = options;

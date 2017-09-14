@@ -449,6 +449,12 @@ HEADERS += src/headers.hh \
 HEADERS += src/ruby-wrappers.h
 SOURCES += src/ruby-wrappers.c
 
+# mruby
+HEADERS += src/mruby.hh
+SOURCES += src/mruby.cc
+
+LIBS += -lmruby
+
                 
 # Sources of file-format specific code
 SOURCES += src/formats/gpesprovider.cc \

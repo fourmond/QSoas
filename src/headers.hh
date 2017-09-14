@@ -154,6 +154,8 @@
 
 #include <cmath>
 
+#include <mruby.h>
+
 #else
 
 // hacks...
@@ -166,6 +168,7 @@
 #undef truncate
 
 #endif
+
 
 // The gsl
 #ifndef Q_WS_WIN

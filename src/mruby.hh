@@ -28,6 +28,8 @@
 /// * a "protected" version, calling the unprotected one through protect()
 class MRuby {
   mrb_state *mrb;
+
+  static MRuby * globalInterpreter;
 public:
   MRuby();
   ~MRuby();
@@ -41,6 +43,9 @@ public:
 
   /// Runs the function with proper exception catching.
   mrb_value protect(const std::function<mrb_value ()> & function);
+
+  /// Returns the static interpreter
+  static MRuby * ruby();
 };
 
 

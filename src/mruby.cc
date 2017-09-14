@@ -37,6 +37,17 @@ MRuby::~MRuby()
 }
 
 
+MRuby * MRuby::globalInterpreter = NULL;
+
+MRuby * MRuby::ruby()
+{
+  if(! globalInterpreter)
+    globalInterpreter = new MRuby;
+  return globalInterpreter;
+}
+
+
+
 QString MRuby::inspect(mrb_value object)
 {
   mrb_value v = mrb_inspect(mrb, object);
@@ -62,10 +73,11 @@ mrb_value MRuby::protect(const std::function<mrb_value ()> &function)
   mrb_value helper;
   const void * v = &function;
   SET_CPTR_VALUE(mrb, helper, const_cast<void*>(v));
+  mrb->exc = NULL;
   helper = mrb_protect(mrb, &::protect_helper, helper, &failed);
   fprintf(stdout, "Return value: %d, %p\n", failed, mrb->exc);
   if(mrb->exc)
-    throw RuntimeError("mrbexcp: %1").arg(inspect(mrb_obj_value(mrb->exc)));
+    throw RuntimeError("mrbexcp: %1").arg(inspect(mrb_exc_backtrace(mrb, mrb_obj_value(mrb->exc))));
 
   return helper;
 }
@@ -97,8 +109,8 @@ mrb_value MRuby::eval(const QByteArray & code)
 static void mRubyEval(const QString &, QString code,
                       const CommandOptions & )
 {
-  MRuby rb;
-  Terminal::out << " => " << rb.inspect(rb.eval(code.toLocal8Bit()))
+  MRuby * r = MRuby::ruby();
+  Terminal::out << " => " << r->inspect(r->eval(code.toLocal8Bit()))
                 << endl;
 }
 

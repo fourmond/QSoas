@@ -49,6 +49,11 @@ public:
 
   /// Returns the static interpreter
   static MRuby * ruby();
+
+
+  /// Detects the "external parameters" for the given code.
+  QStringList detectParameters(const QByteArray & code);
+
 };
 
 

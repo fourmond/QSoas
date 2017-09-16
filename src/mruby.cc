@@ -21,6 +21,8 @@
 #include <mruby.hh>
 
 #include <mruby/compile.h>
+#include <mruby/opcode.h>
+#include <mruby/proc.h>
 #include <mruby/string.h>
 #include <mruby/error.h>
 
@@ -128,6 +130,31 @@ mrb_value MRuby::eval(const QByteArray & code)
     );
 }
 
+QStringList MRuby::detectParameters(const QByteArray & code)
+{
+  RProc * proc = generateCode(code);
+  struct mrb_irep * irep = proc->body.irep;
+
+  // The idea is just to scan the code and detect funcalls of single
+  // arguments from what seems to be top level self.
+  int cur_top_self = -1;
+  QSet<QString> rv;
+  for (int i = 0; i < (int)irep->ilen; i++) {
+    mrb_code c = irep->iseq[i];
+    if(GET_OPCODE(c) == OP_SEND) {
+      if(GETARG_A(c) == cur_top_self && GETARG_C(c) == 0)
+        rv.insert(mrb_sym2name(mrb, irep->syms[GETARG_B(c)]));
+    }
+    if(GET_OPCODE(c) == OP_LOADSELF) {
+      cur_top_self = GETARG_A(c);
+    }
+    else {
+      if(GETARG_A(c) == cur_top_self)
+        cur_top_self = -1;
+    }
+  }
+  return rv.toList();
+}
 
 
 
@@ -136,6 +163,7 @@ mrb_value MRuby::eval(const QByteArray & code)
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
 #include <terminal.hh>
+
 //////////////////////////////////////////////////////////////////////
 
 static void mRubyEval(const QString &, QString code,
@@ -161,4 +189,23 @@ ev("mruby-eval", // command name
    &eA, // arguments
    NULL,
    "Ruby eval",
+   "Evaluates a Ruby expression and prints the result", "");
+
+//////////////////////////////////////////////////////////////////////
+
+static void mRubyArgs(const QString &, QString code,
+                      const CommandOptions & )
+{
+  MRuby * r = MRuby::ruby();
+  QStringList vars = r->detectParameters(code.toLocal8Bit());
+  Terminal::out << " => " << vars.join(", ") << endl;
+}
+
+static Command 
+ar("mruby-args", // command name
+   effector(mRubyArgs), // action
+   "file",  // group name
+   &eA, // arguments
+   NULL,
+   "Ruby args",
    "Evaluates a Ruby expression and prints the result", "");

@@ -30,13 +30,16 @@ class MRuby {
   mrb_state *mrb;
 
   static MRuby * globalInterpreter;
+
+  /// Generates the code
+  struct RProc * generateCode(const QByteArray & code);
+
 public:
   MRuby();
   ~MRuby();
 
   /// Evaluate the given code.
   mrb_value eval(const QByteArray & code);
-  mrb_value eval_up(const QByteArray & code);
 
   /// Returns a representation of the object as a string
   QString inspect(mrb_value object);

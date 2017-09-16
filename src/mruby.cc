@@ -75,23 +75,55 @@ mrb_value MRuby::protect(const std::function<mrb_value ()> &function)
   SET_CPTR_VALUE(mrb, helper, const_cast<void*>(v));
   mrb->exc = NULL;
   helper = mrb_protect(mrb, &::protect_helper, helper, &failed);
-  fprintf(stdout, "Return value: %d, %p\n", failed, mrb->exc);
-  if(mrb->exc)
-    throw RuntimeError("mrbexcp: %1").arg(inspect(mrb_exc_backtrace(mrb, mrb_obj_value(mrb->exc))));
+  // fprintf(stdout, "Return value: %d, %p\n", failed, mrb->exc);
+  if(mrb->exc) {
+    mrb_value exc = mrb_obj_value(mrb->exc);
+    fprintf(stdout, "MRuby error: \n");
+    mrb_print_error(mrb);
+    mrb_p(mrb, exc);
+    mrb_value bt = mrb_funcall(mrb, exc, "backtrace", 0);
+    // mrb_value bt = mrb_funcall(mrb, exc, "message", 0);
+    mrb_p(mrb, bt);
+    throw RuntimeError("A ruby exception occurred: %1").arg(inspect(mrb_exc_backtrace(mrb, exc)));
+  }
 
   return helper;
 }
 
-mrb_value MRuby::eval_up(const QByteArray & code)
+
+struct RProc * MRuby::generateCode(const QByteArray & code)
 {
-  mrb_value v =  mrb_load_string(mrb, code.constData());
-  return v;
+  struct mrbc_context * c = mrbc_context_new(mrb);
+  c->capture_errors = true;
+  struct mrb_parser_state * p =
+    mrb_parse_string(mrb, code.constData(), c);
+  if(p->nerr > 0) {
+    // We have a syntax error
+    QString message;
+    // Point to exact code place ?
+    for(size_t i = 0; i < p->nerr; i++) {
+      if(i > 0)
+        message += "\n";
+      message += QString("%1 at line %2:%3").
+        arg(p->error_buffer[i].message).
+        arg(p->error_buffer[i].lineno).
+        arg(p->error_buffer[i].column);
+    }
+    mrbc_context_free(mrb, c);
+    mrb_parser_free(p);
+    throw RuntimeError("Syntax error: %1").arg(message);
+  }
+  RProc * proc = mrb_generate_code(mrb, p);
+  mrbc_context_free(mrb, c);
+  mrb_parser_free(p);
+  return proc;
 }
 
 mrb_value MRuby::eval(const QByteArray & code)
 {
-  return protect([this, code]() -> mrb_value {
-      return eval_up(code);
+  RProc * proc = generateCode(code);
+  return protect([this, proc]() -> mrb_value {
+      return mrb_run(mrb, proc, mrb_top_self(mrb));
     }
     );
 }

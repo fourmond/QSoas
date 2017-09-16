@@ -32,7 +32,8 @@ class MRuby {
   static MRuby * globalInterpreter;
 
   /// Generates the code
-  struct RProc * generateCode(const QByteArray & code);
+  struct RProc * generateCode(const QByteArray & code,
+                              const QString & fileName = "(eval)");
 
 public:
   MRuby();
@@ -40,6 +41,11 @@ public:
 
   /// Evaluate the given code.
   mrb_value eval(const QByteArray & code);
+
+  mrb_value eval(const QString& code);
+
+  /// Evaluate the given file
+  mrb_value eval(QIODevice * device);
 
   /// Returns a representation of the object as a string
   QString inspect(mrb_value object);

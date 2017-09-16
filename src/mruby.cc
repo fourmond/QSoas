@@ -27,6 +27,7 @@
 #include <mruby/error.h>
 
 #include <exceptions.hh>
+#include <utils.hh>
 
 MRuby::MRuby()
 {
@@ -77,26 +78,22 @@ mrb_value MRuby::protect(const std::function<mrb_value ()> &function)
   SET_CPTR_VALUE(mrb, helper, const_cast<void*>(v));
   mrb->exc = NULL;
   helper = mrb_protect(mrb, &::protect_helper, helper, &failed);
-  // fprintf(stdout, "Return value: %d, %p\n", failed, mrb->exc);
   if(mrb->exc) {
     mrb_value exc = mrb_obj_value(mrb->exc);
-    fprintf(stdout, "MRuby error: \n");
-    mrb_print_error(mrb);
-    mrb_p(mrb, exc);
-    mrb_value bt = mrb_funcall(mrb, exc, "backtrace", 0);
-    // mrb_value bt = mrb_funcall(mrb, exc, "message", 0);
-    mrb_p(mrb, bt);
-    throw RuntimeError("A ruby exception occurred: %1").arg(inspect(mrb_exc_backtrace(mrb, exc)));
+    throw RuntimeError("A ruby exception occurred: %1").arg(inspect(exc));
   }
 
   return helper;
 }
 
 
-struct RProc * MRuby::generateCode(const QByteArray & code)
+struct RProc * MRuby::generateCode(const QByteArray & code,
+                                   const QString & fileName)
 {
   struct mrbc_context * c = mrbc_context_new(mrb);
   c->capture_errors = true;
+  QByteArray fn = fileName.toLocal8Bit();
+  mrbc_filename(mrb, c, fn.constData());
   struct mrb_parser_state * p =
     mrb_parse_string(mrb, code.constData(), c);
   if(p->nerr > 0) {
@@ -124,6 +121,21 @@ struct RProc * MRuby::generateCode(const QByteArray & code)
 mrb_value MRuby::eval(const QByteArray & code)
 {
   RProc * proc = generateCode(code);
+  return protect([this, proc]() -> mrb_value {
+      return mrb_run(mrb, proc, mrb_top_self(mrb));
+    }
+    );
+}
+
+mrb_value MRuby::eval(const QString & code)
+{
+  return eval(code.toLocal8Bit());
+}
+
+mrb_value MRuby::eval(QIODevice * device)
+{
+  QByteArray code = device->readAll();
+  RProc * proc = generateCode(code, Utils::fileName(device));
   return protect([this, proc]() -> mrb_value {
       return mrb_run(mrb, proc, mrb_top_self(mrb));
     }
@@ -162,6 +174,7 @@ QStringList MRuby::detectParameters(const QByteArray & code)
 #include <group.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
+#include <file-arguments.hh>
 #include <terminal.hh>
 
 //////////////////////////////////////////////////////////////////////
@@ -209,3 +222,29 @@ ar("mruby-args", // command name
    NULL,
    "Ruby args",
    "Evaluates a Ruby expression and prints the result", "");
+
+//////////////////////////////////////////////////////////////////////
+
+void mrubyRunFile(const QString &, QString file)
+{
+  QFile f(file);
+  Utils::open(&f, QIODevice::ReadOnly | QIODevice::Text);
+  MRuby * r = MRuby::ruby();
+  r->eval(&f);
+}
+
+static ArgumentList 
+rA(QList<Argument *>() 
+   << new FileArgument("file", 
+                       "File",
+                       "Ruby file to load"));
+
+
+static Command 
+lf("mruby-run", // command name
+   optionLessEffector(mrubyRunFile), // action
+   "file",  // group name
+   &rA, // arguments
+   NULL, // options
+   "Ruby load",
+   "Loads and runs a file containing ruby code", "");

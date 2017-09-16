@@ -26,6 +26,7 @@
 #include <mruby/string.h>
 #include <mruby/error.h>
 #include <mruby/array.h>
+#include <mruby/numeric.h>
 
 #include <exceptions.hh>
 #include <utils.hh>
@@ -231,6 +232,11 @@ mrb_value MRuby::funcall(mrb_value self, mrb_sym func, mrb_int nb,
 mrb_value MRuby::newFloat(double value)
 {
   return mrb_float_value(mrb, value);
+}
+
+double MRuby::floatValue(mrb_value value)
+{
+  return mrb_to_flo(mrb, value);
 }
 
 mrb_value MRuby::makeBlock(const QString & code, const QStringList & vars)

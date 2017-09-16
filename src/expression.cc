@@ -207,9 +207,10 @@ double Expression::evaluate(const double * values) const
 
 double Expression::evaluateNoLock(const double * values) const
 {
-  if(singleVariableIndex >=  0)
-    return values[singleVariableIndex];
-  return mrb_float(rubyEvaluation(values));
+  // if(singleVariableIndex >=  0)
+  //   return values[singleVariableIndex];
+  MRuby * mr = MRuby::ruby();
+  return mr->floatValue(rubyEvaluation(values));
 }
 
 bool Expression::evaluateAsBoolean(const double * values) const
@@ -233,14 +234,14 @@ int Expression::evaluateIntoArrayNoLock(const double * values,
   // Now, we parse the return value
   if(! mr->isArray(ret)) {
     if(ts >= 1)
-      *target = mrb_float(ret);
+      *target = mr->floatValue(ret);
     return 1;
   }
 
   int sz = mr->arrayLength(ret);
   sz = std::min(ts, sz);
   for(int i = 0; i < sz ; i++)
-    target[i] = mrb_float(mr->arrayRef(ret, i));
+    target[i] = mr->floatValue(mr->arrayRef(ret, i));
   return sz;
 }
 
@@ -260,12 +261,12 @@ Vector Expression::evaluateAsArrayNoLock(const double * values) const
     
   // Now, we parse the return value
   if(! mr->isArray(ret)) {
-    tg << mrb_float(ret);
+    tg << mr->floatValue(ret);
   }
   else {
     int sz = mr->arrayLength(ret);
     for(int i = 0; i < sz ; i++)
-      tg << mrb_float(mr->arrayRef(ret, i));
+      tg << mr->floatValue(mr->arrayRef(ret, i));
   }
   return tg;
 }

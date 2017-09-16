@@ -70,7 +70,9 @@ public:
 
   /// Returns a new float with the given value.
   mrb_value newFloat(double value);
-  
+
+  /// Returns the value of the object as a double
+  double floatValue(mrb_value fv);
   
   /// Defines a toplevel module
   struct RClass * defineModule(const char * name);

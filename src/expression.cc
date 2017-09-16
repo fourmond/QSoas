@@ -61,7 +61,7 @@ bool Expression::isAVariable() const
 /// constructor, which may lead to memory leaks.
 void Expression::buildCode()
 {
-  QMutexLocker m(&Ruby::rubyGlobalLock);
+  // QMutexLocker m(&Ruby::rubyGlobalLock);
   singleVariableIndex = -1;
 
   if(variables.isEmpty() && minimalVariables.isEmpty()) {
@@ -171,7 +171,7 @@ mrb_value Expression::rubyEvaluation(const double * values) const
 
 double Expression::evaluate(const double * values) const
 {
-  QMutexLocker m(&Ruby::rubyGlobalLock);
+  // QMutexLocker m(&Ruby::rubyGlobalLock);
   return evaluateNoLock(values);
 }
 
@@ -191,7 +191,7 @@ bool Expression::evaluateAsBoolean(const double * values) const
 int Expression::evaluateIntoArray(const double * values, 
                                   double * target, int ts) const
 {
-  QMutexLocker m(&Ruby::rubyGlobalLock);
+  // QMutexLocker m(&Ruby::rubyGlobalLock);
   return evaluateIntoArrayNoLock(values, target, ts);
 }
 
@@ -217,7 +217,7 @@ int Expression::evaluateIntoArrayNoLock(const double * values,
 
 Vector Expression::evaluateAsArray(const double * values) const
 {
-  QMutexLocker m(&Ruby::rubyGlobalLock);
+  // QMutexLocker m(&Ruby::rubyGlobalLock);
   return evaluateAsArrayNoLock(values);
 }
 

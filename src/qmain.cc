@@ -26,7 +26,7 @@
 #include <group.hh>
 #include <databackend.hh>
 
-#include <ruby.hh>
+// #include <ruby.hh>
 #include <debug.hh>
 
 #include <settings.hh>
@@ -81,7 +81,7 @@ int main(int argc, char ** argv)
   QSoasApplication main(argc, argv);
   main.setApplicationName("QSoas");
 
-  Ruby::initRuby();
+  // Ruby::initRuby();
   
   // We convert GSL's hard errors into C++ exceptions
   GSLError::setupGSLHandler();
@@ -107,7 +107,7 @@ int main(int argc, char ** argv)
 
   Soas theSoas;
   /// Has to be called
-  Ruby::initInterface();
+  // Ruby::initInterface();
 
   Settings::loadSettings("bip.cnrs-mrs.fr", "Soas");
   

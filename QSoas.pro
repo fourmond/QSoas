@@ -148,10 +148,10 @@ system($$RUBY build-info.rb)
         
 HEADERS += src/build.hh
 
-INCLUDEPATH += $$RUBY_INCLUDE_DIRS
-LIBS += $$RUBY_LIB_ARG
+# INCLUDEPATH += $$RUBY_INCLUDE_DIRS
+# LIBS += $$RUBY_LIB_ARG
 
-win32:LIBS += -L$$RUBY_LIB_DIR
+# win32:LIBS += -L$$RUBY_LIB_DIR
 
 RESOURCES += qsoas.qrc
 
@@ -206,7 +206,6 @@ SOURCES += src/qmain.cc \
         src/help-commands.cc \
         src/data-processing-commands.cc \
         src/outfile.cc \
-        src/ruby.cc \
         src/ruby-commands.cc \
         src/fit.cc \
         src/perdatasetfit.cc \
@@ -270,7 +269,6 @@ SOURCES += src/qmain.cc \
         src/gslintegrator.cc \
         src/distribution-fits.cc \
         src/metadataprovider.cc \
-        src/conditionsprovider.cc \
         src/parametersviewer.cc \
         src/curvebrowser.cc \
         src/lineedit.cc \
@@ -289,7 +287,6 @@ SOURCES += src/qmain.cc \
         src/parametersspreadsheet.cc \
         src/abdmatrix.cc \
         src/box.cc \
-        src/ruby-interface.cc \
         src/functions.cc \
         src/cachedfunction.cc \
         src/datasetexpression.cc \
@@ -307,7 +304,11 @@ SOURCES += src/qmain.cc \
         src/onetimewarnings.cc \
         src/fitparametersfile.cc \
         src/linearkineticsystem.cc
- 
+
+#        src/ruby.cc \
+#        src/conditionsprovider.cc \
+#        src/ruby-interface.cc \
+
 # Fit engines, grouped in an easy way to disable them:
 # (its missing ODRPACK, though)
 
@@ -346,7 +347,6 @@ HEADERS += src/headers.hh \
         src/debug.hh \
         src/curvemarker.hh \
         src/outfile.hh \
-        src/ruby.hh \
         src/ruby-templates.hh \
         src/fit.hh \
         src/perdatasetfit.hh \
@@ -441,13 +441,15 @@ HEADERS += src/headers.hh \
         src/fitparametersfile.hh \
         src/linearkineticsystem.hh
 
+#        src/ruby.hh \
+
 
 
 
 
 # Pure-C wrappers around Ruby's code
 HEADERS += src/ruby-wrappers.h
-SOURCES += src/ruby-wrappers.c
+# SOURCES += src/ruby-wrappers.c
 
 # mruby
 HEADERS += src/mruby.hh

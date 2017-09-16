@@ -88,7 +88,7 @@ static void applyFormulaCommand(const QString &, QString formula,
     newCols << Vector();
 
   {
-    QMutexLocker m(&Ruby::rubyGlobalLock);
+    // QMutexLocker m(&Ruby::rubyGlobalLock);
     QVarLengthArray<double, 100> ret(newCols.size());
     QVarLengthArray<double, 100> args(argSize);
     int idx = 0;
@@ -230,7 +230,7 @@ void rubyRunFile(const QString &, QString file)
   QFile f(file);
   Utils::open(&f, QIODevice::ReadOnly | QIODevice::Text);
   QByteArray bt = f.readAll();
-  Ruby::run(Ruby::eval, bt);
+  // Ruby::run(Ruby::eval, bt);
 }
 
 static ArgumentList 

@@ -20,38 +20,40 @@
 #include <headers.hh>
 #include <argument.hh>
 
-#include <ruby.hh>
-#include <ruby-templates.hh>
+// #include <ruby.hh>
+// #include <ruby-templates.hh>
 
 #include <debug.hh>
 
 ArgumentMarshaller * Argument::convertRubyString(RUBY_VALUE value) const
 {
-  return fromString(Ruby::toQString(value));
+  return NULL; // fromString(Ruby::toQString(value));
 }
 
 
 
 ArgumentMarshaller * Argument::convertRubyArray(RUBY_VALUE value) const
 {
-  QStringList rv = Ruby::rubyArrayToList<QString>(value, &Ruby::toQString);
-  ArgumentMarshaller * ret = NULL;
-  for(int i = 0; i < rv.size(); i++) {
-    ArgumentMarshaller * cur = fromString(rv[i]);
-    if(ret) {
-      concatenateArguments(ret, cur);
-      delete cur;
-    }
-    else
-      ret = cur;
-  }
-  return ret;
+  // QStringList rv = Ruby::rubyArrayToList<QString>(value, &Ruby::toQString);
+  // ArgumentMarshaller * ret = NULL;
+  // for(int i = 0; i < rv.size(); i++) {
+  //   ArgumentMarshaller * cur = fromString(rv[i]);
+  //   if(ret) {
+  //     concatenateArguments(ret, cur);
+  //     delete cur;
+  //   }
+  //   else
+  //     ret = cur;
+  // }
+  // return ret;
+  return NULL;
 }
 
 ArgumentMarshaller * Argument::fromRuby(RUBY_VALUE value) const
 {
-  QString c = Ruby::toQString(value);
-  return fromString(c);
+  // QString c = Ruby::toQString(value);
+  // return fromString(c);
+  return NULL;
 }
 
 

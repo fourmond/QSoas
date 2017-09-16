@@ -221,7 +221,7 @@ QString BoolArgument::typeDescription() const
 
 ArgumentMarshaller * BoolArgument::fromRuby(RUBY_VALUE value) const
 {
-  return new ArgumentMarshallerChild<bool>(rbw_test(value));
+  return NULL; //new ArgumentMarshallerChild<bool>(rbw_test(value));
 }
 
 ////////////////////////////////////////////////////////////
@@ -456,7 +456,7 @@ void NumberArgument::setEditorValue(QWidget * editor,
 
 ArgumentMarshaller * NumberArgument::fromRuby(RUBY_VALUE value) const
 {
-  return new ArgumentMarshallerChild<double>(Ruby::toDouble(value));
+  return NULL; //new ArgumentMarshallerChild<double>(Ruby::toDouble(value));
 }
 
 ////////////////////////////////////////////////////////////
@@ -479,8 +479,9 @@ void SeveralNumbersArgument::concatenateArguments(ArgumentMarshaller * a,
 
 ArgumentMarshaller * SeveralNumbersArgument::fromRuby(RUBY_VALUE value) const
 {
-  QList<double> lst = Ruby::rubyArrayToList<double>(value, &Ruby::toDouble);
-  return new ArgumentMarshallerChild< QList<double> >(lst);
+  return NULL;
+  // QList<double> lst = Ruby::rubyArrayToList<double>(value, &Ruby::toDouble);
+  // return new ArgumentMarshallerChild< QList<double> >(lst);
 }
 
 ////////////////////////////////////////////////////////////
@@ -519,7 +520,8 @@ void IntegerArgument::setEditorValue(QWidget * editor,
 
 ArgumentMarshaller * IntegerArgument::fromRuby(RUBY_VALUE value) const
 {
-  return new ArgumentMarshallerChild<int>((int)Ruby::toInt(value));
+  return NULL;
+  // return new ArgumentMarshallerChild<int>((int)Ruby::toInt(value));
 }
 
 ////////////////////////////////////////////////////////////
@@ -541,15 +543,16 @@ void SeveralIntegersArgument::concatenateArguments(ArgumentMarshaller * a,
     b->value<QList<int> >();
 }
 
-static int cnv(RUBY_VALUE s)
-{
-  return Ruby::toInt(s);
-}
+// static int cnv(RUBY_VALUE s)
+// {
+//   return Ruby::toInt(s);
+// }
 
 ArgumentMarshaller * SeveralIntegersArgument::fromRuby(RUBY_VALUE value) const
 {
-  QList<int> lst = Ruby::rubyArrayToList<int>(value, &::cnv);
-  return new ArgumentMarshallerChild< QList<int> >(lst);
+  // QList<int> lst = Ruby::rubyArrayToList<int>(value, &::cnv);
+  // return new ArgumentMarshallerChild< QList<int> >(lst);
+  return NULL;
 }
 
 //////////////////////////////////////////////////////////////////////

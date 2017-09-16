@@ -96,6 +96,10 @@ public:
   mrb_value funcall_up(mrb_value self, mrb_sym func, mrb_int nb,
                        const mrb_value * params);
 
+  bool isArray(mrb_value array);
+
+  mrb_value arrayRef(mrb_value array, int index);
+  int arrayLength(mrb_value array);
 
 };
 

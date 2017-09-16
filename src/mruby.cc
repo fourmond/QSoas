@@ -25,6 +25,7 @@
 #include <mruby/proc.h>
 #include <mruby/string.h>
 #include <mruby/error.h>
+#include <mruby/array.h>
 
 #include <exceptions.hh>
 #include <utils.hh>
@@ -236,6 +237,22 @@ mrb_value MRuby::makeBlock(const QString & code, const QStringList & vars)
 {
   return eval(QString("proc do |%1|\n  %2\nend").
               arg(vars.join(",")).arg(code));
+}
+
+
+bool MRuby::isArray(mrb_value array)
+{
+    return mrb_obj_is_kind_of(mrb, array, mrb->array_class);
+}
+
+mrb_value MRuby::arrayRef(mrb_value array, int index)
+{
+  return mrb_ary_ref(mrb, array, index);
+}
+
+int MRuby::arrayLength(mrb_value array)
+{
+  return RARRAY_LEN(array);
 }
 
 

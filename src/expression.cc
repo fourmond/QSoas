@@ -227,20 +227,21 @@ int Expression::evaluateIntoArray(const double * values,
 int Expression::evaluateIntoArrayNoLock(const double * values, 
                                   double * target, int ts) const
 {
-  // RUBY_VALUE ret = rubyEvaluation(values);
+  MRuby * mr = MRuby::ruby();
+  mrb_value ret =  rubyEvaluation(values);
+  
+  // Now, we parse the return value
+  if(! mr->isArray(ret)) {
+    if(ts >= 1)
+      *target = mrb_float(ret);
+    return 1;
+  }
 
-  // // Now, we parse the return value
-  // if(! rbw_is_array(ret)) {
-  //   if(ts >= 1)
-  //     *target = Ruby::toDouble(ret);
-  //   return 1;
-  // }
-  // int sz = rbw_array_length(ret);
-  // for(int i = 0; i < ts && i < sz ; i++)
-  //   target[i] = Ruby::toDouble(rbw_ary_entry(ret, i));
-
-  return 0;
-  // return sz;
+  int sz = mr->arrayLength(ret);
+  sz = std::min(ts, sz);
+  for(int i = 0; i < sz ; i++)
+    target[i] = mrb_float(mr->arrayRef(ret, i));
+  return sz;
 }
 
 Vector Expression::evaluateAsArray(const double * values) const
@@ -252,17 +253,20 @@ Vector Expression::evaluateAsArray(const double * values) const
 
 Vector Expression::evaluateAsArrayNoLock(const double * values) const
 {
-  // RUBY_VALUE ret = rubyEvaluation(values);
+  MRuby * mr = MRuby::ruby();
+  mrb_value ret =  rubyEvaluation(values);
 
   Vector tg;
-  // // Now, we parse the return value
-  // if(! rbw_is_array(ret))
-  //   tg << Ruby::toDouble(ret);
-  // else {
-  //   int sz = rbw_array_length(ret);
-  //   for(int i = 0; i < sz ; i++)
-  //     tg << Ruby::toDouble(rbw_ary_entry(ret, i));
-  // }
+    
+  // Now, we parse the return value
+  if(! mr->isArray(ret)) {
+    tg << mrb_float(ret);
+  }
+  else {
+    int sz = mr->arrayLength(ret);
+    for(int i = 0; i < sz ; i++)
+      tg << mrb_float(mr->arrayRef(ret, i));
+  }
   return tg;
 }
 

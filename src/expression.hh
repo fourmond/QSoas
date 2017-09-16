@@ -34,10 +34,10 @@ class Expression {
   QString expression;
 
   /// The current Ruby code for this expression.
-  RUBY_VALUE code;
+  mrb_value code;
 
   /// The list of doubles used as cache for argument passing.
-  RUBY_VALUE * args;
+  mrb_value * args;
 
   /// The list of variables naturally present in the expression, in
   /// the order in which they are found by the Ruby code.
@@ -52,11 +52,11 @@ class Expression {
   int singleVariableIndex;
 
 
-  /// The ID of the function call !
-  static RUBY_ID callIDCache;
+  /// The mrb_sym of the function call !
+  static mrb_sym callSymCache;
 
   /// And the way to access it
-  static RUBY_ID callID();
+  static mrb_sym callSym();
 
   /// Returns the hash for safe-keeping of the Ruby procs, ie to avoid
   /// Ruby GC to treat them as unreferenced
@@ -79,7 +79,7 @@ class Expression {
   void buildArgs();
 
   /// Evaluate as a Ruby VALUE
-  RUBY_VALUE rubyEvaluation(const double * values) const;
+  mrb_value rubyEvaluation(const double * values) const;
 
 public:
 

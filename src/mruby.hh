@@ -58,7 +58,20 @@ public:
   /// Returns the static interpreter
   static MRuby * ruby();
 
+  /// Returns a block, i.e wraps the following code into a
+  /// proc do |parameters...|
+  ///   ...
+  /// end
+  mrb_value makeBlock(const QString & code, const QStringList & parameters);
 
+
+  void gcRegister(mrb_value obj);
+  void gcUnregister(mrb_value obj);
+
+  /// Returns a new float with the given value.
+  mrb_value newFloat(double value);
+  
+  
   /// Defines a toplevel module
   struct RClass * defineModule(const char * name);
 
@@ -71,6 +84,18 @@ public:
 
   /// Defines a module function
   void defineGlobalConstant(const char *name, mrb_value val);
+
+  /// Returns the symbol for the given name
+  mrb_sym intern(const char * symbol);
+
+  /// Calls the given function of func.
+  mrb_value funcall(mrb_value self, mrb_sym func, mrb_int nb,
+                    const mrb_value * params);
+
+
+  mrb_value funcall_up(mrb_value self, mrb_sym func, mrb_int nb,
+                       const mrb_value * params);
+
 
 };
 

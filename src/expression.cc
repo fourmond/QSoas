@@ -23,13 +23,17 @@
 #include <ruby.hh>
 #include <ruby-templates.hh>
 
-RUBY_ID Expression::callIDCache = 0;
+#include <mruby.hh>
 
-RUBY_ID Expression::callID()
+mrb_sym Expression::callSymCache = 0;
+
+mrb_sym Expression::callSym()
 {
-  if(callIDCache == 0)
-    callIDCache = rbw_intern("call");
-  return callIDCache;
+  if(callSymCache == 0) {
+    MRuby * mr = MRuby::ruby();
+    callSymCache = mr->intern("call");
+  }
+  return callSymCache;
 }
 
 RUBY_VALUE Expression::codeSafeKeepingHash()
@@ -64,16 +68,17 @@ RUBY_VALUE Expression::hashKey()
 
 void Expression::buildArgs()
 {
+  MRuby * mr = MRuby::ruby();
+  if(args) {
+    for(int i = 0; i < variables.size(); i++)
+      mr->gcUnregister(args[i]);
+  }
   delete[] args;
-  args = new RUBY_VALUE[variables.size()];
-
-  RUBY_VALUE ary = rbw_ary_new();
-  rbw_hash_aset(argsSafeKeepingHash(), hashKey(), ary);
+  args = new mrb_value[variables.size()];
 
   for(int i = 0; i < variables.size(); i++) {
-    RUBY_VALUE db = rbw_float_new(0.0);
-    rbw_ary_push(ary, db);
-    args[i] = db;
+    args[i] = mr->newFloat(0.0);
+    mr->gcRegister(args[i]);
   }
 }
 
@@ -89,47 +94,26 @@ void Expression::buildCode()
   QMutexLocker m(&Ruby::rubyGlobalLock);
   singleVariableIndex = -1;
 
-  QStringList vars = variables;
-  QByteArray bta = expression.toLocal8Bit();
-  code = 
-    Ruby::run<QStringList *, const QByteArray &>(&Ruby::makeBlock, &vars, bta);
-  
   if(variables.isEmpty() && minimalVariables.isEmpty()) {
-    minimalVariables = vars;
-    variables = vars;
-  }
-  else if(vars.size() > variables.size())
-    throw RuntimeError(QString("Not all the variables needed: %1 vs %2").
-                       arg(vars.join(", ")).arg(variables.join(", ")));
-  rbw_hash_aset(codeSafeKeepingHash(), hashKey(), code);
-
-
-  //////////////////////////////////////////////////
-  ///// Optimizations !
-
-  /// @todo Maybe code optimization could end up in a separate function ? 
-
-  // Now, we find out if the expression is reduced to a single
-  // variable:
-  if(minimalVariables.size() == 1) {
-    if(expression.trimmed() == minimalVariables[0]) {
-      // Then, we have a single variable, whose index we'll find
-      while(true) {
-        ++singleVariableIndex;
-        if(variables[singleVariableIndex] == minimalVariables[0])
-          break;
-      }
-    }
+    minimalVariables = variablesNeeded(expression);
+    variables = minimalVariables;
   }
 
+  MRuby * mr = MRuby::ruby();
+  code = mr->makeBlock(expression.toLocal8Bit(), variables);
+  mr->gcRegister(code);
   buildArgs();                  // Build the arguments cache
 }
 
 void Expression::freeCode()
 {
-  rbw_hash_delete(codeSafeKeepingHash(), hashKey());
-  rbw_hash_delete(argsSafeKeepingHash(), hashKey());
-  code = rbw_nil;
+  MRuby * mr = MRuby::ruby();
+  mr->gcUnregister(code);
+  code = mrb_nil_value();
+  if(args) {
+    for(int i = 0; i < variables.size(); i++)
+      mr->gcUnregister(args[i]);
+  }
   delete[] args;
   args = NULL;
 }
@@ -204,19 +188,15 @@ const QStringList & Expression::naturalVariables() const
   return minimalVariables;
 }
 
-RUBY_VALUE Expression::rubyEvaluation(const double * values) const
+mrb_value Expression::rubyEvaluation(const double * values) const
 {
-  // Greatly simplified code in case the expression reduces to only
-  // one variable !
-  if(singleVariableIndex >=  0)
-    return rbw_float_new(values[singleVariableIndex]);
+  // Should this be cached at the Expression level ?
+  MRuby * mr = MRuby::ruby();
   int size = variables.size();
   for(int i = 0; i < size; i++)
-    rbw_set_float(&args[i],values[i]);
+    SET_FLOAT_VALUE(mr->mrb, args[i], values[i]);
   
-  RUBY_VALUE ret =
-    Ruby::wrapFuncall(code, callID(), size, (const RUBY_VALUE *) args);
-  return ret;
+  return mr->funcall(code, callSym(), size, args);
 }
 
 double Expression::evaluate(const double * values) const
@@ -229,12 +209,12 @@ double Expression::evaluateNoLock(const double * values) const
 {
   if(singleVariableIndex >=  0)
     return values[singleVariableIndex];
-  return Ruby::toDouble(rubyEvaluation(values));
+  return mrb_float(rubyEvaluation(values));
 }
 
 bool Expression::evaluateAsBoolean(const double * values) const
 {
-  return rbw_test(rubyEvaluation(values));
+  return mrb_test(rubyEvaluation(values));
 }
 
 int Expression::evaluateIntoArray(const double * values, 
@@ -247,19 +227,20 @@ int Expression::evaluateIntoArray(const double * values,
 int Expression::evaluateIntoArrayNoLock(const double * values, 
                                   double * target, int ts) const
 {
-  RUBY_VALUE ret = rubyEvaluation(values);
+  // RUBY_VALUE ret = rubyEvaluation(values);
 
-  // Now, we parse the return value
-  if(! rbw_is_array(ret)) {
-    if(ts >= 1)
-      *target = Ruby::toDouble(ret);
-    return 1;
-  }
-  int sz = rbw_array_length(ret);
-  for(int i = 0; i < ts && i < sz ; i++)
-    target[i] = Ruby::toDouble(rbw_ary_entry(ret, i));
+  // // Now, we parse the return value
+  // if(! rbw_is_array(ret)) {
+  //   if(ts >= 1)
+  //     *target = Ruby::toDouble(ret);
+  //   return 1;
+  // }
+  // int sz = rbw_array_length(ret);
+  // for(int i = 0; i < ts && i < sz ; i++)
+  //   target[i] = Ruby::toDouble(rbw_ary_entry(ret, i));
 
-  return sz;
+  return 0;
+  // return sz;
 }
 
 Vector Expression::evaluateAsArray(const double * values) const
@@ -271,30 +252,31 @@ Vector Expression::evaluateAsArray(const double * values) const
 
 Vector Expression::evaluateAsArrayNoLock(const double * values) const
 {
-  RUBY_VALUE ret = rubyEvaluation(values);
+  // RUBY_VALUE ret = rubyEvaluation(values);
 
   Vector tg;
-  // Now, we parse the return value
-  if(! rbw_is_array(ret))
-    tg << Ruby::toDouble(ret);
-  else {
-    int sz = rbw_array_length(ret);
-    for(int i = 0; i < sz ; i++)
-      tg << Ruby::toDouble(rbw_ary_entry(ret, i));
-  }
+  // // Now, we parse the return value
+  // if(! rbw_is_array(ret))
+  //   tg << Ruby::toDouble(ret);
+  // else {
+  //   int sz = rbw_array_length(ret);
+  //   for(int i = 0; i < sz ; i++)
+  //     tg << Ruby::toDouble(rbw_ary_entry(ret, i));
+  // }
   return tg;
 }
 
 QStringList Expression::variablesNeeded(const QString & expression,
                                         const QStringList & variables)
 {
-  QStringList vars = variables;
-  QByteArray bta = expression.toLocal8Bit();
-  // RUBY_VALUE code = 
-  Ruby::run<QStringList *, const QByteArray &>(&Ruby::makeBlock, &vars, bta);
-  for(int i = 0; i < variables.size(); i++)
-    vars.takeAt(0);
-  return vars;
+  MRuby * mr = MRuby::ruby();
+  QStringList v = mr->detectParameters(expression.toLocal8Bit());
+  for(int i = 0; i < variables.size(); i++) {
+    int idx = v.indexOf(variables[i]);
+    if(idx >= 0)
+      v.takeAt(idx);
+  }
+  return v;
 }
 
 

@@ -197,6 +197,48 @@ void MRuby::defineGlobalConstant(const char *name, mrb_value val)
   mrb_define_global_const(mrb, name, val);
 }
 
+void MRuby::gcRegister(mrb_value obj)
+{
+  mrb_gc_register(mrb, obj);
+}
+
+void MRuby::gcUnregister(mrb_value obj)
+{
+  mrb_gc_unregister(mrb, obj);
+}
+
+mrb_sym MRuby::intern(const char * symbol)
+{
+  return mrb_intern_cstr(mrb, symbol);
+}
+
+mrb_value MRuby::funcall_up(mrb_value self, mrb_sym func, mrb_int nb,
+                            const mrb_value * params)
+{
+  return mrb_funcall_argv(mrb, self, func, nb, params);
+}
+
+mrb_value MRuby::funcall(mrb_value self, mrb_sym func, mrb_int nb,
+                         const mrb_value * params)
+{
+  return protect([this, self, func, nb, params]() -> mrb_value {
+      return funcall_up(self, func, nb, params);
+    }
+    );
+}
+
+mrb_value MRuby::newFloat(double value)
+{
+  return mrb_float_value(mrb, value);
+}
+
+mrb_value MRuby::makeBlock(const QString & code, const QStringList & vars)
+{
+  return eval(QString("proc do |%1|\n  %2\nend").
+              arg(vars.join(",")).arg(code));
+}
+
+
 
 
 #include <command.hh>

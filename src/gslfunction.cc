@@ -22,6 +22,8 @@
 
 #include <functions.hh>
 
+#include <mruby.hh>
+
 #include <gsl/gsl_sf.h>
 #include <gsl/gsl_const_mksa.h>
 #include <gsl/gsl_const_num.h>
@@ -47,13 +49,29 @@ GSLFunction::GSLFunction(const QString & n, const QString & d,
     registerSelf();
 }
 
+void GSLFunction::registerAllFunctions(MRuby * mr)
+{
+  RClass * mMath = mr->defineModule("Math");
+
+  if(! functions)
+    return;
+
+  for(int i = 0; i < functions->size(); i++)
+    functions->value(i)->registerFunction(mr, mMath);
+
+}
+
+void GSLFunction::registerFunction(MRuby * mr, struct RClass * cls)
+{
+}
+
 RUBY_VALUE GSLFunction::registerAllFunctions()
 {
   RUBY_VALUE mSpecial = rbw_mMath();
 
   if(! functions)
     return mSpecial;            // Nothing to do
-  
+
   for(int i = 0; i < functions->size(); i++)
     functions->value(i)->registerFunction(mSpecial);
 
@@ -113,6 +131,12 @@ template < double (*func)(double) > class GSLSimpleFunction :
   static RUBY_VALUE rubyFunction(RUBY_VALUE /*mod*/, RUBY_VALUE x) {
     return rbw_float_new(func(rbw_num2dbl(x)));
   };
+  
+  static mrb_value mrFunction(mrb_state * mrb, mrb_value /*self*/) {
+    mrb_float flt;
+    mrb_get_args(mrb, "f", &flt);
+    return mrb_float_value(mrb, func(flt));
+  };
 
 public:
   GSLSimpleFunction(const QString & n, const QString & d,
@@ -120,11 +144,16 @@ public:
     GSLFunction(n, d, url) {
   };
 
-  virtual void registerFunction(RUBY_VALUE module) {
+  virtual void registerFunction(RUBY_VALUE module) override {
     rbw_define_method(module, rubyName.toLocal8Bit(), 
                                (RUBY_VALUE (*)()) rubyFunction, 1);
     rbw_define_singleton_method(module, rubyName.toLocal8Bit(), 
                                (RUBY_VALUE (*)()) rubyFunction, 1);
+  };
+
+  virtual void registerFunction(MRuby * mr, struct RClass * cls) override {
+    mr->defineModuleFunction(cls, rubyName.toLocal8Bit(), &mrFunction,
+                             MRB_ARGS_REQ(1));
   };
 
 };
@@ -503,10 +532,23 @@ void GSLConstant::registerConstant()
     rbw_define_global_const(qPrintable(names[i]), v);
 }
 
+void GSLConstant::registerConstant(MRuby * mr)
+{
+  mrb_value v = mrb_float_value(mr->mrb, value);
+  for(int i = 0; i < names.size(); i++)
+    mr->defineGlobalConstant(qPrintable(names[i]), v);
+}
+
 void GSLConstant::registerAllConstants()
 {
   for(int i = 0; i < constants->size(); i++)
     constants->value(i)->registerConstant();
+}
+
+void GSLConstant::registerAllConstants(MRuby * mr)
+{
+  for(int i = 0; i < constants->size(); i++)
+    constants->value(i)->registerConstant(mr);
 }
 
 static bool cmpConstants(GSLConstant * a, GSLConstant * b)

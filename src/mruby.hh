@@ -27,7 +27,6 @@
 /// * an "unprotected" version calling the raw code, ending with up
 /// * a "protected" version, calling the unprotected one through protect()
 class MRuby {
-  mrb_state *mrb;
 
   static MRuby * globalInterpreter;
 
@@ -36,12 +35,15 @@ class MRuby {
                               const QString & fileName = "(eval)");
 
 public:
+  mrb_state *mrb;
+
+
   MRuby();
   ~MRuby();
 
   /// Evaluate the given code.
   mrb_value eval(const QByteArray & code);
-
+  mrb_value eval(const char * code);
   mrb_value eval(const QString& code);
 
   /// Evaluate the given file
@@ -57,8 +59,18 @@ public:
   static MRuby * ruby();
 
 
+  /// Defines a toplevel module
+  struct RClass * defineModule(const char * name);
+
+  /// Defines a module function
+  void defineModuleFunction(struct RClass* cls, const char* name,
+                            mrb_func_t func, mrb_aspec aspec);
+
   /// Detects the "external parameters" for the given code.
   QStringList detectParameters(const QByteArray & code);
+
+  /// Defines a module function
+  void defineGlobalConstant(const char *name, mrb_value val);
 
 };
 

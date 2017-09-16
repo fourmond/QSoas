@@ -29,6 +29,8 @@
 #include <exceptions.hh>
 #include <utils.hh>
 
+#include <gslfunction.hh>
+
 MRuby::MRuby()
 {
   mrb = mrb_open();
@@ -44,8 +46,14 @@ MRuby * MRuby::globalInterpreter = NULL;
 
 MRuby * MRuby::ruby()
 {
-  if(! globalInterpreter)
+  if(! globalInterpreter) {
+    // Here is where the initialization of the global interpreter is
+    // done.
     globalInterpreter = new MRuby;
+    globalInterpreter->eval("include Math");
+    GSLFunction::registerAllFunctions(globalInterpreter);
+    GSLConstant::registerAllConstants(globalInterpreter);
+  }
   return globalInterpreter;
 }
 
@@ -118,6 +126,11 @@ struct RProc * MRuby::generateCode(const QByteArray & code,
   return proc;
 }
 
+mrb_value MRuby::eval(const char * code)
+{
+  return eval(QByteArray(code));
+}
+
 mrb_value MRuby::eval(const QByteArray & code)
 {
   RProc * proc = generateCode(code);
@@ -166,6 +179,22 @@ QStringList MRuby::detectParameters(const QByteArray & code)
     }
   }
   return rv.toList();
+}
+
+struct RClass * MRuby::defineModule(const char * name)
+{
+  return mrb_define_module(mrb, name);
+}
+
+void MRuby::defineModuleFunction(struct RClass* cls, const char* name,
+                                 mrb_func_t func, mrb_aspec aspec)
+{
+  mrb_define_module_function(mrb, cls, name, func, aspec);
+}
+
+void MRuby::defineGlobalConstant(const char *name, mrb_value val)
+{
+  mrb_define_global_const(mrb, name, val);
 }
 
 

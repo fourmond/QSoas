@@ -236,7 +236,19 @@ mrb_value MRuby::newFloat(double value)
   return mrb_float_value(mrb, value);
 }
 
+
 double MRuby::floatValue(mrb_value value)
+{
+  double rv;
+  protect([this, value, &rv]() -> mrb_value {
+      rv = floatValue_up(value);
+      return mrb_nil_value();
+    }
+    );
+  return rv;
+}
+
+double MRuby::floatValue_up(mrb_value value)
 {
   return mrb_to_flo(mrb, value);
 }

@@ -77,6 +77,9 @@ public:
   /// Returns the value of the object as a double
   double floatValue(mrb_value fv);
 
+  /// Returns the value of the object as a double
+  double floatValue_up(mrb_value fv);
+
   /// Returns a new int with the given value
   mrb_value newInt(int value);
 

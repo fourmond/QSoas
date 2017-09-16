@@ -453,6 +453,13 @@ SOURCES += src/ruby-wrappers.c
 HEADERS += src/mruby.hh
 SOURCES += src/mruby.cc
 
+# GSL: we may have to build against non-standard gsl locations:
+! isEmpty(MRUBY_DIR) {
+  # We add the directory to both the include path and the lib path:
+  LIBS += -L$$MRUBY_DIR/build/host/lib
+  INCLUDEPATH += $$MRUBY_DIR/include
+}
+
 LIBS += -lmruby
 
                 

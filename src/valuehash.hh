@@ -142,10 +142,10 @@ public:
 
   /// Converts a QVariant into a Ruby object. Not all types are
   /// supported for now. Qnil is returned on unsupported values
-  static RUBY_VALUE variantToRuby(const QVariant & variant);
+  static mrb_value variantToRuby(const QVariant & variant);
 
   /// Converts to a Ruby Hash.
-  RUBY_VALUE toRuby() const;
+  mrb_value toRuby() const;
 
 
   /// Returns the value of the meta-data as a double.

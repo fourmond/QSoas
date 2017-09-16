@@ -68,12 +68,20 @@ public:
   void gcRegister(mrb_value obj);
   void gcUnregister(mrb_value obj);
 
+  /// @name Number-related functions
+  /// @{
+
   /// Returns a new float with the given value.
   mrb_value newFloat(double value);
 
   /// Returns the value of the object as a double
   double floatValue(mrb_value fv);
-  
+
+  /// Returns a new int with the given value
+  mrb_value newInt(int value);
+
+  /// @}
+
   /// Defines a toplevel module
   struct RClass * defineModule(const char * name);
 
@@ -98,11 +106,46 @@ public:
   mrb_value funcall_up(mrb_value self, mrb_sym func, mrb_int nb,
                        const mrb_value * params);
 
+  /// @name Array functions
+  /// @{
   bool isArray(mrb_value array);
-
   mrb_value arrayRef(mrb_value array, int index);
   int arrayLength(mrb_value array);
 
+  /// @}
+
+  /// @name Global variables
+  /// @{
+
+  /// Sets a global variables
+  void setGlobal(const char * name, mrb_value value);
+
+  /// Gets the given global variable
+  mrb_value getGlobal(const char * name);
+  /// @}
+
+
+  /// @name String functions
+  /// @{
+
+  /// Returns the string value of the object as a string.
+  QString toQString(mrb_value value);
+
+  /// Creates a mruby object corresponding to the string.
+  mrb_value fromQString(const QString & str);
+
+  /// @}
+
+  /// @name Hash functions
+  /// @{
+
+  /// Creates a hash
+  mrb_value newHash();
+
+  /// Sets a hash element
+  void hashSet(mrb_value hash, mrb_value key, mrb_value elem);
+
+  /// @}
 };
 
 

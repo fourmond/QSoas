@@ -58,19 +58,9 @@ class Expression {
   /// And the way to access it
   static mrb_sym callSym();
 
-  /// Returns the hash for safe-keeping of the Ruby procs, ie to avoid
-  /// Ruby GC to treat them as unreferenced
-  static RUBY_VALUE codeSafeKeepingHash();
-
-  /// Returns the hash for safe-keeping of the Ruby arrays of doubles,
-  /// ie to avoid Ruby GC to treat them as unreferenced
-  static RUBY_VALUE argsSafeKeepingHash();
-
   /// "frees" the code associated with the expression.
   void freeCode();
 
-  /// Returns a unique key for the current hash.
-  RUBY_VALUE hashKey();
 
   /// Builds the code, using the current variable list.
   void buildCode();

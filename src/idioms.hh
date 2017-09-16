@@ -23,7 +23,7 @@
 #define __IDIOMS_HH
 
 #include <terminal.hh>
-#include <ruby-wrappers.h>
+#include <mruby.hh>
 
 /// Assigns the current value of source to dest when the object goes
 /// out of scope.
@@ -98,23 +98,26 @@ public:
 
 /// Save a global Ruby variable
 class SaveGlobal {
-  RUBY_VALUE old;
+  mrb_value old;
+  MRuby * mr;
 
   const char * name;
 public:
 
   /// Has to be a real const char ? For now.
   SaveGlobal(const char * n) : name(n) {
-    old = rbw_gv_get(name);
+    mr = MRuby::ruby();
+    old = mr->getGlobal(name);
   };
 
-  SaveGlobal(const char * n, RUBY_VALUE nv) : name(n) {
-    old = rbw_gv_get(name);
-    rbw_gv_set(name, nv);
+  SaveGlobal(const char * n, mrb_value nv) : name(n) {
+    mr = MRuby::ruby();
+    old = mr->getGlobal(name);
+    mr->setGlobal(name, nv);
   };
 
   ~SaveGlobal() {
-    rbw_gv_set(name, old);
+    mr->setGlobal(name, old);
   };
 };
 

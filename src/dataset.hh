@@ -616,7 +616,7 @@ public:
 
   /// Evaluates the given expression, setting the $stats and $meta
   /// variables as necessary
-  RUBY_VALUE evaluateWithMeta(const QString & expression, bool useStats = false) const;
+  mrb_value evaluateWithMeta(const QString & expression, bool useStats = false) const;
 
   /// Runs the given expression feeding it the values of the meta-data
   /// and the statistics, and returns wether the expression is true or

@@ -27,6 +27,8 @@
 #include <mruby/error.h>
 #include <mruby/array.h>
 #include <mruby/numeric.h>
+#include <mruby/variable.h>
+#include <mruby/hash.h>
 
 #include <exceptions.hh>
 #include <utils.hh>
@@ -239,6 +241,12 @@ double MRuby::floatValue(mrb_value value)
   return mrb_to_flo(mrb, value);
 }
 
+
+mrb_value MRuby::newInt(int value)
+{
+  return mrb_fixnum_value(value);
+}
+
 mrb_value MRuby::makeBlock(const QString & code, const QStringList & vars)
 {
   return eval(QString("proc do |%1|\n  %2\nend").
@@ -260,6 +268,41 @@ int MRuby::arrayLength(mrb_value array)
 {
   return RARRAY_LEN(array);
 }
+
+void MRuby::setGlobal(const char * name, mrb_value val)
+{
+  mrb_sym sym = mrb_intern_cstr(mrb, name);
+  mrb_gv_set(mrb, sym, val);
+}
+
+mrb_value MRuby::getGlobal(const char * name)
+{
+  mrb_sym sym = mrb_intern_cstr(mrb, name);
+  return mrb_gv_get(mrb, sym);
+}
+
+QString MRuby::toQString(mrb_value value)
+{
+  return mrb_string_value_cstr(mrb, &value);
+}
+
+mrb_value MRuby::fromQString(const QString & str)
+{
+  QByteArray bt = str.toLocal8Bit();
+  return mrb_str_new_cstr(mrb, bt.constData());
+}
+
+mrb_value MRuby::newHash()
+{
+  return mrb_hash_new(mrb);
+}
+
+void MRuby::hashSet(mrb_value hash, mrb_value key, mrb_value value)
+{
+  mrb_hash_set(mrb, hash, key, value);
+}
+
+                     
 
 
 

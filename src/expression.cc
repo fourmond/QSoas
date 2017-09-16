@@ -36,36 +36,6 @@ mrb_sym Expression::callSym()
   return callSymCache;
 }
 
-RUBY_VALUE Expression::codeSafeKeepingHash()
-{
-  QMutexLocker m(&Ruby::rubyGlobalLock);
-  RUBY_VALUE hsh = rbw_gv_get("$expression_codes");
-  if(! rbw_test(hsh)) {
-    hsh = rbw_hash_new();
-    rbw_gv_set("$expression_codes", hsh);
-  }
-  return hsh;
-}
-
-RUBY_VALUE Expression::argsSafeKeepingHash()
-{
-  QMutexLocker m(&Ruby::rubyGlobalLock);
-  RUBY_VALUE hsh = rbw_gv_get("$expression_args");
-  if(! rbw_test(hsh)) {
-    hsh = rbw_hash_new();
-    rbw_gv_set("$expression_args", hsh);
-  }
-  return hsh;
-}
-
-
-RUBY_VALUE Expression::hashKey()
-{
-  long val = reinterpret_cast<long>(this);
-  val >>= 1;
-  return rbw_int(val);
-}
-
 void Expression::buildArgs()
 {
   MRuby * mr = MRuby::ruby();

@@ -37,6 +37,7 @@
 
 #include <statistics.hh>
 #include <ruby.hh>
+#include <mruby.hh>
 #include <idioms.hh>
 
 static Group stack("view", 1,
@@ -132,7 +133,8 @@ static void saveBuffersCommand(const QString &,
       nm = QString::fromUtf8(buffer);
     }
     else if(! expr.isEmpty()) {
-      nm = Ruby::toQString(datasets[i]->evaluateWithMeta(expr));
+      MRuby * mr = MRuby::ruby();
+      nm = mr->toQString(datasets[i]->evaluateWithMeta(expr));
     }
     if(rename) {
       /// @hack And a nice const-cast...

@@ -533,15 +533,14 @@ static void eval(const QString &, QString code, const CommandOptions & opts)
   updateFromOptions(opts, "use-dataset", useDs);
   
   DataSet * ds = (useDs ? soas().currentDataSet(true) : NULL);
-  RUBY_VALUE value;
+  MRuby * mr = MRuby::ruby();
+  mrb_value value;
   if(ds)
     value = ds->evaluateWithMeta(code, true);
-  else {
-    QByteArray bt = code.toLocal8Bit();
-    value = Ruby::run(Ruby::eval, bt);
-  }
+  else
+    value = mr->eval(code);
 
-  Terminal::out << " => " << Ruby::inspect(value) << endl;
+  Terminal::out << " => " << mr->inspect(value) << endl;
 }
 
 static ArgumentList 
@@ -746,7 +745,9 @@ static void assertCmd(const QString &, QString code,
     return;
   }
 
-  RUBY_VALUE value;
+  MRuby * mr = MRuby::ruby();
+
+  mrb_value value;
   AssertionsList * cur = &assertResults[assertContext];
   cur->total += 1;
   QString context = "";
@@ -756,19 +757,18 @@ static void assertCmd(const QString &, QString code,
   try {
     if(ds)
       value = ds->evaluateWithMeta(code, true);
-    else {
-      QByteArray bt = code.toLocal8Bit();
-      value = Ruby::run(Ruby::eval, bt);
-    }
+    else
+      value = mr->eval(code);
+
     bool check;
     if(useTol) {
-      double v = rbw_num2dbl(value);
+      double v = mr->floatValue(value);
       check = fabs(v) <= tolerance;
       as.value = v;
       as.tolerance = tolerance;
     }
     else
-      check = rbw_test(value);
+      check = mrb_test(value);
     
     if(check) {
       Terminal::out << "assertion success" << endl;
@@ -781,10 +781,10 @@ static void assertCmd(const QString &, QString code,
       if(useTol) {
         Terminal::out << "assertion failed: " << code
                       << " (should be below: " << tolerance
-                      << " but is: " << rbw_num2dbl(value) << ")" << endl;
+                      << " but is: " << mr->floatValue(value) << ")" << endl;
         Debug::debug() << "F: " << code
                        << " (should be below: " << tolerance
-                       << " but is: " << rbw_num2dbl(value) << ")"
+                       << " but is: " << mr->floatValue(value) << ")"
                        << context << endl;
       }
       else {

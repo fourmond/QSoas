@@ -24,6 +24,7 @@
 #include <fitparameter.hh>
 
 #include <abdmatrix.hh>
+#include <utils.hh>
 
 SparseJacobian::SparseJacobian(const FitData * data,  bool sp,
                                gsl_matrix * mat) :
@@ -223,8 +224,8 @@ void SparseJacobian::computeGradient(gsl_vector * target,
     int ids = i % datasets;
     gsl_vector_view l2 = fitData->viewForDataset(ids, &l1.vector);
     gsl_vector_const_view r2 = fitData->viewForDataset(ids, func);
-    double val;
-    gsl_blas_ddot(&l2.vector, &r2.vector, &val);
+    double val = Utils::finiteProduct(&l2.vector, &r2.vector);
+    // gsl_blas_ddot(&l2.vector, &r2.vector, &val);
     val *= fact;
     val += gsl_vector_get(target, itgt);
     gsl_vector_set(target, itgt, val);

@@ -328,8 +328,7 @@ void QSoasFitEngine::recomputeJacobian()
   fitData->fdf(parameters, function, jacobian);
   scaleJacobian();              // Do scaling all the times
   jacobian->computejTj(jTj);
-  double cur_squares = 0;
-  gsl_blas_ddot(function, function, &cur_squares);
+  double cur_squares = Utils::finiteNorm(function);
 
   lastResiduals = sqrt(cur_squares);
 }
@@ -368,6 +367,11 @@ void QSoasFitEngine::trialStep(double l, gsl_vector * params,
   for(int i = 0; i < n; i++)
     gsl_matrix_set(cur, i, i, gsl_matrix_get(cur, i, i) + l);
 
+  if(fitData->debug > 0) {
+    Debug::debug() << "current matrix: \n"
+                   << Utils::matrixString(jTj) << endl;
+  }
+  
   int sign = 0;
 
   /// @todo error checking !
@@ -393,7 +397,7 @@ void QSoasFitEngine::trialStep(double l, gsl_vector * params,
   gsl_vector_add(params, deltap);
 
   fitData->f(params, func);
-  gsl_blas_ddot(func, func, res);
+  *res = Utils::finiteNorm(func);
   if(fitData->debug > 0) {
     // Dump the jTj matrix:
     Debug::debug() << " -> residuals = " << *res << endl;
@@ -419,8 +423,7 @@ int QSoasFitEngine::iterate()
   /// If scaling is on, all the following applies to the scaled
   /// jacobian.
 
-  double cur_squares = 0;
-  gsl_blas_ddot(function, function, &cur_squares);
+  double cur_squares = Utils::finiteNorm(function);
 
   lastResiduals = sqrt(cur_squares);
 

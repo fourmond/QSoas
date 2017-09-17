@@ -395,7 +395,7 @@ void Fit::runFit(std::function<void (FitData *)> hook,
   if(datasets.size() == 0)
     throw RuntimeError("No buffers to fit");
 
-  {
+  if(false) {
     QStringList pbs;
     QList<int> idx;
     for(int i = 0; i < datasets.size(); i++) {

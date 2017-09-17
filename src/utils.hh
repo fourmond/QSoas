@@ -321,6 +321,14 @@ namespace Utils {
   void invertMatrix(gsl_matrix  * mat, gsl_matrix * target,
                     double threshold = -1);
 
+  /// Returns the norm of the given vector, ignoring any non-finite
+  /// number.
+  double finiteNorm(const gsl_vector * v);
+
+  /// Returns the scalar product of the two vectors, taking into
+  /// account only the finite terms.
+  double finiteProduct(const gsl_vector * v1, const gsl_vector * v2);
+
   /// @}
 
 

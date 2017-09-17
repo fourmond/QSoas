@@ -412,6 +412,33 @@ QString Utils::vectorString(const gsl_vector * vector)
   return lst.join("\t");
 }
 
+double Utils::finiteNorm(const gsl_vector * v)
+{
+  double rv = 0;
+  const double * x = v->data;
+  size_t s = v->stride;
+  for(size_t i = 0; i < v->size; i++, x += s) {
+    if(std::isfinite(*x))
+      rv += *x * *x;
+  }
+  return rv;
+}
+
+double Utils::finiteProduct(const gsl_vector * v1, const gsl_vector * v2)
+{
+  double rv = 0;
+  const double * x1 = v1->data;
+  const double * x2 = v2->data;
+  size_t s1 = v1->stride;
+  size_t s2 = v2->stride;
+  for(size_t i = 0; i < v1->size; i++, x1 += s1, x2 += s2) {
+    if(std::isfinite(*x1) && std::isfinite(*x2))
+      rv += *x1 * *x2;
+  }
+  return rv;
+}
+
+
 double Utils::roundValue(double value, int rank)
 {
   double rk = ceil(log10(value));

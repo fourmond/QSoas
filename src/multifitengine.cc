@@ -334,8 +334,7 @@ void MultiFitEngine::recomputeJacobian()
 
   jacobian->computejTj(jTj);
 
-  double cur_squares = 0;
-  gsl_blas_ddot(function, function, &cur_squares);
+  double cur_squares = Utils::finiteNorm(function);
 
   lastResiduals = sqrt(cur_squares);
 }
@@ -396,7 +395,7 @@ void MultiFitEngine::trialStep(double l, gsl_vector * params,
   gsl_vector_add(params, deltap);
 
   fitData->f(params, func);
-  gsl_blas_ddot(func, func, res);
+  *res = Utils::finiteNorm(func);
 
   if(fitData->debug > 0) {
     // Dump the jTj matrix:
@@ -417,8 +416,7 @@ int MultiFitEngine::iterate()
   fitData->fdf(parameters, function, jacobian);
   scaleJacobian();
 
-  double cur_squares = 0;
-  gsl_blas_ddot(function, function, &cur_squares);
+  double cur_squares = Utils::finiteNorm(function);
 
   lastResiduals = sqrt(cur_squares);
 

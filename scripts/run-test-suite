@@ -25,6 +25,13 @@ case $1 in
         fi
         shift
         ;;
+    --callgrind)
+        pref="valgrind --tool=callgrind --compress-strings=no --callgrind-out-file=../callgrind-output"
+        if [ "$2" ]; then
+            pref="$pref --xml=yes --xml-file=../$2"
+        fi
+        shift
+        ;;
     --xml)
         for a in $checks; do
             echo "Running check $a:"

@@ -416,7 +416,8 @@ double FitData::weightedSquareSumForDataset(int ds, const gsl_vector * vect,
     double val = (vect ? gsl_vector_get(vect, j) : 0);
     if(vect || subtract)
       v *= (subtract ? val - y[j] : val);
-    ret += v*v;
+    if(std::isfinite(v))
+      ret += v*v;
   }
   return ret;
 }

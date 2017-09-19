@@ -1,0 +1,17 @@
+# Here, we test the definitions of functions using ruby code
+
+ruby
+def fun1(x)
+  return x**3-2*x**2+3
+end
+ruby end
+
+generate-buffer 0 10 fun1(x)
+apply-formula y-=x**3-2*x**2+3
+assert '$stats["y_norm"]' 0
+
+ruby-run func.rb
+
+generate-buffer 0 10 fun2(x)
+apply-formula y-=x**4-x**3+x**2
+assert '$stats["y_norm"]' 0

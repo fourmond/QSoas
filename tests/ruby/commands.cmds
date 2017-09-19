@@ -1,6 +1,8 @@
 # In this file, we test various aspects of running commands from
 # within ruby code
 
+generate-buffer 0 10
+
 ruby
 QSoasInterface::the_instance.generate_buffer(0,20,"formula" => "x**2")
 ruby end
@@ -8,6 +10,8 @@ ruby end
 apply-formula y-=x**2
 assert '$stats["y_norm"]' 0
 assert '$stats["x_max"]' 20
+
+generate-buffer 0 10
 
 ruby
 Soas.generate_buffer(0,20, :formula =>  "x**2")

@@ -5,6 +5,11 @@ class Float
   end
   
   def negligible?(scale = 1.0)
-    return self.smaller_than?(Float::EPSILON*scale)
+    flt = begin
+            Float::EPSILON
+          rescue
+            3e-16
+          end
+    return self.smaller_than?(flt*scale)
   end
 end

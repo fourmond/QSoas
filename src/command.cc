@@ -33,7 +33,7 @@
 
 #include <general-arguments.hh>
 
-#include <ruby.hh>
+#include <mruby.hh>
 
 
 QHash<QString, Command*> * Command::availableCommands = NULL;
@@ -649,7 +649,7 @@ void Command::writeSpecFile(QTextStream & out, bool full)
 
 
 // Ruby interface commands:
-void Command::runCommand(int nb, RUBY_VALUE * args)
+void Command::runCommand(int nb, mrb_value * args)
 {
   /// @todo Use possessive stuff???
   /// Or pass around possessive stuff...

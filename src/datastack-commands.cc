@@ -36,7 +36,6 @@
 #include <stylegenerator.hh>
 
 #include <statistics.hh>
-#include <ruby.hh>
 #include <mruby.hh>
 #include <idioms.hh>
 

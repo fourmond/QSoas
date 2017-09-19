@@ -19,20 +19,17 @@
 
 #include <headers.hh>
 #include <argument.hh>
-
-// #include <ruby.hh>
-// #include <ruby-templates.hh>
-
+#include <mruby.hh>
 #include <debug.hh>
 
-ArgumentMarshaller * Argument::convertRubyString(RUBY_VALUE value) const
+ArgumentMarshaller * Argument::convertRubyString(mrb_value value) const
 {
   return NULL; // fromString(Ruby::toQString(value));
 }
 
 
 
-ArgumentMarshaller * Argument::convertRubyArray(RUBY_VALUE value) const
+ArgumentMarshaller * Argument::convertRubyArray(mrb_value value) const
 {
   // QStringList rv = Ruby::rubyArrayToList<QString>(value, &Ruby::toQString);
   // ArgumentMarshaller * ret = NULL;
@@ -49,7 +46,7 @@ ArgumentMarshaller * Argument::convertRubyArray(RUBY_VALUE value) const
   return NULL;
 }
 
-ArgumentMarshaller * Argument::fromRuby(RUBY_VALUE value) const
+ArgumentMarshaller * Argument::fromRuby(mrb_value value) const
 {
   // QString c = Ruby::toQString(value);
   // return fromString(c);

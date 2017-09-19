@@ -22,7 +22,6 @@
 #ifndef __VALUEHASH_HH
 #define __VALUEHASH_HH
 
-#include <ruby-wrappers.h>
 #include <argumentmarshaller.hh>
 
 class DataSet;
@@ -158,10 +157,10 @@ public:
   double doubleValue(const QString & param) const;
 
   /// Sets data from a Ruby hash
-  void setFromRuby(RUBY_VALUE hsh);
+  void setFromRuby(mrb_value hsh);
   
   /// Builds a new ValueHash from a Ruby hsh
-  static ValueHash fromRuby(RUBY_VALUE hsh);
+  static ValueHash fromRuby(mrb_value hsh);
 
   /// Returns a copy of the hash selecting keys/values  from the spec:
   /// @li '*' means "set all"

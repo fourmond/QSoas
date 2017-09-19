@@ -20,8 +20,6 @@
 #include <headers.hh>
 #include <expression.hh>
 #include <exceptions.hh>
-#include <ruby.hh>
-#include <ruby-templates.hh>
 
 #include <mruby.hh>
 

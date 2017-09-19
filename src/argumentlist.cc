@@ -24,7 +24,7 @@
 #include <argumentlist.hh>
 
 #include <terminal.hh>
-#include <ruby.hh>
+#include <mruby.hh>
 
 
 ArgumentList::ArgumentList(const QList<Argument *> & lst)
@@ -154,12 +154,12 @@ CommandArguments ArgumentList::parseArguments(const QStringList & args,
   return ret;
 }
 
-CommandOptions ArgumentList::parseRubyOptions(RUBY_VALUE hsh) const
+CommandOptions ArgumentList::parseRubyOptions(mrb_value hsh) const
 {
   CommandOptions opts;
     
   // for(int i = 0; i < size(); i++) {
-  //   RUBY_VALUE v = rbw_hash_aref(hsh, Ruby::symbolFromQString(value(i)->argumentName()));
+  //   mrb_value v = rbw_hash_aref(hsh, Ruby::symbolFromQString(value(i)->argumentName()));
   //   if(v == rbw_nil)
   //     v = rbw_hash_aref(hsh, Ruby::fromQString(value(i)->argumentName()));
 
@@ -172,7 +172,7 @@ CommandOptions ArgumentList::parseRubyOptions(RUBY_VALUE hsh) const
 }
 
 
-CommandArguments ArgumentList::parseRubyArguments(int nb, RUBY_VALUE * values) const
+CommandArguments ArgumentList::parseRubyArguments(int nb, mrb_value * values) const
 {
   CommandArguments rv;
   if(nb < size())

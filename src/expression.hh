@@ -21,7 +21,6 @@
 #ifndef __EXPRESSION_HH
 #define __EXPRESSION_HH
 
-#include <ruby-wrappers.h>
 #include <vector.hh>
 
 /// This class represents a mathematical expression, internally

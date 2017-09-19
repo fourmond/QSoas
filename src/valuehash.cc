@@ -20,8 +20,6 @@
 #include <headers.hh>
 #include <valuehash.hh>
 
-#include <ruby.hh>
-#include <ruby-templates.hh>
 #include <exceptions.hh>
 #include <debug.hh>
 
@@ -280,7 +278,7 @@ mrb_value ValueHash::toRuby() const
   return ret;
 }
 
-static int setFromRubyInternalHelper(RUBY_VALUE key, RUBY_VALUE val, void * arg)
+static int setFromRubyInternalHelper(mrb_value key, mrb_value val, void * arg)
 {
   // ValueHash * target = static_cast<ValueHash *>(arg);
   // QString k = Ruby::toQString(key);
@@ -288,19 +286,19 @@ static int setFromRubyInternalHelper(RUBY_VALUE key, RUBY_VALUE val, void * arg)
   // // For now, very naive conversion...
   // target->operator[](k) = Ruby::toQVariant(val);
 
-  return RBW_ST_CONTINUE;
+  return 0;//RBW_ST_CONTINUE;
 }
 
-void ValueHash::setFromRuby(RUBY_VALUE hsh)
+void ValueHash::setFromRuby(mrb_value hsh)
 {
   // if(! rbw_is_hash(hsh))
   //   throw RuntimeError("Trying to set a hash from a ruby value "
   //                      "that isn't a hash");
   // rbw_hash_foreach(hsh, (int (*)())
-  //                 ::setFromRubyInternalHelper, (RUBY_VALUE)this);
+  //                 ::setFromRubyInternalHelper, (mrb_value)this);
 }
 
-ValueHash ValueHash::fromRuby(RUBY_VALUE hsh)
+ValueHash ValueHash::fromRuby(mrb_value hsh)
 {
   ValueHash h;
   h.setFromRuby(hsh);

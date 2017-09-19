@@ -40,7 +40,7 @@
 
 #include <datastack.hh>
 
-#include <ruby.hh>
+#include <mruby.hh>
 #include <idioms.hh>
 #include <statistics.hh>
 

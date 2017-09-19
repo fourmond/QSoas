@@ -2,7 +2,7 @@
    \file argument.hh
    Argument handling for QSoas.
    Copyright 2011 by Vincent Fourmond
-             2012, 2013 by CNRS/AMU
+             2012, 2013, 2017 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@
 #define __ARGUMENT_HH
 
 #include <argumentmarshaller.hh>
-#include <ruby-wrappers.h>
 class Command;
 
 /// An argument. This is an abstract base class that must be reimplemented.
@@ -46,11 +45,11 @@ protected:
   QString desc;
 
   /// Converts a plain Ruby string using the type's fromString() method.
-  ArgumentMarshaller * convertRubyString(RUBY_VALUE value) const;
+  ArgumentMarshaller * convertRubyString(mrb_value value) const;
 
   /// Converts from a Ruby Array using fromString() and
   /// concatenateArguments() 
-  ArgumentMarshaller * convertRubyArray(RUBY_VALUE value) const;
+  ArgumentMarshaller * convertRubyArray(mrb_value value) const;
 
 public:
 
@@ -107,7 +106,7 @@ public:
   virtual ArgumentMarshaller * fromString(const QString & str) const = 0;
 
   /// Converts a from a Ruby object
-  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const = 0;
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const = 0;
 
   /// Prompts for a value for the argument, using something of a
   /// dialog box or the like. Default implementation prompts for a

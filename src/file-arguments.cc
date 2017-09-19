@@ -87,7 +87,7 @@ QString FileArgument::typeDescription() const {
     return "name of a file";
 }
 
-ArgumentMarshaller * FileArgument::fromRuby(RUBY_VALUE value) const
+ArgumentMarshaller * FileArgument::fromRuby(mrb_value value) const
 {
   return Argument::convertRubyString(value);
 }
@@ -166,7 +166,7 @@ QStringList SeveralFilesArgument::proposeCompletion(const QString & starter) con
   return proposeFileCompletion(starter, false);
 }
 
-ArgumentMarshaller * SeveralFilesArgument::fromRuby(RUBY_VALUE value) const
+ArgumentMarshaller * SeveralFilesArgument::fromRuby(mrb_value value) const
 {
   return convertRubyArray(value);
 }

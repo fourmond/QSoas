@@ -197,8 +197,6 @@
 #include <build.hh>
 #include <hook.hh>
 
-// #include <ruby.hh>
-
 #include <graphicssettings.hh>
 
 #include <credits.hh>
@@ -230,9 +228,9 @@ static CommandLineOption ext("--exit-after-running", [](const QStringList &) {
 QString MainWin::versionString()
 {
   return QString("This is QSoas version " SOAS_VERSION
-                 " running with %1 and Qt %2\n" SOAS_BUILD_INFO
+                 " running with mruby %1 and Qt %2\n" SOAS_BUILD_INFO
                  " with Qt " QT_VERSION_STR " and GSL version " GSL_VERSION).
-    arg("??").arg(qVersion());
+    arg(MRUBY_VERSION).arg(qVersion());
 }
 
 MainWin::MainWin(Soas * theSoas, bool runStartupFiles)

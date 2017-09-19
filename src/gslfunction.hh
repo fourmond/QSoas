@@ -21,8 +21,6 @@
 #ifndef __GSLFUNCTION_HH
 #define __GSLFUNCTION_HH
 
-#include <ruby-wrappers.h>
-
 class MRuby;
 
 /// Base class for all the functions
@@ -50,16 +48,8 @@ public:
   virtual QString description() const;
   
 
-  /// Registers the function to the Ruby interpreter, under the given
-  /// module
-  virtual void registerFunction(RUBY_VALUE module) = 0;
-
   /// Registers the function to the MRuby interpreter
   virtual void registerFunction(MRuby * mr, struct RClass * cls);
-
-  /// Register all functions to the Ruby interpreter. Returns the
-  /// "Special" module
-  static RUBY_VALUE registerAllFunctions();
 
     /// "Special" module
   static void registerAllFunctions(MRuby * mr);

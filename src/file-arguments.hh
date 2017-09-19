@@ -54,7 +54,7 @@ public:
 
   virtual QString typeDescription() const;
 
-  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const;
 
 };
 
@@ -89,10 +89,10 @@ public:
 
   /// Returns a wrapped QString. Check that the target file does not
   /// exist if askOverwrite is on.
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
   
   /// Prompting uses a QFileDialog.
-  virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
+  virtual ArgumentMarshaller * promptForValue(QWidget * base) const override;
 
 };
 
@@ -125,7 +125,7 @@ public:
      return "One or more files. Can include wildcards such as *, `[0-4]`, etc...";
   };
 
-  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const;
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 };
 
 #endif

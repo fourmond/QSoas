@@ -26,7 +26,6 @@
 #include <group.hh>
 #include <databackend.hh>
 
-// #include <ruby.hh>
 #include <debug.hh>
 
 #include <settings.hh>

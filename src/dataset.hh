@@ -27,8 +27,6 @@
 #include <valuehash.hh>
 #include <datasetoptions.hh>
 
-#include <ruby-wrappers.h>
-
 /// A small helper class that maintains an ordered list of integers
 /// (duplicates being possible)
 ///

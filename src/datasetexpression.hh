@@ -22,7 +22,6 @@
 #define __DATASETEXPRESSION_HH
 
 #include <expression.hh>
-#include <ruby-templates.hh>
 
 class DataSet;
 class SaveGlobal;

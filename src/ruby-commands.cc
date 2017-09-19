@@ -33,8 +33,7 @@
 #include <vector.hh>
 
 #include <debug.hh>
-#include <ruby.hh>
-#include <ruby-templates.hh>
+#include <mruby.hh>
 
 #include <expression.hh>
 #include <statistics.hh>
@@ -229,8 +228,8 @@ void rubyRunFile(const QString &, QString file)
 {
   QFile f(file);
   Utils::open(&f, QIODevice::ReadOnly | QIODevice::Text);
-  QByteArray bt = f.readAll();
-  // Ruby::run(Ruby::eval, bt);
+  MRuby * mr = MRuby::ruby();
+  mr->eval(&f);
 }
 
 static ArgumentList 

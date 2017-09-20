@@ -209,6 +209,19 @@ void ValueHash::appendToList(const QString & key, const QString & val)
   (*this)[key] = newval;
 }
 
+QVariant ValueHash::rubyToVariant(mrb_value value)
+{
+  MRuby * mr = MRuby::ruby();
+  if(mrb_float_p(value))
+    return mr->floatValue_up(value);
+  if(mrb_fixnum_p(value))
+    return mrb_fixnum(value);
+
+  QString ret = mr->toQString(value);
+  /// @todo Handling of date/time
+  return ret;
+}
+
 mrb_value ValueHash::variantToRuby(const QVariant & variant)
 {
   MRuby * mr = MRuby::ruby();
@@ -226,28 +239,20 @@ mrb_value ValueHash::variantToRuby(const QVariant & variant)
   case QMetaType::QString:
     val = mr->fromQString(variant.toString());
     break;
-  case QMetaType::QTime: {
-    // QTime t = variant.toTime();
-    // // We use an epoch-based time: the time will be on the 1st of
-    // // January 1970
-    // QTime ref(0,0);
-    // val = Ruby::run<time_t, long>(rbw_time_new, ref.secsTo(t), 
-    //                               t.msec() * 1000);
-    break;
-  }
   case QMetaType::QDateTime:
   case QMetaType::QDate: {
-    // QDateTime t = variant.toDateTime();
-    // // in some cases, this call fails...
-    // val = Ruby::run<time_t, long>(rbw_time_new, t.toTime_t(), 
-    //                               t.time().msec() * 1000);
+    QDateTime dt = variant.toDateTime();
+    QDate d = dt.date();
+    QTime t = dt.time();
+    val = mr->newTime(d.year(), d.month(), d.day(),
+                       t.hour(), t.minute(), t.second(), t.msec() * 1000);
     break;
   }
   case QMetaType::QVariantList: {
-    // val = rbw_ary_new();
-    // QList<QVariant> lst = variant.toList();
-    // for(int i = 0; i < lst.size(); i++)
-    //   rbw_ary_push(val, variantToRuby(lst[i]));
+    val = mr->newArray();
+    QList<QVariant> lst = variant.toList();
+    for(QVariant v : lst)
+      mr->arrayPush(val, variantToRuby(v));
   }
   default:
     break;
@@ -278,24 +283,17 @@ mrb_value ValueHash::toRuby() const
   return ret;
 }
 
-static int setFromRubyInternalHelper(mrb_value key, mrb_value val, void * arg)
-{
-  // ValueHash * target = static_cast<ValueHash *>(arg);
-  // QString k = Ruby::toQString(key);
-
-  // // For now, very naive conversion...
-  // target->operator[](k) = Ruby::toQVariant(val);
-
-  return 0;//RBW_ST_CONTINUE;
-}
-
 void ValueHash::setFromRuby(mrb_value hsh)
 {
-  // if(! rbw_is_hash(hsh))
-  //   throw RuntimeError("Trying to set a hash from a ruby value "
-  //                      "that isn't a hash");
-  // rbw_hash_foreach(hsh, (int (*)())
-  //                 ::setFromRubyInternalHelper, (mrb_value)this);
+  MRuby * mr = MRuby::ruby();
+  if(! mr->isHash(hsh))
+    throw RuntimeError("Trying to set a hash from a ruby value "
+                       "that isn't a hash: '%1'").
+      arg(mr->inspect(hsh));
+  mr->hashIterate(hsh, [this, mr] (mrb_value key, mrb_value v) {
+      QString k = mr->toQString(key);
+      (*this)[k] = rubyToVariant(v);
+    });
 }
 
 ValueHash ValueHash::fromRuby(mrb_value hsh)

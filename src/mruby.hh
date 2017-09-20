@@ -115,8 +115,14 @@ public:
   /// Returns true if the object is an array
   bool isArray(mrb_value obj);
 
+  /// Creates a new array
+  mrb_value newArray();
+
   /// Returns the array element at index
   mrb_value arrayRef(mrb_value array, int index);
+
+  /// Pushes to the array
+  void arrayPush(mrb_value array, mrb_value obj);
 
   /// Returns the length of the array
   int arrayLength(mrb_value array);
@@ -166,6 +172,18 @@ public:
 
   /// Gets a hash element
   mrb_value hashRef(mrb_value hash, mrb_value key);
+
+  /// Iterates over the hash, running the function.
+  void hashIterate(mrb_value hash,
+                   const std::function <void (mrb_value key, mrb_value value)> & func);
+
+  /// @}
+
+
+  /// @name Time-related functions
+  /// @{
+  mrb_value newTime(int year = 0, int month = 1, int day = 1,
+                    int hour = 0, int min = 0, int sec = 0, int usec = 0);
 
   /// @}
 };

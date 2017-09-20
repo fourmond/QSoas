@@ -265,6 +265,10 @@ mrb_value MRuby::makeBlock(const QString & code, const QStringList & vars)
               arg(vars.join(",")).arg(code));
 }
 
+mrb_value MRuby::newArray()
+{
+  return mrb_ary_new(mrb);
+}
 
 bool MRuby::isArray(mrb_value array)
 {
@@ -274,6 +278,11 @@ bool MRuby::isArray(mrb_value array)
 mrb_value MRuby::arrayRef(mrb_value array, int index)
 {
   return mrb_ary_ref(mrb, array, index);
+}
+
+void MRuby::arrayPush(mrb_value array, mrb_value val)
+{
+  mrb_ary_push(mrb, array, val);
 }
 
 int MRuby::arrayLength(mrb_value array)
@@ -335,7 +344,7 @@ mrb_value MRuby::newHash()
 
 bool MRuby::isHash(mrb_value hsh)
 {
-    return mrb_obj_is_kind_of(mrb, hsh, mrb->hash_class);
+  return mrb_obj_is_kind_of(mrb, hsh, mrb->hash_class);
 }
 
 
@@ -347,6 +356,33 @@ void MRuby::hashSet(mrb_value hash, mrb_value key, mrb_value value)
 mrb_value MRuby::hashRef(mrb_value hash, mrb_value key)
 {
   return mrb_hash_get(mrb, hash, key);
+}
+
+void MRuby::hashIterate(mrb_value hash,
+                        const std::function <void (mrb_value key, mrb_value value)> & func)
+{
+  mrb_value keys = mrb_hash_keys(mrb, hash);
+  arrayIterate(keys, [this, hash, func] (mrb_value key) {
+      mrb_value value = mrb_hash_get(mrb, hash, key);
+      func(key, value);
+    });
+}
+
+
+mrb_value MRuby::newTime(int year, int month, int day,
+                         int hour, int min, int sec, int usec)
+{
+  mrb_value cTime =  mrb_vm_const_get(mrb, mrb_intern_lit(mrb, "Time"));
+
+  mrb_value rv = mrb_funcall(mrb, cTime, "new", 7,
+                             mrb_fixnum_value(year),
+                             mrb_fixnum_value(month),
+                             mrb_fixnum_value(day),
+                             mrb_fixnum_value(hour),
+                             mrb_fixnum_value(min),
+                             mrb_fixnum_value(sec),
+                             mrb_fixnum_value(usec));
+  return rv;
 }
 
 

@@ -143,6 +143,10 @@ public:
   /// supported for now. Qnil is returned on unsupported values
   static mrb_value variantToRuby(const QVariant & variant);
 
+  /// Converts a Ruby object to a QVariant. Not all types are
+  /// supported for now. Qnil is returned on unsupported values
+  static QVariant rubyToVariant(mrb_value value);
+
   /// Converts to a Ruby Hash.
   mrb_value toRuby() const;
 

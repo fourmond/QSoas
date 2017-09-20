@@ -69,7 +69,7 @@ end
 
 # We first get the MD5sum for all the files
 file_ids = {}
-for f in files + debug_files + pltforms.values
+for f in files + debug_files + pltforms.values.flatten
   fid = "#{f}+#{File.size f}"
   file_ids[f] = fid
 end
@@ -122,15 +122,18 @@ for k,v in what
     dll_refs[k] << "<ComponentRef Id='Dll#{idx}' />\n"
     idx += 1
   end
-  for f in pltforms[k]
-    guid = uuids[file_ids[f]]
-    dlls[k] << '<Directory Id="platformsdir" Name="platforms">'
-    dlls[k] << "<Component Id='Dll#{idx}' Guid='#{guid}'>\n"
-    dlls[k] << "  <File Id='Dll_file#{idx}' Name='#{bf}' DiskId='1' Source='#{f}' KeyPath='yes' />\n"
-    dlls[k] << "</Component>"
-    dlls[k] << '</Directory>'
-    dll_refs[k] << "<ComponentRef Id='Dll#{idx}' />\n"
-    idx += 1
+  if pltforms[k]
+    for f in pltforms[k]
+      guid = uuids[file_ids[f]]
+      bf = File::basename(f)
+      dlls[k] << '<Directory Id="platformsdir" Name="platforms">'
+      dlls[k] << "<Component Id='Dll#{idx}' Guid='#{guid}'>\n"
+      dlls[k] << "  <File Id='Dll_file#{idx}' Name='#{bf}' DiskId='1' Source='#{f}' KeyPath='yes' />\n"
+      dlls[k] << "</Component>"
+      dlls[k] << '</Directory>'
+      dll_refs[k] << "<ComponentRef Id='Dll#{idx}' />\n"
+      idx += 1
+    end
   end
 end
 

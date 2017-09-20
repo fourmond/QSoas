@@ -61,10 +61,6 @@ void GSLFunction::registerAllFunctions(MRuby * mr)
 
 }
 
-void GSLFunction::registerFunction(MRuby * mr, struct RClass * cls)
-{
-}
-
 static bool cmpFunctions(GSLFunction * a, GSLFunction * b)
 {
   return a->name < b->name;
@@ -272,18 +268,23 @@ atanhc("atanhc(x)", "$$\\frac{\\tanh^{-1} x}{x}$$");
 template < double (*func)(int, double) > class GSLIndexedFunction : 
   public GSLFunction {
 
+  static mrb_value mrFunction(mrb_state * mrb, mrb_value /*self*/) {
+    mrb_float flt;
+    mrb_int i;
+    mrb_get_args(mrb, "fi", &flt, &i);
+    return mrb_float_value(mrb, func(i, flt));
+  };
+
 
 public:
   GSLIndexedFunction(const QString & n, const QString & d, const QString & u = "") : 
     GSLFunction(n,d,u) {
   };
 
-  // virtual void registerFunction(RUBY_VALUE module) {
-  //   // rbw_define_method(module, rubyName.toLocal8Bit(), 
-  //   //                  (RUBY_VALUE (*)()) rubyFunction, 2);
-  //   // rbw_define_singleton_method(module, rubyName.toLocal8Bit(), 
-  //   //                            (RUBY_VALUE (*)()) rubyFunction, 2);
-  // };
+  virtual void registerFunction(MRuby * mr, struct RClass * cls) override {
+    mr->defineModuleFunction(cls, rubyName.toLocal8Bit(), &mrFunction,
+                             MRB_ARGS_REQ(2));
+  };
 
 };
 
@@ -314,41 +315,40 @@ psi_n("psi_n(x, n)", "Polygamma function: $$\\psi^{(n)} = \\frac{\\mathrm d^n \\
 template < double (*func)(double, gsl_mode_t) > class GSLModalFunction : 
   public GSLFunction {
 
-  // static RUBY_VALUE rubyFS(RUBY_VALUE /*mod*/, RUBY_VALUE x) {
-  //   return 0; //rbw_float_new(func(rbw_num2dbl(x), GSL_PREC_SINGLE));
-  // };
+  static mrb_value mrFS(mrb_state * mrb, mrb_value /*self*/) {
+    mrb_float flt;
+    mrb_get_args(mrb, "f", &flt);
+    return mrb_float_value(mrb, func(flt, GSL_PREC_SINGLE));
+  };
 
-  // static RUBY_VALUE rubyFD(RUBY_VALUE /*mod*/, RUBY_VALUE x) {
-  //   return 0; //rbw_float_new(func(rbw_num2dbl(x), GSL_PREC_DOUBLE));
-  // };
+  static mrb_value mrFD(mrb_state * mrb, mrb_value /*self*/) {
+    mrb_float flt;
+    mrb_get_args(mrb, "f", &flt);
+    return mrb_float_value(mrb, func(flt, GSL_PREC_DOUBLE));
+  };
 
-  // static RUBY_VALUE rubyFF(RUBY_VALUE /*mod*/, RUBY_VALUE x) {
-  //   return 0; //rbw_float_new(func(rbw_num2dbl(x), GSL_PREC_APPROX));
-  // };
+  static mrb_value mrFF(mrb_state * mrb, mrb_value /*self*/) {
+    mrb_float flt;
+    mrb_get_args(mrb, "f", &flt);
+    return mrb_float_value(mrb, func(flt, GSL_PREC_APPROX));
+  };
+
 
 public:
   GSLModalFunction(const QString & n, const QString & d, const QString & u = "") : 
     GSLFunction(n,d,u) {
   };
 
-  /// @todo Find a way to mark these functions as having three
-  /// evaluation modes.
-  // virtual void registerFunction(RUBY_VALUE module) {
-  //   // rbw_define_method(module, rubyName.toLocal8Bit(), 
-  //   //                  (RUBY_VALUE (*)()) rubyFS, 1);
-  //   // rbw_define_singleton_method(module, rubyName.toLocal8Bit(), 
-  //   //                            (RUBY_VALUE (*)()) rubyFS, 1);
+  virtual void registerFunction(MRuby * mr, struct RClass * cls) override {
+    mr->defineModuleFunction(cls, rubyName.toLocal8Bit(), &mrFS,
+                             MRB_ARGS_REQ(1));
 
-  //   // rbw_define_method(module, (rubyName + "_double").toLocal8Bit(), 
-  //   //                  (RUBY_VALUE (*)()) rubyFD, 1);
-  //   // rbw_define_singleton_method(module, (rubyName + "_double").toLocal8Bit(), 
-  //   //                            (RUBY_VALUE (*)()) rubyFD, 1);
+    mr->defineModuleFunction(cls, (rubyName + "_double").toLocal8Bit(), &mrFD,
+                             MRB_ARGS_REQ(1));
 
-  //   // rbw_define_method(module, (rubyName + "_fast").toLocal8Bit(), 
-  //   //                  (RUBY_VALUE (*)()) rubyFF, 1);
-  //   // rbw_define_singleton_method(module, (rubyName + "_fast").toLocal8Bit(), 
-  //   //                            (RUBY_VALUE (*)()) rubyFF, 1);
-  // };
+    mr->defineModuleFunction(cls, (rubyName + "_fast").toLocal8Bit(), &mrFF,
+                             MRB_ARGS_REQ(1));
+  }
 
   virtual QString description() const {
     return QString("%1. Precision to about $$10^{-7}$$. Other variants "
@@ -376,9 +376,11 @@ airy_bid("airy_bi_deriv(x)", "First derivative of Airy Bi function $$\\mathrm{d}
 template < double (*func)(double, double) > class GSLDoubleFunction : 
   public GSLFunction {
 
-  // static RUBY_VALUE rubyFunction(RUBY_VALUE /*mod*/, RUBY_VALUE x, RUBY_VALUE y) {
-  //   return 0; //rbw_float_new(func(rbw_num2dbl(x), rbw_num2dbl(y)));
-  // };
+  static mrb_value mrFunction(mrb_state * mrb, mrb_value /*self*/) {
+    mrb_float flt1, flt2;
+    mrb_get_args(mrb, "ff", &flt1, &flt2);
+    return mrb_float_value(mrb, func(flt1, flt2));
+  };
 
 public:
   GSLDoubleFunction(const QString & n, const QString & d,
@@ -386,12 +388,10 @@ public:
     GSLFunction(n, d, url) {
   };
 
-  // virtual void registerFunction(RUBY_VALUE module) {
-  //   // rbw_define_method(module, rubyName.toLocal8Bit(), 
-  //   //                            (RUBY_VALUE (*)()) rubyFunction, 2);
-  //   // rbw_define_singleton_method(module, rubyName.toLocal8Bit(), 
-  //   //                            (RUBY_VALUE (*)()) rubyFunction, 2);
-  // };
+  virtual void registerFunction(MRuby * mr, struct RClass * cls) override {
+    mr->defineModuleFunction(cls, rubyName.toLocal8Bit(), &mrFunction,
+                             MRB_ARGS_REQ(2));
+  };
 
 };
 
@@ -437,9 +437,11 @@ gamma_inc_p("gamma_inc_p(a,x)", "Complementary normalized incomplete gamma funct
 template < double (*func)(double, double, double) > class GSLTripleFunction : 
   public GSLFunction {
 
-  // static RUBY_VALUE rubyFunction(RUBY_VALUE /*mod*/, RUBY_VALUE x, RUBY_VALUE y, RUBY_VALUE z) {
-  //   return 0; // rbw_float_new(func(rbw_num2dbl(x), rbw_num2dbl(y), rbw_num2dbl(z)));
-  // };
+  static mrb_value mrFunction(mrb_state * mrb, mrb_value /*self*/) {
+    mrb_float flt1, flt2, flt3;
+    mrb_get_args(mrb, "fff", &flt1, &flt2, &flt3);
+    return mrb_float_value(mrb, func(flt1, flt2, flt3));
+  };
 
 public:
   GSLTripleFunction(const QString & n, const QString & d,
@@ -447,12 +449,10 @@ public:
     GSLFunction(n, d, url) {
   };
 
-  // virtual void registerFunction(RUBY_VALUE module) {
-  //   // rbw_define_method(module, rubyName.toLocal8Bit(), 
-  //   //                            (RUBY_VALUE (*)()) rubyFunction, 3);
-  //   // rbw_define_singleton_method(module, rubyName.toLocal8Bit(), 
-  //   //                            (RUBY_VALUE (*)()) rubyFunction, 3);
-  // };
+  virtual void registerFunction(MRuby * mr, struct RClass * cls) override {
+    mr->defineModuleFunction(cls, rubyName.toLocal8Bit(), &mrFunction,
+                             MRB_ARGS_REQ(3));
+  };
 
 };
 

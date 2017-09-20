@@ -49,7 +49,7 @@ public:
   
 
   /// Registers the function to the MRuby interpreter
-  virtual void registerFunction(MRuby * mr, struct RClass * cls);
+  virtual void registerFunction(MRuby * mr, struct RClass * cls) = 0;
 
     /// "Special" module
   static void registerAllFunctions(MRuby * mr);

@@ -455,7 +455,8 @@ void NumberArgument::setEditorValue(QWidget * editor,
 
 ArgumentMarshaller * NumberArgument::fromRuby(mrb_value value) const
 {
-  return NULL; //new ArgumentMarshallerChild<double>(Ruby::toDouble(value));
+  MRuby * mr = MRuby::ruby();
+  return new ArgumentMarshallerChild<double>(mr->floatValue(value));
 }
 
 ////////////////////////////////////////////////////////////
@@ -478,9 +479,13 @@ void SeveralNumbersArgument::concatenateArguments(ArgumentMarshaller * a,
 
 ArgumentMarshaller * SeveralNumbersArgument::fromRuby(mrb_value value) const
 {
-  return NULL;
-  // QList<double> lst = Ruby::rubyArrayToList<double>(value, &Ruby::toDouble);
-  // return new ArgumentMarshallerChild< QList<double> >(lst);
+  QList<double> rv;
+  MRuby * mr = MRuby::ruby();
+  mr->arrayIterate(value, [&rv, mr](mrb_value val) {
+      rv << mr->floatValue(val);
+    });
+  
+  return new ArgumentMarshallerChild< QList<double> >(rv);
 }
 
 ////////////////////////////////////////////////////////////

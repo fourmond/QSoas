@@ -38,6 +38,7 @@
 MRuby::MRuby()
 {
   mrb = mrb_open();
+  cQSoasInterface = NULL;
 }
 
 MRuby::~MRuby()
@@ -57,6 +58,8 @@ MRuby * MRuby::ruby()
     globalInterpreter->eval("include Math");
     GSLFunction::registerAllFunctions(globalInterpreter);
     GSLConstant::registerAllConstants(globalInterpreter);
+
+    globalInterpreter->initializeInterface();
   }
   return globalInterpreter;
 }

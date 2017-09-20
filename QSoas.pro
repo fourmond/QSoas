@@ -303,11 +303,10 @@ SOURCES += src/qmain.cc \
         src/sparsecovariance.cc \
         src/onetimewarnings.cc \
         src/fitparametersfile.cc \
+        src/ruby-interface.cc \
         src/linearkineticsystem.cc
 
-#        src/ruby.cc \
 #        src/conditionsprovider.cc \
-#        src/ruby-interface.cc \
 
 # Fit engines, grouped in an easy way to disable them:
 # (its missing ODRPACK, though)
@@ -347,7 +346,6 @@ HEADERS += src/headers.hh \
         src/debug.hh \
         src/curvemarker.hh \
         src/outfile.hh \
-        src/ruby-templates.hh \
         src/fit.hh \
         src/perdatasetfit.hh \
         src/fitdialog.hh \
@@ -440,16 +438,6 @@ HEADERS += src/headers.hh \
         src/onetimewarnings.hh \
         src/fitparametersfile.hh \
         src/linearkineticsystem.hh
-
-#        src/ruby.hh \
-
-
-
-
-
-# Pure-C wrappers around Ruby's code
-HEADERS += src/ruby-wrappers.h
-# SOURCES += src/ruby-wrappers.c
 
 # mruby
 HEADERS += src/mruby.hh

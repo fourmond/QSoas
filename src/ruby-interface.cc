@@ -17,83 +17,66 @@
 */
 
 #include <headers.hh>
-#include <ruby.hh>
-#include <ruby-templates.hh>
+#include <mruby.hh>
 
 #include <soas.hh>
 #include <command.hh>
 #include <argument.hh>
 
 
-static RUBY_VALUE cQSoasInterface = rbw_nil;
-
-static void qsoas_mark(void *)
+static mrb_value qs_method_missing(mrb_state * mrb, mrb_value self)
 {
-}
+  mrb_sym sym;
+  mrb_int nb;
+  mrb_value * args;
+  mrb_get_args(mrb, "n*", &sym, &args, &nb);
 
-static void qsoas_free(void *)
-{
-}
-
-static RUBY_VALUE wrap_qsoas_instance(Soas * instance)
-{
-  return rbw_data_object_alloc(cQSoasInterface, instance,
-                               &qsoas_mark, &qsoas_free);
-}
-
-// static Soas * get_qsoas_instance(RUBY_VALUE obj)
-// {
-//   return static_cast<Soas*>(rbw_data_get_struct(obj));
-// }
-
-static RUBY_VALUE qs_get_instance(RUBY_VALUE /*klass*/)
-{
-  return wrap_qsoas_instance(Soas::soasInstance());
-}
-
-static RUBY_VALUE qs_method_missing(int argc, RUBY_VALUE * argv, RUBY_VALUE obj)
-{
-  // Soas * instance = get_qsoas_instance(obj);
-
-  
-  if(argc == 0)
-    rbw_raise(rbw_eArgError(), "Call to method_missing without arguments, that is weird");
-  
-
-
-  QString cmd = Ruby::toQString(argv[0]);
+  QString cmd = mrb_sym2name(mrb, sym);
 
   Command * command = Command::namedCommand(cmd, true);
   if(! command) {
     QString arg = QString("Unkown QSoas command: '%1'").arg(cmd);
-    rbw_raise(rbw_eArgError(), arg.toLatin1().data());
+    mrb_raise(mrb, mrb->eStandardError_class, arg.toLatin1().constData());
   }
 
   try {
-    command->runCommand(argc-1, argv+1);
+    command->runCommand(nb, args);
   }
   catch(const RuntimeError & er) {
-    rbw_raise(rbw_eRuntimeError(), er.message().toLatin1().data());
+    mrb_raise(mrb, mrb->eStandardError_class, er.message().
+              toLatin1().constData());
   }
   catch(const Exception & er) {
-    rbw_raise(rbw_eException(), er.message().toLatin1().data());
+    mrb_raise(mrb, mrb->eStandardError_class, er.message().
+              toLatin1().constData());
   }
 
-  return obj;
+  return self;
 }
 
-void Ruby::initInterface()
+mrb_value qs_interface(mrb_state * /*mrb*/, mrb_value /*self*/)
+{
+  MRuby * mr = MRuby::ruby();
+  return mr->soasInstance;
+}
+
+void MRuby::initializeInterface()
 {
   if(! Soas::soasInstance())
     throw InternalError("Initializing the Ruby interface without "
                         "a Soas object");
-  cQSoasInterface = rbw_define_class("QSoasInterface", rbw_cObject());
+  cQSoasInterface = mrb_define_class(mrb, "QSoasInterface", mrb->object_class);
+  mrb_define_method(mrb, cQSoasInterface, "method_missing",
+                    &::qs_method_missing, MRB_ARGS_ANY());
 
-  rbw_define_singleton_method(cQSoasInterface, "the_instance", (rbw_function) &::qs_get_instance, 0);
+  mrb_define_method(mrb, cQSoasInterface, "method_missing",
+                    &::qs_method_missing, MRB_ARGS_ANY());
 
-  rbw_define_method(cQSoasInterface, "method_missing", (rbw_function) &::qs_method_missing, -1);
+  mrb_define_class_method(mrb, cQSoasInterface, "the_instance",
+                          &::qs_interface, MRB_ARGS_NONE());
 
-  RUBY_VALUE soas_instance = qs_get_instance(rbw_nil);
-  rbw_define_global_const("Soas", soas_instance);
-  rbw_define_global_const("QSoas", soas_instance);
+  
+  soasInstance = mrb_obj_new(mrb, cQSoasInterface, 0, NULL);
+  defineGlobalConstant("Soas", soasInstance);
+  defineGlobalConstant("QSoas", soasInstance);
 }

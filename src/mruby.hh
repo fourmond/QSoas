@@ -34,6 +34,15 @@ class MRuby {
   struct RProc * generateCode(const QByteArray & code,
                               const QString & fileName = "(eval)");
 
+  struct RClass * cQSoasInterface;
+
+  mrb_value soasInstance;
+
+  friend mrb_value qs_interface(mrb_state *, mrb_value);
+
+  /// initialize the ruby -> QSoas interface.
+  void initializeInterface();
+
 public:
   mrb_state *mrb;
 

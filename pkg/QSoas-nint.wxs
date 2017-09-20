@@ -33,9 +33,9 @@
                         Name="QSoas" WorkingDirectory='INSTALLDIR' 
                         Icon="QSoas.ico" IconIndex="0" Advertise="yes" />
             </File>
-            </Component>
-
-            #DLLS#
+          </Component>
+          
+          #DLLS#
 
         </Directory>
       </Directory>

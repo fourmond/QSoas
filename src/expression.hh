@@ -38,6 +38,9 @@ class Expression {
   /// The list of doubles used as cache for argument passing.
   mrb_value * args;
 
+  /// The current size of args
+  int argsSize;
+
   /// The list of variables naturally present in the expression, in
   /// the order in which they are found by the Ruby code.
   QStringList minimalVariables;

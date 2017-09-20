@@ -38,11 +38,12 @@ void Expression::buildArgs()
 {
   MRuby * mr = MRuby::ruby();
   if(args) {
-    for(int i = 0; i < variables.size(); i++)
+    for(int i = 0; i < argsSize; i++)
       mr->gcUnregister(args[i]);
   }
   delete[] args;
-  args = new mrb_value[variables.size()];
+  argsSize = variables.size();
+  args = new mrb_value[argsSize];
 
   for(int i = 0; i < variables.size(); i++) {
     args[i] = mr->newFloat(0.0);
@@ -79,7 +80,7 @@ void Expression::freeCode()
   mr->gcUnregister(code);
   code = mrb_nil_value();
   if(args) {
-    for(int i = 0; i < variables.size(); i++)
+    for(int i = 0; i < argsSize; i++)
       mr->gcUnregister(args[i]);
   }
   delete[] args;
@@ -114,7 +115,7 @@ void Expression::setParametersFromExpression(const QStringList & params,
 
 
 Expression::Expression(const QString & expr) :
-  expression(expr), args(NULL)
+  expression(expr), args(NULL), argsSize(0)
 {
   buildCode();
 }

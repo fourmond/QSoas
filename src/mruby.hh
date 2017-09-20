@@ -111,9 +111,19 @@ public:
 
   /// @name Array functions
   /// @{
-  bool isArray(mrb_value array);
+
+  /// Returns true if the object is an array
+  bool isArray(mrb_value obj);
+
+  /// Returns the array element at index
   mrb_value arrayRef(mrb_value array, int index);
+
+  /// Returns the length of the array
   int arrayLength(mrb_value array);
+
+  /// Iterates over the array, running the function.
+  void arrayIterate(mrb_value array,
+                    const std::function <void (mrb_value)> & func);
 
   /// @}
 
@@ -136,17 +146,26 @@ public:
 
   /// Creates a mruby object corresponding to the string.
   mrb_value fromQString(const QString & str);
+  
+  /// Creates a mruby symbol corresponding to the string
+  mrb_value symbolFromQString(const QString & str);
 
   /// @}
 
   /// @name Hash functions
   /// @{
 
+  /// Returns true if the value is a hash
+  bool isHash(mrb_value obj);
+
   /// Creates a hash
   mrb_value newHash();
 
   /// Sets a hash element
   void hashSet(mrb_value hash, mrb_value key, mrb_value elem);
+
+  /// Gets a hash element
+  mrb_value hashRef(mrb_value hash, mrb_value key);
 
   /// @}
 };

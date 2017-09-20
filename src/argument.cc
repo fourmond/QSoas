@@ -24,33 +24,31 @@
 
 ArgumentMarshaller * Argument::convertRubyString(mrb_value value) const
 {
-  return NULL; // fromString(Ruby::toQString(value));
+  MRuby * mr = MRuby::ruby();
+  return fromString(mr->toQString(value));
 }
 
 
 
 ArgumentMarshaller * Argument::convertRubyArray(mrb_value value) const
 {
-  // QStringList rv = Ruby::rubyArrayToList<QString>(value, &Ruby::toQString);
-  // ArgumentMarshaller * ret = NULL;
-  // for(int i = 0; i < rv.size(); i++) {
-  //   ArgumentMarshaller * cur = fromString(rv[i]);
-  //   if(ret) {
-  //     concatenateArguments(ret, cur);
-  //     delete cur;
-  //   }
-  //   else
-  //     ret = cur;
-  // }
-  // return ret;
-  return NULL;
+  MRuby * mr = MRuby::ruby();
+  ArgumentMarshaller * ret = NULL;
+  mr->arrayIterate(value, [this, &ret] (mrb_value v) {
+      ArgumentMarshaller * cur = fromRuby(v);
+      if(ret) {
+        concatenateArguments(ret, cur);
+        delete cur;
+      }
+      else
+        ret = cur;
+    });
+  return ret;
 }
 
 ArgumentMarshaller * Argument::fromRuby(mrb_value value) const
 {
-  // QString c = Ruby::toQString(value);
-  // return fromString(c);
-  return NULL;
+  return convertRubyString(value);
 }
 
 

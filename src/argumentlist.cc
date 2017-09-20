@@ -157,17 +157,19 @@ CommandArguments ArgumentList::parseArguments(const QStringList & args,
 CommandOptions ArgumentList::parseRubyOptions(mrb_value hsh) const
 {
   CommandOptions opts;
+  MRuby * mr = MRuby::ruby();
     
-  // for(int i = 0; i < size(); i++) {
-  //   mrb_value v = rbw_hash_aref(hsh, Ruby::symbolFromQString(value(i)->argumentName()));
-  //   if(v == rbw_nil)
-  //     v = rbw_hash_aref(hsh, Ruby::fromQString(value(i)->argumentName()));
+  for(int i = 0; i < size(); i++) {
+    mrb_value key = mr->symbolFromQString(value(i)->argumentName());
+    mrb_value v = mr->hashRef(hsh, key);
+    if(mrb_nil_p(v)) {
+      key = mr->fromQString(value(i)->argumentName());
+      v = mr->hashRef(hsh, key);
+    }
 
-  //   // o << "Trying key: " << value(i)->argumentName() << endl;
-  //   // rbw_p(v);
-  //   if(v != rbw_nil)
-  //     opts[value(i)->argumentName()] = value(i)->fromRuby(v);
-  // }
+    if(! mrb_nil_p(v))
+      opts[value(i)->argumentName()] = value(i)->fromRuby(v);
+  }
   return opts;
 }
 

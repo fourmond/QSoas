@@ -542,16 +542,14 @@ void SeveralIntegersArgument::concatenateArguments(ArgumentMarshaller * a,
     b->value<QList<int> >();
 }
 
-// static int cnv(mrb_value s)
-// {
-//   return Ruby::toInt(s);
-// }
-
 ArgumentMarshaller * SeveralIntegersArgument::fromRuby(mrb_value value) const
 {
-  // QList<int> lst = Ruby::rubyArrayToList<int>(value, &::cnv);
-  // return new ArgumentMarshallerChild< QList<int> >(lst);
-  return NULL;
+  QList<int> rv;
+  MRuby * mr = MRuby::ruby();
+  mr->arrayIterate(value, [&rv](mrb_value val) {
+      rv << mrb_fixnum(val);
+    });
+  return new ArgumentMarshallerChild< QList<int> >(rv);
 }
 
 //////////////////////////////////////////////////////////////////////

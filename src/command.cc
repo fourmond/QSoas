@@ -651,25 +651,21 @@ void Command::writeSpecFile(QTextStream & out, bool full)
 // Ruby interface commands:
 void Command::runCommand(int nb, mrb_value * args)
 {
-  /// @todo Use possessive stuff???
-  /// Or pass around possessive stuff...
-  // QTextStream o(stdout);
-  // o << "Entering " << nb << endl;
-  // CommandOptions op;
-  // if(rbw_is_hash(args[nb-1])) { // There are options, we parse them
-  //   RUBY_VALUE hsh = args[nb-1];
-  //   // o << "-> hash " << endl;
-  //   // rbw_p(hsh);
-  //   nb--;
-  //   if(commandOptions())
-  //     op = commandOptions()->parseRubyOptions(hsh);
-  // }
+  MRuby * mr = MRuby::ruby();
+
+  CommandOptions op;
+  if(mr->isHash(args[nb-1])) { // There are options, we parse them
+    mrb_value hsh = args[nb-1];
+    nb--;
+    if(commandOptions())
+      op = commandOptions()->parseRubyOptions(hsh);
+  }
 
   
-  // // Now, parse arguments. No prompting.
-  // CommandArguments a;
-  // if(arguments)
-  //   a = arguments->parseRubyArguments(nb, args);
-  // runCommand(cmdName, a, op);
+  // Now, parse arguments. No prompting.
+  CommandArguments a;
+  if(arguments)
+    a = arguments->parseRubyArguments(nb, args);
+  runCommand(cmdName, a, op);
 }
 

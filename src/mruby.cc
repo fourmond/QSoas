@@ -281,6 +281,21 @@ int MRuby::arrayLength(mrb_value array)
   return RARRAY_LEN(array);
 }
 
+void MRuby::arrayIterate(mrb_value array,
+                         const std::function <void (mrb_value)> & func)
+{
+  if(! isArray(array))
+    throw RuntimeError("Expecting a Ruby array, but got: '%1'").
+      arg(inspect(array));
+  
+  int nb = arrayLength(array);
+  for(int i = 0; i < nb; i++) {
+    mrb_value v = arrayRef(array, i);
+    func(v);
+  }
+}
+
+
 void MRuby::setGlobal(const char * name, mrb_value val)
 {
   mrb_sym sym = mrb_intern_cstr(mrb, name);
@@ -304,15 +319,36 @@ mrb_value MRuby::fromQString(const QString & str)
   return mrb_str_new_cstr(mrb, bt.constData());
 }
 
+mrb_value MRuby::symbolFromQString(const QString & str)
+{
+  QByteArray bt = str.toLocal8Bit();
+  mrb_sym sym = mrb_intern_cstr(mrb, bt.constData());
+  mrb_value v;
+  SET_SYM_VALUE(v, sym);
+  return v;
+}
+
 mrb_value MRuby::newHash()
 {
   return mrb_hash_new(mrb);
 }
 
+bool MRuby::isHash(mrb_value hsh)
+{
+    return mrb_obj_is_kind_of(mrb, hsh, mrb->hash_class);
+}
+
+
 void MRuby::hashSet(mrb_value hash, mrb_value key, mrb_value value)
 {
   mrb_hash_set(mrb, hash, key, value);
 }
+
+mrb_value MRuby::hashRef(mrb_value hash, mrb_value key)
+{
+  return mrb_hash_get(mrb, hash, key);
+}
+
 
                      
 

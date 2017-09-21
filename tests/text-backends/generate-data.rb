@@ -7,6 +7,9 @@ class Fmt
 
   def write_data(file, rows)
     mode = "w"
+    if ! File.exist?("data")
+      Dir.mkdir("data")
+    end
     if self.encoding
       found = false
       begin
@@ -23,7 +26,7 @@ class Fmt
         return
       end
     end
-    File::open(file, mode) do |f|
+    File::open("data/#{file}", mode) do |f|
       # Write byte-order mark when applicable
       if self.encoding =~ /16/
         f.write "\uFEFF"

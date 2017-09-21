@@ -25,6 +25,10 @@ echo " -> saving in $outdir"
 rsync -a --exclude build --exclude dox --exclude xml --exclude '*~' --exclude .git ./ $outdir/qsoas-$version
 rm -f $outdir/qsoas-$version/QSoas
 (
+    cd $outdir/qsoas-$version/tests/text-backends
+    ruby generate-data.rb
+)
+(
     cd $outdir
     tar cvzf qsoas-$version.tar.gz qsoas-$version
 )

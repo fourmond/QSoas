@@ -2,10 +2,27 @@
 
 # Reads a documentation file in ARGV and prints modified lines
 
+require 'optparse'
+
+shift_heads = 0
+
+opts = OptionParser.new do |opts|
+  opts.on("-s", "--shift-heads", "shift headers"
+          ) do |x|
+    shift_heads += 1
+  end
+end
+
+opts.parse!(ARGV)
+  
 file = File.open(ARGV[0])
 target = ARGV[1]
+
+nh = "#" * (shift_heads+1)
+
 for l in file
   l.gsub!(/\[cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{target}" + '#cmd-\\1)')
   l.gsub!(/\[fit:\s*([^\]]+)\]/, '[`\\1`](' + "#{target}" + '#cmd-fit-\\1)')
+  l.gsub!(/^#/, nh)
   print l
 end

@@ -67,6 +67,7 @@ MRuby * MRuby::ruby()
     GSLConstant::registerAllConstants(globalInterpreter);
 
     globalInterpreter->initializeInterface();
+    globalInterpreter->initializeRegexp();
   }
   return globalInterpreter;
 }

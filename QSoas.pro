@@ -441,7 +441,9 @@ HEADERS += src/headers.hh \
 
 # mruby
 HEADERS += src/mruby.hh
-SOURCES += src/mruby.cc
+SOURCES += src/mruby.cc \
+           src/ruby-regexp.cc
+
 
 # GSL: we may have to build against non-standard gsl locations:
 ! isEmpty(MRUBY_DIR) {

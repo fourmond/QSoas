@@ -43,6 +43,9 @@ class MRuby {
   /// initialize the ruby -> QSoas interface.
   void initializeInterface();
 
+  /// initialize the Qt-based Ruby regular expressions
+  void initializeRegexp();
+
 public:
   mrb_state *mrb;
 

@@ -120,26 +120,26 @@ QMAKE_EXTRA_TARGETS += doc
 isEmpty(RUBY):RUBY = ruby
 
 
-# Ruby detection/installation
-RUBY_LIB_ARG = $$system($$RUBY ./get-ruby-config.rb libarg)
-RUBY_INCLUDE_DIRS = $$system($$RUBY ./get-ruby-config.rb includedir)
+# # Ruby detection/installation
+# RUBY_LIB_ARG = $$system($$RUBY ./get-ruby-config.rb libarg)
+# RUBY_INCLUDE_DIRS = $$system($$RUBY ./get-ruby-config.rb includedir)
 
-RUBY_LIB_DIR = $$system($$RUBY ./get-ruby-config.rb libdir)
+# RUBY_LIB_DIR = $$system($$RUBY ./get-ruby-config.rb libdir)
 
-isEmpty(RUBY_LIB_ARG) {
-  error("Could not find ruby, make sure $$RUBY is in the PATH !")
-}
+# isEmpty(RUBY_LIB_ARG) {
+#   error("Could not find ruby, make sure $$RUBY is in the PATH !")
+# }
 
-RUBY_VERSION = $$system($$RUBY ./get-ruby-config.rb version)
-RUBY_COMPATIBILITY = $$system($$RUBY ./get-ruby-config.rb compatible)
+# RUBY_VERSION = $$system($$RUBY ./get-ruby-config.rb version)
+# RUBY_COMPATIBILITY = $$system($$RUBY ./get-ruby-config.rb compatible)
 
-isEmpty(RUBY_COMPATIBILITY) {
-  error("$$RUBY (version $$RUBY_VERSION) is not compatible with QSoas, try building with version between 1.9.3 and the 2.2 series. This is possible by running, for instance, qmake RUBY=ruby2.1")
-}
+# isEmpty(RUBY_COMPATIBILITY) {
+#   error("$$RUBY (version $$RUBY_VERSION) is not compatible with QSoas, try building with version between 1.9.3 and the 2.2 series. This is possible by running, for instance, qmake RUBY=ruby2.1")
+# }
 
 
 
-message("Ruby: using $$RUBY, found library: $$RUBY_LIB_ARG and includes at $$RUBY_INCLUDE_DIRS")
+# message("Ruby: using $$RUBY, found library: $$RUBY_LIB_ARG and includes at $$RUBY_INCLUDE_DIRS")
 
 # Here, we prepare the build information, using the only script
 # language we're guaranteed to have:
@@ -446,8 +446,12 @@ SOURCES += src/mruby.cc
 # GSL: we may have to build against non-standard gsl locations:
 ! isEmpty(MRUBY_DIR) {
   # We add the directory to both the include path and the lib path:
-  LIBS += -L$$MRUBY_DIR/build/host/lib
+  LIBS += -L$$MRUBY_DIR/build/host-debug/lib
   INCLUDEPATH += $$MRUBY_DIR/include
+
+# IMPORTANT NOTE: we need a recent version on mruby,
+# https://github.com/mruby/mruby/commit/7450a774a5f796f7e9d312ba9c9690097f4aa309,
+# seems to do the trick.
 }
 
 LIBS += -lmruby

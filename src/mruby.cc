@@ -47,6 +47,13 @@ MRuby::~MRuby()
 }
 
 
+void MRuby::dumpValue(const char * t, int n, const char * s, mrb_value v)
+{
+  printf("%s:%d:\n%s = %p\n", t, n, s, v);
+}
+
+
+
 MRuby * MRuby::globalInterpreter = NULL;
 
 MRuby * MRuby::ruby()
@@ -69,6 +76,7 @@ MRuby * MRuby::ruby()
 QString MRuby::inspect(mrb_value object)
 {
   mrb_value v = mrb_inspect(mrb, object);
+  // DUMP_MRUBY(v);
 // mrb_obj_as_string(mrb, object);
   
   QString rv(mrb_string_value_cstr(mrb, &v));
@@ -206,11 +214,24 @@ void MRuby::defineGlobalConstant(const char *name, mrb_value val)
 
 void MRuby::gcRegister(mrb_value obj)
 {
+  // DUMP_MRUBY(obj);
   mrb_gc_register(mrb, obj);
+  // mrb_sym sym = mrb_intern_lit(mrb, "$__qsoas_safe");
+  // mrb_value v = mrb_gv_get(mrb, sym);
+  // if(mrb_nil_p(v)) {
+  //   v = mrb_hash_new(mrb);
+  //   mrb_gv_set(mrb, sym, v);
+  // }
+  // mrb_value k = mrb_hash_get(mrb, v, obj);
+  // int nb = 0;
+  // if(! mrb_nil_p(k))
+  //   nb = mrb_fixnum(k);
+  // mrb_hash_set(mrb, v, obj, mrb_fixnum_value(nb + 1));
 }
 
 void MRuby::gcUnregister(mrb_value obj)
 {
+  // DUMP_MRUBY(obj);
   mrb_gc_unregister(mrb, obj);
 }
 

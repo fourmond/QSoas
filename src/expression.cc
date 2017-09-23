@@ -47,6 +47,9 @@ void Expression::buildArgs()
 
   for(int i = 0; i < variables.size(); i++) {
     args[i] = mr->newFloat(0.0);
+    // printf("Argument #%d -- %p: ", i, args[i]);
+    // mrb_p(mr->mrb, args[i]);
+    // DUMP_MRUBY(args[i]);
     mr->gcRegister(args[i]);
   }
 }
@@ -70,6 +73,8 @@ void Expression::buildCode()
 
   MRuby * mr = MRuby::ruby();
   code = mr->makeBlock(expression.toLocal8Bit(), variables);
+  // printf("%p -> %p\n", this, code);
+  // DUMP_MRUBY(code);
   mr->gcRegister(code);
   buildArgs();                  // Build the arguments cache
 }
@@ -77,14 +82,14 @@ void Expression::buildCode()
 void Expression::freeCode()
 {
   MRuby * mr = MRuby::ruby();
-  mr->gcUnregister(code);
-  code = mrb_nil_value();
   if(args) {
     for(int i = 0; i < argsSize; i++)
       mr->gcUnregister(args[i]);
   }
   delete[] args;
   args = NULL;
+  mr->gcUnregister(code);
+  code = mrb_nil_value();
 }
 
 void Expression::setParametersFromExpression(const QStringList & params,

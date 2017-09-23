@@ -195,6 +195,11 @@ public:
                     int hour = 0, int min = 0, int sec = 0, int usec = 0);
 
   /// @}
+
+  /// Strictly debug-only function. To be used with the DUMP_MRUBY define.
+  static void dumpValue(const char * t, int n, const char * s, mrb_value v);
+
+#define DUMP_MRUBY(v) MRuby::dumpValue(__PRETTY_FUNCTION__, __LINE__, #v, v)
 };
 
 

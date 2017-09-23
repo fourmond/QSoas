@@ -215,7 +215,7 @@ QVariant ValueHash::rubyToVariant(mrb_value value)
   if(mrb_float_p(value))
     return mr->floatValue_up(value);
   if(mrb_fixnum_p(value))
-    return mrb_fixnum(value);
+    return QVariant((qlonglong)mrb_fixnum(value));
 
   QString ret = mr->toQString(value);
   /// @todo Handling of date/time
@@ -265,12 +265,15 @@ mrb_value ValueHash::toRuby() const
 {
   MRuby * mr = MRuby::ruby();
   mrb_value ret = mr->newHash();
+  //  mr->gcRegister(ret);
   for(const_iterator it = begin(); it != end(); ++it) {
     // Hmmm, QVariant says type() is QVariant::Type, but the
     // documentation says is really is QMetaType::Type.
     try {
       mrb_value key = mr->fromQString(it.key());
+      // DUMP_MRUBY(key);
       mrb_value val = variantToRuby(it.value());
+      // DUMP_MRUBY(val);
       mr->hashSet(ret, key, val);
     }
     catch(RuntimeError & er) {

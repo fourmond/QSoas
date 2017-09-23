@@ -33,6 +33,14 @@ static mrb_value qs_method_missing(mrb_state * mrb, mrb_value self)
 
   QString cmd = mrb_sym2name(mrb, sym);
 
+  // fprintf(stdout, "Called: %s with %d args:\n", qPrintable(cmd),
+  //         nb);
+  // for(int i = 0; i < nb; i++) {
+  //   printf("Arg %d: ", i);
+  //   mrb_p(mrb, args[i]);
+  //   // mrb_gc_register(mrb, args[i]);
+  // } 
+
   Command * command = Command::namedCommand(cmd, true);
   if(! command) {
     QString arg = QString("Unkown QSoas command: '%1'").arg(cmd);
@@ -66,8 +74,6 @@ void MRuby::initializeInterface()
     throw InternalError("Initializing the Ruby interface without "
                         "a Soas object");
   cQSoasInterface = mrb_define_class(mrb, "QSoasInterface", mrb->object_class);
-  mrb_define_method(mrb, cQSoasInterface, "method_missing",
-                    &::qs_method_missing, MRB_ARGS_ANY());
 
   mrb_define_method(mrb, cQSoasInterface, "method_missing",
                     &::qs_method_missing, MRB_ARGS_ANY());

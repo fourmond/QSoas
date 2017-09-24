@@ -36,6 +36,7 @@ static const struct mrb_data_type re_data_type = {
 
 static mrb_value qs_compile(mrb_state * mrb, mrb_value cls)
 {
+  static QString es;
   char * pat;
   char * opts;
   mrb_bool has_opts = false;
@@ -43,6 +44,14 @@ static mrb_value qs_compile(mrb_state * mrb, mrb_value cls)
 
   // later: parsing of pat + checking the syntax is valid
   QRegExp * re = new QRegExp(pat);
+  if(! re->isValid()) {
+    printf("Stderr: %p\n", mrb->eException_class);
+    printf("Stderr: %p\n", mrb->eStandardError_class);
+    es = QString("Error while compiling Regexp: %1").
+      arg(re->errorString());
+    delete re;
+    mrb_raise(mrb, mrb->eStandardError_class, es.toLocal8Bit().constData());
+  }
 
   RClass * c = mrb_class_ptr(cls);
   return mrb_obj_value(Data_Wrap_Struct(mrb, c, &re_data_type, re));

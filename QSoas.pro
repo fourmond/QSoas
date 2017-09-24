@@ -98,7 +98,7 @@ unix {
 
 
 # Use C++11 everywhere !
-QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS += -std=c++11 -DMRB_ENABLE_DEBUG_HOOK
 
 # We need to use libc++ on macos to have the correct C++ 11 header
 # files

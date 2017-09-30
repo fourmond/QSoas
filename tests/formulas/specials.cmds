@@ -1,0 +1,14 @@
+# This is a quick test of special functions
+#
+# It would be better if it were a test based on the functions'
+# properties, but at least we are testing the existence of some of
+# them.
+
+assert bessel_j0(2)-bessel_jn(2,0) 0
+assert bessel_j1(2)-bessel_jn(2,1) 0
+
+assert bessel_y0(2)-bessel_yn(2,0) 0
+assert bessel_y1(2)-bessel_yn(2,1) 0
+
+assert expint_e1(2)-expint_en(2,1) 0
+assert expint_e2(2)-expint_en(2,2) 0

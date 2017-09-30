@@ -5,7 +5,7 @@ assert '$stats["y_norm"]' 2e-15
 
 sim-eeci-wave /model=slow-et parameters/eeci-2.params 0
 apply-formula 'f=F/(R*298); eoi = exp(f*(x+0.3)); eir = exp(f*(x+0.5)); k0oi_kir = 3; ko_k0 = 0.2;b=(k0oi_kir * eoi)**-0.5*(1+eir**-1) + (eir/k0oi_kir)**-0.5; a=1+eoi**-1*(1 + eir**-1); y-= 2/(a+ko_k0*b)'
-assert '$stats["y_norm"]' 2e-15
+assert '$stats["y_norm"]' 2.1e-15
 
 # Check that when the potentials are far apart, eci and eeci give you
 # the same thing.
@@ -30,7 +30,7 @@ assert '$stats["y_min"].abs' 1e-3
 
 sim-eeci-wave /model=slow-et parameters/eeci-4.params 0 /reduction=true
 apply-formula 'f=F/(R*298); eoi = exp(f*(x+0.3)); eir = exp(f*(x+0.5)); k0oi_kir = 3; kr_k0 = 0.3;b=(eoi/k0oi_kir)**0.5 + (eir*k0oi_kir)**0.5*(1+eoi); a=1+eir*(1 + eoi); y+= 2/(a+kr_k0*b)'
-assert '$stats["y_norm"]' 2e-15
+assert '$stats["y_norm"]' 2e-15 /platform-precision=true
 
 # Check that when the potentials are far apart, eci and eeci give you
 # the same thing.

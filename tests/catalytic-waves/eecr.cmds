@@ -1,7 +1,7 @@
 generate-buffer -0.8 -0.2
 sim-eecr-wave /model=nernst parameters/eecr-1.params 0
 apply-formula 'f=F/(R*298); kb=0.2; eoi = exp(f*(x+0.3)); eir = exp(f*(x+0.5)); a=1+eoi**-1*(1+eir**-1); ap=kb*(eoi*eir)**-1;y-= 2*(1 - ap)/a'
-assert '$stats["y_norm"]' 2e-15
+assert '$stats["y_norm"]' 2.4e-15
 
 
 sim-eecr-wave /model=slow-et parameters/eecr-2.params 0
@@ -14,7 +14,7 @@ assert '$stats["y_norm"]' 3e-15
 
 sim-eecr-wave /model=slow-et parameters/eecr-3.params 0 /reduction=true
 apply-formula 'f=F/(R*298); kb = 0.1; eoi = exp(f*(x+0.3)); eir = exp(f*(x+0.5)); k0oi_kir = 3; kr_k0 = 0.3; a=1+eir*(1 + eoi); ap=kb*eir*eoi; b=(eoi/k0oi_kir)**0.5*(1 + kb*(1 + eir)) + (eir*k0oi_kir)**0.5*(1+eoi*(1+kb)); y+= 3*(1 - ap)/(a+kr_k0*b)'
-assert '$stats["y_norm"]' 2e-15
+assert '$stats["y_norm"]' 2.3e-15 /platform-precision=true
 
 
 ######################################################################

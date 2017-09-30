@@ -286,8 +286,17 @@ mrb_value MRuby::newInt(int value)
 
 mrb_value MRuby::makeBlock(const QString & code, const QStringList & vars)
 {
-  return eval(QString("proc do |%1|\n  %2\nend").
-              arg(vars.join(",")).arg(code));
+  if(vars.size() > 16) {
+    // We need to use a catch-all block
+    QString assigns;
+    for(int i = 0; i < vars.size(); i++)
+      assigns += QString("  %1 = args[%2]\n").arg(vars[i]).arg(i);
+    return eval(QString("proc do |*args|\n%1  %2\nend").
+                arg(assigns).arg(code));
+  }
+  else
+    return eval(QString("proc do |%1|\n  %2\nend").
+                arg(vars.join(",")).arg(code));
 }
 
 mrb_value MRuby::newArray()

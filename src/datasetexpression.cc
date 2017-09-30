@@ -54,8 +54,11 @@ void DataSetExpression::prepareExpression(const QString & formula,
 
   MRuby * mr = MRuby::ruby();
 
+  // QTextStream o(stdout);
+
   QStringList vars = dataSetParameters(dataset, extraCols);
   // vars += extraParameters;
+  // o << "Preparing DS expression (nb:" << vars.size() << "): " << vars.join(", ") << endl;
 
   // Setting the global vars ahead may help...
 

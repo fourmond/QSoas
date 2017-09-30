@@ -674,6 +674,11 @@ public:
 
 static QList<SingleAssertion> allAssertions;
 
+#ifdef Q_WS_WIN
+#  define QSOAS_PLATFORM_SCALE 3.0
+#else
+#  define QSOAS_PLATFORM_SCALE 1.0
+#endif
 
 
 static void assertCmd(const QString &, QString code,
@@ -687,11 +692,16 @@ static void assertCmd(const QString &, QString code,
 
   bool useTol = false;
   double tolerance = 0.0;
+  bool pf = false;
   if(opts.contains("tolerance")) {
     updateFromOptions(opts, "tolerance", tolerance);
     useTol = true;
+    updateFromOptions(opts, "platform-precision", pf);
+    if(pf)
+      tolerance *= QSOAS_PLATFORM_SCALE;
   }
-  
+
+
   if(sc == "global") {
     assertContext = code;
     assertFineContext = "";
@@ -828,6 +838,9 @@ aO(QList<Argument *>()
    << new NumberArgument("tolerance", 
                          "Tolerance",
                          "If given, does not check that the value is true or false, just that its magnitude is smaller than the tolerance", true)
+   << new BoolArgument("platform-precision", 
+                       "Use 'platform precision'",
+                       "Use a platform-specific scaling factor for the tolerance")
 );
 
 

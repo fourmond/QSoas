@@ -674,7 +674,7 @@ public:
 
 static QList<SingleAssertion> allAssertions;
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN32
 #  define QSOAS_PLATFORM_SCALE 3.0
 #else
 #  define QSOAS_PLATFORM_SCALE 1.0

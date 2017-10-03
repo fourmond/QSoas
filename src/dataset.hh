@@ -616,6 +616,9 @@ public:
   /// variables as necessary
   mrb_value evaluateWithMeta(const QString & expression, bool useStats = false) const;
 
+  /// Same as the other one, but this version reads back the meta hash if modifyMeta is trye
+  mrb_value evaluateWithMeta(const QString & expression, bool useStats, bool modifyMeta);
+
   /// Runs the given expression feeding it the values of the meta-data
   /// and the statistics, and returns wether the expression is true or
   /// false. It returns false also if the expression fails for some

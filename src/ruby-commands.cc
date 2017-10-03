@@ -530,11 +530,17 @@ static void eval(const QString &, QString code, const CommandOptions & opts)
 {
   bool useDs = true;
   updateFromOptions(opts, "use-dataset", useDs);
+  bool modifyMeta = false;
+  updateFromOptions(opts, "modify-meta", modifyMeta);
+  if(modifyMeta)
+    useDs = true;
   
   DataSet * ds = (useDs ? soas().currentDataSet(true) : NULL);
   MRuby * mr = MRuby::ruby();
   mrb_value value;
-  if(ds)
+  if(ds && modifyMeta)
+    value = ds->evaluateWithMeta(code, true, true);
+  else if(ds)
     value = ds->evaluateWithMeta(code, true);
   else
     value = mr->eval(code);
@@ -553,6 +559,9 @@ eO(QList<Argument *>()
    << new BoolArgument("use-dataset", 
                        "Use current dataset",
                        "If on (the default) and if there is a current dataset, the $meta and $stats hashes are available")
+   << new BoolArgument("modify-meta", 
+                       "Modify meta",
+                       "Reads backs the modifications made to the $meta hash (implies /use-dataset=true)")
 );
 
 

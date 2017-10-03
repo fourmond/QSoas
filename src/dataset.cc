@@ -1491,6 +1491,24 @@ mrb_value DataSet::evaluateWithMeta(const QString & expression, bool useStats) c
   return mr->eval(expression);
 }
 
+mrb_value DataSet::evaluateWithMeta(const QString & expression, bool useStats,  bool modifyMeta) 
+{
+  SaveGlobal _a("$stats");
+  SaveGlobal _b("$meta");
+  MRuby * mr = MRuby::ruby();
+  if(useStats) {
+    Statistics st(this);
+    mr->setGlobal("$stats", st.toRuby());
+  }
+  ValueHash vl = metaData;
+  vl["name"] = name;
+  mr->setGlobal("$meta", vl.toRuby());
+  mrb_value v = mr->eval(expression);
+  if(modifyMeta)
+    metaData.setFromRuby(mr->getGlobal("$meta"));
+  return v;
+}
+
 bool DataSet::matches(const QString & expression) const
 {
   mrb_value v = evaluateWithMeta(expression, true);

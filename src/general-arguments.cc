@@ -202,6 +202,12 @@ void BoolArgument::setEditorValue(QWidget * editor,
     cb->setCurrentIndex(1);
 }
 
+ArgumentMarshaller * BoolArgument::fromRuby(mrb_value value) const
+{
+  bool val = mrb_test(value);
+  return new ArgumentMarshallerChild<bool>(val);
+}
+
 
 static QStringList yesno = (QStringList() 
                             << "yes" << "no" 
@@ -218,10 +224,6 @@ QString BoolArgument::typeDescription() const
   return "A boolean: `yes`, `on`, `true` or `no`, `off`, `false`";
 }
 
-ArgumentMarshaller * BoolArgument::fromRuby(mrb_value value) const
-{
-  return NULL; //new ArgumentMarshallerChild<bool>(rbw_test(value));
-}
 
 ////////////////////////////////////////////////////////////
 
@@ -524,8 +526,8 @@ void IntegerArgument::setEditorValue(QWidget * editor,
 
 ArgumentMarshaller * IntegerArgument::fromRuby(mrb_value value) const
 {
-  return NULL;
-  // return new ArgumentMarshallerChild<int>((int)Ruby::toInt(value));
+  int v = mrb_fixnum(value);
+  return new ArgumentMarshallerChild<int>(v);
 }
 
 ////////////////////////////////////////////////////////////

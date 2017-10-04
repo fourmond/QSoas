@@ -24,6 +24,7 @@
 #include <utils.hh>
 
 #include <exceptions.hh>
+#include <mruby.hh>
 
 /// A utility function for a clean file completion.
 static QStringList proposeFileCompletion(const QString & str, 
@@ -168,5 +169,9 @@ QStringList SeveralFilesArgument::proposeCompletion(const QString & starter) con
 
 ArgumentMarshaller * SeveralFilesArgument::fromRuby(mrb_value value) const
 {
-  return convertRubyArray(value);
+  MRuby * mr = MRuby::ruby();
+  if(!mr->isArray(value))
+    return convertRubyString(value);
+  else
+    return convertRubyArray(value);
 }

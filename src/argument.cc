@@ -34,6 +34,8 @@ ArgumentMarshaller * Argument::convertRubyArray(mrb_value value) const
 {
   MRuby * mr = MRuby::ruby();
   ArgumentMarshaller * ret = NULL;
+  if(!mr->isArray(value))
+    throw InternalError("Calling convertRubyArray with a non array argument, you are probably one step from infinite recursion");
   mr->arrayIterate(value, [this, &ret] (mrb_value v) {
       ArgumentMarshaller * cur = fromRuby(v);
       if(ret) {

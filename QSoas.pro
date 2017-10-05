@@ -53,7 +53,7 @@ QMAKE_CXXFLAGS += -O2
 macx:ICON = QSoas.icns
 win32:RC_FILE = QSoas-icon.rc
 
-# Compile with static libgcc in win32
+# Compile with static libgcc in win32, but only in Qt4 builds
 # -> just static libgcc results in not catching exceptions...
 # -> one needs to also link stdc++ statically.
 contains(QT_MAJOR_VERSION, 4) {
@@ -100,7 +100,7 @@ unix {
 
 
 # Use C++11 everywhere !
-QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS += -std=c++11 -DMRB_ENABLE_DEBUG_HOOK
 
 # We need to use libc++ on macos to have the correct C++ 11 header
 # files
@@ -122,26 +122,26 @@ QMAKE_EXTRA_TARGETS += doc
 isEmpty(RUBY):RUBY = ruby
 
 
-# Ruby detection/installation
-RUBY_LIB_ARG = $$system($$RUBY ./get-ruby-config.rb libarg)
-RUBY_INCLUDE_DIRS = $$system($$RUBY ./get-ruby-config.rb includedir)
+# # Ruby detection/installation
+# RUBY_LIB_ARG = $$system($$RUBY ./get-ruby-config.rb libarg)
+# RUBY_INCLUDE_DIRS = $$system($$RUBY ./get-ruby-config.rb includedir)
 
-RUBY_LIB_DIR = $$system($$RUBY ./get-ruby-config.rb libdir)
+# RUBY_LIB_DIR = $$system($$RUBY ./get-ruby-config.rb libdir)
 
-isEmpty(RUBY_LIB_ARG) {
-  error("Could not find ruby, make sure $$RUBY is in the PATH !")
-}
+# isEmpty(RUBY_LIB_ARG) {
+#   error("Could not find ruby, make sure $$RUBY is in the PATH !")
+# }
 
-RUBY_VERSION = $$system($$RUBY ./get-ruby-config.rb version)
-RUBY_COMPATIBILITY = $$system($$RUBY ./get-ruby-config.rb compatible)
+# RUBY_VERSION = $$system($$RUBY ./get-ruby-config.rb version)
+# RUBY_COMPATIBILITY = $$system($$RUBY ./get-ruby-config.rb compatible)
 
-isEmpty(RUBY_COMPATIBILITY) {
-  error("$$RUBY (version $$RUBY_VERSION) is not compatible with QSoas, try building with version between 1.9.3 and the 2.2 series. This is possible by running, for instance, qmake RUBY=ruby2.1")
-}
+# isEmpty(RUBY_COMPATIBILITY) {
+#   error("$$RUBY (version $$RUBY_VERSION) is not compatible with QSoas, try building with version between 1.9.3 and the 2.2 series. This is possible by running, for instance, qmake RUBY=ruby2.1")
+# }
 
 
 
-message("Ruby: using $$RUBY, found library: $$RUBY_LIB_ARG and includes at $$RUBY_INCLUDE_DIRS")
+# message("Ruby: using $$RUBY, found library: $$RUBY_LIB_ARG and includes at $$RUBY_INCLUDE_DIRS")
 
 # Here, we prepare the build information, using the only script
 # language we're guaranteed to have:
@@ -150,10 +150,10 @@ system($$RUBY build-info.rb)
         
 HEADERS += src/build.hh
 
-INCLUDEPATH += $$RUBY_INCLUDE_DIRS
-LIBS += $$RUBY_LIB_ARG
+# INCLUDEPATH += $$RUBY_INCLUDE_DIRS
+# LIBS += $$RUBY_LIB_ARG
 
-win32:LIBS += -L$$RUBY_LIB_DIR
+# win32:LIBS += -L$$RUBY_LIB_DIR
 
 RESOURCES += qsoas.qrc
 
@@ -208,7 +208,6 @@ SOURCES += src/qmain.cc \
         src/help-commands.cc \
         src/data-processing-commands.cc \
         src/outfile.cc \
-        src/ruby.cc \
         src/ruby-commands.cc \
         src/fit.cc \
         src/perdatasetfit.cc \
@@ -272,7 +271,6 @@ SOURCES += src/qmain.cc \
         src/gslintegrator.cc \
         src/distribution-fits.cc \
         src/metadataprovider.cc \
-        src/conditionsprovider.cc \
         src/parametersviewer.cc \
         src/curvebrowser.cc \
         src/lineedit.cc \
@@ -291,7 +289,6 @@ SOURCES += src/qmain.cc \
         src/parametersspreadsheet.cc \
         src/abdmatrix.cc \
         src/box.cc \
-        src/ruby-interface.cc \
         src/functions.cc \
         src/cachedfunction.cc \
         src/datasetexpression.cc \
@@ -308,8 +305,11 @@ SOURCES += src/qmain.cc \
         src/sparsecovariance.cc \
         src/onetimewarnings.cc \
         src/fitparametersfile.cc \
+        src/ruby-interface.cc \
         src/linearkineticsystem.cc
- 
+
+#        src/conditionsprovider.cc \
+
 # Fit engines, grouped in an easy way to disable them:
 # (its missing ODRPACK, though)
 
@@ -348,8 +348,6 @@ HEADERS += src/headers.hh \
         src/debug.hh \
         src/curvemarker.hh \
         src/outfile.hh \
-        src/ruby.hh \
-        src/ruby-templates.hh \
         src/fit.hh \
         src/perdatasetfit.hh \
         src/fitdialog.hh \
@@ -443,13 +441,24 @@ HEADERS += src/headers.hh \
         src/fitparametersfile.hh \
         src/linearkineticsystem.hh
 
+# mruby
+HEADERS += src/mruby.hh
+SOURCES += src/mruby.cc \
+           src/ruby-regexp.cc
 
 
+# GSL: we may have to build against non-standard gsl locations:
+! isEmpty(MRUBY_DIR) {
+  # We add the directory to both the include path and the lib path:
+  LIBS += -L$$MRUBY_DIR/build/host-debug/lib
+  INCLUDEPATH += $$MRUBY_DIR/include
 
+# IMPORTANT NOTE: we need a recent version on mruby,
+# https://github.com/mruby/mruby/commit/7450a774a5f796f7e9d312ba9c9690097f4aa309,
+# seems to do the trick.
+}
 
-# Pure-C wrappers around Ruby's code
-HEADERS += src/ruby-wrappers.h
-SOURCES += src/ruby-wrappers.c
+LIBS += -lmruby
 
                 
 # Sources of file-format specific code

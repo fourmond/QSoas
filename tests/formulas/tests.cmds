@@ -5,3 +5,6 @@
 @ exceptions.cmds
 @ strip-if.cmds
 @ solve.cmds
+@ specials.cmds
+
+run-for-each /range-type=lin 1..40:40 large-buffer-formulas.cmds

@@ -1,0 +1,7 @@
+# Makes a buffer with many columns
+# ${1}: number of columns
+
+drop flagged:tmp-gen
+generate-buffer 0 10 /number=${1} /flags=tmp-gen /samples=1000
+contract flagged:tmp-gen
+drop flagged:tmp-gen

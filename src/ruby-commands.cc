@@ -33,8 +33,7 @@
 #include <vector.hh>
 
 #include <debug.hh>
-#include <ruby.hh>
-#include <ruby-templates.hh>
+#include <mruby.hh>
 
 #include <expression.hh>
 #include <statistics.hh>
@@ -88,7 +87,7 @@ static void applyFormulaCommand(const QString &, QString formula,
     newCols << Vector();
 
   {
-    QMutexLocker m(&Ruby::rubyGlobalLock);
+    // QMutexLocker m(&Ruby::rubyGlobalLock);
     QVarLengthArray<double, 100> ret(newCols.size());
     QVarLengthArray<double, 100> args(argSize);
     int idx = 0;
@@ -229,8 +228,8 @@ void rubyRunFile(const QString &, QString file)
 {
   QFile f(file);
   Utils::open(&f, QIODevice::ReadOnly | QIODevice::Text);
-  QByteArray bt = f.readAll();
-  Ruby::run(Ruby::eval, bt);
+  MRuby * mr = MRuby::ruby();
+  mr->eval(&f);
 }
 
 static ArgumentList 
@@ -531,17 +530,22 @@ static void eval(const QString &, QString code, const CommandOptions & opts)
 {
   bool useDs = true;
   updateFromOptions(opts, "use-dataset", useDs);
+  bool modifyMeta = false;
+  updateFromOptions(opts, "modify-meta", modifyMeta);
+  if(modifyMeta)
+    useDs = true;
   
   DataSet * ds = (useDs ? soas().currentDataSet(true) : NULL);
-  RUBY_VALUE value;
-  if(ds)
+  MRuby * mr = MRuby::ruby();
+  mrb_value value;
+  if(ds && modifyMeta)
+    value = ds->evaluateWithMeta(code, true, true);
+  else if(ds)
     value = ds->evaluateWithMeta(code, true);
-  else {
-    QByteArray bt = code.toLocal8Bit();
-    value = Ruby::run(Ruby::eval, bt);
-  }
+  else
+    value = mr->eval(code);
 
-  Terminal::out << " => " << Ruby::inspect(value) << endl;
+  Terminal::out << " => " << mr->inspect(value) << endl;
 }
 
 static ArgumentList 
@@ -555,6 +559,9 @@ eO(QList<Argument *>()
    << new BoolArgument("use-dataset", 
                        "Use current dataset",
                        "If on (the default) and if there is a current dataset, the $meta and $stats hashes are available")
+   << new BoolArgument("modify-meta", 
+                       "Modify meta",
+                       "Reads backs the modifications made to the $meta hash (implies /use-dataset=true)")
 );
 
 
@@ -756,7 +763,9 @@ static void assertCmd(const QString &, QString code,
     return;
   }
 
-  RUBY_VALUE value;
+  MRuby * mr = MRuby::ruby();
+
+  mrb_value value;
   AssertionsList * cur = &assertResults[assertContext];
   cur->total += 1;
   QString context = "";
@@ -766,19 +775,18 @@ static void assertCmd(const QString &, QString code,
   try {
     if(ds)
       value = ds->evaluateWithMeta(code, true);
-    else {
-      QByteArray bt = code.toLocal8Bit();
-      value = Ruby::run(Ruby::eval, bt);
-    }
+    else
+      value = mr->eval(code);
+
     bool check;
     if(useTol) {
-      double v = rbw_num2dbl(value);
+      double v = mr->floatValue(value);
       check = fabs(v) <= tolerance;
       as.value = v;
       as.tolerance = tolerance;
     }
     else
-      check = rbw_test(value);
+      check = mrb_test(value);
     
     if(check) {
       Terminal::out << "assertion success" << endl;
@@ -791,10 +799,10 @@ static void assertCmd(const QString &, QString code,
       if(useTol) {
         Terminal::out << "assertion failed: " << code
                       << " (should be below: " << tolerance
-                      << " but is: " << rbw_num2dbl(value) << ")" << endl;
+                      << " but is: " << mr->floatValue(value) << ")" << endl;
         Debug::debug() << "F: " << code
                        << " (should be below: " << tolerance
-                       << " but is: " << rbw_num2dbl(value) << ")"
+                       << " but is: " << mr->floatValue(value) << ")"
                        << context << endl;
       }
       else {

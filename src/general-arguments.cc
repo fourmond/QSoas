@@ -37,8 +37,7 @@
 #include <regex.hh>
 
 #include <fit.hh>
-#include <ruby.hh>
-#include <ruby-templates.hh>
+#include <mruby.hh>
 
 
 ArgumentMarshaller * StringArgument::fromString(const QString & str) const
@@ -66,7 +65,7 @@ QString StringArgument::typeDescription() const
   return "Arbitrary text. If you need spaces, do not forget to quote them with ' or \"";
 }
 
-ArgumentMarshaller * StringArgument::fromRuby(RUBY_VALUE value) const
+ArgumentMarshaller * StringArgument::fromRuby(mrb_value value) const
 {
   return Argument::convertRubyString(value);
 }
@@ -114,7 +113,7 @@ QString SeveralStringsArgument::typeDescription() const
   return QString("several words, separated by %1").arg(sep);
 }
 
-ArgumentMarshaller * SeveralStringsArgument::fromRuby(RUBY_VALUE value) const
+ArgumentMarshaller * SeveralStringsArgument::fromRuby(mrb_value value) const
 {
   return convertRubyArray(value);
 }
@@ -140,7 +139,7 @@ ArgumentMarshaller * MetaHashArgument::fromString(const QString & str) const
 }
 
 void MetaHashArgument::concatenateArguments(ArgumentMarshaller * a, 
-                                                  const ArgumentMarshaller * b) const
+                                            const ArgumentMarshaller * b) const
 {
   a->value<QHash<QString, QVariant> >().
     unite(b->value<QHash<QString, QVariant> >());
@@ -155,7 +154,7 @@ QString MetaHashArgument::typeDescription() const
   return QString("one or more meta=value assignements");
 }
 
-ArgumentMarshaller * MetaHashArgument::fromRuby(RUBY_VALUE value) const
+ArgumentMarshaller * MetaHashArgument::fromRuby(mrb_value value) const
 {
   throw InternalError("Not implemented");
   return NULL;
@@ -203,6 +202,12 @@ void BoolArgument::setEditorValue(QWidget * editor,
     cb->setCurrentIndex(1);
 }
 
+ArgumentMarshaller * BoolArgument::fromRuby(mrb_value value) const
+{
+  bool val = mrb_test(value);
+  return new ArgumentMarshallerChild<bool>(val);
+}
+
 
 static QStringList yesno = (QStringList() 
                             << "yes" << "no" 
@@ -219,10 +224,6 @@ QString BoolArgument::typeDescription() const
   return "A boolean: `yes`, `on`, `true` or `no`, `off`, `false`";
 }
 
-ArgumentMarshaller * BoolArgument::fromRuby(RUBY_VALUE value) const
-{
-  return new ArgumentMarshallerChild<bool>(rbw_test(value));
-}
 
 ////////////////////////////////////////////////////////////
 
@@ -276,7 +277,7 @@ QString ChoiceArgument::typeDescription() const
   return QString("One of: `%1`").arg(cs.join("`, `"));
 }
 
-ArgumentMarshaller * ChoiceArgument::fromRuby(RUBY_VALUE value) const
+ArgumentMarshaller * ChoiceArgument::fromRuby(mrb_value value) const
 {
   return Argument::convertRubyString(value);
 }
@@ -325,7 +326,7 @@ void SeveralChoicesArgument::concatenateArguments(ArgumentMarshaller * a,
   
 }
 
-ArgumentMarshaller * SeveralChoicesArgument::fromRuby(RUBY_VALUE value) const
+ArgumentMarshaller * SeveralChoicesArgument::fromRuby(mrb_value value) const
 {
   return Argument::convertRubyArray(value);
 }
@@ -373,7 +374,7 @@ ArgumentMarshaller * DataSetArgument::fromString(const QString & str) const
 }
 
 /// @todo integrate with ruby values...
-ArgumentMarshaller * DataSetArgument::fromRuby(RUBY_VALUE value) const
+ArgumentMarshaller * DataSetArgument::fromRuby(mrb_value value) const
 {
   return Argument::convertRubyString(value);
 }
@@ -409,7 +410,7 @@ QStringList SeveralDataSetArgument::proposeCompletion(const QString & starter) c
   return Utils::stringsStartingWith(all, starter);
 }
 
-ArgumentMarshaller * SeveralDataSetArgument::fromRuby(RUBY_VALUE value) const
+ArgumentMarshaller * SeveralDataSetArgument::fromRuby(mrb_value value) const
 {
   return Argument::convertRubyArray(value);
 }
@@ -454,9 +455,10 @@ void NumberArgument::setEditorValue(QWidget * editor,
   le->setText(QString::number(value->value<double>()));
 }
 
-ArgumentMarshaller * NumberArgument::fromRuby(RUBY_VALUE value) const
+ArgumentMarshaller * NumberArgument::fromRuby(mrb_value value) const
 {
-  return new ArgumentMarshallerChild<double>(Ruby::toDouble(value));
+  MRuby * mr = MRuby::ruby();
+  return new ArgumentMarshallerChild<double>(mr->floatValue(value));
 }
 
 ////////////////////////////////////////////////////////////
@@ -477,10 +479,15 @@ void SeveralNumbersArgument::concatenateArguments(ArgumentMarshaller * a,
     b->value<QList<double> >();
 }
 
-ArgumentMarshaller * SeveralNumbersArgument::fromRuby(RUBY_VALUE value) const
+ArgumentMarshaller * SeveralNumbersArgument::fromRuby(mrb_value value) const
 {
-  QList<double> lst = Ruby::rubyArrayToList<double>(value, &Ruby::toDouble);
-  return new ArgumentMarshallerChild< QList<double> >(lst);
+  QList<double> rv;
+  MRuby * mr = MRuby::ruby();
+  mr->arrayIterate(value, [&rv, mr](mrb_value val) {
+      rv << mr->floatValue(val);
+    });
+  
+  return new ArgumentMarshallerChild< QList<double> >(rv);
 }
 
 ////////////////////////////////////////////////////////////
@@ -517,9 +524,10 @@ void IntegerArgument::setEditorValue(QWidget * editor,
   le->setText(QString::number(value->value<int>()));
 }
 
-ArgumentMarshaller * IntegerArgument::fromRuby(RUBY_VALUE value) const
+ArgumentMarshaller * IntegerArgument::fromRuby(mrb_value value) const
 {
-  return new ArgumentMarshallerChild<int>((int)Ruby::toInt(value));
+  int v = mrb_fixnum(value);
+  return new ArgumentMarshallerChild<int>(v);
 }
 
 ////////////////////////////////////////////////////////////
@@ -541,15 +549,14 @@ void SeveralIntegersArgument::concatenateArguments(ArgumentMarshaller * a,
     b->value<QList<int> >();
 }
 
-static int cnv(RUBY_VALUE s)
+ArgumentMarshaller * SeveralIntegersArgument::fromRuby(mrb_value value) const
 {
-  return Ruby::toInt(s);
-}
-
-ArgumentMarshaller * SeveralIntegersArgument::fromRuby(RUBY_VALUE value) const
-{
-  QList<int> lst = Ruby::rubyArrayToList<int>(value, &::cnv);
-  return new ArgumentMarshallerChild< QList<int> >(lst);
+  QList<int> rv;
+  MRuby * mr = MRuby::ruby();
+  mr->arrayIterate(value, [&rv](mrb_value val) {
+      rv << mrb_fixnum(val);
+    });
+  return new ArgumentMarshallerChild< QList<int> >(rv);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -579,7 +586,7 @@ void ParametersHashArgument::concatenateArguments(ArgumentMarshaller * a,
     unite(b->value<QHash<QString, double> >());
 }
 
-ArgumentMarshaller * ParametersHashArgument::fromRuby(RUBY_VALUE value) const
+ArgumentMarshaller * ParametersHashArgument::fromRuby(mrb_value value) const
 {
   return Argument::convertRubyArray(value);
 }
@@ -629,7 +636,7 @@ QString RegexArgument::typeDescription() const
   return "plain text, or [regular expressions](#regexps) enclosed within / / delimiters";
 }
 
-ArgumentMarshaller * RegexArgument::fromRuby(RUBY_VALUE value) const
+ArgumentMarshaller * RegexArgument::fromRuby(mrb_value value) const
 {
   return convertRubyString(value);
 }
@@ -678,7 +685,7 @@ QString ColumnArgument::typeDescription() const
   return "The [number/name of a column](#column-names) in a buffer";
 }
 
-ArgumentMarshaller * ColumnArgument::fromRuby(RUBY_VALUE value) const
+ArgumentMarshaller * ColumnArgument::fromRuby(mrb_value value) const
 {
   return Argument::convertRubyString(value);
 }
@@ -721,7 +728,7 @@ QString SeveralColumnsArgument::typeDescription() const
   return "A comma-separated list of [columns names](#column-names)";
 }
 
-ArgumentMarshaller * SeveralColumnsArgument::fromRuby(RUBY_VALUE value) const
+ArgumentMarshaller * SeveralColumnsArgument::fromRuby(mrb_value value) const
 {
   return Argument::convertRubyArray(value);
 }

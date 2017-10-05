@@ -21,7 +21,6 @@
 #ifndef __EXPRESSION_HH
 #define __EXPRESSION_HH
 
-#include <ruby-wrappers.h>
 #include <vector.hh>
 
 /// This class represents a mathematical expression, internally
@@ -34,10 +33,13 @@ class Expression {
   QString expression;
 
   /// The current Ruby code for this expression.
-  RUBY_VALUE code;
+  mrb_value code;
 
   /// The list of doubles used as cache for argument passing.
-  RUBY_VALUE * args;
+  mrb_value * args;
+
+  /// The current size of args
+  int argsSize;
 
   /// The list of variables naturally present in the expression, in
   /// the order in which they are found by the Ruby code.
@@ -52,25 +54,15 @@ class Expression {
   int singleVariableIndex;
 
 
-  /// The ID of the function call !
-  static RUBY_ID callIDCache;
+  /// The mrb_sym of the function call !
+  static mrb_sym callSymCache;
 
   /// And the way to access it
-  static RUBY_ID callID();
-
-  /// Returns the hash for safe-keeping of the Ruby procs, ie to avoid
-  /// Ruby GC to treat them as unreferenced
-  static RUBY_VALUE codeSafeKeepingHash();
-
-  /// Returns the hash for safe-keeping of the Ruby arrays of doubles,
-  /// ie to avoid Ruby GC to treat them as unreferenced
-  static RUBY_VALUE argsSafeKeepingHash();
+  static mrb_sym callSym();
 
   /// "frees" the code associated with the expression.
   void freeCode();
 
-  /// Returns a unique key for the current hash.
-  RUBY_VALUE hashKey();
 
   /// Builds the code, using the current variable list.
   void buildCode();
@@ -79,7 +71,7 @@ class Expression {
   void buildArgs();
 
   /// Evaluate as a Ruby VALUE
-  RUBY_VALUE rubyEvaluation(const double * values) const;
+  mrb_value rubyEvaluation(const double * values) const;
 
 public:
 

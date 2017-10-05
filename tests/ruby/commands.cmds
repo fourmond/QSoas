@@ -31,3 +31,15 @@ end
 ruby end
 
 
+# Now, we try to load
+generate-buffer 0 10 sin(x)
+ruby
+Soas.save("temp.dat", :overwrite => true)
+Soas.generate_buffer(0,10,:formula =>  "x**2")
+Soas.load("temp.dat")
+ruby end
+apply-formula y-=sin(x)
+assert '$stats["y_norm"]' 1e-4
+
+
+

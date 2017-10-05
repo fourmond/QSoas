@@ -1,0 +1,12 @@
+# Takes one argument: the number of columns.
+# 
+# The point is just to check that QSoas is able to gracefully handle
+# large number of columns, because the original mruby-base
+# implementation is not able.
+
+@ make-large-buffer.cmds ${1}
+apply-formula y-=x
+assert '$stats["y_norm"]' 0
+
+strip-if i%2==0
+assert '$stats["rows"] == 500'

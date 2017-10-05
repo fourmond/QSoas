@@ -22,7 +22,6 @@
 #ifndef __VALUEHASH_HH
 #define __VALUEHASH_HH
 
-#include <ruby-wrappers.h>
 #include <argumentmarshaller.hh>
 
 class DataSet;
@@ -142,10 +141,14 @@ public:
 
   /// Converts a QVariant into a Ruby object. Not all types are
   /// supported for now. Qnil is returned on unsupported values
-  static RUBY_VALUE variantToRuby(const QVariant & variant);
+  static mrb_value variantToRuby(const QVariant & variant);
+
+  /// Converts a Ruby object to a QVariant. Not all types are
+  /// supported for now. Qnil is returned on unsupported values
+  static QVariant rubyToVariant(mrb_value value);
 
   /// Converts to a Ruby Hash.
-  RUBY_VALUE toRuby() const;
+  mrb_value toRuby() const;
 
 
   /// Returns the value of the meta-data as a double.
@@ -158,10 +161,10 @@ public:
   double doubleValue(const QString & param) const;
 
   /// Sets data from a Ruby hash
-  void setFromRuby(RUBY_VALUE hsh);
+  void setFromRuby(mrb_value hsh);
   
   /// Builds a new ValueHash from a Ruby hsh
-  static ValueHash fromRuby(RUBY_VALUE hsh);
+  static ValueHash fromRuby(mrb_value hsh);
 
   /// Returns a copy of the hash selecting keys/values  from the spec:
   /// @li '*' means "set all"

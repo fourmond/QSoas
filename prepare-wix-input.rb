@@ -24,6 +24,8 @@ end
 
 files = []
 debug_files = []
+pltforms = {}
+dpltforms = []
 
 # Qt libraries
 if ENV["QTDIR"] =~ /Qt5/i       # Qt 5 !
@@ -31,7 +33,11 @@ if ENV["QTDIR"] =~ /Qt5/i       # Qt 5 !
     lib_file = "#{ENV['QTDIR']}\\bin\\#{f}.dll"
     files << lib_file
     debug_files << lib_file.gsub(/.dll/, "d.dll")
-  end  
+  end
+
+  pltforms['release'] = ["#{ENV['QTDIR']}\\plugins\\platforms\\qwindows.dll"]
+  pltforms['debug'] = ["#{ENV['QTDIR']}\\plugins\\platforms\\qwindowsd.dll"]
+
 else
   for f in %w[QtCore4 QtGui4 QtOpenGL4 QtNetwork4 QtSvg4]
     lib_file = "#{ENV['QTDIR']}\\bin\\#{f}.dll"
@@ -48,7 +54,7 @@ debug_files << rb
 
 # And now, we look for g++ libraries:
 path = ENV['PATH'].split(/\s*;\s*/)
-for f in %w[libgcc_s_dw2-1.dll libstdc++-6.dll mingwm10.dll libwinpthread-1.dll]
+for f in %w[libgcc_s_dw2-1.dll libgcc_s_sjlj-1.dll libstdc++-6.dll mingwm10.dll libwinpthread-1.dll]
   for d in path
     t = File::join(d,f)
     if File.exists?(t)
@@ -63,7 +69,7 @@ end
 
 # We first get the MD5sum for all the files
 file_ids = {}
-for f in files + debug_files
+for f in files + debug_files + pltforms.values.flatten
   fid = "#{f}+#{File.size f}"
   file_ids[f] = fid
 end
@@ -99,10 +105,12 @@ what = {
 }
 
 dlls = {} 
+pltf = {} 
 dll_refs = {}
 for k,v in what
   idx = 0
   dlls[k] = ""
+  pltf[k] = ""
   dll_refs[k] = ""
   for f in v
     next unless File::exists?(f)   # Only for testing !
@@ -113,6 +121,19 @@ for k,v in what
     dlls[k] << "</Component>"
     dll_refs[k] << "<ComponentRef Id='Dll#{idx}' />\n"
     idx += 1
+  end
+  if pltforms[k]
+    for f in pltforms[k]
+      guid = uuids[file_ids[f]]
+      bf = File::basename(f)
+      dlls[k] << '<Directory Id="platformsdir" Name="platforms">'
+      dlls[k] << "<Component Id='Dll#{idx}' Guid='#{guid}'>\n"
+      dlls[k] << "  <File Id='Dll_file#{idx}' Name='#{bf}' DiskId='1' Source='#{f}' KeyPath='yes' />\n"
+      dlls[k] << "</Component>"
+      dlls[k] << '</Directory>'
+      dll_refs[k] << "<ComponentRef Id='Dll#{idx}' />\n"
+      idx += 1
+    end
   end
 end
 

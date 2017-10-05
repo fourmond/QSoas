@@ -52,8 +52,13 @@ void DataSetExpression::prepareExpression(const QString & formula,
   if(expr)
     throw InternalError("prepareExpression() on an already prepared object");
 
+  MRuby * mr = MRuby::ruby();
+
+  // QTextStream o(stdout);
+
   QStringList vars = dataSetParameters(dataset, extraCols);
   // vars += extraParameters;
+  // o << "Preparing DS expression (nb:" << vars.size() << "): " << vars.join(", ") << endl;
 
   // Setting the global vars ahead may help...
 
@@ -63,12 +68,12 @@ void DataSetExpression::prepareExpression(const QString & formula,
     sStats = new SaveGlobal("$stats");
   
     Statistics st(dataset);
-    rbw_gv_set("$stats", st.toRuby());
+    mr->setGlobal("$stats", st.toRuby());
   }
 
   if(useMeta) {
     sMeta = new SaveGlobal("$meta");
-    rbw_gv_set("$meta", dataset->getMetaData().toRuby());
+    mr->setGlobal("$meta", dataset->getMetaData().toRuby());
   }
 
   if(extraParams) {

@@ -23,6 +23,11 @@ elif [ -r /usr/bin/ruby2.1 ]; then
     extra="RUBY=/usr/bin/ruby2.1"
 fi
 
+if [ "$MRUBY_DIR" ]; then
+    extra="$extra MRUBY_DIR=$MRUBY_DIR"
+fi
+   
+
 $QMAKE $extra $v $univ
 
 # For some reason, mac's Qt writes a wrong library name for linking

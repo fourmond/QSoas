@@ -154,18 +154,10 @@
 
 #include <cmath>
 
-#else
-
-// hacks...
-#define HAVE_STRUCT_TIMESPEC
-#define HAVE_STRUCT_TIMEZONE
-// We only include Ruby includes in C mode
-#include <ruby.h>
-
-// Ruby pollutes the namespace, which is quite a pain
-#undef truncate
+#include <mruby.h>
 
 #endif
+
 
 // The gsl
 #ifndef Q_WS_WIN

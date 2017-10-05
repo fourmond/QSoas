@@ -23,7 +23,6 @@
 #define __COMMAND_HH
 
 #include <argumentmarshaller.hh>
-#include <ruby-wrappers.h>
 
 class Group;
 class CommandEffector;
@@ -214,7 +213,7 @@ public:
                          QWidget * base = NULL);
 
   /// Runs the command from a Ruby command-line
-  void runCommand(int nb, RUBY_VALUE * args);
+  void runCommand(int nb, mrb_value * args);
 
   /// Returns an action for this Command parented by the given parent.
   /*virtual*/ QAction * actionForCommand(QObject * parent) const;

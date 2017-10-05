@@ -20,6 +20,7 @@
 #include <statistics.hh>
 
 #include <dataset.hh>
+#include <mruby.hh>
 
 // First, implementation of the StatisticsValue class and subclasses.
 
@@ -369,16 +370,18 @@ QList<ValueHash> Statistics::statsBySegments(ValueHash * overall)
   return ret;
 }
 
-RUBY_VALUE Statistics::toRuby()
+mrb_value Statistics::toRuby()
 {
   ValueHash s;
   QList<ValueHash> sstats = statsBySegments(&s);
-  RUBY_VALUE hsh = s.toRuby();
+  mrb_value hsh = s.toRuby();
+  MRuby * mr = MRuby::ruby();
+
   for(int i = 0; i < sstats.size(); i++) {
-    RUBY_VALUE v = sstats[i].toRuby();
-    rbw_hash_aset(hsh, rbw_long2num(i), v);
-    rbw_hash_aset(hsh, rbw_float_new(i), v);
+    mrb_value v = sstats[i].toRuby();
+    mr->hashSet(hsh, mr->newInt(i), v);
+    mr->hashSet(hsh, mr->newFloat(i), v);
   }
-  rbw_gv_set("$stats", hsh);
+  // rbw_gv_set("$stats", hsh);
   return hsh;
 }

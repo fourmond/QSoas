@@ -99,7 +99,7 @@ public:
 
   /// Returns a Ruby hash containing the statistics (including
   /// sub-hashes containing stats by segments when applicable)
-  RUBY_VALUE toRuby();
+  mrb_value toRuby();
   
 };
 

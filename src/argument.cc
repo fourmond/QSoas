@@ -19,39 +19,38 @@
 
 #include <headers.hh>
 #include <argument.hh>
-
-#include <ruby.hh>
-#include <ruby-templates.hh>
-
+#include <mruby.hh>
 #include <debug.hh>
 
-ArgumentMarshaller * Argument::convertRubyString(RUBY_VALUE value) const
+ArgumentMarshaller * Argument::convertRubyString(mrb_value value) const
 {
-  return fromString(Ruby::toQString(value));
+  MRuby * mr = MRuby::ruby();
+  return fromString(mr->toQString(value));
 }
 
 
 
-ArgumentMarshaller * Argument::convertRubyArray(RUBY_VALUE value) const
+ArgumentMarshaller * Argument::convertRubyArray(mrb_value value) const
 {
-  QStringList rv = Ruby::rubyArrayToList<QString>(value, &Ruby::toQString);
+  MRuby * mr = MRuby::ruby();
   ArgumentMarshaller * ret = NULL;
-  for(int i = 0; i < rv.size(); i++) {
-    ArgumentMarshaller * cur = fromString(rv[i]);
-    if(ret) {
-      concatenateArguments(ret, cur);
-      delete cur;
-    }
-    else
-      ret = cur;
-  }
+  if(!mr->isArray(value))
+    throw InternalError("Calling convertRubyArray with a non array argument, you are probably one step from infinite recursion");
+  mr->arrayIterate(value, [this, &ret] (mrb_value v) {
+      ArgumentMarshaller * cur = fromRuby(v);
+      if(ret) {
+        concatenateArguments(ret, cur);
+        delete cur;
+      }
+      else
+        ret = cur;
+    });
   return ret;
 }
 
-ArgumentMarshaller * Argument::fromRuby(RUBY_VALUE value) const
+ArgumentMarshaller * Argument::fromRuby(mrb_value value) const
 {
-  QString c = Ruby::toQString(value);
-  return fromString(c);
+  return convertRubyString(value);
 }
 
 

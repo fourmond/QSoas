@@ -40,7 +40,7 @@
 
 #include <datastack.hh>
 
-#include <ruby.hh>
+#include <mruby.hh>
 #include <idioms.hh>
 #include <statistics.hh>
 
@@ -1476,24 +1476,43 @@ QSet<QString> DataSet::allFlags() const
   return flags;
 }
 
-RUBY_VALUE DataSet::evaluateWithMeta(const QString & expression, bool useStats) const
+mrb_value DataSet::evaluateWithMeta(const QString & expression, bool useStats) const
 {
   SaveGlobal _a("$stats");
   SaveGlobal _b("$meta");
+  MRuby * mr = MRuby::ruby();
   if(useStats) {
     Statistics st(this);
-    rbw_gv_set("$stats", st.toRuby());
+    mr->setGlobal("$stats", st.toRuby());
   }
   ValueHash vl = getMetaData();
   vl["name"] = name;
-  rbw_gv_set("$meta", vl.toRuby());
-  return Ruby::run(Ruby::eval, expression.toLocal8Bit());
+  mr->setGlobal("$meta", vl.toRuby());
+  return mr->eval(expression);
+}
+
+mrb_value DataSet::evaluateWithMeta(const QString & expression, bool useStats,  bool modifyMeta) 
+{
+  SaveGlobal _a("$stats");
+  SaveGlobal _b("$meta");
+  MRuby * mr = MRuby::ruby();
+  if(useStats) {
+    Statistics st(this);
+    mr->setGlobal("$stats", st.toRuby());
+  }
+  ValueHash vl = metaData;
+  vl["name"] = name;
+  mr->setGlobal("$meta", vl.toRuby());
+  mrb_value v = mr->eval(expression);
+  if(modifyMeta)
+    metaData.setFromRuby(mr->getGlobal("$meta"));
+  return v;
 }
 
 bool DataSet::matches(const QString & expression) const
 {
-  RUBY_VALUE v = evaluateWithMeta(expression, true);
-  return rbw_test(v);
+  mrb_value v = evaluateWithMeta(expression, true);
+  return mrb_test(v);
 }
 
 

@@ -66,8 +66,12 @@ typedef QHash<QString, ArgumentMarshaller *> CommandOptions;
 template<typename T> void updateFromOptions(const CommandOptions & opts,
                                             const QString & option,
                                             T & value) {
-  if(opts.contains(option))
-    value = opts[option]->value<T>();
+  if(opts.contains(option)) {
+    ArgumentMarshaller * v = opts[option];
+    if(! v)
+      throw InternalError("Null argument for option '%1'").arg(option);
+    value = v->value<T>();
+  }
 };
 
 template<typename T> void updateOptions(CommandOptions & opts,

@@ -21,7 +21,7 @@
 #ifndef __GSLFUNCTION_HH
 #define __GSLFUNCTION_HH
 
-#include <ruby-wrappers.h>
+class MRuby;
 
 /// Base class for all the functions
 ///
@@ -48,13 +48,11 @@ public:
   virtual QString description() const;
   
 
-  /// Registers the function to the Ruby interpreter, under the given
-  /// module
-  virtual void registerFunction(RUBY_VALUE module) = 0;
+  /// Registers the function to the MRuby interpreter
+  virtual void registerFunction(MRuby * mr, struct RClass * cls) = 0;
 
-  /// Register all functions to the Ruby interpreter. Returns the
-  /// "Special" module
-  static RUBY_VALUE registerAllFunctions();
+    /// "Special" module
+  static void registerAllFunctions(MRuby * mr);
 
   /// Creates and registers the given object.
   GSLFunction(const QString & n, const QString & d, const QString &u,
@@ -78,7 +76,10 @@ class GSLConstant {
   void registerSelf();
 
   /// Make this constant available to Ruby code
-  void registerConstant();;
+  void registerConstant();
+
+  /// Make this constant available to MRuby code
+  void registerConstant(MRuby * mr);
 
 public:
 
@@ -94,6 +95,9 @@ public:
 
   /// Creates and registers all constants at startup time
   static void registerAllConstants();
+
+  /// Creates and registers all constants at startup time
+  static void registerAllConstants(MRuby * mr);
 
   /// Returns a markup-friendly list of available constants
   static QString constantsDocumentation();

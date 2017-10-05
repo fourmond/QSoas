@@ -64,7 +64,7 @@ public:
     return QString("One of: `%1`").arg(cs.join("`, `"));
   };
 
-  virtual ArgumentMarshaller * fromRuby(RUBY_VALUE value) const {
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override {
     return convertRubyString(value);
   };
 

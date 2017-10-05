@@ -31,7 +31,7 @@
 
 #include <settings-templates.hh>
 #include <idioms.hh>
-#include <ruby.hh>
+#include <mruby.hh>
 
 #include <debug.hh>
 
@@ -264,7 +264,9 @@ bool CommandWidget::runCommand(const QString & str)
       bool status = true;
       /// @todo Try to share some code with runCommand(const QStringList &) ?
       try {
-        Ruby::safeEval(rubyCode);
+        // Ruby::safeEval(rubyCode);
+        MRuby * mr = MRuby::ruby();
+        mr->eval(rubyCode);
       }
       catch(const RuntimeError & error) {
         Terminal::out << "Error: " << error.message() << endl;

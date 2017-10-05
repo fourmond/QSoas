@@ -24,7 +24,7 @@
 #include <argumentlist.hh>
 
 #include <terminal.hh>
-#include <ruby.hh>
+#include <mruby.hh>
 
 
 ArgumentList::ArgumentList(const QList<Argument *> & lst)
@@ -154,25 +154,27 @@ CommandArguments ArgumentList::parseArguments(const QStringList & args,
   return ret;
 }
 
-CommandOptions ArgumentList::parseRubyOptions(RUBY_VALUE hsh) const
+CommandOptions ArgumentList::parseRubyOptions(mrb_value hsh) const
 {
   CommandOptions opts;
+  MRuby * mr = MRuby::ruby();
     
   for(int i = 0; i < size(); i++) {
-    RUBY_VALUE v = rbw_hash_aref(hsh, Ruby::symbolFromQString(value(i)->argumentName()));
-    if(v == rbw_nil)
-      v = rbw_hash_aref(hsh, Ruby::fromQString(value(i)->argumentName()));
+    mrb_value key = mr->symbolFromQString(value(i)->argumentName());
+    mrb_value v = mr->hashRef(hsh, key);
+    if(mrb_nil_p(v)) {
+      key = mr->fromQString(value(i)->argumentName());
+      v = mr->hashRef(hsh, key);
+    }
 
-    // o << "Trying key: " << value(i)->argumentName() << endl;
-    // rbw_p(v);
-    if(v != rbw_nil)
+    if(! mrb_nil_p(v))
       opts[value(i)->argumentName()] = value(i)->fromRuby(v);
   }
   return opts;
 }
 
 
-CommandArguments ArgumentList::parseRubyArguments(int nb, RUBY_VALUE * values) const
+CommandArguments ArgumentList::parseRubyArguments(int nb, mrb_value * values) const
 {
   CommandArguments rv;
   if(nb < size())

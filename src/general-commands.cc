@@ -109,30 +109,35 @@ breakc("break", // command name
 static void outputCommand(const QString &, 
                           const CommandOptions & opts)
 {
-  QString file;
-  updateFromOptions(opts, "file", file);
-  if(! file.isEmpty()) {
-    OutFile::out.setFileName(file);
-
-    OutFile::out.truncate = false;
-    updateFromOptions(opts, "overwrite", OutFile::out.truncate);
+  if(opts.isEmpty()) {
+    Terminal::out << "Current output file: '" << OutFile::out.filePath()
+                  << "', " << (OutFile::out.isOpened() ? "currently open" : "not open at the moment") << endl;
   }
+  else {
+    QString file;
+    updateFromOptions(opts, "file", file);
+    if(! file.isEmpty()) {
+      OutFile::out.setFileName(file);
 
-  bool reopen = false;
-  updateFromOptions(opts, "reopen", reopen);
-  if(reopen)
-    OutFile::out.forceReopen();
+      OutFile::out.truncate = false;
+      updateFromOptions(opts, "overwrite", OutFile::out.truncate);
+    }
+
+    bool reopen = false;
+    updateFromOptions(opts, "reopen", reopen);
+    if(reopen)
+      OutFile::out.forceReopen();
   
-  // Now, we process meta-data
-  QStringList metaNames;
-  if(opts.contains("meta")) {
-    updateFromOptions(opts, "meta", OutFile::out.desiredMeta);
-    if(OutFile::out.desiredMeta.size() == 1 && OutFile::out.desiredMeta[0].isEmpty())
-      OutFile::out.desiredMeta.clear();
-    Terminal::out << "Now systematically writing meta-data to output file: '" 
-                  << OutFile::out.desiredMeta.join("', '") << "'" << endl;
+    // Now, we process meta-data
+    QStringList metaNames;
+    if(opts.contains("meta")) {
+      updateFromOptions(opts, "meta", OutFile::out.desiredMeta);
+      if(OutFile::out.desiredMeta.size() == 1 && OutFile::out.desiredMeta[0].isEmpty())
+        OutFile::out.desiredMeta.clear();
+      Terminal::out << "Now systematically writing meta-data to output file: '" 
+                    << OutFile::out.desiredMeta.join("', '") << "'" << endl;
+    }
   }
-
 }
 
 ArgumentList oOpts(QList<Argument*>() 

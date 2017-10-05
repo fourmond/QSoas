@@ -704,7 +704,9 @@ static void assertCmd(const QString &, QString code,
     updateFromOptions(opts, "tolerance", tolerance);
     useTol = true;
     updateFromOptions(opts, "platform-precision", pf);
-    if(pf)
+    int fct = pf ? 1 : 0;
+    updateFromOptions(opts, "platform-precision-power", fct);
+    while(fct-- > 0)
       tolerance *= QSOAS_PLATFORM_SCALE;
   }
 
@@ -849,6 +851,9 @@ aO(QList<Argument *>()
    << new BoolArgument("platform-precision", 
                        "Use 'platform precision'",
                        "Use a platform-specific scaling factor for the tolerance")
+   << new IntegerArgument("platform-precision-power", 
+                          "Use 'platform precision' to a given power",
+                          "Use a platform-specific scaling factor for the tolerance, scaled to the given power")
 );
 
 

@@ -263,6 +263,10 @@ mrb_value MRuby::funcall(mrb_value self, mrb_sym func, mrb_int nb,
       return funcall_up(self, func, nb, params);
     }
     );
+  // Funcall does not throw an exception, but returns it, so we have
+  // to check whether the return value is an exception.
+  // 
+  // This probably means we don't have to use protect.
   throwIfException(v);
   return v;
 }

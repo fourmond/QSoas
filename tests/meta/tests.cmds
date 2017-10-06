@@ -1,2 +1,4 @@
 # The test suite for meta-data providers and suchlike
-@ conditions.cmds
+
+# Disabled for now, not yet with mruby
+# @ conditions.cmds

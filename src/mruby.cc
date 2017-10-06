@@ -110,6 +110,13 @@ mrb_value MRuby::protect(const std::function<mrb_value ()> &function)
   return helper;
 }
 
+void MRuby::throwIfException(mrb_value obj)
+{
+  if(mrb_obj_is_kind_of(mrb, obj, mrb->eException_class)) {
+    throw RuntimeError("A ruby exception occurred: %1").arg(inspect(obj));
+  }
+}
+
 
 struct RProc * MRuby::generateCode(const QByteArray & code,
                                    const QString & fileName)
@@ -213,6 +220,8 @@ void MRuby::defineGlobalConstant(const char *name, mrb_value val)
   mrb_define_global_const(mrb, name, val);
 }
 
+
+
 void MRuby::gcRegister(mrb_value obj)
 {
   // DUMP_MRUBY(obj);
@@ -250,10 +259,12 @@ mrb_value MRuby::funcall_up(mrb_value self, mrb_sym func, mrb_int nb,
 mrb_value MRuby::funcall(mrb_value self, mrb_sym func, mrb_int nb,
                          const mrb_value * params)
 {
-  return protect([this, self, func, nb, params]() -> mrb_value {
+  mrb_value v = protect([this, self, func, nb, params]() -> mrb_value {
       return funcall_up(self, func, nb, params);
     }
     );
+  throwIfException(v);
+  return v;
 }
 
 mrb_value MRuby::newFloat(double value)

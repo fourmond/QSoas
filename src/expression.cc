@@ -169,8 +169,9 @@ mrb_value Expression::rubyEvaluation(const double * values) const
   int size = variables.size();
   for(int i = 0; i < size; i++)
     SET_FLOAT_VALUE(mr->mrb, args[i], values[i]);
-  
-  return mr->funcall(code, callSym(), size, args);
+
+  mrb_value rv = mr->funcall(code, callSym(), size, args);
+  return rv;
 }
 
 double Expression::evaluate(const double * values) const

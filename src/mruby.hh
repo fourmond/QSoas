@@ -67,6 +67,9 @@ public:
   /// Runs the function with proper exception catching.
   mrb_value protect(const std::function<mrb_value ()> & function);
 
+  /// If the object obj is an exception, throws it.
+  void throwIfException(mrb_value obj);
+
   /// Returns the static interpreter
   static MRuby * ruby();
 

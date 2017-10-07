@@ -654,7 +654,8 @@ void Command::runCommand(int nb, mrb_value * args)
   MRuby * mr = MRuby::ruby();
 
   CommandOptions op;
-  if(mr->isHash(args[nb-1])) { // There are options, we parse them
+  if(args && nb > 0 &&
+     mr->isHash(args[nb-1])) { // There are options, we parse them
     mrb_value hsh = args[nb-1];
     nb--;
     if(commandOptions())

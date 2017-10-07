@@ -39,6 +39,8 @@ MRuby::MRuby()
 {
   mrb = mrb_open();
   cQSoasInterface = NULL;
+  cTime =  mrb_vm_const_get(mrb, mrb_intern_lit(mrb, "Time"));
+
 }
 
 MRuby::~MRuby()
@@ -421,7 +423,6 @@ void MRuby::hashIterate(mrb_value hash,
 mrb_value MRuby::newTime(int year, int month, int day,
                          int hour, int min, int sec, int usec)
 {
-  mrb_value cTime =  mrb_vm_const_get(mrb, mrb_intern_lit(mrb, "Time"));
 
   mrb_value rv = mrb_funcall(mrb, cTime, "new", 7,
                              mrb_fixnum_value(year),

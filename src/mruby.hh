@@ -46,6 +46,8 @@ class MRuby {
   /// initialize the Qt-based Ruby regular expressions
   void initializeRegexp();
 
+  mrb_value cTime;
+
 public:
   mrb_state *mrb;
 

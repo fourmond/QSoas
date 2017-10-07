@@ -33,6 +33,8 @@
 #include <exceptions.hh>
 #include <utils.hh>
 
+#include <terminal.hh>
+
 #include <gslfunction.hh>
 
 MRuby::MRuby()
@@ -145,6 +147,23 @@ struct RProc * MRuby::generateCode(const QByteArray & code,
     mrb_parser_free(p);
     throw RuntimeError("Syntax error: %1").arg(message);
   }
+
+  // Unsure terminal is the best place, but, well
+  if(p->nwarn > 0) {
+    // We have a syntax error
+    QString message;
+    // Point to exact code place ?
+    for(size_t i = 0; i < p->nwarn; i++) {
+      if(i > 0)
+        message += "\n";
+      message += QString("%1 at line %2:%3").
+        arg(p->warn_buffer[i].message).
+        arg(p->warn_buffer[i].lineno).
+        arg(p->warn_buffer[i].column);
+    }
+    Terminal::out << "Ruby warnings: " << message << endl;
+  }
+
   RProc * proc = mrb_generate_code(mrb, p);
   mrbc_context_free(mrb, c);
   mrb_parser_free(p);

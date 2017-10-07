@@ -115,7 +115,11 @@ QString SeveralStringsArgument::typeDescription() const
 
 ArgumentMarshaller * SeveralStringsArgument::fromRuby(mrb_value value) const
 {
-  return convertRubyArray(value);
+  MRuby * mr = MRuby::ruby();
+  if(!mr->isArray(value))
+    return convertRubyString(value);
+  else
+    return convertRubyArray(value);
 }
 
 ////////////////////////////////////////////////////////////
@@ -328,7 +332,11 @@ void SeveralChoicesArgument::concatenateArguments(ArgumentMarshaller * a,
 
 ArgumentMarshaller * SeveralChoicesArgument::fromRuby(mrb_value value) const
 {
-  return Argument::convertRubyArray(value);
+  MRuby * mr = MRuby::ruby();
+  if(!mr->isArray(value))
+    return convertRubyString(value);
+  else
+    return convertRubyArray(value);
 }
 
 ////////////////////////////////////////////////////////////
@@ -412,7 +420,12 @@ QStringList SeveralDataSetArgument::proposeCompletion(const QString & starter) c
 
 ArgumentMarshaller * SeveralDataSetArgument::fromRuby(mrb_value value) const
 {
-  return Argument::convertRubyArray(value);
+  MRuby * mr = MRuby::ruby();
+  if(!mr->isArray(value))
+    return convertRubyString(value);
+  else
+    return convertRubyArray(value);
+
 }
 
 ////////////////////////////////////////////////////////////
@@ -588,7 +601,11 @@ void ParametersHashArgument::concatenateArguments(ArgumentMarshaller * a,
 
 ArgumentMarshaller * ParametersHashArgument::fromRuby(mrb_value value) const
 {
-  return Argument::convertRubyArray(value);
+  MRuby * mr = MRuby::ruby();
+  if(!mr->isArray(value))
+    return convertRubyString(value);
+  else
+    return convertRubyArray(value);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -730,5 +747,9 @@ QString SeveralColumnsArgument::typeDescription() const
 
 ArgumentMarshaller * SeveralColumnsArgument::fromRuby(mrb_value value) const
 {
-  return Argument::convertRubyArray(value);
+  MRuby * mr = MRuby::ruby();
+  if(!mr->isArray(value))
+    return convertRubyString(value);
+  else
+    return convertRubyArray(value);
 }

@@ -73,6 +73,9 @@ public:
     return rightHHWidth + leftHHWidth;
   }
 
+  /// The area of the peak.
+  double area;
+
 
   /// @todo More to come later here, such as witdh and assymetry (but
   /// this will have to be based on fits -- to the extent possible),
@@ -85,9 +88,25 @@ public:
   /// Sorts the peaks by magnitude
   static void sortByMagnitude(QList<PeakInfo> & peaks);
 
+
+  /// Compare the peaks by reverse magnitude
+  static bool comparePeakPosition(const PeakInfo &a, const PeakInfo & b);
+
+  /// Sorts the peaks by magnitude
+  static void sortByPosition(QList<PeakInfo> & peaks);
+
   /// Removes either maxs (if second argument is true) or mins from
   /// the given list.
   static void removeMinMax(QList<PeakInfo> & peaks, bool removeMax);
+
+  /// Takes a list of PeakInfo and computes the area of each peak. The
+  /// idea is the following:
+  /// * order them by X value (after splitting on dx sign change ?
+  /// * set borders at the middle of the corresponding HH sides
+  /// * compute the area within each border
+  static void computeArea(QList<PeakInfo> & peaks, const Vector & x,
+                          const Vector & y);
+
 };
 
 /// A pair of forward and backward peaks, in particular in a
@@ -163,6 +182,7 @@ public:
   /// @todo This probably should be cached too, and it should be
   /// possible to refine.
   QList<PeakInfo> findPeaks(bool includeBorders = false);
+
 
 
   /// Returns a list of possible electrochemical peak pairs, in the

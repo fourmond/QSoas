@@ -64,6 +64,9 @@ static void displayPeaks(QList<PeakInfo> peaks, const DataSet * ds,
   Terminal::out << "Found " << peaks.size() << " peaks" << endl;
   if(maxnb < 0 || maxnb > peaks.size())
     maxnb = peaks.size();
+  peaks = peaks.mid(0, maxnb);
+  PeakInfo::computeArea(peaks, ds->x(), ds->y());
+  
   for(int i = 0; i < maxnb; i++) {
     ValueHash hsh;
     hsh << "buffer" << ds->name 
@@ -72,7 +75,8 @@ static void displayPeaks(QList<PeakInfo> peaks, const DataSet * ds,
         << "index" << peaks[i].index
         << "width" << peaks[i].width()
         << "left_width" << peaks[i].leftHHWidth
-        << "right_width" << peaks[i].rightHHWidth;
+        << "right_width" << peaks[i].rightHHWidth
+        << "area" << peaks[i].area;
     hsh.handleOutput(ds, opts, write);
 
     if(! i)

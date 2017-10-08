@@ -34,6 +34,16 @@ void PeakInfo::sortByMagnitude(QList<PeakInfo> & peaks)
   qSort(peaks.begin(), peaks.end(), &PeakInfo::comparePeakMagnitude);
 }
 
+bool PeakInfo::comparePeakPosition(const PeakInfo &a, const PeakInfo & b)
+{
+  return a.x < b.x;
+}
+
+void PeakInfo::sortByPosition(QList<PeakInfo> & peaks)
+{
+  qSort(peaks.begin(), peaks.end(), &PeakInfo::comparePeakPosition);
+}
+
 void PeakInfo::removeMinMax(QList<PeakInfo> & peaks, bool removeMax)
 {
   for(int i = 0; i < peaks.size(); i++) {
@@ -41,6 +51,31 @@ void PeakInfo::removeMinMax(QList<PeakInfo> & peaks, bool removeMax)
       peaks.takeAt(i);
       i--;
     }
+  }
+}
+
+void PeakInfo::computeArea(QList<PeakInfo> & peaks, const Vector & x, const Vector & y)
+{
+  QList<PeakInfo> pk = peaks;
+  for(int i = 0; i < pk.size(); i++)
+    pk[i].area = i;             // Boaf
+  PeakInfo::sortByPosition(peaks);
+  Vector iy = Vector::integrateVector(x,y);
+
+  int left = 0;
+  for(int i = 0; i < pk.size(); i++) {
+    int right; 
+    if(i < pk.size() - 1) {
+      double xt = 0.5 *
+        (pk[i].x + pk[i].rightHHWidth +
+         pk[i+1].x - pk[i+1].leftHHWidth);
+      right = x.findCrossing(pk[i].index, xt);
+    }
+    else
+      right = x.size()-1;
+
+    peaks[static_cast<int>(pk[i].area)].area = iy[right] - iy[left];
+    left = right;
   }
 }
 
@@ -78,12 +113,14 @@ QList<PeakInfo> Peaks::findPeaks(bool includeBorders)
     info.leftHHWidth = info.x - x.value(j, 0.0/0.0);
     j = y.findCrossing(idx, y[idx]/2, 1);
     info.rightHHWidth = x.value(j, 0.0/0.0) - info.x;
+    info.area = 0;              // Defaults to 0...
 
     // Now, we look for the right and left half widths
     peaks << info;
   }
   return peaks;
 }
+
 
 QList<EchemPeakPair> Peaks::findPeakPairs()
 {

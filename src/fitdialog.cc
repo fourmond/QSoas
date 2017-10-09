@@ -390,8 +390,7 @@ void FitDialog::setupFrame()
                   SLOT(equalWeightsPerBuffer()),
                   QKeySequence(tr("Ctrl+Shift+B")));
     ac->addAction("Give equal importance to all points", this, 
-                  SLOT(equalWeightsPerPoint()),
-                  QKeySequence(tr("Ctrl+Shift+P")));
+                  SLOT(equalWeightsPerPoint()));
   }
   hb->addWidget(ac);
 

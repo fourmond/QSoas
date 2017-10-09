@@ -32,7 +32,8 @@ class MRuby {
 
   /// Generates the code
   struct RProc * generateCode(const QByteArray & code,
-                              const QString & fileName = "(eval)");
+                              const QString & fileName = "(eval)",
+                              int line = -1);
 
   struct RClass * cQSoasInterface;
 
@@ -56,9 +57,15 @@ public:
   ~MRuby();
 
   /// Evaluate the given code.
-  mrb_value eval(const QByteArray & code);
-  mrb_value eval(const char * code);
-  mrb_value eval(const QString& code);
+  mrb_value eval(const QByteArray & code,
+                 const QString & fileName = "(eval)",
+                 int line = -1);
+  mrb_value eval(const char * code,
+                 const QString & fileName = "(eval)",
+                 int line = -1);
+  mrb_value eval(const QString& code,
+                 const QString & fileName = "(eval)",
+                 int line = -1);
 
   /// Evaluate the given file
   mrb_value eval(QIODevice * device);

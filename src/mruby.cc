@@ -123,12 +123,14 @@ void MRuby::throwIfException(mrb_value obj)
 
 
 struct RProc * MRuby::generateCode(const QByteArray & code,
-                                   const QString & fileName)
+                                   const QString & fileName, int line)
 {
   struct mrbc_context * c = mrbc_context_new(mrb);
   c->capture_errors = true;
   QByteArray fn = fileName.toLocal8Bit();
   mrbc_filename(mrb, c, fn.constData());
+  if(line >= 0)
+    c->lineno = line;
   struct mrb_parser_state * p =
     mrb_parse_string(mrb, code.constData(), c);
   if(p->nerr > 0) {
@@ -170,23 +172,26 @@ struct RProc * MRuby::generateCode(const QByteArray & code,
   return proc;
 }
 
-mrb_value MRuby::eval(const char * code)
+mrb_value MRuby::eval(const char * code,
+                      const QString & fileName, int line)
 {
-  return eval(QByteArray(code));
+  return eval(QByteArray(code), fileName, line);
 }
 
-mrb_value MRuby::eval(const QByteArray & code)
+mrb_value MRuby::eval(const QByteArray & code,
+                      const QString & fileName, int line)
 {
-  RProc * proc = generateCode(code);
+  RProc * proc = generateCode(code, fileName, line);
   return protect([this, proc]() -> mrb_value {
       return mrb_run(mrb, proc, mrb_top_self(mrb));
     }
     );
 }
 
-mrb_value MRuby::eval(const QString & code)
+mrb_value MRuby::eval(const QString & code,
+                      const QString & fileName, int line)
 {
-  return eval(code.toLocal8Bit());
+  return eval(code.toLocal8Bit(), fileName, line);
 }
 
 mrb_value MRuby::eval(QIODevice * device)

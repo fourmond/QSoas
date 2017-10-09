@@ -266,7 +266,13 @@ bool CommandWidget::runCommand(const QString & str)
       try {
         // Ruby::safeEval(rubyCode);
         MRuby * mr = MRuby::ruby();
-        mr->eval(rubyCode);
+        CommandContext cc = currentContext();
+        if(cc.scriptFile.isEmpty())
+          mr->eval(rubyCode);
+        else {
+          int nb = rubyCode.count('\n');
+          mr->eval(rubyCode, cc.scriptFile, cc.lineNumber - nb);
+        }
       }
       catch(const RuntimeError & error) {
         Terminal::out << "Error: " << error.message() << endl;

@@ -177,6 +177,15 @@ QString ValueHash::prettyPrint(int nbCols,
 }
 
 
+ValueHash & ValueHash::operator<<(const QList<QString> & lst)
+{
+  QList<QVariant> v;
+  for(QVariant s : lst)
+    v << s;
+
+  return (*this) << v;
+}
+
 ValueHash & ValueHash::operator<<(const QVariant & v)
 {
   if(lastKey.isEmpty())

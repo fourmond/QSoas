@@ -28,6 +28,7 @@ class DataSet;
 class DataStack;
 class CommandWidget;
 class GraphicsSettings;
+class ValueHash;
 
 /// The class holding all information/actor related to Soas.
 ///
@@ -110,6 +111,12 @@ public:
 
   /// Write overall specs
   static void writeSpecFile(QTextStream & out, bool full);
+
+  /// Returns a long, descriptive version string
+  static QString versionString();
+
+  /// Returns a hash containing a number of lists of "features".
+  static ValueHash versionInfo();
 };
 
 /// Returns the application-wide Soas instance

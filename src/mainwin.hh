@@ -52,9 +52,6 @@ public:
   /// Displays a message on the status bar
   void showMessage(const QString & str, int milliseconds = 3000);
 
-  /// Returns a nice version string
-  static QString versionString();
-
 public slots:
   /// Updates the windows name to have the current directory shown.
   void updateWindowName();

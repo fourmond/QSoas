@@ -964,8 +964,8 @@ dbg("debug", // command name
 
 void versionCommand(const QString &, const CommandOptions & /*opts*/)
 {
-  Terminal::out << MainWin::versionString() << endl;
-  Debug::debug() << MainWin::versionString() << endl;
+  Terminal::out << Soas::versionString() << endl;
+  Debug::debug() << Soas::versionString() << endl;
 }
 
 

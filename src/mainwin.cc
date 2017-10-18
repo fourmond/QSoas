@@ -203,7 +203,6 @@
 
 #include <commandlineparser.hh>
 
-#include <gsl/gsl_version.h>
 
 
 static SettingsValue<QSize> mainWinSize("mainwin/size", QSize(700,500));
@@ -225,13 +224,6 @@ static CommandLineOption ext("--exit-after-running", [](const QStringList &) {
     exitAfterRunning = true;
   }, 0, "exits QSoas after running the commands");
 
-QString MainWin::versionString()
-{
-  return QString("This is QSoas version " SOAS_VERSION
-                 " running with mruby %1 and Qt %2\n" SOAS_BUILD_INFO
-                 " with Qt " QT_VERSION_STR " and GSL version " GSL_VERSION).
-    arg(MRUBY_VERSION).arg(qVersion());
-}
 
 MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
 {
@@ -246,7 +238,7 @@ MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
   QIcon appIcon(":QSoas-logo.png");
   setWindowIcon(appIcon);
 
-  Terminal::out << versionString()<< endl;
+  Terminal::out << Soas::versionString()<< endl;
   Credits::displayStartupMessage();
   Terminal::out << "PID " << QCoreApplication::applicationPid()
                 << " starting on " << soasInstance->startupTime().toString()

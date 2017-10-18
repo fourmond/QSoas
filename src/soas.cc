@@ -47,6 +47,12 @@
 #include <statistics.hh>
 #include <commandwidget.hh>
 
+
+// For version
+#include <build.hh>
+#include <gsl/gsl_version.h>
+
+
 CurveView & Soas::view()
 {
   return *mw->curveView;
@@ -160,6 +166,33 @@ void Soas::writeSpecFile(QTextStream & out, bool full)
   CommandLineParser::globalParser()->writeSpecFile(out);
 
   
+}
+
+QString Soas::versionString()
+{
+  return QString("This is QSoas version " SOAS_VERSION
+                 " running with mruby %1 and Qt %2\n" SOAS_BUILD_INFO
+                 " with Qt " QT_VERSION_STR " and GSL version " GSL_VERSION).
+    arg(MRUBY_VERSION).arg(qVersion());
+}
+
+ValueHash Soas::versionInfo()
+{
+  ValueHash rv;
+  rv << "version" << SOAS_VERSION
+     << "version-string" << versionString()
+     << "time-dependent-parameters"
+     << TimeDependentParameter::TDPFactory::availableItems()
+     << "ode-steppers" << ODEStepperOptions::stepperTypes().keys()
+     << "integrators" << IntegratorFactory::availableItems()
+     << "multi-integrators"
+     << MultiIntegrator::MultiIntegratorFactory::availableItems()
+     << "fit-engines" << FitEngineFactoryItem::availableItems()
+     << "color-styles" << StyleGenerator::availableGenerators()
+     << "parameter-distributions" << Distribution::availableDistributions()
+     << "statistics" << StatisticsValue::allSuffixes();
+
+  return rv;
 }
 
 //////////////////////////////////////////////////////////////////////

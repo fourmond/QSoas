@@ -123,6 +123,9 @@ public:
   /// \endcode
   ValueHash& operator <<(const QVariant & var);
 
+  /// @overload
+  ValueHash& operator <<(const QList<QString> & str);
+
 
   /// Adds several keys and values to the hash, keeping the order in
   /// keys.

@@ -23,6 +23,7 @@
 #include <command.hh>
 #include <argument.hh>
 
+#include <valuehash.hh>
 
 static mrb_value qs_method_missing(mrb_state * mrb, mrb_value self)
 {
@@ -68,6 +69,11 @@ mrb_value qs_interface(mrb_state * /*mrb*/, mrb_value /*self*/)
   return mr->soasInstance;
 }
 
+mrb_value qs_config(mrb_state * /*mrb*/, mrb_value /*self*/)
+{
+  return Soas::versionInfo().toRuby();
+}
+
 void MRuby::initializeInterface()
 {
   if(! Soas::soasInstance())
@@ -80,6 +86,9 @@ void MRuby::initializeInterface()
 
   mrb_define_class_method(mrb, cQSoasInterface, "the_instance",
                           &::qs_interface, MRB_ARGS_NONE());
+
+  mrb_define_method(mrb, cQSoasInterface, "config",
+                    &::qs_config, MRB_ARGS_NONE());
 
   
   soasInstance = mrb_obj_new(mrb, cQSoasInterface, 0, NULL);

@@ -203,6 +203,15 @@ QString Utils::smartConcatenate(const QStringList & strings,
 }
 
 
+
+QString Utils::joinSortedList(QStringList list, const QString & glue)
+{
+  qSort(list);
+  return list.join(glue);
+}
+
+
+
 bool Utils::askConfirmation(const QString & what, 
                             const QString & title)
 {

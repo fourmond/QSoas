@@ -130,6 +130,9 @@ namespace Utils {
   QList<bool> readBooleans(const QString& str,
                        const QChar & tru = 'X');
 
+  /// Sort a list and join it
+  QString joinSortedList(QStringList list, const QString & glue);
+
   /// @}
 
 

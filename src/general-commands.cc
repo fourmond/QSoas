@@ -962,19 +962,72 @@ dbg("debug", // command name
 
 // A version command
 
-void versionCommand(const QString &, const CommandOptions & /*opts*/)
+static QString join(const QVariant& lst, const QString & jn = ", ")
+{
+  QList<QVariant> v = lst.toList();
+  QList<QString> l;
+  for(QVariant s : v)
+    l << s.toString();
+  return Utils::joinSortedList(l, jn);
+}
+
+void versionCommand(const QString &, const CommandOptions & opts)
 {
   Terminal::out << Soas::versionString() << endl;
   Debug::debug() << Soas::versionString() << endl;
+
+  bool specs = false;
+  updateFromOptions(opts, "show-features", specs);
+  /// Return somewhere the specs as a hash ? A Ruby-available hash, heh ?
+  if(specs) {
+    ValueHash info = Soas::versionInfo();
+    Terminal::out
+      << "Capacities built in your version of QSoas:\n\n"
+      << "Time-dependent parameters: "
+      << join(info["time-dependent-parameters"])
+      << endl
+      << "Integrators for ODEs: "
+      << join(info["ode-steppers"])
+      << endl
+      << "Plain integrators: "
+      << join(info["integrators"])
+      << endl
+      << "Vector integrators: "
+      << join(info["multi-integrators"])
+      << endl
+      << "Fit engines: "
+      << join(info["fit-engines"])
+      << endl
+      << "Statistics: "
+      << join(info["statistics"])
+      << endl
+      << "Many-buffers-display styles: "
+      << join(info["color-styles"])
+      << endl
+      << "Distributions for fit parameters: "
+      << join(info["parameter-distributions"])
+      << endl
+      << "Special functions: "
+      << endl
+      << "Constants: "
+      << endl;
+  }
 }
 
+
+static ArgumentList 
+verO(QList<Argument *>() 
+     << new BoolArgument("show-features", 
+                         "Show features",
+                         "If true, show detailed informations about the capacities of QSoas (defaults to false)")
+     );
 
 static Command 
 ver("version", // command name
     effector(versionCommand), // action
     "file",  // group name
     NULL, // arguments
-    NULL, // options
+    &verO, // options
     "Version",
     "Show version number");
 

@@ -1008,8 +1008,10 @@ void versionCommand(const QString &, const CommandOptions & opts)
       << join(info["parameter-distributions"])
       << endl
       << "Special functions: "
+      << join(info["functions"])
       << endl
       << "Constants: "
+      << join(info["constants"])
       << endl;
   }
 }

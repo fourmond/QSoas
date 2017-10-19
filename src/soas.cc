@@ -183,6 +183,8 @@ ValueHash Soas::versionInfo()
      << "version-string" << versionString()
      << "time-dependent-parameters"
      << TimeDependentParameter::TDPFactory::availableItems()
+     << "functions" << GSLFunction::availableFunctions()
+     << "constants" << GSLConstant::availableConstants()
      << "ode-steppers" << ODEStepperOptions::stepperTypes().keys()
      << "integrators" << IntegratorFactory::availableItems()
      << "multi-integrators"

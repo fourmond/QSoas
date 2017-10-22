@@ -231,6 +231,8 @@ MultiFitEngine::~MultiFitEngine()
   for(size_t i = 0; i < sizeof(matrices)/sizeof(gsl_matrix *); i++)
     gsl_matrix_free(matrices[i]);
 
+  gsl_vector_free(scalingFactors);
+  
   delete jTj;
   delete cur;
 }

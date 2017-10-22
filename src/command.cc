@@ -667,6 +667,8 @@ void Command::runCommand(int nb, mrb_value * args)
   CommandArguments a;
   if(arguments)
     a = arguments->parseRubyArguments(nb, args);
+  PossessiveHash<QString, ArgumentMarshaller> t(op);
+  PossessiveList<ArgumentMarshaller> t2(a);
   runCommand(cmdName, a, op);
 }
 

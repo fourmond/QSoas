@@ -246,6 +246,11 @@ public:
                                  absolutePrec, maxfuncalls, type);
     return i;
   };
+
+  ~SplinesMultiIntegrator() {
+    gsl_interp_accel_free(accel);
+  }
+    
 };
 
 static MultiIntegrator::MultiIntegratorFactory

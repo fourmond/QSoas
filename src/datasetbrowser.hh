@@ -27,8 +27,6 @@
 class CheckableWidget;
 class NupWidget;
 
-class DataSetListModel;
-
 /// This class handles all the user interaction during fits.
 class DatasetBrowser : public QDialog {
 
@@ -36,19 +34,20 @@ class DatasetBrowser : public QDialog {
 
 private:
 
+  /// The widget holding the whole nup stuff
+  NupWidget * nup;
+
+  /// The dataset views
+  QList<CheckableWidget *> views;
+
   /// The currently displayed datasets
   QList<const DataSet *> datasets;
 
-  QComboBox * sizeCombo;
+  /// Display of the current buffers
+  QLabel * bufferDisplay;
 
   /// THe horizontal bottom layout
   QHBoxLayout * bottomLayout;
-
-  /// A QListWidget displaying all the datasets
-  QListView * list;
-
-  /// The stringlist model
-  DataSetListModel * model;
 
   void setupFrame();
   void setupGrid();
@@ -77,10 +76,6 @@ public:
 protected slots:
 
   void pageChanged(int newpage);
-
-  /// Called when the combo box changed size
-  void comboChangedSize(int idx);
-    
 
   /// Runs the numbered hook
   void runHook(int hook);

@@ -138,7 +138,6 @@
 // MVC classes
 #include <QAbstractTableModel>
 #include <QHeaderView>
-#include <QStringListModel>
 
 // Plugins
 #include <QLibrary>

@@ -25,80 +25,6 @@
 #include <nupwidget.hh>
 
 
-
-//////////////////////////////////////////////////////////////////////
-
-class DataSetListModel : public QStringListModel {
-  QList<const DataSet*> datasets;
-
-  mutable QCache<int, QIcon> cachedIcons;
-
-  int curSize;
-  
-public:
-
-  /// @todo Make cache size customizable 
-  DataSetListModel() : cachedIcons(100 * 64), curSize(200) {
-    
-  }
-
-  void setDataSetList(const QList<const DataSet*> & lst) {
-    QStringList names;
-    datasets = lst;
-    for(int i = 0; i < datasets.size(); i++)
-      names << datasets[i]->name;
-    setStringList(names);
-  };
-
-  QVariant data(const QModelIndex & index, int role) const override {
-    if(! index.isValid())
-      return QVariant();
-    if(role == Qt::DecorationRole) {
-      int i = index.row();
-      if(cachedIcons.contains(i))
-        return *cachedIcons[i];
-      QIcon * icn = new QIcon;
-      icn->addPixmap(CurveView::renderDatasetAsPixmap(datasets[i], QSize(200,200)));
-      if(curSize > 200)
-        icn->addPixmap(CurveView::renderDatasetAsPixmap(datasets[i], QSize(400,400)));
-      if(curSize > 400)
-        icn->addPixmap(CurveView::renderDatasetAsPixmap(datasets[i], QSize(800,800)));
-      int cst = curSize/100;
-      cst *= cst;
-      cachedIcons.insert(i, icn, cst);
-      // QTextStream o(stdout);
-      // o << "Making icon for : " << datasets[i]->name << endl;
-      return *icn;
-    }
-    else
-      return QStringListModel::data(index, role);
-  };
-
-  void setCurSize(int sz) {
-    if(sz <= 200)
-      sz = 200;
-    else if(sz <= 400)
-      sz = 400;
-    else
-      sz = 800;
-    if(sz > curSize)
-      cachedIcons.clear();
-    curSize = sz;
-  };
-
-  QList<const DataSet * > indexedDatasets(const QModelIndexList & list) const {
-    QList<const DataSet * > sel;
-    for(auto i : list)
-      sel << datasets[i.row()];
-    return sel;
-  }
-};
-
-
-
-
-
-
 //////////////////////////////////////////////////////////////////////
 
 static SettingsValue<QSize> browserSize("browser/size", QSize(700,500));
@@ -117,11 +43,13 @@ DatasetBrowser::~DatasetBrowser()
 {
   browserSize = size();
   cleanupViews();
-  delete model;
 }
 
 void DatasetBrowser::cleanupViews()
 {
+  for(int i = 0; i < views.size(); i++)
+    delete views[i];
+  views.clear();
   datasets.clear();
 }
 
@@ -129,39 +57,40 @@ void DatasetBrowser::setupFrame()
 {
   QVBoxLayout * layout = new QVBoxLayout(this);
 
-  list = new QListView;
-  list->setViewMode(QListView::IconMode);
-  list->setMovement(QListView::Static);
-  list->setResizeMode(QListView::Adjust);
-  list->setIconSize(QSize(300,300));
-  list->setSelectionMode(QAbstractItemView::ExtendedSelection);
-  list->setUniformItemSizes(true);
-  layout->addWidget(list);
+  nup = new NupWidget;
+  layout->addWidget(nup);
+  nup->setNup(4,4);
 
-  model = new DataSetListModel;
-  list->setModel(model);
+  connect(nup, SIGNAL(pageChanged(int)), SLOT(pageChanged(int)));
 
 
   bottomLayout = new QHBoxLayout;
+  QPushButton * bt = new QPushButton(tr("<-"));
+  nup->connect(bt, SIGNAL(clicked()), SLOT(previousPage()));
+  bottomLayout->addWidget(bt);
+
+  bufferDisplay = new QLabel("");
+  bottomLayout->addWidget(bufferDisplay);
 
 
-  sizeCombo = new QComboBox;
-  sizeCombo->addItem("Tiny", 100);
-  sizeCombo->addItem("Small", 200);
-  sizeCombo->addItem("Medium", 350);
-  sizeCombo->addItem("Large", 500);
-  sizeCombo->addItem("Huge", 800);
-  connect(sizeCombo, SIGNAL(activated(int)),
-          SLOT(comboChangedSize(int)));
-  sizeCombo->setCurrentIndex(2); // medium ?
+  bt = new QPushButton(tr("Close"));
+  connect(bt, SIGNAL(clicked()), SLOT(accept()));
+  bottomLayout->addWidget(bt);
 
+  QComboBox * cb = new QComboBox;
+  cb->setEditable(true);
+  cb->addItem("4 x 4");
+  cb->addItem("3 x 3");
+  cb->addItem("2 x 2");
+  cb->addItem("6 x 6");
+  cb->addItem("3 x 2");
+  nup->connect(cb, SIGNAL(activated(const QString&)), 
+               SLOT(setNup(const QString &)));
+  bottomLayout->addWidget(cb);
 
-  bottomLayout->addWidget(sizeCombo);
-
-  QDialogButtonBox * buttons = new QDialogButtonBox(QDialogButtonBox::Close);
-  bottomLayout->addSpacing(1);
-  bottomLayout->addWidget(buttons);
-  connect(buttons, SIGNAL(rejected()), SLOT(reject()));
+  bt = new QPushButton(tr("->"));
+  nup->connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
+  bottomLayout->addWidget(bt);
 
   layout->addLayout(bottomLayout);
 
@@ -169,24 +98,30 @@ void DatasetBrowser::setupFrame()
 
 void DatasetBrowser::pageChanged(int newpage)
 {
-}
-
-void DatasetBrowser::comboChangedSize(int idx)
-{
-  int sz = sizeCombo->itemData(idx).toInt();
-  if(sz > 0) {
-    model->setCurSize(sz);
-    list->setIconSize(QSize(sz,sz));
-  }
+  bufferDisplay->setText(QString("%1/%2").
+                         arg(newpage+1).
+                         arg(nup->totalPages()));
 }
 
 void DatasetBrowser::displayDataSets(const QList<const DataSet *> &ds,
                                      bool es)
 {
   extendedSelection = es;
+  nup->clear();
+  int wd = nup->nupWidth();
+  int ht = nup->nupHeight();
+  nup->setNup(0,0);
   cleanupViews();
   datasets = ds;
-  model->setDataSetList(ds);
+  for(int i = 0; i < datasets.size(); i++) {
+    CheckableWidget * cw = 
+      new CheckableWidget(new CurveView(this), this);
+    cw->subWidget<CurveView>()->showDataSet(datasets[i]);
+    views << cw;
+    nup->addWidget(cw);
+  }
+  nup->setNup(wd, ht);
+  nup->showPage(0);
 }
 
 void DatasetBrowser::displayDataSets(const QList<DataSet *> &ds, 
@@ -201,7 +136,11 @@ void DatasetBrowser::displayDataSets(const QList<DataSet *> &ds,
 
 QList<const DataSet*> DatasetBrowser::selectedDatasets() const
 {
-  return model->indexedDatasets(list->selectionModel()->selectedIndexes());
+  QList<const DataSet*> ret;
+  for(int i = 0; i < views.size(); i++)
+    if(views[i]->isChecked())
+      ret << datasets[i];
+  return ret;
 }
 
 void DatasetBrowser::runHook(int id)
@@ -220,5 +159,5 @@ void DatasetBrowser::addButton(QString name, ActOnSelected hook)
                         SLOT(map()));
   actionsMapper->setMapping(button, actionHooks.size());
   actionHooks << hook;
-  bottomLayout->insertWidget(0, button);
+  bottomLayout->insertWidget(2, button);
 }

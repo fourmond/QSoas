@@ -6,7 +6,7 @@
   <file>QSoas-logo.svg</file>
   <file>QSoas-logo.png</file>
   <file>licenses/GPL-2.txt</file>
-  <file>licenses/ruby.txt</file>
+  <file>licenses/mruby.txt</file>
   <file>licenses/GPL-3.txt</file>
   <file>licenses/LGPL-2.1.txt</file>
 </qresource>

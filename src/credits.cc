@@ -111,15 +111,12 @@ Credits qsoas("QSoas itself",
               Credits::QSoas,
               ":/licenses/GPL-2.txt");
 
-Credits ruby("Ruby", 
-             QStringList() << "Yukihiro Matsumoto and others",
-             QStringList() << "http://ruby-lang.org",
-             "Ruby is copyrighted free software by Yukihiro Matsumoto "
-             "<matz@netlab.jp>.  You can redistribute it and/or modify "
-             "it under either the terms of the 2-clause BSD license or "
-             "Ruby-specific conditions",
+Credits ruby("mruby", 
+             QStringList() << "mrubyby developers",
+             QStringList() << "http://mruby.org",
+             "mruby is copyrighted free software released under the terms of the 'MIT' license",
              Credits::Projects,
-             ":/licenses/ruby.txt");
+             ":/licenses/mruby.txt");
 
 Credits gsl("GSL", 
             QStringList() << "Brian Gough and others",

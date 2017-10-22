@@ -29,9 +29,9 @@
 #include <soas.hh>
 
 #include <fitdata.hh>
+#include <linearkineticsystem.hh>
 
 #include <gsl/gsl_const_mksa.h>
-
 #include <gsl/gsl_poly.h>
 
 
@@ -693,3 +693,303 @@ public:
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
 // Its name doesn't matter.
 TwoPolynomialFit fit_two_polynomial;
+
+///////////////////////////////////////////////////////////////////////////
+
+
+/// This fit somehow summarizes almost all the others, while being
+/// more powerful (but slightly less easy to use).
+class LinearKineticSystemFit : public PerDatasetFit {
+
+  class Storage : public FitInternalStorage {
+  public:
+    /// The number of distinctSteps
+    int distinctSteps;
+
+    /// The steps.
+    QList<int> steps;
+    
+    /// The number of species
+    int species;
+    
+    /// Whether or not an offset is present
+    bool offset;
+    
+    /// Whether or not we have additional irreversible loss rate
+    /// constants (who could go below 0 ?)
+    bool additionalLoss;
+  };
+
+
+protected:
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    return new Storage;
+  };
+
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds*/) const {
+    return deepCopy<Storage>(source);
+  };
+
+
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const
+  {
+    Storage * s = storage<Storage>(data);
+
+    s->steps.clear();
+    s->steps << 0 << 1 << 0; // one step forward, one step backward.
+    updateFromOptions(opts, "steps", s->steps);
+
+    s->species = 2;
+    updateFromOptions(opts, "species", s->species);
+
+    s->offset = false;
+    updateFromOptions(opts, "offset", s->offset);
+
+    s->additionalLoss = false;
+    updateFromOptions(opts, "additional-loss", s->additionalLoss);
+
+    s->distinctSteps = 0;
+    for(int i = 0; i < s->steps.size(); i++)
+      if(s->distinctSteps < s->steps[i])
+        s->distinctSteps = s->steps[i];
+    s->distinctSteps++;            // To get the actual number ! 
+  }
+
+  const double * currents(Storage * s, const double * params, int step) const {
+    return params + (s->species * (s->species + 1) + (s->offset ? 2 : 1)) * step;
+  };
+
+  double * currents(Storage * s, double * params, int step) const {
+    return params + (s->species * (s->species + 1) + (s->offset ? 2 : 1)) * step;
+  };
+
+
+  const double * stepConstants(Storage * s, const double * params, int step) const {
+    return currents(s, params, step) + (s->offset ? s->species +1 : s->species);
+  };
+
+  double * stepConstants(Storage * s, double * params, int step) const {
+    return currents(s, params, step) + (s->offset ? s->species +1 : s->species);
+  };
+
+  const double * initialConcentrations(Storage * s, const double * params) const {
+    return currents(s, params, s->distinctSteps);
+  };
+
+  double * initialConcentrations(Storage * s, double * params) const {
+    return currents(s, params, s->distinctSteps);
+  };
+
+
+
+public:
+
+  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+    Storage * s = storage<Storage>(data);
+
+    QList<ParameterDefinition> defs;
+
+    // First, potential-dependent information
+    for(int i = 0; i < s->distinctSteps; i++) {
+      QString suffix = QString("_#%1").arg(i+1);
+
+      /// Current of each species
+      for(int j = 0; j < s->species; j++)
+        defs << ParameterDefinition(QString("I_%1%2").arg(j+1).arg(suffix));
+
+      if(s->offset)
+        defs << ParameterDefinition(QString("I_off_%1").arg(suffix), true);
+
+      /// Reaction constants
+      for(int j = 0; j < s->species; j++)
+        for(int k = 0; k < s->species; k++)
+          defs << ParameterDefinition(QString("k_%1_%2%3").
+                                      arg(j+1).arg(k+1).arg(suffix)); 
+
+      defs << ParameterDefinition(QString("k_loss%1").arg(suffix));
+      /// @todo Offer the possibility to set the sum and ratio rather
+      /// than each individually
+        
+    }
+
+    // Then, initial conditions
+    for(int j = 0; j < s->species; j++)
+      defs << ParameterDefinition(QString("alpha_%1_0").arg(j+1), true);
+    
+    // Then, steps.
+    for(int i = 0; i < s->steps.size(); i++) {
+      QChar step('a' + i);
+      /// Starting time (including the 0)
+      defs << ParameterDefinition(QString("xstart_%1").arg(step), true);
+    }
+
+    if(s->additionalLoss) {
+      for(int i = 0; i < s->steps.size(); i++) {
+        QChar step('a' + i);
+        /// Starting time (including the 0)
+        defs << ParameterDefinition(QString("kloss_%1").arg(step), true);
+      }
+    }
+    
+    return defs;
+  };
+
+  virtual void function(const double * a, FitData * data, 
+                        const DataSet * ds , gsl_vector * target) const
+  {
+    Storage * s = storage<Storage>(data);
+
+    LinearKineticSystem sys(s->species);
+
+
+    QVarLengthArray<double, 30> concentrations(s->species);
+    gsl_vector_view vco = gsl_vector_view_array(concentrations.data(), s->species);
+
+    QVarLengthArray<double, 30> currents(s->species);
+    gsl_vector_view vcu = gsl_vector_view_array(currents.data(), s->species);
+
+    double offset_value = 0;
+    int cur = -1;
+    double xstart = 0;
+    double xend = 0;
+
+    const Vector & xv = ds->x();
+
+    // Copy initial concentrations
+    const double *c = initialConcentrations(s, a);
+    for(int i = 0; i < s->species; i++)
+      concentrations[i] = c[i];
+
+    for(int i = 0; i < xv.size(); i++) {
+      double x = xv[i];
+      if(cur < 0 || xend < x) {
+        cur++;
+
+        // First, potential-dependant-stuff:
+        int potential = s->steps[cur];
+        double loss_add = 0;
+
+        
+        // Currents:
+        const double  * base = this->currents(s, a, potential);
+        for(int i = 0; i < s->species; i++)
+          currents[i] = base[i];
+
+        if(s->offset)
+          offset_value = base[s->species];
+
+
+        const double * sc = stepConstants(s, a, potential);
+
+        /// @todo This check could optionnally be turned off.
+        // Now, range checking: we don't want rate constants to be
+        // negative !
+        for(int i = 0; i <= s->species * s->species; i++)
+          if(sc[i] < 0)
+            throw RangeError(QString("Found a negative rate "
+                                     "constant (step: %1): %2 !").
+                             arg(potential).arg(i));
+
+        base = initialConcentrations(s, a) + s->species;
+        if(s->additionalLoss)
+          loss_add = base[cur + s->steps.size()];
+        
+        // Global loss...
+        sys.setConstants(sc, sc[s->species*s->species] + loss_add);
+
+        /// @todo There may be an "off-by-one-data-point" mistake here
+        sys.setInitialConcentrations(&vco.vector);
+
+        xstart = base[cur];
+        if(cur < s->steps.size() - 1)
+          xend = base[cur+1];
+        else
+          xend = xv.max();
+      }
+      x -= xstart;
+      sys.getConcentrations(x, &vco.vector);
+      double res = 0;
+      gsl_blas_ddot(&vco.vector, &vcu.vector, &res);
+      res += offset_value;
+      gsl_vector_set(target, i, res);
+    }
+
+  };
+
+  virtual void initialGuess(FitData * data, 
+                            const DataSet *ds,
+                            double * a) const
+  {
+    Storage * s = storage<Storage>(data);
+
+    const Vector & x = ds->x();
+    const Vector & y = ds->y();
+
+    double * base = NULL;
+    for(int i = 0; i < s->distinctSteps; i++) {
+      base = currents(s, a, i);
+      for(int j = 0; j < s->species; j++)
+        base[j] = (j == 0 ? y.max() : 0);
+
+      if(s->offset)                // Alway set to 0
+        base[s->species] = 0;
+
+      base = stepConstants(s, a, i);
+      for(int j = 0; j < s->species; j++)
+        for(int k = 0; k < s->species; k++)
+          base[j * s->species + k] = ( j == k ? 0 : ((j+0.5)*(i+k+1))*1e-2);
+      base[s->species * s->species] = 1e-4;
+    }
+
+    base = initialConcentrations(s, a);
+    for(int i = 0; i < s->species; i++)
+      base[i] = (i ? 0 : 1);
+
+    base += s->species;
+
+    double xmax = Utils::roundValue(x.max());
+    for(int i = 0; i < s->steps.size(); i++)
+      base[i] = i * xmax/s->steps.size();
+
+    
+    if(s->additionalLoss) {
+      base += s->steps.size();
+      for(int i = 0; i < s->steps.size(); i++)
+        base[i] = 0;
+    }
+    
+  };
+
+  virtual ArgumentList * fitHardOptions() const {
+    ArgumentList * opts = new 
+      ArgumentList(QList<Argument *>()
+                   << new IntegerArgument("species", 
+                                          "Number of species",
+                                          "Number of species")
+                   << new BoolArgument("offset", 
+                                       "Constant offset",
+                                       "If on, allow for a constant offset to be added")
+                   << new BoolArgument("additional-loss", 
+                                       "Additional loss",
+                                       "Additional unconstrained 'irreversible loss' rate constants")
+                   << new 
+                   SeveralIntegersArgument("steps", 
+                                           "Steps",
+                                           "Step list with numbered conditions")
+                   );
+    return opts;
+  };
+
+  LinearKineticSystemFit() :
+    PerDatasetFit("linear-kinetic-system", 
+                  "Several steps with a kinetic evolution",
+                  "Fits of exponentials on several steps with "
+                  "film loss bookkeeping", 1, -1, false) 
+  { 
+    makeCommands();
+  };
+};
+
+// DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
+// Its name doesn't matter.
+LinearKineticSystemFit fit_linear_kinetic_system;

@@ -707,8 +707,11 @@ class LinearKineticSystemFit : public PerDatasetFit {
     int distinctSteps;
 
     /// The steps.
-    QList<int> steps;
-    
+    QStringList steps;
+
+    /// The step names
+    QHash<QString, int> stepNames;
+
     /// The number of species
     int species;
     
@@ -736,8 +739,19 @@ protected:
     Storage * s = storage<Storage>(data);
 
     s->steps.clear();
-    s->steps << 0 << 1 << 0; // one step forward, one step backward.
+    s->steps << "1" << "2" << "1"; // one step forward, one step backward.
     updateFromOptions(opts, "steps", s->steps);
+
+
+    s->distinctSteps = 0;
+    s->stepNames.clear();
+    for(const QString & n : s->steps) {
+      if(! s->stepNames.contains(n)) {
+        s->stepNames[n] = s->distinctSteps;
+        ++s->distinctSteps;
+      }
+    }
+    
 
     s->species = 2;
     updateFromOptions(opts, "species", s->species);
@@ -748,11 +762,6 @@ protected:
     s->additionalLoss = false;
     updateFromOptions(opts, "additional-loss", s->additionalLoss);
 
-    s->distinctSteps = 0;
-    for(int i = 0; i < s->steps.size(); i++)
-      if(s->distinctSteps < s->steps[i])
-        s->distinctSteps = s->steps[i];
-    s->distinctSteps++;            // To get the actual number ! 
   }
 
   const double * currents(Storage * s, const double * params, int step) const {
@@ -789,9 +798,16 @@ public:
 
     QList<ParameterDefinition> defs;
 
+    QStringList names;
+    for(int i = 0; i < s->distinctSteps; i++)
+      names << "";
+    for(const QString & k : s->stepNames.keys())
+      names[s->stepNames[k]] = k;
+
     // First, potential-dependent information
+    
     for(int i = 0; i < s->distinctSteps; i++) {
-      QString suffix = QString("_#%1").arg(i+1);
+      QString suffix = QString("_#%1").arg(names[i]);
 
       /// Current of each species
       for(int j = 0; j < s->species; j++)
@@ -866,7 +882,7 @@ public:
         cur++;
 
         // First, potential-dependant-stuff:
-        int potential = s->steps[cur];
+        int potential = s->stepNames[s->steps[cur]];
         double loss_add = 0;
 
         
@@ -973,9 +989,10 @@ public:
                                        "Additional loss",
                                        "Additional unconstrained 'irreversible loss' rate constants")
                    << new 
-                   SeveralIntegersArgument("steps", 
-                                           "Steps",
-                                           "Step list with numbered conditions")
+                   SeveralStringsArgument(QRegExp(","),
+                                          "steps", 
+                                          "Steps",
+                                          "Step list with numbered conditions")
                    );
     return opts;
   };

@@ -172,15 +172,19 @@ parts. All these commands share a set of options:
 
  * `/style` that can be used to display all the curves with gradual
    changes in color;
-t * `/flags`, that can be used to set flags to the newly generated
+ * `/flags`, that can be used to set flags to the newly generated
    buffers, see the [cmd: flag] command for more information.
+ * `/set-meta`, that can be used to set meta-data to the newly
+   generated buffers, using a **key**`=`**value` syntax (so you have
+   two `=` signs in row). This option can be used several times to add
+   several meta-data.
 
 For instance, try out:
 
 ~~~~
 QSoas> generate-buffer -1 1 /style=brown-green sin((10+number)*x) /number=11
+QSoas> generate-buffer -1 1 /set-meta=a=2 /set-meta=b=3 
 ~~~~
-
 
 # General purpose commands
 
@@ -232,13 +236,19 @@ directly used in QSoas.
 
 ### version - Version {#cmd-version}
 
-`version` 
+`version` `/show-features=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
+  * `/show-features=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, show detailed informations about the capacities of QSoas (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: version {:/}
 {::comment} description-start: version {:/}
 Prints the version number of QSoas, including various build
 information.
+
+If the option `/show-features=true`, then the output is much longer,
+and contains a list of all the features built in `QSoas`, including
+the fit engines, the available statistics, the
+[time-dependent parameters](#time-dependent-parameters) and so on.
 {::comment} description-end: version {:/}
 
 
@@ -530,9 +540,10 @@ Exits from the current script. Has no effect if not inside a script.
 
 ### debug - Debug {#cmd-debug}
 
-`debug` `/directory=`_directory_{:title="name of a directory"}
+`debug` `/directory=`_directory_{:title="name of a directory"} `/level=`_integer_{:title="an integer"}
 
   * `/directory=`_directory_{:title="name of a directory"} (default option): Directory in which the debug output is saved -- values: name of a directory
+  * `/level=`_integer_{:title="an integer"}: Sets the debug level -- values: an integer
 
 {::comment} synopsis-end: debug {:/}
 {::comment} description-start: debug {:/}
@@ -546,7 +557,10 @@ The command:
 QSoas> debug directory
 ~~~
 
-sets up the automatic debug output in the directory `directory`. 
+sets up the automatic debug output in the directory `directory`.
+
+The `/level` option correspond to the debug level. It defaults to `1`,
+the higher this number the more detailed the output will be.
 
 {::comment} description-end: debug {:/}
 
@@ -662,7 +676,7 @@ The main command for loading data is [cmd: load].
 
 ### load - Load {#cmd-load}
 
-`load` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
+`load` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
 Short name: `l`
 
@@ -675,6 +689,7 @@ Short name: `l`
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, ignores cache (default off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a buffer
@@ -756,7 +771,7 @@ same option on loaded datasets.
 
 ### load-as-text - Load files with backend 'text' {#cmd-load-as-text}
 
-`load-as-text` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
+`load-as-text` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -766,6 +781,7 @@ same option on loaded datasets.
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a buffer
@@ -810,7 +826,7 @@ interpreted:
 
 ### load-as-csv - Load files with backend 'csv' {#cmd-load-as-csv}
 
-`load-as-csv` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
+`load-as-csv` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -820,6 +836,7 @@ interpreted:
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a buffer
@@ -835,7 +852,7 @@ Hence, the options have the same meaning as for [cmd: load-as-text].
 
 ### load-as-chi-txt - Load files with backend 'chi-txt' {#cmd-load-as-chi-txt}
 
-`load-as-chi-txt` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
+`load-as-chi-txt` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -845,6 +862,7 @@ Hence, the options have the same meaning as for [cmd: load-as-text].
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a buffer
@@ -861,11 +879,13 @@ able to detect at least some of their meta-data).
 
 ### expand - Expand {#cmd-expand}
 
-`expand` `/flags=`_words_{:title="several words, separated by ','"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`expand` `/flags=`_words_{:title="several words, separated by ','"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/x-every-nth=`_integer_{:title="an integer"}
 
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines meta-data from perpendicular coordinate -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
+  * `/x-every-nth=`_integer_{:title="an integer"}: specifies the number of columns between successive X values -- values: an integer
 
 {::comment} synopsis-end: expand {:/}
 {::comment} description-start: expand {:/}
@@ -877,6 +897,13 @@ split into three buffers: X, Y1;   X, Y2 and  X, Y3.
 If `/perp-meta` is specified, then the given [meta-data](#meta-data)
 will be defined for each buffer, based on the value of the
 [perpendicular coordinates](#meta-data).
+
+By default, `expand` assumes that the first column is the only X
+column. However, if you give a number to the `/x-every-nth=` option,
+then `expand` assumes that a X column is every that many columns. For
+instance, `/x-every-nth=2` means that the layout of the buffer is X1
+Y1 X2 Y2 X3 Y3...
+
 {::comment} description-end: expand {:/}
 
 {::comment} synopsis-start: rename {:/}
@@ -924,13 +951,14 @@ It will also change the name of the file.
 
 ### save-buffers - Save {#cmd-save-buffers}
 
-`save-buffers` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/expression=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/format=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/mode=`_choice_{:title="one of: `both`, `rename`, `save`"}
+`save-buffers` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/expression=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/format=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/mode=`_choice_{:title="one of: `both`, `rename`, `save`"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: buffers to save -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/expression=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: a Ruby expression to make file names -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/format=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: overrides buffer names if present -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if true, creates all necessary directories (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/mode=`_choice_{:title="one of: `both`, `rename`, `save`"}: if using `/format` or `/expression`, whether to just `save`, to just `rename` or `both` (defaults to 'both') -- values: one of: `both`, `rename`, `save`
+  * `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if false, will not overwrite existing files (default is true) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: save-buffers {:/}
 {::comment} description-start: save-buffers {:/}
@@ -961,10 +989,22 @@ QSoas> save-buffers '/expression="File-#{$meta["sr"]}.dat"'
 
 This requires careful quoting: outer single quotes (`'`) for QSoas and
 inner double quotes for [Ruby](#ruby). See more information about the
-informations available from the ruby code [there](#for-which).
+informations available from within the ruby code [there](#for-which).
 
 If you only need to rename the buffers without saving them, use
 `/mode=rename`.
+
+By default, `save-buffers` overwrites the files without asking, but
+using `/overwrite=false` keeps the original files in place.
+
+`save-buffers` does not by default create directories. However, using
+`/mkpath=true` makes it possible to save buffers in non-existing
+directories, that as created when needed. Try out:
+
+~~~
+QSoas> save-buffers /format=non-existing-directory/buffer-%03d.dat 0..100 /mkpath=true
+~~~
+
 {::comment} description-end: save-buffers {:/}
 
 {::comment} synopsis-start: browse {:/}
@@ -1033,7 +1073,7 @@ of passing it non-visible datasets, QSoas won't shout at you if you do.
 
 ### overlay - Overlay {#cmd-overlay}
 
-`overlay` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
+`overlay` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
 Short name: `v`
 
@@ -1046,6 +1086,7 @@ Short name: `v`
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, ignores cache (default off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a buffer
@@ -1325,9 +1366,10 @@ dropped from the stack. [cmd: undo] won't work.
 
 ### flag - Flag datasets {#cmd-flag}
 
-`flag` `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/set=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`flag` `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/exclusive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/set=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} (default option): Buffers to flag/unflag -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
+  * `/exclusive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, clears the given flags on all the buffers but the ones specified -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/flags=`_words_{:title="several words, separated by ','"}: Buffers to flag/unflag -- values: several words, separated by ','
   * `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Select on formula -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/set=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, clears all the previous flags -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -1353,6 +1395,10 @@ flagged 'in-place': the current buffer is not changed.
 If the `/for-which` option is present, the flags are only applied to
 the datasets that match the specifications given. See more about that
 [there](#for-which).
+
+By default, `flag` does not touch already existing flags. However, if
+you use `/exclusive=true`, then all the flags that are not set
+explictly with the command are cleared.
 
 {::comment} description-end: flag {:/}
 {::comment} synopsis-start: unflag {:/}
@@ -1647,9 +1693,10 @@ data, this will impact commands that work with indices, such as
 
 ### strip-if - Strip points {#cmd-strip-if}
 
-`strip-if` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`strip-if` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/threshold=`_integer_{:title="an integer"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Ruby boolean expression -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/threshold=`_integer_{:title="an integer"}: If the stripping operation leaves less than that many points, do not create a new dataset -- values: an integer
   * `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on (by default), you can use `$meta` to refer to the dataset meta-data -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, you can use `$stats` to refer to statistics (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
@@ -1685,6 +1732,10 @@ Like in [cmd: apply-formula], you can use the statistics and the
 meta-data of the buffers if you use the options `/use-meta` (on by
 default) and `/use-stats`.
 
+By default, `strip-if` creates a new dataset regardless of the number
+of points left (even if there are no points left). Giving a value to
+the `/threshold` option will prevent `strip-if` from creating a new
+buffer if it has less than that many points.
 
 {::comment} description-end: strip-if {:/}
 
@@ -1814,11 +1865,12 @@ can switch back to display Y values as a function of X by hitting `x`.
 
 ### chop - Chop Buffer {#cmd-chop}
 
-`chop` _lengths..._{:title="several floating-point numbers, separated by ,"} `/flags=`_words_{:title="several words, separated by ','"} `/mode=`_choice_{:title="one of: `deltax`, `index`, `indices`, `xvalues`"} `/set-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`chop` _lengths..._{:title="several floating-point numbers, separated by ,"} `/flags=`_words_{:title="several words, separated by ','"} `/mode=`_choice_{:title="one of: `deltax`, `index`, `indices`, `xvalues`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/set-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _lengths..._{:title="several floating-point numbers, separated by ,"}: Lengths of the subsets -- values: several floating-point numbers, separated by ,
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/mode=`_choice_{:title="one of: `deltax`, `index`, `indices`, `xvalues`"}: Whether to cut on index or x values (default) -- values: one of: `deltax`, `index`, `indices`, `xvalues`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/set-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether to actually cut the dataset, or just to set segments where the cuts would have been -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
@@ -1875,12 +1927,13 @@ Useful to get the backward scan of a cyclic voltammogram.
 
 ### split-monotonic - Split into monotonic parts {#cmd-split-monotonic}
 
-`split-monotonic` `/flags=`_words_{:title="several words, separated by ','"} `/group=`_integer_{:title="an integer"} `/keep-first=`_integer_{:title="an integer"} `/keep-last=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`split-monotonic` `/flags=`_words_{:title="several words, separated by ','"} `/group=`_integer_{:title="an integer"} `/keep-first=`_integer_{:title="an integer"} `/keep-last=`_integer_{:title="an integer"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/group=`_integer_{:title="an integer"}: Group that many segments into one dataset -- values: an integer
   * `/keep-first=`_integer_{:title="an integer"}: Keep only the first n elements of the results -- values: an integer
   * `/keep-last=`_integer_{:title="an integer"}: Keep only the last n elements of the results -- values: an integer
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: split-monotonic {:/}
@@ -2110,11 +2163,12 @@ including the X column, are reversed.
 
 ### split-on-values - Split on column values {#cmd-split-on-values}
 
-`split-on-values` _meta..._{:title="several words, separated by ','"} _columns..._{:title="a comma-separated list of [columns names](#column-names)"} `/flags=`_words_{:title="several words, separated by ','"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`split-on-values` _meta..._{:title="several words, separated by ','"} _columns..._{:title="a comma-separated list of [columns names](#column-names)"} `/flags=`_words_{:title="several words, separated by ','"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _meta..._{:title="several words, separated by ','"}: Names of the meta to be created -- values: several words, separated by ','
   * _columns..._{:title="a comma-separated list of [columns names](#column-names)"}: Columns whose values one should split on -- values: a comma-separated list of [columns names](#column-names)
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: split-on-values {:/}
@@ -2457,11 +2511,13 @@ Computes the auto-correlation function of the data, using FFT.
 
 ### bin - Bin {#cmd-bin}
 
-`bin` `/boxes=`_integer_{:title="an integer"} `/column=`_column_{:title="the [number/name of a column](#column-names) in a buffer"} `/log=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`bin` `/boxes=`_integer_{:title="an integer"} `/column=`_column_{:title="the [number/name of a column](#column-names) in a buffer"} `/log=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/norm=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/weight=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
   * `/boxes=`_integer_{:title="an integer"}:  -- values: an integer
   * `/column=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}:  -- values: the [number/name of a column](#column-names) in a buffer
   * `/log=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}:  -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/norm=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}:  -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/weight=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}:  -- values: the [number/name of a column](#column-names) in a buffer
 
 {::comment} synopsis-end: bin {:/}
 {::comment} description-start: bin {:/}
@@ -2470,6 +2526,10 @@ column given by the `/column` option, see [above](#column-names))
 into various boxes (whose number can be controlled using the `/boxes`
 option). The new buffer has for X values the center of the boxes and
 as Y values the number of data points that were in the boxes.
+
+By default, all original points have a weight of 1. You can specify a
+column number using the `/weight=` option that contains the weight of
+each point.
 {::comment} description-end: bin {:/}
 
 
@@ -2527,9 +2587,10 @@ the closest segment.
 
 ### segments-chop - Chop into segments {#cmd-segments-chop}
 
-`segments-chop` `/flags=`_words_{:title="several words, separated by ','"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`segments-chop` `/flags=`_words_{:title="several words, separated by ','"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: segments-chop {:/}
@@ -2740,18 +2801,29 @@ which case the other columns from the buffers are ignored.
 
 # Data inspection facilities
 
+## Options for data output
+
+TODO: document:
+
+  * the use of the output file for most of the commands
+  * the use of set-meta
+  * the use of `/accumulate=`, very similar to that of `/set-meta=`
+  * the use of `pop`
+
+
 
 {::comment} synopsis-start: find-peaks {:/}
 
 ### find-peaks - Find peaks {#cmd-find-peaks}
 
-`find-peaks` `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_words_{:title="several words, separated by ','"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/peaks=`_integer_{:title="an integer"} `/set-meta=`_words_{:title="several words, separated by ','"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
+`find-peaks` `/accumulate=`_words_{:title="several words, separated by ','"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_words_{:title="several words, separated by ','"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/peaks=`_integer_{:title="an integer"} `/set-meta=`_words_{:title="several words, separated by ','"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
 
+  * `/accumulate=`_words_{:title="several words, separated by ','"}: accumulate the given data into a dataset -- values: several words, separated by ','
   * `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to include borders -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/meta=`_words_{:title="several words, separated by ','"}: when writing to output file, also prints the listed meta-data -- values: several words, separated by ','
   * `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to write data to output file (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/peaks=`_integer_{:title="an integer"}: Display only that many peaks (by order of intensity) -- values: an integer
-  * `/set-meta=`_words_{:title="several words, separated by ','"}: sets meta-data to the results of the command -- values: several words, separated by ','
+  * `/set-meta=`_words_{:title="several words, separated by ','"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: several words, separated by ','
   * `/which=`_choice_{:title="one of: `both`, `max`, `min`"}: selects which of minima and/or maxima to find -- values: one of: `both`, `max`, `min`
   * `/window=`_integer_{:title="an integer"}: width of the window -- values: an integer
 
@@ -2776,13 +2848,14 @@ default), they are also written to the [output file](#output-file).
 
 ### echem-peaks - Find peaks pairs {#cmd-echem-peaks}
 
-`echem-peaks` `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_words_{:title="several words, separated by ','"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/pairs=`_integer_{:title="an integer"} `/set-meta=`_words_{:title="several words, separated by ','"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
+`echem-peaks` `/accumulate=`_words_{:title="several words, separated by ','"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_words_{:title="several words, separated by ','"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/pairs=`_integer_{:title="an integer"} `/set-meta=`_words_{:title="several words, separated by ','"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
 
+  * `/accumulate=`_words_{:title="several words, separated by ','"}: accumulate the given data into a dataset -- values: several words, separated by ','
   * `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to include borders -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/meta=`_words_{:title="several words, separated by ','"}: when writing to output file, also prints the listed meta-data -- values: several words, separated by ','
   * `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to write data to output file (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/pairs=`_integer_{:title="an integer"}: Display (and output) only that many peak pairs (by order of intensity) -- values: an integer
-  * `/set-meta=`_words_{:title="several words, separated by ','"}: sets meta-data to the results of the command -- values: several words, separated by ','
+  * `/set-meta=`_words_{:title="several words, separated by ','"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: several words, separated by ','
   * `/which=`_choice_{:title="one of: `both`, `max`, `min`"}: selects which of minima and/or maxima to find -- values: one of: `both`, `max`, `min`
   * `/window=`_integer_{:title="an integer"}: width of the window -- values: an integer
 
@@ -2797,12 +2870,13 @@ about those.
 
 ### 1 - Find peak {#cmd-1}
 
-`1` `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_words_{:title="several words, separated by ','"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_words_{:title="several words, separated by ','"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
+`1` `/accumulate=`_words_{:title="several words, separated by ','"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_words_{:title="several words, separated by ','"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_words_{:title="several words, separated by ','"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
 
+  * `/accumulate=`_words_{:title="several words, separated by ','"}: accumulate the given data into a dataset -- values: several words, separated by ','
   * `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to include borders -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/meta=`_words_{:title="several words, separated by ','"}: when writing to output file, also prints the listed meta-data -- values: several words, separated by ','
   * `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to write data to output file (defaults to true) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/set-meta=`_words_{:title="several words, separated by ','"}: sets meta-data to the results of the command -- values: several words, separated by ','
+  * `/set-meta=`_words_{:title="several words, separated by ','"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: several words, separated by ','
   * `/which=`_choice_{:title="one of: `both`, `max`, `min`"}: selects which of minima and/or maxima to find -- values: one of: `both`, `max`, `min`
   * `/window=`_integer_{:title="an integer"}: width of the window -- values: an integer
 
@@ -2819,12 +2893,13 @@ QSoas> find-peaks /peaks=1 /output=true
 
 ### 2 - Find two peaks {#cmd-2}
 
-`2` `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_words_{:title="several words, separated by ','"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_words_{:title="several words, separated by ','"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
+`2` `/accumulate=`_words_{:title="several words, separated by ','"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_words_{:title="several words, separated by ','"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_words_{:title="several words, separated by ','"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
 
+  * `/accumulate=`_words_{:title="several words, separated by ','"}: accumulate the given data into a dataset -- values: several words, separated by ','
   * `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to include borders -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/meta=`_words_{:title="several words, separated by ','"}: when writing to output file, also prints the listed meta-data -- values: several words, separated by ','
   * `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to write data to output file (defaults to true) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/set-meta=`_words_{:title="several words, separated by ','"}: sets meta-data to the results of the command -- values: several words, separated by ','
+  * `/set-meta=`_words_{:title="several words, separated by ','"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: several words, separated by ','
   * `/which=`_choice_{:title="one of: `both`, `max`, `min`"}: selects which of minima and/or maxima to find -- values: one of: `both`, `max`, `min`
   * `/window=`_integer_{:title="an integer"}: width of the window -- values: an integer
 
@@ -2842,13 +2917,14 @@ QSoas> find-peaks /peaks=2 /output=true
 
 ### stats - Statistics {#cmd-stats}
 
-`stats` `/buffer=`_buffer_{:title="the number of a buffer in the stack"} `/meta=`_words_{:title="several words, separated by ','"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_words_{:title="several words, separated by ','"} `/stats=`_NAME-MISSING_ `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`stats` `/accumulate=`_words_{:title="several words, separated by ','"} `/buffer=`_buffer_{:title="the number of a buffer in the stack"} `/meta=`_words_{:title="several words, separated by ','"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_words_{:title="several words, separated by ','"} `/stats=`_stats-names_{:title="one or more name of statistics (as displayed by stats), separated by `,`."} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
+  * `/accumulate=`_words_{:title="several words, separated by ','"}: accumulate the given data into a dataset -- values: several words, separated by ','
   * `/buffer=`_buffer_{:title="the number of a buffer in the stack"} (default option): an alternative buffer to work on -- values: the number of a buffer in the stack
   * `/meta=`_words_{:title="several words, separated by ','"}: when writing to output file, also prints the listed meta-data -- values: several words, separated by ','
   * `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to write data to output file (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/set-meta=`_words_{:title="several words, separated by ','"}: sets meta-data to the results of the command -- values: several words, separated by ','
-  * `/stats=`_NAME-MISSING_: writes only the given stats -- values: 
+  * `/set-meta=`_words_{:title="several words, separated by ','"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: several words, separated by ','
+  * `/stats=`_stats-names_{:title="one or more name of statistics (as displayed by stats), separated by `,`."}: writes only the given stats -- values: one or more name of statistics (as displayed by stats), separated by `,`.
   * `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: makes statistics segment by segment (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: stats {:/}
@@ -2979,6 +3055,8 @@ The `sim-` commands additionally take the following option:
    `reexport`, to reexport the values of the fit parameters with the
    options to the output file, and `jacobian` to push the jacobian of
    the fit to the stack.
+
+TODO: operation = annotate
 
 
 In addition to these commands, QSoas provides commands to combine fits
@@ -3248,7 +3326,7 @@ Multi-buffer version of the
 
 ### sim-exponential-decay - Simulation: Multi-exponential fits {#cmd-sim-exponential-decay}
 
-`sim-exponential-decay` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/absolute=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/exponentials=`_integer_{:title="an integer"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`sim-exponential-decay` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/absolute=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/exponentials=`_integer_{:title="an integer"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/flags=`_words_{:title="several words, separated by ','"} `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -3257,11 +3335,14 @@ Multi-buffer version of the
   * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/exponentials=`_integer_{:title="an integer"}: Number of exponentials -- values: an integer
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
   * `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: wether the sum of exponentials should be multiplied by an exp(-kt) function (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`
   * `/override=`_words_{:title="several words, separated by ',' or ';'"}: a comma-separated list of parameters to override -- values: several words, separated by ',' or ';'
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether there is a very slow phase (that shows up as a linear change in Y against time, defaults: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: sim-exponential-decay {:/}
 {::comment} description-start: sim-exponential-decay {:/}
@@ -3347,7 +3428,7 @@ This is the multibuffer version of the [fit: multiexp-multistep] fit.
 
 ### sim-multiexp-multistep - Simulation: Multi-step and multi-exponential {#cmd-sim-multiexp-multistep}
 
-`sim-multiexp-multistep` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/exponentials=`_integer_{:title="an integer"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/steps=`_integers_{:title="a comma-separated list of integers"}
+`sim-multiexp-multistep` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/exponentials=`_integer_{:title="an integer"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/flags=`_words_{:title="several words, separated by ','"} `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/steps=`_integers_{:title="a comma-separated list of integers"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -3356,10 +3437,13 @@ This is the multibuffer version of the [fit: multiexp-multistep] fit.
   * `/exponentials=`_integer_{:title="an integer"}: Number of exponentials -- values: an integer
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether irreversible loss is independent on each step -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`
   * `/override=`_words_{:title="several words, separated by ',' or ';'"}: a comma-separated list of parameters to override -- values: several words, separated by ',' or ';'
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/steps=`_integers_{:title="a comma-separated list of integers"}: Step list with numbered conditions -- values: a comma-separated list of integers
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: sim-multiexp-multistep {:/}
 {::comment} description-start: sim-multiexp-multistep {:/}
@@ -3444,20 +3528,23 @@ This is the multibuffer version of the [fit: polynomial] fit.
 
 ### sim-polynomial - Simulation: Fit to a polynomial function {#cmd-sim-polynomial}
 
-`sim-polynomial` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"} `/order=`_integers_{:title="a comma-separated list of integers"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`sim-polynomial` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/flags=`_words_{:title="several words, separated by ','"} `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"} `/order=`_integers_{:title="a comma-separated list of integers"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
   * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
   * `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: With this on, only monotonic polynomials are solutions -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/number=`_integer_{:title="an integer"}: Number of distinct polynomial functions -- values: an integer
-  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`
   * `/order=`_integers_{:title="a comma-separated list of integers"}: Order of the polynomial functions -- values: a comma-separated list of integers
   * `/override=`_words_{:title="several words, separated by ',' or ';'"}: a comma-separated list of parameters to override -- values: several words, separated by ',' or ';'
   * `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether there is a prefactor for each polynomial (on by default for multiple polynomials) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If this is on, there are no inflexion points in the polynomials -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-polynomial {:/}
@@ -3478,7 +3565,7 @@ possible to store formulas in a plain text file and load them using
 
 ### fit-arb - Fit: Arbitrary fit {#cmd-fit-arb}
 
-`fit-arb` _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} **(interactive)**
+`fit-arb` _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp"} **(interactive)**
 
   * _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: \|-separated formulas for the fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
@@ -3486,7 +3573,7 @@ possible to store formulas in a plain text file and load them using
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
-  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp
 
 {::comment} synopsis-end: fit-arb {:/}
 {::comment} description-start: fit-arb {:/}
@@ -3517,7 +3604,7 @@ below for more information.
 
 ### mfit-arb - Multi fit: Arbitrary fit {#cmd-mfit-arb}
 
-`mfit-arb` _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} **(interactive)**
+`mfit-arb` _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp"} **(interactive)**
 
   * _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: \|-separated formulas for the fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: datasets that will be fitted to -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -3528,7 +3615,7 @@ below for more information.
   * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: if specified, it is the name of a meta-data that holds the perpendicular coordinates -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp
 
 {::comment} synopsis-end: mfit-arb {:/}
 {::comment} description-start: mfit-arb {:/}
@@ -3696,17 +3783,20 @@ Multi-buffer variant of the [cmd: fit-gaussian] fit.
 
 ### sim-gaussian - Simulation: One or several gaussians {#cmd-sim-gaussian}
 
-`sim-gaussian` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`sim-gaussian` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/flags=`_words_{:title="several words, separated by ','"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
   * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
   * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
-  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`
   * `/override=`_words_{:title="several words, separated by ',' or ';'"}: a comma-separated list of parameters to override -- values: several words, separated by ',' or ';'
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use a surface or an amplitude parameter (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-gaussian {:/}
@@ -3772,17 +3862,20 @@ Multi-buffer variant of the [cmd: fit-lorentzian] fit.
 
 ### sim-lorentzian - Simulation: A Lorentzian (also named Cauchy distribution) {#cmd-sim-lorentzian}
 
-`sim-lorentzian` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`sim-lorentzian` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/flags=`_words_{:title="several words, separated by ','"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
   * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
   * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
-  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`
   * `/override=`_words_{:title="several words, separated by ',' or ';'"}: a comma-separated list of parameters to override -- values: several words, separated by ',' or ';'
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use a surface or an amplitude parameter (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-lorentzian {:/}
@@ -3843,17 +3936,20 @@ Multi-buffer variant of the [cmd: fit-pseudo-voigt] fit.
 
 ### sim-pseudo-voigt - Simulation: A pseudo-voigt distribution (linear combination of a gaussian and a lorentzian) {#cmd-sim-pseudo-voigt}
 
-`sim-pseudo-voigt` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`sim-pseudo-voigt` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/flags=`_words_{:title="several words, separated by ','"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
   * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
   * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
-  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`
   * `/override=`_words_{:title="several words, separated by ',' or ';'"}: a comma-separated list of parameters to override -- values: several words, separated by ',' or ';'
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use a surface or an amplitude parameter (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-pseudo-voigt {:/}
@@ -3939,7 +4035,7 @@ for fitting multi-wavelength redox titrations.
 
 ### sim-nernst - Simulation: Nerstian behaviour {#cmd-sim-nernst}
 
-`sim-nernst` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/species=`_integer_{:title="an integer"} `/states=`_integers_{:title="a comma-separated list of integers"}
+`sim-nernst` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/species=`_integer_{:title="an integer"} `/states=`_integers_{:title="a comma-separated list of integers"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -3947,10 +4043,13 @@ for fitting multi-wavelength redox titrations.
   * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
-  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`
   * `/override=`_words_{:title="several words, separated by ',' or ';'"}: a comma-separated list of parameters to override -- values: several words, separated by ',' or ';'
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/species=`_integer_{:title="an integer"}: Number of distinct species (regardless of their redox state) -- values: an integer
   * `/states=`_integers_{:title="a comma-separated list of integers"}: Number of redox states for each species -- values: a comma-separated list of integers
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: sim-nernst {:/}
 {::comment} description-start: sim-nernst {:/}
@@ -4055,7 +4154,7 @@ Multi-buffer version of the [fit: adsorbed] fit.
 
 ### sim-adsorbed - Simulation: Adsorbed species {#cmd-sim-adsorbed}
 
-`sim-adsorbed` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/2el=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/species=`_integer_{:title="an integer"}
+`sim-adsorbed` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/2el=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/species=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -4064,10 +4163,13 @@ Multi-buffer version of the [fit: adsorbed] fit.
   * `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true (default) then all species have their own surface concentrations -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
-  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`
   * `/override=`_words_{:title="several words, separated by ',' or ';'"}: a comma-separated list of parameters to override -- values: several words, separated by ',' or ';'
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/species=`_integer_{:title="an integer"}: Number of 1-electron species -- values: an integer
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: sim-adsorbed {:/}
 {::comment} description-start: sim-adsorbed {:/}
@@ -4080,7 +4182,7 @@ Simulation command for the [fit: adsorbed] fit.
 
 ### fit-ode - Fit: Fit an ODE system {#cmd-fit-ode}
 
-`fit-ode` _system_{:title="name of a file"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} **(interactive)**
+`fit-ode` _system_{:title="name of a file"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp"} **(interactive)**
 
   * _system_{:title="name of a file"}: Path to the file describing the ODE system -- values: name of a file
   * `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to use an adaptive stepper (on by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -4096,7 +4198,7 @@ Simulation command for the [fit: adsorbed] fit.
   * `/step-size=`_number_{:title="a floating-point number"}: initial step size for the stepper -- values: a floating-point number
   * `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"}: algorithm used for integration (default: rkf45) -- values: one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
-  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp
 
 {::comment} synopsis-end: fit-ode {:/}
 {::comment} description-start: fit-ode {:/}
@@ -4119,7 +4221,7 @@ parameters](#time-dependent-parameters) below for more information.
 
 ### mfit-ode - Multi fit: Fit an ODE system {#cmd-mfit-ode}
 
-`mfit-ode` _system_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} **(interactive)**
+`mfit-ode` _system_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp"} **(interactive)**
 
   * _system_{:title="name of a file"}: Path to the file describing the ODE system -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -4138,7 +4240,7 @@ parameters](#time-dependent-parameters) below for more information.
   * `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"}: algorithm used for integration (default: rkf45) -- values: one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp
 
 {::comment} synopsis-end: mfit-ode {:/}
 {::comment} description-start: mfit-ode {:/}
@@ -4148,7 +4250,7 @@ Multibuffer version of the [fit: ode] fit.
 
 ### sim-ode - Simulation: Fit an ODE system {#cmd-sim-ode}
 
-`sim-ode` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/min-step-size=`_number_{:title="a floating-point number"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}
+`sim-ode` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/flags=`_words_{:title="several words, separated by ','"} `/min-step-size=`_number_{:title="a floating-point number"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/sub-steps=`_integer_{:title="an integer"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp"}
 
   * _system_{:title="name of a file"}: Path to the file describing the ODE system -- values: name of a file
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
@@ -4158,16 +4260,19 @@ Multibuffer version of the [fit: ode] fit.
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
   * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
   * `/min-step-size=`_number_{:title="a floating-point number"}: minimum step size for the stepper -- values: a floating-point number
-  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`
   * `/override=`_words_{:title="several words, separated by ',' or ';'"}: a comma-separated list of parameters to override -- values: several words, separated by ',' or ';'
   * `/prec-absolute=`_number_{:title="a floating-point number"}: absolute precision required -- values: a floating-point number
   * `/prec-relative=`_number_{:title="a floating-point number"}: relative precision required -- values: a floating-point number
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/step-size=`_number_{:title="a floating-point number"}: initial step size for the stepper -- values: a floating-point number
   * `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"}: algorithm used for integration (default: rkf45) -- values: one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
-  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp
 
 {::comment} synopsis-end: sim-ode {:/}
 {::comment} description-start: sim-ode {:/}
@@ -4241,7 +4346,7 @@ To define a new fit one could combine with others using
 
 ### fit-kinetic-system - Fit: Full kinetic system {#cmd-fit-kinetic-system}
 
-`fit-kinetic-system` _system_{:title="name of a file"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} **(interactive)**
+`fit-kinetic-system` _system_{:title="name of a file"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp"} **(interactive)**
 
   * _system_{:title="name of a file"}: file describing the system -- values: name of a file
   * `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to use an adaptive stepper (on by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -4257,7 +4362,7 @@ To define a new fit one could combine with others using
   * `/step-size=`_number_{:title="a floating-point number"}: initial step size for the stepper -- values: a floating-point number
   * `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"}: algorithm used for integration (default: rkf45) -- values: one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
-  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp
 
 {::comment} synopsis-end: fit-kinetic-system {:/}
 {::comment} description-start: fit-kinetic-system {:/}
@@ -4276,7 +4381,7 @@ A rate constant cannot be negative.
 
 ### mfit-kinetic-system - Multi fit: Full kinetic system {#cmd-mfit-kinetic-system}
 
-`mfit-kinetic-system` _system_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"} **(interactive)**
+`mfit-kinetic-system` _system_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp"} **(interactive)**
 
   * _system_{:title="name of a file"}: file describing the system -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -4295,7 +4400,7 @@ A rate constant cannot be negative.
   * `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"}: algorithm used for integration (default: rkf45) -- values: one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp
 
 {::comment} synopsis-end: mfit-kinetic-system {:/}
 {::comment} description-start: mfit-kinetic-system {:/}
@@ -4307,7 +4412,7 @@ Multi-buffer variant of the
 
 ### sim-kinetic-system - Simulation: Full kinetic system {#cmd-sim-kinetic-system}
 
-`sim-kinetic-system` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/min-step-size=`_number_{:title="a floating-point number"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}
+`sim-kinetic-system` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/flags=`_words_{:title="several words, separated by ','"} `/min-step-size=`_number_{:title="a floating-point number"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/sub-steps=`_integer_{:title="an integer"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp"}
 
   * _system_{:title="name of a file"}: file describing the system -- values: name of a file
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
@@ -4317,16 +4422,19 @@ Multi-buffer variant of the
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
   * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
   * `/min-step-size=`_number_{:title="a floating-point number"}: minimum step size for the stepper -- values: a floating-point number
-  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`
   * `/override=`_words_{:title="several words, separated by ',' or ';'"}: a comma-separated list of parameters to override -- values: several words, separated by ',' or ';'
   * `/prec-absolute=`_number_{:title="a floating-point number"}: absolute precision required -- values: a floating-point number
   * `/prec-relative=`_number_{:title="a floating-point number"}: relative precision required -- values: a floating-point number
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/step-size=`_number_{:title="a floating-point number"}: initial step size for the stepper -- values: a floating-point number
   * `/stepper=`_choice_{:title="one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"}: algorithm used for integration (default: rkf45) -- values: one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
-  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, rexp
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: steps, exp, ramps, rexp
 
 {::comment} synopsis-end: sim-kinetic-system {:/}
 {::comment} description-start: sim-kinetic-system {:/}
@@ -4559,7 +4667,7 @@ Multi-buffer variant of the
 
 ### sim-slow-scan-lp - Simulation: Slow scan test {#cmd-sim-slow-scan-lp}
 
-`sim-slow-scan-lp` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"}
+`sim-slow-scan-lp` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -4567,9 +4675,12 @@ Multi-buffer variant of the
   * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the scan rate is an explicit parameter of the fit (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
-  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`
   * `/override=`_words_{:title="several words, separated by ',' or ';'"}: a comma-separated list of parameters to override -- values: several words, separated by ',' or ';'
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: sim-slow-scan-lp {:/}
 {::comment} description-start: sim-slow-scan-lp {:/}
@@ -4581,7 +4692,7 @@ Simulation command for the
 
 ### sim-slow-scan-hp - Simulation: Slow scan test {#cmd-sim-slow-scan-hp}
 
-`sim-slow-scan-hp` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`sim-slow-scan-hp` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -4590,9 +4701,12 @@ Simulation command for the
   * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
-  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`
   * `/override=`_words_{:title="several words, separated by ',' or ';'"}: a comma-separated list of parameters to override -- values: several words, separated by ',' or ';'
   * `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use an additional scaling factor (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: sim-slow-scan-hp {:/}
 {::comment} description-start: sim-slow-scan-hp {:/}
@@ -4734,7 +4848,7 @@ Multi-buffer version of the [fit: eci-wave] fit.
 
 ### sim-eci-wave - Simulation: Fit of an EC irreversible catalytic wave {#cmd-sim-eci-wave}
 
-`sim-eci-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`sim-eci-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/flags=`_words_{:title="several words, separated by ','"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -4742,10 +4856,13 @@ Multi-buffer version of the [fit: eci-wave] fit.
   * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"}: the kind of model used for the computation (default: dispersion) -- values: one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`
-  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`
   * `/override=`_words_{:title="several words, separated by ',' or ';'"}: a comma-separated list of parameters to override -- values: several words, separated by ',' or ';'
   * `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, models a reductive wave (default: off, hence oxidative wave) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: sim-eci-wave {:/}
 {::comment} description-start: sim-eci-wave {:/}
@@ -4820,7 +4937,7 @@ Multi-buffer version of the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
 
 ### sim-ecr-wave - Simulation: Fit of an EC reversible catalytic wave {#cmd-sim-ecr-wave}
 
-`sim-ecr-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`sim-ecr-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/flags=`_words_{:title="several words, separated by ','"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -4828,10 +4945,13 @@ Multi-buffer version of the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
   * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"}: the kind of model used for the computation (default: dispersion) -- values: one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`
-  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`
   * `/override=`_words_{:title="several words, separated by ',' or ';'"}: a comma-separated list of parameters to override -- values: several words, separated by ',' or ';'
   * `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the reductive direction as reference (default: oxidative direction as reference) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use explicitly the bias or compute it using the open circuit potential (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-ecr-wave {:/}
@@ -4912,7 +5032,7 @@ Multibuffer version of the [fit: eeci-wave] fit.
 
 ### sim-eeci-wave - Simulation: Fit of an EC irreversible catalytic wave {#cmd-sim-eeci-wave}
 
-`sim-eeci-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`sim-eeci-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/flags=`_words_{:title="several words, separated by ','"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -4920,10 +5040,13 @@ Multibuffer version of the [fit: eeci-wave] fit.
   * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"}: the kind of model used for the computation (default: dispersion) -- values: one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`
-  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`
   * `/override=`_words_{:title="several words, separated by ',' or ';'"}: a comma-separated list of parameters to override -- values: several words, separated by ',' or ';'
   * `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, models a reductive wave (default: off, hence oxidative wave) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: sim-eeci-wave {:/}
 {::comment} description-start: mfit-eeci-wave {:/}
@@ -5007,7 +5130,7 @@ Multi-buffer variant of [cmd: fit-eecr-wave].
 
 ### sim-eecr-wave - Simulation: Fit of an EC reversible catalytic wave {#cmd-sim-eecr-wave}
 
-`sim-eecr-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`sim-eecr-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/flags=`_words_{:title="several words, separated by ','"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -5015,10 +5138,13 @@ Multi-buffer variant of [cmd: fit-eecr-wave].
   * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
   * `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"}: the kind of model used for the computation (default: dispersion) -- values: one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`
-  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`
   * `/override=`_words_{:title="several words, separated by ',' or ';'"}: a comma-separated list of parameters to override -- values: several words, separated by ',' or ';'
   * `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the reductive direction as reference (default: oxidative direction as reference) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use explicitly the bias or compute it using the open circuit potential (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-eecr-wave {:/}
@@ -5031,13 +5157,14 @@ Simulation for the [`eecr-wave`](#cmd-fit-eecr-wave) fit.
 
 ### fit-eecr-relay-wave - Fit: Fit of an EECR+relay catalytic wave {#cmd-fit-eecr-relay-wave}
 
-`fit-eecr-relay-wave` `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} **(interactive)**
+`fit-eecr-relay-wave` `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} **(interactive)**
 
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
   * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
+  * `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the potentials of the active site electronic transitions rather than the equilibrium constants -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: fit-eecr-relay-wave {:/}
 {::comment} description-start: fit-eecr-relay-wave {:/}
@@ -5049,7 +5176,7 @@ Fits the so-called EEC with relay model in [Fourmond _et al_,
 
 ### mfit-eecr-relay-wave - Multi fit: Fit of an EECR+relay catalytic wave {#cmd-mfit-eecr-relay-wave}
 
-`mfit-eecr-relay-wave` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} **(interactive)**
+`mfit-eecr-relay-wave` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
@@ -5058,6 +5185,7 @@ Fits the so-called EEC with relay model in [Fourmond _et al_,
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: if specified, it is the name of a meta-data that holds the perpendicular coordinates -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
+  * `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the potentials of the active site electronic transitions rather than the equilibrium constants -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: mfit-eecr-relay-wave {:/}
@@ -5068,7 +5196,7 @@ Multi-buffer version of the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
 
 ### sim-eecr-relay-wave - Simulation: Fit of an EECR+relay catalytic wave {#cmd-sim-eecr-relay-wave}
 
-`sim-eecr-relay-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"}
+`sim-eecr-relay-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -5076,8 +5204,12 @@ Multi-buffer version of the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
   * `/engine=`_choice_{:title="one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
-  * `/operation=`_choice_{:title="one of: `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian or reexport parameters with errors -- values: one of: `compute`, `jacobian`, `reexport`
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`
   * `/override=`_words_{:title="several words, separated by ',' or ';'"}: a comma-separated list of parameters to override -- values: several words, separated by ',' or ';'
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
+  * `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the potentials of the active site electronic transitions rather than the equilibrium constants -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-eecr-relay-wave {:/}
 {::comment} description-start: sim-eecr-relay-wave {:/}
@@ -5101,9 +5233,10 @@ mathematical operations.
 
 ### eval - Ruby eval {#cmd-eval}
 
-`eval` _code_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/use-dataset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`eval` _code_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/modify-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-dataset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _code_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Any ruby code -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/modify-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Reads backs the modifications made to the $meta hash (implies /use-dataset=true) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/use-dataset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on (the default) and if there is a current dataset, the $meta and $stats hashes are available -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: eval {:/}
@@ -5221,7 +5354,7 @@ created by [cmd: define-distribution-fit].
 
 ### generate-buffer - Generate buffer {#cmd-generate-buffer}
 
-`generate-buffer` _start_{:title="a floating-point number"} _end_{:title="a floating-point number"} `/flags=`_words_{:title="several words, separated by ','"} `/formula=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/number=`_integer_{:title="an integer"} `/samples=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`generate-buffer` _start_{:title="a floating-point number"} _end_{:title="a floating-point number"} `/flags=`_words_{:title="several words, separated by ','"} `/formula=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/number=`_integer_{:title="an integer"} `/samples=`_integer_{:title="an integer"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _start_{:title="a floating-point number"}: The first X value -- values: a floating-point number
   * _end_{:title="a floating-point number"}: The last X value -- values: a floating-point number
@@ -5229,6 +5362,7 @@ created by [cmd: define-distribution-fit].
   * `/formula=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} (default option): Formula to generate the Y values -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/number=`_integer_{:title="an integer"}: generates that many datasets -- values: an integer
   * `/samples=`_integer_{:title="an integer"}: number of data points -- values: an integer
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: generate-buffer {:/}
@@ -5821,6 +5955,9 @@ function), the following special functions are available:
  * `fermi_dirac_m1(x)`: Complete Fermi-Dirac integral (index -1), $$F_{-1}(x) = e^x / (1 + e^x)$$
  * `fermi_dirac_mhalf(x)`: Complete Fermi-Dirac integral (index -1/2) (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Complete-Fermi_002dDirac-Integrals.html))
  * `fermi_dirac_n(x,n)`: Complete Fermi-Dirac integral of index $$n$$, $$F_n(x) = \frac{1}{\Gamma(n+1)} \int_0^\infty \mathrm{d} t \frac{t^n}{\exp(t-x) + 1}$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Complete-Fermi_002dDirac-Integrals.html))
+ * `gamma_inc(a,x)`: Incomplete gamma function $$\Gamma(a,x) = \int_x^\infty dt t^{a-1} \exp(-t)$$ (more information [there](https://www.gnu.org/software/gsl/manual/html_node/Incomplete-Gamma-Functions.html))
+ * `gamma_inc_p(a,x)`: Complementary normalized incomplete gamma function $$\Gamma_P(a,x) = 1 - \Gamma_Q(a,x) = 1 - \frac{1}{\Gamma(a)}\int_x^\infty dt t^{a-1} \exp(-t)$$ (more information [there](https://www.gnu.org/software/gsl/manual/html_node/Incomplete-Gamma-Functions.html))
+ * `gamma_inc_q(a,x)`: Normalized incomplete gamma function $$\Gamma_Q(a,x) = \frac{1}{\Gamma(a)}\int_x^\infty dt t^{a-1} \exp(-t)$$ (more information [there](https://www.gnu.org/software/gsl/manual/html_node/Incomplete-Gamma-Functions.html))
  * `gaussian(x,sigma)`: Normalized gaussian: $$p(x,\sigma) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp (-x^2 / 2\sigma^2)$$
  * `gsl_erf(x)`: Error function $$\mathrm{erf}(x) = \frac{2}{\sqrt{\pi}}  \int_0^x \mathrm{d}t \exp(-t^2)$$  -- GSL version (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Error-Function.html))
  * `gsl_erfc(x)`: Complementary error function $$\mathrm{erfc}(x) = 1 - \mathrm{erf}(x)$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Complementary-Error-Function.html))

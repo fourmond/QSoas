@@ -361,17 +361,27 @@ static void expandCommand(const QString &,
   int xevery = 0;
   updateFromOptions(opts, "x-every-nth", xevery);
 
+  int group = 1;
+  updateFromOptions(opts, "group-columns", group);
+
+  if(xevery > 1 && group > 1)
+    throw RuntimeError("Cannot use both /x-every-nth and /group-columns "
+                       "at the same time");
+
   Vector ppcd = ds->perpendicularCoordinates();
   Vector xvs = ds->x();
   int nb = 0;
-  for(int i = 1; i < ds->nbColumns(); i++) {
+  for(int i = 1; i < ds->nbColumns(); ) {
     if(xevery > 0 && ((i % xevery) == 0)) {
       xvs = ds->column(i);
       continue;
     }
     QList<Vector> cols;
     cols << xvs;
-    cols << ds->column(i);
+    for(int k = 0; k < group; ++k, ++i) {
+      if(ds->nbColumns() > i)
+        cols << ds->column(i);
+    }
     nb += 1;
     DataSet * s = ds->derivedDataSet(cols, QString("_col_%1.dat").arg(i+1));
     if(ppcd.size() >= i) {
@@ -394,6 +404,9 @@ expandOpts(QList<Argument *>()
            << new IntegerArgument("x-every-nth", 
                                   "X column every nth column",
                                   "specifies the number of columns between successive X values")
+           << new IntegerArgument("group-columns", 
+                                  "Group several Y columns in created buffers",
+                                  "specifies the number of Y columns in the created buffers")
            << DataStackHelper::helperOptions()
            );
 

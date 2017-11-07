@@ -378,16 +378,24 @@ static void expandCommand(const QString &,
     }
     QList<Vector> cols;
     cols << xvs;
+    QStringList colnames;
+    Vector ncds;
     for(int k = 0; k < group; ++k, ++i) {
-      if(ds->nbColumns() > i)
+      if(ds->nbColumns() > i) {
         cols << ds->column(i);
+        colnames << QString("%1").arg(i+1);
+        if(ppcd.size() >= i)
+          ncds << ppcd[i-1];
+
+      }
     }
     nb += 1;
-    DataSet * s = ds->derivedDataSet(cols, QString("_col_%1.dat").arg(i+1));
-    if(ppcd.size() >= i) {
-      s->setPerpendicularCoordinates(ppcd[i-1]);
+    DataSet * s = ds->derivedDataSet(cols, QString("_col_%1.dat").
+                                     arg(colnames.join("+")));
+    if(ncds.size() > 0) {
+      s->setPerpendicularCoordinates(ncds);
       if(!pc.isEmpty())
-        s->setMetaData(pc, ppcd[i-1]);
+        s->setMetaData(pc, ncds[0]);
     }
 
     pusher.pushDataSet(s);

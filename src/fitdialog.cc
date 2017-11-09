@@ -61,6 +61,10 @@ static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
 
 static SettingsValue<int> fitIterationLimit("fitdialog/iteration-limit", 100);
 
+
+static const char * saveFilters = "Parameter files (*.params);;Any file (*)";
+static const char * exportFilters = "Data files (*.dat);;Any file (*)";
+
 FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) : 
   data(d),
   nup(NULL),
@@ -850,7 +854,8 @@ void FitDialog::saveSimulatedCurves()
 void FitDialog::saveParameters()
 {
   QString save = 
-     QFileDialog::getSaveFileName(this, tr("Save parameters"));
+    QFileDialog::getSaveFileName(this, tr("Save parameters"),
+                                 QString(), saveFilters);
   if(save.isEmpty())
     return;
            
@@ -866,7 +871,8 @@ void FitDialog::saveParameters()
 void FitDialog::loadParameters()
 {
   QString load = 
-    QFileDialog::getOpenFileName(this, tr("Load parameters"));
+    QFileDialog::getOpenFileName(this, tr("Load parameters"), QString(),
+                                 saveFilters);
   if(load.isEmpty())
     return;
   else {
@@ -883,7 +889,8 @@ void FitDialog::loadParameters()
 void FitDialog::loadUsingZValues()
 {
   QString load = 
-    QFileDialog::getOpenFileName(this, tr("Load parameter values"));
+    QFileDialog::getOpenFileName(this, tr("Load parameter values"), QString(),
+                                 saveFilters);
   if(load.isEmpty())
     return;
   else {
@@ -902,7 +909,8 @@ void FitDialog::loadParametersForCurrent()
   QString load = 
     QFileDialog::getOpenFileName(this, 
                                  tr("Load parameters for dataset #%1").
-                                 arg(currentIndex));
+                                 arg(currentIndex), QString(),
+                                 saveFilters);
   if(load.isEmpty())
     return;
   else {
@@ -962,7 +970,8 @@ void FitDialog::promptExport(bool errors)
   if(! checkEngineForExport())
     return;
   QString save = 
-    QFileDialog::getSaveFileName(this, tr("Export parameters"));
+    QFileDialog::getSaveFileName(this, tr("Export parameters"), QString(),
+                                 exportFilters);
   if(save.isEmpty())
     return;
            

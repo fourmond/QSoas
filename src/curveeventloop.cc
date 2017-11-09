@@ -168,8 +168,11 @@ bool CurveEventLoop::isConventionalAccept() const
 
 QPointF CurveEventLoop::position(CurvePanel * panel)
 {
+  if(! panel) {
+    panel = view->panelAt(pos);        // Else, it can segfault.
+  }
   if(! panel)
-    panel = &view->panel;        // Else, it can segfault.
+    return QPointF(0.0/0.0,0.0/0.0);
   return panel->fromWidget(pos);
 }
 

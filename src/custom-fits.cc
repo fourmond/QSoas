@@ -68,6 +68,15 @@ public:
   /// Whether or not the fit has a temperature-related parameter.
   bool hasTemperature;
 
+  /// Parameters that default to "fixed"
+  QSet<QString> fixedParameters;
+
+  /// The number of parameters that look like x_i  (with i != 0)
+  int nbXSteps;
+
+  /// The number of parameters that look like y_i  (with i != 0)
+  int nbYSteps;
+
   /// The time dependent parameters of the fit.
   TimeDependentParameters timeDependentParameters;
 
@@ -91,6 +100,9 @@ public:
   {
     lastFormula = formula;
     params.clear();
+    nbXSteps = 0;
+    nbYSteps = 0;
+    fixedParameters.clear();
 
     QStringList naturalParameters;
     
@@ -118,7 +130,29 @@ public:
       expressions << Expression(formulas[i], params);
 
     for(int i = 0; i < (hasTemperature ? 4 : 3); i++)
-      params.takeFirst();  
+      params.takeFirst();
+
+    // Now a little post-processing.
+    for(const QString & n : params) {
+      if(n == "temperature")
+        fixedParameters.insert(n);
+      if(n == "dx")
+        fixedParameters.insert(n);
+      QRegExp re("([xy])_([0-9]+)");
+      if(re.exactMatch(n)) {
+        if(re.cap(2) == "0")
+          fixedParameters.insert(n);
+        else {
+          int idx = re.cap(2).toInt();
+          if(re.cap(1) == "x") {
+            fixedParameters.insert(n);
+            nbXSteps = std::max(nbXSteps, idx);
+          }
+          else 
+            nbYSteps = std::max(nbYSteps, idx);
+        }
+      }
+    }
   }
 
   /// Compute the time-dependent stuff...
@@ -144,18 +178,34 @@ public:
   double paramGuess(const QString & name, const DataSet * ds) const {
     if(name == "temperature")
       return soas().temperature();
-    if(name == "y_0")
-      return ds->y().first();
-    if(name == "x_0")
-      return ds->x().first();
+    QRegExp re("([xy])_([0-9]+)");
+    if(re.exactMatch(name)) {
+      int idx = re.cap(2).toInt();
+      int nbt;
+      double l, r;
+      if(re.cap(1) == "x") {
+        l = ds->x().first();
+        r = ds->x().last();
+        nbt = nbXSteps;
+      }
+      else {
+        l = ds->y().first();
+        r = ds->y().last();
+        nbt = nbYSteps;
+      }
+      double d = (r - l)/(nbt + 1);
+      return l + d*re.cap(2).toInt();
+    }
+    else {
+      if(name == "dx")
+        return ds->x()[1] - ds->x()[0];
+    }
     return 1;
   };
 
   /// Returns whether the parameter is fixed by default
   bool paramFixed(const QString & name) const {
-    if(name == "temperature" || name == "y_0" || name == "x_0")
-      return true;
-    return false;
+    return fixedParameters.contains(name);
   }
 
   void initialGuessForDataset(const DataSet * ds,

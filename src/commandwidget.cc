@@ -218,6 +218,10 @@ bool CommandWidget::runCommand(const QStringList & raw)
   catch(const RuntimeError & error) {
     Terminal::out << "Error: " << error.message() << endl;
     status = false;
+    if(Debug::debugLevel() > 0)
+      Debug::debug() << "Error: " << error.message() << endl
+                     << "\nBacktrace:\n\t"
+                     << error.exceptionBacktrace().join("\n\t") << endl;
   }
   catch(const InternalError & error) {
     Terminal::out << "Internal error: "
@@ -225,6 +229,9 @@ bool CommandWidget::runCommand(const QStringList & raw)
                   << "This is a bug in Soas and may be worth reporting !"
                   << endl;
     status = false;
+    if(Debug::debugLevel() > 0)
+      Debug::debug() << "Internal error: "
+                     << error.message() << endl;
   }
   catch(const ControlFlowException & flow) {
     /// @todo This should be implemented as an idiom when clang

@@ -104,6 +104,11 @@ public:
   /// Inverts the matrix into the given target
   void invert(gsl_matrix * invert) const;
 
+  /// Almost inverts the matrix -- i.e. generates a matrix with the
+  /// same structure as this matrix and with the non-zero elements
+  /// that are given by
+  void almostInvert(ABDMatrix * target) const;
+
   /// Clears the matrix, i.e. set all matrices to 0
 
   /// Gets the coefficient of the matrix

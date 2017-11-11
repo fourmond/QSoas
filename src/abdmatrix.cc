@@ -28,6 +28,8 @@
 // Seems necessary:
 #include <gsl/gsl_permute_vector_double.h>
 
+#include <gsl-types.hh>
+
 ABDMatrix::ABDMatrix(const QList<int> & sz) : sizes(sz)
 {
   diag = new gsl_matrix *[sizes.size()];
@@ -103,6 +105,23 @@ void ABDMatrix::invert(gsl_matrix * invert) const
     gsl_vector_view v = gsl_matrix_column(invert, i);
     tmp.copyFrom(*this);
     tmp.solve(&v.vector);
+  }
+}
+
+void ABDMatrix::almostInvert(ABDMatrix * target) const
+{
+  ABDMatrix tmp(sizes);
+  if(target->sizes != sizes)
+    throw InternalError("ABDMatrix to store inverse is not of correct size");
+
+  GSLVector v(total);
+  for(int i = 0; i < total;i++) {
+    gsl_vector_set_basis(v, i);
+    tmp.copyFrom(*this);
+    tmp.solve(v);
+    // Completely inefficient, but it should not matter much
+    for(int j = 0; j < total; j++)
+      target->set(i, j, v[j]);
   }
 }
 

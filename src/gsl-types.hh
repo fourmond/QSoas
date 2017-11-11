@@ -39,6 +39,10 @@ public:
     return data;
   };
 
+  double operator[](int j) const {
+    return gsl_vector_get(data, j);
+  };
+
   operator gsl_vector*() {
     return data;
   };

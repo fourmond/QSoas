@@ -67,6 +67,13 @@ public:
   /// index of parameters)
   double get(int i, int j) const;
 
+  /// Sets the covariance matrix from the given JtJ matrix.
+  void setFromJtJ(const ABDMatrix * source);
+
+  /// Converts the matrix into a not sparse one, if that isn't the
+  /// case already, and does nothing if it is already the case.
+  void makeNotSparse();
+
 };
 
 

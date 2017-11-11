@@ -81,3 +81,11 @@ double SparseCovariance::get(int i, int j) const
   return sparseMatrix->get(i, j);
 }
   
+void SparseCovariance::setFromJtJ(const ABDMatrix * source)
+{
+  if(matrix)
+    source->invert(matrix);
+  else
+    source->almostInvert(sparseMatrix);
+}
+  

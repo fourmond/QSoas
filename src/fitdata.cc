@@ -448,6 +448,8 @@ int FitData::computeFunction(const double * params, gsl_vector * f,
                              bool doSubtract, bool doWeight)
 {
   int nb = freeParameters();
+  if(nb == 0)                   // avoid crashes with no free parameters
+    ++nb;
   QVarLengthArray<double, 1024> dt(nb);
   gsl_vector_view v = gsl_vector_view_array(dt.data(), nb);
   packParameters(params, &v.vector);

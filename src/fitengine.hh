@@ -29,7 +29,6 @@
 class Fit;  
 class FitData;
 class ArgumentList;
-class SparseCovariance;
 
 /// A simple wrapper class around parameters found after an iteration.
 class StoredParameters {
@@ -112,16 +111,9 @@ public:
   /// Copies the current parameters to \a target
   virtual void copyCurrentParameters(gsl_vector * target) const;
 
-protected:
   /// Computes the covariance matrix into target, which should be an n
   /// x n matrix (n being the number of free parameters)
   virtual void computeCovarianceMatrix(gsl_matrix * target) const = 0;
-
-
-public:
-  /// Computes the covariance matrix into \a target, which should have
-  /// the correct structure for the 
-  virtual void computeCovarianceMatrix(SparseCovariance * target) const;
 
   /// Performs the next iteration.
   virtual int iterate() = 0;

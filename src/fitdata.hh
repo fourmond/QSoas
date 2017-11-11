@@ -37,7 +37,6 @@ class FitInternalStorage;
 class FitData;
 
 class SparseJacobian;
-class SparseCovariance;
 
 /// A queue for derivation computations
 class DFComputationQueue {
@@ -167,7 +166,7 @@ private:
   int gslParameters;
 
   /// A storage space for the covariance matrix
-  SparseCovariance * covarStorage;
+  gsl_matrix * covarStorage;
 
   /// Wether the covarStorage matrix is up-to-date
   bool covarIsOK;

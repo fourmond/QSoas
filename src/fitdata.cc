@@ -36,6 +36,8 @@
 #include <fitengine.hh>
 #include <debug.hh>
 
+#include <sparsecovariance.hh>
+
 
 // first, the implementation of the queue
 
@@ -354,8 +356,8 @@ FitData::~FitData()
   // free up some resources
   gsl_vector_free(storage);
   gsl_vector_free(parametersStorage);
-  if(covarStorage)
-    gsl_matrix_free(covarStorage);
+  delete covarStorage;
+
   if(standardYErrors) {
     gsl_vector_free(standardYErrors);
     gsl_vector_free(pointWeights);
@@ -945,24 +947,19 @@ const gsl_matrix * FitData::covarianceMatrix()
   if(covarIsOK)
     return covarStorage;
   /// @todo provide a function with a gsl_matrix target as argument.
-  if(! covarStorage) {
-    int sz = fullParameterNumber();
-    if(sz == 0)
-      sz = 1;                   /// @hack Work around GSL failing on
-                                /// empty matrix
-    covarStorage = gsl_matrix_alloc(sz, sz);
-  }
+  if(! covarStorage)
+    covarStorage = new SparseCovariance(this);
 
-  gsl_matrix_set_zero(covarStorage);
+  covarStorage->clear();
 
   if(subordinates.size() > 0) {
-    for(int i = 0; i < subordinates.size(); i++) {
-      const gsl_matrix * sub = subordinates[i]->covarianceMatrix();
-      int nb = parameterDefinitions.size();
-      gsl_matrix_view m = gsl_matrix_submatrix(covarStorage, nb*i, nb*i, 
-                                               nb, nb);
-      gsl_matrix_memcpy(&m.matrix, sub);
-    }
+    // for(int i = 0; i < subordinates.size(); i++) {
+    //   const gsl_matrix * sub = subordinates[i]->covarianceMatrix();
+    //   int nb = parameterDefinitions.size();
+    //   gsl_matrix_view m = gsl_matrix_submatrix(covarStorage, nb*i, nb*i, 
+    //                                            nb, nb);
+    //   gsl_matrix_memcpy(&m.matrix, sub);
+    // }
   }
   else {
 

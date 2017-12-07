@@ -321,6 +321,18 @@ void FitData::freeSolver()
   subordinates.clear();
 }
 
+bool FitData::hasEngine() const
+{
+  if(subordinates.size() > 0) {
+    for(FitData * d : subordinates) {
+      if(! d->hasEngine())
+        return false;
+    }
+    return true;
+  }
+  return engine;
+}
+
 void FitData::doneFitting()
 {
   inProgress = false;

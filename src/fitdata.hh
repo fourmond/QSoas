@@ -244,9 +244,8 @@ public:
   /// the number of processor cores that should be left free.
   void setupThreads(int nb);
 
-  bool hasEngine() const {
-    return engine;
-  };
+  /// True whether the fit has an engine
+  bool hasEngine() const;
 
   /// The fit in use
   const Fit * fit;

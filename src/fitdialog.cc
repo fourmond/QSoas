@@ -240,6 +240,7 @@ void FitDialog::setupFrame()
 
 
   if(bufferWeightEditor) {
+    hb->addWidget(new QLabel("weight: "));
     hb->addWidget(bufferWeightEditor);
     connect(bufferWeightEditor, SIGNAL(textEdited(const QString &)),
             SLOT(weightEdited(const QString &)));
@@ -505,10 +506,9 @@ void FitDialog::dataSetChanged(int newds)
   emit(currentDataSetChanged(currentIndex));
   if(! nup->isNup())
     updateEditors();
-  QString txt = QString("%1/%2 %3 %4").
+  QString txt = QString("%1/%2 %3").
     arg(newds + 1).arg(data->datasets.size()).
-    arg(parameters.annotateDataSet(currentIndex)).
-    arg(bufferWeightEditor ? " weight: " : "");
+    arg(parameters.annotateDataSet(currentIndex));
   if(parameters.perpendicularCoordinates.size() > 0) {
     QString str = QString(" %1 = %2").arg(perpendicularMeta.isEmpty() ? 
                                           "Z" : perpendicularMeta).

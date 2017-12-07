@@ -1356,6 +1356,11 @@ QStringList DataSet::columnNames() const
 }
 
 
+bool DataSet::hasMetaData(const QString & name) const
+{
+  return metaData.contains(name);
+}
+
 void DataSet::setMetaData(const QString & name, const QVariant & val)
 {
   metaData[name] = val;

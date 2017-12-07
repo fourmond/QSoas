@@ -608,6 +608,9 @@ public:
   /// Returns the given metadata
   QVariant getMetaData(const QString & val) const;
 
+  /// Whether the DataSet has the given meta or not
+  bool hasMetaData(const QString & name) const;
+
   /// Add a whole new set of meta-data
   void addMetaData(const ValueHash & val, bool override = true);
 

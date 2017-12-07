@@ -279,27 +279,104 @@ tp("transpose", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void unwrapCommand(const QString &)
+static void unwrapCommand(const QString &,
+                          const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();
   Vector newX;
-  const Vector & oldX = ds->x();
-  for(int i = 0; i < oldX.size(); i++) {
-    if(i)
-      newX << newX.last() + fabs(oldX[i] - oldX[i-1]);
-    else
-      newX << oldX[i];
-  }
-  soas().pushDataSet(ds->derivedDataSet(ds->y(), "_unwrap.dat", newX));
-}
-        
 
-static Command 
-uw("unwrap", // command name
-   optionLessEffector(unwrapCommand), // action
+  bool useSR = false;
+  bool reverse = false;
+  updateFromOptions(opts, "reverse", reverse);
+  double sr = 0;
+  if(opts.contains("scan-rate")) {
+    updateFromOptions(opts, "scan-rate", sr);
+  }
+  else {
+    if(ds->hasMetaData("sr")) {
+      sr = ds->getMetaData("sr").toDouble(&useSR);
+      if(useSR)
+        Terminal::out << "Using scan rate from meta-data: " << sr << endl;
+    }
+  }
+  
+  const Vector & oldX = ds->x();
+
+  DataSet * nds;
+  if(reverse) {
+    int cs = 0;                 // cur segment
+    double sr = 1;
+    if(ds->hasMetaData("sr"))
+      sr = ds->getMetaData("sr").toDouble();
+    double ei = 0;
+    if(ds->hasMetaData("E_init"))
+      ei = ds->getMetaData("E_init").toDouble();
+
+    double sign = 1;
+    if(ds->hasMetaData("dE_init"))
+      sign = ds->getMetaData("dE_init").toDouble();
+    if(sign < 0)
+      sign = -1;
+    else
+      sign = 1;
+
+    for(int i = 0; i < oldX.size(); i++) {
+      if(i) {
+        double dx = oldX[i] - oldX[i-1];
+        if(ds->segments.value(cs, -1) == i) {
+          sign *= -1;
+        }
+        ei += dx * sign *sr;
+      }
+      newX << ei;
+    }            
+    nds = ds->derivedDataSet(ds->y(), "_rewrap.dat", newX);
+  }
+  else {
+    double olddx = 0;
+    OrderedList segs;
+    for(int i = 0; i < oldX.size(); i++) {
+      if(i) {
+        double dx = oldX[i] - oldX[i-1];
+        if(useSR)
+          dx /= sr;
+
+        if(dx * olddx < 0) {
+          segs.insert(i);
+        }
+        newX << newX.last() + fabs(dx);
+        olddx = dx;
+      }
+      else
+        newX << 0;
+    }
+    nds = ds->derivedDataSet(ds->y(), "_unwrap.dat", newX);
+    nds->setMetaData("E_init", oldX.first());
+    nds->setMetaData("dE_init", oldX[1] - oldX[0]);
+    if(useSR)
+      nds->setMetaData("sr", sr);
+    nds->segments = segs;
+  }
+  soas().pushDataSet(nds);
+}
+
+static ArgumentList 
+  uwOpts(QList<Argument *>() 
+         << new NumberArgument("scan-rate", 
+                               "Scan rate",
+                               "Sets the scan rate")
+         << new BoolArgument("reverse", 
+                             "Reverse",
+                             "If true, reverses the effect of a previous unwrap command")
+         );
+ 
+ 
+ static Command 
+   uw("unwrap", // command name
+      effector(unwrapCommand), // action
    "buffer",  // group name
    NULL, // arguments
-   NULL, // options
+   &uwOpts, // options
    "Unwrap",
    "Unwrap the buffer so that X is always increasing");
 

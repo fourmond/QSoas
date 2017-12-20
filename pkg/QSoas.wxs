@@ -61,6 +61,17 @@
       #DLL_REFS#
     </Feature>
 
+
+    <!-- This should install a file association for the .qst files  -->
+    <Component Id="QSoasProgId" Guid="#QSoasProgID" KeyPath="yes">
+      <ProgId Id="QSoasLoadStack" Description="QSoas">
+        <Extension Id="qst">
+          <Verb Id="open" TargetFile="MainExecutable"
+                Argument="--load-stack '%1'" />
+        </Extension>
+      </ProgId>
+    </Component>
+
     <!-- 
          We perform what we call major upgrades systematically as they
          are much less painful for the users (no need to run manually

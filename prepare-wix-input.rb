@@ -77,7 +77,7 @@ end
 # We add a few keys
 keys = file_ids.values
 
-keys += ["UpgradeID", "ProductID", "QSoasID", "StartMenuID"]
+keys += ["UpgradeID", "ProductID", "QSoasID", "QSoasProgID", "StartMenuID"]
 
 # Now, we generate all the missing UUIDs
 for k in keys

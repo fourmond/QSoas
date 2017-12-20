@@ -71,6 +71,25 @@ void Expression::buildCode()
     variables = minimalVariables;
   }
 
+
+  //////////////////////////////////////////////////
+  ///// Optimizations !
+
+  /// @todo Maybe code optimization could end up in a separate function ? 
+
+  // Now, we find out if the expression is reduced to a single
+  // variable:
+  if(minimalVariables.size() == 1) {
+    if(expression.trimmed() == minimalVariables[0]) {
+      // Then, we have a single variable, whose index we'll find
+      while(true) {
+        ++singleVariableIndex;
+        if(variables[singleVariableIndex] == minimalVariables[0])
+          break;
+      }
+    }
+  }
+
   MRuby * mr = MRuby::ruby();
   code = mr->makeBlock(expression.toLocal8Bit(), variables);
   // printf("%p -> %p\n", this, code);
@@ -182,8 +201,8 @@ double Expression::evaluate(const double * values) const
 
 double Expression::evaluateNoLock(const double * values) const
 {
-  // if(singleVariableIndex >=  0)
-  //   return values[singleVariableIndex];
+  if(singleVariableIndex >=  0)
+    return values[singleVariableIndex];
   MRuby * mr = MRuby::ruby();
   return mr->floatValue(rubyEvaluation(values));
 }

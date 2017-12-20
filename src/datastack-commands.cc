@@ -39,6 +39,9 @@
 #include <mruby.hh>
 #include <idioms.hh>
 
+#include <commandlineparser.hh>
+#include <hook.hh>
+
 static Group stack("view", 1,
                    "View",
                    "Control viewing options");
@@ -421,6 +424,20 @@ loadStack("load-stack", // command name
           "Load stack",
           "Loads the stack from file",
           "Loads the stack as saved using save-stack");
+
+
+//////////////////////////////////////////////////////////////////////
+
+// The corresponding command-line option !
+
+//////////////////////////////////////////////////////////////////////
+static CommandLineOption sp("--load-stack", [](const QStringList & args) {
+    QString f = args[0];
+    new Hook([f]() {
+        loadStackCommand("--", f);
+      });
+  }, 1, "loads a binary stack file");
+
 
 //////////////////////////////////////////////////////////////////////
 

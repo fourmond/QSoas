@@ -140,7 +140,7 @@ void Debug::startCommand(const QStringList & cmdline)
     (*this) << "Stack: " << soas().stack().textSummary() << endl;
     timeStamp();
     (*this) << "Rotating stack file" << endl;
-    Utils::rotateFile(directory->absoluteFilePath("stack.bin"), 9);
+    Utils::rotateFile(directory->absoluteFilePath("qsoas-debug.qst"), 9);
   }
 }
 
@@ -161,7 +161,7 @@ void Debug::saveStack()
   if(level > 0 && directory) {
     timeStamp();
     (*this) << "Saving stack" << endl;
-    QFile file(directory->absoluteFilePath("stack.bin"));
+    QFile file(directory->absoluteFilePath("qsoas-debug.qst"));
     Utils::open(&file, QIODevice::WriteOnly);
     QDataStream o(&file);
     o << soas().stack();

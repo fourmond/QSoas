@@ -380,7 +380,7 @@ saveStackArgs(QList<Argument *>()
               << new FileSaveArgument("file", 
                                       "File name",
                                       "File name for saving stack",
-                                      "stack.bin"));
+                                      "qsoas-stack.qst"));
 
 
 static Command 

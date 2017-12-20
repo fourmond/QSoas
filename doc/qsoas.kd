@@ -1288,9 +1288,15 @@ buffer. `/number` has the same meaning as for [cmd: undo].
 {::comment} synopsis-end: save-stack {:/}
 {::comment} description-start: save-stack {:/}
 Saves the entire contents of the stack (all the buffers, their flags
-and their meta-data) for later use, in binary form. This file is only
-meant to be used with [cmd: load-stack]. If you'd rather save every
-file separately as a text file, use
+and their meta-data) for later use in a `.qst` file, which is in a
+binary format.  This file is only meant to be loaded again with
+either the command [cmd: load-stack], directly from the
+command-line using the `--load-stack` [command-line
+option](#command-line-options), or TODO directly by double-clicking
+from your favorite file manager.
+
+If you'd rather save every file in the stack separately as a text
+file, use the [cmd: save-buffers] command:
 
 ~~~~
 QSoas> save-buffers all
@@ -6010,12 +6016,17 @@ When starting QSoas from a terminal, you can use a number of
 command-line option to change its behaviour. Here are the most useful:
 
  * `--run `_command_ will run the command _command_ after QSoas starts
-   up
+   up.
  * `--exit-after-running` will run the commands specified by `--run`,
    and then exit the program. This can be used to run scripts to
    automatically process data without user interaction.
  * `--no-startup-files` disables the loading of
-   [startup scripts](#cmd-startup-files)
+   [startup scripts](#cmd-startup-files).
+ * `--stdout` makes the text written to the QSoas terminal also appear
+   in the standard output (i.e. the terminal from which you started
+   QSoas).
+ * `--load-stack `_file_ loads the given _file_ as a stack file just
+   after QSoas starts up.
 
 [ruby]:http://www.ruby-lang.org/ "Ruby, the programming language"
 [math]:http://www.ruby-doc.org/core-1.9.3/Math.html "Documentation of the Math module"

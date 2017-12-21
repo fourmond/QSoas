@@ -1,11 +1,15 @@
 Compilation requires the following packages:
 
-  * a Ruby interpreter, from http://ruby-lang.org.
-    All versions from ruby 1.9 to 2.1 are known to work, but as of
-    now, ruby 2.2 and ruby 2.3 are not supported
-  * Qt4 libraries (DO NOT USE QT5, there are subtle differences,
-    and some features just won't work), from http://qt-project.org/
-  * the GSL libraries, from http://www.gnu.org/software/gsl/,  both
+  * The Qt library. QSoas works well with both Qt4 and Qt5
+  * The mruby interpreter, fromhttps://mruby.org/. The problem with
+    mruby is QSoas will compile fine with version 1.3.0, but a bug in
+    the mruby interpreter will cause a crash. You need a version
+    posterior to the commit 7450a774, grab them from
+    https://github.com/mruby/mruby
+  * Any Ruby interpreter (you don't need the development files, ruby
+    is only used to prepare the build, it is not used to build
+    against)
+  * The GSL libraries, from http://www.gnu.org/software/gsl/,  both
     versions 1.16 and 2.1 are supported
   
 
@@ -18,6 +22,11 @@ and
   make
 
 should do the trick.
+
+If you use a custom build of mruby, not installed in the standard
+library search paths, you need to specify it to ./configure
+
+  MRUBY_DIR=/path/to/mruby/dir ./configure
 
 On windows, that should do the trick too, provided the GSL, Qt and
 Ruby libraries are in a place where the linker can find it.

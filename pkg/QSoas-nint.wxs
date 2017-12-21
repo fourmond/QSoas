@@ -62,7 +62,7 @@
     </Feature>
 
     <!-- This should install a file association for the .qst files  -->
-    <Component Id="QSoasProgId" Guid="#QSoasProgID" KeyPath="yes">
+    <Component Id="QSoasProgId" Guid="#QSoasProgID#" KeyPath="yes">
       <ProgId Id="QSoasLoadStack" Description="QSoas">
         <Extension Id="qst">
           <Verb Id="open" TargetFile="MainExecutable"

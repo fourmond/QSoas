@@ -52,6 +52,26 @@ QSoas> output /reopen=true
 
 (this will only work with QSoas version 2.0 or later)
 
+# Display
+
+## Help, my display looks all messed up with only points !
+
+By default, `QSoas` shows datasets by drawing lines between all the
+successive points. On very noisy datasets, this sometimes leads to
+extremely long drawing times. `QSoas` detects this situation and
+replaces the drawing of lines by just dots. If you think `QSoas` got
+the heuristics wrong with your file, send us the data file.
+
+## I want to configure the color of the display !
+
+As of now, `QSoas` does not support configuring fine details in the
+display. You can toggle the display of points using the [cmd: points]
+command, and you can use the `/style=` option to [commands generating
+several buffers](manual.html#several-buffers) to use gradients to
+display a set of buffers.
+
+
+
 
 # File formats
 
@@ -61,8 +81,8 @@ No. But, it can read essentially all text files, which all data
 acquisition programs generate via their "export to ASCII" or
 "export to CSV". QSoas should detect automatically the format of
 those files, but if it does not, have a look at the command
-[cmd: load-as-text] for specifying the things QSoas did not manage to
-guess.
+[cmd: load-as-text] for specifying the details QSoas did not manage to
+guess, such as the column separator, the decimal separator.
 
 ## I use GPES, can QSoas read the ixw (not oxw) file?
 
@@ -262,20 +282,6 @@ versions of Windows, thanks to the so-called [WOW64 windows
 layer](https://msdn.microsoft.com/en-us/library/windows/desktop/aa384249.aspx).
 The only drawback is that you cannot use more than 3GB or so of memory
 from QSoas, which really should not be a limitation.
-
-# Known problems
-
-Most bugs in QSoas are fixed as soon as they are found, but some
-difficult ones have evaded correction so far. They are listed here.
-
-## Ruby exception support is missing in Windows {#ruby-exceptions}
-
-As of now Ruby exception handling is faulty on Windows, which means
-that running code that raises an uncaught exception on Windows will
-crash. The problem is far deeper than it initially seemed, but it
-should not affect many users. Just be careful when entering Ruby
-formulas, as entering a formula with a syntax error will probably
-result in a hard crash.
 
 
 [gpl]:https://www.gnu.org/licenses/gpl-2.0.html

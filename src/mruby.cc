@@ -80,6 +80,8 @@ MRuby * MRuby::ruby()
 
 QString MRuby::inspect(mrb_value object)
 {
+  MRubyArenaContext c(this);
+
   mrb_value v = mrb_inspect(mrb, object);
   // DUMP_MRUBY(v);
 // mrb_obj_as_string(mrb, object);
@@ -181,6 +183,7 @@ mrb_value MRuby::eval(const char * code,
 mrb_value MRuby::eval(const QByteArray & code,
                       const QString & fileName, int line)
 {
+  MRubyArenaContext c(this);
   RProc * proc = generateCode(code, fileName, line);
   return protect([this, proc]() -> mrb_value {
       return mrb_run(mrb, proc, mrb_top_self(mrb));
@@ -196,6 +199,7 @@ mrb_value MRuby::eval(const QString & code,
 
 mrb_value MRuby::eval(QIODevice * device)
 {
+  MRubyArenaContext c(this);
   QByteArray code = device->readAll();
   RProc * proc = generateCode(code, Utils::fileName(device));
   return protect([this, proc]() -> mrb_value {
@@ -206,6 +210,8 @@ mrb_value MRuby::eval(QIODevice * device)
 
 QStringList MRuby::detectParameters(const QByteArray & code)
 {
+  MRubyArenaContext c(this);
+
   RProc * proc = generateCode(code);
   struct mrb_irep * irep = proc->body.irep;
 

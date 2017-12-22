@@ -204,11 +204,13 @@ double Expression::evaluateNoLock(const double * values) const
   if(singleVariableIndex >=  0)
     return values[singleVariableIndex];
   MRuby * mr = MRuby::ruby();
+  MRubyArenaContext c(mr);  
   return mr->floatValue(rubyEvaluation(values));
 }
 
 bool Expression::evaluateAsBoolean(const double * values) const
 {
+  MRubyArenaContext c(MRuby::ruby());  
   return mrb_test(rubyEvaluation(values));
 }
 
@@ -223,6 +225,7 @@ int Expression::evaluateIntoArrayNoLock(const double * values,
                                   double * target, int ts) const
 {
   MRuby * mr = MRuby::ruby();
+  MRubyArenaContext c(mr);  
   mrb_value ret =  rubyEvaluation(values);
   
   // Now, we parse the return value

@@ -217,5 +217,21 @@ public:
 #define DUMP_MRUBY(v) MRuby::dumpValue(__PRETTY_FUNCTION__, __LINE__, #v, v)
 };
 
+/// A small helper class that saves the GC arena and restores it at
+/// the end of the function.
+class MRubyArenaContext {
+  int idx;
+
+  MRuby * mr;
+public:
+  MRubyArenaContext(MRuby * m) : mr(m) {
+    idx = mrb_gc_arena_save(mr->mrb);
+  }
+
+  ~MRubyArenaContext() {
+    mrb_gc_arena_restore(mr->mrb, idx);
+  }
+};
+
 
 #endif

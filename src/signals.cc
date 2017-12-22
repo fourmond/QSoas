@@ -24,6 +24,9 @@
 #include <signal.h>
 
 #include <stdio.h>
+#include <mruby.hh>
+
+
 
 void handleSignal(int sig)
 {
@@ -31,6 +34,14 @@ void handleSignal(int sig)
   case SIGUSR1:
     soas().shouldStopFit = true;
     fprintf(stderr, "Caught signal USR1, cancelling current fits if any\n");
+    break;
+  case SIGUSR2:
+    {
+      mrb_state * mrb = MRuby::ruby()->mrb;
+      fprintf(stderr, "Caught signal USR2, dumping mruby GC info:\n"
+              " -> live: %ld, arena: %d\n",
+              mrb->gc.live, mrb->gc.arena_idx);
+    }
     break;
   default:
     ;
@@ -40,6 +51,7 @@ void handleSignal(int sig)
 void setupSignals()
 {
   signal(SIGUSR1, handleSignal); 
+  signal(SIGUSR2, handleSignal); 
 }
 
 static Hook sg(&setupSignals);

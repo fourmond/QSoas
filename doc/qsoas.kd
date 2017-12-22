@@ -3678,6 +3678,11 @@ specifically:
     [temperature](#cmd-temperature)
   * Using `fara` counts as using `temperature` excepted that its value is
     $$f = F/RT$$. You never get `fara` as a fit parameter.
+  * `dx` is fixed by default to the difference in the $$x$$ values of
+    two consecutive points
+  * `x_`_i_ and `y_`_i_ with _i_ a strictly positive integer are
+    initially assumed to be evenly spread among the $$x$$ or $$y$$
+    range.
 
 If you often use the same formula for `fit-arb`, you should consider
 using [cmd: custom-fit] or writing it in a file and

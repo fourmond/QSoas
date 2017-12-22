@@ -136,7 +136,11 @@ public:
   ///
   /// Elements in \a other override those already present,
   /// unless \a override is false.
-  void merge(const ValueHash & other, bool override = true);
+  ///
+  /// The final key order is: first the keys of this hash, then of @a
+  /// other. Duplicates are removed, unless @a allowMultiple is true.
+  void merge(const ValueHash & other, bool override = true,
+             bool allowMultiple = false);
 
   /// Appends the @a value to the list of strings stored in @a key.
   void appendToList(const QString & key, const QString & value);

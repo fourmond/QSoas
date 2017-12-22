@@ -200,7 +200,8 @@ ValueHash & ValueHash::operator<<(const QVariant & v)
   return *this;
 }
 
-void ValueHash::merge(const ValueHash & other, bool override)
+void ValueHash::merge(const ValueHash & other, bool override,
+                      bool allowMultiple)
 {
   for(const_iterator it = other.begin(); it != other.end(); ++it) {
     if(override || (! contains(it.key())))
@@ -208,7 +209,8 @@ void ValueHash::merge(const ValueHash & other, bool override)
   }
   keyOrder += other.keyOrder;
   /// @todo Only run if necessary ?
-  keyOrder.removeDuplicates();
+  if(! allowMultiple)
+    keyOrder.removeDuplicates();
 }
 
 void ValueHash::appendToList(const QString & key, const QString & val)
@@ -441,8 +443,8 @@ void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts,
   }
   
   ValueHash ov = *this;
+  ov.merge(meta);
   if(output) {
-    ov.merge(meta);
     Terminal::out << "Writing to output file" << endl;
     OutFile::out.writeValueHash(ov, ds);
   }
@@ -463,8 +465,8 @@ void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts,
 
   if(accumulate.size() > 0) {
     QStringList missing;
-    ValueHash cnv = copyFromSpec(accumulate, &missing);
-    cnv.merge(meta);
+    ValueHash cnv = ov.copyFromSpec(accumulate, &missing);
+    cnv.merge(meta, true, true);
 
     if(missing.size() > 0)
       Terminal::out << "Missing the values for keys '" << missing.join("', '")

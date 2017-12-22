@@ -472,34 +472,6 @@ mrb_value MRuby::newTime(int year, int month, int day,
 #include <file-arguments.hh>
 #include <terminal.hh>
 
-//////////////////////////////////////////////////////////////////////
-
-static void mRubyEval(const QString &, QString code,
-                      const CommandOptions & )
-{
-  MRuby * r = MRuby::ruby();
-  Terminal::out << " => " << r->inspect(r->eval(code.toLocal8Bit()))
-                << endl;
-}
-
-static ArgumentList 
-eA(QList<Argument *>() 
-   << new StringArgument("code", 
-                         "Code",
-                         "Any ruby code"));
-
-
-
-static Command 
-ev("mruby-eval", // command name
-   effector(mRubyEval), // action
-   "file",  // group name
-   &eA, // arguments
-   NULL,
-   "Ruby eval",
-   "Evaluates a Ruby expression and prints the result", "");
-
-//////////////////////////////////////////////////////////////////////
 
 static void mRubyArgs(const QString &, QString code,
                       const CommandOptions & )
@@ -509,37 +481,18 @@ static void mRubyArgs(const QString &, QString code,
   Terminal::out << " => " << vars.join(", ") << endl;
 }
 
+static ArgumentList 
+eA(QList<Argument *>() 
+   << new StringArgument("code", 
+                         "Code",
+                         "Ruby code"));
+
 static Command 
-ar("mruby-args", // command name
+ar("mruby-detect-args", // command name
    effector(mRubyArgs), // action
    "file",  // group name
    &eA, // arguments
    NULL,
    "Ruby args",
-   "Evaluates a Ruby expression and prints the result", "");
+   "Detects the arguments within a Ruby expression", "");
 
-//////////////////////////////////////////////////////////////////////
-
-void mrubyRunFile(const QString &, QString file)
-{
-  QFile f(file);
-  Utils::open(&f, QIODevice::ReadOnly | QIODevice::Text);
-  MRuby * r = MRuby::ruby();
-  r->eval(&f);
-}
-
-static ArgumentList 
-rA(QList<Argument *>() 
-   << new FileArgument("file", 
-                       "File",
-                       "Ruby file to load"));
-
-
-static Command 
-lf("mruby-run", // command name
-   optionLessEffector(mrubyRunFile), // action
-   "file",  // group name
-   &rA, // arguments
-   NULL, // options
-   "Ruby load",
-   "Loads and runs a file containing ruby code", "");

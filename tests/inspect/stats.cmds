@@ -30,3 +30,20 @@ assert '$meta["y_min"] == -10'
 
 stats /set-meta=y_min->xxx
 assert '$meta["xxx"] == -10'
+
+
+
+# Test accumulation, and in particular
+pop /drop=true
+generate-buffer 0 10
+stats /accumulate=x_min
+stats /accumulate=x_min,x_max
+
+pop
+assert '$stats["rows"] == 2'
+
+strip-if y.nan?
+assert '$stats["rows"] == 1'
+assert '$stats["y_max"] == 10'
+assert '$stats["x_max"] == 0'
+

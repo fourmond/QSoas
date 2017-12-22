@@ -33,9 +33,20 @@
                         Name="QSoas" WorkingDirectory='INSTALLDIR' 
                         Icon="QSoas.ico" IconIndex="0" Advertise="yes" />
             </File>
-            </Component>
+          </Component>
 
-            #DLLS#
+          <!-- This should install a file association for the .qst files  -->
+          <Component Id="QSoasProgId" Guid="#QSoasProgID#" KeyPath="yes">
+            <ProgId Id="QSoasLoadStack" Description="QSoas">
+              <Extension Id="qst">
+                <Verb Id="open" TargetFile="QSoasEXE"
+                      Argument='--load-stack "%1"' />
+              </Extension>
+            </ProgId>
+          </Component>
+
+            
+          #DLLS#
 
         </Directory>
       </Directory>
@@ -58,19 +69,11 @@
              Display='expand' >
       <ComponentRef Id='MainExecutable' />
       <ComponentRef Id='ProgramMenuDir' />
+      <ComponentRef Id='QSoasProgId' />
       #DLL_REFS#
     </Feature>
 
 
-    <!-- This should install a file association for the .qst files  -->
-    <Component Id="QSoasProgId" Guid="#QSoasProgID#" KeyPath="yes">
-      <ProgId Id="QSoasLoadStack" Description="QSoas">
-        <Extension Id="qst">
-          <Verb Id="open" TargetFile="MainExecutable"
-                Argument="--load-stack '%1'" />
-        </Extension>
-      </ProgId>
-    </Component>
 
     <!-- 
          We perform what we call major upgrades systematically as they

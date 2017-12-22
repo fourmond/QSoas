@@ -1,0 +1,4 @@
+# This file runs commands to invert exp(x)-x = ${1}
+generate-buffer 0 10 exp(x)-x-1-${1} /samples=10000 /set-meta=val=${1}
+integrate
+1 /output=false /accumulate=val,x /meta=val

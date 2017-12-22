@@ -1,0 +1,4 @@
+# The test suite for "data inspection" facilities, i.e. the commands
+# that generate datax
+@ stats.cmds
+@ invert-all.cmds

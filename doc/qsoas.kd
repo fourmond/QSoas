@@ -1969,19 +1969,27 @@ only keep a given number of the generated datasets.
 
 ### unwrap - Unwrap {#cmd-unwrap}
 
-`unwrap` 
+`unwrap` `/reverse=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/scan-rate=`_number_{:title="a floating-point number"}
 
+  * `/reverse=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, reverses the effect of a previous unwrap command -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/scan-rate=`_number_{:title="a floating-point number"}: Sets the scan rate -- values: a floating-point number
 
 {::comment} synopsis-end: unwrap {:/}
 {::comment} description-start: unwrap {:/}
 
 This command makes the X values of the current buffer monotonic by
 ensuring that the value of $$\Delta x$$ always have the same sign,
-changing it if needed.
+changing it if needed. The command places segments limits at the
+position of the changes in direction.
 
 This is useful for instance to convert a cyclic voltammogram from $$i
-= f(E)$$ to $$i = f(t)$$, after dividing the X values by the scan
-rate.
+= f(E)$$ to $$i = f(t)$$; for that purpose, the scan rate can be
+provided using the `/scan-rate=` option, or can be guessed from the
+`sr` meta-data.
+
+The `unwrap` operation can be reverted by calling [cmd: unwrap] with
+`/reverse=true`, which will use the scan rate information and the
+position of the segments to reconstruct the original data.
 
 {::comment} description-end: unwrap {:/}
 

@@ -393,6 +393,9 @@ namespace Utils {
   void msleep(unsigned long msecs);
 
 
+  /// Returns the memory used (hmm, the "resources" ?), in KiB
+  int memoryUsed();
+
   /// Reverses the order of the list, in place.
   template <class T> void reverseList(QList<T> & list) {
     int sz = list.size();

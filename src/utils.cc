@@ -821,3 +821,11 @@ void Utils::skippingCopy(const double * source, double * target,
         target[i] = source[j++];
     }
 }
+
+
+// Memory use
+
+int Utils::memoryUsed()
+{
+  return 0;
+}

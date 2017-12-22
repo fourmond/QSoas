@@ -722,6 +722,8 @@ static void assertCmd(const QString &, QString code,
     return;
   }
 
+  MRuby * mr = MRuby::ruby();
+
   if(!dump.isEmpty()) {
 
     if(dump == "summary") {
@@ -754,6 +756,19 @@ static void assertCmd(const QString &, QString code,
                        << totl.failed << " failed, " 
                        << totl.exceptions << " exceptions." << endl;
       }
+
+      // Dump memory use
+      
+      Terminal::out << "Memory used:" << endl
+                    << " -> system: " << Utils::memoryUsed() << " kB"
+                    << endl
+                    << " -> ruby: " << mr->mrb->gc.live << " live, "
+                    << mr->mrb->gc.arena_idx << " arena" << endl;
+      Debug::debug() << "Memory used:" << endl
+                     << " -> system: " << Utils::memoryUsed() << " kB"
+                     << endl
+                     << " -> ruby: " << mr->mrb->gc.live << " live, "
+                     << mr->mrb->gc.arena_idx << " arena" << endl;
     }
     else {                      // fine details
       QFile f(code);
@@ -765,7 +780,6 @@ static void assertCmd(const QString &, QString code,
     return;
   }
 
-  MRuby * mr = MRuby::ruby();
 
   mrb_value value;
   AssertionsList * cur = &assertResults[assertContext];

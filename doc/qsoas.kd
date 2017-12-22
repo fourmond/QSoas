@@ -879,9 +879,10 @@ able to detect at least some of their meta-data).
 
 ### expand - Expand {#cmd-expand}
 
-`expand` `/flags=`_words_{:title="several words, separated by ','"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/x-every-nth=`_integer_{:title="an integer"}
+`expand` `/flags=`_words_{:title="several words, separated by ','"} `/group-columns=`_integer_{:title="an integer"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/x-every-nth=`_integer_{:title="an integer"}
 
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/group-columns=`_integer_{:title="an integer"}: specifies the number of Y columns in the created buffers -- values: an integer
   * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines meta-data from perpendicular coordinate -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
@@ -903,6 +904,17 @@ column. However, if you give a number to the `/x-every-nth=` option,
 then `expand` assumes that a X column is every that many columns. For
 instance, `/x-every-nth=2` means that the layout of the buffer is X1
 Y1 X2 Y2 X3 Y3...
+
+By default, `expand` splits every Y column into its own
+buffer. However, it is possible to group them using the
+`/group-columns` option. For instance, splitting a X Y1 Y2 Y3 Y4
+buffer with:
+
+~~~
+QSoas> expand /group-columns=2
+~~~
+
+will result in two buffers: X Y1 Y2 and X Y3 Y4.
 
 {::comment} description-end: expand {:/}
 
@@ -2867,6 +2879,25 @@ X position, Y position, and area of the major peak of the buffers
 This command is typically used to parse a whole series of buffers
 using [cmd: run-for-each] or [cmd: run-for-datasets].
 
+
+
+{::comment} synopsis-start: pop {:/}
+
+### pop - Pop accumulator {#cmd-pop}
+
+`pop` `/drop=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+
+  * `/drop=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Drop the accumulator instead of pushing it on the stack -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: pop {:/}
+{::comment} description-start: pop {:/}
+A number of commands can accumulate data to a "hidden" buffer using
+the `/accumulate=` options. The [cmd: pop] command takes that buffer,
+pushes it to the stack, and clears the "hidden" buffer.
+
+With `/drop=yes`, the "hidden" buffer is just clear, it is not pushed
+onto the stack.
+{::comment} description-end: pop {:/}
 
 
 

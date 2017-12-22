@@ -349,7 +349,7 @@ void DataStack::accumulateValues(const ValueHash & data)
     if(i >= accumulator->nbColumns()) {
       Vector v;
       if(nbr > 0)
-        v = Vector(0.0/0.0, nbr);
+        v = Vector(nbr, 0.0/0.0);
       accumulator->appendColumn(v);
     }
     accumulator->column(i) << data[k].toDouble();

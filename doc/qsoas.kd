@@ -2807,14 +2807,66 @@ which case the other columns from the buffers are ignored.
 
 # Data inspection facilities
 
-## Options for data output
+## Options for data output {#data-output}
 
-TODO: document:
+The commands below are able to compute a number of quantities from the
+datasets they work on, such as various statistics, the position of
+peaks, and so on. `QSoas` provides several ways to store and work with
+these data.
 
-  * the use of the output file for most of the commands
-  * the use of set-meta
-  * the use of `/accumulate=`, very similar to that of `/set-meta=`
-  * the use of `pop`
+### Saving to the output file
+
+The "traditional" way is to store the data in the [output
+file](#output-file). They end up as TAB-separated data, with an
+generally explicit header, and the name of the buffer the data is
+extracted from on the first column. When outputting to the [output
+file](#output-file), you can force the writing of extra columns
+containing some [meta-data](#meta-data) by listing them using the
+`/meta-data=` option.
+
+### Saving as meta-data
+
+It is also possible to use the `/set-meta=` option to "decorate" the
+buffers with the results of the command, as meta-data. For instance:
+running
+
+~~~
+QSoas> stats /set-meta=y_min
+~~~
+
+sets the `y_min` meta-data to the minimum value of the $$y$$ column of
+the dataset. It is also possible to select several meta-data,
+separating them using commas, or even change their name, such as
+
+~~~
+QSoas> stats /set-meta=y_min->my_interesting_meta
+~~~
+
+which saves also the minimum of the $$y$$ column as meta-data, but
+this time under the name `my_interesting_meta`.
+
+You can save all the data in one go under their original name using
+`/set-meta=*`.
+
+### Combining `/accumulate=` and [cmd: pop] to create new datasets on the fly
+
+It is now possible to generate a data from scratch using the
+`/accumulate=` option. This option takes an ordered list of output
+values (and, possibly meta-data), and accumulates the values to a
+"hidden" buffer, until the command [cmd: pop] is called. For instance,
+running on different buffers the following command:
+
+~~~
+QSoas> 1 /output=false /accumulate=x,y,area
+~~~
+
+will populate a dataset with 3 columns, containing respectively the
+X position, Y position, and area of the major peak of the buffers
+(with possibly extra columns for meta-data).
+
+This command is typically used to parse a whole series of buffers
+using [cmd: run-for-each] or [cmd: run-for-datasets].
+
 
 
 
@@ -2952,7 +3004,8 @@ segment-by-segment (and written to the output file if
 `/output=true`). If you want some meta-data to be written to the
 output file together with the statistics, provide them as a
 comma-separated list to the `/meta` option, or, alternatively, use the
-`/meta` option of the [cmd: output] command.
+`/meta` option of the [cmd: output] command. See more about that
+[above](#data-output).
 
 {::comment} description-end: stats {:/}
 

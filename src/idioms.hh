@@ -108,6 +108,7 @@ public:
   SaveGlobal(const char * n) : name(n) {
     mr = MRuby::ruby();
     old = mr->getGlobal(name);
+    mr->gcRegister(old);
   };
 
   SaveGlobal(const char * n, mrb_value nv) : name(n) {
@@ -117,7 +118,10 @@ public:
   };
 
   ~SaveGlobal() {
+    mrb_value v = mr->getGlobal(name);
     mr->setGlobal(name, old);
+    mr->gcUnregister(v);
+    mr->gcUnregister(old);
   };
 };
 

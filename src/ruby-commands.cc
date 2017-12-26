@@ -762,13 +762,11 @@ static void assertCmd(const QString &, QString code,
       Terminal::out << "Memory used:" << endl
                     << " -> system: " << Utils::memoryUsed() << " kB"
                     << endl
-                    << " -> ruby: " << mr->mrb->gc.live << " live, "
-                    << mr->mrb->gc.arena_idx << " arena" << endl;
+                    << " -> ruby: " << mr->memoryUse() << endl;
       Debug::debug() << "Memory used:" << endl
                      << " -> system: " << Utils::memoryUsed() << " kB"
                      << endl
-                     << " -> ruby: " << mr->mrb->gc.live << " live, "
-                     << mr->mrb->gc.arena_idx << " arena" << endl;
+                     << " -> ruby: " << mr->memoryUse() << endl;
     }
     else {                      // fine details
       QFile f(code);

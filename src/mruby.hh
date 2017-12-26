@@ -211,6 +211,10 @@ public:
 
   /// @}
 
+  /// Returns a string that represents the current memory use of the
+  /// mrb object
+  QString memoryUse();
+
   /// Strictly debug-only function. To be used with the DUMP_MRUBY define.
   static void dumpValue(const char * t, int n, const char * s, mrb_value v);
 

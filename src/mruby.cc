@@ -466,6 +466,18 @@ mrb_value MRuby::newTime(int year, int month, int day,
 }
 
 
+QString MRuby::memoryUse()
+{
+  QString s;
+  mrb_value v = eval("ObjectSpace.count_objects");
+  QTextStream o(&s);
+  o <<  mrb->gc.live << " live, "
+    << mrb->gc.arena_idx << " arena -- "
+    << inspect(v);
+  return s;
+}
+
+
                      
 
 

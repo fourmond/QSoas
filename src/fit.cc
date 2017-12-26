@@ -173,6 +173,23 @@ FitInternalStorage * Fit::getStorage(FitData * d) const
   return d->getStorage();
 }
 
+/// Private class for the fit engine arguments
+class FitEngineArgument : public FactoryArgument<FitEngineFactoryItem>
+{
+public:
+  FitEngineArgument(const char * cn, const char * pn,
+                    const char * d = "", bool def = false) :
+    FactoryArgument<FitEngineFactoryItem>(cn, pn, d, def)
+  {
+    choiceName = "engine";
+  }
+
+  virtual QString typeDescription() const {
+    return QString("[Fit engine](#fit-engines), one of: `%1`").
+      arg(sortedChoices().join("`, `"));
+  };
+};
+
 
 
 
@@ -223,10 +240,9 @@ void Fit::makeCommands(ArgumentList * args,
                                     "Threads",
                                     "Number of threads for computing the jacobian");
   
-  *baseOptions << new FactoryArgument<FitEngineFactoryItem>
-    ("engine", 
-     "Fit engine",
-     "The startup fit engine");
+  *baseOptions << new FitEngineArgument("engine", 
+                                        "Fit engine",
+                                        "The startup fit engine");
 
 
   *baseOptions << new StringArgument("extra-parameters", 

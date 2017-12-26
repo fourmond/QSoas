@@ -28,10 +28,16 @@
 #include <utils.hh>
 
 /// @todo An option to return either the name of the Factory item.
-template <typename F> class FactoryArgument : 
-  public  Argument {
+template <typename F> class FactoryArgument : public  Argument {
+protected:
 
   QString choiceName;
+
+  QStringList sortedChoices() const {
+    QStringList cs = F::availableItems();
+    qSort(cs);
+    return cs;
+  }
 public:
   FactoryArgument(const char * cn, const char * pn,
                   const char * d = "", bool def = false) : 

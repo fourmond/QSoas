@@ -709,6 +709,8 @@ forwarded to the appropriate backend). Currently available backends:
  * [`text`](#cmd-load-as-text) for plain space-separated text
  * [`csv`](#cmd-load-as-csv) for CSV data
  * [`chi-txt`](#cmd-load-as-chi-txt) for file from CH Instruments potentiostats
+ * [`parameters`](#cmd-load-as-parameters) for fit parameters ("saved
+   for reusing later")
 
 Look in their documentation for more information. In particular, the
 options `/separator=`, `/decimal=`, `/skip=`, `/comments=`,
@@ -873,6 +875,30 @@ This is a slightly modified version of [cmd: load-as-text] that
 handles better text files from CH Instruments (and is in particular
 able to detect at least some of their meta-data).
 {::comment} description-end: load-as-chi-txt {:/}
+
+{::comment} synopsis-start: load-as-parameters {:/}
+
+### load-as-parameters - Load files with backend 'parameters' {#cmd-load-as-parameters}
+
+`load-as-parameters` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/flags=`_words_{:title="several words, separated by ','"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
+
+  * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
+  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a buffer
+
+{::comment} synopsis-end: load-as-parameters {:/}
+{::comment} description-start: load-as-parameters {:/}
+QSoas can also load the parameters from a "Save Parameters" file. The
+parameterse end up one per column, as a function of the perpendicular
+coordinate used during the fit (or just an index if there was no
+perpendicular coordinates). This works on the parameters "saved for
+reusing later", the ones "exported" can be read using the standard
+[cmd: load-as-text] command, possibly by specifying the option
+`/comments=#` to avoid ignoring lines that start with text (buffer names).
+{::comment} description-end: load-as-parameters {:/}
 
 
 {::comment} synopsis-start: expand {:/}
@@ -5869,6 +5895,7 @@ listed here:
  * [`2`](#cmd-2)
  * [`add`](#cmd-add)
  * [`apply-formula`](#cmd-apply-formula)
+ * [`assert`](#cmd-assert)
  * [`auto-correlation`](#cmd-auto-correlation)
  * [`auto-filter-bs`](#cmd-auto-filter-bs)
  * [`auto-filter-fft`](#cmd-auto-filter-fft)
@@ -5924,6 +5951,7 @@ listed here:
  * [`load`](#cmd-load)
  * [`load-as-chi-txt`](#cmd-load-as-chi-txt)
  * [`load-as-csv`](#cmd-load-as-csv)
+ * [`load-as-parameters`](#cmd-load-as-parameters)
  * [`load-as-text`](#cmd-load-as-text)
  * [`load-fits`](#cmd-load-fits)
  * [`load-stack`](#cmd-load-stack)
@@ -5937,6 +5965,7 @@ listed here:
  * [`overlay`](#cmd-overlay)
  * [`overlay-buffer`](#cmd-overlay-buffer)
  * [`points`](#cmd-points)
+ * [`pop`](#cmd-pop)
  * [`print`](#cmd-print)
  * [`pwd`](#cmd-pwd)
  * [`quit`](#cmd-quit)

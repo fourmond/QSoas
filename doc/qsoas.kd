@@ -3170,22 +3170,51 @@ All fits commands share the following options:
    by separating them with commas.
  * The `/debug` option is for debugging fits or fit engines. It takes
    a debug level: 0 (no debug info), 1 and 2.
- * Using the `/engine`, one can pre-select the fit engine for fitting
-   (exactly like choosing it in the dialog box)
+ * Using the `/engine`, one can pre-select the [fit
+   engine](#fit-engines) for fitting (exactly like choosing it in the
+   dialog box) 
 
 The `sim-` commands additionally take the following option:
  * `/operation=` which tells `sim-` which operation to make: `compute`
    for just computing the fit function (the default operation),
    `reexport`, to reexport the values of the fit parameters with the
-   options to the output file, and `jacobian` to push the jacobian of
-   the fit to the stack.
-
-TODO: operation = annotate
+   options to the output file, `jacobian` to push the jacobian of
+   the fit to the stack, and `annotate`, that just annotates the
+   buffers by adding the values of the fit parameters as
+   [meta-data](#meta-data).
 
 
 In addition to these commands, QSoas provides commands to combine fits
 together, to fit derivatives of the signals, and to define fits with
 distributions of parameters.
+
+## Fit engines {#fit-engines}
+
+QSoas provides a number of fit engines with different strengths and
+weaknesses. Most are based on a Levenberg-Marquardt solver, with a few
+variants that make some of them more useful in certain situations. The
+rule is, if you are unhappy with how a particular fit engine
+converges, try another one !
+
+ * `odrpack` is a very good Levenberg-Marquardt fit engine based on
+   the [`ODRPACK`](http://www.netlib.org/odrpack/) netlib package. It
+   is the default (and most often the best) for fitting a small number
+   of buffers.
+ * `lmder` and `lmsder` are the Levenberg-Marquardt fit engines built
+   into the [GNU Scientific
+   Library](https://www.gnu.org/software/gsl/).
+ * `qsoas` and `multi` are the own Levenberg-Marquardt solvers of
+   QSoas, they are in general significantly faster than the other
+   ones, and the `multi` fit engine is optimized for massively
+   multi-buffer fits. Don't use anything else than `multi` if you have
+   more than 20 buffers with some parameters (but not all) global.
+ * `simplex` is a naive implementation of the "Simplex" minimization
+   problem. It is much faster than all the other ones, but its
+   convergence is sometimes not very good. You may want to refine the
+   fit using one of the Levenberg-Marquardt engines once you have
+   found a suitable minimum using this engine.
+   
+
 
 ## Subfunctions
 

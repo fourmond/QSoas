@@ -133,7 +133,9 @@ ValueHash ValueHash::select(const QStringList & ks) const
 
 QString ValueHash::prettyPrint(int nbCols, 
                                const QString & prefix, 
-                               const QString & joinStringLists, bool sort,
+                               const QString & joinStringLists,
+                               bool dumpOther,
+                               bool sort,
                                bool overrideorder) const
 {
   QString output;
@@ -147,14 +149,30 @@ QString ValueHash::prettyPrint(int nbCols,
       it = strings.find(k);
       if(! (done % nbCols))
         output += prefix;
+
+      bool found = false;
+      QString s;
       if(it != strings.end()) {
-        output += QString("%1 =\t %2").arg(k).arg(*it);
+        found = true;
+        s = *it;
+        strings.erase(it);
+      }
+      else {
+        if(dumpOther && contains(k)) {
+          MRuby * mr = MRuby::ruby();
+          // kinda hackish, but, well
+          mrb_value v = variantToRuby((*this)[k]);
+          found = true;
+          s = mr->inspect(v);
+        }
+      }
+      if(found) {
+        output += QString("%1 =\t %2").arg(k).arg(s);
         done++;
         if(done % nbCols)
           output += "\t";
         else
           output += "\n";
-        strings.erase(it);
       }
     }
   }
@@ -264,6 +282,14 @@ mrb_value ValueHash::variantToRuby(const QVariant & variant)
     QList<QVariant> lst = variant.toList();
     for(QVariant v : lst)
       mr->arrayPush(val, variantToRuby(v));
+    break;
+  }
+  case QMetaType::QStringList: {
+    val = mr->newArray();
+    QStringList lst = variant.toStringList();
+    for(QString v : lst)
+      mr->arrayPush(val, mr->fromQString(v));
+    break;
   }
   default:
     break;

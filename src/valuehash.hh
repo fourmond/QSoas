@@ -108,6 +108,7 @@ public:
   QString prettyPrint(int nbCols = 3,
                       const QString & prefix = "",
                       const QString & joinStringLists = QString(),
+                      bool dumpOther = false,
                       bool sort = true, bool overrideorder = false) const;
 
   /// Depending on the number of times used so far:

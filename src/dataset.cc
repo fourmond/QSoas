@@ -108,7 +108,7 @@ QString DataSet::stringDescription(bool longDesc) const
     qSort(flgs);
     val += QString("Flags: %1\n").arg(flgs.join(", "));
     val += "Meta-data:";
-    val += metaData.prettyPrint(3, "\t");
+    val += metaData.prettyPrint(3, "\t", ",", true);
     if(perpCoords.size() > 0) {
       val += "Perpendicular coordinates: " + perpCoords.asText().join(", ") + "\n";
     }

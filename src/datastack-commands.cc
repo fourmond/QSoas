@@ -451,7 +451,7 @@ static CommandLineOption sp("--load-stack", [](const QStringList & args) {
     new Hook([f]() {
         loadStackCommand("--", f);
       });
-  }, 1, "loads a binary stack file");
+  }, 1, "loads a binary stack file", true, true);
 
 
 //////////////////////////////////////////////////////////////////////

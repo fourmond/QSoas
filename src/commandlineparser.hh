@@ -49,13 +49,15 @@ public:
 
   CommandLineOption(const QString & k, Handler h,
 		    int nb, const QString & help = "",
-                    bool registerSelf = true);
+                    bool registerSelf = true, bool def = false);
 
   /// Handles the given arguments. It modifies the string list to
   /// leave only what it hasn't touched yet.
   ///
   /// It expects args[0] to be the key.
   void handle(QStringList & args);
+
+  bool isDefault;
 
 };
 
@@ -77,6 +79,10 @@ class CommandLineParser {
 
   /// Parses the given command-line (only arguments should be given)
   void doParsing(const QStringList & args);
+
+  /// The default option, i.e. the one that gets called when something
+  /// is not recognized.
+  CommandLineOption * defaultOption;
 
 public:
 

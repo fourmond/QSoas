@@ -44,9 +44,9 @@ void CommandLineOption::handle(QStringList & args)
 CommandLineOption::CommandLineOption(const QString & k,
                                      CommandLineOption::Handler h,
                                      int nb, const QString & help,
-                                     bool registerSelf) :
+                                     bool registerSelf, bool def) :
     longKey(k), numberNeeded(nb), helpText(help),
-    handler(h)
+    handler(h), isDefault(def)
 {
   if(registerSelf)
     CommandLineParser::globalParser()->addOption(this);
@@ -57,7 +57,7 @@ CommandLineOption::CommandLineOption(const QString & k,
 
 CommandLineParser * CommandLineParser::parser = NULL;
 
-CommandLineParser::CommandLineParser()
+CommandLineParser::CommandLineParser() : defaultOption(NULL)
 {
 }
 
@@ -76,6 +76,12 @@ void CommandLineParser::addOption(CommandLineOption * option)
   else
     key = QString("--") + option->longKey;
   options[key] = option;
+  if(option->isDefault) {
+    if(defaultOption)
+      throw InternalError("Two default options: %1 and %2").
+        arg(defaultOption->longKey).arg(option->longKey);
+    defaultOption = option;
+  }
 }
 
 void CommandLineParser::doParsing(const QStringList & args)
@@ -83,9 +89,15 @@ void CommandLineParser::doParsing(const QStringList & args)
   QStringList a = args;
   while(a.size() > 0) {
     CommandLineOption * opt = options.value(a.first(), NULL);
-    if(! opt)
-      throw RuntimeError("Unkown command-line option: %1").
-        arg(a.first());
+    if(! opt) {
+      if(defaultOption) {
+        opt = defaultOption;
+        a.insert(0, "(def)");
+      }
+      else 
+        throw RuntimeError("Unkown command-line option: %1").
+          arg(a.first());
+    }   
     opt->handle(a);
   }
 }

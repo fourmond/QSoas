@@ -19,6 +19,10 @@
 #include <headers.hh>
 #include <hook.hh>
 
+#include <exceptions.hh>
+#include <terminal.hh>
+
+
 QList<Hook*> * Hook::hooks = NULL;
 
 void Hook::registerHook(Hook * s)
@@ -38,6 +42,12 @@ void Hook::runHooks()
 {
   if(! hooks)
     return;
-  for(int i = 0; i < hooks->size(); i++)
-    hooks->value(i)->function();
+  for(int i = 0; i < hooks->size(); i++) {
+    try {
+      hooks->value(i)->function();
+    }
+    catch (const RuntimeError & e) {
+      Terminal::out << "Error: " << e.message() << endl;
+    }
+  }
 }

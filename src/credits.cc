@@ -36,16 +36,27 @@ void Credits::registerSelf()
 
 Credits::Credits(const QString & n, const QStringList & a, 
                  const QStringList & u, const QString & d,
+                 const QString & w,
                  Credits::Kind k, const QString & f) :
   name(n), authors(a),
-  urls(u), notice(d), kind(k), fileName(f)
+  urls(u), notice(d), what(w), kind(k), fileName(f)
 {
   registerSelf();
 }
 
 QString Credits::text(bool full) const
 {
-  QString c("%1:\nAuthors: %2\n%3\nRefs: %4\n");
+  
+  QString fmt;
+  switch(kind) {
+  case QSoas:
+    fmt = "%1%5:\nAuthors: %2\n%3\nRefs: %4\n";
+    break;
+  case Projects:
+    fmt = "%1 -- %5\nAuthors: %2\n%3\nRefs: %4\n";
+    break;
+  }
+  
   QString nt;
   if(full) {
     QFile f(fileName);
@@ -55,7 +66,7 @@ QString Credits::text(bool full) const
   else {
     nt = notice;
   }
-  return c.arg(name, authors.join(", "), nt, urls.join(", "));
+  return fmt.arg(name, authors.join(", "), nt, urls.join(", "), what);
 }
 
 void Credits::displayCredits(bool full)
@@ -65,6 +76,8 @@ void Credits::displayCredits(bool full)
 
   for(int i = 0; i < currentCredits->size(); i++) {
     Credits * c = currentCredits->value(i);
+    if(i > 0)
+      Terminal::out << "----------------------------------------------------------------------\n";
     Terminal::out << c->text(full) << endl;
   }
   if(! full) {
@@ -84,7 +97,7 @@ void Credits::displayStartupMessage()
     }
   }
   Terminal::out << "Copyright 2011 by Vincent Fourmond\n"
-                << "          2012-2015 by CNRS/AMU\n\n"
+                << "          2012-2017 by CNRS/AMU\n\n"
                 << "Based on Christophe Leger's original Soas\n\n"
                 << "This program is free software, released under the terms of "
                 << "the GNU general public license (see http://www.gnu.org/copyleft/gpl.html)\n\n"
@@ -108,6 +121,7 @@ Credits qsoas("QSoas itself",
               "but WITHOUT ANY WARRANTY; without even the implied warranty of "
               "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
               "GNU General Public License for more details.",
+              "", 
               Credits::QSoas,
               ":/licenses/GPL-2.txt");
 
@@ -115,6 +129,7 @@ Credits ruby("mruby",
              QStringList() << "mrubyby developers",
              QStringList() << "http://mruby.org",
              "mruby is copyrighted free software released under the terms of the 'MIT' license",
+             "embedded ruby interpreter, for formulas and scripting",
              Credits::Projects,
              ":/licenses/mruby.txt");
 
@@ -130,6 +145,7 @@ Credits gsl("GSL",
             "useful, but WITHOUT ANY WARRANTY; without even the implied "
             "warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR "
             "PURPOSE.  See the GNU General Public License for more details.",
+            "general-purpose scientific library, used for a large part of the computations",
             Credits::Projects,
             ":/licenses/GPL-3.txt");
 
@@ -145,6 +161,7 @@ Credits qt("Qt4",
            "In addition, as a special exception, Nokia gives you certain additional rights. These rights are described in the Nokia Qt LGPL Exception version 1.0, included in the file LGPL_EXCEPTION.txt in this package.\n\n"
            "GNU General Public License Usage\n"
            "Alternatively, this file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE.GPL included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.",
+           "cross-platform graphical user interface",
            Credits::Projects,
            ":/licenses/LGPL-2.1.txt");
 

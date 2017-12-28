@@ -48,6 +48,9 @@ public:
   /// A free text notice
   QString notice;
 
+  /// What the software package is used for
+  QString what;
+
   /// The kind of the credits
   Kind kind;
 
@@ -60,6 +63,7 @@ public:
           const QStringList & authors, 
           const QStringList & urls, 
           const QString & notice,
+          const QString & what,
           Kind k,
           const QString & full = "");
 

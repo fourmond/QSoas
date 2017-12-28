@@ -3,4 +3,4 @@ pop /drop=true
 run-for-each /range-type=lin invert-one.cmds 0..100:101
 pop
 apply-formula y=exp(y)-y-x-1
-assert '$meta["y_norm"]' 0.2
+assert '$stats["y_norm"]' 0.2

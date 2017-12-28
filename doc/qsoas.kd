@@ -3603,6 +3603,105 @@ This is the multibuffer version of the [fit: multiexp-multistep] fit.
 This is the simulation command for the [fit: multiexp-multistep] fit.
 {::comment} description-end: sim-multiexp-multistep {:/}
 
+
+{::comment} synopsis-start: fit-linear-kinetic-system {:/}
+
+### fit-linear-kinetic-system - Fit: Several steps with a kinetic evolution {#cmd-fit-linear-kinetic-system}
+
+`fit-linear-kinetic-system` `/additional-loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/offset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/parameters=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/species=`_integer_{:title="an integer"} `/steps=`_words_{:title="several words, separated by ','"} **(interactive)**
+
+  * `/additional-loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Additional unconstrained 'irreversible loss' rate constants -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/offset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, allow for a constant offset to be added -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
+  * `/species=`_integer_{:title="an integer"}: Number of species -- values: an integer
+  * `/steps=`_words_{:title="several words, separated by ','"}: Step list with numbered conditions -- values: several words, separated by ','
+
+{::comment} synopsis-end: fit-linear-kinetic-system {:/}
+{::comment} description-start: fit-linear-kinetic-system {:/}
+This is an extension to the [fit: multiexp-multistep] fit. This fit
+models the evolution of a system of chemical species that interconvert
+with first-order reactions. For instance, $$k_{12}$$ is the rate of
+production of species 2 from species 1.
+
+Like in [fit: multiexp-multistep], the time is divided into steps,
+during which the values of the rate constants are constant. The
+concentration of the species is assumed to be continuous at step
+change. The fit engine solves the following differential
+equations over each step (the result is a sum of exponential decays):
+
+$$ \frac{\mathrm{d}c_i}{\mathrm{d}t} = -\left(k_{loss} + \sum_{j=1}^n
+k_{ij}\right)\times c_i + \sum_{j\neq i} k_{ji}c_j$$
+
+The step specification is just a like of "names" (numbers,
+letters...), separated by commas. For each name corresponds a set of
+rate constants in the equation above. For instance, with the
+specification `/steps=1,2,1`, there are three steps, but only two sets
+of rate constants, `1`, and `2`, the first one being reused.
+
+This fit was used for many of the publications of the team, such as
+[Fourmond _et al_, **Nat. Chem.**,
+*2014*](http://dx.doi.org/10.1038/nchem.1892) or [Jacques _et al_, **BBA**,
+*2014*](http://dx.doi.org/10.1016/j.bbabio.2014.05.357).
+
+
+{::comment} description-end: fit-linear-kinetic-system {:/}
+{::comment} synopsis-start: mfit-linear-kinetic-system {:/}
+
+### mfit-linear-kinetic-system - Multi fit: Several steps with a kinetic evolution {#cmd-mfit-linear-kinetic-system}
+
+`mfit-linear-kinetic-system` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/additional-loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/offset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/species=`_integer_{:title="an integer"} `/steps=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} **(interactive)**
+
+  * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
+  * `/additional-loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Additional unconstrained 'irreversible loss' rate constants -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/offset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, allow for a constant offset to be added -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: if specified, it is the name of a meta-data that holds the perpendicular coordinates -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
+  * `/species=`_integer_{:title="an integer"}: Number of species -- values: an integer
+  * `/steps=`_words_{:title="several words, separated by ','"}: Step list with numbered conditions -- values: several words, separated by ','
+  * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: mfit-linear-kinetic-system {:/}
+{::comment} description-start: mfit-linear-kinetic-system {:/}
+This is the multibuffer version of the [fit: linear-kinetic-system] fit.
+{::comment} description-end: mfit-linear-kinetic-system {:/}
+
+
+{::comment} synopsis-start: sim-linear-kinetic-system {:/}
+
+### sim-linear-kinetic-system - Simulation: Several steps with a kinetic evolution {#cmd-sim-linear-kinetic-system}
+
+`sim-linear-kinetic-system` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/additional-loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/flags=`_words_{:title="several words, separated by ','"} `/offset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"} `/override=`_words_{:title="several words, separated by ',' or ';'"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/species=`_integer_{:title="an integer"} `/steps=`_words_{:title="several words, separated by ','"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
+  * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
+  * `/additional-loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Additional unconstrained 'irreversible loss' rate constants -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `qsoas`, `simplex`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the created buffers -- values: several words, separated by ','
+  * `/offset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, allow for a constant offset to be added -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`
+  * `/override=`_words_{:title="several words, separated by ',' or ';'"}: a comma-separated list of parameters to override -- values: several words, separated by ',' or ';'
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
+  * `/species=`_integer_{:title="an integer"}: Number of species -- values: an integer
+  * `/steps=`_words_{:title="several words, separated by ','"}: Step list with numbered conditions -- values: several words, separated by ','
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
+
+{::comment} synopsis-end: sim-linear-kinetic-system {:/}
+{::comment} description-start: sim-linear-kinetic-system {:/}
+This is the simulation command for the [fit: linear-kinetic-system] fit.
+{::comment} description-end: sim-linear-kinetic-system {:/}
+
+
 ## Polynomial fits
 
 {::comment} synopsis-start: fit-polynomial {:/}
@@ -6027,6 +6126,7 @@ listed here:
  * [`sim-exponential-decay`](#cmd-sim-exponential-decay)
  * [`sim-gaussian`](#cmd-sim-gaussian)
  * [`sim-kinetic-system`](#cmd-sim-kinetic-system)
+ * [`sim-linear-kinetic-system`](#cmd-sim-linear-kinetic-system)
  * [`sim-lorentzian`](#cmd-sim-lorentzian)
  * [`sim-multiexp-multistep`](#cmd-sim-multiexp-multistep)
  * [`sim-nernst`](#cmd-sim-nernst)

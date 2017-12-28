@@ -23,6 +23,8 @@
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_sf.h>
 
+#include <credits.hh>
+
 // atan:
 //
 //             3        5        7        9      10
@@ -58,3 +60,5 @@ double Functions::marcusHushChidseyZeng(double lambda, double eta)
   double a = 1 + sqrt(lambda);
   return sqrt(M_PI * lambda)/(1 + exp(- eta)) * gsl_sf_erfc((lambda - sqrt(a + eta*eta))/(2 * sqrt(lambda)));
 }
+
+static Credits mhz("Zeng et al, JEAC, 2014", "the k_mhc_z function", "10.1016/j.jelechem.2014.09.038");

@@ -33,7 +33,8 @@ public:
 
   typedef enum {
     QSoas,
-    Projects
+    Projects,
+    Paper
   } Kind;
 
   /// Name of the credits
@@ -67,6 +68,11 @@ public:
           Kind k,
           const QString & full = "");
 
+  /// To be used for a paper
+  Credits(const QString & cite,
+          const QString & what,
+          const QString & doi);
+  
   /// Text of the credits 
   QString text(bool full = false) const;
 

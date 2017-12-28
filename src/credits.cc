@@ -44,6 +44,15 @@ Credits::Credits(const QString & n, const QStringList & a,
   registerSelf();
 }
 
+Credits::Credits(const QString & cite,
+          const QString & w,
+          const QString & doi) :
+  name(cite), what(w), kind(Credits::Paper)
+{
+  urls << doi;
+  registerSelf();
+}
+
 QString Credits::text(bool full) const
 {
   
@@ -55,10 +64,13 @@ QString Credits::text(bool full) const
   case Projects:
     fmt = "%1 -- %5\nAuthors: %2\n%3\nRefs: %4\n";
     break;
+  case Paper:
+    // name = 
+    fmt = "%1 -- %5, DOI: %4%2%3"; 
   }
   
   QString nt;
-  if(full) {
+  if(full && (kind != Paper)) {
     QFile f(fileName);
     f.open(QIODevice::ReadOnly);
     nt = f.readAll();

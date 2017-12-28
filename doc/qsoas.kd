@@ -392,6 +392,9 @@ want a PDF or PostScript file, just provide the file name as the
 
 An optional title can be added using the `/title` option.
 
+You can also use a `.svg` extension if you want to produce a SVG file
+that can later be modified, by, e.g. [Inkscape](https://inkscape.org/).
+
 **Important note:** QSoas is not a data plotting system, it is a data
 analysis program. Don't expect miraculous plots !
 

@@ -1,4 +1,90 @@
-# Changes in version 2.1
+# What's new in version 2.2 ?
+
+Version 2.2 brings in a lot of new features and improvements, notably
+greatly improved memory use for massive multifits, a new way to
+transform "numbers" like peak position or stats into new datasets and
+SVG output ! It also finally brings back the peak area output in
+[cmd: find-peaks] and related commands !
+
+See the full list of changes [below](#v2.2)
+
+# What's new in version 2.1 ?
+
+Version 2.1 brings in a number of new functionalities, such as a
+command to solve equations, and ways to reparametrize fits, along with
+numerous improvements of already existing commands.
+
+See the full list of changes [below](#v2.1)
+
+# What's new in version 2.0 ?
+
+Version 2.0 brings a whole new set of functionalities for fits, namely
+a fit engine with enormous performance increases in massive
+multibuffer fits (easy to reach a 1000 times speed increase !),
+definition of fits with a distribution of parameters, and many new
+functions.
+
+See the full list of changes [below](#v2.0)
+
+
+# Changes in version 2.2 {#v2.2}
+
+## New commands
+
+ * a [cmd: load-as-parameters] load function to load saved fit
+   parameters as normal datasets
+ * [cmd: pop], which can be combined with the various `/accumulate=`
+   options to create datasets on the fly, from the results of commands
+   like [cmd: stats] or [cmd: 1]
+
+## Fits
+
+ * new time-dependent parameter: `ramps`
+ * interpolation of parameters in the "Parameters Spreadsheet"
+ * chi-squared "goodness of fit"
+ * `qsoas` and `multi` a much more memory-efficient for massive
+   multi-buffer fits
+ * [fit: arbitrary] has more "automatic" parameters
+ * all the `sim-` commands now also take the `/style=` and
+   `/set-meta=` options
+
+## Improvements of previous commands
+
+ * new picking modes available for all commands that pick points: the
+   local min (Ctrl+M) and max (Ctrl+Shift+M)
+ * possibility to track the point selected for commands that pick
+   points
+ * an `/exclusive=yes` option to [cmd: flag] to remove all the other
+   flags
+ * most data-producing commands now have an `/accumulate` option to
+   generate buffers step-by-step, to combine with [cmd: pop]
+ * new [cmd: stats]: `stddev`, and quantiles: `q10`, `q25`, `q75` and
+   `q90`
+ * [cmd: save-buffers] can now avoid to overwrite files
+ * threshold option for [cmd: strip-if] (to avoid creating near-empty
+   buffers)
+ * [cmd: load-as-csv] now correctly parses CSV files with quotes
+ * [cmd: print] can now export SVG files
+ * [cmd: bin] can now use a column for weights, and normalize the
+   sum to 1.
+ * Finally bring back the peak area for [cmd: find-peaks], [cmd: 1]
+   and [cmd: 2] !
+ * [cmd: expand] can now group the Y columns 2 by 2, (or 3 by 3, etc.)
+ * Improvements of [cmd: unwrap], including the possibility to reverse
+   its effects
+
+## Other improvements
+
+ * possibility to load a saved stack by just double-clicking on it
+ * in kinetic systems, can now use either Butler-Volmer or
+   Marcus-Hush-Chidsey kinetics for interfacial electron transfers
+ * now fully compatible with Qt 5, still not the default build
+ * switched to using embedded [mruby](https://mruby.org) rather than
+   plain ruby, which finally fixes a hard crash on Windows
+ * new special functions: incomplete gamma functions
+ * many bug fixes and other minor improvements
+
+# Changes in version 2.1 {#v2.1}
 
 ## New commands
 
@@ -50,7 +136,7 @@
  * A series of bug fixes
 
 
-# Changes in version 2.0
+# Changes in version 2.0 {#v2.0}
 
 ## New commands
 

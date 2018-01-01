@@ -621,13 +621,13 @@ static void reglin(const double *x, const double *y, int nb,
   }
 }
 
-QPair<double, double> DataSet::reglin(int begin, int end) const
+QPair<double, double> DataSet::reglin(int begin, int end, int ycol) const
 {
   int nb = nbRows();
   if(end < 0 || end > nb)
     end = nb;
   const double * x = columns[0].data();
-  const double * y = columns[1].data();
+  const double * y = columns[ycol].data();
   QPair<double, double> retval;
   ::reglin(x + begin, y + begin, (end - begin), 
            &retval.first, &retval.second);

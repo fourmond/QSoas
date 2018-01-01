@@ -280,6 +280,20 @@ static MultiLambdaStat delta(QStringList()
                              });
 
 
+static MultiLambdaStat reglin(QStringList()
+                             << "a"
+                             << "b", false, true,
+                             [](const DataSet * ds, int c) -> QList<QVariant>
+                             {
+                               QList<QVariant> rv;
+                               QPair<double, double> a;
+                               a = ds->reglin(0, -1, c);
+                               rv << a.first
+                                  << a.second;
+                               return rv;
+                             });
+
+
 
 //////////////////////////////////////////////////////////////////////
 

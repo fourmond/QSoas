@@ -115,6 +115,16 @@ doc.commands = doxygen
 QMAKE_EXTRA_TARGETS += doc
 
 
+# Activate the gcc address sanitizer by passing a CONFIG+=sanitizer
+# argument to qmake
+sanitizer {
+  OBJECTS_DIR = build-snt
+  QMAKE_CXXFLAGS += -fno-omit-frame-pointer -fsanitize=address
+  LIBS += -lasan
+  TARGET = $$join(TARGET,,,-snt)
+}
+
+
 
 
 # You can specify the full path of ruby on the command-line using:

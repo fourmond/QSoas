@@ -31,6 +31,13 @@ assert '$meta["y_min"] == -10'
 stats /set-meta=y_min->xxx
 assert '$meta["xxx"] == -10'
 
+# Reglin tests
+
+generate-buffer -10 10 2*x+3
+assert '$stats["y_a"] - 2' 1e-7
+assert '$stats["y_b"] - 3' 1e-7
+
+
 
 
 # Test accumulation, and in particular
@@ -46,4 +53,3 @@ strip-if y.nan?
 assert '$stats["rows"] == 1'
 assert '$stats["y_max"] == 10'
 assert '$stats["x_max"] == 0'
-

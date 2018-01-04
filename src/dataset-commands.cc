@@ -659,6 +659,9 @@ namespace __cu {
     ScaleX,
     ShiftY,
     ScaleY,
+    VerticalSymmetry,
+    HorizontalSymmetry,
+    CentralSymmetry,
     Abort,
     Quit
   } CursorActions;
@@ -676,6 +679,10 @@ namespace __cu {
     addKey(Qt::CTRL + Qt::SHIFT + 'x', ScaleX, "scale X by x/xref and keep going").
     addKey(Qt::CTRL + 'y', ShiftY, "shift Y by y-yref and keep going").
     addKey(Qt::CTRL + Qt::SHIFT + 'y', ScaleY, "scale Y by y/yref and keep going").
+    addKey('a', VerticalSymmetry, "vertical symmetry around the current point").
+    addKey('A', HorizontalSymmetry, "horizontal symmetry around the current point").
+    addKey('c', CentralSymmetry, "central symmetry around the current point").
+    alsoKey('C').
     addPointPicker().
     addKey(Qt::Key_Escape, Abort, "abort").
     addKey('q', Quit, "quit").
@@ -836,6 +843,30 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
       ensureEditableDS();
       Terminal::out << "Scaling Y by: " << ys << endl;
       nds->y() = nds->y()/ys;
+      break;
+    }
+    case VerticalSymmetry: {
+      ensureEditableDS();
+      Terminal::out << "Vertical symmetry around X = " << m.p.x() << endl;
+      nds->x() *= - 1;
+      nds->x() += 2*m.p.x();
+      break;
+    }
+    case HorizontalSymmetry: {
+      ensureEditableDS();
+      Terminal::out << "Horizontal symmetry around Y = " << m.p.y() << endl;
+      nds->y() *= - 1;
+      nds->y() += 2*m.p.y();
+      break;
+    }
+    case CentralSymmetry: {
+      ensureEditableDS();
+      Terminal::out << "Horizontal symmetry around (" << m.p.x()
+                    << "," << m.p.y() << ")" << endl;
+      nds->x() *= - 1;
+      nds->x() += 2*m.p.x();
+      nds->y() *= - 1;
+      nds->y() += 2*m.p.y();
       break;
     }
     default:

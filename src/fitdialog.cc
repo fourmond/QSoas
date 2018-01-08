@@ -763,7 +763,16 @@ void FitDialog::startFit()
   }
 
   /// @todo Here: a second computation of the covariance matrix...
-  parameters.recomputeErrors();
+  try {
+    parameters.recomputeErrors();
+  }
+  catch (const Exception & re) {
+    appendToMessage(QString("Error while computing errors: ") + re.message());
+    status = GSL_SUCCESS + 1;
+    Debug::debug()
+      << "End-of-fit compute exception: " << re.message() 
+      <<"\nBacktrace:\n\t" << re.exceptionBacktrace().join("\n\t") << endl;
+  }
 
 
   trajectories << 

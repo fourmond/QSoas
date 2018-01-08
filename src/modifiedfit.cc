@@ -125,7 +125,7 @@ protected:
     {
       TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
                                                       s->underlyingStorage);
-      s->underlyingStorage = underlyingFit->copyStorage(data, s->underlyingStorage, ds);
+      ns->underlyingStorage = underlyingFit->copyStorage(data, s->underlyingStorage, ds);
     }
     
     return ns;

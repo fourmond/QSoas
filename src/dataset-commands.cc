@@ -655,6 +655,7 @@ namespace __cu {
     QuitSubtractingRespRef,
     QuitDividingRespRef,
     WriteToOutput,
+    PickAndWrite,
     ShiftX,
     ScaleX,
     ShiftY,
@@ -669,6 +670,8 @@ namespace __cu {
   static EventHandler cursorHandler = EventHandler("cursor").
     addClick(Qt::LeftButton, PickPoint, "place cursor").
     addClick(Qt::RightButton, PickRef, "place reference").
+    addKey(' ', WriteToOutput, "write to output").
+    addClick(Qt::MiddleButton, PickAndWrite, "place and write to output").
     addKey('v', QuitDividing, "quit dividing by Y value").
     alsoKey('V').
     addKey('u', QuitSubtracting, "quit subtracting Y value").
@@ -686,9 +689,7 @@ namespace __cu {
     addPointPicker().
     addKey(Qt::Key_Escape, Abort, "abort").
     addKey('q', Quit, "quit").
-    alsoKey('Q').
-    addClick(Qt::MiddleButton, WriteToOutput, "write to output").
-    alsoKey(' ');
+    alsoKey('Q');
 
 
 
@@ -732,7 +733,8 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
     int action = cursorHandler.nextAction(loop);
     pick.processEvent(action);
     switch(action) {
-    case PickPoint: {
+    case PickPoint:
+    case PickAndWrite: {
       m.p = pick.point();
       e.clear();
       int idx = pick.pointIndex();
@@ -752,8 +754,16 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
         Terminal::out << e.keyOrder.join("\t") << endl;
       }
       Terminal::out << e.toString() << endl;
-      break;
+      if(action == PickPoint)
+        break;
     }
+    case WriteToOutput:
+      e.prepend("buffer", ds->name);
+      Terminal::out << "Writing position to output file: '" 
+                    << OutFile::out.fileName() << "'" << endl;
+      
+      OutFile::out.writeValueHash(e, ds);
+      break;
     case PickRef:
       r.p = pick.point();
       Terminal::out << "Reference:\t"  << r.p.x() << "\t" 
@@ -791,12 +801,6 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
       soas().pushDataSet(ds->derivedDataSet(ny, "_div.dat"));
       return;
     }
-    case WriteToOutput:
-      e.prepend("buffer", ds->name);
-      Terminal::out << "Writing position to output file: '" 
-                    << OutFile::out.fileName() << "'" << endl;
-      
-      OutFile::out.writeValueHash(e, ds);
     case ShiftX: {
       double dx = m.p.x() - r.p.x();
       if(! std::isfinite(dx)) {

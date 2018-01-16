@@ -695,7 +695,7 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
   CurveMarker r;
   CurveView & view = soas().view();
   PointPicker pick(&loop, ds);
-  pick.trackedButtons = Qt::LeftButton|Qt::RightButton;
+  pick.trackedButtons = Qt::LeftButton|Qt::RightButton|Qt::MiddleButton;
 
   view.addItem(&m);
   m.size = 4;

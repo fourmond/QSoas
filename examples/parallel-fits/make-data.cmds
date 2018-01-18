@@ -6,8 +6,18 @@
 # * ${5}: (optional): amplitude of the "noise"
 
 sim-${2} ${3} 0 /override=${4}=${1}
+a ${2}-${4}=${1}.dat
 apply-formula y+=${5:-0.1}*sin(i**3)
 flag /flags=${2}-dat
+fetch 1
+diff
+apply-formula y+=${5:-0.1}*sin(i**3)
+flag /flags=${2}-diff
+i 3 0
+flag /flags=${2}-combined
+# Back to the original data, to avoid doubling at each stuff...
+fetch 1
+
 
 # Honestly, this should be rewritten as a Ruby code, that would make
 # it much easier to modify several parameters at once

@@ -1,0 +1,15 @@
+# Takes a single, clean data, and:
+# * adds noise
+# * derives it (and add noise)
+# * combine it
+#
+# Takes a single parameter: the flag base name
+
+apply-formula y+=${5:-0.1}*sin(i**3)
+flag /flags=${1}-dat
+fetch 1
+diff
+apply-formula y+=${5:-0.1}*sin(i**3)
+flag /flags=${1}-diff
+i 3 0
+flag /flags=${1}-combined

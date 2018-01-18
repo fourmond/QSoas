@@ -1,0 +1,21 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: exponential-decay (2 exp, absolute, no loss, no slow phase)
+# Command-line: fit-exponential-decay /exponentials=2
+# Buffer #0 : exponential-decay-tau_1=10;A_1=30_diff_mod.dat
+x0	0	!	0
+A_inf	-0.0988096	!	1
+tau_1	4.05914	!	1
+A_1	2.76843	!	1
+tau_2	7.84706	!	1
+A_2	-4.15602	!	1
+# The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
+# Residuals: 4.92141
+# Buffer-local parameters: 
+# 
+# Buffer: exponential-decay-tau_1=10;A_1=30_diff_mod.dat (weight: 1)
+# x0	=	0	(fixed)
+# A_inf	=	-0.0988096	+- 2.3	+- 2.4e+03%
+# tau_1	=	4.05914	+- 12	+- 3e+02%
+# A_1	=	2.76843	+- 34	+- 1.2e+03%
+# tau_2	=	7.84706	+- 35	+- 4.4e+02%
+# A_2	=	-4.15602	+- 32	+- 7.7e+02%

@@ -1,0 +1,13 @@
+# Takes:
+# * ${2}: a fit name
+# * ${3}: a fit parameter file as a base
+# * ${4}: a fit parameter name
+# * ${1}: its new value (has to be as arg 1)
+# * ${5}: (optional): amplitude of the "noise"
+
+sim-${2} ${3} 0 /override=${4}=${1}
+apply-formula y+=${5:-0.1}*sin(i**3)
+flag /flags=${2}-dat
+
+# Honestly, this should be rewritten as a Ruby code, that would make
+# it much easier to modify several parameters at once

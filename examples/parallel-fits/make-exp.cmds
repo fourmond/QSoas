@@ -1,0 +1,2 @@
+generate-buffer 0 10
+run-for-each make-data.cmds /range-type=lin 1..5:51 /arg2=exponential-decay /arg3=exp.params /arg4=tau_1

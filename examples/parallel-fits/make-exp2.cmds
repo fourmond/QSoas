@@ -1,0 +1,8 @@
+generate-buffer 0 10 /flags=template
+ruby-run generate-sims.rb
+ruby
+generate_sims("exponential-decay", "exp2.params", 51,
+              ["tau_1:1..4", "A_1:20..30", "tau_2:1.5..9", "A_2:-20..20"],
+              {:exponentials => 2})
+ruby end              
+run-for-datasets add-noise.cmds  flagged:exponential-decay-cln /arg1=exponential-decay

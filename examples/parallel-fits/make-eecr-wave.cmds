@@ -1,0 +1,8 @@
+generate-buffer -0.5 0.5 /flags=template
+ruby-run generate-sims.rb
+ruby
+generate_sims("eecr-wave", "eecr-wave.params", ${1:-51},
+              ["Eoi:-0.1..0.15", "Eir:-0.2..0.2", "kred/kox:0.1..10"],
+              {})
+ruby end              
+run-for-datasets add-noise.cmds flagged:eecr-wave-cln /arg1=eecr-wave /arg2=0.1

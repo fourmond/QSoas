@@ -3,13 +3,23 @@
 # * derives it (and add noise)
 # * combine it
 #
-# Takes a single parameter: the flag base name
+# Takes:
+# * ${1}: the flag base name
+# * ${2}: a scaling factor for the derivative
+# * ${3}: a scaling factor for the base noise (based on the square root of the means of squares)
+# * ${4}: a scaling factor for the derivative noise (based on the square root of the means of squares)
 
-apply-formula y+=${5:-0.1}*sin(i**3)
+apply-formula y*=y
+eval '$a=$stats["y_average"]**0.5'
+drop
+apply-formula y+=${3:-0.05}*$a*sin(i**3)
 flag /flags=${1}-dat
 fetch 1
 diff
-apply-formula y+=${5:-0.1}*sin(i**3)
+apply-formula y*=y
+eval '$a=$stats["y_average"]**0.5'
+drop
+apply-formula y*=${2:-0.1};y+=${4:-0.1}*$a*${2:-0.1}*sin(i**3)
 flag /flags=${1}-diff
 i 3 0
 flag /flags=${1}-combined

@@ -1,0 +1,23 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: eecr-wave (2, bias, oxidation)
+# Command-line: fit-eecr-wave
+# Buffer #0 : generated.dat
+temperature	298	!	0
+Eoi	0.1	!	1
+Eir	-0.1	!	1
+kred/kox	1	!	1
+ilim/betad0	0.5	!	1
+kox/k0or	0.02	!	1
+k0oi/k0ir	10	!	1
+# The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
+# Residuals: 10710.6
+# Buffer-local parameters: 
+# 
+# Buffer: generated.dat (weight: 1)
+# temperature	=	298	(fixed)
+# Eoi	=	0.1	+- 0	+- 0%
+# Eir	=	-0.1	+- 0	+- 0%
+# kred/kox	=	1	+- 0	+- 0%
+# ilim/betad0	=	0.5	+- 0	+- 0%
+# kox/k0or	=	0.02	+- 0	+- 0%
+# k0oi/k0ir	=	10	+- 0	+- 0%

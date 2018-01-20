@@ -479,7 +479,8 @@ int FitData::f(const gsl_vector * x, gsl_vector * f,
   /// by checking all parameters.
 
   if(debug > 0) {
-    dumpString("Entering f computation");
+    dumpString(QString("Entering f computation -- local storage 0x%1").
+               arg((long)getStorage(), 0, 16));
     dumpGSLParameters(x);
     dumpFitParameters(params.data());
 
@@ -600,7 +601,8 @@ int FitData::df(const gsl_vector * x, SparseJacobian * df)
   unpackParameters(x, unpackedParams.data());
 
   if(debug > 0)
-    dumpString("Entering df computation");
+    dumpString(QString("Entering f computation -- local storage 0x%1").
+               arg((long)getStorage(), 0, 16));
 
   
   // First, compute the common value, and store it in... the storage
@@ -784,11 +786,12 @@ void FitData::initializeSolver(const double * initialGuess,
 
   if(independentDataSets()) {
     for(int i = 0; i < datasets.size(); i++) {
-      if(debug > 0)
-        dumpString(QString("Preparing sub-fit %1").arg(i));
       QList<const DataSet * > dss;
       dss << datasets[i];
       FitData * d = new FitData(fit, dss, debug, extra);
+      if(debug > 0)
+        dumpString(QString("Preparing sub-fit %1 -- 0x%2").
+                   arg(i).arg((long)d,0,16));
       subordinates.append(d);
 
       for(int j = 0; j < parameters.size(); j++) {
@@ -874,7 +877,8 @@ int FitData::iterate()
 
         if(subordinates[i]->nbIterations >= 0) {
           if(debug > 0)
-            dumpString(QString("Passing to subordinate %1").arg(i));
+            dumpString(QString("Passing to subordinate %1 -- 0x%2").
+                       arg(i).arg((long)subordinates[i],0,16));
           int status = subordinates[i]->iterate();
           if(debug > 0)
             dumpString(QString(" -> subordinate %1 return code %2").
@@ -1081,6 +1085,12 @@ void FitData::dumpFitParameterStructure() const
       arg(parameters[i]->fitIndex).
       arg(parameters[i]->fixed() ? "fixed" : "FREE");
   }
+
+  s+= "Buffers:\n";
+  for(int i = 0; i < datasets.size(); i++)
+    s += QString(" * 0x%1 %2\n").arg((long)datasets[i],0,16).
+      arg(datasets[i]->name);
   dumpString(s);
 }
+
 

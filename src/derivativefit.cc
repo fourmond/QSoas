@@ -50,13 +50,6 @@ DerivativeFit::Storage::Storage(const DerivativeFit::Storage & o) :
   sameX(NULL), originalStorage(NULL)
   // The copy constructor cannot copy the originalStorage !
 {
-  if(o.sameX) {
-    sameX = new bool[buffers.size()];
-    memcpy(sameX, o.sameX, buffers.size()*sizeof(bool));
-  }
-  for(int i = 0; i < o.splittedDatasets.size(); i++)
-    splittedDatasets << new DataSet(*o.splittedDatasets[i]);
-
   underlyingFit = o.underlyingFit;
 }
 
@@ -76,19 +69,6 @@ void DerivativeFit::processOptions(const CommandOptions & opts,
 {
   Storage * s = storage<Storage>(data);
 
-  if(mode == Combined) {
-    s->sameX = new bool[data->datasets.size()];
-    for(int i = 0; i < data->datasets.size(); i++) {
-      const DataSet * ds = data->datasets[i];
-      PossessiveList<DataSet> sub(ds->splitIntoMonotonic());
-      if(sub.size() != 2)
-        throw RuntimeError(QString("Dataset '%1' should be made of two "
-                                   "monotonic parts !").arg(ds->name));
-      sub.detach();
-      s->splittedDatasets << sub[0] << sub[1];
-      s->sameX[i] = sub[0]->x() == sub[1]->x();
-    }
-  }
 
   TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
   Fit::processOptions(s->underlyingFit, opts, data);
@@ -212,6 +192,22 @@ void DerivativeFit::function(const double * parameters,
 {
   reserveBuffers(data);
   Storage * s = storage<Storage>(data);
+
+  // Prepare the splitted buffers the first time we use them
+  if(mode == Combined && !s->sameX) {
+    s->sameX = new bool[data->datasets.size()];
+    for(int i = 0; i < data->datasets.size(); i++) {
+      const DataSet * ds = data->datasets[i];
+      PossessiveList<DataSet> sub(ds->splitIntoMonotonic());
+      if(sub.size() != 2)
+        throw RuntimeError(QString("Dataset '%1' should be made of two "
+                                   "monotonic parts !").arg(ds->name));
+      sub.detach();
+      s->splittedDatasets << sub[0] << sub[1];
+      s->sameX[i] = sub[0]->x() == sub[1]->x();
+    }
+  }
+
 
   TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
 

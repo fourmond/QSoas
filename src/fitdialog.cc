@@ -523,7 +523,7 @@ void FitDialog::dataSetChanged(int newds)
   alreadyChangingPage = false;
 }
 
-void FitDialog::setupSubFunctionCurves()
+void FitDialog::setupSubFunctionCurves(bool dontSend)
 {
   
   // Cleanup the storage
@@ -534,7 +534,7 @@ void FitDialog::setupSubFunctionCurves()
   if(! displaySubFunctions)
     return;
 
-  subFunctions = parameters.computeSubFunctions();
+  subFunctions = parameters.computeSubFunctions(dontSend);
 
   int base = 0;
   const GraphicsSettings & gs = soas().graphicsSettings();
@@ -559,7 +559,7 @@ void FitDialog::setupSubFunctionCurves()
 void FitDialog::internalCompute(bool dontSend)
 {
   parameters.recompute(dontSend);
-  setupSubFunctionCurves();
+  setupSubFunctionCurves(dontSend);
   updateResidualsDisplay();
 
   nup->repaint();

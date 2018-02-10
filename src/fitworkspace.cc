@@ -307,12 +307,12 @@ double FitWorkspace::goodnessOfFit() const
   return gsl_sf_gamma_inc_Q(0.5 * fitData->doF(), 0.5 * chi);
 }
 
-QList<Vector> FitWorkspace::computeSubFunctions()
+QList<Vector> FitWorkspace::computeSubFunctions(bool dontSend)
 {
   QList<Vector> ret;
   if(! fitData->fit->hasSubFunctions(fitData))
     return ret;
-  updateParameterValues();
+  updateParameterValues(dontSend);
   QStringList str;
   fitData->fit->computeSubFunctions(values, fitData, 
                                     &ret, &str);

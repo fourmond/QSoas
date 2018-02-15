@@ -476,7 +476,7 @@ void CommandWidget::runCommandFile(QIODevice * source,
 
 
       // Now, we look for all possible argument substitutions
-      QRegExp substitutionRE("\\$\\{(\\d+)(?:(%%|##|:-|:\\+|\\?)([^}]*))?\\}");
+      QRegExp substitutionRE("\\$\\{(\\d+)(?:(%%|##|:-|:\\+|\\?|\\D)([^}]*))?\\}");
 
       typedef enum {
         Plain, RemoveSuffix, RemovePrefix, DefaultValue, AlternateValue,
@@ -496,6 +496,13 @@ void CommandWidget::runCommandFile(QIODevice * source,
         QString oa = substitutionRE.cap(3);
         QString subst;
 
+        if(argn < 0)
+          throw RuntimeError("Invalid argument substitution: '%1' of "
+                             "line '%2'").
+            arg(key).arg(line);
+         
+          
+
         if(w == "%%")
           type = RemoveSuffix;
         else if(w == "##")
@@ -506,13 +513,17 @@ void CommandWidget::runCommandFile(QIODevice * source,
           type = AlternateValue;
         else if(w == "?")
           type = TernaryValue;
+        else if(w.size() > 0)
+          throw RuntimeError("Invalid argument substitution: '%1' of "
+                             "line '%2'").
+            arg(key).arg(line);
 
         if(type != DefaultValue && type != AlternateValue && 
            type != TernaryValue && argn >= args.size()) {
           throw RuntimeError("Script was given %1 parameters, "
-                             "but it needs at least %2, while parsing line '%3'").
+                             "but it needs at least %2, while parsing argument '%4' of line '%3'").
             arg(args.size()).arg(argn+1).
-            arg(line);
+            arg(line).arg(key);
         }
         switch(type) {
         case RemoveSuffix:

@@ -104,7 +104,7 @@ class FitDialog : public QDialog {
 
   /// Setup the clearing and display of the subfunction curves. Does
   /// nothing when the subfunction display is off.
-  void setupSubFunctionCurves();
+  void setupSubFunctionCurves(bool dontSend = false);
 
   /// A small text display to report current progress
   QLabel * progressReport;

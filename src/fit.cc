@@ -191,6 +191,24 @@ public:
 };
 
 
+class OverrideArgument : public SeveralStringsArgument {
+public:
+  OverrideArgument(const char * cn, const char * pn,
+                   const char * d = "", bool g = true, 
+                   bool def = false) :
+    SeveralStringsArgument(QRegExp("\\s*[,;]\\s*"), cn, pn, d, g, def) {
+  };
+
+  virtual QString typeName() const {
+    return "overrides";
+  };
+
+  virtual QString typeDescription() const {
+    return "several parameter=value assignments, separated by , or ;";
+  };
+
+};
+
 
 
 /// @todo This function probably needs to be rewritten (with completely
@@ -328,15 +346,10 @@ void Fit::makeCommands(ArgumentList * args,
     ArgumentList * nopts = new ArgumentList(*baseOptions);
 
 
-    *nopts << new SeveralStringsArgument(QRegExp("\\s*[,;]\\s*"),
-                                         "override",
-                                         "Override parameters",
-                                         "a comma-separated list of parameters "
-                                         "to override")
-           << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
-                                         "flags", 
-                                         "Flags",
-                                         "Flags to set on the created buffers")
+    *nopts << new OverrideArgument("override",
+                                   "Override parameters",
+                                   "a comma-separated list of parameters "
+                                   "to override")
            << DataStackHelper::helperOptions()
            << new ChoiceArgument(QStringList() 
                                  << "annotate"

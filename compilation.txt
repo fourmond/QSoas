@@ -4,8 +4,8 @@ Compilation requires the following packages:
   * The mruby interpreter, fromhttps://mruby.org/. The problem with
     mruby is QSoas will compile fine with version 1.3.0, but a bug in
     the mruby interpreter will cause a crash. You need a version
-    posterior to the commit 7450a774, grab them from
-    https://github.com/mruby/mruby
+    between commits 7450a774 and afa5380, or posterior to
+    55431b4. Grab them from https://github.com/mruby/mruby
   * Any Ruby interpreter (you don't need the development files, ruby
     is only used to prepare the build, it is not used to build
     against)

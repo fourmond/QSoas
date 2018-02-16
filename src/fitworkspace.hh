@@ -322,7 +322,7 @@ public:
   void recomputeJacobian();
 
   /// Returns the computed subfunctions
-  QList<Vector> computeSubFunctions();
+  QList<Vector> computeSubFunctions(bool dontSend = false);
 
   /// The data computed from the fit function.
   ///

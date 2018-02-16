@@ -32,6 +32,7 @@ class FitParameter;
 class OutFile;
 
 class FitParametersFile;
+class FitTrajectory;
 
 class CurveData;
 class DataSet;
@@ -442,6 +443,18 @@ public:
 
   /// @}
 
+  /// The status of the fitting process
+  typedef enum {
+    Converged,
+    Cancelled,
+    TimeOut,
+    NonFinite,
+    Error,
+    Running,
+    NotStarted,
+    Invalid
+  } Ending;
+
   /// @name Functions to run the fit
   /// @{
 
@@ -463,6 +476,12 @@ public:
   /// The time at which the fit started
   QDateTime fitStartTime;
 
+  /// The time in seconds that has elapsed since the beginning of the fit
+  double elapsedTime() const;
+
+  /// A list of all the fits started run during
+  QList<FitTrajectory> trajectories;
+
   void startFit();
 
   /// Runs the next iteration, returns the status code
@@ -470,11 +489,11 @@ public:
 
   void runFit(int iterationLimit);
 
-  void endFit(bool cancelled);
+  /// @todo In real, this would need the reason behind finishing the fit...
+  void endFit(Ending ending);
 
   /// Set to true if the fit was canceled
-  bool fitCanceled;
-
+  Ending fitEnding;
 
   /// @}
 
@@ -482,10 +501,10 @@ signals:
   /// This signal is sent at the end of every iteration. Provides the
   /// current iteration number and the parameters
   void iterated(int iteration, double residuals,
-                     const Vector & parameters);
+                const Vector & parameters);
 
   /// Sent when the fit is finished
-  void finishedFitting();
+  void finishedFitting(Ending ending);
 
   /// Sent at the beginning of the fit. Passes the number of free parameters
   void startedFitting(int freeParameters);

@@ -223,6 +223,10 @@ signals:
   /// Sent at the beginning of the fit
   void startedFitting();
 
+protected slots:
+  /// Called during all iterations
+  void onIterate(int nb, double res);
+
 public slots:
 
   /// Loads parameters from the given file.

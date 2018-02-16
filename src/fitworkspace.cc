@@ -36,6 +36,7 @@
 #include <datastackhelper.hh>
 
 #include <fitparametersfile.hh>
+#include <fittrajectory.hh>
 
 #include <gsl/gsl_sf.h>
 
@@ -81,7 +82,7 @@
 FitWorkspace::FitWorkspace(FitData * d) :
   fitData(d), parameters(d->datasets.size() * 
                          d->parametersPerDataset()),
-  rawCVMatrix(NULL), cookedCVMatrix(NULL)
+  rawCVMatrix(NULL), cookedCVMatrix(NULL), fitEnding(NotStarted)
 {
   if(! d->parametersStorage)
     throw InternalError("Trying to use an uninitialized FitData");
@@ -1182,7 +1183,6 @@ void FitWorkspace::startFit()
   //     return;
   // }
   fitStartTime = QDateTime::currentDateTime();
-  fitCanceled = false;
   soas().shouldStopFit = false;
   prepareFit(fitEngineParameterValues.value(fitData->engineFactory, NULL));
   parametersBackup = saveParameterValues();
@@ -1202,9 +1202,14 @@ void FitWorkspace::startFit()
                 << " using the '" << fitData->engineFactory->name
                 << "' fit engine"
                 << endl;
+  fitEnding = Running;
   emit(startedFitting(freeParams));
 }
 
+double FitWorkspace::elapsedTime() const
+{
+  return fitStartTime.msecsTo(QDateTime::currentDateTime()) * 1e-3;
+}
 
 int FitWorkspace::nextIteration()
 {
@@ -1217,11 +1222,7 @@ int FitWorkspace::nextIteration()
                 residuals,
                 saveParameterValues()
                 ));
-  
-  double tm = fitStartTime.msecsTo(QDateTime::currentDateTime()) * 1e-3;
-  QString str = QString("Iteration #%1, current internal residuals: %2, %3 s elapsed").
-    arg(fitData->nbIterations).arg(residuals).arg(tm);
-  
+    
   lastResiduals = residuals;
   return status;
 }
@@ -1232,12 +1233,29 @@ void FitWorkspace::runFit(int iterationLimit)
   int status;
   do {
     status = nextIteration();
-    if(shouldCancelFit || status != GSL_CONTINUE || 
-       fitData->nbIterations >= iterationLimit || soas().shouldStopFit)
+    if(shouldCancelFit || soas().shouldStopFit) {
+      fitEnding = Cancelled;
       break;
+    };
+    if(fitData->nbIterations >= iterationLimit) {
+      fitEnding = TimeOut;
+      break;
+    }
+    if(status != GSL_CONTINUE) {
+      if(status == GSL_SUCCESS)
+        fitEnding = Converged;
+      else
+        fitEnding = Error;
+      break;
+    }
   } while(true);
 
-  fitCanceled = shouldCancelFit || soas().shouldStopFit;
+  endFit(fitEnding);
+}
+
+void FitWorkspace::endFit(FitWorkspace::Ending ending)
+{
+  fitEnding = ending;
   double tm = fitStartTime.msecsTo(QDateTime::currentDateTime()) * 1e-3;
   Terminal::out << "Fitting took an overall " << tm
                 << " seconds, with " << fitData->evaluationNumber 
@@ -1245,37 +1263,23 @@ void FitWorkspace::runFit(int iterationLimit)
 
   /// @todo Here: first computation of the covariance matrix...
   writeToTerminal();
-  // try {
-  //   internalCompute(true);
-  // }
-  // catch (const Exception & e) {
-  //   appendToMessage(QString("Error while computing: ") + e.message());
-  //   status = GSL_SUCCESS + 1;
-  // }
-
   /// @todo Here: a second computation of the covariance matrix...
   recomputeErrors();
 
 
-  // trajectories << 
-  //   FitTrajectory(parametersBackup, parameters.saveParameterValues(),
-  //                 parameters.saveParameterErrors(),
-  //                 parameters.overallPointResiduals,
-  //                 parameters.overallRelativeResiduals,
-  //                 residuals,
-  //                 lastResiduals-residuals,
-  //                 fitData->engineFactory->name,
-  //                 startTime, data);
-  // if(shouldCancelFit || soas().shouldStopFit)
-  //   trajectories.last().ending = FitTrajectory::Cancelled;
-  // else if(fitData->nbIterations >= iterationLimit)
-  //   trajectories.last().ending = FitTrajectory::TimeOut;
-  // else if(status != GSL_SUCCESS)
-  //   trajectories.last().ending = FitTrajectory::Error;
+  trajectories << 
+    FitTrajectory(parametersBackup, saveParameterValues(),
+                  saveParameterErrors(),
+                  overallPointResiduals,
+                  overallRelativeResiduals,
+                  residuals,
+                  lastResiduals-residuals,
+                  fitData->engineFactory->name,
+                  fitStartTime, fitData);
 
+  trajectories.last().ending = ending;
   fitData->doneFitting();
-  // emit(finishedFitting());
-
+  emit(finishedFitting(ending));
 }
 
 

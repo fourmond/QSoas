@@ -22,6 +22,7 @@
 #define __FITTRAJECTORY_HH
 
 #include <vector.hh>
+#include <fitworkspace.hh>
 
 class FitData;
 
@@ -44,17 +45,8 @@ public:
 
   QVector<bool> fixed;
 
-  typedef enum {
-    Converged,
-    Cancelled,
-    TimeOut,
-    NonFinite,
-    Error,
-    Invalid
-  } Ending;
-
   /// How the fit ended.
-  Ending ending;
+  FitWorkspace::Ending ending;
 
   /// The residuals of the final parameters
   double residuals;
@@ -120,9 +112,9 @@ public:
 
   static QStringList exportHeaders(const QStringList & paramNames, int nb);
 
-  static QString endingName(Ending end);
+  static QString endingName(FitWorkspace::Ending end);
 
-  static Ending endingFromName(const QString & n);
+  static FitWorkspace::Ending endingFromName(const QString & n);
 };
 
 

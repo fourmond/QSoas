@@ -37,15 +37,16 @@ class CurveData;
 class DataSet;
 class DataStackHelper;
 
-/// Holds parameters of a fit (possibly multi-buffer), the way the
-/// user edits them. In fact, it holds essentially all that is
-/// necessary to run a fit, from the user's perspective.
+/// This class holds all the structures necessary to run a fit, from
+/// QSoas's perspective -- setting of parameters
 ///
 /// This class is also responsible for saving/loading the parameters,
 /// for exporting (and importing ?) them and so on.
 ///
 /// @todo Handle import (which is quite different from load).
-class FitWorkspace {
+class FitWorkspace : public QObject {
+
+  Q_OBJECT;
 
   /// The underlying FitData object.
   FitData * fitData;
@@ -421,6 +422,8 @@ public:
   void writeCovarianceMatrixLatex(QTextStream & out,  bool raw = false);
 
 
+  
+
 
   /// @name Functions to backup parameters...
   ///
@@ -438,6 +441,54 @@ public:
 
 
   /// @}
+
+  /// @name Functions to run the fit
+  /// @{
+
+  /// Whether or not we should cancel the current fit.
+  bool shouldCancelFit;
+
+
+  /// The parameters as saved just before starting the fit
+  Vector parametersBackup;
+
+  /// The internal residuals
+  double residuals;
+
+  /// The last internal residuals
+  double lastResiduals;
+
+  QHash<FitEngineFactoryItem *, CommandOptions * > fitEngineParameterValues;
+  
+  /// The time at which the fit started
+  QDateTime fitStartTime;
+
+  void startFit();
+
+  /// Runs the next iteration, returns the status code
+  int nextIteration();
+
+  void runFit(int iterationLimit);
+
+  void endFit(bool cancelled);
+
+  /// Set to true if the fit was canceled
+  bool fitCanceled;
+
+
+  /// @}
+
+signals:
+  /// This signal is sent at the end of every iteration. Provides the
+  /// current iteration number and the parameters
+  void iterated(int iteration, double residuals,
+                     const Vector & parameters);
+
+  /// Sent when the fit is finished
+  void finishedFitting();
+
+  /// Sent at the beginning of the fit. Passes the number of free parameters
+  void startedFitting(int freeParameters);
   
 };
 

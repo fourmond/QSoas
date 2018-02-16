@@ -1156,6 +1156,129 @@ double FitWorkspace::getBufferWeight(int dataset) const
 }
 
 
+void FitWorkspace::startFit()
+{
+  // if(! data->checkWeightsConsistency()) {
+  //   if(! warnings.warnOnce(this, "error-bars",
+  //                          "Error bar inconsistency" ,
+  //                          "You are about to fit multiple buffers where some of the buffers have error bars and some others don't.\n\nErrors will NOT be taken into account !\nStart fit again to ignore"))
+  //     return;
+
+    
+  // }
+
+  sendDataParameters();
+  int freeParams = fitData->freeParameters();
+  // if(! fitData->independentDataSets() &&
+  //    freeParams > 80 &&
+  //    fitData->datasets.size() > 15 &&
+  //    fitData->engineFactory->name != "multi") {
+  //   if(! warnings.warnOnce(this, QString("massive-mfit-%1").
+  //                          arg(fitData->engineFactory->name),
+  //                          QString("Fit engine %1 not adapted").
+  //                          arg(fitData->engineFactory->description),
+  //                          QString("The fit engine %1 is not adapted to massive multifits, it is better to use the Multi fit engine").
+  //                          arg(fitData->engineFactory->description)))
+  //     return;
+  // }
+  fitStartTime = QDateTime::currentDateTime();
+  fitCanceled = false;
+  soas().shouldStopFit = false;
+  prepareFit(fitEngineParameterValues.value(fitData->engineFactory, NULL));
+  parametersBackup = saveParameterValues();
+  shouldCancelFit = false;
+    
+  
+  QString params;
+  if(fitData->independentDataSets())
+    params = QString("%1 %2 %3").
+      arg(freeParams / fitData->datasets.size()).
+      arg(QChar(0xD7)).arg(fitData->datasets.size());
+  else
+    params = QString::number(freeParams);
+  
+  Terminal::out << "Starting fit '" << fitName() << "' with "
+                << params << " free parameters"
+                << " using the '" << fitData->engineFactory->name
+                << "' fit engine"
+                << endl;
+  emit(startedFitting(freeParams));
+}
+
+
+int FitWorkspace::nextIteration()
+{
+  int status = fitData->iterate();
+  residuals = fitData->residuals();
+
+  /// Signal at the end of each iteration
+  retrieveParameters();
+  emit(iterated(fitData->nbIterations,
+                residuals,
+                saveParameterValues()
+                ));
+  
+  double tm = fitStartTime.msecsTo(QDateTime::currentDateTime()) * 1e-3;
+  QString str = QString("Iteration #%1, current internal residuals: %2, %3 s elapsed").
+    arg(fitData->nbIterations).arg(residuals).arg(tm);
+  
+  lastResiduals = residuals;
+  return status;
+}
+
+void FitWorkspace::runFit(int iterationLimit)
+{
+  startFit();
+  int status;
+  do {
+    status = nextIteration();
+    if(shouldCancelFit || status != GSL_CONTINUE || 
+       fitData->nbIterations >= iterationLimit || soas().shouldStopFit)
+      break;
+  } while(true);
+
+  fitCanceled = shouldCancelFit || soas().shouldStopFit;
+  double tm = fitStartTime.msecsTo(QDateTime::currentDateTime()) * 1e-3;
+  Terminal::out << "Fitting took an overall " << tm
+                << " seconds, with " << fitData->evaluationNumber 
+                << " evaluations" << endl;
+
+  /// @todo Here: first computation of the covariance matrix...
+  writeToTerminal();
+  // try {
+  //   internalCompute(true);
+  // }
+  // catch (const Exception & e) {
+  //   appendToMessage(QString("Error while computing: ") + e.message());
+  //   status = GSL_SUCCESS + 1;
+  // }
+
+  /// @todo Here: a second computation of the covariance matrix...
+  recomputeErrors();
+
+
+  // trajectories << 
+  //   FitTrajectory(parametersBackup, parameters.saveParameterValues(),
+  //                 parameters.saveParameterErrors(),
+  //                 parameters.overallPointResiduals,
+  //                 parameters.overallRelativeResiduals,
+  //                 residuals,
+  //                 lastResiduals-residuals,
+  //                 fitData->engineFactory->name,
+  //                 startTime, data);
+  // if(shouldCancelFit || soas().shouldStopFit)
+  //   trajectories.last().ending = FitTrajectory::Cancelled;
+  // else if(fitData->nbIterations >= iterationLimit)
+  //   trajectories.last().ending = FitTrajectory::TimeOut;
+  // else if(status != GSL_SUCCESS)
+  //   trajectories.last().ending = FitTrajectory::Error;
+
+  fitData->doneFitting();
+  // emit(finishedFitting());
+
+}
+
+
 //////////////////////////////////////////////////////////////////////
 
 CovarianceMatrixDisplay::CovarianceMatrixDisplay(FitWorkspace * params, 

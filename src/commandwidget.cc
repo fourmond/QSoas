@@ -476,7 +476,7 @@ void CommandWidget::runCommandFile(QIODevice * source,
 
 
       // Now, we look for all possible argument substitutions
-      QRegExp substitutionRE("\\$\\{(\\d+)(?:(%%|##|:-|:\\+|\\?|\\D)([^}]*))?\\}");
+      QRegExp substitutionRE("\\$\\{(\\d+)(?:(%%|##|:-|:\\+|\\?|[^}0-9])([^}]*))?\\}");
 
       typedef enum {
         Plain, RemoveSuffix, RemovePrefix, DefaultValue, AlternateValue,

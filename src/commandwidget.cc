@@ -273,7 +273,7 @@ bool CommandWidget::runCommand(const QString & str)
       try {
         // Ruby::safeEval(rubyCode);
         MRuby * mr = MRuby::ruby();
-        CommandContext cc = currentContext();
+        ScriptContext cc = currentContext();
         if(cc.scriptFile.isEmpty())
           mr->eval(rubyCode);
         else {
@@ -382,7 +382,7 @@ void CommandWidget::resetPrompt()
 
 void CommandWidget::enterContext(const QString & file)
 {
-  contexts.append(CommandContext());
+  contexts.append(ScriptContext());
   contexts.last().scriptFile = file;
   resetPrompt();
 }
@@ -396,14 +396,14 @@ void CommandWidget::leaveContext()
 void CommandWidget::advanceContext()
 {
   if(contexts.size() == 0)
-    contexts.append(CommandContext());
+    contexts.append(ScriptContext());
   contexts.last().lineNumber++;
 }
 
-CommandContext CommandWidget::currentContext() const
+ScriptContext CommandWidget::currentContext() const
 {
   if(contexts.size() == 0)
-    return CommandContext();
+    return ScriptContext();
   return contexts.last();
 }
 

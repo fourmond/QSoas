@@ -30,7 +30,7 @@ class SideBarLabel;
 
 /// This class embeds the context in which a command was run (which
 /// command file, which location in the file)
-class CommandContext {
+class ScriptContext {
 public:
   /// The name of the script file (empty for no script)
   QString scriptFile;
@@ -103,7 +103,7 @@ class CommandWidget : public QWidget {
 
   /// The stack of contexts, gaining a level every time one enters
   /// inside a script
-  QList<CommandContext> contexts;
+  QList<ScriptContext> contexts;
   
 public:
 
@@ -126,7 +126,7 @@ public:
   void advanceContext();
 
   /// Returns the current context
-  CommandContext currentContext() const;
+  ScriptContext currentContext() const;
   
 
   /// @}

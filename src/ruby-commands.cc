@@ -631,7 +631,7 @@ public:
   QString exceptionMessage;
 
   /// The context of the command
-  CommandContext commandContext;
+  ScriptContext commandContext;
 
   /// The current assertion context
   QString context;

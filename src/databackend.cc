@@ -304,17 +304,16 @@ void DataBackend::registerBackendCommands()
     QString name = "load-as-" + b->name;
 
     QString d1 = QString("Load files with backend '%1'").arg(b->name);
-    QString d2 = QString("Load any number of files directly using the backend "
-                         "'%1', bypassing cache and automatic backend "
-                         "detection, and "
-                         "giving more fine-tuning in the loading via the "
-                         "use of dedicated options").arg(b->name);
+    // QString d2 = QString("Load any number of files directly using the backend "
+    //                      "'%1', bypassing cache and automatic backend "
+    //                      "detection, and "
+    //                      "giving more fine-tuning in the loading via the "
+    //                      "use of dedicated options").arg(b->name);
 
     new Command(name.toLocal8Bit(),
                 effector(b, &DataBackend::loadDatasetCommand),
                 "load", lst, opts, (const char*) d1.toLocal8Bit(), 
-                (const char*) d1.toLocal8Bit(), 
-                (const char*) d2.toLocal8Bit());
+                (const char*) d1.toLocal8Bit());
   }
 
   overallOptions->mergeOptions(*allBackendsOptions);
@@ -329,7 +328,7 @@ void DataBackend::registerBackendCommands()
                 overallOptions, // options
                 "Load",
                 "Loads one or several files",
-                "Loads the given files and push them onto the data stack",
+                "",
                 "l");
 
   cmd = 
@@ -340,8 +339,7 @@ void DataBackend::registerBackendCommands()
                 overallOptions, // options
                 "Overlay",
                 "Loads files and overlay them",
-                "Loads the given files and push them onto the data "
-                "stack, adding them to the display at the same time",
+                "",
                 "v");
   
 }

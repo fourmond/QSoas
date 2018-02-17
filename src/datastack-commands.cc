@@ -97,7 +97,7 @@ sv("save", // command name
    &saveOpts, // options
    "Save",
    "Saves the current buffer",
-   "Saves the current buffer to a file",
+   "",
    "s");
 
 //////////////////////////////////////////////////////////////////////
@@ -190,8 +190,7 @@ saveBuffers("save-buffers", // command name
             &sBArgs, // arguments
             &sBOpts, // options
             "Save",
-            "Saves specified buffers",
-            "Saves the designated buffers to file");
+            "Saves specified buffers");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -218,7 +217,7 @@ showStack("show-stack", // command name
           &showSOpts, // options
           "Show stack",
           "Shows the stack contents",
-          "Shows a small summary of what the stack is made of",
+          "",
           "k");
 
 //////////////////////////////////////////////////////////////////////
@@ -262,9 +261,7 @@ drop("drop", // command name
      NULL, // arguments
      &dropOps, // options
      "Drop dataset",
-     "Drops the current dataset",
-     "Drops the current dataset (or the ones specified in the "
-     "buffers options) and frees the associated memory");
+     "Drops the current dataset");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -301,8 +298,7 @@ popCmd("pop", // command name
        NULL, // arguments
        &popOps, // options
        "Pop accumulator",
-       "Pops the contents of the accumulator",
-       "s");
+       "Pops the contents of the accumulator");
 
 
 //////////////////////////////////////////////////////////////////////
@@ -330,8 +326,7 @@ undo("undo", // command name
      &undoOps, // options
      "Undo",
      "Return to the previous buffer",
-     "Returns to the previous buffer, and push the "
-     "current to the redo stack",
+     "",
      "u");
 
 //////////////////////////////////////////////////////////////////////
@@ -359,8 +354,7 @@ redo("redo", // command name
      &redoOps, // options
      "Redo",
      "Retrieves the last undone buffer",
-     "Pops the last buffer from the redo stack and set it "
-     "as the current buffer",
+     "",
      "r");
 
 //////////////////////////////////////////////////////////////////////
@@ -379,7 +373,7 @@ cls("clear-stack", // command name
     NULL, // options
     "Clear stack",
     "Removes all buffers from the stack",
-    "Removes all the buffers from both normal and redo stack",
+    "",
     "delstack"
     );
 
@@ -408,9 +402,7 @@ saveStack("save-stack", // command name
           &saveStackArgs, // arguments
           NULL, // options
           "Save stack",
-          "Saves the stack for later use",
-          "Saves the contents of the stack for later use, in a private "
-          "binary format");
+          "Saves the stack for later use");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -437,8 +429,7 @@ loadStack("load-stack", // command name
           &loadStackArgs, // arguments
           NULL, // options
           "Load stack",
-          "Loads the stack from file",
-          "Loads the stack as saved using save-stack");
+          "Loads the stack from file");
 
 
 //////////////////////////////////////////////////////////////////////
@@ -492,8 +483,7 @@ ovlb("overlay-buffer", // command name
      &styleOpts, // options
      "Overlay buffers",
      "Overlay buffer to the current one",
-     "Overlay buffers that are already in memory "
-     "on top of the current one",
+     "",
      "V");
 
 //////////////////////////////////////////////////////////////////////
@@ -541,9 +531,7 @@ clear("clear", // command name
       NULL, // arguments
       NULL, // options
       "Clear view",
-      "Clear the current view",
-      "Removes all datasets but the current one from the display"
-     );
+      "Clear the current view");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -567,7 +555,7 @@ poiCmd("points", // command name
        NULL, // options
        "Show points",
        "Shows individual points in the datasets",
-       "Shows all the points of datasets displayed.",
+       "",
        "poi");
 
 
@@ -594,7 +582,7 @@ browseStack("browse-stack",     // command name
             NULL,               // options
             "Browse stack",
             "Browse stack",
-            "Browse stack",
+            "",
             "K");
 
 //////////////////////////////////////////////////////////////////////
@@ -620,8 +608,7 @@ fetch("fetch", // command name
       NULL, // options
       "Fetch an old buffer",
       "Fetch old buffers from the stack and put them back on "
-      "the top of the stack.",
-      "...");
+      "the top of the stack.");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -717,7 +704,7 @@ browseFiles("browse", // command name
             &bfOpts, // options
             "Browse files",
             "Browse files",
-            "Browse files",
+            "",
             "W");
 
 //////////////////////////////////////////////////////////////////////
@@ -830,7 +817,7 @@ flag("flag", // command name
      NULL, // arguments
      &flOps, // options
      "Flag datasets",
-     "Flag datasets", "M");
+     "Flag datasets");
 
 
 static void unflagDataSetsCommand(const QString &, const CommandOptions & opts)
@@ -845,7 +832,7 @@ unflag("unflag", // command name
      NULL, // arguments
      &muOps, // options
      "Unflag datasets",
-     "Unflag datasets", "U");
+     "Unflag datasets");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -895,4 +882,4 @@ showBuffers("show", // command name
             &ssBArgs, // arguments
             NULL, // options
             "Show information",
-            "Show details (meta-data and such) about the given buffers", "");
+            "Show details (meta-data and such) about the given buffers");

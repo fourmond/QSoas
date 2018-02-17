@@ -68,8 +68,7 @@ cmds("commands", // command name
      NULL, // arguments
      NULL, // options
      "Commands",
-     "List commands",
-     "List all available commands, along with a little help");
+     "List commands");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -147,7 +146,7 @@ hlpc("help", // command name
      &helpO, // options
      "Help on...",
      "Give help on command",
-     "Gives all help available on the given command",
+     "",
      "?");
 
 //////////////////////////////////////////////////////////////////////
@@ -237,8 +236,7 @@ udCmd("update-documentation", // command name
      &udfA, // arguments
      NULL, // options
      "Update documentation",
-     "Update documentation file",
-     "...");
+     "Update documentation file");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -298,7 +296,6 @@ ldCmd("load-documentation",            // command name
       &ldfA,                           // arguments
       &ldfO,                           // options
       "Load documentation",
-      "Load documentation file",
-      "...");
+      "Load documentation file");
 
 //////////////////////////////////////////////////////////////////////

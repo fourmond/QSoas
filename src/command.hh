@@ -110,6 +110,8 @@ public:
     arguments(ar), options(op), custom(finishedLoading),
     effector(eff), 
     group(NULL) {
+    if(strlen(ld) > 0)
+      printf("Command: '%s'\n", cn);
     if(autoRegister)
       registerCommand(this);
   }; 

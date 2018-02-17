@@ -80,7 +80,7 @@ quit("quit", // command name
      NULL, // options
      "Quit",
      "Quit QSoas",
-     "Exits QSoas, losing all the current session",
+     "",
      "q");
 
 
@@ -99,8 +99,7 @@ breakc("break", // command name
        NULL, // arguments
        NULL, // options
        "Break",
-       "Break from script",
-       "Interrupts the run of the current script");
+       "Break from script");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -164,8 +163,7 @@ output("output", // command name
        NULL, // arguments
        &oOpts, // options
        "Change output file",
-       "Change the name of the current output file",
-       "Interrupts the run of the current script");
+       "Change the name of the current output file");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -222,7 +220,7 @@ temperature("temperature", // command name
             &tempOpts, // options
             "Temperature",
             "Reads/sets temperature",
-            "Shows or sets the temperature (using option)",
+            "",
             "T"
             );
 
@@ -295,7 +293,7 @@ p("print", // command name
   &pops, // options
   "Print",
   "Print current view (almost)",
-  "Prints the current main panel of the current view",
+  "",
   "p"
   );
 
@@ -324,7 +322,6 @@ st("save-output", // command name
    &sta, // arguments
    NULL, // options
    "Save output",
-   "Save all output from the terminal",
    "Save all output from the terminal");
 
 //////////////////////////////////////////////////////////////////////
@@ -355,9 +352,7 @@ sh("save-history", // command name
    &saveHistoryArgs, // arguments
    NULL, // options
    "Save history",
-   "Save command history",
-   "Saves all the command history to a plain text file, "
-   "to be used again with run");
+   "Save command history");
 
 //////////////////////////////////////////////////////////////////////
   
@@ -421,7 +416,7 @@ run("run", // command name
     &rcO, 
     "Run commands",
     "Run commands from a file",
-    "Run commands saved in a file",
+    "",
     "@");
 
 //////////////////////////////////////////////////////////////////////
@@ -452,7 +447,6 @@ noop("noop", // command name
      &noopArgs, // arguments
      &noopOpts, // options
      "No op",
-     "Does nothing",
      "Does nothing");
 
 
@@ -536,8 +530,7 @@ rfd("run-for-datasets", // command name
     &rfdArgs, // arguments
     &rfdOpts, 
     "Runs a script for several datasets",
-    "Runs a script file repetitively with the given buffers",
-    "...");
+    "Runs a script file repetitively with the given buffers");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -636,8 +629,7 @@ rfe("run-for-each", // command name
     &rfeArgs, // arguments
     &rfeOpts, 
     "Runs a script for several arguments",
-    "Runs a script file repetitively with the given arguments",
-    "...");
+    "Runs a script file repetitively with the given arguments");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -724,7 +716,7 @@ cd("cd", // command name
    &cdo, // options
    "Change directory",
    "Change current directory",
-   "Change current directory",
+   "",
    "G");
 
 //////////////////////////////////////////////////////////////////////

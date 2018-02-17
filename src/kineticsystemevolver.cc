@@ -254,8 +254,7 @@ kineticSystem("kinetic-system", // command name
               &ksOpts, // options
               "Kinetic system evolver",
               "Computes the concentration of species of an "
-              "arbitrary kinetic system",
-              "...");
+              "arbitrary kinetic system");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -579,5 +578,4 @@ dlwf("define-kinetic-system-fit",  // command name
      &dLWFArgs,                    // arguments
      &dkfsOpts,                    // options
      "Define a fit based on a kinetic mode",
-     "Defines a new fit based on kinetic model",
-     "...");
+     "Defines a new fit based on kinetic model");

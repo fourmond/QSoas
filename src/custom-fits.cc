@@ -637,7 +637,6 @@ loadFitsC("load-fits", // command name
          &lfArgs, // arguments
          &lfOpts, 
          "Load fits",
-         "Load fits from a file",
          "Load fits from a file");
 
 //////////////////////////////////////////////////////////////////////

@@ -126,9 +126,7 @@ sa("splita", // command name
    NULL, // arguments
    NULL, // options
    "Split first",
-   "Gets buffer until dx sign change",
-   "Returns the first part of the buffer, until "
-   "the first change of sign of dx");
+   "Gets buffer until dx sign change");
     
 static void splitbCommand(const QString &)
 {
@@ -144,9 +142,7 @@ sb("splitb", // command name
    NULL, // arguments
    NULL, // options
    "Split second",
-   "Gets buffer after first dx sign change",
-   "Returns the part of the buffer after "
-   "the first change of sign of dx");
+   "Gets buffer after first dx sign change");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -503,8 +499,7 @@ expand("expand", // command name
        NULL, // arguments
        &expandOpts, // options
        "Expand",
-       "Expands a multi-Y dataset",
-       "Expands a dataset with many Y columns into as many datasets with one Y column");
+       "Expands a multi-Y dataset");
 
 
 
@@ -531,8 +526,8 @@ renameCmd("rename", // command name
           &renameA, // arguments
           NULL, // options
           "Rename",
-          "??",
-          "??", "a");
+          "Renames the current buffer",
+          "", "a");
 
 
 //////////////////////////////////////////////////////////////////////
@@ -611,9 +606,7 @@ chopC("chop", // command name
       &chopA, // arguments
       &chopO, // options
       "Chop Buffer",
-      "Cuts buffer based on X values",
-      "Cuts the buffer into several subsets of the lengths given "
-      "as arguments");
+      "Cuts buffer based on X values");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -639,9 +632,7 @@ chopS("segments-chop", // command name
       NULL, // arguments
       &scO, // options
       "Chop into segments",
-      "Cuts buffer based on predefined segments",
-      "Cuts the buffer into several ones based on the segments defined "
-      "using set-segments or find-step /set-segments");
+      "Cuts buffer based on predefined segments");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -887,7 +878,7 @@ cu("cursor", // command name
    NULL, // options
    "Cursor",
    "Display cursors on the curve",
-   "Displays cursors on the curve",
+   "",
    "cu");
 };
 
@@ -1009,7 +1000,7 @@ namespace __cut {
       NULL, // options
       "Cut",
       "Cuts the current curve",
-      "Cuts bits from the current curve",
+      "",
       "c");
 };
 
@@ -1138,7 +1129,7 @@ namespace __ee {
      NULL, // arguments
      NULL, // options
      "Edit errors",
-     "Manually edit errors", "...");
+     "Manually edit errors");
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -1296,7 +1287,7 @@ zo("zoom", // command name
    NULL, // options
    "Zoom",
    "Zooms on the curve",
-   "Zooms on the current curve",
+   "",
    "z");
 
 //////////////////////////////////////////////////////////////////////
@@ -1355,8 +1346,7 @@ sub("subtract", // command name
     &operationOpts, // options
     "Subtract",
     "Subtract one buffer from another",
-    "Subtract the second buffer from the first. "
-    "Works with several 'first' buffers.",
+    "",
     "S");
 
 
@@ -1464,8 +1454,7 @@ divc("div", // command name
      &operationArgs, // arguments
      &operationOpts, // options
      "Divide",
-     "Divide one buffer by another",
-     "Divide the first buffer by the second");
+     "Divide one buffer by another");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1494,9 +1483,7 @@ mergec("merge", // command name
        &operationArgs, // arguments
        &operationOpts, // options
        "Merge buffers on X values",
-       "Merge two buffer based on X values",
-       "Merge the second buffer with the first one, and keep Y "
-       "of the second as a function of Y of the first");
+       "Merge two buffer based on X values");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1566,8 +1553,7 @@ contractc("contract", // command name
           &contractArgs, // arguments
           &contractOpts, // options
           "Group buffers on X values",
-          "Group buffers into a X,Y1,Y2",
-          "");
+          "Group buffers into a X,Y1,Y2");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1666,9 +1652,7 @@ ave("average", // command name
     &aveArgs, // arguments
     &aveOpts, // options
     "Average",
-    "Average buffers",
-    "Average all buffers, possibly splitting them into monotonic parts if "
-    "applicable");
+    "Average buffers");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1705,8 +1689,8 @@ cat("cat", // command name
     &catArgs, // arguments
     &catOpts, // options
     "Concatenate",
-    "Conc",
-    "Conc",
+    "Concatenate the given buffers",
+    "",
     "i");
 
 //////////////////////////////////////////////////////////////////////
@@ -1730,7 +1714,6 @@ shiftx("shiftx", // command name
        NULL, // arguments
        NULL, // options
        "Shift X values",
-       "Shift X values so that x[0] = 0",
        "Shift X values so that x[0] = 0");
 
 //////////////////////////////////////////////////////////////////////
@@ -1829,8 +1812,7 @@ stats("stats", // command name
       NULL, // arguments
       &statsO, // options
       "Statistics",
-      "Statistics",
-      "...");
+      "Statistics");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1911,8 +1893,7 @@ gDS("generate-buffer", // command name
     &gDSA, // arguments
     &gDSO, // options
     "Generate buffer",
-    "Generate a ramp",
-    "...");
+    "Generate a ramp");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1952,7 +1933,7 @@ sM("set-meta", // command name
    &sMA, // arguments
    NULL, // options
    "Set meta-data",
-   "Set meta-data", "...");
+   "Manually set meta-data");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1983,7 +1964,7 @@ sP("set-perp", // command name
    &sPA, // arguments
    NULL, // options
    "Set perpendicular",
-   "Set perpendicular coordinates", "...");
+   "Set perpendicular coordinates");
 
 //////////////////////////////////////////////////////////////////////
 

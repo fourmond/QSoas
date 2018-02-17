@@ -407,5 +407,4 @@ ddf("define-derived-fit", // command name
     &ddfA, // arguments
     &ddfO, // arguments
     "Create a derived fit",
-    "Create a derived fit to fit both the data and its derivative",
-    "(...)");
+    "Create a derived fit to fit both the data and its derivative");

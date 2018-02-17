@@ -216,7 +216,7 @@ namespace __reg {
       NULL, // options
       "Linear regression",
       "Performs linear regression",
-      "...",
+      "",
       "reg");
 };
 
@@ -268,8 +268,7 @@ areg("auto-reglin", // command name
      NULL, // arguments
      &arOps, // options
      "Automatic linear regression",
-     "Automatic linear regression",
-     "...");
+     "Automatic linear regression");
 
 
 
@@ -458,8 +457,7 @@ fl("film-loss", // command name
     NULL, // arguments
     NULL, // options
     "Film loss",
-    "Corrects for film loss segment-by-segment",
-    "...");
+    "Corrects for film loss segment-by-segment");
 
 };
 
@@ -665,7 +663,7 @@ bsl("baseline", // command name
     NULL, // options
     "Baseline",
     "Interpolation-based baseline",
-    "...",
+    "",
     "b");
 }
 
@@ -712,8 +710,7 @@ interpolate("interpolate", // command name
             &intArgs, // arguments
             &intOpts, // options
             "Interpolate",
-            "Recompute interpolation with given nodes",
-            "...");
+            "Recompute interpolation with given nodes");
 
 
 
@@ -938,7 +935,7 @@ cbsl("catalytic-baseline", // command name
     NULL, // options
     "Catalytic baseline",
     "Cubic baseline",
-    "...",
+    "",
     "B");
 }
 
@@ -1189,8 +1186,7 @@ namespace __bs {
        NULL, // arguments
        &bsOpts, // options
        "B-Splines filter",
-       "Filter using bsplines",
-       "...");
+       "Filter using bsplines");
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -1494,8 +1490,7 @@ fft("filter-fft", // command name
     NULL, // arguments
     &fftOps, // options
     "FFT filter",
-    "Filter using FFT",
-    "...");
+    "Filter using FFT");
 
 }
 
@@ -1556,7 +1551,7 @@ afbs("auto-filter-bs", // command name
      &afbsOps, // options
      "Auto B-splines",
      "Filter using bsplines",
-     "...",
+     "",
      "afbs");
 
 //////////////////////////////////////////////////////////////////////
@@ -1631,7 +1626,7 @@ afft("auto-filter-fft", // command name
      &afftOps, // options
      "Auto FFT",
      "Filter using FFT",
-     "...",
+     "",
      "afft");
 
 //////////////////////////////////////////////////////////////////////
@@ -1692,8 +1687,7 @@ fsc("find-steps", // command name
      NULL, // arguments
      &fsOps, // options
      "Find steps",
-     "Find steps in the data",
-     "...");
+     "Find steps in the data");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1846,8 +1840,7 @@ ssc("set-segments", // command name
     NULL, // arguments
     NULL, // options
     "Set segments",
-    "Set segments in the data (manually)",
-    "...");
+    "Set segments in the data (manually)");
 
 };
 
@@ -1894,7 +1887,7 @@ rs("remove-spikes", // command name
    &rsOps, // options
    "Remove spikes",
    "Remove spikes",
-   "Remove spikes using a simple heuristics",
+   "",
    "R");
 
 //////////////////////////////////////////////////////////////////////
@@ -1959,9 +1952,7 @@ diff("diff", // command name
      NULL, // arguments
      &diffOps, // options
      "Derive",
-     "4th order accurate first derivative",
-     "Computes the 4th order accurate derivative of the buffer\n"
-     "Do not use this on noisy data");
+     "4th order accurate first derivative");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1978,9 +1969,7 @@ dif2("diff2", // command name
      NULL, // arguments
      NULL, // options
      "Derive twice",
-     "4th order accurate second derivative",
-     "Computes the 4th order accurate second derivative of the buffer\n"
-     "Do not use this on noisy data !");
+     "4th order accurate second derivative");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -2040,8 +2029,7 @@ ddp("deldp", // command name
     NULL, // arguments
     NULL, // options
     "Deldp",
-    "Manually remove points",
-    "...");
+    "Manually remove points");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -2089,8 +2077,7 @@ norm("norm", // command name
      NULL, // arguments
      &normOps, // options
      "Normalize",
-     "Divides by the maximum",
-     "Normalize the current buffer by its maximum value");
+     "Divides by the maximum");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -2139,8 +2126,7 @@ zerp("zero", // command name
      &zeroArgs, // arguments
      &zeroOps, // options
      "Makes 0",
-     "Ensure that a given point has X or Y value equal to 0",
-     "...");
+     "Ensure that a given point has X or Y value equal to 0");
 
 //////////////////////////////////////////////////////////////////////
 

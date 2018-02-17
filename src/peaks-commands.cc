@@ -182,8 +182,7 @@ fp("find-peaks", // command name
    NULL, // arguments
    &fpOps, // options
    "Find peaks",
-   "Find all peaks",
-   "...");
+   "Find all peaks");
 
 static Command 
 fp1("1", // command name
@@ -192,8 +191,7 @@ fp1("1", // command name
     NULL, // arguments
     &fpbOps, // options
     "Find peak",
-    "Find the largest peak",
-    "...");
+    "Find the largest peak");
 
 static Command 
 fp2("2", // command name
@@ -202,8 +200,7 @@ fp2("2", // command name
     NULL, // arguments
     &fpbOps, // options
     "Find two peaks",
-    "Find the two largest peaks",
-    "...");
+    "Find the two largest peaks");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -287,6 +284,5 @@ ep("echem-peaks", // command name
    NULL, // arguments
    &epOps, // options
    "Find peaks pairs",
-   "Find all peaks pairs",
-   "...");
+   "Find all peaks pairs");
 

@@ -216,7 +216,6 @@ namespace __reg {
       NULL, // options
       "Linear regression",
       "Performs linear regression",
-      "",
       "reg");
 };
 
@@ -663,7 +662,6 @@ bsl("baseline", // command name
     NULL, // options
     "Baseline",
     "Interpolation-based baseline",
-    "",
     "b");
 }
 
@@ -935,7 +933,6 @@ cbsl("catalytic-baseline", // command name
     NULL, // options
     "Catalytic baseline",
     "Cubic baseline",
-    "",
     "B");
 }
 
@@ -1551,7 +1548,6 @@ afbs("auto-filter-bs", // command name
      &afbsOps, // options
      "Auto B-splines",
      "Filter using bsplines",
-     "",
      "afbs");
 
 //////////////////////////////////////////////////////////////////////
@@ -1626,7 +1622,6 @@ afft("auto-filter-fft", // command name
      &afftOps, // options
      "Auto FFT",
      "Filter using FFT",
-     "",
      "afft");
 
 //////////////////////////////////////////////////////////////////////
@@ -1887,7 +1882,6 @@ rs("remove-spikes", // command name
    &rsOps, // options
    "Remove spikes",
    "Remove spikes",
-   "",
    "R");
 
 //////////////////////////////////////////////////////////////////////
@@ -2173,7 +2167,8 @@ ac("auto-correlation", // command name
    NULL, // arguments
    NULL, // options
    "Auto-correlation",
-   "Computes the auto-correlation function", "", "ac");
+   "Computes the auto-correlation function",
+   "ac");
 
 //////////////////////////////////////////////////////////////////////
 

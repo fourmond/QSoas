@@ -146,7 +146,6 @@ hlpc("help", // command name
      &helpO, // options
      "Help on...",
      "Give help on command",
-     "",
      "?");
 
 //////////////////////////////////////////////////////////////////////

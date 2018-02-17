@@ -328,7 +328,6 @@ void DataBackend::registerBackendCommands()
                 overallOptions, // options
                 "Load",
                 "Loads one or several files",
-                "",
                 "l");
 
   cmd = 
@@ -339,7 +338,6 @@ void DataBackend::registerBackendCommands()
                 overallOptions, // options
                 "Overlay",
                 "Loads files and overlay them",
-                "",
                 "v");
   
 }

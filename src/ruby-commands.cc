@@ -132,7 +132,6 @@ load("apply-formula", // command name
      &fO, // options
      "Apply formula",
      "Applies a formula to the current dataset",
-     "",
      "F");
 
 //////////////////////////////////////////////////////////////////////

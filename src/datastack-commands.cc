@@ -97,7 +97,6 @@ sv("save", // command name
    &saveOpts, // options
    "Save",
    "Saves the current buffer",
-   "",
    "s");
 
 //////////////////////////////////////////////////////////////////////
@@ -217,7 +216,6 @@ showStack("show-stack", // command name
           &showSOpts, // options
           "Show stack",
           "Shows the stack contents",
-          "",
           "k");
 
 //////////////////////////////////////////////////////////////////////
@@ -326,7 +324,6 @@ undo("undo", // command name
      &undoOps, // options
      "Undo",
      "Return to the previous buffer",
-     "",
      "u");
 
 //////////////////////////////////////////////////////////////////////
@@ -354,7 +351,6 @@ redo("redo", // command name
      &redoOps, // options
      "Redo",
      "Retrieves the last undone buffer",
-     "",
      "r");
 
 //////////////////////////////////////////////////////////////////////
@@ -373,7 +369,6 @@ cls("clear-stack", // command name
     NULL, // options
     "Clear stack",
     "Removes all buffers from the stack",
-    "",
     "delstack"
     );
 
@@ -483,7 +478,6 @@ ovlb("overlay-buffer", // command name
      &styleOpts, // options
      "Overlay buffers",
      "Overlay buffer to the current one",
-     "",
      "V");
 
 //////////////////////////////////////////////////////////////////////
@@ -512,7 +506,6 @@ hide("hide-buffer", // command name
      NULL, // options
      "Hide buffers",
      "hide buffers from the view",
-     "",
      "H");
 
 
@@ -555,7 +548,6 @@ poiCmd("points", // command name
        NULL, // options
        "Show points",
        "Shows individual points in the datasets",
-       "",
        "poi");
 
 
@@ -582,7 +574,6 @@ browseStack("browse-stack",     // command name
             NULL,               // options
             "Browse stack",
             "Browse stack",
-            "",
             "K");
 
 //////////////////////////////////////////////////////////////////////
@@ -704,7 +695,6 @@ browseFiles("browse", // command name
             &bfOpts, // options
             "Browse files",
             "Browse files",
-            "",
             "W");
 
 //////////////////////////////////////////////////////////////////////

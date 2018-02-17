@@ -80,7 +80,6 @@ quit("quit", // command name
      NULL, // options
      "Quit",
      "Quit QSoas",
-     "",
      "q");
 
 
@@ -220,7 +219,6 @@ temperature("temperature", // command name
             &tempOpts, // options
             "Temperature",
             "Reads/sets temperature",
-            "",
             "T"
             );
 
@@ -293,7 +291,6 @@ p("print", // command name
   &pops, // options
   "Print",
   "Print current view (almost)",
-  "",
   "p"
   );
 
@@ -416,7 +413,6 @@ run("run", // command name
     &rcO, 
     "Run commands",
     "Run commands from a file",
-    "",
     "@");
 
 //////////////////////////////////////////////////////////////////////
@@ -716,7 +712,6 @@ cd("cd", // command name
    &cdo, // options
    "Change directory",
    "Change current directory",
-   "",
    "G");
 
 //////////////////////////////////////////////////////////////////////

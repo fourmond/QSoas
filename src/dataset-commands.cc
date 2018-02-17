@@ -526,8 +526,7 @@ renameCmd("rename", // command name
           &renameA, // arguments
           NULL, // options
           "Rename",
-          "Renames the current buffer",
-          "", "a");
+          "Renames the current buffer", "a");
 
 
 //////////////////////////////////////////////////////////////////////
@@ -878,7 +877,6 @@ cu("cursor", // command name
    NULL, // options
    "Cursor",
    "Display cursors on the curve",
-   "",
    "cu");
 };
 
@@ -1000,7 +998,6 @@ namespace __cut {
       NULL, // options
       "Cut",
       "Cuts the current curve",
-      "",
       "c");
 };
 
@@ -1287,7 +1284,6 @@ zo("zoom", // command name
    NULL, // options
    "Zoom",
    "Zooms on the curve",
-   "",
    "z");
 
 //////////////////////////////////////////////////////////////////////
@@ -1346,7 +1342,6 @@ sub("subtract", // command name
     &operationOpts, // options
     "Subtract",
     "Subtract one buffer from another",
-    "",
     "S");
 
 
@@ -1423,8 +1418,8 @@ mul("multiply", // command name
     "mbuf",  // group name
     &aArgs, // arguments
     &operationOpts, // options
-    "Add",
-    "Add buffers", "", "mul");
+    "Multiply",
+    "Multiply buffers", "mul");
 
 
 //////////////////////////////////////////////////////////////////////
@@ -1690,7 +1685,6 @@ cat("cat", // command name
     &catOpts, // options
     "Concatenate",
     "Concatenate the given buffers",
-    "",
     "i");
 
 //////////////////////////////////////////////////////////////////////

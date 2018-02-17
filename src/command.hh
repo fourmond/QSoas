@@ -102,16 +102,13 @@ public:
           ArgumentList * op,
           const char * pn,
           const char * sd = "", 
-          const char * ld = "", 
-          const char * sc = "", 
+          const char * sc = "",
           bool autoRegister = true) : 
     cmdName(cn), shortCmdName(sc), pubName(pn), 
-    shortDesc(sd), longDesc(ld), groupName(gn), 
+    shortDesc(sd), groupName(gn), 
     arguments(ar), options(op), custom(finishedLoading),
     effector(eff), 
     group(NULL) {
-    if(strlen(ld) > 0)
-      printf("Command: '%s'\n", cn);
     if(autoRegister)
       registerCommand(this);
   }; 
@@ -123,11 +120,10 @@ public:
           ArgumentList * op,
           const QByteArray & pn,
           const QByteArray & sd = "", 
-          const QByteArray & ld = "", 
-          const QByteArray & sc = "", 
+          const QByteArray & sc = "",
           bool autoRegister = true) : 
     cmdName(cn), shortCmdName(sc), pubName(pn), 
-    shortDesc(sd), longDesc(ld), groupName(gn), 
+    shortDesc(sd), groupName(gn), 
     arguments(ar), options(op), custom(finishedLoading),
     effector(eff), 
     group(NULL) {

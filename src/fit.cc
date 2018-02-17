@@ -224,8 +224,6 @@ void Fit::makeCommands(ArgumentList * args,
   pn += shortDesc;
   QByteArray sd = "Single buffer fit: ";
   sd += shortDesc;
-  QByteArray ld = "Single buffer fit:\n";
-  ld += longDesc;
 
   ArgumentList * fal = NULL;
   if(! args)
@@ -288,7 +286,7 @@ void Fit::makeCommands(ArgumentList * args,
     new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
                 singleFit ? singleFit : 
                 effector(this, &Fit::runFitCurrentDataSet, true),
-                "fits", fal, options, pn, sd, ld);
+                "fits", fal, options, pn, sd);
     options = new ArgumentList(*options); // Duplicate, as options
                                           // will be different for single and multi fits
   }
@@ -321,12 +319,10 @@ void Fit::makeCommands(ArgumentList * args,
   pn += shortDesc;
   sd = "multi buffer fit: ";
   sd += shortDesc;
-  ld = "multi buffer fit:\n";
-  ld += longDesc;
   new Command((const char*)(QString("mfit-") + name).toLocal8Bit(),
               multiFit ? multiFit : 
               effector(this, &Fit::runFit, true),
-              "fits", al, options, pn, sd, ld);
+              "fits", al, options, pn, sd);
 
   if(! multiFit || sim) {
     /// @todo handle the case when there is a fit-specified effector.
@@ -334,8 +330,6 @@ void Fit::makeCommands(ArgumentList * args,
     pn += shortDesc;;
     sd = "fit simulation: ";
     sd += shortDesc;
-    ld = "fit simulation:\n";
-    ld += longDesc;
     ArgumentList * al2 = new ArgumentList(*al);
     al2->insert(al2->size()-1, 
                 new FileArgument("parameters", 
@@ -365,7 +359,7 @@ void Fit::makeCommands(ArgumentList * args,
       ;
     new Command((const char*)(QString("sim-") + name).toLocal8Bit(),
                 (sim ? sim : effector(this, &Fit::computeFit)),
-                "simulations", al2, nopts, pn, sd, ld);
+                "simulations", al2, nopts, pn, sd);
   }
 }
 

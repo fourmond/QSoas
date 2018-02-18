@@ -30,7 +30,7 @@
 #include <terminal.hh>
 
 #include <exceptions.hh>
-#include <command.hh>
+#include <commandcontext.hh>
 #include <curveview.hh>
 
 #include <stylegenerator.hh>
@@ -612,12 +612,14 @@ ArgumentMarshaller * ParametersHashArgument::fromRuby(mrb_value value) const
 
 CommandArgument::CommandArgument(const char * cn, const char * pn,
                                  const char * d, bool def)
-  : ChoiceArgument(Command::allCommands, cn, pn, d, def) {
+  : ChoiceArgument([]() -> QStringList {
+      return soas().commandContext().allCommands();
+    }, cn, pn, d, def) {
 }; 
 
 ArgumentMarshaller * CommandArgument::fromString(const QString & str) const
 {
-  Command * cmd = Command::namedCommand(str);
+  Command * cmd = soas().commandContext().namedCommand(str);
   if(! cmd)
     throw RuntimeError("Invalid command: %1").arg(str);
   return new ArgumentMarshallerChild<Command *>(cmd);

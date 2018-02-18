@@ -20,6 +20,7 @@
 #include <headers.hh>
 #include <commandprompt.hh>
 #include <command.hh>
+#include <commandcontext.hh>
 #include <utils.hh>
 #include <argument.hh>
 #include <argumentlist.hh>
@@ -138,8 +139,9 @@ QStringList CommandPrompt::getCompletions(const CompletionContext & c,
 {
   *complete = true;
   if(c.index == 0)
-    return Utils::stringsStartingWith(Command::allCommands(), c.word);
-  Command * cmd = Command::namedCommand(c.allWords[0]);
+    return Utils::stringsStartingWith(soas().commandContext().
+                                      allCommands(), c.word);
+  Command * cmd = soas().commandContext().namedCommand(c.allWords[0]);
   if(! cmd) {
     *reason = tr("Unkown command: %1").arg(c.allWords[0]);
     return QStringList();

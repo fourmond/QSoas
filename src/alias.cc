@@ -19,6 +19,8 @@
 
 #include <headers.hh>
 #include <command.hh>
+#include <commandcontext.hh>
+#include <soas.hh>
 #include <group.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
@@ -114,7 +116,7 @@ static void defineAliasCommand(const QString &, QString alias,
   // 
   // if(definedAliases.contains(alias))
   //   throw RuntimeError("An alias named %1 already exists !").arg(alias);
-  if(Command::namedCommand(alias))
+  if(soas().commandContext().namedCommand(alias))
     throw RuntimeError("A command named '%1' already exists !").
       arg(alias);
 
@@ -138,7 +140,8 @@ static void defineAliasCommand(const QString &, QString alias,
               groupName.toLocal8Bit(),
               const_cast<ArgumentList*>(cmd->commandArguments()),
               const_cast<ArgumentList*>(cmd->commandOptions()),
-              sh.toLocal8Bit(), sh.toLocal8Bit());
+              sh.toLocal8Bit(), sh.toLocal8Bit(), "",
+              &soas().commandContext());
 }
 
 static ArgumentList 

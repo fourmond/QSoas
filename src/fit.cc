@@ -23,6 +23,7 @@
 
 #include <soas.hh>
 #include <command.hh>
+#include <commandcontext.hh>
 #include <group.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
@@ -72,9 +73,10 @@ void Fit::unregisterFit(Fit * fit, bool deleteCommands)
   QStringList cmds;
   cmds << "fit-" << "mfit-" << "sim-";
   for(int i = 0; i < cmds.size(); i++) {
-    Command * cmd = Command::namedCommand(cmds[i] + fit->name);
+    Command * cmd = CommandContext::globalContext()->
+      namedCommand(cmds[i] + fit->name);
     if(cmd) {
-      Command::unregisterCommand(cmd);
+      CommandContext::globalContext()->unregisterCommand(cmd);
       if(deleteCommands)
         delete cmd;
     }
@@ -85,7 +87,8 @@ void Fit::safelyRedefineFit(const QString & name, bool overwrite)
 {
   Fit * oldFit = namedFit(name);
   if(oldFit) {
-    Command * cmd = Command::namedCommand("mfit-" + name);
+    Command * cmd = CommandContext::globalContext()->
+      namedCommand("mfit-" + name);
     if(! cmd)
       throw InternalError("Found fit %1 but not command mfit-%2").
         arg(name).arg(name);

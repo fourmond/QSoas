@@ -20,6 +20,7 @@
 #include <headers.hh>
 #include <commandwidget.hh>
 #include <command.hh>
+#include <commandcontext.hh>
 #include <terminal.hh>
 #include <commandprompt.hh>
 #include <soas.hh>
@@ -112,54 +113,60 @@ QStringList & CommandWidget::startupFiles()
   return ::startupFiles.ref();
 }
 
-CommandWidget::CommandWidget() : 
+CommandWidget::CommandWidget(CommandContext * context) : 
   watcherDevice(NULL),
   addToHistory(true)
 {
-  if(! theCommandWidget)
-    theCommandWidget = this;    // Or always ?
   QVBoxLayout * layout = new QVBoxLayout(this);
+  QHBoxLayout * h1;
+  if(! context) {
+    context = CommandContext::globalContext();
+    if(! theCommandWidget)
+      theCommandWidget = this;    // Or always ?
 
-  if(! ((QString)logFileName).isEmpty()) {
-    /// @todo Find a writable place
-    int rotation = logRotateNumber;
-    if(rotation != 0) {
-      Debug::debug()
-        << "Rotating file " << logFileName << endl;
-      Utils::rotateFile(logFileName, rotation);
+    if(! ((QString)logFileName).isEmpty()) {
+      /// @todo Find a writable place
+      int rotation = logRotateNumber;
+      if(rotation != 0) {
+        Debug::debug()
+          << "Rotating file " << logFileName << endl;
+        Utils::rotateFile(logFileName, rotation);
+      }
+      watcherDevice = new QFile(logFileName);
+      watcherDevice->open(QIODevice::Append);
     }
-    watcherDevice = new QFile(logFileName);
-    watcherDevice->open(QIODevice::Append);
+
+    h1 = new QHBoxLayout();
+    terminalDisplay = new QTextEdit();
+    terminalDisplay->setReadOnly(true);
+    terminalDisplay->setContextMenuPolicy(Qt::NoContextMenu);
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), 
+            SLOT(onMenuRequested(const QPoint &)));
+
+    // We use a monospace font !
+    QFont mono(terminalFont);
+    QFontInfo m(mono);
+    Debug::debug()
+      << "Font used for terminal display: " << m.family() << endl;
+    terminalDisplay->setFont(mono);
+    QFontMetrics mt(terminalDisplay->font());
+    QSize sz = mt.size(0, "1.771771771766");
+    terminalDisplay->setTabStopWidth(sz.width());
+  
+    // terminalDisplay->document()-> 
+    //   setDefaultStyleSheet("p { white-space: pre; }");
+    // Doesn't seem to have any effect...
+    h1->addWidget(terminalDisplay);
+
+    sideBarLabel = new SideBarLabel();
+    h1->addWidget(sideBarLabel);
+
+    layout->addLayout(h1);
   }
 
-  QHBoxLayout * h1 = new QHBoxLayout();
-  terminalDisplay = new QTextEdit();
-  terminalDisplay->setReadOnly(true);
-  terminalDisplay->setContextMenuPolicy(Qt::NoContextMenu);
-
-  setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), 
-          SLOT(onMenuRequested(const QPoint &)));
-
-  // We use a monospace font !
-  QFont mono(terminalFont);
-  QFontInfo m(mono);
-  Debug::debug()
-    << "Font used for terminal display: " << m.family() << endl;
-  terminalDisplay->setFont(mono);
-  QFontMetrics mt(terminalDisplay->font());
-  QSize sz = mt.size(0, "1.771771771766");
-  terminalDisplay->setTabStopWidth(sz.width());
-  
-  // terminalDisplay->document()-> 
-  //   setDefaultStyleSheet("p { white-space: pre; }");
-  // Doesn't seem to have any effect...
-  h1->addWidget(terminalDisplay);
-
-  sideBarLabel = new SideBarLabel();
-  h1->addWidget(sideBarLabel);
-
-  layout->addLayout(h1);
+  soas().pushCommandContext(context);
 
   h1 = new QHBoxLayout();
   promptLabel = new QLabel("QSoas> ");
@@ -189,6 +196,7 @@ CommandWidget::CommandWidget() :
 CommandWidget::~CommandWidget()
 {
   delete watcherDevice;
+  soas().popCommandContext();
 }
 
 
@@ -213,7 +221,7 @@ bool CommandWidget::runCommand(const QStringList & raw)
   try {
     TemporaryChange<QStringList> ch(curCmdline, raw);
     soas().stack().startNewCommand();
-    Command::runCommand(raw, this);
+    commandContext->runCommand(raw, this);
   }
   catch(const RuntimeError & error) {
     Terminal::out << "Error: " << error.message() << endl;

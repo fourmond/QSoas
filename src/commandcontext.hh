@@ -85,13 +85,22 @@ public:
   /// context, including aliases
   QStringList allCommands() const;
 
+
+  /// Returns the list of all the command names, prefixed with the
+  /// correct prefix
+  static QStringList listAllCommands();
   
   QStringList interactiveCommands() const;
 
   QStringList nonInteractiveCommands() const;
 
+  static QStringList allNonInteractiveCommands();
+
   /// Returns the list of the commands available in the context
   QSet<Command *> availableCommands() const;
+
+  /// Returns the list of all the commands available
+  static QSet<Command *> allAvailableCommands();
 
   /// Returns the named command, or NULL if there is no command of
   /// that name.

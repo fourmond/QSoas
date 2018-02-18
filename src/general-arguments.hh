@@ -174,7 +174,7 @@ public:
 class ChoiceArgument : public Argument {
   QStringList fixedChoices;
 
-  QStringList (*provider)();
+  std::function<QStringList ()> provider;
 
   QStringList choices() const;
 
@@ -189,7 +189,7 @@ public:
     fixedChoices(c), provider(NULL), choiceName(chN) {
   }; 
 
-  ChoiceArgument(QStringList (*p)(),
+  ChoiceArgument(const std::function<QStringList ()> & p,
                  const char * cn, const char * pn,
                  const char * d = "", bool def = false,
                  const char * chN = "") : 

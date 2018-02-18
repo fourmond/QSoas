@@ -37,6 +37,7 @@
 
 // All this is for writing the specs
 #include <command.hh>
+#include <commandcontext.hh>
 #include <timedependentparameter.hh>
 #include <odesolver.hh>
 #include <integrator.hh>
@@ -79,6 +80,16 @@ Soas::~Soas()
   delete gs;
 }
 
+void Soas::pushCommandContext(CommandContext * context)
+{
+  contexts.insert(0, context);
+}
+
+void Soas::popCommandContext()
+{
+  contexts.takeFirst();
+}
+
 double Soas::temperature() const {
   return ::temperature;
 }
@@ -115,7 +126,7 @@ void Soas::pushDataSet(DataSet * d, bool silent)
 void Soas::writeSpecFile(QTextStream & out, bool full)
 {
   out << "Commands:" << endl;
-  Command::writeSpecFile(out, full);
+  CommandContext::writeSpecFile(out, full);
 
   out << "Functions:" << endl;
   out << " - " << GSLFunction::availableFunctions().join("\n - ") << endl;
@@ -209,7 +220,7 @@ static CommandLineOption sp("--spec", [](const QStringList & /*args*/) {
 static CommandLineOption lsc("--list-commands", [](const QStringList & /*args*/) {
     {
       QTextStream o(stdout);
-      QStringList cmds = Command::allCommands();
+      QStringList cmds = CommandContext::listAllCommands();
       qSort(cmds);
       o << cmds.join("\n") << endl;
     }

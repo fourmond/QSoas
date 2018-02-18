@@ -23,6 +23,7 @@
 #include <dataset.hh>
 #include <perdatasetfit.hh>
 #include <command.hh>
+#include <commandcontext.hh>
 #include <argumentlist.hh>
 #include <general-arguments.hh>
 #include <commandeffector-templates.hh>
@@ -202,7 +203,8 @@ CombinedFit::CombinedFit(const QString & name, const QString & f,
 
   for(int i = 0; i < underlyingFits.size(); i++) {
     PerDatasetFit *f = underlyingFits[i];
-    Command * cmd = Command::namedCommand("fit-" + f->fitName(false));
+    Command * cmd = CommandContext::globalContext()->
+      namedCommand("fit-" + f->fitName(false));
     *opts << *cmd->commandOptions();
   }
 

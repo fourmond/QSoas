@@ -29,6 +29,7 @@ class DataStack;
 class CommandWidget;
 class GraphicsSettings;
 class ValueHash;
+class CommandContext;
 
 /// The class holding all information/actor related to Soas.
 ///
@@ -41,6 +42,7 @@ class Soas {
   MainWin * mw;
   DataStack * ds;
   GraphicsSettings * gs;
+  QList<CommandContext *> contexts;
 
   static Soas * theSoasInstance;
 
@@ -82,7 +84,16 @@ public:
   CurveView & view();
   CommandWidget & prompt(); 
   GraphicsSettings & graphicsSettings() { return *gs;};
+  CommandContext & commandContext() {
+    return *(contexts.value(0, NULL));
+  };
   /// @}
+
+  /// Pushes a CommandContext to the stack
+  void pushCommandContext(CommandContext * context);
+
+  /// Pops the CommandContext
+  void popCommandContext();
 
   
   /// The current temperature

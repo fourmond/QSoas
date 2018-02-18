@@ -23,6 +23,7 @@
 #define __COMMANDWIDGET_HH
 
 class CommandPrompt;
+class CommandContext;
 class LineEdit;
 
 // A private class to display the label
@@ -104,14 +105,18 @@ class CommandWidget : public QWidget {
   /// The stack of contexts, gaining a level every time one enters
   /// inside a script
   QList<ScriptContext> contexts;
-  
+
+
+  /// The command context for the prompt
+  CommandContext * commandContext;
+
 public:
 
-  CommandWidget();
+  CommandWidget(CommandContext * context = NULL);
   virtual ~CommandWidget();
 
 
-  /// @name Context-related functions
+  /// @name Functions related to ScriptContext
   ///
   /// @{
 

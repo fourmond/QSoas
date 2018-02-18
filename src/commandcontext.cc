@@ -98,7 +98,7 @@ void CommandContext::unregisterCommand(Command * cmd)
 
 
 
-QStringList CommandContext::commandNames() const
+QStringList CommandContext::allCommands() const
 {
   return commands.keys();
 }
@@ -106,23 +106,52 @@ QStringList CommandContext::commandNames() const
 QStringList CommandContext::interactiveCommands() const
 {
   QStringList ret;
+  QString p;
+  if(! prefix.isEmpty())
+    p = prefix + "+";
   
   for(QHash<QString, Command*>::const_iterator i = commands.begin();
       i != commands.end(); ++i)
     if(i.value()->isInteractive())
-      ret << i.value()->cmdName;
+      ret << p + i.value()->cmdName;
   return ret;
 }
 
 QStringList CommandContext::nonInteractiveCommands() const
 {
   QStringList ret;
+  QString p;
+  if(! prefix.isEmpty())
+    p = prefix + "+";
   
   for(QHash<QString, Command*>::const_iterator i = commands.begin();
       i != commands.end(); ++i)
     if(! i.value()->isInteractive())
-      ret << i.value()->cmdName;
+      ret << p + i.value()->cmdName;
   return ret;
+}
+
+QStringList CommandContext::allNonInteractiveCommands()
+{
+  QStringList rv;
+  if(availableContexts) {
+    for(CommandContext * cxt : availableContexts->values())
+      rv += cxt->nonInteractiveCommands();
+  }
+  return rv;
+}
+
+QStringList CommandContext::listAllCommands()
+{
+  QSet<Command *> cmds = allAvailableCommands();
+  QStringList rv;
+  for(Command * c : cmds) {
+    QString n = c->commandName();
+    if(! c->context->prefix.isEmpty())
+      n = c->context->prefix + "+" + n;
+    rv << n;
+  }
+  return rv;
 }
 
 
@@ -161,14 +190,39 @@ void CommandContext::crosslinkAllCommands()
   CommandContext::finishedLoading = true;
 }
 
+
+
+static bool cmpCommands(const Command * a, const Command * b)
+{
+  return a->commandName() < b->commandName();
+}
+
 void CommandContext::writeSpecFile(QTextStream & out, bool full)
 {
-  QList<Command *> lst = availableCommands().toList();
+  QList<Command *> lst = globalContext()->availableCommands().toList();
   qSort(lst.begin(), lst.end(), ::cmpCommands);
 
   for(int i = 0; i < lst.size(); i++)
     out << lst[i]->commandSpec(full);
 
+  lst = fitContext()->availableCommands().toList();
+  qSort(lst.begin(), lst.end(), ::cmpCommands);
+
+  for(int i = 0; i < lst.size(); i++)
+    out << lst[i]->commandSpec(full);
+
+}
+
+void CommandContext::runCommand(const QStringList & cmd,
+                         QWidget * base)
+{
+  QStringList b = cmd;
+  QString name = b.takeFirst();
+  Command * command = namedCommand(name);
+  if(! command)
+    throw RuntimeError(QObject::tr("Unknown command: '%1'").
+                       arg(name));
+  command->runCommand(name, b, base);
 }
 
 QStringList CommandContext::loadDocumentation(const QString & str)
@@ -196,4 +250,15 @@ QStringList CommandContext::loadDocumentation(const QString & str)
   //   idx = nx + re.matchedLength();
   // }
   // return cmds.keys();
+  return QStringList();
+}
+
+QSet<Command *> CommandContext::allAvailableCommands()
+{
+  QSet<Command *> rv;
+  if(availableContexts) {
+    for(CommandContext * cxt : availableContexts->values())
+      rv.unite(cxt->availableCommands());
+  }
+  return rv;
 }

@@ -113,14 +113,15 @@ QStringList & CommandWidget::startupFiles()
   return ::startupFiles.ref();
 }
 
-CommandWidget::CommandWidget(CommandContext * context) : 
+CommandWidget::CommandWidget(CommandContext * c) : 
   watcherDevice(NULL),
-  addToHistory(true)
+  addToHistory(true),
+  commandContext(c)
 {
   QVBoxLayout * layout = new QVBoxLayout(this);
   QHBoxLayout * h1;
-  if(! context) {
-    context = CommandContext::globalContext();
+  if(! commandContext) {
+    commandContext = CommandContext::globalContext();
     if(! theCommandWidget)
       theCommandWidget = this;    // Or always ?
 
@@ -166,7 +167,7 @@ CommandWidget::CommandWidget(CommandContext * context) :
     layout->addLayout(h1);
   }
 
-  soas().pushCommandContext(context);
+  soas().pushCommandContext(commandContext);
 
   h1 = new QHBoxLayout();
   promptLabel = new QLabel("QSoas> ");

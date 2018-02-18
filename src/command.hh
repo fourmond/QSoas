@@ -61,6 +61,8 @@ protected:
   /// Registers this command
   void registerMe();
 
+  friend class CommandContext;
+
 public:
 
   /// Parse the arguments, possibly prompting for them if the given
@@ -118,7 +120,7 @@ public:
   /// \warning If you reimplement this function, you should set the
   /// the autoRegister parameter to false and do the registration
   /// yourself.
-  /*virtual*/ QString commandName() const {
+  QString commandName() const {
     return cmdName;
   };
 
@@ -129,7 +131,7 @@ public:
   /// \warning If you reimplement this function, you should set the
   /// the autoRegister parameter to false and do the registration
   /// yourself.
-  /*virtual*/ QString shortCommandName() const {
+  QString shortCommandName() const {
     return shortCmdName;
   };
 
@@ -137,18 +139,18 @@ public:
   /// The public name, the one to be used in the menus. This one gets
   /// translated, which means that one should use QT_TRANSLATE_NOOP
   /// macro for setting it.
-  /*virtual*/ QString publicName() const {
+  QString publicName() const {
     return pubName;
   };
 
   /// A short description, typically to be used for the status bar.
-  /*virtual*/ QString shortDescription() const {
+  QString shortDescription() const {
     return shortDesc;
   };
 
   /// A long informative description, such as a full help text,
   /// possibly with examples too.
-  /*virtual*/ QString longDescription() const {
+  QString longDescription() const {
     return longDesc;
   };
 

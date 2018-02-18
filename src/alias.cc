@@ -140,7 +140,7 @@ static void defineAliasCommand(const QString &, QString alias,
               groupName.toLocal8Bit(),
               const_cast<ArgumentList*>(cmd->commandArguments()),
               const_cast<ArgumentList*>(cmd->commandOptions()),
-              sh.toLocal8Bit(), sh.toLocal8Bit(), "",
+              sh.toLocal8Bit(), sh.toLocal8Bit(), QByteArray(),
               &soas().commandContext());
 }
 

@@ -44,12 +44,11 @@ Command::Command(const char * cn,
                  ArgumentList * op,
                  const char * pn,
                  const char * sd, 
-                 const char * ld, 
                  const char * sc,
                  CommandContext * cxt,
                  bool autoRegister) : 
   cmdName(cn), shortCmdName(sc), pubName(pn), 
-  shortDesc(sd), longDesc(ld), groupName(gn), 
+  shortDesc(sd), groupName(gn), 
   arguments(ar), options(op), custom(CommandContext::finishedLoading),
   context(cxt),
   effector(eff), 
@@ -66,12 +65,11 @@ Command::Command(const char * cn,
                  ArgumentList * op,
                  const QByteArray & pn,
                  const QByteArray & sd, 
-                 const QByteArray & ld, 
                  const QByteArray & sc, 
                  CommandContext * cxt,
                  bool autoRegister) : 
   cmdName(cn), shortCmdName(sc), pubName(pn), 
-  shortDesc(sd), longDesc(ld), groupName(gn), 
+  shortDesc(sd), groupName(gn), 
   arguments(ar), options(op), custom(CommandContext::finishedLoading),
   context(cxt),
   effector(eff), 
@@ -493,12 +491,6 @@ QString Command::commandSpec(bool full) const
     }
   }
   return ret;
-}
-
-
-static bool cmpCommands(const Command * a, const Command * b)
-{
-  return a->commandName() < b->commandName();
 }
 
 

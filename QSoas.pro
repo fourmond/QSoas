@@ -316,7 +316,8 @@ SOURCES += src/qmain.cc \
         src/onetimewarnings.cc \
         src/fitparametersfile.cc \
         src/ruby-interface.cc \
-        src/linearkineticsystem.cc
+        src/linearkineticsystem.cc \
+        src/commandcontext.cc
 
 #        src/conditionsprovider.cc \
 
@@ -449,7 +450,8 @@ HEADERS += src/headers.hh \
         src/sparsecovariance.hh \
         src/onetimewarnings.hh \
         src/fitparametersfile.hh \
-        src/linearkineticsystem.hh
+        src/linearkineticsystem.hh \
+        src/commandcontext.hh
 
 # mruby
 HEADERS += src/mruby.hh

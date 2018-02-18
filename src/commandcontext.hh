@@ -50,7 +50,28 @@ protected:
 
   /// The Ruby class name
   QString rubyClass;
+
+  void crosslinkCommands();
+
+  /// Writes the specs of the context
+  void writeSpec(QTextStream & out, bool full);
 public:
+
+  static void crosslinkAllCommands();
+
+  static bool finishedLoading;
+
+  /// Loads the documentation from the given string, and returns a
+  /// list of commands for which the documentation was missing.
+  ///
+  /// Loads for all the contexts
+  static QStringList loadDocumentation(const QString & str);
+
+
+  /// Writes out a specification for all commands, in the alphabetic
+  /// order.
+  static void writeSpecFile(QTextStream & out, bool full);
+
 
   CommandContext(const QString & prefix, const QString & cls);
 
@@ -62,7 +83,12 @@ public:
 
   /// Returns the names of all the commands registered in this
   /// context, including aliases
-  QStringList commandNames() const;
+  QStringList allCommands() const;
+
+  
+  QStringList interactiveCommands() const;
+
+  QStringList nonInteractiveCommands() const;
 
   /// Returns the list of the commands available in the context
   QSet<Command *> availableCommands() const;

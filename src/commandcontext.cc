@@ -20,6 +20,7 @@
 #include <headers.hh>
 #include <commandcontext.hh>
 #include <command.hh>
+#include <group.hh>
 
 QHash<QString, CommandContext*> * CommandContext::availableContexts = NULL;
 
@@ -86,12 +87,113 @@ void CommandContext::registerCommand(Command * cmd)
   commands[cmd->shortCommandName()] = cmd;
 }
 
+void CommandContext::unregisterCommand(Command * cmd)
+{
+  commands.remove(cmd->commandName());
+  if(! cmd->shortCommandName().isEmpty())
+    commands.remove(cmd->shortCommandName());
+
+  // Is that all ?
+}
+
+
+
 QStringList CommandContext::commandNames() const
 {
   return commands.keys();
 }
 
+QStringList CommandContext::interactiveCommands() const
+{
+  QStringList ret;
+  
+  for(QHash<QString, Command*>::const_iterator i = commands.begin();
+      i != commands.end(); ++i)
+    if(i.value()->isInteractive())
+      ret << i.value()->cmdName;
+  return ret;
+}
+
+QStringList CommandContext::nonInteractiveCommands() const
+{
+  QStringList ret;
+  
+  for(QHash<QString, Command*>::const_iterator i = commands.begin();
+      i != commands.end(); ++i)
+    if(! i.value()->isInteractive())
+      ret << i.value()->cmdName;
+  return ret;
+}
+
+
 QSet<Command *> CommandContext::availableCommands() const
 {
   return QSet<Command * >::fromList(commands.values());
+}
+
+
+bool CommandContext::finishedLoading = false;
+
+void CommandContext::crosslinkCommands()
+{
+  for(QHash<QString, Command *>::iterator i = commands.begin();
+      i != commands.end(); ++i) {
+    if(! i.value()->group) {
+      Group * grp = Group::namedGroup(i.value()->groupName);
+      if(! grp) {
+        QTextStream o(stdout);
+        o << "Missing group: " << i.value()->groupName << endl;
+      }
+      else {
+        i.value()->group = grp;
+        grp->commands.append(i.value());
+      }
+    }
+  }
+}
+
+void CommandContext::crosslinkAllCommands()
+{
+  if(! availableContexts)
+    return;
+  for(CommandContext * cxt : availableContexts->values())
+    cxt->crosslinkCommands();
+  CommandContext::finishedLoading = true;
+}
+
+void CommandContext::writeSpecFile(QTextStream & out, bool full)
+{
+  QList<Command *> lst = availableCommands().toList();
+  qSort(lst.begin(), lst.end(), ::cmpCommands);
+
+  for(int i = 0; i < lst.size(); i++)
+    out << lst[i]->commandSpec(full);
+
+}
+
+QStringList CommandContext::loadDocumentation(const QString & str)
+{
+  // QRegExp re("\\{::comment\\} description-(start|end):\\s*([0-9a-z-]+)\\s*\\{:/\\}\\s*");
+
+  // QHash<QString, Command *> cmds = *availableCommands;
+
+  // int idx = 0;
+  // int nx = 0;
+
+  // int beg = -1;
+  // QString cur;
+  // while(nx = re.indexIn(str, idx), nx >= 0) {
+  //   if(re.cap(1) == "start") {
+  //     beg = nx + re.matchedLength();
+  //     cur = re.cap(2);
+  //   } else {
+  //     if(beg >= 0 && cmds.contains(cur)) {
+  //       cmds[cur]->longDesc = str.mid(beg, nx - beg);
+  //       cmds.remove(cmds[cur]->shortCommandName());
+  //       cmds.remove(cur);
+  //     }
+  //   }
+  //   idx = nx + re.matchedLength();
+  // }
+  // return cmds.keys();
 }

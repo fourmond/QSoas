@@ -115,6 +115,9 @@ public:
   CommandWidget(CommandContext * context = NULL);
   virtual ~CommandWidget();
 
+  /// Returns the context that was used
+  CommandContext * promptContext() const;
+
 
   /// @name Functions related to ScriptContext
   ///

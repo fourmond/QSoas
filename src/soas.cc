@@ -80,15 +80,21 @@ Soas::~Soas()
   delete gs;
 }
 
-void Soas::pushCommandContext(CommandContext * context)
+void Soas::enterPrompt(CommandWidget * prompt)
 {
-  contexts.insert(0, context);
+  prompts.insert(0, prompt);
 }
 
-void Soas::popCommandContext()
+void Soas::leavePrompt()
 {
-  contexts.takeFirst();
+  prompts.takeFirst();
 }
+
+CommandContext & Soas::commandContext()
+{
+  return *(prompts.value(0)->promptContext());
+}
+
 
 double Soas::temperature() const {
   return ::temperature;
@@ -96,11 +102,6 @@ double Soas::temperature() const {
 
 void Soas::setTemperature(double d) {
   ::temperature = d;
-}
-
-CommandWidget & Soas::prompt() 
-{
-  return *mw->commandWidget;
 }
 
 QString Soas::currentCommandLine() const

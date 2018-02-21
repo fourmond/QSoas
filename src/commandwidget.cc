@@ -166,8 +166,12 @@ CommandWidget::CommandWidget(CommandContext * c) :
 
     layout->addLayout(h1);
   }
+  else {
+    terminalDisplay = NULL;
+    sideBarLabel = NULL;
+  }
 
-  soas().pushCommandContext(commandContext);
+  soas().enterPrompt(this);
 
   h1 = new QHBoxLayout();
   promptLabel = new QLabel("QSoas> ");
@@ -187,17 +191,24 @@ CommandWidget::CommandWidget(CommandContext * c) :
   layout->addLayout(h1);
 
   this->setFocusProxy(commandLine);
-  terminalDisplay->setFocusProxy(commandLine);
-  terminalDisplay->setFocusPolicy(Qt::StrongFocus);
+  if(terminalDisplay) {
+    terminalDisplay->setFocusProxy(commandLine);
+    terminalDisplay->setFocusPolicy(Qt::StrongFocus);
+  }
 
   setLoopMode(false);
   restrictedPrompt->setVisible(false);
 }
 
+CommandContext * CommandWidget::promptContext() const
+{
+  return commandContext;
+}
+
 CommandWidget::~CommandWidget()
 {
   delete watcherDevice;
-  soas().popCommandContext();
+  soas().leavePrompt();
 }
 
 
@@ -357,7 +368,8 @@ void CommandWidget::logString(const QString & str)
 
 void CommandWidget::setLoopMode(bool loop)
 {
-  sideBarLabel->setVisible(loop);
+  if(sideBarLabel)
+    sideBarLabel->setVisible(loop);
   // commandLine->setEnabled(! loop);
   if(loop)
     commandLine->clearFocus();
@@ -368,7 +380,10 @@ void CommandWidget::setLoopMode(bool loop)
 
 void CommandWidget::setSideBarLabel(const QString & str)
 {
-  sideBarLabel->setText(str);
+  if(sideBarLabel)
+    sideBarLabel->setText(str);
+  else
+    throw InternalError("Trying to set a sidebar label of a terminalless prompt");
 }
 
 void CommandWidget::setPrompt(const QString & str)

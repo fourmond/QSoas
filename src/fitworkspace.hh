@@ -154,7 +154,11 @@ class FitWorkspace : public QObject {
   /// Makes sure the index and datasets are within boundaries. Dataset
   /// can be negative, it will mean "all datasets".
   void checkIndex(int index, int ds) const;
+
+  static FitWorkspace * currentWS;
 public:
+
+  static FitWorkspace * currentWorkspace();
 
   /// @name Residuals
   ///
@@ -421,8 +425,6 @@ public:
 
   /// Writes the covariance matrix in latex-friendly form to a file.
   void writeCovarianceMatrixLatex(QTextStream & out,  bool raw = false);
-
-
   
 
 
@@ -460,7 +462,6 @@ public:
 
   /// Whether or not we should cancel the current fit.
   bool shouldCancelFit;
-
 
   /// The parameters as saved just before starting the fit
   Vector parametersBackup;
@@ -508,7 +509,13 @@ signals:
 
   /// Sent at the beginning of the fit. Passes the number of free parameters
   void startedFitting(int freeParameters);
-  
+
+  /// Emitted when the workspace is finishing
+  void quitWorkspace();
+
+public slots:
+  /// Triggers the emission of the quitWorkSpace() signal.
+  void quit();
 };
 
 

@@ -42,7 +42,7 @@ class Soas {
   MainWin * mw;
   DataStack * ds;
   GraphicsSettings * gs;
-  QList<CommandContext *> contexts;
+  QList<CommandWidget *> prompts;
 
   static Soas * theSoasInstance;
 
@@ -82,18 +82,20 @@ public:
   MainWin & mainWin() { return *mw; };
   DataStack & stack() { return *ds; };
   CurveView & view();
-  CommandWidget & prompt(); 
-  GraphicsSettings & graphicsSettings() { return *gs;};
-  CommandContext & commandContext() {
-    return *(contexts.value(0, NULL));
+
+  /// This gives access to the current prompt, which is not 
+  CommandWidget & prompt()  {
+    return *(prompts.value(0, NULL));
   };
+  GraphicsSettings & graphicsSettings() { return *gs;};
+  CommandContext & commandContext();
   /// @}
 
   /// Pushes a CommandContext to the stack
-  void pushCommandContext(CommandContext * context);
+  void enterPrompt(CommandWidget * prompt);
 
   /// Pops the CommandContext
-  void popCommandContext();
+  void leavePrompt();
 
   
   /// The current temperature

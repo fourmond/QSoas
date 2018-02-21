@@ -78,12 +78,21 @@
 ///
 /// @li Adding keyboard shortcuts to normal commands too...
 
+FitWorkspace * FitWorkspace::currentWS = NULL;
+
+FitWorkspace * FitWorkspace::currentWorkspace()
+{
+  return currentWS;
+}
 
 FitWorkspace::FitWorkspace(FitData * d) :
   fitData(d), parameters(d->datasets.size() * 
                          d->parametersPerDataset()),
   rawCVMatrix(NULL), cookedCVMatrix(NULL), fitEnding(NotStarted)
 {
+  if(currentWS)
+    throw InternalError("Trying to recurse into a fit workspace, this should not happen");
+  currentWS = this;
   if(! d->parametersStorage)
     throw InternalError("Trying to use an uninitialized FitData");
   
@@ -211,6 +220,7 @@ FitWorkspace::~FitWorkspace()
   delete[] values;
   delete[] errors;
   freeMatrices();
+  currentWS = NULL;
 }
 
 bool FitWorkspace::isGlobal(int index) const
@@ -1282,6 +1292,10 @@ void FitWorkspace::endFit(FitWorkspace::Ending ending)
   emit(finishedFitting(ending));
 }
 
+void FitWorkspace::quit()
+{
+  emit(quitWorkspace());
+}
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1343,3 +1357,26 @@ void CovarianceMatrixDisplay::exportAsLatex()
 }
 
 
+
+//////////////////////////////////////////////////////////////////////
+
+#include <command.hh>
+#include <commandcontext.hh>
+#include <commandeffector-templates.hh>
+#include <general-arguments.hh>
+
+
+static void quitCommand(const QString & name)
+{
+  FitWorkspace::currentWorkspace()->quit();
+}
+
+static Command 
+quit("quit", // command name
+     optionLessEffector(quitCommand), // action
+     "fit",  // group name
+     NULL, // arguments
+     NULL, // options
+     "Quit",
+     "Closes the fit window",
+     "", CommandContext::fitContext());

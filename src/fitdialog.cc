@@ -33,6 +33,9 @@
 #include <datastack.hh>
 #include <terminal.hh>
 
+#include <commandwidget.hh>
+#include <commandcontext.hh>
+
 #include <curveitems.hh>
 
 #include <actioncombo.hh>
@@ -116,6 +119,9 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
   connect(&parameters, SIGNAL(iterated(int, double,
                                        const Vector &)),
           SLOT(onIterate(int, double)));
+
+  connect(&parameters, SIGNAL(quitWorkspace()),
+          SLOT(accept()));
 }
 
 FitDialog::~FitDialog()
@@ -320,6 +326,13 @@ void FitDialog::setupFrame()
 
   // Bottom
 
+  // First, prompt:
+  fitPrompt = new CommandWidget(CommandContext::fitContext());
+  layout->addWidget(fitPrompt);
+  
+
+
+  // Then, actions
 
   hb = new QHBoxLayout;
   hb->addWidget(new QLabel(tr("<b>Actions:</b>")));

@@ -32,6 +32,7 @@ class CurveView;
 class FitParameterEditor;
 class DataSet;
 class ParametersViewer;
+class CommandWidget;
 
 class NupWidget;
 
@@ -113,6 +114,8 @@ class FitDialog : public QDialog {
   QLabel * residualsDisplay;
 
 
+  /// The prompt used for fits
+  CommandWidget * fitPrompt;
 
   /// the start button
   QPushButton * startButton;

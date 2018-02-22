@@ -20,6 +20,7 @@
 
 #include <headers.hh>
 #include <command.hh>
+#include <commandcontext.hh>
 #include <group.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
@@ -414,6 +415,17 @@ run("run", // command name
     "Run commands",
     "Run commands from a file",
     "@");
+
+// The same, but for the fit context
+static Command 
+frun("run", // command name
+     effector(runCommand), // action
+     "file",  // group name
+     &runArgs, // arguments
+     &rcO, 
+     "Run commands",
+     "Run commands from a file",
+     "@", CommandContext::fitContext());
 
 //////////////////////////////////////////////////////////////////////
   

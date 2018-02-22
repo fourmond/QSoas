@@ -89,8 +89,31 @@ void CommandPrompt::doCompletion()
 
 }
 
+bool CommandPrompt::event(QEvent *event)
+{
+  // here, we make sure we care about tabs
+  if(event->type() == QEvent::KeyPress) {
+    QKeyEvent * ev = static_cast<QKeyEvent*>(event);
+    // QTextStream o(stdout);
+    // o << "KP: " << ev->key() << "\t" << ev->modifiers() << endl;
+    if(ev->key() == Qt::Key_Tab) {
+      if(ev->modifiers() == Qt::NoModifier) {
+        keyPressEvent(ev);
+        return true;
+      }
+      if(ev->modifiers() == Qt::ControlModifier) {
+        if(focusNextPrevChild(true))
+          return true;
+      }
+    }
+  }
+  return QWidget::event(event);
+}
+
 void CommandPrompt::keyPressEvent(QKeyEvent * event)
 {
+  // QTextStream o(stdout);
+  // o << "KP Event: " << this << " -> " << event->key() << endl;
 
   switch(event->key()) {
   case Qt::Key_Tab:

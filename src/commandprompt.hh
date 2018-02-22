@@ -81,6 +81,7 @@ class CommandPrompt : public LineEdit {
   /// Performs automatic completion.
   void doCompletion();
 
+  
 public:
 
   CommandPrompt();
@@ -88,7 +89,8 @@ public:
 
 
 protected:
-  virtual void keyPressEvent(QKeyEvent * event);
+  virtual void keyPressEvent(QKeyEvent * event) override;
+  virtual bool event(QEvent *event) override;
 
 signals:
 

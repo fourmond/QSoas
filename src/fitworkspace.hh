@@ -396,6 +396,9 @@ public:
   /// Save to the given stream
   void saveParameters(QIODevice * out) const;
 
+  /// Save to the named file
+  void saveParameters(const QString & fileName) const;
+
   /// Load from the given stream
   void loadParameters(QIODevice * in, int targetDS = -1, int sourceDS = 0);
 
@@ -490,10 +493,9 @@ public:
 
   void runFit(int iterationLimit);
 
-  /// @todo In real, this would need the reason behind finishing the fit...
   void endFit(Ending ending);
 
-  /// Set to true if the fit was canceled
+  /// The reason for the end of fit
   Ending fitEnding;
 
   /// @}
@@ -505,7 +507,7 @@ signals:
                 const Vector & parameters);
 
   /// Sent when the fit is finished
-  void finishedFitting(Ending ending);
+  void finishedFitting(int);
 
   /// Sent at the beginning of the fit. Passes the number of free parameters
   void startedFitting(int freeParameters);

@@ -119,6 +119,8 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
   connect(&parameters, SIGNAL(iterated(int, double,
                                        const Vector &)),
           SLOT(onIterate(int, double)));
+  connect(&parameters, SIGNAL(finishedFitting(int)),
+          SLOT(onFitEnd(int)));
 
   connect(&parameters, SIGNAL(quitWorkspace()),
           SLOT(accept()));
@@ -647,7 +649,12 @@ void FitDialog::startFit()
     Debug::debug()
       << "Backtrace:\n\t" << re.exceptionBacktrace().join("\n\t") << endl;
   }
+}
 
+void FitDialog::onFitEnd(int /*ending*/)
+{
+  cancelButton->setVisible(false);
+  startButton->setVisible(true);
   try {
     internalCompute(true);
   }
@@ -655,7 +662,6 @@ void FitDialog::startFit()
     appendToMessage(QString("Error while computing: ") + e.message());
   }
 }
-
 
 void FitDialog::onIterate(int nb, double residuals)
 {
@@ -744,14 +750,12 @@ void FitDialog::saveParameters()
                                  QString(), saveFilters);
   if(save.isEmpty())
     return;
-           
-
-  QFile f(save);
-  if(! f.open(QIODevice::WriteOnly))
-    return;                     /// @todo Signal !
-
-  parameters.saveParameters(&f);
-  Terminal::out << "Saved fit parameters to file " << save << endl;
+  try {
+    parameters.saveParameters(save);
+  }
+  catch(RuntimeError & e) {
+    message(e.message());
+  }
 }
 
 void FitDialog::loadParameters()

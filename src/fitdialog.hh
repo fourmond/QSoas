@@ -230,6 +230,9 @@ protected slots:
   /// Called during all iterations
   void onIterate(int nb, double res);
 
+  /// Called at the end of the fit
+  void onFitEnd(int ending);
+
 public slots:
 
   /// Loads parameters from the given file.

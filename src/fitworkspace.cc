@@ -622,6 +622,15 @@ void FitWorkspace::saveParameters(QIODevice * stream) const
   writeText(out, false, "# ");
 }
 
+void FitWorkspace::saveParameters(const QString & fileName) const
+{
+  QFile f(fileName);
+  Utils::open(&f, QIODevice::WriteOnly);
+  saveParameters(&f);
+  Terminal::out << "Saved fit parameters to file " << fileName << endl;
+}
+
+
 void FitWorkspace::clear()
 {
   for(int i = 0; i < parameters.size(); i++) {
@@ -1355,28 +1364,3 @@ void CovarianceMatrixDisplay::exportAsLatex()
   QClipboard * clipboard = QApplication::clipboard();
   clipboard->setText(data);
 }
-
-
-
-//////////////////////////////////////////////////////////////////////
-
-#include <command.hh>
-#include <commandcontext.hh>
-#include <commandeffector-templates.hh>
-#include <general-arguments.hh>
-
-
-static void quitCommand(const QString & name)
-{
-  FitWorkspace::currentWorkspace()->quit();
-}
-
-static Command 
-quit("quit", // command name
-     optionLessEffector(quitCommand), // action
-     "fit",  // group name
-     NULL, // arguments
-     NULL, // options
-     "Quit",
-     "Closes the fit window",
-     "", CommandContext::fitContext());

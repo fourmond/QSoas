@@ -317,7 +317,8 @@ SOURCES += src/qmain.cc \
         src/fitparametersfile.cc \
         src/ruby-interface.cc \
         src/linearkineticsystem.cc \
-        src/commandcontext.cc
+        src/commandcontext.cc \
+        src/fit-commands.cc
 
 #        src/conditionsprovider.cc \
 

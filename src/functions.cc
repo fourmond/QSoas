@@ -25,6 +25,8 @@
 
 #include <credits.hh>
 
+#include <gsl/gsl_integration.h>
+
 // atan:
 //
 //             3        5        7        9      10
@@ -62,3 +64,30 @@ double Functions::marcusHushChidseyZeng(double lambda, double eta)
 }
 
 static Credits mhz("Zeng et al, JEAC, 2014", "the k_mhc_z function", "10.1016/j.jelechem.2014.09.038");
+
+static double mhc_integrand(double x, void * params)
+{
+  const double * p = reinterpret_cast<const double*>(params);
+  const double & lambda = p[0];
+  const double & eta = p[1];
+  double i1 = -(x - lambda + eta)*(x - lambda + eta)/(4*lambda);
+  return exp(i1) /(1 + exp(x));
+}
+
+double Functions::marcusHushChidsey(double lambda, double eta)
+{
+  static gsl_integration_workspace * ws = NULL;
+  if(! ws)
+    ws = gsl_integration_workspace_alloc(400);
+  gsl_function f;
+  double vals[2];
+  vals[0] = lambda;
+  vals[1] = eta;
+  f.function = &::mhc_integrand;
+  f.params = vals;
+  double rv;
+  double er;
+
+  gsl_integration_qagi(&f, 1e-5, 1e-5, 400, ws, &rv, &er);
+  return rv;
+}

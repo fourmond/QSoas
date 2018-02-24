@@ -39,6 +39,9 @@ namespace Functions {
   /// Approximation to the Marcus-Hush-Chidsey kinetics described in Zeng et al, 2014 (doi: 10.1016/j.jelechem.2014.09.038)
   double marcusHushChidseyZeng(double lambda, double eta);
 
+  /// Numerical integration method for the Marcus-Hush-Chidsey integral
+  double marcusHushChidsey(double lambda, double eta);
+
 };
 
 #endif

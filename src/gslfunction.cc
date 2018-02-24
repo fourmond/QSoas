@@ -415,6 +415,14 @@ k_mhc_z("k_mhc_z(lambda, eta)", "Approximation to the Marcus-Hush-Chidsey "
         "{4\\lambda}\\right) \\times "
         "\\frac{1}{1 + \\exp x}\\,\\mathrm{d}x$$", "http://dx.doi.org/10.1016/j.jelechem.2014.09.038");
 
+static GSLDoubleFunction<Functions::marcusHushChidsey> 
+k_mhc("k_mhc(lambda, eta)", "Marcus-Hush-Chidsey "
+       "integral $$k(\\lambda, \\eta) "
+       "= \\int_{-\\infty}^{\\infty} "
+        "\\exp\\left(\\frac{ - (x - \\lambda + \\eta)^2}"
+        "{4\\lambda}\\right) \\times "
+        "\\frac{1}{1 + \\exp x}\\,\\mathrm{d}x$$", "http://dx.doi.org/10.1016/j.jelechem.2014.09.038");
+
 
 
 // Incomplete gamma functions

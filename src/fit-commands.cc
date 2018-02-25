@@ -196,7 +196,7 @@ set("set", // command name
 static void fixUnfix(const QString & name, QList<QPair<int, int> > params)
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
-  bool fix = name == "fixed";
+  bool fix = (name == "fix");
   for(QPair<int, int> ps : params)
     ws->setFixed(ps.first, ps.second, fix);
 }
@@ -232,7 +232,7 @@ ufix("unfix", // command name
 static void globalLocal(const QString & name, QList<QPair<int, int> > params)
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
-  bool global = name == "global";
+  bool global = (name == "global");
   QSet<int> done;
   for(QPair<int, int> ps : params) {
     if(! done.contains(ps.first)) {

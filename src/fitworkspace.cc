@@ -689,6 +689,7 @@ void FitWorkspace::setFixed(int index, int ds, bool fixed)
   else {
     target = new FreeParameter(index, ds);
   }
+  parameterChanged(index, ds);
 }
 
 

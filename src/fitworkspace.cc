@@ -689,7 +689,7 @@ void FitWorkspace::setFixed(int index, int ds, bool fixed)
   else {
     target = new FreeParameter(index, ds);
   }
-  parameterChanged(index, ds);
+  emit(parameterChanged(index, ds));
 }
 
 
@@ -1112,6 +1112,7 @@ void FitWorkspace::setGlobal(int index, bool global)
       delete parameterRef(index, i);
       parameterRef(index, i) = NULL;
     }
+    emit(parameterChanged(index, -1));
   }
   else {
     target->dsIndex = 0;
@@ -1120,6 +1121,7 @@ void FitWorkspace::setGlobal(int index, bool global)
       p->dsIndex = i;
       parameterRef(index, i) = p;
     }
+    emit(parameterChanged(index, -1));
   }
 }
 

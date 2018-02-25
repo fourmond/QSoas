@@ -216,6 +216,11 @@ public:
   
   /// Setting a global parameter effectively sets all the parameters !
   void setValue(int index, int dataset, double val);
+
+  /// Parses a parameter list. Returns a list of index/dataset pairs.
+  ///
+  /// Throws exceptions.
+  QList<QPair<int, int> > parseParameterList(const QString & spec) const;
   
   /// Sets the value by name. 
   void setValue(const QString & name, double value, int ds = -1);
@@ -308,6 +313,9 @@ public:
 
   /// The name of the numbered parameter
   QString parameterName(int idx) const;
+
+  /// The names of all parameters
+  QStringList parameterNames() const;
 
   /// @}
 

@@ -169,7 +169,6 @@ QString FitWorkspace::fitName(bool includeOptions) const
   return fitData->fit->fitName(includeOptions, fitData);
 }
 
-
 void FitWorkspace::computePerpendicularCoordinates(const QString & perpendicularMeta)
 {
   // Here, setup the perpendicular coordinates
@@ -410,6 +409,14 @@ void FitWorkspace::retrieveParameters()
 QString FitWorkspace::parameterName(int idx) const
 {
   return fitData->parameterDefinitions[idx].name;
+}
+
+QStringList FitWorkspace::parameterNames() const
+{
+  QStringList rv;
+  for(const ParameterDefinition & def : fitData->parameterDefinitions)
+    rv << def.name;
+  return rv;
 }
 
 void FitWorkspace::prepareExport(QStringList & lst, QString & lines, 
@@ -684,6 +691,54 @@ void FitWorkspace::setFixed(int index, int ds, bool fixed)
   }
 }
 
+
+QList<QPair<int, int> > FitWorkspace::parseParameterList(const QString & spec) const
+{
+  QRegExp specRE("([^[]+)\\[([0-9#,-]+)\\]");
+  QList<QPair<int, int> > rv;
+
+  auto fnd = [this](const QString & n) -> int {
+    int idx = parameterIndices.value(n, -1);
+    if(idx < 0) {
+      throw RuntimeError("No such parameter: '%1'").arg(n);
+    }
+    return idx;
+  };
+
+  if(specRE.indexIn(spec) >= 0) {
+    QString p = specRE.cap(1);
+    int idx = fnd(p);
+    QStringList lst = specRE.cap(2).split(",");
+    QRegExp sRE("^#?(\\d+)$");
+    QRegExp rRE("^#?(\\d*)-(\\d*)$");
+    for(const QString & spc : lst) {
+      if(sRE.indexIn(spc) >= 0) {
+        int ds = sRE.cap(1).toInt();
+        rv << QPair<int, int>(idx, ds);
+      }
+      else {
+        if(rRE.indexIn(spc) >= 0) {
+          int l = 0;
+          if(! rRE.cap(1).isEmpty())
+            l = rRE.cap(1).toInt();
+          int r = datasets-1;
+          if(! rRE.cap(2).isEmpty())
+            r = rRE.cap(2).toInt();
+          while(l <= r)
+            rv << QPair<int, int>(idx, l++);
+        }
+        else
+          throw RuntimeError("Could not understand parameter number spec '%1'").arg(spc);
+      }
+    }
+  }
+  else {
+    int idx = fnd(spec);
+    rv << QPair<int,int>(idx, -1);
+  }
+
+  return rv;
+}
 
 
 void FitWorkspace::setValue(int index, int dataset, double val)

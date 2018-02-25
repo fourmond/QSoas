@@ -122,4 +122,71 @@ fit("fit", // command name
     "Fit",
     "Run the fit",
     "", CommandContext::fitContext());
- 
+
+
+//////////////////////////////////////////////////////////////////////
+
+
+
+/// An argument that represents a list of parameter "names"
+class FitParameterArgument : public Argument {
+public:
+
+  FitParameterArgument(const char * cn, const char * pn,
+                       const char * d = "", bool def = false) : 
+    Argument(cn, pn, d, false, def) {
+  }; 
+  
+  /// Returns a wrapped QList<QPair<int, int> >
+  virtual ArgumentMarshaller * fromString(const QString & str) const override {
+    QList<QPair<int, int> > rv = FitWorkspace::currentWorkspace()->parseParameterList(str);
+    return new ArgumentMarshallerChild< QList<QPair<int, int> > >(rv);
+  }
+
+  virtual QStringList proposeCompletion(const QString & starter) const override {
+    return Utils::stringsStartingWith(FitWorkspace::currentWorkspace()->parameterNames(), starter);
+  }
+
+
+  virtual QString typeName() const override {
+    return "parameter-name";
+  };
+
+  virtual QString typeDescription() const override {
+    return "...";
+  };
+
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const {
+    return Argument::convertRubyString(value);
+  };
+
+};
+
+//////////////////////////////////////////////////////////////////////
+
+static void setCommand(const QString & name, QList<QPair<int, int> > params,
+                       QString value, const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  for(QPair<int, int> ps : params)
+    ws->setValue(ps.first, ps.second, value);
+}
+
+ArgumentList sArgs(QList<Argument*>() 
+                   << new FitParameterArgument("parameter", 
+                                               "Parameter",
+                                               "the parameters of the fit")
+                   << new StringArgument("value", 
+                                         "Value",
+                                         "the value")
+                   );
+
+static Command 
+set("set", // command name
+    effector(setCommand), // action
+    "fit",  // group name
+    &sArgs, // arguments
+    NULL, // options
+    "Set parameter",
+    "Sets the parameters",
+    "", CommandContext::fitContext());

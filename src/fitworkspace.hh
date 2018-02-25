@@ -523,6 +523,12 @@ signals:
   /// Emitted when the workspace is finishing
   void quitWorkspace();
 
+  /// Emitted when the value of the given parameter has changed
+  void parameterChanged(int index, int ds);
+
+  /// Emitted when all the parameters were changed
+  void parametersChanged();
+
 public slots:
   /// Triggers the emission of the quitWorkSpace() signal.
   void quit();

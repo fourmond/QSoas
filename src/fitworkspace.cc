@@ -745,11 +745,15 @@ void FitWorkspace::setValue(int index, int dataset, double val)
 {
   checkIndex(index, dataset);
   if(dataset < 0 || isGlobal(index)) {
-    for(int i = 0; i < datasets; i++)
+    for(int i = 0; i < datasets; i++) {
       values[index % nbParameters + i*nbParameters] = val;
+      emit(parameterChanged(index, i));
+    }
   }
-  else
+  else {
     values[dataset * nbParameters + (index % nbParameters)] = val;
+    emit(parameterChanged(index, dataset));
+  }
 }
 
 void FitWorkspace::setValue(const QString & name, double value, int dsi)
@@ -861,6 +865,7 @@ void FitWorkspace::loadParameters(FitParametersFile & params,
       }
     }
   }
+  emit(parametersChanged());
 }
 
 void FitWorkspace::loadParametersValues(FitParametersFile & params)
@@ -879,6 +884,7 @@ void FitWorkspace::loadParametersValues(FitParametersFile & params)
       setValue(idx, j, val);
     }
   }
+  // emit(parametersChanged());
 }
 
 void FitWorkspace::loadParametersValues(QIODevice * source)
@@ -904,14 +910,17 @@ void FitWorkspace::loadParametersValues(const QString & file)
 void FitWorkspace::resetAllToInitialGuess()
 {
   fitData->fit->initialGuess(fitData, values);
+  emit(parametersChanged());
 }
 
 void FitWorkspace::resetToInitialGuess(int ds)
 {
   QVarLengthArray<double, 1024> params(nbParameters * datasets);
   fitData->fit->initialGuess(fitData, params.data());
-  for(int i = 0; i < nbParameters; i++)
+  for(int i = 0; i < nbParameters; i++) {
     values[i + ds * nbParameters] = params[i + ds * nbParameters];
+    emit(parameterChanged(i, ds));
+  }
 }
 
 void FitWorkspace::dump() const 
@@ -1128,22 +1137,28 @@ void FitWorkspace::setValue(int index, int dataset, const QString & str)
       FixedParameter * param = new FixedParameter(index, ds,  0);
       delete target;
       target = param;
+      emit(parameterChanged(index, ds));
     }
     else if(dynamic_cast<FormulaParameter *>(target) == NULL 
             && str[0] == '=') {
       FormulaParameter * param = new FormulaParameter(index, ds, "0");
       delete target;
       target = param;
+      emit(parameterChanged(index, ds));
     }
   }
 
   // We ask the parameters to set themselves...
   if(isGlobal(index)) {
-    for(int i = 0; i < datasets; i++)
+    for(int i = 0; i < datasets; i++) {
       parameter(index, 0)->setValue(&valueFor(index, i), str);
+      emit(parameterChanged(index, i));
+    }
   }
-  else
+  else {
     parameter(index, dataset)->setValue(&valueFor(index, dataset), str);
+    emit(parameterChanged(index, dataset));
+  }
 }
 
 QString FitWorkspace::getTextValue(int index, int dataset) const

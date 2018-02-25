@@ -190,3 +190,81 @@ set("set", // command name
     "Set parameter",
     "Sets the parameters",
     "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
+static void fixUnfix(const QString & name, QList<QPair<int, int> > params)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  bool fix = name == "fixed";
+  for(QPair<int, int> ps : params)
+    ws->setFixed(ps.first, ps.second, fix);
+}
+
+ArgumentList fuArgs(QList<Argument*>() 
+                    << new FitParameterArgument("parameter", 
+                                                "Parameter",
+                                                "the parameters to fix/unfix")
+                   );
+
+static Command 
+fix("fix", // command name
+    optionLessEffector(fixUnfix), // action
+    "fit",  // group name
+    &fuArgs, // arguments
+    NULL, // options
+    "Fix parameter",
+    "Fixs the parameter",
+    "", CommandContext::fitContext());
+
+static Command 
+ufix("unfix", // command name
+     optionLessEffector(fixUnfix), // action
+     "fit",  // group name
+     &fuArgs, // arguments
+     NULL, // options
+     "Unfix parameter",
+     "Lets the parameter be free again",
+     "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
+static void globalLocal(const QString & name, QList<QPair<int, int> > params)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  bool global = name == "global";
+  QSet<int> done;
+  for(QPair<int, int> ps : params) {
+    if(! done.contains(ps.first)) {
+      // Do it only once
+      ws->setGlobal(ps.first, global);
+      done.insert(ps.first);
+    }
+  }
+}
+
+ArgumentList glArgs(QList<Argument*>() 
+                    << new FitParameterArgument("parameter", 
+                                                "Parameter",
+                                                "the parameters whose global/local status to change")
+                   );
+
+static Command 
+glb("global", // command name
+    optionLessEffector(globalLocal), // action
+    "fit",  // group name
+    &glArgs, // arguments
+    NULL, // options
+    "Global parameter",
+    "Sets the parameter to be a global one",
+    "", CommandContext::fitContext());
+
+static Command 
+loc("local", // command name
+    optionLessEffector(globalLocal), // action
+    "fit",  // group name
+    &glArgs, // arguments
+    NULL, // options
+    "Local parameter",
+    "Sets the parameter to be a local one",
+    "", CommandContext::fitContext());

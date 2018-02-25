@@ -201,10 +201,10 @@ void CommandContext::writeSpecFile(QTextStream & out, bool full)
 {
   QList<Command *> lst = globalContext()->availableCommands().toList();
   qSort(lst.begin(), lst.end(), ::cmpCommands);
-
   for(int i = 0; i < lst.size(); i++)
     out << lst[i]->commandSpec(full);
 
+  out << "Fit commands" << endl;
   lst = fitContext()->availableCommands().toList();
   qSort(lst.begin(), lst.end(), ::cmpCommands);
 

@@ -20,6 +20,7 @@
 
 #include <headers.hh>
 #include <command.hh>
+#include <commandcontext.hh>
 #include <group.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
@@ -246,6 +247,16 @@ lf("ruby-run", // command name
    NULL, // options
    "Ruby load",
    "Loads and runs a file containing ruby code", "");
+
+static Command 
+lfF("ruby-run", // command name
+    optionLessEffector(rubyRunFile), // action
+    "file",  // group name
+    &rA, // arguments
+    NULL, // options
+    "Ruby load",
+    "Loads and runs a file containing ruby code", "",
+    CommandContext::fitContext());
 
 //////////////////////////////////////////////////////////////////////
 

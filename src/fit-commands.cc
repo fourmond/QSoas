@@ -36,7 +36,7 @@
 //                  "Commands for fitting");
 
 
-static void quitCommand(const QString & name)
+static void quitCommand(const QString & /*name*/)
 {
   FitWorkspace::currentWorkspace()->quit();
 }
@@ -54,7 +54,7 @@ quit("quit", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void saveCommand(const QString & name, QString file)
+static void saveCommand(const QString & /*name*/, QString file)
 {
   FitWorkspace::currentWorkspace()->saveParameters(file);
 }
@@ -77,7 +77,7 @@ save("save", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void loadCommand(const QString & name, QString file)
+static void loadCommand(const QString & /*name*/, QString file)
 {
   FitWorkspace::currentWorkspace()->loadParameters(file);
 }
@@ -101,7 +101,7 @@ load("load", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void fitCommand(const QString & name, const CommandOptions & opts)
+static void fitCommand(const QString & /*name*/, const CommandOptions & opts)
 {
   int iterations = 50;
   updateFromOptions(opts, "iterations", iterations);
@@ -164,8 +164,8 @@ public:
 
 //////////////////////////////////////////////////////////////////////
 
-static void setCommand(const QString & name, QList<QPair<int, int> > params,
-                       QString value, const CommandOptions & opts)
+static void setCommand(const QString & /*name*/, QList<QPair<int, int> > params,
+                       QString value, const CommandOptions & /*opts*/)
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
   for(QPair<int, int> ps : params)
@@ -268,3 +268,45 @@ loc("local", // command name
     "Local parameter",
     "Sets the parameter to be a local one",
     "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
+static void exportCommand(const QString & /*name*/, const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  QString file;
+  updateFromOptions(opts, "file", file);
+  bool errors = true;
+  updateFromOptions(opts, "errors", errors);
+  if(file.isEmpty()) {
+    Terminal::out << "Exporting parameters to output file" << endl;
+    ws->exportToOutFile(errors);
+  }
+  else {
+    QFile f(file);
+    Utils::open(&f, QIODevice::WriteOnly);
+    Terminal::out << "Exporting parameters to the file '"
+                  << file << "'" << endl;
+    ws->exportParameters(&f, errors);
+  }
+}
+
+ArgumentList eOpts(QList<Argument*>()
+                   << new FileArgument("file", 
+                                       "Parameter file",
+                                       "name of the file for saving the parameters", false, true)
+                   << new BoolArgument("errors", 
+                                       "Errors",
+                                       "whether the errors are exported too")
+                   );
+
+static Command 
+expt("export", // command name
+    effector(exportCommand), // action
+    "fit",  // group name
+    NULL, // arguments
+    &eOpts, // options
+    "Export parameters",
+    "Export the parameters to a file/to the output file",
+    "", CommandContext::fitContext());
+

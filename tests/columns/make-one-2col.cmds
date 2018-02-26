@@ -1,0 +1,3 @@
+generate-buffer 0 10 sin(2*PI*x)+${1}
+apply-formula /extra-columns=1 y2=(2+${1})*x
+flag /flags=ctr

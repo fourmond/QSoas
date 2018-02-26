@@ -1,0 +1,12 @@
+unflag flagged:ctr
+run-for-each make-one-2col.cmds 10..20:11 /range-type=lin
+# Now, removing the last x2 column, so that one has a X Y X2 Y2 X3 Y3
+# ... Yn layout
+tweak-columns /remove=y2
+contract flagged:ctr
+expand /x-every-nth=2
+assert '$stats["x_max"] == 130'
+drop
+assert '$stats["x_max"] == 140'
+drop
+assert '$stats["x_max"] == 150'

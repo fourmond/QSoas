@@ -450,7 +450,7 @@ static void expandCommand(const QString &,
   int nb = 0;
   for(int i = 1; i < ds->nbColumns(); ) {
     if(xevery > 0 && ((i % xevery) == 0)) {
-      xvs = ds->column(i);
+      xvs = ds->column(i++);
       continue;
     }
     QList<Vector> cols;

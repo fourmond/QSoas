@@ -1,0 +1,3 @@
+ruby
+$test = 30
+ruby end

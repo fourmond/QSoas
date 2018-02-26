@@ -274,11 +274,13 @@ bool CommandWidget::runCommand(const QString & str)
         // Ruby::safeEval(rubyCode);
         MRuby * mr = MRuby::ruby();
         CommandContext cc = currentContext();
+        QString code = rubyCode;
+        rubyCode = "";
         if(cc.scriptFile.isEmpty())
-          mr->eval(rubyCode);
+          mr->eval(code);
         else {
-          int nb = rubyCode.count('\n');
-          mr->eval(rubyCode, cc.scriptFile, cc.lineNumber - nb);
+          int nb = code.count('\n');
+          mr->eval(code, cc.scriptFile, cc.lineNumber - nb);
         }
       }
       catch(const RuntimeError & error) {
@@ -292,7 +294,6 @@ bool CommandWidget::runCommand(const QString & str)
                       << endl;
         status = false;
       }
-      rubyCode = "";
       resetPrompt();
       return status;
     }

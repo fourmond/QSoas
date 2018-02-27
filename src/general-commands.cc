@@ -910,6 +910,15 @@ sy("system", // command name
    "System",
    "Execute system commands");
 
+static Command 
+fsy("system", // command name
+    effector(systemCommand), // action
+    "file",  // group name
+    &syA, // arguments
+    &syO, // options
+    "System",
+    "Execute system commands", "", CommandContext::fitContext());
+
 
 //////////////////////////////////////////////////////////////////////
 

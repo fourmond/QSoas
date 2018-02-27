@@ -428,27 +428,35 @@ void FitDialog::setupFrame()
 
   bt = new QPushButton(tr("Update curves (Ctrl+U)"));
   connect(bt, SIGNAL(clicked()), SLOT(compute()));
-
+  if(fitPrompt)
+    bt->setAutoDefault(false);
 
   hb->addWidget(bt);
 
   bt = new QPushButton(tr("Fit options"));
   connect(bt, SIGNAL(clicked()), SLOT(setSoftOptions()));
+  if(fitPrompt)
+    bt->setAutoDefault(false);
   hb->addWidget(bt);
 
   startButton = new QPushButton(tr("Fit (Ctrl+F)"));
   connect(startButton, SIGNAL(clicked()), SLOT(startFit()));
-  startButton->setAutoDefault(true);
+  if(fitPrompt)
+    startButton->setAutoDefault(false);
   hb->addWidget(startButton);
 
   cancelButton = new QPushButton(tr("Abort (Ctrl+B)"));
   connect(cancelButton, SIGNAL(clicked()), SLOT(cancelFit()));
   hb->addWidget(cancelButton);
+  if(fitPrompt)
+    startButton->setAutoDefault(false);
   cancelButton->setVisible(false);
 
 
   bt = new QPushButton(tr("Close (Ctrl+W)"));
   connect(bt, SIGNAL(clicked()), SLOT(close()));
+  if(fitPrompt)
+    startButton->setAutoDefault(false);
   hb->addWidget(bt);
 
 
@@ -472,7 +480,8 @@ void FitDialog::setupFrame()
 
   
 
-  startButton->setFocus();
+  fitPrompt->setFocus();
+  fitPrompt->setPrompt("QSoas.fit> ");
   nup->showWidget(0);
 }
 

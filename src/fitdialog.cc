@@ -199,7 +199,8 @@ void FitDialog::setupFrame()
                              arg(Utils::shortenString(ds->name)));
   }
   nup->setNup(1,1);
-  connect(nup, SIGNAL(pageChanged(int)), SLOT(dataSetChanged(int)));
+  connect(nup, SIGNAL(pageChanged(int)), SLOT(chooseDS(int)));
+  connect(&parameters, SIGNAL(datasetChanged(int)), SLOT(dataSetChanged(int)));
   connect(nup, SIGNAL(nupChanged(int,int)), SLOT(nupChanged()));
 
   layout->addWidget(nup, 1);
@@ -522,14 +523,20 @@ int FitDialog::getIterationLimit() const
   return iterationLimitEditor->text().toInt();
 }
 
-
-void FitDialog::dataSetChanged(int newds)
+void FitDialog::chooseDS(int newds)
 {
   if(alreadyChangingPage)
     return;
   alreadyChangingPage = true;
+  parameters.selectDataSet(nup->widgetIndex());
+  alreadyChangingPage = false;
+}
+
+
+void FitDialog::dataSetChanged(int newds)
+{
   // stackedViews->setCurrentIndex(newds);
-  currentIndex = nup->widgetIndex();
+  currentIndex = newds;
   
   emit(currentDataSetChanged(currentIndex));
   if(! nup->isNup())
@@ -548,7 +555,6 @@ void FitDialog::dataSetChanged(int newds)
   
 
   updateResidualsDisplay();
-  alreadyChangingPage = false;
 }
 
 void FitDialog::setupSubFunctionCurves(bool dontSend)

@@ -58,6 +58,9 @@ class FitWorkspace : public QObject {
   /// The number of datasets
   int datasets;
 
+  /// The current dataset
+  int currentDS;
+
   /// Parameter values (same size as fixed)
   double * values;
 
@@ -491,7 +494,7 @@ public:
   /// The time in seconds that has elapsed since the beginning of the fit
   double elapsedTime() const;
 
-  /// A list of all the fits started run during
+  /// A list of all the fits started run 
   QList<FitTrajectory> trajectories;
 
   void startFit();
@@ -529,9 +532,18 @@ signals:
   /// Emitted when all the parameters were changed
   void parametersChanged();
 
+  /// Emitted whenever the current dataset has changed
+  void datasetChanged(int newDS);
+
 public slots:
   /// Triggers the emission of the quitWorkSpace() signal.
   void quit();
+
+  /// Selects the current dataset
+  void selectDataSet(int dataset);
+
+public:
+  int currentDataset() const;
 };
 
 

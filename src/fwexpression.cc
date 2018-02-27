@@ -49,13 +49,11 @@ mrb_value FWExpression::evaluate(int dataset, const double * extra)
   if(extra)
     throw InternalError("Not implemented");
 
-  if(dataset < 0) {
-    Terminal::out << "Hmmm, no detection of current parameter for now"
-                  << endl;
-    dataset = 0;
-  }
+  if(dataset < 0)
+    dataset = workSpace->currentDataset();
+
   QVarLengthArray<double, 200> params(finalParameters.size());
-  params[0] = 0;
+  params[0] = workSpace->perpendicularCoordinates.value(dataset, dataset);
   params[1] = dataset;
   Vector v = workSpace->saveParameterValues();
   int sz = fitParameters.size();

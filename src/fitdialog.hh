@@ -294,6 +294,8 @@ protected slots:
 
   void dataSetChanged(int newds);
 
+  void chooseDS(int newds);
+
   void weightEdited(const QString & str);
 
   /// Update all the editors

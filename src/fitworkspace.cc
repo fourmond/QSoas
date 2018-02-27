@@ -86,8 +86,8 @@ FitWorkspace * FitWorkspace::currentWorkspace()
 }
 
 FitWorkspace::FitWorkspace(FitData * d) :
-  fitData(d), parameters(d->datasets.size() * 
-                         d->parametersPerDataset()),
+  fitData(d), currentDS(0), parameters(d->datasets.size() * 
+                                       d->parametersPerDataset()),
   rawCVMatrix(NULL), cookedCVMatrix(NULL), fitEnding(NotStarted)
 {
   if(currentWS)
@@ -1171,6 +1171,22 @@ QString FitWorkspace::getTextValue(int index, int dataset) const
   return parameter(index, dataset)->textValue(valueFor(index, dataset));
 }
 
+
+void FitWorkspace::selectDataSet(int ds)
+{
+  if(ds < 0 || ds >= datasets)
+    return;
+  if(ds == currentDS)
+    return;
+  currentDS = ds;
+  emit(datasetChanged(ds));
+}
+
+int FitWorkspace::currentDataset() const
+{
+  return currentDS;
+}
+   
 
 void FitWorkspace::computeAndPushJacobian()
 {

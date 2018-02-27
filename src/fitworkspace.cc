@@ -735,7 +735,14 @@ QList<QPair<int, int> > FitWorkspace::parseParameterList(const QString & spec) c
   }
   else {
     int idx = fnd(spec);
-    rv << QPair<int,int>(idx, -1);
+    if(isGlobal(idx))
+      rv << QPair<int,int>(idx, -1);
+    else {
+      // returning the list of all the parameters, one by one
+      // Makes a huge difference for the case when one uses a formula.
+      for(int i = 0; i < datasets; i++)
+        rv << QPair<int,int>(idx, i);
+    }
   }
 
   return rv;

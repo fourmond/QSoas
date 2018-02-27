@@ -167,11 +167,25 @@ public:
 //////////////////////////////////////////////////////////////////////
 
 static void setCommand(const QString & /*name*/, QList<QPair<int, int> > params,
-                       QString value, const CommandOptions & /*opts*/)
+                       QString value, const CommandOptions & opts)
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
-  for(QPair<int, int> ps : params)
-    ws->setValue(ps.first, ps.second, value);
+  bool expression = false;
+  updateFromOptions(opts, "expression", expression);
+  if(expression) {
+    MRuby * mr = MRuby::ruby();
+    FWExpression exp(value, ws);
+    for(QPair<int, int> ps : params) {
+      mrb_value v = exp.evaluate(ps.second);
+      /// @todo Here: check for a string return value
+      ws->setValue(ps.first, ps.second, mr->floatValue(v));
+    }
+  }
+  else {
+    for(QPair<int, int> ps : params) {
+      ws->setValue(ps.first, ps.second, value);
+    }
+  }
 }
 
 ArgumentList sArgs(QList<Argument*>() 
@@ -183,12 +197,18 @@ ArgumentList sArgs(QList<Argument*>()
                                          "the value")
                    );
 
+ArgumentList sOpts(QList<Argument*>()
+                   << new BoolArgument("expression", 
+                                       "Expression",
+                                       "whether the value is evaluated as an expression")
+                   );
+
 static Command 
 set("set", // command name
     effector(setCommand), // action
     "fit",  // group name
     &sArgs, // arguments
-    NULL, // options
+    &sOpts, // options
     "Set parameter",
     "Sets the parameters",
     "", CommandContext::fitContext());

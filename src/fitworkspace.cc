@@ -1172,10 +1172,14 @@ QString FitWorkspace::getTextValue(int index, int dataset) const
 }
 
 
-void FitWorkspace::selectDataSet(int ds)
+void FitWorkspace::selectDataSet(int ds, bool silent)
 {
-  if(ds < 0 || ds >= datasets)
+  if(ds < 0 || ds >= datasets) {
+    if(! silent)
+      throw RuntimeError("Dataset index out of bounds: %1 (0 <= ds < %2)").
+        arg(ds).arg(datasets);
     return;
+  }
   if(ds == currentDS)
     return;
   currentDS = ds;

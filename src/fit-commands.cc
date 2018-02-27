@@ -340,3 +340,28 @@ evl("eval", // command name
     "Evaluate",
     "Evaluate a Ruby expression in the current context",
     "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
+static void selectCommand(const QString & /*name*/, int ds,
+                          const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  ws->selectDataSet(ds, false);
+}
+
+ArgumentList slArgs(QList<Argument*>() 
+                   << new IntegerArgument("dataset", 
+                                          "Dataset",
+                                          "the number of the dataset in the fit (not in the stack)")
+                   );
+
+static Command 
+sel("select", // command name
+    effector(selectCommand), // action
+    "fit",  // group name
+    &slArgs, // arguments
+    NULL, // options
+    "Select",
+    "Selects the current dataset",
+    "", CommandContext::fitContext());

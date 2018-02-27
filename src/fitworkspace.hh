@@ -539,8 +539,11 @@ public slots:
   /// Triggers the emission of the quitWorkSpace() signal.
   void quit();
 
-  /// Selects the current dataset
-  void selectDataSet(int dataset);
+  /// Selects the current dataset.
+  ///
+  /// Will fail with an exception if @a silent is false and @a dataset
+  /// is out of bounds.
+  void selectDataSet(int dataset, bool silent = true);
 
 public:
   int currentDataset() const;

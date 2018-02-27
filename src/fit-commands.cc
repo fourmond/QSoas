@@ -30,6 +30,8 @@
 #include <general-arguments.hh>
 #include <file-arguments.hh>
 
+#include <fwexpression.hh>
+#include <mruby.hh>
 
 // static Group fit("fit", 0,
 //                  "Fit",
@@ -310,3 +312,31 @@ expt("export", // command name
     "Export the parameters to a file/to the output file",
     "", CommandContext::fitContext());
 
+//////////////////////////////////////////////////////////////////////
+
+static void evalCommand(const QString & /*name*/, QString formula,
+                        const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  MRuby * mr = MRuby::ruby();
+  mrb_value value;
+  FWExpression exp(formula, ws);
+  value = exp.evaluate();
+  Terminal::out << " => " << mr->inspect(value) << endl;
+}
+
+ArgumentList eArgs(QList<Argument*>() 
+                   << new StringArgument("expression", 
+                                         "Expression",
+                                         "the expression to evaluate")
+                   );
+
+static Command 
+evl("eval", // command name
+    effector(evalCommand), // action
+    "fit",  // group name
+    &eArgs, // arguments
+    NULL, // options
+    "Evaluate",
+    "Evaluate a Ruby expression in the current context",
+    "", CommandContext::fitContext());

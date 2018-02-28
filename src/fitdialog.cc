@@ -397,8 +397,8 @@ void FitDialog::setupFrame()
                 QKeySequence(tr("Ctrl+T")));
   ac->addAction("Reset all to initial guess !", this, 
                 SLOT(resetAllToInitialGuess()));
-  ac->addAction("Reset to backup", this, 
-                SLOT(resetParameters()),
+  ac->addAction("Reset to backup", &parameters, 
+                SLOT(resetToBackup()),
                 QKeySequence(tr("Ctrl+Shift+R")));
   ac->addAction("Show covariance matrix", this, 
                 SLOT(showCovarianceMatrix()),
@@ -1025,12 +1025,6 @@ void FitDialog::halfWeight()
 {
   data->weightsPerBuffer[currentIndex] *= 0.5;
   updateEditors();
-}
-
-void FitDialog::resetParameters()
-{
-  setParameterValues(parametersBackup);
-  message("Restored parameters");
 }
 
 

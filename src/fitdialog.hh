@@ -372,10 +372,6 @@ protected slots:
   /// Divides by two the weight of the current buffer
   void halfWeight();
 
-  /// Resets the parameters to the original values (before the fit).
-  void resetParameters();
-
-
   /// Upon change in the FitEngine combo box...
   void engineSelected(int id);
 

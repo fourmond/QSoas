@@ -385,3 +385,36 @@ sel("select", // command name
     "Select",
     "Selects the current dataset",
     "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
+static void resetCommand(const QString & /*name*/,
+                         const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  QString source = "initial";
+  updateFromOptions(opts, "source", source);
+  if(source == "initial") {
+    ws->resetAllToInitialGuess();
+  }
+  else {
+    ws->resetToBackup();
+  }
+}
+
+ArgumentList resetOpts(QList<Argument*>()
+                       << new ChoiceArgument(QStringList()
+                                             << "initial" << "backup",
+                                             "source", "Source"
+                                             "source of the parameters")
+                       );
+
+static Command 
+res("reset", // command name
+    effector(resetCommand), // action
+    "fit",  // group name
+    NULL, // arguments
+    &resetOpts, // options
+    "Reset",
+    "Reset parameters to previous values",
+    "", CommandContext::fitContext());

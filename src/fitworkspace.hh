@@ -187,6 +187,39 @@ public:
   
   /// @}
 
+  /// @name Parameters "backup"
+  ///
+  /// Storage for several "backups" of parameter values
+  ///
+  /// @{
+
+  /// The initial guess of parameters
+  Vector initialGuess;
+
+  /// Thee backup, i.e. the parameters before starting the fit
+  Vector parametersBackup;
+
+public slots:
+  /// Resets all the parameters to the backup values
+  void resetToBackup();
+
+  /// Resets only those present in @a resetOnly
+  void resetToBackup(const QList<QPair<int, int> > & resetOnly);
+
+  /// Resets all parameters to the initial guess
+  void resetAllToInitialGuess();
+
+  /// Resets the parameters for the current dataset to the initial
+  /// guess.
+  void resetToInitialGuess(int ds);
+
+  /// Resets only those present in @a resetOnly
+  void resetToInitialGuess(const QList<QPair<int, int> > & resetOnly);
+
+public:
+
+  /// @}
+
   /// The perpendicular coordinates. FitDialog should make them up
   /// when appropriate. There are as many elements as the number of
   /// datasets, or 0 elements if there are no relevant perpendicular
@@ -371,13 +404,6 @@ public:
   /// Retrieve parameters from the fit
   void retrieveParameters();
 
-  /// Resets all parameters to the initial guess
-  void resetAllToInitialGuess();
-
-  /// Resets the parameters for the current dataset to the initial
-  /// guess.
-  void resetToInitialGuess(int ds);
-
 
   /// @name IO functions
   ///
@@ -456,6 +482,10 @@ public:
   /// Restores the previously saved values.
   void restoreParameterValues(const Vector & values);
 
+  /// Same as the other one, only restores the parameters
+  void restoreParameterValues(const Vector & values,
+                              const QList<QPair<int, int> > & parameters);
+
 
   /// Wraps the given parameters (obtained from saveParameterValues(),
   /// for instance) as a Ruby [dataset][name] construct
@@ -481,9 +511,6 @@ public:
 
   /// Whether or not we should cancel the current fit.
   bool shouldCancelFit;
-
-  /// The parameters as saved just before starting the fit
-  Vector parametersBackup;
 
   /// The internal residuals
   double residuals;

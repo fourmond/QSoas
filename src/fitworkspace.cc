@@ -119,6 +119,8 @@ FitWorkspace::FitWorkspace(FitData * d) :
 
   // Now populate default values and fill the cache
   d->fit->initialGuess(d, values);
+  // Save the initial guess
+  initialGuess = saveParameterValues();
   for(int i = 0; i < nbParameters; i++) {
     const ParameterDefinition * def = &d->parameterDefinitions[i];
     parameterIndices[def->name] = i;
@@ -916,22 +918,8 @@ void FitWorkspace::loadParametersValues(const QString & file)
   Utils::open(&f,QIODevice::ReadOnly);
   loadParametersValues(&f);
 }
-  
-void FitWorkspace::resetAllToInitialGuess()
-{
-  fitData->fit->initialGuess(fitData, values);
-  emit(parametersChanged());
-}
 
-void FitWorkspace::resetToInitialGuess(int ds)
-{
-  QVarLengthArray<double, 1024> params(nbParameters * datasets);
-  fitData->fit->initialGuess(fitData, params.data());
-  for(int i = 0; i < nbParameters; i++) {
-    values[i + ds * nbParameters] = params[i + ds * nbParameters];
-    emit(parameterChanged(i, ds));
-  }
-}
+
 
 void FitWorkspace::dump() const 
 {
@@ -1038,11 +1026,50 @@ Vector FitWorkspace::saveParameterValues()
 void FitWorkspace::restoreParameterValues(const Vector & vect)
 {
   int size = nbParameters * datasets;
-  for(int i = 0; (i < size && i < vect.size()); i++)
+  for(int i = 0; (i < size && i < vect.size()); i++) {
     values[i] = vect[i];
+  }
+  emit(parametersChanged());
   updateParameterValues();
 }
 
+void FitWorkspace::restoreParameterValues(const Vector & vect, const QList<QPair<int, int> > & resetOnly)
+{
+  for(QPair<int, int> p : resetOnly) {
+    values[p.first + p.second * nbParameters] =
+      vect[p.first + p.second * nbParameters];
+    emit(parameterChanged(p.first, p.second));
+  }
+  updateParameterValues();
+}
+
+void FitWorkspace::resetToBackup()
+{
+  restoreParameterValues(parametersBackup);
+}
+
+void FitWorkspace::resetToBackup(const QList<QPair<int, int> > & resetOnly)
+{
+  restoreParameterValues(parametersBackup, resetOnly);
+}
+
+void FitWorkspace::resetAllToInitialGuess()
+{
+  restoreParameterValues(initialGuess);
+}
+
+void FitWorkspace::resetToInitialGuess(const QList<QPair<int, int> > & resetOnly)
+{
+  restoreParameterValues(initialGuess, resetOnly);
+}
+
+void FitWorkspace::resetToInitialGuess(int ds)
+{
+  for(int i = 0; i < nbParameters; i++) {
+    values[i + ds * nbParameters] = initialGuess[i + ds * nbParameters];
+    emit(parameterChanged(i, ds));
+  }
+}
 
 Vector FitWorkspace::saveParameterErrors(double th)
 {

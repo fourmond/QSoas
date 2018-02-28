@@ -353,6 +353,9 @@ public:
   /// The names of all parameters
   QStringList parameterNames() const;
 
+  /// The number of datasets
+  int datasetNumber() const;
+
   /// @}
 
   /// @name Computed functions handling

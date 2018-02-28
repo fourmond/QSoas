@@ -423,6 +423,11 @@ QStringList FitWorkspace::parameterNames() const
   return rv;
 }
 
+int FitWorkspace::datasetNumber() const
+{
+  return datasets;
+}
+
 void FitWorkspace::prepareExport(QStringList & lst, QString & lines, 
                                   bool exportErrors, bool exportMeta)
 {

@@ -90,7 +90,9 @@ FitWorkspace * FitWorkspace::currentWorkspace()
 FitWorkspace::FitWorkspace(FitData * d) :
   fitData(d), currentDS(0), parameters(d->datasets.size() * 
                                        d->parametersPerDataset()),
-  rawCVMatrix(NULL), cookedCVMatrix(NULL), fitEnding(NotStarted)
+  rawCVMatrix(NULL), cookedCVMatrix(NULL),
+  trajectories(this),
+  fitEnding(NotStarted)
 {
   if(currentWS)
     throw InternalError("Trying to recurse into a fit workspace, this should not happen");
@@ -1418,6 +1420,7 @@ void FitWorkspace::endFit(FitWorkspace::Ending ending)
   writeToTerminal();
   /// @todo Here: a second computation of the covariance matrix...
   recomputeErrors();
+  recompute(true);
 
 
   trajectories << 
@@ -1431,6 +1434,9 @@ void FitWorkspace::endFit(FitWorkspace::Ending ending)
                   fitStartTime, fitData);
 
   trajectories.last().ending = ending;
+  if(! trajectoryName.isEmpty())
+    *namedTrjs[trajectoryName] << trajectories.last();
+  
   fitData->doneFitting();
   emit(finishedFitting(ending));
 }
@@ -1439,6 +1445,16 @@ void FitWorkspace::quit()
 {
   emit(quitWorkspace());
 }
+
+const FitTrajectories & FitWorkspace::namedTrajectories(const QString & name)
+{
+  if(name.isEmpty() || name == "*")
+    return trajectories;
+  if(! namedTrjs.contains(name))
+    throw RuntimeError("Unkown trajectories name: '%1'").arg(name);
+  return *namedTrjs[name];
+}
+
 
 mrb_value FitWorkspace::parametersToRuby(const Vector & values) const
 {

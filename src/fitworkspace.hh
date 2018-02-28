@@ -24,6 +24,7 @@
 
 
 #include <fitengine.hh>
+#include <fittrajectories.hh>
 #include <possessive-containers.hh>
 #include <vector.hh>
 
@@ -32,7 +33,6 @@ class FitParameter;
 class OutFile;
 
 class FitParametersFile;
-class FitTrajectory;
 
 class CurveData;
 class DataSet;
@@ -529,9 +529,24 @@ public:
   /// The time in seconds that has elapsed since the beginning of the fit
   double elapsedTime() const;
 
-  /// A list of all the fits started run 
-  QList<FitTrajectory> trajectories;
+  /// All the initial guess -> final pairs since the beginning of the
+  /// spawn of the Fit Workspace
+  FitTrajectories trajectories;
 
+  /// The current name for trajectories
+  QString trajectoryName;
+
+  /// Named trajectories
+  QHash<QString, FitTrajectories *> namedTrjs;
+
+  /// Sets the name for currnt trajectory namespace
+  void setTrajectoryName(const QString & name);
+
+  /// Returns the named trajectory. * or empty designates the global
+  /// trajectory.
+  const FitTrajectories & namedTrajectories(const QString & name);
+
+  /// Starts the fit.
   void startFit();
 
   /// Runs the next iteration, returns the status code

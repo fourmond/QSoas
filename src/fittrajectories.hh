@@ -43,6 +43,12 @@ class FitTrajectories {
 
   void clearCache() const;
 
+  /// Update the residualsOrder cache
+  void updateCache() const;
+
+  /// Sort by residuals
+  void sortByResiduals();
+
 public:
   FitTrajectories(const FitWorkspace * ws);
 
@@ -63,6 +69,26 @@ public:
 
   /// Sorts the list of trajectories by startTime.
   void sort();
+
+  /// Returns the size of the list
+  int size() const;
+
+  /// Removes all the elements whose residuals are more than @a factor
+  /// times that of the lowest
+  void trim(double factor);
+
+  /// Returns the nth element
+  const FitTrajectory & operator[](int idx) const;
+
+  /// Returns the best fit, or the nth best fit.
+  const FitTrajectory & best(int nth = 0) const;
+
+  FitTrajectory & last();
+
+
+  /// Iteration
+  QList<FitTrajectory>::const_iterator begin() const;
+  QList<FitTrajectory>::const_iterator end() const;
 };
 
 #endif

@@ -53,6 +53,19 @@ void FitTrajectories::clearCache() const
   residualsOrder.clear();
 }
 
+void FitTrajectories::updateCache() const
+{
+  clearCache();
+  int sz = size();
+  for(int i = 0; i < sz; i++)
+    residualsOrder << i;
+  std::sort(residualsOrder.begin(), residualsOrder.end(),
+            [this](int a, int b) -> bool {
+              return trajectories[a] < trajectories[b];
+            });
+  
+}
+
 int FitTrajectories::importFromFile(QTextStream & in)
 {
   LineReader lr(&in);
@@ -94,26 +107,66 @@ void FitTrajectories::sort()
   clearCache();
 }
 
-// void FitTrajectory::mergeTrajectories(QList<FitTrajectory> * target,
-//                                       const QList<FitTrajectory> & source)
-// {
-//   *target += source;
+void FitTrajectories::sortByResiduals()
+{
+  std::sort(trajectories.begin(), trajectories.end());
+  clearCache();
+}
 
-//   qSort(target->begin(), target->end(),
-//         [](FitTrajectory a, FitTrajectory b) -> bool {
-//           return a.startTime < b.startTime;
-//         });
+const FitTrajectory & FitTrajectories::operator[](int idx) const
+{
+  return trajectories[idx];
+}
 
-//   int i = 0;
-//   // QTextStream o(stdout);
-//   while(i < target->size()) {
-//     while(i > 0 && target->value(i) == target->value(i-1)) {
-//       // o << "Found two identical items:\n"
-//       //   << target->value(i-1).exportColumns().join("\t") << "\n"
-//       //   << target->value(i).exportColumns().join("\t")
-//       //   << endl;
-//       target->takeAt(i);
-//     }
-//     i++;
-//   }
-// }
+const FitTrajectory & FitTrajectories::best(int idx) const
+{
+  if(residualsOrder.size() != trajectories.size())
+    updateCache();
+  return trajectories[residualsOrder[idx]];
+}
+
+
+int FitTrajectories::size() const
+{
+  return trajectories.size();
+}
+
+void FitTrajectories::merge(const FitTrajectories & other)
+{
+  trajectories += other.trajectories;
+  sort();
+  int i = 1;
+  while(i < trajectories.size()) {
+    while(i <  trajectories.size() && trajectories[i] == trajectories[i-1]) {
+      trajectories.takeAt(i);
+    }
+    i++;
+  }
+}
+
+void FitTrajectories::trim(double factor)
+{
+  double res = best().relativeResiduals;
+  int i = 0;
+  while(i < size()) {
+    if(trajectories[i].relativeResiduals > factor * res)
+      trajectories.takeAt(i);
+    else
+      ++i;
+  }
+}
+
+FitTrajectory & FitTrajectories::last()
+{
+  return trajectories.last();
+}
+
+QList<FitTrajectory>::const_iterator FitTrajectories::begin() const
+{
+  return trajectories.begin();
+}
+
+QList<FitTrajectory>::const_iterator FitTrajectories::end() const
+{
+  return trajectories.end();
+}

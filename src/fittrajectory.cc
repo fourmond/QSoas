@@ -157,6 +157,25 @@ QStringList FitTrajectory::exportHeaders(const QStringList & s, int ds)
   return ret;
 }
 
+bool FitTrajectory::operator==(const FitTrajectory & o) const
+ {
+   if(initialParameters != o.initialParameters)
+     return false;
+   if(finalParameters != o.finalParameters)
+     return false;
+   if(parameterErrors != o.parameterErrors)
+     return false;
+
+   if(startTime != o.startTime)
+     return false;
+   if(endTime != o.endTime)
+     return false;
+
+   // Lets forget the rest for now...
+
+   return true;
+ }
+
 QString FitTrajectory::endingName(FitWorkspace::Ending end)
 {
   switch(end) {
@@ -206,10 +225,10 @@ static bool cmp(const FitTrajectoryCluster & a, const FitTrajectoryCluster & b)
   if( (a.trajectories.size() > 0) && 
       (a.trajectories.size() == b.trajectories.size()) )
     return (a.trajectories[0].relativeResiduals < 
-              b.trajectories[0].relativeResiduals);
+            b.trajectories[0].relativeResiduals);
             
-            // Hey emacs, you'r not quite right about indentation here
-            return a.trajectories.size() > b.trajectories.size();
+  // Hey emacs, you'r not quite right about indentation here
+  return a.trajectories.size() > b.trajectories.size();
 }
 
 QList<FitTrajectoryCluster> FitTrajectoryCluster::clusterTrajectories(const QList<FitTrajectory> * trajectories)

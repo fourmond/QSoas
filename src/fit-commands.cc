@@ -18,6 +18,7 @@
 
 #include <headers.hh>
 #include <fitworkspace.hh>
+#include <fittrajectory.hh>
 #include <terminal.hh>
 #include <soas.hh>
 
@@ -418,3 +419,44 @@ res("reset", // command name
     "Reset",
     "Reset parameters to previous values",
     "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
+static void listTrajectoriesCommand(const QString & /*name*/,
+                                    const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  QString which;
+  updateFromOptions(opts, "which", which);
+  const FitTrajectories & trjs = ws->namedTrajectories(which);
+  int idx = 0;
+  for(const FitTrajectory & t : trjs) {
+    Terminal::out << "#" << idx++ << ": "
+                  << t.relativeResiduals << "\tstarted: "
+                  << t.startTime.toString() << " -> "
+                  << FitTrajectory::endingName(t.ending) << endl;
+  }
+}
+
+ArgumentList lTOpts(QList<Argument*>()
+                    << new ChoiceArgument([]() -> QStringList {
+                        FitWorkspace * ws =
+                          FitWorkspace::currentWorkspace();
+                        QStringList a = ws->namedTrjs.keys();
+                        a << "*";
+                        return a;
+                      }
+                      ,
+                      "which", "Which trajectories"
+                      "which set of trajectories to use")
+                    );
+
+static Command 
+st("list-trajectories", // command name
+   effector(listTrajectoriesCommand), // action
+   "fit",  // group name
+   NULL, // arguments
+   &lTOpts, // options
+   "List trajectories",
+   "List briefly all the trajectories",
+   "", CommandContext::fitContext());

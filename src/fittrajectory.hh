@@ -95,6 +95,8 @@ public:
     return relativeResiduals < o.relativeResiduals;
   };
 
+  bool operator==(const FitTrajectory & o) const;
+
 
   /// Returns true if the argument is within the error range of this
   /// one (that does not necessarily mean that the reverse is true).

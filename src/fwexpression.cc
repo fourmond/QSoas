@@ -24,6 +24,8 @@
 
 #include <fitworkspace.hh>
 #include <fitdata.hh>
+#include <idioms.hh>
+#include <mruby.hh>
 
 #include <terminal.hh>
 
@@ -52,12 +54,19 @@ mrb_value FWExpression::evaluate(int dataset, const double * extra)
   if(dataset < 0)
     dataset = workSpace->currentDataset();
 
+  MRuby * mr = MRuby::ruby();
+
+
   QVarLengthArray<double, 200> params(finalParameters.size());
   params[0] = workSpace->perpendicularCoordinates.value(dataset, dataset);
   params[1] = dataset;
   Vector v = workSpace->saveParameterValues();
+
   int sz = fitParameters.size();
   for(int i = 0; i < sz; i++)
     params[2 + i] = v[sz * dataset + i];
+
+  SaveGlobal p1("$params");
+  mr->setGlobal("$params", workSpace->parametersToRuby(v));
   return expr->evaluateAsRuby(params.data());
 }

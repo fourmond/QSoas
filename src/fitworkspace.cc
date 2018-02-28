@@ -38,6 +38,8 @@
 #include <fitparametersfile.hh>
 #include <fittrajectory.hh>
 
+#include <mruby.hh>
+
 #include <gsl/gsl_sf.h>
 
 // smart(er) memory management for GSL types
@@ -1405,6 +1407,27 @@ void FitWorkspace::quit()
 {
   emit(quitWorkspace());
 }
+
+mrb_value FitWorkspace::parametersToRuby(const Vector & values) const
+{
+  QStringList names = parameterNames();
+  if(values.size() != datasets * names.size())
+    throw InternalError("Wrong number of parameters: %1 for %2").
+      arg(values.size()).arg(datasets * names.size());
+  MRuby * mr = MRuby::ruby();
+  mrb_value rv = mr->newArray();
+  for(int i = 0; i < datasets; i++) {
+    mrb_value hsh = mr->newHash();
+    for(int j = 0; j < names.size(); j++) {
+      mrb_value k = mr->fromQString(names[j]);
+      mrb_value v = mr->newFloat(values[i*names.size() + j]);
+      mr->hashSet(hsh, k, v);
+    }
+    mr->arrayPush(rv, hsh);
+  }
+  return rv;
+}
+
 
 //////////////////////////////////////////////////////////////////////
 

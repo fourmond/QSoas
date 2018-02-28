@@ -457,6 +457,11 @@ public:
   void restoreParameterValues(const Vector & values);
 
 
+  /// Wraps the given parameters (obtained from saveParameterValues(),
+  /// for instance) as a Ruby [dataset][name] construct
+  mrb_value parametersToRuby(const Vector & values) const;
+
+
   /// @}
 
   /// The status of the fitting process

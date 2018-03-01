@@ -737,5 +737,36 @@ inline CommandEffector * effector(void (*f)(CurveEventLoop &,
   return new InteractiveCommandEffectorCallback0(f);
 };
 
+//////////////////////////////////////////////////////////////////////
+
+class RawCommandEffector : public CommandEffector {
+
+public:
+  typedef std::function< void (const QString &, 
+                               const CommandArguments &,
+                               const CommandOptions &) > EffectorCode;
+private:
+  EffectorCode code;
+  
+public:
+
+  RawCommandEffector(const EffectorCode & c) :
+    CommandEffector(false),
+    code(c) {
+  }
+  
+  virtual void runCommand(const QString & commandName, 
+                          const CommandArguments & arguments,
+                          const CommandOptions & options) {
+    code(commandName, arguments, options);
+  };
+
+};
+
+inline CommandEffector * effector(RawCommandEffector::EffectorCode c) {
+  return new RawCommandEffector(c);
+};
+
+
 
 #endif

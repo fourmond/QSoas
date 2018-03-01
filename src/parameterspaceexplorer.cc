@@ -22,6 +22,7 @@
 #include <exceptions.hh>
 
 #include <commandeffector.hh>
+#include <commandeffector-templates.hh>
 #include <commandcontext.hh>
 #include <command.hh>
 
@@ -85,27 +86,6 @@ QHash<QString, QString> ParameterSpaceExplorer::availableExplorers()
   return ret;
 }
 
-class RawCommandEffector : public CommandEffector {
-
-  typedef std::function< void (const QString &, 
-                               const CommandArguments &,
-                               const CommandOptions &) > EffectorCode;
-  EffectorCode code;
-  
-public:
-
-  RawCommandEffector(const EffectorCode & c) :
-    CommandEffector(false),
-    code(c) {
-  }
-  
-  virtual void runCommand(const QString & commandName, 
-                          const CommandArguments & arguments,
-                          const CommandOptions & options) {
-    code(commandName, arguments, options);
-  };
-
-};
 
 CommandEffector * ParameterSpaceExplorer::explorerEffector(const QString & n)
 {
@@ -150,7 +130,6 @@ QList<Command *> ParameterSpaceExplorer::createCommands(FitWorkspace * workspace
 //////////////////////////////////////////////////////////////////////
 
 #include <file-arguments.hh>
-#include <commandeffector-templates.hh>
 #include <soas.hh>
 #include <commandwidget.hh>
 #include <terminal.hh>

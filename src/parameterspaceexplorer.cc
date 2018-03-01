@@ -19,6 +19,8 @@
 #include <headers.hh>
 #include <parameterspaceexplorer.hh>
 
+#include <exceptions.hh>
+
 #include <commandeffector.hh>
 #include <commandcontext.hh>
 #include <command.hh>
@@ -141,3 +143,55 @@ QList<Command *> ParameterSpaceExplorer::createCommands(FitWorkspace * workspace
   return rv;
 }
 
+
+
+
+
+//////////////////////////////////////////////////////////////////////
+
+#include <file-arguments.hh>
+#include <commandeffector-templates.hh>
+#include <soas.hh>
+#include <commandwidget.hh>
+#include <terminal.hh>
+
+
+static void iterateExplorerCommand(const QString & /*name*/,
+                                   const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  ParameterSpaceExplorer * explorer = ws->currentExplorer;
+  if(! explorer)
+    throw RuntimeError("No current explorer");
+
+  QString script;
+  updateFromOptions(opts, "script", script);
+
+  while(true) {
+    Terminal::out << "Explorer iteration: " << explorer->progressText()
+                  << endl;
+    bool cont = explorer->iterate();
+    if(! script.isEmpty())
+      soas().prompt().runCommandFile(script);
+    if(! cont)
+      break;
+  }
+}
+
+
+ArgumentList ieOpts(QList<Argument*>() 
+                      << new FileArgument("script", 
+                                          "Script",
+                                          "script file run after the iteration", false, true)
+                      );
+
+
+static Command 
+trim("iterate-explorer", // command name
+     effector(iterateExplorerCommand), // action
+     "fit",  // group name
+     NULL, // arguments
+     &ieOpts,
+     "Iterate explorer",
+     "Run all the iterations of the current explorer",
+     "", CommandContext::fitContext());

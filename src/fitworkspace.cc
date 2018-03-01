@@ -38,6 +38,9 @@
 #include <fitparametersfile.hh>
 #include <fittrajectory.hh>
 
+#include <parameterspaceexplorer.hh>
+#include <command.hh>
+
 #include <mruby.hh>
 
 #include <gsl/gsl_sf.h>
@@ -92,7 +95,8 @@ FitWorkspace::FitWorkspace(FitData * d) :
                                        d->parametersPerDataset()),
   rawCVMatrix(NULL), cookedCVMatrix(NULL),
   trajectories(this),
-  fitEnding(NotStarted)
+  fitEnding(NotStarted),
+  currentExplorer(NULL)
 {
   if(currentWS)
     throw InternalError("Trying to recurse into a fit workspace, this should not happen");
@@ -143,6 +147,20 @@ FitWorkspace::FitWorkspace(FitData * d) :
         parameterRef(i,0) = new FreeParameter(i, -1);
     }
   }
+
+  generatedCommands += ParameterSpaceExplorer::createCommands(this);
+}
+
+FitWorkspace::~FitWorkspace()
+{
+  delete[] values;
+  delete[] errors;
+  freeMatrices();
+  currentWS = NULL;
+
+  for(Command * cmd : generatedCommands)
+    delete cmd;
+  generatedCommands.clear();
 }
 
 bool FitWorkspace::hasSubFunctions() const
@@ -220,13 +238,15 @@ void FitWorkspace::freeMatrices()
   }
 }
 
-FitWorkspace::~FitWorkspace()
+
+
+void FitWorkspace::setExplorer(ParameterSpaceExplorer * expl)
 {
-  delete[] values;
-  delete[] errors;
-  freeMatrices();
-  currentWS = NULL;
+  if(currentExplorer)
+    delete currentExplorer;
+  currentExplorer = expl;
 }
+
 
 bool FitWorkspace::isGlobal(int index) const
 {

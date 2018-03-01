@@ -37,6 +37,9 @@ class FitParametersFile;
 class CurveData;
 class DataSet;
 class DataStackHelper;
+class Command;
+
+class ParameterSpaceExplorer;
 
 /// This class holds all the structures necessary to run a fit, from
 /// QSoas's perspective -- setting of parameters
@@ -159,6 +162,10 @@ class FitWorkspace : public QObject {
   void checkIndex(int index, int ds) const;
 
   static FitWorkspace * currentWS;
+
+  /// The commands generated during the initialization of the
+  /// workspace, that must be destroyed upon destruction.
+  QList<Command *> generatedCommands;
 public:
 
   static FitWorkspace * currentWorkspace();
@@ -452,6 +459,18 @@ public:
   /// Overridden version 
   void loadParametersValues(const QString & fn);
 
+
+  /// @}
+
+  /// @name Parameter space exploration
+  ///
+  /// @{
+
+  // protected:
+  ParameterSpaceExplorer * currentExplorer;
+  // public:
+
+  void setExplorer(ParameterSpaceExplorer * expl);
 
   /// @}
   

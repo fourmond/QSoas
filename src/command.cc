@@ -79,6 +79,11 @@ Command::Command(const char * cn,
     registerMe();
 }; 
 
+Command::~Command()
+{
+  context->unregisterCommand(this);
+}
+
 void Command::registerMe()
 {
   if(! context)

@@ -110,7 +110,10 @@ public:
           const QByteArray & sd = "", 
           const QByteArray & sc = "",
           CommandContext * context = NULL,
-          bool autoRegister = true); 
+          bool autoRegister = true);
+
+  /// Unregisters the command upon deletion
+  ~Command();
 
   /// The command name, the one that will be used from the command
   /// prompt.

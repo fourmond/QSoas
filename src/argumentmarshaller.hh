@@ -32,6 +32,11 @@ public:
   template<typename T> T value() const;
   template<typename T> T & value();
   virtual ~ArgumentMarshaller() {;};
+
+  virtual ArgumentMarshaller * dup() const {
+    return NULL;
+  };
+
 };
 
 template <typename T> class ArgumentMarshallerChild : 
@@ -40,6 +45,9 @@ public:
   T value;
 
   ArgumentMarshallerChild(const T & t) : value(t) {;};
+  virtual ArgumentMarshaller * dup() const {
+    return new ArgumentMarshallerChild<T>(value);
+  };
 };
 
 template<typename T> T ArgumentMarshaller::value() const {

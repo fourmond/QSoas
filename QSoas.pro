@@ -486,6 +486,10 @@ SOURCES += src/mruby.cc \
 
 LIBS += -lmruby
 
+# Sources for the parameter space explorers
+SOURCES += src/montecarloexplorer.cc
+
+
                 
 # Sources of file-format specific code
 SOURCES += src/formats/gpesprovider.cc \

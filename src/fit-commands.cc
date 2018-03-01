@@ -431,7 +431,7 @@ static void listTrajectoriesCommand(const QString & /*name*/,
   const FitTrajectories & trjs = ws->namedTrajectories(which);
   int idx = 0;
   for(const FitTrajectory & t : trjs) {
-    Terminal::out << "#" << idx++ << ": "
+    Terminal::out << "#" << idx++ << ":\t"
                   << t.relativeResiduals << "\tstarted: "
                   << t.startTime.toString() << " -> "
                   << FitTrajectory::endingName(t.ending) << endl;

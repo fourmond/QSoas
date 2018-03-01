@@ -800,6 +800,24 @@ double Utils::random()
   return x;
 }
 
+double Utils::random(double low, double high, bool log)
+{
+  double x = Utils::random();
+  double sign = 1;
+  if(low < 0)
+    sign = -1;
+  if(log) {
+    if(high*low < 0)
+      throw RuntimeError("Cannot use logarithm when range crosses 0");
+    low = ::log(low*sign);
+    high = ::log(high*sign);
+  }
+  x = low + (high - low)*x;
+  if(log)
+    return sign * exp(x);
+  return x;
+}
+
 double Utils::magnitude(double value, bool below)
 {
   double sgn = (value < 0 ? -1.0 : 1.0);

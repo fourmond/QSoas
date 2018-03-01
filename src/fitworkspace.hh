@@ -540,6 +540,8 @@ public:
   /// The last internal residuals
   double lastResiduals;
 
+  /// @infa This is awkward, since the engine creation is handled by
+  /// FitData, but FitWorkspace handles the options.
   QHash<FitEngineFactoryItem *, CommandOptions * > fitEngineParameterValues;
   
   /// The time at which the fit started

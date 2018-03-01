@@ -336,7 +336,7 @@ expt("export", // command name
 //////////////////////////////////////////////////////////////////////
 
 static void evalCommand(const QString & /*name*/, QString formula,
-                        const CommandOptions & opts)
+                        const CommandOptions & /*opts*/)
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
   MRuby * mr = MRuby::ruby();
@@ -365,7 +365,7 @@ evl("eval", // command name
 //////////////////////////////////////////////////////////////////////
 
 static void selectCommand(const QString & /*name*/, int ds,
-                          const CommandOptions & opts)
+                          const CommandOptions & /*opts*/)
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
   ws->selectDataSet(ds, false);
@@ -460,3 +460,161 @@ st("list-trajectories", // command name
    "List trajectories",
    "List briefly all the trajectories",
    "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
+static void trajectoriesNameCommand(const QString & /*name*/,
+                                    const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  QString name;
+  updateFromOptions(opts, "name", name);
+  ws->setTrajectoryName(name);
+}
+
+ArgumentList tNOpts(QList<Argument*>()
+                    << new StringArgument("name", "Trajectory name",
+                                          "sets the name for the namespace of trajectories", true)
+                    );
+
+static Command 
+tn("trajectories-name", // command name
+   effector(trajectoriesNameCommand), // action
+   "fit",  // group name
+   NULL, // arguments
+   &tNOpts, // options
+   "Name trajectories",
+   "Define the name for the subsequent trajectories",
+   "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
+static void saveTrajectoriesCommand(const QString & /*name*/,
+                                    QString file,
+                                    const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  QString which;
+  updateFromOptions(opts, "which", which);
+  FitTrajectories & trjs = ws->namedTrajectories(which);
+
+  QString mode = "fail";
+  updateFromOptions(opts, "mode", mode);
+
+  if(QFile::exists(file)) {
+    if(mode == "fail")
+      throw RuntimeError("Not overwriting existing file '%1'").
+        arg(file);
+    if(mode == "update") {
+      Terminal::out << "Updating trajectories from file '"
+                << file
+                << "'" << endl;
+      try {
+        QFile fl(file);
+        Utils::open(&fl, QIODevice::ReadOnly);
+    
+        int nb;
+        FitTrajectories update(ws);
+        QTextStream in(&fl);
+        nb = update.importFromFile(in);
+        trjs.merge(update);
+      }
+      catch (const Exception & er) {
+        Terminal::out << "Could not load trajectory file " << file
+                      << ": " << er.message() << ", ignoring" << endl;
+      }
+    }
+  }
+
+  QFile f(file);
+  Utils::open(&f, QIODevice::WriteOnly);
+
+  Terminal::out << "Saving fit trajectories data to '"
+                << file << "'" << endl;
+  
+  QTextStream o(&f);
+  trjs.exportToFile(o);
+}
+
+
+ArgumentList sTA(QList<Argument*>() 
+                 << new FileArgument("file", 
+                                     "Trajectory file",
+                                     "name of the file for saving the trajectories")
+                );
+
+
+ArgumentList sTOpts(QList<Argument*>()
+                    << new ChoiceArgument([]() -> QStringList {
+                        FitWorkspace * ws =
+                          FitWorkspace::currentWorkspace();
+                        QStringList a = ws->namedTrjs.keys();
+                        a << "*";
+                        return a;
+                      }
+                      ,
+                      "which", "Which trajectories"
+                      "which set of trajectories to use")
+                    << new ChoiceArgument(QStringList() << "overwrite"
+                                          << "update" << "fail"
+                                          , "mode", "Mode"
+                                          "what to do if the target file already exists")
+                    );
+
+static Command 
+sat("save-trajectories", // command name
+    effector(saveTrajectoriesCommand), // action
+    "fit",  // group name
+    &sTA, // arguments
+    &sTOpts, // options
+    "Save trajectories",
+    "Save the trajectories to a file",
+    "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
+static void loadTrajectoriesCommand(const QString & /*name*/,
+                                    QString file,
+                                    const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  FitTrajectories & trjs = ws->namedTrajectories(ws->trajectoryName);
+
+  QString mode = "update";
+  updateFromOptions(opts, "mode", mode);
+  QFile fl(file);
+  Utils::open(&fl, QIODevice::ReadOnly);
+    
+  int nb;
+  FitTrajectories update(ws);
+  QTextStream in(&fl);
+  nb = update.importFromFile(in);
+  if(mode == "drop")
+    trjs.clear();
+  trjs.merge(update);
+}
+
+
+ArgumentList ldTA(QList<Argument*>() 
+                 << new FileArgument("file", 
+                                     "Trajectory file",
+                                     "name of the file for saving the trajectories")
+                );
+
+
+ArgumentList ldTOpts(QList<Argument*>()
+                    << new ChoiceArgument(QStringList() << "drop"
+                                          << "update" 
+                                          , "mode", "Mode"
+                                          "what to do with current trajectories")
+                    );
+
+static Command 
+ldt("load-trajectories", // command name
+    effector(loadTrajectoriesCommand), // action
+    "fit",  // group name
+    &ldTA, // arguments
+    &ldTOpts, // options
+    "Load trajectories",
+    "Load trajectories from a file",
+    "", CommandContext::fitContext());

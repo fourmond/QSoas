@@ -1420,7 +1420,8 @@ void FitWorkspace::endFit(FitWorkspace::Ending ending)
   writeToTerminal();
   /// @todo Here: a second computation of the covariance matrix...
   recomputeErrors();
-  recompute(true);
+  recompute(true);              // Make sure the residuals are
+                                // properly computed.
 
 
   trajectories << 
@@ -1446,7 +1447,7 @@ void FitWorkspace::quit()
   emit(quitWorkspace());
 }
 
-const FitTrajectories & FitWorkspace::namedTrajectories(const QString & name)
+FitTrajectories & FitWorkspace::namedTrajectories(const QString & name)
 {
   if(name.isEmpty() || name == "*")
     return trajectories;
@@ -1455,6 +1456,14 @@ const FitTrajectories & FitWorkspace::namedTrajectories(const QString & name)
   return *namedTrjs[name];
 }
 
+void FitWorkspace::setTrajectoryName(const QString & name)
+{
+  trajectoryName = name;
+  if(trajectoryName.isEmpty())
+    return;
+  if(! namedTrjs.contains(trajectoryName))
+    namedTrjs[trajectoryName] = new FitTrajectories(this);
+}
 
 mrb_value FitWorkspace::parametersToRuby(const Vector & values) const
 {

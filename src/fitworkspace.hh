@@ -544,7 +544,7 @@ public:
 
   /// Returns the named trajectory. * or empty designates the global
   /// trajectory.
-  const FitTrajectories & namedTrajectories(const QString & name);
+  FitTrajectories & namedTrajectories(const QString & name);
 
   /// Starts the fit.
   void startFit();

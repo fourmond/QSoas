@@ -85,6 +85,9 @@ public:
 
   FitTrajectory & last();
 
+  /// Clears the trajectories
+  void clear();
+
 
   /// Iteration
   QList<FitTrajectory>::const_iterator begin() const;

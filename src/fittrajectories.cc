@@ -161,6 +161,11 @@ FitTrajectory & FitTrajectories::last()
   return trajectories.last();
 }
 
+void FitTrajectories::clear()
+{
+  trajectories.clear();
+}
+
 QList<FitTrajectory>::const_iterator FitTrajectories::begin() const
 {
   return trajectories.begin();

@@ -320,7 +320,8 @@ SOURCES += src/qmain.cc \
         src/commandcontext.cc \
         src/fit-commands.cc \
         src/fwexpression.cc \
-        src/fittrajectories.cc
+        src/fittrajectories.cc \
+        src/parameterspaceexplorator.cc
 
 #        src/conditionsprovider.cc \
 
@@ -456,7 +457,8 @@ HEADERS += src/headers.hh \
         src/linearkineticsystem.hh \
         src/commandcontext.hh \
         src/fwexpression.hh \
-        src/fittrajectories.hh
+        src/fittrajectories.hh \
+        src/parameterspaceexplorator.hh
 
 # mruby
 HEADERS += src/mruby.hh

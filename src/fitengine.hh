@@ -29,6 +29,9 @@
 class Fit;  
 class FitData;
 class ArgumentList;
+class Command;
+class CommandEffector;
+class FitWorkspace;
 
 /// A simple wrapper class around parameters found after an iteration.
 class StoredParameters {
@@ -85,6 +88,9 @@ protected:
   /// currentParameters() and residuals();
   void pushCurrentParameters();
 
+  /// Returns the command effector for switching to the given engine.
+  static CommandEffector * engineEffector(const QString & name);
+
 public:
   FitEngine(FitData * data);
   virtual ~FitEngine();
@@ -97,6 +103,11 @@ public:
 
   /// Returns the named factory item - or NULL if there isn't.
   static FitEngineFactoryItem * namedFactoryItem(const QString & name);
+
+
+  /// Creates the commands for setting the enging for the given
+  /// workspace.
+  static QList<Command *> createCommands(FitWorkspace * workspace);
 
   /// Returns the default factory item for the given number of
   /// buffers.

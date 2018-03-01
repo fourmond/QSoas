@@ -149,6 +149,7 @@ FitWorkspace::FitWorkspace(FitData * d) :
   }
 
   generatedCommands += ParameterSpaceExplorer::createCommands(this);
+  generatedCommands += FitEngine::createCommands(this);
 }
 
 FitWorkspace::~FitWorkspace()

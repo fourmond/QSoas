@@ -25,6 +25,14 @@
 
 #include <factory.hh>
 
+#include <commandeffector.hh>
+#include <commandeffector-templates.hh>
+#include <commandcontext.hh>
+#include <command.hh>
+
+#include <idioms.hh>
+
+#include <fitworkspace.hh>
 
 StoredParameters::StoredParameters(const gsl_vector *v, double r) :
   parameters(v->size, 0),
@@ -72,6 +80,51 @@ FitEngineFactoryItem * FitEngine::defaultFactoryItem(int nb)
   return namedFactoryItem(availableEngines()[0]); 
 }
 
+CommandEffector * FitEngine::engineEffector(const QString & n)
+{
+  return new RawCommandEffector([n](const QString & commandName, 
+                                    const CommandArguments & arguments,
+                                    const CommandOptions & options) {
+                                  FitWorkspace * ws =
+                                    FitWorkspace::currentWorkspace();
+                                  FitEngineFactoryItem * it =
+                                    namedFactoryItem(n);
+                                  ws->fitData->engineFactory = it;
+                                    
+                                  for(const QString & n : options.keys()) {
+                                    (*ws->fitEngineParameterValues[it])[n] =
+                                      options[n]->dup();
+                                  }
+                                });
+}
+
+
+QList<Command *> FitEngine::createCommands(FitWorkspace * workspace)
+{
+  QList<Command * > rv;
+  TemporaryChange<FitEngine *> tmp(workspace->fitData->engine);
+  for(const QString & n : availableEngines()) {
+    try {
+      FitEngine * eng = createEngine(n, workspace->fitData);
+      QString cmdName = n + "-engine";
+      rv << new Command(cmdName.toLocal8Bit().data(),
+                        engineEffector(n), "fit",
+                        NULL,
+                        eng->engineOptions(),
+                        n.toLocal8Bit().data(),
+                        "", "",
+                        CommandContext::fitContext());
+      delete eng;
+    }
+    catch (RuntimeError & e) {
+      QTextStream o(stdout);
+      o << "Could not create the fit engine command for " << n
+        << " -> " << e.message() << endl;
+    }
+  }
+  return rv;
+}
+
 bool FitEngine::handlesWeights() const
 {
   return false;
@@ -103,6 +156,7 @@ void FitEngine::copyCurrentParameters(gsl_vector * target) const
 
 FitEngine::~FitEngine()
 {
+  // fitData->engine = NULL;
 }
 
 

@@ -88,6 +88,7 @@ class FitWorkspace : public QObject {
   int nbParameters;
 
   friend class FitParameterEditor;
+  friend class FitEngine;
 
   /// Returns the given parameter
   const FitParameter * parameter(int idx, int ds) const {
@@ -541,7 +542,9 @@ public:
   double lastResiduals;
 
   /// @infa This is awkward, since the engine creation is handled by
-  /// FitData, but FitWorkspace handles the options.
+  /// FitData, but FitWorkspace handles the options
+  ///
+  /// @todo This should be handled via a dedicated function ?
   QHash<FitEngineFactoryItem *, CommandOptions * > fitEngineParameterValues;
   
   /// The time at which the fit started

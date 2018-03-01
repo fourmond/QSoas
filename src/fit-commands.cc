@@ -618,3 +618,33 @@ ldt("load-trajectories", // command name
     "Load trajectories",
     "Load trajectories from a file",
     "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
+static void trimTrajectoriesCommand(const QString & /*name*/,
+                                    double factor,
+                                    const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  FitTrajectories & trjs = ws->namedTrajectories(ws->trajectoryName);
+  int nb = trjs.trim(factor);
+  Terminal::out << "Trimmed " << nb << " trajectories" << endl;
+}
+
+
+ArgumentList trimTA(QList<Argument*>() 
+                 << new NumberArgument("threshold", 
+                                       "Threshold",
+                                       "threshold for trimming")
+                );
+
+
+static Command 
+trim("trim-trajectories", // command name
+     effector(trimTrajectoriesCommand), // action
+     "fit",  // group name
+     &trimTA, // arguments
+     NULL, // options
+     "Trim trajectories",
+     "Trim trajectories whose residuals are too high",
+     "", CommandContext::fitContext());

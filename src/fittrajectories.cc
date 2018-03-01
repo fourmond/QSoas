@@ -144,16 +144,20 @@ void FitTrajectories::merge(const FitTrajectories & other)
   }
 }
 
-void FitTrajectories::trim(double factor)
+int FitTrajectories::trim(double factor)
 {
   double res = best().relativeResiduals;
   int i = 0;
+  int nb = 0;
   while(i < size()) {
-    if(trajectories[i].relativeResiduals > factor * res)
+    if(trajectories[i].relativeResiduals > factor * res) {
       trajectories.takeAt(i);
+      ++nb;
+    }
     else
       ++i;
   }
+  return nb;
 }
 
 FitTrajectory & FitTrajectories::last()

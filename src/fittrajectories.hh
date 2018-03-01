@@ -74,8 +74,9 @@ public:
   int size() const;
 
   /// Removes all the elements whose residuals are more than @a factor
-  /// times that of the lowest
-  void trim(double factor);
+  /// times that of the lowest. Returns the number of trajectories
+  /// trimmed.
+  int trim(double factor);
 
   /// Returns the nth element
   const FitTrajectory & operator[](int idx) const;

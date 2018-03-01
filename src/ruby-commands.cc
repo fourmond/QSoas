@@ -46,6 +46,9 @@
 
 #include <datasetexpression.hh>
 
+#include <fitworkspace.hh>
+#include <fwexpression.hh>
+
 #include <idioms.hh>
 
 //////////////////////////////////////////////////////////////////////
@@ -698,10 +701,10 @@ static QList<SingleAssertion> allAssertions;
 #endif
 
 
-static void assertCmd(const QString &, QString code,
-                      const CommandOptions & opts)
+static void doAssert(QString code,
+                     const CommandOptions & opts,
+                     std::function <mrb_value ()> eval)
 {
-  DataSet * ds = soas().currentDataSet(true);
   QString sc ;
   updateFromOptions(opts, "set-context", sc);
   QString dump;
@@ -797,10 +800,7 @@ static void assertCmd(const QString &, QString code,
     context = QString(" (%1)").arg(assertFineContext);
   SingleAssertion as(useTol);
   try {
-    if(ds)
-      value = ds->evaluateWithMeta(code, true);
-    else
-      value = mr->eval(code);
+    value = eval();
 
     bool check;
     if(useTol) {
@@ -847,6 +847,19 @@ static void assertCmd(const QString &, QString code,
   allAssertions << as;
 }
 
+static void assertCmd(const QString &, QString code,
+                      const CommandOptions & opts)
+{
+  doAssert(code, opts, [code]() -> mrb_value {
+      DataSet * ds = soas().currentDataSet(true);
+      MRuby * mr = MRuby::ruby();
+      if(ds)
+        return ds->evaluateWithMeta(code, true);
+      else
+        return mr->eval(code);
+    });
+}
+
 static ArgumentList 
 aA(QList<Argument *>() 
    << new StringArgument("code", 
@@ -879,6 +892,7 @@ aO(QList<Argument *>()
 );
 
 
+
 static Command 
 as("assert", // command name
    effector(assertCmd), // action
@@ -887,3 +901,22 @@ as("assert", // command name
    &aO,
    "Assert",
    "Runs an assertion in a test suite");
+
+static void fitAssertCmd(const QString &, QString code,
+                         const CommandOptions & opts)
+{
+  doAssert(code, opts, [code]() -> mrb_value {
+        FitWorkspace * ws = FitWorkspace::currentWorkspace();
+        FWExpression exp(code, ws);
+        return exp.evaluate();
+    });
+}
+
+static Command 
+asf("assert", // command name
+    effector(fitAssertCmd), // action
+    "file",  // group name
+    &aA, // arguments
+    &aO,
+    "Assert",
+    "Runs an assertion in a test suite", "", CommandContext::fitContext());

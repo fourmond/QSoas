@@ -109,6 +109,9 @@ public:
   /// Non-locking version of evaluate()
   double evaluateNoLock(const double * variables) const;
 
+  /// Evaluate the expression and returns the given ruby variable
+  mrb_value evaluateAsRuby(const double * variables) const;
+
   
   /// Evaluate the expression as a boolean
   bool evaluateAsBoolean(const double * variables) const;

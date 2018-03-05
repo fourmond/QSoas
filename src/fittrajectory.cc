@@ -34,7 +34,7 @@ FitTrajectory::FitTrajectory(const Vector & init, const Vector & final,
                              const QDateTime & end) :
     initialParameters(init), finalParameters(final), 
     parameterErrors(errors),
-    ending(Converged), residuals(res), relativeResiduals(rr),
+    ending(FitWorkspace::Converged), residuals(res), relativeResiduals(rr),
     internalResiduals(intr), residualsDelta(d),
     engine(eng), startTime(start) {
     if(end.isValid())
@@ -42,7 +42,7 @@ FitTrajectory::FitTrajectory(const Vector & init, const Vector & final,
     else
       endTime = QDateTime::currentDateTime();
     if(! final.allFinite())
-      ending = NonFinite;
+      ending = FitWorkspace::NonFinite;
     iterations = data->nbIterations;
     evaluations = data->evaluationNumber;
 
@@ -157,18 +157,37 @@ QStringList FitTrajectory::exportHeaders(const QStringList & s, int ds)
   return ret;
 }
 
-QString FitTrajectory::endingName(FitTrajectory::Ending end)
+bool FitTrajectory::operator==(const FitTrajectory & o) const
+ {
+   if(initialParameters != o.initialParameters)
+     return false;
+   if(finalParameters != o.finalParameters)
+     return false;
+   if(parameterErrors != o.parameterErrors)
+     return false;
+
+   if(startTime != o.startTime)
+     return false;
+   if(endTime != o.endTime)
+     return false;
+
+   // Lets forget the rest for now...
+
+   return true;
+ }
+
+QString FitTrajectory::endingName(FitWorkspace::Ending end)
 {
   switch(end) {
-  case Converged:
+  case FitWorkspace::Converged:
     return "ok";
-  case Cancelled:
+  case FitWorkspace::Cancelled:
     return "(cancelled)";
-  case TimeOut:
+  case FitWorkspace::TimeOut:
     return "(time out)";
-  case Error:
+  case FitWorkspace::Error:
     return "(fail)";
-  case NonFinite:
+  case FitWorkspace::NonFinite:
     return "(non finite)";
   default:
     ;
@@ -176,19 +195,19 @@ QString FitTrajectory::endingName(FitTrajectory::Ending end)
   return "ARGH!";
 }
 
-FitTrajectory::Ending FitTrajectory::endingFromName(const QString & n)
+FitWorkspace::Ending FitTrajectory::endingFromName(const QString & n)
 {
   if(n == "ok")
-    return Converged;
+    return FitWorkspace::Converged;
   if(n == "(cancelled)")
-    return Cancelled;
+    return FitWorkspace::Cancelled;
   if(n == "(time out)")
-    return TimeOut;
+    return FitWorkspace::TimeOut;
   if(n == "(fail)")
-    return Error;
+    return FitWorkspace::Error;
   if(n == "(non finite)")
-    return NonFinite;
-  return Invalid;
+    return FitWorkspace::NonFinite;
+  return FitWorkspace::Invalid;
 }
 
 
@@ -206,10 +225,10 @@ static bool cmp(const FitTrajectoryCluster & a, const FitTrajectoryCluster & b)
   if( (a.trajectories.size() > 0) && 
       (a.trajectories.size() == b.trajectories.size()) )
     return (a.trajectories[0].relativeResiduals < 
-              b.trajectories[0].relativeResiduals);
+            b.trajectories[0].relativeResiduals);
             
-            // Hey emacs, you'r not quite right about indentation here
-            return a.trajectories.size() > b.trajectories.size();
+  // Hey emacs, you'r not quite right about indentation here
+  return a.trajectories.size() > b.trajectories.size();
 }
 
 QList<FitTrajectoryCluster> FitTrajectoryCluster::clusterTrajectories(const QList<FitTrajectory> * trajectories)

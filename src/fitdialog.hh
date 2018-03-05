@@ -32,6 +32,7 @@ class CurveView;
 class FitParameterEditor;
 class DataSet;
 class ParametersViewer;
+class CommandWidget;
 
 class NupWidget;
 
@@ -45,7 +46,7 @@ class FitDialog : public QDialog {
   /// To display the error inconsistency or other warnings
   OneTimeWarnings warnings;
 
-  void setupFrame();
+  void setupFrame(bool expert);
 
   /// The FitData object we'll populate and run
   FitData * data;
@@ -113,6 +114,10 @@ class FitDialog : public QDialog {
   QLabel * residualsDisplay;
 
 
+  /// The prompt used for fits.
+  ///
+  /// This is NULL when the dialog box is not run in @b expert mode.
+  CommandWidget * fitPrompt;
 
   /// the start button
   QPushButton * startButton;
@@ -178,8 +183,8 @@ protected:
 
 
 public:
-  FitDialog(FitData * data, bool displayWeights = false, 
-            const QString & perpMeta = QString());
+  FitDialog(FitData * data, bool displayWeights, 
+            const QString & perpMeta, bool expertMode = false);
   ~FitDialog();
 
   /// Sets the fit engine to the named one
@@ -222,6 +227,13 @@ signals:
 
   /// Sent at the beginning of the fit
   void startedFitting();
+
+protected slots:
+  /// Called during all iterations
+  void onIterate(int nb, double res);
+
+  /// Called at the end of the fit
+  void onFitEnd(int ending);
 
 public slots:
 
@@ -283,6 +295,8 @@ protected slots:
   void setSoftOptions();
 
   void dataSetChanged(int newds);
+
+  void chooseDS(int newds);
 
   void weightEdited(const QString & str);
 
@@ -359,10 +373,6 @@ protected slots:
   
   /// Divides by two the weight of the current buffer
   void halfWeight();
-
-  /// Resets the parameters to the original values (before the fit).
-  void resetParameters();
-
 
   /// Upon change in the FitEngine combo box...
   void engineSelected(int id);

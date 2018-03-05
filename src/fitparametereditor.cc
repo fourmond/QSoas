@@ -111,6 +111,12 @@ FitParameterEditor::FitParameterEditor(const ParameterDefinition * d,
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(contextMenu(const QPoint &)));
   }
+
+  // update upon parameter change
+  connect(parameters, SIGNAL(parameterChanged(int, int)),
+          SLOT(parameterUpdated(int, int)));
+  connect(parameters, SIGNAL(parametersChanged()),
+          SLOT(updateFromParameters()));
 }
 
 void FitParameterEditor::contextMenu(const QPoint & pos)
@@ -313,6 +319,12 @@ void FitParameterEditor::selectDataSet(int dsIndex)
 {
   dataset = dsIndex;
   updateFromParameters();
+}
+
+void FitParameterEditor::parameterUpdated(int idx, int ds)
+{
+  if(index == idx && (ds == -1 || ds == dataset))
+    updateFromParameters(false);
 }
 
 void FitParameterEditor::updateFromParameters(bool setErrors)

@@ -143,6 +143,9 @@ namespace Utils {
   /// Returns a random number between 0.0 and 1.0
   double random();
 
+  /// Returns a random number between @a low and @a high, optionally distributed logarithmically
+  double random(double low, double high, bool log = false);
+
   /// Rounds \a value as if it had only \a ranks digits before the
   /// decimal point.
   double roundValue(double value, int ranks = 1);

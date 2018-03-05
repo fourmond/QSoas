@@ -23,6 +23,7 @@
 #include <dataset.hh>
 #include <perdatasetfit.hh>
 #include <command.hh>
+#include <commandcontext.hh>
 #include <argumentlist.hh>
 #include <general-arguments.hh>
 #include <commandeffector-templates.hh>
@@ -310,7 +311,8 @@ DerivativeFit::DerivativeFit(PerDatasetFit * source, DerivativeFit::Mode m) :
 {
   underlyingFitName = source->fitName(false);
   // How to remove the "parameters" argument ?
-  Command * cmd = Command::namedCommand("fit-" + underlyingFitName );
+  Command * cmd = CommandContext::globalContext()->
+    namedCommand("fit-" + underlyingFitName );
   ArgumentList * opts = new ArgumentList(*cmd->commandOptions());
 
   /// @todo Add own options.

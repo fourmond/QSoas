@@ -90,9 +90,16 @@ never {
 MOC_DIR = build
 OBJECTS_DIR = build
 
+######################################################################
+# WARNINGS THAT SHOULD BE ERRORS
+
 # Really, this should be the default, since it means segfault in the
 # best case (excepted when a function only exits via an exception)
-QMAKE_CXXFLAGS += -Werror=return-type 
+QMAKE_CXXFLAGS += -Werror=return-type
+
+# This is a real error. It should not be a warning
+QMAKE_CXXFLAGS += -Werror=delete-incomplete
+
 
 unix {
   QMAKE_CXXFLAGS += -Winit-self -Werror=init-self -Werror=misleading-indentation
@@ -316,7 +323,12 @@ SOURCES += src/qmain.cc \
         src/onetimewarnings.cc \
         src/fitparametersfile.cc \
         src/ruby-interface.cc \
-        src/linearkineticsystem.cc
+        src/linearkineticsystem.cc \
+        src/commandcontext.cc \
+        src/fit-commands.cc \
+        src/fwexpression.cc \
+        src/fittrajectories.cc \
+        src/parameterspaceexplorer.cc
 
 #        src/conditionsprovider.cc \
 
@@ -449,7 +461,11 @@ HEADERS += src/headers.hh \
         src/sparsecovariance.hh \
         src/onetimewarnings.hh \
         src/fitparametersfile.hh \
-        src/linearkineticsystem.hh
+        src/linearkineticsystem.hh \
+        src/commandcontext.hh \
+        src/fwexpression.hh \
+        src/fittrajectories.hh \
+        src/parameterspaceexplorer.hh
 
 # mruby
 HEADERS += src/mruby.hh
@@ -469,6 +485,10 @@ SOURCES += src/mruby.cc \
 }
 
 LIBS += -lmruby
+
+# Sources for the parameter space explorers
+SOURCES += src/montecarloexplorer.cc
+
 
                 
 # Sources of file-format specific code

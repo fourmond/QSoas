@@ -23,6 +23,7 @@
 #define __COMMANDWIDGET_HH
 
 class CommandPrompt;
+class CommandContext;
 class LineEdit;
 
 // A private class to display the label
@@ -30,7 +31,7 @@ class SideBarLabel;
 
 /// This class embeds the context in which a command was run (which
 /// command file, which location in the file)
-class CommandContext {
+class ScriptContext {
 public:
   /// The name of the script file (empty for no script)
   QString scriptFile;
@@ -103,15 +104,22 @@ class CommandWidget : public QWidget {
 
   /// The stack of contexts, gaining a level every time one enters
   /// inside a script
-  QList<CommandContext> contexts;
-  
+  QList<ScriptContext> contexts;
+
+
+  /// The command context for the prompt
+  CommandContext * commandContext;
+
 public:
 
-  CommandWidget();
+  CommandWidget(CommandContext * context = NULL);
   virtual ~CommandWidget();
 
+  /// Returns the context that was used
+  CommandContext * promptContext() const;
 
-  /// @name Context-related functions
+
+  /// @name Functions related to ScriptContext
   ///
   /// @{
 
@@ -126,7 +134,7 @@ public:
   void advanceContext();
 
   /// Returns the current context
-  CommandContext currentContext() const;
+  ScriptContext currentContext() const;
   
 
   /// @}

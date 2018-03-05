@@ -36,6 +36,12 @@
 #include <datastackhelper.hh>
 
 #include <fitparametersfile.hh>
+#include <fittrajectory.hh>
+
+#include <parameterspaceexplorer.hh>
+#include <command.hh>
+
+#include <mruby.hh>
 
 #include <gsl/gsl_sf.h>
 
@@ -77,12 +83,24 @@
 ///
 /// @li Adding keyboard shortcuts to normal commands too...
 
+FitWorkspace * FitWorkspace::currentWS = NULL;
+
+FitWorkspace * FitWorkspace::currentWorkspace()
+{
+  return currentWS;
+}
 
 FitWorkspace::FitWorkspace(FitData * d) :
-  fitData(d), parameters(d->datasets.size() * 
-                         d->parametersPerDataset()),
-  rawCVMatrix(NULL), cookedCVMatrix(NULL)
+  fitData(d), currentDS(0), parameters(d->datasets.size() * 
+                                       d->parametersPerDataset()),
+  rawCVMatrix(NULL), cookedCVMatrix(NULL),
+  trajectories(this),
+  fitEnding(NotStarted),
+  currentExplorer(NULL)
 {
+  if(currentWS)
+    throw InternalError("Trying to recurse into a fit workspace, this should not happen");
+  currentWS = this;
   if(! d->parametersStorage)
     throw InternalError("Trying to use an uninitialized FitData");
   
@@ -107,6 +125,8 @@ FitWorkspace::FitWorkspace(FitData * d) :
 
   // Now populate default values and fill the cache
   d->fit->initialGuess(d, values);
+  // Save the initial guess
+  initialGuess = saveParameterValues();
   for(int i = 0; i < nbParameters; i++) {
     const ParameterDefinition * def = &d->parameterDefinitions[i];
     parameterIndices[def->name] = i;
@@ -127,6 +147,21 @@ FitWorkspace::FitWorkspace(FitData * d) :
         parameterRef(i,0) = new FreeParameter(i, -1);
     }
   }
+
+  generatedCommands += ParameterSpaceExplorer::createCommands(this);
+  // generatedCommands += FitEngine::createCommands(this);
+}
+
+FitWorkspace::~FitWorkspace()
+{
+  delete[] values;
+  delete[] errors;
+  freeMatrices();
+  currentWS = NULL;
+
+  for(Command * cmd : generatedCommands)
+    delete cmd;
+  generatedCommands.clear();
 }
 
 bool FitWorkspace::hasSubFunctions() const
@@ -158,7 +193,6 @@ QString FitWorkspace::fitName(bool includeOptions) const
 {
   return fitData->fit->fitName(includeOptions, fitData);
 }
-
 
 void FitWorkspace::computePerpendicularCoordinates(const QString & perpendicularMeta)
 {
@@ -205,12 +239,15 @@ void FitWorkspace::freeMatrices()
   }
 }
 
-FitWorkspace::~FitWorkspace()
+
+
+void FitWorkspace::setExplorer(ParameterSpaceExplorer * expl)
 {
-  delete[] values;
-  delete[] errors;
-  freeMatrices();
+  if(currentExplorer)
+    delete currentExplorer;
+  currentExplorer = expl;
 }
+
 
 bool FitWorkspace::isGlobal(int index) const
 {
@@ -399,6 +436,19 @@ void FitWorkspace::retrieveParameters()
 QString FitWorkspace::parameterName(int idx) const
 {
   return fitData->parameterDefinitions[idx].name;
+}
+
+QStringList FitWorkspace::parameterNames() const
+{
+  QStringList rv;
+  for(const ParameterDefinition & def : fitData->parameterDefinitions)
+    rv << def.name;
+  return rv;
+}
+
+int FitWorkspace::datasetNumber() const
+{
+  return datasets;
 }
 
 void FitWorkspace::prepareExport(QStringList & lst, QString & lines, 
@@ -611,6 +661,15 @@ void FitWorkspace::saveParameters(QIODevice * stream) const
   writeText(out, false, "# ");
 }
 
+void FitWorkspace::saveParameters(const QString & fileName) const
+{
+  QFile f(fileName);
+  Utils::open(&f, QIODevice::WriteOnly);
+  saveParameters(&f);
+  Terminal::out << "Saved fit parameters to file " << fileName << endl;
+}
+
+
 void FitWorkspace::clear()
 {
   for(int i = 0; i < parameters.size(); i++) {
@@ -662,19 +721,79 @@ void FitWorkspace::setFixed(int index, int ds, bool fixed)
   else {
     target = new FreeParameter(index, ds);
   }
+  emit(parameterChanged(index, ds));
 }
 
+
+QList<QPair<int, int> > FitWorkspace::parseParameterList(const QString & spec) const
+{
+  QRegExp specRE("([^[]+)\\[([0-9#,-]+)\\]");
+  QList<QPair<int, int> > rv;
+
+  auto fnd = [this](const QString & n) -> int {
+    int idx = parameterIndices.value(n, -1);
+    if(idx < 0) {
+      throw RuntimeError("No such parameter: '%1'").arg(n);
+    }
+    return idx;
+  };
+
+  if(specRE.indexIn(spec) >= 0) {
+    QString p = specRE.cap(1);
+    int idx = fnd(p);
+    QStringList lst = specRE.cap(2).split(",");
+    QRegExp sRE("^#?(\\d+)$");
+    QRegExp rRE("^#?(\\d*)-(\\d*)$");
+    for(const QString & spc : lst) {
+      if(sRE.indexIn(spc) >= 0) {
+        int ds = sRE.cap(1).toInt();
+        rv << QPair<int, int>(idx, ds);
+      }
+      else {
+        if(rRE.indexIn(spc) >= 0) {
+          int l = 0;
+          if(! rRE.cap(1).isEmpty())
+            l = rRE.cap(1).toInt();
+          int r = datasets-1;
+          if(! rRE.cap(2).isEmpty())
+            r = rRE.cap(2).toInt();
+          while(l <= r)
+            rv << QPair<int, int>(idx, l++);
+        }
+        else
+          throw RuntimeError("Could not understand parameter number spec '%1'").arg(spc);
+      }
+    }
+  }
+  else {
+    int idx = fnd(spec);
+    if(isGlobal(idx))
+      rv << QPair<int,int>(idx, -1);
+    else {
+      // returning the list of all the parameters, one by one
+      // Makes a huge difference for the case when one uses a formula.
+      for(int i = 0; i < datasets; i++)
+        rv << QPair<int,int>(idx, i);
+    }
+  }
+
+  return rv;
+}
 
 
 void FitWorkspace::setValue(int index, int dataset, double val)
 {
   checkIndex(index, dataset);
   if(dataset < 0 || isGlobal(index)) {
-    for(int i = 0; i < datasets; i++)
+    for(int i = 0; i < datasets; i++) {
       values[index % nbParameters + i*nbParameters] = val;
+      emit(parameterChanged(index, i));
+    }
   }
-  else
+  else {
     values[dataset * nbParameters + (index % nbParameters)] = val;
+    emit(parameterChanged(index, dataset));
+  }
 }
 
 void FitWorkspace::setValue(const QString & name, double value, int dsi)
@@ -786,6 +905,7 @@ void FitWorkspace::loadParameters(FitParametersFile & params,
       }
     }
   }
+  emit(parametersChanged());
 }
 
 void FitWorkspace::loadParametersValues(FitParametersFile & params)
@@ -804,6 +924,7 @@ void FitWorkspace::loadParametersValues(FitParametersFile & params)
       setValue(idx, j, val);
     }
   }
+  // emit(parametersChanged());
 }
 
 void FitWorkspace::loadParametersValues(QIODevice * source)
@@ -825,19 +946,8 @@ void FitWorkspace::loadParametersValues(const QString & file)
   Utils::open(&f,QIODevice::ReadOnly);
   loadParametersValues(&f);
 }
-  
-void FitWorkspace::resetAllToInitialGuess()
-{
-  fitData->fit->initialGuess(fitData, values);
-}
 
-void FitWorkspace::resetToInitialGuess(int ds)
-{
-  QVarLengthArray<double, 1024> params(nbParameters * datasets);
-  fitData->fit->initialGuess(fitData, params.data());
-  for(int i = 0; i < nbParameters; i++)
-    values[i + ds * nbParameters] = params[i + ds * nbParameters];
-}
+
 
 void FitWorkspace::dump() const 
 {
@@ -944,11 +1054,50 @@ Vector FitWorkspace::saveParameterValues()
 void FitWorkspace::restoreParameterValues(const Vector & vect)
 {
   int size = nbParameters * datasets;
-  for(int i = 0; (i < size && i < vect.size()); i++)
+  for(int i = 0; (i < size && i < vect.size()); i++) {
     values[i] = vect[i];
+  }
+  emit(parametersChanged());
   updateParameterValues();
 }
 
+void FitWorkspace::restoreParameterValues(const Vector & vect, const QList<QPair<int, int> > & resetOnly)
+{
+  for(QPair<int, int> p : resetOnly) {
+    values[p.first + p.second * nbParameters] =
+      vect[p.first + p.second * nbParameters];
+    emit(parameterChanged(p.first, p.second));
+  }
+  updateParameterValues();
+}
+
+void FitWorkspace::resetToBackup()
+{
+  restoreParameterValues(parametersBackup);
+}
+
+void FitWorkspace::resetToBackup(const QList<QPair<int, int> > & resetOnly)
+{
+  restoreParameterValues(parametersBackup, resetOnly);
+}
+
+void FitWorkspace::resetAllToInitialGuess()
+{
+  restoreParameterValues(initialGuess);
+}
+
+void FitWorkspace::resetToInitialGuess(const QList<QPair<int, int> > & resetOnly)
+{
+  restoreParameterValues(initialGuess, resetOnly);
+}
+
+void FitWorkspace::resetToInitialGuess(int ds)
+{
+  for(int i = 0; i < nbParameters; i++) {
+    values[i + ds * nbParameters] = initialGuess[i + ds * nbParameters];
+    emit(parameterChanged(i, ds));
+  }
+}
 
 Vector FitWorkspace::saveParameterErrors(double th)
 {
@@ -1027,6 +1176,7 @@ void FitWorkspace::setGlobal(int index, bool global)
       delete parameterRef(index, i);
       parameterRef(index, i) = NULL;
     }
+    emit(parameterChanged(index, -1));
   }
   else {
     target->dsIndex = 0;
@@ -1035,6 +1185,7 @@ void FitWorkspace::setGlobal(int index, bool global)
       p->dsIndex = i;
       parameterRef(index, i) = p;
     }
+    emit(parameterChanged(index, -1));
   }
 }
 
@@ -1053,22 +1204,28 @@ void FitWorkspace::setValue(int index, int dataset, const QString & str)
       FixedParameter * param = new FixedParameter(index, ds,  0);
       delete target;
       target = param;
+      emit(parameterChanged(index, ds));
     }
     else if(dynamic_cast<FormulaParameter *>(target) == NULL 
             && str[0] == '=') {
       FormulaParameter * param = new FormulaParameter(index, ds, "0");
       delete target;
       target = param;
+      emit(parameterChanged(index, ds));
     }
   }
 
   // We ask the parameters to set themselves...
   if(isGlobal(index)) {
-    for(int i = 0; i < datasets; i++)
+    for(int i = 0; i < datasets; i++) {
       parameter(index, 0)->setValue(&valueFor(index, i), str);
+      emit(parameterChanged(index, i));
+    }
   }
-  else
+  else {
     parameter(index, dataset)->setValue(&valueFor(index, dataset), str);
+    emit(parameterChanged(index, dataset));
+  }
 }
 
 QString FitWorkspace::getTextValue(int index, int dataset) const
@@ -1078,6 +1235,26 @@ QString FitWorkspace::getTextValue(int index, int dataset) const
   return parameter(index, dataset)->textValue(valueFor(index, dataset));
 }
 
+
+void FitWorkspace::selectDataSet(int ds, bool silent)
+{
+  if(ds < 0 || ds >= datasets) {
+    if(! silent)
+      throw RuntimeError("Dataset index out of bounds: %1 (0 <= ds < %2)").
+        arg(ds).arg(datasets);
+    return;
+  }
+  if(ds == currentDS)
+    return;
+  currentDS = ds;
+  emit(datasetChanged(ds));
+}
+
+int FitWorkspace::currentDataset() const
+{
+  return currentDS;
+}
+   
 
 void FitWorkspace::computeAndPushJacobian()
 {
@@ -1156,6 +1333,180 @@ double FitWorkspace::getBufferWeight(int dataset) const
 }
 
 
+void FitWorkspace::startFit()
+{
+  // if(! data->checkWeightsConsistency()) {
+  //   if(! warnings.warnOnce(this, "error-bars",
+  //                          "Error bar inconsistency" ,
+  //                          "You are about to fit multiple buffers where some of the buffers have error bars and some others don't.\n\nErrors will NOT be taken into account !\nStart fit again to ignore"))
+  //     return;
+
+    
+  // }
+
+  sendDataParameters();
+  int freeParams = fitData->freeParameters();
+  // if(! fitData->independentDataSets() &&
+  //    freeParams > 80 &&
+  //    fitData->datasets.size() > 15 &&
+  //    fitData->engineFactory->name != "multi") {
+  //   if(! warnings.warnOnce(this, QString("massive-mfit-%1").
+  //                          arg(fitData->engineFactory->name),
+  //                          QString("Fit engine %1 not adapted").
+  //                          arg(fitData->engineFactory->description),
+  //                          QString("The fit engine %1 is not adapted to massive multifits, it is better to use the Multi fit engine").
+  //                          arg(fitData->engineFactory->description)))
+  //     return;
+  // }
+  fitStartTime = QDateTime::currentDateTime();
+  soas().shouldStopFit = false;
+  prepareFit(fitEngineParameterValues.value(fitData->engineFactory, NULL));
+  parametersBackup = saveParameterValues();
+  shouldCancelFit = false;
+    
+  
+  QString params;
+  if(fitData->independentDataSets())
+    params = QString("%1 %2 %3").
+      arg(freeParams / fitData->datasets.size()).
+      arg(QChar(0xD7)).arg(fitData->datasets.size());
+  else
+    params = QString::number(freeParams);
+  
+  Terminal::out << "Starting fit '" << fitName() << "' with "
+                << params << " free parameters"
+                << " using the '" << fitData->engineFactory->name
+                << "' fit engine"
+                << endl;
+  fitEnding = Running;
+  emit(startedFitting(freeParams));
+}
+
+double FitWorkspace::elapsedTime() const
+{
+  return fitStartTime.msecsTo(QDateTime::currentDateTime()) * 1e-3;
+}
+
+int FitWorkspace::nextIteration()
+{
+  int status = fitData->iterate();
+  residuals = fitData->residuals();
+
+  /// Signal at the end of each iteration
+  retrieveParameters();
+  emit(iterated(fitData->nbIterations,
+                residuals,
+                saveParameterValues()
+                ));
+    
+  lastResiduals = residuals;
+  return status;
+}
+
+void FitWorkspace::runFit(int iterationLimit)
+{
+  startFit();
+  int status;
+  do {
+    status = nextIteration();
+    if(shouldCancelFit || soas().shouldStopFit) {
+      fitEnding = Cancelled;
+      break;
+    };
+    if(fitData->nbIterations >= iterationLimit) {
+      fitEnding = TimeOut;
+      break;
+    }
+    if(status != GSL_CONTINUE) {
+      if(status == GSL_SUCCESS)
+        fitEnding = Converged;
+      else
+        fitEnding = Error;
+      break;
+    }
+  } while(true);
+
+  endFit(fitEnding);
+}
+
+void FitWorkspace::endFit(FitWorkspace::Ending ending)
+{
+  fitEnding = ending;
+  double tm = fitStartTime.msecsTo(QDateTime::currentDateTime()) * 1e-3;
+  Terminal::out << "Fitting took an overall " << tm
+                << " seconds, with " << fitData->evaluationNumber 
+                << " evaluations" << endl;
+
+  /// @todo Here: first computation of the covariance matrix...
+  writeToTerminal();
+  /// @todo Here: a second computation of the covariance matrix...
+  recomputeErrors();
+  recompute(true);              // Make sure the residuals are
+                                // properly computed.
+
+
+  trajectories << 
+    FitTrajectory(parametersBackup, saveParameterValues(),
+                  saveParameterErrors(),
+                  overallPointResiduals,
+                  overallRelativeResiduals,
+                  residuals,
+                  lastResiduals-residuals,
+                  fitData->engineFactory->name,
+                  fitStartTime, fitData);
+
+  trajectories.last().ending = ending;
+  if(! trajectoryName.isEmpty())
+    *namedTrjs[trajectoryName] << trajectories.last();
+  
+  fitData->doneFitting();
+  emit(finishedFitting(ending));
+}
+
+void FitWorkspace::quit()
+{
+  emit(quitWorkspace());
+}
+
+FitTrajectories & FitWorkspace::namedTrajectories(const QString & name)
+{
+  if(name.isEmpty() || name == "*")
+    return trajectories;
+  if(! namedTrjs.contains(name))
+    throw RuntimeError("Unkown trajectories name: '%1'").arg(name);
+  return *namedTrjs[name];
+}
+
+void FitWorkspace::setTrajectoryName(const QString & name)
+{
+  trajectoryName = name;
+  if(trajectoryName.isEmpty())
+    return;
+  if(! namedTrjs.contains(trajectoryName))
+    namedTrjs[trajectoryName] = new FitTrajectories(this);
+}
+
+mrb_value FitWorkspace::parametersToRuby(const Vector & values) const
+{
+  QStringList names = parameterNames();
+  if(values.size() != datasets * names.size())
+    throw InternalError("Wrong number of parameters: %1 for %2").
+      arg(values.size()).arg(datasets * names.size());
+  MRuby * mr = MRuby::ruby();
+  mrb_value rv = mr->newArray();
+  for(int i = 0; i < datasets; i++) {
+    mrb_value hsh = mr->newHash();
+    for(int j = 0; j < names.size(); j++) {
+      mrb_value k = mr->fromQString(names[j]);
+      mrb_value v = mr->newFloat(values[i*names.size() + j]);
+      mr->hashSet(hsh, k, v);
+    }
+    mr->arrayPush(rv, hsh);
+  }
+  return rv;
+}
+
+
 //////////////////////////////////////////////////////////////////////
 
 CovarianceMatrixDisplay::CovarianceMatrixDisplay(FitWorkspace * params, 
@@ -1214,5 +1565,3 @@ void CovarianceMatrixDisplay::exportAsLatex()
   QClipboard * clipboard = QApplication::clipboard();
   clipboard->setText(data);
 }
-
-

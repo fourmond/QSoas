@@ -122,6 +122,7 @@ public slots:
   /// If set error is false, all the errors are reset.
   void updateFromParameters(bool setErrors = false);
 
+
   /// Changes the current dataset.
   void selectDataSet(int dsIndex);
 
@@ -132,6 +133,9 @@ protected slots:
   void onFixedClicked();
   void onGlobalClicked();
   void onValueChanged(const QString & str);
+
+  /// when a parameter was changed
+  void parameterUpdated(int index, int dataset);
 
   /// Update the bijection-related editors
   void updateBijectionEditors();

@@ -152,10 +152,11 @@ protected:
   void scaleJacobian();
 
 
-  /// Static options
-  static ArgumentList * options;
-
 public:
+
+  /// Static options
+  static ArgumentList options;
+
 
   MultiFitEngine(FitData * data);
   virtual ~MultiFitEngine();
@@ -248,21 +249,19 @@ void MultiFitEngine::resetEngineParameters()
   useScaling = false;
 }
 
-ArgumentList * MultiFitEngine::options = NULL;
+ArgumentList MultiFitEngine::
+options(QList<Argument*>()
+        << new NumberArgument("lambda", "Lambda")
+        << new NumberArgument("scale", "Scale")
+        << new NumberArgument("end-threshold", "Threshold for ending")
+        << new NumberArgument("relative-min", "Min value for relative differences")
+        << new IntegerArgument("trial-steps", "Maximum number of trial steps")
+        << new BoolArgument("scaling", "Jacobian scaling")
+        << new NumberArgument("residuals-threshold", "Threshold for relative changes to residuals"));
 
 ArgumentList * MultiFitEngine::engineOptions() const
 {
-  if(! options) {
-    options = new ArgumentList;
-    *options << new NumberArgument("lambda", "Lambda")
-             << new NumberArgument("scale", "Scale")
-             << new NumberArgument("end-threshold", "Threshold for ending")
-             << new NumberArgument("relative-min", "Min value for relative differences")
-             << new IntegerArgument("trial-steps", "Maximum number of trial steps")
-             << new BoolArgument("scaling", "Jacobian scaling")
-             << new NumberArgument("residuals-threshold", "Threshold for relative changes to residuals");
-  }
-  return options;
+  return &options;
 }
 
 CommandOptions MultiFitEngine::getEngineParameters() const
@@ -548,4 +547,4 @@ static FitEngine * multiFE(FitData * d)
   return new MultiFitEngine(d);
 }
 
-static FitEngineFactoryItem lmsder("multi", "Multi", &multiFE);
+static FitEngineFactoryItem multi("multi", "Multi", &multiFE, &MultiFitEngine::options);

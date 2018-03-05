@@ -20,6 +20,7 @@
 
 #include <headers.hh>
 #include <command.hh>
+#include <commandcontext.hh>
 #include <group.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
@@ -44,6 +45,9 @@
 #include <commandwidget.hh>
 
 #include <datasetexpression.hh>
+
+#include <fitworkspace.hh>
+#include <fwexpression.hh>
 
 #include <idioms.hh>
 
@@ -246,6 +250,16 @@ lf("ruby-run", // command name
    NULL, // options
    "Ruby load",
    "Loads and runs a file containing ruby code", "");
+
+static Command 
+lfF("ruby-run", // command name
+    optionLessEffector(rubyRunFile), // action
+    "file",  // group name
+    &rA, // arguments
+    NULL, // options
+    "Ruby load",
+    "Loads and runs a file containing ruby code", "",
+    CommandContext::fitContext());
 
 //////////////////////////////////////////////////////////////////////
 
@@ -631,7 +645,7 @@ public:
   QString exceptionMessage;
 
   /// The context of the command
-  CommandContext commandContext;
+  ScriptContext commandContext;
 
   /// The current assertion context
   QString context;
@@ -687,10 +701,10 @@ static QList<SingleAssertion> allAssertions;
 #endif
 
 
-static void assertCmd(const QString &, QString code,
-                      const CommandOptions & opts)
+static void doAssert(QString code,
+                     const CommandOptions & opts,
+                     std::function <mrb_value ()> eval)
 {
-  DataSet * ds = soas().currentDataSet(true);
   QString sc ;
   updateFromOptions(opts, "set-context", sc);
   QString dump;
@@ -786,10 +800,7 @@ static void assertCmd(const QString &, QString code,
     context = QString(" (%1)").arg(assertFineContext);
   SingleAssertion as(useTol);
   try {
-    if(ds)
-      value = ds->evaluateWithMeta(code, true);
-    else
-      value = mr->eval(code);
+    value = eval();
 
     bool check;
     if(useTol) {
@@ -836,6 +847,19 @@ static void assertCmd(const QString &, QString code,
   allAssertions << as;
 }
 
+static void assertCmd(const QString &, QString code,
+                      const CommandOptions & opts)
+{
+  doAssert(code, opts, [code]() -> mrb_value {
+      DataSet * ds = soas().currentDataSet(true);
+      MRuby * mr = MRuby::ruby();
+      if(ds)
+        return ds->evaluateWithMeta(code, true);
+      else
+        return mr->eval(code);
+    });
+}
+
 static ArgumentList 
 aA(QList<Argument *>() 
    << new StringArgument("code", 
@@ -868,6 +892,7 @@ aO(QList<Argument *>()
 );
 
 
+
 static Command 
 as("assert", // command name
    effector(assertCmd), // action
@@ -876,3 +901,22 @@ as("assert", // command name
    &aO,
    "Assert",
    "Runs an assertion in a test suite");
+
+static void fitAssertCmd(const QString &, QString code,
+                         const CommandOptions & opts)
+{
+  doAssert(code, opts, [code]() -> mrb_value {
+        FitWorkspace * ws = FitWorkspace::currentWorkspace();
+        FWExpression exp(code, ws);
+        return exp.evaluate();
+    });
+}
+
+static Command 
+asf("assert", // command name
+    effector(fitAssertCmd), // action
+    "file",  // group name
+    &aA, // arguments
+    &aO,
+    "Assert",
+    "Runs an assertion in a test suite", "", CommandContext::fitContext());

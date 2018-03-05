@@ -20,6 +20,7 @@
 #include <headers.hh>
 #include <commandprompt.hh>
 #include <command.hh>
+#include <commandcontext.hh>
 #include <utils.hh>
 #include <argument.hh>
 #include <argumentlist.hh>
@@ -88,8 +89,31 @@ void CommandPrompt::doCompletion()
 
 }
 
+bool CommandPrompt::event(QEvent *event)
+{
+  // here, we make sure we care about tabs
+  if(event->type() == QEvent::KeyPress) {
+    QKeyEvent * ev = static_cast<QKeyEvent*>(event);
+    // QTextStream o(stdout);
+    // o << "KP: " << ev->key() << "\t" << ev->modifiers() << endl;
+    if(ev->key() == Qt::Key_Tab) {
+      if(ev->modifiers() == Qt::NoModifier) {
+        keyPressEvent(ev);
+        return true;
+      }
+      if(ev->modifiers() == Qt::ControlModifier) {
+        if(focusNextPrevChild(true))
+          return true;
+      }
+    }
+  }
+  return QWidget::event(event);
+}
+
 void CommandPrompt::keyPressEvent(QKeyEvent * event)
 {
+  // QTextStream o(stdout);
+  // o << "KP Event: " << this << " -> " << event->key() << endl;
 
   switch(event->key()) {
   case Qt::Key_Tab:
@@ -138,8 +162,9 @@ QStringList CommandPrompt::getCompletions(const CompletionContext & c,
 {
   *complete = true;
   if(c.index == 0)
-    return Utils::stringsStartingWith(Command::allCommands(), c.word);
-  Command * cmd = Command::namedCommand(c.allWords[0]);
+    return Utils::stringsStartingWith(soas().commandContext().
+                                      allCommands(), c.word);
+  Command * cmd = soas().commandContext().namedCommand(c.allWords[0]);
   if(! cmd) {
     *reason = tr("Unkown command: %1").arg(c.allWords[0]);
     return QStringList();

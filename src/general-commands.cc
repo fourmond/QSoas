@@ -20,6 +20,7 @@
 
 #include <headers.hh>
 #include <command.hh>
+#include <commandcontext.hh>
 #include <group.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
@@ -351,6 +352,15 @@ sh("save-history", // command name
    "Save history",
    "Save command history");
 
+static Command 
+sH("save-history", // command name
+   optionLessEffector(saveHistoryCommand), // action
+   "file",  // group name
+   &saveHistoryArgs, // arguments
+   NULL, // options
+   "Save history",
+   "Save command history", "", CommandContext::fitContext());
+
 //////////////////////////////////////////////////////////////////////
   
 
@@ -414,6 +424,17 @@ run("run", // command name
     "Run commands",
     "Run commands from a file",
     "@");
+
+// The same, but for the fit context
+static Command 
+frun("run", // command name
+     effector(runCommand), // action
+     "file",  // group name
+     &runArgs, // arguments
+     &rcO, 
+     "Run commands",
+     "Run commands from a file",
+     "@", CommandContext::fitContext());
 
 //////////////////////////////////////////////////////////////////////
   
@@ -897,6 +918,15 @@ sy("system", // command name
    &syO, // options
    "System",
    "Execute system commands");
+
+static Command 
+fsy("system", // command name
+    effector(systemCommand), // action
+    "file",  // group name
+    &syA, // arguments
+    &syO, // options
+    "System",
+    "Execute system commands", "", CommandContext::fitContext());
 
 
 //////////////////////////////////////////////////////////////////////

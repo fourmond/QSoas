@@ -29,6 +29,9 @@
 class Fit;  
 class FitData;
 class ArgumentList;
+class Command;
+class CommandEffector;
+class FitWorkspace;
 
 /// A simple wrapper class around parameters found after an iteration.
 class StoredParameters {
@@ -60,7 +63,22 @@ public:
 
 
 class FitEngine;
-typedef Factory<FitEngine, FitData *> FitEngineFactoryItem;
+
+class FitEngineFactoryItem : public Factory<FitEngine, FitData *> {
+  Command * fitEngineCommand;
+public:
+  ArgumentList * engineOptions;
+  FitEngineFactoryItem(const QString & n, 
+                       const QString & desc,
+                       const Creator & c,
+                       ArgumentList * options = NULL);
+
+  static FitEngineFactoryItem * namedItem(const QString & n) {
+    return static_cast<FitEngineFactoryItem *>(Factory::namedItem(n));
+  };
+
+
+};
 
 
 /// This class wraps around call to the GSL for handling fits.
@@ -85,6 +103,9 @@ protected:
   /// currentParameters() and residuals();
   void pushCurrentParameters();
 
+  /// Returns the command effector for switching to the given engine.
+  static CommandEffector * engineEffector(const QString & name);
+
 public:
   FitEngine(FitData * data);
   virtual ~FitEngine();
@@ -98,6 +119,16 @@ public:
   /// Returns the named factory item - or NULL if there isn't.
   static FitEngineFactoryItem * namedFactoryItem(const QString & name);
 
+
+  /// Creates the commands for setting the enging for the given
+  /// workspace.
+  ///
+  /// @obsolete
+  // static QList<Command *> createCommands();
+
+  /// Creates the command for the given fit engine factory item.
+  static Command * createCommand(FitEngineFactoryItem * item);
+  
   /// Returns the default factory item for the given number of
   /// buffers.
   static FitEngineFactoryItem * defaultFactoryItem(int nb = 1);

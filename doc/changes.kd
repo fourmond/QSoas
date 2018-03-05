@@ -1,12 +1,13 @@
 # What's new in version 2.2 ?
 
 Version 2.2 brings in a lot of new features and improvements, notably
-greatly improved memory use for massive multifits, a new way to
-transform "numbers" like peak position or stats into new datasets and
-SVG output ! It also finally brings back the peak area output in
-[cmd: find-peaks] and related commands !
+greatly improved memory use for massive multifits, a fit for linear
+(in)activation processes, a new way to transform "numbers" like peak
+position or stats into new datasets and SVG output ! It also finally
+brings back the peak area output in [cmd: find-peaks] and related
+commands !
 
-See the full list of changes [below](#v2.2)
+See the full list of changes [below](#v2p2)
 
 # What's new in version 2.1 ?
 
@@ -14,7 +15,7 @@ Version 2.1 brings in a number of new functionalities, such as a
 command to solve equations, and ways to reparametrize fits, along with
 numerous improvements of already existing commands.
 
-See the full list of changes [below](#v2.1)
+See the full list of changes [below](#v2p1)
 
 # What's new in version 2.0 ?
 
@@ -24,10 +25,10 @@ multibuffer fits (easy to reach a 1000 times speed increase !),
 definition of fits with a distribution of parameters, and many new
 functions.
 
-See the full list of changes [below](#v2.0)
+See the full list of changes [below](#v2p0)
 
 
-# Changes in version 2.2 {#v2.2}
+# Changes in version 2.2 {#v2p2}
 
 ## New commands
 
@@ -39,6 +40,9 @@ See the full list of changes [below](#v2.0)
 
 ## Fits
 
+ * new fit: [fit: linear-kinetic-system], which is useful for fitting
+   the time traces of potential step experiments with linear
+   inactivation (like in [Fourmond _el al_, *Nat Chem* 2014](http://dx.doi.org/10.1038/nchem.1892))
  * new time-dependent parameter: `ramps`
  * interpolation of parameters in the "Parameters Spreadsheet"
  * chi-squared "goodness of fit"
@@ -84,7 +88,7 @@ See the full list of changes [below](#v2.0)
  * new special functions: incomplete gamma functions
  * many bug fixes and other minor improvements
 
-# Changes in version 2.1 {#v2.1}
+# Changes in version 2.1 {#v2p1}
 
 ## New commands
 
@@ -136,7 +140,7 @@ See the full list of changes [below](#v2.0)
  * A series of bug fixes
 
 
-# Changes in version 2.0 {#v2.0}
+# Changes in version 2.0 {#v2p0}
 
 ## New commands
 

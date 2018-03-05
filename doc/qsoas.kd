@@ -6151,8 +6151,8 @@ listed here:
 ## Ruby code {#ruby}
 
 QSoas internally uses [Ruby][ruby] for the interpretation of all
-formulas. This means in particular that all formulas must be valid
-ruby code.
+formulas, or more precisely its embedded version, [mruby][mruby]. This
+means in particular that all formulas must be valid ruby code.
 
 Basically, the [Ruby][ruby] syntax ressembles that of other symbolic
 evaluation programs (it is quite close to the one from
@@ -6274,6 +6274,7 @@ command-line option to change its behaviour. Here are the most useful:
    after QSoas starts up.
 
 [ruby]:http://www.ruby-lang.org/ "Ruby, the programming language"
+[mruby]:https://mruby.org/ "MRuby, the embedded version of Ruby"
 [math]:http://www.ruby-doc.org/core-1.9.3/Math.html "Documentation of the Math module"
 [gnuplot]:http://www.gnuplot.info/ "Gnuplot, the plotting program"
 [code]:downloads/qsoas-1.0.tar.gz "The source code for QSoas"

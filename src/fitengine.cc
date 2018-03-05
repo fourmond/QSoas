@@ -51,6 +51,16 @@ const gsl_vector * StoredParameters::toGSLVector() const
   return &view.vector;
 }
 
+//////////////////////////////////////////////////////////////////////
+
+FitEngineFactoryItem::FitEngineFactoryItem(const QString & n, 
+                                           const QString & desc,
+                                           const Creator & c,
+                                           ArgumentList * options) :
+  Factory<FitEngine, FitData *>(n, c, desc), engineOptions(options) {
+  fitEngineCommand = FitEngine::createCommand(this);
+}
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -98,23 +108,26 @@ CommandEffector * FitEngine::engineEffector(const QString & n)
                                 });
 }
 
-
-QList<Command *> FitEngine::createCommands(FitWorkspace * workspace)
+Command * FitEngine::createCommand(FitEngineFactoryItem * item)
 {
-  QList<Command * > rv;
-  for(const QString & n : availableEngines()) {
-    FitEngineFactoryItem * item = FitEngineFactoryItem::namedItem(n);
-    QString cmdName = n + "-engine";
-    rv << new Command(cmdName.toLocal8Bit().data(),
-                      engineEffector(n), "fit",
-                      NULL,
-                      item->engineOptions,
-                      n.toLocal8Bit().data(),
-                      "", "",
-                      CommandContext::fitContext());
-  }
-  return rv;
+  QString n = item->name;
+  QString cmdName = n + "-engine";
+  return new Command(cmdName.toLocal8Bit().data(),
+                     engineEffector(n), "fit",
+                     NULL,
+                     item->engineOptions,
+                     n.toLocal8Bit().data(),
+                     "", "",
+                     CommandContext::fitContext());
 }
+
+// QList<Command *> FitEngine::createCommands()
+// {
+//   QList<Command * > rv;
+//   for(const QString & n : availableEngines())
+//     rv << createCommand(FitEngineFactoryItem::namedItem(n));
+//   return rv;
+// }
 
 bool FitEngine::handlesWeights() const
 {

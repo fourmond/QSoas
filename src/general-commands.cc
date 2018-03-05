@@ -352,6 +352,15 @@ sh("save-history", // command name
    "Save history",
    "Save command history");
 
+static Command 
+sH("save-history", // command name
+   optionLessEffector(saveHistoryCommand), // action
+   "file",  // group name
+   &saveHistoryArgs, // arguments
+   NULL, // options
+   "Save history",
+   "Save command history", "", CommandContext::fitContext());
+
 //////////////////////////////////////////////////////////////////////
   
 

@@ -68,7 +68,7 @@ static SettingsValue<int> fitIterationLimit("fitdialog/iteration-limit", 100);
 static const char * saveFilters = "Parameter files (*.params);;Any file (*)";
 static const char * exportFilters = "Data files (*.dat);;Any file (*)";
 
-FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) : 
+FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm, bool expert) : 
   data(d),
   nup(NULL),
   parameters(d),
@@ -99,7 +99,7 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
   parameters.computePerpendicularCoordinates(perpendicularMeta);
 
 
-  setupFrame();
+  setupFrame(expert);
   setFitEngineFactory(data->engineFactory);
 
   if(parameters.hasSubFunctions())
@@ -161,7 +161,7 @@ void FitDialog::appendToMessage(const QString & str, bool format)
   }
 }
 
-void FitDialog::setupFrame()
+void FitDialog::setupFrame(bool expert)
 {
   QVBoxLayout * layout = new QVBoxLayout(this);
   nup = new NupWidget;
@@ -330,8 +330,12 @@ void FitDialog::setupFrame()
   // Bottom
 
   // First, prompt:
-  fitPrompt = new CommandWidget(CommandContext::fitContext());
-  layout->addWidget(fitPrompt);
+  if(expert) {
+    fitPrompt = new CommandWidget(CommandContext::fitContext());
+    layout->addWidget(fitPrompt);
+  }
+  else
+    fitPrompt = NULL;
   
 
 
@@ -481,8 +485,10 @@ void FitDialog::setupFrame()
 
   
 
-  fitPrompt->setFocus();
-  fitPrompt->setPrompt("QSoas.fit> ");
+  if(fitPrompt) {
+    fitPrompt->setFocus();
+    fitPrompt->setPrompt("QSoas.fit> ");
+  }
   nup->showWidget(0);
 }
 

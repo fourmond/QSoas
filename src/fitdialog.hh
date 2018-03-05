@@ -46,7 +46,7 @@ class FitDialog : public QDialog {
   /// To display the error inconsistency or other warnings
   OneTimeWarnings warnings;
 
-  void setupFrame();
+  void setupFrame(bool expert);
 
   /// The FitData object we'll populate and run
   FitData * data;
@@ -114,7 +114,9 @@ class FitDialog : public QDialog {
   QLabel * residualsDisplay;
 
 
-  /// The prompt used for fits
+  /// The prompt used for fits.
+  ///
+  /// This is NULL when the dialog box is not run in @b expert mode.
   CommandWidget * fitPrompt;
 
   /// the start button
@@ -181,8 +183,8 @@ protected:
 
 
 public:
-  FitDialog(FitData * data, bool displayWeights = false, 
-            const QString & perpMeta = QString());
+  FitDialog(FitData * data, bool displayWeights, 
+            const QString & perpMeta, bool expertMode = false);
   ~FitDialog();
 
   /// Sets the fit engine to the named one

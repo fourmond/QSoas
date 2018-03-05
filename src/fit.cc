@@ -280,6 +280,9 @@ void Fit::makeCommands(ArgumentList * args,
                                          "set-from-meta", 
                                          "Set from meta-data",
                                          "sets parameter values from meta-data");
+  *options << new BoolArgument("expert", 
+                               "Expert mode",
+                               "runs the fit in expert mode");
 
 
 
@@ -475,8 +478,10 @@ void Fit::runFit(std::function<void (FitData *)> hook,
   QString perpMeta;
   updateFromOptions(opts, "perp-meta", perpMeta);
 
+  bool expert = false;
+  updateFromOptions(opts, "expert", expert);
 
-  FitDialog dlg(&data, showWeights, perpMeta);
+  FitDialog dlg(&data, showWeights, perpMeta, expert);
 
   if(! loadParameters.isEmpty())
     dlg.loadParametersFile(loadParameters);

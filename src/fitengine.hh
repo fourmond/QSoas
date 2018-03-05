@@ -63,7 +63,23 @@ public:
 
 
 class FitEngine;
-typedef Factory<FitEngine, FitData *> FitEngineFactoryItem;
+
+class FitEngineFactoryItem : public Factory<FitEngine, FitData *> {
+public:
+  ArgumentList * engineOptions;
+  FitEngineFactoryItem(const QString & n, 
+                       const QString & desc,
+                       const Creator & c,
+                       ArgumentList * options = NULL) :
+    Factory(n, c, desc), engineOptions(options) {
+  };
+
+  static FitEngineFactoryItem * namedItem(const QString & n) {
+    return static_cast<FitEngineFactoryItem *>(Factory::namedItem(n));
+  };
+
+
+};
 
 
 /// This class wraps around call to the GSL for handling fits.

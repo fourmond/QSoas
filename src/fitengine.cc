@@ -102,25 +102,16 @@ CommandEffector * FitEngine::engineEffector(const QString & n)
 QList<Command *> FitEngine::createCommands(FitWorkspace * workspace)
 {
   QList<Command * > rv;
-  TemporaryChange<FitEngine *> tmp(workspace->fitData->engine);
   for(const QString & n : availableEngines()) {
-    try {
-      FitEngine * eng = createEngine(n, workspace->fitData);
-      QString cmdName = n + "-engine";
-      rv << new Command(cmdName.toLocal8Bit().data(),
-                        engineEffector(n), "fit",
-                        NULL,
-                        eng->engineOptions(),
-                        n.toLocal8Bit().data(),
-                        "", "",
-                        CommandContext::fitContext());
-      delete eng;
-    }
-    catch (RuntimeError & e) {
-      QTextStream o(stdout);
-      o << "Could not create the fit engine command for " << n
-        << " -> " << e.message() << endl;
-    }
+    FitEngineFactoryItem * item = FitEngineFactoryItem::namedItem(n);
+    QString cmdName = n + "-engine";
+    rv << new Command(cmdName.toLocal8Bit().data(),
+                      engineEffector(n), "fit",
+                      NULL,
+                      item->engineOptions,
+                      n.toLocal8Bit().data(),
+                      "", "",
+                      CommandContext::fitContext());
   }
   return rv;
 }

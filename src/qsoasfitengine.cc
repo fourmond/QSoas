@@ -150,10 +150,9 @@ protected:
   void scaleJacobian();
 
 
-  /// Static options
-  static ArgumentList * options;
-  
 public:
+  /// Static options
+  static ArgumentList options;
 
   QSoasFitEngine(FitData * data);
   virtual ~QSoasFitEngine();
@@ -247,21 +246,19 @@ void QSoasFitEngine::resetEngineParameters()
   useScaling = false;
 }
 
-ArgumentList * QSoasFitEngine::options = NULL;
+ArgumentList QSoasFitEngine::
+options(QList<Argument*>()
+        << new NumberArgument("lambda", "Lambda")
+        << new NumberArgument("scale", "Scale")
+        << new NumberArgument("end-threshold", "Threshold for ending")
+        << new NumberArgument("relative-min", "Min value for relative differences")
+        << new IntegerArgument("trial-steps", "Maximum number of trial steps")
+        << new BoolArgument("scaling", "Jacobian scaling")
+        << new NumberArgument("residuals-threshold", "Threshold for relative changes to residuals"));
 
 ArgumentList * QSoasFitEngine::engineOptions() const
 {
-  if(! options) {
-    options = new ArgumentList;
-    *options << new NumberArgument("lambda", "Lambda")
-             << new NumberArgument("scale", "Scale")
-             << new NumberArgument("end-threshold", "Threshold for ending")
-             << new NumberArgument("relative-min", "Min value for relative differences")
-             << new IntegerArgument("trial-steps", "Maximum number of trial steps")
-             << new BoolArgument("scaling", "Jacobian scaling")
-             << new NumberArgument("residuals-threshold", "Threshold for relative changes to residuals");
-  }
-  return options;
+  return &options;
 }
 
 
@@ -556,4 +553,4 @@ static FitEngine * qsoasFE(FitData * d)
   return new QSoasFitEngine(d);
 }
 
-static FitEngineFactoryItem lmsder("qsoas", "QSoas", &qsoasFE);
+static FitEngineFactoryItem qsoas("qsoas", "QSoas", &qsoasFE, &QSoasFitEngine::options);

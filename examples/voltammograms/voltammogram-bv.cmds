@@ -9,4 +9,4 @@ diff
 sim-potential /with=e:2,ramps voltammogram.params 0
 merge 0 1
 flag /flags=cv
-
+echem-peaks /output=false /accumulate=k0,forw_x,back_x,forw_y,back_y /meta=k0

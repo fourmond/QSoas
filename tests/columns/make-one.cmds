@@ -1,0 +1,2 @@
+generate-buffer 0 10 sin(2*PI*x)+${1}
+flag /flags=ctr

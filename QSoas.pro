@@ -98,7 +98,10 @@ OBJECTS_DIR = build
 QMAKE_CXXFLAGS += -Werror=return-type
 
 # This is a real error. It should not be a warning
-QMAKE_CXXFLAGS += -Werror=delete-incomplete
+# It is only useful on Linux
+unix:!macx {
+  QMAKE_CXXFLAGS += -Werror=delete-incomplete
+}
 
 
 unix {

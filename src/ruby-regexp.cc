@@ -1,6 +1,6 @@
 /*
   ruby-regexp.cc: regexp between Ruby and QSoas
-  Copyright 2015 by CNRS/AMU
+  Copyright 2017, 2018 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 static void re_free(mrb_state *mrb, void *p)
 {
   QRegExp * re = (QRegExp *) p;
-  delete p;
+  delete re;
 }
 
 static const struct mrb_data_type re_data_type = {

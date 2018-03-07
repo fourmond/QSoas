@@ -331,7 +331,8 @@ SOURCES += src/qmain.cc \
         src/fit-commands.cc \
         src/fwexpression.cc \
         src/fittrajectories.cc \
-        src/parameterspaceexplorer.cc
+        src/parameterspaceexplorer.cc \
+        src/fittrajectorydisplay.cc
 
 #        src/conditionsprovider.cc \
 
@@ -468,7 +469,8 @@ HEADERS += src/headers.hh \
         src/commandcontext.hh \
         src/fwexpression.hh \
         src/fittrajectories.hh \
-        src/parameterspaceexplorer.hh
+        src/parameterspaceexplorer.hh \
+        src/fittrajectorydisplay.hh
 
 # mruby
 HEADERS += src/mruby.hh

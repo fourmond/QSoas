@@ -36,11 +36,11 @@ class TrajectoriesModel;
 class FitTrajectoryDisplay : public QDialog {
   Q_OBJECT;
 
-  /// The dialog on which that one is based...
-  FitDialog * fitDialog;
+  /// The workspace whose trajectories we display
+  FitWorkspace * workspace;
 
   /// The underlying fit data...
-  FitData * fitData;
+  const FitData * fitData;
 
 
   /// The main tabs representing the trajectories.
@@ -62,48 +62,9 @@ class FitTrajectoryDisplay : public QDialog {
   TrajectoriesModel * model;
 
 
-  /// The list of trajectories
-  ///
-  /// (I'm unsure why this ends up being a pointer, but it doesn't
-  /// look too bad this way).
-  QList<FitTrajectory> * trajectories;
-
-
   /// The heads of the display
   QStringList heads;
 
-  /// Number of repetitions
-  QLineEdit * repetitions;
-
-
-  /// Max number of iterations, forwarded to FitDialog
-  QLineEdit * maxIterations;
-
-
-  /// Max number of iterations for the subfit
-  QLineEdit * maxSubfitIterations;
-
-  /// Whether we did the prefit
-  bool prefitDone;
-
-
-  /// Show start and stop
-  QPushButton * startStopButton;
-
-  /// Iteration counter
-  QLabel * iterationDisplay;
- 
-  
-
-
-  /// A scroll area holding all the parameters for the automatic
-  /// screening procedure.
-  ///
-  /// to be used later ?
-  QScrollArea * explorationControls;
-
-  /// The grid layout used for the exploration controls
-  QGridLayout * explorationLayout;
 
 
   /// The global vertical layout
@@ -123,8 +84,7 @@ class FitTrajectoryDisplay : public QDialog {
 
 public:
 
-  FitTrajectoryDisplay(FitDialog * dlg, FitData * data, 
-                       QList<FitTrajectory> * trajectories);
+  FitTrajectoryDisplay(FitWorkspace * workspace);
   ~FitTrajectoryDisplay();
 
 

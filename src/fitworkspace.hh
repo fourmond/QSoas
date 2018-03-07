@@ -569,7 +569,7 @@ public:
   /// Runs the next iteration, returns the status code
   int nextIteration();
 
-  void runFit(int iterationLimit);
+  Ending runFit(int iterationLimit);
 
   void endFit(Ending ending);
 

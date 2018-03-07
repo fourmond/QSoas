@@ -99,6 +99,9 @@ public:
   /// Iteration
   QList<FitTrajectory>::const_iterator begin() const;
   QList<FitTrajectory>::const_iterator end() const;
+
+  QList<FitTrajectory>::iterator begin();
+  QList<FitTrajectory>::iterator end();
 };
 
 #endif

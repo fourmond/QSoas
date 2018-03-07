@@ -1403,7 +1403,7 @@ int FitWorkspace::nextIteration()
   return status;
 }
 
-void FitWorkspace::runFit(int iterationLimit)
+FitWorkspace::Ending FitWorkspace::runFit(int iterationLimit)
 {
   startFit();
   int status;
@@ -1427,6 +1427,7 @@ void FitWorkspace::runFit(int iterationLimit)
   } while(true);
 
   endFit(fitEnding);
+  return fitEnding;
 }
 
 void FitWorkspace::endFit(FitWorkspace::Ending ending)

@@ -19,15 +19,13 @@
 
 #include <headers.hh>
 #include <fittrajectorydisplay.hh>
-#include <fitdialog.hh>
+#include <fitworkspace.hh>
 #include <fit.hh>
 #include <fitdata.hh>
 #include <actioncombo.hh>
 
 #include <terminal.hh>
 #include <utils.hh>
-#include <linereader.hh>
-
 #include <flowinggridlayout.hh>
 #include <curveview.hh>
 #include <tuneabledatadisplay.hh>
@@ -61,10 +59,10 @@ static QString describe(FitWorkspace::Ending e)
 
 class TrajectoriesModel : public QAbstractTableModel {
   /// The list of trajectories
-  QList<FitTrajectory> * trajectories;
+  FitTrajectories * trajectories;
 
   /// The underlying fit data...
-  FitData * fitData;
+  const FitData * fitData;
 
 
   class Item  {
@@ -127,7 +125,7 @@ public:
   };
     
 
-  TrajectoriesModel(QList<FitTrajectory> * trj, FitData * d) :
+  TrajectoriesModel(FitTrajectories * trj, const FitData * d) :
     trajectories(trj), fitData(d) {
     prefix << Item("status", [](const FitTrajectory* trj,
                                 int role, bool final) -> QVariant {
@@ -321,7 +319,7 @@ public:
 
 class XYITrajectory : public XYIterable {
   int index;
-  const QList<FitTrajectory> * trajectories;
+  const FitTrajectories * trajectories;
   QString name;
 
   int nbds;
@@ -332,7 +330,7 @@ class XYITrajectory : public XYIterable {
 
 public:
 
-  XYITrajectory(const QList<FitTrajectory> * trjs,
+  XYITrajectory(const FitTrajectories * trjs,
                 int idx,
                 const FitData * d) :
     index(idx), trajectories(trjs), curds(0), curtrj(0)
@@ -387,10 +385,8 @@ public:
 
 //////////////////////////////////////////////////////////////////////
 
-FitTrajectoryDisplay::FitTrajectoryDisplay(FitDialog * dlg, FitData * data, 
-                                           QList<FitTrajectory> * tr) :
-  fitDialog(dlg), fitData(data), trajectories(tr),
-  iterationsStarted(false), shouldStop(false)
+FitTrajectoryDisplay::FitTrajectoryDisplay(FitWorkspace * ws) :
+  workspace(ws), fitData(ws->data())
 {
   setupFrame();
   // Save from initial
@@ -425,7 +421,7 @@ void FitTrajectoryDisplay::setupFrame()
   splt->addWidget(wdgt);
   parametersDisplay->setContextMenuPolicy(Qt::CustomContextMenu);
 
-  model = new TrajectoriesModel(trajectories, fitData);
+  model = new TrajectoriesModel(&workspace->trajectories, fitData);
   parametersDisplay->setModel(model);
 
   parametersDisplay->setSortingEnabled(true);
@@ -487,7 +483,7 @@ void FitTrajectoryDisplay::setupFrame()
                               view, i != nbparams-1, color);
     
     CurvePoints * cds =
-      tdd->addSource(new XYITrajectory(trajectories, i, fitData));
+      tdd->addSource(new XYITrajectory(&workspace->trajectories, i, fitData));
     cds->relativeErrorBar = true;
     cds->pen = color;
     cds->brush = color;
@@ -504,10 +500,10 @@ void FitTrajectoryDisplay::setupFrame()
 
   // setupExploration();
 
-  connect(fitDialog, SIGNAL(finishedFitting()), 
+  connect(workspace, SIGNAL(finishedFitting(int)), 
           SLOT(update()), Qt::QueuedConnection);
 
-  connect(fitDialog, SIGNAL(finishedFitting()),
+  connect(workspace, SIGNAL(finishedFitting(int)), 
           view, SLOT(repaint()), Qt::QueuedConnection);
 
 }
@@ -539,30 +535,32 @@ void FitTrajectoryDisplay::contextMenuOnTable(const QPoint & pos)
       return;
     Vector parameters;
     if(idx % 2)
-      parameters = (*trajectories)[idx/2].finalParameters;
+      parameters = workspace->trajectories[idx/2].finalParameters;
     else
-      parameters = (*trajectories)[idx/2].initialParameters;
-    fitDialog->setParameterValues(parameters);
+      parameters = workspace->trajectories[idx/2].initialParameters;
+    workspace->restoreParameterValues(parameters);
   }
 }
 
 void FitTrajectoryDisplay::sortByResiduals()
 {
-  qSort(*trajectories);
-  update();
+  throw InternalError("Not implemented");
+  // qSort(*trajectories);
+  // update();
 }
 
 
 
 void FitTrajectoryDisplay::clusterTrajectories()
 {
-  QList<FitTrajectoryCluster> clusters = 
-    FitTrajectoryCluster::clusterTrajectories(trajectories);
+  throw InternalError("Not implemented");
+  // QList<FitTrajectoryCluster> clusters = 
+  //   FitTrajectoryCluster::clusterTrajectories(trajectories);
 
-  Terminal::out << "Found " << clusters.size() << " clusters" << endl;
-  for(int i = 0; i < clusters.size(); i++)
-    Terminal::out  << "Cluster #" << i << ":\n" 
-                   << clusters[i].dump() << endl;
+  // Terminal::out << "Found " << clusters.size() << " clusters" << endl;
+  // for(int i = 0; i < clusters.size(); i++)
+  //   Terminal::out  << "Cluster #" << i << ":\n" 
+  //                  << clusters[i].dump() << endl;
 }
 
 void FitTrajectoryDisplay::exportToFile()
@@ -605,24 +603,9 @@ void FitTrajectoryDisplay::importFromFile(const QString & file)
 
 void FitTrajectoryDisplay::trim(double threshold)
 {
-  if(trajectories->size() < 2)
-    return;                     // Indeed not much to do
-  if(threshold < 0)
-    return;
-
-  Vector res;
-  for(int i = 0; i < trajectories->size(); i++)
-    res << (*trajectories)[i].residuals;
-  double mr = res.min();
-  if(threshold <= 1)
-    threshold += 1;
-  mr *= threshold;
-  for(int i = 0; i < trajectories->size(); i++) {
-    if((*trajectories)[i].residuals > mr)
-      trajectories->removeAt(i--);
-  }
+  int nb = workspace->trajectories.trim(threshold);
   Terminal::out << "Trimming at threshold " << threshold
-                << ", removed " << res.size() - trajectories->size()
+                << ", removed " << nb
                 << "trajectories" << endl;
   model->update();
 }

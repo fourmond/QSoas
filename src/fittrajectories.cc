@@ -199,3 +199,13 @@ QList<FitTrajectory>::const_iterator FitTrajectories::end() const
 {
   return trajectories.end();
 }
+
+QList<FitTrajectory>::iterator FitTrajectories::begin()
+{
+  return trajectories.begin();
+}
+
+QList<FitTrajectory>::iterator FitTrajectories::end()
+{
+  return trajectories.end();
+}

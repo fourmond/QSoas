@@ -1454,10 +1454,9 @@ void FitWorkspace::endFit(FitWorkspace::Ending ending)
                   lastResiduals-residuals,
                   fitData->engineFactory->name,
                   fitStartTime, fitData);
-
-  trajectories.last().ending = ending;
-  if(! trajectoryName.isEmpty())
-    *namedTrjs[trajectoryName] << trajectories.last();
+  FitTrajectory & trj = trajectories.last();
+  trj.ending = ending;
+  trj.flags = currentFlags;
   
   fitData->doneFitting();
   emit(finishedFitting(ending));
@@ -1468,22 +1467,9 @@ void FitWorkspace::quit()
   emit(quitWorkspace());
 }
 
-FitTrajectories & FitWorkspace::namedTrajectories(const QString & name)
+void FitWorkspace::setTrajectoryFlags(const QSet<QString> & flags)
 {
-  if(name.isEmpty() || name == "*")
-    return trajectories;
-  if(! namedTrjs.contains(name))
-    throw RuntimeError("Unkown trajectories name: '%1'").arg(name);
-  return *namedTrjs[name];
-}
-
-void FitWorkspace::setTrajectoryName(const QString & name)
-{
-  trajectoryName = name;
-  if(trajectoryName.isEmpty())
-    return;
-  if(! namedTrjs.contains(trajectoryName))
-    namedTrjs[trajectoryName] = new FitTrajectories(this);
+  currentFlags = flags;
 }
 
 mrb_value FitWorkspace::parametersToRuby(const Vector & values) const

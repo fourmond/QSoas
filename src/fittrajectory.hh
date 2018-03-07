@@ -75,6 +75,10 @@ public:
   /// The number of function evaluations
   int evaluations;
 
+  /// Series of flags attached to the trajectory. Flags cannot contain
+  /// commas.
+  QSet<QString> flags;
+
   FitTrajectory() {
   };
 
@@ -96,6 +100,9 @@ public:
   };
 
   bool operator==(const FitTrajectory & o) const;
+
+  /// Returns whether the trajectory has the given flag or not
+  bool flagged(const QString & flag) const;
 
 
   /// Returns true if the argument is within the error range of this

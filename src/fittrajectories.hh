@@ -89,6 +89,12 @@ public:
   /// Clears the trajectories
   void clear();
 
+  /// Returns the trajectories that contain the given flag.
+  FitTrajectories flaggedTrajectories(const QString & flag) const;
+
+  /// Returns the list of flags
+  QSet<QString> allFlags() const;
+
 
   /// Iteration
   QList<FitTrajectory>::const_iterator begin() const;

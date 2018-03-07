@@ -71,6 +71,11 @@ bool FitTrajectory::isWithinErrorRange(const FitTrajectory & o) const
   return true;
 }
 
+bool FitTrajectory::flagged(const QString & flag) const
+{
+  return flags.contains(flag);
+}
+
 QStringList FitTrajectory::exportColumns() const
 {
   QStringList ret;
@@ -93,7 +98,8 @@ QStringList FitTrajectory::exportColumns() const
       << QString::number(iterations)
       << QString::number(evaluations)
       << QString::number(residualsDelta)
-      << Utils::writeBooleans(fixed.toList());
+      << Utils::writeBooleans(fixed.toList())
+      << QStringList(flags.toList()).join(",");
 
   return ret;
 }
@@ -138,6 +144,8 @@ void FitTrajectory::loadFromColumns(const QStringList & cls, int nb)
     return;
   residualsDelta = cols.takeFirst().toDouble();
   fixed =  Utils::readBooleans(cols.takeFirst()).toVector();
+
+  flags = cols.takeFirst().split(",").toSet();
 }
 
 QStringList FitTrajectory::exportHeaders(const QStringList & s, int ds)
@@ -153,7 +161,8 @@ QStringList FitTrajectory::exportHeaders(const QStringList & s, int ds)
     for(int j = 0; j < s.size(); j++)
       ret << QString("%1[%2]_f").arg(s[j]).arg(i)
           << QString("%1[%2]_err").arg(s[j]).arg(i);
-  ret << "residuals" << "relative_res" << "internal_res" << "engine";
+  ret << "residuals" << "relative_res" << "internal_res"
+      << "engine"  << "flags";
   return ret;
 }
 

@@ -557,18 +557,11 @@ public:
   /// spawn of the Fit Workspace
   FitTrajectories trajectories;
 
-  /// The current name for trajectories
-  QString trajectoryName;
+  /// The current flags applied to trajectories
+  QSet<QString> currentFlags;
 
-  /// Named trajectories
-  QHash<QString, FitTrajectories *> namedTrjs;
-
-  /// Sets the name for currnt trajectory namespace
-  void setTrajectoryName(const QString & name);
-
-  /// Returns the named trajectory. * or empty designates the global
-  /// trajectory.
-  FitTrajectories & namedTrajectories(const QString & name);
+  /// Sets the flags for all subsequence
+  void setTrajectoryFlags(const QSet<QString> & flags);
 
   /// Starts the fit.
   void startFit();

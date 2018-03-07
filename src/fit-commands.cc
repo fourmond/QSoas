@@ -426,15 +426,15 @@ static void listTrajectoriesCommand(const QString & /*name*/,
                                     const CommandOptions & opts)
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
-  QString which;
-  updateFromOptions(opts, "which", which);
-  const FitTrajectories & trjs = ws->namedTrajectories(which);
+  QString flag;
+  updateFromOptions(opts, "flag", flag);
   int idx = 0;
-  for(const FitTrajectory & t : trjs) {
-    Terminal::out << "#" << idx++ << ":\t"
-                  << t.relativeResiduals << "\tstarted: "
-                  << t.startTime.toString() << " -> "
-                  << FitTrajectory::endingName(t.ending) << endl;
+  for(const FitTrajectory & t : ws->trajectories) {
+    if(flag.isEmpty() || t.flagged(flag))
+      Terminal::out << "#" << idx++ << ":\t"
+                    << t.relativeResiduals << "\tstarted: "
+                    << t.startTime.toString() << " -> "
+                    << FitTrajectory::endingName(t.ending) << endl;
   }
 }
 
@@ -442,13 +442,12 @@ ArgumentList lTOpts(QList<Argument*>()
                     << new ChoiceArgument([]() -> QStringList {
                         FitWorkspace * ws =
                           FitWorkspace::currentWorkspace();
-                        QStringList a = ws->namedTrjs.keys();
-                        a << "*";
+                        QStringList a = ws->trajectories.allFlags().toList();
                         return a;
                       }
                       ,
-                      "which", "Which trajectories"
-                      "which set of trajectories to use")
+                      "flag", "Flag"
+                      "only show trajectories with the given flag")
                     );
 
 static Command 
@@ -467,24 +466,26 @@ static void trajectoriesNameCommand(const QString & /*name*/,
                                     const CommandOptions & opts)
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
-  QString name;
-  updateFromOptions(opts, "name", name);
-  ws->setTrajectoryName(name);
+  QStringList flags;
+  updateFromOptions(opts, "flags", flags);
+  ws->setTrajectoryFlags(flags.toSet());
 }
 
 ArgumentList tNOpts(QList<Argument*>()
-                    << new StringArgument("name", "Trajectory name",
-                                          "sets the name for the namespace of trajectories", true)
+                    << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                                  "flags", 
+                                                  "Flags",
+                                                  "Flags to set on the new trajectories", true)
                     );
 
 static Command 
-tn("trajectories-name", // command name
+tn("flag-trajectories", // command name
    effector(trajectoriesNameCommand), // action
    "fit",  // group name
    NULL, // arguments
    &tNOpts, // options
-   "Name trajectories",
-   "Define the name for the subsequent trajectories",
+   "Flag trajectories",
+   "Define flags for subsequent trajectories",
    "", CommandContext::fitContext());
 
 //////////////////////////////////////////////////////////////////////
@@ -494,9 +495,11 @@ static void saveTrajectoriesCommand(const QString & /*name*/,
                                     const CommandOptions & opts)
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
-  QString which;
-  updateFromOptions(opts, "which", which);
-  FitTrajectories & trjs = ws->namedTrajectories(which);
+  QString flag;
+  updateFromOptions(opts, "flag", flag);
+  FitTrajectories trjs = ws->trajectories;
+  if(! flag.isEmpty())
+    trjs = trjs.flaggedTrajectories(flag);
 
   QString mode = "fail";
   updateFromOptions(opts, "mode", mode);
@@ -548,13 +551,12 @@ ArgumentList sTOpts(QList<Argument*>()
                     << new ChoiceArgument([]() -> QStringList {
                         FitWorkspace * ws =
                           FitWorkspace::currentWorkspace();
-                        QStringList a = ws->namedTrjs.keys();
-                        a << "*";
+                        QStringList a = ws->trajectories.allFlags().toList();
                         return a;
                       }
                       ,
-                      "which", "Which trajectories"
-                      "which set of trajectories to use")
+                      "flag", "Flag"
+                      "only show trajectories with the given flag")
                     << new ChoiceArgument(QStringList() << "overwrite"
                                           << "update" << "fail"
                                           , "mode", "Mode"
@@ -578,7 +580,6 @@ static void loadTrajectoriesCommand(const QString & /*name*/,
                                     const CommandOptions & opts)
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
-  FitTrajectories & trjs = ws->namedTrajectories(ws->trajectoryName);
 
   QString mode = "update";
   updateFromOptions(opts, "mode", mode);
@@ -590,8 +591,8 @@ static void loadTrajectoriesCommand(const QString & /*name*/,
   QTextStream in(&fl);
   nb = update.importFromFile(in);
   if(mode == "drop")
-    trjs.clear();
-  trjs.merge(update);
+    ws->trajectories.clear();
+  ws->trajectories.merge(update);
 }
 
 
@@ -626,8 +627,7 @@ static void trimTrajectoriesCommand(const QString & /*name*/,
                                     const CommandOptions & opts)
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
-  FitTrajectories & trjs = ws->namedTrajectories(ws->trajectoryName);
-  int nb = trjs.trim(factor);
+  int nb = ws->trajectories.trim(factor);
   Terminal::out << "Trimmed " << nb << " trajectories" << endl;
 }
 

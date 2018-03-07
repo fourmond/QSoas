@@ -170,6 +170,26 @@ void FitTrajectories::clear()
   trajectories.clear();
 }
 
+FitTrajectories FitTrajectories::flaggedTrajectories(const QString & flag)
+  const
+{
+  FitTrajectories rv(workSpace);
+  for(const FitTrajectory & t : *this) {
+    if(t.flagged(flag))
+      rv << t;
+  }
+  return rv;
+}
+
+QSet<QString> FitTrajectories::allFlags() const
+{
+  QSet<QString> rv;
+  for(const FitTrajectory & t : *this)
+    rv += t.flags;
+  return rv;
+}
+
+
 QList<FitTrajectory>::const_iterator FitTrajectories::begin() const
 {
   return trajectories.begin();

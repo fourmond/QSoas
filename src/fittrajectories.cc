@@ -202,6 +202,7 @@ QList<FitTrajectory>::const_iterator FitTrajectories::end() const
 
 QList<FitTrajectory>::iterator FitTrajectories::begin()
 {
+  clearCache();
   return trajectories.begin();
 }
 

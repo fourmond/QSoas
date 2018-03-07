@@ -37,8 +37,6 @@
 
 #include <debug.hh>
 
-#include <QHeaderView>
-
 /// @todo Should join FitTrajectory...
 static QString describe(FitWorkspace::Ending e)
 {

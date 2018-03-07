@@ -34,6 +34,8 @@
 #include <fwexpression.hh>
 #include <mruby.hh>
 
+#include <fittrajectorydisplay.hh>
+
 // static Group fit("fit", 0,
 //                  "Fit",
 //                  "Commands for fitting");
@@ -647,4 +649,25 @@ trim("trim-trajectories", // command name
      NULL, // options
      "Trim trajectories",
      "Trim trajectories whose residuals are too high",
+     "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
+static void browseTrajectoriesCommand(const QString & /*name*/,
+                                      const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  FitTrajectoryDisplay d(ws);
+  d.exec();
+}
+
+
+static Command 
+brse("browse-trajectories", // command name
+     effector(browseTrajectoriesCommand), // action
+     "fit",  // group name
+     NULL, // arguments
+     NULL, // options
+     "Browse trajectories",
+     "Opens a dialog box to browse trajectories",
      "", CommandContext::fitContext());

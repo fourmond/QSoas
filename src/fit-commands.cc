@@ -435,7 +435,8 @@ static void listTrajectoriesCommand(const QString & /*name*/,
     if(flag.isEmpty() || t.flagged(flag))
       Terminal::out << "#" << idx++ << ":\t"
                     << t.relativeResiduals << "\tstarted: "
-                    << t.startTime.toString() << " -> "
+                    << t.startTime.toString() << " (" 
+                    << t.engine << ") -> "
                     << FitTrajectory::endingName(t.ending) << endl;
   }
 }

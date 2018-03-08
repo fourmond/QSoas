@@ -1461,6 +1461,9 @@ void FitWorkspace::endFit(FitWorkspace::Ending ending)
   
   fitData->doneFitting();
   emit(finishedFitting(ending));
+  if(ending == Cancelled)       // break out of any enclosing context,
+                                // including scripts.
+    throw RuntimeError("Fit cancelled");
 }
 
 void FitWorkspace::quit()

@@ -43,7 +43,15 @@ public:
     return gsl_vector_get(data, j);
   };
 
+  double & operator[](int j) {
+    return *gsl_vector_ptr(data, j);
+  };
+
   operator gsl_vector*() {
+    return data;
+  };
+
+  operator const gsl_vector*() const {
     return data;
   };
 };

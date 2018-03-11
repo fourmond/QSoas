@@ -479,7 +479,8 @@ int FitData::f(const gsl_vector * x, gsl_vector * f,
   /// by checking all parameters.
 
   if(debug > 0) {
-    dumpString(QString("Entering f computation -- local storage 0x%1").
+    dumpString(QString("Entering f computation (%1 %2) -- local storage 0x%3").
+               arg(doSubtract).arg(doWeights).
                arg((long)getStorage(), 0, 16));
     dumpGSLParameters(x);
     dumpFitParameters(params.data());
@@ -502,6 +503,8 @@ int FitData::f(const gsl_vector * x, gsl_vector * f,
   // First, compute the value in place
 
   fit->function(params.data(), this, f);
+  if(debug > 0)
+    dumpString(" -> done with function computation");
   evaluationNumber++;
   // Then, subtract data.
   if(doSubtract)

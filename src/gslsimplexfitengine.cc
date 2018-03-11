@@ -79,9 +79,6 @@ public:
     function.f = GSLSimplexFitEngine::staticF;
     function.n = n;
     function.params = this;
-    QTextStream o(stdout);
-    o << "n: " << n << "\t -> " << storage->size << endl;
-    
   }
   
   virtual ~GSLSimplexFitEngine() {

@@ -342,6 +342,7 @@ SOURCES += src/qmain.cc \
 SOURCES += src/qsoasfitengine.cc \
         src/gslfitengine.cc \
         src/simplexfitengine.cc \
+        src/gslsimplexfitengine.cc \
         src/multifitengine.cc
 
 

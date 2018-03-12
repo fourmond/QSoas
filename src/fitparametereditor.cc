@@ -29,6 +29,7 @@
 
 
 #include <settings-templates.hh>
+#include <idioms.hh>
 
 #include <bijection.hh>
 #include <utils.hh>
@@ -38,7 +39,8 @@
 FitParameterEditor::FitParameterEditor(const ParameterDefinition * d, 
                                        int idx, FitWorkspace * p, 
                                        bool ext, bool checkTight, int ds) : 
-  index(idx), dataset(ds), def(d), parameters(p), updatingEditor(false), 
+  index(idx), dataset(ds), def(d), parameters(p), updatingEditor(false),
+  updatingParameters(false),
   extended(ext)
 {
   layout = new QHBoxLayout(this);
@@ -312,6 +314,7 @@ void FitParameterEditor::onValueChanged(const QString & str)
     return;
 
   setRelativeError(-1);         // Errors are meaningless if we edit !
+  TemporaryChange<bool> c(updatingParameters, true);
   parameters->setValue(index, dataset, str);
 }
 
@@ -329,20 +332,24 @@ void FitParameterEditor::parameterUpdated(int idx, int ds)
 
 void FitParameterEditor::updateFromParameters(bool setErrors)
 {
-  updatingEditor = true;
+  if(updatingParameters)
+    return;
   int dsIdx = dataset;
   FitParameter * param = targetParameter();
-  if(param->global())
-    dsIdx = 0;
+  {
+    TemporaryChange<bool> c(updatingEditor, true);
+    if(param->global())
+      dsIdx = 0;
 
-  global->setChecked(param->global());
-  fixed->setChecked(param->fixed());
-  editor->
-    setText(param->textValue(parameters->
-                             values[index + dsIdx * parameters->nbParameters]));
+    global->setChecked(param->global());
+    fixed->setChecked(param->fixed());
+    
+    editor->
+      setText(param->textValue(parameters->
+                               values[index + dsIdx * parameters->nbParameters]));
 
-  updateBijectionEditors();
-  updatingEditor = false;
+    updateBijectionEditors();
+  }
   if(setErrors && (!parameters->isFixed(index, dsIdx)))
     setRelativeError(parameters->getParameterError(index, dsIdx));
   else

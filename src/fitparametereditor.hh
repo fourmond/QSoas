@@ -64,6 +64,10 @@ class FitParameterEditor : public QWidget {
   /// Set to true during updates to avoid infinite recursion
   bool updatingEditor;
 
+  /// Hmmm... I think I need another flag now that the workspace
+  /// signals back
+  bool updatingParameters;
+
 
   /// Returns the target for the current conditions
   FitParameter *targetParameter() {

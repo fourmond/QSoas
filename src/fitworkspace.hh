@@ -277,6 +277,9 @@ public:
       return values[dataset * nbParameters + (index % nbParameters)];
   };
 
+  /// Returns the parameter value as QString
+  QString stringValue(int index, int dataset) const;
+
   /// returns a vector pointing to the values for all the datasets of
   /// the numbered parameter.
   gsl_vector * parameterVector(int index) {

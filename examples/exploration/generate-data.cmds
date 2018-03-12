@@ -1,0 +1,4 @@
+generate-buffer 0 12
+sim-exponential-decay /exponentials=2 2exp.params 0
+apply-formula 'y+=0.1*sin((i+100)**2)'
+a data.dat

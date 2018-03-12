@@ -58,9 +58,14 @@ protected:
     // rescale the vector
     for(int i = 0; i < n; i++)
       storage[i] = gsl_vector_get(x, i) * scalingFactors[i];
-        
-    fitData->f(storage, eval);
-    return gsl_blas_dnrm2(eval);
+
+    try {
+      fitData->f(storage, eval);
+      return gsl_blas_dnrm2(eval);
+    }
+    catch (RuntimeError & e) {
+      return GSL_NAN;
+    }
   };
 
   static double staticF(const gsl_vector * x, void * params) {
@@ -127,8 +132,7 @@ public:
   }
   
   virtual double residuals() const override {
-    // This assumes that the "eval" vector is always the last step.
-    return gsl_blas_dnrm2(eval);
+    return gsl_multimin_fminimizer_minimum(minimizer);
   };
 };
 

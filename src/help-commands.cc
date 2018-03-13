@@ -71,6 +71,15 @@ cmds("commands", // command name
      "Commands",
      "List commands");
 
+static Command 
+cmd2("commands", // command name
+     optionLessEffector(commandsCommand), // action
+     "help",  // group name
+     NULL, // arguments
+     NULL, // options
+     "Commands",
+     "List commands", "", CommandContext::fitContext());
+
 //////////////////////////////////////////////////////////////////////
 
 
@@ -148,6 +157,16 @@ hlpc("help", // command name
      "Help on...",
      "Give help on command",
      "?");
+
+static Command 
+hlp2("help", // command name
+     effector(helpCommand), // action
+     "help",  // group name
+     &helpA, // arguments
+     &helpO, // options
+     "Help on...",
+     "Give help on command",
+     "?", CommandContext::fitContext());
 
 //////////////////////////////////////////////////////////////////////
 

@@ -587,7 +587,18 @@ static void loadTrajectoriesCommand(const QString & /*name*/,
   QString mode = "update";
   updateFromOptions(opts, "mode", mode);
   QFile fl(file);
-  Utils::open(&fl, QIODevice::ReadOnly);
+  try {
+    Utils::open(&fl, QIODevice::ReadOnly);
+  }
+  catch(RuntimeError & e) {
+    if(mode == "ignore") {
+      Terminal::out << "Error opening file '" << file
+                    << "', : " << e.message()
+                    << ", but ignoring as requested" << endl;
+      return;
+    }
+    throw;
+  }
     
   int nb;
   FitTrajectories update(ws);
@@ -607,10 +618,11 @@ ArgumentList ldTA(QList<Argument*>()
 
 
 ArgumentList ldTOpts(QList<Argument*>()
-                    << new ChoiceArgument(QStringList() << "drop"
-                                          << "update" 
-                                          , "mode", "Mode"
-                                          "what to do with current trajectories")
+                     << new ChoiceArgument(QStringList() << "drop"
+                                           << "update"
+                                           << "ignore"
+                                           , "mode", "Mode"
+                                           "what to do with current trajectories")
                     );
 
 static Command 

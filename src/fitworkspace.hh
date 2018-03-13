@@ -527,6 +527,7 @@ public:
     TimeOut,
     NonFinite,
     Error,
+    Exception,
     Running,
     NotStarted,
     Invalid

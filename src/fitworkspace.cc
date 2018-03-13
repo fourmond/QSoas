@@ -1405,26 +1405,32 @@ int FitWorkspace::nextIteration()
 
 FitWorkspace::Ending FitWorkspace::runFit(int iterationLimit)
 {
-  startFit();
-  int status;
-  do {
-    status = nextIteration();
-    if(shouldCancelFit || soas().shouldStopFit) {
-      fitEnding = Cancelled;
-      break;
-    };
-    if(fitData->nbIterations >= iterationLimit) {
-      fitEnding = TimeOut;
-      break;
-    }
-    if(status != GSL_CONTINUE) {
-      if(status == GSL_SUCCESS)
-        fitEnding = Converged;
-      else
-        fitEnding = Error;
-      break;
-    }
-  } while(true);
+  try {
+    startFit();
+    int status;
+    do {
+      status = nextIteration();
+      if(shouldCancelFit || soas().shouldStopFit) {
+        fitEnding = Cancelled;
+        break;
+      };
+      if(fitData->nbIterations >= iterationLimit) {
+        fitEnding = TimeOut;
+        break;
+      }
+      if(status != GSL_CONTINUE) {
+        if(status == GSL_SUCCESS)
+          fitEnding = Converged;
+        else
+          fitEnding = Error;
+        break;
+      }
+    } while(true);
+  }
+  catch(::Exception & e) {
+    Terminal::out << "Fitting aborted with error: " << e.message() << endl;
+    fitEnding = Exception;
+  }
 
   endFit(fitEnding);
   return fitEnding;

@@ -37,24 +37,6 @@
 
 #include <debug.hh>
 
-/// @todo Should join FitTrajectory...
-static QString describe(FitWorkspace::Ending e)
-{
-  switch(e) {
-  case FitWorkspace::Converged:
-    return "ok";
-  case FitWorkspace::Cancelled:
-    return "(cancelled)";
-  case FitWorkspace::TimeOut:
-    return "(time out)";
-  case FitWorkspace::Error:
-    return "(fail)";
-  case FitWorkspace::NonFinite:
-    return "(weird parameters)";
-  }
-  return "ARGH!";
-}
-
 class TrajectoriesModel : public QAbstractTableModel {
   /// The list of trajectories
   FitTrajectories * trajectories;
@@ -128,7 +110,7 @@ public:
     prefix << Item("status", [](const FitTrajectory* trj,
                                 int role, bool final) -> QVariant {
                      if(role == Qt::DisplayRole && final) {
-                       return describe(trj->ending);
+                       return FitTrajectory::endingName(trj->ending);
                      }
                      return QVariant();
                    })

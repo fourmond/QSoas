@@ -196,6 +196,8 @@ QString FitTrajectory::endingName(FitWorkspace::Ending end)
     return "(time out)";
   case FitWorkspace::Error:
     return "(fail)";
+  case FitWorkspace::Exception:
+    return "(exception)";
   case FitWorkspace::NonFinite:
     return "(non finite)";
   default:
@@ -214,6 +216,8 @@ FitWorkspace::Ending FitTrajectory::endingFromName(const QString & n)
     return FitWorkspace::TimeOut;
   if(n == "(fail)")
     return FitWorkspace::Error;
+  if(n == "(exception)")
+    return FitWorkspace::Exception;
   if(n == "(non finite)")
     return FitWorkspace::NonFinite;
   return FitWorkspace::Invalid;

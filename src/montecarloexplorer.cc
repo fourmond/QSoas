@@ -107,7 +107,7 @@ public:
     updateFromOptions(opts, "fit-iterations", fitIterations);
 
     Terminal::out << "Setting up monte-carlo explorator with: "
-                  << iterations << " iterations and"
+                  << iterations << " iterations and "
                   << fitIterations << " fit iterations" << endl;
 
     QStringList names = workSpace->parameterNames();

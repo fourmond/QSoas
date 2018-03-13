@@ -146,12 +146,27 @@ static void iterateExplorerCommand(const QString & /*name*/,
   QString script;
   updateFromOptions(opts, "script", script);
 
+  QStringList lst;
+  for(int i = 1; i <= 2; i++) {
+    QString n = QString("arg%1").arg(i);
+    if(opts.contains(n))
+      lst << opts[n]->value<QString>();
+    else
+      break;
+  }
+
   while(true) {
     Terminal::out << "Explorer iteration: " << explorer->progressText()
                   << endl;
     bool cont = explorer->iterate();
-    if(! script.isEmpty())
-      soas().prompt().runCommandFile(script);
+    if(! script.isEmpty()) {
+      CommandWidget::ScriptStatus st =
+        soas().prompt().runCommandFile(script, lst);
+      if(!st == CommandWidget::Success) {
+        Terminal::out << "Script failed, stopping iteration" << endl;
+        cont = false;
+      }
+    }
     if(! cont)
       break;
   }
@@ -159,9 +174,15 @@ static void iterateExplorerCommand(const QString & /*name*/,
 
 
 ArgumentList ieOpts(QList<Argument*>() 
-                      << new FileArgument("script", 
-                                          "Script",
-                                          "script file run after the iteration", false, true)
+                    << new FileArgument("script", 
+                                        "Script",
+                                        "script file run after the iteration", false, true)
+                    << new FileArgument("arg1", 
+                                        "First argument",
+                                        "First argument to the script")
+                    << new FileArgument("arg2", 
+                                        "Second argument",
+                                        "Second argument to the script")
                       );
 
 

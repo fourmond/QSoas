@@ -81,13 +81,13 @@ QStringList FitTrajectory::exportColumns() const
   QStringList ret;
   
   for(int i = 0; i < initialParameters.size(); i++)
-    ret << QString::number(initialParameters[i]);
+    ret << QString::number(initialParameters[i], 'g', 8);
 
   ret << endingName(ending);
 
   for(int i = 0; i < finalParameters.size(); i++)
-    ret << QString::number(finalParameters[i])
-        << QString::number(parameterErrors[i]);
+    ret << QString::number(finalParameters[i], 'g', 8)
+        << QString::number(parameterErrors[i], 'g', 8);
 
   ret << QString::number(residuals)
       << QString::number(relativeResiduals)
@@ -168,11 +168,11 @@ QStringList FitTrajectory::exportHeaders(const QStringList & s, int ds)
 
 bool FitTrajectory::operator==(const FitTrajectory & o) const
  {
-   if(initialParameters != o.initialParameters)
+   if(! Vector::withinTolerance(initialParameters,o.initialParameters, 1e-5))
      return false;
-   if(finalParameters != o.finalParameters)
+   if(! Vector::withinTolerance(finalParameters, o.finalParameters, 1e-5))
      return false;
-   if(parameterErrors != o.parameterErrors)
+   if(! Vector::withinTolerance(parameterErrors, o.parameterErrors, 1e-5))
      return false;
 
    if(startTime != o.startTime)

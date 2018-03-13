@@ -900,3 +900,22 @@ Vector Vector::values(double tolerance) const
   }
   return rv;
 }
+
+bool Vector::withinTolerance(const Vector & x, const Vector & y, double tol)
+{
+  int sz = x.size();
+  if(sz != y.size())
+    return false;
+
+  for(int i = 0; i < sz; i++) {
+    if(x[i] == 0) {
+      if(y[i] == 0)
+        continue;
+      else
+        return false;
+    }
+    if(fabs((x[i] - y[i])/x[i]) > tol)
+      return false;
+  }
+  return true;
+}

@@ -302,6 +302,9 @@ public:
   /// the corresponding y vector.
   static Vector integrateVector(const Vector & x, const Vector & y, int idx = 0);
 
+  /// Returns true if the difference of the vectors is within the @a
+  /// tol factor. Returns false otherwise.
+  static bool withinTolerance(const Vector & x, const Vector & y, double tol);
   
 };
 

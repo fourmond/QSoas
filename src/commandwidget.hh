@@ -91,10 +91,21 @@ class CommandWidget : public QWidget {
   /// everywhere but scripts.
   bool addToHistory;
 
-  /// Runs the command coming from the given device
-  void runCommandFile(QIODevice * source, 
-                      const QStringList & args = QStringList(),
-                      bool addToHist = false);
+public:
+  typedef enum {
+    Success,
+    Error,
+    ControlOut
+  } ScriptStatus;
+
+protected:
+
+
+  /// Runs the command coming from the given device. Returns status of
+  /// the command.
+  ScriptStatus runCommandFile(QIODevice * source, 
+                              const QStringList & args = QStringList(),
+                              bool addToHist = false);
 
 
   /// Current Ruby string to be executed. Not in ruby mode if the
@@ -220,9 +231,9 @@ public slots:
   void printCurrentDataSetInfo(); 
 
   /// Runs the commands contained in a file.
-  void runCommandFile(const QString & fileName, 
-                      const QStringList & args = QStringList(),
-                      bool addToHist = false);
+  ScriptStatus runCommandFile(const QString & fileName, 
+                              const QStringList & args = QStringList(),
+                              bool addToHist = false);
 
 protected slots:
   void commandEntered();

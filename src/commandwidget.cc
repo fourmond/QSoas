@@ -478,9 +478,10 @@ QString CommandWidget::terminalContents() const
   return terminalDisplay->toPlainText();
 }
 
-void CommandWidget::runCommandFile(QIODevice * source, 
-                                   const QStringList & args,
-                                   bool addToHist)
+CommandWidget::ScriptStatus
+CommandWidget::runCommandFile(QIODevice * source, 
+                              const QStringList & args,
+                              bool addToHist)
 {
   QTextStream in(source);
   QRegExp commentRE("^\\s*#.*");
@@ -603,7 +604,7 @@ void CommandWidget::runCommandFile(QIODevice * source,
       /// @todo Make that configurable
       if(! runCommand(line)) {
         Terminal::out << "Command failed: aborting script" << endl;
-        break;
+        return Error;
       }
       // And we allow for deferred slots to take place ?
       QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
@@ -611,18 +612,21 @@ void CommandWidget::runCommandFile(QIODevice * source,
   }
   catch(const ControlFlowException & flow) {
     // Nothing to do !
+    return ControlOut;
   }
+  return Success;
 }
 
-void CommandWidget::runCommandFile(const QString & fileName, 
-                                   const QStringList & args,
-                                   bool addToHist)
+CommandWidget::ScriptStatus
+CommandWidget::runCommandFile(const QString & fileName, 
+                              const QStringList & args,
+                              bool addToHist)
 {
   QFile file(fileName);
   Utils::open(&file, QIODevice::ReadOnly);
   TemporaryChange<QString> ch(scriptFile, fileName);
   ContextChange ch2(this, fileName);
-  runCommandFile(&file, args, addToHist);
+  return runCommandFile(&file, args, addToHist);
 }
 
 QStringList CommandWidget::history() const

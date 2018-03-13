@@ -121,13 +121,23 @@ public:
   };
 
   virtual int iterate() override {
-    int status = gsl_multimin_fminimizer_iterate(minimizer);
-      
-    if(status) 
-      return status;
+    int status;
+    int nb = n;
+    double cur = residuals();
+    while(nb > 0) {
+      status = gsl_multimin_fminimizer_iterate(minimizer);
+      if(status)
+        return status;
 
-    double size = gsl_multimin_fminimizer_size (minimizer);
-    status = gsl_multimin_test_size (size, 1e-3);
+      double size = gsl_multimin_fminimizer_size(minimizer);
+      status = gsl_multimin_test_size(size, 1e-3);
+      if(status)
+        return status;
+      else
+        --nb;
+      if(residuals() < cur)
+        return status;
+    }
     return status;
   }
   

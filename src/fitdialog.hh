@@ -229,6 +229,10 @@ signals:
   void startedFitting();
 
 protected slots:
+
+  /// Called when the fit is started
+  void onFitStart();
+  
   /// Called during all iterations
   void onIterate(int nb, double res);
 

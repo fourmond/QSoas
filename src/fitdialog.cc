@@ -122,6 +122,9 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm, bool 
   connect(&parameters, SIGNAL(finishedFitting(int)),
           SLOT(onFitEnd(int)));
 
+  connect(&parameters, SIGNAL(startedFitting(int)),
+          SLOT(onFitStart()));
+
   connect(&parameters, SIGNAL(quitWorkspace()),
           SLOT(accept()));
 }
@@ -652,18 +655,19 @@ void FitDialog::updateEditors(bool updateErrors)
 }
 
 
-void FitDialog::startFit()
+void FitDialog::onFitStart()
 {
-
-  TemporarilyDisableWidget d(iterationLimitEditor);
   cancelButton->setVisible(true);
   startButton->setVisible(false);
+  iterationLimitEditor->setEnabled(false);
+}
+
+void FitDialog::startFit()
+{
   try {
     parameters.runFit(getIterationLimit());
   }
   catch (const Exception & re) {
-    cancelButton->setVisible(false);
-    startButton->setVisible(true);
     updateEditors();
     message(QString("An error occurred while fitting: ") +
             re.message());
@@ -676,6 +680,7 @@ void FitDialog::onFitEnd(int /*ending*/)
 {
   cancelButton->setVisible(false);
   startButton->setVisible(true);
+  iterationLimitEditor->setEnabled(true);
   try {
     internalCompute(true);
   }

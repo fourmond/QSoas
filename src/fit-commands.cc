@@ -110,7 +110,11 @@ static void fitCommand(const QString & /*name*/, const CommandOptions & opts)
 {
   int iterations = 50;
   updateFromOptions(opts, "iterations", iterations);
-  FitWorkspace::currentWorkspace()->runFit(iterations);
+  FitWorkspace::Ending st = FitWorkspace::currentWorkspace()->runFit(iterations);
+  // Throw an exception if the fit was cancelled, so that hitting
+  // abort also aborts scripts.
+  if(st = FitWorkspace::Cancelled)
+    throw RuntimeError("Fit cancelled");
 }
 
 ArgumentList fOpts(QList<Argument*>() 

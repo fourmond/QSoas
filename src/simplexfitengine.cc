@@ -1,7 +1,7 @@
 /**
    \file simplexfitengine.cc
    A Nelder-Mead 'fit' engine for QSoas
-   Copyright 2013 by CNRS/AMU
+   Copyright 2013, 2018 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -53,6 +53,9 @@ protected:
   /// Final threshold
   double threshold;
 
+  /// Whether we use scaling or not
+  bool useScaling;
+
   /// A vector for the function evaluation
   gsl_vector * func;
 
@@ -80,11 +83,17 @@ protected:
   /// Computes the fits/residuals at the given location.
   StoredParameters computeVertex(const gsl_vector * pos);
 
-  /// Static options
-  static ArgumentList * options;
+  /// scaling with respect to the initial parameters.
+  ///
+  /// If the simplex use scaling, then this has a non-zero size.
+  /// By default always use scaling.
+  Vector scalingFactors;
 
-  
 public:
+
+  /// Static options
+  static ArgumentList options;
+
 
   SimplexFitEngine(FitData * data);
   virtual ~SimplexFitEngine();
@@ -122,21 +131,22 @@ void SimplexFitEngine::resetEngineParameters()
   gamma = 0.5;
   delta = 0.5;
   threshold = 1e-4;
+  useScaling = true;
 }
 
-ArgumentList * SimplexFitEngine::options = NULL;
+ArgumentList SimplexFitEngine::
+options(QList<Argument*>()
+        << new NumberArgument("alpha", "Reflection factor")
+        << new NumberArgument("beta", "Expansion factor")
+        << new NumberArgument("gamma", "Contraction factor")
+        << new NumberArgument("delta", "Shrink factor")
+        << new NumberArgument("end-threshold", "Threshold for ending")
+        << new BoolArgument("use-scaling", "Scale parameters")
+        );
 
 ArgumentList * SimplexFitEngine::engineOptions() const
 {
-  if(! options) {
-    options = new ArgumentList;
-    *options << new NumberArgument("alpha", "Reflection factor")
-             << new NumberArgument("beta", "Expansion factor")
-             << new NumberArgument("gamma", "Contraction factor")
-             << new NumberArgument("delta", "Shrink factor")
-             << new NumberArgument("end-threshold", "Threshold for ending");
-  }
-  return options;
+  return &options;
 }
 
 
@@ -147,6 +157,7 @@ CommandOptions SimplexFitEngine::getEngineParameters() const
   updateOptions(val, "beta", beta);
   updateOptions(val, "gamma", gamma);
   updateOptions(val, "delta", delta);
+  updateOptions(val, "use-scaling", useScaling);
   updateOptions(val, "end-threshold", threshold);
 
   return val;
@@ -160,6 +171,7 @@ void SimplexFitEngine::setEngineParameters(const CommandOptions & val)
   updateFromOptions(val, "gamma", gamma);
   updateFromOptions(val, "delta", delta);
   updateFromOptions(val, "end-threshold", threshold);
+  updateFromOptions(val, "use-scaling", useScaling);
 }
 
 
@@ -173,6 +185,18 @@ void SimplexFitEngine::initialize(const double * initialGuess)
   gsl_vector_view params2 = gsl_vector_view_array(paramVals.data(), nb);
 
   fitData->packParameters(initialGuess, &params.vector);
+  if(useScaling) {
+    int n = fitData->freeParameters();
+    scalingFactors.resize(n);
+    for(int i = 0; i < n; i++) {
+      double v = paramVals[i];
+      if(v == 0)
+        v = 1;
+      scalingFactors[i] = v;
+      paramVals[i] /= v;
+    }
+  }
+    
 
   // OK, so now, we position the initial vertices
   vertices << computeVertex(&params.vector);
@@ -325,7 +349,21 @@ int SimplexFitEngine::iterate()
 
 StoredParameters SimplexFitEngine::computeVertex(const gsl_vector * pos)
 {
-  fitData->f(pos, func, true);
+  int nb = fitData->freeParameters();
+  QVarLengthArray<double, 100> paramVals(nb);
+  const gsl_vector * v;
+  gsl_vector_view params = gsl_vector_view_array(paramVals.data(), nb); 
+  if(useScaling) {
+    // Back to real values
+    for(int i = 0; i < nb; i++) {
+      paramVals[i] = gsl_vector_get(pos,i) * scalingFactors[i];
+    }
+    v = &params.vector;
+  }
+  else
+    v = pos;
+
+  fitData->f(v, func, true);
   double res;
   gsl_blas_ddot(func, func, &res);
   return StoredParameters(pos, res);
@@ -375,4 +413,5 @@ static FitEngine * simplexFE(FitData * d)
   return new SimplexFitEngine(d);
 }
 
-static FitEngineFactoryItem simplex("simplex", "Simplex", &simplexFE);
+static FitEngineFactoryItem simplex("simplex", "Simplex",
+                                    &simplexFE, &SimplexFitEngine::options);

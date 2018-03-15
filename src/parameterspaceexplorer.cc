@@ -157,6 +157,7 @@ static void iterateExplorerCommand(const QString & /*name*/,
 
   while(true) {
     Terminal::out << "Explorer iteration: " << explorer->progressText()
+                  << " starting " << QDateTime::currentDateTime().toString()
                   << endl;
     bool cont = explorer->iterate();
     if(! script.isEmpty()) {

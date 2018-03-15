@@ -134,8 +134,8 @@ public:
   };
 
   virtual QString progressText() const override {
-    return QString("Iteration %1/%2").
-      arg(currentIteration).arg(iterations);
+    return QString("%1/%2").
+      arg(currentIteration+1).arg(iterations);
   };
 
 

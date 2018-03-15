@@ -141,11 +141,6 @@ class FitDialog : public QDialog {
   /// The editor for the maximum number of iterations
   QLineEdit * iterationLimitEditor;
 
-  /// Fit engine parameters
-  ///
-  /// @todo A way to reset the parameter to default
-  QHash<FitEngineFactoryItem *, CommandOptions * > fitEngineParameterValues;
-
   /// Same thing, but
   QHash<FitEngineFactoryItem *, ArgumentList * > fitEngineParameters;
 

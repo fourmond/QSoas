@@ -45,6 +45,8 @@
 
 #include <gsl/gsl_sf.h>
 
+#include <idioms.hh>
+
 // smart(er) memory management for GSL types
 #include <gsl-types.hh>
 
@@ -1475,6 +1477,18 @@ void FitWorkspace::endFit(FitWorkspace::Ending ending)
 void FitWorkspace::quit()
 {
   emit(quitWorkspace());
+}
+
+
+CommandOptions * FitWorkspace::fitEngineParameters(FitEngineFactoryItem * engine)
+{
+  
+  if(! fitEngineParameterValues.value(engine, NULL)) {
+    FitEngine * f = engine->creator(fitData);
+    fitEngineParameterValues[engine] =
+      new CommandOptions(f->getEngineParameters());
+  }
+  return fitEngineParameterValues[engine]; 
 }
 
 void FitWorkspace::setTrajectoryFlags(const QSet<QString> & flags)

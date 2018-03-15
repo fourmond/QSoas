@@ -1142,14 +1142,10 @@ void FitDialog::setSoftOptions()
   QHash<QString, QWidget *> fitWidgets;
   QHash<QString, QWidget *> engineWidgets;
 
-  if(! fitEngineParameters.contains(data->engineFactory)) {
-    FitEngine * f = data->engineFactory->creator(data);
-    fitEngineParameters[data->engineFactory] = f->engineOptions();
-    fitEngineParameterValues[data->engineFactory] = new CommandOptions(f->getEngineParameters());
-
-    // There's no need to free, as it gets registered with data, and
-    // will be freed upon starting the fit or closing the dialog box.
-  }
+  
+  if(! fitEngineParameters.contains(data->engineFactory))
+    fitEngineParameters[data->engineFactory] =
+      data->engineFactory->engineOptions;
 
   if(softOptions) {
     co = parameters.currentSoftOptions();
@@ -1162,7 +1158,8 @@ void FitDialog::setSoftOptions()
   }
 
 
-  CommandOptions * engineOptionValues = fitEngineParameterValues[data->engineFactory];
+  CommandOptions * engineOptionValues =
+    parameters.fitEngineParameters(data->engineFactory);
   ArgumentList * engineOptions = fitEngineParameters[data->engineFactory];
   
   if(engineOptions && engineOptions->size() > 0) {

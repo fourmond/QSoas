@@ -102,7 +102,7 @@ CommandEffector * FitEngine::engineEffector(const QString & n)
                                   ws->fitData->engineFactory = it;
                                     
                                   for(const QString & n : options.keys()) {
-                                    (*ws->fitEngineParameterValues[it])[n] =
+                                    (*ws->fitEngineParameters(it))[n] =
                                       options[n]->dup();
                                   }
                                 });

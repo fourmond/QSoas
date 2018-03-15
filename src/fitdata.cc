@@ -987,62 +987,67 @@ const gsl_matrix * FitData::covarianceMatrix()
 
   gsl_matrix_set_zero(covarStorage);
 
-  if(subordinates.size() > 0) {
-    for(int i = 0; i < subordinates.size(); i++) {
-      const gsl_matrix * sub = subordinates[i]->covarianceMatrix();
-      int nb = parameterDefinitions.size();
-      gsl_matrix_view m = gsl_matrix_submatrix(covarStorage, nb*i, nb*i, 
-                                               nb, nb);
-      gsl_matrix_memcpy(&m.matrix, sub);
+  try {
+    if(subordinates.size() > 0) {
+      for(int i = 0; i < subordinates.size(); i++) {
+        const gsl_matrix * sub = subordinates[i]->covarianceMatrix();
+        int nb = parameterDefinitions.size();
+        gsl_matrix_view m = gsl_matrix_submatrix(covarStorage, nb*i, nb*i, 
+                                                 nb, nb);
+        gsl_matrix_memcpy(&m.matrix, sub);
+      }
+    }
+    else {
+
+      // We write the covariance matrix in the top-left corner of the
+      // storage space, and then move all the columns in place using
+      // permutations.
+
+      int nbparams = (gslParameters > 0 ? gslParameters : 1); 
+      /// @hack Work around the GSL limitation on having empty matrices
+      gsl_matrix_view m = gsl_matrix_submatrix(covarStorage, 0, 0, 
+                                               nbparams, nbparams);
+      if(engine) {
+        engine->computeCovarianceMatrix(&m.matrix);
+
+        // Now, we perform permutations to place all the elements where they
+        // should be.
+        //
+        // We start from the top.
+        for(int i = parameters.size() - 1; i >= 0; i--) {
+          FitParameter * param = parameters[i];
+
+          if(param->fitIndex < 0)
+            continue;
+
+          /// @warning This function assumes a certain layout in the fit
+          /// parameters part of the fit vector, but as they are all free
+          /// parameters, things should be fine ?
+          int target = param->paramIndex + 
+            parameterDefinitions.size() * ( param->dsIndex >= 0 ? 
+                                            param->dsIndex : 0);
+          gsl_matrix_swap_rows(covarStorage, param->fitIndex, target);
+          gsl_matrix_swap_columns(covarStorage, param->fitIndex, target);
+
+          /// @todo add scaling to columns when applicable. (bijections)
+        }
+
+        // Scaling factor coming from the gsl documentation
+        double res = residuals();
+        /// @bug This is not accurate for weighted fits !!!!
+        gsl_matrix_scale(covarStorage, res*res/doF());
+      } 
+      else
+        /// @todo Maybe this should be signaled in a different way --
+        /// using an exception of some kind ?
+        gsl_matrix_set_zero(&m.matrix); // in the case when no engine
+      // has been setup yet.
     }
   }
-  else {
-
-    // We write the covariance matrix in the top-left corner of the
-    // storage space, and then move all the columns in place using
-    // permutations.
-
-    int nbparams = (gslParameters > 0 ? gslParameters : 1); 
-    /// @hack Work around the GSL limitation on having empty matrices
-    gsl_matrix_view m = gsl_matrix_submatrix(covarStorage, 0, 0, 
-                                             nbparams, nbparams);
-    if(engine) {
-      engine->computeCovarianceMatrix(&m.matrix);
-
-      // Now, we perform permutations to place all the elements where they
-      // should be.
-      //
-      // We start from the top.
-      for(int i = parameters.size() - 1; i >= 0; i--) {
-        FitParameter * param = parameters[i];
-
-        if(param->fitIndex < 0)
-          continue;
-
-        /// @warning This function assumes a certain layout in the fit
-        /// parameters part of the fit vector, but as they are all free
-        /// parameters, things should be fine ?
-        int target = param->paramIndex + 
-          parameterDefinitions.size() * ( param->dsIndex >= 0 ? 
-                                          param->dsIndex : 0);
-        gsl_matrix_swap_rows(covarStorage, param->fitIndex, target);
-        gsl_matrix_swap_columns(covarStorage, param->fitIndex, target);
-
-        /// @todo add scaling to columns when applicable. (bijections)
-      }
-
-      // Scaling factor coming from the gsl documentation
-      double res = residuals();
-      /// @bug This is not accurate for weighted fits !!!!
-      gsl_matrix_scale(covarStorage, res*res/doF());
-    } 
-    else
-      /// @todo Maybe this should be signaled in a different way --
-      /// using an exception of some kind ?
-      gsl_matrix_set_zero(&m.matrix); // in the case when no engine
-                                      // has been setup yet.
+  catch(RuntimeError & e) {
+    // Error when making the covariance matrix
+    gsl_matrix_set_zero(covarStorage);
   }
-  
   covarIsOK = true;
   return covarStorage;
 }

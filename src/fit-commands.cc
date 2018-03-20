@@ -34,7 +34,6 @@
 #include <fwexpression.hh>
 #include <mruby.hh>
 
-#include <fittrajectorydisplay.hh>
 
 // static Group fit("fit", 0,
 //                  "Fit",
@@ -673,11 +672,12 @@ trim("trim-trajectories", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+#include <fittrajectorydisplay.hh>
+
 static void browseTrajectoriesCommand(const QString & /*name*/,
                                       const CommandOptions & opts)
 {
-  FitWorkspace * ws = FitWorkspace::currentWorkspace();
-  FitTrajectoryDisplay d(ws);
+  FitTrajectoryDisplay d(FitWorkspace::currentWorkspace());
   d.exec();
 }
 
@@ -690,4 +690,25 @@ brse("browse-trajectories", // command name
      NULL, // options
      "Browse trajectories",
      "Opens a dialog box to browse trajectories",
+     "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
+#include <parametersviewer.hh>
+
+static void showParametersCommand(const QString & /*name*/,
+                                  const CommandOptions & opts)
+{
+  ParametersViewer dlg(FitWorkspace::currentWorkspace());
+  dlg.exec();
+}
+
+static Command 
+sprm("show-parameters", // command name
+     effector(showParametersCommand), // action
+     "fit",  // group name
+     NULL, // arguments
+     NULL, // options
+     "Show parameters",
+     "Opens a dialog box to show the current parameters",
      "", CommandContext::fitContext());

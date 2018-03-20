@@ -379,7 +379,10 @@ public:
 
   /// Recompute data stored in the storage vector of fitData. Also
   /// updates the residuals.
-  void recompute(bool dontSend = false);
+  ///
+  /// Returns @true if the computation succeeded, or false if it
+  /// failed (i.e. invalid parameters, exception...)
+  bool recompute(bool dontSend = false);
 
   /// Force the recomputation of the jacobian, useful to ensure that
   /// the errors are up-to-date. Use with caution
@@ -584,6 +587,19 @@ public:
   /// The reason for the end of fit
   Ending fitEnding;
 
+  /// Type describing the current status with respect to the parameters.
+  typedef enum {
+    ParametersUnknown,
+    ParametersOK,
+    ParametersFailed
+  } ParametersStatus;
+
+  /// The current status of the parameters
+  ParametersStatus parametersStatus;
+
+  /// Wether the covariance matrix is up-to-date or not
+  bool covarianceMatrixOK;
+
   /// @}
 
 signals:
@@ -609,6 +625,12 @@ signals:
 
   /// Emitted whenever the current dataset has changed
   void datasetChanged(int newDS);
+                                
+protected slots:
+  /// Called whenever a parametersChanged() or parameterChanged()
+  /// signal is emitted, so as to make sure the flags are kept
+  /// up-to-date.
+  void invalidateStatus();
 
 public slots:
   /// Triggers the emission of the quitWorkSpace() signal.

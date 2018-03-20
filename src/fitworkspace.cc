@@ -47,6 +47,8 @@
 
 #include <idioms.hh>
 
+#include <exceptions.hh>
+
 // smart(er) memory management for GSL types
 #include <gsl-types.hh>
 
@@ -96,9 +98,11 @@ FitWorkspace::FitWorkspace(FitData * d) :
   fitData(d), currentDS(0), parameters(d->datasets.size() * 
                                        d->parametersPerDataset()),
   rawCVMatrix(NULL), cookedCVMatrix(NULL),
+  currentExplorer(NULL),
   trajectories(this),
   fitEnding(NotStarted),
-  currentExplorer(NULL)
+  parametersStatus(FitWorkspace::ParametersUnknown),
+  covarianceMatrixOK(false)
 {
   if(currentWS)
     throw InternalError("Trying to recurse into a fit workspace, this should not happen");
@@ -152,6 +156,10 @@ FitWorkspace::FitWorkspace(FitData * d) :
 
   generatedCommands += ParameterSpaceExplorer::createCommands(this);
   // generatedCommands += FitEngine::createCommands(this);
+  connect(this, SIGNAL(parameterChanged(int, int)),
+          SLOT(invalidateStatus()));
+  connect(this, SIGNAL(parametersChanged()),
+          SLOT(invalidateStatus()));
 }
 
 FitWorkspace::~FitWorkspace()
@@ -164,6 +172,12 @@ FitWorkspace::~FitWorkspace()
   for(Command * cmd : generatedCommands)
     delete cmd;
   generatedCommands.clear();
+}
+
+void FitWorkspace::invalidateStatus()
+{
+  parametersStatus = ParametersUnknown;
+  covarianceMatrixOK = false;
 }
 
 bool FitWorkspace::hasSubFunctions() const
@@ -291,12 +305,20 @@ void FitWorkspace::updateParameterValues(bool dontSend)
   fitData->unpackParameters(&v.vector, values);
 }
 
-void FitWorkspace::recompute(bool dontSend)
+bool FitWorkspace::recompute(bool dontSend)
 {
   updateParameterValues(dontSend);
-  
-  fitData->computeFunction(values, fitData->storage);
+
+  try {
+    fitData->computeFunction(values, fitData->storage);
+  }
+  catch (::Exception & e) {
+    parametersStatus = ParametersFailed;
+    return false;
+  }
+  parametersStatus = ParametersOK;
   computeResiduals();
+  return true;
 }
 
 QHash<QString, double> FitWorkspace::parametersForDataset(int ds) const

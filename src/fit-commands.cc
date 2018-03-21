@@ -704,11 +704,32 @@ static void showParametersCommand(const QString & /*name*/,
 }
 
 static Command 
-sprm("show-parameters", // command name
+spar("show-parameters", // command name
      effector(showParametersCommand), // action
      "fit",  // group name
      NULL, // arguments
      NULL, // options
      "Show parameters",
      "Opens a dialog box to show the current parameters",
+     "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
+#include <parametersspreadsheet.hh>
+
+static void parametersSpreadsheetCommand(const QString & /*name*/,
+                                         const CommandOptions & opts)
+{
+  ParametersSpreadsheet dlg(FitWorkspace::currentWorkspace());
+  dlg.exec();
+}
+
+static Command 
+spsh("parameters-spreadsheet", // command name
+     effector(parametersSpreadsheetCommand), // action
+     "fit",  // group name
+     NULL, // arguments
+     NULL, // options
+     "Parameters spreadsheet",
+     "Opens a spreadsheet to edit parameters",
      "", CommandContext::fitContext());

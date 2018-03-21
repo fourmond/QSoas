@@ -305,7 +305,7 @@ void FitWorkspace::updateParameterValues(bool dontSend)
   fitData->unpackParameters(&v.vector, values);
 }
 
-bool FitWorkspace::recompute(bool dontSend)
+bool FitWorkspace::recompute(bool dontSend, bool silent)
 {
   updateParameterValues(dontSend);
 
@@ -314,7 +314,10 @@ bool FitWorkspace::recompute(bool dontSend)
   }
   catch (::Exception & e) {
     parametersStatus = ParametersFailed;
-    return false;
+    if(silent)
+      return false;
+    else
+      throw;
   }
   parametersStatus = ParametersOK;
   computeResiduals();

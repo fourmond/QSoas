@@ -382,7 +382,10 @@ public:
   ///
   /// Returns @true if the computation succeeded, or false if it
   /// failed (i.e. invalid parameters, exception...)
-  bool recompute(bool dontSend = false);
+  ///
+  /// If @a silent is true, then exceptions are silently caught. If
+  /// not, they are forwarded.
+  bool recompute(bool dontSend = false, bool silent = true);
 
   /// Force the recomputation of the jacobian, useful to ensure that
   /// the errors are up-to-date. Use with caution

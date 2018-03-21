@@ -609,8 +609,9 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
       ws.setValue(spec[0], value);
     }
   }
-  
-  ws.recompute();
+
+  // ensure the recompute throws an exception
+  ws.recompute(false, false);
   if(what == "reexport") {
     Terminal::out << "Reexporting parameters with errors" << endl;
     if(! data.engineFactory)

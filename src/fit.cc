@@ -481,6 +481,9 @@ void Fit::runFit(std::function<void (FitData *)> hook,
   bool expert = false;
   updateFromOptions(opts, "expert", expert);
 
+  if(expert)
+    showWeights = true;         // always shown in expert mode
+
   FitDialog dlg(&data, showWeights, perpMeta, expert);
 
   if(! loadParameters.isEmpty())

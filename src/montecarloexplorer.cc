@@ -28,6 +28,8 @@
 #include <terminal.hh>
 #include <utils.hh>
 
+#include <fittrajectory.hh>
+
 class MonteCarloExplorer : public ParameterSpaceExplorer {
 
   int iterations;
@@ -54,6 +56,9 @@ class MonteCarloExplorer : public ParameterSpaceExplorer {
   };
 
   QList<ParameterSpec> parameterSpecs;
+
+  static ArgumentList args;
+  static ArgumentList opts;
 public:
 
   MonteCarloExplorer(FitWorkspace * ws) :
@@ -62,21 +67,11 @@ public:
   };
 
   virtual ArgumentList * explorerArguments() const override {
-    return new ArgumentList(QList<Argument*>() 
-                            << new SeveralStringsArgument("parameters",
-                                                          "Parameters",
-                                                          "Parameter specification"));
+    return &args;
   };
 
   virtual ArgumentList * explorerOptions() const override {
-    return new ArgumentList(QList<Argument*>() 
-                            << new IntegerArgument("iterations",
-                                                   "Iterations",
-                                                   "Number of monte-carlo iterations")
-                            << new IntegerArgument("fit-iterations",
-                                                   "Fit iterations",
-                                                   "Maximum number of fit iterations")
-                            );
+    return &opts;
   };
 
   virtual void setup(const CommandArguments & args,
@@ -141,8 +136,107 @@ public:
 
 };
 
+ArgumentList
+MonteCarloExplorer::args(QList<Argument*>() 
+                         << new SeveralStringsArgument("parameters",
+                                                       "Parameters",
+                                                       "Parameter specification"));
+
+ArgumentList
+MonteCarloExplorer::opts(QList<Argument*>() 
+                         << new IntegerArgument("iterations",
+                                                "Iterations",
+                                                "Number of monte-carlo iterations")
+                         << new IntegerArgument("fit-iterations",
+                                                "Fit iterations",
+                                                "Maximum number of fit iterations")
+                         );
+
 ParameterSpaceExplorerFactoryItem 
 montecarlo("monte-carlo", "Monte Carlo", 
            [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
              return new MonteCarloExplorer(ws);
            });
+
+
+//////////////////////////////////////////////////////////////////////
+
+
+/// This explorer just randomly shuffles the parameters among the fit
+/// trajectories:
+/// * random selection of the trajectory
+/// * 50 % chance of selecting either the starting of the final values.
+class ShuffleExplorer : public ParameterSpaceExplorer {
+
+  int iterations;
+
+  int currentIteration;
+
+  int fitIterations;
+
+  static ArgumentList opts;
+public:
+
+  ShuffleExplorer(FitWorkspace * ws) :
+    ParameterSpaceExplorer(ws), iterations(20),
+    currentIteration(0), fitIterations(50) {
+  };
+
+  virtual ArgumentList * explorerArguments() const override {
+    return NULL;
+  };
+
+  virtual ArgumentList * explorerOptions() const override {
+    return &opts;
+  };
+
+  virtual void setup(const CommandArguments & /*args*/,
+                     const CommandOptions & opts) override {
+    updateFromOptions(opts, "iterations", iterations);
+    updateFromOptions(opts, "fit-iterations", fitIterations);
+  };
+
+  virtual bool iterate() override {
+    Vector p;
+    int sz = workSpace->trajectories.size();
+    if(sz < 1)
+      throw RuntimeError("Cannot iterate the shuffle explorer with no trajectories");
+    p = workSpace->trajectories[0].initialParameters;
+    for(int i = 0; i < p.size(); i++) {
+      int idx = ::rand() % sz;
+      int w = ::rand() % 2;
+      QString which;
+      if(w) 
+        p[i] = workSpace->trajectories[idx].initialParameters[i];
+      else
+        p[i] = workSpace->trajectories[idx].finalParameters[i];
+    }
+    workSpace->restoreParameterValues(p);
+    workSpace->runFit(fitIterations);
+    currentIteration++;
+    return currentIteration < iterations;
+  };
+
+  virtual QString progressText() const override {
+    return QString("%1/%2").
+      arg(currentIteration+1).arg(iterations);
+  };
+};
+
+
+ArgumentList
+ShuffleExplorer::opts(QList<Argument*>() 
+                      << new IntegerArgument("iterations",
+                                             "Iterations",
+                                             "Number of monte-carlo iterations")
+                      << new IntegerArgument("fit-iterations",
+                                             "Fit iterations",
+                                             "Maximum number of fit iterations")
+                      );
+
+
+ParameterSpaceExplorerFactoryItem 
+shuffle("shuffle", "Shuffle", 
+        [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
+          return new ShuffleExplorer(ws);
+        });

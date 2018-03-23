@@ -27,6 +27,7 @@
 #include <command.hh>
 
 #include <fitworkspace.hh>
+#include <fittrajectory.hh>
 
 QHash<QString, ParameterSpaceExplorerFactoryItem*> * ParameterSpaceExplorer::factory = NULL;
 
@@ -158,6 +159,12 @@ static void iterateExplorerCommand(const QString & /*name*/,
   while(true) {
     Terminal::out << "Explorer iteration: " << explorer->progressText()
                   << " starting " << QDateTime::currentDateTime().toString()
+                  << ", current best residuals: "
+                  << (
+                      ws->trajectories.size() > 0 ?
+                      QString::number(ws->trajectories.best().residuals) :
+                      QString("%1").arg("(none yet)")
+                      )
                   << endl;
     bool cont = explorer->iterate();
     if(! script.isEmpty()) {

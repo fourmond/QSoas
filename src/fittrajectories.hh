@@ -84,6 +84,9 @@ public:
   /// Returns the best fit, or the nth best fit.
   const FitTrajectory & best(int nth = 0) const;
 
+  /// Removes the nth element
+  void remove(int nth);
+
   FitTrajectory & last();
 
   /// Clears the trajectories

@@ -506,20 +506,38 @@ void FitTrajectoryDisplay::contextMenuOnTable(const QPoint & pos)
 {
   QMenu menu;
   QAction * a = new QAction(tr("Reuse parameters"), this);
+  connect(a, SIGNAL(triggered()), SLOT(reuseCurrentParameters()));
   menu.addAction(a);
-  QAction * got = menu.exec(parametersDisplay->mapToGlobal(pos));
-  if(got == a) {
-    // Send back the given parameters to the fitdialog
-    int idx = parametersDisplay->currentIndex().row();
-    if(idx < 0)
-      return;
-    Vector parameters;
-    if(idx % 2)
-      parameters = workspace->trajectories[idx/2].finalParameters;
-    else
-      parameters = workspace->trajectories[idx/2].initialParameters;
-    workspace->restoreParameterValues(parameters);
-  }
+
+  a = new QAction(tr("Delete trajectory"), this);
+  connect(a, SIGNAL(triggered()), SLOT(deleteCurrentParameters()));
+  menu.addAction(a);
+
+  menu.exec(parametersDisplay->mapToGlobal(pos));
+}
+
+void FitTrajectoryDisplay::reuseCurrentParameters()
+{
+  // Send back the given parameters to the fitdialog
+  int idx = parametersDisplay->currentIndex().row();
+  if(idx < 0)
+    return;
+  Vector parameters;
+  if(idx % 2)
+    parameters = workspace->trajectories[idx/2].finalParameters;
+  else
+    parameters = workspace->trajectories[idx/2].initialParameters;
+  workspace->restoreParameterValues(parameters);
+}
+
+void FitTrajectoryDisplay::deleteCurrentParameters()
+{
+  // Send back the given parameters to the fitdialog
+  int idx = parametersDisplay->currentIndex().row();
+  if(idx < 0)
+    return;
+  workspace->trajectories.remove(idx/2);
+  model->update();
 }
 
 void FitTrajectoryDisplay::sortByResiduals()

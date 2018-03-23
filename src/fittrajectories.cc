@@ -170,6 +170,12 @@ void FitTrajectories::clear()
   trajectories.clear();
 }
 
+void FitTrajectories::remove(int idx)
+{
+  clearCache();
+  trajectories.takeAt(idx);
+}
+
 FitTrajectories FitTrajectories::flaggedTrajectories(const QString & flag)
   const
 {

@@ -120,6 +120,12 @@ public slots:
 protected slots:
 
   void contextMenuOnTable(const QPoint & pos);
+
+  /// Send the currently selected parameters to the 
+  void reuseCurrentParameters();
+
+  /// Deletes the currently selected parameters
+  void deleteCurrentParameters();
 };
 
 

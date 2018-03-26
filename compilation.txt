@@ -1,7 +1,7 @@
 Compilation requires the following packages:
 
   * The Qt library. QSoas works well with both Qt4 and Qt5
-  * The mruby interpreter, fromhttps://mruby.org/. The problem with
+  * The mruby interpreter, from https://mruby.org/. The problem with
     mruby is QSoas will compile fine with version 1.3.0, but a bug in
     the mruby interpreter will cause a crash. You need a version
     between commits 7450a774 and afa5380, or posterior to

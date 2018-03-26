@@ -27,6 +27,8 @@
 #include <gsl/gsl_bspline.h>
 #include <gsl/gsl_multifit.h>
 
+#include <gsl/gsl_version.h>
+
 class DataSet;
 
 /// This class provides filtering based on BSplines
@@ -39,8 +41,10 @@ class BSplines {
   /// The workspace for splines
   gsl_bspline_workspace * splinesWS;
 
+#if GSL_MAJOR_VERSION <  2
   /// The workspace for the derivatives
   gsl_bspline_deriv_workspace * derivWS;
+#endif
 
   /// The workspace for fits:
   gsl_multifit_linear_workspace * fitWS;

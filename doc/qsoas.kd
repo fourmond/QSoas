@@ -6165,6 +6165,18 @@ evaluation programs (it is quite close to the one from
    `2.0` and `0.4` instead.
  * **Case matters**: `Pi` is $$\pi$$, while `pi` is nothing defined.
 
+### Specific additions/modifications to Ruby
+
+#### Regular expressions
+
+The embedded version of [Ruby][ruby], [mruby][mruby], does not have a
+regular expression engine. We have added one, but it is not based on
+standard [Ruby][ruby] regular expressions, but on the ones from
+[Qt][qt-regexps]. For most regular expressions, this should not
+matter, however.
+
+#### Special functions
+
 In addition to standard mathematical functions from the [Math][math]
 module (that contains, among others, the error function
 [`erf`](http://www.ruby-doc.org/core-1.9.3/Math.html#method-c-erf) and

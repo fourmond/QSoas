@@ -128,9 +128,6 @@ class FitDialog : public QDialog {
   /// Fills the FitData with parameter information
   void setDataParameters();
 
-  /// Whether or not we should cancel the current fit.
-  bool shouldCancelFit;
-
   /// A list of all the fits started (and ended) since the spawning of
   /// the dialog
   QList<FitTrajectory> trajectories;
@@ -269,9 +266,6 @@ public slots:
 
   /// Start the fit
   void startFit();
-
-  /// Cancels the current fit
-  void cancelFit();
 
 protected slots:
 

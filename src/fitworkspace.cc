@@ -100,6 +100,7 @@ FitWorkspace::FitWorkspace(FitData * d) :
   rawCVMatrix(NULL), cookedCVMatrix(NULL),
   currentExplorer(NULL),
   trajectories(this),
+  shouldCancelFit(false),
   fitEnding(NotStarted),
   parametersStatus(FitWorkspace::ParametersUnknown),
   covarianceMatrixOK(false)
@@ -1497,6 +1498,11 @@ void FitWorkspace::endFit(FitWorkspace::Ending ending)
   if(ending == Cancelled)       // break out of any enclosing context,
                                 // including scripts.
     throw RuntimeError("Fit cancelled");
+}
+
+void FitWorkspace::cancelFit()
+{
+  shouldCancelFit = true;
 }
 
 void FitWorkspace::quit()

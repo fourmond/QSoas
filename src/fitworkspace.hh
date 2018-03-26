@@ -603,6 +603,10 @@ public:
   /// Wether the covariance matrix is up-to-date or not
   bool covarianceMatrixOK;
 
+public slots:
+  /// Cancels the fit
+  void cancelFit();
+
   /// @}
 
 signals:

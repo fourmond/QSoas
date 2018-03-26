@@ -454,7 +454,7 @@ void FitDialog::setupFrame(bool expert)
   hb->addWidget(startButton);
 
   cancelButton = new QPushButton(tr("Abort (Ctrl+B)"));
-  connect(cancelButton, SIGNAL(clicked()), SLOT(cancelFit()));
+  parameters.connect(cancelButton, SIGNAL(clicked()), SLOT(cancelFit()));
   hb->addWidget(cancelButton);
   if(fitPrompt)
     startButton->setAutoDefault(false);
@@ -478,7 +478,8 @@ void FitDialog::setupFrame(bool expert)
   Utils::registerShortCut(QKeySequence(tr("Ctrl+F")), 
                           this, SLOT(startFit()));
   Utils::registerShortCut(QKeySequence(tr("Ctrl+B")), 
-                          this, SLOT(cancelFit()));
+                          &parameters, SLOT(cancelFit()),
+                          this /* here, we need the parent */);
 
   // Ctr + PgUp/PgDown to navigate the buffers
   Utils::registerShortCut(QKeySequence(tr("Ctrl+PgUp")), 
@@ -517,7 +518,7 @@ const FitWorkspace * FitDialog::getWorkspace() const
 
 void FitDialog::closeEvent(QCloseEvent * event)
 {
-  shouldCancelFit = true;
+  parameters.cancelFit();
   QDialog::closeEvent(event);
 }
 
@@ -701,11 +702,6 @@ void FitDialog::onIterate(int nb, double residuals)
 }
 
 
-
-void FitDialog::cancelFit()
-{
-  shouldCancelFit = true;
-}
 
 void FitDialog::pushSubFunctions()
 {

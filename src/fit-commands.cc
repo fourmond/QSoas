@@ -195,6 +195,19 @@ static void setCommand(const QString & /*name*/, QList<QPair<int, int> > params,
       ws->setValue(ps.first, ps.second, value);
     }
   }
+
+  bool fix = false;
+  updateFromOptions(opts, "fix", fix);
+  if(fix) {
+    for(QPair<int, int> ps : params)
+      ws->setFixed(ps.first, ps.second, true);
+  }
+  bool unfix = false;
+  updateFromOptions(opts, "unfix", unfix);
+  if(unfix) {
+    for(QPair<int, int> ps : params)
+      ws->setFixed(ps.first, ps.second, false);
+  }
 }
 
 ArgumentList sArgs(QList<Argument*>() 
@@ -210,6 +223,12 @@ ArgumentList sOpts(QList<Argument*>()
                    << new BoolArgument("expression", 
                                        "Expression",
                                        "whether the value is evaluated as an expression")
+                   << new BoolArgument("fix", 
+                                       "Fix",
+                                       "if true, also fixes the parameters")
+                   << new BoolArgument("unfix", 
+                                       "Unfix",
+                                       "if true, also unfixes the parameters")
                    );
 
 static Command 

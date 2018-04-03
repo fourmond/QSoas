@@ -236,6 +236,12 @@ pops(QList<Argument *>()
      << new StringArgument("title", 
                            "Page title",
                            "Sets the title of the page as printed")
+     << new StringArgument("page-size", 
+                           "Page size",
+                           "Sets the page size, like 9x6 for 9cm by 6cm")
+     << new IntegerArgument("nominal-height", 
+                            "Nominal height",
+                            "Correspondance of the height of the page in terms of points")
      );
 
 static void printCommand(const QString &, 
@@ -250,6 +256,19 @@ static void printCommand(const QString &,
 
   updateFromOptions(opts, "overwrite", overwrite);
   updateFromOptions(opts, "file", file);
+  updateFromOptions(opts, "nominal-height", height);
+
+  QString pageSize;
+  updateFromOptions(opts, "page-size", pageSize);
+  double w, h;
+  if(! pageSize.isEmpty()) {
+    /// @todo introduce unit parsing ?
+    QStringList lst = pageSize.split("x");
+    if(lst.size() != 2)
+      throw RuntimeError("Invalid page size format: '%1'").arg(pageSize);
+    w = lst[0].toDouble();
+    h = lst[1].toDouble();
+  }
 
   if(! file.isEmpty()) {
     if(! overwrite)
@@ -257,7 +276,12 @@ static void printCommand(const QString &,
     if(file.endsWith("svg")) {
       QSvgGenerator * gen = new QSvgGenerator;
       p = std::unique_ptr<QPaintDevice>(gen);
-      rect = QRect(0, 0, 1000,1000);
+      if(pageSize.isEmpty()) {
+        w = 1000;
+        h = 1000;
+      }
+      rect = QRect(0, 0, w, h);
+      gen->setSize(QSize(w,h));
       gen->setFileName(file);
     }
   }
@@ -271,7 +295,13 @@ static void printCommand(const QString &,
       if(printDialog.exec() != QDialog::Accepted)
         return;
     }
-    printer->setOrientation(QPrinter::Landscape);
+    if(pageSize.isEmpty()) {
+      printer->setOrientation(QPrinter::Landscape);
+    }
+    else {
+      printer->setPaperSize(QSizeF(w*10, h*10), QPrinter::Millimeter);
+      printer->setFullPage(true);
+    }
     rect = printer->pageRect();
   }
 

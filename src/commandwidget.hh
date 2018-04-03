@@ -156,6 +156,9 @@ public:
   /// those ready.
   static void logString(const QString & str);
 
+  /// The name of the log file.
+  static QString logFileName;
+
 
   /// Switch to loop mode (and back)
   void setLoopMode(bool b);

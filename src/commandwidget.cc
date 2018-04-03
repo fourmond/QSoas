@@ -35,6 +35,8 @@
 #include <mruby.hh>
 
 #include <debug.hh>
+#include <commandlineparser.hh>
+
 
 class SideBarLabel : public QScrollArea {
 protected:
@@ -93,8 +95,16 @@ public:
 /// destroyed ?
 
 QPointer<CommandWidget> CommandWidget::theCommandWidget(NULL);
-static SettingsValue<QString> logFileName("command/logfile", 
-                                          QString("soas.log"));
+
+QString CommandWidget::logFileName;
+
+static SettingsValue<QString> defaultLogFileName("command/logfile", 
+                                                 QString("soas.log"));
+
+static CommandLineOption cmd("--log", [](const QStringList & args) {
+    CommandWidget::logFileName = args[0];
+  }, 1, "sets the name of the log file");
+
 
 // If 0, do not rotate. If positive, rotate only that many files, if
 // negative, rotate forever.
@@ -125,7 +135,10 @@ CommandWidget::CommandWidget(CommandContext * c) :
     if(! theCommandWidget)
       theCommandWidget = this;    // Or always ?
 
-    if(! ((QString)logFileName).isEmpty()) {
+    if(logFileName.isEmpty())
+      logFileName = ::defaultLogFileName;
+
+    if(! logFileName.isEmpty()) {
       /// @todo Find a writable place
       int rotation = logRotateNumber;
       if(rotation != 0) {

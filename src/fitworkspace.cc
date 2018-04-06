@@ -1433,6 +1433,30 @@ int FitWorkspace::nextIteration()
   return status;
 }
 
+QString FitWorkspace::endingDescription(FitWorkspace::Ending end)
+{
+  return FitTrajectory::endingName(end);
+}
+
+QColor FitWorkspace::endingColor(FitWorkspace::Ending end)
+{
+  switch(end) {
+  case FitWorkspace::Converged:
+    return QColor::fromRgb(0,128,0);
+  case FitWorkspace::Cancelled:
+    return QColor::fromHsv(270, 255, 255);
+  case FitWorkspace::TimeOut:
+    return QColor::fromHsv(359, 255, 255);
+  case FitWorkspace::Error:
+  case FitWorkspace::Exception:
+  case FitWorkspace::NonFinite:
+    return QColor::fromHsv(359, 255, 255);
+  default:
+    ;
+  }
+  return QColor();
+}
+
 FitWorkspace::Ending FitWorkspace::runFit(int iterationLimit)
 {
   try {
@@ -1465,6 +1489,7 @@ FitWorkspace::Ending FitWorkspace::runFit(int iterationLimit)
   endFit(fitEnding);
   return fitEnding;
 }
+
 
 void FitWorkspace::endFit(FitWorkspace::Ending ending)
 {

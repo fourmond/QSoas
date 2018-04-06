@@ -539,6 +539,13 @@ public:
     Invalid
   } Ending;
 
+
+  /// Returns a short string describing the ending
+  static QString endingDescription(Ending end);
+
+  /// a color associated with the ending ?
+  static QColor endingColor(Ending end);
+
   /// @name Functions to run the fit
   /// @{
 

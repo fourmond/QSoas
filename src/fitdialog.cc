@@ -677,8 +677,25 @@ void FitDialog::startFit()
   }
 }
 
-void FitDialog::onFitEnd(int /*ending*/)
+/// @todo Should this join Utils
+QString htmlColor(const QColor & color)
 {
+  return QString("#%1%2%3").
+    arg(color.red(), 2, 16, QChar('0')).
+    arg(color.green(), 2, 16, QChar('0')).
+    arg(color.blue(), 2, 16, QChar('0'));
+}
+
+void FitDialog::onFitEnd(int ending)
+{
+  FitWorkspace::Ending end =
+    static_cast<FitWorkspace::Ending>(ending);
+  QString msg = FitWorkspace::endingDescription(end);
+  QColor col = FitWorkspace::endingColor(end);
+  msg = QString(": <font color=%1>%2</font>").
+    arg(htmlColor(col)).arg(msg);
+  
+  appendToMessage(msg);
   cancelButton->setVisible(false);
   startButton->setVisible(true);
   iterationLimitEditor->setEnabled(true);

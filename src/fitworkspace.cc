@@ -583,7 +583,8 @@ template <typename T> void FitWorkspace::writeText(T & target,
 
   // Writing down the goodness of fit
 
-  double chi = fitData->weightedSquareSum(fitData->storage, true);
+  double chi = fitData->standardYErrors ?
+    fitData->weightedSquareSum(fitData->storage, true) : overallPointResiduals;
   target << prefix
          << (fitData->standardYErrors ? "Chi-squared" : "Residuals: ")
          << chi << endl;
@@ -1418,12 +1419,13 @@ double FitWorkspace::elapsedTime() const
 int FitWorkspace::nextIteration()
 {
   int status = fitData->iterate();
+  computeResiduals();           // necessary ?
   residuals = fitData->residuals();
 
   /// Signal at the end of each iteration
   retrieveParameters();
   emit(iterated(fitData->nbIterations,
-                residuals,
+                overallPointResiduals,
                 saveParameterValues()
                 ));
     

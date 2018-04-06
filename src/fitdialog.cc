@@ -692,7 +692,7 @@ void FitDialog::onFitEnd(int /*ending*/)
 
 void FitDialog::onIterate(int nb, double residuals)
 {
-  QString str = QString("Iteration #%1, current internal residuals: %2, %3 s elapsed").
+  QString str = QString("Iteration #%1, current residuals: %2, %3 s elapsed").
     arg(nb).arg(residuals).arg(parameters.elapsedTime());
   message(str);
 

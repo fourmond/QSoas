@@ -33,6 +33,7 @@ class MultiIntegrator;
 /// One of the distributions to be used for the fits.
 class Distribution {
   static QHash<QString, Distribution *> * distributions;
+
 public:
   QString name;
 
@@ -64,6 +65,8 @@ public:
   virtual double convertParameter(const double * parameters, double value) const;
 
   Distribution(const QString & n);
+
+  virtual ~Distribution();
 
   /// Returns the list of available distributions
   static QStringList availableDistributions();

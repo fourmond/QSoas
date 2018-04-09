@@ -332,7 +332,8 @@ SOURCES += src/qmain.cc \
         src/fwexpression.cc \
         src/fittrajectories.cc \
         src/parameterspaceexplorer.cc \
-        src/fittrajectorydisplay.cc
+        src/fittrajectorydisplay.cc \
+        src/ruby-distribution.cc
 
 #        src/conditionsprovider.cc \
 

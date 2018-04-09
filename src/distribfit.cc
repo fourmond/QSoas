@@ -1,6 +1,6 @@
 /*
   distribfit.cc: fit with automatic fitting of the distrib
-  Copyright 2012, 2013 by CNRS/AMU
+  Copyright 2015,2016 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_cdf.h>
 
+
 QHash<QString, Distribution *> * Distribution::distributions = NULL;
 
 Distribution::Distribution(const QString & n) : name(n)
@@ -41,6 +42,10 @@ Distribution::Distribution(const QString & n) : name(n)
   if(! distributions)
     distributions = new QHash<QString, Distribution *>;
   (*distributions)[n] = this;
+}
+
+Distribution::~Distribution()
+{
 }
 
 QStringList Distribution::availableDistributions()
@@ -61,6 +66,8 @@ double Distribution::convertParameter(const double *, double value) const
 {
   return value;
 }
+
+
 
 //////////////////////////////////////////////////////////////////////
 // Now, several distributions

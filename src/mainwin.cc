@@ -362,6 +362,10 @@ void MainWin::updateWindowName()
 
 MainWin::~MainWin()
 {
+  Terminal::out << "QSoas PID " << QCoreApplication::applicationPid()
+                << " closing on " << QDateTime::currentDateTime().toString()
+                << endl;
+
   mainWinSize = size();
   splitterState = mainSplitter->saveState();
 }

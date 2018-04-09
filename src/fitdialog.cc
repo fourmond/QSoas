@@ -100,7 +100,7 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm, bool 
 
 
   setupFrame(expert);
-  setFitEngineFactory(data->engineFactory);
+  updateEngineSelection(data->engineFactory);
 
   if(parameters.hasSubFunctions())
     displaySubFunctions = parameters.displaySubFunctions();
@@ -127,6 +127,9 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm, bool 
 
   connect(&parameters, SIGNAL(quitWorkspace()),
           SLOT(accept()));
+
+  connect(&parameters, SIGNAL(fitEngineFactoryChanged(FitEngineFactoryItem *)),
+          SLOT(updateEngineSelection(FitEngineFactoryItem *)));
 }
 
 FitDialog::~FitDialog()
@@ -1056,21 +1059,18 @@ void FitDialog::setFitEngineFactory(const QString & name)
 {
   FitEngineFactoryItem * fact = FitEngine::namedFactoryItem(name);
   if(fact)
-    setFitEngineFactory(fact);
-}
-
-void FitDialog::setFitEngineFactory(FitEngineFactoryItem * fact)
-{
-  data->engineFactory = fact; 
-
-  // Now update the combo box...
-  int idx = fitEngineSelection->findData(fact->name);
-  fitEngineSelection->setCurrentIndex(idx);
+    parameters.setFitEngineFactory(fact);
 }
 
 void FitDialog::engineSelected(int id)
 {
   setFitEngineFactory(fitEngineSelection->itemData(id).toString());
+}
+
+void FitDialog::updateEngineSelection(FitEngineFactoryItem * fact)
+{
+  int idx = fitEngineSelection->findData(fact->name);
+  fitEngineSelection->setCurrentIndex(idx);
 }
 
 void FitDialog::toggleSubFunctions()

@@ -99,12 +99,7 @@ CommandEffector * FitEngine::engineEffector(const QString & n)
                                     FitWorkspace::currentWorkspace();
                                   FitEngineFactoryItem * it =
                                     namedFactoryItem(n);
-                                  ws->fitData->engineFactory = it;
-                                    
-                                  for(const QString & n : options.keys()) {
-                                    (*ws->fitEngineParameters(it))[n] =
-                                      options[n]->dup();
-                                  }
+                                  ws->setFitEngineFactory(it, options);
                                 });
 }
 

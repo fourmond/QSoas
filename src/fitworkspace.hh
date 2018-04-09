@@ -614,6 +614,10 @@ public slots:
   /// Cancels the fit
   void cancelFit();
 
+  /// Sets the fit engine factory of the fit, and sets its options.
+  void setFitEngineFactory(FitEngineFactoryItem * item,
+                           const CommandOptions & opts = CommandOptions());
+
   /// @}
 
 signals:
@@ -639,7 +643,10 @@ signals:
 
   /// Emitted whenever the current dataset has changed
   void datasetChanged(int newDS);
-                                
+
+  /// Emitted whenever the fit factory has changed. 
+  void fitEngineFactoryChanged(FitEngineFactoryItem * item);
+
 protected slots:
   /// Called whenever a parametersChanged() or parameterChanged()
   /// signal is emitted, so as to make sure the flags are kept

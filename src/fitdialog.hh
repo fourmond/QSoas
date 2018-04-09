@@ -179,12 +179,6 @@ public:
             const QString & perpMeta, bool expertMode = false);
   ~FitDialog();
 
-  /// Sets the fit engine to the named one
-  void setFitEngineFactory(const QString & name);
-
-  /// Idem, directly with the factory item
-  void setFitEngineFactory(FitEngineFactoryItem * factory);
-
   /// Sets the maximal number of iterations
   void setIterationLimit(int nb);
 
@@ -370,6 +364,11 @@ protected slots:
   /// Upon change in the FitEngine combo box...
   void engineSelected(int id);
 
+  /// Upon change in the item
+  void updateEngineSelection(FitEngineFactoryItem * item);
+
+  /// Sets the fit engine from name
+  void setFitEngineFactory(const QString & name);
 
   /// Shows the transposed data.
   void showTransposed();

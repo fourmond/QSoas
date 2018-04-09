@@ -1549,6 +1549,16 @@ CommandOptions * FitWorkspace::fitEngineParameters(FitEngineFactoryItem * engine
   return fitEngineParameterValues[engine]; 
 }
 
+
+void FitWorkspace::setFitEngineFactory(FitEngineFactoryItem * item,
+                                       const CommandOptions & options)
+{
+  fitData->engineFactory = item;
+  for(const QString & n : options.keys())
+    (*fitEngineParameters(item))[n] = options[n]->dup();
+  emit(fitEngineFactoryChanged(item));
+}
+
 void FitWorkspace::setTrajectoryFlags(const QSet<QString> & flags)
 {
   currentFlags = flags;

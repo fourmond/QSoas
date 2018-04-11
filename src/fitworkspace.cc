@@ -263,6 +263,9 @@ void FitWorkspace::setExplorer(ParameterSpaceExplorer * expl)
   if(currentExplorer)
     delete currentExplorer;
   currentExplorer = expl;
+  if(expl)
+    Terminal::out << "Selected parameter space explorer: '"
+                  << expl->createdFrom->name << "'" << endl;
 }
 
 

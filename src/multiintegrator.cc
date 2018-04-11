@@ -81,6 +81,7 @@ gsl_vector * MultiIntegrator::functionForValue(double value)
   if(! evaluations.contains(v)) {
     if(maxfuncalls > 0 && funcalls >= maxfuncalls)
       throw RuntimeError("Maximum of values of X reached during integration, aborting (nb = %1, x = %2)").arg(funcalls).arg(value);
+
     gsl_vector * vct = gsl_vector_alloc(dimension);
     function(value, vct);
     funcalls += 1;
@@ -99,7 +100,9 @@ QList<Argument *> MultiIntegrator::integratorOptions()
        << new NumberArgument("prec-relative", "Relative integration precision",
                              "Relative precision required for integration")
        << new NumberArgument("prec-absolute", "Absolute integration precision",
-                             "Absolute precision required for integration");
+                             "Absolute precision required for integration")
+       << new IntegerArgument("max-evaluations", "Maximum evaluations",
+                              "Maximum number of function evaluations");
   return args;
 }
 
@@ -115,6 +118,9 @@ MultiIntegrator * MultiIntegrator::fromOptions(const CommandOptions & opts,
   double absPrec = 0;
   updateFromOptions(opts, "prec-absolute", absPrec);
   int maxc = 0;
-  
-  return c->creator(fcn, dimension, relPrec, absPrec, maxc);
+
+  MultiIntegrator * integrator =
+    c->creator(fcn, dimension, relPrec, absPrec, maxc);
+  updateFromOptions(opts, "max-evaluations", integrator->maxfuncalls);
+  return integrator;
 }

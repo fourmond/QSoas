@@ -23,6 +23,7 @@
 #define __PARAMETERSPACEEXPLORER_HH
 
 #include <argumentmarshaller.hh>
+#include <factory.hh>
 
 class ParameterSpaceExplorer;
 class FitWorkspace;
@@ -30,39 +31,22 @@ class ArgumentList;
 class Command;
 class CommandEffector;
 
-class ParameterSpaceExplorerFactoryItem {
+class ParameterSpaceExplorerFactoryItem :
+  public Factory<ParameterSpaceExplorer, FitWorkspace *> {
 public:
-  /// A generator function, taking the overall number of styles to
-  /// give and an optional string argument.
 
-  typedef std::function<ParameterSpaceExplorer * (FitWorkspace *) > Creator;
-
-protected:
-  friend class ParameterSpaceExplorer;
-  /// The creation function
-  Creator creator;
-
-public:
-  /// The creation name
-  QString name;
-
-  /// The public name
-  QString publicName;
-
+  /// An alias for the description field
+  QString & publicName;
+  
   /// Creates and register a factory item.
   ParameterSpaceExplorerFactoryItem(const QString & n, 
-                                      const QString & pn, Creator c);
+                                    const QString & pn, Creator c);
 };
 
 /// Generates a style for the next curve.
 class ParameterSpaceExplorer {
 
-  /// The application-wide ParameterSpaceExplorer factory
-  static QHash<QString, ParameterSpaceExplorerFactoryItem*> * factory;
-
   friend class ParameterSpaceExplorerFactoryItem;
-
-  static void registerFactoryItem(ParameterSpaceExplorerFactoryItem * item);
 
   static ParameterSpaceExplorerFactoryItem * namedFactoryItem(const QString & name);
 
@@ -70,8 +54,12 @@ protected:
   /// The underlying workspac
   FitWorkspace * workSpace;
 
+
   static CommandEffector * explorerEffector(const QString & n);
 public:
+
+  /// The item used to create the 
+  ParameterSpaceExplorerFactoryItem * createdFrom;
 
   /// Creates the parameter space exploration
   ParameterSpaceExplorer(FitWorkspace * workSpace);

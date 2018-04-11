@@ -29,28 +29,18 @@
 #include <fitworkspace.hh>
 #include <fittrajectory.hh>
 
-QHash<QString, ParameterSpaceExplorerFactoryItem*> * ParameterSpaceExplorer::factory = NULL;
-
-
 ParameterSpaceExplorerFactoryItem::
 ParameterSpaceExplorerFactoryItem(const QString & n,
-                                    const QString & pn,
-                                    ParameterSpaceExplorerFactoryItem::Creator c) : creator(c), name(n), publicName(pn)
+                                  const QString & pn,
+                                  ParameterSpaceExplorerFactoryItem::Creator c)  :
+  Factory(n, c, pn), publicName(description)
 {
-  ParameterSpaceExplorer::registerFactoryItem(this);
 }
 
 //////////////////////////////////////////////////////////////////////
 
-void ParameterSpaceExplorer::registerFactoryItem(ParameterSpaceExplorerFactoryItem * item)
-{
-  if(! factory)
-    factory = new QHash<QString, ParameterSpaceExplorerFactoryItem*>;
-  (*factory)[item->name] = item;
-}
-
 ParameterSpaceExplorer::ParameterSpaceExplorer(FitWorkspace * ws) :
-  workSpace(ws) 
+  workSpace(ws), createdFrom(NULL)
 {
 }
 
@@ -60,31 +50,24 @@ ParameterSpaceExplorer::~ParameterSpaceExplorer()
 
 ParameterSpaceExplorerFactoryItem * ParameterSpaceExplorer::namedFactoryItem(const QString & name)
 {
-  if(! factory)
-    return NULL;
-  return factory->value(name, NULL);
+  return
+    static_cast<ParameterSpaceExplorerFactoryItem
+                *>(ParameterSpaceExplorerFactoryItem::namedItem(name));
 }
 
-ParameterSpaceExplorer * ParameterSpaceExplorer::createExplorer(const QString & name, 
-                                                      FitWorkspace * ws)
+ParameterSpaceExplorer *
+ParameterSpaceExplorer::createExplorer(const QString & name, 
+                                       FitWorkspace * ws)
 {
-  ParameterSpaceExplorerFactoryItem * fact = namedFactoryItem(name);
-  if(fact)
-    return fact->creator(ws);
-  return NULL;
+  ParameterSpaceExplorer * expl =
+    ParameterSpaceExplorerFactoryItem::createObject(name, ws);
+  expl->createdFrom = namedFactoryItem(name);
+  return expl;
 }
 
 QHash<QString, QString> ParameterSpaceExplorer::availableExplorers()
 {
-  QHash<QString, QString> ret;
-  if(! factory)
-    return ret;
-  
-  for(QHash<QString, ParameterSpaceExplorerFactoryItem*>::iterator i = 
-        factory->begin(); i != factory->end(); i++)
-    ret[i.value()->publicName] = i.value()->name;
-
-  return ret;
+  return ParameterSpaceExplorerFactoryItem::availableDescriptions();
 }
 
 
@@ -106,10 +89,10 @@ QList<Command *> ParameterSpaceExplorer::createCommands(FitWorkspace * workspace
 {
   QList<Command *> rv;
 
-  if(factory) {
-    for(const QString & n : factory->keys()) {
+  for(const QString & n : ParameterSpaceExplorerFactoryItem::availableItems()) {
       ParameterSpaceExplorer * expl = createExplorer(n, workspace);
-      ParameterSpaceExplorerFactoryItem * item = (*factory)[n];
+      ParameterSpaceExplorerFactoryItem * item =
+        namedFactoryItem(n);
       QString cmdName = n + "-explorer";
       rv << new Command(cmdName.toLocal8Bit().data(),
                         explorerEffector(n), "fit",
@@ -119,7 +102,6 @@ QList<Command *> ParameterSpaceExplorer::createCommands(FitWorkspace * workspace
                         "", "",
                         CommandContext::fitContext());
       delete expl;
-    }
   }
   return rv;
 }

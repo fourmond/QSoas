@@ -605,7 +605,7 @@ void FitDialog::setupSubFunctionCurves(bool dontSend)
 
 void FitDialog::internalCompute(bool dontSend)
 {
-  parameters.recompute(dontSend);
+  parameters.recompute(dontSend, false);
   setupSubFunctionCurves(dontSend);
   updateResidualsDisplay();
 

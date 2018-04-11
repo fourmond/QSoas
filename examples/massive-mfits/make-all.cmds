@@ -1,0 +1,1 @@
+run-for-each /range-type=log make-b.cmds /arg2=0.1 1..10:10

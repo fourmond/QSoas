@@ -139,7 +139,8 @@ static void iterateExplorerCommand(const QString & /*name*/,
   }
 
   while(true) {
-    Terminal::out << "Explorer iteration: " << explorer->progressText()
+    Terminal::out << "Explorer '" << explorer->createdFrom->name
+                  << "' iteration: " << explorer->progressText()
                   << " starting " << QDateTime::currentDateTime().toString()
                   << ", current best residuals: "
                   << (

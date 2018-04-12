@@ -56,7 +56,7 @@ protected:
     // the values (in the order of increasing x values)
     gsl_vector * values[2*size - 1];
     double dx = 0.5 * (b-a);
-    double xa =  0.5 + (a+b);
+    double xa =  0.5 * (a+b);
 
     for(int i = 0; i < size; i++) {
       double x1 = xa + dx * abscissae[i];
@@ -70,7 +70,7 @@ protected:
       double gauss = 0;
       double kronrod = 0;
       for(int i = 0; i < 2*size-1; i++) {
-        int idx = i < size ? i : 2*size - 1 - i;
+        int idx = i < size ? i : 2*size - 2 - i;
         kronrod += kWeights[idx] * gsl_vector_get(values[i], j);
         if(i % 2 == 1)
           gauss += gWeights[idx/2] * gsl_vector_get(values[i], j);
@@ -170,6 +170,9 @@ public:
       nbit += 1;
     } while(nbit < 100);         // yep
 
+    gsl_vector_set_zero(res);
+    for(int i = 0; i < segs.size(); i++)
+      gsl_blas_daxpy(1, segs[i]->sum, res);
     
     return 0;
   };

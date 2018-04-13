@@ -1,4 +1,13 @@
-@ mi1.cmds exp(-x*z) (1-exp(-x*10))/x 0 10 1e-7 1e-4 csplines 0.1 10
-@ mi1.cmds exp(-x*z) (1-exp(-x*10))/x 0 10 1e-7 1e-4 akima 0.1 10
-@ mi1.cmds exp(-x*z) (1-exp(-x*10))/x 0 10 1e-5 1e-4 naive 0.1 10
-@ mi1.cmds exp(-x*z) (1-exp(-x*10))/x 0 10 1e-6 1e-5 naive 0.1 10
+@ mi1.cmds exp(-x*z) (1-exp(-x*10))/x 0 10 5e-07 1e-4 csplines 0.1 10
+@ mi1.cmds exp(-x*z) (1-exp(-x*10))/x 0 10 5e-7 1e-4 akima 0.1 10
+@ mi1.cmds exp(-x*z) (1-exp(-x*10))/x 0 10 3e-5 1e-4 naive 0.1 10
+@ mi1.cmds exp(-x*z) (1-exp(-x*10))/x 0 10 3e-6 1e-5 naive 0.1 10
+
+# Gauss-Kronrod
+@ mi1.cmds exp(-x*z) (1-exp(-x*10))/x 0 10 1e-9 1e-4 gk15 0.1 10
+@ mi1.cmds exp(-x*z) (1-exp(-x*10))/x 0 10 1e-9 1e-4 gk21 0.1 10
+@ mi1.cmds exp(-x*z) (1-exp(-x*10))/x 0 10 1e-9 1e-4 gk31 0.1 10
+@ mi1.cmds exp(-x*z) (1-exp(-x*10))/x 0 10 1e-9 1e-4 gk41 0.1 10
+@ mi1.cmds exp(-x*z) (1-exp(-x*10))/x 0 10 1e-9 1e-4 gk51 0.1 10
+@ mi1.cmds exp(-x*z) (1-exp(-x*10))/x 0 10 1e-9 1e-4 gk61 0.1 10
+

@@ -109,7 +109,7 @@ QList<Argument *> MultiIntegrator::integratorOptions()
 MultiIntegrator * MultiIntegrator::fromOptions(const CommandOptions & opts,
                                                MultiIntegrator::Function fcn, int dimension)
 {
-  MultiIntegratorFactory * c = MultiIntegratorFactory::namedItem("csplines");
+  MultiIntegratorFactory * c = MultiIntegratorFactory::namedItem("gk41");
   
   updateFromOptions(opts, "integrator", c);
 

@@ -1429,6 +1429,7 @@ int FitWorkspace::nextIteration()
   retrieveParameters();
   emit(iterated(fitData->nbIterations,
                 overallPointResiduals,
+                residuals,
                 saveParameterValues()
                 ));
     

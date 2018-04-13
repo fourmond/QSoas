@@ -116,9 +116,9 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm, bool 
                  arg(data->datasets.size()).
                  arg(extraTitleInfo));
 
-  connect(&parameters, SIGNAL(iterated(int, double,
+  connect(&parameters, SIGNAL(iterated(int, double, double,
                                        const Vector &)),
-          SLOT(onIterate(int, double)));
+          SLOT(onIterate(int, double, double)));
   connect(&parameters, SIGNAL(finishedFitting(int)),
           SLOT(onFitEnd(int)));
 
@@ -710,10 +710,10 @@ void FitDialog::onFitEnd(int ending)
   }
 }
 
-void FitDialog::onIterate(int nb, double residuals)
+void FitDialog::onIterate(int nb, double residuals, double ires)
 {
-  QString str = QString("Iteration #%1, current residuals: %2, %3 s elapsed").
-    arg(nb).arg(residuals).arg(parameters.elapsedTime());
+  QString str = QString("Iteration #%1, current residuals: %2 (internal: %3), %4 s elapsed").
+    arg(nb).arg(residuals).arg(ires).arg(parameters.elapsedTime());
   message(str);
 
   parameters.retrieveParameters();

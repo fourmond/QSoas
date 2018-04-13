@@ -623,7 +623,7 @@ public slots:
 signals:
   /// This signal is sent at the end of every iteration. Provides the
   /// current iteration number, the current residuals and the parameters
-  void iterated(int iteration, double residuals,
+  void iterated(int iteration, double residuals, double internalResiduals,
                 const Vector & parameters);
 
   /// Sent when the fit is finished

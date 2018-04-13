@@ -203,10 +203,6 @@ public:
 signals:
   void currentDataSetChanged(int ds);
 
-  /// This signal is sent at the end of every iteration. Provides the
-  /// current iteration number and the parameters
-  void nextIteration(int iteration, double residuals,
-                     const Vector & parameters);
 
   /// Sent when the fit is finished
   void finishedFitting();
@@ -220,7 +216,7 @@ protected slots:
   void onFitStart();
   
   /// Called during all iterations
-  void onIterate(int nb, double res);
+  void onIterate(int nb, double res, double ires);
 
   /// Called at the end of the fit
   void onFitEnd(int ending);

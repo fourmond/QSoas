@@ -354,6 +354,7 @@ void Fit::makeCommands(ArgumentList * args,
            << new ChoiceArgument(QStringList() 
                                  << "annotate"
                                  << "compute"
+                                 << "residuals"
                                  << "jacobian"
                                  << "reexport",
                                  "operation", 
@@ -635,6 +636,11 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
   else if(what == "annotate") {
     Terminal::out << "Annotating datasets " << endl;
     ws.pushAnnotatedData(&pusher);
+  }
+  else if(what == "residuals") {
+    ws.computeResiduals();
+    Terminal::out << "Computed residuals: " << ws.overallPointResiduals
+                  << endl;
   }
   else {
     ws.pushComputedData(false, &pusher);

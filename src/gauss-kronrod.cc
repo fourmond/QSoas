@@ -150,13 +150,14 @@ public:
         double e = s.relativeError();
         if(e > em) {
           idx = i;
-          e = em;
+          em = e;
         }
         error += e;
       }
 
       if(error < (b - a) * relativePrec)
         break;
+      
 
       // bisect:
       Segment * sl = segs[idx];

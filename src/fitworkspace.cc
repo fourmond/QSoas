@@ -340,7 +340,7 @@ QHash<QString, double> FitWorkspace::parametersForDataset(int ds) const
   return ret;
 }
 
-void FitWorkspace::computeResiduals()
+void FitWorkspace::computeResiduals(bool setRuby)
 {
   double tw = 0;                // weights
   double tr = 0;                // residuals
@@ -363,6 +363,17 @@ void FitWorkspace::computeResiduals()
   }
   overallPointResiduals = sqrt(tr/tw);
   overallRelativeResiduals = sqrt(tr/td);
+
+  if(setRuby)
+    setRubyResiduals();
+}
+
+
+void FitWorkspace::setRubyResiduals()
+{
+  MRuby * mr = MRuby::ruby();
+  mrb_value v = mr->newFloat(overallPointResiduals);
+  mr->setGlobal("$residuals", v);
 }
 
 double FitWorkspace::goodnessOfFit() const
@@ -1357,6 +1368,8 @@ void FitWorkspace::setBufferWeight(int dataset, double val)
         arg(dataset).arg(datasets);
     fitData->weightsPerBuffer[dataset] = val;
   }
+
+  /// @todo Signal !
 }
 
 double FitWorkspace::getBufferWeight(int dataset) const

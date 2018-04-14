@@ -180,7 +180,12 @@ public:
   /// The point-average residuals for each dataset
   Vector pointResiduals;
 
-  /// The overall point residuals
+  /// The overall point residuals. It is defined as:
+  /// \f[
+  ///   \frac{\sum_i w_i\left(f_i - y_i\right)^2}{\sum_i w_i}
+  /// \f]
+  /// In which \f$f_i\f$ is the computed function, \f$y_i\f$ the data and
+  /// \f$w_i\f$ the weight of the point.
   double overallPointResiduals;
 
   /// The relative residuals for each dataset
@@ -190,8 +195,16 @@ public:
   double overallRelativeResiduals;
 
   /// Recomputes all the residuals -- assumes that the
-  /// fitData->storage contains the right parameters.
-  void computeResiduals();
+  /// fitData->storage contains the correctly evaluated function.
+  ///
+  /// Optionally calls the setRubyResiduals() function.
+  void computeResiduals(bool setRuby = false);
+
+  /// Sets the following global variables:
+  ///
+  ///  * $residuals -> the values of overallPointResiduals
+  ///  * $detailed_res -> [unspecified as of now]
+  void setRubyResiduals();
   
   /// @}
 

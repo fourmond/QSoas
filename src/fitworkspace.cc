@@ -346,13 +346,32 @@ void FitWorkspace::computeResiduals(bool setRuby)
   double tr = 0;                // residuals
   double td = 0;                // data
 
+  // Store the weights in fitData->storage2
+  gsl_vector_set_all(fitData->storage2, 1);
+  // True because we want the errors to be applied for all fits 
+  fitData->weightVector(fitData->storage2, true);
+
   pointResiduals.clear();
   relativeResiduals.clear();
+
   for(int i = 0; i < fitData->datasets.size(); i++) {
-    gsl_vector_view v = fitData->viewForDataset(i, fitData->storage);
-    double w = fitData->weightedSquareSumForDataset(i, NULL, false);
-    double d = fitData->weightedSquareSumForDataset(i, NULL, true);
-    double r = fitData->weightedSquareSumForDataset(i, &v.vector, true);
+    gsl_vector_view fv = fitData->viewForDataset(i, fitData->storage);
+    gsl_vector_view wv = fitData->viewForDataset(i, fitData->storage2);
+
+    double w = 0;               // Sum of the square of the weights
+    double r = 0;               // Sum of the weighted square of the residuals
+    double d = 0;               // Sum of the weighted square of data
+
+    const DataSet * ds = fitData->datasets[i];
+    int sz = ds->nbRows();
+    for(int j = 0; j < sz; j++) {
+      double cw = gsl_vector_get(&wv.vector, j);
+      w += gsl_pow_2(cw);
+      double v = gsl_vector_get(&fv.vector, j);
+      d += gsl_pow_2(cw*v);
+      v -= ds->y()[j];
+      r += gsl_pow_2(cw*v);
+    }
 
     tw += w;
     tr += r;
@@ -363,6 +382,8 @@ void FitWorkspace::computeResiduals(bool setRuby)
   }
   overallPointResiduals = sqrt(tr/tw);
   overallRelativeResiduals = sqrt(tr/td);
+
+  overallChiSquared = tr;
 
   if(setRuby)
     setRubyResiduals();
@@ -376,14 +397,14 @@ void FitWorkspace::setRubyResiduals()
   mr->setGlobal("$residuals", v);
 }
 
-double FitWorkspace::goodnessOfFit() const
+double FitWorkspace::goodnessOfFit()
 {
   if(! fitData->standardYErrors)
     return -1;                  // No goodness-of-fit if no errors
 
-  double chi = fitData->weightedSquareSum(fitData->storage, true);
-  // Formula from Numerical Recipes, chapter 15
-  return gsl_sf_gamma_inc_Q(0.5 * fitData->doF(), 0.5 * chi);
+  computeResiduals();
+  // -> sets overallChiSquared
+  return gsl_sf_gamma_inc_Q(0.5 * fitData->doF(), 0.5 * overallChiSquared);
 }
 
 QList<Vector> FitWorkspace::computeSubFunctions(bool dontSend)
@@ -598,13 +619,13 @@ template <typename T> void FitWorkspace::writeText(T & target,
   // Writing down the goodness of fit
 
   double chi = fitData->standardYErrors ?
-    fitData->weightedSquareSum(fitData->storage, true) : overallPointResiduals;
+    overallChiSquared : overallPointResiduals;
   target << prefix
          << (fitData->standardYErrors ? "Chi-squared" : "Residuals: ")
          << chi << endl;
 
   
-  double gof = goodnessOfFit();
+  double gof = const_cast<FitWorkspace *>(this)->goodnessOfFit();
   if(gof >= 0)
     target << prefix << "Chi-squared goodness of fit: " << gof << endl;
 

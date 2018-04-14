@@ -190,6 +190,14 @@ public:
   /// \f$w_i\f$ the weight of the point.
   double overallPointResiduals;
 
+
+  /// The chi-squared parameter, defined as:
+  /// 
+  /// \f[
+  ///   \sum_i w_i\left(f_i - y_i\right)^2
+  /// \f]
+  double overallChiSquared;
+
   /// The relative residuals for each dataset
   Vector relativeResiduals;
 
@@ -350,7 +358,7 @@ public:
   ///
   /// This function depends on error vectors, it will return 0 if they
   /// are not available.
-  double goodnessOfFit() const;
+  double goodnessOfFit();
 
 
   /// @name Commodity accessors

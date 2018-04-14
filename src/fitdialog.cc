@@ -1004,42 +1004,45 @@ void FitDialog::resetWeights()
 
 void FitDialog::equalWeightsPerBuffer()
 {
-  // Now, we'll have to compute a weight for each buffer based on
-  // their number of points/magnitude
-  QVarLengthArray<double, 1024> weight(data->datasets.size());
+  throw NOT_IMPLEMENTED;
+  // // Now, we'll have to compute a weight for each buffer based on
+  // // their number of points/magnitude
+  // QVarLengthArray<double, 1024> weight(data->datasets.size());
 
-  double max = 0;
-  for(int i = 0; i < data->datasets.size(); i++) {
-    data->weightsPerBuffer[i] = 1;
-    double w = data->weightedSquareSumForDataset(i, NULL, true);
+  // double max = 0;
+  // for(int i = 0; i < data->datasets.size(); i++) {
+  //   data->weightsPerBuffer[i] = 1;
+  //   double w = data->weightedSquareSumForDataset(i, NULL, true);
 
-    weight[i] = 1/sqrt(w);
-    if(weight[i] > max)
-      max = weight[i];
-  }
-  for(int i = 0; i < data->datasets.size(); i++)
-    data->weightsPerBuffer[i] = weight[i]/max;
-  updateEditors();
+  //   weight[i] = 1/sqrt(w);
+  //   if(weight[i] > max)
+  //     max = weight[i];
+  // }
+  // for(int i = 0; i < data->datasets.size(); i++)
+  //   data->weightsPerBuffer[i] = weight[i]/max;
+  // updateEditors();
 }
 
 void FitDialog::equalWeightsPerPoint()
 {
-  // Now, we'll have to compute a weight for each buffer based on
-  // their number of points/magnitude
-  QVarLengthArray<double, 1024> weight(data->datasets.size());
+  throw NOT_IMPLEMENTED;
 
-  double max = 0;
-  for(int i = 0; i < data->datasets.size(); i++) {
-    data->weightsPerBuffer[i] = 1;
-    double w = data->weightedSquareSumForDataset(i, NULL, true);
+  // // Now, we'll have to compute a weight for each buffer based on
+  // // their number of points/magnitude
+  // QVarLengthArray<double, 1024> weight(data->datasets.size());
 
-    weight[i] = data->datasets[i]->nbRows()/sqrt(w);
-    if(weight[i] > max)
-      max = weight[i];
-  }
-  for(int i = 0; i < data->datasets.size(); i++)
-    data->weightsPerBuffer[i] = weight[i]/max;
-  updateEditors();
+  // double max = 0;
+  // for(int i = 0; i < data->datasets.size(); i++) {
+  //   data->weightsPerBuffer[i] = 1;
+  //   double w = data->weightedSquareSumForDataset(i, NULL, true);
+
+  //   weight[i] = data->datasets[i]->nbRows()/sqrt(w);
+  //   if(weight[i] > max)
+  //     max = weight[i];
+  // }
+  // for(int i = 0; i < data->datasets.size(); i++)
+  //   data->weightsPerBuffer[i] = weight[i]/max;
+  // updateEditors();
 }
 
 void FitDialog::doubleWeight()

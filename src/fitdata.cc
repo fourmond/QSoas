@@ -215,6 +215,7 @@ FitData::FitData(const Fit * f, const QList<const DataSet *> & ds, int d,
   }
 
   storage = gsl_vector_alloc(totalSize);
+  storage2 = gsl_vector_alloc(totalSize);
 
   computeWeights();
 
@@ -365,6 +366,7 @@ FitData::~FitData()
 {
   // free up some resources
   gsl_vector_free(storage);
+  gsl_vector_free(storage2);
   gsl_vector_free(parametersStorage);
   if(covarStorage)
     gsl_matrix_free(covarStorage);
@@ -392,63 +394,21 @@ FitData::~FitData()
 
 }
 
-void FitData::weightVector(gsl_vector * tg)
+void FitData::weightVector(gsl_vector * tg, bool forceError)
 {
   for(int i = 0; i < datasets.size(); i++) {
     gsl_vector_view v = viewForDataset(i, tg);
     gsl_vector_scale(&v.vector, weightsPerBuffer[i]);
   }
-  if(standardYErrors && engine && !engine->handlesWeights()) {
+  if(standardYErrors &&
+     (
+      (engine && !engine->handlesWeights()) ||
+      forceError
+      )
+     ) {
     /// @todo Would be faster if I multiply ;-)...
     gsl_vector_div(tg, standardYErrors);
   }
-}
-
-double FitData::weightedSquareSumForDataset(int ds, const gsl_vector * vect, 
-                                            bool subtract)
-{
-  double ret = 0;
-  double w = weightsPerBuffer[ds];
-  gsl_vector_view wv;
-
-  const Vector & y = datasets[ds]->y();
-  gsl_vector * weight = NULL;
-  if(standardYErrors) {
-    wv = viewForDataset(ds, standardYErrors);
-    weight = &(wv.vector);
-  }
-
-
-  int sz = datasets[ds]->x().size();
-  for(int j = 0; j < sz; j++) {
-    double v = w;
-    if(weight)
-      v *= gsl_vector_get(weight, j);
-    v = 1/v;
-    double val = (vect ? gsl_vector_get(vect, j) : 0);
-    if(vect || subtract)
-      v *= (subtract ? val - y[j] : val);
-    if(std::isfinite(v))
-      ret += v*v;
-  }
-  return ret;
-}
-
-
-double FitData::weightedSquareSum(const gsl_vector * src, 
-                                  bool subtract)
-{
-  double ret = 0;
-  for(int i = 0; i < datasets.size(); i++) {
-    gsl_vector_const_view vv = (src ? 
-                                viewForDataset(i, src) :
-                                viewForDataset(i, (const gsl_vector*) storage) );
-    const gsl_vector * vect = NULL;
-    if(src)
-      vect = &(vv.vector);
-    ret += weightedSquareSumForDataset(i, vect, subtract);
-  }
-  return ret;
 }
 
 bool FitData::usesPointWeights() const

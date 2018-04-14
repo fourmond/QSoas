@@ -13,3 +13,6 @@
 # @ threads.cmds
 
 @ modified-fits.cmds
+
+# Test the computation of the residuals:
+@ residuals.cmds

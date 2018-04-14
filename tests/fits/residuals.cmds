@@ -1,0 +1,15 @@
+generate-buffer 0 10
+sim-exponential-decay parameters/exponentials-1.params 0
+apply-formula y+=0.02*(-1)**i
+sim-exponential-decay parameters/exponentials-1.params 0 /operation=residuals
+assert '$residuals - 0.02' 1e-8
+
+apply-formula y+=0.08*(-1)**i
+sim-exponential-decay parameters/exponentials-1.params 0 /operation=residuals
+assert '$residuals - 0.1' 1e-8
+
+sim-exponential-decay parameters/exponentials-1.params 0 1 /operation=residuals
+assert '$residuals**2 - 0.5*(0.02**2+0.1**2)' 1e-8
+
+sim-exponential-decay parameters/exponentials-1.params 0 1 /operation=residuals /override='buffer_weight[#0]=10'
+assert '$residuals**2 - (100*0.02**2+0.1**2)/101' 1e-8

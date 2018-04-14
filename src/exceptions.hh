@@ -100,6 +100,8 @@ public:
 
 };
 
+#define NOT_IMPLEMENTED InternalError("Function %1 is not implemented").arg(Q_FUNC_INFO)
+
 /// This exception in general isn't an error, but just an
 /// implementation of control flow...
 class ControlFlowException : public Exception {

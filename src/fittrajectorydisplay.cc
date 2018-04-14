@@ -542,7 +542,7 @@ void FitTrajectoryDisplay::deleteCurrentParameters()
 
 void FitTrajectoryDisplay::sortByResiduals()
 {
-  throw InternalError("Not implemented");
+  throw NOT_IMPLEMENTED;
   // qSort(*trajectories);
   // update();
 }
@@ -551,7 +551,7 @@ void FitTrajectoryDisplay::sortByResiduals()
 
 void FitTrajectoryDisplay::clusterTrajectories()
 {
-  throw InternalError("Not implemented");
+  throw NOT_IMPLEMENTED;
   // QList<FitTrajectoryCluster> clusters = 
   //   FitTrajectoryCluster::clusterTrajectories(trajectories);
 
@@ -574,7 +574,7 @@ void FitTrajectoryDisplay::exportToFile()
   Terminal::out << "Saving fit trajectories data to " << save << endl;
 
   QTextStream o(&f);
-  throw InternalError("Not implemented");
+  throw NOT_IMPLEMENTED;
   // FitTrajectory::exportToFile(*trajectories, fitData, o);
 }
 
@@ -590,7 +590,7 @@ void FitTrajectoryDisplay::importFromFile(const QString & file)
   Utils::open(&fl, QIODevice::ReadOnly);
 
   int nb;
-  throw InternalError("Not implemented");
+  throw NOT_IMPLEMENTED;
   // nb = FitTrajectory::importFromFile(trajectories, fitData, &fl);
   
   Terminal::out << "Imported " << nb << " trajectories from "

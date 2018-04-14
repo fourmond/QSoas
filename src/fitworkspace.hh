@@ -180,10 +180,12 @@ public:
   /// The point-average residuals for each dataset
   Vector pointResiduals;
 
-  /// The overall point residuals. It is defined as:
+  /// The overall average point residuals. It is defined as:
+  /// 
   /// \f[
-  ///   \frac{\sum_i w_i\left(f_i - y_i\right)^2}{\sum_i w_i}
+  ///   \sqrt{\frac{\sum_i w_i\left(f_i - y_i\right)^2}{\sum_i w_i}}
   /// \f]
+  /// 
   /// In which \f$f_i\f$ is the computed function, \f$y_i\f$ the data and
   /// \f$w_i\f$ the weight of the point.
   double overallPointResiduals;

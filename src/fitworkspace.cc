@@ -847,18 +847,24 @@ void FitWorkspace::setValue(const QString & name, double value, int dsi)
     p = specRE.cap(1);
     dsi = specRE.cap(2).toInt();
   }
-  int idx = parameterIndices.value(p, -1);
-  if(idx < 0) {
-    Terminal::out << "No such parameter: '" << name << "'" << endl;
+  if(dsi >= datasets) {
+    Terminal::out << "Attempting to set parameter: '" << name << "' to a non-existent buffer:" << dsi << endl;
     return;
   }
-  if(dsi >= datasets)
-    return;
-  if(dsi >= 0)
-    setValue(idx, dsi, value);
-  else
-    for(int i = 0; i < datasets; i++)
-      setValue(idx, i, value);
+  if(p == "buffer_weight")
+    setBufferWeight(dsi, value);
+  else {
+    int idx = parameterIndices.value(p, -1);
+    if(idx < 0) {
+      Terminal::out << "No such parameter: '" << name << "'" << endl;
+      return;
+    }
+    if(dsi >= 0)
+      setValue(idx, dsi, value);
+    else
+      for(int i = 0; i < datasets; i++)
+        setValue(idx, i, value);
+  }
 }
 
 void FitWorkspace::loadParameters(const QString & file, 

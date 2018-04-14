@@ -618,11 +618,10 @@ template <typename T> void FitWorkspace::writeText(T & target,
 
   // Writing down the goodness of fit
 
-  double chi = fitData->standardYErrors ?
-    overallChiSquared : overallPointResiduals;
-  target << prefix
-         << (fitData->standardYErrors ? "Chi-squared" : "Residuals: ")
-         << chi << endl;
+  target << prefix << "Final residuals: " << overallPointResiduals << endl;
+  if(fitData->standardYErrors)
+    target << prefix
+           << "Final chi-squared: " << overallChiSquared << endl;
 
   
   double gof = const_cast<FitWorkspace *>(this)->goodnessOfFit();
@@ -1435,7 +1434,8 @@ void FitWorkspace::startFit()
   prepareFit(fitEngineParameterValues.value(fitData->engineFactory, NULL));
   parametersBackup = saveParameterValues();
   shouldCancelFit = false;
-    
+
+  recompute(true);
   
   QString params;
   if(fitData->independentDataSets())
@@ -1448,7 +1448,8 @@ void FitWorkspace::startFit()
   Terminal::out << "Starting fit '" << fitName() << "' with "
                 << params << " free parameters"
                 << " using the '" << fitData->engineFactory->name
-                << "' fit engine"
+                << "' fit engine; initial residuals: "
+                << overallPointResiduals
                 << endl;
   fitEnding = Running;
   emit(startedFitting(freeParams));
@@ -1541,12 +1542,13 @@ void FitWorkspace::endFit(FitWorkspace::Ending ending)
                 << " seconds, with " << fitData->evaluationNumber 
                 << " evaluations" << endl;
 
-  /// @todo Here: first computation of the covariance matrix...
-  writeToTerminal();
   /// @todo Here: a second computation of the covariance matrix...
   recomputeErrors();
   recompute(true);              // Make sure the residuals are
                                 // properly computed.
+
+  /// @todo Here: first computation of the covariance matrix...
+  writeToTerminal();
 
 
   trajectories << 

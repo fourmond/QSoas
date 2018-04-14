@@ -334,7 +334,8 @@ SOURCES += src/qmain.cc \
         src/parameterspaceexplorer.cc \
         src/fittrajectorydisplay.cc \
         src/ruby-distribution.cc \
-        src/gauss-kronrod.cc
+        src/gauss-kronrod.cc \
+        src/particleswarm.cc
 
 #        src/conditionsprovider.cc \
 

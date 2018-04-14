@@ -1462,13 +1462,11 @@ double FitWorkspace::elapsedTime() const
 int FitWorkspace::nextIteration()
 {
   int status = fitData->iterate();
-  computeResiduals();           // necessary ?
   residuals = fitData->residuals();
 
   /// Signal at the end of each iteration
   retrieveParameters();
   emit(iterated(fitData->nbIterations,
-                overallPointResiduals,
                 residuals,
                 saveParameterValues()
                 ));

@@ -919,3 +919,12 @@ bool Vector::withinTolerance(const Vector & x, const Vector & y, double tol)
   }
   return true;
 }
+
+void Vector::randomize(double low, double high)
+{
+  int sz = size();
+  for(int i = 0; i < sz; i++) {
+    double scale = Utils::random(low, high);
+    (*this)[i] *= scale;
+  }
+}

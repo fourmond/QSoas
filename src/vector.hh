@@ -210,6 +210,12 @@ public:
   /// newly created values.
   void applyFunction(const std::function<double (double)> & func);
 
+  /// Apply a random scaling factor to all the components of the
+  /// vector. The scaling factor is between @a low and @a high.
+  ///
+  /// @todo Do that with a custom random number generator.
+  void randomize(double low, double high);
+
 
   /// @}
 

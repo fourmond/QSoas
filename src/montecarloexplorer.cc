@@ -38,6 +38,8 @@ class MonteCarloExplorer : public ParameterSpaceExplorer {
 
   int fitIterations;
 
+  int resetFrequency;
+
   /// The parameter specification
   class ParameterSpec {
   public:
@@ -63,7 +65,7 @@ public:
 
   MonteCarloExplorer(FitWorkspace * ws) :
     ParameterSpaceExplorer(ws), iterations(20),
-    currentIteration(0), fitIterations(50) {
+    currentIteration(0), fitIterations(50), resetFrequency(0) {
   };
 
   virtual ArgumentList * explorerArguments() const override {
@@ -100,6 +102,7 @@ public:
 
     updateFromOptions(opts, "iterations", iterations);
     updateFromOptions(opts, "fit-iterations", fitIterations);
+    updateFromOptions(opts, "reset-frequency", resetFrequency);
 
     Terminal::out << "Setting up monte-carlo explorator with: "
                   << iterations << " iterations and "
@@ -116,6 +119,18 @@ public:
   virtual bool iterate() override {
     QStringList names = workSpace->parameterNames();
     Terminal::out << "Setting initial parameters: " << endl;
+    if(resetFrequency > 0
+       && (((currentIteration + 1) % resetFrequency) == 0)) {
+      if(workSpace->trajectories.size() < 1)
+        Terminal::out << "Cannot reset parameters: no trajectories available so far" << endl;
+      else {
+        const FitTrajectory & best = workSpace->trajectories.best();
+        workSpace->restoreParameterValues(best.finalParameters);
+        Terminal::out << "Restoring parameters to the best parameters so far: "
+                      << best.residuals << endl;
+      }
+    }
+    
     for(const ParameterSpec & s : parameterSpecs) {
       double v = Utils::random(s.low, s.high, s.log);
       workSpace->setValue(s.parameter.first, s.parameter.second, v);
@@ -150,6 +165,9 @@ MonteCarloExplorer::opts(QList<Argument*>()
                          << new IntegerArgument("fit-iterations",
                                                 "Fit iterations",
                                                 "Maximum number of fit iterations")
+                         << new IntegerArgument("reset-frequency",
+                                                "Reset to best frequency",
+                                                "If > 0 reset to the best parameters every that many iterations")
                          );
 
 ParameterSpaceExplorerFactoryItem 

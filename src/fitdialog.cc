@@ -695,10 +695,13 @@ void FitDialog::onFitEnd(int ending)
     static_cast<FitWorkspace::Ending>(ending);
   QString msg = FitWorkspace::endingDescription(end);
   QColor col = FitWorkspace::endingColor(end);
-  msg = QString(": <font color=%1>%2</font>").
+  
+  msg = QString("Finished fitting, final residuals: %1 "
+                "<font color=%2>%3</font>").
+    arg(parameters.trajectories.last().residuals).
     arg(htmlColor(col)).arg(msg);
   
-  appendToMessage(msg);
+  message(msg);
   cancelButton->setVisible(false);
   startButton->setVisible(true);
   iterationLimitEditor->setEnabled(true);

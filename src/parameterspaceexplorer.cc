@@ -139,15 +139,17 @@ static void iterateExplorerCommand(const QString & /*name*/,
   }
 
   while(true) {
+    QString lr = "(none yet)";
+    if(ws->trajectories.size() > 0)
+      lr = QString("%1 (%2)").
+        arg(ws->trajectories.best().residuals).
+        arg(ws->trajectories.best().endTime.toString());
+    
     Terminal::out << "Explorer '" << explorer->createdFrom->name
                   << "' iteration: " << explorer->progressText()
                   << " starting " << QDateTime::currentDateTime().toString()
                   << ", current best residuals: "
-                  << (
-                      ws->trajectories.size() > 0 ?
-                      QString::number(ws->trajectories.best().residuals) :
-                      QString("%1").arg("(none yet)")
-                      )
+                  << lr
                   << endl;
     bool cont = explorer->iterate();
     if(! script.isEmpty()) {

@@ -188,6 +188,11 @@ CombinedFit::CombinedFit(const QString & name, const QString & f,
 
 {
 
+  for(PerDatasetFit * fit : fits) {
+    if(fit->fitArguments() && fit->fitArguments()->size() > 0)
+      throw InternalError("Cannot use CombinedFit with fits taking arguments, here '%1'").arg(fit->fitName(false));
+  }
+
   QStringList params;
   params << "x";
   for(int i = 0; i < fits.size(); i++)
@@ -278,8 +283,10 @@ static void combineFits(const QString &, QString newName,
         throw RuntimeError("The fit " + fitName + " isn't working "
                            "buffer-by-buffer: impossible to combine "
                            "it with others");
+      if(fit->fitArguments() && fit->fitArguments()->size() > 0)
+        throw RuntimeError("Cannot use combine-fits with fits taking arguments, here '%1'").arg(fit->fitName(false));
       fts << fit;
-      }
+  }
   new CombinedFit(newName, formula, fts);
 }
 

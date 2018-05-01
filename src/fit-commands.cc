@@ -58,8 +58,12 @@ quit("quit", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void saveCommand(const QString & /*name*/, QString file)
+static void saveCommand(const QString & /*name*/, QString file, const CommandOptions & opts)
 {
+  int rotation = 0;
+  updateFromOptions(opts, "rotate", rotation);
+  if(rotation != 0)
+    Utils::rotateFile(file, rotation);
   FitWorkspace::currentWorkspace()->saveParameters(file);
 }
 
@@ -69,12 +73,18 @@ ArgumentList sA(QList<Argument*>()
                                     "name of the file for saving the parameters")
                 );
 
+ArgumentList sO(QList<Argument*>() 
+                << new IntegerArgument("rotate", 
+                                       "Rotate file",
+                                       "if not zero, performs a file rotation before saving")
+                );
+
 static Command 
 save("save", // command name
-     optionLessEffector(saveCommand), // action
+     effector(saveCommand), // action
      "fit",  // group name
      &sA, // arguments
-     NULL, // options
+     &sO, // options
      "Save",
      "Save the current parameters to file",
      "", CommandContext::fitContext());

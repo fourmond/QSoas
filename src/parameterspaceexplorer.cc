@@ -128,6 +128,8 @@ static void iterateExplorerCommand(const QString & /*name*/,
 
   QString script;
   updateFromOptions(opts, "script", script);
+  QString impScript;
+  updateFromOptions(opts, "improved-script", impScript);
 
   QStringList lst;
   for(int i = 1; i <= 2; i++) {
@@ -140,10 +142,13 @@ static void iterateExplorerCommand(const QString & /*name*/,
 
   while(true) {
     QString lr = "(none yet)";
-    if(ws->trajectories.size() > 0)
+    double res = -1;
+    if(ws->trajectories.size() > 0) {
       lr = QString("%1 (%2)").
         arg(ws->trajectories.best().residuals).
         arg(ws->trajectories.best().endTime.toString());
+      res = ws->trajectories.best().residuals;
+    }
     
     Terminal::out << "Explorer '" << explorer->createdFrom->name
                   << "' iteration: " << explorer->progressText()
@@ -153,13 +158,32 @@ static void iterateExplorerCommand(const QString & /*name*/,
                   << endl;
     bool cont = explorer->iterate();
     if(! script.isEmpty()) {
+      Terminal::out << "Running end-of-iteration script: '" << script
+                    << "'" << endl;
       CommandWidget::ScriptStatus st =
         soas().prompt().runCommandFile(script, lst);
       if(!st == CommandWidget::Success) {
-        Terminal::out << "Script failed, stopping iteration" << endl;
+        Terminal::out << "Script '" << script
+                      << "' failed, stopping iteration" << endl;
         cont = false;
       }
     }
+    if(! impScript.isEmpty() && 
+       ws->trajectories.size() > 0 && 
+       ws->trajectories.best().residuals < res) {
+      Terminal::out << "Residuals have improved from " << res
+                    << " to " << ws->trajectories.best().residuals
+                    << ", running script '" << impScript << "'" << endl;
+      CommandWidget::ScriptStatus st =
+        soas().prompt().runCommandFile(impScript, lst);
+      if(!st == CommandWidget::Success) {
+        Terminal::out << "Script '" <<
+          impScript << "' failed, stopping iteration" << endl;
+        cont = false;
+      }
+      
+    }
+    
     if(! cont)
       break;
   }
@@ -170,12 +194,15 @@ ArgumentList ieOpts(QList<Argument*>()
                     << new FileArgument("script", 
                                         "Script",
                                         "script file run after the iteration", false, true)
+                    << new FileArgument("improved-script", 
+                                        "Script for improvement",
+                                        "script file run whenever the best residuals have improved", false, true)
                     << new FileArgument("arg1", 
                                         "First argument",
-                                        "First argument to the script")
+                                        "First argument to the scripts")
                     << new FileArgument("arg2", 
                                         "Second argument",
-                                        "Second argument to the script")
+                                        "Second argument to the scripts")
                       );
 
 

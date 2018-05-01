@@ -84,6 +84,11 @@ static void my_error_handler(const char * reason,
 {
   QString error = QString("GSL error: %1 (in %2:%3) -- error code %4").
     arg(reason).arg(file).arg(line).arg(gsl_errno);
+  QString fl = file;
+  // These errors are necessarily internal errors, while other GSL
+  // errors could be legitimate user errors
+  if(fl.contains("vector") || fl.contains("matrix"))
+    throw InternalError(error);
   throw GSLError(error);
 }
 

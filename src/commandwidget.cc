@@ -166,7 +166,7 @@ CommandWidget::CommandWidget(CommandContext * c) :
       << "Font used for terminal display: " << m.family() << endl;
     terminalDisplay->setFont(mono);
     QFontMetrics mt(terminalDisplay->font());
-    QSize sz = mt.size(0, "1.771771771766");
+    QSize sz = mt.size(0, "-0001.771771771e+22");
     terminalDisplay->setTabStopWidth(sz.width());
   
     // terminalDisplay->document()-> 

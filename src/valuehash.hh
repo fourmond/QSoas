@@ -96,6 +96,12 @@ public:
                    const QString & missing = "",
                    bool skipUnordered = false) const;
 
+  /// Converts a variant to a string.
+  ///
+  /// @todo Here, the precision is hard-wired to 12 digits, which
+  /// should be more than enough.
+  static QString toString(const QVariant & value, bool * canConvert = NULL);
+
   /// Formats the elements as "key = value" in tab-separated columns
   ///
   /// @todo Customization.

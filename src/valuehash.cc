@@ -96,27 +96,53 @@ void ValueHash::prepend(const QString & key, const QVariant & value)
   operator[](key) = value;
 }
 
+QString ValueHash::toString(const QVariant & value, bool * canConvert)
+{
+  QVariant v = value;
+  if(canConvert)
+    *canConvert = false;
+  if(v.canConvert<double>()) {
+    if(canConvert)
+      *canConvert = true;
+    double d = v.toDouble();
+    return QString::number(d, 'g', 12);
+  }
+
+  if(v.canConvert<QString>() && v.convert(QVariant::String)) {
+    if(canConvert)
+      *canConvert = true;
+    return v.value<QString>();
+  }
+  return QString();
+}
+
 QString ValueHash::toString(const QString & sep, 
                             const QString & missing,
                             bool skip) const
 {
-  QHash<QString, QString> strings = extractStrings();
-  QHash<QString, QString>::iterator it;
+  ValueHash v = *this;
   QStringList output;
   for(int i = 0; i < keyOrder.size(); i++) {
     const QString & k = keyOrder[i];
-    it = strings.find(k);
-    if(it != strings.end()) {
-      output << *it;
-      strings.erase(it);
+    bool ok = false;
+    if(v.contains(k)) {
+      QString s = toString(v[k], &ok);
+      if(ok)
+        output << s;
+      v.remove(k);
     }
-    else
+    if(! ok)
       output << missing;
   }
 
+  QHash<QString, QVariant>::iterator it;
   if(! skip)
-    for(it = strings.begin(); it != strings.end(); ++it)
-      output << *it;
+    for(it = v.begin(); it != v.end(); ++it) {
+      bool ok = false;
+      QString s = toString(*it, &ok);
+      if(ok)
+        output << s;
+    }
   return output.join(sep);
 }
 

@@ -167,8 +167,12 @@ isEmpty(RUBY):RUBY = ruby
 # language we're guaranteed to have:
 
 system($$RUBY build-info.rb)
-        
 HEADERS += src/build.hh
+
+build-info.commands = $$RUBY build-info.rb
+
+QMAKE_EXTRA_TARGETS += build-info
+
 
 # INCLUDEPATH += $$RUBY_INCLUDE_DIRS
 # LIBS += $$RUBY_LIB_ARG

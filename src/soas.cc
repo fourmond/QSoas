@@ -235,3 +235,11 @@ static CommandLineOption fsp("--full-spec", [](const QStringList & /*args*/) {
     }
     ::exit(0);
   }, 0, "write command specs, with more details");
+
+static CommandLineOption v("--version", [](const QStringList & /*args*/) {
+    {
+      QTextStream o(stdout);
+      o << Soas::versionString();
+    }
+    ::exit(0);
+  }, 0, "display QSoas version");

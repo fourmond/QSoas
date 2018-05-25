@@ -1,5 +1,5 @@
 /*
-  montecarloexplorer.cc: a basic monte-carlo parameter space explorer
+  parameterspaceexplorers.cc: several simple parameter space explorers
   Copyright 2013, 2018 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
@@ -331,12 +331,24 @@ public:
       QList<QPair<int, int> > params = workSpace->parseParameterList(pa);
       for(const QPair<int, int> & p : params) {
         double val = workSpace->getValue(p.first, p.second);
-        double b = val;
-        if(! l.isEmpty())
-          b = l.toDouble();
-        double e = val;
-        if(! h.isEmpty())
-          e = h.toDouble();
+        auto fn = [](const QString spec, double val) -> double {
+          if(spec.isEmpty())
+            return val;
+          QRegExp p("^\\s*([+-]?)(.*)%\\s*$");
+          if(p.indexIn(spec) >= 0) {
+            // Relative
+            double v = p.cap(2).toDouble()*1e-2;
+            if(p.cap(1) == "+")
+              v += 1;
+            if(p.cap(1) == "-")
+              v = 1 - v;
+            return v * val;
+          }
+          else
+            return spec.toDouble();
+        };
+        double b = fn(l, val);
+        double e = fn(h, val);
         if(log) {
           b = ::log(b);
           e = ::log(e);

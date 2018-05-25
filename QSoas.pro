@@ -520,7 +520,7 @@ SOURCES += src/mruby.cc \
 
 ######################################################################
 # Sources for the parameter space explorers
-SOURCES += src/montecarloexplorer.cc
+SOURCES += src/parameterspaceexplorers.cc
                 
 
 ######################################################################

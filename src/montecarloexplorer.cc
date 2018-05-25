@@ -258,3 +258,155 @@ shuffle("shuffle", "Shuffle",
         [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
           return new ShuffleExplorer(ws);
         });
+
+//////////////////////////////////////////////////////////////////////
+
+/// This explorer just linearly varies the given parameters from a
+/// starting point to an ending point. 
+class LinearExplorer : public ParameterSpaceExplorer {
+
+  int iterations;
+
+  int currentIteration;
+
+  int fitIterations;
+
+  /// The parameter specification
+  class ParameterSpec {
+  public:
+    /// The target, like what is returned by
+    /// FitWorkspace::parseParameterList()
+    QPair<int, int> parameter;
+
+    /// The starting point
+    double begin;
+
+    /// The ending point
+    double end;
+
+    /// Whether the range is logarithmic or not
+    bool log;
+  };
+
+  QList<ParameterSpec> parameterSpecs;
+
+  static ArgumentList args;
+  static ArgumentList opts;
+public:
+
+  LinearExplorer(FitWorkspace * ws) :
+    ParameterSpaceExplorer(ws), iterations(20),
+    currentIteration(0), fitIterations(50) {
+  };
+
+  virtual ArgumentList * explorerArguments() const override {
+    return &args;
+  };
+
+  virtual ArgumentList * explorerOptions() const override {
+    return &opts;
+  };
+
+  virtual void setup(const CommandArguments & args,
+                     const CommandOptions & opts) override {
+
+    QStringList specs = args[0]->value<QStringList>();
+
+    parameterSpecs.clear();
+    QRegExp re("^\\s*(.*):([^:]*)\\.\\.([^:,]*)(,log)?\\s*$");
+    for(const QString & s : specs) {
+      if(re.indexIn(s) != 0)
+        throw RuntimeError("Invalid parameter specification: '%1'").
+          arg(s);
+
+      
+
+      QString pa = re.cap(1);
+      
+      QString l = re.cap(2);
+      QString h = re.cap(3);
+
+      bool log = ! re.cap(4).isEmpty();
+
+      QList<QPair<int, int> > params = workSpace->parseParameterList(pa);
+      for(const QPair<int, int> & p : params) {
+        double val = workSpace->getValue(p.first, p.second);
+        double b = val;
+        if(! l.isEmpty())
+          b = l.toDouble();
+        double e = val;
+        if(! h.isEmpty())
+          e = h.toDouble();
+        if(log) {
+          b = ::log(b);
+          e = ::log(e);
+        }
+          
+        ParameterSpec sp = {p, b, e, log};
+        parameterSpecs << sp;
+      }
+    }
+
+    updateFromOptions(opts, "iterations", iterations);
+    updateFromOptions(opts, "fit-iterations", fitIterations);
+
+    Terminal::out << "Setting up linear explorator with: "
+                  << iterations << " iterations and "
+                  << fitIterations << " fit iterations" << endl;
+
+    QStringList names = workSpace->parameterNames();
+    for(const ParameterSpec & s : parameterSpecs)
+      Terminal::out << " * " << names[s.parameter.first]
+                    << "[#" << s.parameter.second << "]: from "
+                    << s.begin << " to " << s.end
+                    << (s.log ? " log" : " lin") << endl;
+  };
+
+  virtual bool iterate() override {
+    QStringList names = workSpace->parameterNames();
+    Terminal::out << "Setting initial parameters: " << endl;
+    
+    for(const ParameterSpec & s : parameterSpecs) {
+      double fact = currentIteration/(iterations - 1.0);
+      double v = s.begin + (s.end - s.begin) * fact;
+      if(s.log)
+        v = exp(v);
+      workSpace->setValue(s.parameter.first, s.parameter.second, v);
+      Terminal::out << " -> " << names[s.parameter.first]
+                    << "[#" << s.parameter.second << "] =  " << v << endl;
+    }
+
+    workSpace->runFit(fitIterations);
+    currentIteration++;
+    return currentIteration < iterations;
+  };
+
+  virtual QString progressText() const override {
+    return QString("%1/%2").
+      arg(currentIteration+1).arg(iterations);
+  };
+
+
+};
+
+ArgumentList
+LinearExplorer::args(QList<Argument*>() 
+                         << new SeveralStringsArgument("parameters",
+                                                       "Parameters",
+                                                       "Parameter specification"));
+
+ArgumentList
+LinearExplorer::opts(QList<Argument*>() 
+                         << new IntegerArgument("iterations",
+                                                "Iterations",
+                                                "Number of monte-carlo iterations")
+                         << new IntegerArgument("fit-iterations",
+                                                "Fit iterations",
+                                                "Maximum number of fit iterations")
+                         );
+
+ParameterSpaceExplorerFactoryItem 
+linear("linear", "Linear ramp", 
+           [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
+             return new LinearExplorer(ws);
+           });

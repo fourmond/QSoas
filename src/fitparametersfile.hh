@@ -82,7 +82,10 @@ public:
 
   /// Returns the values of the parameters as a function of Z.
   ///
-  QHash<QString,DataSet> parameterValuesAsfZ(bool makeupZ = false) const;  
+  QHash<QString,DataSet> parameterValuesAsfZ(bool makeupZ = false) const;
+
+  /// Just dumps the contents of the file to the given output
+  void dump(QTextStream & out) const;
 };
 
 #endif

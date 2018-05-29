@@ -26,7 +26,8 @@
 
 void FitParametersFile::Parameter::replaceParameter(FitParameter * & parameter,
                                                     double * tg, 
-                                                    int idx, int ds) {
+                                                    int idx, int ds)
+{
   FitParameter * npm = 
     FitParameter::loadFromString(value, tg, idx, ds);
   delete parameter;
@@ -147,3 +148,10 @@ QHash<QString,DataSet> FitParametersFile::parameterValuesAsfZ(bool makeupZ) cons
   return rv;
 }
 
+
+
+void FitParametersFile::dump(QTextStream & o) const
+{
+  for(const Parameter & p : parameters)
+    o << p.name << " -- " << p.datasetIndex << " -- " << p.value << endl;
+}

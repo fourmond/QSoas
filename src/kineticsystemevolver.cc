@@ -147,18 +147,23 @@ void KineticSystemEvolver::setupCallback(const std::function <void (double, doub
 }
 
 
-double KineticSystemEvolver::reporterValue() const
+double KineticSystemEvolver::reporterValue(double t) const
 {
   if(! system->reporterExpression)
     return 0;                   // but really, this should fail
   QVarLengthArray<double, 1000> tg(system->speciesNumber() + 
                                    parameterIndex.size());
-  
+
+
   for(int i = 0; i < system->speciesNumber(); i++)
     tg[i] = currentValues()[i];
   int idx = system->speciesNumber();
   for(int i = 0; i < parameterIndex.size(); i++)
     tg[i+idx] = parameters[i];
+
+  if(callback != NULL)          // Tweak the time-dependent parameters
+                                // when applicable
+    callback(t, tg.data()+idx);
 
   return system->reporterExpression->evaluate(tg.data());
 }
@@ -368,9 +373,9 @@ protected:
     return system->reporterExpression;
   };
 
-  virtual double reporterValue(FitData * data) const {
+  virtual double reporterValue(double t, FitData * data) const {
     KineticSystemEvolver * evolver = getEvolver(data);
-    return evolver->reporterValue();
+    return evolver->reporterValue(t);
   };
   
   virtual void setupCallback(const std::function<void (double, double * )> & cb, FitData * data) const{

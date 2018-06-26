@@ -66,7 +66,7 @@ protected:
   virtual bool hasReporters(FitData * data) const;
 
   /// Returns the value of reporters
-  virtual double reporterValue(FitData * data) const;
+  virtual double reporterValue(double t, FitData * data) const;
 
   /// Setups a callback that should be called at each time, and will be given
   /// * the time

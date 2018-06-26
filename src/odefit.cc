@@ -56,7 +56,7 @@ bool ODEFit::hasReporters(FitData * ) const
   return false;
 }
 
-double ODEFit::reporterValue(FitData * ) const
+double ODEFit::reporterValue(double t, FitData * ) const
 {
   throw InternalError("Reporters unimplemented but requested");
   return 0.0;
@@ -213,8 +213,10 @@ void ODEFit::function(const double * a, FitData * data,
     slv->stepTo(tg);
     double val = 0;
     const double * cv = slv->currentValues();
-    if(reporters)
-      val = reporterValue(data);
+    if(reporters) {
+      val = reporterValue(slv->currentTime(), data);
+    }
+      
     else {
       int sz = slv->dimension();
       for(int j = 0; j < sz; j++)

@@ -86,7 +86,7 @@ public:
 
   /// Evaluates the reporter expression based on the current value of
   /// the parameters.
-  double reporterValue() const;
+  double reporterValue(double t) const;
 };
 
 #endif

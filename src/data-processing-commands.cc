@@ -1501,10 +1501,12 @@ static void autoFilterBSCommand(const QString &, const CommandOptions & opts)
   int order = 4;
   int derivatives = 0;
   int weights = -1;
+  int optimize = 15;
 
 
   updateFromOptions(opts, "number", nb);
   updateFromOptions(opts, "order", order);
+  updateFromOptions(opts, "optimize", optimize);
   updateFromOptions(opts, "derivatives", derivatives);
   updateFromOptions(opts, "weight-column", weights);
 
@@ -1513,7 +1515,8 @@ static void autoFilterBSCommand(const QString &, const CommandOptions & opts)
   if(weights >= 0) {
     splines.setWeights(ds->column(weights));
   }
-  splines.optimize(15, false);
+  if(optimize > 0)
+    splines.optimize(optimize, false);
   double value = splines.computeCoefficients();
   Terminal::out << "Residuals: " << sqrt(value) << endl;
   for(int i = 0; i <= derivatives; i++)
@@ -1531,6 +1534,9 @@ afbsOps(QList<Argument *>()
       << new IntegerArgument("order", 
                              "Order",
                              "order of the splines")
+      << new IntegerArgument("optimize", 
+                             "Optimize",
+                             "number of iterations to optimize the position of the nodes (defaults to 15, set to 0 or less to disable)")
       << new ColumnArgument("weight-column", 
                             "Weights",
                             "uses the weights in the given column")

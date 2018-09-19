@@ -150,8 +150,13 @@ QString CurveDataSet::toolTipText(const QPointF & pt)
   QString dsIdx;
   if(soas().stack().indexOf(dataSet, &idx))
     dsIdx = QString(" #%1").arg(idx);
-  str += tr("Dataset%2: %1<br>").
+  str += QString("Dataset%2: %1<br>").
     arg(dataSet->name).arg(dsIdx);
+  // display of perpendicular coordinates
+  if(dataSet->perpendicularCoordinates().size() > 0)
+    str += QString("Perpendicular coordinate: %1<br>").
+      arg(dataSet->perpendicularCoordinates()[0]);
+
   QPointF p = dataSet->pointAt(lastPointIdx);
   str += tr("Point #%1: <br>X = %2, Y = %3").
     arg(lastPointIdx).arg(p.x()).arg(p.y());

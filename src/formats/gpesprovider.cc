@@ -95,6 +95,11 @@ public:
         ret["E_start"] = lines[61].toDouble();
         ret["E_first"] = lines[62].toDouble();
         ret["E_second"] = lines[63].toDouble();
+
+        QRegExp cre("(\\d{5})\\.ocw$");
+        if(cre.indexIn(fileName) > 0)
+          ret["cycle"] = cre.cap(1).toInt();
+
         return ret;
       }
       case 'x': {                  // chronoamperometry

@@ -110,7 +110,7 @@ QString DataSet::stringDescription(bool longDesc) const
     val += "Meta-data:";
     val += metaData.prettyPrint(3, "\t", ",", true);
     if(perpCoords.size() > 0) {
-      val += "Perpendicular coordinates: " + perpCoords.asText().join(", ") + "\n";
+      val += "\nPerpendicular coordinates: " + perpCoords.asText().join(", ") + "\n";
     }
     return val;
   }

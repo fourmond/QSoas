@@ -42,6 +42,16 @@ namespace Functions {
   /// Numerical integration method for the Marcus-Hush-Chidsey integral
   double marcusHushChidsey(double lambda, double eta);
 
+  /// The position of the peak for a single adsorbed n=1 redox species
+  /// in a trumpet plot:
+  /// 
+  /// @param rate the rate at which one changes the potential by RT/F, divided by k_0
+  /// @param alpha the value of, hmmm, alpha
+  /// @param prec the precision of the positioning (in units of RT/F
+  ///
+  /// @returns The position of the peak, in units of RT/F
+  double trumpetBV(double rate, double alpha, double prec = 0.01);
+
 };
 
 #endif

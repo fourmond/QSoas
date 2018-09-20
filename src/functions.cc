@@ -26,6 +26,7 @@
 #include <credits.hh>
 
 #include <gsl/gsl_integration.h>
+#include <odesolver.hh>
 
 // atan:
 //
@@ -90,4 +91,49 @@ double Functions::marcusHushChidsey(double lambda, double eta)
 
   gsl_integration_qagi(&f, 1e-5, 1e-5, 400, ws, &rv, &er);
   return rv;
+}
+
+
+double Functions::trumpetBV(double rate, double alpha, double prec)
+{
+  double time = -0.5;
+  double cur = 0;
+  double pos = time;
+
+  double max = 20;
+
+  std::function<double (double, double) > dy = 
+    [rate, alpha](double t, double red) -> double {
+    double kf = exp(alpha * t)/rate;
+    double kb = exp((alpha-1) * t)/rate;
+    return (1 - red)*kb - red * kf;
+  };
+
+  LambdaODESolver slv(1,
+                      [rate, alpha, &dy](double t, const double *y,
+                                      double * dydt) -> void {
+                        dydt[0] = dy(t, y[0]);
+                      });
+  ODEStepperOptions opts = slv.getStepperOptions();
+  
+  /// I think the best solver
+  opts.type = gsl_odeiv2_step_bsimp;
+
+  slv.setStepperOptions(opts);
+
+  double val[1] = {1};
+  slv.initialize(val, -3);
+
+  slv.stepTo(time);
+  while(time < max) {
+    time += prec;
+    slv.stepTo(time);
+    double c = dy(time, slv.currentValues()[0]);
+    if(c > cur)
+      return pos;
+    cur = c;
+    pos = time;
+  }
+
+  return -1;                    // Hmmm
 }

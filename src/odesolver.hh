@@ -241,4 +241,23 @@ public:
   int evaluations;
 };
 
+
+
+/// A subclass of ODESolver in which the derivatives are computed
+/// using a lambda
+class LambdaODESolver : public ODESolver {
+
+  int dim;
+  
+  typedef std::function<void (double, const double *, double *)> Derivatives;
+  Derivatives derivs;
+public:
+  LambdaODESolver(int d, const Derivatives & der) : dim(d), derivs(der) {
+  };
+  virtual int dimension() const;
+  virtual int computeDerivatives(double t, const double * y, 
+                                 double * dydt);
+    
+};
+
 #endif

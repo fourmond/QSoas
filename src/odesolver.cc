@@ -418,3 +418,20 @@ QList<Vector> ODESolver::steps(const Vector &tValues, bool annotate)
   return ret;
 }
 
+
+//////////////////////////////////////////////////////////////////////
+
+
+int LambdaODESolver::computeDerivatives(double t, const double * y, 
+                                        double * dydt)
+{
+  derivs(t, y, dydt);
+  return GSL_SUCCESS;
+}
+
+
+int LambdaODESolver::dimension() const
+{
+  return dim;
+}
+

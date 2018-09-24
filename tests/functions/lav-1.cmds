@@ -1,0 +1,11 @@
+# Runs the test for the "laviron equations with BV kinetics"
+# Parameter ${1}: alpha
+
+generate-buffer -9 20 trumpet_bv(exp(x),${1},0.01)
+chop 2 13 /set-segments=true
+assert '$stats[0]["y_norm"]' 0.1
+
+# This is equation (21) from Laviron, JEAC 101, 19-28, 1979
+
+apply-formula y-=1/(1-${1})*(log(1-${1})+x)
+assert '$stats[2]["y_norm"]' 0.1

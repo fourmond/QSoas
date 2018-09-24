@@ -1,6 +1,6 @@
 /*
   functions.cc: mathematical functions
-  Copyright 2015 by CNRS/AMU
+  Copyright 2015, 2018 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -93,14 +93,18 @@ double Functions::marcusHushChidsey(double lambda, double eta)
   return rv;
 }
 
+/// Validation: functions/laviron.cmds, matches de predictions of equation
+/// (21) from Laviron, JEAC 101, 19-28, 1979.
+/// rate is what Laviron calls "m" in his paper
 
 double Functions::trumpetBV(double rate, double alpha, double prec)
 {
-  double time = -0.5;
+  alpha = 1 - alpha;
+  double time = std::max(-0.5, 1/alpha*(log(alpha*rate)) - 3);
   double cur = 0;
   double pos = time;
 
-  double max = 20;
+  double max = time + 9;
 
   std::function<double (double, double) > dy = 
     [rate, alpha](double t, double red) -> double {
@@ -125,14 +129,16 @@ double Functions::trumpetBV(double rate, double alpha, double prec)
   slv.initialize(val, -3);
 
   slv.stepTo(time);
+  int i = 0;
   while(time < max) {
     time += prec;
     slv.stepTo(time);
     double c = dy(time, slv.currentValues()[0]);
-    if(c > cur)
+    if(c > cur && i > 3)
       return pos;
     cur = c;
     pos = time;
+    ++i;
   }
 
   return -1;                    // Hmmm

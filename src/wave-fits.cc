@@ -374,7 +374,7 @@ public:
     double k_m2_k2 = params[2];
 
     if(s->useEoc)
-      k_m2_k2 = exp(f * (E1 - k_m2_k2));
+      k_m2_k2 = exp((s->isOxidation ? -1 : 1)*f * (E1 - k_m2_k2));
 
     if(k_m2_k2 < 0)
       throw RangeError("Negative bias");

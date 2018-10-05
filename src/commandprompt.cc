@@ -241,3 +241,15 @@ QStringList CommandPrompt::getCompletions(const CompletionContext & c,
     return QStringList();
   return arg->proposeCompletion(c.word);
 }
+
+void CommandPrompt::busy(const QString & message)
+{
+  setText(message);
+  if(message.isEmpty()) {
+    setEnabled(true);
+    setFocus();
+  }
+  else {
+    setEnabled(false);
+  }
+}

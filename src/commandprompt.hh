@@ -98,6 +98,11 @@ signals:
   /// number of half screens.
   void scrollRequested(int nb);
 
+public slots:
+  /// Sets the prompt to busy mode and sets the given message if the
+  /// string isn't empty, or switch back from busy mode if not
+  void busy(const QString & message = QString());
+
 };
 
 #endif

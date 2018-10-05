@@ -240,7 +240,8 @@ bool CommandWidget::runCommand(const QStringList & raw)
   
   if(addToHistory)
     commandLine->addHistoryItem(cmd);
-  commandLine->setEnabled(false);
+
+  commandLine->busy(QString("Running: %1").arg(cmd));
 
   soas().showMessage(tr("Running: %1").arg(cmd));
   try {
@@ -269,13 +270,11 @@ bool CommandWidget::runCommand(const QStringList & raw)
   catch(const ControlFlowException & flow) {
     /// @todo This should be implemented as an idiom when clang
     /// supports std::function
-    commandLine->setEnabled(true);
-    commandLine->setFocus();
+    commandLine->busy();
     throw;                      // rethrow
   }
   Debug::debug().endCommand(raw);
-  commandLine->setEnabled(true);
-  commandLine->setFocus();
+  commandLine->busy();
   return status;
 }
 

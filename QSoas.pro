@@ -527,6 +527,7 @@ SOURCES += src/parameterspaceexplorers.cc
 # Sources of file-format specific code
 SOURCES += src/formats/gpesprovider.cc \
         src/formats/chi.cc \
+        src/formats/eclab.cc \
         src/formats/parametersbackend.cc
 
 # Using signals on platforms that support them

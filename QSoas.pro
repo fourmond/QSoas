@@ -518,6 +518,10 @@ SOURCES += src/mruby.cc \
            src/ruby-regexp.cc
 
 
+# complex numbers
+SOURCES += src/ruby-complex.cc
+
+
 ######################################################################
 # Sources for the parameter space explorers
 SOURCES += src/parameterspaceexplorers.cc

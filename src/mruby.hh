@@ -37,7 +37,13 @@ class MRuby {
 
   struct RClass * cQSoasInterface;
 
+
   mrb_value soasInstance;
+
+public:
+  /// The "Complex" class
+  struct RClass * cComplex;
+private:
 
   friend mrb_value qs_interface(mrb_state *, mrb_value);
 
@@ -46,6 +52,9 @@ class MRuby {
 
   /// initialize the Qt-based Ruby regular expressions
   void initializeRegexp();
+
+  /// initialize the support for complex algebra
+  void initializeComplex();
 
   mrb_value cTime;
 

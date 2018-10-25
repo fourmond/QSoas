@@ -100,8 +100,14 @@ void CurvePanel::computeTransform(const QRect & wR2,
   double dy = -sR.bottom() * m22 + wR.top();
 
   transform = QTransform(m11, 0, 0, m22, dx, dy);
-  reverseTransform = transform.inverted(); // That's inversible,
-                                           // thanks.
+
+
+  // We do the inversion manually, as Qt gets confused by very small
+  // determinants, which may occur when the coordinates are
+  // exceptionally large.
+  double det = transform.determinant();
+  reverseTransform = transform.adjoint() / det;
+
   invalidateTicks();
 }
 

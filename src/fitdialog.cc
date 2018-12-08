@@ -126,7 +126,7 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm, bool 
           SLOT(onFitStart()));
 
   connect(&parameters, SIGNAL(quitWorkspace()),
-          SLOT(accept()));
+          SLOT(accept()), Qt::QueuedConnection);
 
   connect(&parameters, SIGNAL(fitEngineFactoryChanged(FitEngineFactoryItem *)),
           SLOT(updateEngineSelection(FitEngineFactoryItem *)));
@@ -568,6 +568,11 @@ void FitDialog::dataSetChanged(int newds)
   
 
   updateResidualsDisplay();
+}
+
+void FitDialog::runCommandFile(const QString & file)
+{
+  fitPrompt->runCommandFile(file);
 }
 
 void FitDialog::setupSubFunctionCurves(bool dontSend)

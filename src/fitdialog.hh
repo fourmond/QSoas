@@ -261,6 +261,9 @@ public slots:
   /// Start the fit
   void startFit();
 
+  /// Runs the given command file
+  void runCommandFile(const QString & file);
+
 protected slots:
 
   /// Shows all the parameters

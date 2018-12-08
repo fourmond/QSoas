@@ -276,6 +276,10 @@ void Fit::makeCommands(ArgumentList * args,
                                "Parameters",
                                "pre-loads parameters");
 
+  *options << new FileArgument("script", 
+                               "Script",
+                               "runs a script file");
+
   *options << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                          "set-from-meta", 
                                          "Set from meta-data",
@@ -479,6 +483,9 @@ void Fit::runFit(std::function<void (FitData *)> hook,
   QString perpMeta;
   updateFromOptions(opts, "perp-meta", perpMeta);
 
+  QString script;
+  updateFromOptions(opts, "script", script);
+
   bool expert = false;
   updateFromOptions(opts, "expert", expert);
 
@@ -489,6 +496,7 @@ void Fit::runFit(std::function<void (FitData *)> hook,
 
   if(! loadParameters.isEmpty())
     dlg.loadParametersFile(loadParameters);
+
 
 
   {
@@ -531,6 +539,15 @@ void Fit::runFit(std::function<void (FitData *)> hook,
     }
     if(nb > 0)
       dlg.compute();
+  }
+
+  if(! script.isEmpty()) {
+    if(expert)
+      QMetaObject::invokeMethod(&dlg, "runCommandFile",
+                                Qt::QueuedConnection,
+                                Q_ARG(const QString &, script));
+    else
+      Terminal::out << "Can only run scripts with /expert=true" << endl;
   }
 
   dlg.exec();

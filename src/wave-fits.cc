@@ -799,14 +799,14 @@ public:
     a[1] = 0.6*ds->x().max() + 0.4*ds->x().min();
     a[2] = 0.4*ds->x().max() + 0.6*ds->x().min();
 
-    double b = -ds->y().max()/ds->y().min();
+    double b = -ds->y().min()/ds->y().max();
     if(b < 0.05)
       b = 0.05;
     if(b > 20)
       b = 20;
 
     if(s->useEoc) {
-      a[3] = - (a[0] * GSL_CONST_MKSA_MOLAR_GAS)/GSL_CONST_MKSA_FARADAY *
+      a[3] = 0.5*(a[0] * GSL_CONST_MKSA_MOLAR_GAS)/GSL_CONST_MKSA_FARADAY *
         log(b) + 0.5*(a[1]+a[2]);
     }
     else
@@ -959,7 +959,7 @@ public:
 
   EECRFit() :
     PerDatasetFit("eecr-wave", 
-                  "Fit of an EC reversible catalytic wave",
+                  "Fit of an EEC reversible catalytic wave",
                   "...", 1, -1, false) 
   { 
     makeCommands();

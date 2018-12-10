@@ -73,6 +73,8 @@ void PeakInfo::computeArea(QList<PeakInfo> & peaks, const Vector & x, const Vect
     }
     else
       right = x.size()-1;
+    if(right > x.size() - 1)
+      right = x.size()-1;
 
     peaks[static_cast<int>(pk[i].area)].area = iy[right] - iy[left];
     left = right;

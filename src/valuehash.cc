@@ -102,16 +102,22 @@ QString ValueHash::toString(const QVariant & value, bool * canConvert)
   if(canConvert)
     *canConvert = false;
   if(v.canConvert<double>()) {
-    if(canConvert)
-      *canConvert = true;
-    double d = v.toDouble();
-    return QString::number(d, 'g', 12);
+   QVariant nv = v;
+    if(nv.convert(QVariant::Double)) {
+      if(canConvert)
+        *canConvert = true;
+      double d = nv.toDouble();
+      return QString::number(d, 'g', 12);
+    }
   }
 
-  if(v.canConvert<QString>() && v.convert(QVariant::String)) {
-    if(canConvert)
-      *canConvert = true;
-    return v.value<QString>();
+  if(v.canConvert<QString>()) {
+    QVariant nv = v;
+    if(nv.convert(QVariant::String)) {
+      if(canConvert)
+        *canConvert = true;
+      return nv.value<QString>();
+    }
   }
   return QString();
 }

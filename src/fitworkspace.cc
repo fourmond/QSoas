@@ -410,8 +410,6 @@ double FitWorkspace::goodnessOfFit()
 QList<Vector> FitWorkspace::computeSubFunctions(bool dontSend,
                                                 QStringList * ann)
 {
-  QTextStream o(stdout);
-  o << "csf: " << dontSend << " -- " << ann << endl;
   QList<Vector> ret;
   if(! fitData->fit->hasSubFunctions(fitData))
     return ret;
@@ -419,7 +417,7 @@ QList<Vector> FitWorkspace::computeSubFunctions(bool dontSend,
   QStringList str;
   fitData->fit->computeSubFunctions(values, fitData, 
                                     &ret, ann ? ann : &str);
-  o << " -> " << ret.size() << endl;
+
   return ret;
 }
 

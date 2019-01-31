@@ -216,6 +216,23 @@ protected:
     prepareExpressions(data);
   }
 
+  virtual bool hasSubFunctions (FitData * data) const override
+  {
+    Storage * s = storage<Storage>(data);
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                      s->underlyingStorage);
+    return underlyingFit->hasSubFunctions(data);
+  };
+
+  virtual bool displaySubFunctions (FitData * data) const override
+  {
+    Storage * s = storage<Storage>(data);
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                      s->underlyingStorage);
+    return underlyingFit->displaySubFunctions(data);
+  };
+
+
   ArgumentList * fitSoftOptions() const override
   {
     return Fit::fitSoftOptions(underlyingFit);
@@ -337,6 +354,23 @@ public:
                                                         s->underlyingStorage);
       underlyingFit->function(buf, data, ds, target);
     }
+  };
+
+  virtual void computeSubFunctions(const double * parameters,
+                                   FitData * data, 
+                                   const DataSet * ds,
+                                   QList<Vector> * targetData,
+                                   QStringList * targetAnnotations) const override
+  {
+    Storage * s = storage<Storage>(data);
+    double buf[s->originalParameters.size()];
+
+    computeParameters(data, ds, parameters, buf);
+    
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                        s->underlyingStorage);
+    underlyingFit->computeSubFunctions(parameters, data, ds,
+                                       targetData, targetAnnotations);
   };
 
 

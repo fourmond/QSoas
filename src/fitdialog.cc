@@ -733,21 +733,7 @@ void FitDialog::onIterate(int nb, double residuals)
 
 void FitDialog::pushSubFunctions()
 {
-  int base = 0;
-  for(int i = 0; i < views.size(); i++) {
-    const DataSet * ds = data->datasets[i];
-    int sz = ds->x().size();
-    for(int j = 0; j < subFunctions.size(); j++) {
-      Vector subY = subFunctions[j].mid(base, sz);
-
-      soas().
-        pushDataSet(ds->
-                    derivedDataSet(subY,
-                                   QString("_fit_%1_sub%2.dat").
-                                   arg(parameters.fitName(false)).arg(j+1)));
-    }
-    base += sz;
-  }
+  parameters.pushComputedData(false, true);
 }
 
                 

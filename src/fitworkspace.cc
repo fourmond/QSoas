@@ -407,15 +407,19 @@ double FitWorkspace::goodnessOfFit()
   return gsl_sf_gamma_inc_Q(0.5 * fitData->doF(), 0.5 * overallChiSquared);
 }
 
-QList<Vector> FitWorkspace::computeSubFunctions(bool dontSend)
+QList<Vector> FitWorkspace::computeSubFunctions(bool dontSend,
+                                                QStringList * ann)
 {
+  QTextStream o(stdout);
+  o << "csf: " << dontSend << " -- " << ann << endl;
   QList<Vector> ret;
   if(! fitData->fit->hasSubFunctions(fitData))
     return ret;
   updateParameterValues(dontSend);
   QStringList str;
   fitData->fit->computeSubFunctions(values, fitData, 
-                                    &ret, &str);
+                                    &ret, ann ? ann : &str);
+  o << " -> " << ret.size() << endl;
   return ret;
 }
 
@@ -438,10 +442,28 @@ DataSet * FitWorkspace::computedData(int i, bool residuals)
   return ds;
 }
 
-void FitWorkspace::pushComputedData(bool residuals, DataStackHelper * help)
+void FitWorkspace::pushComputedData(bool residuals, bool subfunctions,
+                                    DataStackHelper * help)
 {
+  QList<Vector> sf;
+  QStringList names;
+  if(subfunctions && fitData->fit->hasSubFunctions(fitData)) {
+    sf = computeSubFunctions(true, &names);
+    names.insert(0, "sim");
+  }
+  
+  int base = 0;
+
   for(int i = 0; i < datasets; i++) {
     DataSet * ds = computedData(i, residuals);
+    int sz = ds->x().size();
+    for(int j = 0; j < sf.size(); j++)
+      ds->appendColumn(sf[j].mid(base, sz));
+    base += sz;
+    
+    if(sf.size() > 0)
+      ds->setMetaData("computed", names);
+        
     if(help)
       *help << ds;
     else

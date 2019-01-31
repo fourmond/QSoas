@@ -415,7 +415,8 @@ public:
   void recomputeJacobian();
 
   /// Returns the computed subfunctions
-  QList<Vector> computeSubFunctions(bool dontSend = false);
+  QList<Vector> computeSubFunctions(bool dontSend = false,
+                                    QStringList * annotations = NULL);
 
   /// The data computed from the fit function.
   ///
@@ -425,8 +426,13 @@ public:
 
   /// Push computed datasets onto the stack
   ///
-  /// @todo This should be interfaced with DataStackHelper
-  void pushComputedData(bool residuals = false, DataStackHelper * help = NULL);
+  /// @li @a residuals, if true, then the residuals are pushed
+  /// @li @a subfunctions, if true, then the columns Y2 and so
+  /// forth are subfunctions, if applicable
+  /// @li pushing to the datastack is effected via the @a helper
+  /// DataStackHelper when present
+  void pushComputedData(bool residuals = false, bool subfunctions = false,
+                        DataStackHelper * helper = NULL);
 
   /// Computes and push the jacobian matrix to the stack
   void computeAndPushJacobian();

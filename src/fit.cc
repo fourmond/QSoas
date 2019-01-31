@@ -358,6 +358,7 @@ void Fit::makeCommands(ArgumentList * args,
            << new ChoiceArgument(QStringList() 
                                  << "annotate"
                                  << "compute"
+                                 << "subfunctions"
                                  << "residuals"
                                  << "jacobian"
                                  << "reexport",
@@ -366,8 +367,7 @@ void Fit::makeCommands(ArgumentList * args,
                                  "Whether to just compute the function, "
                                  "the full jacobian, reexport parameters "
                                  "with errors or just annotate datasets")
-
-      ;
+    ;
     new Command((const char*)(QString("sim-") + name).toLocal8Bit(),
                 (sim ? sim : effector(this, &Fit::computeFit)),
                 "simulations", al2, nopts, pn, sd);
@@ -581,7 +581,7 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
   updateFromOptions(opts, "extra-parameters", extraParams);
   QStringList ep = extraParams.split(",", QString::SkipEmptyParts);
 
-  QString what;
+  QString what = "compute";
   updateFromOptions(opts, "operation", what);
 
   int debug = 0;
@@ -659,9 +659,12 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
     Terminal::out << "Computed residuals: " << ws.overallPointResiduals
                   << endl;
   }
-  else {
-    ws.pushComputedData(false, &pusher);
+  else if(what == "compute" || what == "subfunctions") {
+    ws.pushComputedData(false, what == "subfunctions", &pusher);
   }
+  else
+    throw RuntimeError("Could not understand which operation for sim-: '%1'").
+      arg(what);
 }
 
 

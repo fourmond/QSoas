@@ -431,6 +431,9 @@ public:
   /// forth are subfunctions, if applicable
   /// @li pushing to the datastack is effected via the @a helper
   /// DataStackHelper when present
+  ///
+  /// This function does @b not recompute the data, call recompute()
+  /// before if you have changed the parameters.
   void pushComputedData(bool residuals = false, bool subfunctions = false,
                         DataStackHelper * helper = NULL);
 

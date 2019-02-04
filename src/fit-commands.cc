@@ -377,12 +377,16 @@ expt("export", // command name
 static void pushCommand(const QString & /*name*/, const CommandOptions & opts)
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  bool recompute = true;
+  updateFromOptions(opts, "recompute", recompute);
   bool subfunctions = false;
   updateFromOptions(opts, "subfunctions", subfunctions);
   bool residuals = false;
   updateFromOptions(opts, "residuals", residuals);
   DataStackHelper pusher(opts);
-  
+  if(recompute)
+    ws->recompute(false, false); // Second false since we want
+                                 // exceptions to show up
   ws->pushComputedData(residuals, subfunctions, &pusher);
 }
 
@@ -390,6 +394,9 @@ ArgumentList pOpts(QList<Argument*>()
                    << new BoolArgument("subfunctions", 
                                        "Subfunctions",
                                        "whether the subfunctions are also exported or not")
+                   << new BoolArgument("recompute", 
+                                       "Recompute",
+                                       "whether or not to recompute the fit (on by default)")
                    << new BoolArgument("residuals", 
                                        "Residuals",
                                        "if true, push the residuals rather than the computed values")

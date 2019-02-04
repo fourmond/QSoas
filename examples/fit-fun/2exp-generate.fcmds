@@ -1,0 +1,4 @@
+monte-carlo-explorer A_inf:-20..20 A_1:-20..20 A_2:-20..20 tau_1:0.1..10,log
+iterate-explorer /just-pick=true
+push
+quit

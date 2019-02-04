@@ -116,7 +116,7 @@ public:
                     << (s.log ? " log" : " lin") << endl;
   };
 
-  virtual bool iterate() override {
+  virtual bool iterate(bool justPick) override {
     QStringList names = workSpace->parameterNames();
     Terminal::out << "Setting initial parameters: " << endl;
     if(resetFrequency > 0
@@ -137,9 +137,10 @@ public:
       Terminal::out << " -> " << names[s.parameter.first]
                     << "[#" << s.parameter.second << "] =  " << v << endl;
     }
-
-    workSpace->runFit(fitIterations);
-    currentIteration++;
+    if(! justPick) {
+      workSpace->runFit(fitIterations);
+      currentIteration++;
+    }
     return currentIteration < iterations;
   };
 
@@ -214,7 +215,7 @@ public:
     updateFromOptions(opts, "fit-iterations", fitIterations);
   };
 
-  virtual bool iterate() override {
+  virtual bool iterate(bool justPick) override {
     Vector p;
     int sz = workSpace->trajectories.size();
     if(sz < 1)
@@ -230,8 +231,10 @@ public:
         p[i] = workSpace->trajectories[idx].finalParameters[i];
     }
     workSpace->restoreParameterValues(p);
-    workSpace->runFit(fitIterations);
-    currentIteration++;
+    if(! justPick) {
+      workSpace->runFit(fitIterations);
+      currentIteration++;
+    }
     return currentIteration < iterations;
   };
 
@@ -374,7 +377,7 @@ public:
                     << (s.log ? " log" : " lin") << endl;
   };
 
-  virtual bool iterate() override {
+  virtual bool iterate(bool justPick) override {
     QStringList names = workSpace->parameterNames();
     Terminal::out << "Setting initial parameters: " << endl;
     
@@ -388,8 +391,10 @@ public:
                     << "[#" << s.parameter.second << "] =  " << v << endl;
     }
 
-    workSpace->runFit(fitIterations);
-    currentIteration++;
+    if(! justPick) {
+      workSpace->runFit(fitIterations);
+      currentIteration++;
+    }
     return currentIteration < iterations;
   };
 

@@ -97,13 +97,12 @@ public:
   /// still iteratons available, and false if not.
   ///
   /// What is meant by running the next iteration is the following:
-  /// @li preparing the initial parameters
-  /// @li running a fit (or several, or many !, or none, if the
-  /// explorer does not do that, but that would be weird)
+  /// @li preparing the initial parameters.
+  /// @li running a fit (or several, or many), unless @a justPick is true
   ///
   /// The user will have the opportunity to execute a script right @b
   /// after each iteration.
-  virtual bool iterate() = 0;
+  virtual bool iterate(bool justPick = false) = 0;
 
   /// Returns the current progress
   virtual QString progressText() const = 0;

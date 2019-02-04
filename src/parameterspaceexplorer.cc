@@ -113,6 +113,7 @@ QList<Command *> ParameterSpaceExplorer::createCommands(FitWorkspace * workspace
 //////////////////////////////////////////////////////////////////////
 
 #include <file-arguments.hh>
+#include <general-arguments.hh>
 #include <soas.hh>
 #include <commandwidget.hh>
 #include <terminal.hh>
@@ -128,6 +129,8 @@ static void iterateExplorerCommand(const QString & /*name*/,
 
   QString script;
   updateFromOptions(opts, "script", script);
+  bool justPick;
+  updateFromOptions(opts, "just-pick", justPick);
   QString impScript;
   updateFromOptions(opts, "improved-script", impScript);
 
@@ -156,7 +159,11 @@ static void iterateExplorerCommand(const QString & /*name*/,
                   << ", current best residuals: "
                   << lr
                   << endl;
-    bool cont = explorer->iterate();
+    bool cont = explorer->iterate(justPick);
+    if(justPick) {
+      Terminal::out << " -> stopping just after picking parameters" << endl;
+      break;                    // We're done
+    }
     if(! script.isEmpty()) {
       Terminal::out << "Running end-of-iteration script: '" << script
                     << "'" << endl;
@@ -197,6 +204,9 @@ ArgumentList ieOpts(QList<Argument*>()
                     << new FileArgument("improved-script", 
                                         "Script for improvement",
                                         "script file run whenever the best residuals have improved", false, true)
+                    << new BoolArgument("just-pick", 
+                                        "Just pick",
+                                        "If true, then just picks the next initial parameters, don't fit, don't iterate")
                     << new FileArgument("arg1", 
                                         "First argument",
                                         "First argument to the scripts")

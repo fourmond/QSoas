@@ -372,6 +372,42 @@ expt("export", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+#include <datastackhelper.hh>
+
+static void pushCommand(const QString & /*name*/, const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  bool subfunctions = false;
+  updateFromOptions(opts, "subfunctions", subfunctions);
+  bool residuals = false;
+  updateFromOptions(opts, "residuals", residuals);
+  DataStackHelper pusher(opts);
+  
+  ws->pushComputedData(residuals, subfunctions, &pusher);
+}
+
+ArgumentList pOpts(QList<Argument*>()
+                   << new BoolArgument("subfunctions", 
+                                       "Subfunctions",
+                                       "whether the subfunctions are also exported or not")
+                   << new BoolArgument("residuals", 
+                                       "Residuals",
+                                       "if true, push the residuals rather than the computed values")
+                   << DataStackHelper::helperOptions()
+                   );
+
+static Command 
+psh("push", // command name
+    effector(pushCommand), // action
+    "fit",  // group name
+    NULL, // arguments
+    &pOpts, // options
+    "Push to stack",
+    "Push the computed data to stack",
+    "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
 static void evalCommand(const QString & /*name*/, QString formula,
                         const CommandOptions & /*opts*/)
 {

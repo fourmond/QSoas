@@ -369,7 +369,7 @@ public:
     
     TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
                                                         s->underlyingStorage);
-    underlyingFit->computeSubFunctions(parameters, data, ds,
+    underlyingFit->computeSubFunctions(buf, data, ds,
                                        targetData, targetAnnotations);
   };
 

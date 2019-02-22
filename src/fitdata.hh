@@ -201,6 +201,7 @@ private:
 
   // These friend classes have access to the internal storage...
   friend class DerivativeFit;
+  friend class CombinedDerivativeFit;
   friend class CombinedFit;
   friend class ModifiedFit;
   friend class DistribFit;

@@ -68,6 +68,8 @@ protected:
   /// Make sure the buffers are the right size.
   void reserveBuffers(FitData * data) const;
 
+public:
+
   class Storage : public FitInternalStorage {
   public:
     /// Number of parameters in the original fit
@@ -97,6 +99,8 @@ protected:
     ~Storage();
   };
 
+protected:
+  
   virtual FitInternalStorage * allocateStorage(FitData * data) const;
   virtual FitInternalStorage * copyStorage(FitData * data, FitInternalStorage * source, int ds = -1) const;
 

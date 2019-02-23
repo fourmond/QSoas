@@ -23,9 +23,9 @@
 #define __DERIVATIVEFIT_HH
 
 #include <fit.hh>
+#include <vector.hh>
 
 class PerDatasetFit;
-class Vector;
 
 /// This class handles the simultaneous fitting of a single buffer
 /// along with its derivative.
@@ -86,6 +86,17 @@ public:
     /// In combined mode, whether a given dataset has the same X
     /// values for the derivative and the original data.
     bool * sameX;
+
+    Vector buffer;
+
+    /// In combined mode, whether a given dataset has the same X
+    /// values for the derivative and the original data.
+    QHash<const DataSet *, bool> sameXH;
+
+    QHash<const DataSet *, DataSet *> mainDS;
+
+    QHash<const DataSet *, DataSet *> subDS;
+
 
     /// Storage space of the original fit
     FitInternalStorage * originalStorage;

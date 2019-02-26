@@ -117,7 +117,10 @@ public:
   QStringList exportColumns() const;
 
   /// Does the reverse of exportColumns().
-  void loadFromColumns(const QStringList & cols, int nb);
+  /// 
+  /// If the reading fails because of missing columns, the ok flag is
+  /// set to false
+  void loadFromColumns(const QStringList & cols, int nb, bool *ok = NULL);
 
   static QStringList exportHeaders(const QStringList & paramNames, int nb);
 

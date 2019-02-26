@@ -83,9 +83,13 @@ int FitTrajectories::importFromFile(QTextStream & in)
                     << " entries, need at least " << sz << endl;
       continue;
     }
-    trajectories << FitTrajectory();
-    trajectories.last().loadFromColumns(ls, sz);
-    nb++;
+    FitTrajectory t;
+    bool ok = true;
+    t.loadFromColumns(ls, sz, &ok);
+    if(ok) {
+      trajectories << t;
+      nb++;
+    }
   }
   clearCache();
   return nb;

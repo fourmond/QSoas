@@ -104,48 +104,67 @@ QStringList FitTrajectory::exportColumns() const
   return ret;
 }
 
-void FitTrajectory::loadFromColumns(const QStringList & cls, int nb)
+void FitTrajectory::loadFromColumns(const QStringList & cls, int nb, bool * ok)
 {
   QStringList cols(cls);
 
+  class Spec {};
+  if(ok)
+    *ok = true;
+
+  auto next = [&cols]() -> QString {
+    if(cols.size() > 0)
+      return cols.takeFirst();
+    throw Spec();
+    return QString();
+  };
+
   initialParameters.resize(nb);
-  for(int i = 0; i < initialParameters.size(); i++)
-    initialParameters[i] = cols.takeFirst().toDouble(); // No validation ?
 
-  ending = endingFromName(cols.takeFirst());
+  try {
+  
+    for(int i = 0; i < initialParameters.size(); i++)
+      initialParameters[i] = next().toDouble(); // No validation ?
+
+    ending = endingFromName(next());
 
 
-  finalParameters.resize(nb);
-  parameterErrors.resize(nb);
-  for(int i = 0; i < finalParameters.size(); i++) {
-    finalParameters[i] = cols.takeFirst().toDouble();
-    parameterErrors[i] = cols.takeFirst().toDouble();
-  }
+    finalParameters.resize(nb);
+    parameterErrors.resize(nb);
+    for(int i = 0; i < finalParameters.size(); i++) {
+      finalParameters[i] = next().toDouble();
+      parameterErrors[i] = next().toDouble();
+    }
 
-  residuals = cols.takeFirst().toDouble();
-  relativeResiduals = cols.takeFirst().toDouble();
-  internalResiduals = cols.takeFirst().toDouble();
-  engine = cols.takeFirst();
-  if(cols.size() == 0)
-    return;
+    residuals = next().toDouble();
+    relativeResiduals = next().toDouble();
+    internalResiduals = next().toDouble();
+    engine = next();
+    if(cols.size() == 0)
+      return;
       
-  qint64 t = cols.takeFirst().toLongLong();
-  startTime = QDateTime::fromMSecsSinceEpoch(t);
-  t = cols.takeFirst().toLongLong();
-  endTime = QDateTime::fromMSecsSinceEpoch(t);
+    qint64 t = next().toLongLong();
+    startTime = QDateTime::fromMSecsSinceEpoch(t);
+    t = next().toLongLong();
+    endTime = QDateTime::fromMSecsSinceEpoch(t);
     
-  if(cols.size() == 0)
-    return;
+    if(cols.size() == 0)
+      return;
 
-  iterations = cols.takeFirst().toInt();
-  evaluations = cols.takeFirst().toInt();
+    iterations = next().toInt();
+    evaluations = next().toInt();
 
-  if(cols.size() == 0)
-    return;
-  residualsDelta = cols.takeFirst().toDouble();
-  fixed =  Utils::readBooleans(cols.takeFirst()).toVector();
+    if(cols.size() == 0)
+      return;
+    residualsDelta = next().toDouble();
+    fixed =  Utils::readBooleans(next()).toVector();
 
-  flags = cols.takeFirst().split(",").toSet();
+    flags = next().split(",").toSet();
+  }
+  catch(Spec & s) {
+    if(ok)
+      *ok = false;
+  }
 }
 
 QStringList FitTrajectory::exportHeaders(const QStringList & s, int ds)

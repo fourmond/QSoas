@@ -88,12 +88,17 @@ public:
         throw RuntimeError("Invalid parameter specification: '%1'").
           arg(s);
 
-      QString pa = re.cap(1);
+
+      // Now handling: 
+      // monte-carlo-explorer tau_1[#0,#1],tau_2[#1]:1e-2..1e2,log
+      
+      QStringList pars = Utils::nestedSplit(re.cap(1), ',', "[", "]");
       double l = re.cap(2).toDouble();
       double h = re.cap(3).toDouble();
       bool log = ! re.cap(4).isEmpty();
-
-      QList<QPair<int, int> > params = workSpace->parseParameterList(pa);
+      QList<QPair<int, int> > params;
+      for(const QString & pa : pars)
+        params << workSpace->parseParameterList(pa);
       for(const QPair<int, int> & p : params) {
         ParameterSpec sp = {p, l, h, log};
         parameterSpecs << sp;

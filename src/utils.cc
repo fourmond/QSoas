@@ -210,6 +210,33 @@ QString Utils::joinSortedList(QStringList list, const QString & glue)
   return list.join(glue);
 }
 
+QStringList Utils::nestedSplit(const QString & str, const QChar & delim,
+                               const QString & opening,
+                               const QString & closing)
+{
+  QStringList rv;
+  QString cur;
+  int nest = 0;
+  for(int i = 0; i < str.size(); i++) {
+    QChar c = str[i];
+    if(opening.contains(c)) {
+      nest += 1;
+    }
+    else if(closing.contains(c)) {
+      nest -= 1;
+    }
+    else if(c == delim) {
+      if(nest == 0) {
+        rv << cur;
+        cur = "";
+        continue;
+      }
+    }
+    cur.append(c);
+  }
+  rv << cur;
+  return rv;
+}
 
 
 bool Utils::askConfirmation(const QString & what, 

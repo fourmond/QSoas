@@ -133,6 +133,12 @@ namespace Utils {
   /// Sort a list and join it
   QString joinSortedList(QStringList list, const QString & glue);
 
+  /// Splits on a char avoiding being within pairs of (any) char
+  /// contained in opening and closing. No validation (i.e. are the
+  /// delimitors really paire) is performed.
+  QStringList nestedSplit(const QString & str, const QChar & delim,
+                          const QString & opening, const QString & closing);
+
   /// @}
 
 

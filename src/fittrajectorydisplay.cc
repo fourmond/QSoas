@@ -500,6 +500,10 @@ void FitTrajectoryDisplay::contextMenuOnTable(const QPoint & pos)
   connect(a, SIGNAL(triggered()), SLOT(reuseCurrentParameters()));
   menu.addAction(a);
 
+  a = new QAction(tr("Reuse parameters for this dataset"), this);
+  connect(a, SIGNAL(triggered()), SLOT(reuseParametersForThisDataset()));
+  menu.addAction(a);
+
   a = new QAction(tr("Delete trajectory"), this);
   connect(a, SIGNAL(triggered()), SLOT(deleteCurrentParameters()));
   menu.addAction(a);
@@ -519,6 +523,25 @@ void FitTrajectoryDisplay::reuseCurrentParameters()
   else
     parameters = workspace->trajectories[idx/2].initialParameters;
   workspace->restoreParameterValues(parameters);
+}
+
+void FitTrajectoryDisplay::reuseParametersForThisDataset()
+{
+  // Send back the given parameters to the fitdialog
+  int idx = parametersDisplay->currentIndex().row();
+  int col = parametersDisplay->currentIndex().column();
+  QString n = model->headerData(col, Qt::Horizontal, Qt::DisplayRole).
+    toString();
+  QRegExp re("\\[(\\d+)\\]");
+  if(re.indexIn(n) >= 0) {
+    int ds = re.cap(1).toInt();
+    Vector parameters;
+    if(idx % 2)
+      parameters = workspace->trajectories[idx/2].finalParameters;
+    else
+      parameters = workspace->trajectories[idx/2].initialParameters;
+    workspace->restoreParameterValues(parameters, ds);
+  }
 }
 
 void FitTrajectoryDisplay::deleteCurrentParameters()

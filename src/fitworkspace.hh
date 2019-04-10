@@ -544,7 +544,10 @@ public:
   Vector saveParameterErrors(double confidenceThreshold = 0.975);
 
   /// Restores the previously saved values.
-  void restoreParameterValues(const Vector & values);
+  ///
+  /// If @a dataset is not negative, then only restore the parameters
+  /// for that dataset.
+  void restoreParameterValues(const Vector & values, int dataset = -1);
 
   /// Same as the other one, only restores the parameters
   void restoreParameterValues(const Vector & values,

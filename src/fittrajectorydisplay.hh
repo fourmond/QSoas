@@ -121,8 +121,12 @@ protected slots:
 
   void contextMenuOnTable(const QPoint & pos);
 
-  /// Send the currently selected parameters to the 
+  /// Send the currently selected parameters to the FitWorkspace
   void reuseCurrentParameters();
+
+  /// Send the currently selected parameters for the current dataset
+  /// to the FitWorkspace.
+  void reuseParametersForThisDataset();
 
   /// Deletes the currently selected parameters
   void deleteCurrentParameters();

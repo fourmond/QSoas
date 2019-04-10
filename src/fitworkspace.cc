@@ -1140,10 +1140,16 @@ Vector FitWorkspace::saveParameterValues()
   return ret;
 }
 
-void FitWorkspace::restoreParameterValues(const Vector & vect)
+void FitWorkspace::restoreParameterValues(const Vector & vect, int ds)
 {
   int size = nbParameters * datasets;
-  for(int i = 0; (i < size && i < vect.size()); i++) {
+  int beg = 0;
+  int end = size;
+  if(ds >= 0) {
+    beg = nbParameters * ds;
+    end = nbParameters * (ds+1);
+  }
+  for(int i = beg; (i < end && i < vect.size()); i++) {
     values[i] = vect[i];
   }
   emit(parametersChanged());

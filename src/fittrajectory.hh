@@ -43,6 +43,9 @@ public:
   /// The errors on the final parameters
   Vector parameterErrors;
 
+  /// The average point residuals for each buffer
+  Vector pointResiduals;
+
   QVector<bool> fixed;
 
   /// How the fit ended.
@@ -85,6 +88,7 @@ public:
   FitTrajectory(const Vector & init, const Vector & final,
                 const Vector & errors, 
                 double res, double rr, double intr, double delta,
+                const Vector & pointRes, // The residuals for each buffer
                 const QString & eng,
                 const QDateTime & start,
                 const FitData * data,

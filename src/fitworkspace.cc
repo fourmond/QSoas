@@ -1578,6 +1578,7 @@ void FitWorkspace::endFit(FitWorkspace::Ending ending)
                   overallRelativeResiduals,
                   residuals,
                   lastResiduals-residuals,
+                  pointResiduals,
                   fitData->engineFactory->name,
                   fitStartTime, fitData);
   FitTrajectory & trj = trajectories.last();

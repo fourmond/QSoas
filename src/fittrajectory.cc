@@ -28,12 +28,13 @@ FitTrajectory::FitTrajectory(const Vector & init, const Vector & final,
                              const Vector & errors, 
                              double res, double rr,
                              double intr, double d,
+                             const Vector & pointRes,
                              const QString & eng,
                              const QDateTime & start,
                              const FitData * data,
                              const QDateTime & end) :
     initialParameters(init), finalParameters(final), 
-    parameterErrors(errors),
+    parameterErrors(errors), pointResiduals(pointRes),
     ending(FitWorkspace::Converged), residuals(res), relativeResiduals(rr),
     internalResiduals(intr), residualsDelta(d),
     engine(eng), startTime(start) {
@@ -89,6 +90,10 @@ QStringList FitTrajectory::exportColumns() const
     ret << QString::number(finalParameters[i], 'g', 8)
         << QString::number(parameterErrors[i], 'g', 8);
 
+  // Point residuals
+  for(int i = 0; i < pointResiduals.size(); i++)
+    ret << QString::number(pointResiduals[i], 'g', 8);
+
   ret << QString::number(residuals)
       << QString::number(relativeResiduals)
       << QString::number(internalResiduals)
@@ -119,6 +124,7 @@ void FitTrajectory::loadFromColumns(const QStringList & cls, int nb, bool * ok)
     return QString();
   };
 
+  throw InternalError("Loading not implemented anymore");
   initialParameters.resize(nb);
 
   try {

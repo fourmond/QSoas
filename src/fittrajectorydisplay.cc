@@ -55,8 +55,8 @@ class TrajectoriesModel : public QAbstractTableModel {
       name(n), fcn(f) {;};
   };
 
-  QList<Item> prefix;
-  QList<Item> suffix;
+  
+  QList<Item> columns;
 
 public:
 
@@ -94,20 +94,16 @@ public:
   };
   
   int col(const QString & n) {
-    for(int i = 0; i < prefix.size(); i++)
-      if(prefix[i].name == n)
+    for(int i = 0; i < columns.size(); i++)
+      if(columns[i].name == n)
         return i;
-    int nb = fitData->fullParameterNumber();
-    for(int i = 0; i < suffix.size(); i++)
-      if(suffix[i].name == n)
-        return nb+prefix.size()+i;
     return -1;
   };
     
 
   TrajectoriesModel(FitTrajectories * trj, const FitData * d) :
     trajectories(trj), fitData(d) {
-    prefix << Item("status", [](const FitTrajectory* trj,
+    columns << Item("status", [](const FitTrajectory* trj,
                                 int role, bool final) -> QVariant {
                      if(role == Qt::DisplayRole && final) {
                        return FitTrajectory::endingName(trj->ending);
@@ -129,63 +125,101 @@ public:
                      return QVariant();
                    })
       ;
+    int nbds = fitData->datasets.size();
+    int n = fitData->parametersPerDataset();
+    for(int i = 0; i < nbds; i++) {
+      for(int j = 0; j < n; j++) {
+        QString na = QString("%1[%2]").
+          arg(fitData->parameterDefinitions[j].name).
+          arg(i);
 
-    suffix << Item("rel res", [](const FitTrajectory* trj,
+        columns << Item(na, [j,i,n](const FitTrajectory* trj,
+                              int role, bool final) -> QVariant {
+                          int col = i*n+j;
+                          if(role == Qt::DisplayRole || role == Qt::EditRole) {
+                            double val = final ? trj->finalParameters[col] :
+                              trj->initialParameters[col];
+                            return QVariant(val);
+                          }
+                          if(role == Qt::ToolTipRole && final) {
+                            return QString("Error: %1 %").arg(100 * trj->parameterErrors[col]);
+                          }
+                          if(role == Qt::BackgroundRole && !final) {
+                            if(trj->fixed[col]) 
+                              return QBrush(QColor(210,210,210));
+                          }
+                          return QVariant();
+                        }
+                        );
+      }
+      QString na = QString("point_residuals[%1]").arg(i);
+      columns << Item(na, [i](const FitTrajectory* trj,
+                              int role, bool final) -> QVariant {
+                        if((role == Qt::DisplayRole || role == Qt::EditRole) && final) {
+                          return QVariant(trj->pointResiduals[i]);
+                        }
+                        return QVariant();
+                      }
+                      );
+      
+    }
+
+
+    columns << Item("rel res", [](const FitTrajectory* trj,
+                                  int role, bool final) -> QVariant {
+                      if(role == Qt::DisplayRole && final) {
+                        return trj->relativeResiduals;
+                      }
+                      return QVariant();
+                    })
+            << Item("intern res", [](const FitTrajectory* trj,
+                                     int role, bool final) -> QVariant {
+                      if(role == Qt::DisplayRole && final) {
+                        return trj->internalResiduals;
+                      }
+                      return QVariant();
+                    })
+            << Item("engine", [](const FitTrajectory* trj,
                                  int role, bool final) -> QVariant {
-                     if(role == Qt::DisplayRole && final) {
-                       return trj->relativeResiduals;
-                     }
-                     return QVariant();
-                   })
-           << Item("intern res", [](const FitTrajectory* trj,
-                                    int role, bool final) -> QVariant {
-                     if(role == Qt::DisplayRole && final) {
-                       return trj->internalResiduals;
-                     }
-                     return QVariant();
-                   })
-           << Item("engine", [](const FitTrajectory* trj,
-                                int role, bool final) -> QVariant {
-                     if(role == Qt::DisplayRole && final) {
-                       return trj->engine;
-                     }
-                     return QVariant();
-                   })
-           << Item("date", [](const FitTrajectory* trj,
-                              int role, bool final) -> QVariant {
-                     if(role == Qt::DisplayRole) {
-                       return final ? trj->endTime : trj->startTime;
-                     }
-                     return QVariant();
-                   })
-           << Item("duration", [](const FitTrajectory* trj,
-                              int role, bool final) -> QVariant {
-                     if(role == Qt::DisplayRole && final) {
-                       return trj->startTime.msecsTo(trj->endTime)*1e-3;
-                     }
-                     return QVariant();
-                   })
-           << Item("iterations", [](const FitTrajectory* trj,
+                      if(role == Qt::DisplayRole && final) {
+                        return trj->engine;
+                      }
+                      return QVariant();
+                    })
+            << Item("date", [](const FitTrajectory* trj,
+                               int role, bool final) -> QVariant {
+                      if(role == Qt::DisplayRole) {
+                        return final ? trj->endTime : trj->startTime;
+                      }
+                      return QVariant();
+                    })
+            << Item("duration", [](const FitTrajectory* trj,
                                    int role, bool final) -> QVariant {
-                     if(role == Qt::DisplayRole && final) {
-                       return trj->iterations;
-                     }
-                     return QVariant();
-                   })
-           << Item("evaluations", [](const FitTrajectory* trj,
-                                   int role, bool final) -> QVariant {
-                     if(role == Qt::DisplayRole && final) {
-                       return trj->evaluations;
-                     }
-                     return QVariant();
-                   })
+                      if(role == Qt::DisplayRole && final) {
+                        return trj->startTime.msecsTo(trj->endTime)*1e-3;
+                      }
+                      return QVariant();
+                    })
+            << Item("iterations", [](const FitTrajectory* trj,
+                                     int role, bool final) -> QVariant {
+                      if(role == Qt::DisplayRole && final) {
+                        return trj->iterations;
+                      }
+                      return QVariant();
+                    })
+            << Item("evaluations", [](const FitTrajectory* trj,
+                                      int role, bool final) -> QVariant {
+                      if(role == Qt::DisplayRole && final) {
+                        return trj->evaluations;
+                      }
+                      return QVariant();
+                    })
 
       ;
 
   };
 
   QVariant data(const FitTrajectory* trj, int col, int role, bool final) const {
-    int nb = fitData->fullParameterNumber();
     if(role == Qt::BackgroundRole) {
       QColor c;
       if(final) {
@@ -203,35 +237,11 @@ public:
           break;
         }
       }
-      else {
-        col -= prefix.size();
-        if(col >= 0 && col < nb) {
-          if(trj->fixed[col]) 
-            c = QColor(210,210,210);
-        }
-      }
       if(c.isValid())
         return QBrush(c);
-      return QVariant();
     }  
-    
-    if(col < prefix.size()) {
-      return prefix[col].fcn(trj, role, final);
-    }
-    col -= prefix.size();
-    if(col < nb) {
-      if(role == Qt::DisplayRole || role == Qt::EditRole) {
-        double val = final ? trj->finalParameters[col] :
-          trj->initialParameters[col];
-        return QVariant(val);
-      }
-      if(role == Qt::ToolTipRole && final) {
-        return QString("Error: %1 %").arg(100 * trj->parameterErrors[col]);
-      }
-      return QVariant();
-    }
-    col -= nb;
-    return suffix[col].fcn(trj, role, final);
+
+    return columns[col].fcn(trj, role, final);
   };
 
   
@@ -243,7 +253,7 @@ public:
   }
 
   virtual int columnCount(const QModelIndex & parent = QModelIndex()) const {
-    return prefix.size() + fitData->fullParameterNumber() + suffix.size();
+    return columns.size();
   };
 
   virtual QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const {
@@ -256,27 +266,8 @@ public:
   virtual QVariant headerData(int section, Qt::Orientation orientation,
                               int role) const {
     if(orientation == Qt::Horizontal) {
-      if(section < prefix.size()) {
-        if(role == Qt::DisplayRole)
-          return prefix[section].name;
-        return QVariant();
-      }
-      section -= prefix.size();
-      int nb = fitData->fullParameterNumber();
-      if(section  < nb) {
-        if(role == Qt::DisplayRole) {
-          int k = fitData->parametersPerDataset();
-          int j = section % k;
-          int i = section / k;
-          return QString("%1[%2]").arg(fitData->parameterDefinitions[j].name).
-            arg(i);
-        }
-        return QVariant();
-      }
-      section-= nb;
-      if(section < suffix.size()) {
-        if(role == Qt::DisplayRole)
-          return suffix[section].name;
+      if(role == Qt::DisplayRole) {
+        return columns[section].name;
       }
       return QVariant();
     }

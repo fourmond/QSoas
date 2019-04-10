@@ -873,8 +873,11 @@ public:
 
     // Copy initial concentrations
     const double *c = initialConcentrations(s, a);
-    for(int i = 0; i < s->species; i++)
+    for(int i = 0; i < s->species; i++) {
       concentrations[i] = c[i];
+      if(c[i] < 0)
+        throw RangeError("Concentration must be positive");
+    }
 
     for(int i = 0; i < xv.size(); i++) {
       double x = xv[i];

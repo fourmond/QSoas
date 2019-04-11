@@ -129,7 +129,7 @@ static void iterateExplorerCommand(const QString & /*name*/,
 
   QString script;
   updateFromOptions(opts, "script", script);
-  bool justPick;
+  bool justPick = false;
   updateFromOptions(opts, "just-pick", justPick);
   QString impScript;
   updateFromOptions(opts, "improved-script", impScript);

@@ -53,10 +53,14 @@ class TrajectoriesModel : public QAbstractTableModel {
     std::function<QVariant (const FitTrajectory* trj,
                             int role, bool final)> fcn;
 
+    /// Number of the dataset
     int dataset;
 
-    Item(const QString & n,     std::function<QVariant (const FitTrajectory* trj, int role, bool final)> f, int ds = -1) :
-      name(n), fcn(f), dataset(ds) {;};
+    /// Index in the parameters vector
+    int index;
+
+    Item(const QString & n,     std::function<QVariant (const FitTrajectory* trj, int role, bool final)> f, int ds = -1, int idx = -1) :
+      name(n), fcn(f), dataset(ds), index(idx) {;};
   };
 
   
@@ -137,9 +141,9 @@ public:
           arg(fitData->parameterDefinitions[j].name).
           arg(i);
 
-        columns << Item(na, [j,i,n](const FitTrajectory* trj,
+        int col = i*n+j;
+        columns << Item(na, [j,i,n,col](const FitTrajectory* trj,
                               int role, bool final) -> QVariant {
-                          int col = i*n+j;
                           if(role == Qt::DisplayRole || role == Qt::EditRole) {
                             double val = final ? trj->finalParameters[col] :
                               trj->initialParameters[col];
@@ -153,7 +157,7 @@ public:
                               return QBrush(QColor(210,210,210));
                           }
                           return QVariant();
-                        }, i);
+                        }, i, col);
       }
       QString na = QString("point_residuals[%1]").arg(i);
       columns << Item(na, [i](const FitTrajectory* trj,
@@ -254,6 +258,13 @@ public:
     if(col < 0 || col >= columns.size())
       return -1;
     return columns[col].dataset;
+  };
+
+  bool isFixed(int col, const FitTrajectory * trj) const {
+    int idx = columns[col].index;
+    if(idx < 0)
+      return false;
+    return trj->fixed[idx];
   };
 
   
@@ -526,6 +537,14 @@ void FitTrajectoryDisplay::contextMenuOnTable(const QPoint & pos)
   connect(a, SIGNAL(triggered()), SLOT(reuseParametersForThisDataset()));
   menu.addAction(a);
 
+  a = new QAction(tr("Hide fixed"), this);
+  connect(a, SIGNAL(triggered()), SLOT(hideFixed()));
+  menu.addAction(a);
+
+  a = new QAction(tr("Show all"), this);
+  connect(a, SIGNAL(triggered()), SLOT(showAll()));
+  menu.addAction(a);
+
   a = new QAction(tr("Delete trajectory"), this);
   connect(a, SIGNAL(triggered()), SLOT(deleteCurrentParameters()));
   menu.addAction(a);
@@ -684,4 +703,27 @@ void FitTrajectoryDisplay::trim()
                             2, 0, 1e5, 3, &ok);
   if(ok)
     trim(thr);
+}
+
+void FitTrajectoryDisplay::hideFixed()
+{
+  QModelIndex cur = parametersDisplay->currentIndex();
+  int nbtot = model->columnCount(cur);
+  // Send back the given parameters to the fitdialog
+  int idx = cur.row();
+  if(idx < 0)
+    return;
+  const FitTrajectory * trj = &(workspace->trajectories[idx/2]);
+  for(int i = 0; i < nbtot; i++) {
+    if(model->isFixed(i, trj))
+      parametersDisplay->hideColumn(i);
+  }
+}
+
+void FitTrajectoryDisplay::showAll()
+{
+  QModelIndex idx = parametersDisplay->currentIndex();
+  int nbtot = model->columnCount(idx);
+  for(int i = 0; i < nbtot; i++)
+    parametersDisplay->showColumn(i);
 }

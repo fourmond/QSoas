@@ -121,6 +121,12 @@ public slots:
 
   void previousBuffer();
 
+  /// Hide columns that are fixed
+  void hideFixed();
+
+  /// Show all columns
+  void showAll();
+
 protected slots:
 
   void contextMenuOnTable(const QPoint & pos);

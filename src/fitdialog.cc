@@ -68,7 +68,7 @@ static SettingsValue<int> fitIterationLimit("fitdialog/iteration-limit", 100);
 static const char * saveFilters = "Parameter files (*.params);;Any file (*)";
 static const char * exportFilters = "Data files (*.dat);;Any file (*)";
 
-FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm, bool expert) : 
+FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm, bool expert, const QString & extra) : 
   data(d),
   nup(NULL),
   parameters(d),
@@ -78,7 +78,8 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm, bool 
   alreadyChangingPage(false),
   perpendicularMeta(pm),
   progressReport(NULL),
-  residualsDisplay(NULL)
+  residualsDisplay(NULL),
+  extraTitleInfo(extra)
 {
   setWindowModality(Qt::WindowModal);
   resize(fitDialogSize);

@@ -265,8 +265,8 @@ void Fit::makeCommands(ArgumentList * args,
 
 
   *baseOptions << new StringArgument("extra-parameters", 
-                                 "Extra parameters",
-                                 "defines supplementary parameters");
+                                     "Extra parameters",
+                                     "defines supplementary parameters");
 
   /// Now things specific to some commands
   options = new ArgumentList(*baseOptions);
@@ -288,6 +288,10 @@ void Fit::makeCommands(ArgumentList * args,
                                "Expert mode",
                                "runs the fit in expert mode");
 
+
+  *options << new StringArgument("window-title", 
+                                 "Window title",
+                                 "defines the title of the fit window");
 
 
   // We don't declare the fit command when multiple datasets are
@@ -492,7 +496,12 @@ void Fit::runFit(std::function<void (FitData *)> hook,
   if(expert)
     showWeights = true;         // always shown in expert mode
 
-  FitDialog dlg(&data, showWeights, perpMeta, expert);
+  QString wt;
+  updateFromOptions(opts, "window-title", wt);
+  if(! wt.isEmpty())
+    wt = " -- " + wt;
+
+  FitDialog dlg(&data, showWeights, perpMeta, expert, wt);
 
   if(! loadParameters.isEmpty())
     dlg.loadParametersFile(loadParameters);

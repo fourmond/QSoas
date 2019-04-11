@@ -176,7 +176,8 @@ protected:
 
 public:
   FitDialog(FitData * data, bool displayWeights, 
-            const QString & perpMeta, bool expertMode = false);
+            const QString & perpMeta, bool expertMode = false,
+            const QString & extra = QString());
   ~FitDialog();
 
   /// Sets the maximal number of iterations

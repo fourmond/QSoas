@@ -117,6 +117,10 @@ public slots:
   /// Attempts to cluster the trajectories
   void clusterTrajectories();
 
+  void nextBuffer();
+
+  void previousBuffer();
+
 protected slots:
 
   void contextMenuOnTable(const QPoint & pos);

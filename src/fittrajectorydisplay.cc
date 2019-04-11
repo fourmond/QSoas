@@ -49,10 +49,14 @@ class TrajectoriesModel : public QAbstractTableModel {
   public:
     QString name;
 
+
     std::function<QVariant (const FitTrajectory* trj,
                             int role, bool final)> fcn;
-    Item(const QString & n,     std::function<QVariant (const FitTrajectory* trj, int role, bool final)> f) :
-      name(n), fcn(f) {;};
+
+    int dataset;
+
+    Item(const QString & n,     std::function<QVariant (const FitTrajectory* trj, int role, bool final)> f, int ds = -1) :
+      name(n), fcn(f), dataset(ds) {;};
   };
 
   
@@ -149,8 +153,7 @@ public:
                               return QBrush(QColor(210,210,210));
                           }
                           return QVariant();
-                        }
-                        );
+                        }, i);
       }
       QString na = QString("point_residuals[%1]").arg(i);
       columns << Item(na, [i](const FitTrajectory* trj,
@@ -158,9 +161,10 @@ public:
                         if((role == Qt::DisplayRole || role == Qt::EditRole) && final) {
                           return QVariant(trj->pointResiduals[i]);
                         }
+                        if(role == Qt::BackgroundRole)
+                          return QBrush(QColor(220,220,255));
                         return QVariant();
-                      }
-                      );
+                      }, i);
       
     }
 
@@ -220,28 +224,36 @@ public:
   };
 
   QVariant data(const FitTrajectory* trj, int col, int role, bool final) const {
-    if(role == Qt::BackgroundRole) {
-      QColor c;
-      if(final) {
-        // Now select a color for the bottom line
-        switch(trj->ending) {
-        case FitWorkspace::Converged:
-          c = QColor::fromHsv(120, 15, 255);
-          break;
-        case FitWorkspace::Cancelled:
-          c = QColor::fromHsv(270, 15, 255);
-          break;
-        case FitWorkspace::TimeOut:
-        default:
-          c = QColor::fromHsv(359, 15, 255);
-          break;
+    QVariant v = columns[col].fcn(trj, role, final);
+    if(! v.isValid()) {
+      if(role == Qt::BackgroundRole) {
+        QColor c;
+        if(final) {
+          // Now select a color for the bottom line
+          switch(trj->ending) {
+          case FitWorkspace::Converged:
+            c = QColor::fromHsv(120, 15, 255);
+            break;
+          case FitWorkspace::Cancelled:
+            c = QColor::fromHsv(270, 15, 255);
+            break;
+          case FitWorkspace::TimeOut:
+          default:
+            c = QColor::fromHsv(359, 15, 255);
+            break;
+          }
         }
-      }
-      if(c.isValid())
-        return QBrush(c);
-    }  
+        if(c.isValid())
+          return QBrush(c);
+      }  
+    }
+    return v;
+  };
 
-    return columns[col].fcn(trj, role, final);
+  int dataset(int col) const {
+    if(col < 0 || col >= columns.size())
+      return -1;
+    return columns[col].dataset;
   };
 
   
@@ -383,13 +395,11 @@ void FitTrajectoryDisplay::setupFrame()
   parametersDisplay = new QTableView();
 
   QWidget * wdgt = new QWidget;
-  QSplitter * splt = new QSplitter(Qt::Vertical);
-  t->addWidget(splt);
+  t->addWidget(wdgt);
   QVBoxLayout * l = new QVBoxLayout(wdgt);
 
 
-  splt->addWidget(parametersDisplay);
-  splt->addWidget(wdgt);
+  l->addWidget(parametersDisplay);
   parametersDisplay->setContextMenuPolicy(Qt::CustomContextMenu);
 
   model = new TrajectoriesModel(&workspace->trajectories, fitData);
@@ -426,6 +436,18 @@ void FitTrajectoryDisplay::setupFrame()
   connect(bt, SIGNAL(clicked()), SLOT(clusterTrajectories()));
   hb->addWidget(bt);
 
+  bt = new QPushButton(tr("Previous buffer"));
+  connect(bt, SIGNAL(clicked()), SLOT(previousBuffer()));
+  hb->addWidget(bt);
+
+  bt = new QPushButton(tr("Next buffer"));
+  connect(bt, SIGNAL(clicked()), SLOT(nextBuffer()));
+  hb->addWidget(bt);
+
+  bt = new QPushButton(tr("Close"));
+  connect(bt, SIGNAL(clicked()), SLOT(close()));
+  hb->addWidget(bt);
+
   l->addLayout(hb);
 
   // explorationControls = new QScrollArea;
@@ -433,7 +455,7 @@ void FitTrajectoryDisplay::setupFrame()
 
 
 
-  tabs->addTab(splt, "Table");
+  tabs->addTab(wdgt, "Table");
 
   //////////////////////////////
   // Setup of curve view
@@ -530,11 +552,8 @@ void FitTrajectoryDisplay::reuseParametersForThisDataset()
   // Send back the given parameters to the fitdialog
   int idx = parametersDisplay->currentIndex().row();
   int col = parametersDisplay->currentIndex().column();
-  QString n = model->headerData(col, Qt::Horizontal, Qt::DisplayRole).
-    toString();
-  QRegExp re("\\[(\\d+)\\]");
-  if(re.indexIn(n) >= 0) {
-    int ds = re.cap(1).toInt();
+  int ds = model->dataset(col);
+  if(ds >= 0) {
     Vector parameters;
     if(idx % 2)
       parameters = workspace->trajectories[idx/2].finalParameters;
@@ -610,6 +629,40 @@ void FitTrajectoryDisplay::importFromFile(const QString & file)
   Terminal::out << "Imported " << nb << " trajectories from "
                 << file << endl;
   update();
+}
+
+
+void FitTrajectoryDisplay::nextBuffer()
+{
+  QModelIndex idx = parametersDisplay->currentIndex();
+  int col = idx.column();
+  int nbtot = model->columnCount(idx);
+  int ds = model->dataset(col);
+
+  while(col < nbtot) {
+    if(model->dataset(col) != ds) {
+      idx = idx.sibling(idx.row(), col);
+      parametersDisplay->setCurrentIndex(idx);
+      return;
+    }
+    col += 1;
+  }
+}
+
+void FitTrajectoryDisplay::previousBuffer()
+{
+  QModelIndex idx = parametersDisplay->currentIndex();
+  int col = idx.column();
+  int ds = model->dataset(col);
+
+  while(col > 0) {
+    col -= 1;
+    if(model->dataset(col) != ds) {
+      idx = idx.sibling(idx.row(), col);
+      parametersDisplay->setCurrentIndex(idx);
+      return;
+    }
+  }
 }
 
 

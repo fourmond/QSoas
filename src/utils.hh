@@ -413,6 +413,12 @@ namespace Utils {
       list.swap(i, sz - i - 1);
   }
 
+  /// Returns the color corresponding to the value. A value below the
+  /// lowest of the list returns the corresponding color. Same for a
+  /// value higher than the higher of the list. Anything inbetween is
+  /// interpolated, either in the RGB space or in the HSV space.
+  QColor gradientColor(double value, const QList<QPair<double, QColor> > & colors, bool hsv = false);
+
 };
 
 #endif

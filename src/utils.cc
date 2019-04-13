@@ -874,3 +874,49 @@ int Utils::memoryUsed()
 {
   return 0;
 }
+
+QColor Utils::gradientColor(double value,
+                            const QList<QPair<double, QColor> > & c,
+                            bool hsv)
+{
+  QList<QPair<double, QColor> > colors = c;
+  std::sort(colors.begin(), colors.end(), [](const QPair<double, QColor> & a, const QPair<double, QColor> & b) -> bool {
+      return a.first < b.first;
+    }
+    );
+  if(value < colors.first().first)
+    return colors.first().second;
+
+
+  for(int i = 1; i < colors.size(); i++) {
+    if(value < colors[i].first) {
+      double l = colors[i-1].first;
+      QColor lc = colors[i-1].second;
+      double r = colors[i].first;
+      QColor rc = colors[i].second;
+      double alpha = (r - value)/(r - l);
+
+      qreal a1,a2,b1,b2,c1,c2;
+      if(hsv) {
+        lc.getHsvF(&a1, &b1, &c1);
+        rc.getHsvF(&a2, &b2, &c2);
+      }
+      else {
+        lc.getRgbF(&a1, &b1, &c1);
+        rc.getRgbF(&a2, &b2, &c2);
+      }
+      a1 = alpha*a1 + (1 - alpha)*a2;
+      b1 = alpha*b1 + (1 - alpha)*b2;
+      c1 = alpha*c1 + (1 - alpha)*c2;
+      if(hsv) {
+        lc.setHsvF(a1, b1, c1);
+      }
+      else {
+        lc.setRgbF(a1, b1, c1);
+      }
+      return lc;
+    }
+  }
+
+  return colors.last().second;
+}

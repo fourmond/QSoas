@@ -127,6 +127,12 @@ public slots:
   /// Show all columns
   void showAll();
 
+  /// Sets the current reference trajectory
+  void setAsReference();
+
+  /// Clears the current trajectory
+  void clearReference();
+
 protected slots:
 
   void contextMenuOnTable(const QPoint & pos);

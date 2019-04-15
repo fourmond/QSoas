@@ -66,7 +66,11 @@ class TrajectoriesModel : public QAbstractTableModel {
   
   QList<Item> columns;
 
+
 public:
+
+  /// A reference trajectory to color stuff
+  const FitTrajectory * referenceTrajectory;
 
   void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) {
     Debug::debug() << "sort by " << column << " -- " << order << endl;
@@ -110,7 +114,7 @@ public:
     
 
   TrajectoriesModel(FitTrajectories * trj, const FitData * d) :
-    trajectories(trj), fitData(d) {
+    trajectories(trj), fitData(d), referenceTrajectory(NULL) {
     columns << Item("status", [](const FitTrajectory* trj,
                                 int role, bool final) -> QVariant {
                      if(role == Qt::DisplayRole && final) {
@@ -135,6 +139,11 @@ public:
       ;
     int nbds = fitData->datasets.size();
     int n = fitData->parametersPerDataset();
+    QList<QPair<double, QColor> > colors;
+    colors << QPair<double, QColor>(0, QColor(220,255,220))
+           << QPair<double, QColor>(0.1, QColor(220,220,255))
+           << QPair<double, QColor>(1, QColor(255,220,220));
+
     for(int i = 0; i < nbds; i++) {
       for(int j = 0; j < n; j++) {
         QString na = QString("%1[%2]").
@@ -142,8 +151,8 @@ public:
           arg(i);
 
         int col = i*n+j;
-        columns << Item(na, [j,i,n,col](const FitTrajectory* trj,
-                              int role, bool final) -> QVariant {
+        columns << Item(na, [this,j,i,n,col,colors](const FitTrajectory* trj,
+                                             int role, bool final) -> QVariant {
                           if(role == Qt::DisplayRole || role == Qt::EditRole) {
                             double val = final ? trj->finalParameters[col] :
                               trj->initialParameters[col];
@@ -155,6 +164,18 @@ public:
                           if(role == Qt::BackgroundRole && !final) {
                             if(trj->fixed[col]) 
                               return QBrush(QColor(210,210,210));
+                          }
+                          if(role == Qt::BackgroundRole && final && referenceTrajectory) {
+                            if(trj == referenceTrajectory)
+                              return QBrush(QColor(200,255,200));
+                            double dv = trj->finalParameters[col]/
+                              referenceTrajectory->finalParameters[col];
+                            if(dv < 0)
+                              dv = 10;
+                            else
+                              dv = fabs(log10(dv));
+                            return QBrush(Utils::gradientColor(dv, colors));
+                            
                           }
                           return QVariant();
                         }, i, col);
@@ -537,6 +558,20 @@ void FitTrajectoryDisplay::contextMenuOnTable(const QPoint & pos)
   connect(a, SIGNAL(triggered()), SLOT(reuseParametersForThisDataset()));
   menu.addAction(a);
 
+  menu.addSeparator();
+
+
+  a = new QAction(tr("Set as Reference"), this);
+  connect(a, SIGNAL(triggered()), SLOT(setAsReference()));
+  menu.addAction(a);
+
+  a = new QAction(tr("Clear reference"), this);
+  connect(a, SIGNAL(triggered()), SLOT(clearReference()));
+  menu.addAction(a);
+
+
+  menu.addSeparator();
+    
   a = new QAction(tr("Hide fixed"), this);
   connect(a, SIGNAL(triggered()), SLOT(hideFixed()));
   menu.addAction(a);
@@ -726,4 +761,21 @@ void FitTrajectoryDisplay::showAll()
   int nbtot = model->columnCount(idx);
   for(int i = 0; i < nbtot; i++)
     parametersDisplay->showColumn(i);
+}
+
+void FitTrajectoryDisplay::setAsReference()
+{
+  QModelIndex cur = parametersDisplay->currentIndex();
+  int idx = cur.row();
+  if(idx < 0)
+    return;
+  const FitTrajectory * trj = &(workspace->trajectories[idx/2]);
+  model->referenceTrajectory = trj;
+  model->update();
+}
+
+void FitTrajectoryDisplay::clearReference()
+{
+  model->referenceTrajectory = NULL;
+  model->update();
 }

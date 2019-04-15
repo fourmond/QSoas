@@ -340,7 +340,7 @@ void DistribFit::processSoftOptions(const CommandOptions & opts, FitData * data)
   {
     TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
                                            s->sub);
-    Fit::processOptions(underlyingFit, opts, data);
+    Fit::processSoftOptions(underlyingFit, opts, data);
   }
   if(s->integrator)
     delete s->integrator;

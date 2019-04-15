@@ -85,7 +85,7 @@ int FitTrajectories::importFromFile(QTextStream & in)
     }
     FitTrajectory t;
     bool ok = true;
-    t.loadFromColumns(ls, sz, &ok);
+    t.loadFromColumns(ls, sz, workSpace->datasetNumber(), &ok);
     if(ok) {
       trajectories << t;
       nb++;

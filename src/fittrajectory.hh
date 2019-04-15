@@ -124,7 +124,8 @@ public:
   /// 
   /// If the reading fails because of missing columns, the ok flag is
   /// set to false
-  void loadFromColumns(const QStringList & cols, int nb, bool *ok = NULL);
+  void loadFromColumns(const QStringList & cols, int nb, int datasets,
+                       bool *ok = NULL);
 
   static QStringList exportHeaders(const QStringList & paramNames, int nb);
 

@@ -109,7 +109,7 @@ QStringList FitTrajectory::exportColumns() const
   return ret;
 }
 
-void FitTrajectory::loadFromColumns(const QStringList & cls, int nb, bool * ok)
+void FitTrajectory::loadFromColumns(const QStringList & cls, int nb, int datasets, bool * ok)
 {
   QStringList cols(cls);
 
@@ -124,7 +124,6 @@ void FitTrajectory::loadFromColumns(const QStringList & cls, int nb, bool * ok)
     return QString();
   };
 
-  throw InternalError("Loading not implemented anymore");
   initialParameters.resize(nb);
 
   try {
@@ -141,6 +140,10 @@ void FitTrajectory::loadFromColumns(const QStringList & cls, int nb, bool * ok)
       finalParameters[i] = next().toDouble();
       parameterErrors[i] = next().toDouble();
     }
+
+    pointResiduals.resize(datasets);
+    for(int i = 0; i < datasets; i++)
+      pointResiduals[i] = next().toDouble();
 
     residuals = next().toDouble();
     relativeResiduals = next().toDouble();
@@ -186,8 +189,16 @@ QStringList FitTrajectory::exportHeaders(const QStringList & s, int ds)
     for(int j = 0; j < s.size(); j++)
       ret << QString("%1[%2]_f").arg(s[j]).arg(i)
           << QString("%1[%2]_err").arg(s[j]).arg(i);
-  ret << "residuals" << "relative_res" << "internal_res"
-      << "engine"  << "flags";
+  
+  for(int i = 0; i < ds; i++)
+    ret << QString("point_residuals[%1]").arg(i);
+
+  ret << "residuals" << "relative_res"
+      << "internal_res"
+      << "engine"
+      << "start_time" << "end_time" << "iterations" << "evals"
+      << "res_delta" << "fixed"
+      << "flags";
   return ret;
 }
 

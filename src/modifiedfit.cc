@@ -101,7 +101,8 @@ protected:
       originalParameters(o.originalParameters),
       finalParameters(o.finalParameters),
       totalSize(o.totalSize),
-      underlyingStorage(NULL)
+      underlyingStorage(NULL),
+      skippedIndices(o.skippedIndices)
     {
       for(QHash<int, Expression *>::const_iterator i = o.expressions.begin();
           i != o.expressions.end(); ++i) {
@@ -273,8 +274,21 @@ protected:
   {
     Storage * s = storage<Storage>(data);
     double buffer[s->totalSize];
+    // QTextStream o(stdout);
+    // o << s << " -- totl: " << s->totalSize << " -- " 
+    //   << s->originalParameters.size() << endl;
+    
+    // for(int i : s->expressions.keys())
+    //   o << "#" << i << " -> " << s->expressions[i]->formula()
+    //     << " -- " << s->expressions[i]->currentVariables().join(", ")
+    //     << endl;
     
     Utils::skippingCopy(src, buffer, s->totalSize, s->skippedIndices);
+
+    // o << "Before:";
+    // for(int i = 0; i < s->totalSize; i++)
+    //   o << "\t" << buffer[i];
+    // o << endl;
 
     // As many evaluations as formulas to ensure that all depths are
     // resolved.
@@ -283,6 +297,12 @@ protected:
           i != s->expressions.end(); ++i)
         buffer[i.key()] = i.value()->evaluate(buffer);
     }
+
+    // o << "After:";
+    // for(int i = 0; i < s->totalSize; i++)
+    //   o << "\t" << buffer[i];
+    // o << endl;
+
     memcpy(dest, buffer, sizeof(double) * s->originalParameters.size());
 
     // Now, run the checks

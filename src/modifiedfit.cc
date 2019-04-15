@@ -134,6 +134,8 @@ protected:
   void prepareExpressions(FitData * data) const
   {
     Storage * s = storage<Storage>(data);
+    // QTextStream o(stdout);
+    // o << "Called for fit " << this << " with data: " << s << endl;
 
     {
       TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
@@ -443,10 +445,10 @@ rfA(QList<Argument *>()
                            "the fit to modify")
     << new StringArgument("new-parameters", "New parameters",
                           "Comma-separated list of new parameters")
-    << new SeveralStringsArgument(QRegExp("\\s*#\\s*"),
+    << new SeveralStringsArgument(QRegExp("\\s*;;\\s*"),
                                   "redefinitions", 
                                   "Redefinitions",
-                                  "a list of redefinitions, separated by `#`"));
+                                  "a list of redefinitions, separated by `;;`"));
 
 
 

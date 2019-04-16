@@ -87,6 +87,8 @@ public:
              double * last) const {
     double center = parameters[0];
     double sigm = parameters[1];
+    if(sigm < 0)
+      throw RangeError("sigma must be positive");
     double ext = parameters[2];
     *first = center - fabs(sigm * ext);
     *last = center + fabs(sigm * ext);
@@ -133,6 +135,8 @@ public:
              double * last) const {
     double center = parameters[0];
     double sigm = parameters[1];
+    if(sigm < 0)
+      throw RangeError("gamma must be positive");
     double ext = parameters[2];
     *first = center - fabs(sigm * ext);
     *last = center + fabs(sigm * ext);
@@ -184,6 +188,9 @@ public:
              double * last) const {
     *first = 0; 
     *last = parameters[1];
+    if(parameters[1] < 0)
+      throw RangeError("betadmax must be positive");
+
   };
   
   virtual double weight(const double * parameters, double ) const {

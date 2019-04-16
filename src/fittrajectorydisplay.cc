@@ -574,6 +574,15 @@ void FitTrajectoryDisplay::setupFrame()
   a->setSeparator(true);
   contextActions << a;
 
+  addCMAction("Sort", this, SLOT(sortByCurrentColumn()),
+              QKeySequence(QString("Ctrl+S")));
+  addCMAction("Reverse sort", this, SLOT(reverseSortByCurrentColumn()),
+              QKeySequence(QString("Ctrl+Shift+S")));
+
+  a = new QAction(this);
+  a->setSeparator(true);
+  contextActions << a;
+
   addCMAction("Delete trajectory", this, SLOT(deleteSelectedTrajectories()),
               QKeySequence(QString("Del")));
 }
@@ -793,6 +802,20 @@ void FitTrajectoryDisplay::showAll()
   int nbtot = model->columnCount(idx);
   for(int i = 0; i < nbtot; i++)
     parametersDisplay->showColumn(i);
+}
+
+
+
+void FitTrajectoryDisplay::sortByCurrentColumn()
+{
+  QModelIndex idx = parametersDisplay->currentIndex();
+  model->sort(idx.column());
+}
+
+void FitTrajectoryDisplay::reverseSortByCurrentColumn()
+{
+  QModelIndex idx = parametersDisplay->currentIndex();
+  model->sort(idx.column(), Qt::DescendingOrder);
 }
 
 void FitTrajectoryDisplay::setAsReference()

@@ -140,6 +140,14 @@ public slots:
   /// Clears the current trajectory
   void clearReference();
 
+
+  /// Sorts according to the current column
+  void sortByCurrentColumn();
+
+  /// (reverse) sortByCurrentColumn()
+  void reverseSortByCurrentColumn();
+                                                        
+
 protected slots:
 
   void contextMenuOnTable(const QPoint & pos);

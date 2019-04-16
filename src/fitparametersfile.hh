@@ -32,13 +32,20 @@ class FitParametersFile {
 public:
 
   /// The names of the datasets, as guessed from the comments
-  QHash<int, QString> datasetNames;
+  // QHash<int, QString> datasetNames;
 
   /// The original name of the fit
   QString fitName;
 
   /// Comments (all of them)
   QStringList comments;
+
+  /// An index buffer name -> dataset number
+  QHash<QString, int> bufferByName;
+
+  /// An index Z value -> dataset number
+  QHash<QString, int> bufferByZ;
+  
   
   class Parameter {
   public:

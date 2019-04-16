@@ -707,10 +707,6 @@ void FitWorkspace::saveParameters(QIODevice * stream) const
   out << "# Fit used: " << fitName() << endl;
   out << "# Command-line: " << soas().currentCommandLine() << endl;
 
-  for(int i = 0; i < datasets; i++)
-    out << "# Buffer #" << i << " : " 
-        << fitData->datasets[i]->name << endl;
-
   // A first pass to print out the global parameters
   for(int i = 0; i < nbParameters; i++) {
     if(isGlobal(i) || datasets == 1) {
@@ -720,23 +716,23 @@ void FitWorkspace::saveParameters(QIODevice * stream) const
           << endl;
     }
   }
-  if(datasets > 1) {
-    for(int j = 0; j < datasets; j++) {
-      out << "buffer_weight[#" << j << "]\t" << fitData->weightsPerBuffer[j] 
-          << endl;
-      if(hasPerpendicularCoordinates())
+  for(int j = 0; j < datasets; j++) {
+    out << "buffer_weight[#" << j << "]\t" << fitData->weightsPerBuffer[j] 
+        << endl;
+    out << "buffer_name[#" << j << "]\t" << fitData->datasets[j]->name
+        << endl;
+    if(hasPerpendicularCoordinates())
       out << "Z[#" << j << "]\t" << perpendicularCoordinates[j] 
           << endl;
         
-      for(int i = 0; i < nbParameters; i++) {
-        if(isGlobal(i))
-          continue;
-        const FitParameter * param = parameter(i, j);
-        out << fitData->parameterDefinitions[i].name 
-            << "[#" << j << "]\t"
-            << "\t" << param->saveAsString(getValue(i, j))
-            << endl;
-      }
+    for(int i = 0; i < nbParameters; i++) {
+      if(isGlobal(i) || datasets == 1)
+        continue;
+      const FitParameter * param = parameter(i, j);
+      out << fitData->parameterDefinitions[i].name 
+          << "[#" << j << "]\t"
+          << "\t" << param->saveAsString(getValue(i, j))
+          << endl;
     }
   }
   out << "# The following contains a more human-readable listing of the "
@@ -962,7 +958,7 @@ void FitWorkspace::loadParameters(FitParametersFile & params,
     else {
       int idx = parameterIndices.value(param.name, -1);
       if(idx < 0) {
-        if(param.name != "Z")   // Just silently ignore Z parameters
+        if(! (param.name == "Z" || param.name == "buffer_name"))   // Just silently ignore Z parameters and buffer names
                                 // (if there aren't any)
           Terminal::out << "Found unkown parameter: '" << param.name
                         << "', ignoring" << endl;

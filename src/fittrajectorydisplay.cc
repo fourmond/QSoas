@@ -531,6 +531,51 @@ void FitTrajectoryDisplay::setupFrame()
   connect(workspace, SIGNAL(finishedFitting(int)), 
           view, SLOT(repaint()), Qt::QueuedConnection);
 
+
+
+  /////////////////////////////
+  /// Context menu preparation
+
+  
+  addCMAction("Reuse parameters", this, SLOT(reuseCurrentParameters()),
+              QKeySequence(QString("Ctrl+Shift+U")));
+  addCMAction("Reuse parameters for this dataset", this,
+              SLOT(reuseParametersForThisDataset()),
+              QKeySequence(QString("Ctrl+U")));
+
+  QAction * a = new QAction(this);
+  a->setSeparator(true);
+  contextActions << a;
+
+  addCMAction("Set as Reference", this, SLOT(setAsReference()),
+              QKeySequence(QString("Ctrl+R")));
+  addCMAction("Clear reference", this, SLOT(clearReference()),
+              QKeySequence(QString("Ctrl+Shift+R")));
+
+  a = new QAction(this);
+  a->setSeparator(true);
+  contextActions << a;
+
+  addCMAction("Next buffer", this, SLOT(nextBuffer()),
+              QKeySequence(QString("Ctrl+PgDown")));
+  addCMAction("Previous buffer", this, SLOT(previousBuffer()),
+              QKeySequence(QString("Ctrl+PgUp")));
+
+  a = new QAction(this);
+  a->setSeparator(true);
+  contextActions << a;
+
+  addCMAction("Hide fixed", this, SLOT(hideFixed()),
+              QKeySequence(QString("Ctrl+H")));
+  addCMAction("Show all", this, SLOT(showAll()),
+              QKeySequence(QString("Ctrl+Shift+H")));
+
+  a = new QAction(this);
+  a->setSeparator(true);
+  contextActions << a;
+
+  addCMAction("Delete trajectory", this, SLOT(deleteSelectedTrajectories()),
+              QKeySequence(QString("Del")));
 }
 
 void FitTrajectoryDisplay::update()
@@ -545,46 +590,29 @@ FitTrajectoryDisplay::~FitTrajectoryDisplay()
 {
 }
 
+void FitTrajectoryDisplay::addCMAction(const QString & name,
+                                       QObject * receiver, 
+                                       const char * slot,
+                                       const QKeySequence & shortCut)
+{
+  QString str = name;
+  if(! shortCut.isEmpty())
+    str += "   (" + shortCut.toString() + ")";
+  QAction * ac = ActionCombo::createAction(name, receiver,
+                                           slot, shortCut, this);
+  contextActions << ac;
+  QWidget::addAction(ac);
+}
 
 
 void FitTrajectoryDisplay::contextMenuOnTable(const QPoint & pos)
 {
   QMenu menu;
-  QAction * a = new QAction(tr("Reuse parameters"), this);
-  connect(a, SIGNAL(triggered()), SLOT(reuseCurrentParameters()));
-  menu.addAction(a);
+  for(int i = 0; i < contextActions.size(); i++)
+    menu.addAction(contextActions[i]);
 
-  a = new QAction(tr("Reuse parameters for this dataset"), this);
-  connect(a, SIGNAL(triggered()), SLOT(reuseParametersForThisDataset()));
-  menu.addAction(a);
-
-  menu.addSeparator();
-
-
-  a = new QAction(tr("Set as Reference"), this);
-  connect(a, SIGNAL(triggered()), SLOT(setAsReference()));
-  menu.addAction(a);
-
-  a = new QAction(tr("Clear reference"), this);
-  connect(a, SIGNAL(triggered()), SLOT(clearReference()));
-  menu.addAction(a);
-
-
-  menu.addSeparator();
-    
-  a = new QAction(tr("Hide fixed"), this);
-  connect(a, SIGNAL(triggered()), SLOT(hideFixed()));
-  menu.addAction(a);
-
-  a = new QAction(tr("Show all"), this);
-  connect(a, SIGNAL(triggered()), SLOT(showAll()));
-  menu.addAction(a);
-
-  a = new QAction(tr("Delete trajectory"), this);
-  connect(a, SIGNAL(triggered()), SLOT(deleteCurrentParameters()));
-  menu.addAction(a);
-
-  menu.exec(parametersDisplay->mapToGlobal(pos));
+  // Triggered automatically, apparently...
+  menu.exec(view->viewport()->mapToGlobal(pos));
 }
 
 void FitTrajectoryDisplay::reuseCurrentParameters()
@@ -617,13 +645,17 @@ void FitTrajectoryDisplay::reuseParametersForThisDataset()
   }
 }
 
-void FitTrajectoryDisplay::deleteCurrentParameters()
+void FitTrajectoryDisplay::deleteSelectedTrajectories()
 {
-  // Send back the given parameters to the fitdialog
-  int idx = parametersDisplay->currentIndex().row();
-  if(idx < 0)
-    return;
-  workspace->trajectories.remove(idx/2);
+  QSet<int> trjs;
+  QModelIndexList indexes =
+    parametersDisplay->selectionModel()->selectedIndexes();
+  for(const QModelIndex & idx : indexes)
+    trjs.insert(idx.row()/2);
+  QList<int> l = trjs.toList();
+  std::sort(l.begin(), l.end());
+  while(l.size() > 0)
+    workspace->trajectories.remove(l.takeLast());
   model->update();
 }
 

@@ -82,6 +82,13 @@ class FitTrajectoryDisplay : public QDialog {
   /// Whether we have done at least one iteration
   bool doneOne;
 
+  QList<QAction *> contextActions;
+
+  void addCMAction(const QString & name, QObject * receiver, 
+                   const char * slot, 
+                   const QKeySequence & shortCut = QKeySequence());
+  
+
 public:
 
   FitTrajectoryDisplay(FitWorkspace * workspace);
@@ -144,8 +151,8 @@ protected slots:
   /// to the FitWorkspace.
   void reuseParametersForThisDataset();
 
-  /// Deletes the currently selected parameters
-  void deleteCurrentParameters();
+  /// Deletes the selected parameters
+  void deleteSelectedTrajectories();
 };
 
 

@@ -1,0 +1,8 @@
+generate-buffer 0 10 2*exp(-x/4)+2
+a test-1.dat
+generate-buffer 0 10 0.4*exp(-x/2)+7
+a test-2.dat
+mfit-exponential-decay 1 0 /expert=true
+# Here, try the effect of running:
+# load test.params
+# load test.params /mode=buffer-name

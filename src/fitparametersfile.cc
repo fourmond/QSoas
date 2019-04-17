@@ -26,7 +26,7 @@
 
 void FitParametersFile::Parameter::replaceParameter(FitParameter * & parameter,
                                                     double * tg, 
-                                                    int idx, int ds)
+                                                    int idx, int ds) const
 {
   FitParameter * npm = 
     FitParameter::loadFromString(value, tg, idx, ds);

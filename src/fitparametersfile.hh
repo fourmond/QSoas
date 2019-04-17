@@ -67,7 +67,7 @@ public:
     };
 
     void replaceParameter(FitParameter * & parameter, double * tg, 
-                          int idx, int ds);
+                          int idx, int ds) const;
   };
 
   /// Parameters (or pseudo-parameters) defined in the file

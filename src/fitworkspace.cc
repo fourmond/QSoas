@@ -99,8 +99,8 @@ FitWorkspace::FitWorkspace(FitData * d) :
                                        d->parametersPerDataset()),
   rawCVMatrix(NULL), cookedCVMatrix(NULL),
   currentExplorer(NULL),
-  trajectories(this),
   shouldCancelFit(false),
+  trajectories(this),
   fitEnding(NotStarted),
   parametersStatus(FitWorkspace::ParametersUnknown),
   covarianceMatrixOK(false)
@@ -922,12 +922,19 @@ void FitWorkspace::loadParameters(QIODevice * source,
   loadParameters(params, targetDS, sourceDS);
 }
 
+void FitWorkspace::loadParameters(const FitParametersFile & params, 
+                                  const QHash<int, int> & splice)
+{
+  for(int dst : splice.keys())
+    loadParameters(params, dst, splice[dst]);
+}
 
-void FitWorkspace::loadParameters(FitParametersFile & params, 
+
+void FitWorkspace::loadParameters(const FitParametersFile & params, 
                                    int targetDS, int sourceDS)
 {
   for(int k = 0; k < params.parameters.size(); k++) {
-    FitParametersFile::Parameter & param = params.parameters[k];
+    const FitParametersFile::Parameter & param = params.parameters[k];
     int ds = param.datasetIndex; // That's cheating ;-)...
     if(targetDS >= 0) {
       if(ds >= 0 && ds != sourceDS)

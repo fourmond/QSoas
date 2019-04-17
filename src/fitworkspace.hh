@@ -121,13 +121,21 @@ class FitWorkspace : public QObject {
   void prepareExport(QStringList & headers, QString & lines, 
                      bool exportErrors = false, bool exportMeta = true);
 
+public:
   /// Loads parameters from a parsed parameters file.
   ///
   /// If \a targetDS isn't negative, we copy only from \a sourceDS to
   /// the given targetDS.
-  void loadParameters(FitParametersFile & params, int targetDS = -1, 
+  void loadParameters(const FitParametersFile & params, int targetDS = -1, 
                       int sourceDS = 0);
-  
+
+
+  /// Same as loadParameters, but splice the source and target DS
+  /// according to the @a splice parameter, which is a hash target ->
+  /// source. (as a source can be used for several targets)
+  void loadParameters(const FitParametersFile & params,
+                      const QHash<int, int> & splice);
+
   /// Loads the parameter VALUES from a parsed parameters file, taking
   /// into account Z values and interpolating if needed.
   ///
@@ -135,7 +143,7 @@ class FitWorkspace : public QObject {
   /// and the formulas...
   void loadParametersValues(FitParametersFile & params);
 
-
+private:
   /// This updates the parameters values, by packing from values and
   /// unpacking back to values.
   ///

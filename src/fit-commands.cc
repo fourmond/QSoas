@@ -31,6 +31,10 @@
 #include <general-arguments.hh>
 #include <file-arguments.hh>
 
+#include <fitparametersfile.hh>
+#include <fitdata.hh>
+#include <dataset.hh>
+
 #include <fwexpression.hh>
 #include <mruby.hh>
 
@@ -91,9 +95,47 @@ save("save", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void loadCommand(const QString & /*name*/, QString file)
+static void loadCommand(const QString & /*name*/, QString file,
+                        const CommandOptions & opts)
 {
-  FitWorkspace::currentWorkspace()->loadParameters(file);
+  QFile f(file);
+  Utils::open(&f,QIODevice::ReadOnly);
+  QTextStream in(&f);
+  FitParametersFile params;
+
+  params.readFromStream(in);
+
+  QString mode = "normal";
+  updateFromOptions(opts, "mode", mode);
+
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+
+  if(mode == "normal") {
+    ws->loadParameters(params);
+  }
+  else {
+    QHash<int, int> splice;
+    if(mode == "buffer-name") {
+      Terminal::out << "Loading '" << file
+                    << "' according to buffer names"
+                    << endl;
+                       
+      const QList<const DataSet * > & datasets = ws->data()->datasets;
+      for(int i = 0; i < datasets.size(); i++) {
+        const QString & n = datasets[i]->name;
+        int idx = params.bufferByName.value(n, -1);
+        Terminal::out << " * " << n;
+        if(idx >= 0) {
+          Terminal::out << " -> " <<  idx;
+          splice[i] = idx;
+        }
+        else
+          Terminal::out << " not found";
+        Terminal::out << endl;
+      }
+    }
+    ws->loadParameters(params, splice);
+  }
 }
 
 ArgumentList lA(QList<Argument*>() 
@@ -102,12 +144,20 @@ ArgumentList lA(QList<Argument*>()
                                     "name of the file to load the parameters from")
                 );
 
+ArgumentList lO(QList<Argument*>() 
+                << new ChoiceArgument(QStringList()
+                                      << "normal" << "buffer-name"
+                                      /*<< "closest-Z"*/,
+                                      "mode", "Loading mode"
+                                      "mode to chose the correspondance between source and target datasets")
+                );
+
 static Command 
 load("load", // command name
-     optionLessEffector(loadCommand), // action
+     effector(loadCommand), // action
      "fit",  // group name
      &lA, // arguments
-     NULL, // options
+     &lO, // options
      "Load",
      "Load the parameters from a file",
      "", CommandContext::fitContext());

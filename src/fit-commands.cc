@@ -115,12 +115,12 @@ static void loadCommand(const QString & /*name*/, QString file,
   }
   else {
     QHash<int, int> splice;
+    const QList<const DataSet * > & datasets = ws->data()->datasets;
     if(mode == "buffer-name") {
       Terminal::out << "Loading '" << file
                     << "' according to buffer names"
                     << endl;
                        
-      const QList<const DataSet * > & datasets = ws->data()->datasets;
       for(int i = 0; i < datasets.size(); i++) {
         const QString & n = datasets[i]->name;
         int idx = params.bufferByName.value(n, -1);
@@ -132,6 +132,45 @@ static void loadCommand(const QString & /*name*/, QString file,
         else
           Terminal::out << " not found";
         Terminal::out << endl;
+      }
+    }
+    if(mode == "closest-Z") {
+      if(! ws->hasPerpendicularCoordinates())
+        throw RuntimeError("The buffers have no perpendicular coordinates");
+        
+      QList<QPair <double, int> > buffersByZ;
+      for(int i : params.bufferZValues.keys())
+        buffersByZ << QPair<double, int>(params.bufferZValues[i], i);
+      std::sort(buffersByZ.begin(), buffersByZ.end(),
+                [](const QPair<double, int> & a,
+                   const QPair<double, int> & b) -> bool {
+                  return a.first < b.first;
+                });
+      if(buffersByZ.size() == 0)
+        throw RuntimeError("No parameter Z values found in '%1'").
+          arg(file);
+      Terminal::out << "Matching buffers based on Z values" << endl;
+      for(int j = 0; j < datasets.size(); j++) {
+        double v = ws->perpendicularCoordinates[j];
+        int i = 0;
+        for(; i < buffersByZ.size(); i++) {
+          if(v < buffersByZ[i].first) {
+            if(i > 0) {
+              if((buffersByZ[i].first - v) > (v - buffersByZ[i-1].first))
+                --i;
+            }
+            break;
+          }
+        }
+        if(i >= buffersByZ.size())
+          i = buffersByZ.size() - 1;
+        i = buffersByZ[i].second; // Now i is the dataset number
+        Terminal::out << " * #" << j << " " << datasets[j]->name
+                      << " Z = " << v << " <- #"
+                      << i << ", " << params.bufferNames[i]
+                      << " Z = " << params.bufferZValues[i]
+                      << endl;
+        splice[j] = i;
       }
     }
     ws->loadParameters(params, splice);
@@ -147,7 +186,7 @@ ArgumentList lA(QList<Argument*>()
 ArgumentList lO(QList<Argument*>() 
                 << new ChoiceArgument(QStringList()
                                       << "normal" << "buffer-name"
-                                      /*<< "closest-Z"*/,
+                                      << "closest-Z",
                                       "mode", "Loading mode"
                                       "mode to chose the correspondance between source and target datasets")
                 );

@@ -65,10 +65,14 @@ void FitParametersFile::readFromStream(QTextStream & in)
         parametersOrder << pn;
         definedParameters += pn;
       }
-      if(pn == "buffer_name" && ds >= 0)
+      if(pn == "buffer_name" && ds >= 0) {
         bufferByName[paramRE.cap(3)] = ds;
-      if(pn == "Z" && ds >= 0)
+        bufferNames[ds] = paramRE.cap(3);
+      }
+      if(pn == "Z" && ds >= 0) {
         bufferByZ[paramRE.cap(3)] = ds;
+        bufferZValues[ds] = paramRE.cap(3).toDouble();
+      }
     }
     else if(commentRE.indexIn(line) == 0) {
       QString cmt = commentRE.cap(1);

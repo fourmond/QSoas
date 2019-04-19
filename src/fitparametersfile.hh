@@ -43,8 +43,14 @@ public:
   /// An index buffer name -> dataset number
   QHash<QString, int> bufferByName;
 
+  /// A number -> name correspondance
+  QHash<int, QString> bufferNames;
+  
   /// An index Z value -> dataset number
   QHash<QString, int> bufferByZ;
+
+  /// The list of the Z values for each buffer
+  QHash<int, double> bufferZValues;
   
   
   class Parameter {

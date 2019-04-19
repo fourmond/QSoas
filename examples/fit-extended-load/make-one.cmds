@@ -1,0 +1,4 @@
+# A B C name perp
+generate-buffer 0 10 ${1}*exp(-x/${2})+${3}
+a ${4}
+set-perp ${2}

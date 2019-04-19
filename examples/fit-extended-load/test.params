@@ -1,27 +1,65 @@
 # The following information are comments, but Soas may make use of those if they are present
 # Fit used: exponential-decay (1 exp, absolute, no loss, no slow phase)
-# Command-line: mfit-exponential-decay 0 1
+# Command-line: mfit-exponential-decay 0..4 /expert=true
 buffer_weight[#0]	1
-buffer_name[#0]	test-2.dat
+buffer_name[#0]	test-5.dat
+Z[#0]	1.2
 x0[#0]		0	!	0
-A_inf[#0]		7	!	1
-tau_1[#0]		2	!	1
-A_1[#0]		0.4	!	1
+A_inf[#0]		2	!	1
+tau_1[#0]		1.2	!	1
+A_1[#0]		4	!	1
 buffer_weight[#1]	1
-buffer_name[#1]	test-1.dat
+buffer_name[#1]	test-4.dat
+Z[#1]	0.3
 x0[#1]		0	!	0
 A_inf[#1]		2	!	1
-tau_1[#1]		4	!	1
+tau_1[#1]		0.3	!	1
 A_1[#1]		2	!	1
+buffer_weight[#2]	1
+buffer_name[#2]	test-3.dat
+Z[#2]	12
+x0[#2]		0	!	0
+A_inf[#2]		1	!	1
+tau_1[#2]		12	!	1
+A_1[#2]		7	!	1
+buffer_weight[#3]	1
+buffer_name[#3]	test-2.dat
+Z[#3]	1
+x0[#3]		0	!	0
+A_inf[#3]		5	!	1
+tau_1[#3]		1	!	1
+A_1[#3]		3	!	1
+buffer_weight[#4]	1
+buffer_name[#4]	test-1.dat
+Z[#4]	4
+x0[#4]		0	!	0
+A_inf[#4]		2	!	1
+tau_1[#4]		4	!	1
+A_1[#4]		2	!	1
 # The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
-# Final residuals: 1.10577e-16
+# Final residuals: 2.23285e-16
 # Buffer-local parameters: 
 # 
+# Buffer: test-5.dat (weight: 1)
+# x0	=	0	(fixed)
+# A_inf	=	2	+- 0	+- 0%
+# tau_1	=	1.2	+- 0	+- 0%
+# A_1	=	4	+- 0	+- 0%
+# Buffer: test-4.dat (weight: 1)
+# x0	=	0	(fixed)
+# A_inf	=	2	+- 0	+- 0%
+# tau_1	=	0.3	+- 0	+- 0%
+# A_1	=	2	+- 0	+- 0%
+# Buffer: test-3.dat (weight: 1)
+# x0	=	0	(fixed)
+# A_inf	=	1	+- 1.2e-15	+- 1.2e-13%
+# tau_1	=	12	+- 3.1e-15	+- 2.6e-14%
+# A_1	=	7	+- 1.1e-15	+- 1.6e-14%
 # Buffer: test-2.dat (weight: 1)
 # x0	=	0	(fixed)
-# A_inf	=	7	+- 1.9e-17	+- 2.7e-16%
-# tau_1	=	2	+- 4.7e-16	+- 2.3e-14%
-# A_1	=	0.4	+- 4.3e-17	+- 1.1e-14%
+# A_inf	=	5	+- 0	+- 0%
+# tau_1	=	1	+- 0	+- 0%
+# A_1	=	3	+- 0	+- 0%
 # Buffer: test-1.dat (weight: 1)
 # x0	=	0	(fixed)
 # A_inf	=	2	+- 0	+- 0%

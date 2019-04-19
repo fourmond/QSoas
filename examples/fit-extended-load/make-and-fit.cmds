@@ -1,8 +1,23 @@
-generate-buffer 0 10 2*exp(-x/4)+2
-a test-1.dat
-generate-buffer 0 10 0.4*exp(-x/2)+7
-a test-2.dat
-mfit-exponential-decay 1 0 /expert=true
+@ make-one.cmds 2 4 2 test-1.dat
+@ make-one.cmds 3 1 5 test-2.dat
+@ make-one.cmds 7 12 1 test-3.dat
+@ make-one.cmds 2 0.3 2 test-4.dat
+@ make-one.cmds 4 1.2 2 test-5.dat
+
+# mfit-exponential-decay 0..4 /expert=true
+mfit-exponential-decay 2 3 1 4 0 /expert=true
+
 # Here, try the effect of running:
 # load test.params
 # load test.params /mode=buffer-name
+# load test.params /mode=buffer-name
+
+
+@ make-one.cmds 3 0.9 5 test-1.dat
+@ make-one.cmds 2 4.1 2 test-2.dat
+@ make-one.cmds 7 11.2 1 test-3.dat
+
+# Try as well as above
+mfit-exponential-decay 0..2  /expert=true
+
+

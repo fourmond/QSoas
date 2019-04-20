@@ -243,6 +243,13 @@ public:
                       }
                       return QVariant();
                     })
+            << Item("pid", [](const FitTrajectory* trj,
+                                      int role, bool final) -> QVariant {
+                      if(role == Qt::DisplayRole) {
+                        return trj->pid;
+                      }
+                      return QVariant();
+                    })
 
       ;
 

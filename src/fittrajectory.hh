@@ -82,6 +82,8 @@ public:
   /// commas.
   QSet<QString> flags;
 
+  qint64 pid;
+
   FitTrajectory() {
   };
 

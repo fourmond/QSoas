@@ -51,6 +51,8 @@ FitTrajectory::FitTrajectory(const Vector & init, const Vector & final,
     int nbp = data->parametersPerDataset();
     for(int i = 0; i < total; i++)
       fixed << data->isFixed(i % nbp, i/nbp);
+
+    pid = QCoreApplication::applicationPid();
   };
 
 
@@ -103,6 +105,7 @@ QStringList FitTrajectory::exportColumns() const
       << QString::number(iterations)
       << QString::number(evaluations)
       << QString::number(residualsDelta)
+      << QString::number(pid)
       << Utils::writeBooleans(fixed.toList())
       << QStringList(flags.toList()).join(",");
 
@@ -166,6 +169,7 @@ void FitTrajectory::loadFromColumns(const QStringList & cls, int nb, int dataset
     if(cols.size() == 0)
       return;
     residualsDelta = next().toDouble();
+    pid = next().toLongLong();
     fixed =  Utils::readBooleans(next()).toVector();
 
     flags = next().split(",").toSet();
@@ -197,7 +201,7 @@ QStringList FitTrajectory::exportHeaders(const QStringList & s, int ds)
       << "internal_res"
       << "engine"
       << "start_time" << "end_time" << "iterations" << "evals"
-      << "res_delta" << "fixed"
+      << "res_delta" << "pid" << "fixed"
       << "flags";
   return ret;
 }

@@ -371,7 +371,8 @@ SOURCES += src/qmain.cc \
         src/fittrajectorydisplay.cc \
         src/ruby-distribution.cc \
         src/gauss-kronrod.cc \
-        src/particleswarm.cc
+        src/particleswarm.cc \
+        src/filelock.cc
 
 #        src/conditionsprovider.cc \
 
@@ -510,7 +511,8 @@ HEADERS += src/headers.hh \
         src/fwexpression.hh \
         src/fittrajectories.hh \
         src/parameterspaceexplorer.hh \
-        src/fittrajectorydisplay.hh
+        src/fittrajectorydisplay.hh \
+        src/filelock.hh
 
 # mruby
 HEADERS += src/mruby.hh

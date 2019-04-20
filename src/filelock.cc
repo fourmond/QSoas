@@ -28,7 +28,9 @@ FileLock::FileLock(QFile * tg) :
 {
 #ifdef Q_OS_LINUX
   int fd = target->handle();
-  flock(fd,LOCK_EX);
+  int rv = flock(fd,LOCK_EX);
+  // QTextStream o(stdout);
+  // o << "Locking: " << fd << " -> " << rv << endl;
 #endif
 }
 
@@ -36,6 +38,8 @@ FileLock::~FileLock()
 {
 #ifdef Q_OS_LINUX
   int fd = target->handle();
-  flock(fd,LOCK_UN);
+  int rv = flock(fd,LOCK_UN);
+  // QTextStream o(stdout);
+  // o << "Unlocking: " << fd << " -> " << rv << endl;
 #endif
 }

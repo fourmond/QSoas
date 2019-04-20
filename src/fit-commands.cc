@@ -38,6 +38,7 @@
 #include <fwexpression.hh>
 #include <mruby.hh>
 
+#include <filelock.hh>
 
 // static Group fit("fit", 0,
 //                  "Fit",
@@ -685,7 +686,8 @@ static void saveTrajectoriesCommand(const QString & /*name*/,
       try {
         QFile fl(file);
         Utils::open(&fl, QIODevice::ReadOnly);
-    
+
+        FileLock lk(&fl);
         int nb;
         FitTrajectories update(ws);
         QTextStream in(&fl);
@@ -701,6 +703,7 @@ static void saveTrajectoriesCommand(const QString & /*name*/,
 
   QFile f(file);
   Utils::open(&f, QIODevice::WriteOnly);
+  FileLock lk(&f);
 
   Terminal::out << "Saving fit trajectories data to '"
                 << file << "'" << endl;
@@ -769,6 +772,7 @@ static void loadTrajectoriesCommand(const QString & /*name*/,
     
   int nb;
   FitTrajectories update(ws);
+  FileLock lk(&fl);
   QTextStream in(&fl);
   nb = update.importFromFile(in);
   if(mode == "drop")

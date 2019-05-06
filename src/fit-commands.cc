@@ -705,7 +705,7 @@ static void saveTrajectoriesCommand(const QString & /*name*/,
   Utils::open(&f, QIODevice::WriteOnly);
   FileLock lk(&f);
 
-  Terminal::out << "Saving fit trajectories data to '"
+  Terminal::out << "Saving " << trjs.size() << " fit trajectories to '"
                 << file << "'" << endl;
   
   QTextStream o(&f);

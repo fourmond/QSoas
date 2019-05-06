@@ -97,6 +97,7 @@
 
 // A rich text viewer (and editor?).
 #include <QTextEdit>
+#include <QTextCursor>
 
 // Desktop stuff
 #include <QUrl>

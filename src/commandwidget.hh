@@ -58,6 +58,12 @@ class CommandWidget : public QWidget {
 
   Q_OBJECT;
 
+  /// The number of lines in the terminal
+  int termLines;
+
+  /// Maximum number of lines in the terminal
+  int maxTermLines;
+
   /// The terminal display
   QTextEdit * terminalDisplay;
 

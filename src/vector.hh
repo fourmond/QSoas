@@ -113,7 +113,7 @@ public:
   bool allFinite() const;
 
   /// Fills the target values with the average and variance of the set
-  void stats(double * average, double * variance) const;
+  void stats(double * average, double * variance, double * sum = NULL) const;
 
   /// Returns the median value. Uses a sorted copy, ie nlogn time.
   double median() const;

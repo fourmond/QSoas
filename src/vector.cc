@@ -523,7 +523,7 @@ void Vector::deltaStats(double * pdmin, double * pdmax) const
     *pdmax = dmax;
 }
 
-void Vector::stats(double * average, double * variance) const
+void Vector::stats(double * average, double * variance, double * sum) const
 {
   *average = 0;
   *variance = 0;
@@ -533,6 +533,8 @@ void Vector::stats(double * average, double * variance) const
     *average += val;
     *variance += val*val;
   }
+  if(sum)
+    *sum = *average;
   *average /= sz;
   *variance /= sz;
   *variance -= (*average * *average);

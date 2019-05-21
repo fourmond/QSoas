@@ -127,7 +127,7 @@ public:
   void zoomTo(const QRectF &r = QRectF());
 
   /// Adds a transient item
-  void addItem(CurveItem * item);
+  void addItem(CurveItem * item, bool takeOwnership = false);
 
   /// Remove everything from the display
   void clear();

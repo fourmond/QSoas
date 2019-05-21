@@ -133,9 +133,9 @@ QPen CurveView::penForNextCurve()
   return soas().graphicsSettings().dataSetPen(nbStyled++);
 }
 
-void CurveView::addItem(CurveItem * item)
+void CurveView::addItem(CurveItem * item, bool takeOwnership)
 {
-  panel.addItem(item);
+  panel.addItem(item, takeOwnership);
   doRepaint();
 }
 
@@ -152,7 +152,7 @@ void CurveView::addDataSet(const DataSet * ds, StyleGenerator * gen)
     item->pen = gen->nextStyle();
   else
     item->pen = penForNextCurve();
-  addItem(item);
+  addItem(item, true);          // taking ownership !
   if(! currentDataSet)
     currentDataSet = item;
 }
@@ -170,7 +170,10 @@ void CurveView::removeDataSet(const DataSet * ds)
   for(int i = 0; i < its.size(); i++) {
     CurveDataSet * st = dynamic_cast<CurveDataSet *>(its[i]);
     if(st && st->displayedDataSet() == ds) {
-      delete its[i];
+      if(its[i]->shouldDelete)
+        delete its[i];
+      else
+        its[i] = 0;
       update();
     }
   }

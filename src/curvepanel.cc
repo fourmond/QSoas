@@ -359,8 +359,11 @@ void CurvePanel::paint(QPainter * painter)
 
 void CurvePanel::clear()
 {
-  for(int i = 0; i < displayedItems.size(); i++)
-    delete displayedItems[i];
+  for(int i = 0; i < displayedItems.size(); i++) {
+    CurveItem * it = displayedItems[i];
+    if(it && it->shouldDelete)
+      delete it;
+  }
   displayedItems.clear();
   boundingBox = QRectF();
   zoom = QRectF();
@@ -394,8 +397,9 @@ CurveItem * CurvePanel::closestItem(const QPointF &point,
   return item;
 }
 
-void CurvePanel::addItem(CurveItem * item)
+void CurvePanel::addItem(CurveItem * item, bool takeOwnership)
 {
+  item->shouldDelete = takeOwnership;
   displayedItems.append(QPointer<CurveItem>(item));
 }
 

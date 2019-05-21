@@ -103,7 +103,7 @@ public:
   virtual ~CurveView();
 
   /// Adds an item to the CurveView. It goes to the panel()
-  void addItem(CurveItem * item);
+  void addItem(CurveItem * item, bool takeOwnership = false);
 
   /// Adds a panel.
   ///

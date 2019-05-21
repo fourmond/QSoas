@@ -35,6 +35,8 @@
 #include <soas.hh>
 #include <datastack.hh>
 
+#include <utils.hh>
+
 /// Should this be a customization item ? NO
 PointPicker::Method PointPicker::lastMethodUsed = PointPicker::Exact;
 
@@ -293,9 +295,16 @@ QString PointPicker::pointPickerMessage() const
     mk = "off";
   }
 
-  if(datasetIndex != 0)
+  if(datasetIndex != 0) {
     ds = QString(" #%1").
       arg(datasetIndex > 0 ? datasetIndex - 1 : datasetIndex);
+  }
+  else {
+    if(trackedDataSet)
+      ds = Utils::abbreviateString(trackedDataSet->name);
+    else
+      ds = "no buffer";
+  }
   return QString("(%1%2)").arg(mk).arg(ds);
 }
 

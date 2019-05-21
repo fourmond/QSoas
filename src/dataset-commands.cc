@@ -711,10 +711,21 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
   QString cur;
   ValueHash e;
 
-  auto ensureEditableDS = [&nds, ds, &view] {
-    if(! nds) {
-      nds = ds->derivedDataSet("_cu_mod.dat");
+  QList<DataSet *> newDatasets;
+
+  
+
+  auto ensureEditableDS = [&nds, &view, &pick, &newDatasets] {
+    DataSet * cds = const_cast<DataSet *>(pick.dataset());
+    if(newDatasets.indexOf(cds) >= 0) {
+      nds = cds;
+    }
+    else {
+      nds = cds->derivedDataSet("_cu_mod.dat");
       view.addDataSet(nds);
+      view.removeDataSet(cds);
+      newDatasets << nds;
+      pick.pickDataSet(nds);    // so we keep on working with this one.
     }
   };
   
@@ -760,9 +771,12 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
                     << r.p.y() << endl;
       break;
     case Quit:
-      if(nds) {
-        Terminal::out << "Pushing modified dataset" << endl;
-        soas().pushDataSet(nds);
+      if(newDatasets.size() > 0) {
+        CommandOptions opts;
+        DataStackHelper pusher(opts);
+
+        Terminal::out << "Pushing modified datasets" << endl;
+        pusher.pushDataSets(newDatasets);
       }
     case Abort:
       return;

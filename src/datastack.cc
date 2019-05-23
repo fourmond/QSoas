@@ -28,14 +28,15 @@
 #include <curveview.hh>
 #include <debug.hh>
 
-DataStack::DataStack() : 
+DataStack::DataStack(bool no) : notOwner(no),
   cachedByteSize(0), accumulator(NULL)
 {
 }
 
 DataStack::~DataStack()
 {
-  clear();
+  if(! notOwner)
+    clear();
 }
 
 int DataStack::totalSize() const
@@ -371,6 +372,14 @@ DataSet * DataStack::popAccumulator()
 // }
 
 
+void DataStack::insertStack(const DataStack & s)
+{
+  dataSets.append(s.dataSets);
+  redoStack.append(s.redoStack);
+  emit(currentDataSetChanged());
+}
+
+
 
 qint32 DataStack::serializationVersion = 0;
 
@@ -383,6 +392,7 @@ qint32 DataStack::serializationVersion = 0;
 /// means to carry use attribues
 /// @li it would probably be good too to write out the QDataStream
 /// version
+/// @li write out the accumulator ?
 
 
 

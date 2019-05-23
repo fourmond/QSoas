@@ -33,6 +33,9 @@ class DataStack : public QObject {
 
   Q_OBJECT;
 
+  /// When this flag is on, no cleanup is performed at destruction.
+  bool notOwner;
+
   /// The DataSet objects
   QList<DataSet *> dataSets;
 
@@ -78,7 +81,7 @@ class DataStack : public QObject {
 public:
 
   /// Constructs a DataStack object.
-  DataStack();
+  DataStack(bool notOwner = false);
 
   ~DataStack();
 
@@ -192,6 +195,9 @@ public:
 
   // /// Returns the current accumulator without releasing ownership
   // DataSet * getAccumulator();
+
+  /// Inserts the given stack into the current one.
+  void insertStack(const DataStack & s);
 
 signals:
   /// Emitted whenever the current dataset changed.

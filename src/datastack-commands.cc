@@ -401,13 +401,23 @@ saveStack("save-stack", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void loadStackCommand(const QString &, QString fileName)
+static void loadStackCommand(const QString &, QString fileName,
+                             const CommandOptions & opts)
 {
   QFile file(fileName);
   Utils::open(&file, QIODevice::ReadOnly);
 
+  bool merge = false;
+  updateFromOptions(opts, "merge", merge);
+
   QDataStream in(&file);
-  in >> soas().stack();
+  if(merge) {
+    DataStack s(true);
+    in >> s;
+    soas().stack().insertStack(s);
+  }
+  else
+    in >> soas().stack();
 }
 
 static ArgumentList 
@@ -416,13 +426,19 @@ loadStackArgs(QList<Argument *>()
                                   "File name",
                                   "File name for saving stack"));
 
+static ArgumentList 
+loadStackOpts(QList<Argument *>() 
+              << new BoolArgument("merge", 
+                                  "Merge",
+                                  "If true, merges into the current stack rather than overwriting"));
+
 
 static Command 
 loadStack("load-stack", // command name
-          optionLessEffector(loadStackCommand), // action
+          effector(loadStackCommand), // action
           "load",  // group name
           &loadStackArgs, // arguments
-          NULL, // options
+          &loadStackOpts, // options
           "Load stack",
           "Loads the stack from file");
 
@@ -435,7 +451,8 @@ loadStack("load-stack", // command name
 static CommandLineOption sp("--load-stack", [](const QStringList & args) {
     QString f = args[0];
     new Hook([f]() {
-        loadStackCommand("--", f);
+        CommandOptions opts;
+        loadStackCommand("--", f, opts);
       });
   }, 1, "loads a binary stack file", true, true);
 

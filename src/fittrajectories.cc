@@ -154,7 +154,9 @@ int FitTrajectories::trim(double factor)
   int i = 0;
   int nb = 0;
   while(i < size()) {
-    if(trajectories[i].relativeResiduals > factor * res) {
+    // strip also NaNs
+    if(trajectories[i].relativeResiduals > factor * res
+       || std::isnan(trajectories[i].relativeResiduals)) {
       trajectories.takeAt(i);
       ++nb;
     }

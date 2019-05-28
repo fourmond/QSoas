@@ -287,6 +287,7 @@ static void unwrapCommand(const QString &,
   double sr = 0;
   if(opts.contains("scan-rate")) {
     updateFromOptions(opts, "scan-rate", sr);
+    useSR = true;
   }
   else {
     if(ds->hasMetaData("sr")) {

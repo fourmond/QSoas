@@ -138,6 +138,8 @@ FitDialog::~FitDialog()
   fitDialogSize = size();
   if(parametersViewer)
     delete parametersViewer;
+  for(int i = 0; i < subFunctionCurves.size(); i++)
+    delete subFunctionCurves[i];
 }
 
 void FitDialog::message(const QString & str)
@@ -183,7 +185,7 @@ void FitDialog::setupFrame(bool expert)
 
     CurveVector * vec = new CurveVector(ds, v);
     vec->pen = gs.getPen(GraphicsSettings::FitsPen);
-    view->addItem(vec);
+    view->addItem(vec, true);
 
     CurvePanel * bottomPanel = new CurvePanel(); // Leaks memory !
     bottomPanel->stretch = 30;
@@ -192,7 +194,7 @@ void FitDialog::setupFrame(bool expert)
 
     vec = new CurveVector(ds, v, true);
     vec->pen = gs.getPen(GraphicsSettings::FitsPen);
-    bottomPanel->addItem(vec);
+    bottomPanel->addItem(vec, true);
     /// @todo add X tracking for the bottom panel.
     /// @todo Colors !
     view->addPanel(bottomPanel);

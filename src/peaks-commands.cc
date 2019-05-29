@@ -87,13 +87,13 @@ static void displayPeaks(QList<PeakInfo> peaks, const DataSet * ds,
     v->p1 = QPointF(peaks[i].x, 0);
     v->p2 = QPointF(peaks[i].x, peaks[i].y);
     v->pen = gs.getPen(GraphicsSettings::PeaksPen);
-    view.addItem(v);
+    view.addItem(v, true);
 
     v = new CurveLine;
     v->p1 = QPointF(peaks[i].x - peaks[i].leftHHWidth, peaks[i].y/2);
     v->p2 = QPointF(peaks[i].x + peaks[i].rightHHWidth, peaks[i].y/2);
     v->pen = gs.getPen(GraphicsSettings::PeaksPen);
-    view.addItem(v);
+    view.addItem(v, true);
   }
   view.enableUpdates();
 }
@@ -240,7 +240,7 @@ static void echemPeaksCommand(const QString &, const CommandOptions & opts)
       v->p1 = QPointF(pairs[i].forward.x, 0);
       v->p2 = QPointF(pairs[i].forward.x, pairs[i].forward.y);
       v->pen = gs.getPen(GraphicsSettings::PeaksPen);
-      view.addItem(v);
+      view.addItem(v, true);
 
       hsh << "back_x" << pairs[i].backward.x
           << "back_y" << pairs[i].backward.y
@@ -252,13 +252,13 @@ static void echemPeaksCommand(const QString &, const CommandOptions & opts)
       v->p1 = QPointF(pairs[i].forward.x, 0);
       v->p2 = QPointF(pairs[i].backward.x, 0);
       v->pen = gs.getPen(GraphicsSettings::PeaksPen);
-      view.addItem(v);
+      view.addItem(v, true);
 
       v = new CurveLine;
       v->p1 = QPointF(pairs[i].backward.x, 0);
       v->p2 = QPointF(pairs[i].backward.x, pairs[i].backward.y);
       v->pen = gs.getPen(GraphicsSettings::PeaksPen);
-      view.addItem(v);
+      view.addItem(v, true);
 
       Terminal::out << hsh.keyOrder.join("\t") << endl;
       Terminal::out << hsh.toString() << endl;

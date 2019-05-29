@@ -1658,11 +1658,11 @@ static void findStepsCommand(const QString &, const CommandOptions & opts)
     for(int i = 0; i < steps.size(); i++) {
       Terminal::out << "Step #" << i << " @" << steps[i] 
                     << "\t X= " << ds->x()[steps[i]] <<endl;
-      CurveVerticalLine * v= new CurveVerticalLine;
+      CurveVerticalLine * v = new CurveVerticalLine;
       v->x = 0.5* (ds->x()[steps[i]] + ds->x()[steps[i]-1]);
       v->pen =gs.getPen(GraphicsSettings::SeparationPen);
 
-      view.addItem(v);
+      view.addItem(v, true);
     }
     view.enableUpdates();
   }  

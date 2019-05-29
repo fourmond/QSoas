@@ -7,4 +7,4 @@
 @ solve.cmds
 @ specials.cmds
 
-run-for-each /range-type=lin 1..40:40 large-buffer-formulas.cmds
+run-for-each /range-type=lin large-buffer-formulas.cmds 1..40:40 

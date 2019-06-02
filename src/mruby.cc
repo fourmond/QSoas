@@ -29,6 +29,7 @@
 #include <mruby/numeric.h>
 #include <mruby/variable.h>
 #include <mruby/hash.h>
+#include <mruby/class.h>
 
 #include <exceptions.hh>
 #include <utils.hh>
@@ -118,9 +119,16 @@ mrb_value MRuby::protect(const std::function<mrb_value ()> &function)
 
 void MRuby::throwIfException(mrb_value obj)
 {
+  // printf("except: %p\n", mrb->eException_class);
+#if MRUBY_RELEASE_MAJOR == 1
   if(mrb_obj_is_kind_of(mrb, obj, mrb->eException_class)) {
     throw RuntimeError("A ruby exception occurred: %1").arg(inspect(obj));
   }
+#elif MRUBY_RELEASE_MAJOR == 2
+  if(mrb_class(mrb, obj)->tt == MRB_TT_EXCEPTION) {
+    throw RuntimeError("A ruby exception occurred: %1").arg(inspect(obj));
+  }
+#endif
 }
 
 
@@ -249,6 +257,9 @@ QStringList MRuby::detectParameters(const QByteArray & code)
 {
   MRubyArenaContext c(this);
 
+  // QTextStream o(stdout);
+  // o << "Detecting parameters for : '" << code << "'" << endl;
+  
   RProc * proc = generateCode(code);
   struct mrb_irep * irep = proc->body.irep;
 
@@ -317,19 +328,19 @@ QStringList MRuby::detectParameters(const QByteArray & code)
       CASE(OP_JMPNOT, BS): break;
       CASE(OP_JMPNIL, BS): break;
       CASE(OP_SENDV, BB):
-        if(cur_top_self == a)
+        if(cur_top_self == a && c == 0)
           rv.insert(mrb_sym2name(mrb, irep->syms[b]));
       break;
       CASE(OP_SENDVB, BB):
-        if(cur_top_self == a)
+        if(cur_top_self == a && c == 0)
           rv.insert(mrb_sym2name(mrb, irep->syms[b]));
       break;
       CASE(OP_SEND, BBB):
-        if(cur_top_self == a)
+        if(cur_top_self == a && c == 0)
           rv.insert(mrb_sym2name(mrb, irep->syms[b]));
       break;
       CASE(OP_SENDB, BBB):
-        if(cur_top_self == a)
+        if(cur_top_self == a && c == 0)
           rv.insert(mrb_sym2name(mrb, irep->syms[b]));
       break;
       CASE(OP_CALL, Z): break;
@@ -398,6 +409,8 @@ QStringList MRuby::detectParameters(const QByteArray & code)
       mrb_gc_arena_restore(mrb, ai);
     }
   }
+  // QStringList l = rv.toList();
+  // o << " -> " << l.join(", ") << endl;
   return rv.toList();
 }
 

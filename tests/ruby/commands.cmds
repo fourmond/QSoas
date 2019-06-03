@@ -1,6 +1,14 @@
 # In this file, we test various aspects of running commands from
 # within ruby code
 
+ruby
+QSoasInterface::the_instance.generate_buffer(0,20)
+ruby end
+
+apply-formula y-=x
+assert '$stats["y_norm"]' 0
+assert '$stats["x_max"]' 20
+
 generate-buffer 0 10
 
 ruby

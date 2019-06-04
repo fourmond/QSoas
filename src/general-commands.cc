@@ -230,9 +230,9 @@ pops(QList<Argument *>()
      << new BoolArgument("overwrite", 
                          "Overwrite",
                          "Overwrite the output file")
-     << new BoolArgument("preview", 
-                         "Preview",
-                         "Shows the print preview dialog (on by default)")
+     // << new BoolArgument("preview", 
+     //                     "Preview",
+     //                     "Shows the print preview dialog (on by default)")
      << new FileSaveArgument("file", 
                              "Save as file",
                              "Save as file", "soas.pdf", false, true)
@@ -319,7 +319,7 @@ static void printCommand(const QString &,
   }
 
   PrintPreviewHelper helper(height, rect, title);
-  if(preview) {
+  if(/*preview*/ false) {
     QPrinter * printer = dynamic_cast<QPrinter *>(p.get());
     if(! printer)
       throw InternalError("Should not preview when generating SVG");

@@ -230,6 +230,9 @@ pops(QList<Argument *>()
      << new BoolArgument("overwrite", 
                          "Overwrite",
                          "Overwrite the output file")
+     << new BoolArgument("preview", 
+                         "Preview",
+                         "Shows the print preview dialog (on by default)")
      << new FileSaveArgument("file", 
                              "Save as file",
                              "Save as file", "soas.pdf", false, true)
@@ -243,6 +246,9 @@ pops(QList<Argument *>()
                             "Nominal height",
                             "Correspondance of the height of the page in terms of points")
      );
+
+
+#include <printpreviewhelper.hh>
 
 static void printCommand(const QString &, 
                          const CommandOptions & opts)
@@ -270,6 +276,12 @@ static void printCommand(const QString &,
     h = lst[1].toDouble();
   }
 
+  QString title;
+  updateFromOptions(opts, "title", title);
+
+  bool preview = true;
+  updateFromOptions(opts, "preview", preview);
+
   if(! file.isEmpty()) {
     if(! overwrite)
       Utils::confirmOverwrite(file);
@@ -283,6 +295,7 @@ static void printCommand(const QString &,
       rect = QRect(0, 0, w, h);
       gen->setSize(QSize(w,h));
       gen->setFileName(file);
+      preview = false;
     }
   }
   if(! p) {
@@ -305,13 +318,17 @@ static void printCommand(const QString &,
     rect = printer->pageRect();
   }
 
-  
-  QString title;
-  updateFromOptions(opts, "title", title);
-
-  QPainter painter;
-  painter.begin(p.get());
-  soas().view().render(&painter, height, rect, title);
+  PrintPreviewHelper helper(height, rect, title);
+  if(preview) {
+    QPrinter * printer = dynamic_cast<QPrinter *>(p.get());
+    if(! printer)
+      throw InternalError("Should not preview when generating SVG");
+    QPrintPreviewDialog dlg(printer);
+    helper.connect(&dlg, SIGNAL(paintRequested(QPrinter *)),
+                   SLOT(paintOnPrinter(QPrinter *)));
+  }
+  else
+    helper.paint(p.get());
 }
 
 static Command 

@@ -85,6 +85,7 @@
 // Printing
 #include <QPrinter>
 #include <QPrintDialog>
+#include <QPrintPreviewDialog>
 
 // SVG export
 #include <QSvgGenerator>

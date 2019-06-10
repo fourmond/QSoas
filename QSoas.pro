@@ -526,10 +526,11 @@ SOURCES += src/mruby.cc \
 SOURCES += src/ruby-complex.cc
 
 
-# This is for JSON parsing of meta-data hashes
+# These are for JSON meta-data files
 HEADERS += src/metadatafile.hh
 SOURCES += src/valuehash-json.cc \
-        src/metadatafile.cc
+        src/metadatafile.cc \
+        src/formats/qsmprovider.cc
 
 
 ######################################################################

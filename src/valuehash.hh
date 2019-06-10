@@ -1,7 +1,7 @@
 /**
    \file valuehash.hh
    A string->value hash
-   Copyright 2013, 2014 by CNRS/AMU
+   Copyright 2013, 2014, 2019 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -215,7 +215,20 @@ public:
                     bool deflt = false) const;
 
   /// @}
-  
+
+
+  /// @name Writing and reading of meta-data files
+  ///
+  /// @{
+
+  /// Reads the given meta-data file into the given value hash
+  void readMetaDataFile(QTextStream & in);
+
+  /// Saves as a meta-data file
+  void saveMetaDataFile(QTextStream & out) const;
+
+  /// @}
+
 
 };
 

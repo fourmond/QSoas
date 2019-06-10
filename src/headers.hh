@@ -148,6 +148,17 @@
 #include <QTcpSocket>
 #include <QTcpServer>
 
+
+
+
+
+// JSON support
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonValue>
+#include <QJsonParseError>
+
 // We do C++ sometimes
 #include <stdexcept>
 #include <functional>
@@ -156,6 +167,9 @@
 #include <cmath>
 
 #include <mruby.h>
+
+
+
 
 #endif
 

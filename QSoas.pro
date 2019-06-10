@@ -526,6 +526,10 @@ SOURCES += src/mruby.cc \
 SOURCES += src/ruby-complex.cc
 
 
+# This is for JSON parsing of meta-data hashes
+SOURCES += src/valuehash-json.cc
+
+
 ######################################################################
 # Sources for the parameter space explorers
 SOURCES += src/parameterspaceexplorers.cc

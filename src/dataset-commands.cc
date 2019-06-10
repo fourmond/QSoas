@@ -51,6 +51,8 @@
 #include <dataseteditor.hh>
 #include <statistics.hh>
 
+#include <file-arguments.hh>
+#include <metadatafile.hh>
 
 static Group grp("buffer", 2,
                  "Buffer",
@@ -1940,6 +1942,64 @@ sM("set-meta", // command name
    effector(setMetaCommand), // action
    "buffer",  // group name
    &sMA, // arguments
+   NULL, // options
+   "Set meta-data",
+   "Manually set meta-data");
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void recordMetaCommand(const QString &, QString meta, QString value,
+                              QStringList files,
+                              const CommandOptions & /*opts*/)
+{
+  // Attempt to convert to double
+  bool ok;
+  QVariant val;
+  double db = value.toDouble(&ok);
+  if(ok)
+    val = db;
+  else
+    val = value;
+
+  for(const QString f : files) {
+    try {
+      MetaDataFile md(f);
+      md.read(false);
+      md.metaData[meta] = val;
+      md.write();
+    }
+    catch(const RuntimeError & re) {
+      Terminal::out << "Error with file '" << f << "': "
+                    << re.message() << endl;
+    }
+  }
+}
+
+static ArgumentList 
+rMA(QList<Argument *>() 
+    << new StringArgument("name", 
+                          "Name",
+                          "name of the meta-data")
+    << new StringArgument("value", 
+                          "Value",
+                          "value of the meta-data")
+    << new SeveralFilesArgument("files", 
+                                "Files",
+                                "files on which to set the meta-data",
+                                true)
+    );
+
+// static ArgumentList 
+// sMO(QList<Argument *>() 
+//     );
+
+
+static Command 
+rM("record-meta", // command name
+   effector(recordMetaCommand), // action
+   "buffer",  // group name
+   &rMA, // arguments
    NULL, // options
    "Set meta-data",
    "Manually set meta-data");

@@ -527,7 +527,9 @@ SOURCES += src/ruby-complex.cc
 
 
 # This is for JSON parsing of meta-data hashes
-SOURCES += src/valuehash-json.cc
+HEADERS += src/metadatafile.hh
+SOURCES += src/valuehash-json.cc \
+        src/metadatafile.cc
 
 
 ######################################################################

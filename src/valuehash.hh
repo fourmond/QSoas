@@ -225,7 +225,7 @@ public:
   void readMetaDataFile(QTextStream & in);
 
   /// Saves as a meta-data file
-  void saveMetaDataFile(QTextStream & out) const;
+  void writeMetaDataFile(QTextStream & out) const;
 
   /// @}
 

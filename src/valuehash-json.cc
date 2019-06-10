@@ -95,7 +95,7 @@ void ValueHash::readMetaDataFile(QTextStream & in)
 }
 
 
-void ValueHash::saveMetaDataFile(QTextStream & out) const
+void ValueHash::writeMetaDataFile(QTextStream & out) const
 {
   QJsonObject obj;
   QHash<QString, QVariant>::const_iterator it;

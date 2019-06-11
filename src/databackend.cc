@@ -188,6 +188,9 @@ void DataBackend::loadFilesAndDisplay(bool update, QStringList files,
   // First load
   QList<DataSet *> datasets;
 
+  QString frm;
+  updateFromOptions(opts, "for-which", frm);
+
   for(int i = 0; i < files.size(); i++) {
     try {
       QList<DataSet *> dss = 
@@ -198,7 +201,28 @@ void DataBackend::loadFilesAndDisplay(bool update, QStringList files,
         Terminal::out << " -> got " << dss.size() << " datasets" << endl;
       else
         Terminal::out << " -> OK" << endl;
-      datasets << dss;
+      if(! frm.isEmpty()) {
+        for(DataSet * s : dss) {
+          try {
+            if(! s->matches(frm)) {
+              Terminal::out << "File '"
+                            << s->name
+                            << "' does not match the selection rule" 
+                            << endl;
+            }
+            else
+              datasets << s;
+          }
+          catch(const RuntimeError & re) {
+            Terminal::out << "Error evaluating expression file '"
+                          << s->name
+                          << "': " << re.message()
+                          << endl;
+          }
+        }
+      }
+      else
+        datasets << dss;
     }
     catch (const RuntimeError & e) {
       Terminal::out << "\n" << e.message() << endl;
@@ -274,6 +298,9 @@ void DataBackend::registerBackendCommands()
                      << new BoolArgument("ignore-cache", 
                                          "Ignores cache",
                                          "if on, ignores cache (default off)")
+                     << new StringArgument("for-which", 
+                                           "For which",
+                                           "Select on formula")
                      );
 
   ArgumentList * oo = DatasetOptions::optionList();

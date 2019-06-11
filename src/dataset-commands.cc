@@ -1951,7 +1951,7 @@ sM("set-meta", // command name
 
 static void recordMetaCommand(const QString &, QString meta, QString value,
                               QStringList files,
-                              const CommandOptions & /*opts*/)
+                              const CommandOptions & opts)
 {
   // Attempt to convert to double
   bool ok;
@@ -1962,10 +1962,18 @@ static void recordMetaCommand(const QString &, QString meta, QString value,
   else
     val = value;
 
+  QStringList exclude;
+  updateFromOptions(opts, "exclude", exclude);
+
   for(const QString f : files) {
     if(MetaDataFile::isMetaDataFile(f)) {
       Terminal::out << "Skipping '" << f
                     << "', which is a meta-data file" << endl;
+      continue;
+    }
+    if(exclude.contains(f)) {
+      Terminal::out << "Skipping '" << f
+                    << "', excluded" << endl;
       continue;
     }
     try {
@@ -1997,9 +2005,13 @@ rMA(QList<Argument *>()
                                 true)
     );
 
-// static ArgumentList 
-// sMO(QList<Argument *>() 
-//     );
+static ArgumentList 
+rMO(QList<Argument *>()
+    << new SeveralFilesArgument("exclude", 
+                                "Exclude",
+                                "exclude files")
+            
+     );
 
 
 static Command 
@@ -2007,7 +2019,7 @@ rM("record-meta", // command name
    effector(recordMetaCommand), // action
    "buffer",  // group name
    &rMA, // arguments
-   NULL, // options
+   &rMO, // options
    "Set meta-data",
    "Manually set meta-data");
 

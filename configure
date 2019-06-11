@@ -10,17 +10,16 @@ if echo $2 | grep -i UNIVERSAL; then
 fi
 
 # How I hate all these slight differences that make things difficult
-QMAKE=/opt/local/bin/qmake
-if [ -r /usr/bin/qmake ]; then
-    QMAKE=/usr/bin/qmake
+if [ -z "$QMAKE" ]; then
+    for f in /usr/lib/qt5/bin/qmake ; do
+        if [ -x "$f" ]; 
+           QMAKE="$f"
+        fi
+    done
 fi
 
-# Here, we try using ruby1.9 on mac if it is present ?
-if [ -r /opt/local/bin/ruby1.9 ]; then
-    extra="RUBY=/opt/local/bin/ruby1.9"
-elif [ -r /usr/bin/ruby2.1 ]; then
-    # We need to stick to ruby 2.1 for now on linux, 2.2 breaks.
-    extra="RUBY=/usr/bin/ruby2.1"
+if [ -z "$QMAKE" ]; then
+    QMAKE=qmake
 fi
 
 if [ "$MRUBY_DIR" ]; then

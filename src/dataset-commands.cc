@@ -1963,8 +1963,15 @@ static void recordMetaCommand(const QString &, QString meta, QString value,
     val = value;
 
   for(const QString f : files) {
+    if(MetaDataFile::isMetaDataFile(f)) {
+      Terminal::out << "Skipping '" << f
+                    << "', which is a meta-data file" << endl;
+      continue;
+    }
     try {
       MetaDataFile md(f);
+      Terminal::out << "Setting meta-data for file '" << f
+                    << "'" << endl;
       md.read(false);
       md.metaData[meta] = val;
       md.write();

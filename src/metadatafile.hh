@@ -47,5 +47,12 @@ public:
   /// Returns the file name for the given data file
   static QString metaDataForFile(const QString & fileName);
 
+  /// Reads a meta-data file and returns the JSON for it.
+  /// Stores the version number of the format in version
+  static QString readMetaDataFile(const QString & fileName, QString * version);
+
+  /// Returns true if the target file exists and is a meta-data file
+  static bool isMetaDataFile(const QString & fileName);
+
 };
 #endif

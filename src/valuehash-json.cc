@@ -64,20 +64,10 @@ static QVariant jsonToVariant(const QJsonValue & json)
   return QVariant();
 }
 
-void ValueHash::readMetaDataFile(QTextStream & in)
+void ValueHash::fromJSON(const QString & str)
 {
-  QString s = in.readAll();
-  int idx = s.indexOf('{');
-  if(idx < 0)
-    throw RuntimeError("No opening brace in meta-data file");
-  QString header = s.left(idx);
-  QRegExp vre("//\\s+QSoas\\s+JSON\\s+.*version\\s*(\\d+)");
-  if(vre.indexIn(header) < 0)
-    throw RuntimeError("No QSoas signature in meta-data file");
-  
-  s = s.mid(idx);
   QJsonParseError err;
-  QJsonDocument doc = QJsonDocument::fromJson(s.toUtf8(), &err);
+  QJsonDocument doc = QJsonDocument::fromJson(str.toUtf8(), &err);
   if(doc.isNull()) {
     throw RuntimeError("Failed to parse the JSON in the meta-data file");
   }
@@ -95,7 +85,7 @@ void ValueHash::readMetaDataFile(QTextStream & in)
 }
 
 
-void ValueHash::writeMetaDataFile(QTextStream & out) const
+QString ValueHash::toJSON() const
 {
   QJsonObject obj;
   QHash<QString, QVariant>::const_iterator it;
@@ -103,10 +93,8 @@ void ValueHash::writeMetaDataFile(QTextStream & out) const
     obj[it.key()] = variantToJSON(it.value());
   }
 
-  out << "// QSoas JSON meta-data -- version 1" << endl;
   QJsonDocument doc(obj);
-  out << doc.toJson();
-  out << endl;
+  return doc.toJson();
 }
 
 

@@ -222,10 +222,10 @@ public:
   /// @{
 
   /// Reads the given meta-data file into the given value hash
-  void readMetaDataFile(QTextStream & in);
+  void fromJSON(const QString & json);
 
   /// Saves as a meta-data file
-  void writeMetaDataFile(QTextStream & out) const;
+  QString toJSON() const;
 
   /// @}
 

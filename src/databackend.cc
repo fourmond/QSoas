@@ -191,6 +191,9 @@ void DataBackend::loadFilesAndDisplay(bool update, QStringList files,
   QString frm;
   updateFromOptions(opts, "for-which", frm);
 
+  bool ignoreEmpty = true;
+  updateFromOptions(opts, "ignore-empty", ignoreEmpty);
+
   for(int i = 0; i < files.size(); i++) {
     try {
       QList<DataSet *> dss = 
@@ -201,8 +204,16 @@ void DataBackend::loadFilesAndDisplay(bool update, QStringList files,
         Terminal::out << " -> got " << dss.size() << " datasets" << endl;
       else
         Terminal::out << " -> OK" << endl;
-      if(! frm.isEmpty()) {
-        for(DataSet * s : dss) {
+      for(DataSet * s : dss) {
+        if(ignoreEmpty && (s->nbRows() == 0 || s->nbColumns() == 0)) {
+          Terminal::out << " -> ignoring empty dataset '"
+                        << s->name
+                        << "', use /ignore-empty=false if you really want it" 
+                        << endl;
+
+          continue;
+        }
+        if(! frm.isEmpty()) {
           try {
             if(! s->matches(frm)) {
               Terminal::out << "File '"
@@ -220,9 +231,9 @@ void DataBackend::loadFilesAndDisplay(bool update, QStringList files,
                           << endl;
           }
         }
+        else
+          datasets << s;
       }
-      else
-        datasets << dss;
     }
     catch (const RuntimeError & e) {
       Terminal::out << "\n" << e.message() << endl;
@@ -298,6 +309,9 @@ void DataBackend::registerBackendCommands()
                      << new BoolArgument("ignore-cache", 
                                          "Ignores cache",
                                          "if on, ignores cache (default off)")
+                     << new BoolArgument("ignore-empty", 
+                                         "Ignores empty files",
+                                         "if on, skips empty files (default on)")
                      << new StringArgument("for-which", 
                                            "For which",
                                            "Select on formula")

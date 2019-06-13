@@ -1745,39 +1745,49 @@ static void statsOn(const DataSet * ds, const CommandOptions & opts,
   ValueHash os;
   QList<ValueHash> byCols = stats.statsByColumns(&os);
 
-  Terminal::out << "Statistics on buffer: " << ds->name << ":";
   if(sns.isEmpty()) {
+    Terminal::out << "Statistics on buffer: " << ds->name << ":";
     for(int i = 0; i < ds->nbColumns(); i++)
       Terminal::out << "\n" << byCols[i].prettyPrint();
   }
   else {
     os = os.select(sns);
-    Terminal::out << "\n" << os.prettyPrint();
+    os["buffer"] = ds->name;
+    os.keyOrder.insert(0, "buffer");
+
+    Terminal::out << os.prettyPrint();
   }
 
   Terminal::out << endl;
+  /// @todo We should be able to use handleOutput as well for the
+  /// display to the terminal ?
   os.handleOutput(ds, opts);
 }
 
 static void statsCommand(const QString &, const CommandOptions & opts)
 {
-  DataSet * ds = soas().currentDataSet();
-  updateFromOptions(opts, "buffer", ds);
+  QList<const DataSet *> datasets;
+  updateFromOptions(opts, "buffers", datasets);
+  if(datasets.isEmpty())
+    datasets <<  soas().currentDataSet();
+
   bool bySegments = false;
   updateFromOptions(opts, "use-segments", bySegments);
   QStringList statsNames;
   updateFromOptions(opts, "stats", statsNames);
 
 
-  if(bySegments) {
-    QList<DataSet * > segs = ds->chopIntoSegments();
-    for(int i = 0; i < segs.size(); i++) {
-      statsOn(segs[i], opts, statsNames);
-      delete segs[i];
+  for(const DataSet * ds : datasets) {
+    if(bySegments) {
+      QList<DataSet * > segs = ds->chopIntoSegments();
+      for(int i = 0; i < segs.size(); i++) {
+        statsOn(segs[i], opts, statsNames);
+        delete segs[i];
+      }
     }
+    else
+      statsOn(ds, opts, statsNames);
   }
-  else
-    statsOn(ds, opts, statsNames);
 }
 
 /// @todo Validation will be a pain when buffer is specified
@@ -1802,10 +1812,9 @@ public:
 
 static ArgumentList 
 statsO(QList<Argument *>() 
-       << new DataSetArgument("buffer", 
-                              "Buffer",
-                              "an alternative buffer to work on",
-                              true)
+       << new SeveralDataSetArgument("buffers", 
+                                     "Buffers",
+                                     "buffers to work on", true, true)
        << new StatsArgument("stats",
                             "Select stats",
                             "writes only the given stats")

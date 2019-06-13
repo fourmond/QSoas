@@ -578,8 +578,21 @@ static void browseStackCommand(const QString &, const CommandOptions & opts)
     updateFromOptions(opts, "buffers", datasets);
   else
     datasets = soas().stack().allDataSets();
+
+  QString frm;
+  updateFromOptions(opts, "for-which", frm);
+  if(! frm.isEmpty()) {
+    QList<const DataSet *> nl = datasets;
+    datasets.clear();
+    for(const DataSet * s : nl) {
+      if(s->matches(frm))
+        datasets << s;
+    }
+  }
+  
   if(datasets.size() == 0)
     throw RuntimeError("No datasets to show");
+
   dlg.displayDataSets(datasets);
   dlg.addButton("Drop from stack", [](const QList<const DataSet*> & lst) {
       DataStack & s = soas().stack();
@@ -593,7 +606,11 @@ static ArgumentList
 bsOpts(QList<Argument *>() 
        << new SeveralDataSetArgument("buffers", 
                                      "Buffers",
-                                     "Buffers to show", true, true));
+                                     "Buffers to show", true, true)
+       << new StringArgument("for-which", 
+                             "For which",
+                             "Select on formula")
+       );
 
 static Command 
 browseStack("browse-stack",     // command name

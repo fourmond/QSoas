@@ -547,18 +547,29 @@ static void eval(const QString &, QString code, const CommandOptions & opts)
   updateFromOptions(opts, "modify-meta", modifyMeta);
   if(modifyMeta)
     useDs = true;
-  
-  DataSet * ds = (useDs ? soas().currentDataSet(true) : NULL);
+
+  QList<const DataSet *> buffers;
+  updateFromOptions(opts, "buffers", buffers);
+  if(buffers.isEmpty() && useDs)
+    buffers << soas().currentDataSet(true);
+
   MRuby * mr = MRuby::ruby();
   mrb_value value;
-  if(ds && modifyMeta)
-    value = ds->evaluateWithMeta(code, true, true);
-  else if(ds)
-    value = ds->evaluateWithMeta(code, true);
-  else
+  if(buffers.isEmpty()) {
     value = mr->eval(code);
-
-  Terminal::out << " => " << mr->inspect(value) << endl;
+    Terminal::out << " => " << mr->inspect(value) << endl;
+  }
+  else {
+    for(const DataSet * s : buffers) {
+      DataSet * ds = const_cast<DataSet *>(s);
+      Terminal::out << "Evaluating with buffer: " << ds->name << endl;
+      if(modifyMeta)
+        value = ds->evaluateWithMeta(code, true, true);
+      else 
+        value = ds->evaluateWithMeta(code, true);
+      Terminal::out << " => " << mr->inspect(value) << endl;
+    }
+  }
 }
 
 static ArgumentList 
@@ -569,6 +580,9 @@ eA(QList<Argument *>()
 
 static ArgumentList 
 eO(QList<Argument *>() 
+   << new SeveralDataSetArgument("buffers", 
+                                 "Buffers",
+                                 "Buffers to run eval on", true, true)
    << new BoolArgument("use-dataset", 
                        "Use current dataset",
                        "If on (the default) and if there is a current dataset, the $meta and $stats hashes are available")

@@ -204,7 +204,10 @@ void DataBackend::loadFilesAndDisplay(bool update, QStringList files,
         Terminal::out << " -> got " << dss.size() << " datasets" << endl;
       else
         Terminal::out << " -> OK" << endl;
+      QFileInfo info(files[i]);
       for(DataSet * s : dss) {
+        s->setMetaData("original-file", info.canonicalFilePath());
+        
         if(ignoreEmpty && (s->nbRows() == 0 || s->nbColumns() == 0)) {
           Terminal::out << " -> ignoring empty dataset '"
                         << s->name

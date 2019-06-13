@@ -570,10 +570,17 @@ poiCmd("points", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void browseStackCommand(const QString &)
+static void browseStackCommand(const QString &, const CommandOptions & opts)
 {
   DatasetBrowser dlg;
-  dlg.displayDataSets(soas().stack().allDataSets());
+  QList<const DataSet *> datasets;
+  if(opts.contains("buffers"))
+    updateFromOptions(opts, "buffers", datasets);
+  else
+    datasets = soas().stack().allDataSets();
+  if(datasets.size() == 0)
+    throw RuntimeError("No datasets to show");
+  dlg.displayDataSets(datasets);
   dlg.addButton("Drop from stack", [](const QList<const DataSet*> & lst) {
       DataStack & s = soas().stack();
       for(int i = 0; i < lst.size(); i++)
@@ -582,13 +589,18 @@ static void browseStackCommand(const QString &)
   dlg.exec();
 }
 
+static ArgumentList 
+bsOpts(QList<Argument *>() 
+       << new SeveralDataSetArgument("buffers", 
+                                     "Buffers",
+                                     "Buffers to show", true, true));
 
 static Command 
 browseStack("browse-stack",     // command name
-            optionLessEffector(browseStackCommand, true), // action
+            effector(browseStackCommand, true), // action
             "view",            // group name
             NULL,               // arguments
-            NULL,               // options
+            &bsOpts,               // options
             "Browse stack",
             "Browse stack",
             "K");

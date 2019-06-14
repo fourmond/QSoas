@@ -63,6 +63,9 @@ public:
     // Common stuff, date:
 
     try {
+      if(lines.size() < 225)
+        throw RuntimeError("Not enough lines in GPES meta-data file");
+         
     
       // Try to parse dates...
       QTime time = QTime::fromString(lines[203]);

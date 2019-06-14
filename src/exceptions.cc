@@ -66,12 +66,44 @@ static void qtMessageHandler(QtMsgType type, const char *msg)
     throw InternalError(QString("Fatal error: %1").arg(msg));
   }
 }
+
+#else
+
+void qtMessageHandler(QtMsgType type,
+                      const QMessageLogContext &context,
+                      const QString &msg)
+{
+  QString m = QString("%1 (%2:%3, %4)").arg(msg).
+    arg(context.file).arg(context.line).arg(context.function);
+  QByteArray bt = m.toLocal8Bit();
+  switch (type) {
+  case QtDebugMsg:
+    fprintf(stderr, "Debug: %s\n", bt.constData());
+    break;
+  case QtInfoMsg:
+    fprintf(stderr, "Info: %s\n", bt.constData());
+    break;
+  case QtWarningMsg:
+    fprintf(stderr, "Warning: %s\n", bt.constData());
+    break;
+  case QtCriticalMsg:
+    fprintf(stderr, "Critical: %s\n", bt.constData());
+    Terminal::out << "Critical error: " << m << endl;
+    break;
+  case QtFatalMsg:
+    throw InternalError(QString("Fatal error: %1").arg(m));
+    break;
+  }
+}
+
 #endif
 
 void Exception::setupQtMessageHandler()
 {
 #if QT_VERSION < QT_VERSION_CHECK(5,0,0)
   qInstallMsgHandler(&qtMessageHandler);
+#else
+  qInstallMessageHandler(&qtMessageHandler);
 #endif
 }
 

@@ -1752,10 +1752,7 @@ static void statsOn(const DataSet * ds, const CommandOptions & opts,
   }
   else {
     os = os.select(sns);
-    os["buffer"] = ds->name;
-    os.keyOrder.insert(0, "buffer");
-
-    Terminal::out << os.prettyPrint();
+    Terminal::out << ds->name << os.toString(QString("\t")) << endl;
   }
 
   Terminal::out << endl;

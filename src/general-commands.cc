@@ -32,6 +32,7 @@
 #include <vector.hh>
 #include <dataset.hh>
 #include <databackend.hh>
+#include <datastack.hh>
 
 #include <curveitems.hh>
 #include <curvemarker.hh>
@@ -222,6 +223,50 @@ temperature("temperature", // command name
             "Reads/sets temperature",
             "T"
             );
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void memCommand(const QString &,
+                       const CommandOptions & opts)
+{
+  int kb = Utils::memoryUsed();
+  Terminal::out << "Memory used: " << kb << " kB" << endl;
+
+  Terminal::out << "Stack: " << soas().stack().totalSize()
+                << " buffers, for a total size of "
+                << (soas().stack().byteSize() >> 10) << " kB" << endl;
+
+  int fls, dss, size, maxf;
+  DataBackend::cacheStats(&fls, &dss, &size, &maxf);
+  Terminal::out << "Cache: " << fls << " files (out of "
+                << maxf << "), " << dss
+                << " buffers, for a total size of "
+                << (size >> 10) << " kB" << endl;
+  int ncs = -1;
+  updateFromOptions(opts, "cached-files", ncs);
+  if(ncs >= 0) {
+    Terminal::out << "Setting new cache size to " << ncs << endl;
+    DataBackend::setCacheSize(ncs);
+  }
+}
+
+static ArgumentList 
+memOpts(QList<Argument *>()
+        << new IntegerArgument("cached-files", "Number of cached files")
+        );
+
+static Command 
+m("mem", // command name
+  effector(memCommand), // action
+  "file",  // group name
+  NULL, // arguments
+  &memOpts, // options
+  "Memory",
+  "Informations about QSoas memory usage"
+  );
+
+
 
 //////////////////////////////////////////////////////////////////////
 

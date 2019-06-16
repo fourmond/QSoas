@@ -373,7 +373,8 @@ SOURCES += src/qmain.cc \
         src/gauss-kronrod.cc \
         src/particleswarm.cc \
         src/filelock.cc \
-        src/printpreviewhelper.cc
+        src/printpreviewhelper.cc \
+        src/utils-osspec.cc
 
 #        src/conditionsprovider.cc \
 

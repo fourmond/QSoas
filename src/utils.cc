@@ -868,12 +868,6 @@ void Utils::skippingCopy(const double * source, double * target,
 }
 
 
-// Memory use
-
-int Utils::memoryUsed()
-{
-  return 0;
-}
 
 QColor Utils::gradientColor(double value,
                             const QList<QPair<double, QColor> > & c,

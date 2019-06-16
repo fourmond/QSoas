@@ -75,7 +75,15 @@ public:
     return values.begin();
   };
 
+  typename QList<T*>::const_iterator begin() const {
+    return values.begin();
+  };
+
   typename QList<T*>::iterator end() {
+    return values.end();
+  };
+
+  typename QList<T*>::const_iterator end() const {
     return values.end();
   };
 

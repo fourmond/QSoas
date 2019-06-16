@@ -54,13 +54,20 @@ class DataBackend {
   /// A cache for datasets
   ///
   /// @todo Should be a pointer ?
-  static QCache<QString, CachedDataSets> cachedDatasets;
+  static QCache<QString, CachedDataSets> * cachedDatasets;
 
   /// A cache for the merged options of all backends
   static ArgumentList * allBackendsOptions;
 
   /// A cache for the list of options that are not backend-related
   static QSet<QString> nonBackendOptions;
+
+  /// Returns the cache for the given file
+  static CachedDataSets * cacheForFile(const QString & file);
+
+  /// Adds the given results for the given file
+  static void addToCache(const QString & file,
+                         const QList<DataSet *> & datasets);
   
 
 protected:
@@ -176,6 +183,16 @@ public:
 
 
 
+  /// Returns statistics about the cache:
+  /// @li the number of files
+  /// @li the number of datasets
+  /// @li the total size of the cache, in bytes
+  /// @li the maximum number of files that can be cached
+  static void cacheStats(int * nbFiles, int * nbDatasets,
+                         int * size, int * maxFiles);
+
+  /// Sets the cache size, in terms of number of files.
+  static void setCacheSize(int number);
 
 };
 

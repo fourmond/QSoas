@@ -72,11 +72,72 @@ public:
     return deepCopy(datasets);
   };
 
+  int number() const {
+    return datasets.size();
+  };
+
+  int byteSize() const {
+    int sz = 0;
+    for(const DataSet * ds : datasets)
+      sz += ds->byteSize();
+    return sz;
+  };
+
 };
+
+
+static SettingsValue<int> cacheSize("backends/cache-size", 1000);
 
 // A cache for 1000 datasets
 /// @todo Use real size ?
-QCache<QString, CachedDataSets> DataBackend::cachedDatasets(1000);
+QCache<QString, CachedDataSets> * DataBackend::cachedDatasets = NULL;
+
+
+CachedDataSets * DataBackend::cacheForFile(const QString & file)
+{
+  if(! cachedDatasets)
+    return NULL;
+  return cachedDatasets->object(file);
+}
+
+void DataBackend::addToCache(const QString & file, const QList<DataSet*> & dss)
+{
+  if(! cachedDatasets)
+    cachedDatasets = new QCache<QString, CachedDataSets>(::cacheSize);
+  cachedDatasets->insert(file, new CachedDataSets(dss));
+}
+
+void DataBackend::setCacheSize(int sz)
+{
+  cacheSize = sz;
+  if(cachedDatasets)
+    cachedDatasets->setMaxCost(sz);
+}
+
+void DataBackend::cacheStats(int * nbFiles, int * nbDatasets,
+                         int * size, int * maxFiles)
+{
+  *nbFiles = 0;
+  *nbDatasets = 0;
+  *size = 0;
+  *maxFiles = 0;
+  if(! cachedDatasets)
+    return;
+  *nbFiles = cachedDatasets->totalCost();
+  *maxFiles = cachedDatasets->maxCost();
+
+  QStringList lst = cachedDatasets->keys();
+  for(const QString & f : lst) {
+    const CachedDataSets * cds = (*cachedDatasets)[f];
+    *nbDatasets += cds->number();
+    *size += cds->byteSize();
+  }
+}
+
+
+
+
+
 
 void DataBackend::registerBackend(DataBackend * backend)
 {
@@ -137,7 +198,7 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName,
   if(verbose)
     Terminal::out << "Loading file: '" << fileName << "' ";
   
-  CachedDataSets * cached = cachedDatasets.object(key);
+  CachedDataSets * cached = cacheForFile(key);
 
   if(! cached || cached->date < lastModified || ignoreCache) {
     Utils::open(&file, QIODevice::ReadOnly);
@@ -153,7 +214,7 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName,
 
     // Now we update the cache
     if(! ignoreCache)
-      cachedDatasets.insert(key, new CachedDataSets(datasets));
+      addToCache(key, datasets);
   }
   else {
     datasets = cached->cachedDataSets();

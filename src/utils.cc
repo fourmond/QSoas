@@ -35,7 +35,12 @@ static QStringList dirGlob(QString directory, QString str,
     rets << dir.filePath(".");
     return rets;
   }
-  QDir::Filters filters = QDir::Dirs | QDir::CaseSensitive | QDir::NoDot;
+  QDir::Filters filters = QDir::Dirs | QDir::NoDot;
+
+#ifdef Q_OS_LINUX
+  filters |= QDir::CaseSensitive;
+#endif
+  
   if(! isDir)
     filters |= QDir::Files;
   if(! ((isDir && parentOK) || str.startsWith(".")) )

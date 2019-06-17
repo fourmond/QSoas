@@ -30,6 +30,15 @@
 #include <sys/resource.h>
 #endif
 
+
+#ifdef Q_OS_WIN32
+#include <windows.h>
+#include <psapi.h>
+#endif
+
+
+
+
 // See https://stackoverflow.com/questions/63166/how-to-determine-cpu-and-memory-consumption-from-inside-a-process
 
 int Utils::memoryUsed()
@@ -43,7 +52,13 @@ int Utils::memoryUsed()
     // Error of some kind
     return 0;
   }
+#  ifdef Q_OS_WIN32
+  PROCESS_MEMORY_COUNTERS_EX pmc;
+  GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
+  return pmc.PrivateUsage;
+#  endif
 #else
+  
   return 0;
 #endif
 }

@@ -142,21 +142,6 @@ CommandWidget::CommandWidget(CommandContext * c) :
     if(! theCommandWidget)
       theCommandWidget = this;    // Or always ?
 
-    if(logFileName.isEmpty())
-      logFileName = ::defaultLogFileName;
-
-    if(! logFileName.isEmpty()) {
-      /// @todo Find a writable place
-      int rotation = logRotateNumber;
-      if(rotation != 0) {
-        Debug::debug()
-          << "Rotating file " << logFileName << endl;
-        Utils::rotateFile(logFileName, rotation);
-      }
-      watcherDevice = new QFile(logFileName);
-      watcherDevice->open(QIODevice::Append);
-    }
-
     h1 = new QHBoxLayout();
     terminalDisplay = new QTextEdit();
     terminalDisplay->setReadOnly(true);
@@ -185,6 +170,24 @@ CommandWidget::CommandWidget(CommandContext * c) :
     h1->addWidget(sideBarLabel);
 
     layout->addLayout(h1);
+
+    if(logFileName.isEmpty())
+      logFileName = ::defaultLogFileName;
+
+    if(! logFileName.isEmpty()) {
+      logFileName = Utils::getWritablePath(logFileName);
+      /// @todo Find a writable place
+      int rotation = logRotateNumber;
+      if(rotation != 0) {
+        Debug::debug()
+          << "Rotating file " << logFileName << endl;
+        Utils::rotateFile(logFileName, rotation);
+      }
+      watcherDevice = new QFile(logFileName);
+      watcherDevice->open(QIODevice::Append);
+      Terminal::out << "Opening log file: " << logFileName << endl;
+    }
+
   }
   else {
     terminalDisplay = NULL;

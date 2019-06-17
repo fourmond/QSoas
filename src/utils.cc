@@ -101,6 +101,20 @@ QStringList Utils::glob(const QString & pattern, bool trim, bool isDir)
   return lst;
 }
 
+
+QString Utils::getWritablePath(const QString & file)
+{
+  QFileInfo info(file);
+  if(info.isAbsolute())
+    return file;
+  
+  QDir cur = QDir::current();
+  info.setFile(cur, ".");
+  if(! info.isWritable())
+    cur = QDir::home();
+  return cur.absoluteFilePath(file);
+}
+
 QStringList Utils::stringsStartingWith(const QStringList & strings, 
                                        const QString & start)
 {
@@ -919,3 +933,4 @@ QColor Utils::gradientColor(double value,
 
   return colors.last().second;
 }
+

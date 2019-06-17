@@ -37,6 +37,8 @@
 #include <debug.hh>
 #include <commandlineparser.hh>
 
+#include <new>
+
 
 class SideBarLabel : public QScrollArea {
 protected:
@@ -277,6 +279,10 @@ bool CommandWidget::runCommand(const QStringList & raw)
     /// supports std::function
     commandLine->busy();
     throw;                      // rethrow
+  }
+  catch(const std::bad_alloc & alc) {
+    Terminal::out << "Apparently out of memory: " << alc.what() 
+                  << "\nThis is probably not going to end well" << endl;
   }
   Debug::debug().endCommand(raw);
   commandLine->busy();

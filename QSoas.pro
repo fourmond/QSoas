@@ -374,7 +374,8 @@ SOURCES += src/qmain.cc \
         src/particleswarm.cc \
         src/filelock.cc \
         src/printpreviewhelper.cc \
-        src/utils-osspec.cc
+        src/utils-osspec.cc \
+        src/graphicoutput.cc
 
 #        src/conditionsprovider.cc \
 
@@ -515,7 +516,8 @@ HEADERS += src/headers.hh \
         src/parameterspaceexplorer.hh \
         src/fittrajectorydisplay.hh \
         src/filelock.hh \
-        src/printpreviewhelper.hh
+        src/printpreviewhelper.hh \
+        src/graphicoutput.hh
 
 # mruby
 HEADERS += src/mruby.hh

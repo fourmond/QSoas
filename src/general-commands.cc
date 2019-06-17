@@ -275,6 +275,9 @@ pops(QList<Argument *>()
      << new BoolArgument("overwrite", 
                          "Overwrite",
                          "Overwrite the output file")
+     << new BoolArgument("test", 
+                         "Test",
+                         "Test...")
      // << new BoolArgument("preview", 
      //                     "Preview",
      //                     "Shows the print preview dialog (on by default)")
@@ -294,6 +297,7 @@ pops(QList<Argument *>()
 
 
 #include <printpreviewhelper.hh>
+#include <graphicoutput.hh>
 
 static void printCommand(const QString &, 
                          const CommandOptions & opts)
@@ -304,10 +308,23 @@ static void printCommand(const QString &,
 
   QString file;
   bool overwrite = false;
+  bool test = false;
+
+  QString title;
+  updateFromOptions(opts, "title", title);
 
   updateFromOptions(opts, "overwrite", overwrite);
+  updateFromOptions(opts, "test", test);
   updateFromOptions(opts, "file", file);
   updateFromOptions(opts, "nominal-height", height);
+
+  if(! file.isEmpty() && test) {
+    // Handle output separately for now...
+    GraphicOutput out(title);
+    out.setOutputFile(file);
+    out.shipOut(&soas().view());
+    return;
+  }
 
   QString pageSize;
   updateFromOptions(opts, "page-size", pageSize);
@@ -321,8 +338,6 @@ static void printCommand(const QString &,
     h = lst[1].toDouble();
   }
 
-  QString title;
-  updateFromOptions(opts, "title", title);
 
   bool preview = true;
   updateFromOptions(opts, "preview", preview);

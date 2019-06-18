@@ -718,8 +718,12 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
 
   
 
-  auto ensureEditableDS = [&nds, &view, &pick, &newDatasets] {
+  auto ensureEditableDS = [&nds, &view, &pick, &newDatasets] () -> bool {
     DataSet * cds = const_cast<DataSet *>(pick.dataset());
+    if(! cds) {
+      Terminal::out << "No current dataset to work on, pick a point with exact or smooth" << endl;
+      return false;
+    }
     if(newDatasets.indexOf(cds) >= 0) {
       nds = cds;
     }
@@ -730,6 +734,7 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
       newDatasets << nds;
       pick.pickDataSet(nds);    // so we keep on working with this one.
     }
+    return true;
   };
   
   while(! loop.finished()) {
@@ -815,9 +820,10 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
                       << ", is not finite" << endl;
         break;
       }
-      ensureEditableDS();
-      Terminal::out << "Shifting X by: " << dx << endl;
-      nds->x() = nds->x() - dx;
+      if(ensureEditableDS()) {
+        Terminal::out << "Shifting X by: " << dx << endl;
+        nds->x() = nds->x() - dx;
+      }
       break;
     }
     case ScaleX: {
@@ -827,9 +833,10 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
                       << ", is not finite" << endl;
         break;
       }
-      ensureEditableDS();
-      Terminal::out << "Scaling X by: " << xs << endl;
-      nds->x() = nds->x()/xs;
+      if(ensureEditableDS()) {
+        Terminal::out << "Scaling X by: " << xs << endl;
+        nds->x() = nds->x()/xs;
+      }
       break;
     }
     case ShiftY: {
@@ -839,9 +846,10 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
                       << ", is not finite" << endl;
         break;
       }
-      ensureEditableDS();
-      Terminal::out << "Shifting Y by: " << dy << endl;
-      nds->y() = nds->y() - dy;
+      if(ensureEditableDS()) {
+        Terminal::out << "Shifting Y by: " << dy << endl;
+        nds->y() = nds->y() - dy;
+      }
       break;
     }
     case ScaleY: {
@@ -851,33 +859,37 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
                       << ", is not finite" << endl;
         break;
       }
-      ensureEditableDS();
-      Terminal::out << "Scaling Y by: " << ys << endl;
-      nds->y() = nds->y()/ys;
+      if(ensureEditableDS()) {
+        Terminal::out << "Scaling Y by: " << ys << endl;
+        nds->y() = nds->y()/ys;
+      }
       break;
     }
     case VerticalSymmetry: {
-      ensureEditableDS();
-      Terminal::out << "Vertical symmetry around X = " << m.p.x() << endl;
-      nds->x() *= - 1;
-      nds->x() += 2*m.p.x();
+      if(ensureEditableDS()) {
+        Terminal::out << "Vertical symmetry around X = " << m.p.x() << endl;
+        nds->x() *= - 1;
+        nds->x() += 2*m.p.x();
+      }
       break;
     }
     case HorizontalSymmetry: {
-      ensureEditableDS();
-      Terminal::out << "Horizontal symmetry around Y = " << m.p.y() << endl;
-      nds->y() *= - 1;
-      nds->y() += 2*m.p.y();
+      if(ensureEditableDS()) {
+        Terminal::out << "Horizontal symmetry around Y = " << m.p.y() << endl;
+        nds->y() *= - 1;
+        nds->y() += 2*m.p.y();
+      }
       break;
     }
     case CentralSymmetry: {
-      ensureEditableDS();
-      Terminal::out << "Horizontal symmetry around (" << m.p.x()
-                    << "," << m.p.y() << ")" << endl;
-      nds->x() *= - 1;
-      nds->x() += 2*m.p.x();
-      nds->y() *= - 1;
-      nds->y() += 2*m.p.y();
+      if(ensureEditableDS()) {
+        Terminal::out << "Horizontal symmetry around (" << m.p.x()
+                      << "," << m.p.y() << ")" << endl;
+        nds->x() *= - 1;
+        nds->x() += 2*m.p.x();
+        nds->y() *= - 1;
+        nds->y() += 2*m.p.y();
+      }
       break;
     }
     default:

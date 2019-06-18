@@ -42,13 +42,13 @@ PointPicker::Method PointPicker::lastMethodUsed = PointPicker::Exact;
 
 PointPicker::PointPicker(CurveEventLoop * l, const DataSet * ds, 
                          CurvePanel * p) :
-  loop(l), panel(p),
+  loop(l), trackedDataSet(NULL),
+  panel(p),
   marker(NULL),
   method(lastMethodUsed),
   lastButton(Qt::NoButton),
   trackedButtons(Qt::LeftButton)
 {
-  loop->ppMessage = pointPickerMessage();
 
   if(! panel)
     panel = l->getView()->mainPanel();
@@ -61,6 +61,8 @@ PointPicker::PointPicker(CurveEventLoop * l, const DataSet * ds,
   
   panel->addItem(marker);
   pickDataSet(ds);
+
+  loop->ppMessage = pointPickerMessage();
 }
 
 PointPicker::~PointPicker()

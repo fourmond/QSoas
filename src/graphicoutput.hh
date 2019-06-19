@@ -31,7 +31,7 @@ class GraphicOutput : public QObject {
   /// The page size, in postscript points = (1/72th of an inch).
   ///
   /// The idea is that the postscript point will also be the 
-  QSize pageSize;
+  QPageLayout layout;
 
   /// The resolution in dpi. Not useful for anything else than bitmap
   /// output
@@ -51,10 +51,10 @@ public:
   GraphicOutput(const QString & title);
   
   /// Sets the output size in natural units, i.e. 6cmx12in
-  void setOutputSize(const QString & spec);
+  void setOutputSize(const QString & spec, int resolution = 288);
 
   /// Sets the output size in postscript points
-  void setOutputSize(int width, int height);
+  void setOutputSize(int width, int height, int resolution = 288);
 
   /// Sets the output file name.
   void setOutputFile(const QString & file);

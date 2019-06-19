@@ -187,7 +187,7 @@ namespace Utils {
 
   /// Dumps the contents of a rectangle to the target stream
   template<typename T, typename Rect> void dumpRectangle(T & stream, 
-                                                         Rect & r) {
+                                                         const Rect & r) {
     stream << r.x() << "," << r.y() << " to " 
            << r.x() + r.width() << "," << r.y() + r.height();
     if(r.isNull())

@@ -64,7 +64,10 @@ public:
   /// As of now, will fail if there is no file output.
   void shipOut(CurveView * view);
   
-  
+
+  /// Parses a text dimension as 23.4cm and returns its value in
+  /// postscript points, or raises an exception.
+  static double parseDimension(const QString & dim);
 
 };
 

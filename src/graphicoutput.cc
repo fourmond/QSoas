@@ -24,7 +24,6 @@
 #include <curveview.hh>
 #include <utils.hh>
 
-
 GraphicOutput::GraphicOutput(const QString & t) :
   resolution(288), title(t)
 {
@@ -53,6 +52,16 @@ void GraphicOutput::setOutputSize(int width, int height, int res)
 
 }
 
+void GraphicOutput::setOutputSize(const QString & spec, int res)
+{
+  QStringList lst = spec.split("x");
+  if(lst.size() != 2)
+    throw RuntimeError("Invalid page size specification: '%1'").arg(spec);
+  double wd = parseDimension(lst[0]);
+  double ht = parseDimension(lst[1]);
+  setOutputSize(wd, ht, res);
+}
+
 
 void GraphicOutput::makePDF(CurveView * view)
 {
@@ -64,22 +73,22 @@ void GraphicOutput::makePDF(CurveView * view)
 
   QRectF rect = printer->pageRect(QPrinter::Point);
 
-  QTextStream o(stdout);
-  o << "Printer device pixel ratio: " << printer->devicePixelRatioF()
-    << " -- height: " << printer->height()
-    << " -- phys DPI: " << printer->physicalDpiX()
-    << " -- log DPI: " << printer->logicalDpiX()
-    << endl;
-  o << "Printer rect: ";
-  Utils::dumpRectangle(o, rect);
-  o << "\nLayout rect: ";
-  Utils::dumpRectangle(o, layout.fullRectPoints());
-  o << endl;
+  // QTextStream o(stdout);
+  // o << "Printer device pixel ratio: " << printer->devicePixelRatioF()
+  //   << " -- height: " << printer->height()
+  //   << " -- phys DPI: " << printer->physicalDpiX()
+  //   << " -- log DPI: " << printer->logicalDpiX()
+  //   << endl;
+  // o << "Printer rect: ";
+  // Utils::dumpRectangle(o, rect);
+  // o << "\nLayout rect: ";
+  // Utils::dumpRectangle(o, layout.fullRectPoints());
+  // o << endl;
 
   QPainter painter;
   painter.begin(printer.get());
-  o << "Printer device pixel ratio: " << printer->devicePixelRatioF()
-    << " -- height -- " << printer->height() << endl;
+  double scale = printer->logicalDpiX()/72.0;
+  painter.scale(scale, scale);
 
   view->render(&painter, rect.height(), rect.toAlignedRect(), title);
   painter.end();
@@ -96,3 +105,27 @@ void GraphicOutput::shipOut(CurveView * view)
   }
 }
 
+static QHash<QString, double> dimensions( {
+    {"in", 72},
+      {"cm", 72/2.54},
+        {"mm", 72/25.4},
+          {"pt", 1}
+          });
+                                   
+
+double GraphicOutput::parseDimension(const QString & dim)
+{
+  QRegExp re("^\\s*([0-9.]+)\\s*([a-z]+)?\\s*$");
+  if(re.indexIn(dim) < 0)
+    throw RuntimeError("Invalid size specification: '%1'").
+      arg(dim);
+  double val = re.cap(1).toDouble();
+  QString unit = re.cap(2);
+  double uv = 1;
+  if(unit.size() > 0) {
+    if(! ::dimensions.contains(unit))
+      throw RuntimeError("Unkown unit: '%1'").arg(unit);
+    uv = ::dimensions[unit];
+  }
+  return val * uv;
+}

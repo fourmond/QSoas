@@ -239,10 +239,10 @@ void CurveView::layOutPanels(const QRect & r)
   QList<CurvePanel *> panels = allPanels();
   QList<QMargins> margins;
 
-  QTextStream o(stdout);
-  o << "Layout panels: ";
-  Utils::dumpRectangle(o, r);
-  o << endl;
+  // QTextStream o(stdout);
+  // o << "Layout panels: ";
+  // Utils::dumpRectangle(o, r);
+  // o << endl;
 
   int totalStretch = 0;
   // We lay the panels out vertically
@@ -272,9 +272,9 @@ void CurveView::layOutPanels(const QRect & r)
 
     p->setGeometry(pr);
     top += h + m.bottom();;
-    o << "Panel #" << i <<": ";
-    Utils::dumpRectangle(o, pr);
-    o << endl;
+    // o << "Panel #" << i <<": ";
+    // Utils::dumpRectangle(o, pr);
+    // o << endl;
   }
 }
 
@@ -350,12 +350,12 @@ void CurveView::render(QPainter * painter,
     painter->restore();
   }
 
-  QTextStream o(stdout);
+  // QTextStream o(stdout);
   double scale = innerHeight/ht;
 
   br *= scale;
   tl *= scale;
-  o << "Scale: " << scale << endl;
+  // o << "Scale: " << scale << endl;
 
 
   QRect actual = QRect(QPoint(tl.x(), tl.y()), 

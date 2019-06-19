@@ -318,26 +318,21 @@ static void printCommand(const QString &,
   updateFromOptions(opts, "file", file);
   updateFromOptions(opts, "nominal-height", height);
 
+  QString pageSize;
+  updateFromOptions(opts, "page-size", pageSize);
+
   if(! file.isEmpty() && test) {
     // Handle output separately for now...
     GraphicOutput out(title);
     out.setOutputFile(file);
+    if(! pageSize.isEmpty())
+      out.setOutputSize(pageSize);
     out.shipOut(&soas().view());
     return;
   }
 
-  QString pageSize;
-  updateFromOptions(opts, "page-size", pageSize);
-  double w, h;
-  if(! pageSize.isEmpty()) {
-    /// @todo introduce unit parsing ?
-    QStringList lst = pageSize.split("x");
-    if(lst.size() != 2)
-      throw RuntimeError("Invalid page size format: '%1'").arg(pageSize);
-    w = lst[0].toDouble();
-    h = lst[1].toDouble();
-  }
 
+  double w, h;
 
   bool preview = true;
   updateFromOptions(opts, "preview", preview);

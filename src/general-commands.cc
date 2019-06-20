@@ -233,9 +233,7 @@ static void memCommand(const QString &,
   int kb = Utils::memoryUsed();
   Terminal::out << "Memory used: " << kb << " kB" << endl;
 
-  Terminal::out << "Stack: " << soas().stack().totalSize()
-                << " buffers, for a total size of "
-                << (soas().stack().byteSize() >> 10) << " kB" << endl;
+  Terminal::out << "Stack: " << soas().stack().textSummary() << endl;
 
   int fls, dss, size, maxf;
   DataBackend::cacheStats(&fls, &dss, &size, &maxf);

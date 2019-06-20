@@ -278,6 +278,7 @@ void DataStack::clear()
   for(int i = 0; i < redoStack.size(); i++)
     delete redoStack[i];
   redoStack.clear();
+  cachedByteSize = 0;
   emit(currentDataSetChanged());
 }
 

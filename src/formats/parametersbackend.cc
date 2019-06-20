@@ -77,6 +77,7 @@ protected:
     DataSet * nds = new DataSet(cols);
     nds->name = QDir::cleanPath(fileName);
     nds->setMetaData("fit-name", pms.fitName);
+    nds->setMetaData("parameters", pms.parametersOrder);
     
     setMetaDataForFile(nds, fileName);
     rv << nds;

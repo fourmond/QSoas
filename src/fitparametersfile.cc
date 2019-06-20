@@ -130,6 +130,11 @@ QHash<QString,DataSet> FitParametersFile::parameterValuesAsfZ(bool makeupZ) cons
   
   QSet<int> zidx = perp.keys().toSet();
   zidx -= -1;
+
+  if(zidx.isEmpty())            // This is the case for a
+                                // single-buffer fit.
+    zidx.insert(0);
+  
   values.take("Z");
   values.take("buffer_weight");
   QStringList names = values.keys();

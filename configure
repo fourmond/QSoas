@@ -11,7 +11,7 @@ fi
 
 # How I hate all these slight differences that make things difficult
 if [ -z "$QMAKE" ]; then
-    for f in /usr/lib/qt5/bin/qmake ; do
+    for f in /opt/local/libexec/qt5/bin/qmake /usr/lib/qt5/bin/qmake ; do
         if [ -x "$f" ]; then
             QMAKE="$f";
         fi

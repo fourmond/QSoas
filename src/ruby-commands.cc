@@ -29,6 +29,7 @@
 #include <soas.hh>
 
 #include <datastack.hh>
+#include <datastackhelper.hh>
 
 #include <dataset.hh>
 #include <vector.hh>
@@ -58,53 +59,61 @@
 static void applyFormulaCommand(const QString &, QString formula,
                                 const CommandOptions & opts)
 {
-  const DataSet * ds = soas().currentDataSet();
 
 
   int extra = 0;
   updateFromOptions(opts, "extra-columns", extra);
 
-  DataSetExpression ex(ds);
-  ex.useStats = false;
-  updateFromOptions(opts, "use-stats", ex.useStats);
-  ex.useMeta = true;
-  updateFromOptions(opts, "use-meta", ex.useMeta);
 
-  QStringList colNames;
-  int argSize = ex.dataSetParameters(extra, &colNames).size();
+  QList<const DataSet *> buffers;
+  if(opts.contains("buffers"))
+    updateFromOptions(opts, "buffers", buffers);
+  else
+    buffers << soas().currentDataSet();
 
-  Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
-    arg(formula).arg(ds->name) << endl;
+  DataStackHelper pusher(opts);
+  for(const DataSet * ds : buffers) {
+    DataSetExpression ex(ds);
+    QStringList colNames;
+    int argSize = ex.dataSetParameters(extra, &colNames).size();
+    ex.useStats = false;
+    updateFromOptions(opts, "use-stats", ex.useStats);
+    ex.useMeta = true;
+    updateFromOptions(opts, "use-meta", ex.useMeta);
 
-  formula = QString("%2\n[%1]").
-    arg(colNames.join(",")).
-    arg(formula);
+    Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
+      arg(formula).arg(ds->name) << endl;
+
+    QString finalFormula = QString("%2\n[%1]").
+      arg(colNames.join(",")).
+      arg(formula);
 
   
 
-  ex.prepareExpression(formula, extra);
+    ex.prepareExpression(finalFormula, extra);
 
 
 
-  QList<Vector> newCols;
-  for(int i = 0; i < ds->nbColumns() + extra; i++)
-    newCols << Vector();
+    QList<Vector> newCols;
+    for(int i = 0; i < ds->nbColumns() + extra; i++)
+      newCols << Vector();
 
-  {
-    // QMutexLocker m(&Ruby::rubyGlobalLock);
-    QVarLengthArray<double, 100> ret(newCols.size());
-    QVarLengthArray<double, 100> args(argSize);
-    int idx = 0;
-    while(ex.nextValues(args.data(), &idx)) {
-      ex.expression().
-        evaluateIntoArrayNoLock(args.data(), ret.data(), ret.size());
-      for(int j = 0; j < ret.size(); j++)
-        newCols[j].append(ret[j]);
+    {
+      // QMutexLocker m(&Ruby::rubyGlobalLock);
+      QVarLengthArray<double, 100> ret(newCols.size());
+      QVarLengthArray<double, 100> args(argSize);
+      int idx = 0;
+      while(ex.nextValues(args.data(), &idx)) {
+        ex.expression().
+          evaluateIntoArrayNoLock(args.data(), ret.data(), ret.size());
+        for(int j = 0; j < ret.size(); j++)
+          newCols[j].append(ret[j]);
+      }
     }
-  }
   
-  DataSet * newDs = ds->derivedDataSet(newCols, "_mod.dat");
-  soas().pushDataSet(newDs);
+    DataSet * newDs = ds->derivedDataSet(newCols, "_mod.dat");
+    pusher << newDs;
+  }
 }
 
 static ArgumentList 
@@ -115,6 +124,7 @@ fA(QList<Argument *>()
 
 static ArgumentList 
 fO(QList<Argument *>() 
+   << DataStackHelper::helperOptions()
    << new IntegerArgument("extra-columns", 
                           "Extra columns",
                           "number of extra columns to create")
@@ -125,6 +135,9 @@ fO(QList<Argument *>()
                        "Use meta-data",
                        "if on (by default), you can use `$meta` to refer to "
                        "the dataset meta-data")
+   << new SeveralDataSetArgument("buffers", 
+                                 "Buffers",
+                                 "Buffers to work on", true, true)
    );
 
 

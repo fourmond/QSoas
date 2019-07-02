@@ -32,8 +32,6 @@ $QMAKE $extra $v $univ
 # For some reason, mac's Qt writes a wrong library name for linking
 # when producing a debug stuff:
 if [ -z "$NOTWEAK" ]; then
-    perl -pi -e 's/_debug//g' Makefile
-    # And now it picks the wrong 
-    perl -pi.bak -e 's#/Developer## if(/CC|CXX|LINK/);' Makefile
+    perl -pi.bak -e 's#-isysroot /Applications/Xcode.app/Contents/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk#-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk#'
 fi
 # cd odrpack; ./full-conversion d_lpkbls.c d_mprec.c d_odr.c

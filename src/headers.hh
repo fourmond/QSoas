@@ -90,6 +90,11 @@
 // SVG export
 #include <QSvgGenerator>
 
+// All bitmap stuffs
+#include <QImage>
+#include <QPixmap>
+#include <QImageWriter>
+
 // Signals with sender !
 #include <QSignalMapper>
 

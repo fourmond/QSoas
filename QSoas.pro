@@ -101,11 +101,12 @@ QMAKE_CXXFLAGS += -Werror=return-type
 # It is only useful on Linux
 unix:!macx {
   QMAKE_CXXFLAGS += -Werror=delete-incomplete
+  QMAKE_CXXFLAGS += -Werror=misleading-indentation
 }
 
 
 unix {
-  QMAKE_CXXFLAGS += -Winit-self -Werror=init-self -Werror=misleading-indentation
+  QMAKE_CXXFLAGS += -Winit-self -Werror=init-self 
 }
 
 

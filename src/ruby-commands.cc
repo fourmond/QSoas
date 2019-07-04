@@ -64,6 +64,9 @@ static void applyFormulaCommand(const QString &, QString formula,
   int extra = 0;
   updateFromOptions(opts, "extra-columns", extra);
 
+  bool keepOnError = false;
+  updateFromOptions(opts, "keep-on-error", keepOnError);
+
 
   QList<const DataSet *> buffers;
   if(opts.contains("buffers"))
@@ -104,10 +107,24 @@ static void applyFormulaCommand(const QString &, QString formula,
       QVarLengthArray<double, 100> args(argSize);
       int idx = 0;
       while(ex.nextValues(args.data(), &idx)) {
-        ex.expression().
-          evaluateIntoArrayNoLock(args.data(), ret.data(), ret.size());
-        for(int j = 0; j < ret.size(); j++)
-          newCols[j].append(ret[j]);
+        bool error = false;
+        try {
+          ex.expression().
+            evaluateIntoArrayNoLock(args.data(), ret.data(), ret.size());
+        }
+        catch (const RuntimeError & er) {
+          Terminal::out << "Error at X = " << ds->x()[idx]
+                        << " (#" << idx << "): " << er.message()
+                        << " => "
+                        << (keepOnError ? "keeping" : "dropping")
+                        << endl;
+          for(int i = 0; i < ret.size(); i++)
+            ret[i] = 0.0/0.0;
+          error = true;
+        }
+        if(! error || (error && keepOnError))
+          for(int j = 0; j < ret.size(); j++)
+            newCols[j].append(ret[j]);
       }
     }
   
@@ -135,6 +152,9 @@ fO(QList<Argument *>()
                        "Use meta-data",
                        "if on (by default), you can use `$meta` to refer to "
                        "the dataset meta-data")
+   << new BoolArgument("keep-on-error", 
+                       "Keep on error",
+                       "if on, the points where the Ruby expression returns a  error are kept, as invalid numbers")
    << new SeveralDataSetArgument("buffers", 
                                  "Buffers",
                                  "Buffers to work on", true, true)

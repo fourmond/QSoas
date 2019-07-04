@@ -96,12 +96,6 @@ public:
                    const QString & missing = "",
                    bool skipUnordered = false) const;
 
-  /// Converts a variant to a string.
-  ///
-  /// @todo Here, the precision is hard-wired to 12 digits, which
-  /// should be more than enough.
-  static QString toString(const QVariant & value, bool * canConvert = NULL);
-
   /// Formats the elements as "key = value" in tab-separated columns
   ///
   /// @todo Customization.
@@ -152,6 +146,19 @@ public:
   /// Appends the @a value to the list of strings stored in @a key.
   void appendToList(const QString & key, const QString & value);
 
+  /// @name Conversion functions
+  ///
+  /// These functions do not really act on a ValueHash, but they
+  /// provide handy type-aware conversion between QVariant and other
+  /// types
+  ///
+  /// @{
+
+    /// Converts a variant to a string.
+  ///
+  /// @todo Here, the precision is hard-wired to 12 digits, which
+  /// should be more than enough.
+  static QString toString(const QVariant & value, bool * canConvert = NULL);
 
   /// Converts a QVariant into a Ruby object. Not all types are
   /// supported for now. Qnil is returned on unsupported values
@@ -160,6 +167,16 @@ public:
   /// Converts a Ruby object to a QVariant. Not all types are
   /// supported for now. Qnil is returned on unsupported values
   static QVariant rubyToVariant(mrb_value value);
+
+  /// The options that tune the conversion from text to QVariant.
+  static QList<Argument *> variantConversionOptions();
+
+  
+  /// Converts 
+  static QVariant variantFromText(const QString & text,
+                                  const CommandOptions & opts);
+  
+  /// @}
 
   /// Converts to a Ruby Hash.
   mrb_value toRuby() const;

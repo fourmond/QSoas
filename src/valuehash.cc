@@ -121,6 +121,15 @@ QString ValueHash::toString(const QVariant & value, bool * canConvert)
       return nv.value<QString>();
     }
   }
+  if(v.canConvert<QList<QVariant> >()) {
+    QVariant nv = v;
+    nv.convert(QMetaType::QVariantList);
+    QList<QVariant> lst = nv.toList();
+    QStringList rv;
+    for(const QVariant & v : lst)
+      rv << toString(v);
+    return rv.join(", ");
+  }
   return QString();
 }
 
@@ -169,7 +178,7 @@ QList<Argument *> ValueHash::variantConversionOptions()
   QHash<QString, VariantTypes>
     variantTypes({{"text", String},
           {"number", Number},
-            {"date", Date},
+          // {"date", Date},
             //          {"text-list", StringList},
               {"number-list", NumberList}
       });
@@ -241,23 +250,23 @@ QString ValueHash::prettyPrint(int nbCols,
                                bool overrideorder) const
 {
   QString output;
-  QHash<QString, QString> strings = extractStrings(joinStringLists);
-  QHash<QString, QString>::iterator it;
+  QHash<QString, QVariant> vals = *this;
+  QHash<QString, QVariant>::iterator it;
   int done = 0;
 
   if(! overrideorder) {
     for(int i = 0; i < keyOrder.size(); i++) {
       const QString & k = keyOrder[i];
-      it = strings.find(k);
+      it = vals.find(k);
       if(! (done % nbCols))
         output += prefix;
 
       bool found = false;
       QString s;
-      if(it != strings.end()) {
+      if(it != vals.end()) {
         found = true;
-        s = *it;
-        strings.erase(it);
+        s = toString(*it);
+        vals.erase(it);
       }
       else {
         if(dumpOther && contains(k)) {
@@ -279,14 +288,15 @@ QString ValueHash::prettyPrint(int nbCols,
     }
   }
   
-  QStringList keys = strings.keys();
+  QStringList keys = vals.keys();
   if(sort)
     qSort(keys);
   
   for(int i = 0; i < keys.size(); i++) {
     if(! (done % nbCols))
       output += prefix;
-    output += QString("%1 =\t %2").arg(keys[i]).arg(strings[keys[i]]);
+    output += QString("%1 =\t %2").arg(keys[i]).
+      arg(toString(vals[keys[i]]));
     done++;
     if(done % nbCols)
       output += "\t";

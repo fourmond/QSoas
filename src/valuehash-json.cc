@@ -25,43 +25,12 @@
 
 static QJsonValue variantToJSON(const QVariant & variant)
 {
-  QJsonValue ret;
-  switch(variant.type()) {      // the documentation of QVariant::type()
-                                // is rather confusing...
-  case QMetaType::Double:
-    return QJsonValue(variant.toDouble());
-  case QMetaType::Int:          // No support of large numbers
-  case QMetaType::UInt:
-    return QJsonValue(variant.toInt());
-  case QMetaType::QString:
-    return QJsonValue(variant.toString());
-  default:
-    break;
-  }
-  
-  return ret;
+  return QJsonValue::fromVariant(variant);
 }
 
 static QVariant jsonToVariant(const QJsonValue & json)
 {
-  switch(json.type()) {
-  case QJsonValue::Null:
-    return QVariant();
-  case QJsonValue::Bool:
-    return json.toBool();
-  case QJsonValue::Double: {
-    int iv = json.toInt();
-    double dv = json.toDouble();
-    if(iv == dv)
-      return iv;
-    return dv;
-  }
-  case QJsonValue::String:
-    return json.toString();
-  default:
-    break;
-  }
-  return QVariant();
+  return json.toVariant();
 }
 
 void ValueHash::fromJSON(const QString & str)

@@ -583,14 +583,25 @@ static void eval(const QString &, QString code, const CommandOptions & opts)
 
   QList<const DataSet *> buffers;
   updateFromOptions(opts, "buffers", buffers);
-  if(buffers.isEmpty() && useDs)
-    buffers << soas().currentDataSet(true);
+  if(buffers.isEmpty() && useDs) {
+    const DataSet * ds = soas().currentDataSet(true);
+    if(ds)
+      buffers << ds; 
+  }
 
   MRuby * mr = MRuby::ruby();
+
+  auto strValue = [mr](mrb_value value) -> QString {
+    QString v = mr->inspect(value);
+    if(v[0] == '"')
+      return mr->toQString(value);
+    return v;
+  };
+  
   mrb_value value;
   if(buffers.isEmpty()) {
     value = mr->eval(code);
-    Terminal::out << " => " << mr->inspect(value) << endl;
+    Terminal::out << " => " << strValue(value) << endl;
   }
   else {
     for(const DataSet * s : buffers) {
@@ -600,7 +611,7 @@ static void eval(const QString &, QString code, const CommandOptions & opts)
         value = ds->evaluateWithMeta(code, true, true);
       else 
         value = ds->evaluateWithMeta(code, true);
-      Terminal::out << " => " << mr->inspect(value) << endl;
+      Terminal::out << " => " << strValue(value) << endl;
     }
   }
 }

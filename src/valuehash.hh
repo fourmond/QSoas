@@ -154,7 +154,7 @@ public:
   ///
   /// @{
 
-    /// Converts a variant to a string.
+  /// Converts a variant to a string.
   ///
   /// @todo Here, the precision is hard-wired to 12 digits, which
   /// should be more than enough.
@@ -172,7 +172,9 @@ public:
   static QList<Argument *> variantConversionOptions();
 
   
-  /// Converts 
+  /// Converts a given text to a QVariant, taking into account the
+  /// information given by the options from
+  /// variantConversionOptions().
   static QVariant variantFromText(const QString & text,
                                   const CommandOptions & opts);
   

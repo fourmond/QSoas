@@ -1928,16 +1928,11 @@ gDS("generate-buffer", // command name
 
 
 static void setMetaCommand(const QString &, QString meta, QString value, 
-                           const CommandOptions & /*opts*/)
+                           const CommandOptions & opts)
 {
   DataSet * ds = soas().currentDataSet();
-  // Attempt to convert to double
-  bool ok;
-  double val = value.toDouble(&ok);
-  if(ok)
-    ds->setMetaData(meta, val);
-  else
-    ds->setMetaData(meta, value);
+  QVariant val = ValueHash::variantFromText(value, opts);
+  ds->setMetaData(meta, val);
 }
 
 static ArgumentList 
@@ -1950,9 +1945,10 @@ sMA(QList<Argument *>()
                           "value of the meta-data")
    );
 
-// static ArgumentList 
-// sMO(QList<Argument *>() 
-//     );
+static ArgumentList 
+sMO(QList<Argument *>()
+    << ValueHash::variantConversionOptions()
+    );
 
 
 static Command 
@@ -1960,7 +1956,7 @@ sM("set-meta", // command name
    effector(setMetaCommand), // action
    "buffer",  // group name
    &sMA, // arguments
-   NULL, // options
+   &sMO, // options
    "Set meta-data",
    "Manually set meta-data");
 
@@ -1972,13 +1968,7 @@ static void recordMetaCommand(const QString &, QString meta, QString value,
                               const CommandOptions & opts)
 {
   // Attempt to convert to double
-  bool ok;
-  QVariant val;
-  double db = value.toDouble(&ok);
-  if(ok)
-    val = db;
-  else
-    val = value;
+  QVariant val = ValueHash::variantFromText(value, opts);
 
   QStringList exclude;
   updateFromOptions(opts, "exclude", exclude);
@@ -2025,6 +2015,7 @@ rMA(QList<Argument *>()
 
 static ArgumentList 
 rMO(QList<Argument *>()
+    << ValueHash::variantConversionOptions()
     << new SeveralFilesArgument("exclude", 
                                 "Exclude",
                                 "exclude files")

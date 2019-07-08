@@ -97,12 +97,17 @@ OBJECTS_DIR = build
 # best case (excepted when a function only exits via an exception)
 QMAKE_CXXFLAGS += -Werror=return-type
 
-# This is a real error. It should not be a warning
-# It is only useful on Linux
+# Linux-only flags
 unix:!macx {
+  # This is a real error. It should not be a warning
   QMAKE_CXXFLAGS += -Werror=delete-incomplete
+
+
+  # Useful warnings
   QMAKE_CXXFLAGS += -Werror=misleading-indentation
+  # QMAKE_CXXFLAGS += -Wsuggest-override
 }
+
 
 
 unix {

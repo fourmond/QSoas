@@ -23,6 +23,8 @@
 #include <exceptions.hh>
 #include <debug.hh>
 
+#include <argument-templates.hh>
+
 #include <general-arguments.hh>
 #include <outfile.hh>
 #include <dataset.hh>
@@ -151,6 +153,74 @@ QString ValueHash::toString(const QString & sep,
     }
   return output.join(sep);
 }
+
+typedef enum {
+  Unspec,
+  String,
+  Number,
+  Date,
+  // StringList,
+  NumberList
+} VariantTypes;
+
+
+QList<Argument *> ValueHash::variantConversionOptions()
+{
+  QHash<QString, VariantTypes>
+    variantTypes({{"text", String},
+          {"number", Number},
+            {"date", Date},
+            //          {"text-list", StringList},
+              {"number-list", NumberList}
+      });
+  QList<Argument*> args;
+  args << new TemplateChoiceArgument<VariantTypes>
+    (variantTypes, "type", "Type",
+     "type of the meta-data");
+  return args;
+}
+
+
+
+QVariant ValueHash::variantFromText(const QString & text,
+                                    const CommandOptions & opts)
+{
+  VariantTypes type = Unspec;
+  updateFromOptions(opts, "type", type);
+  switch(type) {
+  case Unspec: {
+    bool ok = false;
+    double val = text.toDouble(&ok);
+    if(ok)
+      return QVariant(val);
+  }
+  case String:
+    return QVariant(text);
+  case Number:{
+    bool ok = false;
+    double val = text.toDouble(&ok);
+    if(! ok)
+      throw RuntimeError("'%1' is not a number").arg(text);
+    return QVariant(val);
+  }
+  case NumberList: {
+    QStringList lst = text.split(QRegExp("\\s*,\\s*"));
+    QList<QVariant> rv;
+    for(const QString & t : lst) {
+      bool ok = false;
+      double val = t.toDouble(&ok);
+      if(! ok)
+        throw RuntimeError("'%1' is not a number").arg(text);
+      rv << val;
+    }
+    return rv;
+  }
+  default:
+    break;
+  }
+  return QVariant();
+}
+
 
 
 ValueHash ValueHash::select(const QStringList & ks) const

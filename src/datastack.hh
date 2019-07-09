@@ -45,8 +45,9 @@ class DataStack : public QObject {
   /// The redo stack.
   QList<DataSet *> redoStack;
 
-  /// A chache DataSet name -> DataSet.
-  QHash<QString, DataSet *> dataSetByName;
+  // /// A chache DataSet name -> DataSet.
+  // Not used, so more obnoxious than anything else...
+  // QHash<QString, DataSet *> dataSetByName;
 
   /// Converts the dataset number given into a real list index, along
   /// with setting the list pointer to the right one.
@@ -104,6 +105,12 @@ public:
   /// the stack.
   void showStackContents(int limit = 0,bool mostRecentFirst = true) const;
 
+  /// @name Dataset selection
+  ///
+  /// Dataset selection functions, with flags or other mechanisms
+  ///
+  /// @{
+  
   /// Returns the list of datasets flagged (or not) with the given
   /// flag (or with any flag if the second argument is empty)
   QList<DataSet *> flaggedDataSets(bool flagged = true, 
@@ -123,6 +130,12 @@ public:
   /// and returns the corresponding datasets.
   QList<const DataSet *> datasetsFromSpec(const QString & spec) const;
 
+  /// Returns the list of dataset names
+  QSet<QString> datasetNames() const;
+
+  /// Returns all the datasets having this name
+  QList<const DataSet *> namedDataSets(const QString & name) const;
+
 
   /// Returns the numbered data set.
   /// \li 0 is the most recent
@@ -141,7 +154,11 @@ public:
   /// Returns the DataSet specified by the given string, ie:
   /// \li a string representing a number
   /// \li a buffer name (not implemented yet)
+  ///
+  /// @todo Isn't that kinda obsolete ?
   DataSet * fromText(const QString & str) const;
+
+  /// @}
 
   /// Undo (ie, buffer 0 becomes buffer -1)
   void undo(int nbtimes = 1);

@@ -119,6 +119,11 @@ QList<const DataSet *> DataStack::datasetsFromSpec(const QString & spec) const
       for(int i = 0; i < mkd.size(); i++)
         dsets << mkd[i];
     }
+    else if(str.startsWith("named:")) {
+      int d = str.indexOf(':');
+      QString n = str.mid(d+1);
+      return namedDataSets(n);
+    }
     else if(str == "latest" || str.startsWith("latest:"))  {
       int idx = 1;
       int d = str.indexOf(':');
@@ -156,7 +161,6 @@ void DataStack::pushDataSet(DataSet * dataset, bool silent)
   dataSets << dataset;
   latest.first() << dataset;
   dataset->setFlags(autoFlags);
-  dataSetByName[dataset->name] = dataset;
   cachedByteSize += dataset->byteSize();
   if(! silent) {
     Debug::debug().saveStack();
@@ -188,6 +192,31 @@ QList<const DataSet *> DataStack::allDataSets() const
     ret << numberedDataSet(i);
   return ret;
 }
+
+QSet<QString> DataStack::datasetNames() const
+{
+  QSet<QString> ret;
+  for(const DataSet * ds : dataSets)
+    ret.insert(ds->name);
+  for(const DataSet * ds : redoStack)
+    ret.insert(ds->name);
+  return ret;
+}
+
+QList<const DataSet *> DataStack::namedDataSets(const QString & name) const
+{
+  QList<const DataSet *> rv;
+  for(const DataSet * ds : dataSets) {
+    if(ds->name == name)
+      rv << ds;
+  }
+  for(const DataSet * ds : redoStack) {
+    if(ds->name == name)
+      rv << ds;
+  }
+  return rv;
+}
+
 
 QList<DataSet *> DataStack::flaggedDataSets(bool flagged, const QString & flag)
 {

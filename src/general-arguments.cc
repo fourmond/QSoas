@@ -415,6 +415,9 @@ QStringList SeveralDataSetArgument::proposeCompletion(const QString & starter) c
         << QString("flagged-:%1").arg(s)
         << QString("unflagged-:%1").arg(s);
   }
+  st = soas().stack().datasetNames();
+  for(const QString & n : st)
+    all << QString("named:%1").arg(n);
   return Utils::stringsStartingWith(all, starter);
 }
 

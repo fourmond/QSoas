@@ -273,12 +273,6 @@ pops(QList<Argument *>()
      << new BoolArgument("overwrite", 
                          "Overwrite",
                          "Overwrite the output file")
-     << new BoolArgument("test", 
-                         "Test",
-                         "Test...")
-     // << new BoolArgument("preview", 
-     //                     "Preview",
-     //                     "Shows the print preview dialog (on by default)")
      << new FileSaveArgument("file", 
                              "Save as file",
                              "Save as file", "soas.pdf", false, true)
@@ -312,7 +306,6 @@ static void printCommand(const QString &,
   updateFromOptions(opts, "title", title);
 
   updateFromOptions(opts, "overwrite", overwrite);
-  updateFromOptions(opts, "test", test);
   updateFromOptions(opts, "file", file);
   updateFromOptions(opts, "nominal-height", height);
 

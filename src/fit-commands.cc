@@ -610,10 +610,14 @@ static void listTrajectoriesCommand(const QString & /*name*/,
 }
 
 ArgumentList lTOpts(QList<Argument*>()
+                    /// @todo This should probably be a separated
+                    /// type.
                     << new ChoiceArgument([]() -> QStringList {
                         FitWorkspace * ws =
                           FitWorkspace::currentWorkspace();
-                        QStringList a = ws->trajectories.allFlags().toList();
+                        QStringList a;
+                        if(ws)
+                          a = ws->trajectories.allFlags().toList();
                         return a;
                       }
                       ,
@@ -724,7 +728,9 @@ ArgumentList sTOpts(QList<Argument*>()
                     << new ChoiceArgument([]() -> QStringList {
                         FitWorkspace * ws =
                           FitWorkspace::currentWorkspace();
-                        QStringList a = ws->trajectories.allFlags().toList();
+                        QStringList a;
+                        if(ws)
+                          a = ws->trajectories.allFlags().toList();
                         return a;
                       }
                       ,

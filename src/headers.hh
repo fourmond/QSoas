@@ -95,6 +95,12 @@
 #include <QPixmap>
 #include <QImageWriter>
 
+// Playing with text
+#include <QFont>
+#include <QFontDatabase>
+#include <QStaticText>
+
+
 // Signals with sender !
 #include <QSignalMapper>
 

@@ -456,7 +456,10 @@ void DataStack::writeStack(QDataStream & out) const
 QDataStream & operator<<(QDataStream & out, const DataStack & stack)
 {
   DataStack::writeSerializationHeader(out);
+  // QByteArray b;
+  // QDataStream o(&b, QIODevice::WriteOnly);
   stack.writeStack(out);
+  // out << qCompress(b);
   return out;
 }
 
@@ -507,6 +510,14 @@ void DataStack::readStack(QDataStream & in)
 QDataStream & operator>>(QDataStream & in, DataStack & stack)
 {
   DataStack::readSerializationHeader(in);
-  stack.readStack(in);
+  if(DataStack::serializationVersion >= 6) {
+    QByteArray cmp;
+    in >> cmp;
+    cmp = qUncompress(cmp);
+    QDataStream nin(cmp);
+    stack.readStack(in);
+  }
+  else
+    stack.readStack(in);
   return in;
 }

@@ -54,6 +54,9 @@ class DataStack : public QObject {
   int dsNumber2Index(int nb, const QList<DataSet *> * * target) const;
   int dsNumber2Index(int nb, QList<DataSet *> ** target);
 
+  /// @name Stack-serialization related functions
+  ///
+  /// @{
 
   friend QDataStream & operator<<(QDataStream & out, const DataStack & stack);
   friend QDataStream & operator>>(QDataStream & in, DataStack & stack);
@@ -69,6 +72,20 @@ class DataStack : public QObject {
   friend QDataStream & operator<<(QDataStream & out, const DatasetOptions & ds);
   friend QDataStream & operator>>(QDataStream & in, DatasetOptions & ds);
 
+  /// Writes the serialization header
+  static void writeSerializationHeader(QDataStream & out);
+
+  /// Reads the serialization header. Sets serializationVersion
+  static void readSerializationHeader(QDataStream & in);
+
+  /// Serializes the stack to the binary output
+  void writeStack(QDataStream & out) const;
+
+  /// Reads the stack
+  void readStack(QDataStream & in);
+
+  /// @}
+  
   /// Total size of the stack.
   quint64 cachedByteSize;
 

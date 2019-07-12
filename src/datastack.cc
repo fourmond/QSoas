@@ -429,7 +429,8 @@ qint32 DataStack::serializationVersion = 0;
 #define MAGIC 0xFF342210
 #define CURRENT_STACK_VERSION 5
 
-QDataStream & operator<<(QDataStream & out, const DataStack & stack)
+
+void DataStack::writeSerializationHeader(QDataStream & out)
 {
   qint32 v = -CURRENT_STACK_VERSION; // (negative) Current version
   // We use Qt format 4.8 by default
@@ -437,20 +438,29 @@ QDataStream & operator<<(QDataStream & out, const DataStack & stack)
   out << v;
   v = MAGIC;
   out << v;
-  qint32 nbDs = stack.dataSets.size();
-  out << nbDs;
-  for(qint32 i = 0; i < nbDs; i++)
-    out << *stack.dataSets[i];
+}
 
-  nbDs = stack.redoStack.size();
+void DataStack::writeStack(QDataStream & out) const
+{
+  qint32 nbDs = dataSets.size();
   out << nbDs;
   for(qint32 i = 0; i < nbDs; i++)
-    out << *stack.redoStack[i];
+    out << *dataSets[i];
+
+  nbDs = redoStack.size();
+  out << nbDs;
+  for(qint32 i = 0; i < nbDs; i++)
+    out << *redoStack[i];
+}
+
+QDataStream & operator<<(QDataStream & out, const DataStack & stack)
+{
+  DataStack::writeSerializationHeader(out);
+  stack.writeStack(out);
   return out;
 }
 
-
-QDataStream & operator>>(QDataStream & in, DataStack & stack)
+void DataStack::readSerializationHeader(QDataStream & in)
 {
   qint32 nbDs;
   in.setVersion(QDataStream::Qt_4_8);
@@ -467,27 +477,36 @@ QDataStream & operator>>(QDataStream & in, DataStack & stack)
     if(nbDs != MAGIC)
       throw RuntimeError("Bad signature for stack file '%1', aborting").
       arg(Utils::fileName(in));
-    in >> nbDs;
   }
+}
 
-  stack.cachedByteSize = 0;
-  stack.dataSets.clear();
+void DataStack::readStack(QDataStream & in)
+{
+  qint32 nbDs;
+  in >> nbDs;
+  cachedByteSize = 0;
+  dataSets.clear();
   for(qint32 i = 0; i < nbDs; i++) {
     DataSet * ds = new DataSet;
     in >> *ds;
-    stack.dataSets.append(ds);
-    stack.cachedByteSize += ds->byteSize();
+    dataSets.append(ds);
+    cachedByteSize += ds->byteSize();
   }
 
   in >> nbDs;
-  stack.redoStack.clear();
+  redoStack.clear();
   for(qint32 i = 0; i < nbDs; i++) {
     DataSet * ds = new DataSet;
     in >> *ds;
-    stack.redoStack.append(ds);
-    stack.cachedByteSize += ds->byteSize();
+    redoStack.append(ds);
+    cachedByteSize += ds->byteSize();
   }
-  /// Explicity signal call !
-  stack.currentDataSetChanged();
+  emit(currentDataSetChanged());
+}
+
+QDataStream & operator>>(QDataStream & in, DataStack & stack)
+{
+  DataStack::readSerializationHeader(in);
+  stack.readStack(in);
   return in;
 }

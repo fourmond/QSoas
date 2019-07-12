@@ -52,13 +52,14 @@ int Utils::memoryUsed()
     // Error of some kind
     return 0;
   }
-#  ifdef Q_OS_WIN32
+#endif
+#ifdef Q_OS_WIN32
   PROCESS_MEMORY_COUNTERS_EX pmc;
   GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
-  return pmc.PrivateUsage;
-#  endif
-#else
-  
-  return 0;
+  if(pmc.PagefileUSage != 0)
+    return pmc.PagefileUsage;
+  else
+    return pmc.PrivateUsage;
 #endif
+  return 0;
 }

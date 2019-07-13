@@ -19,7 +19,7 @@ depends_lib         port:qt58-qtbase \
                     port:ruby19 \
                     port:gsl
 
-configure.cmd MRUBY_DIR=/Users/Admin/mruby ./configure #VERSION#
+configure.cmd MRUBY_DIR=/Users/vincent/mruby ./configure #VERSION#
 
 checksum {
     # @todo Enable checksums

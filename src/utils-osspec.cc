@@ -55,7 +55,8 @@ int Utils::memoryUsed()
 #endif
 #ifdef Q_OS_WIN32
   PROCESS_MEMORY_COUNTERS_EX pmc;
-  GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
+  GetProcessMemoryInfo(GetCurrentProcess(),
+                       (PROCESS_MEMORY_COUNTERS*) &pmc, sizeof(pmc));
   if(pmc.PagefileUSage != 0)
     return pmc.PagefileUsage;
   else

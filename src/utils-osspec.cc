@@ -25,7 +25,7 @@
 // Memory use
 
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
 #include <sys/time.h>
 #include <sys/resource.h>
 #endif
@@ -43,10 +43,14 @@
 
 int Utils::memoryUsed()
 {
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
   struct rusage r;
   if(! getrusage(RUSAGE_SELF, &r)) {
-    return r.ru_maxrss;
+#  ifdef Q_OS_LINUX
+    return r.ru_maxrss;         // Linux getrusage says kB
+#  else
+    return (r.ru_maxrss >> 10); // Mac getrusage says bytes
+#  endif
   }
   else {
     // Error of some kind

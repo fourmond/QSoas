@@ -57,7 +57,7 @@ int Utils::memoryUsed()
   PROCESS_MEMORY_COUNTERS_EX pmc;
   GetProcessMemoryInfo(GetCurrentProcess(),
                        (PROCESS_MEMORY_COUNTERS*) &pmc, sizeof(pmc));
-  if(pmc.PagefileUSage != 0)
+  if(pmc.PagefileUsage != 0)
     return pmc.PagefileUsage;
   else
     return pmc.PrivateUsage;

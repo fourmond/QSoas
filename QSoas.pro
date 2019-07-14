@@ -234,6 +234,7 @@ win32 {
   VERSION=$$system($$RUBY strip-win-version.rb $$VERSION)
   message("Mangled version to $$VERSION")
   system($$RUBY prepare-wix-input.rb $$FULL_VERSION $$VERSION)
+  LIBS += -lpsapi
 }
                  
 

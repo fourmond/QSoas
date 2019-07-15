@@ -136,7 +136,7 @@ QMAKE_EXTRA_TARGETS += doc
 sanitizer {
   OBJECTS_DIR = build-snt
   QMAKE_CXXFLAGS += -fno-omit-frame-pointer -fsanitize=address
-  LIBS += -lasan
+  LIBS += -fsanitize=address
   TARGET = $$join(TARGET,,,-snt)
 }
 

@@ -26,6 +26,7 @@
 
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_version.h>
+#include <gsl/gsl_multifit_nlin.h>
 
 BSplines::BSplines(const Vector & xvalues, 
                    const Vector & yvalues, int o, int mo) :

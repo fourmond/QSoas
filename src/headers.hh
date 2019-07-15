@@ -193,7 +193,6 @@
 #endif
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
-#include <gsl/gsl_multifit_nlin.h>
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_interp.h>
 #include <gsl/gsl_permutation.h>

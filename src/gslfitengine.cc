@@ -28,6 +28,7 @@
 #include <debug.hh>
 
 #include <gsl/gsl_version.h>
+#include <gsl/gsl_multifit_nlin.h>
 
 class GSLFitEngine : public FitEngine {
   

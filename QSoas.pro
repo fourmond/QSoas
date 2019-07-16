@@ -393,8 +393,7 @@ SOURCES += src/qsoasfitengine.cc \
         src/gslfitengine.cc \
         src/simplexfitengine.cc \
         src/gslsimplexfitengine.cc \
-        src/multifitengine.cc \
-        src/gsl2fitengine.cc
+        src/multifitengine.cc
 
 
 HEADERS += src/headers.hh \

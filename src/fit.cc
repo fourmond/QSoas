@@ -280,6 +280,16 @@ void Fit::makeCommands(ArgumentList * args,
                                "Script",
                                "runs a script file");
 
+  *options << new FileArgument("arg1", 
+                               "Argument 1",
+                               "first argument of the script file")
+           << new FileArgument("arg2", 
+                               "Argument 2",
+                               "second argument of the script file")
+           << new FileArgument("arg3", 
+                               "Argument 3",
+                               "third argument of the script file");
+
   *options << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                          "set-from-meta", 
                                          "Set from meta-data",
@@ -490,6 +500,21 @@ void Fit::runFit(std::function<void (FitData *)> hook,
   QString script;
   updateFromOptions(opts, "script", script);
 
+  QStringList args;
+  if(opts.contains("arg1")) {
+    QString a;
+    updateFromOptions(opts, "arg1", a);
+    args << a;
+    if(opts.contains("arg2")) {
+      updateFromOptions(opts, "arg2", a);
+      args << a;
+      if(opts.contains("arg3")) {
+        updateFromOptions(opts, "arg3", a);
+        args << a;
+      }
+    }
+  }
+
   bool expert = false;
   updateFromOptions(opts, "expert", expert);
 
@@ -554,7 +579,9 @@ void Fit::runFit(std::function<void (FitData *)> hook,
     if(expert)
       QMetaObject::invokeMethod(&dlg, "runCommandFile",
                                 Qt::QueuedConnection,
-                                Q_ARG(const QString &, script));
+                                Q_ARG(const QString &, script),
+                                Q_ARG(const QStringList &, args)
+                                );
     else
       Terminal::out << "Can only run scripts with /expert=true" << endl;
   }

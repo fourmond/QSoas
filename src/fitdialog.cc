@@ -573,9 +573,9 @@ void FitDialog::dataSetChanged(int newds)
   updateResidualsDisplay();
 }
 
-void FitDialog::runCommandFile(const QString & file)
+void FitDialog::runCommandFile(const QString & file, const QStringList & args)
 {
-  fitPrompt->runCommandFile(file);
+  fitPrompt->runCommandFile(file, args);
 }
 
 void FitDialog::setupSubFunctionCurves(bool dontSend)

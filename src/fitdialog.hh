@@ -263,7 +263,8 @@ public slots:
   void startFit();
 
   /// Runs the given command file
-  void runCommandFile(const QString & file);
+  void runCommandFile(const QString & file,
+                      const QStringList & args = QStringList());
 
 protected slots:
 

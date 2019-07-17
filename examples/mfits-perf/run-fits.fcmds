@@ -1,0 +1,3 @@
+run-for-each run-one.fcmds *.fits
+save-trajectories /mode=overwrite perfs.dat
+quit

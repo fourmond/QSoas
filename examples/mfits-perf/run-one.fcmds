@@ -1,0 +1,4 @@
+load seed.params
+@ ${1}
+fit
+

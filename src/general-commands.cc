@@ -741,6 +741,16 @@ rfe("run-for-each", // command name
     "Runs a script for several arguments",
     "Runs a script file repetitively with the given arguments");
 
+static Command 
+rfef("run-for-each", // command name
+     effector(runForEachCommand), // action
+     "file",  // group name
+     &rfeArgs, // arguments
+     &rfeOpts, 
+     "Runs a script for several arguments",
+     "Runs a script file repetitively with the given arguments",
+     "", CommandContext::fitContext());
+
 //////////////////////////////////////////////////////////////////////
 
 // This contains the list of all directories so far.

@@ -1554,8 +1554,13 @@ FitWorkspace::Ending FitWorkspace::runFit(int iterationLimit)
     } while(true);
   }
   catch(::Exception & e) {
-    Terminal::out << "Fitting aborted with error: " << e.message() << endl;
+    Terminal::out << "Fit aborted with error: " << e.message() << endl;
     fitEnding = Exception;
+    if(fitData->debug > 0)
+      Debug::debug() << "Fit aborted with exception: " << e.message() << endl
+                     << "\nBacktrace:\n\t"
+                     << e.exceptionBacktrace().join("\n\t") << endl;
+
   }
 
   endFit(fitEnding);

@@ -632,7 +632,7 @@ void FitDialog::compute()
       re.message();
     message(s);
     Terminal::out << s << endl;
-    if(Debug::debugLevel() > 0)
+    if(Debug::debugLevel() > 0 || data->debug > 0)
       Debug::debug() << "Error: " << re.message() << endl
                      << "\nBacktrace:\n\t"
                      << re.exceptionBacktrace().join("\n\t") << endl;

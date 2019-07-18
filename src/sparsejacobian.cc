@@ -231,3 +231,20 @@ void SparseJacobian::computeGradient(gsl_vector * target,
     gsl_vector_set(target, itgt, val);
   }
 }
+
+void SparseJacobian::apply(const gsl_vector * delta_p, gsl_vector * delta_f)
+{
+  // Actually do the scaling
+  gsl_vector_set_zero(delta_f);
+  for(const FreeParameter * fp : fitData->allParameters) {
+    int ds = fp->dsIndex, prm = fp->paramIndex;
+    const gsl_vector * v = parameterVector(prm, ds);
+    gsl_vector_view tgv;
+    gsl_vector * tg = delta_f;
+    if(ds >= 0) {
+      tgv = fitData->viewForDataset(ds, delta_f);
+      tg = &tgv.vector;
+    }
+    gsl_blas_daxpy(gsl_vector_get(delta_p, prm), v, tg);
+  }
+}

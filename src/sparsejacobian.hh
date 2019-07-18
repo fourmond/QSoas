@@ -114,6 +114,16 @@ public:
   /// Computes the value of J^T func.  Optionnally scaled with fact.
   void computeGradient(gsl_vector * target, const gsl_vector * func,
                        double fact = 1);
+
+  /// Applies the jacobian matrix to the given vector, i.e. predicts
+  /// the change resulting from changing the parameters by delta_p,
+  /// and stores it into delta_f.
+  ///
+  /// @todo an appliedNorm function that computes directly the norm ?
+  ///
+  /// @todo This should be const.
+  void apply(const gsl_vector * delta_p, gsl_vector * delta_f);
+
 };
 
 

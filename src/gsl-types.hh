@@ -78,4 +78,46 @@ public:
   };
 };
 
+/// This class is here to hold temporary matrices for computations.
+///
+/// Just reserve and use as a matrix
+class ScratchPadMatrix {
+  double * data;
+  gsl_matrix_view view;
+  int size;
+public:
+
+  ScratchPadMatrix() : data(NULL), size(0) {;};
+  ~ScratchPadMatrix() {
+    delete data;
+  };
+
+  void reserve(int s1, int s2) {
+    if(size < s1*s2) {
+      delete[] data;
+      size = s1 * s2;
+      data = new double[size];
+    }
+    view = gsl_matrix_view_array(data, s1, s2);
+  };
+
+  gsl_matrix* operator->() {
+    return &view.matrix;
+  };
+
+  const gsl_matrix* operator->() const {
+    return &view.matrix;
+  };
+
+  operator gsl_matrix*() {
+    return &view.matrix;
+  };
+
+  operator const gsl_matrix*() const {
+    return &view.matrix;
+  };
+
+};
+
+
 #endif

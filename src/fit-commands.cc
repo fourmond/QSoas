@@ -863,6 +863,38 @@ brse("browse-trajectories", // command name
      "Opens a dialog box to browse trajectories",
      "", CommandContext::fitContext());
 
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void memCommand(const QString &,
+                       const CommandOptions & opts)
+{
+  MRuby * mr = MRuby::ruby();
+  int kb = Utils::memoryUsed();
+  Terminal::out << "Memory used: " << kb << " kB" << endl
+                << "Ruby memory used: " << mr->memoryUse() << endl;
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  int sz = 0;
+  if(ws->trajectories.size() > 0) {
+    sz = 3 * sizeof(double) *
+      ws->trajectories.last().initialParameters.size();
+  }
+  Terminal::out << "Fit trajectories: " << ws->trajectories.size()
+                << " (~= " << (sz * ws->trajectories.size() >> 10) << " kB)"
+                << endl;
+}
+
+static Command 
+m("mem", // command name
+  effector(memCommand), // action
+  "fit",  // group name
+  NULL, // arguments
+  NULL, // options
+  "Memory",
+  "Informations about QSoas memory usage",
+  "", CommandContext::fitContext());
+
 //////////////////////////////////////////////////////////////////////
 
 #include <parametersviewer.hh>

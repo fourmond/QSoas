@@ -380,6 +380,8 @@ void CommandWidget::appendToTerminal(const QString & str)
                    termLines - maxTermLines);
     c.removeSelectedText();
     termLines = maxTermLines;
+    // Without this, we have huge memory leaks
+    terminalDisplay->document()->clearUndoRedoStacks();
   }
   // and scroll to the bottom
   QScrollBar * sb = terminalDisplay->verticalScrollBar();

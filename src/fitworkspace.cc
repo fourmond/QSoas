@@ -978,13 +978,10 @@ void FitWorkspace::loadParameters(const FitParametersFile & params,
           continue;
         }
 
-        /// @todo Avoid setting a global parameter this way ?
         if(isGlobal(idx))
-          Terminal::out << "Not replacing global parameter by a local one: " 
-                        << param.name << endl;
-        else
-          param.replaceParameter(parameterRef(idx, ds), &valueFor(idx, ds),
-                                 idx, ds);
+          setGlobal(idx, false); // Making it local.
+        param.replaceParameter(parameterRef(idx, ds), &valueFor(idx, ds),
+                               idx, ds);
       }
       else {
         param.replaceParameter(parameterRef(idx, 0), &valueFor(idx, 0),

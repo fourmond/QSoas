@@ -63,24 +63,24 @@ public:
     }
   }; 
 
-  virtual QString typeName() const {
+  virtual QString typeName() const override {
     if(choiceName.isEmpty())
       return "choice";
     return choiceName;
   };
-  virtual QString typeDescription() const {
+  virtual QString typeDescription() const override {
     return QString("One of: `%1`").arg(order.join("`, `"));
   };
 
   /// Returns a wrapped T
-  virtual ArgumentMarshaller * fromString(const QString & str) const {
+  virtual ArgumentMarshaller * fromString(const QString & str) const override {
     if(! fixedChoices.contains(str))
       throw RuntimeError("%1 is not a valid choice").arg(str);
     return new ArgumentMarshallerChild<T>(fixedChoices[str]);
   };
 
   /// Prompting uses QInputDialog.
-  virtual ArgumentMarshaller * promptForValue(QWidget * base) const {
+  virtual ArgumentMarshaller * promptForValue(QWidget * base) const override {
     bool ok = false;
     QString str = 
       QInputDialog::getItem(base, argumentName(), description(),
@@ -90,13 +90,15 @@ public:
     return fromString(str);
   };
 
+  virtual QStringList toString(const ArgumentMarshaller * arg) const override;
+
   /// a rather easy one.
-  virtual QStringList proposeCompletion(const QString & starter) const {
+  virtual QStringList proposeCompletion(const QString & starter) const override {
     return Utils::stringsStartingWith(fixedChoices.keys(), starter);
   };
 
   
-  virtual QWidget * createEditor(QWidget * parent = NULL) const {
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override {
     QComboBox * cb = new QComboBox(parent);
 
     QStringList keys = fixedChoices.keys();
@@ -107,7 +109,7 @@ public:
   };
 
   virtual void setEditorValue(QWidget * editor, 
-                              ArgumentMarshaller * value) const {
+                              ArgumentMarshaller * value) const override {
     QComboBox * cb = dynamic_cast<QComboBox*>(editor);
     if(! cb)
       throw InternalError("Not a combo box");

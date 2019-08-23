@@ -101,12 +101,25 @@ public:
   /// pop-up or something like that.
   virtual QString typeDescription() const;
 
+  /// @name Type-conversion interface
+  ///
+  /// These functions are used to convert from input (string, ruby) to
+  /// the correctly typed ArgumentMarshaller and back.
+  ///
+  /// @{
 
   /// Converts from string to the argument with the correct type.
   virtual ArgumentMarshaller * fromString(const QString & str) const = 0;
 
   /// Converts a from a Ruby object
   virtual ArgumentMarshaller * fromRuby(mrb_value value) const = 0;
+
+  /// Converts back to a list of strings.  The idea is to cram as many
+  /// arguments into a single string, but sometimes it is not
+  /// possible, in which case the function returns several strings.
+  virtual QStringList toString(const ArgumentMarshaller * arg) const = 0;
+
+  /// @}
 
   /// Prompts for a value for the argument, using something of a
   /// dialog box or the like. Default implementation prompts for a
@@ -132,14 +145,15 @@ public:
   /// display of the fully-blown dialog box ?
   virtual QString promptAsString(QWidget * base) const;
 
-  /// If this function returns an non-empty list, then it corresponds
-  /// to all the possible choices (ie no free-form). In particular,
-  /// prompting will be done using a non-editable QComboBox, and no
-  /// prompting dialog will show up.
-  ///
-  /// @todo Maybe have a way to provide a "real" string and a
-  /// "display" string ?
-  virtual QStringList allChoices() const;
+  // This function is not used...
+  // /// If this function returns an non-empty list, then it corresponds
+  // /// to all the possible choices (ie no free-form). In particular,
+  // /// prompting will be done using a non-editable QComboBox, and no
+  // /// prompting dialog will show up.
+  // ///
+  // /// @todo Maybe have a way to provide a "real" string and a
+  // /// "display" string ?
+  // virtual QStringList allChoices() const;
 
 
   /// Handling of automatic completion. Provided with a beginning of

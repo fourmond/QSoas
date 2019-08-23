@@ -37,21 +37,23 @@ public:
   }; 
   
   /// Returns a wrapped QString
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
+
+  QStringList toString(const ArgumentMarshaller * arg) const override;
 
 
   // Direct use of a line edit
-  virtual QWidget * createEditor(QWidget * parent = NULL) const;
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override;
   virtual void setEditorValue(QWidget * editor, 
-                              ArgumentMarshaller * value) const;
+                              ArgumentMarshaller * value) const override;
 
-  virtual QString typeName() const {
+  virtual QString typeName() const override {
     return "text";
   };
 
-  virtual QString typeDescription() const;
+  virtual QString typeDescription() const override;
 
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const;
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 
 };
 
@@ -75,16 +77,17 @@ public:
 
 
   /// Returns a wrapped QStringList
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
+  QStringList toString(const ArgumentMarshaller * arg) const override;
 
   virtual void concatenateArguments(ArgumentMarshaller * a, 
-                                    const ArgumentMarshaller * b) const;
+                                    const ArgumentMarshaller * b) const override;
 
-  virtual QString typeName() const;
+  virtual QString typeName() const override;
 
-  virtual QString typeDescription() const;
+  virtual QString typeDescription() const override;
 
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const;
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 };
 
 /// A series of x=y strings converted to QHash<QString, QVariant>.
@@ -103,16 +106,18 @@ public:
 
 
   /// Returns a wrapped QStringList
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
 
   virtual void concatenateArguments(ArgumentMarshaller * a, 
-                                    const ArgumentMarshaller * b) const;
+                                    const ArgumentMarshaller * b) const override;
 
-  virtual QString typeName() const;
+  QStringList toString(const ArgumentMarshaller * arg) const override;
 
-  virtual QString typeDescription() const;
+  virtual QString typeName() const override;
 
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const;
+  virtual QString typeDescription() const override;
+
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -129,12 +134,11 @@ public:
 
 
 
-  virtual QString typeName() const  {
+  virtual QString typeName() const  override {
     return "time-dependent parameters";
   };
 
-  virtual QString typeDescription() const;
-
+  virtual QString typeDescription() const override;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -150,24 +154,26 @@ public:
   }; 
   
   /// Returns a wrapped bool
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
+
+  QStringList toString(const ArgumentMarshaller * arg) const override;
 
   /// 
-  virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
+  virtual ArgumentMarshaller * promptForValue(QWidget * base) const override;
 
-  virtual QWidget * createEditor(QWidget * parent = NULL) const;
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override;
   virtual void setEditorValue(QWidget * editor, 
-                              ArgumentMarshaller * value) const;
+                              ArgumentMarshaller * value) const override;
 
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const;
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 
-  virtual QStringList proposeCompletion(const QString & starter) const;
+  virtual QStringList proposeCompletion(const QString & starter) const override;
 
-  virtual QString typeName() const {
+  virtual QString typeName() const override {
     return "yes-no";
   };
 
-  virtual QString typeDescription() const;
+  virtual QString typeDescription() const override;
 };
 
 /// A choice between several fixed strings
@@ -197,18 +203,20 @@ public:
   }; 
   
   /// Returns a wrapped QString
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
+
+  QStringList toString(const ArgumentMarshaller * arg) const override;
 
   /// Prompting uses QInputDialog.
-  virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
+  virtual ArgumentMarshaller * promptForValue(QWidget * base) const override;
 
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const;
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 
   /// a rather easy one.
-  virtual QStringList proposeCompletion(const QString & starter) const;
+  virtual QStringList proposeCompletion(const QString & starter) const override;
 
-  virtual QString typeName() const;
-  virtual QString typeDescription() const;
+  virtual QString typeName() const override;
+  virtual QString typeDescription() const override;
 
 };
 
@@ -243,14 +251,17 @@ public:
   }; 
   
   /// Returns a wrapped QStringList
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
 
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const;
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 
-  virtual QStringList proposeCompletion(const QString & starter) const;
+  QStringList toString(const ArgumentMarshaller * arg) const override;
+
+
+  virtual QStringList proposeCompletion(const QString & starter) const override;
 
   virtual void concatenateArguments(ArgumentMarshaller * a, 
-                                    const ArgumentMarshaller * b) const;
+                                    const ArgumentMarshaller * b) const override;
 
 };
 
@@ -263,7 +274,7 @@ public:
                   const char * d = "", bool def = false,
                   const char * chN = "");
 
-  virtual QString typeDescription() const;
+  virtual QString typeDescription() const override;
 
 };
 
@@ -276,7 +287,7 @@ public:
                           bool def = false,
                           const char * chN = "");
 
-  virtual QString typeDescription() const;
+  virtual QString typeDescription() const override;
 
 };
 
@@ -294,17 +305,20 @@ public:
   }; 
   
   /// Returns a wrapped DataSet *
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
+  QStringList toString(const ArgumentMarshaller * arg) const override;
 
-  virtual QString typeName() const {
+  virtual QString typeName() const override {
     return "buffer";
   };
 
-  virtual QString typeDescription() const {
+  virtual QString typeDescription() const override {
     return "The number of a buffer in the stack";
   };
 
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const;
+
+
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 };
 
 /// Several datasets from the stack
@@ -320,23 +334,24 @@ public:
   }; 
   
   /// Returns a wrapped QList<const DataSet *>
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
+  QStringList toString(const ArgumentMarshaller * arg) const override;
 
   virtual void concatenateArguments(ArgumentMarshaller * a, 
-                                    const ArgumentMarshaller * b) const;
+                                    const ArgumentMarshaller * b) const override;
 
-  virtual QString typeName() const {
+  virtual QString typeName() const override {
     return "buffers";
   };
 
-  virtual QString typeDescription() const {
+  virtual QString typeDescription() const override {
     return "comma-separated lists of buffers in the stack, "
       "see [buffers lists](#buffer-lists)";
   };
 
-  virtual QStringList proposeCompletion(const QString & starter) const;
+  virtual QStringList proposeCompletion(const QString & starter) const override;
 
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const;
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 };
 
 
@@ -352,26 +367,28 @@ public:
   }; 
   
   /// Returns a wrapped double
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
 
   /// Prompting uses QInputDialog.
-  virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
+  virtual ArgumentMarshaller * promptForValue(QWidget * base) const override;
+
+  QStringList toString(const ArgumentMarshaller * arg) const override;
 
 
   // Use of a line edit
-  virtual QWidget * createEditor(QWidget * parent = NULL) const;
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override;
   virtual void setEditorValue(QWidget * editor, 
-                              ArgumentMarshaller * value) const;
+                              ArgumentMarshaller * value) const override;
 
-  virtual QString typeName() const {
+  virtual QString typeName() const override {
     return "number";
   };
 
-  virtual QString typeDescription() const {
+  virtual QString typeDescription() const override {
     return "A floating-point number";
   };
 
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const;
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 };
 
 /// Several numbers
@@ -389,20 +406,22 @@ public:
   }; 
   
   /// Returns a wrapped QList<double>
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
 
   virtual void concatenateArguments(ArgumentMarshaller * a, 
-                                    const ArgumentMarshaller * b) const;
+                                    const ArgumentMarshaller * b) const override;
 
-  virtual QString typeName() const {
+  QStringList toString(const ArgumentMarshaller * arg) const override;
+
+  virtual QString typeName() const override {
     return "numbers";
   };
 
-  virtual QString typeDescription() const {
+  virtual QString typeDescription() const override {
     return QString("Several floating-point numbers, separated by %1").arg(delim);
   };
 
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const;
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 };
 
 /// A integer
@@ -413,14 +432,16 @@ public:
                   const char * d = "", bool def = false) : 
     Argument(cn, pn, d, false, def) {
   }; 
-  
+
+  QStringList toString(const ArgumentMarshaller * arg) const override;
+
   /// Returns a wrapped double
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
 
   /// Prompting uses QInputDialog.
-  virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
+  virtual ArgumentMarshaller * promptForValue(QWidget * base) const override;
 
-  virtual QString typeName() const {
+  virtual QString typeName() const override {
     return "integer";
   };
 
@@ -428,11 +449,11 @@ public:
     return "An integer";
   };
 
-  virtual QWidget * createEditor(QWidget * parent = NULL) const;
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override;
   virtual void setEditorValue(QWidget * editor, 
-                              ArgumentMarshaller * value) const;
+                              ArgumentMarshaller * value) const override;
 
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const;
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 
 };
 
@@ -447,20 +468,22 @@ public:
   }; 
   
   /// Returns a wrapped QList<double>
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
 
   virtual void concatenateArguments(ArgumentMarshaller * a, 
-                                    const ArgumentMarshaller * b) const;
+                                    const ArgumentMarshaller * b) const override; 
 
-  virtual QString typeName() const {
+  QStringList toString(const ArgumentMarshaller * arg) const override;
+  
+  virtual QString typeName() const override {
     return "integers";
   };
 
-  virtual QString typeDescription() const {
+  virtual QString typeDescription() const override {
     return "A comma-separated list of integers";
   };
 
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const;
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 
 };
 
@@ -483,12 +506,14 @@ public:
   }; 
   
   /// Returns a wrapped QList<double>
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
+
+  QStringList toString(const ArgumentMarshaller * arg) const override;
 
   virtual void concatenateArguments(ArgumentMarshaller * a, 
-                                    const ArgumentMarshaller * b) const;
+                                    const ArgumentMarshaller * b) const override;
 
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const;
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 
 };
 
@@ -501,13 +526,15 @@ public:
                   const char * d = "", 
                   bool def = false);  
   /// Returns a wrapped Command*
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
 
-  virtual QString typeName() const {
+  QStringList toString(const ArgumentMarshaller * arg) const override;
+
+  virtual QString typeName() const override {
     return "command";
   };
 
-  virtual QString typeDescription() const {
+  virtual QString typeDescription() const override {
     return "The name of one of QSoas's commands";
   };
 
@@ -522,9 +549,9 @@ public:
                          const char * d = "", 
                          bool def = false);  
 
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
 
-  virtual QString typeName() const {
+  virtual QString typeName() const override {
     return "style";
   };
 
@@ -541,12 +568,13 @@ public:
   }; 
   
   /// Returns a wrapped Regex
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
+  QStringList toString(const ArgumentMarshaller * arg) const override;
 
-  virtual QString typeName() const;
-  virtual QString typeDescription() const;
+  virtual QString typeName() const override;
+  virtual QString typeDescription() const override;
 
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const;
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 
 };
 
@@ -568,15 +596,16 @@ public:
   }; 
   
   /// Returns a wrapped int
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
+  QStringList toString(const ArgumentMarshaller * arg) const override;
 
-  virtual QString typeName() const {
+  virtual QString typeName() const override {
     return "column";
   };
 
-  virtual QString typeDescription() const;
+  virtual QString typeDescription() const override;
 
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const;
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 
 };
 
@@ -591,18 +620,19 @@ public:
   }; 
   
   /// Returns a wrapped QList<int>
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
+  QStringList toString(const ArgumentMarshaller * arg) const override;
 
   virtual void concatenateArguments(ArgumentMarshaller * a, 
-                                    const ArgumentMarshaller * b) const;
+                                    const ArgumentMarshaller * b) const override;
 
-  virtual QString typeName() const {
+  virtual QString typeName() const override {
     return "columns";
   };
 
-  virtual QString typeDescription() const;
+  virtual QString typeDescription() const override;
 
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const;
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 };
 
 #endif

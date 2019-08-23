@@ -54,6 +54,15 @@ ArgumentMarshaller * Argument::fromRuby(mrb_value value) const
 }
 
 
+QStringList Argument::toString(const ArgumentMarshaller * arg) const
+{
+  // default implementation: assume we have one string
+  QStringList lst;
+  lst << arg->value<QString>();
+  return lst;
+}
+
+
 ArgumentMarshaller * Argument::promptForValue(QWidget * base) const
 {
   bool ok = false;
@@ -87,11 +96,6 @@ void Argument::concatenateArguments(ArgumentMarshaller *,
 void Argument::setDescription(const QString & s)
 {
   desc = s;
-}
-
-QStringList Argument::allChoices() const
-{
-  return QStringList();
 }
 
 QWidget * Argument::createEditor(QWidget * parent) const

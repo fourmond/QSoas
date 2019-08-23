@@ -45,26 +45,28 @@ public:
   };
 
   /// Returns a wrapped Factory<.., ..>
-  virtual ArgumentMarshaller * fromString(const QString & str) const {
+  virtual ArgumentMarshaller * fromString(const QString & str) const override {
     F * item = F::namedItem(str);
     if(! item)
       throw RuntimeError("No such item: '%1'").arg(str);
     return new ArgumentMarshallerChild< F * >(item);
   };
 
-  QStringList proposeCompletion(const QString & starter) const
+  QStringList proposeCompletion(const QString & starter) const override 
   {
     return Utils::stringsStartingWith(F::availableItems(), 
                                       starter);
   };
 
-  virtual QString typeName() const {
+  virtual QStringList toString(const ArgumentMarshaller * arg) const override;
+
+  virtual QString typeName() const override {
     if(choiceName.isEmpty())
       return "choice";
     return choiceName;
   };
 
-  virtual QString typeDescription() const {
+  virtual QString typeDescription() const override {
     QStringList cs = F::availableItems();
     qSort(cs);
     return QString("One of: `%1`").arg(cs.join("`, `"));

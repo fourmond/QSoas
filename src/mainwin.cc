@@ -339,7 +339,7 @@ void MainWin::menuActionTriggered(QAction * action)
 {
   QStringList cmd = action->data().toStringList();
   try {
-    commandWidget->runCommand(cmd);
+    commandWidget->runCommand(cmd, true);
   }
   catch(const ControlFlowException & flow) {
     Terminal::out << Terminal::bold("Error: ") << "control flow command " 

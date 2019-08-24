@@ -227,7 +227,10 @@ public slots:
   /// Runs the given command (already split into words). Returns true
   /// if everything went fine, or false if it finished with an error
   /// (or a control flow exception).
-  bool runCommand(const QStringList & raw);
+  ///
+  /// If @a doFullPrompt is true, then launch a dialog box for
+  /// prompting for all the arguments/options.
+  bool runCommand(const QStringList & raw, bool doFullPrompt = false);
 
   /// Appends the given (HTML) text to the log output.
   void appendToTerminal(const QString & str);

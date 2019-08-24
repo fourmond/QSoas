@@ -398,7 +398,8 @@ SOURCES += src/qmain.cc \
         src/filelock.cc \
         src/printpreviewhelper.cc \
         src/utils-osspec.cc \
-        src/graphicoutput.cc
+        src/graphicoutput.cc \
+        src/argumentsdialog.cc
 
 #        src/conditionsprovider.cc \
 
@@ -540,7 +541,8 @@ HEADERS += src/headers.hh \
         src/fittrajectorydisplay.hh \
         src/filelock.hh \
         src/printpreviewhelper.hh \
-        src/graphicoutput.hh
+        src/graphicoutput.hh \
+        src/argumentsdialog.hh
 
 # mruby
 HEADERS += src/mruby.hh

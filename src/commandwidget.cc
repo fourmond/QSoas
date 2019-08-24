@@ -236,7 +236,7 @@ CommandWidget::~CommandWidget()
 }
 
 
-bool CommandWidget::runCommand(const QStringList & raw)
+bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
 {
   /// @todo use a different prompt whether the call is internal or
   /// external ?

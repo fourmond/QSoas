@@ -251,16 +251,6 @@ bool CommandWidget::runCommand(const QStringList & raw)
     TemporaryChange<QStringList> ch(curCmdline, raw);
     soas().stack().startNewCommand();
 
-    QString cmd = Command::unsplitWords(raw);
-    Terminal::out << currentPrompt() << cmd << endl;
-
-    if(addToHistory)
-      commandLine->addHistoryItem(cmd);
-    
-    commandLine->busy(QString("Running: %1").arg(cmd));
-    
-    soas().showMessage(tr("Running: %1").arg(cmd));
-
     QStringList args = raw;
     QString name = args.takeFirst();
     Command * command = commandContext->namedCommand(name);
@@ -268,7 +258,23 @@ bool CommandWidget::runCommand(const QStringList & raw)
     CommandArguments a;
     CommandOptions b;
     bool prompted = command->parseArgumentsAndOptions(args, &a, &b, this);
+
+    QStringList fnl = raw;
+    if(prompted) {
+      fnl = command->rebuildCommandLine(a, b);
+      fnl.insert(0, name);
+    }
+
+    QString cmd = Command::unsplitWords(fnl);
+    Terminal::out << currentPrompt() << cmd << endl;
     
+    if(addToHistory)
+      commandLine->addHistoryItem(cmd);
+    
+    commandLine->busy(QString("Running: %1").arg(cmd));
+    
+    soas().showMessage(tr("Running: %1").arg(cmd));
+
     PossessiveList<ArgumentMarshaller> arguments(a);
     PossessiveHash<QString, ArgumentMarshaller> options(b);
 

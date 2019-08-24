@@ -100,10 +100,10 @@ static ArgumentList emptyList;
 /// arguments.
 CommandArguments Command::parseArguments(const QStringList & args,
                                          QString * defaultOption,
-                                         QWidget * base) const
+                                         QWidget * base, bool * prompted) const
 {
   ArgumentList * a = arguments ? arguments : &emptyList;
-  return a->parseArguments(args, defaultOption, base);
+  return a->parseArguments(args, defaultOption, base, prompted);
 }
 
 CommandOptions Command::parseOptions(const QMultiHash<QString, QString> & opts,
@@ -162,10 +162,41 @@ bool Command::parseArgumentsAndOptions(const QStringList & arguments,
 
   bool hasDefault = (this->options ? this->options->hasDefaultOption() : false);
   QString def;
-  *args = parseArguments(split.first, (hasDefault ? &def : NULL), base);
+  bool prompted = false;
+  *args = parseArguments(split.first, (hasDefault ? &def : NULL),
+                         base, &prompted);
   *opts = parseOptions(split.second, (hasDefault ? &def : NULL));
-  return false;
+  return prompted;
 }
+
+QStringList Command::rebuildCommandLine(const CommandArguments & args,
+                                        const CommandOptions & opts) const
+{
+  QStringList rv;
+  // Dealing first with arguments
+  ArgumentList * argList = arguments ? arguments : &emptyList;
+  if(args.size() != argList->size())
+    throw InternalError("Mismatch in the number of arguments: %1 vs %2").
+      arg(args.size()).arg(argList->size());
+  for(int i = 0; i < argList->size(); i++) {
+    Argument * a = argList->value(i);
+    rv += a->toString(args[i]);
+  }
+
+  argList = options ? options : &emptyList;
+  for(const QString & n : opts.keys()) {
+    Argument * o = argList->namedArgument(n);
+    if(! o)
+      throw InternalError("Unknown option: '%1'").arg(n);
+    QStringList vals = o->toString(opts[n]);
+    for(const QString & v : vals)
+      rv += QString("/%1=%2").arg(n).arg(v);
+  }
+
+  return rv;
+  
+}
+
 
 void Command::runCommand(const QString & commandName, 
                          const QStringList & arguments,

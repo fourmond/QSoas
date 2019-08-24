@@ -72,7 +72,8 @@ public:
   /// will end up there.
   CommandArguments parseArguments(const QStringList & arguments,
                                   QString * defaultOption = NULL,
-                                  QWidget * base = NULL) const;
+                                  QWidget * base = NULL,
+                                  bool * prompted = NULL) const;
 
   /// Parse the options. Doesn't prompt.
   CommandOptions parseOptions(const QMultiHash<QString, QString> & opts, 
@@ -189,6 +190,17 @@ public:
 
   /// Runs the command from a Ruby command-line
   void runCommand(int nb, mrb_value * args);
+
+  /// Converts the parsed arguments back to a string representation
+  /// that should be parsed back to the same arguments.
+  ///
+  /// The string representation is @b not @b guaranteed to be the same
+  /// as the original parsed QStringList, <b> including for already
+  /// parsed arguments </b> !
+  QStringList rebuildCommandLine(const CommandArguments & args,
+                                 const CommandOptions & opts) const;
+  
+
 
   /// Returns an action for this Command parented by the given parent.
   QAction * actionForCommand(QObject * parent) const;

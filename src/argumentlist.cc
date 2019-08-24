@@ -104,7 +104,8 @@ int ArgumentList::assignArgument(int arg, int total) const
 /// exception arises.
 CommandArguments ArgumentList::parseArguments(const QStringList & args,
                                               QString * defaultOpt,
-                                              QWidget * base) const
+                                              QWidget * base,
+                                              bool * prompted) const
 {
 
   CommandArguments ret;  
@@ -143,6 +144,8 @@ CommandArguments ArgumentList::parseArguments(const QStringList & args,
         throw RuntimeError("Not enough arguments and no "
                            "prompting possible");
       value = arg->promptForValue(base);
+      if(prompted)
+        *prompted = true;
     }
     if(idx == greedyArg && idx != i) {
       arg->concatenateArguments(ret.last(), value);
@@ -228,3 +231,4 @@ void ArgumentList::mergeOptions(const ArgumentList & other)
   }
   regenerateCache();
 }
+

@@ -679,8 +679,11 @@ void DataSet::reverse()
 
 DataSet * DataSet::subset(int beg, int end, bool within) const
 {
+  
   QList<Vector> cols;
   int nb = nbRows();
+  if(columns.size() == 0 || nb == 0)
+    throw RuntimeError("Trying to make a subset of an empty dataset");
   // Sanity checking for indices
   if(beg < 0)
     beg = 0;
@@ -719,6 +722,7 @@ DataSet * DataSet::subset(int beg, int end, bool within) const
         newSegs << idx - (end - beg);
     }
   }
+
 
   DataSet * ds = derivedDataSet(cols, QString("_%1from_%2_to_%3.dat").
                                 arg(within ? "" : "excl_").

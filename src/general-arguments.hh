@@ -24,6 +24,7 @@
 
 #include <argument.hh>
 
+class DataSet;
 
 /// Strings
 
@@ -319,6 +320,11 @@ public:
 
 
   virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
+
+  /// Returns the name of a dataset -- or, more precisely, its number.
+  ///
+  /// Raises an exception if the dataset is absent from the stacK.
+  static QString dataSetName(const DataSet * ds);
 };
 
 /// Several datasets from the stack
@@ -489,33 +495,33 @@ public:
 
 //////////////////////////////////////////////////////////////////////
 
-/// A parameters hash (QString -> double)
-///
-/// @todo add automatic completion for keys ? Doesn't sound like a
-/// clever thing to do...
-class ParametersHashArgument : public Argument {
-  QRegExp delims;
-public:
+// /// A parameters hash (QString -> double)
+// ///
+// /// @todo add automatic completion for keys ? Doesn't sound like a
+// /// clever thing to do...
+// class ParametersHashArgument : public Argument {
+//   QRegExp delims;
+// public:
 
-  ParametersHashArgument(const char * cn, const char * pn,
-                         const char * d = "", bool sl = true, 
-                         bool def = false, 
-                         const char * dels = "\\s*[=:]\\s*") : 
-    Argument(cn, pn, d, sl, def), delims(dels) {
+//   ParametersHashArgument(const char * cn, const char * pn,
+//                          const char * d = "", bool sl = true, 
+//                          bool def = false, 
+//                          const char * dels = "\\s*[=:]\\s*") : 
+//     Argument(cn, pn, d, sl, def), delims(dels) {
     
-  }; 
+//   }; 
   
-  /// Returns a wrapped QList<double>
-  virtual ArgumentMarshaller * fromString(const QString & str) const override;
+//   /// Returns a wrapped QList<double>
+//   virtual ArgumentMarshaller * fromString(const QString & str) const override;
 
-  QStringList toString(const ArgumentMarshaller * arg) const override;
+//   QStringList toString(const ArgumentMarshaller * arg) const override;
 
-  virtual void concatenateArguments(ArgumentMarshaller * a, 
-                                    const ArgumentMarshaller * b) const override;
+//   virtual void concatenateArguments(ArgumentMarshaller * a, 
+//                                     const ArgumentMarshaller * b) const override;
 
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
+//   virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 
-};
+// };
 
 /// A command.
 class CommandArgument : public ChoiceArgument {

@@ -271,7 +271,11 @@ public:
     return Argument::convertRubyString(value);
   };
 
-  virtual QStringList toString(const ArgumentMarshaller * arg) const override;
+  virtual QStringList toString(const ArgumentMarshaller * arg) const override {
+    QStringList lst;
+    NOT_IMPLEMENTED;
+    return lst;
+  };
 
 };
 

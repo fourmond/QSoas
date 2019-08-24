@@ -52,6 +52,9 @@ public:
 
   /// Returns a fresh ready-to-use QRegExp object
   QRegExp toQRegExp() const;
+
+  /// The pattern string passed to the constructor.
+  QString patternString() const;
 };
 
 #endif

@@ -26,6 +26,12 @@ Regex::Regex(const QString & p) :
   pattern = parsePattern(originalPattern, &cs);
 }
 
+
+QString Regex::patternString() const
+{
+  return originalPattern;
+}
+
 QString Regex::parsePattern(const QString & pattern, 
                             Qt::CaseSensitivity * cs)
 {

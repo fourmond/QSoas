@@ -39,10 +39,16 @@
 #include <fit.hh>
 #include <mruby.hh>
 
+#include <command.hh>
 
 ArgumentMarshaller * StringArgument::fromString(const QString & str) const
 {
   return new ArgumentMarshallerChild<QString>(str);
+}
+
+QStringList StringArgument::toString(const ArgumentMarshaller * arg) const
+{
+  return Argument::toString(arg);
 }
 
 QWidget * StringArgument::createEditor(QWidget * parent) const
@@ -88,6 +94,28 @@ void SeveralStringsArgument::concatenateArguments(ArgumentMarshaller * a,
 {
   a->value<QStringList>() += 
     b->value<QStringList>();
+}
+
+QStringList SeveralStringsArgument::toString(const ArgumentMarshaller * arg) const
+{
+  if(greedy)
+    return arg->value<QStringList>();
+  else {
+    QString sep = separator.pattern();
+    sep.replace("\\s*", "");
+    if(sep.isEmpty())
+      sep = " ";
+    else {
+      QRegExp pt("^\\[(.*)\\]$");
+      if(pt.indexIn(sep) == 0) {
+        QStringList seps = pt.cap(1).split("", QString::SkipEmptyParts);
+        sep = seps[0];
+      }
+    }
+    QStringList lst;
+    lst << arg->value<QStringList>().join(sep);
+    return lst;
+  }
 }
 
 QString SeveralStringsArgument::typeName() const {
@@ -142,6 +170,16 @@ ArgumentMarshaller * MetaHashArgument::fromString(const QString & str) const
   return new ArgumentMarshallerChild<QHash<QString, QVariant> >(r);
 }
 
+QStringList MetaHashArgument::toString(const ArgumentMarshaller * arg) const
+{
+  /// @todo Shouldn't this use ValueHash conversion functions ?
+  QStringList rv;
+  QHash<QString, QVariant> r = arg->value<QHash<QString, QVariant> >();
+  for(const QString & n : r.keys())
+    rv << QString("%1=%2").arg(n).arg(r[n].toString());
+  return rv;
+}
+
 void MetaHashArgument::concatenateArguments(ArgumentMarshaller * a, 
                                             const ArgumentMarshaller * b) const
 {
@@ -178,6 +216,16 @@ ArgumentMarshaller * BoolArgument::fromString(const QString & str) const
   else
     throw RuntimeError(QString("'%1' is neither true nor false").arg(str)); 
   return new ArgumentMarshallerChild<bool>(val);
+}
+
+QStringList BoolArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QStringList rv;
+  if(arg->value<bool>())
+    rv << "true";
+  else
+    rv << "false";
+  return rv;
 }
 
 ArgumentMarshaller * BoolArgument::promptForValue(QWidget * ) const
@@ -240,6 +288,11 @@ QStringList ChoiceArgument::choices() const
   return c;
 }
 
+QStringList ChoiceArgument::toString(const ArgumentMarshaller * arg) const
+{
+  return Argument::toString(arg);
+}
+
 ArgumentMarshaller * ChoiceArgument::fromString(const QString & str) const
 {
   QStringList c = choices();
@@ -296,6 +349,14 @@ QStringList SeveralChoicesArgument::choices() const
   qSort(c); // smart ?
   return c;
 }
+
+QStringList SeveralChoicesArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QStringList val = arg->value<QStringList>(), lst;
+  lst << val.join(sep);
+  return lst;
+}
+
 
 ArgumentMarshaller * SeveralChoicesArgument::fromString(const QString & str) const
 {
@@ -381,6 +442,22 @@ ArgumentMarshaller * DataSetArgument::fromString(const QString & str) const
   return new ArgumentMarshallerChild<DataSet *>(ds);
 }
 
+QString DataSetArgument::dataSetName(const DataSet * ds)
+{
+  int idx;
+  if(! soas().stack().indexOf(ds, &idx))
+    throw RuntimeError("Could not find the dataset '%1' in the stack").
+      arg(ds->name);
+  return QString::number(idx);
+}
+
+QStringList DataSetArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QStringList lst;
+  lst << dataSetName(arg->value<DataSet * >());
+  return lst;
+}
+
 /// @todo integrate with ruby values...
 ArgumentMarshaller * DataSetArgument::fromRuby(mrb_value value) const
 {
@@ -431,6 +508,18 @@ ArgumentMarshaller * SeveralDataSetArgument::fromRuby(mrb_value value) const
 
 }
 
+QStringList SeveralDataSetArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QList<const DataSet *> lst;
+  QStringList t;
+  for(const DataSet * ds : lst)
+    t << DataSetArgument::dataSetName(ds);
+  
+  QStringList rv;
+  rv << t.join(",");
+  return rv;
+}
+
 ////////////////////////////////////////////////////////////
 
 ArgumentMarshaller * NumberArgument::fromString(const QString & str) const
@@ -443,6 +532,13 @@ ArgumentMarshaller * NumberArgument::fromString(const QString & str) const
   else
     v = Utils::stringToDouble(str);
   return new ArgumentMarshallerChild<double>(v);
+}
+
+QStringList NumberArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QStringList lst;
+  lst << QString::number(arg->value<double>(), 'g', 12);
+  return lst;
 }
 
 ArgumentMarshaller * NumberArgument::promptForValue(QWidget * base) const
@@ -506,12 +602,30 @@ ArgumentMarshaller * SeveralNumbersArgument::fromRuby(mrb_value value) const
   return new ArgumentMarshallerChild< QList<double> >(rv);
 }
 
+QStringList SeveralNumbersArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QList<double> values = arg->value<QList<double> >();
+  QStringList lst;
+  for(const double & d : values)
+    lst << QString::number(d, 'g', 12);
+  QStringList rv;
+  rv << lst.join(delim);
+  return rv;
+}
+
 ////////////////////////////////////////////////////////////
 
 
 ArgumentMarshaller * IntegerArgument::fromString(const QString & str) const
 {
   return new ArgumentMarshallerChild<int>(Utils::stringToInt(str));
+}
+
+QStringList IntegerArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QStringList lst;
+  lst << QString::number(arg->value<int>());
+  return lst;
 }
 
 ArgumentMarshaller * IntegerArgument::promptForValue(QWidget * base) const
@@ -575,41 +689,51 @@ ArgumentMarshaller * SeveralIntegersArgument::fromRuby(mrb_value value) const
   return new ArgumentMarshallerChild< QList<int> >(rv);
 }
 
+QStringList SeveralIntegersArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QList<int> vals = arg->value<QList<int> >();
+  QStringList lst, rv;
+  for(int i : vals)
+    lst << QString::number(i);
+  rv << lst.join(",");
+  return rv;
+}
+
 //////////////////////////////////////////////////////////////////////
 
-ArgumentMarshaller * ParametersHashArgument::fromString(const QString & str) const
-{
-  QHash<QString, double> v;
+// ArgumentMarshaller * ParametersHashArgument::fromString(const QString & str) const
+// {
+//   QHash<QString, double> v;
 
-  // We split on ; by default
+//   // We split on ; by default
 
-  QStringList elems = str.split(QRegExp("\\s*;\\s*"));
+//   QStringList elems = str.split(QRegExp("\\s*;\\s*"));
   
-  for(int i = 0; i < elems.size(); i++) {
-    QStringList lst = elems[i].split(delims);
-    if(lst.size() != 2)
-      throw RuntimeError(QString("Invalid parameter specification: '%1'").
-                         arg(str));
-    v[lst[0]] = Utils::stringToDouble(lst[1]);
-  }
-  return new ArgumentMarshallerChild< QHash<QString, double> >(v);
-}
+//   for(int i = 0; i < elems.size(); i++) {
+//     QStringList lst = elems[i].split(delims);
+//     if(lst.size() != 2)
+//       throw RuntimeError(QString("Invalid parameter specification: '%1'").
+//                          arg(str));
+//     v[lst[0]] = Utils::stringToDouble(lst[1]);
+//   }
+//   return new ArgumentMarshallerChild< QHash<QString, double> >(v);
+// }
 
-void ParametersHashArgument::concatenateArguments(ArgumentMarshaller * a, 
-                                                  const ArgumentMarshaller * b) const
-{
-  a->value< QHash<QString, double> >().
-    unite(b->value<QHash<QString, double> >());
-}
+// void ParametersHashArgument::concatenateArguments(ArgumentMarshaller * a, 
+//                                                   const ArgumentMarshaller * b) const
+// {
+//   a->value< QHash<QString, double> >().
+//     unite(b->value<QHash<QString, double> >());
+// }
 
-ArgumentMarshaller * ParametersHashArgument::fromRuby(mrb_value value) const
-{
-  MRuby * mr = MRuby::ruby();
-  if(!mr->isArray(value))
-    return convertRubyString(value);
-  else
-    return convertRubyArray(value);
-}
+// ArgumentMarshaller * ParametersHashArgument::fromRuby(mrb_value value) const
+// {
+//   MRuby * mr = MRuby::ruby();
+//   if(!mr->isArray(value))
+//     return convertRubyString(value);
+//   else
+//     return convertRubyArray(value);
+// }
 
 //////////////////////////////////////////////////////////////////////
 
@@ -626,6 +750,13 @@ ArgumentMarshaller * CommandArgument::fromString(const QString & str) const
   if(! cmd)
     throw RuntimeError("Invalid command: %1").arg(str);
   return new ArgumentMarshallerChild<Command *>(cmd);
+}
+
+QStringList CommandArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QStringList rv;
+  rv << arg->value<Command *>()->commandName();
+  return rv;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -661,6 +792,13 @@ QString RegexArgument::typeDescription() const
 ArgumentMarshaller * RegexArgument::fromRuby(mrb_value value) const
 {
   return convertRubyString(value);
+}
+
+QStringList RegexArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QStringList rv;
+  rv << arg->value<Regex>().patternString();
+  return rv;
 }
 
 
@@ -702,6 +840,13 @@ ArgumentMarshaller * ColumnArgument::fromString(const QString & str) const
   return new ArgumentMarshallerChild<int>(parseFromText(str));
 }
 
+QStringList ColumnArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QStringList rv;
+  rv << QString("#%1").arg(arg->value<int>());
+  return rv;
+}
+
 QString ColumnArgument::typeDescription() const
 {
   return "The [number/name of a column](#column-names) in a buffer";
@@ -736,6 +881,16 @@ ArgumentMarshaller * SeveralColumnsArgument::fromString(const QString & str) con
   }
 
   return new ArgumentMarshallerChild<QList<int> >(ret);
+}
+
+QStringList SeveralColumnsArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QStringList lst, rv;
+  QList<int> vals = arg->value<QList<int> >();
+  for(int i : vals)
+    lst << QString("#%1").arg(i);
+  rv << lst.join(",");
+  return rv;
 }
 
 void SeveralColumnsArgument::concatenateArguments(ArgumentMarshaller * a, 

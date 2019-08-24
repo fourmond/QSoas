@@ -90,9 +90,18 @@ public:
     return fromString(str);
   };
 
-  virtual QStringList toString(const ArgumentMarshaller * arg) const override;
+  virtual QStringList toString(const ArgumentMarshaller * arg) const override {
+    QStringList lst;
+    for(const QString n : fixedChoices.keys()) {
+      if(fixedChoices[n] == arg->value<T>()) {
+        lst << n;
+        break;
+      }
+    }
+    return lst;
+  };
 
-  /// a rather easy one.
+  /// A rather easy one.
   virtual QStringList proposeCompletion(const QString & starter) const override {
     return Utils::stringsStartingWith(fixedChoices.keys(), starter);
   };

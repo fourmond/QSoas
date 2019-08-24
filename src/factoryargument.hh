@@ -58,7 +58,16 @@ public:
                                       starter);
   };
 
-  virtual QStringList toString(const ArgumentMarshaller * arg) const override;
+  virtual QStringList toString(const ArgumentMarshaller * arg) const override {
+    QStringList lst;
+    for(const QString n : F::availableItems()) {
+      if(F::namedItem(n) ==  arg->value<F * >()) {
+        lst << n;
+        break;
+      }
+    }
+    return lst;
+  };
 
   virtual QString typeName() const override {
     if(choiceName.isEmpty())

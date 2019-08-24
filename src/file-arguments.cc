@@ -74,6 +74,11 @@ ArgumentMarshaller * FileArgument::promptForValue(QWidget * base) const
   return fromString(::shortenFileName(file));
 }
 
+QStringList FileArgument::toString(const ArgumentMarshaller * arg) const
+{
+  return Argument::toString(arg);
+}
+
 
 QStringList FileArgument::proposeCompletion(const QString & starter) const
 {
@@ -140,6 +145,11 @@ ArgumentMarshaller * SeveralFilesArgument::fromString(const QString & str) const
     rv << str;
   
   return new ArgumentMarshallerChild<QStringList>(rv);
+}
+
+QStringList SeveralFilesArgument::toString(const ArgumentMarshaller * arg) const
+{
+  return arg->value<QStringList>();
 }
 
 ArgumentMarshaller * SeveralFilesArgument::promptForValue(QWidget * base) const

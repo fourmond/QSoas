@@ -151,6 +151,22 @@ CommandOptions Command::parseOptions(const QMultiHash<QString, QString> & opts,
   return ret;
 }
 
+bool Command::parseArgumentsAndOptions(const QStringList & arguments,
+                                       CommandArguments * args,
+                                       CommandOptions * opts,
+                                       QWidget * base)
+{
+  // First, arguments conversion
+  QPair<QStringList, QMultiHash<QString, QString> > split = 
+    splitArgumentsAndOptions(arguments);
+
+  bool hasDefault = (this->options ? this->options->hasDefaultOption() : false);
+  QString def;
+  *args = parseArguments(split.first, (hasDefault ? &def : NULL), base);
+  *opts = parseOptions(split.second, (hasDefault ? &def : NULL));
+  return false;
+}
+
 void Command::runCommand(const QString & commandName, 
                          const QStringList & arguments,
                          QWidget * base)

@@ -39,6 +39,7 @@
 
 #include <new>
 
+#include <possessive-containers.hh>
 
 class SideBarLabel : public QScrollArea {
 protected:
@@ -245,19 +246,33 @@ bool CommandWidget::runCommand(const QStringList & raw)
   if(raw.isEmpty())
     return true;                     // Nothing to do here.
   
-  QString cmd = Command::unsplitWords(raw);
-  Terminal::out << currentPrompt() << cmd << endl;
   
-  if(addToHistory)
-    commandLine->addHistoryItem(cmd);
-
-  commandLine->busy(QString("Running: %1").arg(cmd));
-
-  soas().showMessage(tr("Running: %1").arg(cmd));
   try {
     TemporaryChange<QStringList> ch(curCmdline, raw);
     soas().stack().startNewCommand();
-    commandContext->runCommand(raw, this);
+
+    QString cmd = Command::unsplitWords(raw);
+    Terminal::out << currentPrompt() << cmd << endl;
+
+    if(addToHistory)
+      commandLine->addHistoryItem(cmd);
+    
+    commandLine->busy(QString("Running: %1").arg(cmd));
+    
+    soas().showMessage(tr("Running: %1").arg(cmd));
+
+    QStringList args = raw;
+    QString name = args.takeFirst();
+    Command * command = commandContext->namedCommand(name);
+
+    CommandArguments a;
+    CommandOptions b;
+    bool prompted = command->parseArgumentsAndOptions(args, &a, &b, this);
+    
+    PossessiveList<ArgumentMarshaller> arguments(a);
+    PossessiveHash<QString, ArgumentMarshaller> options(b);
+
+    command->runCommand(name, arguments, options);
   }
   catch(const RuntimeError & error) {
     Terminal::out << "Error: " << error.message() << endl;

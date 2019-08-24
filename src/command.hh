@@ -175,6 +175,13 @@ public:
                   const QStringList & arguments,
                   QWidget * base = NULL);
 
+  /// Just parses the arguments and options. Returns true if prompting
+  /// was necessary.
+  bool parseArgumentsAndOptions(const QStringList & arguments,
+                                CommandArguments * args,
+                                CommandOptions * opts,
+                                QWidget * base = NULL);
+
   /// Runs the command with parsed arguments and options
   void runCommand(const QString & commandName,
                   const CommandArguments & arguments,

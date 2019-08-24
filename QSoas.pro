@@ -134,10 +134,26 @@ QMAKE_EXTRA_TARGETS += doc
 # Activate the gcc address sanitizer by passing a CONFIG+=sanitizer
 # argument to qmake
 sanitizer {
+  message("Activating the address sanitizer code")
   OBJECTS_DIR = build-snt
   QMAKE_CXXFLAGS += -fno-omit-frame-pointer -fsanitize=address
   LIBS += -fsanitize=address
   TARGET = $$join(TARGET,,,-snt)
+}
+
+
+# This activates garbage collection at link time. This is not a good
+# idea for making a production executable, but rather as a tool for
+# finding unused code.
+#
+# make 2> gc and then:
+# cat gc | grep text. | sed 's/text./text /' | sort | c++filt | less
+gc {
+  message("Activating the GC code in order to find unused functions")
+  OBJECTS_DIR = build-gc
+  QMAKE_CXXFLAGS += -ffunction-sections -fdata-sections
+  LIBS += -Wl,--gc-sections -Wl,--print-gc-sections
+  TARGET = $$join(TARGET,,,-gc)
 }
 
 

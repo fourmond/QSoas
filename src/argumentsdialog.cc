@@ -19,10 +19,37 @@
 
 #include <headers.hh>
 #include <argumentsdialog.hh>
+#include <argument.hh>
+#include <argumentlist.hh>
 #include <command.hh>
 
 #include <debug.hh>
 
+ArgumentEditor::ArgumentEditor(const Argument * arg, bool opt) :
+  argName(NULL), optName(NULL), isOption(opt)
+{
+  if(isOption) {
+    optName = new QCheckBox("/" + arg->argumentName());
+  }
+  else {
+    argName = new QLabel(arg->argumentName());
+  }
+
+  editor = arg->createEditor();
+}
+
+ArgumentEditor::~ArgumentEditor()
+{
+}
+
+void ArgumentEditor::addToGrid(QGridLayout * target, int row)
+{
+  if(isOption)
+    target->addWidget(optName, row, 0);
+  else
+    target->addWidget(argName, row, 0);
+  target->addWidget(editor, row, 1);
+}
 
 
 
@@ -32,8 +59,56 @@
 ArgumentsDialog::ArgumentsDialog(const Command * cmd) : QDialog(),
                                                         command(cmd)
 {
+  QVBoxLayout * global = new QVBoxLayout(this);
+
+  global->addWidget(new QLabel(QString("Preparing to launch command %1").arg(command->commandName())));
+
+  global->addSpacing(10);
+
+  const ArgumentList * args = command->commandArguments();
+  if(args && args->size() > 0) {
+    global->addWidget(new QLabel("<b>Arguments:</b>"));
+    QGridLayout * grid = new QGridLayout;
+
+    for(const Argument * arg : *args) {
+      ArgumentEditor * ed = new ArgumentEditor(arg, false);
+      ed->addToGrid(grid, arguments.size());
+      arguments << ed;
+    }
+    global->addLayout(grid);
+  }
+
+  args = command->commandOptions();
+  if(args && args->size() > 0) {
+    global->addWidget(new QLabel("<b>Options:</b>"));
+    QGridLayout * grid = new QGridLayout;
+
+    for(const Argument * arg : *args) {
+      ArgumentEditor * ed = new ArgumentEditor(arg, true);
+      ed->addToGrid(grid, options.size());
+      options << ed;
+    }
+    global->addLayout(grid);
+  }
+
+  QDialogButtonBox * buttons =
+    new QDialogButtonBox(QDialogButtonBox::Ok |
+                         QDialogButtonBox::Cancel,
+                         Qt::Horizontal);
+  global->addWidget(buttons);
 }
 
 ArgumentsDialog::~ArgumentsDialog()
 {
+}
+
+bool ArgumentsDialog::doFullPrompt(const Command * cmd,
+                                   CommandArguments * args,
+                                   CommandOptions * opts)
+{
+
+  ArgumentsDialog dlg(cmd);
+  dlg.exec();
+
+  return false;                 // always cancelled ?
 }

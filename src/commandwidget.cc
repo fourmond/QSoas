@@ -40,6 +40,7 @@
 #include <new>
 
 #include <possessive-containers.hh>
+#include <argumentsdialog.hh>
 
 class SideBarLabel : public QScrollArea {
 protected:
@@ -257,7 +258,14 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
 
     CommandArguments a;
     CommandOptions b;
-    bool prompted = command->parseArgumentsAndOptions(args, &a, &b, this);
+    bool prompted = false;
+    if(doFullPrompt) {
+      prompted = true;
+      if(! ArgumentsDialog::doFullPrompt(command, &a, &b))
+        throw RuntimeError("Cancelled");
+    }
+    else
+      prompted = command->parseArgumentsAndOptions(args, &a, &b, this);
 
     QStringList fnl = raw;
     if(prompted) {

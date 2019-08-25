@@ -21,17 +21,34 @@
 #ifndef __ARGUMENTSDIALOG_HH
 #define __ARGUMENTSDIALOG_HH
 
+#include <argumentlist.hh>
+
 class Command;
 class Argument;
 
 
-class ArgumentsWidget : public QWidget {
+class ArgumentEditor : public QObject {
+  Q_OBJECT;
+
   const Argument * argument;
 
   bool isOption;
+
+  /// Only used when it is not an option
+  QLabel * argName;
+
+  /// Only used when it is an option
+  QCheckBox * optName;
+
+  /// The editor.
+  QWidget * editor;
+  
 public:
-  ArgumentsWidget(const Argument * arg, bool isOption, QWidget * parent = NULL);
-  ~ArgumentsWidget();
+  ArgumentEditor(const Argument * arg, bool isOption);
+  ~ArgumentEditor();
+  
+  /// Adds the elements of the object to the target layout.
+  void addToGrid(QGridLayout * target, int row);
 };
 
 
@@ -41,12 +58,23 @@ class ArgumentsDialog : public QDialog {
 
   /// The underlying command.
   const Command * command;
+
+  QList<ArgumentEditor *> arguments;
+  QList<ArgumentEditor *> options;
   
 public:
 
   ArgumentsDialog(const Command * command);
   ~ArgumentsDialog();
 
+  /// Runs a full prompt for the given command, and returns true if
+  /// the user wants to proceed with the command.
+  ///
+  /// If the user cancels, then the contents of args and opts are
+  /// cleared.
+  static bool doFullPrompt(const Command * cmd,
+                           CommandArguments * args,
+                           CommandOptions * opts);
 
 };
 

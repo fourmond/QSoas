@@ -86,8 +86,21 @@ public:
       ret["t_eq"] = lines[10].toDouble();
       ret["E_cond"] = lines[12].toDouble();
       ret["E_stby"] = lines[20].toDouble();
-    
-    
+
+      // Filter
+      double flt = 0;
+      switch(lines[55].toInt()) {
+      case 2:
+        flt = 0.1;
+        break;
+      case 3:
+        flt = 1;
+        break;
+      case 4:
+        flt = 5;
+        break;
+      }
+      ret["filter_time"] = flt;
     
       switch(mf[mf.size()-2].toLatin1()) {
       case 'c': {                 // staircase voltammetry

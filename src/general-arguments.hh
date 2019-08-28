@@ -46,7 +46,7 @@ public:
   // Direct use of a line edit
   virtual QWidget * createEditor(QWidget * parent = NULL) const override;
   virtual void setEditorValue(QWidget * editor, 
-                              ArgumentMarshaller * value) const override;
+                              const ArgumentMarshaller * value) const override;
 
   virtual QString typeName() const override {
     return "text";
@@ -164,7 +164,7 @@ public:
 
   virtual QWidget * createEditor(QWidget * parent = NULL) const override;
   virtual void setEditorValue(QWidget * editor, 
-                              ArgumentMarshaller * value) const override;
+                              const ArgumentMarshaller * value) const override;
 
   virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 
@@ -384,7 +384,7 @@ public:
   // Use of a line edit
   virtual QWidget * createEditor(QWidget * parent = NULL) const override;
   virtual void setEditorValue(QWidget * editor, 
-                              ArgumentMarshaller * value) const override;
+                              const ArgumentMarshaller * value) const override;
 
   virtual QString typeName() const override {
     return "number";
@@ -457,7 +457,7 @@ public:
 
   virtual QWidget * createEditor(QWidget * parent = NULL) const override;
   virtual void setEditorValue(QWidget * editor, 
-                              ArgumentMarshaller * value) const override;
+                              const ArgumentMarshaller * value) const override;
 
   virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 

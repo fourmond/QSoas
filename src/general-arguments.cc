@@ -57,7 +57,7 @@ QWidget * StringArgument::createEditor(QWidget * parent) const
 }
 
 void StringArgument::setEditorValue(QWidget * editor, 
-                                    ArgumentMarshaller * value) const
+                                    const ArgumentMarshaller * value) const
 {
   QLineEdit * le = dynamic_cast<QLineEdit*>(editor);
   if(! le)
@@ -242,7 +242,7 @@ QWidget * BoolArgument::createEditor(QWidget * parent) const {
 }
 
 void BoolArgument::setEditorValue(QWidget * editor, 
-                                  ArgumentMarshaller * value) const {
+                                  const ArgumentMarshaller * value) const {
   QComboBox * cb = dynamic_cast<QComboBox*>(editor);
   if(! cb)
     throw InternalError("Not a combo box");
@@ -558,7 +558,7 @@ QWidget * NumberArgument::createEditor(QWidget * parent) const
 }
 
 void NumberArgument::setEditorValue(QWidget * editor, 
-                                    ArgumentMarshaller * value) const
+                                    const ArgumentMarshaller * value) const
 {
   QLineEdit * le = dynamic_cast<QLineEdit*>(editor);
   if(! le)
@@ -645,7 +645,7 @@ QWidget * IntegerArgument::createEditor(QWidget * parent) const
 }
 
 void IntegerArgument::setEditorValue(QWidget * editor, 
-                                     ArgumentMarshaller * value) const
+                                     const ArgumentMarshaller * value) const
 {
   QLineEdit * le = dynamic_cast<QLineEdit*>(editor);
   if(! le)

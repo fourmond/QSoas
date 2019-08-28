@@ -181,7 +181,7 @@ public:
   /// The QWidget passed will be one that has been previously created
   /// using createEditor();
   virtual void setEditorValue(QWidget * editor, 
-                              ArgumentMarshaller * value) const;
+                              const ArgumentMarshaller * value) const;
 
   /// Returns the current value of the given editor.
   ///

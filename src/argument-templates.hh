@@ -118,7 +118,7 @@ public:
   };
 
   virtual void setEditorValue(QWidget * editor, 
-                              ArgumentMarshaller * value) const override {
+                              const ArgumentMarshaller * value) const override {
     QComboBox * cb = dynamic_cast<QComboBox*>(editor);
     if(! cb)
       throw InternalError("Not a combo box");

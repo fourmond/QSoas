@@ -104,7 +104,7 @@ QWidget * Argument::createEditor(QWidget * parent) const
 }
 
 void Argument::setEditorValue(QWidget * editor, 
-                              ArgumentMarshaller * value) const
+                              const ArgumentMarshaller * value) const
 {
   Debug::debug()
     << "Warning: missing setEditorValue implementation for type "

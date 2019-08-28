@@ -253,7 +253,13 @@ public:
   /// Makes up a text synopsis for the command
   QString synopsis(bool markup = false) const;
 
+  /// Returns true when the command requires user interaction (such as
+  /// the event loop, for instance)
   bool isInteractive() const;
+
+  /// Returns true when the command has neither arguments nor options
+  /// (so that prompting does not need to occur)
+  bool hasNoArgsNorOpts() const;
 
 
   /// Updates a QString containing the documentation of the command

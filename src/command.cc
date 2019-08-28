@@ -503,6 +503,15 @@ bool Command::isInteractive() const
   return effector->isInteractive();
 }
 
+bool Command::hasNoArgsNorOpts() const
+{
+  if(arguments && arguments->size() > 0)
+    return false;
+  if(options && options->size() > 0)
+    return false;
+  return true;
+}
+
 QString Command::commandSpec(bool full) const
 {
   QString ret;

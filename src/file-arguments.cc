@@ -26,6 +26,8 @@
 #include <exceptions.hh>
 #include <mruby.hh>
 
+#include <filepromptwidget.hh>
+
 /// A utility function for a clean file completion.
 static QStringList proposeFileCompletion(const QString & str, 
                                          bool isDir = false)
@@ -98,6 +100,29 @@ ArgumentMarshaller * FileArgument::fromRuby(mrb_value value) const
   return Argument::convertRubyString(value);
 }
 
+
+QWidget * FileArgument::createEditor(QWidget * parent) const
+{
+  return new FilePromptWidget(parent, isDir, false);
+}
+
+void FileArgument::setEditorValue(QWidget * editor,
+                                  const ArgumentMarshaller * value) const
+{
+  FilePromptWidget * ed = dynamic_cast<FilePromptWidget *>(editor);
+  if(! ed)
+    throw InternalError("Not the correct type of editor");
+  ed->setFileName(value->value<QString>());
+}
+
+ArgumentMarshaller * FileArgument::getEditorValue(QWidget * editor) const
+{
+  FilePromptWidget * ed = dynamic_cast<FilePromptWidget *>(editor);
+  if(! ed)
+    throw InternalError("Not the correct type of editor");
+  return fromString(ed->fileName());
+}
+
 ////////////////////////////////////////////////////////////
 
 ArgumentMarshaller * FileSaveArgument::fromString(const QString & str) const
@@ -107,6 +132,11 @@ ArgumentMarshaller * FileSaveArgument::fromString(const QString & str) const
   return new ArgumentMarshallerChild<QString>(str);
 }
 
+
+QWidget * FileSaveArgument::createEditor(QWidget * parent) const
+{
+  return new FilePromptWidget(parent, false, true);
+}
 
 ArgumentMarshaller * FileSaveArgument::promptForValue(QWidget * base) const
 {
@@ -184,4 +214,29 @@ ArgumentMarshaller * SeveralFilesArgument::fromRuby(mrb_value value) const
     return convertRubyString(value);
   else
     return convertRubyArray(value);
+}
+
+QWidget * SeveralFilesArgument::createEditor(QWidget * parent) const
+{
+  return new FilePromptWidget(parent, false, false);
+}
+
+void SeveralFilesArgument::setEditorValue(QWidget * editor,
+                                          const ArgumentMarshaller * value) const
+{
+  FilePromptWidget * ed = dynamic_cast<FilePromptWidget *>(editor);
+  if(! ed)
+    throw InternalError("Not the correct type of editor");
+  QStringList lst = value->value<QStringList>();
+  if(lst.size() > 1)
+    throw InternalError("Not handling several arguments at the same time");
+  ed->setFileName(lst[0]);
+}
+
+ArgumentMarshaller * SeveralFilesArgument::getEditorValue(QWidget * editor) const
+{
+  FilePromptWidget * ed = dynamic_cast<FilePromptWidget *>(editor);
+  if(! ed)
+    throw InternalError("Not the correct type of editor");
+  return fromString(ed->fileName());
 }

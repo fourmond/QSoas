@@ -193,7 +193,18 @@ public:
   virtual ArgumentMarshaller * getEditorValue(QWidget * editor) const;
 
   /// @}
-  
+
+protected:
+
+  /// A helper function to handle the case when using a text editor is
+  /// satisfactory.
+  QWidget * createTextEditor(QWidget * parent = NULL) const;
+
+  /// Sets the value of the target text editor from the given value.
+  ///
+  /// Internally uses toString();
+  void setTextEditorValue(QWidget * editor,
+                          const ArgumentMarshaller * value) const;
 };
 
 #endif

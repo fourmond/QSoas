@@ -133,3 +133,24 @@ QString Argument::typeDescription() const
 {
   return QString();
 }
+
+QWidget * Argument::createTextEditor(QWidget * parent) const
+{
+  return new QLineEdit(parent);
+}
+
+void Argument::setTextEditorValue(QWidget * editor,
+                                  const ArgumentMarshaller * value) const
+{
+  QLineEdit * le = dynamic_cast<QLineEdit*>(editor);
+  if(! le)
+    throw InternalError("Wrong editor given to setEditorValue");
+
+  QStringList vals = toString(value);
+  if(vals.size() > 1)
+    throw InternalError("Cannot handle more than one argument "
+                        "at the same time");
+  if(vals.size() <= 0)
+    throw InternalError("Empty return value ?");
+  le->setText(vals[0]);
+}

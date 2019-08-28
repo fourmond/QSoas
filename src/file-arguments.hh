@@ -57,6 +57,11 @@ public:
 
   virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 
+  virtual QWidget * createEditor(QWidget * parent) const override;
+  virtual void setEditorValue(QWidget * editor, const ArgumentMarshaller * value) const override;
+  virtual ArgumentMarshaller * getEditorValue(QWidget * editor) const override;
+
+
 };
 
 /// An argument representing a unique file name, for saving.
@@ -95,6 +100,8 @@ public:
   /// Prompting uses a QFileDialog.
   virtual ArgumentMarshaller * promptForValue(QWidget * base) const override;
 
+  virtual QWidget * createEditor(QWidget * parent) const override;
+
 };
 
 
@@ -129,6 +136,11 @@ public:
   };
 
   virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
+
+  virtual QWidget * createEditor(QWidget * parent) const override;
+  virtual void setEditorValue(QWidget * editor, const ArgumentMarshaller * value) const override;
+  virtual ArgumentMarshaller * getEditorValue(QWidget * editor) const override;
+
 };
 
 #endif

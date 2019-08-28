@@ -53,17 +53,13 @@ QStringList StringArgument::toString(const ArgumentMarshaller * arg) const
 
 QWidget * StringArgument::createEditor(QWidget * parent) const
 {
-  return new QLineEdit(parent);
+  return createTextEditor(parent);
 }
 
 void StringArgument::setEditorValue(QWidget * editor, 
                                     const ArgumentMarshaller * value) const
 {
-  QLineEdit * le = dynamic_cast<QLineEdit*>(editor);
-  if(! le)
-    throw InternalError("Wrong editor given to setEditorValue");
-
-  le->setText(value->value<QString>());
+  return setTextEditorValue(editor, value);
 }
 
 QString StringArgument::typeDescription() const

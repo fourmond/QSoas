@@ -49,6 +49,18 @@ public:
   
   /// Adds the elements of the object to the target layout.
   void addToGrid(QGridLayout * target, int row);
+
+  void setValue(const ArgumentMarshaller * value);
+  ArgumentMarshaller * getValue() const;
+
+  /// Returns true if it is an argument or a present option
+  bool isPresent() const;
+
+  /// Returns the name of the argument -- useful for options mostly.
+  QString argumentName() const;
+
+protected slots:
+  void enable(bool enabled);
 };
 
 
@@ -76,6 +88,8 @@ public:
                            CommandArguments * args,
                            CommandOptions * opts);
 
+  void retrieveArgumentsAndOptions(CommandArguments * args,
+                                   CommandOptions * opts) const;
 };
 
 

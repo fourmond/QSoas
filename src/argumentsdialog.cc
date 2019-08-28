@@ -26,16 +26,23 @@
 #include <debug.hh>
 
 ArgumentEditor::ArgumentEditor(const Argument * arg, bool opt) :
-  argName(NULL), optName(NULL), isOption(opt)
+  argument(arg),
+  argName(NULL),
+  optName(NULL),
+  isOption(opt)
 {
+  editor = arg->createEditor();
+
   if(isOption) {
     optName = new QCheckBox("/" + arg->argumentName());
+    connect(optName, SIGNAL(clicked(bool)), SLOT(enable(bool)));
+    optName->setChecked(false);
+    enable(false);
   }
   else {
     argName = new QLabel(arg->argumentName());
   }
 
-  editor = arg->createEditor();
 }
 
 ArgumentEditor::~ArgumentEditor()
@@ -51,7 +58,34 @@ void ArgumentEditor::addToGrid(QGridLayout * target, int row)
   target->addWidget(editor, row, 1);
 }
 
+void ArgumentEditor::enable(bool enabled)
+{
+  editor->setEnabled(enabled);
+}
 
+bool ArgumentEditor::isPresent() const
+{
+  if(! isOption)
+    return true;
+  return optName->isChecked();
+}
+
+
+void ArgumentEditor::setValue(const ArgumentMarshaller * arg)
+{
+  argument->setEditorValue(editor, arg);
+}
+
+ArgumentMarshaller * ArgumentEditor::getValue() const
+{
+  return argument->getEditorValue(editor);
+}
+
+QString ArgumentEditor::argumentName() const
+{
+  return argument->argumentName();
+}
+  
 
 //////////////////////////////////////////////////////////////////////
 
@@ -96,6 +130,9 @@ ArgumentsDialog::ArgumentsDialog(const Command * cmd) : QDialog(),
                          QDialogButtonBox::Cancel,
                          Qt::Horizontal);
   global->addWidget(buttons);
+
+  connect(buttons, SIGNAL(accepted()), SLOT(accept()));
+  connect(buttons, SIGNAL(rejected()), SLOT(reject()));
 }
 
 ArgumentsDialog::~ArgumentsDialog()
@@ -108,7 +145,35 @@ bool ArgumentsDialog::doFullPrompt(const Command * cmd,
 {
 
   ArgumentsDialog dlg(cmd);
-  dlg.exec();
+  // For now not setting from arguments...
+  if(dlg.exec() == QDialog::Accepted) {
+    dlg.retrieveArgumentsAndOptions(args, opts);
+    return true;
+  }
+  else
+    return false;
+}
 
-  return false;                 // always cancelled ?
+void ArgumentsDialog::retrieveArgumentsAndOptions(CommandArguments * args,
+                                                  CommandOptions * opts) const
+{
+  // First empty the arguments
+  for(ArgumentMarshaller * val : *args)
+    delete val;
+  args->clear();
+
+  for(ArgumentMarshaller * val : opts->values())
+    delete val;
+
+  opts->clear();
+
+  for(const ArgumentEditor * ed : arguments)
+    *args << ed->getValue();
+
+  for(const ArgumentEditor * ed : options) {
+    if(ed->isPresent()) {
+      (*opts)[ed->argumentName()] = ed->getValue();
+    }
+  }
+
 }

@@ -119,6 +119,8 @@ ArgumentMarshaller * Argument::getEditorValue(QWidget * editor) const
   QComboBox * cb = dynamic_cast<QComboBox *>(editor);
   if(cb)
     return fromString(cb->currentText());
+  throw InternalError("Handling of editor for type %1 is not implemented").
+    arg(typeName());
   return NULL;
 }
 

@@ -399,7 +399,8 @@ SOURCES += src/qmain.cc \
         src/printpreviewhelper.cc \
         src/utils-osspec.cc \
         src/graphicoutput.cc \
-        src/argumentsdialog.cc
+        src/argumentsdialog.cc \
+        src/filepromptwidget.cc
 
 #        src/conditionsprovider.cc \
 
@@ -542,7 +543,8 @@ HEADERS += src/headers.hh \
         src/filelock.hh \
         src/printpreviewhelper.hh \
         src/graphicoutput.hh \
-        src/argumentsdialog.hh
+        src/argumentsdialog.hh \
+        src/filepromptwidget.hh
 
 # mruby
 HEADERS += src/mruby.hh

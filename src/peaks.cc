@@ -59,7 +59,7 @@ void PeakInfo::computeArea(QList<PeakInfo> & peaks, const Vector & x, const Vect
   QList<PeakInfo> pk = peaks;
   for(int i = 0; i < pk.size(); i++)
     pk[i].area = i;             // Boaf
-  PeakInfo::sortByPosition(peaks);
+  PeakInfo::sortByPosition(pk);
   Vector iy = Vector::integrateVector(x,y);
 
   int left = 0;

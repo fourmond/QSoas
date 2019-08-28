@@ -64,6 +64,9 @@ static void displayPeaks(QList<PeakInfo> peaks, const DataSet * ds,
   Terminal::out << "Found " << peaks.size() << " peaks" << endl;
   if(maxnb < 0 || maxnb > peaks.size())
     maxnb = peaks.size();
+  if(peaks.size() <= 0)
+    return;
+
   peaks = peaks.mid(0, maxnb);
   PeakInfo::computeArea(peaks, ds->x(), ds->y());
   

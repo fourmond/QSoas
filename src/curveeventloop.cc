@@ -200,9 +200,12 @@ bool CurveEventLoop::eventFilter(QObject * obj, QEvent * event)
   //     view->setFocus();
   // }
 
+  bool isButtonPress = false;
+
   switch(event->type()) {
   case QEvent::MouseButtonPress:
   case QEvent::MouseButtonRelease:
+    isButtonPress = true;
   case QEvent::MouseMove:
     // o << "Mouse stuff " << endl;
     {
@@ -211,7 +214,8 @@ bool CurveEventLoop::eventFilter(QObject * obj, QEvent * event)
       if(view->rect().contains(gp)) {
         receiveMouseEvent(me);
         // o << "within view " << endl;
-        return true;
+        // Stop here if it is a button press
+        return isButtonPress;
       }
       else {
         // o << "without view " << endl;

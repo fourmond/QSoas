@@ -1399,7 +1399,7 @@ const Vector & DataSet::perpendicularCoordinates() const
 void DataSet::setPerpendicularCoordinates(const Vector & vect)
 {
   if(vect.size() > 0 && vect.size() != nbColumns() - 1)
-    throw InternalError("Wrong number of perpendicular coordinates %1 vs %2").
+    throw RuntimeError("Wrong number of perpendicular coordinates: %1 for %2 Y column(s)").
       arg(vect.size()).arg(nbColumns() - 1);
   perpCoords = vect;
 }

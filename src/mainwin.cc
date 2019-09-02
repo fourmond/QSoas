@@ -185,6 +185,8 @@
 #include <group.hh>
 #include <command.hh>
 
+#include <commandcontext.hh>
+
 #include <soas.hh>
 
 #include <commandwidget.hh>
@@ -273,7 +275,7 @@ MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
 void MainWin::setupFrame()
 {
   statusBar();
-  Group::fillMenuBar(menuBar());
+  Group::fillMenuBar(menuBar(), CommandContext::globalContext());
   connect(menuBar(), SIGNAL(triggered(QAction *)),
           SLOT(menuActionTriggered(QAction *)));
 

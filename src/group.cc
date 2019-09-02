@@ -57,7 +57,8 @@ static bool compareGroups(const Group * a, const Group * b)
   return a->groupName() < b->groupName();
 }
 
-QAction * Group::actionForGroup(QObject * parent) const
+QAction * Group::actionForGroup(QObject * parent, 
+                                const CommandContext * context) const
 {
   QList<Command *> cmds = commands;
   qSort(cmds.begin(), cmds.end(), compareCommands);
@@ -72,7 +73,7 @@ QAction * Group::actionForGroup(QObject * parent) const
 
 
   for(int i = 0; i < grps.size(); i++) {
-    QAction * ac = grps[i]->actionForGroup(parent);
+    QAction * ac = grps[i]->actionForGroup(parent, context);
     menu->addAction(ac);
 #ifdef Q_WS_MACX
     QMenu * sub = ac->menu();
@@ -86,15 +87,17 @@ QAction * Group::actionForGroup(QObject * parent) const
   if(grps.size() > 0)
     menu->addSeparator();
 
-  for(int i = 0; i < cmds.size(); i++)
-    menu->addAction(cmds[i]->actionForCommand(parent));
+  for(int i = 0; i < cmds.size(); i++) {
+    if(cmds[i]->commandContext() == context)
+      menu->addAction(cmds[i]->actionForCommand(parent));
+  }
 
   action->setMenu(menu);
   return action;
 }
 
 
-void Group::fillMenuBar(QMenuBar * menu)
+void Group::fillMenuBar(QMenuBar * menu, const CommandContext * context)
 {
   if(! availableGroups)
     return;
@@ -103,7 +106,7 @@ void Group::fillMenuBar(QMenuBar * menu)
   for(int i = 0; i < groups.size(); i++) {
     if(groups[i]->parent)
       continue;
-    QAction * action = groups[i]->actionForGroup(menu->parent());
+    QAction * action = groups[i]->actionForGroup(menu->parent(), context);
     menu->addAction(action);
 #ifdef Q_WS_MACX
     QMenu * sub = action->menu();

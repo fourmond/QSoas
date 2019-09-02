@@ -168,6 +168,11 @@ public:
     return options;
   };
 
+  /// Returns the CommandContext for this command
+  const CommandContext * commandContext() const {
+    return context;
+  };
+
   /// Runs the command with the given arguments.
   ///
   /// This function possibly can prompt for missing arguments, if base

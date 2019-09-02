@@ -23,6 +23,7 @@
 #define __GROUP_HH
 
 class Command;
+class CommandContext;
 
 /// A group. In principle, there shouldn't be need for derived
 /// classes, but, well.
@@ -101,10 +102,13 @@ public:
   static Group * namedGroup(const QString & grp);
 
   /// Makes up an action for the group, ie, popping up a submenu
-  QAction * actionForGroup(QObject * parent) const;
+  QAction * actionForGroup(QObject * parent,
+                           const CommandContext * context) const;
 
-  /// Fills a menu with all the groups informations.
-  static void fillMenuBar(QMenuBar * menu);
+  /// Fills a menu with all the groups informations for the given
+  /// CommandContext
+  static void fillMenuBar(QMenuBar * menu,
+                          const CommandContext * context);
 
 };
 

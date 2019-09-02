@@ -53,7 +53,7 @@ static void quitCommand(const QString & /*name*/)
 static Command 
 quit("quit", // command name
      optionLessEffector(quitCommand), // action
-     "fit",  // group name
+     "fits",  // group name
      NULL, // arguments
      NULL, // options
      "Quit",
@@ -87,7 +87,7 @@ ArgumentList sO(QList<Argument*>()
 static Command 
 save("save", // command name
      effector(saveCommand), // action
-     "fit",  // group name
+     "fits",  // group name
      &sA, // arguments
      &sO, // options
      "Save",
@@ -195,7 +195,7 @@ ArgumentList lO(QList<Argument*>()
 static Command 
 load("load", // command name
      effector(loadCommand), // action
-     "fit",  // group name
+     "fits",  // group name
      &lA, // arguments
      &lO, // options
      "Load",
@@ -227,7 +227,7 @@ ArgumentList fOpts(QList<Argument*>()
 static Command 
 fit("fit", // command name
     effector(fitCommand), // action
-    "fit",  // group name
+    "fits",  // group name
     NULL, // arguments
     &fOpts, // options
     "Fit",
@@ -350,7 +350,7 @@ ArgumentList sOpts(QList<Argument*>()
 static Command 
 set("set", // command name
     effector(setCommand), // action
-    "fit",  // group name
+    "fits",  // group name
     &sArgs, // arguments
     &sOpts, // options
     "Set parameter",
@@ -376,7 +376,7 @@ ArgumentList fuArgs(QList<Argument*>()
 static Command 
 fix("fix", // command name
     optionLessEffector(fixUnfix), // action
-    "fit",  // group name
+    "fits",  // group name
     &fuArgs, // arguments
     NULL, // options
     "Fix parameter",
@@ -386,7 +386,7 @@ fix("fix", // command name
 static Command 
 ufix("unfix", // command name
      optionLessEffector(fixUnfix), // action
-     "fit",  // group name
+     "fits",  // group name
      &fuArgs, // arguments
      NULL, // options
      "Unfix parameter",
@@ -418,7 +418,7 @@ ArgumentList glArgs(QList<Argument*>()
 static Command 
 glb("global", // command name
     optionLessEffector(globalLocal), // action
-    "fit",  // group name
+    "fits",  // group name
     &glArgs, // arguments
     NULL, // options
     "Global parameter",
@@ -428,7 +428,7 @@ glb("global", // command name
 static Command 
 loc("local", // command name
     optionLessEffector(globalLocal), // action
-    "fit",  // group name
+    "fits",  // group name
     &glArgs, // arguments
     NULL, // options
     "Local parameter",
@@ -469,7 +469,7 @@ ArgumentList eOpts(QList<Argument*>()
 static Command 
 expt("export", // command name
     effector(exportCommand), // action
-    "fit",  // group name
+    "fits",  // group name
     NULL, // arguments
     &eOpts, // options
     "Export parameters",
@@ -512,7 +512,7 @@ ArgumentList pOpts(QList<Argument*>()
 static Command 
 psh("push", // command name
     effector(pushCommand), // action
-    "fit",  // group name
+    "fits",  // group name
     NULL, // arguments
     &pOpts, // options
     "Push to stack",
@@ -541,7 +541,7 @@ ArgumentList eArgs(QList<Argument*>()
 static Command 
 evl("eval", // command name
     effector(evalCommand), // action
-    "fit",  // group name
+    "fits",  // group name
     &eArgs, // arguments
     NULL, // options
     "Evaluate",
@@ -566,7 +566,7 @@ ArgumentList slArgs(QList<Argument*>()
 static Command 
 sel("select", // command name
     effector(selectCommand), // action
-    "fit",  // group name
+    "fits",  // group name
     &slArgs, // arguments
     NULL, // options
     "Select",
@@ -599,7 +599,7 @@ ArgumentList resetOpts(QList<Argument*>()
 static Command 
 res("reset", // command name
     effector(resetCommand), // action
-    "fit",  // group name
+    "fits",  // group name
     NULL, // arguments
     &resetOpts, // options
     "Reset",
@@ -644,7 +644,7 @@ ArgumentList lTOpts(QList<Argument*>()
 static Command 
 st("list-trajectories", // command name
    effector(listTrajectoriesCommand), // action
-   "fit",  // group name
+   "fits",  // group name
    NULL, // arguments
    &lTOpts, // options
    "List trajectories",
@@ -672,7 +672,7 @@ ArgumentList tNOpts(QList<Argument*>()
 static Command 
 tn("flag-trajectories", // command name
    effector(trajectoriesNameCommand), // action
-   "fit",  // group name
+   "fits",  // group name
    NULL, // arguments
    &tNOpts, // options
    "Flag trajectories",
@@ -761,7 +761,7 @@ ArgumentList sTOpts(QList<Argument*>()
 static Command 
 sat("save-trajectories", // command name
     effector(saveTrajectoriesCommand), // action
-    "fit",  // group name
+    "fits",  // group name
     &sTA, // arguments
     &sTOpts, // options
     "Save trajectories",
@@ -821,7 +821,7 @@ ArgumentList ldTOpts(QList<Argument*>()
 static Command 
 ldt("load-trajectories", // command name
     effector(loadTrajectoriesCommand), // action
-    "fit",  // group name
+    "fits",  // group name
     &ldTA, // arguments
     &ldTOpts, // options
     "Load trajectories",
@@ -850,7 +850,7 @@ ArgumentList trimTA(QList<Argument*>()
 static Command 
 trim("trim-trajectories", // command name
      effector(trimTrajectoriesCommand), // action
-     "fit",  // group name
+     "fits",  // group name
      &trimTA, // arguments
      NULL, // options
      "Trim trajectories",
@@ -872,7 +872,7 @@ static void browseTrajectoriesCommand(const QString & /*name*/,
 static Command 
 brse("browse-trajectories", // command name
      effector(browseTrajectoriesCommand), // action
-     "fit",  // group name
+     "fits",  // group name
      NULL, // arguments
      NULL, // options
      "Browse trajectories",
@@ -904,7 +904,7 @@ static void memCommand(const QString &,
 static Command 
 m("mem", // command name
   effector(memCommand), // action
-  "fit",  // group name
+  "fits",  // group name
   NULL, // arguments
   NULL, // options
   "Memory",
@@ -925,7 +925,7 @@ static void showParametersCommand(const QString & /*name*/,
 static Command 
 spar("show-parameters", // command name
      effector(showParametersCommand), // action
-     "fit",  // group name
+     "fits",  // group name
      NULL, // arguments
      NULL, // options
      "Show parameters",
@@ -946,7 +946,7 @@ static void parametersSpreadsheetCommand(const QString & /*name*/,
 static Command 
 spsh("parameters-spreadsheet", // command name
      effector(parametersSpreadsheetCommand), // action
-     "fit",  // group name
+     "fits",  // group name
      NULL, // arguments
      NULL, // options
      "Parameters spreadsheet",

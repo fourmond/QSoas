@@ -95,7 +95,7 @@ QList<Command *> ParameterSpaceExplorer::createCommands(FitWorkspace * workspace
         namedFactoryItem(n);
       QString cmdName = n + "-explorer";
       rv << new Command(cmdName.toLocal8Bit().data(),
-                        explorerEffector(n), "fit",
+                        explorerEffector(n), "fits",
                         expl->explorerArguments(),
                         expl->explorerOptions(),
                         item->publicName.toLocal8Bit().data(),
@@ -219,7 +219,7 @@ ArgumentList ieOpts(QList<Argument*>()
 static Command 
 trim("iterate-explorer", // command name
      effector(iterateExplorerCommand), // action
-     "fit",  // group name
+     "fits",  // group name
      NULL, // arguments
      &ieOpts,
      "Iterate explorer",

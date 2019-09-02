@@ -150,8 +150,19 @@ public:
   /// Returns the list of dataset names
   QSet<QString> datasetNames() const;
 
-  /// Returns all the datasets having this name
-  QList<const DataSet *> namedDataSets(const QString & name) const;
+  typedef enum {
+    Strict,
+    Glob,
+    Regex
+  } NameMatchingRule;
+
+  /// Returns all the datasets having this name.
+  ///
+  /// If matcher is Strict, only datasets of the right name are given
+  /// else, a search is performed using name either as a glob or a
+  /// regexp pattern
+  QList<const DataSet *> namedDataSets(const QString & name,
+                                       NameMatchingRule matcher = Glob) const;
 
 
   /// Returns the numbered data set.

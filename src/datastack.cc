@@ -203,15 +203,23 @@ QSet<QString> DataStack::datasetNames() const
   return ret;
 }
 
-QList<const DataSet *> DataStack::namedDataSets(const QString & name) const
+QList<const DataSet *> DataStack::namedDataSets(const QString & name,
+                                                NameMatchingRule matcher) const
 {
   QList<const DataSet *> rv;
+  QRegExp::PatternSyntax st = QRegExp::Wildcard;
+  if(matcher == Strict)
+    st = QRegExp::FixedString;
+  if(matcher == Regex)
+    st = QRegExp::RegExp;
+  QRegExp mt(name, Qt::CaseSensitive, st);
+  
   for(const DataSet * ds : dataSets) {
-    if(ds->name == name)
+    if(mt.exactMatch(ds->name))
       rv << ds;
   }
   for(const DataSet * ds : redoStack) {
-    if(ds->name == name)
+    if(mt.exactMatch(ds->name))
       rv << ds;
   }
   return rv;

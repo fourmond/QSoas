@@ -89,6 +89,11 @@ public:
   virtual QString typeDescription() const override;
 
   virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
+
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override;
+  virtual void setEditorValue(QWidget * editor, 
+                              const ArgumentMarshaller * value) const override;
+
 };
 
 /// A series of x=y strings converted to QHash<QString, QVariant>.
@@ -119,6 +124,10 @@ public:
   virtual QString typeDescription() const override;
 
   virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
+
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override;
+  virtual void setEditorValue(QWidget * editor, 
+                              const ArgumentMarshaller * value) const override;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -219,6 +228,10 @@ public:
   virtual QString typeName() const override;
   virtual QString typeDescription() const override;
 
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override;
+  virtual void setEditorValue(QWidget * editor, 
+                              const ArgumentMarshaller * value) const override;
+
 };
 
 
@@ -263,6 +276,10 @@ public:
 
   virtual void concatenateArguments(ArgumentMarshaller * a, 
                                     const ArgumentMarshaller * b) const override;
+
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override;
+  virtual void setEditorValue(QWidget * editor, 
+                              const ArgumentMarshaller * value) const override;
 
 };
 
@@ -325,6 +342,12 @@ public:
   ///
   /// Raises an exception if the dataset is absent from the stacK.
   static QString dataSetName(const DataSet * ds);
+
+
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override;
+  virtual void setEditorValue(QWidget * editor, 
+                              const ArgumentMarshaller * value) const override;
+
 };
 
 /// Several datasets from the stack
@@ -358,6 +381,10 @@ public:
   virtual QStringList proposeCompletion(const QString & starter) const override;
 
   virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
+
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override;
+  virtual void setEditorValue(QWidget * editor, 
+                              const ArgumentMarshaller * value) const override;
 };
 
 
@@ -428,6 +455,11 @@ public:
   };
 
   virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
+
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override;
+  virtual void setEditorValue(QWidget * editor, 
+                              const ArgumentMarshaller * value) const override;
+
 };
 
 /// A integer
@@ -490,6 +522,10 @@ public:
   };
 
   virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
+
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override;
+  virtual void setEditorValue(QWidget * editor, 
+                              const ArgumentMarshaller * value) const override;
 
 };
 
@@ -582,6 +618,10 @@ public:
 
   virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override;
+  virtual void setEditorValue(QWidget * editor, 
+                              const ArgumentMarshaller * value) const override;
+
 };
 
 
@@ -613,6 +653,11 @@ public:
 
   virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override;
+  virtual void setEditorValue(QWidget * editor, 
+                              const ArgumentMarshaller * value) const override;
+
+
 };
 
 /// Several integers
@@ -639,6 +684,11 @@ public:
   virtual QString typeDescription() const override;
 
   virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
+
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override;
+  virtual void setEditorValue(QWidget * editor, 
+                              const ArgumentMarshaller * value) const override;
+
 };
 
 #endif

@@ -174,19 +174,18 @@ public:
   /// Create a widget for the edition of the parameter.
   ///
   /// The default implementation returns a grayed-out label.
-  virtual QWidget * createEditor(QWidget * parent = NULL) const;
+  virtual QWidget * createEditor(QWidget * parent = NULL) const = 0;
 
   /// Sets the value of the widget from an ArgumentMarshaller stuff.
   ///
   /// The QWidget passed will be one that has been previously created
   /// using createEditor();
   virtual void setEditorValue(QWidget * editor, 
-                              const ArgumentMarshaller * value) const;
+                              const ArgumentMarshaller * value) const = 0;
 
   /// Returns the current value of the given editor.
   ///
-  /// It is allowed to return NULL in case the editor is unable to
-  /// edit anything (unsupported).
+  /// It never returns NULL but fails with an exception
   ///
   /// This implementation does the right thing (TM) if the widget is a
   /// line edit.

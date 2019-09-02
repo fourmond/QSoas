@@ -28,7 +28,7 @@
 #include <utils.hh>
 
 /// @todo An option to return either the name of the Factory item.
-template <typename F> class FactoryArgument : public  Argument {
+template <typename F> class FactoryArgument : public Argument {
 protected:
 
   QString choiceName;
@@ -83,6 +83,25 @@ public:
 
   virtual ArgumentMarshaller * fromRuby(mrb_value value) const override {
     return convertRubyString(value);
+  };
+
+  virtual QWidget * createEditor(QWidget * parent) const override {
+    QComboBox * cb = new QComboBox(parent);
+    cb->setEditable(false);
+    QStringList cs = sortedChoices();
+    for(const QString & c : cs)
+      cb->addItem(c);
+    return cb;
+  };
+  
+  virtual void setEditorValue(QWidget * editor, 
+                              const ArgumentMarshaller * value) const override {
+    QString s = toString(value)[0];
+    QComboBox * cb = dynamic_cast<QComboBox *>(editor);
+    if(! cb)
+      throw InternalError("Wrong editor for type '%1'").
+        arg(typeName());
+    cb->setCurrentText(s);
   };
 
 

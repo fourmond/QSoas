@@ -146,6 +146,17 @@ ArgumentMarshaller * SeveralStringsArgument::fromRuby(mrb_value value) const
     return convertRubyArray(value);
 }
 
+QWidget * SeveralStringsArgument::createEditor(QWidget * parent) const
+{
+  return createTextEditor(parent);
+}
+
+void SeveralStringsArgument::setEditorValue(QWidget * editor, 
+                                            const ArgumentMarshaller * value) const
+{
+  setTextEditorValue(editor, value);
+}
+
 ////////////////////////////////////////////////////////////
 
 ArgumentMarshaller * MetaHashArgument::fromString(const QString & str) const
@@ -196,6 +207,17 @@ ArgumentMarshaller * MetaHashArgument::fromRuby(mrb_value value) const
 {
   throw InternalError("Not implemented");
   return NULL;
+}
+
+QWidget * MetaHashArgument::createEditor(QWidget * parent) const
+{
+  return Argument::createTextEditor(parent);
+}
+
+void MetaHashArgument::setEditorValue(QWidget * editor, 
+                                      const ArgumentMarshaller * value) const
+{
+  Argument::setTextEditorValue(editor, value);
 }
 
 ////////////////////////////////////////////////////////////
@@ -335,6 +357,30 @@ ArgumentMarshaller * ChoiceArgument::fromRuby(mrb_value value) const
   return Argument::convertRubyString(value);
 }
 
+QWidget * ChoiceArgument::createEditor(QWidget * parent) const
+{
+  QComboBox * cb = new QComboBox(parent);
+  cb->setEditable(false);
+  QStringList cs = choices();
+  std::sort(cs.begin(), cs.end());
+  for(const QString & c : cs)
+    cb->addItem(c);
+  return cb;
+}
+
+void ChoiceArgument::setEditorValue(QWidget * editor, 
+                                    const ArgumentMarshaller * value) const
+{
+  QString s = value->value<QString>();
+  QComboBox * cb = dynamic_cast<QComboBox *>(editor);
+  if(! cb)
+    throw InternalError("Wrong editor for type '%1'").
+      arg(typeName());
+  cb->setCurrentText(s);
+}
+
+
+
 ////////////////////////////////////////////////////////////
 
 QStringList SeveralChoicesArgument::choices() const
@@ -394,6 +440,18 @@ ArgumentMarshaller * SeveralChoicesArgument::fromRuby(mrb_value value) const
     return convertRubyString(value);
   else
     return convertRubyArray(value);
+}
+
+
+QWidget * SeveralChoicesArgument::createEditor(QWidget * parent) const
+{
+  return createTextEditor(parent);
+}
+
+void SeveralChoicesArgument::setEditorValue(QWidget * editor, 
+                                            const ArgumentMarshaller * value) const
+{
+  setTextEditorValue(editor, value);
 }
 
 ////////////////////////////////////////////////////////////
@@ -460,6 +518,17 @@ ArgumentMarshaller * DataSetArgument::fromRuby(mrb_value value) const
   return Argument::convertRubyString(value);
 }
 
+QWidget * DataSetArgument::createEditor(QWidget * parent) const
+{
+  return createTextEditor(parent);
+}
+
+void DataSetArgument::setEditorValue(QWidget * editor, 
+                                            const ArgumentMarshaller * value) const
+{
+  setTextEditorValue(editor, value);
+}
+
 ////////////////////////////////////////////////////////////
 
 ArgumentMarshaller * SeveralDataSetArgument::fromString(const QString & s) const
@@ -514,6 +583,16 @@ QStringList SeveralDataSetArgument::toString(const ArgumentMarshaller * arg) con
   QStringList rv;
   rv << t.join(",");
   return rv;
+}
+
+QWidget * SeveralDataSetArgument::createEditor(QWidget * parent) const
+{
+  return Argument::createEditor(parent);
+}
+
+void SeveralDataSetArgument::setEditorValue(QWidget * editor, 
+                                            const ArgumentMarshaller * value) const
+{
 }
 
 ////////////////////////////////////////////////////////////
@@ -609,6 +688,18 @@ QStringList SeveralNumbersArgument::toString(const ArgumentMarshaller * arg) con
   return rv;
 }
 
+QWidget * SeveralNumbersArgument::createEditor(QWidget * parent) const
+{
+  return Argument::createTextEditor(parent);
+}
+
+void SeveralNumbersArgument::setEditorValue(QWidget * editor, 
+                                            const ArgumentMarshaller * value) const
+{
+  Argument::setTextEditorValue(editor, value);
+}
+
+
 ////////////////////////////////////////////////////////////
 
 
@@ -694,6 +785,18 @@ QStringList SeveralIntegersArgument::toString(const ArgumentMarshaller * arg) co
   rv << lst.join(",");
   return rv;
 }
+
+QWidget * SeveralIntegersArgument::createEditor(QWidget * parent) const
+{
+  return createTextEditor(parent);
+}
+
+void SeveralIntegersArgument::setEditorValue(QWidget * editor, 
+                                             const ArgumentMarshaller * value) const
+{
+  setTextEditorValue(editor, value);
+}
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -797,6 +900,18 @@ QStringList RegexArgument::toString(const ArgumentMarshaller * arg) const
   return rv;
 }
 
+QWidget * RegexArgument::createEditor(QWidget * parent) const
+{
+  return createTextEditor(parent);
+}
+
+void RegexArgument::setEditorValue(QWidget * editor, 
+                                   const ArgumentMarshaller * value) const
+{
+  setTextEditorValue(editor, value);
+}
+
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -851,6 +966,17 @@ QString ColumnArgument::typeDescription() const
 ArgumentMarshaller * ColumnArgument::fromRuby(mrb_value value) const
 {
   return Argument::convertRubyString(value);
+}
+
+QWidget * ColumnArgument::createEditor(QWidget * parent) const
+{
+  return Argument::createTextEditor(parent);
+}
+
+void ColumnArgument::setEditorValue(QWidget * editor, 
+                                    const ArgumentMarshaller * value) const
+{
+  Argument::setTextEditorValue(editor, value);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -908,4 +1034,15 @@ ArgumentMarshaller * SeveralColumnsArgument::fromRuby(mrb_value value) const
     return convertRubyString(value);
   else
     return convertRubyArray(value);
+}
+
+QWidget * SeveralColumnsArgument::createEditor(QWidget * parent) const
+{
+  return createTextEditor(parent);
+}
+
+void SeveralColumnsArgument::setEditorValue(QWidget * editor, 
+                                            const ArgumentMarshaller * value) const
+{
+  setTextEditorValue(editor, value);
 }

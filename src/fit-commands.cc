@@ -277,6 +277,16 @@ public:
     return lst;
   };
 
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override {
+    return Argument::createTextEditor(parent);
+  }
+
+  virtual void setEditorValue(QWidget * editor, 
+                              const ArgumentMarshaller * value) const override {
+    Argument::setTextEditorValue(editor, value);
+  };
+
+
 };
 
 //////////////////////////////////////////////////////////////////////

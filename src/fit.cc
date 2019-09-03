@@ -47,6 +47,14 @@ static Group fits("fits", 0,
                   "Fits",
                   "Fitting of data");
 
+static Group sfit("sfits", 0,
+                  "Single-buffer fits",
+                  "Fitting of data (one buffer at a time)", &fits);
+
+static Group mfit("mfits", 1,
+                  "Multi-buffer fits",
+                  "Fitting of data (one buffer at a time)", &fits);
+
 QHash<QString, Fit*> * Fit::fitsByName = NULL;
 
 bool Fit::threadSafe() const {
@@ -310,7 +318,7 @@ void Fit::makeCommands(ArgumentList * args,
     new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
                 singleFit ? singleFit : 
                 effector(this, &Fit::runFitCurrentDataSet, true),
-                "fits", fal, options, pn, sd);
+                "sfits", fal, options, pn, sd);
     options = new ArgumentList(*options); // Duplicate, as options
                                           // will be different for single and multi fits
   }
@@ -346,7 +354,7 @@ void Fit::makeCommands(ArgumentList * args,
   new Command((const char*)(QString("mfit-") + name).toLocal8Bit(),
               multiFit ? multiFit : 
               effector(this, &Fit::runFit, true),
-              "fits", al, options, pn, sd);
+              "mfits", al, options, pn, sd);
 
   if(! multiFit || sim) {
     /// @todo handle the case when there is a fit-specified effector.

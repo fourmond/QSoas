@@ -1926,42 +1926,14 @@ gDS("generate-buffer", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-
-static void setMetaCommand(const QString &, QString meta, QString value, 
-                           const CommandOptions & opts)
+static void recordMeta(const QString & file, const QString & meta,
+                       const QVariant & value)
 {
-  DataSet * ds = soas().currentDataSet();
-  QVariant val = ValueHash::variantFromText(value, opts);
-  ds->setMetaData(meta, val);
+  MetaDataFile md(file);
+  md.read(false);
+  md.metaData[meta] = value;
+  md.write();
 }
-
-static ArgumentList 
-sMA(QList<Argument *>() 
-    << new StringArgument("name", 
-                          "Name",
-                          "name of the meta-data")
-    << new StringArgument("value", 
-                          "Value",
-                          "value of the meta-data")
-   );
-
-static ArgumentList 
-sMO(QList<Argument *>()
-    << ValueHash::variantConversionOptions()
-    );
-
-
-static Command 
-sM("set-meta", // command name
-   effector(setMetaCommand), // action
-   "buffer",  // group name
-   &sMA, // arguments
-   &sMO, // options
-   "Set meta-data",
-   "Manually set meta-data");
-
-//////////////////////////////////////////////////////////////////////
-
 
 static void recordMetaCommand(const QString &, QString meta, QString value,
                               QStringList files,
@@ -1985,12 +1957,9 @@ static void recordMetaCommand(const QString &, QString meta, QString value,
       continue;
     }
     try {
-      MetaDataFile md(f);
       Terminal::out << "Setting meta-data for file '" << f
                     << "'" << endl;
-      md.read(false);
-      md.metaData[meta] = val;
-      md.write();
+      ::recordMeta(f, meta, val);
     }
     catch(const RuntimeError & re) {
       Terminal::out << "Error with file '" << f << "': "
@@ -2029,6 +1998,61 @@ rM("record-meta", // command name
    "buffer",  // group name
    &rMA, // arguments
    &rMO, // options
+   "Set meta-data",
+   "Manually set meta-data");
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void setMetaCommand(const QString &, QString meta, QString value, 
+                           const CommandOptions & opts)
+{
+  bool alsoRecord = false;
+  updateFromOptions(opts, "also-record", alsoRecord);
+  DataSet * ds = soas().currentDataSet();
+  QVariant val = ValueHash::variantFromText(value, opts);
+  ds->setMetaData(meta, val);
+  if(alsoRecord) {
+    QString f = ds->getMetaData("original-file").toString();
+    if(f.isEmpty()) {
+      Terminal::out << "Cannot set meta-data as there is no source "
+                    << "file for the data" << endl;
+
+    }
+    else {
+      Terminal::out << "Also setting the meta-data for original file '" << f
+                    << "'" << endl;
+      ::recordMeta(f, meta, val);
+    }
+  }
+
+}
+
+static ArgumentList 
+sMA(QList<Argument *>() 
+    << new StringArgument("name", 
+                          "Name",
+                          "name of the meta-data")
+    << new StringArgument("value", 
+                          "Value",
+                          "value of the meta-data")
+   );
+
+static ArgumentList 
+sMO(QList<Argument *>()
+    << ValueHash::variantConversionOptions()
+    << new BoolArgument("also-record", 
+                        "Also record",
+                        "also record the meta-data as if one had used record-meta on the original file")
+    );
+
+
+static Command 
+sM("set-meta", // command name
+   effector(setMetaCommand), // action
+   "buffer",  // group name
+   &sMA, // arguments
+   &sMO, // options
    "Set meta-data",
    "Manually set meta-data");
 

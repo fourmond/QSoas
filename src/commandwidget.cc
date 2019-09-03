@@ -255,6 +255,8 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
     QStringList args = raw;
     QString name = args.takeFirst();
     Command * command = commandContext->namedCommand(name);
+    if(! command)
+      throw RuntimeError("Unkown command: %1").arg(name);
     if(command->hasNoArgsNorOpts())
       doFullPrompt = false;     // useless !
 

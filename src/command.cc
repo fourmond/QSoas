@@ -475,16 +475,20 @@ QString Command::synopsis(bool markup) const
 
 QString & Command::updateDocumentation(QString & str, int level) const
 {
+  QString fullCmd = cmdName;
+  if(context != CommandContext::globalContext())
+    fullCmd = "fit+" + fullCmd;
+
   QString beg = QString("{::comment} synopsis-start: %1 {:/}").
-    arg(cmdName);
+    arg(fullCmd);
 
   QString end = QString("{::comment} synopsis-end: %1 {:/}\n").
-    arg(cmdName);
+    arg(fullCmd);
 
   QString headings(level, '#');
   QString syn = "\n\n" +
     headings + " " + cmdName + " - " + pubName + 
-    " {#cmd-" + cmdName + "}\n\n" + 
+    " {#cmd-" + fullCmd + "}\n\n" + 
     synopsis(true);
 
   Utils::updateWithin(str, beg, end, syn);

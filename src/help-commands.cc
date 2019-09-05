@@ -193,7 +193,7 @@ void updateDocumentationFile(const QString &, QString file)
 
   
   {                             // Commands first
-    QSet<Command * > cmds = CommandContext::globalContext()->availableCommands();
+    QSet<Command * > cmds = CommandContext::allAvailableCommands();
     QTextStream o(stdout);
 
     for(Command * cmd : cmds) {

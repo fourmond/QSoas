@@ -11,7 +11,7 @@ fi
 
 # How I hate all these slight differences that make things difficult
 if [ -z "$QMAKE" ]; then
-    for f in /opt/local/libexec/qt5/bin/qmake /usr/lib/qt5/bin/qmake ; do
+    for f in /opt/local/libexec/qt5/bin/qmake /usr/lib/qt5/bin/qmake /usr/lib/*/qt5/bin/qmake ; do
         if [ -x "$f" ]; then
             QMAKE="$f";
         fi
@@ -28,10 +28,25 @@ fi
    
 
 $QMAKE $extra $v $univ
+mkdir -p snt
+(
+    cd snt
+    echo 
+    echo "Preparing the snt/ directory for the address sanitizer"
+    $QMAKE ../QSoas.pro $extra $v $univ CONFIG+=sanitizer
+)
+
+mkdir -p gc
+(
+    cd gc
+    echo 
+    echo "Preparing the gc/ directory to help finding unused symbols"
+    $QMAKE ../QSoas.pro $extra $v $univ CONFIG+=gc
+)
 
 # For some reason, mac's Qt writes a wrong library name for linking
 # when producing a debug stuff:
-if [ -z "$NOTWEAK" ]; then
-    perl -pi.bak -e 's#-isysroot /Applications/Xcode.app/Contents/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk#-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk#'
-fi
+# if [ -z "$NOTWEAK" ]; then
+#     perl -pi.bak -e 's#-isysroot /Applications/Xcode.app/Contents/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk#-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk#' Makefile
+# fi
 # cd odrpack; ./full-conversion d_lpkbls.c d_mprec.c d_odr.c

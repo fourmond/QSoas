@@ -135,7 +135,6 @@ QMAKE_EXTRA_TARGETS += doc
 # argument to qmake
 sanitizer {
   message("Activating the address sanitizer code")
-  OBJECTS_DIR = build-snt
   QMAKE_CXXFLAGS += -fno-omit-frame-pointer -fsanitize=address
   LIBS += -fsanitize=address
   TARGET = $$join(TARGET,,,-snt)
@@ -150,7 +149,6 @@ sanitizer {
 # cat gc | grep text. | sed 's/text./text /' | sort | c++filt | less
 gc {
   message("Activating the GC code in order to find unused functions")
-  OBJECTS_DIR = build-gc
   QMAKE_CXXFLAGS += -ffunction-sections -fdata-sections
   LIBS += -Wl,--gc-sections -Wl,--print-gc-sections
   TARGET = $$join(TARGET,,,-gc)

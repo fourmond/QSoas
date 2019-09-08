@@ -81,6 +81,7 @@
 
 #include <QPainterPath>
 #include <QPainter>
+#include <QPicture>
 
 // Printing
 #include <QPrinter>

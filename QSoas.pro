@@ -542,7 +542,8 @@ HEADERS += src/headers.hh \
         src/printpreviewhelper.hh \
         src/graphicoutput.hh \
         src/argumentsdialog.hh \
-        src/filepromptwidget.hh
+        src/filepromptwidget.hh \
+        src/namedinstanceargument.hh
 
 # mruby
 HEADERS += src/mruby.hh

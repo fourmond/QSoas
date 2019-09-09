@@ -247,7 +247,7 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
   if(raw.isEmpty())
     return true;                     // Nothing to do here.
   
-  
+  bool wroteCmdline = false;
   try {
     TemporaryChange<QStringList> ch(curCmdline, raw);
     soas().stack().startNewCommand();
@@ -279,6 +279,7 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
 
     QString cmd = Command::unsplitWords(fnl);
     Terminal::out << currentPrompt() << cmd << endl;
+    wroteCmdline = true;
     
     if(addToHistory)
       commandLine->addHistoryItem(cmd);
@@ -293,6 +294,11 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
     command->runCommand(name, arguments, options);
   }
   catch(const RuntimeError & error) {
+    if(! wroteCmdline) {
+      QString cmd = Command::unsplitWords(raw);
+      Terminal::out << currentPrompt() << cmd << endl;
+    }
+      
     Terminal::out << "Error: " << error.message() << endl;
     status = false;
     if(Debug::debugLevel() > 0)

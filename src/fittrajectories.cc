@@ -166,6 +166,38 @@ int FitTrajectories::trim(double factor)
   return nb;
 }
 
+int FitTrajectories::keepBestTrajectories(int max)
+{
+  int i = 0;
+  int nb = 0;
+  typedef QPair<double, int> Pair;
+  QList<Pair > res;
+  while(i < size()) {
+    // strip also NaNs
+    if(std::isnan(trajectories[i].relativeResiduals)) {
+      trajectories.takeAt(i);
+      ++nb;
+    }
+    else {
+      res << Pair(trajectories[i].relativeResiduals, i);
+      ++i;
+    }
+  }
+  std::sort(res.begin(), res.end(), [](const Pair & a, const Pair & b) -> bool {
+      return a.first < b.first;
+    });
+  QList<int> toTrim;
+  for(int i = max-1; i < res.size(); i++)
+    toTrim << res[i].second;
+  std::sort(toTrim.begin(), toTrim.end());
+  while(toTrim.size() > 0) {
+    int idx = toTrim.takeLast();
+    trajectories.takeAt(idx);
+    ++nb;
+  }
+  return nb;
+}
+
 FitTrajectory & FitTrajectories::last()
 {
   return trajectories.last();

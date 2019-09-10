@@ -836,6 +836,10 @@ static void trimTrajectoriesCommand(const QString & /*name*/,
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
   int nb = ws->trajectories.trim(factor);
+  int max = -1;
+  updateFromOptions(opts, "at-most", max);
+  if(max > 0)
+    nb += ws->trajectories.keepBestTrajectories(max);
   Terminal::out << "Trimmed " << nb << " trajectories" << endl;
 }
 
@@ -846,13 +850,19 @@ ArgumentList trimTA(QList<Argument*>()
                                        "threshold for trimming")
                 );
 
+ArgumentList trimTO(QList<Argument*>() 
+                 << new IntegerArgument("at-most", 
+                                        "Keep at most",
+                                        "keep at most that many trajectories")
+                );
+
 
 static Command 
 trim("trim-trajectories", // command name
      effector(trimTrajectoriesCommand), // action
      "fits",  // group name
      &trimTA, // arguments
-     NULL, // options
+     &trimTO, // options
      "Trim trajectories",
      "Trim trajectories whose residuals are too high",
      "", CommandContext::fitContext());

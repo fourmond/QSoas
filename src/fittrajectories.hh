@@ -78,6 +78,10 @@ public:
   /// trimmed.
   int trim(double factor);
 
+  /// Removes all but the nb best trajectories. Returns the number of
+  /// trajectories trimmmed.
+  int keepBestTrajectories(int nb);
+
   /// Returns the nth element
   const FitTrajectory & operator[](int idx) const;
 

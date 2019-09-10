@@ -302,8 +302,7 @@ public:
 
   SeveralFitNamesArgument(const char * cn, const char * pn,
                           const char * d = "", bool g = true,
-                          bool def = false,
-                          const char * chN = "");
+                          bool def = false);
 
   virtual QString typeDescription() const override;
 

@@ -36,8 +36,7 @@ class NamedInstanceArgument : public Argument {
 public:
 
   NamedInstanceArgument(const char * cn, const char * pn,
-                         const char * d = "", bool def = false,
-                         const char * chN = "") : 
+                         const char * d = "", bool def = false) : 
     Argument(cn, pn, d, false, def) {
   }; 
 

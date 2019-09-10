@@ -473,8 +473,7 @@ QString FitNameArgument::typeDescription() const
 SeveralFitNamesArgument::SeveralFitNamesArgument(const char * cn,
                                                  const char * pn,
                                                  const char * d, bool g,
-                                                 bool def,
-                                                 const char * chN) :
+                                                 bool def) :
   SeveralChoicesArgument(&Fit::availableFits, ' ', cn, pn, d, g, def)
 {
 }

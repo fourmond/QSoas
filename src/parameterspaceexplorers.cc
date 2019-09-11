@@ -186,10 +186,9 @@ montecarlo("monte-carlo", "Monte Carlo",
 //////////////////////////////////////////////////////////////////////
 
 
-/// This explorer just randomly shuffles the parameters among the fit
-/// trajectories:
-/// * random selection of the trajectory
-/// * 50 % chance of selecting either the starting of the final values.
+/// This explorer takes two random trajectories from the trajectory
+/// list and mixes them randomly, using either the starting parameters
+/// or the final parameters (one after the other).
 class ShuffleExplorer : public ParameterSpaceExplorer {
 
   int iterations;
@@ -223,22 +222,57 @@ public:
   virtual bool iterate(bool justPick) override {
     Vector p;
     int sz = workSpace->trajectories.size();
-    if(sz < 1)
+    if(sz < 2)
       throw RuntimeError("Cannot iterate the shuffle explorer with no trajectories");
     p = workSpace->trajectories[0].initialParameters;
+
+    int id1 = ::rand() % sz;
+    int id2 = ::rand() % sz;
+    if(id2 == id1)
+      --id2;
+    if(id2 < 0)
+      id2 = sz-1;               // This guarantees id1 != id2
+    if(id1 == id2)
+      throw InternalError("Identical indices, that really should not happen: %1 %2").
+        arg(id1).arg(id2);
+
+    double res = std::min(workSpace->trajectories[id1].residuals,
+                          workSpace->trajectories[id2].residuals);
+    Vector p1,p2;
+    if(currentIteration % 2 == 0) {
+      Terminal::out << "shuffle explorer picking from final parameters"
+                    << endl;
+      p1 = workSpace->trajectories[id1].finalParameters;
+      p2 = workSpace->trajectories[id2].finalParameters;
+    }
+    else {
+      Terminal::out << "shuffle explorer picking from initial parameters"
+                    << endl;
+      p1 = workSpace->trajectories[id1].initialParameters;
+      p2 = workSpace->trajectories[id2].initialParameters;
+    }
+    Terminal::out << "shuffle starting residuals:"
+                  << workSpace->trajectories[id1].residuals 
+                  << " (#" << id1 << "), "
+                  << workSpace->trajectories[id2].residuals
+                  << " (#" << id2 << ")" << endl;
+    
     for(int i = 0; i < p.size(); i++) {
-      int idx = ::rand() % sz;
       int w = ::rand() % 2;
-      QString which;
-      if(w) 
-        p[i] = workSpace->trajectories[idx].initialParameters[i];
-      else
-        p[i] = workSpace->trajectories[idx].finalParameters[i];
+      p[i] = (w ? p1[i] : p2[i]);
     }
     workSpace->restoreParameterValues(p);
     if(! justPick) {
+      ++currentIteration;
       workSpace->runFit(fitIterations);
-      currentIteration++;
+      double final = workSpace->trajectories.last().residuals;
+      if(final < res)
+        Terminal::out << "shuffle succeeded in improving the residuals: "
+                      << workSpace->trajectories[id1].residuals 
+                      << ", "
+                      << workSpace->trajectories[id2].residuals
+                      << " => " << final
+                      << endl;
     }
     return currentIteration < iterations;
   };

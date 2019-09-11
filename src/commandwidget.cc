@@ -338,6 +338,7 @@ bool CommandWidget::runCommand(const QString & str)
 
   advanceContext();
 
+  MRuby * mr = MRuby::ruby();
   if(rubyCode.isEmpty()) {
     if(res.exactMatch(str)) {
       // rubyCode = "qsoas = QSoas::the_instance\n";
@@ -347,7 +348,35 @@ bool CommandWidget::runCommand(const QString & str)
       return true;
     }
     else {
-      QStringList split = Command::wordSplit(str);
+      QString cmd = str;
+      try {
+        // We look for evaluated code
+        QRegExp substitutionRE("#\\{([^}]+)\\}");
+
+        int idx = 0;
+        /// @todo History isn't going to work
+        while(substitutionRE.indexIn(cmd, idx) >= 0) {
+          QString code = substitutionRE.cap(1);
+          mrb_value val = mr->eval(code);
+          QString s = mr->toQString(val);
+          
+          cmd.replace(substitutionRE.pos(),
+                      substitutionRE.matchedLength(), s);
+          idx = substitutionRE.pos() + s.size();
+        }
+      }
+      catch(const RuntimeError & error) {
+        Terminal::out << "Error: " << error.message() << endl;
+      }
+      catch(const InternalError & error) {
+        Terminal::out << "Internal error: "
+                      << error.message() << endl
+                      << "This is a bug in Soas and may be worth reporting !"
+                      << endl;
+        
+      }
+      /// @todo but find a way to record str in the history ?
+      QStringList split = Command::wordSplit(cmd);
       return runCommand(split);
     }
   }
@@ -357,7 +386,6 @@ bool CommandWidget::runCommand(const QString & str)
       /// @todo Try to share some code with runCommand(const QStringList &) ?
       try {
         // Ruby::safeEval(rubyCode);
-        MRuby * mr = MRuby::ruby();
         ScriptContext cc = currentContext();
         QString code = rubyCode;
         rubyCode = "";

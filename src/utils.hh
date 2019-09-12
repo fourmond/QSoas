@@ -413,12 +413,23 @@ namespace Utils {
       list.swap(i, sz - i - 1);
   }
 
+
+  /// @name Graphical utilities
+  ///
+  /// 
+  
   /// Returns the color corresponding to the value. A value below the
   /// lowest of the list returns the corresponding color. Same for a
   /// value higher than the higher of the list. Anything inbetween is
   /// interpolated, either in the RGB space or in the HSV space.
   QColor gradientColor(double value, const QList<QPair<double, QColor> > & colors, bool hsv = false);
 
+  /// Draw the given rich text, accepting the same arguments as the
+  /// corresponding QPainter function, with the addition painter as
+  /// first function.
+  void drawRichText(QPainter * painter, const QRectF &rectangle,
+                    int flags, const QString &text,
+                    QRectF *boundingRect = NULL);
 };
 
 #endif

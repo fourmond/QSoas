@@ -336,6 +336,10 @@ void CurvePanel::paint(QPainter * painter)
                         Qt::AlignHCenter | Qt::AlignBottom | Qt::TextDontClip,
                         realYLabel);
 
+      Utils::drawRichText(painter, textPos.adjusted(-5,-5,5, 5),
+                          Qt::AlignHCenter | Qt::AlignBottom | Qt::TextDontClip,
+                          realYLabel);
+
       painter->restore();
     }
   }

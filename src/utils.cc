@@ -934,3 +934,17 @@ QColor Utils::gradientColor(double value,
   return colors.last().second;
 }
 
+
+void Utils::drawRichText(QPainter * painter, const QRectF &rectangle,
+                         int flags, const QString &text,
+                         QRectF *boundingRect)
+{
+  QStaticText t(text);
+  t.setTextWidth(rectangle.width());
+  Qt::Alignment al =
+    (Qt::Alignment) flags & (Qt::AlignHorizontal_Mask | Qt::AlignVertical_Mask);
+  t.setTextOption(QTextOption(al));
+
+  QSizeF sz = t.size();
+  painter->drawStaticText(rectangle.topLeft(), t);
+}

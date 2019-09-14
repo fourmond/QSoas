@@ -30,8 +30,11 @@
 #include <general-arguments.hh>
 
 #include <sparsejacobian.hh>
+#include <abdmatrix.hh>
 
 #include <gsl/gsl_cdf.h>
+
+#include <gsl-types.hh>
 
 #include <fitengine.hh>
 #include <debug.hh>
@@ -1000,6 +1003,8 @@ const gsl_matrix * FitData::covarianceMatrix()
       else
         /// @todo Maybe this should be signaled in a different way --
         /// using an exception of some kind ?
+        ///
+        /// Or maybe we should use the computation of the covariance matric...
         gsl_matrix_set_zero(&m.matrix); // in the case when no engine
       // has been setup yet.
     }
@@ -1011,6 +1016,64 @@ const gsl_matrix * FitData::covarianceMatrix()
   covarIsOK = true;
   return covarStorage;
 }
+
+void FitData::computeCovarianceMatrix(gsl_matrix * target,
+                                      double * parameters,
+                                      double * residuals) const
+{
+  //  ABDMatrix * jTj;
+  std::unique_ptr<SparseJacobian> jacobian(new SparseJacobian(this));
+
+  QList<int> sizes;
+  for(int i = -1; i < datasets.size(); i++) {
+    int sz = parametersByDataset[i].size();
+    if(sz > 0)
+      sizes << sz;
+  }
+  std::unique_ptr<ABDMatrix> jTj(new ABDMatrix(sizes));
+  GSLVector function(dataPoints());
+  GSLVector p(freeParameters());
+  packParameters(parameters, p);
+  const_cast<FitData*>(this)->fdf(p, function, jacobian.get());
+  jacobian->computejTj(jTj.get());
+
+  gsl_matrix_view m = gsl_matrix_submatrix(target, 0, 0, 
+                                           gslParameters, gslParameters);
+  
+  jTj->invert(&m.matrix);
+
+
+  // Now, we perform permutations to place all the elements where they
+  // should be.
+  //
+  // We start from the top.
+  for(int i = this->parameters.size() - 1; i >= 0; i--) {
+    FitParameter * param = const_cast<FitData*>(this)->parameters[i];
+
+    if(param->fitIndex < 0)
+      continue;
+
+    /// @warning This function assumes a certain layout in the fit
+    /// parameters part of the fit vector, but as they are all free
+    /// parameters, things should be fine ?
+    int tg = param->paramIndex + 
+      parameterDefinitions.size() * ( param->dsIndex >= 0 ? 
+                                      param->dsIndex : 0);
+    gsl_matrix_swap_rows(target, param->fitIndex, tg);
+    gsl_matrix_swap_columns(target, param->fitIndex, tg);
+
+
+    /// @todo add scaling to columns when applicable. (bijections)
+  }
+  
+  // Scaling factor coming from the gsl documentation, and apparently
+  // also from ODRPACK manual page 75 (but PDF 89)
+  double cur_squares = Utils::finiteNorm(function);
+  gsl_matrix_scale(target, cur_squares/doF());
+  if(residuals)
+    *residuals = sqrt(cur_squares);
+}
+
 
 int FitData::doF() const
 {

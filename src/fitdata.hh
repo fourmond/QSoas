@@ -353,6 +353,14 @@ public:
   /// few fit engines.
   void recomputeJacobian();
 
+
+  /// A fit-engine independent computation of covariance matrix.
+  /// 
+  /// Allocates quite a bit of memory.
+  void computeCovarianceMatrix(gsl_matrix * target,
+                               double * parameters,
+                               double * residuals = NULL) const;
+
   
   FitData(const Fit * f, const QList<const DataSet *> & ds, 
           int d = 0, const QStringList & extra = QStringList());

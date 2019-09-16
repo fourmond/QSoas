@@ -653,6 +653,8 @@ namespace __cu {
     ScaleX,
     ShiftY,
     ScaleY,
+    PlaceCross,
+    RemoveCross,
     VerticalSymmetry,
     HorizontalSymmetry,
     CentralSymmetry,
@@ -679,6 +681,8 @@ namespace __cu {
     addKey('A', HorizontalSymmetry, "horizontal symmetry around the current point").
     addKey('c', CentralSymmetry, "central symmetry around the current point").
     alsoKey('C').
+    addKey('+', PlaceCross, "place cross at the latest cursor position").
+    addKey('-', RemoveCross, "remove latest cross").
     addPointPicker().
     addKey(Qt::Key_Escape, Abort, "abort").
     addKey('q', Quit, "quit").
@@ -689,12 +693,15 @@ namespace __cu {
 static void cursorCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
-  // std::unique_ptr<DataSet> nds = NULL;         // for in-place edition
+  const GraphicsSettings & gs = soas().graphicsSettings();
+
+    // std::unique_ptr<DataSet> nds = NULL;         // for in-place edition
   DataSet *  nds = NULL;         // for in-place edition
   CurveMarker m;
   CurveMarker r;
   CurveView & view = soas().view();
   PointPicker pick(&loop, ds);
+  QList<CurveCross*> crosses;
   pick.trackedButtons = Qt::LeftButton|Qt::RightButton|Qt::MiddleButton;
 
   view.addItem(&m);
@@ -777,6 +784,19 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
       r.p = pick.point();
       Terminal::out << "Reference:\t"  << r.p.x() << "\t" 
                     << r.p.y() << endl;
+      break;
+    case PlaceCross:
+      if(Utils::isPointFinite(m.p)) {
+        CurveCross * cr = new CurveCross;
+        cr->p = m.p;
+        cr->pen = gs.getPen(GraphicsSettings::SeparationPen);
+        crosses << cr;
+        view.mainPanel()->addItem(cr);
+      }
+      break;
+    case RemoveCross:
+      if(crosses.size() > 0)
+        delete crosses.takeLast();
       break;
     case Quit:
       if(newDatasets.size() > 0) {

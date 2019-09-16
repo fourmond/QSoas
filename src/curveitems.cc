@@ -72,6 +72,33 @@ void CurveVerticalLines::paint(QPainter * painter, const QRectF & bbox,
 
 //////////////////////////////////////////////////////////////////////
 
+void CurveCross::paint(QPainter * painter, const QRectF &bb,
+                       const QTransform & ctw)
+{
+  if(Utils::isPointFinite(p)) {
+    painter->save();
+    painter->setPen(pen);
+    QPointF p1, p2;
+
+    p1.setX(p.x());
+    p1.setY(bb.top());
+    p2 = p1;
+    p2.setY(bb.bottom());
+    painter->drawLine(ctw.map(QLineF(p1, p2)));
+    
+    p1.setY(p.y());
+    p1.setX(bb.left());
+    p2 = p1;
+    p2.setX(bb.right());
+    painter->drawLine(ctw.map(QLineF(p1, p2)));
+
+    painter->restore();
+  }
+}
+
+
+//////////////////////////////////////////////////////////////////////
+
 CurveHorizontalRegion::CurveHorizontalRegion() :
   autoSwap(false)
 {

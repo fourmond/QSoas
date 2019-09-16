@@ -60,6 +60,19 @@ public:
 };
 
 
+/// A set of vertical lines
+class CurveCross : public CurveItem {
+public:
+
+  QPointF p;
+
+  CurveCross() {};
+
+  virtual void paint(QPainter * painter, const QRectF & bbox,
+                     const QTransform & curveToWidget);
+};
+
+
 /// A horizontal region, delimited by two vertical lines
 class CurveHorizontalRegion : public CurveItem {
 public:

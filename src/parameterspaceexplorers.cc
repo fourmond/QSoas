@@ -25,9 +25,12 @@
 #include <argumentlist.hh>
 #include <general-arguments.hh>
 
+#include <gsl-types.hh>
+
 #include <terminal.hh>
 #include <utils.hh>
 
+#include <fitdata.hh>
 #include <fittrajectory.hh>
 
 class MonteCarloExplorer : public ParameterSpaceExplorer {
@@ -466,3 +469,124 @@ linear("linear", "Linear ramp",
            [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
              return new LinearExplorer(ws);
            });
+
+//////////////////////////////////////////////////////////////////////
+
+/// This explorer starts from the current parameters, and "warms them
+/// up" smoothly, that is draws parameters with increasing errors on
+/// the values (scaled according to the covariance matrix)
+class SimulatedAnnealingExplorer : public ParameterSpaceExplorer {
+
+  int iterations;
+
+  int currentIteration;
+
+  double minTemperature;
+  
+  double maxTemperature;
+
+  int fitIterations;
+
+  /// The base parameters
+  Vector baseParameters;
+
+  /// The sigma values for the errors
+  Vector sigmas;
+
+  static ArgumentList opts;
+
+public:
+
+  SimulatedAnnealingExplorer(FitWorkspace * ws) :
+    ParameterSpaceExplorer(ws), iterations(50),
+    currentIteration(0), minTemperature(0.3),
+    maxTemperature(4), fitIterations(50) {
+  };
+
+  virtual ArgumentList * explorerArguments() const override {
+    return NULL;
+  };
+
+  virtual ArgumentList * explorerOptions() const override {
+    return &opts;
+  };
+
+  virtual void setup(const CommandArguments & /*args*/,
+                     const CommandOptions & opts) override {
+    baseParameters = workSpace->saveParameterValues();
+    GSLMatrix cov(baseParameters.size(), baseParameters.size());
+    workSpace->data()->computeCovarianceMatrix(cov, baseParameters.data());
+    sigmas = baseParameters;
+    for(int i = 0; i < baseParameters.size(); i++)// {
+      sigmas[i] = sqrt(cov.value(i,i));
+    //   Terminal::out << "Error for #" << i << ": "
+    //                 << sigmas[i] << endl;
+    // }
+
+    updateFromOptions(opts, "iterations", iterations);
+    updateFromOptions(opts, "fit-iterations", fitIterations);
+
+    updateFromOptions(opts, "start-temperature", minTemperature);
+    updateFromOptions(opts, "end-temperature", maxTemperature);
+
+    Terminal::out << "Warming the current parameters from "
+                  << minTemperature << " to "
+                  << maxTemperature << " in "
+                  << iterations << " steps" << endl;
+      
+  };
+
+  virtual bool iterate(bool justPick) override {
+    double curTemperature = minTemperature + (maxTemperature - minTemperature)/(iterations - 1) * currentIteration;
+
+    Vector choice = baseParameters;
+
+    Terminal::out << "Choosing at temperature: "
+                  << curTemperature << endl;
+
+    
+    for(int i = 0; i < choice.size(); i++) {
+      double rng = sigmas[i] * curTemperature;
+      double rnd = Utils::random(-rng, rng);
+      baseParameters[i] += rnd;
+    }
+
+    workSpace->restoreParameterValues(choice);
+
+    if(! justPick) {
+      workSpace->runFit(fitIterations);
+      currentIteration++;
+    }
+
+    return currentIteration < iterations;
+  };
+
+  virtual QString progressText() const override {
+    return QString("%1/%2").
+      arg(currentIteration+1).arg(iterations);
+  };
+
+
+};
+
+ArgumentList
+SimulatedAnnealingExplorer::opts(QList<Argument*>() 
+                                 << new IntegerArgument("iterations",
+                                                        "Iterations",
+                                                        "Number of monte-carlo iterations")
+                                 << new IntegerArgument("fit-iterations",
+                                                        "Fit iterations",
+                                                        "Maximum number of fit iterations")
+                                 << new NumberArgument("start-temperature",
+                                                       "Starting temperature",
+                                                       "The starting 'temperature' for the random choices")
+                                 << new NumberArgument("end-temperature",
+                                                       "Ending temperature",
+                                                       "The ending 'temperature' for the random choices")
+                                 );
+
+ParameterSpaceExplorerFactoryItem 
+sa("simulated-annealing", "Simulated annealing", 
+   [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
+     return new SimulatedAnnealingExplorer(ws);
+   });

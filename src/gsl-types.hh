@@ -76,6 +76,11 @@ public:
   operator gsl_matrix*() {
     return data;
   };
+
+  double value(int i, int j) const {
+    return gsl_matrix_get(data, i, j);
+  };
+
 };
 
 /// A storage space for matrices of variable size

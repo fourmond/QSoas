@@ -490,8 +490,11 @@ class SimulatedAnnealingExplorer : public ParameterSpaceExplorer {
   /// The base parameters
   Vector baseParameters;
 
-  /// The sigma values for the errors
+  /// The sigmas -- the base unit for variation
   Vector sigmas;
+
+  /// Whether or not the things are log
+  QList<bool> paramIsLog;
 
   static ArgumentList opts;
 
@@ -513,15 +516,89 @@ public:
 
   virtual void setup(const CommandArguments & /*args*/,
                      const CommandOptions & opts) override {
+
     baseParameters = workSpace->saveParameterValues();
     GSLMatrix cov(baseParameters.size(), baseParameters.size());
     workSpace->data()->computeCovarianceMatrix(cov, baseParameters.data());
     sigmas = baseParameters;
-    for(int i = 0; i < baseParameters.size(); i++)// {
+    paramIsLog.clear();
+
+    int nb_per_ds = workSpace->data()->parametersPerDataset();
+
+    for(int i = 0; i < baseParameters.size(); i++) {
       sigmas[i] = sqrt(cov.value(i,i));
-    //   Terminal::out << "Error for #" << i << ": "
-    //                 << sigmas[i] << endl;
-    // }
+      paramIsLog << false;
+      if(workSpace->isFixed(i % nb_per_ds, i/nb_per_ds))
+        sigmas[i] = 0;
+      
+    }
+
+    QStringList specs;
+    updateFromOptions(opts, "parameters", specs);
+
+    QRegExp re("^\\s*(.*):([^,:]+)(,log)?\\s*$");
+    for(const QString & s : specs) {
+      if(re.indexIn(s) != 0)
+        throw RuntimeError("Invalid parameter specification: '%1'").
+          arg(s);
+
+
+      // Now handling: 
+      // monte-carlo-explorer tau_1[#0,#1],tau_2[#1]:1e-2..1e2,log
+      
+      QStringList pars = Utils::nestedSplit(re.cap(1), ',', "[", "]");
+      QString spec = re.cap(2);
+      bool log = ! re.cap(3).isEmpty();
+
+      QList<QPair<int, int> > params;
+      for(const QString & pa : pars)
+        params << workSpace->parseParameterList(pa);
+
+      for(const QPair<int, int> & p : params) {
+        /// @todo Should this be a FitWorkspace function ?
+        int idx = p.first + (p.second < 0 ? 0 : p.second) * nb_per_ds;
+        if(workSpace->isFixed(p.first, p.second)) {
+          sigmas[idx] = 0;
+          continue;
+        }
+        
+        
+        paramIsLog[idx] = log;
+
+        QRegExp res("([^S%]+)([S%])?$");
+        if(res.indexIn(spec) != 0)
+          throw RuntimeError("Invalid sigma specification: '%1'").
+            arg(spec);
+
+        bool ok = true;
+        double v = Utils::stringToDouble(res.cap(1));
+        if(res.cap(2).isEmpty())
+          sigmas[idx] = v;
+        else if(res.cap(2) == "S")
+          sigmas[idx] *= v;
+        else if(res.cap(2) == "%")
+          sigmas[idx] = baseParameters[idx]*v*0.01;
+      }
+    }
+
+    for(int i = 0; i < baseParameters.size(); i++) {
+      if(sigmas[i] == 0)        // fixed
+        continue;
+      int idp = i % nb_per_ds;
+      int ds = i / nb_per_ds;
+      QString pn = workSpace->parameterName(idp);
+      if(workSpace->isGlobal(idp)) {
+        if(ds > 0)
+          continue;
+      }
+      else
+        pn = pn + QString("[#%1]").arg(ds);
+      QString lg;
+      if(paramIsLog[i])
+        lg = " (log)";
+      Terminal::out << " * " << pn << " = " << baseParameters[i]
+                    << " +- " << sigmas[i] << lg << endl;
+    }
 
     updateFromOptions(opts, "iterations", iterations);
     updateFromOptions(opts, "fit-iterations", fitIterations);
@@ -571,6 +648,9 @@ public:
 
 ArgumentList
 SimulatedAnnealingExplorer::opts(QList<Argument*>() 
+                                 << new SeveralStringsArgument("parameters",
+                                                               "Parameters",
+                                                               "Parameter specification", true, true)
                                  << new IntegerArgument("iterations",
                                                         "Iterations",
                                                         "Number of monte-carlo iterations")

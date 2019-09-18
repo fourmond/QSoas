@@ -609,8 +609,9 @@ void KineticSystem::computeLinearJacobian(gsl_matrix * target,
         *gsl_vector_ptr(coeffs, r) += backwardRate;
       }
     }
-    // Debug::debug() << "Reaction #" << i << 
+    // Debug::debug() << checkRange << " \tReaction #" << i << 
     //   ": " << forwardRate << " -- " << backwardRate << endl;
+    
 
     if(checkRange && (forwardRate < 0 || backwardRate < 0))
       throw RangeError("Negative rate constant for reaction #%1").
@@ -756,7 +757,11 @@ double KineticSystem::computeDerivatives(gsl_vector * target,
     const int * stoech = r->speciesStoechiometry.data();
     const int * indices = r->speciesIndices.data();
 
-    
+
+    if(checkRange && (forwardRate < 0 || backwardRate < 0))
+      throw RangeError("Negative rate constant for reaction #%1").
+        arg(i);
+
     for(int j = 0; j < sts; j++) {
       int s = stoech[j];
       if(s < 0)

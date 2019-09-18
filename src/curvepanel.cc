@@ -180,10 +180,16 @@ static Vector pickMajorTicksLocation(double min, double max,
    double first_tick = ceil(min /(*tick)) * (*tick);
    double last_tick = floor(max /(*tick)) * (*tick);
 
+   /// @todo It feels like I'm not doing something right here...
    Vector ret;
    int nb = (int)round((last_tick - first_tick)/(*tick));
-   for (int i = 0; i <= nb ; i++)
-     ret << first_tick + (*tick) * i;
+   double mx = std::max(fabs(first_tick), fabs(last_tick));
+   for (int i = 0; i <= nb ; i++) {
+     double t = first_tick + (*tick) * i;
+     if(fabs(t/mx) < 1e-10)
+       t = 0;                   // Rounding errors...
+     ret << t;
+   }
 
    *fact = factor;
   

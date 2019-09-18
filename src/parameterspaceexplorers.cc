@@ -86,6 +86,7 @@ public:
 
     parameterSpecs.clear();
     QRegExp re("^\\s*(.*):([^:]+)\\.\\.([^:,]+)(,log)?\\s*$");
+    QStringList unknowns;
     for(const QString & s : specs) {
       if(re.indexIn(s) != 0)
         throw RuntimeError("Invalid parameter specification: '%1'").
@@ -101,12 +102,20 @@ public:
       bool log = ! re.cap(4).isEmpty();
       QList<QPair<int, int> > params;
       for(const QString & pa : pars)
-        params << workSpace->parseParameterList(pa);
+        params << workSpace->parseParameterList(pa, &unknowns);
       for(const QPair<int, int> & p : params) {
         ParameterSpec sp = {p, l, h, log};
         parameterSpecs << sp;
       }
     }
+
+    if(unknowns.size() > 0)
+      Terminal::out << "WARNING: could not understand the following parameters: "
+                    << unknowns.join(", ")
+                    << endl;
+    if(parameterSpecs.size() == 0)
+      throw RuntimeError("Could understand no parameters at all");
+       
 
     updateFromOptions(opts, "iterations", iterations);
     updateFromOptions(opts, "fit-iterations", fitIterations);
@@ -535,6 +544,7 @@ public:
 
     QStringList specs;
     updateFromOptions(opts, "parameters", specs);
+    QStringList wrongParams;
 
     QRegExp re("^\\s*(.*):([^,:]+)(,log)?\\s*$");
     for(const QString & s : specs) {
@@ -552,7 +562,7 @@ public:
 
       QList<QPair<int, int> > params;
       for(const QString & pa : pars)
-        params << workSpace->parseParameterList(pa);
+        params << workSpace->parseParameterList(pa, &wrongParams);
 
       for(const QPair<int, int> & p : params) {
         /// @todo Should this be a FitWorkspace function ?
@@ -587,7 +597,16 @@ public:
         }
       }
     }
+    if(wrongParams.size() > 0)
+      Terminal::out << "WARNING: could not understand the following parameters: "
+                    << wrongParams.join(", ")
+                    << endl;
 
+    
+    Terminal::out << "Simulated annealing -- warming the parameters from "
+                  << minTemperature << " to "
+                  << maxTemperature << " in "
+                  << iterations << " steps:" << endl;
     for(int i = 0; i < baseParameters.size(); i++) {
       if(sigmas[i] == 0)        // fixed
         continue;
@@ -613,10 +632,6 @@ public:
     updateFromOptions(opts, "start-temperature", minTemperature);
     updateFromOptions(opts, "end-temperature", maxTemperature);
 
-    Terminal::out << "Warming the current parameters from "
-                  << minTemperature << " to "
-                  << maxTemperature << " in "
-                  << iterations << " steps" << endl;
       
   };
 

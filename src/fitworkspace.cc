@@ -804,56 +804,65 @@ void FitWorkspace::setFixed(int index, int ds, bool fixed)
 }
 
 
-QList<QPair<int, int> > FitWorkspace::parseParameterList(const QString & spec) const
+QList<QPair<int, int> > FitWorkspace::parseParameterList(const QString & spec,
+                                                         QStringList * unknowns) const
 {
   QRegExp specRE("([^[]+)\\[([0-9#,-]+)\\]");
   QList<QPair<int, int> > rv;
 
-  auto fnd = [this](const QString & n) -> int {
+  auto fnd = [this, unknowns](const QString & n) -> int {
     int idx = parameterIndices.value(n, -1);
     if(idx < 0) {
+      if(unknowns)
+        *unknowns << n;
       throw RuntimeError("No such parameter: '%1'").arg(n);
     }
     return idx;
   };
 
-  if(specRE.indexIn(spec) >= 0) {
-    QString p = specRE.cap(1);
-    int idx = fnd(p);
-    QStringList lst = specRE.cap(2).split(",");
-    QRegExp sRE("^#?(\\d+)$");
-    QRegExp rRE("^#?(\\d*)-(\\d*)$");
-    for(const QString & spc : lst) {
-      if(sRE.indexIn(spc) >= 0) {
-        int ds = sRE.cap(1).toInt();
-        rv << QPair<int, int>(idx, ds);
-      }
-      else {
-        if(rRE.indexIn(spc) >= 0) {
-          int l = 0;
-          if(! rRE.cap(1).isEmpty())
-            l = rRE.cap(1).toInt();
-          int r = datasets-1;
-          if(! rRE.cap(2).isEmpty())
-            r = rRE.cap(2).toInt();
-          while(l <= r)
-            rv << QPair<int, int>(idx, l++);
+  try {
+    if(specRE.indexIn(spec) >= 0) {
+      QString p = specRE.cap(1);
+      int idx = fnd(p);
+      QStringList lst = specRE.cap(2).split(",");
+      QRegExp sRE("^#?(\\d+)$");
+      QRegExp rRE("^#?(\\d*)-(\\d*)$");
+      for(const QString & spc : lst) {
+        if(sRE.indexIn(spc) >= 0) {
+          int ds = sRE.cap(1).toInt();
+          rv << QPair<int, int>(idx, ds);
         }
-        else
-          throw RuntimeError("Could not understand parameter number spec '%1'").arg(spc);
+        else {
+          if(rRE.indexIn(spc) >= 0) {
+            int l = 0;
+            if(! rRE.cap(1).isEmpty())
+              l = rRE.cap(1).toInt();
+            int r = datasets-1;
+            if(! rRE.cap(2).isEmpty())
+              r = rRE.cap(2).toInt();
+            while(l <= r)
+              rv << QPair<int, int>(idx, l++);
+          }
+          else
+            throw RuntimeError("Could not understand parameter number spec '%1'").arg(spc);
+        }
+      }
+    }
+    else {
+      int idx = fnd(spec);
+      if(isGlobal(idx))
+        rv << QPair<int,int>(idx, -1);
+      else {
+        // returning the list of all the parameters, one by one
+        // Makes a huge difference for the case when one uses a formula.
+        for(int i = 0; i < datasets; i++)
+          rv << QPair<int,int>(idx, i);
       }
     }
   }
-  else {
-    int idx = fnd(spec);
-    if(isGlobal(idx))
-      rv << QPair<int,int>(idx, -1);
-    else {
-      // returning the list of all the parameters, one by one
-      // Makes a huge difference for the case when one uses a formula.
-      for(int i = 0; i < datasets; i++)
-        rv << QPair<int,int>(idx, i);
-    }
+  catch(const RuntimeError & re) {
+    if(! unknowns)
+      throw;
   }
 
   return rv;

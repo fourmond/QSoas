@@ -294,8 +294,11 @@ public:
 
   /// Parses a parameter list. Returns a list of index/dataset pairs.
   ///
-  /// Throws exceptions.
-  QList<QPair<int, int> > parseParameterList(const QString & spec) const;
+  /// If @a unknowns is provided, adds the names of the parameters
+  /// that could not be parsed there, else throws exceptions upon
+  /// unknown parameters.
+  QList<QPair<int, int> > parseParameterList(const QString & spec,
+                                             QStringList * unknowns = NULL) const;
   
   /// Sets the value by name. 
   void setValue(const QString & name, double value, int ds = -1);

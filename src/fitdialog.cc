@@ -600,7 +600,7 @@ void FitDialog::setupSubFunctionCurves(bool dontSend)
     for(int j = 0; j < subFunctions.size(); j++) {
       Vector subY = subFunctions[j].mid(base, sz);
       CurveData * dt = new CurveData(ds->x(), subY);
-      dt->pen = gs.dataSetPen(j+2, true);
+      dt->pen = gs.dataSetPen(j+3, true);
 
       views[i]->addItem(dt);
       subFunctionCurves << dt;

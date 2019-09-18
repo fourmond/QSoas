@@ -574,10 +574,17 @@ public:
         double v = Utils::stringToDouble(res.cap(1));
         if(res.cap(2).isEmpty())
           sigmas[idx] = v;
-        else if(res.cap(2) == "S")
-          sigmas[idx] *= v;
-        else if(res.cap(2) == "%")
-          sigmas[idx] = baseParameters[idx]*v*0.01;
+        else {
+          if(res.cap(2) == "S") {
+            sigmas[idx] *= v;
+          }
+          else if(res.cap(2) == "%") {
+            sigmas[idx] = baseParameters[idx]*v*0.01;
+          }
+          if(log) {
+            sigmas[idx] = ::log(1 + sigmas[idx]/baseParameters[idx]);
+          }
+        }
       }
     }
 
@@ -625,7 +632,10 @@ public:
     for(int i = 0; i < choice.size(); i++) {
       double rng = sigmas[i] * curTemperature;
       double rnd = Utils::random(-rng, rng);
-      baseParameters[i] += rnd;
+      if(paramIsLog[i])
+        choice[i] *= exp(rnd);
+      else
+        choice[i] += rnd;
     }
 
     workSpace->restoreParameterValues(choice);

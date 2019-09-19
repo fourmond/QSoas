@@ -296,11 +296,11 @@ class MultiBufferArbitraryFit : public Fit {
   };
   
 protected:
-  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds*/) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds*/) const override {
     return deepCopy<Storage>(source);
   };
   
@@ -337,13 +337,13 @@ private:
 
 protected:
 
-  virtual QString optionsString(FitData * data) const {
+  virtual QString optionsString(FitData * data) const override {
     FormulaBasedFit * f = getFbf(data);
     return "formula: " + f->lastFormula;
   };
 
   virtual void processOptions(const CommandOptions &opts,
-                              FitData * data ) const {
+                              FitData * data ) const override {
     FormulaBasedFit * f = getFbf(data);
     if(! formulaString.isEmpty())
       f->lastFormula = formulaString;
@@ -356,13 +356,13 @@ protected:
     
 public:
 
-  ArgumentList * fitHardOptions() const {
+  ArgumentList * fitHardOptions() const override {
     return FormulaBasedFit::hardOptions();
   };
 
 
   virtual void function(const double *a, 
-                        FitData *data, gsl_vector *target) const {
+                        FitData *data, gsl_vector *target) const override {
     FormulaBasedFit * f = getFbf(data);
     int nbparams = data->parametersPerDataset();
 
@@ -377,7 +377,7 @@ public:
   };
 
   virtual void initialGuess(FitData * data, 
-                            double * a) const
+                            double * a) const override
   {
     FormulaBasedFit * f = getFbf(data);
     int nbparams = data->parametersPerDataset();
@@ -414,7 +414,7 @@ public:
     formulaString = formula;
   };
 
-  virtual void checkDatasets(const FitData * data) const {
+  virtual void checkDatasets(const FitData * data) const override {
     FormulaBasedFit * f = getFbf(const_cast<FitData*>(data));
     if(f->formulas.size() > 1 && f->formulas.size() != data->datasets.size()) {
       throw RuntimeError(QString("Fit %1 needs %2 datasets, "
@@ -425,7 +425,7 @@ public:
       
   };
 
-  virtual QString annotateDataSet(int index, FitData * data) const {
+  virtual QString annotateDataSet(int index, FitData * data) const override {
     FormulaBasedFit * f = getFbf(data);
     if(f->formulas.size() > 1)
       return QString("(%1)").arg(f->formulas[index]);
@@ -439,7 +439,7 @@ public:
     return formulaString;
   };
 
-  QList<ParameterDefinition> parameters(FitData * data) const {
+  QList<ParameterDefinition> parameters(FitData * data) const override {
     FormulaBasedFit * f = getFbf(data);
     return f->parameters();
   };
@@ -467,24 +467,24 @@ class SingleBufferArbitraryFit : public PerDatasetFit {
   };
 
 protected:
-  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds*/) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds*/) const override {
     return deepCopy<Storage>(source);
   };
 
 protected:
 
-  virtual QString optionsString(FitData * data) const {
+  virtual QString optionsString(FitData * data) const override {
     FormulaBasedFit * f = getFbf(data);
      return "formula: " + f->lastFormula;
   };
 
   /// @hack get rid of the const-cast, this isn't very clean
   virtual void processOptions(const CommandOptions &opts,
-                              FitData * data) const {
+                              FitData * data) const override {
     FormulaBasedFit * f = getFbf(data);
     f->lastFormula = formulaString;
     f->parseFormulas(f->lastFormula);
@@ -498,19 +498,19 @@ protected:
     
 public:
   
-  ArgumentList * fitHardOptions() const {
+  ArgumentList * fitHardOptions() const override {
     return FormulaBasedFit::hardOptions();
   };
 
   virtual void function(const double *parameters, FitData *data, 
-                        const DataSet *ds, gsl_vector *target) const {
+                        const DataSet *ds, gsl_vector *target) const override {
     FormulaBasedFit * f = getFbf(data);
     f->computeDataSet(parameters, ds, data, target);
   };
 
   virtual void initialGuess(FitData * data, 
                             const DataSet * ds,
-                            double * a) const
+                            double * a) const override
   {
     FormulaBasedFit * f = getFbf(data);
     f->initialGuessForDataset(ds, a);
@@ -533,7 +533,7 @@ public:
     return formulaString;
   };
 
-  QList<ParameterDefinition> parameters(FitData * data) const {
+  QList<ParameterDefinition> parameters(FitData * data) const override {
     FormulaBasedFit * f = getFbf(data);
     return f->parameters();
   };

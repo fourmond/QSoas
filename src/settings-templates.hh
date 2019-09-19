@@ -32,12 +32,12 @@ protected:
   T value;
 
   /// Save the settings
-  virtual void save(QSettings * target) {
+  virtual void save(QSettings * target) override {
     target->setValue(name, QVariant::fromValue(value));
   };
 
   /// Load the settings
-  virtual void load(QSettings * source) {
+  virtual void load(QSettings * source) override {
     if(source->contains(name)) {
       QVariant v = source->value(name);
       /// @todo type checking ?

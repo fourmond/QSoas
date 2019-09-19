@@ -45,7 +45,7 @@ public:
   T value;
 
   ArgumentMarshallerChild(const T & t) : value(t) {;};
-  virtual ArgumentMarshaller * dup() const {
+  virtual ArgumentMarshaller * dup() const override {
     return new ArgumentMarshallerChild<T>(value);
   };
 };

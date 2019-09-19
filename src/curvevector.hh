@@ -49,12 +49,12 @@ public:
 
   virtual ~CurveVector();
 
-  virtual QRectF boundingRect() const;
+  virtual QRectF boundingRect() const override;
 
   /// Paint the curve. The painter is setup so that the coordinate are
   /// the curves coordinates.
   virtual void paint(QPainter * painter, const QRectF & bbox,
-                     const QTransform & curveToWidget);
+                     const QTransform & curveToWidget) override;
 
   virtual QRect paintLegend(QPainter * painter, 
                             const QRect & placement);

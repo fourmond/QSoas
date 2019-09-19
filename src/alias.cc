@@ -67,7 +67,7 @@ public:
   /// The default options. They are not parsed yet.
   QMultiHash<QString, QString> defaultOptions;
 
-  virtual bool needsLoop() const {
+  virtual bool needsLoop() const override {
     return targetCommand->effector->needsLoop();
   };
 
@@ -80,7 +80,7 @@ public:
 
   virtual void runCommand(const QString & commandName, 
                           const CommandArguments & arguments,
-                          const CommandOptions & options) {
+                          const CommandOptions & options) override {
 
     PossessiveHash<QString, ArgumentMarshaller> args = 
       targetCommand->parseOptions(defaultOptions);
@@ -92,7 +92,7 @@ public:
   virtual void runWithLoop(CurveEventLoop & loop,
                            const QString & commandName, 
                            const CommandArguments & arguments,
-                           const CommandOptions & options)
+                           const CommandOptions & options) override 
   {
     PossessiveHash<QString, ArgumentMarshaller> args = 
       targetCommand->parseOptions(defaultOptions);

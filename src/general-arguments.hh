@@ -482,7 +482,7 @@ public:
     return "integer";
   };
 
-  virtual QString typeDescription() const {
+  virtual QString typeDescription() const override {
     return "An integer";
   };
 

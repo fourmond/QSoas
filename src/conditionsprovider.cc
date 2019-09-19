@@ -48,13 +48,13 @@ protected:
 public:
 
   /// Whether or not the provider has meta-data for the give file.
-  virtual bool handlesFile(const QString & fileName) const {
+  virtual bool handlesFile(const QString & fileName) const override {
     RUBY_VALUE md = metaDataFor(fileName);
     return rbw_test(md);
   };
 
   /// Returns the meta-data for the given file
-  virtual ValueHash metaDataForFile(const QString & fileName) const {
+  virtual ValueHash metaDataForFile(const QString & fileName) const override {
     RUBY_VALUE md = metaDataFor(fileName);
     if(rbw_test(md))
       return ValueHash::fromRuby(md);

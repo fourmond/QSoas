@@ -45,7 +45,7 @@ public:
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments &,
-                                 const CommandOptions &) {
+                                 const CommandOptions &) override {
     callback(commandName);
   };
 
@@ -75,7 +75,7 @@ public:
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
-                                 const CommandOptions &) {
+                                 const CommandOptions &) override {
     if(args.size() != 1)
       throw InternalError(QString("1 argument expected, but got %2").
                           arg(args.size()));
@@ -109,7 +109,7 @@ public:
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
-                                 const CommandOptions &) {
+                                 const CommandOptions &) override {
     if(args.size() != 2)
       throw InternalError(QString("2 arguments expected, but got %2").
                           arg(args.size()));
@@ -142,7 +142,7 @@ public:
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
-                                 const CommandOptions & options) {
+                                 const CommandOptions & options) override {
     if(args.size() > 0)
       throw InternalError(QString("0 arguments expected, but got %2").
                           arg(args.size()));
@@ -174,7 +174,7 @@ public:
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
-                                 const CommandOptions & options) {
+                                 const CommandOptions & options) override {
     if(args.size() != 1)
       throw InternalError(QString("1 argument expected, but got %2").
                           arg(args.size()));
@@ -207,7 +207,7 @@ public:
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
-                                 const CommandOptions & options) {
+                                 const CommandOptions & options) override {
     if(args.size() != 2)
       throw InternalError(QString("2 arguments expected, but got %2").
                           arg(args.size()));
@@ -242,7 +242,7 @@ public:
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
-                                 const CommandOptions & options) {
+                                 const CommandOptions & options) override {
     if(args.size() != 3)
       throw InternalError(QString("3 arguments expected, but got %2").
                           arg(args.size()));
@@ -278,7 +278,7 @@ public:
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
-                                 const CommandOptions & options) {
+                                 const CommandOptions & options) override {
     if(args.size() != 4)
       throw InternalError(QString("4 arguments expected, but got %2").
                           arg(args.size()));
@@ -315,7 +315,7 @@ public:
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
-                                 const CommandOptions & options) {
+                                 const CommandOptions & options) override {
     if(args.size() != 5)
       throw InternalError(QString("5 arguments expected, but got %2").
                           arg(args.size()));
@@ -359,7 +359,7 @@ public:
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments &,
-                                 const CommandOptions &) {
+                                 const CommandOptions &) override {
     CALL_MEMBER_FN(*target, callback)(commandName);
   };
   
@@ -392,7 +392,7 @@ public:
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments &,
-                                 const CommandOptions & opts) {
+                                 const CommandOptions & opts) override {
     CALL_MEMBER_FN(*target, callback)(commandName, opts);
   };
   
@@ -425,7 +425,7 @@ public:
   
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
-                                 const CommandOptions &) {
+                                 const CommandOptions &) override {
     A1 a1 = args[0]->value<A1>();
     CALL_MEMBER_FN(*target, callback)(commandName, a1);
   };
@@ -460,7 +460,7 @@ public:
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
-                                 const CommandOptions & opts) {
+                                 const CommandOptions & opts) override {
     A1 a1 = args[0]->value<A1>();
     CALL_MEMBER_FN(*target, callback)(commandName, a1, opts);
   };
@@ -493,7 +493,7 @@ public:
   
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
-                                 const CommandOptions &) {
+                                 const CommandOptions &) override {
     A1 a1 = args[0]->value<A1>();
     A2 a2 = args[1]->value<A2>();
     CALL_MEMBER_FN(*target, callback)(commandName, a1, a2);
@@ -532,7 +532,7 @@ public:
 
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
-                                 const CommandOptions & opts) {
+                                 const CommandOptions & opts) override {
     A1 a1 = args[0]->value<A1>();
     A2 a2 = args[1]->value<A2>();
     CALL_MEMBER_FN(*target, callback)(commandName, a1, a2, opts);
@@ -565,7 +565,7 @@ public:
   
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
-                                 const CommandOptions &) {
+                                 const CommandOptions &) override {
     A1 a1 = args[0]->value<A1>();
     A2 a2 = args[1]->value<A2>();
     A3 a3 = args[2]->value<A3>();
@@ -599,7 +599,7 @@ public:
   
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
-                                 const CommandOptions & opts) {
+                                 const CommandOptions & opts) override {
     A1 a1 = args[0]->value<A1>();
     A2 a2 = args[1]->value<A2>();
     A3 a3 = args[2]->value<A3>();
@@ -633,7 +633,7 @@ public:
   
   inline virtual void runCommand(const QString & commandName, 
                                  const CommandArguments & args,
-                                 const CommandOptions &) {
+                                 const CommandOptions &) override {
     A1 a1 = args[0]->value<A1>();
     A2 a2 = args[1]->value<A2>();
     A3 a3 = args[2]->value<A3>();
@@ -671,18 +671,18 @@ public:
 
   inline virtual void runCommand(const QString & /*commandName*/, 
                                  const CommandArguments &,
-                                 const CommandOptions &) {
+                                 const CommandOptions &) override {
     throw InternalError("Trying to run an interactive command without a loop");
   };
 
-  inline virtual bool needsLoop() const {
+  inline virtual bool needsLoop() const override {
     return true;
   };
 
   inline virtual void runWithLoop(CurveEventLoop & loop,
                                   const QString & commandName, 
                                   const CommandArguments & /*arguments*/,
-                                  const CommandOptions & /*options*/) {
+                                  const CommandOptions & /*options*/) override {
     callback(loop, commandName);
   };
 };
@@ -713,18 +713,18 @@ public:
 
   inline virtual void runCommand(const QString & /*commandName*/, 
                                  const CommandArguments &,
-                                 const CommandOptions &) {
+                                 const CommandOptions &) override {
     throw InternalError("Trying to run an interactive command without a loop");
   };
 
-  inline virtual bool needsLoop() const {
+  inline virtual bool needsLoop() const override {
     return true;
   };
 
   inline virtual void runWithLoop(CurveEventLoop & loop,
                                   const QString & commandName, 
                                   const CommandArguments & /*arguments*/,
-                                  const CommandOptions & options) {
+                                  const CommandOptions & options) override {
     callback(loop, commandName, options);
   };
 };
@@ -757,7 +757,7 @@ public:
   
   virtual void runCommand(const QString & commandName, 
                           const CommandArguments & arguments,
-                          const CommandOptions & options) {
+                          const CommandOptions & options) override {
     code(commandName, arguments, options);
   };
 

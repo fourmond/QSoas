@@ -22,26 +22,26 @@
 
 class LogBijection : public Bijection {
 public:
-  virtual QString name() const {
+  virtual QString name() const override {
     return "log";
   };
 
-  virtual QString publicName() const {
+  virtual QString publicName() const override {
     return "Log";
   };
 
-  virtual double forward(double x) const {
+  virtual double forward(double x) const override {
     return exp(x);
   };
 
   
-  virtual double backward(double y) const {
+  virtual double backward(double y) const override {
     if(y <= 0)
       return -200;                 // if negative, go for 0 !
     return log(y);
   };
 
-  virtual Bijection * dup() const {
+  virtual Bijection * dup() const override {
     return new LogBijection(*this);
   };
 
@@ -78,26 +78,26 @@ public:
     parameterValues.resize(2);  // Two parameters
   };
 
-  virtual QStringList parameters() const {
+  virtual QStringList parameters() const override {
     return QStringList() << "min" << "max";
   };
 
-  virtual QString name() const {
+  virtual QString name() const override {
     return "hyper-range";
   };
 
-  virtual QString publicName() const {
+  virtual QString publicName() const override {
     return "Range (hyperbolic)";
   };
 
-  virtual double forward(double x) const {
+  virtual double forward(double x) const override {
     double a,b;
     prepare(a,b);
     return 0.5 * (a + b) + 0.5 * (b - a) * tanh(x);
   };
 
   
-  virtual double backward(double y) const {
+  virtual double backward(double y) const override {
     double a,b;
     prepare(a,b);
     if(y <= a)
@@ -111,7 +111,7 @@ public:
     return atanh(sc);
   };
 
-  virtual Bijection * dup() const {
+  virtual Bijection * dup() const override {
     return new HyperbolicRangeBijection(*this);
   };
 

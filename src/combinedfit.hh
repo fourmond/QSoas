@@ -60,13 +60,13 @@ protected:
     ~Storage();    
   };
 
-  virtual FitInternalStorage * allocateStorage(FitData * data) const;
-  virtual FitInternalStorage * copyStorage(FitData * data, FitInternalStorage * source, int ds = -1) const;
+  virtual FitInternalStorage * allocateStorage(FitData * data) const override;
+  virtual FitInternalStorage * copyStorage(FitData * data, FitInternalStorage * source, int ds = -1) const override; 
 
   
   
-  virtual void processOptions(const CommandOptions & opts, FitData * data) const;
-  virtual QString optionsString(FitData * data) const;
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const override;
+  virtual QString optionsString(FitData * data) const override;
 
   /// The underlying fits
   QList<PerDatasetFit *> underlyingFits;
@@ -117,15 +117,15 @@ protected:
 
 public:
 
-  virtual QList<ParameterDefinition> parameters(FitData * data) const;
+  virtual QList<ParameterDefinition> parameters(FitData * data) const override;
   virtual void function(const double * parameters,
                         FitData * data, 
                         const DataSet * ds,
-                        gsl_vector * target) const;
+                        gsl_vector * target) const override;
 
   virtual void initialGuess(FitData * data, 
                             const DataSet * ds,
-                            double * guess) const;
+                            double * guess) const override;
 
 
 

@@ -50,20 +50,21 @@ public:
 
   virtual ~CurveDataSet();
 
-  virtual QRectF boundingRect() const;
+  virtual QRectF boundingRect() const override;
 
   /// Paint the curve. The painter is setup so that the coordinate are
   /// the curves coordinates.
   virtual void paint(QPainter * painter, const QRectF & bbox,
-                     const QTransform & curveToWidget);
+                     const QTransform & curveToWidget) override;
 
   virtual QRect paintLegend(QPainter * painter, 
-                            const QRect & placement);
+                            const QRect & placement) override;
 
   virtual double distanceTo(const QPointF & p, 
                             double xscale,
-                            double yscale);
-  virtual QString toolTipText(const QPointF & p);
+                            double yscale) override;
+  
+  virtual QString toolTipText(const QPointF & p) override;
 
   /// The dataset this item displays
   const DataSet * displayedDataSet() const;

@@ -91,7 +91,7 @@ class InternalError : public Exception {
 public:
   InternalError(const QString & msg) throw();
   virtual ~InternalError() throw() {;};
-  virtual QString message() const throw();
+  virtual QString message() const throw() override;
 
   template<typename T> InternalError & arg(T a) {
     msg = msg.arg(a);

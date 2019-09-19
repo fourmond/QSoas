@@ -112,9 +112,9 @@ QList<PeakInfo> Peaks::findPeaks(bool includeBorders)
     info.magnitude = fabs(avg - info.y);
 
     int j = y.findCrossing(idx, y[idx]/2, -1);
-    info.leftHHWidth = info.x - x.value(j, 0.0/0.0);
+    info.leftHHWidth = info.x - x.value(j, std::nan(""));
     j = y.findCrossing(idx, y[idx]/2, 1);
-    info.rightHHWidth = x.value(j, 0.0/0.0) - info.x;
+    info.rightHHWidth = x.value(j, std::nan("")) - info.x;
     info.area = 0;              // Defaults to 0...
 
     // Now, we look for the right and left half widths

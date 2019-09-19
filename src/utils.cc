@@ -682,7 +682,7 @@ int Utils::stringToInt(const QString & str)
 {
   bool ok = false;
   int v;
-  if(str.startsWith("0x") || str.startsWith("0x")) {
+  if(str.startsWith("0x") || str.startsWith("0X")) {
     v = str.mid(2).toInt(&ok, 16);
   }
   else

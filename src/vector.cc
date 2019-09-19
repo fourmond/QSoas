@@ -74,7 +74,7 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
     QStringList elements = splitter(line.trimmed());
     /// @todo customize trimming.
     while(curCols->size() < elements.size()) {
-      *curCols << Vector(numberRead, 0.0/0.0);
+      *curCols << Vector(numberRead, std::nan(""));
       curCols->last().reserve(10000); // Most files won't be as large
     }
     int nbNans = 0;
@@ -85,7 +85,7 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
         s.replace(decimalSep, ".");
       double value = locale.toDouble(s, &ok);
       if(! ok)
-        value = 0.0/0.0; /// @todo customize
+        value = std::nan(""); /// @todo customize
       if(value != value)
         nbNans++;
       (*curCols)[i] << value;
@@ -153,7 +153,7 @@ double Vector::min() const
     d++;
   }
   if(! sz)
-    return 0.0/0.0;
+    return std::nan("");
   double m = d[0];
   for(int i = 1; i < sz; i++)
     if(d[i] < m)
@@ -170,7 +170,7 @@ double Vector::finiteMin() const
     d++;
   }
   if(! sz)
-    return 0.0/0.0;
+    return std::nan("");
   double m = d[0];
   for(int i = 1; i < sz; i++) {
     if(! std::isfinite(d[i]))
@@ -217,7 +217,7 @@ double Vector::max() const
     d++;
   }
   if(! sz)
-    return 0.0/0.0;
+    return std::nan("");
   double m = d[0];
   for(int i = 1; i < sz; i++)
     if(d[i] > m)
@@ -234,7 +234,7 @@ double Vector::finiteMax() const
     d++;
   }
   if(! sz)
-    return 0.0/0.0;
+    return std::nan("");
   double m = d[0];
   for(int i = 1; i < sz; i++) {
     if(! std::isfinite(d[i]))
@@ -265,7 +265,7 @@ double Vector::magnitude() const
 {
   int sz = size();
   if(! sz)
-    return 0.0/0.0;
+    return std::nan("");
   const double * d = data();
   double m = d[0];
   for(int i = 1; i < sz; i++)

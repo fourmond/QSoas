@@ -1,0 +1,5 @@
+#!/bin/sh
+
+file=$1
+
+grep override "$1" | egrep -o '>[^]]+' | sed -r 's/.*\[([^:]+):(.*)/emacs +\2 \1/' | xargs -I% -n1 sh -c %

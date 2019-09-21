@@ -537,6 +537,24 @@ class ParameterVariations {
     double random(double param, double sigma, double factor = 1) const {
       return 0;
     };
+
+    QString textRepresentation() const {
+      QString rep;
+      switch(kind) {
+      case Absolute:
+        rep = "absolute";
+        break;
+      case Relative:
+        rep = "relative";
+        break;
+      case Sigmas:
+        rep = "sigmas";
+      };
+      if(isLog)
+        rep += ", log";
+
+      return QString("%1, %2").arg(value).arg(rep);
+    };
     
   };
 
@@ -552,7 +570,7 @@ public:
   explicit ParameterVariations(FitWorkspace * ws) : workSpace(ws)
   {
     defaultVariation.kind = OneVariation::Sigmas;
-    defaultVariation.value = 1;
+    defaultVariation.value = 2;
     defaultVariation.isLog = false;
   };
 
@@ -607,6 +625,22 @@ public:
     }
 
   }
+
+  QString textRepresentation() const {
+    int nb_per_ds = workSpace->data()->parametersPerDataset();
+    QString rv;
+    for(int i : variations.keys()) {
+      int pidx = i % nb_per_ds;
+      int ds = i / nb_per_ds;
+      QString name = workSpace->parameterName(pidx);
+      if(! workSpace->isGlobal(pidx))
+        name += QString("[#%1]").arg(ds);
+      rv += QString("%1: %2\n").arg(name).
+        arg(variations[i].textRepresentation());
+    }
+    return rv;
+  };
+                                      
 
 
   /// Returns true if within range according to the specification.
@@ -888,6 +922,9 @@ static void clusterTrajectoriesCommand(const QString & /*name*/,
   // which we compare all of them.
   QList<FitTrajectories> clusters;
 
+  Terminal::out << "Clustering trajectories with the following parameters:\n"
+                << vars.textRepresentation() << endl;
+
   for(const FitTrajectory & t : ws->trajectories) {
     bool found = false;
     for(FitTrajectories & cl : clusters) {
@@ -902,7 +939,16 @@ static void clusterTrajectoriesCommand(const QString & /*name*/,
       clusters.last() << t;
     }
   };
+
+  std::sort(clusters.begin(), clusters.end(), [](const FitTrajectories & a,
+                                                 const FitTrajectories & b) -> double {
+              return a.best().residuals < b.best().residuals;
+            });
   
+  for(const FitTrajectories & c : clusters) {
+    Terminal:: out << "Cluster with " << c.size() << " elements, best: "
+                   << c.best().residuals << endl;
+  }
 }
 
 ArgumentList ctArgs(QList<Argument*>()

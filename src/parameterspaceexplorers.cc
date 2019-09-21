@@ -481,6 +481,163 @@ linear("linear", "Linear ramp",
 
 //////////////////////////////////////////////////////////////////////
 
+
+/// This class represents a set of parameter variations, i.e a range
+/// around parameters.
+class ParameterVariations {
+
+  class OneVariation {
+  public:
+    typedef enum {
+      Absolute,                 // Absolute variation
+      Relative,                
+      Sigmas
+    } Kind;
+
+    /// What kind of variation
+    Kind kind;
+    
+    double value;
+
+    /// Whether or not we're using a log scale
+    bool isLog;
+
+    /// Returns true if target is within the range given by param and
+    /// sigma.
+    bool isWithin(double param, double sigma, double target,
+                  double factor = 1) const {
+      switch(kind) {
+      case Absolute:
+        if(isLog) {
+          param = log(param);
+          target = log(target);
+        }
+        return fabs(param - target) < fabs(value*factor);
+      case Relative:
+        if(isLog) {               // Unsure it means something to have
+                                // relative log ?
+          param = log(param);
+          target = log(target);
+        }
+        return fabs((param - target)/param) < fabs(value*factor);
+      case Sigmas:
+        if(isLog) {               // Unsure it means something to have
+                                // relative log ?
+          sigma = ::log(1 + sigma/param);
+          param = log(param);
+          target = log(target);
+        }
+        return fabs(param - target) < fabs(sigma*factor);
+      }
+      // but should not be reached ?
+      return false;
+    };
+
+    /// Returns a random value
+    double random(double param, double sigma, double factor = 1) const {
+      return 0;
+    };
+    
+  };
+
+  /// A hash index in FitWorkSpace::saveParameterValues() ->
+  /// corresponding variation.
+  QHash<int, OneVariation> variations;
+
+  OneVariation defaultVariation;
+
+  FitWorkspace * workSpace;
+
+public:
+  explicit ParameterVariations(FitWorkspace * ws) : workSpace(ws)
+  {
+    defaultVariation.kind = OneVariation::Sigmas;
+    defaultVariation.value = 1;
+    defaultVariation.isLog = false;
+  };
+
+  /// Parses the specs in string list, and stores them in the
+  /// variations hash. If @a wrongParams is provided, is filled with
+  /// unkonwn parameters. If not, the function will raised exceptions.
+  void parseSpecs(const QStringList & specs,
+                  QStringList * wrongParams = NULL)
+  {
+    int nb_per_ds = workSpace->data()->parametersPerDataset();
+    QRegExp re("^\\s*(.*):([^,:]+)(,log)?\\s*$");
+    for(const QString & s : specs) {
+      if(re.indexIn(s) != 0)
+        throw RuntimeError("Invalid parameter specification: '%1'").
+          arg(s);
+
+
+      QStringList pars = Utils::nestedSplit(re.cap(1), ',', "[", "]");
+      QString spec = re.cap(2);
+      bool log = ! re.cap(3).isEmpty();
+
+      QList<QPair<int, int> > params;
+      for(const QString & pa : pars)
+        params << workSpace->parseParameterList(pa, wrongParams);
+
+      for(const QPair<int, int> & p : params) {
+        /// @todo Should this be a FitWorkspace function ?
+        int idx = p.first + (p.second < 0 ? 0 : p.second) * nb_per_ds;
+
+        variations[idx] = OneVariation();
+        OneVariation & var = variations[idx];
+        var.isLog = log;
+
+        
+
+        QRegExp res("([^S%]+)([S%])?$");
+        if(res.indexIn(spec) != 0)
+          throw RuntimeError("Invalid sigma specification: '%1'").
+            arg(spec);
+
+        var.value = Utils::stringToDouble(res.cap(1));
+
+        if(res.cap(2).isEmpty())
+          var.kind = OneVariation::Absolute;
+        else {
+          if(res.cap(2) == "S")
+            var.kind = OneVariation::Sigmas;
+          else if(res.cap(2) == "%")
+            var.kind = OneVariation::Relative;
+        }
+      }
+    }
+
+  }
+
+
+  /// Returns true if within range according to the specification.
+  bool parametersWithinRange(const Vector & sourceParameters,
+                             const Vector & sourceSigmas,
+                             const Vector & target,
+                             double factor = 1) const
+  {
+    for(int i = 0; i < sourceParameters.size(); i++) {
+      OneVariation var = variations.value(i, defaultVariation);
+      if(! var.isWithin(sourceParameters[i], sourceSigmas[i],
+                        target[i], factor))
+        return false;
+    }
+    return true;
+  };
+
+  /// Returns true if within range according to the specification.
+  bool parametersWithinRange(const FitTrajectory & source,
+                             const FitTrajectory & target,
+                             double factor = 1) const
+  {
+    return parametersWithinRange(source.finalParameters,
+                                 source.parameterErrors,
+                                 target.finalParameters);
+  };
+
+
+  
+};
+
 /// This explorer starts from the current parameters, and "warms them
 /// up" smoothly, that is draws parameters with increasing errors on
 /// the values (scaled according to the covariance matrix)
@@ -695,3 +852,78 @@ sa("simulated-annealing", "Simulated annealing",
    [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
      return new SimulatedAnnealingExplorer(ws);
    });
+
+
+//////////////////////////////////////////////////////////////////////
+
+
+#include <command.hh>
+#include <commandcontext.hh>
+#include <commandeffector-templates.hh>
+#include <general-arguments.hh>
+
+/// @todo This command has nothing to do here.
+
+static void clusterTrajectoriesCommand(const QString & /*name*/,
+                                       QStringList specs,
+                                       const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+
+  ParameterVariations vars(ws);
+  QStringList missing;
+  vars.parseSpecs(specs, &missing);
+  if(missing.size() > 0)
+    Terminal::out << "WARNING: could not understand the following parameters: "
+                  << missing.join(", ")
+                  << endl;
+
+
+  
+  double factor = 1;
+  updateFromOptions(opts, "factor", factor);
+
+  // each cluster is a list of trajectories.  The most representative
+  // element is the lowest residuals. This is also the element against
+  // which we compare all of them.
+  QList<FitTrajectories> clusters;
+
+  for(const FitTrajectory & t : ws->trajectories) {
+    bool found = false;
+    for(FitTrajectories & cl : clusters) {
+      if(vars.parametersWithinRange(cl.best(), t)) {
+        cl << t;
+        found = true;
+        break;
+      }
+    }
+    if(! found) {
+      clusters << FitTrajectories(ws);
+      clusters.last() << t;
+    }
+  };
+  
+}
+
+ArgumentList ctArgs(QList<Argument*>()
+                   << new SeveralStringsArgument("parameters",
+                                                 "Parameters",
+                                                 "Parameter specification", true, true)
+                   );
+
+ArgumentList ctOpts(QList<Argument*>()
+                    << new NumberArgument("factor",
+                                          "Scaling factor",
+                                          "Scaling factor for ")
+                    );
+
+static Command 
+ct("cluster-trajectories", // command name
+    effector(clusterTrajectoriesCommand), // action
+    "fits",  // group name
+    &ctArgs, // arguments
+    &ctOpts, // options
+    "Cluster trajectories",
+    "Cluster the trajectories according to the specifications",
+    "", CommandContext::fitContext());
+

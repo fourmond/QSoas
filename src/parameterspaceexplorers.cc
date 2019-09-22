@@ -506,20 +506,23 @@ class ParameterVariations {
     /// sigma.
     bool isWithin(double param, double sigma, double target,
                   double factor = 1) const {
+      bool rv = false;
       switch(kind) {
       case Absolute:
         if(isLog) {
           param = log(param);
           target = log(target);
         }
-        return fabs(param - target) < fabs(value*factor);
+        rv = fabs(param - target) < fabs(value*factor);
+        break;
       case Relative:
         if(isLog) {               // Unsure it means something to have
                                 // relative log ?
           param = log(param);
           target = log(target);
         }
-        return fabs((param - target)/param) < fabs(value*factor);
+        rv = fabs((param - target)/param) < fabs(value*factor);
+        break;
       case Sigmas:
         if(isLog) {               // Unsure it means something to have
                                 // relative log ?
@@ -527,15 +530,39 @@ class ParameterVariations {
           param = log(param);
           target = log(target);
         }
-        return fabs(param - target) < fabs(sigma*factor);
+        rv = fabs(param - target) < fabs(sigma*factor);
+        break;
       }
-      // but should not be reached ?
-      return false;
+      // Works ?
+      // QTextStream o(stdout);
+      // o << "Comparing " << param << " (" << sigma << ") to " << target
+      //   << " using " << textRepresentation()
+      //   << "\t: " << rv << endl;
+      
+      return rv;
     };
 
     /// Returns a random value
     double random(double param, double sigma, double factor = 1) const {
-      return 0;
+      double range = factor;
+      switch(kind) {
+      case Absolute:
+        range *= value;
+        break;
+      case Relative:
+        range *= value * param;
+        break;
+      case Sigmas:
+        range *= value * sigma;
+        break;
+      }
+      if(kind != Absolute && isLog)
+        range = ::log(1 + range/param);
+      double rnd = Utils::random(-range, range);
+      if(isLog)
+        return param * exp(rnd);
+      else
+        return param + rnd;
     };
 
     QString textRepresentation() const {
@@ -665,9 +692,24 @@ public:
   {
     return parametersWithinRange(source.finalParameters,
                                  source.parameterErrors,
-                                 target.finalParameters);
+                                 target.finalParameters, factor);
   };
 
+  Vector randomParameters(const Vector & baseParameters,
+                          const Vector & baseSigmas,
+                          double factor = 1) const {
+    Vector rv = baseParameters;
+    for(int i = 0; i < rv.size(); i++) {
+      OneVariation var = variations.value(i, defaultVariation);
+      rv[i] = var.random(baseParameters[i], baseSigmas[i], factor);
+    }
+    return rv;
+  };
+
+  Vector randomParameters(const FitTrajectory & base,
+                          double factor = 1) const {
+    return randomParameters(base.finalParameters, base.parameterErrors);
+  };
 
   
 };

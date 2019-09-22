@@ -57,7 +57,7 @@ public:
                      const QTransform & curveToWidget) override;
 
   virtual QRect paintLegend(QPainter * painter, 
-                            const QRect & placement);
+                            const QRect & placement) override;
 
   // /// Returns a vector containing the currently displayed Y values.
   // Vector yValues() const;

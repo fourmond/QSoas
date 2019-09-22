@@ -44,15 +44,15 @@ protected:
   /// The functions here just redirect to the wrapped fit
   /// 
   /// @{
-  virtual void processOptions(const CommandOptions & opts, FitData * data) const;
-  virtual QString optionsString(FitData * data) const;
-  virtual ArgumentList * fitHardOptions() const;
-  virtual ArgumentList * fitSoftOptions() const;
-  virtual CommandOptions currentSoftOptions(FitData * data) const;
-  virtual void processSoftOptions(const CommandOptions & opts, FitData * data) const;
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const override;
+  virtual QString optionsString(FitData * data) const override;
+  virtual ArgumentList * fitHardOptions() const override;
+  virtual ArgumentList * fitSoftOptions() const override;
+  virtual CommandOptions currentSoftOptions(FitData * data) const override;
+  virtual void processSoftOptions(const CommandOptions & opts, FitData * data) const override;
   /// @}
 
-  virtual void checkDatasets(const FitData * data) const;
+  virtual void checkDatasets(const FitData * data) const override;
 
 
   /// Name of the underlying fit.
@@ -112,18 +112,18 @@ public:
 
 protected:
   
-  virtual FitInternalStorage * allocateStorage(FitData * data) const;
-  virtual FitInternalStorage * copyStorage(FitData * data, FitInternalStorage * source, int ds = -1) const;
+  virtual FitInternalStorage * allocateStorage(FitData * data) const override;
+  virtual FitInternalStorage * copyStorage(FitData * data, FitInternalStorage * source, int ds = -1) const override;
 
 public:
 
-  virtual QList<ParameterDefinition> parameters(FitData * data) const;
+  virtual QList<ParameterDefinition> parameters(FitData * data) const override;
   virtual void function(const double * parameters,
-                        FitData * data, gsl_vector * target) const;
-  virtual QString annotateDataSet(int idx, FitData * data) const;
-  virtual void initialGuess(FitData * data, double * guess) const;
+                        FitData * data, gsl_vector * target) const override;
+  virtual QString annotateDataSet(int idx, FitData * data) const override;
+  virtual void initialGuess(FitData * data, double * guess) const override;
 
-  bool threadSafe() const;
+  bool threadSafe() const override;
 
 
   /// Creates (and registers) the derivative fit based on the given

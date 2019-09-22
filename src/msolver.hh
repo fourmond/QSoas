@@ -104,9 +104,9 @@ public:
                 const gsl_multiroot_fdfsolver_type * type = 
                 gsl_multiroot_fdfsolver_hybridsj);
 
-  virtual int dimension() const;
+  virtual int dimension() const override;
 
-  virtual int f(const gsl_vector * x, gsl_vector * tg);
+  virtual int f(const gsl_vector * x, gsl_vector * tg) override;
 };
 
 #endif

@@ -75,7 +75,7 @@ double Distribution::convertParameter(const double *, double value) const
 // Gaussian distribution
 class GaussianDistribution : public Distribution {
 public:
-  virtual QList<ParameterDefinition> parameters(const QString & param) const {
+  virtual QList<ParameterDefinition> parameters(const QString & param) const override {
     QList<ParameterDefinition> ret;
     ret << ParameterDefinition(QString("%1_avg").arg(param))
         << ParameterDefinition(QString("%1_sigma").arg(param))
@@ -84,7 +84,7 @@ public:
   };
   
   void range(const double * parameters, double * first,
-             double * last) const {
+             double * last) const override {
     double center = parameters[0];
     double sigm = parameters[1];
     if(sigm < 0)
@@ -94,18 +94,18 @@ public:
     *last = center + fabs(sigm * ext);
   };
   
-  virtual double weight(const double * parameters, double x) const {
+  virtual double weight(const double * parameters, double x) const override {
     double center = parameters[0];
     double sigm = parameters[1];
     return gsl_ran_gaussian_pdf(x - center, sigm);
   };
   
-  virtual double rangeWeight(const double * parameters) const {
+  virtual double rangeWeight(const double * parameters) const override {
     double ext = parameters[2];
     return 2 * gsl_cdf_gaussian_P(ext, 1) - 1;
   }
   
-  virtual void initialGuess(double * parameters, double value) const {
+  virtual void initialGuess(double * parameters, double value) const override {
     parameters[0] = value;
     parameters[1] = fabs(value * 0.1);
     if(parameters[1] == 0)
@@ -123,7 +123,7 @@ static GaussianDistribution gaussianDistribution;
 // Lorentzian distribution
 class LorentzianDistribution : public Distribution {
 public:
-  virtual QList<ParameterDefinition> parameters(const QString & param) const {
+  virtual QList<ParameterDefinition> parameters(const QString & param) const override {
     QList<ParameterDefinition> ret;
     ret << ParameterDefinition(QString("%1_avg").arg(param))
         << ParameterDefinition(QString("%1_gamma").arg(param))
@@ -132,7 +132,7 @@ public:
   };
   
   void range(const double * parameters, double * first,
-             double * last) const {
+             double * last) const override {
     double center = parameters[0];
     double sigm = parameters[1];
     if(sigm < 0)
@@ -142,18 +142,18 @@ public:
     *last = center + fabs(sigm * ext);
   };
   
-  virtual double weight(const double * parameters, double x) const {
+  virtual double weight(const double * parameters, double x) const override {
     double center = parameters[0];
     double sigm = parameters[1];
     return gsl_ran_cauchy_pdf(x - center, sigm);
   };
   
-  virtual double rangeWeight(const double * parameters) const {
+  virtual double rangeWeight(const double * parameters) const override {
     double ext = parameters[2];
     return 2 * gsl_cdf_cauchy_P(ext, 1) - 1;
   }
   
-  virtual void initialGuess(double * parameters, double value) const {
+  virtual void initialGuess(double * parameters, double value) const override {
     parameters[0] = value;
     parameters[1] = fabs(value * 0.1);
     if(parameters[1] == 0)
@@ -177,7 +177,7 @@ static LorentzianDistribution lorentzianDistribution;
 // Integrated between d = 0 and dmax (uniform distribution).
 class K0Distribution : public Distribution {
 public:
-  virtual QList<ParameterDefinition> parameters(const QString & param) const {
+  virtual QList<ParameterDefinition> parameters(const QString & param) const override {
     QList<ParameterDefinition> ret;
     ret << ParameterDefinition(QString("%1_max").arg(param))
         << ParameterDefinition(QString("%1_betadmax").arg(param));
@@ -185,7 +185,7 @@ public:
   };
   
   void range(const double * parameters, double * first,
-             double * last) const {
+             double * last) const override {
     *first = 0; 
     *last = parameters[1];
     if(parameters[1] < 0)
@@ -193,20 +193,20 @@ public:
 
   };
   
-  virtual double weight(const double * parameters, double ) const {
+  virtual double weight(const double * parameters, double ) const override {
     return 1/parameters[1];
   };
   
-  virtual double rangeWeight(const double * parameters) const {
+  virtual double rangeWeight(const double * parameters) const override {
     return 1;
   }
   
-  virtual void initialGuess(double * parameters, double value) const {
+  virtual void initialGuess(double * parameters, double value) const override {
     parameters[0] = value;
     parameters[1] = 10;
   };
 
-  virtual double convertParameter(const double * parameters, double value) const {
+  virtual double convertParameter(const double * parameters, double value) const override {
     double k0 = parameters[0];
     return k0 * exp(-value);
   };
@@ -221,7 +221,7 @@ static K0Distribution k0Distribution;
 // Uniform distribution between two values
 class UniformDistribution : public Distribution {
 public:
-  virtual QList<ParameterDefinition> parameters(const QString & param) const {
+  virtual QList<ParameterDefinition> parameters(const QString & param) const override {
     QList<ParameterDefinition> ret;
     ret << ParameterDefinition(QString("%1_min").arg(param))
         << ParameterDefinition(QString("%1_max").arg(param));
@@ -229,20 +229,20 @@ public:
   };
   
   void range(const double * parameters, double * first,
-             double * last) const {
+             double * last) const override {
     *first = parameters[0]; 
     *last = parameters[1];
   };
   
-  virtual double weight(const double * parameters, double ) const {
+  virtual double weight(const double * parameters, double ) const override {
     return 1/(parameters[1] - parameters[0]);
   };
   
-  virtual double rangeWeight(const double * parameters) const {
+  virtual double rangeWeight(const double * parameters) const override {
     return 1;
   }
   
-  virtual void initialGuess(double * parameters, double value) const {
+  virtual void initialGuess(double * parameters, double value) const override {
     if(value == 0) {
       parameters[0] = -0.1;
       parameters[1] = 0.1;

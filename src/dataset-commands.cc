@@ -1830,10 +1830,10 @@ public:
                            cn, pn, d, g, def){
   }; 
 
-  virtual QString typeName() const {
+  virtual QString typeName() const override {
     return "stats-names";
   };
-  virtual QString typeDescription() const {
+  virtual QString typeDescription() const override {
     return "One or more name of statistics (as displayed by stats), separated by `,`.";
   };
 

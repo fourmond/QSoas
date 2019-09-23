@@ -779,131 +779,43 @@ class SimulatedAnnealingExplorer : public ParameterSpaceExplorer {
   /// The sigmas -- the base unit for variation
   Vector sigmas;
 
-  /// Whether or not the things are log
-  QList<bool> paramIsLog;
-
   static ArgumentList args;
 
   static ArgumentList opts;
+
+  ParameterVariations variations;
+
+  QList<FitTrajectory> clusters;
+
+  int currentCluster;
 
 public:
 
   SimulatedAnnealingExplorer(FitWorkspace * ws) :
     ParameterSpaceExplorer(ws), iterations(50),
-    currentIteration(0), minTemperature(0.3),
-    maxTemperature(4), fitIterations(50) {
+    currentIteration(0), minTemperature(0.1),
+    maxTemperature(4), fitIterations(50), variations(ws),
+    currentCluster(-1) {
   };
 
   virtual ArgumentList * explorerArguments() const override {
-    return NULL;
+    return &args;
   };
 
   virtual ArgumentList * explorerOptions() const override {
     return &opts;
   };
 
-  virtual void setup(const CommandArguments & /*args*/,
+  virtual void setup(const CommandArguments & args,
                      const CommandOptions & opts) override {
 
-    baseParameters = workSpace->saveParameterValues();
-    GSLMatrix cov(baseParameters.size(), baseParameters.size());
-    workSpace->data()->computeCovarianceMatrix(cov, baseParameters.data());
-    sigmas = baseParameters;
-    paramIsLog.clear();
-
-    int nb_per_ds = workSpace->data()->parametersPerDataset();
-
-    for(int i = 0; i < baseParameters.size(); i++) {
-      sigmas[i] = sqrt(cov.value(i,i));
-      paramIsLog << false;
-      if(workSpace->isFixed(i % nb_per_ds, i/nb_per_ds))
-        sigmas[i] = 0;
-      
-    }
-
-    QStringList specs;
-    updateFromOptions(opts, "parameters", specs);
+    QStringList specs = args[0]->value<QStringList>();
     QStringList wrongParams;
-
-    QRegExp re("^\\s*(.*):([^,:]+)(,log)?\\s*$");
-    for(const QString & s : specs) {
-      if(re.indexIn(s) != 0)
-        throw RuntimeError("Invalid parameter specification: '%1'").
-          arg(s);
-
-
-      // Now handling: 
-      // monte-carlo-explorer tau_1[#0,#1],tau_2[#1]:1e-2..1e2,log
-      
-      QStringList pars = Utils::nestedSplit(re.cap(1), ',', "[", "]");
-      QString spec = re.cap(2);
-      bool log = ! re.cap(3).isEmpty();
-
-      QList<QPair<int, int> > params;
-      for(const QString & pa : pars)
-        params << workSpace->parseParameterList(pa, &wrongParams);
-
-      for(const QPair<int, int> & p : params) {
-        /// @todo Should this be a FitWorkspace function ?
-        int idx = p.first + (p.second < 0 ? 0 : p.second) * nb_per_ds;
-        if(workSpace->isFixed(p.first, p.second)) {
-          sigmas[idx] = 0;
-          continue;
-        }
-        
-        
-        paramIsLog[idx] = log;
-
-        QRegExp res("([^S%]+)([S%])?$");
-        if(res.indexIn(spec) != 0)
-          throw RuntimeError("Invalid sigma specification: '%1'").
-            arg(spec);
-
-        bool ok = true;
-        double v = Utils::stringToDouble(res.cap(1));
-        if(res.cap(2).isEmpty())
-          sigmas[idx] = v;
-        else {
-          if(res.cap(2) == "S") {
-            sigmas[idx] *= v;
-          }
-          else if(res.cap(2) == "%") {
-            sigmas[idx] = baseParameters[idx]*v*0.01;
-          }
-          if(log) {
-            sigmas[idx] = ::log(1 + sigmas[idx]/baseParameters[idx]);
-          }
-        }
-      }
-    }
+    variations.parseSpecs(specs, &wrongParams);
     if(wrongParams.size() > 0)
       Terminal::out << "WARNING: could not understand the following parameters: "
                     << wrongParams.join(", ")
                     << endl;
-
-    
-    Terminal::out << "Simulated annealing -- warming the parameters from "
-                  << minTemperature << " to "
-                  << maxTemperature << " in "
-                  << iterations << " steps:" << endl;
-    for(int i = 0; i < baseParameters.size(); i++) {
-      if(sigmas[i] == 0)        // fixed
-        continue;
-      int idp = i % nb_per_ds;
-      int ds = i / nb_per_ds;
-      QString pn = workSpace->parameterName(idp);
-      if(workSpace->isGlobal(idp)) {
-        if(ds > 0)
-          continue;
-      }
-      else
-        pn = pn + QString("[#%1]").arg(ds);
-      QString lg;
-      if(paramIsLog[i])
-        lg = " (log)";
-      Terminal::out << " * " << pn << " = " << baseParameters[i]
-                    << " +- " << sigmas[i] << lg << endl;
-    }
 
     updateFromOptions(opts, "iterations", iterations);
     updateFromOptions(opts, "fit-iterations", fitIterations);
@@ -911,26 +823,65 @@ public:
     updateFromOptions(opts, "start-temperature", minTemperature);
     updateFromOptions(opts, "end-temperature", maxTemperature);
 
-      
+    Terminal::out << "Simulated annealing -- warming the parameters from "
+                  << minTemperature << " to "
+                  << maxTemperature << " in "
+                  << iterations << " steps:" << endl;
+    Terminal::out << variations.textRepresentation() << endl;
+
+    int clusters = -1;
+    updateFromOptions(opts, "clusters", clusters);
+    if(clusters == 0) {
+      baseParameters = workSpace->saveParameterValues();
+      GSLMatrix cov(baseParameters.size(), baseParameters.size());
+      workSpace->data()->computeCovarianceMatrix(cov, baseParameters.data());
+      sigmas = baseParameters;
+      for(int i = 0; i < baseParameters.size(); i++)
+        sigmas[i] = sqrt(cov.value(i,i));
+      Terminal::out << "Using current parameters" << endl;
+    }
+    else {
+      QList<FitTrajectories> cls = variations.
+        clusterTrajectories(workSpace->trajectories);
+      for(int i = 0; i < cls.size(); i++) {
+        if(clusters > 0 && i >= clusters)
+          break;
+        // Stupid name :-(...
+        this->clusters << cls[i].best();
+      }
+      QStringList cl;
+      for(const FitTrajectory & t : this->clusters)
+        cl << QString::number(t.residuals);
+      Terminal::out << "Using " << cl.size()
+                    << " clusters with best residuals " << cl.join(", ")
+                    << endl;
+    }
   };
 
   virtual bool iterate(bool justPick) override {
     double curTemperature = minTemperature + (maxTemperature - minTemperature)/(iterations - 1) * currentIteration;
 
-    Vector choice = baseParameters;
-
     Terminal::out << "Choosing at temperature: "
                   << curTemperature << endl;
 
-    
-    for(int i = 0; i < choice.size(); i++) {
-      double rng = sigmas[i] * curTemperature;
-      double rnd = Utils::random(-rng, rng);
-      if(paramIsLog[i])
-        choice[i] *= exp(rnd);
-      else
-        choice[i] += rnd;
+    Vector choice;
+      
+    if(clusters.size() > 0 && (currentCluster < 0 || currentIteration >= iterations)) {
+      ++currentCluster;
+      if(clusters.size() <= currentCluster)
+        return false;
+      Terminal::out << "Starting to work on cluster "
+                    << currentCluster << endl;
+      currentIteration = 0;
     }
+
+    
+    if(clusters.size() == 0)
+      choice = variations.randomParameters(baseParameters, sigmas,
+                                           curTemperature);
+    else
+      choice = variations.randomParameters(clusters[currentCluster],
+                                           curTemperature);
 
     workSpace->restoreParameterValues(choice);
 
@@ -938,8 +889,8 @@ public:
       workSpace->runFit(fitIterations);
       currentIteration++;
     }
-
-    return currentIteration < iterations;
+    return (clusters.size() > 0 && currentCluster+1 < clusters.size()) ||
+      currentIteration < iterations;
   };
 
   virtual QString progressText() const override {
@@ -959,6 +910,9 @@ SimulatedAnnealingExplorer::args(QList<Argument*>()
  
 ArgumentList
 SimulatedAnnealingExplorer::opts(QList<Argument*>() 
+                                 << new IntegerArgument("clusters",
+                                                        "Clusters",
+                                                        "Number of parameter clusters to anneal, -1 for all clusters, 0 to use current parameters")
                                  << new IntegerArgument("iterations",
                                                         "Iterations",
                                                         "Number of monte-carlo iterations")

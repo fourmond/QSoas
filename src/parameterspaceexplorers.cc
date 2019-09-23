@@ -596,8 +596,8 @@ class ParameterVariations {
 public:
   explicit ParameterVariations(FitWorkspace * ws) : workSpace(ws)
   {
-    defaultVariation.kind = OneVariation::Sigmas;
-    defaultVariation.value = 2;
+    defaultVariation.kind = OneVariation::Relative;
+    defaultVariation.value = 0.15; // 15 % variation by default
     defaultVariation.isLog = false;
   };
 
@@ -662,9 +662,11 @@ public:
       QString name = workSpace->parameterName(pidx);
       if(! workSpace->isGlobal(pidx))
         name += QString("[#%1]").arg(ds);
-      rv += QString("%1: %2\n").arg(name).
+      rv += QString(" * %1: %2\n").arg(name).
         arg(variations[i].textRepresentation());
     }
+    rv += QString(" * (the others): %2\n").
+        arg(defaultVariation.textRepresentation());
     return rv;
   };
                                       
@@ -697,9 +699,13 @@ public:
 
   Vector randomParameters(const Vector & baseParameters,
                           const Vector & baseSigmas,
-                          double factor = 1) const {
+                          double factor = 1, bool ignoreFixed = false) const {
     Vector rv = baseParameters;
+    int nb_per_ds = workSpace->data()->parametersPerDataset();
     for(int i = 0; i < rv.size(); i++) {
+      if(! ignoreFixed && workSpace->isFixed(i % nb_per_ds, i/nb_per_ds))
+        continue;
+
       OneVariation var = variations.value(i, defaultVariation);
       rv[i] = var.random(baseParameters[i], baseSigmas[i], factor);
     }
@@ -707,7 +713,7 @@ public:
   };
 
   Vector randomParameters(const FitTrajectory & base,
-                          double factor = 1) const {
+                          double factor = 1, bool ignoreFixed = false) const {
     return randomParameters(base.finalParameters, base.parameterErrors);
   };
 

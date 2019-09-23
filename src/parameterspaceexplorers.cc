@@ -502,6 +502,27 @@ class ParameterVariations {
     /// Whether or not we're using a log scale
     bool isLog;
 
+    void parseSpec(const QString & spec) {
+      QRegExp res("([^S%]+)([S%])?(,log)?$");
+      if(res.indexIn(spec) != 0) 
+        throw RuntimeError("Invalid variation specification: '%1'").
+          arg(spec);
+
+      value = Utils::stringToDouble(res.cap(1));
+      if(res.cap(2).isEmpty())
+        kind = OneVariation::Absolute;
+      else {
+        if(res.cap(2) == "S") 
+          kind = OneVariation::Sigmas;
+        else if(res.cap(2) == "%") {
+          kind = OneVariation::Relative;
+          value *= 0.01;
+        }
+      }
+      isLog = ! res.cap(3).isEmpty();
+    };
+      
+
     /// Returns true if target is within the range given by param and
     /// sigma.
     bool isWithin(double param, double sigma, double target,
@@ -605,10 +626,10 @@ public:
   /// variations hash. If @a wrongParams is provided, is filled with
   /// unkonwn parameters. If not, the function will raised exceptions.
   void parseSpecs(const QStringList & specs,
-                  QStringList * wrongParams = NULL)
-  {
+                  QStringList * wrongParams = NULL) {
     int nb_per_ds = workSpace->data()->parametersPerDataset();
-    QRegExp re("^\\s*(.*):([^,:]+)(,log)?\\s*$");
+    QRegExp re("^\\s*(.+):([^,:]+(,log)?)\\s*$");
+
     for(const QString & s : specs) {
       if(re.indexIn(s) != 0)
         throw RuntimeError("Invalid parameter specification: '%1'").
@@ -617,42 +638,27 @@ public:
 
       QStringList pars = Utils::nestedSplit(re.cap(1), ',', "[", "]");
       QString spec = re.cap(2);
-      bool log = ! re.cap(3).isEmpty();
 
-      QList<QPair<int, int> > params;
-      for(const QString & pa : pars)
-        params << workSpace->parseParameterList(pa, wrongParams);
+      OneVariation var;
+      var.parseSpec(spec);
 
-      for(const QPair<int, int> & p : params) {
-        /// @todo Should this be a FitWorkspace function ?
-        int idx = p.first + (p.second < 0 ? 0 : p.second) * nb_per_ds;
-
-        variations[idx] = OneVariation();
-        OneVariation & var = variations[idx];
-        var.isLog = log;
-
-        
-
-        QRegExp res("([^S%]+)([S%])?$");
-        if(res.indexIn(spec) != 0)
-          throw RuntimeError("Invalid sigma specification: '%1'").
-            arg(spec);
-
-        var.value = Utils::stringToDouble(res.cap(1));
-
-        if(res.cap(2).isEmpty())
-          var.kind = OneVariation::Absolute;
+      for(const QString & pa : pars) {
+        if(pa == "*")           // default
+          defaultVariation = var;
         else {
-          if(res.cap(2) == "S")
-            var.kind = OneVariation::Sigmas;
-          else if(res.cap(2) == "%")
-            var.kind = OneVariation::Relative;
+          QList<QPair<int, int> > params =
+            workSpace->parseParameterList(pa, wrongParams);
+          for(const QPair<int, int> & p : params) {
+            /// @todo Should this be a FitWorkspace function ?
+            int idx = p.first + (p.second < 0 ? 0 : p.second) * nb_per_ds;
+            variations[idx] = var;
+          }
         }
       }
     }
+  };
 
-  }
-
+  /// Returns a text representation of the parameters variation.
   QString textRepresentation() const {
     int nb_per_ds = workSpace->data()->parametersPerDataset();
     QString rv;
@@ -665,7 +671,7 @@ public:
       rv += QString(" * %1: %2\n").arg(name).
         arg(variations[i].textRepresentation());
     }
-    rv += QString(" * (the others): %2\n").
+    rv += QString(" * all others: %2\n").
         arg(defaultVariation.textRepresentation());
     return rv;
   };
@@ -714,8 +720,40 @@ public:
 
   Vector randomParameters(const FitTrajectory & base,
                           double factor = 1, bool ignoreFixed = false) const {
-    return randomParameters(base.finalParameters, base.parameterErrors);
+    return randomParameters(base.finalParameters, base.parameterErrors,
+                            factor, ignoreFixed);
   };
+
+  /// Clusters the given trajectories according to the distance rules
+  /// given by this object. Each cluster is a list of trajectories.
+  /// The most representative element is the lowest residuals. This is
+  /// also the element against which we compare all of them.
+
+  QList<FitTrajectories> clusterTrajectories(const FitTrajectories & trajs,
+                                             double factor = 1) const {
+    
+    QList<FitTrajectories> clusters;
+    for(const FitTrajectory & t : trajs) {
+      bool found = false;
+      for(FitTrajectories & cl : clusters) {
+        if(parametersWithinRange(cl.best(), t, factor)) {
+          cl << t;
+          found = true;
+          break;
+        }
+      }
+      if(! found) {
+        clusters << FitTrajectories(workSpace);
+        clusters.last() << t;
+      }
+    }
+    std::sort(clusters.begin(), clusters.end(), [](const FitTrajectories & a,
+                                                   const FitTrajectories & b) -> double {
+                return a.best().residuals < b.best().residuals;
+              });
+    return clusters;
+  }
+
 
   
 };
@@ -743,6 +781,8 @@ class SimulatedAnnealingExplorer : public ParameterSpaceExplorer {
 
   /// Whether or not the things are log
   QList<bool> paramIsLog;
+
+  static ArgumentList args;
 
   static ArgumentList opts;
 
@@ -911,10 +951,14 @@ public:
 };
 
 ArgumentList
-SimulatedAnnealingExplorer::opts(QList<Argument*>() 
+SimulatedAnnealingExplorer::args(QList<Argument*>() 
                                  << new SeveralStringsArgument("parameters",
                                                                "Parameters",
-                                                               "Parameter specification", true, true)
+                                                               "Parameter specification", true)
+                                 );
+ 
+ArgumentList
+SimulatedAnnealingExplorer::opts(QList<Argument*>() 
                                  << new IntegerArgument("iterations",
                                                         "Iterations",
                                                         "Number of monte-carlo iterations")
@@ -942,7 +986,7 @@ sa("simulated-annealing", "Simulated annealing",
 #include <command.hh>
 #include <commandcontext.hh>
 #include <commandeffector-templates.hh>
-#include <general-arguments.hh>
+
 
 /// @todo This command has nothing to do here.
 
@@ -965,34 +1009,11 @@ static void clusterTrajectoriesCommand(const QString & /*name*/,
   double factor = 1;
   updateFromOptions(opts, "factor", factor);
 
-  // each cluster is a list of trajectories.  The most representative
-  // element is the lowest residuals. This is also the element against
-  // which we compare all of them.
-  QList<FitTrajectories> clusters;
-
   Terminal::out << "Clustering trajectories with the following parameters:\n"
                 << vars.textRepresentation() << endl;
 
-  for(const FitTrajectory & t : ws->trajectories) {
-    bool found = false;
-    for(FitTrajectories & cl : clusters) {
-      if(vars.parametersWithinRange(cl.best(), t)) {
-        cl << t;
-        found = true;
-        break;
-      }
-    }
-    if(! found) {
-      clusters << FitTrajectories(ws);
-      clusters.last() << t;
-    }
-  };
-
-  std::sort(clusters.begin(), clusters.end(), [](const FitTrajectories & a,
-                                                 const FitTrajectories & b) -> double {
-              return a.best().residuals < b.best().residuals;
-            });
-  
+  QList<FitTrajectories> clusters = vars.clusterTrajectories(ws->trajectories);
+  Terminal::out << " -> found " << clusters.size() << " clusters" << endl;
   for(const FitTrajectories & c : clusters) {
     Terminal:: out << "Cluster with " << c.size() << " elements, best: "
                    << c.best().residuals << endl;
@@ -1021,3 +1042,4 @@ ct("cluster-trajectories", // command name
     "Cluster the trajectories according to the specifications",
     "", CommandContext::fitContext());
 
+ 

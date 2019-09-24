@@ -450,14 +450,14 @@ void FitWorkspace::pushComputedData(bool residuals, bool subfunctions,
     names.insert(0, "sim");
   }
   
-  int base = 0;
+  int base = fitData->dataPoints();
 
-  for(int i = 0; i < datasets; i++) {
+  for(int i = datasets-1; i >= 0; i--) {
     DataSet * ds = computedData(i, residuals);
     int sz = ds->x().size();
+    base -= sz;
     for(int j = 0; j < sf.size(); j++)
       ds->appendColumn(sf[j].mid(base, sz));
-    base += sz;
     
     if(sf.size() > 0)
       ds->setMetaData("computed", names);

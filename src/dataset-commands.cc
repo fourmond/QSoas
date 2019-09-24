@@ -1341,12 +1341,14 @@ zo("zoom", // command name
 /// @todo Maybe most of the code shared between this and divide should
 /// be shared ?
 /// (and some with average ?)
-static void subCommand(const QString &, QList<const DataSet *> a, 
-                       DataSet * b, const CommandOptions & opts)
+static void subCommand(const QString &, QList<const DataSet *> a,
+                       const CommandOptions & opts)
 {
   bool naive = testOption<QString>(opts, "mode", "indices");
   bool useSteps = false;
   updateFromOptions(opts, "use-segments", useSteps);
+
+  const DataSet * b = a.takeLast();
 
   for(int i = 0; i < a.size(); i++) {
     const DataSet * ds = a[i];
@@ -1361,12 +1363,10 @@ static void subCommand(const QString &, QList<const DataSet *> a,
 
 static ArgumentList 
 operationArgs(QList<Argument *>() 
-              << new SeveralDataSetArgument("first", 
-                                            "Buffer",
-                                            "First buffer(s)")
-              << new DataSetArgument("second", 
-                                     "Buffer",
-                                     "Second buffer"));
+              << new SeveralDataSetArgument("buffers", 
+                                            "Buffers",
+                                            "All buffers")
+              );
 
 static ArgumentList 
 operationOpts(QList<Argument *>() 
@@ -1393,6 +1393,37 @@ sub("subtract", // command name
     "Subtract one buffer from another",
     "S");
 
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void divCommand(const QString &, QList<const DataSet *> a,
+                       const CommandOptions & opts)
+{
+  bool naive = testOption<QString>(opts, "mode", "indices");
+  bool useSteps = false;
+  updateFromOptions(opts, "use-segments", useSteps);
+
+  const DataSet * b = a.takeLast();
+    
+  for(int i = 0; i < a.size(); i++) {
+    const DataSet * ds = a[i];
+    Terminal::out << QObject::tr("Dividing buffer '%2' by buffer '%1'").
+      arg(b->name).arg(ds->name) 
+                  << (naive ? " (index mode)" : " (xvalues mode)" ) 
+                  << endl;
+    soas().pushDataSet(ds->divide(b, naive, useSteps));
+  }
+}
+
+static Command 
+divc("div", // command name
+     effector(divCommand), // action
+     "mbuf",  // group name
+     &operationArgs, // arguments
+     &operationOpts, // options
+     "Divide",
+     "Divide one buffer by another");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1470,35 +1501,6 @@ mul("multiply", // command name
     "Multiply",
     "Multiply buffers", "mul");
 
-
-//////////////////////////////////////////////////////////////////////
-
-
-static void divCommand(const QString &, QList<const DataSet *> a,
-                       DataSet * b, const CommandOptions & opts)
-{
-  bool naive = testOption<QString>(opts, "mode", "indices");
-  bool useSteps = false;
-  updateFromOptions(opts, "use-segments", useSteps);
-
-  for(int i = 0; i < a.size(); i++) {
-    const DataSet * ds = a[i];
-    Terminal::out << QObject::tr("Dividing buffer '%2' by buffer '%1'").
-      arg(b->name).arg(ds->name) 
-                  << (naive ? " (index mode)" : " (xvalues mode)" ) 
-                  << endl;
-    soas().pushDataSet(ds->divide(b, naive, useSteps));
-  }
-}
-
-static Command 
-divc("div", // command name
-     effector(divCommand), // action
-     "mbuf",  // group name
-     &operationArgs, // arguments
-     &operationOpts, // options
-     "Divide",
-     "Divide one buffer by another");
 
 //////////////////////////////////////////////////////////////////////
 

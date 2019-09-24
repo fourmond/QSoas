@@ -10,3 +10,16 @@ apply-formula y2=x**2 /extra-columns=1
 apply-formula y2=x**2
 S 1 0
 assert '$stats["y2_norm"]' 0
+
+
+# Checks the order of the things
+generate-buffer 0 10 3
+generate-buffer 0 10 2
+
+# Checks that it just works !
+S 1 0
+assert '$stats["y_max"] - 1' 0
+drop 0
+
+S 0 1
+assert '$stats["y_max"] + 1' 0

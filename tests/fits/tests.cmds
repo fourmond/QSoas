@@ -4,6 +4,9 @@
 @ formula-in-parameters-multi.cmds
 @ derivatives.cmds
 
+# General things about the fits
+@ general.cmds
+
 @ polynomials.cmds
 
 @ custom-fits.cmds

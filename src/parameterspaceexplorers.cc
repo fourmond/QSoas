@@ -62,21 +62,14 @@ class MonteCarloExplorer : public ParameterSpaceExplorer {
 
   QList<ParameterSpec> parameterSpecs;
 
+public:
+
   static ArgumentList args;
   static ArgumentList opts;
-public:
 
   MonteCarloExplorer(FitWorkspace * ws) :
     ParameterSpaceExplorer(ws), iterations(20),
     currentIteration(0), fitIterations(50), resetFrequency(0) {
-  };
-
-  virtual ArgumentList * explorerArguments() const override {
-    return &args;
-  };
-
-  virtual ArgumentList * explorerOptions() const override {
-    return &opts;
   };
 
   virtual void setup(const CommandArguments & args,
@@ -189,7 +182,9 @@ MonteCarloExplorer::opts(QList<Argument*>()
                          );
 
 ParameterSpaceExplorerFactoryItem 
-montecarlo("monte-carlo", "Monte Carlo", 
+montecarlo("monte-carlo", "Monte Carlo",
+           &MonteCarloExplorer::args,
+           &MonteCarloExplorer::opts,
            [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
              return new MonteCarloExplorer(ws);
            });
@@ -209,21 +204,21 @@ class ShuffleExplorer : public ParameterSpaceExplorer {
 
   int fitIterations;
 
-  static ArgumentList opts;
 public:
+  static ArgumentList opts;
 
   ShuffleExplorer(FitWorkspace * ws) :
     ParameterSpaceExplorer(ws), iterations(20),
     currentIteration(0), fitIterations(50) {
   };
 
-  virtual ArgumentList * explorerArguments() const override {
-    return NULL;
-  };
+  // virtual ArgumentList * explorerArguments() const override {
+  //   return NULL;
+  // };
 
-  virtual ArgumentList * explorerOptions() const override {
-    return &opts;
-  };
+  // virtual ArgumentList * explorerOptions() const override {
+  //   return &opts;
+  // };
 
   virtual void setup(const CommandArguments & /*args*/,
                      const CommandOptions & opts) override {
@@ -308,7 +303,9 @@ ShuffleExplorer::opts(QList<Argument*>()
 
 
 ParameterSpaceExplorerFactoryItem 
-shuffle("shuffle", "Shuffle", 
+shuffle("shuffle", "Shuffle",
+        NULL,
+        &ShuffleExplorer::opts,
         [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
           return new ShuffleExplorer(ws);
         });
@@ -344,22 +341,22 @@ class LinearExplorer : public ParameterSpaceExplorer {
 
   QList<ParameterSpec> parameterSpecs;
 
+public:
   static ArgumentList args;
   static ArgumentList opts;
-public:
 
   LinearExplorer(FitWorkspace * ws) :
     ParameterSpaceExplorer(ws), iterations(20),
     currentIteration(0), fitIterations(50) {
   };
 
-  virtual ArgumentList * explorerArguments() const override {
-    return &args;
-  };
+  // virtual ArgumentList * explorerArguments() const override {
+  //   return &args;
+  // };
 
-  virtual ArgumentList * explorerOptions() const override {
-    return &opts;
-  };
+  // virtual ArgumentList * explorerOptions() const override {
+  //   return &opts;
+  // };
 
   virtual void setup(const CommandArguments & args,
                      const CommandOptions & opts) override {
@@ -474,10 +471,12 @@ LinearExplorer::opts(QList<Argument*>()
                          );
 
 ParameterSpaceExplorerFactoryItem 
-linear("linear", "Linear ramp", 
-           [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
-             return new LinearExplorer(ws);
-           });
+linear("linear", "Linear ramp",
+       &LinearExplorer::args,
+       &LinearExplorer::opts,
+       [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
+         return new LinearExplorer(ws);
+       });
 
 //////////////////////////////////////////////////////////////////////
 
@@ -779,9 +778,6 @@ class SimulatedAnnealingExplorer : public ParameterSpaceExplorer {
   /// The sigmas -- the base unit for variation
   Vector sigmas;
 
-  static ArgumentList args;
-
-  static ArgumentList opts;
 
   ParameterVariations variations;
 
@@ -791,6 +787,9 @@ class SimulatedAnnealingExplorer : public ParameterSpaceExplorer {
 
 public:
 
+  static ArgumentList args;
+  static ArgumentList opts;
+
   SimulatedAnnealingExplorer(FitWorkspace * ws) :
     ParameterSpaceExplorer(ws), iterations(50),
     currentIteration(0), minTemperature(0.1),
@@ -798,13 +797,13 @@ public:
     currentCluster(-1) {
   };
 
-  virtual ArgumentList * explorerArguments() const override {
-    return &args;
-  };
+  // virtual ArgumentList * explorerArguments() const override {
+  //   return &args;
+  // };
 
-  virtual ArgumentList * explorerOptions() const override {
-    return &opts;
-  };
+  // virtual ArgumentList * explorerOptions() const override {
+  //   return &opts;
+  // };
 
   virtual void setup(const CommandArguments & args,
                      const CommandOptions & opts) override {
@@ -928,7 +927,9 @@ SimulatedAnnealingExplorer::opts(QList<Argument*>()
                                  );
 
 ParameterSpaceExplorerFactoryItem 
-sa("simulated-annealing", "Simulated annealing", 
+sa("simulated-annealing", "Simulated annealing",
+   &SimulatedAnnealingExplorer::args,
+   &SimulatedAnnealingExplorer::opts,
    [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
      return new SimulatedAnnealingExplorer(ws);
    });

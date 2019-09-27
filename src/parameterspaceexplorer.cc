@@ -32,9 +32,19 @@
 ParameterSpaceExplorerFactoryItem::
 ParameterSpaceExplorerFactoryItem(const QString & n,
                                   const QString & pn,
+                                  ArgumentList * args,
+                                  ArgumentList * opts,
                                   ParameterSpaceExplorerFactoryItem::Creator c)  :
   Factory(n, c, pn), publicName(description)
 {
+  QString cmdName = n + "-explorer";
+  cmd = new Command(cmdName.toLocal8Bit().data(),
+                    ParameterSpaceExplorer::explorerEffector(n), "fits",
+                    args, opts,
+                    pn.toLocal8Bit().data(),
+                    "", "",
+                    CommandContext::fitContext());
+
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -84,31 +94,6 @@ CommandEffector * ParameterSpaceExplorer::explorerEffector(const QString & n)
                                   expl->setup(arguments, options);
                                 });
 }
-
-QList<Command *> ParameterSpaceExplorer::createCommands(FitWorkspace * workspace)
-{
-  QList<Command *> rv;
-
-  for(const QString & n : ParameterSpaceExplorerFactoryItem::availableItems()) {
-      ParameterSpaceExplorer * expl = createExplorer(n, workspace);
-      ParameterSpaceExplorerFactoryItem * item =
-        namedFactoryItem(n);
-      QString cmdName = n + "-explorer";
-      rv << new Command(cmdName.toLocal8Bit().data(),
-                        explorerEffector(n), "fits",
-                        expl->explorerArguments(),
-                        expl->explorerOptions(),
-                        item->publicName.toLocal8Bit().data(),
-                        "", "",
-                        CommandContext::fitContext());
-      delete expl;
-  }
-  return rv;
-}
-
-
-
-
 
 //////////////////////////////////////////////////////////////////////
 

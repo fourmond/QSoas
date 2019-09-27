@@ -155,7 +155,6 @@ FitWorkspace::FitWorkspace(FitData * d) :
     }
   }
 
-  generatedCommands += ParameterSpaceExplorer::createCommands(this);
   // generatedCommands += FitEngine::createCommands(this);
   connect(this, SIGNAL(parameterChanged(int, int)),
           SLOT(invalidateStatus()));

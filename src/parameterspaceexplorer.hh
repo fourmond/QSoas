@@ -33,14 +33,19 @@ class CommandEffector;
 
 class ParameterSpaceExplorerFactoryItem :
   public Factory<ParameterSpaceExplorer, FitWorkspace *> {
+  Command * cmd;
 public:
+
 
   /// An alias for the description field
   QString & publicName;
   
   /// Creates and register a factory item.
   ParameterSpaceExplorerFactoryItem(const QString & n, 
-                                    const QString & pn, Creator c);
+                                    const QString & pn,
+                                    ArgumentList * args,
+                                    ArgumentList * opts,
+                                    Creator c);
 };
 
 /// Generates a style for the next curve.
@@ -51,7 +56,7 @@ class ParameterSpaceExplorer {
   static ParameterSpaceExplorerFactoryItem * namedFactoryItem(const QString & name);
 
 protected:
-  /// The underlying workspac
+  /// The underlying workspace
   FitWorkspace * workSpace;
 
 
@@ -73,21 +78,15 @@ public:
                                                  FitWorkspace * ws);
   
 
-  /// Creates the commands for the explorers for the given workspace.
-  ///
-  /// These commands should be destroyed upon destruction of the
-  /// workspace.
-  static QList<Command *> createCommands(FitWorkspace * workspace);
-  
   /// @name Public interface
   ///
   /// @{
 
-  /// Returns the arguments for the explorer command
-  virtual ArgumentList * explorerArguments() const = 0;
+  // /// Returns the arguments for the explorer command
+  // virtual ArgumentList * explorerArguments() const = 0;
 
-  /// Returns the options for the explorer
-  virtual ArgumentList * explorerOptions() const = 0;
+  // /// Returns the options for the explorer
+  // virtual ArgumentList * explorerOptions() const = 0;
 
   /// Setup the explorer with the given arguments and options.
   virtual void setup(const CommandArguments & args,

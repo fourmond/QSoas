@@ -10,13 +10,13 @@ generate-buffer 0 10
 generate-buffer 0 10
 
 sim-ex parameters/ex-2.params 0,1,2
-apply-formula y-=10-10*exp(-x/5)
+apply-formula y-=10-10*exp(-x/1)
 assert '$stats["y_norm"]' 0
 drop 0,1
 apply-formula y-=10-10*exp(-x/2)
 assert '$stats["y_norm"]' 0
 drop 0,1
-apply-formula y-=10-10*exp(-x/1)
+apply-formula y-=10-10*exp(-x/5)
 assert '$stats["y_norm"]' 0
 drop 0,1
 

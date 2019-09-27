@@ -2,6 +2,7 @@
 generate-buffer 0 10
 generate-buffer 0 10
 
+# By construction, we just look at the first buffer.
 # We just check the second
 @ sim-poly.cmds parameters/poly2-4-1.params 1 2 3 -1 -2 1e-11 0,1
 

@@ -55,11 +55,11 @@ public:
   virtual ~GSLFitEngine();
 
 
-  virtual void initialize(const double * initialGuess);
-  virtual const gsl_vector * currentParameters() const;
-  virtual void computeCovarianceMatrix(gsl_matrix * target) const;
-  virtual int iterate();
-  virtual double residuals() const;
+  virtual void initialize(const double * initialGuess) override;
+  virtual const gsl_vector * currentParameters() const override;
+  virtual void computeCovarianceMatrix(gsl_matrix * target) const override;
+  virtual int iterate() override;
+  virtual double residuals() const override;
 };
 
 GSLFitEngine::GSLFitEngine(FitData * data, 

@@ -350,7 +350,7 @@ public:
                              MRB_ARGS_REQ(1));
   }
 
-  virtual QString description() const {
+  virtual QString description() const override {
     return QString("%1. Precision to about $$10^{-7}$$. Other variants "
                    "available: `%2_fast` is faster, "
                    "(precision $$5\\times10^{-4}$$) and `%2_double` slower, "

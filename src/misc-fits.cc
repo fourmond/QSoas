@@ -42,15 +42,15 @@ class SlowScanLowPotFit : public PerDatasetFit {
   };
 
 protected:
-  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const override {
     return deepCopy<Storage>(source);
   };
 
-  virtual void processOptions(const CommandOptions & opts, FitData * data) const
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const override
   {
     Storage * s = storage<Storage>(data);
 
@@ -59,7 +59,7 @@ protected:
   }
 
   
-  virtual QString optionsString(FitData * data) const {
+  virtual QString optionsString(FitData * data) const override {
     Storage * s = storage<Storage>(data);
     return s->explicitRate ? "explicit rate" : "implicit rate";
   }
@@ -69,7 +69,7 @@ public:
 
   /// Formula:
   virtual void function(const double * a, FitData * data, 
-                        const DataSet * ds , gsl_vector * target) const {
+                        const DataSet * ds , gsl_vector * target) const override {
     Storage * s = storage<Storage>(data);
 
     double fara = GSL_CONST_MKSA_FARADAY /(a[0] * GSL_CONST_MKSA_MOLAR_GAS);
@@ -90,7 +90,7 @@ public:
 
   virtual void initialGuess(FitData * data, 
                             const DataSet * ,
-                            double * a) const
+                            double * a) const override
   {
     Storage * s = storage<Storage>(data);
 
@@ -109,7 +109,7 @@ public:
     a[3] = 0.5;
   };
 
-  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+  virtual QList<ParameterDefinition> parameters(FitData * data) const override {
     Storage * s = storage<Storage>(data);
 
     QList<ParameterDefinition> params;
@@ -129,7 +129,7 @@ public:
     return params;
   };
 
-  virtual ArgumentList * fitHardOptions() const {
+  virtual ArgumentList * fitHardOptions() const override {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new 
@@ -167,15 +167,15 @@ class SlowScanHighPotFit : public PerDatasetFit {
 
 protected:
 
-  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const override {
     return deepCopy<Storage>(source);
   };
 
-  virtual void processOptions(const CommandOptions & opts, FitData * data) const
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const override
   {
     Storage * s = storage<Storage>(data);
 
@@ -186,7 +186,7 @@ protected:
   }
 
   
-  virtual QString optionsString(FitData * data) const {
+  virtual QString optionsString(FitData * data) const override {
     Storage * s = storage<Storage>(data);
     return QString(s->biExp ? "bi-exponential" : "mono-exponential") + 
       QString(s->scaling ? " with " : " without ") + "scaling";
@@ -197,7 +197,7 @@ public:
 
   /// Formula:
   virtual void function(const double * a, FitData * data, 
-                        const DataSet * ds , gsl_vector * target) const {
+                        const DataSet * ds , gsl_vector * target) const override {
     Storage * s = storage<Storage>(data);
 
     const Vector & xv = ds->x();
@@ -236,7 +236,7 @@ public:
 
   virtual void initialGuess(FitData * data, 
                             const DataSet * ds,
-                            double * a) const
+                            double * a) const override
   {
     Storage * s = storage<Storage>(data);
 
@@ -257,7 +257,7 @@ public:
       a[base] = 1;
   };
 
-  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+  virtual QList<ParameterDefinition> parameters(FitData * data) const override {
     Storage * s = storage<Storage>(data);
     QList<ParameterDefinition> ret;
     ret << ParameterDefinition("E1", true) // Potentiel initial
@@ -279,7 +279,7 @@ public:
     return ret;
   };
 
-  virtual ArgumentList * fitHardOptions() const {
+  virtual ArgumentList * fitHardOptions() const override {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new 
@@ -331,16 +331,16 @@ class PolynomialFit : public PerDatasetFit {
   
 protected:
 
-  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const override {
     return deepCopy<Storage>(source);
   };
 
 
-  virtual void processOptions(const CommandOptions & opts, FitData * data) const
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const override
   {
     Storage * s = storage<Storage>(data);
 
@@ -362,7 +362,7 @@ protected:
   }
 
   
-  virtual QString optionsString(FitData * data) const {
+  virtual QString optionsString(FitData * data) const override {
     Storage * s = storage<Storage>(data);
 
     QStringList lst;
@@ -375,7 +375,7 @@ protected:
 
 public:
 
-  virtual void processSoftOptions(const CommandOptions & opts, FitData * data) const
+  virtual void processSoftOptions(const CommandOptions & opts, FitData * data) const override
   {
     Storage * s = storage<Storage>(data);
 
@@ -386,7 +386,7 @@ public:
     updateFromOptions(opts, "without-inflexions", s->firstMonotonic);
   }
 
-  CommandOptions currentSoftOptions(FitData * data) const {
+  CommandOptions currentSoftOptions(FitData * data) const override {
     Storage * s = storage<Storage>(data);
     CommandOptions opts;
     updateOptions(opts, "monotonic", s->monotonic);
@@ -396,7 +396,7 @@ public:
 
   /// Formula:
   virtual void function(const double * params, FitData * data, 
-                        const DataSet * ds , gsl_vector * target) const {
+                        const DataSet * ds , gsl_vector * target) const override {
     Storage * s = storage<Storage>(data);
 
     const Vector & xv = ds->x();
@@ -448,7 +448,7 @@ public:
 
   virtual void initialGuess(FitData * data, 
                             const DataSet * ds,
-                            double * a) const
+                            double * a) const override
   {
     Storage * s = storage<Storage>(data);
 
@@ -471,7 +471,7 @@ public:
     }
   };
 
-  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+  virtual QList<ParameterDefinition> parameters(FitData * data) const override {
     Storage * s = storage<Storage>(data);
 
     QList<ParameterDefinition> defs;
@@ -486,7 +486,7 @@ public:
     return defs;
   };
 
-  virtual ArgumentList * fitHardOptions() const {
+  virtual ArgumentList * fitHardOptions() const override {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new 
@@ -505,7 +505,7 @@ public:
     return opts;
   };
 
-  virtual ArgumentList * fitSoftOptions() const {
+  virtual ArgumentList * fitSoftOptions() const override {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new 
@@ -549,15 +549,15 @@ class TwoPolynomialFit : public PerDatasetFit {
 
 protected:
 
-  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const override {
     return deepCopy<Storage>(source);
   };
 
-  virtual void processOptions(const CommandOptions & opts, FitData * data) const
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const override
   {
     Storage * s = storage<Storage>(data);
     s->order = 5;
@@ -565,7 +565,7 @@ protected:
   }
 
   
-  virtual QString optionsString(FitData * data) const {
+  virtual QString optionsString(FitData * data) const override {
     Storage * s = storage<Storage>(data);
     return QString("order %1").
       arg(s->order);
@@ -575,7 +575,7 @@ public:
 
   /// Formula:
   virtual void function(const double * params, FitData * data, 
-                        const DataSet * ds , gsl_vector * target) const {
+                        const DataSet * ds , gsl_vector * target) const override {
     Storage * s = storage<Storage>(data);
 
     const Vector & xv = ds->x();
@@ -625,7 +625,7 @@ public:
 
   virtual void initialGuess(FitData * data, 
                             const DataSet * ds,
-                            double * a) const
+                            double * a) const override
   {
     Storage * s = storage<Storage>(data);
 
@@ -653,7 +653,7 @@ public:
     }
   };
 
-  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+  virtual QList<ParameterDefinition> parameters(FitData * data) const override {
     Storage * s = storage<Storage>(data);
 
     QList<ParameterDefinition> defs;
@@ -669,7 +669,7 @@ public:
     return defs;
   };
 
-  virtual ArgumentList * fitHardOptions() const {
+  virtual ArgumentList * fitHardOptions() const override {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new 
@@ -725,16 +725,16 @@ class LinearKineticSystemFit : public PerDatasetFit {
 
 
 protected:
-  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds*/) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds*/) const override {
     return deepCopy<Storage>(source);
   };
 
 
-  virtual void processOptions(const CommandOptions & opts, FitData * data) const
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const override
   {
     Storage * s = storage<Storage>(data);
 
@@ -793,7 +793,7 @@ protected:
 
 public:
 
-  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+  virtual QList<ParameterDefinition> parameters(FitData * data) const override {
     Storage * s = storage<Storage>(data);
 
     QList<ParameterDefinition> defs;
@@ -851,7 +851,7 @@ public:
   };
 
   virtual void function(const double * a, FitData * data, 
-                        const DataSet * ds , gsl_vector * target) const
+                        const DataSet * ds , gsl_vector * target) const override
   {
     Storage * s = storage<Storage>(data);
 
@@ -937,7 +937,7 @@ public:
 
   virtual void initialGuess(FitData * data, 
                             const DataSet *ds,
-                            double * a) const
+                            double * a) const override
   {
     Storage * s = storage<Storage>(data);
 
@@ -979,7 +979,7 @@ public:
     
   };
 
-  virtual ArgumentList * fitHardOptions() const {
+  virtual ArgumentList * fitHardOptions() const override {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new IntegerArgument("species", 

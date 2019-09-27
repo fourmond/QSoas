@@ -302,11 +302,11 @@ protected:
 
   };
 
-  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const override {
     Storage * s = deepCopy<Storage>(source);
 
     // We copy the POINTER, so the target should not free the system
@@ -318,7 +318,7 @@ protected:
 
 
 
-  virtual QString optionsString(FitData * data) const {
+  virtual QString optionsString(FitData * data) const override {
     Storage * s = storage<Storage>(data);
     return QString("system: %1").arg(s->fileName);
   };
@@ -337,30 +337,30 @@ protected:
     return s->evolver;
   };
 
-  virtual ODESolver * solver(FitData * data) const {
+  virtual ODESolver * solver(FitData * data) const override {
     return getEvolver(data);
   };
 
-  virtual int getParameterIndex(const QString & name, FitData * data) const  {
+  virtual int getParameterIndex(const QString & name, FitData * data) const  override{
     KineticSystemEvolver * evolver = getEvolver(data);
     return evolver->getParameterIndex(name);
   };
 
-  virtual QStringList systemParameters(FitData * data) const {
+  virtual QStringList systemParameters(FitData * data) const override {
     KineticSystem * system = getSystem(data);
     return system->allParameters();
   };
 
-  virtual QStringList variableNames(FitData * data) const {
+  virtual QStringList variableNames(FitData * data) const override {
     KineticSystem * system = getSystem(data);
     return system->allSpecies();
   };
 
-  virtual bool isFixed(const QString & n, FitData * ) const {
+  virtual bool isFixed(const QString & n, FitData * ) const override {
     return n.startsWith("c0_");
   };
 
-  virtual void initialize(double t0, const double * params, FitData * data) const {
+  virtual void initialize(double t0, const double * params, FitData * data) const override {
     Storage * s = storage<Storage>(data);
     KineticSystemEvolver * evolver = getEvolver(data);
 
@@ -368,17 +368,17 @@ protected:
     evolver->initialize(t0);
   };
 
-  virtual bool hasReporters(FitData * data) const {
+  virtual bool hasReporters(FitData * data) const override {
     KineticSystem * system = getSystem(data);
     return system->reporterExpression;
   };
 
-  virtual double reporterValue(double t, FitData * data) const {
+  virtual double reporterValue(double t, FitData * data) const override {
     KineticSystemEvolver * evolver = getEvolver(data);
     return evolver->reporterValue(t);
   };
   
-  virtual void setupCallback(const std::function<void (double, double * )> & cb, FitData * data) const{
+  virtual void setupCallback(const std::function<void (double, double * )> & cb, FitData * data) const override {
     KineticSystemEvolver * evolver = getEvolver(data);
     evolver->setupCallback(cb);
   };
@@ -463,7 +463,7 @@ public:
 
   virtual void initialGuess(FitData * data, 
                             const DataSet *ds,
-                            double * a) const
+                            double * a) const override
   {
     Storage * s = storage<Storage>(data);
     KineticSystem * system = getSystem(data);
@@ -500,7 +500,7 @@ public:
 
   };
 
-  virtual ArgumentList * fitArguments() const {
+  virtual ArgumentList * fitArguments() const override {
     if(mySystem)
       return NULL;
     return new 

@@ -281,7 +281,7 @@ public:
       alpha->setVariables(vars);
   }
   
-  virtual void clearExpressions() {
+  virtual void clearExpressions() override {
     Reaction::clearExpressions();
     delete alpha;
     alpha = NULL;
@@ -289,7 +289,7 @@ public:
 
 
   virtual void computeRateConstants(const double * vals, 
-                                    double * fd, double * bd) const
+                                    double * fd, double * bd) const override
   {
     double e0, k0, al;
     e0 = forward->evaluate(vals);
@@ -304,7 +304,7 @@ public:
     *bd = k0 * exp(fara * (1 - al) * electrons * (e0 - e));
   }
 
-  virtual Reaction * dup() const {
+  virtual Reaction * dup() const override {
     return new BVRedoxReaction(*this);
   }
 
@@ -354,7 +354,7 @@ public:
       lambda->setVariables(vars);
   }
   
-  virtual void clearExpressions() {
+  virtual void clearExpressions() override {
     Reaction::clearExpressions();
     delete lambda;
     lambda = NULL;
@@ -362,7 +362,7 @@ public:
 
 
   virtual void computeRateConstants(const double * vals, 
-                                    double * fd, double * bd) const
+                                    double * fd, double * bd) const override
   {
     double e0, k0, lb;
     e0 = forward->evaluate(vals);
@@ -381,7 +381,7 @@ public:
     *bd = k0 * Functions::marcusHushChidseyZeng(fara * lb, fara * electrons  * (e0-e));
   }
 
-  virtual Reaction * dup() const {
+  virtual Reaction * dup() const override {
     return new MarcusRedoxReaction(*this);
   }
 

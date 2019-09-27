@@ -169,8 +169,8 @@ public:
   virtual ~MultiFitEngine();
 
 
-  virtual void initialize(const double * initialGuess);
-  virtual const gsl_vector * currentParameters() const;
+  virtual void initialize(const double * initialGuess) override;
+  virtual const gsl_vector * currentParameters() const override;
   virtual void computeCovarianceMatrix(gsl_matrix * target) const;
   virtual int iterate();
   virtual double residuals() const;

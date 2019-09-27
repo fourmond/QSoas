@@ -254,9 +254,9 @@ class LambdaODESolver : public ODESolver {
 public:
   LambdaODESolver(int d, const Derivatives & der) : dim(d), derivs(der) {
   };
-  virtual int dimension() const;
+  virtual int dimension() const override;
   virtual int computeDerivatives(double t, const double * y, 
-                                 double * dydt);
+                                 double * dydt) override;
     
 };
 

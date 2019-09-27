@@ -195,7 +195,7 @@ public:
     choiceName = "engine";
   }
 
-  virtual QString typeDescription() const {
+  virtual QString typeDescription() const override {
     return QString("[Fit engine](#fit-engines), one of: `%1`").
       arg(sortedChoices().join("`, `"));
   };
@@ -210,11 +210,11 @@ public:
     SeveralStringsArgument(QRegExp("\\s*[,;]\\s*"), cn, pn, d, g, def) {
   };
 
-  virtual QString typeName() const {
+  virtual QString typeName() const override {
     return "overrides";
   };
 
-  virtual QString typeDescription() const {
+  virtual QString typeDescription() const override {
     return "several parameter=value assignments, separated by , or ;";
   };
 

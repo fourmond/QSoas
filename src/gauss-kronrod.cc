@@ -181,7 +181,7 @@ public:
   };
 
 public:
-  MultiIntegrator * dup() const {
+  MultiIntegrator * dup() const override {
     return new GaussKronrodMultiIntegrator(function, dimension, relativePrec,
                                            absolutePrec, maxfuncalls, size,
                                            abscissae, kWeights, gWeights);

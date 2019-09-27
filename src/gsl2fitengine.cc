@@ -82,7 +82,7 @@ public:
   };
 
 
-  virtual void initialize(const double * initialGuess) {
+  virtual void initialize(const double * initialGuess) override {
     function.f = &GSL2FitEngine::staticF;
     function.df = &GSL2FitEngine::staticDf;
     function.fvv = NULL;
@@ -98,15 +98,15 @@ public:
     iterations = 0;
   };
   
-  virtual const gsl_vector * currentParameters() const {
+  virtual const gsl_vector * currentParameters() const override {
     return gsl_multifit_nlinear_position(workspace);
   };
   
-  virtual void computeCovarianceMatrix(gsl_matrix * target) const {
+  virtual void computeCovarianceMatrix(gsl_matrix * target) const override {
     /// @todo !!!
   };
   
-  virtual int iterate() {
+  virtual int iterate() override {
     const double xtol = 1.0e-8;
     const double gtol = 1.0e-8;
     const double ftol = 1.0e-8;
@@ -163,7 +163,7 @@ public:
 
   };
   
-  virtual double residuals() const {
+  virtual double residuals() const override {
     const gsl_vector * f = gsl_multifit_nlinear_residual(workspace);
     return gsl_blas_dnrm2(f);
   };

@@ -142,11 +142,11 @@ class FreeParameter : public FitParameter {
 public:
 
   virtual void copyToUnpacked(double * target, const gsl_vector * fit, 
-                             int nbdatasets, int nb_per_dataset) const;
+                             int nbdatasets, int nb_per_dataset) const override;
 
 
   virtual void copyToPacked(gsl_vector * fit, const double * unpacked,
-                            int nbdatasets, int nb_per_dataset) const;
+                            int nbdatasets, int nb_per_dataset) const override;
 
   /// Takes the current value and computes a rough estimate of a good
   /// derivation step ?
@@ -166,13 +166,13 @@ public:
   /// dev is the square root of machine precision
   FreeParameter(int p, int ds, double dev = 1e-7);
 
-  virtual FitParameter * dup() const;
+  virtual FitParameter * dup() const override; 
 
   virtual ~FreeParameter();
 
 protected:
-  virtual QString saveExtraInfo() const;
-  virtual void loadExtraInfo(const QString & str);
+  virtual QString saveExtraInfo() const override;
+  virtual void loadExtraInfo(const QString & str) override;
   
 };
 
@@ -184,19 +184,19 @@ public:
   mutable double value;
 
   virtual void copyToUnpacked(double * target, const gsl_vector * fit, 
-                             int nbdatasets, int nb_per_dataset) const;
+                             int nbdatasets, int nb_per_dataset) const override;
 
 
   virtual void copyToPacked(gsl_vector * fit, const double * unpacked,
-                            int nbdatasets, int nb_per_dataset) const;
+                            int nbdatasets, int nb_per_dataset) const override;
 
 
-  virtual bool fixed() const { return true;};
+  virtual bool fixed() const override { return true;} ;
 
   FixedParameter(int p, int ds, double v)  :
     FitParameter(p, ds), value(v) {;};
 
-  virtual FitParameter * dup() const {
+  virtual FitParameter * dup() const override {
     return new FixedParameter(*this);
   };
 };
@@ -228,31 +228,31 @@ public:
 
 
   virtual void copyToUnpacked(double * target, const gsl_vector * fit, 
-                             int nbdatasets, int nb_per_dataset) const;
+                             int nbdatasets, int nb_per_dataset) const override;
 
 
   virtual void copyToPacked(gsl_vector * fit, const double * unpacked,
-                            int nbdatasets, int nb_per_dataset) const;
+                            int nbdatasets, int nb_per_dataset) const override;
 
 
-  virtual bool fixed() const { return true;};
+  virtual bool fixed() const override { return true;};
 
   FormulaParameter(int p, int ds, const QString & f)  :
     FitParameter(p, ds), expression(NULL), formula(f), needsUpdate(true) {;};
 
-  virtual void initialize(FitData * data);
+  virtual void initialize(FitData * data) override;
 
-  virtual bool needSecondPass() const { return true; };
+  virtual bool needSecondPass() const override { return true; };
 
-  virtual FitParameter * dup() const {
+  virtual FitParameter * dup() const override {
     return new FormulaParameter(paramIndex, dsIndex, formula);
   };
 
-  virtual QString textValue(double value) const;
+  virtual QString textValue(double value) const override;
 
-  virtual void setValue(double * target, const QString & value);
+  virtual void setValue(double * target, const QString & value) override;
 
-  virtual bool needsInit() const {
+  virtual bool needsInit() const override {
     return needsUpdate;
   };
 

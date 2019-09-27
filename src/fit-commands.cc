@@ -267,7 +267,7 @@ public:
     return "...";
   };
 
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const {
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override {
     return Argument::convertRubyString(value);
   };
 

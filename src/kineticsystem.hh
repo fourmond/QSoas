@@ -180,20 +180,20 @@ public:
     /// A copy constructor
     RedoxReaction(const RedoxReaction & other);
 
-    virtual void setParameters(const QStringList & parameters);
+    virtual void setParameters(const QStringList & parameters) override;
 
     virtual QSet<QString> parameters() const;
 
     virtual void computeRateConstants(const double * vals, 
-                                      double * forward, double * backward) const;
-    virtual QString exchangeRate() const;
+                                      double * forward, double * backward) const override;
+    virtual QString exchangeRate() const override;
 
-    virtual Reaction * dup() const;
+    virtual Reaction * dup() const override;
 
     /// Stores useful values in the cache. Stores:
     /// * exp(fara * 0.5 * electrons * (- e0));
     /// * k0
-    virtual void computeCache(const double * vals);
+    virtual void computeCache(const double * vals) override;
   };
 
 

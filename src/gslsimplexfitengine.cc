@@ -110,7 +110,7 @@ public:
   };
   
   
-  virtual const gsl_vector * currentParameters() const {
+  virtual const gsl_vector * currentParameters() const override {
     gsl_vector * v = gsl_multimin_fminimizer_x(minimizer);
     for(int i = 0; i < n; i++)
       parameters[i] = gsl_vector_get(v, i) * scalingFactors[i];

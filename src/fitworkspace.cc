@@ -45,6 +45,8 @@
 
 #include <gsl/gsl_sf.h>
 
+#include <onetimewarnings.hh>
+
 #include <idioms.hh>
 
 #include <exceptions.hh>
@@ -97,6 +99,7 @@ FitWorkspace * FitWorkspace::currentWorkspace()
 FitWorkspace::FitWorkspace(FitData * d) :
   fitData(d), currentDS(0), parameters(d->datasets.size() * 
                                        d->parametersPerDataset()),
+  warnings(NULL),
   rawCVMatrix(NULL), cookedCVMatrix(NULL),
   currentExplorer(NULL),
   shouldCancelFit(false),
@@ -1440,29 +1443,30 @@ double FitWorkspace::getBufferWeight(int dataset) const
 
 void FitWorkspace::startFit()
 {
-  // if(! data->checkWeightsConsistency()) {
-  //   if(! warnings.warnOnce(this, "error-bars",
-  //                          "Error bar inconsistency" ,
-  //                          "You are about to fit multiple buffers where some of the buffers have error bars and some others don't.\n\nErrors will NOT be taken into account !\nStart fit again to ignore"))
-  //     return;
+  
+  if(! fitData->checkWeightsConsistency() && warnings) {
+    if(! warnings->warnOnce("error-bars",
+                           "Error bar inconsistency" ,
+                           "You are about to fit multiple buffers where some of the buffers have error bars and some others don't.\n\nErrors will NOT be taken into account !\nStart fit again to ignore"))
+      return;
 
     
-  // }
+  }
 
   sendDataParameters();
   int freeParams = fitData->freeParameters();
-  // if(! fitData->independentDataSets() &&
-  //    freeParams > 80 &&
-  //    fitData->datasets.size() > 15 &&
-  //    fitData->engineFactory->name != "multi") {
-  //   if(! warnings.warnOnce(this, QString("massive-mfit-%1").
-  //                          arg(fitData->engineFactory->name),
-  //                          QString("Fit engine %1 not adapted").
-  //                          arg(fitData->engineFactory->description),
-  //                          QString("The fit engine %1 is not adapted to massive multifits, it is better to use the Multi fit engine").
-  //                          arg(fitData->engineFactory->description)))
-  //     return;
-  // }
+  if(! fitData->independentDataSets() &&
+     freeParams > 80 &&
+     fitData->datasets.size() > 15 &&
+     fitData->engineFactory->name != "multi" && warnings) {
+    if(! warnings->warnOnce(QString("massive-mfit-%1").
+                            arg(fitData->engineFactory->name),
+                            QString("Fit engine %1 not adapted").
+                            arg(fitData->engineFactory->description),
+                            QString("The fit engine %1 is not adapted to massive multifits, it is better to use the Multi fit engine").
+                            arg(fitData->engineFactory->description)))
+      return;
+  }
   fitStartTime = QDateTime::currentDateTime();
   soas().shouldStopFit = false;
   prepareFit(fitEngineParameterValues.value(fitData->engineFactory, NULL));

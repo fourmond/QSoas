@@ -40,6 +40,7 @@ class DataStackHelper;
 class Command;
 
 class ParameterSpaceExplorer;
+class OneTimeWarnings;
 
 /// This class holds all the structures necessary to run a fit, from
 /// QSoas's perspective -- setting of parameters
@@ -122,6 +123,9 @@ class FitWorkspace : public QObject {
                      bool exportErrors = false, bool exportMeta = true);
 
 public:
+
+  OneTimeWarnings * warnings;
+  
   /// Loads parameters from a parsed parameters file.
   ///
   /// If \a targetDS isn't negative, we copy only from \a sourceDS to

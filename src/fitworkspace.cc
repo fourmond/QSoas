@@ -1448,7 +1448,7 @@ void FitWorkspace::startFit()
     if(! warnings->warnOnce("error-bars",
                            "Error bar inconsistency" ,
                            "You are about to fit multiple buffers where some of the buffers have error bars and some others don't.\n\nErrors will NOT be taken into account !\nStart fit again to ignore"))
-      return;
+      throw RuntimeError("Cancelled");
 
     
   }
@@ -1465,7 +1465,7 @@ void FitWorkspace::startFit()
                             arg(fitData->engineFactory->description),
                             QString("The fit engine %1 is not adapted to massive multifits, it is better to use the Multi fit engine").
                             arg(fitData->engineFactory->description)))
-      return;
+      throw RuntimeError("Cancelled");
   }
   fitStartTime = QDateTime::currentDateTime();
   soas().shouldStopFit = false;

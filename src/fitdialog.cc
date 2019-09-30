@@ -68,7 +68,8 @@ static SettingsValue<int> fitIterationLimit("fitdialog/iteration-limit", 100);
 static const char * saveFilters = "Parameter files (*.params);;Any file (*)";
 static const char * exportFilters = "Data files (*.dat);;Any file (*)";
 
-FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm, bool expert, const QString & extra) : 
+FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm, bool expert, const QString & extra) :
+  warnings(this),
   data(d),
   nup(NULL),
   parameters(d),
@@ -98,6 +99,7 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm, bool 
   }
 
   parameters.computePerpendicularCoordinates(perpendicularMeta);
+  parameters.warnings = &warnings;
 
 
   setupFrame(expert);

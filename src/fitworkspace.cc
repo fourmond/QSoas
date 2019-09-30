@@ -1458,7 +1458,7 @@ void FitWorkspace::startFit()
   if(! fitData->independentDataSets() &&
      freeParams > 80 &&
      fitData->datasets.size() > 15 &&
-     fitData->engineFactory->name != "multi" && warnings) {
+     !fitData->engineFactory->isMultiCapable && warnings) {
     if(! warnings->warnOnce(QString("massive-mfit-%1").
                             arg(fitData->engineFactory->name),
                             QString("Fit engine %1 not adapted").

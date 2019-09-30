@@ -56,8 +56,11 @@ const gsl_vector * StoredParameters::toGSLVector() const
 FitEngineFactoryItem::FitEngineFactoryItem(const QString & n, 
                                            const QString & desc,
                                            const Creator & c,
-                                           ArgumentList * options) :
-  Factory<FitEngine, FitData *>(n, c, desc), engineOptions(options) {
+                                           ArgumentList * options,
+                                           bool mc) :
+  Factory<FitEngine, FitData *>(n, c, desc), engineOptions(options),
+  isMultiCapable(mc)
+{
   fitEngineCommand = FitEngine::createCommand(this);
 }
 

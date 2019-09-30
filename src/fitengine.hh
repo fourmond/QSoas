@@ -71,12 +71,14 @@ public:
   FitEngineFactoryItem(const QString & n, 
                        const QString & desc,
                        const Creator & c,
-                       ArgumentList * options = NULL);
+                       ArgumentList * options = NULL,
+                       bool multiCapable = false);
 
   static FitEngineFactoryItem * namedItem(const QString & n) {
     return static_cast<FitEngineFactoryItem *>(Factory::namedItem(n));
   };
 
+  bool isMultiCapable;
 
 };
 

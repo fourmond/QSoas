@@ -595,4 +595,4 @@ static FitEngine * multiFE(FitData * d)
   return new MultiFitEngine(d);
 }
 
-static FitEngineFactoryItem multi("multi", "Multi", &multiFE, &MultiFitEngine::options);
+static FitEngineFactoryItem multi("multi", "Multi", &multiFE, &MultiFitEngine::options, true);

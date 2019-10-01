@@ -502,7 +502,7 @@ class ParameterVariations {
     bool isLog;
 
     void parseSpec(const QString & spec) {
-      QRegExp res("([^S%]+)([S%])?(,log)?$");
+      QRegExp res("([^S%,]+)([S%])?(,log)?$");
       if(res.indexIn(spec) != 0) 
         throw RuntimeError("Invalid variation specification: '%1'").
           arg(spec);
@@ -627,7 +627,7 @@ public:
   void parseSpecs(const QStringList & specs,
                   QStringList * wrongParams = NULL) {
     int nb_per_ds = workSpace->data()->parametersPerDataset();
-    QRegExp re("^\\s*(.+):([^,:]+)(,log)?\\s*$");
+    QRegExp re("^\\s*(.+):([^,:]+(,log)?)\\s*$");
 
     for(const QString & s : specs) {
       if(re.indexIn(s) != 0)

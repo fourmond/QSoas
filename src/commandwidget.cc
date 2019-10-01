@@ -232,6 +232,8 @@ CommandContext * CommandWidget::promptContext() const
 
 CommandWidget::~CommandWidget()
 {
+  QTextStream o(stdout);
+  o << "Deleting: " << this << endl;
   delete watcherDevice;
   soas().leavePrompt();
 }
@@ -242,6 +244,10 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
   /// @todo use a different prompt whether the call is internal or
   /// external ?
   Debug::debug().startCommand(raw);
+  QTextStream o(stdout);
+  o << "Command: " << raw.join(" ") << endl
+    << "\tpmpt: " << commandLine << " -- " << commandContext
+    << " -- " << this << endl;
 
   bool status = true;
   if(raw.isEmpty())
@@ -326,6 +332,9 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
     Terminal::out << "Apparently out of memory: " << alc.what() 
                   << "\nThis is probably not going to end well" << endl;
   }
+  o << "End command: " << raw.join(" ") << endl
+    << "\tpmpt: " << commandLine << " -- " << commandContext
+    << " -- " << this << endl;
   Debug::debug().endCommand(raw);
   commandLine->busy();
   return status;

@@ -213,7 +213,8 @@ void updateDocumentationFile(const QString &, QString file)
                         "{::comment} constants-end {:/}\n",
                         "\n\n" + GSLConstant::constantsDocumentation() + "\n");
 
-    QStringList nonInt = CommandContext::allNonInteractiveCommands();
+    QStringList nonInt = CommandContext::globalContext()->
+      nonInteractiveCommands();
     qSort(nonInt);
     Utils::makeUnique(nonInt);
     for(int i = 0; i < nonInt.size(); i++) {
@@ -230,6 +231,12 @@ void updateDocumentationFile(const QString &, QString file)
     Utils::updateWithin(str, "{::comment} non-interactive-start {:/}",
                         "{::comment} non-interacive-end {:/}\n",
                         "\n\n" + nonInt.join("\n") + "\n");
+
+    // // Now dealing with non-interactive fit commands ?
+    // QStringList nonInt = CommandContext::globalContext()->
+    //   nonInteractiveCommands();
+    // qSort(nonInt);
+    // Utils::makeUnique(nonInt);
   }
 
 

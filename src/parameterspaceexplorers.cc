@@ -627,7 +627,7 @@ public:
   void parseSpecs(const QStringList & specs,
                   QStringList * wrongParams = NULL) {
     int nb_per_ds = workSpace->data()->parametersPerDataset();
-    QRegExp re("^\\s*(.+):([^,:]+(,log)?)\\s*$");
+    QRegExp re("^\\s*(.+):([^,:]+)(,log)?\\s*$");
 
     for(const QString & s : specs) {
       if(re.indexIn(s) != 0)

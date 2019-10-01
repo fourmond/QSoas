@@ -893,8 +893,8 @@ public:
     int nb_per_ds = workSpace->data()->parametersPerDataset();
     for(int i = 0; i < nb_per_ds; i++) {
       if(workSpace->isGlobal(i))
-        Terminal::out << workSpace->fullParameterName(i)
-                      << ": " << base[i] << "\t-> "
+        Terminal::out << " * " << workSpace->fullParameterName(i)
+                      << ":\t" << base[i] << "\t-> "
                       << choice[i] << endl;
     }
 

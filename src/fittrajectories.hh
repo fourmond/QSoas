@@ -53,7 +53,7 @@ public:
   FitTrajectories(const FitWorkspace * ws);
 
   /// Exports the fit trajectory to the given file.
-  void exportToFile(QTextStream & out);
+  void exportToFile(QTextStream & out) const;
 
   /// Imports fit trajectories from the given file.
   int importFromFile(QTextStream & in);

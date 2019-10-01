@@ -941,6 +941,7 @@ sa("simulated-annealing", "Simulated annealing",
 #include <command.hh>
 #include <commandcontext.hh>
 #include <commandeffector-templates.hh>
+#include <file-arguments.hh>
 
 
 /// @todo This command has nothing to do here.
@@ -969,9 +970,28 @@ static void clusterTrajectoriesCommand(const QString & /*name*/,
 
   QList<FitTrajectories> clusters = vars.clusterTrajectories(ws->trajectories);
   Terminal::out << " -> found " << clusters.size() << " clusters" << endl;
-  for(const FitTrajectories & c : clusters) {
+  QString expt;
+  updateFromOptions(opts, "export", expt);
+  int exportOnly = -1;
+  updateFromOptions(opts, "export-only", exportOnly);
+  int idx = 0;
+  for(FitTrajectories & c : clusters) {
     Terminal:: out << "Cluster with " << c.size() << " elements, best: "
                    << c.best().residuals << endl;
+    
+    if(! expt.isEmpty()) {
+      if(exportOnly < 0 || idx < exportOnly) {
+        QString suff = QString::asprintf("-%03d.dat", idx);
+        QString fn = expt + suff;
+        Terminal::out << "-> writing cluster to " << fn << endl;
+
+        QFile f(fn);
+        Utils::open(&f, QIODevice::WriteOnly);
+        QTextStream o(&f);
+        c.exportToFile(o);
+      }
+    }
+    ++idx;
   }
 }
 
@@ -984,7 +1004,13 @@ ArgumentList ctArgs(QList<Argument*>()
 ArgumentList ctOpts(QList<Argument*>()
                     << new NumberArgument("factor",
                                           "Scaling factor",
-                                          "Scaling factor for ")
+                                          "Scaling factor for the clustering")
+                    << new FileArgument("export",
+                                        "Export clusters",
+                                        "prefix to export the clusters as trajectory files")
+                    << new IntegerArgument("export-only",
+                                           "Number of trajectories",
+                                           "only export that many of the best trajectories")
                     );
 
 static Command 

@@ -34,7 +34,7 @@ FitTrajectories::FitTrajectories(const FitWorkspace * ws) :
 {
 }
 
-void FitTrajectories::exportToFile(QTextStream & out)
+void FitTrajectories::exportToFile(QTextStream & out) const
 {
   QStringList hds =
     FitTrajectory::exportHeaders(workSpace->parameterNames(),

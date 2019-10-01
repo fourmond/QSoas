@@ -399,6 +399,10 @@ public:
   /// The name of the numbered parameter
   QString parameterName(int idx) const;
 
+  /// The name of the parameter, when given an index in
+  /// saveParameterValues().
+  QString fullParameterName(int idx) const;
+
   /// The names of all parameters
   QStringList parameterNames() const;
 

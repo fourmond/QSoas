@@ -661,7 +661,9 @@ public:
   QString textRepresentation() const {
     int nb_per_ds = workSpace->data()->parametersPerDataset();
     QString rv;
-    for(int i : variations.keys()) {
+    QList<int> k = variations.keys();
+    std::sort(k.begin(), k.end());
+    for(int i : k) {
       int pidx = i % nb_per_ds;
       int ds = i / nb_per_ds;
       QString name = workSpace->parameterName(pidx);
@@ -874,13 +876,36 @@ public:
       currentIteration = 0;
     }
 
-    
     if(clusters.size() == 0)
       choice = variations.randomParameters(baseParameters, sigmas,
                                            curTemperature);
     else
       choice = variations.randomParameters(clusters[currentCluster],
                                            curTemperature);
+
+    Vector base = clusters.size() == 0 ? baseParameters :
+      clusters[currentCluster].finalParameters;
+    
+
+    
+    // Write out the parameters:
+    Terminal::out << "Picking out the following parameters:" << endl;
+    int nb_per_ds = workSpace->data()->parametersPerDataset();
+    for(int i = 0; i < nb_per_ds; i++) {
+      if(workSpace->isGlobal(i))
+        Terminal::out << workSpace->fullParameterName(i)
+                      << ": " << base[i] << "\t-> "
+                      << choice[i] << endl;
+    }
+
+    for(int i = 0; i < choice.size(); i++) {
+      int idx = i % nb_per_ds;
+      if(! workSpace->isGlobal(idx))
+        Terminal::out << " * " << workSpace->fullParameterName(i)
+                      << ":\t" << base[i] << "\t-> "
+                      << choice[i] << endl;
+    }
+
 
     workSpace->restoreParameterValues(choice);
 

@@ -523,6 +523,17 @@ QString FitWorkspace::parameterName(int idx) const
   return fitData->parameterDefinitions[idx].name;
 }
 
+QString FitWorkspace::fullParameterName(int idx) const
+{
+  int ds = idx / nbParameters;
+  idx = idx % nbParameters;
+  if(isGlobal(idx))
+    return parameterName(idx);
+  else
+    return QString("%1[#%2]").
+      arg(parameterName(idx)).arg(ds);
+}
+
 QStringList FitWorkspace::parameterNames() const
 {
   QStringList rv;

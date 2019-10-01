@@ -151,7 +151,7 @@ class FitDialog : public QDialog {
 
 protected:
 
-  virtual void closeEvent(QCloseEvent * event);
+  virtual void closeEvent(QCloseEvent * event) override;
 
   /// Same thing as compute, but raises an exception if something failed.
   void internalCompute(bool dontSend = false);

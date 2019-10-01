@@ -527,7 +527,12 @@ const FitWorkspace * FitDialog::getWorkspace() const
 void FitDialog::closeEvent(QCloseEvent * event)
 {
   parameters.cancelFit();
-  QDialog::closeEvent(event);
+  event->ignore();
+  reject();
+  // For some reason, reverting to normal close events causes
+  // segfaults from time to time
+  
+  // QDialog::closeEvent(event);
 }
 
 void FitDialog::setIterationLimit(int lim)

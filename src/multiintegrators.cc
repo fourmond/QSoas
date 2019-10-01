@@ -47,7 +47,7 @@ public:
     MultiIntegrator(fnc, dim, rel, abs, maxc) {
   };
 
-  virtual double integrate(gsl_vector * res, double a, double b) {
+  virtual double integrate(gsl_vector * res, double a, double b) override {
     Vector nodes;
     Vector subNodes;
     Vector normSubNodes;
@@ -152,7 +152,7 @@ protected:
   DataSet values;
   int idx;
 
-  virtual void prepareInterpolation(Vector nodes, int idx) {
+  virtual void prepareInterpolation(Vector nodes, int idx) override {
     Vector vals;
     for(int i = 0; i < nodes.size(); i++) {
       gsl_vector * v = functionForValue(nodes[i]);
@@ -161,15 +161,15 @@ protected:
     values = DataSet(nodes, vals);
   }
 
-  virtual double interpolatedValue(double x) {
+  virtual double interpolatedValue(double x) override {
     return values.yValueAt(x, true);
   }
 
-  virtual void prepareIntegration(Vector nodes, int idx) {
+  virtual void prepareIntegration(Vector nodes, int idx) override {
     prepareInterpolation(nodes, idx);
   }
 
-  virtual double integrate() {
+  virtual double integrate() override {
     return Vector::integrate(values.x(), values.y());
   };
 public:
@@ -177,7 +177,7 @@ public:
     InterpolationBasedMultiIntegrator(fnc, dim, rel, abs, maxc) {
   };
 
-  MultiIntegrator * dup() const {
+  MultiIntegrator * dup() const override {
     NaiveMultiIntegrator * i =
       new NaiveMultiIntegrator(function, dimension, relativePrec,
                                absolutePrec, maxfuncalls);
@@ -203,7 +203,7 @@ protected:
   Vector n,v;
   int idx;
 
-  virtual void prepareInterpolation(Vector nodes, int idx) {
+  virtual void prepareInterpolation(Vector nodes, int idx) override {
     n = nodes;
     v.clear();
     if(ws && ws->size != nodes.size()) {
@@ -222,15 +222,15 @@ protected:
     gsl_interp_init(ws, n.data(), v.data(), n.size());
   }
 
-  virtual double interpolatedValue(double x) {
+  virtual double interpolatedValue(double x) override {
     return gsl_interp_eval(ws, n.data(), v.data(), x, accel);
   }
 
-  virtual void prepareIntegration(Vector nodes, int idx) {
+  virtual void prepareIntegration(Vector nodes, int idx) override {
     prepareInterpolation(nodes, idx);
   }
 
-  virtual double integrate() {
+  virtual double integrate() override {
     return gsl_interp_eval_integ(ws, n.data(), v.data(), n.first(), n.last(), accel);
   };
   
@@ -240,7 +240,7 @@ public:
     accel = gsl_interp_accel_alloc();
   };
 
-  MultiIntegrator * dup() const {
+  MultiIntegrator * dup() const override {
     SplinesMultiIntegrator * i =
       new SplinesMultiIntegrator(function, dimension, relativePrec,
                                  absolutePrec, maxfuncalls, type);

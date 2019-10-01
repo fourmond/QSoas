@@ -34,12 +34,12 @@ public:
   bool independentBits;
 
   /// The number of parameters
-  int parameterNumber() const {
+  int parameterNumber() const override {
     return number*2 + (independentBits ? number : 1);
   };
 
   /// Parameter definitions
-  QList<ParameterDefinition> parameters(const QString & prefix) const {
+  QList<ParameterDefinition> parameters(const QString & prefix) const override {
     QList<ParameterDefinition> ret;
     if(! independentBits)
       ret << ParameterDefinition(prefix + "_tau");
@@ -56,7 +56,7 @@ public:
   };
 
   /// Returns the value at the given time...
-  double computeValue(double t, const double * parameters) const {
+  double computeValue(double t, const double * parameters) const override {
     double value = 0;
     for(int i = 0; i < number; i++) {
       double t0   = parameters[baseIndex + (independentBits ? i*3+1 : 2*i+2)];
@@ -73,7 +73,7 @@ public:
   };
 
   /// Sets a reasonable initial guess for these parameters
-  void setInitialGuess(double * parameters, const DataSet * ds) const {
+  void setInitialGuess(double * parameters, const DataSet * ds) const override {
     double dx = ds->x().max() - ds->x().min();
     for(int i = 0; i < number; i++) {
       double & t0   = parameters[baseIndex + (independentBits ? i*3+1 : 2*i+2)];
@@ -86,7 +86,7 @@ public:
   };
 
   /// Returns the time at which there are potential discontinuities
-  Vector discontinuities(const double * parameters) const {
+  Vector discontinuities(const double * parameters) const override {
     Vector ret;
     for(int i = 0; i < number; i++)
       ret << parameters[baseIndex + (independentBits ? i*3+1 : 2*i+2)];
@@ -115,12 +115,12 @@ public:
   int number;
 
   /// The number of parameters
-  int parameterNumber() const {
+  int parameterNumber() const override {
     return number * 2 - 1;
   };
 
   /// Parameter definitions
-  QList<ParameterDefinition> parameters(const QString & prefix) const {
+  QList<ParameterDefinition> parameters(const QString & prefix) const override {
     QList<ParameterDefinition> ret;
     for(int i = 0; i < number; i++) { 
       if(i > 0)
@@ -136,7 +136,7 @@ public:
   /// Returns the value at the given time...
   ///
   /// Assumes the values are increasing.
-  double computeValue(double t, const double * parameters) const {
+  double computeValue(double t, const double * parameters) const override {
     double value = parameters[baseIndex];
     for(int i = 1; i < number; i++) {
       if(t < parameters[baseIndex + 2*i-1])
@@ -148,7 +148,7 @@ public:
   };
 
   /// Sets a reasonable initial guess for these parameters
-  void setInitialGuess(double * parameters, const DataSet * ds) const {
+  void setInitialGuess(double * parameters, const DataSet * ds) const override {
     double dx = ds->x().max() - ds->x().min();
     for(int i = 0; i < number; i++) {
       double & t0   = parameters[baseIndex + 2*i - 1];
@@ -160,7 +160,7 @@ public:
   };
 
   /// Returns the time at which there are potential discontinuities
-  Vector discontinuities(const double * parameters) const {
+  Vector discontinuities(const double * parameters) const override {
     Vector ret;
     for(int i = 1; i < number; i++)
       ret << parameters[baseIndex + 2*i - 1];
@@ -188,12 +188,12 @@ public:
   int number;
 
   /// The number of parameters
-  int parameterNumber() const {
+  int parameterNumber() const override {
     return number * 2;
   };
 
   /// Parameter definitions
-  QList<ParameterDefinition> parameters(const QString & prefix) const {
+  QList<ParameterDefinition> parameters(const QString & prefix) const override {
     QList<ParameterDefinition> ret;
     for(int i = 0; i < number; i++) { 
       ret << ParameterDefinition(QString("%2_t_%1").
@@ -206,7 +206,7 @@ public:
   };
 
   /// Returns the value at the given time...
-  double computeValue(double t, const double * parameters) const {
+  double computeValue(double t, const double * parameters) const override {
     double lx = parameters[baseIndex];
     double ly = parameters[baseIndex+1];
     double rx, ry;
@@ -231,7 +231,7 @@ public:
   };
 
   /// Sets a reasonable initial guess for these parameters
-  void setInitialGuess(double * parameters, const DataSet * ds) const {
+  void setInitialGuess(double * parameters, const DataSet * ds) const override {
     double dx = ds->x().max() - ds->x().min();
     for(int i = 0; i < number; i++) {
       double & t0   = parameters[baseIndex + 2*i];
@@ -242,7 +242,7 @@ public:
   };
 
   /// Returns the time at which there are potential discontinuities
-  Vector discontinuities(const double * ) const {
+  Vector discontinuities(const double * ) const override {
     Vector ret;
     return ret;
   };
@@ -280,12 +280,12 @@ public:
 
 
   /// The number of parameters
-  int parameterNumber() const {
+  int parameterNumber() const override {
     return 1 + number*2 + (independentBits ? number : 1);
   };
 
   /// Parameter definitions
-  QList<ParameterDefinition> parameters(const QString & prefix) const {
+  QList<ParameterDefinition> parameters(const QString & prefix) const override {
     QList<ParameterDefinition> ret;
     if(! independentBits)
       ret << ParameterDefinition(prefix + "_tau");
@@ -315,7 +315,7 @@ public:
 
   }
 
-  void initialize(const double * params) {
+  void initialize(const double * params) override {
     initialValues.resize(number);
     double val = params[baseIndex + (independentBits ? 0 : 1)];
     for(int i = 0; i < number; i++) {
@@ -329,7 +329,7 @@ public:
   }
 
   /// Returns the value at the given time...
-  double computeValue(double t, const double * parameters) const {
+  double computeValue(double t, const double * parameters) const override {
     int which = -1;
     for(int i = 0; i < number; i++) {
       if(t < t0(parameters, i))
@@ -355,7 +355,7 @@ public:
 
 
   /// Sets a reasonable initial guess for these parameters
-  void setInitialGuess(double * parameters, const DataSet * ds) const {
+  void setInitialGuess(double * parameters, const DataSet * ds) const override {
     double dx = ds->x().max() - ds->x().min();
     for(int i = 0; i < number; i++) {
       double & t0   = parameters[baseIndex + 1 + (independentBits ? i*3 : 2*i+1)];
@@ -369,7 +369,7 @@ public:
   };
 
   /// Returns the time at which there are potential discontinuities
-  Vector discontinuities(const double * parameters) const {
+  Vector discontinuities(const double * parameters) const override {
     Vector ret;
     for(int i = 0; i < number; i++)
       ret << parameters[baseIndex + (independentBits ? i*3+1 : 2*i+2)];

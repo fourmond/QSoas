@@ -99,16 +99,16 @@ public:
   virtual ~SimplexFitEngine();
 
 
-  virtual void initialize(const double * initialGuess);
-  virtual const gsl_vector * currentParameters() const;
-  virtual void computeCovarianceMatrix(gsl_matrix * target) const;
-  virtual int iterate();
-  virtual double residuals() const;
+  virtual void initialize(const double * initialGuess) override;
+  virtual const gsl_vector * currentParameters() const override;
+  virtual void computeCovarianceMatrix(gsl_matrix * target) const override;
+  virtual int iterate() override;
+  virtual double residuals() const override;
 
-  virtual CommandOptions getEngineParameters() const;
-  virtual ArgumentList * engineOptions() const;
-  virtual void resetEngineParameters();
-  virtual void setEngineParameters(const CommandOptions & params);
+  virtual CommandOptions getEngineParameters() const override;
+  virtual ArgumentList * engineOptions() const override;
+  virtual void resetEngineParameters() override;
+  virtual void setEngineParameters(const CommandOptions & params) override; 
 
 };
 

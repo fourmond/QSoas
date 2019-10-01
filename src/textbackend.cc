@@ -316,7 +316,7 @@ protected:
   
   virtual QList<QList<Vector> > readColumns(QTextStream & s,
                                             const CommandOptions & opts,
-                                            QStringList * cmts) const {
+                                            QStringList * cmts) const override {
 
     Regex sep = separator;
     updateFromOptions(opts, "separator", sep);
@@ -345,7 +345,7 @@ protected:
                              QRegExp("^\\s*$"), cmts, skip);
   };
   
-  virtual ArgumentList * loadOptions() const {
+  virtual ArgumentList * loadOptions() const override {
     ArgumentList * al = new ArgumentList(*TextBackend::loadOptions());
     return al;
   };

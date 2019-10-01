@@ -222,12 +222,12 @@ public:
   };
 
 
-  virtual void resetEngineParameters();
-  virtual CommandOptions getEngineParameters() const;
-  virtual ArgumentList * engineOptions() const {
+  virtual void resetEngineParameters() override;
+  virtual CommandOptions getEngineParameters() const override;
+  virtual ArgumentList * engineOptions() const override{
     return &options;
   };
-  virtual void setEngineParameters(const CommandOptions & params);
+  virtual void setEngineParameters(const CommandOptions & params) override;
   
 };
 

@@ -100,7 +100,7 @@ public:
   };
   
 
-  double rangeWeight(const double * parameters) const
+  double rangeWeight(const double * parameters) const override
   {
     double l, r;
     range(parameters, &l, &r);
@@ -119,7 +119,7 @@ public:
     return rv;
   }
 
-  virtual void initialGuess(double * parameters, double value) const {
+  virtual void initialGuess(double * parameters, double value) const override {
     for(int i = 0; i < parameterSuffixes.size(); i++)
       parameters[i] = i ? 1 : value;
   };

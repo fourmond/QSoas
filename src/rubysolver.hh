@@ -41,7 +41,7 @@ public:
 
   virtual ~RubySolver();
 
-  virtual double f(double x);
+  virtual double f(double x) override;
 };
 
 

@@ -35,8 +35,6 @@ CommandPrompt::CommandPrompt() : nbSuccessiveTabs(0), lastTab(false)
 
 CommandPrompt::~CommandPrompt()
 {
-  QTextStream o(stdout);
-  o << "Deleting: " << this << endl;
 }
 
 void CommandPrompt::replaceWord(const CompletionContext & w, const QString & str, 

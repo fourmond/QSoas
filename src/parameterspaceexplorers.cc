@@ -918,8 +918,13 @@ public:
   };
 
   virtual QString progressText() const override {
-    return QString("%1/%2").
-      arg(currentIteration+1).arg(iterations);
+    if(clusters.size() > 0)
+      return QString("%1/%2, cluster %3/%4").
+        arg(currentIteration+1).arg(iterations).
+        arg(currentCluster+1).arg(clusters.size());
+    else
+      return QString("%1/%2").
+        arg(currentIteration+1).arg(iterations);
   };
 
 

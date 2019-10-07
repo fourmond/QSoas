@@ -1506,12 +1506,14 @@ mul("multiply", // command name
 
 
 static void mergeCommand(const QString &, QList<const DataSet *> a,
-                         DataSet * b, const CommandOptions & opts)
+                         const CommandOptions & opts)
 {
   bool naive = testOption<QString>(opts, "mode", "indices");
   bool useSteps = false;
   updateFromOptions(opts, "use-segments", useSteps);
-  
+
+  const DataSet * b = a.takeLast();
+
   for(int i = 0; i < a.size(); i++) {
     const DataSet * ds = a[i];
     Terminal::out << QObject::tr("Merging buffer '%2' with buffer '%1'").

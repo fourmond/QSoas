@@ -58,6 +58,10 @@ class MonteCarloExplorer : public ParameterSpaceExplorer {
 
     /// Whether the range is logarithmic or not
     bool log;
+
+    /// Whether or not the selection is global (i.e. all local
+    /// parameters are set to the same starting value)
+    bool uniform;
   };
 
   QList<ParameterSpec> parameterSpecs;
@@ -78,7 +82,7 @@ public:
     QStringList specs = args[0]->value<QStringList>();
 
     parameterSpecs.clear();
-    QRegExp re("^\\s*(.*):([^:]+)\\.\\.([^:,]+)(,log)?\\s*$");
+    QRegExp re("^\\s*(.*):(u,)?([^:]+)\\.\\.([^:,]+)(,log)?\\s*$");
     QStringList unknowns;
     for(const QString & s : specs) {
       if(re.indexIn(s) != 0)
@@ -90,14 +94,15 @@ public:
       // monte-carlo-explorer tau_1[#0,#1],tau_2[#1]:1e-2..1e2,log
       
       QStringList pars = Utils::nestedSplit(re.cap(1), ',', "[", "]");
-      double l = re.cap(2).toDouble();
-      double h = re.cap(3).toDouble();
-      bool log = ! re.cap(4).isEmpty();
+      bool uniform = ! re.cap(2).isEmpty();
+      double l = re.cap(3).toDouble();
+      double h = re.cap(4).toDouble();
+      bool log = ! re.cap(5).isEmpty();
       QList<QPair<int, int> > params;
       for(const QString & pa : pars)
         params << workSpace->parseParameterList(pa, &unknowns);
       for(const QPair<int, int> & p : params) {
-        ParameterSpec sp = {p, l, h, log};
+        ParameterSpec sp = {p, l, h, log, uniform};
         parameterSpecs << sp;
       }
     }
@@ -123,7 +128,9 @@ public:
       Terminal::out << " * " << names[s.parameter.first]
                     << "[#" << s.parameter.second << "]: "
                     << s.low << " to " << s.high
-                    << (s.log ? " log" : " lin") << endl;
+                    << (s.log ? " log" : " lin")
+                    << (s.uniform ? " -- uniform" : "")
+                    << endl;
   };
 
   virtual bool iterate(bool justPick) override {
@@ -141,8 +148,15 @@ public:
       }
     }
     
+    QHash<int, double> uniformSetValues;
     for(const ParameterSpec & s : parameterSpecs) {
-      double v = Utils::random(s.low, s.high, s.log);
+      double v;
+      if(s.uniform && uniformSetValues.contains(s.parameter.first))
+        v = uniformSetValues[s.parameter.first];
+      else
+        v = Utils::random(s.low, s.high, s.log);
+      if(s.uniform)
+        uniformSetValues[s.parameter.first] = v;
       workSpace->setValue(s.parameter.first, s.parameter.second, v);
       Terminal::out << " -> " << names[s.parameter.first]
                     << "[#" << s.parameter.second << "] =  " << v << endl;

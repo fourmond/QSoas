@@ -136,6 +136,13 @@ public:
                      }
                      return QVariant();
                    })
+           << Item("flags", [](const FitTrajectory* trj,
+                               int role, bool /*final*/) -> QVariant {
+                     if(role == Qt::DisplayRole) {
+                       return QStringList(trj->flags.toList()).join(",");
+                     }
+                     return QVariant();
+                   })
       ;
     int nbds = fitData->datasets.size();
     int n = fitData->parametersPerDataset();

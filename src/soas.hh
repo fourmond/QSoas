@@ -133,6 +133,7 @@ public:
 
   /// Returns a hash containing a number of lists of "features".
   static ValueHash versionInfo();
+
 };
 
 /// Returns the application-wide Soas instance

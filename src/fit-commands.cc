@@ -962,3 +962,113 @@ spsh("parameters-spreadsheet", // command name
      "Parameters spreadsheet",
      "Opens a spreadsheet to edit parameters",
      "", CommandContext::fitContext());
+
+
+//////////////////////////////////////////////////////////////////////
+
+
+/// An argument that represents a list of trajectories
+class TrajectoriesArgument : public Argument {
+public:
+
+  TrajectoriesArgument(const char * cn, const char * pn,
+                       const char * d = "", bool def = false) : 
+    Argument(cn, pn, d, false, def) {
+  }; 
+  
+  /// Returns a wrapped FitTrajectories
+  virtual ArgumentMarshaller * fromString(const QString & str) const override {
+    QStringList spl = str.split(":");
+    QString what = spl.takeFirst();
+    QString rest = spl.join(":");
+    FitWorkspace * ws = FitWorkspace::currentWorkspace();
+
+    if(what == "flagged") {
+      return new ArgumentMarshallerChild<FitTrajectories>
+        (ws->trajectories.flaggedTrajectories(rest));
+    }
+    throw RuntimeError("Invalid trajectories specification: '%1'").
+      arg(str);
+    return NULL;
+  }
+
+  virtual void concatenateArguments(ArgumentMarshaller * a, 
+                                    const ArgumentMarshaller * b) const override {
+    for(const FitTrajectory & t : b->value<FitTrajectories>())
+      a->value<FitTrajectories>() << t;
+  }
+    
+  virtual QStringList proposeCompletion(const QString & starter) const override {
+    FitWorkspace * ws = FitWorkspace::currentWorkspace();
+    QStringList names;
+    for(const QString & s : ws->trajectories.allFlags())
+      names << "flagged:" + s;
+    return Utils::stringsStartingWith(names, starter);
+  }
+
+
+  virtual QString typeName() const override {
+    return "trajectories";
+  };
+
+  virtual QString typeDescription() const override {
+    return "Fit Trajectories";
+  };
+
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override {
+    return Argument::convertRubyString(value);
+  };
+
+  virtual QStringList toString(const ArgumentMarshaller * arg) const override {
+    QStringList lst;
+    NOT_IMPLEMENTED;
+    return lst;
+  };
+
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override {
+    return Argument::createTextEditor(parent);
+  }
+
+  virtual void setEditorValue(QWidget * editor, 
+                              const ArgumentMarshaller * value) const override {
+    Argument::setTextEditorValue(editor, value);
+  };
+
+
+};
+
+//////////////////////////////////////////////////////////////////////
+
+static void dropTrajectoriesCommand(const QString & /*name*/,
+                                    FitTrajectories trajs)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  int nb = 0;
+  for(const FitTrajectory & t : trajs) {
+    for(int i = 0; i < ws->trajectories.size(); i++) {
+      if(t == ws->trajectories[i]) {
+        ws->trajectories.remove(i);
+        ++nb;
+        break;
+      }
+    }
+  }
+  Terminal::out << "Removed " << nb << " trajectories" << endl;
+}
+
+
+ArgumentList dropT(QList<Argument*>() 
+                 << new TrajectoriesArgument("trajectories", 
+                                             "Trajectories",
+                                             "trajectories to remove", true)
+                );
+
+static Command 
+drop("drop-trajectories", // command name
+     optionLessEffector(dropTrajectoriesCommand), // action
+     "fits",  // group name
+     &dropT, // arguments
+     NULL,
+     "Drop trajectories",
+     "Drop trajectories",
+     "", CommandContext::fitContext());

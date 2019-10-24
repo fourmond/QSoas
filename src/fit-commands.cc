@@ -621,7 +621,10 @@ static void listTrajectoriesCommand(const QString & /*name*/,
                     << t.relativeResiduals << "\tstarted: "
                     << t.startTime.toString() << " (" 
                     << t.engine << ") -> "
-                    << FitTrajectory::endingName(t.ending) << endl;
+                    << FitTrajectory::endingName(t.ending)
+                    << "\t\tFlags: "
+                    << QStringList(t.flags.toList()).join(",")
+                    << endl;
   }
 }
 

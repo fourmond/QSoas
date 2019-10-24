@@ -990,6 +990,10 @@ public:
       return new ArgumentMarshallerChild<FitTrajectories>
         (ws->trajectories.flaggedTrajectories(rest));
     }
+    if(what == "all")
+      return new ArgumentMarshallerChild<FitTrajectories>
+        (ws->trajectories);
+      
     throw RuntimeError("Invalid trajectories specification: '%1'").
       arg(str);
     return NULL;
@@ -1006,6 +1010,7 @@ public:
     QStringList names;
     for(const QString & s : ws->trajectories.allFlags())
       names << "flagged:" + s;
+    names << "all";
     return Utils::stringsStartingWith(names, starter);
   }
 
@@ -1075,3 +1080,91 @@ drop("drop-trajectories", // command name
      "Drop trajectories",
      "Drop trajectories",
      "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
+#include <commandwidget.hh>
+
+static void runForTrajectoriesCommand(const QString &, QString cmdfile,
+                                      FitTrajectories trajs,
+                                      const CommandOptions &opts)
+{
+  bool addToHistory = false;
+  updateFromOptions(opts, "add-to-history", addToHistory);
+  bool silent = false;
+  updateFromOptions(opts, "silent", silent);
+  bool cd = false;
+  updateFromOptions(opts, "cd-to-script", cd);
+  
+  // WDisableUpdates eff(& soas().view(), silent);
+
+  bool final = true;
+  QString t;
+  updateFromOptions(opts, "parameters", t);
+  if(t == "initial")
+    final = false;
+
+  QString nd;
+  if(cd) {
+    QFileInfo info(cmdfile);
+    nd = info.path();
+    cmdfile = info.fileName();
+  }
+  // TemporarilyChangeDirectory c(nd);
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  QStringList args;
+
+  for(const FitTrajectory & t : trajs) {
+    Terminal::out << "Using " << QString(final ? "final" : "initial")
+                  << " parameters from trajectory started: "
+                  << t.startTime.toString() << " (" 
+                  << t.engine << ") -> "
+                  << FitTrajectory::endingName(t.ending)
+                  << endl;
+    ws->restoreParameterValues(final ? t.finalParameters :
+                               t.initialParameters);
+    soas().prompt().runCommandFile(cmdfile, args, addToHistory);
+  }
+}
+
+static ArgumentList
+rftOpts(QList<Argument *>() 
+        << new BoolArgument("silent", 
+                            "Silent processing",
+                            "whether or not to switch off display updates "
+                            "during the script (off by default)")
+        << new BoolArgument("add-to-history", 
+                            "Add commands to history",
+                            "whether the commands run are added to the "
+                            "history (defaults to false)")
+        << new BoolArgument("cd-to-script", 
+                            "cd to script",
+                            "If on, automatically change the directory to that oof the script")
+        << new ChoiceArgument(QStringList()
+                              << "final" << "initial",
+                              "parameters", 
+                              "Parameters",
+                              "which parameters to use")
+        );
+
+static ArgumentList 
+rftArgs(QList<Argument *>() 
+        << new FileArgument("file", 
+                            "Script", "the script to run")
+        << new TrajectoriesArgument("trajectories", 
+                                    "Trajectories",
+                                    "trajectories to run", true)
+
+        );
+
+
+// The same, but for the fit context
+static Command 
+rtf("run-for-trajectories", // command name
+     effector(runForTrajectoriesCommand), // action
+     "fit",  // group name
+     &rftArgs, // arguments
+     &rftOpts, 
+     "Run commands",
+     "Run commands from a file",
+     NULL, CommandContext::fitContext());

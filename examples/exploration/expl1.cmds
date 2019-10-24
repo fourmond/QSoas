@@ -1,2 +1,4 @@
 monte-carlo-explorer /iterations=20 tau_1:1e-2..1e2,log tau_2:1e-2..1e2,log /iterations=50
 iterate-explorer
+# Then, try
+# run-for-trajectories refit.fcmds all

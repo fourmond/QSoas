@@ -2195,3 +2195,101 @@ tc("tweak-columns", // command name
    "Tweak columns",
    "Tweak columns");
 
+
+//////////////////////////////////////////////////////////////////////
+
+class UnsplicedData {
+
+public:
+  Vector xv, yv;
+
+  Vector dy;
+public:
+  UnsplicedData(double x, double y) {
+    xv << x;
+    yv << y;
+  };
+
+  /// Returns true if this data point could be part of this data
+  bool isMine(double x, double y, double tolerance, double dtol) const {
+    double xl = xv.last(), yl = yv.last();
+    
+    if(fabs(y - yl) > tolerance * 0.5 * fabs(y + yl))
+      return false;             // can't be.
+    if(dy.size() > 0) {
+      double ndy = (y-yl)/(x-xl);
+      double ody = dy.last();
+      if(fabs(ndy - ody) > dtol * 0.5 * fabs(ndy + ody))
+        return false;
+    }
+    return true;
+  };
+
+  void addPoint(double x, double y) {
+    double xl = xv.last(), yl = yv.last();
+    double ndy = (y-yl)/(x-xl);
+    xv << x;
+    yv << y;
+    dy << ndy;
+  };
+};
+
+// testing...
+// QSoas> generate-buffer 0 10 x**2+10*sin(Pi*0.5*i)
+// QSoas> unsplice
+// Found 25 trends
+// QSoas> generate-buffer 0 10 10+x**2+10*sin(Pi*0.5*i)
+// QSoas> unsplice
+// Found 14 trends
+// QSoas> generate-buffer 0 30 10+x**2+10*sin(Pi*0.5*i)
+// QSoas> generate-buffer 0 10 30+x**2+10*sin(Pi*0.5*i)
+// QSoas> unsplice
+
+static void unspliceCommand(const QString &, const CommandOptions & opts)
+{
+  DataStackHelper pusher(opts);
+  const DataSet * ds = soas().currentDataSet();
+
+  QList<UnsplicedData> trends;
+  double tol = 0.2, dtol = 0.4;
+  for(int i = 0; i < ds->nbRows(); i++) {
+    bool found = false;
+    double x = ds->x()[i], y = ds->y()[i];
+    for(UnsplicedData & t : trends) {
+      if(t.isMine(x,y,tol,dtol)) {
+        t.addPoint(x, y);
+        found = true;
+        break;
+      }
+    }
+    if(!found) {
+      trends << UnsplicedData(x, y);
+    }
+  }
+
+  Terminal::out << "Found " << trends.size() << " trends" << endl;
+  int i = 0;
+  for(const UnsplicedData & t : trends) {
+    QList<Vector> cols;
+    cols << t.xv << t.yv;
+    DataSet * nds = ds->derivedDataSet(cols, QString("_trend_%1").arg(i));
+    pusher << nds;
+    ++i;
+  }
+  
+}
+
+static ArgumentList 
+usOpts(QList<Argument *>() 
+           << DataStackHelper::helperOptions()
+       );
+
+
+static Command 
+unsplice("unsplice", // command name
+         effector(unspliceCommand), // action
+         "buffer",  // group name
+         NULL, // arguments
+         &usOpts, // options
+         "Unsplice dataset",
+         "Tries to identify multiple trends in the data");

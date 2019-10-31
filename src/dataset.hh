@@ -547,6 +547,12 @@ public:
   /// Computes an arbitrary order arbitrary derivative.
   DataSet * arbitraryDerivative(int deriv, int order) const;
 
+  /// Computes an arbitrary order arbitrary derivative for the given
+  /// data points, and stores the result in target.
+  static void arbitraryDerivative(int deriv, int order, int nb,
+                                  const double * x, const double * y,
+                                  double * target);
+
   /// Concatenates all datasets into a single one.
   ///
   /// If \a setSegments is true, then new segments are added at the

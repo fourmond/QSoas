@@ -1232,6 +1232,18 @@ DataSet * DataSet::secondDerivative() const
 DataSet * DataSet::arbitraryDerivative(int deriv, int order) const
 {
   int size = x().size();
+  Vector res = x();
+
+  arbitraryDerivative(deriv, order, size, x().constData(),
+                      y().constData(), res.data());
+  
+  return derivedDataSet(res, QString("_diff%1o%2").arg(deriv).arg(order-1));
+}
+
+void DataSet::arbitraryDerivative(int deriv, int order, int size,
+                                  const double * x, const double * y,
+                                  double * target)
+{
   if(size < order)
     throw RuntimeError("Need at least %1 points for a derivate of order %2").
       arg(order+1).arg(order);
@@ -1241,11 +1253,6 @@ DataSet * DataSet::arbitraryDerivative(int deriv, int order) const
       arg(order+1).arg(order);
 
   order += 1;
-
-  const double *x = this->x().data();
-  const double *y = this->y().data();
-
-  Vector res;
 
   gsl_matrix * mat = gsl_matrix_alloc(order, order);
   gsl_vector * rhs = gsl_vector_alloc(order);
@@ -1274,16 +1281,13 @@ DataSet * DataSet::arbitraryDerivative(int deriv, int order) const
     int sgn;
     gsl_linalg_LU_decomp(mat, perm, &sgn);
     gsl_linalg_LU_solve(mat, perm, rhs, dervs);
-    res << gsl_vector_get(dervs, deriv);
+    target[i] = gsl_vector_get(dervs, deriv);
   }
 
   gsl_matrix_free(mat);
   gsl_vector_free(rhs);
   gsl_vector_free(dervs);
   gsl_permutation_free(perm);
-
-
-  return derivedDataSet(res, QString("_diff%1o%2").arg(deriv).arg(order-1));
 }
 
 

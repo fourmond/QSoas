@@ -1162,7 +1162,7 @@ rftArgs(QList<Argument *>()
 static Command 
 rtf("run-for-trajectories", // command name
      effector(runForTrajectoriesCommand), // action
-     "fit",  // group name
+     "fits",  // group name
      &rftArgs, // arguments
      &rftOpts, 
      "Run commands",

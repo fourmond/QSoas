@@ -28,7 +28,52 @@
 #include <general-arguments.hh>
 #include <commandeffector-templates.hh>
 
+#include <debug.hh>
+
 #include <idioms.hh>
+
+/// The cache for a single buffer
+class BufferCache {
+public:
+
+  /// The computed Y values for each fit
+  QList<Vector> fitValues;
+
+  /// The corresponding parameters (global)
+  Vector parameters;
+
+  /// Returns true if the parameters for the fit number @a fit have changed since the last call to usedParameters
+  bool hasChanged(int fit, const double * testParams,
+                  int total, const QList<int> & indices) const {
+    if(parameters.size() == 0)
+      return true;
+    int i = indices[fit];
+    int end = indices.value(fit+1, total);
+    for(;i < end; i++) {
+      if(testParams[i] != parameters[i])
+        return true;
+    }
+    return false;
+  };
+
+  void usedParameters(const double * used,
+                      int total) {
+    parameters.resize(total);
+    for(int i = 0; i < total; i++)
+      parameters[i] = used[i];
+  }
+
+  BufferCache(const DataSet * ds, int nbFits) {
+    for(int i = 0; i < nbFits; i++)
+      fitValues << ds->x();     // As good an initial value as it gets
+  };
+
+  BufferCache() {
+  };
+
+};
+
+//////////////////////////////////////////////////////////////////////
 
 CombinedFit::Storage::~Storage()
 {
@@ -137,32 +182,40 @@ CombinedFit::~CombinedFit()
   
 }
 
-void CombinedFit::reserveBuffers(const DataSet * ds, FitData * data) const
-{
-  Storage * s = storage<Storage>(data);
-  for(int i = 0; i < underlyingFits.size(); i++) {
-    if(i >= s->buffers.size())
-      s->buffers << Vector();
-    s->buffers[i].resize(ds->x().size());
-  }
-}
-
 void CombinedFit::function(const double * parameters,
                            FitData * data, 
                            const DataSet * ds,
                            gsl_vector * target) const
 {
   Storage * s = storage<Storage>(data);
-  reserveBuffers(ds, data);
+  if(! s->cache.contains(ds))
+    s->cache.insert(ds, BufferCache(ds, underlyingFits.size()));
+
+  BufferCache & cache = s->cache[ds];
 
   for(int i = 0; i < underlyingFits.size(); i++) {
-    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
-                                           s->subs[i]);
-    gsl_vector_view v = 
-      gsl_vector_view_array(s->buffers[i].data(), ds->x().size());
-    underlyingFits[i]->function(parameters + s->firstParameterIndex[i], data, 
-                                ds, &v.vector);
+    if(cache.hasChanged(i, parameters, s->overallParameters.size(),
+                        s->firstParameterIndex)) {
+      if(data->debug > 0) {
+        Debug::debug() << "Combined fits: recomputing fit #" << i
+                       << endl;
+      }
+      TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                        s->subs[i]);
+      gsl_vector_view v = 
+        gsl_vector_view_array(cache.fitValues[i].data(),
+                              cache.fitValues[i].size());
+      underlyingFits[i]->function(parameters + s->firstParameterIndex[i], data, 
+                                  ds, &v.vector);
+    }
+    else {
+      if(data->debug > 0) {
+        Debug::debug() << "Combined fits: not recomputing fit #" << i
+                       << endl;
+      }
+    }
   }
+  cache.usedParameters(parameters, s->overallParameters.size());
 
   // Now, combine everything...
   QVarLengthArray<double, 100> args(1 + underlyingFits.size() + 
@@ -171,7 +224,7 @@ void CombinedFit::function(const double * parameters,
     args[0] = ds->x()[i];
     int base = 1;
     for(int j = 0; j < underlyingFits.size(); j++, base++)
-      args[base] = s->buffers[j][i];
+      args[base] = cache.fitValues[j][i];
     for(int j = 0; j < s->firstParameterIndex[0]; j++, base++)
       args[base] = parameters[j];
     gsl_vector_set(target, i, formula.evaluate(args.data()));

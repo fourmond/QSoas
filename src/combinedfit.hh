@@ -29,6 +29,8 @@
 class PerDatasetFit;
 class Vector;
 
+class BufferCache;
+
 /// This class combines a whole variety of fits into a single one,
 /// using a mathematical formula.
 ///
@@ -45,8 +47,8 @@ protected:
     /// Storage space for all underlying fits
     QList<FitInternalStorage *> subs;
 
-    /// Various buffers for use with the computation of the derivatives
-    QList<Vector> buffers;
+    /// This is both used for temporary storage but also for caching
+    QHash<const DataSet *, BufferCache> cache;
     
     /// An array of the same size as underlyingFits containing the index
     /// of the first parameter of each fit with respect to the overall

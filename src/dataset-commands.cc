@@ -54,6 +54,8 @@
 #include <file-arguments.hh>
 #include <metadatafile.hh>
 
+#include <unsplicer.hh>
+
 static Group grp("buffer", 2,
                  "Buffer",
                  "Buffer manipulations");
@@ -2198,96 +2200,6 @@ tc("tweak-columns", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-/// An ordered dataset
-class UnsplicedData {
-
-public:
-  /// We assume the xv vector is always sorted.
-  Vector xv, yv;
-
-  Vector dy;
-
-  int size() const {
-    return xv.size();
-  };
-                    
-public:
-  UnsplicedData(double x, double y) {
-    xv << x;
-    yv << y;
-    dy << 0;
-  };
-
-  /// Returns the index at which the given point would be inserted,
-  /// i.e. the index of the first X value greater than @a x.
-  ///
-  /// @todo for now naive search
-  int indexOfX(double x) const {
-    int idx = 0; 
-    while(idx < xv.size()) {
-      if(xv[idx] >= x)
-        break;
-      ++idx;
-    }
-    return idx;
-  };
-
-  /// Magnitudes of the y and derivative values around the given X
-  /// value.
-  ///
-  /// Returns the position at which x would get inserted.
-  int magnitudesAround(double x, double * ym,
-                        double * dym, int window = 3) const {
-    int idx = indexOfX(x);
-    int min = std::max(idx - window, 0);
-    int max = std::min(idx + window+1, yv.size());
-    *ym = 0;
-    *dym = 0;
-    for(int i = min; i < max; i++) {
-      *ym += yv[i];
-      *dym += dy[i];
-    }
-    *ym /= max - min;
-    *dym /= max - min;
-    return idx;
-  };
-
-  /// Returns true if this data point could be part of this data
-  bool isMine(double x, double y, double tolerance, double dtol) const {
-    // double xl = xv.last(), yl = yv.last();
-    double ym, dym;
-    int idx = magnitudesAround(x, &ym, &dym);
-    
-    if(fabs(y - ym) > tolerance * fabs(ym))
-      return false;             // can't be.
-
-    if(xv.size() > 1) {
-      int didx = idx;
-      if(didx == xv.size())
-        --didx;
-      double dyv = (y - yv[didx])/(x - xv[didx]);
-      if(fabs(dyv - dym) > tolerance * fabs(dym))
-        return false;
-    }
-    return true;
-  };
-
-  /// Inserts the given point. Returns the index of the new point.
-  int insertPoint(double x, double y) {
-    int idx = indexOfX(x);
-    xv.insert(idx, x);
-    yv.insert(idx, y);
-
-    // Now update the derivative
-    int order = std::min(xv.size() - 1, 7); // Should be 2 !
-    dy = xv;
-    DataSet::arbitraryDerivative(1, order, xv.size(),
-                                 xv.data(), yv.data(),
-                                 dy.data());
-    
-    return idx;
-  };
-};
 
 // testing...
 // QSoas> generate-buffer 0 10 x**2+10*sin(Pi*0.5*i)
@@ -2304,65 +2216,14 @@ static void unspliceCommand(const QString &, const CommandOptions & opts)
 {
   DataStackHelper pusher(opts);
   const DataSet * ds = soas().currentDataSet();
-
-  QList<UnsplicedData> trends;
-  double tol = 0.2, dtol = 0.4;
-  for(int i = 0; i < ds->nbRows(); i++) {
-    bool found = false;
-    double x = ds->x()[i], y = ds->y()[i];
-    for(UnsplicedData & t : trends) {
-      if(t.isMine(x,y,tol,dtol)) {
-        t.insertPoint(x, y);
-        found = true;
-        break;
-      }
-    }
-    if(!found) {
-      trends << UnsplicedData(x, y);
-    }
-  }
-
-  // Now we make a second pass: delete all the 'minor' and start
-  // again, not creating anything new this time.
-  Vector lx, ly;
-  // Minor are things that correspond to 1 datapoint, or less than one
-  // tenth of the other things ?
-
-  // we do that twice
-  for(int i = 0; i < 2; i++) {
-    int thresh = std::max(1, (int) (ds->nbRows() / trends.size() * 0.1));
-    for(int i = 0; i < trends.size(); i++) {
-      const UnsplicedData & d = trends[i];
-      if(d.size() <= thresh) {
-        lx << d.xv;
-        ly << d.yv;
-        trends.takeAt(i);
-        --i;
-      }
-    }
-
-    // Go in reverse order.
-    for(int i = lx.size()-1; i >= 0; i--) {
-      bool found = false;
-      double x = lx[i], y = ly[i];
-      for(UnsplicedData & t : trends) {
-        if(t.isMine(x,y,tol,dtol)) {
-          t.insertPoint(x, y);
-          found = true;
-          break;
-        }
-      }
-      if(found) {
-        lx.takeAt(i);
-        ly.takeAt(i);
-        --i;
-      }
-    }
-  }
+  Unsplicer us(ds->x(), ds->y());
+  us.unsplice();
+  QList<UnsplicedData> trends = us.trends();
+  QList<Vector> leftovers = us.leftovers();
   
 
   Terminal::out << "Found " << trends.size() << " trends, and "
-                << lx.size() << " leftover points" << endl;
+                << leftovers.first().size() << " leftover points" << endl;
   int i = 0;
   for(const UnsplicedData & t : trends) {
     QList<Vector> cols;
@@ -2371,10 +2232,8 @@ static void unspliceCommand(const QString &, const CommandOptions & opts)
     pusher << nds;
     ++i;
   }
-  if(lx.size() > 0) {
-    QList<Vector> cols;
-    cols << lx << ly;
-    DataSet * nds = ds->derivedDataSet(cols, "_leftover");
+  if(leftovers.first().size() > 0) {
+    DataSet * nds = ds->derivedDataSet(leftovers, "_leftover");
     pusher << nds;
   }
   

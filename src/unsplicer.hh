@@ -86,11 +86,6 @@ public:
   /// assigned to a trend. unsplice() should have been run first.
   QList<Vector> leftovers() const;
 
-  /// Annotates the original data points with the number of the trend
-  /// it was found to belong to, or -1 if it is part of the leftovers.
-  /// unsplice() should have been run first.
-  QList<int> annotate() const;
-  
 };
 
 #endif

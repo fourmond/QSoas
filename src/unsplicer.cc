@@ -53,7 +53,8 @@ int UnsplicedData::magnitudesAround(double x, double * ym,
   *dym = 0;
   for(int i = min; i < max; i++) {
     *ym += yv[i];
-    *dym += dy[i];
+    if(dy.size() > 0)
+      *dym += dy[i];
   }
   *ym /= max - min;
   *dym /= max - min;
@@ -69,7 +70,7 @@ bool UnsplicedData::isMine(double x, double y, double tolerance,
   if(fabs(y - ym) > tolerance * fabs(ym))
     return false;             // can't be.
 
-  if(xv.size() > 1) {
+  if(dy.size() > 1) {
     int didx = idx;
     if(didx == xv.size())
       --didx;
@@ -89,10 +90,15 @@ int UnsplicedData::insertPoint(double x, double y) {
   // Now update the derivative
   int order = std::min(xv.size() - 1, 7); // Should be 2 !
   dy = xv;
-  DataSet::arbitraryDerivative(1, order, xv.size(),
-                               xv.data(), yv.data(),
-                               dy.data());
-    
+  try {
+    DataSet::arbitraryDerivative(1, order, xv.size(),
+                                 xv.data(), yv.data(),
+                                 dy.data());
+  }
+  catch(const RuntimeError & re) {
+    // This means we have only duplicate X values, dropping
+    dy.clear();
+  };
   return idx;
 };
 
@@ -174,12 +180,4 @@ QList<Vector> Unsplicer::leftovers() const
   QList<Vector> lst;
   lst << lx << ly;
   return lst;
-}
-
-QList<int> Unsplicer::annotate() const
-{
-  if(! unspliced)
-    throw InternalError("Must run unsplice() before using annotate()");
-  QList<int> rv;
-  return rv;
 }

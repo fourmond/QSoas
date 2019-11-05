@@ -1,0 +1,9 @@
+# Here, we test various aspects of the evaluation of scripts
+
+eval $stuff=2
+generate-buffer 0 10 $stuff
+assert '$stats["y_max"]-2' 0
+
+# Testing inline expansion
+generate-buffer 0 10 %{$stuff}*2
+assert '$stats["y_max"]-4' 0

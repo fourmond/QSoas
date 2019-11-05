@@ -353,7 +353,7 @@ bool CommandWidget::runCommand(const QString & str)
       QString cmd = str;
       try {
         // We look for evaluated code
-        QRegExp substitutionRE("#\\{([^}]+)\\}");
+        QRegExp substitutionRE("%\\{([^}]+)\\}");
 
         int idx = 0;
         /// @todo History isn't going to work

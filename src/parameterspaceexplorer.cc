@@ -114,6 +114,8 @@ static void iterateExplorerCommand(const QString & /*name*/,
 
   QString script;
   updateFromOptions(opts, "script", script);
+  QString preScript;
+  updateFromOptions(opts, "pre-script", preScript);
   bool justPick = false;
   updateFromOptions(opts, "just-pick", justPick);
   QString impScript;
@@ -145,12 +147,24 @@ static void iterateExplorerCommand(const QString & /*name*/,
                   << lr
                   << endl;
     bool cont = explorer->iterate(justPick);
+    if(! preScript.isEmpty()) {
+      Terminal::out << "Running pre-iteration script: '" << preScript
+                    << "'" << endl;
+      CommandWidget::ScriptStatus st =
+        soas().prompt().runCommandFile(preScript, lst);
+      if(!st == CommandWidget::Success) {
+        Terminal::out << "Script '" << preScript
+                      << "' failed, stopping iteration" << endl;
+        cont = false;
+        break;
+      }
+    }
     if(justPick) {
       Terminal::out << " -> stopping just after picking parameters" << endl;
       break;                    // We're done
     }
     if(! script.isEmpty()) {
-      Terminal::out << "Running end-of-iteration script: '" << script
+       Terminal::out << "Running end-of-iteration script: '" << script
                     << "'" << endl;
       CommandWidget::ScriptStatus st =
         soas().prompt().runCommandFile(script, lst);
@@ -183,6 +197,9 @@ static void iterateExplorerCommand(const QString & /*name*/,
 
 
 ArgumentList ieOpts(QList<Argument*>() 
+                    << new FileArgument("pre-script", 
+                                        "Pre-iteration script",
+                                        "script file run after choosing the parameters and before choosing the file", false, true)
                     << new FileArgument("script", 
                                         "Script",
                                         "script file run after the iteration", false, true)

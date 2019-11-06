@@ -100,7 +100,7 @@ public:
   /// @li running a fit (or several, or many), unless @a justPick is true
   ///
   /// The user will have the opportunity to execute a script right @b
-  /// after each iteration.
+  /// after and also @b before each iteration.
   virtual bool iterate(bool justPick = false) = 0;
 
   /// Returns the current progress

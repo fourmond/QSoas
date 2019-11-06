@@ -61,7 +61,21 @@ protected:
 
 
   static CommandEffector * explorerEffector(const QString & n);
+
+  /// A list of prefit-hooks. If any of them does not return true, the
+  /// fit is aborted.
+  QList<std::function<bool ()> > preFitHooks;
+
+  /// Run all the hooks, and returns true only if one should proceed.
+  bool runHooks() const;
 public:
+
+  /// Adds a hook to run before launching the script
+  void addHook(const std::function<bool ()> & func);
+
+  /// Clears all the hooks.
+  void clearHooks();
+    
 
   /// The item used to create the 
   ParameterSpaceExplorerFactoryItem * createdFrom;

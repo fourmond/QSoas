@@ -80,6 +80,25 @@ QHash<QString, QString> ParameterSpaceExplorer::availableExplorers()
   return ParameterSpaceExplorerFactoryItem::availableDescriptions();
 }
 
+bool ParameterSpaceExplorer::runHooks() const
+{
+  for(const std::function< bool()> h : preFitHooks) {
+    if(! h())
+      return false;
+  }
+  return true;
+}
+
+void ParameterSpaceExplorer::addHook(const std::function<bool ()> & func)
+{
+  preFitHooks << func;
+}
+
+void ParameterSpaceExplorer::clearHooks()
+{
+  preFitHooks.clear();
+}
+
 
 CommandEffector * ParameterSpaceExplorer::explorerEffector(const QString & n)
 {
@@ -130,6 +149,24 @@ static void iterateExplorerCommand(const QString & /*name*/,
       break;
   }
 
+  explorer->clearHooks();
+  if(! preScript.isEmpty()) {
+    std::function<bool ()> fn = [preScript, lst]() -> bool {
+      Terminal::out << "Running pre-iteration script: '" << preScript
+                    << "'" << endl;
+      CommandWidget::ScriptStatus st =
+        soas().prompt().runCommandFile(preScript, lst);
+      if(!st == CommandWidget::Success) {
+        Terminal::out << "Script '" << preScript
+                      << "' failed, stopping iteration" << endl;
+        return false;
+      }
+      return true;
+    };
+    explorer->addHook(fn);
+  }
+
+
   while(true) {
     QString lr = "(none yet)";
     double res = -1;
@@ -147,18 +184,6 @@ static void iterateExplorerCommand(const QString & /*name*/,
                   << lr
                   << endl;
     bool cont = explorer->iterate(justPick);
-    if(! preScript.isEmpty()) {
-      Terminal::out << "Running pre-iteration script: '" << preScript
-                    << "'" << endl;
-      CommandWidget::ScriptStatus st =
-        soas().prompt().runCommandFile(preScript, lst);
-      if(!st == CommandWidget::Success) {
-        Terminal::out << "Script '" << preScript
-                      << "' failed, stopping iteration" << endl;
-        cont = false;
-        break;
-      }
-    }
     if(justPick) {
       Terminal::out << " -> stopping just after picking parameters" << endl;
       break;                    // We're done

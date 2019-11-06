@@ -161,6 +161,8 @@ public:
       Terminal::out << " -> " << names[s.parameter.first]
                     << "[#" << s.parameter.second << "] =  " << v << endl;
     }
+    if(! runHooks())
+      return false;
     if(! justPick) {
       workSpace->runFit(fitIterations);
       currentIteration++;
@@ -283,6 +285,9 @@ public:
       p[i] = (w ? p1[i] : p2[i]);
     }
     workSpace->restoreParameterValues(p);
+    if(! runHooks())
+      return false;
+
     if(! justPick) {
       ++currentIteration;
       workSpace->runFit(fitIterations);
@@ -452,6 +457,9 @@ public:
       Terminal::out << " -> " << names[s.parameter.first]
                     << "[#" << s.parameter.second << "] =  " << v << endl;
     }
+
+    if(! runHooks())
+      return false;
 
     if(! justPick) {
       workSpace->runFit(fitIterations);
@@ -922,6 +930,9 @@ public:
 
 
     workSpace->restoreParameterValues(choice);
+
+    if(! runHooks())
+      return false;
 
     if(! justPick) {
       workSpace->runFit(fitIterations);

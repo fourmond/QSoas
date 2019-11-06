@@ -19,3 +19,6 @@
 
 # Test the computation of the residuals:
 @ residuals.cmds
+
+# First tests of non-interactive fits
+@ expert.cmds

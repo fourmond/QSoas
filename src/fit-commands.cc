@@ -301,7 +301,8 @@ static void setCommand(const QString & /*name*/, QList<QPair<int, int> > params,
     MRuby * mr = MRuby::ruby();
     FWExpression exp(value, ws);
     for(QPair<int, int> ps : params) {
-      mrb_value v = exp.evaluate(ps.second);
+      // We use the first dataset as source for the meta
+      mrb_value v = exp.evaluate(ps.second >= 0 ? ps.second : 0);
       /// @todo Here: check for a string return value
       ws->setValue(ps.first, ps.second, mr->floatValue(v));
     }

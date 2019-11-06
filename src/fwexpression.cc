@@ -27,6 +27,9 @@
 #include <idioms.hh>
 #include <mruby.hh>
 
+#include <dataset.hh>
+#include <dataset.hh>
+
 #include <terminal.hh>
 
 FWExpression::FWExpression(const QString & formula,
@@ -66,7 +69,12 @@ mrb_value FWExpression::evaluate(int dataset, const double * extra)
   for(int i = 0; i < sz; i++)
     params[2 + i] = v[sz * dataset + i];
 
-  SaveGlobal p1("$params");
+  SaveGlobal s1("$params");
   mr->setGlobal("$params", workSpace->parametersToRuby(v));
+  SaveGlobal s2("$meta");
+  if(dataset >= 0)
+    mr->setGlobal("$meta", workSpace->data()->datasets[dataset]->
+                  getMetaData().toRuby());
+    
   return expr->evaluateAsRuby(params.data());
 }

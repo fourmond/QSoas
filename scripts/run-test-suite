@@ -9,7 +9,8 @@ qsoas=$QSOAS
 if [ -z "$qsoas" ]; then
     qsoas=QSoas
 fi
-xvfb="xvfb-run -a"
+xvfb="xvfb-run -a -s"
+p1='-screen 0 1280x1024x24'
 case $1 in
     --memcheck)
         pref="valgrind --tool=memcheck --track-origins=yes --leak-check=full --suppressions=../misc/valgrind.suppr "
@@ -48,9 +49,10 @@ case $1 in
         ;;
     --no-xvfb)
         xvfb=""
+        p1=""
         shift
         ;;
 esac
 
 cd tests
-$xvfb $pref $qsoas --run '@ run-all-tests.cmds '$1 --exit-after-running
+$xvfb "$p1" $pref $qsoas --run '@ run-all-tests.cmds '$1 --exit-after-running

@@ -120,7 +120,11 @@ public:
 
   /// Displays to terminal a small text description of the contents of
   /// the stack.
-  void showStackContents(int limit = 0,bool mostRecentFirst = true) const;
+  ///
+  /// The @a meta arguments lists meta that will be displayed in
+  /// addition to the buffer presentation, 
+  void showStackContents(int limit = 0,
+                         const QStringList & meta = QStringList()) const;
 
   /// @name Dataset selection
   ///

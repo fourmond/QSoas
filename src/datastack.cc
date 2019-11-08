@@ -168,9 +168,11 @@ void DataStack::pushDataSet(DataSet * dataset, bool silent)
   }
 }
 
-void DataStack::showStackContents(int nb, bool /*unused*/) const
+void DataStack::showStackContents(int nb,
+                                  const QStringList & meta) const
 {
-  QString head("\t F  C\tRows\tSegs");
+  QString head("\t F  C\tRows\tSegs\tName\t");
+  head += meta.join("\t");
   if(redoStack.size())
     Terminal::out << "Redo stack:\n" << head << endl;
   for(int i = -redoStack.size(); i < dataSets.size(); i++) {
@@ -180,7 +182,11 @@ void DataStack::showStackContents(int nb, bool /*unused*/) const
       Terminal::out << "Normal stack:\n" << head << endl;
     DataSet * ds = numberedDataSet(i);
     Terminal::out << "#" << i << "\t"
-                  << ds->stringDescription() << endl;
+                  << ds->stringDescription();
+    for(const QString & m : meta)
+      Terminal::out << "\t" << ds->getMetaData(m).toString();
+    
+    Terminal::out << endl;
   }
   Terminal::out << "Total size: " << (cachedByteSize >> 10) << " kB" << endl;
 }

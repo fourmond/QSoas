@@ -197,7 +197,10 @@ static void showStackCommand(const QString &, const CommandOptions & opts)
 {
   int number = 0;
   updateFromOptions(opts, "number", number);
-  soas().stack().showStackContents(number);
+  QStringList meta;
+  updateFromOptions(opts, "meta", meta);
+  
+  soas().stack().showStackContents(number, meta);
 }
 
 static ArgumentList 
@@ -205,7 +208,11 @@ showSOpts(QList<Argument *>()
           << new IntegerArgument("number", 
                                  "Limit display",
                                  "Display only that many buffers around 0",
-                                 true));
+                                 true)
+          << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "meta", 
+                                        "Meta-data",
+                                        "also lists the comma-separated meta-data")
+          );
 
 
 static Command 

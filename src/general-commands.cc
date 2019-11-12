@@ -607,7 +607,16 @@ static void runForDatasetsCommand(const QString &, QString script,
   }  
 
   while(datasets.size() > 0) {
-    soas().pushDataSet(new DataSet(*datasets.takeLast()));
+    const DataSet * ds = datasets.takeLast();
+    Terminal::out << "Running '" << script << "' using dataset: '"
+                  << ds->name
+                  << QString("', %1 cols, %2 rows, %3 segments").
+      arg(ds->nbColumns()).arg(ds->nbRows()).
+      arg(ds->segments.size() + 1)
+                  << endl;
+
+  
+    soas().pushDataSet(new DataSet(*ds));
     soas().prompt().runCommandFile(script, a, addToHistory);
   }
 }

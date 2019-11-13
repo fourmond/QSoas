@@ -311,7 +311,15 @@ public:
   /// Returns true if the difference of the vectors is within the @a
   /// tol factor. Returns false otherwise.
   static bool withinTolerance(const Vector & x, const Vector & y, double tol);
-  
+
+
+
+  /// Returns a list of data for which the log of the Y values are
+  /// (more-or-less) less than @a tolerance apart from the average of
+  /// logs.
+  static QList<QList<Vector> > orderOfMagnitudeClassify(const Vector & xv,
+                                                        const Vector & yv,
+                                                        double tolerance);
 };
 
 #endif

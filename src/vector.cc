@@ -930,3 +930,59 @@ void Vector::randomize(double low, double high)
     (*this)[i] *= scale;
   }
 }
+
+/// Very dumb class to classify data by order of magnitude
+class Order {
+  double logSum;
+public:
+  Vector xvals, yvals;
+
+  void append(double x, double y) {
+    xvals << x;
+    yvals << y;
+    logSum += log10(y);
+  };
+
+  Order(double x, double y) : logSum(0) {
+    append(x, y);
+  };
+
+  /// Returns true if
+  bool isMine(double y, double mag = 1.5) const {
+    y = log10(y);
+    if(fabs(y - logSum/xvals.size()) < mag)
+      return true;
+    return false;
+  };
+
+  
+  
+};
+
+QList<QList<Vector> > Vector::orderOfMagnitudeClassify(const Vector & xv,
+                                                       const Vector & yv,
+                                                       double tolerance)
+{
+  QList<Order> mags;
+  for(int i = 0; i < xv.size(); i++) {
+    bool found = false;
+    double x = xv[i], y = yv[i];
+    for(Order & o : mags) {
+      if(o.isMine(y)) {
+        o.append(x,y);
+        found = true;
+        break;
+      }
+    }
+    if(! found) {
+      mags << Order(x,y);
+    }
+  }
+  QList<QList<Vector> > rv;
+  for(const Order & t : mags) {
+    QList<Vector> cols;
+    cols << t.xvals << t.yvals;
+    rv << cols;
+  }
+  return rv;
+}

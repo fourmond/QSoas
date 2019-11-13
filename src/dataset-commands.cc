@@ -2245,11 +2245,89 @@ usOpts(QList<Argument *>()
        );
 
 
+// I don't really think this command is so useful in the end...
+
+// static Command 
+// unsplice("unsplice", // command name
+//          effector(unspliceCommand), // action
+//          "buffer",  // group name
+//          NULL, // arguments
+//          &usOpts, // options
+//          "Unsplice dataset",
+//          "Tries to identify multiple trends in the data");
+
+//////////////////////////////////////////////////////////////////////
+
+/// Very dumb class to classify data by order
+class Order {
+  double logSum;
+public:
+  Vector xvals, yvals;
+
+  void append(double x, double y) {
+    xvals << x;
+    yvals << y;
+    logSum += log10(y);
+  };
+
+  Order(double x, double y) : logSum(0) {
+    append(x, y);
+  };
+
+  /// Returns true if
+  bool isMine(double y, double mag = 1.5) const {
+    y = log10(y);
+    if(fabs(y - logSum/xvals.size()) < mag)
+      return true;
+    return false;
+  };
+
+  
+  
+};
+
+static void classifyCommand(const QString &, const CommandOptions & opts)
+{
+  DataStackHelper pusher(opts);
+  const DataSet * ds = soas().currentDataSet();
+  double mag = 1.5;
+  QList<Order> mags;
+
+  const Vector & xv = ds->x();
+  const Vector & yv = ds->y();
+  for(int i = 0; i < xv.size(); i++) {
+    bool found = false;
+    double x = xv[i], y = yv[i];
+    for(Order & o : mags) {
+      if(o.isMine(y)) {
+        o.append(x,y);
+        found = true;
+        break;
+      }
+    }
+    if(! found) {
+      mags << Order(x,y);
+    }
+  }
+  
+
+  Terminal::out << "Found " << mags.size() << " trends" << endl;
+  int i = 0;
+  for(const Order & t : mags) {
+    QList<Vector> cols;
+    cols << t.xvals << t.yvals;
+    DataSet * nds = ds->derivedDataSet(cols, QString("_trend_%1").arg(i));
+    pusher << nds;
+    ++i;
+  }
+}
+
+
 static Command 
-unsplice("unsplice", // command name
-         effector(unspliceCommand), // action
+unsplice("classify", // command name
+         effector(classifyCommand), // action
          "buffer",  // group name
          NULL, // arguments
          &usOpts, // options
-         "Unsplice dataset",
-         "Tries to identify multiple trends in the data");
+         "Classify dataset",
+         "Tries to identify multiple order of magnitude trends in the data");

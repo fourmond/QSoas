@@ -339,8 +339,8 @@ int ODRPACKFitEngine::iterate()
   if(info == 4)
     return GSL_CONTINUE;
 
-  QTextStream o(stdout);
-  o << "Fitting procedure report: info is " << info << endl;
+  // QTextStream o(stdout);
+  // o << "Fitting procedure report: info is " << info << endl;
 
   return GSL_SUCCESS;
 }

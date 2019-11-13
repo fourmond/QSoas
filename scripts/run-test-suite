@@ -55,4 +55,8 @@ case $1 in
 esac
 
 cd tests
-$xvfb "$p1" $pref $qsoas --run '@ run-all-tests.cmds '$1 --exit-after-running
+if [ "$xvfb" ]; then
+    $xvfb "$p1" $pref $qsoas --run '@ run-all-tests.cmds '$1 --exit-after-running
+else
+    $pref $qsoas --run '@ run-all-tests.cmds '$1 --exit-after-running
+fi

@@ -989,6 +989,69 @@ sa("simulated-annealing", "Simulated annealing",
      return new SimulatedAnnealingExplorer(ws);
    });
 
+//////////////////////////////////////////////////////////////////////
+
+
+class OrderClassifyExplorer : public ParameterSpaceExplorer {
+  int fitIterations;
+
+public:
+
+  static ArgumentList args;
+  static ArgumentList opts;
+
+  OrderClassifyExplorer(FitWorkspace * ws) :
+    ParameterSpaceExplorer(ws)
+  {
+  };
+
+  virtual void setup(const CommandArguments & args,
+                     const CommandOptions & opts) override {
+    QStringList specs = args[0]->value<QStringList>();
+    updateFromOptions(opts, "fit-iterations", fitIterations);
+
+  };
+
+  virtual bool iterate(bool justPick) override {
+    if(! runHooks())
+      return false;
+    if(! justPick) {
+      workSpace->runFit(fitIterations);
+    }
+    return false;
+  };
+
+  virtual QString progressText() const override {
+    return QString("...");
+  };
+
+
+};
+
+ArgumentList
+OrderClassifyExplorer::args(QList<Argument*>() 
+                                 << new SeveralStringsArgument("parameters",
+                                                               "Parameters",
+                                                               "Parameter specification", true)
+                                 );
+ 
+ArgumentList
+OrderClassifyExplorer::opts(QList<Argument*>() 
+                                 << new IntegerArgument("fit-iterations",
+                                                        "Fit iterations",
+                                                        "Maximum number of fit iterations")
+                                 );
+
+ParameterSpaceExplorerFactoryItem 
+om("order-of-magnitude", "Order of magnitude",
+   &OrderClassifyExplorer::args,
+   &OrderClassifyExplorer::opts,
+   [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
+     return new OrderClassifyExplorer(ws);
+   });
+
+
+
 
 //////////////////////////////////////////////////////////////////////
 

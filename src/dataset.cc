@@ -834,6 +834,9 @@ double DataSet::yValueAt(double x, bool interpolate) const
     double dx = xvals[i] - x;
     if(dx*lastdx <= 0) {        // sign change, we passed it !
       if(interpolate) {
+        if(lastdx == dx)
+          return 0.5*(yvals[i] + yvals[i-1]);
+        // Take care of the case when two successive X values are identical
         return (lastdx * yvals[i] - dx * yvals[i-1])/(lastdx - dx);
       }
       else {

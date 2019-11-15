@@ -42,8 +42,10 @@ MRuby::MRuby()
 {
   mrb = mrb_open();
   cQSoasInterface = NULL;
-  cTime =  mrb_vm_const_get(mrb, mrb_intern_lit(mrb, "Time"));
-
+  cFancyHash = mrb_nil_value();
+  cTime = mrb_vm_const_get(mrb, mrb_intern_lit(mrb, "Time"));
+  sNew = mrb_intern_lit(mrb, "new");
+  sBrackets = mrb_intern_lit(mrb, "[]");
 }
 
 MRuby::~MRuby()
@@ -70,6 +72,15 @@ MRuby * MRuby::ruby()
     globalInterpreter->eval("include Math");
     GSLFunction::registerAllFunctions(globalInterpreter);
     GSLConstant::registerAllConstants(globalInterpreter);
+
+    // Here load the fancy hash structure
+    QFile f(":/ruby/fancyhash.rb");
+    f.open(QIODevice::ReadOnly);
+    globalInterpreter->eval(&f);
+
+    globalInterpreter->cFancyHash =
+      mrb_vm_const_get(globalInterpreter->mrb,
+                       mrb_intern_lit(globalInterpreter->mrb, "FancyHash"));
 
     globalInterpreter->initializeInterface();
     globalInterpreter->initializeRegexp();
@@ -613,6 +624,16 @@ bool MRuby::isHash(mrb_value hsh)
 void MRuby::hashSet(mrb_value hash, mrb_value key, mrb_value value)
 {
   mrb_hash_set(mrb, hash, key, value);
+}
+
+mrb_value MRuby::newFancyHash()
+{
+  return mrb_funcall(mrb, cFancyHash, "new", 0);
+}
+
+void MRuby::fancyHashSet(mrb_value hash, mrb_value key, mrb_value value)
+{
+  mrb_funcall(mrb, hash, "[]=", 2, key, value);
 }
 
 mrb_value MRuby::hashRef(mrb_value hash, mrb_value key)

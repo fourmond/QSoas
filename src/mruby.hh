@@ -58,6 +58,12 @@ private:
 
   mrb_value cTime;
 
+  mrb_value cFancyHash;
+
+  mrb_sym sNew;
+
+  mrb_sym sBrackets;
+
 public:
   mrb_state *mrb;
 
@@ -200,6 +206,7 @@ public:
   /// Creates a hash
   mrb_value newHash();
 
+
   /// Sets a hash element
   void hashSet(mrb_value hash, mrb_value key, mrb_value elem);
 
@@ -209,6 +216,12 @@ public:
   /// Iterates over the hash, running the function.
   void hashIterate(mrb_value hash,
                    const std::function <void (mrb_value key, mrb_value value)> & func);
+
+  /// Creates a new FancyHash object
+  mrb_value newFancyHash();
+
+  /// Sets a hash element
+  void fancyHashSet(mrb_value hash, mrb_value key, mrb_value elem);
 
   /// @}
 

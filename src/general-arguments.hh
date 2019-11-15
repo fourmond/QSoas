@@ -690,4 +690,25 @@ public:
 
 };
 
+/// A piece of code. The only difference this provides to
+/// StringArgument is that it provides limited completion on $stats
+/// and $meta.
+class CodeArgument : public StringArgument {
+public:
+
+  CodeArgument(const char * cn, const char * pn,
+                 const char * d = "", bool def = false) : 
+    StringArgument(cn, pn, d, def) {
+  }; 
+  
+  virtual QString typeName() const override {
+    return "code";
+  };
+
+  virtual QString typeDescription() const override;
+
+  virtual QStringList proposeCompletion(const QString & starter) const override;
+
+};
+
 #endif

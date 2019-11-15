@@ -1045,3 +1045,42 @@ void SeveralColumnsArgument::setEditorValue(QWidget * editor,
 {
   setTextEditorValue(editor, value);
 }
+
+//////////////////////////////////////////////////////////////////////
+
+#include <statistics.hh>
+
+
+QString CodeArgument::typeDescription() const
+{
+  return "A piece of [Ruby code](#ruby)";
+}
+
+QStringList CodeArgument::proposeCompletion(const QString & starter) const
+{
+  QRegExp globalRE("\\$[\\w.]*$");
+  const DataSet * ds = soas().stack().currentDataSet(true);
+  QStringList rv;
+  if(!ds)
+    return rv;
+  int idx = globalRE.indexIn(starter);
+  if(idx >= 0) {
+    QString cur = starter.mid(idx);
+    QStringList props;
+    props << "$stats" << "$meta";
+    // Prepare completions
+    QStringList stats = StatisticsValue::statsAvailable(ds);
+    for(const QString & n : stats)
+      props += "$stats." + n;
+    QStringList meta = ds->getMetaData().keys();
+    meta << "name";
+    for(const QString & n : meta)
+      props += "$meta." + n;
+    props = Utils::stringsStartingWith(props, cur);
+    QString b = starter.left(idx);
+    for(const QString & n: props)
+      rv << b + n;
+  }
+  return rv;
+}
+

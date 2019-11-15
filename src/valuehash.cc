@@ -415,7 +415,7 @@ mrb_value ValueHash::toRuby() const
   MRuby * mr = MRuby::ruby();
   MRubyArenaContext c(mr);
 
-  mrb_value ret = mr->newHash();
+  mrb_value ret = mr->newFancyHash();
   mr->gcRegister(ret);
   for(const_iterator it = begin(); it != end(); ++it) {
     // Hmmm, QVariant says type() is QVariant::Type, but the
@@ -425,7 +425,7 @@ mrb_value ValueHash::toRuby() const
       // DUMP_MRUBY(key);
       mrb_value val = variantToRuby(it.value());
       // DUMP_MRUBY(val);
-      mr->hashSet(ret, key, val);
+      mr->fancyHashSet(ret, key, val);
     }
     catch(RuntimeError & er) {
       Debug::debug() << "Error converting key '" << it.key() << "' (=" 

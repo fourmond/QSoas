@@ -1,0 +1,2 @@
+@ generate-data.cmds
+mfit-exponential-decay /exponentials=2 /expert=true flagged:gen /parameters=dispersed.params /perp-meta=generated-number

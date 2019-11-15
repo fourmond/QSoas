@@ -303,6 +303,10 @@ public:
   /// unknown parameters.
   QList<QPair<int, int> > parseParameterList(const QString & spec,
                                              QStringList * unknowns = NULL) const;
+
+  /// Returns the index of the named parameter (not taking into
+  /// account datasets). Returns -1 if no such parameter exists.
+  int parameterIndex(const QString & name) const;
   
   /// Sets the value by name. 
   void setValue(const QString & name, double value, int ds = -1);

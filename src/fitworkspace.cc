@@ -817,6 +817,12 @@ void FitWorkspace::setFixed(int index, int ds, bool fixed)
 }
 
 
+int FitWorkspace::parameterIndex(const QString & name) const
+{
+  return parameterIndices.value(name, -1);
+}
+
+
 QList<QPair<int, int> > FitWorkspace::parseParameterList(const QString & spec,
                                                          QStringList * unknowns) const
 {

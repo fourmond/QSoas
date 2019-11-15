@@ -20,6 +20,8 @@
 #include <parameterspaceexplorer.hh>
 #include <exceptions.hh>
 
+#include <dataset.hh>
+
 #include <fitworkspace.hh>
 
 #include <argumentlist.hh>
@@ -995,6 +997,27 @@ sa("simulated-annealing", "Simulated annealing",
 class OrderClassifyExplorer : public ParameterSpaceExplorer {
   int fitIterations;
 
+  class ParameterValues {
+  public:
+
+    /// the parameter index
+    int paramIndex;
+
+    /// the current index in the parameter values
+    int cur;
+
+    /// The various values of the given parameter.
+    QList<Vector> values;
+  };
+
+  QList<ParameterValues> parameters;
+
+  int total;
+  int current;
+
+  /// Saved initial parameters
+  Vector initialParameters;
+
 public:
 
   static ArgumentList args;
@@ -1010,19 +1033,124 @@ public:
     QStringList specs = args[0]->value<QStringList>();
     updateFromOptions(opts, "fit-iterations", fitIterations);
 
+    int trends = 3;
+    updateFromOptions(opts, "trends", trends);
+
+    double magnitude = 3;
+    updateFromOptions(opts, "magnitude", magnitude);
+
+    int nb_per_ds = workSpace->data()->parametersPerDataset();
+    int nbds = workSpace->data()->datasets.size();
+
+    initialParameters = workSpace->saveParameterValues();
+
+    total = 1;
+    current = 0;
+
+    for(const QString & s : specs) {
+      int idx = workSpace->parameterIndex(s);
+      if(idx < 0) {
+        Terminal::out << "Unkown parameter: '" << s
+                      << "', ignoring" << endl;
+        continue;
+      }
+      Vector yv;
+      Vector xv = workSpace->perpendicularCoordinates;
+      for(int i = 0; i < nbds; i++) {
+        if(xv.size() == i)
+          xv << i;
+        yv << initialParameters[i*nb_per_ds + idx];
+      }
+
+      QList< QList<Vector> > trds =
+        Vector::orderOfMagnitudeClassify(xv, yv, magnitude/2);
+
+      // Classifies the returns according to size
+      auto fn =  [](const QList<Vector> & a, const QList<Vector> & b) -> bool {
+        if(a.first().size() > b.first().size())
+          return true;
+        if(a.first().size() == b.first().size()) {
+          double da = a.first().max() - a.first().min();
+          double db = b.first().max() - b.first().min();
+          return da > db;
+        }
+        return false;
+      };
+
+      std::sort(trds.begin(), trds.end(), fn);
+
+      QStringList t;
+      for(const QList<Vector> & v : trds)
+        t << QString("[%1,%2] (%3 points)").
+          arg(v[1].min()).arg(v[1].max()).arg(v[1].size());
+
+      Terminal::out << "Found " << trds.size() << " trends for parameter '"
+                    << s << "': " << t.join(", ") << endl;
+      if(trds.size() == 1)
+        continue;               // No need to bother
+
+      parameters << ParameterValues();
+      ParameterValues & v = parameters.last();
+      v.paramIndex = idx;
+      v.cur = 0;
+      
+      for(int i = 0; i < trds.size() && i < trends; i++) {
+        DataSet ds(trds[i]);
+        Vector nv = xv;
+        for(int j = 0; j < nv.size(); j++)
+          nv[j] = ds.yValueAt(xv[j], true);
+        v.values << nv;
+      }
+      total *= v.values.size();
+    }
+    // Ok now
+    Terminal::out << " -> " << total << " total iterations" << endl;
+
   };
 
   virtual bool iterate(bool justPick) override {
+    Vector nv = initialParameters;
+
+    int nb_per_ds = workSpace->data()->parametersPerDataset();
+    int nbds = workSpace->data()->datasets.size();
+
+    for(const ParameterValues & v : parameters) {
+      for(int i = 0; i < nbds; i++) {
+        double val = v.values[v.cur][i];
+        nv[i * nb_per_ds + v.paramIndex] = val;
+        Terminal::out << " * " << workSpace->parameterName(v.paramIndex)
+                      << "[#" << i << "] = " << val << endl;
+      }
+    }
+
+    workSpace->restoreParameterValues(nv);
+
+    /// @todo Shouldn't that be a common function ?
     if(! runHooks())
       return false;
     if(! justPick) {
       workSpace->runFit(fitIterations);
     }
-    return false;
+    
+    // Now iterate
+    bool found = false;
+    for(int i = 0; i < parameters.size(); i++) {
+      parameters[i].cur += 1;
+      if(parameters[i].cur >= parameters[i].values.size()) {
+        parameters[i].cur = 0;
+      }
+      else {
+        found = true;
+        break;
+      }
+    }
+    current += 1;
+    
+    return found;
   };
 
   virtual QString progressText() const override {
-    return QString("...");
+    return QString("%1/%2").arg(current).arg(total);
   };
 
 
@@ -1037,10 +1165,16 @@ OrderClassifyExplorer::args(QList<Argument*>()
  
 ArgumentList
 OrderClassifyExplorer::opts(QList<Argument*>() 
-                                 << new IntegerArgument("fit-iterations",
-                                                        "Fit iterations",
-                                                        "Maximum number of fit iterations")
-                                 );
+                            << new IntegerArgument("fit-iterations",
+                                                   "Fit iterations",
+                                                   "Maximum number of fit iterations")
+                            << new IntegerArgument("trends",
+                                                   "Number of trends",
+                                                   "Number of most significant trends to keep")
+                            << new NumberArgument("magnitude",
+                                                  "Magnitude window",
+                                                  "Size of the acceptable difference in magnitude")
+                            );
 
 ParameterSpaceExplorerFactoryItem 
 om("order-of-magnitude", "Order of magnitude",

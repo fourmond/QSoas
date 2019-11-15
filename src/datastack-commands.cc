@@ -614,9 +614,9 @@ bsOpts(QList<Argument *>()
        << new SeveralDataSetArgument("buffers", 
                                      "Buffers",
                                      "Buffers to show", true, true)
-       << new StringArgument("for-which", 
-                             "For which",
-                             "Select on formula")
+       << new CodeArgument("for-which", 
+                           "For which",
+                           "Select on formula")
        );
 
 static Command 
@@ -734,9 +734,9 @@ bfOpts(QList<Argument *>()
        << new StringArgument("pattern", 
                              "Pattern",
                              "Files to browse", true)
-       << new StringArgument("for-which", 
-                             "For which",
-                             "Select on formula")
+       << new CodeArgument("for-which", 
+                           "For which",
+                           "Select on formula")
 );
                              
 
@@ -832,9 +832,9 @@ muOps(QList<Argument *>()
       << new SeveralDataSetArgument("buffers", 
                                     "Buffers",
                                     "Buffers to flag/unflag", true, true)
-      << new StringArgument("for-which", 
-                            "For which",
-                            "Select on formula")
+      << new CodeArgument("for-which", 
+                          "For which",
+                          "Select on formula")
       << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                     "flags", 
                                     "Buffers",

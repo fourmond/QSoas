@@ -376,9 +376,9 @@ void DataBackend::registerBackendCommands()
                      << new BoolArgument("ignore-empty", 
                                          "Ignores empty files",
                                          "if on, skips empty files (default on)")
-                     << new StringArgument("for-which", 
-                                           "For which",
-                                           "Select on formula")
+                     << new CodeArgument("for-which", 
+                                         "For which",
+                                         "Select on formula")
                      );
 
   ArgumentList * oo = DatasetOptions::optionList();

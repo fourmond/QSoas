@@ -135,9 +135,9 @@ static void applyFormulaCommand(const QString &, QString formula,
 
 static ArgumentList 
 fA(QList<Argument *>() 
-   << new StringArgument("formula", 
-                         "Formula",
-                         "formula"));
+   << new CodeArgument("formula", 
+                       "Formula",
+                       "formula"));
 
 static ArgumentList 
 fO(QList<Argument *>() 
@@ -175,9 +175,9 @@ load("apply-formula", // command name
 
 static ArgumentList 
 tA(QList<Argument *>() 
-   << new StringArgument("formula", 
-                         "Formula",
-                         "Ruby boolean expression"));
+   << new CodeArgument("formula", 
+                       "Formula",
+                       "Ruby boolean expression"));
 
 /// @todo Large number of columns must be handled !
 static void stripIfCommand(const QString &, QString formula,
@@ -618,9 +618,9 @@ static void eval(const QString &, QString code, const CommandOptions & opts)
 
 static ArgumentList 
 eA(QList<Argument *>() 
-   << new StringArgument("code", 
-                         "Code",
-                         "Any ruby code"));
+   << new CodeArgument("code", 
+                       "Code",
+                       "Any ruby code"));
 
 static ArgumentList 
 eO(QList<Argument *>() 
@@ -920,9 +920,9 @@ static void assertCmd(const QString &, QString code,
 
 static ArgumentList 
 aA(QList<Argument *>() 
-   << new StringArgument("code", 
-                         "Code",
-                         "Any ruby code"));
+   << new CodeArgument("code", 
+                       "Code",
+                       "Any ruby code"));
 
 static ArgumentList 
 aO(QList<Argument *>() 

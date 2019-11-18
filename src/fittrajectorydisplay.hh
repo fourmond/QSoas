@@ -28,6 +28,48 @@ class FitDialog;
 class FitData;
 class CurveView;
 class TuneableDataDisplay;
+class FitTrajectory;
+
+/// A class to display a series of param = f(perpendicular coordinate)
+/// for several trajectories.
+class TrajectoryParametersDisplay : public QWidget {
+  Q_OBJECT;
+  Vector perpendicularCoordinates;
+  Vector zero;
+
+  FitWorkspace * workspace;
+
+  /// The view
+  CurveView * view;
+
+  /// The right side, the parameters checkboxes
+  QGridLayout * parametersLayout;
+
+  /// The list of displayed trajectories. The bool argument denotes
+  /// whether we are displaying the initial (false) or final (true)
+  /// result.
+  QList<QPair<const FitTrajectory *, bool> > trajectories;
+
+  /// Adds a trajectory to the display
+  void setupTrajectory(int index, const FitTrajectory * traj, bool isFinal);
+
+  /// The main check boxes for parameters
+  QList<QCheckBox *> parameters;
+
+  /// The corresponding list of displays
+  QList<QList<TuneableDataDisplay *> > parameterDisplays;
+
+  QList<QList<gsl_vector_view> > views;
+  
+public:
+
+  TrajectoryParametersDisplay(FitWorkspace * workspace);
+
+public slots:
+
+  void onSelectionChanged(const QItemSelection &selected,
+                          const QItemSelection &deselected);
+};
 
 class TrajectoriesModel;
 
@@ -50,10 +92,15 @@ class FitTrajectoryDisplay : public QDialog {
   QTableView * parametersDisplay;
 
 
-  /// The list of checkboxes for the parameters.
+  /// The parameters display in the first tab
+  TrajectoryParametersDisplay * graphicalDisplay;
+
+
+  /// The list of checkboxes for the parameters display as a function
+  /// of
   QList<TuneableDataDisplay *> parametersDisplays;
 
-  /// The view !
+  /// The view (in the second tab)
   CurveView * view;
 
   
@@ -64,8 +111,6 @@ class FitTrajectoryDisplay : public QDialog {
 
   /// The heads of the display
   QStringList heads;
-
-
 
   /// The global vertical layout
   QVBoxLayout * overallLayout;

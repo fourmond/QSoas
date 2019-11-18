@@ -70,6 +70,9 @@ public:
   /// added to the main panel of the CurveView.
   CurvePoints * addSource(XYIterable * source, bool autoadd = true);
 
+  /// Sets the source, i.e. clears all the sources and add this one
+  CurvePoints * setSource(XYIterable * source, bool autoadd = true);
+
   /// Returns the item of the given @a index, or NULL if none exist.
   CurvePoints * item(int index) const;
 
@@ -80,6 +83,7 @@ public:
 public slots:
   /// Switches on/off the display (if display != 0)
   void toggleDisplay(int display);
+
 
   /// Prompt for a new color;
   void promptChangeColor();

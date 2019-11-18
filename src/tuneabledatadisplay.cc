@@ -83,6 +83,15 @@ CurvePoints * TuneableDataDisplay::addSource(XYIterable * source,
   return cp;
 }
 
+CurvePoints * TuneableDataDisplay::setSource(XYIterable * source,
+                                             bool autoadd)
+{
+  for(CurvePoints * cp : items)
+    delete cp;
+  items.clear();
+  return addSource(source, autoadd);
+}
+
 void TuneableDataDisplay::updateCurveColors()
 {
   // We update both the brush and the color

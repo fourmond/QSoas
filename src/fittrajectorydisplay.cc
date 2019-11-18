@@ -411,6 +411,120 @@ public:
 
 };
 
+//////////////////////////////////////////////////////////////////////
+
+
+
+
+
+TrajectoryParametersDisplay::TrajectoryParametersDisplay(FitWorkspace * ws) :
+  workspace(ws)
+{
+  QHBoxLayout * layout = new QHBoxLayout(this);
+  view = new CurveView;
+  layout->addWidget(view);
+  parametersLayout = new QGridLayout;
+  layout->addLayout(parametersLayout);
+  QStringList pnames = workspace->parameterNames();
+  for(int i = 0; i < pnames.size(); i++) {
+    QCheckBox * cb = new QCheckBox(pnames[i]);
+    parametersLayout->addWidget(cb, i, 0);
+    parameters << cb;
+    views << QList<gsl_vector_view>();
+
+    parameterDisplays << QList<TuneableDataDisplay *>();
+
+    connect(cb, &QCheckBox::stateChanged, this, [i, this](int state) {
+        for(TuneableDataDisplay * d : parameterDisplays[i])
+          d->toggleDisplay(state == Qt::Checked);
+      }
+      );
+  }
+
+  perpendicularCoordinates = workspace->perpendicularCoordinates;
+  int nbds = workspace->data()->datasets.size();
+  if(perpendicularCoordinates.size() != nbds) {
+    Terminal::out << "Wrong number of perpendicular coordinates, making them up" << endl;
+    perpendicularCoordinates.clear();
+    for(int i = 0; i < nbds; i++)
+      perpendicularCoordinates << i;
+  }
+  zero = perpendicularCoordinates;
+  for(int i = 0; i < zero.size(); i++)
+    zero[i] = 0;
+}
+
+void TrajectoryParametersDisplay::setupTrajectory(int index,
+                                                  const FitTrajectory * traj,
+                                                  bool isFinal)
+{
+  QPair<const FitTrajectory *, bool> p(traj, isFinal);
+  QTextStream o(stdout);
+  o << "parameterDisplays: "
+    << parameterDisplays.size() << endl;
+  
+  while(parameterDisplays[0].size() <= index) {
+    int sz = parameterDisplays[0].size();
+    o << "Sz: : " << sz << endl;
+    for(int i = 0; i < parameterDisplays.size(); i++) {
+      TuneableDataDisplay * d = new TuneableDataDisplay("", view);
+      parametersLayout->addWidget(d, i, sz+1);
+      o << "Sz2: " << i << endl;
+      parameterDisplays[i] << d;
+      gsl_vector_view v;
+      views[i] << v << v;
+    }
+    trajectories << QPair<const FitTrajectory *, bool>(NULL, false);
+  }
+
+  o << "Index: " << index << " -- " << trajectories.size() << endl;
+  if(trajectories[index] == p)
+    return;
+
+  trajectories[index] = p;
+
+  for(int i = 0; i < parameterDisplays.size(); i++) {
+    int nbparams = parameters.size();
+    int nbds = workspace->data()->datasets.size();
+    if(isFinal) {
+      views[i][index*2] =
+        gsl_vector_view_array_with_stride(const_cast<double*>(traj->finalParameters.data() + i),
+                                          nbparams, nbds);
+      views[i][index*2+1] =
+        gsl_vector_view_array_with_stride(const_cast<double*>(traj->parameterErrors.data() + i),
+                                          nbparams, nbds);
+    }
+    else {
+      views[i][index*2] =
+        gsl_vector_view_array_with_stride(const_cast<double*>(traj->initialParameters.data() + i),
+                                          nbparams, nbds);
+      views[i][index*2+1] =
+        gsl_vector_view_array_with_stride(const_cast<double*>(zero.data() + i),
+                                          nbparams, nbds);
+    }    
+    XYIterable * xy =
+      new XYIGSLVectors(perpendicularCoordinates.toGSLVector(),
+                        &views[i][index*2].vector,
+                        &views[i][index*2+1].vector);
+    parameterDisplays[i][index]->setSource(xy);
+  }
+
+  
+}
+
+void TrajectoryParametersDisplay::onSelectionChanged(const QItemSelection &selected,
+                                                     const QItemSelection & /*deselected*/)
+{
+  QSet<int> trjs;
+  for(const QModelIndex & idx : selected.indexes()) {
+    trjs.insert(idx.row());
+  }
+
+  int idx = 0;
+  for(int i : trjs)
+    setupTrajectory(idx++, &(workspace->trajectories)[i/2], i % 2);
+}
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -444,9 +558,16 @@ void FitTrajectoryDisplay::setupFrame()
   t->addWidget(wdgt);
   QVBoxLayout * l = new QVBoxLayout(wdgt);
 
+  QSplitter * splt = new QSplitter(Qt::Vertical);
+  splt->addWidget(parametersDisplay);
 
-  l->addWidget(parametersDisplay);
   parametersDisplay->setContextMenuPolicy(Qt::CustomContextMenu);
+
+  graphicalDisplay = new TrajectoryParametersDisplay(workspace);
+
+  splt->addWidget(graphicalDisplay);
+
+  l->addWidget(splt);
 
   model = new TrajectoriesModel(&workspace->trajectories, fitData);
   parametersDisplay->setModel(model);
@@ -458,7 +579,13 @@ void FitTrajectoryDisplay::setupFrame()
   connect(parametersDisplay, 
           SIGNAL(customContextMenuRequested(const QPoint&)),
           SLOT(contextMenuOnTable(const QPoint&)));
-  
+
+  connect(parametersDisplay->selectionModel(),
+          SIGNAL(selectionChanged(const QItemSelection &,
+                                  const QItemSelection &)),
+          graphicalDisplay,
+          SLOT(onSelectionChanged(const QItemSelection &,
+                                  const QItemSelection &)));
 
   QHBoxLayout * hb = new QHBoxLayout();
 

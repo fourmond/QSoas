@@ -71,6 +71,17 @@ TuneableDataDisplay::~TuneableDataDisplay()
 {
 }
 
+void TuneableDataDisplay::setName(const QString & n)
+{
+  name = n;
+  checkBox->setText(n);
+}
+
+QColor TuneableDataDisplay::currentColor() const
+{
+  return color;
+}
+
 CurvePoints * TuneableDataDisplay::addSource(XYIterable * source,
                                              bool autoadd)
 {

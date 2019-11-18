@@ -67,8 +67,7 @@ public:
 
 public slots:
 
-  void onSelectionChanged(const QItemSelection &selected,
-                          const QItemSelection &deselected);
+  void displayRows(const QSet<int> & columns);
 };
 
 class TrajectoriesModel;
@@ -206,6 +205,9 @@ protected slots:
 
   /// Deletes the selected parameters
   void deleteSelectedTrajectories();
+
+  /// Called when the selection has changed
+  void onSelectionChanged();
 };
 
 

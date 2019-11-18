@@ -80,6 +80,8 @@ public:
 
   /// Returns the underlying datasets
   QList<DataSet*> makeDataSets(bool onlyVisible = true);
+
+  QColor currentColor() const;
 public slots:
   /// Switches on/off the display (if display != 0)
   void toggleDisplay(int display);
@@ -93,6 +95,9 @@ public slots:
 
   /// update the color of the curves.
   void updateCurveColors();
+
+  /// Sets the name of the checkbox
+  void setName(const QString & name);
 
 
 };

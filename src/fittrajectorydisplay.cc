@@ -422,7 +422,7 @@ TrajectoryParametersDisplay::TrajectoryParametersDisplay(FitWorkspace * ws) :
 {
   QHBoxLayout * layout = new QHBoxLayout(this);
   view = new CurveView;
-  layout->addWidget(view);
+  layout->addWidget(view, 1);
   parametersLayout = new QGridLayout;
   layout->addLayout(parametersLayout);
   QStringList pnames = workspace->parameterNames();
@@ -452,6 +452,7 @@ TrajectoryParametersDisplay::TrajectoryParametersDisplay(FitWorkspace * ws) :
   zero = perpendicularCoordinates;
   for(int i = 0; i < zero.size(); i++)
     zero[i] = 0;
+
 }
 
 void TrajectoryParametersDisplay::setupTrajectory(int index,
@@ -462,12 +463,37 @@ void TrajectoryParametersDisplay::setupTrajectory(int index,
   QTextStream o(stdout);
   o << "parameterDisplays: "
     << parameterDisplays.size() << endl;
+
+  int trjIndex = -1;
+  int i = 0;
+  for(FitTrajectory & t : workspace->trajectories) {
+    if(&t == traj) {
+      trjIndex = i;
+      break;
+    }
+    ++i;
+  }
+
+  QString n = QString("#%1 (%2)").arg(trjIndex).
+    arg(isFinal ? "F" : "S");
   
   while(parameterDisplays[0].size() <= index) {
     int sz = parameterDisplays[0].size();
     o << "Sz: : " << sz << endl;
     for(int i = 0; i < parameterDisplays.size(); i++) {
       TuneableDataDisplay * d = new TuneableDataDisplay("", view);
+      QColor c;
+      if(sz == 0)
+        c = soas().graphicsSettings().dataSetPen(i).color();
+      else {
+        c = parameterDisplays[i][sz-1]->currentColor();
+        double h,s,v;
+        c = c.toHsv();
+        c.getHsvF(&h, &s, &v);
+        s *= 0.5;
+        c.setHsvF(h, s, v);
+      }
+      d->changeColor(c);
       parametersLayout->addWidget(d, i, sz+1);
       o << "Sz2: " << i << endl;
       parameterDisplays[i] << d;
@@ -501,25 +527,29 @@ void TrajectoryParametersDisplay::setupTrajectory(int index,
       views[i][index*2+1] =
         gsl_vector_view_array_with_stride(const_cast<double*>(zero.data() + i),
                                           nbparams, nbds);
-    }    
+    }
     XYIterable * xy =
       new XYIGSLVectors(perpendicularCoordinates.toGSLVector(),
                         &views[i][index*2].vector,
                         &views[i][index*2+1].vector);
-    parameterDisplays[i][index]->setSource(xy);
+    o << "Vector: " << perpendicularCoordinates.size()
+      << " -- " << views[i][index*2+1].vector.size << endl;
+    
+    CurvePoints * cds =
+      parameterDisplays[i][index]->setSource(xy);
+    cds->relativeErrorBar = true;
+    cds->brush = parameterDisplays[i][index]->currentColor();
+    cds->size = 5;              /// @todo make that customizable
+    cds->countBB = true;
+
+    parameterDisplays[i][index]->setName(n);
   }
 
   
 }
 
-void TrajectoryParametersDisplay::onSelectionChanged(const QItemSelection &selected,
-                                                     const QItemSelection & /*deselected*/)
+void TrajectoryParametersDisplay::displayRows(const QSet<int>& trjs)
 {
-  QSet<int> trjs;
-  for(const QModelIndex & idx : selected.indexes()) {
-    trjs.insert(idx.row());
-  }
-
   int idx = 0;
   for(int i : trjs)
     setupTrajectory(idx++, &(workspace->trajectories)[i/2], i % 2);
@@ -527,6 +557,17 @@ void TrajectoryParametersDisplay::onSelectionChanged(const QItemSelection &selec
 
 
 //////////////////////////////////////////////////////////////////////
+
+
+void FitTrajectoryDisplay::onSelectionChanged()
+{
+  QSet<int> trjs;
+  for(const QModelIndex & idx : parametersDisplay->selectionModel()
+        ->selectedIndexes()) {
+    trjs.insert(idx.row());
+  }
+  graphicalDisplay->displayRows(trjs);
+}
 
 FitTrajectoryDisplay::FitTrajectoryDisplay(FitWorkspace * ws) :
   workspace(ws), fitData(ws->data())
@@ -583,9 +624,8 @@ void FitTrajectoryDisplay::setupFrame()
   connect(parametersDisplay->selectionModel(),
           SIGNAL(selectionChanged(const QItemSelection &,
                                   const QItemSelection &)),
-          graphicalDisplay,
-          SLOT(onSelectionChanged(const QItemSelection &,
-                                  const QItemSelection &)));
+          this,
+          SLOT(onSelectionChanged()));
 
   QHBoxLayout * hb = new QHBoxLayout();
 

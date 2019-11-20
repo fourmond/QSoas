@@ -229,9 +229,10 @@ void FitDialog::setupFrame(bool expert)
 
 
   // Here, we try to be clever a little about the size of that...
-  QLabel * label = new QLabel("<b>Fit:</b> " + parameters.fitName());
-  label->setWordWrap(true);
-  hb->addWidget(label, 1);
+  fitName = new QLabel();
+  fitName->setWordWrap(true);
+  updateFitName();
+  hb->addWidget(fitName, 1);
 
   bt = new QPushButton("Hide Fixed");
   connect(bt, SIGNAL(clicked()), SLOT(hideFixedParameters()));
@@ -504,6 +505,8 @@ void FitDialog::setupFrame(bool expert)
   nup->showWidget(0);
 }
 
+
+
 const QList<FitTrajectory> & FitDialog::fitTrajectories() const
 {
   return trajectories;
@@ -512,6 +515,11 @@ const QList<FitTrajectory> & FitDialog::fitTrajectories() const
 FitData * FitDialog::getData() const
 {
   return data;
+}
+
+void FitDialog::updateFitName()
+{
+  fitName->setText("<b>Fit:</b> " + parameters.fitName());
 }
 
 FitWorkspace * FitDialog::getWorkspace()
@@ -1213,6 +1221,7 @@ void FitDialog::setSoftOptions()
       }
     }
   }
+  updateFitName();
 }
 
 void FitDialog::showTransposed()

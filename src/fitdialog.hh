@@ -60,6 +60,11 @@ class FitDialog : public QDialog {
   /// The combo box for toogling between the various buffers
   QComboBox * bufferSelection;
 
+  /// The display of the fit name.
+  QLabel * fitName;
+
+  void updateFitName();
+
   /// Label displaying the current buffer number
   QLabel * bufferNumber;
 

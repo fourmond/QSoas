@@ -1,0 +1,5 @@
+define-kinetic-system-fit bimol.qsys bimol /redefine=true
+generate-buffer 0 10
+sim-bimol parameters/bimol-1.params 0
+apply-formula 'y-= 1/(6*x+1)'
+assert '$stats["y_norm"]' 2e-8

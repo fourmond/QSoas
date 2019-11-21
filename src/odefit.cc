@@ -159,6 +159,24 @@ ODEFit::~ODEFit()
 void ODEFit::function(const double * a, FitData * data, 
                       const DataSet * ds , gsl_vector * target) const
 {
+  compute(a, data, ds, target, NULL);
+}
+
+void ODEFit::computeSubFunctions(const double * a, FitData * data,
+                                 const DataSet * ds,
+                                 QList<Vector> * targetData,
+                                 QStringList * targetAnnotations) const
+{
+  compute(a, data, ds, NULL, targetData);
+  if(targetAnnotations)
+    *targetAnnotations = variableNames(data);
+}
+
+void ODEFit::compute(const double * a, FitData * data,
+                     const DataSet * ds,
+                     gsl_vector * target,
+                     QList<Vector> * targetData) const
+{
   Storage * s = storage<Storage>(data);
   ODESolver * slv = solver(data);
   slv->resetStepper();
@@ -189,8 +207,16 @@ void ODEFit::function(const double * a, FitData * data,
   s->direction = xv[1] > xv[0] ? sr : -sr;
   s->lastTime = 0;
   s->lastPot = xv[0];
-
+  
   bool reporters = hasReporters(data);
+
+  if(targetData) {
+    targetData->clear();
+    int sz = slv->dimension();
+    for(int j = 0; j < sz; j++)
+      *targetData << Vector();
+  }
+
   for(int i = 0; i < xv.size(); i++) {
     // Here, we must be wary of the discontinuity points (ie those
     // of the time-evolving stuff)
@@ -222,13 +248,29 @@ void ODEFit::function(const double * a, FitData * data,
       for(int j = 0; j < sz; j++)
         val += cv[j] * a[j + (s->voltammogram ? 2 : 0)];
     }
-    gsl_vector_set(target, i, val);
+    if(targetData) {
+      int sz = slv->dimension();
+      for(int j = 0; j < sz; j++)
+        (*targetData)[j] << cv[j];
+    }
+    if(target)
+      gsl_vector_set(target, i, val);
   }
 
   if(data->debug) {
     Debug::debug() << "Number of evaluations: " << slv->evaluations << endl;
   }
       
+}
+
+bool ODEFit::hasSubFunctions(FitData * data) const
+{
+  return true;
+}
+
+bool ODEFit::displaySubFunctions(FitData * data) const
+{
+  return false;
 }
 
 

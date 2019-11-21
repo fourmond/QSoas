@@ -131,6 +131,13 @@ protected:
 
   /// Updates the parameters cache.
   void updateParameters(FitData * data) const;
+
+protected:
+
+  void compute(const double * parameters, FitData * data,
+               const DataSet * ds,
+               gsl_vector * target,
+               QList<Vector> * targetData) const;
   
 
 public:
@@ -145,10 +152,18 @@ public:
   virtual void function(const double * a, FitData * data, 
                         const DataSet * ds , gsl_vector * target) const override;
 
+  virtual void computeSubFunctions(const double * parameters, FitData * data,
+                                   const DataSet * ds,
+                                   QList<Vector> * targetData,
+                                   QStringList * targetAnnotations) const override;
+
   virtual ArgumentList * fitSoftOptions() const override;
 
   virtual ArgumentList * fitHardOptions() const override;
 
+  virtual bool hasSubFunctions(FitData * data) const override;
+
+  virtual bool displaySubFunctions(FitData * data) const override;
 
   ODEFit(const QString & n, const QString & sd, const QString & desc,
          int min = 1, int max = -1, bool mkCmds = true) :

@@ -141,6 +141,11 @@ public:
   virtual QRectF boundingRect() const override;
   virtual void paint(QPainter * painter, const QRectF & bbox,
                      const QTransform & curveToWidget) override;
+
+  QString legend;
+  virtual QRect paintLegend(QPainter * painter, 
+                            const QRect & placement) override;
+  
 };
 
 #endif

@@ -210,3 +210,29 @@ void CurveData::paint(QPainter * painter, const QRectF &,
   painter->drawPath(pp);
   painter->restore();
 }
+
+QRect CurveData::paintLegend(QPainter * p, const QRect & rect)
+{
+  if(legend.isEmpty())
+    return QRect();
+  QPoint p1 = QPoint(rect.left(), (rect.bottom() + rect.top())/2);
+  QPoint p2 = p1 + QPoint(10, 0); // Mwouaf...
+
+  p->save();
+  QPen pen2 = pen;
+  pen2.setWidthF(1.5);
+  p->setPen(pen);
+  p->drawLine(p1, p2);
+  p->restore();
+
+  QRect tmp(p1, p2);
+  tmp.adjust(0,-1,0,1);
+  
+  QRect r = rect.adjusted(13, 0, 0, 0);
+  QRect t;
+  p->drawText(r, 
+              Qt::AlignLeft | Qt::AlignVCenter | Qt::TextDontClip,
+              legend,
+              &t);
+  return t.united(tmp);
+}

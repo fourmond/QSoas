@@ -604,7 +604,8 @@ void FitDialog::setupSubFunctionCurves(bool dontSend)
   if(! displaySubFunctions)
     return;
 
-  subFunctions = parameters.computeSubFunctions(dontSend);
+  QStringList ann;
+  subFunctions = parameters.computeSubFunctions(dontSend, &ann);
 
   int base = 0;
   const GraphicsSettings & gs = soas().graphicsSettings();
@@ -615,6 +616,7 @@ void FitDialog::setupSubFunctionCurves(bool dontSend)
     for(int j = 0; j < subFunctions.size(); j++) {
       Vector subY = subFunctions[j].mid(base, sz);
       CurveData * dt = new CurveData(ds->x(), subY);
+      dt->legend = ann[j];
       dt->pen = gs.dataSetPen(j+3, true);
 
       views[i]->addItem(dt);

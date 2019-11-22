@@ -84,6 +84,7 @@ public:
   /// private only in the .cc file
   class Reaction {
   protected:
+    friend class KineticSystem;
 
     /// Expression for the forward rate
     QString forwardRate;
@@ -95,20 +96,6 @@ public:
     
     Expression * forward;
     Expression * backward;
-
-
-    /// @name Handling of thermodynamic cycles
-    ///
-    /// This is used for the handling of thermodynamic cycles,
-    /// i.e. when one of the rate constants is determined
-    /// automatically. The choice of the 
-    ///
-    /// @{
-    
-    /// The list of reactions that close the cycle
-    QList<Reaction*> cycle;
-
-    /// @}
 
   public:
     /// List of indices of the reactants or products
@@ -144,6 +131,10 @@ public:
     virtual ~Reaction() {
       clearExpressions();
     };
+
+    /// Returns the stoechiometry of the numbered species, or 0 if
+    /// this species does not partake the reaction.
+    int stoechiometry(int species) const;
 
     /// Computes the expressions
     virtual void makeExpressions(const QStringList & vars = QStringList());
@@ -223,6 +214,7 @@ protected:
   /// List of reactions
   QVector<Reaction *> reactions;
 
+
   /// @name Cache
   ///
   /// These attributes are used to setting up and maintaining the cache 
@@ -243,6 +235,39 @@ protected:
   /// Returns the index of the species, and registers it if needed.
   int speciesIndex(const QString & str);
 
+
+  /// @name Handling of thermodynamic cycles
+  ///
+  /// @{
+
+  
+  /// A thermodynamic cycle.
+  class Cycle {
+  public:
+    /// The list of reactions in the cycle. The first is the one in
+    /// which one of the rates is automatic.
+    QList<Reaction * > reactions;
+
+    /// The "stoeichiometry" of the reaction, i.e. 1 if the reaction
+    /// is "naturally" in the sense of the cycle, or -1 if it is in
+    /// the reverse direction. 
+    QList<int> directions;
+    
+    
+  };
+
+
+  QList<Cycle> cycles;
+  
+  /// Adds a cycle, starting from the given reaction, parses the
+  /// "cycle:" spec in either the forward or backward expression for
+  /// the rate constant and adds it to the list of known cycles.
+  ///
+  /// The cycle is a space-separated list of species, that is
+  /// implicitly starting from the reaction's RHS.
+  void parseCycle(Reaction * start);
+
+  /// @}
 
   /// All the external parameters of the system. Includes initial
   /// concentrations. The parameters values must be provided \b in \b

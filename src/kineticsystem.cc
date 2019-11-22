@@ -52,11 +52,13 @@ void KineticSystem::Reaction::computeCache(const double * /*vals*/)
 void KineticSystem::Reaction::makeExpressions(const QStringList & vars)
 {
   clearExpressions();
-  forward = new Expression(forwardRate);
-  if(! backwardRate.isEmpty())
+  if(! forwardRate.startsWith("cycle:")) 
+    forward = new Expression(forwardRate);
+  if(! (backwardRate.isEmpty() || backwardRate.startsWith("cycle:")))
     backward = new Expression(backwardRate);
   if(! vars.isEmpty()) {
-    forward->setVariables(vars);
+    if(forward)
+      forward->setVariables(vars);
     if(backward)
       backward->setVariables(vars);
   }
@@ -64,10 +66,10 @@ void KineticSystem::Reaction::makeExpressions(const QStringList & vars)
 
 QSet<QString> KineticSystem::Reaction::parameters() const
 {
-  
-  if(! forward)
-    return QSet<QString>();
-  QSet<QString> params = QSet<QString>::fromList(forward->naturalVariables());
+
+  QSet<QString> params;
+  if(forward)
+    params += QSet<QString>::fromList(forward->naturalVariables());
   if(backward)
     params += QSet<QString>::fromList(backward->naturalVariables());
   return params;
@@ -142,6 +144,22 @@ bool KineticSystem::Reaction::isLinear() const
     return true;
   return backward->isAVariable();
 }
+
+
+int KineticSystem::Reaction::stoechiometry(int species) const
+{
+  int fnd = -1;
+  for(int i = 0; i < speciesIndices.size(); i++) {
+    if(speciesIndices[i] == species) {
+      fnd = i;
+      break;
+    }
+  }
+  if(fnd >= 0)
+    return speciesStoechiometry[fnd];
+  return 0;
+}
+
 
 KineticSystem::Reaction::Reaction(const Reaction & o) :
   forwardRate(o.forwardRate), backwardRate(o.backwardRate),
@@ -459,14 +477,35 @@ int KineticSystem::speciesIndex(const QString & str)
   return sz;
 }
 
+void KineticSystem::parseCycle(Reaction * start)
+{
+  QString cycle;
+  int dir = 0;
+  QRegExp cre("^\\s*cycle:\\s*(.*)");
+  if(cre.indexIn(start->forwardRate) >= 0) {
+    cycle = cre.cap(1);
+    dir = 1;
+  }
+  if(cre.indexIn(start->backwardRate) >= 0) {
+    cycle = cre.cap(1);
+    if(dir > 0)
+      throw RuntimeError("Cannot have two 'cycle:' specifications in a single reaction, '%1'").arg(start->toString(species));
+    dir = -1;
+  }
+  if(dir == 0)
+    return;
+}
+
 
 void KineticSystem::ensureReady(const QStringList & add)
 {
   QSet<QString> params;
-  
-  for(int i = 0; i < reactions.size(); i++) {
-    reactions[i]->makeExpressions();
-    params += reactions[i]->parameters();
+
+  for(Reaction * r : reactions) {
+    // Here, we parse cycles
+    r->makeExpressions();
+    parseCycle(r);
+    params += r->parameters();
   }
 
   if(reporterExpression)

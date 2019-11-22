@@ -96,6 +96,20 @@ public:
     Expression * forward;
     Expression * backward;
 
+
+    /// @name Handling of thermodynamic cycles
+    ///
+    /// This is used for the handling of thermodynamic cycles,
+    /// i.e. when one of the rate constants is determined
+    /// automatically. The choice of the 
+    ///
+    /// @{
+    
+    /// The list of reactions that close the cycle
+    QList<Reaction*> cycle;
+
+    /// @}
+
   public:
     /// List of indices of the reactants or products
     QVector<int> speciesIndices;
@@ -108,9 +122,8 @@ public:
     /// the number of electrons (counted negatively if on the left)
     int electrons;
 
-    /// A storage space for caching stuff -- this is hanlded at the
-    /// KineticSystem level.
-    double cache[2];
+    /// A cache for the computed rate constants
+    double forwardCache, backwardCache;
 
     /// Returns true when:
     /// * the stoechiometry is one for each reactant
@@ -173,6 +186,10 @@ public:
     /// Index of the temperature in the parameters
     int temperatureIndex;
 
+    /// A cache 
+    double cache[2];
+
+
     // We reuse the forward/backward stuff but with a different
     // meaning.
     RedoxReaction(int els, const QString & e0, const QString & k0);
@@ -186,6 +203,7 @@ public:
 
     virtual void computeRateConstants(const double * vals, 
                                       double * forward, double * backward) const override;
+    
     virtual QString exchangeRate() const override;
 
     virtual Reaction * dup() const override;
@@ -343,6 +361,13 @@ public:
                                    const double * parameters,
                                    gsl_vector * coeffs = NULL) const;
 
+  /// Computes all the rate constants, including the cycles.
+  /// It stores the computed rates in Reaction::cachedRates.
+  ///
+  /// The @a concentrations vector can be NULL when isLinear() returns
+  /// true.
+  void cacheRateConstants(const gsl_vector * concentrations,
+                          const double * parameters) const;
 
   /// Reads reactions from a file, and add them to the current system.
   void parseFile(QIODevice * stream);

@@ -93,8 +93,8 @@ void KineticSystem::Reaction::setParameters(const QStringList & parameters)
 }
 
 void KineticSystem::Reaction::computeRateConstants(const double * vals, 
-                                           double * fd, 
-                                           double * bd) const
+                                                   double * fd, 
+                                                   double * bd) const
 {
   *fd = forward->evaluate(vals);
   if(backward)
@@ -147,12 +147,12 @@ KineticSystem::Reaction::Reaction(const Reaction & o) :
   forwardRate(o.forwardRate), backwardRate(o.backwardRate),
   speciesIndices(o.speciesIndices),
   speciesStoechiometry(o.speciesStoechiometry),
+  forwardCache(o.forwardCache), backwardCache(o.backwardCache),
   electrons(o.electrons)
 {
   forward = o.forward ? new Expression(*o.forward) : NULL;
   backward = o.backward ? new Expression(*o.backward) : NULL;
 
-  memcpy(cache, o.cache, sizeof(o.cache));
 }
 
 
@@ -570,6 +570,43 @@ double KineticSystem::computeDerivatives(double * target,
   return computeDerivatives(&tg.vector, &conc.vector, params);
 }
 
+
+void KineticSystem::cacheRateConstants(const gsl_vector * concentrations,
+                                       const double * params) const
+{
+  const double * p;
+  int nbSpecies = species.size();
+  int nbParams = parameters.size();
+  
+  QVarLengthArray<double, 800> vals(nbParams);
+  if(isLinear()) {
+    p = params - nbSpecies;
+  }
+  else {
+    // We put all the eggs in the same basket.
+    for(int i = 0; i < nbSpecies; i++)
+      vals[i] = gsl_vector_get(concentrations, i);
+    for(int i = nbSpecies; i < nbParams; i++)
+      vals[i] = params[i - nbSpecies];
+    p = vals.data();
+  }
+  
+  for(Reaction * rc : reactions) {
+    rc->computeRateConstants(p, &rc->forwardCache,
+                             &rc->backwardCache);
+    if(checkRange) {
+      if(rc->forwardCache < 0)
+        throw RangeError("Negative forward rate constant for reaction '%1'").
+          arg(rc->toString(species));
+
+      if(rc->backwardCache < 0)
+        throw RangeError("Negative backward rate constant for reaction '%1'").
+          arg(rc->toString(species));
+    }
+  }
+  
+}
+
 void KineticSystem::computeLinearJacobian(gsl_matrix * target,
                                           const double * params,
                                           gsl_vector * coeffs) const
@@ -578,6 +615,8 @@ void KineticSystem::computeLinearJacobian(gsl_matrix * target,
     throw InternalError("Using a function for linear systems on non-linear ones !");
   // Now starts the real fun: evaluating all the derivatives !
   // QVarLengthArray<double, 800> vals(parameters.size());
+
+  cacheRateConstants(NULL, params);
 
   int nbs = species.size();
   int nbp = parameters.size();
@@ -594,8 +633,8 @@ void KineticSystem::computeLinearJacobian(gsl_matrix * target,
   // Now, we compute the forward and reverse rates of all reactions
   for(int i = 0; i < nbr; i++) {
     const Reaction * rc = reactions[i];
-    double forwardRate, backwardRate;
-    rc->computeRateConstants(params, &forwardRate, &backwardRate);
+    double forwardRate = rc->forwardCache,
+      backwardRate = rc->backwardCache;
 
     int l = (rc->speciesStoechiometry[0] == -1 ? rc->speciesIndices[0] : rc->speciesIndices[1]);
     int r = (rc->speciesStoechiometry[0] == -1 ? rc->speciesIndices[1] : rc->speciesIndices[0]);
@@ -664,6 +703,8 @@ bool KineticSystem::setupCache(const double * params)
   return true;
 }
 
+
+
 void KineticSystem::computeCachedLinearJacobian(gsl_matrix * target,
                                                 const double * params,
                                                 gsl_vector * coeffs) const
@@ -721,46 +762,38 @@ void KineticSystem::computeCachedLinearJacobian(gsl_matrix * target,
 }
 
 
+
 double KineticSystem::computeDerivatives(gsl_vector * target, 
-                                       const gsl_vector * concentrations,
-                                       const double * params) const
+                                         const gsl_vector * concentrations,
+                                         const double * params) const
 {
   int nbParams = parameters.size();
   int nbSpecies = species.size();
   int nbReactions = reactions.size();
-  // Now starts the real fun: evaluating all the derivatives !
-  QVarLengthArray<double, 800> vals(nbParams);
+
+  
+  cacheRateConstants(concentrations, params);
 
   // We put all the eggs in the same basket.
-  for(int i = 0; i < nbSpecies; i++) {
-    vals[i] = gsl_vector_get(concentrations, i);
-    if(target)
-      gsl_vector_set(target, i, 0);
-  }
-  for(int i = nbSpecies; i < nbParams; i++)
-    vals[i] = params[i - nbSpecies];
+  if(target)
+    gsl_vector_set_zero(target);
 
   double current = 0;
 
   // Now, we compute the forward and reverse rates of all reactions
   for(int i = 0; i < nbReactions; i++) {
     const Reaction * r = reactions[i];
-    double forwardRate, backwardRate;
+    double forwardRate = r->forwardCache,
+      backwardRate = r->backwardCache;
 
     // Do not compute if we don't need !
     if(! target && r->electrons == 0)
       continue;
 
-    r->computeRateConstants(vals.data(), &forwardRate, &backwardRate);
-
     int sts = r->speciesStoechiometry.size();
     const int * stoech = r->speciesStoechiometry.data();
     const int * indices = r->speciesIndices.data();
 
-
-    if(checkRange && (forwardRate < 0 || backwardRate < 0))
-      throw RangeError("Negative rate constant for reaction #%1").
-        arg(i);
 
     for(int j = 0; j < sts; j++) {
       int s = stoech[j];

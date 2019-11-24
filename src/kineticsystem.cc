@@ -532,7 +532,7 @@ void KineticSystem::parseCycle(Reaction * start)
 {
   QString cycle;
   int dir = 0;
-  QRegExp cre("^\\s*cycle:\\s*(.*)");
+  QRegExp cre("^\\s*cycle:\\s*(\\S.*)");
   if(cre.indexIn(start->forwardRate) >= 0) {
     cycle = cre.cap(1);
     dir = 1;
@@ -579,6 +579,7 @@ void KineticSystem::parseCycle(Reaction * start)
       throw RuntimeError("Could not find a reversible reaction from '%1' to '%2'").arg(species[curSpec].name).arg(s);
     c.reactions << nr;
     c.directions << st;
+    curSpec = ns;
   }
   cycles << c;
 }

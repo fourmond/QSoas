@@ -1,0 +1,5 @@
+# A scheme for cycles
+A <=>[k1][km1] B
+B <=>[k2][km2] C
+A <=>[k3][km3] D
+D <=>[k4][cycle: B A] C

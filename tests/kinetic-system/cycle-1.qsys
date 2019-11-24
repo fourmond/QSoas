@@ -1,0 +1,7 @@
+# A scheme for cycles
+A <=>[k1][km1] B
+B <=>[k2][km2] C
+A <=>[k3][km3] D
+D <=>[k4][km4] C
+
+# km4 = k4*k3*km1*km2/(km3*k1*k2)

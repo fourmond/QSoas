@@ -1,0 +1,42 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: cycle-1 (system: ??)
+# Command-line: fit-cycle-1
+y_A	0	!	0
+y_B	0	!	0
+y_C	0	!	0
+y_D	1	!	0
+c0_A	1	!	0
+c0_B	0	!	0
+c0_C	0	!	0
+c0_D	0	!	0
+k1	1	!	1
+k2	2	!	1
+k3	0.5	!	1
+k4	10	!	1
+km1	2	!	1
+km2	2	!	1
+km3	1	!	1
+km4	= k4*k3*km1*km2/(km3*k1*k2)	!	0
+buffer_weight[#0]	1
+buffer_name[#0]	generated.dat
+# The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
+# Final residuals: 3.87218
+# Buffer-local parameters: 
+# 
+# Buffer: generated.dat (weight: 1)
+# y_A	=	0	(fixed)
+# y_B	=	0	(fixed)
+# y_C	=	0	(fixed)
+# y_D	=	1	(fixed)
+# c0_A	=	1	(fixed)
+# c0_B	=	0	(fixed)
+# c0_C	=	0	(fixed)
+# c0_D	=	0	(fixed)
+# k1	=	1	+- 0	+- 0%
+# k2	=	2	+- 0	+- 0%
+# k3	=	0.5	+- 0	+- 0%
+# k4	=	10	+- 0	+- 0%
+# km1	=	2	+- 0	+- 0%
+# km2	=	2	+- 0	+- 0%
+# km3	=	1	+- 0	+- 0%
+# km4	=	10	(fixed)

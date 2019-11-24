@@ -81,7 +81,7 @@ static void countChars(const QByteArray & peek,
 
 TextBackend::TextBackend(const QString & sep,
                          const char * n, const char * pn, const char * d) : 
-  DataBackend(n, pn, d), separator(sep), comments("{text-line}") {
+  DataBackend(n, pn, d), separator(sep), comments("{auto}") {
 }
 
 int TextBackend::couldBeMine(const QByteArray & peek, 
@@ -180,6 +180,17 @@ QList<QList<Vector> > TextBackend::readColumns(QTextStream & s,
 
   Regex cmt = comments;
   updateFromOptions(opts, "comments", cmt);
+
+  // look in the first lines to see if any starts with #, and use it
+  if(cmt.patternString() == "{auto}") {
+    QByteArray ba = s.device()->peek(500);
+    QString s = ba;
+    QRegExp tryCmts("^#");
+    if(tryCmts.indexIn(s) >= 0)
+      cmt = Regex("/^#/");
+    else
+      cmt = Regex("{text-line}");
+  }
 
   QString dSep;
   updateFromOptions(opts, "decimal", dSep);

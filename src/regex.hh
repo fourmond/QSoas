@@ -30,6 +30,9 @@
 ///
 /// @question Maybe commonly used regex idioms should be included
 /// here.
+///
+/// One can also use special values, such as @a auto, which is used
+/// (by default) for the Text input.
 class Regex {
 
   /// Original pattern (ie, the argument of the constructor)

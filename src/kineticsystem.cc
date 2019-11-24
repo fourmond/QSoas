@@ -160,6 +160,31 @@ int KineticSystem::Reaction::stoechiometry(int species) const
   return 0;
 }
 
+QList<int> KineticSystem::Reaction::products() const
+{
+  QList<int> rv;
+  for(int i = 0; i < speciesIndices.size(); i++) {
+    if(speciesStoechiometry[i] > 0)
+      rv << speciesIndices[i];
+  }
+  return rv;
+}
+
+QList<int> KineticSystem::Reaction::reactants() const
+{
+  QList<int> rv;
+  for(int i = 0; i < speciesIndices.size(); i++) {
+    if(speciesStoechiometry[i] < 0)
+      rv << speciesIndices[i];
+  }
+  return rv;
+}
+
+bool KineticSystem::Reaction::isReversible() const
+{
+  return !(forwardRate.isEmpty() || backwardRate.isEmpty());
+}
+
 
 KineticSystem::Reaction::Reaction(const Reaction & o) :
   forwardRate(o.forwardRate), backwardRate(o.backwardRate),
@@ -417,6 +442,32 @@ public:
 };
 
 
+//////////////////////////////////////////////////////////////////////
+
+void KineticSystem::Cycle::computeRateConstant() const
+{
+  double forw = 1, back = 1;
+  for(int i = 1; i < reactions.size(); i++) {
+    const Reaction * r = reactions[i];
+    if(directions[i] > 0) {
+      forw *= r->forwardCache;
+      back *= r->backwardCache;
+    }
+    else {
+      back *= r->forwardCache;
+      forw *= r->backwardCache;
+    }
+  }
+  Reaction * r = reactions[0];
+
+  // In a complete thermodynamic cycle, the product of all the forward
+  // over the product of all the backwards is one.
+  if(directions[0] > 0)
+    // The forward direction is under the control of the cycle
+    r->forwardCache = r->backwardCache * back/forw;
+  else 
+    r->backwardCache = r->forwardCache * forw/back;
+}
 
 //////////////////////////////////////////////////////////////////////
 
@@ -494,6 +545,42 @@ void KineticSystem::parseCycle(Reaction * start)
   }
   if(dir == 0)
     return;
+
+  QList<int> s = start->products();
+  if(s.size() > 1)
+    throw RuntimeError("Cannot use thermodynamic cycles with more than one species as of now");
+
+  int curSpec = s[0];
+  QStringList spc = cycle.split(QRegExp("\\s+"));
+  s = start->reactants();
+  if(s.size() > 1)
+    throw RuntimeError("Cannot use thermodynamic cycles with more than one species as of now");
+  spc << species[s[0]].name;
+
+  Cycle c;
+  c.reactions << start;
+  c.directions << dir;
+  
+  for(const QString & s : spc) {
+    int ns = speciesLookup.value(s, -1);
+    if(ns < 0)
+      throw RuntimeError("Unknown species: '%1'").arg(s);
+    Reaction * nr = NULL;
+    int st = 0;
+    for(int ridx : species[curSpec].reactions) {
+      nr = reactions[ridx];
+      if(! nr->isReversible())
+        continue;
+      st = nr->stoechiometry(ns);
+      if(st != 0)
+        break;
+    }
+    if(st == 0 || nr == NULL)
+      throw RuntimeError("Could not find a reversible reaction from '%1' to '%2'").arg(species[curSpec].name).arg(s);
+    c.reactions << nr;
+    c.directions << st;
+  }
+  cycles << c;
 }
 
 
@@ -619,6 +706,8 @@ void KineticSystem::cacheRateConstants(const gsl_vector * concentrations,
   
   QVarLengthArray<double, 800> vals(nbParams);
   if(isLinear()) {
+    /// @hack This is acutally undefined behaviour if the original
+    /// params array does not extend before params - nbSpecies.
     p = params - nbSpecies;
   }
   else {
@@ -643,6 +732,10 @@ void KineticSystem::cacheRateConstants(const gsl_vector * concentrations,
           arg(rc->toString(species));
     }
   }
+  
+  // Compute the cycles
+  for(const Cycle & c : cycles)
+    c.computeRateConstant();
   
 }
 

@@ -106,15 +106,16 @@ public:
     /// speciesIndices.
     QVector<int> speciesStoechiometry;
 
-    /// the number of electrons (counted negatively if on the left)
-    int electrons;
-
     /// A cache for the computed rate constants
     double forwardCache, backwardCache;
 
+    /// the number of electrons (counted negatively if on the left)
+    int electrons;
+
+
     /// Returns true when:
     /// * the stoechiometry is one for each reactant
-    /// * the rate constants are constants
+    /// * the rate constants do not depend on anything starting with `c_`
     ///
     /// @todo In time, this will have to include the case when a rate
     /// constant is not a constant, but does not depend on the
@@ -144,6 +145,16 @@ public:
 
     /// Returns the parameters needed by the rates
     virtual QSet<QString> parameters() const;
+
+    /// The products, i.e. the things that are counted positive in
+    /// speciesStoechiometry
+    QList<int> products() const;
+
+    /// The reactants
+    QList<int> reactants() const;
+
+    /// Returns true if the reaction is reversible
+    bool isReversible() const;
 
 
     /// Computes both the forward and backward rates
@@ -250,13 +261,21 @@ protected:
 
     /// The "stoeichiometry" of the reaction, i.e. 1 if the reaction
     /// is "naturally" in the sense of the cycle, or -1 if it is in
-    /// the reverse direction. 
+    /// the reverse direction.
+    ///
+    /// The meaning is different for the first one: it tells whether
+    /// the forward (1) or the backward (-1) reaction is automatic.
     QList<int> directions;
     
-    
+
+    /// Computes the rate of the (first) reaction
+    void computeRateConstant() const;
   };
 
 
+  /// The list of thermodynamic cycles.
+  ///
+  /// As of now, there are no safeguards:
   QList<Cycle> cycles;
   
   /// Adds a cycle, starting from the given reaction, parses the

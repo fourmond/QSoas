@@ -360,6 +360,65 @@ set("set", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void setFromDatasetCommand(const QString & /*name*/,
+                                  QString name,
+                                  QList<const DataSet *> dss,
+                                  const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  int idx = ws->parameterIndex(name);
+  if(idx < 0)
+    throw RuntimeError("Unkown parameter: '%1'").arg(name);
+
+  if(! ws->hasPerpendicularCoordinates())
+    throw RuntimeError("The buffers have no perpendicular coordinates");
+
+  if(dss.size() != 1)
+    throw RuntimeError("Need exactly one buffer !");
+
+  const DataSet * ds = dss[0];
+
+
+  int nbds = ws->data()->datasets.size();
+  for(int i = 0; i < nbds; i++) {
+    double z = ws->perpendicularCoordinates[i];
+    ws->setValue(idx, i, ds->yValueAt(z, true));
+  }
+}
+
+ArgumentList sfdArgs(QList<Argument*>() 
+                     << new StringArgument("parameter", 
+                                           "Parameter",
+                                           "the parameters of the fit")
+                     << new SeveralDataSetArgument("source", 
+                                                   "Source",
+                                                   "the source for the data")
+                     );
+
+// ArgumentList sOpts(QList<Argument*>()
+//                    << new CodeArgument("convert-x", 
+//                                        "Convert X",
+//                                        "used to convert the X values")
+//                    << new BoolArgument("fix", 
+//                                        "Fix",
+//                                        "if true, also fixes the parameters")
+//                    << new BoolArgument("unfix", 
+//                                        "Unfix",
+//                                        "if true, also unfixes the parameters")
+//                    );
+
+static Command 
+sfd("set-from-dataset", // command name
+    effector(setFromDatasetCommand), // action
+    "fits",  // group name
+    &sfdArgs, // arguments
+    NULL, // options
+    "Set parameter from dataset",
+    "Sets the parameter from a dataset using interpolation on Z values",
+    "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
 static void fixUnfix(const QString & name, QList<QPair<int, int> > params)
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();

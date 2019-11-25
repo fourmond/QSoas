@@ -1382,11 +1382,6 @@ void DataSet::clearMetaData(const QString & name)
   metaData.remove(name);
 }
 
-const ValueHash & DataSet::getMetaData() const
-{
-  return metaData;
-}
-
 QVariant DataSet::getMetaData(const QString & val) const
 {
   return metaData[val];
@@ -1492,6 +1487,22 @@ QSet<QString> DataSet::allFlags() const
   return flags;
 }
 
+ValueHash DataSet::getMetaData() const
+{
+  ValueHash rv = metaData;
+  rv["name"] = name;
+  if(perpCoords.size() == 1)
+    rv["Z"] = perpCoords[0];
+  else if(perpCoords.size() > 1) {
+    QList<QVariant> l;
+    for(double d : perpCoords)
+      l << d;
+    rv["Z"] = l;
+  }
+  return metaData;
+}
+
+
 mrb_value DataSet::evaluateWithMeta(const QString & expression, bool useStats) const
 {
   SaveGlobal _a("$stats");
@@ -1502,7 +1513,6 @@ mrb_value DataSet::evaluateWithMeta(const QString & expression, bool useStats) c
     mr->setGlobal("$stats", st.toRuby());
   }
   ValueHash vl = getMetaData();
-  vl["name"] = name;
   mr->setGlobal("$meta", vl.toRuby());
   return mr->eval(expression);
 }
@@ -1517,7 +1527,6 @@ mrb_value DataSet::evaluateWithMeta(const QString & expression, bool useStats,  
     mr->setGlobal("$stats", st.toRuby());
   }
   ValueHash vl = metaData;
-  vl["name"] = name;
   mr->setGlobal("$meta", vl.toRuby());
   mrb_value v = mr->eval(expression);
   if(modifyMeta)

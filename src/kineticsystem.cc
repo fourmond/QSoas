@@ -777,8 +777,8 @@ void KineticSystem::computeLinearJacobian(gsl_matrix * target,
       forwardRate *= redoxReactionScaling;
       backwardRate *= redoxReactionScaling;
       if(coeffs) {
-        *gsl_vector_ptr(coeffs, l) -= forwardRate;
-        *gsl_vector_ptr(coeffs, r) += backwardRate;
+        *gsl_vector_ptr(coeffs, l) -= forwardRate * rc->electrons;
+        *gsl_vector_ptr(coeffs, r) += backwardRate * rc->electrons;
       }
     }
     // Debug::debug() << checkRange << " \tReaction #" << i << 

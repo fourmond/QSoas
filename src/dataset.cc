@@ -1497,9 +1497,9 @@ ValueHash DataSet::getMetaData() const
     QList<QVariant> l;
     for(double d : perpCoords)
       l << d;
-    rv["Z"] = l;
+    rv["Zs"] = l;
   }
-  return metaData;
+  return rv;
 }
 
 
@@ -1526,7 +1526,7 @@ mrb_value DataSet::evaluateWithMeta(const QString & expression, bool useStats,  
     Statistics st(this);
     mr->setGlobal("$stats", st.toRuby());
   }
-  ValueHash vl = metaData;
+  ValueHash vl = getMetaData();
   mr->setGlobal("$meta", vl.toRuby());
   mrb_value v = mr->eval(expression);
   if(modifyMeta)

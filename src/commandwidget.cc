@@ -42,6 +42,7 @@
 #include <possessive-containers.hh>
 #include <argumentsdialog.hh>
 
+
 class SideBarLabel : public QScrollArea {
 protected:
 

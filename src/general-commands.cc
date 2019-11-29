@@ -49,6 +49,8 @@
 
 #include <idioms.hh>
 
+#include <argument-templates.hh>
+
 
 static Group file("file", 0,
                   "File",
@@ -466,6 +468,8 @@ static void runCommand(const QString &, QStringList args,
   updateFromOptions(opts, "silent", silent);
   bool cd = false;
   updateFromOptions(opts, "cd-to-script", cd);
+  CommandWidget::ScriptErrorMode mode = CommandWidget::Abort;
+  updateFromOptions(opts, "error", mode);
   
   WDisableUpdates eff(& soas().view(), silent);
 
@@ -478,7 +482,7 @@ static void runCommand(const QString &, QStringList args,
     cmdfile = info.fileName();
   }
   TemporarilyChangeDirectory c(nd);
-  soas().prompt().runCommandFile(cmdfile, args, addToHistory);
+  soas().prompt().runCommandFile(cmdfile, args, addToHistory, mode);
 }
 
 static ArgumentList
@@ -493,12 +497,31 @@ runOpts(QList<Argument *>()
                             "history (defaults to false)")
         );
 
+static QStringList modeNames = QStringList()
+           << "ignore"
+              << "abort"
+                 << "delete"
+                    << "except";
+
+static QList<CommandWidget::ScriptErrorMode> modeValues = 
+                       QList<CommandWidget::ScriptErrorMode>()
+                       << CommandWidget::Ignore
+                          << CommandWidget::Abort
+                             << CommandWidget::Delete
+                                << CommandWidget::Except;
+
+
 static ArgumentList
 rcO(QList<Argument *>(runOpts) 
-        << new BoolArgument("cd-to-script", 
-                            "cd to script",
-                            "If on, automatically change the directory to that oof the script")
-        );
+    << new BoolArgument("cd-to-script", 
+                        "cd to script",
+                        "If on, automatically change the directory to that oof the script")
+    << new TemplateChoiceArgument<CommandWidget::ScriptErrorMode>(::modeNames,
+                                                                  ::modeValues,
+                                                                  "error", 
+                                                                  "on error",
+                                                                  "Behaviour to adopt on error")
+    );
 
 static ArgumentList 
 runArgs(QList<Argument *>() 

@@ -96,7 +96,20 @@ class DataStack : public QObject {
   /// The current accumulator
   DataSet * accumulator;
 
+
+  /// This list stores the datasets produced by "context". Outer
+  /// contexts have at least as many datasets as the nested ones.
+  QList<QList<GuardedPointer<DataSet> > > spies;
+  
 public:
+
+  /// Push a spy, returns the previous nesting level
+  int pushSpy();
+
+  /// Pop spies back to the given nesting level. Returns the
+  /// datasets in the last nesting level popped.
+  QList<DataSet *> popSpy(int targetLevel);
+
 
   /// Constructs a DataStack object.
   DataStack(bool notOwner = false);
@@ -247,6 +260,7 @@ public:
 
   /// Inserts the given stack into the current one.
   void insertStack(const DataStack & s);
+
 
 signals:
   /// Emitted whenever the current dataset changed.

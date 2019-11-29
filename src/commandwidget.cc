@@ -588,13 +588,14 @@ QString CommandWidget::terminalContents() const
 CommandWidget::ScriptStatus
 CommandWidget::runCommandFile(QIODevice * source, 
                               const QStringList & args,
-                              bool addToHist)
+                              bool addToHist, ScriptErrorMode mode)
 {
   QTextStream in(source);
   QRegExp commentRE("^\\s*#.*");
 
   // Disable history when applicable
   TemporaryChange<bool> ch(addToHistory, addToHist);
+  int level = soas().stack().pushSpy();
   try {
     while(true) {
       QString line = in.readLine();
@@ -710,8 +711,29 @@ CommandWidget::runCommandFile(QIODevice * source,
 
       /// @todo Make that configurable
       if(! runCommand(line)) {
-        Terminal::out << "Command failed: aborting script" << endl;
-        return Error;
+        switch(mode) {
+        case Ignore:
+          Terminal::out << "Command failed, but ignoring" << endl;
+          break;
+        case Abort:
+          Terminal::out << "Command failed: aborting script" << endl;
+          soas().stack().popSpy(level);
+          return Error;
+        case Delete: {
+          QList<DataSet *> dss = soas().stack().popSpy(level);
+          Terminal::out << "Command failed: aborting script and deleting the "
+                        << dss.size() << " datasets produced"
+                        << endl;
+          for(DataSet * ds : dss)
+            delete ds;
+          return Error;
+        }
+        case Except:
+          soas().stack().popSpy(level);
+          Terminal::out << "Command failed: aborting script with exception" << endl;
+          throw RuntimeError("Script command failed: aborting with error");
+          return Error;
+        }
       }
       // And we allow for deferred slots to take place ?
       QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
@@ -721,19 +743,21 @@ CommandWidget::runCommandFile(QIODevice * source,
     // Nothing to do !
     return ControlOut;
   }
+  soas().stack().popSpy(level);
   return Success;
 }
 
 CommandWidget::ScriptStatus
 CommandWidget::runCommandFile(const QString & fileName, 
                               const QStringList & args,
-                              bool addToHist)
+                              bool addToHist,
+                              ScriptErrorMode mode)
 {
   QFile file(fileName);
   Utils::open(&file, QIODevice::ReadOnly);
   TemporaryChange<QString> ch(scriptFile, fileName);
   ContextChange ch2(this, fileName);
-  return runCommandFile(&file, args, addToHist);
+  return runCommandFile(&file, args, addToHist, mode);
 }
 
 QStringList CommandWidget::history() const

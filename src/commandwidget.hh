@@ -104,6 +104,16 @@ public:
     ControlOut
   } ScriptStatus;
 
+  /// The mode of 
+  typedef enum {
+    Ignore,              // Ignore errors, just go to the next command
+    Abort,               // Aborts the script with an error (default)
+    Delete,              // Aborts the script as with Abort, and
+                         // delete all generated datasets.
+    Except               // Aborts the script with an exception, which
+                         // may stop the outer script too.
+  } ScriptErrorMode;
+
 protected:
 
 
@@ -111,7 +121,8 @@ protected:
   /// the command.
   ScriptStatus runCommandFile(QIODevice * source, 
                               const QStringList & args = QStringList(),
-                              bool addToHist = false);
+                              bool addToHist = false,
+                              ScriptErrorMode mode = Abort);
 
 
   /// Current Ruby string to be executed. Not in ruby mode if the
@@ -245,7 +256,8 @@ public slots:
   /// Runs the commands contained in a file.
   ScriptStatus runCommandFile(const QString & fileName, 
                               const QStringList & args = QStringList(),
-                              bool addToHist = false);
+                              bool addToHist = false,
+                              ScriptErrorMode mode = Abort);
 
 protected slots:
   void commandEntered();

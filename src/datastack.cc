@@ -156,12 +156,35 @@ void DataStack::setAutoFlags(const QSet<QString> & flags)
   autoFlags = flags;
 }
 
+int DataStack::pushSpy()
+{
+  int rv = spies.size();
+  spies << QList<GuardedPointer<DataSet> >();
+  return rv;
+}
+
+QList<DataSet *> DataStack::popSpy(int targetLevel)
+{
+  QList<GuardedPointer<DataSet> > lst;
+  if(spies.size() > targetLevel)
+    lst = spies[targetLevel];
+  spies = spies.mid(0, targetLevel);
+  QList<DataSet *> dss;
+  for(GuardedPointer<DataSet> & p : lst) {
+    if(p.isValid())
+      dss << p.target();
+  }
+  return dss;
+}
+
 void DataStack::pushDataSet(DataSet * dataset, bool silent)
 {
   dataSets << dataset;
   latest.first() << dataset;
   dataset->setFlags(autoFlags);
   cachedByteSize += dataset->byteSize();
+  for(QList<GuardedPointer<DataSet> > & l : spies)
+    l << dataset;
   if(! silent) {
     Debug::debug().saveStack();
     emit(currentDataSetChanged());

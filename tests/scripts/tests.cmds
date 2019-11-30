@@ -1,0 +1,4 @@
+# A series of tests to play with multi-buffer operations
+@ error-abort.cmds
+@ error-ignore.cmds
+@ error-delete.cmds

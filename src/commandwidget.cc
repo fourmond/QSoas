@@ -726,7 +726,7 @@ CommandWidget::runCommandFile(QIODevice * source,
                         << dss.size() << " datasets produced"
                         << endl;
           for(DataSet * ds : dss)
-            delete ds;
+            soas().stack().dropDataSet(ds);
           return Error;
         }
         case Except:

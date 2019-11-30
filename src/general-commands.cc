@@ -485,18 +485,6 @@ static void runCommand(const QString &, QStringList args,
   soas().prompt().runCommandFile(cmdfile, args, addToHistory, mode);
 }
 
-static ArgumentList
-runOpts(QList<Argument *>() 
-        << new BoolArgument("silent", 
-                            "Silent processing",
-                            "whether or not to switch off display updates "
-                            "during the script (off by default)")
-        << new BoolArgument("add-to-history", 
-                            "Add commands to history",
-                            "whether the commands run are added to the "
-                            "history (defaults to false)")
-        );
-
 static QStringList modeNames = QStringList()
            << "ignore"
               << "abort"
@@ -510,17 +498,30 @@ static QList<CommandWidget::ScriptErrorMode> modeValues =
                              << CommandWidget::Delete
                                 << CommandWidget::Except;
 
+static ArgumentList
+runOpts(QList<Argument *>() 
+        << new BoolArgument("silent", 
+                            "Silent processing",
+                            "whether or not to switch off display updates "
+                            "during the script (off by default)")
+        << new BoolArgument("add-to-history", 
+                            "Add commands to history",
+                            "whether the commands run are added to the "
+                            "history (defaults to false)")
+    << new TemplateChoiceArgument<CommandWidget::ScriptErrorMode>(::modeNames,
+                                                                  ::modeValues,
+                                                                  "error", 
+                                                                  "on error",
+                                                                  "Behaviour to adopt on error")
+        );
+
+
 
 static ArgumentList
 rcO(QList<Argument *>(runOpts) 
     << new BoolArgument("cd-to-script", 
                         "cd to script",
                         "If on, automatically change the directory to that oof the script")
-    << new TemplateChoiceArgument<CommandWidget::ScriptErrorMode>(::modeNames,
-                                                                  ::modeValues,
-                                                                  "error", 
-                                                                  "on error",
-                                                                  "Behaviour to adopt on error")
     );
 
 static ArgumentList 
@@ -618,6 +619,11 @@ static void runForDatasetsCommand(const QString &, QString script,
   updateFromOptions(opts, "add-to-history", addToHistory);
   bool silent = false;
   updateFromOptions(opts, "silent", silent);
+
+  CommandWidget::ScriptErrorMode mode = CommandWidget::Abort;
+  updateFromOptions(opts, "error", mode);
+
+  
   WDisableUpdates eff(& soas().view(), silent);
 
   QStringList a;
@@ -640,7 +646,7 @@ static void runForDatasetsCommand(const QString &, QString script,
 
   
     soas().pushDataSet(new DataSet(*ds));
-    soas().prompt().runCommandFile(script, a, addToHistory);
+    soas().prompt().runCommandFile(script, a, addToHistory, mode);
   }
 }
 
@@ -687,6 +693,9 @@ static void runForEachCommand(const QString &, QString script,
 
   bool silent = false;
   updateFromOptions(opts, "silent", silent);
+  CommandWidget::ScriptErrorMode mode = CommandWidget::Abort;
+  updateFromOptions(opts, "error", mode);
+  
   WDisableUpdates eff(& soas().view(), silent);
 
   int nb = 1;
@@ -739,7 +748,7 @@ static void runForEachCommand(const QString &, QString script,
     for(int i = 0; i < nb && args.size() > 0; i++)
       a << args.takeFirst();
     a << additionalArgs;
-    soas().prompt().runCommandFile(script, a, addToHistory);
+    soas().prompt().runCommandFile(script, a, addToHistory, mode);
   }
 }
 

@@ -2,3 +2,4 @@
 @ error-abort.cmds
 @ error-ignore.cmds
 @ error-delete.cmds
+@ verify.cmds

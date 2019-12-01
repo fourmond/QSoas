@@ -547,6 +547,12 @@ int FitWorkspace::datasetNumber() const
   return datasets;
 }
 
+int FitWorkspace::totalParameterNumber() const
+{
+  return datasets * nbParameters;
+}
+
+
 void FitWorkspace::prepareExport(QStringList & lst, QString & lines, 
                                   bool exportErrors, bool exportMeta)
 {

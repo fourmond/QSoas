@@ -413,6 +413,10 @@ public:
   /// The number of datasets
   int datasetNumber() const;
 
+  /// The total number of parameters, i.e. the number by dataset
+  /// multiplied by the number of datasets.
+  int totalParameterNumber() const;
+
   /// @}
 
   /// @name Computed functions handling

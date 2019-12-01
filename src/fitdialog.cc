@@ -994,6 +994,14 @@ void FitDialog::showCovarianceMatrix()
 
 void FitDialog::editParameters() 
 {
+  if(parameters.totalParameterNumber() > 60) {
+    if(! warnings.warnOnce("edit-large",
+                           "Many parameters",
+                           QString("There are many (%1) parameters in this fit, launching edit will probably be way too slow").
+                           arg(parameters.totalParameterNumber())))
+      return;
+  }
+
   ParametersDialog dlg(&parameters);
 
   dlg.exec();

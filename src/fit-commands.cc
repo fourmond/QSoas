@@ -40,6 +40,8 @@
 
 #include <filelock.hh>
 
+#include <argument-templates.hh>
+
 // static Group fit("fit", 0,
 //                  "Fit",
 //                  "Commands for fitting");
@@ -1155,7 +1157,10 @@ static void runForTrajectoriesCommand(const QString &, QString cmdfile,
   updateFromOptions(opts, "silent", silent);
   bool cd = false;
   updateFromOptions(opts, "cd-to-script", cd);
-  
+
+  CommandWidget::ScriptErrorMode mode = CommandWidget::Abort;
+  updateFromOptions(opts, "error", mode);
+
   // WDisableUpdates eff(& soas().view(), silent);
 
   bool final = true;
@@ -1183,7 +1188,7 @@ static void runForTrajectoriesCommand(const QString &, QString cmdfile,
                   << endl;
     ws->restoreParameterValues(final ? t.finalParameters :
                                t.initialParameters);
-    soas().prompt().runCommandFile(cmdfile, args, addToHistory);
+    soas().prompt().runCommandFile(cmdfile, args, addToHistory, mode);
   }
 }
 
@@ -1205,6 +1210,10 @@ rftOpts(QList<Argument *>()
                               "parameters", 
                               "Parameters",
                               "which parameters to use")
+        << new TemplateChoiceArgument<CommandWidget::ScriptErrorMode>(CommandWidget::errorModeNames(),
+                                                                      "error", 
+                                                                      "on error",
+                                                                      "Behaviour to adopt on error")
         );
 
 static ArgumentList 

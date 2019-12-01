@@ -116,6 +116,14 @@ public:
 
 protected:
 
+  static QHash<QString, ScriptErrorMode> * errorModeNamesHash;
+
+public:
+
+  static const QHash<QString, ScriptErrorMode> & errorModeNames();
+
+protected:
+
 
   /// Runs the command coming from the given device. Returns status of
   /// the command.

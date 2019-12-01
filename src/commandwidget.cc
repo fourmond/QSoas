@@ -586,6 +586,24 @@ QString CommandWidget::terminalContents() const
   return terminalDisplay->toPlainText();
 }
 
+
+QHash<QString, CommandWidget::ScriptErrorMode> * CommandWidget::errorModeNamesHash = NULL;
+
+const QHash<QString, CommandWidget::ScriptErrorMode> & CommandWidget::errorModeNames()
+{
+  if(! errorModeNamesHash) {
+    errorModeNamesHash =
+      new QHash<QString, ScriptErrorMode>(
+        {{"ignore", CommandWidget::Ignore},
+            {"abort", CommandWidget::Abort},
+              {"delete", CommandWidget::Delete},
+                {"except", CommandWidget::Except}
+        }
+        );
+  }
+  return *errorModeNamesHash;
+}
+
 CommandWidget::ScriptStatus
 CommandWidget::runCommandFile(QIODevice * source, 
                               const QStringList & args,

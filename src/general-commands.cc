@@ -485,18 +485,6 @@ static void runCommand(const QString &, QStringList args,
   soas().prompt().runCommandFile(cmdfile, args, addToHistory, mode);
 }
 
-static QStringList modeNames = QStringList()
-           << "ignore"
-              << "abort"
-                 << "delete"
-                    << "except";
-
-static QList<CommandWidget::ScriptErrorMode> modeValues = 
-                       QList<CommandWidget::ScriptErrorMode>()
-                       << CommandWidget::Ignore
-                          << CommandWidget::Abort
-                             << CommandWidget::Delete
-                                << CommandWidget::Except;
 
 static ArgumentList
 runOpts(QList<Argument *>() 
@@ -508,11 +496,10 @@ runOpts(QList<Argument *>()
                             "Add commands to history",
                             "whether the commands run are added to the "
                             "history (defaults to false)")
-    << new TemplateChoiceArgument<CommandWidget::ScriptErrorMode>(::modeNames,
-                                                                  ::modeValues,
-                                                                  "error", 
-                                                                  "on error",
-                                                                  "Behaviour to adopt on error")
+        << new TemplateChoiceArgument<CommandWidget::ScriptErrorMode>(CommandWidget::errorModeNames(),
+                                                                      "error", 
+                                                                      "on error",
+                                                                      "Behaviour to adopt on error")
         );
 
 

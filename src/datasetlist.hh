@@ -54,6 +54,11 @@ public:
   /// selection mechanism. The list can be empty nevertheless.
   bool dataSetsSpecified() const;
 
+  /// Returns the number
+  int size() const;
+
+  operator const QList<const DataSet *> &() const;
+
   /// Returns the static list of options.
   /// The @a txt argument is the help text.
   static QList<Argument *> listOptions(const QString & txt,

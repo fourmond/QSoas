@@ -51,6 +51,7 @@
 #include <fwexpression.hh>
 
 #include <idioms.hh>
+#include <datasetlist.hh>
 
 //////////////////////////////////////////////////////////////////////
 // Paradoxally, this command isn't really anymore related to Ruby --
@@ -67,12 +68,7 @@ static void applyFormulaCommand(const QString &, QString formula,
   bool keepOnError = false;
   updateFromOptions(opts, "keep-on-error", keepOnError);
 
-
-  QList<const DataSet *> buffers;
-  if(opts.contains("buffers"))
-    updateFromOptions(opts, "buffers", buffers);
-  else
-    buffers << soas().currentDataSet();
+  DataSetList buffers(opts);
 
   DataStackHelper pusher(opts);
   for(const DataSet * ds : buffers) {
@@ -155,9 +151,7 @@ fO(QList<Argument *>()
    << new BoolArgument("keep-on-error", 
                        "Keep on error",
                        "if on, the points where the Ruby expression returns a  error are kept, as invalid numbers")
-   << new SeveralDataSetArgument("buffers", 
-                                 "Buffers",
-                                 "Buffers to work on", true, true)
+   << DataSetList::listOptions("Buffers to work on")
    );
 
 
@@ -581,13 +575,7 @@ static void eval(const QString &, QString code, const CommandOptions & opts)
   if(modifyMeta)
     useDs = true;
 
-  QList<const DataSet *> buffers;
-  updateFromOptions(opts, "buffers", buffers);
-  if(buffers.isEmpty() && useDs) {
-    const DataSet * ds = soas().currentDataSet(true);
-    if(ds)
-      buffers << ds; 
-  }
+  DataSetList buffers(opts);
 
   MRuby * mr = MRuby::ruby();
 
@@ -599,7 +587,7 @@ static void eval(const QString &, QString code, const CommandOptions & opts)
   };
   
   mrb_value value;
-  if(buffers.isEmpty()) {
+  if(! buffers.dataSetsSpecified()) {
     value = mr->eval(code);
     Terminal::out << " => " << strValue(value) << endl;
   }
@@ -607,10 +595,7 @@ static void eval(const QString &, QString code, const CommandOptions & opts)
     for(const DataSet * s : buffers) {
       DataSet * ds = const_cast<DataSet *>(s);
       Terminal::out << "Evaluating with buffer: " << ds->name << endl;
-      if(modifyMeta)
-        value = ds->evaluateWithMeta(code, true, true);
-      else 
-        value = ds->evaluateWithMeta(code, true);
+      value = ds->evaluateWithMeta(code, true, modifyMeta);
       Terminal::out << " => " << strValue(value) << endl;
     }
   }
@@ -624,9 +609,7 @@ eA(QList<Argument *>()
 
 static ArgumentList 
 eO(QList<Argument *>() 
-   << new SeveralDataSetArgument("buffers", 
-                                 "Buffers",
-                                 "Buffers to run eval on", true, true)
+   << DataSetList::listOptions("Buffers to run eval on")
    << new BoolArgument("use-dataset", 
                        "Use current dataset",
                        "If on (the default) and if there is a current dataset, the $meta and $stats hashes are available")

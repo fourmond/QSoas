@@ -42,6 +42,8 @@
 #include <commandlineparser.hh>
 #include <hook.hh>
 
+#include <datasetlist.hh>
+
 static Group stack("view", 1,
                    "View",
                    "Control viewing options");
@@ -467,7 +469,7 @@ static CommandLineOption sp("--load-stack", [](const QStringList & args) {
 //////////////////////////////////////////////////////////////////////
 
 
-static void ovCommand(const QString &, QList<const DataSet *> ds,
+static void ovCommand(const QString &,
                       const CommandOptions & opts)
 {
   // This is probably the only command that should not use
@@ -475,31 +477,43 @@ static void ovCommand(const QString &, QList<const DataSet *> ds,
   // just displayed.
   QString style;
   updateFromOptions(opts, "style", style);
+
+  DataSetList datasets(opts);
   QScopedPointer<StyleGenerator> 
-    gen(StyleGenerator::fromText(style, ds.size()));
+    gen(StyleGenerator::fromText(style, datasets.size()));
+
+
   soas().view().disableUpdates();
-  for(int i = 0; i < ds.size(); i++)
-    soas().view().addDataSet(ds[i], gen.data());
+  for(const DataSet * ds : datasets)
+    soas().view().addDataSet(ds, gen.data());
   soas().view().enableUpdates();
 }
 
-static ArgumentList 
-ovArgs(QList<Argument *>() 
-       << new SeveralDataSetArgument("buffers", 
-                                     "Buffers",
-                                     "Buffers to overlay"));
+// static ArgumentList 
+// ovArgs(QList<Argument *>() 
+//        << new SeveralDataSetArgument("buffers", 
+//                                      "Buffers",
+//                                      "Buffers to overlay"));
 
 static ArgumentList 
 styleOpts(QList<Argument *>() 
           << new StyleGeneratorArgument("style", 
                                         "Style",
                                         "Style for curves display"));
+
+
+static ArgumentList 
+ovbOpts(QList<Argument *>() 
+        << styleOpts
+        << DataSetList::listOptions("Buffers to overlay")
+        );
+
 static Command 
 ovlb("overlay-buffer", // command name
      effector(ovCommand), // action
      "view",  // group name
-     &ovArgs, // arguments
-     &styleOpts, // options
+     NULL, // arguments
+     &ovbOpts, // options
      "Overlay buffers",
      "Overlay buffer to the current one",
      "V");
@@ -580,22 +594,8 @@ poiCmd("points", // command name
 static void browseStackCommand(const QString &, const CommandOptions & opts)
 {
   DatasetBrowser dlg;
-  QList<const DataSet *> datasets;
-  if(opts.contains("buffers"))
-    updateFromOptions(opts, "buffers", datasets);
-  else
-    datasets = soas().stack().allDataSets();
 
-  QString frm;
-  updateFromOptions(opts, "for-which", frm);
-  if(! frm.isEmpty()) {
-    QList<const DataSet *> nl = datasets;
-    datasets.clear();
-    for(const DataSet * s : nl) {
-      if(s->matches(frm))
-        datasets << s;
-    }
-  }
+  DataSetList datasets(opts, true);
   
   if(datasets.size() == 0)
     throw RuntimeError("No datasets to show");
@@ -611,12 +611,7 @@ static void browseStackCommand(const QString &, const CommandOptions & opts)
 
 static ArgumentList 
 bsOpts(QList<Argument *>() 
-       << new SeveralDataSetArgument("buffers", 
-                                     "Buffers",
-                                     "Buffers to show", true, true)
-       << new CodeArgument("for-which", 
-                           "For which",
-                           "Select on formula")
+       << DataSetList::listOptions("Buffers to show")
        );
 
 static Command 
@@ -755,11 +750,7 @@ browseFiles("browse", // command name
 static void flagUnFlag(const CommandOptions & opts, 
                        bool flagged = true)
 {
-  QList<const DataSet *> buffers;
-  if(opts.contains("buffers"))
-    buffers = opts["buffers"]->value<QList<const DataSet *> >();
-  else
-    buffers << soas().currentDataSet();
+  DataSetList buffers(opts);
 
   QStringList flags;
   updateFromOptions(opts, "flags", flags);
@@ -786,20 +777,10 @@ static void flagUnFlag(const CommandOptions & opts,
     }
   }
 
-  for(int i = 0; i < buffers.size(); i++) {
-    DataSet * ds = const_cast<DataSet *>(buffers[i]);
-    if(! forWhich.isEmpty()) {
-      try {
-        if(! ds->matches(forWhich))
-          continue;               // Not flagging
-        matched += 1;
-      }
-      catch(const RuntimeError & re) {
-        Terminal::out << "Error evaluating expression with dataset #" << i
-                      << ": " << re.message() << endl;
-        continue;
-      }
-    }
+  int nb = 0;
+  for(const DataSet * d : buffers) {
+    nb++;
+    DataSet * ds = const_cast<DataSet *>(d);
     if(flagged) {
       if(set)
         ds->clearFlags();
@@ -813,12 +794,8 @@ static void flagUnFlag(const CommandOptions & opts,
     }
   }
 
-  Terminal::out << (flagged ? "Flagged ": "Unflagged ");
-  if(! forWhich.isEmpty())
-    Terminal::out << matched << " buffers (out of "
-                  << buffers.size() << ")" << endl;
-  else
-    Terminal::out << buffers.size() << " buffers" << endl;
+  Terminal::out << (flagged ? "Flagged ": "Unflagged ")
+                << nb << " buffers" << endl;
 
 }
 
@@ -828,13 +805,8 @@ static void flagDataSetsCommand(const QString &, const CommandOptions & opts)
 }
 
 static ArgumentList 
-muOps(QList<Argument *>() 
-      << new SeveralDataSetArgument("buffers", 
-                                    "Buffers",
-                                    "Buffers to flag/unflag", true, true)
-      << new CodeArgument("for-which", 
-                          "For which",
-                          "Select on formula")
+muOps(QList<Argument *>()
+      << DataSetList::listOptions("Buffers to flag/unflag")
       << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                     "flags", 
                                     "Buffers",

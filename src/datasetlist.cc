@@ -59,6 +59,17 @@ DataSetList::~DataSetList()
 }
 
 
+int DataSetList::size() const
+{
+  return datasets.size();
+}
+
+DataSetList::operator const QList<const DataSet *> &() const
+{
+  return datasets;
+}
+
+
 bool DataSetList::dataSetsSpecified() const
 {
   return !noDataSet;

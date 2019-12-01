@@ -630,6 +630,54 @@ ev("eval", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void verify(const QString &, QString code, const CommandOptions & opts)
+{
+  bool useDs = true;
+  updateFromOptions(opts, "use-dataset", useDs);
+
+  DataSetList buffers(opts);
+
+  MRuby * mr = MRuby::ruby();
+
+  mrb_value value;
+  if(! buffers.dataSetsSpecified()) {
+    value = mr->eval(code);
+    if(! mrb_test(value))
+      throw RuntimeError("'%1' is not verified").
+        arg(code);
+
+  }
+  else {
+    for(const DataSet * s : buffers) {
+      DataSet * ds = const_cast<DataSet *>(s);
+      value = ds->evaluateWithMeta(code, true);
+      if(! mrb_test(value))
+        throw RuntimeError("'%1' is not verified for buffer %2").
+          arg(code).arg(ds->name);
+    }
+  }
+}
+
+static ArgumentList 
+vO(QList<Argument *>() 
+   << DataSetList::listOptions("Buffers to run verify on")
+   << new BoolArgument("use-dataset", 
+                       "Use current dataset",
+                       "If on (the default) and if there is a current dataset, the $meta and $stats hashes are available")
+);
+
+
+static Command 
+ve("verify", // command name
+   effector(verify), // action
+   "file",  // group name
+   &eA, // arguments
+   &vO,
+   "Verify",
+   "Evaluates a Ruby expression and raises an error if it is false");
+
+//////////////////////////////////////////////////////////////////////
+
 /// The current context for assertions
 static QString assertContext = "general";
 

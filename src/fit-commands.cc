@@ -612,6 +612,29 @@ evl("eval", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void verifyCommand(const QString & /*name*/, QString formula,
+                        const CommandOptions & /*opts*/)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  MRuby * mr = MRuby::ruby();
+  mrb_value value;
+  FWExpression exp(formula, ws);
+  value = exp.evaluate();
+  Terminal::out << " => " << mr->inspect(value) << endl;
+}
+
+static Command 
+vfy("verify", // command name
+    effector(verifyCommand), // action
+    "fits",  // group name
+    &eArgs, // arguments
+    NULL, // options
+    "Verify",
+    "Evaluate a Ruby expression in the current context, and raises an exception if it is false",
+    "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
 static void selectCommand(const QString & /*name*/, int ds,
                           const CommandOptions & /*opts*/)
 {

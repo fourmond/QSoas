@@ -325,6 +325,8 @@ static void filmLossCommand(CurveEventLoop &loop, const QString &)
   const DataSet * ds = soas().currentDataSet();
   const GraphicsSettings & gs = soas().graphicsSettings();
 
+  DataSet * nds = NULL;
+
   CurveLine line;
   CurveHorizontalRegion r;
   CurveView & view = soas().view();
@@ -363,6 +365,13 @@ static void filmLossCommand(CurveEventLoop &loop, const QString &)
   QVarLengthArray<double, 200> rateConstants(ds->segments.size() + 1);
   for(int i = 0; i <= ds->segments.size(); i++)
     rateConstants[i] = 0;
+
+  auto makeMeta = [&rateConstants, ds]() -> QList<QVariant> {
+    QList<QVariant> rv;
+    for(int i = 0; i <= ds->segments.size(); i++)
+      rv << rateConstants[i];
+    return rv;
+  };
 
   while(! loop.finished()) {
     int action = filmLossHandler.nextAction(loop);
@@ -404,10 +413,14 @@ static void filmLossCommand(CurveEventLoop &loop, const QString &)
       view.mainPanel()->zoomIn(QRectF());
       break;
     case QuitDividing:
-      soas().pushDataSet(ds->derivedDataSet(corr.yvalues, "_corr.dat"));
+      nds = ds->derivedDataSet(corr.yvalues, "_corr.dat");
+      nds->setMetaData("film-loss-rates", makeMeta());
+      soas().pushDataSet(nds);
       return;
     case QuitReplacing:
-      soas().pushDataSet(ds->derivedDataSet(d.yvalues, "_coverage.dat"));
+      nds = ds->derivedDataSet(d.yvalues, "_coverage.dat");
+      nds->setMetaData("film-loss-rates", makeMeta());
+      soas().pushDataSet(nds);
       return;
     case Abort:
       return;

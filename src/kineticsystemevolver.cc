@@ -284,12 +284,8 @@ protected:
     /// whether this object owns the system
     bool ownSystem;
     
-    /// The file name (unsure that's the best place)
-    QString fileName;
-
     Storage() : system(NULL), evolver(NULL) {
       ownSystem = true;
-      fileName = "??";
     };
     
     virtual ~Storage() {
@@ -320,7 +316,7 @@ protected:
 
   virtual QString optionsString(FitData * data) const override {
     Storage * s = storage<Storage>(data);
-    return QString("system: %1").arg(s->fileName);
+    return QString("system: %1").arg(s->system->fileName);
   };
 
   KineticSystem * getSystem(FitData * data) const {
@@ -525,12 +521,10 @@ public:
   };
 
   KineticSystemFit(const QString & name, 
-                   KineticSystem * sys,
-                   const QString & file
-                   ) : 
+                   KineticSystem * sys) : 
     ODEFit(name.toLocal8Bit(), 
-                  QString("Kinetic system of %1").arg(file).toLocal8Bit(),
-                  "", 1, -1, false)
+           QString("Kinetic system of %1").arg(sys->fileName).toLocal8Bit(),
+           "", 1, -1, false)
   {
     mySystem = sys;
     mySystem->prepareForTimeEvolution();
@@ -572,7 +566,7 @@ static void defineKSFitCommand(const QString &, QString file,
   KineticSystem * ks = new KineticSystem;
   ks->parseFile(file);
 
-  new KineticSystemFit(name, ks, file);
+  new KineticSystemFit(name, ks);
 }
 
 

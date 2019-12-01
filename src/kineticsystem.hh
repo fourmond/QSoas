@@ -312,6 +312,9 @@ protected:
 
 public:
 
+  /// The file name (for displaying purposes)
+  QString fileName;
+
   /// If this is on, then computeLinearJacobian checks that the rate
   /// constants are not negative, and raise an exception if they are.
   ///
@@ -413,9 +416,11 @@ public:
   void cacheRateConstants(const gsl_vector * concentrations,
                           const double * parameters) const;
 
+protected:
   /// Reads reactions from a file, and add them to the current system.
-  void parseFile(QIODevice * stream);
+  void parseFile(QIODevice * stream, const QString & name);
 
+public:
 
   /// Reads directly the file
   void parseFile(const QString & fileName);

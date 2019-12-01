@@ -961,7 +961,7 @@ void KineticSystem::parseFile(const QString & fileName)
 {
   QFile f(fileName);
   Utils::open(&f, QIODevice::ReadOnly);
-  parseFile(&f);
+  parseFile(&f, fileName);
 }
 
 
@@ -987,10 +987,8 @@ static void parseReactants(const QString & reactants,
   }
 }
 
-void KineticSystem::parseFile(QIODevice * device)
+void KineticSystem::parseFile(QIODevice * device, const QString & n)
 {
-
-  
   QTextStream in(device);
 
   QRegExp blankRE("^\\s*(#|$)");
@@ -1078,6 +1076,7 @@ void KineticSystem::parseFile(QIODevice * device)
   if(reaction == 0)
     throw RuntimeError("Could not parse any reaction from file %1").
       arg(Utils::fileName(device));
+  fileName = n;
 }
 
 void KineticSystem::addReaction(QList<QString> species,

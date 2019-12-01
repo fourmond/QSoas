@@ -414,12 +414,12 @@ static void filmLossCommand(CurveEventLoop &loop, const QString &)
       break;
     case QuitDividing:
       nds = ds->derivedDataSet(corr.yvalues, "_corr.dat");
-      nds->setMetaData("film-loss-rates", makeMeta());
+      nds->setMetaData("filmloss_rates", makeMeta());
       soas().pushDataSet(nds);
       return;
     case QuitReplacing:
       nds = ds->derivedDataSet(d.yvalues, "_coverage.dat");
-      nds->setMetaData("film-loss-rates", makeMeta());
+      nds->setMetaData("filmloss_rates", makeMeta());
       soas().pushDataSet(nds);
       return;
     case Abort:

@@ -113,6 +113,9 @@ public:
       naturalParameters << s.naturalVariables();
     }
 
+    std::sort(naturalParameters.begin(), naturalParameters.end());
+
+    
     params << "x" << "i" << "seg";
     if(naturalParameters.contains("fara") ||
        naturalParameters.contains("temperature")) {

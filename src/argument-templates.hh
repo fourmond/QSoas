@@ -34,6 +34,8 @@ class TemplateChoiceArgument : public Argument {
   QStringList order;
 
   QString choiceName;
+
+  QString choiceDesc;
 public:
 
   TemplateChoiceArgument(const QHash<QString, T> & c,
@@ -41,7 +43,7 @@ public:
                          const char * d = "", bool def = false,
                          const char * chN = "") : 
     Argument(cn, pn, d, false, def), 
-    fixedChoices(c), choiceName(chN) {
+    fixedChoices(c), choiceName(chN), choiceDesc("One of: `%1`") {
     order = fixedChoices.keys();
     qSort(order);
   }; 
@@ -51,7 +53,8 @@ public:
                          const char * cn, const char * pn,
                          const char * d = "", bool def = false,
                          const char * chN = "") : 
-    Argument(cn, pn, d, false, def), choiceName(chN) {
+    Argument(cn, pn, d, false, def), choiceName(chN),
+    choiceDesc("One of: `%1`") {
     order = c1;
     // Using exceptions in constructors, but constructors are called
     // mostly statically, so that shouldn't be a problem.
@@ -61,15 +64,21 @@ public:
     for(int i = 0; i < c2.size(); i++) {
       fixedChoices[c1[i]] = c2[i];
     }
-  }; 
+  };
+
+  void describe(const QString & cn, const QString & cd) {
+    choiceName = cn;
+    choiceDesc = cd;
+  };
 
   virtual QString typeName() const override {
     if(choiceName.isEmpty())
       return "choice";
     return choiceName;
   };
+
   virtual QString typeDescription() const override {
-    return QString("One of: `%1`").arg(order.join("`, `"));
+    return choiceDesc.arg(order.join("`, `"));
   };
 
   /// Returns a wrapped T

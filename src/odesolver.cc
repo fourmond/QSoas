@@ -72,6 +72,13 @@ CommandOptions ODEStepperOptions::asOptions() const
 QList<Argument*> ODEStepperOptions::commandOptions()
 {
   QList<Argument*> args;
+
+  TemplateChoiceArgument<const gsl_odeiv2_step_type *> * stpa = 
+    new TemplateChoiceArgument<const gsl_odeiv2_step_type *>
+    (stepperTypes(), "stepper", "Stepper algorithm",
+     "algorithm used for integration (default: rkf45)");
+  stpa->describe("stepper", "[ODE stepper algorithm](#ode-stepper), one of: `%1`");
+  
   args << new BoolArgument("adaptive", "Adaptive stepper",
                            "whether or not to use an adaptive stepper (on by default)")
        << new NumberArgument("step-size", "Step size",
@@ -86,9 +93,7 @@ QList<Argument*> ODEStepperOptions::commandOptions()
                               "If this is not 0, then the smallest step size is that many times smaller than the minimum delta t")
        // << new IntegerArgument("max-iterations", "Maximum of iterations",
        //                       "Maximum number of internal iterations for each step (0 to allow infinite number)")
-       << new TemplateChoiceArgument<const gsl_odeiv2_step_type *>
-    (stepperTypes(), "stepper", "Stepper algorithm",
-     "algorithm used for integration (default: rkf45)");
+       << stpa;
   return args;
 }
 

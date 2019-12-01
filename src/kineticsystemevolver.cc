@@ -315,8 +315,7 @@ protected:
 
 
   virtual QString optionsString(FitData * data) const override {
-    Storage * s = storage<Storage>(data);
-    return QString("system: %1").arg(s->system->fileName);
+    return QString("system: %1").arg(getSystem(data)->fileName);
   };
 
   KineticSystem * getSystem(FitData * data) const {

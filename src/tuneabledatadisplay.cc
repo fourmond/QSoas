@@ -160,8 +160,11 @@ QList<DataSet*> TuneableDataDisplay::makeDataSets(bool onlyVisible)
 {
   QList<DataSet*> rv;
   if( (! onlyVisible) || checkBox->checkState() == Qt::Checked) {
-    for(int i = 0; i < items.size(); i++)
-      rv << items[i]->makeDataSet();
+    for(int i = 0; i < items.size(); i++) {
+      DataSet * ds = items[i]->makeDataSet();
+      ds->name = name;
+      rv << ds;
+    }
   }
   return rv;
 }

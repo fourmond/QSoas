@@ -356,7 +356,8 @@ QVariant ValueHash::rubyToVariant(mrb_value value)
   if(mrb_float_p(value))
     return mr->floatValue_up(value);
   if(mrb_fixnum_p(value))
-    return QVariant((qlonglong)mrb_fixnum(value));
+    // This may overflow...
+    return QVariant((int)mrb_fixnum(value));
 
   QString ret = mr->toQString(value);
   /// @todo Handling of date/time

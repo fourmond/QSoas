@@ -21,6 +21,8 @@ class FancyHash < Hash
     k = symb.to_s
     if self.key? k
       return self[k]
+    elsif (k[-1] == '=' && rest.size == 1)
+      self[k[0..-2]] = rest[0]
     else
       raise NoMethodError.new(symb)
     end

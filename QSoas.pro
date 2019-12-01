@@ -399,7 +399,7 @@ SOURCES += src/qmain.cc \
         src/graphicoutput.cc \
         src/argumentsdialog.cc \
         src/filepromptwidget.cc \
-        src/unsplicer.cc
+        src/datasetlist.cc
 
 #        src/conditionsprovider.cc \
 
@@ -545,7 +545,7 @@ HEADERS += src/headers.hh \
         src/argumentsdialog.hh \
         src/filepromptwidget.hh \
         src/namedinstanceargument.hh \
-        src/unsplicer.hh
+        src/datasetlist.hh
 
 # mruby
 HEADERS += src/mruby.hh

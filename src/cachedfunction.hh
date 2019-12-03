@@ -30,7 +30,7 @@ protected:
 
   Function func;
 public:
-  CachedFunction(Function f) : func(f) {;};
+  explicit CachedFunction(Function f) : func(f) {;};
 
   double value(double v);
 

@@ -76,7 +76,7 @@ class ArgumentsDialog : public QDialog {
   
 public:
 
-  ArgumentsDialog(const Command * command);
+  explicit ArgumentsDialog(const Command * command);
   ~ArgumentsDialog();
 
   /// Runs a full prompt for the given command, and returns true if

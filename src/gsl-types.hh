@@ -27,7 +27,7 @@ class GSLVector {
   /// Managed vector
   gsl_vector * data;
 public:
-  GSLVector(size_t size) {
+  explicit GSLVector(size_t size) {
     data = gsl_vector_alloc(size);
   };
 

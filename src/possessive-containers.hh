@@ -43,7 +43,7 @@ public:
   PossessiveList() : shouldDelete(true) {;};
   explicit PossessiveList(const QList<T*> & v) : shouldDelete(true),
                                                  values(v) {;};
-  PossessiveList(int nb) : shouldDelete(true) {
+  explicit PossessiveList(int nb) : shouldDelete(true) {
     values.reserve(nb);
     for(int i = 0; i < nb; i++)
       values.append(NULL);
@@ -106,7 +106,7 @@ public:
   typedef QHash<K, V*> Hash;
   Hash values;
 
-  PossessiveHash(const QHash<K, V*> & v) : values(v) {;};
+  explicit PossessiveHash(const QHash<K, V*> & v) : values(v) {;};
 
   ~PossessiveHash() {
     for(typename Hash::iterator i = values.begin();

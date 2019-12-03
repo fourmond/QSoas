@@ -112,7 +112,7 @@ public:
 
 
   /// Constructs a DataStack object.
-  DataStack(bool notOwner = false);
+  explicit DataStack(bool notOwner = false);
 
   ~DataStack();
 

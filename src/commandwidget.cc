@@ -48,7 +48,7 @@ protected:
 
   QLabel * lbl;
 public:
-  SideBarLabel(QWidget * parent = NULL) : QScrollArea(parent)
+  explicit SideBarLabel(QWidget * parent = NULL) : QScrollArea(parent)
   {
     lbl = new QLabel;
     setWidget(lbl);

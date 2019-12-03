@@ -42,10 +42,10 @@ public:
   /// Whether or not to paint markers.
   bool paintMarkers;
 
-  CurveDataSet(const DataSet * ds): CurveItem(true), 
-                                    dataSet(ds), 
-                                    lastPointIdx(-1),
-                                    paintMarkers(false)
+  explicit CurveDataSet(const DataSet * ds): CurveItem(true), 
+                                             dataSet(ds), 
+                                             lastPointIdx(-1),
+                                             paintMarkers(false)
   {;};
 
   virtual ~CurveDataSet();

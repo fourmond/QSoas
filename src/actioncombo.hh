@@ -31,7 +31,7 @@ class ActionCombo : public QComboBox {
   QList<QAction *> actions;
 public:
   
-  ActionCombo(const QString & title);
+  explicit ActionCombo(const QString & title);
 
   /// Adds an action with the given name, connected to the \a slot of
   /// the \a receiver.

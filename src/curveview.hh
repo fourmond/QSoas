@@ -99,7 +99,7 @@ class CurveView : public QAbstractScrollArea {
 
 public:
 
-  CurveView(QWidget * parent = NULL);
+  explicit CurveView(QWidget * parent = NULL);
   virtual ~CurveView();
 
   /// Adds an item to the CurveView. It goes to the panel()

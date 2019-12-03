@@ -250,7 +250,7 @@ class MRubyArenaContext {
 
   MRuby * mr;
 public:
-  MRubyArenaContext(MRuby * m) : mr(m) {
+  explicit MRubyArenaContext(MRuby * m) : mr(m) {
     idx = mrb_gc_arena_save(mr->mrb);
   }
 

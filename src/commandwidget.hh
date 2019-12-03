@@ -148,7 +148,7 @@ protected:
 
 public:
 
-  CommandWidget(CommandContext * context = NULL);
+  explicit CommandWidget(CommandContext * context = NULL);
   virtual ~CommandWidget();
 
   /// Returns the context that was used

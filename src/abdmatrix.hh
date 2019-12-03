@@ -64,7 +64,7 @@ class ABDMatrix {
   /// in which the given overall index lies
   void whereIndex(int overallIdx, int & mId, int & idx) const;
 public:
-  ABDMatrix(const QList<int> & sizes);
+  explicit ABDMatrix(const QList<int> & sizes);
   ~ABDMatrix();
 
   /// Returns the total size of the square matrix

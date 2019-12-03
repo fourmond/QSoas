@@ -86,7 +86,7 @@ private:
   FitData * data;
 public:
 
-  DFComputationQueue(FitData * d);
+  explicit DFComputationQueue(FitData * d);
   ~DFComputationQueue();
 
 

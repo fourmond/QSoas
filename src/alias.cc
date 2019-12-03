@@ -74,16 +74,15 @@ public:
   /// Arguments to come later ?
 
 
-  Alias(Command * tg) : CommandEffector(tg->effector->isInteractive()),
-                        targetCommand(tg) {
+  explicit Alias(Command * tg) : CommandEffector(tg->effector->isInteractive()),
+                                 targetCommand(tg) {
   };
 
   virtual void runCommand(const QString & commandName, 
                           const CommandArguments & arguments,
                           const CommandOptions & options) override {
 
-    PossessiveHash<QString, ArgumentMarshaller> args = 
-      targetCommand->parseOptions(defaultOptions);
+    PossessiveHash<QString, ArgumentMarshaller> args(targetCommand->parseOptions(defaultOptions));
     CommandOptions args2 = spliceOptions(args, options);
 
     targetCommand->effector->runCommand(commandName, arguments, args2);
@@ -94,8 +93,7 @@ public:
                            const CommandArguments & arguments,
                            const CommandOptions & options) override 
   {
-    PossessiveHash<QString, ArgumentMarshaller> args = 
-      targetCommand->parseOptions(defaultOptions);
+    PossessiveHash<QString, ArgumentMarshaller> args(targetCommand->parseOptions(defaultOptions));
     CommandOptions args2 = spliceOptions(args, options);
 
     targetCommand->effector->runWithLoop(loop,commandName, arguments, args2);

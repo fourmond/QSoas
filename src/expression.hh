@@ -76,7 +76,7 @@ class Expression {
 public:
 
   /// Creates an expression object (and compile it)
-  Expression(const QString & expression);
+  explicit Expression(const QString & expression);
 
   /// Creates an expression object responding to the given variables.
   ///

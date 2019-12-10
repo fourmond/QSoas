@@ -414,4 +414,4 @@ static FitEngine * simplexFE(FitData * d)
 }
 
 static FitEngineFactoryItem simplex("simplex", "Simplex",
-                                    &simplexFE, &SimplexFitEngine::options);
+                                    &simplexFE, &SimplexFitEngine::options, true);

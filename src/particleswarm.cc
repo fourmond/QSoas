@@ -274,4 +274,4 @@ static FitEngine * psoFE(FitData * d)
 
 
 static FitEngineFactoryItem pso("pso", "Particle Swarm Optimizer",
-                                &psoFE, &ParticleSwarmFitEngine::options);
+                                &psoFE, &ParticleSwarmFitEngine::options, true);

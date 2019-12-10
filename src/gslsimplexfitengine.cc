@@ -152,4 +152,4 @@ static FitEngine * gsls(FitData * d)
   return new GSLSimplexFitEngine(d);
 }
 
-static FitEngineFactoryItem gslSimplex("gsl-simplex", "GSL implementation of the simplex", &gsls);
+static FitEngineFactoryItem gslSimplex("gsl-simplex", "GSL implementation of the simplex", &gsls, NULL, true);

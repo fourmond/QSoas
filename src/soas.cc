@@ -158,7 +158,13 @@ void Soas::writeSpecFile(QTextStream & out, bool full)
   tdp = FitEngineFactoryItem::availableItems();
   qSort(tdp);
   out << "Fit engines:" << endl;
-  out << " - " << tdp.join("\n - ") << endl;
+  for(const QString & f : tdp) {
+    FitEngineFactoryItem * it = FitEngineFactoryItem::namedItem(f);
+    out << " - " << f;
+    if(it->isMultiCapable)
+      out << " (massively multibuffer)";
+    out << endl;
+  }
 
   tdp = StyleGenerator::availableGenerators();
   qSort(tdp);

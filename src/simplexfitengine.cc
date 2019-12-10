@@ -26,6 +26,8 @@
 #include <argumentlist.hh>
 #include <general-arguments.hh>
 
+#include <debug.hh>
+
 /// A Nelder-Mead fit engine.
 ///
 /// All the parameters here are the "GSL" parameters.
@@ -53,8 +55,6 @@ protected:
   /// Final threshold
   double threshold;
 
-  /// Whether we use scaling or not
-  bool useScaling;
 
   /// A vector for the function evaluation
   gsl_vector * func;
@@ -131,7 +131,6 @@ void SimplexFitEngine::resetEngineParameters()
   gamma = 0.5;
   delta = 0.5;
   threshold = 1e-4;
-  useScaling = true;
 }
 
 ArgumentList SimplexFitEngine::
@@ -141,7 +140,6 @@ options(QList<Argument*>()
         << new NumberArgument("gamma", "Contraction factor")
         << new NumberArgument("delta", "Shrink factor")
         << new NumberArgument("end-threshold", "Threshold for ending")
-        << new BoolArgument("use-scaling", "Scale parameters")
         );
 
 ArgumentList * SimplexFitEngine::engineOptions() const
@@ -157,7 +155,6 @@ CommandOptions SimplexFitEngine::getEngineParameters() const
   updateOptions(val, "beta", beta);
   updateOptions(val, "gamma", gamma);
   updateOptions(val, "delta", delta);
-  updateOptions(val, "use-scaling", useScaling);
   updateOptions(val, "end-threshold", threshold);
 
   return val;
@@ -171,7 +168,6 @@ void SimplexFitEngine::setEngineParameters(const CommandOptions & val)
   updateFromOptions(val, "gamma", gamma);
   updateFromOptions(val, "delta", delta);
   updateFromOptions(val, "end-threshold", threshold);
-  updateFromOptions(val, "use-scaling", useScaling);
 }
 
 
@@ -182,31 +178,44 @@ void SimplexFitEngine::initialize(const double * initialGuess)
   gsl_vector_view params = gsl_vector_view_array(paramVals.data(), nb); 
 
   QVarLengthArray<double, 100> paramVals2(nb);
-  gsl_vector_view params2 = gsl_vector_view_array(paramVals.data(), nb);
+  gsl_vector_view params2 = gsl_vector_view_array(paramVals2.data(), nb);
 
   fitData->packParameters(initialGuess, &params.vector);
-  if(useScaling) {
-    int n = fitData->freeParameters();
-    scalingFactors.resize(n);
-    for(int i = 0; i < n; i++) {
-      double v = paramVals[i];
-      if(v == 0)
-        v = 1;
-      scalingFactors[i] = v;
-      paramVals[i] /= v;
-    }
-  }
     
 
   // OK, so now, we position the initial vertices
   vertices << computeVertex(&params.vector);
   
   for(int i = 0; i < nb; i++) {
-    // We attempt a factor-of-two increase in the parameter
-    gsl_vector_memcpy(&params2.vector, &params.vector);
-    gsl_vector_set(&params2.vector, i, 
-                   2 * gsl_vector_get(&params2.vector, i));
-    vertices << findNeighbourhood(&params.vector, &params2.vector);
+    if(fitData->debug > 0) {
+      // Dump the scaling factors
+      Debug::debug() << "Making a vertex in the direction of the increase of parameter " << i << endl;
+    }
+
+    try {
+      // We attempt a factor-of-two increase in the parameter
+      gsl_vector_memcpy(&params2.vector, &params.vector);
+      gsl_vector_set(&params2.vector, i, 
+                     2 * gsl_vector_get(&params2.vector, i));
+      vertices << findNeighbourhood(&params.vector, &params2.vector);
+      
+    }
+    catch(const RuntimeError & e) {
+      if(fitData->debug > 0) {
+        // Dump the scaling factors
+        Debug::debug() << " -> looking in the other direction for parameter " << i << endl;
+      }
+      // We attempt going towards 0
+      gsl_vector_memcpy(&params2.vector, &params.vector);
+      gsl_vector_set(&params2.vector, i, 0);
+      vertices << findNeighbourhood(&params.vector, &params2.vector);
+    }
+    if(fitData->debug > 0) {
+      // Dump the scaling factors
+      Debug::debug() << "Initial change for parameter " << i
+                     << " from " << gsl_vector_get(&params.vector, i) 
+                     << " to " << vertices.last().parameters[i] << endl;
+    }
   }
 
   qSort(vertices);
@@ -351,19 +360,8 @@ StoredParameters SimplexFitEngine::computeVertex(const gsl_vector * pos)
 {
   int nb = fitData->freeParameters();
   QVarLengthArray<double, 100> paramVals(nb);
-  const gsl_vector * v;
-  gsl_vector_view params = gsl_vector_view_array(paramVals.data(), nb); 
-  if(useScaling) {
-    // Back to real values
-    for(int i = 0; i < nb; i++) {
-      paramVals[i] = gsl_vector_get(pos,i) * scalingFactors[i];
-    }
-    v = &params.vector;
-  }
-  else
-    v = pos;
 
-  fitData->f(v, func, true);
+  fitData->f(pos, func, true);
   double res;
   gsl_blas_ddot(func, func, &res);
   return StoredParameters(pos, res);

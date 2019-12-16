@@ -1037,7 +1037,7 @@ It is also possible to use a full-blown [Ruby](#ruby) expression that
 will be aware of the buffer's meta-data:
 
 ~~~
-QSoas> save-buffers '/expression="File-#{$meta["sr"]}.dat"'
+QSoas> save-buffers '/expression="File-#{$meta.sr}.dat"'
 ~~~
 
 This requires careful quoting: outer single quotes (`'`) for QSoas and
@@ -1546,9 +1546,9 @@ Applies a formula to the current dataset. It should specify how the
 `x` and/or `y` values of the dataset are modified:
 
 ~~~~
-QSoas> apply-formula 'x = x**2'
-QSoas> apply-formula 'y = sin(x**2)'
-QSoas> apply-formula 'x,y = y,x'
+QSoas> apply-formula x=x**2
+QSoas> apply-formula y=sin(x**2)
+QSoas> apply-formula x,y=y,x
 ~~~~
 
 The last bit swaps the $$x$$ and $$y$$ values of the buffer. The
@@ -1570,17 +1570,17 @@ you can use `i` to have even points draw a sine wave and odd points a
 cosine:
 
 ~~~~
-QSoas> apply-formula 'y = (i % 2 == 0 ? sin(x) : cos(x))'
+QSoas> apply-formula y=(i%2==0?sin(x):cos(x))
 ~~~~
 
 `%` is the modulo operator. The construction with `?` and `:` (called
 the [ternary operator](https://en.wikipedia.org/wiki/%3F:) means:
-if `i % 2 == 0` is true, then the value is `sin(x)`, else `cos(x)`.
+if `i%2==0` is true, then the value is `sin(x)`, else `cos(x)`.
 
 You can use several instructions by separating them with `;`:
 
 ~~~~
-QSoas> apply-formula 'x = x**2; y = x**2'
+QSoas> apply-formula x=x**2;y=x**2
 ~~~~
 
 This results in `x` values that are the squares of the old values, and
@@ -1591,7 +1591,7 @@ Extra columns initially filled with 0 can be created by using the
 `/extra-columns` option:
 
 ~~~~
-QSoas> apply-formula /extra-columns=1 'y2 = y**2'
+QSoas> apply-formula /extra-columns=1 y2=y**2
 ~~~~
 
 This creates a third column (a second `y` column) containing the
@@ -1603,20 +1603,22 @@ by [cmd: stats]. For instance, to normalize the Y values by dividing
 by the median, one would use:
 
 ~~~ 
-QSoas> apply-formula /use-stats=true 'y = y/$stats["y_med"]'
+QSoas> apply-formula /use-stats=true y=y/$stats.y_med
 ~~~
 
-Beware of the quotes: the outer quotes `'` are meant to make QSoas
-understand that the `y = y/$stats["y_med"]` is only one argument,
-while the inner quotes `"` are required because the keys to the
-statistics dictionnary are ruby strings, delimited by `"`.
+Note that you can make use of the special `/=` operator to shorten
+that into:
+
+~~~ 
+QSoas> apply-formula /use-stats=true y/=$stats.y_med
+~~~
 
 Statistics by segments (see more about segments [there](#segments))
 are available too, which means if you want to normalize by the medians
 of the first segment, you could do
 
 ~~~ 
-QSoas> apply-formula /use-stats=true 'y = y/$stats[0]["y_med"]'
+QSoas> apply-formula /use-stats=true y/=$stats[0].y_med
 ~~~
 
 If `/use-meta` is `true` (the default), then a global variable `$meta`
@@ -1790,17 +1792,25 @@ data, this will impact commands that work with indices, such as
 
 {::comment} synopsis-end: strip-if {:/}
 {::comment} description-start: strip-if {:/}
-Removes all points for which the ruby expression returns `true`. This
+Removes all points for which the [ruby expression](#ruby) returns `true`. This
 can be used for quite advanced data selection:
 
 ~~~~
-QSoas> strip-if 'x > 2'
+QSoas> strip-if x>2
 ~~~~ 
 
 This removes all points whose X value is greater than 2.
 
 ~~~~
-QSoas> strip-if 'x * y < 10 && x > 2'
+QSoas> strip-if x>2||x<4
+~~~~ 
+
+This removes all points whose X value is greater than 2 or whose X
+value is lower than 4. In other terms, it *keeps* only the X values
+between 2 and 4.
+
+~~~~
+QSoas> strip-if x*y<10&&x>2
 ~~~~
 
 This removes all the points for which both the X value is greater than 2 and
@@ -1813,7 +1823,7 @@ by weird numbers called NaN (Not a Number). They can be useful at
 times, but mess up statistics and fits. To remove them, use:
 
 ~~~~
-QSoas> strip-if '(x != x) || (y != y)'
+QSoas> strip-if x.nan?||y.nan?
 ~~~~
 
 Like in [cmd: apply-formula], you can use the statistics and the
@@ -1857,12 +1867,12 @@ point ends up being at 0.
 Computes the 4th order accurate derivative of the buffer.
 
 This is efficient to compute the derivative of smooth data, but it
-gives very poor results on noisy data. In general, for derivation,
-prefer [cmd: filter-fft], [cmd: filter-bsplines] or [cmd: auto-reglin],
-which will give much better results.
+gives very poor results on noisy data. In general, for derivation of
+real data, prefer [cmd: filter-fft], [cmd: filter-bsplines] or
+[cmd: auto-reglin], which will give much better results.
 
 Starting from QSoas version 2.1, a second mode is available, in which
-you can choose an arbitrary order for the derivation (has to be more
+you can choose an arbitrary order for the derivation (has to be less
 than the number of points of the dataset), via the option `/order=`,
 and an optional derivative via the `/derivative` option. For instance,
 you can reproduce the effect of [cmd: diff2] using:
@@ -2139,26 +2149,20 @@ work on based on their properties. The value of the `/for-which` is a
 datasets that have a maximum value greater than `1e-4`:
 
 ~~~
-QSoas> flag all /for-which '$stats["y_max"] >= 1e-4'
+QSoas> flag all /for-which $stats.y_max>=1e-4
 ~~~
-
-Be mindful of the quotes: the outer `'` quotes are meant to protect
-the `$stats["y_max"] >= 1e-4` bit that is passed on to ruby. The
-quotes around `y_max` are necessary, as `$stats` is a
-[dictionnary](http://ruby-doc.org/core-1.9.3/Hash.html) whose keys are
-ruby strings, which are delimited by double quotes.
 
 **How to test for equality:** in [ruby](#ruby), you need to use `==`
 to test whether two values are the same. For instance, to flag
 voltammograms in which the scan rate is 0.1 V/s, you have to use:
 
 ~~~
-QSoas> flag all /for-which '$meta["sr"] == 0.1'
+QSoas> flag all /for-which $meta.sr==0.1
 ~~~
 
 Replacing the `==` by `=` in the code above leads to selecting **all**
-the buffers, because `$meta["sr"] = 0.1` evaluates to `true` for
-[ruby](#ruby).
+the buffers, because `$meta.sr=0.1` is always `true` (see more about
+the ruby expressions [there](#ruby)).
 
 
 {::comment} synopsis-start: show {:/}
@@ -6274,6 +6278,17 @@ evaluation programs (it is quite close to the one from
  * Don't abbreviate floating point numbers: `2.` and `.4` are invalid, use
    `2.0` and `0.4` instead.
  * **Case matters**: `Pi` is $$\pi$$, while `pi` is nothing defined.
+ * Exponentiation is done with the `**` operator. The `^` operator is
+   used for binary XOR.
+ * Logical OR is done with the `||` operator and logical AND with the
+   `&&` operator. The single-letter versions, `|` and `&` are
+   **binary** operators and will not work as you intend.
+
+Most ruby expressions can make use of dataset information, such as
+meta-data or statistics (see the documentation of the specific command
+for more information about how to make this available). The most easy
+way to do so is to use for instance `$stats.y_max` to refer to the
+`y_max` statistic.
 
 ### Specific additions/modifications to Ruby
 

@@ -606,7 +606,7 @@ void FitTrajectoryDisplay::setupFrame()
 
   graphicalDisplay = new TrajectoryParametersDisplay(workspace);
 
-  splt->addWidget(graphicalDisplay);
+  // splt->addWidget(graphicalDisplay);
 
   l->addWidget(splt);
 

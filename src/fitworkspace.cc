@@ -790,11 +790,13 @@ void FitWorkspace::checkIndex(int index, int dataset) const
 void FitWorkspace::setFixed(int index, int ds, bool fixed)
 {
   checkIndex(index, ds);
-  bool cur = isFixed(index, ds);
-  if((fixed && cur) || (! fixed && !cur)) {
-    return;                     // not touching anything.
+  if(ds >= 0 || isGlobal(index)) {
+    bool cur = isFixed(index, ds);
+    if((fixed && cur) || (! fixed && !cur)) {
+      return;                     // not touching anything.
+    }
   }
-
+  
   if(ds < 0) {
     // Run for all
     for(int i = 0; i < datasets; i++)

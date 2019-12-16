@@ -28,13 +28,14 @@ FitTrajectory::FitTrajectory(const Vector & init, const Vector & final,
                              const Vector & errors, 
                              double res, double rr,
                              double intr, double d,
+                             const Vector & pointRes,
                              const QString & eng,
                              const QDateTime & start,
                              const FitData * data,
                              const QDateTime & end) :
     initialParameters(init), finalParameters(final), 
-    parameterErrors(errors),
-    ending(Converged), residuals(res), relativeResiduals(rr),
+    parameterErrors(errors), pointResiduals(pointRes),
+    ending(FitWorkspace::Converged), residuals(res), relativeResiduals(rr),
     internalResiduals(intr), residualsDelta(d),
     engine(eng), startTime(start) {
     if(end.isValid())
@@ -42,7 +43,7 @@ FitTrajectory::FitTrajectory(const Vector & init, const Vector & final,
     else
       endTime = QDateTime::currentDateTime();
     if(! final.allFinite())
-      ending = NonFinite;
+      ending = FitWorkspace::NonFinite;
     iterations = data->nbIterations;
     evaluations = data->evaluationNumber;
 
@@ -50,6 +51,8 @@ FitTrajectory::FitTrajectory(const Vector & init, const Vector & final,
     int nbp = data->parametersPerDataset();
     for(int i = 0; i < total; i++)
       fixed << data->isFixed(i % nbp, i/nbp);
+
+    pid = QCoreApplication::applicationPid();
   };
 
 
@@ -71,18 +74,27 @@ bool FitTrajectory::isWithinErrorRange(const FitTrajectory & o) const
   return true;
 }
 
+bool FitTrajectory::flagged(const QString & flag) const
+{
+  return flags.contains(flag);
+}
+
 QStringList FitTrajectory::exportColumns() const
 {
   QStringList ret;
   
   for(int i = 0; i < initialParameters.size(); i++)
-    ret << QString::number(initialParameters[i]);
+    ret << QString::number(initialParameters[i], 'g', 8);
 
   ret << endingName(ending);
 
   for(int i = 0; i < finalParameters.size(); i++)
-    ret << QString::number(finalParameters[i])
-        << QString::number(parameterErrors[i]);
+    ret << QString::number(finalParameters[i], 'g', 8)
+        << QString::number(parameterErrors[i], 'g', 8);
+
+  // Point residuals
+  for(int i = 0; i < pointResiduals.size(); i++)
+    ret << QString::number(pointResiduals[i], 'g', 8);
 
   ret << QString::number(residuals)
       << QString::number(relativeResiduals)
@@ -93,51 +105,79 @@ QStringList FitTrajectory::exportColumns() const
       << QString::number(iterations)
       << QString::number(evaluations)
       << QString::number(residualsDelta)
-      << Utils::writeBooleans(fixed.toList());
+      << QString::number(pid)
+      << Utils::writeBooleans(fixed.toList())
+      << QStringList(flags.toList()).join(",");
 
   return ret;
 }
 
-void FitTrajectory::loadFromColumns(const QStringList & cls, int nb)
+void FitTrajectory::loadFromColumns(const QStringList & cls, int nb, int datasets, bool * ok)
 {
   QStringList cols(cls);
 
+  class Spec {};
+  if(ok)
+    *ok = true;
+
+  auto next = [&cols]() -> QString {
+    if(cols.size() > 0)
+      return cols.takeFirst();
+    throw Spec();
+    return QString();
+  };
+
   initialParameters.resize(nb);
-  for(int i = 0; i < initialParameters.size(); i++)
-    initialParameters[i] = cols.takeFirst().toDouble(); // No validation ?
 
-  ending = endingFromName(cols.takeFirst());
+  try {
+  
+    for(int i = 0; i < initialParameters.size(); i++)
+      initialParameters[i] = next().toDouble(); // No validation ?
+
+    ending = endingFromName(next());
 
 
-  finalParameters.resize(nb);
-  parameterErrors.resize(nb);
-  for(int i = 0; i < finalParameters.size(); i++) {
-    finalParameters[i] = cols.takeFirst().toDouble();
-    parameterErrors[i] = cols.takeFirst().toDouble();
-  }
+    finalParameters.resize(nb);
+    parameterErrors.resize(nb);
+    for(int i = 0; i < finalParameters.size(); i++) {
+      finalParameters[i] = next().toDouble();
+      parameterErrors[i] = next().toDouble();
+    }
 
-  residuals = cols.takeFirst().toDouble();
-  relativeResiduals = cols.takeFirst().toDouble();
-  internalResiduals = cols.takeFirst().toDouble();
-  engine = cols.takeFirst();
-  if(cols.size() == 0)
-    return;
+    pointResiduals.resize(datasets);
+    for(int i = 0; i < datasets; i++)
+      pointResiduals[i] = next().toDouble();
+
+    residuals = next().toDouble();
+    relativeResiduals = next().toDouble();
+    internalResiduals = next().toDouble();
+    engine = next();
+    if(cols.size() == 0)
+      return;
       
-  qint64 t = cols.takeFirst().toLongLong();
-  startTime = QDateTime::fromMSecsSinceEpoch(t);
-  t = cols.takeFirst().toLongLong();
-  endTime = QDateTime::fromMSecsSinceEpoch(t);
+    qint64 t = next().toLongLong();
+    startTime = QDateTime::fromMSecsSinceEpoch(t);
+    t = next().toLongLong();
+    endTime = QDateTime::fromMSecsSinceEpoch(t);
     
-  if(cols.size() == 0)
-    return;
+    if(cols.size() == 0)
+      return;
 
-  iterations = cols.takeFirst().toInt();
-  evaluations = cols.takeFirst().toInt();
+    iterations = next().toInt();
+    evaluations = next().toInt();
 
-  if(cols.size() == 0)
-    return;
-  residualsDelta = cols.takeFirst().toDouble();
-  fixed =  Utils::readBooleans(cols.takeFirst()).toVector();
+    if(cols.size() == 0)
+      return;
+    residualsDelta = next().toDouble();
+    pid = next().toLongLong();
+    fixed =  Utils::readBooleans(next()).toVector();
+
+    flags = next().split(",").toSet();
+  }
+  catch(Spec & s) {
+    if(ok)
+      *ok = false;
+  }
 }
 
 QStringList FitTrajectory::exportHeaders(const QStringList & s, int ds)
@@ -153,22 +193,52 @@ QStringList FitTrajectory::exportHeaders(const QStringList & s, int ds)
     for(int j = 0; j < s.size(); j++)
       ret << QString("%1[%2]_f").arg(s[j]).arg(i)
           << QString("%1[%2]_err").arg(s[j]).arg(i);
-  ret << "residuals" << "relative_res" << "internal_res" << "engine";
+  
+  for(int i = 0; i < ds; i++)
+    ret << QString("point_residuals[%1]").arg(i);
+
+  ret << "residuals" << "relative_res"
+      << "internal_res"
+      << "engine"
+      << "start_time" << "end_time" << "iterations" << "evals"
+      << "res_delta" << "pid" << "fixed"
+      << "flags";
   return ret;
 }
 
-QString FitTrajectory::endingName(FitTrajectory::Ending end)
+bool FitTrajectory::operator==(const FitTrajectory & o) const
+ {
+   if(! Vector::withinTolerance(initialParameters,o.initialParameters, 1e-5))
+     return false;
+   if(! Vector::withinTolerance(finalParameters, o.finalParameters, 1e-5))
+     return false;
+   if(! Vector::withinTolerance(parameterErrors, o.parameterErrors, 1e-5))
+     return false;
+
+   if(startTime != o.startTime)
+     return false;
+   if(endTime != o.endTime)
+     return false;
+
+   // Lets forget the rest for now...
+
+   return true;
+ }
+
+QString FitTrajectory::endingName(FitWorkspace::Ending end)
 {
   switch(end) {
-  case Converged:
+  case FitWorkspace::Converged:
     return "ok";
-  case Cancelled:
+  case FitWorkspace::Cancelled:
     return "(cancelled)";
-  case TimeOut:
+  case FitWorkspace::TimeOut:
     return "(time out)";
-  case Error:
+  case FitWorkspace::Error:
     return "(fail)";
-  case NonFinite:
+  case FitWorkspace::Exception:
+    return "(exception)";
+  case FitWorkspace::NonFinite:
     return "(non finite)";
   default:
     ;
@@ -176,19 +246,21 @@ QString FitTrajectory::endingName(FitTrajectory::Ending end)
   return "ARGH!";
 }
 
-FitTrajectory::Ending FitTrajectory::endingFromName(const QString & n)
+FitWorkspace::Ending FitTrajectory::endingFromName(const QString & n)
 {
   if(n == "ok")
-    return Converged;
+    return FitWorkspace::Converged;
   if(n == "(cancelled)")
-    return Cancelled;
+    return FitWorkspace::Cancelled;
   if(n == "(time out)")
-    return TimeOut;
+    return FitWorkspace::TimeOut;
   if(n == "(fail)")
-    return Error;
+    return FitWorkspace::Error;
+  if(n == "(exception)")
+    return FitWorkspace::Exception;
   if(n == "(non finite)")
-    return NonFinite;
-  return Invalid;
+    return FitWorkspace::NonFinite;
+  return FitWorkspace::Invalid;
 }
 
 
@@ -206,10 +278,10 @@ static bool cmp(const FitTrajectoryCluster & a, const FitTrajectoryCluster & b)
   if( (a.trajectories.size() > 0) && 
       (a.trajectories.size() == b.trajectories.size()) )
     return (a.trajectories[0].relativeResiduals < 
-              b.trajectories[0].relativeResiduals);
+            b.trajectories[0].relativeResiduals);
             
-            // Hey emacs, you'r not quite right about indentation here
-            return a.trajectories.size() > b.trajectories.size();
+  // Hey emacs, you'r not quite right about indentation here
+  return a.trajectories.size() > b.trajectories.size();
 }
 
 QList<FitTrajectoryCluster> FitTrajectoryCluster::clusterTrajectories(const QList<FitTrajectory> * trajectories)

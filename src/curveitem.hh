@@ -53,6 +53,10 @@ public:
   /// Whether the item is hidden or not
   bool hidden;
 
+  /// Whether or not the CurvePanel takes ownership of the CurveItem
+  /// or not.
+  bool shouldDelete;
+
   /// The pen used to draw the item
   QPen pen;
 

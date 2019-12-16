@@ -1,7 +1,7 @@
 /**
    \file simplexfitengine.cc
    A Nelder-Mead 'fit' engine for QSoas
-   Copyright 2013 by CNRS/AMU
+   Copyright 2013, 2018 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -25,6 +25,8 @@
 #include <utils.hh>
 #include <argumentlist.hh>
 #include <general-arguments.hh>
+
+#include <debug.hh>
 
 /// A Nelder-Mead fit engine.
 ///
@@ -53,6 +55,7 @@ protected:
   /// Final threshold
   double threshold;
 
+
   /// A vector for the function evaluation
   gsl_vector * func;
 
@@ -80,26 +83,32 @@ protected:
   /// Computes the fits/residuals at the given location.
   StoredParameters computeVertex(const gsl_vector * pos);
 
-  /// Static options
-  static ArgumentList * options;
+  /// scaling with respect to the initial parameters.
+  ///
+  /// If the simplex use scaling, then this has a non-zero size.
+  /// By default always use scaling.
+  Vector scalingFactors;
 
-  
 public:
+
+  /// Static options
+  static ArgumentList options;
+
 
   SimplexFitEngine(FitData * data);
   virtual ~SimplexFitEngine();
 
 
-  virtual void initialize(const double * initialGuess);
-  virtual const gsl_vector * currentParameters() const;
-  virtual void computeCovarianceMatrix(gsl_matrix * target) const;
-  virtual int iterate();
-  virtual double residuals() const;
+  virtual void initialize(const double * initialGuess) override;
+  virtual const gsl_vector * currentParameters() const override;
+  virtual void computeCovarianceMatrix(gsl_matrix * target) const override;
+  virtual int iterate() override;
+  virtual double residuals() const override;
 
-  virtual CommandOptions getEngineParameters() const;
-  virtual ArgumentList * engineOptions() const;
-  virtual void resetEngineParameters();
-  virtual void setEngineParameters(const CommandOptions & params);
+  virtual CommandOptions getEngineParameters() const override;
+  virtual ArgumentList * engineOptions() const override;
+  virtual void resetEngineParameters() override;
+  virtual void setEngineParameters(const CommandOptions & params) override; 
 
 };
 
@@ -124,19 +133,18 @@ void SimplexFitEngine::resetEngineParameters()
   threshold = 1e-4;
 }
 
-ArgumentList * SimplexFitEngine::options = NULL;
+ArgumentList SimplexFitEngine::
+options(QList<Argument*>()
+        << new NumberArgument("alpha", "Reflection factor")
+        << new NumberArgument("beta", "Expansion factor")
+        << new NumberArgument("gamma", "Contraction factor")
+        << new NumberArgument("delta", "Shrink factor")
+        << new NumberArgument("end-threshold", "Threshold for ending")
+        );
 
 ArgumentList * SimplexFitEngine::engineOptions() const
 {
-  if(! options) {
-    options = new ArgumentList;
-    *options << new NumberArgument("alpha", "Reflection factor")
-             << new NumberArgument("beta", "Expansion factor")
-             << new NumberArgument("gamma", "Contraction factor")
-             << new NumberArgument("delta", "Shrink factor")
-             << new NumberArgument("end-threshold", "Threshold for ending");
-  }
-  return options;
+  return &options;
 }
 
 
@@ -170,19 +178,44 @@ void SimplexFitEngine::initialize(const double * initialGuess)
   gsl_vector_view params = gsl_vector_view_array(paramVals.data(), nb); 
 
   QVarLengthArray<double, 100> paramVals2(nb);
-  gsl_vector_view params2 = gsl_vector_view_array(paramVals.data(), nb);
+  gsl_vector_view params2 = gsl_vector_view_array(paramVals2.data(), nb);
 
   fitData->packParameters(initialGuess, &params.vector);
+    
 
   // OK, so now, we position the initial vertices
   vertices << computeVertex(&params.vector);
   
   for(int i = 0; i < nb; i++) {
-    // We attempt a factor-of-two increase in the parameter
-    gsl_vector_memcpy(&params2.vector, &params.vector);
-    gsl_vector_set(&params2.vector, i, 
-                   2 * gsl_vector_get(&params2.vector, i));
-    vertices << findNeighbourhood(&params.vector, &params2.vector);
+    if(fitData->debug > 0) {
+      // Dump the scaling factors
+      Debug::debug() << "Making a vertex in the direction of the increase of parameter " << i << endl;
+    }
+
+    try {
+      // We attempt a factor-of-two increase in the parameter
+      gsl_vector_memcpy(&params2.vector, &params.vector);
+      gsl_vector_set(&params2.vector, i, 
+                     2 * gsl_vector_get(&params2.vector, i));
+      vertices << findNeighbourhood(&params.vector, &params2.vector);
+      
+    }
+    catch(const RuntimeError & e) {
+      if(fitData->debug > 0) {
+        // Dump the scaling factors
+        Debug::debug() << " -> looking in the other direction for parameter " << i << endl;
+      }
+      // We attempt going towards 0
+      gsl_vector_memcpy(&params2.vector, &params.vector);
+      gsl_vector_set(&params2.vector, i, 0);
+      vertices << findNeighbourhood(&params.vector, &params2.vector);
+    }
+    if(fitData->debug > 0) {
+      // Dump the scaling factors
+      Debug::debug() << "Initial change for parameter " << i
+                     << " from " << gsl_vector_get(&params.vector, i) 
+                     << " to " << vertices.last().parameters[i] << endl;
+    }
   }
 
   qSort(vertices);
@@ -325,6 +358,9 @@ int SimplexFitEngine::iterate()
 
 StoredParameters SimplexFitEngine::computeVertex(const gsl_vector * pos)
 {
+  int nb = fitData->freeParameters();
+  QVarLengthArray<double, 100> paramVals(nb);
+
   fitData->f(pos, func, true);
   double res;
   gsl_blas_ddot(func, func, &res);
@@ -375,4 +411,5 @@ static FitEngine * simplexFE(FitData * d)
   return new SimplexFitEngine(d);
 }
 
-static FitEngineFactoryItem simplex("simplex", "Simplex", &simplexFE);
+static FitEngineFactoryItem simplex("simplex", "Simplex",
+                                    &simplexFE, &SimplexFitEngine::options, true);

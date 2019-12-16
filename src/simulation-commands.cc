@@ -146,5 +146,4 @@ ode("ode", // command name
     &odeArgs, // arguments
     &odeOpts, // options
     "ODE solver",
-    "Solves the given set of ODE",
-    "...");
+    "Solves the given set of ODE");

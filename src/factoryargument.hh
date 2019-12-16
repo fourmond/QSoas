@@ -28,7 +28,7 @@
 #include <utils.hh>
 
 /// @todo An option to return either the name of the Factory item.
-template <typename F> class FactoryArgument : public  Argument {
+template <typename F> class FactoryArgument : public Argument {
 protected:
 
   QString choiceName;
@@ -45,26 +45,37 @@ public:
   };
 
   /// Returns a wrapped Factory<.., ..>
-  virtual ArgumentMarshaller * fromString(const QString & str) const {
+  virtual ArgumentMarshaller * fromString(const QString & str) const override {
     F * item = F::namedItem(str);
     if(! item)
       throw RuntimeError("No such item: '%1'").arg(str);
     return new ArgumentMarshallerChild< F * >(item);
   };
 
-  QStringList proposeCompletion(const QString & starter) const
+  QStringList proposeCompletion(const QString & starter) const override 
   {
     return Utils::stringsStartingWith(F::availableItems(), 
                                       starter);
   };
 
-  virtual QString typeName() const {
+  virtual QStringList toString(const ArgumentMarshaller * arg) const override {
+    QStringList lst;
+    for(const QString n : F::availableItems()) {
+      if(F::namedItem(n) ==  arg->value<F * >()) {
+        lst << n;
+        break;
+      }
+    }
+    return lst;
+  };
+
+  virtual QString typeName() const override {
     if(choiceName.isEmpty())
       return "choice";
     return choiceName;
   };
 
-  virtual QString typeDescription() const {
+  virtual QString typeDescription() const override {
     QStringList cs = F::availableItems();
     qSort(cs);
     return QString("One of: `%1`").arg(cs.join("`, `"));
@@ -72,6 +83,25 @@ public:
 
   virtual ArgumentMarshaller * fromRuby(mrb_value value) const override {
     return convertRubyString(value);
+  };
+
+  virtual QWidget * createEditor(QWidget * parent) const override {
+    QComboBox * cb = new QComboBox(parent);
+    cb->setEditable(false);
+    QStringList cs = sortedChoices();
+    for(const QString & c : cs)
+      cb->addItem(c);
+    return cb;
+  };
+  
+  virtual void setEditorValue(QWidget * editor, 
+                              const ArgumentMarshaller * value) const override {
+    QString s = toString(value)[0];
+    QComboBox * cb = dynamic_cast<QComboBox *>(editor);
+    if(! cb)
+      throw InternalError("Wrong editor for type '%1'").
+        arg(typeName());
+    cb->setCurrentText(s);
   };
 
 

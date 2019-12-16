@@ -37,6 +37,7 @@
 
 // All this is for writing the specs
 #include <command.hh>
+#include <commandcontext.hh>
 #include <timedependentparameter.hh>
 #include <odesolver.hh>
 #include <integrator.hh>
@@ -63,7 +64,7 @@ Soas * Soas::theSoasInstance = NULL;
 static SettingsValue<double> temperature("soas/temperature", 298);
 
 Soas::Soas() : 
-  mw(NULL), shouldStopFit(false)
+  mw(NULL), shouldStopFit(false), throwFitExcept(false)
 {
   startup = QDateTime::currentDateTime();
   theSoasInstance = this;
@@ -79,17 +80,28 @@ Soas::~Soas()
   delete gs;
 }
 
+void Soas::enterPrompt(CommandWidget * prompt)
+{
+  prompts.insert(0, prompt);
+}
+
+void Soas::leavePrompt()
+{
+  prompts.takeFirst();
+}
+
+CommandContext & Soas::commandContext()
+{
+  return *(prompts.value(0)->promptContext());
+}
+
+
 double Soas::temperature() const {
   return ::temperature;
 }
 
 void Soas::setTemperature(double d) {
   ::temperature = d;
-}
-
-CommandWidget & Soas::prompt() 
-{
-  return *mw->commandWidget;
 }
 
 QString Soas::currentCommandLine() const
@@ -115,7 +127,7 @@ void Soas::pushDataSet(DataSet * d, bool silent)
 void Soas::writeSpecFile(QTextStream & out, bool full)
 {
   out << "Commands:" << endl;
-  Command::writeSpecFile(out, full);
+  CommandContext::writeSpecFile(out, full);
 
   out << "Functions:" << endl;
   out << " - " << GSLFunction::availableFunctions().join("\n - ") << endl;
@@ -146,7 +158,13 @@ void Soas::writeSpecFile(QTextStream & out, bool full)
   tdp = FitEngineFactoryItem::availableItems();
   qSort(tdp);
   out << "Fit engines:" << endl;
-  out << " - " << tdp.join("\n - ") << endl;
+  for(const QString & f : tdp) {
+    FitEngineFactoryItem * it = FitEngineFactoryItem::namedItem(f);
+    out << " - " << f;
+    if(it->isMultiCapable)
+      out << " (massively multibuffer)";
+    out << endl;
+  }
 
   tdp = StyleGenerator::availableGenerators();
   qSort(tdp);
@@ -209,7 +227,7 @@ static CommandLineOption sp("--spec", [](const QStringList & /*args*/) {
 static CommandLineOption lsc("--list-commands", [](const QStringList & /*args*/) {
     {
       QTextStream o(stdout);
-      QStringList cmds = Command::allCommands();
+      QStringList cmds = CommandContext::listAllCommands();
       qSort(cmds);
       o << cmds.join("\n") << endl;
     }
@@ -223,3 +241,11 @@ static CommandLineOption fsp("--full-spec", [](const QStringList & /*args*/) {
     }
     ::exit(0);
   }, 0, "write command specs, with more details");
+
+static CommandLineOption v("--version", [](const QStringList & /*args*/) {
+    {
+      QTextStream o(stdout);
+      o << Soas::versionString();
+    }
+    ::exit(0);
+  }, 0, "display QSoas version");

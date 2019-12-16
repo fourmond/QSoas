@@ -22,7 +22,7 @@
 #include <headers.hh>
 
 #include <mainwin.hh>
-#include <command.hh>
+#include <commandcontext.hh>
 #include <group.hh>
 #include <databackend.hh>
 
@@ -44,6 +44,7 @@ public:
   bool notify(QObject * receiver, QEvent * event) 
   {
     // debug !
+    // QTextStream o(stdout);
     // o << "notify: " << receiver << " -- "
     //   << receiver->metaObject()->className()
     //   << " -> event :" << event->type() << endl;
@@ -75,7 +76,7 @@ public:
 int main(int argc, char ** argv)
 {
   DataBackend::registerBackendCommands();
-  Command::crosslinkCommands();
+  CommandContext::crosslinkAllCommands();
 
   QSoasApplication main(argc, argv);
   main.setApplicationName("QSoas");

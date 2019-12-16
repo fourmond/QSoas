@@ -23,9 +23,9 @@
 #define __DERIVATIVEFIT_HH
 
 #include <fit.hh>
+#include <vector.hh>
 
 class PerDatasetFit;
-class Vector;
 
 /// This class handles the simultaneous fitting of a single buffer
 /// along with its derivative.
@@ -44,15 +44,15 @@ protected:
   /// The functions here just redirect to the wrapped fit
   /// 
   /// @{
-  virtual void processOptions(const CommandOptions & opts, FitData * data) const;
-  virtual QString optionsString(FitData * data) const;
-  virtual ArgumentList * fitHardOptions() const;
-  virtual ArgumentList * fitSoftOptions() const;
-  virtual CommandOptions currentSoftOptions(FitData * data) const;
-  virtual void processSoftOptions(const CommandOptions & opts, FitData * data) const;
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const override;
+  virtual QString optionsString(FitData * data) const override;
+  virtual ArgumentList * fitHardOptions() const override;
+  virtual ArgumentList * fitSoftOptions() const override;
+  virtual CommandOptions currentSoftOptions(FitData * data) const override;
+  virtual void processSoftOptions(const CommandOptions & opts, FitData * data) const override;
   /// @}
 
-  virtual void checkDatasets(const FitData * data) const;
+  virtual void checkDatasets(const FitData * data) const override;
 
 
   /// Name of the underlying fit.
@@ -67,6 +67,8 @@ protected:
 
   /// Make sure the buffers are the right size.
   void reserveBuffers(FitData * data) const;
+
+public:
 
   class Storage : public FitInternalStorage {
   public:
@@ -85,6 +87,17 @@ protected:
     /// values for the derivative and the original data.
     bool * sameX;
 
+    Vector buffer;
+
+    /// In combined mode, whether a given dataset has the same X
+    /// values for the derivative and the original data.
+    QHash<const DataSet *, bool> sameXH;
+
+    QHash<const DataSet *, DataSet *> mainDS;
+
+    QHash<const DataSet *, DataSet *> subDS;
+
+
     /// Storage space of the original fit
     FitInternalStorage * originalStorage;
 
@@ -97,18 +110,20 @@ protected:
     ~Storage();
   };
 
-  virtual FitInternalStorage * allocateStorage(FitData * data) const;
-  virtual FitInternalStorage * copyStorage(FitData * data, FitInternalStorage * source, int ds = -1) const;
+protected:
+  
+  virtual FitInternalStorage * allocateStorage(FitData * data) const override;
+  virtual FitInternalStorage * copyStorage(FitData * data, FitInternalStorage * source, int ds = -1) const override;
 
 public:
 
-  virtual QList<ParameterDefinition> parameters(FitData * data) const;
+  virtual QList<ParameterDefinition> parameters(FitData * data) const override;
   virtual void function(const double * parameters,
-                        FitData * data, gsl_vector * target) const;
-  virtual QString annotateDataSet(int idx, FitData * data) const;
-  virtual void initialGuess(FitData * data, double * guess) const;
+                        FitData * data, gsl_vector * target) const override;
+  virtual QString annotateDataSet(int idx, FitData * data) const override;
+  virtual void initialGuess(FitData * data, double * guess) const override;
 
-  bool threadSafe() const;
+  bool threadSafe() const override;
 
 
   /// Creates (and registers) the derivative fit based on the given

@@ -29,6 +29,8 @@
 class PerDatasetFit;
 class Vector;
 
+class BufferCache;
+
 /// This class combines a whole variety of fits into a single one,
 /// using a mathematical formula.
 ///
@@ -45,8 +47,8 @@ protected:
     /// Storage space for all underlying fits
     QList<FitInternalStorage *> subs;
 
-    /// Various buffers for use with the computation of the derivatives
-    QList<Vector> buffers;
+    /// This is both used for temporary storage but also for caching
+    QHash<const DataSet *, BufferCache> cache;
     
     /// An array of the same size as underlyingFits containing the index
     /// of the first parameter of each fit with respect to the overall
@@ -60,13 +62,13 @@ protected:
     ~Storage();    
   };
 
-  virtual FitInternalStorage * allocateStorage(FitData * data) const;
-  virtual FitInternalStorage * copyStorage(FitData * data, FitInternalStorage * source, int ds = -1) const;
+  virtual FitInternalStorage * allocateStorage(FitData * data) const override;
+  virtual FitInternalStorage * copyStorage(FitData * data, FitInternalStorage * source, int ds = -1) const override; 
 
   
   
-  virtual void processOptions(const CommandOptions & opts, FitData * data) const;
-  virtual QString optionsString(FitData * data) const;
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const override;
+  virtual QString optionsString(FitData * data) const override;
 
   /// The underlying fits
   QList<PerDatasetFit *> underlyingFits;
@@ -117,15 +119,15 @@ protected:
 
 public:
 
-  virtual QList<ParameterDefinition> parameters(FitData * data) const;
+  virtual QList<ParameterDefinition> parameters(FitData * data) const override;
   virtual void function(const double * parameters,
                         FitData * data, 
                         const DataSet * ds,
-                        gsl_vector * target) const;
+                        gsl_vector * target) const override;
 
   virtual void initialGuess(FitData * data, 
                             const DataSet * ds,
-                            double * guess) const;
+                            double * guess) const override;
 
 
 

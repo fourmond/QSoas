@@ -25,13 +25,24 @@
 class OneTimeWarnings {
   /// Whether the given warning was shown
   QHash<QString, bool> warningShown;
+
+  QWidget * base;
+
 public:
+
+  OneTimeWarnings(QWidget * parent = NULL);
+
+
+  
 
   /// Prompts for the named warning (code name), and returns true if
   /// the warning was already shown or if it was ignored, and false if
   /// Abort was clicked.
   bool warnOnce(QWidget * parent,
                 const QString & codeName, const QString & title,
+                const QString & warning);
+
+  bool warnOnce(const QString & codeName, const QString & title,
                 const QString & warning);
 };
 

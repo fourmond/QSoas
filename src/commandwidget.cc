@@ -20,6 +20,7 @@
 #include <headers.hh>
 #include <commandwidget.hh>
 #include <command.hh>
+#include <commandcontext.hh>
 #include <terminal.hh>
 #include <commandprompt.hh>
 #include <soas.hh>
@@ -34,13 +35,20 @@
 #include <mruby.hh>
 
 #include <debug.hh>
+#include <commandlineparser.hh>
+
+#include <new>
+
+#include <possessive-containers.hh>
+#include <argumentsdialog.hh>
+
 
 class SideBarLabel : public QScrollArea {
 protected:
 
   QLabel * lbl;
 public:
-  SideBarLabel(QWidget * parent = NULL) : QScrollArea(parent)
+  explicit SideBarLabel(QWidget * parent = NULL) : QScrollArea(parent)
   {
     lbl = new QLabel;
     setWidget(lbl);
@@ -92,8 +100,18 @@ public:
 /// destroyed ?
 
 QPointer<CommandWidget> CommandWidget::theCommandWidget(NULL);
-static SettingsValue<QString> logFileName("command/logfile", 
-                                          QString("soas.log"));
+
+QString CommandWidget::logFileName;
+
+static SettingsValue<QString> defaultLogFileName("command/logfile", 
+                                                 QString("soas.log"));
+
+static SettingsValue<int> maxLines("command/maxlines", 1000);
+
+static CommandLineOption cmd("--log", [](const QStringList & args) {
+    CommandWidget::logFileName = args[0];
+  }, 1, "sets the name of the log file");
+
 
 // If 0, do not rotate. If positive, rotate only that many files, if
 // negative, rotate forever.
@@ -112,54 +130,74 @@ QStringList & CommandWidget::startupFiles()
   return ::startupFiles.ref();
 }
 
-CommandWidget::CommandWidget() : 
+CommandWidget::CommandWidget(CommandContext * c) : 
   watcherDevice(NULL),
-  addToHistory(true)
+  addToHistory(true),
+  commandContext(c)
 {
-  if(! theCommandWidget)
-    theCommandWidget = this;    // Or always ?
+  termLines = 0;
+  maxTermLines = ::maxLines;
+    
   QVBoxLayout * layout = new QVBoxLayout(this);
+  QHBoxLayout * h1;
+  if(! commandContext) {
+    commandContext = CommandContext::globalContext();
+    if(! theCommandWidget)
+      theCommandWidget = this;    // Or always ?
 
-  if(! ((QString)logFileName).isEmpty()) {
-    /// @todo Find a writable place
-    int rotation = logRotateNumber;
-    if(rotation != 0) {
-      Debug::debug()
-        << "Rotating file " << logFileName << endl;
-      Utils::rotateFile(logFileName, rotation);
+    h1 = new QHBoxLayout();
+    terminalDisplay = new QTextEdit();
+    terminalDisplay->setReadOnly(true);
+    terminalDisplay->setContextMenuPolicy(Qt::NoContextMenu);
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), 
+            SLOT(onMenuRequested(const QPoint &)));
+
+    // We use a monospace font !
+    QFont mono(terminalFont);
+    QFontInfo m(mono);
+    Debug::debug()
+      << "Font used for terminal display: " << m.family() << endl;
+    terminalDisplay->setFont(mono);
+    QFontMetrics mt(terminalDisplay->font());
+    QSize sz = mt.size(0, "-0001.771771771e+22");
+    terminalDisplay->setTabStopWidth(sz.width());
+  
+    // terminalDisplay->document()-> 
+    //   setDefaultStyleSheet("p { white-space: pre; }");
+    // Doesn't seem to have any effect...
+    h1->addWidget(terminalDisplay);
+
+    sideBarLabel = new SideBarLabel();
+    h1->addWidget(sideBarLabel);
+
+    layout->addLayout(h1);
+
+    if(logFileName.isEmpty())
+      logFileName = ::defaultLogFileName;
+
+    if(! logFileName.isEmpty()) {
+      logFileName = Utils::getWritablePath(logFileName);
+      /// @todo Find a writable place
+      int rotation = logRotateNumber;
+      if(rotation != 0) {
+        Debug::debug()
+          << "Rotating file " << logFileName << endl;
+        Utils::rotateFile(logFileName, rotation);
+      }
+      watcherDevice = new QFile(logFileName);
+      watcherDevice->open(QIODevice::Append);
+      Terminal::out << "Opening log file: " << logFileName << endl;
     }
-    watcherDevice = new QFile(logFileName);
-    watcherDevice->open(QIODevice::Append);
+
+  }
+  else {
+    terminalDisplay = NULL;
+    sideBarLabel = NULL;
   }
 
-  QHBoxLayout * h1 = new QHBoxLayout();
-  terminalDisplay = new QTextEdit();
-  terminalDisplay->setReadOnly(true);
-  terminalDisplay->setContextMenuPolicy(Qt::NoContextMenu);
-
-  setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), 
-          SLOT(onMenuRequested(const QPoint &)));
-
-  // We use a monospace font !
-  QFont mono(terminalFont);
-  QFontInfo m(mono);
-  Debug::debug()
-    << "Font used for terminal display: " << m.family() << endl;
-  terminalDisplay->setFont(mono);
-  QFontMetrics mt(terminalDisplay->font());
-  QSize sz = mt.size(0, "1.771771771766");
-  terminalDisplay->setTabStopWidth(sz.width());
-  
-  // terminalDisplay->document()-> 
-  //   setDefaultStyleSheet("p { white-space: pre; }");
-  // Doesn't seem to have any effect...
-  h1->addWidget(terminalDisplay);
-
-  sideBarLabel = new SideBarLabel();
-  h1->addWidget(sideBarLabel);
-
-  layout->addLayout(h1);
+  soas().enterPrompt(this);
 
   h1 = new QHBoxLayout();
   promptLabel = new QLabel("QSoas> ");
@@ -179,20 +217,28 @@ CommandWidget::CommandWidget() :
   layout->addLayout(h1);
 
   this->setFocusProxy(commandLine);
-  terminalDisplay->setFocusProxy(commandLine);
-  terminalDisplay->setFocusPolicy(Qt::StrongFocus);
+  if(terminalDisplay) {
+    terminalDisplay->setFocusProxy(commandLine);
+    terminalDisplay->setFocusPolicy(Qt::StrongFocus);
+  }
 
   setLoopMode(false);
   restrictedPrompt->setVisible(false);
 }
 
+CommandContext * CommandWidget::promptContext() const
+{
+  return commandContext;
+}
+
 CommandWidget::~CommandWidget()
 {
   delete watcherDevice;
+  soas().leavePrompt();
 }
 
 
-bool CommandWidget::runCommand(const QStringList & raw)
+bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
 {
   /// @todo use a different prompt whether the call is internal or
   /// external ?
@@ -202,20 +248,60 @@ bool CommandWidget::runCommand(const QStringList & raw)
   if(raw.isEmpty())
     return true;                     // Nothing to do here.
   
-  QString cmd = Command::unsplitWords(raw);
-  Terminal::out << currentPrompt() << cmd << endl;
-  
-  if(addToHistory)
-    commandLine->addHistoryItem(cmd);
-  commandLine->setEnabled(false);
-
-  soas().showMessage(tr("Running: %1").arg(cmd));
+  bool wroteCmdline = false;
   try {
     TemporaryChange<QStringList> ch(curCmdline, raw);
     soas().stack().startNewCommand();
-    Command::runCommand(raw, this);
+
+    QStringList args = raw;
+    QString name = args.takeFirst();
+    Command * command = commandContext->namedCommand(name);
+    if(! command)
+      throw RuntimeError("Unkown command: %1").arg(name);
+    if(command->hasNoArgsNorOpts())
+      doFullPrompt = false;     // useless !
+
+    CommandArguments a;
+    CommandOptions b;
+    bool prompted = false;
+    if(doFullPrompt) {
+      prompted = true;
+      if(! ArgumentsDialog::doFullPrompt(command, &a, &b))
+        throw RuntimeError("Cancelled");
+    }
+    else
+      prompted = command->parseArgumentsAndOptions(args, &a, &b, this);
+
+    QStringList fnl = raw;
+    if(prompted) {
+      fnl = command->rebuildCommandLine(a, b);
+      fnl.insert(0, name);
+    }
+
+    QString cmd = Command::unsplitWords(fnl);
+    Terminal::out << currentPrompt() << cmd << endl;
+    
+    if(addToHistory)
+      commandLine->addHistoryItem(cmd);
+    wroteCmdline = true;
+    
+    commandLine->busy(QString("Running: %1").arg(cmd));
+    
+    soas().showMessage(tr("Running: %1").arg(cmd));
+
+    PossessiveList<ArgumentMarshaller> arguments(a);
+    PossessiveHash<QString, ArgumentMarshaller> options(b);
+
+    command->runCommand(name, arguments, options);
   }
   catch(const RuntimeError & error) {
+    if(! wroteCmdline) {
+      QString cmd = Command::unsplitWords(raw);
+      Terminal::out << currentPrompt() << cmd << endl;
+      if(addToHistory)
+        commandLine->addHistoryItem(cmd);
+    }
+      
     Terminal::out << "Error: " << error.message() << endl;
     status = false;
     if(Debug::debugLevel() > 0)
@@ -236,13 +322,15 @@ bool CommandWidget::runCommand(const QStringList & raw)
   catch(const ControlFlowException & flow) {
     /// @todo This should be implemented as an idiom when clang
     /// supports std::function
-    commandLine->setEnabled(true);
-    commandLine->setFocus();
+    commandLine->busy();
     throw;                      // rethrow
   }
+  catch(const std::bad_alloc & alc) {
+    Terminal::out << "Apparently out of memory: " << alc.what() 
+                  << "\nThis is probably not going to end well" << endl;
+  }
   Debug::debug().endCommand(raw);
-  commandLine->setEnabled(true);
-  commandLine->setFocus();
+  commandLine->busy();
   return status;
 }
 
@@ -253,6 +341,7 @@ bool CommandWidget::runCommand(const QString & str)
 
   advanceContext();
 
+  MRuby * mr = MRuby::ruby();
   if(rubyCode.isEmpty()) {
     if(res.exactMatch(str)) {
       // rubyCode = "qsoas = QSoas::the_instance\n";
@@ -262,7 +351,35 @@ bool CommandWidget::runCommand(const QString & str)
       return true;
     }
     else {
-      QStringList split = Command::wordSplit(str);
+      QString cmd = str;
+      try {
+        // We look for evaluated code
+        QRegExp substitutionRE("%\\{([^}]+)\\}");
+
+        int idx = 0;
+        /// @todo History isn't going to work
+        while(substitutionRE.indexIn(cmd, idx) >= 0) {
+          QString code = substitutionRE.cap(1);
+          mrb_value val = mr->eval(code);
+          QString s = mr->toQString(val);
+          
+          cmd.replace(substitutionRE.pos(),
+                      substitutionRE.matchedLength(), s);
+          idx = substitutionRE.pos() + s.size();
+        }
+      }
+      catch(const RuntimeError & error) {
+        Terminal::out << "Error: " << error.message() << endl;
+      }
+      catch(const InternalError & error) {
+        Terminal::out << "Internal error: "
+                      << error.message() << endl
+                      << "This is a bug in Soas and may be worth reporting !"
+                      << endl;
+        
+      }
+      /// @todo but find a way to record str in the history ?
+      QStringList split = Command::wordSplit(cmd);
       return runCommand(split);
     }
   }
@@ -272,13 +389,14 @@ bool CommandWidget::runCommand(const QString & str)
       /// @todo Try to share some code with runCommand(const QStringList &) ?
       try {
         // Ruby::safeEval(rubyCode);
-        MRuby * mr = MRuby::ruby();
-        CommandContext cc = currentContext();
+        ScriptContext cc = currentContext();
+        QString code = rubyCode;
+        rubyCode = "";
         if(cc.scriptFile.isEmpty())
-          mr->eval(rubyCode);
+          mr->eval(code);
         else {
-          int nb = rubyCode.count('\n');
-          mr->eval(rubyCode, cc.scriptFile, cc.lineNumber - nb);
+          int nb = code.count('\n');
+          mr->eval(code, cc.scriptFile, cc.lineNumber - nb);
         }
       }
       catch(const RuntimeError & error) {
@@ -292,7 +410,6 @@ bool CommandWidget::runCommand(const QString & str)
                       << endl;
         status = false;
       }
-      rubyCode = "";
       resetPrompt();
       return status;
     }
@@ -324,6 +441,18 @@ void CommandWidget::appendToTerminal(const QString & str)
 {
   terminalDisplay->moveCursor(QTextCursor::End);
   terminalDisplay->insertPlainText(str);
+  termLines += str.count('\n');
+  // QTextStream o(stdout);
+  // o << "Current term line: " << termLines << endl;
+  if(termLines > maxTermLines) {
+    QTextCursor c(terminalDisplay->document());
+    c.movePosition(QTextCursor::Down, QTextCursor::KeepAnchor,
+                   termLines - maxTermLines);
+    c.removeSelectedText();
+    termLines = maxTermLines;
+    // Without this, we have huge memory leaks
+    terminalDisplay->document()->clearUndoRedoStacks();
+  }
   // and scroll to the bottom
   QScrollBar * sb = terminalDisplay->verticalScrollBar();
   sb->setSliderPosition(sb->maximum());
@@ -348,7 +477,8 @@ void CommandWidget::logString(const QString & str)
 
 void CommandWidget::setLoopMode(bool loop)
 {
-  sideBarLabel->setVisible(loop);
+  if(sideBarLabel)
+    sideBarLabel->setVisible(loop);
   // commandLine->setEnabled(! loop);
   if(loop)
     commandLine->clearFocus();
@@ -359,7 +489,10 @@ void CommandWidget::setLoopMode(bool loop)
 
 void CommandWidget::setSideBarLabel(const QString & str)
 {
-  sideBarLabel->setText(str);
+  if(sideBarLabel)
+    sideBarLabel->setText(str);
+  else
+    throw InternalError("Trying to set a sidebar label of a terminalless prompt");
 }
 
 void CommandWidget::setPrompt(const QString & str)
@@ -382,7 +515,7 @@ void CommandWidget::resetPrompt()
 
 void CommandWidget::enterContext(const QString & file)
 {
-  contexts.append(CommandContext());
+  contexts.append(ScriptContext());
   contexts.last().scriptFile = file;
   resetPrompt();
 }
@@ -396,14 +529,14 @@ void CommandWidget::leaveContext()
 void CommandWidget::advanceContext()
 {
   if(contexts.size() == 0)
-    contexts.append(CommandContext());
+    contexts.append(ScriptContext());
   contexts.last().lineNumber++;
 }
 
-CommandContext CommandWidget::currentContext() const
+ScriptContext CommandWidget::currentContext() const
 {
   if(contexts.size() == 0)
-    return CommandContext();
+    return ScriptContext();
   return contexts.last();
 }
 
@@ -453,15 +586,35 @@ QString CommandWidget::terminalContents() const
   return terminalDisplay->toPlainText();
 }
 
-void CommandWidget::runCommandFile(QIODevice * source, 
-                                   const QStringList & args,
-                                   bool addToHist)
+
+QHash<QString, CommandWidget::ScriptErrorMode> * CommandWidget::errorModeNamesHash = NULL;
+
+const QHash<QString, CommandWidget::ScriptErrorMode> & CommandWidget::errorModeNames()
+{
+  if(! errorModeNamesHash) {
+    errorModeNamesHash =
+      new QHash<QString, ScriptErrorMode>(
+        {{"ignore", CommandWidget::Ignore},
+            {"abort", CommandWidget::Abort},
+              {"delete", CommandWidget::Delete},
+                {"except", CommandWidget::Except}
+        }
+        );
+  }
+  return *errorModeNamesHash;
+}
+
+CommandWidget::ScriptStatus
+CommandWidget::runCommandFile(QIODevice * source, 
+                              const QStringList & args,
+                              bool addToHist, ScriptErrorMode mode)
 {
   QTextStream in(source);
   QRegExp commentRE("^\\s*#.*");
 
   // Disable history when applicable
   TemporaryChange<bool> ch(addToHistory, addToHist);
+  int level = soas().stack().pushSpy();
   try {
     while(true) {
       QString line = in.readLine();
@@ -577,8 +730,29 @@ void CommandWidget::runCommandFile(QIODevice * source,
 
       /// @todo Make that configurable
       if(! runCommand(line)) {
-        Terminal::out << "Command failed: aborting script" << endl;
-        break;
+        switch(mode) {
+        case Ignore:
+          Terminal::out << "Command failed, but ignoring" << endl;
+          break;
+        case Abort:
+          Terminal::out << "Command failed: aborting script" << endl;
+          soas().stack().popSpy(level);
+          return Error;
+        case Delete: {
+          QList<DataSet *> dss = soas().stack().popSpy(level);
+          Terminal::out << "Command failed: aborting script and deleting the "
+                        << dss.size() << " datasets produced"
+                        << endl;
+          for(DataSet * ds : dss)
+            soas().stack().dropDataSet(ds);
+          return Error;
+        }
+        case Except:
+          soas().stack().popSpy(level);
+          Terminal::out << "Command failed: aborting script with exception" << endl;
+          throw RuntimeError("Script command failed: aborting with error");
+          return Error;
+        }
       }
       // And we allow for deferred slots to take place ?
       QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
@@ -586,18 +760,23 @@ void CommandWidget::runCommandFile(QIODevice * source,
   }
   catch(const ControlFlowException & flow) {
     // Nothing to do !
+    return ControlOut;
   }
+  soas().stack().popSpy(level);
+  return Success;
 }
 
-void CommandWidget::runCommandFile(const QString & fileName, 
-                                   const QStringList & args,
-                                   bool addToHist)
+CommandWidget::ScriptStatus
+CommandWidget::runCommandFile(const QString & fileName, 
+                              const QStringList & args,
+                              bool addToHist,
+                              ScriptErrorMode mode)
 {
   QFile file(fileName);
   Utils::open(&file, QIODevice::ReadOnly);
   TemporaryChange<QString> ch(scriptFile, fileName);
   ContextChange ch2(this, fileName);
-  runCommandFile(&file, args, addToHist);
+  return runCommandFile(&file, args, addToHist, mode);
 }
 
 QStringList CommandWidget::history() const

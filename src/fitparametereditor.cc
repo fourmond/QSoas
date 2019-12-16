@@ -29,6 +29,7 @@
 
 
 #include <settings-templates.hh>
+#include <idioms.hh>
 
 #include <bijection.hh>
 #include <utils.hh>
@@ -38,7 +39,8 @@
 FitParameterEditor::FitParameterEditor(const ParameterDefinition * d, 
                                        int idx, FitWorkspace * p, 
                                        bool ext, bool checkTight, int ds) : 
-  index(idx), dataset(ds), def(d), parameters(p), updatingEditor(false), 
+  index(idx), dataset(ds), def(d), parameters(p), updatingEditor(false),
+  updatingParameters(false),
   extended(ext)
 {
   layout = new QHBoxLayout(this);
@@ -111,6 +113,12 @@ FitParameterEditor::FitParameterEditor(const ParameterDefinition * d,
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(contextMenu(const QPoint &)));
   }
+
+  // update upon parameter change
+  connect(parameters, SIGNAL(parameterChanged(int, int)),
+          SLOT(parameterUpdated(int, int)));
+  connect(parameters, SIGNAL(parametersChanged()),
+          SLOT(updateFromParameters()));
 }
 
 void FitParameterEditor::contextMenu(const QPoint & pos)
@@ -306,6 +314,7 @@ void FitParameterEditor::onValueChanged(const QString & str)
     return;
 
   setRelativeError(-1);         // Errors are meaningless if we edit !
+  TemporaryChange<bool> c(updatingParameters, true);
   parameters->setValue(index, dataset, str);
 }
 
@@ -315,22 +324,32 @@ void FitParameterEditor::selectDataSet(int dsIndex)
   updateFromParameters();
 }
 
+void FitParameterEditor::parameterUpdated(int idx, int ds)
+{
+  if(index == idx && (ds == -1 || ds == dataset))
+    updateFromParameters(false);
+}
+
 void FitParameterEditor::updateFromParameters(bool setErrors)
 {
-  updatingEditor = true;
+  if(updatingParameters)
+    return;
   int dsIdx = dataset;
   FitParameter * param = targetParameter();
-  if(param->global())
-    dsIdx = 0;
+  {
+    TemporaryChange<bool> c(updatingEditor, true);
+    if(param->global())
+      dsIdx = 0;
 
-  global->setChecked(param->global());
-  fixed->setChecked(param->fixed());
-  editor->
-    setText(param->textValue(parameters->
-                             values[index + dsIdx * parameters->nbParameters]));
+    global->setChecked(param->global());
+    fixed->setChecked(param->fixed());
+    
+    editor->
+      setText(param->textValue(parameters->
+                               values[index + dsIdx * parameters->nbParameters]));
 
-  updateBijectionEditors();
-  updatingEditor = false;
+    updateBijectionEditors();
+  }
   if(setErrors && (!parameters->isFixed(index, dsIdx)))
     setRelativeError(parameters->getParameterError(index, dsIdx));
   else

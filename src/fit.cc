@@ -23,6 +23,7 @@
 
 #include <soas.hh>
 #include <command.hh>
+#include <commandcontext.hh>
 #include <group.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
@@ -45,6 +46,14 @@
 static Group fits("fits", 0,
                   "Fits",
                   "Fitting of data");
+
+static Group sfit("sfits", 0,
+                  "Single-buffer fits",
+                  "Fitting of data (one buffer at a time)", &fits);
+
+static Group mfit("mfits", 1,
+                  "Multi-buffer fits",
+                  "Fitting of data (one buffer at a time)", &fits);
 
 QHash<QString, Fit*> * Fit::fitsByName = NULL;
 
@@ -72,9 +81,10 @@ void Fit::unregisterFit(Fit * fit, bool deleteCommands)
   QStringList cmds;
   cmds << "fit-" << "mfit-" << "sim-";
   for(int i = 0; i < cmds.size(); i++) {
-    Command * cmd = Command::namedCommand(cmds[i] + fit->name);
+    Command * cmd = CommandContext::globalContext()->
+      namedCommand(cmds[i] + fit->name);
     if(cmd) {
-      Command::unregisterCommand(cmd);
+      CommandContext::globalContext()->unregisterCommand(cmd);
       if(deleteCommands)
         delete cmd;
     }
@@ -85,7 +95,8 @@ void Fit::safelyRedefineFit(const QString & name, bool overwrite)
 {
   Fit * oldFit = namedFit(name);
   if(oldFit) {
-    Command * cmd = Command::namedCommand("mfit-" + name);
+    Command * cmd = CommandContext::globalContext()->
+      namedCommand("mfit-" + name);
     if(! cmd)
       throw InternalError("Found fit %1 but not command mfit-%2").
         arg(name).arg(name);
@@ -184,7 +195,7 @@ public:
     choiceName = "engine";
   }
 
-  virtual QString typeDescription() const {
+  virtual QString typeDescription() const override {
     return QString("[Fit engine](#fit-engines), one of: `%1`").
       arg(sortedChoices().join("`, `"));
   };
@@ -199,11 +210,11 @@ public:
     SeveralStringsArgument(QRegExp("\\s*[,;]\\s*"), cn, pn, d, g, def) {
   };
 
-  virtual QString typeName() const {
+  virtual QString typeName() const override {
     return "overrides";
   };
 
-  virtual QString typeDescription() const {
+  virtual QString typeDescription() const override {
     return "several parameter=value assignments, separated by , or ;";
   };
 
@@ -224,8 +235,6 @@ void Fit::makeCommands(ArgumentList * args,
   pn += shortDesc;
   QByteArray sd = "Single buffer fit: ";
   sd += shortDesc;
-  QByteArray ld = "Single buffer fit:\n";
-  ld += longDesc;
 
   ArgumentList * fal = NULL;
   if(! args)
@@ -264,8 +273,8 @@ void Fit::makeCommands(ArgumentList * args,
 
 
   *baseOptions << new StringArgument("extra-parameters", 
-                                 "Extra parameters",
-                                 "defines supplementary parameters");
+                                     "Extra parameters",
+                                     "defines supplementary parameters");
 
   /// Now things specific to some commands
   options = new ArgumentList(*baseOptions);
@@ -275,11 +284,32 @@ void Fit::makeCommands(ArgumentList * args,
                                "Parameters",
                                "pre-loads parameters");
 
+  *options << new FileArgument("script", 
+                               "Script",
+                               "runs a script file");
+
+  *options << new FileArgument("arg1", 
+                               "Argument 1",
+                               "first argument of the script file")
+           << new FileArgument("arg2", 
+                               "Argument 2",
+                               "second argument of the script file")
+           << new FileArgument("arg3", 
+                               "Argument 3",
+                               "third argument of the script file");
+
   *options << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                          "set-from-meta", 
                                          "Set from meta-data",
                                          "sets parameter values from meta-data");
+  *options << new BoolArgument("expert", 
+                               "Expert mode",
+                               "runs the fit in expert mode");
 
+
+  *options << new StringArgument("window-title", 
+                                 "Window title",
+                                 "defines the title of the fit window");
 
 
   // We don't declare the fit command when multiple datasets are
@@ -288,7 +318,7 @@ void Fit::makeCommands(ArgumentList * args,
     new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
                 singleFit ? singleFit : 
                 effector(this, &Fit::runFitCurrentDataSet, true),
-                "fits", fal, options, pn, sd, ld);
+                "sfits", fal, options, pn, sd);
     options = new ArgumentList(*options); // Duplicate, as options
                                           // will be different for single and multi fits
   }
@@ -321,12 +351,10 @@ void Fit::makeCommands(ArgumentList * args,
   pn += shortDesc;
   sd = "multi buffer fit: ";
   sd += shortDesc;
-  ld = "multi buffer fit:\n";
-  ld += longDesc;
   new Command((const char*)(QString("mfit-") + name).toLocal8Bit(),
               multiFit ? multiFit : 
               effector(this, &Fit::runFit, true),
-              "fits", al, options, pn, sd, ld);
+              "mfits", al, options, pn, sd);
 
   if(! multiFit || sim) {
     /// @todo handle the case when there is a fit-specified effector.
@@ -334,8 +362,6 @@ void Fit::makeCommands(ArgumentList * args,
     pn += shortDesc;;
     sd = "fit simulation: ";
     sd += shortDesc;
-    ld = "fit simulation:\n";
-    ld += longDesc;
     ArgumentList * al2 = new ArgumentList(*al);
     al2->insert(al2->size()-1, 
                 new FileArgument("parameters", 
@@ -354,6 +380,8 @@ void Fit::makeCommands(ArgumentList * args,
            << new ChoiceArgument(QStringList() 
                                  << "annotate"
                                  << "compute"
+                                 << "subfunctions"
+                                 << "residuals"
                                  << "jacobian"
                                  << "reexport",
                                  "operation", 
@@ -361,11 +389,10 @@ void Fit::makeCommands(ArgumentList * args,
                                  "Whether to just compute the function, "
                                  "the full jacobian, reexport parameters "
                                  "with errors or just annotate datasets")
-
-      ;
+    ;
     new Command((const char*)(QString("sim-") + name).toLocal8Bit(),
                 (sim ? sim : effector(this, &Fit::computeFit)),
-                "simulations", al2, nopts, pn, sd, ld);
+                "simulations", al2, nopts, pn, sd);
   }
 }
 
@@ -478,11 +505,40 @@ void Fit::runFit(std::function<void (FitData *)> hook,
   QString perpMeta;
   updateFromOptions(opts, "perp-meta", perpMeta);
 
+  QString script;
+  updateFromOptions(opts, "script", script);
 
-  FitDialog dlg(&data, showWeights, perpMeta);
+  QStringList args;
+  if(opts.contains("arg1")) {
+    QString a;
+    updateFromOptions(opts, "arg1", a);
+    args << a;
+    if(opts.contains("arg2")) {
+      updateFromOptions(opts, "arg2", a);
+      args << a;
+      if(opts.contains("arg3")) {
+        updateFromOptions(opts, "arg3", a);
+        args << a;
+      }
+    }
+  }
+
+  bool expert = false;
+  updateFromOptions(opts, "expert", expert);
+
+  if(expert)
+    showWeights = true;         // always shown in expert mode
+
+  QString wt;
+  updateFromOptions(opts, "window-title", wt);
+  if(! wt.isEmpty())
+    wt = " -- " + wt;
+
+  FitDialog dlg(&data, showWeights, perpMeta, expert, wt);
 
   if(! loadParameters.isEmpty())
     dlg.loadParametersFile(loadParameters);
+
 
 
   {
@@ -527,6 +583,17 @@ void Fit::runFit(std::function<void (FitData *)> hook,
       dlg.compute();
   }
 
+  if(! script.isEmpty()) {
+    if(expert)
+      QMetaObject::invokeMethod(&dlg, "runCommandFile",
+                                Qt::QueuedConnection,
+                                Q_ARG(const QString &, script),
+                                Q_ARG(const QStringList &, args)
+                                );
+    else
+      Terminal::out << "Can only run scripts with /expert=true" << endl;
+  }
+
   dlg.exec();
 }
 
@@ -558,7 +625,7 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
   updateFromOptions(opts, "extra-parameters", extraParams);
   QStringList ep = extraParams.split(",", QString::SkipEmptyParts);
 
-  QString what;
+  QString what = "compute";
   updateFromOptions(opts, "operation", what);
 
   int debug = 0;
@@ -607,8 +674,9 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
       ws.setValue(spec[0], value);
     }
   }
-  
-  ws.recompute();
+
+  // ensure the recompute throws an exception
+  ws.recompute(false, false);
   if(what == "reexport") {
     Terminal::out << "Reexporting parameters with errors" << endl;
     if(! data.engineFactory)
@@ -630,9 +698,17 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
     Terminal::out << "Annotating datasets " << endl;
     ws.pushAnnotatedData(&pusher);
   }
-  else {
-    ws.pushComputedData(false, &pusher);
+  else if(what == "residuals") {
+    ws.computeResiduals(true);
+    Terminal::out << "Computed residuals: " << ws.overallPointResiduals
+                  << endl;
   }
+  else if(what == "compute" || what == "subfunctions") {
+    ws.pushComputedData(false, what == "subfunctions", &pusher);
+  }
+  else
+    throw RuntimeError("Could not understand which operation for sim-: '%1'").
+      arg(what);
 }
 
 

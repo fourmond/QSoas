@@ -20,6 +20,7 @@
 
 #include <headers.hh>
 #include <command.hh>
+#include <commandcontext.hh>
 #include <group.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
@@ -28,6 +29,7 @@
 #include <soas.hh>
 
 #include <datastack.hh>
+#include <datastackhelper.hh>
 
 #include <dataset.hh>
 #include <vector.hh>
@@ -45,7 +47,11 @@
 
 #include <datasetexpression.hh>
 
+#include <fitworkspace.hh>
+#include <fwexpression.hh>
+
 #include <idioms.hh>
+#include <datasetlist.hh>
 
 //////////////////////////////////////////////////////////////////////
 // Paradoxally, this command isn't really anymore related to Ruby --
@@ -54,63 +60,84 @@
 static void applyFormulaCommand(const QString &, QString formula,
                                 const CommandOptions & opts)
 {
-  const DataSet * ds = soas().currentDataSet();
 
 
   int extra = 0;
   updateFromOptions(opts, "extra-columns", extra);
 
-  DataSetExpression ex(ds);
-  ex.useStats = false;
-  updateFromOptions(opts, "use-stats", ex.useStats);
-  ex.useMeta = true;
-  updateFromOptions(opts, "use-meta", ex.useMeta);
+  bool keepOnError = false;
+  updateFromOptions(opts, "keep-on-error", keepOnError);
 
-  QStringList colNames;
-  int argSize = ex.dataSetParameters(extra, &colNames).size();
+  DataSetList buffers(opts);
 
-  Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
-    arg(formula).arg(ds->name) << endl;
+  DataStackHelper pusher(opts);
+  for(const DataSet * ds : buffers) {
+    DataSetExpression ex(ds);
+    QStringList colNames;
+    int argSize = ex.dataSetParameters(extra, &colNames).size();
+    ex.useStats = false;
+    updateFromOptions(opts, "use-stats", ex.useStats);
+    ex.useMeta = true;
+    updateFromOptions(opts, "use-meta", ex.useMeta);
 
-  formula = QString("%2\n[%1]").
-    arg(colNames.join(",")).
-    arg(formula);
+    Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
+      arg(formula).arg(ds->name) << endl;
+
+    QString finalFormula = QString("%2\n[%1]").
+      arg(colNames.join(",")).
+      arg(formula);
 
   
 
-  ex.prepareExpression(formula, extra);
+    ex.prepareExpression(finalFormula, extra);
 
 
 
-  QList<Vector> newCols;
-  for(int i = 0; i < ds->nbColumns() + extra; i++)
-    newCols << Vector();
+    QList<Vector> newCols;
+    for(int i = 0; i < ds->nbColumns() + extra; i++)
+      newCols << Vector();
 
-  {
-    // QMutexLocker m(&Ruby::rubyGlobalLock);
-    QVarLengthArray<double, 100> ret(newCols.size());
-    QVarLengthArray<double, 100> args(argSize);
-    int idx = 0;
-    while(ex.nextValues(args.data(), &idx)) {
-      ex.expression().
-        evaluateIntoArrayNoLock(args.data(), ret.data(), ret.size());
-      for(int j = 0; j < ret.size(); j++)
-        newCols[j].append(ret[j]);
+    {
+      // QMutexLocker m(&Ruby::rubyGlobalLock);
+      QVarLengthArray<double, 100> ret(newCols.size());
+      QVarLengthArray<double, 100> args(argSize);
+      int idx = 0;
+      while(ex.nextValues(args.data(), &idx)) {
+        bool error = false;
+        try {
+          ex.expression().
+            evaluateIntoArrayNoLock(args.data(), ret.data(), ret.size());
+        }
+        catch (const RuntimeError & er) {
+          Terminal::out << "Error at X = " << ds->x()[idx]
+                        << " (#" << idx << "): " << er.message()
+                        << " => "
+                        << (keepOnError ? "keeping" : "dropping")
+                        << endl;
+          for(int i = 0; i < ret.size(); i++)
+            ret[i] = 0.0/0.0;
+          error = true;
+        }
+        if(! error || (error && keepOnError))
+          for(int j = 0; j < ret.size(); j++)
+            newCols[j].append(ret[j]);
+      }
     }
-  }
   
-  DataSet * newDs = ds->derivedDataSet(newCols, "_mod.dat");
-  soas().pushDataSet(newDs);
+    DataSet * newDs = ds->derivedDataSet(newCols, "_mod.dat");
+    pusher << newDs;
+  }
 }
 
 static ArgumentList 
 fA(QList<Argument *>() 
-   << new StringArgument("formula", 
-                         "Formula",
-                         "formula"));
+   << new CodeArgument("formula", 
+                       "Formula",
+                       "formula"));
 
 static ArgumentList 
 fO(QList<Argument *>() 
+   << DataStackHelper::helperOptions()
    << new IntegerArgument("extra-columns", 
                           "Extra columns",
                           "number of extra columns to create")
@@ -121,6 +148,10 @@ fO(QList<Argument *>()
                        "Use meta-data",
                        "if on (by default), you can use `$meta` to refer to "
                        "the dataset meta-data")
+   << new BoolArgument("keep-on-error", 
+                       "Keep on error",
+                       "if on, the points where the Ruby expression returns a  error are kept, as invalid numbers")
+   << DataSetList::listOptions("Buffers to work on")
    );
 
 
@@ -132,16 +163,15 @@ load("apply-formula", // command name
      &fO, // options
      "Apply formula",
      "Applies a formula to the current dataset",
-     "...",
      "F");
 
 //////////////////////////////////////////////////////////////////////
 
 static ArgumentList 
 tA(QList<Argument *>() 
-   << new StringArgument("formula", 
-                         "Formula",
-                         "Ruby boolean expression"));
+   << new CodeArgument("formula", 
+                       "Formula",
+                       "Ruby boolean expression"));
 
 /// @todo Large number of columns must be handled !
 static void stripIfCommand(const QString &, QString formula,
@@ -247,6 +277,16 @@ lf("ruby-run", // command name
    NULL, // options
    "Ruby load",
    "Loads and runs a file containing ruby code", "");
+
+static Command 
+lfF("ruby-run", // command name
+    optionLessEffector(rubyRunFile), // action
+    "file",  // group name
+    &rA, // arguments
+    NULL, // options
+    "Ruby load",
+    "Loads and runs a file containing ruby code", "",
+    CommandContext::fitContext());
 
 //////////////////////////////////////////////////////////////////////
 
@@ -534,28 +574,42 @@ static void eval(const QString &, QString code, const CommandOptions & opts)
   updateFromOptions(opts, "modify-meta", modifyMeta);
   if(modifyMeta)
     useDs = true;
-  
-  DataSet * ds = (useDs ? soas().currentDataSet(true) : NULL);
-  MRuby * mr = MRuby::ruby();
-  mrb_value value;
-  if(ds && modifyMeta)
-    value = ds->evaluateWithMeta(code, true, true);
-  else if(ds)
-    value = ds->evaluateWithMeta(code, true);
-  else
-    value = mr->eval(code);
 
-  Terminal::out << " => " << mr->inspect(value) << endl;
+  DataSetList buffers(opts);
+
+  MRuby * mr = MRuby::ruby();
+
+  auto strValue = [mr](mrb_value value) -> QString {
+    QString v = mr->inspect(value);
+    if(v[0] == '"')
+      return mr->toQString(value);
+    return v;
+  };
+  
+  mrb_value value;
+  if(! buffers.dataSetsSpecified()) {
+    value = mr->eval(code);
+    Terminal::out << " => " << strValue(value) << endl;
+  }
+  else {
+    for(const DataSet * s : buffers) {
+      DataSet * ds = const_cast<DataSet *>(s);
+      Terminal::out << "Evaluating with buffer: " << ds->name << endl;
+      value = ds->evaluateWithMeta(code, true, modifyMeta);
+      Terminal::out << " => " << strValue(value) << endl;
+    }
+  }
 }
 
 static ArgumentList 
 eA(QList<Argument *>() 
-   << new StringArgument("code", 
-                         "Code",
-                         "Any ruby code"));
+   << new CodeArgument("code", 
+                       "Code",
+                       "Any ruby code"));
 
 static ArgumentList 
 eO(QList<Argument *>() 
+   << DataSetList::listOptions("Buffers to run eval on")
    << new BoolArgument("use-dataset", 
                        "Use current dataset",
                        "If on (the default) and if there is a current dataset, the $meta and $stats hashes are available")
@@ -573,6 +627,54 @@ ev("eval", // command name
    &eO,
    "Ruby eval",
    "Evaluates a Ruby expression and prints the result", "");
+
+//////////////////////////////////////////////////////////////////////
+
+static void verify(const QString &, QString code, const CommandOptions & opts)
+{
+  bool useDs = true;
+  updateFromOptions(opts, "use-dataset", useDs);
+
+  DataSetList buffers(opts);
+
+  MRuby * mr = MRuby::ruby();
+
+  mrb_value value;
+  if(! buffers.dataSetsSpecified()) {
+    value = mr->eval(code);
+    if(! mrb_test(value))
+      throw RuntimeError("'%1' is not verified").
+        arg(code);
+
+  }
+  else {
+    for(const DataSet * s : buffers) {
+      DataSet * ds = const_cast<DataSet *>(s);
+      value = ds->evaluateWithMeta(code, true);
+      if(! mrb_test(value))
+        throw RuntimeError("'%1' is not verified for buffer %2").
+          arg(code).arg(ds->name);
+    }
+  }
+}
+
+static ArgumentList 
+vO(QList<Argument *>() 
+   << DataSetList::listOptions("Buffers to run verify on")
+   << new BoolArgument("use-dataset", 
+                       "Use current dataset",
+                       "If on (the default) and if there is a current dataset, the $meta and $stats hashes are available")
+);
+
+
+static Command 
+ve("verify", // command name
+   effector(verify), // action
+   "file",  // group name
+   &eA, // arguments
+   &vO,
+   "Verify",
+   "Evaluates a Ruby expression and raises an error if it is false");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -632,7 +734,7 @@ public:
   QString exceptionMessage;
 
   /// The context of the command
-  CommandContext commandContext;
+  ScriptContext commandContext;
 
   /// The current assertion context
   QString context;
@@ -688,10 +790,10 @@ static QList<SingleAssertion> allAssertions;
 #endif
 
 
-static void assertCmd(const QString &, QString code,
-                      const CommandOptions & opts)
+static void doAssert(QString code,
+                     const CommandOptions & opts,
+                     std::function <mrb_value ()> eval)
 {
-  DataSet * ds = soas().currentDataSet(true);
   QString sc ;
   updateFromOptions(opts, "set-context", sc);
   QString dump;
@@ -787,10 +889,7 @@ static void assertCmd(const QString &, QString code,
     context = QString(" (%1)").arg(assertFineContext);
   SingleAssertion as(useTol);
   try {
-    if(ds)
-      value = ds->evaluateWithMeta(code, true);
-    else
-      value = mr->eval(code);
+    value = eval();
 
     bool check;
     if(useTol) {
@@ -837,11 +936,24 @@ static void assertCmd(const QString &, QString code,
   allAssertions << as;
 }
 
+static void assertCmd(const QString &, QString code,
+                      const CommandOptions & opts)
+{
+  doAssert(code, opts, [code]() -> mrb_value {
+      DataSet * ds = soas().currentDataSet(true);
+      MRuby * mr = MRuby::ruby();
+      if(ds)
+        return ds->evaluateWithMeta(code, true);
+      else
+        return mr->eval(code);
+    });
+}
+
 static ArgumentList 
 aA(QList<Argument *>() 
-   << new StringArgument("code", 
-                         "Code",
-                         "Any ruby code"));
+   << new CodeArgument("code", 
+                       "Code",
+                       "Any ruby code"));
 
 static ArgumentList 
 aO(QList<Argument *>() 
@@ -869,6 +981,7 @@ aO(QList<Argument *>()
 );
 
 
+
 static Command 
 as("assert", // command name
    effector(assertCmd), // action
@@ -877,3 +990,22 @@ as("assert", // command name
    &aO,
    "Assert",
    "Runs an assertion in a test suite");
+
+static void fitAssertCmd(const QString &, QString code,
+                         const CommandOptions & opts)
+{
+  doAssert(code, opts, [code]() -> mrb_value {
+        FitWorkspace * ws = FitWorkspace::currentWorkspace();
+        FWExpression exp(code, ws);
+        return exp.evaluate();
+    });
+}
+
+static Command 
+asf("assert", // command name
+    effector(fitAssertCmd), // action
+    "file",  // group name
+    &aA, // arguments
+    &aO,
+    "Assert",
+    "Runs an assertion in a test suite", "", CommandContext::fitContext());

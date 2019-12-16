@@ -376,12 +376,14 @@ text editor.
 
 ### print - Print {#cmd-print}
 
-`print` `/file=`_file_{:title="name of a file"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
+`print` `/file=`_file_{:title="name of a file"} `/nominal-height=`_integer_{:title="an integer"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/page-size=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
 
 Short name: `p`
 
   * `/file=`_file_{:title="name of a file"} (default option): Save as file -- values: name of a file
+  * `/nominal-height=`_integer_{:title="an integer"}: Correspondance of the height of the page in terms of points -- values: an integer
   * `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Overwrite the output file -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/page-size=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Sets the page size, like 9x6 for 9cm by 6cm -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Sets the title of the page as printed -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
 
 {::comment} synopsis-end: print {:/}
@@ -679,7 +681,7 @@ The main command for loading data is [cmd: load].
 
 ### load - Load {#cmd-load}
 
-`load` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
+`load` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
 Short name: `l`
 
@@ -689,8 +691,10 @@ Short name: `l`
   * `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: pattern for comment lines -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: decimal separator -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Select on formula -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, ignores cache (default off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, skips empty files (default on) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
@@ -767,6 +771,14 @@ blue (for the last loaded file).
 With the `/flags=` option, on can flag buffers as they get
 loaded. Using it has the same effect as running [cmd: flag] with the
 same option on loaded datasets.
+
+The `load` command also provides dataset selection rules through the
+`/for-which`, option, more about that in the
+[dedicated section](#for-which).
+
+By default, the `load` and related commands will not create a buffer
+if it were empty (i.e. a valid data file containing no data), you can
+force the creation of empty files using `/ignore-empty=false`.
 
 
 {::comment} description-end: load {:/}
@@ -1025,7 +1037,7 @@ It is also possible to use a full-blown [Ruby](#ruby) expression that
 will be aware of the buffer's meta-data:
 
 ~~~
-QSoas> save-buffers '/expression="File-#{$meta["sr"]}.dat"'
+QSoas> save-buffers '/expression="File-#{$meta.sr}.dat"'
 ~~~
 
 This requires careful quoting: outer single quotes (`'`) for QSoas and
@@ -1114,7 +1126,7 @@ of passing it non-visible datasets, QSoas won't shout at you if you do.
 
 ### overlay - Overlay {#cmd-overlay}
 
-`overlay` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
+`overlay` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
 Short name: `v`
 
@@ -1124,8 +1136,10 @@ Short name: `v`
   * `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: pattern for comment lines -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: decimal separator -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Select on formula -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, ignores cache (default off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, skips empty files (default on) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
@@ -1256,15 +1270,22 @@ ways:
 
 ### browse-stack - Browse stack {#cmd-browse-stack}
 
-`browse-stack` **(interactive)**
+`browse-stack` `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
 Short name: `K`
 
+  * `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} (default option): Buffers to show -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
+  * `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Select on formula -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
 
 {::comment} synopsis-end: browse-stack {:/}
 {::comment} description-start: browse-stack {:/}
 Displays the contents of the stack using a dialog box that
 works similarly to the one of the [cmd: browse] command.
+
+It is possible to fine-tune the datasets to browse using:
+* the `/buffers` option, which takes a buffer list;
+* the `/for-which` option, that takes a condition, see the
+[dedicated section](#for-which) for more information.
 {::comment} description-end: browse-stack {:/}
 
 {::comment} synopsis-start: show-stack {:/}
@@ -1348,13 +1369,18 @@ QSoas> save-buffers all
 
 ### load-stack - Load stack {#cmd-load-stack}
 
-`load-stack` _file_{:title="name of a file"}
+`load-stack` _file_{:title="name of a file"} `/merge=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _file_{:title="name of a file"}: File name for saving stack -- values: name of a file
+  * `/merge=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, merges into the current stack rather than overwriting -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: load-stack {:/}
 {::comment} description-start: load-stack {:/}
-Loads a saved stack, from a file that was created using [cmd: save-stack].
+Loads a saved stack, from a file that was created using
+[cmd: save-stack].
+
+If `/merge=true` is used, then the previous buffers are kept, and the
+contents of the stack files are just merged into the stack.
 {::comment} description-end: load-stack {:/}
 
 
@@ -1500,12 +1526,17 @@ instance.
 
 ### apply-formula - Apply formula {#cmd-apply-formula}
 
-`apply-formula` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/extra-columns=`_integer_{:title="an integer"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`apply-formula` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/extra-columns=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/keep-on-error=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
 Short name: `F`
 
   * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: formula -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} (default option): Buffers to work on -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/extra-columns=`_integer_{:title="an integer"}: number of extra columns to create -- values: an integer
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/keep-on-error=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, the points where the Ruby expression returns a  error are kept, as invalid numbers -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on (by default), you can use `$meta` to refer to the dataset meta-data -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, you can use `$stats` to refer to statistics (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
@@ -1515,9 +1546,9 @@ Applies a formula to the current dataset. It should specify how the
 `x` and/or `y` values of the dataset are modified:
 
 ~~~~
-QSoas> apply-formula 'x = x**2'
-QSoas> apply-formula 'y = sin(x**2)'
-QSoas> apply-formula 'x,y = y,x'
+QSoas> apply-formula x=x**2
+QSoas> apply-formula y=sin(x**2)
+QSoas> apply-formula x,y=y,x
 ~~~~
 
 The last bit swaps the $$x$$ and $$y$$ values of the buffer. The
@@ -1539,17 +1570,17 @@ you can use `i` to have even points draw a sine wave and odd points a
 cosine:
 
 ~~~~
-QSoas> apply-formula 'y = (i % 2 == 0 ? sin(x) : cos(x))'
+QSoas> apply-formula y=(i%2==0?sin(x):cos(x))
 ~~~~
 
 `%` is the modulo operator. The construction with `?` and `:` (called
 the [ternary operator](https://en.wikipedia.org/wiki/%3F:) means:
-if `i % 2 == 0` is true, then the value is `sin(x)`, else `cos(x)`.
+if `i%2==0` is true, then the value is `sin(x)`, else `cos(x)`.
 
 You can use several instructions by separating them with `;`:
 
 ~~~~
-QSoas> apply-formula 'x = x**2; y = x**2'
+QSoas> apply-formula x=x**2;y=x**2
 ~~~~
 
 This results in `x` values that are the squares of the old values, and
@@ -1560,7 +1591,7 @@ Extra columns initially filled with 0 can be created by using the
 `/extra-columns` option:
 
 ~~~~
-QSoas> apply-formula /extra-columns=1 'y2 = y**2'
+QSoas> apply-formula /extra-columns=1 y2=y**2
 ~~~~
 
 This creates a third column (a second `y` column) containing the
@@ -1572,20 +1603,22 @@ by [cmd: stats]. For instance, to normalize the Y values by dividing
 by the median, one would use:
 
 ~~~ 
-QSoas> apply-formula /use-stats=true 'y = y/$stats["y_med"]'
+QSoas> apply-formula /use-stats=true y=y/$stats.y_med
 ~~~
 
-Beware of the quotes: the outer quotes `'` are meant to make QSoas
-understand that the `y = y/$stats["y_med"]` is only one argument,
-while the inner quotes `"` are required because the keys to the
-statistics dictionnary are ruby strings, delimited by `"`.
+Note that you can make use of the special `/=` operator to shorten
+that into:
+
+~~~ 
+QSoas> apply-formula /use-stats=true y/=$stats.y_med
+~~~
 
 Statistics by segments (see more about segments [there](#segments))
 are available too, which means if you want to normalize by the medians
 of the first segment, you could do
 
 ~~~ 
-QSoas> apply-formula /use-stats=true 'y = y/$stats[0]["y_med"]'
+QSoas> apply-formula /use-stats=true y/=$stats[0].y_med
 ~~~
 
 If `/use-meta` is `true` (the default), then a global variable `$meta`
@@ -1593,6 +1626,16 @@ is defined that contains the value of the [meta-data](#meta-data)
 (what is shown by [cmd: show]). What you make of this will greatly
 depend of the meta-data QSoas has gathered from your file (and those
 you have set manually using [cmd: set-meta]).
+
+Some results will give "invalid numbers", such as `sqrt(-1)`. By
+default, `QSoas` strips the points corresponding to the invalid
+results, but you can keep them (as invalid numbers) using
+`/keep-on-error=true` (but be aware that working with invalid numbers
+is a real pain !).
+
+It is now possible to work with several buffers using the `/buffers`
+option, and control the resulting buffers using the commands described
+[there](#several-buffers).
 
 {::comment} description-end: apply-formula {:/}
 
@@ -1749,17 +1792,25 @@ data, this will impact commands that work with indices, such as
 
 {::comment} synopsis-end: strip-if {:/}
 {::comment} description-start: strip-if {:/}
-Removes all points for which the ruby expression returns `true`. This
+Removes all points for which the [ruby expression](#ruby) returns `true`. This
 can be used for quite advanced data selection:
 
 ~~~~
-QSoas> strip-if 'x > 2'
+QSoas> strip-if x>2
 ~~~~ 
 
 This removes all points whose X value is greater than 2.
 
 ~~~~
-QSoas> strip-if 'x * y < 10 && x > 2'
+QSoas> strip-if x>2||x<4
+~~~~ 
+
+This removes all points whose X value is greater than 2 or whose X
+value is lower than 4. In other terms, it *keeps* only the X values
+between 2 and 4.
+
+~~~~
+QSoas> strip-if x*y<10&&x>2
 ~~~~
 
 This removes all the points for which both the X value is greater than 2 and
@@ -1772,7 +1823,7 @@ by weird numbers called NaN (Not a Number). They can be useful at
 times, but mess up statistics and fits. To remove them, use:
 
 ~~~~
-QSoas> strip-if '(x != x) || (y != y)'
+QSoas> strip-if x.nan?||y.nan?
 ~~~~
 
 Like in [cmd: apply-formula], you can use the statistics and the
@@ -1816,12 +1867,12 @@ point ends up being at 0.
 Computes the 4th order accurate derivative of the buffer.
 
 This is efficient to compute the derivative of smooth data, but it
-gives very poor results on noisy data. In general, for derivation,
-prefer [cmd: filter-fft], [cmd: filter-bsplines] or [cmd: auto-reglin],
-which will give much better results.
+gives very poor results on noisy data. In general, for derivation of
+real data, prefer [cmd: filter-fft], [cmd: filter-bsplines] or
+[cmd: auto-reglin], which will give much better results.
 
 Starting from QSoas version 2.1, a second mode is available, in which
-you can choose an arbitrary order for the derivation (has to be more
+you can choose an arbitrary order for the derivation (has to be less
 than the number of points of the dataset), via the option `/order=`,
 and an optional derivative via the `/derivative` option. For instance,
 you can reproduce the effect of [cmd: diff2] using:
@@ -2098,26 +2149,20 @@ work on based on their properties. The value of the `/for-which` is a
 datasets that have a maximum value greater than `1e-4`:
 
 ~~~
-QSoas> flag all /for-which '$stats["y_max"] >= 1e-4'
+QSoas> flag all /for-which $stats.y_max>=1e-4
 ~~~
-
-Be mindful of the quotes: the outer `'` quotes are meant to protect
-the `$stats["y_max"] >= 1e-4` bit that is passed on to ruby. The
-quotes around `y_max` are necessary, as `$stats` is a
-[dictionnary](http://ruby-doc.org/core-1.9.3/Hash.html) whose keys are
-ruby strings, which are delimited by double quotes.
 
 **How to test for equality:** in [ruby](#ruby), you need to use `==`
 to test whether two values are the same. For instance, to flag
 voltammograms in which the scan rate is 0.1 V/s, you have to use:
 
 ~~~
-QSoas> flag all /for-which '$meta["sr"] == 0.1'
+QSoas> flag all /for-which $meta.sr==0.1
 ~~~
 
 Replacing the `==` by `=` in the code above leads to selecting **all**
-the buffers, because `$meta["sr"] = 0.1` evaluates to `true` for
-[ruby](#ruby).
+the buffers, because `$meta.sr=0.1` is always `true` (see more about
+the ruby expressions [there](#ruby)).
 
 
 {::comment} synopsis-start: show {:/}
@@ -2149,17 +2194,69 @@ Meta-data:	delta_t_0 = 950	gpes_file = D:\Vincent\140428\08	original-file = /hom
 
 ### set-meta - Set meta-data {#cmd-set-meta}
 
-`set-meta` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
+`set-meta` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/also-record=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/type=`_choice_{:title="one of: `number`, `number-list`, `text`"}
 
   * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: name of the meta-data -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: value of the meta-data -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/also-record=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: also record the meta-data as if one had used record-meta on the original file -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/type=`_choice_{:title="one of: `number`, `number-list`, `text`"}: type of the meta-data -- values: one of: `number`, `number-list`, `text`
 
 {::comment} synopsis-end: set-meta {:/}
 {::comment} description-start: set-meta {:/}
 Using `set-meta`, one can set the value of the named meta-data for the
 current buffer. _name_ can have any value, it does not have to
 exist in the list of buffer's meta-data.
+
+The actual type of the meta-data can be specified using the `/type`
+option. For now, it is mostly useful to specify lists of numbers:
+
+~~~ 
+QSoas> set-meta injection-times 100,200,300 /type=number-list
+~~~
+
+This specifies that the meta-data injection times is a list of numbers
+(and not a text).
+
+Meta-data are not permament, and will be forgotten from a `QSoas`
+session to another. To store permanently the meta-data so that it is
+set again the next time `QSoas` loads this file, either use the
+[cmd: record-meta], or use `/also-record=true`, which has the same
+effect as running [cmd: record-meta] on the original file.
 {::comment} description-end: set-meta {:/}
+
+{::comment} synopsis-start: record-meta {:/}
+
+### record-meta - Set meta-data {#cmd-record-meta}
+
+`record-meta` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _files..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/exclude=`_files_{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/type=`_choice_{:title="one of: `number`, `number-list`, `text`"}
+
+  * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: name of the meta-data -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: value of the meta-data -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _files..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: files on which to set the meta-data -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
+  * `/exclude=`_files_{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: exclude files -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
+  * `/type=`_choice_{:title="one of: `number`, `number-list`, `text`"}: type of the meta-data -- values: one of: `number`, `number-list`, `text`
+
+{::comment} synopsis-end: record-meta {:/}
+{::comment} description-start: record-meta {:/}
+`record-meta` is the "permanent" version of `set-meta`. It sets
+meta-data permanently for a series of **files** (and not buffers as in
+the case of [cmd: set-meta]). For instance, after running
+
+~~~ 
+QSoas> record-meta pH 7 experiment.dat another.dat
+~~~
+
+The next time `QSoas` loads either `experiment.dat` or `another.dat`,
+they will automatically have a meta-data called `pH` with a value `7`.
+
+
+**Behind the scenes** The meta-data are stored in special files, one for each of
+the data files. They are almost plain text files (more precisely, JSON
+files). The have the names of the original files with a `.qsm` suffix
+appended. If you move data files around, you need to also move these
+files if you want the meta-data to follow.
+{::comment} description-end: record-meta {:/}
+
 
 {::comment} synopsis-start: set-perp {:/}
 
@@ -3542,16 +3639,16 @@ In each of the steps, the formula fitted to the data is:
 
 $$ y(t) = I^{k(j)}\left(1 - \sum_{i=1}^n \alpha^j_i \exp(-(t -
 t^j_0)/\tau^{k(j)}_i) \right)\exp (- k^{k(j)}_{loss}(t - t^j_0)) \times
-\alpha_j$$
+a_j$$
 
 Where $$j$$ is the step number, $$k(j)$$ is the number of the
 corresponding time constants, $$t^j_0$$ is the beginning of the step
 $$j$$, the $$\alpha^j_i$$ are the relative amplitudes of the
 exponential phases, the $$I^{k(j)}$$ are the asymptotic values of
-$$y(t)$$ on each step (in the absence of film loss) and $$\alpha_j$$
-is defined recursively by $$\alpha_0 = 1$$ and $$\alpha_j =
-\alpha_{j-1} \exp (- k^{k(j-1)}_{loss}(t^j_0 - t^{j-1}_0))$$. This is
-done so as to keep track of film loss over the whole experiment.
+$$y(t)$$ on each step (in the absence of film loss) and $$a_j$$
+is defined recursively by $$a_0 = 1$$ and
+$$a_j = a_{j-1} \exp \left(- k^{k(j-1)}_{loss}(t^j_0 - t^{j-1}_0)\right)$$.
+This is done so as to keep track of film loss over the whole experiment.
 
 #### Parameters restrictions
 
@@ -6181,6 +6278,17 @@ evaluation programs (it is quite close to the one from
  * Don't abbreviate floating point numbers: `2.` and `.4` are invalid, use
    `2.0` and `0.4` instead.
  * **Case matters**: `Pi` is $$\pi$$, while `pi` is nothing defined.
+ * Exponentiation is done with the `**` operator. The `^` operator is
+   used for binary XOR.
+ * Logical OR is done with the `||` operator and logical AND with the
+   `&&` operator. The single-letter versions, `|` and `&` are
+   **binary** operators and will not work as you intend.
+
+Most ruby expressions can make use of dataset information, such as
+meta-data or statistics (see the documentation of the specific command
+for more information about how to make this available). The most easy
+way to do so is to use for instance `$stats.y_max` to refer to the
+`y_max` statistic.
 
 ### Specific additions/modifications to Ruby
 

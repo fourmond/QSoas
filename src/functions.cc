@@ -1,6 +1,6 @@
 /*
   functions.cc: mathematical functions
-  Copyright 2015 by CNRS/AMU
+  Copyright 2015, 2018 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,6 +24,9 @@
 #include <gsl/gsl_sf.h>
 
 #include <credits.hh>
+
+#include <gsl/gsl_integration.h>
+#include <odesolver.hh>
 
 // atan:
 //
@@ -62,3 +65,81 @@ double Functions::marcusHushChidseyZeng(double lambda, double eta)
 }
 
 static Credits mhz("Zeng et al, JEAC, 2014", "the k_mhc_z function", "10.1016/j.jelechem.2014.09.038");
+
+static double mhc_integrand(double x, void * params)
+{
+  const double * p = reinterpret_cast<const double*>(params);
+  const double & lambda = p[0];
+  const double & eta = p[1];
+  double i1 = -(x - lambda + eta)*(x - lambda + eta)/(4*lambda);
+  return exp(i1) /(1 + exp(x));
+}
+
+double Functions::marcusHushChidsey(double lambda, double eta)
+{
+  static gsl_integration_workspace * ws = NULL;
+  if(! ws)
+    ws = gsl_integration_workspace_alloc(400);
+  gsl_function f;
+  double vals[2];
+  vals[0] = lambda;
+  vals[1] = eta;
+  f.function = &::mhc_integrand;
+  f.params = vals;
+  double rv;
+  double er;
+
+  gsl_integration_qagi(&f, 1e-5, 1e-5, 400, ws, &rv, &er);
+  return rv;
+}
+
+/// Validation: functions/laviron.cmds, matches de predictions of equation
+/// (21) from Laviron, JEAC 101, 19-28, 1979.
+/// rate is what Laviron calls "m" in his paper
+
+double Functions::trumpetBV(double rate, double alpha, double prec)
+{
+  alpha = 1 - alpha;
+  double time = std::max(-0.5, 1/alpha*(log(alpha*rate)) - 3);
+  double cur = 0;
+  double pos = time;
+
+  double max = time + 9;
+
+  std::function<double (double, double) > dy = 
+    [rate, alpha](double t, double red) -> double {
+    double kf = exp(alpha * t)/rate;
+    double kb = exp((alpha-1) * t)/rate;
+    return (1 - red)*kb - red * kf;
+  };
+
+  LambdaODESolver slv(1,
+                      [rate, alpha, &dy](double t, const double *y,
+                                      double * dydt) -> void {
+                        dydt[0] = dy(t, y[0]);
+                      });
+  ODEStepperOptions opts = slv.getStepperOptions();
+  
+  /// I think the best solver
+  opts.type = gsl_odeiv2_step_bsimp;
+
+  slv.setStepperOptions(opts);
+
+  double val[1] = {1};
+  slv.initialize(val, -3);
+
+  slv.stepTo(time);
+  int i = 0;
+  while(time < max) {
+    time += prec;
+    slv.stepTo(time);
+    double c = dy(time, slv.currentValues()[0]);
+    if(c > cur && i > 3)
+      return pos;
+    cur = c;
+    pos = time;
+    ++i;
+  }
+
+  return -1;                    // Hmmm
+}

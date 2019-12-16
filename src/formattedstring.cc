@@ -31,15 +31,15 @@ public:
   FSPlainText(const QString & s) : FormattedString(), 
                                    text(s) {;};
   
-  virtual QString toText() const {
+  virtual QString toText() const override {
     return text;
   };
 
-  virtual QString toHTML() const {
+  virtual QString toHTML() const override {
     return Utils::escapeHTML(text);
   };
 
-  virtual QString toLaTeX() const {
+  virtual QString toLaTeX() const override {
     return text;                /// @todo Quote !
   };
 };
@@ -64,15 +64,15 @@ public:
     FormattedString(), 
     text(s), format(fmt) {;};
   
-  virtual QString toText() const {
+  virtual QString toText() const override {
     return text;
   };
 
-  virtual QString toHTML() const {
+  virtual QString toHTML() const override {
     return Utils::escapeHTML(text);    /// @todo Quote + markup
   };
 
-  virtual QString toLaTeX() const {
+  virtual QString toLaTeX() const override {
     return text;                /// @todo Quote + markup
   };
 };

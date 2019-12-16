@@ -21,6 +21,17 @@
 #include <onetimewarnings.hh>
 #include <exceptions.hh>
 
+OneTimeWarnings::OneTimeWarnings(QWidget * parent) : base(parent)
+{
+  
+}
+
+bool OneTimeWarnings::warnOnce(const QString & codeName,
+                               const QString & title,const QString & warning)
+{
+  return warnOnce(base, codeName, title, warning);
+}
+
 bool OneTimeWarnings::warnOnce(QWidget * parent,
                                const QString & codeName,
                                const QString & title,const QString & warning)

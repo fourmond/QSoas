@@ -1,0 +1,8 @@
+# This script and the other ones are here to test the performances of
+# the various fit engines/options for multibuffer fits with one global
+# and locals.
+clear-stack
+auto-flag /flags=buffers
+@ generate-${1}.cmds
+auto-flag
+mfit-${2} all /expert=true /script=run-fits.fcmds /arg1=${1:-exps}

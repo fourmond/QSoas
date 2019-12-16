@@ -1,0 +1,10 @@
+# This file demonstrates a bug present in a90a25979, when using
+# reparametrized fits and subfits
+
+generate-buffer 0 10
+sim-exponential-decay exp.params 0
+sim-exponential-decay exp.params 0 /override="tau_1=5"
+sim-exponential-decay exp.params 0 /override="tau_1=2"
+reparametrize-fit nexp exponential-decay k "tau_1=1/k" /redefine=true
+fit-nexp 0..2
+mfit-nexp 0..2

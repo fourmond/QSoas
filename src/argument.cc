@@ -54,6 +54,15 @@ ArgumentMarshaller * Argument::fromRuby(mrb_value value) const
 }
 
 
+QStringList Argument::toString(const ArgumentMarshaller * arg) const
+{
+  // default implementation: assume we have one string
+  QStringList lst;
+  lst << arg->value<QString>();
+  return lst;
+}
+
+
 ArgumentMarshaller * Argument::promptForValue(QWidget * base) const
 {
   bool ok = false;
@@ -89,18 +98,13 @@ void Argument::setDescription(const QString & s)
   desc = s;
 }
 
-QStringList Argument::allChoices() const
-{
-  return QStringList();
-}
-
 QWidget * Argument::createEditor(QWidget * parent) const
 {
   return new QLabel("<b>(not modifiable)</b>", parent);
 }
 
 void Argument::setEditorValue(QWidget * editor, 
-                              ArgumentMarshaller * value) const
+                              const ArgumentMarshaller * value) const
 {
   Debug::debug()
     << "Warning: missing setEditorValue implementation for type "
@@ -115,6 +119,8 @@ ArgumentMarshaller * Argument::getEditorValue(QWidget * editor) const
   QComboBox * cb = dynamic_cast<QComboBox *>(editor);
   if(cb)
     return fromString(cb->currentText());
+  throw InternalError("Handling of editor for type %1 is not implemented").
+    arg(typeName());
   return NULL;
 }
 
@@ -126,4 +132,25 @@ QString Argument::typeName() const
 QString Argument::typeDescription() const
 {
   return QString();
+}
+
+QWidget * Argument::createTextEditor(QWidget * parent) const
+{
+  return new QLineEdit(parent);
+}
+
+void Argument::setTextEditorValue(QWidget * editor,
+                                  const ArgumentMarshaller * value) const
+{
+  QLineEdit * le = dynamic_cast<QLineEdit*>(editor);
+  if(! le)
+    throw InternalError("Wrong editor given to setEditorValue");
+
+  QStringList vals = toString(value);
+  if(vals.size() > 1)
+    throw InternalError("Cannot handle more than one argument "
+                        "at the same time");
+  if(vals.size() <= 0)
+    throw InternalError("Empty return value ?");
+  le->setText(vals[0]);
 }

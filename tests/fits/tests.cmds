@@ -4,6 +4,9 @@
 @ formula-in-parameters-multi.cmds
 @ derivatives.cmds
 
+# General things about the fits
+@ general.cmds
+
 @ polynomials.cmds
 
 @ custom-fits.cmds
@@ -13,3 +16,9 @@
 # @ threads.cmds
 
 @ modified-fits.cmds
+
+# Test the computation of the residuals:
+@ residuals.cmds
+
+# First tests of non-interactive fits
+@ expert.cmds

@@ -76,7 +76,7 @@ class Expression {
 public:
 
   /// Creates an expression object (and compile it)
-  Expression(const QString & expression);
+  explicit Expression(const QString & expression);
 
   /// Creates an expression object responding to the given variables.
   ///
@@ -108,6 +108,9 @@ public:
 
   /// Non-locking version of evaluate()
   double evaluateNoLock(const double * variables) const;
+
+  /// Evaluate the expression and returns the given ruby variable
+  mrb_value evaluateAsRuby(const double * variables) const;
 
   
   /// Evaluate the expression as a boolean

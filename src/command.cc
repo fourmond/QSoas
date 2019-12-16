@@ -1,7 +1,7 @@
 /*
   command.cc: implementation of the Command class
   Copyright 2011 by Vincent Fourmond
-            2012, 2013, 2014 by CNRS/AMU
+            2012, 2013, 2014, 2018 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 
 #include <headers.hh>
 #include <command.hh>
+#include <commandcontext.hh>
 #include <group.hh>
 #include <argument.hh>
 #include <commandeffector.hh>
@@ -36,61 +37,60 @@
 #include <mruby.hh>
 
 
-QHash<QString, Command*> * Command::availableCommands = NULL;
-
-bool Command::finishedLoading = false;
-
-void Command::registerCommand(Command * cmd)
+Command::Command(const char * cn, 
+                 CommandEffector * eff,
+                 const char * gn, 
+                 ArgumentList * ar,
+                 ArgumentList * op,
+                 const char * pn,
+                 const char * sd, 
+                 const char * sc,
+                 CommandContext * cxt,
+                 bool autoRegister) : 
+  cmdName(cn), shortCmdName(sc), pubName(pn), 
+  shortDesc(sd), groupName(gn), 
+  arguments(ar), options(op), custom(CommandContext::finishedLoading),
+  context(cxt),
+  effector(eff), 
+  group(NULL)
 {
-  if(! availableCommands)
-    availableCommands = new QHash<QString, Command*>;
+  if(autoRegister)
+    registerMe();
+}; 
 
-  if(availableCommands->contains(cmd->commandName()))
-    throw InternalError(QObject::tr("Duplicate command name : %1").
-                        arg(cmd->commandName()));
+Command::Command(const char * cn, 
+                 CommandEffector * eff,
+                 const char * gn, 
+                 ArgumentList * ar,
+                 ArgumentList * op,
+                 const QByteArray & pn,
+                 const QByteArray & sd, 
+                 const QByteArray & sc, 
+                 CommandContext * cxt,
+                 bool autoRegister) : 
+  cmdName(cn), shortCmdName(sc), pubName(pn), 
+  shortDesc(sd), groupName(gn), 
+  arguments(ar), options(op), custom(CommandContext::finishedLoading),
+  context(cxt),
+  effector(eff), 
+  group(NULL)
+{
+  if(autoRegister)
+    registerMe();
+}; 
 
-  (*availableCommands)[cmd->commandName()] = cmd;
-
-  if(cmd->shortCommandName().isEmpty())
-    return;
-  if(availableCommands->contains(cmd->shortCommandName()))
-    throw InternalError(QObject::tr("Duplicate short command name : %1").
-                        arg(cmd->shortCommandName()));
-  (*availableCommands)[cmd->shortCommandName()] = cmd;
+Command::~Command()
+{
+  context->unregisterCommand(this);
 }
 
-void Command::unregisterCommand(Command * cmd)
+void Command::registerMe()
 {
-  if(! availableCommands)
-    availableCommands = new QHash<QString, Command*>;
-
-  availableCommands->remove(cmd->commandName());
-  if(! cmd->shortCommandName().isEmpty())
-    availableCommands->remove(cmd->shortCommandName());
-
-  // Is that all ?
+  if(! context)
+    context = CommandContext::globalContext();
+  context->registerCommand(this);
 }
 
-void Command::crosslinkCommands()
-{
-  Command::finishedLoading = true;
-  if(! availableCommands)
-    return;
-  for(QHash<QString, Command *>::iterator i = availableCommands->begin();
-      i != availableCommands->end(); ++i) {
-    if(! i.value()->group) {
-      Group * grp = Group::namedGroup(i.value()->groupName);
-      if(! grp) {
-        QTextStream o(stdout);
-        o << "Missing group: " << i.value()->groupName << endl;
-      }
-      else {
-        i.value()->group = grp;
-        grp->commands.append(i.value());
-      }
-    }
-  }
-}
 
 /// Dummy ArgumentList. @todo move somewhere else ?
 static ArgumentList emptyList;
@@ -100,10 +100,10 @@ static ArgumentList emptyList;
 /// arguments.
 CommandArguments Command::parseArguments(const QStringList & args,
                                          QString * defaultOption,
-                                         QWidget * base) const
+                                         QWidget * base, bool * prompted) const
 {
   ArgumentList * a = arguments ? arguments : &emptyList;
-  return a->parseArguments(args, defaultOption, base);
+  return a->parseArguments(args, defaultOption, base, prompted);
 }
 
 CommandOptions Command::parseOptions(const QMultiHash<QString, QString> & opts,
@@ -151,6 +151,53 @@ CommandOptions Command::parseOptions(const QMultiHash<QString, QString> & opts,
   return ret;
 }
 
+bool Command::parseArgumentsAndOptions(const QStringList & arguments,
+                                       CommandArguments * args,
+                                       CommandOptions * opts,
+                                       QWidget * base)
+{
+  // First, arguments conversion
+  QPair<QStringList, QMultiHash<QString, QString> > split = 
+    splitArgumentsAndOptions(arguments);
+
+  bool hasDefault = (this->options ? this->options->hasDefaultOption() : false);
+  QString def;
+  bool prompted = false;
+  *args = parseArguments(split.first, (hasDefault ? &def : NULL),
+                         base, &prompted);
+  *opts = parseOptions(split.second, (hasDefault ? &def : NULL));
+  return prompted;
+}
+
+QStringList Command::rebuildCommandLine(const CommandArguments & args,
+                                        const CommandOptions & opts) const
+{
+  QStringList rv;
+  // Dealing first with arguments
+  ArgumentList * argList = arguments ? arguments : &emptyList;
+  if(args.size() != argList->size())
+    throw InternalError("Mismatch in the number of arguments: %1 vs %2").
+      arg(args.size()).arg(argList->size());
+  for(int i = 0; i < argList->size(); i++) {
+    Argument * a = argList->value(i);
+    rv += a->toString(args[i]);
+  }
+
+  argList = options ? options : &emptyList;
+  for(const QString & n : opts.keys()) {
+    Argument * o = argList->namedArgument(n);
+    if(! o)
+      throw InternalError("Unknown option: '%1'").arg(n);
+    QStringList vals = o->toString(opts[n]);
+    for(const QString & v : vals)
+      rv += QString("/%1=%2").arg(n).arg(v);
+  }
+
+  return rv;
+  
+}
+
+
 void Command::runCommand(const QString & commandName, 
                          const QStringList & arguments,
                          QWidget * base)
@@ -182,28 +229,6 @@ void Command::runCommand(const QString & commandName,
     effector->runCommand(commandName, args, options);
 }
 
-
-Command * Command::namedCommand(const QString & cmd, bool convert)
-{
-  if(! availableCommands)
-    return NULL;
-  QString cnv = cmd;
-  if(convert)
-    cnv.replace('_', '-');
-  return availableCommands->value(cnv, NULL);
-}
-
-void Command::runCommand(const QStringList & cmd,
-                         QWidget * base)
-{
-  QStringList b = cmd;
-  QString name = b.takeFirst();
-  Command * command = namedCommand(name);
-  if(! command)
-    throw RuntimeError(QObject::tr("Unknown command: '%1'").
-                       arg(name));
-  command->runCommand(name, b, base);
-}
 
 QAction * Command::actionForCommand(QObject * parent) const
 {
@@ -372,84 +397,6 @@ QString Command::unsplitWords(const QStringList & cmdline)
   return s.join(" ");
 }
 
-QStringList Command::allCommands()
-{
-  if(! availableCommands)
-    return QStringList();
-  return availableCommands->keys();
-}
-
-QStringList Command::interactiveCommands()
-{
-  if(! availableCommands)
-    return QStringList();
-
-  QStringList ret;
-  
-  for(QHash<QString, Command*>::const_iterator i = availableCommands->begin();
-      i != availableCommands->end(); ++i)
-    if(i.value()->isInteractive())
-      ret << i.value()->cmdName;
-  return ret;
-}
-
-QStringList Command::nonInteractiveCommands()
-{
-  if(! availableCommands)
-    return QStringList();
-
-  QStringList ret;
-  
-  for(QHash<QString, Command*>::const_iterator i = availableCommands->begin();
-      i != availableCommands->end(); ++i)
-    if(! i.value()->isInteractive())
-      ret << i.value()->cmdName;
-  return ret;
-}
-
-
-QString Command::latexDocumentation() const
-{
-  QString ret;
-  ret = QString("\\subsection{\\texttt{%1}: %2}\n").
-    arg(commandName()).arg(shortDescription());
-
-  QString synopsis = QString("\\textbf{Synopsis:}\n\n\\texttt{%1}").
-    arg(commandName());
-
-  QString desc;
-
-  if(commandArguments()) {
-    desc += "\\textbf{Arguments:}\n\n\\begin{itemize}\n";
-    const ArgumentList & args = *commandArguments();
-    for(int i = 0; i < args.size(); i++) {
-      QString a = QString("\\emph{%1}").
-        arg(args[i]->argumentName());
-      if(args[i]->greedy)
-        a += "\\emph{...}";
-      synopsis += " " + a;
-      desc += QString("\\item \\emph{%1}: %2\n").
-        arg(args[i]->argumentName()).
-        arg(args[i]->description());
-    }
-    desc += "\\end{itemize}\n\n";
-  }
-
-  if(commandOptions()) {
-    desc += "\\textbf{Options:}\n\n\\begin{itemize}\n";
-    const ArgumentList & args = *commandOptions();
-    for(int i = 0; i < args.size(); i++) {
-      QString a = QString("\\texttt{%1}").
-        arg(args[i]->argumentName());
-      synopsis += " /" + a + "= \\emph{...}" ;
-      desc += QString("\\item \\texttt{/%1}: %2\n").
-        arg(args[i]->argumentName()).
-        arg(args[i]->description());
-    }
-    desc += "\\end{itemize}\n\n";
-  }
-  return ret + synopsis + "\n\n" + desc + longDescription();
-}
 
 /// @todo Probably should join Utils some day.
 QString wrapIf(const QString & str, const QString & left, bool cond, 
@@ -528,48 +475,26 @@ QString Command::synopsis(bool markup) const
 
 QString & Command::updateDocumentation(QString & str, int level) const
 {
+  QString fullCmd = cmdName;
+  if(context != CommandContext::globalContext())
+    fullCmd = "fit+" + fullCmd;
+
   QString beg = QString("{::comment} synopsis-start: %1 {:/}").
-    arg(cmdName);
+    arg(fullCmd);
 
   QString end = QString("{::comment} synopsis-end: %1 {:/}\n").
-    arg(cmdName);
+    arg(fullCmd);
 
   QString headings(level, '#');
   QString syn = "\n\n" +
     headings + " " + cmdName + " - " + pubName + 
-    " {#cmd-" + cmdName + "}\n\n" + 
+    " {#cmd-" + fullCmd + "}\n\n" + 
     synopsis(true);
 
   Utils::updateWithin(str, beg, end, syn);
   return str;
 }
 
-QStringList Command::loadDocumentation(const QString & str)
-{
-  QRegExp re("\\{::comment\\} description-(start|end):\\s*([0-9a-z-]+)\\s*\\{:/\\}\\s*");
-
-  QHash<QString, Command *> cmds = *availableCommands;
-
-  int idx = 0;
-  int nx = 0;
-
-  int beg = -1;
-  QString cur;
-  while(nx = re.indexIn(str, idx), nx >= 0) {
-    if(re.cap(1) == "start") {
-      beg = nx + re.matchedLength();
-      cur = re.cap(2);
-    } else {
-      if(beg >= 0 && cmds.contains(cur)) {
-        cmds[cur]->longDesc = str.mid(beg, nx - beg);
-        cmds.remove(cmds[cur]->shortCommandName());
-        cmds.remove(cur);
-      }
-    }
-    idx = nx + re.matchedLength();
-  }
-  return cmds.keys();
-}
 
 void Command::setDocumentation(const QString & str)
 {
@@ -580,6 +505,15 @@ void Command::setDocumentation(const QString & str)
 bool Command::isInteractive() const
 {
   return effector->isInteractive();
+}
+
+bool Command::hasNoArgsNorOpts() const
+{
+  if(arguments && arguments->size() > 0)
+    return false;
+  if(options && options->size() > 0)
+    return false;
+  return true;
 }
 
 QString Command::commandSpec(bool full) const
@@ -624,28 +558,6 @@ QString Command::commandSpec(bool full) const
   return ret;
 }
 
-
-QSet<Command *> Command::uniqueCommands()
-{
-  if(! availableCommands)
-    return QSet<Command * >();
-  return QSet<Command * >::fromList(availableCommands->values());
-}
-
-static bool cmpCommands(const Command * a, const Command * b)
-{
-  return a->commandName() < b->commandName();
-}
-
-void Command::writeSpecFile(QTextStream & out, bool full)
-{
-  QList<Command *> lst = uniqueCommands().toList();
-  qSort(lst.begin(), lst.end(), ::cmpCommands);
-
-  for(int i = 0; i < lst.size(); i++)
-    out << lst[i]->commandSpec(full);
-
-}
 
 
 // Ruby interface commands:

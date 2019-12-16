@@ -64,6 +64,9 @@ static void displayPeaks(QList<PeakInfo> peaks, const DataSet * ds,
   Terminal::out << "Found " << peaks.size() << " peaks" << endl;
   if(maxnb < 0 || maxnb > peaks.size())
     maxnb = peaks.size();
+  if(peaks.size() <= 0)
+    return;
+
   peaks = peaks.mid(0, maxnb);
   PeakInfo::computeArea(peaks, ds->x(), ds->y());
   
@@ -87,13 +90,13 @@ static void displayPeaks(QList<PeakInfo> peaks, const DataSet * ds,
     v->p1 = QPointF(peaks[i].x, 0);
     v->p2 = QPointF(peaks[i].x, peaks[i].y);
     v->pen = gs.getPen(GraphicsSettings::PeaksPen);
-    view.addItem(v);
+    view.addItem(v, true);
 
     v = new CurveLine;
     v->p1 = QPointF(peaks[i].x - peaks[i].leftHHWidth, peaks[i].y/2);
     v->p2 = QPointF(peaks[i].x + peaks[i].rightHHWidth, peaks[i].y/2);
     v->pen = gs.getPen(GraphicsSettings::PeaksPen);
-    view.addItem(v);
+    view.addItem(v, true);
   }
   view.enableUpdates();
 }
@@ -182,8 +185,7 @@ fp("find-peaks", // command name
    NULL, // arguments
    &fpOps, // options
    "Find peaks",
-   "Find all peaks",
-   "...");
+   "Find all peaks");
 
 static Command 
 fp1("1", // command name
@@ -192,8 +194,7 @@ fp1("1", // command name
     NULL, // arguments
     &fpbOps, // options
     "Find peak",
-    "Find the largest peak",
-    "...");
+    "Find the largest peak");
 
 static Command 
 fp2("2", // command name
@@ -202,8 +203,7 @@ fp2("2", // command name
     NULL, // arguments
     &fpbOps, // options
     "Find two peaks",
-    "Find the two largest peaks",
-    "...");
+    "Find the two largest peaks");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -243,7 +243,7 @@ static void echemPeaksCommand(const QString &, const CommandOptions & opts)
       v->p1 = QPointF(pairs[i].forward.x, 0);
       v->p2 = QPointF(pairs[i].forward.x, pairs[i].forward.y);
       v->pen = gs.getPen(GraphicsSettings::PeaksPen);
-      view.addItem(v);
+      view.addItem(v, true);
 
       hsh << "back_x" << pairs[i].backward.x
           << "back_y" << pairs[i].backward.y
@@ -255,13 +255,13 @@ static void echemPeaksCommand(const QString &, const CommandOptions & opts)
       v->p1 = QPointF(pairs[i].forward.x, 0);
       v->p2 = QPointF(pairs[i].backward.x, 0);
       v->pen = gs.getPen(GraphicsSettings::PeaksPen);
-      view.addItem(v);
+      view.addItem(v, true);
 
       v = new CurveLine;
       v->p1 = QPointF(pairs[i].backward.x, 0);
       v->p2 = QPointF(pairs[i].backward.x, pairs[i].backward.y);
       v->pen = gs.getPen(GraphicsSettings::PeaksPen);
-      view.addItem(v);
+      view.addItem(v, true);
 
       Terminal::out << hsh.keyOrder.join("\t") << endl;
       Terminal::out << hsh.toString() << endl;
@@ -287,6 +287,5 @@ ep("echem-peaks", // command name
    NULL, // arguments
    &epOps, // options
    "Find peaks pairs",
-   "Find all peaks pairs",
-   "...");
+   "Find all peaks pairs");
 

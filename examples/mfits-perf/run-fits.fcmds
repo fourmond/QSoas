@@ -1,0 +1,4 @@
+# ${1} is the variable part of the name for the fits
+run-for-each run-one.fcmds *.fits /arg2=seed-${1}.params
+save-trajectories /mode=overwrite perfs-${1}.dat
+quit

@@ -66,7 +66,7 @@ protected:
   virtual bool hasReporters(FitData * data) const;
 
   /// Returns the value of reporters
-  virtual double reporterValue(FitData * data) const;
+  virtual double reporterValue(double t, FitData * data) const;
 
   /// Setups a callback that should be called at each time, and will be given
   /// * the time
@@ -116,13 +116,13 @@ protected:
     QList<ParameterDefinition> parametersCache;
   };
 
-  virtual void processOptions(const CommandOptions & opts, FitData * data) const;
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const override;
 
-  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const override {
     return deepCopy<Storage>(source);
   };
 
@@ -131,24 +131,39 @@ protected:
 
   /// Updates the parameters cache.
   void updateParameters(FitData * data) const;
+
+protected:
+
+  void compute(const double * parameters, FitData * data,
+               const DataSet * ds,
+               gsl_vector * target,
+               QList<Vector> * targetData) const;
   
 
 public:
 
-  virtual CommandOptions currentSoftOptions(FitData * data) const;
+  virtual CommandOptions currentSoftOptions(FitData * data) const override;
   
   /// Process the soft options, i.e. the stepper options
-  virtual void processSoftOptions(const CommandOptions & opts, FitData * data) const;
+  virtual void processSoftOptions(const CommandOptions & opts, FitData * data) const override;
 
-  virtual QList<ParameterDefinition> parameters(FitData * data) const;
+  virtual QList<ParameterDefinition> parameters(FitData * data) const override;
   
   virtual void function(const double * a, FitData * data, 
-                        const DataSet * ds , gsl_vector * target) const;
+                        const DataSet * ds , gsl_vector * target) const override;
 
-  virtual ArgumentList * fitSoftOptions() const;
+  virtual void computeSubFunctions(const double * parameters, FitData * data,
+                                   const DataSet * ds,
+                                   QList<Vector> * targetData,
+                                   QStringList * targetAnnotations) const override;
 
-  virtual ArgumentList * fitHardOptions() const;
+  virtual ArgumentList * fitSoftOptions() const override;
 
+  virtual ArgumentList * fitHardOptions() const override;
+
+  virtual bool hasSubFunctions(FitData * data) const override;
+
+  virtual bool displaySubFunctions(FitData * data) const override;
 
   ODEFit(const QString & n, const QString & sd, const QString & desc,
          int min = 1, int max = -1, bool mkCmds = true) :

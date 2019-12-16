@@ -1,0 +1,10 @@
+ruby
+$test = 10
+QSoas.run("nesting-inner.cmds")
+ruby end
+assert '$test == 20'
+ruby
+$test = 10
+QSoas.run("nesting-inner-2.cmds")
+ruby end
+assert '$test == 30'

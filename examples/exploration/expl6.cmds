@@ -1,0 +1,3 @@
+# We try the pre-fit scripts
+monte-carlo-explorer /iterations=20 A_1:1e-2..1e2,log tau_1:1e-2..1e2,log tau_2:1e-2..1e2,log /iterations=50
+iterate-explorer /pre-script=pre1.fcmds

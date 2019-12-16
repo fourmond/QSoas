@@ -25,6 +25,14 @@
 
 #include <factory.hh>
 
+#include <commandeffector.hh>
+#include <commandeffector-templates.hh>
+#include <commandcontext.hh>
+#include <command.hh>
+
+#include <idioms.hh>
+
+#include <fitworkspace.hh>
 
 StoredParameters::StoredParameters(const gsl_vector *v, double r) :
   parameters(v->size, 0),
@@ -41,6 +49,19 @@ const gsl_vector * StoredParameters::toGSLVector() const
   view = gsl_vector_view_array(const_cast<double*>(parameters.data()), 
                                parameters.size());
   return &view.vector;
+}
+
+//////////////////////////////////////////////////////////////////////
+
+FitEngineFactoryItem::FitEngineFactoryItem(const QString & n, 
+                                           const QString & desc,
+                                           const Creator & c,
+                                           ArgumentList * options,
+                                           bool mc) :
+  Factory<FitEngine, FitData *>(n, c, desc), engineOptions(options),
+  isMultiCapable(mc)
+{
+  fitEngineCommand = FitEngine::createCommand(this);
 }
 
 
@@ -71,6 +92,40 @@ FitEngineFactoryItem * FitEngine::defaultFactoryItem(int nb)
   // Default to the first one.
   return namedFactoryItem(availableEngines()[0]); 
 }
+
+CommandEffector * FitEngine::engineEffector(const QString & n)
+{
+  return new RawCommandEffector([n](const QString & commandName, 
+                                    const CommandArguments & arguments,
+                                    const CommandOptions & options) {
+                                  FitWorkspace * ws =
+                                    FitWorkspace::currentWorkspace();
+                                  FitEngineFactoryItem * it =
+                                    namedFactoryItem(n);
+                                  ws->setFitEngineFactory(it, options);
+                                });
+}
+
+Command * FitEngine::createCommand(FitEngineFactoryItem * item)
+{
+  QString n = item->name;
+  QString cmdName = n + "-engine";
+  return new Command(cmdName.toLocal8Bit().data(),
+                     engineEffector(n), "fits",
+                     NULL,
+                     item->engineOptions,
+                     n.toLocal8Bit().data(),
+                     "", "",
+                     CommandContext::fitContext());
+}
+
+// QList<Command *> FitEngine::createCommands()
+// {
+//   QList<Command * > rv;
+//   for(const QString & n : availableEngines())
+//     rv << createCommand(FitEngineFactoryItem::namedItem(n));
+//   return rv;
+// }
 
 bool FitEngine::handlesWeights() const
 {
@@ -103,6 +158,7 @@ void FitEngine::copyCurrentParameters(gsl_vector * target) const
 
 FitEngine::~FitEngine()
 {
+  // fitData->engine = NULL;
 }
 
 

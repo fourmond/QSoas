@@ -185,6 +185,8 @@
 #include <group.hh>
 #include <command.hh>
 
+#include <commandcontext.hh>
+
 #include <soas.hh>
 
 #include <commandwidget.hh>
@@ -273,7 +275,7 @@ MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
 void MainWin::setupFrame()
 {
   statusBar();
-  Group::fillMenuBar(menuBar());
+  Group::fillMenuBar(menuBar(), CommandContext::globalContext());
   connect(menuBar(), SIGNAL(triggered(QAction *)),
           SLOT(menuActionTriggered(QAction *)));
 
@@ -339,7 +341,7 @@ void MainWin::menuActionTriggered(QAction * action)
 {
   QStringList cmd = action->data().toStringList();
   try {
-    commandWidget->runCommand(cmd);
+    commandWidget->runCommand(cmd, true);
   }
   catch(const ControlFlowException & flow) {
     Terminal::out << Terminal::bold("Error: ") << "control flow command " 
@@ -362,6 +364,10 @@ void MainWin::updateWindowName()
 
 MainWin::~MainWin()
 {
+  Terminal::out << "QSoas PID " << QCoreApplication::applicationPid()
+                << " closing on " << QDateTime::currentDateTime().toString()
+                << endl;
+
   mainWinSize = size();
   splitterState = mainSplitter->saveState();
 }

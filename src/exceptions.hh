@@ -29,7 +29,7 @@ protected:
   QStringList backtrace;
   QByteArray full;
 public:
-  Exception(const QString & msg) throw();
+  explicit Exception(const QString & msg) throw();
   virtual const char * what() const throw();
   virtual QString message() const throw();
   virtual ~Exception() throw() {;};
@@ -49,7 +49,7 @@ public:
 
 class RuntimeError : public Exception {
 public:
-  RuntimeError(const QString & msg) throw() : Exception(msg) {
+  explicit RuntimeError(const QString & msg) throw() : Exception(msg) {
   };
   virtual ~RuntimeError() throw() {;};
 
@@ -63,7 +63,7 @@ public:
 
 class GSLError : public RuntimeError {
 public:
-  GSLError(const QString & msg) throw() : RuntimeError(msg) {
+  explicit GSLError(const QString & msg) throw() : RuntimeError(msg) {
   };
   virtual ~GSLError() throw() {;};
 
@@ -75,7 +75,7 @@ public:
 /// A specific error for "out of range" parameters in fits.
 class RangeError : public RuntimeError {
 public:
-  RangeError(const QString & msg) throw() : RuntimeError(msg) {
+  explicit RangeError(const QString & msg) throw() : RuntimeError(msg) {
   };
   virtual ~RangeError() throw() {;};
 
@@ -89,9 +89,9 @@ public:
 
 class InternalError : public Exception {
 public:
-  InternalError(const QString & msg) throw();
+  explicit InternalError(const QString & msg) throw();
   virtual ~InternalError() throw() {;};
-  virtual QString message() const throw();
+  virtual QString message() const throw() override;
 
   template<typename T> InternalError & arg(T a) {
     msg = msg.arg(a);
@@ -100,11 +100,13 @@ public:
 
 };
 
+#define NOT_IMPLEMENTED InternalError("Function %1 is not implemented").arg(Q_FUNC_INFO)
+
 /// This exception in general isn't an error, but just an
 /// implementation of control flow...
 class ControlFlowException : public Exception {
 public:
-  ControlFlowException(const QString & msg) throw() : Exception(msg) {
+  explicit ControlFlowException(const QString & msg) throw() : Exception(msg) {
   };
   virtual ~ControlFlowException() throw() {;};
 };

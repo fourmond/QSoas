@@ -86,7 +86,7 @@ private:
   FitData * data;
 public:
 
-  DFComputationQueue(FitData * d);
+  explicit DFComputationQueue(FitData * d);
   ~DFComputationQueue();
 
 
@@ -201,6 +201,7 @@ private:
 
   // These friend classes have access to the internal storage...
   friend class DerivativeFit;
+  friend class CombinedDerivativeFit;
   friend class CombinedFit;
   friend class ModifiedFit;
   friend class DistribFit;
@@ -329,7 +330,14 @@ public:
   QList<ParameterDefinition> parameterDefinitions;
     
   /// A storage vector of the same size as the data points vector
+  ///
+  /// @todo In fact, this is assumed to contain the latest function
+  /// evaluation, though it is not always the case.
   gsl_vector * storage;
+
+  /// Another storage vector of the same size as the data points vector.
+  /// Can be used for whatever temporary computation.
+  gsl_vector * storage2;
 
   /// Another storage space, this time large enough to hold all parameters.
   gsl_vector * parametersStorage;
@@ -344,6 +352,14 @@ public:
   /// Forces the recomputation of the jacobian. Only supported by very
   /// few fit engines.
   void recomputeJacobian();
+
+
+  /// A fit-engine independent computation of covariance matrix.
+  /// 
+  /// Allocates quite a bit of memory.
+  void computeCovarianceMatrix(gsl_matrix * target,
+                               double * parameters,
+                               double * residuals = NULL) const;
 
   
   FitData(const Fit * f, const QList<const DataSet *> & ds, 
@@ -437,20 +453,14 @@ public:
   Vector weightsPerBuffer;
 
 
-  /// Weights the target vector
-  void weightVector(gsl_vector * tg);
-
-  /// Computes a weighted sum of squares of the given vector, or
-  /// simpled the sum of the square of the weights if the target
-  /// vector is NULL. If subtractData is not NULL, the data gets
-  /// subtracted in any case (wether or not \a src is provided)
-  double weightedSquareSum(const gsl_vector * src = NULL, 
-                           bool subtractData = false);
-
-  /// Does the same as weightedSquareSum, but only considering the
-  /// given dataset. If provided, \a src is assumed to 
-  double weightedSquareSumForDataset(int ds, const gsl_vector * src = NULL,
-                                     bool subtractData = false);
+  /// Multiplies the target buffer by the SQUARE ROOT of the weight of
+  /// each point.
+  ///
+  /// By default, this function will multiply by the buffer weights,
+  /// but will only multiply by the errors when an engine is available
+  /// and does not handle the errors itself. If @a forceErrors is
+  /// true, then the errors are applied regardless of that condition.
+  void weightVector(gsl_vector * tg, bool forceErrors = false);
 
   /// @}
 

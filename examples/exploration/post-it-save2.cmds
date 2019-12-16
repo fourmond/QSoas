@@ -1,0 +1,6 @@
+qsoas-engine
+fit
+gsl-simplex-engine
+load-trajectories ${1}.dat /mode=ignore
+trim-trajectories 4
+save-trajectories ${1}.dat /mode=overwrite

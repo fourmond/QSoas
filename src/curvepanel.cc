@@ -100,8 +100,14 @@ void CurvePanel::computeTransform(const QRect & wR2,
   double dy = -sR.bottom() * m22 + wR.top();
 
   transform = QTransform(m11, 0, 0, m22, dx, dy);
-  reverseTransform = transform.inverted(); // That's inversible,
-                                           // thanks.
+
+
+  // We do the inversion manually, as Qt gets confused by very small
+  // determinants, which may occur when the coordinates are
+  // exceptionally large.
+  double det = transform.determinant();
+  reverseTransform = transform.adjoint() / det;
+
   invalidateTicks();
 }
 
@@ -174,10 +180,16 @@ static Vector pickMajorTicksLocation(double min, double max,
    double first_tick = ceil(min /(*tick)) * (*tick);
    double last_tick = floor(max /(*tick)) * (*tick);
 
+   /// @todo It feels like I'm not doing something right here...
    Vector ret;
    int nb = (int)round((last_tick - first_tick)/(*tick));
-   for (int i = 0; i <= nb ; i++)
-     ret << first_tick + (*tick) * i;
+   double mx = std::max(fabs(first_tick), fabs(last_tick));
+   for (int i = 0; i <= nb ; i++) {
+     double t = first_tick + (*tick) * i;
+     if(fabs(t/mx) < 1e-10)
+       t = 0;                   // Rounding errors...
+     ret << t;
+   }
 
    *fact = factor;
   
@@ -330,6 +342,10 @@ void CurvePanel::paint(QPainter * painter)
                         Qt::AlignHCenter | Qt::AlignBottom | Qt::TextDontClip,
                         realYLabel);
 
+      // Utils::drawRichText(painter, textPos.adjusted(-5,-5,5, 5),
+      //                     Qt::AlignHCenter | Qt::AlignBottom | Qt::TextDontClip,
+      //                     realYLabel);
+
       painter->restore();
     }
   }
@@ -353,8 +369,11 @@ void CurvePanel::paint(QPainter * painter)
 
 void CurvePanel::clear()
 {
-  for(int i = 0; i < displayedItems.size(); i++)
-    delete displayedItems[i];
+  for(int i = 0; i < displayedItems.size(); i++) {
+    CurveItem * it = displayedItems[i];
+    if(it && it->shouldDelete)
+      delete it;
+  }
   displayedItems.clear();
   boundingBox = QRectF();
   zoom = QRectF();
@@ -388,8 +407,9 @@ CurveItem * CurvePanel::closestItem(const QPointF &point,
   return item;
 }
 
-void CurvePanel::addItem(CurveItem * item)
+void CurvePanel::addItem(CurveItem * item, bool takeOwnership)
 {
+  item->shouldDelete = takeOwnership;
   displayedItems.append(QPointer<CurveItem>(item));
 }
 

@@ -100,7 +100,12 @@ public:
       return QStringList();
     return instances->keys();
   };
-  
+
+  static const InstanceHash * itemsHash() {
+    if(! instances)
+      instances = new InstanceHash;
+    return instances;
+  };
   
 }; 
 

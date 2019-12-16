@@ -147,18 +147,23 @@ void KineticSystemEvolver::setupCallback(const std::function <void (double, doub
 }
 
 
-double KineticSystemEvolver::reporterValue() const
+double KineticSystemEvolver::reporterValue(double t) const
 {
   if(! system->reporterExpression)
     return 0;                   // but really, this should fail
   QVarLengthArray<double, 1000> tg(system->speciesNumber() + 
                                    parameterIndex.size());
-  
+
+
   for(int i = 0; i < system->speciesNumber(); i++)
     tg[i] = currentValues()[i];
   int idx = system->speciesNumber();
   for(int i = 0; i < parameterIndex.size(); i++)
     tg[i+idx] = parameters[i];
+
+  if(callback != NULL)          // Tweak the time-dependent parameters
+                                // when applicable
+    callback(t, tg.data()+idx);
 
   return system->reporterExpression->evaluate(tg.data());
 }
@@ -254,8 +259,7 @@ kineticSystem("kinetic-system", // command name
               &ksOpts, // options
               "Kinetic system evolver",
               "Computes the concentration of species of an "
-              "arbitrary kinetic system",
-              "...");
+              "arbitrary kinetic system");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -280,12 +284,8 @@ protected:
     /// whether this object owns the system
     bool ownSystem;
     
-    /// The file name (unsure that's the best place)
-    QString fileName;
-
     Storage() : system(NULL), evolver(NULL) {
       ownSystem = true;
-      fileName = "??";
     };
     
     virtual ~Storage() {
@@ -298,11 +298,11 @@ protected:
 
   };
 
-  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const override {
     Storage * s = deepCopy<Storage>(source);
 
     // We copy the POINTER, so the target should not free the system
@@ -314,9 +314,8 @@ protected:
 
 
 
-  virtual QString optionsString(FitData * data) const {
-    Storage * s = storage<Storage>(data);
-    return QString("system: %1").arg(s->fileName);
+  virtual QString optionsString(FitData * data) const override {
+    return QString("system: %1").arg(getSystem(data)->fileName);
   };
 
   KineticSystem * getSystem(FitData * data) const {
@@ -333,30 +332,30 @@ protected:
     return s->evolver;
   };
 
-  virtual ODESolver * solver(FitData * data) const {
+  virtual ODESolver * solver(FitData * data) const override {
     return getEvolver(data);
   };
 
-  virtual int getParameterIndex(const QString & name, FitData * data) const  {
+  virtual int getParameterIndex(const QString & name, FitData * data) const  override{
     KineticSystemEvolver * evolver = getEvolver(data);
     return evolver->getParameterIndex(name);
   };
 
-  virtual QStringList systemParameters(FitData * data) const {
+  virtual QStringList systemParameters(FitData * data) const override {
     KineticSystem * system = getSystem(data);
     return system->allParameters();
   };
 
-  virtual QStringList variableNames(FitData * data) const {
+  virtual QStringList variableNames(FitData * data) const override {
     KineticSystem * system = getSystem(data);
     return system->allSpecies();
   };
 
-  virtual bool isFixed(const QString & n, FitData * ) const {
+  virtual bool isFixed(const QString & n, FitData * ) const override {
     return n.startsWith("c0_");
   };
 
-  virtual void initialize(double t0, const double * params, FitData * data) const {
+  virtual void initialize(double t0, const double * params, FitData * data) const override {
     Storage * s = storage<Storage>(data);
     KineticSystemEvolver * evolver = getEvolver(data);
 
@@ -364,17 +363,17 @@ protected:
     evolver->initialize(t0);
   };
 
-  virtual bool hasReporters(FitData * data) const {
+  virtual bool hasReporters(FitData * data) const override {
     KineticSystem * system = getSystem(data);
     return system->reporterExpression;
   };
 
-  virtual double reporterValue(FitData * data) const {
+  virtual double reporterValue(double t, FitData * data) const override {
     KineticSystemEvolver * evolver = getEvolver(data);
-    return evolver->reporterValue();
+    return evolver->reporterValue(t);
   };
   
-  virtual void setupCallback(const std::function<void (double, double * )> & cb, FitData * data) const{
+  virtual void setupCallback(const std::function<void (double, double * )> & cb, FitData * data) const override {
     KineticSystemEvolver * evolver = getEvolver(data);
     evolver->setupCallback(cb);
   };
@@ -459,7 +458,7 @@ public:
 
   virtual void initialGuess(FitData * data, 
                             const DataSet *ds,
-                            double * a) const
+                            double * a) const override
   {
     Storage * s = storage<Storage>(data);
     KineticSystem * system = getSystem(data);
@@ -496,7 +495,7 @@ public:
 
   };
 
-  virtual ArgumentList * fitArguments() const {
+  virtual ArgumentList * fitArguments() const override {
     if(mySystem)
       return NULL;
     return new 
@@ -521,12 +520,10 @@ public:
   };
 
   KineticSystemFit(const QString & name, 
-                   KineticSystem * sys,
-                   const QString & file
-                   ) : 
+                   KineticSystem * sys) : 
     ODEFit(name.toLocal8Bit(), 
-                  QString("Kinetic system of %1").arg(file).toLocal8Bit(),
-                  "", 1, -1, false)
+           QString("Kinetic system of %1").arg(sys->fileName).toLocal8Bit(),
+           "", 1, -1, false)
   {
     mySystem = sys;
     mySystem->prepareForTimeEvolution();
@@ -568,7 +565,7 @@ static void defineKSFitCommand(const QString &, QString file,
   KineticSystem * ks = new KineticSystem;
   ks->parseFile(file);
 
-  new KineticSystemFit(name, ks, file);
+  new KineticSystemFit(name, ks);
 }
 
 
@@ -579,5 +576,4 @@ dlwf("define-kinetic-system-fit",  // command name
      &dLWFArgs,                    // arguments
      &dkfsOpts,                    // options
      "Define a fit based on a kinetic mode",
-     "Defines a new fit based on kinetic model",
-     "...");
+     "Defines a new fit based on kinetic model");

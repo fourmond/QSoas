@@ -42,6 +42,8 @@
 #include <commandlineparser.hh>
 #include <hook.hh>
 
+#include <datasetlist.hh>
+
 static Group stack("view", 1,
                    "View",
                    "Control viewing options");
@@ -97,7 +99,6 @@ sv("save", // command name
    &saveOpts, // options
    "Save",
    "Saves the current buffer",
-   "Saves the current buffer to a file",
    "s");
 
 //////////////////////////////////////////////////////////////////////
@@ -190,8 +191,7 @@ saveBuffers("save-buffers", // command name
             &sBArgs, // arguments
             &sBOpts, // options
             "Save",
-            "Saves specified buffers",
-            "Saves the designated buffers to file");
+            "Saves specified buffers");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -199,7 +199,10 @@ static void showStackCommand(const QString &, const CommandOptions & opts)
 {
   int number = 0;
   updateFromOptions(opts, "number", number);
-  soas().stack().showStackContents(number);
+  QStringList meta;
+  updateFromOptions(opts, "meta", meta);
+  
+  soas().stack().showStackContents(number, meta);
 }
 
 static ArgumentList 
@@ -207,7 +210,11 @@ showSOpts(QList<Argument *>()
           << new IntegerArgument("number", 
                                  "Limit display",
                                  "Display only that many buffers around 0",
-                                 true));
+                                 true)
+          << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "meta", 
+                                        "Meta-data",
+                                        "also lists the comma-separated meta-data")
+          );
 
 
 static Command 
@@ -218,7 +225,6 @@ showStack("show-stack", // command name
           &showSOpts, // options
           "Show stack",
           "Shows the stack contents",
-          "Shows a small summary of what the stack is made of",
           "k");
 
 //////////////////////////////////////////////////////////////////////
@@ -262,9 +268,7 @@ drop("drop", // command name
      NULL, // arguments
      &dropOps, // options
      "Drop dataset",
-     "Drops the current dataset",
-     "Drops the current dataset (or the ones specified in the "
-     "buffers options) and frees the associated memory");
+     "Drops the current dataset");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -301,8 +305,7 @@ popCmd("pop", // command name
        NULL, // arguments
        &popOps, // options
        "Pop accumulator",
-       "Pops the contents of the accumulator",
-       "s");
+       "Pops the contents of the accumulator");
 
 
 //////////////////////////////////////////////////////////////////////
@@ -330,8 +333,6 @@ undo("undo", // command name
      &undoOps, // options
      "Undo",
      "Return to the previous buffer",
-     "Returns to the previous buffer, and push the "
-     "current to the redo stack",
      "u");
 
 //////////////////////////////////////////////////////////////////////
@@ -359,8 +360,6 @@ redo("redo", // command name
      &redoOps, // options
      "Redo",
      "Retrieves the last undone buffer",
-     "Pops the last buffer from the redo stack and set it "
-     "as the current buffer",
      "r");
 
 //////////////////////////////////////////////////////////////////////
@@ -379,7 +378,6 @@ cls("clear-stack", // command name
     NULL, // options
     "Clear stack",
     "Removes all buffers from the stack",
-    "Removes all the buffers from both normal and redo stack",
     "delstack"
     );
 
@@ -408,19 +406,27 @@ saveStack("save-stack", // command name
           &saveStackArgs, // arguments
           NULL, // options
           "Save stack",
-          "Saves the stack for later use",
-          "Saves the contents of the stack for later use, in a private "
-          "binary format");
+          "Saves the stack for later use");
 
 //////////////////////////////////////////////////////////////////////
 
-static void loadStackCommand(const QString &, QString fileName)
+static void loadStackCommand(const QString &, QString fileName,
+                             const CommandOptions & opts)
 {
   QFile file(fileName);
   Utils::open(&file, QIODevice::ReadOnly);
 
+  bool merge = false;
+  updateFromOptions(opts, "merge", merge);
+
   QDataStream in(&file);
-  in >> soas().stack();
+  if(merge) {
+    DataStack s(true);
+    in >> s;
+    soas().stack().insertStack(s);
+  }
+  else
+    in >> soas().stack();
 }
 
 static ArgumentList 
@@ -429,16 +435,21 @@ loadStackArgs(QList<Argument *>()
                                   "File name",
                                   "File name for saving stack"));
 
+static ArgumentList 
+loadStackOpts(QList<Argument *>() 
+              << new BoolArgument("merge", 
+                                  "Merge",
+                                  "If true, merges into the current stack rather than overwriting"));
+
 
 static Command 
 loadStack("load-stack", // command name
-          optionLessEffector(loadStackCommand), // action
+          effector(loadStackCommand), // action
           "load",  // group name
           &loadStackArgs, // arguments
-          NULL, // options
+          &loadStackOpts, // options
           "Load stack",
-          "Loads the stack from file",
-          "Loads the stack as saved using save-stack");
+          "Loads the stack from file");
 
 
 //////////////////////////////////////////////////////////////////////
@@ -449,7 +460,8 @@ loadStack("load-stack", // command name
 static CommandLineOption sp("--load-stack", [](const QStringList & args) {
     QString f = args[0];
     new Hook([f]() {
-        loadStackCommand("--", f);
+        CommandOptions opts;
+        loadStackCommand("--", f, opts);
       });
   }, 1, "loads a binary stack file", true, true);
 
@@ -457,7 +469,7 @@ static CommandLineOption sp("--load-stack", [](const QStringList & args) {
 //////////////////////////////////////////////////////////////////////
 
 
-static void ovCommand(const QString &, QList<const DataSet *> ds,
+static void ovCommand(const QString &,
                       const CommandOptions & opts)
 {
   // This is probably the only command that should not use
@@ -465,35 +477,45 @@ static void ovCommand(const QString &, QList<const DataSet *> ds,
   // just displayed.
   QString style;
   updateFromOptions(opts, "style", style);
+
+  DataSetList datasets(opts);
   QScopedPointer<StyleGenerator> 
-    gen(StyleGenerator::fromText(style, ds.size()));
+    gen(StyleGenerator::fromText(style, datasets.size()));
+
+
   soas().view().disableUpdates();
-  for(int i = 0; i < ds.size(); i++)
-    soas().view().addDataSet(ds[i], gen.data());
+  for(const DataSet * ds : datasets)
+    soas().view().addDataSet(ds, gen.data());
   soas().view().enableUpdates();
 }
 
-static ArgumentList 
-ovArgs(QList<Argument *>() 
-       << new SeveralDataSetArgument("buffers", 
-                                     "Buffers",
-                                     "Buffers to overlay"));
+// static ArgumentList 
+// ovArgs(QList<Argument *>() 
+//        << new SeveralDataSetArgument("buffers", 
+//                                      "Buffers",
+//                                      "Buffers to overlay"));
 
 static ArgumentList 
 styleOpts(QList<Argument *>() 
           << new StyleGeneratorArgument("style", 
                                         "Style",
                                         "Style for curves display"));
+
+
+static ArgumentList 
+ovbOpts(QList<Argument *>() 
+        << styleOpts
+        << DataSetList::listOptions("Buffers to overlay")
+        );
+
 static Command 
 ovlb("overlay-buffer", // command name
      effector(ovCommand), // action
      "view",  // group name
-     &ovArgs, // arguments
-     &styleOpts, // options
+     NULL, // arguments
+     &ovbOpts, // options
      "Overlay buffers",
      "Overlay buffer to the current one",
-     "Overlay buffers that are already in memory "
-     "on top of the current one",
      "V");
 
 //////////////////////////////////////////////////////////////////////
@@ -522,7 +544,6 @@ hide("hide-buffer", // command name
      NULL, // options
      "Hide buffers",
      "hide buffers from the view",
-     "",
      "H");
 
 
@@ -541,9 +562,7 @@ clear("clear", // command name
       NULL, // arguments
       NULL, // options
       "Clear view",
-      "Clear the current view",
-      "Removes all datasets but the current one from the display"
-     );
+      "Clear the current view");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -567,16 +586,21 @@ poiCmd("points", // command name
        NULL, // options
        "Show points",
        "Shows individual points in the datasets",
-       "Shows all the points of datasets displayed.",
        "poi");
 
 
 //////////////////////////////////////////////////////////////////////
 
-static void browseStackCommand(const QString &)
+static void browseStackCommand(const QString &, const CommandOptions & opts)
 {
   DatasetBrowser dlg;
-  dlg.displayDataSets(soas().stack().allDataSets());
+
+  DataSetList datasets(opts, true);
+  
+  if(datasets.size() == 0)
+    throw RuntimeError("No datasets to show");
+
+  dlg.displayDataSets(datasets);
   dlg.addButton("Drop from stack", [](const QList<const DataSet*> & lst) {
       DataStack & s = soas().stack();
       for(int i = 0; i < lst.size(); i++)
@@ -585,14 +609,17 @@ static void browseStackCommand(const QString &)
   dlg.exec();
 }
 
+static ArgumentList 
+bsOpts(QList<Argument *>() 
+       << DataSetList::listOptions("Buffers to show")
+       );
 
 static Command 
 browseStack("browse-stack",     // command name
-            optionLessEffector(browseStackCommand, true), // action
+            effector(browseStackCommand, true), // action
             "view",            // group name
             NULL,               // arguments
-            NULL,               // options
-            "Browse stack",
+            &bsOpts,               // options
             "Browse stack",
             "Browse stack",
             "K");
@@ -620,8 +647,7 @@ fetch("fetch", // command name
       NULL, // options
       "Fetch an old buffer",
       "Fetch old buffers from the stack and put them back on "
-      "the top of the stack.",
-      "...");
+      "the top of the stack.");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -703,9 +729,9 @@ bfOpts(QList<Argument *>()
        << new StringArgument("pattern", 
                              "Pattern",
                              "Files to browse", true)
-       << new StringArgument("for-which", 
-                             "For which",
-                             "Select on formula")
+       << new CodeArgument("for-which", 
+                           "For which",
+                           "Select on formula")
 );
                              
 
@@ -717,7 +743,6 @@ browseFiles("browse", // command name
             &bfOpts, // options
             "Browse files",
             "Browse files",
-            "Browse files",
             "W");
 
 //////////////////////////////////////////////////////////////////////
@@ -725,11 +750,7 @@ browseFiles("browse", // command name
 static void flagUnFlag(const CommandOptions & opts, 
                        bool flagged = true)
 {
-  QList<const DataSet *> buffers;
-  if(opts.contains("buffers"))
-    buffers = opts["buffers"]->value<QList<const DataSet *> >();
-  else
-    buffers << soas().currentDataSet();
+  DataSetList buffers(opts);
 
   QStringList flags;
   updateFromOptions(opts, "flags", flags);
@@ -756,20 +777,10 @@ static void flagUnFlag(const CommandOptions & opts,
     }
   }
 
-  for(int i = 0; i < buffers.size(); i++) {
-    DataSet * ds = const_cast<DataSet *>(buffers[i]);
-    if(! forWhich.isEmpty()) {
-      try {
-        if(! ds->matches(forWhich))
-          continue;               // Not flagging
-        matched += 1;
-      }
-      catch(const RuntimeError & re) {
-        Terminal::out << "Error evaluating expression with dataset #" << i
-                      << ": " << re.message() << endl;
-        continue;
-      }
-    }
+  int nb = 0;
+  for(const DataSet * d : buffers) {
+    nb++;
+    DataSet * ds = const_cast<DataSet *>(d);
     if(flagged) {
       if(set)
         ds->clearFlags();
@@ -783,12 +794,8 @@ static void flagUnFlag(const CommandOptions & opts,
     }
   }
 
-  Terminal::out << (flagged ? "Flagged ": "Unflagged ");
-  if(! forWhich.isEmpty())
-    Terminal::out << matched << " buffers (out of "
-                  << buffers.size() << ")" << endl;
-  else
-    Terminal::out << buffers.size() << " buffers" << endl;
+  Terminal::out << (flagged ? "Flagged ": "Unflagged ")
+                << nb << " buffers" << endl;
 
 }
 
@@ -798,13 +805,8 @@ static void flagDataSetsCommand(const QString &, const CommandOptions & opts)
 }
 
 static ArgumentList 
-muOps(QList<Argument *>() 
-      << new SeveralDataSetArgument("buffers", 
-                                    "Buffers",
-                                    "Buffers to flag/unflag", true, true)
-      << new StringArgument("for-which", 
-                            "For which",
-                            "Select on formula")
+muOps(QList<Argument *>()
+      << DataSetList::listOptions("Buffers to flag/unflag")
       << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                     "flags", 
                                     "Buffers",
@@ -830,7 +832,7 @@ flag("flag", // command name
      NULL, // arguments
      &flOps, // options
      "Flag datasets",
-     "Flag datasets", "M");
+     "Flag datasets");
 
 
 static void unflagDataSetsCommand(const QString &, const CommandOptions & opts)
@@ -845,7 +847,7 @@ unflag("unflag", // command name
      NULL, // arguments
      &muOps, // options
      "Unflag datasets",
-     "Unflag datasets", "U");
+     "Unflag datasets");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -895,4 +897,4 @@ showBuffers("show", // command name
             &ssBArgs, // arguments
             NULL, // options
             "Show information",
-            "Show details (meta-data and such) about the given buffers", "");
+            "Show details (meta-data and such) about the given buffers");

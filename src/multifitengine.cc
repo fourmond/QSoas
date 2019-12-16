@@ -60,6 +60,13 @@ protected:
 
   /// Whether we use scaling or not.
   bool useScaling;
+
+  /// Whether we scale by the magnitude of the jacobian
+  bool scaleByMagnitude;
+
+  /// The order by which one scales the global parameters. (i.e. a
+  /// scale of nb datasets to the power globalScalingOrder)
+  double globalScalingOrder;
   
   /// The scaling factors for the jacobian and the steps
   gsl_vector * scalingFactors;
@@ -152,26 +159,27 @@ protected:
   void scaleJacobian();
 
 
-  /// Static options
-  static ArgumentList * options;
-
 public:
+
+  /// Static options
+  static ArgumentList options;
+
 
   MultiFitEngine(FitData * data);
   virtual ~MultiFitEngine();
 
 
-  virtual void initialize(const double * initialGuess);
-  virtual const gsl_vector * currentParameters() const;
-  virtual void computeCovarianceMatrix(gsl_matrix * target) const;
-  virtual int iterate();
-  virtual double residuals() const;
-  virtual void recomputeJacobian();
+  virtual void initialize(const double * initialGuess) override;
+  virtual const gsl_vector * currentParameters() const override;
+  virtual void computeCovarianceMatrix(gsl_matrix * target) const override;
+  virtual int iterate() override;
+  virtual double residuals() const override;
+  virtual void recomputeJacobian() override;
 
-  virtual CommandOptions getEngineParameters() const;
-  virtual ArgumentList * engineOptions() const;
-  virtual void resetEngineParameters();
-  virtual void setEngineParameters(const CommandOptions & params);
+  virtual CommandOptions getEngineParameters() const override;
+  virtual ArgumentList * engineOptions() const override;
+  virtual void resetEngineParameters() override;
+  virtual void setEngineParameters(const CommandOptions & params) override;
 };
 
 MultiFitEngine::MultiFitEngine(FitData * data) :
@@ -245,24 +253,25 @@ void MultiFitEngine::resetEngineParameters()
   relativeMin = 1e-3;
   residualsThreshold = 1e-5;
   maxTries = 30;
-  useScaling = false;
+  useScaling = false;           // though not useful.
+  globalScalingOrder = 0;
+  scaleByMagnitude = false;
 }
 
-ArgumentList * MultiFitEngine::options = NULL;
+ArgumentList MultiFitEngine::
+options(QList<Argument*>()
+        << new NumberArgument("lambda", "Lambda")
+        << new NumberArgument("scale", "Scale")
+        << new NumberArgument("end-threshold", "Threshold for ending")
+        << new NumberArgument("relative-min", "Min value for relative differences")
+        << new IntegerArgument("trial-steps", "Maximum number of trial steps")
+        << new BoolArgument("scaling", "Jacobian scaling")
+        << new NumberArgument("global-scaling-order", "Scaling order for global parameters")
+        << new NumberArgument("residuals-threshold", "Threshold for relative changes to residuals"));
 
 ArgumentList * MultiFitEngine::engineOptions() const
 {
-  if(! options) {
-    options = new ArgumentList;
-    *options << new NumberArgument("lambda", "Lambda")
-             << new NumberArgument("scale", "Scale")
-             << new NumberArgument("end-threshold", "Threshold for ending")
-             << new NumberArgument("relative-min", "Min value for relative differences")
-             << new IntegerArgument("trial-steps", "Maximum number of trial steps")
-             << new BoolArgument("scaling", "Jacobian scaling")
-             << new NumberArgument("residuals-threshold", "Threshold for relative changes to residuals");
-  }
-  return options;
+  return &options;
 }
 
 CommandOptions MultiFitEngine::getEngineParameters() const
@@ -273,7 +282,8 @@ CommandOptions MultiFitEngine::getEngineParameters() const
   updateOptions(val, "end-threshold", endThreshold);
   updateOptions(val, "relative-min", relativeMin);
   updateOptions(val, "trial-steps", maxTries);
-  updateOptions(val, "scaling", useScaling);
+  updateOptions(val, "scaling", scaleByMagnitude);
+  updateOptions(val, "global-scaling-order", globalScalingOrder);
   updateOptions(val, "residuals-threshold", residualsThreshold);
 
   return val;
@@ -286,7 +296,8 @@ void MultiFitEngine::setEngineParameters(const CommandOptions & val)
   updateFromOptions(val, "end-threshold", endThreshold);
   updateFromOptions(val, "relative-min", relativeMin);
   updateFromOptions(val, "trial-steps", maxTries);
-  updateFromOptions(val, "scaling", useScaling);
+  updateFromOptions(val, "scaling", scaleByMagnitude);
+  updateFromOptions(val, "global-scaling-order", globalScalingOrder);
   updateFromOptions(val, "residuals-threshold", residualsThreshold);
 }
 
@@ -306,8 +317,48 @@ const gsl_vector * MultiFitEngine::currentParameters() const
 
 void MultiFitEngine::scaleJacobian()
 {
+  useScaling = false;
+    
+  if(scaleByMagnitude) {
+    useScaling = true;
+    for(int i = 0; i < n; i++) {
+      const FreeParameter * fp = fitData->allParameters[i];
+      if(fp->fitIndex != i)
+        throw InternalError("Fit parameters numbering inconsistency: %1 vs %2").
+          arg(fp->fitIndex).arg(i);
+      int ds = fp->dsIndex, prm = fp->paramIndex;
+      gsl_vector * v = jacobian->parameterVector(prm, ds);
+      double nrm = gsl_blas_dnrm2(v);
+      if(nrm == 0)
+        nrm = 1;
+      nrm = 1/nrm;
+      gsl_vector_set(scalingFactors, i, nrm);
+    }
+  }
+  else {
+    for(int i = 0; i < n; i++)
+      gsl_vector_set(scalingFactors, i, 1);
+  }
+
+  if(globalScalingOrder != 0) {
+    useScaling = true;
+    for(int i = 0; i < n; i++) {
+      const FreeParameter * fp = fitData->allParameters[i];
+      if(fp->fitIndex != i)
+        throw InternalError("Fit parameters numbering inconsistency: %1 vs %2").
+          arg(fp->fitIndex).arg(i);
+      if(fp->global()) {
+        double fact = pow(fitData->datasets.size(), globalScalingOrder);
+        double v = gsl_vector_get(scalingFactors, i);
+        gsl_vector_set(scalingFactors, i, v*fact);
+      }
+    }
+  }
   if(! useScaling)
     return;
+
+
+  // Actually do the scaling
   for(int i = 0; i < n; i++) {
     const FreeParameter * fp = fitData->allParameters[i];
     if(fp->fitIndex != i)
@@ -315,12 +366,8 @@ void MultiFitEngine::scaleJacobian()
         arg(fp->fitIndex).arg(i);
     int ds = fp->dsIndex, prm = fp->paramIndex;
     gsl_vector * v = jacobian->parameterVector(prm, ds);
-    double nrm = gsl_blas_dnrm2(v);
-    if(nrm == 0)
-      nrm = 1;
-    nrm = 1/nrm;
-    gsl_vector_scale(v, nrm);
-    gsl_vector_set(scalingFactors, i, nrm);
+    double fact = gsl_vector_get(scalingFactors, i);
+    gsl_vector_scale(v, fact);
   }
   if(fitData->debug > 0) {
     // Dump the scaling factors
@@ -548,4 +595,4 @@ static FitEngine * multiFE(FitData * d)
   return new MultiFitEngine(d);
 }
 
-static FitEngineFactoryItem lmsder("multi", "Multi", &multiFE);
+static FitEngineFactoryItem multi("multi", "Multi", &multiFE, &MultiFitEngine::options, true);

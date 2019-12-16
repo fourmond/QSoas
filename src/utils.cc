@@ -35,7 +35,12 @@ static QStringList dirGlob(QString directory, QString str,
     rets << dir.filePath(".");
     return rets;
   }
-  QDir::Filters filters = QDir::Dirs | QDir::CaseSensitive | QDir::NoDot;
+  QDir::Filters filters = QDir::Dirs | QDir::NoDot;
+
+#ifdef Q_OS_LINUX
+  filters |= QDir::CaseSensitive;
+#endif
+  
   if(! isDir)
     filters |= QDir::Files;
   if(! ((isDir && parentOK) || str.startsWith(".")) )
@@ -94,6 +99,20 @@ QStringList Utils::glob(const QString & pattern, bool trim, bool isDir)
   }
 
   return lst;
+}
+
+
+QString Utils::getWritablePath(const QString & file)
+{
+  QFileInfo info(file);
+  if(info.isAbsolute())
+    return file;
+  
+  QDir cur = QDir::current();
+  info.setFile(cur, ".");
+  if(! info.isWritable())
+    cur = QDir::home();
+  return cur.absoluteFilePath(file);
 }
 
 QStringList Utils::stringsStartingWith(const QStringList & strings, 
@@ -210,6 +229,33 @@ QString Utils::joinSortedList(QStringList list, const QString & glue)
   return list.join(glue);
 }
 
+QStringList Utils::nestedSplit(const QString & str, const QChar & delim,
+                               const QString & opening,
+                               const QString & closing)
+{
+  QStringList rv;
+  QString cur;
+  int nest = 0;
+  for(int i = 0; i < str.size(); i++) {
+    QChar c = str[i];
+    if(opening.contains(c)) {
+      nest += 1;
+    }
+    else if(closing.contains(c)) {
+      nest -= 1;
+    }
+    else if(c == delim) {
+      if(nest == 0) {
+        rv << cur;
+        cur = "";
+        continue;
+      }
+    }
+    cur.append(c);
+  }
+  rv << cur;
+  return rv;
+}
 
 
 bool Utils::askConfirmation(const QString & what, 
@@ -636,7 +682,7 @@ int Utils::stringToInt(const QString & str)
 {
   bool ok = false;
   int v;
-  if(str.startsWith("0x") || str.startsWith("0x")) {
+  if(str.startsWith("0x") || str.startsWith("0X")) {
     v = str.mid(2).toInt(&ok, 16);
   }
   else
@@ -800,6 +846,24 @@ double Utils::random()
   return x;
 }
 
+double Utils::random(double low, double high, bool log)
+{
+  double x = Utils::random();
+  double sign = 1;
+  if(low < 0)
+    sign = -1;
+  if(log) {
+    if(high*low < 0)
+      throw RuntimeError("Cannot use logarithm when range crosses 0");
+    low = ::log(low*sign);
+    high = ::log(high*sign);
+  }
+  x = low + (high - low)*x;
+  if(log)
+    return sign * exp(x);
+  return x;
+}
+
 double Utils::magnitude(double value, bool below)
 {
   double sgn = (value < 0 ? -1.0 : 1.0);
@@ -823,9 +887,64 @@ void Utils::skippingCopy(const double * source, double * target,
 }
 
 
-// Memory use
 
-int Utils::memoryUsed()
+QColor Utils::gradientColor(double value,
+                            const QList<QPair<double, QColor> > & c,
+                            bool hsv)
 {
-  return 0;
+  QList<QPair<double, QColor> > colors = c;
+  std::sort(colors.begin(), colors.end(), [](const QPair<double, QColor> & a, const QPair<double, QColor> & b) -> bool {
+      return a.first < b.first;
+    }
+    );
+  if(value < colors.first().first)
+    return colors.first().second;
+
+
+  for(int i = 1; i < colors.size(); i++) {
+    if(value < colors[i].first) {
+      double l = colors[i-1].first;
+      QColor lc = colors[i-1].second;
+      double r = colors[i].first;
+      QColor rc = colors[i].second;
+      double alpha = (r - value)/(r - l);
+
+      qreal a1,a2,b1,b2,c1,c2;
+      if(hsv) {
+        lc.getHsvF(&a1, &b1, &c1);
+        rc.getHsvF(&a2, &b2, &c2);
+      }
+      else {
+        lc.getRgbF(&a1, &b1, &c1);
+        rc.getRgbF(&a2, &b2, &c2);
+      }
+      a1 = alpha*a1 + (1 - alpha)*a2;
+      b1 = alpha*b1 + (1 - alpha)*b2;
+      c1 = alpha*c1 + (1 - alpha)*c2;
+      if(hsv) {
+        lc.setHsvF(a1, b1, c1);
+      }
+      else {
+        lc.setRgbF(a1, b1, c1);
+      }
+      return lc;
+    }
+  }
+
+  return colors.last().second;
+}
+
+
+void Utils::drawRichText(QPainter * painter, const QRectF &rectangle,
+                         int flags, const QString &text,
+                         QRectF *boundingRect)
+{
+  QStaticText t(text);
+  t.setTextWidth(rectangle.width());
+  Qt::Alignment al =
+    (Qt::Alignment) flags & (Qt::AlignHorizontal_Mask | Qt::AlignVertical_Mask);
+  t.setTextOption(QTextOption(al));
+
+  QSizeF sz = t.size();
+  painter->drawStaticText(rectangle.topLeft(), t);
 }

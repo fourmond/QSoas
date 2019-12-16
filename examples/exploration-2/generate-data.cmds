@@ -1,0 +1,4 @@
+generate-buffer 0 10
+sim-gaussian gaussian.params 0
+apply-formula 'y+=0.1*sin((i+100)**2)'
+a data.dat

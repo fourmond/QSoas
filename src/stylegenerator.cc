@@ -106,7 +106,7 @@ public:
     end = ::colorToVector(e);
   };
 
-  virtual QPen nextStyle() {
+  virtual QPen nextStyle() override {
     // Assume RGB color space:
     double d = (totalNumber > 1 ? totalNumber - 1 : 100);
     double alpha = idx++ / d;
@@ -158,7 +158,7 @@ public:
       throw InternalError("Need 2 colors or more to make a gradient");
   };
 
-  virtual QPen nextStyle() {
+  virtual QPen nextStyle() override {
     // Assume RGB color space:
     double d = (totalNumber > 1 ? totalNumber - 1 : 100);
     double alpha = idx++ / d * (colors.size() - 1);

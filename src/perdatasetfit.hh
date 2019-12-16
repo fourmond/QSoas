@@ -33,15 +33,15 @@ class PerDatasetFit : public Fit {
 public:
   /// Redefined to wrap to a call to the per-dataset function
   virtual void function(const double * parameters,
-                        FitData * data, gsl_vector * target) const;
+                        FitData * data, gsl_vector * target) const override;
 
   /// Reimplemented for performance :
   virtual void functionForDataset(const double * parameters,
                                   FitData * data, gsl_vector * target, 
-                                  int dataset) const;
+                                  int dataset) const override;
 
   /// Redefined to wrap to a call to the per-dataset function
-  virtual void initialGuess(FitData * data, double * guess) const;
+  virtual void initialGuess(FitData * data, double * guess) const override;
 
   /// Computes the function for a single data set.
   ///
@@ -54,7 +54,7 @@ public:
 
   /// Defined to give nothing by default, as it doesn't make any sense
   /// for these kinds of fits.
-  virtual QString annotateDataSet(int idx, FitData * data) const;
+  virtual QString annotateDataSet(int idx, FitData * data) const override;
 
 
   /// Provides an initial guess for the given dataset:
@@ -74,7 +74,7 @@ public:
   virtual void computeSubFunctions(const double * parameters,
                                    FitData * data, 
                                    QList<Vector> * targetData,
-                                   QStringList * targetAnnotations) const;
+                                   QStringList * targetAnnotations) const override;
 
   virtual void computeSubFunctions(const double * parameters,
                                    FitData * data, 
@@ -92,7 +92,7 @@ public:
   virtual void function(const double * parameters,
                         FitData * data, 
                         const DataSet * ds,
-                        gsl_vector * target) const;
+                        gsl_vector * target) const override;
 
   /// Computes the Y value for the given \a x.
   virtual double function(const double * parameters, 

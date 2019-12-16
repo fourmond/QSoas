@@ -81,13 +81,26 @@
 
 #include <QPainterPath>
 #include <QPainter>
+#include <QPicture>
 
 // Printing
 #include <QPrinter>
 #include <QPrintDialog>
+#include <QPrintPreviewDialog>
 
 // SVG export
 #include <QSvgGenerator>
+
+// All bitmap stuffs
+#include <QImage>
+#include <QPixmap>
+#include <QImageWriter>
+
+// Playing with text
+#include <QFont>
+#include <QFontDatabase>
+#include <QStaticText>
+
 
 // Signals with sender !
 #include <QSignalMapper>
@@ -97,6 +110,7 @@
 
 // A rich text viewer (and editor?).
 #include <QTextEdit>
+#include <QTextCursor>
 
 // Desktop stuff
 #include <QUrl>
@@ -146,6 +160,17 @@
 #include <QTcpSocket>
 #include <QTcpServer>
 
+
+
+
+
+// JSON support
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonValue>
+#include <QJsonParseError>
+
 // We do C++ sometimes
 #include <stdexcept>
 #include <functional>
@@ -154,6 +179,9 @@
 #include <cmath>
 
 #include <mruby.h>
+
+
+
 
 #endif
 
@@ -166,7 +194,6 @@
 #endif
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
-#include <gsl/gsl_multifit_nlin.h>
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_interp.h>
 #include <gsl/gsl_permutation.h>

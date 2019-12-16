@@ -63,6 +63,11 @@ public:
   /// changed. Then one updates the editors...
   bool dataChanged() const;
 
+protected:
+  /// Propagate parameters using the given sort function, which should
+  /// sort by increasing column.
+  void propagate(std::function<bool (const QModelIndex & a, const QModelIndex & b)>);
+
 protected slots:
 
   /// Shows a context menu to modify a few things...
@@ -74,6 +79,9 @@ protected slots:
 
   /// Propagates the values of the parameters at the top down
   void propagateDown();
+
+  /// Propagates the values of the parameters at the bottom up
+  void propagateUp();
 
   /// Interpolate the parameters between beginning and end (using
   /// column number values).

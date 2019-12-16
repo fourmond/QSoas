@@ -1,0 +1,10 @@
+define-kinetic-system-fit cycle-1.qsys cycle-1 /redefine=true
+define-kinetic-system-fit cycle-2.qsys cycle-2 /redefine=true
+
+generate-buffer 0 7
+sim-cycle-1 parameters/cycle-1.params 0
+sim-cycle-2 parameters/cycle-1.params 0
+S 1 0
+assert '$stats["y_norm"]' 0
+
+

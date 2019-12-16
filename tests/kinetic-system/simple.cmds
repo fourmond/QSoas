@@ -1,5 +1,11 @@
-define-kinetic-system-fit simple.sys simple /redefine=true
+define-kinetic-system-fit simple.qsys simple /redefine=true
 generate-buffer 0 7
+
 sim-simple parameters/simple-1.params 0
 apply-formula 'y-= (2.0/3.0) * exp(-3*x) + 1/3.0'
+assert '$stats["y_norm"]' 1e-11
+
+# Check mass conservation
+sim-simple parameters/simple-1.params 0 /override="y_B=1"
+apply-formula 'y-= 1'
 assert '$stats["y_norm"]' 1e-11

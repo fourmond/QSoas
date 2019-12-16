@@ -74,7 +74,7 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
     QStringList elements = splitter(line.trimmed());
     /// @todo customize trimming.
     while(curCols->size() < elements.size()) {
-      *curCols << Vector(numberRead, 0.0/0.0);
+      *curCols << Vector(numberRead, std::nan(""));
       curCols->last().reserve(10000); // Most files won't be as large
     }
     int nbNans = 0;
@@ -85,7 +85,7 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
         s.replace(decimalSep, ".");
       double value = locale.toDouble(s, &ok);
       if(! ok)
-        value = 0.0/0.0; /// @todo customize
+        value = std::nan(""); /// @todo customize
       if(value != value)
         nbNans++;
       (*curCols)[i] << value;
@@ -153,7 +153,7 @@ double Vector::min() const
     d++;
   }
   if(! sz)
-    return 0.0/0.0;
+    return std::nan("");
   double m = d[0];
   for(int i = 1; i < sz; i++)
     if(d[i] < m)
@@ -170,7 +170,7 @@ double Vector::finiteMin() const
     d++;
   }
   if(! sz)
-    return 0.0/0.0;
+    return std::nan("");
   double m = d[0];
   for(int i = 1; i < sz; i++) {
     if(! std::isfinite(d[i]))
@@ -217,7 +217,7 @@ double Vector::max() const
     d++;
   }
   if(! sz)
-    return 0.0/0.0;
+    return std::nan("");
   double m = d[0];
   for(int i = 1; i < sz; i++)
     if(d[i] > m)
@@ -234,7 +234,7 @@ double Vector::finiteMax() const
     d++;
   }
   if(! sz)
-    return 0.0/0.0;
+    return std::nan("");
   double m = d[0];
   for(int i = 1; i < sz; i++) {
     if(! std::isfinite(d[i]))
@@ -265,7 +265,7 @@ double Vector::magnitude() const
 {
   int sz = size();
   if(! sz)
-    return 0.0/0.0;
+    return std::nan("");
   const double * d = data();
   double m = d[0];
   for(int i = 1; i < sz; i++)
@@ -523,7 +523,7 @@ void Vector::deltaStats(double * pdmin, double * pdmax) const
     *pdmax = dmax;
 }
 
-void Vector::stats(double * average, double * variance) const
+void Vector::stats(double * average, double * variance, double * sum) const
 {
   *average = 0;
   *variance = 0;
@@ -533,6 +533,8 @@ void Vector::stats(double * average, double * variance) const
     *average += val;
     *variance += val*val;
   }
+  if(sum)
+    *sum = *average;
   *average /= sz;
   *variance /= sz;
   *variance -= (*average * *average);
@@ -897,6 +899,90 @@ Vector Vector::values(double tolerance) const
     int idx = rv.bfind(d[i]);
     if(idx >= rv.size() || (! Utils::fuzzyCompare(d[i], rv[idx], tolerance)))
       rv.insert(idx, d[i]);
+  }
+  return rv;
+}
+
+bool Vector::withinTolerance(const Vector & x, const Vector & y, double tol)
+{
+  int sz = x.size();
+  if(sz != y.size())
+    return false;
+
+  for(int i = 0; i < sz; i++) {
+    if(x[i] == 0) {
+      if(y[i] == 0)
+        continue;
+      else
+        return false;
+    }
+    if(fabs((x[i] - y[i])/x[i]) > tol)
+      return false;
+  }
+  return true;
+}
+
+void Vector::randomize(double low, double high)
+{
+  int sz = size();
+  for(int i = 0; i < sz; i++) {
+    double scale = Utils::random(low, high);
+    (*this)[i] *= scale;
+  }
+}
+
+/// Very dumb class to classify data by order of magnitude
+class Order {
+  double logSum;
+public:
+  Vector xvals, yvals;
+
+  void append(double x, double y) {
+    xvals << x;
+    yvals << y;
+    logSum += log10(y);
+  };
+
+  Order(double x, double y) : logSum(0) {
+    append(x, y);
+  };
+
+  /// Returns true if
+  bool isMine(double y, double mag = 1.5) const {
+    y = log10(y);
+    if(fabs(y - logSum/xvals.size()) < mag)
+      return true;
+    return false;
+  };
+
+  
+  
+};
+
+QList<QList<Vector> > Vector::orderOfMagnitudeClassify(const Vector & xv,
+                                                       const Vector & yv,
+                                                       double tolerance)
+{
+  QList<Order> mags;
+  for(int i = 0; i < xv.size(); i++) {
+    bool found = false;
+    double x = xv[i], y = yv[i];
+    for(Order & o : mags) {
+      if(o.isMine(y)) {
+        o.append(x,y);
+        found = true;
+        break;
+      }
+    }
+    if(! found) {
+      mags << Order(x,y);
+    }
+  }
+  QList<QList<Vector> > rv;
+  for(const Order & t : mags) {
+    QList<Vector> cols;
+    cols << t.xvals << t.yvals;
+    rv << cols;
   }
   return rv;
 }

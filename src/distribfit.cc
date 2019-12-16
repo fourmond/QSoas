@@ -1,6 +1,6 @@
 /*
   distribfit.cc: fit with automatic fitting of the distrib
-  Copyright 2012, 2013 by CNRS/AMU
+  Copyright 2015,2016 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_cdf.h>
 
+
 QHash<QString, Distribution *> * Distribution::distributions = NULL;
 
 Distribution::Distribution(const QString & n) : name(n)
@@ -41,6 +42,10 @@ Distribution::Distribution(const QString & n) : name(n)
   if(! distributions)
     distributions = new QHash<QString, Distribution *>;
   (*distributions)[n] = this;
+}
+
+Distribution::~Distribution()
+{
 }
 
 QStringList Distribution::availableDistributions()
@@ -62,13 +67,15 @@ double Distribution::convertParameter(const double *, double value) const
   return value;
 }
 
+
+
 //////////////////////////////////////////////////////////////////////
 // Now, several distributions
 
 // Gaussian distribution
 class GaussianDistribution : public Distribution {
 public:
-  virtual QList<ParameterDefinition> parameters(const QString & param) const {
+  virtual QList<ParameterDefinition> parameters(const QString & param) const override {
     QList<ParameterDefinition> ret;
     ret << ParameterDefinition(QString("%1_avg").arg(param))
         << ParameterDefinition(QString("%1_sigma").arg(param))
@@ -77,26 +84,28 @@ public:
   };
   
   void range(const double * parameters, double * first,
-             double * last) const {
+             double * last) const override {
     double center = parameters[0];
     double sigm = parameters[1];
+    if(sigm < 0)
+      throw RangeError("sigma must be positive");
     double ext = parameters[2];
     *first = center - fabs(sigm * ext);
     *last = center + fabs(sigm * ext);
   };
   
-  virtual double weight(const double * parameters, double x) const {
+  virtual double weight(const double * parameters, double x) const override {
     double center = parameters[0];
     double sigm = parameters[1];
     return gsl_ran_gaussian_pdf(x - center, sigm);
   };
   
-  virtual double rangeWeight(const double * parameters) const {
+  virtual double rangeWeight(const double * parameters) const override {
     double ext = parameters[2];
     return 2 * gsl_cdf_gaussian_P(ext, 1) - 1;
   }
   
-  virtual void initialGuess(double * parameters, double value) const {
+  virtual void initialGuess(double * parameters, double value) const override {
     parameters[0] = value;
     parameters[1] = fabs(value * 0.1);
     if(parameters[1] == 0)
@@ -114,7 +123,7 @@ static GaussianDistribution gaussianDistribution;
 // Lorentzian distribution
 class LorentzianDistribution : public Distribution {
 public:
-  virtual QList<ParameterDefinition> parameters(const QString & param) const {
+  virtual QList<ParameterDefinition> parameters(const QString & param) const override {
     QList<ParameterDefinition> ret;
     ret << ParameterDefinition(QString("%1_avg").arg(param))
         << ParameterDefinition(QString("%1_gamma").arg(param))
@@ -123,26 +132,28 @@ public:
   };
   
   void range(const double * parameters, double * first,
-             double * last) const {
+             double * last) const override {
     double center = parameters[0];
     double sigm = parameters[1];
+    if(sigm < 0)
+      throw RangeError("gamma must be positive");
     double ext = parameters[2];
     *first = center - fabs(sigm * ext);
     *last = center + fabs(sigm * ext);
   };
   
-  virtual double weight(const double * parameters, double x) const {
+  virtual double weight(const double * parameters, double x) const override {
     double center = parameters[0];
     double sigm = parameters[1];
     return gsl_ran_cauchy_pdf(x - center, sigm);
   };
   
-  virtual double rangeWeight(const double * parameters) const {
+  virtual double rangeWeight(const double * parameters) const override {
     double ext = parameters[2];
     return 2 * gsl_cdf_cauchy_P(ext, 1) - 1;
   }
   
-  virtual void initialGuess(double * parameters, double value) const {
+  virtual void initialGuess(double * parameters, double value) const override {
     parameters[0] = value;
     parameters[1] = fabs(value * 0.1);
     if(parameters[1] == 0)
@@ -166,7 +177,7 @@ static LorentzianDistribution lorentzianDistribution;
 // Integrated between d = 0 and dmax (uniform distribution).
 class K0Distribution : public Distribution {
 public:
-  virtual QList<ParameterDefinition> parameters(const QString & param) const {
+  virtual QList<ParameterDefinition> parameters(const QString & param) const override {
     QList<ParameterDefinition> ret;
     ret << ParameterDefinition(QString("%1_max").arg(param))
         << ParameterDefinition(QString("%1_betadmax").arg(param));
@@ -174,25 +185,28 @@ public:
   };
   
   void range(const double * parameters, double * first,
-             double * last) const {
+             double * last) const override {
     *first = 0; 
     *last = parameters[1];
+    if(parameters[1] < 0)
+      throw RangeError("betadmax must be positive");
+
   };
   
-  virtual double weight(const double * parameters, double ) const {
+  virtual double weight(const double * parameters, double ) const override {
     return 1/parameters[1];
   };
   
-  virtual double rangeWeight(const double * parameters) const {
+  virtual double rangeWeight(const double * parameters) const override {
     return 1;
   }
   
-  virtual void initialGuess(double * parameters, double value) const {
+  virtual void initialGuess(double * parameters, double value) const override {
     parameters[0] = value;
     parameters[1] = 10;
   };
 
-  virtual double convertParameter(const double * parameters, double value) const {
+  virtual double convertParameter(const double * parameters, double value) const override {
     double k0 = parameters[0];
     return k0 * exp(-value);
   };
@@ -207,7 +221,7 @@ static K0Distribution k0Distribution;
 // Uniform distribution between two values
 class UniformDistribution : public Distribution {
 public:
-  virtual QList<ParameterDefinition> parameters(const QString & param) const {
+  virtual QList<ParameterDefinition> parameters(const QString & param) const override {
     QList<ParameterDefinition> ret;
     ret << ParameterDefinition(QString("%1_min").arg(param))
         << ParameterDefinition(QString("%1_max").arg(param));
@@ -215,20 +229,20 @@ public:
   };
   
   void range(const double * parameters, double * first,
-             double * last) const {
+             double * last) const override {
     *first = parameters[0]; 
     *last = parameters[1];
   };
   
-  virtual double weight(const double * parameters, double ) const {
+  virtual double weight(const double * parameters, double ) const override {
     return 1/(parameters[1] - parameters[0]);
   };
   
-  virtual double rangeWeight(const double * parameters) const {
+  virtual double rangeWeight(const double * parameters) const override {
     return 1;
   }
   
-  virtual void initialGuess(double * parameters, double value) const {
+  virtual void initialGuess(double * parameters, double value) const override {
     if(value == 0) {
       parameters[0] = -0.1;
       parameters[1] = 0.1;
@@ -333,7 +347,7 @@ void DistribFit::processSoftOptions(const CommandOptions & opts, FitData * data)
   {
     TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
                                            s->sub);
-    Fit::processOptions(underlyingFit, opts, data);
+    Fit::processSoftOptions(underlyingFit, opts, data);
   }
   if(s->integrator)
     delete s->integrator;

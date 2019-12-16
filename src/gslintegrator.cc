@@ -39,7 +39,7 @@ protected:
   int key;
  
 
-  virtual int subdivisions() const {
+  virtual int subdivisions() const override {
     return max;
   };
 
@@ -52,11 +52,11 @@ public:
 
   /// Integrate over a segment
   virtual double integrateSegment(const std::function<double (double)> & f, 
-                                  double a, double b, double * error = NULL);
+                                  double a, double b, double * error = NULL) override;
                           
 
   /// Returns the number of intervals used for the last computation
-  int intervals() const {
+  int intervals() const override {
     return workspace->size;
   };
 };
@@ -148,11 +148,11 @@ public:
 
   /// Integrate over a segment
   virtual double integrateSegment(const std::function<double (double)> & f, 
-                                  double a, double b, double * error = NULL);
+                                  double a, double b, double * error = NULL) override;
                           
 
   /// Returns the number of intervals used for the last computation
-  int intervals() const {
+  int intervals() const override {
     return 1;
   };
 };

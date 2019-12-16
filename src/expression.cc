@@ -193,6 +193,11 @@ mrb_value Expression::rubyEvaluation(const double * values) const
   return rv;
 }
 
+mrb_value Expression::evaluateAsRuby(const double * values) const
+{
+  return rubyEvaluation(values);
+}
+
 double Expression::evaluate(const double * values) const
 {
   // QMutexLocker m(&Ruby::rubyGlobalLock);

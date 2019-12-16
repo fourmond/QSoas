@@ -78,20 +78,20 @@ public:
   void setupCallback(const std::function <void (double, double *)> & cb);
 
   
-  virtual bool hasReporters() const {
+  virtual bool hasReporters() const override {
     return reporters != 0;
   };
 
   /// Returns the set of values defined by the reporters expression --
   /// or the values of the variables should there not be any
   /// expression.
-  virtual Vector reporterValues() const;
+  virtual Vector reporterValues() const override;
 
   virtual ~RubyODESolver();
 
-  virtual int dimension() const;
+  virtual int dimension() const override;
   virtual int computeDerivatives(double t, const double * y, 
-                                 double * dydt);
+                                 double * dydt) override;
 
   /// The variables being integrated (in the order in which they are
   /// found in the values

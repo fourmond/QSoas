@@ -32,13 +32,26 @@ class FitParametersFile {
 public:
 
   /// The names of the datasets, as guessed from the comments
-  QHash<int, QString> datasetNames;
+  // QHash<int, QString> datasetNames;
 
   /// The original name of the fit
   QString fitName;
 
   /// Comments (all of them)
   QStringList comments;
+
+  /// An index buffer name -> dataset number
+  QHash<QString, int> bufferByName;
+
+  /// A number -> name correspondance
+  QHash<int, QString> bufferNames;
+  
+  /// An index Z value -> dataset number
+  QHash<QString, int> bufferByZ;
+
+  /// The list of the Z values for each buffer
+  QHash<int, double> bufferZValues;
+  
   
   class Parameter {
   public:
@@ -60,7 +73,7 @@ public:
     };
 
     void replaceParameter(FitParameter * & parameter, double * tg, 
-                          int idx, int ds);
+                          int idx, int ds) const;
   };
 
   /// Parameters (or pseudo-parameters) defined in the file
@@ -82,7 +95,10 @@ public:
 
   /// Returns the values of the parameters as a function of Z.
   ///
-  QHash<QString,DataSet> parameterValuesAsfZ(bool makeupZ = false) const;  
+  QHash<QString,DataSet> parameterValuesAsfZ(bool makeupZ = false) const;
+
+  /// Just dumps the contents of the file to the given output
+  void dump(QTextStream & out) const;
 };
 
 #endif

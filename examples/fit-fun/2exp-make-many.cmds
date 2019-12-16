@@ -1,0 +1,2 @@
+generate-buffer 0 20
+run-for-each 2exp-one.cmds 0..1:100 /range-type=lin

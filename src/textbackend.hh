@@ -37,13 +37,13 @@ protected:
   /// The comments lines
   Regex comments;
   virtual int couldBeMine(const QByteArray & peek, 
-                          const QString & fileName) const;
+                          const QString & fileName) const override;
 
-  virtual ArgumentList * loadOptions() const;
+  virtual ArgumentList * loadOptions() const override;
 
   virtual QList<DataSet *> readFromStream(QIODevice * stream,
                                    const QString & fileName,
-                                   const CommandOptions & opts) const;
+                                   const CommandOptions & opts) const override;
 
   virtual ValueHash parseComments(const QStringList & cmts) const;
 

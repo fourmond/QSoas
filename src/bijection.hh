@@ -47,7 +47,7 @@ public:
   QStringList parameters;
 
   /// Creates and register a factory item.
-  BijectionFactoryItem(Creator c);
+  explicit BijectionFactoryItem(Creator c);
 };
 
 /// A Bijection is a two way transformation from R to a possibly

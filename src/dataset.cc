@@ -110,7 +110,7 @@ QString DataSet::stringDescription(bool longDesc) const
     val += "Meta-data:";
     val += metaData.prettyPrint(3, "\t", ",", true);
     if(perpCoords.size() > 0) {
-      val += "Perpendicular coordinates: " + perpCoords.asText().join(", ") + "\n";
+      val += "\nPerpendicular coordinates: " + perpCoords.asText().join(", ") + "\n";
     }
     return val;
   }
@@ -621,13 +621,13 @@ static void reglin(const double *x, const double *y, int nb,
   }
 }
 
-QPair<double, double> DataSet::reglin(int begin, int end) const
+QPair<double, double> DataSet::reglin(int begin, int end, int ycol) const
 {
   int nb = nbRows();
   if(end < 0 || end > nb)
     end = nb;
   const double * x = columns[0].data();
-  const double * y = columns[1].data();
+  const double * y = columns[ycol].data();
   QPair<double, double> retval;
   ::reglin(x + begin, y + begin, (end - begin), 
            &retval.first, &retval.second);
@@ -679,8 +679,11 @@ void DataSet::reverse()
 
 DataSet * DataSet::subset(int beg, int end, bool within) const
 {
+  
   QList<Vector> cols;
   int nb = nbRows();
+  if(columns.size() == 0 || nb == 0)
+    throw RuntimeError("Trying to make a subset of an empty dataset");
   // Sanity checking for indices
   if(beg < 0)
     beg = 0;
@@ -719,6 +722,7 @@ DataSet * DataSet::subset(int beg, int end, bool within) const
         newSegs << idx - (end - beg);
     }
   }
+
 
   DataSet * ds = derivedDataSet(cols, QString("_%1from_%2_to_%3.dat").
                                 arg(within ? "" : "excl_").
@@ -830,6 +834,9 @@ double DataSet::yValueAt(double x, bool interpolate) const
     double dx = xvals[i] - x;
     if(dx*lastdx <= 0) {        // sign change, we passed it !
       if(interpolate) {
+        if(lastdx == dx)
+          return 0.5*(yvals[i] + yvals[i-1]);
+        // Take care of the case when two successive X values are identical
         return (lastdx * yvals[i] - dx * yvals[i-1])/(lastdx - dx);
       }
       else {
@@ -1228,6 +1235,18 @@ DataSet * DataSet::secondDerivative() const
 DataSet * DataSet::arbitraryDerivative(int deriv, int order) const
 {
   int size = x().size();
+  Vector res = x();
+
+  arbitraryDerivative(deriv, order, size, x().constData(),
+                      y().constData(), res.data());
+  
+  return derivedDataSet(res, QString("_diff%1o%2").arg(deriv).arg(order-1));
+}
+
+void DataSet::arbitraryDerivative(int deriv, int order, int size,
+                                  const double * x, const double * y,
+                                  double * target)
+{
   if(size < order)
     throw RuntimeError("Need at least %1 points for a derivate of order %2").
       arg(order+1).arg(order);
@@ -1237,11 +1256,6 @@ DataSet * DataSet::arbitraryDerivative(int deriv, int order) const
       arg(order+1).arg(order);
 
   order += 1;
-
-  const double *x = this->x().data();
-  const double *y = this->y().data();
-
-  Vector res;
 
   gsl_matrix * mat = gsl_matrix_alloc(order, order);
   gsl_vector * rhs = gsl_vector_alloc(order);
@@ -1270,16 +1284,13 @@ DataSet * DataSet::arbitraryDerivative(int deriv, int order) const
     int sgn;
     gsl_linalg_LU_decomp(mat, perm, &sgn);
     gsl_linalg_LU_solve(mat, perm, rhs, dervs);
-    res << gsl_vector_get(dervs, deriv);
+    target[i] = gsl_vector_get(dervs, deriv);
   }
 
   gsl_matrix_free(mat);
   gsl_vector_free(rhs);
   gsl_vector_free(dervs);
   gsl_permutation_free(perm);
-
-
-  return derivedDataSet(res, QString("_diff%1o%2").arg(deriv).arg(order-1));
 }
 
 
@@ -1371,11 +1382,6 @@ void DataSet::clearMetaData(const QString & name)
   metaData.remove(name);
 }
 
-const ValueHash & DataSet::getMetaData() const
-{
-  return metaData;
-}
-
 QVariant DataSet::getMetaData(const QString & val) const
 {
   return metaData[val];
@@ -1395,7 +1401,7 @@ const Vector & DataSet::perpendicularCoordinates() const
 void DataSet::setPerpendicularCoordinates(const Vector & vect)
 {
   if(vect.size() > 0 && vect.size() != nbColumns() - 1)
-    throw InternalError("Wrong number of perpendicular coordinates %1 vs %2").
+    throw RuntimeError("Wrong number of perpendicular coordinates: %1 for %2 Y column(s)").
       arg(vect.size()).arg(nbColumns() - 1);
   perpCoords = vect;
 }
@@ -1481,6 +1487,22 @@ QSet<QString> DataSet::allFlags() const
   return flags;
 }
 
+ValueHash DataSet::getMetaData() const
+{
+  ValueHash rv = metaData;
+  rv["name"] = name;
+  if(perpCoords.size() == 1)
+    rv["Z"] = perpCoords[0];
+  else if(perpCoords.size() > 1) {
+    QList<QVariant> l;
+    for(double d : perpCoords)
+      l << d;
+    rv["Zs"] = l;
+  }
+  return rv;
+}
+
+
 mrb_value DataSet::evaluateWithMeta(const QString & expression, bool useStats) const
 {
   SaveGlobal _a("$stats");
@@ -1491,7 +1513,6 @@ mrb_value DataSet::evaluateWithMeta(const QString & expression, bool useStats) c
     mr->setGlobal("$stats", st.toRuby());
   }
   ValueHash vl = getMetaData();
-  vl["name"] = name;
   mr->setGlobal("$meta", vl.toRuby());
   return mr->eval(expression);
 }
@@ -1505,8 +1526,7 @@ mrb_value DataSet::evaluateWithMeta(const QString & expression, bool useStats,  
     Statistics st(this);
     mr->setGlobal("$stats", st.toRuby());
   }
-  ValueHash vl = metaData;
-  vl["name"] = name;
+  ValueHash vl = getMetaData();
   mr->setGlobal("$meta", vl.toRuby());
   mrb_value v = mr->eval(expression);
   if(modifyMeta)

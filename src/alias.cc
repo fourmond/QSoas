@@ -19,6 +19,8 @@
 
 #include <headers.hh>
 #include <command.hh>
+#include <commandcontext.hh>
+#include <soas.hh>
 #include <group.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
@@ -65,23 +67,22 @@ public:
   /// The default options. They are not parsed yet.
   QMultiHash<QString, QString> defaultOptions;
 
-  virtual bool needsLoop() const {
+  virtual bool needsLoop() const override {
     return targetCommand->effector->needsLoop();
   };
 
   /// Arguments to come later ?
 
 
-  Alias(Command * tg) : CommandEffector(tg->effector->isInteractive()),
-                        targetCommand(tg) {
+  explicit Alias(Command * tg) : CommandEffector(tg->effector->isInteractive()),
+                                 targetCommand(tg) {
   };
 
   virtual void runCommand(const QString & commandName, 
                           const CommandArguments & arguments,
-                          const CommandOptions & options) {
+                          const CommandOptions & options) override {
 
-    PossessiveHash<QString, ArgumentMarshaller> args = 
-      targetCommand->parseOptions(defaultOptions);
+    PossessiveHash<QString, ArgumentMarshaller> args(targetCommand->parseOptions(defaultOptions));
     CommandOptions args2 = spliceOptions(args, options);
 
     targetCommand->effector->runCommand(commandName, arguments, args2);
@@ -90,10 +91,9 @@ public:
   virtual void runWithLoop(CurveEventLoop & loop,
                            const QString & commandName, 
                            const CommandArguments & arguments,
-                           const CommandOptions & options)
+                           const CommandOptions & options) override 
   {
-    PossessiveHash<QString, ArgumentMarshaller> args = 
-      targetCommand->parseOptions(defaultOptions);
+    PossessiveHash<QString, ArgumentMarshaller> args(targetCommand->parseOptions(defaultOptions));
     CommandOptions args2 = spliceOptions(args, options);
 
     targetCommand->effector->runWithLoop(loop,commandName, arguments, args2);
@@ -114,7 +114,7 @@ static void defineAliasCommand(const QString &, QString alias,
   // 
   // if(definedAliases.contains(alias))
   //   throw RuntimeError("An alias named %1 already exists !").arg(alias);
-  if(Command::namedCommand(alias))
+  if(soas().commandContext().namedCommand(alias))
     throw RuntimeError("A command named '%1' already exists !").
       arg(alias);
 
@@ -138,7 +138,8 @@ static void defineAliasCommand(const QString &, QString alias,
               groupName.toLocal8Bit(),
               const_cast<ArgumentList*>(cmd->commandArguments()),
               const_cast<ArgumentList*>(cmd->commandOptions()),
-              sh.toLocal8Bit(), sh.toLocal8Bit());
+              sh.toLocal8Bit(), sh.toLocal8Bit(), QByteArray(),
+              &soas().commandContext());
 }
 
 static ArgumentList 

@@ -22,6 +22,7 @@
 #define __FITTRAJECTORY_HH
 
 #include <vector.hh>
+#include <fitworkspace.hh>
 
 class FitData;
 
@@ -42,19 +43,13 @@ public:
   /// The errors on the final parameters
   Vector parameterErrors;
 
+  /// The average point residuals for each buffer
+  Vector pointResiduals;
+
   QVector<bool> fixed;
 
-  typedef enum {
-    Converged,
-    Cancelled,
-    TimeOut,
-    NonFinite,
-    Error,
-    Invalid
-  } Ending;
-
   /// How the fit ended.
-  Ending ending;
+  FitWorkspace::Ending ending;
 
   /// The residuals of the final parameters
   double residuals;
@@ -83,12 +78,19 @@ public:
   /// The number of function evaluations
   int evaluations;
 
+  /// Series of flags attached to the trajectory. Flags cannot contain
+  /// commas.
+  QSet<QString> flags;
+
+  qint64 pid;
+
   FitTrajectory() {
   };
 
   FitTrajectory(const Vector & init, const Vector & final,
                 const Vector & errors, 
                 double res, double rr, double intr, double delta,
+                const Vector & pointRes, // The residuals for each buffer
                 const QString & eng,
                 const QDateTime & start,
                 const FitData * data,
@@ -103,6 +105,11 @@ public:
     return relativeResiduals < o.relativeResiduals;
   };
 
+  bool operator==(const FitTrajectory & o) const;
+
+  /// Returns whether the trajectory has the given flag or not
+  bool flagged(const QString & flag) const;
+
 
   /// Returns true if the argument is within the error range of this
   /// one (that does not necessarily mean that the reverse is true).
@@ -116,13 +123,17 @@ public:
   QStringList exportColumns() const;
 
   /// Does the reverse of exportColumns().
-  void loadFromColumns(const QStringList & cols, int nb);
+  /// 
+  /// If the reading fails because of missing columns, the ok flag is
+  /// set to false
+  void loadFromColumns(const QStringList & cols, int nb, int datasets,
+                       bool *ok = NULL);
 
   static QStringList exportHeaders(const QStringList & paramNames, int nb);
 
-  static QString endingName(Ending end);
+  static QString endingName(FitWorkspace::Ending end);
 
-  static Ending endingFromName(const QString & n);
+  static FitWorkspace::Ending endingFromName(const QString & n);
 };
 
 

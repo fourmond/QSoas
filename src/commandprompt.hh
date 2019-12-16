@@ -81,6 +81,7 @@ class CommandPrompt : public LineEdit {
   /// Performs automatic completion.
   void doCompletion();
 
+  
 public:
 
   CommandPrompt();
@@ -88,13 +89,19 @@ public:
 
 
 protected:
-  virtual void keyPressEvent(QKeyEvent * event);
+  virtual void keyPressEvent(QKeyEvent * event) override;
+  virtual bool event(QEvent *event) override;
 
 signals:
 
   /// Signals the parent that a scroll is requested. The number is the
   /// number of half screens.
   void scrollRequested(int nb);
+
+public slots:
+  /// Sets the prompt to busy mode and sets the given message if the
+  /// string isn't empty, or switch back from busy mode if not
+  void busy(const QString & message = QString());
 
 };
 

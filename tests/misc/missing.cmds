@@ -1,0 +1,4 @@
+# Here a missing command, which shouldn't cause troubles
+generate-buffer 0 1 /samples=101 1
+clearly-missing-command
+assert '$stats["y_avg"] - 1' 0

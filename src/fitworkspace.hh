@@ -24,6 +24,7 @@
 
 
 #include <fitengine.hh>
+#include <fittrajectories.hh>
 #include <possessive-containers.hh>
 #include <vector.hh>
 
@@ -36,16 +37,21 @@ class FitParametersFile;
 class CurveData;
 class DataSet;
 class DataStackHelper;
+class Command;
 
-/// Holds parameters of a fit (possibly multi-buffer), the way the
-/// user edits them. In fact, it holds essentially all that is
-/// necessary to run a fit, from the user's perspective.
+class ParameterSpaceExplorer;
+class OneTimeWarnings;
+
+/// This class holds all the structures necessary to run a fit, from
+/// QSoas's perspective -- setting of parameters
 ///
 /// This class is also responsible for saving/loading the parameters,
 /// for exporting (and importing ?) them and so on.
 ///
 /// @todo Handle import (which is quite different from load).
-class FitWorkspace {
+class FitWorkspace : public QObject {
+
+  Q_OBJECT;
 
   /// The underlying FitData object.
   FitData * fitData;
@@ -55,6 +61,9 @@ class FitWorkspace {
 
   /// The number of datasets
   int datasets;
+
+  /// The current dataset
+  int currentDS;
 
   /// Parameter values (same size as fixed)
   double * values;
@@ -80,6 +89,7 @@ class FitWorkspace {
   int nbParameters;
 
   friend class FitParameterEditor;
+  friend class FitEngine;
 
   /// Returns the given parameter
   const FitParameter * parameter(int idx, int ds) const {
@@ -112,13 +122,24 @@ class FitWorkspace {
   void prepareExport(QStringList & headers, QString & lines, 
                      bool exportErrors = false, bool exportMeta = true);
 
+public:
+
+  OneTimeWarnings * warnings;
+  
   /// Loads parameters from a parsed parameters file.
   ///
   /// If \a targetDS isn't negative, we copy only from \a sourceDS to
   /// the given targetDS.
-  void loadParameters(FitParametersFile & params, int targetDS = -1, 
+  void loadParameters(const FitParametersFile & params, int targetDS = -1, 
                       int sourceDS = 0);
-  
+
+
+  /// Same as loadParameters, but splice the source and target DS
+  /// according to the @a splice parameter, which is a hash target ->
+  /// source. (as a source can be used for several targets)
+  void loadParameters(const FitParametersFile & params,
+                      const QHash<int, int> & splice);
+
   /// Loads the parameter VALUES from a parsed parameters file, taking
   /// into account Z values and interpolating if needed.
   ///
@@ -126,7 +147,7 @@ class FitWorkspace {
   /// and the formulas...
   void loadParametersValues(FitParametersFile & params);
 
-
+private:
   /// This updates the parameters values, by packing from values and
   /// unpacking back to values.
   ///
@@ -152,7 +173,15 @@ class FitWorkspace {
   /// Makes sure the index and datasets are within boundaries. Dataset
   /// can be negative, it will mean "all datasets".
   void checkIndex(int index, int ds) const;
+
+  static FitWorkspace * currentWS;
+
+  /// The commands generated during the initialization of the
+  /// workspace, that must be destroyed upon destruction.
+  QList<Command *> generatedCommands;
 public:
+
+  static FitWorkspace * currentWorkspace();
 
   /// @name Residuals
   ///
@@ -163,8 +192,23 @@ public:
   /// The point-average residuals for each dataset
   Vector pointResiduals;
 
-  /// The overall point residuals
+  /// The overall average point residuals. It is defined as:
+  /// 
+  /// \f[
+  ///   \sqrt{\frac{\sum_i w_i\left(f_i - y_i\right)^2}{\sum_i w_i}}
+  /// \f]
+  /// 
+  /// In which \f$f_i\f$ is the computed function, \f$y_i\f$ the data and
+  /// \f$w_i\f$ the weight of the point.
   double overallPointResiduals;
+
+
+  /// The chi-squared parameter, defined as:
+  /// 
+  /// \f[
+  ///   \sum_i w_i\left(f_i - y_i\right)^2
+  /// \f]
+  double overallChiSquared;
 
   /// The relative residuals for each dataset
   Vector relativeResiduals;
@@ -173,9 +217,50 @@ public:
   double overallRelativeResiduals;
 
   /// Recomputes all the residuals -- assumes that the
-  /// fitData->storage contains the right parameters.
-  void computeResiduals();
+  /// fitData->storage contains the correctly evaluated function.
+  ///
+  /// Optionally calls the setRubyResiduals() function.
+  void computeResiduals(bool setRuby = false);
+
+  /// Sets the following global variables:
+  ///
+  ///  * $residuals -> the values of overallPointResiduals
+  ///  * $detailed_res -> [unspecified as of now]
+  void setRubyResiduals();
   
+  /// @}
+
+  /// @name Parameters "backup"
+  ///
+  /// Storage for several "backups" of parameter values
+  ///
+  /// @{
+
+  /// The initial guess of parameters
+  Vector initialGuess;
+
+  /// Thee backup, i.e. the parameters before starting the fit
+  Vector parametersBackup;
+
+public slots:
+  /// Resets all the parameters to the backup values
+  void resetToBackup();
+
+  /// Resets only those present in @a resetOnly
+  void resetToBackup(const QList<QPair<int, int> > & resetOnly);
+
+  /// Resets all parameters to the initial guess
+  void resetAllToInitialGuess();
+
+  /// Resets the parameters for the current dataset to the initial
+  /// guess.
+  void resetToInitialGuess(int ds);
+
+  /// Resets only those present in @a resetOnly
+  void resetToInitialGuess(const QList<QPair<int, int> > & resetOnly);
+
+public:
+
   /// @}
 
   /// The perpendicular coordinates. FitDialog should make them up
@@ -210,6 +295,18 @@ public:
   
   /// Setting a global parameter effectively sets all the parameters !
   void setValue(int index, int dataset, double val);
+
+  /// Parses a parameter list. Returns a list of index/dataset pairs.
+  ///
+  /// If @a unknowns is provided, adds the names of the parameters
+  /// that could not be parsed there, else throws exceptions upon
+  /// unknown parameters.
+  QList<QPair<int, int> > parseParameterList(const QString & spec,
+                                             QStringList * unknowns = NULL) const;
+
+  /// Returns the index of the named parameter (not taking into
+  /// account datasets). Returns -1 if no such parameter exists.
+  int parameterIndex(const QString & name) const;
   
   /// Sets the value by name. 
   void setValue(const QString & name, double value, int ds = -1);
@@ -221,6 +318,9 @@ public:
     else
       return values[dataset * nbParameters + (index % nbParameters)];
   };
+
+  /// Returns the parameter value as QString
+  QString stringValue(int index, int dataset) const;
 
   /// returns a vector pointing to the values for all the datasets of
   /// the numbered parameter.
@@ -277,7 +377,7 @@ public:
   ///
   /// This function depends on error vectors, it will return 0 if they
   /// are not available.
-  double goodnessOfFit() const;
+  double goodnessOfFit();
 
 
   /// @name Commodity accessors
@@ -303,6 +403,20 @@ public:
   /// The name of the numbered parameter
   QString parameterName(int idx) const;
 
+  /// The name of the parameter, when given an index in
+  /// saveParameterValues().
+  QString fullParameterName(int idx) const;
+
+  /// The names of all parameters
+  QStringList parameterNames() const;
+
+  /// The number of datasets
+  int datasetNumber() const;
+
+  /// The total number of parameters, i.e. the number by dataset
+  /// multiplied by the number of datasets.
+  int totalParameterNumber() const;
+
   /// @}
 
   /// @name Computed functions handling
@@ -315,14 +429,21 @@ public:
 
   /// Recompute data stored in the storage vector of fitData. Also
   /// updates the residuals.
-  void recompute(bool dontSend = false);
+  ///
+  /// Returns @true if the computation succeeded, or false if it
+  /// failed (i.e. invalid parameters, exception...)
+  ///
+  /// If @a silent is true, then exceptions are silently caught. If
+  /// not, they are forwarded.
+  bool recompute(bool dontSend = false, bool silent = true);
 
   /// Force the recomputation of the jacobian, useful to ensure that
   /// the errors are up-to-date. Use with caution
   void recomputeJacobian();
 
   /// Returns the computed subfunctions
-  QList<Vector> computeSubFunctions(bool dontSend = false);
+  QList<Vector> computeSubFunctions(bool dontSend = false,
+                                    QStringList * annotations = NULL);
 
   /// The data computed from the fit function.
   ///
@@ -332,8 +453,16 @@ public:
 
   /// Push computed datasets onto the stack
   ///
-  /// @todo This should be interfaced with DataStackHelper
-  void pushComputedData(bool residuals = false, DataStackHelper * help = NULL);
+  /// @li @a residuals, if true, then the residuals are pushed
+  /// @li @a subfunctions, if true, then the columns Y2 and so
+  /// forth are subfunctions, if applicable
+  /// @li pushing to the datastack is effected via the @a helper
+  /// DataStackHelper when present
+  ///
+  /// This function does @b not recompute the data, call recompute()
+  /// before if you have changed the parameters.
+  void pushComputedData(bool residuals = false, bool subfunctions = false,
+                        DataStackHelper * helper = NULL);
 
   /// Computes and push the jacobian matrix to the stack
   void computeAndPushJacobian();
@@ -353,13 +482,6 @@ public:
 
   /// Retrieve parameters from the fit
   void retrieveParameters();
-
-  /// Resets all parameters to the initial guess
-  void resetAllToInitialGuess();
-
-  /// Resets the parameters for the current dataset to the initial
-  /// guess.
-  void resetToInitialGuess(int ds);
 
 
   /// @name IO functions
@@ -390,6 +512,9 @@ public:
   /// Save to the given stream
   void saveParameters(QIODevice * out) const;
 
+  /// Save to the named file
+  void saveParameters(const QString & fileName) const;
+
   /// Load from the given stream
   void loadParameters(QIODevice * in, int targetDS = -1, int sourceDS = 0);
 
@@ -403,6 +528,18 @@ public:
   /// Overridden version 
   void loadParametersValues(const QString & fn);
 
+
+  /// @}
+
+  /// @name Parameter space exploration
+  ///
+  /// @{
+
+  // protected:
+  ParameterSpaceExplorer * currentExplorer;
+  // public:
+
+  void setExplorer(ParameterSpaceExplorer * expl);
 
   /// @}
   
@@ -419,7 +556,7 @@ public:
 
   /// Writes the covariance matrix in latex-friendly form to a file.
   void writeCovarianceMatrixLatex(QTextStream & out,  bool raw = false);
-
+  
 
 
   /// @name Functions to backup parameters...
@@ -434,11 +571,162 @@ public:
   Vector saveParameterErrors(double confidenceThreshold = 0.975);
 
   /// Restores the previously saved values.
-  void restoreParameterValues(const Vector & values);
+  ///
+  /// If @a dataset is not negative, then only restore the parameters
+  /// for that dataset.
+  void restoreParameterValues(const Vector & values, int dataset = -1);
+
+  /// Same as the other one, only restores the parameters
+  void restoreParameterValues(const Vector & values,
+                              const QList<QPair<int, int> > & parameters);
+
+
+  /// Wraps the given parameters (obtained from saveParameterValues(),
+  /// for instance) as a Ruby [dataset][name] construct
+  mrb_value parametersToRuby(const Vector & values) const;
 
 
   /// @}
+
+  /// The status of the fitting process
+  typedef enum {
+    Converged,
+    Cancelled,
+    TimeOut,
+    NonFinite,
+    Error,
+    Exception,
+    Running,
+    NotStarted,
+    Invalid
+  } Ending;
+
+
+  /// Returns a short string describing the ending
+  static QString endingDescription(Ending end);
+
+  /// a color associated with the ending ?
+  static QColor endingColor(Ending end);
+
+  /// @name Functions to run the fit
+  /// @{
+
+  /// Whether or not we should cancel the current fit.
+  bool shouldCancelFit;
+
+  /// The internal residuals
+  double residuals;
+
+  /// The last internal residuals
+  double lastResiduals;
+
+  /// @infra This is awkward, since the engine creation is handled by
+  /// FitData, but FitWorkspace handles the options
+  ///
+  /// @todo This should be handled via a dedicated function ?
+  QHash<FitEngineFactoryItem *, CommandOptions * > fitEngineParameterValues;
   
+  /// Returns the parameters for the given fit engine, creating it if
+  /// necessary.
+  CommandOptions * fitEngineParameters(FitEngineFactoryItem * engine);
+  
+  /// The time at which the fit started
+  QDateTime fitStartTime;
+
+  /// The time in seconds that has elapsed since the beginning of the fit
+  double elapsedTime() const;
+
+  /// All the initial guess -> final pairs since the beginning of the
+  /// spawn of the Fit Workspace
+  FitTrajectories trajectories;
+
+  /// The current flags applied to trajectories
+  QSet<QString> currentFlags;
+
+  /// Sets the flags for all subsequence
+  void setTrajectoryFlags(const QSet<QString> & flags);
+
+  /// Starts the fit.
+  void startFit();
+
+  /// Runs the next iteration, returns the status code
+  int nextIteration();
+
+  Ending runFit(int iterationLimit);
+
+  void endFit(Ending ending);
+
+  /// The reason for the end of fit
+  Ending fitEnding;
+
+  /// Type describing the current status with respect to the parameters.
+  typedef enum {
+    ParametersUnknown,
+    ParametersOK,
+    ParametersFailed
+  } ParametersStatus;
+
+  /// The current status of the parameters
+  ParametersStatus parametersStatus;
+
+  /// Wether the covariance matrix is up-to-date or not
+  bool covarianceMatrixOK;
+
+public slots:
+  /// Cancels the fit
+  void cancelFit();
+
+  /// Sets the fit engine factory of the fit, and sets its options.
+  void setFitEngineFactory(FitEngineFactoryItem * item,
+                           const CommandOptions & opts = CommandOptions());
+
+  /// @}
+
+signals:
+  /// This signal is sent at the end of every iteration. Provides the
+  /// current iteration number, the current residuals and the parameters
+  void iterated(int iteration, double residuals,
+                const Vector & parameters);
+
+  /// Sent when the fit is finished
+  void finishedFitting(int);
+
+  /// Sent at the beginning of the fit. Passes the number of free parameters
+  void startedFitting(int freeParameters);
+
+  /// Emitted when the workspace is finishing
+  void quitWorkspace();
+
+  /// Emitted when the value of the given parameter has changed
+  void parameterChanged(int index, int ds);
+
+  /// Emitted when all the parameters were changed
+  void parametersChanged();
+
+  /// Emitted whenever the current dataset has changed
+  void datasetChanged(int newDS);
+
+  /// Emitted whenever the fit factory has changed. 
+  void fitEngineFactoryChanged(FitEngineFactoryItem * item);
+
+protected slots:
+  /// Called whenever a parametersChanged() or parameterChanged()
+  /// signal is emitted, so as to make sure the flags are kept
+  /// up-to-date.
+  void invalidateStatus();
+
+public slots:
+  /// Triggers the emission of the quitWorkSpace() signal.
+  void quit();
+
+  /// Selects the current dataset.
+  ///
+  /// Will fail with an exception if @a silent is false and @a dataset
+  /// is out of bounds.
+  void selectDataSet(int dataset, bool silent = true);
+
+public:
+  int currentDataset() const;
 };
 
 

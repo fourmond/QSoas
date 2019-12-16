@@ -5,8 +5,8 @@ TEMPLATE = app
 
 CONFIG += debug warn_on thread exception
 
-! contains(QT_MAJOR_VERSION, 4) {
-  warning("QSoas seems to work with Qt5, probably with quite a few glitches, though")
+contains(QT_MAJOR_VERSION, 4) {
+  error("QSoas no longer supports Qt4")
 }
 
 
@@ -90,12 +90,28 @@ never {
 MOC_DIR = build
 OBJECTS_DIR = build
 
+######################################################################
+# WARNINGS THAT SHOULD BE ERRORS
+
 # Really, this should be the default, since it means segfault in the
 # best case (excepted when a function only exits via an exception)
-QMAKE_CXXFLAGS += -Werror=return-type 
+QMAKE_CXXFLAGS += -Werror=return-type
+
+# Linux-only flags
+unix:!macx {
+  # This is a real error. It should not be a warning
+  QMAKE_CXXFLAGS += -Werror=delete-incomplete
+
+
+  # Useful warnings
+  QMAKE_CXXFLAGS += -Werror=misleading-indentation
+  # QMAKE_CXXFLAGS += -Wsuggest-override
+}
+
+
 
 unix {
-  QMAKE_CXXFLAGS += -Winit-self -Werror=init-self -Werror=misleading-indentation
+  QMAKE_CXXFLAGS += -Winit-self -Werror=init-self 
 }
 
 
@@ -113,6 +129,30 @@ QMAKE_CFLAGS += -O3
 # Generate doxygen documentation
 doc.commands = doxygen 
 QMAKE_EXTRA_TARGETS += doc
+
+
+# Activate the gcc address sanitizer by passing a CONFIG+=sanitizer
+# argument to qmake
+sanitizer {
+  message("Activating the address sanitizer code")
+  QMAKE_CXXFLAGS += -fno-omit-frame-pointer -fsanitize=address
+  LIBS += -fsanitize=address
+  TARGET = $$join(TARGET,,,-snt)
+}
+
+
+# This activates garbage collection at link time. This is not a good
+# idea for making a production executable, but rather as a tool for
+# finding unused code.
+#
+# make 2> gc and then:
+# cat gc | grep text. | sed 's/text./text /' | sort | c++filt | less
+gc {
+  message("Activating the GC code in order to find unused functions")
+  QMAKE_CXXFLAGS += -ffunction-sections -fdata-sections
+  LIBS += -Wl,--gc-sections -Wl,--print-gc-sections
+  TARGET = $$join(TARGET,,,-gc)
+}
 
 
 
@@ -147,8 +187,12 @@ isEmpty(RUBY):RUBY = ruby
 # language we're guaranteed to have:
 
 system($$RUBY build-info.rb)
-        
 HEADERS += src/build.hh
+
+build-info.commands = $$RUBY build-info.rb
+
+QMAKE_EXTRA_TARGETS += build-info
+
 
 # INCLUDEPATH += $$RUBY_INCLUDE_DIRS
 # LIBS += $$RUBY_LIB_ARG
@@ -204,6 +248,7 @@ win32 {
   VERSION=$$system($$RUBY strip-win-version.rb $$VERSION)
   message("Mangled version to $$VERSION")
   system($$RUBY prepare-wix-input.rb $$FULL_VERSION $$VERSION)
+  LIBS += -lpsapi
 }
                  
 
@@ -338,7 +383,23 @@ SOURCES += src/qmain.cc \
         src/onetimewarnings.cc \
         src/fitparametersfile.cc \
         src/ruby-interface.cc \
-        src/linearkineticsystem.cc
+        src/linearkineticsystem.cc \
+        src/commandcontext.cc \
+        src/fit-commands.cc \
+        src/fwexpression.cc \
+        src/fittrajectories.cc \
+        src/parameterspaceexplorer.cc \
+        src/fittrajectorydisplay.cc \
+        src/ruby-distribution.cc \
+        src/gauss-kronrod.cc \
+        src/particleswarm.cc \
+        src/filelock.cc \
+        src/printpreviewhelper.cc \
+        src/utils-osspec.cc \
+        src/graphicoutput.cc \
+        src/argumentsdialog.cc \
+        src/filepromptwidget.cc \
+        src/datasetlist.cc
 
 #        src/conditionsprovider.cc \
 
@@ -348,6 +409,7 @@ SOURCES += src/qmain.cc \
 SOURCES += src/qsoasfitengine.cc \
         src/gslfitengine.cc \
         src/simplexfitengine.cc \
+        src/gslsimplexfitengine.cc \
         src/multifitengine.cc
 
 
@@ -471,17 +533,47 @@ HEADERS += src/headers.hh \
         src/sparsecovariance.hh \
         src/onetimewarnings.hh \
         src/fitparametersfile.hh \
-        src/linearkineticsystem.hh
+        src/linearkineticsystem.hh \
+        src/commandcontext.hh \
+        src/fwexpression.hh \
+        src/fittrajectories.hh \
+        src/parameterspaceexplorer.hh \
+        src/fittrajectorydisplay.hh \
+        src/filelock.hh \
+        src/printpreviewhelper.hh \
+        src/graphicoutput.hh \
+        src/argumentsdialog.hh \
+        src/filepromptwidget.hh \
+        src/namedinstanceargument.hh \
+        src/datasetlist.hh
 
 # mruby
 HEADERS += src/mruby.hh
 SOURCES += src/mruby.cc \
            src/ruby-regexp.cc
 
+
+# complex numbers
+SOURCES += src/ruby-complex.cc
+
+
+# These are for JSON meta-data files
+HEADERS += src/metadatafile.hh
+SOURCES += src/valuehash-json.cc \
+        src/metadatafile.cc \
+        src/formats/qsmprovider.cc
+
+
+######################################################################
+# Sources for the parameter space explorers
+SOURCES += src/parameterspaceexplorers.cc
                 
+
+######################################################################
 # Sources of file-format specific code
 SOURCES += src/formats/gpesprovider.cc \
         src/formats/chi.cc \
+        src/formats/eclab.cc \
         src/formats/parametersbackend.cc
 
 # Using signals on platforms that support them
@@ -489,6 +581,7 @@ unix|macx {
   SOURCES += src/signals.cc
 }
 
+######################################################################
 # We link with the converted ODRPACK library
 message("Using odrpack")
 

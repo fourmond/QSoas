@@ -201,10 +201,14 @@ QString EventHandler::buildSpec() const
       if(it.value() == action)
         shortcuts << clickString(it.key());
 
+    QSet<int> ksc;
     for(QHash<int, int>::const_iterator it = keyActions.begin();
         it != keyActions.end(); ++it)
       if(it.value() == action)
-        shortcuts << keyString(it.key());
+        ksc.insert(it.key());
+    for(int k : ksc)
+        shortcuts << keyString(k);
+    
     
     sc.append(QString("(%1: %2)").
                 arg(shortcuts.join(", ")).

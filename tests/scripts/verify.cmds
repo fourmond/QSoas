@@ -1,0 +1,3 @@
+generate-buffer 0 10 3 
+@ exception-verify.cmds /error=abort
+assert $stats.y_average-10 0

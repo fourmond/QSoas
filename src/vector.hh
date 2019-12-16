@@ -113,7 +113,7 @@ public:
   bool allFinite() const;
 
   /// Fills the target values with the average and variance of the set
-  void stats(double * average, double * variance) const;
+  void stats(double * average, double * variance, double * sum = NULL) const;
 
   /// Returns the median value. Uses a sorted copy, ie nlogn time.
   double median() const;
@@ -210,6 +210,12 @@ public:
   /// newly created values.
   void applyFunction(const std::function<double (double)> & func);
 
+  /// Apply a random scaling factor to all the components of the
+  /// vector. The scaling factor is between @a low and @a high.
+  ///
+  /// @todo Do that with a custom random number generator.
+  void randomize(double low, double high);
+
 
   /// @}
 
@@ -302,7 +308,18 @@ public:
   /// the corresponding y vector.
   static Vector integrateVector(const Vector & x, const Vector & y, int idx = 0);
 
-  
+  /// Returns true if the difference of the vectors is within the @a
+  /// tol factor. Returns false otherwise.
+  static bool withinTolerance(const Vector & x, const Vector & y, double tol);
+
+
+
+  /// Returns a list of data for which the log of the Y values are
+  /// (more-or-less) less than @a tolerance apart from the average of
+  /// logs.
+  static QList<QList<Vector> > orderOfMagnitudeClassify(const Vector & xv,
+                                                        const Vector & yv,
+                                                        double tolerance);
 };
 
 #endif

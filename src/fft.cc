@@ -184,7 +184,7 @@ double FFT::magnitude(int i) const
   if(i == 0)
     return data[0];
   if(i >= frequencies() || i < 0)
-    return 0.0/0.0;             /// @todo raise an exception ?
+    return std::nan("");             /// @todo raise an exception ?
   int sz = data.size();
   if(sz % 2 == 0 && i == sz/2)
     return data[sz-1];

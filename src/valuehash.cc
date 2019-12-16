@@ -23,6 +23,8 @@
 #include <exceptions.hh>
 #include <debug.hh>
 
+#include <argument-templates.hh>
+
 #include <general-arguments.hh>
 #include <outfile.hh>
 #include <dataset.hh>
@@ -96,29 +98,138 @@ void ValueHash::prepend(const QString & key, const QVariant & value)
   operator[](key) = value;
 }
 
+QString ValueHash::toString(const QVariant & value, bool * canConvert)
+{
+  QVariant v = value;
+  if(canConvert)
+    *canConvert = false;
+  if(v.canConvert<double>()) {
+   QVariant nv = v;
+    if(nv.convert(QVariant::Double)) {
+      if(canConvert)
+        *canConvert = true;
+      double d = nv.toDouble();
+      return QString::number(d, 'g', 12);
+    }
+  }
+
+  if(v.canConvert<QString>()) {
+    QVariant nv = v;
+    if(nv.convert(QVariant::String)) {
+      if(canConvert)
+        *canConvert = true;
+      return nv.value<QString>();
+    }
+  }
+  if(v.canConvert<QList<QVariant> >()) {
+    QVariant nv = v;
+    nv.convert(QMetaType::QVariantList);
+    QList<QVariant> lst = nv.toList();
+    QStringList rv;
+    for(const QVariant & v : lst)
+      rv << toString(v);
+    return rv.join(", ");
+  }
+  return QString();
+}
+
 QString ValueHash::toString(const QString & sep, 
                             const QString & missing,
                             bool skip) const
 {
-  QHash<QString, QString> strings = extractStrings();
-  QHash<QString, QString>::iterator it;
+  ValueHash v = *this;
   QStringList output;
   for(int i = 0; i < keyOrder.size(); i++) {
     const QString & k = keyOrder[i];
-    it = strings.find(k);
-    if(it != strings.end()) {
-      output << *it;
-      strings.erase(it);
+    bool ok = false;
+    if(v.contains(k)) {
+      QString s = toString(v[k], &ok);
+      if(ok)
+        output << s;
+      v.remove(k);
     }
-    else
+    if(! ok)
       output << missing;
   }
 
+  QHash<QString, QVariant>::iterator it;
   if(! skip)
-    for(it = strings.begin(); it != strings.end(); ++it)
-      output << *it;
+    for(it = v.begin(); it != v.end(); ++it) {
+      bool ok = false;
+      QString s = toString(*it, &ok);
+      if(ok)
+        output << s;
+    }
   return output.join(sep);
 }
+
+typedef enum {
+  Unspec,
+  String,
+  Number,
+  Date,
+  // StringList,
+  NumberList
+} VariantTypes;
+
+
+QList<Argument *> ValueHash::variantConversionOptions()
+{
+  QHash<QString, VariantTypes>
+    variantTypes({{"text", String},
+          {"number", Number},
+          // {"date", Date},
+            //          {"text-list", StringList},
+              {"number-list", NumberList}
+      });
+  QList<Argument*> args;
+  args << new TemplateChoiceArgument<VariantTypes>
+    (variantTypes, "type", "Type",
+     "type of the meta-data");
+  return args;
+}
+
+
+
+QVariant ValueHash::variantFromText(const QString & text,
+                                    const CommandOptions & opts)
+{
+  VariantTypes type = Unspec;
+  updateFromOptions(opts, "type", type);
+  switch(type) {
+  case Unspec: {
+    bool ok = false;
+    double val = text.toDouble(&ok);
+    if(ok)
+      return QVariant(val);
+  }
+  case String:
+    return QVariant(text);
+  case Number:{
+    bool ok = false;
+    double val = text.toDouble(&ok);
+    if(! ok)
+      throw RuntimeError("'%1' is not a number").arg(text);
+    return QVariant(val);
+  }
+  case NumberList: {
+    QStringList lst = text.split(QRegExp("\\s*,\\s*"));
+    QList<QVariant> rv;
+    for(const QString & t : lst) {
+      bool ok = false;
+      double val = t.toDouble(&ok);
+      if(! ok)
+        throw RuntimeError("'%1' is not a number").arg(text);
+      rv << val;
+    }
+    return rv;
+  }
+  default:
+    break;
+  }
+  return QVariant();
+}
+
 
 
 ValueHash ValueHash::select(const QStringList & ks) const
@@ -139,23 +250,23 @@ QString ValueHash::prettyPrint(int nbCols,
                                bool overrideorder) const
 {
   QString output;
-  QHash<QString, QString> strings = extractStrings(joinStringLists);
-  QHash<QString, QString>::iterator it;
+  QHash<QString, QVariant> vals = *this;
+  QHash<QString, QVariant>::iterator it;
   int done = 0;
 
   if(! overrideorder) {
     for(int i = 0; i < keyOrder.size(); i++) {
       const QString & k = keyOrder[i];
-      it = strings.find(k);
+      it = vals.find(k);
       if(! (done % nbCols))
         output += prefix;
 
       bool found = false;
       QString s;
-      if(it != strings.end()) {
+      if(it != vals.end()) {
         found = true;
-        s = *it;
-        strings.erase(it);
+        s = toString(*it);
+        vals.erase(it);
       }
       else {
         if(dumpOther && contains(k)) {
@@ -177,14 +288,15 @@ QString ValueHash::prettyPrint(int nbCols,
     }
   }
   
-  QStringList keys = strings.keys();
+  QStringList keys = vals.keys();
   if(sort)
     qSort(keys);
   
   for(int i = 0; i < keys.size(); i++) {
     if(! (done % nbCols))
       output += prefix;
-    output += QString("%1 =\t %2").arg(keys[i]).arg(strings[keys[i]]);
+    output += QString("%1 =\t %2").arg(keys[i]).
+      arg(toString(vals[keys[i]]));
     done++;
     if(done % nbCols)
       output += "\t";
@@ -244,7 +356,8 @@ QVariant ValueHash::rubyToVariant(mrb_value value)
   if(mrb_float_p(value))
     return mr->floatValue_up(value);
   if(mrb_fixnum_p(value))
-    return QVariant((qlonglong)mrb_fixnum(value));
+    // This may overflow...
+    return QVariant((int)mrb_fixnum(value));
 
   QString ret = mr->toQString(value);
   /// @todo Handling of date/time
@@ -303,7 +416,7 @@ mrb_value ValueHash::toRuby() const
   MRuby * mr = MRuby::ruby();
   MRubyArenaContext c(mr);
 
-  mrb_value ret = mr->newHash();
+  mrb_value ret = mr->newFancyHash();
   mr->gcRegister(ret);
   for(const_iterator it = begin(); it != end(); ++it) {
     // Hmmm, QVariant says type() is QVariant::Type, but the
@@ -313,7 +426,7 @@ mrb_value ValueHash::toRuby() const
       // DUMP_MRUBY(key);
       mrb_value val = variantToRuby(it.value());
       // DUMP_MRUBY(val);
-      mr->hashSet(ret, key, val);
+      mr->fancyHashSet(ret, key, val);
     }
     catch(RuntimeError & er) {
       Debug::debug() << "Error converting key '" << it.key() << "' (=" 

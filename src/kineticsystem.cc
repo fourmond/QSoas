@@ -52,11 +52,13 @@ void KineticSystem::Reaction::computeCache(const double * /*vals*/)
 void KineticSystem::Reaction::makeExpressions(const QStringList & vars)
 {
   clearExpressions();
-  forward = new Expression(forwardRate);
-  if(! backwardRate.isEmpty())
+  if(! forwardRate.startsWith("cycle:")) 
+    forward = new Expression(forwardRate);
+  if(! (backwardRate.isEmpty() || backwardRate.startsWith("cycle:")))
     backward = new Expression(backwardRate);
   if(! vars.isEmpty()) {
-    forward->setVariables(vars);
+    if(forward)
+      forward->setVariables(vars);
     if(backward)
       backward->setVariables(vars);
   }
@@ -64,10 +66,10 @@ void KineticSystem::Reaction::makeExpressions(const QStringList & vars)
 
 QSet<QString> KineticSystem::Reaction::parameters() const
 {
-  
-  if(! forward)
-    return QSet<QString>();
-  QSet<QString> params = QSet<QString>::fromList(forward->naturalVariables());
+
+  QSet<QString> params;
+  if(forward)
+    params += QSet<QString>::fromList(forward->naturalVariables());
   if(backward)
     params += QSet<QString>::fromList(backward->naturalVariables());
   return params;
@@ -93,8 +95,8 @@ void KineticSystem::Reaction::setParameters(const QStringList & parameters)
 }
 
 void KineticSystem::Reaction::computeRateConstants(const double * vals, 
-                                           double * fd, 
-                                           double * bd) const
+                                                   double * fd, 
+                                                   double * bd) const
 {
   *fd = forward->evaluate(vals);
   if(backward)
@@ -143,16 +145,57 @@ bool KineticSystem::Reaction::isLinear() const
   return backward->isAVariable();
 }
 
+
+int KineticSystem::Reaction::stoechiometry(int species) const
+{
+  int fnd = -1;
+  for(int i = 0; i < speciesIndices.size(); i++) {
+    if(speciesIndices[i] == species) {
+      fnd = i;
+      break;
+    }
+  }
+  if(fnd >= 0)
+    return speciesStoechiometry[fnd];
+  return 0;
+}
+
+QList<int> KineticSystem::Reaction::products() const
+{
+  QList<int> rv;
+  for(int i = 0; i < speciesIndices.size(); i++) {
+    if(speciesStoechiometry[i] > 0)
+      rv << speciesIndices[i];
+  }
+  return rv;
+}
+
+QList<int> KineticSystem::Reaction::reactants() const
+{
+  QList<int> rv;
+  for(int i = 0; i < speciesIndices.size(); i++) {
+    if(speciesStoechiometry[i] < 0)
+      rv << speciesIndices[i];
+  }
+  return rv;
+}
+
+bool KineticSystem::Reaction::isReversible() const
+{
+  return !(forwardRate.isEmpty() || backwardRate.isEmpty());
+}
+
+
 KineticSystem::Reaction::Reaction(const Reaction & o) :
   forwardRate(o.forwardRate), backwardRate(o.backwardRate),
   speciesIndices(o.speciesIndices),
   speciesStoechiometry(o.speciesStoechiometry),
+  forwardCache(o.forwardCache), backwardCache(o.backwardCache),
   electrons(o.electrons)
 {
   forward = o.forward ? new Expression(*o.forward) : NULL;
   backward = o.backward ? new Expression(*o.backward) : NULL;
 
-  memcpy(cache, o.cache, sizeof(o.cache));
 }
 
 
@@ -281,7 +324,7 @@ public:
       alpha->setVariables(vars);
   }
   
-  virtual void clearExpressions() {
+  virtual void clearExpressions() override {
     Reaction::clearExpressions();
     delete alpha;
     alpha = NULL;
@@ -289,7 +332,7 @@ public:
 
 
   virtual void computeRateConstants(const double * vals, 
-                                    double * fd, double * bd) const
+                                    double * fd, double * bd) const override
   {
     double e0, k0, al;
     e0 = forward->evaluate(vals);
@@ -304,7 +347,7 @@ public:
     *bd = k0 * exp(fara * (1 - al) * electrons * (e0 - e));
   }
 
-  virtual Reaction * dup() const {
+  virtual Reaction * dup() const override {
     return new BVRedoxReaction(*this);
   }
 
@@ -354,7 +397,7 @@ public:
       lambda->setVariables(vars);
   }
   
-  virtual void clearExpressions() {
+  virtual void clearExpressions() override {
     Reaction::clearExpressions();
     delete lambda;
     lambda = NULL;
@@ -362,7 +405,7 @@ public:
 
 
   virtual void computeRateConstants(const double * vals, 
-                                    double * fd, double * bd) const
+                                    double * fd, double * bd) const override
   {
     double e0, k0, lb;
     e0 = forward->evaluate(vals);
@@ -381,7 +424,7 @@ public:
     *bd = k0 * Functions::marcusHushChidseyZeng(fara * lb, fara * electrons  * (e0-e));
   }
 
-  virtual Reaction * dup() const {
+  virtual Reaction * dup() const override {
     return new MarcusRedoxReaction(*this);
   }
 
@@ -399,6 +442,32 @@ public:
 };
 
 
+//////////////////////////////////////////////////////////////////////
+
+void KineticSystem::Cycle::computeRateConstant() const
+{
+  double forw = 1, back = 1;
+  for(int i = 1; i < reactions.size(); i++) {
+    const Reaction * r = reactions[i];
+    if(directions[i] > 0) {
+      forw *= r->forwardCache;
+      back *= r->backwardCache;
+    }
+    else {
+      back *= r->forwardCache;
+      forw *= r->backwardCache;
+    }
+  }
+  Reaction * r = reactions[0];
+
+  // In a complete thermodynamic cycle, the product of all the forward
+  // over the product of all the backwards is one.
+  if(directions[0] > 0)
+    // The forward direction is under the control of the cycle
+    r->forwardCache = r->backwardCache * back/forw;
+  else 
+    r->backwardCache = r->forwardCache * forw/back;
+}
 
 //////////////////////////////////////////////////////////////////////
 
@@ -459,14 +528,72 @@ int KineticSystem::speciesIndex(const QString & str)
   return sz;
 }
 
+void KineticSystem::parseCycle(Reaction * start)
+{
+  QString cycle;
+  int dir = 0;
+  QRegExp cre("^\\s*cycle:\\s*(\\S.*)");
+  if(cre.indexIn(start->forwardRate) >= 0) {
+    cycle = cre.cap(1);
+    dir = 1;
+  }
+  if(cre.indexIn(start->backwardRate) >= 0) {
+    cycle = cre.cap(1);
+    if(dir > 0)
+      throw RuntimeError("Cannot have two 'cycle:' specifications in a single reaction, '%1'").arg(start->toString(species));
+    dir = -1;
+  }
+  if(dir == 0)
+    return;
+
+  QList<int> s = start->products();
+  if(s.size() > 1)
+    throw RuntimeError("Cannot use thermodynamic cycles with more than one species as of now");
+
+  int curSpec = s[0];
+  QStringList spc = cycle.split(QRegExp("\\s+"));
+  s = start->reactants();
+  if(s.size() > 1)
+    throw RuntimeError("Cannot use thermodynamic cycles with more than one species as of now");
+  spc << species[s[0]].name;
+
+  Cycle c;
+  c.reactions << start;
+  c.directions << dir;
+  
+  for(const QString & s : spc) {
+    int ns = speciesLookup.value(s, -1);
+    if(ns < 0)
+      throw RuntimeError("Unknown species: '%1'").arg(s);
+    Reaction * nr = NULL;
+    int st = 0;
+    for(int ridx : species[curSpec].reactions) {
+      nr = reactions[ridx];
+      if(! nr->isReversible())
+        continue;
+      st = nr->stoechiometry(ns);
+      if(st != 0)
+        break;
+    }
+    if(st == 0 || nr == NULL)
+      throw RuntimeError("Could not find a reversible reaction from '%1' to '%2'").arg(species[curSpec].name).arg(s);
+    c.reactions << nr;
+    c.directions << st;
+    curSpec = ns;
+  }
+  cycles << c;
+}
+
 
 void KineticSystem::ensureReady(const QStringList & add)
 {
   QSet<QString> params;
-  
-  for(int i = 0; i < reactions.size(); i++) {
-    reactions[i]->makeExpressions();
-    params += reactions[i]->parameters();
+
+  for(Reaction * r : reactions) {
+    // Here, we parse cycles
+    r->makeExpressions();
+    parseCycle(r);
+    params += r->parameters();
   }
 
   if(reporterExpression)
@@ -570,6 +697,49 @@ double KineticSystem::computeDerivatives(double * target,
   return computeDerivatives(&tg.vector, &conc.vector, params);
 }
 
+
+void KineticSystem::cacheRateConstants(const gsl_vector * concentrations,
+                                       const double * params) const
+{
+  const double * p;
+  int nbSpecies = species.size();
+  int nbParams = parameters.size();
+  
+  QVarLengthArray<double, 800> vals(nbParams);
+  if(isLinear()) {
+    /// @hack This is acutally undefined behaviour if the original
+    /// params array does not extend before params - nbSpecies.
+    p = params - nbSpecies;
+  }
+  else {
+    // We put all the eggs in the same basket.
+    for(int i = 0; i < nbSpecies; i++)
+      vals[i] = gsl_vector_get(concentrations, i);
+    for(int i = nbSpecies; i < nbParams; i++)
+      vals[i] = params[i - nbSpecies];
+    p = vals.data();
+  }
+  
+  for(Reaction * rc : reactions) {
+    rc->computeRateConstants(p, &rc->forwardCache,
+                             &rc->backwardCache);
+    if(checkRange) {
+      if(rc->forwardCache < 0)
+        throw RangeError("Negative forward rate constant for reaction '%1'").
+          arg(rc->toString(species));
+
+      if(rc->backwardCache < 0)
+        throw RangeError("Negative backward rate constant for reaction '%1'").
+          arg(rc->toString(species));
+    }
+  }
+  
+  // Compute the cycles
+  for(const Cycle & c : cycles)
+    c.computeRateConstant();
+  
+}
+
 void KineticSystem::computeLinearJacobian(gsl_matrix * target,
                                           const double * params,
                                           gsl_vector * coeffs) const
@@ -578,6 +748,8 @@ void KineticSystem::computeLinearJacobian(gsl_matrix * target,
     throw InternalError("Using a function for linear systems on non-linear ones !");
   // Now starts the real fun: evaluating all the derivatives !
   // QVarLengthArray<double, 800> vals(parameters.size());
+
+  cacheRateConstants(NULL, params);
 
   int nbs = species.size();
   int nbp = parameters.size();
@@ -594,8 +766,8 @@ void KineticSystem::computeLinearJacobian(gsl_matrix * target,
   // Now, we compute the forward and reverse rates of all reactions
   for(int i = 0; i < nbr; i++) {
     const Reaction * rc = reactions[i];
-    double forwardRate, backwardRate;
-    rc->computeRateConstants(params, &forwardRate, &backwardRate);
+    double forwardRate = rc->forwardCache,
+      backwardRate = rc->backwardCache;
 
     int l = (rc->speciesStoechiometry[0] == -1 ? rc->speciesIndices[0] : rc->speciesIndices[1]);
     int r = (rc->speciesStoechiometry[0] == -1 ? rc->speciesIndices[1] : rc->speciesIndices[0]);
@@ -605,12 +777,13 @@ void KineticSystem::computeLinearJacobian(gsl_matrix * target,
       forwardRate *= redoxReactionScaling;
       backwardRate *= redoxReactionScaling;
       if(coeffs) {
-        *gsl_vector_ptr(coeffs, l) -= forwardRate;
-        *gsl_vector_ptr(coeffs, r) += backwardRate;
+        *gsl_vector_ptr(coeffs, l) -= forwardRate * rc->electrons;
+        *gsl_vector_ptr(coeffs, r) += backwardRate * rc->electrons;
       }
     }
-    // Debug::debug() << "Reaction #" << i << 
+    // Debug::debug() << checkRange << " \tReaction #" << i << 
     //   ": " << forwardRate << " -- " << backwardRate << endl;
+    
 
     if(checkRange && (forwardRate < 0 || backwardRate < 0))
       throw RangeError("Negative rate constant for reaction #%1").
@@ -662,6 +835,8 @@ bool KineticSystem::setupCache(const double * params)
 
   return true;
 }
+
+
 
 void KineticSystem::computeCachedLinearJacobian(gsl_matrix * target,
                                                 const double * params,
@@ -720,43 +895,39 @@ void KineticSystem::computeCachedLinearJacobian(gsl_matrix * target,
 }
 
 
+
 double KineticSystem::computeDerivatives(gsl_vector * target, 
-                                       const gsl_vector * concentrations,
-                                       const double * params) const
+                                         const gsl_vector * concentrations,
+                                         const double * params) const
 {
   int nbParams = parameters.size();
   int nbSpecies = species.size();
   int nbReactions = reactions.size();
-  // Now starts the real fun: evaluating all the derivatives !
-  QVarLengthArray<double, 800> vals(nbParams);
+
+  
+  cacheRateConstants(concentrations, params);
 
   // We put all the eggs in the same basket.
-  for(int i = 0; i < nbSpecies; i++) {
-    vals[i] = gsl_vector_get(concentrations, i);
-    if(target)
-      gsl_vector_set(target, i, 0);
-  }
-  for(int i = nbSpecies; i < nbParams; i++)
-    vals[i] = params[i - nbSpecies];
+  if(target)
+    gsl_vector_set_zero(target);
 
   double current = 0;
 
   // Now, we compute the forward and reverse rates of all reactions
   for(int i = 0; i < nbReactions; i++) {
     const Reaction * r = reactions[i];
-    double forwardRate, backwardRate;
+    double forwardRate = r->forwardCache,
+      backwardRate = r->backwardCache;
 
     // Do not compute if we don't need !
     if(! target && r->electrons == 0)
       continue;
 
-    r->computeRateConstants(vals.data(), &forwardRate, &backwardRate);
-
     int sts = r->speciesStoechiometry.size();
     const int * stoech = r->speciesStoechiometry.data();
     const int * indices = r->speciesIndices.data();
 
-    
+
     for(int j = 0; j < sts; j++) {
       int s = stoech[j];
       if(s < 0)
@@ -790,7 +961,7 @@ void KineticSystem::parseFile(const QString & fileName)
 {
   QFile f(fileName);
   Utils::open(&f, QIODevice::ReadOnly);
-  parseFile(&f);
+  parseFile(&f, fileName);
 }
 
 
@@ -816,10 +987,8 @@ static void parseReactants(const QString & reactants,
   }
 }
 
-void KineticSystem::parseFile(QIODevice * device)
+void KineticSystem::parseFile(QIODevice * device, const QString & n)
 {
-
-  
   QTextStream in(device);
 
   QRegExp blankRE("^\\s*(#|$)");
@@ -907,6 +1076,7 @@ void KineticSystem::parseFile(QIODevice * device)
   if(reaction == 0)
     throw RuntimeError("Could not parse any reaction from file %1").
       arg(Utils::fileName(device));
+  fileName = n;
 }
 
 void KineticSystem::addReaction(QList<QString> species,

@@ -216,7 +216,6 @@ namespace __reg {
       NULL, // options
       "Linear regression",
       "Performs linear regression",
-      "...",
       "reg");
 };
 
@@ -268,8 +267,7 @@ areg("auto-reglin", // command name
      NULL, // arguments
      &arOps, // options
      "Automatic linear regression",
-     "Automatic linear regression",
-     "...");
+     "Automatic linear regression");
 
 
 
@@ -327,6 +325,8 @@ static void filmLossCommand(CurveEventLoop &loop, const QString &)
   const DataSet * ds = soas().currentDataSet();
   const GraphicsSettings & gs = soas().graphicsSettings();
 
+  DataSet * nds = NULL;
+
   CurveLine line;
   CurveHorizontalRegion r;
   CurveView & view = soas().view();
@@ -365,6 +365,13 @@ static void filmLossCommand(CurveEventLoop &loop, const QString &)
   QVarLengthArray<double, 200> rateConstants(ds->segments.size() + 1);
   for(int i = 0; i <= ds->segments.size(); i++)
     rateConstants[i] = 0;
+
+  auto makeMeta = [&rateConstants, ds]() -> QList<QVariant> {
+    QList<QVariant> rv;
+    for(int i = 0; i <= ds->segments.size(); i++)
+      rv << rateConstants[i];
+    return rv;
+  };
 
   while(! loop.finished()) {
     int action = filmLossHandler.nextAction(loop);
@@ -406,10 +413,14 @@ static void filmLossCommand(CurveEventLoop &loop, const QString &)
       view.mainPanel()->zoomIn(QRectF());
       break;
     case QuitDividing:
-      soas().pushDataSet(ds->derivedDataSet(corr.yvalues, "_corr.dat"));
+      nds = ds->derivedDataSet(corr.yvalues, "_corr.dat");
+      nds->setMetaData("filmloss_rates", makeMeta());
+      soas().pushDataSet(nds);
       return;
     case QuitReplacing:
-      soas().pushDataSet(ds->derivedDataSet(d.yvalues, "_coverage.dat"));
+      nds = ds->derivedDataSet(d.yvalues, "_coverage.dat");
+      nds->setMetaData("filmloss_rates", makeMeta());
+      soas().pushDataSet(nds);
       return;
     case Abort:
       return;
@@ -458,8 +469,7 @@ fl("film-loss", // command name
     NULL, // arguments
     NULL, // options
     "Film loss",
-    "Corrects for film loss segment-by-segment",
-    "...");
+    "Corrects for film loss segment-by-segment");
 
 };
 
@@ -665,7 +675,6 @@ bsl("baseline", // command name
     NULL, // options
     "Baseline",
     "Interpolation-based baseline",
-    "...",
     "b");
 }
 
@@ -712,8 +721,7 @@ interpolate("interpolate", // command name
             &intArgs, // arguments
             &intOpts, // options
             "Interpolate",
-            "Recompute interpolation with given nodes",
-            "...");
+            "Recompute interpolation with given nodes");
 
 
 
@@ -938,7 +946,6 @@ cbsl("catalytic-baseline", // command name
     NULL, // options
     "Catalytic baseline",
     "Cubic baseline",
-    "...",
     "B");
 }
 
@@ -1189,8 +1196,7 @@ namespace __bs {
        NULL, // arguments
        &bsOpts, // options
        "B-Splines filter",
-       "Filter using bsplines",
-       "...");
+       "Filter using bsplines");
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -1494,8 +1500,7 @@ fft("filter-fft", // command name
     NULL, // arguments
     &fftOps, // options
     "FFT filter",
-    "Filter using FFT",
-    "...");
+    "Filter using FFT");
 
 }
 
@@ -1509,10 +1514,12 @@ static void autoFilterBSCommand(const QString &, const CommandOptions & opts)
   int order = 4;
   int derivatives = 0;
   int weights = -1;
+  int optimize = 15;
 
 
   updateFromOptions(opts, "number", nb);
   updateFromOptions(opts, "order", order);
+  updateFromOptions(opts, "optimize", optimize);
   updateFromOptions(opts, "derivatives", derivatives);
   updateFromOptions(opts, "weight-column", weights);
 
@@ -1521,7 +1528,8 @@ static void autoFilterBSCommand(const QString &, const CommandOptions & opts)
   if(weights >= 0) {
     splines.setWeights(ds->column(weights));
   }
-  splines.optimize(15, false);
+  if(optimize > 0)
+    splines.optimize(optimize, false);
   double value = splines.computeCoefficients();
   Terminal::out << "Residuals: " << sqrt(value) << endl;
   for(int i = 0; i <= derivatives; i++)
@@ -1539,6 +1547,9 @@ afbsOps(QList<Argument *>()
       << new IntegerArgument("order", 
                              "Order",
                              "order of the splines")
+      << new IntegerArgument("optimize", 
+                             "Optimize",
+                             "number of iterations to optimize the position of the nodes (defaults to 15, set to 0 or less to disable)")
       << new ColumnArgument("weight-column", 
                             "Weights",
                             "uses the weights in the given column")
@@ -1556,7 +1567,6 @@ afbs("auto-filter-bs", // command name
      &afbsOps, // options
      "Auto B-splines",
      "Filter using bsplines",
-     "...",
      "afbs");
 
 //////////////////////////////////////////////////////////////////////
@@ -1631,7 +1641,6 @@ afft("auto-filter-fft", // command name
      &afftOps, // options
      "Auto FFT",
      "Filter using FFT",
-     "...",
      "afft");
 
 //////////////////////////////////////////////////////////////////////
@@ -1662,11 +1671,11 @@ static void findStepsCommand(const QString &, const CommandOptions & opts)
     for(int i = 0; i < steps.size(); i++) {
       Terminal::out << "Step #" << i << " @" << steps[i] 
                     << "\t X= " << ds->x()[steps[i]] <<endl;
-      CurveVerticalLine * v= new CurveVerticalLine;
+      CurveVerticalLine * v = new CurveVerticalLine;
       v->x = 0.5* (ds->x()[steps[i]] + ds->x()[steps[i]-1]);
       v->pen =gs.getPen(GraphicsSettings::SeparationPen);
 
-      view.addItem(v);
+      view.addItem(v, true);
     }
     view.enableUpdates();
   }  
@@ -1692,8 +1701,7 @@ fsc("find-steps", // command name
      NULL, // arguments
      &fsOps, // options
      "Find steps",
-     "Find steps in the data",
-     "...");
+     "Find steps in the data");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1846,8 +1854,7 @@ ssc("set-segments", // command name
     NULL, // arguments
     NULL, // options
     "Set segments",
-    "Set segments in the data (manually)",
-    "...");
+    "Set segments in the data (manually)");
 
 };
 
@@ -1894,7 +1901,6 @@ rs("remove-spikes", // command name
    &rsOps, // options
    "Remove spikes",
    "Remove spikes",
-   "Remove spikes using a simple heuristics",
    "R");
 
 //////////////////////////////////////////////////////////////////////
@@ -1959,9 +1965,7 @@ diff("diff", // command name
      NULL, // arguments
      &diffOps, // options
      "Derive",
-     "4th order accurate first derivative",
-     "Computes the 4th order accurate derivative of the buffer\n"
-     "Do not use this on noisy data");
+     "4th order accurate first derivative");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1978,9 +1982,7 @@ dif2("diff2", // command name
      NULL, // arguments
      NULL, // options
      "Derive twice",
-     "4th order accurate second derivative",
-     "Computes the 4th order accurate second derivative of the buffer\n"
-     "Do not use this on noisy data !");
+     "4th order accurate second derivative");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -2040,8 +2042,7 @@ ddp("deldp", // command name
     NULL, // arguments
     NULL, // options
     "Deldp",
-    "Manually remove points",
-    "...");
+    "Manually remove points");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -2089,8 +2090,7 @@ norm("norm", // command name
      NULL, // arguments
      &normOps, // options
      "Normalize",
-     "Divides by the maximum",
-     "Normalize the current buffer by its maximum value");
+     "Divides by the maximum");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -2139,8 +2139,7 @@ zerp("zero", // command name
      &zeroArgs, // arguments
      &zeroOps, // options
      "Makes 0",
-     "Ensure that a given point has X or Y value equal to 0",
-     "...");
+     "Ensure that a given point has X or Y value equal to 0");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -2187,7 +2186,8 @@ ac("auto-correlation", // command name
    NULL, // arguments
    NULL, // options
    "Auto-correlation",
-   "Computes the auto-correlation function", "", "ac");
+   "Computes the auto-correlation function",
+   "ac");
 
 //////////////////////////////////////////////////////////////////////
 

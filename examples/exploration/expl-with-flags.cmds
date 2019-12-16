@@ -1,0 +1,14 @@
+flag-trajectories /flags=first
+monte-carlo-explorer /iterations=10 tau_1:1e-2..1e2,log tau_2:1e-2..1e2,log
+iterate-explorer
+flag-trajectories /flags=second
+monte-carlo-explorer /iterations=10 tau_1:1e-2..1e2,log tau_2:1e-2..1e2,log
+iterate-explorer
+flag-trajectories
+monte-carlo-explorer /iterations=10 tau_1:1e-2..1e2,log tau_2:1e-2..1e2,log
+iterate-explorer
+
+# Now, compare:
+# list-trajectories
+# drop-trajectories flagged:second
+# list-trajectories

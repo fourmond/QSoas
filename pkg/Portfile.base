@@ -13,11 +13,13 @@ long_description    QSoas
 homepage            http://qsoas.org
 master_sites        http://10.234.32.140/soas/
 
-depends_lib         port:qt4-mac \
+depends_lib         port:qt58-qtbase \
+                    port:qt58-qtsvg \
+                    port:qt58-qt3d \
                     port:ruby19 \
-                    port:gsl \
+                    port:gsl
 
-configure.cmd MRUBY_DIR=/Users/Vincent/mruby ./configure #VERSION# UNIVERSAL=1 
+configure.cmd MRUBY_DIR=/Users/vincent/mruby ./configure #VERSION#
 
 checksum {
     # @todo Enable checksums

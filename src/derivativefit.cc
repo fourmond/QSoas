@@ -23,6 +23,7 @@
 #include <dataset.hh>
 #include <perdatasetfit.hh>
 #include <command.hh>
+#include <commandcontext.hh>
 #include <argumentlist.hh>
 #include <general-arguments.hh>
 #include <commandeffector-templates.hh>
@@ -38,6 +39,10 @@ DerivativeFit::Storage::~Storage()
     delete[] sameX;
   for(int i = 0; i < splittedDatasets.size(); i++)
     delete splittedDatasets[i];
+  for(DataSet * ds : mainDS.values())
+    delete ds;
+  for(DataSet * ds : subDS.values())
+    delete ds;
 }
 
 DerivativeFit::Storage::Storage() :
@@ -310,7 +315,8 @@ DerivativeFit::DerivativeFit(PerDatasetFit * source, DerivativeFit::Mode m) :
 {
   underlyingFitName = source->fitName(false);
   // How to remove the "parameters" argument ?
-  Command * cmd = Command::namedCommand("fit-" + underlyingFitName );
+  Command * cmd = CommandContext::globalContext()->
+    namedCommand("fit-" + underlyingFitName );
   ArgumentList * opts = new ArgumentList(*cmd->commandOptions());
 
   /// @todo Add own options.
@@ -342,6 +348,209 @@ FitInternalStorage * DerivativeFit::copyStorage(FitData * data,
   }
   return s2;
 }
+
+//////////////////////////////////////////////////////////////////////
+
+/// A special class for combined fits...
+///
+/// @todo There may be ways to do code sharing with the other derivative fits ?
+class CombinedDerivativeFit : public PerDatasetFit {
+
+  /// Name of the underlying fit.
+  QString underlyingFitName;
+
+  /// @name Redirectors
+  ///
+  /// The functions here just redirect to the wrapped fit
+  /// 
+  /// @{
+  virtual void processOptions(const CommandOptions & opts,
+                              FitData * data) const  override {
+    DerivativeFit::Storage * s = storage<DerivativeFit::Storage>(data);
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+    Fit::processOptions(s->underlyingFit, opts, data);
+  };
+  
+  virtual QString optionsString(FitData * data) const override {
+    DerivativeFit::Storage * s = storage<DerivativeFit::Storage>(data);
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+    return Fit::optionsString(s->underlyingFit, data) + " -- derivative (combined)";
+
+  };
+  
+  virtual ArgumentList * fitHardOptions() const override {
+    PerDatasetFit * fit = dynamic_cast<PerDatasetFit *>(Fit::namedFit(underlyingFitName));
+    if(fit)
+      return Fit::fitHardOptions(fit);
+    return NULL;
+  };
+  
+  virtual ArgumentList * fitSoftOptions() const override {
+    PerDatasetFit * fit = dynamic_cast<PerDatasetFit *>(Fit::namedFit(underlyingFitName));
+    if(fit)
+      return Fit::fitSoftOptions(fit);
+    return NULL;
+  };
+  
+  virtual CommandOptions currentSoftOptions(FitData * data) const override {
+    DerivativeFit::Storage * s = storage<DerivativeFit::Storage>(data);
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+    return Fit::currentSoftOptions(s->underlyingFit, data);
+  };
+  
+  virtual void processSoftOptions(const CommandOptions & opts,
+                                  FitData * data) const override {
+    DerivativeFit::Storage * s = storage<DerivativeFit::Storage>(data);
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+    Fit::processSoftOptions(s->underlyingFit, opts, data);
+  };
+  /// @}
+
+
+  /// Make sure the buffers are the right size.
+  void reserveBuffers(FitData * data) const {
+    DerivativeFit::Storage * s = storage<DerivativeFit::Storage>(data);
+    for(int i = 0; i < data->datasets.size(); i++) {
+      int sz = data->datasets[i]->x().size();
+      if(s->buffer.size() < sz)
+        s->buffer.resize(sz);
+    }
+  };
+
+protected:
+  
+  virtual FitInternalStorage * allocateStorage(FitData * data) const override {
+    DerivativeFit::Storage * s = new DerivativeFit::Storage;
+    s->underlyingFit = dynamic_cast<PerDatasetFit *>(Fit::namedFit(underlyingFitName));
+    if(! s->underlyingFit)
+      throw RuntimeError("The fit " + underlyingFitName + " either does not exist or it isn't working buffer-by-buffer: impossible to make a derived fit");
+    
+    s->originalStorage = s->underlyingFit->allocateStorage(data);
+    return s;
+  };
+
+  virtual FitInternalStorage * copyStorage(FitData * data,
+                                           FitInternalStorage * source,
+                                           int ds = -1) const override {
+    DerivativeFit::Storage * s = static_cast<DerivativeFit::Storage *>(source);
+    DerivativeFit::Storage * s2 = new DerivativeFit::Storage(*s);
+    {
+      TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                        s->originalStorage);
+      s2->originalStorage = s->underlyingFit->copyStorage(data, s->originalStorage, ds);
+    }
+    return s2;
+  };
+
+public:
+
+  virtual QList<ParameterDefinition> parameters(FitData * data) const override {
+    DerivativeFit::Storage * s = storage<DerivativeFit::Storage>(data);
+      
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+    QList<ParameterDefinition> params = s->underlyingFit->parameters(data);
+
+    s->originalParameters = params.size();
+    params << ParameterDefinition("deriv_scale", true); 
+    return params;
+  };
+  
+  
+  virtual void initialGuess(FitData * data, const DataSet * ds, double * guess) const override {
+    DerivativeFit::Storage * s = storage<DerivativeFit::Storage>(data);
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+    s->underlyingFit->initialGuess(data, ds, guess);
+    guess[s->originalParameters] = 1; // Makes a good default scale !
+  };
+
+  void prepareSameX(FitData * data) const {
+    DerivativeFit::Storage * s = storage<DerivativeFit::Storage>(data);
+    if(s->sameXH.size() > 0)
+      return;
+
+    for(int i = 0; i < data->datasets.size(); i++) {
+      const DataSet * ds = data->datasets[i];
+      PossessiveList<DataSet> sub(ds->splitIntoMonotonic());
+      if(sub.size() != 2)
+        throw RuntimeError(QString("Dataset '%1' should be made of two "
+                                   "monotonic parts !").arg(ds->name));
+      sub.detach();
+      s->mainDS[ds] = sub[0];
+      s->subDS[ds] = sub[1];
+      s->sameXH[ds] = sub[0]->x() == sub[1]->x();
+    }
+  };
+
+  virtual void function(const double * parameters,
+                        FitData * data, const DataSet * ds,
+                        gsl_vector * target) const override {
+    reserveBuffers(data);
+    DerivativeFit::Storage * s = storage<DerivativeFit::Storage>(data);
+
+    prepareSameX(data);
+
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+
+    const DataSet * main = s->mainDS[ds];
+    const DataSet * sub = s->subDS[ds];
+      
+    // We create sub-views of the original view...
+    int idx = main->x().size();
+    gsl_vector_view sFnView = gsl_vector_subvector(target, 0, idx);
+    s->underlyingFit->function(parameters, 
+                               data, main, &sFnView.vector);
+    if(s->sameXH[ds]) {
+      // Reuse the same data -- factor-of-two win...
+      DataSet::firstDerivative(main->x().data(), 1, 
+                               sFnView.vector.data, 
+                               sFnView.vector.stride,
+                               target->data + 
+                               target->stride * idx, 
+                               target->stride,
+                               main->x().size());
+    }
+    else {
+      gsl_vector_view bufView = gsl_vector_view_array(s->buffer.data(),
+                                                      ds->nbRows());
+      s->underlyingFit->function(parameters, 
+                                 data, sub, &bufView.vector);
+      // Now copying back 
+      DataSet::firstDerivative(sub->x().data(), 1, 
+                               bufView.vector.data, 
+                               bufView.vector.stride,
+                               target->data + 
+                               target->stride * idx, 
+                               target->stride,
+                               sub->x().size());
+    }
+    // And scaling...
+    gsl_vector_view sDerView = 
+      gsl_vector_subvector(target, idx, sub->x().size());
+    
+    // Do scaling of the derivative !
+    gsl_vector_scale(&sDerView.vector, 
+                     parameters[s->originalParameters]);
+  };
+
+  /// Creates (and registers) the derivative fit based on the given
+  /// fit
+  CombinedDerivativeFit(PerDatasetFit * source) :
+      PerDatasetFit(DerivativeFit::derivativeFitName(source, DerivativeFit::Combined).
+          toLocal8Bit(), 
+          "Derived fit",
+          "(derived fit)", 1 , -1, false) {
+    underlyingFitName = source->fitName(false);
+    // How to remove the "parameters" argument ?
+    Command * cmd = CommandContext::globalContext()->
+      namedCommand("fit-" + underlyingFitName );
+    ArgumentList * opts = new ArgumentList(*cmd->commandOptions());
+
+    /// @todo Add own options.
+
+    makeCommands(NULL, NULL, NULL, opts);
+  };
+
+};
 
 
 //////////////////////////////////////////////////////////////////////
@@ -375,8 +584,12 @@ static void defineDerivedFit(const QString &, QString fitName,
       throw RuntimeError("Attempting to redefine fit '%1', use /redefine=true to ignore").arg(tn);
     return;
   }
-  else
-    new DerivativeFit(fit, mode);
+  else {
+    if(mode == DerivativeFit::Combined)
+      new CombinedDerivativeFit(fit);
+    else
+      new DerivativeFit(fit, mode);
+  }
 }
 
 static ArgumentList 
@@ -407,5 +620,4 @@ ddf("define-derived-fit", // command name
     &ddfA, // arguments
     &ddfO, // arguments
     "Create a derived fit",
-    "Create a derived fit to fit both the data and its derivative",
-    "(...)");
+    "Create a derived fit to fit both the data and its derivative");

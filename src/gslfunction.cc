@@ -350,7 +350,7 @@ public:
                              MRB_ARGS_REQ(1));
   }
 
-  virtual QString description() const {
+  virtual QString description() const override {
     return QString("%1. Precision to about $$10^{-7}$$. Other variants "
                    "available: `%2_fast` is faster, "
                    "(precision $$5\\times10^{-4}$$) and `%2_double` slower, "
@@ -415,6 +415,14 @@ k_mhc_z("k_mhc_z(lambda, eta)", "Approximation to the Marcus-Hush-Chidsey "
         "{4\\lambda}\\right) \\times "
         "\\frac{1}{1 + \\exp x}\\,\\mathrm{d}x$$", "http://dx.doi.org/10.1016/j.jelechem.2014.09.038");
 
+static GSLDoubleFunction<Functions::marcusHushChidsey> 
+k_mhc("k_mhc(lambda, eta)", "Marcus-Hush-Chidsey "
+       "integral $$k(\\lambda, \\eta) "
+       "= \\int_{-\\infty}^{\\infty} "
+        "\\exp\\left(\\frac{ - (x - \\lambda + \\eta)^2}"
+        "{4\\lambda}\\right) \\times "
+        "\\frac{1}{1 + \\exp x}\\,\\mathrm{d}x$$", "http://dx.doi.org/10.1016/j.jelechem.2014.09.038");
+
 
 
 // Incomplete gamma functions
@@ -467,6 +475,9 @@ hyperg_U("hyperg_U(a,b,x)", "Hypergeometric function $$U(a,b,x)$$",
 static GSLTripleFunction<Functions::pseudoVoigt> 
 pseudo_voigt("pseudo_voigt(x, w, mu)", "Pseudo-Voigt function, defined by: "
              "$$\\frac{1-\\mu}{\\sqrt{2 \\pi w^2}} \\exp (-x^2 / 2w^2) + \\frac{\\mu}{ w \\pi (1 + (x/w)^2) }$$");
+
+static GSLTripleFunction<Functions::trumpetBV> 
+trumpet_bv("trumpet_bv(m, alpha, prec)", "Position of an oxidative adsorbed 1-electron peak. $$m$$ is the coefficient defined by Laviron, the value is returned in units of $$RT/F$$");
 
 
 //////////////////////////////////////////////////////////////////////

@@ -68,11 +68,11 @@ class ECIFit : public PerDatasetFit {
   };
     
 protected:
-    virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const override {
     return deepCopy<Storage>(source);
   };
 
@@ -88,7 +88,7 @@ protected:
   }
 
   
-  virtual QString optionsString(FitData * data) const {
+  virtual QString optionsString(FitData * data) const override {
     Storage * s = storage<Storage>(data);
     return QString("%1, %3").
       arg(s->approx).
@@ -147,7 +147,7 @@ public:
 
   /// Formula:
   virtual void function(const double * params, FitData * data, 
-                        const DataSet * ds , gsl_vector * target) const {
+                        const DataSet * ds , gsl_vector * target) const override {
     Storage * s = storage<Storage>(data);
 
     const Vector & xv = ds->x();
@@ -210,7 +210,7 @@ public:
   };
 
 
-  virtual ArgumentList * fitHardOptions() const {
+  virtual ArgumentList * fitHardOptions() const override {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new 
@@ -262,11 +262,11 @@ class ECRFit : public PerDatasetFit {
   };
     
 protected:
-    virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const override {
     return deepCopy<Storage>(source);
   };
 
@@ -285,7 +285,7 @@ protected:
   }
 
   
-  virtual QString optionsString(FitData * data) const {
+  virtual QString optionsString(FitData * data) const override {
     Storage * s = storage<Storage>(data);
     return QString("%1, %2, %3").
       arg(s->approx).
@@ -374,7 +374,7 @@ public:
     double k_m2_k2 = params[2];
 
     if(s->useEoc)
-      k_m2_k2 = exp(f * (E1 - k_m2_k2));
+      k_m2_k2 = exp((s->isOxidation ? -1 : 1)*f * (E1 - k_m2_k2));
 
     if(k_m2_k2 < 0)
       throw RangeError("Negative bias");
@@ -440,7 +440,7 @@ public:
   };
 
 
-  virtual ArgumentList * fitHardOptions() const {
+  virtual ArgumentList * fitHardOptions() const  override {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new 
@@ -491,11 +491,11 @@ class EECIFit : public PerDatasetFit {
   };
     
 protected:
-    virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const override {
     return deepCopy<Storage>(source);
   };
 
@@ -514,7 +514,7 @@ protected:
   }
 
   
-  virtual QString optionsString(FitData * data) const {
+  virtual QString optionsString(FitData * data) const override {
     Storage * s = storage<Storage>(data);
     return QString("%1, %3").
       arg(s->approx).
@@ -578,7 +578,7 @@ public:
 
   /// Formula:
   virtual void function(const double * params, FitData * data, 
-                        const DataSet * ds , gsl_vector * target) const {
+                        const DataSet * ds , gsl_vector * target) const override {
     Storage * s = storage<Storage>(data);
 
     const Vector & xv = ds->x();
@@ -668,7 +668,7 @@ public:
     }
   };
 
-  virtual ArgumentList * fitHardOptions() const {
+  virtual ArgumentList * fitHardOptions() const override {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new 
@@ -718,11 +718,11 @@ class EECRFit : public PerDatasetFit {
   };
     
 protected:
-    virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const override {
     return deepCopy<Storage>(source);
   };
 
@@ -741,7 +741,7 @@ protected:
   }
 
   
-  virtual QString optionsString(FitData * data) const {
+  virtual QString optionsString(FitData * data) const override {
     Storage * s = storage<Storage>(data);
     return QString("%1, %2, %3").
       arg(s->approx).
@@ -799,14 +799,14 @@ public:
     a[1] = 0.6*ds->x().max() + 0.4*ds->x().min();
     a[2] = 0.4*ds->x().max() + 0.6*ds->x().min();
 
-    double b = -ds->y().max()/ds->y().min();
+    double b = -ds->y().min()/ds->y().max();
     if(b < 0.05)
       b = 0.05;
     if(b > 20)
       b = 20;
 
     if(s->useEoc) {
-      a[3] = - (a[0] * GSL_CONST_MKSA_MOLAR_GAS)/GSL_CONST_MKSA_FARADAY *
+      a[3] = 0.5*(a[0] * GSL_CONST_MKSA_MOLAR_GAS)/GSL_CONST_MKSA_FARADAY *
         log(b) + 0.5*(a[1]+a[2]);
     }
     else
@@ -935,7 +935,7 @@ public:
   };
 
 
-  virtual ArgumentList * fitHardOptions() const {
+  virtual ArgumentList * fitHardOptions() const override {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new 
@@ -959,7 +959,7 @@ public:
 
   EECRFit() :
     PerDatasetFit("eecr-wave", 
-                  "Fit of an EC reversible catalytic wave",
+                  "Fit of an EEC reversible catalytic wave",
                   "...", 1, -1, false) 
   { 
     makeCommands();
@@ -1150,7 +1150,7 @@ public:
 
   virtual void initialGuess(FitData * data, 
                             const DataSet * ds,
-                            double * a) const
+                            double * a) const override
   {
     Storage * s = storage<Storage>(data);
     double xmin = ds->x().min();
@@ -1167,7 +1167,7 @@ public:
     a[9] = 1;
   };
 
-  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+  virtual QList<ParameterDefinition> parameters(FitData * data) const override {
     Storage * s = storage<Storage>(data);
     QList<ParameterDefinition> defs;
     defs << ParameterDefinition("temperature", true)
@@ -1221,11 +1221,11 @@ class ECROldFit : public PerDatasetFit {
   };
     
 protected:
-    virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+    virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const override {
     return deepCopy<Storage>(source);
   };
 
@@ -1242,7 +1242,7 @@ protected:
   }
 
   
-  virtual QString optionsString(FitData * data) const {
+  virtual QString optionsString(FitData * data) const override {
     Storage * s = storage<Storage>(data);
     return QString("%1, %2, %3").
       arg(s->plateau ? "reaching plateau" : "not reaching plateau").
@@ -1255,7 +1255,7 @@ public:
 
   /// Formula:
   virtual void function(const double * params, FitData * data, 
-                        const DataSet * ds , gsl_vector * target) const {
+                        const DataSet * ds , gsl_vector * target) const override {
     Storage * s = storage<Storage>(data);
 
     const Vector & xv = ds->x();
@@ -1292,7 +1292,7 @@ public:
 
   virtual void initialGuess(FitData * data, 
                             const DataSet * /*ds*/,
-                            double * a) const
+                            double * a) const override
   {
     Storage * s = storage<Storage>(data);
     a[0] = soas().temperature();
@@ -1304,7 +1304,7 @@ public:
       a[5] = 1;
   };
 
-  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+  virtual QList<ParameterDefinition> parameters(FitData * data) const override {
     Storage * s = storage<Storage>(data);
     QList<ParameterDefinition> defs;
     defs << ParameterDefinition("temperature", true)
@@ -1319,7 +1319,7 @@ public:
     return defs;
   };
 
-  virtual ArgumentList * fitHardOptions() const {
+  virtual ArgumentList * fitHardOptions() const override {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new 
@@ -1375,11 +1375,11 @@ class EECROFit : public PerDatasetFit {
   
 protected:
 
-  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const override {
     return deepCopy<Storage>(source);
   };
 
@@ -1396,7 +1396,7 @@ protected:
   }
 
   
-  virtual QString optionsString(FitData * data) const {
+  virtual QString optionsString(FitData * data) const override {
     Storage * s = storage<Storage>(data);
     return QString("%1, %2, %3").
       arg(s->plateau ? "reaching plateau" : "not reaching plateau").
@@ -1409,7 +1409,7 @@ public:
 
   /// Formula:
   virtual void function(const double * params, FitData * data, 
-                        const DataSet * ds , gsl_vector * target) const {
+                        const DataSet * ds , gsl_vector * target) const override {
     Storage * s = storage<Storage>(data);
 
     const Vector & xv = ds->x();
@@ -1455,7 +1455,7 @@ public:
 
   virtual void initialGuess(FitData * data, 
                             const DataSet * /*ds*/,
-                            double * a) const
+                            double * a) const override
   {
     Storage * s = storage<Storage>(data);
 
@@ -1470,7 +1470,7 @@ public:
       a[7] = 1;
   };
 
-  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+  virtual QList<ParameterDefinition> parameters(FitData * data) const override {
     Storage * s = storage<Storage>(data);
 
     QList<ParameterDefinition> defs;
@@ -1491,7 +1491,7 @@ public:
     return defs;
   };
 
-  virtual ArgumentList * fitHardOptions() const {
+  virtual ArgumentList * fitHardOptions() const override {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new 

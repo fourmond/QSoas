@@ -425,7 +425,7 @@ public:
   /// Performs a linear regression on XY, taking only into account the
   /// data points within the given indices (-1 for end means the last
   /// element)
-  QPair<double, double> reglin(int begin = 0, int end = -1) const;
+  QPair<double, double> reglin(int begin = 0, int end = -1, int ycol = 1) const;
 
   /// Performs a linear regression on XY, taking into account only the
   /// data whose X value is within the given range.
@@ -547,6 +547,12 @@ public:
   /// Computes an arbitrary order arbitrary derivative.
   DataSet * arbitraryDerivative(int deriv, int order) const;
 
+  /// Computes an arbitrary order arbitrary derivative for the given
+  /// data points, and stores the result in target.
+  static void arbitraryDerivative(int deriv, int order, int nb,
+                                  const double * x, const double * y,
+                                  double * target);
+
   /// Concatenates all datasets into a single one.
   ///
   /// If \a setSegments is true, then new segments are added at the
@@ -599,8 +605,12 @@ public:
   /// Sets the given meta-data
   void setMetaData(const QString & name, const QVariant & value);
 
-  /// Returns all the meta-data
-  const ValueHash & getMetaData() const;
+  /// Returns all the meta-data.
+  ///
+  /// This also includes meta-data automatically generated on the spot:
+  /// @li @a name, the name of the buffer;
+  /// @li @a Z, the perpendicular coordinate, when there is one.
+  ValueHash getMetaData() const;
 
   /// Clears the given meta-data
   void clearMetaData(const QString & name);

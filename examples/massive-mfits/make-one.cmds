@@ -1,0 +1,3 @@
+# Comes up with a noisy parabola with slope
+generate-buffer 5 18 '${3}*x**2 + ${2}*x+${1}+0.7*cos(3.14*(x**34).abs)'
+set-perp ${2}

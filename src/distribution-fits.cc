@@ -59,15 +59,15 @@ class DistributionFit : public PerDatasetFit {
 
 protected:
 
-  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const override {
     return deepCopy<Storage>(source);
   };
 
-  virtual void processOptions(const CommandOptions & opts, FitData * data) const
+  virtual void processOptions(const CommandOptions & opts, FitData * data) const override
   {
     Storage * s = storage<Storage>(data);
 
@@ -78,7 +78,7 @@ protected:
   }
 
   
-  virtual QString optionsString(FitData * data) const {
+  virtual QString optionsString(FitData * data) const override {
     Storage * s = storage<Storage>(data);
     return QString("%1 species, %2").arg(s->number).
       arg(s->useSurface ? "surface" : "amplitude");
@@ -142,13 +142,13 @@ protected:
 
 public:
 
-  virtual bool hasSubFunctions(FitData * data) const {
+  virtual bool hasSubFunctions(FitData * data) const override {
     Storage * s = storage<Storage>(data);
 
     return s->number > 1;
   };
 
-  virtual bool displaySubFunctions(FitData * ) const {
+  virtual bool displaySubFunctions(FitData * ) const override {
     return true;               
   };
 
@@ -156,7 +156,7 @@ public:
                                    FitData * data, 
                                    const DataSet * ds,
                                    QList<Vector> * targetData,
-                                   QStringList * targetAnnotations) const
+                                   QStringList * targetAnnotations) const override
   {
     Storage * s = storage<Storage>(data);
     targetData->clear();
@@ -175,13 +175,13 @@ public:
 
   /// Formula:
   virtual void function(const double * a, FitData * data, 
-                        const DataSet * ds , gsl_vector * target) const {
+                        const DataSet * ds , gsl_vector * target) const override {
     annotatedFunction(a, data, ds, target);
   };
 
   virtual void initialGuess(FitData * data, 
                             const DataSet *ds,
-                            double * a) const
+                            double * a) const override
   {
     Storage * s = storage<Storage>(data);
 
@@ -208,7 +208,7 @@ public:
     }
   };
 
-  virtual QList<ParameterDefinition> parameters(FitData * data) const {
+  virtual QList<ParameterDefinition> parameters(FitData * data) const override {
     Storage * s = storage<Storage>(data);
 
     QList<ParameterDefinition> params;
@@ -226,7 +226,7 @@ public:
     return params;
   };
 
-  virtual ArgumentList * fitHardOptions() const {
+  virtual ArgumentList * fitHardOptions() const override {
     ArgumentList * opts = new 
       ArgumentList(QList<Argument *>()
                    << new BoolArgument("use-surface", 

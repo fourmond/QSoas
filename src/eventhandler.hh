@@ -82,7 +82,7 @@ protected:
   
 public:
 
-  EventHandler(const QString & cmd = "");
+  explicit EventHandler(const QString & cmd = "");
   EventHandler(const EventHandler & other);
   ~EventHandler();
 

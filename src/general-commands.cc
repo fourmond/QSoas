@@ -20,6 +20,7 @@
 
 #include <headers.hh>
 #include <command.hh>
+#include <commandcontext.hh>
 #include <group.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
@@ -31,6 +32,7 @@
 #include <vector.hh>
 #include <dataset.hh>
 #include <databackend.hh>
+#include <datastack.hh>
 
 #include <curveitems.hh>
 #include <curvemarker.hh>
@@ -46,6 +48,8 @@
 #include <outfile.hh>
 
 #include <idioms.hh>
+
+#include <argument-templates.hh>
 
 
 static Group file("file", 0,
@@ -80,7 +84,6 @@ quit("quit", // command name
      NULL, // options
      "Quit",
      "Quit QSoas",
-     "Exits QSoas, losing all the current session",
      "q");
 
 
@@ -99,8 +102,7 @@ breakc("break", // command name
        NULL, // arguments
        NULL, // options
        "Break",
-       "Break from script",
-       "Interrupts the run of the current script");
+       "Break from script");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -164,8 +166,7 @@ output("output", // command name
        NULL, // arguments
        &oOpts, // options
        "Change output file",
-       "Change the name of the current output file",
-       "Interrupts the run of the current script");
+       "Change the name of the current output file");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -222,9 +223,50 @@ temperature("temperature", // command name
             &tempOpts, // options
             "Temperature",
             "Reads/sets temperature",
-            "Shows or sets the temperature (using option)",
             "T"
             );
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void memCommand(const QString &,
+                       const CommandOptions & opts)
+{
+  int kb = Utils::memoryUsed();
+  Terminal::out << "Memory used: " << kb << " kB" << endl;
+
+  Terminal::out << "Stack: " << soas().stack().textSummary() << endl;
+
+  int fls, dss, size, maxf;
+  DataBackend::cacheStats(&fls, &dss, &size, &maxf);
+  Terminal::out << "Cache: " << fls << " files (out of "
+                << maxf << "), " << dss
+                << " buffers, for a total size of "
+                << (size >> 10) << " kB" << endl;
+  int ncs = -1;
+  updateFromOptions(opts, "cached-files", ncs);
+  if(ncs >= 0) {
+    Terminal::out << "Setting new cache size to " << ncs << endl;
+    DataBackend::setCacheSize(ncs);
+  }
+}
+
+static ArgumentList 
+memOpts(QList<Argument *>()
+        << new IntegerArgument("cached-files", "Number of cached files")
+        );
+
+static Command 
+m("mem", // command name
+  effector(memCommand), // action
+  "file",  // group name
+  NULL, // arguments
+  &memOpts, // options
+  "Memory",
+  "Informations about QSoas memory usage"
+  );
+
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -239,7 +281,17 @@ pops(QList<Argument *>()
      << new StringArgument("title", 
                            "Page title",
                            "Sets the title of the page as printed")
+     << new StringArgument("page-size", 
+                           "Page size",
+                           "Sets the page size, like 9x6 for 9cm by 6cm")
+     << new IntegerArgument("nominal-height", 
+                            "Nominal height",
+                            "Correspondance of the height of the page in terms of points")
      );
+
+
+#include <printpreviewhelper.hh>
+#include <graphicoutput.hh>
 
 static void printCommand(const QString &, 
                          const CommandOptions & opts)
@@ -250,9 +302,33 @@ static void printCommand(const QString &,
 
   QString file;
   bool overwrite = false;
+  bool test = false;
+
+  QString title;
+  updateFromOptions(opts, "title", title);
 
   updateFromOptions(opts, "overwrite", overwrite);
   updateFromOptions(opts, "file", file);
+  updateFromOptions(opts, "nominal-height", height);
+
+  QString pageSize;
+  updateFromOptions(opts, "page-size", pageSize);
+
+  if(! file.isEmpty() && test) {
+    // Handle output separately for now...
+    GraphicOutput out(title);
+    out.setOutputFile(file);
+    if(! pageSize.isEmpty())
+      out.setOutputSize(pageSize);
+    out.shipOut(&soas().view());
+    return;
+  }
+
+
+  double w, h;
+
+  bool preview = true;
+  updateFromOptions(opts, "preview", preview);
 
   if(! file.isEmpty()) {
     if(! overwrite)
@@ -260,8 +336,14 @@ static void printCommand(const QString &,
     if(file.endsWith("svg")) {
       QSvgGenerator * gen = new QSvgGenerator;
       p = std::unique_ptr<QPaintDevice>(gen);
-      rect = QRect(0, 0, 1000,1000);
+      if(pageSize.isEmpty()) {
+        w = 1000;
+        h = 1000;
+      }
+      rect = QRect(0, 0, w, h);
+      gen->setSize(QSize(w,h));
       gen->setFileName(file);
+      preview = false;
     }
   }
   if(! p) {
@@ -274,17 +356,27 @@ static void printCommand(const QString &,
       if(printDialog.exec() != QDialog::Accepted)
         return;
     }
-    printer->setOrientation(QPrinter::Landscape);
+    if(pageSize.isEmpty()) {
+      printer->setOrientation(QPrinter::Landscape);
+    }
+    else {
+      printer->setPaperSize(QSizeF(w*10, h*10), QPrinter::Millimeter);
+      printer->setFullPage(true);
+    }
     rect = printer->pageRect();
   }
 
-  
-  QString title;
-  updateFromOptions(opts, "title", title);
-
-  QPainter painter;
-  painter.begin(p.get());
-  soas().view().render(&painter, height, rect, title);
+  PrintPreviewHelper helper(height, rect, title);
+  if(/*preview*/ false) {
+    QPrinter * printer = dynamic_cast<QPrinter *>(p.get());
+    if(! printer)
+      throw InternalError("Should not preview when generating SVG");
+    QPrintPreviewDialog dlg(printer);
+    helper.connect(&dlg, SIGNAL(paintRequested(QPrinter *)),
+                   SLOT(paintOnPrinter(QPrinter *)));
+  }
+  else
+    helper.paint(p.get());
 }
 
 static Command 
@@ -295,7 +387,6 @@ p("print", // command name
   &pops, // options
   "Print",
   "Print current view (almost)",
-  "Prints the current main panel of the current view",
   "p"
   );
 
@@ -324,7 +415,6 @@ st("save-output", // command name
    &sta, // arguments
    NULL, // options
    "Save output",
-   "Save all output from the terminal",
    "Save all output from the terminal");
 
 //////////////////////////////////////////////////////////////////////
@@ -355,9 +445,16 @@ sh("save-history", // command name
    &saveHistoryArgs, // arguments
    NULL, // options
    "Save history",
-   "Save command history",
-   "Saves all the command history to a plain text file, "
-   "to be used again with run");
+   "Save command history");
+
+static Command 
+sH("save-history", // command name
+   optionLessEffector(saveHistoryCommand), // action
+   "file",  // group name
+   &saveHistoryArgs, // arguments
+   NULL, // options
+   "Save history",
+   "Save command history", "", CommandContext::fitContext());
 
 //////////////////////////////////////////////////////////////////////
   
@@ -371,6 +468,8 @@ static void runCommand(const QString &, QStringList args,
   updateFromOptions(opts, "silent", silent);
   bool cd = false;
   updateFromOptions(opts, "cd-to-script", cd);
+  CommandWidget::ScriptErrorMode mode = CommandWidget::Abort;
+  updateFromOptions(opts, "error", mode);
   
   WDisableUpdates eff(& soas().view(), silent);
 
@@ -383,8 +482,9 @@ static void runCommand(const QString &, QStringList args,
     cmdfile = info.fileName();
   }
   TemporarilyChangeDirectory c(nd);
-  soas().prompt().runCommandFile(cmdfile, args, addToHistory);
+  soas().prompt().runCommandFile(cmdfile, args, addToHistory, mode);
 }
+
 
 static ArgumentList
 runOpts(QList<Argument *>() 
@@ -396,14 +496,20 @@ runOpts(QList<Argument *>()
                             "Add commands to history",
                             "whether the commands run are added to the "
                             "history (defaults to false)")
+        << new TemplateChoiceArgument<CommandWidget::ScriptErrorMode>(CommandWidget::errorModeNames(),
+                                                                      "error", 
+                                                                      "on error",
+                                                                      "Behaviour to adopt on error")
         );
+
+
 
 static ArgumentList
 rcO(QList<Argument *>(runOpts) 
-        << new BoolArgument("cd-to-script", 
-                            "cd to script",
-                            "If on, automatically change the directory to that oof the script")
-        );
+    << new BoolArgument("cd-to-script", 
+                        "cd to script",
+                        "If on, automatically change the directory to that oof the script")
+    );
 
 static ArgumentList 
 runArgs(QList<Argument *>() 
@@ -421,8 +527,18 @@ run("run", // command name
     &rcO, 
     "Run commands",
     "Run commands from a file",
-    "Run commands saved in a file",
     "@");
+
+// The same, but for the fit context
+static Command 
+frun("run", // command name
+     effector(runCommand), // action
+     "file",  // group name
+     &runArgs, // arguments
+     &rcO, 
+     "Run commands",
+     "Run commands from a file",
+     "@", CommandContext::fitContext());
 
 //////////////////////////////////////////////////////////////////////
   
@@ -452,7 +568,6 @@ noop("noop", // command name
      &noopArgs, // arguments
      &noopOpts, // options
      "No op",
-     "Does nothing",
      "Does nothing");
 
 
@@ -491,6 +606,11 @@ static void runForDatasetsCommand(const QString &, QString script,
   updateFromOptions(opts, "add-to-history", addToHistory);
   bool silent = false;
   updateFromOptions(opts, "silent", silent);
+
+  CommandWidget::ScriptErrorMode mode = CommandWidget::Abort;
+  updateFromOptions(opts, "error", mode);
+
+  
   WDisableUpdates eff(& soas().view(), silent);
 
   QStringList a;
@@ -503,8 +623,17 @@ static void runForDatasetsCommand(const QString &, QString script,
   }  
 
   while(datasets.size() > 0) {
-    soas().pushDataSet(new DataSet(*datasets.takeLast()));
-    soas().prompt().runCommandFile(script, a, addToHistory);
+    const DataSet * ds = datasets.takeLast();
+    Terminal::out << "Running '" << script << "' using dataset: '"
+                  << ds->name
+                  << QString("', %1 cols, %2 rows, %3 segments").
+      arg(ds->nbColumns()).arg(ds->nbRows()).
+      arg(ds->segments.size() + 1)
+                  << endl;
+
+  
+    soas().pushDataSet(new DataSet(*ds));
+    soas().prompt().runCommandFile(script, a, addToHistory, mode);
   }
 }
 
@@ -536,8 +665,7 @@ rfd("run-for-datasets", // command name
     &rfdArgs, // arguments
     &rfdOpts, 
     "Runs a script for several datasets",
-    "Runs a script file repetitively with the given buffers",
-    "...");
+    "Runs a script file repetitively with the given buffers");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -552,6 +680,9 @@ static void runForEachCommand(const QString &, QString script,
 
   bool silent = false;
   updateFromOptions(opts, "silent", silent);
+  CommandWidget::ScriptErrorMode mode = CommandWidget::Abort;
+  updateFromOptions(opts, "error", mode);
+  
   WDisableUpdates eff(& soas().view(), silent);
 
   int nb = 1;
@@ -604,7 +735,7 @@ static void runForEachCommand(const QString &, QString script,
     for(int i = 0; i < nb && args.size() > 0; i++)
       a << args.takeFirst();
     a << additionalArgs;
-    soas().prompt().runCommandFile(script, a, addToHistory);
+    soas().prompt().runCommandFile(script, a, addToHistory, mode);
   }
 }
 
@@ -636,8 +767,17 @@ rfe("run-for-each", // command name
     &rfeArgs, // arguments
     &rfeOpts, 
     "Runs a script for several arguments",
-    "Runs a script file repetitively with the given arguments",
-    "...");
+    "Runs a script file repetitively with the given arguments");
+
+static Command 
+rfef("run-for-each", // command name
+     effector(runForEachCommand), // action
+     "file",  // group name
+     &rfeArgs, // arguments
+     &rfeOpts, 
+     "Runs a script for several arguments",
+     "Runs a script file repetitively with the given arguments",
+     "", CommandContext::fitContext());
 
 //////////////////////////////////////////////////////////////////////
 
@@ -723,7 +863,6 @@ cd("cd", // command name
    &cda, // arguments
    &cdo, // options
    "Change directory",
-   "Change current directory",
    "Change current directory",
    "G");
 
@@ -910,6 +1049,15 @@ sy("system", // command name
    &syO, // options
    "System",
    "Execute system commands");
+
+static Command 
+fsy("system", // command name
+    effector(systemCommand), // action
+    "file",  // group name
+    &syA, // arguments
+    &syO, // options
+    "System",
+    "Execute system commands", "", CommandContext::fitContext());
 
 
 //////////////////////////////////////////////////////////////////////

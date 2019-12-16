@@ -84,6 +84,7 @@ public:
   /// private only in the .cc file
   class Reaction {
   protected:
+    friend class KineticSystem;
 
     /// Expression for the forward rate
     QString forwardRate;
@@ -105,16 +106,16 @@ public:
     /// speciesIndices.
     QVector<int> speciesStoechiometry;
 
+    /// A cache for the computed rate constants
+    double forwardCache, backwardCache;
+
     /// the number of electrons (counted negatively if on the left)
     int electrons;
 
-    /// A storage space for caching stuff -- this is hanlded at the
-    /// KineticSystem level.
-    double cache[2];
 
     /// Returns true when:
     /// * the stoechiometry is one for each reactant
-    /// * the rate constants are constants
+    /// * the rate constants do not depend on anything starting with `c_`
     ///
     /// @todo In time, this will have to include the case when a rate
     /// constant is not a constant, but does not depend on the
@@ -132,6 +133,10 @@ public:
       clearExpressions();
     };
 
+    /// Returns the stoechiometry of the numbered species, or 0 if
+    /// this species does not partake the reaction.
+    int stoechiometry(int species) const;
+
     /// Computes the expressions
     virtual void makeExpressions(const QStringList & vars = QStringList());
 
@@ -140,6 +145,16 @@ public:
 
     /// Returns the parameters needed by the rates
     virtual QSet<QString> parameters() const;
+
+    /// The products, i.e. the things that are counted positive in
+    /// speciesStoechiometry
+    QList<int> products() const;
+
+    /// The reactants
+    QList<int> reactants() const;
+
+    /// Returns true if the reaction is reversible
+    bool isReversible() const;
 
 
     /// Computes both the forward and backward rates
@@ -173,6 +188,10 @@ public:
     /// Index of the temperature in the parameters
     int temperatureIndex;
 
+    /// A cache 
+    double cache[2];
+
+
     // We reuse the forward/backward stuff but with a different
     // meaning.
     RedoxReaction(int els, const QString & e0, const QString & k0);
@@ -180,20 +199,21 @@ public:
     /// A copy constructor
     RedoxReaction(const RedoxReaction & other);
 
-    virtual void setParameters(const QStringList & parameters);
+    virtual void setParameters(const QStringList & parameters) override;
 
     virtual QSet<QString> parameters() const;
 
     virtual void computeRateConstants(const double * vals, 
-                                      double * forward, double * backward) const;
-    virtual QString exchangeRate() const;
+                                      double * forward, double * backward) const override;
+    
+    virtual QString exchangeRate() const override;
 
-    virtual Reaction * dup() const;
+    virtual Reaction * dup() const override;
 
     /// Stores useful values in the cache. Stores:
     /// * exp(fara * 0.5 * electrons * (- e0));
     /// * k0
-    virtual void computeCache(const double * vals);
+    virtual void computeCache(const double * vals) override;
   };
 
 
@@ -204,6 +224,7 @@ protected:
 
   /// List of reactions
   QVector<Reaction *> reactions;
+
 
   /// @name Cache
   ///
@@ -225,6 +246,47 @@ protected:
   /// Returns the index of the species, and registers it if needed.
   int speciesIndex(const QString & str);
 
+
+  /// @name Handling of thermodynamic cycles
+  ///
+  /// @{
+
+  
+  /// A thermodynamic cycle.
+  class Cycle {
+  public:
+    /// The list of reactions in the cycle. The first is the one in
+    /// which one of the rates is automatic.
+    QList<Reaction * > reactions;
+
+    /// The "stoeichiometry" of the reaction, i.e. 1 if the reaction
+    /// is "naturally" in the sense of the cycle, or -1 if it is in
+    /// the reverse direction.
+    ///
+    /// The meaning is different for the first one: it tells whether
+    /// the forward (1) or the backward (-1) reaction is automatic.
+    QList<int> directions;
+    
+
+    /// Computes the rate of the (first) reaction
+    void computeRateConstant() const;
+  };
+
+
+  /// The list of thermodynamic cycles.
+  ///
+  /// As of now, there are no safeguards:
+  QList<Cycle> cycles;
+  
+  /// Adds a cycle, starting from the given reaction, parses the
+  /// "cycle:" spec in either the forward or backward expression for
+  /// the rate constant and adds it to the list of known cycles.
+  ///
+  /// The cycle is a space-separated list of species, that is
+  /// implicitly starting from the reaction's RHS.
+  void parseCycle(Reaction * start);
+
+  /// @}
 
   /// All the external parameters of the system. Includes initial
   /// concentrations. The parameters values must be provided \b in \b
@@ -249,6 +311,9 @@ protected:
 
 
 public:
+
+  /// The file name (for displaying purposes)
+  QString fileName;
 
   /// If this is on, then computeLinearJacobian checks that the rate
   /// constants are not negative, and raise an exception if they are.
@@ -343,10 +408,19 @@ public:
                                    const double * parameters,
                                    gsl_vector * coeffs = NULL) const;
 
+  /// Computes all the rate constants, including the cycles.
+  /// It stores the computed rates in Reaction::cachedRates.
+  ///
+  /// The @a concentrations vector can be NULL when isLinear() returns
+  /// true.
+  void cacheRateConstants(const gsl_vector * concentrations,
+                          const double * parameters) const;
 
+protected:
   /// Reads reactions from a file, and add them to the current system.
-  void parseFile(QIODevice * stream);
+  void parseFile(QIODevice * stream, const QString & name);
 
+public:
 
   /// Reads directly the file
   void parseFile(const QString & fileName);

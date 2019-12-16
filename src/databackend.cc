@@ -72,11 +72,72 @@ public:
     return deepCopy(datasets);
   };
 
+  int number() const {
+    return datasets.size();
+  };
+
+  int byteSize() const {
+    int sz = 0;
+    for(const DataSet * ds : datasets)
+      sz += ds->byteSize();
+    return sz;
+  };
+
 };
+
+
+static SettingsValue<int> cacheSize("backends/cache-size", 1000);
 
 // A cache for 1000 datasets
 /// @todo Use real size ?
-QCache<QString, CachedDataSets> DataBackend::cachedDatasets(1000);
+QCache<QString, CachedDataSets> * DataBackend::cachedDatasets = NULL;
+
+
+CachedDataSets * DataBackend::cacheForFile(const QString & file)
+{
+  if(! cachedDatasets)
+    return NULL;
+  return cachedDatasets->object(file);
+}
+
+void DataBackend::addToCache(const QString & file, const QList<DataSet*> & dss)
+{
+  if(! cachedDatasets)
+    cachedDatasets = new QCache<QString, CachedDataSets>(::cacheSize);
+  cachedDatasets->insert(file, new CachedDataSets(dss));
+}
+
+void DataBackend::setCacheSize(int sz)
+{
+  cacheSize = sz;
+  if(cachedDatasets)
+    cachedDatasets->setMaxCost(sz);
+}
+
+void DataBackend::cacheStats(int * nbFiles, int * nbDatasets,
+                         int * size, int * maxFiles)
+{
+  *nbFiles = 0;
+  *nbDatasets = 0;
+  *size = 0;
+  *maxFiles = 0;
+  if(! cachedDatasets)
+    return;
+  *nbFiles = cachedDatasets->totalCost();
+  *maxFiles = cachedDatasets->maxCost();
+
+  QStringList lst = cachedDatasets->keys();
+  for(const QString & f : lst) {
+    const CachedDataSets * cds = (*cachedDatasets)[f];
+    *nbDatasets += cds->number();
+    *size += cds->byteSize();
+  }
+}
+
+
+
+
+
 
 void DataBackend::registerBackend(DataBackend * backend)
 {
@@ -137,7 +198,7 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName,
   if(verbose)
     Terminal::out << "Loading file: '" << fileName << "' ";
   
-  CachedDataSets * cached = cachedDatasets.object(key);
+  CachedDataSets * cached = cacheForFile(key);
 
   if(! cached || cached->date < lastModified || ignoreCache) {
     Utils::open(&file, QIODevice::ReadOnly);
@@ -153,7 +214,7 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName,
 
     // Now we update the cache
     if(! ignoreCache)
-      cachedDatasets.insert(key, new CachedDataSets(datasets));
+      addToCache(key, datasets);
   }
   else {
     datasets = cached->cachedDataSets();
@@ -188,6 +249,15 @@ void DataBackend::loadFilesAndDisplay(bool update, QStringList files,
   // First load
   QList<DataSet *> datasets;
 
+  QString frm;
+  updateFromOptions(opts, "for-which", frm);
+
+  bool ignoreEmpty = true;
+  updateFromOptions(opts, "ignore-empty", ignoreEmpty);
+
+  int expected = -1;
+  updateFromOptions(opts, "expected", expected);
+
   for(int i = 0; i < files.size(); i++) {
     try {
       QList<DataSet *> dss = 
@@ -198,13 +268,48 @@ void DataBackend::loadFilesAndDisplay(bool update, QStringList files,
         Terminal::out << " -> got " << dss.size() << " datasets" << endl;
       else
         Terminal::out << " -> OK" << endl;
-      datasets << dss;
+      QFileInfo info(files[i]);
+      for(DataSet * s : dss) {
+        s->setMetaData("original-file", info.canonicalFilePath());
+        
+        if(ignoreEmpty && (s->nbRows() == 0 || s->nbColumns() == 0)) {
+          Terminal::out << " -> ignoring empty dataset '"
+                        << s->name
+                        << "', use /ignore-empty=false if you really want it" 
+                        << endl;
+
+          continue;
+        }
+        if(! frm.isEmpty()) {
+          try {
+            if(! s->matches(frm)) {
+              Terminal::out << "File '"
+                            << s->name
+                            << "' does not match the selection rule" 
+                            << endl;
+            }
+            else
+              datasets << s;
+          }
+          catch(const RuntimeError & re) {
+            Terminal::out << "Error evaluating expression file '"
+                          << s->name
+                          << "': " << re.message()
+                          << endl;
+          }
+        }
+        else
+          datasets << s;
+      }
     }
     catch (const RuntimeError & e) {
       Terminal::out << "\n" << e.message() << endl;
     }
     QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
   }
+  if(expected >= 0 && datasets.size() != expected)
+    throw RuntimeError("Expected %1 datasets but got %2").
+      arg(expected).arg(datasets.size());
 
   DataStackHelper pusher(opts, update);
   for(int i = 0; i < datasets.size(); i++) {
@@ -277,6 +382,17 @@ void DataBackend::registerBackendCommands()
                      );
 
   ArgumentList * oo = DatasetOptions::optionList();
+  *oo << DataStackHelper::helperOptions()
+      << new BoolArgument("ignore-empty", 
+                          "Ignores empty files",
+                          "if on, skips empty files (default on)")
+      << new CodeArgument("for-which", 
+                          "For which",
+                          "Select on formula")
+      << new IntegerArgument("expected", 
+                             "Expected number",
+                             "Expected number of loaded datasets");
+
   overallOptions->mergeOptions(*oo);
   nonBackendOptions = QSet<QString>::fromList(overallOptions->argumentNames());
 
@@ -294,27 +410,16 @@ void DataBackend::registerBackendCommands()
     }
     else
       opts = new ArgumentList;
-    /// @todo Try to find a way to share that with options for the
-    /// load and overlay commands.
-    *opts << DataStackHelper::helperOptions();
-    
+
     opts->mergeOptions(*oo);
-      
-    /// @todo Add general options processing.
+
     QString name = "load-as-" + b->name;
 
     QString d1 = QString("Load files with backend '%1'").arg(b->name);
-    QString d2 = QString("Load any number of files directly using the backend "
-                         "'%1', bypassing cache and automatic backend "
-                         "detection, and "
-                         "giving more fine-tuning in the loading via the "
-                         "use of dedicated options").arg(b->name);
-
     new Command(name.toLocal8Bit(),
                 effector(b, &DataBackend::loadDatasetCommand),
                 "load", lst, opts, (const char*) d1.toLocal8Bit(), 
-                (const char*) d1.toLocal8Bit(), 
-                (const char*) d2.toLocal8Bit());
+                (const char*) d1.toLocal8Bit());
   }
 
   overallOptions->mergeOptions(*allBackendsOptions);
@@ -329,7 +434,6 @@ void DataBackend::registerBackendCommands()
                 overallOptions, // options
                 "Load",
                 "Loads one or several files",
-                "Loads the given files and push them onto the data stack",
                 "l");
 
   cmd = 
@@ -340,8 +444,6 @@ void DataBackend::registerBackendCommands()
                 overallOptions, // options
                 "Overlay",
                 "Loads files and overlay them",
-                "Loads the given files and push them onto the data "
-                "stack, adding them to the display at the same time",
                 "v");
   
 }

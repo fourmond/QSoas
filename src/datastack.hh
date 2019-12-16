@@ -33,6 +33,9 @@ class DataStack : public QObject {
 
   Q_OBJECT;
 
+  /// When this flag is on, no cleanup is performed at destruction.
+  bool notOwner;
+
   /// The DataSet objects
   QList<DataSet *> dataSets;
 
@@ -42,14 +45,18 @@ class DataStack : public QObject {
   /// The redo stack.
   QList<DataSet *> redoStack;
 
-  /// A chache DataSet name -> DataSet.
-  QHash<QString, DataSet *> dataSetByName;
+  // /// A chache DataSet name -> DataSet.
+  // Not used, so more obnoxious than anything else...
+  // QHash<QString, DataSet *> dataSetByName;
 
   /// Converts the dataset number given into a real list index, along
   /// with setting the list pointer to the right one.
   int dsNumber2Index(int nb, const QList<DataSet *> * * target) const;
   int dsNumber2Index(int nb, QList<DataSet *> ** target);
 
+  /// @name Stack-serialization related functions
+  ///
+  /// @{
 
   friend QDataStream & operator<<(QDataStream & out, const DataStack & stack);
   friend QDataStream & operator>>(QDataStream & in, DataStack & stack);
@@ -65,6 +72,20 @@ class DataStack : public QObject {
   friend QDataStream & operator<<(QDataStream & out, const DatasetOptions & ds);
   friend QDataStream & operator>>(QDataStream & in, DatasetOptions & ds);
 
+  /// Writes the serialization header
+  static void writeSerializationHeader(QDataStream & out);
+
+  /// Reads the serialization header. Sets serializationVersion
+  static void readSerializationHeader(QDataStream & in);
+
+  /// Serializes the stack to the binary output
+  void writeStack(QDataStream & out) const;
+
+  /// Reads the stack
+  void readStack(QDataStream & in);
+
+  /// @}
+  
   /// Total size of the stack.
   quint64 cachedByteSize;
 
@@ -75,10 +96,23 @@ class DataStack : public QObject {
   /// The current accumulator
   DataSet * accumulator;
 
+
+  /// This list stores the datasets produced by "context". Outer
+  /// contexts have at least as many datasets as the nested ones.
+  QList<QList<GuardedPointer<DataSet> > > spies;
+  
 public:
 
+  /// Push a spy, returns the previous nesting level
+  int pushSpy();
+
+  /// Pop spies back to the given nesting level. Returns the
+  /// datasets in the last nesting level popped.
+  QList<DataSet *> popSpy(int targetLevel);
+
+
   /// Constructs a DataStack object.
-  DataStack();
+  explicit DataStack(bool notOwner = false);
 
   ~DataStack();
 
@@ -99,8 +133,18 @@ public:
 
   /// Displays to terminal a small text description of the contents of
   /// the stack.
-  void showStackContents(int limit = 0,bool mostRecentFirst = true) const;
+  ///
+  /// The @a meta arguments lists meta that will be displayed in
+  /// addition to the buffer presentation, 
+  void showStackContents(int limit = 0,
+                         const QStringList & meta = QStringList()) const;
 
+  /// @name Dataset selection
+  ///
+  /// Dataset selection functions, with flags or other mechanisms
+  ///
+  /// @{
+  
   /// Returns the list of datasets flagged (or not) with the given
   /// flag (or with any flag if the second argument is empty)
   QList<DataSet *> flaggedDataSets(bool flagged = true, 
@@ -120,6 +164,23 @@ public:
   /// and returns the corresponding datasets.
   QList<const DataSet *> datasetsFromSpec(const QString & spec) const;
 
+  /// Returns the list of dataset names
+  QSet<QString> datasetNames() const;
+
+  typedef enum {
+    Strict,
+    Glob,
+    Regex
+  } NameMatchingRule;
+
+  /// Returns all the datasets having this name.
+  ///
+  /// If matcher is Strict, only datasets of the right name are given
+  /// else, a search is performed using name either as a glob or a
+  /// regexp pattern
+  QList<const DataSet *> namedDataSets(const QString & name,
+                                       NameMatchingRule matcher = Glob) const;
+
 
   /// Returns the numbered data set.
   /// \li 0 is the most recent
@@ -138,7 +199,11 @@ public:
   /// Returns the DataSet specified by the given string, ie:
   /// \li a string representing a number
   /// \li a buffer name (not implemented yet)
+  ///
+  /// @todo Isn't that kinda obsolete ?
   DataSet * fromText(const QString & str) const;
+
+  /// @}
 
   /// Undo (ie, buffer 0 becomes buffer -1)
   void undo(int nbtimes = 1);
@@ -192,6 +257,10 @@ public:
 
   // /// Returns the current accumulator without releasing ownership
   // DataSet * getAccumulator();
+
+  /// Inserts the given stack into the current one.
+  void insertStack(const DataStack & s);
+
 
 signals:
   /// Emitted whenever the current dataset changed.

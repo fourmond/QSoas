@@ -63,13 +63,21 @@ public:
     // Common stuff, date:
 
     try {
+      if(lines.size() < 225)
+        throw RuntimeError("Not enough lines in GPES meta-data file");
+         
     
       // Try to parse dates...
-      //QDate date = QDate::fromString(lines[202]);
       QTime time = QTime::fromString(lines[203]);
-      // QDateTime dt(date, time);
-      // ret["exp-date"] = dt;
       ret["exp-time"] = time;
+
+      QRegExp dre("(\\d+)/(\\d+)/(\\d+)");
+      if(dre.indexIn(lines[202]) == 0) {
+        QDate date = QDate(dre.cap(3).toInt(), dre.cap(2).toInt(),
+                           dre.cap(1).toInt());
+        QDateTime dt(date, time);
+        ret["exp-date"] = dt;
+      }
       ret["title"] = lines[210];
       ret["comments"] = lines[211] + lines[212];
       ret["gpes_file"] = lines[224];
@@ -78,8 +86,21 @@ public:
       ret["t_eq"] = lines[10].toDouble();
       ret["E_cond"] = lines[12].toDouble();
       ret["E_stby"] = lines[20].toDouble();
-    
-    
+
+      // Filter
+      double flt = 0;
+      switch(lines[55].toInt()) {
+      case 2:
+        flt = 0.1;
+        break;
+      case 3:
+        flt = 1;
+        break;
+      case 4:
+        flt = 5;
+        break;
+      }
+      ret["filter_time"] = flt;
     
       switch(mf[mf.size()-2].toLatin1()) {
       case 'c': {                 // staircase voltammetry
@@ -90,6 +111,11 @@ public:
         ret["E_start"] = lines[61].toDouble();
         ret["E_first"] = lines[62].toDouble();
         ret["E_second"] = lines[63].toDouble();
+
+        QRegExp cre("(\\d{5})\\.ocw$");
+        if(cre.indexIn(fileName) > 0)
+          ret["cycle"] = cre.cap(1).toInt();
+
         return ret;
       }
       case 'x': {                  // chronoamperometry

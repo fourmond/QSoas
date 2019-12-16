@@ -59,7 +59,7 @@ void PeakInfo::computeArea(QList<PeakInfo> & peaks, const Vector & x, const Vect
   QList<PeakInfo> pk = peaks;
   for(int i = 0; i < pk.size(); i++)
     pk[i].area = i;             // Boaf
-  PeakInfo::sortByPosition(peaks);
+  PeakInfo::sortByPosition(pk);
   Vector iy = Vector::integrateVector(x,y);
 
   int left = 0;
@@ -72,6 +72,8 @@ void PeakInfo::computeArea(QList<PeakInfo> & peaks, const Vector & x, const Vect
       right = x.findCrossing(pk[i].index, xt);
     }
     else
+      right = x.size()-1;
+    if(right > x.size() - 1)
       right = x.size()-1;
 
     peaks[static_cast<int>(pk[i].area)].area = iy[right] - iy[left];
@@ -110,9 +112,9 @@ QList<PeakInfo> Peaks::findPeaks(bool includeBorders)
     info.magnitude = fabs(avg - info.y);
 
     int j = y.findCrossing(idx, y[idx]/2, -1);
-    info.leftHHWidth = info.x - x.value(j, 0.0/0.0);
+    info.leftHHWidth = info.x - x.value(j, std::nan(""));
     j = y.findCrossing(idx, y[idx]/2, 1);
-    info.rightHHWidth = x.value(j, 0.0/0.0) - info.x;
+    info.rightHHWidth = x.value(j, std::nan("")) - info.x;
     info.area = 0;              // Defaults to 0...
 
     // Now, we look for the right and left half widths

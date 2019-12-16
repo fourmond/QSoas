@@ -30,7 +30,7 @@
 #include <terminal.hh>
 
 #include <exceptions.hh>
-#include <command.hh>
+#include <commandcontext.hh>
 #include <curveview.hh>
 
 #include <stylegenerator.hh>
@@ -39,25 +39,27 @@
 #include <fit.hh>
 #include <mruby.hh>
 
+#include <command.hh>
 
 ArgumentMarshaller * StringArgument::fromString(const QString & str) const
 {
   return new ArgumentMarshallerChild<QString>(str);
 }
 
+QStringList StringArgument::toString(const ArgumentMarshaller * arg) const
+{
+  return Argument::toString(arg);
+}
+
 QWidget * StringArgument::createEditor(QWidget * parent) const
 {
-  return new QLineEdit(parent);
+  return createTextEditor(parent);
 }
 
 void StringArgument::setEditorValue(QWidget * editor, 
-                                    ArgumentMarshaller * value) const
+                                    const ArgumentMarshaller * value) const
 {
-  QLineEdit * le = dynamic_cast<QLineEdit*>(editor);
-  if(! le)
-    throw InternalError("Wrong editor given to setEditorValue");
-
-  le->setText(value->value<QString>());
+  return setTextEditorValue(editor, value);
 }
 
 QString StringArgument::typeDescription() const
@@ -88,6 +90,28 @@ void SeveralStringsArgument::concatenateArguments(ArgumentMarshaller * a,
 {
   a->value<QStringList>() += 
     b->value<QStringList>();
+}
+
+QStringList SeveralStringsArgument::toString(const ArgumentMarshaller * arg) const
+{
+  if(greedy)
+    return arg->value<QStringList>();
+  else {
+    QString sep = separator.pattern();
+    sep.replace("\\s*", "");
+    if(sep.isEmpty())
+      sep = " ";
+    else {
+      QRegExp pt("^\\[(.*)\\]$");
+      if(pt.indexIn(sep) == 0) {
+        QStringList seps = pt.cap(1).split("", QString::SkipEmptyParts);
+        sep = seps[0];
+      }
+    }
+    QStringList lst;
+    lst << arg->value<QStringList>().join(sep);
+    return lst;
+  }
 }
 
 QString SeveralStringsArgument::typeName() const {
@@ -122,6 +146,17 @@ ArgumentMarshaller * SeveralStringsArgument::fromRuby(mrb_value value) const
     return convertRubyArray(value);
 }
 
+QWidget * SeveralStringsArgument::createEditor(QWidget * parent) const
+{
+  return createTextEditor(parent);
+}
+
+void SeveralStringsArgument::setEditorValue(QWidget * editor, 
+                                            const ArgumentMarshaller * value) const
+{
+  setTextEditorValue(editor, value);
+}
+
 ////////////////////////////////////////////////////////////
 
 ArgumentMarshaller * MetaHashArgument::fromString(const QString & str) const
@@ -140,6 +175,16 @@ ArgumentMarshaller * MetaHashArgument::fromString(const QString & str) const
     r[n] = v;
 
   return new ArgumentMarshallerChild<QHash<QString, QVariant> >(r);
+}
+
+QStringList MetaHashArgument::toString(const ArgumentMarshaller * arg) const
+{
+  /// @todo Shouldn't this use ValueHash conversion functions ?
+  QStringList rv;
+  QHash<QString, QVariant> r = arg->value<QHash<QString, QVariant> >();
+  for(const QString & n : r.keys())
+    rv << QString("%1=%2").arg(n).arg(r[n].toString());
+  return rv;
 }
 
 void MetaHashArgument::concatenateArguments(ArgumentMarshaller * a, 
@@ -164,6 +209,17 @@ ArgumentMarshaller * MetaHashArgument::fromRuby(mrb_value value) const
   return NULL;
 }
 
+QWidget * MetaHashArgument::createEditor(QWidget * parent) const
+{
+  return Argument::createTextEditor(parent);
+}
+
+void MetaHashArgument::setEditorValue(QWidget * editor, 
+                                      const ArgumentMarshaller * value) const
+{
+  Argument::setTextEditorValue(editor, value);
+}
+
 ////////////////////////////////////////////////////////////
 
 ArgumentMarshaller * BoolArgument::fromString(const QString & str) const
@@ -180,6 +236,16 @@ ArgumentMarshaller * BoolArgument::fromString(const QString & str) const
   return new ArgumentMarshallerChild<bool>(val);
 }
 
+QStringList BoolArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QStringList rv;
+  if(arg->value<bool>())
+    rv << "true";
+  else
+    rv << "false";
+  return rv;
+}
+
 ArgumentMarshaller * BoolArgument::promptForValue(QWidget * ) const
 {
   bool val = Utils::askConfirmation(description(), argumentName());
@@ -194,7 +260,7 @@ QWidget * BoolArgument::createEditor(QWidget * parent) const {
 }
 
 void BoolArgument::setEditorValue(QWidget * editor, 
-                                  ArgumentMarshaller * value) const {
+                                  const ArgumentMarshaller * value) const {
   QComboBox * cb = dynamic_cast<QComboBox*>(editor);
   if(! cb)
     throw InternalError("Not a combo box");
@@ -238,6 +304,11 @@ QStringList ChoiceArgument::choices() const
     c = provider();
   qSort(c);
   return c;
+}
+
+QStringList ChoiceArgument::toString(const ArgumentMarshaller * arg) const
+{
+  return Argument::toString(arg);
 }
 
 ArgumentMarshaller * ChoiceArgument::fromString(const QString & str) const
@@ -286,6 +357,30 @@ ArgumentMarshaller * ChoiceArgument::fromRuby(mrb_value value) const
   return Argument::convertRubyString(value);
 }
 
+QWidget * ChoiceArgument::createEditor(QWidget * parent) const
+{
+  QComboBox * cb = new QComboBox(parent);
+  cb->setEditable(false);
+  QStringList cs = choices();
+  std::sort(cs.begin(), cs.end());
+  for(const QString & c : cs)
+    cb->addItem(c);
+  return cb;
+}
+
+void ChoiceArgument::setEditorValue(QWidget * editor, 
+                                    const ArgumentMarshaller * value) const
+{
+  QString s = value->value<QString>();
+  QComboBox * cb = dynamic_cast<QComboBox *>(editor);
+  if(! cb)
+    throw InternalError("Wrong editor for type '%1'").
+      arg(typeName());
+  cb->setCurrentText(s);
+}
+
+
+
 ////////////////////////////////////////////////////////////
 
 QStringList SeveralChoicesArgument::choices() const
@@ -296,6 +391,14 @@ QStringList SeveralChoicesArgument::choices() const
   qSort(c); // smart ?
   return c;
 }
+
+QStringList SeveralChoicesArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QStringList val = arg->value<QStringList>(), lst;
+  lst << val.join(sep);
+  return lst;
+}
+
 
 ArgumentMarshaller * SeveralChoicesArgument::fromString(const QString & str) const
 {
@@ -339,6 +442,18 @@ ArgumentMarshaller * SeveralChoicesArgument::fromRuby(mrb_value value) const
     return convertRubyArray(value);
 }
 
+
+QWidget * SeveralChoicesArgument::createEditor(QWidget * parent) const
+{
+  return createTextEditor(parent);
+}
+
+void SeveralChoicesArgument::setEditorValue(QWidget * editor, 
+                                            const ArgumentMarshaller * value) const
+{
+  setTextEditorValue(editor, value);
+}
+
 ////////////////////////////////////////////////////////////
 
 FitNameArgument::FitNameArgument(const char * cn, const char * pn,
@@ -358,8 +473,7 @@ QString FitNameArgument::typeDescription() const
 SeveralFitNamesArgument::SeveralFitNamesArgument(const char * cn,
                                                  const char * pn,
                                                  const char * d, bool g,
-                                                 bool def,
-                                                 const char * chN) :
+                                                 bool def) :
   SeveralChoicesArgument(&Fit::availableFits, ' ', cn, pn, d, g, def)
 {
 }
@@ -381,10 +495,37 @@ ArgumentMarshaller * DataSetArgument::fromString(const QString & str) const
   return new ArgumentMarshallerChild<DataSet *>(ds);
 }
 
+QString DataSetArgument::dataSetName(const DataSet * ds)
+{
+  int idx;
+  if(! soas().stack().indexOf(ds, &idx))
+    throw RuntimeError("Could not find the dataset '%1' in the stack").
+      arg(ds->name);
+  return QString::number(idx);
+}
+
+QStringList DataSetArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QStringList lst;
+  lst << dataSetName(arg->value<DataSet * >());
+  return lst;
+}
+
 /// @todo integrate with ruby values...
 ArgumentMarshaller * DataSetArgument::fromRuby(mrb_value value) const
 {
   return Argument::convertRubyString(value);
+}
+
+QWidget * DataSetArgument::createEditor(QWidget * parent) const
+{
+  return createTextEditor(parent);
+}
+
+void DataSetArgument::setEditorValue(QWidget * editor, 
+                                            const ArgumentMarshaller * value) const
+{
+  setTextEditorValue(editor, value);
 }
 
 ////////////////////////////////////////////////////////////
@@ -415,6 +556,9 @@ QStringList SeveralDataSetArgument::proposeCompletion(const QString & starter) c
         << QString("flagged-:%1").arg(s)
         << QString("unflagged-:%1").arg(s);
   }
+  st = soas().stack().datasetNames();
+  for(const QString & n : st)
+    all << QString("named:%1").arg(n);
   return Utils::stringsStartingWith(all, starter);
 }
 
@@ -426,6 +570,28 @@ ArgumentMarshaller * SeveralDataSetArgument::fromRuby(mrb_value value) const
   else
     return convertRubyArray(value);
 
+}
+
+QStringList SeveralDataSetArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QList<const DataSet *> lst;
+  QStringList t;
+  for(const DataSet * ds : lst)
+    t << DataSetArgument::dataSetName(ds);
+  
+  QStringList rv;
+  rv << t.join(",");
+  return rv;
+}
+
+QWidget * SeveralDataSetArgument::createEditor(QWidget * parent) const
+{
+  return Argument::createEditor(parent);
+}
+
+void SeveralDataSetArgument::setEditorValue(QWidget * editor, 
+                                            const ArgumentMarshaller * value) const
+{
 }
 
 ////////////////////////////////////////////////////////////
@@ -440,6 +606,13 @@ ArgumentMarshaller * NumberArgument::fromString(const QString & str) const
   else
     v = Utils::stringToDouble(str);
   return new ArgumentMarshallerChild<double>(v);
+}
+
+QStringList NumberArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QStringList lst;
+  lst << QString::number(arg->value<double>(), 'g', 12);
+  return lst;
 }
 
 ArgumentMarshaller * NumberArgument::promptForValue(QWidget * base) const
@@ -459,7 +632,7 @@ QWidget * NumberArgument::createEditor(QWidget * parent) const
 }
 
 void NumberArgument::setEditorValue(QWidget * editor, 
-                                    ArgumentMarshaller * value) const
+                                    const ArgumentMarshaller * value) const
 {
   QLineEdit * le = dynamic_cast<QLineEdit*>(editor);
   if(! le)
@@ -503,12 +676,42 @@ ArgumentMarshaller * SeveralNumbersArgument::fromRuby(mrb_value value) const
   return new ArgumentMarshallerChild< QList<double> >(rv);
 }
 
+QStringList SeveralNumbersArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QList<double> values = arg->value<QList<double> >();
+  QStringList lst;
+  for(const double & d : values)
+    lst << QString::number(d, 'g', 12);
+  QStringList rv;
+  rv << lst.join(delim);
+  return rv;
+}
+
+QWidget * SeveralNumbersArgument::createEditor(QWidget * parent) const
+{
+  return Argument::createTextEditor(parent);
+}
+
+void SeveralNumbersArgument::setEditorValue(QWidget * editor, 
+                                            const ArgumentMarshaller * value) const
+{
+  Argument::setTextEditorValue(editor, value);
+}
+
+
 ////////////////////////////////////////////////////////////
 
 
 ArgumentMarshaller * IntegerArgument::fromString(const QString & str) const
 {
   return new ArgumentMarshallerChild<int>(Utils::stringToInt(str));
+}
+
+QStringList IntegerArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QStringList lst;
+  lst << QString::number(arg->value<int>());
+  return lst;
 }
 
 ArgumentMarshaller * IntegerArgument::promptForValue(QWidget * base) const
@@ -528,7 +731,7 @@ QWidget * IntegerArgument::createEditor(QWidget * parent) const
 }
 
 void IntegerArgument::setEditorValue(QWidget * editor, 
-                                     ArgumentMarshaller * value) const
+                                     const ArgumentMarshaller * value) const
 {
   QLineEdit * le = dynamic_cast<QLineEdit*>(editor);
   if(! le)
@@ -572,55 +775,86 @@ ArgumentMarshaller * SeveralIntegersArgument::fromRuby(mrb_value value) const
   return new ArgumentMarshallerChild< QList<int> >(rv);
 }
 
+QStringList SeveralIntegersArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QList<int> vals = arg->value<QList<int> >();
+  QStringList lst, rv;
+  for(int i : vals)
+    lst << QString::number(i);
+  rv << lst.join(",");
+  return rv;
+}
+
+QWidget * SeveralIntegersArgument::createEditor(QWidget * parent) const
+{
+  return createTextEditor(parent);
+}
+
+void SeveralIntegersArgument::setEditorValue(QWidget * editor, 
+                                             const ArgumentMarshaller * value) const
+{
+  setTextEditorValue(editor, value);
+}
+
+
 //////////////////////////////////////////////////////////////////////
 
-ArgumentMarshaller * ParametersHashArgument::fromString(const QString & str) const
-{
-  QHash<QString, double> v;
+// ArgumentMarshaller * ParametersHashArgument::fromString(const QString & str) const
+// {
+//   QHash<QString, double> v;
 
-  // We split on ; by default
+//   // We split on ; by default
 
-  QStringList elems = str.split(QRegExp("\\s*;\\s*"));
+//   QStringList elems = str.split(QRegExp("\\s*;\\s*"));
   
-  for(int i = 0; i < elems.size(); i++) {
-    QStringList lst = elems[i].split(delims);
-    if(lst.size() != 2)
-      throw RuntimeError(QString("Invalid parameter specification: '%1'").
-                         arg(str));
-    v[lst[0]] = Utils::stringToDouble(lst[1]);
-  }
-  return new ArgumentMarshallerChild< QHash<QString, double> >(v);
-}
+//   for(int i = 0; i < elems.size(); i++) {
+//     QStringList lst = elems[i].split(delims);
+//     if(lst.size() != 2)
+//       throw RuntimeError(QString("Invalid parameter specification: '%1'").
+//                          arg(str));
+//     v[lst[0]] = Utils::stringToDouble(lst[1]);
+//   }
+//   return new ArgumentMarshallerChild< QHash<QString, double> >(v);
+// }
 
-void ParametersHashArgument::concatenateArguments(ArgumentMarshaller * a, 
-                                                  const ArgumentMarshaller * b) const
-{
-  a->value< QHash<QString, double> >().
-    unite(b->value<QHash<QString, double> >());
-}
+// void ParametersHashArgument::concatenateArguments(ArgumentMarshaller * a, 
+//                                                   const ArgumentMarshaller * b) const
+// {
+//   a->value< QHash<QString, double> >().
+//     unite(b->value<QHash<QString, double> >());
+// }
 
-ArgumentMarshaller * ParametersHashArgument::fromRuby(mrb_value value) const
-{
-  MRuby * mr = MRuby::ruby();
-  if(!mr->isArray(value))
-    return convertRubyString(value);
-  else
-    return convertRubyArray(value);
-}
+// ArgumentMarshaller * ParametersHashArgument::fromRuby(mrb_value value) const
+// {
+//   MRuby * mr = MRuby::ruby();
+//   if(!mr->isArray(value))
+//     return convertRubyString(value);
+//   else
+//     return convertRubyArray(value);
+// }
 
 //////////////////////////////////////////////////////////////////////
 
 CommandArgument::CommandArgument(const char * cn, const char * pn,
                                  const char * d, bool def)
-  : ChoiceArgument(Command::allCommands, cn, pn, d, def) {
+  : ChoiceArgument([]() -> QStringList {
+      return soas().commandContext().allCommands();
+    }, cn, pn, d, def) {
 }; 
 
 ArgumentMarshaller * CommandArgument::fromString(const QString & str) const
 {
-  Command * cmd = Command::namedCommand(str);
+  Command * cmd = soas().commandContext().namedCommand(str);
   if(! cmd)
     throw RuntimeError("Invalid command: %1").arg(str);
   return new ArgumentMarshallerChild<Command *>(cmd);
+}
+
+QStringList CommandArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QStringList rv;
+  rv << arg->value<Command *>()->commandName();
+  return rv;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -657,6 +891,25 @@ ArgumentMarshaller * RegexArgument::fromRuby(mrb_value value) const
 {
   return convertRubyString(value);
 }
+
+QStringList RegexArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QStringList rv;
+  rv << arg->value<Regex>().patternString();
+  return rv;
+}
+
+QWidget * RegexArgument::createEditor(QWidget * parent) const
+{
+  return createTextEditor(parent);
+}
+
+void RegexArgument::setEditorValue(QWidget * editor, 
+                                   const ArgumentMarshaller * value) const
+{
+  setTextEditorValue(editor, value);
+}
+
 
 
 //////////////////////////////////////////////////////////////////////
@@ -697,6 +950,13 @@ ArgumentMarshaller * ColumnArgument::fromString(const QString & str) const
   return new ArgumentMarshallerChild<int>(parseFromText(str));
 }
 
+QStringList ColumnArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QStringList rv;
+  rv << QString("#%1").arg(arg->value<int>());
+  return rv;
+}
+
 QString ColumnArgument::typeDescription() const
 {
   return "The [number/name of a column](#column-names) in a buffer";
@@ -705,6 +965,17 @@ QString ColumnArgument::typeDescription() const
 ArgumentMarshaller * ColumnArgument::fromRuby(mrb_value value) const
 {
   return Argument::convertRubyString(value);
+}
+
+QWidget * ColumnArgument::createEditor(QWidget * parent) const
+{
+  return Argument::createTextEditor(parent);
+}
+
+void ColumnArgument::setEditorValue(QWidget * editor, 
+                                    const ArgumentMarshaller * value) const
+{
+  Argument::setTextEditorValue(editor, value);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -733,6 +1004,16 @@ ArgumentMarshaller * SeveralColumnsArgument::fromString(const QString & str) con
   return new ArgumentMarshallerChild<QList<int> >(ret);
 }
 
+QStringList SeveralColumnsArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QStringList lst, rv;
+  QList<int> vals = arg->value<QList<int> >();
+  for(int i : vals)
+    lst << QString("#%1").arg(i);
+  rv << lst.join(",");
+  return rv;
+}
+
 void SeveralColumnsArgument::concatenateArguments(ArgumentMarshaller * a, 
                                                   const ArgumentMarshaller * b) const
 {
@@ -753,3 +1034,53 @@ ArgumentMarshaller * SeveralColumnsArgument::fromRuby(mrb_value value) const
   else
     return convertRubyArray(value);
 }
+
+QWidget * SeveralColumnsArgument::createEditor(QWidget * parent) const
+{
+  return createTextEditor(parent);
+}
+
+void SeveralColumnsArgument::setEditorValue(QWidget * editor, 
+                                            const ArgumentMarshaller * value) const
+{
+  setTextEditorValue(editor, value);
+}
+
+//////////////////////////////////////////////////////////////////////
+
+#include <statistics.hh>
+
+
+QString CodeArgument::typeDescription() const
+{
+  return "A piece of [Ruby code](#ruby)";
+}
+
+QStringList CodeArgument::proposeCompletion(const QString & starter) const
+{
+  QRegExp globalRE("\\$[\\w.]*$");
+  const DataSet * ds = soas().stack().currentDataSet(true);
+  QStringList rv;
+  if(!ds)
+    return rv;
+  int idx = globalRE.indexIn(starter);
+  if(idx >= 0) {
+    QString cur = starter.mid(idx);
+    QStringList props;
+    props << "$stats" << "$meta";
+    // Prepare completions
+    QStringList stats = StatisticsValue::statsAvailable(ds);
+    for(const QString & n : stats)
+      props += "$stats." + n;
+    QStringList meta = ds->getMetaData().keys();
+    meta << "name";
+    for(const QString & n : meta)
+      props += "$meta." + n;
+    props = Utils::stringsStartingWith(props, cur);
+    QString b = starter.left(idx);
+    for(const QString & n: props)
+      rv << b + n;
+  }
+  return rv;
+}
+

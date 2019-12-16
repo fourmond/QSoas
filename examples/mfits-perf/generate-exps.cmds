@@ -1,0 +1,7 @@
+generate-buffer 0 10 2*exp(-2*x)+10+0.2*sin(i)
+generate-buffer 0 10 3*exp(-2*x)+4+0.2*sin(i)
+generate-buffer 0 2 0.4*exp(-2*x)-3+0.2*sin(i)
+generate-buffer 0 20 -0.4*exp(-2*x)+3+0.1*sin(i)
+generate-buffer 0 20 -3*exp(-2.05*x)+2+0.1*sin(i)
+generate-buffer 0 20 6*exp(-1.95*x)-4+0.1*sin(i)
+generate-buffer 0 20 3*exp(-1.98*x)+3+0.1*sin(i)

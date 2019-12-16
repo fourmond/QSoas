@@ -273,11 +273,11 @@ protected:
     return s->system;
   };
     
-  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const {
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
     return new Storage;
   };
 
-  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const {
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const override {
     Storage * s = deepCopy<Storage>(source);
 
     // We copy the POINTER, so the target should not free the system
@@ -288,27 +288,27 @@ protected:
   };
 
 
-  virtual ODESolver * solver(FitData * data) const {
+  virtual ODESolver * solver(FitData * data) const override {
     return getSystem(data);
   };
 
-  virtual int getParameterIndex(const QString & name, FitData * data) const  {
+  virtual int getParameterIndex(const QString & name, FitData * data) const  override {
     RubyODESolver * system = getSystem(data);
     QStringList lst = system->extraParameters();
     return lst.indexOf(name);
   };
 
-  virtual QStringList systemParameters(FitData * data) const {
+  virtual QStringList systemParameters(FitData * data) const override {
     RubyODESolver * system = getSystem(data);
     return system->extraParameters();
   };
 
-  virtual QStringList variableNames(FitData * data) const {
+  virtual QStringList variableNames(FitData * data) const override {
     RubyODESolver * system = getSystem(data);
     return system->variables();
   };
 
-    virtual void initialize(double t0, const double * params, FitData * data) const {
+    virtual void initialize(double t0, const double * params, FitData * data) const override {
     Storage * s = storage<Storage>(data);
     RubyODESolver * system = getSystem(data);
     system->setParameterValues(params + s->parametersBase,
@@ -316,7 +316,7 @@ protected:
     system->initialize(t0);
   };
 
-  virtual bool hasReporters(FitData * data) const {
+  virtual bool hasReporters(FitData * data) const override {
     RubyODESolver * system = getSystem(data);
     return system->hasReporters();
   };
@@ -328,7 +328,7 @@ protected:
     return v[0];
   };
   
-  virtual void setupCallback(const std::function<void (double, double * )> & cb, FitData * data) const {
+  virtual void setupCallback(const std::function<void (double, double * )> & cb, FitData * data) const override {
     RubyODESolver * system = getSystem(data);
     system->setupCallback(cb);
   };
@@ -376,7 +376,7 @@ protected:
   },name, params, datasets, opts);
   }
 
-  virtual QString optionsString(FitData * data) const {
+  virtual QString optionsString(FitData * data) const override {
     Storage * s = storage<Storage>(data);
     return QString("(system: %1)").arg(s->fileName);
   };
@@ -387,7 +387,7 @@ public:
 
   virtual void initialGuess(FitData * data, 
                             const DataSet *ds,
-                            double * a) const
+                            double * a) const override
   {
     Storage * s = storage<Storage>(data);
     RubyODESolver * system = getSystem(data);
@@ -421,7 +421,7 @@ public:
     s->timeDependentParameters.setInitialGuesses(a + s->tdBase, ds);
   };
 
-  virtual ArgumentList * fitArguments() const {
+  virtual ArgumentList * fitArguments() const override {
     if(mySystem)
       return NULL;
     return new 

@@ -42,19 +42,25 @@ public:
   }; 
   
   /// Returns a wrapped QString
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
+  QStringList toString(const ArgumentMarshaller * arg) const override;
 
   /// Prompting uses a QFileDialog.
-  virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
-  virtual QStringList proposeCompletion(const QString & starter) const;
+  virtual ArgumentMarshaller * promptForValue(QWidget * base) const override;
+  virtual QStringList proposeCompletion(const QString & starter) const override;
 
-  virtual QString typeName() const {
+  virtual QString typeName() const override {
     return isDir ? "directory" : "file";
   };
 
-  virtual QString typeDescription() const;
+  virtual QString typeDescription() const override;
 
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const;
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
+
+  virtual QWidget * createEditor(QWidget * parent) const override;
+  virtual void setEditorValue(QWidget * editor, const ArgumentMarshaller * value) const override;
+  virtual ArgumentMarshaller * getEditorValue(QWidget * editor) const override;
+
 
 };
 
@@ -94,6 +100,8 @@ public:
   /// Prompting uses a QFileDialog.
   virtual ArgumentMarshaller * promptForValue(QWidget * base) const override;
 
+  virtual QWidget * createEditor(QWidget * parent) const override;
+
 };
 
 
@@ -108,24 +116,31 @@ public:
                        const char * d = "", bool g = true, bool glob = true) : 
     Argument(cn, pn, d, g), expandGlobs(glob) {
   }; 
-  
+
+
   /// Returns a wrapped QStringList
-  virtual ArgumentMarshaller * fromString(const QString & str) const;
-  virtual ArgumentMarshaller * promptForValue(QWidget * base) const;
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
+  QStringList toString(const ArgumentMarshaller * arg) const override;
+  virtual ArgumentMarshaller * promptForValue(QWidget * base) const override;
   virtual void concatenateArguments(ArgumentMarshaller * a, 
-                                    const ArgumentMarshaller * b) const;
-  virtual QStringList proposeCompletion(const QString & starter) const;
+                                    const ArgumentMarshaller * b) const override;
+  virtual QStringList proposeCompletion(const QString & starter) const override;
 
 
-  virtual QString typeName() const {
+  virtual QString typeName() const override {
     return "files";
   };
 
-  virtual QString typeDescription() const {
+  virtual QString typeDescription() const override {
      return "One or more files. Can include wildcards such as *, `[0-4]`, etc...";
   };
 
   virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
+
+  virtual QWidget * createEditor(QWidget * parent) const override;
+  virtual void setEditorValue(QWidget * editor, const ArgumentMarshaller * value) const override;
+  virtual ArgumentMarshaller * getEditorValue(QWidget * editor) const override;
+
 };
 
 #endif

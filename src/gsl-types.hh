@@ -27,7 +27,7 @@ class GSLVector {
   /// Managed vector
   gsl_vector * data;
 public:
-  GSLVector(size_t size) {
+  explicit GSLVector(size_t size) {
     data = gsl_vector_alloc(size);
   };
 
@@ -43,7 +43,15 @@ public:
     return gsl_vector_get(data, j);
   };
 
+  double & operator[](int j) {
+    return *gsl_vector_ptr(data, j);
+  };
+
   operator gsl_vector*() {
+    return data;
+  };
+
+  operator const gsl_vector*() const {
     return data;
   };
 };
@@ -68,6 +76,80 @@ public:
   operator gsl_matrix*() {
     return data;
   };
+
+  double value(int i, int j) const {
+    return gsl_matrix_get(data, i, j);
+  };
+
 };
+
+/// A storage space for matrices of variable size
+class ScratchPadMatrix {
+
+  /// The underlying view
+  gsl_matrix_view view;
+
+  double * data;
+
+  int size;
+
+  void check() const {
+    if(size == 0)
+      throw InternalError("Using unallocated ScratchPadMatrix");
+  }
+  
+public:
+  ScratchPadMatrix() {
+    data = NULL;
+    size = 0;
+  };
+
+  ~ScratchPadMatrix() {
+    delete[] data;
+  };
+
+  void reserve(int s1, int s2)
+  {
+    if(size < s1 * s2) {
+      delete[] data;
+      data = new double[s1 * s2];
+      size = s1 * s2;
+    }
+    view = gsl_matrix_view_array(data, s1, s2);
+  }
+
+  gsl_matrix* operator->() {
+    check();
+    return &view.matrix;
+  };
+
+  const gsl_matrix* operator->() const {
+    check();
+    return &view.matrix;
+  };
+
+  operator gsl_matrix*() {
+    check();
+    return &view.matrix;
+  };
+
+  operator const gsl_matrix*() const {
+    check();
+    return &view.matrix;
+  };
+
+  ScratchPadMatrix & operator =(const gsl_matrix * src) {
+    reserve(src->size1, src->size2);
+    gsl_matrix_memcpy(*this, src);
+    return *this;
+  };
+
+  ScratchPadMatrix & operator =(const ScratchPadMatrix & m) {
+    *this = (const gsl_matrix *) m;
+    return *this;
+  };
+};
+
+
 
 #endif

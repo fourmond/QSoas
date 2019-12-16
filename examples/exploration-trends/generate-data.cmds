@@ -1,0 +1,4 @@
+generate-buffer 0 100 /samples=10000 /number=13 a=sqrt(number+4);100*a*exp(-x/(a))+1*a*exp(-x/(a*100))+a /flags=gen
+# The following is to try with set-from-dataset, for instance in the fit:
+# set-from-dataset tau_1 flagged:p1
+generate-buffer 0 12 sqrt(x+4) /flags=p1

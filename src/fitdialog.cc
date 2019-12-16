@@ -33,6 +33,9 @@
 #include <datastack.hh>
 #include <terminal.hh>
 
+#include <commandwidget.hh>
+#include <commandcontext.hh>
+
 #include <curveitems.hh>
 
 #include <actioncombo.hh>
@@ -65,7 +68,8 @@ static SettingsValue<int> fitIterationLimit("fitdialog/iteration-limit", 100);
 static const char * saveFilters = "Parameter files (*.params);;Any file (*)";
 static const char * exportFilters = "Data files (*.dat);;Any file (*)";
 
-FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) : 
+FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm, bool expert, const QString & extra) :
+  warnings(this),
   data(d),
   nup(NULL),
   parameters(d),
@@ -75,7 +79,8 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
   alreadyChangingPage(false),
   perpendicularMeta(pm),
   progressReport(NULL),
-  residualsDisplay(NULL)
+  residualsDisplay(NULL),
+  extraTitleInfo(extra)
 {
   setWindowModality(Qt::WindowModal);
   resize(fitDialogSize);
@@ -94,10 +99,11 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
   }
 
   parameters.computePerpendicularCoordinates(perpendicularMeta);
+  parameters.warnings = &warnings;
 
 
-  setupFrame();
-  setFitEngineFactory(data->engineFactory);
+  setupFrame(expert);
+  updateEngineSelection(data->engineFactory);
 
   if(parameters.hasSubFunctions())
     displaySubFunctions = parameters.displaySubFunctions();
@@ -112,6 +118,21 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm) :
                  arg(parameters.fitName()).
                  arg(data->datasets.size()).
                  arg(extraTitleInfo));
+
+  connect(&parameters, SIGNAL(iterated(int, double,
+                                       const Vector &)),
+          SLOT(onIterate(int, double)));
+  connect(&parameters, SIGNAL(finishedFitting(int)),
+          SLOT(onFitEnd(int)));
+
+  connect(&parameters, SIGNAL(startedFitting(int)),
+          SLOT(onFitStart()));
+
+  connect(&parameters, SIGNAL(quitWorkspace()),
+          SLOT(accept()), Qt::QueuedConnection);
+
+  connect(&parameters, SIGNAL(fitEngineFactoryChanged(FitEngineFactoryItem *)),
+          SLOT(updateEngineSelection(FitEngineFactoryItem *)));
 }
 
 FitDialog::~FitDialog()
@@ -119,6 +140,8 @@ FitDialog::~FitDialog()
   fitDialogSize = size();
   if(parametersViewer)
     delete parametersViewer;
+  for(int i = 0; i < subFunctionCurves.size(); i++)
+    delete subFunctionCurves[i];
 }
 
 void FitDialog::message(const QString & str)
@@ -149,7 +172,7 @@ void FitDialog::appendToMessage(const QString & str, bool format)
   }
 }
 
-void FitDialog::setupFrame()
+void FitDialog::setupFrame(bool expert)
 {
   QVBoxLayout * layout = new QVBoxLayout(this);
   nup = new NupWidget;
@@ -164,7 +187,7 @@ void FitDialog::setupFrame()
 
     CurveVector * vec = new CurveVector(ds, v);
     vec->pen = gs.getPen(GraphicsSettings::FitsPen);
-    view->addItem(vec);
+    view->addItem(vec, true);
 
     CurvePanel * bottomPanel = new CurvePanel(); // Leaks memory !
     bottomPanel->stretch = 30;
@@ -173,7 +196,7 @@ void FitDialog::setupFrame()
 
     vec = new CurveVector(ds, v, true);
     vec->pen = gs.getPen(GraphicsSettings::FitsPen);
-    bottomPanel->addItem(vec);
+    bottomPanel->addItem(vec, true);
     /// @todo add X tracking for the bottom panel.
     /// @todo Colors !
     view->addPanel(bottomPanel);
@@ -187,7 +210,8 @@ void FitDialog::setupFrame()
                              arg(Utils::shortenString(ds->name)));
   }
   nup->setNup(1,1);
-  connect(nup, SIGNAL(pageChanged(int)), SLOT(dataSetChanged(int)));
+  connect(nup, SIGNAL(pageChanged(int)), SLOT(chooseDS(int)));
+  connect(&parameters, SIGNAL(datasetChanged(int)), SLOT(dataSetChanged(int)));
   connect(nup, SIGNAL(nupChanged(int,int)), SLOT(nupChanged()));
 
   layout->addWidget(nup, 1);
@@ -205,9 +229,10 @@ void FitDialog::setupFrame()
 
 
   // Here, we try to be clever a little about the size of that...
-  QLabel * label = new QLabel("<b>Fit:</b> " + parameters.fitName());
-  label->setWordWrap(true);
-  hb->addWidget(label, 1);
+  fitName = new QLabel();
+  fitName->setWordWrap(true);
+  updateFitName();
+  hb->addWidget(fitName, 1);
 
   bt = new QPushButton("Hide Fixed");
   connect(bt, SIGNAL(clicked()), SLOT(hideFixedParameters()));
@@ -316,6 +341,17 @@ void FitDialog::setupFrame()
 
   // Bottom
 
+  // First, prompt:
+  if(expert) {
+    fitPrompt = new CommandWidget(CommandContext::fitContext());
+    layout->addWidget(fitPrompt);
+  }
+  else
+    fitPrompt = NULL;
+  
+
+
+  // Then, actions
 
   hb = new QHBoxLayout;
   hb->addWidget(new QLabel(tr("<b>Actions:</b>")));
@@ -377,8 +413,8 @@ void FitDialog::setupFrame()
                 QKeySequence(tr("Ctrl+T")));
   ac->addAction("Reset all to initial guess !", this, 
                 SLOT(resetAllToInitialGuess()));
-  ac->addAction("Reset to backup", this, 
-                SLOT(resetParameters()),
+  ac->addAction("Reset to backup", &parameters, 
+                SLOT(resetToBackup()),
                 QKeySequence(tr("Ctrl+Shift+R")));
   ac->addAction("Show covariance matrix", this, 
                 SLOT(showCovarianceMatrix()),
@@ -409,27 +445,35 @@ void FitDialog::setupFrame()
 
   bt = new QPushButton(tr("Update curves (Ctrl+U)"));
   connect(bt, SIGNAL(clicked()), SLOT(compute()));
-
+  if(fitPrompt)
+    bt->setAutoDefault(false);
 
   hb->addWidget(bt);
 
   bt = new QPushButton(tr("Fit options"));
   connect(bt, SIGNAL(clicked()), SLOT(setSoftOptions()));
+  if(fitPrompt)
+    bt->setAutoDefault(false);
   hb->addWidget(bt);
 
   startButton = new QPushButton(tr("Fit (Ctrl+F)"));
   connect(startButton, SIGNAL(clicked()), SLOT(startFit()));
-  startButton->setAutoDefault(true);
+  if(fitPrompt)
+    startButton->setAutoDefault(false);
   hb->addWidget(startButton);
 
   cancelButton = new QPushButton(tr("Abort (Ctrl+B)"));
-  connect(cancelButton, SIGNAL(clicked()), SLOT(cancelFit()));
+  parameters.connect(cancelButton, SIGNAL(clicked()), SLOT(cancelFit()));
   hb->addWidget(cancelButton);
+  if(fitPrompt)
+    startButton->setAutoDefault(false);
   cancelButton->setVisible(false);
 
 
   bt = new QPushButton(tr("Close (Ctrl+W)"));
   connect(bt, SIGNAL(clicked()), SLOT(close()));
+  if(fitPrompt)
+    startButton->setAutoDefault(false);
   hb->addWidget(bt);
 
 
@@ -443,7 +487,8 @@ void FitDialog::setupFrame()
   Utils::registerShortCut(QKeySequence(tr("Ctrl+F")), 
                           this, SLOT(startFit()));
   Utils::registerShortCut(QKeySequence(tr("Ctrl+B")), 
-                          this, SLOT(cancelFit()));
+                          &parameters, SLOT(cancelFit()),
+                          this /* here, we need the parent */);
 
   // Ctr + PgUp/PgDown to navigate the buffers
   Utils::registerShortCut(QKeySequence(tr("Ctrl+PgUp")), 
@@ -453,9 +498,14 @@ void FitDialog::setupFrame()
 
   
 
-  startButton->setFocus();
+  if(fitPrompt) {
+    fitPrompt->setFocus();
+    fitPrompt->setPrompt("QSoas.fit> ");
+  }
   nup->showWidget(0);
 }
+
+
 
 const QList<FitTrajectory> & FitDialog::fitTrajectories() const
 {
@@ -465,6 +515,11 @@ const QList<FitTrajectory> & FitDialog::fitTrajectories() const
 FitData * FitDialog::getData() const
 {
   return data;
+}
+
+void FitDialog::updateFitName()
+{
+  fitName->setText("<b>Fit:</b> " + parameters.fitName());
 }
 
 FitWorkspace * FitDialog::getWorkspace()
@@ -479,8 +534,13 @@ const FitWorkspace * FitDialog::getWorkspace() const
 
 void FitDialog::closeEvent(QCloseEvent * event)
 {
-  shouldCancelFit = true;
-  QDialog::closeEvent(event);
+  parameters.cancelFit();
+  event->ignore();
+  reject();
+  // For some reason, reverting to normal close events causes
+  // segfaults from time to time
+  
+  // QDialog::closeEvent(event);
 }
 
 void FitDialog::setIterationLimit(int lim)
@@ -494,14 +554,20 @@ int FitDialog::getIterationLimit() const
   return iterationLimitEditor->text().toInt();
 }
 
-
-void FitDialog::dataSetChanged(int newds)
+void FitDialog::chooseDS(int newds)
 {
   if(alreadyChangingPage)
     return;
   alreadyChangingPage = true;
+  parameters.selectDataSet(nup->widgetIndex());
+  alreadyChangingPage = false;
+}
+
+
+void FitDialog::dataSetChanged(int newds)
+{
   // stackedViews->setCurrentIndex(newds);
-  currentIndex = nup->widgetIndex();
+  currentIndex = newds;
   
   emit(currentDataSetChanged(currentIndex));
   if(! nup->isNup())
@@ -520,7 +586,11 @@ void FitDialog::dataSetChanged(int newds)
   
 
   updateResidualsDisplay();
-  alreadyChangingPage = false;
+}
+
+void FitDialog::runCommandFile(const QString & file, const QStringList & args)
+{
+  fitPrompt->runCommandFile(file, args);
 }
 
 void FitDialog::setupSubFunctionCurves(bool dontSend)
@@ -534,7 +604,8 @@ void FitDialog::setupSubFunctionCurves(bool dontSend)
   if(! displaySubFunctions)
     return;
 
-  subFunctions = parameters.computeSubFunctions(dontSend);
+  QStringList ann;
+  subFunctions = parameters.computeSubFunctions(dontSend, &ann);
 
   int base = 0;
   const GraphicsSettings & gs = soas().graphicsSettings();
@@ -545,7 +616,8 @@ void FitDialog::setupSubFunctionCurves(bool dontSend)
     for(int j = 0; j < subFunctions.size(); j++) {
       Vector subY = subFunctions[j].mid(base, sz);
       CurveData * dt = new CurveData(ds->x(), subY);
-      dt->pen = gs.dataSetPen(j+2, true);
+      dt->legend = ann[j];
+      dt->pen = gs.dataSetPen(j+3, true);
 
       views[i]->addItem(dt);
       subFunctionCurves << dt;
@@ -558,7 +630,7 @@ void FitDialog::setupSubFunctionCurves(bool dontSend)
 
 void FitDialog::internalCompute(bool dontSend)
 {
-  parameters.recompute(dontSend);
+  parameters.recompute(dontSend, false);
   setupSubFunctionCurves(dontSend);
   updateResidualsDisplay();
 
@@ -577,7 +649,7 @@ void FitDialog::compute()
       re.message();
     message(s);
     Terminal::out << s << endl;
-    if(Debug::debugLevel() > 0)
+    if(Debug::debugLevel() > 0 || data->debug > 0)
       Debug::debug() << "Error: " << re.message() << endl
                      << "\nBacktrace:\n\t"
                      << re.exceptionBacktrace().join("\n\t") << endl;
@@ -612,213 +684,76 @@ void FitDialog::updateEditors(bool updateErrors)
 }
 
 
+void FitDialog::onFitStart()
+{
+  cancelButton->setVisible(true);
+  startButton->setVisible(false);
+  iterationLimitEditor->setEnabled(false);
+}
+
 void FitDialog::startFit()
 {
-  QTime timer;
-  timer.start();
-
-  TemporarilyDisableWidget d(iterationLimitEditor);
-  
-  int status = -1;
-  double residuals = 0.0/0.0;
-  double lastResiduals = 0.0/0.0;
-
-  iterationLimit = getIterationLimit();
-
-  if(! data->checkWeightsConsistency()) {
-    if(! warnings.warnOnce(this, "error-bars",
-                           "Error bar inconsistency" ,
-                           "You are about to fit multiple buffers where some of the buffers have error bars and some others don't.\n\nErrors will NOT be taken into account !\nStart fit again to ignore"))
-      return;
-
-    
-  }
-
-  parameters.sendDataParameters();
-  int freeParams = data->freeParameters();
-  if(! data->independentDataSets() &&
-     freeParams > 80 &&
-     data->datasets.size() > 15 &&
-     data->engineFactory->name != "multi") {
-    if(! warnings.warnOnce(this, QString("massive-mfit-%1").
-                           arg(data->engineFactory->name),
-                           QString("Fit engine %1 not adapted").
-                           arg(data->engineFactory->description),
-                           QString("The fit engine %1 is not adapted to massive multifits, it is better to use the Multi fit engine").
-                           arg(data->engineFactory->description)))
-      return;
-  }
-  QDateTime startTime = QDateTime::currentDateTime();
   try {
-
-    soas().shouldStopFit = false;
-    parameters.prepareFit(fitEngineParameterValues.value(data->engineFactory, NULL));
-    parametersBackup = parameters.saveParameterValues();
-    shouldCancelFit = false;
-    
-    /// sending the startedFitting signal
-    emit(startedFitting());
-  
-    QString params;
-    int freeParams = data->freeParameters();
-    if(data->independentDataSets())
-      params = QString("%1 %2 %3").
-        arg(freeParams / data->datasets.size()).
-        arg(QChar(0xD7)).arg(data->datasets.size());
-    else
-      params = QString::number(freeParams);
-  
-    Terminal::out << "Starting fit '" << parameters.fitName() << "' with "
-                  << params << " free parameters"
-                  << " using the '" << data->engineFactory->name
-                  << "' fit engine"
-                  << endl;
-
-    cancelButton->setVisible(true);
-    startButton->setVisible(false);
-    message(QString("Starting fit with %1 free parameters").
-            arg(params));
-
-  
-
-    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-    /// @todo customize the number of iterations
-    do {
-      status = data->iterate();
-      residuals = data->residuals();
-
-      /// Signal at the end of each iteration
-      emit(nextIteration(data->nbIterations,
-                         residuals,
-                         parameters.saveParameterValues()
-                         ));
-
-      double tm = startTime.msecsTo(QDateTime::currentDateTime()) * 1e-3;
-      QString str = QString("Iteration #%1, current internal residuals: %2, %3 s elapsed").
-        arg(data->nbIterations).arg(residuals).arg(tm);
-
-      message(str);
-      parameters.retrieveParameters();
-      updateEditors();
-
-      QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-      if(shouldCancelFit || status != GSL_CONTINUE || 
-         data->nbIterations >= iterationLimit || soas().shouldStopFit)
-        break;
-      lastResiduals = residuals;
-
-    } while(true);
-    cancelButton->setVisible(false);
-    startButton->setVisible(true);
-    startButton->setFocus();
-
-    QString mention;
-    if(shouldCancelFit || soas().shouldStopFit) {
-      Terminal::out << "Fit cancelled" << endl;
-      mention = " <font color=#d00>(cancelled)</font>";
-    }
-    else {
-      QString st;
-      if(status != GSL_SUCCESS) {
-        parameters.retrieveParameters();
-        updateEditors();
-        mention = QString(" <font color=#d00>(%1)</font>").
-          arg(gsl_strerror(status));
-      }
-      else {
-        mention = " <font color=#080>(done)</font>";
-        updateEditors(true);
-      }
-    }
-    appendToMessage(mention);
-      
+    parameters.runFit(getIterationLimit());
   }
   catch (const Exception & re) {
-    cancelButton->setVisible(false);
-    startButton->setVisible(true);
-    // We only take back the parameters if the fit really started !
-    if(data->hasEngine()) {
-      parameters.retrieveParameters();
-      updateEditors();
-    }
+    updateEditors();
     message(QString("An error occurred while fitting: ") +
             re.message());
     Debug::debug()
       << "Backtrace:\n\t" << re.exceptionBacktrace().join("\n\t") << endl;
   }
+}
 
-    
-  Terminal::out << "Fitting took an overall " << timer.elapsed() * 1e-3
-                << " seconds, with " << data->evaluationNumber 
-                << " evaluations" << endl;
+/// @todo Should this join Utils
+QString htmlColor(const QColor & color)
+{
+  return QString("#%1%2%3").
+    arg(color.red(), 2, 16, QChar('0')).
+    arg(color.green(), 2, 16, QChar('0')).
+    arg(color.blue(), 2, 16, QChar('0'));
+}
 
-  /// @todo Here: one computation of the covariance matrix;
-  parameters.writeToTerminal();
+void FitDialog::onFitEnd(int ending)
+{
+  FitWorkspace::Ending end =
+    static_cast<FitWorkspace::Ending>(ending);
+  QString msg = FitWorkspace::endingDescription(end);
+  QColor col = FitWorkspace::endingColor(end);
+  
+  msg = QString("Finished fitting, final residuals: %1 "
+                "<font color=%2>%3</font>").
+    arg(parameters.trajectories.last().residuals).
+    arg(htmlColor(col)).arg(msg);
+  
+  message(msg);
+  cancelButton->setVisible(false);
+  startButton->setVisible(true);
+  iterationLimitEditor->setEnabled(true);
   try {
     internalCompute(true);
   }
   catch (const Exception & e) {
     appendToMessage(QString("Error while computing: ") + e.message());
-    status = GSL_SUCCESS + 1;
   }
-
-  /// @todo Here: a second computation of the covariance matrix...
-  try {
-    parameters.recomputeErrors();
-  }
-  catch (const Exception & re) {
-    appendToMessage(QString("Error while computing errors: ") + re.message());
-    status = GSL_SUCCESS + 1;
-    Debug::debug()
-      << "End-of-fit compute exception: " << re.message() 
-      <<"\nBacktrace:\n\t" << re.exceptionBacktrace().join("\n\t") << endl;
-  }
-
-
-  trajectories << 
-    FitTrajectory(parametersBackup, parameters.saveParameterValues(),
-                  parameters.saveParameterErrors(),
-                  parameters.overallPointResiduals,
-                  parameters.overallRelativeResiduals,
-                  residuals,
-                  lastResiduals-residuals,
-                  data->engineFactory->name,
-                  startTime, data);
-  if(shouldCancelFit || soas().shouldStopFit)
-    trajectories.last().ending = FitTrajectory::Cancelled;
-  else if(data->nbIterations >= iterationLimit)
-    trajectories.last().ending = FitTrajectory::TimeOut;
-  else if(status != GSL_SUCCESS)
-    trajectories.last().ending = FitTrajectory::Error;
-
-  data->doneFitting();
-  emit(finishedFitting());
 }
 
-
-
-void FitDialog::cancelFit()
+void FitDialog::onIterate(int nb, double residuals)
 {
-  shouldCancelFit = true;
+  QString str = QString("Iteration #%1, current internal residuals: %2, %3 s elapsed").
+    arg(nb).arg(residuals).arg(parameters.elapsedTime());
+  message(str);
+
+  parameters.retrieveParameters();
+  updateEditors();
+  QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }
+
+
 
 void FitDialog::pushSubFunctions()
 {
-  int base = 0;
-  for(int i = 0; i < views.size(); i++) {
-    const DataSet * ds = data->datasets[i];
-    int sz = ds->x().size();
-    for(int j = 0; j < subFunctions.size(); j++) {
-      Vector subY = subFunctions[j].mid(base, sz);
-
-      soas().
-        pushDataSet(ds->
-                    derivedDataSet(subY,
-                                   QString("_fit_%1_sub%2.dat").
-                                   arg(parameters.fitName(false)).arg(j+1)));
-    }
-    base += sz;
-  }
+  parameters.pushComputedData(false, true);
 }
 
                 
@@ -871,14 +806,12 @@ void FitDialog::saveParameters()
                                  QString(), saveFilters);
   if(save.isEmpty())
     return;
-           
-
-  QFile f(save);
-  if(! f.open(QIODevice::WriteOnly))
-    return;                     /// @todo Signal !
-
-  parameters.saveParameters(&f);
-  Terminal::out << "Saved fit parameters to file " << save << endl;
+  try {
+    parameters.saveParameters(save);
+  }
+  catch(RuntimeError & e) {
+    message(e.message());
+  }
 }
 
 void FitDialog::loadParameters()
@@ -1061,6 +994,14 @@ void FitDialog::showCovarianceMatrix()
 
 void FitDialog::editParameters() 
 {
+  if(parameters.totalParameterNumber() > 60) {
+    if(! warnings.warnOnce("edit-large",
+                           "Many parameters",
+                           QString("There are many (%1) parameters in this fit, launching edit will probably be way too slow").
+                           arg(parameters.totalParameterNumber())))
+      return;
+  }
+
   ParametersDialog dlg(&parameters);
 
   dlg.exec();
@@ -1085,42 +1026,45 @@ void FitDialog::resetWeights()
 
 void FitDialog::equalWeightsPerBuffer()
 {
-  // Now, we'll have to compute a weight for each buffer based on
-  // their number of points/magnitude
-  QVarLengthArray<double, 1024> weight(data->datasets.size());
+  throw NOT_IMPLEMENTED;
+  // // Now, we'll have to compute a weight for each buffer based on
+  // // their number of points/magnitude
+  // QVarLengthArray<double, 1024> weight(data->datasets.size());
 
-  double max = 0;
-  for(int i = 0; i < data->datasets.size(); i++) {
-    data->weightsPerBuffer[i] = 1;
-    double w = data->weightedSquareSumForDataset(i, NULL, true);
+  // double max = 0;
+  // for(int i = 0; i < data->datasets.size(); i++) {
+  //   data->weightsPerBuffer[i] = 1;
+  //   double w = data->weightedSquareSumForDataset(i, NULL, true);
 
-    weight[i] = 1/sqrt(w);
-    if(weight[i] > max)
-      max = weight[i];
-  }
-  for(int i = 0; i < data->datasets.size(); i++)
-    data->weightsPerBuffer[i] = weight[i]/max;
-  updateEditors();
+  //   weight[i] = 1/sqrt(w);
+  //   if(weight[i] > max)
+  //     max = weight[i];
+  // }
+  // for(int i = 0; i < data->datasets.size(); i++)
+  //   data->weightsPerBuffer[i] = weight[i]/max;
+  // updateEditors();
 }
 
 void FitDialog::equalWeightsPerPoint()
 {
-  // Now, we'll have to compute a weight for each buffer based on
-  // their number of points/magnitude
-  QVarLengthArray<double, 1024> weight(data->datasets.size());
+  throw NOT_IMPLEMENTED;
 
-  double max = 0;
-  for(int i = 0; i < data->datasets.size(); i++) {
-    data->weightsPerBuffer[i] = 1;
-    double w = data->weightedSquareSumForDataset(i, NULL, true);
+  // // Now, we'll have to compute a weight for each buffer based on
+  // // their number of points/magnitude
+  // QVarLengthArray<double, 1024> weight(data->datasets.size());
 
-    weight[i] = data->datasets[i]->nbRows()/sqrt(w);
-    if(weight[i] > max)
-      max = weight[i];
-  }
-  for(int i = 0; i < data->datasets.size(); i++)
-    data->weightsPerBuffer[i] = weight[i]/max;
-  updateEditors();
+  // double max = 0;
+  // for(int i = 0; i < data->datasets.size(); i++) {
+  //   data->weightsPerBuffer[i] = 1;
+  //   double w = data->weightedSquareSumForDataset(i, NULL, true);
+
+  //   weight[i] = data->datasets[i]->nbRows()/sqrt(w);
+  //   if(weight[i] > max)
+  //     max = weight[i];
+  // }
+  // for(int i = 0; i < data->datasets.size(); i++)
+  //   data->weightsPerBuffer[i] = weight[i]/max;
+  // updateEditors();
 }
 
 void FitDialog::doubleWeight()
@@ -1135,32 +1079,23 @@ void FitDialog::halfWeight()
   updateEditors();
 }
 
-void FitDialog::resetParameters()
-{
-  setParameterValues(parametersBackup);
-  message("Restored parameters");
-}
-
 
 void FitDialog::setFitEngineFactory(const QString & name)
 {
   FitEngineFactoryItem * fact = FitEngine::namedFactoryItem(name);
   if(fact)
-    setFitEngineFactory(fact);
-}
-
-void FitDialog::setFitEngineFactory(FitEngineFactoryItem * fact)
-{
-  data->engineFactory = fact; 
-
-  // Now update the combo box...
-  int idx = fitEngineSelection->findData(fact->name);
-  fitEngineSelection->setCurrentIndex(idx);
+    parameters.setFitEngineFactory(fact);
 }
 
 void FitDialog::engineSelected(int id)
 {
   setFitEngineFactory(fitEngineSelection->itemData(id).toString());
+}
+
+void FitDialog::updateEngineSelection(FitEngineFactoryItem * fact)
+{
+  int idx = fitEngineSelection->findData(fact->name);
+  fitEngineSelection->setCurrentIndex(idx);
 }
 
 void FitDialog::toggleSubFunctions()
@@ -1245,14 +1180,10 @@ void FitDialog::setSoftOptions()
   QHash<QString, QWidget *> fitWidgets;
   QHash<QString, QWidget *> engineWidgets;
 
-  if(! fitEngineParameters.contains(data->engineFactory)) {
-    FitEngine * f = data->engineFactory->creator(data);
-    fitEngineParameters[data->engineFactory] = f->engineOptions();
-    fitEngineParameterValues[data->engineFactory] = new CommandOptions(f->getEngineParameters());
-
-    // There's no need to free, as it gets registered with data, and
-    // will be freed upon starting the fit or closing the dialog box.
-  }
+  
+  if(! fitEngineParameters.contains(data->engineFactory))
+    fitEngineParameters[data->engineFactory] =
+      data->engineFactory->engineOptions;
 
   if(softOptions) {
     co = parameters.currentSoftOptions();
@@ -1265,7 +1196,8 @@ void FitDialog::setSoftOptions()
   }
 
 
-  CommandOptions * engineOptionValues = fitEngineParameterValues[data->engineFactory];
+  CommandOptions * engineOptionValues =
+    parameters.fitEngineParameters(data->engineFactory);
   ArgumentList * engineOptions = fitEngineParameters[data->engineFactory];
   
   if(engineOptions && engineOptions->size() > 0) {
@@ -1299,6 +1231,7 @@ void FitDialog::setSoftOptions()
       }
     }
   }
+  updateFitName();
 }
 
 void FitDialog::showTransposed()

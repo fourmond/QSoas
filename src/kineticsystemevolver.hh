@@ -48,9 +48,9 @@ public:
   KineticSystemEvolver(KineticSystem * sys);
   virtual ~KineticSystemEvolver();
 
-  virtual int dimension() const;
+  virtual int dimension() const override;
   virtual int computeDerivatives(double t, const double * y, 
-                                 double * dydt);
+                                 double * dydt) override;
 
   /// Sets the parameters. Returns the list of undefined parameters.
   QStringList setParameters(const QHash<QString, double> & parameters);
@@ -86,7 +86,7 @@ public:
 
   /// Evaluates the reporter expression based on the current value of
   /// the parameters.
-  double reporterValue() const;
+  double reporterValue(double t) const;
 };
 
 #endif

@@ -183,19 +183,24 @@ void ABDMatrix::permuteVariables(int i, int j)
   if(mj != mi)
     throw RuntimeError("Permutation does not keep ABDMatrix structure: %1 <-> %2").arg(i).arg(j);
 
+  // QTextStream o(stdout);
+
+
   // First, swap both the rows and colums of the diagonal matrix
   gsl_matrix * m = diag[mi];
-  gsl_matrix_swap_rows(m, i, j);
-  gsl_matrix_swap_columns(m, i, j);
+  // o << "Permutating " << li << " and " << lj << " in block "
+  //   << mj << " of size "  << m->size1 << "x" << m->size2 << endl;
+  gsl_matrix_swap_rows(m, li, lj);
+  gsl_matrix_swap_columns(m, li, lj);
 
   if(mi > 0) {
     // Swapping the rows of the corresponding top matrices and columns
     // of left matrices.
     m = top[mi-1];
-    gsl_matrix_swap_columns(m, i, j);
+    gsl_matrix_swap_columns(m, li, lj);
 
     m = left[mi-1];
-    gsl_matrix_swap_rows(m, i, j);
+    gsl_matrix_swap_rows(m, li, lj);
   }
   else {
     // Swapping rows of all the top matrices and the columns of all
@@ -227,6 +232,7 @@ void ABDMatrix::solve(gsl_vector * sol)
 
   gsl_permutation_init(permutation);
   
+  // QTextStream o(stdout);
   for(int i = sizes.size() - 1; i >= 0; i--) {
     int sz = sizes[i];
     base -= sz;
@@ -243,8 +249,11 @@ void ABDMatrix::solve(gsl_vector * sol)
         throw RuntimeError("(most probably) singular matrix");
       
       if(k != j) {
+        // o << "Permutating " << k << " and " << j << " || "
+        //   << k+base << " and " << j+base << endl;
         // Permute the elements first:
         permuteVariables(j+base, k+base);
+        // o << " -> ..." << endl;
         gsl_vector_swap_elements (sol, j+base, k+base);
         gsl_permutation_swap(permutation, j+base, k+base);
       }

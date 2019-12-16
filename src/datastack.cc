@@ -28,14 +28,15 @@
 #include <curveview.hh>
 #include <debug.hh>
 
-DataStack::DataStack() : 
+DataStack::DataStack(bool no) : notOwner(no),
   cachedByteSize(0), accumulator(NULL)
 {
 }
 
 DataStack::~DataStack()
 {
-  clear();
+  if(! notOwner)
+    clear();
 }
 
 int DataStack::totalSize() const
@@ -118,6 +119,11 @@ QList<const DataSet *> DataStack::datasetsFromSpec(const QString & spec) const
       for(int i = 0; i < mkd.size(); i++)
         dsets << mkd[i];
     }
+    else if(str.startsWith("named:")) {
+      int d = str.indexOf(':');
+      QString n = str.mid(d+1);
+      return namedDataSets(n);
+    }
     else if(str == "latest" || str.startsWith("latest:"))  {
       int idx = 1;
       int d = str.indexOf(':');
@@ -150,22 +156,46 @@ void DataStack::setAutoFlags(const QSet<QString> & flags)
   autoFlags = flags;
 }
 
+int DataStack::pushSpy()
+{
+  int rv = spies.size();
+  spies << QList<GuardedPointer<DataSet> >();
+  return rv;
+}
+
+QList<DataSet *> DataStack::popSpy(int targetLevel)
+{
+  QList<GuardedPointer<DataSet> > lst;
+  if(spies.size() > targetLevel)
+    lst = spies[targetLevel];
+  spies = spies.mid(0, targetLevel);
+  QList<DataSet *> dss;
+  for(GuardedPointer<DataSet> & p : lst) {
+    if(p.isValid())
+      dss << p.target();
+  }
+  return dss;
+}
+
 void DataStack::pushDataSet(DataSet * dataset, bool silent)
 {
   dataSets << dataset;
   latest.first() << dataset;
   dataset->setFlags(autoFlags);
-  dataSetByName[dataset->name] = dataset;
   cachedByteSize += dataset->byteSize();
+  for(QList<GuardedPointer<DataSet> > & l : spies)
+    l << dataset;
   if(! silent) {
     Debug::debug().saveStack();
     emit(currentDataSetChanged());
   }
 }
 
-void DataStack::showStackContents(int nb, bool /*unused*/) const
+void DataStack::showStackContents(int nb,
+                                  const QStringList & meta) const
 {
-  QString head("\t F  C\tRows\tSegs");
+  QString head("\t F  C\tRows\tSegs\tName\t");
+  head += meta.join("\t");
   if(redoStack.size())
     Terminal::out << "Redo stack:\n" << head << endl;
   for(int i = -redoStack.size(); i < dataSets.size(); i++) {
@@ -175,7 +205,11 @@ void DataStack::showStackContents(int nb, bool /*unused*/) const
       Terminal::out << "Normal stack:\n" << head << endl;
     DataSet * ds = numberedDataSet(i);
     Terminal::out << "#" << i << "\t"
-                  << ds->stringDescription() << endl;
+                  << ds->stringDescription();
+    for(const QString & m : meta)
+      Terminal::out << "\t" << ds->getMetaData(m).toString();
+    
+    Terminal::out << endl;
   }
   Terminal::out << "Total size: " << (cachedByteSize >> 10) << " kB" << endl;
 }
@@ -187,6 +221,39 @@ QList<const DataSet *> DataStack::allDataSets() const
     ret << numberedDataSet(i);
   return ret;
 }
+
+QSet<QString> DataStack::datasetNames() const
+{
+  QSet<QString> ret;
+  for(const DataSet * ds : dataSets)
+    ret.insert(ds->name);
+  for(const DataSet * ds : redoStack)
+    ret.insert(ds->name);
+  return ret;
+}
+
+QList<const DataSet *> DataStack::namedDataSets(const QString & name,
+                                                NameMatchingRule matcher) const
+{
+  QList<const DataSet *> rv;
+  QRegExp::PatternSyntax st = QRegExp::Wildcard;
+  if(matcher == Strict)
+    st = QRegExp::FixedString;
+  if(matcher == Regex)
+    st = QRegExp::RegExp;
+  QRegExp mt(name, Qt::CaseSensitive, st);
+  
+  for(const DataSet * ds : dataSets) {
+    if(mt.exactMatch(ds->name))
+      rv << ds;
+  }
+  for(const DataSet * ds : redoStack) {
+    if(mt.exactMatch(ds->name))
+      rv << ds;
+  }
+  return rv;
+}
+
 
 QList<DataSet *> DataStack::flaggedDataSets(bool flagged, const QString & flag)
 {
@@ -277,6 +344,7 @@ void DataStack::clear()
   for(int i = 0; i < redoStack.size(); i++)
     delete redoStack[i];
   redoStack.clear();
+  cachedByteSize = 0;
   emit(currentDataSetChanged());
 }
 
@@ -371,6 +439,14 @@ DataSet * DataStack::popAccumulator()
 // }
 
 
+void DataStack::insertStack(const DataStack & s)
+{
+  dataSets.append(s.dataSets);
+  redoStack.append(s.redoStack);
+  emit(currentDataSetChanged());
+}
+
+
 
 qint32 DataStack::serializationVersion = 0;
 
@@ -383,13 +459,15 @@ qint32 DataStack::serializationVersion = 0;
 /// means to carry use attribues
 /// @li it would probably be good too to write out the QDataStream
 /// version
+/// @li write out the accumulator ?
 
 
 
 #define MAGIC 0xFF342210
 #define CURRENT_STACK_VERSION 5
 
-QDataStream & operator<<(QDataStream & out, const DataStack & stack)
+
+void DataStack::writeSerializationHeader(QDataStream & out)
 {
   qint32 v = -CURRENT_STACK_VERSION; // (negative) Current version
   // We use Qt format 4.8 by default
@@ -397,20 +475,32 @@ QDataStream & operator<<(QDataStream & out, const DataStack & stack)
   out << v;
   v = MAGIC;
   out << v;
-  qint32 nbDs = stack.dataSets.size();
-  out << nbDs;
-  for(qint32 i = 0; i < nbDs; i++)
-    out << *stack.dataSets[i];
+}
 
-  nbDs = stack.redoStack.size();
+void DataStack::writeStack(QDataStream & out) const
+{
+  qint32 nbDs = dataSets.size();
   out << nbDs;
   for(qint32 i = 0; i < nbDs; i++)
-    out << *stack.redoStack[i];
+    out << *dataSets[i];
+
+  nbDs = redoStack.size();
+  out << nbDs;
+  for(qint32 i = 0; i < nbDs; i++)
+    out << *redoStack[i];
+}
+
+QDataStream & operator<<(QDataStream & out, const DataStack & stack)
+{
+  DataStack::writeSerializationHeader(out);
+  // QByteArray b;
+  // QDataStream o(&b, QIODevice::WriteOnly);
+  stack.writeStack(out);
+  // out << qCompress(b);
   return out;
 }
 
-
-QDataStream & operator>>(QDataStream & in, DataStack & stack)
+void DataStack::readSerializationHeader(QDataStream & in)
 {
   qint32 nbDs;
   in.setVersion(QDataStream::Qt_4_8);
@@ -427,27 +517,44 @@ QDataStream & operator>>(QDataStream & in, DataStack & stack)
     if(nbDs != MAGIC)
       throw RuntimeError("Bad signature for stack file '%1', aborting").
       arg(Utils::fileName(in));
-    in >> nbDs;
   }
+}
 
-  stack.cachedByteSize = 0;
-  stack.dataSets.clear();
+void DataStack::readStack(QDataStream & in)
+{
+  qint32 nbDs;
+  in >> nbDs;
+  cachedByteSize = 0;
+  dataSets.clear();
   for(qint32 i = 0; i < nbDs; i++) {
     DataSet * ds = new DataSet;
     in >> *ds;
-    stack.dataSets.append(ds);
-    stack.cachedByteSize += ds->byteSize();
+    dataSets.append(ds);
+    cachedByteSize += ds->byteSize();
   }
 
   in >> nbDs;
-  stack.redoStack.clear();
+  redoStack.clear();
   for(qint32 i = 0; i < nbDs; i++) {
     DataSet * ds = new DataSet;
     in >> *ds;
-    stack.redoStack.append(ds);
-    stack.cachedByteSize += ds->byteSize();
+    redoStack.append(ds);
+    cachedByteSize += ds->byteSize();
   }
-  /// Explicity signal call !
-  stack.currentDataSetChanged();
+  emit(currentDataSetChanged());
+}
+
+QDataStream & operator>>(QDataStream & in, DataStack & stack)
+{
+  DataStack::readSerializationHeader(in);
+  if(DataStack::serializationVersion >= 6) {
+    QByteArray cmp;
+    in >> cmp;
+    cmp = qUncompress(cmp);
+    QDataStream nin(cmp);
+    stack.readStack(in);
+  }
+  else
+    stack.readStack(in);
   return in;
 }

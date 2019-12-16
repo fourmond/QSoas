@@ -1,0 +1,7 @@
+#!/bin/sh
+
+file=$1
+what=$2
+
+grep -- "$2" "$1" | sed -r 's/.*\[([^:]+):(.*)\].*/emacs +\2 \1/'
+#    | xargs -I% -n1 sh -c %

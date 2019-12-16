@@ -35,18 +35,20 @@
 #include <soas.hh>
 #include <datastack.hh>
 
+#include <utils.hh>
+
 /// Should this be a customization item ? NO
 PointPicker::Method PointPicker::lastMethodUsed = PointPicker::Exact;
 
 PointPicker::PointPicker(CurveEventLoop * l, const DataSet * ds, 
                          CurvePanel * p) :
-  loop(l), panel(p),
+  loop(l), trackedDataSet(NULL),
+  panel(p),
   marker(NULL),
   method(lastMethodUsed),
   lastButton(Qt::NoButton),
   trackedButtons(Qt::LeftButton)
 {
-  loop->ppMessage = pointPickerMessage();
 
   if(! panel)
     panel = l->getView()->mainPanel();
@@ -59,6 +61,8 @@ PointPicker::PointPicker(CurveEventLoop * l, const DataSet * ds,
   
   panel->addItem(marker);
   pickDataSet(ds);
+
+  loop->ppMessage = pointPickerMessage();
 }
 
 PointPicker::~PointPicker()
@@ -293,9 +297,16 @@ QString PointPicker::pointPickerMessage() const
     mk = "off";
   }
 
-  if(datasetIndex != 0)
+  if(datasetIndex != 0) {
     ds = QString(" #%1").
       arg(datasetIndex > 0 ? datasetIndex - 1 : datasetIndex);
+  }
+  else {
+    if(trackedDataSet)
+      ds = Utils::abbreviateString(trackedDataSet->name);
+    else
+      ds = "no buffer";
+  }
   return QString("(%1%2)").arg(mk).arg(ds);
 }
 

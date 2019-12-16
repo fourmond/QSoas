@@ -2,7 +2,7 @@
    \file command.hh
    Command handling for QSoas.
    Copyright 2011 by Vincent Fourmond
-             2012, 2013 by CNRS/AMU
+             2012, 2013, 2018 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 class Group;
 class CommandEffector;
 class ArgumentList;
+class CommandContext;
 
 /// The class representing a command.
 class Command {
@@ -44,16 +45,6 @@ protected:
 
   QByteArray groupName;
 
-  /// A global hash holding a correspondance name->command
-  ///
-  /// @todo This could be turned into (or coupled with) a trie to have
-  /// automatic completion ?
-  static QHash<QString, Command*> * availableCommands;
-
-  /// Registers the given command to the static registry
-  static void registerCommand(Command * cmd);
-
-
   /// The arguments list. Can be NULL if no arguments are expected.
   ArgumentList * arguments;
 
@@ -64,9 +55,13 @@ protected:
   /// Whether the command is custom (i.e. created after the or not.
   bool custom;
 
-  /// A static flag to tell whether we have finished the initial load
-  /// or not. Set during the call to crosslinkCommands().
-  static bool finishedLoading;
+  /// The CommandContext for the Command
+  CommandContext * context;
+
+  /// Registers this command
+  void registerMe();
+
+  friend class CommandContext;
 
 public:
 
@@ -77,7 +72,8 @@ public:
   /// will end up there.
   CommandArguments parseArguments(const QStringList & arguments,
                                   QString * defaultOption = NULL,
-                                  QWidget * base = NULL) const;
+                                  QWidget * base = NULL,
+                                  bool * prompted = NULL) const;
 
   /// Parse the options. Doesn't prompt.
   CommandOptions parseOptions(const QMultiHash<QString, QString> & opts, 
@@ -102,17 +98,9 @@ public:
           ArgumentList * op,
           const char * pn,
           const char * sd = "", 
-          const char * ld = "", 
           const char * sc = "", 
-          bool autoRegister = true) : 
-    cmdName(cn), shortCmdName(sc), pubName(pn), 
-    shortDesc(sd), longDesc(ld), groupName(gn), 
-    arguments(ar), options(op), custom(finishedLoading),
-    effector(eff), 
-    group(NULL) {
-    if(autoRegister)
-      registerCommand(this);
-  }; 
+          CommandContext * context = NULL,
+          bool autoRegister = true); 
 
   Command(const char * cn, 
           CommandEffector * eff,
@@ -121,18 +109,12 @@ public:
           ArgumentList * op,
           const QByteArray & pn,
           const QByteArray & sd = "", 
-          const QByteArray & ld = "", 
-          const QByteArray & sc = "", 
-          bool autoRegister = true) : 
-    cmdName(cn), shortCmdName(sc), pubName(pn), 
-    shortDesc(sd), longDesc(ld), groupName(gn), 
-    arguments(ar), options(op), custom(finishedLoading),
-    effector(eff), 
-    group(NULL) {
-    if(autoRegister)
-      registerCommand(this);
-  }; 
-  
+          const QByteArray & sc = "",
+          CommandContext * context = NULL,
+          bool autoRegister = true);
+
+  /// Unregisters the command upon deletion
+  ~Command();
 
   /// The command name, the one that will be used from the command
   /// prompt.
@@ -142,7 +124,7 @@ public:
   /// \warning If you reimplement this function, you should set the
   /// the autoRegister parameter to false and do the registration
   /// yourself.
-  /*virtual*/ QString commandName() const {
+  QString commandName() const {
     return cmdName;
   };
 
@@ -153,7 +135,7 @@ public:
   /// \warning If you reimplement this function, you should set the
   /// the autoRegister parameter to false and do the registration
   /// yourself.
-  /*virtual*/ QString shortCommandName() const {
+  QString shortCommandName() const {
     return shortCmdName;
   };
 
@@ -161,18 +143,18 @@ public:
   /// The public name, the one to be used in the menus. This one gets
   /// translated, which means that one should use QT_TRANSLATE_NOOP
   /// macro for setting it.
-  /*virtual*/ QString publicName() const {
+  QString publicName() const {
     return pubName;
   };
 
   /// A short description, typically to be used for the status bar.
-  /*virtual*/ QString shortDescription() const {
+  QString shortDescription() const {
     return shortDesc;
   };
 
   /// A long informative description, such as a full help text,
   /// possibly with examples too.
-  /*virtual*/ QString longDescription() const {
+  QString longDescription() const {
     return longDesc;
   };
 
@@ -186,37 +168,47 @@ public:
     return options;
   };
 
-  /// Categorize the commands within groups. This function \b must be
-  /// called at the beginning of main.
-  static void crosslinkCommands();
-
-  /// Returns the named command. If rubyConversion is true, then
-  /// underscores are converted to dashes.
-  static Command * namedCommand(const QString & cmd, bool rubyConversion = false);
+  /// Returns the CommandContext for this command
+  const CommandContext * commandContext() const {
+    return context;
+  };
 
   /// Runs the command with the given arguments.
   ///
   /// This function possibly can prompt for missing arguments, if base
   /// isn't NULL.
-  /*virtual*/ void runCommand(const QString & commandName, 
-                          const QStringList & arguments,
-                          QWidget * base = NULL);
+  void runCommand(const QString & commandName, 
+                  const QStringList & arguments,
+                  QWidget * base = NULL);
+
+  /// Just parses the arguments and options. Returns true if prompting
+  /// was necessary.
+  bool parseArgumentsAndOptions(const QStringList & arguments,
+                                CommandArguments * args,
+                                CommandOptions * opts,
+                                QWidget * base = NULL);
 
   /// Runs the command with parsed arguments and options
-  /*virtual*/ void runCommand(const QString & commandName,
-                          const CommandArguments & arguments,
-                          const CommandOptions & options);
-
-  /// Runs a command from the command prompt, already split into
-  /// words. The first word is therefore the command name.
-  static void runCommand(const QStringList & args, 
-                         QWidget * base = NULL);
+  void runCommand(const QString & commandName,
+                  const CommandArguments & arguments,
+                  const CommandOptions & options);
 
   /// Runs the command from a Ruby command-line
   void runCommand(int nb, mrb_value * args);
 
+  /// Converts the parsed arguments back to a string representation
+  /// that should be parsed back to the same arguments.
+  ///
+  /// The string representation is @b not @b guaranteed to be the same
+  /// as the original parsed QStringList, <b> including for already
+  /// parsed arguments </b> !
+  QStringList rebuildCommandLine(const CommandArguments & args,
+                                 const CommandOptions & opts) const;
+  
+
+
   /// Returns an action for this Command parented by the given parent.
-  /*virtual*/ QAction * actionForCommand(QObject * parent) const;
+  QAction * actionForCommand(QObject * parent) const;
 
   /// This function takes a list of word-splitted command-line
   /// arguments, and splits them into arguments and options,
@@ -262,29 +254,17 @@ public:
   /// clever on the quoting side.
   static QString unsplitWords(const QStringList & cmdline);
 
-  /// All available commands
-  static QStringList allCommands();
-
-  /// A set of all the commands
-  static QSet<Command *> uniqueCommands();
-
-  /// All interactive commands
-  static QStringList interactiveCommands();
-
-  /// All non-interactive commands
-  static QStringList nonInteractiveCommands();
-
-  /// Returns a LaTeX string documenting the command (using
-  /// subsection)
-  ///
-  /// @deprecated
-  QString latexDocumentation() const;
-
   
   /// Makes up a text synopsis for the command
   QString synopsis(bool markup = false) const;
 
+  /// Returns true when the command requires user interaction (such as
+  /// the event loop, for instance)
   bool isInteractive() const;
+
+  /// Returns true when the command has neither arguments nor options
+  /// (so that prompting does not need to occur)
+  bool hasNoArgsNorOpts() const;
 
 
   /// Updates a QString containing the documentation of the command
@@ -302,23 +282,11 @@ public:
   /// Sets the long description
   void setDocumentation(const QString & str);
 
-  /// Loads the documentation from the given string, and returns a
-  /// list of commands for which the documentation was missing.
-  static QStringList loadDocumentation(const QString & str);
-
   /// Returns a simple string describing the command, all its
   /// arguments and options and if it is interactive or not, in a
   /// specification-like fashion (ie, things that can be
   /// compared). Not for use for a help string. Should be \b stable.
   QString commandSpec(bool full) const;
-
-  /// Writes out a specification for all commands, in the alphabetic
-  /// order.
-  static void writeSpecFile(QTextStream & out, bool full);
-
-
-  /// Unregisters a given command. This does not delete it.
-  static void unregisterCommand(Command * cmd);
 };
 
 #endif

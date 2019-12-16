@@ -38,10 +38,10 @@ protected:
     QString s(peek);
     int p = 0;
     if(peek.contains("# The following information are comments, but Soas"))
-      p += 150;
+      p += 450;
     QRegExp re1("^# Fit used:");
     if(re1.indexIn(s) >= 0)
-      p += 150;
+      p += 20;
     
     QRegExp re2("^[^#\t]+\t.*!");
     if(re2.indexIn(s) >= 0)
@@ -77,6 +77,7 @@ protected:
     DataSet * nds = new DataSet(cols);
     nds->name = QDir::cleanPath(fileName);
     nds->setMetaData("fit-name", pms.fitName);
+    nds->setMetaData("parameters", pms.parametersOrder);
     
     setMetaDataForFile(nds, fileName);
     rv << nds;

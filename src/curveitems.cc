@@ -72,6 +72,33 @@ void CurveVerticalLines::paint(QPainter * painter, const QRectF & bbox,
 
 //////////////////////////////////////////////////////////////////////
 
+void CurveCross::paint(QPainter * painter, const QRectF &bb,
+                       const QTransform & ctw)
+{
+  if(Utils::isPointFinite(p)) {
+    painter->save();
+    painter->setPen(pen);
+    QPointF p1, p2;
+
+    p1.setX(p.x());
+    p1.setY(bb.top());
+    p2 = p1;
+    p2.setY(bb.bottom());
+    painter->drawLine(ctw.map(QLineF(p1, p2)));
+    
+    p1.setY(p.y());
+    p1.setX(bb.left());
+    p2 = p1;
+    p2.setX(bb.right());
+    painter->drawLine(ctw.map(QLineF(p1, p2)));
+
+    painter->restore();
+  }
+}
+
+
+//////////////////////////////////////////////////////////////////////
+
 CurveHorizontalRegion::CurveHorizontalRegion() :
   autoSwap(false)
 {
@@ -182,4 +209,30 @@ void CurveData::paint(QPainter * painter, const QRectF &,
   it.addToPath(pp, ctw);
   painter->drawPath(pp);
   painter->restore();
+}
+
+QRect CurveData::paintLegend(QPainter * p, const QRect & rect)
+{
+  if(legend.isEmpty())
+    return QRect();
+  QPoint p1 = QPoint(rect.left(), (rect.bottom() + rect.top())/2);
+  QPoint p2 = p1 + QPoint(10, 0); // Mwouaf...
+
+  p->save();
+  QPen pen2 = pen;
+  pen2.setWidthF(1.5);
+  p->setPen(pen);
+  p->drawLine(p1, p2);
+  p->restore();
+
+  QRect tmp(p1, p2);
+  tmp.adjust(0,-1,0,1);
+  
+  QRect r = rect.adjusted(13, 0, 0, 0);
+  QRect t;
+  p->drawText(r, 
+              Qt::AlignLeft | Qt::AlignVCenter | Qt::TextDontClip,
+              legend,
+              &t);
+  return t.united(tmp);
 }

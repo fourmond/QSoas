@@ -133,6 +133,12 @@ namespace Utils {
   /// Sort a list and join it
   QString joinSortedList(QStringList list, const QString & glue);
 
+  /// Splits on a char avoiding being within pairs of (any) char
+  /// contained in opening and closing. No validation (i.e. are the
+  /// delimitors really paire) is performed.
+  QStringList nestedSplit(const QString & str, const QChar & delim,
+                          const QString & opening, const QString & closing);
+
   /// @}
 
 
@@ -142,6 +148,9 @@ namespace Utils {
 
   /// Returns a random number between 0.0 and 1.0
   double random();
+
+  /// Returns a random number between @a low and @a high, optionally distributed logarithmically
+  double random(double low, double high, bool log = false);
 
   /// Rounds \a value as if it had only \a ranks digits before the
   /// decimal point.
@@ -178,7 +187,7 @@ namespace Utils {
 
   /// Dumps the contents of a rectangle to the target stream
   template<typename T, typename Rect> void dumpRectangle(T & stream, 
-                                                         Rect & r) {
+                                                         const Rect & r) {
     stream << r.x() << "," << r.y() << " to " 
            << r.x() + r.width() << "," << r.y() + r.height();
     if(r.isNull())
@@ -404,6 +413,23 @@ namespace Utils {
       list.swap(i, sz - i - 1);
   }
 
+
+  /// @name Graphical utilities
+  ///
+  /// 
+  
+  /// Returns the color corresponding to the value. A value below the
+  /// lowest of the list returns the corresponding color. Same for a
+  /// value higher than the higher of the list. Anything inbetween is
+  /// interpolated, either in the RGB space or in the HSV space.
+  QColor gradientColor(double value, const QList<QPair<double, QColor> > & colors, bool hsv = false);
+
+  /// Draw the given rich text, accepting the same arguments as the
+  /// corresponding QPainter function, with the addition painter as
+  /// first function.
+  void drawRichText(QPainter * painter, const QRectF &rectangle,
+                    int flags, const QString &text,
+                    QRectF *boundingRect = NULL);
 };
 
 #endif

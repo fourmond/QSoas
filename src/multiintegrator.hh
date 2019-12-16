@@ -30,16 +30,25 @@ class MultiIntegrator;
 
 class Argument;
 
+class WrappedDouble {
+public:
+  double value;
+  bool operator==(const WrappedDouble & other) const {
+    return other.value == value;
+  };
+  WrappedDouble(const double & v) : value(v) {
+  };
+};
+
 /// This is the base class for integrators that integrated many
 /// functions of a single variable. It is very much like the 
 class MultiIntegrator {
 
-  /// The internal storage space
-  QList<gsl_vector *> evaluations;
+  /// The internal storage space for function evaluations
+  QHash<WrappedDouble, gsl_vector *> evaluations;
 
-  /// Same thing
-  QList<double> evaluationsAt;
-  
+  /// Frees the space taken by all the evaluations.
+  void clearEvaluations();
 protected:
 
   /// Precision: absolute
@@ -61,6 +70,7 @@ protected:
   /// Called by reset() to handle whatever it is that sub-classes must
   /// handle upon reset.
   virtual void internalReset();
+
 public:
 
   typedef std::function<void (double, gsl_vector * tgt)> Function;

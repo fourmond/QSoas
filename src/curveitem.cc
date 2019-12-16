@@ -20,7 +20,7 @@
 #include <curveitem.hh>
 #include <dataset.hh>
 
-CurveItem::CurveItem(bool c) : countBB(c), hidden(false)
+CurveItem::CurveItem(bool c) : countBB(c), hidden(false), shouldDelete(false)
 {
 }
 

@@ -51,6 +51,10 @@
 #include <dataseteditor.hh>
 #include <statistics.hh>
 
+#include <file-arguments.hh>
+#include <metadatafile.hh>
+
+#include <unsplicer.hh>
 
 static Group grp("buffer", 2,
                  "Buffer",
@@ -126,9 +130,7 @@ sa("splita", // command name
    NULL, // arguments
    NULL, // options
    "Split first",
-   "Gets buffer until dx sign change",
-   "Returns the first part of the buffer, until "
-   "the first change of sign of dx");
+   "Gets buffer until dx sign change");
     
 static void splitbCommand(const QString &)
 {
@@ -144,9 +146,7 @@ sb("splitb", // command name
    NULL, // arguments
    NULL, // options
    "Split second",
-   "Gets buffer after first dx sign change",
-   "Returns the part of the buffer after "
-   "the first change of sign of dx");
+   "Gets buffer after first dx sign change");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -291,6 +291,7 @@ static void unwrapCommand(const QString &,
   double sr = 0;
   if(opts.contains("scan-rate")) {
     updateFromOptions(opts, "scan-rate", sr);
+    useSR = true;
   }
   else {
     if(ds->hasMetaData("sr")) {
@@ -503,8 +504,7 @@ expand("expand", // command name
        NULL, // arguments
        &expandOpts, // options
        "Expand",
-       "Expands a multi-Y dataset",
-       "Expands a dataset with many Y columns into as many datasets with one Y column");
+       "Expands a multi-Y dataset");
 
 
 
@@ -531,8 +531,7 @@ renameCmd("rename", // command name
           &renameA, // arguments
           NULL, // options
           "Rename",
-          "??",
-          "??", "a");
+          "Renames the current buffer", "a");
 
 
 //////////////////////////////////////////////////////////////////////
@@ -611,9 +610,7 @@ chopC("chop", // command name
       &chopA, // arguments
       &chopO, // options
       "Chop Buffer",
-      "Cuts buffer based on X values",
-      "Cuts the buffer into several subsets of the lengths given "
-      "as arguments");
+      "Cuts buffer based on X values");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -639,9 +636,7 @@ chopS("segments-chop", // command name
       NULL, // arguments
       &scO, // options
       "Chop into segments",
-      "Cuts buffer based on predefined segments",
-      "Cuts the buffer into several ones based on the segments defined "
-      "using set-segments or find-step /set-segments");
+      "Cuts buffer based on predefined segments");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -660,6 +655,11 @@ namespace __cu {
     ScaleX,
     ShiftY,
     ScaleY,
+    PlaceCross,
+    RemoveCross,
+    VerticalSymmetry,
+    HorizontalSymmetry,
+    CentralSymmetry,
     Abort,
     Quit
   } CursorActions;
@@ -679,6 +679,12 @@ namespace __cu {
     addKey(Qt::CTRL + Qt::SHIFT + 'x', ScaleX, "scale X by x/xref and keep going").
     addKey(Qt::CTRL + 'y', ShiftY, "shift Y by y-yref and keep going").
     addKey(Qt::CTRL + Qt::SHIFT + 'y', ScaleY, "scale Y by y/yref and keep going").
+    addKey('a', VerticalSymmetry, "vertical symmetry around the current point").
+    addKey('A', HorizontalSymmetry, "horizontal symmetry around the current point").
+    addKey('c', CentralSymmetry, "central symmetry around the current point").
+    alsoKey('C').
+    addKey('+', PlaceCross, "place cross at the latest cursor position").
+    addKey('-', RemoveCross, "remove latest cross").
     addPointPicker().
     addKey(Qt::Key_Escape, Abort, "abort").
     addKey('q', Quit, "quit").
@@ -689,12 +695,15 @@ namespace __cu {
 static void cursorCommand(CurveEventLoop &loop, const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
-  // std::unique_ptr<DataSet> nds = NULL;         // for in-place edition
+  const GraphicsSettings & gs = soas().graphicsSettings();
+
+    // std::unique_ptr<DataSet> nds = NULL;         // for in-place edition
   DataSet *  nds = NULL;         // for in-place edition
   CurveMarker m;
   CurveMarker r;
   CurveView & view = soas().view();
   PointPicker pick(&loop, ds);
+  QList<CurveCross*> crosses;
   pick.trackedButtons = Qt::LeftButton|Qt::RightButton|Qt::MiddleButton;
 
   view.addItem(&m);
@@ -714,11 +723,27 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
   QString cur;
   ValueHash e;
 
-  auto ensureEditableDS = [&nds, ds, &view] {
-    if(! nds) {
-      nds = ds->derivedDataSet("_cu_mod.dat");
-      view.addDataSet(nds);
+  QList<DataSet *> newDatasets;
+
+  
+
+  auto ensureEditableDS = [&nds, &view, &pick, &newDatasets] () -> bool {
+    DataSet * cds = const_cast<DataSet *>(pick.dataset());
+    if(! cds) {
+      Terminal::out << "No current dataset to work on, pick a point with exact or smooth" << endl;
+      return false;
     }
+    if(newDatasets.indexOf(cds) >= 0) {
+      nds = cds;
+    }
+    else {
+      nds = cds->derivedDataSet("_cu_mod.dat");
+      view.addDataSet(nds);
+      view.removeDataSet(cds);
+      newDatasets << nds;
+      pick.pickDataSet(nds);    // so we keep on working with this one.
+    }
+    return true;
   };
   
   while(! loop.finished()) {
@@ -762,10 +787,26 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
       Terminal::out << "Reference:\t"  << r.p.x() << "\t" 
                     << r.p.y() << endl;
       break;
+    case PlaceCross:
+      if(Utils::isPointFinite(m.p)) {
+        CurveCross * cr = new CurveCross;
+        cr->p = m.p;
+        cr->pen = gs.getPen(GraphicsSettings::SeparationPen);
+        crosses << cr;
+        view.mainPanel()->addItem(cr);
+      }
+      break;
+    case RemoveCross:
+      if(crosses.size() > 0)
+        delete crosses.takeLast();
+      break;
     case Quit:
-      if(nds) {
-        Terminal::out << "Pushing modified dataset" << endl;
-        soas().pushDataSet(nds);
+      if(newDatasets.size() > 0) {
+        CommandOptions opts;
+        DataStackHelper pusher(opts);
+
+        Terminal::out << "Pushing modified datasets" << endl;
+        pusher.pushDataSets(newDatasets);
       }
     case Abort:
       return;
@@ -801,9 +842,10 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
                       << ", is not finite" << endl;
         break;
       }
-      ensureEditableDS();
-      Terminal::out << "Shifting X by: " << dx << endl;
-      nds->x() = nds->x() - dx;
+      if(ensureEditableDS()) {
+        Terminal::out << "Shifting X by: " << dx << endl;
+        nds->x() = nds->x() - dx;
+      }
       break;
     }
     case ScaleX: {
@@ -813,9 +855,10 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
                       << ", is not finite" << endl;
         break;
       }
-      ensureEditableDS();
-      Terminal::out << "Scaling X by: " << xs << endl;
-      nds->x() = nds->x()/xs;
+      if(ensureEditableDS()) {
+        Terminal::out << "Scaling X by: " << xs << endl;
+        nds->x() = nds->x()/xs;
+      }
       break;
     }
     case ShiftY: {
@@ -825,9 +868,10 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
                       << ", is not finite" << endl;
         break;
       }
-      ensureEditableDS();
-      Terminal::out << "Shifting Y by: " << dy << endl;
-      nds->y() = nds->y() - dy;
+      if(ensureEditableDS()) {
+        Terminal::out << "Shifting Y by: " << dy << endl;
+        nds->y() = nds->y() - dy;
+      }
       break;
     }
     case ScaleY: {
@@ -837,9 +881,37 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
                       << ", is not finite" << endl;
         break;
       }
-      ensureEditableDS();
-      Terminal::out << "Scaling Y by: " << ys << endl;
-      nds->y() = nds->y()/ys;
+      if(ensureEditableDS()) {
+        Terminal::out << "Scaling Y by: " << ys << endl;
+        nds->y() = nds->y()/ys;
+      }
+      break;
+    }
+    case VerticalSymmetry: {
+      if(ensureEditableDS()) {
+        Terminal::out << "Vertical symmetry around X = " << m.p.x() << endl;
+        nds->x() *= - 1;
+        nds->x() += 2*m.p.x();
+      }
+      break;
+    }
+    case HorizontalSymmetry: {
+      if(ensureEditableDS()) {
+        Terminal::out << "Horizontal symmetry around Y = " << m.p.y() << endl;
+        nds->y() *= - 1;
+        nds->y() += 2*m.p.y();
+      }
+      break;
+    }
+    case CentralSymmetry: {
+      if(ensureEditableDS()) {
+        Terminal::out << "Horizontal symmetry around (" << m.p.x()
+                      << "," << m.p.y() << ")" << endl;
+        nds->x() *= - 1;
+        nds->x() += 2*m.p.x();
+        nds->y() *= - 1;
+        nds->y() += 2*m.p.y();
+      }
       break;
     }
     default:
@@ -856,7 +928,6 @@ cu("cursor", // command name
    NULL, // options
    "Cursor",
    "Display cursors on the curve",
-   "Displays cursors on the curve",
    "cu");
 };
 
@@ -978,7 +1049,6 @@ namespace __cut {
       NULL, // options
       "Cut",
       "Cuts the current curve",
-      "Cuts bits from the current curve",
       "c");
 };
 
@@ -1107,7 +1177,7 @@ namespace __ee {
      NULL, // arguments
      NULL, // options
      "Edit errors",
-     "Manually edit errors", "...");
+     "Manually edit errors");
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -1265,7 +1335,6 @@ zo("zoom", // command name
    NULL, // options
    "Zoom",
    "Zooms on the curve",
-   "Zooms on the current curve",
    "z");
 
 //////////////////////////////////////////////////////////////////////
@@ -1274,12 +1343,14 @@ zo("zoom", // command name
 /// @todo Maybe most of the code shared between this and divide should
 /// be shared ?
 /// (and some with average ?)
-static void subCommand(const QString &, QList<const DataSet *> a, 
-                       DataSet * b, const CommandOptions & opts)
+static void subCommand(const QString &, QList<const DataSet *> a,
+                       const CommandOptions & opts)
 {
   bool naive = testOption<QString>(opts, "mode", "indices");
   bool useSteps = false;
   updateFromOptions(opts, "use-segments", useSteps);
+
+  const DataSet * b = a.takeLast();
 
   for(int i = 0; i < a.size(); i++) {
     const DataSet * ds = a[i];
@@ -1294,12 +1365,10 @@ static void subCommand(const QString &, QList<const DataSet *> a,
 
 static ArgumentList 
 operationArgs(QList<Argument *>() 
-              << new SeveralDataSetArgument("first", 
-                                            "Buffer",
-                                            "First buffer(s)")
-              << new DataSetArgument("second", 
-                                     "Buffer",
-                                     "Second buffer"));
+              << new SeveralDataSetArgument("buffers", 
+                                            "Buffers",
+                                            "All buffers")
+              );
 
 static ArgumentList 
 operationOpts(QList<Argument *>() 
@@ -1324,10 +1393,39 @@ sub("subtract", // command name
     &operationOpts, // options
     "Subtract",
     "Subtract one buffer from another",
-    "Subtract the second buffer from the first. "
-    "Works with several 'first' buffers.",
     "S");
 
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void divCommand(const QString &, QList<const DataSet *> a,
+                       const CommandOptions & opts)
+{
+  bool naive = testOption<QString>(opts, "mode", "indices");
+  bool useSteps = false;
+  updateFromOptions(opts, "use-segments", useSteps);
+
+  const DataSet * b = a.takeLast();
+    
+  for(int i = 0; i < a.size(); i++) {
+    const DataSet * ds = a[i];
+    Terminal::out << QObject::tr("Dividing buffer '%2' by buffer '%1'").
+      arg(b->name).arg(ds->name) 
+                  << (naive ? " (index mode)" : " (xvalues mode)" ) 
+                  << endl;
+    soas().pushDataSet(ds->divide(b, naive, useSteps));
+  }
+}
+
+static Command 
+divc("div", // command name
+     effector(divCommand), // action
+     "mbuf",  // group name
+     &operationArgs, // arguments
+     &operationOpts, // options
+     "Divide",
+     "Divide one buffer by another");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1402,50 +1500,22 @@ mul("multiply", // command name
     "mbuf",  // group name
     &aArgs, // arguments
     &operationOpts, // options
-    "Add",
-    "Add buffers", "", "mul");
+    "Multiply",
+    "Multiply buffers", "mul");
 
-
-//////////////////////////////////////////////////////////////////////
-
-
-static void divCommand(const QString &, QList<const DataSet *> a,
-                       DataSet * b, const CommandOptions & opts)
-{
-  bool naive = testOption<QString>(opts, "mode", "indices");
-  bool useSteps = false;
-  updateFromOptions(opts, "use-segments", useSteps);
-
-  for(int i = 0; i < a.size(); i++) {
-    const DataSet * ds = a[i];
-    Terminal::out << QObject::tr("Dividing buffer '%2' by buffer '%1'").
-      arg(b->name).arg(ds->name) 
-                  << (naive ? " (index mode)" : " (xvalues mode)" ) 
-                  << endl;
-    soas().pushDataSet(ds->divide(b, naive, useSteps));
-  }
-}
-
-static Command 
-divc("div", // command name
-     effector(divCommand), // action
-     "mbuf",  // group name
-     &operationArgs, // arguments
-     &operationOpts, // options
-     "Divide",
-     "Divide one buffer by another",
-     "Divide the first buffer by the second");
 
 //////////////////////////////////////////////////////////////////////
 
 
 static void mergeCommand(const QString &, QList<const DataSet *> a,
-                         DataSet * b, const CommandOptions & opts)
+                         const CommandOptions & opts)
 {
   bool naive = testOption<QString>(opts, "mode", "indices");
   bool useSteps = false;
   updateFromOptions(opts, "use-segments", useSteps);
-  
+
+  const DataSet * b = a.takeLast();
+
   for(int i = 0; i < a.size(); i++) {
     const DataSet * ds = a[i];
     Terminal::out << QObject::tr("Merging buffer '%2' with buffer '%1'").
@@ -1463,9 +1533,7 @@ mergec("merge", // command name
        &operationArgs, // arguments
        &operationOpts, // options
        "Merge buffers on X values",
-       "Merge two buffer based on X values",
-       "Merge the second buffer with the first one, and keep Y "
-       "of the second as a function of Y of the first");
+       "Merge two buffer based on X values");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1535,8 +1603,7 @@ contractc("contract", // command name
           &contractArgs, // arguments
           &contractOpts, // options
           "Group buffers on X values",
-          "Group buffers into a X,Y1,Y2",
-          "");
+          "Group buffers into a X,Y1,Y2");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1635,9 +1702,7 @@ ave("average", // command name
     &aveArgs, // arguments
     &aveOpts, // options
     "Average",
-    "Average buffers",
-    "Average all buffers, possibly splitting them into monotonic parts if "
-    "applicable");
+    "Average buffers");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1674,8 +1739,7 @@ cat("cat", // command name
     &catArgs, // arguments
     &catOpts, // options
     "Concatenate",
-    "Conc",
-    "Conc",
+    "Concatenate the given buffers",
     "i");
 
 //////////////////////////////////////////////////////////////////////
@@ -1699,7 +1763,6 @@ shiftx("shiftx", // command name
        NULL, // arguments
        NULL, // options
        "Shift X values",
-       "Shift X values so that x[0] = 0",
        "Shift X values so that x[0] = 0");
 
 //////////////////////////////////////////////////////////////////////
@@ -1720,39 +1783,46 @@ static void statsOn(const DataSet * ds, const CommandOptions & opts,
   ValueHash os;
   QList<ValueHash> byCols = stats.statsByColumns(&os);
 
-  Terminal::out << "Statistics on buffer: " << ds->name << ":";
   if(sns.isEmpty()) {
+    Terminal::out << "Statistics on buffer: " << ds->name << ":";
     for(int i = 0; i < ds->nbColumns(); i++)
       Terminal::out << "\n" << byCols[i].prettyPrint();
   }
   else {
     os = os.select(sns);
-    Terminal::out << "\n" << os.prettyPrint();
+    Terminal::out << ds->name << os.toString(QString("\t")) << endl;
   }
 
   Terminal::out << endl;
+  /// @todo We should be able to use handleOutput as well for the
+  /// display to the terminal ?
   os.handleOutput(ds, opts);
 }
 
 static void statsCommand(const QString &, const CommandOptions & opts)
 {
-  DataSet * ds = soas().currentDataSet();
-  updateFromOptions(opts, "buffer", ds);
+  QList<const DataSet *> datasets;
+  updateFromOptions(opts, "buffers", datasets);
+  if(datasets.isEmpty())
+    datasets <<  soas().currentDataSet();
+
   bool bySegments = false;
   updateFromOptions(opts, "use-segments", bySegments);
   QStringList statsNames;
   updateFromOptions(opts, "stats", statsNames);
 
 
-  if(bySegments) {
-    QList<DataSet * > segs = ds->chopIntoSegments();
-    for(int i = 0; i < segs.size(); i++) {
-      statsOn(segs[i], opts, statsNames);
-      delete segs[i];
+  for(const DataSet * ds : datasets) {
+    if(bySegments) {
+      QList<DataSet * > segs = ds->chopIntoSegments();
+      for(int i = 0; i < segs.size(); i++) {
+        statsOn(segs[i], opts, statsNames);
+        delete segs[i];
+      }
     }
+    else
+      statsOn(ds, opts, statsNames);
   }
-  else
-    statsOn(ds, opts, statsNames);
 }
 
 /// @todo Validation will be a pain when buffer is specified
@@ -1766,10 +1836,10 @@ public:
                            cn, pn, d, g, def){
   }; 
 
-  virtual QString typeName() const {
+  virtual QString typeName() const override {
     return "stats-names";
   };
-  virtual QString typeDescription() const {
+  virtual QString typeDescription() const override {
     return "One or more name of statistics (as displayed by stats), separated by `,`.";
   };
 
@@ -1777,10 +1847,9 @@ public:
 
 static ArgumentList 
 statsO(QList<Argument *>() 
-       << new DataSetArgument("buffer", 
-                              "Buffer",
-                              "an alternative buffer to work on",
-                              true)
+       << new SeveralDataSetArgument("buffers", 
+                                     "Buffers",
+                                     "buffers to work on", true, true)
        << new StatsArgument("stats",
                             "Select stats",
                             "writes only the given stats")
@@ -1798,8 +1867,7 @@ stats("stats", // command name
       NULL, // arguments
       &statsO, // options
       "Statistics",
-      "Statistics",
-      "...");
+      "Statistics");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1880,23 +1948,110 @@ gDS("generate-buffer", // command name
     &gDSA, // arguments
     &gDSO, // options
     "Generate buffer",
-    "Generate a ramp",
-    "...");
+    "Generate a ramp");
+
+//////////////////////////////////////////////////////////////////////
+
+static void recordMeta(const QString & file, const QString & meta,
+                       const QVariant & value)
+{
+  MetaDataFile md(file);
+  md.read(false);
+  md.metaData[meta] = value;
+  md.write();
+}
+
+static void recordMetaCommand(const QString &, QString meta, QString value,
+                              QStringList files,
+                              const CommandOptions & opts)
+{
+  // Attempt to convert to double
+  QVariant val = ValueHash::variantFromText(value, opts);
+
+  QStringList exclude;
+  updateFromOptions(opts, "exclude", exclude);
+
+  for(const QString f : files) {
+    if(MetaDataFile::isMetaDataFile(f)) {
+      Terminal::out << "Skipping '" << f
+                    << "', which is a meta-data file" << endl;
+      continue;
+    }
+    if(exclude.contains(f)) {
+      Terminal::out << "Skipping '" << f
+                    << "', excluded" << endl;
+      continue;
+    }
+    try {
+      Terminal::out << "Setting meta-data for file '" << f
+                    << "'" << endl;
+      ::recordMeta(f, meta, val);
+    }
+    catch(const RuntimeError & re) {
+      Terminal::out << "Error with file '" << f << "': "
+                    << re.message() << endl;
+    }
+  }
+}
+
+static ArgumentList 
+rMA(QList<Argument *>() 
+    << new StringArgument("name", 
+                          "Name",
+                          "name of the meta-data")
+    << new StringArgument("value", 
+                          "Value",
+                          "value of the meta-data")
+    << new SeveralFilesArgument("files", 
+                                "Files",
+                                "files on which to set the meta-data",
+                                true)
+    );
+
+static ArgumentList 
+rMO(QList<Argument *>()
+    << ValueHash::variantConversionOptions()
+    << new SeveralFilesArgument("exclude", 
+                                "Exclude",
+                                "exclude files")
+            
+     );
+
+
+static Command 
+rM("record-meta", // command name
+   effector(recordMetaCommand), // action
+   "buffer",  // group name
+   &rMA, // arguments
+   &rMO, // options
+   "Set meta-data",
+   "Manually set meta-data");
 
 //////////////////////////////////////////////////////////////////////
 
 
 static void setMetaCommand(const QString &, QString meta, QString value, 
-                           const CommandOptions & /*opts*/)
+                           const CommandOptions & opts)
 {
+  bool alsoRecord = false;
+  updateFromOptions(opts, "also-record", alsoRecord);
   DataSet * ds = soas().currentDataSet();
-  // Attempt to convert to double
-  bool ok;
-  double val = value.toDouble(&ok);
-  if(ok)
-    ds->setMetaData(meta, val);
-  else
-    ds->setMetaData(meta, value);
+  QVariant val = ValueHash::variantFromText(value, opts);
+  ds->setMetaData(meta, val);
+  if(alsoRecord) {
+    QString f = ds->getMetaData("original-file").toString();
+    if(f.isEmpty()) {
+      Terminal::out << "Cannot set meta-data as there is no source "
+                    << "file for the data" << endl;
+
+    }
+    else {
+      Terminal::out << "Also setting the meta-data for original file '" << f
+                    << "'" << endl;
+      ::recordMeta(f, meta, val);
+    }
+  }
+
 }
 
 static ArgumentList 
@@ -1909,9 +2064,13 @@ sMA(QList<Argument *>()
                           "value of the meta-data")
    );
 
-// static ArgumentList 
-// sMO(QList<Argument *>() 
-//     );
+static ArgumentList 
+sMO(QList<Argument *>()
+    << ValueHash::variantConversionOptions()
+    << new BoolArgument("also-record", 
+                        "Also record",
+                        "also record the meta-data as if one had used record-meta on the original file")
+    );
 
 
 static Command 
@@ -1919,9 +2078,9 @@ sM("set-meta", // command name
    effector(setMetaCommand), // action
    "buffer",  // group name
    &sMA, // arguments
-   NULL, // options
+   &sMO, // options
    "Set meta-data",
-   "Set meta-data", "...");
+   "Manually set meta-data");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1952,7 +2111,7 @@ sP("set-perp", // command name
    &sPA, // arguments
    NULL, // options
    "Set perpendicular",
-   "Set perpendicular coordinates", "...");
+   "Set perpendicular coordinates");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -2038,3 +2197,92 @@ tc("tweak-columns", // command name
    "Tweak columns",
    "Tweak columns");
 
+
+//////////////////////////////////////////////////////////////////////
+
+
+// testing...
+// QSoas> generate-buffer 0 10 x**2+10*sin(Pi*0.5*i)
+// QSoas> unsplice
+// Found 25 trends
+// QSoas> generate-buffer 0 10 10+x**2+10*sin(Pi*0.5*i)
+// QSoas> unsplice
+// Found 14 trends
+// QSoas> generate-buffer 0 30 10+x**2+10*sin(Pi*0.5*i)
+// QSoas> generate-buffer 0 10 30+x**2+10*sin(Pi*0.5*i)
+// QSoas> unsplice
+
+static void unspliceCommand(const QString &, const CommandOptions & opts)
+{
+  DataStackHelper pusher(opts);
+  const DataSet * ds = soas().currentDataSet();
+  Unsplicer us(ds->x(), ds->y());
+  us.unsplice();
+  QList<UnsplicedData> trends = us.trends();
+  QList<Vector> leftovers = us.leftovers();
+  
+
+  Terminal::out << "Found " << trends.size() << " trends, and "
+                << leftovers.first().size() << " leftover points" << endl;
+  int i = 0;
+  for(const UnsplicedData & t : trends) {
+    QList<Vector> cols;
+    cols << t.xv << t.yv;
+    DataSet * nds = ds->derivedDataSet(cols, QString("_trend_%1").arg(i));
+    pusher << nds;
+    ++i;
+  }
+  if(leftovers.first().size() > 0) {
+    DataSet * nds = ds->derivedDataSet(leftovers, "_leftover");
+    pusher << nds;
+  }
+  
+}
+
+static ArgumentList 
+usOpts(QList<Argument *>() 
+           << DataStackHelper::helperOptions()
+       );
+
+
+// I don't really think this command is so useful in the end...
+
+// static Command 
+// unsplice("unsplice", // command name
+//          effector(unspliceCommand), // action
+//          "buffer",  // group name
+//          NULL, // arguments
+//          &usOpts, // options
+//          "Unsplice dataset",
+//          "Tries to identify multiple trends in the data");
+
+//////////////////////////////////////////////////////////////////////
+
+static void classifyCommand(const QString &, const CommandOptions & opts)
+{
+  DataStackHelper pusher(opts);
+  const DataSet * ds = soas().currentDataSet();
+  double mag = 1.5;
+
+  QList<QList<Vector> > mags =
+    Vector::orderOfMagnitudeClassify(ds->x(), ds->y(), mag);
+  
+
+  Terminal::out << "Found " << mags.size() << " trends" << endl;
+  int i = 0;
+  for(const QList<Vector> & t : mags) {
+    DataSet * nds = ds->derivedDataSet(t, QString("_trend_%1").arg(i));
+    pusher << nds;
+    ++i;
+  }
+}
+
+
+// static Command 
+// classify("classify", // command name
+//          effector(classifyCommand), // action
+//          "buffer",  // group name
+//          NULL, // arguments
+//          &usOpts, // options
+//          "Classify dataset",
+//          "Tries to identify multiple order of magnitude trends in the data");

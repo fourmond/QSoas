@@ -26,7 +26,8 @@
 
 void FitParametersFile::Parameter::replaceParameter(FitParameter * & parameter,
                                                     double * tg, 
-                                                    int idx, int ds) {
+                                                    int idx, int ds) const
+{
   FitParameter * npm = 
     FitParameter::loadFromString(value, tg, idx, ds);
   delete parameter;
@@ -64,6 +65,14 @@ void FitParametersFile::readFromStream(QTextStream & in)
         parametersOrder << pn;
         definedParameters += pn;
       }
+      if(pn == "buffer_name" && ds >= 0) {
+        bufferByName[paramRE.cap(3)] = ds;
+        bufferNames[ds] = paramRE.cap(3);
+      }
+      if(pn == "Z" && ds >= 0) {
+        bufferByZ[paramRE.cap(3)] = ds;
+        bufferZValues[ds] = paramRE.cap(3).toDouble();
+      }
     }
     else if(commentRE.indexIn(line) == 0) {
       QString cmt = commentRE.cap(1);
@@ -71,7 +80,7 @@ void FitParametersFile::readFromStream(QTextStream & in)
       if(bufferCommentRE.indexIn(cmt) == 0) {
         // We found a comment describing the buffers
         int idx = bufferCommentRE.cap(1).toInt();
-        datasetNames[idx] = bufferCommentRE.cap(2);
+        bufferByName[bufferCommentRE.cap(2)] = idx;
       }
 
       // Parse comments, if possible.
@@ -121,6 +130,11 @@ QHash<QString,DataSet> FitParametersFile::parameterValuesAsfZ(bool makeupZ) cons
   
   QSet<int> zidx = perp.keys().toSet();
   zidx -= -1;
+
+  if(zidx.isEmpty())            // This is the case for a
+                                // single-buffer fit.
+    zidx.insert(0);
+  
   values.take("Z");
   values.take("buffer_weight");
   QStringList names = values.keys();
@@ -147,3 +161,10 @@ QHash<QString,DataSet> FitParametersFile::parameterValuesAsfZ(bool makeupZ) cons
   return rv;
 }
 
+
+
+void FitParametersFile::dump(QTextStream & o) const
+{
+  for(const Parameter & p : parameters)
+    o << p.name << " -- " << p.datasetIndex << " -- " << p.value << endl;
+}

@@ -99,8 +99,10 @@ void ParametersSpreadsheet::setupFrame()
               QKeySequence(QString("Ctrl+Shift+F")));
   addCMAction("Set parameters", this, SLOT(editSelected()),
               QKeySequence(QString("Ctrl+E")));
-  addCMAction("Propagate parameters", this, SLOT(propagateDown()),
+  addCMAction("Propagate parameters down", this, SLOT(propagateDown()),
               QKeySequence(QString("Ctrl+P")));
+  addCMAction("Propagate parameters up", this, SLOT(propagateUp()),
+              QKeySequence(QString("Ctrl+Shift+P")));
   addCMAction("Interpolate", this, SLOT(interpolateParameters()),
               QKeySequence(QString("Ctrl+I")));
   addCMAction("Reset to initial guess", this, SLOT(resetParameters()));
@@ -139,22 +141,13 @@ void ParametersSpreadsheet::editSelected()
   }
 }
 
-static bool lower(const QModelIndex & a, const QModelIndex & b)
-{
-  if(a.column() < b.column())
-    return true;
-  if(a.column() > b.column())
-    return false;
-  return a.row() < b.row();
-}
 
-
-void ParametersSpreadsheet::propagateDown()
+void ParametersSpreadsheet::propagate(std::function<bool (const QModelIndex & a, const QModelIndex & b)> cmp)
 {
   QModelIndexList indexes = view->selectionModel()->selectedIndexes();
 
   // We first sort, and then we just have to propagate the values
-  qSort(indexes.begin(), indexes.end(), &::lower);
+  qSort(indexes.begin(), indexes.end(), cmp);
 
   int curCol = -1;
   QVariant curVal;
@@ -168,6 +161,36 @@ void ParametersSpreadsheet::propagateDown()
     else 
       model->setData(indexes[i], curVal,  Qt::EditRole);
   }
+
+}
+
+static bool lower(const QModelIndex & a, const QModelIndex & b)
+{
+  if(a.column() < b.column())
+    return true;
+  if(a.column() > b.column())
+    return false;
+  return a.row() < b.row();
+}
+
+void ParametersSpreadsheet::propagateDown()
+{
+  propagate(::lower);
+}
+
+static bool upper(const QModelIndex & a, const QModelIndex & b)
+{
+  if(a.column() < b.column())
+    return true;
+  if(a.column() > b.column())
+    return false;
+  return a.row() > b.row();
+}
+
+
+void ParametersSpreadsheet::propagateUp()
+{
+  propagate(::upper);
 }
 
 

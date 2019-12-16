@@ -101,7 +101,8 @@ protected:
       originalParameters(o.originalParameters),
       finalParameters(o.finalParameters),
       totalSize(o.totalSize),
-      underlyingStorage(NULL)
+      underlyingStorage(NULL),
+      skippedIndices(o.skippedIndices)
     {
       for(QHash<int, Expression *>::const_iterator i = o.expressions.begin();
           i != o.expressions.end(); ++i) {
@@ -134,6 +135,8 @@ protected:
   void prepareExpressions(FitData * data) const
   {
     Storage * s = storage<Storage>(data);
+    // QTextStream o(stdout);
+    // o << "Called for fit " << this << " with data: " << s << endl;
 
     {
       TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
@@ -216,6 +219,23 @@ protected:
     prepareExpressions(data);
   }
 
+  virtual bool hasSubFunctions (FitData * data) const override
+  {
+    Storage * s = storage<Storage>(data);
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                      s->underlyingStorage);
+    return underlyingFit->hasSubFunctions(data);
+  };
+
+  virtual bool displaySubFunctions (FitData * data) const override
+  {
+    Storage * s = storage<Storage>(data);
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                      s->underlyingStorage);
+    return underlyingFit->displaySubFunctions(data);
+  };
+
+
   ArgumentList * fitSoftOptions() const override
   {
     return Fit::fitSoftOptions(underlyingFit);
@@ -254,8 +274,21 @@ protected:
   {
     Storage * s = storage<Storage>(data);
     double buffer[s->totalSize];
+    // QTextStream o(stdout);
+    // o << s << " -- totl: " << s->totalSize << " -- " 
+    //   << s->originalParameters.size() << endl;
+    
+    // for(int i : s->expressions.keys())
+    //   o << "#" << i << " -> " << s->expressions[i]->formula()
+    //     << " -- " << s->expressions[i]->currentVariables().join(", ")
+    //     << endl;
     
     Utils::skippingCopy(src, buffer, s->totalSize, s->skippedIndices);
+
+    // o << "Before:";
+    // for(int i = 0; i < s->totalSize; i++)
+    //   o << "\t" << buffer[i];
+    // o << endl;
 
     // As many evaluations as formulas to ensure that all depths are
     // resolved.
@@ -264,6 +297,12 @@ protected:
           i != s->expressions.end(); ++i)
         buffer[i.key()] = i.value()->evaluate(buffer);
     }
+
+    // o << "After:";
+    // for(int i = 0; i < s->totalSize; i++)
+    //   o << "\t" << buffer[i];
+    // o << endl;
+
     memcpy(dest, buffer, sizeof(double) * s->originalParameters.size());
 
     // Now, run the checks
@@ -339,6 +378,23 @@ public:
     }
   };
 
+  virtual void computeSubFunctions(const double * parameters,
+                                   FitData * data, 
+                                   const DataSet * ds,
+                                   QList<Vector> * targetData,
+                                   QStringList * targetAnnotations) const override
+  {
+    Storage * s = storage<Storage>(data);
+    double buf[s->originalParameters.size()];
+
+    computeParameters(data, ds, parameters, buf);
+    
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                        s->underlyingStorage);
+    underlyingFit->computeSubFunctions(buf, data, ds,
+                                       targetData, targetAnnotations);
+  };
+
 
   ModifiedFit(const QString & name,
               const QStringList & newParams,
@@ -409,10 +465,10 @@ rfA(QList<Argument *>()
                            "the fit to modify")
     << new StringArgument("new-parameters", "New parameters",
                           "Comma-separated list of new parameters")
-    << new SeveralStringsArgument(QRegExp("\\s*#\\s*"),
+    << new SeveralStringsArgument(QRegExp("\\s*;;\\s*"),
                                   "redefinitions", 
                                   "Redefinitions",
-                                  "a list of redefinitions, separated by `#`"));
+                                  "a list of redefinitions, separated by `;;`"));
 
 
 

@@ -1,0 +1,3 @@
+generate-buffer 0 1 10
+verify $stats.x_min>2
+generate-buffer 0 1 20

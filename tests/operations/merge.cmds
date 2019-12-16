@@ -1,0 +1,6 @@
+generate-buffer 0 10 x**2
+generate-buffer 0 10 x**4
+
+merge 1 0
+assert '$stats["x_max"]-100' 0
+assert '$stats["y_max"]-1e4' 0

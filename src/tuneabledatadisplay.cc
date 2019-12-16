@@ -71,6 +71,17 @@ TuneableDataDisplay::~TuneableDataDisplay()
 {
 }
 
+void TuneableDataDisplay::setName(const QString & n)
+{
+  name = n;
+  checkBox->setText(n);
+}
+
+QColor TuneableDataDisplay::currentColor() const
+{
+  return color;
+}
+
 CurvePoints * TuneableDataDisplay::addSource(XYIterable * source,
                                              bool autoadd)
 {
@@ -81,6 +92,15 @@ CurvePoints * TuneableDataDisplay::addSource(XYIterable * source,
   cp->hidden = checkBox->checkState() == Qt::Unchecked;
   updateCurveColors();
   return cp;
+}
+
+CurvePoints * TuneableDataDisplay::setSource(XYIterable * source,
+                                             bool autoadd)
+{
+  for(CurvePoints * cp : items)
+    delete cp;
+  items.clear();
+  return addSource(source, autoadd);
 }
 
 void TuneableDataDisplay::updateCurveColors()
@@ -140,8 +160,11 @@ QList<DataSet*> TuneableDataDisplay::makeDataSets(bool onlyVisible)
 {
   QList<DataSet*> rv;
   if( (! onlyVisible) || checkBox->checkState() == Qt::Checked) {
-    for(int i = 0; i < items.size(); i++)
-      rv << items[i]->makeDataSet();
+    for(int i = 0; i < items.size(); i++) {
+      DataSet * ds = items[i]->makeDataSet();
+      ds->name = name;
+      rv << ds;
+    }
   }
   return rv;
 }

@@ -25,9 +25,12 @@
 #include <namedinstance.hh>
 #include <exceptions.hh>
 
-/// This class provides a factory/creator scheme.
+/// This class provides a factory/creator scheme. Instances of this
+/// class can be used to create instances of the template argument
+/// class C.
 ///
-/// C is the class, Args is the arguments to the creation function.
+/// C is the class to be created, Args the arguments to the creation
+/// function.
 template <typename C, typename... Args> class Factory : 
   public NamedInstance<Factory<C, Args...> > {
 protected:
@@ -64,6 +67,16 @@ public:
     return NamedInstance<Factory<C, Args...> >::availableItems();
   };
 
+  /// Returns a description -> name hash
+  static QHash<QString, QString> availableDescriptions() {
+    QHash<QString, QString> ret;
+    if(NamedInstance<Factory<C, Args...> >::instances) {
+      for(Factory * item : NamedInstance<Factory<C, Args...> >::instances->values())
+        ret[item->description] = item->name;
+    }
+    return ret;
+  };
+
   /// Returns the item in the namedinstance bearing the given name.
   static Factory * namedItem(const QString & n) {
     return NamedInstance<Factory<C, Args...> >::namedItem(n);
@@ -82,7 +95,5 @@ public:
   
   
 }; 
-
-
 
 #endif

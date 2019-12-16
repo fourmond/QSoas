@@ -30,8 +30,11 @@
 #include <general-arguments.hh>
 
 #include <sparsejacobian.hh>
+#include <abdmatrix.hh>
 
 #include <gsl/gsl_cdf.h>
+
+#include <gsl-types.hh>
 
 #include <fitengine.hh>
 #include <debug.hh>
@@ -215,6 +218,7 @@ FitData::FitData(const Fit * f, const QList<const DataSet *> & ds, int d,
   }
 
   storage = gsl_vector_alloc(totalSize);
+  storage2 = gsl_vector_alloc(totalSize);
 
   computeWeights();
 
@@ -365,6 +369,7 @@ FitData::~FitData()
 {
   // free up some resources
   gsl_vector_free(storage);
+  gsl_vector_free(storage2);
   gsl_vector_free(parametersStorage);
   if(covarStorage)
     gsl_matrix_free(covarStorage);
@@ -392,63 +397,21 @@ FitData::~FitData()
 
 }
 
-void FitData::weightVector(gsl_vector * tg)
+void FitData::weightVector(gsl_vector * tg, bool forceError)
 {
   for(int i = 0; i < datasets.size(); i++) {
     gsl_vector_view v = viewForDataset(i, tg);
     gsl_vector_scale(&v.vector, weightsPerBuffer[i]);
   }
-  if(standardYErrors && engine && !engine->handlesWeights()) {
+  if(standardYErrors &&
+     (
+      (engine && !engine->handlesWeights()) ||
+      forceError
+      )
+     ) {
     /// @todo Would be faster if I multiply ;-)...
     gsl_vector_div(tg, standardYErrors);
   }
-}
-
-double FitData::weightedSquareSumForDataset(int ds, const gsl_vector * vect, 
-                                            bool subtract)
-{
-  double ret = 0;
-  double w = weightsPerBuffer[ds];
-  gsl_vector_view wv;
-
-  const Vector & y = datasets[ds]->y();
-  gsl_vector * weight = NULL;
-  if(standardYErrors) {
-    wv = viewForDataset(ds, standardYErrors);
-    weight = &(wv.vector);
-  }
-
-
-  int sz = datasets[ds]->x().size();
-  for(int j = 0; j < sz; j++) {
-    double v = w;
-    if(weight)
-      v *= gsl_vector_get(weight, j);
-    v = 1/v;
-    double val = (vect ? gsl_vector_get(vect, j) : 0);
-    if(vect || subtract)
-      v *= (subtract ? val - y[j] : val);
-    if(std::isfinite(v))
-      ret += v*v;
-  }
-  return ret;
-}
-
-
-double FitData::weightedSquareSum(const gsl_vector * src, 
-                                  bool subtract)
-{
-  double ret = 0;
-  for(int i = 0; i < datasets.size(); i++) {
-    gsl_vector_const_view vv = (src ? 
-                                viewForDataset(i, src) :
-                                viewForDataset(i, (const gsl_vector*) storage) );
-    const gsl_vector * vect = NULL;
-    if(src)
-      vect = &(vv.vector);
-    ret += weightedSquareSumForDataset(i, vect, subtract);
-  }
-  return ret;
 }
 
 bool FitData::usesPointWeights() const
@@ -479,7 +442,8 @@ int FitData::f(const gsl_vector * x, gsl_vector * f,
   /// by checking all parameters.
 
   if(debug > 0) {
-    dumpString(QString("Entering f computation -- local storage 0x%1").
+    dumpString(QString("Entering f computation (%1 %2) -- local storage 0x%3").
+               arg(doSubtract).arg(doWeights).
                arg((long)getStorage(), 0, 16));
     dumpGSLParameters(x);
     dumpFitParameters(params.data());
@@ -502,6 +466,8 @@ int FitData::f(const gsl_vector * x, gsl_vector * f,
   // First, compute the value in place
 
   fit->function(params.data(), this, f);
+  if(debug > 0)
+    dumpString(" -> done with function computation");
   evaluationNumber++;
   // Then, subtract data.
   if(doSubtract)
@@ -604,6 +570,7 @@ int FitData::df(const gsl_vector * x, SparseJacobian * df)
     dumpString(QString("Entering f computation -- local storage 0x%1").
                arg((long)getStorage(), 0, 16));
 
+  volatile bool & exc = soas().throwFitExcept;
   
   // First, compute the common value, and store it in... the storage
   // place.
@@ -616,8 +583,18 @@ int FitData::df(const gsl_vector * x, SparseJacobian * df)
     workersQueue->waitForJobsDone();
   }
   else {
-    for(int i = 0; i < parametersByDefinition.size(); i++)
+    for(int i = 0; i < parametersByDefinition.size(); i++) {
+      if(exc) {
+        exc = false;
+        throw RuntimeError("Exception raised manually");
+      }
       deriveParameter(i, x, df, storage);
+    }
+  }
+
+  if(exc) {
+    exc = false;
+    throw RuntimeError("Exception raised manually");
   }
 
   
@@ -973,65 +950,130 @@ const gsl_matrix * FitData::covarianceMatrix()
 
   gsl_matrix_set_zero(covarStorage);
 
-  if(subordinates.size() > 0) {
-    for(int i = 0; i < subordinates.size(); i++) {
-      const gsl_matrix * sub = subordinates[i]->covarianceMatrix();
-      int nb = parameterDefinitions.size();
-      gsl_matrix_view m = gsl_matrix_submatrix(covarStorage, nb*i, nb*i, 
-                                               nb, nb);
-      gsl_matrix_memcpy(&m.matrix, sub);
+  try {
+    if(subordinates.size() > 0) {
+      for(int i = 0; i < subordinates.size(); i++) {
+        const gsl_matrix * sub = subordinates[i]->covarianceMatrix();
+        int nb = parameterDefinitions.size();
+        gsl_matrix_view m = gsl_matrix_submatrix(covarStorage, nb*i, nb*i, 
+                                                 nb, nb);
+        gsl_matrix_memcpy(&m.matrix, sub);
+      }
+    }
+    else {
+
+      // We write the covariance matrix in the top-left corner of the
+      // storage space, and then move all the columns in place using
+      // permutations.
+
+      int nbparams = (gslParameters > 0 ? gslParameters : 1); 
+      /// @hack Work around the GSL limitation on having empty matrices
+      gsl_matrix_view m = gsl_matrix_submatrix(covarStorage, 0, 0, 
+                                               nbparams, nbparams);
+      if(engine) {
+        engine->computeCovarianceMatrix(&m.matrix);
+
+        // Now, we perform permutations to place all the elements where they
+        // should be.
+        //
+        // We start from the top.
+        for(int i = parameters.size() - 1; i >= 0; i--) {
+          FitParameter * param = parameters[i];
+
+          if(param->fitIndex < 0)
+            continue;
+
+          /// @warning This function assumes a certain layout in the fit
+          /// parameters part of the fit vector, but as they are all free
+          /// parameters, things should be fine ?
+          int target = param->paramIndex + 
+            parameterDefinitions.size() * ( param->dsIndex >= 0 ? 
+                                            param->dsIndex : 0);
+          gsl_matrix_swap_rows(covarStorage, param->fitIndex, target);
+          gsl_matrix_swap_columns(covarStorage, param->fitIndex, target);
+
+          /// @todo add scaling to columns when applicable. (bijections)
+        }
+
+        // Scaling factor coming from the gsl documentation
+        double res = residuals();
+        /// @bug This is not accurate for weighted fits !!!!
+        gsl_matrix_scale(covarStorage, res*res/doF());
+      } 
+      else
+        /// @todo Maybe this should be signaled in a different way --
+        /// using an exception of some kind ?
+        ///
+        /// Or maybe we should use the computation of the covariance matric...
+        gsl_matrix_set_zero(&m.matrix); // in the case when no engine
+      // has been setup yet.
     }
   }
-  else {
-
-    // We write the covariance matrix in the top-left corner of the
-    // storage space, and then move all the columns in place using
-    // permutations.
-
-    int nbparams = (gslParameters > 0 ? gslParameters : 1); 
-    /// @hack Work around the GSL limitation on having empty matrices
-    gsl_matrix_view m = gsl_matrix_submatrix(covarStorage, 0, 0, 
-                                             nbparams, nbparams);
-    if(engine) {
-      engine->computeCovarianceMatrix(&m.matrix);
-
-      // Now, we perform permutations to place all the elements where they
-      // should be.
-      //
-      // We start from the top.
-      for(int i = parameters.size() - 1; i >= 0; i--) {
-        FitParameter * param = parameters[i];
-
-        if(param->fitIndex < 0)
-          continue;
-
-        /// @warning This function assumes a certain layout in the fit
-        /// parameters part of the fit vector, but as they are all free
-        /// parameters, things should be fine ?
-        int target = param->paramIndex + 
-          parameterDefinitions.size() * ( param->dsIndex >= 0 ? 
-                                          param->dsIndex : 0);
-        gsl_matrix_swap_rows(covarStorage, param->fitIndex, target);
-        gsl_matrix_swap_columns(covarStorage, param->fitIndex, target);
-
-        /// @todo add scaling to columns when applicable. (bijections)
-      }
-
-      // Scaling factor coming from the gsl documentation
-      double res = residuals();
-      /// @bug This is not accurate for weighted fits !!!!
-      gsl_matrix_scale(covarStorage, res*res/doF());
-    } 
-    else
-      /// @todo Maybe this should be signaled in a different way --
-      /// using an exception of some kind ?
-      gsl_matrix_set_zero(&m.matrix); // in the case when no engine
-                                      // has been setup yet.
+  catch(RuntimeError & e) {
+    // Error when making the covariance matrix
+    gsl_matrix_set_zero(covarStorage);
   }
-  
   covarIsOK = true;
   return covarStorage;
 }
+
+void FitData::computeCovarianceMatrix(gsl_matrix * target,
+                                      double * parameters,
+                                      double * residuals) const
+{
+  //  ABDMatrix * jTj;
+  std::unique_ptr<SparseJacobian> jacobian(new SparseJacobian(this));
+
+  QList<int> sizes;
+  for(int i = -1; i < datasets.size(); i++) {
+    int sz = parametersByDataset[i].size();
+    if(sz > 0)
+      sizes << sz;
+  }
+  std::unique_ptr<ABDMatrix> jTj(new ABDMatrix(sizes));
+  GSLVector function(dataPoints());
+  GSLVector p(freeParameters());
+  packParameters(parameters, p);
+  const_cast<FitData*>(this)->fdf(p, function, jacobian.get());
+  jacobian->computejTj(jTj.get());
+
+  gsl_matrix_view m = gsl_matrix_submatrix(target, 0, 0, 
+                                           gslParameters, gslParameters);
+  
+  jTj->invert(&m.matrix);
+
+
+  // Now, we perform permutations to place all the elements where they
+  // should be.
+  //
+  // We start from the top.
+  for(int i = this->parameters.size() - 1; i >= 0; i--) {
+    FitParameter * param = const_cast<FitData*>(this)->parameters[i];
+
+    if(param->fitIndex < 0)
+      continue;
+
+    /// @warning This function assumes a certain layout in the fit
+    /// parameters part of the fit vector, but as they are all free
+    /// parameters, things should be fine ?
+    int tg = param->paramIndex + 
+      parameterDefinitions.size() * ( param->dsIndex >= 0 ? 
+                                      param->dsIndex : 0);
+    gsl_matrix_swap_rows(target, param->fitIndex, tg);
+    gsl_matrix_swap_columns(target, param->fitIndex, tg);
+
+
+    /// @todo add scaling to columns when applicable. (bijections)
+  }
+  
+  // Scaling factor coming from the gsl documentation, and apparently
+  // also from ODRPACK manual page 75 (but PDF 89)
+  double cur_squares = Utils::finiteNorm(function);
+  gsl_matrix_scale(target, cur_squares/doF());
+  if(residuals)
+    *residuals = sqrt(cur_squares);
+}
+
 
 int FitData::doF() const
 {

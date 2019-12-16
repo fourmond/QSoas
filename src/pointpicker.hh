@@ -120,7 +120,7 @@ public:
   Qt::MouseButton button() { return lastButton; };
 
   /// Returns the dataset corresponding to the last press (meaningful
-  /// only if lastPress isn't Qt::MouseButton)
+  /// only if lastPress isn't Qt::NoButton)
   ///
   /// Always NULL for off
   const DataSet * dataset() const;

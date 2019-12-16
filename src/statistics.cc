@@ -180,15 +180,17 @@ static MultiLambdaStat gen(QStringList()
                            });
 
 static MultiLambdaStat avg(QStringList()
+                           << "sum"
                            << "average"
                            << "var"
                            << "stddev", false, false,
                            [](const DataSet * ds, int c) -> QList<QVariant>
                            {
                              QList<QVariant> rv;
-                             double a,v;
-                             ds->column(c).stats(&a, &v);
-                             rv << a
+                             double a,v,s;
+                             ds->column(c).stats(&a, &v, &s);
+                             rv << s
+                                << a
                                 << v
                                 << sqrt(v);
                              return rv;
@@ -276,6 +278,20 @@ static MultiLambdaStat delta(QStringList()
                                ds->column(c).deltaStats(&dmin, &dmax);
                                rv << dmin
                                   << dmax;
+                               return rv;
+                             });
+
+
+static MultiLambdaStat reglin(QStringList()
+                             << "a"
+                             << "b", false, true,
+                             [](const DataSet * ds, int c) -> QList<QVariant>
+                             {
+                               QList<QVariant> rv;
+                               QPair<double, double> a;
+                               a = ds->reglin(0, -1, c);
+                               rv << a.first
+                                  << a.second;
                                return rv;
                              });
 

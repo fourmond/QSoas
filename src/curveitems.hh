@@ -32,9 +32,9 @@ public:
   QPointF p1;
   QPointF p2;
 
-  virtual QRectF boundingRect() const;
+  virtual QRectF boundingRect() const override ;
   virtual void paint(QPainter * painter, const QRectF & bbox,
-                     const QTransform & curveToWidget);
+                     const QTransform & curveToWidget) override ;
 };
 
 /// A vertical line
@@ -44,7 +44,7 @@ public:
   double x;
 
   virtual void paint(QPainter * painter, const QRectF & bbox,
-                     const QTransform & curveToWidget);
+                     const QTransform & curveToWidget) override;
 };
 
 /// A set of vertical lines
@@ -56,7 +56,20 @@ public:
   CurveVerticalLines() : xValues(NULL) {;};
 
   virtual void paint(QPainter * painter, const QRectF & bbox,
-                     const QTransform & curveToWidget);
+                     const QTransform & curveToWidget) override;
+};
+
+
+/// A set of vertical lines
+class CurveCross : public CurveItem {
+public:
+
+  QPointF p;
+
+  CurveCross() {};
+
+  virtual void paint(QPainter * painter, const QRectF & bbox,
+                     const QTransform & curveToWidget) override;
 };
 
 
@@ -86,7 +99,7 @@ public:
   void setX(double value, Qt::MouseButton which);
 
   virtual void paint(QPainter * painter, const QRectF & bbox,
-                     const QTransform & curveToWidget);
+                     const QTransform & curveToWidget) override;
 
   /// Finds the indices of the points closest to the current values.
   ///
@@ -107,7 +120,7 @@ public:
   CurveRectangle() : brush(QBrush(Qt::NoBrush)) {;};
 
   virtual void paint(QPainter * painter, const QRectF & bbox,
-                     const QTransform & curveToWidget);
+                     const QTransform & curveToWidget) override;
 };
 
 /// Plain cacheless data.
@@ -125,9 +138,14 @@ public:
   CurveData(const Vector & x, const Vector & y) : 
     xvalues(x), yvalues(y), histogram(false) {;};
 
-  virtual QRectF boundingRect() const;
+  virtual QRectF boundingRect() const override;
   virtual void paint(QPainter * painter, const QRectF & bbox,
-                     const QTransform & curveToWidget);
+                     const QTransform & curveToWidget) override;
+
+  QString legend;
+  virtual QRect paintLegend(QPainter * painter, 
+                            const QRect & placement) override;
+  
 };
 
 #endif

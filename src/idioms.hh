@@ -59,7 +59,7 @@ public:
     t = newval;
   };
   
-  TemporaryChange(T & t) : 
+  explicit TemporaryChange(T & t) : 
     target(t), initialValue(t) {
   };
 
@@ -105,7 +105,7 @@ class SaveGlobal {
 public:
 
   /// Has to be a real const char ? For now.
-  SaveGlobal(const char * n) : name(n) {
+  explicit SaveGlobal(const char * n) : name(n) {
     mr = MRuby::ruby();
     old = mr->getGlobal(name);
     mr->gcRegister(old);
@@ -130,7 +130,7 @@ public:
 class TemporarilyChangeDirectory {
   QString prev;
 public:
-  TemporarilyChangeDirectory(const QString & str = "") {
+  explicit TemporarilyChangeDirectory(const QString & str = "") {
     if(! str.isEmpty()) {
       prev = QDir::currentPath();
       if(! QDir::setCurrent(str))

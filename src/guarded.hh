@@ -76,7 +76,7 @@ protected:
     _target = NULL;              // We're done !
   };
   
-  GuardedPointerBase(Guardable * t) : 
+  explicit GuardedPointerBase(Guardable * t) : 
   _target(t) {
     if(_target)
       _target->addWatcher(this);

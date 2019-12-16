@@ -34,6 +34,8 @@ class TemplateChoiceArgument : public Argument {
   QStringList order;
 
   QString choiceName;
+
+  QString choiceDesc;
 public:
 
   TemplateChoiceArgument(const QHash<QString, T> & c,
@@ -41,7 +43,7 @@ public:
                          const char * d = "", bool def = false,
                          const char * chN = "") : 
     Argument(cn, pn, d, false, def), 
-    fixedChoices(c), choiceName(chN) {
+    fixedChoices(c), choiceName(chN), choiceDesc("One of: `%1`") {
     order = fixedChoices.keys();
     qSort(order);
   }; 
@@ -51,7 +53,8 @@ public:
                          const char * cn, const char * pn,
                          const char * d = "", bool def = false,
                          const char * chN = "") : 
-    Argument(cn, pn, d, false, def), choiceName(chN) {
+    Argument(cn, pn, d, false, def), choiceName(chN),
+    choiceDesc("One of: `%1`") {
     order = c1;
     // Using exceptions in constructors, but constructors are called
     // mostly statically, so that shouldn't be a problem.
@@ -61,26 +64,32 @@ public:
     for(int i = 0; i < c2.size(); i++) {
       fixedChoices[c1[i]] = c2[i];
     }
-  }; 
+  };
 
-  virtual QString typeName() const {
+  void describe(const QString & cn, const QString & cd) {
+    choiceName = cn;
+    choiceDesc = cd;
+  };
+
+  virtual QString typeName() const override {
     if(choiceName.isEmpty())
       return "choice";
     return choiceName;
   };
-  virtual QString typeDescription() const {
-    return QString("One of: `%1`").arg(order.join("`, `"));
+
+  virtual QString typeDescription() const override {
+    return choiceDesc.arg(order.join("`, `"));
   };
 
   /// Returns a wrapped T
-  virtual ArgumentMarshaller * fromString(const QString & str) const {
+  virtual ArgumentMarshaller * fromString(const QString & str) const override {
     if(! fixedChoices.contains(str))
       throw RuntimeError("%1 is not a valid choice").arg(str);
     return new ArgumentMarshallerChild<T>(fixedChoices[str]);
   };
 
   /// Prompting uses QInputDialog.
-  virtual ArgumentMarshaller * promptForValue(QWidget * base) const {
+  virtual ArgumentMarshaller * promptForValue(QWidget * base) const override {
     bool ok = false;
     QString str = 
       QInputDialog::getItem(base, argumentName(), description(),
@@ -90,13 +99,24 @@ public:
     return fromString(str);
   };
 
-  /// a rather easy one.
-  virtual QStringList proposeCompletion(const QString & starter) const {
+  virtual QStringList toString(const ArgumentMarshaller * arg) const override {
+    QStringList lst;
+    for(const QString n : fixedChoices.keys()) {
+      if(fixedChoices[n] == arg->value<T>()) {
+        lst << n;
+        break;
+      }
+    }
+    return lst;
+  };
+
+  /// A rather easy one.
+  virtual QStringList proposeCompletion(const QString & starter) const override {
     return Utils::stringsStartingWith(fixedChoices.keys(), starter);
   };
 
   
-  virtual QWidget * createEditor(QWidget * parent = NULL) const {
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override {
     QComboBox * cb = new QComboBox(parent);
 
     QStringList keys = fixedChoices.keys();
@@ -107,7 +127,7 @@ public:
   };
 
   virtual void setEditorValue(QWidget * editor, 
-                              ArgumentMarshaller * value) const {
+                              const ArgumentMarshaller * value) const override {
     QComboBox * cb = dynamic_cast<QComboBox*>(editor);
     if(! cb)
       throw InternalError("Not a combo box");

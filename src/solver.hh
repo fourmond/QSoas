@@ -122,7 +122,7 @@ public:
                const gsl_root_fdfsolver_type * type = 
                gsl_root_fdfsolver_steffenson);
 
-  virtual double f(double x);
+  virtual double f(double x) override;
 };
 
 #endif

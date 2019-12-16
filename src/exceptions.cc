@@ -66,12 +66,44 @@ static void qtMessageHandler(QtMsgType type, const char *msg)
     throw InternalError(QString("Fatal error: %1").arg(msg));
   }
 }
+
+#else
+
+void qtMessageHandler(QtMsgType type,
+                      const QMessageLogContext &context,
+                      const QString &msg)
+{
+  QString m = QString("%1 (%2:%3, %4)").arg(msg).
+    arg(context.file).arg(context.line).arg(context.function);
+  QByteArray bt = m.toLocal8Bit();
+  switch (type) {
+  case QtDebugMsg:
+    fprintf(stderr, "Debug: %s\n", bt.constData());
+    break;
+  case QtInfoMsg:
+    fprintf(stderr, "Info: %s\n", bt.constData());
+    break;
+  case QtWarningMsg:
+    fprintf(stderr, "Warning: %s\n", bt.constData());
+    break;
+  case QtCriticalMsg:
+    fprintf(stderr, "Critical: %s\n", bt.constData());
+    Terminal::out << "Critical error: " << m << endl;
+    break;
+  case QtFatalMsg:
+    throw InternalError(QString("Fatal error: %1").arg(m));
+    break;
+  }
+}
+
 #endif
 
 void Exception::setupQtMessageHandler()
 {
 #if QT_VERSION < QT_VERSION_CHECK(5,0,0)
   qInstallMsgHandler(&qtMessageHandler);
+#else
+  qInstallMessageHandler(&qtMessageHandler);
 #endif
 }
 
@@ -84,6 +116,11 @@ static void my_error_handler(const char * reason,
 {
   QString error = QString("GSL error: %1 (in %2:%3) -- error code %4").
     arg(reason).arg(file).arg(line).arg(gsl_errno);
+  QString fl = file;
+  // These errors are necessarily internal errors, while other GSL
+  // errors could be legitimate user errors
+  if(fl.contains("vector") || fl.contains("matrix"))
+    throw InternalError(error);
   throw GSLError(error);
 }
 

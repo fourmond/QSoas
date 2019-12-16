@@ -1,0 +1,13 @@
+# We check that the order in which the datasets are pushed is correct
+generate-buffer 0 1
+generate-buffer 4 6
+assert "$stats['x_min']-4" 0
+
+sim-exponential-decay parameters/exponentials-1.params 0 1
+assert "$stats['x_min']-4" 0
+drop 0..3
+
+generate-buffer 0 1
+generate-buffer 4 6
+sim-exponential-decay parameters/exponentials-1.params 1 0
+assert "$stats['x_min']" 0

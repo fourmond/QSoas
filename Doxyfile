@@ -183,6 +183,8 @@ ALIASES                = "question=\xrefitem questions \"Open design questions\"
 
 ALIASES                += "hack=\xrefitem hack \"Dirty hacks\" \"Dirty hacks\""
 
+ALIASES                += "infra=\xrefitem infra \"Infrastructure problems\" \"Infrastructure problems\""
+
 # Set the OPTIMIZE_OUTPUT_FOR_C tag to YES if your project consists of C
 # sources only. Doxygen will then generate output that is more tailored for C.
 # For instance, some of the names that are used will be different. The list

@@ -23,6 +23,7 @@
 #define __COMMANDWIDGET_HH
 
 class CommandPrompt;
+class CommandContext;
 class LineEdit;
 
 // A private class to display the label
@@ -30,7 +31,7 @@ class SideBarLabel;
 
 /// This class embeds the context in which a command was run (which
 /// command file, which location in the file)
-class CommandContext {
+class ScriptContext {
 public:
   /// The name of the script file (empty for no script)
   QString scriptFile;
@@ -56,6 +57,12 @@ public:
 class CommandWidget : public QWidget {
 
   Q_OBJECT;
+
+  /// The number of lines in the terminal
+  int termLines;
+
+  /// Maximum number of lines in the terminal
+  int maxTermLines;
 
   /// The terminal display
   QTextEdit * terminalDisplay;
@@ -90,10 +97,40 @@ class CommandWidget : public QWidget {
   /// everywhere but scripts.
   bool addToHistory;
 
-  /// Runs the command coming from the given device
-  void runCommandFile(QIODevice * source, 
-                      const QStringList & args = QStringList(),
-                      bool addToHist = false);
+public:
+  typedef enum {
+    Success,
+    Error,
+    ControlOut
+  } ScriptStatus;
+
+  /// The mode of 
+  typedef enum {
+    Ignore,              // Ignore errors, just go to the next command
+    Abort,               // Aborts the script with an error (default)
+    Delete,              // Aborts the script as with Abort, and
+                         // delete all generated datasets.
+    Except               // Aborts the script with an exception, which
+                         // may stop the outer script too.
+  } ScriptErrorMode;
+
+protected:
+
+  static QHash<QString, ScriptErrorMode> * errorModeNamesHash;
+
+public:
+
+  static const QHash<QString, ScriptErrorMode> & errorModeNames();
+
+protected:
+
+
+  /// Runs the command coming from the given device. Returns status of
+  /// the command.
+  ScriptStatus runCommandFile(QIODevice * source, 
+                              const QStringList & args = QStringList(),
+                              bool addToHist = false,
+                              ScriptErrorMode mode = Abort);
 
 
   /// Current Ruby string to be executed. Not in ruby mode if the
@@ -103,15 +140,22 @@ class CommandWidget : public QWidget {
 
   /// The stack of contexts, gaining a level every time one enters
   /// inside a script
-  QList<CommandContext> contexts;
-  
+  QList<ScriptContext> contexts;
+
+
+  /// The command context for the prompt
+  CommandContext * commandContext;
+
 public:
 
-  CommandWidget();
+  explicit CommandWidget(CommandContext * context = NULL);
   virtual ~CommandWidget();
 
+  /// Returns the context that was used
+  CommandContext * promptContext() const;
 
-  /// @name Context-related functions
+
+  /// @name Functions related to ScriptContext
   ///
   /// @{
 
@@ -126,7 +170,7 @@ public:
   void advanceContext();
 
   /// Returns the current context
-  CommandContext currentContext() const;
+  ScriptContext currentContext() const;
   
 
   /// @}
@@ -136,6 +180,9 @@ public:
   /// terminal, or to standard output in the case we don't have one of
   /// those ready.
   static void logString(const QString & str);
+
+  /// The name of the log file.
+  static QString logFileName;
 
 
   /// Switch to loop mode (and back)
@@ -199,7 +246,10 @@ public slots:
   /// Runs the given command (already split into words). Returns true
   /// if everything went fine, or false if it finished with an error
   /// (or a control flow exception).
-  bool runCommand(const QStringList & raw);
+  ///
+  /// If @a doFullPrompt is true, then launch a dialog box for
+  /// prompting for all the arguments/options.
+  bool runCommand(const QStringList & raw, bool doFullPrompt = false);
 
   /// Appends the given (HTML) text to the log output.
   void appendToTerminal(const QString & str);
@@ -212,9 +262,10 @@ public slots:
   void printCurrentDataSetInfo(); 
 
   /// Runs the commands contained in a file.
-  void runCommandFile(const QString & fileName, 
-                      const QStringList & args = QStringList(),
-                      bool addToHist = false);
+  ScriptStatus runCommandFile(const QString & fileName, 
+                              const QStringList & args = QStringList(),
+                              bool addToHist = false,
+                              ScriptErrorMode mode = Abort);
 
 protected slots:
   void commandEntered();

@@ -21,6 +21,7 @@
 
 #include <soas.hh>
 #include <command.hh>
+#include <commandcontext.hh>
 #include <argument.hh>
 
 #include <valuehash.hh>
@@ -40,9 +41,12 @@ static mrb_value qs_method_missing(mrb_state * mrb, mrb_value self)
   //   printf("Arg %d: ", i);
   //   mrb_p(mrb, args[i]);
   //   // mrb_gc_register(mrb, args[i]);
-  // } 
+  // }
 
-  Command * command = Command::namedCommand(cmd, true);
+  /// @todo This is calling for disaster ?
+  CommandContext * context = &soas().commandContext();
+
+  Command * command = context->namedCommand(cmd, true);
   if(! command) {
     QString arg = QString("Unkown QSoas command: '%1'").arg(cmd);
     mrb_raise(mrb, mrb->eStandardError_class, arg.toLatin1().constData());
@@ -94,4 +98,10 @@ void MRuby::initializeInterface()
   soasInstance = mrb_obj_new(mrb, cQSoasInterface, 0, NULL);
   defineGlobalConstant("Soas", soasInstance);
   defineGlobalConstant("QSoas", soasInstance);
+  // contexts[soasInstance] = CommandContext::globalContext();
+
+  mrb_value ft = mrb_obj_new(mrb, cQSoasInterface, 0, NULL);
+  defineGlobalConstant("SoasFit", ft);
+  defineGlobalConstant("QSoasFit", ft);
+  // contexts[ft] = CommandContext::fitContext();
 }

@@ -5,8 +5,8 @@ TEMPLATE = app
 
 CONFIG += debug warn_on thread exception
 
-! contains(QT_MAJOR_VERSION, 4) {
-  warning("QSoas seems to work with Qt5, probably with quite a few glitches, though")
+contains(QT_MAJOR_VERSION, 4) {
+  error("QSoas no longer supports Qt4")
 }
 
 

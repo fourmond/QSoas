@@ -255,6 +255,9 @@ void DataBackend::loadFilesAndDisplay(bool update, QStringList files,
   bool ignoreEmpty = true;
   updateFromOptions(opts, "ignore-empty", ignoreEmpty);
 
+  int expected = -1;
+  updateFromOptions(opts, "expected", expected);
+
   for(int i = 0; i < files.size(); i++) {
     try {
       QList<DataSet *> dss = 
@@ -304,6 +307,9 @@ void DataBackend::loadFilesAndDisplay(bool update, QStringList files,
     }
     QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
   }
+  if(expected >= 0 && datasets.size() != expected)
+    throw RuntimeError("Expected %1 datasets but got %2").
+      arg(expected).arg(datasets.size());
 
   DataStackHelper pusher(opts, update);
   for(int i = 0; i < datasets.size(); i++) {
@@ -373,15 +379,20 @@ void DataBackend::registerBackendCommands()
                      << new BoolArgument("ignore-cache", 
                                          "Ignores cache",
                                          "if on, ignores cache (default off)")
-                     << new BoolArgument("ignore-empty", 
-                                         "Ignores empty files",
-                                         "if on, skips empty files (default on)")
-                     << new CodeArgument("for-which", 
-                                         "For which",
-                                         "Select on formula")
                      );
 
   ArgumentList * oo = DatasetOptions::optionList();
+  *oo << DataStackHelper::helperOptions()
+      << new BoolArgument("ignore-empty", 
+                          "Ignores empty files",
+                          "if on, skips empty files (default on)")
+      << new CodeArgument("for-which", 
+                          "For which",
+                          "Select on formula")
+      << new IntegerArgument("expected", 
+                             "Expected number",
+                             "Expected number of loaded datasets");
+
   overallOptions->mergeOptions(*oo);
   nonBackendOptions = QSet<QString>::fromList(overallOptions->argumentNames());
 
@@ -399,22 +410,12 @@ void DataBackend::registerBackendCommands()
     }
     else
       opts = new ArgumentList;
-    /// @todo Try to find a way to share that with options for the
-    /// load and overlay commands.
-    *opts << DataStackHelper::helperOptions();
-    
+
     opts->mergeOptions(*oo);
-      
-    /// @todo Add general options processing.
+
     QString name = "load-as-" + b->name;
 
     QString d1 = QString("Load files with backend '%1'").arg(b->name);
-    // QString d2 = QString("Load any number of files directly using the backend "
-    //                      "'%1', bypassing cache and automatic backend "
-    //                      "detection, and "
-    //                      "giving more fine-tuning in the loading via the "
-    //                      "use of dedicated options").arg(b->name);
-
     new Command(name.toLocal8Bit(),
                 effector(b, &DataBackend::loadDatasetCommand),
                 "load", lst, opts, (const char*) d1.toLocal8Bit(), 

@@ -57,6 +57,8 @@ QString Regex::parsePattern(const QString & pattern,
     p = "^\\s*$";
   else if(pattern == "{blank}")          // blank line
     p = "\\s+";
+  else if(pattern == "{tabs}")          // blank line
+    p = "\t";
   else if(pattern == "{text-line}")  // text line
     p = "^\\s*[^0-9.+-\\s]";
   else

@@ -1360,7 +1360,10 @@ Vector DataSet::segmentPositions() const
 QStringList DataSet::columnNames() const
 {
   QStringList ret;
-  ret << "x" << "y";
+  if(columns.size() > 0)
+    ret << "x";
+  if(columns.size() > 1)
+    ret << "y";
   for(int i = 2; i < columns.size(); i++)
     ret << QString("y%1").arg(i);
   return ret;

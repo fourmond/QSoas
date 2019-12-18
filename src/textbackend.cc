@@ -254,10 +254,11 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
     
     QList<Vector> finalColumns;
     for(int i = 0; i < colOrder.size(); i++) {
-      if(colOrder[i] >= columns.size())
-        throw RuntimeError("There are not %1 columns in file %2").
-          arg(colOrder[i]+1).arg(fileName);
-      finalColumns << columns[colOrder[i]];
+      int col = colOrder[i];
+      if(col >= columns.size() || col < 0)
+        throw RuntimeError("There is no column #%1 in file '%2'").
+          arg(col+1).arg(fileName);
+      finalColumns << columns[col];
     }
 
     DataSet * ds = new DataSet(finalColumns);

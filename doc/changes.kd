@@ -27,6 +27,23 @@ functions.
 
 See the full list of changes [below](#v2p0)
 
+# Changes in version 3.0 {#v3p0}
+
+## Fits
+
+The fit system has been greatly improved, with an `/expert=true` mode
+featuring: 
+
+ * a command-line interface with over 50 commands in the fit dialog to run
+   fits non-interactively
+ * parameter space explorers
+ * possibility to run scripts, even as a `fit-` command-line option
+ * the display, handling, reuse of all the previous fit attempts in a fit
+   session ("fit trajectories")
+ * the possibility to set the fit dialog title bar
+
+## New commands
+
 
 # Changes in version 2.2 {#v2p2}
 

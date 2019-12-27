@@ -1,0 +1,16 @@
+generate-buffer 1 2
+a real-file.dat
+generate-buffer 0 1
+eval $tst=$stats.x_min 1
+assert $tst-1
+
+
+pop /drop=yes
+# Same thing, but with a command that does not take arguments at all
+generate-buffer 1 2
+a real-file.dat
+generate-buffer 0 1
+stats /accumulate=x_min,x_max 1 /output=false
+pop
+assert $stats.x_first-1
+drop

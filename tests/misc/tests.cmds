@@ -1,1 +1,4 @@
+# This command file checks various aspects of the functioning of
+# QSoas, including error checking and argument/default option parsing
 @ ../helpers/assert-except.cmds missing.cmds
+@ default-option.cmds

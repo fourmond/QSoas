@@ -1,0 +1,4 @@
+# Helper for the assert-*.cmds exception handling scripts
+eval $except=true
+@ /error=except ${1}
+eval $except=false

@@ -1,0 +1,3 @@
+# Makes sure the script given as argument runs
+@ ../helpers/assert-helper.cmds /error=abort ${1}
+assert $except==true

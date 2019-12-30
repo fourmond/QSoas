@@ -2,7 +2,9 @@ generate-buffer 0 10 2*exp(-x/3)+4
 
 fit-exponential-decay /expert=true /script=e1.fcmds
 S 1 0
-assert '$stats["y_norm"]' 0
+assert $stats.y_norm 1e-14
+
+# Parameters file loading
 l p.params
 # A_inf
 assert '$stats["y2_max"]-4' 0

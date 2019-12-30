@@ -277,6 +277,7 @@ int SimplexFitEngine::iterate()
   }
   gsl_vector_scale(center, 1/total);
 
+
   // Reflection:
   gsl_vector_memcpy(candidate, center);
   gsl_vector_sub(candidate, vertices[nb].toGSLVector());
@@ -342,6 +343,16 @@ int SimplexFitEngine::iterate()
 
   // Now, we sort the vertices
   qSort(vertices);
+  
+  if(fitData->debug > 0) {
+    // Dump the scaling factors
+    Debug::debug() << "Simplex iteration:\n\tbest: "
+                   << vertices[0].residuals
+                   << " -- worst: "  
+                   << vertices[nb].residuals
+                   << endl;
+  }
+
 
 
   if(vertices[0].parameters == initialPosition)

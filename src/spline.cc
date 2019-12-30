@@ -181,9 +181,9 @@ QString Spline::typeName(Spline::Type type)
   case Polynomial:
     return "polynomial";
   case CSpline:
-    return "C-spline";
+    return "spline";
   case Akima:
-    return "Akima spline";
+    return "akima";
   default:
     ;
   }

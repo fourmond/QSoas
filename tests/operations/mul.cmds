@@ -4,7 +4,7 @@ generate-buffer 0 10 2*x
 # Checks that it just works !
 mul 0..1
 apply-formula 'y-=(2*x**2)'
-assert '$stats["y_norm"]' 0
+assert $stats.y_norm 2e-14
 
 generate-buffer 0 10 x
 generate-buffer 0 10 x**2

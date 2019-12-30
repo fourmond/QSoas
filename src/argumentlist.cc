@@ -103,7 +103,7 @@ int ArgumentList::assignArgument(int arg, int total) const
 /// @bug This function will leak ArgumentMarshaller objects when an
 /// exception arises.
 CommandArguments ArgumentList::parseArguments(const QStringList & args,
-                                              QString * defaultOpt,
+                                              QStringList * defaultOpt,
                                               QWidget * base,
                                               bool * prompted) const
 {
@@ -117,17 +117,13 @@ CommandArguments ArgumentList::parseArguments(const QStringList & args,
   for(int i = 0; i < sz; i++) {
     int idx = assignArg(i, nb);
     if(idx >= size()) {
-      if(idx == size() && defaultOpt) {
-        *defaultOpt = args[i];
+      if(idx >= size() && defaultOpt) {
+        *defaultOpt << args[i];
         continue;
       }
       else {
-        /// @todo Go on with the "default" options ? That doesn't seem
-        /// so easy...
-        /// 
-        /// @todo add a warning function to Terminal ?
-        Terminal::out << Terminal::bold(QObject::tr("Warning: ")) 
-                      << QObject::tr("too many arguments: %1 for %2").
+        Terminal::out << Terminal::bold(QString("Warning: ")) 
+                      << QString("too many arguments: %1 for %2").
           arg(nb).arg(size())
                       << endl;
         break;

@@ -86,13 +86,13 @@ public:
   /// Parse the given arguments, prompting using the given widget as
   /// base when necessary.
   ///
-  /// If @a defaultOption isn't NULL, then the first extra argument
-  /// will end up there.
+  /// If @a defaultOption isn't NULL, then all the extra arguments end
+  /// up there.
   ///
   /// If prompting occurred, then the value pointed to by
   /// @a prompted is set to true
   CommandArguments parseArguments(const QStringList & args,
-                                  QString * defaultOption,
+                                  QStringList * defaultOption,
                                   QWidget * base, bool * prompted = NULL) const;
 
   /// Whether the ArgumentList has an argument marked as default

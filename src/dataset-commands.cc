@@ -549,7 +549,7 @@ static void chopCommand(const QString &, QList<double> values,
   bool setSegs = false;
   updateFromOptions(opts, "set-segments", setSegs);
   if(setSegs)
-    indices = new QList<int>(ds->segments);
+    indices = new QList<int>();
 
   if(testOption<QString>(opts, "mode", "index") ||
      testOption<QString>(opts, "mode", "indices")) {

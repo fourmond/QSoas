@@ -77,9 +77,32 @@ int main(int argc, char ** argv)
 {
   DataBackend::registerBackendCommands();
   CommandContext::crosslinkAllCommands();
+  // QTextStream o(stdout);
+
+  // o << "Library paths: " << QCoreApplication::libraryPaths().join(", ") << endl;
+  // // hard-coded
+  // QCoreApplication::addLibraryPath("/Applications/QSoas.app/Contents/Libraries");
+
+  // o << "Library paths: " << QCoreApplication::libraryPaths().join(", ") << endl;
+
 
   QSoasApplication main(argc, argv);
   main.setApplicationName("QSoas");
+
+//   o << "Starting QSoas, library paths: " << QCoreApplication::libraryPaths().join(", ") << endl;
+
+// #ifdef Q_OS_MAC
+//   // Here, we add the ../Libraries
+//   QStringList addPaths;
+//   addPaths << QCoreApplication::applicationDirPath() + "/../Libraries"
+//            << "/Applications/QSoas.app/Contents/Libraries";
+//   for(const QString & n : addPaths) {
+//     QCoreApplication::addLibraryPath(n);
+//     o << "Adding: " << n << "\n -> library paths: " << QCoreApplication::libraryPaths().join(", ") << endl;
+//   }
+  
+// #endif
+
 
   // Ruby::initRuby();
   

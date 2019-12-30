@@ -22,3 +22,7 @@ assert '$stats["x_delta_min"]-2e-3' 1e-7
 assert '$stats["y_int"]' 4e-15
 assert '$stats["y_average"].negligible?'
 
+
+generate-buffer -1 1 2*x+3
+assert $stats.y_a-2
+assert $stats.y_b-3

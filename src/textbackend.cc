@@ -175,22 +175,27 @@ QList<QList<Vector> > TextBackend::readColumns(QTextStream & s,
                                                const CommandOptions & opts,
                                                QStringList * cmts) const
 {
-  Regex sep = separator;
-  updateFromOptions(opts, "separator", sep);
-
   Regex cmt = comments;
   updateFromOptions(opts, "comments", cmt);
 
   // look in the first lines to see if any starts with #, and use it
+  // if(cmt.patternString() == "{auto}") {
+  QString peek = s.device()->peek(1000);
   if(cmt.patternString() == "{auto}") {
-    QByteArray ba = s.device()->peek(500);
-    QString s = ba;
     QRegExp tryCmts("^#");
-    if(tryCmts.indexIn(s) >= 0)
+    if(tryCmts.indexIn(peek) >= 0)
       cmt = Regex("/^#/");
     else
       cmt = Regex("{text-line}");
   }
+
+  Regex sep = separator;
+  // If we have a line starting with ##, we set {tabs} as default
+  QRegExp tryCmts2("^##");
+
+  if(tryCmts2.indexIn(peek) >= 0) 
+    sep = Regex("\t");
+  updateFromOptions(opts, "separator", sep);
 
   QString dSep;
   updateFromOptions(opts, "decimal", dSep);
@@ -249,10 +254,11 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
     
     QList<Vector> finalColumns;
     for(int i = 0; i < colOrder.size(); i++) {
-      if(colOrder[i] >= columns.size())
-        throw RuntimeError("There are not %1 columns in file %2").
-          arg(colOrder[i]+1).arg(fileName);
-      finalColumns << columns[colOrder[i]];
+      int col = colOrder[i];
+      if(col >= columns.size() || col < 0)
+        throw RuntimeError("There is no column #%1 in file '%2'").
+          arg(col+1).arg(fileName);
+      finalColumns << columns[col];
     }
 
     DataSet * ds = new DataSet(finalColumns);

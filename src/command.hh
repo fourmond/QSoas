@@ -71,13 +71,13 @@ public:
   /// If @a defaultOption isn't NULL, then the first extra argument
   /// will end up there.
   CommandArguments parseArguments(const QStringList & arguments,
-                                  QString * defaultOption = NULL,
+                                  QStringList * defaultOption = NULL,
                                   QWidget * base = NULL,
                                   bool * prompted = NULL) const;
 
   /// Parse the options. Doesn't prompt.
   CommandOptions parseOptions(const QMultiHash<QString, QString> & opts, 
-                              QString * defaultOption = NULL) const;
+                              QStringList * defaultOption = NULL) const;
 
   /// The effector, ie the code that will actually run the command.
   CommandEffector * effector;

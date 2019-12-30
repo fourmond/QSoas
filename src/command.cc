@@ -99,7 +99,7 @@ static ArgumentList emptyList;
 /// probably with much better checking of argument size and slurping
 /// arguments.
 CommandArguments Command::parseArguments(const QStringList & args,
-                                         QString * defaultOption,
+                                         QStringList * defaultOption,
                                          QWidget * base, bool * prompted) const
 {
   ArgumentList * a = arguments ? arguments : &emptyList;
@@ -107,14 +107,25 @@ CommandArguments Command::parseArguments(const QStringList & args,
 }
 
 CommandOptions Command::parseOptions(const QMultiHash<QString, QString> & opts,
-                                     QString * defaultOption) const
+                                     QStringList * defaultOption) const
 {
   CommandOptions ret;  
   if(! options)
     return ret;
-  if(defaultOption && !defaultOption->isEmpty()) {
+  if(defaultOption) {
     Argument * opt = options->defaultOption();
-    ret[opt->argumentName()] = opt->fromString(*defaultOption);
+    ArgumentMarshaller * arg = NULL;
+    for(const QString a : *defaultOption) {
+      ArgumentMarshaller * na = opt->fromString(a);
+      if(arg) {
+        opt->concatenateArguments(arg, na);
+        delete na;
+      }
+      else
+        arg = na;
+    }
+    if(arg)
+      ret[opt->argumentName()] = arg;
   }
 
   // We need to make a copy of the initial MultiHash so that the
@@ -161,7 +172,7 @@ bool Command::parseArgumentsAndOptions(const QStringList & arguments,
     splitArgumentsAndOptions(arguments);
 
   bool hasDefault = (this->options ? this->options->hasDefaultOption() : false);
-  QString def;
+  QStringList def;
   bool prompted = false;
   *args = parseArguments(split.first, (hasDefault ? &def : NULL),
                          base, &prompted);
@@ -207,7 +218,7 @@ void Command::runCommand(const QString & commandName,
     splitArgumentsAndOptions(arguments);
 
   bool hasDefault = (this->options ? this->options->hasDefaultOption() : false);
-  QString def;
+  QStringList def;
   PossessiveList<ArgumentMarshaller> 
     args(parseArguments(split.first, (hasDefault ? &def : NULL), base));
   PossessiveHash<QString, ArgumentMarshaller> 

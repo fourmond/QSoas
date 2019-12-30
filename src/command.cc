@@ -35,6 +35,7 @@
 #include <general-arguments.hh>
 
 #include <mruby.hh>
+#include <terminal.hh>
 
 
 Command::Command(const char * cn, 
@@ -118,7 +119,11 @@ CommandOptions Command::parseOptions(const QMultiHash<QString, QString> & opts,
     for(const QString a : *defaultOption) {
       ArgumentMarshaller * na = opt->fromString(a);
       if(arg) {
-        opt->concatenateArguments(arg, na);
+        if(! opt->greedy)
+          Terminal::out << "Ignoring supplementary argument: '"
+                        << a << "'" << endl;
+        else
+          opt->concatenateArguments(arg, na);
         delete na;
       }
       else

@@ -543,29 +543,29 @@ frun("run", // command name
 //////////////////////////////////////////////////////////////////////
   
 
-static void noopCommand(const QString &, QStringList /*args*/, 
+static void noopCommand(const QString &, 
                         const CommandOptions &/*opts*/)
 {
 }
 
-static ArgumentList 
-noopArgs(QList<Argument *>() 
-         << new SeveralStringsArgument("ignored", 
-                                       "Ignored arguments",
-                                       "Ignored arguments", true));
+// static ArgumentList 
+// noopArgs(QList<Argument *>() 
+//          << new SeveralStringsArgument("ignored", 
+//                                        "Ignored arguments",
+//                                        "Ignored arguments", true));
 
 static ArgumentList 
-noopOpts(QList<Argument *>() 
-         << new StringArgument("*", "Ignored options",
-                               "Ignored options",
-                               true));
+noopOpts(QList<Argument *>()
+         << new SeveralStringsArgument("*", "Ignored options",
+                                       "Ignored options",
+                                       true, true));
 
 
 static Command 
 noop("noop", // command name
      effector(noopCommand), // action
      "file",  // group name
-     &noopArgs, // arguments
+     NULL, // arguments
      &noopOpts, // options
      "No op",
      "Does nothing");

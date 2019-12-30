@@ -566,7 +566,8 @@ min("mintegrate-formula", // command name
 
 /// @todo There should also be a way to store the result somehow
 /// (although using global variables is always possible !)
-static void eval(const QString &, QString code, const CommandOptions & opts)
+static void eval(const QString &, QStringList codes,
+                 const CommandOptions & opts)
 {
   bool useDs = true;
   updateFromOptions(opts, "use-dataset", useDs);
@@ -587,29 +588,69 @@ static void eval(const QString &, QString code, const CommandOptions & opts)
   };
   
   mrb_value value;
+
+  QStringList names;
+
+  QRegExp cnRE("^([\\w-]+):");
+
+  bool classic = true;
+  for(QString & n : codes) {
+    if(cnRE.indexIn(n) == 0) {
+      names << cnRE.cap(1);
+      n = n.mid(cnRE.cap(0).size());
+      classic = false;
+    }
+    else
+      names << QString("val_%1").arg(names.size() + 1);
+  }
+  
+  if(codes.size() > 1)
+    classic = false;
+  if(ValueHash::hasOutputOptions(opts))
+    classic = false;
+    
+  
+  
   if(! buffers.dataSetsSpecified()) {
-    value = mr->eval(code);
-    Terminal::out << " => " << strValue(value) << endl;
+    for(const QString & code : codes) {
+      value = mr->eval(code);
+      Terminal::out << " => " << strValue(value) << endl;
+    }
   }
   else {
+    if(!classic)
+      Terminal::out << "buffer\t" << names.join("\t") << endl;
     for(const DataSet * s : buffers) {
       DataSet * ds = const_cast<DataSet *>(s);
-      Terminal::out << "Evaluating with buffer: " << ds->name << endl;
-      value = ds->evaluateWithMeta(code, true, modifyMeta);
-      Terminal::out << " => " << strValue(value) << endl;
+      if(classic) {
+        Terminal::out << "Evaluating with buffer: " << ds->name << endl;
+        value = ds->evaluateWithMeta(codes[0], true, modifyMeta);
+        Terminal::out << " => " << strValue(value) << endl;
+      }
+      else {
+        ValueHash val;
+        for(int i = 0; i < codes.size(); i++) {
+          value = ds->evaluateWithMeta(codes[i], true, modifyMeta);
+          val << names[i] << value;
+        }
+        Terminal::out << ds->name << "\t"
+                      << val.toString(QString("\t")) << endl;
+        val.handleOutput(ds, opts);
+      }
     }
   }
 }
 
 static ArgumentList 
 eA(QList<Argument *>() 
-   << new CodeArgument("code", 
-                       "Code",
-                       "Any ruby code"));
+   << new SeveralCodesArgument("codes",
+                               "Code",
+                               "Any ruby code"));
 
 static ArgumentList 
 eO(QList<Argument *>() 
    << DataSetList::listOptions("Buffers to run eval on")
+   << ValueHash::outputOptions()
    << new BoolArgument("use-dataset", 
                        "Use current dataset",
                        "If on (the default) and if there is a current dataset, the $meta and $stats hashes are available")

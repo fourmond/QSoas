@@ -316,6 +316,11 @@ ValueHash & ValueHash::operator<<(const QList<QString> & lst)
   return (*this) << v;
 }
 
+ValueHash & ValueHash::operator<<(mrb_value v)
+{
+  return (*this) << rubyToVariant(v);
+}
+
 ValueHash & ValueHash::operator<<(const QVariant & v)
 {
   if(lastKey.isEmpty())
@@ -552,6 +557,14 @@ ValueHash ValueHash::copyFromSpec(const QStringList & spec, QStringList * missin
   return cnv;
 }
 
+
+bool ValueHash::hasOutputOptions(const CommandOptions & opts)
+{
+  return (opts.contains("output") ||
+          opts.contains("meta") ||
+          opts.contains("set-meta") ||
+          opts.contains("accumulate"));
+}
 
 void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts,
                              bool deflt) const

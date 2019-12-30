@@ -709,6 +709,31 @@ public:
 
   virtual QStringList proposeCompletion(const QString & starter) const override;
 
+  /// Propose completions for code. Used as well for SeveralCodesArgument
+  static QStringList completeCode(const QString & starter);
+
+};
+
+/// A piece of code. The only difference this provides to
+/// StringArgument is that it provides limited completion on $stats
+/// and $meta.
+class SeveralCodesArgument : public SeveralStringsArgument {
+public:
+
+  SeveralCodesArgument(const char * cn, const char * pn,
+                       const char * d = "", bool g = true, 
+                       bool def = false) :
+    SeveralStringsArgument(cn, pn, d, g, def) {
+  }; 
+  
+  virtual QString typeName() const override {
+    return "codes";
+  };
+
+  virtual QString typeDescription() const override;
+
+  virtual QStringList proposeCompletion(const QString & starter) const override;
+
 };
 
 #endif

@@ -127,6 +127,10 @@ public:
   /// @overload
   ValueHash& operator <<(const QList<QString> & str);
 
+  /// @overload Adds the value corresponding to the given Ruby
+  /// value. 
+  ValueHash& operator <<(mrb_value val);
+
 
   /// Adds several keys and values to the hash, keeping the order in
   /// keys.
@@ -227,6 +231,9 @@ public:
   /// is the default value for output (need to be provided to
   /// handleOutput too.
   static QList<Argument *> outputOptions(bool deflt = false);
+
+  /// Returns true if one of the output options is specified.
+  static bool hasOutputOptions(const CommandOptions & opts);
 
   /// Process the output of the hash to the output file, or other
   /// things like that.

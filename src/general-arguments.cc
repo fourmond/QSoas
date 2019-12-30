@@ -1058,6 +1058,11 @@ QString CodeArgument::typeDescription() const
 
 QStringList CodeArgument::proposeCompletion(const QString & starter) const
 {
+  return completeCode(starter);
+}
+
+QStringList CodeArgument::completeCode(const QString & starter)
+{
   QRegExp globalRE("\\$[\\w.]*$");
   const DataSet * ds = soas().stack().currentDataSet(true);
   QStringList rv;
@@ -1084,3 +1089,15 @@ QStringList CodeArgument::proposeCompletion(const QString & starter) const
   return rv;
 }
 
+
+//////////////////////////////////////////////////////////////////////
+
+QString SeveralCodesArgument::typeDescription() const
+{
+  return "Several pieces of [Ruby code](#ruby)";
+}
+
+QStringList SeveralCodesArgument::proposeCompletion(const QString & starter) const
+{
+  return CodeArgument::completeCode(starter);
+}

@@ -591,3 +591,7 @@ SOURCES += odrpack/odrpackfitengine.cc \
         odrpack/d_mprec.c \
         odrpack/f2c_remains.c
 
+
+# A simplex algorithm
+HEADERS += src/simplex.hh
+SOURCES += src/simplex.cc

@@ -26,6 +26,8 @@
 #include <argument.hh>
 #include <general-arguments.hh>
 
+#include <utils.hh>
+#include <debug.hh>
 
 
 // Helper function
@@ -43,7 +45,8 @@ Simplex::Simplex(Function fun) :
   beta(2),
   gamma(0.5),
   delta(0.5),
-  threshold(1e-4)
+  threshold(1e-4),
+  debug(0)
 {
 }
 
@@ -117,6 +120,15 @@ int Simplex::iterate(const Vector & c)
 {
   StoredParameters best = vertices.first();
   Vector t;
+  if(debug > 0) {
+    Debug::debug() << "Starting simplex iteration around centroid: "
+                   << Utils::vectorString(c) << endl;
+    int idx = 0;
+    Debug::debug() << "Vertices: " << endl;
+    for(const StoredParameters & s : vertices)
+      Debug::debug() << " #" << idx++ << " : "
+                     << s.toString() << endl;
+  }
 
   ////////////////////////////////////////
   // Reflection step:
@@ -125,14 +137,22 @@ int Simplex::iterate(const Vector & c)
 
   /// @todo Big question: do we step from the centroid or from the best ?
   StoredParameters r = stepTowards(c, t);
-
+  if(debug > 0)
+    Debug::debug() << "Reflection step: " << r.toString() << endl;
+  
   ////////////////////////////////////////
   // Expansion if the reflection is better than the best
   if(r < best) {
+    if(debug > 0) 
+      Debug::debug() << " -> accepted reflection" << endl;
+    
     // x_e = c + beta * (x_r - c)
     t = ::linearCombination(1 - beta, c, beta, r.parameters);
     try {
       StoredParameters e = stepTowards(c, t);
+      if(debug > 0)
+        Debug::debug() << "Expansion step: " << e.toString() << endl;
+
       if(e < r)
         r = e;
     }
@@ -151,6 +171,9 @@ int Simplex::iterate(const Vector & c)
       // x_oc = c + gamma * (x_r - c)
       t = ::linearCombination(1 - gamma, c, gamma, r.parameters);
       nt = stepTowards(c, t);
+      if(debug > 0)
+        Debug::debug() << "Outer contraction: " << nt.toString() << endl;
+
       if(nt < r)
         vertices.last() = nt;
       else
@@ -162,6 +185,8 @@ int Simplex::iterate(const Vector & c)
       // x_ic = c - gamma * (x_r - c)
       t = ::linearCombination(1 + gamma, c, -gamma, r.parameters);
       nt = stepTowards(c, t);
+      if(debug > 0)
+        Debug::debug() << "Inner contraction: " << nt.toString() << endl;
       if(nt < vertices.last())
         vertices.last() = nt;
       else
@@ -170,6 +195,8 @@ int Simplex::iterate(const Vector & c)
     if(doShrink) {
       ////////////////////////////////////////
       // Shrink !
+      if(debug > 0)
+        Debug::debug() << "Performing shrink" << endl;
       for(int i = 1; i < vertices.size(); i++) {
         // x_i = x_1 + delta * (x_i - x_1)
         t = ::linearCombination(1 - delta, best.parameters,

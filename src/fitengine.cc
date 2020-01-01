@@ -51,6 +51,12 @@ const gsl_vector * StoredParameters::toGSLVector() const
   return &view.vector;
 }
 
+QString StoredParameters::toString() const
+{
+  return QString("%1 -- %2").
+    arg(residuals).arg(Utils::vectorString(parameters));
+}
+
 //////////////////////////////////////////////////////////////////////
 
 FitEngineFactoryItem::FitEngineFactoryItem(const QString & n, 

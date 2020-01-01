@@ -90,6 +90,7 @@ public:
   };
   
   virtual int iterate() override {
+    simplex.debug = fitData->debug;
     return simplex.iterate();
   };
   

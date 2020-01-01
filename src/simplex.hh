@@ -65,6 +65,9 @@ public:
   /// Final threshold
   double threshold;
 
+  /// Debuging
+  int debug;
+
   /// @}
 
   Simplex(Function f);

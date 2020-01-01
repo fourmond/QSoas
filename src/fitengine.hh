@@ -56,8 +56,11 @@ public:
     return residuals < o.residuals;
   };
 
-  /// Returns a gsl vector for the 
+  /// Returns a gsl vector for the parameters
   const gsl_vector * toGSLVector() const;
+
+  /// returns the residuals + parameters as a string
+  QString toString() const;
 
 };
 

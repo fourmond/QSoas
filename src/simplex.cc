@@ -193,18 +193,16 @@ int Simplex::iterate(const Vector & c)
   return GSL_SUCCESS;
 }
 
-static QList<Argument *>
-simplexOptions(QList<Argument*>()
+QList<Argument *> Simplex::simplexOptions()
+{
+  static QList<Argument *> simplexOptions(QList<Argument*>()
                << new NumberArgument("alpha", "Reflection factor")
                << new NumberArgument("beta", "Expansion factor")
                << new NumberArgument("gamma", "Contraction factor")
                << new NumberArgument("delta", "Shrink factor")
                << new NumberArgument("end-threshold", "Threshold for ending")
-               );
-
-QList<Argument *> Simplex::simplexOptions()
-{
-  return ::simplexOptions;
+               ); 
+  return simplexOptions;
 }
 
 

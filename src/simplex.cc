@@ -111,7 +111,7 @@ int Simplex::iterate()
   Vector c = vertices[0].parameters;
   for(int i = 1; i < vertices.size() - 1; i++)
     c += vertices[i].parameters;
-  c /= vertices.size();
+  c /= (vertices.size() -1);
   return iterate(c);
 }
 

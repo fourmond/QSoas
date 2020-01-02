@@ -109,7 +109,7 @@ StoredParameters Simplex::initialVertex(const Vector & center, int idx,
 int Simplex::iterate()
 {
   Vector c = vertices[0].parameters;
-  for(int i = 1; i < vertices.size(); i++)
+  for(int i = 1; i < vertices.size() - 1; i++)
     c += vertices[i].parameters;
   c /= vertices.size();
   return iterate(c);
@@ -142,7 +142,7 @@ int Simplex::iterate(const Vector & c)
   
   ////////////////////////////////////////
   // Expansion if the reflection is better than the best
-  if(r < best) {
+  if(r < vertices[vertices.size() - 1]) {
     if(debug > 0) 
       Debug::debug() << " -> accepted reflection" << endl;
     
@@ -167,7 +167,7 @@ int Simplex::iterate(const Vector & c)
     StoredParameters nt;
     ////////////////////////////////////////
     // Outer contraction
-    if(vertices[vertices.size()-1] < r) {
+    if(r < vertices.last()) {
       // x_oc = c + gamma * (x_r - c)
       t = ::linearCombination(1 - gamma, c, gamma, r.parameters);
       nt = stepTowards(c, t);

@@ -130,6 +130,8 @@ int Simplex::iterate(const Vector & c)
                      << s.toString() << endl;
   }
 
+  int nb = vertices.size() - 1;
+
   ////////////////////////////////////////
   // Reflection step:
   // x_r = c + alpha*(c - x_n+1)
@@ -142,7 +144,7 @@ int Simplex::iterate(const Vector & c)
   
   ////////////////////////////////////////
   // Expansion if the reflection is better than the best
-  if(r < vertices[vertices.size() - 1]) {
+  if(r < vertices[nb - 1]) {
     if(debug > 0) 
       Debug::debug() << " -> accepted reflection" << endl;
     
@@ -161,38 +163,22 @@ int Simplex::iterate(const Vector & c)
     vertices.last() = r;
   }
   else {
-    // Reflection failed to improve the best.
+    // not better than x_n
 
-    bool doShrink = false;
     StoredParameters nt;
+    double scale = gamma;
+    if(vertices.last() < r)
+      scale = -gamma;
     ////////////////////////////////////////
-    // Outer contraction
-    if(r < vertices.last()) {
-      // x_oc = c + gamma * (x_r - c)
-      t = ::linearCombination(1 - gamma, c, gamma, r.parameters);
-      nt = stepTowards(c, t);
-      if(debug > 0)
-        Debug::debug() << "Outer contraction: " << nt.toString() << endl;
+    // contraction
+    t = ::linearCombination(1 - scale, c, scale, r.parameters);
+    nt = stepTowards(c, t);
+    if(debug > 0)
+      Debug::debug() << "Contraction: " << nt.toString() << endl;
 
-      if(nt < r)
+    if((nt < r) && (nt < vertices.last()))
         vertices.last() = nt;
-      else
-        doShrink = true;
-    }
-    ////////////////////////////////////////
-    // Inner contraction
     else {
-      // x_ic = c - gamma * (x_r - c)
-      t = ::linearCombination(1 + gamma, c, -gamma, r.parameters);
-      nt = stepTowards(c, t);
-      if(debug > 0)
-        Debug::debug() << "Inner contraction: " << nt.toString() << endl;
-      if(nt < vertices.last())
-        vertices.last() = nt;
-      else
-        doShrink = true;
-    }
-    if(doShrink) {
       ////////////////////////////////////////
       // Shrink !
       if(debug > 0)
@@ -201,7 +187,7 @@ int Simplex::iterate(const Vector & c)
         // x_i = x_1 + delta * (x_i - x_1)
         t = ::linearCombination(1 - delta, best.parameters,
                                 delta, vertices[i].parameters);
-        vertices[i] = stepTowards(best.parameters, t);
+        vertices[i] = stepTowards(c, t);
       }
     }
   }
@@ -211,7 +197,7 @@ int Simplex::iterate(const Vector & c)
   if(vertices[0].parameters == best.parameters)
     return GSL_CONTINUE;        // We didn't win
 
-  int nb = best.parameters.size();
+  nb = best.parameters.size();
   for(int i = 0; i < nb; i++)
     if(fabs((vertices[0].parameters[i] - best.parameters[i])/
             best.parameters[i]) > threshold)

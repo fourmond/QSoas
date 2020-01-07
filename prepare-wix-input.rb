@@ -35,7 +35,7 @@ if ENV["QTDIR"] =~ /Qt5/i       # Qt 5 !
     debug_files << lib_file.gsub(/.dll/, "d.dll")
   end
 
-  for ptf in %q(qwindows qminimal qoffscreen)
+  for ptf in %w[qwindows qminimal qoffscreen]
     pltforms['release'] ||= []
     pltforms['release'] << "#{ENV['QTDIR']}\\plugins\\platforms\\#{ptf}.dll"
     pltforms['debug'] ||= []

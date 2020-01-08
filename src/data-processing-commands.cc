@@ -2206,18 +2206,30 @@ static void binCommand(const QString &,
   bool nrm = false;
   updateFromOptions(opts, "norm", nrm);
 
+  double min = std::nan("NaN");
+  updateFromOptions(opts, "min", min);
+  double max = std::nan("NaN");
+  updateFromOptions(opts, "max", max);
+
   Vector w;
   if(weight >= 0)
     w = ds->column(weight);
   
-  DataSet * nds = ds->derivedDataSet(ds->column(col).bin(boxes, lg, w, nrm), 
+  DataSet * nds = ds->derivedDataSet(ds->column(col).bin(boxes, lg, w, nrm,
+                                                         min, max), 
                                      "_binned.dat");
   nds->options.histogram = true;
   soas().pushDataSet(nds);
 }
 
 static ArgumentList 
-binOpts(QList<Argument *>() 
+binOpts(QList<Argument *>()
+        << new NumberArgument("min",
+                              "Minimum",
+                              "Minimum value of the histogram, overrides the minimum of the values in the data")
+        << new NumberArgument("max",
+                              "Maximum",
+                              "Maximum value of the histogram, overrides the maximum of the values in the data")
         << new IntegerArgument("boxes", 
                               "Boxes"
                               "Number of bin boxes")

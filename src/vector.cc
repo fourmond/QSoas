@@ -781,10 +781,12 @@ void Vector::reverse()
 
 
 QList<Vector> Vector::bin(int boxes, bool lg, const Vector & weights,
-                          bool norm) const
+                          bool norm, double mi, double ma) const
 {
-  double mi = min();
-  double ma = max();
+  if(std::isnan(mi))
+     mi = min();
+  if(std::isnan(ma))
+     ma = max();
 
   if(lg && mi <= 0)
     throw RuntimeError("Cannot bin using a log scale with negative numbers !");

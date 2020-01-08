@@ -127,17 +127,17 @@ for k,v in what
     idx += 1
   end
   if pltforms[k]
+    dlls[k] << '<Directory Id="platformsdir" Name="platforms">'
     for f in pltforms[k]
       guid = uuids[file_ids[f]]
       bf = File::basename(f)
-      dlls[k] << '<Directory Id="platformsdir" Name="platforms">'
-      dlls[k] << "<Component Id='Dll#{idx}' Guid='#{guid}'>\n"
-      dlls[k] << "  <File Id='Dll_file#{idx}' Name='#{bf}' DiskId='1' Source='#{f}' KeyPath='yes' />\n"
-      dlls[k] << "</Component>"
-      dlls[k] << '</Directory>'
+      dlls[k] << "  <Component Id='Dll#{idx}' Guid='#{guid}'>\n"
+      dlls[k] << "    <File Id='Dll_file#{idx}' Name='#{bf}' DiskId='1' Source='#{f}' KeyPath='yes' />\n"
+      dlls[k] << "  </Component>"
       dll_refs[k] << "<ComponentRef Id='Dll#{idx}' />\n"
       idx += 1
     end
+    dlls[k] << '</Directory>'
   end
 end
 

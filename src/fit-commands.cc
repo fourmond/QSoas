@@ -1,6 +1,6 @@
 /*
   fit-commands.cc: implementation of many fit commands
-  Copyright 2018 by CNRS/AMU
+  Copyright 2018, 2019, 2010 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -299,6 +299,12 @@ static void setCommand(const QString & /*name*/, QList<QPair<int, int> > params,
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
   bool expression = false;
   updateFromOptions(opts, "expression", expression);
+
+  bool fix = false;
+  updateFromOptions(opts, "fix", fix);
+  bool unfix = false;
+  updateFromOptions(opts, "unfix", unfix);
+
   if(expression) {
     MRuby * mr = MRuby::ruby();
     FWExpression exp(value, ws);
@@ -306,27 +312,19 @@ static void setCommand(const QString & /*name*/, QList<QPair<int, int> > params,
       // We use the first dataset as source for the meta
       mrb_value v = exp.evaluate(ps.second >= 0 ? ps.second : 0);
       /// @todo Here: check for a string return value
+      if(fix || unfix)
+        ws->setFixed(ps.first, ps.second, fix);
       ws->setValue(ps.first, ps.second, mr->floatValue(v));
     }
   }
   else {
     for(QPair<int, int> ps : params) {
+      if(fix || unfix)
+        ws->setFixed(ps.first, ps.second, fix);
       ws->setValue(ps.first, ps.second, value);
     }
   }
 
-  bool fix = false;
-  updateFromOptions(opts, "fix", fix);
-  if(fix) {
-    for(QPair<int, int> ps : params)
-      ws->setFixed(ps.first, ps.second, true);
-  }
-  bool unfix = false;
-  updateFromOptions(opts, "unfix", unfix);
-  if(unfix) {
-    for(QPair<int, int> ps : params)
-      ws->setFixed(ps.first, ps.second, false);
-  }
 }
 
 ArgumentList sArgs(QList<Argument*>() 

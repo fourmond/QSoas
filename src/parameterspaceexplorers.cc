@@ -35,6 +35,60 @@
 #include <fitdata.hh>
 #include <fittrajectory.hh>
 
+/// The parameter specification
+class ParameterSpec {
+public:
+  /// The target, like what is returned by
+  /// FitWorkspace::parseParameterList()
+  QPair<int, int> parameter;
+
+  /// The lower end of the range
+  double low;
+
+  /// The higher end of the range
+  double high;
+
+  /// Whether the range is logarithmic or not
+  bool log;
+
+  /// Whether or not the selection is global (i.e. all local
+  /// parameters are set to the same starting value)
+  bool uniform;
+
+  static QList<ParameterSpec> parseSpecs(const QStringList & specs,
+                                         FitWorkspace * workSpace,
+                                         QStringList * unknowns) {
+    QList<ParameterSpec> parameterSpecs;
+    QRegExp re("^\\s*(.*):(u,)?([^:]+)\\.\\.([^:,]+)(,log)?\\s*$");
+
+    for(const QString & s : specs) {
+      if(re.indexIn(s) != 0)
+        throw RuntimeError("Invalid parameter specification: '%1'").
+          arg(s);
+
+
+      // Now handling: 
+      // monte-carlo-explorer tau_1[#0,#1],tau_2[#1]:1e-2..1e2,log
+      
+      QStringList pars = Utils::nestedSplit(re.cap(1), ',', "[", "]");
+      bool uniform = ! re.cap(2).isEmpty();
+      double l = re.cap(3).toDouble();
+      double h = re.cap(4).toDouble();
+      bool log = ! re.cap(5).isEmpty();
+      QList<QPair<int, int> > params;
+      for(const QString & pa : pars)
+        params << workSpace->parseParameterList(pa, unknowns);
+      for(const QPair<int, int> & p : params) {
+        ParameterSpec sp = {p, l, h, log, uniform};
+        parameterSpecs << sp;
+      }
+    }
+    return parameterSpecs;
+  };
+};
+
+/// A Monte-Carlo parameter space explorer, i.e. an explorer in which
+/// one
 class MonteCarloExplorer : public ParameterSpaceExplorer {
 
   int iterations;
@@ -44,27 +98,6 @@ class MonteCarloExplorer : public ParameterSpaceExplorer {
   int fitIterations;
 
   int resetFrequency;
-
-  /// The parameter specification
-  class ParameterSpec {
-  public:
-    /// The target, like what is returned by
-    /// FitWorkspace::parseParameterList()
-    QPair<int, int> parameter;
-
-    /// The lower end of the range
-    double low;
-
-    /// The higher end of the range
-    double high;
-
-    /// Whether the range is logarithmic or not
-    bool log;
-
-    /// Whether or not the selection is global (i.e. all local
-    /// parameters are set to the same starting value)
-    bool uniform;
-  };
 
   QList<ParameterSpec> parameterSpecs;
 
@@ -83,31 +116,10 @@ public:
 
     QStringList specs = args[0]->value<QStringList>();
 
-    parameterSpecs.clear();
-    QRegExp re("^\\s*(.*):(u,)?([^:]+)\\.\\.([^:,]+)(,log)?\\s*$");
     QStringList unknowns;
-    for(const QString & s : specs) {
-      if(re.indexIn(s) != 0)
-        throw RuntimeError("Invalid parameter specification: '%1'").
-          arg(s);
 
 
-      // Now handling: 
-      // monte-carlo-explorer tau_1[#0,#1],tau_2[#1]:1e-2..1e2,log
-      
-      QStringList pars = Utils::nestedSplit(re.cap(1), ',', "[", "]");
-      bool uniform = ! re.cap(2).isEmpty();
-      double l = re.cap(3).toDouble();
-      double h = re.cap(4).toDouble();
-      bool log = ! re.cap(5).isEmpty();
-      QList<QPair<int, int> > params;
-      for(const QString & pa : pars)
-        params << workSpace->parseParameterList(pa, &unknowns);
-      for(const QPair<int, int> & p : params) {
-        ParameterSpec sp = {p, l, h, log, uniform};
-        parameterSpecs << sp;
-      }
-    }
+    parameterSpecs = ParameterSpec::parseSpecs(specs, workSpace, &unknowns);
 
     if(unknowns.size() > 0)
       Terminal::out << "WARNING: could not understand the following parameters: "

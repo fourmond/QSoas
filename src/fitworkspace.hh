@@ -407,11 +407,14 @@ public:
   /// saveParameterValues().
   QString fullParameterName(int idx) const;
 
-  /// The names of all parameters
+  /// The names of all parameters (for a single buffer)
   QStringList parameterNames() const;
 
   /// The number of datasets
   int datasetNumber() const;
+
+  /// The number of parameter per dataset
+  int parametersPerDataset() const;
 
   /// The total number of parameters, i.e. the number by dataset
   /// multiplied by the number of datasets.

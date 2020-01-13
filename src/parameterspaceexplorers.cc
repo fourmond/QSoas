@@ -1,6 +1,6 @@
 /*
   parameterspaceexplorers.cc: several simple parameter space explorers
-  Copyright 2013, 2018 by Vincent Fourmond
+  Copyright 2013, 2018, 2019, 2020 by Vincent Fourmond
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,6 +35,11 @@
 #include <fitdata.hh>
 #include <fittrajectory.hh>
 
+
+// random generators
+#include <gsl/gsl_rng.h>
+#include <gsl/gsl_randist.h>
+
 /// The parameter specification
 class ParameterSpec {
 public:
@@ -55,6 +60,25 @@ public:
   /// parameters are set to the same starting value)
   bool uniform;
 
+
+  /// The center
+  double center() const {
+    if(log) {
+      return sqrt(low * high);
+    }
+    else
+      return 0.5*(low + high);
+  };
+
+  /// Returns 1/4 of the witdth of the interval (log or lin).
+  double sigma() const {
+    if(log)
+      return 0.25 * (log10(high) - log10(low));
+    else
+      return 0.25 * (high - low);
+  };
+
+  /// Parses the parameter list
   static QList<ParameterSpec> parseSpecs(const QStringList & specs,
                                          FitWorkspace * workSpace,
                                          QStringList * unknowns) {
@@ -88,7 +112,7 @@ public:
 };
 
 /// A Monte-Carlo parameter space explorer, i.e. an explorer in which
-/// one
+/// one randomly chooses the initial parameters within a given range.
 class MonteCarloExplorer : public ParameterSpaceExplorer {
 
   int iterations;
@@ -218,6 +242,176 @@ montecarlo("monte-carlo", "Monte Carlo",
            [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
              return new MonteCarloExplorer(ws);
            });
+
+
+//////////////////////////////////////////////////////////////////////
+
+/// An "adaptive" Monte-Carlo parameter space explorer, as defined
+/// (but for a minimization algorithm) in Walter & Pronzato, 1995,
+/// section 4.7.3.1.
+class AdaptiveMonteCarloExplorer : public ParameterSpaceExplorer {
+
+  /// The number of iterations in a "level" (decreasing for the
+  /// exploration part)
+  int iterations;
+
+  /// Current iteration within the level
+  int currentIteration;
+
+  /// The maximum number of levels
+  int maxLevel;
+
+  /// The current level
+  int currentLevel;
+
+  /// The scale in sigma between the various levels
+  double scale;
+
+  /// Whether we are in the exploration phase or in the exploitation
+  /// phase
+  bool exploration;
+
+  /// the maximum number of cycles
+  int cycles;
+
+  /// The current cycle
+  int currentCycle;
+
+  /// The number of fit iterations
+  int fitIterations;
+
+  /// Whether we use the final paramters or the initial as center for
+  /// the next iteration.
+  bool isFinal;
+
+  /// The current center;
+  Vector currentCenter;
+
+  /// The list of the current best trajectories per level;
+  QList<FitTrajectory> bestTrajectories;
+
+  /// The current specs.
+  QList<ParameterSpec> parameterSpecs;
+
+  gsl_rng * rnd;
+
+public:
+
+  static ArgumentList args;
+  static ArgumentList opts;
+
+  AdaptiveMonteCarloExplorer(FitWorkspace * ws) :
+    ParameterSpaceExplorer(ws),
+    iterations(100),
+    currentIteration(0),
+    maxLevel(4),
+    currentLevel(0),
+    scale(8),
+    exploration(true),
+    cycles(5),
+    currentCycle(0),
+    fitIterations(50),
+    isFinal(true)
+  {
+    rnd = gsl_rng_alloc(gsl_rng_mt19937);
+  };
+
+  ~AdaptiveMonteCarloExplorer() {
+    gsl_rng_free(rnd);
+  };
+
+  virtual void setup(const CommandArguments & args,
+                     const CommandOptions & opts) override {
+
+    QStringList specs = args[0]->value<QStringList>();
+
+    QStringList unknowns;
+
+
+
+    parameterSpecs = ParameterSpec::parseSpecs(specs, workSpace, &unknowns);
+
+    if(unknowns.size() > 0)
+      Terminal::out << "WARNING: could not understand the following parameters: "
+                    << unknowns.join(", ")
+                    << endl;
+    if(parameterSpecs.size() == 0)
+      throw RuntimeError("Could understand no parameters at all");
+
+    updateFromOptions(opts, "fit-iterations", fitIterations);
+
+    // Prepare initial parameters.
+    int nbPDs = workSpace->parametersPerDataset();
+    currentCenter = workSpace->saveParameterValues();
+
+    for(const ParameterSpec & s : parameterSpecs) {
+      currentCenter[s.parameter.first + nbPDs*s.parameter.second] =
+        s.center();
+    }
+  };
+
+  /// Generates a random displacement of the given scale
+  Vector displacement(double scale) {
+    Vector dp = currentCenter;
+    dp *= 0;                     // inelegant way to set to 0, but...
+    QHash<int, double> uniformSetValues;
+    int nbPDs = workSpace->parametersPerDataset();
+    for(const ParameterSpec & s : parameterSpecs) {
+      double v;
+      if(s.uniform && uniformSetValues.contains(s.parameter.first))
+        v = uniformSetValues[s.parameter.first];
+      else
+        v = gsl_ran_gaussian(rnd, s.sigma() * scale);
+      if(s.uniform)
+        uniformSetValues[s.parameter.first] = v;
+      dp[s.parameter.first + nbPDs*s.parameter.second] = v;
+    }
+    return dp;
+  }; 
+
+
+  virtual bool iterate(bool justPick) override {
+    if(! runHooks())
+      return false;
+    if(! justPick) {
+      workSpace->runFit(fitIterations);
+      currentIteration++;
+    }
+    return currentIteration < iterations;
+  };
+
+  virtual QString progressText() const override {
+    return QString("%1/%2").
+      arg(currentIteration+1).arg(iterations);
+  };
+
+
+};
+
+ArgumentList
+AdaptiveMonteCarloExplorer::args(QList<Argument*>() 
+                                 << new SeveralStringsArgument("parameters",
+                                                               "Parameters",
+                                                               "Parameter specification"));
+
+ArgumentList
+AdaptiveMonteCarloExplorer::opts(QList<Argument*>() 
+                                 << new IntegerArgument("iterations",
+                                                        "Iterations",
+                                                        "Number of monte-carlo iterations")
+                                 << new IntegerArgument("fit-iterations",
+                                                        "Fit iterations",
+                                                        "Maximum number of fit iterations")
+                         );
+
+ParameterSpaceExplorerFactoryItem 
+adaptivemontecarlo("adaptive", "Adaptive Monte Carlo",
+           &AdaptiveMonteCarloExplorer::args,
+           &AdaptiveMonteCarloExplorer::opts,
+           [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
+             return new AdaptiveMonteCarloExplorer(ws);
+           });
+
 
 
 //////////////////////////////////////////////////////////////////////

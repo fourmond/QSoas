@@ -547,6 +547,11 @@ int FitWorkspace::datasetNumber() const
   return datasets;
 }
 
+int FitWorkspace::parametersPerDataset() const
+{
+  return nbParameters;
+}
+
 int FitWorkspace::totalParameterNumber() const
 {
   return datasets * nbParameters;

@@ -1508,10 +1508,21 @@ void FitWorkspace::startFit()
   QString params;
   if(fitData->independentDataSets())
     params = QString("%1 %2 %3").
-      arg(freeParams / fitData->datasets.size()).
+      arg(freeParams / (1.0 * fitData->datasets.size())).
       arg(QChar(0xD7)).arg(fitData->datasets.size());
-  else
-    params = QString::number(freeParams);
+  else {
+
+    int glb = 0, loc = 0;
+    for(const FreeParameter * fp : fitData->allParameters) {
+      if(fp->global())
+        ++glb;
+      else
+        ++loc;
+    }
+
+    params = QString("%1 (%2 global, %3 local per dataset)").
+      arg(freeParams).arg(glb).arg(loc/(1.0 * datasetNumber()));
+  }
   
   Terminal::out << "Starting fit '" << fitName() << "' with "
                 << params << " free parameters"

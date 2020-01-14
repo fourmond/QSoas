@@ -70,7 +70,7 @@ public:
       return 0.5*(low + high);
   };
 
-  /// Returns 1/4 of the witdth of the interval (log or lin).
+  /// Returns 1/4 of the witdth of the interval (log10 or lin).
   double sigma() const {
     if(log)
       return 0.25 * (log10(high) - log10(low));
@@ -304,9 +304,9 @@ public:
     ParameterSpaceExplorer(ws),
     iterations(100),
     currentIteration(0),
-    maxLevel(4),
+    maxLevel(5),
     currentLevel(0),
-    scale(8),
+    scale(5),
     exploration(true),
     cycles(5),
     currentCycle(0),
@@ -338,21 +338,40 @@ public:
     if(parameterSpecs.size() == 0)
       throw RuntimeError("Could understand no parameters at all");
 
+    scale = 8;
     updateFromOptions(opts, "fit-iterations", fitIterations);
+    updateFromOptions(opts, "iterations", iterations);
 
     // Prepare initial parameters.
     int nbPDs = workSpace->parametersPerDataset();
     currentCenter = workSpace->saveParameterValues();
 
     for(const ParameterSpec & s : parameterSpecs) {
-      currentCenter[s.parameter.first + nbPDs*s.parameter.second] =
+      currentCenter[s.parameter.first + nbPDs*std::max(s.parameter.second,0)] =
         s.center();
     }
+
+    // Reset internal parameters
+    currentIteration = 0;
+    currentCycle = 0;
+    currentLevel = 0;
+    bestTrajectories.clear();
+    exploration = true;
+
+    Terminal::out << "Setting up the adaptive explorer with the following parameters: " << endl;
+                                                                                    QStringList names = workSpace->parameterNames();
+    for(const ParameterSpec & s : parameterSpecs)
+      Terminal::out << " * " << names[s.parameter.first]
+                    << "[#" << s.parameter.second << "] : "
+                    << s.center() << " +- " << s.sigma()
+                    << (s.log ? " (log)" : " (lin)")
+                    << endl;
+
   };
 
   /// Generates a random displacement of the given scale
-  Vector displacement(double scale) {
-    Vector dp = currentCenter;
+  Vector addRandomDisplacement(const Vector & src, double scale) const {
+    Vector dp = src;
     dp *= 0;                     // inelegant way to set to 0, but...
     QHash<int, double> uniformSetValues;
     int nbPDs = workSpace->parametersPerDataset();
@@ -364,20 +383,129 @@ public:
         v = gsl_ran_gaussian(rnd, s.sigma() * scale);
       if(s.uniform)
         uniformSetValues[s.parameter.first] = v;
-      dp[s.parameter.first + nbPDs*s.parameter.second] = v;
+      int idx = s.parameter.first + nbPDs*std::max(s.parameter.second,0);
+      if(s.log) {
+        v += log10(src[idx]);
+        dp[idx] = pow(10, v);
+      }
+      else
+        dp[idx] += v;
     }
     return dp;
-  }; 
+  };
+
+  void writeCenter() const {
+  }
 
 
   virtual bool iterate(bool justPick) override {
+    double curScale = pow(scale, -currentLevel);
+    
+    ++currentIteration;
+    int maxIt = iterations;
+    if(exploration)
+      maxIt = maxIt/(sqrt(currentLevel + 1));
+    if(maxIt < 2)               // At least two iterations per level
+      maxIt = 2;
+    Terminal::out << "Iteration " << currentIteration << "/" << maxIt
+                  << " of level " << currentLevel << " ("
+                  << (exploration ? "exploration" : "exploitation")
+                  << " phase)" << " of cycle " << currentCycle + 1
+                  << ", current scale: " << curScale
+                  << endl;
+                     
+    Vector params = addRandomDisplacement(currentCenter, curScale);
+    int nbPDs = workSpace->parametersPerDataset();
+
+    QStringList names = workSpace->parameterNames();
+    for(const ParameterSpec & s : parameterSpecs)
+      Terminal::out << " * " << names[s.parameter.first]
+                    << "[#" << s.parameter.second << "] = "
+                    << params[s.parameter.first +
+                              nbPDs*std::max(s.parameter.second, 0)]
+                    << endl;
+
+    workSpace->restoreParameterValues(params);
+  
     if(! runHooks())
       return false;
     if(! justPick) {
       workSpace->runFit(fitIterations);
-      currentIteration++;
+      if(workSpace->trajectories.size() < 1)
+        throw InternalError("Somehow the trajectories are empty after a fit");
+      const FitTrajectory & latest = workSpace->trajectories.last();
+      
+      while(bestTrajectories.size() <= currentLevel)
+        bestTrajectories << latest;
+      
+      if(latest < bestTrajectories[currentLevel])
+        bestTrajectories[currentLevel] = latest;
+      
+      // Ok, so now we see whether we are at the end of a cycle
+      if(currentIteration >= maxIt) {
+        if(exploration) {
+          ++currentLevel;
+          currentIteration = 0;
+          if(currentLevel >= maxLevel) {
+            // We switch to the exploitation phase
+            int bestLevel = 0;
+            for(int i = 1; i < bestTrajectories.size(); i++) {
+              // only select if we significantly decrease the residuals
+              if(bestTrajectories[i].residuals < 0.9 * bestTrajectories[bestLevel].residuals)
+                bestLevel = i;
+            }
+            Terminal::out << "End of exploration phase: results:" << endl;
+            for(int i = 0; i < bestTrajectories.size(); i++)
+              Terminal::out << " * level #" << i << " -> "
+                            << bestTrajectories[i].residuals << endl;
+            
+            Terminal::out << "Switching to exploitation phase around level "
+                          << bestLevel
+                          << " and center: " << endl;
+            currentCenter = isFinal ?
+              bestTrajectories[bestLevel].finalParameters :
+              bestTrajectories[bestLevel].initialParameters;
+
+           for(const ParameterSpec & s : parameterSpecs)
+             Terminal::out << " * " << names[s.parameter.first]
+                           << "[#" << s.parameter.second << "] = "
+                           << currentCenter[s.parameter.first +
+                                            nbPDs*std::max(s.parameter.second, 0)]
+                           << endl;
+
+            currentLevel = bestLevel;
+            exploration = false;
+          }
+          return true;
+        }
+        else {
+          // end of exploitation
+          currentCycle++;
+          if(currentCycle >= cycles)
+            return false;
+          // We restart around the current center
+          Terminal::out << "Switching back to exploration phase around the best residuals: " << bestTrajectories[currentLevel].residuals <<" at: " << endl;
+          currentCenter = isFinal ?
+            bestTrajectories[currentLevel].finalParameters :
+            bestTrajectories[currentLevel].initialParameters;
+          for(const ParameterSpec & s : parameterSpecs)
+            Terminal::out << " * " << names[s.parameter.first]
+                          << "[#" << s.parameter.second << "] = "
+                          << currentCenter[s.parameter.first +
+                                           nbPDs*std::max(s.parameter.second, 0)]
+                          << endl;
+          currentIteration = 0;
+          currentLevel = 0;
+          exploration = true;
+        }
+      }
+      
     }
-    return currentIteration < iterations;
+    else {
+      Terminal::out << "Warning: it does not make so much sense to use /just-pick=true for the adaptive explorer" << endl;
+      
+    }
+    return true;
   };
 
   virtual QString progressText() const override {
@@ -398,7 +526,7 @@ ArgumentList
 AdaptiveMonteCarloExplorer::opts(QList<Argument*>() 
                                  << new IntegerArgument("iterations",
                                                         "Iterations",
-                                                        "Number of monte-carlo iterations")
+                                                        "Number of monte-carlo iterations per 'level'")
                                  << new IntegerArgument("fit-iterations",
                                                         "Fit iterations",
                                                         "Maximum number of fit iterations")

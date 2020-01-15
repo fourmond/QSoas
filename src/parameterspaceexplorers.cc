@@ -61,6 +61,10 @@ public:
   bool uniform;
 
 
+  /// Can be used by the explorers to store whatever.
+  double storage;
+
+
   /// The center
   double center() const {
     if(log) {
@@ -103,7 +107,7 @@ public:
       for(const QString & pa : pars)
         params << workSpace->parseParameterList(pa, unknowns);
       for(const QPair<int, int> & p : params) {
-        ParameterSpec sp = {p, l, h, log, uniform};
+        ParameterSpec sp = {p, l, h, log, uniform, 0};
         parameterSpecs << sp;
       }
     }
@@ -368,11 +372,37 @@ public:
     
   };
 
-  /// Generates a random displacement using the current Level
-  Vector addRandomDisplacement(const Vector & src,
-                               int level) const {
-    double curScale = pow(scale, -level);
+  /// Called whenever one changes the current level, it sets the sigma
+  /// values for the level
+  void prepareLevel() {
+    double curScale = pow(scale, -currentLevel);
+    
+    QStringList names = workSpace->parameterNames();
 
+    Terminal::out << "Preparing sigmas for level " << currentLevel
+                  << ":" << endl;
+    for(ParameterSpec & s : parameterSpecs) {
+      if(s.log) {
+          // The idea is to go from 0.07 at the deepest level to full
+          // sigma at 0.
+          double slm = 0.07;
+          double sigma = std::max(0.1,s.sigma());
+          sigma -= ((sigma - slm)*currentLevel)/maxLevel;
+          s.storage = sigma;
+      }
+      else {
+        s.storage = s.sigma() * curScale;
+      }
+      Terminal::out << " * " << names[s.parameter.first]
+                    << "[#" << s.parameter.second << "] : "
+                    << s.storage
+                    << endl;
+    }
+    
+  };
+
+  /// Generates a random displacement using the current Level
+  Vector addRandomDisplacement(const Vector & src) const {
     Vector dp = src;
     dp *= 0;                     // inelegant way to set to 0, but...
     QHash<int, double> uniformSetValues;
@@ -382,22 +412,11 @@ public:
       if(s.uniform && uniformSetValues.contains(s.parameter.first))
         v = uniformSetValues[s.parameter.first];
 
-      else {
-        double sigma;
-        if(s.log) {
-          // The idea is to go from 0.07 at the deepest level to full
-          // sigma at 0.
-          double slm = 0.07;
-          sigma = std::max(0.1,sigma);
-          sigma -= ((sigma - slm)*level)/maxLevel;
-        }
-        else
-          sigma = s.sigma() * scale;
-        v = gsl_ran_gaussian(rnd, sigma);
-      }
-      int idx = s.parameter.first + nbPDs*std::max(s.parameter.second,0);
+      v = gsl_ran_gaussian(rnd, s.storage);
       if(s.uniform)
         uniformSetValues[s.parameter.first] = v;
+
+      int idx = s.parameter.first + nbPDs*std::max(s.parameter.second,0);
       if(s.log) {
         v += log10(src[idx]);
         dp[idx] = pow(10, v);
@@ -451,7 +470,7 @@ public:
       const Vector & base = (isFinal ?
                              bestTrajectories[currentLevel].finalParameters :
                              bestTrajectories[currentLevel].initialParameters);
-      params = addRandomDisplacement(base, currentLevel);
+      params = addRandomDisplacement(base);
     }
     Terminal::out << "Parameters:" << endl;
     writeVector(params);
@@ -468,6 +487,7 @@ public:
       if(bestTrajectories.size() == 0) { // First iteration
         for(int i = 0; i <= maxLevel; i++)
           bestTrajectories << latest;
+        prepareLevel();
         return true;
       }
 
@@ -483,6 +503,7 @@ public:
       if(currentIteration >= maxIt) {
         if(exploration) {
           ++currentLevel;
+          prepareLevel();
           currentIteration = 0;
             
           if(currentLevel >= maxLevel) {
@@ -502,6 +523,7 @@ public:
                           << bestLevel << endl;
 
             currentLevel = bestLevel;
+            prepareLevel();
             exploration = false;
           }
           return true;
@@ -534,6 +556,7 @@ public:
           }
           currentIteration = 0;
           currentLevel = 0;
+          prepareLevel();
           exploration = true;
         }
       }

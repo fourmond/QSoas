@@ -475,13 +475,21 @@ static void runCommand(const QString &, QStringList args,
   updateFromOptions(opts, "only-if", condition);
 
   if(!condition.isEmpty()) {
+    MRuby * mr = MRuby::ruby();
     DataSet * ds = soas().stack().currentDataSet(true);
     bool cond = true;
-    // Here add arguments
+
+    // Script name/arguments
+    mrb_value ary = mr->newArray();
+    for(const QString & s : args)
+      mr->arrayPush(ary, mr->fromQString(s));
+
+    SaveGlobal sg("$args");
+    mr->setGlobal("$args", ary);
+
     if(ds)
       cond = ds->matches(condition);
     else {
-      MRuby * mr = MRuby::ruby();
       mrb_value v = mr->eval(condition);
       cond = mrb_test(v);
     }

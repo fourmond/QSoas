@@ -470,6 +470,28 @@ static void runCommand(const QString &, QStringList args,
   updateFromOptions(opts, "cd-to-script", cd);
   CommandWidget::ScriptErrorMode mode = CommandWidget::Abort;
   updateFromOptions(opts, "error", mode);
+
+  QString condition;
+  updateFromOptions(opts, "only-if", condition);
+
+  if(!condition.isEmpty()) {
+    DataSet * ds = soas().stack().currentDataSet(true);
+    bool cond = true;
+    // Here add arguments
+    if(ds)
+      cond = ds->matches(condition);
+    else {
+      MRuby * mr = MRuby::ruby();
+      mrb_value v = mr->eval(condition);
+      cond = mrb_test(v);
+    }
+    if(! cond) {
+      Terminal::out << "Not running " << args.first()
+                    << " since condition '" << condition
+                    << "' is not verified" << endl;
+      return;
+    }
+  }
   
   WDisableUpdates eff(& soas().view(), silent);
 
@@ -509,6 +531,9 @@ rcO(QList<Argument *>(runOpts)
     << new BoolArgument("cd-to-script", 
                         "cd to script",
                         "If on, automatically change the directory to that oof the script")
+    << new CodeArgument("only-if", 
+                        "Condition",
+                        "If specified, the script is only run when the condition is true")
     );
 
 static ArgumentList 

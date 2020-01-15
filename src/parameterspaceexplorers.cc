@@ -280,6 +280,10 @@ class AdaptiveMonteCarloExplorer : public ParameterSpaceExplorer {
   /// The current cycle
   int currentCycle;
 
+  /// The number of useless cycles, i.e. consecutive cycles that yield
+  /// no significant improvement to the residuals.
+  int uselessCycles;
+
   /// The number of fit iterations
   int fitIterations;
 
@@ -310,6 +314,7 @@ public:
     exploration(true),
     cycles(5),
     currentCycle(0),
+    uselessCycles(0),
     fitIterations(50),
     isFinal(false)
   {
@@ -340,6 +345,7 @@ public:
 
     scale = 8;
     updateFromOptions(opts, "fit-iterations", fitIterations);
+    updateFromOptions(opts, "use-final", isFinal);
     updateFromOptions(opts, "iterations", iterations);
 
     // Reset internal parameters
@@ -349,6 +355,7 @@ public:
     bestTrajectories.clear();
     exploration = true;
     previousCycleBest = 0;
+    uselessCycles = 0;
 
     Terminal::out << "Setting up the adaptive explorer with the following parameters: " << endl;
                                                                                     QStringList names = workSpace->parameterNames();
@@ -489,8 +496,10 @@ public:
         }
         else {
           if(currentCycle > 0) {
-            if(previousCycleBest == bestTrajectories[currentLevel].residuals) {
-              Terminal::out << "No improvement at all in the last cycle, stopping here" << endl;
+            if(previousCycleBest >= bestTrajectories[currentLevel].residuals * 0.999) {
+              uselessCycles++;
+              if(uselessCycles >= 2)
+                Terminal::out << "No improvement at all in the last two cycles, stopping here" << endl;
               return false;
             }
           }
@@ -544,6 +553,9 @@ AdaptiveMonteCarloExplorer::opts(QList<Argument*>()
                                  << new IntegerArgument("iterations",
                                                         "Iterations",
                                                         "Number of monte-carlo iterations per 'level'")
+                                 << new BoolArgument("use-final",
+                                                     "Use final",
+                                                     "If true, center the exploration around the final parameters rather than the initial (default: false)")
                                  << new IntegerArgument("fit-iterations",
                                                         "Fit iterations",
                                                         "Maximum number of fit iterations")

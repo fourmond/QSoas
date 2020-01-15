@@ -368,8 +368,11 @@ public:
     
   };
 
-  /// Generates a random displacement of the given scale
-  Vector addRandomDisplacement(const Vector & src, double scale) const {
+  /// Generates a random displacement using the current Level
+  Vector addRandomDisplacement(const Vector & src,
+                               int level) const {
+    double curScale = pow(scale, -level);
+
     Vector dp = src;
     dp *= 0;                     // inelegant way to set to 0, but...
     QHash<int, double> uniformSetValues;
@@ -378,11 +381,23 @@ public:
       double v;
       if(s.uniform && uniformSetValues.contains(s.parameter.first))
         v = uniformSetValues[s.parameter.first];
-      else
-        v = gsl_ran_gaussian(rnd, s.sigma() * scale);
+
+      else {
+        double sigma;
+        if(s.log) {
+          // The idea is to go from 0.07 at the deepest level to full
+          // sigma at 0.
+          double slm = 0.07;
+          sigma = std::max(0.1,sigma);
+          sigma -= ((sigma - slm)*level)/maxLevel;
+        }
+        else
+          sigma = s.sigma() * scale;
+        v = gsl_ran_gaussian(rnd, sigma);
+      }
+      int idx = s.parameter.first + nbPDs*std::max(s.parameter.second,0);
       if(s.uniform)
         uniformSetValues[s.parameter.first] = v;
-      int idx = s.parameter.first + nbPDs*std::max(s.parameter.second,0);
       if(s.log) {
         v += log10(src[idx]);
         dp[idx] = pow(10, v);
@@ -426,20 +441,17 @@ public:
       }
     }
     else {
-      double curScale = pow(scale, -currentLevel);
-    
       ++currentIteration;
       Terminal::out << "Iteration " << currentIteration << "/" << maxIt
                     << " of level " << currentLevel << " ("
                     << (exploration ? "exploration" : "exploitation")
                     << " phase)" << " of cycle " << currentCycle + 1
-                    << ", current scale: " << curScale
                     << endl;
 
       const Vector & base = (isFinal ?
                              bestTrajectories[currentLevel].finalParameters :
                              bestTrajectories[currentLevel].initialParameters);
-      params = addRandomDisplacement(base, curScale);
+      params = addRandomDisplacement(base, currentLevel);
     }
     Terminal::out << "Parameters:" << endl;
     writeVector(params);

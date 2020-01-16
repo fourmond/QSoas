@@ -298,6 +298,8 @@ class AdaptiveMonteCarloExplorer : public ParameterSpaceExplorer {
   /// The list of the current best trajectories per level;
   QList<FitTrajectory> bestTrajectories;
 
+  FitTrajectory currentCenter;
+
   /// The current specs.
   QList<ParameterSpec> parameterSpecs;
 
@@ -347,9 +349,10 @@ public:
     if(parameterSpecs.size() == 0)
       throw RuntimeError("Could understand no parameters at all");
 
-    scale = 8;
+    scale = 6;
     updateFromOptions(opts, "fit-iterations", fitIterations);
     updateFromOptions(opts, "use-final", isFinal);
+    updateFromOptions(opts, "scale", scale);
     updateFromOptions(opts, "iterations", iterations);
 
     // Reset internal parameters
@@ -360,14 +363,17 @@ public:
     exploration = true;
     previousCycleBest = 0;
     uselessCycles = 0;
+    currentCenter.initialParameters.clear();
 
     Terminal::out << "Setting up the adaptive explorer with the following parameters: " << endl;
+    
                                                                                     QStringList names = workSpace->parameterNames();
     for(const ParameterSpec & s : parameterSpecs)
       Terminal::out << " * " << names[s.parameter.first]
                     << "[#" << s.parameter.second << "] : "
                     << s.center() << " +- " << s.sigma()
                     << (s.log ? " (log)" : " (lin)")
+                    << (s.uniform ? ",  uniform" : "")
                     << endl;
     
   };
@@ -387,7 +393,7 @@ public:
           // sigma at 0.
           double slm = 0.07;
           double sigma = std::max(0.1,s.sigma());
-          sigma -= ((sigma - slm)*currentLevel)/maxLevel;
+          sigma = std::max(sigma-currentLevel * log10(scale)*0.8, slm);
           s.storage = sigma;
       }
       else {
@@ -411,8 +417,9 @@ public:
       double v;
       if(s.uniform && uniformSetValues.contains(s.parameter.first))
         v = uniformSetValues[s.parameter.first];
-
-      v = gsl_ran_gaussian(rnd, s.storage);
+      else
+        v = gsl_ran_gaussian(rnd, s.storage);
+      
       if(s.uniform)
         uniformSetValues[s.parameter.first] = v;
 
@@ -427,31 +434,20 @@ public:
     return dp;
   };
 
-  void writeVector(const Vector & v) {
-    QStringList names = workSpace->parameterNames();
-    int nbPDs = workSpace->parametersPerDataset();
-    for(const ParameterSpec & s : parameterSpecs)
-      Terminal::out << " * " << names[s.parameter.first]
-                    << "[#" << s.parameter.second << "] = "
-                    << v[s.parameter.first +
-                         nbPDs*std::max(s.parameter.second, 0)]
-                    << endl;
-
-  };
-
   virtual bool iterate(bool justPick) override {
-    Vector params;
+    Vector base, params;
     int maxIt = iterations;
     if(exploration)
       maxIt = maxIt/(sqrt(currentLevel + 1));
     if(maxIt < 2)               // At least two iterations per level
       maxIt = 2;
 
-    if(bestTrajectories.size() == 0) {
+    if(currentCenter.initialParameters.size() == 0) {
       Terminal::out << "Initial starting point iteration" << endl;
       // Prepare initial parameters.
       int nbPDs = workSpace->parametersPerDataset();
       params = workSpace->saveParameterValues();
+      base = params;
       
       for(const ParameterSpec & s : parameterSpecs) {
         params[s.parameter.first +
@@ -464,32 +460,52 @@ public:
       Terminal::out << "Iteration " << currentIteration << "/" << maxIt
                     << " of level " << currentLevel << " ("
                     << (exploration ? "exploration" : "exploitation")
-                    << " phase)" << " of cycle " << currentCycle + 1
+                    << " phase)" << " of cycle " << currentCycle
                     << endl;
 
-      const Vector & base = (isFinal ?
-                             bestTrajectories[currentLevel].finalParameters :
-                             bestTrajectories[currentLevel].initialParameters);
+      // The base is either the current center or the best trajectory
+      // of the current level, whichever is the lowest.
+      FitTrajectory trj = currentCenter;
+      if(bestTrajectories.size() > currentLevel && bestTrajectories[currentLevel] < trj)
+        trj = bestTrajectories[currentLevel];
+
+      base = (isFinal ? trj.finalParameters : trj.initialParameters);
       params = addRandomDisplacement(base);
     }
+    
     Terminal::out << "Parameters:" << endl;
-    writeVector(params);
+    QStringList names = workSpace->parameterNames();
+    int nbPDs = workSpace->parametersPerDataset();
+    for(const ParameterSpec & s : parameterSpecs) {
+      int idx = s.parameter.first + nbPDs*std::max(s.parameter.second, 0);
+      Terminal::out << " * " << names[s.parameter.first]
+                    << "[#" << s.parameter.second << "] = "
+                    << base[idx] << " -> " 
+                    << params[idx]
+                    << endl;
+    }
+
     workSpace->restoreParameterValues(params);
     
-    if(! runHooks())
+    if(! runHooks()) {
+      Terminal::out << "The hooks failed, ending exploration" << endl;
       return false;
+    }
     if(! justPick) {
       workSpace->runFit(fitIterations);
       if(workSpace->trajectories.size() < 1)
         throw InternalError("Somehow the trajectories are empty after a fit");
       const FitTrajectory & latest = workSpace->trajectories.last();
 
-      if(bestTrajectories.size() == 0) { // First iteration
-        for(int i = 0; i <= maxLevel; i++)
-          bestTrajectories << latest;
+      if(currentCenter.initialParameters.size() == 0) { // First iteration
+        currentCenter = latest;
         prepareLevel();
         return true;
       }
+      
+      // Initialize with the current trajectory
+      while(bestTrajectories.size() <= currentLevel)
+        bestTrajectories << latest;
 
       if(latest < bestTrajectories[currentLevel]) {
         Terminal::out << "Improved residuals (level " << currentLevel
@@ -503,7 +519,6 @@ public:
       if(currentIteration >= maxIt) {
         if(exploration) {
           ++currentLevel;
-          prepareLevel();
           currentIteration = 0;
             
           if(currentLevel >= maxLevel) {
@@ -523,37 +538,48 @@ public:
                           << bestLevel << endl;
 
             currentLevel = bestLevel;
-            prepareLevel();
             exploration = false;
           }
+          prepareLevel();
           return true;
         }
         else {
-          if(currentCycle > 0) {
-            if(previousCycleBest >= bestTrajectories[currentLevel].residuals * 0.999) {
-              uselessCycles++;
-              if(uselessCycles >= 2)
-                Terminal::out << "No improvement at all in the last two cycles, stopping here" << endl;
-              return false;
-            }
-          }
+          Terminal::out << "Best residuals of the cycle: "
+                        << bestTrajectories[currentLevel].residuals << endl;
+          Terminal::out << "Overall best: " << currentCenter.residuals << endl;
+          // if(currentCycle > 0) {
+          //   Terminal::out << "Best residuals of the previous cycle: "
+          //               << previousCycleBest << endl;
+          //   if(previousCycleBest * 0.999 <= bestTrajectories[currentLevel].residuals) {
+          //     uselessCycles++;
+          //     if(uselessCycles >= 2) {
+          //       Terminal::out << "No improvement at all in the last two cycles, stopping here" << endl;
+          //       return false;
+          //     }
+          //   }
+          //   else
+          //     uselessCycles = 0;
+          // }
 
           previousCycleBest = bestTrajectories[currentLevel].residuals;
 
           // end of exploitation
           currentCycle++;
-          if(currentCycle >= cycles)
+          if(currentCycle >= cycles) {
+            Terminal::out << "Reached the maximum number of cycles: "
+                          << currentCycle << "/" << cycles << endl;
             return false;
+          }
             
           // We restart around the current center
           Terminal::out << "Switching back to exploration phase around the best residuals: "
                         << bestTrajectories[currentLevel].residuals << endl;
 
           // Copying the best residuals
-          for(int i = 0; i <= maxLevel; i++) {
-            if(i != currentLevel)
-              bestTrajectories[i] = bestTrajectories[currentLevel];
-          }
+          currentCenter = std::min(currentCenter,
+                                   bestTrajectories[currentLevel]);
+          bestTrajectories.clear();
+
           currentIteration = 0;
           currentLevel = 0;
           prepareLevel();
@@ -588,6 +614,9 @@ AdaptiveMonteCarloExplorer::opts(QList<Argument*>()
                                  << new IntegerArgument("iterations",
                                                         "Iterations",
                                                         "Number of monte-carlo iterations per 'level'")
+                                 << new NumberArgument("scale",
+                                                       "Scaling factor",
+                                                       "Scaling factor between the levels")
                                  << new BoolArgument("use-final",
                                                      "Use final",
                                                      "If true, center the exploration around the final parameters rather than the initial (default: false)")

@@ -70,6 +70,18 @@ void Expression::buildCode()
     minimalVariables = variablesNeeded(expression);
     variables = minimalVariables;
   }
+  else {
+    // Sanity check: make sure the variables contain each of the minimalvariables
+    QSet<QString> mv = minimalVariables.toSet();
+    QSet<QString> v = variables.toSet();
+    mv.subtract(v);
+    if(mv.size() > 0) {
+      QStringList l = mv.toList();
+      l.sort();
+      throw RuntimeError("The following variables are needed but not defined: '%1'").arg(l.join("', '"));
+    }
+    
+  }
 
 
   //////////////////////////////////////////////////

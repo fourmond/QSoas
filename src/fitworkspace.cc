@@ -1008,7 +1008,7 @@ void FitWorkspace::loadParameters(const FitParametersFile & params,
       if(idx < 0) {
         if(! (param.name == "Z" || param.name == "buffer_name"))   // Just silently ignore Z parameters and buffer names
                                 // (if there aren't any)
-          Terminal::out << "Found unkown parameter: '" << param.name
+          Terminal::out << "Found unknown parameter: '" << param.name
                         << "', ignoring" << endl;
         continue;
       }

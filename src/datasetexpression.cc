@@ -86,7 +86,7 @@ void DataSetExpression::prepareExpression(const QString & formula,
   else {
     QStringList vn = Expression::variablesNeeded(formula, vars);
     if(vn.size() > 0) {
-      throw RuntimeError("Expression '%1' references unkonwn variables %2").
+      throw RuntimeError("Expression '%1' references unknonwn variables %2").
         arg(formula).arg(vn.join(", "));
     }
     expr = new Expression(formula, vars);

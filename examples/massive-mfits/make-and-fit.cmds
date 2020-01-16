@@ -1,3 +1,3 @@
 @ make-all.cmds /silent=true
 save-buffers /mode=rename /format=a-%02d.dat all
-mfit-arb a*x**2+b*x+c all
+mfit-arb a*x**2+b*x+c all /weight-buffers=true

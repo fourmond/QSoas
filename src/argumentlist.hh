@@ -30,7 +30,7 @@ class Command;
 /// Argument::argumentName only has an indicative value and for the
 /// options, for which the Argument::argumentName is the option key.
 ///
-/// @todo Add the possibility for options to slurp all unkown options
+/// @todo Add the possibility for options to slurp all unknown options
 /// as strings.
 class ArgumentList : public QList<Argument *> {
   

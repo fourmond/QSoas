@@ -681,7 +681,7 @@ The main command for loading data is [cmd: load].
 
 ### load - Load {#cmd-load}
 
-`load` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
+`load` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
 Short name: `l`
 
@@ -690,8 +690,9 @@ Short name: `l`
   * `/columns=`_integers_{:title="a comma-separated list of integers"}: columns loaded from the file -- values: a comma-separated list of integers
   * `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: pattern for comment lines -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: decimal separator -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/expected=`_integer_{:title="an integer"}: Expected number of loaded datasets -- values: an integer
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
-  * `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Select on formula -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Select on formula -- values: a piece of [Ruby code](#ruby)
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, ignores cache (default off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, skips empty files (default on) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -780,6 +781,12 @@ By default, the `load` and related commands will not create a buffer
 if it were empty (i.e. a valid data file containing no data), you can
 force the creation of empty files using `/ignore-empty=false`.
 
+Finally, it is possible to provide a number of datasets that should be
+loaded with the `/expected=` option. The command fails if the number
+of loaded datasets does not match the number given. This can be useful
+for scripts, to abort the script when a file is missing, see
+[cmd: run] to make use of this.
+
 
 {::comment} description-end: load {:/}
 
@@ -788,15 +795,18 @@ force the creation of empty files using `/ignore-empty=false`.
 
 ### load-as-text - Load files with backend 'text' {#cmd-load-as-text}
 
-`load-as-text` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
+`load-as-text` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/columns=`_integers_{:title="a comma-separated list of integers"}: columns loaded from the file -- values: a comma-separated list of integers
   * `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: pattern for comment lines -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: decimal separator -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/expected=`_integer_{:title="an integer"}: Expected number of loaded datasets -- values: an integer
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Select on formula -- values: a piece of [Ruby code](#ruby)
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, skips empty files (default on) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
@@ -843,15 +853,18 @@ interpreted:
 
 ### load-as-csv - Load files with backend 'csv' {#cmd-load-as-csv}
 
-`load-as-csv` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
+`load-as-csv` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/columns=`_integers_{:title="a comma-separated list of integers"}: columns loaded from the file -- values: a comma-separated list of integers
   * `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: pattern for comment lines -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: decimal separator -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/expected=`_integer_{:title="an integer"}: Expected number of loaded datasets -- values: an integer
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Select on formula -- values: a piece of [Ruby code](#ruby)
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, skips empty files (default on) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
@@ -869,15 +882,18 @@ Hence, the options have the same meaning as for [cmd: load-as-text].
 
 ### load-as-chi-txt - Load files with backend 'chi-txt' {#cmd-load-as-chi-txt}
 
-`load-as-chi-txt` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
+`load-as-chi-txt` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/columns=`_integers_{:title="a comma-separated list of integers"}: columns loaded from the file -- values: a comma-separated list of integers
   * `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: pattern for comment lines -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: decimal separator -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/expected=`_integer_{:title="an integer"}: Expected number of loaded datasets -- values: an integer
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Select on formula -- values: a piece of [Ruby code](#ruby)
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, skips empty files (default on) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
@@ -895,11 +911,14 @@ able to detect at least some of their meta-data).
 
 ### load-as-parameters - Load files with backend 'parameters' {#cmd-load-as-parameters}
 
-`load-as-parameters` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/flags=`_words_{:title="several words, separated by ','"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
+`load-as-parameters` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
+  * `/expected=`_integer_{:title="an integer"}: Expected number of loaded datasets -- values: an integer
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Select on formula -- values: a piece of [Ruby code](#ruby)
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, skips empty files (default on) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a buffer
@@ -1064,11 +1083,11 @@ QSoas> save-buffers /format=non-existing-directory/buffer-%03d.dat 0..100 /mkpat
 
 ### browse - Browse files {#cmd-browse}
 
-`browse` `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/pattern=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
+`browse` `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/pattern=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
 
 Short name: `W`
 
-  * `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Select on formula -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Select on formula -- values: a piece of [Ruby code](#ruby)
   * `/pattern=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} (default option): Files to browse -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
 
 {::comment} synopsis-end: browse {:/}
@@ -1090,11 +1109,12 @@ files based on their meta-data and/or statistics. See the
 
 ### overlay-buffer - Overlay buffers {#cmd-overlay-buffer}
 
-`overlay-buffer` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`overlay-buffer` `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
 Short name: `V`
 
-  * _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: Buffers to overlay -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
+  * `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} (default option): Buffers to overlay -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on buffers matching the code -- values: a piece of [Ruby code](#ruby)
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for curves display -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: overlay-buffer {:/}
@@ -1126,7 +1146,7 @@ of passing it non-visible datasets, QSoas won't shout at you if you do.
 
 ### overlay - Overlay {#cmd-overlay}
 
-`overlay` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
+`overlay` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
 Short name: `v`
 
@@ -1135,8 +1155,9 @@ Short name: `v`
   * `/columns=`_integers_{:title="a comma-separated list of integers"}: columns loaded from the file -- values: a comma-separated list of integers
   * `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: pattern for comment lines -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: decimal separator -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/expected=`_integer_{:title="an integer"}: Expected number of loaded datasets -- values: an integer
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
-  * `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Select on formula -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Select on formula -- values: a piece of [Ruby code](#ruby)
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, ignores cache (default off) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, skips empty files (default on) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -1270,12 +1291,12 @@ ways:
 
 ### browse-stack - Browse stack {#cmd-browse-stack}
 
-`browse-stack` `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
+`browse-stack` `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} **(interactive)**
 
 Short name: `K`
 
   * `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} (default option): Buffers to show -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
-  * `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Select on formula -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on buffers matching the code -- values: a piece of [Ruby code](#ruby)
 
 {::comment} synopsis-end: browse-stack {:/}
 {::comment} description-start: browse-stack {:/}
@@ -1286,16 +1307,21 @@ It is possible to fine-tune the datasets to browse using:
 * the `/buffers` option, which takes a buffer list;
 * the `/for-which` option, that takes a condition, see the
 [dedicated section](#for-which) for more information.
+
+If the option `/meta=` is specified, the command also lists the values
+of the given, comma-separated, [meta data](#meta-data).
+
 {::comment} description-end: browse-stack {:/}
 
 {::comment} synopsis-start: show-stack {:/}
 
 ### show-stack - Show stack {#cmd-show-stack}
 
-`show-stack` `/number=`_integer_{:title="an integer"}
+`show-stack` `/meta=`_words_{:title="several words, separated by ','"} `/number=`_integer_{:title="an integer"}
 
 Short name: `k`
 
+  * `/meta=`_words_{:title="several words, separated by ','"}: also lists the comma-separated meta-data -- values: several words, separated by ','
   * `/number=`_integer_{:title="an integer"} (default option): Display only that many buffers around 0 -- values: an integer
 
 {::comment} synopsis-end: show-stack {:/}
@@ -1439,12 +1465,12 @@ dropped from the stack. [cmd: undo] won't work.
 
 ### flag - Flag datasets {#cmd-flag}
 
-`flag` `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/exclusive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/set=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`flag` `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/exclusive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/set=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} (default option): Buffers to flag/unflag -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/exclusive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, clears the given flags on all the buffers but the ones specified -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/flags=`_words_{:title="several words, separated by ','"}: Buffers to flag/unflag -- values: several words, separated by ','
-  * `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Select on formula -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on buffers matching the code -- values: a piece of [Ruby code](#ruby)
   * `/set=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, clears all the previous flags -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: flag {:/}
@@ -1478,11 +1504,11 @@ explictly with the command are cleared.
 
 ### unflag - Unflag datasets {#cmd-unflag}
 
-`unflag` `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
+`unflag` `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}
 
   * `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} (default option): Buffers to flag/unflag -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/flags=`_words_{:title="several words, separated by ','"}: Buffers to flag/unflag -- values: several words, separated by ','
-  * `/for-which=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Select on formula -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on buffers matching the code -- values: a piece of [Ruby code](#ruby)
 
 {::comment} synopsis-end: unflag {:/}
 {::comment} description-start: unflag {:/}
@@ -1526,14 +1552,15 @@ instance.
 
 ### apply-formula - Apply formula {#cmd-apply-formula}
 
-`apply-formula` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/extra-columns=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/keep-on-error=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`apply-formula` _formula_{:title="a piece of [Ruby code](#ruby)"} `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/extra-columns=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/keep-on-error=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
 Short name: `F`
 
-  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: formula -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _formula_{:title="a piece of [Ruby code](#ruby)"}: formula -- values: a piece of [Ruby code](#ruby)
   * `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} (default option): Buffers to work on -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/extra-columns=`_integer_{:title="an integer"}: number of extra columns to create -- values: an integer
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on buffers matching the code -- values: a piece of [Ruby code](#ruby)
   * `/keep-on-error=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, the points where the Ruby expression returns a  error are kept, as invalid numbers -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
@@ -1783,9 +1810,9 @@ data, this will impact commands that work with indices, such as
 
 ### strip-if - Strip points {#cmd-strip-if}
 
-`strip-if` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/threshold=`_integer_{:title="an integer"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`strip-if` _formula_{:title="a piece of [Ruby code](#ruby)"} `/threshold=`_integer_{:title="an integer"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Ruby boolean expression -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _formula_{:title="a piece of [Ruby code](#ruby)"}: Ruby boolean expression -- values: a piece of [Ruby code](#ruby)
   * `/threshold=`_integer_{:title="an integer"}: If the stripping operation leaves less than that many points, do not create a new dataset -- values: an integer
   * `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on (by default), you can use `$meta` to refer to the dataset meta-data -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, you can use `$stats` to refer to statistics (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -2423,12 +2450,13 @@ approximation. (be careful as this function may fail at times).
 
 ### auto-filter-bs - Auto B-splines {#cmd-auto-filter-bs}
 
-`auto-filter-bs` `/derivatives=`_integer_{:title="an integer"} `/number=`_integer_{:title="an integer"} `/order=`_integer_{:title="an integer"} `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
+`auto-filter-bs` `/derivatives=`_integer_{:title="an integer"} `/number=`_integer_{:title="an integer"} `/optimize=`_integer_{:title="an integer"} `/order=`_integer_{:title="an integer"} `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
 Short name: `afbs`
 
   * `/derivatives=`_integer_{:title="an integer"}: computes derivatives up to this number -- values: an integer
   * `/number=`_integer_{:title="an integer"}: number of segments -- values: an integer
+  * `/optimize=`_integer_{:title="an integer"}: number of iterations to optimize the position of the nodes (defaults to 15, set to 0 or less to disable) -- values: an integer
   * `/order=`_integer_{:title="an integer"}: order of the splines -- values: an integer
   * `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}: uses the weights in the given column -- values: the [number/name of a column](#column-names) in a buffer
 
@@ -2436,7 +2464,8 @@ Short name: `afbs`
 {::comment} description-start: auto-filter-bs {:/}
 Filters the data using B-splines in a non-interactive fashion.
 Performs automatically an optimization step, like hitting `o` in
-[cmd: filter-bsplines].
+[cmd: filter-bsplines], with a number of iterations that is
+configurable using the `/optimize=` option (0 disables that altogether).
 
 This is mostly useful in scripts.
 {::comment} description-end: auto-filter-bs {:/}
@@ -2546,7 +2575,7 @@ accidents on the curve). Cycle between the various schemes by hitting
 `t`.
 
 It is possible to leave saving not the interpolated data, but just the
-interpolation ``nodes'' (ie the big dots), by pushing the `p`
+interpolation "nodes" (ie the big dots), by pushing the `p`
 key. This has two advantages: first, one can load nodes from a buffer
 by hitting the `L` key and providing the buffer number (or just their
 X value by hitting `l`). Second, if one has the nodes and just the X

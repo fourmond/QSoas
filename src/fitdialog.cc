@@ -60,6 +60,8 @@
 #include <idioms.hh>
 #include <icons.hh>
 
+#include <gsl-types.hh>
+
 static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
 
 static SettingsValue<int> fitIterationLimit("fitdialog/iteration-limit", 100);
@@ -430,8 +432,8 @@ void FitDialog::setupFrame(bool expert)
     ac->addAction("Give equal importance to all buffers", this, 
                   SLOT(equalWeightsPerBuffer()),
                   QKeySequence(tr("Ctrl+Shift+B")));
-    ac->addAction("Give equal importance to all points", this, 
-                  SLOT(equalWeightsPerPoint()));
+    // ac->addAction("Give equal importance to all points", this, 
+    //               SLOT(equalWeightsPerPoint()));
   }
   hb->addWidget(ac);
 
@@ -1026,23 +1028,32 @@ void FitDialog::resetWeights()
 
 void FitDialog::equalWeightsPerBuffer()
 {
-  throw NOT_IMPLEMENTED;
-  // // Now, we'll have to compute a weight for each buffer based on
-  // // their number of points/magnitude
-  // QVarLengthArray<double, 1024> weight(data->datasets.size());
+  // Now, we'll have to compute a weight for each buffer based on
+  // their number of points/magnitude
+  QVarLengthArray<double, 1024> weight(data->datasets.size());
+  GSLVector dat(data->dataPoints());
 
-  // double max = 0;
-  // for(int i = 0; i < data->datasets.size(); i++) {
-  //   data->weightsPerBuffer[i] = 1;
-  //   double w = data->weightedSquareSumForDataset(i, NULL, true);
+  // Copy buffer
+  for(int i = 0; i < data->datasets.size(); i++) {
+    data->weightsPerBuffer[i] = 1;
+    gsl_vector_view v = data->viewForDataset(i, dat);
+    gsl_vector_memcpy(&v.vector, data->datasets[i]->y());
+  }
+  data->weightVector(dat);
 
-  //   weight[i] = 1/sqrt(w);
-  //   if(weight[i] > max)
-  //     max = weight[i];
-  // }
-  // for(int i = 0; i < data->datasets.size(); i++)
-  //   data->weightsPerBuffer[i] = weight[i]/max;
-  // updateEditors();
+  double max = 0;
+  for(int i = 0; i < data->datasets.size(); i++) {
+    gsl_vector_view v = data->viewForDataset(i, dat);
+    double w;
+    gsl_blas_ddot(&v.vector, &v.vector, &w);
+
+    weight[i] = 1/sqrt(w);
+    if(weight[i] > max)
+      max = weight[i];
+  }
+  for(int i = 0; i < data->datasets.size(); i++)
+    data->weightsPerBuffer[i] = weight[i]/max;
+  updateEditors();
 }
 
 void FitDialog::equalWeightsPerPoint()

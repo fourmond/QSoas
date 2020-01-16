@@ -647,7 +647,7 @@ public:
 
   /// Parses the specs in string list, and stores them in the
   /// variations hash. If @a wrongParams is provided, is filled with
-  /// unkonwn parameters. If not, the function will raised exceptions.
+  /// unknonwn parameters. If not, the function will raised exceptions.
   void parseSpecs(const QStringList & specs,
                   QStringList * wrongParams = NULL) {
     int nb_per_ds = workSpace->data()->parametersPerDataset();

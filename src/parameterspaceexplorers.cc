@@ -302,6 +302,9 @@ class AdaptiveMonteCarloExplorer : public ParameterSpaceExplorer {
   /// The list of the current best trajectories per level;
   QList<FitTrajectory> bestTrajectories;
 
+  /// Initialization: 0, init not done, 1, center not done, 2 = OK.
+  int init;
+
   FitTrajectory currentCenter;
 
   /// The current specs.
@@ -326,7 +329,8 @@ public:
     currentCycle(0),
     uselessCycles(0),
     fitIterations(50),
-    isFinal(false)
+    isFinal(false),
+    init(0)
   {
     rnd = gsl_rng_alloc(gsl_rng_mt19937);
   };
@@ -367,7 +371,7 @@ public:
     exploration = true;
     previousCycleBest = 0;
     uselessCycles = 0;
-    currentCenter.initialParameters.clear();
+    init = 0;
 
     Terminal::out << "Setting up the adaptive explorer with the following parameters: " << endl;
     
@@ -454,8 +458,13 @@ public:
     if(maxIt < 2)               // At least two iterations per level
       maxIt = 2;
 
-    if(currentCenter.initialParameters.size() == 0) {
-      Terminal::out << "Initial starting point iteration" << endl;
+    if(init == 0) {             // First step: initial parameters
+      Terminal::out << "Initialization: starting parameters" << endl;
+      params = workSpace->saveParameterValues();
+      base = params;
+    }
+    if(init == 1) {             // Second step: center
+      Terminal::out << "Initialization: center" << endl;
       // Prepare initial parameters.
       int nbPDs = workSpace->parametersPerDataset();
       params = workSpace->saveParameterValues();
@@ -467,7 +476,7 @@ public:
           s.center();
       }
     }
-    else {
+    if(init > 1) {            
       ++currentIteration;
       Terminal::out << "Iteration " << currentIteration << "/" << maxIt
                     << " of level " << currentLevel << " ("
@@ -510,8 +519,14 @@ public:
         throw InternalError("Somehow the trajectories are empty after a fit");
       const FitTrajectory & latest = workSpace->trajectories.last();
 
-      if(currentCenter.initialParameters.size() == 0) { // First iteration
+      if(init == 0) {
         currentCenter = latest;
+        ++init;
+        return true;
+      }
+      if(init == 1) {
+        ++init;
+        currentCenter = std::min(latest, currentCenter);
         prepareLevel();
         return true;
       }

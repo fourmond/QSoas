@@ -30,6 +30,7 @@ class FitWorkspace;
 class ArgumentList;
 class Command;
 class CommandEffector;
+class Vector;
 
 class ParameterSpaceExplorerFactoryItem :
   public Factory<ParameterSpaceExplorer, FitWorkspace *> {
@@ -68,6 +69,10 @@ protected:
 
   /// Run all the hooks, and returns true only if one should proceed.
   bool runHooks() const;
+
+
+  /// Writes the parameters given in the vector to the terminal:
+  void writeParametersVector(const Vector & parameters) const;
 public:
 
   /// Adds a hook to run before launching the script

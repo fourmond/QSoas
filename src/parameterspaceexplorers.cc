@@ -74,12 +74,16 @@ public:
       return 0.5*(low + high);
   };
 
-  /// Returns 1/4 of the witdth of the interval (log10 or lin).
+  /// Returns 1/2 of the witdth of the interval (log10 or lin).
   double sigma() const {
     if(log)
-      return 0.25 * (log10(high) - log10(low));
+      return 0.5 * (log10(high) - log10(low));
     else
-      return 0.25 * (high - low);
+      return 0.5 * (high - low);
+  };
+
+  double trim(double val) const {
+    return std::max(std::min(val, high), low);
   };
 
   /// Parses the parameter list
@@ -389,11 +393,11 @@ public:
                   << ":" << endl;
     for(ParameterSpec & s : parameterSpecs) {
       if(s.log) {
-          // The idea is to go from 0.07 at the deepest level to full
+          // The idea is to go from 0.01 at the deepest level to full
           // sigma at 0.
-          double slm = 0.07;
+          double slm = 0.01;
           double sigma = std::max(0.1,s.sigma());
-          sigma = std::max(sigma-currentLevel * log10(scale)*0.8, slm);
+          sigma = std::max(sigma-currentLevel * log10(scale), slm);
           s.storage = sigma;
       }
       else {
@@ -410,7 +414,6 @@ public:
   /// Generates a random displacement using the current Level
   Vector addRandomDisplacement(const Vector & src) const {
     Vector dp = src;
-    dp *= 0;                     // inelegant way to set to 0, but...
     QHash<int, double> uniformSetValues;
     int nbPDs = workSpace->parametersPerDataset();
     for(const ParameterSpec & s : parameterSpecs) {
@@ -430,8 +433,17 @@ public:
       }
       else
         dp[idx] += v;
+      // Force the parameter into the specified segment.
+      dp[idx] = s.trim(dp[idx]);
     }
     return dp;
+  };
+
+  Vector trajectoryParameters(const FitTrajectory & trj) const {
+    if(isFinal)
+      return trj.finalParameters;
+    else
+      return trj.initialParameters;
   };
 
   virtual bool iterate(bool justPick) override {
@@ -469,7 +481,7 @@ public:
       if(bestTrajectories.size() > currentLevel && bestTrajectories[currentLevel] < trj)
         trj = bestTrajectories[currentLevel];
 
-      base = (isFinal ? trj.finalParameters : trj.initialParameters);
+      base = trajectoryParameters(trj);
       params = addRandomDisplacement(base);
     }
     
@@ -493,6 +505,7 @@ public:
     }
     if(! justPick) {
       workSpace->runFit(fitIterations);
+      
       if(workSpace->trajectories.size() < 1)
         throw InternalError("Somehow the trajectories are empty after a fit");
       const FitTrajectory & latest = workSpace->trajectories.last();
@@ -535,9 +548,10 @@ public:
                             << bestTrajectories[i].residuals << endl;
               
             Terminal::out << "Switching to exploitation phase around level "
-                          << bestLevel << endl;
-
+                          << bestLevel << ", using the following center: " << endl;
+                                                                              
             currentLevel = bestLevel;
+            writeParametersVector(trajectoryParameters(std::min(bestTrajectories[currentLevel], currentCenter)));
             exploration = false;
           }
           prepareLevel();
@@ -547,21 +561,20 @@ public:
           Terminal::out << "Best residuals of the cycle: "
                         << bestTrajectories[currentLevel].residuals << endl;
           Terminal::out << "Overall best: " << currentCenter.residuals << endl;
-          // if(currentCycle > 0) {
-          //   Terminal::out << "Best residuals of the previous cycle: "
-          //               << previousCycleBest << endl;
-          //   if(previousCycleBest * 0.999 <= bestTrajectories[currentLevel].residuals) {
-          //     uselessCycles++;
-          //     if(uselessCycles >= 2) {
-          //       Terminal::out << "No improvement at all in the last two cycles, stopping here" << endl;
-          //       return false;
-          //     }
-          //   }
-          //   else
-          //     uselessCycles = 0;
-          // }
+          if(currentCycle > 0) {
+            Terminal::out << "Best residuals of the previous cycle: "
+                        << previousCycleBest << endl;
+            if(previousCycleBest * 0.999 <= bestTrajectories[currentLevel].residuals) {
+              uselessCycles++;
+              if(uselessCycles >= 3) {
+                Terminal::out << "No improvement at all in the last three cycles, stopping here" << endl;
+                return false;
+              }
+            }
+            else
+              uselessCycles = 0;
+          }
 
-          previousCycleBest = bestTrajectories[currentLevel].residuals;
 
           // end of exploitation
           currentCycle++;
@@ -571,13 +584,17 @@ public:
             return false;
           }
             
-          // We restart around the current center
-          Terminal::out << "Switching back to exploration phase around the best residuals: "
-                        << bestTrajectories[currentLevel].residuals << endl;
-
-          // Copying the best residuals
           currentCenter = std::min(currentCenter,
                                    bestTrajectories[currentLevel]);
+
+          // We restart around the current center
+          Terminal::out << "Switching back to exploration phase around the best residuals: "
+                        << currentCenter.residuals << endl;
+          writeParametersVector(trajectoryParameters(currentCenter));
+
+          
+          // Copying the best residuals
+          previousCycleBest = currentCenter.residuals;
           bestTrajectories.clear();
 
           currentIteration = 0;

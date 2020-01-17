@@ -29,6 +29,8 @@
 #include <fitworkspace.hh>
 #include <fittrajectory.hh>
 
+#include <terminal.hh>
+
 ParameterSpaceExplorerFactoryItem::
 ParameterSpaceExplorerFactoryItem(const QString & n,
                                   const QString & pn,
@@ -114,13 +116,29 @@ CommandEffector * ParameterSpaceExplorer::explorerEffector(const QString & n)
                                 });
 }
 
+void ParameterSpaceExplorer::writeParametersVector(const Vector & parameters) const
+{
+  QStringList names = workSpace->parameterNames();
+  int nbp = workSpace->parametersPerDataset();
+  int nbds = workSpace->datasetNumber();
+  for(int i = 0; i < nbp; i++) {
+    if(workSpace->isGlobal(i))
+      Terminal::out << " * " << names[i] << " = " << parameters[i] << endl;
+    else {
+      for(int ds = 0; ds < nbds; ds++)
+        Terminal::out << " * " << names[i] << "[#"
+                      << ds << "] = " << parameters[i + ds * nbp] << endl;
+    }
+  }
+}
+
 //////////////////////////////////////////////////////////////////////
 
 #include <file-arguments.hh>
 #include <general-arguments.hh>
 #include <soas.hh>
 #include <commandwidget.hh>
-#include <terminal.hh>
+
 
 
 static void iterateExplorerCommand(const QString & /*name*/,

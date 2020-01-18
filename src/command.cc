@@ -477,6 +477,8 @@ QString Command::synopsis(bool markup) const
 
   if(isInteractive())
     synopsis << wrapIf("(interactive)", "**", markup);
+  if(context != CommandContext::globalContext())
+    synopsis << wrapIf("(fit command)", "**", markup);
 
   if(! shortCmdName.isEmpty())
     descs = "Short name: " + wrapIf(shortCmdName, "`", markup) + "\n\n" + descs;
@@ -491,20 +493,20 @@ QString Command::synopsis(bool markup) const
 
 QString & Command::updateDocumentation(QString & str, int level) const
 {
-  QString fullCmd = cmdName;
+  QString pref;
   if(context != CommandContext::globalContext())
-    fullCmd = "fit+" + fullCmd;
+    pref = "fit-";
 
-  QString beg = QString("{::comment} synopsis-start: %1 {:/}").
-    arg(fullCmd);
+  QString beg = QString("{::comment} synopsis-start: %1%2 {:/}").
+    arg(pref).arg(cmdName);
 
-  QString end = QString("{::comment} synopsis-end: %1 {:/}\n").
-    arg(fullCmd);
+  QString end = QString("{::comment} synopsis-end: %1%2 {:/}\n").
+    arg(pref).arg(cmdName);
 
   QString headings(level, '#');
   QString syn = "\n\n" +
     headings + " " + cmdName + " - " + pubName + 
-    " {#cmd-" + fullCmd + "}\n\n" + 
+    " {#" + pref + "cmd-" + cmdName + "}\n\n" + 
     synopsis(true);
 
   Utils::updateWithin(str, beg, end, syn);

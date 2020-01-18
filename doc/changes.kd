@@ -82,7 +82,9 @@ featuring:
 
   * new syntax for statistics and meta: one can now use
     `$stats.y_max` (etc.) in addition to `$stats["y_max"]` to refer to
-    the `y_max` stats (and for all stats and meta too)
+    the `y_max` stats (and for all stats and meta too), which means
+    that there is no need anymore for cumbersome double quoting like
+    in `eval '$stats["y_max"]'`
   * completion on the meta/stats names for the code
   * a `%{ruby code}` expansion in scripts or command-line
   * a `k_mhc` function to compute the "real" Marcus-Hush-Chidsey

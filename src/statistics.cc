@@ -98,7 +98,12 @@ public:
   {
   }
 
-  virtual bool available(const DataSet * /*ds*/, int col) const override {
+  virtual bool available(const DataSet * ds, int col) const override {
+    if(isGlobal)
+      return true;
+    // Empty datasets don't have local stats, I think.
+    if(ds->nbRows() == 0)
+      return false;
     return isGlobal || col > 0 || (col == 0 && (!needX));
   };
 
@@ -144,8 +149,13 @@ public:
   {
   }
 
-  virtual bool available(const DataSet * /*ds*/, int col) const override {
-    return isGlobal || col > 0 || (col == 0 && (!needX));
+  virtual bool available(const DataSet * ds, int col) const override {
+    if(isGlobal)
+      return true;
+    // Empty datasets don't have local stats, I think.
+    if(ds->nbRows() == 0)
+      return false;
+    return col > 0 || (col == 0 && (!needX));
   };
 
   virtual QStringList suffixes() const override {

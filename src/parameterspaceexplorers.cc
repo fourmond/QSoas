@@ -363,6 +363,9 @@ public:
     updateFromOptions(opts, "scale", scale);
     updateFromOptions(opts, "iterations", iterations);
 
+    bool skip = false;
+    updateFromOptions(opts, "skip-current", skip);
+
     // Reset internal parameters
     currentIteration = 0;
     currentCycle = 0;
@@ -371,7 +374,7 @@ public:
     exploration = true;
     previousCycleBest = 0;
     uselessCycles = 0;
-    init = 0;
+    init = skip ? 1 : 0;
 
     Terminal::out << "Setting up the adaptive explorer with the following parameters: " << endl;
     
@@ -526,7 +529,10 @@ public:
       }
       if(init == 1) {
         ++init;
-        currentCenter = std::min(latest, currentCenter);
+        if(currentCenter.initialParameters.size() == 0)
+          currentCenter = latest;
+        else
+          currentCenter = std::min(latest, currentCenter);
         prepareLevel();
         return true;
       }
@@ -652,6 +658,9 @@ AdaptiveMonteCarloExplorer::opts(QList<Argument*>()
                                  << new BoolArgument("use-final",
                                                      "Use final",
                                                      "If true, center the exploration around the final parameters rather than the initial (default: false)")
+                                 << new BoolArgument("skip-current",
+                                                     "Skip current",
+                                                     "If true, skips the current parameters in the exploration (default: false)")
                                  << new IntegerArgument("fit-iterations",
                                                         "Fit iterations",
                                                         "Maximum number of fit iterations")

@@ -166,6 +166,14 @@ struct RProc * MRuby::generateCode(const QByteArray & code,
         arg(p->error_buffer[i].message).
         arg(p->error_buffer[i].lineno).
         arg(p->error_buffer[i].column);
+      QStringList lines = QString(code).split("\n");
+      int ln = p->error_buffer[i].lineno - 1;
+      if(line >= 0)
+        ln -= line;
+      message += "\n'" + lines.value(ln, " ??? ") + "'\n";
+      for(int k = 0; k < p->error_buffer[i].column; k++)
+        message += " ";
+      message += "^\n";
     }
     mrbc_context_free(mrb, c);
     mrb_parser_free(p);

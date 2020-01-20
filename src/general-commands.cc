@@ -237,6 +237,10 @@ static void memCommand(const QString &,
 
   Terminal::out << "Stack: " << soas().stack().textSummary() << endl;
 
+  long ut, kt;
+  Utils::processorUsed(&ut, &kt);
+  Terminal::out << "Total time used: " << (ut+kt)*0.001 << endl;
+
   int fls, dss, size, maxf;
   DataBackend::cacheStats(&fls, &dss, &size, &maxf);
   Terminal::out << "Cache: " << fls << " files (out of "

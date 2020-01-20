@@ -68,3 +68,30 @@ int Utils::memoryUsed()
 #endif
   return 0;
 }
+
+void Utils::processorUsed(long * user, long * system)
+{
+  *user = 0;
+  *system = 0;
+#if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
+  struct rusage r;
+  if(! getrusage(RUSAGE_SELF, &r)) {
+    *user = r.ru_utime.tv_sec * 1000 +
+      r.ru_utime.tv_usec / 1000;
+    *system = r.ru_stime.tv_sec * 1000 +
+      r.ru_stime.tv_usec / 1000;
+  }
+#endif
+#ifdef Q_OS_WIN32
+  FILETIME ct, et, kt, ut;
+  ULARGE_INTEGER tmp;
+  if(GetProcessTimes(GetCurrentProcess(), &ct, &et, &kt, &ut)) {
+    tmp.u.LowPart = kt.dwLowDateTime;
+    tmp.u.HighPart = kt.dwHighDateTime;
+    *system = tmp.QuadPart/10000;
+    tmp.u.LowPart = ut.dwLowDateTime;
+    tmp.u.HighPart = ut.dwHighDateTime;
+    *user = tmp.QuadPart/10000;
+  }
+#endif
+}

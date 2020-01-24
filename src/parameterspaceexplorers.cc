@@ -83,6 +83,8 @@ public:
   };
 
   double trim(double val) const {
+    if(std::isnan(val))
+      return center();          // Safety catch
     return std::max(std::min(val, high), low);
   };
 

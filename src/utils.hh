@@ -405,6 +405,11 @@ namespace Utils {
   /// Returns the memory used (hmm, the "resources" ?), in KiB
   int memoryUsed();
 
+  /// Sets the @a user and @a system arguments to the CPU time (in
+  /// milliseconds) used in user mode and kernel mode since the
+  /// beginning of the program.
+  void processorUsed(long * user, long * system);
+
   /// Reverses the order of the list, in place.
   template <class T> void reverseList(QList<T> & list) {
     int sz = list.size();

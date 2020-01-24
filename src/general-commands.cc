@@ -237,6 +237,10 @@ static void memCommand(const QString &,
 
   Terminal::out << "Stack: " << soas().stack().textSummary() << endl;
 
+  long ut, kt;
+  Utils::processorUsed(&ut, &kt);
+  Terminal::out << "Total time used: " << (ut+kt)*0.001 << endl;
+
   int fls, dss, size, maxf;
   DataBackend::cacheStats(&fls, &dss, &size, &maxf);
   Terminal::out << "Cache: " << fls << " files (out of "
@@ -990,14 +994,24 @@ sf("startup-files", // command name
 void timerCommand(const QString &, const CommandOptions & )
 {
   static QDateTime time;
+  static long kTime, uTime;
   if(time.isValid()) {
     qint64 dt = time.msecsTo(QDateTime::currentDateTime());
     time = QDateTime();
-    Terminal::out << dt*0.001 << " seconds elapsed since timer start" << endl;
-    Debug::debug() << dt*0.001 << " seconds elapsed since timer start" << endl;
+
+    long ut, kt;
+    Utils::processorUsed(&ut, &kt);
+
+    QString message = QString("%1 seconds elapsed since timer start, (%2 total processor time, %3 user, %4 system)").
+      arg(dt*0.001).arg((ut-uTime + kt - kTime)*0.001).
+      arg((ut-uTime)*0.001).
+      arg((kt - kTime)*0.001);
+    Terminal::out << message << endl;
+    Debug::debug() << message << endl;
   }
   else {
     time = QDateTime::currentDateTime();
+    Utils::processorUsed(&uTime, &kTime);
     Terminal::out << "Starting timer" << endl;
     Debug::debug() << "Starting timer" << endl;
   }

@@ -986,6 +986,9 @@ static void memCommand(const QString &,
   int kb = Utils::memoryUsed();
   Terminal::out << "Memory used: " << kb << " kB" << endl
                 << "Ruby memory used: " << mr->memoryUse() << endl;
+  long ut, kt;
+  Utils::processorUsed(&ut, &kt);
+  Terminal::out << "Total time used: " << (ut+kt)*0.001 << endl;
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
   int sz = 0;
   if(ws->trajectories.size() > 0) {

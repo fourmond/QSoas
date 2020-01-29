@@ -183,7 +183,7 @@ QVariant ParametersItemModel::headerData(int section,
   }
   else {
     if(role == Qt::DisplayRole) {
-      return QString("#%1").arg(section+1);
+      return QString("#%1").arg(section);
     }
   }
   return QVariant();

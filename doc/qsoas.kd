@@ -5961,6 +5961,129 @@ fitting.
 This command selects the Particle Swarm Optimizer fit engine.
 {::comment} description-end: fit-pso-engine {:/}
 
+## Fit parameters manipulation
+
+Here are a series of commands to manipulate the value and state of
+parameters.
+
+### Parameter name specification {#fit-parameter-spec}
+
+Several commands work with parameter names. In single-buffer fits, the
+situation is simple, since the `name` just designates the
+corresponding parameter. For multi-buffer fits, one can also use
+`name[#0]` to only designate the parameter name for the first buffer
+(the numbering starts at 0). The number of the buffer is given in the
+box on the first line under the fit data, and as the column number in
+the parameters spreadsheet.
+
+{::comment} synopsis-start: fit-fix {:/}
+
+### fix - Fix parameter {#fit-cmd-fix}
+
+`fix` _parameter_{:title="..."} **(fit command)**
+
+  * _parameter_{:title="..."}: the parameters to fix/unfix -- values: ...
+
+{::comment} synopsis-end: fit-fix {:/}
+{::comment} description-start: fit-fix {:/}
+Fix the parameters, given by their names:
+
+~~~ 
+QSoas.fit> fix a
+QSoas.fit> fix b[#3]
+~~~
+
+This fixes parameter `a` everywher and `b` only for buffer `#3`
+(i.e. the fourth one).
+{::comment} description-end: fit-fix {:/}
+{::comment} synopsis-start: fit-unfix {:/}
+
+### unfix - Unfix parameter {#fit-cmd-unfix}
+
+`unfix` _parameter_{:title="..."} **(fit command)**
+
+  * _parameter_{:title="..."}: the parameters to fix/unfix -- values: ...
+
+{::comment} synopsis-end: fit-unfix {:/}
+{::comment} description-start: fit-unfix {:/}
+Same as [fit-cmd: fix] but sets the parameter free.
+{::comment} description-end: fit-unfix {:/}
+
+{::comment} synopsis-start: fit-set {:/}
+
+### set - Set parameter {#fit-cmd-set}
+
+`set` _parameter_{:title="..."} _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expression=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/fix=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/unfix=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} **(fit command)**
+
+  * _parameter_{:title="..."}: the parameters of the fit -- values: ...
+  * _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: the value -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/expression=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the value is evaluated as an expression -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/fix=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if true, also fixes the parameters -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/unfix=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if true, also unfixes the parameters -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: fit-set {:/}
+{::comment} description-start: fit-set {:/}
+Sets the value of the given parameter. With `/expression=true`, the
+value is interpreted as an expression that is evaluated immediately in
+the context of each fit dataset, as in [cmd: eval] or
+[cmd: apply-formula]. The `/fix=true` and `/unfix=true` can be used to
+fix or free the parameter at the same time as setting its value.
+{::comment} description-end: fit-set {:/}
+{::comment} synopsis-start: fit-local {:/}
+
+### local - Local parameter {#fit-cmd-local}
+
+`local` _parameter_{:title="..."} **(fit command)**
+
+  * _parameter_{:title="..."}: the parameters whose global/local status to change -- values: ...
+
+{::comment} synopsis-end: fit-local {:/}
+{::comment} description-start: fit-local {:/}
+Makes the given parameter local to the buffers.
+{::comment} description-end: fit-local {:/}
+{::comment} synopsis-start: fit-global {:/}
+
+### global - Global parameter {#fit-cmd-global}
+
+`global` _parameter_{:title="..."} **(fit command)**
+
+  * _parameter_{:title="..."}: the parameters whose global/local status to change -- values: ...
+
+{::comment} synopsis-end: fit-global {:/}
+{::comment} description-start: fit-global {:/}
+Makes the given parameter global.
+{::comment} description-end: fit-global {:/}
+{::comment} synopsis-start: fit-save {:/}
+
+### save - Save {#fit-cmd-save}
+
+`save` _file_{:title="name of a file"} `/rotate=`_integer_{:title="an integer"} **(fit command)**
+
+  * _file_{:title="name of a file"}: name of the file for saving the parameters -- values: name of a file
+  * `/rotate=`_integer_{:title="an integer"}: if not zero, performs a file rotation before saving -- values: an integer
+
+{::comment} synopsis-end: fit-save {:/}
+{::comment} description-start: fit-save {:/}
+Saves the current parameters to the given file, as one would with
+`Ctrl+S`.
+{::comment} description-end: fit-save {:/}
+{::comment} synopsis-start: fit-load {:/}
+
+### load - Load {#fit-cmd-load}
+
+`load` _file_{:title="name of a file"} `/mode=`_choice_{:title="one of: `buffer-name`, `closest-Z`, `normal`"} **(fit command)**
+
+  * _file_{:title="name of a file"}: name of the file to load the parameters from -- values: name of a file
+  * `/mode=`_choice_{:title="one of: `buffer-name`, `closest-Z`, `normal`"}:  -- values: one of: `buffer-name`, `closest-Z`, `normal`
+
+{::comment} synopsis-end: fit-load {:/}
+{::comment} description-start: fit-load {:/}
+Loads the parameters from the given file.
+{::comment} description-end: fit-load {:/}
+
+
+
+
 
 # Computation/simulations functions
 

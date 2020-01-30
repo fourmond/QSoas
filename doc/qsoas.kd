@@ -4016,7 +4016,7 @@ possible to store formulas in a plain text file and load them using
 
 ### fit-arb - Fit: Arbitrary fit {#cmd-fit-arb}
 
-`fit-arb` _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps"} **(interactive)**
+`fit-arb` _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"} **(interactive)**
 
   * _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: \|-separated formulas for the fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/arg1=`_file_{:title="name of a file"}: first argument of the script file -- values: name of a file
@@ -4030,7 +4030,7 @@ possible to store formulas in a plain text file and load them using
   * `/script=`_file_{:title="name of a file"}: runs a script file -- values: name of a file
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
   * `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines the title of the fit window -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
-  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps
 
 {::comment} synopsis-end: fit-arb {:/}
 {::comment} description-start: fit-arb {:/}
@@ -4066,7 +4066,7 @@ below for more information.
 
 ### mfit-arb - Multi fit: Arbitrary fit {#cmd-mfit-arb}
 
-`mfit-arb` _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps"} **(interactive)**
+`mfit-arb` _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"} **(interactive)**
 
   * _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: \|-separated formulas for the fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: datasets that will be fitted to -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -4083,7 +4083,7 @@ below for more information.
   * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines the title of the fit window -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
-  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps
 
 {::comment} synopsis-end: mfit-arb {:/}
 {::comment} description-start: mfit-arb {:/}
@@ -4705,7 +4705,7 @@ Simulation command for the [fit: adsorbed] fit.
 
 ### fit-ode - Fit: Fit an ODE system {#cmd-fit-ode}
 
-`fit-ode` _system_{:title="name of a file"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps"} **(interactive)**
+`fit-ode` _system_{:title="name of a file"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"} **(interactive)**
 
   * _system_{:title="name of a file"}: Path to the file describing the ODE system -- values: name of a file
   * `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to use an adaptive stepper (on by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -4727,7 +4727,7 @@ Simulation command for the [fit: adsorbed] fit.
   * `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"}: algorithm used for integration (default: rkf45) -- values: [ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
   * `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines the title of the fit window -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
-  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps
 
 {::comment} synopsis-end: fit-ode {:/}
 {::comment} description-start: fit-ode {:/}
@@ -4750,7 +4750,7 @@ parameters](#time-dependent-parameters) below for more information.
 
 ### mfit-ode - Multi fit: Fit an ODE system {#cmd-mfit-ode}
 
-`mfit-ode` _system_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps"} **(interactive)**
+`mfit-ode` _system_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"} **(interactive)**
 
   * _system_{:title="name of a file"}: Path to the file describing the ODE system -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -4775,7 +4775,7 @@ parameters](#time-dependent-parameters) below for more information.
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines the title of the fit window -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
-  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps
 
 {::comment} synopsis-end: mfit-ode {:/}
 {::comment} description-start: mfit-ode {:/}
@@ -4785,7 +4785,7 @@ Multibuffer version of the [fit: ode] fit.
 
 ### sim-ode - Simulation: Fit an ODE system {#cmd-sim-ode}
 
-`sim-ode` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/min-step-size=`_number_{:title="a floating-point number"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/sub-steps=`_integer_{:title="an integer"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps"}
+`sim-ode` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/min-step-size=`_number_{:title="a floating-point number"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/sub-steps=`_integer_{:title="an integer"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"}
 
   * _system_{:title="name of a file"}: Path to the file describing the ODE system -- values: name of a file
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
@@ -4806,7 +4806,7 @@ Multibuffer version of the [fit: ode] fit.
   * `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"}: algorithm used for integration (default: rkf45) -- values: [ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
-  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps
 
 {::comment} synopsis-end: sim-ode {:/}
 {::comment} description-start: sim-ode {:/}
@@ -4897,7 +4897,7 @@ To define a new fit one could combine with others using
 
 ### fit-kinetic-system - Fit: Full kinetic system {#cmd-fit-kinetic-system}
 
-`fit-kinetic-system` _system_{:title="name of a file"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps"} **(interactive)**
+`fit-kinetic-system` _system_{:title="name of a file"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"} **(interactive)**
 
   * _system_{:title="name of a file"}: file describing the system -- values: name of a file
   * `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to use an adaptive stepper (on by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -4919,7 +4919,7 @@ To define a new fit one could combine with others using
   * `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"}: algorithm used for integration (default: rkf45) -- values: [ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
   * `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines the title of the fit window -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
-  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps
 
 {::comment} synopsis-end: fit-kinetic-system {:/}
 {::comment} description-start: fit-kinetic-system {:/}
@@ -4935,7 +4935,7 @@ A rate constant cannot be negative.
 
 ### mfit-kinetic-system - Multi fit: Full kinetic system {#cmd-mfit-kinetic-system}
 
-`mfit-kinetic-system` _system_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps"} **(interactive)**
+`mfit-kinetic-system` _system_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"} **(interactive)**
 
   * _system_{:title="name of a file"}: file describing the system -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -4960,7 +4960,7 @@ A rate constant cannot be negative.
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines the title of the fit window -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
-  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps
 
 {::comment} synopsis-end: mfit-kinetic-system {:/}
 {::comment} description-start: mfit-kinetic-system {:/}
@@ -4972,7 +4972,7 @@ Multi-buffer variant of the
 
 ### sim-kinetic-system - Simulation: Full kinetic system {#cmd-sim-kinetic-system}
 
-`sim-kinetic-system` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/min-step-size=`_number_{:title="a floating-point number"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/sub-steps=`_integer_{:title="an integer"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps"}
+`sim-kinetic-system` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/min-step-size=`_number_{:title="a floating-point number"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/sub-steps=`_integer_{:title="an integer"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"}
 
   * _system_{:title="name of a file"}: file describing the system -- values: name of a file
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
@@ -4993,7 +4993,7 @@ Multi-buffer variant of the
   * `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"}: algorithm used for integration (default: rkf45) -- values: [ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/sub-steps=`_integer_{:title="an integer"}: If this is not 0, then the smallest step size is that many times smaller than the minimum delta t -- values: an integer
-  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: rexp, ramps, exp, steps
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps
 
 {::comment} synopsis-end: sim-kinetic-system {:/}
 {::comment} description-start: sim-kinetic-system {:/}
@@ -6080,6 +6080,154 @@ Saves the current parameters to the given file, as one would with
 {::comment} description-start: fit-load {:/}
 Loads the parameters from the given file.
 {::comment} description-end: fit-load {:/}
+{::comment} synopsis-start: fit-show-parameters {:/}
+
+### show-parameters - Show parameters {#fit-cmd-show-parameters}
+
+`show-parameters` **(fit command)**
+
+
+{::comment} synopsis-end: fit-show-parameters {:/}
+{::comment} description-start: fit-show-parameters {:/}
+Displays a dialog box with a graphical display of the fit parameters
+with their respective errors. 
+{::comment} description-end: fit-show-parameters {:/}
+{::comment} synopsis-start: fit-parameters-spreadsheet {:/}
+
+### parameters-spreadsheet - Parameters spreadsheet {#fit-cmd-parameters-spreadsheet}
+
+`parameters-spreadsheet` **(fit command)**
+
+
+{::comment} synopsis-end: fit-parameters-spreadsheet {:/}
+{::comment} description-start: fit-parameters-spreadsheet {:/}
+Spawns the "parameters spreadsheet" dialog box to easily survey/edit
+parameters for a large number of datasets.
+{::comment} description-end: fit-parameters-spreadsheet {:/}
+{::comment} synopsis-start: fit-export {:/}
+
+### export - Export parameters {#fit-cmd-export}
+
+`export` `/errors=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/file=`_file_{:title="name of a file"} **(fit command)**
+
+  * `/errors=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the errors are exported too -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/file=`_file_{:title="name of a file"} (default option): name of the file for saving the parameters -- values: name of a file
+
+{::comment} synopsis-end: fit-export {:/}
+{::comment} description-start: fit-export {:/}
+Exports the parameters to either to the file given to the `/file=`
+option or to the [output file](#output-file) if it is not specified.
+{::comment} description-end: fit-export {:/}
+{::comment} synopsis-start: fit-reset {:/}
+
+### reset - Reset {#fit-cmd-reset}
+
+`reset` `/source=`_choice_{:title="one of: `backup`, `initial`"} **(fit command)**
+
+  * `/source=`_choice_{:title="one of: `backup`, `initial`"}:  -- values: one of: `backup`, `initial`
+
+{::comment} synopsis-end: fit-reset {:/}
+{::comment} description-start: fit-reset {:/}
+Resets all the parameters, either to the "backup" values (i.e. the
+values at the start of the last fit) or to the initial guess.
+{::comment} description-end: fit-reset {:/}
+
+
+
+
+## Fit trajectories
+
+When running a fit, QSoas keeps track of all the attemps of fits since
+the opening of the fit dialog. A pair "starting parameters" -> "ending
+parameters" is called a "fit trajectory". Here are a collection of
+functions to work on fit trajectories.
+
+
+{::comment} synopsis-start: fit-flag-trajectories {:/}
+
+### flag-trajectories - Flag trajectories {#fit-cmd-flag-trajectories}
+
+`flag-trajectories` `/flags=`_words_{:title="several words, separated by ','"} **(fit command)**
+
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new trajectories -- values: several words, separated by ','
+
+{::comment} synopsis-end: fit-flag-trajectories {:/}
+{::comment} description-start: fit-flag-trajectories {:/}
+All the subsequent fit trajectories are flagged with the flags given
+as the `/flags=` option, until the next call to
+[fit-cmd: flag-trajectories]. Calling [fit-cmd: flag-trajectories]
+without the `/flags` option clears the flags to add to the new
+trajectories.
+{::comment} description-end: fit-flag-trajectories {:/}
+{::comment} synopsis-start: fit-trim-trajectories {:/}
+
+### trim-trajectories - Trim trajectories {#fit-cmd-trim-trajectories}
+
+`trim-trajectories` _threshold_{:title="a floating-point number"} `/at-most=`_integer_{:title="an integer"} **(fit command)**
+
+  * _threshold_{:title="a floating-point number"}: threshold for trimming -- values: a floating-point number
+  * `/at-most=`_integer_{:title="an integer"}: keep at most that many trajectories -- values: an integer
+
+{::comment} synopsis-end: fit-trim-trajectories {:/}
+{::comment} description-start: fit-trim-trajectories {:/}
+Removes from the list of trajectories all the trajectories whose final
+residuals are more than _threshold_ greater than the best final residuals.
+{::comment} description-end: fit-trim-trajectories {:/}
+{::comment} synopsis-start: fit-save-trajectories {:/}
+
+### save-trajectories - Save trajectories {#fit-cmd-save-trajectories}
+
+`save-trajectories` _file_{:title="name of a file"} `/flag=`_choice_{:title="one of: ``"} `/mode=`_choice_{:title="one of: `fail`, `overwrite`, `update`"} **(fit command)**
+
+  * _file_{:title="name of a file"}: name of the file for saving the trajectories -- values: name of a file
+  * `/flag=`_choice_{:title="one of: ``"}:  -- values: one of: ``
+  * `/mode=`_choice_{:title="one of: `fail`, `overwrite`, `update`"}:  -- values: one of: `fail`, `overwrite`, `update`
+
+{::comment} synopsis-end: fit-save-trajectories {:/}
+{::comment} description-start: fit-save-trajectories {:/}
+Saves the trajectories into a file.
+{::comment} description-end: fit-save-trajectories {:/}
+{::comment} synopsis-start: fit-load-trajectories {:/}
+
+### load-trajectories - Load trajectories {#fit-cmd-load-trajectories}
+
+`load-trajectories` _file_{:title="name of a file"} `/mode=`_choice_{:title="one of: `drop`, `ignore`, `update`"} **(fit command)**
+
+  * _file_{:title="name of a file"}: name of the file for saving the trajectories -- values: name of a file
+  * `/mode=`_choice_{:title="one of: `drop`, `ignore`, `update`"}:  -- values: one of: `drop`, `ignore`, `update`
+
+{::comment} synopsis-end: fit-load-trajectories {:/}
+{::comment} description-start: fit-load-trajectories {:/}
+Loads the trajectories from a previously saved fit trajectory file
+(see [fit-cmd: fit-load-trajectories]).
+{::comment} description-end: fit-load-trajectories {:/}
+{::comment} synopsis-start: fit-browse-trajectories {:/}
+
+### browse-trajectories - Browse trajectories {#fit-cmd-browse-trajectories}
+
+`browse-trajectories` **(fit command)**
+
+
+{::comment} synopsis-end: fit-browse-trajectories {:/}
+{::comment} description-start: fit-browse-trajectories {:/}
+Shows a dialog box with a spreadsheet to browse all the trajectories
+with initial and final parameters.
+{::comment} description-end: fit-browse-trajectories {:/}
+{::comment} synopsis-start: fit-list-trajectories {:/}
+
+### list-trajectories - List trajectories {#fit-cmd-list-trajectories}
+
+`list-trajectories` `/flag=`_choice_{:title="one of: ``"} **(fit command)**
+
+  * `/flag=`_choice_{:title="one of: ``"}:  -- values: one of: ``
+
+{::comment} synopsis-end: fit-list-trajectories {:/}
+{::comment} description-start: fit-list-trajectories {:/}
+Shows a list of all the trajectories in the terminal.
+{::comment} description-end: fit-list-trajectories {:/}
+
+
+
 
 
 
@@ -6432,13 +6580,14 @@ context.
 
 ### run - Run commands {#cmd-run}
 
-`run` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/cd-to-script=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`run` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/cd-to-script=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
 Short name: `@`
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: First is the command files, following are arguments -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the commands run are added to the history (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/cd-to-script=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, automatically change the directory to that oof the script -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"}: Behaviour to adopt on error -- values: one of: `abort`, `delete`, `except`, `ignore`
   * `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to switch off display updates during the script (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: run {:/}
@@ -6470,10 +6619,9 @@ or
 QSoas> @ process.cmd data_file.dat
 ~~~~
 
-If you start to use `run` regularly, you may be interested in the
-other scripting commands, such as [cmd: run-for-each],
-[cmd: run-for-datasets] and
-[cmd: startup-files]
+If you use `run` regularly, you may be interested in the other
+scripting commands, such as [cmd: run-for-each],
+[cmd: run-for-datasets] and [cmd: startup-files]
 
 If you want to manipulate the arguments or provide defaut values for
 some of them, you can use the following syntax:
@@ -6489,6 +6637,22 @@ some of them, you can use the following syntax:
    value of parameter 2 is not used).
  * `${2?yes:no}`: this will be replaced by "`yes`" if parameter 2 has been
    provided to the script, or by "`no`" if that is not the case.
+
+####Error handling #{script-error-handling}
+It is possible to change how the script handles errors using the
+`/error` option, which can take the following values:
+
+ * `abort` (the default behaviour): when a command in the script
+   fails, the script stops executing, and the control comes back to
+   either the command-line or the calling script. In the latter case,
+   this behaviour is not considered as an error (i.e. the calling
+   script does not abort);
+ * `ignore`: if a command in the script fails, the script keeps on
+   running;
+ * `except`: as in `abort`, but this is considered as an error, so
+   this may also stop the calling script;
+ * `delete`: as in `abort`, but all the datasets generated during the
+   execution of this script are removed from the stack.
 
 
 {::comment} description-end: run {:/}
@@ -6529,7 +6693,7 @@ QSoas> startup-files /run=true
 
 ### run-for-each - Runs a script for several arguments {#cmd-run-for-each}
 
-`run-for-each` _script_{:title="name of a file"} _arguments..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/arg4=`_file_{:title="name of a file"} `/arg5=`_file_{:title="name of a file"} `/arg6=`_file_{:title="name of a file"} `/range-type=`_choice_{:title="one of: `lin`, `log`"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`run-for-each` _script_{:title="name of a file"} _arguments..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/arg4=`_file_{:title="name of a file"} `/arg5=`_file_{:title="name of a file"} `/arg6=`_file_{:title="name of a file"} `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"} `/range-type=`_choice_{:title="one of: `lin`, `log`"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _script_{:title="name of a file"}: The script file -- values: name of a file
   * _arguments..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: All the arguments for the script file to loop on -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
@@ -6539,6 +6703,7 @@ QSoas> startup-files /run=true
   * `/arg4=`_file_{:title="name of a file"}: Fourth argument to the script -- values: name of a file
   * `/arg5=`_file_{:title="name of a file"}: Fifth argument to the script -- values: name of a file
   * `/arg6=`_file_{:title="name of a file"}: Sixth argument to the script -- values: name of a file
+  * `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"}: Behaviour to adopt on error -- values: one of: `abort`, `delete`, `except`, `ignore`
   * `/range-type=`_choice_{:title="one of: `lin`, `log`"}: If on, transform arguments into ranged numbers -- values: one of: `lin`, `log`
   * `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to switch off display updates during the script (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
@@ -6580,12 +6745,15 @@ parameters are interpreted differently, and are expected to be of the
 type `1..10:20`, which means 20 numbers between 1 and 10 (inclusive),
 that are spaced either linearly or logarithmically, depending on the
 value of the option.
+
+The `/error=` option controls how the scripts handle errors. See
+[cmd: run] for more information.
 {::comment} description-end: run-for-each {:/}
 {::comment} synopsis-start: run-for-datasets {:/}
 
 ### run-for-datasets - Runs a script for several datasets {#cmd-run-for-datasets}
 
-`run-for-datasets` _script_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/arg4=`_file_{:title="name of a file"} `/arg5=`_file_{:title="name of a file"} `/arg6=`_file_{:title="name of a file"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`run-for-datasets` _script_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/arg4=`_file_{:title="name of a file"} `/arg5=`_file_{:title="name of a file"} `/arg6=`_file_{:title="name of a file"} `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _script_{:title="name of a file"}: The script file -- values: name of a file
   * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: All the arguments for the script file to loop on -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
@@ -6596,6 +6764,7 @@ value of the option.
   * `/arg4=`_file_{:title="name of a file"}: Fourth argument to the script -- values: name of a file
   * `/arg5=`_file_{:title="name of a file"}: Fifth argument to the script -- values: name of a file
   * `/arg6=`_file_{:title="name of a file"}: Sixth argument to the script -- values: name of a file
+  * `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"}: Behaviour to adopt on error -- values: one of: `abort`, `delete`, `except`, `ignore`
   * `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to switch off display updates during the script (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: run-for-datasets {:/}
@@ -6603,15 +6772,17 @@ value of the option.
 Runs the given script file for each of the datasets given. Before each
 invocation of the script, the dataset is pushed back to the top of the
 stack, as if by [cmd: fetch].
+
+The `/error=` option controls how the scripts handle errors. See
+[cmd: run] for more information.
 {::comment} description-end: run-for-datasets {:/}
 {::comment} synopsis-start: noop {:/}
 
 ### noop - No op {#cmd-noop}
 
-`noop` _ignored..._{:title="several words, separated by ''"} `/*=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
+`noop` `/*=`_words_{:title="several words, separated by ''"}
 
-  * _ignored..._{:title="several words, separated by ''"}: Ignored arguments -- values: several words, separated by ''
-  * `/*=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} (default option): Ignored options -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/*=`_words_{:title="several words, separated by ''"} (default option): Ignored options -- values: several words, separated by ''
 
 {::comment} synopsis-end: noop {:/}
 {::comment} description-start: noop {:/}

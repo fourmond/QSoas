@@ -182,21 +182,12 @@ CommandWidget::CommandWidget(CommandContext * c) :
       /// @todo Find a writable place
       int rotation = logRotateNumber;
       if(rotation != 0) {
-        Debug::debug() << "Rotating file " << logFileName << endl;
+        Debug::debug()
+          << "Rotating file " << logFileName << endl;
         Utils::rotateFile(logFileName, rotation);
       }
       watcherDevice = new QFile(logFileName);
-      if(! watcherDevice->open(QIODevice::Append)) {
-        Terminal::out << "Failed to open: " << logFileName << endl;
-        logFileName = QDir::home().absoluteFilePath("soas.log");
-        delete watcherDevice;
-        if(rotation != 0) {
-          Debug::debug() << "Rotating file " << logFileName << endl;
-          Utils::rotateFile(logFileName, rotation);
-        }
-        watcherDevice = new QFile(logFileName);
-        watcherDevice->open(QIODevice::Append);
-      }
+      watcherDevice->open(QIODevice::Append);
       Terminal::out << "Opening log file: " << logFileName << endl;
     }
 

@@ -102,13 +102,6 @@ QStringList Utils::glob(const QString & pattern, bool trim, bool isDir)
 }
 
 
-
-// #ifdef Q_OS_WIN32
-// // as per https://doc.qt.io/qt-5/qfileinfo.html#ntfs-permissions
-// // But it does NOT work...
-// extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
-// #endif
-
 QString Utils::getWritablePath(const QString & file)
 {
   QFileInfo info(file);
@@ -117,14 +110,8 @@ QString Utils::getWritablePath(const QString & file)
   
   QDir cur = QDir::current();
   info.setFile(cur, ".");
-// #ifdef Q_OS_WIN32
-//   qt_ntfs_permission_lookup++; // turn checking on
-// #endif
   if(! info.isWritable())
     cur = QDir::home();
-// #ifdef Q_OS_WIN32
-//   qt_ntfs_permission_lookup--; // turn it off again
-// #endif
   return cur.absoluteFilePath(file);
 }
 

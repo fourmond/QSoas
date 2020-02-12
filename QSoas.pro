@@ -564,6 +564,10 @@ SOURCES += src/valuehash-json.cc \
         src/formats/qsmprovider.cc
 
 
+# These are for JSON meta-data files
+HEADERS += src/file.hh
+SOURCES += src/file.cc
+
 ######################################################################
 # Sources for the parameter space explorers
 SOURCES += src/parameterspaceexplorers.cc

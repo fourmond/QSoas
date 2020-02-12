@@ -77,6 +77,8 @@ featuring:
     effectively with many curves
   * possibility to disable optimization in [cmd: auto-filter-bs]
   * [cmd: show-stack] can also list the meta-data now
+  * Gauss-Kronrod integration for distribution of parameters and other
+    multidimensional integrators
   
 ## Other improvements
 

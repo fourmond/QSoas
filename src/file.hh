@@ -30,9 +30,10 @@ class Argument;
 /// @li prompt for overwriting
 /// @li file rotation
 /// @li file (soft) lock (@todo)
-/// @li error handlin
+/// @li error handling
 /// @li redirecting from within already read files if applicable (i.e. the LaTeX style "file definition" @todo)
 /// @li automatic deletion of this object if the QIODevice has been deleted too ?? This would require making it a QObject.
+/// @li finding a writable place to write the file to
 class File {
   QString fileName;
 

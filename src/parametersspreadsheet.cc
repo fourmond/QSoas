@@ -215,15 +215,26 @@ void ParametersSpreadsheet::interpolateParameters()
     *cur << indexes[i];
   }
 
+  // Only change non-text values.
   for(int i = 0; i < columns.size(); i++) {
     QModelIndexList & col = columns[i];
     int nb = col.size();
     if(nb < 2)
       continue;                 // Nothing to do
-    double tv = model->data(col.first(), Qt::DisplayRole).toDouble();
-    double bv = model->data(col.last(), Qt::DisplayRole).toDouble();
+    QVariant a;
+    a = model->data(col.first(), Qt::DisplayRole);
+    if(! a.convert(QMetaType::Double))
+      continue;
+    double tv = a.toDouble();
+    a = model->data(col.last(), Qt::DisplayRole);
+    if(! a.convert(QMetaType::Double))
+      continue;
+    double bv = a.toDouble();
     for(int j = 0; j < nb; j++) {
       double v = tv + (bv - tv) * j / (nb-1.0);
+      a = model->data(col[j], Qt::DisplayRole);
+      if(! a.convert(QMetaType::Double))
+        continue;
       model->setData(col[j], v,  Qt::EditRole);
     }
   }

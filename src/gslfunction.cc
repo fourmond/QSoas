@@ -169,85 +169,101 @@ dawson("dawson(x)", "Dawson integral, "
 
 static GSLSimpleFunction<gsl_sf_debye_1> 
 debye1("debye_1(x)", "Debye function of order 1, "
-       "$$D_1 = (1/x) \\int_0^x \\mathrm{d}t (t/(e^t - 1))$$");
+       "$$D_1 = (1/x) \\int_0^x \\mathrm{d}t (t/(e^t - 1))$$",
+       "https://www.gnu.org/software/gsl/doc/html/specfunc.html#debye-functions");
 
 static GSLSimpleFunction<gsl_sf_debye_2> 
 debye2("debye_2(x)", "Debye function of order 2, "
-       "$$D_2 = (2/x^2) \\int_0^x \\mathrm{d}t (t^2/(e^t - 1))$$");
+       "$$D_2 = (2/x^2) \\int_0^x \\mathrm{d}t (t^2/(e^t - 1))$$",
+       "https://www.gnu.org/software/gsl/doc/html/specfunc.html#debye-functions");
 
 static GSLSimpleFunction<gsl_sf_debye_3> 
 debye3("debye_3(x)", "Debye function of order 3, "
-       "$$D_3 = (3/x^3) \\int_0^x \\mathrm{d}t (t^3/(e^t - 1))$$");
+       "$$D_3 = (3/x^3) \\int_0^x \\mathrm{d}t (t^3/(e^t - 1))$$",
+       "https://www.gnu.org/software/gsl/doc/html/specfunc.html#debye-functions");
 
 static GSLSimpleFunction<gsl_sf_debye_4> 
 debye4("debye_4(x)", "Debye function of order 4, "
-       "$$D_4 = (4/x^4) \\int_0^x \\mathrm{d}t (t^4/(e^t - 1))$$");
+       "$$D_4 = (4/x^4) \\int_0^x \\mathrm{d}t (t^4/(e^t - 1))$$",
+       "https://www.gnu.org/software/gsl/doc/html/specfunc.html#debye-functions");
 
 static GSLSimpleFunction<gsl_sf_debye_5> 
 debye5("debye_5(x)", "Debye function of order 5, "
-       "$$D_5 = (5/x^5) \\int_0^x \\mathrm{d}t (t^5/(e^t - 1))$$");
+       "$$D_5 = (5/x^5) \\int_0^x \\mathrm{d}t (t^5/(e^t - 1))$$",
+       "https://www.gnu.org/software/gsl/doc/html/specfunc.html#debye-functions");
 
 static GSLSimpleFunction<gsl_sf_debye_6> 
 debye6("debye_6(x)", "Debye function of order 6, "
-       "$$D_6 = (6/x^6) \\int_0^x \\mathrm{d}t (t^6/(e^t - 1))$$");
+       "$$D_6 = (6/x^6) \\int_0^x \\mathrm{d}t (t^6/(e^t - 1))$$",
+       "https://www.gnu.org/software/gsl/doc/html/specfunc.html#debye-functions");
 
 static GSLSimpleFunction<gsl_sf_dilog> 
 dilog("dilog(x)", "The dilogarithm, "
-      "$$Li_2(x) = - \\Re \\left(\\int_0^x \\mathrm{d}s \\log(1-s) / s\\right)$$");
+      "$$Li_2(x) = - \\Re \\left(\\int_0^x \\mathrm{d}s \\log(1-s) / s\\right)$$",
+      "https://www.gnu.org/software/gsl/doc/html/specfunc.html#dilogarithm");
 
 
 static GSLSimpleFunction<gsl_ran_landau_pdf> 
 landau("landau(x)", "Probability density of the Landau distribution, "
-      "$$p(x) = 1/\\pi \\int_0^x \\mathrm{d}t \\exp(-t\\log(t) - xt)\\sin(\\pi t)$$");
+       "$$p(x) = 1/\\pi \\int_0^x \\mathrm{d}t \\exp(-t\\log(t) - xt)\\sin(\\pi t)$$",
+       "https://www.gnu.org/software/gsl/doc/html/randist.html#the-landau-distribution");
 
 
 static GSLSimpleFunction<gsl_sf_clausen> 
 clausen("clausen(x)", "Clausen integral, "
-        "$$Cl_2(x) = -\\int_0^x \\mathrm{d}t \\log(2\\sin(t/2))$$");
+        "$$Cl_2(x) = -\\int_0^x \\mathrm{d}t \\log(2\\sin(t/2))$$",
+        "https://www.gnu.org/software/gsl/doc/html/specfunc.html#clausen-functions");
 
 
 static GSLSimpleFunction<gsl_sf_fermi_dirac_m1> 
 fermi_dirac_m1("fermi_dirac_m1(x)", "Complete Fermi-Dirac integral (index -1), "
-               "$$F_{-1}(x) = e^x / (1 + e^x)$$");
+               "$$F_{-1}(x) = e^x / (1 + e^x)$$",
+               "https://www.gnu.org/software/gsl/doc/html/specfunc.html#complete-fermi-dirac-integrals");
 
 static GSLSimpleFunction<gsl_sf_fermi_dirac_0> 
 fermi_dirac_0("fermi_dirac_0(x)", "Complete Fermi-Dirac integral (index 0), "
-              "$$F_0(x) = \\ln(1 + e^x)$$");
+              "$$F_0(x) = \\ln(1 + e^x)$$",
+              "https://www.gnu.org/software/gsl/doc/html/specfunc.html#complete-fermi-dirac-integrals");
 
 static GSLSimpleFunction<gsl_sf_fermi_dirac_1> 
 fermi_dirac_1("fermi_dirac_1(x)", "Complete Fermi-Dirac integral (index 1), "
-              "$$F_1(x) = \\int_0^\\infty \\mathrm{d}t (t /(\\exp(t-x)+1))$$");
+              "$$F_1(x) = \\int_0^\\infty \\mathrm{d}t (t /(\\exp(t-x)+1))$$",
+              "https://www.gnu.org/software/gsl/doc/html/specfunc.html#complete-fermi-dirac-integrals");
 
 static GSLSimpleFunction<gsl_sf_fermi_dirac_2> 
 fermi_dirac_2("fermi_dirac_2(x)", "Complete Fermi-Dirac integral (index 2), "
-              "$$F_2(x) = (1/2) \\int_0^\\infty \\mathrm{d}t (t^2 /(\\exp(t-x)+1))$$");
+              "$$F_2(x) = (1/2) \\int_0^\\infty \\mathrm{d}t (t^2 /(\\exp(t-x)+1))$$",
+              "https://www.gnu.org/software/gsl/doc/html/specfunc.html#complete-fermi-dirac-integrals");
 
 static GSLSimpleFunction<gsl_sf_fermi_dirac_mhalf> 
 fermi_dirac_mhalf("fermi_dirac_mhalf(x)", "Complete Fermi-Dirac integral (index -1/2)",
-                  "http://www.gnu.org/software/gsl/manual/html_node/Complete-Fermi_002dDirac-Integrals.html");
+                  "https://www.gnu.org/software/gsl/doc/html/specfunc.html#complete-fermi-dirac-integrals");
 
 static GSLSimpleFunction<gsl_sf_fermi_dirac_half> 
 fermi_dirac_half("fermi_dirac_half(x)", "Complete Fermi-Dirac integral (index 1/2)",
-                 "http://www.gnu.org/software/gsl/manual/html_node/Complete-Fermi_002dDirac-Integrals.html");
+                 "https://www.gnu.org/software/gsl/doc/html/specfunc.html#complete-fermi-dirac-integrals");
 
 static GSLSimpleFunction<gsl_sf_fermi_dirac_3half> 
 fermi_dirac_3half("fermi_dirac_3half(x)", "Complete Fermi-Dirac integral (index 3/2)",
-                  "http://www.gnu.org/software/gsl/manual/html_node/Complete-Fermi_002dDirac-Integrals.html");
+                  "https://www.gnu.org/software/gsl/doc/html/specfunc.html#complete-fermi-dirac-integrals");
 
 static GSLSimpleFunction<gsl_sf_psi> 
 psi("psi(x)", "Digamma function: $$\\psi(x) = \\Gamma'(x)/\\Gamma(x)$$",
-    "http://www.gnu.org/software/gsl/manual/html_node/Digamma-Function.html");
+    "https://www.gnu.org/software/gsl/doc/html/specfunc.html#digamma-function");
 
 static GSLSimpleFunction<gsl_sf_psi_1> 
 psi_1("psi_1(x)", "Trigamma function: $$\\psi^{(1)} = \\frac{\\mathrm d \\Gamma'(x)/\\Gamma(x)}{\\mathrm d x}$$",
-      "http://www.gnu.org/software/gsl/manual/html_node/Digamma-Function.html");
+      "https://www.gnu.org/software/gsl/doc/html/specfunc.html#trigamma-function");
 
 
 static GSLSimpleFunction<gsl_sf_erf> 
-gsl_erf("gsl_erf(x)", "Error function $$\\mathrm{erf}(x) = \\frac{2}{\\sqrt{\\pi}}  \\int_0^x \\mathrm{d}t \\exp(-t^2)$$  -- GSL version", "http://www.gnu.org/software/gsl/manual/html_node/Error-Function.html");
+gsl_erf("gsl_erf(x)", "Error function $$\\mathrm{erf}(x) = \\frac{2}{\\sqrt{\\pi}}  \\int_0^x \\mathrm{d}t \\exp(-t^2)$$  -- GSL version", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#error-functions");
 
 static GSLSimpleFunction<gsl_sf_erfc> 
-gsl_erfc("gsl_erfc(x)", "Complementary error function $$\\mathrm{erfc}(x) = 1 - \\mathrm{erf}(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Complementary-Error-Function.html");
+gsl_erfc("gsl_erfc(x)", "Complementary error function $$\\mathrm{erfc}(x) = 1 - \\mathrm{erf}(x)$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#error-functions");
+
+static GSLSimpleFunction<gsl_sf_gamma> 
+gsl_gamma("gamma(x)", "The Gauss gamma function $$\\Gamma(x) = \\int_0^{\\infty} dt t^{x-1} \\exp(-t)$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#gamma-and-beta-functions");
 
 
 

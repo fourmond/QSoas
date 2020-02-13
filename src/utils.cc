@@ -112,6 +112,11 @@ QString Utils::getWritablePath(const QString & file)
   info.setFile(cur, ".");
   if(! info.isWritable())
     cur = QDir::home();
+  else {
+    info.setFile(cur, "QSoas.exe");
+    if(info.exists())             // on windows
+      cur = QDir::home();
+  }
   return cur.absoluteFilePath(file);
 }
 

@@ -109,7 +109,7 @@ void Credits::displayStartupMessage()
     }
   }
   Terminal::out << "Copyright 2011 by Vincent Fourmond\n"
-                << "          2012-2017 by CNRS/AMU\n\n"
+                << "          2012-2020 by CNRS/AMU\n\n"
                 << "Based on Christophe Leger's original Soas\n\n"
                 << "This program is free software, released under the terms of "
                 << "the GNU general public license (see http://www.gnu.org/copyleft/gpl.html)\n\n"
@@ -123,7 +123,7 @@ void Credits::displayStartupMessage()
 
 Credits qsoas("QSoas itself", 
               QStringList() << "Vincent Fourmond" << "Christophe Leger", 
-              QStringList() << "http://bip.cnrs-mrs.fr/bip06/software.html"
+              QStringList() << "http://qsoas.org"
               << "http://www.gnu.org/licenses/gpl.html",
               "QSoas is free software; you can redistribute it and/or modify "
               "it under the terms of the GNU General Public License as published by "
@@ -132,7 +132,23 @@ Credits qsoas("QSoas itself",
               "This program is distributed in the hope that it will be useful, "
               "but WITHOUT ANY WARRANTY; without even the implied warranty of "
               "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
-              "GNU General Public License for more details.",
+              "GNU General Public License for more details."
+              "\n"
+              "QSoas was developed based on the ideas of Christophe Leger in the original QSoas, and using thanks to the bug reports and/or suggestions of many enthusiastic users, including, but not limited to, in random order: "
+              "Christina Felbek, "
+              "Christophe Léger, "
+              "Matteo Sensi, "
+              "Marta Meneghello, "
+              "Meriem Merrouch, "
+              "Asmaa Hadj-Ahmed, "
+              "Ana Rita Oliveira, "
+              "Nazua Costa, "
+              "Christophe Orain, "
+              "Melisa del Barrio, "
+              "Carole Baffert, "
+              "Pierre Ceccaldi, "
+              "Patrick Bertrand"
+              ,
               "", 
               Credits::QSoas,
               ":/licenses/GPL-2.txt");
@@ -161,21 +177,28 @@ Credits gsl("GSL",
             Credits::Projects,
             ":/licenses/GPL-3.txt");
 
-Credits qt("Qt4", 
+Credits qt("Qt5", 
            QStringList() 
-           << "Nokia Corporation and/or its subsidiary(-ies)"
-           << "Trolltech ASA",
-           QStringList() << "http://qt-project.org/",
-           "Commercial Usage\n"
-           "Licensees holding valid Qt Commercial licenses may use this file in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and Nokia.\n\n"
-           "GNU Lesser General Public License Usage\n"
-           "Alternatively, this file may be used under the terms of the GNU Lesser General Public License version 2.1 as published by the Free Software Foundation and appearing in the file LICENSE.LGPL included in the packaging of this file.  Please review the following information to ensure the GNU Lesser General Public License version 2.1 requirements will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.\n\n"
-           "In addition, as a special exception, Nokia gives you certain additional rights. These rights are described in the Nokia Qt LGPL Exception version 1.0, included in the file LGPL_EXCEPTION.txt in this package.\n\n"
+           << "The Qt company",
+           QStringList() << "https://www.qt.io/",
+           "Commercial License Usage\n"
+           "Licensees holding valid commercial Qt licenses may use this file in" 
+           "accordance with the commercial license agreement provided with the "
+           "Software or, alternatively, in accordance with the terms contained in "
+           "a written agreement between you and The Qt Company. For licensing terms "
+           "and conditions see https://www.qt.io/terms-conditions. For further "
+           "information use the contact form at https://www.qt.io/contact-us."
+           "\n"
            "GNU General Public License Usage\n"
-           "Alternatively, this file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE.GPL included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.",
+           "Alternatively, this file may be used under the terms of the GNU "
+           "General Public License version 3 as published by the Free Software "
+           "Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT "
+           "included in the packaging of this file. Please review the following "
+           "information to ensure the GNU General Public License requirements will "
+           "be met: https://www.gnu.org/licenses/gpl-3.0.html.",
            "cross-platform graphical user interface",
            Credits::Projects,
-           ":/licenses/LGPL-2.1.txt");
+           ":/licenses/LICENSE.GPL3-EXCEPT");
 
 
 //////////////////////////////////////////////////////////////////////

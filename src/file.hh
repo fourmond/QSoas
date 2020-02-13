@@ -73,7 +73,9 @@ public:
   /// options given in @a opts.
   ///
   /// @todo Maybe another constructor with a string for errors ?
-  File(const QString & fn, OpenModes mode = ReadOnlyMode|Text|ExpandTilde,
+  ///
+  /// The cumbersome
+  File(const QString & fn, OpenModes mode = OpenModes(ReadOnlyMode)|Text|ExpandTilde,
        const CommandOptions & opts = CommandOptions());
 
   /// Does the pre-open manipulations, i.e. rotation, and check for

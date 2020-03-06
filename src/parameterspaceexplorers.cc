@@ -135,6 +135,56 @@ class MonteCarloExplorer : public ParameterSpaceExplorer {
 
   QList<ParameterSpec> parameterSpecs;
 
+  /// @name Gradual exploration
+  ///
+  /// All the parameters/states/functions necessary for "gradual
+  /// exploration", i.e. the exploration starting with a limited
+  /// number of buffers, deepening on successful fits.
+  ///
+  /// Gradual fits go thus:
+  /// 
+  /// @li we select an initial set of buffers (a small number, at
+  /// least two) with which most of the fits are going to be performed
+  /// @li to actually select only a subset of buffers, we just fix all
+  /// parameters of unselected buffers and set their weights temporarily
+  /// to 0. This is done via the selectBuffers() function.
+  /// @li When deepening, include one buffer between each previously
+  /// selected buffers and just interpolate the monte-carlo
+  /// parameters. The deepening only occurs after the fits.
+  ///
+  /// @{
+
+  /// The number of buffers initially present (parameter)
+  int gradualInitial;
+
+  /// The threshold above the best so far to trigger deepening
+  /// (parameter)
+  double gradualThreshold;
+
+  
+  /// The saved weights
+  Vector savedWeights;
+
+  /// The list of fixed parameters
+  Vector savedFixed;
+
+  /// The list of initial buffers. Empty if no gradual approach.
+  QList<int> initialBuffers;
+
+  /// The trajectories so far, by
+  QList<FitTrajectories> trajectoriesPerLevel;
+
+
+  /// Selects the numbered buffers for inclusion in the fit (and
+  /// exclude the other ones, then).
+  ///
+  /// @todo Maybe this functionality in general should join the base class ?
+  void selectBuffers(const QList<int> & selected = QList<int>()) {
+  };
+
+  /// @}
+
+
 public:
 
   static ArgumentList args;

@@ -35,7 +35,27 @@ class Argument;
 /// @li automatic deletion of this object if the QIODevice has been deleted too ?? This would require making it a QObject.
 /// @li finding a writable place to write the file to
 class File {
+
+
+  /// The file name
   QString fileName;
+
+
+  /// @name Move
+  ///
+  /// These are only for move-at-close mode
+  /// @{
+
+  /// The current directory at the time of the opening
+  QDir dirAtOpening;
+
+  /// The name of the actual file, in case this is different
+  QString actualName;
+
+  /// @}
+
+  /// The number of rotations, when applicable
+  int rotations;
 
   /// The underlying device.
   QIODevice * device;
@@ -54,7 +74,7 @@ public:
     IOMask = 0x07,
     /// Whether it is a text file
     Text = 0x08,
-    PromptOvewrite = 0x10,
+    PromptOverwrite = 0x10,
     ExpandTilde = 0x20
   };
 

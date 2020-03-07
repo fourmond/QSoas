@@ -19,3 +19,40 @@
 
 #include <headers.hh>
 #include <file.hh>
+
+#include <QFile>
+
+File::File(const QString & fn, OpenModes m,
+           const CommandOptions & opts) : fileName(fn),
+                                          rotations(5),
+                                          device(NULL), mode(m)
+{
+  if(opts.contains("overwrite")) {
+    bool ov;
+    updateFromOptions(opts, "overwrite", ov);
+    mode.setFlag(PromptOverwrite, !ov);
+  }
+  if(opts.contains("rotate")) {
+    updateFromOptions(opts, "rotate", rotations);
+    if(rotations > 0) {
+      mode = mode & ~IOMask;
+      mode = mode | RotateMode;
+    }
+    else {
+      if(mode & IOMask == RotateMode) {
+        // Switch to append ?
+        mode = mode & ~IOMask;
+        mode = mode | AppendMode;
+      }
+    }
+  }
+}
+
+void File::preOpen()
+{
+  if(mode & IOMask == RotateMode) {
+  }
+  if(mode & PromptOverwrite) {
+  }
+}
+

@@ -93,6 +93,8 @@ public:
 
   FitTrajectory & last();
 
+  const FitTrajectory & last() const;
+
   /// Clears the trajectories
   void clear();
 

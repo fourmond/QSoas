@@ -203,6 +203,11 @@ FitTrajectory & FitTrajectories::last()
   return trajectories.last();
 }
 
+const FitTrajectory & FitTrajectories::last() const
+{
+  return trajectories.last();
+}
+
 void FitTrajectories::clear()
 {
   trajectories.clear();

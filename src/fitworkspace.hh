@@ -639,6 +639,13 @@ public:
   /// The time in seconds that has elapsed since the beginning of the fit
   double elapsedTime() const;
 
+
+  /// @name Fit trajectories
+  ///
+  /// These attributes/functions are related to the fit trajectories.
+  /// 
+  /// @{
+  
   /// All the initial guess -> final pairs since the beginning of the
   /// spawn of the Fit Workspace
   FitTrajectories trajectories;
@@ -646,8 +653,14 @@ public:
   /// The current flags applied to trajectories
   QSet<QString> currentFlags;
 
-  /// Sets the flags for all subsequence
+  /// Sets the flags for the trajectories for all subsequent fits
   void setTrajectoryFlags(const QSet<QString> & flags);
+
+  /// Returns the last trajectory, or fails with an internal error if
+  /// there isn't.
+  const FitTrajectory & lastTrajectory() const;
+
+  /// @}
 
   /// Starts the fit.
   void startFit();

@@ -215,6 +215,8 @@ public:
     updateFromOptions(opts, "reset-frequency", resetFrequency);
     gradualDatasets = -1;
     updateFromOptions(opts, "gradual-datasets", gradualDatasets);
+    gradualThreshold = 8;
+    updateFromOptions(opts, "gradual-threshold", gradualThreshold);
 
     Terminal::out << "Setting up monte-carlo explorator with: "
                   << iterations << " iterations and "
@@ -232,8 +234,16 @@ public:
 
     // Deal with the gradual case
     initialBuffers.clear();
-    if(gradualDatasets > 0 && gradualDatasets < workSpace->datasetNumber()) {
-      // initialBuffer
+    trajectoriesPerLevel.clear();
+    int nbds = workSpace->datasetNumber();
+    if(gradualDatasets > 1 && gradualDatasets < nbds) {
+      Terminal::out << "Selecting initial buffers for the gradual approach: "
+                    << endl;
+      for(int i = 0; i < gradualDatasets; i++) {
+        int ds = (i*(nbds-1))/(gradualDatasets-1);
+        initialBuffers << ds;
+        Terminal::out << " * #" << ds << endl;
+      }
     }
   };
 
@@ -268,8 +278,65 @@ public:
     if(! runHooks())
       return false;
     if(! justPick) {
+      selectBuffers(initialBuffers);
       workSpace->runFit(fitIterations);
+      if(initialBuffers.size() > 0) {
+        int nbds = workSpace->datasetNumber();
+        int level = 0;
+        QList<int> buffers = initialBuffers;
+        while(buffers.size() < nbds) {
+          const FitTrajectory & latest = workSpace->lastTrajectory();
+          if(trajectoriesPerLevel.size() <= level)
+            trajectoriesPerLevel << FitTrajectories(workSpace);
+          if(trajectoriesPerLevel[level].size() == 0 ||
+             latest.residuals <= gradualThreshold * trajectoriesPerLevel[level].best().residuals) {
+            trajectoriesPerLevel[level] << latest;
+            level++;
+            Terminal::out << "Gradual exploration: iteration "
+                          << currentIteration + 1
+                          << " level " << level << endl;
+            // now we insert the previously disabled buffers, and use
+            // interpolation to set their starting local free
+            // parameters (the fixed parameters are not touched)
+            QList<int> nbf;
+            for(int i = 1; i < buffers.size(); i++) {
+              int ds = buffers[i];
+              int prev = buffers[i-1];
+              if(ds == prev+1)
+                continue;       // nothing to do
+              int nds = (ds+prev)/2;
+              enableBuffer(nds);
+              Terminal::out << "Enabling buffer #" << nds << endl;
+              nbf << nds;
+
+              int nbp = workSpace->parametersPerDataset();
+              for(int j = 0; j < nbp; j++) {
+                if(workSpace->isGlobal(j))
+                  continue;
+                if(! workSpace->isFixed(j, nds)) {
+                  double v = 0.5 * (workSpace->getValue(j, prev) +
+                                    workSpace->getValue(j, ds));
+                  workSpace->setValue(j, nds, v);
+                }
+              }
+            }
+            if(nbf.size() == 0)
+              throw InternalError("Could not add anything ?");
+            buffers << nbf;
+            std::sort(buffers.begin(), buffers.end());
+            QString fn = QString("mcg-level-%1").arg(level);
+            workSpace->currentFlags.insert(fn);
+            workSpace->runFit(fitIterations);
+            workSpace->currentFlags.remove(fn);
+          }
+          else                  // Not improving significantly, do not
+                                // deepen
+            break;
+        }
+      }
+
       currentIteration++;
+      selectBuffers();
     }
     return currentIteration < iterations;
   };
@@ -578,10 +645,7 @@ public:
     }
     if(! justPick) {
       workSpace->runFit(fitIterations);
-      
-      if(workSpace->trajectories.size() < 1)
-        throw InternalError("Somehow the trajectories are empty after a fit");
-      const FitTrajectory & latest = workSpace->trajectories.last();
+      const FitTrajectory & latest = workSpace->lastTrajectory();
 
       if(init == 0) {
         currentCenter = latest;
@@ -822,7 +886,7 @@ public:
     if(! justPick) {
       ++currentIteration;
       workSpace->runFit(fitIterations);
-      double final = workSpace->trajectories.last().residuals;
+      double final = workSpace->lastTrajectory().residuals;
       if(final < res)
         Terminal::out << "shuffle succeeded in improving the residuals: "
                       << workSpace->trajectories[id1].residuals 

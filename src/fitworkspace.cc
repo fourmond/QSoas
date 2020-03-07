@@ -1693,6 +1693,13 @@ void FitWorkspace::setTrajectoryFlags(const QSet<QString> & flags)
   currentFlags = flags;
 }
 
+const FitTrajectory & FitWorkspace::lastTrajectory() const
+{
+  if(trajectories.size() < 1)
+    throw InternalError("No trajectories when trying to get the last one");
+  return trajectories.last();
+}
+
 mrb_value FitWorkspace::parametersToRuby(const Vector & values) const
 {
   QStringList names = parameterNames();

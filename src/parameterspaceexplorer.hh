@@ -24,13 +24,13 @@
 
 #include <argumentmarshaller.hh>
 #include <factory.hh>
+#include <vector.hh>
 
 class ParameterSpaceExplorer;
 class FitWorkspace;
 class ArgumentList;
 class Command;
 class CommandEffector;
-class Vector;
 
 class ParameterSpaceExplorerFactoryItem :
   public Factory<ParameterSpaceExplorer, FitWorkspace *> {
@@ -73,6 +73,31 @@ protected:
 
   /// Writes the parameters given in the vector to the terminal:
   void writeParametersVector(const Vector & parameters) const;
+
+
+  /// @name Disabling/enabling of the buffers
+  ///
+  /// Enables/disables buffers from the fit. Disabling sets their
+  /// weight to 0 and fixes all the local parameters. Re-enabling
+  /// reset the weight to the original one re-frees initially free
+  /// local parameters.
+  ///
+  /// This function relies on the state at the creation of the
+  /// ParameterSpaceExplorer.
+  ///
+  /// @{
+
+  /// The buffer weights at creation time
+  Vector savedWeights;
+
+  /// The status fixed/free (fixed is true) for each parameter.
+  QList<bool> savedFixed;
+
+  /// Enables or disables the numbered buffer.
+  void enableBuffer(int nb, bool enable = true);
+  /// @}
+
+  
 public:
 
   /// Adds a hook to run before launching the script

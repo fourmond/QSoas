@@ -26,6 +26,7 @@
 #include <commandcontext.hh>
 #include <command.hh>
 
+#include <fitdata.hh>
 #include <fitworkspace.hh>
 #include <fittrajectory.hh>
 
@@ -54,10 +55,43 @@ ParameterSpaceExplorerFactoryItem(const QString & n,
 ParameterSpaceExplorer::ParameterSpaceExplorer(FitWorkspace * ws) :
   workSpace(ws), createdFrom(NULL)
 {
+
+  int nbds = workSpace->datasetNumber();
+  int nbp = workSpace->parametersPerDataset();
+
+  // Saving the initial state
+  for(int i = 0; i < nbds; i++) {
+    savedWeights << workSpace->getBufferWeight(i);
+    for(int j = 0; j < nbp; j++)
+      savedFixed << workSpace->isFixed(j, i);
+  }
 }
 
 ParameterSpaceExplorer::~ParameterSpaceExplorer()
 {
+}
+
+
+void ParameterSpaceExplorer::enableBuffer(int ds, bool enable)
+{
+  int nbp = workSpace->parametersPerDataset();
+  if(enable) {
+    workSpace->setBufferWeight(ds, savedWeights[ds]);
+    for(int i = 0; i < nbp; i++) {
+      if(! workSpace->isGlobal(i)) {
+        bool state = savedFixed[ds * nbp + i];
+        if(state != workSpace->isFixed(i, ds))
+          workSpace->setFixed(i, ds, state);
+      }
+    }
+  }
+  else {
+    workSpace->setBufferWeight(ds, 0);
+    for(int i = 0; i < nbp; i++) {
+      if(! workSpace->isGlobal(i) && (!workSpace->isFixed(i, ds)))
+        workSpace->setFixed(i, ds, true);
+    }
+  }
 }
 
 ParameterSpaceExplorerFactoryItem * ParameterSpaceExplorer::namedFactoryItem(const QString & name)

@@ -155,18 +155,11 @@ class MonteCarloExplorer : public ParameterSpaceExplorer {
   /// @{
 
   /// The number of buffers initially present (parameter)
-  int gradualInitial;
+  int gradualDatasets;
 
   /// The threshold above the best so far to trigger deepening
   /// (parameter)
   double gradualThreshold;
-
-  
-  /// The saved weights
-  Vector savedWeights;
-
-  /// The list of fixed parameters
-  Vector savedFixed;
 
   /// The list of initial buffers. Empty if no gradual approach.
   QList<int> initialBuffers;
@@ -174,12 +167,16 @@ class MonteCarloExplorer : public ParameterSpaceExplorer {
   /// The trajectories so far, by
   QList<FitTrajectories> trajectoriesPerLevel;
 
-
   /// Selects the numbered buffers for inclusion in the fit (and
   /// exclude the other ones, then).
-  ///
-  /// @todo Maybe this functionality in general should join the base class ?
-  void selectBuffers(const QList<int> & selected = QList<int>()) {
+  void selectBuffers(const QSet<int> & selected = QSet<int>()) {
+    int nbds = workSpace->datasetNumber();
+    for(int i = 0 ; i < nbds; i++)
+      enableBuffer(i, selected.isEmpty() || selected.contains(i));
+  };
+
+  void selectBuffers(const QList<int> & l) {
+    selectBuffers(l.toSet());
   };
 
   /// @}
@@ -216,10 +213,13 @@ public:
     updateFromOptions(opts, "iterations", iterations);
     updateFromOptions(opts, "fit-iterations", fitIterations);
     updateFromOptions(opts, "reset-frequency", resetFrequency);
+    gradualDatasets = -1;
+    updateFromOptions(opts, "gradual-datasets", gradualDatasets);
 
     Terminal::out << "Setting up monte-carlo explorator with: "
                   << iterations << " iterations and "
                   << fitIterations << " fit iterations" << endl;
+
 
     QStringList names = workSpace->parameterNames();
     for(const ParameterSpec & s : parameterSpecs)
@@ -229,6 +229,12 @@ public:
                     << (s.log ? " log" : " lin")
                     << (s.uniform ? " -- uniform" : "")
                     << endl;
+
+    // Deal with the gradual case
+    initialBuffers.clear();
+    if(gradualDatasets > 0 && gradualDatasets < workSpace->datasetNumber()) {
+      // initialBuffer
+    }
   };
 
   virtual bool iterate(bool justPick) override {
@@ -293,6 +299,9 @@ MonteCarloExplorer::opts(QList<Argument*>()
                          << new IntegerArgument("reset-frequency",
                                                 "Reset to best frequency",
                                                 "If > 0 reset to the best parameters every that many iterations")
+                         << new IntegerArgument("gradual-datasets",
+                                                "Gradual datasets",
+                                                "Number of starting datasets when doing gradual exploration")
                          );
 
 ParameterSpaceExplorerFactoryItem 

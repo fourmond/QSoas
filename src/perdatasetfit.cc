@@ -31,8 +31,11 @@ void PerDatasetFit::function(const double * parameters,
   int nb_ds_params = data->parametersPerDataset();
   for(int i = 0; i < data->datasets.size(); i++) {
     gsl_vector_view dsView = data->viewForDataset(i, target);
-    function(parameters + nb_ds_params * i, data,
-             data->datasets[i], &dsView.vector);
+    if(data->weightsPerBuffer[i] == 0)
+      gsl_vector_memcpy(&dsView.vector, data->datasets[i]->y());
+    else
+      function(parameters + nb_ds_params * i, data,
+               data->datasets[i], &dsView.vector);
   }
 }
 

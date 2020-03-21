@@ -44,6 +44,8 @@
 
 #include <datasetlist.hh>
 
+#include <file.hh>
+
 static Group stack("view", 1,
                    "View",
                    "Control viewing options");
@@ -383,11 +385,10 @@ cls("clear-stack", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void saveStackCommand(const QString &, QString fileName)
+static void saveStackCommand(const QString &, QString fileName, const CommandOptions & opts)
 {
-  QFile file(fileName);
-  Utils::open(&file, QIODevice::WriteOnly);
-  QDataStream out(&file);
+  File file(fileName, File::SimpleWriteMode|File::PromptOverwrite, opts);
+  QDataStream out(file);
   out << soas().stack();
 }
 
@@ -396,15 +397,19 @@ saveStackArgs(QList<Argument *>()
               << new FileSaveArgument("file", 
                                       "File name",
                                       "File name for saving stack",
-                                      "qsoas-stack.qst"));
+                                      "qsoas-stack.qst", false));
+
+static ArgumentList 
+saveStackOpts(QList<Argument *>() 
+              << File::fileOptions(File::Overwrite));
 
 
 static Command 
 saveStack("save-stack", // command name
-          optionLessEffector(saveStackCommand), // action
+          effector(saveStackCommand), // action
           "save",  // group name
           &saveStackArgs, // arguments
-          NULL, // options
+          &saveStackOpts, // options
           "Save stack",
           "Saves the stack for later use");
 
@@ -413,13 +418,12 @@ saveStack("save-stack", // command name
 static void loadStackCommand(const QString &, QString fileName,
                              const CommandOptions & opts)
 {
-  QFile file(fileName);
-  Utils::open(&file, QIODevice::ReadOnly);
+  File file(fileName, File::ReadOnlyMode);
 
   bool merge = false;
   updateFromOptions(opts, "merge", merge);
 
-  QDataStream in(&file);
+  QDataStream in(file);
   if(merge) {
     DataStack s(true);
     in >> s;

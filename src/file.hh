@@ -129,7 +129,7 @@ public:
 
   Q_DECLARE_FLAGS(Options,Option);
 
-  static QList<Argument *> fileOptions(Options & options);
+  static QList<Argument *> fileOptions(Options options);
 
 };
 

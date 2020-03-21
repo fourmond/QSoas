@@ -20,6 +20,7 @@
 #include <headers.hh>
 #include <file.hh>
 #include <utils.hh>
+#include <general-arguments.hh>
 
 #include <QFile>
 
@@ -28,9 +29,13 @@ File::File(const QString & fn, OpenModes m,
                                           rotations(5),
                                           device(NULL), mode(m)
 {
+  // QTextStream o(stdout);
+  // o << "Init, file name: " << fileName << ", mode = " << mode << endl;
+  // o << " * " << opts.keys().join(", ") << endl;
   if(opts.contains("overwrite")) {
     bool ov;
     updateFromOptions(opts, "overwrite", ov);
+    // o << " -> " << ov << endl;
     mode.setFlag(PromptOverwrite, !ov);
   }
   if(opts.contains("rotate")) {
@@ -40,39 +45,47 @@ File::File(const QString & fn, OpenModes m,
       mode = mode | RotateMode;
     }
     else {
-      if(mode & IOMask == RotateMode) {
+      if((mode & IOMask) == RotateMode) {
         // Switch to append ?
         mode = mode & ~IOMask;
         mode = mode | AppendMode;
       }
     }
   }
+  // o << " -> mode = " << mode << endl;
 }
 
 void File::preOpen()
 {
-  if(mode & IOMask == RotateMode) {
+  // QTextStream o(stdout);
+  // o << "Preopen: " << mode << endl;
+  if((mode & IOMask) == RotateMode) {
   }
   if(mode & PromptOverwrite) {
+    // o << "Prompt overwrite: " << mode << endl;
     Utils::confirmOverwrite(fileName);
   }
 }
 
 void File::open()
 {
-  preOpen();
   if(device)
     throw InternalError("Trying to open an already opened File");
+  preOpen();
+
   QIODevice::OpenMode m;
-  if(mode & IOMask == ReadOnlyMode)
+  if((mode & IOMask) == ReadOnlyMode)
     m = QIODevice::ReadOnly;
   else {
     m = QIODevice::WriteOnly;
-    if(mode & IOMask == AppendMode)
+    if((mode & IOMask) == AppendMode)
       m |= QIODevice::Append;
   }
-  if(mode & Text == Text)
+  if(mode & Text)
     m |= QIODevice::Text;
+  // QTextStream o(stdout);
+  // o << "Opening file: " << fileName << " with mode: "
+  //   << m <<  " (internal mode: " << mode << ")" << endl;
   std::unique_ptr<QFile> f(new QFile(fileName));
   if(!f->open(m)) {
     QString error = f->errorString();
@@ -106,4 +119,14 @@ File::operator QIODevice*()
       throw InternalError("File opened but NULL nevertheless");
   }
   return device;
+}
+
+QList<Argument *> File::fileOptions(Options options)
+{
+  QList<Argument *> rv;
+  if(options & Overwrite)
+    rv  << new BoolArgument("overwrite", 
+                            "Overwrite",
+                            "If true, overwrite without prompting");
+  return rv;
 }

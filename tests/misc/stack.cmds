@@ -1,0 +1,9 @@
+clear-stack
+generate-buffer 0 11
+set-meta stuff 10
+save-stack /overwrite=true tst.qst
+clear-stack
+generate-buffer 0 1
+load-stack tst.qst
+assert $stats.x_max-11 0
+assert $meta.stuff==10

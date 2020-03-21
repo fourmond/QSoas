@@ -2,3 +2,4 @@
 # QSoas, including error checking and argument/default option parsing
 @ ../helpers/assert-except.cmds missing.cmds
 @ default-option.cmds
+@ stack.cmds /error=ignore 

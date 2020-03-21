@@ -19,6 +19,7 @@
 
 #include <headers.hh>
 #include <file.hh>
+#include <utils.hh>
 
 #include <QFile>
 
@@ -53,6 +54,56 @@ void File::preOpen()
   if(mode & IOMask == RotateMode) {
   }
   if(mode & PromptOverwrite) {
+    Utils::confirmOverwrite(fileName);
   }
 }
 
+void File::open()
+{
+  preOpen();
+  if(device)
+    throw InternalError("Trying to open an already opened File");
+  QIODevice::OpenMode m;
+  if(mode & IOMask == ReadOnlyMode)
+    m = QIODevice::ReadOnly;
+  else {
+    m = QIODevice::WriteOnly;
+    if(mode & IOMask == AppendMode)
+      m |= QIODevice::Append;
+  }
+  if(mode & Text == Text)
+    m |= QIODevice::Text;
+  std::unique_ptr<QFile> f(new QFile(fileName));
+  if(!f->open(m)) {
+    QString error = f->errorString();
+    throw RuntimeError("Could not open file %1: %2").
+      arg(fileName).arg(error);
+  }
+  device = f.release();
+  // Successful opening !
+}
+
+void File::close()
+{
+  if(device) {
+    delete device;
+    /// @todo MoveAtClose !
+
+    device = NULL;
+  }
+}
+
+File::~File()
+{
+  close();
+}
+
+File::operator QIODevice*()
+{
+  if(! device) {
+    open();
+    if(! device)
+      throw InternalError("File opened but NULL nevertheless");
+  }
+  return device;
+}

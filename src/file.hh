@@ -75,7 +75,11 @@ public:
     /// Whether it is a text file
     Text = 0x08,
     PromptOverwrite = 0x10,
-    ExpandTilde = 0x20
+    /// Expands tilde in file name
+    /// @todo Implement ExpandTilde
+    ExpandTilde = 0x20,
+    /// Automatically create parents when necessary.
+    MkPath = 0x40
   };
 
   Q_DECLARE_FLAGS(OpenModes,OpenMode);
@@ -98,6 +102,8 @@ public:
   File(const QString & fn, OpenModes mode = OpenModes(ReadOnlyMode)|Text|ExpandTilde,
        const CommandOptions & opts = CommandOptions());
 
+  ~File();
+
   /// Does the pre-open manipulations, i.e. rotation, and check for
   /// overwriting. Do not call both preOpen and open()
   void preOpen();
@@ -106,6 +112,10 @@ public:
   /// but rather through the first call to the QIODevice automatic
   /// cast.
   void open();
+
+  /// Closes the file. Like open(), this will be done automatically at
+  /// deletion.
+  void close();
 
   /// This allows the use of a File where a QIODevice would
   /// do. Automatically calls open().

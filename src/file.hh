@@ -74,12 +74,17 @@ public:
     IOMask = 0x07,
     /// Whether it is a text file
     Text = 0x08,
+    /// Overwrite mode
+    NeverOverwrite = 0x00,
     PromptOverwrite = 0x10,
+    AlwayOverwrite = 0x20,
+    RequirePresent = 0x30,
+    OverwriteMask = 0x30,
     /// Expands tilde in file name
     /// @todo Implement ExpandTilde
-    ExpandTilde = 0x20,
+    ExpandTilde = 0x40,
     /// Automatically create parents when necessary.
-    MkPath = 0x40
+    MkPath = 0x80
   };
 
   Q_DECLARE_FLAGS(OpenModes,OpenMode);

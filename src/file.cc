@@ -33,10 +33,9 @@ File::File(const QString & fn, OpenModes m,
   // o << "Init, file name: " << fileName << ", mode = " << mode << endl;
   // o << " * " << opts.keys().join(", ") << endl;
   if(opts.contains("overwrite")) {
-    bool ov;
+    bool ov = false;
     updateFromOptions(opts, "overwrite", ov);
-    // o << " -> " << ov << endl;
-    mode.setFlag(PromptOverwrite, !ov);
+    mode = mode & ~OverwriteMask | (ov ? AlwayOverwrite : NeverOverwrite);
   }
   if(opts.contains("rotate")) {
     updateFromOptions(opts, "rotate", rotations);
@@ -61,9 +60,30 @@ void File::preOpen()
   // o << "Preopen: " << mode << endl;
   if((mode & IOMask) == RotateMode) {
   }
-  if(mode & PromptOverwrite) {
-    // o << "Prompt overwrite: " << mode << endl;
-    Utils::confirmOverwrite(fileName);
+  if((mode & IOMask) == 0)
+    throw InternalError("No IO mode specified: %1").arg(mode);
+
+  // Check overwriting
+  if((mode & IOMask) != ReadOnlyMode ) {
+    switch(mode & OverwriteMask) {
+    case PromptOverwrite:
+    case NeverOverwrite:
+      if(QFile::exists(fileName)) {
+        if((mode & OverwriteMask) == PromptOverwrite) {
+          QString s = QObject::tr("Overwrite file '%1' ?").
+            arg(fileName);
+          if(Utils::askConfirmation(s))
+            break;
+        }
+        throw RuntimeError("Not overwriting file '%1'").arg(fileName);
+      }
+      break;
+    case RequirePresent:
+      if(! QFile::exists(fileName))
+        throw RuntimeError("File '%1' should be present").arg(fileName);
+    default:
+      break;
+    }
   }
 }
 

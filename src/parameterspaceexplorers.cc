@@ -35,6 +35,7 @@
 #include <fitdata.hh>
 #include <fittrajectory.hh>
 
+#include <file.hh>
 
 // random generators
 #include <gsl/gsl_rng.h>
@@ -1830,9 +1831,8 @@ static void clusterTrajectoriesCommand(const QString & /*name*/,
         QString fn = expt + suff;
         Terminal::out << "-> writing cluster to " << fn << endl;
 
-        QFile f(fn);
-        Utils::open(&f, QIODevice::WriteOnly);
-        QTextStream o(&f);
+        File f(fn, File::TextWrite, opts);
+        QTextStream o(f);
         c.exportToFile(o);
       }
     }
@@ -1856,6 +1856,7 @@ ArgumentList ctOpts(QList<Argument*>()
                     << new IntegerArgument("export-only",
                                            "Number of trajectories",
                                            "only export that many of the best trajectories")
+                    << File::fileOptions(File::OverwriteOption)
                     );
 
 static Command 

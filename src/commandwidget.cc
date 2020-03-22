@@ -36,6 +36,7 @@
 
 #include <debug.hh>
 #include <commandlineparser.hh>
+#include <file.hh>
 
 #include <new>
 
@@ -772,11 +773,10 @@ CommandWidget::runCommandFile(const QString & fileName,
                               bool addToHist,
                               ScriptErrorMode mode)
 {
-  QFile file(fileName);
-  Utils::open(&file, QIODevice::ReadOnly);
+  File file(fileName, File::TextRead);
   TemporaryChange<QString> ch(scriptFile, fileName);
   ContextChange ch2(this, fileName);
-  return runCommandFile(&file, args, addToHist, mode);
+  return runCommandFile(file, args, addToHist, mode);
 }
 
 QStringList CommandWidget::history() const

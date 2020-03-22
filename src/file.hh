@@ -84,7 +84,12 @@ public:
     /// @todo Implement ExpandTilde
     ExpandTilde = 0x40,
     /// Automatically create parents when necessary.
-    MkPath = 0x80
+    MkPath = 0x80,
+    /// Default read-write shortcuts
+    BinaryRead = ReadOnlyMode|ExpandTilde,
+    BinaryWrite = SimpleWriteMode|ExpandTilde|PromptOverwrite,
+    TextRead = BinaryRead|Text,
+    TextWrite = BinaryWrite|Text
   };
 
   Q_DECLARE_FLAGS(OpenModes,OpenMode);
@@ -103,7 +108,7 @@ public:
   ///
   /// @todo Maybe another constructor with a string for errors ?
   ///
-  /// The cumbersome
+  /// By default, the options are viable
   File(const QString & fn, OpenModes mode = OpenModes(ReadOnlyMode)|Text|ExpandTilde,
        const CommandOptions & opts = CommandOptions());
 
@@ -122,19 +127,32 @@ public:
   /// deletion.
   void close();
 
+  /// Returns the underlying device. Never NULL.
+  QIODevice * ioDevice();
+
   /// This allows the use of a File where a QIODevice would
   /// do. Automatically calls open().
   operator QIODevice*();
 
   /// These are options to handle the generation of options.
   enum Option {
-    Overwrite = 0x1,
-    Rotation = 0x2
+    OverwriteOption = 0x1,
+    RotationOption = 0x2,
+    MkPathOption = 0x4
   };
 
   Q_DECLARE_FLAGS(Options,Option);
 
   static QList<Argument *> fileOptions(Options options);
+
+  /// Convenience function to read a file in one go
+  static QByteArray readFile(const QString & fileName);
+
+  /// Finds the first file following the "printf-like" specification
+  /// in @a base, which will be given an @b int. By default,
+  /// findFreeFile tries each number until a non-existing one is
+  /// found. Optionnally, the int given can be random.
+  static QString findFreeFile(const QString & base, bool random = false);
 
 };
 

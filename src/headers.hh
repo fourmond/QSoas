@@ -119,11 +119,10 @@
 // Non-GUI objects
 #include <QDate>
 #include <QString>
-#include <QFile>
 #include <QTextStream>
 #include <QProcess>
 #include <QPointer>
-#include <QTemporaryFile>
+// #include <QTemporaryFile>
 #include <QTimer>
 #include <QTextCodec>
 

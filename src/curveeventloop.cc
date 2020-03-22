@@ -27,6 +27,7 @@
 
 #include <terminal.hh>
 #include <utils.hh>
+#include <file.hh>
 
 
 CurveEventLoop::CurveEventLoop(CurveView * v) : 
@@ -114,14 +115,7 @@ void CurveEventLoop::processKeyEvent(QKeyEvent * event)
   if(printingAllowed && k == Qt::Key_Print) {
     QPrinter p;
     p.setOrientation(QPrinter::Landscape);
-    QString file;
-    int i = 0;
-    while(true) {
-      file = QString("print-%1.pdf").arg(i);
-      if(! QFile::exists(file))
-        break;
-      i++;
-    }
+    QString file = File::findFreeFile("print-%02d.pdf");
     p.setOutputFileName(file);
     QPainter painter;
     Terminal::out << "Saving view as PDF file: " << file << endl;

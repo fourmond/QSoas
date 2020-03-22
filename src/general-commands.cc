@@ -45,6 +45,7 @@
 #include <commandwidget.hh>
 #include <mainwin.hh>
 
+#include <file.hh>
 #include <outfile.hh>
 
 #include <idioms.hh>
@@ -396,6 +397,16 @@ p("print", // command name
 
 //////////////////////////////////////////////////////////////////////
   
+
+
+static void saveTerminalCommand(const QString &, QString out,
+                                const CommandOptions & opts)
+{
+  File file(out, File::SimpleWriteMode|File::PromptOverwrite|File::Text,
+            opts);
+  file.ioDevice()->write(soas().prompt().terminalContents().toLocal8Bit());
+}
+
 static ArgumentList 
 sta(QList<Argument *>() 
     << new FileSaveArgument("file", 
@@ -403,21 +414,16 @@ sta(QList<Argument *>()
                             "Output file",
                             "soas-output.txt"));
 
-
-static void saveTerminalCommand(const QString &, QString out)
-{
-  QFile o(out);
-  Utils::open(&o, QIODevice::WriteOnly);
-  o.write(soas().prompt().terminalContents().toLocal8Bit());
-  o.close();
-}
+static ArgumentList 
+sto(QList<Argument *>() 
+    << File::fileOptions(File::OverwriteOption));
 
 static Command 
 st("save-output", // command name
-   optionLessEffector(saveTerminalCommand), // action
+   effector(saveTerminalCommand), // action
    "file",  // group name
    &sta, // arguments
-   NULL, // options
+   &sto, // options
    "Save output",
    "Save all output from the terminal");
 
@@ -431,29 +437,29 @@ saveHistoryArgs(QList<Argument *>()
                                         "soas.cmds"));
 
 
-static void saveHistoryCommand(const QString &, QString out)
+static void saveHistoryCommand(const QString &, QString out,
+                               const CommandOptions & opts)
 {
-  QFile o(out);
-  Utils::open(&o, QIODevice::WriteOnly);
-
+  File file(out, File::SimpleWriteMode|File::PromptOverwrite|File::Text,
+            opts);
   QStringList history = soas().prompt().history();
-  QTextStream s(&o);
+  QTextStream s(file);
   for(int i = history.size() - 1 ; i > 0; i--)
     s << history[i] << "\n";
 }
 
 static Command 
 sh("save-history", // command name
-   optionLessEffector(saveHistoryCommand), // action
+   effector(saveHistoryCommand), // action
    "file",  // group name
    &saveHistoryArgs, // arguments
-   NULL, // options
+   &sto, // options, the same as save-terminal
    "Save history",
    "Save command history");
 
 static Command 
 sH("save-history", // command name
-   optionLessEffector(saveHistoryCommand), // action
+   effector(saveHistoryCommand), // action
    "file",  // group name
    &saveHistoryArgs, // arguments
    NULL, // options

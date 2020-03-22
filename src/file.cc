@@ -35,19 +35,19 @@ File::File(const QString & fn, OpenModes m,
   if(opts.contains("overwrite")) {
     bool ov = false;
     updateFromOptions(opts, "overwrite", ov);
-    mode = mode & ~OverwriteMask | (ov ? AlwayOverwrite : NeverOverwrite);
+    mode = (mode & ~OverwriteMask) | (ov ? AlwayOverwrite : NeverOverwrite);
   }
   if(opts.contains("rotate")) {
     updateFromOptions(opts, "rotate", rotations);
     if(rotations > 0) {
-      mode = mode & ~IOMask;
-      mode = mode | RotateMode;
+      mode &= ~IOMask;
+      mode |= RotateMode;
     }
     else {
       if((mode & IOMask) == RotateMode) {
         // Switch to append ?
-        mode = mode & ~IOMask;
-        mode = mode | AppendMode;
+        mode &= ~IOMask;
+        mode |= AppendMode;
       }
     }
   }
@@ -100,6 +100,9 @@ void File::open()
     m = QIODevice::WriteOnly;
     if((mode & IOMask) == AppendMode)
       m |= QIODevice::Append;
+
+    if((mode & OverwriteMask) == NeverOverwrite)
+      m |= QIODevice::NewOnly;  // To avoid race conditions ?
   }
   if(mode & Text)
     m |= QIODevice::Text;
@@ -109,8 +112,10 @@ void File::open()
   std::unique_ptr<QFile> f(new QFile(fileName));
   if(!f->open(m)) {
     QString error = f->errorString();
-    throw RuntimeError("Could not open file %1: %2").
-      arg(fileName).arg(error);
+    QString mdStr = (m & QIODevice::ReadWrite) == QIODevice::ReadOnly ?
+      "for reading" : "for writing";
+    throw RuntimeError("Could not open file %1 %2: %3").
+      arg(fileName).arg(mdStr).arg(error);
   }
   device = f.release();
   // Successful opening !
@@ -131,7 +136,7 @@ File::~File()
   close();
 }
 
-File::operator QIODevice*()
+QIODevice * File::ioDevice()
 {
   if(! device) {
     open();
@@ -141,12 +146,21 @@ File::operator QIODevice*()
   return device;
 }
 
+File::operator QIODevice*()
+{
+  return ioDevice();
+}
+
 QList<Argument *> File::fileOptions(Options options)
 {
   QList<Argument *> rv;
-  if(options & Overwrite)
+  if(options & OverwriteOption)
     rv  << new BoolArgument("overwrite", 
                             "Overwrite",
                             "If true, overwrite without prompting");
+  if(options & MkPathOption)
+    rv << new BoolArgument("mkpath",
+                           "Make path",
+                           "If true, creates all necessary directories");
   return rv;
 }

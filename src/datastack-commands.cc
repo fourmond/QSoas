@@ -56,15 +56,16 @@ static Group stack("view", 1,
 static void saveCommand(const QString &, QString file, 
                         const CommandOptions & opts)
 {
-  bool overwrite = false;
-  updateFromOptions(opts, "overwrite", overwrite);
-  bool mkpath = false;
-  updateFromOptions(opts, "mkpath", mkpath);
-  file = Utils::expandTilde(file);
-  if(! overwrite)
-    Utils::confirmOverwrite(file);
-  if(mkpath)
-    QDir::current().mkpath(QFileInfo(file).dir().path());
+  File f(file, File::TextWrite, opts);
+  // bool overwrite = false;
+  // updateFromOptions(opts, "overwrite", overwrite);
+  // bool mkpath = false;
+  // updateFromOptions(opts, "mkpath", mkpath);
+  // file = Utils::expandTilde(file);
+  // if(! overwrite)
+  //   Utils::confirmOverwrite(file);
+  // if(mkpath)
+  //   QDir::current().mkpath(QFileInfo(file).dir().path());
   soas().currentDataSet()->write(file);
   soas().currentDataSet()->name = file;
   soas().view().repaint();
@@ -84,12 +85,7 @@ saveArgs(QList<Argument *>()
 
 static ArgumentList 
 saveOpts(QList<Argument *>() 
-         << new BoolArgument("overwrite", 
-                             "Overwrite",
-                             "If true, overwrite without prompting")
-         << new BoolArgument("mkpath",
-                             "Make path",
-                             "If true, creates all necessary directories")
+         << File::fileOptions(File::OverwriteOption|File::MkPathOption)
          );
 
 
@@ -105,6 +101,7 @@ sv("save", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+/// @todo Use file consistently here.
 static void saveBuffersCommand(const QString &, 
                                QList<const DataSet *> datasets, 
                                const CommandOptions & opts)
@@ -387,7 +384,7 @@ cls("clear-stack", // command name
 
 static void saveStackCommand(const QString &, QString fileName, const CommandOptions & opts)
 {
-  File file(fileName, File::SimpleWriteMode|File::PromptOverwrite, opts);
+  File file(fileName, File::BinaryWrite, opts);
   QDataStream out(file);
   out << soas().stack();
 }
@@ -401,7 +398,7 @@ saveStackArgs(QList<Argument *>()
 
 static ArgumentList 
 saveStackOpts(QList<Argument *>() 
-              << File::fileOptions(File::Overwrite));
+              << File::fileOptions(File::OverwriteOption));
 
 
 static Command 
@@ -418,7 +415,7 @@ saveStack("save-stack", // command name
 static void loadStackCommand(const QString &, QString fileName,
                              const CommandOptions & opts)
 {
-  File file(fileName, File::ReadOnlyMode);
+  File file(fileName, File::BinaryRead);
 
   bool merge = false;
   updateFromOptions(opts, "merge", merge);

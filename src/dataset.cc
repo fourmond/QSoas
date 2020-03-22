@@ -39,6 +39,7 @@
 #include <commandwidget.hh>
 
 #include <datastack.hh>
+#include <file.hh>
 
 #include <mruby.hh>
 #include <idioms.hh>
@@ -856,6 +857,7 @@ double DataSet::yValueAt(double x, bool interpolate) const
 void DataSet::write(QIODevice * target) const
 {
   QTextStream o(target);
+  o << "# saved from Soas buffer name " << name << endl;
   
   /// @todo Write header ?
 
@@ -878,14 +880,9 @@ void DataSet::write(const QString & n) const
   QString fileName = n;
   if(fileName.isEmpty())
     fileName = cleanedName() + ".dat";
-  
-  QFile file(fileName);
-  Utils::open(&file, QIODevice::WriteOnly|QIODevice::Text);
 
-  QTextStream o(&file);
-  o << "# saved from Soas buffer name " << name << endl;
-
-  write(&file);
+  File file(fileName, File::TextWrite);
+  write(file);
 }
 
 QList<int> DataSet::findSteps(int nb, double threshold) const

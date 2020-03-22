@@ -25,6 +25,8 @@
 #include <commandeffector-templates.hh>
 #include <command.hh>
 
+#include <file.hh>
+
 QList<Credits *> * Credits::currentCredits = NULL;
 
 void Credits::registerSelf()
@@ -70,11 +72,8 @@ QString Credits::text(bool full) const
   }
   
   QString nt;
-  if(full && (kind != Paper)) {
-    QFile f(fileName);
-    f.open(QIODevice::ReadOnly);
-    nt = f.readAll();
-  }
+  if(full && (kind != Paper))
+    nt = File::readFile(fileName);
   else {
     nt = notice;
   }

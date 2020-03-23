@@ -34,6 +34,8 @@
 #include <datastack.hh>
 #include <curveview.hh>
 
+#include <file.hh>
+
 #include <rubyodesolver.hh>
 
 
@@ -49,10 +51,8 @@ static void odeComputationCommand(const QString &, QString file,
 {
   RubyODESolver solver;
 
-  QFile f(file);
-  Utils::open(&f, QIODevice::ReadOnly);
-
-  solver.parseFromFile(&f);
+  File f(file, File::TextRead);
+  solver.parseFromFile(f);
 
   {
     bool dump = false;

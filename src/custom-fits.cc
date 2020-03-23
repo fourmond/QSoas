@@ -35,6 +35,8 @@
 #include <fitdata.hh>
 #include <timedependentparameters.hh>
 
+#include <file.hh>
+
 
 #include <expression.hh>
 
@@ -619,11 +621,10 @@ lfArgs(QList<Argument *>()
 static void loadFitsCommand(const QString &, QString fitsFile,
                             const CommandOptions & opts)
 {
-  QFile file(fitsFile);
-  bool overwrite  = false;
-  updateFromOptions(opts, "redefine", overwrite);
-  Utils::open(&file, QIODevice::ReadOnly);
-  loadFits(&file, true, overwrite);
+  File file(fitsFile, File::TextRead);
+  bool redefine = false;
+  updateFromOptions(opts, "redefine", redefine);
+  loadFits(file, true, redefine);
 }
 
 static ArgumentList 

@@ -30,6 +30,8 @@
 #include <commandeffector-templates.hh>
 #include <file-arguments.hh>
 
+#include <file.hh>
+
 RubyODESolver::RubyODESolver(const QString & init, const QString & der) :
   initialization(NULL), derivatives(NULL), reporters(NULL)
 {
@@ -50,9 +52,8 @@ void RubyODESolver::setParameterValues(const QString & formula)
 
 void RubyODESolver::parseFromFile(const QString & file)
 {
-  QFile f(file);
-  Utils::open(&f, QIODevice::ReadOnly);
-  parseFromFile(&f);
+  File f(file, File::TextRead);
+  parseFromFile(f);
 }
 
 

@@ -35,7 +35,7 @@ File::File(const QString & fn, OpenModes m,
   if(opts.contains("overwrite")) {
     bool ov = false;
     updateFromOptions(opts, "overwrite", ov);
-    mode = (mode & ~OverwriteMask) | (ov ? AlwayOverwrite : NeverOverwrite);
+    mode = (mode & ~OverwriteMask) | (ov ? AlwaysOverwrite : NeverOverwrite);
   }
   if(opts.contains("rotate")) {
     updateFromOptions(opts, "rotate", rotations);
@@ -52,6 +52,8 @@ File::File(const QString & fn, OpenModes m,
     }
   }
   // o << " -> mode = " << mode << endl;
+
+  /// @todo Here, handle ExpandTilde
 }
 
 void File::preOpen()
@@ -85,6 +87,8 @@ void File::preOpen()
       break;
     }
   }
+
+  /// @todo Here, handle move-at-close
 }
 
 void File::open()
@@ -196,3 +200,11 @@ QString File::findFreeFile(const QString & base, bool random)
   return last;
 }
 
+
+QString File::checkOpen(const QString & fileName, const CommandOptions & opts,
+                        OpenModes mode)
+{
+  File f(fileName, mode, opts);
+  f.preOpen();
+  return f.actualName;
+}

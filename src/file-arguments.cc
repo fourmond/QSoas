@@ -127,8 +127,9 @@ ArgumentMarshaller * FileArgument::getEditorValue(QWidget * editor) const
 
 ArgumentMarshaller * FileSaveArgument::fromString(const QString & str) const
 {
-  if(askOverwrite)
-    Utils::confirmOverwrite(str);
+  if(askOverwrite) {
+    // Utils::confirmOverwrite(str);
+  }
   return new ArgumentMarshallerChild<QString>(str);
 }
 

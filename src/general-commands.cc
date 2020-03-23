@@ -276,10 +276,8 @@ m("mem", // command name
 //////////////////////////////////////////////////////////////////////
 
 static ArgumentList 
-pops(QList<Argument *>() 
-     << new BoolArgument("overwrite", 
-                         "Overwrite",
-                         "Overwrite the output file")
+pops(QList<Argument *>()
+     << File::fileOptions(File::OverwriteOption/*|File::MkPathOption*/)
      << new FileSaveArgument("file", 
                              "Save as file",
                              "Save as file", "soas.pdf", false, true)
@@ -306,13 +304,11 @@ static void printCommand(const QString &,
   QRect rect;
 
   QString file;
-  bool overwrite = false;
   bool test = false;
 
   QString title;
   updateFromOptions(opts, "title", title);
 
-  updateFromOptions(opts, "overwrite", overwrite);
   updateFromOptions(opts, "file", file);
   updateFromOptions(opts, "nominal-height", height);
 
@@ -336,8 +332,7 @@ static void printCommand(const QString &,
   updateFromOptions(opts, "preview", preview);
 
   if(! file.isEmpty()) {
-    if(! overwrite)
-      Utils::confirmOverwrite(file);
+    File::checkOpen(file, opts);
     if(file.endsWith("svg")) {
       QSvgGenerator * gen = new QSvgGenerator;
       p = std::unique_ptr<QPaintDevice>(gen);
@@ -402,7 +397,7 @@ p("print", // command name
 static void saveTerminalCommand(const QString &, QString out,
                                 const CommandOptions & opts)
 {
-  File file(out, File::SimpleWriteMode|File::PromptOverwrite|File::Text,
+  File file(out, File::TextWrite,
             opts);
   file.ioDevice()->write(soas().prompt().terminalContents().toLocal8Bit());
 }
@@ -440,7 +435,7 @@ saveHistoryArgs(QList<Argument *>()
 static void saveHistoryCommand(const QString &, QString out,
                                const CommandOptions & opts)
 {
-  File file(out, File::SimpleWriteMode|File::PromptOverwrite|File::Text,
+  File file(out, File::TextWrite,
             opts);
   QStringList history = soas().prompt().history();
   QTextStream s(file);

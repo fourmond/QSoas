@@ -409,20 +409,20 @@ QString Utils::fileName(const QDataStream & stream)
 }
 
 
-bool Utils::confirmOverwrite(const QString & fileName, bool silent)
-{
-  if(QFile::exists(fileName)) {
-    QString s = QObject::tr("Overwrite file '%1' ?").
-      arg(fileName);
-    if(! Utils::askConfirmation(s)) {
-      if(silent)
-        return false;
-      else
-        throw RuntimeError("Aborted");
-    }
-  }
-  return true;
-}
+// bool Utils::confirmOverwrite(const QString & fileName, bool silent)
+// {
+//   if(QFile::exists(fileName)) {
+//     QString s = QObject::tr("Overwrite file '%1' ?").
+//       arg(fileName);
+//     if(! Utils::askConfirmation(s)) {
+//       if(silent)
+//         return false;
+//       else
+//         throw RuntimeError("Aborted");
+//     }
+//   }
+//   return true;
+// }
 
 
 

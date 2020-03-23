@@ -50,6 +50,8 @@
 #include <fitworkspace.hh>
 #include <fwexpression.hh>
 
+#include <file.hh>
+
 #include <idioms.hh>
 #include <datasetlist.hh>
 
@@ -256,10 +258,9 @@ stripIf("strip-if", // command name
 
 void rubyRunFile(const QString &, QString file)
 {
-  QFile f(file);
-  Utils::open(&f, QIODevice::ReadOnly | QIODevice::Text);
+  File f(file, File::TextRead);
   MRuby * mr = MRuby::ruby();
-  mr->eval(&f);
+  mr->eval(f);
 }
 
 static ArgumentList 
@@ -912,9 +913,9 @@ static void doAssert(QString code,
                      << " -> ruby: " << mr->memoryUse() << endl;
     }
     else {                      // fine details
-      QFile f(code);
-      Utils::open(&f, QIODevice::WriteOnly);
-      QTextStream o(&f);
+      File f(code, File::TextOverwrite);
+
+      QTextStream o(f);
       for(int i = 0; i < allAssertions.size(); i++)
         o << allAssertions[i].toString();
     }

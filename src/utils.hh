@@ -289,7 +289,7 @@ namespace Utils {
   /// Asks confirmation before overwriting the target file if it exists.
   ///
   /// Throws an exception if user cancelled unless \a silent is true.
-  bool confirmOverwrite(const QString & fileName, bool silent = false);
+  //bool confirmOverwrite(const QString & fileName, bool silent = false);
 
   /// Expands a leading ~ into the home directory of the user.
   QString expandTilde(const QString & name);

@@ -27,6 +27,8 @@
 #include <file-arguments.hh>
 #include <terminal.hh>
 
+#include <file.hh>
+
 #include <soas.hh>
 #include <exceptions.hh>
 #include <gslfunction.hh>
@@ -176,11 +178,7 @@ void updateDocumentationFile(const QString &, QString file)
 {
   QString str;
   try {
-    QFile f(file);
-    Utils::open(&f, QIODevice::ReadOnly|QIODevice::Text);
-    QTextStream t(&f);
-    str = t.readAll();
-    f.close();
+    str = File::readFile(file);
     QFile::remove(file + ".old");
     QFile::rename(file, file + ".old");
   }
@@ -240,10 +238,8 @@ void updateDocumentationFile(const QString &, QString file)
   }
 
 
-
-  QFile o(file);
-  Utils::open(&o, QIODevice::WriteOnly|QIODevice::Text);
-  o.write(str.toLocal8Bit());
+  File o(file, File::TextOverwrite);
+  o.ioDevice()->write(str.toLocal8Bit());
   
 }
 
@@ -279,11 +275,7 @@ void loadDocumentationFile(const QString &,
 {
   bool silent = true;
   updateFromOptions(opts, "silent", silent);
-  QString str;
-  QFile f(file);
-  Utils::open(&f, QIODevice::ReadOnly|QIODevice::Text);
-  str = f.readAll();
-  f.close();
+  QString str = File::readFile(file);
 
   /// @todo Setup a standard location for the documentation file and
   /// load at startup.

@@ -52,6 +52,7 @@ class File {
   /// The name of the actual file, in case this is different
   QString actualName;
 
+
   /// @}
 
   /// The number of rotations, when applicable
@@ -78,7 +79,7 @@ public:
     /// Overwrite mode
     NeverOverwrite = 0x00,
     PromptOverwrite = 0x10,
-    AlwayOverwrite = 0x20,
+    AlwaysOverwrite = 0x20,
     RequirePresent = 0x30,
     OverwriteMask = 0x30,
     /// Expands tilde in file name
@@ -89,8 +90,10 @@ public:
     /// Default read-write shortcuts
     BinaryRead = ReadOnlyMode|ExpandTilde,
     BinaryWrite = SimpleWriteMode|ExpandTilde|PromptOverwrite,
+    BinaryOverwrite = SimpleWriteMode|ExpandTilde|AlwaysOverwrite,
     TextRead = BinaryRead|Text,
-    TextWrite = BinaryWrite|Text
+    TextWrite = BinaryWrite|Text,
+    TextOverwrite = BinaryOverwrite|Text
   };
 
   Q_DECLARE_FLAGS(OpenModes,OpenMode);
@@ -101,7 +104,7 @@ private:
 
   /// The various opening modes for the file.
   OpenModes mode;
-  
+
 public:
 
   /// Constructs a file with the given mode, taking into account the
@@ -110,7 +113,7 @@ public:
   /// @todo Maybe another constructor with a string for errors ?
   ///
   /// By default, the options are viable
-  File(const QString & fn, OpenModes mode = OpenModes(ReadOnlyMode)|Text|ExpandTilde,
+  File(const QString & fn, OpenModes mode,
        const CommandOptions & opts = CommandOptions());
 
   ~File();
@@ -154,6 +157,18 @@ public:
   /// findFreeFile tries each number until a non-existing one is
   /// found. Optionnally, the int given can be random.
   static QString findFreeFile(const QString & base, bool random = false);
+
+
+  /// Performs all the checks/operations done in preOpen(), including:
+  /// @li tilde expansion
+  /// @li overwriting checks
+  /// @li ??
+  ///
+  /// Returns the name of the file that should actually be
+  /// read/written to
+  static QString checkOpen(const QString & fileName,
+                           const CommandOptions & opts,
+                           OpenModes mode = OpenModes(SimpleWriteMode)|PromptOverwrite);
 
 };
 

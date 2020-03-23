@@ -70,7 +70,7 @@ void File::preOpen()
     case NeverOverwrite:
       if(QFile::exists(fileName)) {
         if((mode & OverwriteMask) == PromptOverwrite) {
-          QString s = QObject::tr("Overwrite file '%1' ?").
+          QString s = QString("Overwrite file '%1' ?").
             arg(fileName);
           if(Utils::askConfirmation(s))
             break;
@@ -164,3 +164,35 @@ QList<Argument *> File::fileOptions(Options options)
                            "If true, creates all necessary directories");
   return rv;
 }
+
+QByteArray File::readFile(const QString & fileName, bool text)
+{
+  File f(fileName, BinaryRead|(text ? Text : Binary));
+  return f.ioDevice()->readAll();
+}
+
+QString File::findFreeFile(const QString & base, bool random)
+{
+  QString last;
+  int nb = -1;
+  while(true) {
+    if(random) {
+      int tst = ::rand();
+      if(tst == nb)
+        continue;
+      nb = tst;
+    }
+    else {
+      ++nb;
+    }
+    QString file;
+    file.asprintf(base.toUtf8(), nb);
+    if(last == file)
+      throw InternalError("Possible infinite loop");
+    last = file;
+    if(! QFile::exists(last))
+      break;
+  }
+  return last;
+}
+

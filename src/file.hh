@@ -74,6 +74,7 @@ public:
     IOMask = 0x07,
     /// Whether it is a text file
     Text = 0x08,
+    Binary = 0x00,
     /// Overwrite mode
     NeverOverwrite = 0x00,
     PromptOverwrite = 0x10,
@@ -146,7 +147,7 @@ public:
   static QList<Argument *> fileOptions(Options options);
 
   /// Convenience function to read a file in one go
-  static QByteArray readFile(const QString & fileName);
+  static QByteArray readFile(const QString & fileName, bool text = true);
 
   /// Finds the first file following the "printf-like" specification
   /// in @a base, which will be given an @b int. By default,

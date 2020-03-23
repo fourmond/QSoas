@@ -57,16 +57,7 @@ static void saveCommand(const QString &, QString file,
                         const CommandOptions & opts)
 {
   File f(file, File::TextWrite, opts);
-  // bool overwrite = false;
-  // updateFromOptions(opts, "overwrite", overwrite);
-  // bool mkpath = false;
-  // updateFromOptions(opts, "mkpath", mkpath);
-  // file = Utils::expandTilde(file);
-  // if(! overwrite)
-  //   Utils::confirmOverwrite(file);
-  // if(mkpath)
-  //   QDir::current().mkpath(QFileInfo(file).dir().path());
-  soas().currentDataSet()->write(file);
+  soas().currentDataSet()->write(f);
   soas().currentDataSet()->name = file;
   soas().view().repaint();
 }

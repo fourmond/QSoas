@@ -92,7 +92,7 @@ sv("save", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-/// @todo Use file consistently here.
+/// @todo Use file consistently here. Not so easy.
 static void saveBuffersCommand(const QString &, 
                                QList<const DataSet *> datasets, 
                                const CommandOptions & opts)

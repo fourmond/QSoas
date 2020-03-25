@@ -40,7 +40,7 @@ GraphicsSettings::GraphicsSettings() :
 
 void GraphicsSettings::initialSetup(bool silent)
 {
-  setOpenGL(opengl);
+  setOpenGL(openGL());
   if(! silent)
     showCurrentSettings();
 }
@@ -64,11 +64,13 @@ bool GraphicsSettings::antiAlias() const {
 void GraphicsSettings::setOpenGL(bool b)
 {
   opengl = b;
-  soas().view().setOpenGL(opengl);
+  soas().view().setOpenGL(openGL());
 }
 
 bool GraphicsSettings::openGL() const
 {
+  if(qApp->platformName() == "offscreen")
+    return false;               // Never enable
   return opengl;
 }
 

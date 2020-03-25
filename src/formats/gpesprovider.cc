@@ -20,6 +20,7 @@
 #include <metadataprovider.hh>
 #include <utils.hh>
 
+#include <file.hh>
 #include <terminal.hh>
 
 /// Provider 
@@ -53,9 +54,8 @@ public:
     QStringList lines;
     ValueHash ret;
     try {
-      QFile f(mf);
-      Utils::open(&f, QIODevice::ReadOnly);
-      lines = Utils::readAllLines(&f);
+      File f(mf, File::TextRead);
+      lines = Utils::readAllLines(f);
     }
     catch(const RuntimeError & re) {
       return ret;

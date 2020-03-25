@@ -23,6 +23,8 @@
 #ifndef __DEBUG_HH
 #define __DEBUG_HH
 
+class File;
+
 /// Class handling all the debugging in QSoas.
 ///
 /// It handles:
@@ -42,7 +44,7 @@ class Debug {
   QDir * directory;
 
   /// The underlying output device
-  QFile * outputDevice;
+  File * outputDevice;
 
   /// The output log file.
   QTextStream * output;

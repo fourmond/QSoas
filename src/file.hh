@@ -87,6 +87,8 @@ public:
     ExpandTilde = 0x40,
     /// Automatically create parents when necessary.
     MkPath = 0x80,
+    /// Implement locking
+    Locked = 0x100,
     /// Default read-write shortcuts
     BinaryRead = ReadOnlyMode|ExpandTilde,
     BinaryWrite = SimpleWriteMode|ExpandTilde|PromptOverwrite,

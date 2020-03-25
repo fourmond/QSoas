@@ -38,6 +38,7 @@
 #include <fwexpression.hh>
 #include <mruby.hh>
 
+#include <file.hh>
 #include <filelock.hh>
 
 #include <argument-templates.hh>
@@ -101,9 +102,8 @@ save("save", // command name
 static void loadCommand(const QString & /*name*/, QString file,
                         const CommandOptions & opts)
 {
-  QFile f(file);
-  Utils::open(&f,QIODevice::ReadOnly);
-  QTextStream in(&f);
+  File f(file, File::TextRead);
+  QTextStream in(f);
   FitParametersFile params;
 
   params.readFromStream(in);
@@ -509,11 +509,10 @@ static void exportCommand(const QString & /*name*/, const CommandOptions & opts)
     ws->exportToOutFile(errors);
   }
   else {
-    QFile f(file);
-    Utils::open(&f, QIODevice::WriteOnly);
+    File f(file, File::TextWrite);
     Terminal::out << "Exporting parameters to the file '"
                   << file << "'" << endl;
-    ws->exportParameters(&f, errors);
+    ws->exportParameters(f, errors);
   }
 }
 
@@ -790,13 +789,11 @@ static void saveTrajectoriesCommand(const QString & /*name*/,
                 << file
                 << "'" << endl;
       try {
-        QFile fl(file);
-        Utils::open(&fl, QIODevice::ReadOnly);
+        File fl(file, File::TextRead);
 
-        FileLock lk(&fl);
         int nb;
         FitTrajectories update(ws);
-        QTextStream in(&fl);
+        QTextStream in(fl);
         nb = update.importFromFile(in);
         trjs.merge(update);
       }
@@ -807,14 +804,12 @@ static void saveTrajectoriesCommand(const QString & /*name*/,
     }
   }
 
-  QFile f(file);
-  Utils::open(&f, QIODevice::WriteOnly);
-  FileLock lk(&f);
+  File f(file, File::TextWrite);
 
   Terminal::out << "Saving " << trjs.size() << " fit trajectories to '"
                 << file << "'" << endl;
   
-  QTextStream o(&f);
+  QTextStream o(f);
   trjs.exportToFile(o);
 }
 
@@ -864,9 +859,13 @@ static void loadTrajectoriesCommand(const QString & /*name*/,
 
   QString mode = "update";
   updateFromOptions(opts, "mode", mode);
-  QFile fl(file);
+  FitTrajectories update(ws);
+  File fl(file, File::TextRead);
+  int nb;
+
   try {
-    Utils::open(&fl, QIODevice::ReadOnly);
+    QTextStream in(fl);
+    nb = update.importFromFile(in);
   }
   catch(RuntimeError & e) {
     if(mode == "ignore") {
@@ -878,11 +877,6 @@ static void loadTrajectoriesCommand(const QString & /*name*/,
     throw;
   }
     
-  int nb;
-  FitTrajectories update(ws);
-  FileLock lk(&fl);
-  QTextStream in(&fl);
-  nb = update.importFromFile(in);
   if(mode == "drop")
     ws->trajectories.clear();
   ws->trajectories.merge(update);

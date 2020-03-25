@@ -32,6 +32,8 @@
 #include <utils.hh>
 #include <debug.hh>
 
+#include <file.hh>
+
 #include <sparsejacobian.hh>
 #include <datastackhelper.hh>
 
@@ -50,6 +52,8 @@
 #include <idioms.hh>
 
 #include <exceptions.hh>
+
+#include <file.hh>
 
 // smart(er) memory management for GSL types
 #include <gsl-types.hh>
@@ -766,9 +770,8 @@ void FitWorkspace::saveParameters(QIODevice * stream) const
 
 void FitWorkspace::saveParameters(const QString & fileName) const
 {
-  QFile f(fileName);
-  Utils::open(&f, QIODevice::WriteOnly);
-  saveParameters(&f);
+  File f(fileName, File::TextOverwrite);
+  saveParameters(f);
   Terminal::out << "Saved fit parameters to file " << fileName << endl;
 }
 
@@ -947,9 +950,8 @@ void FitWorkspace::setValue(const QString & name, double value, int dsi)
 void FitWorkspace::loadParameters(const QString & file, 
                                    int targetDS, int sourceDS)
 {
-  QFile f(file);
-  Utils::open(&f,QIODevice::ReadOnly);
-  loadParameters(&f, targetDS, sourceDS);
+  File f(file, File::TextRead);
+  loadParameters(f, targetDS, sourceDS);
 }
 
 void FitWorkspace::loadParameters(QIODevice * source, 
@@ -1072,9 +1074,8 @@ void FitWorkspace::loadParametersValues(QIODevice * source)
 
 void FitWorkspace::loadParametersValues(const QString & file)
 {
-  QFile f(file);
-  Utils::open(&f,QIODevice::ReadOnly);
-  loadParametersValues(&f);
+  File f(file, File::TextRead);
+  loadParametersValues(f);
 }
 
 
@@ -1765,9 +1766,8 @@ void CovarianceMatrixDisplay::exportToFile()
   QString file = QFileDialog::getSaveFileName(this, tr("Save matrix"));
   if(file.isEmpty())
     return;
-  QFile f(file);
-  Utils::open(&f, QIODevice::WriteOnly|QIODevice::Text);
-  QTextStream o(&f);
+  File f(file, File::TextOverwrite);
+  QTextStream o(f);
   parameters->writeCovarianceMatrix(o);
 }
 

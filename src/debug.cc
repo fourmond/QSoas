@@ -26,6 +26,8 @@
 #include <soas.hh>
 #include <datastack.hh>
 
+#include <file.hh>
+
 void Debug::dumpCurrentFocus(const QString & str)
 {
   QWidget * w = QApplication::focusWidget();
@@ -121,10 +123,9 @@ void Debug::openDirectory(const QString & dir)
     }
   }
 
-  outputDevice = new QFile(directory->absoluteFilePath("debug.log"));
-  Utils::open(outputDevice, QIODevice::WriteOnly);
-  /// @bug leaks memory
-  output = new QTextStream(outputDevice);
+  outputDevice = new File(directory->absoluteFilePath("debug.log"), File::TextOverwrite);
+
+  output = new QTextStream(*outputDevice);
   level = 1;
 }
 
@@ -161,9 +162,9 @@ void Debug::saveStack()
   if(level > 0 && directory) {
     timeStamp();
     (*this) << "Saving stack" << endl;
-    QFile file(directory->absoluteFilePath("qsoas-debug.qst"));
-    Utils::open(&file, QIODevice::WriteOnly);
-    QDataStream o(&file);
+    File file(directory->absoluteFilePath("qsoas-debug.qst"),
+              File::BinaryOverwrite);
+    QDataStream o(file);
     o << soas().stack();
   }
 }

@@ -1,0 +1,3 @@
+fit-exponential-decay /expert=true /script=cmp-mfit.fcmds
+# We drop to ensure the buffers are not duplicated
+drop

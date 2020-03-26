@@ -22,3 +22,6 @@
 
 # First tests of non-interactive fits
 @ expert.cmds
+
+# Tests that running the fits in mfit or fit do the same thing
+@ compare-mfit-multiple-fit.cmds

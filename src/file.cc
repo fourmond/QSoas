@@ -169,6 +169,11 @@ QList<Argument *> File::fileOptions(Options options)
   return rv;
 }
 
+QFileInfo File::info() const
+{
+  return QFileInfo(fileName);
+}
+
 QByteArray File::readFile(const QString & fileName, bool text)
 {
   File f(fileName, BinaryRead|(text ? Text : Binary));

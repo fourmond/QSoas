@@ -29,7 +29,7 @@
 
 // for the Marcus-Hush-Chidsey equation
 #include <functions.hh>
-
+#include <file.hh>
 
 
 
@@ -959,9 +959,8 @@ double KineticSystem::computeDerivatives(gsl_vector * target,
 
 void KineticSystem::parseFile(const QString & fileName)
 {
-  QFile f(fileName);
-  Utils::open(&f, QIODevice::ReadOnly);
-  parseFile(&f, fileName);
+  File f(fileName, File::TextRead);
+  parseFile(f, fileName);
 }
 
 

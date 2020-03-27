@@ -34,6 +34,7 @@ class Argument;
 /// @li redirecting from within already read files if applicable (i.e. the LaTeX style "file definition" @todo)
 /// @li automatic deletion of this object if the QIODevice has been deleted too ?? This would require making it a QObject.
 /// @li finding a writable place to write the file to
+/// @li rename at write (@todo)
 class File {
 
 
@@ -135,6 +136,11 @@ public:
 
   /// Returns the underlying device. Never NULL.
   QIODevice * ioDevice();
+
+  /// Return a QFileInfo to get information about the file.  It does
+  /// not require that the file is open, and will not open a yet
+  /// unopened file.
+  QFileInfo info() const;
 
   /// This allows the use of a File where a QIODevice would
   /// do. Automatically calls open().

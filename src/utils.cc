@@ -367,33 +367,33 @@ bool Utils::isPointFinite(const QPointF & p)
   return std::isfinite(p.x()) && std::isfinite(p.y());
 }
 
-void Utils::open(QFile * file, QIODevice::OpenMode mode, bool expand)
-{
-  if(expand) {
-    QString efn = Utils::expandTilde(file->fileName());
-    if(efn != file->fileName())
-      file->setFileName(efn);
-  }
-  if(! file->open(mode)) {
-    QString mdStr;
-    switch(mode & QIODevice::ReadWrite) {
-    case QIODevice::ReadOnly:
-      mdStr = "for reading";
-      break;
-    case QIODevice::WriteOnly:
-      mdStr = "for writing";
-      break;
-    case QIODevice::ReadWrite:
-      mdStr = "read/write";
-      break;
-    default:
-      mdStr = "??";
-    }
-    throw RuntimeError(QObject::tr("Could not open '%1' %2: %3").
-                       arg(file->fileName()).
-                       arg(mdStr).arg(file->errorString()));
-  }
-}
+// void Utils::open(QFile * file, QIODevice::OpenMode mode, bool expand)
+// {
+//   if(expand) {
+//     QString efn = Utils::expandTilde(file->fileName());
+//     if(efn != file->fileName())
+//       file->setFileName(efn);
+//   }
+//   if(! file->open(mode)) {
+//     QString mdStr;
+//     switch(mode & QIODevice::ReadWrite) {
+//     case QIODevice::ReadOnly:
+//       mdStr = "for reading";
+//       break;
+//     case QIODevice::WriteOnly:
+//       mdStr = "for writing";
+//       break;
+//     case QIODevice::ReadWrite:
+//       mdStr = "read/write";
+//       break;
+//     default:
+//       mdStr = "??";
+//     }
+//     throw RuntimeError(QObject::tr("Could not open '%1' %2: %3").
+//                        arg(file->fileName()).
+//                        arg(mdStr).arg(file->errorString()));
+//   }
+// }
 
 QString Utils::fileName(const QIODevice * device)
 {

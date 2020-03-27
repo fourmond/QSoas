@@ -36,6 +36,7 @@
 #include <soas.hh>
 
 #include <debug.hh>
+#include <file.hh>
 
 class TrajectoriesModel : public QAbstractTableModel {
   /// The list of trajectories
@@ -895,11 +896,8 @@ void FitTrajectoryDisplay::importFromFile()
 
 void FitTrajectoryDisplay::importFromFile(const QString & file)
 {
-  QFile fl(file);
-  Utils::open(&fl, QIODevice::ReadOnly);
-
-  int nb;
   throw NOT_IMPLEMENTED;
+  int nb;
   // nb = FitTrajectory::importFromFile(trajectories, fitData, &fl);
   
   Terminal::out << "Imported " << nb << " trajectories from "

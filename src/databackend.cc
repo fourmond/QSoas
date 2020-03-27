@@ -38,6 +38,8 @@
 #include <curveview.hh>
 #include <datastack.hh>
 
+#include <file.hh>
+
 #include <datastackhelper.hh>
 #include <datasetoptions.hh>
 #include <metadataprovider.hh>
@@ -178,8 +180,7 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName,
                                        const CommandOptions & opts, 
                                        bool verbose)
 {
-  QString fn = Utils::expandTilde(fileName);
-  QFile file(fn);
+  File file(fileName, File::BinaryRead);
 
   bool ignoreCache = false;
   updateFromOptions(opts, "ignore-cache", ignoreCache);
@@ -189,7 +190,7 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName,
        ignoreCache = true;
   }
 
-  QFileInfo info(fn);
+  QFileInfo info = file.info();
   QString key = info.canonicalFilePath();
   QDateTime lastModified = info.lastModified();
 
@@ -201,13 +202,13 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName,
   CachedDataSets * cached = cacheForFile(key);
 
   if(! cached || cached->date < lastModified || ignoreCache) {
-    Utils::open(&file, QIODevice::ReadOnly);
+    // Utils::open(&file, QIODevice::ReadOnly);
 
-    DataBackend * b = backendForStream(&file, fileName);
+    DataBackend * b = backendForStream(file, fileName);
     if(! b)
       throw RuntimeError(QObject::tr("No backend found to load '%1'").
                          arg(fileName));
-    datasets = b->readFromStream(&file, fileName, opts);
+    datasets = b->readFromStream(file, fileName, opts);
 
     if(verbose)
       Terminal::out << "using backend " << b->name << endl;
@@ -233,9 +234,8 @@ ArgumentList * DataBackend::loadOptions() const
 QList<DataSet *> DataBackend::readFile(const QString & fileName, 
                                        const CommandOptions & opts) const
 {
-  QFile file(Utils::expandTilde(fileName));
-  Utils::open(&file, QIODevice::ReadOnly);
-  return readFromStream(&file, fileName, opts);
+  File file(fileName, File::BinaryRead);
+  return readFromStream(file, fileName, opts);
 }
 
 

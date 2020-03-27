@@ -21,6 +21,7 @@
 #include <metadatafile.hh>
 
 
+#include <file.hh>
 #include <utils.hh>
 
 
@@ -56,9 +57,8 @@ void MetaDataFile::read(bool silent)
 
 void MetaDataFile::write() const
 {
-  QFile r(metaDataFileName);
-  Utils::open(&r, QIODevice::WriteOnly);
-  QTextStream out(&r);
+  File r(metaDataFileName, File::TextOverwrite);
+  QTextStream out(r);
   out << "// QSoas JSON meta-data -- version 1" << endl;
   out << metaData.toJSON() << endl;
 }
@@ -67,9 +67,8 @@ void MetaDataFile::write() const
 QString MetaDataFile::readMetaDataFile(const QString & fileName,
                                        QString * version)
 {
-  QFile r(fileName);
-  Utils::open(&r, QIODevice::ReadOnly);
-  QTextStream in(&r);
+  File r(fileName, File::TextRead);
+  QTextStream in(r);
 
   QString s = in.readAll();
   int idx = s.indexOf('{');

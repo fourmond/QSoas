@@ -105,8 +105,11 @@ void File::open()
     if((mode & IOMask) == AppendMode)
       m |= QIODevice::Append;
 
+#if QT_VERSION >= QT_VERSION_CHECK(5,11,0)
+    // only available for recent Qt.
     if((mode & OverwriteMask) == NeverOverwrite)
       m |= QIODevice::NewOnly;  // To avoid race conditions ?
+#endif
   }
   if(mode & Text)
     m |= QIODevice::Text;

@@ -389,7 +389,7 @@ saveStackArgs(QList<Argument *>()
 
 static ArgumentList 
 saveStackOpts(QList<Argument *>() 
-              << File::fileOptions(File::OverwriteOption));
+              << File::fileOptions(File::OverwriteOption|File::RotationOption));
 
 
 static Command 

@@ -772,7 +772,7 @@ void FitWorkspace::saveParameters(QIODevice * stream) const
 void FitWorkspace::saveParameters(const QString & fileName, 
                                   const CommandOptions & opts) const
 {
-  File f(fileName, File::TextOverwrite, opts);
+  File f(fileName, File::TextWrite, opts);
   saveParameters(f);
   Terminal::out << "Saved fit parameters to file " << fileName << endl;
 }

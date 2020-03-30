@@ -46,8 +46,6 @@ class FitTrajectories {
   /// Update the residualsOrder cache
   void updateCache() const;
 
-  /// Sort by residuals
-  void sortByResiduals();
 
 public:
   FitTrajectories(const FitWorkspace * ws);
@@ -69,6 +67,9 @@ public:
 
   /// Sorts the list of trajectories by startTime.
   void sort();
+
+  /// Sort by residuals
+  void sortByResiduals();
 
   /// Returns the size of the list
   int size() const;

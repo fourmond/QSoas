@@ -1187,6 +1187,14 @@ static void runForTrajectoriesCommand(const QString &, QString cmdfile,
   if(t == "initial")
     final = false;
 
+  updateFromOptions(opts, "sort", t);
+  if(t == "date") {
+    trajs.sort();
+  }
+  if(t == "residuals") {
+    trajs.sortByResiduals();
+  }
+
   QString nd;
   if(cd) {
     QFileInfo info(cmdfile);
@@ -1228,6 +1236,11 @@ rftOpts(QList<Argument *>()
                               "parameters", 
                               "Parameters",
                               "which parameters to use")
+        << new ChoiceArgument(QStringList()
+                              << "date" << "residuas",
+                              "sort", 
+                              "Sort",
+                              "whether to sort the trajectories (by resdiuals, by date)")
         << new TemplateChoiceArgument<CommandWidget::ScriptErrorMode>(CommandWidget::errorModeNames(),
                                                                       "error", 
                                                                       "on error",

@@ -438,6 +438,7 @@ DataSet * FitWorkspace::computedData(int i, bool residuals)
                                       + fitName(false) + ".dat");
   
   ds->setMetaData("fit", fitName());
+  ds->setMetaData("base", base->name);
   QHash<QString, double> params = parametersForDataset(i);
   for(QHash<QString, double>::iterator i = params.begin(); 
       i != params.end(); ++i)

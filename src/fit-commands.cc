@@ -68,11 +68,11 @@ quit("quit", // command name
 
 static void saveCommand(const QString & /*name*/, QString file, const CommandOptions & opts)
 {
-  int rotation = 0;
-  updateFromOptions(opts, "rotate", rotation);
-  if(rotation != 0)
-    Utils::rotateFile(file, rotation);
-  FitWorkspace::currentWorkspace()->saveParameters(file);
+  // int rotation = 0;
+  // updateFromOptions(opts, "rotate", rotation);
+  // if(rotation != 0)
+  //   Utils::rotateFile(file, rotation);
+  FitWorkspace::currentWorkspace()->saveParameters(file, opts);
 }
 
 ArgumentList sA(QList<Argument*>() 
@@ -82,9 +82,9 @@ ArgumentList sA(QList<Argument*>()
                 );
 
 ArgumentList sO(QList<Argument*>() 
-                << new IntegerArgument("rotate", 
-                                       "Rotate file",
-                                       "if not zero, performs a file rotation before saving")
+                << File::fileOptions(File::OverwriteOption|
+                                     File::RotationOption|File::MkPathOption)
+
                 );
 
 static Command 
@@ -509,7 +509,7 @@ static void exportCommand(const QString & /*name*/, const CommandOptions & opts)
     ws->exportToOutFile(errors);
   }
   else {
-    File f(file, File::TextWrite);
+    File f(file, File::TextWrite, opts);
     Terminal::out << "Exporting parameters to the file '"
                   << file << "'" << endl;
     ws->exportParameters(f, errors);
@@ -523,6 +523,7 @@ ArgumentList eOpts(QList<Argument*>()
                    << new BoolArgument("errors", 
                                        "Errors",
                                        "whether the errors are exported too")
+                   << File::fileOptions(File::OverwriteOption|File::MkPathOption)
                    );
 
 static Command 

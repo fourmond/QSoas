@@ -38,8 +38,15 @@ class Argument;
 class File {
 
 
-  /// The file name
+  /// The file name, which is the actual name of the file we're
+  /// "interested in", but may be different from the file being
+  /// written to (actualName) and the originalFileName, which is the
+  /// one that was specified as an argument (before tilde expansion
+  /// and other expansions).
   QString fileName;
+
+  /// Verbatim the argument of the constructor
+  QString originalFileName;
 
 
   /// @name Move

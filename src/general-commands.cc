@@ -124,7 +124,10 @@ static void outputCommand(const QString &,
 
       OutFile::out.truncate = false;
       updateFromOptions(opts, "overwrite", OutFile::out.truncate);
-    }
+
+      OutFile::out.mkPath = false;
+      updateFromOptions(opts, "mkpath", OutFile::out.mkPath);
+}
 
     bool reopen = false;
     updateFromOptions(opts, "reopen", reopen);
@@ -151,6 +154,9 @@ ArgumentList oOpts(QList<Argument*>()
                    << new BoolArgument("overwrite", 
                                        "Overwrite",
                                        "if on, overwrites the file instead of appending (default: false)")
+                   // << new BoolArgument("mkpath", 
+                   //                     "Make path",
+                   //                     "if on, creates all the directories necessary for creating the file (default: false)")
                    << new BoolArgument("reopen", 
                                        "Reopen",
                                        "if on, forces reopening the file (default: false)")
@@ -457,7 +463,7 @@ sH("save-history", // command name
    effector(saveHistoryCommand), // action
    "file",  // group name
    &saveHistoryArgs, // arguments
-   NULL, // options
+   &sto, // options
    "Save history",
    "Save command history", "", CommandContext::fitContext());
 

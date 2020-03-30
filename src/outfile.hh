@@ -55,6 +55,9 @@ public:
   /// If this flag is on, output file is truncated
   bool truncate;
 
+  /// If this flag is on, missing directories are created.
+  bool mkPath;
+
   /// The list of meta-data we're writing at the moment...
   QStringList desiredMeta;
 

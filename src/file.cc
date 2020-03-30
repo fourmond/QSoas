@@ -26,6 +26,7 @@
 
 File::File(const QString & fn, OpenModes m,
            const CommandOptions & opts) : fileName(fn),
+                                          originalFileName(fn),
                                           rotations(5),
                                           device(NULL), mode(m)
 {
@@ -54,13 +55,19 @@ File::File(const QString & fn, OpenModes m,
   // o << " -> mode = " << mode << endl;
 
   /// @todo Here, handle ExpandTilde
+  if(mode & ExpandTilde)
+    fileName = Utils::expandTilde(fileName);
 }
 
 void File::preOpen()
 {
   // QTextStream o(stdout);
   // o << "Preopen: " << mode << endl;
+  if(mode & MkPath) {
+    QDir::current().mkpath(info().dir().path());
+  }
   if((mode & IOMask) == RotateMode) {
+    Utils::rotateFile(fileName, rotations);
   }
   if((mode & IOMask) == 0)
     throw InternalError("No IO mode specified: %1").arg(mode);
@@ -169,6 +176,12 @@ QList<Argument *> File::fileOptions(Options options)
     rv << new BoolArgument("mkpath",
                            "Make path",
                            "If true, creates all necessary directories");
+
+  if(options & RotationOption)
+    rv << new IntegerArgument("rotate", 
+                              "Rotate file",
+                              "if not zero, performs a file rotation before writing");
+  
   return rv;
 }
 

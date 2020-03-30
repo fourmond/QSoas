@@ -284,6 +284,8 @@ namespace Utils {
   ///
   /// If max is negative, there is no maximum file (but this isn't
   /// probably a great idea).
+  ///
+  /// @todo Move that to File
   void rotateFile(const QString & file, int max);
 
   /// Asks confirmation before overwriting the target file if it exists.
@@ -292,6 +294,8 @@ namespace Utils {
   //bool confirmOverwrite(const QString & fileName, bool silent = false);
 
   /// Expands a leading ~ into the home directory of the user.
+  ///
+  /// @todo Move that to File
   QString expandTilde(const QString & name);
 
   /// Reads all lines from a file, using a LineReader

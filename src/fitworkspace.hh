@@ -512,11 +512,15 @@ public:
   /// Export parameters to the given output file (or the default one)
   void exportToOutFile(bool writeError = false, OutFile * out = NULL);
 
+protected:
   /// Save to the given stream
   void saveParameters(QIODevice * out) const;
 
-  /// Save to the named file
-  void saveParameters(const QString & fileName) const;
+public:
+
+  /// Save to the named file.
+  void saveParameters(const QString & fileName, 
+                      const CommandOptions & opts = CommandOptions()) const;
 
   /// Load from the given stream
   void loadParameters(QIODevice * in, int targetDS = -1, int sourceDS = 0);

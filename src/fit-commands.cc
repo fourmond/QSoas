@@ -1237,7 +1237,7 @@ rftOpts(QList<Argument *>()
                               "Parameters",
                               "which parameters to use")
         << new ChoiceArgument(QStringList()
-                              << "date" << "residuas",
+                              << "date" << "residuals",
                               "sort", 
                               "Sort",
                               "whether to sort the trajectories (by resdiuals, by date)")

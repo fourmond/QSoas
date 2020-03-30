@@ -1,0 +1,4 @@
+# This script just pushes the current trajectory (parameters) to the
+# stack, adding the relevant meta-data. Assumes a $nb is defined
+push /set-meta=index=%{$nb} /flags=fit
+eval $nb+=1

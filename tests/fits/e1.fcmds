@@ -1,5 +1,5 @@
 odrpack-engine
 fit
 push
-save p.params
+save p.params /overwrite=true
 quit

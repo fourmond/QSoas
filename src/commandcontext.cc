@@ -147,8 +147,8 @@ QStringList CommandContext::listAllCommands()
   QStringList rv;
   for(Command * c : cmds) {
     QString n = c->commandName();
-    if(! c->context->prefix.isEmpty())
-      n = c->context->prefix + "+" + n;
+    // if(! c->context->prefix.isEmpty())
+    //   n = c->context->prefix + "+" + n;
     rv << n;
   }
   return rv;

@@ -52,6 +52,12 @@ File::File(const QString & fn, OpenModes m,
       }
     }
   }
+  if(opts.contains("mkpath")) {
+    bool mkpath = false;
+    updateFromOptions(opts, "mkpath", mkpath);
+    if(mkpath)
+      mode |= MkPath;
+  }
   // o << " -> mode = " << mode << endl;
 
   /// @todo Here, handle ExpandTilde

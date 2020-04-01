@@ -1886,6 +1886,9 @@ static void generateDSCommand(const QString &, double beg, double end,
   int nb = 1;
   updateFromOptions(opts, "number", nb);
 
+  QString name;
+  updateFromOptions(opts, "name", name);
+
   for(int k = 0; k < nb; k++) {
     Vector x = Vector::uniformlySpaced(beg, end, samples);
     Vector y = x;
@@ -1906,11 +1909,13 @@ static void generateDSCommand(const QString &, double beg, double end,
 
     DataSet * newDs = new DataSet(x,y);
     if(nb > 1) {
-      newDs->name = QString("generated_%1.dat").arg(k);
+      if(name.isEmpty())
+        name = "generated_%d.dat";
+      newDs->name = QString::asprintf(name.toUtf8(), k);
       newDs->setMetaData("generated-number", k);
     }
     else
-      newDs->name = "generated.dat";
+      newDs->name = name.isEmpty() ? "generated.dat" : name;
     pusher.pushDataSet(newDs);
   }
 }
@@ -1937,6 +1942,9 @@ gDSO(QList<Argument *>()
                            "The Y values",
                            "Formula to generate the Y values",
                            true)
+     << new StringArgument("name",
+                           "The new buffer name",
+                           "The name of the newly generated bufffers (may include a %d specification for the number)")
      << DataStackHelper::helperOptions()
      );
 

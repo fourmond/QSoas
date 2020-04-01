@@ -574,6 +574,7 @@ public:
   void write(QIODevice * target) const;
 
   /// Writes to the named file, or use the name of the dataset.
+  /// @warning Overwrites without warning.
   void write(const QString & fileName = QString()) const;
 
   /// A utility function to compute the first derivative of a given

@@ -170,7 +170,7 @@ sBOpts(QList<Argument *>()
                            "if true, creates all necessary directories (defaults to false)")
        << new BoolArgument("overwrite",
                            "Overwrite",
-                           "if false, will not overwrite existing files (default is true)")
+                           "if false, will not overwrite existing files (warning: default is true)")
        );
 
 

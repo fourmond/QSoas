@@ -881,7 +881,7 @@ void DataSet::write(const QString & n) const
   if(fileName.isEmpty())
     fileName = cleanedName() + ".dat";
 
-  File file(fileName, File::TextWrite);
+  File file(fileName, File::TextOverwrite);
   write(file);
 }
 

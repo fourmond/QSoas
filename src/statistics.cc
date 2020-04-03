@@ -228,7 +228,7 @@ static MultiLambdaStat gen(QStringList()
                                 << ds->segments.size();
                              return rv;
                            },
-                           "The buffer name, and the row, column and segment counts");
+                           "the buffer name, and the row, column and segment counts.");
 
 static MultiLambdaStat avg(QStringList()
                            << "sum"
@@ -245,7 +245,7 @@ static MultiLambdaStat avg(QStringList()
                                 << v
                                 << sqrt(v);
                              return rv;
-                           }, "The sum, the average, the variance and the standard deviation of the values of the column");
+                           }, "the sum, the average, the variance and the standard deviation of the values of the column.");
 
 
 
@@ -266,7 +266,7 @@ static MultiLambdaStat fl(QStringList()
                                << ds->column(c).last();
                             return rv;
                           },
-                          "The first and last values of the column");
+                          "the first and last values of the column.");
 
 // static SingleLambdaStat lst("last", false, false,
 //                             [](const DataSet * ds, int c) -> QVariant
@@ -274,36 +274,30 @@ static MultiLambdaStat fl(QStringList()
 //                               return ;
 //                             });
 
-static SingleLambdaStat mn("min", false, false,
-                            [](const DataSet * ds, int c) -> QVariant
+static MultiLambdaStat mnx(QStringList()
+                           << "min"
+                           << "max"
+                           , false, false,
+                           [](const DataSet * ds, int c) -> QList<QVariant>
                             {
-                              return ds->column(c).min();
-                            }, "The minimum value");
-
-static SingleLambdaStat mx("max", false, false,
-                           [](const DataSet * ds, int c) -> QVariant
-                           {
-                             return ds->column(c).max();
-                           }, "The maximum value");
-
-// static SingleLambdaStat med("med", false, false,
-//                             [](const DataSet * ds, int c) -> QVariant
-//                             {
-//                               return ds->column(c).median();
-//                             });
+                              QList<QVariant> rv;
+                              rv << ds->column(c).min()
+                                 << ds->column(c).max();
+                              return rv;
+                            }, "the minimum and maximum values of the column.");
 
 static SingleLambdaStat nrm("norm", false, false,
                             [](const DataSet * ds, int c) -> QVariant
                             {
                               return ds->column(c).norm();
-                            }, "The norm of the column, that is $$\\sqrt{\\sum x_i}$$.");
+                            }, "the norm of the column, that is $$\\sqrt{\\sum {x_i}^2}$$.");
 
 
 static SingleLambdaStat inte("int", false, true,
                              [](const DataSet * ds, int c) -> QVariant
                                {
                                  return Vector::integrate(ds->x(), ds->column(c));
-                               }, "The integral of the Y values over the X values");
+                               }, "the integral of the Y values over the X values.");
 
 static MultiLambdaStat med(QStringList()
                            << "med"
@@ -324,7 +318,7 @@ static MultiLambdaStat med(QStringList()
                                 << v[0.9 * nb];
                              return rv;
                            },
-                           "The median, and the 10th, 25th, 75th and 90th percentiles");
+                           "the median, and the 10th, 25th, 75th and 90th percentiles.");
 
 static MultiLambdaStat delta(QStringList()
                              << "delta_min"
@@ -338,7 +332,7 @@ static MultiLambdaStat delta(QStringList()
                                   << dmax;
                                return rv;
                              },
-                             "The min and max values of the difference between two successive values");
+                             "the min and max values of the difference between two successive values.");
 
 
 static MultiLambdaStat reglin(QStringList()
@@ -353,7 +347,7 @@ static MultiLambdaStat reglin(QStringList()
                                   << a.second;
                                return rv;
                              },
-                              "The linear regression coefficients of the Y column over X: a is the slope, b the value at 0");
+                              "the linear regression coefficients of the Y column over X: `a` is the slope and `b` the value at 0.");
 
 
 

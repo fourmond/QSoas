@@ -3224,15 +3224,27 @@ QSoas> find-peaks /peaks=2 /output=true
 {::comment} synopsis-end: stats {:/}
 {::comment} description-start: stats {:/}
 `stats` displays various statistics about the current buffer (or the one
-specified by the `/buffer` option). The exact list of displayed statistics
-grows slowly with time and needs. It is currently, for each column:
+specified by the `/buffer` option). The following statistics are available:
+{::comment} statistics-start {:/}
 
- * the first and last values (displayed with the index)
- * the `_min` and `_max` values
- * the average
- * `_var`, the variance
- * the `_norm`, ie the square root of the sum of the squares
- * for Y columns, the integral is also displayed, indexed by `_int`.
+* `buffer`, `rows`, `columns`, `segments`: the buffer name, and the row, column and segment counts.
+* `_sum`, `_average`, `_var`, `_stddev`: the sum, the average, the variance and the standard deviation of the values of the column.
+* `_first`, `_last`: the first and last values of the column.
+* `_min`, `_max`: the minimum and maximum values of the column.
+* `_norm`: the norm of the column, that is $$\sqrt{\sum {x_i}^2}$$.
+* `y_int`: the integral of the Y values over the X values.
+* `_med`, `_q10`, `_q25`, `_q75`, `_q90`: the median, and the 10th, 25th, 75th and 90th percentiles.
+* `_delta_min`, `_delta_max`: the min and max values of the difference between two successive values.
+* `y_a`, `y_b`: the linear regression coefficients of the Y column over X: `a` is the slope and `b` the value at 0.
+{::comment} statistics-end {:/}
+
+In this list, the statistics that start with `_` are available for all columns
+(for instance `x_min`, `y_min`, `y2_min`, etc...), the ones that start
+with `y_` are only available for Y columns (such as `y_int`, `y2_int`,
+etc...), and the other ones are global (`buffer`, `rows`, etc.).
+
+These statistics are also available in [Ruby code](#ruby) with the
+name `$stats`, such as `$stats.x_min`.
 
 Statistics can be written to the output file with `/output=true`. If
 you specify `/use-segments=true`, the statistics are also displayed
@@ -3245,6 +3257,7 @@ comma-separated list to the `/meta` option, or, alternatively, use the
 
 It is possible to run [cmd: stats] on several buffers by using the
 `/buffers=` option.
+
 
 {::comment} description-end: stats {:/}
 

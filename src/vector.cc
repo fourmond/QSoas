@@ -988,3 +988,26 @@ QList<QList<Vector> > Vector::orderOfMagnitudeClassify(const Vector & xv,
   }
   return rv;
 }
+
+double Vector::correlation(const Vector & x, const Vector & y)
+{
+  if(x.size() != y.size())
+    throw InternalError("Vectors must have the same size: %1 vs %2").
+      arg(x.size()).arg(y.size());
+
+  double sx = 0, sy = 0, sxx = 0, syy = 0, sxy = 0;
+  int nb = x.size();
+  for(int i = 0; i < nb; i++) {
+    sx += x[i];
+    sy += y[i];
+    sxx += x[i]*x[i];
+    syy += y[i]*y[i];
+    sxy += x[i]*y[i];
+  }
+  sx /= nb;
+  sy /= nb;
+  sxx /= nb;
+  syy /= nb;
+  sxy /= nb;
+  return (sxy - sx*sy)/(sqrt((sxx - sx*sx)*(syy - sy*sy)));
+}

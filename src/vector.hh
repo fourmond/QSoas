@@ -2,7 +2,7 @@
    \file vector.hh
    The Vector class, representing one data column
    Copyright 2011 by Vincent Fourmond
-             2012, 2013, 2014 by CNRS/AMU
+             2012, 2013, 2014, 2020 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -324,6 +324,10 @@ public:
   static QList<QList<Vector> > orderOfMagnitudeClassify(const Vector & xv,
                                                         const Vector & yv,
                                                         double tolerance);
+
+  /// Returns the correlation coefficient of the two vectors, i.e.
+  /// @f$\rho_{X,Y} =  \frac{{E}(XY)-{E}(X){E}(Y)}{\sqrt{{E}(X^2)-{E}(X)^2}\cdot \sqrt{{E}(Y^2)-{E}(Y)^2}}@f$
+  static double correlation(const Vector & x, const Vector & y);
 };
 
 #endif

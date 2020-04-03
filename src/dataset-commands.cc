@@ -2208,6 +2208,51 @@ tc("tweak-columns", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void correlationMatrixCommand(const QString &, 
+                                     const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+
+  QList<Vector> cols = ds->allColumns();
+
+  int sz = cols.size();
+
+  QList<Vector> mat;
+  for(int i = 0; i < sz; i++)
+    mat << Vector(sz, 0);
+  for(int i = 0; i < sz; i++) {
+    // for now we keep i = j, but it's 1 -- unless we use that to
+    // indicate the variance ?
+    for(int j = i; j < sz; j++) {
+      double v = Vector::correlation(cols[i], cols[j]);
+      mat[i][j] = v;
+      mat[j][i] = v;
+    }
+  }
+
+
+  DataSet * nds = ds->derivedDataSet(mat, "_cm.dat");
+  soas().pushDataSet(nds);
+}
+
+static ArgumentList 
+cmA;
+
+static ArgumentList 
+cmO;
+
+
+static Command 
+cm("correlation-matrix", // command name
+   effector(correlationMatrixCommand), // action
+   "buffer",  // group name
+   &cmA, // arguments
+   &cmO, // options
+   "Correlation matrix",
+   "Correlation matrix between the various columns");
+
+//////////////////////////////////////////////////////////////////////
+
 
 // testing...
 // QSoas> generate-buffer 0 10 x**2+10*sin(Pi*0.5*i)

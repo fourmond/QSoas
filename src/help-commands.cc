@@ -30,6 +30,7 @@
 #include <soas.hh>
 #include <exceptions.hh>
 #include <gslfunction.hh>
+#include <statistics.hh>
 
 #include <commandlineparser.hh>
 
@@ -231,6 +232,11 @@ void updateDocumentationFile(const QString &, QString file)
     Utils::updateWithin(str, "{::comment} non-interactive-start {:/}",
                         "{::comment} non-interacive-end {:/}\n",
                         "\n\n" + nonInt.join("\n") + "\n");
+
+    // Statistics
+    Utils::updateWithin(str, "{::comment} statistics-start {:/}",
+                        "{::comment} statistics-end {:/}\n",
+                        "\n\n" + StatisticsValue::docString() + "\n");
 
     // // Now dealing with non-interactive fit commands ?
     // QStringList nonInt = CommandContext::globalContext()->

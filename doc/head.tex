@@ -17,6 +17,7 @@ linkcolor=blue]{hyperref}
 margin=1.8cm]{geometry}
 
 \usepackage{multicol}
+\usepackage{mdframed}
 
 
 \usepackage{xpatch}
@@ -28,6 +29,10 @@ margin=1.8cm]{geometry}
 {}
 
 \setcounter{secnumdepth}{0}
+
+\let\oldverbatim=\verbatim
+\let\oldendverbatim=\endverbatim
+\renewenvironment{verbatim}{\begin{mdframed}[backgroundcolor=black!05,linecolor=black!50]\oldverbatim}{\oldendverbatim\end{mdframed}}
 
 \title{QSoas reference}
 

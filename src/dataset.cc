@@ -74,6 +74,23 @@ void OrderedList::shiftAbove(int idx, int delta)
 
 //////////////////////////////////////////////////////////////////////
 
+const Vector & DataSet::column(int i) const {
+  if(i >= columns.size())
+    throw RuntimeError("Trying to access the %1th column, when dataset has only %2").
+      arg(i+1).arg(columns.size());
+  return columns[i];
+}
+
+Vector & DataSet::column(int i) {
+  if(i >= columns.size())
+    throw RuntimeError("Trying to access the %1th column, when dataset has only %2").
+      arg(i+1).arg(columns.size());
+  invalidateCache();
+  return columns[i];
+}
+
+
+
 void DataSet::dump() const
 {
   for(int i = 0; i < x().size(); i++)

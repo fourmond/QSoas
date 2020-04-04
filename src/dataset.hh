@@ -332,16 +332,10 @@ public:
 
   
   /// Returns the numbered column
-  const Vector & column(int i) const {
-    return columns[i];
-  };
+  const Vector & column(int i) const;
 
   /// Returns the numbered column
-  Vector & column(int i) {
-    invalidateCache();
-    return columns[i];
-  };
-
+  Vector & column(int i);
   /// Dump the data to standard output.
   ///
   /// @todo This may grow into something interesting later on, but not

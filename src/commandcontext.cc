@@ -228,30 +228,34 @@ void CommandContext::runCommand(const QStringList & cmd,
 
 QStringList CommandContext::loadDocumentation(const QString & str)
 {
-  // QRegExp re("\\{::comment\\} description-(start|end):\\s*([0-9a-z-]+)\\s*\\{:/\\}\\s*");
+  QRegExp re("\\{::comment\\} description-(start|end):\\s*([0-9a-z-]+)\\s*\\{:/\\}\\s*");
 
-  // QHash<QString, Command *> cmds = *availableCommands;
+  QHash<QString, Command *> cmds;
+  for(Command * cmd : globalContext()->availableCommands())
+    cmds[cmd->commandName()] = cmd;
 
-  // int idx = 0;
-  // int nx = 0;
+  for(Command * cmd : fitContext()->availableCommands())
+    cmds["fit-" + cmd->commandName()] = cmd;
 
-  // int beg = -1;
-  // QString cur;
-  // while(nx = re.indexIn(str, idx), nx >= 0) {
-  //   if(re.cap(1) == "start") {
-  //     beg = nx + re.matchedLength();
-  //     cur = re.cap(2);
-  //   } else {
-  //     if(beg >= 0 && cmds.contains(cur)) {
-  //       cmds[cur]->longDesc = str.mid(beg, nx - beg);
-  //       cmds.remove(cmds[cur]->shortCommandName());
-  //       cmds.remove(cur);
-  //     }
-  //   }
-  //   idx = nx + re.matchedLength();
-  // }
-  // return cmds.keys();
-  return QStringList();
+  int idx = 0;
+  int nx = 0;
+
+  int beg = -1;
+  QString cur;
+  while(nx = re.indexIn(str, idx), nx >= 0) {
+    if(re.cap(1) == "start") {
+      beg = nx + re.matchedLength();
+      cur = re.cap(2);
+    } else {
+      if(beg >= 0 && cmds.contains(cur)) {
+        cmds[cur]->longDesc = str.mid(beg, nx - beg);
+        cmds.remove(cmds[cur]->shortCommandName());
+        cmds.remove(cur);
+      }
+    }
+    idx = nx + re.matchedLength();
+  }
+  return cmds.keys();
 }
 
 QSet<Command *> CommandContext::allAvailableCommands()

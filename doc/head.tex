@@ -6,6 +6,9 @@
 
 \usepackage{amsmath}
 \usepackage{mathpazo}
+% \usepackage{mathpazo}
+\usepackage{courier}
+% \usepackage[scaled]{helvet}
 
 \usepackage{longtable}
 
@@ -17,6 +20,11 @@ linkcolor=blue]{hyperref}
 margin=1.8cm]{geometry}
 
 \usepackage{multicol}
+\usepackage{mdframed}
+
+% \usepackage{pandora}
+
+\usepackage[sf,bf]{titlesec}
 
 
 \usepackage{xpatch}
@@ -27,7 +35,11 @@ margin=1.8cm]{geometry}
 {}
 {}
 
-\setcounter{secnumdepth}{0}
+\setcounter{secnumdepth}{2}
+
+\let\oldverbatim=\verbatim
+\let\oldendverbatim=\endverbatim
+\renewenvironment{verbatim}{\begin{mdframed}[backgroundcolor=black!05,linecolor=black!50]\oldverbatim}{\oldendverbatim\end{mdframed}}
 
 \title{QSoas reference}
 

@@ -1,0 +1,23 @@
+# Make the comparison for one engine
+eval $engine='"${1}"'
+# Now try two different methods
+output mfit-%{$engine}.dat /overwrite=true
+mfit-exponential-decay flagged:exps /expert=true /script=cmp-mfit.fcmds
+
+output multiple-fit-%{$engine}.dat /overwrite=true
+run-for-datasets cmp-fit-one.cmds flagged-:exps
+
+load /comments=# mfit-%{$engine}.dat
+load /comments=# multiple-fit-%{$engine}.dat
+# We need /mode=indices because the X values are NaN and don't make sense.
+S 1 0 /mode=indices
+# A_inf
+assert $stats.y3_max 1e-10
+# tau_1
+assert $stats.y5_max 1e-10
+# A_1
+assert $stats.y7_max 1e-10
+# residuals
+assert $stats.y11_max 1e-10
+# rel_residuals
+assert $stats.y12_max 1e-10

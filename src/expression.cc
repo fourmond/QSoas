@@ -145,7 +145,7 @@ void Expression::setParametersFromExpression(const QStringList & params,
   if(ex.minimalVariables.size() > 0)
     throw RuntimeError("Undefined parameters: '%1'").
       arg(ex.minimalVariables.join("', '"));
-  double a;
+  double a = 0 /* never used */;
   ex.evaluateIntoArray(&a, target, pm.size());
 }
 

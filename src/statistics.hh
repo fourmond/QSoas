@@ -35,6 +35,7 @@ protected:
   void registerSelf();
 
   friend class Statistics;
+
 public:
 
   StatisticsValue();
@@ -57,6 +58,10 @@ public:
   /// which they are returned in the suffixes() function.
   virtual QList<QVariant> values(const DataSet * ds, int col) const = 0;
 
+  /// Returns a descriptive "bullet point" text for the stats handled
+  /// by the object.
+  virtual QString description() const = 0;
+
   /// Returns all the statistics available for the given dataset.
   ///
   /// @warning Not necessarily in the same order as the stats
@@ -64,6 +69,9 @@ public:
 
   /// Returns the suffixes of all the available stats.
   static QStringList allSuffixes();
+
+  /// Returns a document string made from the description() texts
+  static QString docString();
 };
 
 /// Provides various statistics about a dataset.

@@ -1164,7 +1164,7 @@ class ParameterVariations {
       case Sigmas:
         if(isLog) {               // Unsure it means something to have
                                 // relative log ?
-          sigma = ::log(1 + sigma/param);
+          sigma = ::log1p(sigma/param);
           param = log(param);
           target = log(target);
         }
@@ -1195,7 +1195,7 @@ class ParameterVariations {
         break;
       }
       if(kind != Absolute && isLog)
-        range = ::log(1 + range/param);
+        range = ::log1p(range/param);
       double rnd = Utils::random(-range, range);
       if(isLog)
         return param * exp(rnd);

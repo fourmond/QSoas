@@ -505,7 +505,7 @@ QString & Command::updateDocumentation(QString & str, int level) const
 
   QString headings(level, '#');
   QString syn = "\n\n" +
-    headings + " " + cmdName + " - " + pubName + 
+    headings + " `" + cmdName + "` - " + pubName + 
     " {#" + pref + "cmd-" + cmdName + "}\n\n" + 
     synopsis(true);
 

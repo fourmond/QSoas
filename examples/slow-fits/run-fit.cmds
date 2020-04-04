@@ -1,0 +1,2 @@
+@ generate-one.cmds
+fit-exponential-decay /expert=true /exponentials=4

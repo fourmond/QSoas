@@ -175,6 +175,16 @@ output("output", // command name
        "Change output file",
        "Change the name of the current output file");
 
+static Command 
+outpt2("output", // command name
+       effector(outputCommand), // action
+       "file",  // group name
+       NULL, // arguments
+       &oOpts, // options
+       "Change output file",
+       "Change the name of the current output file", "",
+       CommandContext::fitContext());
+
 //////////////////////////////////////////////////////////////////////
 
 

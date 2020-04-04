@@ -191,7 +191,7 @@ QSoas> generate-buffer -1 1 /set-meta=a=2 /set-meta=b=3
 
 {::comment} synopsis-start: quit {:/}
 
-### quit - Quit {#cmd-quit}
+### `quit` - Quit {#cmd-quit}
 
 `quit` 
 
@@ -215,7 +215,7 @@ can restart exactly from where you left, use [cmd: save-stack].
 
 {::comment} synopsis-start: credits {:/}
 
-### credits - Credits {#cmd-credits}
+### `credits` - Credits {#cmd-credits}
 
 `credits` `/full=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -234,7 +234,7 @@ directly used in QSoas.
 
 {::comment} synopsis-start: version {:/}
 
-### version - Version {#cmd-version}
+### `version` - Version {#cmd-version}
 
 `version` `/show-features=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -254,7 +254,7 @@ the fit engines, the available statistics, the
 
 {::comment} synopsis-start: save-history {:/}
 
-### save-history - Save history {#cmd-save-history}
+### `save-history` - Save history {#cmd-save-history}
 
 `save-history` _file_{:title="name of a file"}
 
@@ -271,7 +271,7 @@ repetitively as a [script](#scripting).
 
 {::comment} synopsis-start: cd {:/}
 
-### cd - Change directory {#cmd-cd}
+### `cd` - Change directory {#cmd-cd}
 
 `cd` _directory_{:title="name of a directory"} `/from-home=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/from-script=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -291,7 +291,7 @@ relative to that of the command file currently being executed by a
 {::comment} description-end: cd {:/}
 {::comment} synopsis-start: pwd {:/}
 
-### pwd - Working directory {#cmd-pwd}
+### `pwd` - Working directory {#cmd-pwd}
 
 `pwd` 
 
@@ -305,7 +305,7 @@ It is also indicated in the title of the QSoas window.
 
 {::comment} synopsis-start: temperature {:/}
 
-### temperature - Temperature {#cmd-temperature}
+### `temperature` - Temperature {#cmd-temperature}
 
 `temperature` `/set=`_number_{:title="a floating-point number"}
 
@@ -328,7 +328,7 @@ QSoas> temperature 310
 
 {::comment} synopsis-start: commands {:/}
 
-### commands - Commands {#cmd-commands}
+### `commands` - Commands {#cmd-commands}
 
 `commands` 
 
@@ -341,7 +341,7 @@ file and aliases.
 {::comment} description-end: commands {:/}
 {::comment} synopsis-start: help {:/}
 
-### help - Help on... {#cmd-help}
+### `help` - Help on... {#cmd-help}
 
 `help` _command_{:title="the name of one of QSoas's commands"} `/online=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -358,7 +358,7 @@ a browser to show the online help, unless you use `/online=false`.
 
 {::comment} synopsis-start: save-output {:/}
 
-### save-output - Save output {#cmd-save-output}
+### `save-output` - Save output {#cmd-save-output}
 
 `save-output` _file_{:title="name of a file"}
 
@@ -374,7 +374,7 @@ text editor.
 
 {::comment} synopsis-start: print {:/}
 
-### print - Print {#cmd-print}
+### `print` - Print {#cmd-print}
 
 `print` `/file=`_file_{:title="name of a file"} `/nominal-height=`_integer_{:title="an integer"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/page-size=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
 
@@ -405,7 +405,7 @@ analysis program. Don't expect miraculous plots !
 
 {::comment} synopsis-start: define-alias {:/}
 
-### define-alias - Define alias {#cmd-define-alias}
+### `define-alias` - Define alias {#cmd-define-alias}
 
 `define-alias` _alias_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _command_{:title="the name of one of QSoas's commands"} `/*=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
 
@@ -432,7 +432,7 @@ cannot provide default values for arguments.
 
 {::comment} synopsis-start: display-aliases {:/}
 
-### display-aliases - Display aliases {#cmd-display-aliases}
+### `display-aliases` - Display aliases {#cmd-display-aliases}
 
 `display-aliases` 
 
@@ -444,7 +444,7 @@ Shows a list of all the currently defined aliases.
 
 {::comment} synopsis-start: graphics-settings {:/}
 
-### graphics-settings - Graphics settings {#cmd-graphics-settings}
+### `graphics-settings` - Graphics settings {#cmd-graphics-settings}
 
 `graphics-settings` `/antialias=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/line-width=`_number_{:title="a floating-point number"} `/opengl=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -474,7 +474,7 @@ buggy and may result in crashes.
 
 {::comment} synopsis-start: ruby-run {:/}
 
-### ruby-run - Ruby load {#cmd-ruby-run}
+### `ruby-run` - Ruby load {#cmd-ruby-run}
 
 `ruby-run` _file_{:title="name of a file"}
 
@@ -532,7 +532,7 @@ end
 
 {::comment} synopsis-start: break {:/}
 
-### break - Break {#cmd-break}
+### `break` - Break {#cmd-break}
 
 `break` 
 
@@ -543,7 +543,7 @@ Exits from the current script. Has no effect if not inside a script.
 {::comment} description-end: break {:/}
 {::comment} synopsis-start: debug {:/}
 
-### debug - Debug {#cmd-debug}
+### `debug` - Debug {#cmd-debug}
 
 `debug` `/directory=`_directory_{:title="name of a directory"} `/level=`_integer_{:title="an integer"}
 
@@ -571,7 +571,7 @@ the higher this number the more detailed the output will be.
 
 {::comment} synopsis-start: system {:/}
 
-### system - System {#cmd-system}
+### `system` - System {#cmd-system}
 
 `system` _command..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/shell=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/timeout=`_integer_{:title="an integer"}
 
@@ -596,7 +596,7 @@ killed if it takes longer than the timeout to execute.
 
 {::comment} synopsis-start: timer {:/}
 
-### timer - Timer {#cmd-timer}
+### `timer` - Timer {#cmd-timer}
 
 `timer` 
 
@@ -610,7 +610,7 @@ instance.
 {::comment} description-end: timer {:/}
 {::comment} synopsis-start: mem {:/}
 
-### mem - Memory {#cmd-mem}
+### `mem` - Memory {#cmd-mem}
 
 `mem` `/cached-files=`_integer_{:title="an integer"}
 
@@ -636,7 +636,7 @@ providing its name to the [cmd: output] command.
 
 {::comment} synopsis-start: output {:/}
 
-### output - Change output file {#cmd-output}
+### `output` - Change output file {#cmd-output}
 
 `output` `/file=`_file_{:title="name of a file"} `/meta=`_words_{:title="several words, separated by ','"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reopen=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -671,7 +671,7 @@ QSoas> output /reopen=true
 
 {::comment} synopsis-start: comment {:/}
 
-### comment - Write line to output {#cmd-comment}
+### `comment` - Write line to output {#cmd-comment}
 
 `comment` _comment_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
 
@@ -694,7 +694,7 @@ The main command for loading data is [cmd: load].
 
 {::comment} synopsis-start: load {:/}
 
-### load - Load {#cmd-load}
+### `load` - Load {#cmd-load}
 
 `load` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
@@ -810,7 +810,7 @@ for scripts, to abort the script when a file is missing, see
 
 {::comment} synopsis-start: load-as-text {:/}
 
-### load-as-text - Load files with backend 'text' {#cmd-load-as-text}
+### `load-as-text` - Load files with backend 'text' {#cmd-load-as-text}
 
 `load-as-text` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
@@ -868,7 +868,7 @@ interpreted:
 
 {::comment} synopsis-start: load-as-csv {:/}
 
-### load-as-csv - Load files with backend 'csv' {#cmd-load-as-csv}
+### `load-as-csv` - Load files with backend 'csv' {#cmd-load-as-csv}
 
 `load-as-csv` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
@@ -897,7 +897,7 @@ Hence, the options have the same meaning as for [cmd: load-as-text].
 {::comment} description-end: load-as-csv {:/}
 {::comment} synopsis-start: load-as-chi-txt {:/}
 
-### load-as-chi-txt - Load files with backend 'chi-txt' {#cmd-load-as-chi-txt}
+### `load-as-chi-txt` - Load files with backend 'chi-txt' {#cmd-load-as-chi-txt}
 
 `load-as-chi-txt` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
@@ -926,7 +926,7 @@ able to detect at least some of their meta-data).
 
 {::comment} synopsis-start: load-as-eclab-ascii {:/}
 
-### load-as-eclab-ascii - Load files with backend 'eclab-ascii' {#cmd-load-as-eclab-ascii}
+### `load-as-eclab-ascii` - Load files with backend 'eclab-ascii' {#cmd-load-as-eclab-ascii}
 
 `load-as-eclab-ascii` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
@@ -954,7 +954,7 @@ handles better ASCII files exported from Biologic potentiostats.
 
 {::comment} synopsis-start: load-as-parameters {:/}
 
-### load-as-parameters - Load files with backend 'parameters' {#cmd-load-as-parameters}
+### `load-as-parameters` - Load files with backend 'parameters' {#cmd-load-as-parameters}
 
 `load-as-parameters` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
@@ -982,7 +982,7 @@ reusing later", the ones "exported" can be read using the standard
 
 {::comment} synopsis-start: expand {:/}
 
-### expand - Expand {#cmd-expand}
+### `expand` - Expand {#cmd-expand}
 
 `expand` `/flags=`_words_{:title="several words, separated by ','"} `/group-columns=`_integer_{:title="an integer"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/x-every-nth=`_integer_{:title="an integer"}
 
@@ -1025,7 +1025,7 @@ will result in two buffers: X Y1 Y2 and X Y3 Y4.
 
 {::comment} synopsis-start: rename {:/}
 
-### rename - Rename {#cmd-rename}
+### `rename` - Rename {#cmd-rename}
 
 `rename` _new-name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
 
@@ -1046,7 +1046,7 @@ try [cmd: save-buffers] with `/mode=rename`.
 
 {::comment} synopsis-start: save {:/}
 
-### save - Save {#cmd-save}
+### `save` - Save {#cmd-save}
 
 `save` _file_{:title="name of a file"} `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -1066,7 +1066,7 @@ It will also change the name of the file.
 
 {::comment} synopsis-start: save-buffers {:/}
 
-### save-buffers - Save {#cmd-save-buffers}
+### `save-buffers` - Save {#cmd-save-buffers}
 
 `save-buffers` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/expression=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/format=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/mode=`_choice_{:title="one of: `both`, `rename`, `save`"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -1126,7 +1126,7 @@ QSoas> save-buffers /format=non-existing-directory/buffer-%03d.dat 0..100 /mkpat
 
 {::comment} synopsis-start: browse {:/}
 
-### browse - Browse files {#cmd-browse}
+### `browse` - Browse files {#cmd-browse}
 
 `browse` `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/pattern=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
 
@@ -1152,7 +1152,7 @@ files based on their meta-data and/or statistics. See the
 
 {::comment} synopsis-start: overlay-buffer {:/}
 
-### overlay-buffer - Overlay buffers {#cmd-overlay-buffer}
+### `overlay-buffer` - Overlay buffers {#cmd-overlay-buffer}
 
 `overlay-buffer` `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
@@ -1171,7 +1171,7 @@ See [cmd: load] for the description of the `/style` option.
 
 {::comment} synopsis-start: hide-buffer {:/}
 
-### hide-buffer - Hide buffers {#cmd-hide-buffer}
+### `hide-buffer` - Hide buffers {#cmd-hide-buffer}
 
 `hide-buffer` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}
 
@@ -1189,7 +1189,7 @@ of passing it non-visible datasets, QSoas won't shout at you if you do.
 
 {::comment} synopsis-start: overlay {:/}
 
-### overlay - Overlay {#cmd-overlay}
+### `overlay` - Overlay {#cmd-overlay}
 
 `overlay` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
@@ -1221,7 +1221,7 @@ adds them to the current plot; it has the same options as those commands.
 
 {::comment} synopsis-start: clear {:/}
 
-### clear - Clear view {#cmd-clear}
+### `clear` - Clear view {#cmd-clear}
 
 `clear` 
 
@@ -1236,7 +1236,7 @@ that should not happen anyway).
 
 {::comment} synopsis-start: points {:/}
 
-### points - Show points {#cmd-points}
+### `points` - Show points {#cmd-points}
 
 `points` 
 
@@ -1252,7 +1252,7 @@ have a large number of data points.
 
 {::comment} synopsis-start: zoom {:/}
 
-### zoom - Zoom {#cmd-zoom}
+### `zoom` - Zoom {#cmd-zoom}
 
 `zoom` **(interactive)**
 
@@ -1281,7 +1281,7 @@ want to use [cmd: limits] instead.
 {::comment} description-end: zoom {:/}
 {::comment} synopsis-start: limits {:/}
 
-### limits - Set limits {#cmd-limits}
+### `limits` - Set limits {#cmd-limits}
 
 `limits` _left_{:title="a floating-point number"} _right_{:title="a floating-point number"} _bottom_{:title="a floating-point number"} _top_{:title="a floating-point number"}
 
@@ -1334,7 +1334,7 @@ ways:
 
 {::comment} synopsis-start: browse-stack {:/}
 
-### browse-stack - Browse stack {#cmd-browse-stack}
+### `browse-stack` - Browse stack {#cmd-browse-stack}
 
 `browse-stack` `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} **(interactive)**
 
@@ -1360,7 +1360,7 @@ of the given, comma-separated, [meta data](#meta-data).
 
 {::comment} synopsis-start: show-stack {:/}
 
-### show-stack - Show stack {#cmd-show-stack}
+### `show-stack` - Show stack {#cmd-show-stack}
 
 `show-stack` `/meta=`_words_{:title="several words, separated by ','"} `/number=`_integer_{:title="an integer"}
 
@@ -1379,7 +1379,7 @@ for instance (that will only show buffers `-9` to `9`).
 
 {::comment} synopsis-start: undo {:/}
 
-### undo - Undo {#cmd-undo}
+### `undo` - Undo {#cmd-undo}
 
 `undo` `/number=`_integer_{:title="an integer"}
 
@@ -1396,7 +1396,7 @@ stack. If `/number=` is specified, repeats that many times.
 
 {::comment} synopsis-start: redo {:/}
 
-### redo - Redo {#cmd-redo}
+### `redo` - Redo {#cmd-redo}
 
 `redo` `/number=`_integer_{:title="an integer"}
 
@@ -1412,7 +1412,7 @@ buffer. `/number` has the same meaning as for [cmd: undo].
 
 {::comment} synopsis-start: save-stack {:/}
 
-### save-stack - Save stack {#cmd-save-stack}
+### `save-stack` - Save stack {#cmd-save-stack}
 
 `save-stack` _file_{:title="name of a file"}
 
@@ -1438,7 +1438,7 @@ QSoas> save-buffers all
 
 {::comment} synopsis-start: load-stack {:/}
 
-### load-stack - Load stack {#cmd-load-stack}
+### `load-stack` - Load stack {#cmd-load-stack}
 
 `load-stack` _file_{:title="name of a file"} `/merge=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -1458,7 +1458,7 @@ contents of the stack files are just merged into the stack.
 
 {::comment} synopsis-start: clear-stack {:/}
 
-### clear-stack - Clear stack {#cmd-clear-stack}
+### `clear-stack` - Clear stack {#cmd-clear-stack}
 
 `clear-stack` 
 
@@ -1472,7 +1472,7 @@ Removes all the buffers from both normal and redo stack
 
 {::comment} synopsis-start: fetch {:/}
 
-### fetch - Fetch an old buffer {#cmd-fetch}
+### `fetch` - Fetch an old buffer {#cmd-fetch}
 
 `fetch` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}
 
@@ -1486,7 +1486,7 @@ when you want to work again on a old buffer buried in the stack.
 
 {::comment} synopsis-start: drop {:/}
 
-### drop - Drop dataset {#cmd-drop}
+### `drop` - Drop dataset {#cmd-drop}
 
 `drop` `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}
 
@@ -1508,7 +1508,7 @@ dropped from the stack. [cmd: undo] won't work.
 {::comment} description-end: drop {:/}
 {::comment} synopsis-start: flag {:/}
 
-### flag - Flag datasets {#cmd-flag}
+### `flag` - Flag datasets {#cmd-flag}
 
 `flag` `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/exclusive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/set=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -1547,7 +1547,7 @@ explictly with the command are cleared.
 {::comment} description-end: flag {:/}
 {::comment} synopsis-start: unflag {:/}
 
-### unflag - Unflag datasets {#cmd-unflag}
+### `unflag` - Unflag datasets {#cmd-unflag}
 
 `unflag` `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}
 
@@ -1565,7 +1565,7 @@ way as for [cmd: flag].
 
 {::comment} synopsis-start: auto-flag {:/}
 
-### auto-flag - Auto flag {#cmd-auto-flag}
+### `auto-flag` - Auto flag {#cmd-auto-flag}
 
 `auto-flag` `/flags=`_words_{:title="several words, separated by ','"}
 
@@ -1595,7 +1595,7 @@ instance.
 
 {::comment} synopsis-start: apply-formula {:/}
 
-### apply-formula - Apply formula {#cmd-apply-formula}
+### `apply-formula` - Apply formula {#cmd-apply-formula}
 
 `apply-formula` _formula_{:title="a piece of [Ruby code](#ruby)"} `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/extra-columns=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/keep-on-error=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -1610,7 +1610,7 @@ Short name: `F`
   * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on (by default), you can use `$meta` to refer to the dataset meta-data -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, you can use `$stats` to refer to statistics (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on (by default), you can use `$stats` to refer to statistics (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: apply-formula {:/}
 {::comment} description-start: apply-formula {:/}
@@ -1714,7 +1714,7 @@ option, and control the resulting buffers using the commands described
 
 {::comment} synopsis-start: dx {:/}
 
-### dx - DX {#cmd-dx}
+### `dx` - DX {#cmd-dx}
 
 `dx` 
 
@@ -1727,7 +1727,7 @@ equally spaced.
 {::comment} description-end: dx {:/}
 {::comment} synopsis-start: dy {:/}
 
-### dy - DY {#cmd-dy}
+### `dy` - DY {#cmd-dy}
 
 `dy` 
 
@@ -1740,7 +1740,7 @@ values of delta Y.
 
 {::comment} synopsis-start: zero {:/}
 
-### zero - Makes 0 {#cmd-zero}
+### `zero` - Makes 0 {#cmd-zero}
 
 `zero` _value_{:title="a floating-point number"} `/axis=`_axis_{:title="one of: `x`, `y`"}
 
@@ -1757,7 +1757,7 @@ If `/axis` is `x`, swap X and Y in the above description.
 
 {::comment} synopsis-start: shiftx {:/}
 
-### shiftx - Shift X values {#cmd-shiftx}
+### `shiftx` - Shift X values {#cmd-shiftx}
 
 `shiftx` 
 
@@ -1769,7 +1769,7 @@ Shift X values so that the first point has a X value of 0.
 
 {::comment} synopsis-start: norm {:/}
 
-### norm - Normalize {#cmd-norm}
+### `norm` - Normalize {#cmd-norm}
 
 `norm` `/map-to=`_numbers_{:title="several floating-point numbers, separated by :"} `/positive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -1795,7 +1795,7 @@ Y maximum is 4.
 
 {::comment} synopsis-start: deldp {:/}
 
-### deldp - Deldp {#cmd-deldp}
+### `deldp` - Deldp {#cmd-deldp}
 
 `deldp` **(interactive)**
 
@@ -1810,7 +1810,7 @@ to accept the modifications, hit escape to cancel them.
 
 {::comment} synopsis-start: edit {:/}
 
-### edit - Edit dataset {#cmd-edit}
+### `edit` - Edit dataset {#cmd-edit}
 
 `edit` 
 
@@ -1824,7 +1824,7 @@ modification, press the "push new" button.
 
 {::comment} synopsis-start: sort {:/}
 
-### sort - Sort {#cmd-sort}
+### `sort` - Sort {#cmd-sort}
 
 `sort` 
 
@@ -1836,7 +1836,7 @@ Sorts the buffer in increasing X values.
 
 {::comment} synopsis-start: reverse {:/}
 
-### reverse - Reverse {#cmd-reverse}
+### `reverse` - Reverse {#cmd-reverse}
 
 `reverse` 
 
@@ -1853,7 +1853,7 @@ data, this will impact commands that work with indices, such as
 
 {::comment} synopsis-start: strip-if {:/}
 
-### strip-if - Strip points {#cmd-strip-if}
+### `strip-if` - Strip points {#cmd-strip-if}
 
 `strip-if` _formula_{:title="a piece of [Ruby code](#ruby)"} `/threshold=`_integer_{:title="an integer"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -1911,7 +1911,7 @@ buffer if it has less than that many points.
 
 {::comment} synopsis-start: integrate {:/}
 
-### integrate - Integrate {#cmd-integrate}
+### `integrate` - Integrate {#cmd-integrate}
 
 `integrate` `/index=`_integer_{:title="an integer"}
 
@@ -1927,7 +1927,7 @@ point ends up being at 0.
 
 {::comment} synopsis-start: diff {:/}
 
-### diff - Derive {#cmd-diff}
+### `diff` - Derive {#cmd-diff}
 
 `diff` `/derivative=`_integer_{:title="an integer"} `/order=`_integer_{:title="an integer"}
 
@@ -1957,7 +1957,7 @@ QSoas> diff /order=4 /derivative=2
 
 {::comment} synopsis-start: diff2 {:/}
 
-### diff2 - Derive twice {#cmd-diff2}
+### `diff2` - Derive twice {#cmd-diff2}
 
 `diff2` 
 
@@ -1970,7 +1970,7 @@ The same warnings apply as for [cmd: diff].
 {::comment} description-end: diff2 {:/}
 {::comment} synopsis-start: dataset-options {:/}
 
-### dataset-options - Options {#cmd-dataset-options}
+### `dataset-options` - Options {#cmd-dataset-options}
 
 `dataset-options` `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
@@ -1990,7 +1990,7 @@ Sets options for the current dataset:
 
 {::comment} synopsis-start: edit-errors {:/}
 
-### edit-errors - Edit errors {#cmd-edit-errors}
+### `edit-errors` - Edit errors {#cmd-edit-errors}
 
 `edit-errors` **(interactive)**
 
@@ -2012,7 +2012,7 @@ fitting, by setting much larger errors for the bits than for the rest.
 
 {::comment} synopsis-start: cut {:/}
 
-### cut - Cut {#cmd-cut}
+### `cut` - Cut {#cmd-cut}
 
 `cut` **(interactive)**
 
@@ -2033,7 +2033,7 @@ can switch back to display Y values as a function of X by hitting `x`.
 
 {::comment} synopsis-start: chop {:/}
 
-### chop - Chop Buffer {#cmd-chop}
+### `chop` - Chop Buffer {#cmd-chop}
 
 `chop` _lengths..._{:title="several floating-point numbers, separated by ,"} `/flags=`_words_{:title="several words, separated by ','"} `/mode=`_choice_{:title="one of: `deltax`, `index`, `indices`, `xvalues`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/set-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
@@ -2064,7 +2064,7 @@ buffers but rather to set the position of the [segments](#segments).
 
 {::comment} synopsis-start: splita {:/}
 
-### splita - Split first {#cmd-splita}
+### `splita` - Split first {#cmd-splita}
 
 `splita` 
 
@@ -2079,7 +2079,7 @@ Useful to get the forward scan of a cyclic voltammogram.
 
 {::comment} synopsis-start: splitb {:/}
 
-### splitb - Split second {#cmd-splitb}
+### `splitb` - Split second {#cmd-splitb}
 
 `splitb` 
 
@@ -2095,7 +2095,7 @@ Useful to get the backward scan of a cyclic voltammogram.
 
 {::comment} synopsis-start: split-monotonic {:/}
 
-### split-monotonic - Split into monotonic parts {#cmd-split-monotonic}
+### `split-monotonic` - Split into monotonic parts {#cmd-split-monotonic}
 
 `split-monotonic` `/flags=`_words_{:title="several words, separated by ','"} `/group=`_integer_{:title="an integer"} `/keep-first=`_integer_{:title="an integer"} `/keep-last=`_integer_{:title="an integer"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
@@ -2119,7 +2119,7 @@ only keep a given number of the generated datasets.
 {::comment} description-end: split-monotonic {:/}
 {::comment} synopsis-start: unwrap {:/}
 
-### unwrap - Unwrap {#cmd-unwrap}
+### `unwrap` - Unwrap {#cmd-unwrap}
 
 `unwrap` `/reverse=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/scan-rate=`_number_{:title="a floating-point number"}
 
@@ -2147,7 +2147,7 @@ position of the segments to reconstruct the original data.
 
 {::comment} synopsis-start: cat {:/}
 
-### cat - Concatenate {#cmd-cat}
+### `cat` - Concatenate {#cmd-cat}
 
 `cat` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/add-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -2239,7 +2239,7 @@ the ruby expressions [there](#ruby)).
 
 {::comment} synopsis-start: show {:/}
 
-### show - Show information {#cmd-show}
+### `show` - Show information {#cmd-show}
 
 `show` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}
 
@@ -2264,7 +2264,7 @@ Meta-data:	delta_t_0 = 950	gpes_file = D:\Vincent\140428\08	original-file = /hom
 {::comment} description-end: show {:/}
 {::comment} synopsis-start: set-meta {:/}
 
-### set-meta - Set meta-data {#cmd-set-meta}
+### `set-meta` - Set meta-data {#cmd-set-meta}
 
 `set-meta` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/also-record=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/type=`_choice_{:title="one of: `number`, `number-list`, `text`"}
 
@@ -2298,7 +2298,7 @@ effect as running [cmd: record-meta] on the original file.
 
 {::comment} synopsis-start: record-meta {:/}
 
-### record-meta - Set meta-data {#cmd-record-meta}
+### `record-meta` - Set meta-data {#cmd-record-meta}
 
 `record-meta` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _files..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/exclude=`_files_{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/type=`_choice_{:title="one of: `number`, `number-list`, `text`"}
 
@@ -2332,7 +2332,7 @@ files if you want the meta-data to follow.
 
 {::comment} synopsis-start: set-perp {:/}
 
-### set-perp - Set perpendicular {#cmd-set-perp}
+### `set-perp` - Set perpendicular {#cmd-set-perp}
 
 `set-perp` _coords..._{:title="several floating-point numbers, separated by ,"}
 
@@ -2347,7 +2347,7 @@ coordinates as there are Y columns.
 
 {::comment} synopsis-start: transpose {:/}
 
-### transpose - Transpose {#cmd-transpose}
+### `transpose` - Transpose {#cmd-transpose}
 
 `transpose` 
 
@@ -2366,7 +2366,7 @@ absorbance for different values of $$\lambda$$ (one for each column).
 
 {::comment} synopsis-start: tweak-columns {:/}
 
-### tweak-columns - Tweak columns {#cmd-tweak-columns}
+### `tweak-columns` - Tweak columns {#cmd-tweak-columns}
 
 `tweak-columns` `/flip=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/flip-all=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/remove=`_columns_{:title="a comma-separated list of [columns names](#column-names)"}
 
@@ -2385,7 +2385,7 @@ including the X column, are reversed.
 
 {::comment} synopsis-start: split-on-values {:/}
 
-### split-on-values - Split on column values {#cmd-split-on-values}
+### `split-on-values` - Split on column values {#cmd-split-on-values}
 
 `split-on-values` _meta..._{:title="several words, separated by ','"} _columns..._{:title="a comma-separated list of [columns names](#column-names)"} `/flags=`_words_{:title="several words, separated by ','"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
@@ -2432,7 +2432,7 @@ In addition, QSoas provides ways to remove calculated "baselines":
 
 {::comment} synopsis-start: filter-fft {:/}
 
-### filter-fft - FFT filter {#cmd-filter-fft}
+### `filter-fft` - FFT filter {#cmd-filter-fft}
 
 `filter-fft` `/derive=`_integer_{:title="an integer"} **(interactive)**
 
@@ -2458,7 +2458,7 @@ small heuristic. You can display it using the `b` key.
 
 {::comment} synopsis-start: filter-bsplines {:/}
 
-### filter-bsplines - B-Splines filter {#cmd-filter-bsplines}
+### `filter-bsplines` - B-Splines filter {#cmd-filter-bsplines}
 
 `filter-bsplines` `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a buffer"} **(interactive)**
 
@@ -2493,7 +2493,7 @@ approximation. (be careful as this function may fail at times).
 
 {::comment} synopsis-start: auto-filter-bs {:/}
 
-### auto-filter-bs - Auto B-splines {#cmd-auto-filter-bs}
+### `auto-filter-bs` - Auto B-splines {#cmd-auto-filter-bs}
 
 `auto-filter-bs` `/derivatives=`_integer_{:title="an integer"} `/number=`_integer_{:title="an integer"} `/optimize=`_integer_{:title="an integer"} `/order=`_integer_{:title="an integer"} `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
@@ -2518,7 +2518,7 @@ This is mostly useful in scripts.
 
 {::comment} synopsis-start: auto-filter-fft {:/}
 
-### auto-filter-fft - Auto FFT {#cmd-auto-filter-fft}
+### `auto-filter-fft` - Auto FFT {#cmd-auto-filter-fft}
 
 `auto-filter-fft` `/cutoff=`_integer_{:title="an integer"} `/derive=`_integer_{:title="an integer"} `/transform=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -2544,7 +2544,7 @@ freq magnitude real imag
 
 {::comment} synopsis-start: auto-reglin {:/}
 
-### auto-reglin - Automatic linear regression {#cmd-auto-reglin}
+### `auto-reglin` - Automatic linear regression {#cmd-auto-reglin}
 
 `auto-reglin` `/window=`_integer_{:title="an integer"}
 
@@ -2561,7 +2561,7 @@ filtering with FFT (using [cmd: filter-fft]) and taking the derivative.
 
 {::comment} synopsis-start: remove-spikes {:/}
 
-### remove-spikes - Remove spikes {#cmd-remove-spikes}
+### `remove-spikes` - Remove spikes {#cmd-remove-spikes}
 
 `remove-spikes` `/factor=`_number_{:title="a floating-point number"} `/force-new=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"}
 
@@ -2586,7 +2586,7 @@ buffers, regardless of whether spikes are present or not.
 
 {::comment} synopsis-start: downsample {:/}
 
-### downsample - Downsample {#cmd-downsample}
+### `downsample` - Downsample {#cmd-downsample}
 
 `downsample` `/factor=`_integer_{:title="an integer"}
 
@@ -2603,7 +2603,7 @@ columns too.
 
 {::comment} synopsis-start: baseline {:/}
 
-### baseline - Baseline {#cmd-baseline}
+### `baseline` - Baseline {#cmd-baseline}
 
 `baseline` **(interactive)**
 
@@ -2635,7 +2635,7 @@ scan rate (as in cyclic voltammetry), and the charge is displayed too.
 
 {::comment} synopsis-start: interpolate {:/}
 
-### interpolate - Interpolate {#cmd-interpolate}
+### `interpolate` - Interpolate {#cmd-interpolate}
 
 `interpolate` _xvalues_{:title="the number of a buffer in the stack"} _nodes_{:title="the number of a buffer in the stack"} `/type=`_choice_{:title="one of: `akima`, `linear`, `polynomial`, `spline`"}
 
@@ -2658,7 +2658,7 @@ close look at the quality of the baseline, and tweak it if need be.
 
 {::comment} synopsis-start: catalytic-baseline {:/}
 
-### catalytic-baseline - Catalytic baseline {#cmd-catalytic-baseline}
+### `catalytic-baseline` - Catalytic baseline {#cmd-catalytic-baseline}
 
 `catalytic-baseline` **(interactive)**
 
@@ -2687,7 +2687,7 @@ There are two baselines implemented for now:
 
 {::comment} synopsis-start: solve {:/}
 
-### solve - Solves an equation {#cmd-solve}
+### `solve` - Solves an equation {#cmd-solve}
 
 `solve` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/iterations=`_integer_{:title="an integer"} `/max=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"}
 
@@ -2722,7 +2722,7 @@ QSoas> solve y**2-x /min=0 /max=x
 
 {::comment} synopsis-start: auto-correlation {:/}
 
-### auto-correlation - Auto-correlation {#cmd-auto-correlation}
+### `auto-correlation` - Auto-correlation {#cmd-auto-correlation}
 
 `auto-correlation` 
 
@@ -2735,7 +2735,7 @@ Computes the auto-correlation function of the data, using FFT.
 {::comment} description-end: auto-correlation {:/}
 {::comment} synopsis-start: bin {:/}
 
-### bin - Bin {#cmd-bin}
+### `bin` - Bin {#cmd-bin}
 
 `bin` `/boxes=`_integer_{:title="an integer"} `/column=`_column_{:title="the [number/name of a column](#column-names) in a buffer"} `/log=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/norm=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/weight=`_column_{:title="the [number/name of a column](#column-names) in a buffer"}
 
@@ -2776,7 +2776,7 @@ Segments can be detected using
 
 {::comment} synopsis-start: find-steps {:/}
 
-### find-steps - Find steps {#cmd-find-steps}
+### `find-steps` - Find steps {#cmd-find-steps}
 
 `find-steps` `/average=`_integer_{:title="an integer"} `/set-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/threshold=`_number_{:title="a floating-point number"}
 
@@ -2797,7 +2797,7 @@ option `/set-segments` is on, the segments are set to that found by
 
 {::comment} synopsis-start: set-segments {:/}
 
-### set-segments - Set segments {#cmd-set-segments}
+### `set-segments` - Set segments {#cmd-set-segments}
 
 `set-segments` **(interactive)**
 
@@ -2811,7 +2811,7 @@ the closest segment.
 
 {::comment} synopsis-start: segments-chop {:/}
 
-### segments-chop - Chop into segments {#cmd-segments-chop}
+### `segments-chop` - Chop into segments {#cmd-segments-chop}
 
 `segments-chop` `/flags=`_words_{:title="several words, separated by ','"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
@@ -2830,7 +2830,7 @@ current buffer. This way, the effect of a [cmd: chop]
 {::comment} description-end: segments-chop {:/}
 {::comment} synopsis-start: film-loss {:/}
 
-### film-loss - Film loss {#cmd-film-loss}
+### `film-loss` - Film loss {#cmd-film-loss}
 
 `film-loss` **(interactive)**
 
@@ -2881,7 +2881,7 @@ details (beginnings and duration of the steps) vary a a little.
 
 {::comment} synopsis-start: subtract {:/}
 
-### subtract - Subtract {#cmd-subtract}
+### `subtract` - Subtract {#cmd-subtract}
 
 `subtract` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/mode=`_choice_{:title="one of: `indices`, `xvalues`"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -2899,7 +2899,7 @@ than one _first_ buffer). Useful for standard baseline removal.
 
 {::comment} synopsis-start: div {:/}
 
-### div - Divide {#cmd-div}
+### `div` - Divide {#cmd-div}
 
 `div` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/mode=`_choice_{:title="one of: `indices`, `xvalues`"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -2919,7 +2919,7 @@ for more information.
 
 {::comment} synopsis-start: add {:/}
 
-### add - Add {#cmd-add}
+### `add` - Add {#cmd-add}
 
 `add` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/mode=`_choice_{:title="one of: `indices`, `xvalues`"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -2934,7 +2934,7 @@ Adds all the given _buffers_ and pushes the result (a single dataset).
 
 {::comment} synopsis-start: multiply {:/}
 
-### multiply - Multiply {#cmd-multiply}
+### `multiply` - Multiply {#cmd-multiply}
 
 `multiply` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/mode=`_choice_{:title="one of: `indices`, `xvalues`"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -2951,7 +2951,7 @@ Multiplies all the given _buffers_ and pushes the result (a single dataset).
 
 {::comment} synopsis-start: average {:/}
 
-### average - Average {#cmd-average}
+### `average` - Average {#cmd-average}
 
 `average` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/count=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/mode=`_choice_{:title="one of: `indices`, `xvalues`"} `/split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -2976,7 +2976,7 @@ in a cyclic voltammogram.
 
 {::comment} synopsis-start: merge {:/}
 
-### merge - Merge buffers on X values {#cmd-merge}
+### `merge` - Merge buffers on X values {#cmd-merge}
 
 `merge` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/mode=`_choice_{:title="one of: `indices`, `xvalues`"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -2998,7 +2998,7 @@ each of those before.
 
 {::comment} synopsis-start: contract {:/}
 
-### contract - Group buffers on X values {#cmd-contract}
+### `contract` - Group buffers on X values {#cmd-contract}
 
 `contract` _buffers..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/mode=`_choice_{:title="one of: `indices`, `xvalues`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/use-columns=`_columns_{:title="a comma-separated list of [columns names](#column-names)"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -3065,7 +3065,7 @@ this time under the name `my_interesting_meta`.
 You can save all the data in one go under their original name using
 `/set-meta=*`.
 
-### Combining `/accumulate=` and [cmd: pop] to create new datasets on the fly
+### Combining `/accumulate=` and `pop` to create new datasets on the fly
 
 It is now possible to generate a data from scratch using the
 `/accumulate=` option. This option takes an ordered list of output
@@ -3088,7 +3088,7 @@ using [cmd: run-for-each] or [cmd: run-for-datasets].
 
 {::comment} synopsis-start: pop {:/}
 
-### pop - Pop accumulator {#cmd-pop}
+### `pop` - Pop accumulator {#cmd-pop}
 
 `pop` `/drop=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -3108,7 +3108,7 @@ onto the stack.
 
 {::comment} synopsis-start: find-peaks {:/}
 
-### find-peaks - Find peaks {#cmd-find-peaks}
+### `find-peaks` - Find peaks {#cmd-find-peaks}
 
 `find-peaks` `/accumulate=`_words_{:title="several words, separated by ','"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_words_{:title="several words, separated by ','"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/peaks=`_integer_{:title="an integer"} `/set-meta=`_words_{:title="several words, separated by ','"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
 
@@ -3140,7 +3140,7 @@ default), they are also written to the [output file](#output-file).
 
 {::comment} synopsis-start: echem-peaks {:/}
 
-### echem-peaks - Find peaks pairs {#cmd-echem-peaks}
+### `echem-peaks` - Find peaks pairs {#cmd-echem-peaks}
 
 `echem-peaks` `/accumulate=`_words_{:title="several words, separated by ','"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_words_{:title="several words, separated by ','"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/pairs=`_integer_{:title="an integer"} `/set-meta=`_words_{:title="several words, separated by ','"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
 
@@ -3162,7 +3162,7 @@ about those.
 
 {::comment} synopsis-start: 1 {:/}
 
-### 1 - Find peak {#cmd-1}
+### `1` - Find peak {#cmd-1}
 
 `1` `/accumulate=`_words_{:title="several words, separated by ','"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_words_{:title="several words, separated by ','"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_words_{:title="several words, separated by ','"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
 
@@ -3185,7 +3185,7 @@ QSoas> find-peaks /peaks=1 /output=true
 
 {::comment} synopsis-start: 2 {:/}
 
-### 2 - Find two peaks {#cmd-2}
+### `2` - Find two peaks {#cmd-2}
 
 `2` `/accumulate=`_words_{:title="several words, separated by ','"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_words_{:title="several words, separated by ','"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_words_{:title="several words, separated by ','"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
 
@@ -3209,7 +3209,7 @@ QSoas> find-peaks /peaks=2 /output=true
 
 {::comment} synopsis-start: stats {:/}
 
-### stats - Statistics {#cmd-stats}
+### `stats` - Statistics {#cmd-stats}
 
 `stats` `/accumulate=`_words_{:title="several words, separated by ','"} `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/meta=`_words_{:title="several words, separated by ','"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_words_{:title="several words, separated by ','"} `/stats=`_stats-names_{:title="one or more name of statistics (as displayed by stats), separated by `,`."} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -3263,7 +3263,7 @@ It is possible to run [cmd: stats] on several buffers by using the
 
 {::comment} synopsis-start: cursor {:/}
 
-### cursor - Cursor {#cmd-cursor}
+### `cursor` - Cursor {#cmd-cursor}
 
 `cursor` **(interactive)**
 
@@ -3291,7 +3291,7 @@ of the buffer and returns. Hitting `v` divides by the current Y value.
 
 {::comment} synopsis-start: reglin {:/}
 
-### reglin - Linear regression {#cmd-reglin}
+### `reglin` - Linear regression {#cmd-reglin}
 
 `reglin` **(interactive)**
 
@@ -3474,7 +3474,7 @@ fits:
 
 {::comment} synopsis-start: combine-fits {:/}
 
-### combine-fits - Combine fits {#cmd-combine-fits}
+### `combine-fits` - Combine fits {#cmd-combine-fits}
 
 `combine-fits` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _fits..._{:title="a series of names of a fit (without the fit- prefix), separated by spaces"} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -3512,7 +3512,7 @@ you use `/redefine=true` (not by default), in which case existing
 
 {::comment} synopsis-start: define-derived-fit {:/}
 
-### define-derived-fit - Create a derived fit {#cmd-define-derived-fit}
+### `define-derived-fit` - Create a derived fit {#cmd-define-derived-fit}
 
 `define-derived-fit` _existing-fit_{:title="the name of a fit (without the fit- prefix)"} `/mode=`_choice_{:title="one of: `combined`, `deriv-only`, `separated`"} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -3540,7 +3540,7 @@ This function is explained in more details in the
 {::comment} description-end: define-derived-fit {:/}
 {::comment} synopsis-start: define-distribution-fit {:/}
 
-### define-distribution-fit - Define fit with distribution {#cmd-define-distribution-fit}
+### `define-distribution-fit` - Define fit with distribution {#cmd-define-distribution-fit}
 
 `define-distribution-fit` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _existing-fit_{:title="the name of a fit (without the fit- prefix)"} _parameter_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/distribution=`_choice_{:title="one of: `gaussian`, `log-uniform`, `lorentzian`, `uniform`"} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -3585,7 +3585,7 @@ this command unless `/redefine=true` is specified.
 
 {::comment} synopsis-start: reparametrize-fit {:/}
 
-### reparametrize-fit - Reparametrize fit {#cmd-reparametrize-fit}
+### `reparametrize-fit` - Reparametrize fit {#cmd-reparametrize-fit}
 
 `reparametrize-fit` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _fit_{:title="the name of a fit (without the fit- prefix)"} _new-parameters_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _redefinitions..._{:title="several words, separated by ';;'"} `/conditions=`_words_{:title="several words, separated by ''"} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -3623,7 +3623,7 @@ There are several ways to fit exponentials to data. The simplest is
 
 {::comment} synopsis-start: fit-exponential-decay {:/}
 
-### fit-exponential-decay - Fit: Multi-exponential fits {#cmd-fit-exponential-decay}
+### `fit-exponential-decay` - Fit: Multi-exponential fits {#cmd-fit-exponential-decay}
 
 `fit-exponential-decay` `/absolute=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/exponentials=`_integer_{:title="an integer"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/parameters=`_file_{:title="name of a file"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -3670,7 +3670,7 @@ The values of $$\tau_i$$ cannot be negative, nor can $$k_{loss}$$.
 
 {::comment} synopsis-start: mfit-exponential-decay {:/}
 
-### mfit-exponential-decay - Multi fit: Multi-exponential fits {#cmd-mfit-exponential-decay}
+### `mfit-exponential-decay` - Multi fit: Multi-exponential fits {#cmd-mfit-exponential-decay}
 
 `mfit-exponential-decay` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/absolute=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/exponentials=`_integer_{:title="an integer"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -3702,7 +3702,7 @@ Multi-buffer version of the
 
 {::comment} synopsis-start: sim-exponential-decay {:/}
 
-### sim-exponential-decay - Simulation: Multi-exponential fits {#cmd-sim-exponential-decay}
+### `sim-exponential-decay` - Simulation: Multi-exponential fits {#cmd-sim-exponential-decay}
 
 `sim-exponential-decay` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/absolute=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/exponentials=`_integer_{:title="an integer"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
@@ -3730,7 +3730,7 @@ Simulation command for the
 
 {::comment} synopsis-start: fit-multiexp-multistep {:/}
 
-### fit-multiexp-multistep - Fit: Multi-step and multi-exponential {#cmd-fit-multiexp-multistep}
+### `fit-multiexp-multistep` - Fit: Multi-step and multi-exponential {#cmd-fit-multiexp-multistep}
 
 `fit-multiexp-multistep` `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/exponentials=`_integer_{:title="an integer"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/parameters=`_file_{:title="name of a file"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/steps=`_integers_{:title="a comma-separated list of integers"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -3786,7 +3786,7 @@ cannot be negative, nor can the values of $$k_{loss}$$.
 
 {::comment} synopsis-start: mfit-multiexp-multistep {:/}
 
-### mfit-multiexp-multistep - Multi fit: Multi-step and multi-exponential {#cmd-mfit-multiexp-multistep}
+### `mfit-multiexp-multistep` - Multi fit: Multi-step and multi-exponential {#cmd-mfit-multiexp-multistep}
 
 `mfit-multiexp-multistep` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/exponentials=`_integer_{:title="an integer"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/steps=`_integers_{:title="a comma-separated list of integers"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -3815,7 +3815,7 @@ This is the multibuffer version of the [fit: multiexp-multistep] fit.
 
 {::comment} synopsis-start: sim-multiexp-multistep {:/}
 
-### sim-multiexp-multistep - Simulation: Multi-step and multi-exponential {#cmd-sim-multiexp-multistep}
+### `sim-multiexp-multistep` - Simulation: Multi-step and multi-exponential {#cmd-sim-multiexp-multistep}
 
 `sim-multiexp-multistep` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/exponentials=`_integer_{:title="an integer"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/steps=`_integers_{:title="a comma-separated list of integers"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
@@ -3841,7 +3841,7 @@ This is the simulation command for the [fit: multiexp-multistep] fit.
 
 {::comment} synopsis-start: fit-linear-kinetic-system {:/}
 
-### fit-linear-kinetic-system - Fit: Several steps with a kinetic evolution {#cmd-fit-linear-kinetic-system}
+### `fit-linear-kinetic-system` - Fit: Several steps with a kinetic evolution {#cmd-fit-linear-kinetic-system}
 
 `fit-linear-kinetic-system` `/additional-loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/offset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/parameters=`_file_{:title="name of a file"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/species=`_integer_{:title="an integer"} `/steps=`_words_{:title="several words, separated by ','"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -3892,7 +3892,7 @@ This fit was used for many of the publications of the team, such as
 {::comment} description-end: fit-linear-kinetic-system {:/}
 {::comment} synopsis-start: mfit-linear-kinetic-system {:/}
 
-### mfit-linear-kinetic-system - Multi fit: Several steps with a kinetic evolution {#cmd-mfit-linear-kinetic-system}
+### `mfit-linear-kinetic-system` - Multi fit: Several steps with a kinetic evolution {#cmd-mfit-linear-kinetic-system}
 
 `mfit-linear-kinetic-system` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/additional-loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/offset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/species=`_integer_{:title="an integer"} `/steps=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -3923,7 +3923,7 @@ This is the multibuffer version of the [fit: linear-kinetic-system] fit.
 
 {::comment} synopsis-start: sim-linear-kinetic-system {:/}
 
-### sim-linear-kinetic-system - Simulation: Several steps with a kinetic evolution {#cmd-sim-linear-kinetic-system}
+### `sim-linear-kinetic-system` - Simulation: Several steps with a kinetic evolution {#cmd-sim-linear-kinetic-system}
 
 `sim-linear-kinetic-system` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/additional-loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/offset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/species=`_integer_{:title="an integer"} `/steps=`_words_{:title="several words, separated by ','"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
@@ -3952,7 +3952,7 @@ This is the simulation command for the [fit: linear-kinetic-system] fit.
 
 {::comment} synopsis-start: fit-polynomial {:/}
 
-### fit-polynomial - Fit: Fit to a polynomial function {#cmd-fit-polynomial}
+### `fit-polynomial` - Fit: Fit to a polynomial function {#cmd-fit-polynomial}
 
 `fit-polynomial` `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/order=`_integers_{:title="a comma-separated list of integers"} `/parameters=`_file_{:title="name of a file"} `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} **(interactive)**
 
@@ -4006,7 +4006,7 @@ parameter combinations that give inflexion points.
 
 {::comment} synopsis-start: mfit-polynomial {:/}
 
-### mfit-polynomial - Multi fit: Fit to a polynomial function {#cmd-mfit-polynomial}
+### `mfit-polynomial` - Multi fit: Fit to a polynomial function {#cmd-mfit-polynomial}
 
 `mfit-polynomial` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/order=`_integers_{:title="a comma-separated list of integers"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} **(interactive)**
 
@@ -4036,7 +4036,7 @@ This is the multibuffer version of the [fit: polynomial] fit.
 {::comment} description-end: mfit-polynomial {:/}
 {::comment} synopsis-start: sim-polynomial {:/}
 
-### sim-polynomial - Simulation: Fit to a polynomial function {#cmd-sim-polynomial}
+### `sim-polynomial` - Simulation: Fit to a polynomial function {#cmd-sim-polynomial}
 
 `sim-polynomial` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/order=`_integers_{:title="a comma-separated list of integers"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -4072,7 +4072,7 @@ possible to store formulas in a plain text file and load them using
 
 {::comment} synopsis-start: fit-arb {:/}
 
-### fit-arb - Fit: Arbitrary fit {#cmd-fit-arb}
+### `fit-arb` - Fit: Arbitrary fit {#cmd-fit-arb}
 
 `fit-arb` _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"} **(interactive)**
 
@@ -4122,7 +4122,7 @@ below for more information.
 
 {::comment} synopsis-start: mfit-arb {:/}
 
-### mfit-arb - Multi fit: Arbitrary fit {#cmd-mfit-arb}
+### `mfit-arb` - Multi fit: Arbitrary fit {#cmd-mfit-arb}
 
 `mfit-arb` _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"} **(interactive)**
 
@@ -4178,7 +4178,7 @@ and have `a` common to all buffer, but `b` buffer-specific.
 
 {::comment} synopsis-start: load-fits {:/}
 
-### load-fits - Load fits {#cmd-load-fits}
+### `load-fits` - Load fits {#cmd-load-fits}
 
 `load-fits` _file_{:title="name of a file"} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -4211,7 +4211,7 @@ this command unless `/redefine=true` is specified.
 
 {::comment} synopsis-start: custom-fit {:/}
 
-### custom-fit - Define fit {#cmd-custom-fit}
+### `custom-fit` - Define fit {#cmd-custom-fit}
 
 `custom-fit` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -4253,7 +4253,7 @@ parameter into a surface one.
 
 {::comment} synopsis-start: fit-gaussian {:/}
 
-### fit-gaussian - Fit: One or several gaussians {#cmd-fit-gaussian}
+### `fit-gaussian` - Fit: One or several gaussians {#cmd-fit-gaussian}
 
 `fit-gaussian` `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/number=`_integer_{:title="an integer"} `/parameters=`_file_{:title="name of a file"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -4292,7 +4292,7 @@ by default.
 {::comment} description-end: fit-gaussian {:/}
 {::comment} synopsis-start: mfit-gaussian {:/}
 
-### mfit-gaussian - Multi fit: One or several gaussians {#cmd-mfit-gaussian}
+### `mfit-gaussian` - Multi fit: One or several gaussians {#cmd-mfit-gaussian}
 
 `mfit-gaussian` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/number=`_integer_{:title="an integer"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -4319,7 +4319,7 @@ Multi-buffer variant of the [cmd: fit-gaussian] fit.
 {::comment} description-end: mfit-gaussian {:/}
 {::comment} synopsis-start: sim-gaussian {:/}
 
-### sim-gaussian - Simulation: One or several gaussians {#cmd-sim-gaussian}
+### `sim-gaussian` - Simulation: One or several gaussians {#cmd-sim-gaussian}
 
 `sim-gaussian` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -4342,7 +4342,7 @@ Simulation command for the  [cmd: fit-gaussian] fit.
 {::comment} description-end: sim-gaussian {:/}
 {::comment} synopsis-start: fit-lorentzian {:/}
 
-### fit-lorentzian - Fit: A Lorentzian (also named Cauchy distribution) {#cmd-fit-lorentzian}
+### `fit-lorentzian` - Fit: A Lorentzian (also named Cauchy distribution) {#cmd-fit-lorentzian}
 
 `fit-lorentzian` `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/number=`_integer_{:title="an integer"} `/parameters=`_file_{:title="name of a file"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -4382,7 +4382,7 @@ by default.
 {::comment} description-end: fit-lorentzian {:/}
 {::comment} synopsis-start: mfit-lorentzian {:/}
 
-### mfit-lorentzian - Multi fit: A Lorentzian (also named Cauchy distribution) {#cmd-mfit-lorentzian}
+### `mfit-lorentzian` - Multi fit: A Lorentzian (also named Cauchy distribution) {#cmd-mfit-lorentzian}
 
 `mfit-lorentzian` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/number=`_integer_{:title="an integer"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -4409,7 +4409,7 @@ Multi-buffer variant of the [cmd: fit-lorentzian] fit.
 {::comment} description-end: mfit-lorentzian {:/}
 {::comment} synopsis-start: sim-lorentzian {:/}
 
-### sim-lorentzian - Simulation: A Lorentzian (also named Cauchy distribution) {#cmd-sim-lorentzian}
+### `sim-lorentzian` - Simulation: A Lorentzian (also named Cauchy distribution) {#cmd-sim-lorentzian}
 
 `sim-lorentzian` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -4433,7 +4433,7 @@ Simulation command for the  [cmd: fit-lorentzian] fit.
 
 {::comment} synopsis-start: fit-pseudo-voigt {:/}
 
-### fit-pseudo-voigt - Fit: A pseudo-voigt distribution (linear combination of a gaussian and a lorentzian) {#cmd-fit-pseudo-voigt}
+### `fit-pseudo-voigt` - Fit: A pseudo-voigt distribution (linear combination of a gaussian and a lorentzian) {#cmd-fit-pseudo-voigt}
 
 `fit-pseudo-voigt` `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/number=`_integer_{:title="an integer"} `/parameters=`_file_{:title="name of a file"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -4467,7 +4467,7 @@ by default.
 {::comment} description-end: fit-pseudo-voigt {:/}
 {::comment} synopsis-start: mfit-pseudo-voigt {:/}
 
-### mfit-pseudo-voigt - Multi fit: A pseudo-voigt distribution (linear combination of a gaussian and a lorentzian) {#cmd-mfit-pseudo-voigt}
+### `mfit-pseudo-voigt` - Multi fit: A pseudo-voigt distribution (linear combination of a gaussian and a lorentzian) {#cmd-mfit-pseudo-voigt}
 
 `mfit-pseudo-voigt` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/number=`_integer_{:title="an integer"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -4494,7 +4494,7 @@ Multi-buffer variant of the [cmd: fit-pseudo-voigt] fit.
 {::comment} description-end: mfit-pseudo-voigt {:/}
 {::comment} synopsis-start: sim-pseudo-voigt {:/}
 
-### sim-pseudo-voigt - Simulation: A pseudo-voigt distribution (linear combination of a gaussian and a lorentzian) {#cmd-sim-pseudo-voigt}
+### `sim-pseudo-voigt` - Simulation: A pseudo-voigt distribution (linear combination of a gaussian and a lorentzian) {#cmd-sim-pseudo-voigt}
 
 `sim-pseudo-voigt` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -4521,7 +4521,7 @@ Simulation command for the [cmd: fit-pseudo-voigt] fit.
 
 {::comment} synopsis-start: fit-nernst {:/}
 
-### fit-nernst - Fit: Nerstian behaviour {#cmd-fit-nernst}
+### `fit-nernst` - Fit: Nerstian behaviour {#cmd-fit-nernst}
 
 `fit-nernst` `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/species=`_integer_{:title="an integer"} `/states=`_integers_{:title="a comma-separated list of integers"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -4575,7 +4575,7 @@ buffer-local.
 
 {::comment} synopsis-start: mfit-nernst {:/}
 
-### mfit-nernst - Multi fit: Nerstian behaviour {#cmd-mfit-nernst}
+### `mfit-nernst` - Multi fit: Nerstian behaviour {#cmd-mfit-nernst}
 
 `mfit-nernst` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/species=`_integer_{:title="an integer"} `/states=`_integers_{:title="a comma-separated list of integers"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -4604,7 +4604,7 @@ for fitting multi-wavelength redox titrations.
 
 {::comment} synopsis-start: sim-nernst {:/}
 
-### sim-nernst - Simulation: Nerstian behaviour {#cmd-sim-nernst}
+### `sim-nernst` - Simulation: Nerstian behaviour {#cmd-sim-nernst}
 
 `sim-nernst` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/species=`_integer_{:title="an integer"} `/states=`_integers_{:title="a comma-separated list of integers"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
@@ -4632,7 +4632,7 @@ Simulation command for [cmd: fit-nernst]
 
 {::comment} synopsis-start: fit-adsorbed {:/}
 
-### fit-adsorbed - Fit: Adsorbed species {#cmd-fit-adsorbed}
+### `fit-adsorbed` - Fit: Adsorbed species {#cmd-fit-adsorbed}
 
 `fit-adsorbed` `/2el=`_integer_{:title="an integer"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/species=`_integer_{:title="an integer"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -4704,7 +4704,7 @@ species). $$\nu$$ is the voltammetric scan rate (in volts per second).
 
 {::comment} synopsis-start: mfit-adsorbed {:/}
 
-### mfit-adsorbed - Multi fit: Adsorbed species {#cmd-mfit-adsorbed}
+### `mfit-adsorbed` - Multi fit: Adsorbed species {#cmd-mfit-adsorbed}
 
 `mfit-adsorbed` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/2el=`_integer_{:title="an integer"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/species=`_integer_{:title="an integer"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -4734,7 +4734,7 @@ Multi-buffer version of the [fit: adsorbed] fit.
 
 {::comment} synopsis-start: sim-adsorbed {:/}
 
-### sim-adsorbed - Simulation: Adsorbed species {#cmd-sim-adsorbed}
+### `sim-adsorbed` - Simulation: Adsorbed species {#cmd-sim-adsorbed}
 
 `sim-adsorbed` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/2el=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/species=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
@@ -4761,7 +4761,7 @@ Simulation command for the [fit: adsorbed] fit.
 
 {::comment} synopsis-start: fit-ode {:/}
 
-### fit-ode - Fit: Fit an ODE system {#cmd-fit-ode}
+### `fit-ode` - Fit: Fit an ODE system {#cmd-fit-ode}
 
 `fit-ode` _system_{:title="name of a file"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"} **(interactive)**
 
@@ -4806,7 +4806,7 @@ parameters](#time-dependent-parameters) below for more information.
 
 {::comment} synopsis-start: mfit-ode {:/}
 
-### mfit-ode - Multi fit: Fit an ODE system {#cmd-mfit-ode}
+### `mfit-ode` - Multi fit: Fit an ODE system {#cmd-mfit-ode}
 
 `mfit-ode` _system_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"} **(interactive)**
 
@@ -4841,7 +4841,7 @@ Multibuffer version of the [fit: ode] fit.
 {::comment} description-end: mfit-ode {:/}
 {::comment} synopsis-start: sim-ode {:/}
 
-### sim-ode - Simulation: Fit an ODE system {#cmd-sim-ode}
+### `sim-ode` - Simulation: Fit an ODE system {#cmd-sim-ode}
 
 `sim-ode` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/min-step-size=`_number_{:title="a floating-point number"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/sub-steps=`_integer_{:title="an integer"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"}
 
@@ -4870,6 +4870,30 @@ Multibuffer version of the [fit: ode] fit.
 {::comment} description-start: sim-ode {:/}
 Simulation command for the  [fit: ode] fit.
 {::comment} description-end: sim-ode {:/}
+
+### ODE steppers {#ode-stepper}
+
+The fits and commands that perform ordinary differential equations (ODE)
+integrations, such as the [fit: kinetic-system] or [fit: ode] fits,
+have a `/stepper=` option that controls the *stepper* used, that is
+the algorithm that integrates the ODE.
+
+Steppers are divided in two main categories: the *explicit* steppers,
+which are fast, and the *implicit* steppers, which are slower, but
+handle much better stiff problems, when the values of the derivatives
+are large (typically when using very large kinetic constants for
+[fit: kinetic-system] for instance).
+
+The explicit steppers are `rk2`, `rk4`, `rk8pd`, `rkck` and
+`rkf45`. We recommend the use of `rkf45` when it is possible.
+
+The implicit steppers are `bsimp`, `msadams`, `msbdf`, `rk1imp`,
+`rk2imp` and `rk4imp`. We recommend the use of `bsimp` for stiff
+problems.
+
+We refer the reader to the
+[stepper documentation of the GSL][gsl-steppers] for more information.
+
 
 
 ## Kinetic systems {#kinetic-systems}
@@ -4953,7 +4977,7 @@ To define a new fit one could combine with others using
 
 {::comment} synopsis-start: fit-kinetic-system {:/}
 
-### fit-kinetic-system - Fit: Full kinetic system {#cmd-fit-kinetic-system}
+### `fit-kinetic-system` - Fit: Full kinetic system {#cmd-fit-kinetic-system}
 
 `fit-kinetic-system` _system_{:title="name of a file"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"} **(interactive)**
 
@@ -4991,7 +5015,7 @@ A rate constant cannot be negative.
 
 {::comment} synopsis-start: mfit-kinetic-system {:/}
 
-### mfit-kinetic-system - Multi fit: Full kinetic system {#cmd-mfit-kinetic-system}
+### `mfit-kinetic-system` - Multi fit: Full kinetic system {#cmd-mfit-kinetic-system}
 
 `mfit-kinetic-system` _system_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"} **(interactive)**
 
@@ -5028,7 +5052,7 @@ Multi-buffer variant of the
 
 {::comment} synopsis-start: sim-kinetic-system {:/}
 
-### sim-kinetic-system - Simulation: Full kinetic system {#cmd-sim-kinetic-system}
+### `sim-kinetic-system` - Simulation: Full kinetic system {#cmd-sim-kinetic-system}
 
 `sim-kinetic-system` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/min-step-size=`_number_{:title="a floating-point number"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/sub-steps=`_integer_{:title="an integer"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"}
 
@@ -5061,7 +5085,7 @@ Simulation command for the
 
 {::comment} synopsis-start: define-kinetic-system-fit {:/}
 
-### define-kinetic-system-fit - Define a fit based on a kinetic mode {#cmd-define-kinetic-system-fit}
+### `define-kinetic-system-fit` - Define a fit based on a kinetic mode {#cmd-define-kinetic-system-fit}
 
 `define-kinetic-system-fit` _file_{:title="name of a file"} _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -5171,7 +5195,7 @@ to [Abou-Hamdam _et al_, **PNAS**
 
 {::comment} synopsis-start: fit-slow-scan-hp {:/}
 
-### fit-slow-scan-hp - Fit: Slow scan test {#cmd-fit-slow-scan-hp}
+### `fit-slow-scan-hp` - Fit: Slow scan test {#cmd-fit-slow-scan-hp}
 
 `fit-slow-scan-hp` `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -5211,7 +5235,7 @@ and $$\nu$$ the scan rate.
 
 {::comment} synopsis-start: fit-slow-scan-lp {:/}
 
-### fit-slow-scan-lp - Fit: Slow scan test {#cmd-fit-slow-scan-lp}
+### `fit-slow-scan-lp` - Fit: Slow scan test {#cmd-fit-slow-scan-lp}
 
 `fit-slow-scan-lp` `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -5249,7 +5273,7 @@ $$E_1$$ is the initial potential, $$\nu$$ the scan rate
 
 {::comment} synopsis-start: mfit-slow-scan-hp {:/}
 
-### mfit-slow-scan-hp - Multi fit: Slow scan test {#cmd-mfit-slow-scan-hp}
+### `mfit-slow-scan-hp` - Multi fit: Slow scan test {#cmd-mfit-slow-scan-hp}
 
 `mfit-slow-scan-hp` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -5278,7 +5302,7 @@ Multi-buffer variant of the
 
 {::comment} synopsis-start: mfit-slow-scan-lp {:/}
 
-### mfit-slow-scan-lp - Multi fit: Slow scan test {#cmd-mfit-slow-scan-lp}
+### `mfit-slow-scan-lp` - Multi fit: Slow scan test {#cmd-mfit-slow-scan-lp}
 
 `mfit-slow-scan-lp` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -5306,7 +5330,7 @@ Multi-buffer variant of the
 
 {::comment} synopsis-start: sim-slow-scan-lp {:/}
 
-### sim-slow-scan-lp - Simulation: Slow scan test {#cmd-sim-slow-scan-lp}
+### `sim-slow-scan-lp` - Simulation: Slow scan test {#cmd-sim-slow-scan-lp}
 
 `sim-slow-scan-lp` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
@@ -5330,7 +5354,7 @@ Simulation command for the
 
 {::comment} synopsis-start: sim-slow-scan-hp {:/}
 
-### sim-slow-scan-hp - Simulation: Slow scan test {#cmd-sim-slow-scan-hp}
+### `sim-slow-scan-hp` - Simulation: Slow scan test {#cmd-sim-slow-scan-hp}
 
 `sim-slow-scan-hp` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
@@ -5420,7 +5444,7 @@ that in the other direction (for reversible fits).
 
 {::comment} synopsis-start: fit-eci-wave {:/}
 
-### fit-eci-wave - Fit: Fit of an EC irreversible catalytic wave {#cmd-fit-eci-wave}
+### `fit-eci-wave` - Fit: Fit of an EC irreversible catalytic wave {#cmd-fit-eci-wave}
 
 `fit-eci-wave` `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/parameters=`_file_{:title="name of a file"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -5467,7 +5491,7 @@ $$
 
 {::comment} synopsis-start: mfit-eci-wave {:/}
 
-### mfit-eci-wave - Multi fit: Fit of an EC irreversible catalytic wave {#cmd-mfit-eci-wave}
+### `mfit-eci-wave` - Multi fit: Fit of an EC irreversible catalytic wave {#cmd-mfit-eci-wave}
 
 `mfit-eci-wave` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -5497,7 +5521,7 @@ Multi-buffer version of the [fit: eci-wave] fit.
 
 {::comment} synopsis-start: sim-eci-wave {:/}
 
-### sim-eci-wave - Simulation: Fit of an EC irreversible catalytic wave {#cmd-sim-eci-wave}
+### `sim-eci-wave` - Simulation: Fit of an EC irreversible catalytic wave {#cmd-sim-eci-wave}
 
 `sim-eci-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
@@ -5522,7 +5546,7 @@ Simulation command for the [fit: eci-wave] fit.
 
 {::comment} synopsis-start: fit-ecr-wave {:/}
 
-### fit-ecr-wave - Fit: Fit of an EC reversible catalytic wave {#cmd-fit-ecr-wave}
+### `fit-ecr-wave` - Fit: Fit of an EC reversible catalytic wave {#cmd-fit-ecr-wave}
 
 `fit-ecr-wave` `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/parameters=`_file_{:title="name of a file"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -5569,7 +5593,7 @@ $$
 {::comment} description-end: fit-ecr-wave {:/}
 {::comment} synopsis-start: mfit-ecr-wave {:/}
 
-### mfit-ecr-wave - Multi fit: Fit of an EC reversible catalytic wave {#cmd-mfit-ecr-wave}
+### `mfit-ecr-wave` - Multi fit: Fit of an EC reversible catalytic wave {#cmd-mfit-ecr-wave}
 
 `mfit-ecr-wave` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -5597,7 +5621,7 @@ Multi-buffer version of the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
 {::comment} description-end: mfit-ecr-wave {:/}
 {::comment} synopsis-start: sim-ecr-wave {:/}
 
-### sim-ecr-wave - Simulation: Fit of an EC reversible catalytic wave {#cmd-sim-ecr-wave}
+### `sim-ecr-wave` - Simulation: Fit of an EC reversible catalytic wave {#cmd-sim-ecr-wave}
 
 `sim-ecr-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -5622,7 +5646,7 @@ Simulation command for the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
 
 {::comment} synopsis-start: fit-eeci-wave {:/}
 
-### fit-eeci-wave - Fit: Fit of an EC irreversible catalytic wave {#cmd-fit-eeci-wave}
+### `fit-eeci-wave` - Fit: Fit of an EC irreversible catalytic wave {#cmd-fit-eeci-wave}
 
 `fit-eeci-wave` `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/parameters=`_file_{:title="name of a file"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -5674,7 +5698,7 @@ $$
 
 {::comment} synopsis-start: mfit-eeci-wave {:/}
 
-### mfit-eeci-wave - Multi fit: Fit of an EC irreversible catalytic wave {#cmd-mfit-eeci-wave}
+### `mfit-eeci-wave` - Multi fit: Fit of an EC irreversible catalytic wave {#cmd-mfit-eeci-wave}
 
 `mfit-eeci-wave` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -5703,7 +5727,7 @@ Multibuffer version of the [fit: eeci-wave] fit.
 
 {::comment} synopsis-start: sim-eeci-wave {:/}
 
-### sim-eeci-wave - Simulation: Fit of an EC irreversible catalytic wave {#cmd-sim-eeci-wave}
+### `sim-eeci-wave` - Simulation: Fit of an EC irreversible catalytic wave {#cmd-sim-eeci-wave}
 
 `sim-eeci-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
@@ -5728,7 +5752,7 @@ Simulation command for the [fit: eeci-wave] fit.
 
 {::comment} synopsis-start: fit-eecr-wave {:/}
 
-### fit-eecr-wave - Fit: Fit of an EEC reversible catalytic wave {#cmd-fit-eecr-wave}
+### `fit-eecr-wave` - Fit: Fit of an EEC reversible catalytic wave {#cmd-fit-eecr-wave}
 
 `fit-eecr-wave` `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/parameters=`_file_{:title="name of a file"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -5783,7 +5807,7 @@ $$
 
 {::comment} synopsis-start: mfit-eecr-wave {:/}
 
-### mfit-eecr-wave - Multi fit: Fit of an EEC reversible catalytic wave {#cmd-mfit-eecr-wave}
+### `mfit-eecr-wave` - Multi fit: Fit of an EEC reversible catalytic wave {#cmd-mfit-eecr-wave}
 
 `mfit-eecr-wave` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -5812,7 +5836,7 @@ Multi-buffer variant of [cmd: fit-eecr-wave].
 
 {::comment} synopsis-start: sim-eecr-wave {:/}
 
-### sim-eecr-wave - Simulation: Fit of an EEC reversible catalytic wave {#cmd-sim-eecr-wave}
+### `sim-eecr-wave` - Simulation: Fit of an EEC reversible catalytic wave {#cmd-sim-eecr-wave}
 
 `sim-eecr-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -5838,7 +5862,7 @@ Simulation for the [`eecr-wave`](#cmd-fit-eecr-wave) fit.
 
 {::comment} synopsis-start: fit-eecr-relay-wave {:/}
 
-### fit-eecr-relay-wave - Fit: Fit of an EECR+relay catalytic wave {#cmd-fit-eecr-relay-wave}
+### `fit-eecr-relay-wave` - Fit: Fit of an EECR+relay catalytic wave {#cmd-fit-eecr-relay-wave}
 
 `fit-eecr-relay-wave` `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -5863,7 +5887,7 @@ Fits the so-called EEC with relay model in [Fourmond _et al_,
 
 {::comment} synopsis-start: mfit-eecr-relay-wave {:/}
 
-### mfit-eecr-relay-wave - Multi fit: Fit of an EECR+relay catalytic wave {#cmd-mfit-eecr-relay-wave}
+### `mfit-eecr-relay-wave` - Multi fit: Fit of an EECR+relay catalytic wave {#cmd-mfit-eecr-relay-wave}
 
 `mfit-eecr-relay-wave` _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
@@ -5889,7 +5913,7 @@ Multi-buffer version of the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
 {::comment} description-end: mfit-eecr-relay-wave {:/}
 {::comment} synopsis-start: sim-eecr-relay-wave {:/}
 
-### sim-eecr-relay-wave - Simulation: Fit of an EECR+relay catalytic wave {#cmd-sim-eecr-relay-wave}
+### `sim-eecr-relay-wave` - Simulation: Fit of an EECR+relay catalytic wave {#cmd-sim-eecr-relay-wave}
 
 `sim-eecr-relay-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -5921,7 +5945,7 @@ The fit command features means to select fit engines and tune their parameters.
 
 {::comment} synopsis-start: fit-qsoas-engine {:/}
 
-### qsoas-engine - qsoas {#fit-cmd-qsoas-engine}
+### `qsoas-engine` - qsoas {#fit-cmd-qsoas-engine}
 
 `qsoas-engine` `/end-threshold=`_number_{:title="a floating-point number"} `/lambda=`_number_{:title="a floating-point number"} `/relative-min=`_number_{:title="a floating-point number"} `/residuals-threshold=`_number_{:title="a floating-point number"} `/scale=`_number_{:title="a floating-point number"} `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/trial-steps=`_integer_{:title="an integer"} **(fit command)**
 
@@ -5941,7 +5965,7 @@ implementation of the Levenberg-Marquardt algorithm.
 
 {::comment} synopsis-start: fit-odrpack-engine {:/}
 
-### odrpack-engine - odrpack {#fit-cmd-odrpack-engine}
+### `odrpack-engine` - odrpack {#fit-cmd-odrpack-engine}
 
 `odrpack-engine` **(fit command)**
 
@@ -5952,7 +5976,7 @@ Selects the ODRPACK fit engine
 {::comment} description-end: fit-odrpack-engine {:/}
 {::comment} synopsis-start: fit-multi-engine {:/}
 
-### multi-engine - multi {#fit-cmd-multi-engine}
+### `multi-engine` - multi {#fit-cmd-multi-engine}
 
 `multi-engine` `/end-threshold=`_number_{:title="a floating-point number"} `/global-scaling-order=`_number_{:title="a floating-point number"} `/lambda=`_number_{:title="a floating-point number"} `/relative-min=`_number_{:title="a floating-point number"} `/residuals-threshold=`_number_{:title="a floating-point number"} `/scale=`_number_{:title="a floating-point number"} `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/trial-steps=`_integer_{:title="an integer"} **(fit command)**
 
@@ -5972,7 +5996,7 @@ This command selects the `multi` fit engine, the variant of the
 {::comment} description-end: fit-multi-engine {:/}
 {::comment} synopsis-start: fit-simplex-engine {:/}
 
-### simplex-engine - simplex {#fit-cmd-simplex-engine}
+### `simplex-engine` - simplex {#fit-cmd-simplex-engine}
 
 `simplex-engine` `/alpha=`_number_{:title="a floating-point number"} `/beta=`_number_{:title="a floating-point number"} `/delta=`_number_{:title="a floating-point number"} `/end-threshold=`_number_{:title="a floating-point number"} `/gamma=`_number_{:title="a floating-point number"} **(fit command)**
 
@@ -5988,7 +6012,7 @@ This command selects the Simplex fit engine.
 {::comment} description-end: fit-simplex-engine {:/}
 {::comment} synopsis-start: fit-gsl-simplex-engine {:/}
 
-### gsl-simplex-engine - gsl-simplex {#fit-cmd-gsl-simplex-engine}
+### `gsl-simplex-engine` - gsl-simplex {#fit-cmd-gsl-simplex-engine}
 
 `gsl-simplex-engine` **(fit command)**
 
@@ -5997,7 +6021,7 @@ This command selects the Simplex fit engine.
 {::comment} description-start: fit-gsl-simplex-engine {:/}
 This command selects the fit engine based on the GSL version of the
 simplex, which may or may not be better than the
-[Simplex](#cmd-fit-simplex-engine) depending on the function used for
+[Simplex](#fit-cmd-simplex-engine) depending on the function used for
 fitting.
 {::comment} description-end: fit-gsl-simplex-engine {:/}
 
@@ -6005,7 +6029,7 @@ fitting.
 
 {::comment} synopsis-start: fit-pso-engine {:/}
 
-### pso-engine - pso {#fit-cmd-pso-engine}
+### `pso-engine` - pso {#fit-cmd-pso-engine}
 
 `pso-engine` `/delta=`_number_{:title="a floating-point number"} `/min-inertia=`_number_{:title="a floating-point number"} `/particles=`_integer_{:title="an integer"} `/starting-inertia=`_number_{:title="a floating-point number"} **(fit command)**
 
@@ -6036,7 +6060,7 @@ the parameters spreadsheet.
 
 {::comment} synopsis-start: fit-fix {:/}
 
-### fix - Fix parameter {#fit-cmd-fix}
+### `fix` - Fix parameter {#fit-cmd-fix}
 
 `fix` _parameter_{:title="..."} **(fit command)**
 
@@ -6056,7 +6080,7 @@ This fixes parameter `a` everywher and `b` only for buffer `#3`
 {::comment} description-end: fit-fix {:/}
 {::comment} synopsis-start: fit-unfix {:/}
 
-### unfix - Unfix parameter {#fit-cmd-unfix}
+### `unfix` - Unfix parameter {#fit-cmd-unfix}
 
 `unfix` _parameter_{:title="..."} **(fit command)**
 
@@ -6069,7 +6093,7 @@ Same as [fit-cmd: fix] but sets the parameter free.
 
 {::comment} synopsis-start: fit-set {:/}
 
-### set - Set parameter {#fit-cmd-set}
+### `set` - Set parameter {#fit-cmd-set}
 
 `set` _parameter_{:title="..."} _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expression=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/fix=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/unfix=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} **(fit command)**
 
@@ -6089,7 +6113,7 @@ fix or free the parameter at the same time as setting its value.
 {::comment} description-end: fit-set {:/}
 {::comment} synopsis-start: fit-local {:/}
 
-### local - Local parameter {#fit-cmd-local}
+### `local` - Local parameter {#fit-cmd-local}
 
 `local` _parameter_{:title="..."} **(fit command)**
 
@@ -6101,7 +6125,7 @@ Makes the given parameter local to the buffers.
 {::comment} description-end: fit-local {:/}
 {::comment} synopsis-start: fit-global {:/}
 
-### global - Global parameter {#fit-cmd-global}
+### `global` - Global parameter {#fit-cmd-global}
 
 `global` _parameter_{:title="..."} **(fit command)**
 
@@ -6113,7 +6137,7 @@ Makes the given parameter global.
 {::comment} description-end: fit-global {:/}
 {::comment} synopsis-start: fit-save {:/}
 
-### save - Save {#fit-cmd-save}
+### `save` - Save {#fit-cmd-save}
 
 `save` _file_{:title="name of a file"} `/rotate=`_integer_{:title="an integer"} **(fit command)**
 
@@ -6127,7 +6151,7 @@ Saves the current parameters to the given file, as one would with
 {::comment} description-end: fit-save {:/}
 {::comment} synopsis-start: fit-load {:/}
 
-### load - Load {#fit-cmd-load}
+### `load` - Load {#fit-cmd-load}
 
 `load` _file_{:title="name of a file"} `/mode=`_choice_{:title="one of: `buffer-name`, `closest-Z`, `normal`"} **(fit command)**
 
@@ -6140,7 +6164,7 @@ Loads the parameters from the given file.
 {::comment} description-end: fit-load {:/}
 {::comment} synopsis-start: fit-show-parameters {:/}
 
-### show-parameters - Show parameters {#fit-cmd-show-parameters}
+### `show-parameters` - Show parameters {#fit-cmd-show-parameters}
 
 `show-parameters` **(fit command)**
 
@@ -6152,7 +6176,7 @@ with their respective errors.
 {::comment} description-end: fit-show-parameters {:/}
 {::comment} synopsis-start: fit-parameters-spreadsheet {:/}
 
-### parameters-spreadsheet - Parameters spreadsheet {#fit-cmd-parameters-spreadsheet}
+### `parameters-spreadsheet` - Parameters spreadsheet {#fit-cmd-parameters-spreadsheet}
 
 `parameters-spreadsheet` **(fit command)**
 
@@ -6164,7 +6188,7 @@ parameters for a large number of datasets.
 {::comment} description-end: fit-parameters-spreadsheet {:/}
 {::comment} synopsis-start: fit-export {:/}
 
-### export - Export parameters {#fit-cmd-export}
+### `export` - Export parameters {#fit-cmd-export}
 
 `export` `/errors=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/file=`_file_{:title="name of a file"} **(fit command)**
 
@@ -6178,7 +6202,7 @@ option or to the [output file](#output-file) if it is not specified.
 {::comment} description-end: fit-export {:/}
 {::comment} synopsis-start: fit-reset {:/}
 
-### reset - Reset {#fit-cmd-reset}
+### `reset` - Reset {#fit-cmd-reset}
 
 `reset` `/source=`_choice_{:title="one of: `backup`, `initial`"} **(fit command)**
 
@@ -6203,7 +6227,7 @@ functions to work on fit trajectories.
 
 {::comment} synopsis-start: fit-flag-trajectories {:/}
 
-### flag-trajectories - Flag trajectories {#fit-cmd-flag-trajectories}
+### `flag-trajectories` - Flag trajectories {#fit-cmd-flag-trajectories}
 
 `flag-trajectories` `/flags=`_words_{:title="several words, separated by ','"} **(fit command)**
 
@@ -6219,7 +6243,7 @@ trajectories.
 {::comment} description-end: fit-flag-trajectories {:/}
 {::comment} synopsis-start: fit-trim-trajectories {:/}
 
-### trim-trajectories - Trim trajectories {#fit-cmd-trim-trajectories}
+### `trim-trajectories` - Trim trajectories {#fit-cmd-trim-trajectories}
 
 `trim-trajectories` _threshold_{:title="a floating-point number"} `/at-most=`_integer_{:title="an integer"} **(fit command)**
 
@@ -6233,7 +6257,7 @@ residuals are more than _threshold_ greater than the best final residuals.
 {::comment} description-end: fit-trim-trajectories {:/}
 {::comment} synopsis-start: fit-save-trajectories {:/}
 
-### save-trajectories - Save trajectories {#fit-cmd-save-trajectories}
+### `save-trajectories` - Save trajectories {#fit-cmd-save-trajectories}
 
 `save-trajectories` _file_{:title="name of a file"} `/flag=`_choice_{:title="one of: ``"} `/mode=`_choice_{:title="one of: `fail`, `overwrite`, `update`"} **(fit command)**
 
@@ -6247,7 +6271,7 @@ Saves the trajectories into a file.
 {::comment} description-end: fit-save-trajectories {:/}
 {::comment} synopsis-start: fit-load-trajectories {:/}
 
-### load-trajectories - Load trajectories {#fit-cmd-load-trajectories}
+### `load-trajectories` - Load trajectories {#fit-cmd-load-trajectories}
 
 `load-trajectories` _file_{:title="name of a file"} `/mode=`_choice_{:title="one of: `drop`, `ignore`, `update`"} **(fit command)**
 
@@ -6257,11 +6281,11 @@ Saves the trajectories into a file.
 {::comment} synopsis-end: fit-load-trajectories {:/}
 {::comment} description-start: fit-load-trajectories {:/}
 Loads the trajectories from a previously saved fit trajectory file
-(see [fit-cmd: fit-load-trajectories]).
+(see [fit-cmd: save-trajectories]).
 {::comment} description-end: fit-load-trajectories {:/}
 {::comment} synopsis-start: fit-browse-trajectories {:/}
 
-### browse-trajectories - Browse trajectories {#fit-cmd-browse-trajectories}
+### `browse-trajectories` - Browse trajectories {#fit-cmd-browse-trajectories}
 
 `browse-trajectories` **(fit command)**
 
@@ -6273,7 +6297,7 @@ with initial and final parameters.
 {::comment} description-end: fit-browse-trajectories {:/}
 {::comment} synopsis-start: fit-list-trajectories {:/}
 
-### list-trajectories - List trajectories {#fit-cmd-list-trajectories}
+### `list-trajectories` - List trajectories {#fit-cmd-list-trajectories}
 
 `list-trajectories` `/flag=`_choice_{:title="one of: ``"} **(fit command)**
 
@@ -6285,7 +6309,7 @@ Shows a list of all the trajectories in the terminal.
 {::comment} description-end: fit-list-trajectories {:/}
 {::comment} synopsis-start: fit-drop-trajectories {:/}
 
-### drop-trajectories - Drop trajectories {#fit-cmd-drop-trajectories}
+### `drop-trajectories` - Drop trajectories {#fit-cmd-drop-trajectories}
 
 `drop-trajectories` _trajectories_{:title="fit Trajectories"} **(fit command)**
 
@@ -6297,7 +6321,7 @@ Deletes the trajectories whose flags are given as argument.
 {::comment} description-end: fit-drop-trajectories {:/}
 {::comment} synopsis-start: fit-run-for-trajectories {:/}
 
-### run-for-trajectories - Run commands {#fit-cmd-run-for-trajectories}
+### `run-for-trajectories` - Run commands {#fit-cmd-run-for-trajectories}
 
 `run-for-trajectories` _file_{:title="name of a file"} _trajectories_{:title="fit Trajectories"} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/cd-to-script=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"} `/parameters=`_choice_{:title="one of: `final`, `initial`"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} **(fit command)**
 
@@ -6321,7 +6345,7 @@ the given script. See [cmd: run] for more information about the options.
 
 {::comment} synopsis-start: fit-quit {:/}
 
-### quit - Quit {#fit-cmd-quit}
+### `quit` - Quit {#fit-cmd-quit}
 
 `quit` **(fit command)**
 
@@ -6332,7 +6356,7 @@ Quits the fit window.
 {::comment} description-end: fit-quit {:/}
 {::comment} synopsis-start: fit-mem {:/}
 
-### mem - Memory {#fit-cmd-mem}
+### `mem` - Memory {#fit-cmd-mem}
 
 `mem` **(fit command)**
 
@@ -6344,7 +6368,7 @@ memory and other resources usage of QSoas.
 {::comment} description-end: fit-mem {:/}
 {::comment} synopsis-start: fit-select {:/}
 
-### select - Select {#fit-cmd-select}
+### `select` - Select {#fit-cmd-select}
 
 `select` _dataset_{:title="an integer"} **(fit command)**
 
@@ -6357,7 +6381,7 @@ to the number inside the fit dialog box, not the number in QSoas's stack.
 {::comment} description-end: fit-select {:/}
 {::comment} synopsis-start: fit-eval {:/}
 
-### eval - Evaluate {#fit-cmd-eval}
+### `eval` - Evaluate {#fit-cmd-eval}
 
 `eval` _expression_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(fit command)**
 
@@ -6373,7 +6397,7 @@ uppercase letter).
 {::comment} description-end: fit-eval {:/}
 {::comment} synopsis-start: fit-ruby-run {:/}
 
-### ruby-run - Ruby load {#fit-cmd-ruby-run}
+### `ruby-run` - Ruby load {#fit-cmd-ruby-run}
 
 `ruby-run` _file_{:title="name of a file"} **(fit command)**
 
@@ -6385,7 +6409,7 @@ Like the other [cmd: ruby-run], loads and run a [Ruby](#ruby) code file.
 {::comment} description-end: fit-ruby-run {:/}
 {::comment} synopsis-start: fit-save-history {:/}
 
-### save-history - Save history {#fit-cmd-save-history}
+### `save-history` - Save history {#fit-cmd-save-history}
 
 `save-history` _file_{:title="name of a file"} **(fit command)**
 
@@ -6398,7 +6422,7 @@ the fit window to the given file.
 {::comment} description-end: fit-save-history {:/}
 {::comment} synopsis-start: fit-run {:/}
 
-### run - Run commands {#fit-cmd-run}
+### `run` - Run commands {#fit-cmd-run}
 
 `run` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/cd-to-script=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} **(fit command)**
 
@@ -6418,7 +6442,7 @@ command.
 {::comment} description-end: fit-run {:/}
 {::comment} synopsis-start: fit-run-for-each {:/}
 
-### run-for-each - Runs a script for several arguments {#fit-cmd-run-for-each}
+### `run-for-each` - Runs a script for several arguments {#fit-cmd-run-for-each}
 
 `run-for-each` _script_{:title="name of a file"} _arguments..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/arg4=`_file_{:title="name of a file"} `/arg5=`_file_{:title="name of a file"} `/arg6=`_file_{:title="name of a file"} `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"} `/range-type=`_choice_{:title="one of: `lin`, `log`"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} **(fit command)**
 
@@ -6441,7 +6465,7 @@ of its first parameter.
 {::comment} description-end: fit-run-for-each {:/}
 {::comment} synopsis-start: fit-verify {:/}
 
-### verify - Verify {#fit-cmd-verify}
+### `verify` - Verify {#fit-cmd-verify}
 
 `verify` _expression_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(fit command)**
 
@@ -6454,7 +6478,7 @@ Does the same as the general [cmd: verify] command.
 
 {::comment} synopsis-start: fit-fit {:/}
 
-### fit - Fit {#fit-cmd-fit}
+### `fit` - Fit {#fit-cmd-fit}
 
 `fit` `/iterations=`_integer_{:title="an integer"} **(fit command)**
 
@@ -6467,7 +6491,7 @@ through the `/iterations` option.
 {::comment} description-end: fit-fit {:/}
 {::comment} synopsis-start: fit-commands {:/}
 
-### commands - Commands {#fit-cmd-commands}
+### `commands` - Commands {#fit-cmd-commands}
 
 `commands` **(fit command)**
 
@@ -6479,7 +6503,7 @@ from within the fit prompt.
 {::comment} description-end: fit-commands {:/}
 {::comment} synopsis-start: fit-system {:/}
 
-### system - System {#fit-cmd-system}
+### `system` - System {#fit-cmd-system}
 
 `system` _command..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/shell=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/timeout=`_integer_{:title="an integer"} **(fit command)**
 
@@ -6493,7 +6517,7 @@ Like the other [cmd: system] command, runs an external program.
 {::comment} description-end: fit-system {:/}
 {::comment} synopsis-start: fit-push {:/}
 
-### push - Push to stack {#fit-cmd-push}
+### `push` - Push to stack {#fit-cmd-push}
 
 `push` `/flags=`_words_{:title="several words, separated by ','"} `/recompute=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/residuals=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/subfunctions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} **(fit command)**
 
@@ -6536,7 +6560,7 @@ iterations specified by the explorer is finished.
 
 {::comment} synopsis-start: fit-monte-carlo-explorer {:/}
 
-### monte-carlo-explorer - Monte Carlo {#fit-cmd-monte-carlo-explorer}
+### `monte-carlo-explorer` - Monte Carlo {#fit-cmd-monte-carlo-explorer}
 
 `monte-carlo-explorer` _parameters..._{:title="several words, separated by ''"} `/fit-iterations=`_integer_{:title="an integer"} `/iterations=`_integer_{:title="an integer"} `/reset-frequency=`_integer_{:title="an integer"} **(fit command)**
 
@@ -6561,7 +6585,7 @@ left untouched from the previous fit iteration.
 {::comment} description-end: fit-monte-carlo-explorer {:/}
 {::comment} synopsis-start: fit-linear-explorer {:/}
 
-### linear-explorer - Linear ramp {#fit-cmd-linear-explorer}
+### `linear-explorer` - Linear ramp {#fit-cmd-linear-explorer}
 
 `linear-explorer` _parameters..._{:title="several words, separated by ''"} `/fit-iterations=`_integer_{:title="an integer"} `/iterations=`_integer_{:title="an integer"} **(fit command)**
 
@@ -6585,7 +6609,7 @@ correlated). Adding `,log` switches to an exponential progression.
 
 {::comment} synopsis-start: fit-iterate-explorer {:/}
 
-### iterate-explorer - Iterate explorer {#fit-cmd-iterate-explorer}
+### `iterate-explorer` - Iterate explorer {#fit-cmd-iterate-explorer}
 
 `iterate-explorer` `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/improved-script=`_file_{:title="name of a file"} `/just-pick=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/pre-script=`_file_{:title="name of a file"} `/script=`_file_{:title="name of a file"} **(fit command)**
 
@@ -6627,7 +6651,7 @@ mathematical operations.
 
 {::comment} synopsis-start: eval {:/}
 
-### eval - Ruby eval {#cmd-eval}
+### `eval` - Ruby eval {#cmd-eval}
 
 `eval` _code_{:title="a piece of [Ruby code](#ruby)"} `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/modify-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-dataset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -6666,7 +6690,7 @@ You can also use this command as a calculator.
 {::comment} description-end: eval {:/}
 {::comment} synopsis-start: verify {:/}
 
-### verify - Verify {#cmd-verify}
+### `verify` - Verify {#cmd-verify}
 
 `verify` _code_{:title="a piece of [Ruby code](#ruby)"} `/buffers=`_buffers_{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/use-dataset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -6694,7 +6718,7 @@ verify $stats.x_min>0
 
 {::comment} synopsis-start: find-root {:/}
 
-### find-root - Finds a root {#cmd-find-root}
+### `find-root` - Finds a root {#cmd-find-root}
 
 `find-root` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _seed_{:title="a floating-point number"} `/max=`_number_{:title="a floating-point number"}
 
@@ -6720,7 +6744,7 @@ expression equates 0.
 {::comment} description-end: find-root {:/}
 {::comment} synopsis-start: integrate-formula {:/}
 
-### integrate-formula - Integrate expression {#cmd-integrate-formula}
+### `integrate-formula` - Integrate expression {#cmd-integrate-formula}
 
 `integrate-formula` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _a_{:title="a floating-point number"} _b_{:title="a floating-point number"} `/integrator=`_choice_{:title="one of: `gauss15`, `gauss21`, `gauss31`, `gauss41`, `gauss51`, `gauss61`, `qng`"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/subdivisions=`_integer_{:title="an integer"}
 
@@ -6752,7 +6776,7 @@ for more information.
 {::comment} description-end: integrate-formula {:/}
 {::comment} synopsis-start: mintegrate-formula {:/}
 
-### mintegrate-formula - Integrate expression {#cmd-mintegrate-formula}
+### `mintegrate-formula` - Integrate expression {#cmd-mintegrate-formula}
 
 `mintegrate-formula` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _a_{:title="a floating-point number"} _b_{:title="a floating-point number"} `/integrator=`_choice_{:title="one of: `akima`, `csplines`, `gk15`, `gk21`, `gk31`, `gk41`, `gk51`, `gk61`, `naive`"} `/max-evaluations=`_integer_{:title="an integer"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"}
 
@@ -6778,7 +6802,7 @@ created by [cmd: define-distribution-fit].
 
 {::comment} synopsis-start: generate-buffer {:/}
 
-### generate-buffer - Generate buffer {#cmd-generate-buffer}
+### `generate-buffer` - Generate buffer {#cmd-generate-buffer}
 
 `generate-buffer` _start_{:title="a floating-point number"} _end_{:title="a floating-point number"} `/flags=`_words_{:title="several words, separated by ','"} `/formula=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/number=`_integer_{:title="an integer"} `/samples=`_integer_{:title="an integer"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
@@ -6811,7 +6835,7 @@ QSoas> generate-buffer -10 10 sin(x)
 
 {::comment} synopsis-start: kinetic-system {:/}
 
-### kinetic-system - Kinetic system evolver {#cmd-kinetic-system}
+### `kinetic-system` - Kinetic system evolver {#cmd-kinetic-system}
 
 `kinetic-system` _reaction-file_{:title="name of a file"} _parameters_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/annotate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/dump=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/min-step-size=`_number_{:title="a floating-point number"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"}
 
@@ -6865,7 +6889,7 @@ QSoas> kinetic-system system.sys 'c0_A = 1;ka = 1; ki = 1'
 
 {::comment} synopsis-start: ode {:/}
 
-### ode - ODE solver {#cmd-ode}
+### `ode` - ODE solver {#cmd-ode}
 
 `ode` _file_{:title="name of a file"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/annotate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/dump=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"}
 
@@ -6988,7 +7012,7 @@ context.
 
 {::comment} synopsis-start: run {:/}
 
-### run - Run commands {#cmd-run}
+### `run` - Run commands {#cmd-run}
 
 `run` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/cd-to-script=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -7072,7 +7096,7 @@ It is possible to change how the script handles errors using the
 
 {::comment} synopsis-start: startup-files {:/}
 
-### startup-files - Startup files {#cmd-startup-files}
+### `startup-files` - Startup files {#cmd-startup-files}
 
 `startup-files` `/add=`_file_{:title="name of a file"} `/rm=`_integer_{:title="an integer"} `/run=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -7101,7 +7125,7 @@ QSoas> startup-files /run=true
 {::comment} description-end: startup-files {:/}
 {::comment} synopsis-start: run-for-each {:/}
 
-### run-for-each - Runs a script for several arguments {#cmd-run-for-each}
+### `run-for-each` - Runs a script for several arguments {#cmd-run-for-each}
 
 `run-for-each` _script_{:title="name of a file"} _arguments..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/arg4=`_file_{:title="name of a file"} `/arg5=`_file_{:title="name of a file"} `/arg6=`_file_{:title="name of a file"} `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"} `/range-type=`_choice_{:title="one of: `lin`, `log`"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -7161,7 +7185,7 @@ The `/error=` option controls how the scripts handle errors. See
 {::comment} description-end: run-for-each {:/}
 {::comment} synopsis-start: run-for-datasets {:/}
 
-### run-for-datasets - Runs a script for several datasets {#cmd-run-for-datasets}
+### `run-for-datasets` - Runs a script for several datasets {#cmd-run-for-datasets}
 
 `run-for-datasets` _script_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/arg4=`_file_{:title="name of a file"} `/arg5=`_file_{:title="name of a file"} `/arg6=`_file_{:title="name of a file"} `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
@@ -7188,7 +7212,7 @@ The `/error=` option controls how the scripts handle errors. See
 {::comment} description-end: run-for-datasets {:/}
 {::comment} synopsis-start: noop {:/}
 
-### noop - No op {#cmd-noop}
+### `noop` - No op {#cmd-noop}
 
 `noop` `/*=`_words_{:title="several words, separated by ''"}
 
@@ -7400,18 +7424,19 @@ module (that contains, among others, the error function
 
 {::comment} special-functions-start {:/}
 
- * `airy_ai(x)`: Airy Ai function $$AiryAi(x)$$. Precision to about $$10^{-7}$$. Other variants available: `airy_ai_fast` is faster, (precision $$5\times10^{-4}$$) and `airy_ai_double` slower, (precision $$2\times10^{-16}$$).  (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Airy-Functions.html))
- * `airy_ai_deriv(x)`: First derivative of Airy Ai function $$\mathrm{d}AiryAi(x)/\mathrm{d}x$$. Precision to about $$10^{-7}$$. Other variants available: `airy_ai_deriv_fast` is faster, (precision $$5\times10^{-4}$$) and `airy_ai_deriv_double` slower, (precision $$2\times10^{-16}$$).  (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Derivatives-of-Airy-Functions.html))
- * `airy_bi(x)`: Airy Bi function $$AiryBi(x)$$. Precision to about $$10^{-7}$$. Other variants available: `airy_bi_fast` is faster, (precision $$5\times10^{-4}$$) and `airy_bi_double` slower, (precision $$2\times10^{-16}$$).  (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Airy-Functions.html))
- * `airy_bi_deriv(x)`: First derivative of Airy Bi function $$\mathrm{d}AiryBi(x)/\mathrm{d}x$$. Precision to about $$10^{-7}$$. Other variants available: `airy_bi_deriv_fast` is faster, (precision $$5\times10^{-4}$$) and `airy_bi_deriv_double` slower, (precision $$2\times10^{-16}$$).  (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Derivatives-of-Airy-Functions.html))
+ * `abs(x)`: $$\|x\|$$
+ * `airy_ai(x)`: Airy Ai function $$AiryAi(x)$$. Precision to about $$10^{-7}$$. Other variants available: `airy_ai_fast` is faster, (precision $$5\times10^{-4}$$) and `airy_ai_double` slower, (precision $$2\times10^{-16}$$).  (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#airy-functions-and-derivatives))
+ * `airy_ai_deriv(x)`: First derivative of Airy Ai function $$\mathrm{d}AiryAi(x)/\mathrm{d}x$$. Precision to about $$10^{-7}$$. Other variants available: `airy_ai_deriv_fast` is faster, (precision $$5\times10^{-4}$$) and `airy_ai_deriv_double` slower, (precision $$2\times10^{-16}$$).  (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#airy-functions-and-derivatives))
+ * `airy_bi(x)`: Airy Bi function $$AiryBi(x)$$. Precision to about $$10^{-7}$$. Other variants available: `airy_bi_fast` is faster, (precision $$5\times10^{-4}$$) and `airy_bi_double` slower, (precision $$2\times10^{-16}$$).  (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#airy-functions-and-derivatives))
+ * `airy_bi_deriv(x)`: First derivative of Airy Bi function $$\mathrm{d}AiryBi(x)/\mathrm{d}x$$. Precision to about $$10^{-7}$$. Other variants available: `airy_bi_deriv_fast` is faster, (precision $$5\times10^{-4}$$) and `airy_bi_deriv_double` slower, (precision $$2\times10^{-16}$$).  (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#airy-functions-and-derivatives))
  * `atanc(x)`: $$\frac{\tan^{-1} x}{x}$$
  * `atanhc(x)`: $$\frac{\tanh^{-1} x}{x}$$
- * `bessel_j0(x)`: Regular cylindrical Bessel function of 0th order, $$J_0(x)$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Regular-Cylindrical-Bessel-Functions.html))
- * `bessel_j1(x)`: Regular cylindrical Bessel function of first order, $$J_1(x)$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Regular-Cylindrical-Bessel-Functions.html))
- * `bessel_jn(x,n)`: Regular cylindrical Bessel function of n-th order, $$J_n(x)$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Regular-Cylindrical-Bessel-Functions.html))
- * `bessel_y0(x)`: Irregular cylindrical Bessel function of 0th order, $$Y_0(x)$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Irregular-Cylindrical-Bessel-Functions.html))
- * `bessel_y1(x)`: Irregular cylindrical Bessel function of first order, $$Y_1(x)$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Irregular-Cylindrical-Bessel-Functions.html))
- * `bessel_yn(x,n)`: Irregular cylindrical Bessel function of n-th order, $$Y_n(x)$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Irregular-Cylindrical-Bessel-Functions.html))
+ * `bessel_j0(x)`: Regular cylindrical Bessel function of 0th order, $$J_0(x)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#bessel-functions))
+ * `bessel_j1(x)`: Regular cylindrical Bessel function of first order, $$J_1(x)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#bessel-functions))
+ * `bessel_jn(x,n)`: Regular cylindrical Bessel function of n-th order, $$J_n(x)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#bessel-functions))
+ * `bessel_y0(x)`: Irregular cylindrical Bessel function of 0th order, $$Y_0(x)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#irregular-cylindrical-bessel-functions))
+ * `bessel_y1(x)`: Irregular cylindrical Bessel function of first order, $$Y_1(x)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#irregular-cylindrical-bessel-functions))
+ * `bessel_yn(x,n)`: Irregular cylindrical Bessel function of n-th order, $$Y_n(x)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#irregular-cylindrical-bessel-functions))
  * `clausen(x)`: Clausen integral, $$Cl_2(x) = -\int_0^x \mathrm{d}t \log(2\sin(t/2))$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#clausen-functions))
  * `dawson(x)`: Dawson integral, $$\exp(-x^2)\int_{0}^{x}\exp(t^2)\mathrm{d} t$$
  * `debye_1(x)`: Debye function of order 1, $$D_1 = (1/x) \int_0^x \mathrm{d}t (t/(e^t - 1))$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#debye-functions))
@@ -7431,28 +7456,29 @@ module (that contains, among others, the error function
  * `fermi_dirac_half(x)`: Complete Fermi-Dirac integral (index 1/2) (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#complete-fermi-dirac-integrals))
  * `fermi_dirac_m1(x)`: Complete Fermi-Dirac integral (index -1), $$F_{-1}(x) = e^x / (1 + e^x)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#complete-fermi-dirac-integrals))
  * `fermi_dirac_mhalf(x)`: Complete Fermi-Dirac integral (index -1/2) (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#complete-fermi-dirac-integrals))
- * `fermi_dirac_n(x,n)`: Complete Fermi-Dirac integral of index $$n$$, $$F_n(x) = \frac{1}{\Gamma(n+1)} \int_0^\infty \mathrm{d} t \frac{t^n}{\exp(t-x) + 1}$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Complete-Fermi_002dDirac-Integrals.html))
+ * `fermi_dirac_n(x,n)`: Complete Fermi-Dirac integral of index $$n$$, $$F_n(x) = \frac{1}{\Gamma(n+1)} \int_0^\infty \mathrm{d} t \frac{t^n}{\exp(t-x) + 1}$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#complete-fermi-dirac-integrals))
  * `gamma(x)`: The Gauss gamma function $$\Gamma(x) = \int_0^{\infty} dt t^{x-1} \exp(-t)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#gamma-and-beta-functions))
- * `gamma_inc(a,x)`: Incomplete gamma function $$\Gamma(a,x) = \int_x^\infty dt t^{a-1} \exp(-t)$$ (more information [there](https://www.gnu.org/software/gsl/manual/html_node/Incomplete-Gamma-Functions.html))
- * `gamma_inc_p(a,x)`: Complementary normalized incomplete gamma function $$\Gamma_P(a,x) = 1 - \Gamma_Q(a,x) = 1 - \frac{1}{\Gamma(a)}\int_x^\infty dt t^{a-1} \exp(-t)$$ (more information [there](https://www.gnu.org/software/gsl/manual/html_node/Incomplete-Gamma-Functions.html))
- * `gamma_inc_q(a,x)`: Normalized incomplete gamma function $$\Gamma_Q(a,x) = \frac{1}{\Gamma(a)}\int_x^\infty dt t^{a-1} \exp(-t)$$ (more information [there](https://www.gnu.org/software/gsl/manual/html_node/Incomplete-Gamma-Functions.html))
+ * `gamma_inc(a,x)`: Incomplete gamma function $$\Gamma(a,x) = \int_x^\infty dt t^{a-1} \exp(-t)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#incomplete-gamma-functions))
+ * `gamma_inc_p(a,x)`: Complementary normalized incomplete gamma function $$\Gamma_P(a,x) = 1 - \Gamma_Q(a,x) = 1 - \frac{1}{\Gamma(a)}\int_x^\infty dt t^{a-1} \exp(-t)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#incomplete-gamma-functions))
+ * `gamma_inc_q(a,x)`: Normalized incomplete gamma function $$\Gamma_Q(a,x) = \frac{1}{\Gamma(a)}\int_x^\infty dt t^{a-1} \exp(-t)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#incomplete-gamma-functions))
  * `gaussian(x,sigma)`: Normalized gaussian: $$p(x,\sigma) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp (-x^2 / 2\sigma^2)$$
  * `gsl_erf(x)`: Error function $$\mathrm{erf}(x) = \frac{2}{\sqrt{\pi}}  \int_0^x \mathrm{d}t \exp(-t^2)$$  -- GSL version (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#error-functions))
  * `gsl_erfc(x)`: Complementary error function $$\mathrm{erfc}(x) = 1 - \mathrm{erf}(x)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#error-functions))
- * `hyperg_0F1(c,x)`: Hypergeometric function $${}_0F_1$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Hypergeometric-Functions.html))
- * `hyperg_1F1(a,b,x)`: Hypergeometric function $${}_1F_1(a,b,x)$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Hypergeometric-Functions.html))
- * `hyperg_U(a,b,x)`: Hypergeometric function $$U(a,b,x)$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Hypergeometric-Functions.html))
- * `k_mhc(lambda, eta)`: Marcus-Hush-Chidsey integral $$k(\lambda, \eta) = \int_{-\infty}^{\infty} \exp\left(\frac{ - (x - \lambda + \eta)^2}{4\lambda}\right) \times \frac{1}{1 + \exp x}\,\mathrm{d}x$$ (more information [there](http://dx.doi.org/10.1016/j.jelechem.2014.09.038))
+ * `hyperg_0F1(c,x)`: Hypergeometric function $${}_0F_1$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#hypergeometric-functions))
+ * `hyperg_1F1(a,b,x)`: Hypergeometric function $${}_1F_1(a,b,x)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#hypergeometric-functions))
+ * `hyperg_U(a,b,x)`: Hypergeometric function $$U(a,b,x)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#hypergeometric-functions))
+ * `k_mhc(lambda, eta)`: Marcus-Hush-Chidsey integral $$k(\lambda, \eta) = \int_{-\infty}^{\infty} \exp\left(\frac{ - (x - \lambda + \eta)^2}{4\lambda}\right) \times \frac{1}{1 + \exp x}\,\mathrm{d}x$$
  * `k_mhc_z(lambda, eta)`: Approximation to the Marcus-Hush-Chidsey integral described in Zeng et al, JEAC 2014, $$k(\lambda, \eta) \approx \int_{-\infty}^{\infty} \exp\left(\frac{ - (x - \lambda + \eta)^2}{4\lambda}\right) \times \frac{1}{1 + \exp x}\,\mathrm{d}x$$ (more information [there](http://dx.doi.org/10.1016/j.jelechem.2014.09.038))
- * `lambert_W(x)`: Principal branch of the Lambert function $$W_0(x)$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Lambert-W-Functions.html))
- * `lambert_Wm1(x)`: Secondary branch of the Lambert function $$W_{-1}(x)$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Lambert-W-Functions.html))
+ * `lambert_W(x)`: Principal branch of the Lambert function $$W_0(x)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#lambert-w-functions))
+ * `lambert_Wm1(x)`: Secondary branch of the Lambert function $$W_{-1}(x)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#lambert-w-functions))
  * `landau(x)`: Probability density of the Landau distribution, $$p(x) = 1/\pi \int_0^x \mathrm{d}t \exp(-t\log(t) - xt)\sin(\pi t)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/randist.html#the-landau-distribution))
+ * `log1p(x)`: $$\ln (1 + x)$$, but accurate for $$x$$ close to 0
  * `lorentzian(x,gamma)`: Normalized gaussian: $$p(x,\gamma) = \frac{1}{ \gamma \pi (1 + (x/\gamma)^2) }$$
  * `pseudo_voigt(x, w, mu)`: Pseudo-Voigt function, defined by: $$\frac{1-\mu}{\sqrt{2 \pi w^2}} \exp (-x^2 / 2w^2) + \frac{\mu}{ w \pi (1 + (x/w)^2) }$$
  * `psi(x)`: Digamma function: $$\psi(x) = \Gamma'(x)/\Gamma(x)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#digamma-function))
  * `psi_1(x)`: Trigamma function: $$\psi^{(1)} = \frac{\mathrm d \Gamma'(x)/\Gamma(x)}{\mathrm d x}$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#trigamma-function))
  * `psi_n(x, n)`: Polygamma function: $$\psi^{(n)} = \frac{\mathrm d^n \Gamma'(x)/\Gamma(x)}{\mathrm d x
-}$$ (more information [there](http://www.gnu.org/software/gsl/manual/html_node/Digamma-Function.html))
+}$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#polygamma-function))
  * `trumpet_bv(m, alpha, prec)`: Position of an oxidative adsorbed 1-electron peak. $$m$$ is the coefficient defined by Laviron, the value is returned in units of $$RT/F$$
 
 {::comment} special-functions-end {:/}
@@ -7489,18 +7515,33 @@ with an **uppercase** letter.
 When starting QSoas from a terminal, you can use a number of
 command-line option to change its behaviour. Here are the most useful:
 
- * `--run `_command_ will run the command _command_ after QSoas starts
+ * `-``-run `_command_ will run the command _command_ after QSoas starts
    up.
- * `--exit-after-running` will run the commands specified by `--run`,
+ * `-``-exit-after-running` will run the commands specified by `--run`,
    and then exit the program. This can be used to run scripts to
    automatically process data without user interaction.
- * `--no-startup-files` disables the loading of
+ * `-``-no-startup-files` disables the loading of
    [startup scripts](#cmd-startup-files).
- * `--stdout` makes the text written to the QSoas terminal also appear
+ * `-``-stdout` makes the text written to the QSoas terminal also appear
    in the standard output (i.e. the terminal from which you started
    QSoas).
- * `--load-stack `_file_ loads the given _file_ as a stack file just
+ * `-``-load-stack `_file_ loads the given _file_ as a stack file just
    after QSoas starts up.
+
+## Non-interactive running of QSoas {#qsoas-headless}
+
+It is possible to run QSoas completely non-interactively. This can be
+useful for regenerating the results of fits, or massively subtracting
+baselines...
+
+The simplest way to do so is to use the `scripts/qs-run` script
+included in the source code archive. Copy that script where you have
+the QSoas command file you want to run, open an operating system
+command-line terminal and run:
+
+~~~
+# ./qs-run my-command-script.txt
+~~~
 
 [ruby]:http://www.ruby-lang.org/ "Ruby, the programming language"
 [mruby]:https://mruby.org/ "MRuby, the embedded version of Ruby"
@@ -7510,4 +7551,5 @@ command-line option to change its behaviour. Here are the most useful:
 [manual-html]:http://www.qsoas.org/manual.html "The online manual for QSoas"
 [manual-pdf]:http://www.qsoas.org/manual.pdf "The PDF version of the manual for QSoas"
 [qt-regexps]:http://qt-project.org/doc/qt-4.8/qregexp.html#introduction
+[gsl-steppers]:https://www.gnu.org/software/gsl/doc/html/ode-initval.html#c.gsl_odeiv2_step_type
 "Documentation for Qt regular expressions"

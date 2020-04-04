@@ -46,7 +46,7 @@ DatasetEditor::~DatasetEditor()
 
 void DatasetEditor::setupTable(QTableWidget * table, const DataSet * ds)
 {
-  QStringList cn = ds->columnNames();
+  QStringList cn = ds->standardColumnNames();
   table->setColumnCount(cn.size());
 
   int rows = ds->nbRows();

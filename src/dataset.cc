@@ -1371,7 +1371,7 @@ Vector DataSet::segmentPositions() const
   return ret;
 }
 
-QStringList DataSet::columnNames() const
+QStringList DataSet::standardColumnNames() const
 {
   QStringList ret;
   if(columns.size() > 0)
@@ -1428,6 +1428,18 @@ void DataSet::setPerpendicularCoordinates(double val)
   perpCoords = Vector(nbColumns() - 1, val);
 }
 
+
+bool DataSet::checkNames() const
+{
+  for(const QStringList & lst : columnNames)
+    if(lst.size() != columns.size())
+      return false;
+
+  for(const QStringList & lst : rowNames)
+    if(lst.size() != nbRows())
+      return false;
+  return true;
+}
 
 
 

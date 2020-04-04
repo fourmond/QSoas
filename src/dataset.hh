@@ -67,14 +67,13 @@ class DataSet : public Guardable {
   Vector perpCoords;
 
   /// A set of meta-data. Basically anything !
-  ///
-  /// @todo Have the data handled by that
   ValueHash metaData;
 
   
   /// The set of flags attached to this dataset
   QSet<QString> flags;
-  
+
+ 
 
   /// A private cache
   class Cache {
@@ -139,6 +138,32 @@ class DataSet : public Guardable {
 
   friend QDataStream & operator<<(QDataStream & out, const DataSet & ds);
   friend QDataStream & operator>>(QDataStream & in, DataSet & ds);
+
+
+  /// @name Column and row names
+  /// 
+  /// Each dataset stores column and row names as a list of lists. The
+  /// QList<> can have an arbitrary number of elements, but the
+  /// QStringList within must either have as many elements as rows or
+  /// columns.
+  ///
+  /// The first element of both lists is the "main" one, it is hard to
+  /// know yet what I'll do with the second element.
+  /// 
+  /// @{ 
+
+  
+  /// Column names
+  QList<QStringList> columnNames;
+
+  /// Row names
+  QList<QStringList> rowNames;
+
+  /// Returns false if the number of elements in the QStringList are
+  /// not correct.
+  bool checkNames() const;
+
+  /// @}
 
 public:
 
@@ -590,7 +615,7 @@ public:
   /// Returns the names of the columns.
   ///
   /// @todo find a way to customize that later on.
-  QStringList columnNames() const;
+  QStringList standardColumnNames() const;
 
 
   /// @name Meta-data related functions

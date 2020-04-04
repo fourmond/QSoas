@@ -43,7 +43,7 @@ QStringList StatisticsValue::statsAvailable(const DataSet * ds)
   QStringList ret;
   if(! allStats)
     return ret;
-  QStringList colnames = ds->columnNames();
+  QStringList colnames = ds->standardColumnNames();
   for(int i = 0; i < allStats->size(); i++) {
     const StatisticsValue * s = allStats->value(i);
     if(s->global() && s->available(ds, -1))
@@ -388,7 +388,7 @@ void Statistics::internalStats(ValueHash * overall,
     }
   }
 
-  QStringList names = source->columnNames();
+  QStringList names = source->standardColumnNames();
   for(int i = 0; i < source->nbColumns(); i++) {
     const QString & n = names[i];
     ValueHash stats;

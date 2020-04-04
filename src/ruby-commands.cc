@@ -75,7 +75,7 @@ static void applyFormulaCommand(const QString &, QString formula,
     DataSetExpression ex(ds);
     QStringList colNames;
     int argSize = ex.dataSetParameters(extra, &colNames).size();
-    ex.useStats = false;
+    ex.useStats = true;
     updateFromOptions(opts, "use-stats", ex.useStats);
     ex.useMeta = true;
     updateFromOptions(opts, "use-meta", ex.useMeta);
@@ -143,7 +143,7 @@ fO(QList<Argument *>()
                           "number of extra columns to create")
    << new BoolArgument("use-stats", 
                        "Use statistics",
-                       "if on, you can use `$stats` to refer to statistics (off by default)")
+                       "if on (by default), you can use `$stats` to refer to statistics (off by default)")
    << new BoolArgument("use-meta", 
                        "Use meta-data",
                        "if on (by default), you can use `$meta` to refer to "

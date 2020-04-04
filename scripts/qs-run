@@ -1,0 +1,49 @@
+#!/bin/sh
+
+# qs-run: running non-interactively a QSoas script
+# Copyright 2020 by CNRS/AMU.
+#
+# This script can be used and distributed under the same terms as QSoas itself.
+
+display="-platform offscreen"
+do_quit="--exit-after-running"
+qsoas=QSoas
+
+for f in /Applications/QSoas.app/Contents/MacOS/QSoas; do
+    if [ -x $f ]; then
+        qsoas=$f
+        break
+    fi
+done
+
+while getopts hi opt
+do
+    case $opt in
+	h) cat - <<EOF
+qs-run -- runs a script with QSoas
+
+qs-run [-i] script [arguments...]
+
+Opens QSoas and runs the script, possibly with the arguments.
+
+Options:
+
+  -h prints this help;
+  -i runs interactively, that is show the QSoas windows and does not quit after running the script;
+
+EOF
+           exit;
+           ;;
+        i) display=""
+           do_quit=""
+           ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+script="$1"
+shift
+
+
+$qsoas $display --stdout --run "@ '$script' $@" $do_quit
+

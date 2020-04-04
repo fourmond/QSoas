@@ -132,19 +132,19 @@ public:
 
 static GSLSimpleFunction<gsl_sf_bessel_J0> 
 bessel_J0("bessel_j0(x)", "Regular cylindrical Bessel function of "
-          "0th order, $$J_0(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Regular-Cylindrical-Bessel-Functions.html");
+          "0th order, $$J_0(x)$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#bessel-functions");
 
 static GSLSimpleFunction<gsl_sf_bessel_J1> 
 bessel_J1("bessel_j1(x)", "Regular cylindrical Bessel function of "
-          "first order, $$J_1(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Regular-Cylindrical-Bessel-Functions.html");
+          "first order, $$J_1(x)$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#bessel-functions");
 
 static GSLSimpleFunction<gsl_sf_bessel_Y0> 
 bessel_Y0("bessel_y0(x)", "Irregular cylindrical Bessel function of "
-          "0th order, $$Y_0(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Irregular-Cylindrical-Bessel-Functions.html");
+          "0th order, $$Y_0(x)$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#irregular-cylindrical-bessel-functions");
 
 static GSLSimpleFunction<gsl_sf_bessel_Y1> 
 bessel_Y1("bessel_y1(x)", "Irregular cylindrical Bessel function of "
-          "first order, $$Y_1(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Irregular-Cylindrical-Bessel-Functions.html");
+          "first order, $$Y_1(x)$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#irregular-cylindrical-bessel-functions");
 
 static GSLSimpleFunction<gsl_sf_expint_E1> 
 expint_E1("expint_e1(x)", "Exponential integral $$E_1(x) = "
@@ -156,11 +156,11 @@ expint_E2("expint_e2(x)", "Exponential integral $$E_2(x) = "
 // Lambert W function(s)
 static GSLSimpleFunction<gsl_sf_lambert_W0> 
 lambert_W0("lambert_W(x)", "Principal branch of the Lambert function "
-           "$$W_0(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Lambert-W-Functions.html");
+           "$$W_0(x)$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#lambert-w-functions");
 
 static GSLSimpleFunction<gsl_sf_lambert_Wm1> 
 lambert_Wm1("lambert_Wm1(x)", "Secondary branch of the Lambert function "
-            "$$W_{-1}(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Lambert-W-Functions.html");
+            "$$W_{-1}(x)$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#lambert-w-functions");
 
 // Dawson function
 static GSLSimpleFunction<gsl_sf_dawson> 
@@ -286,7 +286,7 @@ static GSLSimpleFunction<::fabs>
 abs_func("abs(x)", "$$|x|$$");
 
 static GSLSimpleFunction<::log1p> 
-abs_func("log1p(x)", "$$\ln (1 + x)$$, but accurate for $$x$$ close to 0");
+log1p_func("log1p(x)", "$$\\ln (1 + x)$$, but accurate for $$x$$ close to 0");
 
 
 
@@ -318,11 +318,11 @@ public:
 
 static GSLIndexedFunction<gsl_sf_bessel_Jn> 
 bessel_Jn("bessel_jn(x,n)", "Regular cylindrical Bessel function of "
-          "n-th order, $$J_n(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Regular-Cylindrical-Bessel-Functions.html");
+          "n-th order, $$J_n(x)$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#bessel-functions");
 
 static GSLIndexedFunction<gsl_sf_bessel_Yn> 
 bessel_Yn("bessel_yn(x,n)", "Irregular cylindrical Bessel function of "
-          "n-th order, $$Y_n(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Irregular-Cylindrical-Bessel-Functions.html");
+          "n-th order, $$Y_n(x)$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#irregular-cylindrical-bessel-functions");
 
 static GSLIndexedFunction<gsl_sf_expint_En> 
 expint_En("expint_en(x,n)", "Exponential integral $$E_n(x) = "
@@ -331,11 +331,11 @@ expint_En("expint_en(x,n)", "Exponential integral $$E_n(x) = "
 static GSLIndexedFunction<gsl_sf_fermi_dirac_int> 
 fermi_dirac_n("fermi_dirac_n(x,n)", "Complete Fermi-Dirac integral of index $$n$$, "
               "$$F_n(x) = \\frac{1}{\\Gamma(n+1)} \\int_0^\\infty \\mathrm{d} t \\frac{t^n}{\\exp(t-x) + 1}$$",
-              "http://www.gnu.org/software/gsl/manual/html_node/Complete-Fermi_002dDirac-Integrals.html");
+              "https://www.gnu.org/software/gsl/doc/html/specfunc.html#complete-fermi-dirac-integrals");
 
 static GSLIndexedFunction<gsl_sf_psi_n> 
 psi_n("psi_n(x, n)", "Polygamma function: $$\\psi^{(n)} = \\frac{\\mathrm d^n \\Gamma'(x)/\\Gamma(x)}{\\mathrm d x\n}$$",
-      "http://www.gnu.org/software/gsl/manual/html_node/Digamma-Function.html");
+      "https://www.gnu.org/software/gsl/doc/html/specfunc.html#polygamma-function");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -390,13 +390,13 @@ public:
 
 
 static GSLModalFunction<gsl_sf_airy_Ai> 
-airy_ai("airy_ai(x)", "Airy Ai function $$AiryAi(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Airy-Functions.html");
+airy_ai("airy_ai(x)", "Airy Ai function $$AiryAi(x)$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#airy-functions-and-derivatives");
 static GSLModalFunction<gsl_sf_airy_Bi> 
-airy_bi("airy_bi(x)", "Airy Bi function $$AiryBi(x)$$", "http://www.gnu.org/software/gsl/manual/html_node/Airy-Functions.html");
+airy_bi("airy_bi(x)", "Airy Bi function $$AiryBi(x)$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#airy-functions-and-derivatives");
 static GSLModalFunction<gsl_sf_airy_Ai_deriv> 
-airy_aid("airy_ai_deriv(x)", "First derivative of Airy Ai function $$\\mathrm{d}AiryAi(x)/\\mathrm{d}x$$", "http://www.gnu.org/software/gsl/manual/html_node/Derivatives-of-Airy-Functions.html");
+airy_aid("airy_ai_deriv(x)", "First derivative of Airy Ai function $$\\mathrm{d}AiryAi(x)/\\mathrm{d}x$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#airy-functions-and-derivatives");
 static GSLModalFunction<gsl_sf_airy_Bi_deriv> 
-airy_bid("airy_bi_deriv(x)", "First derivative of Airy Bi function $$\\mathrm{d}AiryBi(x)/\\mathrm{d}x$$", "http://www.gnu.org/software/gsl/manual/html_node/Derivatives-of-Airy-Functions.html");
+airy_bid("airy_bi_deriv(x)", "First derivative of Airy Bi function $$\\mathrm{d}AiryBi(x)/\\mathrm{d}x$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#airy-functions-and-derivatives");
 
 
 //////////////////////////////////////////////////////////////////////
@@ -433,7 +433,7 @@ lorentzian("lorentzian(x,gamma)", "Normalized gaussian: "
 
 static GSLDoubleFunction<gsl_sf_hyperg_0F1> 
 hyperg_0F1("hyperg_0F1(c,x)", "Hypergeometric function $${}_0F_1$$",
-           "http://www.gnu.org/software/gsl/manual/html_node/Hypergeometric-Functions.html");
+           "https://www.gnu.org/software/gsl/doc/html/specfunc.html#hypergeometric-functions");
 
 static GSLDoubleFunction<Functions::marcusHushChidseyZeng> 
 k_mhc_z("k_mhc_z(lambda, eta)", "Approximation to the Marcus-Hush-Chidsey "
@@ -449,7 +449,7 @@ k_mhc("k_mhc(lambda, eta)", "Marcus-Hush-Chidsey "
        "= \\int_{-\\infty}^{\\infty} "
         "\\exp\\left(\\frac{ - (x - \\lambda + \\eta)^2}"
         "{4\\lambda}\\right) \\times "
-        "\\frac{1}{1 + \\exp x}\\,\\mathrm{d}x$$", "http://dx.doi.org/10.1016/j.jelechem.2014.09.038");
+        "\\frac{1}{1 + \\exp x}\\,\\mathrm{d}x$$");
 
 
 
@@ -457,15 +457,15 @@ k_mhc("k_mhc(lambda, eta)", "Marcus-Hush-Chidsey "
 
 static GSLDoubleFunction<gsl_sf_gamma_inc> 
 gamma_inc("gamma_inc(a,x)", "Incomplete gamma function $$\\Gamma(a,x) = \\int_x^\\infty dt t^{a-1} \\exp(-t)$$",
-           "https://www.gnu.org/software/gsl/manual/html_node/Incomplete-Gamma-Functions.html");
+           "https://www.gnu.org/software/gsl/doc/html/specfunc.html#incomplete-gamma-functions");
 
 static GSLDoubleFunction<gsl_sf_gamma_inc_Q> 
 gamma_inc_q("gamma_inc_q(a,x)", "Normalized incomplete gamma function $$\\Gamma_Q(a,x) = \\frac{1}{\\Gamma(a)}\\int_x^\\infty dt t^{a-1} \\exp(-t)$$",
-           "https://www.gnu.org/software/gsl/manual/html_node/Incomplete-Gamma-Functions.html");
+           "https://www.gnu.org/software/gsl/doc/html/specfunc.html#incomplete-gamma-functions");
 
 static GSLDoubleFunction<gsl_sf_gamma_inc_P> 
 gamma_inc_p("gamma_inc_p(a,x)", "Complementary normalized incomplete gamma function $$\\Gamma_P(a,x) = 1 - \\Gamma_Q(a,x) = 1 - \\frac{1}{\\Gamma(a)}\\int_x^\\infty dt t^{a-1} \\exp(-t)$$",
-           "https://www.gnu.org/software/gsl/manual/html_node/Incomplete-Gamma-Functions.html");
+           "https://www.gnu.org/software/gsl/doc/html/specfunc.html#incomplete-gamma-functions");
 
 
 //////////////////////////////////////////////////////////////////////
@@ -494,11 +494,11 @@ public:
 
 static GSLTripleFunction<gsl_sf_hyperg_1F1> 
 hyperg_1F1("hyperg_1F1(a,b,x)", "Hypergeometric function $${}_1F_1(a,b,x)$$",
-           "http://www.gnu.org/software/gsl/manual/html_node/Hypergeometric-Functions.html");
+           "https://www.gnu.org/software/gsl/doc/html/specfunc.html#hypergeometric-functions");
 
 static GSLTripleFunction<gsl_sf_hyperg_U> 
 hyperg_U("hyperg_U(a,b,x)", "Hypergeometric function $$U(a,b,x)$$",
-         "http://www.gnu.org/software/gsl/manual/html_node/Hypergeometric-Functions.html");
+         "https://www.gnu.org/software/gsl/doc/html/specfunc.html#hypergeometric-functions");
 
 static GSLTripleFunction<Functions::pseudoVoigt> 
 pseudo_voigt("pseudo_voigt(x, w, mu)", "Pseudo-Voigt function, defined by: "

@@ -278,6 +278,18 @@ static GSLSimpleFunction<Functions::atanhc>
 atanhc("atanhc(x)", "$$\\frac{\\tanh^{-1} x}{x}$$");
 
 
+//////////////////////////////////////////////////////////////////////
+
+// Import of a few general functions
+
+static GSLSimpleFunction<::fabs> 
+abs_func("abs(x)", "$$|x|$$");
+
+static GSLSimpleFunction<::log1p> 
+abs_func("log1p(x)", "$$\ln (1 + x)$$, but accurate for $$x$$ close to 0");
+
+
+
 
 //////////////////////////////////////////////////////////////////////
 

@@ -592,13 +592,13 @@ static void eval(const QString &, QStringList codes,
 
   QStringList names;
 
-  QRegExp cnRE("^([\\w-]+):");
+  QRegExp cnRE("^([\\w-]+):[^:]");
 
   bool classic = true;
   for(QString & n : codes) {
     if(cnRE.indexIn(n) == 0) {
       names << cnRE.cap(1);
-      n = n.mid(cnRE.cap(0).size());
+      n = n.mid(cnRE.cap(1).size()+1);
       classic = false;
     }
     else

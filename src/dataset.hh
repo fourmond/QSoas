@@ -140,6 +140,8 @@ class DataSet : public Guardable {
   friend QDataStream & operator>>(QDataStream & in, DataSet & ds);
 
 
+public:
+
   /// @name Column and row names
   /// 
   /// Each dataset stores column and row names as a list of lists. The
@@ -149,6 +151,8 @@ class DataSet : public Guardable {
   ///
   /// The first element of both lists is the "main" one, it is hard to
   /// know yet what I'll do with the second element.
+  ///
+  /// @todo For now, they are public. 
   /// 
   /// @{ 
 
@@ -161,7 +165,23 @@ class DataSet : public Guardable {
 
   /// Returns false if the number of elements in the QStringList are
   /// not correct.
-  bool checkNames() const;
+  bool checkColNames() const;
+
+  /// Returns false if the number of elements in the QStringList are
+  /// not correct.
+  bool checkRowNames() const;
+
+
+  /// Returns the main names of the columns.
+  ///
+  /// This always returns something that has the same size as
+  /// columns().
+  QStringList mainColumnNames(bool * madeup) const;
+
+  /// Returns the names of the rows.
+  ///
+  /// This can be empty.
+  QStringList mainRowNames() const;
 
   /// @}
 

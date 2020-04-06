@@ -130,6 +130,10 @@ QString DataSet::stringDescription(bool longDesc) const
     if(perpCoords.size() > 0) {
       val += "\nPerpendicular coordinates: " + perpCoords.asText().join(", ") + "\n";
     }
+    bool mup = false;
+    QStringList coln = mainColumnNames(&mup);
+    val += "\nColumn names" + (mup ? QString(" (default)") : QString()) + ": " +
+      coln.join(", ");
     return val;
   }
   else
@@ -1429,16 +1433,29 @@ void DataSet::setPerpendicularCoordinates(double val)
 }
 
 
-bool DataSet::checkNames() const
+bool DataSet::checkColNames() const
 {
   for(const QStringList & lst : columnNames)
     if(lst.size() != columns.size())
       return false;
+  return true;
+}
 
+bool DataSet::checkRowNames() const
+{
   for(const QStringList & lst : rowNames)
     if(lst.size() != nbRows())
       return false;
   return true;
+}
+
+QStringList DataSet::mainColumnNames(bool * madeup) const
+{
+  *madeup = false;
+  if(checkColNames() && columnNames.size() > 0)
+    return columnNames[0];
+  *madeup = true;
+  return standardColumnNames();
 }
 
 

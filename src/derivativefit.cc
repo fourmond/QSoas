@@ -532,6 +532,70 @@ public:
                      parameters[s->originalParameters]);
   };
 
+  virtual bool hasSubFunctions(FitData * data) const override {
+    DerivativeFit::Storage * s = storage<DerivativeFit::Storage>(data);
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                      s->originalStorage);
+    return s->underlyingFit->hasSubFunctions(data);
+  };
+  virtual bool displaySubFunctions(FitData * data) const override {
+    DerivativeFit::Storage * s = storage<DerivativeFit::Storage>(data);
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                      s->originalStorage);
+    return s->underlyingFit->displaySubFunctions(data);
+  }
+
+  virtual void computeSubFunctions(const double * parameters,
+                                   FitData * data, 
+                                   const DataSet * ds,
+                                   QList<Vector> * targetData,
+                                   QStringList * targetAnnotations) const override {
+    reserveBuffers(data);
+    DerivativeFit::Storage * s = storage<DerivativeFit::Storage>(data);
+
+    prepareSameX(data);
+
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage, s->originalStorage);
+
+    const DataSet * main = s->mainDS[ds];
+    const DataSet * sub = s->subDS[ds];
+    
+    s->underlyingFit->computeSubFunctions(parameters, data,
+                                          main,
+                                          targetData,
+                                          targetAnnotations);
+    if(s->sameXH[ds]) {
+      for(Vector & v : *targetData) {
+        Vector nv = v;
+        DataSet::firstDerivative(main->x().data(), 1, 
+                                 v.data(), 1,
+                                 nv.data(), 1, v.size());
+        nv *= parameters[s->originalParameters];
+        v << nv;
+      }
+    }
+    else {
+      QList<Vector> subs;
+      QStringList dummy;
+      s->underlyingFit->computeSubFunctions(parameters, data,
+                                            sub,
+                                            &subs,
+                                            &dummy);
+      if(subs.size() != targetData->size())
+        throw RuntimeError("Mismatch in the number of subfunctions");
+      for(int i = 0; i < targetData->size(); i++) {
+        Vector & v = (*targetData)[i];
+        Vector nv = subs[i];
+        DataSet::firstDerivative(sub->x().data(), 1, 
+                                 subs[i].data(), 1,
+                                 nv.data(), 1, nv.size());
+        nv *= parameters[s->originalParameters];
+        v << nv;
+      }
+    }
+  };
+
+
   /// Creates (and registers) the derivative fit based on the given
   /// fit
   CombinedDerivativeFit(PerDatasetFit * source) :

@@ -71,6 +71,7 @@ public:
 
   /// Reimplementation that calls the computeSubFunctions()
   /// virtual function.
+  /// @todo Should I use final ?
   virtual void computeSubFunctions(const double * parameters,
                                    FitData * data, 
                                    QList<Vector> * targetData,

@@ -29,6 +29,12 @@ class PerDatasetFit;
 
 /// This class handles the simultaneous fitting of a single buffer
 /// along with its derivative.
+///
+/// @todo It's rather ugly that we have two classes that do almost the
+/// same thing. Maybe shared inheritance would be a good thing.
+///
+/// @todo This code shouldn't be in a header file, it's purely
+/// internal.
 class DerivativeFit : public Fit {
 public: 
   typedef enum {
@@ -50,6 +56,7 @@ protected:
   virtual ArgumentList * fitSoftOptions() const override;
   virtual CommandOptions currentSoftOptions(FitData * data) const override;
   virtual void processSoftOptions(const CommandOptions & opts, FitData * data) const override;
+
   /// @}
 
   virtual void checkDatasets(const FitData * data) const override;
@@ -70,6 +77,7 @@ protected:
 
 public:
 
+  /// This class is also used by CombinedDerivativeFit
   class Storage : public FitInternalStorage {
   public:
     /// Number of parameters in the original fit
@@ -133,6 +141,15 @@ public:
 
   static QString derivativeFitName(PerDatasetFit * source,
                                    DerivativeFit::Mode mode);
+
+  // // subfunctions forwarding.
+  // virtual bool hasSubFunctions(FitData * data) const;
+  // virtual bool displaySubFunctions(FitData * data) const;
+  // virtual void computeSubFunctions(const double * parameters,
+  //                                  FitData * data, 
+  //                                  QList<Vector> * targetData,
+  //                                  QStringList * targetAnnotations) const;
+
 
 };
 

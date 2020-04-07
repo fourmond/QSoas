@@ -589,7 +589,7 @@ unix|macx {
 # We link with the converted ODRPACK library
 message("Using odrpack")
 
-SOURCES += src/odrpackfitengine.cc \        
+SOURCES += odrpack/odrpackfitengine.cc \        
         odrpack/d_lpkbls.c \
         odrpack/d_odr.c \
         odrpack/d_mprec.c \

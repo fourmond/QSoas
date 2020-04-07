@@ -210,6 +210,10 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName,
                          arg(fileName));
     datasets = b->readFromStream(file, fileName, opts);
 
+    for(DataSet * d : datasets)
+      d->setMetaData("backend", b->name);
+
+
     if(verbose)
       Terminal::out << "using backend " << b->name << endl;
 
@@ -235,7 +239,10 @@ QList<DataSet *> DataBackend::readFile(const QString & fileName,
                                        const CommandOptions & opts) const
 {
   File file(fileName, File::BinaryRead);
-  return readFromStream(file, fileName, opts);
+  QList<DataSet *> datasets = readFromStream(file, fileName, opts);
+  for(DataSet * d : datasets)
+    d->setMetaData("backend", name);
+  return datasets;
 }
 
 

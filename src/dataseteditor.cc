@@ -46,20 +46,31 @@ DatasetEditor::~DatasetEditor()
 
 void DatasetEditor::setupTable(QTableWidget * table, const DataSet * ds)
 {
-  QStringList cn = ds->standardColumnNames();
+  bool mu;
+  QStringList cn = ds->mainColumnNames(&mu);
+  if(!mu) {
+    QStringList s = ds->standardColumnNames();
+    for(int i = 0; i < cn.size(); i++)
+      cn[i] += "\n(" + s[i] + ")";
+  }
+           
   table->setColumnCount(cn.size());
 
   int rows = ds->nbRows();
   table->setRowCount(rows);
 
+  QStringList rn = ds->mainRowNames();
   for(int i = 0; i < cn.size(); i++) {
     table->setHorizontalHeaderItem(i, new QTableWidgetItem(cn[i]));
     
     const Vector & c = ds->column(i);
     for(int j = 0; j < rows; j++) {
-      if(! i)
-        table->
-          setVerticalHeaderItem(j, new QTableWidgetItem(QString("#%1").arg(j)));
+      if(! i) {
+        QString n = QString("#%1").arg(j);
+        if(rn.size() > j)
+          n += ": " + rn[j];
+        table->setVerticalHeaderItem(j, new QTableWidgetItem(n));
+      }
       table->setItem(j, i, new QTableWidgetItem(QString::number(c[j])));
     }
   }

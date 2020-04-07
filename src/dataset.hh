@@ -152,7 +152,10 @@ public:
   /// The first element of both lists is the "main" one, it is hard to
   /// know yet what I'll do with the second element.
   ///
-  /// @todo For now, they are public. 
+  /// @todo For now, they are public.
+  ///
+  /// @todo This should be handled together with perpendicular
+  /// coordinates...
   /// 
   /// @{ 
 
@@ -162,6 +165,11 @@ public:
 
   /// Row names
   QList<QStringList> rowNames;
+
+  /// The list of names of the perpendicular coordinate...
+  /// ... for transposing...
+  /// Should have the same number of elements as rowNames
+  QStringList perpCoordNames;
 
   /// Returns false if the number of elements in the QStringList are
   /// not correct.
@@ -182,6 +190,13 @@ public:
   ///
   /// This can be empty.
   QStringList mainRowNames() const;
+
+  /// Returns the names of the columns.
+  QStringList standardColumnNames() const;
+
+  /// Returns the "standard" name for the given column (i.e. x, y,
+  /// y2...)
+  static QString standardNameForColumn(int col);
 
   /// @}
 
@@ -631,11 +646,6 @@ public:
   /// segments pushed in each of the datasets.
   QList<DataSet * > splitIntoMonotonic(int col = 0, int group = 1) const;
 
-
-  /// Returns the names of the columns.
-  ///
-  /// @todo find a way to customize that later on.
-  QStringList standardColumnNames() const;
 
 
   /// @name Meta-data related functions

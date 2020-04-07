@@ -1436,7 +1436,7 @@ void DataSet::setPerpendicularCoordinates(double val)
 bool DataSet::checkColNames() const
 {
   for(const QStringList & lst : columnNames)
-    if(lst.size() != columns.size())
+    if(lst.size() != nbColumns())
       return false;
   return true;
 }
@@ -1456,6 +1456,13 @@ QStringList DataSet::mainColumnNames(bool * madeup) const
     return columnNames[0];
   *madeup = true;
   return standardColumnNames();
+}
+
+QStringList DataSet::mainRowNames() const
+{
+  if(checkRowNames() && rowNames.size() > 0)
+    return rowNames[0];
+  return QStringList();
 }
 
 
@@ -1483,6 +1490,15 @@ DataSet * DataSet::transpose() const
 
   DataSet * ds = derivedDataSet(cols, "_transposed.dat");
   ds->perpCoords = x();
+  ds->columnNames = rowNames;
+  for(int i = 0; i < rowNames.size(); i++) {
+    QString n = perpCoordNames.value(i, i ? QString() : QString("Z"));
+    ds->columnNames[i].insert(0, n);
+  }
+  ds->rowNames = columnNames;
+  for(int i = 0; i < ds->rowNames.size(); i++)
+    ds->perpCoordNames << ds->rowNames[i].takeFirst();
+
   return ds;
 }
 

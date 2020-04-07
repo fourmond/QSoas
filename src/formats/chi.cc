@@ -33,63 +33,58 @@
 class CHIText : public TextBackend {
 protected:
   virtual int couldBeMine(const QByteArray & peek, 
-                          const QString & fileName) const;
+                          const QString & /*fileName*/) const {
+    // We detect
+    // Data Source: Experiment
+    // Instrument Model:  CHI420A
+    QString s(peek);
+    QRegExp re1("Instrument\\s+Model:");
+    QRegExp re2("Data\\s+Source:");
 
-  virtual ValueHash parseComments(const QStringList & comments) const;
+    if(re1.indexIn(s) >= 0 && re2.indexIn(s) >= 0) {
+      return 800;
+    }
+    return 0;
+  };
+
+  virtual TextFileHeader parseComments(const QStringList & comments)
+    const override {
+    TextFileHeader rv;
+
+    QRegExp cmtval("^([^:=]+)\\s*[:=]\\s*(.*)");
+    for(int i = 1; i < comments.size(); i++) {
+      const QString & s = comments[i];
+      if(cmtval.indexIn(s) >= 0) {
+        QString key = cmtval.cap(1).trimmed();
+        QString value = cmtval.cap(2);
+        if(value.trimmed().size() == 0)
+          continue;
+        bool ok;
+        double v = value.toDouble(&ok);
+        if(ok)
+          rv.meta[key] = v;
+        else
+          rv.meta[key] = value;
+      }
+    }
+
+    // Extract scan rates.
+    if(rv.meta.contains("Scan Rate (V/s)"))
+      rv.meta["sr"] = rv.meta["Scan Rate (V/s)"];
+
+    return rv;
+    
+  };
 public:
-  CHIText();
+  
+  CHIText() : TextBackend("/\\s*,\\s*|\\s+/", "chi-txt", "CHI text",
+                          "Text files exported by CH instruments potentiostats")
+  {
+    
+  };
 };
 
-int CHIText::couldBeMine(const QByteArray & peek, 
-                         const QString & /*fileName*/) const
-{
-  // We detect
-  // Data Source: Experiment
-  // Instrument Model:  CHI420A
-  QString s(peek);
-  QRegExp re1("Instrument\\s+Model:");
-  QRegExp re2("Data\\s+Source:");
 
-  if(re1.indexIn(s) >= 0 && re2.indexIn(s) >= 0) {
-    return 800;
-  }
-  return 0;
-}
-
-ValueHash CHIText::parseComments(const QStringList & comments) const
-{
-  ValueHash meta;
-  // meta["Method"] = comments.first();
-
-  QRegExp cmtval("^([^:=]+)\\s*[:=]\\s*(.*)");
-  for(int i = 1; i < comments.size(); i++) {
-    const QString & s = comments[i];
-    if(cmtval.indexIn(s) >= 0) {
-      QString key = cmtval.cap(1).trimmed();
-      QString value = cmtval.cap(2);
-      if(value.trimmed().size() == 0)
-        continue;
-      bool ok;
-      double v = value.toDouble(&ok);
-      if(ok)
-        meta[key] = v;
-      else
-        meta[key] = value;
-    }
-  }
-
-  // Extract scan rates.
-  if(meta.contains("Scan Rate (V/s)"))
-    meta["sr"] = meta["Scan Rate (V/s)"];
-
-  return meta;
-}
-
-CHIText::CHIText() : TextBackend("/\\s*,\\s*|\\s+/", "chi-txt", "CHI text",
-                                 "Text files exported by CH instruments potentiostats")
-{
-  
-}
 
 CHIText chi;
 

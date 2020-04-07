@@ -27,6 +27,19 @@
 
 class Vector;
 
+/// A data structure that represents the header of a text file, which
+/// can contain meta-data, the name of the columns, but also
+/// @todo whether some columns are text or dates... (something else ?)
+class TextFileHeader {
+public:
+  /// The meta-data
+  ValueHash meta;
+
+  /// The column names
+  QStringList columnNames;
+  
+};
+
 /// A general-purpose text files reader.
 class TextBackend : public DataBackend {
 protected:
@@ -45,7 +58,7 @@ protected:
                                    const QString & fileName,
                                    const CommandOptions & opts) const override;
 
-  virtual ValueHash parseComments(const QStringList & cmts) const;
+  virtual TextFileHeader parseComments(const QStringList & cmts) const;
 
 
   virtual QList<QList<Vector> > readColumns(QTextStream & s,

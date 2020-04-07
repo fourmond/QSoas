@@ -146,28 +146,35 @@ ArgumentList * TextBackend::loadOptions() const
   return &textLoadOptions;
 }
 
-ValueHash TextBackend::parseComments(const QStringList & comments) const
+TextFileHeader TextBackend::parseComments(const QStringList & comments) const
 {
-  ValueHash meta;
-  
+  TextFileHeader rv;
+
   // Parse comments for a = b stuff
   QRegExp cmtval("([\\w-]+)\\s*=\\s*(.*)");
-  for(int i = 0; i < comments.size(); i++) {
-    const QString & s = comments[i];
-    if(cmtval.indexIn(s) >= 0) {
-      QString key = cmtval.cap(1);
-      QString value = cmtval.cap(2);
-      bool ok;
-      double v = value.toDouble(&ok);
-      if(ok)
-        meta[key] = v;
-      else
-        meta[key] = value;
+
+  QRegExp coln("^## *");
+
+  for(const QString & s: comments) {
+    if(coln.indexIn(s) == 0) {
+      rv.columnNames = s.mid(coln.cap(0).size()).split('\t');
+    }
+    else {
+      if(cmtval.indexIn(s) >= 0) {
+        QString key = cmtval.cap(1);
+        QString value = cmtval.cap(2);
+        bool ok;
+        double v = value.toDouble(&ok);
+        if(ok)
+          rv.meta[key] = v;
+        else
+          rv.meta[key] = value;
+      }
     }
   }
-  if(meta.contains("Scan Rate (V/s)"))
-    meta["sr"] = meta["Scan Rate (V/s)"];
-  return meta;
+  if(rv.meta.contains("Scan Rate (V/s)"))
+    rv.meta["sr"] = rv.meta["Scan Rate (V/s)"];
+  return rv;
 }
 
 
@@ -231,7 +238,7 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
   QStringList comments;
 
   QList<QList<Vector> > allColumns = readColumns(s, opts, &comments);
-  ValueHash meta = parseComments(comments);
+  TextFileHeader hd = parseComments(comments);
 
   QList<DataSet *> ret;
 
@@ -253,12 +260,15 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
     }
     
     QList<Vector> finalColumns;
+    QStringList cn;
     for(int i = 0; i < colOrder.size(); i++) {
       int col = colOrder[i];
       if(col >= columns.size() || col < 0)
         throw RuntimeError("There is no column #%1 in file '%2'").
           arg(col+1).arg(fileName);
       finalColumns << columns[col];
+      if(hd.columnNames.size() > col)
+        cn << hd.columnNames[col];
     }
 
     DataSet * ds = new DataSet(finalColumns);
@@ -266,8 +276,10 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
     if(total > 1) {
       ds->name += QString("#%1").arg(j);
     }
-    ds->addMetaData(meta);
+    ds->addMetaData(hd.meta);
     setMetaDataForFile(ds, fileName);
+    ds->columnNames.clear();
+    ds->columnNames << cn;
     ret << ds;
   }
   return ret;

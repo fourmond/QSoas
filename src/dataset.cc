@@ -881,8 +881,16 @@ void DataSet::write(QIODevice * target) const
   o << "# saved from Soas buffer name " << name << endl;
   
   /// @todo Write header ?
-
   o << metaData.prettyPrint(1, "# ", "\n#\t") + "\n";
+
+  // Writing column names
+  QList<QStringList> ls = columnNames;
+  while(ls.size() > 0) {
+    QStringList names = ls.takeLast();
+    o << "## " << names.join("\t") << "\n";
+  }
+
+  /// @todo write row names.
 
   int nb = nbRows();
   for(int i = 0; i < nb; i++) {
@@ -1023,6 +1031,31 @@ DataSet * DataSet::derivedDataSet(const QList<Vector> &newCols,
   // We copy the perpendicular coordinates
   ds->perpCoords = perpCoords;
 
+
+  // Now dealing wih the columns
+
+  // keeping the row names only when the number of rows hasn't changed.
+  if(ds->nbRows() == nbRows()) {
+    ds->rowNames = rowNames;
+    // perpcoordnames is in fact the name of the row "above"
+    ds->perpCoordNames = perpCoordNames;
+  }
+  /// @todo else log ?
+
+  if(checkRowNames()) {
+    // Copy, adding and removing if necessary
+    for(int i = 0; i < columnNames.size(); i++) {
+      ds->columnNames << columnNames[i];
+      // padding with standard names
+      while(ds->columnNames[i].size() < ds->nbColumns())
+        ds->columnNames[i] << standardNameForColumn(ds->columnNames[i].size());
+      // if too large, truncate.
+      if(ds->columnNames[i].size() > ds->nbColumns())
+        ds->columnNames[i] = ds->columnNames[i].mid(0, ds->nbColumns());
+    }
+  }
+
+
   /// @question Should we update the date too ?
   return ds;
 }
@@ -1036,7 +1069,7 @@ DataSet * DataSet::derivedDataSet(const Vector &newy,
   newCols[1] = newy;
   if(newx.size() > 0)
     newCols[0] = newx;
-    
+
   return derivedDataSet(newCols, suffix);
 }
 
@@ -1375,15 +1408,20 @@ Vector DataSet::segmentPositions() const
   return ret;
 }
 
+QString DataSet::standardNameForColumn(int col) 
+{
+  if(col == 0)
+    return "x";
+  if(col == 1)
+    return "y";
+  return QString("y%1").arg(col);
+}
+
 QStringList DataSet::standardColumnNames() const
 {
   QStringList ret;
-  if(columns.size() > 0)
-    ret << "x";
-  if(columns.size() > 1)
-    ret << "y";
-  for(int i = 2; i < columns.size(); i++)
-    ret << QString("y%1").arg(i);
+  for(int i = 0; i < nbColumns(); i++)
+    ret << standardNameForColumn(i);
   return ret;
 }
 

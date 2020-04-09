@@ -26,7 +26,16 @@
 class DataSet;
 class SaveGlobal;
 
-/// This class represents an expression meant to act on a DataSet
+/// This class represents an expression meant to act on a DataSet.
+///
+/// It provides two modes of action:
+/// 
+/// @li a mode in which one can iterate over the rows of a dataset,
+/// evaluating a formula that refers to the values of the columns for
+/// each row, through the use of first prepareExpression() and then
+/// nextValues()
+/// @li another one in which one can just evaluate an expression in
+/// the context of the dataset, using evaluate()
 class DataSetExpression  {
 
 private:
@@ -42,9 +51,16 @@ private:
 
   SaveGlobal * sStats;
   SaveGlobal * sMeta;
+  SaveGlobal * sRowNames;
+  SaveGlobal * sColNames;
 
   /// The internal expression object !
   Expression * expr;
+
+
+  /// Prepares the internal variables for evaluation, but does not
+  /// evaluate.
+  void prepareVariables();
 
 
 public:
@@ -55,8 +71,12 @@ public:
   /// Whether or not we use $meta
   bool useMeta;
 
+  /// Whether or not we use $col_names $row_names
+  bool useNames;
+
   /// Creates an expression object
-  DataSetExpression(const DataSet * ds);
+  DataSetExpression(const DataSet * ds, bool useStats = false,
+                    bool useMeta = false, bool useNames = false);
 
   /// Prepares the expression for use with the given dataset, possibly
   /// adding the additional parameters.
@@ -66,6 +86,11 @@ public:
 
   /// Returns the expression
   Expression & expression();
+
+  /// Evaluates some Ruby code in the dataset context, with access to
+  /// meta, stats and row/column names but without access to the
+  /// dataset's data.
+  mrb_value evaluate(const QString & str);
 
   /// Frees up all associated storage
   ~DataSetExpression();

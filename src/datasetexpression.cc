@@ -28,10 +28,12 @@
 
 #include <debug.hh>
 
-DataSetExpression::DataSetExpression(const DataSet * ds) :
+DataSetExpression::DataSetExpression(const DataSet * ds,
+                                     bool uS, bool uM, bool uN) :
   dataset(ds), index(-1), sStats(NULL),
-  sMeta(NULL), expr(NULL), useStats(false),
-  useMeta(false)
+  sMeta(NULL), sRowNames(NULL), sColNames(NULL),
+  expr(NULL), useStats(uS),
+  useMeta(uM), useNames(uN)
 {
 }
 
@@ -42,7 +44,50 @@ DataSetExpression::~DataSetExpression()
 {
   delete sStats;
   delete sMeta;
+  delete sRowNames;
+  delete sColNames;
   delete expr;
+}
+
+void DataSetExpression::prepareVariables()
+{
+  MRuby * mr = MRuby::ruby();
+  if(useStats && !sStats) {
+    sStats = new SaveGlobal("$stats");
+  
+    Statistics st(dataset);
+    mr->setGlobal("$stats", st.toRuby());
+  }
+
+  if(useMeta && !sMeta) {
+    sMeta = new SaveGlobal("$meta");
+    mr->setGlobal("$meta", dataset->getMetaData().toRuby());
+  }
+
+  if(useNames && !sRowNames ) {
+    sRowNames = new SaveGlobal("$row_names");
+    sColNames = new SaveGlobal("$col_names");
+    mrb_value mrn = mr->newArray();
+    mrb_value mcn = mr->newArray();
+    bool mu = false;
+    QStringList cn = dataset->mainColumnNames(&mu);
+    if(! mu) {
+      for(const QString & n : cn)
+        mr->arrayPush(mcn, mr->fromQString(n));
+    }
+    QStringList rn = dataset->mainRowNames();
+    for(const QString & n : rn)
+      mr->arrayPush(mrn, mr->fromQString(n));
+    mr->setGlobal("$row_names", mrn);
+    mr->setGlobal("$col_names", mcn); 
+  }
+}
+
+mrb_value DataSetExpression::evaluate(const QString & str)
+{
+  MRuby * mr = MRuby::ruby();
+  prepareVariables();
+  return mr->eval(str);
 }
 
 void DataSetExpression::prepareExpression(const QString & formula,
@@ -53,8 +98,7 @@ void DataSetExpression::prepareExpression(const QString & formula,
     throw InternalError("prepareExpression() on an already prepared object");
 
   MRuby * mr = MRuby::ruby();
-
-  // QTextStream o(stdout);
+  prepareVariables();
 
   QStringList vars = dataSetParameters(dataset, extraCols);
   // vars += extraParameters;
@@ -63,18 +107,6 @@ void DataSetExpression::prepareExpression(const QString & formula,
   // Setting the global vars ahead may help...
 
   
-  /// @todo Save the value somehow ?
-  if(useStats) {
-    sStats = new SaveGlobal("$stats");
-  
-    Statistics st(dataset);
-    mr->setGlobal("$stats", st.toRuby());
-  }
-
-  if(useMeta) {
-    sMeta = new SaveGlobal("$meta");
-    mr->setGlobal("$meta", dataset->getMetaData().toRuby());
-  }
 
   if(extraParams) {
     expr = new Expression(formula);

@@ -39,6 +39,7 @@
 #include <commandwidget.hh>
 
 #include <datastack.hh>
+#include <datasetexpression.hh>
 #include <file.hh>
 
 #include <mruby.hh>
@@ -1605,30 +1606,15 @@ ValueHash DataSet::getMetaData() const
 
 mrb_value DataSet::evaluateWithMeta(const QString & expression, bool useStats) const
 {
-  SaveGlobal _a("$stats");
-  SaveGlobal _b("$meta");
-  MRuby * mr = MRuby::ruby();
-  if(useStats) {
-    Statistics st(this);
-    mr->setGlobal("$stats", st.toRuby());
-  }
-  ValueHash vl = getMetaData();
-  mr->setGlobal("$meta", vl.toRuby());
-  return mr->eval(expression);
+  DataSetExpression ex(this, useStats, true, true);
+  return ex.evaluate(expression);
 }
 
 mrb_value DataSet::evaluateWithMeta(const QString & expression, bool useStats,  bool modifyMeta) 
 {
-  SaveGlobal _a("$stats");
-  SaveGlobal _b("$meta");
+  DataSetExpression ex(this, useStats, true, true);
+  mrb_value v = ex.evaluate(expression);
   MRuby * mr = MRuby::ruby();
-  if(useStats) {
-    Statistics st(this);
-    mr->setGlobal("$stats", st.toRuby());
-  }
-  ValueHash vl = getMetaData();
-  mr->setGlobal("$meta", vl.toRuby());
-  mrb_value v = mr->eval(expression);
   if(modifyMeta)
     metaData.setFromRuby(mr->getGlobal("$meta"));
   return v;

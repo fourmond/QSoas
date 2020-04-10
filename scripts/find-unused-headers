@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# A small script to assess whether headers are useful, but, removing
+# successively each include directive and finding out whether that
+# compiles or not.
+
+file="$1"
+back="$file~"
+log=${file%%cc}unused-headers.log
+build="build/"$(basename $file .cc)".o"
+
+# First, we make a backup of the file
+cp -av "$file" "$back"
+header_lines=$(grep -n '#include' $file | cut -f1 -d:)
+
+echo "Looking at file $file -> log file $log"
+echo "find-unused-headers" > $log
+
+for h in $header_lines; do
+    echo -n "Trying header@$h:"
+    head -n$h "$file" | tail -n1
+    (
+        echo
+        echo 
+        echo "----------------------------------------------------------------------"
+        echo -n "Trying header@$h:"
+        head -n$h "$file" | tail -n1
+    ) >> $log
+    sed $h's/^/\/\//' $back > $file
+    make $build 2>> $log
+done
+cp -v $back $file
+    

@@ -2252,6 +2252,68 @@ cm("correlation-matrix", // command name
    "Correlation matrix between the various columns");
 
 //////////////////////////////////////////////////////////////////////
+// Series of commands to change the names of rows or columns
+
+static QHash<int, QString> parseNameSpecs(const QStringList & names)
+{
+  QHash<int, QString> spcs;
+  if(names.size() == 0)
+    return spcs;                // or throw ?
+  QRegExp cn("^#(\\d+):(.*)");
+  if(cn.indexIn(names.first()) >= 0) {
+    // Advanced parsing
+    for(const QString & n : names) {
+      if(! cn.indexIn(n) == 0)
+        throw RuntimeError("Invalid column/row name: '%1'").arg(n);
+      spcs[cn.cap(1).toInt()] = cn.cap(2);
+    }
+  }
+  else {
+    for(int i = 0; i < names.size(); i++)
+      spcs[i] = names[i];
+  }
+  return spcs;
+}
+
+// Two modes: sets all the names, or if the strings start with #\d:,
+// then set only those
+static void setColumnNamesCommand(const QString &,
+                                  QStringList names,
+                                  const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+  DataSet * nds = ds->derivedDataSet(".dat");
+
+  // Parses the spec:
+  QHash<int, QString> sp = ::parseNameSpecs(names);
+
+  for(int col : sp.keys())
+    nds->setColumnName(col, sp[col]);
+  
+  soas().pushDataSet(nds);
+}
+
+static ArgumentList 
+scA(QList<Argument *>() 
+    << new SeveralStringsArgument("names", 
+                                  "Names",
+                                  "Names of the columns")
+    );
+
+static Command 
+scn("set-column-names", // command name
+    effector(setColumnNamesCommand), // action
+    "buffer",  // group name
+    &scA, // arguments
+    NULL, // options
+    "Set column names",
+    "Sets the column names of the buffer");
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////
 
 
 // testing...

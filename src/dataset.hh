@@ -198,6 +198,16 @@ public:
   /// y2...)
   static QString standardNameForColumn(int col);
 
+  /// Sets the row name of the row of index @a index. It creates all
+  /// the necessary (empty) elements for consistency.
+  /// @todo Secondary names
+  void setRowName(int index, const QString & name);
+
+  /// Sets the column name of the column of index @a index. It creates
+  /// the necessary elements using the standard names if necesary.
+  /// @todo Secondary names
+  void setColumnName(int index, const QString & name);
+
   /// @}
 
 public:

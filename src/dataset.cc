@@ -1426,6 +1426,21 @@ QStringList DataSet::standardColumnNames() const
   return ret;
 }
 
+void DataSet::setColumnName(int idx, const QString & name)
+{
+  if(columnNames.size() == 0)
+    columnNames << QStringList();
+  QStringList & nm = columnNames.first();
+  if(nm.size() > nbColumns())   // brutally truncate
+    nm = nm.mid(0, nbColumns());
+  while(nm.size() < nbColumns())
+    nm << standardNameForColumn(nm.size());
+  if(idx < 0 || idx >= nm.size())
+    return;
+  nm[idx] = name;
+}
+   
+
 
 bool DataSet::hasMetaData(const QString & name) const
 {

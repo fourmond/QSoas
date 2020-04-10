@@ -1,0 +1,48 @@
+# We use a small number of samples
+generate-buffer 0 10 /columns=4 /samples=51
+
+# Check names
+set-column-names my_x my_y
+assert '$col_names[0]=="my_x"'
+assert '$col_names[1]=="my_y"'
+# Check default:
+assert '$col_names[2]=="y2"'
+assert '$col_names[3]=="y3"'
+
+# Check we can modify them one-by-one
+set-column-names my_x2
+assert '$col_names[0]=="my_x2"'
+assert '$col_names[1]=="my_y"'
+assert '$col_names[2]=="y2"'
+assert '$col_names[3]=="y3"'
+
+# Check we can modify them one-by-one
+set-column-names #3:my_y3
+assert '$col_names[0]=="my_x2"'
+assert '$col_names[1]=="my_y"'
+assert '$col_names[2]=="y2"'
+assert '$col_names[3]=="my_y3"'
+
+# Check that apply-formula don't change
+apply-formula y*=2
+assert '$col_names[0]=="my_x2"'
+assert '$col_names[1]=="my_y"'
+assert '$col_names[2]=="y2"'
+assert '$col_names[3]=="my_y3"'
+
+# the name of the X column becomes the name of the perpendicular
+# coordinate.
+
+transpose
+assert '$row_names[0]=="my_y"'
+assert '$row_names[1]=="y2"'
+assert '$row_names[2]=="my_y3"'
+
+# Check we're back
+transpose
+assert '$col_names[0]=="my_x2"'
+assert '$col_names[1]=="my_y"'
+assert '$col_names[2]=="y2"'
+assert '$col_names[3]=="my_y3"'
+
+

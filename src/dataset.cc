@@ -1439,7 +1439,21 @@ void DataSet::setColumnName(int idx, const QString & name)
     return;
   nm[idx] = name;
 }
-   
+
+void DataSet::setRowName(int idx, const QString & name)
+{
+  if(rowNames.size() == 0)
+    rowNames << QStringList();
+  QStringList & nm = rowNames.first();
+  if(nm.size() > nbRows())   // brutally truncate
+    nm = nm.mid(0, nbRows());
+  while(nm.size() < nbRows())
+    nm << "";
+  if(idx < 0 || idx >= nm.size())
+    return;
+  nm[idx] = name;
+}
+
 
 
 bool DataSet::hasMetaData(const QString & name) const
@@ -1630,8 +1644,20 @@ mrb_value DataSet::evaluateWithMeta(const QString & expression, bool useStats,  
   DataSetExpression ex(this, useStats, true, true);
   mrb_value v = ex.evaluate(expression);
   MRuby * mr = MRuby::ruby();
-  if(modifyMeta)
+  if(modifyMeta) {
     metaData.setFromRuby(mr->getGlobal("$meta"));
+    // We also get the column names:
+    mrb_value n = mr->getGlobal("$col_names");
+    if(mr->isArray(n) && mr->arrayLength(n) == nbColumns()) {
+      for(int i = 0; i < nbColumns(); i++)
+        setColumnName(i, mr->toQString(mr->arrayRef(n, i)));
+    }
+    n = mr->getGlobal("$row_names");
+    if(mr->isArray(n) && mr->arrayLength(n) == nbRows()) {
+      for(int i = 0; i < nbRows(); i++)
+        setRowName(i, mr->toQString(mr->arrayRef(n, i)));
+    }
+  }
   return v;
 }
 

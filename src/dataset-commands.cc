@@ -1880,34 +1880,46 @@ static void generateDSCommand(const QString &, double beg, double end,
   int samples = 1000;
   updateFromOptions(opts, "samples", samples);
 
-  QString formula;
-  updateFromOptions(opts, "formula", formula);
+  QStringList formulas;
+  updateFromOptions(opts, "formula", formulas);
 
   int nb = 1;
   updateFromOptions(opts, "number", nb);
+
+  int columns = 2;
+  updateFromOptions(opts, "columns", columns);
 
   QString name;
   updateFromOptions(opts, "name", name);
 
   for(int k = 0; k < nb; k++) {
     Vector x = Vector::uniformlySpaced(beg, end, samples);
+    QList<Vector> cols;
+    cols << x;
     Vector y = x;
-    if(! formula.isEmpty()) {
+    if(formulas.size() > 0) {
       QStringList vars;
       vars << "x" << "i" << "number";
-      Expression expr(formula, vars);
-      /// @todo have a global way to incorporate all "constants"
-      /// (temperature and fara) into that.
-      double v[3];
-      for(int i = 0; i < x.size(); i++) {
-        v[0] = x[i];
-        v[1] = i;
-        v[2] = k;
-        y[i] = expr.evaluate(v);
+      for(const QString & formula : formulas) {
+        Expression expr(formula, vars);
+        /// @todo have a global way to incorporate all "constants"
+        /// (temperature and fara) into that.
+        double v[3];
+        for(int i = 0; i < x.size(); i++) {
+          v[0] = x[i];
+          v[1] = i;
+          v[2] = k;
+          y[i] = expr.evaluate(v);
+        }
+        cols << y;
       }
     }
+    else {
+      while(cols.size() < columns)
+        cols << y;
+    }
 
-    DataSet * newDs = new DataSet(x,y);
+    DataSet * newDs = new DataSet(cols);
     if(nb > 1) {
       if(name.isEmpty())
         name = "generated_%d.dat";
@@ -1938,10 +1950,13 @@ gDSO(QList<Argument *>()
      << new IntegerArgument("number",
                             "Number of generated datasets",
                             "generates that many datasets")
-     << new StringArgument("formula",
-                           "The Y values",
-                           "Formula to generate the Y values",
-                           true)
+     << new IntegerArgument("columns",
+                            "Number of columns",
+                            "number of columns of the generated datasets")
+     << new SeveralStringsArgument("formula",
+                                   "The Y values",
+                                   "Formula to generate the Y values",
+                                   true, true)
      << new StringArgument("name",
                            "The new buffer name",
                            "The name of the newly generated bufffers (may include a %d specification for the number)")

@@ -4,30 +4,40 @@
 # successively each include directive and finding out whether that
 # compiles or not.
 
-file="$1"
-back="$file~"
-log=${file%%cc}unused-headers.log
-build="build/"$(basename $file .cc)".o"
+while [ "$1" ]; do
+    file="$1"
+    back="$file~"
+    log=${file%%cc}unused-headers.log
+    un=${file%%cc}unused.log
+    build="build/"$(basename $file .cc)".o"
 
-# First, we make a backup of the file
-cp -av "$file" "$back"
-header_lines=$(grep -n '#include' $file | cut -f1 -d:)
+    # First, we make a backup of the file
+    cp -av "$file" "$back"
+    header_lines=$(grep -n '#include' $file | cut -f1 -d:)
 
-echo "Looking at file $file -> log file $log"
-echo "find-unused-headers" > $log
+    echo "Looking at file $file -> log file $log"
+    echo "find-unused-headers" > $log
 
-for h in $header_lines; do
-    echo -n "Trying header@$h:"
-    head -n$h "$file" | tail -n1
-    (
-        echo
-        echo 
-        echo "----------------------------------------------------------------------"
+    echo "find-unused-headers" > $un
+
+    for h in $header_lines; do
         echo -n "Trying header@$h:"
         head -n$h "$file" | tail -n1
-    ) >> $log
-    sed $h's/^/\/\//' $back > $file
-    make $build 2>> $log
+        (
+            echo
+            echo 
+            echo "----------------------------------------------------------------------"
+            echo -n "Trying header@$h:"
+            head -n$h "$file" | tail -n1
+        ) >> $log
+        sed $h's/^/\/\//' $back > $file
+        if make $build 2>> $log ; then
+            (
+                echo -n "Unused: @$h:"
+                head -n$h "$file" | tail -n1
+            ) >> $un
+        fi
+    done
+    cp -v $back $file
+    shift
 done
-cp -v $back $file
-    

@@ -63,8 +63,10 @@ protected:
     pms.readFromStream(in);
     QHash<QString,DataSet> vals = pms.parameterValuesAsfZ(true);
     QList<Vector> cols;
-    for(int i = 0; i < pms.parametersOrder.size(); i++) {
-      const DataSet & ds = vals[pms.parametersOrder[i]];
+    QStringList cns;
+    cns << "Z";
+    for(const QString & n : pms.parametersOrder) {
+      const DataSet & ds = vals[n];
       if(ds.nbColumns() == 0)//  {
         // QTextStream o(stdout);
         // o << "Missing values for " << pms.parametersOrder[i] << endl;
@@ -73,11 +75,14 @@ protected:
       if(cols.size() == 0)
         cols << ds.x();
       cols << ds.y();
+      cns << n;
     }
     DataSet * nds = new DataSet(cols);
     nds->name = QDir::cleanPath(fileName);
     nds->setMetaData("fit-name", pms.fitName);
-    nds->setMetaData("parameters", pms.parametersOrder);
+    nds->columnNames << cns;
+    for(int k : pms.bufferNames.keys())
+      nds->setRowName(k, pms.bufferNames[k]);
     
     setMetaDataForFile(nds, fileName);
     rv << nds;

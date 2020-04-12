@@ -154,12 +154,16 @@ QString CurveDataSet::toolTipText(const QPointF & pt)
     arg(dataSet->name).arg(dsIdx);
   // display of perpendicular coordinates
   if(dataSet->perpendicularCoordinates().size() > 0)
-    str += QString("Perpendicular coordinate: %1<br>").
+    str += QString("%1 (perpendicular coordinate): %2<br>").
+      arg(dataSet->perpendicularCoordinatesName()).
       arg(dataSet->perpendicularCoordinates()[0]);
 
   QPointF p = dataSet->pointAt(lastPointIdx);
   str += tr("Point #%1: <br>X = %2, Y = %3").
     arg(lastPointIdx).arg(p.x()).arg(p.y());
+  QString n = dataSet->mainRowNames().value(lastPointIdx, "");
+  if(! n.isEmpty())
+    str += QString("<br>Row name: %1").arg(n);
   return str;
 }
 

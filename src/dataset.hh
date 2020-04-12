@@ -152,6 +152,8 @@ public:
   /// The first element of both lists is the "main" one, it is hard to
   /// know yet what I'll do with the second element.
   ///
+  /// This also handles the name of the perpendicular coordinates.
+  ///
   /// @todo For now, they are public.
   ///
   /// @todo This should be handled together with perpendicular
@@ -179,12 +181,14 @@ public:
   /// not correct.
   bool checkRowNames() const;
 
+  /// Returns the name of the perpendicular coordinates.
+  QString perpendicularCoordinatesName(bool * madeup = NULL) const;
 
   /// Returns the main names of the columns.
   ///
   /// This always returns something that has the same size as
   /// columns().
-  QStringList mainColumnNames(bool * madeup) const;
+  QStringList mainColumnNames(bool * madeup = NULL) const;
 
   /// Returns the names of the rows.
   ///

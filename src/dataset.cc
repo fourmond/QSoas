@@ -1519,10 +1519,12 @@ bool DataSet::checkRowNames() const
 
 QStringList DataSet::mainColumnNames(bool * madeup) const
 {
-  *madeup = false;
+  if(madeup)
+    *madeup = false;
   if(checkColNames() && columnNames.size() > 0)
     return columnNames[0];
-  *madeup = true;
+  if(madeup)
+    *madeup = true;
   return standardColumnNames();
 }
 
@@ -1531,6 +1533,17 @@ QStringList DataSet::mainRowNames() const
   if(checkRowNames() && rowNames.size() > 0)
     return rowNames[0];
   return QStringList();
+}
+
+QString DataSet::perpendicularCoordinatesName(bool * madeup) const
+{
+  if(madeup)
+    *madeup = false;
+  if(perpCoordNames.size() > 0)
+    return perpCoordNames[0];
+  if(madeup)
+    *madeup = true;
+  return "Z";
 }
 
 

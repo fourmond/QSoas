@@ -193,6 +193,8 @@ void ODEFit::compute(const double * a, FitData * data,
     }, data);
 
   const Vector & xv = ds->x();
+  if(xv.size() < 2)
+    throw RuntimeError("Not enough data points");
 
   double ini = s->voltammogram ? 0 : xv[0];
   initialize(s->hasOrigTime ? *(a + s->parametersBase - 1) : ini, a, data);

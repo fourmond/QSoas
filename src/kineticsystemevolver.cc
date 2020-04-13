@@ -495,6 +495,26 @@ public:
 
   };
 
+  virtual void function(const double * a, FitData * data, 
+                        const DataSet * ds,
+                        gsl_vector * target) const override {
+    Storage * s = storage<Storage>(data);
+    KineticSystem * system = getSystem(data);
+    int nb = system->speciesNumber();
+
+    const double * b = a + s->parametersBase;
+    // All initial concentrations to 0 but the first
+    for(int i = 0; i < nb; i++) {
+      if(b[i] < 0)
+        throw RuntimeError("Negative initial concentration: %1 = %2").
+          arg(system->allSpecies()[i]).arg(b[i]);
+    }
+
+    /// @todo This function will be useless when separate checks are
+    /// implemented.
+    ODEFit::function(a, data, ds, target);
+  };
+
   virtual ArgumentList * fitArguments() const override {
     if(mySystem)
       return NULL;

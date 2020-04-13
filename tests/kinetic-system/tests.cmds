@@ -1,4 +1,6 @@
 @ simple.cmds
 @ fast-equilibrium.cmds
+@ conservation.cmds
 @ bimol.cmds
 @ cycles.cmds
+@ auto-catalytic.cmds

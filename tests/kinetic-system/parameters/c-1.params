@@ -1,0 +1,34 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: c-1 (system: conservation-1.qsys)
+# Command-line: fit-c-1 /with=co:1,exp
+y_A	1	!	1
+y_I	0	!	0
+y_D	0	!	0
+c0_A	1	!	0
+c0_I	0	!	0
+c0_D	0	!	0
+ka	1	!	1
+kd	0.1	!	1
+ki	1	!	1
+co_1	1	!	0
+co_t_1	2	!	0
+co_tau_1	1	!	1
+buffer_weight[#0]	1
+buffer_name[#0]	generated.dat
+# The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
+# Final residuals: 5.02883
+# Buffer-local parameters: 
+# 
+# Buffer: generated.dat (weight: 1)
+# y_A	=	1	+- 0	+- 0%
+# y_I	=	0	(fixed)
+# y_D	=	0	(fixed)
+# c0_A	=	1	(fixed)
+# c0_I	=	0	(fixed)
+# c0_D	=	0	(fixed)
+# ka	=	1	+- 0	+- 0%
+# kd	=	0.1	+- 0	+- 0%
+# ki	=	1	+- 0	+- 0%
+# co_1	=	1	(fixed)
+# co_t_1	=	2	(fixed)
+# co_tau_1	=	1	+- 0	+- 0%

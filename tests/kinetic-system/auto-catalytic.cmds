@@ -1,0 +1,24 @@
+define-kinetic-system-fit auto-catalytic.qsys ac /redefine=true
+generate-buffer 0 10
+sim-ac parameters/autocatalytic-1.params 0
+# Use the analytical formula
+apply-formula a=1e-2/(1-1e-2);k=1;e=a*exp(k*x);y-=e/(1+e)
+assert $stats.y_norm 1e-12
+
+sim-ac parameters/autocatalytic-1.params 0 /operation=subfunctions
+apply-formula y=1-(y2+y3)
+assert $stats.y_norm 1e-13
+
+# Same problem with another formulation of the fit
+define-kinetic-system-fit auto-catalytic2.qsys ac2 /redefine=true
+
+generate-buffer 0 10
+sim-ac parameters/autocatalytic-1.params 0
+# Use the analytical formula
+apply-formula a=1e-2/(1-1e-2);k=1;e=a*exp(k*x);y-=e/(1+e)
+assert $stats.y_norm 1e-12
+
+sim-ac parameters/autocatalytic-1.params 0 /operation=subfunctions
+apply-formula y=1-(y2+y3)
+assert $stats.y_norm 1e-13
+

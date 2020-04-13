@@ -1,0 +1,3 @@
+# Same as -1, but with bimolecular things
+A + I <=>[ki*co][ka] 2 I
+I ->[kd*co] D

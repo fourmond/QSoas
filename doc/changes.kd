@@ -1,3 +1,20 @@
+# What's new in version 3.0 ?
+
+Version 3.0 brings an "expert" fit mode, with a fit command line that
+makes it possible to automate fitting or do parameter space
+exploration, running many fits with random initial starting positions
+to greatly increase the likelihood of finding the best parameters
+(along with many other new features for fits).
+
+This release also brings in a command to permanently record
+information about a file, such as the conditions in which the
+experiments were made (the sample used, the temperature, etc...), in a
+format that QSoas automatically reads when reading the file. This
+makes it possible to quickly browse through data to find the
+experiments you need.
+
+See the full list of changes [below](#v3p0)
+
 # What's new in version 2.2 ?
 
 Version 2.2 brings in a lot of new features and improvements, notably
@@ -36,9 +53,11 @@ featuring:
 
  * a command-line interface with over 50 commands in the fit dialog to run
    fits non-interactively
- * parameter space explorers, to improve the chance of finding the
+ * parameter space explorers, which run fits systematically with
+   different starting parameters, to improve the chance of finding the
    best parameters 
- * possibility to run scripts, even as a `fit-` command-line option
+ * possibility to run scripts, even as a `fit-` command-line option,
+   which means one can now perform fully automatic scripts
  * the display, handling, reuse of all the previous fit attempts in a fit
    session ("fit trajectories"), including ways to highlight changes
  * the possibility to set the fit dialog title bar
@@ -103,7 +122,7 @@ featuring:
     the linear regression of $$y = f(x)$$. Available for `y2` and all
     the others, still as a function of `x`.
 
-# Changes in version 2.2 {#v2p2}
+# Changes in version 2.2 (2018.03.21) {#v2p2}
 
 ## New commands
 
@@ -163,7 +182,7 @@ featuring:
  * new special functions: incomplete gamma functions
  * many bug fixes and other minor improvements
 
-# Changes in version 2.1 {#v2p1}
+# Changes in version 2.1 (2017.01.02) {#v2p1}
 
 ## New commands
 
@@ -215,7 +234,7 @@ featuring:
  * A series of bug fixes
 
 
-# Changes in version 2.0 {#v2p0}
+# Changes in version 2.0 (2016.07.19) {#v2p0}
 
 ## New commands
 

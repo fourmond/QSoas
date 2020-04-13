@@ -1,0 +1,15 @@
+define-kinetic-system-fit conservation-1.qsys c-1 /redefine=true
+generate-buffer 0 10
+sim-c-1 parameters/c-1.params /with=co:1,exp 0 /operation=subfunctions
+
+# Now we check the conservation of matter, i.e. that all the columns sum up to almost 1:
+apply-formula y=1-(y2+y3+y4)
+assert $stats.y_norm 1e-13
+
+define-kinetic-system-fit conservation-2.qsys c-2 /redefine=true
+generate-buffer 0 10
+sim-c-2 parameters/c-2.params /with=co:1,exp 0 /operation=subfunctions
+
+# Now we check the conservation of matter, i.e. that all the columns sum up to almost 1:
+apply-formula y=1-(y2+y3+y4)
+assert $stats.y_norm 1e-13

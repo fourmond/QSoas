@@ -1577,8 +1577,12 @@ DataSet * DataSet::transpose() const
     ds->columnNames[i].insert(0, n);
   }
   ds->rowNames = columnNames;
-  for(int i = 0; i < ds->rowNames.size(); i++)
-    ds->perpCoordNames << ds->rowNames[i].takeFirst();
+  for(int i = 0; i < ds->rowNames.size(); i++) {
+    if(ds->rowNames[i].size() > 0)
+      ds->perpCoordNames << ds->rowNames[i].takeFirst();
+    else
+      break;
+  }
 
   return ds;
 }

@@ -77,34 +77,9 @@ int main(int argc, char ** argv)
 {
   DataBackend::registerBackendCommands();
   CommandContext::crosslinkAllCommands();
-  // QTextStream o(stdout);
-
-  // o << "Library paths: " << QCoreApplication::libraryPaths().join(", ") << endl;
-  // // hard-coded
-  // QCoreApplication::addLibraryPath("/Applications/QSoas.app/Contents/Libraries");
-
-  // o << "Library paths: " << QCoreApplication::libraryPaths().join(", ") << endl;
-
-
   QSoasApplication main(argc, argv);
   main.setApplicationName("QSoas");
 
-//   o << "Starting QSoas, library paths: " << QCoreApplication::libraryPaths().join(", ") << endl;
-
-// #ifdef Q_OS_MAC
-//   // Here, we add the ../Libraries
-//   QStringList addPaths;
-//   addPaths << QCoreApplication::applicationDirPath() + "/../Libraries"
-//            << "/Applications/QSoas.app/Contents/Libraries";
-//   for(const QString & n : addPaths) {
-//     QCoreApplication::addLibraryPath(n);
-//     o << "Adding: " << n << "\n -> library paths: " << QCoreApplication::libraryPaths().join(", ") << endl;
-//   }
-  
-// #endif
-
-
-  // Ruby::initRuby();
   
   // We convert GSL's hard errors into C++ exceptions
   GSLError::setupGSLHandler();
@@ -132,7 +107,9 @@ int main(int argc, char ** argv)
   /// Has to be called
   // Ruby::initInterface();
 
+  // Why on earth do we still call that soas ?
   Settings::loadSettings("bip.cnrs-mrs.fr", "Soas");
+  Settings::loadSettings("qsoas.org", "QSoas");
   
   {
     MainWin win(&theSoas, startup);
@@ -140,7 +117,7 @@ int main(int argc, char ** argv)
     retval = main.exec();
   }
 
-  Settings::saveSettings("bip.cnrs-mrs.fr", "Soas");
+  Settings::saveSettings("qsoas.org", "QSoas");
   return retval;
 }
 

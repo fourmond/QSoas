@@ -31,6 +31,7 @@ require 'yaml'
 # * the fits defined in
 # * the HTML code (once parsed with kramdown)
 # * (later:) the latex code
+$target = ""
 def parse_file(info)
 
   f = File.open(info['source'], "r")
@@ -42,12 +43,11 @@ def parse_file(info)
   info['fit-commands'] = []
   info['fits'] = []
 
-  # For now
-  target=""
-
   sec_h = []
   cur_code = false
+  nb = 0
   for l in f
+    nb += 1
 
     if l =~ /^~~~/
       cur_code = ! cur_code
@@ -58,6 +58,10 @@ def parse_file(info)
         sec = {'title' => $2.chomp}
         if $3
           sec['id'] = $4
+        else
+          id = "#id-#{nb}"
+          sec['id'] = id
+          l = "#{l.chomp} {#{id}}\n"
         end
         sec['level'] = $1.size
 
@@ -87,15 +91,18 @@ def parse_file(info)
           end
         end
       end
-      l.gsub!(/\[cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{target}" + '#cmd-\\1)')
-      l.gsub!(/\[fit:\s*([^\]]+)\]/, '[`\\1`](' + "#{target}" + '#cmd-fit-\\1)')
-      l.gsub!(/\[fit-cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{target}" + '#fit-cmd-\\1)')
+      l.gsub!(/\[cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{$target}" + '#cmd-\\1)')
+      l.gsub!(/\[fit:\s*([^\]]+)\]/, '[`\\1`](' + "#{$target}" + '#cmd-fit-\\1)')
+      l.gsub!(/\[fit-cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{$target}" + '#fit-cmd-\\1)')
     end
     o.print l
   end
   o.close
   # YAML::dump(info['sections'], STDOUT)
   info['html'] = `kramdown #{ofn}`
+  if info['commands'].size > 0
+    $target = info['file']
+  end
 
 end
   

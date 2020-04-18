@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<QtHelpProject version="1.0">
+  <namespace>org.qsoas.QSoas</namespace>
+  <virtualFolder>doc</virtualFolder>
+  <filterSection>
+    <toc>
+    #TOC
+    </toc>
+    <keywords>
+    #KEYWORDS
+    </keywords>
+    <files>
+      #FILES
+      <file>style.css</file>
+    </files>
+  </filterSection>
+</QtHelpProject>

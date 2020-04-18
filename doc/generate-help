@@ -1,0 +1,178 @@
+#! /usr/bin/ruby
+
+# Copyright 2020 by CNRS/AMU
+#
+# This script is licensed under the same terms as QSoas itself.
+#
+# This script parses a YAML file containing a list of markdown files
+# together with appropriate informations, and generates the
+# corresponding HTML files, and the corresponding information in the
+# .qhp file, using several templates:
+# * a template.html file for HTML
+# * a template.qhp file for the QHP code.
+#
+# What it does:
+# * it converts the internal commodity links to commands/fits to the
+#   correct version
+# * it will eventually handle the generation of images from LaTeX equations
+#   (not forgetting the appropriate alt text)
+# * it passes the result to kramdown for generation of HTML
+# * it generates the sections for QHP generation, warning about missing anchors
+# * it generates the keywords for commands
+# * ... and runs the regeneration of the collections and such.
+
+require 'optparse'
+require 'yaml'
+
+# Takes a hash with the file name, and fills it with:
+# * the sections: an array of {'level', 'title', 'id'}
+# * the commands defined in
+# * the fit commands defined in
+# * the fits defined in
+# * the HTML code (once parsed with kramdown)
+# * (later:) the latex code
+def parse_file(info)
+
+  f = File.open(info['source'], "r")
+  ofn = info['source']+".tmp"
+  o = File.open(ofn, "w")
+
+  info['sections'] = []
+  info['commands'] = []
+  info['fit-commands'] = []
+  info['fits'] = []
+
+  # For now
+  target=""
+
+  sec_h = []
+  cur_code = false
+  for l in f
+
+    if l =~ /^~~~/
+      cur_code = ! cur_code
+    end
+    if ! cur_code
+      
+      if l =~ /^(#+)\s*([^{]+)(\{(#.*)\})?/
+        sec = {'title' => $2.chomp}
+        if $3
+          sec['id'] = $4
+        end
+        sec['level'] = $1.size
+
+        
+        cur = sec_h[-1] || nil
+        while cur && cur['level'] >= sec['level']
+          sec_h.pop
+          cur = sec_h[-1]
+        end
+        if cur
+          cur["sections"] ||= []
+          cur["sections"] << sec
+        else
+          info['sections'] << sec
+        end
+        sec_h << sec
+        if sec.key? 'id'
+          id = sec['id']
+          if id =~ /#cmd-(.*)/
+            info['commands'] << $1
+          end
+          if id =~ /#fit-cmd-(.*)/
+            info['fit-commands'] << $1
+          end
+          if id =~ /#cmd-fit-(.*)/
+            info['fits'] << $1
+          end
+        end
+      end
+      l.gsub!(/\[cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{target}" + '#cmd-\\1)')
+      l.gsub!(/\[fit:\s*([^\]]+)\]/, '[`\\1`](' + "#{target}" + '#cmd-fit-\\1)')
+      l.gsub!(/\[fit-cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{target}" + '#fit-cmd-\\1)')
+    end
+    o.print l
+  end
+  o.close
+  # YAML::dump(info['sections'], STDOUT)
+  info['html'] = `kramdown #{ofn}`
+
+end
+  
+
+# The file to load
+file = ARGV[0] || "doc.yaml"
+
+files = {}
+File.open(file, "r") { |f| files = YAML::load(f) }
+
+
+for fn,info in files
+  info['source'] = fn
+  info['file'] = fn.sub(".kd", ".html")
+  parse_file(info)
+  # p info
+  # exit
+end
+
+
+# OK, we've read the sources.
+
+html_template = IO::read("template.html")
+
+# Open 
+
+for file in files.values
+  tgt = html_template.sub("#TITLE", file['title'])
+  tgt.sub!("#CONTENT", file['html'])
+  File.open(file['file'],'w') { |f| f.print tgt }
+end
+
+help_template = IO::read("qhp-template.xml")
+
+# Now, we generate the TOC:
+def sec_string(sec,file)
+  id = sec['id']
+  if id
+    id = "#{id}"
+  else
+    id = ""
+    puts "Warning: no ID for section #{sec['title']}"
+  end
+  title = sec["title"].gsub("'","")
+  if sec.key? 'sections'
+    
+    subs = sec['sections'].map {|s| sec_string(s,file) }
+    return "<section title='#{title}' ref='#{file['file']}#{id}'>\n" +
+           subs.join("\n") + "\n</section>"
+  else
+    return "<section title='#{title}' ref='#{file['file']}#{id}'/>"
+  end
+end
+
+toc = ""
+files_s = ""
+keywords = ""
+for file in files.values
+  secs = file['sections'].map {|s| sec_string(s,file) }
+  toc << "<section title='#{file['title']}' ref='#{file['file']}'>\n" + 
+         secs.join("\n") + "</section>\n"
+  files_s << "<file>#{file['file']}</file>\n"
+  for cmd in file['commands']
+    keywords << "<keyword name='#{cmd} (command)' ref='#{file['file']}#cmd-#{cmd}'/>\n"
+  end
+  for cmd in file['fit-commands']
+    keywords << "<keyword name='#{cmd} (fit command)' ref='#{file['file']}#fit-cmd-#{cmd}'/>\n"
+  end
+  for cmd in file['fits']
+    keywords << "<keyword name='#{cmd} (fit)' ref='#{file['file']}#cmd-fit-#{cmd}'/>\n"
+  end
+end
+
+
+
+help_template.sub!("#TOC", toc)
+help_template.sub!("#KEYWORDS", keywords)
+help_template.sub!("#FILES", files_s)
+
+File.open("qsoas-help.qhp",'w') { |f| f.print help_template }

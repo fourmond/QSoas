@@ -28,6 +28,9 @@ QT += network
 # We need SVG support for icons
 QT += svg
 
+# And now the shiny help system
+QT += help
+
 # We want to build a console application on win32 as we don't have a
 # proper winmain for windows only applications.
 win32:CONFIG += console
@@ -562,6 +565,10 @@ HEADERS += src/metadatafile.hh
 SOURCES += src/valuehash-json.cc \
         src/metadatafile.cc \
         src/formats/qsmprovider.cc
+
+# Help browser:
+HEADERS += src/helpbrowser.hh
+SOURCES += src/helpbrowser.cc
 
 
 ######################################################################

@@ -160,6 +160,10 @@
 #include <QTcpSocket>
 #include <QTcpServer>
 
+// Help
+#include <QHelpEngine>
+#include <QTextBrowser>
+
 
 
 

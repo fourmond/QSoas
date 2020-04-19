@@ -21,9 +21,9 @@
 #ifndef __HELPBROWSER_HH
 #define __HELPBROWSER_HH
 
+class Command;
 
-
-/// A browser
+/// A browser to display the help texts
 class HelpBrowser : public QWidget {
   Q_OBJECT;
 
@@ -44,13 +44,18 @@ public:
   virtual ~HelpBrowser();
 
 
-  /// Browses the 
+  /// Browses the given location
   static void browseLocation(const QString & location);
+
+  /// Browses the documentation of the given command.
+  static void browseCommand(const Command * command);
 
 public slots:
   /// Shows the given location, i.e. a relative file path, with
   /// optionally a #position
   void showLocation(const QString & location);
+  void showLocation(const QUrl & location);
+
 };
 
 

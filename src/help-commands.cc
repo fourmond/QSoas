@@ -33,6 +33,7 @@
 #include <statistics.hh>
 
 #include <commandlineparser.hh>
+#include <helpbrowser.hh>
 
 static Group help("help", 1000,
                   "Help",
@@ -90,52 +91,7 @@ QString docUrl("http://www.qsoas.org/manual.html");
 static void helpCommand(const QString & name, Command * cmd, 
                         const CommandOptions & opts)
 {
-  QStringList synopsis;
-  QString descs;
-
-  
-  bool online = name == "help"; 
-
-  updateFromOptions(opts, "online", online);
-  if(online) {
-    QUrl url = docUrl;
-    url.setFragment("cmd-" + cmd->commandName());
-    QDesktopServices::openUrl(url);
-    return;
-  }
-  /// @todo the documentation-building facilities should join Command
-  /// rather than being here.
-  if(cmd->commandArguments()) {
-    const ArgumentList & args = *cmd->commandArguments();
-    for(int i = 0; i < args.size(); i++) {
-      QString a = args[i]->argumentName();
-      if(args[i]->greedy)
-        a += "...";
-      synopsis << a;
-      descs += QString("  * %1: %2\n").
-        arg(args[i]->argumentName()).
-        arg(args[i]->description());
-    }
-  }
-
-  if(cmd->commandOptions()) {
-    const ArgumentList & args = *cmd->commandOptions();
-    for(int i = 0; i < args.size(); i++) {
-      QString a = args[i]->argumentName();
-      synopsis << "/" + a + "=" ;
-      descs += QString("  * /%1%3: %2\n").
-        arg(args[i]->argumentName()).
-        arg(args[i]->description()).
-        arg(args[i]->defaultOption ? " (default)" : "");
-    }
-  }
-
-  Terminal::out << "Command: " << cmd->commandName() << " -- "
-                << cmd->publicName() << "\n\n"
-                << "  " << cmd->commandName() << " " 
-                << synopsis.join(" ") << "\n" 
-                << descs << "\n"
-                << cmd->longDescription() << endl;
+  HelpBrowser::browseCommand(cmd);
 }
 
 static ArgumentList 

@@ -19,6 +19,8 @@
 
 #include <headers.hh>
 #include <helpbrowser.hh>
+#include <command.hh>
+#include <commandcontext.hh>
 
 // A QTextBrowser subclass for handling the documents.
 class HelpTextBrowser : public QTextBrowser {
@@ -28,8 +30,8 @@ public:
   };
 
   virtual QVariant loadResource(int type, const QUrl &name) override {
-    QTextStream o(stdout);
-    o << "Request: " << name.toString() << endl;
+    // QTextStream o(stdout);
+    // o << "Request: " << name.toString() << endl;
     if(name.scheme() == "qthelp") {
       return engine->fileData(name);
     }
@@ -49,6 +51,8 @@ HelpBrowser::HelpBrowser() : QWidget(NULL)
   engine = new QHelpEngine(collection, this);
   // engine->setupData();
 
+  setWindowFlag(Qt::Window);
+
   theBrowser = this;
   setupFrame();
 }
@@ -57,8 +61,38 @@ void HelpBrowser::setupFrame()
 {
   QVBoxLayout * layout = new QVBoxLayout(this);
 
+  QSplitter * mainS = new QSplitter(Qt::Horizontal);
+
+  // QSplitter * subS = new QSplitter(Qt::Vertical);
+  QWidget * left = new QWidget();
+  QVBoxLayout * subS = new QVBoxLayout(left);
+
+  subS->addWidget(new QLabel("Contents"));
+  subS->addWidget(engine->contentWidget());
+  connect(engine->contentWidget(),
+          SIGNAL(linkActivated(const QUrl &)),
+          SLOT(showLocation(const QUrl&)));
+  
+  subS->addWidget(new QLabel("Index"));
+  subS->addWidget(engine->indexWidget());
+  connect(engine->indexWidget(),
+          SIGNAL(linkActivated(const QUrl &, const QString&)),
+          SLOT(showLocation(const QUrl&)));
+
+  mainS->addWidget(left);
+
   browser = new HelpTextBrowser(engine);
-  layout->addWidget(browser);
+  mainS->addWidget(browser);
+  layout->addWidget(mainS);
+
+  QDialogButtonBox * buttons =
+    new QDialogButtonBox(QDialogButtonBox::Close,
+                         Qt::Horizontal);
+  layout->addWidget(buttons);
+
+  connect(buttons, SIGNAL(accepted()), SLOT(hide()));
+  connect(buttons, SIGNAL(rejected()), SLOT(hide()));
+
 }
 
 
@@ -69,26 +103,13 @@ HelpBrowser::~HelpBrowser()
   delete engine;
 }
 
+void HelpBrowser::showLocation(const QUrl & url)
+{
+  browser->setSource(url);
+}
+
 void HelpBrowser::showLocation(const QString & location)
 {
-  // QString l("qthelp://qsoas.org.qsoas/doc/");
-  // l += location;
-  // browser->setSource(l);
-
-  QTextStream o(stdout);
-  // QUrl l = engine->findFile(location);
-  // o << "Looking for " << location << " -> " << l.toString() << endl;
-
-  // QStringList ls = engine->registeredDocumentations();
-  // o << "Registered: " << endl;
-  // for(const QString & l: ls) {
-  //   o << " - " << l << " -> "
-  //     << engine->documentationFileName(l) << endl;
-  //   QList<QUrl> urls = engine->files(l, QStringList());
-  //   for(const QUrl & u : urls)
-  //     o << "    ->" << u.toString() << endl;
-  // }
-
   // Find the namespace
   QStringList ls = engine->registeredDocumentations();
   if(ls.size() == 0)
@@ -96,16 +117,13 @@ void HelpBrowser::showLocation(const QString & location)
   QString l = QString("qthelp://%1/%2").arg(ls[0]).arg(location); 
 
   QUrl url = engine->findFile(l);
-  o << "Looking for " << location << "(" << l
-    << ") -> " << url.toString() << endl;
-  
-  browser->setSource(url);
+  showLocation(url);
 }
 
 void HelpBrowser::browseLocation(const QString & location)
 {
   HelpBrowser * b = getBrowser();
-  b->show();
+  b->setVisible(true);
   b->showLocation(location);
 }
 
@@ -116,10 +134,17 @@ HelpBrowser * HelpBrowser::getBrowser()
   return theBrowser;
 }
 
+void HelpBrowser::browseCommand(const Command * command)
+{
+  QString id = "cmd-" + command->commandName();
+  if(command->commandContext() != CommandContext::globalContext())
+    id = "fit-" + id;
+  browseLocation("doc/qsoas.html#"+id);
+}
+
 
 
 //////////////////////////////////////////////////////////////////////
-#include <command.hh>
 #include <commandeffector-templates.hh>
 
 static void htCommand(const QString &, const CommandOptions & )

@@ -1,3 +1,6 @@
+/* Rewrite using:
+   https://doc.qt.io/qt-5/richtext-html-subset.html
+ */
 pre {
     overflow: auto;
     text-align: left;

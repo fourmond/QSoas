@@ -288,6 +288,11 @@ void MainWin::setupFrame()
   curveView->setFocusProxy(commandWidget);
   mainSplitter->setFocusProxy(commandWidget);
 
+  
+  mainSplitter->setStretchFactor(0, 3);
+  mainSplitter->setStretchFactor(1, 1);
+
+
   // This is not so nice, but the splitters are invisible with many
   // themes.
   //

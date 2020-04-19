@@ -1,18 +1,17 @@
-**Important warning**
-Some commands of `QSoas` may not be documented here. It means they are
-not supported in any way: their syntax may change without notice, they
-may disappear, they may turn out to do completely different things in
-the end. In short, **use them at your own risks** (and it would be a
-good idea to check out the code, in that case).
+# QSoas
 
-The most recent HTML version of this document can always be found
-[there][manual-html], together with the corresponding [PDF
-version][manual-pdf].
+QSoas is a general-purpose data analysis program with particular
+strengths for the processing of $$y = f(x)$$ data, for massive data
+analysis (via the use of scripts) and for fitting, including massive fits.
+
+Here is the documentation of all the commands used to communicate with
+QSoas. You may want to have a look at the [FAQ](faq.html).
 
 
 # Commands, arguments and options (how to read this document)
 
-QSoas works by entering commands inside the command prompt.
+QSoas works by entering commands inside the command prompt, or
+alternatively using the menus.
 
 Most commands have arguments and options. Arguments and options are
 separated by spaces:
@@ -23,8 +22,8 @@ QSoas> command argument1 argument2 "argument 3" /option=option /option2="with sp
 
 If you need to pass arguments or option values that have spaces, make
 sure you quote them using `"` or `'`, like in the above example. The
-`=` sign for the options can be replace by a space, so that the
-command above could have been run thus:
+`=` sign for the options can be replaced by a space, so that the
+command above could also have been run thus:
 
 ~~~ 
 QSoas> command argument1 argument2 "argument 3" /option option /option2 "with spaces"
@@ -66,6 +65,16 @@ Some commands can be used through a short name (like `q` for
 Some commands are marked as *(interactive)*. This means that their use
 requires user input. If they are used in a [script](#scripting), the
 script pauses for user interaction.
+
+## Using the menus to discover a command {#menu-dialog}
+
+All the commands that can be run from the command line are also
+available from within the menus. Running the command through the menu
+gives a dialog box in which one must choose the arguments of the
+command, and one can also select the options.
+
+This can be a good way to discover what commands are available, and
+what they do.
 
 ## Note about text files {#text-files}
 
@@ -7378,10 +7387,11 @@ listed here:
 {::comment} non-interacive-end {:/}
 
 
-## Ruby code {#ruby}
+# Mathematical formulas using Ruby {#ruby}
 
-QSoas internally uses [Ruby][ruby] for the interpretation of all
-formulas, or more precisely its embedded version, [mruby][mruby]. This
+QSoas internally uses [Ruby][ruby] (or more precisely its embedded
+version, [mruby][mruby]) for the interpretation of all
+formulas. This
 means in particular that all formulas must be valid ruby code.
 
 Basically, the [Ruby][ruby] syntax ressembles that of other symbolic
@@ -7406,17 +7416,8 @@ for more information about how to make this available). The most easy
 way to do so is to use for instance `$stats.y_max` to refer to the
 `y_max` statistic.
 
-### Specific additions/modifications to Ruby
 
-#### Regular expressions
-
-The embedded version of [Ruby][ruby], [mruby][mruby], does not have a
-regular expression engine. We have added one, but it is not based on
-standard [Ruby][ruby] regular expressions, but on the ones from
-[Qt][qt-regexps]. For most regular expressions, this should not
-matter, however.
-
-#### Special functions
+## Special functions
 
 In addition to standard mathematical functions from the [Math][math]
 module (that contains, among others, the error function
@@ -7483,6 +7484,8 @@ module (that contains, among others, the error function
 
 {::comment} special-functions-end {:/}
 
+## Physical constants
+
 Some physical/mathematical constants are available; their name starts
 with an **uppercase** letter.
 
@@ -7509,6 +7512,18 @@ with an **uppercase** letter.
  * `Sigma`: The Stefan-Boltzmann radiation constant -- 5.6704e-08
 
 {::comment} constants-end {:/}
+
+## Other additions to Ruby
+
+The embedded version of [Ruby][ruby], [mruby][mruby], does not have a
+regular expression engine. We have added one, but it is not based on
+standard [Ruby][ruby] regular expressions, but on the ones from
+[Qt][qt-regexps]. For most regular expressions, this should not
+matter, however.
+
+# Running QSoas
+
+QSoas can also be useful when run from the command-line.
 
 ## Command-line options {#command-line-options}
 
@@ -7542,6 +7557,14 @@ command-line terminal and run:
 ~~~
 # ./qs-run my-command-script.txt
 ~~~
+
+## Latest version of the documentation
+
+
+The most recent HTML version of this document can always be found
+[there][manual-html], together with the corresponding
+[PDF version][manual-pdf].
+
 
 [ruby]:http://www.ruby-lang.org/ "Ruby, the programming language"
 [mruby]:https://mruby.org/ "MRuby, the embedded version of Ruby"

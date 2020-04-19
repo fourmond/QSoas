@@ -24,6 +24,7 @@
 #include <command.hh>
 
 #include <debug.hh>
+#include <helpbrowser.hh>
 
 ArgumentEditor::ArgumentEditor(const Argument * arg, bool opt) :
   argument(arg),
@@ -127,12 +128,14 @@ ArgumentsDialog::ArgumentsDialog(const Command * cmd) : QDialog(),
 
   QDialogButtonBox * buttons =
     new QDialogButtonBox(QDialogButtonBox::Ok |
-                         QDialogButtonBox::Cancel,
+                         QDialogButtonBox::Cancel |
+                         QDialogButtonBox::Help,
                          Qt::Horizontal);
   global->addWidget(buttons);
 
   connect(buttons, SIGNAL(accepted()), SLOT(accept()));
   connect(buttons, SIGNAL(rejected()), SLOT(reject()));
+  connect(buttons, SIGNAL(helpRequested()), SLOT(showHelp()));
 }
 
 ArgumentsDialog::~ArgumentsDialog()
@@ -176,4 +179,9 @@ void ArgumentsDialog::retrieveArgumentsAndOptions(CommandArguments * args,
     }
   }
 
+}
+
+void ArgumentsDialog::showHelp()
+{
+  HelpBrowser::browseCommand(command);
 }

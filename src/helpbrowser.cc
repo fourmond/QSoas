@@ -78,6 +78,7 @@ HelpBrowser::HelpBrowser() :
   // engine->setupData();
 
   setWindowFlag(Qt::Window);
+  setWindowTitle("QSoas Help");
 
   theBrowser = this;
   setupFrame();

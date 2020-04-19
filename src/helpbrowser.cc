@@ -23,7 +23,7 @@
 #include <commandcontext.hh>
 
 #include <actioncombo.hh>
-
+#include <utils.hh>
 #include <settings-templates.hh>
 
 
@@ -128,11 +128,11 @@ void HelpBrowser::setupFrame()
   subS = new QVBoxLayout(right);
   QHBoxLayout * top = new QHBoxLayout;
   QPushButton * bt =
-    new QPushButton(qApp->style()->standardIcon(QStyle::SP_ArrowLeft),
+    new QPushButton(Utils::standardIcon(QStyle::SP_ArrowLeft),
                     QString());
   top->addWidget(bt);
   browser->connect(bt, SIGNAL(clicked()), SLOT(backward()));
-  bt = new QPushButton(qApp->style()->standardIcon(QStyle::SP_ArrowRight),
+  bt = new QPushButton(Utils::standardIcon(QStyle::SP_ArrowRight),
                        QString());
   top->addWidget(bt);
   browser->connect(bt, SIGNAL(clicked()), SLOT(forward()));
@@ -146,12 +146,12 @@ void HelpBrowser::setupFrame()
   connect(searchText, SIGNAL(returnPressed()),
           SLOT(searchForward()));
 
-  bt = new QPushButton(qApp->style()->standardIcon(QStyle::SP_ArrowDown),
+  bt = new QPushButton(Utils::standardIcon(QStyle::SP_ArrowDown),
                        QString());
   top->addWidget(bt);
   connect(bt, SIGNAL(clicked()), SLOT(searchForward()));
 
-  bt = new QPushButton(qApp->style()->standardIcon(QStyle::SP_ArrowUp),
+  bt = new QPushButton(Utils::standardIcon(QStyle::SP_ArrowUp),
                        QString());
   top->addWidget(bt);
   connect(bt, SIGNAL(clicked()), SLOT(searchBackward()));

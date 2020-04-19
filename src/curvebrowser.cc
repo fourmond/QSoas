@@ -23,6 +23,7 @@
 #include <settings-templates.hh>
 
 #include <checkablewidget.hh>
+#include <utils.hh>
 
 
 //////////////////////////////////////////////////////////////////////
@@ -58,12 +59,13 @@ void CurveBrowser::setupFrame()
   viewLabel = new QLabel("");
   bottomLayout->addWidget(viewLabel);
 
-  QPushButton * bt = new QPushButton(tr("<-"));
+  QPushButton * bt =
+    new QPushButton(Utils::standardIcon(QStyle::SP_ArrowLeft), "");
   connect(bt, SIGNAL(clicked()), SLOT(previousPage()));
   bottomLayout->addWidget(bt);
 
   /// @todo Make a Utils:: function for that idiom !
-  bt = new QPushButton(tr("->"));
+  bt = new QPushButton(Utils::standardIcon(QStyle::SP_ArrowRight), "");
   connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
   bottomLayout->addWidget(bt);
 

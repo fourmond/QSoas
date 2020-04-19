@@ -23,7 +23,7 @@
 
 #include <checkablewidget.hh>
 #include <nupwidget.hh>
-
+#include <utils.hh>
 
 //////////////////////////////////////////////////////////////////////
 
@@ -65,7 +65,8 @@ void DatasetBrowser::setupFrame()
 
 
   bottomLayout = new QHBoxLayout;
-  QPushButton * bt = new QPushButton(tr("<-"));
+  QPushButton * bt =
+    new QPushButton(Utils::standardIcon(QStyle::SP_ArrowLeft),"");
   nup->connect(bt, SIGNAL(clicked()), SLOT(previousPage()));
   bottomLayout->addWidget(bt);
 
@@ -88,7 +89,7 @@ void DatasetBrowser::setupFrame()
                SLOT(setNup(const QString &)));
   bottomLayout->addWidget(cb);
 
-  bt = new QPushButton(tr("->"));
+  bt = new QPushButton(Utils::standardIcon(QStyle::SP_ArrowRight),"");
   nup->connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
   bottomLayout->addWidget(bt);
 

@@ -221,11 +221,12 @@ void FitDialog::setupFrame(bool expert)
   //////////////////////////////////////////////////////////////////////
   // First line
   QHBoxLayout * hb = new QHBoxLayout;
-  QPushButton * bt = new QPushButton("<-");
+  QPushButton * bt =
+    new QPushButton(Utils::standardIcon(QStyle::SP_ArrowLeft), "");
   nup->connect(bt, SIGNAL(clicked()), SLOT(previousPage()));
   hb->addWidget(bt);
 
-  bt = new QPushButton("->");
+  bt = new QPushButton(Utils::standardIcon(QStyle::SP_ArrowRight),"");
   nup->connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
   hb->addWidget(bt);
 
@@ -281,11 +282,11 @@ void FitDialog::setupFrame(bool expert)
     hb->addWidget(bt);
   }
 
-  bt = new QPushButton(tr("<-"));
+  bt = new QPushButton(Utils::standardIcon(QStyle::SP_ArrowLeft), "");
   nup->connect(bt, SIGNAL(clicked()), SLOT(previousPage()));
   hb->addWidget(bt);
   
-  bt = new QPushButton(tr("->"));
+  bt = new QPushButton(Utils::standardIcon(QStyle::SP_ArrowRight), "");
   nup->connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
   hb->addWidget(bt);
 

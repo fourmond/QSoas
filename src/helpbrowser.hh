@@ -34,11 +34,18 @@ class HelpBrowser : public QWidget {
   /// The browser part of the deal.
   QTextBrowser * browser;
 
+  /// The line edit for searching
+  QLineEdit * searchText;
+
+  bool lastSearchFailed;
+
   void setupFrame();
 
 
   static HelpBrowser * getBrowser();
 
+  virtual void resizeEvent(QResizeEvent * event) override;
+      
 
 public:
   HelpBrowser();
@@ -56,6 +63,21 @@ public slots:
   /// optionally a #position
   void showLocation(const QString & location);
   void showLocation(const QUrl & location);
+
+  /// Search inside the browser with the text from the search line
+  /// edit.
+  void search(const QTextDocument::FindFlags & flgs =
+              QTextDocument::FindFlags());
+  void searchForward();
+  void searchBackward();
+
+protected slots:
+  /// Follows the link
+  void linkClicked(const QUrl & url);
+
+  /// Called on search shortcut pressed
+  void searchForwardShortcut();
+  void searchBackwardShortcut();
 
 };
 

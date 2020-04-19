@@ -22,6 +22,12 @@
 #include <command.hh>
 #include <commandcontext.hh>
 
+#include <actioncombo.hh>
+
+#include <settings-templates.hh>
+
+
+
 // A QTextBrowser subclass for handling the documents.
 class HelpTextBrowser : public QTextBrowser {
   QHelpEngine * engine;
@@ -54,10 +60,15 @@ public:
 
 };
 
+//////////////////////////////////////////////////////////////////////
+
+static SettingsValue<QSize> helpWinSize("help/size", QSize(700,500));
+
 
 HelpBrowser * HelpBrowser::theBrowser = NULL;
 
-HelpBrowser::HelpBrowser() : QWidget(NULL)
+HelpBrowser::HelpBrowser() :
+  QWidget(NULL), lastSearchFailed(false)
 {
   QString collection =
     QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("doc/qsoas-help.qhc");
@@ -70,7 +81,15 @@ HelpBrowser::HelpBrowser() : QWidget(NULL)
 
   theBrowser = this;
   setupFrame();
+  resize(::helpWinSize);
 }
+
+void HelpBrowser::resizeEvent(QResizeEvent * event)
+{
+  QWidget::resizeEvent(event);
+  helpWinSize = size();
+}
+
 
 void HelpBrowser::setupFrame()
 {
@@ -80,6 +99,9 @@ void HelpBrowser::setupFrame()
 
   // QSplitter * subS = new QSplitter(Qt::Vertical);
   QWidget * left = new QWidget();
+
+  //////////////////////////////
+  // Left part 
   QVBoxLayout * subS = new QVBoxLayout(left);
 
   subS->addWidget(new QLabel("Contents"));
@@ -96,8 +118,51 @@ void HelpBrowser::setupFrame()
 
   mainS->addWidget(left);
 
+  //////////////////////////////
+  // Right part 
+  QWidget * right = new QWidget();
   browser = new HelpTextBrowser(engine);
-  mainS->addWidget(browser);
+
+  // Navigation:
+  subS = new QVBoxLayout(right);
+  QHBoxLayout * top = new QHBoxLayout;
+  QPushButton * bt =
+    new QPushButton(qApp->style()->standardIcon(QStyle::SP_ArrowLeft),
+                    QString());
+  top->addWidget(bt);
+  browser->connect(bt, SIGNAL(clicked()), SLOT(backward()));
+  bt = new QPushButton(qApp->style()->standardIcon(QStyle::SP_ArrowRight),
+                       QString());
+  top->addWidget(bt);
+  browser->connect(bt, SIGNAL(clicked()), SLOT(forward()));
+
+  // Search box
+  top->addWidget(new QLabel("Search: "));
+
+  searchText = new QLineEdit;
+  top->addWidget(searchText, 1);
+
+  connect(searchText, SIGNAL(returnPressed()),
+          SLOT(searchForward()));
+
+  bt = new QPushButton(qApp->style()->standardIcon(QStyle::SP_ArrowDown),
+                       QString());
+  top->addWidget(bt);
+  connect(bt, SIGNAL(clicked()), SLOT(searchForward()));
+
+  bt = new QPushButton(qApp->style()->standardIcon(QStyle::SP_ArrowUp),
+                       QString());
+  top->addWidget(bt);
+  connect(bt, SIGNAL(clicked()), SLOT(searchBackward()));
+
+  subS->addLayout(top);
+  subS->addWidget(browser);
+  
+  mainS->addWidget(right);
+
+  mainS->setStretchFactor(0, 1);
+  mainS->setStretchFactor(1, 3);
+  
   layout->addWidget(mainS);
 
   QDialogButtonBox * buttons =
@@ -108,6 +173,20 @@ void HelpBrowser::setupFrame()
   connect(buttons, SIGNAL(accepted()), SLOT(hide()));
   connect(buttons, SIGNAL(rejected()), SLOT(hide()));
 
+  browser->setOpenLinks(false);
+  connect(browser, SIGNAL(anchorClicked(const QUrl&)),
+          SLOT(linkClicked(const QUrl&)));
+
+  // Keyboard shortcut:
+
+  addAction(ActionCombo::createAction("Search", this,
+                                      SLOT(searchForwardShortcut()),
+                                      QKeySequence("Ctrl+F"),
+                                      this));
+  addAction(ActionCombo::createAction("Search backward", this,
+                                      SLOT(searchBackwardShortcut()),
+                                      QKeySequence("Ctrl+Shift+F"),
+                                      this));
 }
 
 
@@ -157,21 +236,45 @@ void HelpBrowser::browseCommand(const Command * command)
   browseLocation("doc/qsoas.html#"+id);
 }
 
-
-
-//////////////////////////////////////////////////////////////////////
-#include <commandeffector-templates.hh>
-
-static void htCommand(const QString &, const CommandOptions & )
+void HelpBrowser::linkClicked(const QUrl & url)
 {
-  HelpBrowser::browseLocation("doc/qsoas.html#lkjsdf");
+  QTextStream o(stdout);
+  o << "Link: " << url.toString() << endl;
+  if(url.scheme() == "qthelp")  // internal
+    showLocation(url);
+  else
+    QDesktopServices::openUrl(url);
 }
 
+void HelpBrowser::search(const QTextDocument::FindFlags & flgs)
+{
+  QString txt = searchText->text();
+  if(! txt.isEmpty())
+    browser->find(txt, flgs);
+}
 
-static Command 
-dlwf("tst",  // command name
-     effector(htCommand), // action
-     "file",                       // group name
-     NULL,                    // arguments
-     NULL,                    // options
-     "...");
+void HelpBrowser::searchForward()
+{
+  search();
+}
+
+void HelpBrowser::searchBackward()
+{
+  search(QTextDocument::FindBackward);
+}
+
+void HelpBrowser::searchForwardShortcut()
+{
+  if(searchText->hasFocus())
+    searchForward();
+  else
+    searchText->setFocus();
+}
+
+void HelpBrowser::searchBackwardShortcut()
+{
+  if(searchText->hasFocus())
+    searchBackward();
+  else
+    searchText->setFocus();
+}

@@ -39,6 +39,7 @@ class HelpBrowser : public QWidget {
 
   static HelpBrowser * getBrowser();
 
+
 public:
   HelpBrowser();
   virtual ~HelpBrowser();

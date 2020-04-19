@@ -25,8 +25,9 @@
 // A QTextBrowser subclass for handling the documents.
 class HelpTextBrowser : public QTextBrowser {
   QHelpEngine * engine;
+  bool doingResize;
 public:
-  HelpTextBrowser(QHelpEngine * e) : engine(e) {
+  HelpTextBrowser(QHelpEngine * e) : engine(e), doingResize(false) {
   };
 
   virtual QVariant loadResource(int type, const QUrl &name) override {
@@ -37,6 +38,20 @@ public:
     }
     return QTextBrowser::loadResource(type, name);
   }
+
+  virtual void resizeEvent(QResizeEvent * event) override {
+    // Now save the position
+    if(doingResize) {
+      QTextBrowser::resizeEvent(event);
+      return;
+    }
+    doingResize = true;
+    QTextCursor c = cursorForPosition(QPoint(0,0));
+    QTextBrowser::resizeEvent(event);
+    setTextCursor(c);
+    doingResize = false;
+  };
+
 };
 
 

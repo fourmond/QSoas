@@ -31,6 +31,7 @@ if File.readable?(eqf)
   File.open(eqf, "r") { |f| $equations = YAML::load(f) }
 end
 
+
 # Returns the 
 def convert_equation(eq)
   eq.tr!("\n"," ")
@@ -46,15 +47,25 @@ def convert_equation(eq)
   if !info
     info = {}
     info['text'] = eq
-    info['file'] = "images/eq-#{$equations.size}.png"
+    hsh = eq.hash.abs.to_s(16)
+    info['file'] = "images/eq-#{hsh}.png"
 
     # Do compilation
     txt = File.read("equation-template.tex")
-    txt.gsub!('#EQUATION',eq)
+    if eq !~ /\{align/
+      repl = '$\displaystyle ' + eq + '$'
+    else
+      repl = eq.dup
+      repl.gsub!(/align\*?/,"align*")
+    end
+    txt.gsub!('#EQUATION',repl)
     File.open("tmp.tex","w") {|f| f.print txt }
     begin
       Dir::mkdir("images")
     rescue
+    end
+    if File::readable? "tmp.dvi"
+      File::unlink "tmp.dvi"
     end
     if system("latex -interaction nonstopmode tmp.tex")
       $equations[eq] = info

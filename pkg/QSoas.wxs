@@ -48,6 +48,21 @@
             
           #DLLS#
 
+          <!-- The documentation, in the subdirectory -->
+          <Directory Id='DOCDIR' Name='doc'>
+            <Component Id='Documentation' 
+                       Guid='#DocID#'>
+              <File Id='QSoasQHC' 
+                    Name='qsoas-help.qhc' 
+                    DiskId='1' Source='doc\qsoas-help.qhc' 
+                    KeyPath='yes' />
+              <File Id='QSoasQCH' 
+                    Name='qsoas-help.qch' 
+                    DiskId='1' Source='doc\qsoas-help.qch' 
+                    KeyPath='yes' />
+            </Component>
+          </Directory>
+
         </Directory>
       </Directory>
 
@@ -71,6 +86,7 @@
       <ComponentRef Id='ProgramMenuDir' />
       <ComponentRef Id='QSoasProgId' />
       #DLL_REFS#
+      <ComponentRef Id='Documentation' />
     </Feature>
 
 

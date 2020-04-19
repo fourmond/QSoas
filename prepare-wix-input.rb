@@ -81,7 +81,7 @@ end
 # We add a few keys
 keys = file_ids.values
 
-keys += ["UpgradeID", "ProductID", "QSoasID", "QSoasProgID", "StartMenuID"]
+keys += ["UpgradeID", "ProductID", "QSoasID", "QSoasProgID", "StartMenuID", "DocID"]
 
 # Now, we generate all the missing UUIDs
 for k in keys
@@ -94,6 +94,7 @@ store = uuids.dup
 
 # These are UUIDS that should change at every run
 store.delete("QSoasID")
+store.delete("DocID")
 
 File.open("uuids.yaml", "w") do |f|
   YAML::dump(store, f)

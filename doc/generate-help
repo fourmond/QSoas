@@ -58,17 +58,20 @@ def convert_equation(eq)
     end
     if system("latex -interaction nonstopmode tmp.tex")
       $equations[eq] = info
-      f = IO::popen("dvipng --depth tmp.dvi -o #{info['file']}")
+      f = IO::popen("dvipng --depth --height tmp.dvi -o #{info['file']}")
       for l in f
         if l =~ /depth=(\d+)/
           info['depth'] = $1.to_i
+        end
+        if l =~ /height=(\d+)/
+          info['height'] = $1.to_i
         end
       end
     else
     end
   end
-  # Unfortunately not used by Qt...
-  return "![#{eq}](#{info['file']}){:style='vertical-align: -#{info['depth']}px'}"
+  # Unfortunately not used by Qt... but that's already a start !
+  return "![#{eq}](#{info['file']}){:style='vertical-align: #{-(info['depth']||0)}px'}"
 end
 
 # Takes a hash with the file name, and fills it with:

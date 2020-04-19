@@ -34,8 +34,7 @@
 
 #include <commandlineparser.hh>
 
-extern void loadDocumentationFile(const QString &, QString file, 
-                                  const CommandOptions & opts = CommandOptions());
+
 extern void updateDocumentationFile(const QString &, QString file);
 
 
@@ -101,7 +100,7 @@ int main(int argc, char ** argv)
 
   int retval;
 
-  loadDocumentationFile("load-documentation", ":/doc/qsoas.kd");
+  // loadDocumentationFile("load-documentation", ":/doc/qsoas.kd");
 
   Soas theSoas;
   /// Has to be called

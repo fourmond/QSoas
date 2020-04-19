@@ -24,6 +24,53 @@
 require 'optparse'
 require 'yaml'
 
+# A hash 
+$equations = {}
+eqf = "equations.yaml"
+if File.readable?(eqf) 
+  File.open(eqf, "r") { |f| $equations = YAML::load(f) }
+end
+
+# Returns the 
+def convert_equation(eq)
+  eq.tr!("\n"," ")
+  eq.strip!
+  info = nil
+  if $equations.key?(eq)
+    info = $equations[eq]
+    if ! File::readable? info['file']
+      puts "Missing file: #{info['file']}"
+      info = nil
+    end
+  end
+  if !info
+    info = {}
+    info['text'] = eq
+    info['file'] = "images/eq-#{$equations.size}.png"
+
+    # Do compilation
+    txt = File.read("equation-template.tex")
+    txt.gsub!('#EQUATION',eq)
+    File.open("tmp.tex","w") {|f| f.print txt }
+    begin
+      Dir::mkdir("images")
+    rescue
+    end
+    if system("latex -interaction nonstopmode tmp.tex")
+      $equations[eq] = info
+      f = IO::popen("dvipng --depth tmp.dvi -o #{info['file']}")
+      for l in f
+        if l =~ /depth=(\d+)/
+          info['depth'] = $1.to_i
+        end
+      end
+    else
+    end
+  end
+  # Unfortunately not used by Qt...
+  return "![#{eq}](#{info['file']}){:style='vertical-align: -#{info['depth']}px'}"
+end
+
 # Takes a hash with the file name, and fills it with:
 # * the sections: an array of {'level', 'title', 'id'}
 # * the commands defined in
@@ -36,7 +83,6 @@ def parse_file(info)
 
   f = File.open(info['source'], "r")
   ofn = info['source']+".tmp"
-  o = File.open(ofn, "w")
 
   info['sections'] = []
   info['commands'] = []
@@ -46,6 +92,7 @@ def parse_file(info)
   sec_h = []
   cur_code = false
   nb = 0
+  txt = ""
   for l in f
     nb += 1
 
@@ -53,7 +100,7 @@ def parse_file(info)
       cur_code = ! cur_code
     end
     if ! cur_code
-      
+
       if l =~ /^(#+)\s*([^{]+)(\{(#.*)\})?/
         sec = {'title' => $2.chomp}
         if $3
@@ -95,9 +142,18 @@ def parse_file(info)
       l.gsub!(/\[fit:\s*([^\]]+)\]/, '[`\\1`](' + "#{$target}" + '#cmd-fit-\\1)')
       l.gsub!(/\[fit-cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{$target}" + '#fit-cmd-\\1)')
     end
-    o.print l
+    txt << l
   end
-  o.close
+
+  # Equation parsing is much much easier done with the full file.
+  txt.gsub!(/\$\$(.*?)\$\$/m) do |x|
+    convert_equation($1)
+  end
+
+  File.open(ofn, "w") do |o|
+    o.print txt
+  end
+
   # YAML::dump(info['sections'], STDOUT)
   info['html'] = `kramdown #{ofn}`
   if info['commands'].size > 0
@@ -183,3 +239,7 @@ help_template.sub!("#KEYWORDS", keywords)
 help_template.sub!("#FILES", files_s)
 
 File.open("qsoas-help.qhp",'w') { |f| f.print help_template }
+File.open(eqf, "w") { |f| YAML::dump($equations,f) }
+
+generator = "/usr/lib/qt5/bin/qcollectiongenerator"
+system("#{generator} qsoas-help.qhcp")

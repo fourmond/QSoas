@@ -15,6 +15,9 @@ pre {
     border-radius: 0.4em;
 }
 
+a.external {
+    color: #080;
+}
 /* code { */
 /*     color: #555; */
 /* } */

@@ -144,6 +144,9 @@ def parse_file(info)
       l.gsub!(/\[cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{$target}" + '#cmd-\\1)')
       l.gsub!(/\[fit:\s*([^\]]+)\]/, '[`\\1`](' + "#{$target}" + '#cmd-fit-\\1)')
       l.gsub!(/\[fit-cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{$target}" + '#fit-cmd-\\1)')
+      if l =~ /^\[.*:http/
+        l << "{: class='external'}\n"
+      end
     end
     txt << l
   end
@@ -151,6 +154,11 @@ def parse_file(info)
   # Equation parsing is much much easier done with the full file.
   txt.gsub!(/\$\$(.*?)\$\$/m) do |x|
     convert_equation($1)
+  end
+
+  # Make sure all external links are marked as such 
+  txt.gsub!(/\(http[^)]+\)/m) do |x|
+    x + "{: class='external'}"
   end
 
   File.open(ofn, "w") do |o|

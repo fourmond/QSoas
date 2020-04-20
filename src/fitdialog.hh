@@ -386,6 +386,9 @@ protected slots:
   /// Display a spreadsheet to edit the parameters
   void parametersSpreadsheet();
 
+  /// Shows the help of the fit
+  void showHelp();
+
 
 };
 

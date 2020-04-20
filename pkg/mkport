@@ -24,7 +24,7 @@ echo " -> saving in $outdir"
 rm -rf $outdir/qsoas-$version
 
 # copying directory
-rsync -a --exclude build'*' --exclude snt --exclude gc --exclude dox --exclude .cccc --exclude xml --exclude '*~' --exclude .git ./ $outdir/qsoas-$version
+rsync -a --exclude build --exclude dox --exclude xml --exclude '*~' --exclude .git ./ $outdir/qsoas-$version
 
 rm -f $outdir/qsoas-$version/QSoas
 (

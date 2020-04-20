@@ -58,8 +58,7 @@
                     KeyPath='yes' />
               <File Id='QSoasQCH' 
                     Name='qsoas-help.qch' 
-                    DiskId='1' Source='doc\qsoas-help.qch' 
-                    KeyPath='yes' />
+                    DiskId='1' Source='doc\qsoas-help.qch' />
             </Component>
           </Directory>
 

@@ -1140,6 +1140,9 @@ void versionCommand(const QString &, const CommandOptions & opts)
 
   bool specs = false;
   updateFromOptions(opts, "show-features", specs);
+  bool dump = false;
+  updateFromOptions(opts, "dump-sysinfo", dump);
+
   /// Return somewhere the specs as a hash ? A Ruby-available hash, heh ?
   if(specs) {
     ValueHash info = Soas::versionInfo();
@@ -1176,6 +1179,19 @@ void versionCommand(const QString &, const CommandOptions & opts)
       << join(info["constants"])
       << endl;
   }
+  if(dump) {
+    // Writes information to standard output
+    QTextStream o(stdout);
+    o  << Soas::versionString()
+       << "\n * application dir: "
+       << QCoreApplication::applicationDirPath()
+       << "\n * application path: "
+       << QCoreApplication::applicationFilePath()
+       << "\n * library paths: ";
+    for(const QString & p: QCoreApplication::libraryPaths())
+      o << "\n    - " << p;
+    o << endl;
+  }
 }
 
 
@@ -1184,6 +1200,9 @@ verO(QList<Argument *>()
      << new BoolArgument("show-features", 
                          "Show features",
                          "If true, show detailed informations about the capacities of QSoas (defaults to false)")
+     << new BoolArgument("dump-sysinfo", 
+                         "Dumps sysinfo",
+                         "If true, writes system specific information to standard output")
      );
 
 static Command 

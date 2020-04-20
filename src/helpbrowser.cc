@@ -70,10 +70,36 @@ HelpBrowser * HelpBrowser::theBrowser = NULL;
 HelpBrowser::HelpBrowser() :
   QWidget(NULL), lastSearchFailed(false)
 {
-  QString collection =
-    QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("doc/qsoas-help.qhc");
+  // We search in various locations
+  QStringList docPaths;
+  docPaths << QDir(QCoreApplication::applicationDirPath()).
+    absoluteFilePath("doc");
+
+#ifdef Q_OS_WIN32
+  {
+    QSettings settings("HKEY_CURRENT_USER\\Software\\qsoas.org\\QSoas",
+                       QSettings::NativeFormat);
+    QString v = settings.value("DocDir").toString();
+    if(! v.isEmpty())
+      docPaths << v;
+  }
+#endif
+#ifdef Q_OS_MAC
+  docPaths << QDir(QCoreApplication::applicationDirPath()).
+    absoluteFilePath("../Resources");
+#endif
+  
+  QString collection;
+  for(const QString & d : docPaths) {
+    QDir dir(d);
+    if(dir.exists("qsoas-help.qhc")) {
+      collection = dir.absoluteFilePath("qsoas-help.qhc");
+      break;
+    }
+  }     
+  
   QTextStream o(stdout);
-  o << "Collection: " << collection << endl;
+  o << "Collection: '" << collection << "'" << endl;
   engine = new QHelpEngine(collection, this);
   // engine->setupData();
 

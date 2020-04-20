@@ -22,15 +22,22 @@
 # * ... and runs the regeneration of the collections and such.
 
 require 'optparse'
+require 'fileutils'
 require 'yaml'
+
+
+$target_dir = "out"
+FileUtils.mkdir_p($target_dir)
+
 
 # A hash 
 $equations = {}
 eqf = "equations.yaml"
-if File.readable?(eqf) 
-  File.open(eqf, "r") { |f| $equations = YAML::load(f) }
+Dir.chdir($target_dir) do
+  if File.readable?(eqf) 
+    File.open(eqf, "r") { |f| $equations = YAML::load(f) }
+  end
 end
-
 
 # Returns the 
 def convert_equation(eq)
@@ -39,7 +46,7 @@ def convert_equation(eq)
   info = nil
   if $equations.key?(eq)
     info = $equations[eq]
-    if ! File::readable? info['file']
+    if ! File::readable? "#{$target_dir}/#{info['file']}"
       puts "Missing file: #{info['file']}"
       info = nil
     end
@@ -60,26 +67,26 @@ def convert_equation(eq)
       repl.gsub!(/align\*?/,"align*")
     end
     txt.gsub!('#EQUATION',repl)
-    File.open("tmp.tex","w") {|f| f.print txt }
-    begin
-      Dir::mkdir("images")
-    rescue
-    end
-    if File::readable? "tmp.dvi"
-      File::unlink "tmp.dvi"
-    end
-    if system("latex -interaction batchmode tmp.tex ")
-      $equations[eq] = info
-      f = IO::popen("dvipng --depth --height tmp.dvi -o #{info['file']}")
-      for l in f
-        if l =~ /depth=(\d+)/
-          info['depth'] = $1.to_i
-        end
-        if l =~ /height=(\d+)/
-          info['height'] = $1.to_i
-        end
+    Dir.chdir($target_dir) do
+      File.open("tmp.tex","w") {|f| f.print txt }
+      FileUtils.mkdir_p("images")
+
+      if File::readable? "tmp.dvi"
+        File::unlink "tmp.dvi"
       end
-    else
+      if system("latex -interaction batchmode tmp.tex ")
+        $equations[eq] = info
+        f = IO::popen("dvipng --depth --height tmp.dvi -o #{info['file']}")
+        for l in f
+          if l =~ /depth=(\d+)/
+            info['depth'] = $1.to_i
+          end
+          if l =~ /height=(\d+)/
+            info['height'] = $1.to_i
+          end
+        end
+      else
+      end
     end
   end
   # Unfortunately not used by Qt... but that's already a start !
@@ -173,14 +180,16 @@ def parse_file(info)
     x + "{: class='external'}"
   end
 
-  File.open(ofn, "w") do |o|
-    o.print txt
-  end
+  Dir.chdir($target_dir) do
+    File.open(ofn, "w") do |o|
+      o.print txt
+    end
 
-  # YAML::dump(info['sections'], STDOUT)
-  info['html'] = `kramdown #{ofn}`
-  if info['commands'].size > 0
-    $target = info['file']
+    # YAML::dump(info['sections'], STDOUT)
+    info['html'] = `kramdown #{ofn}`
+    if info['commands'].size > 0
+      $target = info['file']
+    end
   end
 
 end
@@ -194,24 +203,27 @@ File.open(file, "r") { |f| files = YAML::load(f) }
 
 
 for fn,info in files
-  info['source'] = fn
-  info['file'] = fn.sub(".kd", ".html")
-  parse_file(info)
-  # p info
-  # exit
+  if info['copy']
+    files.delete(fn)
+    FileUtils::cp([fn], $target_dir)
+  else
+    info['source'] = fn
+    info['file'] = fn.sub(".kd", ".html")
+    parse_file(info)
+  end
 end
-
 
 # OK, we've read the sources.
 
 html_template = IO::read("template.html")
 
 # Open 
-
-for file in files.values
-  tgt = html_template.sub("#TITLE", file['title'])
-  tgt.sub!("#CONTENT", file['html'])
-  File.open(file['file'],'w') { |f| f.print tgt }
+Dir.chdir($target_dir) do
+  for file in files.values
+    tgt = html_template.sub("#TITLE", file['title'])
+    tgt.sub!("#CONTENT", file['html'])
+    File.open(file['file'],'w') { |f| f.print tgt }
+  end
 end
 
 help_template = IO::read("qhp-template.xml")
@@ -260,9 +272,15 @@ end
 help_template.sub!("#TOC", toc)
 help_template.sub!("#KEYWORDS", keywords)
 help_template.sub!("#FILES", files_s)
+coll = File::read("qsoas-help.qhcp")
 
-File.open("qsoas-help.qhp",'w') { |f| f.print help_template }
-File.open(eqf, "w") { |f| YAML::dump($equations,f) }
+Dir.chdir($target_dir) do
 
-generator = "/usr/lib/qt5/bin/qcollectiongenerator"
-system("#{generator} qsoas-help.qhcp")
+  File.open("qsoas-help.qhp",'w') { |f| f.print help_template }
+  File.open(eqf, "w") { |f| YAML::dump($equations,f) }
+  File.open("qsoas-help.qhcp",'w') { |f| f.print coll }
+
+  generator = "/usr/lib/qt5/bin/qcollectiongenerator"
+  system("#{generator} qsoas-help.qhcp")
+  FileUtils.cp(["qsoas-help.qhc","qsoas-help.qch"],"..")
+end

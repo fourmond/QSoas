@@ -29,6 +29,9 @@ qrc_*.cpp
 *.log
 
 *.dat
+*.dvi
+*.qch
+*.qhc
 
 # soas logs:
 soas.log*

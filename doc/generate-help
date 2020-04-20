@@ -104,7 +104,7 @@ $target = ""
 def parse_file(info)
 
   f = File.open(info['source'], "r")
-  ofn = info['source']+".tmp"
+  ofn = info['tmp'] || (info['source']+".tmp")
 
   info['sections'] = []
   info['commands'] = []
@@ -213,11 +213,56 @@ for fn,info in files
   end
 end
 
+# Now, we parse the tips.
+tips = []
+File.open("tips.kd") do |f|
+  cur = nil
+  kw = nil
+  id = nil
+  for l in f
+    if l =~ /^\{::comment.*tip: ([^{]+)/
+      kw = $1.strip
+      if cur
+        cur.close
+        cur = nil
+      end
+    end
+    if l =~ /^##\s*(.*\S)\s*\{#([^}]+)/
+      id = $2
+      tips << {
+        'id' => id,
+        'title' => $1,
+        'kw' => kw
+      }
+      fn = "#{$target_dir}/tips-#{id}.kd"
+      cur = File::open(fn,'w')
+    end
+    if cur
+      cur.print l
+    end
+  end
+end
+
+File::open("#{$target_dir}/tips.txt",'w') do |f|
+  for tip in tips
+    id = tip['id']
+    info = {}
+    info['source'] = "#{$target_dir}/tips-#{id}.kd"
+    info['tmp'] = "tips-#{id}.tmp.kd"
+    info['file'] = "tips-#{id}.html"
+    parse_file(info)
+    info['sections'] = nil
+    info['title'] = tip['title']
+    files[id] = info
+    f.puts "#{id}: #{tip['kw']}"
+  end
+end
+
+
 # OK, we've read the sources.
 
 html_template = IO::read("template.html")
 
-# Open 
 Dir.chdir($target_dir) do
   for file in files.values
     tgt = html_template.sub("#TITLE", file['title'])
@@ -252,10 +297,14 @@ toc = ""
 files_s = ""
 keywords = ""
 for file in files.values
-  secs = file['sections'].map {|s| sec_string(s,file) }
-  toc << "<section title='#{file['title']}' ref='#{file['file']}'>\n" + 
-         secs.join("\n") + "</section>\n"
+  if file['sections']
+    secs = file['sections'].map {|s| sec_string(s,file) }
+    toc << "<section title='#{file['title']}' ref='#{file['file']}'>\n" + 
+           secs.join("\n") + "</section>\n"
+  end
+
   files_s << "<file>#{file['file']}</file>\n"
+
   for cmd in file['commands']
     keywords << "<keyword name='#{cmd} (command)' ref='#{file['file']}#cmd-#{cmd}'/>\n"
   end

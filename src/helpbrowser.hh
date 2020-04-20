@@ -1,6 +1,6 @@
 /**
    \file helpbrowser.hh
-   Browser for inline help
+   Browser for inline help + display of tips
    Copyright 2020 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
@@ -45,7 +45,9 @@ class HelpBrowser : public QWidget {
   static HelpBrowser * getBrowser();
 
   virtual void resizeEvent(QResizeEvent * event) override;
-      
+
+  friend class TipsDisplay;
+  
 
 public:
   HelpBrowser();
@@ -81,6 +83,37 @@ protected slots:
 
 };
 
+class Tip;
 
+class TipsDisplay : public QWidget {
+  Q_OBJECT;
+  static TipsDisplay * theDisplay;
+  
+  /// The display
+  QTextBrowser * browser;
+
+  void setupFrame();
+
+  static TipsDisplay * getDisplay();
+
+  static QHelpEngine * getEngine();
+
+  /// Tips, indexed by their name
+  static QHash<QString, Tip*> * tips;
+
+  /// Tips, indexed by their keyword
+  static QHash<QString, Tip*> * tipsByKeyword;
+
+  /// Populate the tips list from inside the help
+  static void readTips();
+public:
+  TipsDisplay();
+  ~TipsDisplay();
+
+protected slots:
+
+  // void showTip(const QString & name);
+
+};
 
 #endif

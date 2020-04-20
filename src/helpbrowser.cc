@@ -305,3 +305,58 @@ void HelpBrowser::searchBackwardShortcut()
   else
     searchText->setFocus();
 }
+
+//////////////////////////////////////////////////////////////////////
+
+class Tip {
+public:
+  QString id;
+  QStringList keywords;
+};
+
+TipsDisplay * TipsDisplay::theDisplay = NULL;
+
+
+TipsDisplay * TipsDisplay::getDisplay()
+{
+  if(!theDisplay)
+    theDisplay = new TipsDisplay;
+  return theDisplay;
+}
+
+QHelpEngine * TipsDisplay::getEngine()
+{
+  return HelpBrowser::getBrowser()->engine;
+}
+
+TipsDisplay::TipsDisplay()
+{
+  setupFrame();
+}
+
+TipsDisplay::~TipsDisplay()
+{
+  delete browser;
+}
+
+void TipsDisplay::setupFrame()
+{
+  QVBoxLayout * layout = new QVBoxLayout(this);
+  browser = new HelpTextBrowser(getEngine());
+  layout->addWidget(browser);
+}
+
+QHash<QString, Tip*> * TipsDisplay::tips = NULL;
+QHash<QString, Tip*> * TipsDisplay::tipsByKeyword = NULL;
+
+void TipsDisplay::readTips()
+{
+  if(tips)
+    return;                     // not reading twice.
+  tips = new QHash<QString, Tip*>;
+  QByteArray data = getEngine()->
+    fileData(QUrl("qthelp://qsoas.org.qsoas/doc/tips/txt"));
+  
+}
+
+

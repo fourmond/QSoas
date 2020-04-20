@@ -1313,7 +1313,7 @@ directly on the command-line. There are two special values:
 
 
 
-# Data stack manipulation
+# Data stack manipulation {#data-stack}
 
 Data files are loaded and manipulated in a stack. Every time a file is
 loaded or a buffer modified, the new buffer is pushed onto the top of

@@ -49,6 +49,7 @@ def convert_equation(eq)
     info['text'] = eq
     hsh = eq.hash.abs.to_s(16)
     info['file'] = "images/eq-#{hsh}.png"
+    puts "Generating image for equation: '#{eq}'"
 
     # Do compilation
     txt = File.read("equation-template.tex")
@@ -67,7 +68,7 @@ def convert_equation(eq)
     if File::readable? "tmp.dvi"
       File::unlink "tmp.dvi"
     end
-    if system("latex -interaction nonstopmode tmp.tex")
+    if system("latex -interaction batchmode tmp.tex ")
       $equations[eq] = info
       f = IO::popen("dvipng --depth --height tmp.dvi -o #{info['file']}")
       for l in f

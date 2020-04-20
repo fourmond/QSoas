@@ -29,7 +29,7 @@ dpltforms = []
 
 # Qt libraries
 if ENV["QTDIR"] =~ /Qt5/i       # Qt 5 !
-  for f in %w[Qt5Core  Qt5Gui  Qt5OpenGL  Qt5PrintSupport  Qt5Widgets Qt5Svg]
+  for f in %w[Qt5Core  Qt5Gui  Qt5OpenGL  Qt5PrintSupport  Qt5Widgets Qt5Svg Qt5Help Qt5Sql Qt5CLucene]
     lib_file = "#{ENV['QTDIR']}\\bin\\#{f}.dll"
     files << lib_file
     debug_files << lib_file.gsub(/.dll/, "d.dll")

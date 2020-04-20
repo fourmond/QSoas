@@ -5,11 +5,11 @@
            UpgradeCode='#UpgradeID#'
            Language='1033' Codepage='1252' 
            Version='#WIN_VERSION#' 
-           Manufacturer='BIP CNRS'>
+           Manufacturer='qsoas.org'>
 
     <Package Id='*' Keywords='Installer' 
              Description="QSoas #VERSION#'s Installer"
-             Manufacturer='BIP CNRS'
+             Manufacturer='qsoas.org'
              InstallerVersion='100' Languages='1033' 
              Compressed='yes' SummaryCodepage='1252' />
 
@@ -59,6 +59,13 @@
               <File Id='QSoasQCH' 
                     Name='qsoas-help.qch' 
                     DiskId='1' Source='doc\qsoas-help.qch' />
+              <RegistryKey Id='DocDirKey' Action='createAndRemoveOnUninstall'
+                           Root='HKLM' Key='Software\qsoas.org\QSoas'>
+                <RegistryValue Id='DocDirValue' Action='write'
+                               Name='DocDir'
+                               Type='string'
+                               Value='[DOCDIR]'/>
+              </RegistryKey>
             </Component>
           </Directory>
 

@@ -32,7 +32,7 @@ subdirs = {}
 # Finding the libraries
 
 # Qt libraries
-for f in %w[Qt5Core  Qt5Gui  Qt5OpenGL  Qt5PrintSupport  Qt5Widgets Qt5Svg Qt5Help Qt5Sql Qt5CLucene]
+for f in %w[Qt5Core  Qt5Gui  Qt5OpenGL  Qt5PrintSupport  Qt5Widgets Qt5Svg Qt5Help Qt5Sql Qt5CLucene Qt5Network]
   lib_file = "#{ENV['QTDIR']}\\bin\\#{f}.dll"
   files << lib_file
   debug_files << lib_file.gsub(/.dll/, "d.dll")

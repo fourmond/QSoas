@@ -11,6 +11,9 @@ For the difficulty level.
 
 The tags are given in the comment before the title.
 
+Unlike the rest of the documentation, this can be written addressing
+directly the user.
+
 {::comment} tip: data generation;math;basic {:/}
 ## Plotting mathematical functions {#plot-function}
 
@@ -44,7 +47,7 @@ Pressing the *TAB* key inside the command-line will automatically
 complete whatever you are currently typing: the command name, the
 file, the flag, the fit engine, etc... Just try !
 
-{::comment} tip: basic;load;command-line{:/}
+{::comment} tip: basic;load;command-line;globs{:/}
 ## Jokers in file names {#globs}
 
 It is possible to use the "joker" `*` for every command that uses file
@@ -68,6 +71,8 @@ the middle:
 ~~~
 QSoas> load d*sample_a*t
 ~~~
+
+All the jokers are called **globs**.
 
 {::comment} tip: advanced;scripts{:/}
 ## Getting started on scripting {#scripts-first-steps}
@@ -103,3 +108,81 @@ You can save the whole contents of the [data stack](#data-stack),
 which is more-or-less all the buffers that were loaded, manipulated
 and so on so far, using the command [cmd: save-stack]. The stack files
 can be reloaded later using [cmd: load-stack].
+
+{::comment} tip: basic;browse;globs;load{:/}
+## Using browse to look at many data files {#browse-files}
+
+QSoas provides a simple way to quickly find a file whose name you
+can't remember in a large directory. Just run: [cmd: browse], or even
+just `W`, and QSoas displays a dialog box with all the data files
+found (you can push them onto the stack).
+
+To go further, you can even select the files using jokers (globs). To
+show only the files finishing by `.dat`:
+
+~~~
+QSoas> W *.dat
+~~~
+
+To show all files in all subdirectories:
+
+~~~
+QSoas> W */*
+~~~
+
+{::comment} tip: data generation;fits;basic {:/}
+## Generating fitted curves {#sim-fit-1}
+
+When running a fit, you can save the "fitted" curves, that is the
+theoretical curves predicted from the current parameters by clicking
+on "Data..."/"Push current to stack" (for the currently displayed
+buffer) or "Push all to stack" (for all the fitted buffers).
+
+Then, you can save the buffers using [cmd: save] or
+[cmd: save-buffers] for instance.
+
+{::comment} tip: save;basic {:/}
+## Saving the current buffer {#save-buffer}
+
+You can save the current buffer into a simple text format by using the
+[cmd: save] command, `s` for short. Give it the name of the target
+file (or let QSoas ask you):
+
+~~~
+QSoas> s saved_file.dat
+~~~
+
+{::comment} tip: commands;command-line;arguments;basic {:/}
+## Arguments {#arguments}
+
+Commands in QSoas often take mandatory arguments to specify what to
+work on: the file to load, the file name for saving, the range of X
+values for [cmd: generate-buffer], etc... These arguments can be given
+on the command-line, separated by spaces. For instance, the following
+code launches the command [cmd: load] with a single argument,
+`file.dat`.
+
+~~~
+QSoas> load file.dat
+~~~
+
+If you omit a mandatory argument, QSoas will ask for it, for instance
+if you just run:
+
+~~~
+QSoas> load
+~~~
+
+{::comment} tip: commands;command-line;basic {:/}
+## Commands: menus and command-line {#commands}
+
+All your interactions with QSoas go through *commands*. You can run
+command by choosing them using the traditional menu bars; each of the
+menu item is a QSoas command.
+
+You can also run commands by entering their name in the `QSoas>` prompt at
+the bottom of the QSoas window, and pressing "Enter". You can figure
+out the name of a command by looking at the help text of the menus, or
+by running the command from the menu and looking at new line, starting
+with `QSoas>`, added at the bottom of the terminal.
+

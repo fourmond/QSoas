@@ -214,7 +214,9 @@ for fn,info in files
 end
 
 # Now, we parse the tips.
+puts "\nProcessing tips:"
 tips = []
+tips_kw = {}
 File.open("tips.kd") do |f|
   cur = nil
   kw = nil
@@ -234,6 +236,10 @@ File.open("tips.kd") do |f|
         'title' => $1,
         'kw' => kw
       }
+      for k in kw.split(';')
+        tips_kw[k] ||= 0
+        tips_kw[k] += 1
+      end
       fn = "#{$target_dir}/tips-#{id}.kd"
       cur = File::open(fn,'w')
     end
@@ -245,6 +251,15 @@ File.open("tips.kd") do |f|
     cur.close
   end
 end
+
+puts " -> found #{tips.size} tips"
+puts "Tips keywords:"
+for k in tips_kw.keys.sort
+  puts " * #{k}: #{tips_kw[k]}"
+end
+
+puts ""
+
 
 File::open("#{$target_dir}/tips.txt",'w') do |f|
   for tip in tips

@@ -63,6 +63,9 @@ public:
   /// Browses the documentation of the given command.
   static void browseCommand(const Command * command);
 
+  /// Returns the collection file
+  static QString collectionFile();
+
 public slots:
   /// Shows the given location, i.e. a relative file path, with
   /// optionally a #position

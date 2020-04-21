@@ -109,6 +109,10 @@ QHelpEngine * HelpBrowser::getEngine()
   return theEngine;
 }
 
+QString HelpBrowser::collectionFile()
+{
+  return getEngine()->collectionFile();
+}
 
 HelpBrowser::HelpBrowser() :
   QWidget(NULL), lastSearchFailed(false)

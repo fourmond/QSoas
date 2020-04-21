@@ -48,6 +48,7 @@
 #include <outfile.hh>
 
 #include <idioms.hh>
+#include <helpbrowser.hh>
 
 #include <argument-templates.hh>
 
@@ -1190,7 +1191,8 @@ void versionCommand(const QString &, const CommandOptions & opts)
        << "\n * library paths: ";
     for(const QString & p: QCoreApplication::libraryPaths())
       o << "\n    - " << p;
-    o << endl;
+    o << "\n * documentation file: " << HelpBrowser::collectionFile()
+      << endl;
   }
 }
 

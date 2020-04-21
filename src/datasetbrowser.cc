@@ -25,6 +25,8 @@
 #include <nupwidget.hh>
 #include <utils.hh>
 
+#include <actioncombo.hh>
+
 //////////////////////////////////////////////////////////////////////
 
 static SettingsValue<QSize> browserSize("browser/size", QSize(700,500));
@@ -65,16 +67,26 @@ void DatasetBrowser::setupFrame()
 
 
   bottomLayout = new QHBoxLayout;
+
+
+  // Two arrows at the left
   QPushButton * bt =
     new QPushButton(Utils::standardIcon(QStyle::SP_ArrowLeft),"");
   nup->connect(bt, SIGNAL(clicked()), SLOT(previousPage()));
   bottomLayout->addWidget(bt);
+  bt = new QPushButton(Utils::standardIcon(QStyle::SP_ArrowRight),"");
+  nup->connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
+  bottomLayout->addWidget(bt);
+
+  // Stretch
+  bottomLayout->addStretch(1);
 
   bufferDisplay = new QLabel("");
   bottomLayout->addWidget(bufferDisplay);
 
 
-  bt = new QPushButton(tr("Close"));
+  bt = new QPushButton(Utils::standardIcon(QStyle::SP_DialogCloseButton),
+                       "Close");
   connect(bt, SIGNAL(clicked()), SLOT(accept()));
   bottomLayout->addWidget(bt);
 
@@ -89,11 +101,27 @@ void DatasetBrowser::setupFrame()
                SLOT(setNup(const QString &)));
   bottomLayout->addWidget(cb);
 
+
+  // Two arrows at the right
+  bt = new QPushButton(Utils::standardIcon(QStyle::SP_ArrowLeft),"");
+  nup->connect(bt, SIGNAL(clicked()), SLOT(previousPage()));
+  bottomLayout->addWidget(bt);
   bt = new QPushButton(Utils::standardIcon(QStyle::SP_ArrowRight),"");
   nup->connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
   bottomLayout->addWidget(bt);
 
   layout->addLayout(bottomLayout);
+
+
+  // Shortcuts
+  addAction(ActionCombo::createAction("Next", nup,
+                                      SLOT(nextPage()),
+                                      QKeySequence("Ctrl+PgDown"),
+                                      this));
+  addAction(ActionCombo::createAction("Next", nup,
+                                      SLOT(previousPage()),
+                                      QKeySequence("Ctrl+PgUp"),
+                                      this));
 
 }
 
@@ -160,5 +188,6 @@ void DatasetBrowser::addButton(QString name, ActOnSelected hook)
                         SLOT(map()));
   actionsMapper->setMapping(button, actionHooks.size());
   actionHooks << hook;
-  bottomLayout->insertWidget(2, button);
+  // 4 = 2 buttons + 1 stretch + label
+  bottomLayout->insertWidget(4, button);
 }

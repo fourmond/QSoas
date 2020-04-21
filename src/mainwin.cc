@@ -389,3 +389,7 @@ void MainWin::focusInEvent(QFocusEvent * ev)
                                 // systematically.
 }
 
+void MainWin::closeEvent(QCloseEvent *event)
+{
+  qApp->quit();
+}

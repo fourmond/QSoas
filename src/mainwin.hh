@@ -60,6 +60,7 @@ protected slots:
 
 protected:
   virtual void focusInEvent(QFocusEvent * evn);
+  virtual void closeEvent(QCloseEvent *event);
 
 signals:
   /// Dummy signal emitted upon startup if the window should close

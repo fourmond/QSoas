@@ -363,6 +363,17 @@ void TipsDisplay::setupFrame()
   browser = new HelpTextBrowser(getEngine());
   layout->addWidget(browser);
 
+  browser->setOpenLinks(false);
+  connect(browser, SIGNAL(anchorClicked(const QUrl&)),
+          SLOT(linkClicked(const QUrl&)));
+
+  keywordLine = new QLabel;
+  layout->addWidget(keywordLine);
+  // The links are links to keywords
+  connect(keywordLine, SIGNAL(linkActivated(const QString &)),
+          SLOT(showRandomKeyword(const QString &)));
+  
+  
   QHBoxLayout * bottom = new QHBoxLayout;
   bottom->insertStretch(1);
   QPushButton * bt = new QPushButton("Show random");
@@ -379,14 +390,14 @@ void TipsDisplay::setupFrame()
 }
 
 QHash<QString, Tip*> * TipsDisplay::tips = NULL;
-QMultiHash<QString, Tip*> * TipsDisplay::tipsByKeyword = NULL;
+QHash<QString, QList<Tip*> > * TipsDisplay::tipsByKeyword = NULL;
 
 void TipsDisplay::readTips()
 {
   if(tips)
     return;                     // not reading twice.
   tips = new QHash<QString, Tip*>;
-  tipsByKeyword = new QMultiHash<QString, Tip*>;
+  tipsByKeyword = new QHash<QString, QList<Tip*> >;
    QTextStream o(stdout);
   QByteArray data = getEngine()->
     fileData(HelpBrowser::urlForFile("doc/tips.txt"));
@@ -399,8 +410,11 @@ void TipsDisplay::readTips()
       Tip * tip = new Tip(l2[0]);
       (*tips)[tip->id] = tip;
       tip->keywords = l2[1].split(';');
-      for(const QString & k : tip->keywords)
-        tipsByKeyword->insert(k, tip);
+      for(const QString & k : tip->keywords) {
+        if(! tipsByKeyword->contains(k))
+          (*tipsByKeyword)[k] = QList<Tip*>();
+        (*tipsByKeyword)[k] << tip;
+      }
     }
   }
   o << "Read " << tips->size() << " tips" << endl;
@@ -410,6 +424,11 @@ void TipsDisplay::showTip(const Tip * tip)
 {
   QTextStream o(stdout);
   o << "Showing tip: " << tip->id << endl;
+  QString lbl = "This tip is about: ";
+  for(const QString & kw : tip->keywords)
+    lbl += QString("<a href='%1'>%1</a> ").
+      arg(kw);
+  keywordLine->setText(lbl);
   browser->setSource(HelpBrowser::urlForFile(QString("doc/tips-%1.html").
                                              arg(tip->id)));
 }
@@ -421,6 +440,28 @@ void TipsDisplay::showRandomTip()
   QList<Tip*> tps = tips->values();
   if(tps.size() > 0)
     showTip(tps[::rand() % tps.size()]);
+}
+
+void TipsDisplay::showRandomKeyword(const QString & keyword)
+{
+  if(! tips)
+    readTips();
+  QList<Tip*> tps = (*tipsByKeyword)[keyword];
+  if(tps.size() > 0)
+    showTip(tps[::rand() % tps.size()]);
+}
+
+void TipsDisplay::linkClicked(const QUrl & url)
+{
+  QTextStream o(stdout);
+  o << "Tips link: " << url.toString() << endl;
+  if(url.scheme() == "qthelp") { // internal
+    HelpBrowser * b = HelpBrowser::getBrowser();
+    b->showLocation(url);
+    b->setVisible(true);
+  }
+  else
+    QDesktopServices::openUrl(url);
 }
 
 //////////////////////////////////////////////////////////////////////

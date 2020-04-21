@@ -97,6 +97,9 @@ class TipsDisplay : public QWidget {
 
   void setupFrame();
 
+  /// A label showing clickable lines
+  QLabel * keywordLine;
+
 
   static QHelpEngine * getEngine();
 
@@ -104,7 +107,7 @@ class TipsDisplay : public QWidget {
   static QHash<QString, Tip*> * tips;
 
   /// Tips, indexed by their keyword
-  static QMultiHash<QString, Tip*> * tipsByKeyword;
+  static QHash<QString, QList<Tip*> > * tipsByKeyword;
 
   /// Populate the tips list from inside the help
   static void readTips();
@@ -117,9 +120,14 @@ public:
 public slots:
   void showRandomTip();
 
+  void showRandomKeyword(const QString & keyword);
+                                            
 protected slots:
 
   void showTip(const Tip * tip);
+
+  /// Follows the link
+  void linkClicked(const QUrl & url);
 
 };
 

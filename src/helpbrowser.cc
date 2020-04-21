@@ -67,41 +67,52 @@ static SettingsValue<QSize> helpWinSize("help/size", QSize(700,500));
 
 HelpBrowser * HelpBrowser::theBrowser = NULL;
 
+QHelpEngine * HelpBrowser::theEngine = NULL;
+
+
+QHelpEngine * HelpBrowser::getEngine()
+{
+  if(! theEngine) {
+    // We search in various locations
+    QStringList docPaths;
+    docPaths << QDir(QCoreApplication::applicationDirPath()).
+      absoluteFilePath("doc");
+
+#ifdef Q_OS_WIN32
+    {
+      QSettings settings("HKEY_CURRENT_USER\\Software\\qsoas.org\\QSoas",
+                         QSettings::NativeFormat);
+      QString v = settings.value("DocDir").toString();
+      if(! v.isEmpty())
+        docPaths << v;
+    }
+#endif
+#ifdef Q_OS_MAC
+    docPaths << QDir(QCoreApplication::applicationDirPath()).
+      absoluteFilePath("../Resources");
+#endif
+  
+    QString collection;
+    for(const QString & d : docPaths) {
+      QDir dir(d);
+      if(dir.exists("qsoas-help.qhc")) {
+        collection = dir.absoluteFilePath("qsoas-help.qhc");
+        break;
+      }
+    }     
+  
+    QTextStream o(stdout);
+    o << "Collection: '" << collection << "'" << endl;
+    theEngine = new QHelpEngine(collection);
+    // engine->setupData();
+  }
+  return theEngine;
+}
+
+
 HelpBrowser::HelpBrowser() :
   QWidget(NULL), lastSearchFailed(false)
 {
-  // We search in various locations
-  QStringList docPaths;
-  docPaths << QDir(QCoreApplication::applicationDirPath()).
-    absoluteFilePath("doc");
-
-#ifdef Q_OS_WIN32
-  {
-    QSettings settings("HKEY_CURRENT_USER\\Software\\qsoas.org\\QSoas",
-                       QSettings::NativeFormat);
-    QString v = settings.value("DocDir").toString();
-    if(! v.isEmpty())
-      docPaths << v;
-  }
-#endif
-#ifdef Q_OS_MAC
-  docPaths << QDir(QCoreApplication::applicationDirPath()).
-    absoluteFilePath("../Resources");
-#endif
-  
-  QString collection;
-  for(const QString & d : docPaths) {
-    QDir dir(d);
-    if(dir.exists("qsoas-help.qhc")) {
-      collection = dir.absoluteFilePath("qsoas-help.qhc");
-      break;
-    }
-  }     
-  
-  QTextStream o(stdout);
-  o << "Collection: '" << collection << "'" << endl;
-  engine = new QHelpEngine(collection, this);
-  // engine->setupData();
 
   // setWindowFlags(Qt::Window);
   setWindowTitle("QSoas Help");
@@ -132,14 +143,14 @@ void HelpBrowser::setupFrame()
   QVBoxLayout * subS = new QVBoxLayout(left);
 
   subS->addWidget(new QLabel("Contents"));
-  subS->addWidget(engine->contentWidget());
-  connect(engine->contentWidget(),
+  subS->addWidget(getEngine()->contentWidget());
+  connect(getEngine()->contentWidget(),
           SIGNAL(linkActivated(const QUrl &)),
           SLOT(showLocation(const QUrl&)));
   
   subS->addWidget(new QLabel("Index"));
-  subS->addWidget(engine->indexWidget());
-  connect(engine->indexWidget(),
+  subS->addWidget(getEngine()->indexWidget());
+  connect(getEngine()->indexWidget(),
           SIGNAL(linkActivated(const QUrl &, const QString&)),
           SLOT(showLocation(const QUrl&)));
 
@@ -148,7 +159,7 @@ void HelpBrowser::setupFrame()
   //////////////////////////////
   // Right part 
   QWidget * right = new QWidget();
-  browser = new HelpTextBrowser(engine);
+  browser = new HelpTextBrowser(getEngine());
 
   // Navigation:
   subS = new QVBoxLayout(right);
@@ -218,11 +229,18 @@ void HelpBrowser::setupFrame()
 
 
 
-
-HelpBrowser::~HelpBrowser()
+QUrl HelpBrowser::urlForFile(const QString & file)
 {
-  delete engine;
+  // Find the namespace
+  QStringList ls = getEngine()->registeredDocumentations();
+  if(ls.size() == 0)
+    return QUrl();                     // Hmmm
+  QString l = QString("qthelp://%1/%2").arg(ls[0]).arg(file); 
+
+  return getEngine()->findFile(l);
 }
+
+
 
 void HelpBrowser::showLocation(const QUrl & url)
 {
@@ -231,14 +249,7 @@ void HelpBrowser::showLocation(const QUrl & url)
 
 void HelpBrowser::showLocation(const QString & location)
 {
-  // Find the namespace
-  QStringList ls = engine->registeredDocumentations();
-  if(ls.size() == 0)
-    return;                     // Hmmm
-  QString l = QString("qthelp://%1/%2").arg(ls[0]).arg(location); 
-
-  QUrl url = engine->findFile(l);
-  showLocation(url);
+  showLocation(urlForFile(location));
 }
 
 void HelpBrowser::browseLocation(const QString & location)
@@ -312,25 +323,31 @@ class Tip {
 public:
   QString id;
   QStringList keywords;
+
+  Tip() {;};
+  Tip(const QString & i) : id(i) {;};
 };
 
 TipsDisplay * TipsDisplay::theDisplay = NULL;
 
 
-TipsDisplay * TipsDisplay::getDisplay()
+TipsDisplay * TipsDisplay::getDisplay(bool activate)
 {
   if(!theDisplay)
     theDisplay = new TipsDisplay;
+  if(activate)
+    theDisplay->setVisible(true);
   return theDisplay;
 }
 
 QHelpEngine * TipsDisplay::getEngine()
 {
-  return HelpBrowser::getBrowser()->engine;
+  return HelpBrowser::getEngine();
 }
 
 TipsDisplay::TipsDisplay()
 {
+  setWindowTitle("QSoas Tips");
   setupFrame();
 }
 
@@ -341,22 +358,95 @@ TipsDisplay::~TipsDisplay()
 
 void TipsDisplay::setupFrame()
 {
+
   QVBoxLayout * layout = new QVBoxLayout(this);
   browser = new HelpTextBrowser(getEngine());
   layout->addWidget(browser);
+
+  QHBoxLayout * bottom = new QHBoxLayout;
+  bottom->insertStretch(1);
+  QPushButton * bt = new QPushButton("Show random");
+  bottom->addWidget(bt);
+  connect(bt, SIGNAL(clicked()), SLOT(showRandomTip()));
+  
+  bt =
+    new QPushButton(Utils::standardIcon(QStyle::SP_DialogCloseButton),
+                    "Close");
+  bottom->addWidget(bt);
+  connect(bt, SIGNAL(clicked()), SLOT(hide()));
+
+  layout->addLayout(bottom);
 }
 
 QHash<QString, Tip*> * TipsDisplay::tips = NULL;
-QHash<QString, Tip*> * TipsDisplay::tipsByKeyword = NULL;
+QMultiHash<QString, Tip*> * TipsDisplay::tipsByKeyword = NULL;
 
 void TipsDisplay::readTips()
 {
   if(tips)
     return;                     // not reading twice.
   tips = new QHash<QString, Tip*>;
+  tipsByKeyword = new QMultiHash<QString, Tip*>;
+   QTextStream o(stdout);
   QByteArray data = getEngine()->
-    fileData(QUrl("qthelp://qsoas.org.qsoas/doc/tips/txt"));
-  
+    fileData(HelpBrowser::urlForFile("doc/tips.txt"));
+  QStringList tps = QString(data).split('\n');
+  QRegExp re(":\\s*");
+  for(const QString & t : tps) {
+    QStringList l2 = t.split(re);
+    // o << "Line: " << l2.join(", ") << l2.size() << endl;
+    if(l2.size() == 2) {
+      Tip * tip = new Tip(l2[0]);
+      (*tips)[tip->id] = tip;
+      tip->keywords = l2[1].split(';');
+      for(const QString & k : tip->keywords)
+        tipsByKeyword->insert(k, tip);
+    }
+  }
+  o << "Read " << tips->size() << " tips" << endl;
 }
 
+void TipsDisplay::showTip(const Tip * tip)
+{
+  QTextStream o(stdout);
+  o << "Showing tip: " << tip->id << endl;
+  browser->setSource(HelpBrowser::urlForFile(QString("doc/tips-%1.html").
+                                             arg(tip->id)));
+}
+
+void TipsDisplay::showRandomTip()
+{
+  if(! tips)
+    readTips();
+  QList<Tip*> tps = tips->values();
+  if(tps.size() > 0)
+    showTip(tps[::rand() % tps.size()]);
+}
+
+//////////////////////////////////////////////////////////////////////
+
+#include <general-arguments.hh>
+#include <commandeffector-templates.hh>
+
+
+static void tipsCommand(const QString & /*name*/,
+                        const CommandOptions & opts)
+{
+  TipsDisplay::getDisplay(true)->showRandomTip();
+}
+
+
+// static ArgumentList 
+// tipsO(QList<Argument *>()
+//       << 
+//       );
+
+
+static Command 
+hlpc("tips", // command name
+     effector(tipsCommand), // action
+     "help",  // group name
+     NULL, // arguments
+     NULL, // options
+     "Tips");
 

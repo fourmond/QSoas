@@ -241,6 +241,9 @@ File.open("tips.kd") do |f|
       cur.print l
     end
   end
+  if cur
+    cur.close
+  end
 end
 
 File::open("#{$target_dir}/tips.txt",'w') do |f|

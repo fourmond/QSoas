@@ -12,6 +12,7 @@
     <files>
       #FILES
       <file>style.css</file>
+      <file>tips.txt</file>
       <file>images/*.png</file>
     </files>
   </filterSection>

@@ -27,7 +27,9 @@ class Command;
 class HelpBrowser : public QWidget {
   Q_OBJECT;
 
-  QHelpEngine * engine;
+  static QHelpEngine * theEngine;
+
+  static QHelpEngine * getEngine();
 
   static HelpBrowser * theBrowser;
 
@@ -47,11 +49,12 @@ class HelpBrowser : public QWidget {
   virtual void resizeEvent(QResizeEvent * event) override;
 
   friend class TipsDisplay;
-  
+
+  /// Returns the URL corresponding to the given file
+  static QUrl urlForFile(const QString & file);
 
 public:
   HelpBrowser();
-  virtual ~HelpBrowser();
 
 
   /// Browses the given location
@@ -94,7 +97,6 @@ class TipsDisplay : public QWidget {
 
   void setupFrame();
 
-  static TipsDisplay * getDisplay();
 
   static QHelpEngine * getEngine();
 
@@ -102,7 +104,7 @@ class TipsDisplay : public QWidget {
   static QHash<QString, Tip*> * tips;
 
   /// Tips, indexed by their keyword
-  static QHash<QString, Tip*> * tipsByKeyword;
+  static QMultiHash<QString, Tip*> * tipsByKeyword;
 
   /// Populate the tips list from inside the help
   static void readTips();
@@ -110,9 +112,14 @@ public:
   TipsDisplay();
   ~TipsDisplay();
 
+  static TipsDisplay * getDisplay(bool activate = false);
+
+public slots:
+  void showRandomTip();
+
 protected slots:
 
-  // void showTip(const QString & name);
+  void showTip(const Tip * tip);
 
 };
 

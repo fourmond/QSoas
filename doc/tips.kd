@@ -186,3 +186,88 @@ out the name of a command by looking at the help text of the menus, or
 by running the command from the menu and looking at new line, starting
 with `QSoas>`, added at the bottom of the terminal.
 
+{::comment} tip: buffers;tracking changes;basic {:/}
+## Buffer names {#buffer-names}
+
+When QSoas loads buffers, it gives them the same name as the files
+they were loaded from. After each operation, QSoas adds a suffix to
+reflect the changes to the buffer. After running:
+
+~~~
+QSoas> l data.dat
+QSoas> apply-formula y=y**2
+QSoas> filter-fft
+Current buffer now is: 'data_mod_filtered.dat'
+~~~
+
+The buffer name that was initially `data.dat` is now
+`data_mod_filtered.dat`. When this becomes too troublesome, you can
+change the name of the current buffer using the [cmd: rename] command
+(`a` for short):
+
+~~~
+QSoas> rename process-data.dat
+~~~
+
+{::comment} tip: buffers;stack;basic {:/}
+## Current buffer and stack {#stack-1}
+
+QSoas functions using a stack for buffers: each operation that creates
+data: loading a file, or modifying an existing buffer, creates a new
+buffer that becomes the top of the stack. The *current buffer* is the
+one at the top of the stack. It is the one to which most of the
+operations are applied; it is also always visible.
+
+
+{::comment} tip: math;basic;functions {:/}
+## Using QSoas as a simple calculator {#eval}
+
+QSoas can also perform simple calculations via the [cmd: eval]
+command:
+
+~~~
+QSoas> eval 2+2
+ => 4
+~~~
+
+The language for interpreting these formulas is described
+[there](qsoas.html#ruby); it features many
+[functions](qsoas.html#special-functions) such as `sin(x)`:
+
+~~~
+QSoas> eval sin(PI*3/4)
+ => 0.70710678118655
+~~~
+
+{::comment} tip: raw data;basic {:/}
+## Viewing raw data {#edit}
+
+It is sometimes useful to look at the raw data of the current buffer,
+that is how the numbers are organized; this can help for instance
+spotting data that has not been loaded properly. You can do that using
+the [cmd: edit] command, that opens up a spreadsheet-like view of the
+current buffer.
+
+As its name suggest, you can also use [cmd: edit] to edit some of the
+values (don't forget to push the new data to the stack !), but don't
+expect advanced facilities: QSoas is not a spreadsheet program. If you
+want to modify data, use other functions, such as
+[cmd: apply-formula].
+
+{::comment} tip: math;buffers;buffer operations;basic {:/}
+## Applying a formula to a buffer {#apply-formula}
+
+If you want to modify the data of the current buffer according to a
+mathematical formula, use the command [cmd: apply-formula]:
+
+~~~
+QSoas> apply-formula y=y**2
+~~~
+
+This command transforms the `y` column into its square `y**2`. The
+`y=` part is very important, because it tells QSoas you want to modify
+the `y` column. You can also modify other columns... Try out:
+
+~~~
+QSoas> apply-formula x=y**2
+~~~

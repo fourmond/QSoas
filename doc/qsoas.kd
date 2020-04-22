@@ -7421,7 +7421,7 @@ way to do so is to use for instance `$stats.y_max` to refer to the
 `y_max` statistic.
 
 
-## Special functions
+## Special functions {#special-functions}
 
 In addition to standard mathematical functions from the [Math][math]
 module (that contains, among others, the error function

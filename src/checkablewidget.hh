@@ -44,6 +44,10 @@ public:
   template <class T> T * subWidget() {
     return dynamic_cast<T*>(widget);
   };
+protected slots:
+
+  /// Called when the check state has changed
+  void cbStateChanged(int state);
   
 };
 

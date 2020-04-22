@@ -1,0 +1,273 @@
+This file contains the startup tips. They are all sorted according to
+tags, which will be used to find "similar tips". The tags should at
+least include one of:
+
+* basic
+* advanced
+* expert
+* guru ?
+
+For the difficulty level.
+
+The tags are given in the comment before the title.
+
+Unlike the rest of the documentation, this can be written addressing
+directly the user.
+
+{::comment} tip: data generation;math;basic {:/}
+## Plotting mathematical functions {#plot-function}
+
+To plot a mathematical function, use [cmd: generate-buffer] to
+generate a buffer with the correct range of X values you want:
+
+~~~
+QSoas> generate-buffer -10 10
+~~~
+
+(here for X for between -10 and 10). Then, just use
+[cmd: apply-formula] with the $$y=f(x)$$ function you want, here for
+instance $$y = \sin x$$: 
+
+~~~
+QSoas> apply-formula y=sin(x)
+~~~
+
+See more about mathematical formulas [here](qsoas.html#ruby).
+You can use the optional argument of
+[cmd: generate-buffer] to shorten that to:
+
+~~~
+QSoas> generate-buffer -10 10 sin(x)
+~~~
+
+{::comment} tip: basic;command-line{:/}
+## Automatic completion {#automatic-completion}
+
+Pressing the *TAB* key inside the command-line will automatically
+complete whatever you are currently typing: the command name, the
+file, the flag, the fit engine, etc... Just try !
+
+{::comment} tip: basic;load;command-line;globs{:/}
+## Jokers in file names {#globs}
+
+It is possible to use the "joker" `*` for every command that uses file
+names, such as [cmd: load]. `*` replaces "unknown parts" in file
+names. For instance, to load all the files finishing by `.dat`, use
+
+~~~
+QSoas> load *.dat
+~~~
+
+To load all the files starting with `d` and finishing with `t`:
+
+~~~
+QSoas> load d*t
+~~~
+
+One can use more than one joker, so the following loads all files
+starting with `d`, finishing with `t`, and that have `sample_a` in
+the middle:
+
+~~~
+QSoas> load d*sample_a*t
+~~~
+
+All the jokers are called **globs**.
+
+{::comment} tip: advanced;scripts{:/}
+## Getting started on scripting {#scripts-first-steps}
+
+One of the great strengths of QSoas is the capacity to run several
+commands in one go via scripts. One often must repeat the same series
+of commands to process similar data files; to avoid typing them over
+and over again, one can make scripts.
+
+The easiest way to make a script is to save the command you have used
+so far to a [text file](qsoas.html#text-files), for instance
+`commands.txt`, using [cmd: save-history]:
+
+~~~
+QSoas> save-history commands.txt
+~~~
+
+You can then edit it (or at least look at it !) with your favorite
+editor to remove the bits not needed, and run it with [cmd: run] (`@`
+for short):
+
+~~~
+QSoas> @ commands.txt
+~~~
+
+This will run in turn all the commands that were saved in the
+`commands.txt`, one per line. Try it out !
+
+{::comment} tip: basic;save{:/}
+## Saving and restoring sessions {#save-stack}
+
+You can save the whole contents of the [data stack](#data-stack),
+which is more-or-less all the buffers that were loaded, manipulated
+and so on so far, using the command [cmd: save-stack]. The stack files
+can be reloaded later using [cmd: load-stack].
+
+{::comment} tip: basic;browse;globs;load{:/}
+## Using browse to look at many data files {#browse-files}
+
+QSoas provides a simple way to quickly find a file whose name you
+can't remember in a large directory. Just run: [cmd: browse], or even
+just `W`, and QSoas displays a dialog box with all the data files
+found (you can push them onto the stack).
+
+To go further, you can even select the files using jokers (globs). To
+show only the files finishing by `.dat`:
+
+~~~
+QSoas> W *.dat
+~~~
+
+To show all files in all subdirectories:
+
+~~~
+QSoas> W */*
+~~~
+
+{::comment} tip: data generation;fits;basic {:/}
+## Generating fitted curves {#sim-fit-1}
+
+When running a fit, you can save the "fitted" curves, that is the
+theoretical curves predicted from the current parameters by clicking
+on "Data..."/"Push current to stack" (for the currently displayed
+buffer) or "Push all to stack" (for all the fitted buffers).
+
+Then, you can save the buffers using [cmd: save] or
+[cmd: save-buffers] for instance.
+
+{::comment} tip: save;basic {:/}
+## Saving the current buffer {#save-buffer}
+
+You can save the current buffer into a simple text format by using the
+[cmd: save] command, `s` for short. Give it the name of the target
+file (or let QSoas ask you):
+
+~~~
+QSoas> s saved_file.dat
+~~~
+
+{::comment} tip: commands;command-line;arguments;basic {:/}
+## Arguments {#arguments}
+
+Commands in QSoas often take mandatory arguments to specify what to
+work on: the file to load, the file name for saving, the range of X
+values for [cmd: generate-buffer], etc... These arguments can be given
+on the command-line, separated by spaces. For instance, the following
+code launches the command [cmd: load] with a single argument,
+`file.dat`.
+
+~~~
+QSoas> load file.dat
+~~~
+
+If you omit a mandatory argument, QSoas will ask for it, for instance
+if you just run:
+
+~~~
+QSoas> load
+~~~
+
+{::comment} tip: commands;command-line;basic {:/}
+## Commands: menus and command-line {#commands}
+
+All your interactions with QSoas go through *commands*. You can run
+command by choosing them using the traditional menu bars; each of the
+menu item is a QSoas command.
+
+You can also run commands by entering their name in the `QSoas>` prompt at
+the bottom of the QSoas window, and pressing "Enter". You can figure
+out the name of a command by looking at the help text of the menus, or
+by running the command from the menu and looking at new line, starting
+with `QSoas>`, added at the bottom of the terminal.
+
+{::comment} tip: buffers;tracking changes;basic {:/}
+## Buffer names {#buffer-names}
+
+When QSoas loads buffers, it gives them the same name as the files
+they were loaded from. After each operation, QSoas adds a suffix to
+reflect the changes to the buffer. After running:
+
+~~~
+QSoas> l data.dat
+QSoas> apply-formula y=y**2
+QSoas> filter-fft
+Current buffer now is: 'data_mod_filtered.dat'
+~~~
+
+The buffer name that was initially `data.dat` is now
+`data_mod_filtered.dat`. When this becomes too troublesome, you can
+change the name of the current buffer using the [cmd: rename] command
+(`a` for short):
+
+~~~
+QSoas> rename process-data.dat
+~~~
+
+{::comment} tip: buffers;stack;basic {:/}
+## Current buffer and stack {#stack-1}
+
+QSoas functions using a stack for buffers: each operation that creates
+data: loading a file, or modifying an existing buffer, creates a new
+buffer that becomes the top of the stack. The *current buffer* is the
+one at the top of the stack. It is the one to which most of the
+operations are applied; it is also always visible.
+
+
+{::comment} tip: math;basic;functions {:/}
+## Using QSoas as a simple calculator {#eval}
+
+QSoas can also perform simple calculations via the [cmd: eval]
+command:
+
+~~~
+QSoas> eval 2+2
+ => 4
+~~~
+
+The language for interpreting these formulas is described
+[there](qsoas.html#ruby); it features many
+[functions](qsoas.html#special-functions) such as `sin(x)`:
+
+~~~
+QSoas> eval sin(PI*3/4)
+ => 0.70710678118655
+~~~
+
+{::comment} tip: raw data;basic {:/}
+## Viewing raw data {#edit}
+
+It is sometimes useful to look at the raw data of the current buffer,
+that is how the numbers are organized; this can help for instance
+spotting data that has not been loaded properly. You can do that using
+the [cmd: edit] command, that opens up a spreadsheet-like view of the
+current buffer.
+
+As its name suggest, you can also use [cmd: edit] to edit some of the
+values (don't forget to push the new data to the stack !), but don't
+expect advanced facilities: QSoas is not a spreadsheet program. If you
+want to modify data, use other functions, such as
+[cmd: apply-formula].
+
+{::comment} tip: math;buffers;buffer operations;basic {:/}
+## Applying a formula to a buffer {#apply-formula}
+
+If you want to modify the data of the current buffer according to a
+mathematical formula, use the command [cmd: apply-formula]:
+
+~~~
+QSoas> apply-formula y=y**2
+~~~
+
+This command transforms the `y` column into its square `y**2`. The
+`y=` part is very important, because it tells QSoas you want to modify
+the `y` column. You can also modify other columns... Try out:
+
+~~~
+QSoas> apply-formula x=y**2
+~~~

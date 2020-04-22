@@ -1,0 +1,27 @@
+# check invariance by translation, i.e: the c0 correspond to the first point.
+define-kinetic-system-fit auto-catalytic.qsys ac /redefine=true
+generate-buffer 0 10
+sim-ac parameters/autocatalytic-1.params 0
+
+generate-buffer 10 20
+sim-ac parameters/autocatalytic-1.params 0
+S 2 0 /mode=indices
+assert $stats.y_norm 1e-13
+
+generate-buffer -10 0
+sim-ac parameters/autocatalytic-1.params 0
+S 5 0 /mode=indices
+assert $stats.y_norm 1e-13
+
+
+
+generate-buffer 0 12 /samples=1201
+sim-ac parameters/autocatalytic-1.params 0
+generate-buffer 2 12 /samples=1001
+sim-ac parameters/autocatalytic-1.params 0 /choose-t0=true /override=t0=0
+S 0 2
+# The tolerance is lower than in the other case, but, well, let's live
+# with it...
+assert abs($stats.y_min) 1e-4
+assert abs($stats.y_max) 1e-5
+

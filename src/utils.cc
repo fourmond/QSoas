@@ -953,3 +953,8 @@ void Utils::drawRichText(QPainter * painter, const QRectF &rectangle,
   QSizeF sz = t.size();
   painter->drawStaticText(rectangle.topLeft(), t);
 }
+
+QIcon Utils::standardIcon(QStyle::StandardPixmap icon)
+{
+  return qApp->style()->standardIcon(icon);
+}

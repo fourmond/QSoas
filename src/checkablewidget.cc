@@ -27,12 +27,23 @@ CheckableWidget::CheckableWidget(QWidget * sub,
   checkBox = new QCheckBox();
   l->addWidget(checkBox);
   l->addWidget(sub);
-  setFrameStyle(QFrame::StyledPanel);
-  // setFrameShadow(QFrame::Sunken);
-  // setLineWidth(2);
+  setFrameStyle(QFrame::Panel);
+  setFrameShadow(QFrame::Raised);
+  setLineWidth(2);
+
+  connect(checkBox, SIGNAL(stateChanged(int)),
+          SLOT(cbStateChanged(int)));
 }
 
 bool CheckableWidget::isChecked() const
 {
   return checkBox->isChecked();
+}
+
+void CheckableWidget::cbStateChanged(int state)
+{
+  if(isChecked())
+    setFrameShadow(QFrame::Sunken);
+  else
+    setFrameShadow(QFrame::Raised);
 }

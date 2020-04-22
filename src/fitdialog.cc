@@ -59,6 +59,7 @@
 
 #include <idioms.hh>
 #include <icons.hh>
+#include <helpbrowser.hh>
 
 #include <gsl-types.hh>
 
@@ -221,11 +222,12 @@ void FitDialog::setupFrame(bool expert)
   //////////////////////////////////////////////////////////////////////
   // First line
   QHBoxLayout * hb = new QHBoxLayout;
-  QPushButton * bt = new QPushButton("<-");
+  QPushButton * bt =
+    new QPushButton(Utils::standardIcon(QStyle::SP_ArrowLeft), "");
   nup->connect(bt, SIGNAL(clicked()), SLOT(previousPage()));
   hb->addWidget(bt);
 
-  bt = new QPushButton("->");
+  bt = new QPushButton(Utils::standardIcon(QStyle::SP_ArrowRight),"");
   nup->connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
   hb->addWidget(bt);
 
@@ -281,11 +283,11 @@ void FitDialog::setupFrame(bool expert)
     hb->addWidget(bt);
   }
 
-  bt = new QPushButton(tr("<-"));
+  bt = new QPushButton(Utils::standardIcon(QStyle::SP_ArrowLeft), "");
   nup->connect(bt, SIGNAL(clicked()), SLOT(previousPage()));
   hb->addWidget(bt);
   
-  bt = new QPushButton(tr("->"));
+  bt = new QPushButton(Utils::standardIcon(QStyle::SP_ArrowRight), "");
   nup->connect(bt, SIGNAL(clicked()), SLOT(nextPage()));
   hb->addWidget(bt);
 
@@ -468,14 +470,22 @@ void FitDialog::setupFrame(bool expert)
   parameters.connect(cancelButton, SIGNAL(clicked()), SLOT(cancelFit()));
   hb->addWidget(cancelButton);
   if(fitPrompt)
-    startButton->setAutoDefault(false);
+    cancelButton->setAutoDefault(false);
   cancelButton->setVisible(false);
 
 
-  bt = new QPushButton(tr("Close (Ctrl+W)"));
+  bt = new QPushButton(Utils::standardIcon(QStyle::SP_DialogHelpButton),
+                       "Help");
+  connect(bt, SIGNAL(clicked()), SLOT(showHelp()));
+  if(fitPrompt)
+    bt->setAutoDefault(false);
+  hb->addWidget(bt);
+
+  bt = new QPushButton(Utils::standardIcon(QStyle::SP_DialogCloseButton),
+                       "Close (Ctrl+W)");
   connect(bt, SIGNAL(clicked()), SLOT(close()));
   if(fitPrompt)
-    startButton->setAutoDefault(false);
+    bt->setAutoDefault(false);
   hb->addWidget(bt);
 
 
@@ -1341,5 +1351,14 @@ void FitDialog::parametersSpreadsheet()
   dlg.exec();
   if(dlg.dataChanged())
     updateEditors();
+}
+
+void FitDialog::showHelp()
+{
+  QString tgt = QString("doc/qsoas.html#cmd-fit-%1").
+    arg(parameters.fitName(false));
+  // QTextStream o(stdout);
+  // o << "T: " << tgt << endl;
+  HelpBrowser::browseLocation(tgt);
 }
 

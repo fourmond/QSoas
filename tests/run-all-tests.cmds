@@ -1,4 +1,4 @@
-version
+version /dump-sysinfo=true
 ruby-run helpers.rb
 timer
 run-for-each run-directory-tests.cmds */tests.cmds

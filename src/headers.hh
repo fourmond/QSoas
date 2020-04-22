@@ -159,6 +159,12 @@
 #include <QTcpSocket>
 #include <QTcpServer>
 
+// Help
+#include <QHelpEngine>
+#include <QTextBrowser>
+#include <QHelpContentWidget>
+#include <QHelpIndexWidget>
+
 
 
 

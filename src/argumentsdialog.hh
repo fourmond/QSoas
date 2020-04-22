@@ -90,6 +90,10 @@ public:
 
   void retrieveArgumentsAndOptions(CommandArguments * args,
                                    CommandOptions * opts) const;
+
+public slots:
+  /// Shows the help for the command
+  void showHelp();
 };
 
 

@@ -35,6 +35,7 @@
 #include <statistics.hh>
 
 #include <commandlineparser.hh>
+#include <helpbrowser.hh>
 
 static Group help("help", 1000,
                   "Help",
@@ -89,24 +90,26 @@ cmd2("commands", // command name
 QString docUrl("http://www.qsoas.org/manual.html");
 
 
-static void helpCommand(const QString & name, Command * cmd, 
+static void helpCommand(const QString & /*name*/,
                         const CommandOptions & opts)
 {
+  Command * cmd = NULL;
+  updateFromOptions(opts, "command", cmd);
+
+  if(! cmd) {
+    HelpBrowser::browseLocation("doc/qsoas.html");
+    return;
+  }
+  bool showSyn = false;
+  updateFromOptions(opts, "synopsis", showSyn);
+
+  if(! showSyn) {
+    HelpBrowser::browseCommand(cmd);
+    return;
+  }
   QStringList synopsis;
   QString descs;
 
-  
-  bool online = name == "help"; 
-
-  updateFromOptions(opts, "online", online);
-  if(online) {
-    QUrl url = docUrl;
-    url.setFragment("cmd-" + cmd->commandName());
-    QDesktopServices::openUrl(url);
-    return;
-  }
-  /// @todo the documentation-building facilities should join Command
-  /// rather than being here.
   if(cmd->commandArguments()) {
     const ArgumentList & args = *cmd->commandArguments();
     for(int i = 0; i < args.size(); i++) {
@@ -136,26 +139,22 @@ static void helpCommand(const QString & name, Command * cmd,
                 << cmd->publicName() << "\n\n"
                 << "  " << cmd->commandName() << " " 
                 << synopsis.join(" ") << "\n" 
-                << descs << "\n"
-                << cmd->longDescription() << endl;
+                << descs << "\n" << endl;
 }
 
 static ArgumentList 
-helpA(QList<Argument *>() 
+helpO(QList<Argument *>()
       << new CommandArgument("command", "Command",
-                             "The command on which to give help"));
-
-static ArgumentList 
-helpO(QList<Argument *>() 
-      << new BoolArgument("online", "Online version",
-                          "Show the online documentation in a browser"));
+                             "The command on which to give help", true)
+      << new BoolArgument("synopsis", "Synopsis",
+                          "Does not show the help, but print a brief synopsis"));
 
 
 static Command 
 hlpc("help", // command name
      effector(helpCommand), // action
      "help",  // group name
-     &helpA, // arguments
+     NULL, // arguments
      &helpO, // options
      "Help on...",
      "Give help on command",
@@ -165,7 +164,7 @@ static Command
 hlp2("help", // command name
      effector(helpCommand), // action
      "help",  // group name
-     &helpA, // arguments
+     NULL, // arguments
      &helpO, // options
      "Help on...",
      "Give help on command",
@@ -270,53 +269,3 @@ static CommandLineOption hlp("--update-documentation", [](const QStringList & ar
     ::exit(0);
   }, 1, "updates the given documentation file");
 
-//////////////////////////////////////////////////////////////////////
-
-
-
-/// This functions loads a documentation file
-void loadDocumentationFile(const QString &, 
-                           QString file, 
-                           const CommandOptions & opts)
-{
-  bool silent = true;
-  updateFromOptions(opts, "silent", silent);
-  QString str = File::readFile(file);
-
-  /// @todo Setup a standard location for the documentation file and
-  /// load at startup.
-
-  Terminal::out << "Loading documentation from file " << file << endl;
-
-  // Now perform updates
-  QStringList missing = CommandContext::loadDocumentation(str);
-  if(!silent) {
-    qSort(missing);
-    Terminal::out << "Documentation missing for commands: " << missing.join(", ") << endl;
-  }
-}
-
-static ArgumentList 
-ldfA(QList<Argument *>() 
-     << new FileArgument("file", "File",
-                         "The document file to load")
-     );
-
-static ArgumentList 
-ldfO(QList<Argument *>() 
-     << new BoolArgument("silent", "Silent",
-                         "Whether to say something when "
-                         "documentation is missing",
-                         true)
-     );
-
-static Command 
-ldCmd("load-documentation",            // command name
-      effector(loadDocumentationFile), // action
-      "help",                          // group name
-      &ldfA,                           // arguments
-      &ldfO,                           // options
-      "Load documentation",
-      "Load documentation file");
-
-//////////////////////////////////////////////////////////////////////

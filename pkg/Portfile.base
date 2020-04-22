@@ -29,4 +29,10 @@ destroot {
     # Only install the application
     xinstall -d ${destroot}${prefix}/Applications/
     file copy ${worksrcpath}/QSoas.app ${destroot}${prefix}/Applications
+
+    # Copy the documentation
+    xinstall -d ${destroot}${prefix}/Applications/QSoas.app/Contents/Resources
+    file copy ${worksrcpath}/doc/qsoas-help.qhc ${destroot}${prefix}/Applications/QSoas.app/Contents/Resources
+    file copy ${worksrcpath}/doc/qsoas-help.qch ${destroot}${prefix}/Applications/QSoas.app/Contents/Resources
+
 }

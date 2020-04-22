@@ -425,7 +425,7 @@ namespace Utils {
 
   /// @name Graphical utilities
   ///
-  /// 
+  /// @{ 
   
   /// Returns the color corresponding to the value. A value below the
   /// lowest of the list returns the corresponding color. Same for a
@@ -439,6 +439,11 @@ namespace Utils {
   void drawRichText(QPainter * painter, const QRectF &rectangle,
                     int flags, const QString &text,
                     QRectF *boundingRect = NULL);
+
+  /// Returns the standard icon for the given function
+  QIcon standardIcon(QStyle::StandardPixmap standardIcon);
+
+  /// @}
 };
 
 #endif

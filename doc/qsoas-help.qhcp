@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<QHelpCollectionProject version="1.0">
+  <assistant>
+    <title>QSoas</title>
+    <startPage>qthelp://qsoas.org.QSoas.3.0/doc/qsoas.html</startPage>
+  </assistant>
+  <docFiles>
+    <generate>
+      <file>
+        <input>qsoas-help.qhp</input>
+        <output>qsoas-help.qch</output>
+      </file>
+    </generate>
+    <register>
+      <file>qsoas-help.qch</file>
+    </register>
+  </docFiles>
+</QHelpCollectionProject>

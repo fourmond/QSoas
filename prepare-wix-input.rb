@@ -24,31 +24,42 @@ end
 
 files = []
 debug_files = []
-pltforms = {}
-dpltforms = []
+
+# A hash 'dir' -> 'release|debug' -> file list
+subdirs = {}
+
+######################################################################
+# Finding the libraries
 
 # Qt libraries
-if ENV["QTDIR"] =~ /Qt5/i       # Qt 5 !
-  for f in %w[Qt5Core  Qt5Gui  Qt5OpenGL  Qt5PrintSupport  Qt5Widgets Qt5Svg]
-    lib_file = "#{ENV['QTDIR']}\\bin\\#{f}.dll"
-    files << lib_file
-    debug_files << lib_file.gsub(/.dll/, "d.dll")
-  end
-
-  for ptf in %w[qwindows qminimal qoffscreen]
-    pltforms['release'] ||= []
-    pltforms['release'] << "#{ENV['QTDIR']}\\plugins\\platforms\\#{ptf}.dll"
-    pltforms['debug'] ||= []
-    pltforms['debug'] << "#{ENV['QTDIR']}\\plugins\\platforms\\#{ptf}d.dll"
-  end
-
-else
-  for f in %w[QtCore4 QtGui4 QtOpenGL4 QtNetwork4 QtSvg4]
-    lib_file = "#{ENV['QTDIR']}\\bin\\#{f}.dll"
-    files << lib_file
-    debug_files << lib_file.gsub(/4.dll/, "d4.dll")
-  end
+for f in %w[Qt5Core  Qt5Gui  Qt5OpenGL  Qt5PrintSupport  Qt5Widgets Qt5Svg Qt5Help Qt5Sql Qt5CLucene Qt5Network]
+  lib_file = "#{ENV['QTDIR']}\\bin\\#{f}.dll"
+  files << lib_file
+  debug_files << lib_file.gsub(/.dll/, "d.dll")
 end
+
+# Handling platforms
+pltforms = {}
+subdirs['platforms'] = pltforms
+
+for ptf in %w[qwindows qminimal qoffscreen]
+  pltforms['release'] ||= []
+  pltforms['release'] << "#{ENV['QTDIR']}\\plugins\\platforms\\#{ptf}.dll"
+  pltforms['debug'] ||= []
+  pltforms['debug'] << "#{ENV['QTDIR']}\\plugins\\platforms\\#{ptf}d.dll"
+end
+
+# Handling the sqlite driver plugin
+subdirs["sqldrivers"] = {}
+drivers = subdirs["sqldrivers"]
+
+for ptf in %w[qsqlite]
+  drivers['release'] ||= []
+  drivers['release'] << "#{ENV['QTDIR']}\\plugins\\sqldrivers\\#{ptf}.dll"
+  drivers['debug'] ||= []
+  drivers['debug'] << "#{ENV['QTDIR']}\\plugins\\sqldrivers\\#{ptf}d.dll"
+end
+
 
 # Ruby library
 rb = File::join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['LIBRUBY_SO'])
@@ -73,15 +84,24 @@ end
 
 # We first get the MD5sum for all the files
 file_ids = {}
-for f in files + debug_files + pltforms.values.flatten
-  fid = "#{f}+#{File.size f}"
+all_files = files + debug_files
+for k in subdirs.keys
+  all_files += subdirs[k].values.flatten
+end
+for f in all_files
+  sz = begin
+         File.size f
+       rescue
+         0
+       end
+  fid = "#{f}+#{sz}"
   file_ids[f] = fid
 end
 
 # We add a few keys
 keys = file_ids.values
 
-keys += ["UpgradeID", "ProductID", "QSoasID", "QSoasProgID", "StartMenuID"]
+keys += ["UpgradeID", "ProductID", "QSoasID", "QSoasProgID", "StartMenuID", "DocID"]
 
 # Now, we generate all the missing UUIDs
 for k in keys
@@ -94,6 +114,7 @@ store = uuids.dup
 
 # These are UUIDS that should change at every run
 store.delete("QSoasID")
+store.delete("DocID")
 
 File.open("uuids.yaml", "w") do |f|
   YAML::dump(store, f)
@@ -122,22 +143,24 @@ for k,v in what
     bf = File::basename(f)
     dlls[k] << "<Component Id='Dll#{idx}' Guid='#{guid}'>\n"
     dlls[k] << "  <File Id='Dll_file#{idx}' Name='#{bf}' DiskId='1' Source='#{f}' KeyPath='yes' />\n"
-    dlls[k] << "</Component>"
+    dlls[k] << "</Component>\n"
     dll_refs[k] << "<ComponentRef Id='Dll#{idx}' />\n"
     idx += 1
   end
-  if pltforms[k]
-    dlls[k] << '<Directory Id="platformsdir" Name="platforms">'
-    for f in pltforms[k]
-      guid = uuids[file_ids[f]]
-      bf = File::basename(f)
-      dlls[k] << "  <Component Id='Dll#{idx}' Guid='#{guid}'>\n"
-      dlls[k] << "    <File Id='Dll_file#{idx}' Name='#{bf}' DiskId='1' Source='#{f}' KeyPath='yes' />\n"
-      dlls[k] << "  </Component>"
-      dll_refs[k] << "<ComponentRef Id='Dll#{idx}' />\n"
-      idx += 1
+  for dir in subdirs.keys
+    if subdirs[dir][k]
+      dlls[k] << "<Directory Id='#{dir}dir' Name='#{dir}'>\n"
+      for f in subdirs[dir][k]
+        guid = uuids[file_ids[f]]
+        bf = File::basename(f)
+        dlls[k] << "  <Component Id='Dll#{idx}' Guid='#{guid}'>\n"
+        dlls[k] << "    <File Id='Dll_file#{idx}' Name='#{bf}' DiskId='1' Source='#{f}' KeyPath='yes' />\n"
+        dlls[k] << "  </Component>\n"
+        dll_refs[k] << "<ComponentRef Id='Dll#{idx}' />\n"
+        idx += 1
+      end
+      dlls[k] << "</Directory>\n"
     end
-    dlls[k] << '</Directory>'
   end
 end
 

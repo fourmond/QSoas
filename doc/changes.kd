@@ -13,6 +13,11 @@ format that QSoas automatically reads when reading the file. This
 makes it possible to quickly browse through data to find the
 experiments you need.
 
+Finally, this release brings in a whole new offline documentation
+system, with and index and search facilities, and the possibility to
+specify manually all the command arguments and options in a dialog box
+when running a command from the menus.
+
 See the full list of changes [below](#v3p0)
 
 # What's new in version 2.2 ?
@@ -98,6 +103,9 @@ featuring:
   * [cmd: show-stack] can also list the meta-data now
   * Gauss-Kronrod integration for distribution of parameters and other
     multidimensional integrators
+  * [cmd: help] can now be run without argument to start the new
+    documentation system. With a command argument, it will still take
+    to the documentation of the command.
   
 ## Other improvements
 
@@ -121,6 +129,10 @@ featuring:
   * new statistics: `y_a` and `y_b`, which correspond to parameters of
     the linear regression of $$y = f(x)$$. Available for `y2` and all
     the others, still as a function of `x`.
+  * a new offline documentation system with index and search
+    capacities
+  * now, using the menus to start a command will show a dialog box in
+    which one can choose the arguments and options
 
 # Changes in version 2.2 (2018.03.21) {#v2p2}
 

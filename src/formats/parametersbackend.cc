@@ -43,7 +43,7 @@ protected:
     if(re1.indexIn(s) >= 0)
       p += 20;
     
-    QRegExp re2("^[^#\t]+\t.*!");
+    QRegExp re2("^[][#\\w]+\t[\\d.e+-]+\t!");
     if(re2.indexIn(s) >= 0)
       p += 150;
     return p;

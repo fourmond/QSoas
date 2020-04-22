@@ -5,11 +5,11 @@
            UpgradeCode='#UpgradeID#'
            Language='1033' Codepage='1252' 
            Version='#WIN_VERSION#' 
-           Manufacturer='BIP CNRS'>
+           Manufacturer='qsoas.org'>
 
     <Package Id='*' Keywords='Installer' 
              Description="QSoas #VERSION#'s Installer"
-             Manufacturer='BIP CNRS'
+             Manufacturer='qsoas.org'
              InstallerVersion='100' Languages='1033' 
              Compressed='yes' SummaryCodepage='1252' />
 
@@ -48,6 +48,27 @@
             
           #DLLS#
 
+          <!-- The documentation, in the subdirectory -->
+          <Directory Id='DOCDIR' Name='doc'>
+            <Component Id='Documentation' 
+                       Guid='#DocID#'>
+              <File Id='QSoasQHC' 
+                    Name='qsoas-help.qhc' 
+                    DiskId='1' Source='doc\qsoas-help.qhc' 
+                    KeyPath='yes' />
+              <File Id='QSoasQCH' 
+                    Name='qsoas-help.qch' 
+                    DiskId='1' Source='doc\qsoas-help.qch' />
+              <RegistryKey Id='DocDirKey' Action='createAndRemoveOnUninstall'
+                           Root='HKLM' Key='Software\qsoas.org\QSoas'>
+                <RegistryValue Id='DocDirValue' Action='write'
+                               Name='DocDir'
+                               Type='string'
+                               Value='[DOCDIR]'/>
+              </RegistryKey>
+            </Component>
+          </Directory>
+
         </Directory>
       </Directory>
 
@@ -71,6 +92,7 @@
       <ComponentRef Id='ProgramMenuDir' />
       <ComponentRef Id='QSoasProgId' />
       #DLL_REFS#
+      <ComponentRef Id='Documentation' />
     </Feature>
 
 

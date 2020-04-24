@@ -271,3 +271,83 @@ the `y` column. You can also modify other columns... Try out:
 ~~~
 QSoas> apply-formula x=y**2
 ~~~
+
+{::comment} tip: buffers;stack;basic {:/}
+## Undo/redo {#undo-redo}
+
+QSoas provides basic undo/redo functionalities via the
+[stack](qsoas.html#data-stack). Running the [cmd: undo] command, or
+`u` for short will remove the latest buffer from the stack, so that
+the previous buffer becomes the current buffer.
+
+The buffers removed this way are put on the "redo" stack, you can
+recover them by running [cmd: redo], or just `r`.
+
+{::comment} tip: math;fits;basic {:/}
+## Fitting arbitrary mathematical formulas to data {#arbitrary-fits}
+
+If you need to fit a simple formula to data, just use the
+[cmd: fit-arb] command:
+
+~~~
+QSoas> fit-arb a*exp(-x/tau)+b
+~~~
+
+This launches the fit interface to fit the $$y = a\times \exp
+-x/\tau$$ formula to the current buffer.
+
+QSoas features also many [predefined fits](qsoas.html#fits)
+with smart initial parameters
+detection. In that case, it would have been better to use
+[cmd: fit-exponential-decay]. 
+
+{::comment} tip: commands;command-line;basic {:/}
+## Recalling previous commands {#cmdline-history}
+
+QSoas keeps track of all the commands you have run since its
+startup. You can recall the previous commands by pressing the Up arrow
+key (and back to more recent commands using the Down arrow).
+
+In the command-line, a `!` at the beginning of the line replaces the
+previous command. If you just run:
+
+~~~
+QSoas> !
+~~~
+
+it will in fact launch the previous command. You can be more specific:
+
+~~~
+QSoas> !appl
+~~~
+
+will run the last command you have run starting by `appl`. Pressing
+the Tab key will expand the `!` to the full command
+
+{::comment} tip: math;advanced;buffers;meta-data {:/}
+## Formulas involving the current buffer {#eval-with-buffers}
+
+You can use [cmd: eval] to obtain information about the current
+buffer. The statistics are available using the `$stats` global
+variable, and the [meta-data](qsoas.html#meta-data) through the
+`$meta` global variable. For instance, to print the maximum `y`
+values of the current buffer, just run:
+
+~~~
+QSoas> eval $stats.y_max
+~~~
+
+{::comment} tip: basic;display {:/}
+## Zooming {#zooming}
+
+An any moment, you can zoom around the displayed curves using the
+mouse wheel:
+
+* Mouse wheel for zooming/dezooming vertically
+* Shift+Mouse wheel for zooming horizontally
+* Ctrl+Mouse wheel for zomming both horizontally and vertically at the
+same time
+* Ctrl+Shift+Mouse wheel to reset the zoom
+
+You can also use the [cmd: zoom] command. This command lets you draw a
+frame around the part you want to zoom on.

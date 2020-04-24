@@ -58,14 +58,16 @@ public slots:
 protected slots:
   void menuActionTriggered(QAction * action);
 
+  void showStartupTips();
+
 protected:
   virtual void focusInEvent(QFocusEvent * evn);
   virtual void closeEvent(QCloseEvent *event);
 
 signals:
-  /// Dummy signal emitted upon startup if the window should close
-  /// immediately...
-  void wantToQuit();
+  /// Emitted at the end of the setup of the main windows. You need to
+  /// use Queued signals.
+  void windowReady();
 };
 
 #endif

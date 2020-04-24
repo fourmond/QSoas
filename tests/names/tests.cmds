@@ -1,3 +1,4 @@
 # A series of test about column and row names
 @ base.cmds
 @ operations.cmds
+@ persistence.cmds

@@ -23,7 +23,7 @@ assert '$col_names[1]=="my_y"'
 assert '$col_names[2]=="y2"'
 assert '$col_names[3]=="my_y3"'
 
-# Check that apply-formula don't change
+# Check that apply-formula doesn't change
 apply-formula y*=2
 assert '$col_names[0]=="my_x2"'
 assert '$col_names[1]=="my_y"'

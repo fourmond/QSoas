@@ -351,3 +351,108 @@ same time
 
 You can also use the [cmd: zoom] command. This command lets you draw a
 frame around the part you want to zoom on.
+
+{::comment} tip: basic;help {:/}
+## Getting help {#help}
+
+The simplest way to get help is to look at the inline help (which
+doesn't require a network connection) using the [cmd: help] command,
+or just `?` for short.
+
+For help on a specific command, for instance on [cmd: apply-formula],
+just run `?` followed by the command name (which can be automatically
+completed using TAB):
+
+~~~
+QSoas> ? apply-formula
+~~~
+
+{::comment} tip: basic;fits {:/}
+## Built-in fits {#builtin-fits}
+
+One of QSoas's strengths is the advance possibilities for fitting
+models to data. Here are the main built-in fits:
+
+* [cmd: fit-exponential-decay] for mono- or multi-exponential decay
+  models;
+* [cmd: fit-gaussian], [cmd: fit-lorentzian] and
+  [cmd: fit-pseudo-voigt] for single or multiple peaks;
+* [cmd: fit-nernst] for fitting the concentration of redox species in
+  equilibrium at different potentials;
+* [cmd: fit-arb] for fitting arbitrary formulas;
+* [cmd: fit-ode] for integrating ordinary differential equations and
+  fitting them to data;
+* [cmd: fit-kinetic-system] for integrating the equations for kinetic
+  systems, that is systems of chemical reactions, and fitting the
+  resulting concentrations to data.
+
+There are also a number of more specialized fits.
+
+
+{::comment} tip: basic;fits;options {:/}
+## Fitting a bi-exponential to data {#fit-biexp}
+
+You can use the command [cmd: fit-exponential-decay] to fit mono or
+multi-exponential decays to the current buffer. Simply running
+
+~~~
+QSoas> fit-exponential-decay
+~~~
+
+will fit a mono-exponential decay to the current buffer. To fit
+multi-exponential decay, you need to use the `/exponentials=` option
+to [cmd: fit-exponential-decay]. To fit a bi-exponential decay to the
+current buffer, you should run:
+
+~~~
+QSoas> fit-exponential-decay /exponentials=2
+~~~
+
+
+{::comment} tip: basic;fits;options;chemistry {:/}
+## Fitting a kinetic system to data {#fit-kinetic-system}
+
+QSoas can integrate the differential equations behind chemical
+reactions for you, and fit a linear combination of the concentrations
+to the data. Here's an example in which two molecules `A` combine to
+form a molecule `B`, that evolves reversibly into `C`. Just make a
+simple [text file](qsoas.html#text-files) containing the following
+lines:
+
+~~~
+2 A ->[k1] B
+B <=>[k2][k3] C
+~~~
+
+Then, you can fit the data by running
+
+~~~
+QSoas> fit-kinetic-system
+~~~
+
+and find the text file that you've just written. The parameters `k1`,
+`k2` and `k3` are respectively the rate constant for the first
+reaction, and the forward and backward rate constants for the
+second. The `c0_A`, `c0_B` and `c0_C` are the initial
+concentrations. The `y_A`, `y_B` and `y_C` parameters are the
+coefficients for generating the modelled data from the concentrations.
+
+{::comment} tip: advanced;math {:/}
+## Easy normalization  {#advanced-apply-formula}
+
+You can use statistics, as those given by the [cmd: stats] command,
+inside [cmd: apply-formula], by adding `$stats.` before the statistics
+name. For instance, to normalize by the maximum Y value (the `y_max`
+statistics), you can use:
+
+~~~
+QSoas> apply-formula y=y/$stats.y_max
+~~~
+
+You can make use of more advanced statistics, such as `y_int`, the
+integral of the Y data over the X values. To obtain data with an
+integral of 1, just run:
+
+~~~
+QSoas> apply-formula y=y/$stats.y_int
+~~~

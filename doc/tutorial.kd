@@ -1,3 +1,15 @@
+# QSoas
+
+QSoas is a general-purpose data analysis program with particular
+strengths for the processing of $$y = f(x)$$ data, for massive data
+analysis (via the use of scripts) and for fitting, including massive
+fits.
+
+This document gives you a general introduction about how to use
+QSoas. You can look at the documentation of each command in the
+[command reference](qsoas.html) or at the [FAQ](faq.html).
+
+
 # You can use QSoas on Windows, Mac OSX and Linux, to:
 
 -   [load and display](#tuto-load) $$y = f(x)$$ data from any ascii
@@ -31,7 +43,7 @@ appear: a black text-window which you can ignore, and a main window
 which looks like the image below. On MacOSX and Linux computers, you
 will see only one window.
 
-[![](images/1-500-bis.jpg)](images/1-crop-bis.jpg)
+[img: images/1bis.jpg]
 
 (click on the above picture to see a larger version)
 
@@ -144,11 +156,11 @@ current directory, then tick the "select buffer" box that is just next
 to the file you want to load, then "push onto stack", then "close". Here
 you are.
 
-[![](images/2-500.jpg)](images/2-crop.jpg)
+[img: images/2.jpg]
 
 After you have loaded the file, the window should look like this:
 
-[![](images/3-500.jpg)](images/3-crop.jpg)
+[img: images/3.jpg]
 
 On the top left corner of the graphical window, you now see
 "`file1.dat (#0)`". This is the name and number of the current data set.
@@ -185,7 +197,7 @@ Imagine you want to analyze the oxidative part of the CV, you have to
 cut the data set first, use the command [cmd: cut] (or
 just `c`) and hit return, you get:
 
-[![](images/4b-500.jpg)](images/4b-crop.jpg)
+[img: images/4b.jpg]
 
 The current is now plotted against "time" (actually, index = data point
 number) in the graphic window. The vertical dashed white lines mark the
@@ -230,7 +242,7 @@ The above command will get rid of the data outside the interval $$100
 Use the command [cmd: filter-fft] to remove
 regular and/or high frequency noise from the voltammograms.
 
-[![](images/5-500.jpg)](images/5-crop.jpg)
+[img: images/5.jpg]
 
 The graphical window is now split in two. The upper window shows the raw
 data in red, and the smoothed data overlaid in purple. The difference
@@ -246,7 +258,7 @@ cutoff is indicated by a vertical dashed line in the PS. Click in the PS
 to adjust the cutoff. See the effect on the residuals by typing `p` to
 remove the PS and see the residuals.
 
-[![](images/5b-500.jpg)](images/5b-crop.jpg)
+[img: images/5b.jpg]
 
 You want to make sure that the residuals are evenly distributed around
 Y=0, i.e. that you're not over-filtering. When you are happy with the
@@ -274,7 +286,7 @@ The [cmd: reg] command works just like
 define **one segment** that is used to fit a **linear baseline** (dotted
 blue). Try it.
 
-[![](images/6-500.jpg)](images/6-crop.jpg)
+[img: images/6.jpg]
 
 You can move the bounds as many times as you want. When you are happy
 with your linear baseline, subtract it by typing `u`.
@@ -293,7 +305,7 @@ baseline.
 The example below was obtained with the file `file5.dat` in the Example
 directory.
 
-[![](images/nc-2-500.jpg)](images/nc-2-crop.jpg)
+[img: images/nc-2.jpg]
 
 The other baseline corrections available in SOAS are also available in
 QSoas using the following QSoas commands:
@@ -562,7 +574,7 @@ window opens up, which shows
     it is Cmd, not Ctrl.
 -   a selector for the Fit engine.
 
-[![](images/7-500.jpg)](images/7-crop.jpg)
+[img: images/7.jpg]
 
 Set the initial guess by inputting reasonable values for `a` (e.g. 1.5)
 and `e0` (e.g. 0.3). Check your initial guess by hitting the "Update
@@ -652,7 +664,7 @@ equation to the two data sets at once.
 Load `file2.dat`, then `file3.dat`, so that file2 is in buffer \#1 and
 file3 in buffer \#0. See what the data look like.
 
-[![](images/8-500.jpg)](images/8-crop.jpg)
+[img: images/8.jpg]
 
 We need an equation that could apply to both data sets. The example file
 `exampleFitFunctions.txt` also contains the following line:
@@ -680,7 +692,7 @@ The fit window opens up. It looks the same as before except that now:
 -   each parameter can be fixed to a certain value and/or global
     (meaning that it must have the same values for all data sets).
 
-[![](images/9-500.jpg)](images/9-crop.jpg)
+[img: images/9.jpg]
 
 Set `e0` to 0.3, and for this parameter, tick "fixed" and "global", then
 run the fit (Ctrl F). See what has happened by clicking on the
@@ -741,7 +753,7 @@ QSoas> fit-arb (1-seg)*a1/(1+exp(fara*(x-e0)))+seg*a2/(1+exp(fara*(e0-x)))
 
 Set a reasonable guess for the value of `e0` before you hit "Fit".
 
-[![](images/10-500.jpg)](images/10-crop.jpg)
+[img: images/10.jpg]
 
 ## 4) More advanced fit: one data set and its derivative, a single set of parameters {#tuto-define-derived-fit}
 
@@ -848,13 +860,13 @@ QSoas> fit-adsorbed /species=2 /distinct=true
 Here is the result of the fig of the forward sweep of `file5.dat`,
 setting `n=1` for the two peaks, but the values of `Gamma` are free.
 
-[![](images/nc-4-500.jpg)](images/nc-4-crop.jpg)
+[img: images/nc-4.jpg]
 
 Here is another fit of the same data set, where the two values of
 $$n$$ are free and the two values of $$\Gamma$$ are forced to
 be identical (see `Gamma_1=Gamma_0` and the "fixed" box ticked)
 
-[![](images/nc-5-500.jpg)](images/nc-5-crop.jpg)
+[img: images/nc-5.jpg]
 
 Other example, the [cmd: fit-lorentzian]
 command fits **a lorentzian function** (or a sum of lorentzian
@@ -878,11 +890,11 @@ Before running the fit, the parameters can been edited (CTRL+E) to force
 the amplitudes and positions to be positive (set up transformation:
 log).
 
-[![](images/12-500.jpg)](images/12-crop.jpg)
+[img: images/12.jpg]
 
 Here is the result:
 
-[![](images/11-500.jpg)](images/11-crop.jpg)
+[img: images/11.jpg]
 
 ## Forcing relations between parameters of the model(s).
 
@@ -1054,7 +1066,7 @@ QSoas> fit-ode relataxion.ode
 
 Your fit dialog box should look like this:
 
-[![](images/fit-ode-crop.jpg)](images/fit-ode.png)
+[img: images/fit-ode.png]
 
 Note that by default, `QSoas` fits a linear combination of the
 integrated functions to the data; the coefficients are visible here as
@@ -1107,7 +1119,8 @@ QSoas> l file7.dat
 QSoas> fit-exponential-decay
 ~~~
 
-[![](images/fit-exp-nodist-crop.jpg)](images/fit-exp-nodist.png)
+[img: images/fit-exp-nodist.png]
+
 
 To fit this with a uniform distribution of relaxation time constants,
 run:
@@ -1121,7 +1134,7 @@ Now, one can see that the fit is much better, in particular at the
 beginning of the relaxation, where the uniform dispersion is expected to
 make a significant difference.
 
-[![](images/fit-exp-dist-crop.jpg)](images/fit-exp-dist.png)
+[img: images/fit-exp-dist.png]
 
 ### Dispersion Example 2: distribution of orientation of redox-active enzymes
 
@@ -1155,13 +1168,13 @@ QSoas> l file8.dat
 QSoas> fit-1el /parameters=file8.1el.params
 ~~~
 
-[![](images/fit-1el-crop.jpg)](images/fit-1el.png)
+[img: images/fit-1el.png]
 
 As you can see, the fit is decent, but not perfect. This is due to the
 fact that there is a dispersion of values of $$k_0$$ (and hence of
 the values of the parameter `k2_ov_k0`). To fit that, we'll define
 another fit using
-[define-distribution-fit](qsoas.html#cmd-define-distribution-fit):
+[cmd: define-distribution-fit]
 
 ~~~
 QSoas> define-distribution-fit 1el-distrib 1el k2_ov_k0 /distribution=k0
@@ -1177,7 +1190,7 @@ QSoas> l file8.dat
 QSoas> fit-1el-distrib /parameters=file8.1el-distrib.params
 ~~~
 
-[![](images/fit-1el-distrib-crop.jpg)](images/fit-1el-distrib.png)
+[img: images/fit-1el-distrib.png]
 
 See that the `k2_ov_k0` parameter has been replaced by `k2_ov_k0_max`
 and `k2_ov_k0_betadmax`, that correspond respectively to the highest
@@ -1187,7 +1200,7 @@ computationally quite expensive, and will typically take 10 to 100 times
 longer to fit than the corresponding plain fit. There are other
 distribution types than `k0` (gaussian, lorentzian, uniform), check the
 documentation of
-[define-distribution-fit](qsoas.html#cmd-define-distribution-fit) for
+[cmd: define-distribution-fit] for
 more information.
 
 ## A full example: fitting the evolution of spectra in time {#tuto-joliot}
@@ -1238,8 +1251,8 @@ fit. We need to convert a series of spectra for different value of the
 time, into a series of time evolution of absorbance for different
 wavelength. This goal is achieved in four steps, as detailed below.
 First, let's gather all the data into a single dataset with as many Y
-columns as there are different times, using
-[cmd: contract]:
+columns as there are different times,
+using [cmd: contract]:
 
 ~~~
 QSoas> contract 9..0
@@ -1323,7 +1336,7 @@ QSoas> mfit-exponential-decay /exponentials=2 flagged:joliot
 
 Your screen should look like that:
 
-[![](images/mfit-exponential-500.png)](images/mfit-exponential.png)
+[img: images/mfit-exponential.png]
 
 Note that the value of the perpendicular coordinate (here the
 wavelength) is shown next to the name of the buffer: `Z = 540`. We
@@ -1333,13 +1346,13 @@ the determined times, and have very little effect on the amplitudes.
 
 Next, we fit, by clicking on the Fit button. This should look like that:
 
-[![](images/mfit-exponential-1-500.png)](images/mfit-exponential-1.png)
+[img: images/mfit-exponential-1.png]
 
 To get a better view of the overall fit, we can use the dropdown menu
 next to the arrows on the right hand side (it initially shows `1x1`).
 Here's how it looks with the `3x3` nup view:
 
-[![](images/mfit-exponential-2-500.png)](images/mfit-exponential-2.png)
+[img: images/mfit-exponential-2.png]
 
 QSoas has two visualization features that make it easy to work with
 perpendicular coordinates. First, it is possible to display the
@@ -1349,7 +1362,7 @@ spectrum. For that, click on the "Show parameters" option from the
 "Parameters" menu, and select all the amplitudes through the check
 boxes:
 
-[![](images/mfit-exponential-3-500.png)](images/mfit-exponential-3.png)
+[img: images/mfit-exponential-3.png]
 
 From that window, it is possible to push these spectra to the stack
 using the "Push visible" or "Push all" buttons. See how these spectra
@@ -1363,7 +1376,7 @@ view (such as data at a given time that is systematically not fitted
 correctly, which is hard to spot from the time view). To access to that,
 just select the "Show transposed data" item from the "Data" menu.
 
-[![](images/mfit-exponential-4-500.png)](images/mfit-exponential-4.png)
+[img: images/mfit-exponential-4.png]
 
 Not all the kinetic experiments can be fit by sums of exponentials. The
 approach described above is absolutely not limited to
@@ -1387,7 +1400,7 @@ QSoas> mfit-kinetic-system Joliot.txt flagged:joliot
 
 Your screen should look like that:
 
-[![](images/mfit-ks-1-500.png)](images/mfit-ks-1.png)
+[img: images/mfit-ks-1.png]
 
 For each buffer, the evolution of the concentration of the `A`, `B` and
 `C` are computed from the kinetic system shown above. The `y` value
@@ -1412,7 +1425,7 @@ respectively, and make sure they are global.
 
 Your screen should now look like that:
 
-[![](images/mfit-ks-2-500.png)](images/mfit-ks-2.png)
+[img: images/mfit-ks-2.png]
 
 Then, all that's left to do is to fit ! As before you can also look at
 the spectrum of species `A`, `B` and `C` using the "Show parameters"

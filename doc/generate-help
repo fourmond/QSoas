@@ -39,6 +39,9 @@ Dir.chdir($target_dir) do
   end
 end
 
+# A hash for which just the key is important
+$images = {}
+
 # Returns the 
 def convert_equation(eq)
   eq.tr!("\n"," ")
@@ -163,6 +166,11 @@ def parse_file(info)
       l.gsub!(/\[cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{$target}" + '#cmd-\\1)')
       l.gsub!(/\[fit:\s*([^\]]+)\]/, '[`\\1`](' + "#{$target}" + '#cmd-fit-\\1)')
       l.gsub!(/\[fit-cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{$target}" + '#fit-cmd-\\1)')
+      l.gsub!(/\[img:\s*([^\]]+)\]/) do |x|
+        img = $1
+        $images[img] = true
+        "![#{img}](#{img}){:class='image'} "
+      end
       if l =~ /^\[.*:http/
         l << "{: class='external'}\n"
       end
@@ -339,6 +347,15 @@ for file in files.values
   end
 end
 
+
+for f in $images.keys
+  if File::readable? f
+    FileUtils::cp(f, "out/images")
+    files_s << "<file>#{f}</file>\n"
+  else
+    puts "Image not found: #{f}"
+  end
+end
 
 
 help_template.sub!("#TOC", toc)

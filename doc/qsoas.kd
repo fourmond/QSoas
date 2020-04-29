@@ -1,11 +1,11 @@
-# QSoas
+# QSoas command reference
 
-QSoas is a general-purpose data analysis program with particular
-strengths for the processing of $$y = f(x)$$ data, for massive data
-analysis (via the use of scripts) and for fitting, including massive fits.
+Here is the command reference of QSoas, which list all the commands,
+what they do, and how to use them.
 
-Here is the documentation of all the commands used to communicate with
-QSoas. You may want to have a look at the [FAQ](faq.html).
+To get a quick introduction at QSoas, you may look at the
+[tutorial](tutorial.html), or look at the list of
+[Frequently Asked Questions](faq.html).
 
 
 # Commands, arguments and options (how to read this document)

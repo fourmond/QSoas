@@ -95,7 +95,7 @@ static void helpCommand(const QString & /*name*/,
   updateFromOptions(opts, "command", cmd);
 
   if(! cmd) {
-    HelpBrowser::browseLocation("doc/qsoas.html");
+    HelpBrowser::browseLocation("doc/tutorial.html");
     return;
   }
   bool showSyn = false;

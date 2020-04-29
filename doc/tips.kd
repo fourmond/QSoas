@@ -43,9 +43,13 @@ QSoas> generate-buffer -10 10 sin(x)
 {::comment} tip: basic;command-line{:/}
 ## Automatic completion {#automatic-completion}
 
-Pressing the *TAB* key inside the command-line will automatically
+Pressing the **TAB** key inside the command-line will automatically
 complete whatever you are currently typing: the command name, the
 file, the flag, the fit engine, etc... Just try !
+
+When there are several possibilities, they are shown in the *status
+bar* at the bottom of the QSoas window. To avoid missing it, make sure
+QSoas is full screen.
 
 {::comment} tip: basic;load;command-line;globs{:/}
 ## Jokers in file names {#globs}
@@ -456,3 +460,109 @@ integral of 1, just run:
 ~~~
 QSoas> apply-formula y=y/$stats.y_int
 ~~~
+{::comment} tip: basic;stack;buffers {:/}
+## Show the contents of the stack {#show-stack}
+
+As you work in QSoas, you slowly fill the stack: every operation
+creates a new buffer in the stack. To get an idea of the contents of
+the stack, use the [cmd: show-stack] command, or `k` for short. For
+instance:
+
+~~~
+QSoas> generate-buffer 0 10
+QSoas> show-stack
+Normal stack:
+	 F  C	Rows	Segs	Name	
+#0	    2	1000	1	    'generated.dat'
+Total size: 15 kB
+~~~
+
+Here, the stack contains a single buffer, number `#0`, which has 2
+columns, 1000 rows, 1 segment and who is called `generated.dat`. When
+the stack is too large, you can specify a number to [cmd: show-stack],
+in which case it shows only the most recent. Here for the 5 most
+recent buffers:
+
+~~~
+QSoas> k 5
+~~~
+
+{::comment} tip: basic;directory {:/}
+## Current directory {#current-directory}
+
+QSoas reads by default the files from the **current directory**: for
+instance, when you run:
+
+~~~
+QSoas> load data.dat
+~~~
+
+QSoas will look for the the `data.dat` file for [cmd: load] in the
+current directory. The current directory is shown in the title
+bar. You can change it using the command [cmd: cd].
+
+
+{::comment} tip: basic;load {:/}
+## Automatic format detection {#automatic-format}
+
+QSoas features several "backends" that handles several different file
+formats. [cmd: load] detects them in principle automatically:
+
+~~~
+QSoas> load data.dat
+Loading file: 'data.dat' using backend text
+~~~
+
+Here, [cmd: load] has found that the file `data.dat` is handled by the
+backend `text`. To force the choice of a given backend for loading a
+file, if you think QSoas's autodetection mechanism doesn't work, use
+the corresponding `load-as-` command, such as [cmd: load-as-text] for
+text files, or [cmd: load-as-csv] for CSV files.
+
+{::comment} tip: basic;filter {:/}
+## Filtering data {#filter}
+
+You can use several commands to filter data:
+
+* [cmd: filter-fft] to filter data using Fourier Transform, to remove
+  high frequencies from the signal;
+* [cmd: filter-bsplines] to filter using B-splines, to create a
+  synthetic signal as close as possible to your data;
+* [cmd: auto-filter-fft] and [cmd: auto-filter-bs] to do either FFT or
+  B-splines filtering, but non-interactively;
+* [cmd: remove-spikes], which removes spikes in the data;
+* [cmd: deldp], with which you can remove manually points from the data;
+* [cmd: baseline], which makes it possible to draw a "baseline" by
+  interpolation. You can also use that possibility to draw a filtered
+  signal from your data.
+
+{::comment} tip: advanced;math {:/}
+## Defining mathematical functions {#define-functions}
+
+The language used for mathematical expressions is called
+[Ruby](qsoas.html#ruby). It is a fully-blown programming language with
+which you can define functions. To do so, write for instance in a
+`function.txt` file the following:
+
+~~~
+def michaelis(x,km,vm)
+  return vm/(1+km/x)
+end
+~~~
+
+This file defines a function `michaelis(x,km,vm)` whose value is
+$$f(x, K_m, vm_) = \frac{v_m}{1 + K_m/x}$$. To use the file, you must
+first load it into QSoas using [cmd: ruby-run]:
+
+~~~
+QSoas> ruby-run function.txt
+~~~
+
+Then, you can use the function as you would any other function:
+
+~~~
+QSoas> eval michaelis(3,2,6)
+ => 3.6
+QSoas> fit-arb michaelis(x,km,vm)
+~~~
+ 

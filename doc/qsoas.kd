@@ -7085,7 +7085,7 @@ some of them, you can use the following syntax:
  * `${2?yes:no}`: this will be replaced by "`yes`" if parameter 2 has been
    provided to the script, or by "`no`" if that is not the case.
 
-####Error handling #{script-error-handling}
+####Error handling {#script-error-handling}
 It is possible to change how the script handles errors using the
 `/error` option, which can take the following values:
 

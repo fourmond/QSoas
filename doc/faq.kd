@@ -284,6 +284,9 @@ The only drawback is that you cannot use more than 3GB or so of memory
 from QSoas, which really should not be a limitation.
 
 
+This file was written by Vincent Fourmond, and is copyright (c)
+2014-2020 by CNRS/AMU.
+
 [gpl]:https://www.gnu.org/licenses/gpl-2.0.html
 [bugs]:https://sourceforge.net/p/qsoas/tickets/
 [forums]:https://sourceforge.net/p/qsoas/discussion/

@@ -14,6 +14,10 @@ The tags are given in the comment before the title.
 Unlike the rest of the documentation, this can be written addressing
 directly the user.
 
+This file was written by Vincent Fourmond, and is copyright (c)
+2020 by CNRS/AMU.
+
+
 {::comment} tip: data generation;math;basic {:/}
 ## Plotting mathematical functions {#plot-function}
 

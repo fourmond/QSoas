@@ -7570,6 +7570,9 @@ The most recent HTML version of this document can always be found
 [PDF version][manual-pdf].
 
 
+This file was written by Vincent Fourmond, and is copyright (c)
+2012-2020 by CNRS/AMU.
+
 [ruby]:http://www.ruby-lang.org/ "Ruby, the programming language"
 [mruby]:https://mruby.org/ "MRuby, the embedded version of Ruby"
 [math]:http://www.ruby-doc.org/core-1.9.3/Math.html "Documentation of the Math module"

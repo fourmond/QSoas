@@ -805,7 +805,7 @@ static void saveTrajectoriesCommand(const QString & /*name*/,
     }
   }
 
-  File f(file, File::TextWrite);
+  File f(file, File::TextOverwrite);
 
   Terminal::out << "Saving " << trjs.size() << " fit trajectories to '"
                 << file << "'" << endl;

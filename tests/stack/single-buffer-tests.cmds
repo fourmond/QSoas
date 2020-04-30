@@ -43,14 +43,14 @@ assert $stats.x_max-19 0
 generate-buffer 0 18
 a oh,anice-buffer.dat
 generate-buffer 0 10
-fetch named:oh,anice-buffer.dat
+fetch named:oh\,anice-buffer.dat
 assert $stats.x_max-18 0
 
 # Tests based on names, second, harder take
 generate-buffer 0 17
 a oh,2,anice-buffer.dat
 generate-buffer 0 10
-fetch named:oh,2,anice-buffer.dat
+fetch named:oh\,2\,anice-buffer.dat
 assert $stats.x_max-17 0
 
 

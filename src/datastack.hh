@@ -160,8 +160,8 @@ public:
   /// Sets the auto-flags.
   void setAutoFlags(const QSet<QString> & flags);
 
-  /// Parses a series of datasets, including flags and numbered lists,
-  /// and returns the corresponding datasets.
+  /// Parses a single specification of datasets, including flags and
+  /// numbered lists, and returns the corresponding list of datasets.
   QList<const DataSet *> datasetsFromSpec(const QString & spec) const;
 
   /// Returns the list of dataset names
@@ -195,13 +195,6 @@ public:
   /// If silent is false, an exception will be raised if the buffer is
   /// NULL.
   DataSet * currentDataSet(bool silent = true) const;
-
-  /// Returns the DataSet specified by the given string, ie:
-  /// \li a string representing a number
-  /// \li a buffer name (not implemented yet)
-  ///
-  /// @todo Isn't that kinda obsolete ?
-  DataSet * fromText(const QString & str) const;
 
   /// @}
 

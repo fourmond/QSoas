@@ -346,10 +346,12 @@ public:
   virtual QWidget * createEditor(QWidget * parent = NULL) const override;
   virtual void setEditorValue(QWidget * editor, 
                               const ArgumentMarshaller * value) const override;
+  virtual QStringList proposeCompletion(const QString & starter) const override;
 
 };
 
-/// Several datasets from the stack
+/// Several datasets from the stack. The specifications are
+/// comma-separated.
 ///
 /// @todo Add prompting, but that will be fun.
 class SeveralDataSetArgument : public Argument {

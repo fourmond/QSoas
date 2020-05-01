@@ -22,6 +22,7 @@
 #include <command.hh>
 #include <commandcontext.hh>
 
+#include <terminal.hh>
 #include <actioncombo.hh>
 #include <utils.hh>
 #include <settings-templates.hh>
@@ -323,6 +324,9 @@ void HelpBrowser::searchBackwardShortcut()
 
 //////////////////////////////////////////////////////////////////////
 
+static SettingsValue<bool> showTips("tips/show-at-startup", true);
+static SettingsValue<QSize> tipsWinSize("tips/size", QSize(700,500));
+
 class Tip {
 public:
   QString id;
@@ -353,6 +357,8 @@ TipsDisplay::TipsDisplay()
 {
   setWindowTitle("QSoas Tips");
   setupFrame();
+  resize(::tipsWinSize);
+  setShowStartup(false);
 }
 
 TipsDisplay::~TipsDisplay()
@@ -376,6 +382,9 @@ void TipsDisplay::setupFrame()
   // The links are links to keywords
   connect(keywordLine, SIGNAL(linkActivated(const QString &)),
           SLOT(showRandomKeyword(const QString &)));
+
+  dontShowAgain = new QCheckBox("Don't show tips again");
+  layout->addWidget(dontShowAgain);
   
   
   QHBoxLayout * bottom = new QHBoxLayout;
@@ -388,10 +397,11 @@ void TipsDisplay::setupFrame()
     new QPushButton(Utils::standardIcon(QStyle::SP_DialogCloseButton),
                     "Close");
   bottom->addWidget(bt);
-  connect(bt, SIGNAL(clicked()), SLOT(hide()));
+  connect(bt, SIGNAL(clicked()), SLOT(doHide()));
 
   layout->addLayout(bottom);
 }
+
 
 QHash<QString, Tip*> * TipsDisplay::tips = NULL;
 QHash<QString, QList<Tip*> > * TipsDisplay::tipsByKeyword = NULL;
@@ -437,6 +447,34 @@ void TipsDisplay::showTip(const Tip * tip)
                                              arg(tip->id)));
 }
 
+void TipsDisplay::showStartupTips()
+{
+  if(::showTips) {
+    getDisplay()->setShowStartup(true);
+    getDisplay(true)->showRandomTip();
+  }
+  else
+    Terminal::out << "Not showing startup tips, but you can see them with the tips command" << endl;
+}
+
+void TipsDisplay::doHide()
+{
+  ::tipsWinSize = size();
+  if(dontShowAgain->isVisible()) {
+    if(dontShowAgain->checkState() == Qt::Checked) {
+      ::showTips = false;
+      Terminal::out << "Not showing startup tips anymore, but you can reactivate them with tips /show-at-startup=true " << endl;
+    }
+    setShowStartup(false);      // not needed anymore.
+  }
+  hide();
+}
+
+void TipsDisplay::setShowStartup(bool show)
+{
+  dontShowAgain->setVisible(show);
+}
+
 void TipsDisplay::showRandomTip()
 {
   if(! tips)
@@ -477,14 +515,21 @@ void TipsDisplay::linkClicked(const QUrl & url)
 static void tipsCommand(const QString & /*name*/,
                         const CommandOptions & opts)
 {
-  TipsDisplay::getDisplay(true)->showRandomTip();
+  if(opts.contains("show-at-startup")) {
+    bool s;
+    updateFromOptions(opts, "show-at-startup", s);
+    ::showTips = s;
+  }
+  else
+    TipsDisplay::getDisplay(true)->showRandomTip();
 }
 
 
-// static ArgumentList 
-// tipsO(QList<Argument *>()
-//       << 
-//       );
+static ArgumentList 
+tipsO(QList<Argument *>()
+      << new BoolArgument("show-at-startup",
+                          "Turns on and off the display of tips at startup")
+      );
 
 
 static Command 
@@ -492,6 +537,6 @@ hlpc("tips", // command name
      effector(tipsCommand), // action
      "help",  // group name
      NULL, // arguments
-     NULL, // options
+     &tipsO, // options
      "Tips");
 

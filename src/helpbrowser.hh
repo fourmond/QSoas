@@ -103,6 +103,9 @@ class TipsDisplay : public QWidget {
   /// A label showing clickable lines
   QLabel * keywordLine;
 
+  /// A checkbox only displayed when shown as startup tip.
+  QCheckBox * dontShowAgain;
+
 
   static QHelpEngine * getEngine();
 
@@ -120,12 +123,21 @@ public:
 
   static TipsDisplay * getDisplay(bool activate = false);
 
+  /// Show the startup tips
+  static void showStartupTips();
+
 public slots:
   void showRandomTip();
 
   void showRandomKeyword(const QString & keyword);
+
                                             
 protected slots:
+  
+  void setShowStartup(bool show);
+
+  /// Handles the hiding
+  void doHide();
 
   void showTip(const Tip * tip);
 

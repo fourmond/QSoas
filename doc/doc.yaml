@@ -1,5 +1,7 @@
+tutorial.kd:
+  title: "Discover QSoas"
 qsoas.kd:
-  title: "Manual"
+  title: "Command reference"
 faq.kd:
   title: "Frequently Asked Questions"
 changes.kd:

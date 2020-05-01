@@ -59,90 +59,88 @@ QSet<QString> DataStack::definedFlags() const
   return rv;
 }
 
-QList<const DataSet *> DataStack::datasetsFromSpec(const QString & spec) const
+QList<const DataSet *> DataStack::datasetsFromSpec(const QString & str) const
 {
-  QStringList splitted = spec.split(QRegExp("\\s*,\\s*"));
   QList<const DataSet *> dsets;
-  QRegExp multi("^\\s*(-?[0-9]+)\\s*..\\s*(-?[0-9]+|end)\\s*(?::(\\d+)\\s*)?");
+  QRegExp multi("^\\s*(-?[0-9]+)\\s*..\\s*(-?[0-9]+|end)\\s*(?::(\\d+)\\s*)?\\s*$");
+  QRegExp single("^\\s*-?[0-9]+\\s*$");
 
   QRegExp flgs("^\\s*(un)?flagged(-)?(:(.*))?\\s*$");
   flgs.setMinimal(true);        // to catch the last - if applicable
 
-  for(int i = 0; i < splitted.size(); i++) {
-    const QString & str = splitted[i];
-    
-    if(multi.indexIn(str) == 0 || str == "all") {
-      int first;
-      int last;
-      int sign = 1;
-      if(str == "all") {
-        first = -redoStackSize();
-        last = stackSize()-1;
-      }
-      else {
-        first = multi.cap(1).toInt();
-        last = (multi.cap(2) == "end" ? stackSize()-1 : 
-                multi.cap(2).toInt());
-        sign = (first < last ? 1 : -1);
-      }
-      int delta = 1;
-      if(! multi.cap(3).isEmpty())
-        delta = multi.cap(3).toInt();
-      while((first - last) * sign <= 0) {
-        DataSet * ds = numberedDataSet(first);
-        if(! ds)
-          Terminal::out << "No such buffer number : " << first << endl;
-        else
-          dsets << ds;
-        first += delta * sign;
-      }
-    }
-    else if(flgs.indexIn(str) == 0) {
-      bool flg = (flgs.cap(1).size() == 0);
-      bool dec = (flgs.cap(2).size() > 0); // the - sign at the end
-      
-      QString flagName = flgs.cap(4);
-      QList<const DataSet *> mkd;
-      if(flagName.isEmpty())
-        mkd = flaggedDataSets(flg);
-      else
-        mkd = flaggedDataSets(flg, flagName);
-
-      if(dec)
-        Utils::reverseList(mkd);
-
-      dsets += mkd;
-    }
-      
-    else if(str == "displayed")  {
-      QList<DataSet *> mkd = soas().view().displayedDataSets();
-      for(int i = 0; i < mkd.size(); i++)
-        dsets << mkd[i];
-    }
-    else if(str.startsWith("named:")) {
-      int d = str.indexOf(':');
-      QString n = str.mid(d+1);
-      return namedDataSets(n);
-    }
-    else if(str == "latest" || str.startsWith("latest:"))  {
-      int idx = 1;
-      int d = str.indexOf(':');
-      if(d > 0)
-        idx = str.mid(d+1).toInt();
-      const QList<GuardedPointer<DataSet> > & src = latest[idx];
-      for(int i = 0; i < src.size(); i++) {
-        if(src[i].isValid())
-          dsets << src[i];
-      }
+  if(multi.indexIn(str) == 0 || str == "all") {
+    int first;
+    int last;
+    int sign = 1;
+    if(str == "all") {
+      first = -redoStackSize();
+      last = stackSize()-1;
     }
     else {
-      DataSet * ds = fromText(str);
+      first = multi.cap(1).toInt();
+      last = (multi.cap(2) == "end" ? stackSize()-1 : 
+              multi.cap(2).toInt());
+      sign = (first < last ? 1 : -1);
+    }
+    int delta = 1;
+    if(! multi.cap(3).isEmpty())
+      delta = multi.cap(3).toInt();
+    while((first - last) * sign <= 0) {
+      DataSet * ds = numberedDataSet(first);
       if(! ds)
-        throw RuntimeError(QObject::tr("Not a buffer: '%1'").
-                           arg(str));
-      dsets << ds;
+        Terminal::out << "No such buffer number : " << first << endl;
+      else
+        dsets << ds;
+      first += delta * sign;
     }
   }
+  else if(flgs.indexIn(str) == 0) {
+    bool flg = (flgs.cap(1).size() == 0);
+    bool dec = (flgs.cap(2).size() > 0); // the - sign at the end
+      
+    QString flagName = flgs.cap(4);
+    QList<const DataSet *> mkd;
+    if(flagName.isEmpty())
+      mkd = flaggedDataSets(flg);
+    else
+      mkd = flaggedDataSets(flg, flagName);
+
+    if(dec)
+      Utils::reverseList(mkd);
+
+    dsets += mkd;
+  }
+      
+  else if(str == "displayed")  {
+    QList<DataSet *> mkd = soas().view().displayedDataSets();
+    for(int i = 0; i < mkd.size(); i++)
+      dsets << mkd[i];
+  }
+  else if(str.startsWith("named:")) {
+    int d = str.indexOf(':');
+    QString n = str.mid(d+1);
+    return namedDataSets(n);
+  }
+  else if(str == "latest" || str.startsWith("latest:"))  {
+    int idx = 1;
+    int d = str.indexOf(':');
+    if(d > 0)
+      idx = str.mid(d+1).toInt();
+    const QList<GuardedPointer<DataSet> > & src = latest[idx];
+    for(int i = 0; i < src.size(); i++) {
+      if(src[i].isValid())
+        dsets << src[i];
+    }
+  }
+  else if(single.indexIn(str) == 0) {
+    int idx = str.toInt();      // Valid
+    DataSet * ds = numberedDataSet(idx);
+    if(! ds)
+      Terminal::out << "No such buffer number: " << idx << endl;
+    dsets << ds;
+  }
+  else
+    throw RuntimeError("Not a dataset: '%1'").arg(str);
   return dsets;
 }
 
@@ -346,15 +344,6 @@ void DataStack::clear()
   redoStack.clear();
   cachedByteSize = 0;
   emit(currentDataSetChanged());
-}
-
-DataSet * DataStack::fromText(const QString & str) const
-{
-  bool ok = false;
-  int nb = str.toInt(&ok);
-  if(! ok)
-    return NULL;
-  return numberedDataSet(nb);
 }
 
 bool DataStack::indexOf(const DataSet * ds, int * idx) const

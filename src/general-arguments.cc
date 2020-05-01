@@ -485,13 +485,39 @@ QString SeveralFitNamesArgument::typeDescription() const
 
 ////////////////////////////////////////////////////////////
 
+static QStringList availableBuffers()
+{
+  QStringList all;
+  all << "displayed" << "all" << "latest";
+  QSet<QString> st = soas().stack().definedFlags();
+  for(auto i = st.begin(); i != st.end(); i++) {
+    const QString &s = *i;
+    all << QString("flagged:%1").arg(s)
+        << QString("unflagged:%1").arg(s)
+        << QString("flagged-:%1").arg(s)
+        << QString("unflagged-:%1").arg(s);
+  }
+  st = soas().stack().datasetNames();
+  for(const QString & n : st)
+    all << QString("named:%1").arg(n);
+  return all;
+}
+
+QStringList DataSetArgument::proposeCompletion(const QString & starter) const
+{
+  QStringList all = ::availableBuffers();
+  return Utils::stringsStartingWith(all, starter);
+}
+
 ArgumentMarshaller * DataSetArgument::fromString(const QString & str) const
 {
-  DataSet * ds = soas().stack().fromText(str);
+  QList<const DataSet *> dss = soas().stack().datasetsFromSpec(str);
+  if(dss.size() > 1)
+    throw RuntimeError("Ambiguous specification: %1 datasets for '%2' (but only 1 needed)").arg(dss.size()).arg(str);
+  if(dss.size() == 0)
+    throw RuntimeError("Not a buffer: '%1'").arg(str);
+  DataSet * ds = const_cast<DataSet*>(dss[0]);
 
-  if(! ds)
-    throw RuntimeError(QObject::tr("Not a buffer: '%1'").
-                       arg(str));
   return new ArgumentMarshallerChild<DataSet *>(ds);
 }
 
@@ -530,11 +556,51 @@ void DataSetArgument::setEditorValue(QWidget * editor,
 
 ////////////////////////////////////////////////////////////
 
+/// Splits the string into substrings by
+/// @li splitting on ,
+/// @li not splitting on \, (but it is replaced by ,)
+/// @li converting \\ to \ (and ignoring it in case a comma follows)
+static QStringList splitOnUnescapedCommas(const QString & str)
+{
+  bool prevBL = false;
+  QString cur;
+  QStringList ret;
+  for(QChar c : str) {
+    if(prevBL) {
+      if(c != '\\' && c != ',')
+        cur += '\\';
+      cur += c;
+      prevBL = false;
+    }
+    else {
+      if(c == ',') {
+        ret << cur;
+        cur = "";
+      }
+      else if(c == '\\') {
+        prevBL = true;
+      }
+      else {
+        cur += c;
+      }
+    }
+  }
+  if(prevBL)
+    cur += '\\';
+  ret << cur;
+  return ret;
+}
+
 ArgumentMarshaller * SeveralDataSetArgument::fromString(const QString & s) const
 {
+  // Split on "unescaped" commas
+  QList<const DataSet*> dss;
+  for(const QString & spec : ::splitOnUnescapedCommas(s))
+    dss << soas().stack().datasetsFromSpec(spec);
+  
   return new
     ArgumentMarshallerChild<QList<const DataSet *> >
-    (soas().stack().datasetsFromSpec(s));
+    (dss);
 }
 
 void SeveralDataSetArgument::concatenateArguments(ArgumentMarshaller * a, 
@@ -547,18 +613,9 @@ void SeveralDataSetArgument::concatenateArguments(ArgumentMarshaller * a,
 QStringList SeveralDataSetArgument::proposeCompletion(const QString & starter) const
 {
   QStringList all;
-  all << "displayed" << "all" << "latest";
-  QSet<QString> st = soas().stack().definedFlags();
-  for(auto i = st.begin(); i != st.end(); i++) {
-    const QString &s = *i;
-    all << QString("flagged:%1").arg(s)
-        << QString("unflagged:%1").arg(s)
-        << QString("flagged-:%1").arg(s)
-        << QString("unflagged-:%1").arg(s);
-  }
-  st = soas().stack().datasetNames();
-  for(const QString & n : st)
-    all << QString("named:%1").arg(n);
+  QRegExp re("([\\,])");
+  for(QString  s : ::availableBuffers())
+    all << s.replace(re,"\\\\1");
   return Utils::stringsStartingWith(all, starter);
 }
 

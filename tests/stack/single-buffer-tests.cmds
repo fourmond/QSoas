@@ -1,0 +1,56 @@
+# A series of tests to check that designating buffers work as expected
+
+clear-stack
+
+# Designate by number
+generate-buffer 0 1
+generate-buffer 0 10
+fetch 1
+assert $stats.x_max-1 0
+
+# Designate by number in the redo stack
+generate-buffer 0 17
+undo
+generate-buffer 0 10
+fetch -1
+assert $stats.x_max-17 0
+
+# Designate by flag
+generate-buffer 0 13
+flag /flags=test
+generate-buffer 0 10
+fetch flagged:test
+assert $stats.x_max-13 0
+
+# More elaborate way to designate by flag:
+generate-buffer 0 14
+flag /flags=test2
+generate-buffer 0 1
+drop unflagged:test2
+assert $stats.x_max-14 0
+
+# TODO: we should check there is only one buffer remaining
+
+
+# Tests based on names
+generate-buffer 0 19
+a my-nice-buffer.dat
+generate-buffer 0 10
+fetch named:my-nice-buffer.dat
+assert $stats.x_max-19 0
+
+# Tests based on names, second, harder take
+generate-buffer 0 18
+a oh,anice-buffer.dat
+generate-buffer 0 10
+fetch named:oh\,anice-buffer.dat
+assert $stats.x_max-18 0
+
+# Tests based on names, second, harder take
+generate-buffer 0 17
+a oh,2,anice-buffer.dat
+generate-buffer 0 10
+fetch named:oh\,2\,anice-buffer.dat
+assert $stats.x_max-17 0
+
+

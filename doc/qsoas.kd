@@ -1,11 +1,11 @@
-# QSoas
+# QSoas command reference
 
-QSoas is a general-purpose data analysis program with particular
-strengths for the processing of $$y = f(x)$$ data, for massive data
-analysis (via the use of scripts) and for fitting, including massive fits.
+Here is the command reference of QSoas, which list all the commands,
+what they do, and how to use them.
 
-Here is the documentation of all the commands used to communicate with
-QSoas. You may want to have a look at the [FAQ](faq.html).
+To get a quick introduction at QSoas, you may look at the
+[tutorial](tutorial.html), or look at the list of
+[Frequently Asked Questions](faq.html).
 
 
 # Commands, arguments and options (how to read this document)
@@ -7085,7 +7085,7 @@ some of them, you can use the following syntax:
  * `${2?yes:no}`: this will be replaced by "`yes`" if parameter 2 has been
    provided to the script, or by "`no`" if that is not the case.
 
-####Error handling #{script-error-handling}
+####Error handling {#script-error-handling}
 It is possible to change how the script handles errors using the
 `/error` option, which can take the following values:
 
@@ -7570,6 +7570,9 @@ The most recent HTML version of this document can always be found
 [PDF version][manual-pdf].
 
 
+This file was written by Vincent Fourmond, and is copyright (c)
+2012-2020 by CNRS/AMU.
+
 [ruby]:http://www.ruby-lang.org/ "Ruby, the programming language"
 [mruby]:https://mruby.org/ "MRuby, the embedded version of Ruby"
 [math]:http://www.ruby-doc.org/core-1.9.3/Math.html "Documentation of the Math module"
@@ -7577,6 +7580,6 @@ The most recent HTML version of this document can always be found
 [code]:downloads/qsoas-1.0.tar.gz "The source code for QSoas"
 [manual-html]:http://www.qsoas.org/manual.html "The online manual for QSoas"
 [manual-pdf]:http://www.qsoas.org/manual.pdf "The PDF version of the manual for QSoas"
-[qt-regexps]:http://qt-project.org/doc/qt-4.8/qregexp.html#introduction
+[qt-regexps]:http://qt-project.org/doc/qt-4.8/qregexp.html#introduction "Documentation for Qt regular expressions"
 [gsl-steppers]:https://www.gnu.org/software/gsl/doc/html/ode-initval.html#c.gsl_odeiv2_step_type
-"Documentation for Qt regular expressions"
+

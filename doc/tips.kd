@@ -14,6 +14,10 @@ The tags are given in the comment before the title.
 Unlike the rest of the documentation, this can be written addressing
 directly the user.
 
+This file was written by Vincent Fourmond, and is copyright (c)
+2020 by CNRS/AMU.
+
+
 {::comment} tip: data generation;math;basic {:/}
 ## Plotting mathematical functions {#plot-function}
 
@@ -43,9 +47,13 @@ QSoas> generate-buffer -10 10 sin(x)
 {::comment} tip: basic;command-line{:/}
 ## Automatic completion {#automatic-completion}
 
-Pressing the *TAB* key inside the command-line will automatically
+Pressing the **TAB** key inside the command-line will automatically
 complete whatever you are currently typing: the command name, the
 file, the flag, the fit engine, etc... Just try !
+
+When there are several possibilities, they are shown in the *status
+bar* at the bottom of the QSoas window. To avoid missing it, make sure
+QSoas is full screen.
 
 {::comment} tip: basic;load;command-line;globs{:/}
 ## Jokers in file names {#globs}
@@ -271,3 +279,343 @@ the `y` column. You can also modify other columns... Try out:
 ~~~
 QSoas> apply-formula x=y**2
 ~~~
+
+{::comment} tip: buffers;stack;basic {:/}
+## Undo/redo {#undo-redo}
+
+QSoas provides basic undo/redo functionalities via the
+[stack](qsoas.html#data-stack). Running the [cmd: undo] command, or
+`u` for short will remove the latest buffer from the stack, so that
+the previous buffer becomes the current buffer.
+
+The buffers removed this way are put on the "redo" stack, you can
+recover them by running [cmd: redo], or just `r`.
+
+{::comment} tip: math;fits;basic {:/}
+## Fitting arbitrary mathematical formulas to data {#arbitrary-fits}
+
+If you need to fit a simple formula to data, just use the
+[cmd: fit-arb] command:
+
+~~~
+QSoas> fit-arb a*exp(-x/tau)+b
+~~~
+
+This launches the fit interface to fit the $$y = a\times \exp
+-x/\tau$$ formula to the current buffer.
+
+QSoas features also many [predefined fits](qsoas.html#fits)
+with smart initial parameters
+detection. In that case, it would have been better to use
+[cmd: fit-exponential-decay]. 
+
+{::comment} tip: commands;command-line;basic {:/}
+## Recalling previous commands {#cmdline-history}
+
+QSoas keeps track of all the commands you have run since its
+startup. You can recall the previous commands by pressing the Up arrow
+key (and back to more recent commands using the Down arrow).
+
+In the command-line, a `!` at the beginning of the line replaces the
+previous command. If you just run:
+
+~~~
+QSoas> !
+~~~
+
+it will in fact launch the previous command. You can be more specific:
+
+~~~
+QSoas> !appl
+~~~
+
+will run the last command you have run starting by `appl`. Pressing
+the Tab key will expand the `!` to the full command
+
+{::comment} tip: math;advanced;buffers;meta-data {:/}
+## Formulas involving the current buffer {#eval-with-buffers}
+
+You can use [cmd: eval] to obtain information about the current
+buffer. The statistics are available using the `$stats` global
+variable, and the [meta-data](qsoas.html#meta-data) through the
+`$meta` global variable. For instance, to print the maximum `y`
+values of the current buffer, just run:
+
+~~~
+QSoas> eval $stats.y_max
+~~~
+
+{::comment} tip: basic;display {:/}
+## Zooming {#zooming}
+
+An any moment, you can zoom around the displayed curves using the
+mouse wheel:
+
+* Mouse wheel for zooming/dezooming vertically
+* Shift+Mouse wheel for zooming horizontally
+* Ctrl+Mouse wheel for zomming both horizontally and vertically at the
+same time
+* Ctrl+Shift+Mouse wheel to reset the zoom
+
+You can also use the [cmd: zoom] command. This command lets you draw a
+frame around the part you want to zoom on.
+
+{::comment} tip: basic;help {:/}
+## Getting help {#help}
+
+The simplest way to get help is to look at the inline help (which
+doesn't require a network connection) using the [cmd: help] command,
+or just `?` for short.
+
+For help on a specific command, for instance on [cmd: apply-formula],
+just run `?` followed by the command name (which can be automatically
+completed using TAB):
+
+~~~
+QSoas> ? apply-formula
+~~~
+
+{::comment} tip: basic;fits {:/}
+## Built-in fits {#builtin-fits}
+
+One of QSoas's strengths is the advance possibilities for fitting
+models to data. Here are the main built-in fits:
+
+* [cmd: fit-exponential-decay] for mono- or multi-exponential decay
+  models;
+* [cmd: fit-gaussian], [cmd: fit-lorentzian] and
+  [cmd: fit-pseudo-voigt] for single or multiple peaks;
+* [cmd: fit-nernst] for fitting the concentration of redox species in
+  equilibrium at different potentials;
+* [cmd: fit-arb] for fitting arbitrary formulas;
+* [cmd: fit-ode] for integrating ordinary differential equations and
+  fitting them to data;
+* [cmd: fit-kinetic-system] for integrating the equations for kinetic
+  systems, that is systems of chemical reactions, and fitting the
+  resulting concentrations to data.
+
+There are also a number of more specialized fits.
+
+
+{::comment} tip: basic;fits;options {:/}
+## Fitting a bi-exponential to data {#fit-biexp}
+
+You can use the command [cmd: fit-exponential-decay] to fit mono or
+multi-exponential decays to the current buffer. Simply running
+
+~~~
+QSoas> fit-exponential-decay
+~~~
+
+will fit a mono-exponential decay to the current buffer. To fit
+multi-exponential decay, you need to use the `/exponentials=` option
+to [cmd: fit-exponential-decay]. To fit a bi-exponential decay to the
+current buffer, you should run:
+
+~~~
+QSoas> fit-exponential-decay /exponentials=2
+~~~
+
+
+{::comment} tip: basic;fits;options;chemistry {:/}
+## Fitting a kinetic system to data {#fit-kinetic-system}
+
+QSoas can integrate the differential equations behind chemical
+reactions for you, and fit a linear combination of the concentrations
+to the data. Here's an example in which two molecules `A` combine to
+form a molecule `B`, that evolves reversibly into `C`. Just make a
+simple [text file](qsoas.html#text-files) containing the following
+lines:
+
+~~~
+2 A ->[k1] B
+B <=>[k2][k3] C
+~~~
+
+Then, you can fit the data by running
+
+~~~
+QSoas> fit-kinetic-system
+~~~
+
+and find the text file that you've just written. The parameters `k1`,
+`k2` and `k3` are respectively the rate constant for the first
+reaction, and the forward and backward rate constants for the
+second. The `c0_A`, `c0_B` and `c0_C` are the initial
+concentrations. The `y_A`, `y_B` and `y_C` parameters are the
+coefficients for generating the modelled data from the concentrations.
+
+{::comment} tip: advanced;math {:/}
+## Easy normalization  {#advanced-apply-formula}
+
+You can use statistics, as those given by the [cmd: stats] command,
+inside [cmd: apply-formula], by adding `$stats.` before the statistics
+name. For instance, to normalize by the maximum Y value (the `y_max`
+statistics), you can use:
+
+~~~
+QSoas> apply-formula y=y/$stats.y_max
+~~~
+
+You can make use of more advanced statistics, such as `y_int`, the
+integral of the Y data over the X values. To obtain data with an
+integral of 1, just run:
+
+~~~
+QSoas> apply-formula y=y/$stats.y_int
+~~~
+{::comment} tip: basic;stack;buffers {:/}
+## Show the contents of the stack {#show-stack}
+
+As you work in QSoas, you slowly fill the stack: every operation
+creates a new buffer in the stack. To get an idea of the contents of
+the stack, use the [cmd: show-stack] command, or `k` for short. For
+instance:
+
+~~~
+QSoas> generate-buffer 0 10
+QSoas> show-stack
+Normal stack:
+	 F  C	Rows	Segs	Name	
+#0	    2	1000	1	    'generated.dat'
+Total size: 15 kB
+~~~
+
+Here, the stack contains a single buffer, number `#0`, which has 2
+columns, 1000 rows, 1 segment and who is called `generated.dat`. When
+the stack is too large, you can specify a number to [cmd: show-stack],
+in which case it shows only the most recent. Here for the 5 most
+recent buffers:
+
+~~~
+QSoas> k 5
+~~~
+
+{::comment} tip: basic;directory {:/}
+## Current directory {#current-directory}
+
+QSoas reads by default the files from the **current directory**: for
+instance, when you run:
+
+~~~
+QSoas> load data.dat
+~~~
+
+QSoas will look for the the `data.dat` file for [cmd: load] in the
+current directory. The current directory is shown in the title
+bar. You can change it using the command [cmd: cd].
+
+
+{::comment} tip: basic;load {:/}
+## Automatic format detection {#automatic-format}
+
+QSoas features several "backends" that handles several different file
+formats. [cmd: load] detects them in principle automatically:
+
+~~~
+QSoas> load data.dat
+Loading file: 'data.dat' using backend text
+~~~
+
+Here, [cmd: load] has found that the file `data.dat` is handled by the
+backend `text`. To force the choice of a given backend for loading a
+file, if you think QSoas's autodetection mechanism doesn't work, use
+the corresponding `load-as-` command, such as [cmd: load-as-text] for
+text files, or [cmd: load-as-csv] for CSV files.
+
+{::comment} tip: basic;filter {:/}
+## Filtering data {#filter}
+
+You can use several commands to filter data:
+
+* [cmd: filter-fft] to filter data using Fourier Transform, to remove
+  high frequencies from the signal;
+* [cmd: filter-bsplines] to filter using B-splines, to create a
+  synthetic signal as close as possible to your data;
+* [cmd: auto-filter-fft] and [cmd: auto-filter-bs] to do either FFT or
+  B-splines filtering, but non-interactively;
+* [cmd: remove-spikes], which removes spikes in the data;
+* [cmd: deldp], with which you can remove manually points from the data;
+* [cmd: baseline], which makes it possible to draw a "baseline" by
+  interpolation. You can also use that possibility to draw a filtered
+  signal from your data.
+
+{::comment} tip: advanced;math {:/}
+## Defining mathematical functions {#define-functions}
+
+The language used for mathematical expressions is called
+[Ruby](qsoas.html#ruby). It is a fully-blown programming language with
+which you can define functions. To do so, write for instance in a
+`function.txt` file the following:
+
+~~~
+def michaelis(x,km,vm)
+  return vm/(1+km/x)
+end
+~~~
+
+This file defines a function `michaelis(x,km,vm)` whose value is
+$$f(x, K_m, vm_) = \frac{v_m}{1 + K_m/x}$$. To use the file, you must
+first load it into QSoas using [cmd: ruby-run]:
+
+~~~
+QSoas> ruby-run function.txt
+~~~
+
+Then, you can use the function as you would any other function:
+
+~~~
+QSoas> eval michaelis(3,2,6)
+ => 3.6
+QSoas> fit-arb michaelis(x,km,vm)
+~~~
+ 
+{::comment} tip: basic;directory {:/}
+## Accessing files in other directories {#relative-paths}
+
+After using [cmd: cd], you can access the files in the current
+directory by just using their names. To access file in subdirectories,
+use `directory/file`, as in:
+
+~~~
+QSoas> load subdir/data.dat
+~~~
+
+`..` means "up one directory", so the following commands respectively
+change the current directory to the parent directory of the current,
+and loads the file `file.dat` from the parent:
+
+~~~
+QSoas> cd ..
+QSoas> load ../file.dat
+~~~
+
+{::comment} tip: basic;browse;stack {:/}
+## Browsing all the buffers in the stack {#browse-stack}
+
+You can visually look at all the buffers in the stack using
+[cmd: browse-stack], or `K` for short. It brings a window showing all
+the buffers (16 by page). You can change the presentation changing the
+`4 x 4` box at the bottom, you can also zoom on any of the curves with
+the wheel.
+
+{::comment} tip: basic;stack;buffers {:/}
+## Erasing datasets from memory {#drop}
+
+All operations in QSoas create a new buffer, which sometimes may take
+up a lot of memory, or simply make it too difficult to find the
+buffers you're interested in in the stack...
+
+You can remove permanently a buffer from the stack by
+using [cmd: drop]:
+
+~~~
+QSoas> drop 1
+~~~
+
+This command removes the buffer numbered 1 (i.e. the previous buffer,
+the current buffer is 0). After that, the buffer that was 2 before
+becomes the buffer 1, and so on for all higher numbers.
+
+To start with a clean slate, run [cmd: clear-stack] to remove all the
+buffers from the stack.

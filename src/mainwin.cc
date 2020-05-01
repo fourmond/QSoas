@@ -204,6 +204,7 @@
 #include <credits.hh>
 
 #include <commandlineparser.hh>
+#include <helpbrowser.hh>
 
 
 
@@ -265,12 +266,21 @@ MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
     commandWidget->runCommand(cmdlineCommands[i]);
 
   if(cmdlineCommands.size() > 0 && exitAfterRunning) {
-    connect(this, SIGNAL(wantToQuit()),
+    connect(this, SIGNAL(windowReady()),
             qApp,SLOT(quit()), Qt::QueuedConnection);
-    emit(wantToQuit());
   }
+  if(cmdlineCommands.size() == 0)
+    connect(this, SIGNAL(windowReady()),
+            this, SLOT(showStartupTips()), Qt::QueuedConnection);
   
+  emit(windowReady());
 }
+
+void MainWin::showStartupTips()
+{
+  TipsDisplay::showStartupTips();
+}
+  
 
 void MainWin::setupFrame()
 {

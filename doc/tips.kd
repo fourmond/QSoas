@@ -570,3 +570,52 @@ QSoas> eval michaelis(3,2,6)
 QSoas> fit-arb michaelis(x,km,vm)
 ~~~
  
+{::comment} tip: basic;directory {:/}
+## Accessing files in other directories {#relative-paths}
+
+After using [cmd: cd], you can access the files in the current
+directory by just using their names. To access file in subdirectories,
+use `directory/file`, as in:
+
+~~~
+QSoas> load subdir/data.dat
+~~~
+
+`..` means "up one directory", so the following commands respectively
+change the current directory to the parent directory of the current,
+and loads the file `file.dat` from the parent:
+
+~~~
+QSoas> cd ..
+QSoas> load ../file.dat
+~~~
+
+{::comment} tip: basic;browse;stack {:/}
+## Browsing all the buffers in the stack {#browse-stack}
+
+You can visually look at all the buffers in the stack using
+[cmd: browse-stack], or `K` for short. It brings a window showing all
+the buffers (16 by page). You can change the presentation changing the
+`4 x 4` box at the bottom, you can also zoom on any of the curves with
+the wheel.
+
+{::comment} tip: basic;stack;buffers {:/}
+## Erasing datasets from memory {#drop}
+
+All operations in QSoas create a new buffer, which sometimes may take
+up a lot of memory, or simply make it too difficult to find the
+buffers you're interested in in the stack...
+
+You can remove permanently a buffer from the stack by
+using [cmd: drop]:
+
+~~~
+QSoas> drop 1
+~~~
+
+This command removes the buffer numbered 1 (i.e. the previous buffer,
+the current buffer is 0). After that, the buffer that was 2 before
+becomes the buffer 1, and so on for all higher numbers.
+
+To start with a clean slate, run [cmd: clear-stack] to remove all the
+buffers from the stack.

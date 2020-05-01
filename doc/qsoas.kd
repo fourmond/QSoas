@@ -7580,6 +7580,6 @@ This file was written by Vincent Fourmond, and is copyright (c)
 [code]:downloads/qsoas-1.0.tar.gz "The source code for QSoas"
 [manual-html]:http://www.qsoas.org/manual.html "The online manual for QSoas"
 [manual-pdf]:http://www.qsoas.org/manual.pdf "The PDF version of the manual for QSoas"
-[qt-regexps]:http://qt-project.org/doc/qt-4.8/qregexp.html#introduction
+[qt-regexps]:http://qt-project.org/doc/qt-4.8/qregexp.html#introduction "Documentation for Qt regular expressions"
 [gsl-steppers]:https://www.gnu.org/software/gsl/doc/html/ode-initval.html#c.gsl_odeiv2_step_type
-"Documentation for Qt regular expressions"
+

@@ -1,0 +1,44 @@
+generate-buffer 0 10 /columns=4
+apply-formula x=2;y=3;y2=4;y3=5
+
+assert $stats.x_min-2 0
+assert $stats.y_min-3 0
+assert $stats.y2_min-4 0
+assert $stats.y3_min-5 0
+
+# Remove y2
+tweak-columns /remove=y2
+assert $stats.y_min-3 0
+assert $stats.y2_min-5 0
+
+# Flip
+generate-buffer 0 10 /columns=4
+apply-formula x=2;y=3;y2=4;y3=5
+
+tweak-columns /flip=true
+assert $stats.x_min-2 0
+assert $stats.y3_min-3 0
+assert $stats.y2_min-4 0
+assert $stats.y_min-5 0
+
+# Flip all
+generate-buffer 0 10 /columns=4
+apply-formula x=2;y=3;y2=4;y3=5
+
+tweak-columns /flip-all=true
+assert $stats.x_min-5 0
+assert $stats.y_min-4 0
+assert $stats.y2_min-3 0
+assert $stats.y3_min-2 0
+
+# Select
+
+generate-buffer 0 10 /columns=4
+apply-formula x=2;y=3;y2=4;y3=5
+
+tweak-columns /select=y,x,y3
+
+assert $stats.columns-3 0
+assert $stats.x_min-3 0
+assert $stats.y_min-2 0
+assert $stats.y2_min-5 0

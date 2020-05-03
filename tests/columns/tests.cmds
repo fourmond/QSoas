@@ -1,1 +1,4 @@
+# Tests for various operations with columns
+@ tweak-columns.cmds
+@ expand.cmds
 @ contract.cmds

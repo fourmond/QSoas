@@ -226,7 +226,10 @@ public:
                            const Vector &x = Vector()) const;
 
   /// A derived dataset with no modification. You can alway modify it
-  /// later...
+  /// later.
+  ///
+  /// This is the preferred version for all operations for changing
+  /// rows/columns in a way that preserves the
   DataSet * derivedDataSet(const QString & suffix) const;
 
   /// A small helper function for creating new datasets that keep as
@@ -351,16 +354,33 @@ public:
   /// used for making up new buffer names from the old ones.
   QString cleanedName() const;
 
+  /// @name Row/columns operations
+  ///
+  /// Here are the operations you should use for changing the
+  /// row/columns.
+  ///
+  /// @{
+
   /// Inserts a column at the given position.
-  void insertColumn(int idx, const Vector & col) {
-    invalidateCache();
-    columns.insert(idx, col);
-  };
+  void insertColumn(int idx, const Vector & col);
 
   /// Inserts a columns at the end
   void appendColumn(const Vector & col) {
     insertColumn(columns.size(), col);
   }
+
+  /// Selects the given columns. The input is a list of indices of the
+  /// columns. The dataset is modified in place, and the new columns
+  /// are those whose index were given.
+  ///
+  /// All meta-data are kept.
+  ///
+  /// Pretty cheap computationnaly.
+  void selectColumns(const QList<int> cols);
+
+  /// Selects the rows, i.e. select only the rows present in @a cols,
+  /// in the order in which they are given (duplicates allowed).
+  void selectRows(const QList<int> rows);
 
   /// Strips all the columns that contain only NaNs
   void stripNaNColumns();
@@ -375,11 +395,13 @@ public:
   /// X,Y1,Y2... become the last one and vice versa.
   void reverse();
 
-  /// Inserts a column at the given position.
-  Vector takeColumn(int idx) {
-    invalidateCache();
-    return columns.takeAt(idx);
-  };
+  /// Removes the a column at the given position.
+  Vector takeColumn(int idx);
+
+  /// Removes the point at the given index.
+  void removeRow(int i);
+
+
 
   Vector & x() {
     invalidateCache();
@@ -404,18 +426,6 @@ public:
     return columns;
   };
 
-  
-  /// Returns the numbered column
-  const Vector & column(int i) const;
-
-  /// Returns the numbered column
-  Vector & column(int i);
-  /// Dump the data to standard output.
-  ///
-  /// @todo This may grow into something interesting later on, but not
-  /// now.
-  void dump() const;
-
   /// Return the number of rows.
   int nbRows() const {
     if(columns.size() > 0)
@@ -427,6 +437,22 @@ public:
   int nbColumns() const {
     return columns.size();
   };
+  
+  /// Returns the numbered column
+  const Vector & column(int i) const;
+
+  /// Returns the numbered column
+  Vector & column(int i);
+
+  /// @}
+
+  
+  /// Dump the data to standard output.
+  ///
+  /// @todo This may grow into something interesting later on, but not
+  /// now.
+  void dump() const;
+
 
   /// Returns a small text representing the data set (or a long one,
   /// if longDescription is on).
@@ -481,8 +507,6 @@ public:
     return QPointF(columns[0][i], columns[1][i]);
   };
 
-  /// Removes the point at the given index.
-  void removePoint(int i);
 
   /// Returns the first index at which the delta between two
   /// consecutive elements of column \a i change. -1 if there is no

@@ -170,11 +170,118 @@ QRectF DataSet::boundingBox() const
   return r;
 }
 
+void DataSet::insertColumn(int idx, const Vector & col)
+{
+  invalidateCache();
+  for(int i = 0; i < columnNames.size(); i++) {
+    QStringList & ls = columnNames[i];
+    if(ls.size() >= idx) {
+      if(i)                     // Empty column name by default
+        ls.insert(idx, "");
+      else                      // 
+        ls.insert(idx, standardNameForColumn(idx));
+    }
+  }
+  /// @question 0 as default perpendicular coordinate upon insert
+  if(perpCoords.size() >= idx)
+    perpCoords.insert(idx, 0);  
+  columns.insert(idx, col);
+};
+
+
+Vector DataSet::takeColumn(int idx)
+{
+  invalidateCache();
+  for(QStringList & ls : columnNames) {
+    if(ls.size() > idx)
+      ls.takeAt(idx);
+  }
+  
+  /// @question we drop the first coordinate to keep the other ones
+  if(perpCoords.size() > 0 && perpCoords.size() >= idx)
+    perpCoords.takeAt(std::max(idx-1, 0));
+  
+  return columns.takeAt(idx);
+}
+
+void DataSet::selectColumns(const QList<int> cols)
+{
+  QList<Vector> nc;
+  QList<QStringList> ncn;
+  Vector np;
+
+  bool cnok = checkColNames();
+  bool perpok = perpCoords.size() == columns.size() -1;
+
+  if(cnok) {
+    ncn = columnNames;
+    for(QStringList & l : ncn)
+      ncn.clear();
+  }
+  
+  for(int c : cols) {
+    if(c < 0 || c >= columns.size())
+      throw RuntimeError("Invalid column: #%1 (only %2 columns)").
+        arg(c).arg(columns.size());
+    nc << columns[c];
+    if(cnok) {
+      for(int i = 0; i < ncn.size(); i++) {
+        ncn[i] << columnNames[i].value(c, QString()); // Pad with empty
+      }
+    }
+    if(perpok && nc.size() > 0) {
+      np << perpCoords.value(c-1, 0); // Default to 0
+    }
+  }
+  invalidateCache();
+  columns = nc;
+  columnNames = ncn;
+  perpCoords = np;
+}
+
+void DataSet::selectRows(const QList<int> rows)
+{
+  QList<Vector> nc;
+  nc = columns;
+  for(Vector & c : nc)
+    c.clear();
+  
+  bool rnok = checkRowNames();
+  QList<QStringList> nrn;
+
+  if(rnok) {
+    nrn = rowNames;
+    for(QStringList & l : nrn)
+      nrn.clear();
+  }
+
+  for(int r : rows) {
+    if(r < 0 || r >= nbRows())
+      throw RuntimeError("Invalid row: #%1 (only %2 rows)").
+        arg(r).arg(nbRows());
+    for(int c = 0; c < columns.size(); c++)
+      nc[c] << columns[c][r];
+
+    if(rnok) {
+      for(int i = 0; i < nrn.size(); i++) {
+        nrn[i] << rowNames[i].value(r, QString()); // Pad with empty
+      }
+    }
+  }
+  invalidateCache();
+  segments.clear();             // really doesn't make sense to keep
+                                // them
+  columns = nc;
+  rowNames = nrn;
+}
+
+
+
 void DataSet::stripNaNColumns()
 {
   for(int i = 0; i < columns.size(); i++) {
     if(columns[i].hasOnlyNaN()) {
-      columns.takeAt(i);
+      takeColumn(i);
       --i;
     }
   }
@@ -191,7 +298,7 @@ void DataSet::stripNotFinite()
     double xv = x()[i];
     double yv = y()[i];
     if(!std::isfinite(xv) || !std::isfinite(yv))
-      removePoint(i--);
+      removeRow(i--);
   }
 }
 
@@ -1383,11 +1490,16 @@ DataSet * DataSet::concatenateDataSets(QList<const DataSet *> datasets,
   return newDs;
 }
 
-void DataSet::removePoint(int index)
+void DataSet::removeRow(int index)
 {
   for(int i = 0; i < columns.size(); i++)
     columns[i].remove(index);
   segments.shiftAbove(index);
+
+  for(QStringList & lst : rowNames) {
+    if(lst.size() > index)
+      lst.takeAt(index);
+  }
   
   invalidateCache();            // important.
 }

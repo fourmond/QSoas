@@ -2162,35 +2162,40 @@ static void tweakColumnsCommand(const QString &,
 {
   const DataSet * ds = soas().currentDataSet();
 
-  QList<Vector> cols = ds->allColumns();
+  QList<int> cols;
+  for(int i = 0; i < ds->nbColumns(); i++)
+    cols << i;
 
   /// @todo Swap columns
 
   bool flip = false;
   bool flipAll = false;
+  QList<int> toRemove;
+  QList<int> toSelect;
   
   updateFromOptions(opts, "flip", flip);
   updateFromOptions(opts, "flip-all", flipAll);
-  if(flipAll) {
-    Utils::reverseList(cols);
-  }
-  else if(flip) {
-    Vector x = cols.takeFirst();
-    Utils::reverseList(cols);
-    cols.insert(0, x);
-  }
-
-
-  // Removing last
-  QList<int> toRemove;
   updateFromOptions(opts, "remove", toRemove);
-  if(toRemove.size()) {
+  updateFromOptions(opts, "select", toSelect);
+  if(toSelect.size() > 0) {
+    cols = toSelect;
+  }
+  else if(toRemove.size() > 0) {
     qSort(toRemove);
     for(int i = toRemove.size() - 1; i >= 0; i--)
       cols.removeAt(toRemove[i]);
   }
+  else if(flipAll) {
+    Utils::reverseList(cols);
+  }
+  else if(flip) {
+    cols.takeFirst();
+    Utils::reverseList(cols);
+    cols.insert(0, 0);
+  }
 
-  DataSet * nds = ds->derivedDataSet(cols, "_tweaked.dat");
+  DataSet * nds = ds->derivedDataSet("_tweaked.dat");
+  nds->selectColumns(cols);
   soas().pushDataSet(nds);
 }
 
@@ -2202,6 +2207,9 @@ tcO(QList<Argument *>()
     << new SeveralColumnsArgument("remove", 
                                   "Columns to remove",
                                   "the columns to remove ", true)
+    << new SeveralColumnsArgument("select", 
+                                  "Select the columns",
+                                  "select the columns to keep", true)
     << new BoolArgument("flip", 
                         "Flip Y columns",
                         "If true, flips all the Y columns")

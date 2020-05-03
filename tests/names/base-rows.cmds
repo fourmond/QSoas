@@ -1,0 +1,23 @@
+# We use a small number of samples
+generate-buffer 0 10 /columns=4 /samples=11
+
+# Check names
+set-row-names a b c d 
+assert '$row_names[0]=="a"'
+assert '$row_names[1]=="b"'
+assert '$row_names[2]=="c"'
+assert '$row_names[3]=="d"'
+assert '$row_names[4]==""'
+
+transpose 
+assert '$col_names[1]=="a"'
+assert '$col_names[2]=="b"'
+assert '$col_names[3]=="c"'
+
+transpose 
+assert '$row_names[0]=="a"'
+assert '$row_names[1]=="b"'
+assert '$row_names[2]=="c"'
+assert '$row_names[3]=="d"'
+assert '$row_names[4]==""'
+

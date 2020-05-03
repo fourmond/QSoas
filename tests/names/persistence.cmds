@@ -1,12 +1,19 @@
 # We use a small number of samples
 generate-buffer 0 10 /columns=4 /samples=51
 set-column-names my_x my_y
+set-row-names a b c d 
 
 # Check things are as they should
 assert '$col_names[0]=="my_x"'
 assert '$col_names[1]=="my_y"'
 assert '$col_names[2]=="y2"'
 assert '$col_names[3]=="y3"'
+
+assert '$row_names[0]=="a"'
+assert '$row_names[1]=="b"'
+assert '$row_names[2]=="c"'
+assert '$row_names[3]=="d"'
+assert '$row_names[4]==""'
 
 # Check the names survive several ways to save/reload
 s test.dat /overwrite=true
@@ -17,11 +24,18 @@ assert '$col_names[1]=="my_y"'
 assert '$col_names[2]=="y2"'
 assert '$col_names[3]=="y3"'
 
+assert '$row_names[0]=="a"'
+assert '$row_names[1]=="b"'
+assert '$row_names[2]=="c"'
+assert '$row_names[3]=="d"'
+assert '$row_names[4]==""'
+
 
 
 clear-stack
 generate-buffer 0 10 /columns=4 /samples=51
 set-column-names my_x my_y
+set-row-names a b c d 
 
 save-stack test.qst /overwrite=true
 load-stack test.qst
@@ -30,3 +44,9 @@ assert '$col_names[0]=="my_x"'
 assert '$col_names[1]=="my_y"'
 assert '$col_names[2]=="y2"'
 assert '$col_names[3]=="y3"'
+
+assert '$row_names[0]=="a"'
+assert '$row_names[1]=="b"'
+assert '$row_names[2]=="c"'
+assert '$row_names[3]=="d"'
+assert '$row_names[4]==""'

@@ -216,7 +216,7 @@ void DataSet::selectColumns(const QList<int> cols)
   if(cnok) {
     ncn = columnNames;
     for(QStringList & l : ncn)
-      ncn.clear();
+      l.clear();
   }
   
   for(int c : cols) {
@@ -252,7 +252,7 @@ void DataSet::selectRows(const QList<int> rows)
   if(rnok) {
     nrn = rowNames;
     for(QStringList & l : nrn)
-      nrn.clear();
+      l.clear();
   }
 
   for(int r : rows) {
@@ -799,6 +799,12 @@ void DataSet::reverse()
   for(int i = 0; i < columns.size(); i++)
     columns[i].reverse();
 
+  for(QStringList & rn : rowNames) {
+    int sz = rn.size();
+    for(int i = 0; i < sz/2; i++)
+      std::swap(rn[i], rn[sz-i-1]);
+  }
+
   // Update segments:
   int sz = nbRows();
   for(int j = 0; j < segments.size(); j++)
@@ -1107,16 +1113,16 @@ DataSet * DataSet::sort(bool reverse) const
   else
     qSort(vals.begin(), vals.end(), &lessThan);
 
+  /// Hmm.  @perf Make sure select works with iterators rather than
+  /// with lists.
+  QList<int> rows;
+  for(const QPair<double, int> & p : vals)
+    rows << p.second;
 
-  QList<Vector> nv;
-  for(int i = 0; i < columns.size(); i++)
-    nv << Vector(size, 0);
-  for(int i = 0; i < size; i++) {
-    for(int j = 0; j < columns.size(); j++)
-      nv[j][i] = columns[j][(vals[i].second)];
-  }
+  DataSet * rv = derivedDataSet("_sorted.dat");
 
-  return derivedDataSet(nv,"_sorted.dat");
+  rv->selectRows(rows);
+  return rv;
 }
 
 DataSet * DataSet::derivedDataSet(const QList<Vector> &newCols, 

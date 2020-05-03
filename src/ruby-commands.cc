@@ -203,22 +203,18 @@ static void stripIfCommand(const QString &, QString formula,
   QVarLengthArray<double, 100> args(argSize);
   int idx = 0;
   OrderedList segs = ds->segments;
+  QList<int> remove;
   
   while(ex.nextValues(args.data(), &idx)) {
-    if(! ex.expression().evaluateAsBoolean(args.data())) {
-      for(int j = 0; j < ds->nbColumns(); j++)
-        newcols[j] << ds->column(j)[idx];
-    }
-    else {
-      segs.shiftAbove(newcols[0].size());
-      ++dropped;
-    }
+    if(ex.expression().evaluateAsBoolean(args.data()))
+      remove << idx;
   }
 
-  DataSet * nds = ds->derivedDataSet(newcols, "_trimmed.dat");
-  nds->segments = segs;
+  DataSet * nds = ds->derivedDataSet("_trimmed.dat");
+  for(int j = remove.size()-1; j >= 0; j--)
+    nds->removeRow(remove[j]);
 
-  Terminal::out << "Removed " << dropped << " points" << endl;
+  Terminal::out << "Removed " << remove.size() << " points" << endl;
   if(nds->nbRows() < threshold) {
     Terminal::out << "-> only " << nds->nbRows() << " points left, not creating a new dataset" << endl;
     delete nds;

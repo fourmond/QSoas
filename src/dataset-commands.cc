@@ -2324,6 +2324,34 @@ scn("set-column-names", // command name
     "Set column names",
     "Sets the column names of the buffer");
 
+// Two modes: sets all the names, or if the strings start with #\d:,
+// then set only those
+static void setRowNamesCommand(const QString &,
+                               QStringList names,
+                               const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+  DataSet * nds = ds->derivedDataSet(".dat");
+
+  // Parses the spec:
+  QHash<int, QString> sp = ::parseNameSpecs(names);
+
+  for(int row : sp.keys())
+    nds->setRowName(row, sp[row]);
+  
+  soas().pushDataSet(nds);
+}
+
+
+static Command 
+srn("set-row-names", // command name
+    effector(setRowNamesCommand), // action
+    "buffer",  // group name
+    &scA, // arguments
+    NULL, // options
+    "Set row names",
+    "Sets the row names of the buffer");
+
 
 
 

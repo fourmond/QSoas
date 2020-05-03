@@ -1819,6 +1819,9 @@ QDataStream & operator<<(QDataStream & out, const DataSet & ds)
   // From version 5
   out << ds.options;
 
+  // From version 6
+  out << ds.columnNames << ds.rowNames << ds.perpCoordNames;
+
   return out;
 }
 
@@ -1857,6 +1860,9 @@ QDataStream & operator>>(QDataStream & in, DataSet & ds)
 
   if(DataStack::serializationVersion >= 5) 
     in >> ds.options;
+
+  if(DataStack::serializationVersion >= 6) 
+    in >> ds.columnNames >> ds.rowNames >> ds.perpCoordNames;
 
 
 

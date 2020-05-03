@@ -442,18 +442,12 @@ qint32 DataStack::serializationVersion = 0;
 //////////////////////////////////////////////////////////////////////
 
 
-/// @todo It may be possible to implement data serialization
-/// versioning, ie being a little more tolerant about data persistence:
-/// @li it would need a global variable -- as QDataStream doesn't have
-/// means to carry use attribues
-/// @li it would probably be good too to write out the QDataStream
-/// version
-/// @li write out the accumulator ?
+/// @todo write out the accumulator ?
 
 
 
 #define MAGIC 0xFF342210
-#define CURRENT_STACK_VERSION 5
+#define CURRENT_STACK_VERSION 6
 
 
 void DataStack::writeSerializationHeader(QDataStream & out)
@@ -536,14 +530,14 @@ void DataStack::readStack(QDataStream & in)
 QDataStream & operator>>(QDataStream & in, DataStack & stack)
 {
   DataStack::readSerializationHeader(in);
-  if(DataStack::serializationVersion >= 6) {
-    QByteArray cmp;
-    in >> cmp;
-    cmp = qUncompress(cmp);
-    QDataStream nin(cmp);
-    stack.readStack(in);
-  }
-  else
-    stack.readStack(in);
+  // if(DataStack::serializationVersion >= 6) {
+  //   QByteArray cmp;
+  //   in >> cmp;
+  //   cmp = qUncompress(cmp);
+  //   QDataStream nin(cmp);
+  //   stack.readStack(in);
+  // }
+  // else
+  stack.readStack(in);
   return in;
 }

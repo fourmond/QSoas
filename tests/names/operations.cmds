@@ -43,3 +43,4 @@ assert '$col_names[0]=="my_x"'
 assert '$col_names[1]=="my_y"'
 assert '$col_names[2]=="my_y2"'
 assert '$col_names[3]=="my_y3"'
+

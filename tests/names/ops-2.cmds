@@ -1,0 +1,65 @@
+# Sort:
+
+generate-buffer 0 10 /columns=2 /samples=11
+set-row-names a b c d 
+set-column-names my_x my_y
+
+# First, a no-op
+sort 
+assert '$col_names[0]=="my_x"'
+assert '$col_names[1]=="my_y"'
+
+assert '$row_names[0]=="a"'
+assert '$row_names[1]=="b"'
+assert '$row_names[2]=="c"'
+assert '$row_names[3]=="d"'
+assert '$row_names[4]==""'
+
+# Then, change the columns
+apply-formula x=-x
+assert '$col_names[0]=="my_x"'
+assert '$col_names[1]=="my_y"'
+
+assert '$row_names[0]=="a"'
+assert '$row_names[1]=="b"'
+assert '$row_names[2]=="c"'
+assert '$row_names[3]=="d"'
+assert '$row_names[4]==""'
+
+# Sort again, now all should be reversed:
+sort
+assert '$col_names[0]=="my_x"'
+assert '$col_names[1]=="my_y"'
+
+assert '$row_names[10]=="a"'
+assert '$row_names[9]=="b"'
+assert '$row_names[8]=="c"'
+assert '$row_names[7]=="d"'
+assert '$row_names[6]==""'
+
+# Reverse
+generate-buffer 0 10 /columns=2 /samples=11
+set-row-names a b c d 
+set-column-names my_x my_y
+
+reverse
+assert '$row_names[10]=="a"'
+assert '$row_names[9]=="b"'
+assert '$row_names[8]=="c"'
+assert '$row_names[7]=="d"'
+assert '$row_names[6]==""'
+
+
+# Strip-if
+generate-buffer 0 10 /columns=2 /samples=11
+set-row-names a b c d 
+set-column-names my_x my_y
+
+strip-if 'x==0'
+assert '$col_names[0]=="my_x"'
+assert '$col_names[1]=="my_y"'
+
+assert '$row_names[0]=="b"'
+assert '$row_names[1]=="c"'
+assert '$row_names[2]=="d"'
+assert '$row_names[3]==""'

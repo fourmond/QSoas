@@ -632,10 +632,16 @@ public:
 
   /// Parses a column specification. Known formats:
   ///
-  /// * just a number: 1-based index (1 = X, 2 = Y, etc...)
-  /// * #number: 0-based index
-  /// * X, Y, Z, Y2...YN
-  static int parseFromText(const QString & str);
+  /// @li just a number: 1-based index (1 = X, 2 = Y, etc...)
+  /// @li #number: 0-based index
+  /// @li x, y, z, y2...yN
+  /// @li named:(main column name)
+  /// @li $c.name (as will happen in apply-formula later on)
+  /// @bug This function will @b not @b work if the command that uses the columns works on something else than the current dataset.
+  static int parseFromText(const QString & str, const DataSet * ds = NULL);
+
+  /// Returns all the valid column names for the given dataset.
+  static QStringList validNames(const DataSet * ds);
 
   ColumnArgument(const char * cn, const char * pn,
                  const char * d = "", bool def = false) : 
@@ -658,6 +664,8 @@ public:
   virtual void setEditorValue(QWidget * editor, 
                               const ArgumentMarshaller * value) const override;
 
+  /// Proposes a completion, based on the current dataset.
+  virtual QStringList proposeCompletion(const QString & starter) const override;
 
 };
 
@@ -689,6 +697,9 @@ public:
   virtual QWidget * createEditor(QWidget * parent = NULL) const override;
   virtual void setEditorValue(QWidget * editor, 
                               const ArgumentMarshaller * value) const override;
+
+  /// Proposes a completion, based on the current dataset.
+  virtual QStringList proposeCompletion(const QString & starter) const override;
 
 };
 

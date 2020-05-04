@@ -971,12 +971,13 @@ void RegexArgument::setEditorValue(QWidget * editor,
 
 //////////////////////////////////////////////////////////////////////
 
-int ColumnArgument::parseFromText(const QString & str)
+int ColumnArgument::parseFromText(const QString & str, const DataSet * ds)
 {
   QRegExp num1("^\\s*\\d+\\s*$");
   QRegExp num2("^\\s*#(\\d+)\\s*$");
 
   QRegExp name("^\\s*((x)|(y)|(z)|(y(\\d+))|(non?e?))\\s*$", Qt::CaseInsensitive);
+  QRegExp named("^\\s*(?:named:|\\$c.)(\\w+)\\s*$", Qt::CaseInsensitive);
   
   if(num1.indexIn(str, 0) >= 0) {
     int nb = str.toInt() - 1;
@@ -999,12 +1000,48 @@ int ColumnArgument::parseFromText(const QString & str)
     else if(! name.cap(7).isEmpty())
       return -1;                // None
   }
+  if(ds) {
+    if(named.indexIn(str, 0) >= 0) {
+      QString cn = named.cap(1);
+      if(ds->columnNames.size() > 0) {
+        for(int i = 0; i < ds->nbColumns(); i++) {
+          if(ds->columnNames.first().value(i, "") == cn)
+            return i;
+        }
+      }
+      throw RuntimeError("No column with such name: '%1'").arg(cn);
+    }
+  }
   throw RuntimeError("Invalid buffer column specification '%1'").arg(str);
 }
 
+QStringList ColumnArgument::validNames(const DataSet * ds)
+{
+  QStringList rv;
+  if(ds) {
+    for(int i = 0; i < ds->nbColumns(); i++) {
+      rv << QString("#%1").arg(i)
+         << DataSet::standardNameForColumn(i);
+      if(ds->columnNames.size() > 0 && ds->checkColNames())
+        rv << QString("named:%1").arg(ds->columnNames[0][i])
+           << QString("$c.%1").arg(ds->columnNames[0][i]);
+    }
+  }
+
+  return rv;
+}
+
+QStringList ColumnArgument::proposeCompletion(const QString & starter) const
+{
+  QStringList cn = validNames(soas().stack().currentDataSet(false));
+  return Utils::stringsStartingWith(cn, starter);
+}
+
+
+
 ArgumentMarshaller * ColumnArgument::fromString(const QString & str) const
 {
-  return new ArgumentMarshallerChild<int>(parseFromText(str));
+  return new ArgumentMarshallerChild<int>(parseFromText(str, soas().stack().currentDataSet(false)));
 }
 
 QStringList ColumnArgument::toString(const ArgumentMarshaller * arg) const
@@ -1044,18 +1081,19 @@ ArgumentMarshaller * SeveralColumnsArgument::fromString(const QString & str) con
   QRegExp range("(.*)\\.\\.(.*)");
 
   QList<int> ret;
+  const DataSet * ds = soas().stack().currentDataSet(false);
   for(int i = 0; i < elems.size(); i++) {
     const QString & s = elems[i];
     if(range.indexIn(s, 0) >= 0) {
-      int fst = ColumnArgument::parseFromText(range.cap(1));
-      int lst = ColumnArgument::parseFromText(range.cap(2));
+      int fst = ColumnArgument::parseFromText(range.cap(1), ds);
+      int lst = ColumnArgument::parseFromText(range.cap(2), ds);
       int dx = (fst > lst ? -1 : 1);
       for(int j = fst; j != lst; j+= dx)
         ret << j;
       ret << lst;
     }
     else
-      ret << ColumnArgument::parseFromText(s);
+      ret << ColumnArgument::parseFromText(s, ds);
   }
 
   return new ArgumentMarshallerChild<QList<int> >(ret);
@@ -1102,6 +1140,19 @@ void SeveralColumnsArgument::setEditorValue(QWidget * editor,
 {
   setTextEditorValue(editor, value);
 }
+
+QStringList SeveralColumnsArgument::proposeCompletion(const QString & starter) const
+{
+  QStringList cn = ColumnArgument::validNames(soas().stack().currentDataSet(false));
+  // OK, so now a bit of fun.
+  QRegExp ign("^(.*(\\.\\.|,))?(.*)");
+  ign.indexIn(starter);
+  QStringList tmp = Utils::stringsStartingWith(cn, ign.cap(3));
+  for(QString & s : tmp)
+    s = ign.cap(1) + s;
+  return tmp;
+}
+
 
 //////////////////////////////////////////////////////////////////////
 

@@ -63,3 +63,35 @@ assert '$row_names[0]=="b"'
 assert '$row_names[1]=="c"'
 assert '$row_names[2]=="d"'
 assert '$row_names[3]==""'
+
+
+# Tweak-columns
+generate-buffer 0 10 /columns=4 /samples=11
+set-column-names my_x my_y my_y2 my_y3
+tweak-columns /remove=y2
+assert '$col_names[2]=="my_y3"'
+
+generate-buffer 0 10 /columns=4 /samples=11
+set-column-names my_x my_y my_y2 my_y3
+tweak-columns /flip=true
+assert '$col_names[0]=="my_x"'
+assert '$col_names[3]=="my_y"'
+assert '$col_names[2]=="my_y2"'
+assert '$col_names[1]=="my_y3"'
+
+generate-buffer 0 10 /columns=4 /samples=11
+set-column-names my_x my_y my_y2 my_y3
+tweak-columns /flip-all=true
+assert '$col_names[3]=="my_x"'
+assert '$col_names[2]=="my_y"'
+assert '$col_names[1]=="my_y2"'
+assert '$col_names[0]=="my_y3"'
+
+generate-buffer 0 10 /columns=4 /samples=11
+set-column-names my_x my_y my_y2 my_y3
+tweak-columns /select=y2,x,y3
+assert '$col_names[1]=="my_x"'
+assert '$col_names[0]=="my_y2"'
+assert '$col_names[2]=="my_y3"'
+
+

@@ -94,4 +94,10 @@ assert '$col_names[1]=="my_x"'
 assert '$col_names[0]=="my_y2"'
 assert '$col_names[2]=="my_y3"'
 
+generate-buffer 0 10 /columns=4 /samples=11
+set-column-names my_x my_y my_y2 my_y3
+tweak-columns /select=named:my_y2,$c.my_x
+assert '$col_names[0]=="my_y2"'
+assert '$col_names[1]=="my_x"'
+
 

@@ -664,7 +664,7 @@ ev("eval", // command name
    &eA, // arguments
    &eO,
    "Ruby eval",
-   "Evaluates a Ruby expression and prints the result", "");
+   "Evaluates a Ruby expression and prints the result", "eval-cmd");
 
 //////////////////////////////////////////////////////////////////////
 

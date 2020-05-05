@@ -78,8 +78,8 @@ public:
 
 int StackDump::level = 0;
 
-#define STACK_DUMP StackDump _sd(__func__, __FILE__, __LINE__)
-// #define STACK_DUMP 
+// #define STACK_DUMP StackDump _sd(__func__, __FILE__, __LINE__)
+#define STACK_DUMP 
 
 
 MRuby::MRuby()

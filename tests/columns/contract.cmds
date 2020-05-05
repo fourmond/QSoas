@@ -34,3 +34,12 @@ contract 1 0 /use-columns=y
 assert $stats.columns-3 0
 assert $stats.y_min-1 0
 assert $stats.y2_min-4 0
+
+drop
+
+contract 1 0 /use-columns=y,y3
+assert $stats.columns-5 0
+assert $stats.y_min-1 0
+assert $stats.y2_min-3 0
+assert $stats.y3_min-4 0
+assert $stats.y4_min-6 0

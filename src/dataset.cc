@@ -690,26 +690,12 @@ DataSet * DataSet::merge(const DataSet * ds, bool naive,
 }
 
 DataSet * DataSet::contract(const DataSet * ds, bool naive, 
-                            bool useSteps, const QList<int> & useColumns) const
+                            bool useSteps) const
 {
   DataSet * nd = applyBinaryOperation(this, ds, keep_second, 
                                       "_cont_", naive, useSteps, 0);
  
-  Vector pc;
-  if(useColumns.size() > 0) {
-    QList<Vector> lst;
-    lst << nd->columns[0];
-    for(int i = 0; i < useColumns.size(); i++) {
-      int idx = useColumns[i];
-      if(idx < nd->columns.size()) {
-        lst << nd->columns[idx];
-        pc << ds->perpCoords.value(idx-1, 0.0/0.0);
-      }
-    }
-    nd->columns = lst;
-  }
-  else
-    pc = ds->perpCoords;
+  Vector pc = ds->perpCoords;
 
   for(int i = 1; i < columns.size(); i++)
     nd->columns.insert(i, columns[i]);

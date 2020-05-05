@@ -604,13 +604,9 @@ public:
   DataSet * merge(const DataSet * dataset, bool naive = false, 
                   bool useSteps = false) const;
 
-  /// Does the reverse of expand
-  ///
-  /// If \a useColumns is present, only the given columns are
-  /// contracted. Careful, columns are 0-based !
+  /// Does the reverse of expand.
   DataSet * contract(const DataSet * dataset, bool naive = false, 
-                     bool useSteps = false, const QList<int> & useColumns = 
-                     QList<int>() ) const;
+                     bool useSteps = false) const;
 
   /// Returns the subset of the dataset contained either within the
   /// indices or outside of them

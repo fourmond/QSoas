@@ -1542,6 +1542,9 @@ static void contractCommand(const QString &, QList<const DataSet *> a,
   updateFromOptions(opts, "perp-meta", pc);
   QList<int> useCols;
   updateFromOptions(opts, "use-columns", useCols);
+  if(useCols.size() > 0)
+    // We forcibly add x at the beginning, necessary for DataSet::contract
+    useCols.insert(0,0);
   
 
   if(a.size() < 2)
@@ -1552,14 +1555,18 @@ static void contractCommand(const QString &, QList<const DataSet *> a,
   DataSet * cur = new DataSet(*a[0]);
   if(pc.size() > 0)
     cur->setPerpendicularCoordinates(cur->getMetaData(pc).toDouble());
+  if(useCols.size() > 0)
+    cur->selectColumns(useCols);
   
   for(int i = 1; i < a.size(); i++) {
     DataSet * ds = new DataSet(*a[i]);
     names << a[i]->name;
     if(pc.size() > 0)
       ds->setPerpendicularCoordinates(ds->getMetaData(pc).toDouble());
+    if(useCols.size() > 0)
+      ds->selectColumns(useCols);
 
-    DataSet * n = cur->contract(ds, naive, useSteps, useCols);
+    DataSet * n = cur->contract(ds, naive, useSteps);
     delete cur;
     delete ds;
     cur = n;

@@ -43,3 +43,27 @@ assert $stats.y_min-1 0
 assert $stats.y2_min-3 0
 assert $stats.y3_min-4 0
 assert $stats.y4_min-6 0
+
+
+# Check perpendicular coordinates
+
+generate-buffer 0 10 /columns=4
+set-perp 0 1 2
+generate-buffer 0 10 /columns=4
+set-perp 3 4 5
+
+
+contract 1 0
+assert $meta.Zs.size-6 0
+assert $meta.Zs[0] 0
+assert $meta.Zs[1]-1 0
+assert $meta.Zs[2]-2 0
+assert $meta.Zs[3]-3 0
+assert $meta.Zs[4]-4 0
+assert $meta.Zs[5]-5 0
+
+drop
+contract 1 0 /use-columns=y
+assert $meta.Zs.size-2 0
+assert $meta.Zs[0] 0
+assert $meta.Zs[1]-3 0

@@ -36,9 +36,21 @@ assert $stats.y3_min-2 0
 generate-buffer 0 10 /columns=4
 apply-formula x=2;y=3;y2=4;y3=5
 
+
 tweak-columns /select=y,x,y3
 
 assert $stats.columns-3 0
 assert $stats.x_min-3 0
 assert $stats.y_min-2 0
 assert $stats.y2_min-5 0
+
+
+generate-buffer 0 10 /columns=4
+set-perp 6 1 2
+
+tweak-columns /select=x,y3,y
+
+# check perpendicular coordinates
+assert $meta.Zs.size-2 0
+assert $meta.Zs[0]-2 0
+assert $meta.Zs[1]-6 0

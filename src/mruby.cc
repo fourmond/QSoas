@@ -288,7 +288,7 @@ QStringList MRuby::detectParameters(const QByteArray & code)
   int cur_top_self = -1;
   QSet<QString> rv;
 
-  mrb_code *pc, *pcend;
+  const mrb_code *pc, *pcend;
   mrb_code ins;
   int ai;
 

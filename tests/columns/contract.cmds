@@ -8,3 +8,29 @@ assert '$stats["y8_average"] - 13' 1e-9
 expand
 assert '$stats["columns"] == 2'
 assert '$stats["y_average"] - 10' 1e-9
+
+# Try multicolumn contract
+
+generate-buffer 0 10 /columns=4
+apply-formula y=1;y2=2;y3=3
+drop 1
+
+generate-buffer 0 10 /columns=4
+apply-formula y=4;y2=5;y3=6
+drop 1
+
+contract 1 0
+assert $stats.columns-7 0
+assert $stats.y_min-1 0
+assert $stats.y2_min-2 0
+assert $stats.y3_min-3 0
+assert $stats.y4_min-4 0
+assert $stats.y5_min-5 0
+assert $stats.y6_min-6 0
+
+drop
+
+contract 1 0 /use-columns=y
+assert $stats.columns-3 0
+assert $stats.y_min-1 0
+assert $stats.y2_min-4 0

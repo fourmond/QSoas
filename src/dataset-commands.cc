@@ -446,36 +446,29 @@ static void expandCommand(const QString &,
     throw RuntimeError("Cannot use both /x-every-nth and /group-columns "
                        "at the same time");
 
-  Vector ppcd = ds->perpendicularCoordinates();
-  Vector xvs = ds->x();
+  // Vector ppcd = ds->perpendicularCoordinates();
+  int xvs = 0;
   int nb = 0;
   for(int i = 1; i < ds->nbColumns(); ) {
     if(xevery > 0 && ((i % xevery) == 0)) {
-      xvs = ds->column(i++);
+      xvs = i++;
       continue;
     }
-    QList<Vector> cols;
+    QList<int> cols;
     cols << xvs;
     QStringList colnames;
-    Vector ncds;
     for(int k = 0; k < group; ++k, ++i) {
       if(ds->nbColumns() > i) {
-        cols << ds->column(i);
+        cols << i;
         colnames << QString("%1").arg(i+1);
-        if(ppcd.size() >= i)
-          ncds << ppcd[i-1];
-
       }
     }
     nb += 1;
-    DataSet * s = ds->derivedDataSet(cols, QString("_col_%1.dat").
+    DataSet * s = ds->derivedDataSet(QString("_col_%1.dat").
                                      arg(colnames.join("+")));
-    if(ncds.size() > 0) {
-      s->setPerpendicularCoordinates(ncds);
-      if(!pc.isEmpty())
-        s->setMetaData(pc, ncds[0]);
-    }
-
+    s->selectColumns(cols);
+    if(s->perpendicularCoordinates().size() > 0)
+      s->setMetaData(pc, s->perpendicularCoordinates()[0]);
     pusher.pushDataSet(s);
   }
   Terminal::out << "Expanded '" << ds->name 

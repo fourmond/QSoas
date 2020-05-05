@@ -38,6 +38,50 @@
 
 #include <gslfunction.hh>
 
+
+// A code that may move in its dedicated place later on.
+
+/// An object that shows a message at its creation and deletion.
+class StackDump {
+  QByteArray fun;
+  QByteArray file;
+  QByteArray lvl;
+  int line;
+public:
+  static int level;
+
+  StackDump(const QByteArray & _fun, const QByteArray & _file, int _line) :
+    fun(_fun), file(_file), line(_line)
+  {
+    for(int i = 0; i < level; i++)
+      lvl += "  ";
+    // Print out
+    fprintf(stderr, "%s%s in (%s:%d)\n",
+            lvl.data(),
+            fun.data(),
+            file.data(),
+            line);
+    fflush(stderr);
+    level += 1;
+  };
+
+  ~StackDump() {
+    fprintf(stderr, "%s%s out (%s:%d)\n",
+            lvl.data(),
+            fun.data(),
+            file.data(),
+            line);
+    fflush(stderr);
+    level -= 1;
+  };
+};
+
+int StackDump::level = 0;
+
+#define STACK_DUMP StackDump _sd(__func__, __FILE__, __LINE__)
+// #define STACK_DUMP 
+
+
 MRuby::MRuby()
 {
   mrb = mrb_open();
@@ -115,6 +159,7 @@ static mrb_value protect_helper(mrb_state * ,mrb_value helper)
 
 mrb_value MRuby::protect(const std::function<mrb_value ()> &function)
 {
+  STACK_DUMP;
   mrb_bool failed;
   mrb_value helper;
   const void * v = &function;
@@ -147,6 +192,7 @@ void MRuby::throwIfException(mrb_value obj)
 struct RProc * MRuby::generateCode(const QByteArray & code,
                                    const QString & fileName, int line)
 {
+  STACK_DUMP;
   struct mrbc_context * c = mrbc_context_new(mrb);
   c->capture_errors = true;
   QByteArray fn = fileName.toLocal8Bit();
@@ -205,12 +251,14 @@ struct RProc * MRuby::generateCode(const QByteArray & code,
 mrb_value MRuby::eval(const char * code,
                       const QString & fileName, int line)
 {
+  STACK_DUMP;
   return eval(QByteArray(code), fileName, line);
 }
 
 mrb_value MRuby::eval(const QByteArray & code,
                       const QString & fileName, int line)
 {
+  STACK_DUMP;
   MRubyArenaContext c(this);
   RProc * proc = generateCode(code, fileName, line);
   return protect([this, proc]() -> mrb_value {
@@ -222,11 +270,13 @@ mrb_value MRuby::eval(const QByteArray & code,
 mrb_value MRuby::eval(const QString & code,
                       const QString & fileName, int line)
 {
+  STACK_DUMP;
   return eval(code.toLocal8Bit(), fileName, line);
 }
 
 mrb_value MRuby::eval(QIODevice * device)
 {
+  STACK_DUMP;
   MRubyArenaContext c(this);
   QByteArray code = device->readAll();
   RProc * proc = generateCode(code, Utils::fileName(device));
@@ -242,6 +292,7 @@ mrb_value MRuby::eval(QIODevice * device)
 
 QStringList MRuby::detectParameters(const QByteArray & code)
 {
+  STACK_DUMP;
   MRubyArenaContext c(this);
 
   RProc * proc = generateCode(code);
@@ -275,6 +326,7 @@ QStringList MRuby::detectParameters(const QByteArray & code)
 
 QStringList MRuby::detectParameters(const QByteArray & code)
 {
+  STACK_DUMP;
   MRubyArenaContext c(this);
 
   // QTextStream o(stdout);
@@ -438,17 +490,20 @@ QStringList MRuby::detectParameters(const QByteArray & code)
 
 struct RClass * MRuby::defineModule(const char * name)
 {
+  STACK_DUMP;
   return mrb_define_module(mrb, name);
 }
 
 void MRuby::defineModuleFunction(struct RClass* cls, const char* name,
                                  mrb_func_t func, mrb_aspec aspec)
 {
+  STACK_DUMP;
   mrb_define_module_function(mrb, cls, name, func, aspec);
 }
 
 void MRuby::defineGlobalConstant(const char *name, mrb_value val)
 {
+  STACK_DUMP;
   mrb_define_global_const(mrb, name, val);
 }
 
@@ -456,6 +511,7 @@ void MRuby::defineGlobalConstant(const char *name, mrb_value val)
 
 void MRuby::gcRegister(mrb_value obj)
 {
+  STACK_DUMP;
   // DUMP_MRUBY(obj);
   mrb_gc_register(mrb, obj);
   // mrb_sym sym = mrb_intern_lit(mrb, "$__qsoas_safe");

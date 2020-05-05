@@ -2,7 +2,7 @@
 # be following various operations.
 
 generate-buffer 0 10 /columns=4 /samples=51
-set-column-names my_x my_y m_y2 my_y3
+set-column-names my_x my_y my_y2 my_y3
 
 # Remove columns
 tweak-columns /remove=y
@@ -13,7 +13,7 @@ assert '$col_names[2]=="my_y3"'
 
 # Expand 
 generate-buffer 0 10 /columns=4 /samples=51
-set-column-names my_x my_y m_y2 my_y3
+set-column-names my_x my_y my_y2 my_y3
 
 expand 
 assert '$col_names[0]=="my_x"'
@@ -29,7 +29,7 @@ assert '$col_names[1]=="my_y"'
 
 # Expand/contract:
 generate-buffer 0 10 /columns=4 /samples=51
-set-column-names my_x my_y m_y2 my_y3
+set-column-names my_x my_y my_y2 my_y3
 
 assert '$col_names[0]=="my_x"'
 assert '$col_names[1]=="my_y"'

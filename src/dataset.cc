@@ -699,11 +699,21 @@ DataSet * DataSet::contract(const DataSet * ds, bool naive,
                                       "_cont_", naive, useSteps, 0);
  
   Vector pc = ds->perpCoords;
-
   for(int i = 1; i < columns.size(); i++)
     nd->columns.insert(i, columns[i]);
-
   nd->perpCoords << pc;
+
+  // Now splice the column names
+  nd->columnNames = columnNames;
+  for(int i = 0; i < columnNames.size(); i++) {
+    QStringList nnames;
+    if(ds->columnNames.size() > i)
+      nnames = ds->columnNames[i].mid(1, ds->nbColumns()-1);
+    while(nnames.size() < ds->nbColumns()-1)
+      nnames << "";             // Insert empty names
+    nd->columnNames[i] += nnames;
+  }
+
   return nd;
 }
 

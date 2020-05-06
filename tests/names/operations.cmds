@@ -39,6 +39,7 @@ assert '$col_names[3]=="my_y3"'
 expand /flags=tmp
 contract flagged-:tmp
 
+assert $col_names.size-4 0
 assert '$col_names[0]=="my_x"'
 assert '$col_names[1]=="my_y"'
 assert '$col_names[2]=="my_y2"'

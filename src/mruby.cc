@@ -262,7 +262,7 @@ mrb_value MRuby::eval(const QByteArray & code,
   MRubyArenaContext c(this);
   RProc * proc = generateCode(code, fileName, line);
   return protect([this, proc]() -> mrb_value {
-      return mrb_run(mrb, proc, mrb_top_self(mrb));
+                   return mrb_top_run(mrb, proc, mrb_top_self(mrb), 0);
     }
     );
 }
@@ -281,7 +281,7 @@ mrb_value MRuby::eval(QIODevice * device)
   QByteArray code = device->readAll();
   RProc * proc = generateCode(code, Utils::fileName(device));
   return protect([this, proc]() -> mrb_value {
-      return mrb_run(mrb, proc, mrb_top_self(mrb));
+                   return mrb_top_run(mrb, proc, mrb_top_self(mrb), 0);
     }
     );
 }

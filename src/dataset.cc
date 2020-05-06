@@ -204,7 +204,7 @@ Vector DataSet::takeColumn(int idx)
   return columns.takeAt(idx);
 }
 
-void DataSet::selectColumns(const QList<int> cols)
+void DataSet::selectColumns(const QList<int> & cols)
 {
   QList<Vector> nc;
   QList<QStringList> ncn;
@@ -219,6 +219,7 @@ void DataSet::selectColumns(const QList<int> cols)
       l.clear();
   }
   
+  bool first = true;
   for(int c : cols) {
     if(c < 0 || c >= columns.size())
       throw RuntimeError("Invalid column: #%1 (only %2 columns)").
@@ -229,9 +230,11 @@ void DataSet::selectColumns(const QList<int> cols)
         ncn[i] << columnNames[i].value(c, QString()); // Pad with empty
       }
     }
-    if(perpok && nc.size() > 0) {
+    // Add perpendicular coordinates for the second data.
+    if(!first && perpok && nc.size() > 0) {
       np << perpCoords.value(c-1, 0); // Default to 0
     }
+    first = false;
   }
   invalidateCache();
   columns = nc;
@@ -239,7 +242,7 @@ void DataSet::selectColumns(const QList<int> cols)
   perpCoords = np;
 }
 
-void DataSet::selectRows(const QList<int> rows)
+void DataSet::selectRows(const QList<int> & rows)
 {
   QList<Vector> nc;
   nc = columns;

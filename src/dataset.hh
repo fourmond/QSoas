@@ -376,11 +376,11 @@ public:
   /// All meta-data are kept.
   ///
   /// Pretty cheap computationnaly.
-  void selectColumns(const QList<int> cols);
+  void selectColumns(const QList<int> & cols);
 
   /// Selects the rows, i.e. select only the rows present in @a cols,
   /// in the order in which they are given (duplicates allowed).
-  void selectRows(const QList<int> rows);
+  void selectRows(const QList<int> & rows);
 
   /// Strips all the columns that contain only NaNs
   void stripNaNColumns();

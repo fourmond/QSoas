@@ -101,12 +101,14 @@ public:
   };
 };
 
+/// @bug Does not handle re-assignement.
 template <class K, class V> class PossessiveHash {
 public:
   typedef QHash<K, V*> Hash;
   Hash values;
 
   explicit PossessiveHash(const QHash<K, V*> & v) : values(v) {;};
+  PossessiveHash()  {;};
 
   ~PossessiveHash() {
     for(typename Hash::iterator i = values.begin();
@@ -117,6 +119,16 @@ public:
   operator QHash<K, V*>() const {
     return values;
   };
+
+  bool contains(const K & k) const {
+    return values.contains(k);
+  };
+
+  /// @todo This isn't safe if the pointer is modified...
+  V *& operator[](const K & k) {
+    return values[k];
+  };
+
 };
 
 #endif

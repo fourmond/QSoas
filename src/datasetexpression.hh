@@ -22,6 +22,7 @@
 #define __DATASETEXPRESSION_HH
 
 #include <expression.hh>
+#include <possessive-containers.hh>
 
 class DataSet;
 class SaveGlobal;
@@ -49,10 +50,11 @@ private:
   /// Current index in the dataset for iterators.
   int index;
 
-  SaveGlobal * sStats;
-  SaveGlobal * sMeta;
-  SaveGlobal * sRowNames;
-  SaveGlobal * sColNames;
+  /// A hash containing the values
+  PossessiveHash<QString, SaveGlobal> globals;
+
+  /// The corresponding helper function
+  void setGlobal(const char * name, mrb_value value);
 
   /// The internal expression object !
   Expression * expr;

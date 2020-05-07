@@ -30,8 +30,7 @@
 
 DataSetExpression::DataSetExpression(const DataSet * ds,
                                      bool uS, bool uM, bool uN) :
-  dataset(ds), index(-1), sStats(NULL),
-  sMeta(NULL), sRowNames(NULL), sColNames(NULL),
+  dataset(ds), index(-1), 
   expr(NULL), useStats(uS),
   useMeta(uM), useNames(uN)
 {
@@ -42,31 +41,28 @@ DataSetExpression::DataSetExpression(const DataSet * ds,
 
 DataSetExpression::~DataSetExpression()
 {
-  delete sStats;
-  delete sMeta;
-  delete sRowNames;
-  delete sColNames;
   delete expr;
+}
+
+void DataSetExpression::setGlobal(const char * name, mrb_value value)
+{
+  MRuby * mr = MRuby::ruby();
+  globals[name] = new SaveGlobal(name);
+  mr->setGlobal(name, value);
 }
 
 void DataSetExpression::prepareVariables()
 {
   MRuby * mr = MRuby::ruby();
-  if(useStats && !sStats) {
-    sStats = new SaveGlobal("$stats");
-  
+  if(useStats && !globals.contains("$stats")) {
     Statistics st(dataset);
-    mr->setGlobal("$stats", st.toRuby());
+    setGlobal("$stats", st.toRuby());
   }
 
-  if(useMeta && !sMeta) {
-    sMeta = new SaveGlobal("$meta");
-    mr->setGlobal("$meta", dataset->getMetaData().toRuby());
-  }
+  if(useMeta && !globals.contains("$meta"))
+    setGlobal("$meta", dataset->getMetaData().toRuby());
 
-  if(useNames && !sRowNames ) {
-    sRowNames = new SaveGlobal("$row_names");
-    sColNames = new SaveGlobal("$col_names");
+  if(useNames && !globals.contains("$row_names") ) {
     mrb_value mrn = mr->newArray();
     mrb_value mcn = mr->newArray();
     bool mu = false;
@@ -78,8 +74,8 @@ void DataSetExpression::prepareVariables()
     QStringList rn = dataset->mainRowNames();
     for(const QString & n : rn)
       mr->arrayPush(mrn, mr->fromQString(n));
-    mr->setGlobal("$row_names", mrn);
-    mr->setGlobal("$col_names", mcn); 
+    setGlobal("$row_names", mrn);
+    setGlobal("$col_names", mcn); 
   }
 }
 

@@ -628,8 +628,10 @@ browseStack("browse-stack",     // command name
 
 static void fetchCommand(const QString &, QList<const DataSet *> buffers)
 {
-  for(int i = 0; i < buffers.size(); i++)
-    soas().pushDataSet(new DataSet(*buffers[i]));
+  for(const DataSet * ds : buffers) {
+    if(ds)
+      soas().pushDataSet(new DataSet(*ds));
+  }
 }
 
 static ArgumentList 

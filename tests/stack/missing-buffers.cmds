@@ -1,0 +1,9 @@
+# This file contains a lot of commands that will not work, so
+# it must be run with /error=ignore... 
+clear-stack
+drop 0,1
+assert true
+fetch 1
+assert true
+fetch -1
+assert true

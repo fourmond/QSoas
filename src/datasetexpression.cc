@@ -77,6 +77,7 @@ void DataSetExpression::prepareVariables()
     setGlobal("$row_names", mrn);
     setGlobal("$col_names", mcn); 
     setGlobal("$row_name", mrb_nil_value()); 
+    setGlobal("$c", mrb_nil_value()); 
   }
 }
 
@@ -182,6 +183,13 @@ bool DataSetExpression::nextValues(double * args, int * idx)
     mr->setGlobal("$row_name", mr->fromQString(dataset->rowNames[0].
                                                value(index, QString())));
   }
-    
+  if(useNames && dataset->columnNames.size() > 0 && dataset->checkColNames()) {
+    MRuby * mr = MRuby::ruby();
+    ValueHash c;
+    for(int i = 0; i < dataset->columnNames[0].size(); i++) {
+      c[dataset->columnNames[0][i]] = dataset->column(i)[index];
+    }
+    mr->setGlobal("$c", c.toRuby());
+  }
   return true;
 }

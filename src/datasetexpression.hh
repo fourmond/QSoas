@@ -76,6 +76,10 @@ public:
   /// Whether or not we use $col_names $row_names
   bool useNames;
 
+  /// If this is true (off by default), the real column names are used
+  /// instead of the standard column names.
+  bool useRealColNames;
+
   /// Creates an expression object
   DataSetExpression(const DataSet * ds, bool useStats = false,
                     bool useMeta = false, bool useNames = false);
@@ -106,7 +110,8 @@ public:
   /// given DataSet.
   static QStringList dataSetParameters(const DataSet * ds,
                                        int extracols = 0,
-                                       QStringList * colNames = NULL);
+                                       QStringList * colNames = NULL,
+                                       bool useRealNames = false);
 
   /// Prepares the given argument storage space for the evaluation of
   /// the next step. If returns false, then there is no next step.

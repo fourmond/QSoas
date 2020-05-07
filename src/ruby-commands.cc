@@ -70,13 +70,19 @@ static void applyFormulaCommand(const QString &, QString formula,
   bool keepOnError = false;
   updateFromOptions(opts, "keep-on-error", keepOnError);
 
+
   DataSetList buffers(opts);
 
   DataStackHelper pusher(opts);
   for(const DataSet * ds : buffers) {
     DataSetExpression ex(ds);
     QStringList colNames;
+
+    ex.useRealColNames = false;
+    updateFromOptions(opts, "use-names", ex.useRealColNames);
+
     int argSize = ex.dataSetParameters(extra, &colNames).size();
+    
     ex.useStats = true;
     updateFromOptions(opts, "use-stats", ex.useStats);
     ex.useMeta = true;
@@ -168,6 +174,9 @@ fO(QList<Argument *>()
                        "Use meta-data",
                        "if on (by default), you can use `$meta` to refer to "
                        "the dataset meta-data")
+   << new BoolArgument("use-names", 
+                       "Use column names",
+                       "if on the columns will not be called x,y, and so on, but will take their name based on the column names")
    << new BoolArgument("keep-on-error", 
                        "Keep on error",
                        "if on, the points where the Ruby expression returns a  error are kept, as invalid numbers")

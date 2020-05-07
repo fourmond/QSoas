@@ -32,7 +32,8 @@ DataSetExpression::DataSetExpression(const DataSet * ds,
                                      bool uS, bool uM, bool uN) :
   dataset(ds), index(-1), 
   expr(NULL), useStats(uS),
-  useMeta(uM), useNames(uN)
+  useMeta(uM), useNames(uN),
+  useRealColNames(false)
 {
 }
 
@@ -98,8 +99,9 @@ void DataSetExpression::prepareExpression(const QString & formula,
   MRuby * mr = MRuby::ruby();
   prepareVariables();
 
-  QStringList vars = dataSetParameters(dataset, extraCols);
+  QStringList vars = dataSetParameters(extraCols);
   // vars += extraParameters;
+  // QTextStream o(stdout);
   // o << "Preparing DS expression (nb:" << vars.size() << "): " << vars.join(", ") << endl;
 
   // Setting the global vars ahead may help...
@@ -116,8 +118,8 @@ void DataSetExpression::prepareExpression(const QString & formula,
   else {
     QStringList vn = Expression::variablesNeeded(formula, vars);
     if(vn.size() > 0) {
-      throw RuntimeError("Expression '%1' references unknonwn variables %2").
-        arg(formula).arg(vn.join(", "));
+      throw RuntimeError("Expression '%1' references unknown variables %2 (available variables: %3)").
+        arg(formula).arg(vn.join(", ")).arg(vars.join(", "));
     }
     expr = new Expression(formula, vars);
   }
@@ -135,19 +137,32 @@ Expression & DataSetExpression::expression()
 
 QStringList DataSetExpression::dataSetParameters(int extra, QStringList * cn)
 {
-  return dataSetParameters(dataset, extra, cn);
+  return dataSetParameters(dataset, extra, cn, useRealColNames);
 }
 
 
 QStringList DataSetExpression::dataSetParameters(const DataSet * ds,
-                                                 int extra, QStringList * cn)
+                                                 int extra, QStringList * cn,
+                                                 bool useRealNames)
 {
   QStringList vars;
   vars << "i" << "seg" << "x_0" << "i_0";
   QStringList colNames;
-  colNames << "x" << "y";
-  for(int i = 2; i < ds->nbColumns() + extra; i++)
-    colNames << QString("y%1").arg(i);
+  if(useRealNames) {
+    colNames = ds->mainColumnNames();
+    QRegExp valid("^[_a-z]\\w*$");
+    for(const QString & n : colNames) {
+      if(valid.indexIn(n) != 0)
+        throw RuntimeError("Column name '%1' is not a valid variable name").
+          arg(n);
+    }
+    for(int i = 0; i < extra; i++)
+      colNames << DataSet::standardNameForColumn(colNames.size());
+  }
+  else {
+    for(int i = 0; i < ds->nbColumns() + extra; i++)
+      colNames << DataSet::standardNameForColumn(i);
+  }
   vars += colNames;
   if(cn)
     *cn = colNames;

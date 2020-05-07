@@ -61,6 +61,7 @@ private:
   mrb_value cFancyHash;
 
   mrb_sym sNew;
+  mrb_sym sToS;
 
   mrb_sym sBrackets;
 

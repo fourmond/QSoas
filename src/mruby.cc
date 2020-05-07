@@ -45,6 +45,7 @@ MRuby::MRuby()
   cFancyHash = mrb_nil_value();
   cTime = mrb_vm_const_get(mrb, mrb_intern_lit(mrb, "Time"));
   sNew = mrb_intern_lit(mrb, "new");
+  sToS = mrb_intern_lit(mrb, "to_s");
   sBrackets = mrb_intern_lit(mrb, "[]");
 }
 
@@ -592,6 +593,10 @@ mrb_value MRuby::getGlobal(const char * name)
 
 QString MRuby::toQString(mrb_value value)
 {
+  if(mrb_nil_p(mrb_check_string_type(mrb, value))) {
+    // convert to string using to_s
+    value = funcall(value, sToS, 0, NULL);
+  }
   return mrb_string_value_cstr(mrb, &value);
 }
 

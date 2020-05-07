@@ -76,6 +76,7 @@ void DataSetExpression::prepareVariables()
       mr->arrayPush(mrn, mr->fromQString(n));
     setGlobal("$row_names", mrn);
     setGlobal("$col_names", mcn); 
+    setGlobal("$row_name", mrb_nil_value()); 
   }
 }
 
@@ -175,6 +176,12 @@ bool DataSetExpression::nextValues(double * args, int * idx)
 
   for(int j = 0; j < dataset->nbColumns(); j++)
     args[j+4] = dataset->column(j)[index];
+
+  if(useNames && dataset->rowNames.size() > 0) {
+    MRuby * mr = MRuby::ruby();
+    mr->setGlobal("$row_name", mr->fromQString(dataset->rowNames[0].
+                                               value(index, QString())));
+  }
     
   return true;
 }

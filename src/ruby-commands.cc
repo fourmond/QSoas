@@ -81,6 +81,8 @@ static void applyFormulaCommand(const QString &, QString formula,
     updateFromOptions(opts, "use-stats", ex.useStats);
     ex.useMeta = true;
     updateFromOptions(opts, "use-meta", ex.useMeta);
+    ex.useNames = true;         // But that may be a severe
+                                // performance hit ?
 
     Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
       arg(formula).arg(ds->name) << endl;
@@ -98,12 +100,14 @@ static void applyFormulaCommand(const QString &, QString formula,
     QList<Vector> newCols;
     for(int i = 0; i < ds->nbColumns() + extra; i++)
       newCols << Vector();
+    QStringList newRowNames;
 
     {
       // QMutexLocker m(&Ruby::rubyGlobalLock);
       QVarLengthArray<double, 100> ret(newCols.size());
       QVarLengthArray<double, 100> args(argSize);
       int idx = 0;
+      MRuby * mr = MRuby::ruby();
       while(ex.nextValues(args.data(), &idx)) {
         bool error = false;
         try {
@@ -120,13 +124,27 @@ static void applyFormulaCommand(const QString &, QString formula,
             ret[i] = 0.0/0.0;
           error = true;
         }
-        if(! error || (error && keepOnError))
+        if(! error || (error && keepOnError)) {
           for(int j = 0; j < ret.size(); j++)
             newCols[j].append(ret[j]);
+          mrb_value rn = mr->getGlobal("$row_name");
+          if(newRowNames.size() > 0 || (!mrb_nil_p(rn))) {
+            if(mrb_nil_p(rn))
+              newRowNames << "";
+            else
+              newRowNames << mr->toQString(rn);
+          }
+        }
       }
     }
   
     DataSet * newDs = ds->derivedDataSet(newCols, "_mod.dat");
+    if(newRowNames.size() > 0) {
+      if(newDs->rowNames.size() == 0)
+        newDs->rowNames << newRowNames;
+      else
+        newDs->rowNames[0] = newRowNames;
+    }
     pusher << newDs;
   }
 }

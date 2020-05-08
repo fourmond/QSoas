@@ -122,8 +122,10 @@ mrb_value MRuby::protect(const std::function<mrb_value ()> &function)
   SET_CPTR_VALUE(mrb, helper, const_cast<void*>(v));
   mrb->exc = NULL;
   helper = mrb_protect(mrb, &::protect_helper, helper, &failed);
+  
   if(mrb->exc) {
     mrb_value exc = mrb_obj_value(mrb->exc);
+    mrb->exc = NULL;
     throw RuntimeError("A ruby exception occurred: %1").arg(inspect(exc));
   }
 

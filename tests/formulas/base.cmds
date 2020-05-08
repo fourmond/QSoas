@@ -1,0 +1,16 @@
+generate-buffer 0 10 1
+assert $stats.y_max-1 0
+
+apply-formula y=2*y
+assert $stats.y_max-2 0
+
+apply-formula y*=2
+assert $stats.y_max-4 0
+
+apply-formula y=-y
+assert $stats.y_max+4 0
+
+
+apply-formula x=2
+apply-formula y=-x
+assert $stats.y_max+2 0

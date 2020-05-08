@@ -424,9 +424,14 @@ QStringList MRuby::detectParameters(const QByteArray & code)
       mrb_gc_arena_restore(mrb, ai);
     }
   }
-  // QStringList l = rv.toList();
+  QStringList l;
+  QRegExp re("^\\w+$");
+  for(const QString & n : rv) {
+    if(re.indexIn(n,0) == 0)    // avoid unary operator names
+      l << n;
+  }
   // o << " -> " << l.join(", ") << endl;
-  return rv.toList();
+  return l;
 }
 
 #endif

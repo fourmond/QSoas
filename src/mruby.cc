@@ -89,6 +89,7 @@ MRuby::MRuby()
   cFancyHash = mrb_nil_value();
   cTime = mrb_vm_const_get(mrb, mrb_intern_lit(mrb, "Time"));
   sNew = mrb_intern_lit(mrb, "new");
+  sToS = mrb_intern_lit(mrb, "to_s");
   sBrackets = mrb_intern_lit(mrb, "[]");
 }
 
@@ -166,8 +167,10 @@ mrb_value MRuby::protect(const std::function<mrb_value ()> &function)
   SET_CPTR_VALUE(mrb, helper, const_cast<void*>(v));
   mrb->exc = NULL;
   helper = mrb_protect(mrb, &::protect_helper, helper, &failed);
+  
   if(mrb->exc) {
     mrb_value exc = mrb_obj_value(mrb->exc);
+    mrb->exc = NULL;
     throw RuntimeError("A ruby exception occurred: %1").arg(inspect(exc));
   }
 
@@ -481,9 +484,14 @@ QStringList MRuby::detectParameters(const QByteArray & code)
       mrb_gc_arena_restore(mrb, ai);
     }
   }
-  // QStringList l = rv.toList();
+  QStringList l;
+  QRegExp re("^\\w+$");
+  for(const QString & n : rv) {
+    if(re.indexIn(n,0) == 0)    // avoid unary operator names
+      l << n;
+  }
   // o << " -> " << l.join(", ") << endl;
-  return rv.toList();
+  return l;
 }
 
 #endif
@@ -656,6 +664,10 @@ mrb_value MRuby::getGlobal(const char * name)
 
 QString MRuby::toQString(mrb_value value)
 {
+  if(mrb_nil_p(mrb_check_string_type(mrb, value))) {
+    // convert to string using to_s
+    value = funcall(value, sToS, 0, NULL);
+  }
   return mrb_string_value_cstr(mrb, &value);
 }
 

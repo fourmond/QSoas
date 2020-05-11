@@ -36,3 +36,12 @@ end
 # p a ["stuff"]
 # p a.stuff
 # a.sdf
+
+# This has nothing to do here, but is useful nonetheless.
+class String
+  def =~(cmp)
+    if cmp.is_a? Regexp
+      return cmp =~ self
+    end
+  end
+end

@@ -7,6 +7,9 @@
 # convert QSoas-logo.svg QSoas.ico
 inkscape -w 256 -e QSoas-logo.png QSoas-logo.svg
 
+# For the FB logo:
+# inkscape -w 1536 -a -50:-50:530:530 -e ~/QSoas-logo.png QSoas-logo.svg
+
 mkdir -p tmp-icons
 for res in 16 32 48 64 96 128 256 512; do
     inkscape -w $res -e tmp-icons/QSoas-$res.png QSoas-logo.svg

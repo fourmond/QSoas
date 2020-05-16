@@ -1,0 +1,11 @@
+#! /bin/sh
+
+
+# Runs the test suite of QSoas, in
+
+qsoas=$QSOAS
+if [ -z "$qsoas" ]; then
+    qsoas=QSoas
+fi
+cd perf
+$qsoas -platform offscreen --run '@ run-all-tests.cmds ' --exit-after-running

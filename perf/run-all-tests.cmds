@@ -1,0 +1,1 @@
+run-for-each /error=ignore run-one-test.cmds */*.cmds

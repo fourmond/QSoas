@@ -1,0 +1,8 @@
+# Runs a single test, timing it, with a timer named based on the name
+# of the script.
+
+# We clear the stack before each test
+clear-stack
+timer /name=${1%%.cmds}
+@ ${1} /cd-to-script=true
+timer /name=${1%%.cmds}

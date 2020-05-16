@@ -1,0 +1,1 @@
+run-for-each /range-type=lin s/make-one-small.cmds 0..10:100

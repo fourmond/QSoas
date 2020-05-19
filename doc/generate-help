@@ -320,6 +320,7 @@ end
 files_s = ""
 
 for f in $images.keys
+  FileUtils::mkdir_p("#{$target_dir}/images")
   if File::readable? f
     FileUtils::cp(f, "#{$target_dir}/images")
     files_s << "<file>#{f}</file>\n"

@@ -14,7 +14,9 @@ mkdir -p tmp-icons
 for res in 16 32 48 64 96 128 256 512; do
     inkscape -w $res -e tmp-icons/QSoas-$res.png QSoas-logo.svg
 done
-png2icns QSoas.icns tmp-icons/*.png
 convert tmp-icons/*.png QSoas.ico
+rm -f tmp-icons/*64*.png
+rm -f tmp-icons/*96*.png
+png2icns QSoas.icns tmp-icons/*.png
 rm -rf tmp-icons
 

@@ -127,7 +127,7 @@ namespace __reg {
       switch(reglinHandler.nextAction(loop)) {
       case LeftPick:
       case RightPick: {
-        r.setX(loop.position().x(), loop.button());
+        r.setX(loop.position(view.mainPanel()).x(), loop.button());
         reg = ds->reglin(r.xmin(), r.xmax());
         double y = reg.first * xleft + reg.second;
         line.p1 = QPointF(xleft, y);

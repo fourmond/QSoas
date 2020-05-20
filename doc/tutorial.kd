@@ -818,9 +818,9 @@ Let us illustrate this with `file2.dat`. Load the file, then run
 QSoas> filter-fft /derive=1
 ~~~
 
-Show the PS and select a cutoff of about 23, then quit to get into
-buffer \#0 something that resembles a derivative of a sigmoid, while
-`file2` is now in buffer \#1.
+Show the power spectrum (by hitting `p`) and select a cutoff of about
+23, then quit to get into buffer \#0 something that resembles a
+derivative of a sigmoid, while `file2` is now in buffer \#1.
 
 Alternatively, just run
 
@@ -891,63 +891,6 @@ def gas_injection(t, t0, c0, tau)
 end
 ~~~
 
-## Using built-in fitting functions {#tuto-builtin}
-
-Many `fit-`, `mfit-`, and `sim-` commands are built-in. They can be used
-to fit [exponential decays](qsoas.html#cmd-fit-exponential-decay),
-peaks, Nernstian sigmoids, or electrochemical data, as described in the
-[section about fits in the manual](qsoas.html#fits).
-
-For example, the command [cmd: fit-adsorbed]
-can be used for fitting Nernstian peaks to non-catalytic voltammetric
-signals for adsorbed species.
-
-The option `/species=` gives the number of peaks. The option
-`/distinct=true` allows the peak to have different areas.
-
-~~~
-QSoas> fit-adsorbed /species=2 /distinct=true
-~~~
-
-Here is the result of the fig of the forward sweep of `file5.dat`,
-setting `n=1` for the two peaks, but the values of `Gamma` are free.
-
-[img: images/nc-4.jpg]
-
-Here is another fit of the same data set, where the two values of
-$$n$$ are free and the two values of $$\Gamma$$ are forced to
-be identical (see `Gamma_1=Gamma_0` and the "fixed" box ticked)
-
-[img: images/nc-5.jpg]
-
-Other example, the [cmd: fit-lorentzian]
-command fits **a lorentzian function** (or a sum of lorentzian
-functions) to a signal. The following list of commands loads two
-spectra, and fits a sum of two Lorentzian functions to the two data
-sets, making sure that the peaks have the same positions and widths for
-the two data sets, but different amplitudes.
-
-~~~
-QSoas> load file4.txt
-Loading file: './file4.txt' using backend text
- -> OK
-QSoas> load file5.txt
-Loading file: './file5.txt' using backend text
- -> OK
-QSoas> mfit-lorentzian 0 1 /number=4 /parameters=file4-file5.params
-Loaded fit parameters from file file4-file5.params
-~~~
-
-Before running the fit, the parameters can been edited (CTRL+E) to force
-the amplitudes and positions to be positive (set up transformation:
-log).
-
-[img: images/12.jpg]
-
-Here is the result:
-
-[img: images/11.jpg]
-
 ## Forcing relations between parameters of the model(s).
 
 Imagine you want to analyse a 1st order relaxation (forward rate
@@ -973,16 +916,74 @@ Having an extra parameter may also be useful if you are fitting several
 models to several data sets, and want to impose a relation between the
 parameters of two distinct models.
 
+## Using built-in fitting functions {#tuto-builtin}
+
+Many `fit-`, `mfit-`, and `sim-` commands are built-in. They can be used
+to fit [exponential decays](qsoas.html#cmd-fit-exponential-decay),
+peaks, Nernstian sigmoids, or electrochemical data, as described in the
+[section about fits in the manual](qsoas.html#fits).
+
+For example, the command [cmd: fit-adsorbed]
+can be used for fitting Nernstian peaks to non-catalytic voltammetric
+signals for adsorbed species.
+
+The option `/species=` gives the number of peaks. The option
+`/distinct=true` allows the peak to have different areas.
+
+~~~
+QSoas> fit-adsorbed /species=2 /distinct=true
+~~~
+
+Here is the result of the fit of the backward sweep of `file5.dat`,
+setting `n=1` for the two peaks, but the values of `Gamma` are free.
+
+[img: images/Tuto-12.jpg]
+
+Here is another fit of the same data set, where the two values of
+$$n$$ are free and the two values of $$\Gamma$$ are forced to
+be identical (see `Gamma_1=Gamma_0` and the "fixed" box ticked)
+
+[img: images/Tuto-13.jpg]
+
+Other example, the [cmd: fit-lorentzian]
+command fits **a lorentzian function** (or a sum of lorentzian
+functions) to a signal. The following list of commands loads two
+spectra, and fits a sum of two Lorentzian functions to the two data
+sets, making sure that the peaks have the same positions and widths for
+the two data sets, but different amplitudes.
+
+~~~
+QSoas> load file4.txt
+Loading file: './file4.txt' using backend text
+ -> OK
+QSoas> load file5.txt
+Loading file: './file5.txt' using backend text
+ -> OK
+QSoas> mfit-lorentzian 0 1 /number=4 /parameters=file4-file5.params
+Loaded fit parameters from file file4-file5.params
+~~~
+
+Before running the fit, the parameters can been edited (CTRL+E) to force
+the amplitudes and positions to be positive (set up transformation:
+log).
+
+[img: images/Tuto-14.jpg]
+
+Here is the result:
+
+[img: images/Tuto-15.jpg]
+
+
 ## Fit one or several data set(s) using the numerical solution of a kinetic system {#tuto-kinetic-system}
 
 Imagine you are trying to analyze the change in a signal which is
 proportional to the concentration of a species A that disappears
-according to dA/dt=-k\*A. If the initial concentration of A equates 1,
+according to $$dA/dt=-k A$$. If the initial concentration of A equates 1,
 the initial concentration of B is 0 and k=0.5, then the data should look
 like the buffer generated using the following command,
 
 ~~~
-QSoas> generate-buffer .01 10 /samples=100 /formula=“y=exp(-0.5*x)+0.01*sin(100*x)”
+QSoas> generate-buffer .01 10 /samples=100 exp(-0.5*x)+0.01*sin(100*x)
 ~~~
 
 where the sin() function is added to simulate some noise.
@@ -1013,9 +1014,12 @@ If the data set corresponds to the concentration of A, then fix `y_A` to
 Other kinetic systems may be defined, using this sort of syntax:
 
 ~~~
-A+A->B[k] # 2nd order, irreversible transformation of A into B with the 2nd order rate constant k1, so that dA/dt=-2*k*A**2
-A<=>B[k1][k2] # 1st order, reversible conversion between A and B, dA/dt=-k1*A+k2*B
-A+B<=>C[k1/c_B][k2]  # pseudo 1st order transformation of A into C
+# 2nd order, irreversible transformation of A into B with the 2nd order rate constant k1, so that dA/dt=-2*k*A**2
+A+A->B[k]
+# 1st order, reversible conversion between A and B, dA/dt=-k1*A+k2*B
+A<=>B[k1][k2]
+# pseudo 1st order transformation of A into C
+A+B<=>C[k1/c_B][k2]
 ~~~
 
 More complex schemes will be described in a text file that contains
@@ -1118,7 +1122,7 @@ QSoas> fit-ode relataxion.ode
 
 Your fit dialog box should look like this:
 
-[img: images/fit-ode.png]
+[img: images/Tuto-16.jpg]
 
 Note that by default, `QSoas` fits a linear combination of the
 integrated functions to the data; the coefficients are visible here as
@@ -1171,9 +1175,6 @@ QSoas> l file7.dat
 QSoas> fit-exponential-decay
 ~~~
 
-[img: images/fit-exp-nodist.png]
-
-
 To fit this with a uniform distribution of relaxation time constants,
 run:
 
@@ -1186,7 +1187,7 @@ Now, one can see that the fit is much better, in particular at the
 beginning of the relaxation, where the uniform dispersion is expected to
 make a significant difference.
 
-[img: images/fit-exp-dist.png]
+[img: images/Tuto-17.jpg]
 
 ### Dispersion Example 2: distribution of orientation of redox-active enzymes
 
@@ -1220,8 +1221,6 @@ QSoas> l file8.dat
 QSoas> fit-1el /parameters=file8.1el.params
 ~~~
 
-[img: images/fit-1el.png]
-
 As you can see, the fit is decent, but not perfect. This is due to the
 fact that there is a dispersion of values of $$k_0$$ (and hence of
 the values of the parameter `k2_ov_k0`). To fit that, we'll define
@@ -1241,8 +1240,6 @@ using
 QSoas> l file8.dat
 QSoas> fit-1el-distrib /parameters=file8.1el-distrib.params
 ~~~
-
-[img: images/fit-1el-distrib.png]
 
 See that the `k2_ov_k0` parameter has been replaced by `k2_ov_k0_max`
 and `k2_ov_k0_betadmax`, that correspond respectively to the highest
@@ -1388,7 +1385,7 @@ QSoas> mfit-exponential-decay /exponentials=2 flagged:joliot
 
 Your screen should look like that:
 
-[img: images/mfit-exponential.png]
+[img: images/Tuto-18.jpg]
 
 Note that the value of the perpendicular coordinate (here the
 wavelength) is shown next to the name of the buffer: `Z = 540`. We
@@ -1396,15 +1393,9 @@ impose that `tau_1` and `tau_2` are common to all buffers. We also set
 `x0` to `0` for all the buffers, though in practice this will not affect
 the determined times, and have very little effect on the amplitudes.
 
-Next, we fit, by clicking on the Fit button. This should look like that:
-
-[img: images/mfit-exponential-1.png]
-
-To get a better view of the overall fit, we can use the dropdown menu
-next to the arrows on the right hand side (it initially shows `1x1`).
-Here's how it looks with the `3x3` nup view:
-
-[img: images/mfit-exponential-2.png]
+Next, we fit, by clicking on the Fit button.  To get a better view of
+the overall fit, we can use the dropdown menu next to the arrows on
+the right hand side (it initially shows `1x1`). 
 
 QSoas has two visualization features that make it easy to work with
 perpendicular coordinates. First, it is possible to display the
@@ -1414,7 +1405,7 @@ spectrum. For that, click on the "Show parameters" option from the
 "Parameters" menu, and select all the amplitudes through the check
 boxes:
 
-[img: images/mfit-exponential-3.png]
+[img: images/Tuto-19.jpg]
 
 From that window, it is possible to push these spectra to the stack
 using the "Push visible" or "Push all" buttons. See how these spectra
@@ -1427,8 +1418,6 @@ important, as it shows artifacts that may not be obvious from the other
 view (such as data at a given time that is systematically not fitted
 correctly, which is hard to spot from the time view). To access to that,
 just select the "Show transposed data" item from the "Data" menu.
-
-[img: images/mfit-exponential-4.png]
 
 Not all the kinetic experiments can be fit by sums of exponentials. The
 approach described above is absolutely not limited to
@@ -1450,10 +1439,6 @@ Fitting this model to the data is just a matter of running
 QSoas> mfit-kinetic-system Joliot.txt flagged:joliot
 ~~~
 
-Your screen should look like that:
-
-[img: images/mfit-ks-1.png]
-
 For each buffer, the evolution of the concentration of the `A`, `B` and
 `C` are computed from the kinetic system shown above. The `y` value
 fitted to the data is a linear combination of the concentration, each
@@ -1474,10 +1459,6 @@ checkbox to make sure the initial concentration is the same for all
 buffers). The last thing before fitting is setting the `k_fast` and
 `k_slow` parameters to reasonable values, such as `1e4` and `1e3`
 respectively, and make sure they are global.
-
-Your screen should now look like that:
-
-[img: images/mfit-ks-2.png]
 
 Then, all that's left to do is to fit ! As before you can also look at
 the spectrum of species `A`, `B` and `C` using the "Show parameters"

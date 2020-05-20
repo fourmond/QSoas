@@ -619,3 +619,41 @@ becomes the buffer 1, and so on for all higher numbers.
 
 To start with a clean slate, run [cmd: clear-stack] to remove all the
 buffers from the stack.
+
+{::comment} tip: basic;commands {:/}
+## QSoas log file {#log-file}
+
+The contents of the terminal are systematically written to a log file,
+whose location is given in the very first line of the terminal. It
+will often be something like `C:\Users\me\soas.log` for windows,
+`/Users/me/soas.log` for mac, or `/home/me/soas.log` in linux.
+
+As this log file contains all the text in the terminal, it contains
+all the commands you run, so you can figure out what it was that you
+did, and it is very helpful to send along bug reports as well.
+
+The 5 previous log files are saved as `soas.log.1`, `soas.log.2` etc.
+
+{::comment} tip: advanced;commands;scripts;globs {:/}
+## Running a script on many files {#run-for-each}
+
+One you have made a script to process a file the way you like it, you
+can run the same script on a large number of files using
+[cmd: run-for-each]. Running:
+
+~~~
+QSoas> run-for-each script.cmds file1.dat file2.dat
+~~~
+
+is equivalent to running
+
+~~~
+QSoas> @ script.cmds file1.dat
+QSoas> @ script.cmds file2.dat
+~~~
+
+You can also use jokers:
+
+~~~
+QSoas> run-for-each script.cmds file*.dat 
+~~~

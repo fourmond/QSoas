@@ -41,6 +41,12 @@ opts.parse!(ARGV)
 FileUtils.mkdir_p($target_dir)
 
 
+# The location of the command reference:
+$reference = $make_web ? "../reference/" : "qsoas.html"
+
+
+
+
 # A hash 
 $equations = {}
 eqf = "equations.yaml"
@@ -114,11 +120,14 @@ end
 # * the fits defined in
 # * the HTML code (once parsed with kramdown)
 # * (later:) the latex code
-$target = ""
 def parse_file(info)
 
   f = File.open(info['source'], "r")
   ofn = info['tmp'] || (info['source']+".tmp")
+  target = ""
+  if info['source'] != "qsoas.kd"
+    target = $reference
+  end
 
   info['sections'] = []
   info['commands'] = []
@@ -174,9 +183,9 @@ def parse_file(info)
           end
         end
       end
-      l.gsub!(/\[cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{$target}" + '#cmd-\\1)')
-      l.gsub!(/\[fit:\s*([^\]]+)\]/, '[`\\1`](' + "#{$target}" + '#cmd-fit-\\1)')
-      l.gsub!(/\[fit-cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{$target}" + '#fit-cmd-\\1)')
+      l.gsub!(/\[cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{target}" + '#cmd-\\1)')
+      l.gsub!(/\[fit:\s*([^\]]+)\]/, '[`\\1`](' + "#{target}" + '#cmd-fit-\\1)')
+      l.gsub!(/\[fit-cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{target}" + '#fit-cmd-\\1)')
       l.gsub!(/\[img:\s*([^\]]+)\]/) do |x|
         img = $1
         $images[img] = true

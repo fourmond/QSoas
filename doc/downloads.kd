@@ -1,0 +1,91 @@
+# Download QSoas
+
+QSoas is free software; you can download its source code
+[below](#source-code), or browse the latest code in the
+[github repository](https://github.com/fourmond/QSoas).
+
+You can also purchase [already built applications](#applications) for
+a small fee, both to save you the hassle of compiling the software
+yourself and to support the development of QSoas.
+
+
+## Source code {#source-code}
+
+-   Version 2.2.0 [`qsoas-2.2.0.tar.gz`](downloads/qsoas-2.2.0.tar.gz)
+    (2018.03.27, fixes compilation problems with 2.2)
+-   Version 2.2 [`qsoas-2.2.tar.gz`](downloads/qsoas-2.2.tar.gz)
+    (2018.03.21)
+-   Version 2.1 [`qsoas-2.1.tar.gz`](downloads/qsoas-2.1.tar.gz)
+    (2017.01.02)
+-   Version 2.0 [`qsoas-2.0.tar.gz`](downloads/qsoas-2.0.tar.gz)
+    (2016.07.19)
+-   Version 1.0 [`qsoas-1.0.tar.gz`](downloads/qsoas-1.0.tar.gz)
+(2015.05.29)
+
+## Compiling from source {#compilation}
+
+
+Version `3.0` of QSoas requires the following software packages to
+compile:
+
+-   Qt version 5, from [the Qt archive](http://download.qt.io/archive/qt/).
+-   [Ruby](https://www.ruby-lang.org/en/downloads/), which is only
+    necessary for compilation, but not necessary afterwards.
+-   [mruby](https://mruby.org/), version `1.4.0` or after `2.1.0`
+    (included). The versions inbetween have issues that make QSoas
+    crash.
+-   The [GNU Scientific
+    Library](http://www.gnu.org/software/gsl/)
+
+On a Debian (or Ubuntu) system, you can install the build dependencies
+by running (as root):
+
+```
+~ apt install ruby-dev libmruby-dev libgsl-dev libqt5opengl5-dev qt5-qmake qtbase5-dev libqt5svg5-dev qttools5-dev
+```
+
+Build running the following commands in the unpacked archive directory:
+
+```
+~ qmake
+~ make
+```
+
+You may need to use `qmake -qt=5` instead of just `qmake`.
+
+## Pre-built applications {#applications}
+
+
+Compiling QSoas from source on MacOSX and on Windows is possible, but it
+is not easy. To make your life easier, our partner
+[eValorix](https://evalorix.com/) offers for sale [pre-built applications](https://evalorix.com/en/shop/science-and-engineering/qsoas-software/)
+
+**Note:** the price on that site is expressed in Euros or
+[CANADIAN]{.caps} dollars, see for instance [XE](http://www.xe.com/) for
+currency conversion.
+
+The download is a [ZIP]{.caps} file that contains:
+
+-   a `.msi` (MS installer) file that contains the installer for
+    Vista/7/8/10
+-   a `-winxp.msi` file that contains the version for windows XP
+-   a `.pkg` that contains the installer for Intel Macs (32 and 64
+    bits).
+-   and the `.tar.gz` archive containing the source code (the same as from the download link above)
+
+For MacOS, QSoas is also available as a
+[homebrew recipe](https://formulae.brew.sh/formula/qsoas.html). We are
+not involved in its maintenance, and have not tested it.
+
+
+### Free pre-built application for QSoas 1.0 ! {#free-v1p0}
+
+
+Those unable or unwilling to pay the price for the pre-built recent
+images can download and install [version 1.0 for
+free](downloads/QSoas-1.0.zip).
+
+### Intranet
+
+[Intranet downloads](http://10.234.32.140/soas/?C=M;O=D) are available
+for collaborators located in our laboratory.

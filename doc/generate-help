@@ -189,7 +189,8 @@ def parse_file(info)
       l.gsub!(/\[img:\s*([^\]]+)\]/) do |x|
         img = $1
         $images[img] = true
-        "![#{img}](#{img}){:class='image'} "
+        tgt = $make_web ? img.gsub(/^images\//, '/wp-content/uploads/qsoas/images/') : img
+        "![#{img}](#{tgt}){:class='image'} "
       end
       if l =~ /^\[.*:http/
         l << "{: class='external'}\n"

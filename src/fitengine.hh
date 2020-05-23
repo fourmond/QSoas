@@ -196,6 +196,10 @@ public:
   virtual void setEngineParameters(const CommandOptions & params);
 
   /// @}
+
+  /// The number of buffer at which one starts to want multi-buffer
+  /// capable fit enfines.
+  static const int buffersForMulti = 15;
 };
 
 

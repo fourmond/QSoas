@@ -1,0 +1,3 @@
+generate-buffer 0 10 /samples=30001 /number=300 /flags=columns
+contract flagged:columns /mode=indices
+apply-formula y=x**2

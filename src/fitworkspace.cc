@@ -1490,7 +1490,7 @@ void FitWorkspace::startFit()
   int freeParams = fitData->freeParameters();
   if(! fitData->independentDataSets() &&
      freeParams > 80 &&
-     fitData->datasets.size() > 15 &&
+     fitData->datasets.size() > FitEngine::buffersForMulti &&
      !fitData->engineFactory->isMultiCapable && warnings) {
     if(! warnings->warnOnce(QString("massive-mfit-%1").
                             arg(fitData->engineFactory->name),

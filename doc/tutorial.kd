@@ -21,7 +21,7 @@ QSoas. You can look at the documentation of each command in the
     functions](#tuto-builtin) or even the numerical solution of a
     [kinetic system](#tuto-kinetic-system)
 -   [reparametrize fits](#tuto-reparametrize)
--   fit using [differential equations](#tuto-odes){.ordinary}
+-   fit using [differential equations](#tuto-odes)
 -   fit with [parameter dispersion](#tuto-dispersion)
 -   run [global fits with shared parameters](#tuto-multifit)
 -   analyse the [time evolution of a spectrum](#tuto-joliot)
@@ -39,45 +39,46 @@ this tutorial.
 ## Start QSoas and change the current directory.
 
 When you start QSoas on a computer running Windows, two windows will
-appear: a black text-window which you can ignore, and a main window
-which looks like the image below. On MacOSX and Linux computers, you
-will see only one window.
+appear: a black text-window which you can ignore, the main window
+which looks like the image below, and a tips windows. On MacOSX and
+Linux computers, the black window will not be present.
 
-[img: images/1bis.jpg]
-
-(click on the above picture to see a larger version)
+[img: images/Tuto-1.jpg]
 
 In this window, locate:
 
+-   the tips window, which shows automatically at startup (but click
+    on "Don't show tips again" if you don't want them);
 -   the list of menus (top left): File / Fits / View / Buffer /
-    Simulations / Help.
+    Simulations / Help;
 -   the graphic zone, which you can expand by dragging with the mouse a
     dot that is located just below the X at the bottom of this graphic
     zone. Sometime you can't see the dot, just move your mouse around
-    this zone until the handle appears.
+    this zone until the handle appears;
 -   a large text-box, referred to as "**QSoas' terminal**", which
-    shows, among other information, the precise version:
+    shows, among other useful informations, the precise version and
+    the location of the *log file* (here, `C:/Users/Christina/soas.log`):
 
 ~~~
 Opening log file: C:/Users/Christina/soas.log
-This is QSoas version 2.2.0+2020.04.28-master+r3422-a030995-qt5-newer-gsl running with mruby 1.3.0 and Qt 5.8.0
-
-Built 2020-04-28 08:04:10 +0200 on 'nausicaa' with Qt 5.8.0 and GSL version 2.5
-
+This is QSoas version 2.2.0+2020.05.19-release+r2683-817f303-qt5-newer-gsl running with mruby 1.3.0 and Qt 5.8.0
+Built 2020-05-19 04:25:30 +0200 on 'nausicaa' with Qt 5.8.0 and GSL version 2.5
 Copyright 2011 by Vincent Fourmond
+          2012-2020 by CNRS/AMU
 
-2012-2020 by CNRS/AMU
+Based on Christophe Leger's original Soas
 [...]
 To get help on a specific command, type 'help command'
 ~~~
-
 
 -   a one-line text-box showng a prompt (`QSoas>`) and a blinking
     cursor. This is the **command line**, Linux style.
 
 You will tell QSoas what to do by typing text in the command line.
 Commands can also be run trying to find things in the menus and clicking
-with the mouse, but we advise that you use the command line.
+with the mouse, but we advise that you use the command line. A nice
+thing about clicking in the menus is that it shows you a dialog box
+with all the options available for the command.
 
 For example, you can change directory by clicking on
 Menu/File/ChangeDirectory, then using the File Explorer (windows) or
@@ -91,7 +92,7 @@ Finally, you can also select the new directory by typing the following
 text in the command line:
 
 ~~~
-QSoas> cd E:/somewhere/QSoasExampleFiles (window)
+QSoas> cd E:/somewhere/QSoasExampleFiles (windows)
 QSoas> cd /Users/me/somewhere/QSoasExampleFiles/ (mac)
 QSoas> cd /home/somewhere/ (linux)
 ~~~
@@ -139,7 +140,12 @@ program predicts one or more possible completions as choices, and writes
 them either below the command line or in the terminal. Try it by typing
 `l` then hit the tab key.
 
-Therefore, to load file1.dat, you may also type
+Honestly, you should really get into the habit of using the tab key
+systematically. Beyond saving time, it also helps preventing spelling
+mistakes; most of the time, if QSoas cannot complete what you are
+typing, chances are it won't understand it either.
+
+Therefore, to load the file `file1.dat`, you may also type
 
 ~~~
 QSoas> load file1.
@@ -150,17 +156,25 @@ and hit the tab key to auto-complete, try and see what happens.
 Or you may just type `load` and return, or just `l` and return: a window
 will appear, for you to select the file you want to load.
 
-Alternatively, you may use the comand [cmd: browse]
-(short name `W`) which will open a window showing all data files in the
-current directory, then tick the "select buffer" box that is just next
-to the file you want to load, then "push onto stack", then "close". Here
-you are.
+Alternatively, you may use the comand [cmd: browse] (short name `W`):
+~~~
+QSoas> W
+~~~
 
-[img: images/2.jpg]
+This opens a window showing all data files in the current directory,
+then tick the "select buffer" box that is just next to the file you
+want to load, then "push onto stack", then "close". Here you are.
+
+[img: images/Tuto-2.jpg]
+
+
+~~~
+QSoas> load file1.dat
+~~~
 
 After you have loaded the file, the window should look like this:
 
-[img: images/3.jpg]
+[img: images/Tuto-3.jpg]
 
 On the top left corner of the graphical window, you now see
 "`file1.dat (#0)`". This is the name and number of the current data set.
@@ -172,9 +186,9 @@ expert and your commands are more complex.
 
 ## The stack {#tuto-stack}
 
-QSoas (like SOAS) keeps the different data sets in a stack.
-These data sets are called buffers. The up-to-date buffer, usually
-displayed on screen, is number 0, hence "`file1.dat (#0)`".
+QSoas keeps the different data sets in a stack.  These data sets are
+called buffers. The up-to-date buffer, usually displayed on screen, is
+number 0, hence "`file1.dat (#0)`".
 
 Modifying a buffer moves it upwards in the stack (then the former 0th
 buffer becomes number 1 etc...), while the new buffer takes position
@@ -197,7 +211,11 @@ Imagine you want to analyze the oxidative part of the CV, you have to
 cut the data set first, use the command [cmd: cut] (or
 just `c`) and hit return, you get:
 
-[img: images/4b.jpg]
+~~~
+QSoas> c
+~~~
+
+[img: images/Tuto-4.jpg]
 
 The current is now plotted against "time" (actually, index = data point
 number) in the graphic window. The vertical dashed white lines mark the
@@ -211,8 +229,8 @@ right bound with a right click at X=800. Then "quit" clicking on the
 middle button (or typing `q`): you're back with a new buffer where the
 parts outside the limits you selected have been deleted.
 
-Run `undo` (or simply `u`) to get back to the complete CV, and try the
-commands `splita` and `splitb` (one at a time).
+Run [cmd: undo] (or simply `u`) to get back to the complete CV, and try the
+commands [cmd: splita] and [cmd: splitb] (one at a time).
 
 Note that the name of the buffer (shown on top of the graphic window)
 has changed. The name of the buffer will be automatically modified each
@@ -242,7 +260,11 @@ The above command will get rid of the data outside the interval $$100
 Use the command [cmd: filter-fft] to remove
 regular and/or high frequency noise from the voltammograms.
 
-[img: images/5.jpg]
+~~~
+QSoas> filter-fft
+~~~
+
+[img: images/Tuto-5.jpg]
 
 The graphical window is now split in two. The upper window shows the raw
 data in red, and the smoothed data overlaid in purple. The difference
@@ -258,7 +280,7 @@ cutoff is indicated by a vertical dashed line in the PS. Click in the PS
 to adjust the cutoff. See the effect on the residuals by typing `p` to
 remove the PS and see the residuals.
 
-[img: images/5b.jpg]
+[img: images/Tuto-6.jpg]
 
 You want to make sure that the residuals are evenly distributed around
 Y=0, i.e. that you're not over-filtering. When you are happy with the
@@ -286,7 +308,11 @@ The [cmd: reg] command works just like
 define **one segment** that is used to fit a **linear baseline** (dotted
 blue). Try it.
 
-[img: images/6.jpg]
+~~~
+QSoas> reg
+~~~
+
+[img: images/Tuto-7.jpg]
 
 You can move the bounds as many times as you want. When you are happy
 with your linear baseline, subtract it by typing `u`.
@@ -300,12 +326,15 @@ uses a spline procedure. The markers that define the baseline are input
 clicking with the mouse. By typing `s`, `x` or `o`, the marker switches
 between Smooth, eXact or Off data. See the list of commands on the
 bottom right corner of the screen. Type `q` to quit, subtracting the
-baseline.
+baseline. Try it out with the file `file5.dat`:
 
-The example below was obtained with the file `file5.dat` in the Example
-directory.
+~~~
+QSoas> l file5.dat
+QSoas> split-b
+QSoas> b
+~~~
 
-[img: images/nc-2.jpg]
+[img: images/Tuto-8.jpg]
 
 The other baseline corrections available in SOAS are also available in
 QSoas using the following QSoas commands:
@@ -338,14 +367,23 @@ The non-interactive command [cmd: stats] tells you
 everything you need to know about the current data set:
 
 ~~~
+QSoas> l file1.dat
+QSoas> splitb
 QSoas> stats
 Statistics on buffer: file1_b.dat:
-x_first = -0.0508118    x_last = 0.398865   x_min = -0.0508118
-x_max = 0.398865000 x_average = 0.174448915 x_med = 0.174561
-x_var = 0.0168950343578 x_norm = 4.4637590503   
-y_first = -3.95189e-08  y_last = 2.27766e-08    y_min = -4.20774e-08
-y_max = 3.75436e-08 y_average = 4.10445e-09 y_med = 1.84776e-08
-y_var = 6.13300475e-16  y_norm = 5.15064875e-07 y_int = 1.8225923865215e-09
+x_sum =	 73.442993312	x_average =	 0.17444891523	x_var =	 0.0168957110344
+x_stddev =	 0.129983502932	x_first =	 -0.0508118	x_last =	 0.398865
+x_min =	 -0.0508118	x_max =	 0.398865	x_norm =	 4.4637590504
+x_med =	 0.174561	x_q10 =	 -0.00595093	x_q25 =	 0.0624084
+x_q75 =	 0.286713	x_q90 =	 0.354004	x_delta_min =	 0.001068
+x_delta_max =	 0.00213623	
+y_sum =	 1.727973303e-6	y_average =	 4.10444965083e-9	y_var =	 6.13300475277e-16
+y_stddev =	 2.47649041039e-8	y_first =	 -3.95189e-8	y_last =	 2.27766e-8
+y_min =	 -4.20774e-8	y_max =	 3.75436e-8	y_norm =	 5.15064927472e-7
+y_int =	 1.82259238652e-9	y_med =	 1.84776e-8	y_q10 =	 -2.95887e-8
+y_q25 =	 -2.26708e-8	y_q75 =	 2.52273e-8	y_q90 =	 3.16927e-8
+y_delta_min =	 1.23e-11	y_delta_max =	 7.2873e-9	y_a =	 1.65901627747e-7
+y_b =	 -2.48369093445e-8
 ~~~
 
 ## Algebra
@@ -354,26 +392,28 @@ The command [cmd: apply-formula] can be used
 to transform your data. Examine the following examples:
 
 ~~~
-QSoas> apply-formula “x=x+0.241”
-QSoas> apply-formula “x+=0.241” 
-QSoas> apply-formula “x,y = y,x”
-QSoas> apply-formula “x=x+2 if (x>-0.3 and i>400)”
+QSoas> apply-formula x=x+0.241
+QSoas> apply-formula x+=0.241
+QSoas> apply-formula x,y=y,x
+QSoas> apply-formula 'x=x+2 if (x>-0.3 and i>400)'
 ~~~
 
-In the latter example, i is the index.
+In the latter example, `i` is the index. In the latter example also, the
+**quotes** around the formula are necessary because it contains **spaces**.
 
-You can use functions like `abs()`, `log()`, `log10()` (see the list in
-the [Ruby Documentation](http://www.ruby-doc.org/core-1.9.3/Math.html),
-some additional special functions are available too, see the [QSoas
-documentation](qsoas.html#ruby)).
+You can use functions like `abs()`, `log()`, `log10()`, etc., and even
+special functions like `bessel_j0()` (see the full list
+[here](qsoas.html#ruby)).
 
 You can also use any output of the [cmd: stats]
 command in a formula. E.g. you can force `y[0]=0` by running the
-following command, which uses the option `/use-stats=true`:
+following command:
 
 ~~~
-QSoas> apply-formula 'y=y-$stats["y_first"]' /use-stats=true 
+QSoas> apply-formula y=y-$stats.y_first 
 ~~~
+
+You even have automatic completion on `$stats` !
 
 It may also be useful to use the command [cmd: edit]
 (which takes no argument) to see the X,Y table of values, and edit it.
@@ -392,19 +432,23 @@ you will see the coordinates of the nearest data point.
     if you use a mac).
 
 You can also zoom in every individual window while you are using the
-command [cmd: browse] to select files in the
-current directory: just point the mouse in a small window and scroll.
+command [cmd: browse] to select files in the current directory: just
+point the mouse in a small window and scroll.
+
+If you like to have a rectangle to zoom, use the [cmd: zoom] command.
 
 ## Save your data
 
 To save a buffer into a text file on your hard drive, use the command
-[cmd: save] (short command `s`) followed by a
-filename as an argument. The default file name is the name of the buffer
-you are saving. In our example:
+[cmd: save] (short command `s`) followed by the 
+filename of your choice as an argument, here `process-file1.dat`.
 
-`file1_from_-0.0273132_to_0.380707_filtered_linsub_mod_mod.dat`
+~~~
+QSoas> s processed-file1.dat
+~~~
 
-Alternatively, type `save` then return and see what happens.
+Alternatively, you can omit the file name and have QSoas prompt you
+for one.
 
 A header in the saved file has many lines of comments, normally starting
 with a \#, that summarize the "history" of this buffer. In our example,
@@ -422,12 +466,11 @@ that:
 …
 ~~~
 
-The stack is lost if you quit the program, unless you have saved it with
-the command [cmd: save-stack] (it can then be
-loaded with the command [cmd: load-stack]).
-There is no limit to the size of the stack (but QSoas won't work well
-with stacks larger than your computer's memory, which should not happen
-often anyway).
+The stack is lost if you quit the program, unless you have saved it
+with the command [cmd: save-stack] (it can then be loaded with the
+command [cmd: load-stack]).  There is no limit to the size of the
+stack (but QSoas will have a hard time with stacks larger than your
+computer's memory, which should not happen often anyway).
 
 ## See the content of the stack
 
@@ -514,7 +557,7 @@ QSoas> unflag flagged
 If you'are happy with the result and want to print it, try the command
 
 ~~~
-QSoas> print /file=“filename.pdf” /title=“text”
+QSoas> print /file=filename.pdf /title=text
 ~~~
 
 Without the option `/file=`, the plot will be sent to the default
@@ -555,10 +598,11 @@ shortcut for `F/R/temperature`, named `fara`. Hence, the above fit could
 have been written thus:
 
 ~~~
+QSoas> l file2.dat
 QSoas> fit-arb a/(1+exp(fara*(x-e0)))
 ~~~
 
-When you run the [fit-arb](qsoas.html#cmd-fit-arb) command, a new
+When you run the [cmd: fit-arb] command, a new
 window opens up, which shows
 
 -   the data set (red) and the fit (green) in the main graphic box,
@@ -574,7 +618,7 @@ window opens up, which shows
     it is Cmd, not Ctrl.
 -   a selector for the Fit engine.
 
-[img: images/7.jpg]
+[img: images/Tuto-9.jpg]
 
 Set the initial guess by inputting reasonable values for `a` (e.g. 1.5)
 and `e0` (e.g. 0.3). Check your initial guess by hitting the "Update
@@ -634,11 +678,12 @@ to use as an initial guess the former best parameters.
 Examine the following example
 
 ~~~
+QSoas> load-fits exampleFitFunctions.txt
 QSoas> l file2.dat
 QSoas> apply-formula y=y+2*x
-Applying formula ‘y=y+2*x’ to buffer file2.dat
-Current buffer now is: ‘file2_mod.dat’
-QSoas> combine-fits mynewfit ‘y1 + y2’ sigmoid line
+Applying formula 'y=y+2*x' to buffer file2.dat
+Current buffer now is: 'file2_mod.dat'
+QSoas> combine-fits mynewfit 'y1 + y2' sigmoid line
 QSoas> fit-mynewfit
 ~~~
 
@@ -664,7 +709,11 @@ equation to the two data sets at once.
 Load `file2.dat`, then `file3.dat`, so that file2 is in buffer \#1 and
 file3 in buffer \#0. See what the data look like.
 
-[img: images/8.jpg]
+~~~
+QSoas> l file2.dat file3.dat
+~~~
+
+[img: images/Tuto-10.jpg]
 
 We need an equation that could apply to both data sets. The example file
 `exampleFitFunctions.txt` also contains the following line:
@@ -682,6 +731,7 @@ To fit multiple data-sets at once, the command is called
 here, we shall use
 
 ~~~
+QSoas> load-fits exampleFitFunctions.txt
 QSoas> mfit-general-sigmoid 0 1
 ~~~
 
@@ -692,7 +742,7 @@ The fit window opens up. It looks the same as before except that now:
 -   each parameter can be fixed to a certain value and/or global
     (meaning that it must have the same values for all data sets).
 
-[img: images/9.jpg]
+[img: images/Tuto-11.jpg]
 
 Set `e0` to 0.3, and for this parameter, tick "fixed" and "global", then
 run the fit (Ctrl F). See what has happened by clicking on the
@@ -713,6 +763,7 @@ QSoas> mfit-general-sigmoid 0 1 /parameters=file2-file3.params /weight-buffers=t
 Now there is an other box, called "weight" which you can change for each
 data set. Give `file3.dat` a large weight and run the fit.
 
+{::comment}
 ## The same, but differently.
 
 The same operation can be run in a different manner, by making use of
@@ -753,7 +804,8 @@ QSoas> fit-arb (1-seg)*a1/(1+exp(fara*(x-e0)))+seg*a2/(1+exp(fara*(e0-x)))
 
 Set a reasonable guess for the value of `e0` before you hit "Fit".
 
-[img: images/10.jpg]
+[really one img here ?]
+{:/}
 
 ## 4) More advanced fit: one data set and its derivative, a single set of parameters {#tuto-define-derived-fit}
 
@@ -766,9 +818,9 @@ Let us illustrate this with `file2.dat`. Load the file, then run
 QSoas> filter-fft /derive=1
 ~~~
 
-Show the PS and select a cutoff of about 23, then quit to get into
-buffer \#0 something that resembles a derivative of a sigmoid, while
-`file2` is now in buffer \#1.
+Show the power spectrum (by hitting `p`) and select a cutoff of about
+23, then quit to get into buffer \#0 something that resembles a
+derivative of a sigmoid, while `file2` is now in buffer \#1.
 
 Alternatively, just run
 
@@ -839,63 +891,6 @@ def gas_injection(t, t0, c0, tau)
 end
 ~~~
 
-## Using built-in fitting functions {#tuto-builtin}
-
-Many `fit-`, `mfit-`, and `sim-` commands are built-in. They can be used
-to fit [exponential decays](qsoas.html#cmd-fit-exponential-decay),
-peaks, Nernstian sigmoids, or electrochemical data, as described in the
-[section about fits in the manual](qsoas.html#fits).
-
-For example, the command [cmd: fit-adsorbed]
-can be used for fitting Nernstian peaks to non-catalytic voltammetric
-signals for adsorbed species.
-
-The option `/species=` gives the number of peaks. The option
-`/distinct=true` allows the peak to have different areas.
-
-~~~
-QSoas> fit-adsorbed /species=2 /distinct=true
-~~~
-
-Here is the result of the fig of the forward sweep of `file5.dat`,
-setting `n=1` for the two peaks, but the values of `Gamma` are free.
-
-[img: images/nc-4.jpg]
-
-Here is another fit of the same data set, where the two values of
-$$n$$ are free and the two values of $$\Gamma$$ are forced to
-be identical (see `Gamma_1=Gamma_0` and the "fixed" box ticked)
-
-[img: images/nc-5.jpg]
-
-Other example, the [cmd: fit-lorentzian]
-command fits **a lorentzian function** (or a sum of lorentzian
-functions) to a signal. The following list of commands loads two
-spectra, and fits a sum of two Lorentzian functions to the two data
-sets, making sure that the peaks have the same positions and widths for
-the two data sets, but different amplitudes.
-
-~~~
-QSoas> load file4.txt
-Loading file: './file4.txt' using backend text
- -> OK
-QSoas> load file5.txt
-Loading file: './file5.txt' using backend text
- -> OK
-QSoas> mfit-lorentzian 0 1 /number=4 /parameters=file4-file5.params
-Loaded fit parameters from file file4-file5.params
-~~~
-
-Before running the fit, the parameters can been edited (CTRL+E) to force
-the amplitudes and positions to be positive (set up transformation:
-log).
-
-[img: images/12.jpg]
-
-Here is the result:
-
-[img: images/11.jpg]
-
 ## Forcing relations between parameters of the model(s).
 
 Imagine you want to analyse a 1st order relaxation (forward rate
@@ -921,16 +916,74 @@ Having an extra parameter may also be useful if you are fitting several
 models to several data sets, and want to impose a relation between the
 parameters of two distinct models.
 
+## Using built-in fitting functions {#tuto-builtin}
+
+Many `fit-`, `mfit-`, and `sim-` commands are built-in. They can be used
+to fit [exponential decays](qsoas.html#cmd-fit-exponential-decay),
+peaks, Nernstian sigmoids, or electrochemical data, as described in the
+[section about fits in the manual](qsoas.html#fits).
+
+For example, the command [cmd: fit-adsorbed]
+can be used for fitting Nernstian peaks to non-catalytic voltammetric
+signals for adsorbed species.
+
+The option `/species=` gives the number of peaks. The option
+`/distinct=true` allows the peak to have different areas.
+
+~~~
+QSoas> fit-adsorbed /species=2 /distinct=true
+~~~
+
+Here is the result of the fit of the backward sweep of `file5.dat`,
+setting `n=1` for the two peaks, but the values of `Gamma` are free.
+
+[img: images/Tuto-12.jpg]
+
+Here is another fit of the same data set, where the two values of
+$$n$$ are free and the two values of $$\Gamma$$ are forced to
+be identical (see `Gamma_1=Gamma_0` and the "fixed" box ticked)
+
+[img: images/Tuto-13.jpg]
+
+Other example, the [cmd: fit-lorentzian]
+command fits **a lorentzian function** (or a sum of lorentzian
+functions) to a signal. The following list of commands loads two
+spectra, and fits a sum of two Lorentzian functions to the two data
+sets, making sure that the peaks have the same positions and widths for
+the two data sets, but different amplitudes.
+
+~~~
+QSoas> load file4.txt
+Loading file: './file4.txt' using backend text
+ -> OK
+QSoas> load file5.txt
+Loading file: './file5.txt' using backend text
+ -> OK
+QSoas> mfit-lorentzian 0 1 /number=4 /parameters=file4-file5.params
+Loaded fit parameters from file file4-file5.params
+~~~
+
+Before running the fit, the parameters can been edited (CTRL+E) to force
+the amplitudes and positions to be positive (set up transformation:
+log).
+
+[img: images/Tuto-14.jpg]
+
+Here is the result:
+
+[img: images/Tuto-15.jpg]
+
+
 ## Fit one or several data set(s) using the numerical solution of a kinetic system {#tuto-kinetic-system}
 
 Imagine you are trying to analyze the change in a signal which is
 proportional to the concentration of a species A that disappears
-according to dA/dt=-k\*A. If the initial concentration of A equates 1,
+according to $$dA/dt=-k A$$. If the initial concentration of A equates 1,
 the initial concentration of B is 0 and k=0.5, then the data should look
 like the buffer generated using the following command,
 
 ~~~
-QSoas> generate-buffer .01 10 /samples=100 /formula=“y=exp(-0.5*x)+0.01*sin(100*x)”
+QSoas> generate-buffer .01 10 /samples=100 exp(-0.5*x)+0.01*sin(100*x)
 ~~~
 
 where the sin() function is added to simulate some noise.
@@ -961,9 +1014,12 @@ If the data set corresponds to the concentration of A, then fix `y_A` to
 Other kinetic systems may be defined, using this sort of syntax:
 
 ~~~
-A+A->B[k] # 2nd order, irreversible transformation of A into B with the 2nd order rate constant k1, so that dA/dt=-2*k*A**2
-A<=>B[k1][k2] # 1st order, reversible conversion between A and B, dA/dt=-k1*A+k2*B
-A+B<=>C[k1/c_B][k2]  # pseudo 1st order transformation of A into C
+# 2nd order, irreversible transformation of A into B with the 2nd order rate constant k1, so that dA/dt=-2*k*A**2
+A+A->B[k]
+# 1st order, reversible conversion between A and B, dA/dt=-k1*A+k2*B
+A<=>B[k1][k2]
+# pseudo 1st order transformation of A into C
+A+B<=>C[k1/c_B][k2]
 ~~~
 
 More complex schemes will be described in a text file that contains
@@ -1066,7 +1122,7 @@ QSoas> fit-ode relataxion.ode
 
 Your fit dialog box should look like this:
 
-[img: images/fit-ode.png]
+[img: images/Tuto-16.jpg]
 
 Note that by default, `QSoas` fits a linear combination of the
 integrated functions to the data; the coefficients are visible here as
@@ -1119,9 +1175,6 @@ QSoas> l file7.dat
 QSoas> fit-exponential-decay
 ~~~
 
-[img: images/fit-exp-nodist.png]
-
-
 To fit this with a uniform distribution of relaxation time constants,
 run:
 
@@ -1134,7 +1187,7 @@ Now, one can see that the fit is much better, in particular at the
 beginning of the relaxation, where the uniform dispersion is expected to
 make a significant difference.
 
-[img: images/fit-exp-dist.png]
+[img: images/Tuto-17.jpg]
 
 ### Dispersion Example 2: distribution of orientation of redox-active enzymes
 
@@ -1168,8 +1221,6 @@ QSoas> l file8.dat
 QSoas> fit-1el /parameters=file8.1el.params
 ~~~
 
-[img: images/fit-1el.png]
-
 As you can see, the fit is decent, but not perfect. This is due to the
 fact that there is a dispersion of values of $$k_0$$ (and hence of
 the values of the parameter `k2_ov_k0`). To fit that, we'll define
@@ -1189,8 +1240,6 @@ using
 QSoas> l file8.dat
 QSoas> fit-1el-distrib /parameters=file8.1el-distrib.params
 ~~~
-
-[img: images/fit-1el-distrib.png]
 
 See that the `k2_ov_k0` parameter has been replaced by `k2_ov_k0_max`
 and `k2_ov_k0_betadmax`, that correspond respectively to the highest
@@ -1336,7 +1385,7 @@ QSoas> mfit-exponential-decay /exponentials=2 flagged:joliot
 
 Your screen should look like that:
 
-[img: images/mfit-exponential.png]
+[img: images/Tuto-18.jpg]
 
 Note that the value of the perpendicular coordinate (here the
 wavelength) is shown next to the name of the buffer: `Z = 540`. We
@@ -1344,15 +1393,9 @@ impose that `tau_1` and `tau_2` are common to all buffers. We also set
 `x0` to `0` for all the buffers, though in practice this will not affect
 the determined times, and have very little effect on the amplitudes.
 
-Next, we fit, by clicking on the Fit button. This should look like that:
-
-[img: images/mfit-exponential-1.png]
-
-To get a better view of the overall fit, we can use the dropdown menu
-next to the arrows on the right hand side (it initially shows `1x1`).
-Here's how it looks with the `3x3` nup view:
-
-[img: images/mfit-exponential-2.png]
+Next, we fit, by clicking on the Fit button.  To get a better view of
+the overall fit, we can use the dropdown menu next to the arrows on
+the right hand side (it initially shows `1x1`). 
 
 QSoas has two visualization features that make it easy to work with
 perpendicular coordinates. First, it is possible to display the
@@ -1362,7 +1405,7 @@ spectrum. For that, click on the "Show parameters" option from the
 "Parameters" menu, and select all the amplitudes through the check
 boxes:
 
-[img: images/mfit-exponential-3.png]
+[img: images/Tuto-19.jpg]
 
 From that window, it is possible to push these spectra to the stack
 using the "Push visible" or "Push all" buttons. See how these spectra
@@ -1375,8 +1418,6 @@ important, as it shows artifacts that may not be obvious from the other
 view (such as data at a given time that is systematically not fitted
 correctly, which is hard to spot from the time view). To access to that,
 just select the "Show transposed data" item from the "Data" menu.
-
-[img: images/mfit-exponential-4.png]
 
 Not all the kinetic experiments can be fit by sums of exponentials. The
 approach described above is absolutely not limited to
@@ -1398,10 +1439,6 @@ Fitting this model to the data is just a matter of running
 QSoas> mfit-kinetic-system Joliot.txt flagged:joliot
 ~~~
 
-Your screen should look like that:
-
-[img: images/mfit-ks-1.png]
-
 For each buffer, the evolution of the concentration of the `A`, `B` and
 `C` are computed from the kinetic system shown above. The `y` value
 fitted to the data is a linear combination of the concentration, each
@@ -1422,10 +1459,6 @@ checkbox to make sure the initial concentration is the same for all
 buffers). The last thing before fitting is setting the `k_fast` and
 `k_slow` parameters to reasonable values, such as `1e4` and `1e3`
 respectively, and make sure they are global.
-
-Your screen should now look like that:
-
-[img: images/mfit-ks-2.png]
 
 Then, all that's left to do is to fit ! As before you can also look at
 the spectrum of species `A`, `B` and `C` using the "Show parameters"

@@ -87,7 +87,7 @@ FitEngineFactoryItem * FitEngine::defaultFactoryItem(int nb)
     if(it)
       return it;
   }
-  if(nb > 20) {
+  if(nb > FitEngine::buffersForMulti) {
     it = namedFactoryItem("multi");
     if(it)
       return it;

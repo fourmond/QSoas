@@ -1,0 +1,2 @@
+# Just stress testing of generating stuff
+generate-buffer 0 10 /samples=50000 /number=1000

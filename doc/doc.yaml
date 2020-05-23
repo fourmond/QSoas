@@ -6,5 +6,7 @@ faq.kd:
   title: "Frequently Asked Questions"
 changes.kd:
   title: "Changelog"
+downloads.kd:
+  title: "Download and compilation"
 style.css:
   copy: true

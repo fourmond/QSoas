@@ -3,6 +3,7 @@
 # Backup files:
 *~
 *.bak
+\#*
 
 QSoas
 Makefile
@@ -32,6 +33,7 @@ qrc_*.cpp
 *.dvi
 *.qch
 *.qhc
+*tmp
 
 # soas logs:
 soas.log*

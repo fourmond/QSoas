@@ -25,9 +25,26 @@ require 'optparse'
 require 'fileutils'
 require 'yaml'
 
-
+$make_web = false
 $target_dir = "out"
+
+opts = OptionParser.new do |opts|
+  opts.on("-w", "--web", "make website"
+         ) do |x|
+    $make_web = true
+    $target_dir = "www"
+  end
+end
+
+opts.parse!(ARGV)
+
 FileUtils.mkdir_p($target_dir)
+
+
+# The location of the command reference:
+$reference = $make_web ? "../reference/" : "qsoas.html"
+
+
 
 
 # A hash 
@@ -103,11 +120,14 @@ end
 # * the fits defined in
 # * the HTML code (once parsed with kramdown)
 # * (later:) the latex code
-$target = ""
 def parse_file(info)
 
   f = File.open(info['source'], "r")
   ofn = info['tmp'] || (info['source']+".tmp")
+  target = ""
+  if info['source'] != "qsoas.kd"
+    target = $reference
+  end
 
   info['sections'] = []
   info['commands'] = []
@@ -163,13 +183,14 @@ def parse_file(info)
           end
         end
       end
-      l.gsub!(/\[cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{$target}" + '#cmd-\\1)')
-      l.gsub!(/\[fit:\s*([^\]]+)\]/, '[`\\1`](' + "#{$target}" + '#cmd-fit-\\1)')
-      l.gsub!(/\[fit-cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{$target}" + '#fit-cmd-\\1)')
+      l.gsub!(/\[cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{target}" + '#cmd-\\1)')
+      l.gsub!(/\[fit:\s*([^\]]+)\]/, '[`\\1`](' + "#{target}" + '#cmd-fit-\\1)')
+      l.gsub!(/\[fit-cmd:\s*([^\]]+)\]/, '[`\\1`](' + "#{target}" + '#fit-cmd-\\1)')
       l.gsub!(/\[img:\s*([^\]]+)\]/) do |x|
         img = $1
         $images[img] = true
-        "![#{img}](#{img}){:class='image'} "
+        tgt = $make_web ? img.gsub(/^images\//, '/wp-content/uploads/qsoas/images/') : img
+        "![#{img}](#{tgt}){:class='image'} "
       end
       if l =~ /^\[.*:http/
         l << "{: class='external'}\n"
@@ -178,9 +199,11 @@ def parse_file(info)
     txt << l
   end
 
-  # Equation parsing is much much easier done with the full file.
-  txt.gsub!(/\$\$(.*?)\$\$/m) do |x|
-    convert_equation($1)
+  if ! $make_web
+    # Equation parsing is much much easier done with the full file.
+    txt.gsub!(/\$\$(.*?)\$\$/m) do |x|
+      convert_equation($1)
+    end
   end
 
   # Make sure all external links are marked as such 
@@ -221,71 +244,73 @@ for fn,info in files
   end
 end
 
-# Now, we parse the tips.
-puts "\nProcessing tips:"
-tips = []
-tips_kw = {}
-tips_ids = {}
-File.open("tips.kd") do |f|
-  cur = nil
-  kw = nil
-  id = nil
-  for l in f
-    if l =~ /^\{::comment.*tip: ([^{]+)/
-      kw = $1.strip
+if ! $make_web
+  # Now, we parse the tips.
+  puts "\nProcessing tips:"
+  tips = []
+  tips_kw = {}
+  tips_ids = {}
+  File.open("tips.kd") do |f|
+    cur = nil
+    kw = nil
+    id = nil
+    for l in f
+      if l =~ /^\{::comment.*tip: ([^{]+)/
+        kw = $1.strip
+        if cur
+          cur.close
+          cur = nil
+        end
+      end
+      if l =~ /^##\s*(.*\S)\s*\{#([^}]+)/
+        id = $2
+        tips << {
+          'id' => id,
+          'title' => $1,
+          'kw' => kw
+        }
+        if tips_ids.key? id
+          raise "Duplicate tip: #{id}"
+        end
+        tips_ids[id] = tips.last
+        for k in kw.split(';')
+          tips_kw[k] ||= 0
+          tips_kw[k] += 1
+        end
+        fn = "#{$target_dir}/tips-#{id}.kd"
+        cur = File::open(fn,'w')
+      end
       if cur
-        cur.close
-        cur = nil
+        cur.print l
       end
-    end
-    if l =~ /^##\s*(.*\S)\s*\{#([^}]+)/
-      id = $2
-      tips << {
-        'id' => id,
-        'title' => $1,
-        'kw' => kw
-      }
-      if tips_ids.key? id
-        raise "Duplicate tip: #{id}"
-      end
-      tips_ids[id] = tips.last
-      for k in kw.split(';')
-        tips_kw[k] ||= 0
-        tips_kw[k] += 1
-      end
-      fn = "#{$target_dir}/tips-#{id}.kd"
-      cur = File::open(fn,'w')
     end
     if cur
-      cur.print l
+      cur.close
     end
   end
-  if cur
-    cur.close
+
+  puts " -> found #{tips.size} tips"
+  puts "Tips keywords:"
+  for k in tips_kw.keys.sort
+    puts " * #{k}: #{tips_kw[k]}"
   end
-end
 
-puts " -> found #{tips.size} tips"
-puts "Tips keywords:"
-for k in tips_kw.keys.sort
-  puts " * #{k}: #{tips_kw[k]}"
-end
-
-puts ""
+  puts ""
 
 
-File::open("#{$target_dir}/tips.txt",'w') do |f|
-  for tip in tips
-    id = tip['id']
-    info = {}
-    info['source'] = "#{$target_dir}/tips-#{id}.kd"
-    info['tmp'] = "tips-#{id}.tmp.kd"
-    info['file'] = "tips-#{id}.html"
-    parse_file(info)
-    info['sections'] = nil
-    info['title'] = tip['title']
-    files[id] = info
-    f.puts "#{id}: #{tip['kw']}"
+  File::open("#{$target_dir}/tips.txt",'w') do |f|
+    for tip in tips
+      id = tip['id']
+      info = {}
+      info['source'] = "#{$target_dir}/tips-#{id}.kd"
+      info['tmp'] = "tips-#{id}.tmp.kd"
+      info['file'] = "tips-#{id}.html"
+      parse_file(info)
+      info['sections'] = nil
+      info['title'] = tip['title']
+      files[id] = info
+      f.puts "#{id}: #{tip['kw']}"
+    end
   end
 end
 
@@ -298,78 +323,83 @@ Dir.chdir($target_dir) do
   for file in files.values
     tgt = html_template.sub("#TITLE", file['title'])
     tgt.sub!("#CONTENT", file['html'])
-    File.open(file['file'],'w') { |f| f.print tgt }
+    File.open(file['file'],'w') { |f| f.print $make_web ? file['html'] : tgt }
   end
 end
 
-help_template = IO::read("qhp-template.xml")
-
-# Now, we generate the TOC:
-def sec_string(sec,file)
-  id = sec['id']
-  if id
-    id = "#{id}"
-  else
-    id = ""
-    puts "Warning: no ID for section #{sec['title']}"
-  end
-  title = sec["title"].gsub("'","")
-  if sec.key? 'sections'
-    
-    subs = sec['sections'].map {|s| sec_string(s,file) }
-    return "<section title='#{title}' ref='#{file['file']}#{id}'>\n" +
-           subs.join("\n") + "\n</section>"
-  else
-    return "<section title='#{title}' ref='#{file['file']}#{id}'/>"
-  end
-end
-
-toc = ""
 files_s = ""
-keywords = ""
-for file in files.values
-  if file['sections']
-    secs = file['sections'].map {|s| sec_string(s,file) }
-    toc << "<section title='#{file['title']}' ref='#{file['file']}'>\n" + 
-           secs.join("\n") + "</section>\n"
-  end
-
-  files_s << "<file>#{file['file']}</file>\n"
-
-  for cmd in file['commands']
-    keywords << "<keyword name='#{cmd} (command)' ref='#{file['file']}#cmd-#{cmd}'/>\n"
-  end
-  for cmd in file['fit-commands']
-    keywords << "<keyword name='#{cmd} (fit command)' ref='#{file['file']}#fit-cmd-#{cmd}'/>\n"
-  end
-  for cmd in file['fits']
-    keywords << "<keyword name='#{cmd} (fit)' ref='#{file['file']}#cmd-fit-#{cmd}'/>\n"
-  end
-end
-
 
 for f in $images.keys
+  FileUtils::mkdir_p("#{$target_dir}/images")
   if File::readable? f
-    FileUtils::cp(f, "out/images")
+    FileUtils::cp(f, "#{$target_dir}/images")
     files_s << "<file>#{f}</file>\n"
   else
     puts "Image not found: #{f}"
   end
 end
 
+if ! $make_web
+  help_template = IO::read("qhp-template.xml")
 
-help_template.sub!("#TOC", toc)
-help_template.sub!("#KEYWORDS", keywords)
-help_template.sub!("#FILES", files_s)
-coll = File::read("qsoas-help.qhcp")
+  # Now, we generate the TOC:
+  def sec_string(sec,file)
+    id = sec['id']
+    if id
+      id = "#{id}"
+    else
+      id = ""
+      puts "Warning: no ID for section #{sec['title']}"
+    end
+    title = sec["title"].gsub("'","")
+    if sec.key? 'sections'
+      
+      subs = sec['sections'].map {|s| sec_string(s,file) }
+      return "<section title='#{title}' ref='#{file['file']}#{id}'>\n" +
+             subs.join("\n") + "\n</section>"
+    else
+      return "<section title='#{title}' ref='#{file['file']}#{id}'/>"
+    end
+  end
 
-Dir.chdir($target_dir) do
+  toc = ""
+  keywords = ""
+  for file in files.values
+    if file['sections']
+      secs = file['sections'].map {|s| sec_string(s,file) }
+      toc << "<section title='#{file['title']}' ref='#{file['file']}'>\n" + 
+             secs.join("\n") + "</section>\n"
+    end
 
-  File.open("qsoas-help.qhp",'w') { |f| f.print help_template }
-  File.open(eqf, "w") { |f| YAML::dump($equations,f) }
-  File.open("qsoas-help.qhcp",'w') { |f| f.print coll }
+    files_s << "<file>#{file['file']}</file>\n"
 
-  generator = "/usr/lib/qt5/bin/qcollectiongenerator"
-  system("#{generator} qsoas-help.qhcp")
-  FileUtils.cp(["qsoas-help.qhc","qsoas-help.qch"],"..")
+    for cmd in file['commands']
+      keywords << "<keyword name='#{cmd} (command)' ref='#{file['file']}#cmd-#{cmd}'/>\n"
+    end
+    for cmd in file['fit-commands']
+      keywords << "<keyword name='#{cmd} (fit command)' ref='#{file['file']}#fit-cmd-#{cmd}'/>\n"
+    end
+    for cmd in file['fits']
+      keywords << "<keyword name='#{cmd} (fit)' ref='#{file['file']}#cmd-fit-#{cmd}'/>\n"
+    end
+  end
+
+
+
+
+  help_template.sub!("#TOC", toc)
+  help_template.sub!("#KEYWORDS", keywords)
+  help_template.sub!("#FILES", files_s)
+  coll = File::read("qsoas-help.qhcp")
+
+  Dir.chdir($target_dir) do
+
+    File.open("qsoas-help.qhp",'w') { |f| f.print help_template }
+    File.open(eqf, "w") { |f| YAML::dump($equations,f) }
+    File.open("qsoas-help.qhcp",'w') { |f| f.print coll }
+
+    generator = "/usr/lib/qt5/bin/qcollectiongenerator"
+    system("#{generator} qsoas-help.qhcp")
+    FileUtils.cp(["qsoas-help.qhc","qsoas-help.qch"],"..")
+  end
 end

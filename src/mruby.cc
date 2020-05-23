@@ -248,6 +248,8 @@ struct RProc * MRuby::generateCode(const QByteArray & code,
   RProc * proc = mrb_generate_code(mrb, p);
   mrbc_context_free(mrb, c);
   mrb_parser_free(p);
+  if(! proc)                    // include more context
+    throw RuntimeError("Failed to generate code");
   return proc;
 }
 

@@ -14,9 +14,9 @@ makes it possible to quickly browse through data to find the
 experiments you need.
 
 Finally, this release brings in a whole new offline documentation
-system, with and index and search facilities, and the possibility to
-specify manually all the command arguments and options in a dialog box
-when running a command from the menus.
+system, with and index and search facilities, startup tips, and the
+possibility to specify manually all the command arguments and options
+in a dialog box when running a command from the menus.
 
 See the full list of changes [below](#v3p0)
 
@@ -131,6 +131,7 @@ featuring:
     the others, still as a function of `x`.
   * a new offline documentation system with index and search
     capacities
+  * a series of startup tips
   * now, using the menus to start a command will show a dialog box in
     which one can choose the arguments and options
 

@@ -1009,10 +1009,12 @@ sf("startup-files", // command name
 
 // A rudimentary timer
 
-void timerCommand(const QString &, const CommandOptions & )
+void timerCommand(const QString &, const CommandOptions & opts)
 {
   static QDateTime time;
   static long kTime, uTime;
+  QString name;
+  updateFromOptions(opts, "name", name);
   if(time.isValid()) {
     qint64 dt = time.msecsTo(QDateTime::currentDateTime());
     time = QDateTime();
@@ -1020,7 +1022,14 @@ void timerCommand(const QString &, const CommandOptions & )
     long ut, kt;
     Utils::processorUsed(&ut, &kt);
 
-    QString message = QString("%1 seconds elapsed since timer start, (%2 total processor time, %3 user, %4 system)").
+    
+
+    QString message;
+    if(! name.isEmpty())
+      message = name + ": %1 tot, %2 proc, %3 us, %4 sys";
+    else
+      message = "%1 seconds elapsed since timer start, (%2 total processor time, %3 user, %4 system)";
+    message = message.
       arg(dt*0.001).arg((ut-uTime + kt - kTime)*0.001).
       arg((ut-uTime)*0.001).
       arg((kt - kTime)*0.001);
@@ -1030,10 +1039,18 @@ void timerCommand(const QString &, const CommandOptions & )
   else {
     time = QDateTime::currentDateTime();
     Utils::processorUsed(&uTime, &kTime);
-    Terminal::out << "Starting timer" << endl;
-    Debug::debug() << "Starting timer" << endl;
+    Terminal::out << "Starting timer " << name <<  endl;
+    if(name.isEmpty())
+      Debug::debug() << "Starting timer" << endl;
   }
 }
+
+static ArgumentList 
+tmO(QList<Argument *>() 
+    << new StringArgument("name",
+                          "Name",
+                          "name for the timer")
+    );
 
 
 static Command 
@@ -1041,7 +1058,7 @@ tm("timer", // command name
    effector(timerCommand), // action
    "file",  // group name
    NULL, // arguments
-   NULL, // options
+   &tmO, // options
    "Timer",
    "Start/stop timer");
 

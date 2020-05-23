@@ -1,0 +1,2 @@
+generate-buffer /samples=10001 -10 10
+apply-formula /extra-columns=1 y=x**2;y2=y**2

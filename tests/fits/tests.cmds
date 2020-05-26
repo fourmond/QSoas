@@ -25,3 +25,6 @@
 
 # Tests that running the fits in mfit or fit do the same thing
 @ compare-mfit-multiple-fit.cmds
+
+# Time-dependent parameters
+@ time-dependent-parameters.cmds

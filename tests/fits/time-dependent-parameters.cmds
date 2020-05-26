@@ -1,0 +1,11 @@
+# A series of tests for time-dependent parameters
+custom-fit /redefine=true tst a
+generate-buffer 0 20
+sim-tst parameters/tdp-1.params 0 /with=a:1,exp
+apply-formula 'y-= exp(-(x-5)/10) if x>=5'
+assert $stats.y_norm 0
+
+sim-tst parameters/tdp-1.params 0 /with=a:2,exp
+apply-formula 'y-= exp(-(x-5)/10) if x>=5'
+apply-formula 'y-= exp(-(x-12)/10) if x>=12'
+assert $stats.y_norm 1e-14

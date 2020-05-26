@@ -1,0 +1,22 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: tst (formula: a)
+# Command-line: fit-tst /with=a:2,exp
+a_1	1	!	0
+a_t_1	5	!	0
+a_tau_1	10	!	1
+a_2	1	!	0
+a_t_2	12	!	0
+a_tau_2	10	!	1
+buffer_weight[#0]	1
+buffer_name[#0]	generated.dat
+# The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
+# Final residuals: 10.8264
+# Buffer-local parameters: 
+# 
+# Buffer: generated.dat (weight: 1)
+# a_1	=	1	(fixed)
+# a_t_1	=	5	(fixed)
+# a_tau_1	=	10	+- 0	+- 0%
+# a_2	=	1	(fixed)
+# a_t_2	=	12	(fixed)
+# a_tau_2	=	10	+- 0	+- 0%

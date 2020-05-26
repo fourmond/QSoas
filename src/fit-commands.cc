@@ -950,6 +950,71 @@ trim("trim-trajectories", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+// QHash<QString, std::function<bool (const FitTrajectory &a,
+//                                    const FitTrajectory &b)> > sortKeys =
+//   {
+//    {"residuals", [](const FitTrajectory & a, const FitTrajectory &b) -> bool {
+//                    return a.residuals < b.residuals;
+//                  }
+//    },
+//   };
+
+static bool sortByResiduals(const FitTrajectory & a, const FitTrajectory &b)
+{
+  return a.residuals < b.residuals;
+}
+
+static bool sortByDate(const FitTrajectory & a, const FitTrajectory &b)
+{
+  return a.startTime < b.startTime;
+}
+
+QHash<QString, bool (*)(const FitTrajectory &a,
+                        const FitTrajectory &b) > sortKeys =
+  {
+   {"residuals", &::sortByResiduals},
+   {"date", &::sortByDate}
+  };
+
+static void sortTrajectoriesCommand(const QString & /*name*/,
+                                    const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  bool (*order)(const FitTrajectory &a, const FitTrajectory &b) =
+    &::sortByResiduals;
+  updateFromOptions(opts, "by", order);
+  std::function<bool (const FitTrajectory &a, const FitTrajectory &b) > fcn =
+    order;
+  bool reverse = false;
+  updateFromOptions(opts, "reverse", reverse);
+  if(reverse)
+    fcn = [order](const FitTrajectory &a, const FitTrajectory &b) -> bool {
+            return ! order(a,b);
+          };
+  ws->trajectories.sort(fcn);
+}
+
+
+ArgumentList sortTO(QList<Argument*>() 
+                    << new TemplateChoiceArgument<bool (*)(const FitTrajectory &a,
+                                                           const FitTrajectory &b) >(::sortKeys, "by", "Sort by","The rules to sort")
+                    << new BoolArgument("reverse", "Reverse",
+                                        "Reverses the sort order")
+                    );
+
+
+static Command 
+soT("sort-trajectories", // command name
+    effector(sortTrajectoriesCommand), // action
+    "fits",  // group name
+    NULL, // arguments
+    &sortTO, // options
+    "Sort trajectories",
+    "Sort the trajectories",
+    "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
 #include <fittrajectorydisplay.hh>
 
 static void browseTrajectoriesCommand(const QString & /*name*/,

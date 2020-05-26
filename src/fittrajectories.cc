@@ -104,11 +104,9 @@ FitTrajectories & FitTrajectories::operator<<(const FitTrajectory & trj)
 
 void FitTrajectories::sort()
 {
-  std::sort(trajectories.begin(), trajectories.end(),
-            [](FitTrajectory a, FitTrajectory b) -> bool {
-              return a.startTime < b.startTime;
-            });
-  clearCache();
+  sort([](const FitTrajectory &a, const FitTrajectory &b) -> bool {
+         return a.startTime < b.startTime;
+       });
 }
 
 void FitTrajectories::sortByResiduals()
@@ -116,6 +114,16 @@ void FitTrajectories::sortByResiduals()
   std::sort(trajectories.begin(), trajectories.end());
   clearCache();
 }
+
+void FitTrajectories::sort(std::function<bool (const FitTrajectory &a,
+                                               const FitTrajectory & b)> cmp)
+{
+  std::sort(trajectories.begin(), trajectories.end(), cmp);
+  clearCache();
+}
+
+
+
 
 const FitTrajectory & FitTrajectories::operator[](int idx) const
 {

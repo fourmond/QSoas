@@ -71,6 +71,10 @@ public:
   /// Sort by residuals
   void sortByResiduals();
 
+  /// Sort with an arbitrary comparison function
+  void sort(std::function<bool (const FitTrajectory &a,
+                                const FitTrajectory & b)> cmp);
+
   /// Returns the size of the list
   int size() const;
 

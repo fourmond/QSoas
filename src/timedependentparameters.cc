@@ -93,18 +93,26 @@ void TimeDependentParameters::parseFromStrings(const QStringList & specs, const 
       throw RuntimeError("Time-dependent parameter '%1' "
                          "should contain a single :").
         arg(specs[i]);
+
+    TimeDependentParameter * first = NULL;
+    QStringList params = s2[0].split(",");
+    for(const QString & p : params) {
+      int idx = indices(p);
+      if(idx < 0)
+        throw RuntimeError("Unknown parameter: %1").arg(p);
     
-    int idx = indices(s2[0]);
-    if(idx < 0)
-      throw RuntimeError("Unknown parameter: %1").arg(s2[0]);
-    
-    TimeDependentParameter * param = TimeDependentParameter::parseFromString(s2[1]);
-    (*this)[idx] = param;
-    param->baseIndex = baseIndex;
-    QList<ParameterDefinition> defs = param->parameters(s2[0]);
-    baseIndex += defs.size();
-    parameters += defs;
-    parameterNames[s2[0]] = idx;
+      TimeDependentParameter * param = TimeDependentParameter::parseFromString(s2[1]);
+      (*this)[idx] = param;
+      param->baseIndex = baseIndex;
+      if(first)
+        param->baseTDP = first;
+      else
+        first = param;
+      QList<ParameterDefinition> defs = param->parameters(p);
+      baseIndex += defs.size();
+      parameters += defs;
+      parameterNames[p] = idx;
+    }
   }
 }
 

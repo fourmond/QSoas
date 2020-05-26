@@ -55,6 +55,18 @@ public:
     return ret;
   };
 
+  QList<int> sharedParameters() const {
+    QList<int> rv;
+    if(!independentBits)
+      rv << 0;
+    for(int i = 0; i < number; i++) {
+      rv << (independentBits ? i*3+1 : 2*i+2);
+      if(independentBits)
+        rv << i*3+2;
+    }
+    return rv;
+  };
+
   /// Returns the value at the given time...
   double realComputeValue(double t, const double * parameters) const override {
     double value = 0;
@@ -413,6 +425,7 @@ TimeDependentParameter * TimeDependentParameter::parseFromString(const QString &
 
 TimeDependentParameter::TimeDependentParameter()
 {
+  baseTDP = NULL;
 }
 
 TimeDependentParameter::~TimeDependentParameter()
@@ -427,7 +440,13 @@ QList<int> TimeDependentParameter::sharedParameters() const
 
 void TimeDependentParameter::initialize(const double * parameters)
 {
-  realInitialize(parameters);
+  if(baseTDP) {
+    double v[realParameterNumber()];
+    spliceParameters(parameters, v);
+    realInitialize(v-baseIndex);
+  }
+  else
+    realInitialize(parameters);
 }
 
 void TimeDependentParameter::realInitialize(const double * /*parameters*/)
@@ -438,25 +457,95 @@ void TimeDependentParameter::realInitialize(const double * /*parameters*/)
 
 int TimeDependentParameter::parameterNumber() const
 {
+  if(baseTDP)
+    return realParameterNumber() - sharedParameters().size();
   return realParameterNumber();
 }
 
 QList<ParameterDefinition> TimeDependentParameter::parameters(const QString & prefix) const
 {
-  return realParameters(prefix);
+  QList<ParameterDefinition> rv = realParameters(prefix);
+  if(baseTDP) {
+    QList<int> lst = sharedParameters();
+    for(int i = lst.size()-1; i >= 0; --i)
+      rv.takeAt(lst[i]);
+  }
+  return rv;
 }
 
 double TimeDependentParameter::computeValue(double t, const double * parameters) const
 {
-  return realComputeValue(t, parameters);
+  if(baseTDP) {
+    double v[realParameterNumber()];
+    spliceParameters(parameters, v);
+    return realComputeValue(t, v-baseIndex);
+  }
+  else
+    return realComputeValue(t, parameters);
 }
 
 void TimeDependentParameter::setInitialGuess(double * parameters, const DataSet * ds) const
 {
-  return realSetInitialGuess(parameters, ds);
+  if(baseTDP) {
+    double v[realParameterNumber()];
+    realSetInitialGuess(v-baseIndex, ds);
+    spliceBackParameters(v, parameters);
+  }
+  else
+    realSetInitialGuess(parameters, ds);
 }
   
 Vector TimeDependentParameter::discontinuities(const double * parameters) const
 {
-  return realDiscontinuities(parameters);
+  if(baseTDP) {
+    double v[realParameterNumber()];
+    spliceParameters(parameters, v);
+    return realDiscontinuities(v-baseIndex);
+  }
+  else
+    return realDiscontinuities(parameters);
+}
+
+void TimeDependentParameter::spliceParameters(const double * parameters,
+                                              double * target) const
+{
+  if(!baseTDP)
+    throw InternalError("Using splice on a TDP without base");
+  if(baseTDP->baseTDP)
+    throw InternalError("Recursive TDP base");
+  int nb = realParameterNumber();
+  int base = 0;
+  int cur = 0;
+  QList<int> lst = sharedParameters();
+  for(int i = 0; i < nb; i++) {
+    if(lst.value(base, -1) == i) {
+      target[i] = parameters[baseTDP->baseIndex + i];
+      ++base;
+    }
+    else {
+      target[i] = parameters[baseIndex + cur];
+      ++cur;
+    }
+  }
+}
+
+void TimeDependentParameter::spliceBackParameters(const double * spliced,
+                                                  double * parameters) const
+{
+  if(!baseTDP)
+    throw InternalError("Using spliceBack on a TDP without base");
+  if(baseTDP->baseTDP)
+    throw InternalError("Recursive TDP base");
+  int nb = realParameterNumber();
+  int base = 0;
+  int cur = 0;
+  QList<int> lst = sharedParameters();
+  for(int i = 0; i < nb; i++) {
+    if(lst.value(base, -1) == i)
+      ++base;
+    else {
+      parameters[baseIndex + cur] = spliced[i];
+      ++cur;
+    }
+  }
 }

@@ -32,6 +32,8 @@ class Vector;
 class TimeDependentParameter {
 protected:
 
+  friend class TimeDependentParameters;
+
   /// This is used when one parameter is dependent on another.  When
   /// that is the case, the "time-related" parameters of the this one
   /// are not in fact parameters, but derived from the @a baseTDP
@@ -42,6 +44,10 @@ protected:
   /// sharedParameters() function.
   TimeDependentParameter * baseTDP;
 
+  /// Returns the parameters that are shared with the base. The list
+  /// MUST be sorted.
+  ///
+  /// @todo Maybe this should be cached in the initialize function ?
   virtual QList<int> sharedParameters() const;
 
   /// @name
@@ -73,8 +79,16 @@ protected:
   /// @}
 
 
-  /// Splice the parameters
-  void spliceParameters();
+  /// Splice the parameters, that is copy from @a parameters, which is
+  /// assumed to be the normal parameter argument, to @a target, an
+  /// array that contains all the argument necessary for this
+  /// TimeDependentParameter, including the one derived from
+  /// baseTDP. It is 0-based.
+  void spliceParameters(const double * parameters, double * target) const;
+
+  /// Put back parameters that do not concern baseTDP into @a
+  /// parameters, a parameters-like array.
+  void spliceBackParameters(const double * spliced, double * parameters) const;
   
 public:
 

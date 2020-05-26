@@ -55,7 +55,7 @@ public:
     return ret;
   };
 
-  QList<int> sharedParameters() const {
+  QList<int> sharedParameters() const override {
     QList<int> rv;
     if(!independentBits)
       rv << 0;
@@ -145,6 +145,14 @@ public:
     return ret;
   };
 
+  QList<int> sharedParameters() const override {
+    QList<int> rv;
+    for(int i = 1; i < number; i++)
+      rv << 2*i-1;              // The time
+    return rv;
+  };
+
+
   /// Returns the value at the given time...
   ///
   /// Assumes the values are increasing.
@@ -215,6 +223,13 @@ public:
                                  arg(i).arg(prefix), true);
     }
     return ret;
+  };
+
+  QList<int> sharedParameters() const override {
+    QList<int> rv;
+    for(int i = 1; i < number; i++)
+      rv << 2*i-1;              // The time
+    return rv;
   };
 
   /// Returns the value at the given time...
@@ -313,6 +328,19 @@ public:
     }
     return ret;
   };
+
+  QList<int> sharedParameters() const override {
+    QList<int> rv;
+    if(!independentBits)
+      rv << 0;
+    for(int i = 0; i < number; i++) {
+      rv << (independentBits ? i*3+2 : 2*i+3);
+      if(independentBits)
+        rv << i*3+3;
+    }
+    return rv;
+  };
+
 
   inline double t0(const double * parameters, int which) const {
     return parameters[baseIndex + (independentBits ? which*3+1 : 2*which+2)];

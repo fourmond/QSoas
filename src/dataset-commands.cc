@@ -2108,18 +2108,36 @@ sM("set-meta", // command name
 //////////////////////////////////////////////////////////////////////
 
 
-static void setPerpCommand(const QString &, QList<double> coords,
-                           const CommandOptions & /*opts*/)
+static void setPerpCommand(const QString &, 
+                           const CommandOptions & opts)
 {
   DataSet * ds = soas().currentDataSet();
-  ds->setPerpendicularCoordinates(coords.toVector());
+  QList<double> coords;
+  int row = -1;
+  updateFromOptions(opts, "coords", coords);
+  updateFromOptions(opts, "from-row", row);
+  if(row >= 0) {
+    // Mmmm, I really don't like the idea of modifying in place...
+    Vector perp;
+    for(int i = 0; i < ds->nbColumns(); i++) {
+      double v = ds->column(i).takeAt(row);
+      if(i > 0)
+        perp << v;
+    }
+    ds->setPerpendicularCoordinates(perp);
+  }
+  else
+    ds->setPerpendicularCoordinates(coords.toVector());
 }
 
 static ArgumentList 
-sPA(QList<Argument *>() 
+sPO(QList<Argument *>() 
     << new SeveralNumbersArgument("coords", 
                                   "Coordinates",
-                                  "The values of the coordinates (one for each Y column)")
+                                  "The values of the coordinates (one for each Y column)", true, true)
+    << new IntegerArgument("from-row", 
+                           "From row",
+                           "Sets the values from the given row (and delete it)")
    );
 
 // static ArgumentList 
@@ -2131,8 +2149,8 @@ static Command
 sP("set-perp", // command name
    effector(setPerpCommand), // action
    "buffer",  // group name
-   &sPA, // arguments
-   NULL, // options
+   NULL, // arguments
+   &sPO, // options
    "Set perpendicular",
    "Set perpendicular coordinates");
 

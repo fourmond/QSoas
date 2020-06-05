@@ -2120,11 +2120,12 @@ static void setPerpCommand(const QString &,
     // Mmmm, I really don't like the idea of modifying in place...
     Vector perp;
     for(int i = 0; i < ds->nbColumns(); i++) {
-      double v = ds->column(i).takeAt(row);
+      double v = ds->column(i)[row];
       if(i > 0)
         perp << v;
     }
     ds->setPerpendicularCoordinates(perp);
+    ds->removeRow(row);
   }
   else
     ds->setPerpendicularCoordinates(coords.toVector());

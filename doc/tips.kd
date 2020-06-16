@@ -684,3 +684,18 @@ command [cmd: echem-peaks] attempts to pair peaks in "forward" and
 This way, you can quickly access important parameters such as the
 peak-to-peak distance !
 
+{::comment} tip: basic;echem {:/}
+## Splitting/unwrapping voltammograms {#voltammograms}
+
+Voltammograms are composed of several parts in which the direction in
+which X grows changes (the forward and backward scans). QSoas provides
+many functions to handle them:
+
+  * [cmd: splita] gives the first part
+  * [cmd: splitb] gives the rest (all the parts after the first one)
+  * [cmd: split-monotonic] creates as many datasets as there are parts
+  where the direction of changes of X is different from the previous
+  * [cmd: unwrap] "unwraps" the voltammogram, by ensuring that the X
+  values are constantly growing.
+
+

@@ -178,11 +178,12 @@ QList<QList<Vector> > TextBackend::readColumns(QTextStream & s,
   Regex cmt = comments;
   updateFromOptions(opts, "comments", cmt);
 
+
   // look in the first lines to see if any starts with #, and use it
   // if(cmt.patternString() == "{auto}") {
   QString peek = s.device()->peek(1000);
   if(cmt.patternString() == "{auto}") {
-    QRegExp tryCmts("^#");
+    QRegExp tryCmts("^\\s*#");
     if(tryCmts.indexIn(peek) >= 0)
       cmt = Regex("/^#/");
     else
@@ -191,10 +192,11 @@ QList<QList<Vector> > TextBackend::readColumns(QTextStream & s,
 
   Regex sep = separator;
   // If we have a line starting with ##, we set {tabs} as default
-  QRegExp tryCmts2("^##");
+  QRegExp tryCmts2("^\\s*##");
 
-  if(tryCmts2.indexIn(peek) >= 0) 
+  if(tryCmts2.indexIn(peek) >= 0)
     sep = Regex("\t");
+
   updateFromOptions(opts, "separator", sep);
 
   QString dSep;

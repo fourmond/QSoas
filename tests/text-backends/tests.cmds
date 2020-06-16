@@ -1,1 +1,2 @@
-run-for-each gen-1.cmds data/gen*.dat
+run-for-each load-one.cmds data/gen*.dat
+@ output.cmds

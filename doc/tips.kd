@@ -657,3 +657,45 @@ You can also use jokers:
 ~~~
 QSoas> run-for-each script.cmds file*.dat 
 ~~~
+
+{::comment} tip: basic;peaks {:/}
+## Find peaks {#find-peaks}
+You can use the command [cmd: find-peak] to find the peaks in a
+dataset. By default, [cmd: find-peak] lists and displays all the peaks
+it finds, but you can limit that using `/peaks=3` for 3 peaks for
+instance.
+
+Using `/output=true` lets you write the information in the
+[output file](qsoas.html#output-file). [cmd: 1] and [cmd: 2] are
+shortcuts for respectively:
+
+~~~
+QSoas> find-peaks /peaks=1 /output=true
+QSoas> find-peaks /peaks=2 /output=true
+~~~
+
+{::comment} tip: basic;echem;peaks {:/}
+## Handling peaks in voltammograms {#echem-peaks}
+
+While [cmd: find-peaks] is useful for finding individual peaks, the
+command [cmd: echem-peaks] attempts to pair peaks in "forward" and
+"backward" scans, in a cyclic voltammogram.
+
+This way, you can quickly access important parameters such as the
+peak-to-peak distance !
+
+{::comment} tip: basic;echem {:/}
+## Splitting/unwrapping voltammograms {#voltammograms}
+
+Voltammograms are composed of several parts in which the direction in
+which X grows changes (the forward and backward scans). QSoas provides
+many functions to handle them:
+
+  * [cmd: splita] gives the first part
+  * [cmd: splitb] gives the rest (all the parts after the first one)
+  * [cmd: split-monotonic] creates as many datasets as there are parts
+  where the direction of changes of X is different from the previous
+  * [cmd: unwrap] "unwraps" the voltammogram, by ensuring that the X
+  values are constantly growing.
+
+

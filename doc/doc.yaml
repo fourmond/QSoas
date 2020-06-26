@@ -8,5 +8,7 @@ changes.kd:
   title: "Changelog"
 downloads.kd:
   title: "Download and compilation"
+examples.kd:
+  title: "Examples"
 style.css:
   copy: true
